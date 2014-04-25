@@ -277,7 +277,6 @@ type
     procedure ShowMPPlayMore(Msg: TGameResultMsg);
     procedure ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; IsHost: Boolean);
     procedure SetScriptedOverlay(aText: UnicodeString);
-    procedure AppendScriptedOverlay(aText: UnicodeString);
     procedure ReleaseDirectionSelector;
     function GetChatText: UnicodeString;
     function GetChatMessages: UnicodeString;
@@ -1841,6 +1840,7 @@ begin
     else
       MySpectator.FOWIndex := -1;
     fMinimap.Update(False); //Force update right now so FOW doesn't appear to lag
+    gGame.OverlayUpdate; //Display the overlay seen by the selected player
   end;
 
   if (Sender = Checkbox_ReplayFOW) then
@@ -2252,12 +2252,6 @@ end;
 procedure TKMGamePlayInterface.SetScriptedOverlay(aText: UnicodeString);
 begin
   Label_ScriptedOverlay.Caption := aText;
-end;
-
-
-procedure TKMGamePlayInterface.AppendScriptedOverlay(aText: UnicodeString);
-begin
-  Label_ScriptedOverlay.Caption := Label_ScriptedOverlay.Caption + aText;
 end;
 
 

@@ -48,6 +48,7 @@ type
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
     fSaveFile: UnicodeString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fGameLockedMutex: Boolean;
+    fOverlayText: array[0..MAX_HANDS] of UnicodeString; //Needed for replays. Not saved since it's translated
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
@@ -108,10 +109,11 @@ type
     function IsReplay: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
-    procedure ShowOverlay(aText: UnicodeString);
-    procedure ShowOverlayFormatted(aText: UnicodeString; aParams: array of const);
-    procedure OverlayAppend(aText: UnicodeString);
-    procedure OverlayAppendFormatted(aText: UnicodeString; aParams: array of const);
+    procedure OverlayUpdate;
+    procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
+    procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
+    procedure OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
+    procedure OverlayAppendFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: UnicodeString read fGameName;
     property CampaignName: TKMCampaignId read fCampaignName;
@@ -916,35 +918,73 @@ begin
 end;
 
 
-procedure TKMGame.ShowOverlay(aText: UnicodeString);
+procedure TKMGame.OverlayUpdate;
 begin
-  fGamePlayInterface.SetScriptedOverlay(ParseTextMarkup(aText));
+  fGamePlayInterface.SetScriptedOverlay(fOverlayText[MySpectator.HandIndex]);
 end;
 
 
-procedure TKMGame.ShowOverlayFormatted(aText: UnicodeString; aParams: array of const);
-var S: UnicodeString;
+procedure TKMGame.OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
+var S: UnicodeString; I: Integer;
+begin
+  S := ParseTextMarkup(aText);
+
+  if aPlayer = PLAYER_NONE then
+    for I := 0 to MAX_HANDS do
+      fOverlayText[I] := S
+  else
+    fOverlayText[aPlayer] := S;
+
+  OverlayUpdate;
+end;
+
+
+procedure TKMGame.OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
+var S: UnicodeString; I: Integer;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
   S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
-  fGamePlayInterface.SetScriptedOverlay(S);
+
+  if aPlayer = PLAYER_NONE then
+    for I := 0 to MAX_HANDS do
+      fOverlayText[I] := S
+  else
+    fOverlayText[aPlayer] := S;
+
+  OverlayUpdate;
 end;
 
 
-procedure TKMGame.OverlayAppend(aText: UnicodeString);
+procedure TKMGame.OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
+var S: UnicodeString; I: Integer;
 begin
-  fGamePlayInterface.AppendScriptedOverlay(ParseTextMarkup(aText));
+  S := ParseTextMarkup(aText);
+
+  if aPlayer = PLAYER_NONE then
+    for I := 0 to MAX_HANDS do
+      fOverlayText[I] := fOverlayText[I] + S
+  else
+    fOverlayText[aPlayer] := fOverlayText[aPlayer] + S;
+
+  OverlayUpdate;
 end;
 
 
-procedure TKMGame.OverlayAppendFormatted(aText: UnicodeString; aParams: array of const);
-var S: UnicodeString;
+procedure TKMGame.OverlayAppendFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
+var S: UnicodeString; I: Integer;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
   S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
-  fGamePlayInterface.AppendScriptedOverlay(S);
+
+  if aPlayer = PLAYER_NONE then
+    for I := 0 to MAX_HANDS do
+      fOverlayText[I] := fOverlayText[I] + S
+  else
+    fOverlayText[aPlayer] := fOverlayText[aPlayer] + S;
+
+  OverlayUpdate;
 end;
 
 

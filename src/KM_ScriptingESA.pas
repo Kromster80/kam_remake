@@ -2496,42 +2496,54 @@ end;
 procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-    gGame.ShowOverlay(UnicodeString(aText));
+  if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
+    gGame.OverlaySet(UnicodeString(aText), aPlayer)
+  else
+    LogError('Actions.OverlayTextSet: '+aText, [aPlayer]);
 end;
 
 
 procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
-  try
-    //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowOverlayFormatted(UnicodeString(aText), Params);
-  except
-    //Format may throw an exception
-    on E: EConvertError do LogError('Actions.OverlayTextSetFormatted: '+E.Message, []);
-  end;
+  if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
+  begin
+    try
+      //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
+      gGame.OverlaySetFormatted(UnicodeString(aText), Params, aPlayer);
+    except
+      //Format may throw an exception
+      on E: EConvertError do LogError('Actions.OverlayTextSetFormatted: EConvertError: '+E.Message, []);
+    end;
+  end
+  else
+    LogError('Actions.OverlayTextSetFormatted: '+aText, [aPlayer]);
 end;
 
 
 procedure TKMScriptActions.OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-    gGame.OverlayAppend(UnicodeString(aText));
+  if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
+    gGame.OverlayAppend(UnicodeString(aText), aPlayer)
+  else
+    LogError('Actions.OverlayTextAppend: '+aText, [aPlayer]);
 end;
 
 
 procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
-  try
-    //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.OverlayAppendFormatted(UnicodeString(aText), Params);
-  except
-    //Format may throw an exception
-    on E: EConvertError do LogError('Actions.OverlayTextAppendFormatted: '+E.Message, []);
-  end;
+  if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
+  begin
+    try
+      //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
+      gGame.OverlayAppendFormatted(UnicodeString(aText), Params, aPlayer);
+    except
+      //Format may throw an exception
+      on E: EConvertError do LogError('Actions.OverlayTextAppendFormatted: EConvertError: '+E.Message, []);
+    end;
+  end
+  else
+    LogError('Actions.OverlayTextAppendFormatted: '+aText, [aPlayer]);
 end;
 
 
