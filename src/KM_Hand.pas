@@ -3,7 +3,7 @@ unit KM_Hand;
 interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_ArmyEvaluation, KM_BuildList, KM_Deliveries, KM_FogOfWar,
+  KM_ArmyEvaluation, KM_BuildList, KM_Deliveries, KM_FogOfWar, KM_MessageLog,
   KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats,
   KM_Units, KM_UnitsCollection, KM_Units_Warrior, KM_UnitGroups, KM_ResHouses;
 
@@ -48,6 +48,7 @@ type
     fRoadsList: TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMHandStats;
     fUnitGroups: TKMUnitGroups;
+    fMessageLog: TKMMessageLog;
 
     fOwnerNikname: AnsiString; //Multiplayer owner nikname
     fPlayerType: THandType;
@@ -85,6 +86,7 @@ type
     property FogOfWar: TKMFogOfWar read fFogOfWar;
     property ArmyEval: TKMArmyEvaluation read fArmyEval;
     property UnitGroups: TKMUnitGroups read fUnitGroups;
+    property MessageLog: TKMMessageLog read fMessageLog;
 
     procedure SetHandIndex(aNewIndex: THandIndex);
     procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
@@ -252,6 +254,7 @@ begin
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(aHandIndex);
   fUnitGroups   := TKMUnitGroups.Create;
+  fMessageLog   := TKMMessageLog.Create;
 
   fOwnerNikname := '';
   fPlayerType   := hndComputer;
@@ -1129,6 +1132,7 @@ begin
   fHouses.Save(SaveStream);
   fStats.Save(SaveStream);
   fUnitGroups.Save(SaveStream);
+  fMessageLog.Save(SaveStream);
 
   SaveStream.Write(fHandIndex);
   SaveStream.WriteA(fOwnerNikname);
@@ -1155,6 +1159,7 @@ begin
   fHouses.Load(LoadStream);
   fStats.Load(LoadStream);
   fUnitGroups.Load(LoadStream);
+  fMessageLog.Load(LoadStream);
 
   LoadStream.Read(fHandIndex);
   LoadStream.ReadA(fOwnerNikname);

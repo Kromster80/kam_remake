@@ -2142,7 +2142,7 @@ end;
 procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-    gGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(0,0));
+    gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(0,0));
 end;
 
 
@@ -2151,7 +2151,7 @@ procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString
 begin
   try
     if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
+      gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
   except
     //Format may throw an exception
     on E: EConvertError do LogError('Actions.ShowMsgFormatted: '+E.Message, []);
@@ -2165,7 +2165,7 @@ begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
     if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(aX,aY));
+      gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(aX,aY));
   end
   else
     LogError('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
@@ -2179,7 +2179,7 @@ begin
     if gTerrain.TileInMapCoords(aX, aY) then
     begin
       if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
+        gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
     end
     else
       LogError('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);

@@ -131,6 +131,7 @@ uses
   KM_Maps in 'src\KM_Maps.pas',
   KM_MapEditor in 'src\KM_MapEditor.pas',
   KM_MasterServer in 'src\KM_MasterServer.pas',
+  KM_MessageLog in 'src\KM_MessageLog.pas',
   KM_MessageStack in 'src\KM_MessageStack.pas',
   KM_Minimap in 'src\KM_Minimap.pas',
   KM_MissionScript in 'src\KM_MissionScript.pas',

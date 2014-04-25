@@ -1287,14 +1287,8 @@ begin
     Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      //Hide messages for wrong player, in replays/spectating, and if we have lost
-      if (fOwner = MySpectator.HandIndex) and (gHands[fOwner].AI.WonOrLost <> wol_Lost)
-      and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
-      begin
-        //HouseName := fResource.HouseDat[HouseType].HouseName;
-        //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
-        gGame.ShowMessage(mkHouse, gResTexts[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
-      end;
+      //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
+      gGame.ShowMessage(mkHouse, TX_MSG_HOUSE_UNOCCUPIED, GetEntrance, fOwner);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end

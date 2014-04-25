@@ -74,7 +74,8 @@ type
     gic_GameSave,
     gic_GameAutoSave,
     gic_GameTeamChange,
-    gic_GameHotkeySet,  //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
+    gic_GameHotkeySet,      //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
+    gic_GameMessageLogRead, //Player marks a message in their log as read
 
     //VI.      Cheatcodes affecting gameplay (props)
 
@@ -92,8 +93,8 @@ const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmyLink,
     gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
     gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
-  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
-  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
+  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
+  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
   AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
 
 type
@@ -157,6 +158,7 @@ type
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aParam1, aParam2: Integer); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aValue: Integer); overload;
 
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
     procedure CmdTemp(aCommandType: TGameInputCommandType); overload;
@@ -394,6 +396,7 @@ begin
                                         and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
                                       gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
+      gic_GameMessageLogRead:     P.MessageLog[Params[1]].IsReadGIP := True;
       else                        Assert(false);
     end;
   end;
@@ -560,6 +563,13 @@ procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aParam1
 begin
   Assert(aCommandType in [gic_GameTeamChange, gic_GameHotkeySet]);
   TakeCommand(MakeCommand(aCommandType, [aParam1, aParam2]));
+end;
+
+
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: Integer);
+begin
+  Assert(aCommandType in [gic_GameMessageLogRead]);
+  TakeCommand(MakeCommand(aCommandType, [aValue]));
 end;
 
 

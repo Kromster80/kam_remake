@@ -466,10 +466,7 @@ begin
 
   Assert(Msg <> 0, gResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
-  //Don't show message for other players or during replays or spectating
-  if (fOwner = MySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
-    gGame.ShowMessage(mkHouse, gResTexts[Msg], fHome.GetEntrance);
-
+  gGame.ShowMessage(mkHouse, Msg, fHome.GetEntrance, fOwner);
   fHome.ResourceDepletedMsgIssued := True;
 end;
 

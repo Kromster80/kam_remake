@@ -107,8 +107,9 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
-    procedure ShowMessage(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
-    procedure ShowMessageFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
+    procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: THandIndex);
+    procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+    procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
     procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
@@ -173,7 +174,7 @@ uses
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
   KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound, KM_ScriptingESA,
-  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
+  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI;
 
 
 //Create template for the Game
@@ -902,13 +903,23 @@ begin
 end;
 
 
-procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: THandIndex);
+begin
+  //Once you have lost no messages can be received
+  if gHands[aHandIndex].AI.WonOrLost = wol_Lost then Exit;
+
+  //Store it in hand so it can be included in MP save file
+  gHands[aHandIndex].MessageLog.Add(aKind, aTextID, aLoc);
+end;
+
+
+procedure TKMGame.ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
   fGamePlayInterface.MessageIssue(aKind, ParseTextMarkup(aText), aLoc);
 end;
 
 
-procedure TKMGame.ShowMessageFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
+procedure TKMGame.ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
 var S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format

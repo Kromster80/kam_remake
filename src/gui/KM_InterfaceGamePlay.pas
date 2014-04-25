@@ -59,7 +59,7 @@ type
 
     //Saved (in singleplayer only)
     fLastSaveName: UnicodeString; //The file name we last used to save this file (used as default in Save menu)
-    fMessageList: TKMMessageList;
+    fMessageStack: TKMMessageStack;
     fSelection: array [0..9] of Integer;
 
     procedure Create_Controls;
@@ -315,7 +315,7 @@ implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
   KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks,
   KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
-  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList;
+  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog;
 
 
 procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
@@ -685,7 +685,7 @@ begin
   for I := 0 to 9 do
     fSelection[I] := -1; //Not set
 
-  fMessageList := TKMMessageList.Create;
+  fMessageStack := TKMMessageStack.Create;
   fSaves := TKMSavesCollection.Create;
 
   fTeamNames := TList.Create;
@@ -775,7 +775,7 @@ begin
   fGuiGameRatios.Free;
   fGuiGameStats.Free;
 
-  fMessageList.Free;
+  fMessageStack.Free;
   fSaves.Free;
   fTeamNames.Free;
   fAlerts.Free;
@@ -1439,8 +1439,8 @@ begin
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Highlight := (ShownMessage = I);
 
-  Label_MessageText.Caption := fMessageList.MessagesStack[ShownMessage].Text;
-  Button_MessageGoTo.Visible := not KMSamePoint(fMessageList.MessagesStack[ShownMessage].Loc, KMPoint(0,0));
+  Label_MessageText.Caption := fMessageStack[ShownMessage].Text;
+  Button_MessageGoTo.Visible := not KMSamePoint(fMessageStack[ShownMessage].Loc, KMPoint(0,0));
 
   Allies_Close(nil);
   fGuiGameChat.Hide;
@@ -1479,7 +1479,7 @@ begin
   OldMsg := ShownMessage;
 
   Message_Close(Sender);
-  fMessageList.RemoveStack(OldMsg);
+  fMessageStack.RemoveStack(OldMsg);
 
   Message_UpdateStack;
   DisplayHint(nil);
@@ -1488,7 +1488,7 @@ end;
 
 procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
 begin
-  fViewport.Position := KMPointF(fMessageList.MessagesStack[ShownMessage].Loc);
+  fViewport.Position := KMPointF(fMessageStack.MessagesStack[ShownMessage].Loc);
 end;
 
 
@@ -1500,10 +1500,10 @@ begin
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     //Disable and hide at once for safety
-    Image_Message[I].Enabled := (I <= fMessageList.CountStack - 1);
-    Image_Message[I].Visible := (I <= fMessageList.CountStack - 1);
-    if I <= fMessageList.CountStack - 1 then
-      Image_Message[i].TexID := fMessageList.MessagesStack[I].Icon;
+    Image_Message[I].Enabled := (I <= fMessageStack.CountStack - 1);
+    Image_Message[I].Visible := (I <= fMessageStack.CountStack - 1);
+    if I <= fMessageStack.CountStack - 1 then
+      Image_Message[i].TexID := fMessageStack.MessagesStack[I].Icon;
   end;
 end;
 
@@ -1862,15 +1862,14 @@ end;
 
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString);
 begin
-  fMessageList.Add(aKind, aText, KMPoint(0,0));
-  Message_UpdateStack;
-  gSoundPlayer.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
+  MessageIssue(aKind, aText, KMPoint(0,0));
 end;
 
 
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
-  fMessageList.Add(aKind, aText, aLoc);
+  if fUIMode in [umReplay, umSpectate] then Exit; //No message stack in replay/spectate
+  fMessageStack.Add(aKind, aText, aLoc);
   Message_UpdateStack;
   gSoundPlayer.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
 end;
@@ -1910,7 +1909,7 @@ end;
 procedure TKMGamePlayInterface.MessageLog_ItemClick(Sender: TObject);
 var
   ItemId, MessageId: Integer;
-  Msg: TKMMessage;
+  Msg: TKMLogMessage;
   H: TKMHouse;
 begin
   ItemId := ColumnBox_MessageLog.ItemIndex;
@@ -1919,8 +1918,9 @@ begin
   MessageId := ColumnBox_MessageLog.Rows[ItemId].Tag;
   if MessageId = -1 then Exit;
 
-  Msg := fMessageList.MessagesLog[MessageId];
-  Msg.IsRead := True;
+  Msg := gHands[MySpectator.HandIndex].MessageLog[MessageId];
+  Msg.IsReadLocal := True;
+  gGame.GameInputProcess.CmdGame(gic_GameMessageLogRead, MessageId);
 
   //Jump to location
   fViewport.Position := KMPointF(Msg.Loc);
@@ -1942,21 +1942,21 @@ var
   R: TKMListRow;
 begin
   //Exit if synced already
-  if not aFullRefresh and (fLastSyncedMessage = fMessageList.CountLog) then Exit;
+  if not aFullRefresh and (fLastSyncedMessage = gHands[MySpectator.HandIndex].MessageLog.CountLog) then Exit;
 
   //Clear the selection if a new item is added so the wrong one is not selected
-  if fLastSyncedMessage <> fMessageList.CountLog then
+  if fLastSyncedMessage <> gHands[MySpectator.HandIndex].MessageLog.CountLog then
     ColumnBox_MessageLog.ItemIndex := -1;
 
   K := 0;
-  for I := Max(fMessageList.CountLog - MAX_LOG_MSGS, 0) to fMessageList.CountLog - 1 do
+  for I := Max(gHands[MySpectator.HandIndex].MessageLog.CountLog - MAX_LOG_MSGS, 0) to gHands[MySpectator.HandIndex].MessageLog.CountLog - 1 do
   begin
-    R := MakeListRow(['', fMessageList.MessagesLog[I].Text], I);
+    R := MakeListRow(['', gHands[MySpectator.HandIndex].MessageLog[I].Text], I);
 
-    if fMessageList.MessagesLog[I].Kind = mkUnit then
+    if gHands[MySpectator.HandIndex].MessageLog[I].Kind = mkUnit then
     begin
       R.Cells[0].Pic := MakePic(rxGui, 588);
-      if fMessageList.MessagesLog[I].IsRead then
+      if gHands[MySpectator.HandIndex].MessageLog[I].IsRead then
       begin
         R.Cells[1].Color := $FF0080B0;
         R.Cells[1].HighlightColor := $FF006797;
@@ -1970,7 +1970,7 @@ begin
     else
     begin
       R.Cells[0].Pic := MakePic(rxGui, 587);
-      if fMessageList.MessagesLog[I].IsRead then
+      if gHands[MySpectator.HandIndex].MessageLog[I].IsRead then
       begin
         R.Cells[1].Color := $FFA0A0A0;
         R.Cells[1].HighlightColor := $FF808080;
@@ -1986,7 +1986,7 @@ begin
     Inc(K);
   end;
 
-  fLastSyncedMessage := fMessageList.CountLog;
+  fLastSyncedMessage := gHands[MySpectator.HandIndex].MessageLog.CountLog;
 end;
 
 
@@ -3233,7 +3233,7 @@ begin
   fGuiGameHouse.Save(SaveStream);
   SaveStream.WriteW(fLastSaveName);
   SaveStream.Write(fSelection, SizeOf(fSelection));
-  fMessageList.Save(SaveStream);
+  fMessageStack.Save(SaveStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
 end;
 
@@ -3252,7 +3252,7 @@ begin
   fGuiGameHouse.Load(LoadStream);
   LoadStream.ReadW(fLastSaveName);
   LoadStream.Read(fSelection, SizeOf(fSelection));
-  fMessageList.Load(LoadStream);
+  fMessageStack.Load(LoadStream);
 
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;
@@ -3350,12 +3350,13 @@ begin
   Label_MPChatUnread.Visible := (fUIMode in [umMP, umSpectate]) and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := fGuiGameChat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
-  if (fUIMode in [umSP, umMP]) and not Image_MessageLog.Visible and (fMessageList.CountLog > 0) then
+  if (fUIMode in [umSP, umMP]) and not Image_MessageLog.Visible and (gHands[MySpectator.HandIndex].MessageLog.CountLog > 0) then
   begin
     Image_MessageLog.Show;
     MessageStack_UpdatePositions;
   end;
-  Image_MessageLog.Highlight := not Panel_MessageLog.Visible and (fLastSyncedMessage <> fMessageList.CountLog) and not (aTickCount mod 10 < 5);
+  Image_MessageLog.Highlight := not Panel_MessageLog.Visible and not (aTickCount mod 10 < 5)
+                                and (fLastSyncedMessage <> gHands[MySpectator.HandIndex].MessageLog.CountLog);
 
   if Panel_MessageLog.Visible then
     MessageLog_Update(False);
