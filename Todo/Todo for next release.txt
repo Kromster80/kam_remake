@@ -1,3 +1,6 @@
+====================================
+Since r6157 (Winter Tournament Beta)
+====================================
 
 Bugs:
  +	In scripted maps using PlayerShareFog, after loading a multiplayer save fog is changed
@@ -7,9 +10,9 @@ Bugs:
  +	Wood/Stone on building sites render on top of trees in front of them
  +	Replays show the scripted overlay text for the selected player
  +	Message log is no long lost when saving in multiplayer, and messages no longer show in replays
+ +	Goals created in the MapEd are ignored and cause a warning due to MessageID not being 0
 	Trees, houses and units near the top row of the map may be visible in places where they overhang the top row of the map
 	Improve AI attacks as The Dark Lord suggested
-	Goals in the MapEd are ignored and cause a warning due to MessageID not being 0
 	File transfers needs to not overwrite the original maps in some way (folder for downloaded maps separate from "official" ones?)
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]
 

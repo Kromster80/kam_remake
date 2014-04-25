@@ -24,8 +24,8 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r6157';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = 'Winter Tournament Beta ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r6209';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Next Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';

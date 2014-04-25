@@ -103,6 +103,7 @@ begin
   if Sender = Button_GoalOk then
   begin
     //Copy Goal info from controls to Goals
+    FillChar(G, SizeOf(G), #0); //Make sure unused fields like Message are zero, not random data
     G.GoalType := TGoalType(Radio_GoalType.ItemIndex);
     G.GoalCondition := TGoalCondition(Radio_GoalCondition.ItemIndex);
     if G.GoalType = glt_Survive then
