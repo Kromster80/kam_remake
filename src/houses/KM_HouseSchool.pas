@@ -38,7 +38,7 @@ type
 
 implementation
 uses
-  KM_Units, KM_HandsCollection;
+  KM_Units, KM_HandsCollection, KM_Hand;
 
 
 { TKMHouseSchool }

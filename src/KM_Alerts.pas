@@ -65,7 +65,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar;
+uses KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar, KM_Hand;
 
 
 type

@@ -267,6 +267,7 @@ implementation
 uses
   KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_ResTexts, KM_ScriptingESA,
   KM_HandsCollection, KM_FogOfWar, KM_Units_Warrior, KM_Resource, KM_ResUnits, KM_HouseInn,
+  KM_Hand,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,

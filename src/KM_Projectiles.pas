@@ -56,7 +56,9 @@ var
 
 
 implementation
-uses KM_ResSound, KM_Sound, KM_RenderPool, KM_RenderAux, KM_HandsCollection, KM_Resource;
+uses
+  KM_ResSound, KM_Sound, KM_RenderPool, KM_RenderAux, KM_HandsCollection, KM_Resource,
+  KM_ResUnits, KM_Hand;
 
 
 const

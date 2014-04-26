@@ -1,7 +1,7 @@
 unit KM_Sound;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Dialogs, Forms, SysUtils, TypInfo,
+uses Classes, Dialogs, Forms, SysUtils, TypInfo, UITypes,
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   OpenAL, KromUtils,
   KM_Defaults, KM_Points, KM_ResSound;

@@ -29,7 +29,7 @@ type
 
 implementation
 uses
-  KM_RenderPool, KM_HandsCollection;
+  KM_RenderPool, KM_HandsCollection, KM_Hand;
 
 
 { TKMHouseInn }

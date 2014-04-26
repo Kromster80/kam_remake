@@ -40,7 +40,9 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Game, KM_Houses, KM_Units, KM_UnitGroups, KM_GameCursor, KM_Units_Warrior;
+uses
+  KM_HandsCollection, KM_Game, KM_Houses, KM_Units, KM_UnitGroups, KM_GameCursor,
+  KM_Units_Warrior, KM_Hand;
 
 
 { TKMSpectator }

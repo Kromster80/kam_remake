@@ -32,7 +32,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks;
+uses KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
 
 
 { TTaskDeliver }

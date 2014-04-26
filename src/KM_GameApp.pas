@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
+  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo, UITypes,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
   KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceDefaults,
   KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;

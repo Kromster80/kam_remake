@@ -44,7 +44,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts, KM_Utils;
+  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts, KM_Utils, KM_ResUnits;
 
 
 { TKMMapEdUnit }

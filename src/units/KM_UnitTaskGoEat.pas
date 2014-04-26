@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_ResWares;
+uses KM_HandsCollection, KM_ResWares, KM_Hand;
 
 
 { TTaskGoEat }

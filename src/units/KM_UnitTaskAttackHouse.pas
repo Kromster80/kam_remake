@@ -25,7 +25,9 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_ResSound, KM_Sound, KM_Resource, KM_Projectiles, KM_Game;
+uses
+  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Resource, KM_Projectiles, KM_Game,
+  KM_ResUnits;
 
 
 const

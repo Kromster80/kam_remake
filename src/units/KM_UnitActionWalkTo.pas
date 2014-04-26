@@ -95,7 +95,7 @@ type
 
 implementation
 uses
-  KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain,
+  KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain, KM_ResUnits,
   KM_UnitActionGoInOut, KM_UnitActionStay,
   KM_UnitTaskBuild,
   KM_Units_Warrior, KM_Log, KM_Resource;

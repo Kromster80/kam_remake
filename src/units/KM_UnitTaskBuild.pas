@@ -117,7 +117,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game;
+uses KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
 
 
 { TTaskBuildRoad }

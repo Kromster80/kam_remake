@@ -30,7 +30,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Terrain, KM_Units;
+uses KM_HandsCollection, KM_Terrain, KM_Units, KM_Hand;
 
 
 { TPathFindingRoad }

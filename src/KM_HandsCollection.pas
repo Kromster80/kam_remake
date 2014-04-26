@@ -72,7 +72,7 @@ var
 
 implementation
 uses
-  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields;
+  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields, KM_ResUnits;
 
 
 { TKMHandsCollection }

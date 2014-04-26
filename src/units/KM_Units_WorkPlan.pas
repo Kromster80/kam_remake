@@ -52,7 +52,7 @@ type
 
 
 implementation
-uses KM_Resource, KM_Utils;
+uses KM_Resource, KM_Utils, KM_Hand, KM_ResUnits;
 
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)

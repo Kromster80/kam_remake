@@ -215,7 +215,7 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingESA,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts,
-  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI;
+  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand;
 
 
 { TKMHouse }

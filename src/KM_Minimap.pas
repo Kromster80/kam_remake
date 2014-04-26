@@ -54,7 +54,9 @@ type
 
 
 implementation
-uses KM_AIFields, KM_HandsCollection, KM_Resource, KM_Units, KM_UnitGroups;
+uses
+  KM_AIFields, KM_HandsCollection, KM_Resource, KM_Units, KM_UnitGroups, KM_Hand, KM_ResUnits,
+  KM_AIInfluences;
 
 
 { TKMMinimap }

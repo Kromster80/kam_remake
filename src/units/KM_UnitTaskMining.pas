@@ -30,7 +30,9 @@ type
 
 
 implementation
-uses KM_Houses, KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResTexts, KM_ResHouses;
+uses
+  KM_Houses, KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResTexts, KM_ResHouses,
+  KM_Hand, KM_ResUnits;
 
 
 { TTaskMining }

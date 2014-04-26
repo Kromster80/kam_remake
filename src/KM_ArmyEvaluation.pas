@@ -37,7 +37,7 @@ procedure InitUnitStatEvals;
 
 
 implementation
-uses Math, KM_HandsCollection, KM_Resource, KM_ResUnits;
+uses Math, KM_HandsCollection, KM_Resource, KM_ResUnits, KM_Hand;
 
 
 var

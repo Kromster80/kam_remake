@@ -45,7 +45,9 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo, KM_HouseBarracks, KM_ResHouses;
+uses
+  KM_HandsCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo,
+  KM_HouseBarracks, KM_ResHouses, KM_ResUnits;
 
 
 { TUnitActionGoInOut }

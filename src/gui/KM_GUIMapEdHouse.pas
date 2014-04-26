@@ -56,7 +56,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI,
+  KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI, KM_Hand, KM_ResUnits,
   KM_ResWares, KM_HouseBarracks, KM_ResFonts, KM_Utils;
 
 

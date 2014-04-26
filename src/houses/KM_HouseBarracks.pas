@@ -44,7 +44,7 @@ type
 
 implementation
 uses
-  KM_Units, KM_Units_Warrior, KM_HandsCollection, KM_ResUnits;
+  KM_Units, KM_Units_Warrior, KM_HandsCollection, KM_ResUnits, KM_Hand;
 
 
 { TKMHouseBarracks }

@@ -150,7 +150,8 @@ uses
   KM_HandsCollection,
   KM_ResSound,
   KM_Pics,
-  KM_RenderPool;
+  KM_RenderPool,
+  KM_Hand;
 
 
 //Remove VCL panel and use flicker-free TMyPanel instead

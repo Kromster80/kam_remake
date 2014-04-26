@@ -3,7 +3,8 @@ unit KM_ScriptingESA;
 interface
 uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_UnitGroups, KM_ResHouses;
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units,
+  KM_UnitGroups, KM_ResHouses, KM_HouseCollection;
 
 
   //Two classes exposed to scripting States and Actions
@@ -2499,7 +2500,7 @@ begin
   if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
     gGame.OverlaySet(UnicodeString(aText), aPlayer)
   else
-    LogError('Actions.OverlayTextSet: '+aText, [aPlayer]);
+    LogError('Actions.OverlayTextSet: '+UnicodeString(aText), [aPlayer]);
 end;
 
 
@@ -2516,7 +2517,7 @@ begin
     end;
   end
   else
-    LogError('Actions.OverlayTextSetFormatted: '+aText, [aPlayer]);
+    LogError('Actions.OverlayTextSetFormatted: '+UnicodeString(aText), [aPlayer]);
 end;
 
 
@@ -2526,7 +2527,7 @@ begin
   if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
     gGame.OverlayAppend(UnicodeString(aText), aPlayer)
   else
-    LogError('Actions.OverlayTextAppend: '+aText, [aPlayer]);
+    LogError('Actions.OverlayTextAppend: '+UnicodeString(aText), [aPlayer]);
 end;
 
 
@@ -2543,7 +2544,7 @@ begin
     end;
   end
   else
-    LogError('Actions.OverlayTextAppendFormatted: '+aText, [aPlayer]);
+    LogError('Actions.OverlayTextAppendFormatted: '+UnicodeString(aText), [aPlayer]);
 end;
 
 

@@ -51,7 +51,9 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses;
+uses
+  KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses,
+  KM_Hand;
 
 
 { TKMMapEditor }

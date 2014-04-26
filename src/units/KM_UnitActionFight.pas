@@ -36,7 +36,8 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
+  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles,
+  KM_ResUnits, KM_Hand;
 
 
 const

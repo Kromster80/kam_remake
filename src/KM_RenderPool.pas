@@ -128,7 +128,8 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
-  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks, KM_FogOfWar;
+  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks,
+  KM_FogOfWar, KM_Hand;
 
 
 constructor TRenderPool.Create(aViewport: TViewport; aRender: TRender);
