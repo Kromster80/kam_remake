@@ -811,11 +811,11 @@ begin
 
   case aProj of
     pt_Arrow:     with gResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
-                    Id := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
+                    Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
     pt_Bolt:      with gResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
-                    Id := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
+                    Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
     pt_SlingRock: with gResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
-                    Id := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
+                    Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
     pt_TowerRock: Id := ProjectileBounds[aProj, 1] + 1;
     else          Id := 1; //Nothing?
   end;
