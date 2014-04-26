@@ -310,7 +310,7 @@ type
 {$IFNDEF PS_NOWIDESTRING}
 
   tbtwidestring = widestring;
-  tbtunicodestring = {$IF Defined(DELPHI2009UP) or Defined(FPC)}UnicodeString{$ELSE}widestring{$IFEND};
+  tbtunicodestring = {$IFDEF DELPHI2009UP}UnicodeString{$ELSE}widestring{$ENDIF};
 
   tbtwidechar = widechar;
   tbtNativeString = {$IFDEF DELPHI2009UP}tbtUnicodeString{$ELSE}tbtString{$ENDIF};
@@ -873,8 +873,11 @@ begin
   if FCount = 0 then Exit;
   if Nr < FCount then
   begin
-    Move(FData[Nr + 1], FData[Nr], (FCount - Nr) * PointerSize);
+    {dec count first, so we move one element less in the move below}
     Dec(FCount);
+    {only move if we aren't deleting the last element}
+    if Nr < FCount then
+      Move(FData[Nr + 1], FData[Nr], (FCount - Nr) * PointerSize);
 {$IFNDEF PS_NOSMARTLIST}
     Inc(FCheckCount);
     if FCheckCount > FMaxCheckCount then Recreate;
@@ -995,8 +998,9 @@ end;
 
 procedure TPSStringList.Clear;
 begin
-  while List.Count > 0 do Delete(0);
+  while List.Count > 0 do Delete(Pred(List.Count));
 end;
+
 
 constructor TPSStringList.Create;
 begin
@@ -1145,20 +1149,20 @@ procedure TPSPascalParser.Next;
 var
   Err: TPSParserErrorKind;
   FLastUpToken: TbtString;
-  function CheckReserved(Const S: AnsiString; var CurrTokenId: TPSPasToken): Boolean;
+  function CheckReserved(Const S: ShortString; var CurrTokenId: TPSPasToken): Boolean;
   var
     L, H, I: LongInt;
-    J: LongInt;
-    SName: AnsiString;
+    J: tbtChar;
+    SName: ShortString;
   begin
     L := 0;
-    J := Length(S);
+    J := S[0];
     H := KEYWORD_COUNT-1;
     while L <= H do
     begin
       I := (L + H) shr 1;
       SName := LookupTable[i].Name;
-      if J = Length(SName) then
+      if J = SName[0] then
       begin
         if S = SName then
         begin
@@ -1214,7 +1218,7 @@ var
 
           FLastUpToken := _GetToken(CurrTokenPos, CurrtokenLen);
           p := {$IFDEF DELPHI4UP}PAnsiChar{$ELSE}pchar{$ENDIF}(FLastUpToken);
-          while p^ <> #0 do
+          while p^<>#0 do
           begin
             if p^ in [#97..#122] then
               Dec(Byte(p^), 32);

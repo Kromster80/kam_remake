@@ -1,3 +1,8 @@
+{$IFDEF DELPHI}
+  {$DEFINE PS_RESBEFOREPARAMETERS}
+  {$DEFINE x64_string_result_as_varparameter}
+{$ENDIF}
+
 { implementation of x64 abi }
 //procedure DebugBreak; external 'Kernel32.dll';
 const
@@ -55,7 +60,8 @@ asm
   movd xmm2,_XMM2
   movd xmm3,_XMM3
   {$ELSE}
-  movsd xmm0,[_XMM0]
+  mov rax, [_XMM0]
+  movsd xmm0, qword ptr [rax]
   movsd xmm1,_XMM1
   movsd xmm2,_XMM2
   movsd xmm3,_XMM3
@@ -79,7 +85,8 @@ asm
 {$IFDEF FPC}
   movd [_XMM0],xmm0
 {$ELSE}
-  movsd [_XMM0],xmm0
+  mov rax, [_XMM0]
+  movsd qword ptr [rax], xmm0
 {$ENDIF}
 
   pop r9
@@ -697,3 +704,5 @@ begin
     CallData.Free;
   end;
 end;
+
+
