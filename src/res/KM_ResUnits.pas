@@ -181,7 +181,7 @@ begin
   //Shielded units get a small bonus
   if fUnitType in [ut_AxeFighter, ut_Swordsman, ut_HorseScout, ut_Cavalry] then
     if aIsBolt then
-      Result := Result + 0.5
+      Result := Result + 0.25
     else
       Result := Result + 1;
 end;
