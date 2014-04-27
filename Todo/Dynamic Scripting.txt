@@ -43,6 +43,10 @@ Implemented:
  6216	States.ClosestHouseMultipleTypes
  6216	States.ClosestUnitMultipleTypes
  6216	States.ClosestGroupMultipleTypes
+ 6220	Allow high volume boost for positional script sounds since they are much quieter than non-positional sounds
+ 6220	Actions.PlayWAVFadeMusic
+ 6220	States.HouseUnlocked
+ 6220	OnGroupHungry
 
 
 Accepted:
@@ -51,7 +55,6 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
-	States.HouseUnlocked(aPlayer, aType: integer): Boolean - returns true if specific player can build specific house type.
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
 	More options for AI: defend allies, auto attack range, start position
 	Way for players to hide the overlay
@@ -72,9 +75,7 @@ Proposed:
 	HousePlanType(aPlanID), returns the type of the house plan.
 	States.GroupAtDefPos(PlayerID, PositionID)
 	Actions.RemDefensePosition(PlayerID, PositionID)
-	Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
 	Add flag to allow to kill units with death animation, but without sound
-	Add parameter to WAV playback to mute music while its playing
 
 	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
 	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 
@@ -82,8 +83,7 @@ Proposed:
 	States.AI_closestEnemyHouse(PlayerID):Integer 
 	States.Path_getLength(fromX, fromY, toX, toY):Integer; 
 	States.Path_closestUnit(X, Y):Integer; 
-	States.Path_closestHouse(X, Y):Integer; 
-	OnGroupHungry(aGroupID); 
+	States.Path_closestHouse(X, Y):Integer;
 	Actions.GroupOrderAttackGroup(AttackersGroupID, GroupToAttackID: Integer)
 		  OnConsoleInput event
 		  GroupLock - Blocks player from giving orders to the group

@@ -54,7 +54,7 @@ type
     procedure UpdateSoundVolume(Value: Single);
 
     procedure PlayNotification(aSound: TAttackNotification);
-    procedure PlayWAVFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single);
+    procedure PlayWAVFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single; aFadesMusic: Boolean);
 
     procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech); overload;
     procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
@@ -454,11 +454,11 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayWAVFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single);
+procedure TKMSoundPlayer.PlayWAVFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single; aFadesMusic: Boolean);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
-  PlayWave(aFileName, KMPointF(Loc), Attenuated, Volume);
+  PlayWave(aFileName, KMPointF(Loc), Attenuated, Volume, aFadesMusic);
 end;
 
 

@@ -181,7 +181,9 @@ type
 
 
 implementation
-uses KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_Utils, KM_ResTexts, KM_RenderPool, KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI, KM_ResUnits;
+uses
+  KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_Utils, KM_ResTexts, KM_RenderPool,
+  KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI, KM_ResUnits, KM_ScriptingESA;
 
 
 const
@@ -1362,6 +1364,7 @@ begin
     dec(fTimeSinceHungryReminder, HUNGER_CHECK_FREQ);
     if fTimeSinceHungryReminder < 1 then
     begin
+      gScriptEvents.ProcGroupHungry(Self);
       if not fDisableHungerMessage then
         gGame.ShowMessage(mkUnit, TX_MSG_TROOP_HUNGRY, Position, fOwner);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time

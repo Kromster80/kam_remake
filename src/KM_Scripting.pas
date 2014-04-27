@@ -154,6 +154,7 @@ begin
       RegisterMethod('function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseTypeName(aHouseType: Byte): AnsiString');
+      RegisterMethod('function HouseUnlocked(aPlayer, aHouseType: Word): Boolean');
       RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
       RegisterMethod('function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
@@ -286,6 +287,7 @@ begin
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
       RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
+      RegisterMethod('procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
       RegisterMethod('procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word)');
 
       RegisterMethod('procedure RemoveField(X, Y: Word)');
@@ -331,7 +333,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..17] of record
+  Procs: array [0..18] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -343,6 +345,7 @@ const
   (Names: 'ONHOUSEDESTROYED';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEAFTERDESTROYED'; ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEPLANPLACED';     ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONGROUPHUNGRY';         ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONMARKETTRADE';         ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONMISSIONSTART';        ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONPLANROAD';            ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
@@ -484,6 +487,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseResourceAmount,     'HOUSERESOURCEAMOUNT');
       RegisterMethod(@TKMScriptStates.HouseType,               'HOUSETYPE');
       RegisterMethod(@TKMScriptStates.HouseTypeName,           'HOUSETYPENAME');
+      RegisterMethod(@TKMScriptStates.HouseUnlocked,           'HOUSEUNLOCKED');
       RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
       RegisterMethod(@TKMScriptStates.HouseWareBlocked,        'HOUSEWAREBLOCKED');
       RegisterMethod(@TKMScriptStates.HouseSchoolQueue,        'HOUSESCHOOLQUEUE');
@@ -616,6 +620,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerWin,             'PLAYERWIN');
 
       RegisterMethod(@TKMScriptActions.PlayWAV,           'PLAYWAV');
+      RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,  'PLAYWAVFADEMUSIC');
       RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PLAYWAVATLOCATION');
 
       RegisterMethod(@TKMScriptActions.RemoveField,       'REMOVEFIELD');

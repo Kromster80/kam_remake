@@ -33,6 +33,7 @@ type
     procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
+    procedure ProcGroupHungry(aGroup: TKMUnitGroup);
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
     procedure ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
@@ -89,6 +90,7 @@ type
     function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
     function HouseTypeName(aHouseType: Byte): AnsiString;
+    function HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
     function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
     function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
     function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
@@ -234,6 +236,7 @@ type
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
 
     procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
+    procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
 
     procedure RemoveField(X, Y: Word);
@@ -294,7 +297,10 @@ var
 begin
   TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONMARKETTRADE'));
   if @TestFunc <> nil then
+  begin
+    fIDCache.CacheHouse(aMarket, aMarket.UID); //Improves cache efficiency since aMarket will probably be accessed soon
     TestFunc(aMarket.UID, WareTypeToIndex[aFrom], WareTypeToIndex[aTo]);
+  end;
 end;
 
 
@@ -391,6 +397,21 @@ begin
   TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
   if @TestFunc <> nil then
     TestFunc(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
+end;
+
+
+procedure TKMScriptEvents.ProcGroupHungry(aGroup: TKMUnitGroup);
+var
+  TestFunc: TKMEvent1I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store house by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONGROUPHUNGRY'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheGroup(aGroup, aGroup.UID); //Improves cache efficiency since aGroup will probably be accessed soon
+    TestFunc(aGroup.UID);
+  end;
 end;
 
 
@@ -1151,6 +1172,19 @@ begin
   begin
     Result := '';
     LogError('States.HouseTypeName', [aHouseType]);
+  end;
+end;
+
+
+function TKMScriptStates.HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)]) then
+    Result := gHands[aPlayer].Stats.GetCanBuild(HouseIndexToType[aHouseType])
+  else
+  begin
+    Result := False;
+    LogError('States.HouseUnlocked', [aPlayer, aHouseType]);
   end;
 end;
 
@@ -1934,9 +1968,25 @@ begin
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(fullFileName) then Exit;
   if InRange(Volume, 0, 1) then
-    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume)
+    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, False)
   else
     LogError('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
+end;
+
+
+procedure TKMScriptActions.PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; aFadesMusic: Boolean);
+var
+  fullFileName: UnicodeString;
+begin
+  if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
+
+  fullFileName := ExeDir + Format(SFXPath, [aFileName]);
+  //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
+  if not FileExists(fullFileName) then Exit;
+  if InRange(Volume, 0, 1) then
+    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, True)
+  else
+    LogError('Actions.PlayWAVFadeMusic: ' + UnicodeString(aFileName), []);
 end;
 
 
@@ -1949,8 +1999,8 @@ begin
   fullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(fullFileName) then Exit;
-  if InRange(Volume, 0, 1) and gTerrain.TileInMapCoords(X,Y) then
-    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume)
+  if InRange(Volume, 0, 4) and gTerrain.TileInMapCoords(X,Y) then
+    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume, False)
   else
     LogError('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [X, Y]);
 end;
