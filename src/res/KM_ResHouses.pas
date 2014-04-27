@@ -16,6 +16,8 @@ type
     ht_Store,           ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,
     ht_WeaponSmithy,    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
+  THouseTypeSet = set of THouseType;
+
 const
   HOUSE_MIN = ht_ArmorSmithy;
   HOUSE_MAX = ht_Woodcutters;

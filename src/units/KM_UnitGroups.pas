@@ -168,7 +168,7 @@ type
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
     function GetGroupByMember(aUnit: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TKMUnitGroup;
-    function GetClosestGroup(aPoint: TKMPoint): TKMUnitGroup;
+    function GetClosestGroup(aPoint: TKMPoint; aTypes: TGroupTypeSet = [Low(TGroupType)..High(TGroupType)]): TKMUnitGroup;
 
     function WarriorTrained(aUnit: TKMUnitWarrior): TKMUnitGroup;
 
@@ -1692,7 +1692,7 @@ begin
 end;
 
 
-function TKMUnitGroups.GetClosestGroup(aPoint: TKMPoint): TKMUnitGroup;
+function TKMUnitGroups.GetClosestGroup(aPoint: TKMPoint; aTypes: TGroupTypeSet = [Low(TGroupType)..High(TGroupType)]): TKMUnitGroup;
 var
   I: Integer;
   BestDist, Dist: Single;
@@ -1700,7 +1700,7 @@ begin
   Result := nil;
   BestDist := MaxSingle; //Any distance will be closer than that
   for I := 0 to Count - 1 do
-    if not Groups[I].IsDead then
+    if (Groups[I].GroupType in aTypes) and not Groups[I].IsDead then
     begin
       Dist := KMLengthSqr(Groups[I].GetPosition, aPoint);
       if Dist < BestDist then

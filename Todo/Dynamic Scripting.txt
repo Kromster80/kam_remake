@@ -36,6 +36,12 @@ Implemented:
  6067	Actions.Log
  6114	OnHouseAfterDestroyed, OnUnitAfterDied
  6126	Actions.HouseBarracksGiveRecruit
+ 6216	OnMarketTrade
+ 6216	Actions.MarketTradeSet
+ 6216	States.MarketValue
+ 6216	States.ClosestHouseMultipleTypes
+ 6216	States.ClosestUnitMultipleTypes
+ 6216	States.ClosestGroupMultipleTypes
 
 
 Accepted:
@@ -46,6 +52,7 @@ Accepted:
 	Looping option for PlayWAV (useful for ambient sounds at a location)
 	States.HouseUnlocked(aPlayer, aType: integer): Boolean - returns true if specific player can build specific house type.
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
+	More options for AI: defend allies, auto attack range, start position
 
 Proposed:
 	Change position/alignment/font of overlay text

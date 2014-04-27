@@ -111,14 +111,20 @@ begin
     with Sender.AddClassN(nil, AnsiString(fStates.ClassName)) do
     begin
       Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
+      Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
 
-      RegisterMethod('function ClosestGroup(aPlayer, X, Y: Integer): Integer');
-      RegisterMethod('function ClosestHouse(aPlayer, X, Y: Integer): Integer');
-      RegisterMethod('function ClosestUnit(aPlayer, X, Y: Integer): Integer');
+      RegisterMethod('function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer');
+      RegisterMethod('function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
+      RegisterMethod('function ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer');
+
+      RegisterMethod('function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer');
+      RegisterMethod('function ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer');
+      RegisterMethod('function ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer');
 
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
+      RegisterMethod('function MarketValue(aRes: Integer): Single');
       RegisterMethod('function PeaceTime: Cardinal');
 
       RegisterMethod('function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
@@ -256,7 +262,9 @@ begin
       RegisterMethod('procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
       RegisterMethod('procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
       RegisterMethod('procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
+
       RegisterMethod('procedure Log(aText: AnsiString)');
+      RegisterMethod('procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer)');
 
       RegisterMethod('procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
       RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
@@ -322,7 +330,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..16] of record
+  Procs: array [0..17] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -334,6 +342,7 @@ const
   (Names: 'ONHOUSEDESTROYED';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEAFTERDESTROYED'; ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEPLANPLACED';     ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONMARKETTRADE';         ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONMISSIONSTART';        ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONPLANROAD';            ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONPLANFIELD';           ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
@@ -438,9 +447,14 @@ begin
       RegisterMethod(@TKMScriptStates.ClosestHouse,   'CLOSESTHOUSE');
       RegisterMethod(@TKMScriptStates.ClosestUnit,    'CLOSESTUNIT');
 
+      RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,   'CLOSESTGROUPMULTIPLETYPES');
+      RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypes,   'CLOSESTHOUSEMULTIPLETYPES');
+      RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypes,    'CLOSESTUNITMULTIPLETYPES');
+
       RegisterMethod(@TKMScriptStates.GameTime,       'GAMETIME');
       RegisterMethod(@TKMScriptStates.KaMRandom,      'KAMRANDOM');
       RegisterMethod(@TKMScriptStates.KaMRandomI,     'KAMRANDOMI');
+      RegisterMethod(@TKMScriptStates.MarketValue,    'MARKETVALUE');
       RegisterMethod(@TKMScriptStates.PeaceTime,      'PEACETIME');
 
       RegisterMethod(@TKMScriptStates.FogRevealed,    'FOGREVEALED');
@@ -578,7 +592,8 @@ begin
       RegisterMethod(@TKMScriptActions.HouseWareBlock,          'HOUSEWAREBLOCK');
       RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,    'HOUSEWEAPONSORDERSET');
 
-      RegisterMethod(@TKMScriptActions.Log, 'LOG');
+      RegisterMethod(@TKMScriptActions.Log,                        'LOG');
+      RegisterMethod(@TKMScriptActions.MarketSetTrade,             'MARKETSETTRADE');
 
       RegisterMethod(@TKMScriptActions.OverlayTextSet,             'OVERLAYTEXTSET');
       RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,    'OVERLAYTEXTSETFORMATTED');

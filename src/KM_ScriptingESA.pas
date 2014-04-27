@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units,
-  KM_UnitGroups, KM_ResHouses, KM_HouseCollection;
+  KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares;
 
 
   //Two classes exposed to scripting States and Actions
@@ -19,6 +19,8 @@ uses
   //2. Add method declaration to Compiler (TKMScripting.ScriptOnUses)
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
 type
+  TByteSet = set of Byte;
+
   TKMScriptEvents = class
   private
     fExec: TPSExec;
@@ -31,6 +33,7 @@ type
     procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
+    procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
     procedure ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
     procedure ProcPlayerDefeated(aPlayer: THandIndex);
@@ -51,9 +54,12 @@ type
   public
     constructor Create(aIDCache: TKMScriptingIdCache);
 
-    function ClosestGroup(aPlayer, X, Y: Integer): Integer;
-    function ClosestHouse(aPlayer, X, Y: Integer): Integer;
-    function ClosestUnit(aPlayer, X, Y: Integer): Integer;
+    function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
+    function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
+    function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer;
+    function ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer;
+    function ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer;
+    function ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer;
 
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
@@ -93,6 +99,7 @@ type
 
     function KaMRandom: Single;
     function KaMRandomI(aMax: Integer): Integer;
+    function MarketValue(aRes: Integer): Single;
     function PeaceTime: Cardinal;
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
@@ -210,6 +217,8 @@ type
     procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
     procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 
+    procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer);
+
     function PlanAddField(aPlayer, X, Y: Word): Boolean;
     function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
     function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
@@ -249,8 +258,9 @@ var
 
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
-  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares, KM_Log, KM_Utils,
-  KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses;
+  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
+  KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
+  KM_UnitsCollection;
 
 
 type
@@ -274,6 +284,16 @@ begin
 
   fExec := aExec;
   fIDCache := aIDCache;
+end;
+
+
+procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
+var
+  TestFunc: TKMEvent3I;
+begin
+  TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONMARKETTRADE'));
+  if @TestFunc <> nil then
+    TestFunc(aMarket.UID, WareTypeToIndex[aFrom], WareTypeToIndex[aTo]);
 end;
 
 
@@ -509,48 +529,163 @@ begin
 end;
 
 
-function TKMScriptStates.ClosestGroup(aPlayer, X, Y: Integer): Integer;
-var G: TKMUnitGroup;
+function TKMScriptStates.ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
+var
+  GTS: TGroupTypeSet;
+  G: TKMUnitGroup;
 begin
   Result := -1;
   if InRange(aPlayer, 0, gHands.Count - 1)
-  and gTerrain.TileInMapCoords(X, Y) then
+  and gTerrain.TileInMapCoords(X, Y)
+  and ((aGroupType = -1) or (aGroupType in [Byte(Low(TGroupType))..Byte(High(TGroupType))])) then
   begin
-    G := gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y));
-    if G <> nil then
+    if aGroupType = -1 then
+      GTS := [Low(TGroupType)..High(TGroupType)]
+    else
+      GTS := [TGroupType(aGroupType)];
+
+    G := gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y), GTS);
+    if (G <> nil) and not G.IsDead then
+    begin
       Result := G.UID;
+      fIDCache.CacheGroup(G, G.UID);
+    end;
   end
   else
-    LogError('States.ClosestGroup', [aPlayer, X, Y]);
+    LogError('States.ClosestGroup', [aPlayer, X, Y, aGroupType]);
 end;
 
 
-function TKMScriptStates.ClosestHouse(aPlayer, X, Y: Integer): Integer;
-var H: TKMHouse;
+function TKMScriptStates.ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
+var
+  B: Byte;
+  GTS: TGroupTypeSet;
+  G: TKMUnitGroup;
 begin
   Result := -1;
+  GTS := [];
+  for B in [Byte(Low(TGroupType))..Byte(High(TGroupType))] do
+    if B in aGroupTypes then
+      GTS := GTS + [TGroupType(B)];
+
   if InRange(aPlayer, 0, gHands.Count - 1)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
-    H := gHands[aPlayer].Houses.FindHouse(ht_Any, X, Y);
+    G := gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y), GTS);
+    if G <> nil then
+    begin
+      Result := G.UID;
+      fIDCache.CacheGroup(G, G.UID);
+    end;
+  end
+  else
+    LogError('States.ClosestGroupMultipleTypes', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer;
+var
+  HTS: THouseTypeSet;
+  H: TKMHouse;
+begin
+  Result := -1;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y)
+  and ((aHouseType = -1) or (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])) then
+  begin
+    if aHouseType = -1 then
+      HTS := [Low(THouseType)..High(THouseType)]
+    else
+      HTS := [HouseIndexToType[aHouseType]];
+
+    H := gHands[aPlayer].Houses.FindHouse(HTS, X, Y);
     if H <> nil then
+    begin
       Result := H.UID;
+      fIDCache.CacheHouse(H, H.UID);
+    end;
   end
   else
-    LogError('States.ClosestHouse', [aPlayer, X, Y]);
+    LogError('States.ClosestHouse', [aPlayer, X, Y, aHouseType]);
 end;
 
 
-function TKMScriptStates.ClosestUnit(aPlayer, X, Y: Integer): Integer;
-var U: TKMUnit;
+function TKMScriptStates.ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer;
+var
+  B: Byte;
+  HTS: THouseTypeSet;
+  H: TKMHouse;
 begin
   Result := -1;
+  HTS := [];
+  for B := Low(HouseIndexToType) to High(HouseIndexToType) do
+    if B in aHouseTypes then
+      HTS := HTS + [HouseIndexToType[B]];
+
   if InRange(aPlayer, 0, gHands.Count - 1)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
-    U := gHands[aPlayer].Units.GetClosestUnit(KMPoint(X,Y));
+    H := gHands[aPlayer].Houses.FindHouse(HTS, X, Y);
+    if H <> nil then
+    begin
+      Result := H.UID;
+      fIDCache.CacheHouse(H, H.UID);
+    end;
+  end
+  else
+    LogError('States.ClosestHouseMultipleTypes', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer;
+var
+  B: Byte;
+  UTS: TUnitTypeSet;
+  U: TKMUnit;
+begin
+  Result := -1;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y)
+  and ((aUnitType = -1) or (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)]))  then
+  begin
+    if aUnitType = -1 then
+      UTS := [Low(TUnitType)..High(TUnitType)]
+    else
+      UTS := [UnitIndexToType[aUnitType]];
+
+    U := gHands[aPlayer].Units.GetClosestUnit(KMPoint(X,Y), UTS);
     if U <> nil then
+    begin
       Result := U.UID;
+      fIDCache.CacheUnit(U, U.UID);
+    end;
+  end
+  else
+    LogError('States.ClosestUnit', [aPlayer, X, Y, aUnitType]);
+end;
+
+
+function TKMScriptStates.ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer;
+var
+  B: Byte;
+  UTS: TUnitTypeSet;
+  U: TKMUnit;
+begin
+  Result := -1;
+  UTS := [];
+  for B in [Low(UnitIndexToType)..High(UnitIndexToType)] do
+    if B in aUnitTypes then
+      UTS := UTS + [UnitIndexToType[B]];
+
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y) then
+  begin
+    U := gHands[aPlayer].Units.GetClosestUnit(KMPoint(X,Y), UTS);
+    if U <> nil then
+    begin
+      Result := U.UID;
+      fIDCache.CacheUnit(U, U.UID);
+    end;
   end
   else
     LogError('States.ClosestUnit', [aPlayer, X, Y]);
@@ -1240,6 +1375,21 @@ function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
   //No parameters to check, any integer is fine (even negative)
   Result := KM_Utils.KaMRandom(aMax);
+end;
+
+
+function TKMScriptStates.MarketValue(aRes: Integer): Single;
+var
+  Res: TWareType;
+begin
+  Result := -1; //-1 if ware is invalid
+  if aRes in [Low(WareIndexToType)..High(WareIndexToType)] then
+  begin
+    Res := WareIndexToType[aRes];
+    Result := gResource.Wares[Res].MarketPrice;
+  end
+  else
+    LogError('States.MarketValue', [aRes]);
 end;
 
 
@@ -2545,6 +2695,36 @@ begin
   end
   else
     LogError('Actions.OverlayTextAppendFormatted: '+UnicodeString(aText), [aPlayer]);
+end;
+
+
+procedure TKMScriptActions.MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer);
+var
+  H: TKMHouse;
+  ResFrom, ResTo: TWareType;
+begin
+  if (aMarketID > 0)
+  and (aFrom in [Low(WareIndexToType)..High(WareIndexToType)])
+  and   (aTo in [Low(WareIndexToType)..High(WareIndexToType)]) then
+  begin
+    H := fIDCache.GetHouse(aMarketID);
+    ResFrom := WareIndexToType[aFrom];
+    ResTo := WareIndexToType[aTo];
+    if (H is TKMHouseMarket) and not H.IsDestroyed
+    and TKMHouseMarket(H).AllowedToTrade(ResFrom)
+    and TKMHouseMarket(H).AllowedToTrade(ResTo) then
+    begin
+      if (TKMHouseMarket(H).ResFrom <> ResFrom) or (TKMHouseMarket(H).ResTo <> ResTo) then
+      begin
+        TKMHouseMarket(H).ResOrder[0] := 0; //First we must cancel the current trade
+        TKMHouseMarket(H).ResFrom := ResFrom;
+        TKMHouseMarket(H).ResTo := ResTo;
+      end;
+      TKMHouseMarket(H).ResOrder[0] := aAmount; //Set the new trade
+    end;
+  end
+  else
+    LogError('Actions.MarketSetTrade', [aMarketID, aFrom, aTo, aAmount]);
 end;
 
 

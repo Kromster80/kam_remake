@@ -24,7 +24,8 @@ type
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType: TUnitType; Loc: TKMPoint): TKMHouse;
-    function FindHouse(aType: THouseType; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
+    function FindHouse(aType: THouseType; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse; overload;
+    function FindHouse(const aTypes: THouseTypeSet; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse; overload;
     function GetTotalPointers: Cardinal;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -179,10 +180,19 @@ begin
 end;
 
 
+function TKMHousesCollection.FindHouse(aType: THouseType; X, Y: word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
+var HT: THouseTypeSet;
+begin
+  if aType = ht_Any then HT := [Low(THouseType)..High(THouseType)]
+  else                   HT := [aType];
+  Result := FindHouse(HT, X, Y, aIndex, aOnlyCompleted);
+end;
+
+
 //Find closest house to given position
 //or
 //Find house by index (1st, 2nd)
-function TKMHousesCollection.FindHouse(aType: THouseType; X, Y: word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
+function TKMHousesCollection.FindHouse(const aTypes: THouseTypeSet; X, Y: word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
 var
   I,ID: Integer;
   UsePosition: Boolean;
@@ -195,7 +205,7 @@ begin
   Assert((not UsePosition) or (aIndex = 1), 'Can''t find house basing both on Position and Index');
 
   for I := 0 to Count - 1 do
-  if ((Houses[I].HouseType = aType) or (aType = ht_Any))
+  if (Houses[I].HouseType in aTypes)
   and (Houses[I].IsComplete or not aOnlyCompleted)
   and not Houses[I].IsDestroyed then
   begin

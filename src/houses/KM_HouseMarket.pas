@@ -47,7 +47,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderPool, KM_Resource, KM_Sound, KM_ResSound;
+  KM_HandsCollection, KM_RenderPool, KM_Resource, KM_Sound, KM_ResSound, KM_ScriptingESA;
 
 
 { TKMHouseMarket }
@@ -177,6 +177,7 @@ begin
     gHands[fOwner].Stats.WareProduced(fResTo, TradeCount * RatioTo);
     gHands[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
+    gScriptEvents.ProcMarketTrade(Self, fResFrom, fResTo);
     gSoundPlayer.Play(sfxn_Trade, fPosition);
   end;
 end;

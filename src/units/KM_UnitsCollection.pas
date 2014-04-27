@@ -27,7 +27,7 @@ type
     procedure OwnerUpdate(aOwner: THandIndex);
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
     function GetUnitByUID(aUID: Integer): TKMUnit;
-    function GetClosestUnit(aPoint: TKMPoint): TKMUnit;
+    function GetClosestUnit(aPoint: TKMPoint; aTypes: TUnitTypeSet = [Low(TUnitType)..High(TUnitType)]): TKMUnit;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetTotalPointers: Integer;
     procedure Save(SaveStream: TKMemoryStream);
@@ -174,7 +174,7 @@ begin
 end;
 
 
-function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint): TKMUnit;
+function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint; aTypes: TUnitTypeSet = [Low(TUnitType)..High(TUnitType)]): TKMUnit;
 var
   I: Integer;
   BestDist, Dist: Single;
@@ -182,7 +182,7 @@ begin
   Result := nil;
   BestDist := MaxSingle; //Any distance will be closer than that
   for I := 0 to Count - 1 do
-    if not Units[I].IsDeadOrDying and Units[I].Visible then
+    if not Units[I].IsDeadOrDying and Units[I].Visible and (Units[I].UnitType in aTypes) then
     begin
       Dist := KMLengthSqr(Units[I].GetPosition, aPoint);
       if Dist < BestDist then
