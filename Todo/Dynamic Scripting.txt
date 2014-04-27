@@ -39,6 +39,7 @@ Implemented:
  6216	OnMarketTrade
  6216	Actions.MarketTradeSet
  6216	States.MarketValue
+ 6217	States.MarketLossFactor
  6216	States.ClosestHouseMultipleTypes
  6216	States.ClosestUnitMultipleTypes
  6216	States.ClosestGroupMultipleTypes

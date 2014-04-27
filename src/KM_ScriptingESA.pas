@@ -99,6 +99,7 @@ type
 
     function KaMRandom: Single;
     function KaMRandomI(aMax: Integer): Integer;
+    function MarketLossFactor: Single;
     function MarketValue(aRes: Integer): Single;
     function PeaceTime: Cardinal;
 
@@ -1375,6 +1376,12 @@ function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
   //No parameters to check, any integer is fine (even negative)
   Result := KM_Utils.KaMRandom(aMax);
+end;
+
+
+function TKMScriptStates.MarketLossFactor: Single;
+begin
+  Result := MARKET_TRADEOFF_FACTOR;
 end;
 
 
