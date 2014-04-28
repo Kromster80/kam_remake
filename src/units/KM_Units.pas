@@ -1717,9 +1717,6 @@ begin
         Result := true;
         exit;
       end;
-      //OnWarriorWalkOut usually happens in TUnitActionGoInOut, otherwise the warrior doesn't get assigned a group
-      if (Self is TKMUnitWarrior) and Assigned(TKMUnitWarrior(Self).OnWarriorWalkOut) then
-        TKMUnitWarrior(Self).OnWarriorWalkOut(TKMUnitWarrior(Self));
 
       //Make sure these are reset properly
       Assert(not gTerrain.HasUnit(fCurrPosition));
@@ -1728,6 +1725,12 @@ begin
       fPrevPosition := fCurrPosition;
       fNextPosition := fCurrPosition;
       gTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
+
+      //OnWarriorWalkOut usually happens in TUnitActionGoInOut, otherwise the warrior doesn't get assigned a group
+      //Do this after setting terrain usage since OnWarriorWalkOut calls script events
+      if (Self is TKMUnitWarrior) and Assigned(TKMUnitWarrior(Self).OnWarriorWalkOut) then
+        TKMUnitWarrior(Self).OnWarriorWalkOut(TKMUnitWarrior(Self));
+
       if GetUnitAction is TUnitActionGoInOut then
         SetActionLockedStay(0, ua_Walk); //Abandon the walk out in this case
 
