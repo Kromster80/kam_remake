@@ -224,6 +224,8 @@ begin
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   gLog.AddTime('<== Game creation is done ==>');
+
+  gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
   fScripting := TKMScripting.Create;
 
   case PathFinderToUse of
@@ -263,6 +265,7 @@ begin
   FreeAndNil(gProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fScripting);
+  FreeAndNil(gLoopSounds);
 
   FreeThenNil(fGamePlayInterface);
   FreeThenNil(fMapEditorInterface);
@@ -1178,6 +1181,7 @@ begin
     fPathfinding.Save(SaveStream);
     gProjectiles.Save(SaveStream);
     fScripting.Save(SaveStream);
+    gLoopSounds.Save(SaveStream);
 
     fTextMission.Save(SaveStream);
 
@@ -1304,6 +1308,7 @@ begin
   fPathfinding.Load(LoadStream);
   gProjectiles.Load(LoadStream);
   fScripting.Load(LoadStream);
+  gLoopSounds.Load(LoadStream);
 
   fTextMission := TKMTextLibraryMulti.Create;
   fTextMission.Load(LoadStream);
@@ -1484,6 +1489,9 @@ end;
 
 procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
+  if aGlobalTickCount mod 11 = 0 then
+    gLoopSounds.UpdateState; //Doesn't need to run every tick
+
   if not fIsPaused then
     fActiveInterface.UpdateState(aGlobalTickCount);
 

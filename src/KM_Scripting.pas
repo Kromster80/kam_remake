@@ -289,6 +289,9 @@ begin
       RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
       RegisterMethod('procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
       RegisterMethod('procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word)');
+      RegisterMethod('function PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer');
+      RegisterMethod('function PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer');
+      RegisterMethod('procedure StopLoopedWAV(aLoopIndex: Integer)');
 
       RegisterMethod('procedure RemoveField(X, Y: Word)');
       RegisterMethod('procedure RemoveRoad(X, Y: Word)');
@@ -622,6 +625,9 @@ begin
       RegisterMethod(@TKMScriptActions.PlayWAV,           'PLAYWAV');
       RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,  'PLAYWAVFADEMUSIC');
       RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PLAYWAVATLOCATION');
+      RegisterMethod(@TKMScriptActions.PlayWAVLooped,     'PLAYWAVLOOPED');
+      RegisterMethod(@TKMScriptActions.PlayWAVAtLocationLooped, 'PLAYWAVATLOCATIONLOOPED');
+      RegisterMethod(@TKMScriptActions.StopLoopedWAV,     'STOPLOOPEDWAV');
 
       RegisterMethod(@TKMScriptActions.RemoveField,       'REMOVEFIELD');
       RegisterMethod(@TKMScriptActions.RemoveRoad,        'REMOVEROAD');

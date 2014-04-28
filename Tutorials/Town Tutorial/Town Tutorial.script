@@ -53,3 +53,8 @@ begin
 
   if States.GameTime = NextTime then Actions.ShowMsg(0, NextMsg);
 end;
+
+procedure OnMissionStart;
+begin
+  Actions.PlayWavAtLocationLooped(-1, 'waterfall', 1, 65, 18);
+end;

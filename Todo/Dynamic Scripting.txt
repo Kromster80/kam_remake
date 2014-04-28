@@ -47,6 +47,9 @@ Implemented:
  6220	Actions.PlayWAVFadeMusic
  6220	States.HouseUnlocked
  6220	OnGroupHungry
+ 6222	Actions.PlayWAVLooped
+ 6222	Actions.PlayWAVAtLocationLooped
+ 6222	Actions.StopLoopedWAV
 
 
 Accepted:
@@ -54,7 +57,6 @@ Accepted:
 	Allow to query count of placed house plans
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
-	Looping option for PlayWAV (useful for ambient sounds at a location)
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
 	More options for AI: defend allies, auto attack range, start position
 	Way for players to hide the overlay

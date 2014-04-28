@@ -238,6 +238,9 @@ type
     procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
+    function PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
+    function PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer;
+    procedure StopLoopedWAV(aLoopIndex: Integer);
 
     procedure RemoveField(X, Y: Word);
     procedure RemoveRoad(X, Y: Word);
@@ -1974,7 +1977,7 @@ begin
 end;
 
 
-procedure TKMScriptActions.PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; aFadesMusic: Boolean);
+procedure TKMScriptActions.PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
 var
   fullFileName: UnicodeString;
 begin
@@ -2000,9 +2003,44 @@ begin
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(fullFileName) then Exit;
   if InRange(Volume, 0, 4) and gTerrain.TileInMapCoords(X,Y) then
-    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume, False)
+  begin
+    if MySpectator.FogOfWar.CheckTileRevelation(X, Y) > 0 then
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume, False);
+  end
   else
     LogError('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [X, Y]);
+end;
+
+
+function TKMScriptActions.PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
+var
+  FileName: UnicodeString;
+begin
+  Result := -1;
+  FileName := Format(SFXPath, [aFileName]);
+  if InRange(Volume, 0, 1) then
+    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(0,0), Volume)
+  else
+    LogError('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
+end;
+
+
+function TKMScriptActions.PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer;
+var
+  FileName: UnicodeString;
+begin
+  Result := -1;
+  FileName := Format(SFXPath, [aFileName]);
+  if InRange(Volume, 0, 4) and gTerrain.TileInMapCoords(X,Y) then
+    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(X,Y), Volume)
+  else
+    LogError('Actions.PlayWAVAtLocationLooped: ' + UnicodeString(aFileName), [X, Y]);
+end;
+
+
+procedure TKMScriptActions.StopLoopedWAV(aLoopIndex: Integer);
+begin
+  gLoopSounds.RemoveLoopSound(aLoopIndex);
 end;
 
 
