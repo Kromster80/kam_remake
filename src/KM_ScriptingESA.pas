@@ -19,14 +19,41 @@ uses
   //2. Add method declaration to Compiler (TKMScripting.ScriptOnUses)
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
 type
+  TKMScriptEvent = procedure of object;
+  TKMScriptEvent1I = procedure (aIndex: Integer) of object;
+  TKMScriptEvent2I = procedure (aIndex, aParam: Integer) of object;
+  TKMScriptEvent3I = procedure (aIndex, aParam1, aParam2: Integer) of object;
+  TKMScriptEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
+
   TByteSet = set of Byte;
 
   TKMScriptEvents = class
   private
     fExec: TPSExec;
     fIDCache: TKMScriptingIdCache;
+
+    fProcHouseAfterDestroyed: TKMScriptEvent4I;
+    fProcHouseBuilt: TKMScriptEvent1I;
+    fProcHousePlanPlaced: TKMScriptEvent4I;
+    fProcHouseDamaged: TKMScriptEvent2I;
+    fProcHouseDestroyed: TKMScriptEvent2I;
+    fProcGroupHungry: TKMScriptEvent1I;
+    fProcMarketTrade: TKMScriptEvent3I;
+    fProcMissionStart: TKMScriptEvent;
+    fProcPlanPlacedRoad: TKMScriptEvent3I;
+    fProcPlanPlacedField: TKMScriptEvent3I;
+    fProcPlanPlacedWinefield: TKMScriptEvent3I;
+    fProcPlayerDefeated: TKMScriptEvent1I;
+    fProcPlayerVictory: TKMScriptEvent1I;
+    fProcTick: TKMScriptEvent;
+    fProcUnitAfterDied: TKMScriptEvent4I;
+    fProcUnitDied: TKMScriptEvent2I;
+    fProcUnitTrained: TKMScriptEvent1I;
+    fProcUnitWounded: TKMScriptEvent2I;
+    fProcWarriorEquipped: TKMScriptEvent2I;
   public
     constructor Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
+    procedure LinkEvents;
 
     procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
     procedure ProcHouseBuilt(aHouse: TKMHouse);
@@ -270,14 +297,6 @@ uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warri
   KM_UnitsCollection;
 
 
-type
-  TKMEvent = procedure of object;
-  TKMEvent1I = procedure (aIndex: Integer) of object;
-  TKMEvent2I = procedure (aIndex, aParam: Integer) of object;
-  TKMEvent3I = procedure (aIndex, aParam1, aParam2: Integer) of object;
-  TKMEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
-
-
   //We need to check all input parameters as could be wildly off range due to
   //mistakes in scripts. In that case we have two options:
   // - skip silently and log
@@ -294,244 +313,191 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
-var
-  TestFunc: TKMEvent3I;
+procedure TKMScriptEvents.LinkEvents;
 begin
-  TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONMARKETTRADE'));
-  if @TestFunc <> nil then
+  fProcHouseAfterDestroyed := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED'));
+  fProcHouseBuilt          := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
+  fProcHousePlanPlaced     := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
+  fProcHouseDamaged        := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
+  fProcHouseDestroyed      := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
+  fProcGroupHungry         := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONGROUPHUNGRY'));
+  fProcMarketTrade         := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONMARKETTRADE'));
+  fProcMissionStart        := TKMScriptEvent  (fExec.GetProcAsMethodN('ONMISSIONSTART'));
+  fProcPlanPlacedRoad      := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANROAD'));
+  fProcPlanPlacedField     := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANFIELD'));
+  fProcPlanPlacedWinefield := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELD'));
+  fProcPlayerDefeated      := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
+  fProcPlayerVictory       := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONPLAYERVICTORY'));
+  fProcTick                := TKMScriptEvent  (fExec.GetProcAsMethodN('ONTICK'));
+  fProcUnitAfterDied       := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONUNITAFTERDIED'));
+  fProcUnitDied            := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
+  fProcUnitTrained         := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
+  fProcUnitWounded         := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
+  fProcWarriorEquipped     := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
+end;
+
+
+procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
+begin
+  if Assigned(fProcMarketTrade) then
   begin
     fIDCache.CacheHouse(aMarket, aMarket.UID); //Improves cache efficiency since aMarket will probably be accessed soon
-    TestFunc(aMarket.UID, WareTypeToIndex[aFrom], WareTypeToIndex[aTo]);
+    fProcMarketTrade(aMarket.UID, WareTypeToIndex[aFrom], WareTypeToIndex[aTo]);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcMissionStart;
-var
-  TestFunc: TKMEvent;
 begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONMISSIONSTART'));
-  if @TestFunc <> nil then
-    TestFunc;
+  if Assigned(fProcMissionStart) then
+    fProcMissionStart;
 end;
 
 
 procedure TKMScriptEvents.ProcTick;
-var
-  TestFunc: TKMEvent;
 begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONTICK'));
-  if @TestFunc <> nil then
-    TestFunc;
+  if Assigned(fProcTick) then
+    fProcTick;
 end;
 
 
 procedure TKMScriptEvents.ProcHouseBuilt(aHouse: TKMHouse);
-var
-  TestFunc: TKMEvent1I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
-  if @TestFunc <> nil then
+  if Assigned(fProcHouseBuilt) then
   begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.UID);
+    fProcHouseBuilt(aHouse.UID);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
-var
-  TestFunc: TKMEvent2I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
-  if @TestFunc <> nil then
+  if Assigned(fProcHouseDamaged) then
   begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
     if aAttacker <> nil then
     begin
       fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
-      TestFunc(aHouse.UID, aAttacker.UID);
+      fProcHouseDamaged(aHouse.UID, aAttacker.UID);
     end
     else
       //House was damaged, but we don't know by whom (e.g. by script command)
-      TestFunc(aHouse.UID, PLAYER_NONE);
+      fProcHouseDamaged(aHouse.UID, PLAYER_NONE);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
-var
-  TestFunc: TKMEvent2I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
-  if @TestFunc <> nil then
+  if Assigned(fProcHouseDestroyed) then
   begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.UID, aDestroyerIndex);
+    fProcHouseDestroyed(aHouse.UID, aDestroyerIndex);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
-var
-  TestFunc: TKMEvent4I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED'));
-  if @TestFunc <> nil then
-    TestFunc(HouseTypeToIndex[aHouseType] - 1, aOwner, aX, aY);
+  if Assigned(fProcHouseAfterDestroyed) then
+    fProcHouseAfterDestroyed(HouseTypeToIndex[aHouseType] - 1, aOwner, aX, aY);
 end;
 
 
 procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
-var
-  TestFunc: TKMEvent4I;
 begin
-  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
-  if @TestFunc <> nil then
-    TestFunc(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
+  if Assigned(fProcHousePlanPlaced) then
+    fProcHousePlanPlaced(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
 end;
 
 
 procedure TKMScriptEvents.ProcGroupHungry(aGroup: TKMUnitGroup);
-var
-  TestFunc: TKMEvent1I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONGROUPHUNGRY'));
-  if @TestFunc <> nil then
+  if Assigned(fProcGroupHungry) then
   begin
     fIDCache.CacheGroup(aGroup, aGroup.UID); //Improves cache efficiency since aGroup will probably be accessed soon
-    TestFunc(aGroup.UID);
+    fProcGroupHungry(aGroup.UID);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
-var
-  TestFunc: TKMEvent2I;
 begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
-  if @TestFunc <> nil then
+  if Assigned(fProcUnitDied) then
   begin
     fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.UID, aKillerOwner);
+    fProcUnitDied(aUnit.UID, aKillerOwner);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: THandIndex; aX, aY: Word);
-var
-  TestFunc: TKMEvent4I;
 begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONUNITAFTERDIED'));
-  if @TestFunc <> nil then
-    TestFunc(UnitTypeToIndex[aUnitType], aOwner, aX, aY);
+  if Assigned(fProcUnitAfterDied) then
+    fProcUnitAfterDied(UnitTypeToIndex[aUnitType], aOwner, aX, aY);
 end;
 
 
 procedure TKMScriptEvents.ProcUnitTrained(aUnit: TKMUnit);
-var
-  TestFunc: TKMEvent1I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
-  if @TestFunc <> nil then
+  if Assigned(fProcUnitTrained) then
   begin
     fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.UID);
+    fProcUnitTrained(aUnit.UID);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcUnitWounded(aUnit, aAttacker: TKMUnit);
-var
-  TestFunc: TKMEvent2I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
-  if @TestFunc <> nil then
+  if Assigned(fProcUnitWounded) then
   begin
     fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
     if aAttacker <> nil then
     begin
       fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
-      TestFunc(aUnit.UID, aAttacker.UID);
+      fProcUnitWounded(aUnit.UID, aAttacker.UID);
     end
     else
-      TestFunc(aUnit.UID, -1);
+      fProcUnitWounded(aUnit.UID, -1);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
-var
-  TestFunc: TKMEvent2I;
 begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
-  if @TestFunc <> nil then
+  if Assigned(fProcWarriorEquipped) then
   begin
     fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
     fIDCache.CacheGroup(aGroup, aGroup.UID);
-    TestFunc(aUnit.UID, aGroup.UID);
+    fProcWarriorEquipped(aUnit.UID, aGroup.UID);
   end;
 end;
 
 
 procedure TKMScriptEvents.ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
-var
-  TestFunc: TKMEvent3I;
 begin
   case aPlanType of
-    ft_Road: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANROAD'));
-    ft_Corn: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANFIELD'));
-    ft_Wine: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELD'));
-    else     begin
-               Assert(False);
-               Exit; //Make compiler happy
-             end;
+    ft_Road: if Assigned(fProcPlanPlacedRoad)      then fProcPlanPlacedRoad     (aPlayer, aX, aY);
+    ft_Corn: if Assigned(fProcPlanPlacedField)     then fProcPlanPlacedField    (aPlayer, aX, aY);
+    ft_Wine: if Assigned(fProcPlanPlacedWinefield) then fProcPlanPlacedWinefield(aPlayer, aX, aY);
+    else     Assert(False);
   end;
-  if @TestFunc <> nil then
-    TestFunc(aPlayer, aX, aY);
 end;
 
 
 procedure TKMScriptEvents.ProcPlayerDefeated(aPlayer: THandIndex);
-var
-  TestFunc: TKMEvent1I;
 begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
-  if @TestFunc <> nil then
-    TestFunc(aPlayer);
+  if Assigned(fProcPlayerDefeated) then
+    fProcPlayerDefeated(aPlayer);
 end;
 
 
 procedure TKMScriptEvents.ProcPlayerVictory(aPlayer: THandIndex);
-var
-  TestFunc: TKMEvent1I;
 begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERVICTORY'));
-  if @TestFunc <> nil then
-    TestFunc(aPlayer);
+  if Assigned(fProcPlayerVictory) then
+    fProcPlayerVictory(aPlayer);
 end;
 
 
@@ -2049,8 +2015,12 @@ var
   Pos: TKMPoint;
 begin
   Pos := KMPoint(X, Y);
-  if gTerrain.TileInMapCoords(X, Y) and (gTerrain.TileIsCornField(Pos) or gTerrain.TileIsWineField(Pos)) then
-    gTerrain.RemField(Pos)
+  if gTerrain.TileInMapCoords(X, Y) then
+  begin
+    //If the tile is not a field that doesn't count as a usage error, so silently ignore
+    if (gTerrain.TileIsCornField(Pos) or gTerrain.TileIsWineField(Pos)) then
+      gTerrain.RemField(Pos);
+  end
   else
     LogError('Actions.RemoveField', [X, Y]);
 end;

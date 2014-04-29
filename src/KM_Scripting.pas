@@ -680,6 +680,8 @@ begin
   finally
     ClassImp.Free;
   end;
+  //Link events into the script
+  gScriptEvents.LinkEvents;
 end;
 
 
