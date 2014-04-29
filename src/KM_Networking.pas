@@ -420,6 +420,14 @@ begin
     PostMessage(TX_NET_DROPPED, csLeave, UnicodeString(NetPlayers[aPlayers[I]].Nikname));
   end;
   SendPlayerListAndRefreshPlayersSetup;
+
+  //Player being dropped may cause vote to end
+  if (fNetGameState in [lgs_Loading, lgs_Game]) and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
+  begin
+    fNetPlayers.ResetVote;
+    //This packet is also sent to ourself (host), we will return to lobby when it arrives
+    PacketSend(NET_ADDRESS_ALL, mk_ReturnToLobby);
+  end;
 end;
 
 
@@ -1496,6 +1504,14 @@ begin
                       else
                         fNetPlayers.RemServerPlayer(aSenderIndex);
                       SendPlayerListAndRefreshPlayersSetup;
+                      //Player leaving may cause vote to end
+                      if (fNetGameState in [lgs_Loading, lgs_Game])
+                      and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
+                      begin
+                        fNetPlayers.ResetVote;
+                        //This packet is also sent to ourself (host), we will return to lobby when it arrives
+                        PacketSend(NET_ADDRESS_ALL, mk_ReturnToLobby);
+                      end;
                     end;
                 lpk_Joiner:
                     begin

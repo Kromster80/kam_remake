@@ -699,7 +699,8 @@ begin
   Total := 0;
   VotedYes := 0;
   for I:=1 to fCount do
-    if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE) then
+    if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE)
+    and not fNetPlayers[I].Dropped then
     begin
       Inc(Total);
       if fNetPlayers[I].VotedYes then
