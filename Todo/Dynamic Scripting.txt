@@ -58,8 +58,19 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
-	More options for AI: defend allies, auto attack range, start position
 	Way for players to hide the overlay
+	
+	HouseMarketFromWare, HouseMarketToWare, HouseMarketAmountOrdered (query what the player has ordered at a market)
+	OnHousePlanRemoved(aPlayer, aType, X, Y: integer);
+	OnRoadWineFieldPlanRemoved(aPlayer, X, Y: integer);
+	HouseAddWaresTo can add construction wares
+	Actions.HouseAddBuildProgress
+	States.HouseBuildProgress
+	Actions.AddHouseConstruction(aPlayer, aType, X, Y) - Add house site ready for construction (digging finished)
+	More options for AI: defend allies, auto attack range, start position
+	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
+	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
+	Actions.AddField(aPlayer, X, Y: integer); - add finished field
 
 Proposed:
 	Change position/alignment/font of overlay text
@@ -92,11 +103,6 @@ Proposed:
 	Actions.TimerStart(aTimerID, aTimeout: Integer); Events.OnTimer(aTimerID: Integer);
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
-	OnHousePlanRemoved(aPlayer, aType, X, Y: integer);
-	OnRoadWineFieldPlanRemoved(aPlayer, X, Y: integer);
-	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
-	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
-	Actions.AddField(aPlayer, X, Y: integer); - add finished field
 
 
 Rejected:	

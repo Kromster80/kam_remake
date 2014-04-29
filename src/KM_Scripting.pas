@@ -293,7 +293,6 @@ begin
       RegisterMethod('function PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer');
       RegisterMethod('procedure StopLoopedWAV(aLoopIndex: Integer)');
 
-      RegisterMethod('procedure RemoveField(X, Y: Word)');
       RegisterMethod('procedure RemoveRoad(X, Y: Word)');
 
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
@@ -629,7 +628,6 @@ begin
       RegisterMethod(@TKMScriptActions.PlayWAVAtLocationLooped, 'PLAYWAVATLOCATIONLOOPED');
       RegisterMethod(@TKMScriptActions.StopLoopedWAV,     'STOPLOOPEDWAV');
 
-      RegisterMethod(@TKMScriptActions.RemoveField,       'REMOVEFIELD');
       RegisterMethod(@TKMScriptActions.RemoveRoad,        'REMOVEROAD');
 
       RegisterMethod(@TKMScriptActions.SetTradeAllowed,       'SETTRADEALLOWED');

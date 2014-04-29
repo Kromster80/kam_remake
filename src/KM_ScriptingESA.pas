@@ -269,7 +269,6 @@ type
     function PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer;
     procedure StopLoopedWAV(aLoopIndex: Integer);
 
-    procedure RemoveField(X, Y: Word);
     procedure RemoveRoad(X, Y: Word);
 
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
@@ -2010,29 +2009,17 @@ begin
 end;
 
 
-procedure TKMScriptActions.RemoveField(X, Y :Word);
-var
-  Pos: TKMPoint;
-begin
-  Pos := KMPoint(X, Y);
-  if gTerrain.TileInMapCoords(X, Y) then
-  begin
-    //If the tile is not a field that doesn't count as a usage error, so silently ignore
-    if (gTerrain.TileIsCornField(Pos) or gTerrain.TileIsWineField(Pos)) then
-      gTerrain.RemField(Pos);
-  end
-  else
-    LogError('Actions.RemoveField', [X, Y]);
-end;
-
-
 procedure TKMScriptActions.RemoveRoad(X, Y: Word);
 var
   Pos: TKMPoint;
 begin
   Pos := KMPoint(X, Y);
   if gTerrain.TileInMapCoords(X, Y) then
-    gTerrain.RemRoad(Pos)
+  begin
+    //Can't remove if tile is locked (house or roadwork)
+    if (gTerrain.Land[Y, X].TileOverlay = to_Road) and (gTerrain.Land[Y, X].TileLock = tlNone) then
+      gTerrain.RemRoad(Pos);
+  end
   else
     LogError('Actions.RemoveRoad', [X, Y]);
 end;
