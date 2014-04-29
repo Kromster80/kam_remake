@@ -771,7 +771,8 @@ begin
   end;
 
   if ((fSelectGameKind = ngk_Map) and fMapInfo.IsValid) or
-     ((fSelectGameKind = ngk_Save) and fSaveInfo.IsValid) then
+     ((fSelectGameKind = ngk_Save) and fSaveInfo.IsValid) or
+     fNetPlayers[fMyIndex].IsSpectator then //Spectators can be ready without map selected
   begin
     //Toggle it
     PacketSend(NET_ADDRESS_HOST, mk_ReadyToStart);
