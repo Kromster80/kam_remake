@@ -60,6 +60,8 @@ begin
   fZoom := 1;
   ReleaseScrollKeys;
   gSoundPlayer.UpdateListener(fPosition.X, fPosition.Y);
+  if gLoopSounds <> nil then
+    gLoopSounds.UpdateListener(fPosition.X, fPosition.Y);
   Resize(aWidth, aHeight);
 end;
 
@@ -121,6 +123,8 @@ begin
   fPosition.X := EnsureRange(Value.X, TilesX, fMapX - TilesX - 1);
   fPosition.Y := EnsureRange(Value.Y, TilesY - PadTop, fMapY - TilesY - 1); //Top row should be visible
   gSoundPlayer.UpdateListener(fPosition.X, fPosition.Y);
+  if gLoopSounds <> nil then
+    gLoopSounds.UpdateListener(fPosition.X, fPosition.Y);
 end;
 
 

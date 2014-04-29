@@ -81,6 +81,7 @@ type
 
   TKMLoopSoundsManager = class
   private
+    fListener: TKMPointF;
     fLastScriptIndex: Integer;
     fCount: Integer;
     fSounds: array of record
@@ -105,6 +106,7 @@ type
 
     function AddLoopSound(aHandIndex: THandIndex; const aFile: UnicodeString; aLoc: TKMPoint; aVolume: Single): Integer;
     procedure RemoveLoopSound(aScriptIndex: Integer);
+    procedure UpdateListener(X,Y: Single);
   end;
 
 
@@ -647,9 +649,13 @@ end;
 
 
 function TKMLoopSoundsManager.CanPlay(aIndex: Integer): Boolean;
+var DistanceSqr: Single;
 begin
   Result := ((fSounds[aIndex].HandIndex = MySpectator.HandIndex) or (fSounds[aIndex].HandIndex = PLAYER_NONE))
              and (KMSamePoint(fSounds[aIndex].Loc, KMPoint(0,0)) or (MySpectator.FogOfWar.CheckTileRevelation(fSounds[aIndex].Loc.X, fSounds[aIndex].Loc.Y) > 0));
+  if not Result then Exit;
+  DistanceSqr := KMDistanceSqr(KMPointF(fSounds[aIndex].Loc), fListener);
+  Result := Result and (DistanceSqr < Sqr(MAX_DISTANCE));
 end;
 
 
@@ -710,6 +716,12 @@ begin
       Dec(fCount);
       Exit; //Only one sound will have this aScriptIndex
     end;
+end;
+
+
+procedure TKMLoopSoundsManager.UpdateListener(X,Y: Single);
+begin
+  fListener := KMPointF(X, Y);
 end;
 
 

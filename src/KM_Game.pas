@@ -1489,8 +1489,7 @@ end;
 
 procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
-  if aGlobalTickCount mod 11 = 0 then
-    gLoopSounds.UpdateState; //Doesn't need to run every tick
+  gLoopSounds.UpdateState;
 
   if not fIsPaused then
     fActiveInterface.UpdateState(aGlobalTickCount);
