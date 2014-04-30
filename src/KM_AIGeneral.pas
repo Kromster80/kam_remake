@@ -303,7 +303,9 @@ begin
   //2. Take back line defence positions, lowest priority first
   for I := fDefencePositions.Count-1 downto 0 do
     if (fDefencePositions[I].DefenceType = adt_BackLine)
-    and (fDefencePositions[I].CurrentGroup <> nil) then
+    and (fDefencePositions[I].CurrentGroup <> nil)
+    and not fDefencePositions[I].CurrentGroup.IsDead
+    and fDefencePositions[I].CurrentGroup.IsIdleToAI(True) then
       AddAvailable(fDefencePositions[I].CurrentGroup);
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
@@ -349,6 +351,7 @@ begin
           end;
     end;
     Attacks.HasOccured(I); //We can't set the flag to property record directly
+    Break; //Only order 1 attack per update, since all the numbers of groups available need recalculating
   end;
 end;
 
