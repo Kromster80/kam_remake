@@ -164,14 +164,14 @@ const
 
 type
   TMPGameState = (mgsNone, mgsLobby, mgsLoading, mgsGame);
-  TKMServerType = (mstClient, mstDedicated);
+  TKMServerType = (mstClient, mstDedicated, mstLocal);
   TNetPlayerType = (nptHuman, nptComputer, nptClosed);
 
 const
   //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
   GameStateText: array [TMPGameState] of UnicodeString = ('None', 'Lobby', 'Loading', 'Game');
   NetPlayerTypeName: array [TNetPlayerType] of UnicodeString = ('Human', 'AI Player', 'Closed');
-  ServerTypePic: array [TKMServerType] of Word = (74, 75);
+  ServerTypePic: array [TKMServerType] of Word = (74, 75, 79);
 
 
 implementation

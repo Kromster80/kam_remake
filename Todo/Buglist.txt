@@ -99,6 +99,7 @@ Improvements:
  +	L	The story message on campaign map minimizes instead of jumping annoyingly
  +	L	Unlocked campaign map flags have numbers so you can find a mission easily
  +	M	Ability to return to the lobby (by vote) after the game has started in multiplayer
+ +	M	Servers running on the local area network are detected and listed at the top of the server list
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

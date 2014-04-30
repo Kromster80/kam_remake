@@ -2,12 +2,13 @@ unit KM_ServerQuery;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes,
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_NetUDP,
   KM_NetworkTypes, KM_NetworkClasses, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
   MAX_QUERIES = 16; //The maximum number of individual server queries that can be happening at once
   QUERY_TIMEOUT = 5000; //The maximum amount of time for an individual query to take (will take at least 2*ping)
+  MIN_UDP_SCAN_TIME = 1000; //Assume we won't get any more UDP responses after this time (remove 'Refreshing...' text if no servers found)
 
 type
   TKMServerInfo = record
@@ -81,7 +82,7 @@ type
     procedure AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: word);
     function GetServer(aIndex: Integer): TKMServerInfo;
     procedure Clear;
-    procedure LoadFromText(const aText: UnicodeString);
+    procedure AddFromText(const aText: UnicodeString);
   public
     property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
     property Count: Integer read fCount;
@@ -96,12 +97,16 @@ type
     fServerList: TKMServerList; //List of servers fetch from master
     fRoomList: TKMRoomList; //Info about each room populated after query completed
     fQuery: array[0..MAX_QUERIES-1] of TKMQuery;
-    fQueriesCompleted: Integer;
     fSortMethod: TServerSortMethod;
+    fRefreshStartedTime: Cardinal;
+    fReceivedMasterServerList: Boolean;
+
+    fUDPScanner: TKMNetUDPScan;
 
     fOnListUpdated: TNotifyEvent;
     fOnAnnouncements: TUnicodeStringEvent;
 
+    procedure DetectUDPServer(const aAddress: string; const aPort: string; const aName: string);
     procedure ReceiveServerList(const S: string);
     procedure ReceiveAnnouncements(const S: string);
 
@@ -110,6 +115,8 @@ type
 
     procedure Sort;
     procedure SetSortMethod(aMethod: TServerSortMethod);
+
+    function ActiveQueryCount: Integer;
   public
     constructor Create(aMasterServerAddress: string);
     destructor Destroy; override;
@@ -212,10 +219,11 @@ procedure TKMServerList.Clear;
 begin
   fCount := 0;
   SetLength(fServers, 0);
+  fLastQueried := -1; //First is 0
 end;
 
 
-procedure TKMServerList.LoadFromText(const aText: UnicodeString);
+procedure TKMServerList.AddFromText(const aText: UnicodeString);
 
   function GetServerType(aDedicated, aOS: UnicodeString): TKMServerType;
   begin
@@ -229,8 +237,6 @@ var
   srvList, srvInfo: TStringList;
   I: Integer;
 begin
-  fLastQueried := -1; //First is 0
-  Clear;
   srvList := TStringList.Create;
   srvInfo := TStringList.Create;
   srvList.Text := aText; //Parse according to EOLs
@@ -378,6 +384,9 @@ begin
   fMasterServer.OnServerList := ReceiveServerList;
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
 
+  fUDPScanner := TKMNetUDPScan.Create;
+  fUDPScanner.OnServerDetected := DetectUDPServer;
+
   fSortMethod := ssmByStateAsc; //Default sorting is by state
 
   fServerList := TKMServerList.Create;
@@ -396,6 +405,7 @@ var
   I: Integer;
 begin
   fMasterServer.Free;
+  fUDPScanner.Free;
   fServerList.Free;
   fRoomList.Free;
   for I := 0 to MAX_QUERIES - 1 do
@@ -406,7 +416,17 @@ end;
 
 
 procedure TKMServerQuery.RefreshList;
+var I: Integer;
 begin
+  //Clean up first
+  for I := 0 to MAX_QUERIES - 1 do
+    fQuery[I].Disconnect;
+  fRoomList.Clear;
+  fServerList.Clear;
+  fReceivedMasterServerList := False;
+  fRefreshStartedTime := TimeGet;
+
+  fUDPScanner.ScanForServers;
   if LOCAL_SERVER_LIST then
     ReceiveServerList('Localhost,127.0.0.1,56789,0,Windows') //For debugging
     //+#13+'Localhost,127.0.0.1,56788,1,Windows'+#13+'Localhost,127.0.0.1,56787,1,Unix'
@@ -415,17 +435,29 @@ begin
 end;
 
 
+procedure TKMServerQuery.DetectUDPServer(const aAddress: string; const aPort: string; const aName: string);
+var I: Integer;
+begin
+  //Make sure this isn't a duplicate (UDP is connectionless so we could get a response from an old query)
+  for I := 0 to fServerList.Count-1 do
+    if (fServerList[I].IP = aAddress) and (fServerList[I].Port = aPort) then
+      Exit;
+
+  fServerList.AddServer(aAddress, aPort, aName, mstLocal, 0);
+  for I := 0 to MAX_QUERIES - 1 do
+    if not fQuery[I].fQueryActive then
+      fServerList.TakeNewQuery(fQuery[I]);
+end;
+
+
 procedure TKMServerQuery.ReceiveServerList(const S: string);
 var I: Integer;
 begin
-  fQueriesCompleted := 0;
-  fServerList.LoadFromText(S);
-  fRoomList.Clear; //Updated rooms list will be loaded soon
+  fReceivedMasterServerList := True;
+  fServerList.AddFromText(S);
   for I := 0 to MAX_QUERIES - 1 do
-    fServerList.TakeNewQuery(fQuery[I]);
-  //If there are no servers we should update the list now, otherwise wait for the first server
-  if (fServerList.fCount = 0) and Assigned(fOnListUpdated) then
-    fOnListUpdated(Self);
+    if not fQuery[I].fQueryActive then
+      fServerList.TakeNewQuery(fQuery[I]);
 end;
 
 
@@ -449,11 +481,7 @@ end;
 
 procedure TKMServerQuery.QueryDone(Sender: TObject);
 begin
-  Inc(fQueriesCompleted);
   fServerList.TakeNewQuery(TKMQuery(Sender));
-  //When we receive the last query we should update the list (this removes 'Refreshing...' when no servers respond)
-  if (fQueriesCompleted = fServerList.Count) and Assigned(fOnListUpdated) then
-    fOnListUpdated(Self);
 end;
 
 
@@ -474,8 +502,19 @@ procedure TKMServerQuery.UpdateStateIdle;
 var I: Integer;
 begin
   fMasterServer.UpdateStateIdle;
+  fUDPScanner.UpdateStateIdle;
   for I := 0 to MAX_QUERIES - 1 do
     fQuery[I].UpdateStateIdle;
+
+  //Once we've received the master list, finished all queries and waited long enough for UDP scan
+  //we should update the list (this removes 'Refreshing...' when no servers respond)
+  if fReceivedMasterServerList and (ActiveQueryCount = 0) and (GetTimeSince(fRefreshStartedTime) > MIN_UDP_SCAN_TIME) then
+  begin
+    fReceivedMasterServerList := False; //Don't do this again until the next refresh
+    fUDPScanner.TerminateScan; //Closes UDP listen
+    if Assigned(fOnListUpdated) then
+      fOnListUpdated(Self);
+  end;
 end;
 
 
@@ -502,6 +541,12 @@ procedure TKMServerQuery.Sort;
       ssmByPlayersAsc:  Result := A.GameInfo.PlayerCount > B.GameInfo.PlayerCount;
       ssmByPlayersDesc: Result := A.GameInfo.PlayerCount < B.GameInfo.PlayerCount;
     end;
+    //Always put local servers at the top
+    if (AServerInfo.ServerType = mstLocal) and (BServerInfo.ServerType <> mstLocal) then
+      Result := False
+    else
+      if (AServerInfo.ServerType <> mstLocal) and (BServerInfo.ServerType = mstLocal) then
+        Result := True;
   end;
 
 var
@@ -520,5 +565,14 @@ begin
   Sort; //New sorting method has been set, we need to apply it
 end;
 
+
+function TKMServerQuery.ActiveQueryCount: Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to MAX_QUERIES-1 do
+    if fQuery[I].fQueryActive then
+      Inc(Result);
+end;
 
 end.

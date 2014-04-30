@@ -4,7 +4,7 @@ interface
 uses
   SysUtils, Classes, Math,
   {$IFDEF MSWindows}Windows,{$ENDIF}
-  KM_NetServer, KM_MasterServer, KM_CommonTypes, KM_Defaults;
+  KM_NetServer, KM_MasterServer, KM_NetUDP, KM_CommonTypes, KM_Defaults;
 
 type
   TKMDedicatedServer = class
@@ -12,6 +12,7 @@ type
     fLastPing, fLastAnnounce: cardinal;
     fNetServer: TKMNetServer;
     fMasterServer: TKMMasterServer;
+    fUDPAnnounce: TKMNetUDPAnnounce;
     fOnMessage: TUnicodeStringEvent;
     fPublishServer: boolean;
     fAnnounceInterval: word;
@@ -54,6 +55,9 @@ begin
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress, aDedicated);
   fMasterServer.OnError := MasterServerError;
+  fUDPAnnounce := TKMNetUDPAnnounce.Create;
+  fUDPAnnounce.OnError := StatusMessage;
+
   fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
   fPingInterval := aPingInterval;
   fLastPing := 0;
@@ -65,6 +69,7 @@ destructor TKMDedicatedServer.Destroy;
 begin
   fNetServer.Free;
   fMasterServer.Free;
+  fUDPAnnounce.Free;
   StatusMessage('Server destroyed');
   inherited;
 end;
@@ -76,7 +81,8 @@ begin
   fServerName := aServerName;
   fPublishServer := aPublishServer;
   fNetServer.OnStatusMessage := StatusMessage;
-  fNetServer.StartListening(fPort, aServerName);
+  fNetServer.StartListening(fPort, fServerName);
+  fUDPAnnounce.StartAnnouncing(fPort, fServerName);
 end;
 
 
@@ -84,6 +90,7 @@ procedure TKMDedicatedServer.Stop;
 begin
   fNetServer.StopListening;
   fNetServer.ClearClients;
+  fUDPAnnounce.StopAnnouncing;
   StatusMessage('Stopped listening');
 end;
 
@@ -93,6 +100,7 @@ var TickCount:Cardinal;
 begin
   fNetServer.UpdateStateIdle;
   fMasterServer.UpdateStateIdle;
+  fUDPAnnounce.UpdateStateIdle;
 
   if not fNetServer.Listening then Exit; //Do not measure pings or announce the server if we are not listening
 

@@ -147,6 +147,9 @@ uses
   KM_NetServer in 'src\KM_NetServer.pas',
   {$IFDEF WDC} KM_NetServerOverbyte in 'src\KM_NetServerOverbyte.pas', {$ENDIF}
   {$IFDEF FPC} KM_NetServerLNet in 'src\KM_NetServerLNet.pas', {$ENDIF}
+  KM_NetUDP in 'src\KM_NetUDP.pas',
+  {$IFDEF WDC} KM_NetUDPOverbyte in 'src\KM_NetUDPOverbyte.pas', {$ENDIF}
+  {$IFDEF FPC} KM_NetUDPLNet in 'src\KM_NetUDPLNet.pas', {$ENDIF}
   KM_Networking in 'src\KM_Networking.pas',
   KM_NetworkClasses in 'src\KM_NetworkClasses.pas',
   KM_NetworkTypes in 'src\KM_NetworkTypes.pas',
