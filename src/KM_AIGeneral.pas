@@ -253,8 +253,9 @@ end;
 
 procedure TKMGeneral.CheckAttacks;
 var
-  MenAvailable: Word; //Total number of warriors available to attack the enemy
+  MenAvailable: TGroupTypeArray; //Total number of warriors available to attack the enemy
   GroupsAvailable: TGroupTypeArray;
+  MaxGroupsAvailable: Integer;
   AttackGroups: array [TGroupType] of array of TKMUnitGroup;
 
   procedure AddAvailable(aGroup: TKMUnitGroup);
@@ -265,25 +266,29 @@ var
       SetLength(AttackGroups[GT], GroupsAvailable[GT] + 10);
     AttackGroups[GT, GroupsAvailable[GT]] := aGroup;
     Inc(GroupsAvailable[GT]);
-    Inc(MenAvailable, aGroup.Count);
+    MaxGroupsAvailable := Max(MaxGroupsAvailable, GroupsAvailable[GT]);
+    Inc(MenAvailable[GT], aGroup.Count);
   end;
 
 var
-  I, K: Integer;
+  I, K, J: Integer;
   G: TGroupType;
   Group: TKMUnitGroup;
   DP: TAIDefencePosition;
+  UnitsSent: Integer;
 begin
   //Do not process attack or defence during peacetime
   if gGame.IsPeaceTime then Exit;
 
-  MenAvailable := 0;
+  MaxGroupsAvailable := 0;
   for G := Low(TGroupType) to High(TGroupType) do
+  begin
     GroupsAvailable[G] := 0;
+    MenAvailable[G] := 0;
+  end;
 
-  //Take all idling Groups that are:
-  // - not linked to any Defence positions
-  // - are in backline defence positions
+  //Order of units is prioritized:
+  //1. Take all idling Groups that are not linked to any Defence positions
   for I := 0 to gHands[fOwner].UnitGroups.Count - 1 do
   begin
     Group := gHands[fOwner].UnitGroups[I];
@@ -291,27 +296,57 @@ begin
     and Group.IsIdleToAI(True) then
     begin
       DP := fDefencePositions.FindPositionOf(Group);
-      if (DP = nil) or (DP.DefenceType = adt_BackLine) then
+      if DP = nil then
         AddAvailable(Group);
     end;
   end;
+  //2. Take back line defence positions, lowest priority first
+  for I := fDefencePositions.Count-1 downto 0 do
+    if (fDefencePositions[I].DefenceType = adt_BackLine)
+    and (fDefencePositions[I].CurrentGroup <> nil) then
+      AddAvailable(fDefencePositions[I].CurrentGroup);
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
   for I := 0 to Attacks.Count - 1 do
   if Attacks.CanOccur(I, MenAvailable, GroupsAvailable, gGame.GameTickCount) then //Check conditions are right
   begin
     //Order groups to attack
+    UnitsSent := 0;
     if Attacks[I].TakeAll then
     begin
-      for G := Low(TGroupType) to High(TGroupType) do
-        for K := 0 to GroupsAvailable[G] - 1 do
-          OrderAttack(AttackGroups[G, K], Attacks[I].Target, Attacks[I].CustomPosition);
+      //Repeatedly send one of each group type until we have sent the required amount (mixed army)
+      for K := 0 to MaxGroupsAvailable - 1 do
+        for G := Low(TGroupType) to High(TGroupType) do
+          if (UnitsSent < Attacks[I].TotalMen) and (K < GroupsAvailable[G]) then
+          begin
+            OrderAttack(AttackGroups[G, K], Attacks[I].Target, Attacks[I].CustomPosition);
+            Inc(UnitsSent, AttackGroups[G, K].Count);
+          end;
     end
     else
     begin
+      //First send the number of each group as requested by the attack
       for G := Low(TGroupType) to High(TGroupType) do
         for K := 0 to Attacks[I].GroupAmounts[G] - 1 do
+        begin
           OrderAttack(AttackGroups[G, K], Attacks[I].Target, Attacks[I].CustomPosition);
+          Inc(UnitsSent, AttackGroups[G, K].Count);
+        end;
+
+      //If we still haven't sent enough men, send more groups out of the types allowed until we have
+      if UnitsSent < Attacks[I].TotalMen then
+        for K := 0 to MaxGroupsAvailable - 1 do
+          for G := Low(TGroupType) to High(TGroupType) do
+          begin
+            //Start index after the ones we've already sent above (ones required by attack)
+            J := K + Attacks[I].GroupAmounts[G];
+            if (Attacks[I].GroupAmounts[G] > 0) and (UnitsSent < Attacks[I].TotalMen)
+            and (J < GroupsAvailable[G]) then
+            begin
+              OrderAttack(AttackGroups[G, J], Attacks[I].Target, Attacks[I].CustomPosition);
+              Inc(UnitsSent, AttackGroups[G, J].Count);
+            end;
+          end;
     end;
     Attacks.HasOccured(I); //We can't set the flag to property record directly
   end;

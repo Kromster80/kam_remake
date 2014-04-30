@@ -46,7 +46,7 @@ type
 
     procedure AddAttack(aAttack: TAIAttack);
     procedure Delete(aIndex: Integer);
-    function CanOccur(aIndex: Integer; aMenAvailable: Integer; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
+    function CanOccur(aIndex: Integer; const aMenAvailable: TGroupTypeArray; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
     procedure HasOccured(aIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -58,14 +58,22 @@ implementation
 
 
 { TAIAttacks }
-function TAIAttacks.CanOccur(aIndex: Integer; aMenAvailable: Integer; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
+function TAIAttacks.CanOccur(aIndex: Integer; const aMenAvailable: TGroupTypeArray; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
 var
   GT: TGroupType;
+  TotalMenAvailable: Word;
 begin
+  TotalMenAvailable := 0;
+  //Must have enough men available out of the types of groups that will attack
+  for GT := Low(TGroupType) to High(TGroupType) do
+    if fAttacks[aIndex].TakeAll or (fAttacks[aIndex].GroupAmounts[GT] > 0) then
+      Inc(TotalMenAvailable, aMenAvailable[GT]);
+
   Result := ((fAttacks[aIndex].AttackType = aat_Repeating) or not fAttacks[aIndex].HasOccured)
             and (aTick >= fAttacks[aIndex].Delay)
-            and (aMenAvailable >= fAttacks[aIndex].TotalMen);
+            and (TotalMenAvailable >= fAttacks[aIndex].TotalMen);
 
+  //Must have enough groups of each type
   if not fAttacks[aIndex].TakeAll then
     for GT := Low(TGroupType) to High(TGroupType) do
       Result := Result and (aGroupsAvailable[GT] >= fAttacks[aIndex].GroupAmounts[GT]);

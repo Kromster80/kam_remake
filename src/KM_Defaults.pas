@@ -342,6 +342,8 @@ type
     ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
     ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
+  TUnitTypeSet = set of TUnitType;
+
 const
   UNIT_MIN = ut_Serf;
   UNIT_MAX = ut_Duck;
@@ -365,6 +367,7 @@ type
 type
   TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
   TGroupTypeArray = array [TGroupType] of Word;
+  TGroupTypeSet = set of TGroupType;
 
   TArmyType = (atLeather, atIron, atLeatherIron);
 
