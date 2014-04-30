@@ -129,6 +129,7 @@ begin
   fPublishServer := aPublishServer;
 
   fNetServer.UpdateSettings(aKickTimeout, aHTMLStatusFile, aWelcomeMessage, aServerName);
+  fUDPAnnounce.UpdateSettings(aServerName);
 
   fLastAnnounce := 0; //Make the server announce itself next update so the changes are sent to the master server ASAP
 end;

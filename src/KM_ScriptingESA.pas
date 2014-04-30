@@ -629,7 +629,6 @@ end;
 
 function TKMScriptStates.ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer;
 var
-  B: Byte;
   UTS: TUnitTypeSet;
   U: TKMUnit;
 begin

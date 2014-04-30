@@ -112,9 +112,9 @@ begin
   if fDedicatedServer <> nil then
   begin
     fDedicatedServer.Stop;
-    fDedicatedServer.Free;
+    FreeAndNil(fDedicatedServer);
   end;
-  if fEventHandler <> nil then fEventHandler.Free;
+  FreeAndNil(fEventHandler);
 
   Halt; //Terminate the process
 end;

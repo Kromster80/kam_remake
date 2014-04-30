@@ -32,6 +32,7 @@ type
   public
     procedure StartAnnouncing(const aGamePort: string; const aName: string);
     procedure StopAnnouncing;
+    procedure UpdateSettings(const aName: string);
   end;
 
   TKMNetUDPScan = class(TKMNetUDP)
@@ -99,14 +100,19 @@ begin
 end;
 
 
+procedure TKMNetUDPAnnounce.UpdateSettings(const aName: string);
+begin
+  fGamePort := aName;
+end;
+
+
 procedure TKMNetUDPAnnounce.Receive(aAddress: string; aData:pointer; aLength:cardinal);
 var
   M: TKMemoryStream;
   S: AnsiString;
-  I: Integer;
 begin
+  M := TKMemoryStream.Create;
   try
-    M := TKMemoryStream.Create;
     M.WriteBuffer(aData^, aLength);
     M.Position := 0;
 
@@ -126,8 +132,8 @@ begin
     M.WriteA('KaM Remake');
     M.WriteA(NET_PROTOCOL_REVISON);
     M.WriteA('announce');
-    M.WriteA(fGamePort);
-    M.WriteA(fServerName);
+    M.WriteA(AnsiString(fGamePort));
+    M.WriteA(AnsiString(fServerName));
 
     fUDP.SendPacket(aAddress, '56788', M.Memory, M.Size);
   finally
@@ -141,21 +147,21 @@ procedure TKMNetUDPScan.ScanForServers;
 var
   M: TKMemoryStream;
 begin
+  //Prepare to receive responses
+  fUDP.StopListening;
   try
-    //Prepare to receive responses
-    fUDP.StopListening;
-    try
-      fUDP.Listen('56788');
-    except
-      //UDP scan is not that important, and could fail during debugging if running two KaM Remake instances
-      on E: Exception do
-      begin
-        if Assigned(fOnError) then fOnError('UDP scan failed to listen: '+E.Message);
-        Exit;
-      end;
+    fUDP.Listen('56788');
+  except
+    //UDP scan is not that important, and could fail during debugging if running two KaM Remake instances
+    on E: Exception do
+    begin
+      if Assigned(fOnError) then fOnError('UDP scan failed to listen: '+E.Message);
+      Exit;
     end;
+  end;
 
-    M := TKMemoryStream.Create;
+  M := TKMemoryStream.Create;
+  try
     M.WriteA('KaM Remake');
     M.WriteA(NET_PROTOCOL_REVISON);
     M.WriteA('scan');
@@ -179,8 +185,8 @@ var
   M: TKMemoryStream;
   S, ServerPort, ServerName: AnsiString;
 begin
+  M := TKMemoryStream.Create;
   try
-    M := TKMemoryStream.Create;
     M.WriteBuffer(aData^, aLength);
     M.Position := 0;
 
@@ -195,7 +201,7 @@ begin
     //Read the server's game port and report it
     M.ReadA(ServerPort);
     M.ReadA(ServerName);
-    fOnServerDetected(aAddress, ServerPort, ServerName);
+    fOnServerDetected(aAddress, UnicodeString(ServerPort), UnicodeString(ServerName));
   finally
     M.Free;
   end;

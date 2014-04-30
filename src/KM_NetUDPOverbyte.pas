@@ -71,9 +71,6 @@ end;
 
 
 procedure TKMNetUDPOverbyte.SendPacket(const aAddress:string; const aPort:string; aData:pointer; aLength:cardinal);
-var
-  Src: TSockAddr;
-  SrcLen : Integer;
 begin
   fSocketSend.Proto     := 'udp';
   fSocketSend.Addr      := aAddress;
@@ -89,7 +86,7 @@ procedure TKMNetUDPOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const
   BufferSize = 10240; //10kb
 var
-  P:pointer; s:string;
+  P:pointer;
   L:integer; //L could be -1 when no data is available
   Src: TSockAddr;
   SrcLen : Integer;
@@ -105,7 +102,7 @@ begin
   L := TWSocket(Sender).ReceiveFrom(P, BufferSize, Src, SrcLen);
 
   if L > 0 then
-    fOnRecieveData(WSocket_inet_ntoa(Src.sin_addr), P, L);
+    fOnRecieveData(UnicodeString(WSocket_inet_ntoa(Src.sin_addr)), P, L);
 
   FreeMem(P);
 end;
