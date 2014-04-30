@@ -302,9 +302,9 @@ begin
   else
     S := S + WarriorSFXFolder[aUnitType];
   S := S + PathDelim + WarriorSFX[aSound] + IntToStr(aNumber);
-  Result := '';
-  if FileExists(S+'.snd') then Result := S+'.snd'; //Some languages use .snd files, but inside they are just WAVs renamed
-  if FileExists(S+'.wav') then Result := S+'.wav';
+  //All our files are WAV now. Don't accept SND files because TPR uses SND in a different
+  //format which can cause OpenAL to crash if someone installs KMR over TPR folder (e.g. Steam)
+  Result := S+'.wav';
 end;
 
 
@@ -319,9 +319,7 @@ var
   S: UnicodeString;
 begin
   S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+UnicodeString(fLocaleString)+ PathDelim + AttackNotifications[aSound] + int2fix(aNumber,2);
-  Result := '';
-  if FileExists(S+'.snd') then Result := S+'.snd';
-  if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
+  Result := S+'.wav';
 end;
 
 
