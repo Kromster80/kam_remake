@@ -408,6 +408,7 @@ end;
 procedure TRenderPool.PaintRallyPoints(aPass: Byte);
 var B: TKMHouseBarracks; P: TKMPointF;
 begin
+  if gGame.IsMapEditor then Exit; //Don't render rally point in map editor
   if not (MySpectator.Selected is TKMHouseBarracks) then Exit;
   B := TKMHouseBarracks(MySpectator.Selected);
   P := KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5);

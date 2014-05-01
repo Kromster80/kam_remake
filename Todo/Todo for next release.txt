@@ -14,6 +14,7 @@ Bugs:
  +	Arrows shot over longer distances would be invisible for the last ~10% of their flight (units die when no one appears to be shooting them)
  +	Andreus' map Castle Defenders: Crash when barracks was destroyed and script adds units in OnWarriorEquipped
  +	Improve AI attacks as The Dark Lord suggested
+ +	Barracks rally point should not be rendered in map editor
 	Trees, houses and units near the top row of the map may be visible in places where they overhang the top row of the map
 	File transfers needs to not overwrite the original maps in some way (folder for downloaded maps separate from "official" ones?)
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg
