@@ -451,7 +451,8 @@ begin
                                           TargetHouse := nil;
                                         TargetUnit := gTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil) and
-                                           (gHands.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally) then
+                                           ((gHands.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally)
+                                             or TargetUnit.IsDeadOrDying) then
                                           TargetUnit := nil;
                                       end;
   end;
