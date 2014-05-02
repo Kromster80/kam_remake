@@ -15,7 +15,7 @@ Bugs:
  +	Andreus' map Castle Defenders: Crash when barracks was destroyed and script adds units in OnWarriorEquipped
  +	Improve AI attacks as The Dark Lord suggested
  +	Barracks rally point should not be rendered in map editor
-	Trees, houses and units near the top row of the map may be visible in places where they overhang the top row of the map
+ +	Trees, houses and units near the top row of the map may be visible in places where they overhang the top row of the map
 	File transfers needs to not overwrite the original maps in some way (folder for downloaded maps separate from "official" ones?)
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]

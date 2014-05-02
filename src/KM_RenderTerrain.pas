@@ -516,11 +516,6 @@ var
   I,K: Integer;
   Fog: PKMByte2Array;
 begin
-  //todo: @Krom: Trees at the top of the map are fully visible above the top tile row
-  //      of the map if any other part of the tree is visible: http://i.imgur.com/Dx0JlgX.jpg
-  //      I guess we need to render FOW a few rows above the top of the map too (and left/right edges?)
-  //      But only when the top row of the map is not revealed, otherwise trees will get
-  //      their tops chopped off even if they are all revealed
   if aFOW is TKMFogOfWarOpen then Exit;
 
   glColor4f(1, 1, 1, 1);
@@ -537,6 +532,7 @@ begin
     glBindTexture(GL_TEXTURE_2D, fTextG);
   end;
 
+  Fog := @TKMFogOfWar(aFOW).Revelation;
   if fUseVBO then
   begin
     //Setup vertex and UV layout and offsets
@@ -554,8 +550,6 @@ begin
   end
   else
   begin
-    Fog := @TKMFogOfWar(aFOW).Revelation;
-
     with gTerrain do
     if RENDER_3D then
       for I := fClipRect.Top to fClipRect.Bottom do
@@ -588,6 +582,29 @@ begin
         glEnd;
       end;
   end;
+
+  //Sprites (trees) can extend beyond the top edge of the map, so draw extra rows of fog to cover them
+  //@Krom: If you know a neater/faster way to solve this problem please feel free to change it.
+  //@Krom: Side note: Is it ok to not use VBOs in this case? (does mixing VBO with non-VBO code cause any problems?)
+  with gTerrain do
+    if fClipRect.Top <= 1 then
+    begin
+      //3 tiles is enough to cover the tallest tree with highest elevation on top row
+      for I := -2 to 0 do
+      for K := fClipRect.Left to fClipRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
+          glTexCoord1f(Fog^[0, K - 1] / 255);
+          glVertex2f(K - 1, I - 1 - Land[1, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[0, K - 1] / 255);
+          glVertex2f(K - 1, I - Land[1, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[0, K] / 255);
+          glVertex2f(K, I - Land[1, K + 1].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[0, K] / 255);
+          glVertex2f(K, I - 1 - Land[1, K + 1].Height / CELL_HEIGHT_DIV);
+        glEnd;
+      end;
+    end;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D, 0);
