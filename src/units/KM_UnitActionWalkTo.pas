@@ -1074,7 +1074,8 @@ begin
     fUnit.Direction := KMGetDirection(NodeList[NodePos], NodeList[NodePos+1]);
 
     //Check if we can walk to next tile in the route
-    if CanAbandonInternal then
+    //Don't use CanAbandonInternal because skipping this check can cause crashes
+    if not fDoExchange then
     case CheckForObstacle of
       oc_NoObstacle:  ;
       oc_ReRouteMade: Exit; //New route will pick-up
