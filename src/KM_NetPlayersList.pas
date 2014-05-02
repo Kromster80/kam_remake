@@ -412,7 +412,7 @@ procedure TKMNetPlayersList.AddClosedPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
-    Assert(fCount <= MAX_LOBBY_SLOTS, 'Can''t add closed player');
+    Assert(fCount < MAX_LOBBY_SLOTS, 'Can''t add closed player');
     Inc(fCount);
     aSlot := fCount;
   end;

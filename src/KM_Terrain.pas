@@ -779,8 +779,8 @@ begin
 
     //Alliance is the check that will invalidate most candidates, so do it early on
     if (U = nil)
-    or (gHands.CheckAlliance(aPlayer, U.Owner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
     or U.IsDeadOrDying
+    or (gHands.CheckAlliance(aPlayer, U.Owner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
     or not U.Visible then //Inside of house
       Continue;
 
