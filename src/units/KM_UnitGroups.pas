@@ -31,6 +31,7 @@ type
     fUID: Integer;
     fPointerCount: Cardinal;
     fTicker: Cardinal;
+    fTargetFollowTicker: Cardinal;
     fOwner: THandIndex;
     fMembers: TList;
     fOffenders: TList;
@@ -306,6 +307,7 @@ begin
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fTicker);
+  LoadStream.Read(fTargetFollowTicker);
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(fDisableHungerMessage);
@@ -390,6 +392,7 @@ begin
     SaveStream.Write(Integer(0));
   SaveStream.Write(fPointerCount);
   SaveStream.Write(fTicker);
+  SaveStream.Write(fTargetFollowTicker);
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fUnitsPerRow);
   SaveStream.Write(fDisableHungerMessage);
@@ -788,9 +791,6 @@ begin
                       end
                       else
                       begin
-                        //todo: This will cause heaps of pathfinding calls when the target is moving,
-                        //      we don't need to recalculate the route so often (depends how close they are)
-
                         //Melee units must kill target unit and its Group
                         OrderExecuted := (OrderTargetUnit = nil) and (OrderTargetGroup = nil);
 
@@ -798,7 +798,13 @@ begin
                         begin
                           //See if target is escaping
                           if not KMSamePoint(OrderTargetUnit.NextPosition, fOrderLoc.Loc) then
-                            OrderAttackUnit(fOrderTargetUnit, False);
+                          begin
+                            Inc(fTargetFollowTicker);
+                            //It's wasteful to run pathfinding to correct route every step of the way, so if the target unit
+                            //is within 4 tiles, update every step. Within 8, every 2 steps, 12, every 3 steps, etc.
+                            if fTargetFollowTicker mod Max((Round(KMLengthDiag(GetPosition, OrderTargetUnit.GetPosition)) div 4), 1) = 0 then
+                              OrderAttackUnit(fOrderTargetUnit, False);
+                          end;
 
                           for I := 0 to Count - 1 do
                             if Members[I].IsIdle then
