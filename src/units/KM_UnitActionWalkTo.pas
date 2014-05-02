@@ -702,7 +702,9 @@ begin
             or ((KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])       //...or is diagonal and...
             and not gTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition, TempPos))))) then //...vertex is free
             if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
-              if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then //Now see if they want to exchange with us
+              if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) //Now see if they want to exchange with us
+              //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
+              and (TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetEffectivePassability in gTerrain.Land[fUnit.GetPosition.Y,fUnit.GetPosition.X].Passability) then
               begin
                 //Perform exchange from our position to TempPos
                 TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange

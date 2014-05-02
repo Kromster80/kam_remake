@@ -104,14 +104,24 @@ var
   cmp: TKMCampaignId;
   Camp: TKMCampaign;
 begin
-  Button_Camp_Start.Enable;
-  cmp := fGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
-  Camp := fGameApp.Campaigns.CampaignById(cmp);
+  //Key press can cause ItemIndex = -1
+  if ColumnBox_Camps.ItemIndex = -1 then
+  begin
+    Button_Camp_Start.Disable;
+    Image_CampsPreview.TexID := 0;
+    Memo_CampDesc.Clear;
+  end
+  else
+  begin
+    Button_Camp_Start.Enable;
+    cmp := fGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
+    Camp := fGameApp.Campaigns.CampaignById(cmp);
 
-  Image_CampsPreview.RX := Camp.BackGroundPic.RX;
-  Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
+    Image_CampsPreview.RX := Camp.BackGroundPic.RX;
+    Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
 
-  Memo_CampDesc.Text := Camp.CampaignDescription;
+    Memo_CampDesc.Text := Camp.CampaignDescription;
+  end;
 end;
 
 

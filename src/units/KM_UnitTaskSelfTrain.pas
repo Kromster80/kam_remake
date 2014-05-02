@@ -20,7 +20,7 @@ type
 
 
 implementation
-uses KM_HandsCollection;
+uses KM_HandsCollection, KM_Game;
 
 
 { TTaskSelfTrain }
@@ -49,6 +49,7 @@ end;
 
 destructor TTaskSelfTrain.Destroy;
 begin
+  if gGame.IsExiting then Exit; //fSchool will already be freed
   if (fPhase <= 5) and not fSchool.IsDestroyed then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
   gHands.CleanUpHousePointer(TKMHouse(fSchool));
   inherited;
