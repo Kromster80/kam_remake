@@ -562,13 +562,13 @@ begin
       for K := fClipRect.Left to fClipRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
-          glTexCoord1f(Fog^[K - 1, I - 1] / 255);
+          glTexCoord1f(Fog^[I - 1, K - 1] / 255);
           glVertex3f(K - 1, I - 1, -Land[I, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(Fog^[K - 1, I] / 255);
+          glTexCoord1f(Fog^[I, K - 1] / 255);
           glVertex3f(K - 1, I, -Land[I + 1, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(Fog^[K, I] / 255);
+          glTexCoord1f(Fog^[I, K] / 255);
           glVertex3f(K, I, -Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(Fog^[K, I - 1] / 255);
+          glTexCoord1f(Fog^[I - 1, K] / 255);
           glVertex3f(K, I - 1, -Land[I, K + 1].Height / CELL_HEIGHT_DIV);
         glEnd;
       end
@@ -577,13 +577,13 @@ begin
       for K := fClipRect.Left to fClipRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
-          glTexCoord1f(Fog^[K - 1, I - 1] / 255);
+          glTexCoord1f(Fog^[I - 1, K - 1] / 255);
           glVertex2f(K - 1, I - 1 - Land[I, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(Fog^[K - 1, I] / 255);
+          glTexCoord1f(Fog^[I, K - 1] / 255);
           glVertex2f(K - 1, I - Land[I + 1, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(Fog^[K, I] / 255);
+          glTexCoord1f(Fog^[I, K] / 255);
           glVertex2f(K, I - Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(Fog^[K, I - 1] / 255);
+          glTexCoord1f(Fog^[I - 1, K] / 255);
           glVertex2f(K, I - 1 - Land[I, K + 1].Height / CELL_HEIGHT_DIV);
         glEnd;
       end;
@@ -605,11 +605,14 @@ begin
 
   UpdateVBO(aFOW);
 
-  glBindBuffer(GL_ARRAY_BUFFER, fVtxShd);
-  glBufferData(GL_ARRAY_BUFFER, Length(fTilesVtx) * SizeOf(TTileVertice), @fTilesVtx[0].X, GL_STREAM_DRAW);
+  if fUseVBO then
+  begin
+    glBindBuffer(GL_ARRAY_BUFFER, fVtxShd);
+    glBufferData(GL_ARRAY_BUFFER, Length(fTilesVtx) * SizeOf(TTileVertice), @fTilesVtx[0].X, GL_STREAM_DRAW);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndShd);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesInd) * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndShd);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesInd) * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
+  end;
 
   DoTiles;
   DoOverlays;
