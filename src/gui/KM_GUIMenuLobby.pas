@@ -1563,6 +1563,10 @@ begin
             SSM := smByTimeDesc
           else
             SSM := smByTimeAsc;
+      3:  if SortDirection = sdDown then
+            SSM := smByDateDesc
+          else
+            SSM := smByDateAsc;
       else SSM := smByFileNameAsc;
     end;
     fSavesMP.Sort(SSM, MapList_SortUpdate);

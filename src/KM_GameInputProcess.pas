@@ -71,7 +71,6 @@ type
     //V.      Game changes
     gic_GameAlertBeacon,            //Signal alert (beacon)
     gic_GamePause,
-    gic_GameSave,
     gic_GameAutoSave,
     gic_GameTeamChange,
     gic_GameHotkeySet,      //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
@@ -93,9 +92,9 @@ const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmyLink,
     gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
     gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
-  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
-  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
-  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
+  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
+  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
+  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_TempDoNothing];
 
 type
   TGameInputCommand = record
@@ -154,7 +153,6 @@ type
     procedure CmdRatio(aCommandType: TGameInputCommandType; aRes: TWareType; aHouseType: THouseType; aValue:integer);
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aValue: UnicodeString; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aParam1, aParam2: Integer); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal); overload;
@@ -373,13 +371,6 @@ begin
       gic_TempDoNothing:          ;
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
-      gic_GameSave:               if fReplayState = gipRecording then
-                                  begin
-                                    gGame.Save(TextParam, DateTimeParam); //Timestamp is synchronised
-                                    if gGame.IsMultiplayer then
-                                      //Tell the player we have saved the game
-                                      gGame.Networking.PostLocalMessage(gResTexts[TX_MULTIPLAYER_SAVING_GAME], csSaveGame);
-                                  end;
       gic_GameAutoSave:           if (fReplayState = gipRecording) and fGameApp.GameSettings.Autosave then
                                     gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
       gic_GameTeamChange:         begin
@@ -542,13 +533,6 @@ procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue:
 begin
   Assert(aCommandType = gic_GamePause);
   TakeCommand(MakeCommand(aCommandType, [integer(aValue)]));
-end;
-
-
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: UnicodeString; aDateTime: TDateTime);
-begin
-  Assert(aCommandType = gic_GameSave);
-  TakeCommand(MakeCommand(aCommandType, aValue, aDateTime));
 end;
 
 

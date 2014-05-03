@@ -37,6 +37,7 @@ Bugs:
  +	Replays show the scripted overlay text for the selected player
  +	Message log is no longer lost when saving in multiplayer, and messages no longer show in replays
  +	Arrows shot over longer distances would be invisible for the last ~10% of their flight (units die when no one appears to be shooting them)
+ +	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -47,7 +48,6 @@ Bugs:
 	Players that have intentionally quit (not just disconnected) should count as defeated
 	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800x600 .. 1366x768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
-	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Stonemason could stuck on a mountain after flattening (stonebug2.jpg)
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
