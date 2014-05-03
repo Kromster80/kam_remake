@@ -92,6 +92,7 @@
         <DCC_Optimize>false</DCC_Optimize>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_MapFile>3</DCC_MapFile>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
         <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
@@ -224,6 +225,7 @@
         <DCCReference Include="src\KM_Maps.pas"/>
         <DCCReference Include="src\KM_MapEditor.pas"/>
         <DCCReference Include="src\KM_MasterServer.pas"/>
+        <DCCReference Include="src\KM_MessageLog.pas"/>
         <DCCReference Include="src\KM_MessageStack.pas"/>
         <DCCReference Include="src\KM_Minimap.pas"/>
         <DCCReference Include="src\KM_MissionScript.pas"/>
@@ -235,9 +237,13 @@
         <DCCReference Include="src\KM_NetClient.pas"/>
         <DCCReference Include="src\KM_NetClientOverbyte.pas"/>
         <DCCReference Include="src\KM_NetClientLNet.pas"/>
+        <DCCReference Include="src\KM_NetFileTransfer.pas"/>
         <DCCReference Include="src\KM_NetServer.pas"/>
         <DCCReference Include="src\KM_NetServerOverbyte.pas"/>
         <DCCReference Include="src\KM_NetServerLNet.pas"/>
+        <DCCReference Include="src\KM_NetUDP.pas"/>
+        <DCCReference Include="src\KM_NetUDPOverbyte.pas"/>
+        <DCCReference Include="src\KM_NetUDPLNet.pas"/>
         <DCCReference Include="src\KM_Networking.pas"/>
         <DCCReference Include="src\KM_NetworkClasses.pas"/>
         <DCCReference Include="src\KM_NetworkTypes.pas"/>

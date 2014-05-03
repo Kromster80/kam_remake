@@ -91,10 +91,17 @@ begin
   if gLog = nil then Exit; //Could crash very early before even the log file is created
 
   //It's nice to know when the exception happened in our log if the user decides to play on and sends the report later
-  LogMessage := 'Exception occured: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
+  LogMessage := 'Exception occurred: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
   if ExceptIntf.ExceptObject is ELocError then
     LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
   gLog.AddTime(LogMessage);
+  gLog.AddNoTime('================================================================================');
+  gLog.AddNoTime('                                START BUG REPORT                                ');
+  gLog.AddNoTime('================================================================================');
+  gLog.AddNoTime(ExceptIntf.BugReport);
+  gLog.AddNoTime('================================================================================');
+  gLog.AddNoTime('                                 END BUG REPORT                                 ');
+  gLog.AddNoTime('================================================================================');
 
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
