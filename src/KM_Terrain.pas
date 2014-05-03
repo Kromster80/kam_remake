@@ -188,7 +188,7 @@ type
     function CanWalkDiagonaly(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 
     function TopHill: Byte;
-    procedure FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
+    procedure FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean = True; aIgnoreCanElevate: Boolean = False); overload;
     procedure FlattenTerrain(LocList: TKMPointList); overload;
 
     function ConvertCursorToMapCoord(inX,inY:single): Single;
@@ -1687,7 +1687,7 @@ begin
     else      Exit;
   end;
 
-  FlattenTerrain(Loc);
+  FlattenTerrain(Loc, True, True); //Ignore canElevate since it can prevent stonehill from being still walkable and cause a crash
 end;
 
 
@@ -2187,9 +2187,18 @@ end;
 
 
 //todo: Rewrite into controlled recursion to avoid StackOverflows
+//@Krom: Stackoverflow usually occurs because keeping mountain walkable with stonemining is
+//       sometimes impossible to solve when considering CanElevate (houses near stone).
+//       So changing recursion to iteration would just give us an infinite loop in that case :(
+//       I've added aIgnoreCanElevate for stonemining only, which means land under houses
+//       gets elevated but stops crashes (tested on multiple r5503 crash reports) since
+//       now it is possible to keep all tiles walkable by repeatedly flattening.
+//       I can't think of a flattening algo that maintains walkability AND CanElevate constraint.
+//       It needs major rethinking, rewriting recursion won't solve it.
 //Interpolate between 12 vertices surrounding this tile (X and Y, no diagonals)
 //Also it is FlattenTerrain duty to preserve walkability if there are units standing
-procedure TKMTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean = True);
+//aIgnoreCanElevate ignores CanElevate constraint which prevents crashes during stonemining (hacky)
+procedure TKMTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean = True; aIgnoreCanElevate: Boolean = False);
   //If tiles with units standing on them become unwalkable we should try to fix them
   procedure EnsureWalkable(aX,aY: Word);
   begin
@@ -2207,7 +2216,7 @@ procedure TKMTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean 
   function CanElevateAt(aX, aY: Word): Boolean;
   begin
     //Passability does not get set for the row below the bottom/right edges
-    Result := (CanElevate in Land[aY, aX].Passability) or (aX = fMapX) or (aY = fMapY);
+    Result := aIgnoreCanElevate or (CanElevate in Land[aY, aX].Passability) or (aX = fMapX) or (aY = fMapY);
   end;
 
 var
