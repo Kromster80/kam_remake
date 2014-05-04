@@ -158,8 +158,13 @@ end;
 
 
 procedure TKMUnitWarrior.KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean);
+var AlreadyDeadOrDying: Boolean;
 begin
-  if not IsDeadOrDying then
+  AlreadyDeadOrDying := IsDeadOrDying; //Inherrited will kill the unit
+  inherited;
+
+  //After inherited so script events can still check which group the warrior is from
+  if not AlreadyDeadOrDying then
   begin
     ClearOrderTarget; //This ensures that pointer usage tracking is reset
 
@@ -167,8 +172,6 @@ begin
     if Assigned(OnWarriorDied) then
       OnWarriorDied(Self);
   end;
-
-  inherited;
 end;
 
 
