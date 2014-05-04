@@ -179,17 +179,20 @@ type
     SFXPath: UnicodeString;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
     constructor Create(aIDCache: TKMScriptingIdCache);
 
+    procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word);
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
-    procedure AIWorkerLimit(aPlayer, aLimit: Byte);
     procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
+    procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
     procedure AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
     procedure AIRecruitLimit(aPlayer, aLimit: Byte);
     procedure AISerfsPerHouse(aPlayer: Byte; aSerfs: Single);
     procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer);
+    procedure AIStartPosition(aPlayer: Byte; X, Y: Word);
+    procedure AIWorkerLimit(aPlayer, aLimit: Byte);
 
     procedure CinematicStart(aPlayer: Byte);
     procedure CinematicEnd(aPlayer: Byte);
@@ -2098,6 +2101,16 @@ begin
 end;
 
 
+procedure TKMScriptActions.AIAutoAttackRange(aPlayer: Byte; aRange: Word);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and InRange(aRange, 1, 20) then
+    gHands[aPlayer].AI.Setup.AutoAttackRange := aRange
+  else
+    LogError('Actions.AIAutoAttackRange', [aPlayer, aRange]);
+end;
+
+
 procedure TKMScriptActions.AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
@@ -2125,15 +2138,6 @@ begin
 end;
 
 
-procedure TKMScriptActions.AIWorkerLimit(aPlayer, aLimit: Byte);
-begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
-    gHands[aPlayer].AI.Setup.WorkerCount := aLimit
-  else
-    LogError('Actions.AIWorkerLimit', [aPlayer, aLimit]);
-end;
-
-
 procedure TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1)
@@ -2145,6 +2149,15 @@ begin
   else
     LogError('Actions.AIDefencePositionAdd', [aPlayer, X, Y, aDir, aGroupType, aRadius, aDefType]);
  end;
+
+
+ procedure TKMScriptActions.AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    gHands[aPlayer].AI.Setup.DefendAllies := aDefend
+  else
+    LogError('Actions.AIDefendAllies', [aPlayer, Byte(aDefend)]);
+end;
 
 
 procedure TKMScriptActions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
@@ -2211,6 +2224,25 @@ begin
     gHands[aPlayer].AI.Setup.MaxSoldiers := aLimit
   else
     LogError('Actions.AISoldiersLimit', [aPlayer, aLimit]);
+end;
+
+
+procedure TKMScriptActions.AIStartPosition(aPlayer: Byte; X: Word; Y: Word);
+begin
+  if (InRange(aPlayer, 0, gHands.Count - 1))
+  and (gTerrain.TileInMapCoords(X, Y)) then
+    gHands[aPlayer].AI.Setup.StartPosition := KMPoint(X, Y)
+  else
+    LogError('Actions.AIStartPosition', [aPlayer, X, Y]);
+end;
+
+
+procedure TKMScriptActions.AIWorkerLimit(aPlayer, aLimit: Byte);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    gHands[aPlayer].AI.Setup.WorkerCount := aLimit
+  else
+    LogError('Actions.AIWorkerLimit', [aPlayer, aLimit]);
 end;
 
 

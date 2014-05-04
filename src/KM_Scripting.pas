@@ -204,17 +204,20 @@ begin
 
     with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
     begin
+      RegisterMethod('procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word)');
       RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
-      RegisterMethod('procedure AIWorkerLimit(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
+      RegisterMethod('procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean)');
       RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
       RegisterMethod('procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
       RegisterMethod('procedure AIRecruitDelay(aPlayer, aDelay: Cardinal)');
       RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AISerfsFactor(aPlayer: Byte; aLimit: Single)');
       RegisterMethod('procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer)');
+      RegisterMethod('procedure AIStartPosition(aPlayer: Byte; X, Y: Word)');
+      RegisterMethod('procedure AIWorkerLimit(aPlayer, aLimit: Byte)');
 
       RegisterMethod('procedure CinematicStart(aPlayer: Byte)');
       RegisterMethod('procedure CinematicEnd(aPlayer: Byte)');
@@ -539,17 +542,20 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
+      RegisterMethod(@TKMScriptActions.AIAutoAttackRange,    'AIAUTOATTACKRANGE');
       RegisterMethod(@TKMScriptActions.AIAutoBuild,          'AIAUTOBUILD');
       RegisterMethod(@TKMScriptActions.AIAutoDefence,        'AIAUTODEFENCE');
       RegisterMethod(@TKMScriptActions.AIAutoRepair,         'AIAUTOREPAIR');
-      RegisterMethod(@TKMScriptActions.AIWorkerLimit,        'AIWORKERLIMIT');
       RegisterMethod(@TKMScriptActions.AIDefencePositionAdd, 'AIDEFENCEPOSITIONADD');
+      RegisterMethod(@TKMScriptActions.AIDefendAllies,       'AIDEFENDALLIES');
       RegisterMethod(@TKMScriptActions.AIEquipRate,          'AIEQUIPRATE');
       RegisterMethod(@TKMScriptActions.AIGroupsFormationSet, 'AIGROUPSFORMATIONSET)');
       RegisterMethod(@TKMScriptActions.AIRecruitDelay,       'AIRECRUITDELAY');
       RegisterMethod(@TKMScriptActions.AIRecruitLimit,       'AIRECRUITLIMIT');
       RegisterMethod(@TKMScriptActions.AISerfsPerHouse,      'AISERFSPERHOUSE');
       RegisterMethod(@TKMScriptActions.AISoldiersLimit,      'AISOLDIERSLIMIT');
+      RegisterMethod(@TKMScriptActions.AIStartPosition,      'AISTARTPOSITION');
+      RegisterMethod(@TKMScriptActions.AIWorkerLimit,        'AIWORKERLIMIT');
 
       RegisterMethod(@TKMScriptActions.CinematicStart,    'CINEMATICSTART');
       RegisterMethod(@TKMScriptActions.CinematicEnd,      'CINEMATICEND');
