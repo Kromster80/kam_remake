@@ -348,6 +348,7 @@ TX_MENU_LOAD_DELETE = 321; //Delete
 TX_MENU_LOAD_DELETE_CONFIRM = 322; //Are you sure you want to delete this save?
 TX_MENU_LOAD_DELETE_DELETE = 323; //Delete
 TX_MENU_LOAD_DELETE_CANCEL = 324; //Cancel
+TX_MENU_REPLAY_DELETE_CONFIRM = 801; //Deleting a replay also deletes the associated save. Are you sure you want to delete this save?
 TX_MENU_CAMPAIGNS_TITLE = 325; //Title
 TX_MENU_CAMPAIGNS_MAPS_COUNT = 326; //Maps
 TX_MENU_CAMPAIGNS_MAPS_UNLOCKED = 327; //Unlocked

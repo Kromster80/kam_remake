@@ -755,3 +755,4 @@
 798:Vote Go to Lobby
 799:%s voted to return to the lobby (vote passed)
 800:The vote to return to the lobby failed
+801:Deleting a replay also deletes the associated save. Are you sure you want to delete this save?

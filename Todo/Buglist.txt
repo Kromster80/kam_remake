@@ -15,7 +15,6 @@ Bugs:
  +	AIs should retaliate when the arrows are in the air, not while the archer is just aiming
  +	Limit save name length (long names can cause crash)
  +	Fixed winefield bug (MapEd did not save grapes objects)
- +	Increased max terrain brush size to 32
  +	Scripts should not allow to link players warriors to other players group
  +	In-house enable/disable ware delivery in script worked in reverse
  +	Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
@@ -75,8 +74,10 @@ Improvements:
  +	L	Set random seed on game start (for MP it needs to be decided by host and synced before the game starts)
  +	L	A way to order +100 weapons at weapon makers and other places (shift + left-click)
  +	L	MapEd: Allow custom map sizes
- +	L	Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, x to charge, f for food
+ +	L	Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, X to charge, F for food
  +	L	MapEd: Randomize terrain tiles when creating a new map
+ +	L	MapEd: Increased max terrain brush size to 32
+ +	L	New script command !BLOCK_UNIT to block certain types of units/soldiers from being trained/equipped
  +	L	Allow cinematics in dynamic scripts
  +	M	File transfers in multiplayer lobby
  +	L	Master server use MySQL for storage rather than .txt files
@@ -94,12 +95,13 @@ Improvements:
  +	L	When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
  +	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
  +	L	Pressing spacebar will center the screen on the latest alert (beacon or under attack)
- +	L	Save screenshots into own folder called "screenshots"
+ +	L	Save screenshots into own folder called "Screenshots"
  +	L	Add an option to give hosting rights to another player in lobby
  +	L	The story message on campaign map minimizes instead of jumping annoyingly
  +	L	Unlocked campaign map flags have numbers so you can find a mission easily
  +	M	Ability to return to the lobby (by vote) after the game has started in multiplayer
  +	M	Servers running on the local area network are detected and listed at the top of the server list
+ +	L	Some way to delete multiplayer saves from within the KaM Remake (delete button on replay viewer)
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -107,7 +109,6 @@ Improvements:
 	L	256x256 icons for EXE (for vista/7/8 users)
 	L	Chat logs
 	L	Evacuate wares from barracks
-	L	Some way to delete multiplayer saves from within the KaM Remake
 	L	Allow chat over multiplayer results screen
 	L	Add support for 1024x600 (1280x720) resolution in the map editor
 	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
