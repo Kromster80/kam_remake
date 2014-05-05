@@ -87,7 +87,7 @@ begin
     NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 180, 80, 0, High(SmallInt));
     NumEdit_AttackDelay.OnChange := Attack_Change;
 
-    with TKMLabel.Create(Panel_Attack, 340, 40, 150, 40, gResTexts[TX_MAPED_AI_ATTACK_REQ_SOLDIERS], fnt_Metal, taLeft) do
+    with TKMLabel.Create(Panel_Attack, 340, 40, 200, 40, gResTexts[TX_MAPED_AI_ATTACK_SOLDIERS], fnt_Metal, taLeft) do
       AutoWrap := True;
     NumEdit_AttackMen := TKMNumericEdit.Create(Panel_Attack, 340, 80, 0, 1000);
     NumEdit_AttackMen.OnChange := Attack_Change;
@@ -100,7 +100,7 @@ begin
       NumEdit_AttackAmount[GT].OnChange := Attack_Change;
     end;
 
-    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 265, 160, 20, gResTexts[TX_MAPED_AI_ATTACK_TAKE_ALL], fnt_Metal);
+    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 265, 210, 20, gResTexts[TX_MAPED_AI_ATTACK_TAKE_RANDOMLY], fnt_Metal);
     CheckBox_AttackTakeAll.OnClick := Attack_Change;
 
     //Second row

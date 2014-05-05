@@ -453,7 +453,6 @@
 458:Recruits per Barracks
 460:Custom position
 463:Closest unit
-464:Take all
 465:Group count
 466:Attack info
 468:Repeating
@@ -743,7 +742,6 @@
 785:AI start position
 786:Order
 788:Initial delay (seconds)
-789:Soldiers required
 790:Closest house from army
 791:Closest house from start position
 792:Attackers
@@ -756,3 +754,5 @@
 799:%s voted to return to the lobby (vote passed)
 800:The vote to return to the lobby failed
 801:Deleting a replay also deletes the associated save. Are you sure you want to delete this save?
+802:Take randomly
+803:Number of soldiers to attack
