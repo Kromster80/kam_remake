@@ -1,0 +1,59 @@
+var S1, S2, S3, L1, L2: Integer;
+
+procedure OnMissionStart;
+begin
+Actions.FogCoverAll(0)
+Actions.PlayerShareFog(0, 4, False);
+Actions.PlayerShareFog(4, 0, False);
+Actions.FogRevealCircle(0, 23, 31, 9);
+Actions.FogRevealCircle(0, 18, 38, 9);
+Actions.FogRevealCircle(0, 24, 40, 8);
+Actions.FogRevealCircle(0, 17, 52, 6);
+Actions.FogRevealCircle(0, 8, 48, 5);
+Actions.FogRevealCircle(0, 16, 46, 6);
+Actions.FogRevealCircle(0, 21, 47, 5);
+Actions.FogRevealCircle(0, 11, 39, 5);
+Actions.FogRevealCircle(0, 12, 43, 6);
+S1:= Actions.GiveUnit(0, 0, 20, 6, 5);
+S2:= Actions.GiveUnit(0, 0, 23, 8, 5);
+S3:= Actions.GiveUnit(0, 0, 19, 10, 5);
+L1:= Actions.GiveUnit(0, 9, 27, 7, 5);
+L2:= Actions.GiveUnit(0, 9, 25, 9, 5);
+Actions.UnitOrderWalk (S1, 15, 41);
+Actions.UnitOrderWalk (S2, 17, 40);
+Actions.UnitOrderWalk (S3, 14, 44);
+Actions.UnitOrderWalk (L1, 20, 43);
+Actions.UnitOrderWalk (L2, 22, 44);
+end;
+
+procedure OnTick;
+begin
+if States.GameTime = 350 then
+begin
+Actions.FogCoverAll(0)
+Actions.FogRevealCircle(0, 23, 31, 9);
+Actions.FogRevealCircle(0, 18, 38, 9);
+Actions.FogRevealCircle(0, 24, 40, 8);
+Actions.FogRevealCircle(0, 17, 52, 6);
+Actions.FogRevealCircle(0, 8, 48, 5);
+Actions.FogRevealCircle(0, 16, 46, 6);
+Actions.FogRevealCircle(0, 21, 47, 5);
+Actions.FogRevealCircle(0, 11, 39, 5);
+Actions.FogRevealCircle(0, 12, 43, 6);
+end;
+begin
+if ((States.StatHouseTypeCount (1, 11) = 0)
+AND(States.StatHouseTypeCount (2, 11) = 0)
+AND(States.StatHouseTypeCount (3, 11) = 0)
+AND(States.StatHouseTypeCount (5, 11) = 0)
+AND(States.StatHouseTypeCount (1, 21) = 0)
+AND(States.StatHouseTypeCount (2, 21) = 0)
+AND(States.StatHouseTypeCount (3, 21) = 0)
+AND(States.StatHouseTypeCount (5, 21) = 0)
+AND(States.StatArmyCount (1) = 0)
+AND(States.StatArmyCount (2) = 0)
+AND(States.StatArmyCount (3) = 0)
+AND(States.StatArmyCount (5) = 0))
+then Actions.PlayerWin ([0], true);
+end;
+end;
