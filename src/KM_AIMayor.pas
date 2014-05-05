@@ -44,6 +44,7 @@ type
     procedure CheckRoadsCount;
     procedure CheckExhaustedMines;
     procedure CheckWeaponOrderCount;
+    procedure CheckArmyDemand;
   public
     constructor Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
     destructor Destroy; override;
@@ -124,6 +125,7 @@ procedure TKMayor.AfterMissionInit;
 begin
   fCityPlanner.AfterMissionInit;
   CheckStrategy;
+  CheckArmyDemand;
 end;
 
 
@@ -188,11 +190,11 @@ begin
     HS := TKMHouseSchool(P.FindHouse(ht_School, K));
   end;
 
-  //Order the training
+  //Order the training. Keep up to 2 units in the queue so the school doesn't have to wait
   for K := 0 to High(Schools) do
   begin
     HS := Schools[K];
-    if (HS <> nil) and (HS.QueueIsEmpty) then
+    if (HS <> nil) and (HS.QueueCount < 2) then
     begin
       //Order citizen training
       for UT := Low(UnitReq) to High(UnitReq) do
@@ -206,15 +208,25 @@ begin
 
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
-      if HS.QueueIsEmpty then //Still haven't found a match...
-        if HasEnoughGold then //If we are low on Gold don't hire more ppl
-          if not TryAddToQueue(ut_Serf, Round(fSetup.SerfsPerHouse * (P.Stats.GetHouseQty(ht_Any) + P.Stats.GetUnitQty(ut_Worker)/2))) then
-            if not TryAddToQueue(ut_Worker, fSetup.WorkerCount) then
-              if gGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
-                if not TryAddToQueue(ut_Recruit, fSetup.RecruitCount * P.Stats.GetHouseQty(ht_Barracks)) then
-                  Break; //There's no unit demand at all
+      while (HS.QueueCount < 2) //Still haven't found a match...
+      and HasEnoughGold do  //If we are low on Gold don't hire more ppl
+        if not TryAddToQueue(ut_Serf, Round(fSetup.SerfsPerHouse * (P.Stats.GetHouseQty(ht_Any) + P.Stats.GetUnitQty(ut_Worker)/2))) then
+          if not TryAddToQueue(ut_Worker, fSetup.WorkerCount) then
+            if not gGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
+              Break
+            else
+              if not TryAddToQueue(ut_Recruit, fSetup.RecruitCount * P.Stats.GetHouseQty(ht_Barracks)) then
+                Break; //There's no unit demand at all
     end;
   end;
+end;
+
+
+procedure TKMayor.CheckArmyDemand;
+var Footmen, Pikemen, Horsemen, Archers: Integer;
+begin
+  gHands[fOwner].AI.General.DefencePositions.GetArmyDemand(Footmen, Pikemen, Horsemen, Archers);
+  SetArmyDemand(Footmen, Pikemen, Horsemen, Archers);
 end;
 
 
@@ -421,8 +433,14 @@ begin
     begin
       S := TKMHouseStore(Houses[I]);
 
-      S.NotAcceptFlag[wt_Trunk] := S.CheckResIn(wt_Trunk) > 50;
+      S.NotAcceptFlag[wt_Wood] := S.CheckResIn(wt_Wood) > 50;
       S.NotAcceptFlag[wt_Stone] := S.CheckResIn(wt_Stone) > 50;
+      S.NotAcceptFlag[wt_Gold] := S.CheckResIn(wt_Gold) > 50;
+      //Storing these causes lots of congestion with very little gain
+      S.NotAcceptFlag[wt_Trunk] := True;
+      S.NotAcceptFlag[wt_GoldOre] := True;
+      S.NotAcceptFlag[wt_IronOre] := True;
+      S.NotAcceptFlag[wt_Coal] := True;
     end;
 end;
 
@@ -536,10 +554,6 @@ begin
   end;
 
   fBalance.ArmyType := fArmyType;
-
-  //For now make equal amounts of each troop type (that's how it works in KaM with weapons production)
-  //todo: Calculate these based on amount needed for each defence position
-  SetArmyDemand(1, 1, 1, 1);
 end;
 
 
@@ -579,7 +593,7 @@ begin
   //Store localy in Mayor to place weapon orders
   ShieldNeed := Footmen + Horsemen;
   ArmorNeed := Footmen + Pikemen + Horsemen + Archers;
-  AxeNeed := Footmen * 2 + Horsemen;
+  AxeNeed := Footmen + Horsemen;
   PikeNeed := Pikemen;
   BowNeed := Archers;
   HorseNeed := Horsemen;
@@ -617,6 +631,7 @@ begin
   //Train new units (citizens, serfs, workers and recruits) if needed
   CheckUnitCount;
 
+  CheckArmyDemand;
   CheckWeaponOrderCount;
 
   if fSetup.AutoBuild then

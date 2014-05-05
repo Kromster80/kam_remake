@@ -27,6 +27,7 @@ type
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
     function GetTrainingProgress: Single;
+    function QueueCount: Byte;
     function QueueIsEmpty: Boolean;
     function QueueIsFull: Boolean;
     function QueueLength: Byte;
@@ -210,6 +211,17 @@ begin
   Result := True;
   for I := 0 to High(fQueue) do
     Result := Result and (fQueue[I] = ut_None);
+end;
+
+
+function TKMHouseSchool.QueueCount: Byte;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to High(fQueue) do
+    if fQueue[I] <> ut_None then
+      Inc(Result);
 end;
 
 

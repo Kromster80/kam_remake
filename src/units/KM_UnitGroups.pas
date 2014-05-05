@@ -133,7 +133,7 @@ type
 
     procedure OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
     procedure OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean);
-    procedure OrderFood(aClearOffenders: Boolean);
+    procedure OrderFood(aClearOffenders: Boolean; aHungryOnly: Boolean = False);
     procedure OrderFormation(aTurnAmount: TKMTurnDirection; aColumnsChange: ShortInt; aClearOffenders: Boolean);
     procedure OrderHalt(aClearOffenders: Boolean);
     procedure OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
@@ -1056,13 +1056,14 @@ end;
 
 
 //Order some food for troops
-procedure TKMUnitGroup.OrderFood(aClearOffenders: Boolean);
+procedure TKMUnitGroup.OrderFood(aClearOffenders: Boolean; aHungryOnly: Boolean = False);
 var I: Integer;
 begin
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   for I := 0 to Count - 1 do
-    Members[I].OrderFood;
+    if not aHungryOnly or (Members[I].Condition <= UNIT_MIN_CONDITION) then
+      Members[I].OrderFood;
 
   OrderHalt(False);
 end;

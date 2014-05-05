@@ -216,7 +216,8 @@ begin
     begin
       //Check hunger and order food
       if (Group.Condition < UNIT_MIN_CONDITION) then
-        Group.OrderFood(True);
+        //Cheat for autobuild AI: Only feed hungry group members (food consumption lower and more predictable)
+        Group.OrderFood(True, fSetup.AutoBuild);
 
       if gGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
@@ -380,6 +381,7 @@ var
   FaceDir: TKMDirection;
   SegLength, Ratio: Single;
   DefCount: Byte;
+  GT: TGroupType;
 begin
   //Get defence Outline with weights representing how important each segment is
   fAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
@@ -411,9 +413,15 @@ begin
     //Add defence positions
     for I := Locs.Count - 1 downto 0 do
     begin
+      //Mix group types
+      case I mod 3 of
+        0..1: GT := gt_Melee;
+        2..2: GT := gt_AntiHorse;
+      end;
+
       LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 1);
       Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
-      fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gt_Melee, 25, adt_FrontLine);
+      fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 25, adt_FrontLine);
 
       LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 4);
       Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);

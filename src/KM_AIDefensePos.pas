@@ -63,6 +63,7 @@ type
     function FindPlaceForGroup(aGroup: TKMUnitGroup; aTakeClosest: Boolean): Boolean;
     procedure RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
     function FindPositionOf(aGroup: TKMUnitGroup): TAIDefencePosition;
+    procedure GetArmyDemand(out aFootmen: Integer; out aPikemen: Integer; out aHorsemen: Integer; out aArchers: Integer);
 
     procedure MoveUp(aIndex: Integer);
     procedure MoveDown(aIndex: Integer);
@@ -320,6 +321,26 @@ begin
   begin
     Result := Positions[I];
     Break;
+  end;
+end;
+
+
+procedure TAIDefencePositions.GetArmyDemand(out aFootmen: Integer; out aPikemen: Integer; out aHorsemen: Integer; out aArchers: Integer);
+var I, Required: Integer;
+begin
+  aFootmen := 0;
+  aPikemen := 0;
+  aHorsemen := 0;
+  aArchers := 0;
+  for I := 0 to Count - 1 do
+  begin
+    Required := TroopFormations[Positions[I].GroupType].NumUnits;
+    case Positions[I].GroupType of
+      gt_Melee:     Inc(aFootmen, Required);
+      gt_AntiHorse: Inc(aPikemen, Required);
+      gt_Ranged:    Inc(aArchers, Required);
+      gt_Mounted:   Inc(aHorsemen, Required);
+    end;
   end;
 end;
 
