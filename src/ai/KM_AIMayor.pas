@@ -65,7 +65,7 @@ type
 
 implementation
 uses KM_Game, KM_Houses, KM_HouseCollection, KM_HouseSchool, KM_HandsCollection, KM_Hand, KM_Terrain, KM_Resource,
-  KM_ResWares, KM_AIFields, KM_Units, KM_UnitTaskDelivery, KM_UnitActionWalkTo, KM_UnitTaskGoEat;
+  KM_ResWares, KM_AIFields, KM_Units, KM_UnitTaskDelivery, KM_UnitActionWalkTo, KM_UnitTaskGoEat, KM_UnitsCollection;
 
 
 const //Sample list made by AntonP
@@ -518,6 +518,7 @@ end;
 
 
 procedure TKMayor.CheckRoadsCount;
+const SHORTCUT_CHECKS_PER_UPDATE = 10;
 var
   P: TKMHand;
   Store: TKMHouse;
@@ -552,6 +553,10 @@ begin
   try
     //See where our citizens are walking and build shortcuts where possible
     for I := 0 to gHands[fOwner].Units.Count - 1 do
+    begin
+      //Checking for shortcuts is slow, so skip some units randomly each update
+      if KaMRandom(gHands[fOwner].Stats.GetUnitQty(ut_Serf)) >= SHORTCUT_CHECKS_PER_UPDATE then
+        Continue;
       if not gHands[fOwner].Units[I].IsDeadOrDying
       and (gHands[fOwner].Units[I].GetUnitAction is TUnitActionWalkTo) then
         if ((gHands[fOwner].Units[I] is TKMUnitSerf) and (gHands[fOwner].Units[I].UnitTask is TTaskDeliver))
@@ -575,6 +580,7 @@ begin
                 P.BuildList.FieldworksList.AddField(NodeList[K], ft_Road);
           end;
         end;
+    end;
   finally
     NodeList.Free;
   end;

@@ -153,7 +153,7 @@ begin
 
   GoldNeed := 1;
   StoneNeed := 10;
-  WoodNeed := 4.5;
+  WoodNeed := 3.5;
 end;
 
 
