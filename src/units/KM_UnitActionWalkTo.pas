@@ -82,6 +82,8 @@ type
     function GetExplanation: UnicodeString; override;
     function WalkingToUnit: Boolean; //Are we walking to a unit?
     function WasPushed: Boolean;
+    property WalkFrom: TKMPoint read fWalkFrom;
+    property WalkTo: TKMPoint read fWalkTo;
 
     //Modify route to go to this destination instead
     procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True); overload;

@@ -28,6 +28,16 @@ type
     procedure Load(LoadStream: TKMemoryStream); override;
   end;
 
+  //Minor variation on class above for creating shortcuts in AI road network
+  TPathFindingRoadShortcuts = class(TPathFindingRoad)
+  private
+  protected
+    function DestinationReached(aX, aY: Word): Boolean; override;
+    function IsWalkableTile(aX, aY: Word): Boolean; override;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
+  public
+  end;
+
 
 implementation
 uses KM_HandsCollection, KM_Terrain, KM_Units, KM_Hand;
@@ -131,5 +141,41 @@ begin
   Result := inherited Route_ReturnToWalkable(aLocA, aLocB, wcRoad, 0, [CanMakeRoads, CanWalkRoad], NodeList);
 end;
 
+
+{ TPathFindingRoadShortcuts }
+function TPathFindingRoadShortcuts.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+var IsRoad: Boolean;
+begin
+  //Since we don't allow roads to be built diagonally we can assume
+  //path is always 1 tile (10 points)
+  Result := 10;
+
+  //Off road costs extra
+  IsRoad := (CanWalkRoad in gTerrain.Land[aToY, aToX].Passability)
+            or (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aToX, aToY)) = ft_Road)
+            or (gTerrain.Land[aToY, aToX].TileLock = tlRoadWork);
+  if not IsRoad then
+    Inc(Result, 30);
+
+  //Building roads over fields is discouraged unless unavoidable
+  if gTerrain.TileIsCornField(KMPoint(aToX, aToY))
+  or gTerrain.TileIsWineField(KMPoint(aToX, aToY)) then
+    Inc(Result, 40);
+end;
+
+
+function TPathFindingRoadShortcuts.IsWalkableTile(aX, aY: Word): Boolean;
+begin
+  Result := ([CanMakeRoads, CanWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
+            or (gTerrain.Land[aY, aX].TileLock = tlRoadWork);
+  Result := Result and (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
+                   and not gHands[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
+end;
+
+
+function TPathFindingRoadShortcuts.DestinationReached(aX, aY: Word): Boolean;
+begin
+  Result := ((aX = fLocB.X) and (aY = fLocB.Y)); //We reached destination point
+end;
 
 end.

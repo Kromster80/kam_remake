@@ -16,6 +16,7 @@ type
     fBalance: TKMayorBalance;
     fCityPlanner: TKMCityPlanner;
     fPathFindingRoad: TPathFindingRoad;
+    fPathFindingRoadShortcuts: TPathFindingRoadShortcuts;
 
     fAutoRepair: Boolean;
 
@@ -64,7 +65,7 @@ type
 
 implementation
 uses KM_Game, KM_Houses, KM_HouseCollection, KM_HouseSchool, KM_HandsCollection, KM_Hand, KM_Terrain, KM_Resource,
-  KM_ResWares, KM_AIFields;
+  KM_ResWares, KM_AIFields, KM_Units, KM_UnitTaskDelivery, KM_UnitActionWalkTo, KM_UnitTaskGoEat;
 
 
 const //Sample list made by AntonP
@@ -107,6 +108,7 @@ begin
   fBalance := TKMayorBalance.Create(fOwner);
   fCityPlanner := TKMCityPlanner.Create(fOwner);
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
+  fPathFindingRoadShortcuts := TPathFindingRoadShortcuts.Create(fOwner);
 
   fAutoRepair := False; //In KaM it is Off by default
 end;
@@ -117,6 +119,7 @@ begin
   fBalance.Free;
   fCityPlanner.Free;
   fPathFindingRoad.Free;
+  fPathFindingRoadShortcuts.Free;
   inherited;
 end;
 
@@ -520,6 +523,9 @@ var
   Store: TKMHouse;
   StoreLoc: TKMPoint;
   I, K: Integer;
+  FromLoc, ToLoc: TKMPoint;
+  NodeList: TKMPointList;
+  RoadExists: Boolean;
 begin
   P := gHands[fOwner];
 
@@ -539,9 +545,39 @@ begin
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
   end;
 
-  //todo: Check if we need to connect separate branches of road network
+  //Check if we need to connect separate branches of road network
   //Town has no plan and usually roadnetwork looks like a tree,
-  //where we could improve it by connecting near branches with shortcuts
+  //where we can improve it by connecting near branches with shortcuts.
+  NodeList := TKMPointList.Create;
+  try
+    //See where our citizens are walking and build shortcuts where possible
+    for I := 0 to gHands[fOwner].Units.Count - 1 do
+      if not gHands[fOwner].Units[I].IsDeadOrDying
+      and (gHands[fOwner].Units[I].GetUnitAction is TUnitActionWalkTo) then
+        if ((gHands[fOwner].Units[I] is TKMUnitSerf) and (gHands[fOwner].Units[I].UnitTask is TTaskDeliver))
+        or ((gHands[fOwner].Units[I] is TKMUnitCitizen) and (gHands[fOwner].Units[I].UnitTask is TTaskGoEat)) then
+        begin
+          FromLoc := TUnitActionWalkTo(gHands[fOwner].Units[I].GetUnitAction).WalkFrom;
+          ToLoc := TUnitActionWalkTo(gHands[fOwner].Units[I].GetUnitAction).WalkTo;
+          //Unit's route must be using road network, not f.e. delivering to soldiers
+          if gTerrain.Route_CanBeMade(FromLoc, ToLoc, CanWalkRoad, 0) then
+          begin
+            //Check for shortcuts we could build
+            NodeList.Clear;
+            RoadExists := fPathFindingRoadShortcuts.Route_Make(FromLoc, ToLoc, NodeList);
+
+            if not RoadExists then
+              Break;
+
+            for K := 0 to NodeList.Count - 1 do
+              //We must check if we can add the plan ontop of plans placed earlier in this turn
+              if P.CanAddFieldPlan(NodeList[K], ft_Road) then
+                P.BuildList.FieldworksList.AddField(NodeList[K], ft_Road);
+          end;
+        end;
+  finally
+    NodeList.Free;
+  end;
 end;
 
 
@@ -580,6 +616,7 @@ begin
   fBalance.OwnerUpdate(aPlayer);
   fCityPlanner.OwnerUpdate(aPlayer);
   fPathFindingRoad.OwnerUpdate(aPlayer);
+  fPathFindingRoadShortcuts.OwnerUpdate(aPlayer);
 end;
 
 
@@ -697,6 +734,7 @@ begin
   fBalance.Save(SaveStream);
   fCityPlanner.Save(SaveStream);
   fPathFindingRoad.Save(SaveStream);
+  fPathFindingRoadShortcuts.Save(SaveStream);
 end;
 
 
@@ -717,6 +755,7 @@ begin
   fBalance.Load(LoadStream);
   fCityPlanner.Load(LoadStream);
   fPathFindingRoad.Load(LoadStream);
+  fPathFindingRoadShortcuts.Load(LoadStream);
 end;
 
 
