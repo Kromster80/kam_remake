@@ -425,7 +425,7 @@ var
 begin
   Houses := gHands[fOwner].Houses;
 
-  //Iterate through all Stores and block stone/trunks to reduce serf usage
+  //Iterate through all Stores and block certain wares to reduce serf usage
   for I := 0 to Houses.Count - 1 do
     if (Houses[I].HouseType = ht_Store)
     and Houses[I].IsComplete
@@ -433,14 +433,29 @@ begin
     begin
       S := TKMHouseStore(Houses[I]);
 
+      //We like to always keep a supply of these
       S.NotAcceptFlag[wt_Wood] := S.CheckResIn(wt_Wood) > 50;
       S.NotAcceptFlag[wt_Stone] := S.CheckResIn(wt_Stone) > 50;
       S.NotAcceptFlag[wt_Gold] := S.CheckResIn(wt_Gold) > 50;
+
       //Storing these causes lots of congestion with very little gain
-      S.NotAcceptFlag[wt_Trunk] := True;
-      S.NotAcceptFlag[wt_GoldOre] := True;
-      S.NotAcceptFlag[wt_IronOre] := True;
-      S.NotAcceptFlag[wt_Coal] := True;
+      //Auto build AI aims for perfectly balanced village where these goods don't need storing
+      //Keep them only until we have the house which consumes them.
+      S.NotAcceptFlag[wt_Trunk] := gHands[fOwner].Stats.GetHouseQty(ht_Sawmill) > 0;
+      S.NotAcceptFlag[wt_GoldOre] := gHands[fOwner].Stats.GetHouseQty(ht_Metallurgists) > 0;
+      S.NotAcceptFlag[wt_IronOre] := gHands[fOwner].Stats.GetHouseQty(ht_IronSmithy) > 0;
+      S.NotAcceptFlag[wt_Coal] := gHands[fOwner].Stats.GetHouseQty(ht_Metallurgists) +
+                                  gHands[fOwner].Stats.GetHouseQty(ht_IronSmithy) > 0;
+      S.NotAcceptFlag[wt_Steel] := gHands[fOwner].Stats.GetHouseQty(ht_WeaponSmithy) +
+                                   gHands[fOwner].Stats.GetHouseQty(ht_ArmorSmithy) > 0;
+      S.NotAcceptFlag[wt_Corn] := gHands[fOwner].Stats.GetHouseQty(ht_Mill) +
+                                  gHands[fOwner].Stats.GetHouseQty(ht_Swine) +
+                                  gHands[fOwner].Stats.GetHouseQty(ht_Stables) > 0;
+      S.NotAcceptFlag[wt_Leather] := gHands[fOwner].Stats.GetHouseQty(ht_ArmorWorkshop) > 0;
+      S.NotAcceptFlag[wt_Flour] := gHands[fOwner].Stats.GetHouseQty(ht_Bakery) > 0;
+      //Pigs and skin cannot be blocked since if swinefarm is full of one it stops working (blocks other)
+      //S.NotAcceptFlag[wt_Skin] := gHands[fOwner].Stats.GetHouseQty(ht_Tannery) > 0;
+      //S.NotAcceptFlag[wt_Pig] := gHands[fOwner].Stats.GetHouseQty(ht_Butchers) > 0;
     end;
 end;
 
@@ -453,9 +468,11 @@ var
 begin
   Houses := gHands[fOwner].Houses;
 
+  //Wait until resource is depleted and output is empty
   for I := 0 to Houses.Count - 1 do
   if not Houses[I].IsDestroyed
-  and Houses[I].ResourceDepletedMsgIssued then
+  and Houses[I].ResourceDepletedMsgIssued
+  and (Houses[I].CheckResOut(wt_All) = 0) then
     Houses[I].DemolishHouse(fOwner);
 end;
 
@@ -569,6 +586,20 @@ end;
 //Tell Mayor what proportions of army is needed
 //Input values are normalized
 procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
+
+  function IsIronProduced: Boolean;
+  var I: Integer;
+  begin
+    Result := False;
+    for I := 0 to gHands[fOwner].Houses.Count-1 do
+      if (gHands[fOwner].Houses[I].HouseType = ht_IronMine)
+      and not gHands[fOwner].Houses[I].ResourceDepletedMsgIssued then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
 var
   Summ: Single;
   Footmen, Pikemen, Horsemen, Archers: Single;
@@ -600,6 +631,8 @@ begin
 
   //How many warriors we would need to equip per-minute
   WarPerMin := fSetup.WarriorsPerMinute(fArmyType);
+  if IsIronProduced then
+    WarPerMin := WarPerMin / 2; //Half leather half iron
 
   //Update warfare needs accordingly
   fBalance.SetArmyDemand(ShieldNeed * WarPerMin, ArmorNeed * WarPerMin, AxeNeed * WarPerMin, PikeNeed * WarPerMin, BowNeed * WarPerMin, HorseNeed * WarPerMin);

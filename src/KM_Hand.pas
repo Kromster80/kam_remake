@@ -585,7 +585,7 @@ begin
 
     //Make sure we can add road below house, full width + 1 on each side
     //Terrain already checked we are 1 tile away from map edge
-    if (I = 4) then
+    if (I = 4) and not (aHouseType in [ht_GoldMine, ht_IronMine]) then
       if (gTerrain.Land[Ty+1, Tx - 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
       or (gTerrain.Land[Ty+1, Tx    ].Passability * [CanMakeRoads, CanWalkRoad] = [])
       or (gTerrain.Land[Ty+1, Tx + 1].Passability * [CanMakeRoads, CanWalkRoad] = [])

@@ -347,7 +347,7 @@ begin
                   else
                     SeedLocs := GetSeeds([ht_Store]);
                   if Length(SeedLocs) = 0 then Exit;
-                  if not FindNearest(SeedLocs[0], 45, fnCoal, P) then Exit;
+                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnCoal, P) then Exit;
                 end;
     wt_IronOre: begin
                   if gHands[fOwner].Stats.GetHouseTotal(ht_IronMine) > 0 then
@@ -355,7 +355,7 @@ begin
                   else
                     SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
                   if Length(SeedLocs) = 0 then Exit;
-                  if not FindNearest(SeedLocs[0], 45, fnIron, P) then Exit;
+                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnIron, P) then Exit;
                 end;
     wt_GoldOre: begin
                   if gHands[fOwner].Stats.GetHouseTotal(ht_GoldMine) > 0 then
@@ -363,7 +363,7 @@ begin
                   else
                     SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
                   if Length(SeedLocs) = 0 then Exit;
-                  if not FindNearest(SeedLocs[0], 45, fnGold, P) then Exit;
+                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnGold, P) then Exit;
                 end;
   end;
 
@@ -393,7 +393,7 @@ begin
   SeedLocs := GetSeeds(aSeed);
   if Length(SeedLocs) = 0 then Exit;
 
-  TargetLoc := SeedLocs[0];
+  TargetLoc := SeedLocs[KaMRandom(Length(SeedLocs))];
 
     //todo: Rework through FindNearest to avoid roundabouts
   //Fill in MyForest map
@@ -483,6 +483,7 @@ end;
 
 
 function TKMTerrainFinderCity.CanUse(const X, Y: Word): Boolean;
+var I,K: Integer;
 begin
   case FindType of
     fnHouse:  Result := gHands[fOwner].CanAddHousePlanAI(X, Y, HouseType, True);
@@ -492,11 +493,27 @@ begin
     fnCoal:   Result := (gTerrain.TileIsCoal(X, Y) > 1)
                          and gHands[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, False);
 
-    fnIron:   Result := (gTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
-                         and gHands[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, False);
+    fnIron:   begin
+                Result := gHands[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, False);
+                //If we can build a mine here then search for ore
+                if Result then
+                  for I:=Max(X-3, 1) to Min(X+3, gTerrain.MapX) do
+                    for K:=Max(Y-9, 1) to Y do
+                      if gTerrain.TileIsIron(I, K) > 0 then
+                        Exit;
+                Result := False; //Didn't find any ore
+              end;
 
-    fnGold:   Result := (gTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
-                         and gHands[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, False);
+    fnGold:   begin
+                Result := gHands[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, False);
+                //If we can build a mine here then search for ore
+                if Result then
+                  for I:=Max(X-3, 1) to Min(X+3, gTerrain.MapX) do
+                    for K:=Max(Y-9, 1) to Y do
+                      if gTerrain.TileIsGold(I, K) > 0 then
+                        Exit;
+                Result := False; //Didn't find any ore
+              end;
 
     else      Result := False;
   end;
