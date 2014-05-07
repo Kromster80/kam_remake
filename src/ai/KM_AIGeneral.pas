@@ -419,14 +419,31 @@ begin
       Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
       //Mix group types deterministicly based on Loc, so they don't change for a given position
       case (Loc.X + Loc.Y) mod 3 of
-        1..1: GT := gt_AntiHorse;
-        else  GT := gt_Melee;
+        0:   GT := gt_AntiHorse;
+        else GT := gt_Melee;
       end;
       fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 25, adt_FrontLine);
 
       LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 4);
       Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
       fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gt_Ranged, 25, adt_FrontLine);
+    end;
+
+    //Add backline defence positions after adding all the front line ones so they are lower priority
+    for I := Locs.Count - 1 downto 0 do
+    begin
+      //Try to add backline defence positions behind front line, if there's space
+      Loc := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 7);
+      if gTerrain.TileInMapCoords(Loc.X, Loc.Y, 3) and gTerrain.CheckPassability(Loc, canWalk) then
+      begin
+        //Mix group types deterministicly based on Loc, so they don't change for a given position
+        case (Loc.X + Loc.Y) mod 3 of
+          0:   GT := gt_AntiHorse;
+          1:   GT := gt_Ranged;
+          else GT := gt_Melee;
+        end;
+        fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 35, adt_BackLine);
+      end;
     end;
   finally
     Locs.Free;

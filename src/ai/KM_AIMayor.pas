@@ -476,6 +476,7 @@ procedure TKMayor.CheckExhaustedMines;
 var
   I: Integer;
   Houses: TKMHousesCollection;
+  Loc: TKMPoint;
 begin
   Houses := gHands[fOwner].Houses;
 
@@ -484,7 +485,15 @@ begin
   if not Houses[I].IsDestroyed
   and Houses[I].ResourceDepletedMsgIssued
   and (Houses[I].CheckResOut(wt_All) = 0) then
+  begin
+    //Set it so we can build over coal that was removed
+    if Houses[I].HouseType = ht_CoalMine then
+    begin
+      Loc := Houses[I].GetEntrance;
+      fAIFields.Influences.RemAvoidBuilding(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+1));
+    end;
     Houses[I].DemolishHouse(fOwner);
+  end;
 end;
 
 

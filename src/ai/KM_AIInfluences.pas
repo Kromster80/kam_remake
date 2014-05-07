@@ -39,6 +39,7 @@ type
     //Tension: array of array of array of SmallInt;
 
     procedure AddAvoidBuilding(X,Y: Word; aRad: Single);
+    procedure RemAvoidBuilding(aArea: TKMRect);
     function GetBestOwner(X, Y: Word): THandIndex;
     procedure Init;
     procedure ExportInfluenceMaps;
@@ -73,6 +74,15 @@ begin
   for K := Max(X - Ceil(aRad), 1) to Min(X + Ceil(aRad), fMapX - 1) do
     if Sqr(X-K) + Sqr(Y-I) <= Sqr(aRAD) then
       AvoidBuilding[I,K] := 255;
+end;
+
+
+procedure TKMInfluences.RemAvoidBuilding(aArea: TKMRect);
+var I,K: Integer;
+begin
+  for I := Max(aArea.Top , 1) to Min(aArea.Bottom, fMapY - 1) do
+  for K := Max(aArea.Left, 1) to Min(aArea.Right , fMapX - 1) do
+    AvoidBuilding[I,K] := 0;
 end;
 
 
