@@ -227,7 +227,8 @@ begin
       //Look for a new position to defend
       //In this case we choose the closest group, then move to a higher priority one later (see above)
       //This means at the start of the mission troops will take the position they are placed at rather than swapping around
-      if fDefencePositions.FindPlaceForGroup(Group, AI_FILL_CLOSEST) then Continue;
+      //With auto defence we reset defence positions regularly, so take closest rather than reshuffling all the time (newly equipped warriors still take highest priority)
+      if fDefencePositions.FindPlaceForGroup(Group, AI_FILL_CLOSEST or fSetup.AutoDefend) then Continue;
 
       //Just chill and link with other idle groups
       if AI_LINK_IDLE then
@@ -397,13 +398,14 @@ begin
 
       //Longer segments will get several DefencePositions
       SegLength := KMLength(Outline2[I].A, Outline2[I].B);
-      DefCount := Trunc(SegLength / 5);
+      DefCount := Max(Trunc(SegLength / 5), 1); //At least 1, otherwise we might leave a bridge undefended
 
       for K := 0 to DefCount - 1 do
       begin
         Ratio := (K + 1) / (DefCount + 1);
         Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, Ratio));
-        Locs.Add(KMPointDir(Loc, FaceDir), Round(Outline2[I].Weight * 100));
+        //Make sure each segment gets 1 defence position before filling others
+        Locs.Add(KMPointDir(Loc, FaceDir), 10000 * K + Round(Outline2[I].Weight * 100));
       end;
     end;
 
@@ -413,14 +415,13 @@ begin
     //Add defence positions
     for I := Locs.Count - 1 downto 0 do
     begin
-      //Mix group types
-      case I mod 3 of
-        0..1: GT := gt_Melee;
-        2..2: GT := gt_AntiHorse;
-      end;
-
       LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 1);
       Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+      //Mix group types deterministicly based on Loc, so they don't change for a given position
+      case (Loc.X + Loc.Y) mod 3 of
+        1..1: GT := gt_AntiHorse;
+        else  GT := gt_Melee;
+      end;
       fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 25, adt_FrontLine);
 
       LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 4);

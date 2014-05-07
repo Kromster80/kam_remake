@@ -35,6 +35,7 @@ type
 
     function TryBuildHouse(aHouse: THouseType): Boolean;
     function TryConnectToRoad(aLoc: TKMPoint): Boolean;
+    function GetMaxPlans: Byte;
 
     procedure CheckStrategy;
 
@@ -129,6 +130,7 @@ begin
   fCityPlanner.AfterMissionInit;
   CheckStrategy;
   CheckArmyDemand;
+  fBalance.StoneNeed := GetMaxPlans * 2.5;
 end;
 
 
@@ -143,7 +145,7 @@ var
   begin
     //Producing gold or (Gold > 10)
     Result := (P.Stats.GetWaresProduced(wt_Gold) > 1)
-              or (P.Stats.GetWareBalance(wt_Gold) > 10);
+              or (P.Stats.GetWareBalance(wt_Gold) > 15);
   end;
 
   function TryAddToQueue(aUnitType: TUnitType; aReq: Integer): Boolean;
@@ -287,6 +289,12 @@ begin
 end;
 
 
+function TKMayor.GetMaxPlans: Byte;
+begin
+  Result := Ceil(fSetup.WorkerCount / 4);
+end;
+
+
 //We want to connect to nearest road piece (not necessarily built yet)
 function TKMayor.TryConnectToRoad(aLoc: TKMPoint): Boolean;
 var
@@ -339,7 +347,7 @@ begin
   if not P.Stats.GetCanBuild(aHouse) then Exit;
 
   //Number of simultaneous WIP houses is limited
-  if (P.Stats.GetHouseWip(ht_Any) > MAX_AI_PLANS) then Exit;
+  if (P.Stats.GetHouseWip(ht_Any) > GetMaxPlans) then Exit;
 
   //Maybe we get more lucky next tick
   //todo: That only works if FindPlaceForHouse is quick, right now it takes ~11ms for iron/gold/coal mines (to decide that they can't be placed).
@@ -494,7 +502,7 @@ begin
   //Take - take this house into building
   //Reject - we can't build this house (that could affect other houses in queue)
 
-  while (P.Stats.GetHouseWip(ht_Any) < MAX_AI_PLANS) do
+  while (P.Stats.GetHouseWip(ht_Any) < GetMaxPlans) do
   begin
     H := fBalance.Peek;
 
@@ -504,7 +512,10 @@ begin
 
     //See if we can build that
     if TryBuildHouse(H) then
-      fBalance.Take
+    begin
+      fBalance.Take;
+      fBalance.Refresh; //Balance will be changed by the construction of this house
+    end
     else
       fBalance.Reject;
   end;
@@ -702,7 +713,8 @@ end;
 
 procedure TKMayor.UpdateState(aTick: Cardinal);
 begin
-  if (aTick + Byte(fOwner)) mod (MAX_HANDS * 10) <> 0 then Exit;
+  //Checking mod result against MAX_HANDS causes first update to happen ASAP
+  if (aTick + Byte(fOwner)) mod (MAX_HANDS * 10) <> MAX_HANDS then Exit;
 
   //Train new units (citizens, serfs, workers and recruits) if needed
   CheckUnitCount;

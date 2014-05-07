@@ -112,6 +112,7 @@ type
     procedure CloseField(aIndex: Integer); //Worker has finished the task
 
     procedure GetFields(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
+    function FieldCount(aFieldType: TFieldType): Integer;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -416,6 +417,16 @@ begin
       if fFakeDeletedFields[I].Active then
         aList.Remove(fFakeDeletedFields[I].Loc);
   end;
+end;
+
+
+function TKMFieldworksList.FieldCount(aFieldType: TFieldType): Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fFieldsCount - 1 do
+    if (fFields[I].FieldType = aFieldType) then
+      Inc(Result);
 end;
 
 

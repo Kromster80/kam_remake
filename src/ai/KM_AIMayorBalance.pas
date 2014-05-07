@@ -99,6 +99,7 @@ type
     fAdviceText: UnicodeString;
 
     function WeaponUsed(aWare: TWareType): Boolean;
+    function AdviceContains(aHouse: THouseType): Boolean;
 
     procedure AppendCore;
     procedure AppendMaterials;
@@ -175,6 +176,19 @@ begin
 end;
 
 
+function TKMayorBalance.AdviceContains(aHouse: THouseType): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  for I := 0 to Length(fAdvice) - 1 do
+    if fAdvice[I] = aHouse then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+
 procedure TKMayorBalance.Append(aHouse: THouseType; aCount: Byte = 1);
 var
   I: Integer;
@@ -223,6 +237,13 @@ begin
   List[2] := fMaterials.SawmillTheory - WoodNeed;
 
   repeat
+    //Do not build extra houses if we are low on building materials
+    if (gHands[fOwner].Stats.GetHouseQty(ht_Quary) = 0)
+    and(gHands[fOwner].Stats.GetWareBalance(wt_Stone)
+        - gHands[fOwner].BuildList.FieldworksList.FieldCount(ft_Road) < 40)
+    and (AdviceContains(ht_Quary) or (gHands[fOwner].Stats.GetHouseWip(ht_Quary) > 1)) then
+      Break;
+
     case PickMin([0, List[0], List[1], List[2]]) of
       0:  Break;
       1:  begin
@@ -238,13 +259,6 @@ begin
             List[2] := List[2] + ProductionRate[wt_Wood];
           end;
     end;
-
-
-    //Do not build extra houses if we are low on building materials
-    if (gHands[fOwner].Stats.GetWareBalance(wt_Stone) < 40)
-    and (gHands[fOwner].Stats.GetHouseQty(ht_Quary) = 0)
-    and (gHands[fOwner].Stats.GetHouseWip(ht_Quary) > 1) then
-      Break;
 
 {  if (fPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0)
   and (fPlayers[fOwner].Stats.GetWareBalance(wt_Stone) < 40) then
