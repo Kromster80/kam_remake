@@ -2,7 +2,10 @@ unit KM_Maps;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SyncObjs, SysUtils, IOUtils, KM_Defaults;
+  Classes, KromUtils, Math, SyncObjs, SysUtils
+  {$IFDEF FPC} , FileUtil {$ENDIF}
+  {$IFDEF WDC} , IOUtils {$ENDIF}
+  , KM_Defaults;
 
 
 type
@@ -525,7 +528,8 @@ var
 begin
    Lock;
      Assert(InRange(aIndex, 0, fCount - 1));
-     TDirectory.Delete(fMaps[aIndex].Path, True);
+     {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
+     {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
      fMaps[aIndex].Free;
      for I  := aIndex to fCount - 2 do
        fMaps[I] := fMaps[I + 1];
