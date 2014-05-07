@@ -656,7 +656,7 @@ begin
   begin
     Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_House.GetEntrance)
     //Resource ratios are also considered
-    + gHands[fOffer[iO].Loc_House.Owner].Stats.Ratio[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType];
+    + KaMRandom(15 - 3 * gHands[fOffer[iO].Loc_House.Owner].Stats.Ratio[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
   end
   else
     Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_Unit.GetPosition);
@@ -667,7 +667,9 @@ begin
   if (fDemand[iD].Loc_House<>nil) and gResource.HouseDat[fDemand[iD].Loc_House.HouseType].DoesOrders
   and (fOffer[iO].Count < 3) //Little resources to share around
   and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware) < 2) then //Few resources already delivered
-    Result := 10 + KaMRandom(20);
+    Result := 10
+    //Resource ratios are also considered
+    + KaMRandom(25 - gHands[fOffer[iO].Loc_House.Owner].Stats.Ratio[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
 
   //Also prefer deliveries near to the serf
   if aSerf <> nil then
