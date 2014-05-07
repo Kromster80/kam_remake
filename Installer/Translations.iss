@@ -144,3 +144,10 @@ tur.NoKaM=Kurulum sihirbazı orijinal Knights and Merchants: The Peasants Rebell
 tur.CantUpdate=Kurulum sihirbazı herhangi bir kurulu KaM Remake versiyonu bulamadı. Lütfen complete installer indirerek kurulum yapınız. Kurulum sihirbazı kapanacaktır.
 tur.OpenAL=Kurulum sihirbazının OpenAL kurmasını ister misiniz? (Tavsiye edilir) Seslerin oyun içinde çalışması için gereklidir.
 tur.ViewReadme=Beni oku dosyasını aç
+
+;Korean
+kor.CreateStartShortcut=시작 메뉴 단축 아이콘 만들기
+kor.NoKaM=설치 마법사가 '기사와 상인:농민의 반란'이 설치가 안된것으로 확인되었습니다. '기사와 상인 다시만듬'을 실행하기 위해서는 반드시 원본 게임이 설치되어 있어야 합니다. 설치가 중단 됩니다.
+kor.CantUpdate=설치 마법사가 갱신할 '기사와 상인 다시만듬'의 기존 버전을 찾을 수 없습니다. 전체 설치 프로그램 대신에 다운로드하여 설치 해주십시오. 설치가 중단 됩니다.
+kor.OpenAL=OpenAL을 설치하기위해 설치 마법사가 필요합니까? (강력하게 추천함) '기사와 상인 다시만듬'에서 소리를 작동하는데 필요합니다.
+kor.ViewReadme=읽어보기

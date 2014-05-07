@@ -50,7 +50,7 @@ Name: "nor"; MessagesFile: "compiler:Languages\Norwegian.isl"; LicenseFile: "Lic
 Name: "bel"; MessagesFile: "ExtraLanguages\Belarusian.isl"; LicenseFile: "License.bel.txt"
 Name: "jpn"; MessagesFile: "compiler:Languages\Japanese.isl"; LicenseFile: "License.jpn.txt"
 Name: "tur"; MessagesFile: "ExtraLanguages\Turkish.isl"; LicenseFile: "License.tur.txt"
-Name: "kor"; MessagesFile: "ExtraLanguages\Korean.isl";
+Name: "kor"; MessagesFile: "ExtraLanguages\Korean.isl"; LicenseFile: "License.kor.txt"
 
 [CustomMessages]  
 #include "Translations.iss"

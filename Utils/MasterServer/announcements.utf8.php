@@ -4,6 +4,9 @@ function EchoUpdateMessage($Lang, $Rev, $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'kor':
+			echo "귀하의 기사와 상인 다시만듬 버전이 최신버전이 아닙니다! 현재 ".$Rev." 버전이 실행중이지만 가장 최신버전은 ".$MAIN_VERSION." 버전입니다.|| 갱신을하기위해서는 다음 주소에서 다운로드 하여 주십시요:www.kamremake.com";
+			break;
 		case 'tur':
 			echo "Eski bir KaM Remake versiyonu kullanıyorsunuz! ".$Rev." versiyonunu kullanıyorsunuz fakat ".$MAIN_VERSION." versiyonu kullanılabilir durumda.||Lütfen www.kamremake.com adresinden güncellemeyi indiriniz.";
 			break;
