@@ -348,6 +348,8 @@ begin
     else
       Maps := fMapsMP;
 
+    DeleteConfirm(False);
+
     Maps.Lock;
       fLastMapCRC := Maps[ID].CRC;
       fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'), []);
