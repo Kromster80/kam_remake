@@ -91,7 +91,7 @@ begin
     Button_ReplaysPlay.Anchors := [anLeft,anBottom];
     Button_ReplaysPlay.OnClick := Replays_Play;
 
-    Button_Delete := TKMButton.Create(Panel_Replays, 337, 624, 350, 30, gResTexts[TX_MENU_LOAD_DELETE], bsMenu);
+    Button_Delete := TKMButton.Create(Panel_Replays, 337, 624, 350, 30, gResTexts[TX_MENU_REPLAY_DELETE], bsMenu);
     Button_Delete.Anchors := [anLeft,anBottom];
     Button_Delete.OnClick := DeleteClick;
 

@@ -2,7 +2,7 @@ unit KM_Maps;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SyncObjs, SysUtils, KM_Defaults;
+  Classes, KromUtils, Math, SyncObjs, SysUtils, IOUtils, KM_Defaults;
 
 
 type
@@ -113,6 +113,8 @@ type
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
+
+    procedure DeleteMap(aIndex: Integer);
 
     //Should be accessed only as a part of aOnRefresh/aOnSort events handlers
     function MapList: UnicodeString;
@@ -514,6 +516,22 @@ begin
 
     fUpdateNeeded := False;
   end;
+end;
+
+
+procedure TKMapsCollection.DeleteMap(aIndex: Integer);
+var
+  I: Integer;
+begin
+   Lock;
+     Assert(InRange(aIndex, 0, fCount - 1));
+     TDirectory.Delete(fMaps[aIndex].Path, True);
+     fMaps[aIndex].Free;
+     for I  := aIndex to fCount - 2 do
+       fMaps[I] := fMaps[I + 1];
+     Dec(fCount);
+     SetLength(fMaps, fCount);
+   Unlock;
 end;
 
 

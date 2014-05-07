@@ -50,6 +50,7 @@ Implemented:
  6222	Actions.PlayWAVLooped
  6222	Actions.PlayWAVAtLocationLooped
  6222	Actions.StopLoopedWAV
+ 6251	More options for AI: Actions.AIDefendAllies, Actions.AIAutoAttackRange, Actions.AIStartPosition
 
 
 Accepted:
@@ -67,10 +68,10 @@ Accepted:
 	Actions.HouseAddBuildProgress
 	States.HouseBuildProgress
 	Actions.AddHouseConstruction(aPlayer, aType, X, Y) - Add house site ready for construction (digging finished)
-	More options for AI: defend allies, auto attack range, start position
 	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
 	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
 	Actions.AddField(aPlayer, X, Y: integer); - add finished field
+	Actions.BlockGroupControl(aGroup: integer) - prevent player from controlling a group
 
 Proposed:
 	Change position/alignment/font of overlay text
