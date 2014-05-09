@@ -13,6 +13,7 @@ type
     AutoBuild: Boolean;
     AutoDefend: Boolean;
     DefendAllies: Boolean;
+    UnlimitedEquip: Boolean;
     EquipRateLeather, EquipRateIron: Word; //Number of ticks between soldiers being equipped. Seperated into Leather/Iron to keep KaM compatibility.
     MaxSoldiers: Integer; //-1 means not used or default
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
@@ -92,6 +93,7 @@ begin
   SaveStream.Write(AutoBuild);
   SaveStream.Write(AutoDefend);
   SaveStream.Write(DefendAllies);
+  SaveStream.Write(UnlimitedEquip);
   SaveStream.Write(EquipRateLeather);
   SaveStream.Write(EquipRateIron);
   SaveStream.Write(MaxSoldiers);
@@ -112,6 +114,7 @@ begin
   LoadStream.Read(AutoBuild);
   LoadStream.Read(AutoDefend);
   LoadStream.Read(DefendAllies);
+  LoadStream.Read(UnlimitedEquip);
   LoadStream.Read(EquipRateLeather);
   LoadStream.Read(EquipRateIron);
   LoadStream.Read(MaxSoldiers);

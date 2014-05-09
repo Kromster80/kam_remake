@@ -71,6 +71,7 @@ type
     function SizeText: string;
     function IsValid: Boolean;
     function HumanPlayerCount: Byte;
+    function AIOnlyLocCount: Byte;
   end;
 
   TTMapsScanner = class(TThread)
@@ -435,6 +436,16 @@ begin
   Result := 0;
   for I := 0 to MAX_HANDS - 1 do
     if CanBeHuman[I] then
+      Inc(Result);
+end;
+
+
+function TKMapInfo.AIOnlyLocCount: Byte;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to MAX_HANDS - 1 do
+    if CanBeAI[I] and not CanBeHuman[I] then
       Inc(Result);
 end;
 

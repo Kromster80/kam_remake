@@ -122,6 +122,10 @@ begin
     //ht_TownHall:;
     //ht_WatchTower:;
   end;
+
+  //If we failed to find something, try to place the house anywhere (better than ignoring it)
+  if not Result and not (aHouse in [ht_CoalMine, ht_GoldMine, ht_IronMine, ht_Quary, ht_FisherHut]) then
+    Result := NextToHouse(aHouse, [ht_Any], [], aLoc);
 end;
 
 
@@ -262,6 +266,8 @@ end;
 
 //Called when AI needs to find a good spot for a new Quary
 function TKMCityPlanner.NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+const
+  SEARCH_RAD = 8;
 var
   I, K: Integer;
   Bid, BestBid: Single;
@@ -286,13 +292,14 @@ begin
     begin
       M := KaMRandom(Locs.Count);
       StoneLoc := Locs[M];
-      for I := StoneLoc.Y to Min(StoneLoc.Y + 6, gTerrain.MapY - 1) do
-      for K := Max(StoneLoc.X - 6, 1) to Min(StoneLoc.X + 6, gTerrain.MapX - 1) do
+      for I := Max(StoneLoc.Y - SEARCH_RAD, 1) to Min(StoneLoc.Y + SEARCH_RAD, gTerrain.MapY - 1) do
+      for K := Max(StoneLoc.X - SEARCH_RAD, 1) to Min(StoneLoc.X + SEARCH_RAD, gTerrain.MapX - 1) do
       if gHands[fOwner].CanAddHousePlanAI(K, I, aHouse, True) then
       begin
         Bid := Locs.Tag[M]
                - fAIFields.Influences.Ownership[fOwner,I,K] / 10
-               + KaMRandom * 3;
+               + KaMRandom * 3
+               + KMLengthDiag(K, I, StoneLoc); //Distance to stone is important
         if (Bid < BestBid) then
         begin
           aLoc := KMPoint(K,I);
@@ -379,7 +386,7 @@ const
   SEARCH_RES = 7;
   SEARCH_RAD = 20; //Search for forests within this radius
   SEARCH_DIV = (SEARCH_RAD * 2) div SEARCH_RES + 1;
-  HUT_RAD = 4; //Search for the best place for a hut in this radius
+  HUT_RAD = 6; //Search for the best place for a hut in this radius
 var
   I, K: Integer;
   Bid, BestBid: Single;

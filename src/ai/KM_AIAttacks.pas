@@ -48,6 +48,7 @@ type
     procedure Delete(aIndex: Integer);
     function CanOccur(aIndex: Integer; const aMenAvailable: TGroupTypeArray; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
     procedure HasOccured(aIndex: Integer);
+    procedure Clear;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -85,6 +86,13 @@ end;
 procedure TAIAttacks.HasOccured(aIndex: Integer);
 begin
   fAttacks[aIndex].HasOccured := True;
+end;
+
+
+procedure TAIAttacks.Clear;
+begin
+  SetLength(fAttacks, 0);
+  fCount := 0;
 end;
 
 

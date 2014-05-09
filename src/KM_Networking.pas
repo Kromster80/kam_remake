@@ -802,8 +802,11 @@ begin
   for i:=1 to fNetPlayers.Count do
     if not fNetPlayers[i].IsSpectator and not fNetPlayers[i].IsClosed then
       Exit; //Exit with result from above
-  //If we reached here then all players are spectators and the game cannot start
-  Result := False;
+
+  //If we reached here then all players are spectators so only saves can be started,
+  //unless this map has AI-only locations (spectators can watch the AIs)
+  if (fSelectGameKind = ngk_Map) and (fMapInfo.AIOnlyLocCount = 0) then
+    Result := False;
 end;
 
 
