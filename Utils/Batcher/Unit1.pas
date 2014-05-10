@@ -2,7 +2,7 @@ unit Unit1;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils, StrUtils,
+  Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils, StrUtils, IOUtils, System.RegularExpressions,
   KM_Defaults, KM_CommonClasses, KM_Points, KromUtils,
   KM_GameApp, KM_Log, KM_HandsCollection,
   KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
@@ -420,6 +420,18 @@ end;
 
 
 procedure TForm1.Button6Click(Sender: TObject);
+
+  function IsBuildingMap(aPath: string): Boolean;
+  var
+    Txt: string;
+  begin
+    Result := True;
+    if not FileExists(ChangeFileExt(aPath, '.txt')) then
+      Exit;
+    Txt := TFile.ReadAllText(ChangeFileExt(aPath, '.txt'));
+    Result := (Pos('SetCoop', Txt) = 0) and (Pos('SetSpecial', Txt) = 0);
+  end;
+
 var
   I, K: Integer;
   PathToMaps: TStringList;
@@ -441,11 +453,30 @@ begin
 
     //Parse only MP maps
     for I := 0 to PathToMaps.Count - 1 do
-    if Pos('\MapsMP\', PathToMaps[I]) <> 0 then
+    if (Pos('\MapsMP\', PathToMaps[I]) <> 0) and IsBuildingMap(PathToMaps[I]) then
     begin
       Txt := MP.ReadMissionFile(PathToMaps[I]);
 
-      //Show goals which have messages in them
+      if Pos('!SET_TACTIC', Txt) <> 0 then
+        Continue;
+
+      //First strip out existing AI defaults that we don't want
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER WORKER_FACTOR.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER CONSTRUCTORS.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE_LEATHER.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE_IRON.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER RECRUTS.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_DEFENCE.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_DEFEND.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_DEFEND_ALLIES.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_ATTACK.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_UNLIMITED_EQUIP.*'+EolA, '');
+
+      Txt := TRegEx.Replace(Txt, '!SET_AI_ATTACK.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!COPY_AI_ATTACK.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!CLEAR_AI_ATTACK.*'+EolA, '');
+
       CurrLoc := 1;
       repeat
         //SET_CURR_PLAYER player_id
@@ -459,7 +490,15 @@ begin
           while (CurrEnd < Length(Txt)) and not (Txt[CurrEnd] in ['!', #13, '/']) do
             Inc(CurrEnd);
 
-            Insert(EolA + '!SET_AI_AUTO_DEFENCE', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER WORKER_FACTOR 10', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER CONSTRUCTORS 20', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_LEATHER 250', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_IRON 250', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER RECRUTS 10', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_UNLIMITED_EQUIP', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_AUTO_DEFEND', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_AUTO_ATTACK', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_DEFEND_ALLIES', Txt, CurrEnd);
 
           CurrLoc := CurrEnd;
         end;

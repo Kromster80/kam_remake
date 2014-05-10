@@ -163,7 +163,7 @@ object Form1: TForm1
     Margins.Top = 2
     Margins.Right = 2
     Margins.Bottom = 2
-    Caption = 'Add AI defence'
+    Caption = 'Add AI auto config to MP maps'
     TabOrder = 10
     OnClick = Button6Click
   end
