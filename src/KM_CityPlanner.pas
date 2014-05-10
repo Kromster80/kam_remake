@@ -94,6 +94,7 @@ begin
     ht_ArmorWorkshop:   Result := NextToHouse(aHouse, [ht_Tannery, ht_Barracks], [], aLoc);
     ht_Bakery:          Result := NextToHouse(aHouse, [ht_Mill], [], aLoc);
     ht_Barracks:        Result := NextToHouse(aHouse, [ht_Any], [], aLoc);
+    ht_WatchTower:      Result := NextToHouse(aHouse, [ht_Barracks], [], aLoc);
     ht_Butchers:        Result := NextToHouse(aHouse, [ht_Swine], [], aLoc);
     ht_Inn:             Result := NextToHouse(aHouse, [ht_Any], [ht_Inn], aLoc);
     ht_IronSmithy:      Result := NextToHouse(aHouse, [ht_IronMine, ht_CoalMine], [], aLoc);

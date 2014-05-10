@@ -19,7 +19,7 @@ type
 //Balance = Production - Consumption;
 
   TKMCoreBalance = record
-    StoreBalance, SchoolBalance, InnBalance, BarracksBalance: Single;
+    StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance: Single;
     Balance: Single; //Resulting balance
   end;
   TKMMaterialsBalance = record
@@ -220,12 +220,13 @@ end;
 procedure TKMayorBalance.AppendCore;
 begin
   with fCore do
-  case PickMin([0, StoreBalance, SchoolBalance, InnBalance, BarracksBalance]) of
+  case PickMin([0, StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance]) of
     0: ;
     1: Append(ht_Store);
     2: Append(ht_School);
     3: Append(ht_Inn);
     4: Append(ht_Barracks);
+    5: Append(ht_WatchTower);
   end;
 end;
 
@@ -764,11 +765,12 @@ begin
     SchoolBalance   := HouseCount(ht_School)      - 1 - Byte((gHands[fOwner].Stats.GetHouseQty(ht_Barracks) > 0) and (gHands[fOwner].AI.Setup.WarriorsPerMinute(ArmyType) > 2));
     InnBalance      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
     BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
+    TowerBalance    := HouseCount(ht_WatchTower) - 2 * gHands[fOwner].Stats.GetHouseQty(ht_Barracks);
 
-    Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
+    Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance]);
     fCoreText := Format
-      ('%.2f Core: (Store %.2f, School %.2f, Inn %.2f, Barracks %.2f)',
-      [Balance, StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
+      ('%.2f Core: (Store %.2f, School %.2f, Inn %.2f, Barracks %.2f, Tower %.2f)',
+      [Balance, StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance]);
   end;
 end;
 

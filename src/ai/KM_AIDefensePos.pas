@@ -439,7 +439,7 @@ end;
 
 
 procedure TAIDefencePositions.Paint;
-var I,K: Integer;
+var I: Integer;
 begin
   for I := 0 to Count - 1 do
     if Positions[I].fDefenceType = adt_FrontLine then
