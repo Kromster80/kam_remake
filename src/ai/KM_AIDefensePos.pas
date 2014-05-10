@@ -59,6 +59,8 @@ type
     property Count: Integer read GetCount;
     procedure Delete(aIndex: Integer);
     property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
+    function GetBacklineCount: Integer;
+    function AverageUnitsPerGroup: Integer;
 
     function FindPlaceForGroup(aGroup: TKMUnitGroup; aTakeClosest: Boolean): Boolean;
     procedure RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
@@ -72,11 +74,12 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
+    procedure Paint;
   end;
 
 
 implementation
-uses KM_Game, KM_HandsCollection;
+uses KM_Game, KM_HandsCollection, KM_RenderAux;
 
 
 { TAIDefencePosition }
@@ -250,6 +253,30 @@ begin
 end;
 
 
+function TAIDefencePositions.GetBacklineCount: Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to Count - 1 do
+    if Positions[I].fDefenceType = adt_BackLine then
+      Inc(Result);
+end;
+
+
+function TAIDefencePositions.AverageUnitsPerGroup: Integer;
+var GT: TGroupType; TypeCount: Integer;
+begin
+  Result := 0;
+  TypeCount := 0;
+  for GT := Low(TGroupType) to High(TGroupType) do
+  begin
+    Result := Result + TroopFormations[GT].NumUnits;
+    Inc(TypeCount);
+  end;
+  Result := Result div TypeCount;
+end;
+
+
 function TAIDefencePositions.FindPlaceForGroup(aGroup: TKMUnitGroup; aTakeClosest: Boolean): Boolean;
 var
   I, Matched: Integer;
@@ -408,6 +435,17 @@ begin
       Positions[K].CurrentGroup := nil; //Leave current position
       Break;
     end;
+end;
+
+
+procedure TAIDefencePositions.Paint;
+var I,K: Integer;
+begin
+  for I := 0 to Count - 1 do
+    if Positions[I].fDefenceType = adt_FrontLine then
+      gRenderAux.Quad(Positions[I].fPosition.Loc.X, Positions[I].fPosition.Loc.Y, $FFFF0000)
+    else
+      gRenderAux.Quad(Positions[I].fPosition.Loc.X, Positions[I].fPosition.Loc.Y, $FF00FF00)
 end;
 
 

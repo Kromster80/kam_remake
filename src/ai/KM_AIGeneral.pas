@@ -368,18 +368,27 @@ end;
 
 
 procedure TKMGeneral.CheckAutoAttack;
-var SimpleAttack: TAIAttack;
+var SimpleAttack: TAIAttack; H: TKMHouse;
 begin
   //Simple test for now
   FillChar(SimpleAttack, SizeOf(SimpleAttack), #0);
 
   SimpleAttack.AttackType := aat_Repeating;
-  SimpleAttack.Target := att_ClosestBuildingFromArmy;
-  SimpleAttack.TotalMen := 36;
+  SimpleAttack.Target := att_ClosestBuildingFromStartPos;
+  SimpleAttack.TotalMen := fDefencePositions.AverageUnitsPerGroup *
+                           fDefencePositions.GetBacklineCount div 2;
   SimpleAttack.TakeAll := True;
 
   Attacks.Clear;
   Attacks.AddAttack(SimpleAttack);
+
+  //If start position isn't set, set it to first storehouse (used for targeting attacks)
+  if (fSetup.StartPosition.X <= 1) and (fSetup.StartPosition.Y <= 1) then
+  begin
+    H := gHands[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
+    if H <> nil then
+      fSetup.StartPosition := H.GetEntrance;
+  end;
 
   //See how many soldiers we need to launch an attack
 
@@ -405,6 +414,7 @@ var
   DefCount: Byte;
   GT: TGroupType;
   DPT: TAIDefencePosType;
+  Weight: Cardinal;
 begin
   //Get defence Outline with weights representing how important each segment is
   fAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
@@ -426,8 +436,12 @@ begin
       begin
         Ratio := (K + 1) / (DefCount + 1);
         Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, Ratio));
-        //Make sure each segment gets 1 defence position before filling others
-        Locs.Add(KMPointDir(Loc, FaceDir), 10000 * (DefCount - 1 - K) + Round(Outline2[I].Weight * 100));
+        Weight := Round(Outline2[I].Weight * 100);
+        //Make sure each segment gets 1 defence position before filling others (in the middle of the segment line)
+        if K = ((DefCount - 1) div 2) then
+          Weight := Weight + 10000;
+
+        Locs.Add(KMPointDir(Loc, FaceDir), Weight);
       end;
     end;
 

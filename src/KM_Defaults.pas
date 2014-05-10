@@ -92,6 +92,7 @@ var
   SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
   SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
+  SHOW_DEFENCE_POSITIONS:Boolean = False;
   TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
   OUTLINE_ALL_SPRITES   :Boolean = False; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
@@ -146,7 +147,6 @@ const
   MAX_LOBBY_SPECTATORS = 2;  //Slots available in lobby. Additional slots can be used by spectators
   MAX_LOBBY_SLOTS = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
 
-  MAX_AI_PLANS         = 4;  //How many houses AI is allowed to plan at once (after establishing Materials supply)
   AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
 
 var

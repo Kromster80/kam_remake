@@ -33,7 +33,7 @@ type
 
     function GetSeeds(aHouseType: array of THouseType): TKMPointArray;
 
-    function NextToOre(aHouse: THouseType; aOreType: TWareType; out aLoc: TKMPoint): Boolean;
+    function NextToOre(aHouse: THouseType; aOreType: TWareType; out aLoc: TKMPoint; aNearAnyHouse: Boolean = False): Boolean;
     function NextToHouse(aHouse: THouseType; aSeed, aAvoid: array of THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToTrees(aHouse: THouseType; aSeed: array of THouseType; out aLoc: TKMPoint): Boolean;
@@ -124,7 +124,7 @@ begin
   end;
 
   //If we failed to find something, try to place the house anywhere (better than ignoring it)
-  if not Result and not (aHouse in [ht_CoalMine, ht_GoldMine, ht_IronMine, ht_Quary, ht_FisherHut]) then
+  if not Result and not (aHouse in [ht_CoalMine, ht_GoldMine, ht_IronMine, ht_Quary, ht_Farm, ht_Wineyard, ht_FisherHut]) then
     Result := NextToHouse(aHouse, [ht_Any], [], aLoc);
 end;
 
@@ -338,7 +338,7 @@ begin
 end;
 
 
-function TKMCityPlanner.NextToOre(aHouse: THouseType; aOreType: TWareType; out aLoc: TKMPoint): Boolean;
+function TKMCityPlanner.NextToOre(aHouse: THouseType; aOreType: TWareType; out aLoc: TKMPoint; aNearAnyHouse: Boolean = False): Boolean;
 var
   P: TKMPoint;
   SeedLocs: TKMPointArray;
@@ -349,28 +349,43 @@ begin
   //Look for nearest Ore
   case aOreType of
     wt_Coal:    begin
-                  if gHands[fOwner].Stats.GetHouseTotal(ht_CoalMine) > 0 then
-                    SeedLocs := GetSeeds([ht_CoalMine])
+                  if aNearAnyHouse then
+                    SeedLocs := GetSeeds([ht_Any])
                   else
-                    SeedLocs := GetSeeds([ht_Store]);
+                    if gHands[fOwner].Stats.GetHouseTotal(ht_CoalMine) > 0 then
+                      SeedLocs := GetSeeds([ht_CoalMine])
+                    else
+                      SeedLocs := GetSeeds([ht_Store]);
                   if Length(SeedLocs) = 0 then Exit;
-                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnCoal, P) then Exit;
+                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnCoal, P) then
+                    if aNearAnyHouse or not NextToOre(aHouse, aOreType, P, True) then
+                      Exit;
                 end;
     wt_IronOre: begin
-                  if gHands[fOwner].Stats.GetHouseTotal(ht_IronMine) > 0 then
-                    SeedLocs := GetSeeds([ht_IronMine, ht_CoalMine])
+                  if aNearAnyHouse then
+                    SeedLocs := GetSeeds([ht_Any])
                   else
-                    SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
+                    if gHands[fOwner].Stats.GetHouseTotal(ht_IronMine) > 0 then
+                      SeedLocs := GetSeeds([ht_IronMine, ht_CoalMine])
+                    else
+                      SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
                   if Length(SeedLocs) = 0 then Exit;
-                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnIron, P) then Exit;
+                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnIron, P) then
+                    if aNearAnyHouse or not NextToOre(aHouse, aOreType, P, True) then
+                      Exit;
                 end;
     wt_GoldOre: begin
-                  if gHands[fOwner].Stats.GetHouseTotal(ht_GoldMine) > 0 then
-                    SeedLocs := GetSeeds([ht_GoldMine, ht_CoalMine])
+                  if aNearAnyHouse then
+                    SeedLocs := GetSeeds([ht_Any])
                   else
-                    SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
+                    if gHands[fOwner].Stats.GetHouseTotal(ht_GoldMine) > 0 then
+                      SeedLocs := GetSeeds([ht_GoldMine, ht_CoalMine])
+                    else
+                      SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
                   if Length(SeedLocs) = 0 then Exit;
-                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnGold, P) then Exit;
+                  if not FindNearest(SeedLocs[KaMRandom(Length(SeedLocs))], 45, fnGold, P) then
+                    if aNearAnyHouse or not NextToOre(aHouse, aOreType, P, True) then
+                      Exit;
                 end;
   end;
 

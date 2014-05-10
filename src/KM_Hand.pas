@@ -1287,6 +1287,9 @@ begin
 
   if not gGame.IsMapEditor or (mlHouses in gGame.MapEditor.VisibleLayers) then
     fHouses.Paint(aRect);
+
+  if SHOW_DEFENCE_POSITIONS then
+    fAI.General.DefencePositions.Paint;
 end;
 
 

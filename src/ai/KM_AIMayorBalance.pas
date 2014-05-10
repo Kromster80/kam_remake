@@ -24,6 +24,8 @@ type
   end;
   TKMMaterialsBalance = record
     WoodcutTheory, SawmillTheory: Single;
+    WoodcutReserve, SawmillReserve: Single;
+    StoneReserve: Single;
     StoneProduction, WoodProduction: Single;
     StoneBalance, WoodBalance: Single;
     Balance: Single; //Resulting balance
@@ -527,8 +529,8 @@ const
 var
   TrunkPerMin, WoodPerMin: Single;
   WeaponsPerMin, ShieldsPerMin: Single;
-  WoodConsumption: Single;
-  TrunkProduction, TrunkConsumption: Single;
+  WoodProduction, WoodConsumption, WoodReserve: Single;
+  TrunkProduction, TrunkConsumption, TrunkReserve: Single;
   ExtraWood, DeficitWood: Single;
   ExtraTrunk, DeficitTrunk: Single;
 begin
@@ -550,12 +552,14 @@ begin
 
     //Current wood consumption
     WoodConsumption := WoodNeed + ShieldsPerMin + WeaponsPerMin * WEAP_COST;
+    WoodReserve := gHands[fOwner].Stats.GetWareBalance(wt_Wood) / WoodConsumption;
+    WoodProduction := WoodPerMin + Max(WoodReserve - 30, 0);
 
     //Wood shares
-    if WoodPerMin >= WoodConsumption then
+    if WoodProduction >= WoodConsumption then
     begin
       //Let every industry think the extra belongs to it
-      ExtraWood := WoodPerMin - WoodConsumption;
+      ExtraWood := WoodProduction - WoodConsumption;
       WoodWeapon.WoodTheory := WeaponsPerMin + ExtraWood / WEAP_COST;
       LeatherArmor.WoodTheory := ShieldsPerMin + ExtraWood;
     end
@@ -563,9 +567,9 @@ begin
     begin
       //Sharing proportionaly doesn't work since closer houses get more.
       //Let every industry think the deficit belongs to it
-      if (WoodConsumption > 0) and (WoodPerMin > WoodNeed) then
+      if (WoodConsumption > 0) and (WoodProduction > WoodNeed) then
       begin
-        DeficitWood := WoodConsumption - WoodPerMin;
+        DeficitWood := WoodConsumption - WoodProduction;
         WoodWeapon.WoodTheory := Max(0, WeaponsPerMin - DeficitWood / WEAP_COST);
         LeatherArmor.WoodTheory := Max(0, ShieldsPerMin - DeficitWood);
       end
@@ -576,8 +580,9 @@ begin
       end;
     end;
 
-    TrunkProduction := TrunkPerMin;
     TrunkConsumption := WoodPerMin / WT;
+    TrunkReserve := gHands[fOwner].Stats.GetWareBalance(wt_Trunk) / TrunkConsumption;
+    TrunkProduction := TrunkPerMin + Max(TrunkReserve - 30, 0);
 
     //Trunk shares
     if TrunkProduction >= TrunkConsumption then
@@ -772,10 +777,20 @@ procedure TKMayorBalance.UpdateBalanceMaterials;
 begin
   with fMaterials do
   begin
-    StoneProduction := HouseCount(ht_Quary) * ProductionRate[wt_Stone];
+    //In some maps there is no stone so quarry is blocked
+    if gHands[fOwner].Stats.HouseBlocked[ht_Quary] then
+      StoneProduction := 99999
+    else
+    begin
+      StoneReserve := gHands[fOwner].Stats.GetWareBalance(wt_Stone) / StoneNeed;
+      StoneProduction := HouseCount(ht_Quary) * ProductionRate[wt_Stone] + Max(StoneReserve - 30, 0);
+    end;
 
-    WoodcutTheory := HouseCount(ht_Woodcutters) * ProductionRate[wt_Trunk] * 2;
-    SawmillTheory := HouseCount(ht_Sawmill) * ProductionRate[wt_Wood];
+    WoodcutReserve := gHands[fOwner].Stats.GetWareBalance(wt_Trunk) * 2 / WoodNeed;
+    WoodcutTheory := HouseCount(ht_Woodcutters) * ProductionRate[wt_Trunk] * 2 + Max(WoodcutReserve - 30, 0);
+
+    SawmillReserve := gHands[fOwner].Stats.GetWareBalance(wt_Wood) / WoodNeed;
+    SawmillTheory := HouseCount(ht_Sawmill) * ProductionRate[wt_Wood] + Max(SawmillReserve - 30, 0);
     WoodProduction := Min(WoodcutTheory, SawmillTheory);
 
     StoneBalance    := StoneProduction - StoneNeed;
