@@ -196,10 +196,10 @@ var
   I: Integer;
 begin
   //ArmorWorkshop is needed to produce Shields before Tannery is made
-  if (aHouse = ht_ArmorWorkshop)
-  and not gHands[fOwner].Stats.GetCanBuild(ht_ArmorWorkshop)
-  and (gHands[fOwner].Stats.GetHouseTotal(ht_Tannery) = 0) then
-    Append(ht_Tannery);
+  //Handle in generic way since in custom missions it might apply to other houses
+  if not gHands[fOwner].Stats.GetCanBuild(aHouse)
+  and (gHands[fOwner].Stats.GetHouseTotal(gResource.HouseDat[aHouse].ReleasedBy) = 0) then
+    Append(gResource.HouseDat[aHouse].ReleasedBy);
 
   //If the same house is asked for independently then don't add it again, since f.e. gold and iron
   //might both ask for a coal mine, when only 1 extra is needed.
@@ -407,12 +407,10 @@ end;
 
 procedure TKMayorBalance.DistributeCoal;
 var
-  CoalProductionRate, CoalConsumptionRate: Single;
+  CoalProductionRate, CoalConsumptionRate, CoalReserve: Single;
   GoldPerMin, SteelPerMin, WeaponsPerMin, ArmorPerMin: Single;
   ExtraCoal, DeficitCoal: Single;
 begin
-  CoalProductionRate := HouseCount(ht_CoalMine) * ProductionRate[wt_Coal];
-
   with fWarfare do
   begin
     //Theoretical gold production
@@ -436,6 +434,8 @@ begin
     //Current coal consumption
     CoalConsumptionRate := GoldPerMin/2 + SteelPerMin + WeaponsPerMin + ArmorPerMin;
   end;
+  CoalReserve := gHands[fOwner].Stats.GetWareBalance(wt_Coal) / CoalConsumptionRate;
+  CoalProductionRate := HouseCount(ht_CoalMine) * ProductionRate[wt_Coal] + Max(CoalReserve - 30, 0);
 
   if CoalProductionRate >= CoalConsumptionRate then
   begin
@@ -461,10 +461,10 @@ procedure TKMayorBalance.DistributeSteel;
 var
   WeaponsPerMin, ArmorPerMin: Single;
 
-  SteelPerMin, SteelConsumptionRate: Single;
+  SteelPerMin, SteelProductionRate, SteelConsumptionRate: Single;
   ExtraSteel, DeficitSteel: Single;
 
-  IronPerMin, IronProduction, IronConsumption: Single;
+  IronPerMin, IronProduction, IronConsumption, IronReserve: Single;
   ExtraIron, RateIron: Single;
 begin
   SteelPerMin := HouseCount(ht_IronSmithy) * ProductionRate[wt_Steel];
@@ -503,8 +503,9 @@ begin
     fWarfare.SteelArmor.SteelTheory := Max(0, ArmorPerMin - DeficitSteel);
   end;
 
-  IronProduction := IronPerMin;
   IronConsumption := SteelConsumptionRate; //Any not being used for steel is excess
+  IronReserve := gHands[fOwner].Stats.GetWareBalance(wt_IronOre) / IronConsumption;
+  IronProduction := IronPerMin + Max(IronReserve - 30, 0);
 
   if IronProduction >= IronConsumption then
   begin
@@ -809,17 +810,18 @@ procedure TKMayorBalance.DistributeCorn;
 const
   BEAST_COST = 4;
 var
-  CornProduction, CornConsumption: Single;
+  CornProduction, CornConsumption, CornReserve: Single;
   FlourPerMin, PigPerMin, HorsePerMin: Single;
   CornExtra, CornDeficit: Single;
 begin
-  CornProduction := HouseCount(ht_Farm) * ProductionRate[wt_Corn];
 
   //With stable production rate we can assume consumption rate that would be required
   FlourPerMin := HouseCount(ht_Mill) * ProductionRate[wt_Flour];
   PigPerMin   := HouseCount(ht_Swine) * ProductionRate[wt_Pig] * BEAST_COST;
   HorsePerMin := HouseCount(ht_Stables) * ProductionRate[wt_Horse] * BEAST_COST;
   CornConsumption := FlourPerMin + PigPerMin + HorsePerMin;
+  CornReserve := gHands[fOwner].Stats.GetWareBalance(wt_Corn) / CornConsumption;
+  CornProduction := HouseCount(ht_Farm) * ProductionRate[wt_Corn] + Max(CornReserve - 30, 0);
 
   if CornProduction >= CornConsumption then
   begin
