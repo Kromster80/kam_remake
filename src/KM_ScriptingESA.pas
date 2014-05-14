@@ -108,6 +108,7 @@ type
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseHasOccupant(aHouseID: Integer): Boolean;
     function HouseIsComplete(aHouseID: Integer): Boolean;
+    function HouseTypeMaxHealth(aHouseType: Integer): Word;
     function HouseTypeToOccupantType(aHouseType: Integer): Integer;
     function HouseOwner(aHouseID: Integer): Integer;
     function HousePositionX(aHouseID: Integer): Integer;
@@ -1087,6 +1088,16 @@ begin
   end
   else
     LogError('States.HouseDestroyed', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseTypeMaxHealth(aHouseType: Integer): Word;
+begin
+  Result := 0;
+  if (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+    Result := gResource.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
+  else
+    LogError('States.HouseTypeMaxHealth', [aHouseType]);
 end;
 
 

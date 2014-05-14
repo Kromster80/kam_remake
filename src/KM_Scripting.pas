@@ -145,6 +145,7 @@ begin
       RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseTypeMaxHealth(aHouseType: Integer): Word');
       RegisterMethod('function HouseTypeToOccupantType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
@@ -485,6 +486,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseDestroyed,          'HOUSEDESTROYED');
       RegisterMethod(@TKMScriptStates.HouseHasOccupant,        'HOUSEHASOCCUPANT');
       RegisterMethod(@TKMScriptStates.HouseIsComplete,         'HOUSEISCOMPLETE');
+      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,      'HOUSETYPEMAXHEALTH');
       RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType, 'HOUSETYPETOOCCUPANTTYPE');
       RegisterMethod(@TKMScriptStates.HouseOwner,              'HOUSEOWNER');
       RegisterMethod(@TKMScriptStates.HousePositionX,          'HOUSEPOSITIONX');

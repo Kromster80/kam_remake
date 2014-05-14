@@ -51,6 +51,7 @@ Implemented:
  6222	Actions.StopLoopedWAV
  6251	More options for AI: Actions.AIDefendAllies, Actions.AIAutoAttackRange, Actions.AIStartPosition
  6277   Actions.GroupBlockOrders
+ 6284   States.HouseTypeMaxHealth
 
 
 Accepted:
@@ -103,7 +104,6 @@ Proposed:
 	Actions.TimerStart(aTimerID, aTimeout: Integer); Events.OnTimer(aTimerID: Integer);
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
-	States.HouseTypeMaxHealth
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
 
 
