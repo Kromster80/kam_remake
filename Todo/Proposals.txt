@@ -59,8 +59,8 @@ Once an agreement is made or implementation details are made - item is moved to 
 		Minimap modes to see allies in green, enemies in red
 		Show warriors types icons when T key is held
 		Campaign builder could allow overriding the map flag/dot icons (or at least change their colors)
-	L	Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
-			Krom: Need better description on this one.
+	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
+			Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
 
 
 REJECTED:
