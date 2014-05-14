@@ -97,6 +97,7 @@ type
 
     procedure DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False); virtual;
     property UID: Integer read fUID;
+    property BuildingProgress: Word read fBuildingProgress;
 
     property GetPosition: TKMPoint read fPosition;
     procedure SetPosition(aPos: TKMPoint); //Used only by map editor

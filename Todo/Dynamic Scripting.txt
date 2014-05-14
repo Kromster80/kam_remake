@@ -52,6 +52,7 @@ Implemented:
  6251	More options for AI: Actions.AIDefendAllies, Actions.AIAutoAttackRange, Actions.AIStartPosition
  6277   Actions.GroupBlockOrders
  6284   States.HouseTypeMaxHealth
+ 6285   States.HouseBuildingProgress
 
 
 Accepted:
@@ -67,7 +68,6 @@ Accepted:
 	OnRoadWineFieldPlanRemoved(aPlayer, X, Y: integer);
 	HouseAddWaresTo can add construction wares
 	Actions.HouseAddBuildProgress
-	States.HouseBuildProgress
 	Actions.AddHouseConstruction(aPlayer, aType, X, Y) - Add house site ready for construction (digging finished)
 	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
 	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield

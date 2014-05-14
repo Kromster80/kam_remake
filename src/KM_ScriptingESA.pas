@@ -102,6 +102,7 @@ type
     function GroupType(aGroupID: Integer): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
+    function HouseBuildingProgress(aHouseID: Integer): Word;
     function HouseCanReachResources(aHouseID: Integer): Boolean;
     function HouseDamage(aHouseID: Integer): Integer;
     function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
@@ -1040,6 +1041,22 @@ begin
   end
   else
     LogError('States.HouseAt', [aX, aY]);
+end;
+
+
+function TKMScriptStates.HouseBuildingProgress(aHouseID: Integer): Word;
+var
+  H: TKMHouse;
+begin
+  Result := 0;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) then
+      Result := H.BuildingProgress;
+  end
+  else
+    LogError('States.HouseBuildingProgress', [aHouseID]);
 end;
 
 

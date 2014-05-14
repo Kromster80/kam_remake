@@ -139,6 +139,7 @@ begin
       RegisterMethod('function GroupType(aGroupID: Integer): Integer');
 
       RegisterMethod('function HouseAt(aX, aY: Word): Integer');
+      RegisterMethod('function HouseBuildingProgress(aHouseID: Integer): Word');
       RegisterMethod('function HouseCanReachResources(aHouseID: Integer): Boolean)');
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
       RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
@@ -480,6 +481,7 @@ begin
       RegisterMethod(@TKMScriptStates.GroupType,        'GROUPTYPE');
 
       RegisterMethod(@TKMScriptStates.HouseAt,                 'HOUSEAT');
+      RegisterMethod(@TKMScriptStates.HouseBuildingProgress,   'HOUSEBUILDINGPROGRESS');
       RegisterMethod(@TKMScriptStates.HouseCanReachResources,  'HOUSECANREACHRESOURCES');
       RegisterMethod(@TKMScriptStates.HouseDamage,             'HOUSEDAMAGE');
       RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,    'HOUSEDELIVERYBLOCKED');
