@@ -1426,7 +1426,11 @@ begin
   begin
     H := fIDCache.GetHouse(aMarketID);
     if (H is TKMHouseMarket)
-    and (not H.IsDestroyed) then begin
+    and (not H.IsDestroyed)
+    and (TKMHouseMarket(H).ResFrom <> TKMHouseMarket(H).ResTo)
+    and (TKMHouseMarket(H).ResFrom in [WARE_MIN .. WARE_MAX])
+    and (TKMHouseMarket(H).ResTo in [WARE_MIN .. WARE_MAX]) then
+    begin
       ResFrom := TKMHouseMarket(H).ResFrom;
       Result := WareTypeToIndex[ResFrom];
     end;
@@ -1451,7 +1455,10 @@ begin
   begin
     H := fIDCache.GetHouse(aMarketID);
     if (H is TKMHouseMarket)
-    and (not H.IsDestroyed) then
+    and (not H.IsDestroyed)
+    and (TKMHouseMarket(H).ResFrom <> TKMHouseMarket(H).ResTo)
+    and (TKMHouseMarket(H).ResFrom in [WARE_MIN .. WARE_MAX])
+    and (TKMHouseMarket(H).ResTo in [WARE_MIN .. WARE_MAX]) then
       Result := TKMHouseMarket(H).ResOrder[0];
   end
   else
@@ -1469,7 +1476,11 @@ begin
   begin
     H := fIDCache.GetHouse(aMarketID);
     if (H is TKMHouseMarket)
-    and (not H.IsDestroyed) then begin
+    and (not H.IsDestroyed)
+    and (TKMHouseMarket(H).ResFrom <> TKMHouseMarket(H).ResTo)
+    and (TKMHouseMarket(H).ResFrom in [WARE_MIN .. WARE_MAX])
+    and (TKMHouseMarket(H).ResTo in [WARE_MIN .. WARE_MAX]) then
+    begin
       ResTo := TKMHouseMarket(H).ResTo;
       Result := WareTypeToIndex[ResTo];
     end;
