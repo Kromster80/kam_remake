@@ -206,7 +206,7 @@ type
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
-    procedure GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean);
+    function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
     function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
@@ -2202,12 +2202,13 @@ begin
 end;
 
 
-procedure TKMScriptActions.GiveHouseSite(aPlayer: Integer; aHouseType: Integer; X: Integer; Y: Integer; aAddMaterials: Boolean);
+function TKMScriptActions.GiveHouseSite(aPlayer: Integer; aHouseType: Integer; X: Integer; Y: Integer; aAddMaterials: Boolean): Integer;
 var
   H: TKMHouse;
   I, K: Integer;
   HA: THouseArea;
 begin
+  Result := -1;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
@@ -2238,10 +2239,15 @@ begin
           H.ResAddToBuild(wt_Wood);
         for K := 0 to gResource.HouseDat[H.HouseType].StoneCost - 1 do
           H.ResAddToBuild(wt_Stone);
+      end
+      else
+      begin
+        gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Wood, gResource.HouseDat[H.HouseType].WoodCost, dt_Once, diHigh4);
+        gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Stone, gResource.HouseDat[H.HouseType].StoneCost, dt_Once, diHigh4);
       end;
-
       gHands[aPlayer].BuildList.HouseList.AddHouse(H);
     end;
+    Result := H.UID;
   end
   else
     LogError('Actions.GiveHouseSite', [aPlayer, aHouseType, X, Y, byte(aAddMaterials)]);

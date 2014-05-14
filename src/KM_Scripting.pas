@@ -238,7 +238,7 @@ begin
       RegisterMethod('function  GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function  GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
-      RegisterMethod('procedure GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean)');
+      RegisterMethod('function GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
       RegisterMethod('function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
