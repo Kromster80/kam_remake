@@ -53,6 +53,7 @@ Implemented:
  6277   Actions.GroupBlockOrders
  6284   States.HouseTypeMaxHealth
  6285   States.HouseBuildingProgress
+ 6287	HouseMarketFromWare, HouseMarketToWare, HouseMarketOrderAmount (query what the player has ordered at a market)
 
 
 Accepted:
@@ -63,7 +64,6 @@ Accepted:
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
 	Way for players to hide the overlay
 	
-	HouseMarketFromWare, HouseMarketToWare, HouseMarketAmountOrdered (query what the player has ordered at a market)
 	OnHousePlanRemoved(aPlayer, aType, X, Y: integer);
 	OnRoadWineFieldPlanRemoved(aPlayer, X, Y: integer);
 	HouseAddWaresTo can add construction wares

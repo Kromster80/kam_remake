@@ -124,7 +124,10 @@ begin
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
+      RegisterMethod('function MarketFromWare(aMarketID: Integer): Integer');
       RegisterMethod('function MarketLossFactor: Single');
+      RegisterMethod('function MarketOrderAmount(aMarketID: Integer): Integer');
+      RegisterMethod('function MarketToWare(aMarketID: Integer): Integer');
       RegisterMethod('function MarketValue(aRes: Integer): Single');
       RegisterMethod('function PeaceTime: Cardinal');
 
@@ -466,7 +469,10 @@ begin
       RegisterMethod(@TKMScriptStates.GameTime,         'GAMETIME');
       RegisterMethod(@TKMScriptStates.KaMRandom,        'KAMRANDOM');
       RegisterMethod(@TKMScriptStates.KaMRandomI,       'KAMRANDOMI');
+      RegisterMethod(@TKMScriptStates.MarketFromWare,   'MARKETFROMWARE');
       RegisterMethod(@TKMScriptStates.MarketLossFactor, 'MARKETLOSSFACTOR');
+      RegisterMethod(@TKMScriptStates.MarketOrderAmount,'MARKETORDERAMOUNT');
+      RegisterMethod(@TKMScriptStates.MarketToWare,     'MARKETTOWARE');
       RegisterMethod(@TKMScriptStates.MarketValue,      'MARKETVALUE');
       RegisterMethod(@TKMScriptStates.PeaceTime,        'PEACETIME');
 

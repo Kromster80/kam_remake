@@ -130,7 +130,10 @@ type
 
     function KaMRandom: Single;
     function KaMRandomI(aMax: Integer): Integer;
+    function MarketFromWare(aMarketID: Integer): Integer;
     function MarketLossFactor: Single;
+    function MarketOrderAmount(aMarketID: Integer): Integer;
+    function MarketToWare(aMarketID: Integer): Integer;
     function MarketValue(aRes: Integer): Single;
     function PeaceTime: Cardinal;
 
@@ -1412,9 +1415,66 @@ begin
 end;
 
 
+function TKMScriptStates.MarketFromWare(aMarketID: Integer): Integer;
+var
+  H: TKMHouse;
+  ResFrom: TWareType;
+begin
+  Result := -1;
+  if aMarketID > 0 then
+  begin
+    H := fIDCache.GetHouse(aMarketID);
+    if (H is TKMHouseMarket)
+    and (not H.IsDestroyed) then begin
+      ResFrom := TKMHouseMarket(H).ResFrom;
+      Result := WareTypeToIndex[ResFrom];
+    end;
+  end
+  else
+    LogError('States.MarketFromWare', [aMarketID]);
+end;
+
+
 function TKMScriptStates.MarketLossFactor: Single;
 begin
   Result := MARKET_TRADEOFF_FACTOR;
+end;
+
+
+function TKMScriptStates.MarketOrderAmount(aMarketID: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  Result := 0;
+  if aMarketID > 0 then
+  begin
+    H := fIDCache.GetHouse(aMarketID);
+    if (H is TKMHouseMarket)
+    and (not H.IsDestroyed) then
+      Result := TKMHouseMarket(H).ResOrder[0];
+  end
+  else
+    LogError('States.MarketOrderAmount', [aMarketID]);
+end;
+
+
+function TKMScriptStates.MarketToWare(aMarketID: Integer): Integer;
+var
+  H: TKMHouse;
+  ResTo: TWareType;
+begin
+  Result := -1;
+  if aMarketID > 0 then
+  begin
+    H := fIDCache.GetHouse(aMarketID);
+    if (H is TKMHouseMarket)
+    and (not H.IsDestroyed) then begin
+      ResTo := TKMHouseMarket(H).ResTo;
+      Result := WareTypeToIndex[ResTo];
+    end;
+  end
+  else
+    LogError('States.MarketToWare', [aMarketID]);
 end;
 
 
