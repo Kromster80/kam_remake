@@ -529,7 +529,7 @@ var
   G: TKMUnitGroup;
 begin
   Result := -1;
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y)
   and ((aGroupType = -1) or (aGroupType in [Byte(Low(TGroupType))..Byte(High(TGroupType))])) then
   begin
@@ -562,7 +562,7 @@ begin
     if B in aGroupTypes then
       GTS := GTS + [TGroupType(B)];
 
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
     G := gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y), GTS);
@@ -583,7 +583,7 @@ var
   H: TKMHouse;
 begin
   Result := -1;
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y)
   and ((aHouseType = -1) or (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])) then
   begin
@@ -616,7 +616,7 @@ begin
     if B in aHouseTypes then
       HTS := HTS + [HouseIndexToType[B]];
 
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
     H := gHands[aPlayer].Houses.FindHouse(HTS, X, Y);
@@ -637,7 +637,7 @@ var
   U: TKMUnit;
 begin
   Result := -1;
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y)
   and ((aUnitType = -1) or (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)]))  then
   begin
@@ -670,7 +670,7 @@ begin
     if B in aUnitTypes then
       UTS := UTS + [UnitIndexToType[B]];
 
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
     U := gHands[aPlayer].Units.GetClosestUnit(KMPoint(X,Y), UTS);
@@ -687,7 +687,7 @@ end;
 
 function TKMScriptStates.StatArmyCount(aPlayer: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := gHands[aPlayer].Stats.GetArmyCount
   else
   begin
@@ -699,7 +699,7 @@ end;
 
 function TKMScriptStates.StatCitizenCount(aPlayer: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := gHands[aPlayer].Stats.GetCitizensCount
   else
   begin
@@ -736,7 +736,7 @@ end;
 
 function TKMScriptStates.StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
   then
     Result := gHands[aPlayer].Stats.GetHouseQty(HouseIndexToType[aHouseType])
@@ -761,7 +761,7 @@ end;
 
 function TKMScriptStates.PlayerDefeated(aPlayer: Byte): Boolean;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := (gHands[aPlayer].AI.WonOrLost = wol_Lost)
   else
   begin
@@ -773,7 +773,7 @@ end;
 
 function TKMScriptStates.PlayerVictorious(aPlayer: Byte): Boolean;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := (gHands[aPlayer].AI.WonOrLost = wol_Won)
   else
   begin
@@ -785,7 +785,7 @@ end;
 
 function TKMScriptStates.PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and(aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
     Result := gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]]
@@ -804,7 +804,7 @@ var
 begin
   SetLength(Result, 0);
 
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
   begin
     UnitCount := 0;
 
@@ -836,7 +836,7 @@ var
 begin
   SetLength(Result, 0);
 
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
   begin
     HouseCount := 0;
 
@@ -867,7 +867,7 @@ var
 begin
   SetLength(Result, 0);
 
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
   begin
     GroupCount := 0;
 
@@ -893,7 +893,7 @@ end;
 
 function TKMScriptStates.PlayerIsAI(aPlayer: Byte): Boolean;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := gHands[aPlayer].PlayerType = hndComputer
   else
   begin
@@ -905,7 +905,7 @@ end;
 
 function TKMScriptStates.StatUnitCount(aPlayer: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := gHands[aPlayer].Stats.GetUnitQty(ut_Any)
   else
   begin
@@ -917,7 +917,7 @@ end;
 
 function TKMScriptStates.StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
   then
     Result := gHands[aPlayer].Stats.GetUnitQty(UnitIndexToType[aUnitType])
@@ -931,7 +931,7 @@ end;
 
 function TKMScriptStates.StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
   then
     Result := gHands[aPlayer].Stats.GetUnitKilledQty(UnitIndexToType[aUnitType])
@@ -945,7 +945,7 @@ end;
 
 function TKMScriptStates.StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
   then
     Result := gHands[aPlayer].Stats.GetUnitLostQty(UnitIndexToType[aUnitType])
@@ -959,7 +959,7 @@ end;
 
 function TKMScriptStates.StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aResType in [Low(WareIndexToType)..High(WareIndexToType)])
   then
     Result := gHands[aPlayer].Stats.GetWaresProduced(WareIndexToType[aResType])
@@ -973,7 +973,7 @@ end;
 
 function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := AnsiString(gHands[aPlayer].OwnerName)
   else
   begin
@@ -985,7 +985,7 @@ end;
 
 function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
   else
   begin
@@ -1149,7 +1149,7 @@ end;
 
 function TKMScriptStates.HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)]) then
     Result := gHands[aPlayer].Stats.GetCanBuild(HouseIndexToType[aHouseType])
   else
@@ -1409,7 +1409,7 @@ function TKMScriptStates.FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 begin
   Result := False;
   if gTerrain.TileInMapCoords(aX,aY)
-  and InRange(aPlayer, 0, gHands.Count - 1) then
+  and InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := gHands[aPlayer].FogOfWar.CheckTileRevelation(aX, aY) > 0
   else
     LogError('States.FogRevealed', [aX, aY]);
@@ -1788,7 +1788,7 @@ end;
 
 procedure TKMScriptActions.CinematicStart(aPlayer: Byte);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
   begin
     gHands[aPlayer].InCinematic := True;
     gGame.GamePlayInterface.CinematicUpdate;
@@ -1800,7 +1800,7 @@ end;
 
 procedure TKMScriptActions.CinematicEnd(aPlayer: Byte);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
   begin
     gHands[aPlayer].InCinematic := False;
     gGame.GamePlayInterface.CinematicUpdate;
@@ -1812,7 +1812,7 @@ end;
 
 procedure TKMScriptActions.CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y)
   and gHands[aPlayer].InCinematic then
   begin
@@ -1828,7 +1828,7 @@ end;
 procedure TKMScriptActions.PlayerDefeat(aPlayer: Word);
 begin
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Defeat
   else
     LogError('Actions.PlayerDefeat', [aPlayer]);
@@ -1881,7 +1881,7 @@ begin
   if (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
   and (WareIndexToType[aWareType] in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
-  and InRange(aPlayer, 0, gHands.Count - 1) 
+  and InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) 
   and InRange(aAmount, 0, 5) then
   begin
     gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
@@ -1919,7 +1919,7 @@ end;
 procedure TKMScriptActions.PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
 begin
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
   begin
 
     gHands[aPlayer].AI.AddDefaultGoals(aBuildings);
@@ -2034,7 +2034,7 @@ var
 begin
   Result := UID_NONE;
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aType in [UnitTypeToIndex[WARRIOR_MIN]..UnitTypeToIndex[WARRIOR_MAX]])
   and gTerrain.TileInMapCoords(X,Y)
   and (TKMDirection(aDir+1) in [dir_N..dir_NW])
@@ -2061,7 +2061,7 @@ begin
   Result := UID_NONE;
 
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aType in [UnitTypeToIndex[CITIZEN_MIN] .. UnitTypeToIndex[CITIZEN_MAX]])
   and gTerrain.TileInMapCoords(X, Y)
   and (TKMDirection(aDir + 1) in [dir_N .. dir_NW]) then
@@ -2086,7 +2086,7 @@ begin
   Result := UID_NONE;
 
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
   and gTerrain.TileInMapCoords(X, Y) then
   begin
@@ -2104,7 +2104,7 @@ end;
 
 procedure TKMScriptActions.AIAutoAttackRange(aPlayer: Byte; aRange: Word);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and InRange(aRange, 1, 20) then
     gHands[aPlayer].AI.Setup.AutoAttackRange := aRange
   else
@@ -2114,7 +2114,7 @@ end;
 
 procedure TKMScriptActions.AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.AutoBuild := aAuto
   else
     LogError('Actions.AIAutoBuild', [aPlayer, Byte(aAuto)]);
@@ -2123,7 +2123,7 @@ end;
 
 procedure TKMScriptActions.AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.AutoDefend := aAuto
   else
     LogError('Actions.AIAutoDefence', [aPlayer, Byte(aAuto)]);
@@ -2132,7 +2132,7 @@ end;
 
 procedure TKMScriptActions.AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
 begin
-   if InRange(aPlayer, 0, gHands.Count - 1) then
+   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
      gHands[aPlayer].AI.Mayor.AutoRepair := aAuto
    else
      LogError('Actions.AIAutoRepair', [aPlayer, Byte(aAuto)]);
@@ -2141,7 +2141,7 @@ end;
 
 procedure TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (TAIDefencePosType(aDefType) in [adt_FrontLine..adt_BackLine])
   and (TGroupType(aGroupType) in [gt_Melee..gt_Mounted])
   and (TKMDirection(aDir+1) in [dir_N..dir_NW])
@@ -2154,7 +2154,7 @@ begin
 
  procedure TKMScriptActions.AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.DefendAllies := aDefend
   else
     LogError('Actions.AIDefendAllies', [aPlayer, Byte(aDefend)]);
@@ -2163,7 +2163,7 @@ end;
 
 procedure TKMScriptActions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     case aType of
       0:    gHands[aPlayer].AI.Setup.EquipRateLeather := aRate;
       1:    gHands[aPlayer].AI.Setup.EquipRateIron := aRate;
@@ -2178,7 +2178,7 @@ procedure TKMScriptActions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aC
 var
   gt: TGroupType;
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and InRange(aType, 0, 3)
   and (aCount > 0) and (aColumns > 0) then
   begin
@@ -2193,7 +2193,7 @@ end;
 
 procedure TKMScriptActions.AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.RecruitDelay := aDelay
   else
     LogError('Actions.AIRecruitDelay', [aPlayer, aDelay]);
@@ -2202,7 +2202,7 @@ end;
 
 procedure TKMScriptActions.AIRecruitLimit(aPlayer, aLimit: Byte);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.RecruitCount := aLimit
   else
     LogError('Actions.AIRecruitLimit', [aPlayer, aLimit]);
@@ -2211,7 +2211,7 @@ end;
 
 procedure TKMScriptActions.AISerfsPerHouse(aPlayer: Byte; aSerfs: Single);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.SerfsPerHouse := aSerfs
   else
     LogError('Actions.AISerfsPerHouse', [aPlayer]);
@@ -2220,7 +2220,7 @@ end;
 
 procedure TKMScriptActions.AISoldiersLimit(aPlayer: Byte; aLimit: Integer);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aLimit >= -1) then                       //-1 means unlimited; else MaxSoldiers = aLimit
     gHands[aPlayer].AI.Setup.MaxSoldiers := aLimit
   else
@@ -2230,7 +2230,7 @@ end;
 
 procedure TKMScriptActions.AIStartPosition(aPlayer: Byte; X: Word; Y: Word);
 begin
-  if (InRange(aPlayer, 0, gHands.Count - 1))
+  if (InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled))
   and (gTerrain.TileInMapCoords(X, Y)) then
     gHands[aPlayer].AI.Setup.StartPosition := KMPoint(X, Y)
   else
@@ -2240,7 +2240,7 @@ end;
 
 procedure TKMScriptActions.AIWorkerLimit(aPlayer, aLimit: Byte);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.WorkerCount := aLimit
   else
     LogError('Actions.AIWorkerLimit', [aPlayer, aLimit]);
@@ -2272,7 +2272,7 @@ var
   H: TKMHouse;
 begin
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and InRange(aCount, 0, High(Word))
   and (aType in [Low(WareIndexToType) .. High(WareIndexToType)]) then
   begin
@@ -2294,7 +2294,7 @@ var
   H: TKMHouse;
 begin
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and InRange(aCount, 0, High(Word))
   and (aType in [Low(WareIndexToType) .. High(WareIndexToType)])
   and (WareIndexToType[aType] in [WARFARE_MIN .. WARFARE_MAX]) then
@@ -2313,7 +2313,7 @@ end;
 
 procedure TKMScriptActions.FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X,Y)
   and InRange(aRadius, 0, 255) then
     gHands[aPlayer].FogOfWar.RevealCircle(KMPoint(X, Y), aRadius, FOG_OF_WAR_MAX)
@@ -2324,7 +2324,7 @@ end;
 
 procedure TKMScriptActions.FogCoverCircle(aPlayer, X, Y, aRadius: Word);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X,Y)
   and InRange(aRadius, 0, 255) then
     gHands[aPlayer].FogOfWar.CoverCircle(KMPoint(X, Y), aRadius)
@@ -2335,7 +2335,7 @@ end;
 
 procedure TKMScriptActions.FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X1,Y1)
   and gTerrain.TileInMapCoords(X2,Y2) then
     gHands[aPlayer].FogOfWar.RevealRect(KMPoint(X1, Y1), KMPoint(X2, Y2), FOG_OF_WAR_MAX)
@@ -2346,7 +2346,7 @@ end;
 
 procedure TKMScriptActions.FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X1,Y1)
   and gTerrain.TileInMapCoords(X2,Y2) then
     gHands[aPlayer].FogOfWar.CoverRect(KMPoint(X1, Y1), KMPoint(X2, Y2))
@@ -2357,7 +2357,7 @@ end;
 
 procedure TKMScriptActions.FogRevealAll(aPlayer: Byte);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].FogOfWar.RevealEverything
   else
     LogError('Actions.FogRevealAll', [aPlayer]);
@@ -2366,7 +2366,7 @@ end;
 
 procedure TKMScriptActions.FogCoverAll(aPlayer: Byte);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1) then
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].FogOfWar.CoverEverything
   else
     LogError('Actions.FogCoverAll', [aPlayer]);
@@ -2428,7 +2428,7 @@ end;
 procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
     gHands[aPlayer].Stats.HouseGranted[HouseIndexToType[aHouseType]] := True
   else
@@ -2439,7 +2439,7 @@ end;
 procedure TKMScriptActions.HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
 begin
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
     gHands[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := not aAllowed
   else
@@ -2450,7 +2450,7 @@ end;
 procedure TKMScriptActions.SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
 begin
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aResType in [Low(WareIndexToType)..High(WareIndexToType)]) then
     gHands[aPlayer].Stats.AllowToTrade[WareIndexToType[aResType]] := aAllowed
   else
@@ -2816,7 +2816,7 @@ function TKMScriptActions.PlanAddRoad(aPlayer, X, Y: Word): Boolean;
 begin
   Result := False;
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X,Y) then
   begin
     if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
@@ -2834,7 +2834,7 @@ function TKMScriptActions.PlanAddField(aPlayer, X, Y: Word): Boolean;
 begin
   Result := False;
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X,Y) then
   begin
     if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
@@ -2852,7 +2852,7 @@ function TKMScriptActions.PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
 begin
   Result := False;
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X,Y) then
   begin
     if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
@@ -2872,7 +2872,7 @@ var
 begin
   Result := False;
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X,Y) then
   begin
     HT := gHands[aPlayer].BuildList.HousePlanList.GetPlan(KMPoint(X, Y));
@@ -2897,7 +2897,7 @@ function TKMScriptActions.PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean
 begin
   Result := False;
   //Verify all input parameters
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
   and gTerrain.TileInMapCoords(X,Y) then
   begin
@@ -2914,7 +2914,7 @@ end;
 
 procedure TKMScriptActions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
 begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (aType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
     gHands[aPlayer].Stats.UnitBlocked[UnitIndexToType[aType]] := aBlock
   else

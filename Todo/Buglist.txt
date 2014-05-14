@@ -37,6 +37,7 @@ Bugs:
  +	Message log is no longer lost when saving in multiplayer, and messages no longer show in replays
  +	Arrows shot over longer distances would be invisible for the last ~10% of their flight (units die when no one appears to be shooting them)
  +	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
+ +	Dynamic scripts should not allow to give houses/units to disabled player
 	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -58,7 +59,6 @@ Bugs:
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
 	TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
-	Dynamic scripts should not allow to give houses/units to disabled player (this can cause Invisible Target bugs, example: http://km.my1.ru/_fr/13/4096429.jpg)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
