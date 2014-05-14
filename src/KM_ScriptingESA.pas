@@ -206,6 +206,7 @@ type
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
+    procedure GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean);
     function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
@@ -2187,6 +2188,52 @@ begin
   end
   else
     LogError('Actions.GiveHouse', [aPlayer, aHouseType, X, Y]);
+end;
+
+
+procedure TKMScriptActions.GiveHouseSite(aPlayer: Integer; aHouseType: Integer; X: Integer; Y: Integer; aAddMaterials: Boolean);
+var
+  H: TKMHouse;
+  I, K: Integer;
+  HA: THouseArea;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled)
+  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+  and gTerrain.TileInMapCoords(X,Y) then
+  begin
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
+    begin
+      H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(X, Y));
+      H := H.GetHousePointer;
+      if (H = nil)
+      or (H.IsDestroyed) then
+        Exit;
+      HA := gResource.HouseDat[H.HouseType].BuildArea;
+      for I := 1 to 4 do
+      for K := 1 to 4 do
+        if HA[I, K] <> 0 then
+        begin
+          gTerrain.RemoveObject(KMPoint(X + K - 3, Y + I - 4));
+          gTerrain.FlattenTerrain(KMPoint(X + K - 3, Y + I - 4));
+          gTerrain.SetTileLock(KMPoint(X + K - 3, Y + I - 4), tlDigged);
+        end;
+
+      gTerrain.SetField(H.GetEntrance, aPlayer, ft_Road);
+      H.BuildingState := hbs_Wood;
+      if aAddMaterials then
+      begin
+        for I := 0 to gResource.HouseDat[H.HouseType].WoodCost - 1 do
+          H.ResAddToBuild(wt_Wood);
+        for K := 0 to gResource.HouseDat[H.HouseType].StoneCost - 1 do
+          H.ResAddToBuild(wt_Stone);
+      end;
+
+      gHands[aPlayer].BuildList.HouseList.AddHouse(H);
+    end;
+  end
+  else
+    LogError('Actions.GiveHouseSite', [aPlayer, aHouseType, X, Y, byte(aAddMaterials)]);
 end;
 
 
