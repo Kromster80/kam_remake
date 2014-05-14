@@ -71,6 +71,7 @@ Accepted:
 	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
 	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
 	Actions.AddField(aPlayer, X, Y: integer); - add finished field
+	Actions.PlanConnectRoad(X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
 
 Proposed:
 	Change position/alignment/font of overlay text
