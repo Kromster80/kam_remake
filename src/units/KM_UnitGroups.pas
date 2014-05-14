@@ -40,6 +40,7 @@ type
     fTimeSinceHungryReminder: Integer;
     fGroupType: TGroupType;
     fDisableHungerMessage: Boolean;
+    fBlockOrders: Boolean;
 
     fOrder: TKMGroupOrder; //Remember last order incase we need to repeat it (e.g. to joined members)
     fOrderLoc: TKMPointDir; //Dir is the direction to face after order
@@ -126,6 +127,7 @@ type
     property Condition: Integer read GetCondition write SetCondition;
     property Order: TKMGroupOrder read fOrder;
     property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
+    property BlockOrders: Boolean read fBlockOrders write fBlockOrders;
 
     property OrderTargetUnit: TKMUnit read GetOrderTargetUnit write SetOrderTargetUnit;
     property OrderTargetGroup: TKMUnitGroup read GetOrderTargetGroup;
@@ -311,6 +313,7 @@ begin
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(fDisableHungerMessage);
+  Loadstream.Read(fBlockOrders);
 end;
 
 
@@ -396,6 +399,7 @@ begin
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fUnitsPerRow);
   SaveStream.Write(fDisableHungerMessage);
+  SaveStream.Write(fBlockOrders);
 end;
 
 
@@ -580,7 +584,7 @@ end;
 //If the player is allowed to issue orders to group
 function TKMUnitGroup.CanTakeOrders: Boolean;
 begin
-  Result := IsRanged or not InFight; //Ranged units can always take orders
+  Result := (IsRanged or not InFight) and (not fBlockOrders);
 end;
 
 

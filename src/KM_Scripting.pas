@@ -237,6 +237,7 @@ begin
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
 
+      RegisterMethod('procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean)');
       RegisterMethod('procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');
       RegisterMethod('procedure GroupHungerSet(aGroupID, aHungerLevel: Integer)');
       RegisterMethod('procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean)');
@@ -575,6 +576,7 @@ begin
       RegisterMethod(@TKMScriptActions.GiveWares,     'GIVEWARES');
       RegisterMethod(@TKMScriptActions.GiveWeapons,   'GIVEWEAPONS');
 
+      RegisterMethod(@TKMScriptActions.GroupBlockOrders,          'GROUPBLOCKORDERS');
       RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage, 'GROUPDISABLEHUNGRYMESSAGE');
       RegisterMethod(@TKMScriptActions.GroupHungerSet,            'GROUPHUNGERSET');
       RegisterMethod(@TKMScriptActions.GroupKillAll,              'GROUPKILLALL');

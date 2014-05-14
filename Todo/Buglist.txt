@@ -58,6 +58,7 @@ Bugs:
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
 	TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
+	Dynamic scripts should not allow to give houses/units to disabled player (this can cause Invisible Target bugs, example: http://km.my1.ru/_fr/13/4096429.jpg)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
@@ -126,7 +127,7 @@ Improvements:
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
-				Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
+	L	Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
 	L	House not occupied message should mention which house it is ("This farm is not occupied"). Hard to work around plurals and fem/masc forms
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
@@ -154,6 +155,8 @@ Improvements:
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
 	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor (ctrl+click while in tile mode?)
 	L	Add a button into barracks UI to allow to set a rally point
+	L	MapEd: Magic water should work for ice
+	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
  -	Make units turn around without skipping inbetween directions (instead of immediate direction change)

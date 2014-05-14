@@ -212,6 +212,7 @@ type
     procedure FogRevealAll(aPlayer: Byte);
     procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 
+    procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
     procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean);
     procedure GroupHungerSet(aGroupID, aHungerLevel: Integer);
     procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean);
@@ -2997,6 +2998,21 @@ begin
   end
   else
     LogError('Actions.UnitKill', [aUnitID]);
+end;
+
+
+procedure TKMScriptActions.GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
+var
+  G: TKMUnitGroup;
+begin
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      G.BlockOrders := aBlock;
+  end
+  else
+    LogError('Actions.GroupBlockOrders', [aGroupID, Byte(aBlock)]);
 end;
 
 
