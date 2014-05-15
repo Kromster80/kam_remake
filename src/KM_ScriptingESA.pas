@@ -2217,10 +2217,10 @@ begin
     if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
     begin
       H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(X, Y));
-      H := H.GetHousePointer;
       if (H = nil)
       or (H.IsDestroyed) then
         Exit;
+      Result := H.UID;
       HA := gResource.HouseDat[H.HouseType].BuildArea;
       for I := 1 to 4 do
       for K := 1 to 4 do
@@ -2247,7 +2247,6 @@ begin
       end;
       gHands[aPlayer].BuildList.HouseList.AddHouse(H);
     end;
-    Result := H.UID;
   end
   else
     LogError('Actions.GiveHouseSite', [aPlayer, aHouseType, X, Y, byte(aAddMaterials)]);
