@@ -57,8 +57,9 @@ Implemented:
  6288   Actions.GiveHouseSite
  6297   Actions.HouseAddBuildingProgress
  6298   OnHousePlanRemoved
- 6301   OnPlanRoadFieldWinefieldRemoved; OnRoadWineFieldPlan ---> OnRoadWineFieldPlanPlaced
+ 6301   OnPlanRoadFieldWinefieldRemoved; OnPlanRoadWineField ---> OnPlanRoadWineFieldPlaced
  6303 	Actions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
+ 6309	Actions.RemDefensePosition(PlayerID, PositionID)
 
 
 Accepted:
@@ -82,13 +83,12 @@ Proposed:
 	Select unit/house/group in the player's UI
 	DelayedExecution(delay, function, params)
 	Forbidden areas where players can't move their troops
-	Way to add/remove recruits directly from barracks
+	Way to remove recruits directly from barracks
 	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	HousePlanType(aPlanID), returns the type of the house plan.
 	States.GroupAtDefPos(PlayerID, PositionID)
-	Actions.RemDefensePosition(PlayerID, PositionID)
 	Add flag to allow to kill units with death animation, but without sound
 	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
 	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 

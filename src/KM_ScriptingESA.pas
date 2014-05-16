@@ -195,6 +195,7 @@ type
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
     function  AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer;
+    procedure AIDefencePositionRemove(aPlayer: Byte; aDefPosID: Integer);
     procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
@@ -2337,7 +2338,18 @@ begin
  end;
 
 
- procedure TKMScriptActions.AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
+procedure TKMScriptActions.AIDefencePositionRemove(aPlayer: Byte; aDefPosID: Integer);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled)
+  and InRange(aDefPosID, 1, gHands[aPlayer].AI.General.DefencePositions.Count) then
+    gHands[aPlayer].AI.General.DefencePositions.Delete(aDefPosID)
+else
+  LogError('Actions.AIDefencePositionRemove', [aPlayer, aDefPosID]);
+end;
+
+
+procedure TKMScriptActions.AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     gHands[aPlayer].AI.Setup.DefendAllies := aDefend
