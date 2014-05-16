@@ -60,6 +60,9 @@ Implemented:
  6301   OnPlanRoadFieldWinefieldRemoved; OnPlanRoadWineField ---> OnPlanRoadWineFieldPlaced
  6303 	Actions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
  6309	Actions.RemDefensePosition(PlayerID, PositionID)
+ 6311 	Actions.GiveRoad(aPlayer, X, Y: integer); - add finished road
+ 6311	Actions.GiveWinefield(aPlayer, X, Y: integer); - add finished winefield
+ 6311	Actions.GiveField(aPlayer, X, Y: integer); - add finished field
 
 
 Accepted:
@@ -70,9 +73,6 @@ Accepted:
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
 	Way for players to hide the overlay
 
-	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
-	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
-	Actions.AddField(aPlayer, X, Y: integer); - add finished field
 
 Proposed:
 	Change position/alignment/font of overlay text

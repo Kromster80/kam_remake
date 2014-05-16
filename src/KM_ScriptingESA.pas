@@ -211,12 +211,15 @@ type
     procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
+    function  GiveField(aPlayer, X, Y: Word): Boolean;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
     function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
     function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
+    function  GiveRoad(aPlayer, X, Y: Word): Boolean;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
+    function  GiveWinefield(aPlayer, X, Y: Word): Boolean;
 
     procedure FogCoverAll(aPlayer: Byte);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
@@ -2245,7 +2248,9 @@ begin
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
   and gTerrain.TileInMapCoords(X,Y) then
   begin
-    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y))
+    and (not gTerrain.TileIsCornField(KMPoint(X,Y)))
+    and (not gTerrain.TileIsWineField(KMPoint(X, Y))) then
     begin
       H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(X, Y));
       if (H = nil)
@@ -2463,6 +2468,38 @@ begin
 end;
 
 
+function TKMScriptActions.GiveField(aPlayer, X, Y: Word): Boolean;
+begin
+  Result := False;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled)
+  and gTerrain.TileInMapCoords(X, Y) then
+    if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
+    begin
+      Result := True;
+      gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn);
+    end
+  else
+    LogError('Actions.GiveField', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptActions.GiveRoad(aPlayer, X, Y: Word): Boolean;
+begin
+  Result := False;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled)
+  and gTerrain.TileInMapCoords(X, Y) then
+    if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
+    begin
+      Result := True;
+      gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
+    end
+  else
+    LogError('Actions.GiveRoad', [aPlayer, X, Y]);
+end;
+
+
 //Wares are added to first Store
 procedure TKMScriptActions.GiveWares(aPlayer, aType, aCount: Word);
 var
@@ -2505,6 +2542,22 @@ begin
   end
   else
     LogError('Actions.GiveWeapons', [aPlayer, aType, aCount]);
+end;
+
+
+function TKMScriptActions.GiveWineField(aPlayer, X, Y: Word): Boolean;
+begin
+  Result := False;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled)
+  and gTerrain.TileInMapCoords(X, Y) then
+    if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
+    begin
+      Result := True;
+      gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine);
+    end
+  else
+    LogError('Actions.GiveWineField', [aPlayer, X, Y]);
 end;
 
 
