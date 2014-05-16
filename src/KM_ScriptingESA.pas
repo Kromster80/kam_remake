@@ -35,6 +35,7 @@ type
     fProcHouseAfterDestroyed: TKMScriptEvent4I;
     fProcHouseBuilt: TKMScriptEvent1I;
     fProcHousePlanPlaced: TKMScriptEvent4I;
+    fProcHousePlanRemoved: TKMScriptEvent4I;
     fProcHouseDamaged: TKMScriptEvent2I;
     fProcHouseDestroyed: TKMScriptEvent2I;
     fProcGroupHungry: TKMScriptEvent1I;
@@ -58,6 +59,7 @@ type
     procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
     procedure ProcHouseBuilt(aHouse: TKMHouse);
     procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+    procedure ProcHousePlanRemoved(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
     procedure ProcGroupHungry(aGroup: TKMUnitGroup);
@@ -328,6 +330,7 @@ begin
   fProcHouseAfterDestroyed := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED'));
   fProcHouseBuilt          := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   fProcHousePlanPlaced     := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
+  fProcHousePlanRemoved    := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANREMOVED'));
   fProcHouseDamaged        := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
   fProcHouseDestroyed      := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
   fProcGroupHungry         := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONGROUPHUNGRY'));
@@ -419,6 +422,13 @@ procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word;
 begin
   if Assigned(fProcHousePlanPlaced) then
     fProcHousePlanPlaced(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
+end;
+
+
+procedure TKMScriptEvents.ProcHousePlanRemoved(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+begin
+  if Assigned(fProcHousePlanRemoved) then
+    fProcHousePlanRemoved(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
 end;
 
 
@@ -2617,19 +2627,19 @@ begin
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
-    if H <> nil
-    and (not H.IsDestroyed)
-    and (not H.IsComplete)
-    and (H.CheckResToBuild) then
-    begin
-      H.IncBuildingProgress;
-      if H.IsStone
-      and (gTerrain.Land[H.GetPosition.Y, H.GetPosition.X].TileLock <> tlHouse) then
-        gTerrain.SetHouse(H.GetPosition, H.HouseType, hsBuilt, H.Owner);
-    end;
-  end
-  else
-    LogError('Actions.HouseAddBuildingProgrss', [aHouseID]);
+    if H <> nil then
+      if (not H.IsDestroyed)
+      and (not H.IsComplete)
+      and (H.CheckResToBuild) then
+        begin
+          H.IncBuildingProgress;
+          if H.IsStone
+          and (gTerrain.Land[H.GetPosition.Y, H.GetPosition.X].TileLock <> tlHouse) then
+            gTerrain.SetHouse(H.GetPosition, H.HouseType, hsBuilt, H.Owner);
+         end;
+       end
+       else
+         LogError('Actions.HouseAddBuildingProgress', [aHouseID]);
 end;
 
 

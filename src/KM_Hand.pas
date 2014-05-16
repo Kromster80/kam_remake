@@ -755,6 +755,7 @@ begin
 
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
+  gScriptEvents.ProcHousePlanRemoved(fHandIndex, Position.X, Position.Y, HT);
   if (HandIndex = MySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_Click);
 end;
