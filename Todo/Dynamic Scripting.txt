@@ -104,6 +104,10 @@ Proposed:
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
         OnPeaceTimeEnd
+        States.DefencePositionAt(X,Y): Integer, returns PosID
+        States.DefencePositionOwner(aPos)
+        States.DefencePositionGroupType(aPos)
+        States.DefencePositionIsFront(aPos)
 
 
 Rejected:	
