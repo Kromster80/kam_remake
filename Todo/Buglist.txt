@@ -104,6 +104,7 @@ Improvements:
  +	M	Servers running on the local area network are detected and listed at the top of the server list
  +	L	Some way to delete multiplayer saves from within the KaM Remake (delete button on replay viewer)
  +	L	Some way to delete maps from within the KaM Remake (delete button in MapEd menu)
+ +      L	MapEd: Magic water works for ice
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -153,7 +154,6 @@ Improvements:
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
 	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor (ctrl+click while in tile mode?)
 	L	Add a button into barracks UI to allow to set a rally point
-	L	MapEd: Magic water should work for ice
 	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
         L       MapEd: Height indicator to make sure that f.e. walls have the same height
  

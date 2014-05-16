@@ -426,14 +426,16 @@ end;
 
 procedure TKMTerrainPainter.MagicWater(aLoc: TKMPoint);
 type
-  TMagicType = (mtNone, mtWater, mtShore);
+  TMagicType = (mtNone, mtWater, mtShore, mtIce);
 var
   FilledTiles: array of array of TMagicType;
 
   function CanRotate(aTileID: Byte): Boolean;
   begin
-    Result := gResource.Tileset.TileIsWater(aTileID)
-              and not (aTileID in [114, 115, 119, 194, 200, 210, 211, 235, 236]);
+    Result := (gResource.Tileset.TileIsWater(aTileID)
+              and not (aTileID in [114, 115, 119, 194, 200, 210, 211, 235, 236]))
+              or (gResource.Tileset.TileIsIce(aTileID)
+              and not (aTileID in [4, 10, 12, 22, 23]));
   end;
 
   procedure MagicFillArea(X, Y: Word);
@@ -444,6 +446,10 @@ var
     //Detect rotateable shores
     if (gTerrain.Land[y,x].Terrain in [126, 127]) then
       FilledTiles[y,x] := mtShore;
+
+    //Detect full ice tiles
+    if (gTerrain.Land[y, x].Terrain = 44) then
+      FilledTiles[y, x] := mtIce;
 
     //Detect water
     if CanRotate(gTerrain.Land[y,x].Terrain) then
@@ -484,7 +490,8 @@ begin
   for I := 1 to gTerrain.MapY do
     for K := 1 to gTerrain.MapX do
       case FilledTiles[I,K] of
-        mtWater:  begin
+        mtWater,
+        mtIce:    begin
                     gTerrain.Land[I,K].Rotation := NewRot;
                   end;
         mtShore:  begin

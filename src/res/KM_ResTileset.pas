@@ -38,6 +38,7 @@ type
 
     function TileIsWater(aTile: Byte): Boolean;
     //function TileHasWater(aTile: Byte): Boolean;
+    function TileIsIce(aTile: Byte): Boolean;
     function TileIsSand(aTile: Byte): Boolean;
     function TileIsStone(aTile: Byte): Byte;
     function TileIsSnow(aTile: Byte): Boolean;
@@ -136,6 +137,13 @@ end;
 function TKMTileset.TileIsWater(aTile: Byte): Boolean;
 begin
   Result := aTile in [48,114,115,119,192,193,194,196, 200, 208..211, 235,236, 240,244];
+end;
+
+
+//Check if requested tile has ice
+function TKMTileSet.TileIsIce(aTile: Byte): Boolean;
+begin
+  Result := aTile in [4, 10, 12, 22, 23, 44];
 end;
 
 
