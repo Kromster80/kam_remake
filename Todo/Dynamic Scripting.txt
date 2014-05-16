@@ -57,8 +57,8 @@ Implemented:
  6288   Actions.GiveHouseSite
  6297   Actions.HouseAddBuildingProgress
  6298   OnHousePlanRemoved
- 6301   OnPlanRoadFieldWinefieldRemoved
- 6303 	Actions.PlanConnectRoad(X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
+ 6301   OnPlanRoadFieldWinefieldRemoved; OnRoadWineFieldPlan ---> OnRoadWineFieldPlanPlaced
+ 6303 	Actions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
 
 
 Accepted:
@@ -103,6 +103,7 @@ Proposed:
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
+        OnPeaceTimeEnd
 
 
 Rejected:	
