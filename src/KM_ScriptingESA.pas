@@ -194,7 +194,7 @@ type
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
-    procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
+    function  AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer;
     procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
@@ -2320,14 +2320,18 @@ begin
 end;
 
 
-procedure TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte);
+function TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer;
 begin
+  Result := -1;
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (TAIDefencePosType(aDefType) in [adt_FrontLine..adt_BackLine])
   and (TGroupType(aGroupType) in [gt_Melee..gt_Mounted])
   and (TKMDirection(aDir+1) in [dir_N..dir_NW])
   and (gTerrain.TileInMapCoords(X, Y)) then
-    gHands[aPlayer].AI.General.DefencePositions.Add(KMPointDir(X, Y, TKMDirection(aDir + 1)), TGroupType(aGroupType), aRadius, TAIDefencePosType(aDefType))
+  begin
+    gHands[aPlayer].AI.General.DefencePositions.Add(KMPointDir(X, Y, TKMDirection(aDir + 1)), TGroupType(aGroupType), aRadius, TAIDefencePosType(aDefType));
+    Result := gHands[aPlayer].AI.General.DefencePositions.Count;
+  end
   else
     LogError('Actions.AIDefencePositionAdd', [aPlayer, X, Y, aDir, aGroupType, aRadius, aDefType]);
  end;

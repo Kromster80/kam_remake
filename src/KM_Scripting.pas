@@ -213,7 +213,7 @@ begin
       RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
-      RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
+      RegisterMethod('function  AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer');
       RegisterMethod('procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean)');
       RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
       RegisterMethod('procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
