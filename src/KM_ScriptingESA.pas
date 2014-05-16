@@ -158,6 +158,7 @@ type
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
     function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
+    function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer;
     function StatPlayerCount: Integer;
     function StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
     function StatUnitCount(aPlayer: Byte): Integer;
@@ -784,6 +785,21 @@ begin
   begin
     Result := 0;
     LogError('States.StatHouseTypeCount', [aPlayer, aHouseType]);
+  end;
+end;
+
+
+function TKMScriptStates.StatHouseTypePlansCount(aPlayer: Byte; aHouseType: Byte): Integer;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled)
+  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+  then
+    Result := gHands[aPlayer].Stats.GetHousePlans(HouseIndexToType[aHouseType])
+  else
+  begin
+    Result := 0;
+    LogError('States.StatHouseTypePlansCount', [aPlayer, aHouseType]);
   end;
 end;
 

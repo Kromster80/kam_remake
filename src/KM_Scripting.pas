@@ -183,6 +183,7 @@ begin
       RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
+      RegisterMethod('function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer');
       RegisterMethod('function StatPlayerCount: Integer');
       RegisterMethod('function StatResourceProducedCount(aPlayer, aResType: Byte): Integer');
       RegisterMethod('function StatUnitCount(aPlayer: Byte): Integer');
@@ -539,6 +540,7 @@ begin
       RegisterMethod(@TKMScriptStates.StatArmyCount,              'STATARMYCOUNT');
       RegisterMethod(@TKMScriptStates.StatCitizenCount,           'STATCITIZENCOUNT');
       RegisterMethod(@TKMScriptStates.StatHouseTypeCount,         'STATHOUSETYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount,    'STATHOUSETYPEPLANSCOUNT');
       RegisterMethod(@TKMScriptStates.StatPlayerCount,            'STATPLAYERCOUNT');
       RegisterMethod(@TKMScriptStates.StatResourceProducedCount,  'STATRESOURCEPRODUCEDCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitCount,              'STATUNITCOUNT');

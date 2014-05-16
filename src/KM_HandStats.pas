@@ -82,6 +82,7 @@ type
     function GetHouseQty(aType: THouseType): Integer; overload;
     function GetHouseQty(aType: array of THouseType): Integer; overload;
     function GetHouseWip(aType: THouseType): Integer; overload;
+    function GetHousePlans(aType: THouseType): Integer; overload;
     function GetHouseWip(aType: array of THouseType): Integer; overload;
     function GetHouseTotal(aType: THouseType): Integer;
     function GetUnitQty(aType: TUnitType): Integer;
@@ -320,6 +321,13 @@ begin
                   Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
     else        Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
   end;
+end;
+
+
+//How many house plans player has at certain moment...
+function TKMHandStats.GetHousePlans(aType: THouseType): Integer;
+begin
+  Result := Houses[aType].Planned - Houses[aType].PlanRemoved;
 end;
 
 

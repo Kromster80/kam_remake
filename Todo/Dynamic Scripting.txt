@@ -63,11 +63,11 @@ Implemented:
  6311 	Actions.GiveRoad(aPlayer, X, Y: integer); - add finished road
  6311	Actions.GiveWinefield(aPlayer, X, Y: integer); - add finished winefield
  6311	Actions.GiveField(aPlayer, X, Y: integer); - add finished field
+ 6313	Allow to query count of placed house plans
 
 
 Accepted:
 	Change house/unit/group owner
-	Allow to query count of placed house plans
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
