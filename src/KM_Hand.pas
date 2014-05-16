@@ -763,8 +763,12 @@ end;
 
 //This is called by the GIP when an erase command is processed
 procedure TKMHand.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
+var
+  aFieldType: TFieldType;
 begin
+  aFieldType := fBuildList.FieldworksList.HasField(Position);
   fBuildList.FieldworksList.RemFieldPlan(Position);
+  gScriptEvents.ProcPlanRemoved(fHandIndex, Position.X, Position.Y, aFieldType);
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
   and (HandIndex = MySpectator.HandIndex) then
     gSoundPlayer.Play(sfx_Click);

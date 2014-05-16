@@ -44,6 +44,9 @@ type
     fProcPlanPlacedRoad: TKMScriptEvent3I;
     fProcPlanPlacedField: TKMScriptEvent3I;
     fProcPlanPlacedWinefield: TKMScriptEvent3I;
+    fProcPlanRemovedRoad: TKMScriptEvent3I;
+    fProcPlanRemovedField: TKMScriptEvent3I;
+    fProcPlanRemovedWinefield: TKMScriptEvent3I;
     fProcPlayerDefeated: TKMScriptEvent1I;
     fProcPlayerVictory: TKMScriptEvent1I;
     fProcTick: TKMScriptEvent;
@@ -66,6 +69,7 @@ type
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
     procedure ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
+    procedure ProcPlanRemoved(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
     procedure ProcPlayerDefeated(aPlayer: THandIndex);
     procedure ProcPlayerVictory(aPlayer: THandIndex);
     procedure ProcTick;
@@ -278,8 +282,8 @@ type
     procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
-    function PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
-    function PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer;
+    function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
+    function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer;
     procedure StopLoopedWAV(aLoopIndex: Integer);
 
     procedure RemoveRoad(X, Y: Word);
@@ -327,26 +331,29 @@ end;
 
 procedure TKMScriptEvents.LinkEvents;
 begin
-  fProcHouseAfterDestroyed := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED'));
-  fProcHouseBuilt          := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
-  fProcHousePlanPlaced     := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
-  fProcHousePlanRemoved    := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANREMOVED'));
-  fProcHouseDamaged        := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
-  fProcHouseDestroyed      := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
-  fProcGroupHungry         := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONGROUPHUNGRY'));
-  fProcMarketTrade         := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONMARKETTRADE'));
-  fProcMissionStart        := TKMScriptEvent  (fExec.GetProcAsMethodN('ONMISSIONSTART'));
-  fProcPlanPlacedRoad      := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANROAD'));
-  fProcPlanPlacedField     := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANFIELD'));
-  fProcPlanPlacedWinefield := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELD'));
-  fProcPlayerDefeated      := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
-  fProcPlayerVictory       := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONPLAYERVICTORY'));
-  fProcTick                := TKMScriptEvent  (fExec.GetProcAsMethodN('ONTICK'));
-  fProcUnitAfterDied       := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONUNITAFTERDIED'));
-  fProcUnitDied            := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
-  fProcUnitTrained         := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
-  fProcUnitWounded         := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
-  fProcWarriorEquipped     := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
+  fProcHouseAfterDestroyed  := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED'));
+  fProcHouseBuilt           := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
+  fProcHousePlanPlaced      := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
+  fProcHousePlanRemoved     := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANREMOVED'));
+  fProcHouseDamaged         := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
+  fProcHouseDestroyed       := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
+  fProcGroupHungry          := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONGROUPHUNGRY'));
+  fProcMarketTrade          := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONMARKETTRADE'));
+  fProcMissionStart         := TKMScriptEvent  (fExec.GetProcAsMethodN('ONMISSIONSTART'));
+  fProcPlanPlacedRoad       := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANROADPLACED'));
+  fProcPlanPlacedField      := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANFIELDPLACED'));
+  fProcPlanPlacedWinefield  := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELDPLACED'));
+  fProcPlanRemovedRoad      := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANROADREMOVED'));
+  fProcPlanRemovedField     := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANFIELDREMOVED'));
+  fProcPlanRemovedWinefield := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELDREMOVED'));
+  fProcPlayerDefeated       := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
+  fProcPlayerVictory        := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONPLAYERVICTORY'));
+  fProcTick                 := TKMScriptEvent  (fExec.GetProcAsMethodN('ONTICK'));
+  fProcUnitAfterDied        := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONUNITAFTERDIED'));
+  fProcUnitDied             := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
+  fProcUnitTrained          := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
+  fProcUnitWounded          := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
+  fProcWarriorEquipped      := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
 end;
 
 
@@ -502,6 +509,17 @@ begin
     ft_Road: if Assigned(fProcPlanPlacedRoad)      then fProcPlanPlacedRoad     (aPlayer, aX, aY);
     ft_Corn: if Assigned(fProcPlanPlacedField)     then fProcPlanPlacedField    (aPlayer, aX, aY);
     ft_Wine: if Assigned(fProcPlanPlacedWinefield) then fProcPlanPlacedWinefield(aPlayer, aX, aY);
+    else     Assert(False);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcPlanRemoved(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
+begin
+  case aPlanType of
+    ft_Road: if Assigned(fProcPlanRemovedRoad)      then fProcPlanRemovedRoad     (aPlayer, aX, aY);
+    ft_Corn: if Assigned(fProcPlanRemovedField)     then fProcPlanRemovedField    (aPlayer, aX, aY);
+    ft_Wine: if Assigned(fProcPlanRemovedWinefield) then fProcPlanRemovedWinefield(aPlayer, aX, aY);
     else     Assert(False);
   end;
 end;

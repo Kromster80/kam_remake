@@ -57,6 +57,7 @@ Implemented:
  6288   Actions.GiveHouseSite
  6297   Actions.HouseAddBuildingProgress
  6298   OnHousePlanRemoved
+ 6301   OnPlanRoadFieldWinefieldRemoved
 
 
 Accepted:
@@ -65,8 +66,8 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
-	Way for players to hide the overlay	
-	OnRoadWineFieldPlanRemoved(aPlayer, X, Y: integer);
+	Way for players to hide the overlay
+
 	HouseAddWaresTo can add construction wares
 	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
 	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
