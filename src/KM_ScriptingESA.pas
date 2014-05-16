@@ -232,6 +232,7 @@ type
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
 
+    procedure HouseAddBuildingProgress(aHouseID: Integer);
     procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
     procedure HouseAddRepair(aHouseID: Integer; aRepair: Word);
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
@@ -2606,6 +2607,29 @@ begin
     gHands[aPlayer].Stats.AllowToTrade[WareIndexToType[aResType]] := aAllowed
   else
     LogError('Actions.SetTradeAllowed', [aPlayer, aResType, Byte(aAllowed)]);
+end;
+
+
+procedure TKMScriptActions.HouseAddBuildingProgress(aHouseID: Integer);
+var
+  H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil
+    and (not H.IsDestroyed)
+    and (not H.IsComplete)
+    and (H.CheckResToBuild) then
+    begin
+      H.IncBuildingProgress;
+      if H.IsStone
+      and (gTerrain.Land[H.GetPosition.Y, H.GetPosition.X].TileLock <> tlHouse) then
+        gTerrain.SetHouse(H.GetPosition, H.HouseType, hsBuilt, H.Owner);
+    end;
+  end
+  else
+    LogError('Actions.HouseAddBuildingProgrss', [aHouseID]);
 end;
 
 

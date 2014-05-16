@@ -238,7 +238,7 @@ begin
       RegisterMethod('function  GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function  GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
-      RegisterMethod('function GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
+      RegisterMethod('function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
       RegisterMethod('function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
@@ -257,6 +257,7 @@ begin
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
 
+      RegisterMethod('procedure HouseAddBuildingProgress(aHouseID: Integer)');
       RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
       RegisterMethod('procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
       RegisterMethod('procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
@@ -602,10 +603,11 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderWalk,            'GROUPORDERWALK');
       RegisterMethod(@TKMScriptActions.GroupSetFormation,         'GROUPSETFORMATION');
 
-      RegisterMethod(@TKMScriptActions.HouseAllow,                    'HOUSEALLOW');
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingProgress,      'HOUSEADDBUILDINGPROGRESS');
       RegisterMethod(@TKMScriptActions.HouseAddDamage,                'HOUSEADDDAMAGE');
       RegisterMethod(@TKMScriptActions.HouseAddRepair,                'HOUSEADDREPAIR');
       RegisterMethod(@TKMScriptActions.HouseAddWaresTo,               'HOUSEADDWARESTO');
+      RegisterMethod(@TKMScriptActions.HouseAllow,                    'HOUSEALLOW');
       RegisterMethod(@TKMScriptActions.HouseBarracksEquip,            'HOUSEBARRACKSEQUIP');
       RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,      'HOUSEBARRACKSGIVERECRUIT');
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,            'HOUSEDELIVERYBLOCK');
