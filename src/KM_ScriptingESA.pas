@@ -2647,18 +2647,17 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      if (not H.IsDestroyed)
-      and (not H.IsComplete)
+      if (not H.IsComplete)
       and (H.CheckResToBuild) then
-        begin
-          H.IncBuildingProgress;
-          if H.IsStone
-          and (gTerrain.Land[H.GetPosition.Y, H.GetPosition.X].TileLock <> tlHouse) then
-            gTerrain.SetHouse(H.GetPosition, H.HouseType, hsBuilt, H.Owner);
-         end;
-       end
-       else
-         LogError('Actions.HouseAddBuildingProgress', [aHouseID]);
+      begin
+        H.IncBuildingProgress;
+        if H.IsStone
+        and (gTerrain.Land[H.GetPosition.Y, H.GetPosition.X].TileLock <> tlHouse) then
+          gTerrain.SetHouse(H.GetPosition, H.HouseType, hsBuilt, H.Owner);
+      end;
+  end
+  else
+    LogError('Actions.HouseAddBuildingProgress', [aHouseID]);
 end;
 
 
@@ -3075,7 +3074,7 @@ var
   Points: TKMPointList;
   PlanExists: Boolean;
   I: Integer;
-  aPath: TPathFindingRoad;
+  Path: TPathFindingRoad;
 begin
   Result := False;
   if InRange(aPlayer, 0, gHands.Count - 1)
@@ -3083,19 +3082,19 @@ begin
   and gTerrain.TileInMapCoords(X1, Y1)
   and gTerrain.TileInMapCoords(X2, Y2) then
   begin
-    aPath := TPathFindingRoad.Create(aPlayer);
+    Path := TPathFindingRoad.Create(aPlayer);
     Points := TKMPointList.Create;
     try
-      PlanExists := aPath.Route_ReturnToWalkable(KMPoint(X1, Y1), KMPoint(X2, Y2), Points);
+      PlanExists := Path.Route_ReturnToWalkable(KMPoint(X1, Y1), KMPoint(X2, Y2), Points);
       if not PlanExists then
         Exit;
       for I := 0 to Points.Count - 1 do
-        if gHands[aPlayer].CanAddFieldPlan(Points[I], ft_Road) then
-          gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road);
+      if gHands[aPlayer].CanAddFieldPlan(Points[I], ft_Road) then
+        gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road);
       Result := True;
     finally
       Points.Free;
-      aPath.Free;
+      Path.Free;
     end;
   end
   else

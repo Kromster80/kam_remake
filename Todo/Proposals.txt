@@ -62,6 +62,8 @@ Once an agreement is made or implementation details are made - item is moved to 
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 			Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
 
+        L       MapEd: Height indicator to make sure that f.e. walls have the same height
+
 
 REJECTED:
  -	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)

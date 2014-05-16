@@ -155,7 +155,6 @@ Improvements:
 	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor (ctrl+click while in tile mode?)
 	L	Add a button into barracks UI to allow to set a rally point
 	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
-        L       MapEd: Height indicator to make sure that f.e. walls have the same height
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
  -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
