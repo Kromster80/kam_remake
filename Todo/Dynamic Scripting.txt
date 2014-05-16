@@ -58,6 +58,7 @@ Implemented:
  6297   Actions.HouseAddBuildingProgress
  6298   OnHousePlanRemoved
  6301   OnPlanRoadFieldWinefieldRemoved
+ 6303 	Actions.PlanConnectRoad(X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
 
 
 Accepted:
@@ -68,11 +69,9 @@ Accepted:
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
 	Way for players to hide the overlay
 
-	HouseAddWaresTo can add construction wares
 	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
 	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
 	Actions.AddField(aPlayer, X, Y: integer); - add finished field
-	Actions.PlanConnectRoad(X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
 
 Proposed:
 	Change position/alignment/font of overlay text
@@ -108,3 +107,4 @@ Proposed:
 
 Rejected:	
 	Actions.SetAIName (Player names can be written in libx, changing names during the game sounds like inconsistency)
+ 	HouseAddWaresTo can add construction wares (use GiveHouseSite with aAddMaterials = True key)

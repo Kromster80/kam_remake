@@ -288,6 +288,7 @@ begin
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function  PlanconnectRoad(aPlayer, X1, Y1, X2, Y2: Integer): Boolean');
       RegisterMethod('function  PlanRemove(aPlayer, X, Y: Word): Boolean');
 
       RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
@@ -638,6 +639,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlanAddHouse,      'PLANADDHOUSE');
       RegisterMethod(@TKMScriptActions.PlanAddRoad,       'PLANADDROAD');
       RegisterMethod(@TKMScriptActions.PlanAddWinefield,  'PLANADDWINEFIELD');
+      RegisterMethod(@TKMScriptActions.PlanConnectRoad,   'PLANCONNECTROAD');
       RegisterMethod(@TKMScriptActions.PlanRemove,        'PLANREMOVE');
 
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange,  'PLAYERALLIANCECHANGE');

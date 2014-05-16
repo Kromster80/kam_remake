@@ -270,6 +270,7 @@ type
     function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
     function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
     function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
+    function PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer): Boolean;
     function PlanRemove(aPlayer, X, Y: Word): Boolean;
 
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
@@ -310,7 +311,7 @@ implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection;
+  KM_UnitsCollection, KM_PathFindingRoad;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -3066,6 +3067,39 @@ begin
   end
   else
     LogError('Actions.PlanAddWinefield', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptActions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer): Boolean;
+var
+  Points: TKMPointList;
+  PlanExists: Boolean;
+  I: Integer;
+  aPath: TPathFindingRoad;
+begin
+  Result := False;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled)
+  and gTerrain.TileInMapCoords(X1, Y1)
+  and gTerrain.TileInMapCoords(X2, Y2) then
+  begin
+    aPath := TPathFindingRoad.Create(aPlayer);
+    Points := TKMPointList.Create;
+    try
+      PlanExists := aPath.Route_ReturnToWalkable(KMPoint(X1, Y1), KMPoint(X2, Y2), Points);
+      if not PlanExists then
+        Exit;
+      for I := 0 to Points.Count - 1 do
+        if gHands[aPlayer].CanAddFieldPlan(Points[I], ft_Road) then
+          gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road);
+      Result := True;
+    finally
+      Points.Free;
+      aPath.Free;
+    end;
+  end
+  else
+    LogError('Actions.PlanConnectRoad', [aPlayer, X1, Y1, X2, Y2]);
 end;
 
 
