@@ -55,6 +55,8 @@ Implemented:
  6285   States.HouseBuildingProgress
  6287	HouseMarketFromWare, HouseMarketToWare, HouseMarketOrderAmount (query what the player has ordered at a market)
  6288   Actions.GiveHouseSite
+ 6297   Actions.HouseAddBuildingProgress
+ 6298   OnHousePlanRemoved
 
 
 Accepted:
@@ -63,12 +65,9 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
-	Way for players to hide the overlay
-	
-	OnHousePlanRemoved(aPlayer, aType, X, Y: integer);
+	Way for players to hide the overlay	
 	OnRoadWineFieldPlanRemoved(aPlayer, X, Y: integer);
 	HouseAddWaresTo can add construction wares
-	Actions.HouseAddBuildProgress
 	Actions.AddRoad(aPlayer, X, Y: integer); - add finished road
 	Actions.AddWine(aPlayer, X, Y: integer); - add finished winefield
 	Actions.AddField(aPlayer, X, Y: integer); - add finished field
@@ -91,7 +90,6 @@ Proposed:
 	States.GroupAtDefPos(PlayerID, PositionID)
 	Actions.RemDefensePosition(PlayerID, PositionID)
 	Add flag to allow to kill units with death animation, but without sound
-
 	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
 	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 
 	States.AI_closestEnemyUnit(PlayerID):Integer; 
