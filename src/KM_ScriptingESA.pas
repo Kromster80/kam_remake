@@ -196,7 +196,7 @@ type
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
     function  AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer;
-    procedure AIDefencePositionRemove(aPlayer: Byte; aDefPosID: Integer);
+    procedure AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer);
     procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
@@ -793,8 +793,7 @@ function TKMScriptStates.StatHouseTypePlansCount(aPlayer: Byte; aHouseType: Byte
 begin
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
-  then
+  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)]) then
     Result := gHands[aPlayer].Stats.GetHousePlans(HouseIndexToType[aHouseType])
   else
   begin
@@ -2357,14 +2356,24 @@ begin
  end;
 
 
-procedure TKMScriptActions.AIDefencePositionRemove(aPlayer: Byte; aDefPosID: Integer);
+procedure TKMScriptActions.AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer);
+var
+  I: Integer;
+  DP: TAIDefencePosition;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled)
-  and InRange(aDefPosID, 1, gHands[aPlayer].AI.General.DefencePositions.Count) then
-    gHands[aPlayer].AI.General.DefencePositions.Delete(aDefPosID)
+  and gTerrain.TileInMapCoords(X, Y) then
+    for I := gHands[aPlayer].AI.General.DefencePositions.Count - 1 downto 0 do
+    begin
+      DP := gHands[aPlayer].AI.General.DefencePositions.Positions[I];
+      if DP <> nil then
+        if (DP.Position.Loc.X = X)
+        and (DP.Position.Loc.Y = Y) then
+          gHands[aPlayer].AI.General.DefencePositions.Delete(I);
+    end
 else
-  LogError('Actions.AIDefencePositionRemove', [aPlayer, aDefPosID]);
+  LogError('Actions.AIDefencePositionRemove', [aPlayer, X, Y]);
 end;
 
 
