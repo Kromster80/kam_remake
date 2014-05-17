@@ -2511,7 +2511,10 @@ begin
     TX := Loc.X + K - 3;
     TY := Loc.Y + I - 4;
     Result := Result and TileInMapCoords(TX, TY, 1); //Inset one tile from map edges
+    //We don't use CanBuild since you are allowed to place houses from the script over trees but not over units
     Result := Result and TileIsWalkable(KMPoint(TX, TY)); //Tile must be walkable
+    Result := Result and not TileIsCornField(KMPoint(TX, TY));
+    Result := Result and not TileIsWineField(KMPoint(TX, TY));
 
     //Mines must be on a mountain edge
     if aHouseType = ht_IronMine then

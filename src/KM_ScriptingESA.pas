@@ -2264,14 +2264,12 @@ begin
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
   and gTerrain.TileInMapCoords(X,Y) then
   begin
-    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y))
-    and (not gTerrain.TileIsCornField(KMPoint(X,Y)))
-    and (not gTerrain.TileIsWineField(KMPoint(X, Y))) then
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
     begin
       H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(X, Y));
-      if (H = nil)
-      or (H.IsDestroyed) then
+      if (H = nil) or (H.IsDestroyed) then
         Exit;
+
       Result := H.UID;
       HA := gResource.HouseDat[H.HouseType].BuildArea;
       for I := 1 to 4 do
@@ -2510,6 +2508,8 @@ begin
     begin
       Result := True;
       gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
+      //Terrain under roads is flattened (fields are not)
+      gTerrain.FlattenTerrain(KMPoint(X, Y));
     end
   else
     LogError('Actions.GiveRoad', [aPlayer, X, Y]);

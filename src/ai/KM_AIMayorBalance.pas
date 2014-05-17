@@ -461,7 +461,7 @@ procedure TKMayorBalance.DistributeSteel;
 var
   WeaponsPerMin, ArmorPerMin: Single;
 
-  SteelPerMin, SteelProductionRate, SteelConsumptionRate: Single;
+  SteelPerMin, SteelConsumptionRate: Single;
   ExtraSteel, DeficitSteel: Single;
 
   IronPerMin, IronProduction, IronConsumption, IronReserve: Single;
