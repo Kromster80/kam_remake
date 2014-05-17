@@ -62,7 +62,7 @@ type
 
     procedure LoadFont(const aFileName: string; aPal: TKMPalData);
     procedure LoadFontX(const aFileName: string);
-    procedure GenerateTextures(aRender: TRender; aTexMode: TTexFormat);
+    procedure GenerateTextures(aTexMode: TTexFormat);
     procedure Compact;
     procedure ExportAtlasBmp(aBitmap: TBitmap; aIndex: Integer; aShowCells: Boolean); overload;
     procedure ExportAtlasBmp(const aPath: string; aIndex: Integer); overload;
@@ -82,11 +82,10 @@ type
   //Collection of fonts
   TKMResourceFont = class
   private
-    fRender: TRender;
     fFontData: array [TKMFont] of TKMFontData;
     function GetFontData(aIndex: TKMFont): TKMFontData;
   public
-    constructor Create(aRender: TRender);
+    constructor Create;
     destructor Destroy; override;
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
@@ -277,13 +276,13 @@ end;
 
 
 //Generate color texture from prepared data
-procedure TKMFontData.GenerateTextures(aRender: TRender; aTexMode: TTexFormat);
+procedure TKMFontData.GenerateTextures(aTexMode: TTexFormat);
 var
   I: Integer;
 begin
   for I := 0 to fAtlasCount - 1 do
   if Length(fAtlases[I].TexData) <> 0 then
-    fAtlases[I].TexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fAtlases[I].TexData[0], aTexMode)
+    fAtlases[I].TexID := TRender.GenTexture(fTexSizeX, fTexSizeY, @fAtlases[I].TexData[0], aTexMode)
   else
     fAtlases[I].TexID := 0;
 end;
@@ -387,11 +386,11 @@ end;
 
 
 { TResourceFont }
-constructor TKMResourceFont.Create(aRender: TRender);
-var F: TKMFont;
+constructor TKMResourceFont.Create;
+var
+  F: TKMFont;
 begin
-  inherited Create;
-  fRender := aRender;
+  inherited;
 
   for F := Low(TKMFont) to High(TKMFont) do
     fFontData[F] := TKMFontData.Create;
@@ -442,8 +441,7 @@ begin
   begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
     fFontData[F].LoadFontX(FntPath);
-    if fRender <> nil then
-      fFontData[F].GenerateTextures(fRender, FontInfo[F].TexMode);
+    fFontData[F].GenerateTextures(FontInfo[F].TexMode);
     fFontData[F].Compact;
   end;
 end;

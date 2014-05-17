@@ -24,7 +24,6 @@ type
 
   TKMResource = class
   private
-    fRender: TRender;
     fDataState: TResourceLoadState;
     fCursors: TKMCursors;
     fFonts: TKMResourceFont;
@@ -43,7 +42,7 @@ type
     OnLoadingStep: TEvent;
     OnLoadingText: TUnicodeStringEvent;
 
-    constructor Create(aRender: TRender; aLS: TEvent; aLT: TUnicodeStringEvent);
+    constructor Create(aOnLoadingStep: TEvent; aOnLoadingText: TUnicodeStringEvent);
     destructor Destroy; override;
 
     function GetDATCRC: Cardinal;
@@ -80,16 +79,15 @@ uses
 
 
 { TKMResource }
-constructor TKMResource.Create(aRender: TRender; aLS: TEvent; aLT: TUnicodeStringEvent);
+constructor TKMResource.Create(aOnLoadingStep: TEvent; aOnLoadingText: TUnicodeStringEvent);
 begin
   inherited Create;
 
   fDataState := rlsNone;
   gLog.AddTime('Resource loading state - None');
 
-  fRender := aRender;
-  OnLoadingStep := aLS;
-  OnLoadingText := aLT;
+  OnLoadingStep := aOnLoadingStep;
+  OnLoadingText := aOnLoadingText;
 end;
 
 
@@ -135,8 +133,6 @@ end;
 
 procedure TKMResource.LoadMainResources(aLocale: AnsiString = '');
 begin
-  Assert(SKIP_RENDER or (fRender <> nil), 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
-
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
@@ -150,7 +146,7 @@ begin
   fCursors.Cursor := kmc_Default;
 
   StepCaption('Reading fonts ...');
-  fFonts := TKMResourceFont.Create(fRender);
+  fFonts := TKMResourceFont.Create;
   fFonts.LoadFonts;
   gLog.AddTime('Read fonts is done');
 
@@ -194,8 +190,6 @@ end;
 
 procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean);
 begin
-  Assert(fRender <> nil, 'fRender inits OpenGL and we need OpenGL to make textures');
-
   if (fDataState <> rlsAll) or (aAlphaShadows <> fSprites.AlphaShadows) then
   begin
     fSprites.LoadGameResources(aAlphaShadows);
