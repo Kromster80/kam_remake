@@ -59,7 +59,7 @@ Implemented:
  6298   OnHousePlanRemoved
  6301   OnPlanRoadFieldWinefieldRemoved; OnPlanRoadWineField ---> OnPlanRoadWineFieldPlaced
  6303 	Actions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2): Boolean - Connects road plans between two points (similar to AI builder)
- 6309	Actions.RemDefensePosition(PlayerID, PositionID)
+ 6309	Actions.RemDefensePosition(PlayerID, X, Y)
  6311 	Actions.GiveRoad(aPlayer, X, Y: integer); - add finished road
  6311	Actions.GiveWinefield(aPlayer, X, Y: integer); - add finished winefield
  6311	Actions.GiveField(aPlayer, X, Y: integer); - add finished field
@@ -103,13 +103,15 @@ Proposed:
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
-        OnPeaceTimeEnd
-        States.DefencePositionAt(X,Y): Integer, returns PosID
-        States.DefencePositionOwner(aPos)
-        States.DefencePositionGroupType(aPos)
-        States.DefencePositionIsFront(aPos)
+        MultipleTypes for StatHouseTypeCount, StatUnitTypeCount, StatPlansTypeCount etc...
+        Actions.AIDefPosRemoveAll(aPlayer)
 
 
 Rejected:	
 	Actions.SetAIName (Player names can be written in libx, changing names during the game sounds like inconsistency)
  	HouseAddWaresTo can add construction wares (use GiveHouseSite with aAddMaterials = True key)
+        OnPeaceTimeEnd (use States.GameTime = States.PeaceTime instead)
+        States.DefencePositionAt(X,Y): Integer, returns PosID
+        States.DefencePositionOwner(aPos)
+        States.DefencePositionGroupType(aPos)
+        States.DefencePositionIsFront(aPos)
