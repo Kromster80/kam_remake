@@ -180,6 +180,7 @@ begin
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
 
+      RegisterMethod('function StatAIDefencePositionsCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
@@ -214,8 +215,9 @@ begin
       RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
-      RegisterMethod('function  AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer');
+      RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
       RegisterMethod('procedure AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer)');
+      RegisterMethod('procedure AIDefencePositionRemoveAll(aPlayer: Byte)');
       RegisterMethod('procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean)');
       RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
       RegisterMethod('procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
@@ -306,8 +308,8 @@ begin
       RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
       RegisterMethod('procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
       RegisterMethod('procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word)');
-      RegisterMethod('function PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer');
-      RegisterMethod('function PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer');
+      RegisterMethod('function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer');
+      RegisterMethod('function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer');
       RegisterMethod('procedure StopLoopedWAV(aLoopIndex: Integer)');
 
       RegisterMethod('procedure RemoveRoad(X, Y: Word)');
@@ -478,17 +480,17 @@ begin
       RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypes,   'CLOSESTHOUSEMULTIPLETYPES');
       RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypes,    'CLOSESTUNITMULTIPLETYPES');
 
-      RegisterMethod(@TKMScriptStates.GameTime,         'GAMETIME');
-      RegisterMethod(@TKMScriptStates.KaMRandom,        'KAMRANDOM');
-      RegisterMethod(@TKMScriptStates.KaMRandomI,       'KAMRANDOMI');
-      RegisterMethod(@TKMScriptStates.MarketFromWare,   'MARKETFROMWARE');
-      RegisterMethod(@TKMScriptStates.MarketLossFactor, 'MARKETLOSSFACTOR');
-      RegisterMethod(@TKMScriptStates.MarketOrderAmount,'MARKETORDERAMOUNT');
-      RegisterMethod(@TKMScriptStates.MarketToWare,     'MARKETTOWARE');
-      RegisterMethod(@TKMScriptStates.MarketValue,      'MARKETVALUE');
-      RegisterMethod(@TKMScriptStates.PeaceTime,        'PEACETIME');
+      RegisterMethod(@TKMScriptStates.GameTime,          'GAMETIME');
+      RegisterMethod(@TKMScriptStates.KaMRandom,         'KAMRANDOM');
+      RegisterMethod(@TKMScriptStates.KaMRandomI,        'KAMRANDOMI');
+      RegisterMethod(@TKMScriptStates.MarketFromWare,    'MARKETFROMWARE');
+      RegisterMethod(@TKMScriptStates.MarketLossFactor,  'MARKETLOSSFACTOR');
+      RegisterMethod(@TKMScriptStates.MarketOrderAmount, 'MARKETORDERAMOUNT');
+      RegisterMethod(@TKMScriptStates.MarketToWare,      'MARKETTOWARE');
+      RegisterMethod(@TKMScriptStates.MarketValue,       'MARKETVALUE');
+      RegisterMethod(@TKMScriptStates.PeaceTime,         'PEACETIME');
 
-      RegisterMethod(@TKMScriptStates.FogRevealed,    'FOGREVEALED');
+      RegisterMethod(@TKMScriptStates.FogRevealed,      'FOGREVEALED');
 
       RegisterMethod(@TKMScriptStates.GroupAt,          'GROUPAT');
       RegisterMethod(@TKMScriptStates.GroupDead,        'GROUPDEAD');
@@ -537,16 +539,17 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerVictorious,       'PLAYERVICTORIOUS');
       RegisterMethod(@TKMScriptStates.PlayerWareDistribution, 'PLAYERWAREDISTRIBUTION');
 
-      RegisterMethod(@TKMScriptStates.StatArmyCount,              'STATARMYCOUNT');
-      RegisterMethod(@TKMScriptStates.StatCitizenCount,           'STATCITIZENCOUNT');
-      RegisterMethod(@TKMScriptStates.StatHouseTypeCount,         'STATHOUSETYPECOUNT');
-      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount,    'STATHOUSETYPEPLANSCOUNT');
-      RegisterMethod(@TKMScriptStates.StatPlayerCount,            'STATPLAYERCOUNT');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedCount,  'STATRESOURCEPRODUCEDCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitCount,              'STATUNITCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledCount,        'STATUNITKILLEDCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitLostCount,          'STATUNITLOSTCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitTypeCount,          'STATUNITTYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount, 'STATAIDEFENCEPOSITIONSCOUNT');
+      RegisterMethod(@TKMScriptStates.StatArmyCount,               'STATARMYCOUNT');
+      RegisterMethod(@TKMScriptStates.StatCitizenCount,            'STATCITIZENCOUNT');
+      RegisterMethod(@TKMScriptStates.StatHouseTypeCount,          'STATHOUSETYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount,     'STATHOUSETYPEPLANSCOUNT');
+      RegisterMethod(@TKMScriptStates.StatPlayerCount,             'STATPLAYERCOUNT');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedCount,   'STATRESOURCEPRODUCEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitCount,               'STATUNITCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledCount,         'STATUNITKILLEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitLostCount,           'STATUNITLOSTCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitTypeCount,           'STATUNITTYPECOUNT');
 
       RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
       RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
@@ -566,21 +569,22 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
-      RegisterMethod(@TKMScriptActions.AIAutoAttackRange,       'AIAUTOATTACKRANGE');
-      RegisterMethod(@TKMScriptActions.AIAutoBuild,             'AIAUTOBUILD');
-      RegisterMethod(@TKMScriptActions.AIAutoDefence,           'AIAUTODEFENCE');
-      RegisterMethod(@TKMScriptActions.AIAutoRepair,            'AIAUTOREPAIR');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,    'AIDEFENCEPOSITIONADD');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionRemove, 'AIDEFENCEPOSITIONREMOVE');
-      RegisterMethod(@TKMScriptActions.AIDefendAllies,          'AIDEFENDALLIES');
-      RegisterMethod(@TKMScriptActions.AIEquipRate,             'AIEQUIPRATE');
-      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet,    'AIGROUPSFORMATIONSET)');
-      RegisterMethod(@TKMScriptActions.AIRecruitDelay,          'AIRECRUITDELAY');
-      RegisterMethod(@TKMScriptActions.AIRecruitLimit,          'AIRECRUITLIMIT');
-      RegisterMethod(@TKMScriptActions.AISerfsPerHouse,         'AISERFSPERHOUSE');
-      RegisterMethod(@TKMScriptActions.AISoldiersLimit,         'AISOLDIERSLIMIT');
-      RegisterMethod(@TKMScriptActions.AIStartPosition,         'AISTARTPOSITION');
-      RegisterMethod(@TKMScriptActions.AIWorkerLimit,           'AIWORKERLIMIT');
+      RegisterMethod(@TKMScriptActions.AIAutoAttackRange,          'AIAUTOATTACKRANGE');
+      RegisterMethod(@TKMScriptActions.AIAutoBuild,                'AIAUTOBUILD');
+      RegisterMethod(@TKMScriptActions.AIAutoDefence,              'AIAUTODEFENCE');
+      RegisterMethod(@TKMScriptActions.AIAutoRepair,               'AIAUTOREPAIR');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,       'AIDEFENCEPOSITIONADD');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionRemove,    'AIDEFENCEPOSITIONREMOVE');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveAll, 'AIDEFENCEPOSITIONREMOVEALL');
+      RegisterMethod(@TKMScriptActions.AIDefendAllies,             'AIDEFENDALLIES');
+      RegisterMethod(@TKMScriptActions.AIEquipRate,                'AIEQUIPRATE');
+      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet,       'AIGROUPSFORMATIONSET)');
+      RegisterMethod(@TKMScriptActions.AIRecruitDelay,             'AIRECRUITDELAY');
+      RegisterMethod(@TKMScriptActions.AIRecruitLimit,             'AIRECRUITLIMIT');
+      RegisterMethod(@TKMScriptActions.AISerfsPerHouse,            'AISERFSPERHOUSE');
+      RegisterMethod(@TKMScriptActions.AISoldiersLimit,            'AISOLDIERSLIMIT');
+      RegisterMethod(@TKMScriptActions.AIStartPosition,            'AISTARTPOSITION');
+      RegisterMethod(@TKMScriptActions.AIWorkerLimit,              'AIWORKERLIMIT');
 
       RegisterMethod(@TKMScriptActions.CinematicStart,    'CINEMATICSTART');
       RegisterMethod(@TKMScriptActions.CinematicEnd,      'CINEMATICEND');
@@ -627,15 +631,15 @@ begin
       RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,      'HOUSEBARRACKSGIVERECRUIT');
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,            'HOUSEDELIVERYBLOCK');
       RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HOUSEDISABLEUNOCCUPIEDMESSAGE');
-      RegisterMethod(@TKMScriptActions.HouseDestroy,            'HOUSEDESTROY');
-      RegisterMethod(@TKMScriptActions.HouseRepairEnable,       'HOUSEREPAIRENABLE');
-      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,     'HOUSESCHOOLQUEUEADD');
-      RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,  'HOUSESCHOOLQUEUEREMOVE');
-      RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom,      'HOUSETAKEWARESFROM');
-      RegisterMethod(@TKMScriptActions.HouseUnlock,             'HOUSEUNLOCK');
-      RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
-      RegisterMethod(@TKMScriptActions.HouseWareBlock,          'HOUSEWAREBLOCK');
-      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,    'HOUSEWEAPONSORDERSET');
+      RegisterMethod(@TKMScriptActions.HouseDestroy,                  'HOUSEDESTROY');
+      RegisterMethod(@TKMScriptActions.HouseRepairEnable,             'HOUSEREPAIRENABLE');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,           'HOUSESCHOOLQUEUEADD');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,        'HOUSESCHOOLQUEUEREMOVE');
+      RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom,            'HOUSETAKEWARESFROM');
+      RegisterMethod(@TKMScriptActions.HouseUnlock,                   'HOUSEUNLOCK');
+      RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly,       'HOUSEWOODCUTTERCHOPONLY');
+      RegisterMethod(@TKMScriptActions.HouseWareBlock,                'HOUSEWAREBLOCK');
+      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,          'HOUSEWEAPONSORDERSET');
 
       RegisterMethod(@TKMScriptActions.Log,                        'LOG');
       RegisterMethod(@TKMScriptActions.MarketSetTrade,             'MARKETSETTRADE');
@@ -659,14 +663,14 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
       RegisterMethod(@TKMScriptActions.PlayerWin,             'PLAYERWIN');
 
-      RegisterMethod(@TKMScriptActions.PlayWAV,           'PLAYWAV');
-      RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,  'PLAYWAVFADEMUSIC');
-      RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PLAYWAVATLOCATION');
-      RegisterMethod(@TKMScriptActions.PlayWAVLooped,     'PLAYWAVLOOPED');
+      RegisterMethod(@TKMScriptActions.PlayWAV,                 'PLAYWAV');
+      RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,        'PLAYWAVFADEMUSIC');
+      RegisterMethod(@TKMScriptActions.PlayWAVAtLocation,       'PLAYWAVATLOCATION');
+      RegisterMethod(@TKMScriptActions.PlayWAVLooped,           'PLAYWAVLOOPED');
       RegisterMethod(@TKMScriptActions.PlayWAVAtLocationLooped, 'PLAYWAVATLOCATIONLOOPED');
-      RegisterMethod(@TKMScriptActions.StopLoopedWAV,     'STOPLOOPEDWAV');
+      RegisterMethod(@TKMScriptActions.StopLoopedWAV,           'STOPLOOPEDWAV');
 
-      RegisterMethod(@TKMScriptActions.RemoveRoad,        'REMOVEROAD');
+      RegisterMethod(@TKMScriptActions.RemoveRoad,            'REMOVEROAD');
 
       RegisterMethod(@TKMScriptActions.SetTradeAllowed,       'SETTRADEALLOWED');
       RegisterMethod(@TKMScriptActions.ShowMsg,               'SHOWMSG');

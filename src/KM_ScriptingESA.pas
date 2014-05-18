@@ -155,6 +155,7 @@ type
     function PlayerVictorious(aPlayer: Byte): Boolean;
     function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
 
+    function StatAIDefencePositionsCount(aPlayer: Byte): Integer;
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
     function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
@@ -195,8 +196,9 @@ type
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
-    function  AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer;
+    procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
     procedure AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer);
+    procedure AIDefencePositionRemoveAll(aPlayer: Byte);
     procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
@@ -723,6 +725,19 @@ begin
   end
   else
     LogError('States.ClosestUnit', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.StatAIDefencePositionsCount(aPlayer: Byte): Integer;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled) then
+    Result := gHands[aPlayer].AI.General.DefencePositions.Count
+  else
+  begin
+    Result := 0;
+    LogError('States.StatAIDefencePositionsCount', [aPlayer]);
+  end;
 end;
 
 
@@ -2339,21 +2354,17 @@ begin
 end;
 
 
-function TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte): Integer;
+procedure TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte);
 begin
-  Result := -1;
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and (TAIDefencePosType(aDefType) in [adt_FrontLine..adt_BackLine])
   and (TGroupType(aGroupType) in [gt_Melee..gt_Mounted])
   and (TKMDirection(aDir+1) in [dir_N..dir_NW])
   and (gTerrain.TileInMapCoords(X, Y)) then
-  begin
-    gHands[aPlayer].AI.General.DefencePositions.Add(KMPointDir(X, Y, TKMDirection(aDir + 1)), TGroupType(aGroupType), aRadius, TAIDefencePosType(aDefType));
-    Result := gHands[aPlayer].AI.General.DefencePositions.Count;
-  end
-  else
-    LogError('Actions.AIDefencePositionAdd', [aPlayer, X, Y, aDir, aGroupType, aRadius, aDefType]);
- end;
+    gHands[aPlayer].AI.General.DefencePositions.Add(KMPointDir(X, Y, TKMDirection(aDir + 1)), TGroupType(aGroupType), aRadius, TAIDefencePosType(aDefType))
+else
+  LogError('Actions.AIDefencePositionAdd', [aPlayer, X, Y, aDir, aGroupType, aRadius, aDefType]);
+end;
 
 
 procedure TKMScriptActions.AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer);
@@ -2374,6 +2385,19 @@ begin
     end
 else
   LogError('Actions.AIDefencePositionRemove', [aPlayer, X, Y]);
+end;
+
+
+procedure TKMScriptActions.AIDefencePositionRemoveAll(aPlayer: Byte);
+var
+  I: Integer;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled) then
+    for I := gHands[aPlayer].AI.General.DefencePositions.Count - 1 downto 0 do
+      gHands[aPlayer].AI.General.DefencePositions.Delete(I)
+  else
+    LogError('Actions.AIDefencePositionRemoveAll', [aPlayer]);
 end;
 
 
