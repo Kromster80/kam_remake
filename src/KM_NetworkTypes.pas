@@ -21,7 +21,7 @@ type
     mk_AllowToJoin,     //Host allows Client to join
     mk_RefuseToJoin,    //Host can refuse when e.g. Nikname is already taken
 
-    mk_HostingRights,   //Server tells client they have hosting rights (during inital connection only)
+    mk_AskForAuth,      //Joiner sends challenge to host, and askes host to send its challenge
     mk_IndexOnServer,   //Server tells Client his index
     mk_ClientLost,      //Server tells clients that someone has disconnected
     mk_ReassignHost,    //Server tells clients who is the new host after the host disconnects
@@ -38,7 +38,7 @@ type
     mk_ResetBans,       //Host askes the server to reset the ban list for this room
     mk_Kicked,          //Server tells a client they were kicked just before disconnecting then
     mk_LangCode,        //Client tells host his language code
-    mk_GameCRC,         //Host tells a joining client CRC of main data files so he can decide whether to join
+    mk_AuthChallenge,   //Host sends solution and own challenge back to joiner
 
     mk_GetServerInfo,   //Client askes for server for the server details (for querying)
     mk_ServerInfo,      //Server sends client the server info on request
@@ -102,10 +102,10 @@ type
 
 const
   NetPacketType: array [TKMessageKind] of TKMPacketFormat =
-  ( pfString,   //mk_AskToJoin
+  ( pfBinary,   //mk_AskToJoin
     pfNoData,   //mk_AllowToJoin
     pfNumber,   //mk_RefuseToJoin
-    pfNoData,   //mk_HostingRights
+    pfBinary,   //mk_AskForAuth
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
     pfNumber,   //mk_ReassignHost
@@ -121,7 +121,7 @@ const
     pfNoData,   //mk_ResetBans
     pfNumber,   //mk_Kicked
     pfString,   //mk_LangCode
-    pfNumber,   //mk_GameCRC
+    pfBinary,   //mk_AuthChallenge
     pfNoData,   //mk_GetServerInfo
     pfBinary,   //mk_ServerInfo
     pfNoData,   //mk_Disconnect

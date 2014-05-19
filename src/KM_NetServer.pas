@@ -423,11 +423,10 @@ begin
   if fRoomInfo[aRoom].HostHandle = NET_ADDRESS_EMPTY then
   begin
     fRoomInfo[aRoom].HostHandle := aHandle;
-    SendMessage(aHandle, mk_HostingRights);
     Status('Host rights assigned to '+IntToStr(fRoomInfo[aRoom].HostHandle));
   end;
 
-  SendMessage(aHandle, mk_ConnectedToRoom, aRoom);
+  SendMessage(aHandle, mk_ConnectedToRoom, fRoomInfo[aRoom].HostHandle);
   MeasurePings;
   SaveHTMLStatus;
 end;

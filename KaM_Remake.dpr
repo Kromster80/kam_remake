@@ -140,6 +140,11 @@ uses
   KM_MissionScript_Standard in 'src\KM_MissionScript_Standard.pas',
   KM_Music in 'src\KM_Music.pas',
   KM_NavMesh in 'src\KM_NavMesh.pas',
+  {$IFDEF USESECUREAUTH}
+    KM_NetAuthSecure in 'src\KM_NetAuthSecure.pas',
+  {$ELSE}
+    KM_NetAuthUnsecure in 'src\KM_NetAuthUnsecure.pas',
+  {$ENDIF}
   KM_NetClient in 'src\KM_NetClient.pas',
   {$IFDEF WDC} KM_NetClientOverbyte in 'src\KM_NetClientOverbyte.pas', {$ENDIF}
   {$IFDEF FPC} KM_NetClientLNet in 'src\KM_NetClientLNet.pas', {$ENDIF}

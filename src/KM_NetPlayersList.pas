@@ -118,6 +118,19 @@ type
     function GetPlayersWithIDs: UnicodeString;
   end;
 
+  //Simple list of integers that we use for server indexes to remember which joiners passed auth challenge
+  TKMNetClientIndexList = class
+  private
+    fItems: array of Integer;
+    fCount: Integer;
+  public
+    procedure Add(aIndex: Integer);
+    procedure Remove(aIndex: Integer);
+    procedure Clear;
+    function Contains(aIndex: Integer): Boolean;
+    property Count: Integer read fCount;
+  end;
+
 
 implementation
 uses KM_ResTexts, KM_Utils;
@@ -995,5 +1008,49 @@ begin
       Result := Result + '|';
   end;
 end;
+
+
+procedure TKMNetClientIndexList.Add(aIndex: Integer);
+begin
+  if Contains(aIndex) then Exit;
+  if Length(fItems) <= fCount then
+    SetLength(fItems, fCount+32);
+  fItems[fCount] := aIndex;
+  Inc(fCount);
+end;
+
+
+procedure TKMNetClientIndexList.Remove(aIndex: Integer);
+var I: Integer;
+begin
+  for I := 0 to fCount-1 do
+    if aIndex = fItems[I] then
+    begin
+      Dec(fCount);
+      if I < fCount then
+        Move(fItems[I+1], fItems[I], SizeOf(fItems[I]) * (fCount - I));
+      Exit;
+    end;
+end;
+
+
+procedure TKMNetClientIndexList.Clear;
+begin
+  fCount := 0;
+end;
+
+
+function TKMNetClientIndexList.Contains(aIndex: Integer): Boolean;
+var I: Integer;
+begin
+  for I := 0 to fCount-1 do
+    if aIndex = fItems[I] then
+    begin
+      Result := True;
+      Exit;
+    end;
+  Result := False;
+end;
+
 
 end.

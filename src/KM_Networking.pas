@@ -5,8 +5,14 @@ uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, SysUtils, TypInfo, Forms, KromUtils,
   KM_CommonClasses, KM_CommonTypes, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults,
-  KM_Saves, KM_GameOptions, KM_ResLocales, KM_NetFileTransfer,
-  KM_Maps, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
+  KM_Saves, KM_GameOptions, KM_ResLocales, KM_NetFileTransfer, KM_Maps, KM_NetPlayersList,
+  KM_DedicatedServer, KM_NetClient, KM_ServerQuery,
+  {$IFDEF USESECUREAUTH}
+    KM_NetAuthSecure
+  {$ELSE}
+    KM_NetAuthUnsecure
+  {$ENDIF}
+  ;
 
 type
   TNetPlayerKind = (lpk_Host, lpk_Joiner);
@@ -21,23 +27,23 @@ const
     //lgs_None
     [],
     //lgs_Connecting
-    [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,
+    [mk_RefuseToJoin,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,
      mk_ConnectedToRoom,mk_PingInfo,mk_Kicked,mk_ServerName],
     //lgs_Query
-    [mk_AllowToJoin,mk_RefuseToJoin,mk_GameCRC,mk_Ping,mk_PingInfo,mk_Kicked,mk_ReqPassword],
+    [mk_AllowToJoin,mk_RefuseToJoin,mk_AuthChallenge,mk_Ping,mk_PingInfo,mk_Kicked,mk_ReqPassword],
     //lgs_Lobby
-    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
+    [mk_AskForAuth,mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
      mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
      mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
     //lgs_Loading
-    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
+    [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
     //lgs_Game
-    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReturnToLobby,
+    [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReturnToLobby,
      mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote],
     //lgs_Reconnecting
-    [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
+    [mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
   );
 
@@ -71,6 +77,7 @@ type
     fHostIndex: Integer; //In NetPlayers list
     fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
     fJoinTimeout, fLastVoteTime: Cardinal;
+    fAuthedJoiners: TKMNetClientIndexList;
     fNetPlayers: TKMNetPlayersList;
 
     fMapInfo: TKMapInfo; // Everything related to selected map
@@ -118,7 +125,6 @@ type
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
-    function CalculateGameCRC:Cardinal;
 
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer);
@@ -137,6 +143,7 @@ type
     destructor Destroy; override;
 
     property MyIndex: Integer read fMyIndex;
+    property MyIndexOnServer: Integer read fMyIndexOnServer;
     property HostIndex: Integer read fHostIndex;
     property NetGameState: TNetGameState read fNetGameState;
     function MyIPString:string;
@@ -146,6 +153,7 @@ type
     property ServerRoom: Integer read fRoomToJoin;
     function IsHost: Boolean;
     function IsReconnecting: Boolean;
+    function CalculateGameCRC: Cardinal;
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
@@ -247,6 +255,7 @@ begin
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMNetPlayersList.Create;
+  fAuthedJoiners := TKMNetClientIndexList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
   fNetGameOptions := TKMGameOptions.Create;
   fFileSenderManager := TKMFileSenderManager.Create;
@@ -262,6 +271,7 @@ begin
   fNetClient.Free;
   fServerQuery.Free;
   fFileSenderManager.Free;
+  fAuthedJoiners.Free;
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fNetGameOptions);
@@ -393,6 +403,7 @@ begin
   fWelcomeMessage := '';
 
   fNetPlayers.Clear;
+  fAuthedJoiners.Clear;
   fNetGameOptions.Reset;
   fNetClient.Disconnect;
   fNetServer.Stop;
@@ -1101,7 +1112,6 @@ end;
 
 procedure TKMNetworking.PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
 begin
-  PacketSend(aServerIndex, mk_GameCRC, Integer(CalculateGameCRC));
   fNetPlayers.AddPlayer(aPlayerName, aServerIndex, '');
   PacketSend(aServerIndex, mk_AllowToJoin);
   SendMapOrSave(aServerIndex); //Send the map first so it doesn't override starting locs
@@ -1174,7 +1184,7 @@ end;
 
 procedure TKMNetworking.PacketRecieve(aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal);
 var
-  M: TKMemoryStream;
+  M, M2: TKMemoryStream;
   Kind: TKMessageKind;
   err: UnicodeString;
   tmpInteger: Integer;
@@ -1238,17 +1248,6 @@ begin
                 fServerName := tmpStringW;
               end;
 
-      mk_HostingRights:
-              begin
-                fNetPlayerKind := lpk_Host;
-
-                //Enter the lobby if we had hosting rights assigned to us
-                if Assigned(fOnJoinAssignedHost) then
-                  fOnJoinAssignedHost(Self);
-
-                PostLocalMessage(gResTexts[TX_LOBBY_HOST_RIGHTS], csNone);
-              end;
-
       mk_IndexOnServer:
               begin
                 M.Read(tmpInteger);
@@ -1260,6 +1259,19 @@ begin
 
       mk_ConnectedToRoom:
               begin
+                M.Read(tmpInteger); //Host's index
+                //See if the server assigned hosting rights to us
+                if tmpInteger = fMyIndexOnServer then
+                begin
+                  fNetPlayerKind := lpk_Host;
+
+                  //Enter the lobby if we had hosting rights assigned to us
+                  if Assigned(fOnJoinAssignedHost) then
+                    fOnJoinAssignedHost(Self);
+
+                  PostLocalMessage(gResTexts[TX_LOBBY_HOST_RIGHTS], csNone);
+                end;
+
                 //We are now clear to proceed with our business
                 if fNetGameState = lgs_Reconnecting then
                 begin
@@ -1297,7 +1309,10 @@ begin
                     begin
                         SetGameState(lgs_Query);
                         fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
-                        PacketSendA(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname);
+                        M2 := TKMemoryStream.Create;
+                        TKMNetSecurity.GenerateChallenge(M2, tmpInteger);
+                        PacketSend(NET_ADDRESS_HOST, mk_AskForAuth, M2);
+                        M2.Free;
                     end;
                   end;
               end;
@@ -1338,38 +1353,63 @@ begin
       mk_AskToJoin:
               if IsHost then
               begin
-                M.ReadA(tmpStringA);
-                tmpInteger := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
-                if (tmpInteger = -1) and (fNetGameState <> lgs_Lobby) then
-                  tmpInteger := TX_NET_GAME_IN_PROGRESS;
+                if not TKMNetSecurity.ValidateSolution(M, aSenderIndex) then
+                  tmpInteger := TX_NET_YOUR_DATA_FILES
+                else
+                begin
+                  M.ReadA(tmpStringA);
+                  tmpInteger := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
+                  if (tmpInteger = -1) and (fNetGameState <> lgs_Lobby) then
+                    tmpInteger := TX_NET_GAME_IN_PROGRESS;
+                end;
                 if tmpInteger = -1 then
                 begin
                   if fPassword = '' then
                     PlayerJoined(aSenderIndex, tmpStringA)
                   else
+                  begin
+                    //Remember that this server index has passed authentication challenge
+                    //so they are permitted to send us mk_Password
+                    fAuthedJoiners.Add(aSenderIndex);
                     PacketSend(aSenderIndex, mk_ReqPassword);
+                  end;
                 end
                 else
+                begin
                   PacketSend(aSenderIndex, mk_RefuseToJoin, tmpInteger);
+                  //Force them to reconnect and ask for a new challenge
+                  PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, aSenderIndex);
+                end;
               end;
 
       mk_Password:
               if IsHost then
               begin
-                M.ReadA(tmpStringA); //Password
-                if tmpStringA = fPassword then
+                //Prevent sending this packet first to skip authentication challenge
+                if not fAuthedJoiners.Contains(aSenderIndex) then
                 begin
-                  M.ReadA(tmpStringA); //Player name
-                  tmpInteger := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
-                  if (tmpInteger = -1) and (fNetGameState <> lgs_Lobby) then
-                    tmpInteger := TX_NET_GAME_IN_PROGRESS;
-                  if tmpInteger = -1 then
-                    PlayerJoined(aSenderIndex, tmpStringA)
-                  else
-                    PacketSend(aSenderIndex, mk_RefuseToJoin, tmpInteger);
+                  PacketSend(aSenderIndex, mk_RefuseToJoin, TX_NET_YOUR_DATA_FILES);
+                  //Force them to reconnect and ask for a new challenge
+                  PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, aSenderIndex);
                 end
                 else
-                  PacketSend(aSenderIndex, mk_ReqPassword);
+                begin
+                  M.ReadA(tmpStringA); //Password
+                  if tmpStringA = fPassword then
+                  begin
+                    fAuthedJoiners.Remove(aSenderIndex);
+                    M.ReadA(tmpStringA); //Player name
+                    tmpInteger := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
+                    if (tmpInteger = -1) and (fNetGameState <> lgs_Lobby) then
+                      tmpInteger := TX_NET_GAME_IN_PROGRESS;
+                    if tmpInteger = -1 then
+                      PlayerJoined(aSenderIndex, tmpStringA)
+                    else
+                      PacketSend(aSenderIndex, mk_RefuseToJoin, tmpInteger);
+                  end
+                  else
+                    PacketSend(aSenderIndex, mk_ReqPassword);
+                end;
               end;
 
       mk_FileRequest:
@@ -1442,14 +1482,36 @@ begin
                 fOnJoinPassword(Self);
               end;
 
-      mk_GameCRC:
+      mk_AskForAuth:
+              if IsHost then
               begin
-                M.Read(tmpInteger);
-                if Cardinal(tmpInteger) <> CalculateGameCRC then
+                //We should refuse the joiner immediately if we are not in the lobby
+                if fNetGameState <> lgs_Lobby then
+                  PacketSend(aSenderIndex, mk_RefuseToJoin, TX_NET_GAME_IN_PROGRESS)
+                else
                 begin
-                  PostMessage(TX_NET_JOIN_DATA_FILES, csSystem, UnicodeString(fMyNikname));
-                  fOnJoinFail(gResTexts[TX_NET_YOUR_DATA_FILES]);
+                  //Solve joiner's challenge
+                  M2 := TKMNetSecurity.SolveChallenge(M, aSenderIndex);
+                  //Send our own challenge
+                  TKMNetSecurity.GenerateChallenge(M2, aSenderIndex);
+                  PacketSend(aSenderIndex, mk_AuthChallenge, M2);
+                  M2.Free;
                 end;
+              end;
+
+      mk_AuthChallenge:
+              begin
+                //Validate solution the host sent back to us
+                if TKMNetSecurity.ValidateSolution(M, aSenderIndex) then
+                begin
+                  //Solve host's challenge and ask to join
+                  M2 := TKMNetSecurity.SolveChallenge(M, aSenderIndex);
+                  M2.WriteA(fMyNikname);
+                  PacketSend(NET_ADDRESS_HOST, mk_AskToJoin, M2);
+                  M2.Free;
+                end
+                else
+                  fOnJoinFail(gResTexts[TX_NET_YOUR_DATA_FILES]);
               end;
 
       mk_Kicked:
@@ -1463,6 +1525,7 @@ begin
                 M.Read(tmpInteger);
                 if IsHost then
                 begin
+                  fAuthedJoiners.Remove(tmpInteger);
                   fFileSenderManager.ClientDisconnected(tmpInteger);
                   PlayerIndex := fNetPlayers.ServerToLocal(tmpInteger);
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
