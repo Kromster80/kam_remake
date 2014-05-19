@@ -194,7 +194,6 @@ type
     function InitiateMining: TUnitTask;
     procedure IssueResourceDepletedMessage;
   public
-    function WorkPlanProductValid(aProduct: TWareType): Boolean;
     function CanWorkAt(aLoc: TKMPoint; aGatheringScript: TGatheringScript): Boolean;
     function GetActivityText: UnicodeString; override;
     function UpdateState: Boolean; override;
@@ -301,13 +300,6 @@ begin
     fHome  := H.GetHousePointer;
     Result := true;
   end;
-end;
-
-
-//Used to improve efficiency of finding work plan
-function TKMUnitCitizen.WorkPlanProductValid(aProduct: TWareType): Boolean;
-begin
-  Result := (fHome.CheckResOut(aProduct) < MAX_WARES_IN_HOUSE);
 end;
 
 
@@ -472,13 +464,15 @@ begin
 end;
 
 
-function TKMUnitCitizen.InitiateMining:TUnitTask;
-var Res: Integer; TM: TTaskMining;
+function TKMUnitCitizen.InitiateMining: TUnitTask;
+var
+  Res: Integer;
+  TM: TTaskMining;
 begin
   Result := nil;
 
   if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
-    raise ELocError.Create('Mining from wrong spot',fCurrPosition);
+    raise ELocError.Create('Mining from wrong spot', fCurrPosition);
 
   Res := 1;
   //Check if House has production orders
@@ -488,6 +482,11 @@ begin
     Res := fHome.PickOrder;
     if Res = 0 then Exit;
   end;
+
+  // Don't bother creating a task if there's no room for resulting ware
+  // Saves us time on Stonecutters/Fishers/Woodcutters when they calculate routes to nearby deposits
+  if (fHome.CheckResOut(gResource.HouseDat[fHome.HouseType].ResOutput[Res]) >= MAX_WARES_IN_HOUSE) then
+    Exit;
 
   TM := TTaskMining.Create(Self, gResource.HouseDat[fHome.HouseType].ResOutput[Res]);
 

@@ -21,7 +21,6 @@ type
     procedure SubActAdd(aAct: THouseActionType; aCycles: Single);
     procedure ResourcePlan(Res1: TWareType; Qty1: byte; Res2: TWareType; Qty2: byte; Prod1: TWareType; Prod2: TWareType = wt_None);
   public
-    OnWorkplanAllowed: TWorkPlanAllowedEvent;
     HasToWalk: Boolean;
     Loc: TKMPoint;
     ActionWalkTo: TUnitActionType;
@@ -335,8 +334,7 @@ begin
                           end;
                       end else
 
-                      if aHome=ht_Wineyard then
-                      if OnWorkplanAllowed(wt_Wine) then //Optimsation: Check the house fits the product before searching
+                      if aHome = ht_Wineyard then
                       begin
                         fIssued := gTerrain.FindWineField(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), Tmp);
                         if fIssued then
@@ -462,7 +460,6 @@ begin
                         fIssued := True;
                       end;
     ut_Fisher:        if aHome = ht_FisherHut then
-                      if OnWorkplanAllowed(wt_Fish) then //Optimsation: Check the house fits the product before searching
                       begin
                         fIssued := gTerrain.FindFishWater(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
                         if fIssued then
@@ -474,7 +471,6 @@ begin
                           ResourceDepleted := not gTerrain.FindFishWater(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
                       end;
     ut_StoneCutter:   if aHome = ht_Quary then
-                      if OnWorkplanAllowed(wt_Stone) then //Optimsation: Check the house fits the product before searching
                       begin
                         fIssued := gTerrain.FindStone(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
                         if fIssued then
