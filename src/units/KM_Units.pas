@@ -484,8 +484,10 @@ begin
   end;
 
   // Don't bother creating a task if there's no room for resulting ware
-  // Saves us time on Stonecutters/Fishers/Woodcutters when they calculate routes to nearby deposits
-  if (fHome.CheckResOut(gResource.HouseDat[fHome.HouseType].ResOutput[Res]) >= MAX_WARES_IN_HOUSE) then
+  // Saves us time on Fishers/Stonecutters/Woodcutters when they calculate routes to nearby deposits
+  // Other houses where workers walk out can choose between cut/plant
+  if (fHome.HouseType in [ht_FisherHut, ht_Quary, ht_Wineyard])
+  and (fHome.CheckResOut(gResource.HouseDat[fHome.HouseType].ResOutput[Res]) >= MAX_WARES_IN_HOUSE) then
     Exit;
 
   TM := TTaskMining.Create(Self, gResource.HouseDat[fHome.HouseType].ResOutput[Res]);
