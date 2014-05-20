@@ -782,7 +782,9 @@ end;
 function TKMScriptStates.PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
 begin
   if  InRange(aPlayer1, 0, gHands.Count - 1)
-  and InRange(aPlayer2, 0, gHands.Count - 1) then
+  and InRange(aPlayer2, 0, gHands.Count - 1)
+  and (gHands[aPlayer1].Enabled)
+  and (gHands[aPlayer2].Enabled)then
     Result := gHands[aPlayer1].Alliances[aPlayer2] = at_Ally
   else
   begin
@@ -2034,7 +2036,9 @@ end;
 procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
 begin
   if  InRange(aPlayer1, 0, gHands.Count - 1)
-  and InRange(aPlayer2, 0, gHands.Count - 1) then
+  and InRange(aPlayer2, 0, gHands.Count - 1)
+  and (gHands[aPlayer1].Enabled)
+  and (gHands[aPlayer2].Enabled) then
     gHands[aPlayer1].ShareFOW[aPlayer2] := aShare
   else
     LogError('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aShare)]);
@@ -2095,7 +2099,9 @@ begin
   //Verify all input parameters
   if InRange(aPlayer1, 0, gHands.Count - 1)
   and InRange(aPlayer2, 0, gHands.Count - 1)
-  and (aPlayer1 <> aPlayer2) then
+  and (aPlayer1 <> aPlayer2)
+  and (gHands[aPlayer1].Enabled)
+  and (gHands[aPlayer2].Enabled) then
   begin
     gHands[aPlayer1].Alliances[aPlayer2] := ALLIED[aAllied];
     if aAllied then
