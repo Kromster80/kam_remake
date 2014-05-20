@@ -66,6 +66,7 @@ Implemented:
  6313	Allow to query count of placed house plans
  6323   Actions.AIDefencePositionRemoveAll(aPlayer)
  6323   States.StatAIDefencePositionsCount(aPlayer)
+ 6328   MultipleTypes for StatHouseTypeCount, StatUnitTypeCount
 
 
 Accepted:
@@ -105,7 +106,6 @@ Proposed:
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
-        MultipleTypes for StatHouseTypeCount, StatUnitTypeCount, StatPlansTypeCount etc...
 
 
 Rejected:	

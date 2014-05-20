@@ -158,6 +158,7 @@ type
     function StatAIDefencePositionsCount(aPlayer: Byte): Integer;
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
+    function StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
     function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer;
     function StatPlayerCount: Integer;
@@ -165,6 +166,7 @@ type
     function StatUnitCount(aPlayer: Byte): Integer;
     function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
     function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
+    function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 
     function UnitAt(aX, aY: Word): Integer;
@@ -790,6 +792,21 @@ begin
 end;
 
 
+function TKMScriptStates.StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
+var
+  B: Byte;
+begin
+  Result := 0;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled) then
+    for B in [Low(HouseIndexToType)..High(HouseIndexToType)] do
+      if B in aTypes then
+        inc(Result, gHands[aPlayer].Stats.GetHouseQty(HouseIndexToType[B]))
+  else
+    LogError('States.StatHouseMultipleTypesCount', [aPlayer]);
+end;
+
+
 function TKMScriptStates.StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
@@ -982,6 +999,21 @@ begin
     Result := 0;
     LogError('States.StatUnitCount', [aPlayer]);
   end;
+end;
+
+
+function TKMScriptStates.StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
+var
+  B: Byte;
+begin
+  Result := 0;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled) then
+    for B in [Low(UnitIndexToType)..High(UnitIndexToType)] do
+      if B in aTypes then
+        inc(Result, gHands[aPlayer].Stats.GetUnitQty(UnitIndexToType[B]))
+  else
+    LogError('States.StatUnitMultipleTypesCount', [aPlayer]);
 end;
 
 

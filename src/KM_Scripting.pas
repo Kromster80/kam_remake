@@ -183,6 +183,7 @@ begin
       RegisterMethod('function StatAIDefencePositionsCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
+      RegisterMethod('function StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
       RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
       RegisterMethod('function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer');
       RegisterMethod('function StatPlayerCount: Integer');
@@ -190,6 +191,7 @@ begin
       RegisterMethod('function StatUnitCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer');
       RegisterMethod('function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
       RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
 
       RegisterMethod('function UnitAt(aX, aY: Word): Integer');
@@ -542,6 +544,7 @@ begin
       RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount, 'STATAIDEFENCEPOSITIONSCOUNT');
       RegisterMethod(@TKMScriptStates.StatArmyCount,               'STATARMYCOUNT');
       RegisterMethod(@TKMScriptStates.StatCitizenCount,            'STATCITIZENCOUNT');
+      RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCount, 'STATHOUSEMULTIPLETYPESCOUNT');
       RegisterMethod(@TKMScriptStates.StatHouseTypeCount,          'STATHOUSETYPECOUNT');
       RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount,     'STATHOUSETYPEPLANSCOUNT');
       RegisterMethod(@TKMScriptStates.StatPlayerCount,             'STATPLAYERCOUNT');
@@ -549,6 +552,7 @@ begin
       RegisterMethod(@TKMScriptStates.StatUnitCount,               'STATUNITCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitKilledCount,         'STATUNITKILLEDCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitLostCount,           'STATUNITLOSTCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCount,  'STATUNITMULTIPLETYPESCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitTypeCount,           'STATUNITTYPECOUNT');
 
       RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
