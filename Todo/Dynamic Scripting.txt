@@ -67,6 +67,7 @@ Implemented:
  6323   Actions.AIDefencePositionRemoveAll(aPlayer)
  6323   States.StatAIDefencePositionsCount(aPlayer)
  6328   MultipleTypes for StatHouseTypeCount, StatUnitTypeCount
+ 6331   MultipleTypes for killed, lost units and produced wares
 
 
 Accepted:

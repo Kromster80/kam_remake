@@ -163,9 +163,12 @@ type
     function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer;
     function StatPlayerCount: Integer;
     function StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
+    function StatResourceProducedMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatUnitCount(aPlayer: Byte): Integer;
     function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
+    function StatUnitKilledMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
+    function StatUnitLostMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 
@@ -784,7 +787,7 @@ begin
   if  InRange(aPlayer1, 0, gHands.Count - 1)
   and InRange(aPlayer2, 0, gHands.Count - 1)
   and (gHands[aPlayer1].Enabled)
-  and (gHands[aPlayer2].Enabled)then
+  and (gHands[aPlayer2].Enabled) then
     Result := gHands[aPlayer1].Alliances[aPlayer2] = at_Ally
   else
   begin
@@ -1047,6 +1050,21 @@ begin
 end;
 
 
+function TKMScriptStates.StatUnitKilledMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
+var
+  B: Byte;
+begin
+  Result := 0;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled) then
+    for B in [Low(UnitIndexToType)..High(UnitIndexToType)] do
+      if B in aTypes then
+        inc(Result, gHands[aPlayer].Stats.GetUnitKilledQty(UnitIndexToType[B]))
+  else
+    LogError('States.StatUnitKilledMultipleTypesCount', [aPlayer]);
+end;
+
+
 function TKMScriptStates.StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
@@ -1061,6 +1079,21 @@ begin
 end;
 
 
+function TKMScriptStates.StatUnitLostMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
+var
+  B: Byte;
+begin
+  Result := 0;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled) then
+    for B in [Low(UnitIndexToType)..High(UnitIndexToType)] do
+      if B in aTypes then
+        inc(Result, gHands[aPlayer].Stats.GetUnitLostQty(UnitIndexToType[B]))
+  else
+    LogError('States.StatUnitLostMultipleTypesCount', [aPlayer]);
+end;
+
+
 function TKMScriptStates.StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
@@ -1072,6 +1105,21 @@ begin
     Result := 0;
     LogError('States.StatResourceProducedCount', [aPlayer, aResType]);
   end;
+end;
+
+
+function TKMScriptStates.StatResourceProducedMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
+var
+  B: Byte;
+begin
+  Result := 0;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (gHands[aPlayer].Enabled) then
+    for B in [Low(WareIndexToType)..High(WareIndexToType)] do
+      if B in aTypes then
+        inc(Result, gHands[aPlayer].Stats.GetWaresProduced(WareIndexToType[B]))
+  else
+    LogError('States.StatResourceProducedMultipleTypesCount', [aPlayer]);
 end;
 
 
