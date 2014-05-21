@@ -40,6 +40,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<BRCC_EnableMultiByte>true</BRCC_EnableMultiByte>
 			<BRCC_Language>*</BRCC_Language>
 			<DCC_UsePackage>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DataSnapServer;DataSnapProviderClient;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;soaprtl;DBXOracleDriver;CustomIPTransport;dsnap;DBXInformixDriver;fmxase;IndyCore;DBXFirebirdDriver;inet;fmxobj;inetdbxpress;DBXSybaseASADriver;fmxdae;IPIndyImpl;dbexpress;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>

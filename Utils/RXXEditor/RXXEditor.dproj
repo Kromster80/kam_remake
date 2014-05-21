@@ -35,6 +35,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<Manifest_File>None</Manifest_File>
 			<Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
 			<DCC_UsePackage>vcl;rtl;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;vclx;dbrtl;soaprtl;dsnap;VclSmp;dbexpress;vcldb;dbxcds;adortl;ibxpress;vclactnband;bdertl;vclshlctrls;dclOfficeXP;$(DCC_UsePackage)</DCC_UsePackage>

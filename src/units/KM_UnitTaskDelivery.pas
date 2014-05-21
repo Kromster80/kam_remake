@@ -163,7 +163,7 @@ begin
 end;
 
 
-function TTaskDeliver.Execute:TTaskResult;
+function TTaskDeliver.Execute: TTaskResult;
 begin
   Result := TaskContinues;
 

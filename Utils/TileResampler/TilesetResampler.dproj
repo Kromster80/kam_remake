@@ -40,6 +40,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<Icon_MainIcon>TilesetResampler_Icon.ico</Icon_MainIcon>
 			<Manifest_File>None</Manifest_File>
 			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>

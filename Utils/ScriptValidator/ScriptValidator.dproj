@@ -35,6 +35,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<Manifest_File>None</Manifest_File>
 			<DCC_UsePackage>vcl;rtl;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;vclx;dbrtl;soaprtl;dsnap;VclSmp;dbexpress;vcldb;dbxcds;adortl;ibxpress;vclactnband;bdertl;vclshlctrls;dclOfficeXP;madBasic_;madDisAsm_;madExcept_;$(DCC_UsePackage)</DCC_UsePackage>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
@@ -67,6 +68,7 @@
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 		</PropertyGroup>

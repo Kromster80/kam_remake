@@ -40,6 +40,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<Manifest_File>None</Manifest_File>
 			<DCC_UnitSearchPath>..\..\;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<Icon_MainIcon>TranslationManager_Icon.ico</Icon_MainIcon>

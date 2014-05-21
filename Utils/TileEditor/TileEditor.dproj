@@ -46,6 +46,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<Manifest_File>None</Manifest_File>
 			<DCC_UnitSearchPath>..\..\;..\..\Common\;..\..\Common\Overbyte ICS 7;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<Icon_MainIcon>TileEditor_Icon.ico</Icon_MainIcon>

@@ -40,6 +40,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<ImageDebugInfo>true</ImageDebugInfo>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>

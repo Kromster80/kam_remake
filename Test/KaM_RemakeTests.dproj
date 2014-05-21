@@ -48,7 +48,7 @@
 			<DCC_Define>_CONSOLE_TESTRUNNER;DUNIT_TEST;$(DCC_Define)</DCC_Define>
 			<Manifest_File>None</Manifest_File>
 			<VerInfo_Locale>1049</VerInfo_Locale>
-			<DCC_DcuOutput>.\DCU\</DCC_DcuOutput>
+			<DCC_DcuOutput>.\dcu\</DCC_DcuOutput>
 			<DCC_ExeOutput>.\</DCC_ExeOutput>
 			<DCC_E>false</DCC_E>
 			<DCC_N>false</DCC_N>
