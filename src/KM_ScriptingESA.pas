@@ -275,6 +275,7 @@ type
     procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
     procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
     procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+    procedure OverlayTextHide(aPlayer: Integer);
 
     procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer);
 
@@ -3189,6 +3190,15 @@ begin
 end;
 
 
+procedure TKMScriptActions.OverlayTextHide(aPlayer: Integer);
+begin
+  if InRange(aPlayer, -1, gHands.Count - 1) then
+    gGame.OverlayHide(aPlayer)
+  else
+    LogError('Actions.OverlayTextHide', [aPlayer]);
+end;
+
+
 procedure TKMScriptActions.MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer);
 var
   H: TKMHouse;
@@ -3196,7 +3206,7 @@ var
 begin
   if (aMarketID > 0)
   and (aFrom in [Low(WareIndexToType)..High(WareIndexToType)])
-  and   (aTo in [Low(WareIndexToType)..High(WareIndexToType)]) then
+  and (aTo in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
     H := fIDCache.GetHouse(aMarketID);
     ResFrom := WareIndexToType[aFrom];

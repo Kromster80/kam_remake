@@ -295,6 +295,7 @@ begin
       RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
       RegisterMethod('procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
       RegisterMethod('procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+      RegisterMethod('procedure OverlayTextHide(aPlayer: Integer)');
 
       RegisterMethod('function  PlanAddField(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
@@ -658,6 +659,7 @@ begin
       RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,    'OVERLAYTEXTSETFORMATTED');
       RegisterMethod(@TKMScriptActions.OverlayTextAppend,          'OVERLAYTEXTAPPEND');
       RegisterMethod(@TKMScriptActions.OverlayTextAppendFormatted, 'OVERLAYTEXTAPPENDFORMATTED');
+      RegisterMethod(@TKMScriptActions.OverlayTextHide,            'OVERLAYTEXTHIDE');
 
       RegisterMethod(@TKMScriptActions.PlanAddField,      'PLANADDFIELD');
       RegisterMethod(@TKMScriptActions.PlanAddHouse,      'PLANADDHOUSE');
