@@ -581,9 +581,10 @@ procedure TKMNetServer.RecieveMessage(aSenderHandle:integer; aData:pointer; aLen
 var
   Kind: TKMessageKind;
   M, M2: TKMemoryStream;
-  RoomId: Integer;
   tmpInteger: Integer;
   Client: TKMServerClient;
+  SenderIsHost: Boolean;
+  SenderRoom: Integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message');
 
@@ -601,6 +602,10 @@ begin
     exit;
   end;
 
+  SenderRoom := fClientList.GetByHandle(aSenderHandle).Room;
+  SenderIsHost := (SenderRoom <> -1) and
+                  (fRoomInfo[SenderRoom].HostHandle = aSenderHandle);
+
   case Kind of
     mk_JoinRoom:
             begin
@@ -608,12 +613,13 @@ begin
               AddClientToRoom(aSenderHandle, tmpInteger);
             end;
     mk_SetGameInfo:
+            if SenderIsHost then
             begin
-              RoomId := fClientList.GetByHandle(aSenderHandle).Room;
-              fRoomInfo[RoomId].GameInfo.LoadFromStream(M);
+              fRoomInfo[SenderRoom].GameInfo.LoadFromStream(M);
               SaveHTMLStatus;
             end;
     mk_KickPlayer:
+            if SenderIsHost then
             begin
               M.Read(tmpInteger);
               if fClientList.GetByHandle(tmpInteger) <> nil then
@@ -623,30 +629,30 @@ begin
               end;
             end;
     mk_BanPlayer:
+            if SenderIsHost then
             begin
               M.Read(tmpInteger);
               if fClientList.GetByHandle(tmpInteger) <> nil then
               begin
-                RoomId := fClientList.GetByHandle(aSenderHandle).Room;
-                BanPlayerFromRoom(tmpInteger, RoomId);
+                BanPlayerFromRoom(tmpInteger, SenderRoom);
                 SendMessage(tmpInteger, mk_Kicked, TX_NET_BANNED_BY_HOST);
                 fServer.Kick(tmpInteger);
               end;
             end;
     mk_GiveHost:
+            if SenderIsHost then
             begin
               M.Read(tmpInteger);
               if fClientList.GetByHandle(tmpInteger) <> nil then
               begin
-                RoomId := fClientList.GetByHandle(aSenderHandle).Room;
-                fRoomInfo[RoomId].HostHandle := tmpInteger;
-                SendMessageToRoom(mk_ReassignHost, RoomId, tmpInteger); //Tell everyone about the new host
+                fRoomInfo[SenderRoom].HostHandle := tmpInteger;
+                SendMessageToRoom(mk_ReassignHost, SenderRoom, tmpInteger); //Tell everyone about the new host
               end;
             end;
     mk_ResetBans:
+            if SenderIsHost then
             begin
-              RoomId := fClientList.GetByHandle(aSenderHandle).Room;
-              SetLength(fRoomInfo[RoomId].BannedIPs, 0);
+              SetLength(fRoomInfo[SenderRoom].BannedIPs, 0);
             end;
     mk_GetServerInfo:
             begin
