@@ -804,7 +804,7 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
-    for B in [Low(HouseIndexToType)..High(HouseIndexToType)] do
+    for B := Low(HouseIndexToType) to High(HouseIndexToType) do
       if B in aTypes then
         inc(Result, gHands[aPlayer].Stats.GetHouseQty(HouseIndexToType[B]))
   else
@@ -1014,7 +1014,7 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
-    for B in [Low(UnitIndexToType)..High(UnitIndexToType)] do
+    for B := Low(UnitIndexToType) to High(UnitIndexToType) do
       if B in aTypes then
         inc(Result, gHands[aPlayer].Stats.GetUnitQty(UnitIndexToType[B]))
   else
@@ -1057,7 +1057,7 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
-    for B in [Low(UnitIndexToType)..High(UnitIndexToType)] do
+    for B := Low(UnitIndexToType) to High(UnitIndexToType) do
       if B in aTypes then
         inc(Result, gHands[aPlayer].Stats.GetUnitKilledQty(UnitIndexToType[B]))
   else
@@ -1086,7 +1086,7 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
-    for B in [Low(UnitIndexToType)..High(UnitIndexToType)] do
+    for B := Low(UnitIndexToType) to High(UnitIndexToType) do
       if B in aTypes then
         inc(Result, gHands[aPlayer].Stats.GetUnitLostQty(UnitIndexToType[B]))
   else
@@ -1115,7 +1115,7 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
-    for B in [Low(WareIndexToType)..High(WareIndexToType)] do
+    for B := Low(WareIndexToType) to High(WareIndexToType) do
       if B in aTypes then
         inc(Result, gHands[aPlayer].Stats.GetWaresProduced(WareIndexToType[B]))
   else
@@ -1658,7 +1658,7 @@ begin
   and InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     Result := gHands[aPlayer].FogOfWar.CheckTileRevelation(aX, aY) > 0
   else
-    LogError('States.FogRevealed', [aX, aY]);
+    LogError('States.FogRevealed', [aPlayer, aX, aY]);
 end;
 
 
