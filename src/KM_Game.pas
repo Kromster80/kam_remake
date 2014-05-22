@@ -937,6 +937,7 @@ end;
 procedure TKMGame.OverlayUpdate;
 begin
   fGamePlayInterface.SetScriptedOverlay(fOverlayText[MySpectator.HandIndex]);
+  fGamePlayInterface.UpdateOverlayControls;
 end;
 
 

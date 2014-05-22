@@ -730,6 +730,8 @@ TX_MULTIPLAYER_ATTEMPT_RECONNECTING = 611; //The connection to the server was lo
 TX_GAMEPLAY_CONFIRM_QUIT = 612; //Are you sure you want to quit?
 TX_GAMEPLAY_CONFIRM_DROP = 613; //Are you sure you want to permanently drop these players?
 TX_GAMEPLAY_CONFIRM_CANCEL = 614; //Cancel
+TX_GAMEPLAY_OVERLAY_HIDE = 807; //Hide scripted overlay
+TX_GAMEPLAY_OVERLAY_SHOW = 808; //Show scripted overlay
 
 TX_HOUSES_MARKET_HINT_BLOCKED = 615; //Trading this resource is not available in this mission
 TX_HOUSES_WOODCUTTER_PLANT_CHOP = 616; //Plant and fell

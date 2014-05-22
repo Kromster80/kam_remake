@@ -107,6 +107,7 @@ Improvements:
  +	L	Some way to delete multiplayer saves from within the KaM Remake (delete button on replay viewer)
  +	L	Some way to delete maps from within the KaM Remake (delete button in MapEd menu)
  +      L	MapEd: Magic water works for ice
+ +      L       Way to hide scripted overlay
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

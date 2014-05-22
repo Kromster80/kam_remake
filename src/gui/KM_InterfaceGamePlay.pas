@@ -136,6 +136,7 @@ type
     function HasLostMPGame:Boolean;
     procedure UpdateDebugInfo;
     procedure HidePages;
+    procedure HideOverlay(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -152,6 +153,8 @@ type
     Label_Clock: TKMLabel;
     Label_ClockSpeedup: TKMLabel;
     Label_ScriptedOverlay: TKMLabel; //Label that can be set from script
+    Button_ScriptedOverlay: TKMButton;
+    Label_OverlayShow, Label_OverlayHide: TKMLabel;
     Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
     Image_DirectionCursor: TKMImage;
 
@@ -277,6 +280,7 @@ type
     procedure ShowMPPlayMore(Msg: TGameResultMsg);
     procedure ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; IsHost: Boolean);
     procedure SetScriptedOverlay(aText: UnicodeString);
+    procedure UpdateOverlayControls;
     procedure ReleaseDirectionSelector;
     function GetChatText: UnicodeString;
     function GetChatMessages: UnicodeString;
@@ -708,6 +712,18 @@ begin
   Label_ClockSpeedup.Hide;
 
   Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
+
+  Button_ScriptedOverlay := TKMButton.Create(Panel_Main, 260, 92, 15, 15, '', bsGame);
+  Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
+  Button_ScriptedOverlay.Hide;
+  Button_ScriptedOverlay.OnClick := HideOverlay;
+
+  Label_OverlayHide := TKMLabel.Create(Panel_Main,263,91,'-',fnt_Metal,taLeft);
+  Label_OverlayShow := TKMLabel.Create(Panel_Main,263,93,'+',fnt_Metal,taLeft);
+  Label_OverlayHide.Hitable := False;
+  Label_OverlayShow.Hitable := False;
+  Label_OverlayHide.Hide;
+  Label_OverlayShow.Hide;
 
   Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
   Image_DirectionCursor.Hide;
@@ -2252,6 +2268,33 @@ end;
 procedure TKMGamePlayInterface.SetScriptedOverlay(aText: UnicodeString);
 begin
   Label_ScriptedOverlay.Caption := aText;
+  UpdateOverlayControls;
+end;
+
+
+procedure TKMGamePlayInterface.HideOverlay(Sender: TObject);
+begin
+  Label_ScriptedOverlay.Visible := not Label_ScriptedOverlay.Visible;
+  if not Label_ScriptedOverlay.Visible then
+  begin
+    Label_OverlayHide.Hide;
+    Label_OverlayShow.Show;
+    Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_SHOW];
+  end
+  else
+  begin
+    Label_OverlayHide.Show;
+    Label_OverlayShow.Hide;
+    Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
+  end;
+end;
+
+
+procedure TKMGamePlayInterface.UpdateOverlayControls;
+begin
+  Button_ScriptedOverlay.Visible := Label_ScriptedOverlay.Caption <> '';
+  Label_OverlayShow.Visible := (Label_ScriptedOverlay.Caption <> '') and not (Label_ScriptedOverlay.Visible);
+  Label_OverlayHide.Visible := (Label_ScriptedOverlay.Caption <> '') and (Label_ScriptedOverlay.Visible);
 end;
 
 
