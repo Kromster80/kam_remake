@@ -68,7 +68,6 @@ Implemented:
  6323   States.StatAIDefencePositionsCount(aPlayer)
  6328   MultipleTypes for StatHouseTypeCount, StatUnitTypeCount
  6331   MultipleTypes for killed, lost units and produced wares
- 6336   Way for players to hide the overlay
  6338   Split a specific warrior out of a group
 
 

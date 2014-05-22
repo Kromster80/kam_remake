@@ -112,7 +112,6 @@ type
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
     procedure OverlayUpdate;
-    procedure OverlayHide(aPlayer: ShortInt);
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
     procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
     procedure OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
@@ -938,20 +937,6 @@ procedure TKMGame.OverlayUpdate;
 begin
   fGamePlayInterface.SetScriptedOverlay(fOverlayText[MySpectator.HandIndex]);
   fGamePlayInterface.UpdateOverlayControls;
-end;
-
-
-procedure TKMGame.OverlayHide(aPlayer: ShortInt);
-var
-  I: Integer;
-begin
-  if aPlayer = PLAYER_NONE then
-    for I  := 0 to MAX_HANDS do
-      fOverlayText[I] := ''
-  else
-    fOverlayText[aPlayer] := '';
-
-  OverlayUpdate;
 end;
 
 
