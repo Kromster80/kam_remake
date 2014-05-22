@@ -142,6 +142,7 @@ type
     procedure OrderNone;
     procedure OrderRepeat;
     function OrderSplit(aClearOffenders: Boolean): TKMUnitGroup;
+    function OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): TKMUnitGroup;
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
     procedure OrderStorm(aClearOffenders: Boolean);
     procedure OrderWalk(aLoc: TKMPoint; aClearOffenders: Boolean; aDir: TKMDirection = dir_NA);
@@ -1249,6 +1250,61 @@ begin
   NewGroup.OrderHalt(False);
 
   Result := NewGroup; //Return the new group in case somebody is interested in it
+end;
+
+
+//Split ONE certain unit from the group
+function TKMUnitGroup.OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): TKMUnitGroup;
+var
+  NewGroup: TKMUnitGroup;
+  NewLeader: TKMUnitWarrior;
+  I, NewLeaderIndex: Integer;
+begin
+  Result := nil;
+  if not HasMember(aUnit) then Exit;
+  if IsDead then Exit;
+  if Count < 2 then Exit;
+  if aClearOffenders
+  and CanTakeOrders then
+    ClearOffenders;
+
+  //Find needed unit in the group
+  for I := Count - 1 downto 0 do
+    if Members[I] = aUnit then
+    begin
+      NewLeaderIndex := I;
+      NewLeader := Members[I];
+      NewLeader.ReleaseUnitPointer;
+    end;
+
+  //Delete from group
+  fMembers.Delete(NewLeaderIndex);
+  gHands.CleanUpUnitPointer(aUnit);
+
+  //Give new group
+  NewGroup := gHands[Owner].UnitGroups.AddGroup(NewLeader);
+  NewGroup.OnGroupDied := OnGroupDied;
+  NewGroup.fSelected := NewLeader;
+  NewGroup.fTimeSinceHungryReminder := fTimeSinceHungryReminder;
+  NewGroup.fOrderLoc := KMPointDir(NewLeader.GetPosition, fOrderLoc.Dir);
+
+  //Set units per row
+  UnitsPerRow := fUnitsPerRow;
+  NewGroup.UnitsPerRow := 1;
+
+  //Save unit selection
+  if NewGroup.HasMember(fSelected) then
+  begin
+    MySpectator.Selected := NewGroup;
+    NewGroup.fSelected := fSelected;
+  end;
+
+  //Halt both groups
+  OrderHalt(False);
+  NewGroup.OrderHalt(False);
+
+  //Return NewGroup as result
+  Result := NewGroup;
 end;
 
 

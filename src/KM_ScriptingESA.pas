@@ -246,6 +246,7 @@ type
     procedure GroupOrderHalt(aGroupID: Integer);
     procedure GroupOrderLink(aGroupID, aDestGroupID: Integer);
     function  GroupOrderSplit(aGroupID: Integer): Integer;
+    function  GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer;
     procedure GroupOrderStorm(aGroupID: Integer);
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
@@ -3648,6 +3649,31 @@ begin
   end
   else
     LogError('Actions.GroupOrderSplit', [aGroupID]);
+end;
+
+
+function TKMScriptActions.GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer;
+var
+  G, G2: TKMUnitGroup;
+  U: TKMUnit;
+begin
+  Result := UID_NONE;
+  if (aGroupID > 0)
+  and (aUnitID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    U := fIDCache.GetUnit(aUnitID);
+    if (G <> nil)
+    and (U <> nil)
+    and (G.HasMember(U)) then
+    begin
+      G2 := G.OrderSplitUnit(U, True);
+      if G2 <> nil then
+        Result := G2.UID;
+    end;
+  end
+  else
+    LogError('Actions.GroupOrderSplitSelected', [aGroupID, aUnitID]);
 end;
 
 

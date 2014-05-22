@@ -69,12 +69,12 @@ Implemented:
  6328   MultipleTypes for StatHouseTypeCount, StatUnitTypeCount
  6331   MultipleTypes for killed, lost units and produced wares
  6336   Way for players to hide the overlay
+ 6338   Split a specific warrior out of a group
 
 
 Accepted:
 	Change house/unit/group owner
-	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
-	Split a specific warrior out of a group
+	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)	
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
 
 

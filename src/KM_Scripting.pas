@@ -265,6 +265,7 @@ begin
       RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
       RegisterMethod('function  GroupOrderSplit(aGroupID: Integer): Integer');
+      RegisterMethod('function  GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer');
       RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
@@ -629,6 +630,7 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderHalt,            'GROUPORDERHALT');
       RegisterMethod(@TKMScriptActions.GroupOrderLink,            'GROUPORDERLINK');
       RegisterMethod(@TKMScriptActions.GroupOrderSplit,           'GROUPORDERSPLIT');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplitUnit,       'GROUPORDERSPLITUNIT');
       RegisterMethod(@TKMScriptActions.GroupOrderStorm,           'GROUPORDERSTORM');
       RegisterMethod(@TKMScriptActions.GroupOrderWalk,            'GROUPORDERWALK');
       RegisterMethod(@TKMScriptActions.GroupSetFormation,         'GROUPSETFORMATION');
