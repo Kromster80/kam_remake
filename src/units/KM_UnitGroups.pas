@@ -1258,7 +1258,6 @@ function TKMUnitGroup.OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): 
 var
   NewGroup: TKMUnitGroup;
   NewLeader: TKMUnitWarrior;
-  I, NewLeaderIndex: Integer;
 begin
   Result := nil;
   if not HasMember(aUnit) then Exit;
@@ -1268,18 +1267,10 @@ begin
   and CanTakeOrders then
     ClearOffenders;
 
-  //Find needed unit in the group
-  for I := Count - 1 downto 0 do
-    if Members[I] = aUnit then
-    begin
-      NewLeaderIndex := I;
-      NewLeader := Members[I];
-      NewLeader.ReleaseUnitPointer;
-    end;
-
   //Delete from group
-  fMembers.Delete(NewLeaderIndex);
-  gHands.CleanUpUnitPointer(aUnit);
+  NewLeader := TKMUnitWarrior(aUnit);
+  fMembers.Remove(NewLeader);
+  NewLeader.ReleaseUnitPointer;
 
   //Give new group
   NewGroup := gHands[Owner].UnitGroups.AddGroup(NewLeader);
