@@ -18,7 +18,7 @@ Bugs:
  +	Trees, houses and units near the top row of the map may be visible in places where they overhang the top row of the map
 	File transfers needs to not overwrite the original maps in some way (folder for downloaded maps separate from "official" ones?)
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
-        Create local server, run multiplayer game in 2nd window. You will get Range Check error instead of servers list: http://imgur.com/K27p2Tk
+ -      Create local server, run multiplayer game in 2nd window. You will get Range Check error instead of servers list: http://imgur.com/K27p2Tk (My fault, forgot to add needed sprite [Andreus])
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]
 
 Features:
