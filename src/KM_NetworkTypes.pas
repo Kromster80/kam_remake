@@ -81,8 +81,9 @@ type
     mk_TextTranslated,  //Clients exchange translated text (system messages)
     mk_TextChat,        //Clients exchange chat messages
 
-    mk_ReqPassword,     //Host requests joiner to send password
-    mk_Password,        //Joiner sends password to host
+    mk_ReqPassword,     //Server requests joiner to send password
+    mk_Password,        //Joiner sends password to server
+    mk_SetPassword,     //Host sets password on server
 
     mk_FileRequest,     //Joiner requests host to send file
     mk_FileChunk,       //Host sends chunk of file to joiner
@@ -108,7 +109,7 @@ const
     pfBinary,   //mk_AskForAuth
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
-    pfNumber,   //mk_ReassignHost
+    pfBinary,   //mk_ReassignHost
     pfString,   //mk_GameVersion
     pfString,   //mk_WelcomeMessage
     pfString,   //mk_ServerName
@@ -154,6 +155,7 @@ const
     pfBinary,   //mk_TextChat
     pfNoData,   //mk_ReqPassword
     pfBinary,   //mk_Password
+    pfString,   //mk_SetPassword
     pfString,   //mk_FileRequest
     pfBinary,   //mk_FileChunk
     pfNoData,   //mk_FileAck

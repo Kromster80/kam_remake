@@ -35,6 +35,7 @@ type
     property OnMessage: TUnicodeStringEvent write fOnMessage;
     
     procedure GetServerInfo(var aList: TList);
+    function IsListening: Boolean;
   end;
 
 
@@ -150,6 +151,12 @@ end;
 procedure TKMDedicatedServer.GetServerInfo(var aList: TList);
 begin
   fNetServer.GetServerInfo(aList);
+end;
+
+
+function TKMDedicatedServer.IsListening: Boolean;
+begin
+  Result := fNetServer.Listening;
 end;
 
 

@@ -28,14 +28,14 @@ const
     [],
     //lgs_Connecting
     [mk_RefuseToJoin,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,
-     mk_ConnectedToRoom,mk_PingInfo,mk_Kicked,mk_ServerName],
+     mk_ConnectedToRoom,mk_PingInfo,mk_Kicked,mk_ServerName,mk_ReqPassword],
     //lgs_Query
-    [mk_AllowToJoin,mk_RefuseToJoin,mk_AuthChallenge,mk_Ping,mk_PingInfo,mk_Kicked,mk_ReqPassword],
+    [mk_AllowToJoin,mk_RefuseToJoin,mk_AuthChallenge,mk_Ping,mk_PingInfo,mk_Kicked],
     //lgs_Lobby
     [mk_AskForAuth,mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
      mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
-     mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
+     mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
     //lgs_Loading
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
@@ -77,7 +77,6 @@ type
     fHostIndex: Integer; //In NetPlayers list
     fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
     fJoinTimeout, fLastVoteTime: Cardinal;
-    fAuthedJoiners: TKMNetClientIndexList;
     fNetPlayers: TKMNetPlayersList;
 
     fMapInfo: TKMapInfo; // Everything related to selected map
@@ -255,7 +254,6 @@ begin
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMNetPlayersList.Create;
-  fAuthedJoiners := TKMNetClientIndexList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
   fNetGameOptions := TKMGameOptions.Create;
   fFileSenderManager := TKMFileSenderManager.Create;
@@ -271,7 +269,6 @@ begin
   fNetClient.Free;
   fServerQuery.Free;
   fFileSenderManager.Free;
-  fAuthedJoiners.Free;
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fNetGameOptions);
@@ -403,7 +400,6 @@ begin
   fWelcomeMessage := '';
 
   fNetPlayers.Clear;
-  fAuthedJoiners.Clear;
   fNetGameOptions.Reset;
   fNetClient.Disconnect;
   fNetServer.Stop;
@@ -737,7 +733,11 @@ end;
 procedure TKMNetworking.SetToHost(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to promote players');
-  PacketSend(NET_ADDRESS_SERVER, mk_GiveHost, fNetPlayers[aPlayerIndex].IndexOnServer);
+  //Don't allow host reassigning if the server is running within this client (if host quits server stops)
+  if fNetServer.IsListening then
+    PostLocalMessage(gResTexts[TX_NET_PROMOTE_LOCAL_SERVER], csSystem)
+  else
+    PacketSend(NET_ADDRESS_SERVER, mk_GiveHost, fNetPlayers[aPlayerIndex].IndexOnServer);
 end;
 
 
@@ -753,9 +753,9 @@ var
   M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
+  M.Write(fRoomToJoin);
   M.WriteA(aPassword);
-  M.WriteA(fMyNikname);
-  PacketSend(NET_ADDRESS_HOST, mk_Password, M);
+  PacketSend(NET_ADDRESS_SERVER, mk_Password, M);
   M.Free;
 
   fEnteringPassword := False;
@@ -768,6 +768,7 @@ begin
   Assert(IsHost, 'Only host can set password');
   fPassword := aPassword;
   fOnMPGameInfoChanged(Self); //Send the password state to the server so it is shown in server list
+  PacketSendA(NET_ADDRESS_SERVER, mk_SetPassword, fPassword);
 end;
 
 
@@ -1364,51 +1365,14 @@ begin
                 end;
                 if tmpInteger = -1 then
                 begin
-                  if fPassword = '' then
-                    PlayerJoined(aSenderIndex, tmpStringA)
-                  else
-                  begin
-                    //Remember that this server index has passed authentication challenge
-                    //so they are permitted to send us mk_Password
-                    fAuthedJoiners.Add(aSenderIndex);
-                    PacketSend(aSenderIndex, mk_ReqPassword);
-                  end;
+                  //Password was checked by server already
+                  PlayerJoined(aSenderIndex, tmpStringA);
                 end
                 else
                 begin
                   PacketSend(aSenderIndex, mk_RefuseToJoin, tmpInteger);
                   //Force them to reconnect and ask for a new challenge
                   PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, aSenderIndex);
-                end;
-              end;
-
-      mk_Password:
-              if IsHost then
-              begin
-                //Prevent sending this packet first to skip authentication challenge
-                if not fAuthedJoiners.Contains(aSenderIndex) then
-                begin
-                  PacketSend(aSenderIndex, mk_RefuseToJoin, TX_NET_YOUR_DATA_FILES);
-                  //Force them to reconnect and ask for a new challenge
-                  PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, aSenderIndex);
-                end
-                else
-                begin
-                  M.ReadA(tmpStringA); //Password
-                  if tmpStringA = fPassword then
-                  begin
-                    fAuthedJoiners.Remove(aSenderIndex);
-                    M.ReadA(tmpStringA); //Player name
-                    tmpInteger := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
-                    if (tmpInteger = -1) and (fNetGameState <> lgs_Lobby) then
-                      tmpInteger := TX_NET_GAME_IN_PROGRESS;
-                    if tmpInteger = -1 then
-                      PlayerJoined(aSenderIndex, tmpStringA)
-                    else
-                      PacketSend(aSenderIndex, mk_RefuseToJoin, tmpInteger);
-                  end
-                  else
-                    PacketSend(aSenderIndex, mk_ReqPassword);
                 end;
               end;
 
@@ -1476,7 +1440,6 @@ begin
               end;
 
       mk_ReqPassword:
-              if fNetPlayerKind = lpk_Joiner then
               begin
                 fEnteringPassword := True; //Disables timing out
                 fOnJoinPassword(Self);
@@ -1525,7 +1488,6 @@ begin
                 M.Read(tmpInteger);
                 if IsHost then
                 begin
-                  fAuthedJoiners.Remove(tmpInteger);
                   fFileSenderManager.ClientDisconnected(tmpInteger);
                   PlayerIndex := fNetPlayers.ServerToLocal(tmpInteger);
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
@@ -1630,8 +1592,14 @@ begin
                   end;
 
                   fHostIndex := MyIndex; //Set it down here as it is used above
-                  fPassword := '';
-                  fDescription := '';
+
+                  //Server tells us the password and description in this packet,
+                  //so they aren't reset when the host is changed
+                  M.ReadA(tmpStringA);
+                  M.ReadW(tmpStringW);
+                  fPassword := tmpStringA;
+                  fDescription := tmpStringW;
+
                   fOnMPGameInfoChanged(Self);
                   if (fSelectGameKind = ngk_None)
                   or ((fSelectGameKind = ngk_Map)  and not MapInfo.IsValid)

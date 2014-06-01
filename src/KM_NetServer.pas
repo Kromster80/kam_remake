@@ -83,6 +83,7 @@ type
     fEmptyGameInfo: TMPGameInfo;
     fRoomInfo:array of record
                          HostHandle:integer;
+                         Password: AnsiString;
                          BannedIPs: array of string;
                          GameInfo:TMPGameInfo;
                        end;
@@ -97,7 +98,8 @@ type
     procedure SendMessageA(aRecipient: Integer; aKind: TKMessageKind; aText: AnsiString);
     procedure SendMessageW(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString);
     procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
-    procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer);
+    procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer); overload;
+    procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream); overload;
     procedure SendMessageAct(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
@@ -441,7 +443,10 @@ end;
 
 //Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
-var Room: integer; Client:TKMServerClient;
+var
+  Room: integer;
+  Client:TKMServerClient;
+  M: TKMemoryStream;
 begin
   Client := fClientList.GetByHandle(aHandle);
   if Client = nil then
@@ -465,6 +470,7 @@ begin
     if GetRoomClientsCount(Room) = 0 then
     begin
       fRoomInfo[Room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
+      fRoomInfo[Room].Password := '';
       fRoomInfo[Room].GameInfo.Free;
       fRoomInfo[Room].GameInfo := TMPGameInfo.Create;
       SetLength(fRoomInfo[Room].BannedIPs, 0);
@@ -472,7 +478,15 @@ begin
     else
     begin
       fRoomInfo[Room].HostHandle := GetFirstRoomClient(Room); //Assign hosting rights to the first client in the room
-      SendMessageToRoom(mk_ReassignHost, Room, fRoomInfo[Room].HostHandle); //Tell everyone about the new host
+
+      //Tell everyone about the new host and password/description (so new host knows it)
+      M := TKMemoryStream.Create;
+      M.Write(fRoomInfo[Room].HostHandle);
+      M.WriteA(fRoomInfo[Room].Password);
+      M.WriteW(fRoomInfo[Room].GameInfo.Description);
+      SendMessageToRoom(mk_ReassignHost, Room, M);
+      M.Free;
+
       Status('Reassigned hosting rights for room '+inttostr(Room)+' to '+inttostr(fRoomInfo[Room].HostHandle));
     end;
   end;
@@ -540,6 +554,16 @@ begin
 end;
 
 
+procedure TKMNetServer.SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream);
+var I: Integer;
+begin
+  //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
+  for I := fClientList.Count-1 downto 0 do
+    if fClientList[i].Room = aRoom then
+      SendMessage(fClientList[i].Handle, aKind, aStream);
+end;
+
+
 //Assemble the packet as [Sender.Recepient.Length.Data]
 procedure TKMNetServer.SendMessageAct(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream);
 var
@@ -582,6 +606,7 @@ var
   Kind: TKMessageKind;
   M, M2: TKMemoryStream;
   tmpInteger: Integer;
+  tmpStringA: AnsiString;
   Client: TKMServerClient;
   SenderIsHost: Boolean;
   SenderRoom: Integer;
@@ -609,8 +634,32 @@ begin
   case Kind of
     mk_JoinRoom:
             begin
-              M.Read(tmpInteger);
-              AddClientToRoom(aSenderHandle, tmpInteger);
+              M.Read(tmpInteger); //Room to join
+              if InRange(tmpInteger, 0, Length(fRoomInfo)-1)
+              and (fRoomInfo[tmpInteger].HostHandle <> NET_ADDRESS_EMPTY)
+              //Once game has started don't ask for passwords so clients can reconnect
+              and (fRoomInfo[tmpInteger].GameInfo.GameState = mgsLobby)
+              and (fRoomInfo[tmpInteger].Password <> '') then
+                SendMessage(aSenderHandle, mk_ReqPassword)
+              else
+                AddClientToRoom(aSenderHandle, tmpInteger);
+            end;
+    mk_Password:
+            begin
+              M.Read(tmpInteger); //Room to join
+              M.ReadA(tmpStringA); //Password
+              if InRange(tmpInteger, 0, Length(fRoomInfo)-1)
+              and (fRoomInfo[tmpInteger].HostHandle <> NET_ADDRESS_EMPTY)
+              and (fRoomInfo[tmpInteger].Password = tmpStringA) then
+                AddClientToRoom(aSenderHandle, tmpInteger)
+              else
+                SendMessage(aSenderHandle, mk_ReqPassword);
+            end;
+    mk_SetPassword:
+            if SenderIsHost then
+            begin
+              M.ReadA(tmpStringA); //Password
+              fRoomInfo[SenderRoom].Password := tmpStringA;
             end;
     mk_SetGameInfo:
             if SenderIsHost then
@@ -646,7 +695,13 @@ begin
               if fClientList.GetByHandle(tmpInteger) <> nil then
               begin
                 fRoomInfo[SenderRoom].HostHandle := tmpInteger;
-                SendMessageToRoom(mk_ReassignHost, SenderRoom, tmpInteger); //Tell everyone about the new host
+                //Tell everyone about the new host and password/description (so new host knows it)
+                M2 := TKMemoryStream.Create;
+                M2.Write(fRoomInfo[SenderRoom].HostHandle);
+                M2.WriteA(fRoomInfo[SenderRoom].Password);
+                M2.WriteW(fRoomInfo[SenderRoom].GameInfo.Description);
+                SendMessageToRoom(mk_ReassignHost, SenderRoom, M2);
+                M2.Free;
               end;
             end;
     mk_ResetBans:
@@ -806,6 +861,7 @@ begin
   Inc(fRoomCount);
   SetLength(fRoomInfo,fRoomCount);
   fRoomInfo[fRoomCount-1].HostHandle := NET_ADDRESS_EMPTY;
+  fRoomInfo[fRoomCount-1].Password := '';
   fRoomInfo[fRoomCount-1].GameInfo := TMPGameInfo.Create;
   SetLength(fRoomInfo[fRoomCount-1].BannedIPs, 0);
 end;

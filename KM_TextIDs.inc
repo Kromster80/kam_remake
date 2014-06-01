@@ -693,6 +693,7 @@ TX_NET_BANS_RESET = 769; //The host reset all bans for this lobby
 TX_NET_VOTED = 796; //%s voted to return to the lobby (need %s more votes)
 TX_NET_VOTE_PASSED = 799; //%s voted to return to the lobby (vote passed)
 TX_NET_VOTE_FAILED = 800; //The vote to return to the lobby failed
+TX_NET_PROMOTE_LOCAL_SERVER = 809; //You cannot change host when the server is running in your client
 
 TX_CREDITS = 580; //KaM Remake Credits
 TX_CREDITS_ORIGINAL = 581; //Original Knights & Merchants Credits
