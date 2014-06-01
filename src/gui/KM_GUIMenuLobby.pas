@@ -1628,7 +1628,7 @@ begin
               end;
     ngk_Save: begin
                 S := fNetworking.SaveInfo;
-                Label_LobbyMapName.Caption := S.FileName;
+                Label_LobbyMapName.Caption := aData; //Show save name on host (local is always "downloaded")
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime + '|' + S.Info.GetSaveTimestamp;
               end;
     ngk_Map:  begin

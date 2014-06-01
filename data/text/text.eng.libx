@@ -702,7 +702,6 @@
 742:Cannot join while the game is in progress
 743:Room is full. No more players can join the game
 744:Player with the same name has already joined the room
-745:%s successfully downloaded %s
 746:Error: %s has different data files to the host and so cannot join this game
 747:Your data files do not match the host
 748:Hosting rights reassigned to %s

@@ -670,7 +670,6 @@ TX_NET_HAS_RECONNECTED = 741; //%s has reconnected
 TX_NET_GAME_IN_PROGRESS = 742; //Cannot join while the game is in progress
 TX_NET_ROOM_FULL = 743; //Room is full. No more players can join the game
 TX_NET_SAME_NAME = 744; //Player with the same name has already joined the room
-TX_NET_SUCCESSFULLY_DOWNLOADED = 745; //%s successfully downloaded %s
 TX_NET_JOIN_DATA_FILES = 746; //Error: %s has different data files to the host and so cannot join this game
 TX_NET_YOUR_DATA_FILES = 747; //Your data files do not match the host
 TX_NET_HOSTING_RIGHTS = 748; //Hosting rights reassigned to %s

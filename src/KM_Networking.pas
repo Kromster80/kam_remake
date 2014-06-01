@@ -123,7 +123,6 @@ type
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
-    function TryCreateSaveInfo(aFileName: UnicodeString; aCRC: Cardinal): TKMSaveInfo;
 
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer);
@@ -1129,24 +1128,6 @@ begin
 end;
 
 
-function TKMNetworking.TryCreateSaveInfo(aFileName: UnicodeString; aCRC: Cardinal): TKMSaveInfo;
-begin
-  //See if we have a file of the same name that matches
-  Result := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, aFileName);
-  if Result.IsValid and (Result.CRC = aCRC) then
-    Exit;
-
-  //See if our 'downloaded.sav' matches (host reselected same file)
-  Result.Free;
-  Result := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, DOWNLOADED_LOBBY_SAVE);
-  if Result.IsValid and (Result.CRC = aCRC) then
-    Exit;
-
-  Result.Free;
-  Result := nil; //No matching save was found
-end;
-
-
 function TKMNetworking.CalculateGameCRC:Cardinal;
 begin
   //CRC checks are done on the data we already loaded, not the files on HDD which can change.
@@ -1431,8 +1412,7 @@ begin
       mk_FileEnd:
               if not IsHost and (fFileReceiver <> nil) then
               begin
-                if fFileReceiver.ProcessTransfer and not fFileReceiver.Silent then
-                  PostMessage(TX_NET_SUCCESSFULLY_DOWNLOADED, csSystem, UnicodeString(fMyNikname), fFileReceiver.Name);
+                fFileReceiver.ProcessTransfer;
                 FreeAndNil(fFileReceiver);
               end;
 
@@ -1723,23 +1703,24 @@ begin
                 FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 M.ReadW(tmpStringW); //Save name
                 M.Read(tmpCRC); //CRC
+
+                //See if the host selected the same save we already downloaded
                 FreeAndNil(fSaveInfo);
-                fSaveInfo := TryCreateSaveInfo(tmpStringW, tmpCRC);
-                if fSaveInfo <> nil then
+                fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, DOWNLOADED_LOBBY_SAVE);
+                if fSaveInfo.IsValid and (fSaveInfo.CRC = tmpCRC) then
                 begin
                   fSelectGameKind := ngk_Save;
-                  if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
+                  if Assigned(fOnMapName) then fOnMapName(tmpStringW);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end
                 else
                 begin
+                  FreeAndNil(fSaveInfo);
+                  fSelectGameKind := ngk_None;
                   //Save file does not exist, so downloaded it
                   fMissingFileType := ngk_Save;
                   fMissingFileName := tmpStringW;
-                  fSelectGameKind := ngk_None;
                   if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, True);
-                  if (fFileReceiver <> nil) then
-                    fFileReceiver.Silent := True;
                 end;
               end;
 

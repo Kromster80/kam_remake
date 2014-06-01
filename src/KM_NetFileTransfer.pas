@@ -39,7 +39,6 @@ type
     procedure ClearExistingFiles;
     function ValidExtension(Ext: UnicodeString): Boolean;
   public
-    Silent: Boolean;
     constructor Create(aType: TKMTransferType; aName: UnicodeString);
     destructor Destroy; override;
     procedure DataReceived(aStream: TKMemoryStream);
