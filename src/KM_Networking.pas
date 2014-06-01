@@ -89,7 +89,6 @@ type
     fMissingFileType: TNetGameKind;
     fMissingFileName: UnicodeString;
     fMissingFileExists: Boolean;
-    fAcceptReturnToLobbySave: Boolean;
 
     fOnJoinSucc: TNotifyEvent;
     fOnJoinFail: TUnicodeStringEvent;
@@ -124,6 +123,7 @@ type
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
+    function TryCreateSaveInfo(aFileName: UnicodeString; aCRC: Cardinal): TKMSaveInfo;
 
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer);
@@ -950,7 +950,7 @@ begin
                   PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
                 end;
       ngk_Save: begin
-                  fFileReceiver := TKMFileReceiver.Create(kttSave, fMissingFileName);
+                  fFileReceiver := TKMFileReceiver.Create(kttSave, DOWNLOADED_LOBBY_SAVE);
                   PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
                 end;
     end;
@@ -1129,6 +1129,24 @@ begin
 end;
 
 
+function TKMNetworking.TryCreateSaveInfo(aFileName: UnicodeString; aCRC: Cardinal): TKMSaveInfo;
+begin
+  //See if we have a file of the same name that matches
+  Result := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, aFileName);
+  if Result.IsValid and (Result.CRC = aCRC) then
+    Exit;
+
+  //See if our 'downloaded.sav' matches (host reselected same file)
+  Result.Free;
+  Result := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, DOWNLOADED_LOBBY_SAVE);
+  if Result.IsValid and (Result.CRC = aCRC) then
+    Exit;
+
+  Result.Free;
+  Result := nil; //No matching save was found
+end;
+
+
 function TKMNetworking.CalculateGameCRC:Cardinal;
 begin
   //CRC checks are done on the data we already loaded, not the files on HDD which can change.
@@ -1195,7 +1213,7 @@ var
   err: UnicodeString;
   tmpInteger: Integer;
   tmpCRC: Cardinal;
-  tmpBoolean, AutoAcceptTransfer: Boolean;
+  tmpBoolean: Boolean;
   tmpStringA, replyStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
   tmpChatMode: TChatMode;
@@ -1657,7 +1675,6 @@ begin
                 fSelectGameKind := ngk_None;
                 FreeAndNil(fMapInfo);
                 FreeAndNil(fSaveInfo);
-                fNetPlayers.ResetLocAndReady;
                 if Assigned(fOnMapName) then fOnMapName('');
               end;
 
@@ -1672,7 +1689,6 @@ begin
                 fMapInfo := TKMapInfo.Create(tmpStringW, True, True);
                 if fMapInfo.IsValid then
                   fMapInfo.LoadExtra; //Lobby requires extra map info such as CanBeHuman
-                fNetPlayers.ResetLocAndReady;
                 if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 
@@ -1699,7 +1715,6 @@ begin
                     fNetPlayers[fMyIndex].ReadyToStart := false;
                   if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False);
                 end;
-                fAcceptReturnToLobbySave := False;
               end;
 
       mk_SaveSelect:
@@ -1708,43 +1723,24 @@ begin
                 FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 M.ReadW(tmpStringW); //Save name
                 M.Read(tmpCRC); //CRC
-                fSelectGameKind := ngk_Save;
                 FreeAndNil(fSaveInfo);
-                fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, tmpStringW);
-                fNetPlayers.ResetLocAndReady;
-                if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
-                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-
-                if fSaveInfo.CRC <> tmpCRC then
+                fSaveInfo := TryCreateSaveInfo(tmpStringW, tmpCRC);
+                if fSaveInfo <> nil then
                 begin
-                  //If this is the save for returning to the lobby we should accept the transfer
-                  AutoAcceptTransfer := fAcceptReturnToLobbySave and (fSaveInfo.FileName = RETURN_TO_LOBBY_SAVE);
-                  if fSaveInfo.IsValid then
-                  begin
-                    if not AutoAcceptTransfer then
-                      PostMessage(TX_NET_DIFFERENT_VERSION, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
-                    tmpStringW := Format(gResTexts[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
-                    fMissingFileExists := True;
-                  end
-                  else
-                  begin
-                    if not AutoAcceptTransfer then
-                      PostMessage(TX_NET_MISSING_FILES, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
-                    tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
-                    fMissingFileExists := False;
-                  end;
+                  fSelectGameKind := ngk_Save;
+                  if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
+                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                end
+                else
+                begin
+                  //Save file does not exist, so downloaded it
                   fMissingFileType := ngk_Save;
-                  fMissingFileName := fSaveInfo.FileName;
-
-                  FreeAndNil(fSaveInfo);
+                  fMissingFileName := tmpStringW;
                   fSelectGameKind := ngk_None;
-                  if fMyIndex <> -1 then //In the process of joining
-                    fNetPlayers[fMyIndex].ReadyToStart := False;
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, AutoAcceptTransfer);
-                  if (fFileReceiver <> nil) and AutoAcceptTransfer then
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, True);
+                  if (fFileReceiver <> nil) then
                     fFileReceiver.Silent := True;
                 end;
-                fAcceptReturnToLobbySave := False; //Don't auto accept next save transfer
               end;
 
       mk_StartingLocQuery:
@@ -2198,9 +2194,7 @@ begin
     NetPlayers.RemAllAIs; //AIs are included automatically when you start the save
     NetPlayers.RemDisconnectedPlayers; //Disconnected players must not be shown in lobby
     //Don't refresh player setup here since events aren't attached to lobby yet
-  end
-  else
-    fAcceptReturnToLobbySave := True; //Expect transfer from host
+  end;
 end;
 
 

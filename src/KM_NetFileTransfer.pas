@@ -321,7 +321,8 @@ begin
   ReadStream.Read(ReadType, SizeOf(ReadType));
   Assert(ReadType = fType, 'Unexpected transfer type received');
   ReadStream.ReadW(ReadName);
-  Assert(ReadName = fName, 'Unexpected transfer name received');
+  if fType = kttMap then
+    Assert(ReadName = fName, 'Unexpected transfer name received');
 
   ClearExistingFiles;
 

@@ -1629,7 +1629,7 @@ begin
     ngk_Save: begin
                 S := fNetworking.SaveInfo;
                 Label_LobbyMapName.Caption := S.FileName;
-                Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime;
+                Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime + '|' + S.Info.GetSaveTimestamp;
               end;
     ngk_Map:  begin
                 M := fNetworking.MapInfo;

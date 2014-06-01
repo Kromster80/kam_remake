@@ -213,6 +213,7 @@ const
   CHARTS_SAMPLING_FOR_TACTICS = 50; //Each 5sec, cos average game length is much shorter
 
   RETURN_TO_LOBBY_SAVE = 'paused';
+  DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
 type
   THandIndex = {type} ShortInt;
