@@ -33,8 +33,8 @@ const
     [mk_AllowToJoin,mk_RefuseToJoin,mk_AuthChallenge,mk_Ping,mk_PingInfo,mk_Kicked],
     //lgs_Lobby
     [mk_AskForAuth,mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
+     mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_SaveSelect,
+     mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
      mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
     //lgs_Loading
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
@@ -479,18 +479,23 @@ end;
 
 
 procedure TKMNetworking.SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
+var M: TKMemoryStream;
 begin
+  M := TKMemoryStream.Create;
   case fSelectGameKind of
     ngk_Save: begin
-                PacketSendW(Recipient, mk_SaveSelect, fSaveInfo.FileName);
-                PacketSend(Recipient, mk_SaveCRC, Integer(fSaveInfo.CRC));
+                M.WriteW(fSaveInfo.FileName);
+                M.Write(fSaveInfo.CRC);
+                PacketSend(Recipient, mk_SaveSelect, M);
               end;
     ngk_Map:  begin
-                PacketSendW(Recipient, mk_MapSelect, fMapInfo.FileName);
-                PacketSend(Recipient, mk_MapCRC, Integer(fMapInfo.CRC));
+                M.WriteW(fMapInfo.FileName);
+                M.Write(fMapInfo.CRC);
+                PacketSend(Recipient, mk_MapSelect, M);
               end;
     else      PacketSend(Recipient, mk_ResetMap);
   end;
+  M.Free;
 end;
 
 
@@ -1189,6 +1194,7 @@ var
   Kind: TKMessageKind;
   err: UnicodeString;
   tmpInteger: Integer;
+  tmpCRC: Cardinal;
   tmpBoolean, AutoAcceptTransfer: Boolean;
   tmpStringA, replyStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
@@ -1659,7 +1665,8 @@ begin
               if fNetPlayerKind = lpk_Joiner then
               begin
                 FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
-                M.ReadW(tmpStringW);
+                M.ReadW(tmpStringW); //Map name
+                M.Read(tmpCRC); //CRC
                 fSelectGameKind := ngk_Map;
                 FreeAndNil(fMapInfo);
                 fMapInfo := TKMapInfo.Create(tmpStringW, True, True);
@@ -1668,13 +1675,8 @@ begin
                 fNetPlayers.ResetLocAndReady;
                 if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              end;
 
-      mk_MapCRC:
-              if fNetPlayerKind = lpk_Joiner then
-              begin
-                M.Read(tmpInteger);
-                if Integer(fMapInfo.CRC) <> tmpInteger then
+                if fMapInfo.CRC <> tmpCRC then
                 begin
                   if fMapInfo.IsValid then
                   begin
@@ -1704,20 +1706,16 @@ begin
               if fNetPlayerKind = lpk_Joiner then
               begin
                 FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
-                M.ReadW(tmpStringW);
+                M.ReadW(tmpStringW); //Save name
+                M.Read(tmpCRC); //CRC
                 fSelectGameKind := ngk_Save;
                 FreeAndNil(fSaveInfo);
                 fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, tmpStringW);
                 fNetPlayers.ResetLocAndReady;
                 if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              end;
 
-      mk_SaveCRC:
-              if fNetPlayerKind = lpk_Joiner then
-              begin
-                M.Read(tmpInteger);
-                if Integer(fSaveInfo.CRC) <> tmpInteger then
+                if fSaveInfo.CRC <> tmpCRC then
                 begin
                   //If this is the save for returning to the lobby we should accept the transfer
                   AutoAcceptTransfer := fAcceptReturnToLobbySave and (fSaveInfo.FileName = RETURN_TO_LOBBY_SAVE);

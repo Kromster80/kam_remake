@@ -62,9 +62,7 @@ type
 
     mk_ResetMap,        //Reset the map selection to blank
     mk_MapSelect,       //Host selects the map to play
-    mk_MapCRC,          //Host tells clients what the CRC of the map should be
     mk_SaveSelect,      //Host selects the save to play
-    mk_SaveCRC,         //Host tells clients what the CRC of the save should be
     mk_ReadyToStart,    //Joiner tells he's ready to play the game
     mk_Start,           //Host says to start the game
     mk_ReturnToLobby,   //Host tells joiners to return to the lobby
@@ -136,10 +134,8 @@ const
     pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery
     pfNoData,   //mk_ResetMap
-    pfString,   //mk_MapSelect
-    pfNumber,   //mk_MapCRC
-    pfString,   //mk_SaveSelect
-    pfNumber,   //mk_SaveCRC
+    pfBinary,   //mk_MapSelect
+    pfBinary,   //mk_SaveSelect
     pfNoData,   //mk_ReadyToStart
     pfBinary,   //mk_Start
     pfNoData,   //mk_ReturnToLobby
