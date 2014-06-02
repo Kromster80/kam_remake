@@ -39,13 +39,15 @@ const
 { TUnitActionStormAttack }
 constructor TUnitActionStormAttack.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aRow: Integer);
 const
-  MIN_STAMINA = 8;
-  MAX_STAMINA = 14;
+  //Tiles traveled measured in KaM TPR: Min 8, maximum 13
+  //We reduced the variation in order to make storm attack more useful
+  MIN_STAMINA = 12;
+  MAX_STAMINA = 13;
 begin
   inherited Create(aUnit, aActionType, True);
   fTileSteps      := -1; //-1 so the first initializing step makes it 0
   fDelay          := aRow * 5; //No delay for the first row
-  fStamina        := MIN_STAMINA + KaMRandom(MAX_STAMINA-MIN_STAMINA);
+  fStamina        := MIN_STAMINA + KaMRandom(MAX_STAMINA-MIN_STAMINA+1);
   fNextPos        := KMPoint(0,0);
   fVertexOccupied := KMPoint(0,0);
 end;
