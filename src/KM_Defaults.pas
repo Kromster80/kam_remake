@@ -286,6 +286,8 @@ type
 
   TAllianceType = (at_Enemy, at_Ally);
 
+  TMapFolder = (mfSP, mfMP, mfDL);
+
 { Terrain }
 type
   TPassability = (

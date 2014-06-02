@@ -34,12 +34,13 @@ type
     fReceiveStream: TKMemoryStream;
     fType: TKMTransferType;
     fName: UnicodeString;
+    fMapCRC: Cardinal;
     fTotalSize: Cardinal;
     fReceivedSize: Cardinal;
     procedure ClearExistingFiles;
     function ValidExtension(Ext: UnicodeString): Boolean;
   public
-    constructor Create(aType: TKMTransferType; aName: UnicodeString);
+    constructor Create(aType: TKMTransferType; aName: UnicodeString; aMapCRC: Cardinal = 0);
     destructor Destroy; override;
     procedure DataReceived(aStream: TKMemoryStream);
     property Name: UnicodeString read fName;
@@ -75,11 +76,20 @@ const
   VALID_SAVE_EXTENSIONS: array[1..3] of UnicodeString =         ('sav','bas','rpl');
 
 
-function GetFullFileName(aType: TKMTransferType; aName, Postfix, aExt: UnicodeString): UnicodeString;
+function GetFullSourceFileName(aType: TKMTransferType; aName, Postfix, aExt: UnicodeString): UnicodeString;
 begin
   case aType of
     kttMap:  Result := ExeDir + 'MapsMP' + PathDelim + aName + PathDelim + aName + Postfix + '.' + aExt;
     kttSave: Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt;
+  end;
+end;
+
+
+function GetFullDestFileName(aType: TKMTransferType; aName, Postfix, aExt: UnicodeString; aMapCRC: Cardinal): UnicodeString;
+begin
+  case aType of
+    kttMap:  Result := ExeDir + 'MapsDL' + PathDelim + aName + '_' + IntToHex(Integer(aMapCRC), 8) + PathDelim + aName + '_' + IntToHex(Integer(aMapCRC), 8) + Postfix + '.' + aExt;
+    kttSave: Result := ExeDir + 'SavesMP' + PathDelim + DOWNLOADED_LOBBY_SAVE + '.' + aExt;
   end;
 end;
 
@@ -104,13 +114,13 @@ begin
     kttMap:  begin
                for I := Low(VALID_MAP_EXTENSIONS) to High(VALID_MAP_EXTENSIONS) do
                begin
-                 FileName := GetFullFileName(aType, aName, '', VALID_MAP_EXTENSIONS[I]);
+                 FileName := GetFullSourceFileName(aType, aName, '', VALID_MAP_EXTENSIONS[I]);
                  if FileExists(FileName) then
                    AddFileToStream(FileName, '', VALID_MAP_EXTENSIONS[I]);
                end;
                for I := Low(VALID_MAP_EXTENSIONS_POSTFIX) to High(VALID_MAP_EXTENSIONS_POSTFIX) do
                begin
-                 FileName := GetFullFileName(aType, aName, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
+                 FileName := GetFullSourceFileName(aType, aName, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
                  if FindFirst(FileName, faAnyFile, F) = 0 then
                  begin
                    repeat
@@ -123,7 +133,7 @@ begin
              end;
     kttSave: for I := Low(VALID_SAVE_EXTENSIONS) to High(VALID_SAVE_EXTENSIONS) do
              begin
-               FileName := GetFullFileName(aType, aName, '', VALID_SAVE_EXTENSIONS[I]);
+               FileName := GetFullSourceFileName(aType, aName, '', VALID_SAVE_EXTENSIONS[I]);
                if FileExists(FileName) then
                  AddFileToStream(FileName, '', VALID_SAVE_EXTENSIONS[I]);
              end;
@@ -197,12 +207,13 @@ end;
 
 
 { TKMFileReceiver }
-constructor TKMFileReceiver.Create(aType: TKMTransferType; aName: UnicodeString);
+constructor TKMFileReceiver.Create(aType: TKMTransferType; aName: UnicodeString; aMapCRC: Cardinal = 0);
 begin
   inherited Create;
   fReceiveStream := TKMemoryStream.Create;
   fType := aType;
   fName := aName;
+  fMapCRC := aMapCRC;
 end;
 
 
@@ -234,13 +245,17 @@ begin
   //Prepare destination
   case fType of
     kttMap:  begin
-               //Create folder if it is missing
-               FileName := ExeDir + 'MapsMP' + PathDelim + fName;
+               //Create downloads folder if it's missing
+               FileName := ExeDir + 'MapsDL';
+               if not DirectoryExists(FileName) then
+                 CreateDir(FileName);
+               //Create map folder if it is missing
+               FileName := FileName + PathDelim + fName + '_' + IntToHex(Integer(fMapCRC), 8);
                if not DirectoryExists(FileName) then
                  CreateDir(FileName)
                else
                  //If any files already exist in the folder, delete them
-                 if FindFirst(FileName + PathDelim + fName + '*.*', faAnyFile, F) = 0 then
+                 if FindFirst(FileName + PathDelim + fName + '_' + IntToHex(Integer(fMapCRC), 8) + '*.*', faAnyFile, F) = 0 then
                  begin
                    repeat
                      if (F.Attr and faDirectory = 0) then
@@ -254,7 +269,7 @@ begin
                  CreateDir(ExeDir + 'SavesMP')
                else
                begin
-                 FileName := ExeDir + 'SavesMP' + PathDelim + fName;
+                 FileName := ExeDir + 'SavesMP' + PathDelim + DOWNLOADED_LOBBY_SAVE;
                  for I := Low(VALID_SAVE_EXTENSIONS) to High(VALID_SAVE_EXTENSIONS) do
                    if FileExists(FileName + '.' + VALID_SAVE_EXTENSIONS[I]) then
                      DeleteFile(FileName + '.' + VALID_SAVE_EXTENSIONS[I]);
@@ -320,8 +335,7 @@ begin
   ReadStream.Read(ReadType, SizeOf(ReadType));
   Assert(ReadType = fType, 'Unexpected transfer type received');
   ReadStream.ReadW(ReadName);
-  if fType = kttMap then
-    Assert(ReadName = fName, 'Unexpected transfer name received');
+  Assert(ReadName = fName, 'Unexpected transfer name received');
 
   ClearExistingFiles;
 
@@ -338,7 +352,7 @@ begin
     FileStream := TKMemoryStream.Create;
     FileStream.CopyFrom(ReadStream, ReadSize);
 
-    FileName := GetFullFileName(fType, fName, Postfix, Ext);
+    FileName := GetFullDestFileName(fType, fName, Postfix, Ext, fMapCRC);
     Assert(not FileExists(FileName), 'Transfer file already exists');
     FileStream.SaveToFile(FileName);
     FileStream.Free;

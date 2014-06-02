@@ -35,6 +35,7 @@ type
     fDatCRC: Cardinal; //Used to speed up scanning
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     fInfoAmount: TKMMapInfoAmount;
+    fMapFolder: TMapFolder;
     procedure ResetInfo;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
@@ -54,7 +55,7 @@ type
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
 
-    constructor Create(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
+    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
     destructor Destroy; override;
 
     procedure AddGoal(aType: TGoalType; aPlayer: THandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: THandIndex);
@@ -62,6 +63,7 @@ type
 
     property InfoAmount: TKMMapInfoAmount read fInfoAmount;
     property Path: string read fPath;
+    property MapFolder: TMapFolder read fMapFolder;
     property FileName: UnicodeString read fFileName;
     function FullPath(const aExt: string): string;
     function HumanUsableLocations: TPlayerIndexArray;
@@ -110,7 +112,8 @@ type
     procedure Lock;
     procedure Unlock;
 
-    class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
+    class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string; overload;
+    class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
 
     procedure Refresh(aOnRefresh: TNotifyEvent);
@@ -131,12 +134,13 @@ uses KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
 
 
 const
-  //Folder name containing single maps for SP/MP mode
-  MAP_FOLDER_MP: array [Boolean] of string = ('Maps', 'MapsMP');
+  //Folder name containing single maps for SP/MP/DL mode
+  MAP_FOLDER: array [TMapFolder] of string = ('Maps', 'MapsMP', 'MapsDL');
+  MAP_FOLDER_TYPE_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
 
 
 { TKMapInfo }
-constructor TKMapInfo.Create(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
+constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
 var
   st, DatFile, MapFile, ScriptFile, TxtFile: string;
   DatCRC, OthersCRC: Cardinal;
@@ -145,8 +149,9 @@ var
 begin
   inherited Create;
 
-  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + PathDelim + aFolder + PathDelim;
+  fPath := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aFolder + PathDelim;
   fFileName := aFolder;
+  fMapFolder := aMapFolder;
 
   fStrictParsing := aStrictParsing;
 
@@ -680,7 +685,13 @@ end;
 
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 begin
-  Result := ExeDir + MAP_FOLDER_MP[aMultiplayer] + PathDelim + aName + PathDelim + aName + aExt;
+  Result := FullPath(aName, aExt, MAP_FOLDER_TYPE_MP[aMultiplayer]);
+end;
+
+
+class function TKMapsCollection.FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string;
+begin
+  Result := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim + aName + aExt;
 end;
 
 
@@ -750,7 +761,7 @@ var
   PathToMaps: string;
   Map: TKMapInfo;
 begin
-  PathToMaps := ExeDir + MAP_FOLDER_MP[fMultiplayerPath] + PathDelim;
+  PathToMaps := ExeDir + MAP_FOLDER[MAP_FOLDER_TYPE_MP[fMultiplayerPath]] + PathDelim;
 
   if not DirectoryExists(PathToMaps) then Exit;
 
@@ -760,7 +771,7 @@ begin
     and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', fMultiplayerPath))
     and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', fMultiplayerPath)) then
     begin
-      Map := TKMapInfo.Create(SearchRec.Name, false, fMultiplayerPath);
+      Map := TKMapInfo.Create(SearchRec.Name, false, MAP_FOLDER_TYPE_MP[fMultiplayerPath]);
       if SLOW_MAP_SCAN then
         Sleep(50);
       fOnMapAdd(Map);

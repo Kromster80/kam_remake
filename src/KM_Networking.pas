@@ -88,7 +88,7 @@ type
     fFileSenderManager: TKMFileSenderManager;
     fMissingFileType: TNetGameKind;
     fMissingFileName: UnicodeString;
-    fMissingFileExists: Boolean;
+    fMissingFileCRC: Cardinal;
 
     fOnJoinSucc: TNotifyEvent;
     fOnJoinFail: TUnicodeStringEvent;
@@ -103,7 +103,7 @@ type
     fOnGameOptions: TNotifyEvent;
     fOnMapName: TUnicodeStringEvent;
     fOnMapMissing: TUnicodeStringBoolEvent;
-    fOnStartMap: TGameStartEvent;
+    fOnStartMap: TMapStartEvent;
     fOnStartSave: TGameStartEvent;
     fOnReturnToLobby: TNotifyEvent;
     fOnPlay: TNotifyEvent;
@@ -202,7 +202,6 @@ type
     property LastProcessedTick:cardinal write fLastProcessedTick;
     property MissingFileType: TNetGameKind read fMissingFileType;
     property MissingFileName: UnicodeString read fMissingFileName;
-    property MissingFileExists: Boolean read fMissingFileExists;
     procedure GameCreated;
     procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
     procedure AttemptReconnection;
@@ -221,7 +220,7 @@ type
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
     property OnMapName: TUnicodeStringEvent write fOnMapName;           //Map name updated
     property OnMapMissing: TUnicodeStringBoolEvent write fOnMapMissing;           //Map missing
-    property OnStartMap: TGameStartEvent write fOnStartMap;       //Start the game
+    property OnStartMap: TMapStartEvent write fOnStartMap;       //Start the game
     property OnStartSave: TGameStartEvent write fOnStartSave;       //Load the game
     property OnReturnToLobby: TNotifyEvent write fOnReturnToLobby;
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
@@ -562,7 +561,7 @@ begin
   FreeAndNil(fSaveInfo);
 
   //Strict scanning to force CRC recalculation
-  fMapInfo := TKMapInfo.Create(aName, True, True);
+  fMapInfo := TKMapInfo.Create(aName, True, mfMP);
 
   if not fMapInfo.IsValid then
   begin
@@ -945,11 +944,11 @@ begin
   if fFileReceiver = nil then
     case fMissingFileType of
       ngk_Map:  begin
-                  fFileReceiver := TKMFileReceiver.Create(kttMap, fMissingFileName);
+                  fFileReceiver := TKMFileReceiver.Create(kttMap, fMissingFileName, fMissingFileCRC);
                   PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
                 end;
       ngk_Save: begin
-                  fFileReceiver := TKMFileReceiver.Create(kttSave, DOWNLOADED_LOBBY_SAVE);
+                  fFileReceiver := TKMFileReceiver.Create(kttSave, fMissingFileName);
                   PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
                 end;
     end;
@@ -1606,7 +1605,7 @@ begin
 
                   fOnMPGameInfoChanged(Self);
                   if (fSelectGameKind = ngk_None)
-                  or ((fSelectGameKind = ngk_Map)  and not MapInfo.IsValid)
+                  or ((fSelectGameKind = ngk_Map)  and (not MapInfo.IsValid or (MapInfo.MapFolder = mfDL)))
                   or ((fSelectGameKind = ngk_Save) and not SaveInfo.IsValid) then
                     SelectNoMap(''); //In case the previous host had the map and we don't
                   SendPlayerListAndRefreshPlayersSetup;
@@ -1664,37 +1663,32 @@ begin
                 FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 M.ReadW(tmpStringW); //Map name
                 M.Read(tmpCRC); //CRC
-                fSelectGameKind := ngk_Map;
+                //Try to load map from MP or DL folder
                 FreeAndNil(fMapInfo);
-                fMapInfo := TKMapInfo.Create(tmpStringW, True, True);
-                if fMapInfo.IsValid then
-                  fMapInfo.LoadExtra; //Lobby requires extra map info such as CanBeHuman
-                if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
-                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-
-                if fMapInfo.CRC <> tmpCRC then
+                fMapInfo := TKMapInfo.Create(tmpStringW, True, mfMP);
+                if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
                 begin
-                  if fMapInfo.IsValid then
-                  begin
-                    PostMessage(TX_NET_DIFFERENT_VERSION, csSystem, UnicodeString(fMyNikname), fMapInfo.FileName);
-                    tmpStringW := Format(gResTexts[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
-                    fMissingFileExists := True;
-                  end
-                  else
-                  begin
-                    PostMessage(TX_NET_MISSING_FILES, csSystem, UnicodeString(fMyNikname), fMapInfo.FileName);
-                    tmpStringW := Format(gResTexts[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
-                    fMissingFileExists := False;
-                  end;
-                  fMissingFileType := ngk_Map;
-                  fMissingFileName := fMapInfo.FileName;
-
-                  FreeAndNil(fMapInfo);
-                  fSelectGameKind := ngk_None;
-                  if fMyIndex <> -1 then //In the process of joining
-                    fNetPlayers[fMyIndex].ReadyToStart := false;
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False);
+                  fMapInfo := TKMapInfo.Create(tmpStringW+'_'+IntToHex(Integer(tmpCRC), 8), True, mfDL);
+                  if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
+                    FreeAndNil(fMapInfo);
                 end;
+
+                if fMapInfo <> nil then
+                begin
+                  fSelectGameKind := ngk_Map;
+                  fMapInfo.LoadExtra; //Lobby requires extra map info such as CanBeHuman
+                  if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
+                end
+                else
+                begin
+                  fMissingFileType := ngk_Map;
+                  fMissingFileName := tmpStringW;
+                  fMissingFileCRC := tmpCRC;
+                  fSelectGameKind := ngk_None;
+                  if Assigned(fOnMapName) then fOnMapName(tmpStringW);
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW + '_' + IntToHex(Integer(tmpCRC), 8), False);
+                end;
+                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               end;
 
       mk_SaveSelect:
@@ -2011,7 +2005,7 @@ begin
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 
   case fSelectGameKind of
-    ngk_Map:  fOnStartMap(fMapInfo.FileName, fNetPlayers[fMyIndex].IsSpectator);
+    ngk_Map:  fOnStartMap(fMapInfo.FileName, fMapInfo.MapFolder, fNetPlayers[fMyIndex].IsSpectator);
     ngk_Save: fOnStartSave(fSaveInfo.FileName, fNetPlayers[fMyIndex].IsSpectator);
     else      Assert(False);
   end;
