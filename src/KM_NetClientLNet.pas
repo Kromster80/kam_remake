@@ -37,7 +37,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function MyIPString:string;
-    function GetBufferSpace: Integer;
+    function IsBufferEmpty: Boolean;
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -72,10 +72,9 @@ begin
 end;
 
 
-function TKMNetClientLNet.GetBufferSpace: Integer;
+function TKMNetClientLNet.IsBufferEmpty: Boolean;
 begin
-  if fSocket <> nil then
-    Result := Math.Max(32768 - fBufferLen, 0); //Only report that we have a 32kb buffer, works best for file transfers (same as overbyte)
+  Result := (fSocket = nil) or (fBufferLen = 0);
 end;
 
 

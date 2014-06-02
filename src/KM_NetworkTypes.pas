@@ -10,9 +10,11 @@ const
   NET_ADDRESS_HOST = -3;    //Sender/Recipient
   NET_ADDRESS_SERVER = -4;  //Sender/Recipient
 
+  //Size of chunks that a file is sent in (must be smaller than MAX_PACKET_SIZE)
+  //Making it less than Ethernet MTU (~1500) helps to avoids inefficient IP fragmentation
+  FILE_CHUNK_SIZE = 1024; //1kb
   MAX_PACKET_SIZE = 20480; //20kb. Maximum length of a KM packet
-  FILE_CHUNK_SIZE = 10240; //10kb. Size of chunks that a file is sent in (must be smaller than MAX_PACKET_SIZE)
-  MAX_CHUNKS_BEFORE_ACK = 8; //Number of chunks of a file that can be in flight
+  MAX_CHUNKS_BEFORE_ACK = 80; //Number of chunks of a file that can be in flight
 
   //Client-Server-Client exchange packets. Each packet is a certain type
 type

@@ -2,14 +2,14 @@ unit KM_NetFileTransfer;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, KM_Defaults, KM_CommonClasses
+  SysUtils, Math, KM_Defaults, KM_CommonClasses
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
 
 const MAX_TRANSFERS = 8; //One for each player
 type
   TTransferEvent = procedure(aClientIndex: Integer) of object;
-  TTransferPacketEvent = procedure(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer) of object;
+  TTransferPacketEvent = procedure(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean) of object;
   TTransferProgressEvent = procedure(Total, Progress: Cardinal) of object;
   TKMTransferType = (kttMap, kttSave);
 
@@ -24,7 +24,6 @@ type
     destructor Destroy; override;
     procedure WriteChunk(aStream: TKMemoryStream; aLength: Cardinal);
     procedure AckReceived;
-    function CanSend: Boolean;
     function StreamEnd: Boolean;
     property ReceiverIndex: Integer read fReceiverIndex;
   end;
@@ -54,13 +53,14 @@ type
     fSenders: array[1..MAX_TRANSFERS] of TKMFileSender;
     fOnTransferCompleted: TTransferEvent;
     fOnTransferPacket: TTransferPacketEvent;
+    function ActiveTransferCount: Byte;
   public
     destructor Destroy; override;
     function StartNewSend(aType: TKMTransferType; aName: UnicodeString; aReceiverIndex: Integer): Boolean;
     procedure AbortAllTransfers;
     procedure AckReceived(aReceiverIndex: Integer);
     procedure ClientDisconnected(aReceiverIndex: Integer);
-    procedure UpdateStateIdle(SendBufferSpace: Integer);
+    procedure UpdateStateIdle(SendBufferEmpty: Boolean);
     property OnTransferCompleted: TTransferEvent write fOnTransferCompleted;
     property OnTransferPacket: TTransferPacketEvent write fOnTransferPacket;
   end;
@@ -161,12 +161,6 @@ end;
 procedure TKMFileSender.AckReceived;
 begin
   Dec(fChunksInFlight);
-end;
-
-
-function TKMFileSender.CanSend: Boolean;
-begin
-  Result := fChunksInFlight < MAX_CHUNKS_BEFORE_ACK;
 end;
 
 
@@ -410,18 +404,30 @@ begin
   Result := False;
 end;
 
-procedure TKMFileSenderManager.UpdateStateIdle(SendBufferSpace: Integer);
+function TKMFileSenderManager.ActiveTransferCount: Byte;
+var I: Integer;
+begin
+  Result := 0;
+  for I := Low(fSenders) to High(fSenders) do
+    if fSenders[I] <> nil then
+      Inc(Result);
+end;
+
+procedure TKMFileSenderManager.UpdateStateIdle(SendBufferEmpty: Boolean);
 var
   I: Integer;
   Stream: TKMemoryStream;
   ClientIndex: Integer;
+  MaxChunksInFlightPerSender: Byte;
 begin
+  //Reserve some bandwidth for each sender
+  MaxChunksInFlightPerSender := Max(1, MAX_CHUNKS_BEFORE_ACK div Max(1, ActiveTransferCount));
   for I := Low(fSenders) to High(fSenders) do
-    while (fSenders[I] <> nil) and fSenders[I].CanSend and (SendBufferSpace > FILE_CHUNK_SIZE) do
+    while (fSenders[I] <> nil) and (fSenders[I].fChunksInFlight < MaxChunksInFlightPerSender) and SendBufferEmpty do
     begin
       Stream := TKMemoryStream.Create;
       fSenders[I].WriteChunk(Stream, FILE_CHUNK_SIZE);
-      fOnTransferPacket(fSenders[I].ReceiverIndex, Stream, SendBufferSpace); //Updates SendBufferSpace
+      fOnTransferPacket(fSenders[I].ReceiverIndex, Stream, SendBufferEmpty); //Updates SendBufferEmpty
       Stream.Free;
       if fSenders[I].StreamEnd then
       begin

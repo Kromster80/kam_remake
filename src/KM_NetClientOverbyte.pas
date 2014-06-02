@@ -25,7 +25,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function MyIPString:string;
-    function GetBufferSpace: Integer;
+    function SendBufferEmpty: Boolean;
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -101,12 +101,12 @@ begin
 end;
 
 
-function TKMNetClientOverbyte.GetBufferSpace: Integer;
+function TKMNetClientOverbyte.SendBufferEmpty: Boolean;
 begin
   if (fSocket <> nil) and (fSocket.State = wsConnected) then
-    Result := fSocket.BufSize - fSocket.BufferedByteCount
+    Result := fSocket.AllSent
   else
-    Result := 0;
+    Result := True;
 end;
 
 

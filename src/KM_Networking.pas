@@ -125,7 +125,7 @@ type
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
 
     procedure TransferOnCompleted(aClientIndex: Integer);
-    procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer);
+    procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -2111,10 +2111,10 @@ begin
 end;
 
 
-procedure TKMNetworking.TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer);
+procedure TKMNetworking.TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
 begin
   PacketSend(aClientIndex, mk_FileChunk, aStream);
-  BufferSpace := fNetClient.GetBufferSpace;
+  SendBufferEmpty := fNetClient.SendBufferEmpty;
 end;
 
 
@@ -2144,7 +2144,7 @@ begin
   //LNet requires network update calls unless it is being used as visual components
   fNetClient.UpdateStateIdle;
   fServerQuery.UpdateStateIdle;
-  fFileSenderManager.UpdateStateIdle(fNetClient.GetBufferSpace);
+  fFileSenderManager.UpdateStateIdle(fNetClient.SendBufferEmpty);
 end;
 
 

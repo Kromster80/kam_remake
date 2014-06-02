@@ -50,7 +50,7 @@ type
 
     property Connected: Boolean read fConnected;
     function MyIPString: string;
-    function GetBufferSpace: Integer;
+    function SendBufferEmpty: Boolean;
 
     procedure ConnectTo(const aAddress: string; const aPort: string); //Try to connect to server
     property OnConnectSucceed: TNotifyEvent write fOnConnectSucceed; //Signal success
@@ -94,9 +94,9 @@ begin
 end;
 
 
-function TKMNetClient.GetBufferSpace: Integer;
+function TKMNetClient.SendBufferEmpty: Boolean;
 begin
-  Result := fClient.GetBufferSpace;
+  Result := fClient.SendBufferEmpty;
 end;
 
 
