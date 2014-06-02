@@ -101,6 +101,7 @@ type
     procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer); overload;
     procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream); overload;
     procedure SendMessageAct(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream);
+    procedure DoSendData(aRecipient: Integer; aData: Pointer; aLength: Cardinal);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure SaveToStream(aStream: TKMemoryStream);
@@ -592,12 +593,19 @@ begin
   if aRecipient = NET_ADDRESS_ALL then
     //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
     for I := fClientList.Count - 1 downto 0 do
-      fServer.SendData(fClientList[i].Handle, M.Memory, M.Size)
+      DoSendData(fClientList[i].Handle, M.Memory, M.Size)
   else
-    fServer.SendData(aRecipient, M.Memory, M.Size);
+    DoSendData(aRecipient, M.Memory, M.Size);
 
-  Inc(BytesTX, M.Size);
   M.Free;
+end;
+
+
+//Wrapper around fServer.SendData so we can count TX bytes (don't use fServer.SendData anywhere else)
+procedure TKMNetServer.DoSendData(aRecipient: Integer; aData: Pointer; aLength: Cardinal);
+begin
+  Inc(BytesTX, aLength);
+  fServer.SendData(aRecipient, aData, aLength);
 end;
 
 
@@ -612,8 +620,6 @@ var
   SenderRoom: Integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message');
-
-  Inc(BytesRX, aLength);
 
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
@@ -736,6 +742,8 @@ end;
 procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
 var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i,SenderRoom:integer; SenderClient: TKMServerClient;
 begin
+  Inc(BytesRX, aLength);
+
   SenderClient := fClientList.GetByHandle(aHandle);
   if SenderClient = nil then
   begin
@@ -778,18 +786,18 @@ begin
             //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
             for i:=fClientList.Count-1 downto 0 do
                 if (aHandle <> fClientList[i].Handle) and (SenderRoom = fClientList[i].Room) then
-                  fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
+                  DoSendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
         NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
                 //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
                 for i:=fClientList.Count-1 downto 0 do
                   if SenderRoom = fClientList[i].Room then
-                    fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
+                    DoSendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
         NET_ADDRESS_HOST:
                 if SenderRoom <> -1 then
-                  fServer.SendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+12);
+                  DoSendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+12);
         NET_ADDRESS_SERVER:
                 RecieveMessage(PacketSender, @SenderClient.fBuffer[12], PacketLength);
-        else    fServer.SendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);
+        else    DoSendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);
       end;
 
     if 12+PacketLength < SenderClient.fBufferSize then //Check range
