@@ -25,7 +25,8 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Game, KM_ResTexts, KM_RenderUI, KM_Resource, KM_ResFonts, KM_InterfaceGame;
+  KM_HandsCollection, KM_Game, KM_ResTexts, KM_RenderUI, KM_Resource, KM_ResFonts,
+  KM_InterfaceGame, KM_Hand;
 
 
 { TKMMapEdPlayerColors }

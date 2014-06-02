@@ -100,7 +100,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp, KM_Utils,
+  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp, KM_Utils, KM_Hand,
   KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses;
 
 const

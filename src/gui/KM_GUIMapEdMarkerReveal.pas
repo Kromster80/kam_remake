@@ -34,7 +34,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_HandsCollection, KM_ResTexts, KM_Game,
+  KM_CommonClasses, KM_HandsCollection, KM_ResTexts, KM_Game, KM_Hand,
   KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
