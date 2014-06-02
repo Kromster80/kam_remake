@@ -80,7 +80,9 @@ type
 
 
 implementation
-uses KM_Game, KM_GameApp, KM_HandsCollection, KM_Utils, KM_Sound, KM_ResSound, KM_ResTexts, KM_AI;
+uses
+  KM_Game, KM_GameApp, KM_HandsCollection, KM_Utils, KM_Sound, KM_ResSound, KM_ResTexts,
+  KM_AI, KM_Hand;
 
 
 { TCommandsPack }

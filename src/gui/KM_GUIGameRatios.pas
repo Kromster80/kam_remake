@@ -144,9 +144,25 @@ end;
 
 
 procedure TKMGUIGameRatios.Show;
+var
+  I: TKMRatioTab;
+  K: Integer;
 begin
   Panel_Ratios.Show;
-  RatioTabSet(rtWood);
+  //Select the default tab, which is the first tab with an unblocked house
+  //(so f.e. steel isn't the default tab when it's blocked by mission)
+  for I := Low(TKMRatioTab) to High(TKMRatioTab) do
+    for K := 0 to ResRatioHouseCount[fActiveTab] - 1 do
+      //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
+      if (not gHands[MySpectator.HandIndex].Stats.HouseBlocked[ResRatioHouse[I, K]])
+      or (gHands[MySpectator.HandIndex].Stats.GetHouseQty(ResRatioHouse[I, K]) > 0) then
+      begin
+        //Select first tab we find with an unblocked house
+        RatioTabSet(I);
+        Exit;
+      end;
+  //All houses are blocked, so select the first tab
+  RatioTabSet(rtSteel);
 end;
 
 
