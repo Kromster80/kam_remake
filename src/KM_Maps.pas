@@ -78,11 +78,11 @@ type
 
   TTMapsScanner = class(TThread)
   private
-    fMultiplayerPath: Boolean;
+    fMapFolder: TMapFolder;
     fOnMapAdd: TMapEvent;
     fOnMapAddDone: TNotifyEvent;
   public
-    constructor Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+    constructor Create(aMapFolder: TMapFolder; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
     procedure Execute; override;
   end;
 
@@ -90,7 +90,7 @@ type
   private
     fCount: Integer;
     fMaps: array of TKMapInfo;
-    fMultiplayerPath: Boolean;
+    fMapFolder: TMapFolder;
     fSortMethod: TMapsSortMethod;
     CS: TCriticalSection;
     fScanner: TTMapsScanner;
@@ -104,7 +104,7 @@ type
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
   public
-    constructor Create(aMultiplayerPath: Boolean; aSortMethod: TMapsSortMethod = smByNameDesc);
+    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
     destructor Destroy; override;
 
     property Count: Integer read fCount;
@@ -456,10 +456,10 @@ end;
 
 
 { TKMapsCollection }
-constructor TKMapsCollection.Create(aMultiplayerPath: Boolean; aSortMethod: TMapsSortMethod = smByNameDesc);
+constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
 begin
   inherited Create;
-  fMultiplayerPath := aMultiplayerPath;
+  fMapFolder := aMapFolder;
   fSortMethod := aSortMethod;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
@@ -638,7 +638,7 @@ begin
 
   //Scan will launch upon create automatcally
   fScanning := True;
-  fScanner := TTMapsScanner.Create(fMultiplayerPath, MapAdd, MapAddDone, ScanComplete);
+  fScanner := TTMapsScanner.Create(fMapFolder, MapAdd, MapAddDone, ScanComplete);
 end;
 
 
@@ -739,7 +739,7 @@ end;
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added
 //aOnComplete - scan is complete
-constructor TTMapsScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+constructor TTMapsScanner.Create(aMapFolder: TMapFolder; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
@@ -747,7 +747,7 @@ begin
 
   Assert(Assigned(aOnMapAdd));
 
-  fMultiplayerPath := aMultiplayerPath;
+  fMapFolder := aMapFolder;
   fOnMapAdd := aOnMapAdd;
   fOnMapAddDone := aOnMapAddDone;
   OnTerminate := aOnComplete;
@@ -761,17 +761,17 @@ var
   PathToMaps: string;
   Map: TKMapInfo;
 begin
-  PathToMaps := ExeDir + MAP_FOLDER[MAP_FOLDER_TYPE_MP[fMultiplayerPath]] + PathDelim;
+  PathToMaps := ExeDir + MAP_FOLDER[fMapFolder] + PathDelim;
 
   if not DirectoryExists(PathToMaps) then Exit;
 
   FindFirst(PathToMaps + '*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', fMultiplayerPath))
-    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', fMultiplayerPath)) then
+    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', fMapFolder))
+    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', fMapFolder)) then
     begin
-      Map := TKMapInfo.Create(SearchRec.Name, false, MAP_FOLDER_TYPE_MP[fMultiplayerPath]);
+      Map := TKMapInfo.Create(SearchRec.Name, false, fMapFolder);
       if SLOW_MAP_SCAN then
         Sleep(50);
       fOnMapAdd(Map);

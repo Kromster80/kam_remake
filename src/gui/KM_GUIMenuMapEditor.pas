@@ -54,7 +54,7 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor;
+uses KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults;
 
 
 const
@@ -71,8 +71,8 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  fMaps := TKMapsCollection.Create(False);
-  fMapsMP := TKMapsCollection.Create(True);
+  fMaps := TKMapsCollection.Create(mfSP);
+  fMapsMP := TKMapsCollection.Create(mfMP);
   fMinimap := TKMMinimap.Create(True, True);
 
   Panel_MapEd:=TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);

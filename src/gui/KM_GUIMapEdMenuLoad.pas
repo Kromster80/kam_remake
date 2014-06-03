@@ -36,7 +36,8 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_InterfaceMapEditor;
+  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceGame,
+  KM_InterfaceMapEditor, KM_Defaults;
 
 
 { TKMMapEdMenuLoad }
@@ -46,8 +47,8 @@ begin
 
   fOnDone := aOnDone;
 
-  fMaps := TKMapsCollection.Create(False);
-  fMapsMP := TKMapsCollection.Create(True);
+  fMaps := TKMapsCollection.Create(mfSP);
+  fMapsMP := TKMapsCollection.Create(mfMP);
 
   Panel_Load := TKMPanel.Create(aParent,0,45,TB_WIDTH,400);
   TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], fnt_Outline, taLeft);
