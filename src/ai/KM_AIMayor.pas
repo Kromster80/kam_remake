@@ -339,6 +339,7 @@ var
   Loc: TKMPoint;
   P: TKMHand;
   NodeTagList: TKMPointTagList;
+  Weight: Cardinal;
 begin
   Result := False;
   P := gHands[fOwner];
@@ -373,10 +374,20 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 2, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
+      for I := Min(Loc.Y - 2, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
       for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
-          NodeTagList.Add(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
+        begin
+          //Base weight is distance from door (weight X higher so nice rectangle is formed)
+          Weight := Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y);
+          //Prefer fields below the farm
+          if (I < Loc.Y + 2) then
+            Inc(Weight, 100);
+          //Avoid building on row with roads (so we can expand from this house)
+          if I = Loc.Y + 1 then
+            Inc(Weight, 1000);
+          NodeTagList.Add(KMPoint(K, I), Weight);
+        end;
 
       NodeTagList.SortByTag;
       for I := 0 to Min(NodeTagList.Count, 16) - 1 do
@@ -391,10 +402,20 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 1, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
+      for I := Min(Loc.Y - 2, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
       for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Wine) then
-          NodeTagList.Add(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
+        begin
+          //Base weight is distance from door (weight X higher so nice rectangle is formed)
+          Weight := Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y);
+          //Prefer fields below the farm
+          if (I < Loc.Y + 2) then
+            Inc(Weight, 100);
+          //Avoid building on row with roads (so we can expand from this house)
+          if I = Loc.Y + 1 then
+            Inc(Weight, 1000);
+          NodeTagList.Add(KMPoint(K, I), Weight);
+        end;
 
       NodeTagList.SortByTag;
       for I := 0 to Min(NodeTagList.Count, 10) - 1 do

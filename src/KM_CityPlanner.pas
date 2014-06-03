@@ -56,7 +56,7 @@ type
 
 const
   AI_FIELD_HEIGHT = 3;
-  AI_FIELD_WIDTH = 3;
+  AI_FIELD_WIDTH = 4;
   AI_FIELD_MAX_AREA = (AI_FIELD_WIDTH * 2 + 1) * AI_FIELD_HEIGHT;
 
 
@@ -185,9 +185,12 @@ function TKMCityPlanner.NextToGrass(aHouse: THouseType; aSeed: array of THouseTy
     if gHands[fOwner].CanAddHousePlanAI(aX, aY, aHouse, True) then
     begin
       FieldCount := 0;
-      for I := Min(aY + 2, gTerrain.MapY - 1) to Max(aY + 2 + AI_FIELD_HEIGHT - 1, 1) do
+      for I := Min(aY - 2, gTerrain.MapY - 1) to Max(aY + 2 + AI_FIELD_HEIGHT - 1, 1) do
       for K := Max(aX - AI_FIELD_WIDTH, 1) to Min(aX + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
-      if gHands[fOwner].CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
+      if gHands[fOwner].CanAddFieldPlan(KMPoint(K,I), ft_Corn)
+      //Skip fields within actual house areas
+      and ((aHouse <> ht_Farm)     or not InRange(I, aY-2, aY) or not InRange(K, aX-2, aX+1))
+      and ((aHouse <> ht_Wineyard) or not InRange(I, aY-1, aY) or not InRange(K, aX-2, aX)) then
       begin
         Inc(FieldCount);
         //Request slightly more than we need to have a good choice
