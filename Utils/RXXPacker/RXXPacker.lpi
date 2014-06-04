@@ -302,8 +302,8 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\zlib;..\..\Common\pngimage;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\Overbyte ICS;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\zlib;..\..\Common\pngimage;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\Overbyte ICS"/>
+      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\Common\BGRABitmap;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\Common\BGRABitmap;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
