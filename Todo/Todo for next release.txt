@@ -19,9 +19,10 @@ Bugs:
  +	Reassigning host should not reset room password/description
  +	File transfers needs to not overwrite the original maps in some way (store in MapsDL folder)
  +	File send rate is throttled globally so multiple simultaneous transfers don't lag out the host
+ +	MapEd: Autoattack and "fast equip" AI config
+ +	MapEd: Button on mission tab to apply our default MP AI builder setup
 	Interface (on MapEd main menu?) for moving downloaded maps from MapsDL folder to MapsMP if you want to add them to your official list
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
-	Auto attack checkbox on AI attacks tab in MapEd (not to be confused with "auto attack range", that's unrelated. Should probably find less similar names...)
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position
  -      Create local server, run multiplayer game in 2nd window. You will get Range Check error instead of servers list: http://imgur.com/K27p2Tk (My fault, forgot to add needed sprite [Andreus])
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]

@@ -260,7 +260,11 @@ begin
   HidePages;
 
   if (Sender = Button_Main[1]) then fGuiTerrain.Show(ttBrush) else
-  if (Sender = Button_Main[2]) then fGuiTown.Show(ttHouses) else
+  if (Sender = Button_Main[2]) then
+  begin
+    fGuiTown.Show(ttHouses);
+    fGuiTown.ChangePlayer; //Player's AI status might have changed
+  end else
   if (Sender = Button_Main[3]) then fGuiPlayer.Show(ptGoals) else
   if (Sender = Button_Main[4]) then fGuiMission.Show(mtMode) else
   if (Sender = Button_Main[5]) then

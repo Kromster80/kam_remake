@@ -761,3 +761,10 @@
 807:Hide scripted overlay
 808:Show scripted overlay
 809:You cannot change host when the server is running in your client
+810:AI creates and manages attacks automatically
+811:Fast equip
+812:Soldiers are equipped as fast as possible. Equip rates still affect village planning
+813:Apply AI defaults
+814:Multiplayer builder
+815:Applies aggressive AI builder settings to all players (for multiplayer building maps)
+816:Warning: This will override all existing AI settings for all players. Continue?

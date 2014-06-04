@@ -17,6 +17,7 @@ type
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_OnDone(Sender: TObject);
     procedure Attacks_Refresh;
+    procedure AutoAttackClick(Sender: TObject);
     procedure SetAttackPopUp(aValue: TKMMapEdAttack);
   protected
     Panel_Offence: TKMPanel;
@@ -37,7 +38,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_Hand;
 
 
 { TKMMapEdTownOffence }
@@ -48,9 +49,9 @@ begin
   Panel_Offence := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
   TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ATTACK], fnt_Outline, taCenter);
 
-  CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fnt_Metal);
-  CheckBox_AutoAttack.Disable;
-  CheckBox_AutoAttack.Hide; //Not implemented yet
+  CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 24, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fnt_Metal);
+  CheckBox_AutoAttack.Hint := gResTexts[TX_MAPED_AI_ATTACK_AUTO_HINT];
+  CheckBox_AutoAttack.OnClick := AutoAttackClick;
 
   ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
   ColumnBox_Attacks.SetColumns(fnt_Outline,
@@ -147,6 +148,14 @@ begin
   end;
 
   Attacks_ListClick(nil);
+
+  CheckBox_AutoAttack.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoAttack;
+end;
+
+
+procedure TKMMapEdTownOffence.AutoAttackClick(Sender: TObject);
+begin
+  gHands[MySpectator.HandIndex].AI.Setup.AutoAttack := CheckBox_AutoAttack.Checked;
 end;
 
 

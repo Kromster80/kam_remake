@@ -28,6 +28,8 @@ type
     function GetEquipRate(aUnit: TUnitType): Word;
     function WarriorsPerMinute(aArmy: TArmyType): Single;
 
+    procedure ApplyAgressiveBuilderSetup;
+
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
@@ -83,6 +85,25 @@ begin
 
   //How many warriors we would need to equip per-minute
   Result := EnsureRange(600 / Max(EquipRate, 1), 0.1, 6);
+end;
+
+
+//Used from MapEd to give multiplayer building maps an AI builder config
+procedure TKMHandAISetup.ApplyAgressiveBuilderSetup;
+begin
+  SerfsPerHouse := 1;
+  WorkerCount := 20;
+  EquipRateLeather := 250;
+  EquipRateIron := 250;
+  AutoAttack := True;
+  AutoDefend := True;
+  DefendAllies := True;
+  UnlimitedEquip := True;
+  StartPosition := KMPoint(1,1); //So it is overridden by auto attack
+  MaxSoldiers := -1;
+  RecruitDelay := 0;
+  RecruitCount := 10;
+  AutoAttackRange := 4;
 end;
 
 

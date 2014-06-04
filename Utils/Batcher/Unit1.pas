@@ -467,6 +467,7 @@ begin
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE_IRON.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER RECRUTS.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_NO_BUILD.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_DEFENCE.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_DEFEND.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_DEFEND_ALLIES.*'+EolA, '');
