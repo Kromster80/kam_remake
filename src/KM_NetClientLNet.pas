@@ -37,7 +37,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function MyIPString:string;
-    function IsBufferEmpty: Boolean;
+    function SendBufferEmpty: Boolean;
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -72,7 +72,7 @@ begin
 end;
 
 
-function TKMNetClientLNet.IsBufferEmpty: Boolean;
+function TKMNetClientLNet.SendBufferEmpty: Boolean;
 begin
   Result := (fSocket = nil) or (fBufferLen = 0);
 end;
