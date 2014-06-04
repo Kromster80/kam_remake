@@ -47,6 +47,7 @@ type
     BreadProduction, SausagesProduction, WineProduction, FishProduction: Single;
     Production: Single; //How much food do we produce
     Consumption: Single; //How much food do we use
+    Reserve: Single;
     Balance: Single; //Resulting balance
   end;
   TKMWareBalanceWarfare = record
@@ -889,8 +890,14 @@ begin
     for UT := WARRIOR_MIN to WARRIOR_MAX do
        Consumption := Consumption + P.Stats.GetUnitQty(UT) / 2 / 40; //On average unit needs to eat each 40min
 
-    Balance := Production - Consumption;
-    fFoodText := Format('%.2f Food: %.2f - %.2f|', [Balance, Production, Consumption])
+    Reserve := gHands[fOwner].Stats.GetWareBalance(wt_Bread) * BREAD_RESTORE +
+               gHands[fOwner].Stats.GetWareBalance(wt_Sausages) * SAUSAGE_RESTORE +
+               gHands[fOwner].Stats.GetWareBalance(wt_Wine) * WINE_RESTORE +
+               gHands[fOwner].Stats.GetWareBalance(wt_Fish) * FISH_RESTORE;
+    Reserve := Reserve / Consumption;
+
+    Balance := Production - Consumption + Max(Reserve - 30, 0);
+    fFoodText := Format('%.2f Food: %.2f - %.2f + %.2f|', [Balance, Production, Consumption, Reserve])
                + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
                + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
                + Format('        Wine: W%.2f)|', [WineProduction])

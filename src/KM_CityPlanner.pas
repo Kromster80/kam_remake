@@ -189,7 +189,7 @@ function TKMCityPlanner.NextToGrass(aHouse: THouseType; aSeed: array of THouseTy
       for K := Max(aX - AI_FIELD_WIDTH, 1) to Min(aX + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
       if gHands[fOwner].CanAddFieldPlan(KMPoint(K,I), ft_Corn)
       //Skip fields within actual house areas
-      and ((aHouse <> ht_Farm)     or not InRange(I, aY-2, aY) or not InRange(K, aX-2, aX+1))
+      and ((aHouse <> ht_Farm)     or not InRange(I, aY-2, aY) or not InRange(K, aX-1, aX+2))
       and ((aHouse <> ht_Wineyard) or not InRange(I, aY-1, aY) or not InRange(K, aX-2, aX)) then
       begin
         Inc(FieldCount);
