@@ -24,14 +24,14 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r6209';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r6367';       //Should be updated for every release (each time save format is changed)
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
   {$ELSE}
     GAME_VERSION_POSTFIX  = ' (UNSECURE!)';
   {$ENDIF}
   GAME_VERSION_PREFIX   = 'Next Demo'; //Game version string displayed in menu corner
-  GAME_VERSION          = GAME_VERSION_PREFIX + ' ' + GAME_REVISION + GAME_VERSION_POSTFIX;
+  GAME_VERSION          = GAME_VERSION_PREFIX + ' ' + GAME_REVISION + ' Nightly' + GAME_VERSION_POSTFIX;
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
@@ -49,7 +49,7 @@ var
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
   DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction

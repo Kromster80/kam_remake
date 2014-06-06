@@ -103,7 +103,7 @@ begin
   MaxSoldiers := -1;
   RecruitDelay := 0;
   RecruitCount := 10;
-  AutoAttackRange := 4;
+  AutoAttackRange := 6;
 end;
 
 
