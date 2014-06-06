@@ -2,7 +2,8 @@ unit KM_FileIO;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF FPC} lconvencoding, {$ENDIF}
+  {$IFDEF FPC} lconvencoding, FileUtil, {$ENDIF}
+  {$IFDEF WDC} System.IOUtils, {$ENDIF}
   Classes, SysUtils;
 
 //Read text file into ANSI string (scripts, locale texts)
@@ -10,6 +11,9 @@ function ReadTextA(afilename: UnicodeString): AnsiString;
 
 //Read text file into unicode string (locale texts)
 function ReadTextU(afilename: UnicodeString; aEncoding: Word): UnicodeString;
+
+//Copy a file (CopyFile is different between Delphi and Lazarus)
+procedure KMCopyFile(aSrc, aDest: UnicodeString);
 
 
 implementation
@@ -63,6 +67,17 @@ begin
   finally
     SL.Free;
   end;
+end;
+
+
+procedure KMCopyFile(aSrc, aDest: UnicodeString);
+begin
+  {$IFDEF FPC}
+  CopyFile(aSrc, aDest);
+  {$ENDIF}
+  {$IFDEF WDC}
+  TFile.Copy(aSrc, aDest);
+  {$ENDIF}
 end;
 
 

@@ -7,7 +7,7 @@ uses
   {$IFDEF WDC} UITypes, {$ENDIF}
   Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
-  KM_CommonTypes, KM_Defaults, KM_Points,
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_FileIO,
   KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_MapEditor, KM_Networking, KM_Scripting, KM_Campaigns,
@@ -1223,7 +1223,7 @@ begin
 
   //Copy basesave so we have a starting point for replay
   DeleteFile(SaveName(aSaveName, 'bas', IsMultiplayer));
-  CopyFile(PChar(SaveName('basesave', 'bas', IsMultiplayer)), PChar(SaveName(aSaveName, 'bas', IsMultiplayer)), False);
+  KMCopyFile(SaveName('basesave', 'bas', IsMultiplayer), SaveName(aSaveName, 'bas', IsMultiplayer));
 
   //Save replay queue
   gLog.AddTime('Saving replay info');
@@ -1345,7 +1345,7 @@ begin
   if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
   begin
     DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
-    CopyFile(PChar(ChangeFileExt(aPathName, '.bas')), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
+    KMCopyFile(ChangeFileExt(aPathName, '.bas'), SaveName('basesave', 'bas', IsMultiplayer));
   end;
 
   //Repeat mission init if necessary
