@@ -626,7 +626,8 @@ begin
         Continue;
       if not gHands[fOwner].Units[I].IsDeadOrDying
       and (gHands[fOwner].Units[I].GetUnitAction is TUnitActionWalkTo) then
-        if ((gHands[fOwner].Units[I] is TKMUnitSerf) and (gHands[fOwner].Units[I].UnitTask is TTaskDeliver))
+        if ((gHands[fOwner].Units[I] is TKMUnitSerf) and (gHands[fOwner].Units[I].UnitTask is TTaskDeliver)
+                                                     and (TTaskDeliver(gHands[fOwner].Units[I].UnitTask).DeliverKind <> dk_ToUnit))
         or ((gHands[fOwner].Units[I] is TKMUnitCitizen) and (gHands[fOwner].Units[I].UnitTask is TTaskGoEat)) then
         begin
           FromLoc := TUnitActionWalkTo(gHands[fOwner].Units[I].GetUnitAction).WalkFrom;
