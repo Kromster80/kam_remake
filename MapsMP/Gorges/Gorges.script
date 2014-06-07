@@ -1,37 +1,40 @@
-  procedure OnMissionStart;
-    var
-      Warriors: array of Integer;
-      I, K: Integer;
-        begin
-          for I := 0 to 5 do
-           if States.PlayerEnabled(I) then begin
-            Warriors := States.PlayerGetAllUnits(I);
-             for K := 0 to Length(Warriors) - 1 do
-              Actions.UnitHungerSet(Warriors[K], 6000);    //10 minutes to win (10*60*10 ticks)
-            end;
-          end;
+procedure OnMissionStart;
+var
+  Warriors: array of Integer;
+  I, K: Integer;
+begin
+  for I := 0 to 5 do
+    if States.PlayerEnabled(I) then
+    begin
+      Warriors := States.PlayerGetAllUnits(I);
+      for K := 0 to Length(Warriors) - 1 do
+        Actions.UnitHungerSet(Warriors[K], 6000);//10 minutes to win (10*60*10 ticks)
+    end;
+end;
 
 
 //Anti-camping :P Camper will lose anyway.
 
-  procedure OnTick;
-    var
-      Warriors: array of Integer;
-      I, K: Integer;
+procedure OnTick;
+var
+  Warriors: array of Integer;
+  I, K: Integer;
+begin
+  if States.GameTime > 1200 then
+    if States.GameTime mod 10 = 0 then
+    begin
+      for I := 0 to 5 do
+        if States.PlayerEnabled(I) then
         begin
-          if States.GameTime > 1200 then
-           if States.GameTime mod 10 = 0 then begin
-            for I := 0 to 5 do
-             if States.PlayerEnabled(I) then begin
-               Warriors := States.PlayerGetAllUnits(I);
-                for K := 0 to Length(Warriors) - 1 do
-                 if (States.UnitPositionY(Warriors[K]) > 55)
-                 and (States.UnitPositionY(Warriors[K]) < 89) then 
-                  Actions.UnitHungerSet(Warriors[K], States.UnitHunger(Warriors[K]) + 10)     //Warriors are fighting in the middle: increase condition (+10 per second)
-                 else                 
-                  if (States.UnitPositionY(Warriors[K]) < 55)
-                  or (States.UnitPositionY(Warriors[K]) > 89) then
-                   Actions.UnitHungerSet(Warriors[K], States.UnitHunger(Warriors[K]) - 10);   //Warriors are camping - they get a penalty: decrease condition (-10 per second)
-                 end;
-               end;
-             end;  
+          Warriors := States.PlayerGetAllUnits(I);
+          for K := 0 to Length(Warriors) - 1 do
+            if (States.UnitPositionY(Warriors[K]) > 55)
+            and (States.UnitPositionY(Warriors[K]) < 89) then 
+              Actions.UnitHungerSet(Warriors[K], States.UnitHunger(Warriors[K]) + 10)    //Warriors are fighting in the middle: increase condition (+10 per second)
+            else 
+            if (States.UnitPositionY(Warriors[K]) < 55)
+            or (States.UnitPositionY(Warriors[K]) > 89) then
+              Actions.UnitHungerSet(Warriors[K], States.UnitHunger(Warriors[K]) - 10);   //Warriors are camping - they get a penalty: decrease condition (-10 per second)
+        end;
+    end;
+end;
