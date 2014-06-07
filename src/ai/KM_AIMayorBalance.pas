@@ -316,7 +316,7 @@ end;
 
 procedure TKMayorBalance.AppendWeaponry;
 const
-  MAX_WEAPON_TYPES = Byte(WARFARE_MAX)-Byte(WARFARE_MIN);
+  MAX_WEAPON_TYPES = Byte(WARFARE_MAX) - Byte(WARFARE_MIN) + 1;
 var
   I, TmpWare: TWareType;
   Tmp: Single;
