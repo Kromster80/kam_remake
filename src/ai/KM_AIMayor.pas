@@ -161,6 +161,32 @@ var
       Result := False;
   end;
 
+  function RecruitsNeeded: Integer;
+  var AxesLeft: Integer;
+  begin
+    if P.Stats.GetHouseQty(ht_Barracks) = 0 then
+      Result := 0
+    else
+      if gGame.IsPeaceTime then
+      begin
+        //Keep enough recruits to equip using all weapons once PT ends
+        //Iron soldiers
+        Result := Min(P.Stats.GetWareBalance(wt_MetalArmor),
+                      P.Stats.GetWareBalance(wt_Arbalet) + P.Stats.GetWareBalance(wt_Hallebard)
+                      + Min(P.Stats.GetWareBalance(wt_Sword), P.Stats.GetWareBalance(wt_MetalShield)));
+        //Leather soldiers we can make
+        Inc(Result, Min(P.Stats.GetWareBalance(wt_Armor),
+                        P.Stats.GetWareBalance(wt_Bow) + P.Stats.GetWareBalance(wt_Pike)
+                        + Min(P.Stats.GetWareBalance(wt_Axe), P.Stats.GetWareBalance(wt_Shield))));
+        //Militia with leftover axes
+        AxesLeft := P.Stats.GetWareBalance(wt_Axe) - Min(P.Stats.GetWareBalance(wt_Armor), P.Stats.GetWareBalance(wt_Shield));
+        if AxesLeft > 0 then
+          Inc(Result, AxesLeft);
+      end
+      else
+        Result := fSetup.RecruitCount * P.Stats.GetHouseQty(ht_Barracks);
+  end;
+
 var
   I,K: Integer;
   H: THouseType;
@@ -220,7 +246,7 @@ begin
             if not gGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
               Break
             else
-              if not TryAddToQueue(ut_Recruit, fSetup.RecruitCount * P.Stats.GetHouseQty(ht_Barracks)) then
+              if not TryAddToQueue(ut_Recruit, RecruitsNeeded) then
                 Break; //There's no unit demand at all
     end;
   end;
