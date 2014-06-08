@@ -10,7 +10,7 @@ uses
 type
   TKMGeneral = class
   private
-    fLastEquippedTime: Cardinal;
+    fLastEquippedTimeIron, fLastEquippedTimeLeather: Cardinal;
     fOwner: THandIndex;
     fSetup: TKMHandAISetup;
     fAttacks: TAIAttacks;
@@ -89,7 +89,8 @@ end;
 procedure TKMGeneral.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
-  SaveStream.Write(fLastEquippedTime);
+  SaveStream.Write(fLastEquippedTimeIron);
+  SaveStream.Write(fLastEquippedTimeLeather);
   fAttacks.Save(SaveStream);
   fDefencePositions.Save(SaveStream);
 end;
@@ -98,7 +99,8 @@ end;
 procedure TKMGeneral.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
-  LoadStream.Read(fLastEquippedTime);
+  LoadStream.Read(fLastEquippedTimeIron);
+  LoadStream.Read(fLastEquippedTimeLeather);
   fAttacks.Load(LoadStream);
   fDefencePositions.Load(LoadStream);
 end;
@@ -111,13 +113,23 @@ end;
 
 
 procedure TKMGeneral.CheckArmyCount;
+
+  function CanEquipIron: Boolean;
+  begin
+    Result := fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeIron + fSetup.EquipRateIron);
+  end;
+
+  function CanEquipLeather: Boolean;
+  begin
+    Result := fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeLeather + fSetup.EquipRateLeather);
+  end;
+
 var
   Barracks: array of TKMHouseBarracks;
   HB: TKMHouseBarracks;
   GT: TGroupType;
   I,K: Integer;
   UT: TUnitType;
-  TrainedSomething, CanEquipIron, CanEquipLeather: Boolean;
   GroupReq: TGroupTypeArray;
 begin
   if gGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
@@ -125,10 +137,6 @@ begin
   //Don't train if we have reached our limit
   if (fSetup.MaxSoldiers <> -1) and (gHands[fOwner].Stats.GetArmyCount >= fSetup.MaxSoldiers) then
     Exit;
-
-  //Delay between equipping soldiers for KaM compatibility
-  CanEquipIron := gGame.CheckTime(fLastEquippedTime + fSetup.EquipRateIron);
-  CanEquipLeather := gGame.CheckTime(fLastEquippedTime + fSetup.EquipRateLeather);
 
   if not CanEquipIron and not CanEquipLeather then Exit;
 
@@ -173,23 +181,21 @@ begin
 
     for K := 1 to 3 do
     begin
-      TrainedSomething := False;
       UT := AITroopTrainOrder[GT, K];
-      if (UT <> ut_None)
-      and ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON))) then
-        while HB.CanEquip(UT)
+      if (UT <> ut_None) then
+        while ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON)))
+        and HB.CanEquip(UT)
         and (GroupReq[GT] > 0)
         and ((fSetup.MaxSoldiers = -1) or (gHands[fOwner].Stats.GetArmyCount < fSetup.MaxSoldiers)) do
         begin
           HB.Equip(UT, 1);
           Dec(GroupReq[GT]);
-          TrainedSomething := True;
-          fLastEquippedTime := gGame.GameTickCount; //Only reset it when we actually trained something
-          if not fSetup.UnlimitedEquip and (fSetup.GetEquipRate(UT) > 0) then
-            Break; //Only equip 1 soldier when we have a restricted equip rate
+          //Only reset it when we actually trained something (in IronThenLeather mode we don't count them separately)
+          if (UT in WARRIORS_IRON) or (fSetup.ArmyType = atIronThenLeather) then
+            fLastEquippedTimeIron := gGame.GameTickCount;
+          if not (UT in WARRIORS_IRON) or (fSetup.ArmyType = atIronThenLeather) then
+            fLastEquippedTimeLeather := gGame.GameTickCount;
         end;
-      if TrainedSomething and not fSetup.UnlimitedEquip and (fSetup.GetEquipRate(UT) > 0) then
-        Break; //Only equip 1 soldier when we have a restricted equip rate
     end;
   end;
 end;

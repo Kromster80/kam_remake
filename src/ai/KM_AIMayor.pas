@@ -21,7 +21,6 @@ type
     fAutoRepair: Boolean;
 
     fRoadBelowStore: Boolean;
-    fArmyType: TArmyType;
 
     ShieldNeed: Single;
     ArmorNeed: Single;
@@ -36,8 +35,6 @@ type
     function TryBuildHouse(aHouse: THouseType): Boolean;
     function TryConnectToRoad(aLoc: TKMPoint): Boolean;
     function GetMaxPlans: Byte;
-
-    procedure CheckStrategy;
 
     procedure CheckUnitCount;
     procedure CheckWareFlow;
@@ -128,7 +125,6 @@ end;
 procedure TKMayor.AfterMissionInit;
 begin
   fCityPlanner.AfterMissionInit;
-  CheckStrategy;
   CheckArmyDemand;
   fBalance.StoneNeed := GetMaxPlans * 2.5;
 end;
@@ -655,35 +651,6 @@ begin
 end;
 
 
-procedure TKMayor.CheckStrategy;
-var
-  Store: TKMHouse;
-  StoreLoc, T: TKMPoint;
-begin
-  Store := gHands[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
-  if Store = nil then Exit;
-  StoreLoc := Store.GetEntrance;
-
-  //AI will be Wooden if there is no iron/coal nearby
-  if (gHands[fOwner].PlayerType = hndComputer) and fSetup.AutoBuild then
-  begin
-    //todo: Add preferred army type selector to MapEd
-    if (fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnIron, T) and fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnCoal, T)) then
-      if KaMRandom < 0 then
-        //Sometimes AI will be pure Iron
-        fArmyType := atIron
-      else
-        //Usually AI will do both
-        fArmyType := atLeatherIron
-    else
-      //If there's no iron ore or coal
-      fArmyType := atLeather;
-  end;
-
-  fBalance.ArmyType := fArmyType;
-end;
-
-
 procedure TKMayor.OwnerUpdate(aPlayer: THandIndex);
 begin
   fOwner := aPlayer;
@@ -699,22 +666,16 @@ end;
 procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
 
   function IsIronProduced: Boolean;
-  var I: Integer;
   begin
-    Result := False;
-    for I := 0 to gHands[fOwner].Houses.Count-1 do
-      if (gHands[fOwner].Houses[I].HouseType = ht_IronMine)
-      and not gHands[fOwner].Houses[I].ResourceDepletedMsgIssued then
-      begin
-        Result := True;
-        Exit;
-      end;
+    Result := (  gHands[fOwner].Stats.GetHouseQty(ht_IronMine)
+               + gHands[fOwner].Stats.GetHouseWip(ht_IronMine)
+               + gHands[fOwner].Stats.GetHousePlans(ht_IronMine)) > 0;
   end;
 
 var
   Summ: Single;
   Footmen, Pikemen, Horsemen, Archers: Single;
-  WarPerMin: Single;
+  IronPerMin, LeatherPerMin: Single;
 begin
   Summ := aFootmen + aPikemen + aHorsemen + aArchers;
   if Summ = 0 then
@@ -741,12 +702,19 @@ begin
   HorseNeed := Horsemen;
 
   //How many warriors we would need to equip per-minute
-  WarPerMin := fSetup.WarriorsPerMinute(fArmyType);
-  if IsIronProduced then
-    WarPerMin := WarPerMin / 2; //Half leather half iron
+  IronPerMin := fSetup.WarriorsPerMinute(atIron);
+  LeatherPerMin := fSetup.WarriorsPerMinute(atLeather);
+
+  //If the AI is meant to make both but runs out, we must make it up with leather
+  if (fSetup.ArmyType = atIronAndLeather) and not IsIronProduced then
+    LeatherPerMin := LeatherPerMin + IronPerMin; //Once iron runs out start making leather to replace it
+
+  //Make only iron first then if it runs out make leather
+  if (fSetup.ArmyType = atIronThenLeather) and IsIronProduced then
+    LeatherPerMin := 0; //Don't make leather until the iron runs out
 
   //Update warfare needs accordingly
-  fBalance.SetArmyDemand(ShieldNeed * WarPerMin, ArmorNeed * WarPerMin, AxeNeed * WarPerMin, PikeNeed * WarPerMin, BowNeed * WarPerMin, HorseNeed * WarPerMin);
+  fBalance.SetArmyDemand(IronPerMin, LeatherPerMin, ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed);
 end;
 
 
@@ -797,7 +765,6 @@ begin
   SaveStream.Write(fOwner);
   SaveStream.Write(fAutoRepair);
   SaveStream.Write(fRoadBelowStore);
-  SaveStream.Write(fArmyType, SizeOf(TArmyType));
 
   SaveStream.Write(ShieldNeed);
   SaveStream.Write(ArmorNeed);
@@ -818,7 +785,6 @@ begin
   LoadStream.Read(fOwner);
   LoadStream.Read(fAutoRepair);
   LoadStream.Read(fRoadBelowStore);
-  LoadStream.Read(fArmyType, SizeOf(TArmyType));
 
   LoadStream.Read(ShieldNeed);
   LoadStream.Read(ArmorNeed);

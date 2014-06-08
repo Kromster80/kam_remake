@@ -768,3 +768,8 @@
 814:Multiplayer builder
 815:Applies aggressive AI builder settings to all players (for multiplayer building maps)
 816:Warning: This will override all existing AI settings for all players. Continue?
+817:Army type
+818:Iron then leather
+819:Iron
+820:Leather
+821:Mixed

@@ -378,7 +378,7 @@ type
   TGroupTypeArray = array [TGroupType] of Word;
   TGroupTypeSet = set of TGroupType;
 
-  TArmyType = (atLeather, atIron, atLeatherIron);
+  TArmyType = (atIronThenLeather=0, atLeather=1, atIron=2, atIronAndLeather=3);
 
 const
   KaMGroupType: array [TGroupType] of Byte = (0, 1, 2, 3);

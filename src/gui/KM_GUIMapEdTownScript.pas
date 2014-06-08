@@ -17,6 +17,7 @@ type
     TrackBar_SerfsPer10Houses: TKMTrackBar;
     TrackBar_WorkerCount: TKMTrackBar;
     CheckBox_UnlimitedEquip: TKMCheckBox;
+    DropBox_ArmyType: TKMDropList;
     TrackBar_EquipRateLeather: TKMTrackBar;
     TrackBar_EquipRateIron: TKMTrackBar;
     Button_AIStart: TKMButtonFlat;
@@ -53,22 +54,30 @@ begin
   TrackBar_WorkerCount.Caption := gResTexts[TX_MAPED_AI_WORKERS];
   TrackBar_WorkerCount.OnChange := Town_ScriptChange;
 
-  CheckBox_UnlimitedEquip := TKMCheckBox.Create(Panel_Script, 0, 156, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_FASTEQUIP], fnt_Metal);
+  TKMLabel.Create(Panel_Script, 0, 156, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ARMY_TYPE], fnt_Outline, taCenter);
+  DropBox_ArmyType := TKMDropList.Create(Panel_Script, 0, 176, TB_WIDTH, 20, fnt_Metal, '', bsGame);
+  DropBox_ArmyType.OnChange := Town_ScriptChange;
+  DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_IRON_THEN_LEATHER], Byte(atIronThenLeather));
+  DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_IRON],              Byte(atIron));
+  DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_LEATHER],           Byte(atLeather));
+  DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_MIXED],             Byte(atIronAndLeather));
+
+  CheckBox_UnlimitedEquip := TKMCheckBox.Create(Panel_Script, 0, 200, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_FASTEQUIP], fnt_Metal);
   CheckBox_UnlimitedEquip.OnClick := Town_ScriptChange;
   CheckBox_UnlimitedEquip.Hint := gResTexts[TX_MAPED_AI_FASTEQUIP_HINT];
 
-  TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Script, 0, 176, TB_WIDTH, 10, 300);
+  TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Script, 0, 216, TB_WIDTH, 10, 300);
   TrackBar_EquipRateLeather.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
   TrackBar_EquipRateLeather.Step := 5;
   TrackBar_EquipRateLeather.OnChange := Town_ScriptChange;
 
-  TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Script, 0, 220, TB_WIDTH, 10, 300);
+  TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Script, 0, 260, TB_WIDTH, 10, 300);
   TrackBar_EquipRateIron.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
   TrackBar_EquipRateIron.Step := 5;
   TrackBar_EquipRateIron.OnChange := Town_ScriptChange;
 
-  TKMLabel.Create(Panel_Script, 0, 270, gResTexts[TX_MAPED_AI_START], fnt_Metal, taLeft);
-  Button_AIStart         := TKMButtonFlat.Create(Panel_Script, 0, 290, 33, 33, 62, rxGuiMain);
+  TKMLabel.Create(Panel_Script, 0, 310, gResTexts[TX_MAPED_AI_START], fnt_Metal, taLeft);
+  Button_AIStart         := TKMButtonFlat.Create(Panel_Script, 0, 330, 33, 33, 62, rxGuiMain);
   Button_AIStart.Hint    := gResTexts[TX_MAPED_AI_START_HINT];
   Button_AIStart.OnClick := Town_ScriptChange;
 end;
@@ -83,6 +92,14 @@ begin
   CheckBox_UnlimitedEquip.Checked := gHands[MySpectator.HandIndex].AI.Setup.UnlimitedEquip;
   TrackBar_EquipRateLeather.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather div 10;
   TrackBar_EquipRateIron.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron div 10;
+  DropBox_ArmyType.SelectByTag(Byte(gHands[MySpectator.HandIndex].AI.Setup.ArmyType));
+
+  TrackBar_EquipRateLeather.Enable;
+  TrackBar_EquipRateIron.Enable;
+  case gHands[MySpectator.HandIndex].AI.Setup.ArmyType of
+    atLeather: TrackBar_EquipRateIron.Disable;
+    atIron:    TrackBar_EquipRateLeather.Disable;
+  end;
 end;
 
 
@@ -95,6 +112,14 @@ begin
   gHands[MySpectator.HandIndex].AI.Setup.UnlimitedEquip := CheckBox_UnlimitedEquip.Checked;
   gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+  gHands[MySpectator.HandIndex].AI.Setup.ArmyType := TArmyType(DropBox_ArmyType.GetSelectedTag);
+
+  TrackBar_EquipRateLeather.Enable;
+  TrackBar_EquipRateIron.Enable;
+  case gHands[MySpectator.HandIndex].AI.Setup.ArmyType of
+    atLeather: TrackBar_EquipRateIron.Disable;
+    atIron:    TrackBar_EquipRateLeather.Disable;
+  end;
 
   if Sender = Button_AIStart then
     Button_AIStart.Down := not Button_AIStart.Down;

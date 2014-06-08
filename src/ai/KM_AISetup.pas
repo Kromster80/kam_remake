@@ -14,6 +14,7 @@ type
     AutoDefend: Boolean;
     DefendAllies: Boolean;
     UnlimitedEquip: Boolean;
+    ArmyType: TArmyType;
     EquipRateLeather, EquipRateIron: Word; //Number of ticks between soldiers being equipped. Seperated into Leather/Iron to keep KaM compatibility.
     MaxSoldiers: Integer; //-1 means not used or default
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
@@ -26,7 +27,8 @@ type
 
     constructor Create;
     function GetEquipRate(aUnit: TUnitType): Word;
-    function WarriorsPerMinute(aArmy: TArmyType): Single;
+    function WarriorsPerMinute(aArmy: TArmyType): Single; overload;
+    function WarriorsPerMinute: Single; overload;
 
     procedure ApplyAgressiveBuilderSetup;
 
@@ -50,6 +52,7 @@ begin
   AutoDefend := False; //It did not exist in KaM, we add it, Off by default
   DefendAllies := False; //It did not exist in KaM, we add it, Off by default (tested by Lewin, AI doesn't defend allies in TPR)
 
+  ArmyType := atIronThenLeather; //By default make iron soldiers, and if that fails make leather (same as TPR)
   EquipRateIron := 500; //Measured in KaM: AI equips 1 iron soldier every ~50 seconds
   EquipRateLeather := 1000; //Measured in KaM: AI equips 1 leather soldier every ~100 seconds (if no iron one was already equipped)
   MaxSoldiers := -1; //No limit by default
@@ -73,18 +76,26 @@ end;
 
 
 function TKMHandAISetup.WarriorsPerMinute(aArmy: TArmyType): Single;
-var
-  EquipRate: Single;
-begin
-  case aArmy of
-    atLeather:      EquipRate := EquipRateLeather;
-    atIron:         EquipRate := EquipRateIron;
-    atLeatherIron:  EquipRate := Max(EquipRateLeather, EquipRateIron);
-    else            EquipRate := 0;
+
+  function EquipRateToPerMin(EquipRate: Cardinal): Single;
+  begin
+    Result := EnsureRange(600 / Max(EquipRate, 1), 0.1, 6);
   end;
 
-  //How many warriors we would need to equip per-minute
-  Result := EnsureRange(600 / Max(EquipRate, 1), 0.1, 6);
+begin
+  case aArmy of
+    atIronThenLeather: Result := Max(EquipRateToPerMin(EquipRateLeather), EquipRateToPerMin(EquipRateIron));
+    atLeather:         Result := EquipRateToPerMin(EquipRateLeather);
+    atIron:            Result := EquipRateToPerMin(EquipRateIron);
+    atIronAndLeather:  Result := EquipRateToPerMin(EquipRateLeather) + EquipRateToPerMin(EquipRateIron);
+    else               Result := 0;
+  end;
+end;
+
+
+function TKMHandAISetup.WarriorsPerMinute: Single;
+begin
+  Result := WarriorsPerMinute(ArmyType);
 end;
 
 
@@ -93,8 +104,9 @@ procedure TKMHandAISetup.ApplyAgressiveBuilderSetup;
 begin
   SerfsPerHouse := 1;
   WorkerCount := 20;
-  EquipRateLeather := 250;
-  EquipRateIron := 250;
+  ArmyType := atIronAndLeather; //Mixed army
+  EquipRateLeather := 500;
+  EquipRateIron := 500;
   AutoAttack := True;
   AutoDefend := True;
   DefendAllies := True;
@@ -115,6 +127,7 @@ begin
   SaveStream.Write(AutoDefend);
   SaveStream.Write(DefendAllies);
   SaveStream.Write(UnlimitedEquip);
+  SaveStream.Write(ArmyType, SizeOf(ArmyType));
   SaveStream.Write(EquipRateLeather);
   SaveStream.Write(EquipRateIron);
   SaveStream.Write(MaxSoldiers);
@@ -136,6 +149,7 @@ begin
   LoadStream.Read(AutoDefend);
   LoadStream.Read(DefendAllies);
   LoadStream.Read(UnlimitedEquip);
+  LoadStream.Read(ArmyType, SizeOf(ArmyType));
   LoadStream.Read(EquipRateLeather);
   LoadStream.Read(EquipRateIron);
   LoadStream.Read(MaxSoldiers);

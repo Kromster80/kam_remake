@@ -126,7 +126,6 @@ type
     procedure UpdateBalanceIron;
     procedure UpdateBalanceWarfare;
   public
-    ArmyType: TArmyType;
     GoldNeed: Single; //How much gold the town needs per minute (may change over time)
     StoneNeed: Single; //How much building materials do we need for city development
     WoodNeed: Single; //How much building materials do we need for city development
@@ -137,7 +136,7 @@ type
     function Peek: THouseType;
     procedure Take;
     procedure Reject;
-    procedure SetArmyDemand(ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed: Single);
+    procedure SetArmyDemand(IronPerMin, LeatherPerMin, ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed: Single);
     function BalanceText: UnicodeString;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -170,11 +169,12 @@ end;
 
 function TKMayorBalance.WeaponUsed(aWare: TWareType): Boolean;
 begin
-  case ArmyType of
-    atLeather:      Result := aWare in [wt_Shield, wt_Armor, wt_Axe, wt_Pike, wt_Bow, wt_Horse];
-    atIron:         Result := aWare in [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet, wt_Horse];
-    atLeatherIron:  Result := True;
-    else            Result := False;
+  case gHands[fOwner].AI.Setup.ArmyType of
+    atLeather:         Result := aWare in [wt_Shield, wt_Armor, wt_Axe, wt_Pike, wt_Bow, wt_Horse];
+    atIron:            Result := aWare in [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet, wt_Horse];
+    atIronAndLeather:  Result := True;
+    atIronThenLeather: Result := True;
+    else               Result := False;
   end;
 end;
 
@@ -628,7 +628,7 @@ begin
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
 
     //How much Gold do we need
-    Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * gHands[fOwner].AI.Setup.WarriorsPerMinute(ArmyType);
+    Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * gHands[fOwner].AI.Setup.WarriorsPerMinute;
 
     //How much reserve do we have
     Reserve := gHands[fOwner].Stats.GetWareBalance(wt_Gold) / Consumption;
@@ -764,7 +764,7 @@ begin
     //Balance = Available - Required + Reserve
     StoreBalance    := HouseCount(ht_Store)       - 1; //HouseCount(ht_Any) / 35;
     //Build 2 schools if we need to equip a lot of warriors per minute
-    SchoolBalance   := HouseCount(ht_School)      - 1 - Byte((gHands[fOwner].Stats.GetHouseQty(ht_Barracks) > 0) and (gHands[fOwner].AI.Setup.WarriorsPerMinute(ArmyType) > 2));
+    SchoolBalance   := HouseCount(ht_School)      - 1 - Byte((gHands[fOwner].Stats.GetHouseQty(ht_Barracks) > 0) and (gHands[fOwner].AI.Setup.WarriorsPerMinute > 2));
     InnBalance      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
     BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
     TowerBalance    := HouseCount(ht_WatchTower) - 2 * gHands[fOwner].Stats.GetHouseQty(ht_Barracks);
@@ -908,22 +908,22 @@ end;
 
 
 //Tell Mayor what proportions of army is needed
-procedure TKMayorBalance.SetArmyDemand(ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed: Single);
+procedure TKMayorBalance.SetArmyDemand(IronPerMin, LeatherPerMin, ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed: Single);
 begin
   //Convert army request into how many weapons are needed
   with fWarfare do
   begin
-    Warfare[wt_Shield].Demand := ShieldNeed;
-    Warfare[wt_MetalShield].Demand := ShieldNeed;
-    Warfare[wt_Armor].Demand := ArmorNeed;
-    Warfare[wt_MetalArmor].Demand := ArmorNeed;
-    Warfare[wt_Axe].Demand := AxeNeed;
-    Warfare[wt_Sword].Demand := AxeNeed;
-    Warfare[wt_Pike].Demand := PikeNeed;
-    Warfare[wt_Hallebard].Demand := PikeNeed;
-    Warfare[wt_Bow].Demand := BowNeed;
-    Warfare[wt_Arbalet].Demand := BowNeed;
-    Warfare[wt_Horse].Demand := HorseNeed;
+    Warfare[wt_Shield     ].Demand := ShieldNeed * LeatherPerMin;
+    Warfare[wt_MetalShield].Demand := ShieldNeed * IronPerMin;
+    Warfare[wt_Armor      ].Demand := ArmorNeed * LeatherPerMin;
+    Warfare[wt_MetalArmor ].Demand := ArmorNeed * IronPerMin;
+    Warfare[wt_Axe        ].Demand := AxeNeed * LeatherPerMin;
+    Warfare[wt_Sword      ].Demand := AxeNeed * IronPerMin;
+    Warfare[wt_Pike       ].Demand := PikeNeed * LeatherPerMin;
+    Warfare[wt_Hallebard  ].Demand := PikeNeed * IronPerMin;
+    Warfare[wt_Bow        ].Demand := BowNeed * LeatherPerMin;
+    Warfare[wt_Arbalet    ].Demand := BowNeed * IronPerMin;
+    Warfare[wt_Horse      ].Demand := HorseNeed * (IronPerMin + LeatherPerMin);
 
     ShieldDemandPercentage := ShieldNeed / (ShieldNeed + ArmorNeed);
     ArmorDemandPercentage := ArmorNeed / (ShieldNeed + ArmorNeed);
@@ -1024,7 +1024,6 @@ procedure TKMayorBalance.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
 
-  SaveStream.Write(ArmyType, SizeOf(TArmyType));
   SaveStream.Write(GoldNeed);
   SaveStream.Write(StoneNeed);
   SaveStream.Write(WoodNeed);
@@ -1045,7 +1044,6 @@ procedure TKMayorBalance.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
 
-  LoadStream.Read(ArmyType, SizeOf(TArmyType));
   LoadStream.Read(GoldNeed);
   LoadStream.Read(StoneNeed);
   LoadStream.Read(WoodNeed);
