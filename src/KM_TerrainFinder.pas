@@ -94,8 +94,16 @@ begin
   UseFinder;
 
   //Prepare output
-  fLocs.SortByTag;
-  fLocs.Count := Min(fMaxCount, fLocs.Count);
+  if fMaxCount = 1 then
+  begin
+    if BestLoc.X <> 0 then
+      fLocs.Add(BestLoc, BestDist)
+  end
+  else
+  begin
+    fLocs.SortByTag;
+    fLocs.Count := Min(fMaxCount, fLocs.Count);
+  end;
 end;
 
 

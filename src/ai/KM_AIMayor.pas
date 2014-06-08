@@ -21,6 +21,8 @@ type
     fAutoRepair: Boolean;
 
     fRoadBelowStore: Boolean;
+    fDefenceTowersPlanned: Boolean;
+    fDefenceTowers: TKMPointTagList;
 
     ShieldNeed: Single;
     ArmorNeed: Single;
@@ -44,6 +46,8 @@ type
     procedure CheckExhaustedMines;
     procedure CheckWeaponOrderCount;
     procedure CheckArmyDemand;
+    procedure PlanDefenceTowers;
+    procedure TryBuildDefenceTower;
   public
     constructor Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
     destructor Destroy; override;
@@ -63,7 +67,8 @@ type
 
 implementation
 uses KM_Game, KM_Houses, KM_HouseCollection, KM_HouseSchool, KM_HandsCollection, KM_Hand, KM_Terrain, KM_Resource,
-  KM_ResWares, KM_AIFields, KM_Units, KM_UnitTaskDelivery, KM_UnitActionWalkTo, KM_UnitTaskGoEat, KM_UnitsCollection;
+  KM_ResWares, KM_AIFields, KM_Units, KM_UnitTaskDelivery, KM_UnitActionWalkTo, KM_UnitTaskGoEat, KM_UnitsCollection,
+  KM_NavMesh;
 
 
 const //Sample list made by AntonP
@@ -107,6 +112,7 @@ begin
   fCityPlanner := TKMCityPlanner.Create(fOwner);
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
   fPathFindingRoadShortcuts := TPathFindingRoadShortcuts.Create(fOwner);
+  fDefenceTowers := TKMPointTagList.Create;
 
   fAutoRepair := False; //In KaM it is Off by default
 end;
@@ -118,6 +124,7 @@ begin
   fCityPlanner.Free;
   fPathFindingRoad.Free;
   fPathFindingRoadShortcuts.Free;
+  fDefenceTowers.Free;
   inherited;
 end;
 
@@ -307,6 +314,92 @@ begin
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Bow then
                               H.ResOrder[K] := Round(BowNeed * PORTIONS);
     end;
+  end;
+end;
+
+
+procedure TKMayor.PlanDefenceTowers;
+const
+  DISTANCE_BETWEEN_TOWERS = 10;
+var
+  P: TKMHand;
+  Outline1, Outline2: TKMWeightSegments;
+  I, K, DefCount: Integer;
+  Loc: TKMPoint;
+  SegLength, Ratio: Single;
+begin
+  if fDefenceTowersPlanned then Exit;
+  fDefenceTowersPlanned := True;
+  P := gHands[fOwner];
+  if not P.Stats.GetCanBuild(ht_WatchTower) then Exit;
+
+  //Get defence Outline with weights representing how important each segment is
+  fAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
+  //Make list of defence positions
+  for I := 0 to High(Outline2) do
+  begin
+    //Longer segments will get several towers
+    SegLength := KMLength(Outline2[I].A, Outline2[I].B);
+    DefCount := Max(Trunc(SegLength / DISTANCE_BETWEEN_TOWERS), 1);
+    for K := 0 to DefCount - 1 do
+    begin
+      Ratio := (K + 1) / (DefCount + 1);
+      Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, Ratio));
+      fDefenceTowers.Add(Loc, Trunc(1000*Outline2[I].Weight));
+    end;
+  end;
+  fDefenceTowers.SortByTag;
+end;
+
+
+procedure TKMayor.TryBuildDefenceTower;
+const
+  SEARCH_RAD = 6;
+  MAX_ROAD_DISTANCE = 25;
+var
+  P: TKMHand;
+  IY, IX: Integer;
+  Loc: TKMPoint;
+  DistSqr, BestDistSqr: Integer;
+  BestLoc: TKMPoint;
+
+  NodeList: TKMPointList;
+  RoadExists: Boolean;
+  H: TKMHouse;
+  LocTo: TKMPoint;
+begin
+  P := gHands[fOwner];
+  //Take the first tower from the list
+  Loc := fDefenceTowers[0];
+  fDefenceTowers.Delete(0);
+  //Look for a place for the tower
+  BestDistSqr := High(BestDistSqr);
+  BestLoc := KMPoint(0, 0);
+  for IY := Max(1, Loc.Y-SEARCH_RAD) to Min(gTerrain.MapY, Loc.Y+SEARCH_RAD) do
+    for IX := Max(1, Loc.X-SEARCH_RAD) to Min(gTerrain.MapX, Loc.X+SEARCH_RAD) do
+    begin
+      DistSqr := KMLengthSqr(Loc, KMPoint(IX, IY));
+      if (DistSqr < BestDistSqr) and P.CanAddHousePlanAI(IX, IY, ht_WatchTower, False) then
+      begin
+        BestLoc := KMPoint(IX, IY);
+        BestDistSqr := DistSqr;
+      end;
+    end;
+  if (BestLoc.X > 0) then
+  begin
+    //See if the road required is too long (tower might be across unwalkable terrain)
+    H := P.Houses.FindHouse(ht_Any, BestLoc.X, BestLoc.Y, 1, False);
+    if H = nil then Exit; //We are screwed, no houses left
+    LocTo := KMPointBelow(H.GetEntrance);
+    NodeList := TKMPointList.Create;
+    RoadExists := fPathFindingRoad.Route_ReturnToWalkable(BestLoc, LocTo, NodeList);
+    //If length of road is short enough, build the tower
+    if NodeList.Count <= MAX_ROAD_DISTANCE then
+    begin
+      gHands[fOwner].AddHousePlan(ht_WatchTower, BestLoc);
+      TryConnectToRoad(KMPointBelow(BestLoc));
+    end;
+    NodeList.Free;
   end;
 end;
 
@@ -554,6 +647,16 @@ begin
   //Take - take this house into building
   //Reject - we can't build this house (that could affect other houses in queue)
 
+  //Build towers if village is done, or peacetime is nearly over
+  if P.Stats.GetCanBuild(ht_WatchTower) then
+    if ((fBalance.Peek = ht_None) and (P.Stats.GetHouseWip(ht_Any) = 0)) //Finished building
+    or ((gGame.GameOptions.Peacetime <> 0) and gGame.CheckTime(600 * (gGame.GameOptions.Peacetime - 10))) then
+      PlanDefenceTowers;
+
+  if fDefenceTowersPlanned then
+    while (fDefenceTowers.Count > 0) and (P.Stats.GetHouseWip(ht_Any) < GetMaxPlans) do
+      TryBuildDefenceTower;
+
   while (P.Stats.GetHouseWip(ht_Any) < GetMaxPlans) do
   begin
     H := fBalance.Peek;
@@ -765,6 +868,8 @@ begin
   SaveStream.Write(fOwner);
   SaveStream.Write(fAutoRepair);
   SaveStream.Write(fRoadBelowStore);
+  SaveStream.Write(fDefenceTowersPlanned);
+  fDefenceTowers.SaveToStream(SaveStream);
 
   SaveStream.Write(ShieldNeed);
   SaveStream.Write(ArmorNeed);
@@ -785,6 +890,8 @@ begin
   LoadStream.Read(fOwner);
   LoadStream.Read(fAutoRepair);
   LoadStream.Read(fRoadBelowStore);
+  LoadStream.Read(fDefenceTowersPlanned);
+  fDefenceTowers.LoadFromStream(LoadStream);
 
   LoadStream.Read(ShieldNeed);
   LoadStream.Read(ArmorNeed);
