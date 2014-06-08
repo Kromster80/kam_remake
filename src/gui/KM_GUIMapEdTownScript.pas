@@ -54,7 +54,7 @@ begin
   TrackBar_WorkerCount.Caption := gResTexts[TX_MAPED_AI_WORKERS];
   TrackBar_WorkerCount.OnChange := Town_ScriptChange;
 
-  TKMLabel.Create(Panel_Script, 0, 156, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ARMY_TYPE], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Script, 0, 156, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ARMY_TYPE], fnt_Metal, taLeft);
   DropBox_ArmyType := TKMDropList.Create(Panel_Script, 0, 176, TB_WIDTH, 20, fnt_Metal, '', bsGame);
   DropBox_ArmyType.OnChange := Town_ScriptChange;
   DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_IRON_THEN_LEATHER], Byte(atIronThenLeather));
