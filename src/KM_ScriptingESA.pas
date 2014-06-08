@@ -2358,6 +2358,7 @@ var
   H: TKMHouse;
   I, K: Integer;
   HA: THouseArea;
+  NonEntranceX: Integer;
 begin
   Result := -1;
   if InRange(aPlayer, 0, gHands.Count - 1)
@@ -2365,9 +2366,10 @@ begin
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
   and gTerrain.TileInMapCoords(X,Y) then
   begin
-    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
+    NonEntranceX := X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX;
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y)) then
     begin
-      H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(X, Y));
+      H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y));
       if (H = nil) or (H.IsDestroyed) then
         Exit;
 
