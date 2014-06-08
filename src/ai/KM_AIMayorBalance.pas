@@ -291,12 +291,15 @@ end;
 
 
 procedure TKMayorBalance.AppendFood;
+var SkipSausage: Boolean;
 begin
+  //When making iron only don't make sausages, they're inefficient if you don't use skins
+  SkipSausage := gHands[fOwner].AI.Setup.ArmyType = atIron;
   //Pick smallest production and increase it
   //If all 3 shares 0 we whould pick Sausages first to ensure Leather supply
   with fFood do
   if Balance < 0 then
-  case PickMin([SausagesProduction, BreadProduction, WineProduction]) of
+  case PickMin([SausagesProduction + 10000*Byte(SkipSausage), BreadProduction, WineProduction]) of
     0:  with Sausages do
         case PickMin([FarmTheory, SwineTheory, ButchersTheory]) of
           0:  Append(ht_Farm, 2);

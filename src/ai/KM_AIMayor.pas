@@ -349,6 +349,7 @@ begin
     end;
   end;
   fDefenceTowers.SortByTag;
+  fDefenceTowers.Inverse; //So highest weight is first
 end;
 
 
@@ -364,7 +365,6 @@ var
   BestLoc: TKMPoint;
 
   NodeList: TKMPointList;
-  RoadExists: Boolean;
   H: TKMHouse;
   LocTo: TKMPoint;
 begin
@@ -392,7 +392,7 @@ begin
     if H = nil then Exit; //We are screwed, no houses left
     LocTo := KMPointBelow(H.GetEntrance);
     NodeList := TKMPointList.Create;
-    RoadExists := fPathFindingRoad.Route_ReturnToWalkable(BestLoc, LocTo, NodeList);
+    fPathFindingRoad.Route_ReturnToWalkable(BestLoc, LocTo, NodeList);
     //If length of road is short enough, build the tower
     if NodeList.Count <= MAX_ROAD_DISTANCE then
     begin
@@ -636,6 +636,17 @@ end;
 procedure TKMayor.CheckHouseCount;
 var
   P: TKMHand;
+
+  function MaxPlansForTowers: Integer;
+  begin
+    Result := GetMaxPlans;
+    //Once there are 2 towers wip then allow balance to build something
+    if (fBalance.Peek <> ht_None) and (P.Stats.GetHouseWip(ht_WatchTower) >= 2) then
+      Result := Result - 1;
+    Result := Max(1, Result);
+  end;
+
+var
   H: THouseType;
 begin
   P := gHands[fOwner];
@@ -650,11 +661,11 @@ begin
   //Build towers if village is done, or peacetime is nearly over
   if P.Stats.GetCanBuild(ht_WatchTower) then
     if ((fBalance.Peek = ht_None) and (P.Stats.GetHouseWip(ht_Any) = 0)) //Finished building
-    or ((gGame.GameOptions.Peacetime <> 0) and gGame.CheckTime(600 * (gGame.GameOptions.Peacetime - 10))) then
+    or ((gGame.GameOptions.Peacetime <> 0) and gGame.CheckTime(600 * Max(0, gGame.GameOptions.Peacetime - 10))) then
       PlanDefenceTowers;
 
   if fDefenceTowersPlanned then
-    while (fDefenceTowers.Count > 0) and (P.Stats.GetHouseWip(ht_Any) < GetMaxPlans) do
+    while (fDefenceTowers.Count > 0) and (P.Stats.GetHouseWip(ht_Any) < MaxPlansForTowers) do
       TryBuildDefenceTower;
 
   while (P.Stats.GetHouseWip(ht_Any) < GetMaxPlans) do
