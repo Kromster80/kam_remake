@@ -767,6 +767,7 @@ var
   aFieldType: TFieldType;
 begin
   aFieldType := fBuildList.FieldworksList.HasField(Position);
+  if aFieldType = ft_None then Exit; //Can happen due to network delays
   fBuildList.FieldworksList.RemFieldPlan(Position);
   gScriptEvents.ProcPlanRemoved(fHandIndex, Position.X, Position.Y, aFieldType);
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
