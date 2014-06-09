@@ -56,6 +56,8 @@ const
   WEAPON_MAX = wt_Arbalet;
   WARFARE_MAX = wt_Horse;
 
+  WARFARE_IRON = [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet];
+
   MARKET_TRADEOFF_FACTOR = 2.2; //X resources buys 1 resource of equal value
 
   WareTypeToIndex: array [TWareType] of byte = (0, //rt_None

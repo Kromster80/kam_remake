@@ -69,8 +69,8 @@ type
       FarmTheory, StablesTheory: Single;
     end;
 
-    AxeDemandPercentage, PikeDemandPercentage, BowDemandPercentage: Single;
-    ArmorDemandPercentage, ShieldDemandPercentage: Single;
+    //Ratios at which warfare should be produced in workshops/smithies
+    OrderRatio: array[WEAPON_MIN..WEAPON_MAX] of Single;
 
     Warfare: array [WARFARE_MIN..WARFARE_MAX] of record
       Production, Demand, Balance: Single;
@@ -78,6 +78,8 @@ type
 
     Balance: Single; //Resulting balance
   end;
+
+  TWarfareDemands = array[WARFARE_MIN..WARFARE_MAX] of Single;
 
 type
   TKMayorBalance = class
@@ -136,7 +138,7 @@ type
     function Peek: THouseType;
     procedure Take;
     procedure Reject;
-    procedure SetArmyDemand(IronPerMin, LeatherPerMin, ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed: Single);
+    procedure SetArmyDemand(aNeeds: TWarfareDemands);
     function BalanceText: UnicodeString;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -374,13 +376,13 @@ begin
                       3: Append(ht_WeaponSmithy);
                     end;
     wt_Shield:      with fWarfare.LeatherArmor do
-                    case PickMin([TrunkTheory, WoodTheory, WorkshopTheory*fWarfare.ShieldDemandPercentage]) of
+                    case PickMin([TrunkTheory, WoodTheory, WorkshopTheory*fWarfare.OrderRatio[wt_Shield]]) of
                       0: Append(ht_Woodcutters);
                       1: Append(ht_Sawmill);
                       2: Append(ht_ArmorWorkshop);
                     end;
     wt_Armor:       with fWarfare.LeatherArmor do
-                    case PickMin([FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory*fWarfare.ArmorDemandPercentage]) of
+                    case PickMin([FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory*fWarfare.OrderRatio[wt_Armor]]) of
                       0: Append(ht_Farm);
                       1: Append(ht_Swine);
                       2: Append(ht_Tannery);
@@ -553,7 +555,7 @@ begin
                       + Warfare[wt_Bow].Demand);
 
     //Min from available production (shields are only part of workshops orders) and demand
-    ShieldsPerMin := Min(HouseCount(ht_ArmorWorkshop) * ShieldDemandPercentage * ProductionRate[wt_Shield],
+    ShieldsPerMin := Min(HouseCount(ht_ArmorWorkshop) * OrderRatio[wt_Shield] * ProductionRate[wt_Shield],
                          Warfare[wt_Shield].Demand);
 
     //Current wood consumption
@@ -657,9 +659,9 @@ begin
       //All 3 produced at the same speed
       WorkshopTheory := HouseCount(ht_WeaponWorkshop) * ProductionRate[wt_Pike];
 
-      Warfare[wt_Axe].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * AxeDemandPercentage;
-      Warfare[wt_Pike].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * PikeDemandPercentage;
-      Warfare[wt_Bow].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * BowDemandPercentage;
+      Warfare[wt_Axe].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * OrderRatio[wt_Axe];
+      Warfare[wt_Pike].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * OrderRatio[wt_Pike];
+      Warfare[wt_Bow].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * OrderRatio[wt_Bow];
     end;
 
     with LeatherArmor do
@@ -671,8 +673,8 @@ begin
       TanneryTheory := HouseCount(ht_Tannery) * ProductionRate[wt_Leather];
       WorkshopTheory := HouseCount(ht_ArmorWorkshop) * ProductionRate[wt_Armor];
 
-      Warfare[wt_Shield].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory * ShieldDemandPercentage);
-      Warfare[wt_Armor].Production := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory * ArmorDemandPercentage));
+      Warfare[wt_Shield].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory * OrderRatio[wt_Shield]);
+      Warfare[wt_Armor].Production := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory * OrderRatio[wt_Armor]));
     end;
   end;
 end;
@@ -690,9 +692,9 @@ begin
       SmithyTheory := HouseCount(ht_WeaponSmithy) * ProductionRate[wt_Hallebard];
 
       //All 3 weapons are the same for now
-      Warfare[wt_Sword].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * AxeDemandPercentage;
-      Warfare[wt_Hallebard].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * PikeDemandPercentage;
-      Warfare[wt_Arbalet].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * BowDemandPercentage;
+      Warfare[wt_Sword].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * OrderRatio[wt_Sword];
+      Warfare[wt_Hallebard].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * OrderRatio[wt_Hallebard];
+      Warfare[wt_Arbalet].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * OrderRatio[wt_Arbalet];
     end;
 
     //Armor
@@ -702,8 +704,8 @@ begin
       //Coal/steel/iron calculated above
       SmithyTheory := HouseCount(ht_ArmorSmithy) * ProductionRate[wt_MetalArmor];
 
-      Warfare[wt_MetalShield].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * ShieldDemandPercentage;
-      Warfare[wt_MetalArmor].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * ArmorDemandPercentage;
+      Warfare[wt_MetalShield].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * OrderRatio[wt_MetalShield];
+      Warfare[wt_MetalArmor].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) * OrderRatio[wt_MetalArmor];
     end;
   end;
 end;
@@ -735,8 +737,8 @@ begin
     S := Format('%.2f Weaponry: |', [Balance]);
     with fWarfare.LeatherArmor do
     begin
-      S := S + Format('WoodShields: T%.1f : W%.1f : W%.1f|', [TrunkTheory, WoodTheory, WorkshopTheory*ShieldDemandPercentage]);
-      S := S + Format('LeatherArm: F%.1f : S%.1f : T%.1f : W%.1f|', [FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory*ArmorDemandPercentage]);
+      S := S + Format('WoodShields: T%.1f : W%.1f : W%.1f|', [TrunkTheory, WoodTheory, WorkshopTheory*OrderRatio[wt_Shield]]);
+      S := S + Format('LeatherArm: F%.1f : S%.1f : T%.1f : W%.1f|', [FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory*OrderRatio[wt_Armor]]);
     end;
 
     with fWarfare.WoodWeapon do
@@ -914,28 +916,28 @@ end;
 
 
 //Tell Mayor what proportions of army is needed
-procedure TKMayorBalance.SetArmyDemand(IronPerMin, LeatherPerMin, ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed: Single);
+procedure TKMayorBalance.SetArmyDemand(aNeeds: TWarfareDemands);
+var
+  WT: TWareType;
 begin
   //Convert army request into how many weapons are needed
   with fWarfare do
   begin
-    Warfare[wt_Shield     ].Demand := ShieldNeed * LeatherPerMin;
-    Warfare[wt_MetalShield].Demand := ShieldNeed * IronPerMin;
-    Warfare[wt_Armor      ].Demand := ArmorNeed * LeatherPerMin;
-    Warfare[wt_MetalArmor ].Demand := ArmorNeed * IronPerMin;
-    Warfare[wt_Axe        ].Demand := AxeNeed * LeatherPerMin;
-    Warfare[wt_Sword      ].Demand := AxeNeed * IronPerMin;
-    Warfare[wt_Pike       ].Demand := PikeNeed * LeatherPerMin;
-    Warfare[wt_Hallebard  ].Demand := PikeNeed * IronPerMin;
-    Warfare[wt_Bow        ].Demand := BowNeed * LeatherPerMin;
-    Warfare[wt_Arbalet    ].Demand := BowNeed * IronPerMin;
-    Warfare[wt_Horse      ].Demand := HorseNeed * (IronPerMin + LeatherPerMin);
+    for WT := WEAPON_MIN to WEAPON_MAX do
+      Warfare[WT].Demand := aNeeds[WT];
 
-    ShieldDemandPercentage := ShieldNeed / (ShieldNeed + ArmorNeed);
-    ArmorDemandPercentage := ArmorNeed / (ShieldNeed + ArmorNeed);
-    AxeDemandPercentage := AxeNeed / (AxeNeed + PikeNeed + BowNeed);
-    PikeDemandPercentage := PikeNeed / (AxeNeed + PikeNeed + BowNeed);
-    BowDemandPercentage := BowNeed / (AxeNeed + PikeNeed + BowNeed);
+    //Calculate ratios at which warfare should be produced in workshops
+    OrderRatio[wt_Shield] := aNeeds[wt_Shield] / (aNeeds[wt_Shield] + aNeeds[wt_Armor]);
+    OrderRatio[wt_Armor]  := aNeeds[wt_Armor]  / (aNeeds[wt_Shield] + aNeeds[wt_Armor]);
+    OrderRatio[wt_Axe]  := aNeeds[wt_Axe]  / (aNeeds[wt_Axe] + aNeeds[wt_Pike] + aNeeds[wt_Bow]);
+    OrderRatio[wt_Pike] := aNeeds[wt_Pike] / (aNeeds[wt_Axe] + aNeeds[wt_Pike] + aNeeds[wt_Bow]);
+    OrderRatio[wt_Bow]  := aNeeds[wt_Bow]  / (aNeeds[wt_Axe] + aNeeds[wt_Pike] + aNeeds[wt_Bow]);
+
+    OrderRatio[wt_MetalShield] := aNeeds[wt_MetalShield] / (aNeeds[wt_MetalShield] + aNeeds[wt_MetalArmor]);
+    OrderRatio[wt_MetalArmor]  := aNeeds[wt_MetalArmor]  / (aNeeds[wt_MetalShield] + aNeeds[wt_MetalArmor]);
+    OrderRatio[wt_Sword]     := aNeeds[wt_Sword]     / (aNeeds[wt_Sword] + aNeeds[wt_Hallebard] + aNeeds[wt_Arbalet]);
+    OrderRatio[wt_Hallebard] := aNeeds[wt_Hallebard] / (aNeeds[wt_Sword] + aNeeds[wt_Hallebard] + aNeeds[wt_Arbalet]);
+    OrderRatio[wt_Arbalet]   := aNeeds[wt_Arbalet]   / (aNeeds[wt_Sword] + aNeeds[wt_Hallebard] + aNeeds[wt_Arbalet]);
   end;
 end;
 
@@ -1036,6 +1038,7 @@ begin
 
   //Save because there are demands for weaponry (set by General)
   SaveStream.Write(fWarfare.Warfare, SizeOf(fWarfare.Warfare));
+  SaveStream.Write(fWarfare.OrderRatio, SizeOf(fWarfare.OrderRatio));
 
   //These are not saved because they are recalculated before each use
   {LoadStream.Read(fDemandCore, SizeOf(fDemandCore));
@@ -1056,6 +1059,7 @@ begin
 
   //Load demands for weaponry set by General
   LoadStream.Read(fWarfare.Warfare, SizeOf(fWarfare.Warfare));
+  LoadStream.Read(fWarfare.OrderRatio, SizeOf(fWarfare.OrderRatio));
 
   //These are not saved because they are recalculated before each use
   {LoadStream.Read(fDemandCore, SizeOf(fDemandCore));

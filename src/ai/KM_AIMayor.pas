@@ -24,12 +24,7 @@ type
     fDefenceTowersPlanned: Boolean;
     fDefenceTowers: TKMPointTagList;
 
-    ShieldNeed: Single;
-    ArmorNeed: Single;
-    AxeNeed: Single;
-    PikeNeed: Single;
-    BowNeed: Single;
-    HorseNeed: Single;
+    WarfareRatios: TWarfareDemands;
 
     procedure SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
     procedure SetAutoRepair(const Value: Boolean);
@@ -285,34 +280,34 @@ begin
     case H.HouseType of
       ht_ArmorSmithy:     for K := 1 to 4 do
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_MetalShield then
-                              H.ResOrder[K] := Round(ShieldNeed * PORTIONS)
+                              H.ResOrder[K] := Round(WarfareRatios[wt_MetalShield] * PORTIONS)
                             else
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_MetalArmor then
-                              H.ResOrder[K] := Round(ArmorNeed * PORTIONS);
+                              H.ResOrder[K] := Round(WarfareRatios[wt_MetalArmor] * PORTIONS);
       ht_ArmorWorkshop:   for K := 1 to 4 do
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Shield then
-                              H.ResOrder[K] := Round(ShieldNeed * PORTIONS)
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Shield] * PORTIONS)
                             else
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Armor then
-                              H.ResOrder[K] := Round(ArmorNeed * PORTIONS);
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Armor] * PORTIONS);
       ht_WeaponSmithy:    for K := 1 to 4 do
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Sword then
-                              H.ResOrder[K] := Round(AxeNeed * PORTIONS)
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Sword] * PORTIONS)
                             else
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Hallebard then
-                              H.ResOrder[K] := Round(PikeNeed * PORTIONS)
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Hallebard] * PORTIONS)
                             else
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Arbalet then
-                              H.ResOrder[K] := Round(BowNeed * PORTIONS);
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Arbalet] * PORTIONS);
       ht_WeaponWorkshop:  for K := 1 to 4 do
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Axe then
-                              H.ResOrder[K] := Round(AxeNeed * PORTIONS)
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Axe] * PORTIONS)
                             else
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Pike then
-                              H.ResOrder[K] := Round(PikeNeed * PORTIONS)
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Pike] * PORTIONS)
                             else
                             if gResource.HouseDat[H.HouseType].ResOutput[K] = wt_Bow then
-                              H.ResOrder[K] := Round(BowNeed * PORTIONS);
+                              H.ResOrder[K] := Round(WarfareRatios[wt_Bow] * PORTIONS);
     end;
   end;
 end;
@@ -786,10 +781,43 @@ procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single)
                + gHands[fOwner].Stats.GetHousePlans(ht_IronMine)) > 0;
   end;
 
+  function GroupBlocked(aGT: TGroupType; aIron: Boolean): Boolean;
+  begin
+    if aIron then
+      case aGT of
+        gt_Melee:     Result := gHands[fOwner].Stats.UnitBlocked[ut_Swordsman];
+        gt_AntiHorse: Result := gHands[fOwner].Stats.UnitBlocked[ut_Hallebardman];
+        gt_Ranged:    Result := gHands[fOwner].Stats.UnitBlocked[ut_Arbaletman];
+        gt_Mounted:   Result := gHands[fOwner].Stats.UnitBlocked[ut_Cavalry];
+      end
+    else
+      case aGT of
+        gt_Melee:     Result := gHands[fOwner].Stats.UnitBlocked[ut_Militia] or
+                                gHands[fOwner].Stats.UnitBlocked[ut_AxeFighter];
+        gt_AntiHorse: Result := gHands[fOwner].Stats.UnitBlocked[ut_Pikeman];
+        gt_Ranged:    Result := gHands[fOwner].Stats.UnitBlocked[ut_Bowman];
+        gt_Mounted:   Result := gHands[fOwner].Stats.UnitBlocked[ut_HorseScout];
+      end;
+  end;
+
+  function GetUnitRatio(aUT: TUnitType): Byte;
+  begin
+    if gHands[fOwner].Stats.UnitBlocked[aUT] then
+      Result := 0 //This warrior is blocked
+    else
+      if (fSetup.ArmyType = atIronAndLeather)
+      and GroupBlocked(UnitGroups[aUT], not (aUT in WARRIORS_IRON)) then
+        Result := 2 //In mixed army type, if our compliment is blocked we need to make double
+      else
+        Result := 1;
+  end;
+
 var
   Summ: Single;
   Footmen, Pikemen, Horsemen, Archers: Single;
   IronPerMin, LeatherPerMin: Single;
+  WT: TWareType;
+  WarfarePerMinute: TWarfareDemands;
 begin
   Summ := aFootmen + aPikemen + aHorsemen + aArchers;
   if Summ = 0 then
@@ -807,13 +835,31 @@ begin
     Archers := aArchers / Summ;
   end;
 
-  //Store localy in Mayor to place weapon orders
-  ShieldNeed := Footmen + Horsemen;
-  ArmorNeed := Footmen + Pikemen + Horsemen + Archers;
-  AxeNeed := Footmen + Horsemen;
-  PikeNeed := Pikemen;
-  BowNeed := Archers;
-  HorseNeed := Horsemen;
+  //Store ratios localy in Mayor to place weapon orders
+  //Leather
+  WarfareRatios[wt_Armor] :=      Footmen  * GetUnitRatio(ut_AxeFighter)
+                                 + Horsemen * GetUnitRatio(ut_HorseScout)
+                                 + Pikemen  * GetUnitRatio(ut_Pikeman)
+                                 + Archers  * GetUnitRatio(ut_Bowman);
+  WarfareRatios[wt_Shield] :=     Footmen  * GetUnitRatio(ut_AxeFighter)
+                                 + Horsemen * GetUnitRatio(ut_HorseScout);
+  WarfareRatios[wt_Axe] :=        Footmen  * Max(GetUnitRatio(ut_AxeFighter), GetUnitRatio(ut_Militia))
+                                 + Horsemen * GetUnitRatio(ut_HorseScout);
+  WarfareRatios[wt_Pike] :=       Pikemen  * GetUnitRatio(ut_Pikeman);
+  WarfareRatios[wt_Bow] :=        Archers  * GetUnitRatio(ut_Bowman);
+  //Iron
+  WarfareRatios[wt_MetalArmor] := Footmen  * GetUnitRatio(ut_Swordsman)
+                                 + Horsemen * GetUnitRatio(ut_Cavalry)
+                                 + Pikemen  * GetUnitRatio(ut_Hallebardman)
+                                 + Archers  * GetUnitRatio(ut_Arbaletman);
+  WarfareRatios[wt_MetalShield] :=Footmen  * GetUnitRatio(ut_Swordsman)
+                                 + Horsemen * GetUnitRatio(ut_Cavalry);
+  WarfareRatios[wt_Sword] :=      Footmen  * GetUnitRatio(ut_Swordsman)
+                                 + Horsemen * GetUnitRatio(ut_Cavalry);
+  WarfareRatios[wt_Hallebard] :=  Pikemen  * GetUnitRatio(ut_Hallebardman);
+  WarfareRatios[wt_Arbalet] :=    Archers  * GetUnitRatio(ut_Arbaletman);
+
+  WarfareRatios[wt_Horse] := Horsemen * (GetUnitRatio(ut_Cavalry) + GetUnitRatio(ut_HorseScout));
 
   //How many warriors we would need to equip per-minute
   IronPerMin := fSetup.WarriorsPerMinute(atIron);
@@ -827,8 +873,18 @@ begin
   if (fSetup.ArmyType = atIronThenLeather) and IsIronProduced then
     LeatherPerMin := 0; //Don't make leather until the iron runs out
 
+  for WT := WEAPON_MIN to WEAPON_MAX do
+    if WT in WARFARE_IRON then
+      WarfarePerMinute[WT] := WarfareRatios[WT] * IronPerMin
+    else
+      WarfarePerMinute[WT] := WarfareRatios[WT] * LeatherPerMin;
+
+  //Horses require separate calculation
+  WarfarePerMinute[wt_Horse] := Horsemen * (  GetUnitRatio(ut_Cavalry) * IronPerMin
+                                            + GetUnitRatio(ut_HorseScout) * LeatherPerMin);
+
   //Update warfare needs accordingly
-  fBalance.SetArmyDemand(IronPerMin, LeatherPerMin, ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed);
+  fBalance.SetArmyDemand(WarfarePerMinute);
 end;
 
 
@@ -882,12 +938,7 @@ begin
   SaveStream.Write(fDefenceTowersPlanned);
   fDefenceTowers.SaveToStream(SaveStream);
 
-  SaveStream.Write(ShieldNeed);
-  SaveStream.Write(ArmorNeed);
-  SaveStream.Write(AxeNeed);
-  SaveStream.Write(PikeNeed);
-  SaveStream.Write(BowNeed);
-  SaveStream.Write(HorseNeed);
+  SaveStream.Write(WarfareRatios, SizeOf(WarfareRatios));
 
   fBalance.Save(SaveStream);
   fCityPlanner.Save(SaveStream);
@@ -904,12 +955,7 @@ begin
   LoadStream.Read(fDefenceTowersPlanned);
   fDefenceTowers.LoadFromStream(LoadStream);
 
-  LoadStream.Read(ShieldNeed);
-  LoadStream.Read(ArmorNeed);
-  LoadStream.Read(AxeNeed);
-  LoadStream.Read(PikeNeed);
-  LoadStream.Read(BowNeed);
-  LoadStream.Read(HorseNeed);
+  LoadStream.Read(WarfareRatios, SizeOf(WarfareRatios));
 
   fBalance.Load(LoadStream);
   fCityPlanner.Load(LoadStream);
