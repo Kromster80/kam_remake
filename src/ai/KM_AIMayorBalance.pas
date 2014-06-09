@@ -619,19 +619,22 @@ end;
 
 
 procedure TKMayorBalance.UpdateBalanceGold;
+var GoldOreReserve: Single;
 begin
   with fGold do
   begin
-    //How much gol in theory we could get
-    //CoalTheory - coal calculated above
+    //How much Gold do we need
+    Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * gHands[fOwner].AI.Setup.WarriorsPerMinute;
+    GoldOreReserve := gHands[fOwner].Stats.GetWareBalance(wt_GoldOre) / (2 * Consumption);
+
+    //How much gold in theory we could get
+    //CoalTheory - coal calculated separately
     GoldOreTheory := HouseCount(ht_GoldMine) * ProductionRate[wt_GoldOre] * 2; //*2 since every Ore becomes 2 Gold
+    GoldOreTheory := GoldOreTheory + Max(0, GoldOreReserve - 30);
     GoldTheory := HouseCount(ht_Metallurgists) * ProductionRate[wt_Gold];
 
     //Actual production is minimum of the above
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
-
-    //How much Gold do we need
-    Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * gHands[fOwner].AI.Setup.WarriorsPerMinute;
 
     //How much reserve do we have
     Reserve := gHands[fOwner].Stats.GetWareBalance(wt_Gold) / Consumption;
