@@ -143,7 +143,7 @@ var
   begin
     //Producing gold or (Gold > 10)
     Result := (P.Stats.GetWaresProduced(wt_Gold) > 1)
-              or (P.Stats.GetWareBalance(wt_Gold) > 15);
+              or (P.Stats.GetWareBalance(wt_Gold) > 20);
   end;
 
   function TryAddToQueue(aUnitType: TUnitType; aReq: Integer): Boolean;
@@ -793,7 +793,7 @@ procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single)
       end
     else
       case aGT of
-        gt_Melee:     Result := gHands[fOwner].Stats.UnitBlocked[ut_Militia] or
+        gt_Melee:     Result := gHands[fOwner].Stats.UnitBlocked[ut_Militia] and
                                 gHands[fOwner].Stats.UnitBlocked[ut_AxeFighter];
         gt_AntiHorse: Result := gHands[fOwner].Stats.UnitBlocked[ut_Pikeman];
         gt_Ranged:    Result := gHands[fOwner].Stats.UnitBlocked[ut_Bowman];
