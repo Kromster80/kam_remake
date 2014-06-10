@@ -227,8 +227,8 @@ const
 
 var
   //Values are empirical
-  OWN_MARGIN   :Byte = 160;
-  OWN_THRESHOLD:Byte = 96;
+  OWN_MARGIN   :Byte = 190;
+  OWN_THRESHOLD:Byte = 126;
 
 
 {Cursors}
