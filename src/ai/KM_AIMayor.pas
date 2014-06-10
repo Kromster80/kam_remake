@@ -656,7 +656,7 @@ begin
   //Build towers if village is done, or peacetime is nearly over
   if P.Stats.GetCanBuild(ht_WatchTower) then
     if ((fBalance.Peek = ht_None) and (P.Stats.GetHouseWip(ht_Any) = 0)) //Finished building
-    or ((gGame.GameOptions.Peacetime <> 0) and gGame.CheckTime(600 * Max(0, gGame.GameOptions.Peacetime - 10))) then
+    or ((gGame.GameOptions.Peacetime <> 0) and gGame.CheckTime(600 * Max(0, gGame.GameOptions.Peacetime - 15))) then
       PlanDefenceTowers;
 
   if fDefenceTowersPlanned then
