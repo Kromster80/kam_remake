@@ -1,3 +1,8 @@
+procedure OnMissionStart;
+begin
+  Actions.PlayerShareFog(4, 0, False);
+end;
+
 procedure OnTick;
 begin
   if States.GameTime = 5 then
