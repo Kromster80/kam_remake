@@ -1,0 +1,5 @@
+  procedure OnTick;
+    begin
+      if States.GameTime = 95000 then
+       Actions.ShowMsg(-1, '<$0>');
+     end;

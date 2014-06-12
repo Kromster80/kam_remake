@@ -1,0 +1,5 @@
+procedure OnTick;
+begin
+  if States.GameTime = 5 then
+    Actions.ShowMsg(-1, '<$0>');
+end;

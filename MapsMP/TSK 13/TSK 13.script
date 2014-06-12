@@ -1,0 +1,38 @@
+  var
+    Knights1, Knights2: Integer;
+
+  procedure OnMissionStart;
+    begin
+      Knights1 := States.GroupAt(58, 7);
+      Knights2 := States.GroupAt(60, 57);
+    end;
+
+  procedure OnTick;
+    begin
+      if States.GameTime = 500 then begin
+        Actions.GroupOrderWalk(Knights1, 34, 28, 6);
+        Actions.GroupOrderWalk(Knights2, 34, 34, 6);
+      end;
+    end;
+
+
+  procedure OnUnitWounded(aUnitID: Integer; aAttacker: Integer);
+  var
+    I, K, TargetPlayer: Integer;
+    Groups: array of Integer;
+  begin
+    if States.UnitOwner(aUnitID) = 1 then
+	  for I := 1 to 3 do
+	  begin 
+	    Groups := States.PlayerGetAllGroups(I);
+		  for K := 0 to length(Groups) - 1 do
+		    if States.GroupType(Groups[K]) <> 2 then
+		    begin
+			  if States.KaMRandomI(2) = 0 then
+			    TargetPlayer := 0
+			  else
+			    TargetPlayer := 4;
+		      Actions.GroupOrderAttackUnit(Groups[K], States.ClosestUnit(TargetPlayer, 10, 10, -1));
+		    end;
+	  end;
+  end;
