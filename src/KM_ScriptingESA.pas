@@ -805,9 +805,11 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
+  begin
     for B := Low(HouseIndexToType) to High(HouseIndexToType) do
       if B in aTypes then
-        inc(Result, gHands[aPlayer].Stats.GetHouseQty(HouseIndexToType[B]))
+        inc(Result, gHands[aPlayer].Stats.GetHouseQty(HouseIndexToType[B]));
+  end
   else
     LogError('States.StatHouseMultipleTypesCount', [aPlayer]);
 end;
@@ -1015,9 +1017,11 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
+  begin
     for B := Low(UnitIndexToType) to High(UnitIndexToType) do
       if B in aTypes then
-        inc(Result, gHands[aPlayer].Stats.GetUnitQty(UnitIndexToType[B]))
+        inc(Result, gHands[aPlayer].Stats.GetUnitQty(UnitIndexToType[B]));
+  end
   else
     LogError('States.StatUnitMultipleTypesCount', [aPlayer]);
 end;
@@ -1058,9 +1062,11 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
+  begin
     for B := Low(UnitIndexToType) to High(UnitIndexToType) do
       if B in aTypes then
-        inc(Result, gHands[aPlayer].Stats.GetUnitKilledQty(UnitIndexToType[B]))
+        inc(Result, gHands[aPlayer].Stats.GetUnitKilledQty(UnitIndexToType[B]));
+  end
   else
     LogError('States.StatUnitKilledMultipleTypesCount', [aPlayer]);
 end;
@@ -1087,9 +1093,11 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
+  begin
     for B := Low(UnitIndexToType) to High(UnitIndexToType) do
       if B in aTypes then
-        inc(Result, gHands[aPlayer].Stats.GetUnitLostQty(UnitIndexToType[B]))
+        inc(Result, gHands[aPlayer].Stats.GetUnitLostQty(UnitIndexToType[B]));
+  end
   else
     LogError('States.StatUnitLostMultipleTypesCount', [aPlayer]);
 end;
@@ -1116,9 +1124,11 @@ begin
   Result := 0;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled) then
+  begin
     for B := Low(WareIndexToType) to High(WareIndexToType) do
       if B in aTypes then
-        inc(Result, gHands[aPlayer].Stats.GetWaresProduced(WareIndexToType[B]))
+        inc(Result, gHands[aPlayer].Stats.GetWaresProduced(WareIndexToType[B]));
+  end
   else
     LogError('States.StatResourceProducedMultipleTypesCount', [aPlayer]);
 end;
