@@ -1,41 +1,352 @@
-var sw1, sw2, sw3, sw4, axe1, axe2 : Integer; 
- procedure OnMissionStart;
-  //Build schools and inns
+type
+  AIAttack = Record
+    Count, Columns: Integer;
+    SoldiersType: array[0..14] of Integer;
+  end;
+ 
+
+var 
+  Fish, J, RebuildCount, AttacksCounter: Integer;
+  RebuildType, RebuildX, RebuildY: array of Integer;
+  AIAttacks: AIAttack;
+
+
+procedure OnMissionStart;
+begin
+  Fish := 0;
+  RebuildCount := 0;
+  AttacksCounter := 0;
+
+//Build schools and inns
+
+  if States.PlayerEnabled(0) then
   begin
-   Actions.PlanAddHouse(0,13,67,141);
-   Actions.PlanAddHouse(1,13,128,140);
-   Actions.PlanAddHouse(0,27,59,146);
-   Actions.PlanAddHouse(1,27,136,144);
-   Actions.PlanAddRoad(0,62,144);
-   Actions.PlanAddRoad(0,62,145);
-   Actions.PlanAddRoad(0,62,146);
-   Actions.PlanAddRoad(0,62,147);
-   Actions.PlanAddRoad(0,61,147);
-   Actions.PlanAddRoad(0,60,147);
-   Actions.PlanAddRoad(0,59,147);
-   Actions.PlanAddRoad(1,134,142);
-   Actions.PlanAddRoad(1,134,143);
-   Actions.PlanAddRoad(1,134,144);
-   Actions.PlanAddRoad(1,134,145);
-   Actions.PlanAddRoad(1,135,145);
-   Actions.PlanAddRoad(1,136,145);
+    Actions.PlanAddHouse(0, 13, 67, 141);
+    Actions.PlanAddHouse(0, 27, 59, 146);
+    Actions.PlanAddRoad(0, 62, 144);
+    Actions.PlanAddRoad(0, 62, 145);
+    Actions.PlanAddRoad(0, 62, 146);
+    Actions.PlanAddRoad(0, 62, 147);
+    Actions.PlanAddRoad(0, 61, 147);
+    Actions.PlanAddRoad(0, 60, 147);
+    Actions.PlanAddRoad(0, 59, 147);
   end;
 
- procedure OnTick;
-  //Reinforcements
+  if States.PlayerEnabled(1) then
   begin
-   if States.GameTime = 300 then begin
-   axe1 := Actions.GiveGroup(2,15,17,91,4,8,5);
-   axe2 := Actions.GiveGroup(2,15,177,87,4,8,5);
-   sw1 := Actions.GiveGroup(2,16,15,89,4,7,5);
-   sw2 := Actions.GiveGroup(2,16,175,85,4,7,5);
-   Actions.GroupOrderLink(axe1, sw1);
-   Actions.GroupOrderLink(axe2, sw2);
+    Actions.PlanAddHouse(1, 13, 128, 140);
+    Actions.PlanAddHouse(1, 27, 135, 145);
+    Actions.PlanAddRoad(1, 133, 142);
+    Actions.PlanAddRoad(1, 133, 143);
+    Actions.PlanAddRoad(1, 133, 144);
+    Actions.PlanAddRoad(1, 133, 145);
+    Actions.PlanAddRoad(1, 133, 146);
+    Actions.PlanAddRoad(1, 134, 146);
+    Actions.PlanAddRoad(1, 135, 146); 
   end;
-   
-   if States.GameTime = 900 then begin
-    sw3 := Actions.GiveGroup(2,16,138,88,5,9,3);
-    sw4 := Actions.GiveGroup(2,16,60,93,5,9,3);
-   end;
+end;
+
+
+//Save info about destroyed house
+
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
+begin
+  if (States.HouseOwner(aHouseID) = 2)
+  and (aDestroyerIndex <> -1)
+  and (States.HouseType(aHouseID) = 17) then
+  begin 
+    SetLength(RebuildType, RebuildCount + 1);
+    SetLength(RebuildX, RebuildCount + 1);
+    SetLength(RebuildY, RebuildCount + 1);
+    RebuildType[RebuildCount] := States.HouseType(aHouseID); 
+    RebuildX[RebuildCount] := States.HousePositionX(aHouseID); 
+    RebuildY[RebuildCount] := States.HousePositionY(aHouseID); 
+    RebuildCount := RebuildCount + 1; 
+  end;
+end;
+
+
+//AI will try to rebuild towers
+
+procedure Rebuild;
+begin
+  for J := 0 to RebuildCount - 1 do
+  begin
+    if RebuildType[J] <> - 1 then
+    begin
+      Actions.PlanAddHouse(2, RebuildType[J], RebuildX[J], RebuildY[J]);
+      if Actions.PlanAddHouse(2, RebuildType[J], RebuildX[J], RebuildY[J]) then
+        RebuildType[J] := -1; 
+    end; 
+  end;
+end;
+
+
+procedure AddFish;
+begin
+  if Fish - (States.StatResourceProducedCount(0, 27) + States.StatResourceProducedCount(1, 27)) <= 20 then
+  begin
+    Actions.GiveAnimal(31, 86, 171);
+    Actions.GiveAnimal(31, 87, 171);
+    Actions.GiveAnimal(31, 85, 171);
+    Fish := Fish + 30; 
+    Exit;
+  end;
+end;
+
+
+//Attacks
+
+function Delay: Integer;
+begin
+  case AttacksCounter of
+    0..11:  Result := 7200;
+    12..14: Result := 9000;
+    15..16: Result := 12000
+    else    Result := 18000;
+  end;
+end;
+
+
+procedure CalculateAttacks;
+begin
+  case AttacksCounter of
+    0..3: begin
+            AIAttacks.Count := 12;
+            AIAttacks.Columns := 4;
+            for J := 0 to 14 do
+            begin
+              AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+              if AIAttacks.SoldiersType[J] = 17 then
+                AIAttacks.SoldiersType[J] := 20;
+
+              if AIAttacks.SoldiersType[J] = 18 then
+                AIAttacks.SoldiersType[J] := 15;
+
+              if AIAttacks.SoldiersType[J] = 22 then
+                AIAttacks.SoldiersType[J] := 21;
+
+              if AIAttacks.SoldiersType[J] = 15 then
+                if States.KaMRandom > 0.5 then
+                  AIAttacks.SoldiersType[J] := 21;
+            end;
+          end;
+ 
+    4..6: begin
+            AIAttacks.Count := 15;
+            AIAttacks.Columns := 5;
+            for J := 0 to 14 do
+            begin
+              AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+              if AIAttacks.SoldiersType[J] = 17 then
+                AIAttacks.SoldiersType[J] := 20;
+
+              if AIAttacks.SoldiersType[J] = 18 then
+                AIAttacks.SoldiersType[J] := 16;
+
+              if AIAttacks.SoldiersType[J] = 22 then
+                AIAttacks.SoldiersType[J] := 21;
+            end;
+          end;
+
+    7..9: begin
+            AIAttacks.Count := 18;
+            AIAttacks.Columns := 6;
+            for J := 0 to 14 do
+            begin
+              AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+              if AIAttacks.SoldiersType[J] = 17 then
+                AIAttacks.SoldiersType[J] := 20;
+
+              if AIAttacks.SoldiersType[J] = 18 then
+                AIAttacks.SoldiersType[J] := 16;
+
+              if AIAttacks.SoldiersType[J] = 22 then
+                AIAttacks.SoldiersType[J] := 21;
+            end;
+          end;
+
+    10..12: begin
+              AIAttacks.Count := 18;
+              AIAttacks.Columns := 6;
+              for J := 0 to 14 do
+              begin
+                AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+                if AIAttacks.SoldiersType[J] = 17 then
+                  AIAttacks.SoldiersType[J] := 20;
+
+                if AIAttacks.SoldiersType[J] = 18 then
+                  AIAttacks.SoldiersType[J] := 16;
+            end;
+          end;
+
+    13..15: begin
+              AIAttacks.Count := 18;
+              AIAttacks.Columns := 6;
+              for J := 0 to 14 do
+              begin
+                AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+                if AIAttacks.SoldiersType[J] = 17 then
+                  AIAttacks.SoldiersType[J] := 20;
+
+                if AIAttacks.SoldiersType[J] = 18 then
+                  AIAttacks.SoldiersType[J] := 16;
+
+                if AIAttacks.SoldiersType[J] = 19 then
+                  AIAttacks.SoldiersType[J] := 21;
+            end;
+          end;
+
+    16..18: begin
+              AIAttacks.Count := 20;
+              AIAttacks.Columns := 5;
+              for J := 0 to 14 do
+              begin
+                AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+                if AIAttacks.SoldiersType[J] = 17 then
+                  AIAttacks.SoldiersType[J] := 20;
+
+                if AIAttacks.SoldiersType[J] = 18 then
+                  AIAttacks.SoldiersType[J] := 16;
+
+                if AIAttacks.SoldiersType[J] = 19 then
+                  AIAttacks.SoldiersType[J] := 20;
+            end;
+          end;
+
+    19..21: begin
+              AIAttacks.Count := 25;
+              AIAttacks.Columns := 5;
+              for J := 0 to 14 do
+              begin
+                AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+                if AIAttacks.SoldiersType[J] = 17 then
+                  AIAttacks.SoldiersType[J] := 16;
+
+                if AIAttacks.SoldiersType[J] = 18 then
+                  AIAttacks.SoldiersType[J] := 16;
+
+                if AIAttacks.SoldiersType[J] = 19 then
+                  AIAttacks.SoldiersType[J] := 22;
+            end;
+          end
+
+    else
+    begin
+      AIAttacks.Count := 40;
+      AIAttacks.Columns := 8;
+      for J := 0 to 14 do
+      begin
+        AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
+
+        if AIAttacks.SoldiersType[J] = 17 then
+          AIAttacks.SoldiersType[J] := 22;
+
+        if AIAttacks.SoldiersType[J] = 18 then
+          AIAttacks.SoldiersType[J] := 16;
+
+        if AIAttacks.SoldiersType[J] = 19 then
+          AIAttacks.SoldiersType[J] := 21;
+      end;
+    end;
+  end;
+end;
+
+procedure Attack;
+begin
+  AttacksCounter := AttacksCounter + 1;
+  if not States.PlayerDefeated(5) then
+  begin
+    Actions.GiveGroup(5, AIAttacks.SoldiersType[11], 141, 21, 6, AIAttacks.Count, AIAttacks.Columns);
+    Actions.GiveGroup(5, AIAttacks.SoldiersType[12], 127, 19, 4, AIAttacks.Count, AIAttacks.Columns);
+    Actions.GiveGroup(5, AIAttacks.SoldiersType[13], 118, 7, 4, AIAttacks.Count, AIAttacks.Columns);
+    Actions.GiveGroup(5, AIAttacks.SoldiersType[14], 95, 26, 4, AIAttacks.Count, AIAttacks.Columns);
   end;
 
+  if AttacksCounter > 4 then
+  begin 
+    if not States.PlayerDefeated(6) then
+    begin
+      Actions.GiveGroup(6, AIAttacks.SoldiersType[0], 159, 58, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(6, AIAttacks.SoldiersType[1], 185, 60, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(6, AIAttacks.SoldiersType[2], 187, 45, 6, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(6, AIAttacks.SoldiersType[3], 158, 21, 6, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(6, AIAttacks.SoldiersType[4], 166, 19, 6, AIAttacks.Count, AIAttacks.Columns);
+    end;
+  end;
+
+  if AttacksCounter > 10 then
+  begin
+    if not States.PlayerDefeated(7) then
+    begin
+      Actions.GiveGroup(7, AIAttacks.SoldiersType[5], 44, 55, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(7, AIAttacks.SoldiersType[6], 40, 59, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(7, AIAttacks.SoldiersType[7], 33, 61, 2, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(7, AIAttacks.SoldiersType[8], 29, 63, 2, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(7, AIAttacks.SoldiersType[9], 26, 64, 2, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(7, AIAttacks.SoldiersType[10], 19, 65, 2, AIAttacks.Count, AIAttacks.Columns);
+    end;
+  end;
+end;
+
+procedure OnTick;
+var 
+  sw1, sw2, sw3, sw4, axe1, axe2, I, K: Integer; 
+  UnitsToFeed: array of Integer;
+begin
+
+//Try to add new fish
+
+  if States.GameTime mod 450 = 0 then 
+    AddFish;
+
+//Rebuild enemy base near the bridge
+
+  Rebuild;
+
+//AI Attacks
+
+  CalculateAttacks;
+  if (States.GameTime >= 36000)
+  and (States.GameTime mod Delay = 0) then
+    Attack;
+
+//Reinforcements
+
+  if States.GameTime = 300 then
+  begin
+    axe1 := Actions.GiveGroup(2, 15, 17, 91, 4, 8, 6);
+    axe2 := Actions.GiveGroup(2, 15, 177, 87, 4, 8, 6);
+    sw1 := Actions.GiveGroup(2, 16, 15, 89, 4, 10, 6);
+    sw2 := Actions.GiveGroup(2, 16, 175, 85, 4, 10, 6);
+    Actions.GroupOrderLink(axe1, sw1);
+    Actions.GroupOrderLink(axe2, sw2);
+  end;
+ 
+  if States.GameTime = 900 then
+  begin
+    sw3 := Actions.GiveGroup(2, 16, 138, 88, 5, 20, 5);
+    sw4 := Actions.GiveGroup(2, 16, 60, 93, 5, 20, 5);
+  end;
+
+//Autofeed
+
+  if States.GameTime mod 12000 = 0 then
+  begin
+    for I := 2 to 7 do
+    begin
+      UnitsToFeed := States.PlayerGetAllUnits(I);
+      for K := 0 to Length(UnitsToFeed) - 1 do
+      begin
+        Actions.UnitHungerSet(UnitsToFeed[K], 45*60*10);
+      end;
+    end; 
+  end;
+end;
