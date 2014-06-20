@@ -1,10 +1,23 @@
+var
+  Reinforcement: Boolean;
+
+procedure OnMissionStart;
+begin
+  Reinforcement := True;
+end;
+
 procedure OnTick;
- begin
-  if States.GameTime = 1800 then begin
-  Actions.GiveGroup(0,22,44,92,0,6,3);
-  Actions.GiveGroup(0,17,58,91,0,12,3);
-  Actions.GiveGroup(0,15,33,90,0,10,5);
-  Actions.GiveGroup(0,20,16,92,1,9,3);
-  Actions.GiveGroup(0,19,25,92,0,9,3);
- end;
- end;
+begin
+  if States.PlayerEnabled(0) then
+    if (States.StatArmyCount(0) < 100) 
+    and (Reinforcement) then
+    begin
+      Actions.GiveGroup(0, 22, 60, 82, 0, 9, 3);
+      Actions.GiveGroup(0, 17, 72, 81, 0, 12, 3);
+      Actions.GiveGroup(0, 15, 80, 80, 0, 16, 4);
+      Actions.GiveGroup(0, 20, 23, 81, 1, 9, 3);
+      Actions.GiveGroup(0, 19, 37, 82, 0, 9, 3);
+      Actions.GiveGroup(0, 21, 6, 60, 7, 9, 3);
+      Reinforcement := False;
+    end;
+end;
