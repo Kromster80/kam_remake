@@ -1,0 +1,32 @@
+var
+  I, K: Integer;
+  Counter: array[0..3] of Integer;
+
+
+procedure OnMissionStart;
+begin
+  for I := 0 to 3 do
+    Counter[I] := 0;
+end;
+
+
+procedure OnHousePlanPlaced(aPlayerIndex, X, Y, aHouseType: Integer);
+begin
+  if aHouseType = 17 then
+    Counter[aPlayerIndex] := Counter[aPlayerIndex] + 1;
+  if Counter[aPlayerIndex] > 5 then
+  begin
+    Actions.PlanRemove(aPlayerIndex, X, Y);
+    Counter[aPlayerIndex] := Counter[aPlayerIndex] - 1;
+  end;
+end;
+
+
+procedure OnHouseDestroyed(aHouseID, aDestroyerIndex: Integer);
+begin
+  if States.HouseType(aHouseID) = 17 then 
+    begin
+      K := States.HouseOwner(aHouseID);
+      Counter[K] := Counter[K] - 1;
+    end;
+end;
