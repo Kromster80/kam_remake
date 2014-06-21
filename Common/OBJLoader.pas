@@ -11,7 +11,9 @@
 unit OBJLoader;
 {$I KaM_Remake.inc}
 interface
-uses dglOpenGL, Windows, StrUtils, SysUtils, Unit_Vector, Classes;
+uses
+  dglOpenGL, StrUtils, SysUtils, Unit_Vector, Classes
+  {$IFDEF MSWindows} , Windows {$ENDIF};
 
 
 type
@@ -253,4 +255,4 @@ begin
 end;
 
 
-end.
+end.
