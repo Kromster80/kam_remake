@@ -3,8 +3,9 @@ unit RXXPackerForm;
 interface
 uses
   Classes, Controls, Dialogs,
-  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo, Windows,
-  {$IFDEF FPC} LResources, {$ENDIF}
+  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF FPC} LResources, LCLIntf, {$ENDIF}
   KM_Defaults, KM_Log, KM_Pics, KM_ResPalettes, KM_ResSprites, KM_ResSpritesEdit;
 
 

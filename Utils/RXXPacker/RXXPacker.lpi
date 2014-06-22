@@ -302,8 +302,8 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\Common\BGRABitmap;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\Common\BGRABitmap;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units"/>
+      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\Common\BGRABitmap;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\Common\LazarusOpenGL;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\Common\BGRABitmap;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\Common\LazarusOpenGL"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
