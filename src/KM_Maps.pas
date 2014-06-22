@@ -2,7 +2,7 @@ unit KM_Maps;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SyncObjs, SysUtils
+  Classes, KromUtils, Math, SyncObjs, SysUtils, StrUtils
   {$IFDEF FPC} , FileUtil {$ENDIF}
   {$IFDEF WDC} , IOUtils {$ENDIF}
   , KM_Defaults;
@@ -74,6 +74,7 @@ type
     function IsValid: Boolean;
     function HumanPlayerCount: Byte;
     function AIOnlyLocCount: Byte;
+    function FileNameWithoutHash: UnicodeString;
   end;
 
   TTMapsScanner = class(TThread)
@@ -122,6 +123,7 @@ type
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
     procedure DeleteMap(aIndex: Integer);
+    procedure MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 
     //Should be accessed only as a part of aOnRefresh/aOnSort events handlers
     function MapList: UnicodeString;
@@ -455,6 +457,15 @@ begin
 end;
 
 
+function TKMapInfo.FileNameWithoutHash: UnicodeString;
+begin
+  if (Length(FileName) > 9) and (FileName[Length(FileName)-8] = '_') then
+    Result := LeftStr(FileName, Length(FileName)-9)
+  else
+    Result := FileName;
+end;
+
+
 { TKMapsCollection }
 constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
 begin
@@ -546,6 +557,52 @@ begin
      Assert(InRange(aIndex, 0, fCount - 1));
      {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
      {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
+     fMaps[aIndex].Free;
+     for I  := aIndex to fCount - 2 do
+       fMaps[I] := fMaps[I + 1];
+     Dec(fCount);
+     SetLength(fMaps, fCount);
+   Unlock;
+end;
+
+
+procedure TKMapsCollection.MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
+var
+  I: Integer;
+  Dest, RenamedFile: UnicodeString;
+  SearchRec: TSearchRec;
+begin
+   Lock;
+     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
+     Assert(fMaps[aIndex].Path <> Dest);
+     Assert(InRange(aIndex, 0, fCount - 1));
+
+     //Remove existing dest directory
+     if DirectoryExists(Dest) then
+     begin
+       {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
+       {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+     end;
+
+     //Move directory to dest
+     {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
+     {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
+
+     //Rename all the files in dest
+     FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
+     repeat
+       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+       and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
+       begin
+         RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
+         if Dest + SearchRec.Name <> RenamedFile then
+           {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
+           {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
+       end;
+     until (FindNext(SearchRec) <> 0);
+     FindClose(SearchRec);
+
+     //Remove the map from our list
      fMaps[aIndex].Free;
      for I  := aIndex to fCount - 2 do
        fMaps[I] := fMaps[I + 1];

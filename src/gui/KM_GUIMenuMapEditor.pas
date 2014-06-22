@@ -32,6 +32,8 @@ type
     procedure BackClick(Sender: TObject);
     procedure DeleteClick(Sender: TObject);
     procedure DeleteConfirm(aVisible: Boolean);
+    procedure MoveConfirm(aVisible: Boolean);
+    procedure MoveEditChange(Sender: TObject);
     procedure MoveClick(Sender: TObject);
   protected
     Panel_MapEd: TKMPanel;
@@ -45,8 +47,12 @@ type
       NumEdit_MapSizeX: TKMNumericEdit;
       NumEdit_MapSizeY: TKMNumericEdit;
 
-      Button_MapDelete, Button_MapMove, Button_MapDeleteConfirm, Button_MapDeleteCancel: TKMButton;
-      Label_MapDeleteConfirm: TKMLabel;
+      Button_MapDelete, Button_MapDeleteConfirm, Button_MapDeleteCancel: TKMButton;
+      Button_MapMove, Button_MapMoveConfirm, Button_MapMoveCancel: TKMButton;
+      Label_MapDeleteConfirm, Label_MapMoveConfirm: TKMLabel;
+      Edit_MapMove: TKMEdit;
+      Label_MoveExists: TKMLabel;
+      CheckBox_MoveExists: TKMCheckBox;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -146,6 +152,7 @@ begin
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
 
+      //Delete
       Label_MapDeleteConfirm := TKMLabel.Create(Panel_MapEdLoad, 220, 640, gResTexts[TX_MENU_MAP_DELETE_CONFIRM], fnt_Outline, taCenter);
       Label_MapDeleteConfirm.Anchors := [anLeft, anBottom];
       Label_MapDeleteConfirm.Hide;
@@ -159,6 +166,34 @@ begin
       Button_MapDeleteCancel.Anchors := [anLeft, anBottom];
       Button_MapDeleteCancel.OnClick := DeleteClick;
       Button_MapDeleteCancel.Hide;
+
+      //Move
+      Label_MapMoveConfirm := TKMLabel.Create(Panel_MapEdLoad, 0, 594, 'Move to multiplayer maps', fnt_Outline, taLeft);
+      Label_MapMoveConfirm.Anchors := [anLeft, anBottom];
+      Label_MapMoveConfirm.Hide;
+
+      Edit_MapMove := TKMEdit.Create(Panel_MapEdLoad, 0, 610, 300, 20, fnt_Grey);
+      Edit_MapMove.Anchors := [anLeft, anBottom];
+      Edit_MapMove.OnChange := MoveEditChange;
+      Edit_MapMove.Hide;
+
+      Label_MoveExists := TKMLabel.Create(Panel_MapEdLoad, 0, 632, gResTexts[TX_MAPED_SAVE_EXISTS], fnt_Outline, taLeft);
+      Label_MoveExists.Anchors := [anLeft, anBottom];
+      Label_MoveExists.Hide;
+      CheckBox_MoveExists := TKMCheckBox.Create(Panel_MapEdLoad, 0, 650, 300, 20, gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
+      CheckBox_MoveExists.Anchors := [anLeft, anBottom];
+      CheckBox_MoveExists.OnClick := MoveEditChange;
+      CheckBox_MoveExists.Hide;
+
+      Button_MapMoveConfirm := TKMButton.Create(Panel_MapEdLoad, 0, 668, 206, 30, 'Move', bsMenu);
+      Button_MapMoveConfirm.Anchors := [anLeft, anBottom];
+      Button_MapMoveConfirm.OnClick := MoveClick;
+      Button_MapMoveConfirm.Hide;
+
+      Button_MapMoveCancel  := TKMButton.Create(Panel_MapEdLoad, 234, 668, 206, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
+      Button_MapMoveCancel.Anchors := [anLeft, anBottom];
+      Button_MapMoveCancel.OnClick := MoveClick;
+      Button_MapMoveCancel.Hide;
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 60, 708, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_MapEdBack.Anchors := [anLeft, anBottom];
@@ -200,7 +235,10 @@ begin
       0: Maps := fMaps;
       1: Maps := fMapsMP;
       2: Maps := fMapsDL;
-      else Assert(False);
+      else  begin
+              Assert(False);
+              Exit;
+            end;
     end;
 
     //Terminate all
@@ -251,6 +289,7 @@ var ScaleShift: Integer;
 begin
   ListUpdate;
   DeleteConfirm(False);
+  MoveConfirm(False);
 
   ScaleShift := (768 - Panel_MapEd.Height);
   if Radio_MapEd_MapType.ItemIndex = 2 then
@@ -288,7 +327,10 @@ begin
     0: fMaps.Refresh(ScanUpdate);
     1: fMapsMP.Refresh(ScanUpdate);
     2: fMapsDL.Refresh(ScanUpdate);
-    else Assert(False);
+    else  begin
+            Assert(False);
+            Exit;
+          end;
   end;
 end;
 
@@ -317,7 +359,10 @@ begin
     0: Maps := fMaps;
     1: Maps := fMapsMP;
     2: Maps := fMapsDL;
-    else Assert(False);
+    else  begin
+            Assert(False);
+            Exit;
+          end;
   end;
 
   Maps.Lock;
@@ -382,6 +427,7 @@ var
 begin
   Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
   Button_MapDelete.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
+  Button_MapMove.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
 
   if Button_MapEd_Load.Enabled then
   begin
@@ -390,10 +436,15 @@ begin
       0: Maps := fMaps;
       1: Maps := fMapsMP;
       2: Maps := fMapsDL;
-      else Assert(False);
+      else
+      begin
+        Assert(False);
+        Exit;
+      end;
     end;
 
     DeleteConfirm(False);
+    MoveConfirm(False);
 
     Maps.Lock;
       fLastMapCRC := Maps[ID].CRC;
@@ -429,6 +480,21 @@ begin
   Button_MapDeleteCancel.Visible := aVisible;
   Button_MapDelete.Visible := not aVisible;
   Button_MapEd_Load.Visible := not aVisible;
+  Button_MapMove.Visible := (Radio_MapEd_MapType.ItemIndex = 2) and not aVisible;
+end;
+
+
+procedure TKMMenuMapEditor.MoveConfirm(aVisible: Boolean);
+begin
+  Label_MapMoveConfirm.Visible := aVisible;
+  Button_MapMoveConfirm.Visible := aVisible;
+  Button_MapMoveCancel.Visible := aVisible;
+  Edit_MapMove.Visible := aVisible;
+  Label_MoveExists.Visible := aVisible;
+  CheckBox_MoveExists.Visible := aVisible;
+  Button_MapDelete.Visible := not aVisible;
+  Button_MapEd_Load.Visible := not aVisible;
+  Button_MapMove.Visible := (Radio_MapEd_MapType.ItemIndex = 2) and not aVisible;
 end;
 
 
@@ -441,7 +507,10 @@ begin
     0: Maps := fMaps;
     1: Maps := fMapsMP;
     2: Maps := fMapsDL;
-    else Assert(False);
+    else  begin
+            Assert(False);
+            Exit;
+          end;
   end;
 
   if ColumnBox_MapEd.ItemIndex = -1 then Exit;
@@ -475,20 +544,49 @@ begin
 end;
 
 
+procedure TKMMenuMapEditor.MoveEditChange(Sender: TObject);
+var
+  SaveName: string;
+begin
+  SaveName := TKMapsCollection.FullPath(Trim(Edit_MapMove.Text), '.dat', mfMP);
+
+  if (Sender = Edit_MapMove) or (Sender = Button_MapMove) then
+  begin
+    CheckBox_MoveExists.Visible := FileExists(SaveName);
+    Label_MoveExists.Visible := CheckBox_MoveExists.Visible;
+    CheckBox_MoveExists.Checked := False;
+    Button_MapMoveConfirm.Enabled := not CheckBox_MoveExists.Visible;
+  end;
+
+  if Sender = CheckBox_MoveExists then
+    Button_MapMoveConfirm.Enabled := CheckBox_MoveExists.Checked;
+end;
+
+
 procedure TKMMenuMapEditor.MoveClick(Sender: TObject);
 var
-  OldSelection, NewSelection: Integer;
+  OldSelection, NewSelection, ID: Integer;
 begin
   Assert(Radio_MapEd_MapType.ItemIndex = 2);
 
   if ColumnBox_MapEd.ItemIndex = -1 then Exit;
 
-  //Delete selected map
-  if Sender = Button_MapDeleteConfirm then
+  if Sender = Button_MapMove then
+  begin
+    ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
+    Edit_MapMove.Text := fMapsDL[ID].FileNameWithoutHash;
+    MoveConfirm(True);
+    MoveEditChange(Button_MapMove);
+  end;
+
+  if (Sender = Button_MapMoveConfirm) or (Sender = Button_MapMoveCancel) then
+    MoveConfirm(False);
+
+  //Move selected map
+  if Sender = Button_MapMoveConfirm then
   begin
     OldSelection := ColumnBox_MapEd.ItemIndex;
-    //todo: Move it
-    //fMapsDL.MoveMap(ColumnBox_MapEd.ItemIndex);
+    fMapsDL.MoveMap(ColumnBox_MapEd.ItemIndex, Edit_MapMove.Text, mfMP);
     RefreshList(False);
     if ColumnBox_MapEd.RowCount > 0 then
       ColumnBox_MapEd.ItemIndex := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 1)
