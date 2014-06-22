@@ -324,6 +324,8 @@ TX_MENU_MAP_AVAILABLE = 298; //Available maps
 TX_MENU_MAP_LOAD_EXISTING = 299; //Load Existing Map
 TX_MENU_MAP_DELETE = 805; //Delete Map
 TX_MENU_MAP_DELETE_CONFIRM = 806; //Are you sure you want to delete this map?
+TX_MENU_MAP_MOVE = 823; //Move to multiplayer maps
+TX_MENU_MAP_MOVE_CONFIRM = 824; //Move
 TX_MENU_MAP_LOCATION = 300; //Location
 TX_MENU_OPTIONS_CONTROLS = 301; //Controls:
 TX_MENU_OPTIONS_GAMEPLAY = 302; //Gameplay:
@@ -718,6 +720,7 @@ TX_CREDITS_SPECIAL = 588; //SPECIAL THANKS TO:
 
 TX_MENU_MAPED_MPMAPS = 589; //Multiplayer maps
 TX_MENU_MAPED_SPMAPS = 590; //Singleplayer maps
+TX_MENU_MAPED_DLMAPS = 822; //Downloaded maps
 TX_MENU_OPTIONS_SCROLL_SPEED = 591; //Scroll speed
 TX_MP_MENU_NO_SERVERS = 592; //No servers found
 TX_MENU_OPTIONS_MUSIC_SHUFFLE = 593; //Shuffle tracks

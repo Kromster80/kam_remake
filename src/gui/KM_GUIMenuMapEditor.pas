@@ -126,7 +126,7 @@ begin
       Radio_MapEd_MapType.ItemIndex := 0;
       Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
       Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
-      Radio_MapEd_MapType.Add('Downloaded maps');
+      Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_DLMAPS]);
       Radio_MapEd_MapType.OnChange := MapTypeChange;
       ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 100, 440, 526, fnt_Metal,  bsMenu);
       ColumnBox_MapEd.Anchors := [anLeft, anTop, anBottom];
@@ -147,7 +147,7 @@ begin
       Button_MapDelete := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_DELETE], bsMenu);
       Button_MapDelete.Anchors := [anLeft, anBottom];
       Button_MapDelete.OnClick := DeleteClick;
-      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, 'Move to multiplayer maps', bsMenu);
+      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_MOVE], bsMenu);
       Button_MapMove.Anchors := [anLeft, anBottom];
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
@@ -168,7 +168,7 @@ begin
       Button_MapDeleteCancel.Hide;
 
       //Move
-      Label_MapMoveConfirm := TKMLabel.Create(Panel_MapEdLoad, 0, 594, 'Move to multiplayer maps', fnt_Outline, taLeft);
+      Label_MapMoveConfirm := TKMLabel.Create(Panel_MapEdLoad, 0, 594, gResTexts[TX_MENU_MAP_MOVE], fnt_Outline, taLeft);
       Label_MapMoveConfirm.Anchors := [anLeft, anBottom];
       Label_MapMoveConfirm.Hide;
 
@@ -185,7 +185,7 @@ begin
       CheckBox_MoveExists.OnClick := MoveEditChange;
       CheckBox_MoveExists.Hide;
 
-      Button_MapMoveConfirm := TKMButton.Create(Panel_MapEdLoad, 0, 668, 206, 30, 'Move', bsMenu);
+      Button_MapMoveConfirm := TKMButton.Create(Panel_MapEdLoad, 0, 668, 206, 30, gResTexts[TX_MENU_MAP_MOVE_CONFIRM], bsMenu);
       Button_MapMoveConfirm.Anchors := [anLeft, anBottom];
       Button_MapMoveConfirm.OnClick := MoveClick;
       Button_MapMoveConfirm.Hide;
