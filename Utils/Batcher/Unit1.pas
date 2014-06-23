@@ -194,6 +194,7 @@ var
   MapInfo: TKMapInfo;
   WinCond, DefeatCond: array [TGoalCondition] of Word;
   GC: TGoalCondition;
+  MapFolderType: TMapFolder;
 begin
   ControlsEnable(False);
   SetUp;
@@ -207,7 +208,12 @@ begin
 
     for I := 0 to PathToMaps.Count - 1 do
     begin
-      MapInfo := TKMapInfo.Create(TruncateExt(ExtractFileName(PathToMaps[I])), False, Pos('MapsMP', PathToMaps[I]) > 0);
+      if Pos('MapsMP', PathToMaps[I]) > 0 then
+        MapFolderType := mfMP
+      else
+        MapFolderType := mfSP;
+
+      MapInfo := TKMapInfo.Create(TruncateExt(ExtractFileName(PathToMaps[I])), False, MapFolderType);
       MapInfo.LoadExtra;
       for J := 0 to MapInfo.LocCount - 1 do
       begin
