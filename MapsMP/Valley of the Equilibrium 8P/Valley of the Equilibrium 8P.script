@@ -30,3 +30,13 @@ begin
       Counter[K] := Counter[K] - 1;
     end;
 end;
+
+
+procedure OnHousePlanRemoved(aPlayerIndex, aX, aY, aHouseType: Integer);
+begin
+  if aHouseType = 17 then 
+    begin
+      K := aPlayerIndex;
+      Counter[K] := Counter[K] - 1;
+    end;
+end;
