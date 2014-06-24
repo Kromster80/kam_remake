@@ -155,7 +155,6 @@ type
     procedure ReplayInconsistancy;
 
     procedure Render(aRender: TRender);
-    procedure RenderSelection;
     procedure UpdateGame(Sender: TObject);
     procedure UpdateState(aGlobalTickCount: Cardinal);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
@@ -844,12 +843,6 @@ begin
 
   aRender.SetRenderMode(rm2D);
   fActiveInterface.Paint;
-end;
-
-
-procedure TKMGame.RenderSelection;
-begin
-  fRenderPool.RenderSelection;
 end;
 
 

@@ -663,24 +663,11 @@ begin
 
   fRender.RenderBrightness(GameSettings.Brightness);
 
-  if SHOW_SEL_BUFFER and (gGame <> nil) then
-    //Color-code render result assigned to GameCursor.ObjectId
-    gGame.RenderSelection;
-
   fRender.EndFrame;
 
-  //Selection buffer
   if not aForPrintScreen and (gGame <> nil) then
-  begin
-    //Clear buffer
-    fRender.BeginFrame;
-
-    //Color-code render result assigned to GameCursor.ObjectId
-    gGame.RenderSelection;
-
     if Assigned(fOnCursorUpdate) then
       fOnCursorUpdate(4, 'Objects: ' + IntToStr(GameCursor.ObjectUID));
-  end;
 end;
 
 

@@ -10,7 +10,6 @@ uses
   KM_Houses, KM_Terrain, KM_Projectiles, OBJLoader;
 
 type
-  TKMRenderTarget = (rtScreen, rtSelection);
   TKMPaintLayer = (plTerrain, plObjects, plCursors);
 
   TKMRenderSprite = record
@@ -37,7 +36,7 @@ type
     fStat_Sprites: Integer; //Total sprites in queue
     fStat_Sprites2: Integer;//Rendered sprites
     procedure ClipRenderList;
-    procedure SendToRender(aId: Integer; aTarget: TKMRenderTarget);
+    procedure SendToRender(aId: Integer);
   public
     constructor Create;
     destructor Destroy; override;
@@ -50,7 +49,7 @@ type
     function GetSelectionUID(CurPos: TKMPointF): Integer;
     procedure Clear;
     procedure SortRenderList;
-    procedure Render(aTarget: TKMRenderTarget);
+    procedure Render;
   end;
 
   //Collect everything that need to be rendered and put it in a list
@@ -75,7 +74,7 @@ type
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderForegroundUI;
 
-    procedure RenderSprite(aRX: TRXType; aId: Word; aUID: Integer; aUseUID: Boolean; pX, pY: Single; Col: TColor4; HighlightRed: Boolean = False);
+    procedure RenderSprite(aRX: TRXType; aId: Word; pX, pY: Single; Col: TColor4; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderMapElement1(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderMapElement4(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -119,8 +118,6 @@ type
     procedure SetRotation(aH,aP,aB: Integer);
 
     procedure Render;
-    procedure RenderSelection;
-    function GetSelectionUID(X,Y: Integer): Integer;
   end;
 
 
@@ -264,7 +261,7 @@ begin
       gGame.GamePlayInterface.Alerts.Paint(0);
 
     fRenderList.SortRenderList;
-    fRenderList.Render(rtScreen);
+    fRenderList.Render;
 
     fRenderTerrain.RenderFOW(MySpectator.FogOfWar, False);
 
@@ -277,47 +274,6 @@ begin
     RenderForegroundUI;
 
   glPopAttrib;
-end;
-
-
-procedure TRenderPool.RenderSelection;
-begin
-  if fRender.Blind then Exit;
-
-  ApplyTransform;
-
-  glPushAttrib(GL_COLOR_BUFFER_BIT or GL_TEXTURE_BIT);
-
-    glBlendFunc(GL_ONE, GL_ZERO);
-
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-    glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
-    glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_TEXTURE);
-    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-
-    //Render sprites
-    fRenderList.Render(rtSelection);
-
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.5);
-    fRenderTerrain.RenderFOW(MySpectator.FogOfWar, True);
-
-  glPopAttrib;
-end;
-
-
-function TRenderPool.GetSelectionUID(X, Y: Integer): Integer;
-var
-  Pix: Cardinal;
-begin
-  Result := -1;
-
-  glReadPixels(X, fRender.ScreenY - Y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, @Pix);
-
-  if (Pix and $FFFFFF) <> 0 then
-    Result := Pix and $FFFFFF;
 end;
 
 
@@ -489,7 +445,7 @@ begin
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, Deleting);
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting);
   end;
 end;
 
@@ -517,7 +473,7 @@ var
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, Deleting);
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting);
   end;
 
 var
@@ -856,7 +812,7 @@ begin
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
 
   if DoImmediateRender then
-    RenderSprite(rxUnits, Id, 0, False, CornerX, CornerY, FlagColor, Deleting)
+    RenderSprite(rxUnits, Id, CornerX, CornerY, FlagColor, Deleting)
   else
     if NewInst then
       fRenderList.AddSpriteG(rxUnits, Id, aUID, CornerX, CornerY, pX, Ground, FlagColor)
@@ -1028,18 +984,13 @@ begin
 end;}
 
 
-procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; aUID: Integer; aUseUID: Boolean;
-  pX,pY: Single; Col: TColor4; HighlightRed: Boolean = False);
+procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single;
+  Col: TColor4; HighlightRed: Boolean = False);
 begin
   with GFXData[aRX, aId] do
   begin
-    if aUseUID and (aUID = 0) then Exit;
-
-    if aUseUID then
-      glColor4ub(aUID and $FF, aUID shr 8 and $FF, aUID shr 16 and $FF, 255)
-    else
-      //FOW is rendered over the top so no need to make sprites black anymore
-      glColor4ub(255, 255, 255, 255);
+    //FOW is rendered over the top so no need to make sprites black anymore
+    glColor4ub(255, 255, 255, 255);
 
     glBindTexture(GL_TEXTURE_2D, Tex.Id);
     if HighlightRed then glColor3f(1,0,0);
@@ -1051,7 +1002,7 @@ begin
     glEnd;
   end;
 
-  if (GFXData[aRX, aId].Alt.Id <> 0) and not aUseUID then
+  if GFXData[aRX, aId].Alt.Id <> 0 then
   with GFXData[aRX, aId] do
   begin
     glColor4ubv(@Col);
@@ -1253,7 +1204,7 @@ begin
   pX := aLoc.X - 0.5 + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
   pY := gTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) -
         fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
-  RenderSprite(rxGui, aId, 0, False, pX, pY, aFlagColor);
+  RenderSprite(rxGui, aId, pX, pY, aFlagColor);
 end;
 
 
@@ -1266,7 +1217,7 @@ begin
   pX := aLoc.X + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
   pY := gTerrain.FlatToHeight(aLoc.X, aLoc.Y) +
         fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
-  RenderSprite(rxGui, aId, 0, False, pX, pY, aFlagColor);
+  RenderSprite(rxGui, aId, pX, pY, aFlagColor);
 end;
 
 
@@ -1620,11 +1571,10 @@ begin
 end;
 
 
-procedure TRenderList.SendToRender(aId: Integer; aTarget: TKMRenderTarget);
+procedure TRenderList.SendToRender(aId: Integer);
 var
   Sp1, Sp2: TKMRenderSprite;
-  uid: Integer;
-  useUid, Sp2Exists: Boolean;
+  Sp2Exists: Boolean;
 begin
   //Shortcuts to Sprites info
   Sp1 := RenderList[aId];
@@ -1634,13 +1584,9 @@ begin
 
   if Sp1.AlphaStep = -1 then
   begin
-    useUid := (aTarget = rtSelection);
-    uid := Sp1.UID * Byte(useUid);
-
-    fRenderPool.RenderSprite(Sp1.RX, Sp1.Id, uid, useUid, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor);
+    fRenderPool.RenderSprite(Sp1.RX, Sp1.Id, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor);
   end
   else
-  if (aTarget = rtScreen) then
   begin
     //Houses are rendered as Wood+Stone part. For Stone we want to skip
     //Wooden part where it is occluded (so that smooth shadows dont overlay)
@@ -1666,7 +1612,7 @@ end;
 
 
 {Now render all these items from list}
-procedure TRenderList.Render(aTarget: TKMRenderTarget);
+procedure TRenderList.Render;
 var
   I, K, objectCount: Integer;
 begin
@@ -1688,7 +1634,7 @@ begin
       end;
 
       repeat //Render child sprites after their parent
-        SendToRender(K, aTarget);
+        SendToRender(K);
         if SHOW_SEL_BUFFER and (RenderList[K].UID > 0) then
           gRenderAux.SquareOnTerrain(RenderList[K].SelectionRect.Left , RenderList[K].SelectionRect.Top,
                                      RenderList[K].SelectionRect.Right, RenderList[K].SelectionRect.Bottom, RenderList[K].UID or $FF000000);
