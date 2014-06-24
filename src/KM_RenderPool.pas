@@ -22,6 +22,7 @@ type
     NewInst: Boolean;
     TeamColor: Cardinal;
     AlphaStep: Single; //Only appliable to HouseBuild
+    SelectionRect: TKMRectF; //Used for selecting units by sprite
   end;
 
   TSmallIntArray = array of smallint;
@@ -46,6 +47,7 @@ type
 
     property Stat_Sprites: Integer read fStat_Sprites;
     property Stat_Sprites2: Integer read fStat_Sprites2;
+    function GetSelectionUID(CurPos: TKMPointF): Integer;
     procedure Clear;
     procedure SortRenderList;
     procedure Render(aTarget: TKMRenderTarget);
@@ -1438,6 +1440,29 @@ begin
 end;
 
 
+function TRenderList.GetSelectionUID(CurPos: TKMPointF): Integer;
+var I, K: Integer;
+begin
+  Result := -1; //Didn't hit anything
+  //Skip if cursor is over FOW
+  if MySpectator.FogOfWar.CheckRevelation(CurPos) <= FOG_OF_WAR_MIN then Exit;
+  //Select closest (higher Z) units first (list is in low..high Z-order)
+  for I := Length(RenderOrder) - 1 downto 0 do
+    if RenderOrder[I] <> -1 then
+    begin
+      K := RenderOrder[I];
+      repeat //Check child sprites after their parent
+        if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
+        begin
+          Result := RenderList[K].UID;
+          Exit;
+        end;
+        Inc(K);
+      until ((K = fCount) or RenderList[K].NewInst);
+    end;
+end;
+
+
 procedure TRenderList.Clear;
 begin
   fCount := 0;
@@ -1563,6 +1588,15 @@ begin
   RenderList[fCount].TeamColor  := aTeam;           //Team Id (determines color)
   RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
 
+  if aUID > 0 then
+    with RenderList[fCount].SelectionRect do
+    begin
+      Left := RenderList[fCount].Loc.X;
+      Bottom := gY;
+      Right := Left + GFXData[aRX, aId].PxWidth / CELL_SIZE_PX;
+      Top := Bottom - GFXData[aRX, aId].PxHeight / CELL_SIZE_PX;
+    end;
+
   Inc(fCount); //New item added
 end;
 
@@ -1655,6 +1689,9 @@ begin
 
       repeat //Render child sprites after their parent
         SendToRender(K, aTarget);
+        if SHOW_SEL_BUFFER and (RenderList[K].UID > 0) then
+          gRenderAux.SquareOnTerrain(RenderList[K].SelectionRect.Left , RenderList[K].SelectionRect.Top,
+                                     RenderList[K].SelectionRect.Right, RenderList[K].SelectionRect.Bottom, RenderList[K].UID or $FF000000);
         Inc(K);
         Inc(fStat_Sprites2);
       until ((K = fCount) or RenderList[K].NewInst);

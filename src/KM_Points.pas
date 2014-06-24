@@ -58,6 +58,7 @@ type
   function KMClipRect(aRect: TKMRect; X1,Y1,X2,Y2: Integer): TKMRect;
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
   function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean; overload;
+  function KMInRect(aPoint: TKMPointF; aRect: TKMRectF): Boolean; overload;
   function KMRectArea(aRect: TKMRect): Integer;
   function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
 
@@ -316,6 +317,12 @@ end;
 
 
 function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean;
+begin
+  Result := InRange(aPoint.X, aRect.Left, aRect.Right) and InRange(aPoint.Y, aRect.Top, aRect.Bottom);
+end;
+
+
+function KMInRect(aPoint: TKMPointF; aRect: TKMRectF): Boolean;
 begin
   Result := InRange(aPoint.X, aRect.Left, aRect.Right) and InRange(aPoint.Y, aRect.Top, aRect.Bottom);
 end;

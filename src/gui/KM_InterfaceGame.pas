@@ -22,6 +22,8 @@ type
     property Minimap: TKMMinimap read fMinimap;
     property Viewport: TViewport read fViewport;
 
+    function CursorToMapCoord(X, Y: Integer): TKMPointF;
+
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
 
     procedure SyncUI(aMoveViewport: Boolean = True); virtual;
@@ -234,6 +236,14 @@ begin
 end;
 
 
+function TKMUserInterfaceGame.CursorToMapCoord(X, Y: Integer): TKMPointF;
+begin
+  Result.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
+  Result.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
+  Result.Y := gTerrain.ConvertCursorToMapCoord(Result.X, Result.Y);
+end;
+
+
 //Compute cursor position and store it in global variables
 procedure TKMUserInterfaceGame.UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
 begin
@@ -241,17 +251,13 @@ begin
   begin
     Pixel.X := X;
     Pixel.Y := Y;
-
-    Float.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := gTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
+    Float := CursorToMapCoord(X, Y);
 
     //Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
     Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); //Cell below cursor in map bounds
     Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
 
-    ObjectUID := fRenderPool.GetSelectionUID(X, Y);
-
+    ObjectUID := fRenderPool.RenderList.GetSelectionUID(Float);
     SState := Shift;
   end;
 end;
