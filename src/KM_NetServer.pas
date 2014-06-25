@@ -800,7 +800,12 @@ begin
         else    DoSendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);
       end;
 
-    if 12+PacketLength < SenderClient.fBufferSize then //Check range
+    //Processing that packet may have caused this client to be kicked (joining room where banned)
+    //and in that case SenderClient is invalid so we must exit immediately
+    if fClientList.GetByHandle(aHandle) = nil then
+      Exit;
+
+    if SenderClient.fBufferSize > 12+PacketLength then //Check range
       Move(SenderClient.fBuffer[12+PacketLength], SenderClient.fBuffer[0], SenderClient.fBufferSize-PacketLength-12);
     SenderClient.fBufferSize := SenderClient.fBufferSize - PacketLength - 12;
   end;
