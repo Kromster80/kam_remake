@@ -156,7 +156,6 @@ procedure TKMInfluences.InitInfluenceAvoid;
 var
   S: TKMHouse;
   I, K, J: Integer;
-  Bmp: TBitmap;
   M: Integer;
   N: Integer;
 begin
@@ -415,4 +414,4 @@ begin
 end;
 
 
-end.
+end.

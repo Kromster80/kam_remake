@@ -440,9 +440,8 @@ begin
   Solver.Solve;
 
   //Output
-  Assert(SizeOf(Solver.Solution[0]) = SizeOf(Result[0]), 'Hungarian elements mismatch output size');
   SetLength(Result, aAgents.Count);
-  Move(Solver.Solution[0], Result[0], aAgents.Count * SizeOf(Result[0]));
+  Move(Solver.Solution[0], Result[0], aAgents.Count * SizeOf(Cardinal));
 
   Solver.Free;
 end;

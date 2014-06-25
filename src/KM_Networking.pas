@@ -1193,8 +1193,7 @@ var
   err: UnicodeString;
   tmpInteger: Integer;
   tmpCRC: Cardinal;
-  tmpBoolean: Boolean;
-  tmpStringA, replyStringA: AnsiString;
+  tmpStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
   tmpChatMode: TChatMode;
   I,LocID,TeamID,ColorID,PlayerIndex: Integer;

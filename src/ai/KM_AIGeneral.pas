@@ -410,7 +410,7 @@ end;
 
 procedure TKMGeneral.CheckAutoDefend;
 
-  function EnsureWalkable(out Loc: TKMPoint): Boolean;
+  function EnsureWalkable(var Loc: TKMPoint): Boolean;
   var
     IX, IY, BestDistSqr: Integer;
     Best: TKMPoint;
@@ -649,4 +649,4 @@ end;
 
 
 end.
-
+

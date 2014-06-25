@@ -566,6 +566,7 @@ var
   I: Integer;
   Values: string;
 begin
+  Values := '';
   for I := Low(aValues) to High(aValues) do
     Values := Values + IntToStr(aValues[I]) + IfThen(I<>High(aValues), ', ');
   gLog.AddTime('Mistake in script usage ' + aFuncName + ': ' + Values);
@@ -3694,4 +3695,4 @@ begin
 end;
 
 
-end.
+end.

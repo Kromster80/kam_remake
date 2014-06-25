@@ -439,6 +439,7 @@ var
   end;
 begin
   if (aText = '') or (aColor = $00000000) then Exit;
+  SetLength(Colors, 0);
 
   if aWidth <> 0 then
     SetupClipX(aLeft, aLeft + aWidth);

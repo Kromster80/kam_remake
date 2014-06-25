@@ -71,13 +71,13 @@ procedure TKMNetUDPLNet.Receive(aSocket: TLSocket);
 const
   BufferSize = 10240; //10kb
 var
-  P:pointer; s:string;
-  L:integer; //L could be -1 when no data is available
+  P: Pointer;
+  L: Integer; //L could be -1 when no data is available
 begin
   GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
   L := fUDP.Get(P^, BufferSize, aSocket);
 
-  if L > 0 then //if L=0 then exit;
+  if L > 0 then
     fOnRecieveData(aSocket.PeerAddress, P, L);
 
   FreeMem(P);
@@ -95,4 +95,4 @@ begin
   if fUDP <> nil then fUDP.CallAction; //Process network events
 end;
 
-end.
+end.

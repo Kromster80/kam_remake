@@ -145,7 +145,6 @@ end;
 
 
 procedure TKMNetServerLNet.StopListening;
-var i:Integer;
 begin
   if fSocketServer <> nil then
   begin
@@ -231,7 +230,6 @@ end;
 
 //Make sure we send data to specified client
 procedure TKMNetServerLNet.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
-var LenSent: Integer;
 begin
   fSocketServer.IterReset;
   while fSocketServer.IterNext do
