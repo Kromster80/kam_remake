@@ -1107,42 +1107,46 @@ begin
   SaveStream := TKMemoryStream.Create;
   try
     fGameInfo := TKMGameInfo.Create;
-    fGameInfo.Title := fGameName;
-    fGameInfo.TickCount := fGameTickCount;
-    fGameInfo.SaveTimestamp := aTimestamp;
-    fGameInfo.MissionMode := fMissionMode;
-    fGameInfo.MapSizeX := gTerrain.MapX;
-    fGameInfo.MapSizeY := gTerrain.MapY;
-    fGameInfo.VictoryCondition := 'Win';
-    fGameInfo.DefeatCondition := 'Lose';
-    fGameInfo.PlayerCount := gHands.Count;
-    for I := 0 to gHands.Count - 1 do
-    begin
-      if fNetworking = nil then
+    try
+      fGameInfo.Title := fGameName;
+      fGameInfo.TickCount := fGameTickCount;
+      fGameInfo.SaveTimestamp := aTimestamp;
+      fGameInfo.MissionMode := fMissionMode;
+      fGameInfo.MapSizeX := gTerrain.MapX;
+      fGameInfo.MapSizeY := gTerrain.MapY;
+      fGameInfo.VictoryCondition := 'Win';
+      fGameInfo.DefeatCondition := 'Lose';
+      fGameInfo.PlayerCount := gHands.Count;
+      for I := 0 to gHands.Count - 1 do
       begin
-        fGameInfo.Enabled[I] := False;
-        fGameInfo.CanBeHuman[I] := False;
-        fGameInfo.OwnerNikname[I] := '';
-        fGameInfo.PlayerTypes[I] := hndHuman;
-        fGameInfo.ColorID[I] := 0;
-        fGameInfo.Team[I] := 0;
-      end else
-      begin
-        netIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
-        if netIndex <> -1 then
+        if fNetworking = nil then
         begin
-          fGameInfo.Enabled[I] := True;
-          fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[netIndex].IsHuman;
-          fGameInfo.OwnerNikname[I] := fNetworking.NetPlayers[netIndex].Nikname;
-          fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
-          fGameInfo.ColorID[I] := fNetworking.NetPlayers[netIndex].FlagColorID;
-          fGameInfo.Team[I] := fNetworking.NetPlayers[netIndex].Team;
+          fGameInfo.Enabled[I] := False;
+          fGameInfo.CanBeHuman[I] := False;
+          fGameInfo.OwnerNikname[I] := '';
+          fGameInfo.PlayerTypes[I] := hndHuman;
+          fGameInfo.ColorID[I] := 0;
+          fGameInfo.Team[I] := 0;
+        end else
+        begin
+          netIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
+          if netIndex <> -1 then
+          begin
+            fGameInfo.Enabled[I] := True;
+            fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[netIndex].IsHuman;
+            fGameInfo.OwnerNikname[I] := fNetworking.NetPlayers[netIndex].Nikname;
+            fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
+            fGameInfo.ColorID[I] := fNetworking.NetPlayers[netIndex].FlagColorID;
+            fGameInfo.Team[I] := fNetworking.NetPlayers[netIndex].Team;
+          end;
         end;
       end;
+
+      fGameInfo.Save(SaveStream);
+    finally
+      fGameInfo.Free;
     end;
 
-    fGameInfo.Save(SaveStream);
-    fGameInfo.Free;
     fGameOptions.Save(SaveStream);
 
     //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
