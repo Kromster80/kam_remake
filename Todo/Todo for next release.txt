@@ -22,10 +22,10 @@ Bugs:
  +	MapEd: Autoattack and "fast equip" AI config
  +	MapEd: Button on mission tab to apply our default MP AI builder setup
  +	Interface on MapEd main menu for moving downloaded maps from MapsDL folder to MapsMP if you want to add them to your official list
+ +	Some players can't select units in windowed mode (rewrote selection buffer)
+ +	Loading a map then saving it as a different name in the MapEd should save .script, .libx and .wav files too
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position
-	Some players can't select units in windowed mode (since selection buffer was implemented). Fullscreen works fine. F11 selection buffer renders normally. Players on TeamSpeak: Ahmed (GTX 650), [ROMA] airo
-	Loading a map then saving it as a different name in the MapEd should save .script, .libx and .wav files too
  -      Create local server, run multiplayer game in 2nd window. You will get Range Check error instead of servers list: http://imgur.com/K27p2Tk (My fault, forgot to add needed sprite [Andreus])
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]
 

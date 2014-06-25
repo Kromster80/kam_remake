@@ -1,9 +1,9 @@
 unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, Math, SysUtils,
+uses Classes, Controls, Math, SysUtils, StrUtils, IOUtils,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_RenderPool,
-  KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection;
+  KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection, KM_FileIO;
 
 
 type
@@ -23,6 +23,11 @@ type
     fSelection: TKMSelection;
     fRevealers: array [0..MAX_HANDS-1] of TKMPointTagList;
     fVisibleLayers: TMapEdLayerSet;
+    //When you load a map script/libx/wav/etc. files are "attached" then copied when
+    //saving if the path is different
+    fAttachedFiles: array of record
+                               Filename, Ext: UnicodeString;
+                             end;
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
@@ -39,6 +44,8 @@ type
     property Selection: TKMSelection read fSelection;
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
+    procedure DetectAttachedFiles(const aMissionFile: UnicodeString);
+    procedure SaveAttachements(const aMissionFile: UnicodeString);
     function HitTest(X,Y: Integer): TKMMapEdMarker;
     function HumanCount: Integer;
     procedure MouseDown(Button: TMouseButton);
@@ -99,6 +106,57 @@ end;
 function TKMMapEditor.GetRevealer(aIndex: Byte): TKMPointTagList;
 begin
   Result := fRevealers[aIndex];
+end;
+
+
+procedure TKMMapEditor.DetectAttachedFiles(const aMissionFile: UnicodeString);
+var
+  SearchRec: TSearchRec;
+  MissionName, RecExt: UnicodeString;
+begin
+  SetLength(fAttachedFiles, 0);
+  MissionName := ChangeFileExt(ExtractFileName(aMissionFile), '');
+  FindFirst(ChangeFileExt(aMissionFile, '.*'), faAnyFile - faDirectory, SearchRec);
+  repeat
+    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+    begin
+      SetLength(fAttachedFiles, Length(fAttachedFiles)+1);
+      //Can't use ExtractFileExt because we want .eng.libx not .libx
+      RecExt := RightStr(SearchRec.Name, Length(SearchRec.Name)-Length(MissionName));
+      if (LowerCase(RecExt) = '.map') or (LowerCase(RecExt) = '.dat')
+      or (LowerCase(RecExt) = '.mi' ) or (LowerCase(RecExt) = '.dat.txt') then
+        Continue;
+
+      with fAttachedFiles[Length(fAttachedFiles)-1] do
+      begin
+        Filename := ExtractFilePath(aMissionFile) + SearchRec.Name;
+        Ext := RecExt;
+      end;
+    end;
+  until (FindNext(SearchRec) <> 0);
+end;
+
+
+procedure TKMMapEditor.SaveAttachements(const aMissionFile: UnicodeString);
+var
+  I: Integer;
+  Dest: UnicodeString;
+begin
+  for I := 0 to Length(fAttachedFiles)-1 do
+    if FileExists(fAttachedFiles[I].Filename) then
+    begin
+      Dest := ChangeFileExt(aMissionFile, fAttachedFiles[I].Ext);
+      if not SameFileName(Dest, fAttachedFiles[I].Filename) then
+      begin
+        if FileExists(Dest) then
+          DeleteFile(Dest);
+        KMCopyFile(fAttachedFiles[I].Filename, Dest);
+      end;
+    end;
+
+  //Update attached files to be in the new path
+  SetLength(fAttachedFiles, 0);
+  DetectAttachedFiles(aMissionFile);
 end;
 
 

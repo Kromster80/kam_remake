@@ -342,6 +342,7 @@ begin
   begin
     //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
     fMapEditor := TKMMapEditor.Create;
+    fMapEditor.DetectAttachedFiles(aMissionFile);
   end;
 
   Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled, False);
@@ -822,6 +823,7 @@ begin
   ForceDirectories(ExtractFilePath(aPathName));
   gLog.AddTime('Saving from map editor: ' + aPathName);
 
+  fMapEditor.SaveAttachements(aPathName);
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
   fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
