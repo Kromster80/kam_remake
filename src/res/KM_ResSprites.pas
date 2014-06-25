@@ -641,6 +641,8 @@ var
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
 begin
+  BaseRAM := 0;
+  ColorRAM := 0;
   //Prepare base atlases
   SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
   K := 0;
