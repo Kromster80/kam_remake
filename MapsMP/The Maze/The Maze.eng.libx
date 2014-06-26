@@ -1,0 +1,120 @@
+﻿0:Time left:
+1:You have not found this location yet!
+2:You have lost control over this location!
+3:Destroy military complex first!
+4:The task will be completed in
+5:Completed!
+6:of
+7:Send troops to help allies:
+8:Reinforcement arrives in
+9:Limit is reached!
+10:[$%s]%s[]: %d/%d
+11:Team Score:
+12:Secret Tiles found:
+17:|===AVAILABLE BONUSES===|
+18:|===CURRENT TASKS===|
+19:|===ADDITIONAL TASK===|
+20:|===ACHIEVEMENTS===|
+21:Team Achievements
+22:Individual Achievements
+23:|===SCORES===|
+25:The Pirates sent reinforcements!
+26:Reinforcements have arrived!
+27:According to reports of our scouts the enemy equips new soldiers. You should hurry, otherwise capturing of The Castle will be a difficult task.
+28:The Castle Patrol has spotted us! The enemy, probably, has strengthened the defense already, so you better wait for some reinforcements before attack.
+29:You can teleport some troops to your allies when they need help. Just send your troop to the bridge and wait. The troop will appear on opposite side of the map.
+30:You can hide statistic: just block stone delivery in your watchtower. To show statistic, unlock delivery. To show achievements, enable repair.
+31:Tasks have been changed! Added new task:
+32:NOTE: Don't let your generals die and don't teleport them to your allies!
+33:You get a new achievement:
+34:Reward:
+35:You get a new bonus: %s, for %d points.
+36:You have found %d secret tiles!
+37:When you try to capture a strategic location, the enemy will attack you. Be careful!
+50:Take control over The Western Outpost:
+51:Take control over The Eastern Outpost:
+52:Take control over The Southern Outpost:
+53:Take control over The Northern Outpost:
+54:Take control over The Castle:
+55:Defeat enemy soldiers:
+56:Destroy iron mines:
+57:Destroy gold mines:
+58:Destroy coal mines:
+59:Destroy military complex:
+60:Destroy storehouses:
+75:Destroy all enemy buildings
+76:Capture the Castle without destroying any enemy towers
+77:Keep your generals alive
+78:Send 30 mounted units to The Castle
+79:Send 30 ranged units to The Castle
+80:Send 15 barbarians to The Castle
+81:Send 30 melee units to The Castle
+82:Send 30 anti-horse units to The Castle
+83:You should lose no more than 1600 soldiers
+84:Kill all enemy citizens
+95:NOTE: Place them where enemy barracks was.
+96:Vagabonds don't count!
+97:Rebels don't count!
+98:Rogues don't count!
+99:Militia and Warriors don't count!
+125:Novice Scout
+126:Professional Scout
+127:Counterintelligence
+128:Race against the Clock
+129:Meat Grinder
+130:Killer
+131:Demolisher
+132:Knight
+133:Hooooorses!
+134:Shooter
+135:Into Spears!
+136:Infantryman
+137:Barbarian's Boss
+138:Variety
+139:Iron Man
+140:Leather Man
+141:Pirates
+142:Rebel
+143:301st Spartan
+144:Second Chance
+150:for revealing %d%s of the map.
+151:for revealing %d%s of the map.
+152:for defeating all patrols.
+153:you have reached The Castle faster than in 1:20
+154:for killing %d enemy soldiers.
+155:for killing %d enemy citizens.
+156:for destroying %d enemy buildings.
+157:you have more than %d Knights at once.
+158:you have more than %d mounted units at once.
+159:you have more than %d ranged units at once.
+160:you have more than %d anti-horse units at once.
+161:you have more than %d melee units at once.
+162:you have more than %d Barbarians at once.
+163:you have %d soldiers of each type.
+164:you have more than %d iron armored soldiers at once.
+165:you have more than %d leather armored soldiers at once.
+166:for capturing the enemy ships.
+167:you have more than %d mercenaries at once.
+168:you have %d soldiers at once.
+169:you lost almost all troops.
+175:%d Scouts
+176:%d Sword Fighters, %d Bowmen and %d Knights
+177:%d Knights
+178:%d Barbarians
+179:%d Bowmen
+180:%d Knights and %d Scouts
+181:%d Crossbowmen
+182:%d Pikemen
+183:%d Axe Fighters and %d Sword Fighters
+184:%d Warriors
+185:%d Bowmen and %d Barbarians
+186:%d Sword Fighters
+187:%d Axe Fighters
+188:the pirates will send small reinforcements from now. Check the ships from time to time.
+189:%d Rebels
+190:%d Knights and %d Sword Fighters
+191:%d Axe Fighters and %d Bowmen
+200:You get an extra troop!
+201:Teleports counter is reverted!
+202:Time will be inverted for next 2 minutes! Every second gives you extra time!
+203:Time is stopped for next 5 minutes!

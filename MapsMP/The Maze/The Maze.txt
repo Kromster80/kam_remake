@@ -1,0 +1,3 @@
+SetSpecial
+BigDesc
+Survive in this maze and complete all tasks in time. Time is limited: you have 2 hours only!||There are some bonuses that will help you:|-Autofeed every 15 minutes for all units|-Small reinforcements for human players every 7,5 minutes|-Teleport for your troops to help allies if they need help|-Achievements that will give you bonus troops|-Points that will give certain bonuses|-Secret tiles: find 5, 15, 25 tiles and get bonus groups||Good luck!||For more information see Readme in mission folder||Made by andreus.

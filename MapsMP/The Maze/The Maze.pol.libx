@@ -1,0 +1,120 @@
+﻿0:Pozostały czas:
+1:Ta lokacja nie została jeszcze odnaleziona!
+2:Kontrola nad posterunkiem utracona!
+3:Zniszcz najpierw budynki militarne!
+4:Zadanie zostanie wykonane za
+5:Wykonane!
+6:z
+7:Wysłana pomoc dla sojusznika:
+8:Wsparcie przybędzie za
+9:Limit wyczerpany!
+10:[$%s]%s[]: %d/%d
+11:Wynik Drużyny:
+12:Znalezione Ukryte Pola:
+17:|===DOSTĘPNE BONUSY===|
+18:|===GŁÓWNE ZADANIA===|
+19:|===DODATKOWE ZADANIE===|
+20:|===OSIĄGNIĘCIA===|
+21:Osiągnięcia Drużyny
+22:Osiągnięcia Osobiste
+23:|===PUNKTY===|
+25:Piraci wysyłają wsparcie!
+26:Nasze wsparcie dotarło!
+27:Nasi zwiadowcy donoszą, że wróg szkoli nowych żołnierzy. Pospiesz się! W przeciwnym razie zdobycie Zamku może być bardzo trudne!
+28:Jeden z patroli Zamku odkrył naszą obecność! Wróg prawdopodobnie zdążył się już umocnić, więc zanim zaatakujesz, poczekaj na wsparcie.
+29:Jeżeli Twoi sojusznicy potrzebują pomocy, możesz wysłać im swoich żołnierzy. Aby to zrobić, ustaw ich na mostku przy skraju mapy i poczekaj. Wsparcie pojawi się po drugiej stronie mapy.
+30:Możesz ukryć statystyki: po prostu zablokuj dostawę towarów w swojej wieży. Aby zobaczyć statystyki, odblokuj dostawę. Aby zobaczyć osiągnięcia, włącz naprawę budynku przy odblokowanej dostawie.
+31:Zadania zostały zmienione! Nowe zadanie:
+32:UWAGA: Nie pozwól swojemu generałowi umrzeć i nie wysyłaj go do sojuszników!
+33:Nowe osiągnięcie:
+34:Nagroda:
+35:Bonus: %s, za %d punktów.
+36:Odnaleziono %d ukrytych pól!
+37:W trakcie przejmowania strategicznej lokacji, wróg będzie Cię atakował. Uważaj!
+50:Przejmij Zachodni Posterunek:
+51:Przejmij Wschodni Posterunek:
+52:Przjemij Południowy Posterunek:
+53:Przejmij Północny Posterunek:
+54:Przejmij Zamek:
+55:Pokonaj żołnierzy wroga:
+56:Zniszcz kopalnie żelaza:
+57:Zniszcz kopalnie złota:
+58:Zniszcz kopalnie węgla:
+59:Zniszcz budynki militarne:
+60:Zniszcz spichrze:
+75:Zniszcz wszystkie budynki wroga
+76:Przejmij zamek nie niszcząc żadnej wieży
+77:Utrzymaj generałów przy życiu
+78:Do Zamku musi dotrzeć 30 konnych
+79:Do Zamku musi dotrzeć 30 strzelców
+80:Do Zamku musi dotrzeć 15 Barbarzyńców
+81:Do Zamku musi dotrzeć 30 piechurów
+82:Do Zamku musi dotrzeć 30 przeciwkonnych
+83:Nie możesz stracić więcej niż 1600 żołnierzy
+84:Pozbądź się wszystkich mieszkańców wroga
+95:UWAGA: Umieść ich w miejscu Warowni wroga.
+96:Włóczędzy się nie liczą!
+97:Rebelianci się nie liczą!
+98:Pachołkowie się nie liczą!
+99:Żołdacy i Wojownicy się nie liczą!
+125:Początkujący Zwiadowca
+126:Profesjonalny Zwiadowca
+127:Kontrwywiad
+128:Wyścig z czasem
+129:Rzeźnik
+130:Zabójca
+131:Niszczyciel
+132:Rycerz
+133:Kooooonie!
+134:Strzelec
+135:Nabity na Kij
+136:Piechur
+137:Wódz Barbarzyńców
+138:Różnorodność
+139:Człowiek z Żelaza
+140:Skórzany Żołnierz
+141:Piraci
+142:Rebeliant
+143:Sparta!
+144:Kolejna Szansa
+150:za odkrycie %d%s mapy.
+151:za odkrycie %d%s mapy.
+152:za pokonanie wszystkich patroli.
+153:dotarłeś do Zamku poniżej 1:20.
+154:za pokonanie %d żołnierzy.
+155:za pozbycie się %d mieszkańców.
+156:za zniszczenie %d budynków.
+157:posiadasz jednocześnie ponad %d Ciężkich Jeźdźców.
+158:posiadasz jednocześnie ponad %d konnych.
+159:posiadasz jednocześnie ponad %d strzelców.
+160:posiadasz jednocześnie ponad %d przeciwkonnych.
+161:posiadasz jednocześnie ponad %d piechurów.
+162:posiadasz jednocześnie ponad %d Barbarzyńców.
+163:posiadasz jednocześnie po %d żołnierzy z każdego typu.
+164:posiadasz jednocześnie ponad %d żołnierzy w żelaznej zbroi.
+165:posiadasz jednocześnie ponad %d żołnierzy w skórzanej zbroi.
+166:za przejęcie statków wroga.
+167:posiadasz jednocześnie ponad %d najemników.
+168:posiadasz jednocześnie ponad %d żołnierzy.
+169:straciłeś prawie wszystkich żołnierzy.
+175:%d Lekkich Jeźdźców.
+176:%d Piechurów z Mieczem, %d Łuczników i %d Ciężkich Jeźdźców.
+177:%d Ciężkich Jeźdźców.
+178:%d Barbarzyńców.
+179:%d Łuczników.
+180:%d Ciężkich i %d Lekkich Jeźdźców.
+181:%d Kuszników.
+182:%d Pikinierów.
+183:%d Toporników i %d Piechurów z Mieczem.
+184:%d Wojowników.
+185:%d Łuczników i %d Barbarzyńców.
+186:%d Piechurów z Mieczem.
+187:%d Toporników.
+188:od teraz piraci będą wysyłać niewielkie wsparcie. Sprawdzaj statki od czasu do czasu.
+189:%d Rebeliantów.
+190:%d Ciężkich Jeźdźców i %d Piechurów z Mieczem.
+191:%d Toporników i %d Łuczników.
+200:Dostajesz dodatkowych żołnierzy!
+201:Licznik wysłanego wsparcia został zresetowany!
+202:Licznik czasu zostanie odwrócony na kolejne 2 minuty! Każda sekunda daje dodatkowy czas!
+203:Licznik czasu zatrzyma się na następne 5 minut!

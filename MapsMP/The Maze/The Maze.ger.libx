@@ -1,0 +1,105 @@
+﻿0:Verbleibende Zeit:
+1:Dieses Gebiet wurde noch nicht gesichtet!
+2:Die Kontrolle über dieses Gebiet wurde verloren!
+3:Zerstöre zuerst die militärische Abteilung!
+4:Die Aufgabe wird erfüllt in
+5:Erfüllt!
+6:von
+7:Sende Truppen, um deinen Verbündeten zu helfen:
+8:Unterstützung kommt in:
+9:Das Limit ist erreicht!
+10:[$%s]%s[]: %d/%d
+17:|===VERFÜGBARE BONI===|
+18:|===AKTUELLE AUFGABE===|
+19:|===EXTRA AUFGABE===|
+20:|===ERRUNGENSCHAFT===|
+21:Mannschaftserrungenschaft
+22:Individuelle Errungenschaft
+23:|===PUNKTE===|
+26:Verstärkung ist eingetroffen!
+27:Laut den Berichten unserer Späher, bildet der Gegner neue Truppen aus. Ihr solltet euch beeillen, sonst wird die Aufgabe das Schloss einzunehmen schwierig werden.
+28:Der Spähtrupp des Schlosses hat uns entdeckt! Der Gegner hat bestimmt seine Verteidigung bereits verstärkt. Wartet also lieber auf Verstärkung, bevor ihr angreift.
+29:Ihr könnt eure Truppen zu euren Verbündeten teleportieren, wenn diese eure Hilfe benötigen. Sendet einfach eure Truppen zu dieser Brücke und wartet. Die Eiheit erscheint auf der anderen Seite der Karte.
+30:Ihr könnt die Statistik ausblenden: Blockiert einfach die Steinzufuhr in eurem Wachturm. Um die Statistik einzublenden, aktiviert die Steinzufuhr wieder. Um Errungenschaften einzublenden, aktiviert reparieren.
+31:Eure Aufgaben haben sich geändert! Neue Aufgabe:
+32:ACHTUNG: Lasst euren General nicht sterben und teleportiert ihn und keinen Umständen zu euren Verbündeten!
+33:Neue Errungenschaft:
+34:Belohnung:
+50:Übernehmt die Kontrolle über den westlichen Stützpunkt:
+51:Übernehmt die Kontrolle über den östlichen Stützpunkt:
+52:Übernehmt die Kontrolle über den südlichen Stützpunkt:
+53:Übernehmt die Kontrolle über den nördlichen Stützpunkt:
+54:Übernehmt die Kontrolle über das Schloss:
+55:Besiegt die gegnerischen Soldaten:
+56:Zerstört die Eisenminen:
+57:Zerstört die Goldminen:
+58:Zerstört die Kohleminen:
+59:Zerstört die militärische Infrastruktur:
+60:Zerstört die Lagerhäuser:
+75:Zerstört alle gegnerischen Gebäude
+76:Erobert das Schloss ohne Wachtürme des Gegners zu zerstören
+77:Beschütze deinen General
+78:Sendet 30 Reiter zum Schloss
+79:Sendet 30 Schützen zum Schloss
+80:Sendet 15 Barbaren zum Schloss
+81:Sendet 30 Nahkampfeinheiten zum Schloss
+82:Sendet 30 Reitabwehreinheiten zum Schloss
+83:Ihr solltet nicht mehr als 1600 Soldaten verlieren
+84:Tötet alle Zivilisten des Gegners
+125:Anfänger-Späher
+126:Experte-Späher
+127:Konterintelligenz
+128:Wettlauf gegen die Zeit
+129:Fleischwolf
+130:Mörder
+131:Zerstörer
+132:Ritter
+133:Pfeeeeerde!
+134:Ballermann
+135:Auf die Speere!
+136:Infanterist
+137:Barbarenhäuptling
+138:Vielfalt
+139:Ironman
+140:Lederman
+141:Piraten
+142:Rebellen
+143:301. Spartaner
+144:Zweite Chance
+150:um %d%s der Karte aufzudecken.
+151:um %d%s der Karte aufzudecken.
+152:für das Besiegen alles Patrouillen.
+153:Ihr habt das Schloss innerhalb von 1:20 Stunden erreicht.
+154:für das Töten von %d gegnerischen Soldaten.
+155:für das Töten von %d gegnerischen Zivilisten.
+156:für das Zerstören von %d gegnerischen Gebäuden.
+157:Ihr habt mehr als %d Ritter auf einmal.
+158:Ihr habt mehr als %d Reitereinheiten auf einmal.
+159:Ihr habt mehr als %d Schützen auf einmal.
+160:Ihr habt mehr als %d Reitabwehreinheiten auf einmal.
+161:Ihr habt mehr als %d Nahkämpfer auf einmal.
+162:Ihr habt mehr als %d Barbaren auf einmal.
+163:Ihr habt %d Soldaten von jedem Typen.
+164:Ihr habt mehr als %d Eisensoldaten auf einmal.
+165:Ihr habt mehr als %d Ledersoldaten auf einmal.
+166:für das Erobern des gegnerischen Schiffes.
+167:Ihr habt mehr als %d Rebelleneinheiten auf einmal.
+168:Ihr habt %d Soldaten auf einmal.
+169:Ihr habt fast alle Truppen verloren.
+175:%d Späher
+176:%d Schwertkämpfer, %d Bogenschützen und %d Ritter
+177:%d Ritter
+178:%d Barbaren
+179:%d Bogenschützen
+180:%d Ritter und %d Späher
+181:%d Bogenschützen
+182:%d Pikeniere
+183:%d Axtkämpfer und %d Schwertkämpfer
+184:%d Krieger
+185:%d Bogenschützen und %d Barbaren
+186:%d Schwertkämpfer
+187:%d Axtkämpfer
+188:Die Piraten werden ab jetzt kleine Verstärkungen send. Schaue von Zeit zu Zeit auf das Schiff.
+189:%d Rebellen
+190:%d Ritter und %d Schwertkämpfer
+191:%d Axtkämpfer und %d Bogenschützen
