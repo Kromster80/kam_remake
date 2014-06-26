@@ -64,6 +64,10 @@ Once an agreement is made or implementation details are made - item is moved to 
 
         L       MapEd: Height indicator to make sure that f.e. walls have the same height
 
+        L       ScriptValidator: Drag'n'Drop to open needed script file without browsing
+
+        L       ScriptValidator: Show all (or just 5-10?) errors/mistakes at once to make fixing them easier
+
 
 REJECTED:
  -	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
