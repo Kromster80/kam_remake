@@ -670,6 +670,8 @@ TX_LOBBY_DOWNLOAD = 736; //Download
 TX_LOBBY_DOWNLOADING = 737; //downloading...
 TX_LOBBY_DOWNLOAD_OVERWRITE = 738; //Overwrite existing files
 TX_LOBBY_RESET_BANS = 768; //Reset all bans
+TX_LOBBY_VIEW_README = 825; //View Readme PDF
+TX_LOBBY_PDF_ERROR = 826; //Failed to launch PDF viewer
 
 TX_MULTIPLAYER_WAITING = 577; //Waiting for players:
 TX_CHAT_ALL = 578; //All

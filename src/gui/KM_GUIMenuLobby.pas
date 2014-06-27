@@ -444,7 +444,7 @@ begin
         Memo_LobbyMapDesc.AutoWrap := True;
         Memo_LobbyMapDesc.ItemHeight := 16;
 
-        Button_LobbySetupReadme := TKMButton.Create(Panel_LobbySetupDesc, 10, 200, 250, 25, 'View Readme PDF', bsMenu);
+        Button_LobbySetupReadme := TKMButton.Create(Panel_LobbySetupDesc, 10, 200, 250, 25, gResTexts[TX_LOBBY_VIEW_README], bsMenu);
         Button_LobbySetupReadme.Anchors := [anLeft,anBottom];
         Button_LobbySetupReadme.OnClick := ReadmeClick;
         Button_LobbySetupReadme.Hide;
@@ -894,7 +894,8 @@ end;
 
 procedure TKMMenuLobby.ReadmeClick(Sender: TObject);
 begin
-  fNetworking.MapInfo.ViewReadme;
+  if not fNetworking.MapInfo.ViewReadme then
+    Memo_LobbyPosts.Add(gResTexts[TX_LOBBY_PDF_ERROR]);
 end;
 
 
