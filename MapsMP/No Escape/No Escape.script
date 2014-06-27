@@ -1,0 +1,19 @@
+procedure OnTick;
+var
+  I, K: Integer;
+  UnitsToFeed: array of Integer;
+begin
+if States.GameTime mod 12000 = 0 then
+  for I := 2 to 11 do
+  begin
+    UnitsToFeed := States.PlayerGetAllUnits(I);
+      for K := 0 to Length(UnitsToFeed) - 1 do
+      begin
+        Actions.UnitHungerSet(UnitsToFeed[K], 45*60*10);
+      end;
+  end; 
+
+  if States.GameTime = 140 then
+    Actions.ShowMsg(-1, '<$0>');
+
+end;

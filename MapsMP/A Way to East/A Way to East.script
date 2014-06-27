@@ -1,0 +1,183 @@
+var
+Ware, Count: array[0..3] of Integer;
+
+
+procedure OnMissionStart;
+var
+  I, K: Integer;
+begin
+  for I := 4 to 11 do
+  for K := 4 to 11 do
+    if I <> K then
+    begin
+      Actions.PlayerShareFog(I, K, False);
+      Actions.PlayerShareFog(K, I, False);
+      Actions.PlayerAllianceChange(I, K, True, True);
+      Actions.PlayerAllianceChange(K, I, True, True);
+    end;
+end;
+
+
+procedure CheckGift;
+var
+  I: Integer;
+begin
+  for I := 0 to 3 do
+  begin
+
+    case States.KaMRandomI(18) of
+
+      0: begin
+           Ware[I] := 0;
+           Count[I] := 4;
+         end;
+
+      1: begin
+           Ware[I] := 1;
+           Count[I] := 8;
+         end;
+
+      2: begin
+           Ware[I] := 2;
+           Count[I] := 8;
+         end;
+
+      3: begin
+           Ware[I] := 3;
+           Count[I] := 3;
+         end;
+
+      4: begin
+           Ware[I] := 4;
+           Count[I] := 3;
+         end;
+
+      5: begin
+           Ware[I] := 5;
+           Count[I] := 3;
+         end;
+
+      6: begin
+           Ware[I] := 6;
+           Count[I] := 2;
+         end;
+
+      7: begin
+           Ware[I] := 7;
+           Count[I] := 2;
+         end;
+
+      8: begin
+           Ware[I] := 8;
+           Count[I] := 3;
+         end;
+
+      9: begin
+           Ware[I] := 9;
+           Count[I] := 3;
+         end;
+
+      10: begin
+            Ware[I] := 10;
+            Count[I] := 3;
+          end;
+
+      11: begin
+            Ware[I] := 11;
+            Count[I] := 2;
+          end;
+
+      12: begin
+            Ware[I] := 12;
+            Count[I] := 2;
+          end;
+
+      13: begin
+            Ware[I] := 13;
+            Count[I] := 2;
+          end;
+
+      14: begin
+            Ware[I] := 14;
+            Count[I] := 2;
+          end;
+
+      15: begin
+            Ware[I] := 15;
+            Count[I] := 2;
+          end;
+
+      16: begin
+            if States.KaMRandom > 0.75 then
+            begin
+              Ware[I] := 26;
+              Count[I] := 2;
+            end
+            else
+            begin
+              Ware[I] := States.KaMRandomI(10);
+              Count[I] := 5;
+            end;
+          end;
+
+      17: begin
+            Ware[I] := 27; 
+            Count[I] := 3;
+          end;
+    end;
+  end;
+end;
+
+
+procedure OnUnitTrained(aUnitID: Integer);
+begin
+  Actions.UnitHungerSet(aUnitID, 21000);
+end;
+
+
+procedure OnWarriorEquipped(aUnitID, aGroupID: Integer);
+begin
+  Actions.UnitHungerSet(aUnitID, 21000);
+end;
+
+
+procedure Autofeed;
+var
+  I, K: Integer;
+  UnitsToFeed: array of Integer;
+begin
+  for I := 4 to 11 do
+  begin
+    UnitsToFeed := States.PlayerGetAllUnits(I);
+    for K := 0 to Length(UnitsToFeed) - 1 do
+      Actions.UnitHungerSet(UnitsToFeed[K], 27000);
+  end;
+end;
+
+
+procedure GiveGifts;
+var
+  I: Integer;
+begin
+  CheckGift;
+  for I := 0 to 3 do
+  begin
+    if (States.PlayerEnabled(I))
+    and not (States.PlayerDefeated(I)) then
+    begin
+      Actions.GiveWares(I, Ware[I], Count[I]);
+      Actions.ShowMsg(I, '<$0>');
+    end;
+  end;
+end;
+
+
+procedure OnTick;
+begin
+  if States.GameTime mod 12000 = 0 then
+    Autofeed;
+
+  if States.GameTime mod 9000 = 0 then
+    GiveGifts;
+
+end;

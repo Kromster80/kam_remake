@@ -5245,8 +5245,8 @@ begin
   begin
     if States.PlayerEnabled(I) then
       UnitsToFeed := States.PlayerGetAllUnits(I);
-      for K := 0 to Length(UnitsToFeed) - 1 do
-        Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+    for K := 0 to Length(UnitsToFeed) - 1 do
+      Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
   end;
 end;
 
@@ -5516,10 +5516,6 @@ end;
 //Magic! Teleport ;D
 
 
-//Redone teleport
-//Should work fine now
-
-
 procedure GetTeleport;
 begin
 
@@ -5588,6 +5584,7 @@ end;
 
 
 ///Check: have we visited and captured position?///
+
 
 //For western outpost
 
@@ -5673,7 +5670,6 @@ begin
 end;
 
 
-
 //For southern outpost
 
 
@@ -5700,7 +5696,6 @@ begin
       SouthernOutpost.Captured := False;         //Control over position is lost
   end;
 end;
-
 
 
 //For The Castle
@@ -5900,7 +5895,7 @@ end;
 //Check victory and log team and time
 
 
-procedure OnPlayerVictiry(aPlayerID: Integer);
+procedure OnPlayerVictory(aPlayerID: Integer);
 begin
   if (aPlayerID >= 0)
   and (aPlayerID <= 3)
