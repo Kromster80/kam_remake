@@ -78,7 +78,8 @@ procedure DoClientAreaResize(aForm:TForm);
 
 function CheckDuplicateApplication(aGUID: string): Boolean;
 
-function BrowseURL(const URL: string) : boolean;
+function BrowseURL(const URL: string) : Boolean;
+function OpenPDF(const URL: string): Boolean;
 procedure MailTo(Address,Subject,Body:string);
 procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
 
@@ -618,7 +619,19 @@ begin
 end;
 
 
-function BrowseURL(const URL: string): boolean;
+function OpenPDF(const URL: string): Boolean;
+begin
+  {$IFDEF WDC}
+  Result := ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL) > 32;
+  {$ENDIF}
+
+  {$IFDEF FPC}
+  Result := OpenDocument(URL);
+  {$ENDIF}
+end;
+
+
+function BrowseURL(const URL: string): Boolean;
 {$IFDEF FPC}
 var
   v: THTMLBrowserHelpViewer;

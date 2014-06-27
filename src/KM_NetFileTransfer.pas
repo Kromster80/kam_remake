@@ -71,7 +71,7 @@ uses
 
 const
   //TODO: Add LIBX and WAV support for maps
-  VALID_MAP_EXTENSIONS:  array[1..4] of UnicodeString =         ('map','dat','script','txt');
+  VALID_MAP_EXTENSIONS:  array[1..5] of UnicodeString =         ('map','dat','script','txt','pdf');
   VALID_MAP_EXTENSIONS_POSTFIX:  array[1..2] of UnicodeString = ('libx','wav');
   VALID_SAVE_EXTENSIONS: array[1..3] of UnicodeString =         ('sav','bas','rpl');
 

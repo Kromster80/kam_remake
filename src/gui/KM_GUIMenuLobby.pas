@@ -40,6 +40,7 @@ type
     procedure GameOptionsTabSwitch(Sender: TObject);
     procedure GameOptionsChange(Sender: TObject);
     procedure FileDownloadClick(Sender: TObject);
+    procedure ReadmeClick(Sender: TObject);
 
     procedure ChatMenuSelect(aItem: Integer);
     procedure ChatMenuClick(Sender: TObject);
@@ -118,6 +119,7 @@ type
         Button_LobbyTabDesc, Button_LobbyTabOptions: TKMButton;
         Panel_LobbySetupDesc: TKMPanel;
           Memo_LobbyMapDesc: TKMMemo;
+          Button_LobbySetupReadme: TKMButton;
         Panel_LobbySetupOptions: TKMPanel;
           TrackBar_LobbyPeacetime: TKMTrackBar;
           TrackBar_LobbySpeedPT, TrackBar_LobbySpeedAfterPT: TKMTrackBar;
@@ -441,6 +443,11 @@ begin
         Memo_LobbyMapDesc.Anchors := [anLeft,anTop,anBottom];
         Memo_LobbyMapDesc.AutoWrap := True;
         Memo_LobbyMapDesc.ItemHeight := 16;
+
+        Button_LobbySetupReadme := TKMButton.Create(Panel_LobbySetupDesc, 10, 200, 250, 25, 'View Readme PDF', bsMenu);
+        Button_LobbySetupReadme.Anchors := [anLeft,anBottom];
+        Button_LobbySetupReadme.OnClick := ReadmeClick;
+        Button_LobbySetupReadme.Hide;
 
       Panel_LobbySetupOptions := TKMPanel.Create(Panel_LobbySetup, 0, 548, 270, 170);
       Panel_LobbySetupOptions.Anchors := [anLeft,anBottom];
@@ -811,6 +818,10 @@ begin
   Label_LobbyMapName.Caption := '';
   Memo_LobbyMapDesc.Clear;
 
+  if Button_LobbySetupReadme.Visible then
+    Memo_LobbyMapDesc.Height := Memo_LobbyMapDesc.Height + 25;
+  Button_LobbySetupReadme.Hide;
+
   TrackBar_LobbyPeacetime.Position := 0; //Default peacetime = 0
   TrackBar_LobbySpeedPT.Position := 1; //Default speed = 1
   TrackBar_LobbySpeedPT.ThumbText := 'x1';
@@ -878,6 +889,12 @@ begin
     Lobby_OnFileTransferProgress(1, 0);
     PercentBar_LobbySetupProgress.Caption := gResTexts[TX_LOBBY_DOWNLOADING];
   end;
+end;
+
+
+procedure TKMMenuLobby.ReadmeClick(Sender: TObject);
+begin
+  fNetworking.MapInfo.ViewReadme;
 end;
 
 
@@ -1609,6 +1626,10 @@ begin
   or ((fNetworking.SelectGameKind = ngk_Save) and fNetworking.SaveInfo.IsValid) then
     Radio_LobbyMapType.ItemIndex := DetectMapType;
 
+  if Button_LobbySetupReadme.Visible then
+    Memo_LobbyMapDesc.Height := Memo_LobbyMapDesc.Height + 25;
+  Button_LobbySetupReadme.Hide;
+
   case fNetworking.SelectGameKind of
     ngk_None: begin
                 Memo_LobbyMapDesc.Clear;
@@ -1637,6 +1658,12 @@ begin
 
                   if fNetworking.MapInfo.IsCoop then
                     TrackBar_LobbyPeacetime.Position := 0; //No peacetime in coop (trackbar gets disabled above)
+
+                  if M.HasReadme then
+                  begin
+                    Memo_LobbyMapDesc.Height := Memo_LobbyMapDesc.Height - 25;
+                    Button_LobbySetupReadme.Show;
+                  end;
                 end;
                 Label_LobbyMapName.Caption := M.FileName;
                 Memo_LobbyMapDesc.Text := M.BigDesc;

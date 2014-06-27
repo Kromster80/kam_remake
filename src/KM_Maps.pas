@@ -75,6 +75,8 @@ type
     function HumanPlayerCount: Byte;
     function AIOnlyLocCount: Byte;
     function FileNameWithoutHash: UnicodeString;
+    function HasReadme: Boolean;
+    procedure ViewReadme;
   end;
 
   TTMapsScanner = class(TThread)
@@ -463,6 +465,18 @@ begin
     Result := LeftStr(FileName, Length(FileName)-9)
   else
     Result := FileName;
+end;
+
+
+function TKMapInfo.HasReadme: Boolean;
+begin
+  Result := FileExists(fPath + fFileName + '.pdf');
+end;
+
+
+procedure TKMapInfo.ViewReadme;
+begin
+  OpenPDF(fPath + fFileName + '.pdf');
 end;
 
 
