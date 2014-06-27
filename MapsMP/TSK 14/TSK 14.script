@@ -1,8 +1,16 @@
 procedure OnTick;
+
 begin
   if States.GameTime = 35000 then
+
   begin
-    Actions.ShowMsg(0, '<$0>');
-    Actions.ShowMsg(3, '<$0>');
+
+    if States.PlayerEnabled(0) then
+      Actions.ShowMsg(0, '<$0>');
+
+    if States.PlayerEnabled(3) then
+      Actions.ShowMsg(3, '<$0>');
+
   end;
+
 end;

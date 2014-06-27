@@ -1,13 +1,25 @@
 procedure OnTick;
+
 begin
   if States.GameTime = 18000 then
+
   begin
-    Actions.ShowMsg(0, '<$0>');
-    Actions.ShowMsg(4, '<$0>');
+    if States.PlayerEnabled(0) then
+      Actions.ShowMsg(0, '<$0>');
+
+    if States.PlayerEnabled(4) then
+      Actions.ShowMsg(4, '<$0>');
+
   end;
+
   if States.GameTime = 72000 then
+
   begin
-    Actions.ShowMsg(0, '<$1>');
-    Actions.ShowMsg(4, '<$1>');
+
+    if States.PlayerEnabled(0) then
+      Actions.ShowMsg(0, '<$1>');
+    if States.PlayerEnabled(4) then
+      Actions.ShowMsg(4, '<$1>');
+
   end;
 end;

@@ -1,8 +1,16 @@
 procedure OnTick;
+
 begin
   if States.GameTime = 10 then
+
   begin
-    Actions.ShowMsg(0, '<$0>');
-    Actions.ShowMsg(1, '<$0>');
+
+    if States.PlayerEnabled(0) then
+      Actions.ShowMsg(0, '<$0>');
+
+    if States.PlayerEnabled(1) then
+      Actions.ShowMsg(1, '<$0>');
+
   end;
+
 end;
