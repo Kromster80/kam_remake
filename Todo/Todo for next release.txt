@@ -35,5 +35,5 @@ Features:
  +	Hint on campaign menu to explain that you can select flags (nobody finds this feature without asking)
  +	"Return to Lobby" needs to be a vote
  +	Servers running on the local area network are detected and listed at the top of the server list
-	Map descriptions should optionally be from the LIBX file (instead of BigDesc put BigDescLIBX = 5 where 5 is ID in LIBX?)
+ +	Map descriptions should optionally be from the LIBX file (instead of BigDesc use BigDescLIBX with the text index)
     

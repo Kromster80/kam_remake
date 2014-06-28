@@ -304,8 +304,19 @@ end;
 
 //Load additional information for map that is not in main SP list
 procedure TKMapInfo.LoadExtra;
+
+  procedure LoadDescriptionFromLIBX(aIndex: Integer);
+  var MissionTexts: TKMTextLibrarySingle;
+  begin
+    if aIndex = -1 then Exit;
+    MissionTexts := TKMTextLibrarySingle.Create;
+    MissionTexts.LoadLocale(fPath + fFileName + '.%s.libx');
+    BigDesc := MissionTexts.Texts[aIndex];
+    MissionTexts.Free;
+  end;
+
 var
-  st, DatFile: string;
+  st, DatFile, S: string;
   ft: TextFile;
   fMissionParser: TMissionParserInfo;
 begin
@@ -335,6 +346,11 @@ begin
       ReadLn(ft, st);
       if SameText(st, 'Author')    then Readln(ft, Author);
       if SameText(st, 'BigDesc')   then Readln(ft, BigDesc);
+      if SameText(st, 'BigDescLIBX') then
+      begin
+        Readln(ft, S);
+        LoadDescriptionFromLIBX(StrToIntDef(S, -1));
+      end;
       if SameText(st, 'SetCoop')   then IsCoop := True;
       if SameText(st, 'SetSpecial')then IsSpecial := True;
     until(eof(ft));
