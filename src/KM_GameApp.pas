@@ -400,13 +400,12 @@ end;
 
 
 procedure TKMGameApp.StopGameReturnToLobby(aSender: TObject);
-var ChatText, ChatMessages: UnicodeString;
+var ChatState: TChatState;
 begin
   if gGame = nil then Exit;
 
   //Copy text from in-game chat to lobby (save it before freeing gGame)
-  ChatText := gGame.GameplayInterface.GetChatText;
-  ChatMessages := gGame.GameplayInterface.GetChatMessages;
+  ChatState := gGame.GameplayInterface.GetChatState;
 
   if fNetworking.IsHost then
     gGame.Save(RETURN_TO_LOBBY_SAVE, UTCNow);
@@ -418,8 +417,7 @@ begin
     fNetworking.SendPlayerListAndRefreshPlayersSetup; //Call now that events are attached to lobby
 
   //Copy text from in-game chat to lobby
-  fMainMenuInterface.SetChatText(ChatText);
-  fMainMenuInterface.SetChatMessages(ChatMessages);
+  fMainMenuInterface.SetChatState(ChatState);
 
   gLog.AddTime('Gameplay ended - Return to lobby');
 end;
@@ -556,8 +554,7 @@ begin
   if gGame <> nil then
   begin
     //Copy text from lobby to in-game chat
-    gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-    gGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+    gGame.GamePlayInterface.SetChatState(fMainMenuInterface.GetChatState);
   end;
 end;
 
@@ -574,8 +571,7 @@ begin
   LoadGameFromSave(SaveName(aSaveName, 'sav', True), GameMode);
 
   //Copy the chat and typed lobby message to the in-game chat
-  gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-  gGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  gGame.GamePlayInterface.SetChatState(fMainMenuInterface.GetChatState);
 end;
 
 

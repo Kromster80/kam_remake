@@ -135,10 +135,8 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
 
-    function GetChatText: UnicodeString;
-    function GetChatMessages: UnicodeString;
-    procedure SetChatText(const aString: UnicodeString);
-    procedure SetChatMessages(const aString: UnicodeString);
+    function GetChatState: TChatState;
+    procedure SetChatState(const aChatState: TChatState);
     procedure Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
     procedure Lobby_Resize(aMainHeight: Word);
     procedure ReturnToLobby(const aSaveName: UnicodeString);
@@ -659,28 +657,28 @@ end;
 
 
 //Access text that user was typing to copy it over to gameplay chat
-function TKMMenuLobby.GetChatText: UnicodeString;
+function TKMMenuLobby.GetChatState: TChatState;
 begin
-  Result := Edit_LobbyPost.Text;
+  Result.WhisperRecipient := fChatWhisperRecipient;
+  Result.Mode := fChatMode;
+  Result.ChatText := Edit_LobbyPost.Text;
+  Result.Messages := Memo_LobbyPosts.Text;
 end;
 
 
-//Access chat messages history to copy it over to gameplay chat
-function TKMMenuLobby.GetChatMessages: UnicodeString;
+procedure TKMMenuLobby.SetChatState(const aChatState: TChatState);
+const CHAT_TAG: array[TChatMode] of Integer = (
+  -1,  //cmAll
+  -2,  //cmTeam
+  -3,  //cmSpectators
+  -1); //cmWhisper
 begin
-  Result := Memo_LobbyPosts.Text;
-end;
-
-
-procedure TKMMenuLobby.SetChatText(const aString: UnicodeString);
-begin
-  Edit_LobbyPost.Text := aString;
-end;
-
-
-procedure TKMMenuLobby.SetChatMessages(const aString: UnicodeString);
-begin
-  Memo_LobbyPosts.Text := aString;
+  if aChatState.Mode = cmWhisper then
+    ChatMenuSelect(aChatState.WhisperRecipient)
+  else
+    ChatMenuSelect(CHAT_TAG[aChatState.Mode]);
+  Edit_LobbyPost.Text := aChatState.ChatText;
+  Memo_LobbyPosts.Text := aChatState.Messages;
   Memo_LobbyPosts.ScrollToBottom;
 end;
 

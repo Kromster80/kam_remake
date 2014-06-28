@@ -31,10 +31,8 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
-    procedure SetChatText(const aString: UnicodeString);
-    procedure SetChatMessages(const aString: UnicodeString);
-    function GetChatText: UnicodeString;
-    function GetChatMessages: UnicodeString;
+    procedure SetChatState(const aChatState: TChatState);
+    function GetChatState: TChatState;
     procedure ChatMessage(const aData: UnicodeString);
 
     procedure Show;
@@ -231,28 +229,32 @@ end;
 
 
 //Access text that user was typing to copy it over to lobby chat
-function TKMGUIGameChat.GetChatText: UnicodeString;
+function TKMGUIGameChat.GetChatState: TChatState;
+var WhisperIndex: Integer;
 begin
-  Result := Edit_ChatMsg.Text;
+  if fChatMode = cmWhisper then
+    Result.WhisperRecipient := gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer
+  else
+    Result.WhisperRecipient := 0;
+  Result.Mode := fChatMode;
+  Result.ChatText := Edit_ChatMsg.Text;
+  Result.Messages := Memo_ChatText.Text;
 end;
 
 
-//Access chat messages history to copy it over to lobby chat
-function TKMGUIGameChat.GetChatMessages: UnicodeString;
+procedure TKMGUIGameChat.SetChatState(const aChatState: TChatState);
+const CHAT_TAG: array[TChatMode] of Integer = (
+  -1,  //cmAll
+  -2,  //cmTeam
+  -3,  //cmSpectators
+  -1); //cmWhisper
 begin
-  Result := Memo_ChatText.Text;
-end;
-
-
-procedure TKMGUIGameChat.SetChatText(const aString: UnicodeString);
-begin
-  Edit_ChatMsg.Text := aString;
-end;
-
-
-procedure TKMGUIGameChat.SetChatMessages(const aString: UnicodeString);
-begin
-  Memo_ChatText.Text := aString;
+  if aChatState.Mode = cmWhisper then
+    Chat_MenuSelect(aChatState.WhisperRecipient)
+  else
+    Chat_MenuSelect(CHAT_TAG[aChatState.Mode]);
+  Edit_ChatMsg.Text := aChatState.ChatText;
+  Memo_ChatText.Text := aChatState.Messages;
   Memo_ChatText.ScrollToBottom;
 end;
 

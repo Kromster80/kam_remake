@@ -909,6 +909,10 @@ begin
 
   //Store it in hand so it can be included in MP save file
   gHands[aHandIndex].MessageLog.Add(aKind, aTextID, aLoc);
+
+  //Don't play sound in replays or spectator
+  if (aHandIndex = MySpectator.HandIndex) and (fGameMode in [gmSingle, gmMulti]) then
+    gSoundPlayer.Play(sfx_MessageNotice, 2);
 end;
 
 

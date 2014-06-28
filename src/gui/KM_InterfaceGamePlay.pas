@@ -7,7 +7,7 @@ uses
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
-  KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts,
+  KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
   KM_GUIGameBuild,
   KM_GUIGameChat,
   KM_GUIGameHouse,
@@ -282,10 +282,8 @@ type
     procedure SetScriptedOverlay(aText: UnicodeString);
     procedure UpdateOverlayControls;
     procedure ReleaseDirectionSelector;
-    function GetChatText: UnicodeString;
-    function GetChatMessages: UnicodeString;
-    procedure SetChatText(const aString: UnicodeString);
-    procedure SetChatMessages(const aString: UnicodeString);
+    function GetChatState: TChatState;
+    procedure SetChatState(const aChatState: TChatState);
     procedure ChatMessage(const aData: UnicodeString);
     procedure AlliesOnPlayerSetup(Sender: TObject);
     procedure AlliesOnPingInfo(Sender: TObject);
@@ -2366,32 +2364,19 @@ begin
 end;
 
 
-//Access text that user was typing to copy it over to lobby chat
-function TKMGamePlayInterface.GetChatText: UnicodeString;
-begin
-  Result := fGuiGameChat.GetChatText;
-end;
-
-
 //Access chat messages history to copy it over to lobby chat
-function TKMGamePlayInterface.GetChatMessages: UnicodeString;
+function TKMGamePlayInterface.GetChatState: TChatState;
 begin
-  Result := fGuiGameChat.GetChatMessages;
+  Result := fGuiGameChat.GetChatState;
 end;
 
 
-procedure TKMGamePlayInterface.SetChatText(const aString: UnicodeString);
+procedure TKMGamePlayInterface.SetChatState(const aChatState: TChatState);
 begin
-  fGuiGameChat.SetChatText(aString);
+  fGuiGameChat.SetChatState(aChatState);
 
-  if aString <> '' then
+  if aChatState.ChatText <> '' then
     fGuiGameChat.Show;
-end;
-
-
-procedure TKMGamePlayInterface.SetChatMessages(const aString: UnicodeString);
-begin
-  fGuiGameChat.SetChatMessages(aString);
 end;
 
 

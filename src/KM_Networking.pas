@@ -20,6 +20,12 @@ type
   TNetGameKind = (ngk_None, ngk_Map, ngk_Save);
   TChatSound = (csNone, csJoin, csLeave, csSystem, csGameStart, csSaveGame, csChat, csChatWhisper, csChatTeam);
   TChatMode = (cmAll, cmTeam, cmSpectators, cmWhisper);
+  TChatState =  record
+                  Messages: UnicodeString;
+                  ChatText: UnicodeString;
+                  Mode: TChatMode;
+                  WhisperRecipient: Integer;
+                end;
 
 const
   NetMPGameState:array[TNetGameState] of TMPGameState = (mgsNone, mgsNone, mgsNone, mgsLobby, mgsLoading, mgsGame, mgsGame);

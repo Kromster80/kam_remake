@@ -3,7 +3,7 @@ unit KM_InterfaceMainMenu;
 interface
 uses
   Classes, Controls, Math, SysUtils, KromUtils,
-  KM_Controls, KM_Defaults, KM_Pics,
+  KM_Controls, KM_Defaults, KM_Pics, KM_Networking,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
@@ -52,10 +52,8 @@ type
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
-    function GetChatText: UnicodeString;
-    function GetChatMessages: UnicodeString;
-    procedure SetChatText(const aString: UnicodeString);
-    procedure SetChatMessages(const aString: UnicodeString);
+    function GetChatState: TChatState;
+    procedure SetChatState(const aChatState: TChatState);
     procedure ExportPages(aPath: string); override;
     procedure ReturnToLobby(const aSaveName: UnicodeString);
 
@@ -72,7 +70,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
@@ -182,28 +180,15 @@ begin
 end;
 
 
-function TKMMainMenuInterface.GetChatText: UnicodeString;
+function TKMMainMenuInterface.GetChatState: TChatState;
 begin
-  Result := fMenuLobby.GetChatText;
+  Result := fMenuLobby.GetChatState;
 end;
 
 
-//Access chat messages history to copy it over to gameplay chat
-function TKMMainMenuInterface.GetChatMessages: UnicodeString;
+procedure TKMMainMenuInterface.SetChatState(const aChatState: TChatState);
 begin
-  Result := fMenuLobby.GetChatMessages;
-end;
-
-
-procedure TKMMainMenuInterface.SetChatText(const aString: UnicodeString);
-begin
-  fMenuLobby.SetChatText(aString);
-end;
-
-
-procedure TKMMainMenuInterface.SetChatMessages(const aString: UnicodeString);
-begin
-  fMenuLobby.SetChatMessages(aString);
+  fMenuLobby.SetChatState(aChatState);
 end;
 
 
