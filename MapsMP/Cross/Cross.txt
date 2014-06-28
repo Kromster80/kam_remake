@@ -1,2 +1,2 @@
 BigDesc
-An island divided in four. In the middle a sacred stone in a grove of trees. Four parties, fighting to get the upperhand. Who shall slay all and gain victory by sword, spear and bow?||Made by Kirelareus.
+An island divided in four. In the middle a sacred stone in a grove of trees. Four parties, fighting to get the upperhand. Who shall slay all and gain victory by sword, spear and bow?||Map uses dynamic script: your armies are absolutely random now.||Map made by Kirelareus, script by andreus.

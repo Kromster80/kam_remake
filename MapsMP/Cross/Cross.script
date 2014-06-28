@@ -1,0 +1,74 @@
+var
+  Types: array[0..5] of Integer;
+  K, I: Integer;
+  Warriors: array of Integer;
+
+procedure GetRandomTypes;
+begin
+  for K := 0 to 5 do
+  begin
+    Types[K] := States.KaMRandomI(14) + 14;
+    if Types[K] = 25 then 
+      Types[K] := 15;
+    if Types[K] = 14 then
+      if States.KaMRandom > 0.500 then
+        Types[K] := 16;
+    if Types[K] = 24 then
+      if States.KaMRandom > 0.500 then
+        Types[K] := 20;
+  end;
+    Types[States.KaMRandomI(6)] := States.KaMRandomI(2) + 17;
+end;
+
+procedure OnMissionStart;
+begin
+  GetRandomTypes;
+
+  if States.PlayerEnabled(0) then
+  begin
+    Actions.GiveGroup(0, Types[0], 49, 15, 4, 12, 4);
+    Actions.GiveGroup(0, Types[1], 55, 15, 4, 12, 4);
+    Actions.GiveGroup(0, Types[2], 49, 10, 4, 8, 4);
+    Actions.GiveGroup(0, Types[3], 55, 10, 4, 8, 4);
+    Actions.GiveGroup(0, Types[4], 51, 3, 4, 9, 3);
+    Actions.GiveGroup(0, Types[5], 57, 4, 4, 6, 3);
+  end;
+
+  if States.PlayerEnabled(1) then
+  begin
+    Actions.GiveGroup(1, Types[0], 38, 83, 0, 12, 4);
+    Actions.GiveGroup(1, Types[1], 48, 83, 0, 12, 4);
+    Actions.GiveGroup(1, Types[2], 37, 88, 0, 8, 4);
+    Actions.GiveGroup(1, Types[3], 48, 88, 0, 8, 4);
+    Actions.GiveGroup(1, Types[4], 53, 92, 0, 9, 3);
+    Actions.GiveGroup(1, Types[5], 57, 92, 0, 6, 3);
+  end;
+
+  if States.PlayerEnabled(2) then
+  begin
+    Actions.GiveGroup(2, Types[0], 13, 48, 2, 12, 4);
+    Actions.GiveGroup(2, Types[1], 13, 53, 2, 12, 4);
+    Actions.GiveGroup(2, Types[2], 9, 49, 2, 8, 4);
+    Actions.GiveGroup(2, Types[3], 9, 53, 2, 8, 4);
+    Actions.GiveGroup(2, Types[4], 5, 51, 2, 9, 3);
+    Actions.GiveGroup(2, Types[5], 7, 43, 2, 6, 3);
+  end;
+
+  if States.PlayerEnabled(3) then 
+  begin
+    Actions.GiveGroup(3, Types[0], 83, 43, 6, 12, 4);
+    Actions.GiveGroup(3, Types[1], 83, 49, 6, 12, 4);
+    Actions.GiveGroup(3, Types[2], 86, 43, 6, 8, 4);
+    Actions.GiveGroup(3, Types[3], 86, 50, 6, 8, 4);
+    Actions.GiveGroup(3, Types[4], 91, 46, 6, 9, 3);
+    Actions.GiveGroup(3, Types[5], 92, 42, 6, 6, 3);
+  end;
+
+  for I := 0 to 3 do
+    if States.PlayerEnabled(I) then
+    begin
+      Warriors := States.PlayerGetAllUnits(I);
+      for K := 0 to Length(Warriors) - 1 do
+        Actions.UnitHungerSet(Warriors[K], States.UnitMaxHunger);
+    end;
+end;
