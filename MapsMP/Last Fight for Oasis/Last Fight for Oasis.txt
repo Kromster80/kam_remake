@@ -1,0 +1,2 @@
+BigDesc
+A battle in the desert.||LOCATIONS:|1, 4 - IRON;|2, 5 - LEATHER;|3, 6 - TOWNHALL||Can be played 1v1, 2v2, 3v3, mixed, left vs right, top vs bottom...||Made by andreus
