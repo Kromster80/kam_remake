@@ -9,7 +9,7 @@ var
 const
   MAX_WAVE = 30;                       //Maximum number of AI waves. For now, 30 waves implemented
   BONUS_CHANCE = 0.1375000000000;      //13,75% chance to activate some bonuses
-  DEBUG_MODE = True;                   //Debug option, to see how script works
+  DEBUG_MODE = False;                  //Debug option, to see how script works
 
 
 procedure AutoFeed;
