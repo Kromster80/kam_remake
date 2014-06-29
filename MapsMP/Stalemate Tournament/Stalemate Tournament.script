@@ -1,0 +1,642 @@
+//
+//		Stalemate Tournament - by Duke Valennius
+//
+// in case of changing map, following parameters must be modified accordingly:
+//	- spawnPositions[16] - player0X,player0Y,player1X,player1Y... positions where recruits and serfs spawn
+//	- CENTER_LINE_WIDTH - distance from X center that counts as 'sieging'
+//	- CENTER_LINE_DEFENSIVE - distance from X center that counts as 'defending'
+//
+// some variables and constants are explained below for better understandability...
+
+const
+	RECRUIT_TARGET = 50;
+	SERF_TARGET = 20;
+	SERF_REPLENISH_MOD = 30*10;
+	WEAPON_TARGET = 50;
+	ARMOUR_TARGET = 100;
+	
+	CENTER_LINE = 87;
+	CENTER_LINE_WIDTH = 10;
+	CENTER_LINE_DEFENSIVE = 28;
+	UNITS_TO_STATE = 8;// min #units that counts as defending/sieging (to prevent 1 unit hiding)
+	
+	STARVE_PENALTY = 100;
+	
+	MILITIA_KILL = 2;
+	AXEFIGHTER_KILL = 4;
+	SWORDSMAN_KILL = 6;
+	LANCER_KILL = 3;
+	PIKEMAN_KILL = 4;
+	SCOUT_KILL = 5;
+	KNIGHT_KILL = 7;
+	BOWMAN_KILL = 3;
+	XBOWMAN_KILL = 4;
+	OTHER_KILL = 0;	
+	
+	BOWMAN_LOSE = 2;
+	XBOWMAN_LOSE = 3;
+	OTHER_LOSE = 1;
+	
+	BOWS_NTH_DONT_REPLENISH = 4;// every nth armoury replenish, bows are not replenished
+	AXES_NTH_DOUBLE_REPLENISH = 2;
+	HORSES_NTH_DONT_REPLENISH = 4;
+	
+	BOW_EQUIP_PENALTY = 0;// 2
+	XBOW_EQUIP_PENALTY = 0;// 3
+	
+	DEFEAT_BONUS = 100;// for defeating player by fight
+	
+	ELIMINATION_TIME_AT_START = 14*60*10;
+	ELIMINATION_TIME = 9*60*10;
+	STALEMATE_TIME_AT_START = 10*60*10;
+	STALEMATE_TIME = (5*60*10) + (30*10);
+	ELIMINATION_CRITICAL_WARNING = 4*60*10;
+	STALEMATE_CRITICAL_WARNING = (2*60*10) + (30*10);
+	NTH_STALEMATE_BREAK = 8;// every nth death, stalemate timer resets
+	
+	SIEGE_BONUS_DELAY = 24*10;// every nth tick armoury is replenished as bonus
+	SIEGE_BONUS_POINTS_PER_SECOND = 1;
+	
+	STARTING_BARRACKS = 10;// #weapons at start in barracks
+	STARTING_STOREHOUSE = 15;// #weapons at start in storehouse
+var
+	recruitReplenishOnMod : array[0..4] of Integer;// every nth tick new recruit comes
+	armouryReplenishOnMod : array[0..4] of Integer;// set for all numbers of players per team
+	spawnPositions : array[0..15] of Integer;
+	
+	deaths : Integer;// #of dead units, for reseting stalemate timer
+	
+	westSideAttacking, eastSideAttacking : Boolean;
+	westSideCamping, eastSideCamping : Boolean;
+	siegeParticipants : array[0..7] of Boolean;// who is sieging
+	scores : array[0..7] of Integer;
+	replenishCounters : array[0..7] of Integer;// weapon replenish round per player
+	eliminationTimer : Integer;
+	stalemateTimer : Integer;
+	finished : Boolean;
+	
+function GetWestCount : Integer;
+var
+	i : Integer;
+begin
+	result := 0;
+	for i := 0 to 3 do begin
+		if (States.PlayerEnabled(i)) AND (States.PlayerDefeated(i) = false) then result := result + 1;
+	end;
+end;
+
+function GetEastCount : Integer;
+var
+	i : Integer;
+begin
+	result := 0;
+	for i := 4 to 7 do begin
+		if (States.PlayerEnabled(i)) AND (States.PlayerDefeated(i) = false) then result := result + 1;
+	end;
+end;
+	
+procedure OnMissionStart;
+var
+	i, j, k : Integer;
+	ware : Integer;
+	ratio, westRatio, eastRatio : Single;
+	count : Single;
+	houses : array of Integer;
+begin
+	if (GetWestCount = 0) OR (GetEastCount = 0) then exit;
+
+	for i := 0 to 7 do begin
+		for j := 0 to 7 do begin
+			if (States.PlayerEnabled(i)) AND (States.PlayerEnabled(j)) AND (i <> j) then begin
+				Actions.PlayerAllianceChange(i,j,true, (((i<4)AND(j<4))OR((i>=4)AND(j>=4))) );
+				Actions.PlayerShareFog(i,j, (((i<4)AND(j<4))OR((i>=4)AND(j>=4))) );
+			end;
+		end;
+	end;
+	// if all players should join same team, their bases would be revealed
+	// despite having 'share fog' turned of at start
+	for i := 0 to 7 do begin
+		Actions.FogCoverAll(i);
+	end;
+	// fog cover all covers really all, even your buildings, and that looks bad...
+	for i := 0 to 7 do begin
+		for j := 0 to 7 do begin
+			if (((i<4)AND(j<4))OR((i>=4)AND(j>=4))) then begin
+				houses := States.PlayerGetAllHouses(i);
+				for k := 0 to Length(houses)-1 do begin
+					Actions.FogRevealCircle(j, States.HousePositionX(houses[k]), States.HousePositionY(houses[k]), 18);
+				end;
+			end;
+		end;
+	end;
+
+	recruitReplenishOnMod[4] := 12*10;
+	recruitReplenishOnMod[3] := 9*10;
+	recruitReplenishOnMod[2] := 7*10;
+	recruitReplenishOnMod[1] := 5*10;
+	recruitReplenishOnMod[0] := 144*10;
+
+	armouryReplenishOnMod[4] := 87*10;
+	armouryReplenishOnMod[3] := 65*10;
+	armouryReplenishOnMod[2] := 43*10;
+	armouryReplenishOnMod[1] := 21*10;
+	armouryReplenishOnMod[0] := 144*10;
+
+	spawnPositions[0] := 1;
+	spawnPositions[1] := 77;
+	spawnPositions[2] := 1;
+	spawnPositions[3] := 56;
+	spawnPositions[4] := 1;
+	spawnPositions[5] := 46;
+	spawnPositions[6] := 1;
+	spawnPositions[7] := 23;
+	spawnPositions[8] := 175;
+	spawnPositions[9] := 78;
+	spawnPositions[10] := 175;
+	spawnPositions[11] := 55;
+	spawnPositions[12] := 175;
+	spawnPositions[13] := 45;
+	spawnPositions[14] := 175;
+	spawnPositions[15] := 19;
+	
+	deaths := 0;
+	
+	westSideAttacking := false;
+	eastSideAttacking := false;
+	westSideCamping := true;
+	eastSideCamping := true;
+	
+	for i := 0 to 7 do begin
+		siegeParticipants[i] := false;
+		scores[i] := 0;
+		replenishCounters[i] := 0;
+	end;
+	
+	ratio := Single(GetWestCount) / Single(GetEastCount);
+	westRatio := 1;
+	eastRatio := 1;
+	if ratio < 1 then eastRatio := ratio;
+	if ratio > 1 then westRatio := Single(GetEastCount) / Single(GetWestCount);
+	
+	for i := 0 to 7 do begin
+		if i <= 3 then ratio := westRatio;
+		if i >= 4 then ratio := eastRatio;
+		count := ratio * STARTING_BARRACKS;
+		for j := 1 to Round(count) do begin
+			for ware := 16 to 26 do begin
+				Actions.GiveWeapons(i,ware,1);
+			end;
+			Actions.GiveWeapons(i,18,1);
+			Actions.GiveWeapons(i,19,1);
+		end;
+		count := ratio * STARTING_STOREHOUSE;
+		for j := 1 to Round(count) do begin
+			for ware := 16 to 26 do begin
+				Actions.GiveWares(i,ware,1);
+			end;
+			Actions.GiveWares(i,18,1);
+			Actions.GiveWares(i,19,1);
+		end;
+	end;
+	
+	eliminationTimer := ELIMINATION_TIME_AT_START;
+	stalemateTImer := STALEMATE_TIME_AT_START;
+	
+	finished := false;
+	
+	Actions.ShowMsg(-1,'Timers:|-when stalemate timer hits zero, game''s over, timer informs who will lose|-stalemate timer will reset every time few units die|-when elimination timer hits zero, player with the lowest score (highlighted) will lose|-elimination timer is reset when someone loses');
+	Actions.ShowMsg(-1,'Scoring pt.I:|-when your team is sieging and opponents are camping, only siege participants are gaining points, but whole camping side is receiving reinforcements, so cooperate!');
+	Actions.ShowMsgFormatted(-1,'Scoring pt.II:|-kill for points: militia %d, axefighter %d, swordfighter %d, lancer %d, pikeman %d, scout %d, knight %d, bowman %d, crossbowman %d|-destroy enemy barracks for %d points',[MILITIA_KILL, AXEFIGHTER_KILL, SWORDSMAN_KILL, LANCER_KILL, PIKEMAN_KILL, SCOUT_KILL, KNIGHT_KILL, BOWMAN_KILL, XBOWMAN_KILL, DEFEAT_BONUS]);
+	Actions.ShowMsgFormatted(-1,'Scoring pt.III:|-lose a unit %d, lose a bowman %d, lose a crossbowman %d|-lose someone to starvation %d|',[OTHER_LOSE, BOWMAN_LOSE, XBOWMAN_LOSE, STARVE_PENALTY]);
+end;
+
+function ScoreForKill(aUnitID: Integer) : Integer;
+begin
+  //Find out what kind of unit it was and return the score for that unit
+  case States.UnitType(aUnitID) of
+    14:  Result := MILITIA_KILL; //Militia
+    15:  Result := AXEFIGHTER_KILL; //Axefighter
+    16:  Result := SWORDSMAN_KILL; //Swordfighter
+    19:  Result := LANCER_KILL; //Lance carrier
+    17:  Result := BOWMAN_KILL; //Bowman
+    18:  Result := XBOWMAN_KILL; //Crossbowman    
+    20:  Result := PIKEMAN_KILL; //Pikeman
+    21:  Result := SCOUT_KILL; //Scout
+    22:  Result := KNIGHT_KILL; //Knight
+    else Result := OTHER_KILL; //Don't care about any other units
+  end;
+end;
+
+function PenaltyForDeath(aUnitID: Integer) : Integer;
+begin
+  case States.UnitType(aUnitID) of
+    17:  Result := BOWMAN_LOSE; //Bowman
+    18:  Result := XBOWMAN_LOSE; //Crossbowman
+    else Result := OTHER_LOSE; //other units
+  end;
+end;
+
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
+begin
+	if (States.PlayerEnabled(States.UnitOwner(aUnitID))) AND (States.PlayerDefeated(States.UnitOwner(aUnitID)) = false) then begin
+		if aKillerIndex = -1 then begin
+			scores[States.UnitOwner(aUnitID)] := scores[States.UnitOwner(aUnitID)] - STARVE_PENALTY;
+		end else begin
+			scores[States.UnitOwner(aUnitID)] := scores[States.UnitOwner(aUnitID)] - PenaltyForDeath(aUnitID);
+			scores[aKillerIndex] := scores[aKillerIndex] + ScoreForKill(aUnitID);
+		end;
+		
+		deaths := deaths + 1;
+		if deaths mod NTH_STALEMATE_BREAK = 0 then begin
+			stalemateTimer := STALEMATE_TIME;
+		end;
+	end;
+end;
+
+procedure OnWarriorEquipped(aUnitID : Integer; aGroupID : Integer);
+begin
+	if States.UnitType(aUnitID) = 17 then begin// bowman
+		scores[States.UnitOwner(aUnitID)] := scores[States.UnitOwner(aUnitID)] - BOW_EQUIP_PENALTY;
+	end;
+	if States.UnitType(aUnitID) = 18 then begin// crossbowman
+		scores[States.UnitOwner(aUnitID)] := scores[States.UnitOwner(aUnitID)] - XBOW_EQUIP_PENALTY;
+	end;
+end;
+
+procedure OnHouseDestroyed(aHouseID : Integer; aDestroyerIndex : Integer);
+begin
+	if (States.PlayerEnabled(States.HouseOwner(aHouseID))) AND (States.PlayerDefeated(States.HouseOwner(aHouseID)) = false) then begin
+		if (States.HouseType(aHouseID) = 21) OR (States.HouseType(aHouseID) = 11) then begin
+			Actions.PlayerDefeat(States.HouseOwner(aHouseID));
+			scores[aDestroyerIndex] := scores[aDestroyerIndex] + DEFEAT_BONUS;
+			
+			eliminationTimer := ELIMINATION_TIME;
+		end;
+		stalemateTimer := STALEMATE_TIME;
+	end;
+end;
+
+function CountWare(player, ware : Integer) : Integer;
+var
+	i : Integer;
+	houses : array of Integer;
+	units : array of Integer;
+begin
+	result := 0;
+	houses := States.PlayerGetAllHouses(player);
+	for i := 0 to Length(houses)-1 do begin
+		result := result + States.HouseResourceAmount(houses[i],ware);
+	end;
+	
+	units := States.PlayerGetAllUnits(player);
+	for i := 0 to Length(units)-1 do begin
+		if States.UnitCarrying(units[i]) = ware then begin
+			result := result + 1;
+		end;
+	end;
+end;
+
+procedure replenishSerfs(player : Integer);
+begin
+	if (States.PlayerEnabled(player)) AND (States.PlayerDefeated(player) = false) then begin
+		if (States.GameTime mod SERF_REPLENISH_MOD = 0) then begin
+			if (States.StatHouseTypeCount(player,21) > 0) then begin// have barracks
+				if States.StatUnitTypeCount(player,0) < SERF_TARGET then begin
+					Actions.GiveUnit(player,0,spawnPositions[player*2],spawnPositions[player*2+1],0);
+				end;
+			end; 
+		end;
+	end;
+end;
+
+procedure replenishRecruits(player : Integer; force : Boolean);
+var
+	onMod : Integer;
+begin
+	if player < 4 then onMod := recruitReplenishOnMod[GetWestCount] else onMod := recruitReplenishOnMod[GetEastCount];
+	if (States.PlayerEnabled(player)) AND (States.PlayerDefeated(player) = false) then begin
+		if (States.GameTime mod onMod = 0) OR force then begin
+			if (States.StatHouseTypeCount(player,21) > 0) then begin// have barracks
+				if States.StatUnitTypeCount(player,13) < RECRUIT_TARGET + States.StatHouseTypeCount(player,17) then begin
+					Actions.GiveUnit(player,13,spawnPositions[player*2],spawnPositions[player*2+1],0);
+				end;
+			end; 
+		end;
+	end;
+end;
+
+function TransferDirectly(player : Integer; weapon : Integer) : Boolean;
+var
+	houses : array of Integer;
+	i : Integer;
+begin
+	houses := States.PlayerGetAllHouses(player);
+	result := false;
+	for i := 0 to Length(houses)-1 do begin
+		if States.HouseType(houses[i]) = 11 then begin
+			if States.HouseResourceAmount(houses[i], weapon) >= 2 then result := true;
+		end;
+	end;
+end;
+
+procedure replenishArmoury(player : Integer; force : Boolean);
+var
+	onMod : Integer;
+	ware : Integer;
+	numberToGive : Integer;
+	limit : Integer;
+begin
+	if player < 4 then onMod := armouryReplenishOnMod[GetWestCount] else onMod := armouryReplenishOnMod[GetEastCount];
+	if (States.PlayerEnabled(player)) AND (States.PlayerDefeated(player) = false) AND (States.StatHouseTypeCount(player,11) > 0) then begin// have storehouse
+		if (States.GameTime mod onMod = 0) OR force then begin
+			for ware := 16 to 26 do begin
+				numberToGive := 1;
+				limit := WEAPON_TARGET;
+								
+				if (ware = 18) OR (ware = 19) then begin
+					limit := ARMOUR_TARGET;
+					numberToGive := 2;
+				end else if ((ware = 24) OR (ware = 25)) AND ((replenishCounters[player] mod BOWS_NTH_DONT_REPLENISH) = 0) then begin
+					continue;
+				end else if (ware = 20) AND ((replenishCounters[player] mod AXES_NTH_DOUBLE_REPLENISH) = 0) then begin
+					numberToGive := 2;
+				end else if (ware = 26) AND ((replenishCounters[player] mod HORSES_NTH_DONT_REPLENISH) = 0) then begin
+					continue; 
+				end;
+				
+				if CountWare(player, ware) < limit then begin
+					if TransferDirectly(player,ware) then begin
+						Actions.GiveWeapons(player,ware,numberToGive);
+					end else begin
+						Actions.GiveWares(player,ware,numberToGive);
+					end;
+				end;
+			end;
+			replenishCounters[player] := replenishCounters[player] + 1;
+		end;
+	end; 
+end;		
+
+function GetLowestScorePlayer : Integer;
+var
+	lowestScore : Integer;
+	i : Integer;
+begin
+	result := 0;
+	lowestScore := 4444444;
+	for i := 0 to 7 do begin
+		if (States.PlayerEnabled(i)) AND (States.PlayerDefeated(i) = false) AND (scores[i] < lowestScore) then begin
+			lowestScore := scores[i];
+			result := i;
+		end;
+	end;
+end;
+
+procedure DrawStatus;
+var
+	i : Integer;
+	idx : array[0..7] of Integer;
+	minutes, seconds : Integer;
+	color : String;
+	action, bonus : String;
+begin
+	idx[0] := 3;
+	idx[1] := 2;
+	idx[2] := 1;
+	idx[3] := 0;
+	idx[4] := 7;
+	idx[5] := 6;
+	idx[6] := 5;
+	idx[7] := 4;
+	Actions.OverlayTextSet(-1,'');
+
+	
+	minutes := (stalemateTimer / 10) / 60;
+	seconds := (stalemateTimer / 10) mod 60;
+	if stalemateTimer < STALEMATE_CRITICAL_WARNING then color := '00FFFF' else color := 'FFFFFF';
+	if seconds < 10 then begin
+		Actions.OverlayTextAppendFormatted(-1,'[$%s]Time to stalemate  : %d:0%d[$FFFFFF]', [color, minutes, seconds]);
+	end else begin
+		Actions.OverlayTextAppendFormatted(-1,'[$%s]Time to stalemate  : %d:%d[$FFFFFF]', [color, minutes, seconds]);
+	end;
+	if stalemateTimer < STALEMATE_CRITICAL_WARNING then begin
+		if (westSideAttacking AND eastSideCamping) OR (eastSideAttacking AND westSideCamping) then begin
+			Actions.OverlayTextAppendFormatted(-1,' [$BBBBBB] - campers will lose',[]);
+		end else begin
+			Actions.OverlayTextAppendFormatted(-1,' [$BBBBBB] - everyone will lose',[]);
+		end;
+	end;
+	Actions.OverlayTextAppend(-1,'|');
+	
+	minutes := (eliminationTimer / 10) / 60;
+	seconds := (eliminationTimer / 10) mod 60;
+	if eliminationTimer < ELIMINATION_CRITICAL_WARNING then color := '0088FF' else color := 'FFFFFF';
+	if seconds < 10 then begin
+		Actions.OverlayTextAppendFormatted(-1,'[$%s]Time to elimination: %d:0%d[$FFFFFF]||', [color, minutes, seconds]);
+	end else begin
+		Actions.OverlayTextAppendFormatted(-1,'[$%s]Time to elimination: %d:%d[$FFFFFF]||', [color, minutes, seconds]);
+	end;
+	
+	action := '';
+	if westSideAttacking then action := 'sieging' else if westSideCamping then action := 'camping' else action := 'defending';
+	bonus := '';
+	if westSideAttacking AND eastSideCamping then bonus := ' receiving points!';
+	if westSideCamping AND eastSideAttacking then bonus := ' receiving help!';
+	Actions.OverlayTextAppendFormatted(-1,'West side is %s',[action]);
+	if bonus <> '' then Actions.OverlayTextAppendFormatted(-1,' [$BBBBBB] - %s[$FFFFFF]',[bonus]);
+	Actions.OverlayTextAppend(-1,'|');
+	
+	action := '';
+	if eastSideAttacking then action := 'sieging' else if eastSideCamping then action := 'camping' else action := 'defending';
+	bonus := '';
+	if eastSideAttacking AND westSideCamping then bonus := ' receiving points!';
+	if eastSideCamping AND westSideAttacking then bonus := ' receiving help!';
+	Actions.OverlayTextAppendFormatted(-1,'East side is %s',[action]);
+	if bonus <> '' then Actions.OverlayTextAppendFormatted(-1,' [$BBBBBB] - %s[$FFFFFF]',[bonus]);
+	Actions.OverlayTextAppend(-1,'||');
+	
+	for i := 0 to 7 do begin
+		if i = 4 then Actions.OverlayTextAppend(-1,'|');
+		if States.PlayerEnabled(idx[i]) AND (States.PlayerDefeated(idx[i]) = false) then begin
+			Actions.OverlayTextAppendFormatted(-1,'[$%s]%s[$FFFFFF]|',[States.PlayerColorText(idx[i]), States.PlayerName(idx[i])] );
+			color := 'FFFFFF';
+			if GetLowestScorePlayer = idx[i] then begin
+				if eliminationTimer < ELIMINATION_CRITICAL_WARNING then color := '0088FF' else color := '00FFFF';
+				Actions.OverlayTextAppendFormatted(-1,'[$%s]  ! Score: %d[$FFFFFF]|', [color, scores[idx[i]]]);
+			end else begin
+				Actions.OverlayTextAppendFormatted(-1,'[$%s]    Score: %d[$FFFFFF]|', [color, scores[idx[i]]]);
+			end;
+		end;
+	end;	
+	
+
+end;
+
+procedure UpdateAttackVsCamp;
+var
+	i, j : Integer;
+	units : array of Integer;
+	westSideAttackers, westSideNoncampers : Integer;
+	eastSideAttackers, eastSideNoncampers : Integer;
+begin
+	for i := 0 to 7 do siegeParticipants[i] := false;
+
+	westSideAttackers := 0;
+	westSideNoncampers := 0;
+	for i := 0 to 3 do begin
+		if (States.PlayerEnabled(i)) AND (States.PlayerDefeated(i) = false) then begin
+			units := States.PlayerGetAllUnits(i);
+			for j := 0 to Length(units)-1 do begin
+				if States.UnitPositionX(units[j]) > (CENTER_LINE+CENTER_LINE_WIDTH) then begin 
+					westSideAttackers := westSideAttackers + 1;
+					siegeParticipants[i] := true;
+				end;
+				if States.UnitPositionX(units[j]) > (CENTER_LINE-CENTER_LINE_DEFENSIVE) then westSideNoncampers := westSideNoncampers + 1; 
+			end;
+		end;
+	end;
+	westSideAttacking := westSideAttackers >= UNITS_TO_STATE;
+	westSideCamping := westSideNoncampers < UNITS_TO_STATE;
+	
+	eastSideAttackers := 0;
+	eastSideNoncampers := 0;
+	for i := 4 to 7 do begin
+		if (States.PlayerEnabled(i)) AND (States.PlayerDefeated(i) = false) then begin
+			units := States.PlayerGetAllUnits(i);
+			for j := 0 to Length(units)-1 do begin
+				if States.UnitPositionX(units[j]) < (CENTER_LINE-CENTER_LINE_WIDTH) then begin 
+					eastSideAttackers := eastSideAttackers + 1;
+					siegeParticipants[i] := true;
+				end;
+				if States.UnitPositionX(units[j]) < (CENTER_LINE+CENTER_LINE_DEFENSIVE) then eastSideNoncampers := eastSideNoncampers + 1;
+			end;
+		end;
+	end;
+	eastSideAttacking := eastSideAttackers >= UNITS_TO_STATE;
+	eastSideCamping := eastSideNoncampers < UNITS_TO_STATE;
+end;
+
+procedure OnPlayerDefeated(aIndex : Integer);
+var
+	i : Integer;
+	groups : array of Integer;
+begin
+	groups := States.PlayerGetAllGroups(aIndex);
+	for i := 0 to Length(groups)-1 do begin
+		Actions.GroupOrderWalk(groups[i], spawnPositions[aIndex*2], spawnPositions[aIndex*2+1], 0);
+	end;
+end;
+
+procedure CheckVictory;
+var
+	i, westCount, eastCount : Integer;
+begin
+	westCount := GetWestCount;
+	eastCount := GetEastCount;	
+	if eastCount = 0 then begin
+		for i := 0 to 3 do begin
+			if (States.PlayerEnabled(i)) AND (States.PlayerDefeated(i) = false) then Actions.PlayerWin([i],true);
+		end;
+		finished := true;
+		exit;
+	end;
+	if westCount = 0 then begin
+		for i := 4 to 7 do begin
+			if (States.PlayerEnabled(i)) AND (States.PlayerDefeated(i) = false) then Actions.PlayerWin([i],true);
+		end;
+		finished := true;
+		exit;
+	end;
+end;
+
+procedure OnTick;
+var
+	i : Integer;
+	bonusMod : Integer;
+	playerDiff : Integer;
+begin
+	if finished then exit;
+
+	stalemateTimer := stalemateTimer - 1;
+	eliminationTimer := eliminationTimer - 1;
+
+	if stalemateTimer < 0 then begin
+		if (westSideAttacking AND eastSideCamping) then begin
+			for i := 0 to 3 do begin
+				if States.PlayerEnabled(i) then Actions.PlayerWin([i], true);
+			end;
+		end else if (eastSideAttacking AND westSideCamping) then begin
+			for i := 4 to 7 do begin
+				if States.PlayerEnabled(i) then Actions.PlayerWin([i], true);
+			end;
+		end else begin
+			for i := 0 to 7 do begin
+				if States.PlayerEnabled(i) then Actions.PlayerDefeat(i);
+			end;
+		end;
+		finished := true;
+		exit;
+	end;
+	if eliminationTimer < 0 then begin
+		Actions.PlayerDefeat(GetLowestScorePlayer);
+		eliminationTimer := ELIMINATION_TIME;
+	end;
+	
+	CheckVictory;
+	if finished then exit;
+
+	for i := 0 to 7 do begin
+		if States.PlayerEnabled(i) then begin
+			replenishArmoury(i, false);
+			replenishRecruits(i, false);
+			replenishSerfs(i);
+		end;
+	end;
+	
+	UpdateAttackVsCamp;
+	
+	if stalemateTimer >= 0 then begin	
+		DrawStatus;
+	end;
+	
+	if GetEastCount > GetWestCount then begin
+		playerDiff := GetEastCount - GetWestCount;
+	end else begin
+		playerDiff := GetWestCount - GetEastCount;
+	end;
+	if westSideAttacking AND eastSideCamping then begin
+		if States.GameTime mod 10 = 0 then begin
+			for i := 0 to 3 do begin
+				if siegeParticipants[i] then scores[i] := scores[i] + SIEGE_BONUS_POINTS_PER_SECOND;
+			end;
+		end;
+		bonusMod := SIEGE_BONUS_DELAY - (SIEGE_BONUS_DELAY * (GetWestCount - GetEastCount) / 4 / GetEastCount );
+		if States.GameTime mod bonusMod = 0 then begin
+			for i := 4 to 7 do begin
+				replenishRecruits(i, true);
+				replenishRecruits(i, true);
+				replenishArmoury(i, true);
+			end;
+		end;
+	end;
+	if eastSideAttacking AND westSideCamping then begin
+		if States.GameTime mod 10 = 0 then begin
+			for i := 4 to 7 do begin
+				if siegeParticipants[i] then scores[i] := scores[i] + SIEGE_BONUS_POINTS_PER_SECOND;
+			end;
+		end;
+		bonusMod := SIEGE_BONUS_DELAY - (SIEGE_BONUS_DELAY * (GetEastCount - GetWestCount) / 4 / GetWestCount );
+		if States.GameTime mod bonusMod = 0 then begin
+			for i := 0 to 3 do begin
+				replenishRecruits(i, true);
+				replenishRecruits(i, true);
+				replenishArmoury(i, true);
+			end;
+		end;
+	end;
+	
+
+	
+end;
+
+

@@ -1,0 +1,287 @@
+{-----------------------------------------------------------------------------------------
+ Desert Conquest
+ Script and map by sado, idea by sado & dicsoupcan
+ Original script first used in The Conquest - script by sado, map by dicsoupcan
+ Winning conditions based on Lewin's Battle of Octumn script, with permission
+ Thanks to all the testers of the script 
+ 
+ Additional thanks to the translators:
+	Czech - Bludmaster
+	German - Weekend
+ 
+ Everyone is allowed to use this script, or parts of it, as long as you give me credit by 
+  mentioning who made the original script.  I'd like to encourage everyone to try and make 
+  new different Conquest mode maps, I'll be glad to help with scripting :)
+------------------------------------------------------------------------------------------
+On each side:
+2 cutters - militia 
+1 weapon workshop - axemen
+1 l. armory - bowmen
+1 tannery - lancemen
+1 iron weaponry - swordmen
+1 armor smithy - crossbowmen
+1 stable - knights
+1 tower - it can be captured, the stone there will refill slowly
+1 farm - gives random units
+
+For 1 building, you get:
+1 militia each 20 seconds
+1 leather unit each 45 seconds //30-->45
+1 iron unit each 60 seconds    //40-->60
+1 knight each 90 seconds       //50-->90
+1 random unit (from the farm) each 120 seconds
+-----------------------------------------------------------------------------------------}
+const
+TotalLocs = 2;
+TotalFails = 2;
+
+var Team1, Team2: Integer;
+var FailTimer, FailCount: array[0..(TotalFails - 1)] of array[0..(TotalLocs - 1)] of Integer;
+var Team1Name, Team2Name: AnsiString;
+
+//lines below are taken from Battle of Octumn script, used with permission
+function PlayerHasUndefeatedEnemy(aPlayer: Integer): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  for I:=0 to (TotalLocs - 1) do
+	if (I <> aPlayer) //Don't check ourselves
+	and States.PlayerEnabled(I) //Only check players which are enabled
+	and not States.PlayerDefeated(I) //Don't check defeated players
+	and not States.PlayerAllianceCheck(aPlayer, I) then //Is this player an enemy?
+	begin
+	  //We found an enemy who is not defeated, no need to check further
+	  Result := True;
+	  Exit;
+	end;
+end;
+
+procedure CheckForWinner;
+var I: Integer;
+begin
+  //Find a player with no enemies left, except those who were defeated
+  for I:=0 to (TotalLocs - 1) do
+    if States.PlayerEnabled(I) //Only enabled players
+	and not PlayerHasUndefeatedEnemy(I) then //Does this player have any enemies left?
+	begin
+      Actions.PlayerWin([I], True); //This player and his team wins
+	  Exit; //Don't check any more players, team victory took care of his team winning
+	end;
+end;
+//
+//end of BoO script
+//
+
+function SadoRandomHouse: Integer;
+var Random: Integer;
+begin
+   Random := States.KaMRandomI(7);
+   case Random of
+   0: Result := 25;
+   1: Result := 1;
+   2: Result := 2;
+   3: Result := 10;
+   4: Result := 12;
+   5: Result := 19;
+   6: Result := 20;
+   end;
+end;
+
+procedure ReloadOverlay;
+begin
+	Actions.OverlayTextSet(-1, Team1Name + ': ' + IntToStr(Team1) + ' buildings|' + Team2Name + ': ' + IntToStr(Team2) + ' buildings');
+end;
+
+procedure OnHouseDestroyed(HouseID, DestroyerID: Integer);
+begin
+	if (States.HouseOwner(HouseID) = 0) then
+		Dec(Team1)
+	else if (States.HouseOwner(HouseID) = 1) then
+		Dec(Team2);
+end;
+
+procedure FailCase(FailID, UnitOwner: Integer); //this is used both in YouFail and in SadoSetHouseOwner
+begin
+if (FailCount[FailID][UnitOwner] = 3) and (FailTimer[FailID][UnitOwner] + 100 > States.GameTime) then //(if 3 failures in 10 seconds)
+		case FailID of
+		0: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a building with a scout or a knight!|Read the rules next time :)');
+		1: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a tower owned by your ally.');
+		end;
+end;
+
+procedure YouFail(FailID, UnitOwner: Integer); //this procedure handles overlay tips, in case someone didn't read the rules or something :)
+begin
+	if FailTimer[FailID][UnitOwner] = 0 then
+		FailTimer[FailID][UnitOwner] := States.GameTime;
+	FailCount[FailID][UnitOwner] := FailCount[FailID][UnitOwner] + 1;
+	FailCase(FailID, UnitOwner);
+end;
+
+procedure OnMissionStart;
+var P, HouseID, I, J, HouseType: Integer;
+var Houses: array of Integer;
+begin
+ Team1Name := States.PlayerName(0);
+ Team2Name := States.PlayerName(1);
+ CheckForWinner;
+ Actions.ShowMsg(-1,'<$0>'); //tutorial message
+ for P := 0 to TotalLocs do
+    begin
+      if P <> TotalLocs then
+      begin
+         Actions.PlayerShareFog(TotalLocs, P, False);
+         Actions.FogCoverAll(P);
+      end;
+	end;
+ for P := 0 to TotalLocs do
+    begin
+      Houses := States.PlayerGetAllHouses(P);
+      for I := 0 to Length(Houses)-1 do
+      begin
+         HouseID := Houses[I];
+         HouseType := States.HouseType(HouseID);
+         case P of
+            TotalLocs: for J := 0 to ( TotalLocs - 1 ) do
+                 Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 3);
+            else for J := 0 to ( TotalLocs - 1 ) do
+			begin
+				if (States.PlayerAllianceCheck( P, J ) = True ) then
+					Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 16);
+				if (HouseType <> 13) and (HouseType <> 21) then
+					Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID)-1, 3);
+			end;
+         end;
+         Actions.HouseDisableUnoccupiedMessage(HouseID, True);
+         if HouseType = 13 then
+		 begin
+            Actions.HouseSchoolQueueAdd(HouseID, 13, 1);
+			//for J := 0 to ( TotalLocs - 1 ) do
+            //     Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 3);
+		 end;
+         //team buildings counters
+         if (P > (TotalLocs / 2 - 1)) and (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
+            begin
+               Inc(Team2);
+            end
+            else if (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
+               Inc(Team1);
+      end;
+    end;
+	ReloadOverlay;
+end;
+
+procedure SadoGivePlayerUnit(P: Integer; TypeOfHouse: Integer; TimeOffset: Integer; HouseID: Integer);
+begin
+   //we check what is the value of TypeOfHouse, for example if it's 9 then it's woodcutter
+   case TypeOfHouse of
+   9:  if (TimeOffset mod 200 = 0) then //woodcutter=militia
+         Actions.GiveWeapons(P, 20, 1); //axe
+   19:  if (TimeOffset mod 450 = 0) then //weapon workshop=axeman
+         begin
+            Actions.GiveWeapons(P, 20, 1);
+            Actions.GiveWeapons(P, 16, 1); //wooden shield
+            Actions.GiveWeapons(P, 18, 1); //leather armor
+         end;
+   12: if (TimeOffset mod 900 = 0) then //stables=knight
+         begin
+            Actions.GiveWeapons(P, 21, 1); //sword
+            Actions.GiveWeapons(P, 17, 1); //iron shield
+            Actions.GiveWeapons(P, 19, 1); //iron armor
+            Actions.GiveWeapons(P, 26, 1); //horse
+         end;
+   2:  if (TimeOffset mod 600 = 0) then //weapon smithy=swordman
+         begin
+            Actions.GiveWeapons(P, 21, 1);
+            Actions.GiveWeapons(P, 17, 1);
+            Actions.GiveWeapons(P, 19, 1);
+         end;
+   20: if (TimeOffset mod 450 = 0) then //armory workshop=bowman
+         begin
+            Actions.GiveWeapons(P, 24, 1); //bow
+            Actions.GiveWeapons(P, 18, 1);
+         end;
+   10: if (TimeOffset mod 600 = 0) then //armor smithy=crossbowman
+         begin
+            Actions.GiveWeapons(P, 25, 1); //crossbow
+            Actions.GiveWeapons(P, 19, 1);
+         end;
+   
+   25: if (TimeOffset mod 450 = 0) then //tannery=lanceman
+         begin
+            Actions.GiveWeapons(P, 22, 1); //lance
+            Actions.GiveWeapons(P, 18, 1);
+         end;
+   1: if (TimeOffset mod 600 = 0) then //iron smithy=pikeman
+         begin
+            Actions.GiveWeapons(P, 23, 1); //pike
+            Actions.GiveWeapons(P, 19, 1);
+         end;
+   //special purpose buildings
+   17: if (P <> 6) and (TimeOffset mod 600 = 0) then //tower
+         begin
+            Actions.HouseAddWaresTo(HouseID, 1, 1);
+			Actions.UnitHungerSet(States.UnitAt(States.HousePositionX(HouseID), States.HousePositionY(HouseID)), States.UnitMaxHunger);
+         end;
+   8: if (TimeOffset mod 1200 = 0) then //farm
+         begin
+            SadoGivePlayerUnit( P, SadoRandomHouse, 0, HouseID ); //recursion ftw
+         end;
+   end;
+end;
+
+//I see no reason to make this map food wars :)
+procedure OnWarriorEquipped(UnitID: Integer; GroupID: Integer);
+begin
+ Actions.UnitHungerSet(UnitID, States.UnitMaxHunger);
+end;
+
+//inifinite gold and recruits production
+procedure OnUnitTrained(UnitID: Integer);
+var School: Integer;
+begin
+ //we just trained an unit, so it must be walking out of the school...
+ //let's get the school's HouseID then:
+ School := States.HouseAt(States.UnitPositionX(UnitID), States.UnitPositionY(UnitID) - 1);
+ if School <> -1 then
+ begin
+   //refill the school with gold, and add one recruit to the queue:
+   Actions.HouseAddWaresTo(School, 7, 1);
+   Actions.HouseSchoolQueueAdd(School, 13, 1);
+ end;
+end;
+
+procedure OnTick;
+var I, P, F, HouseID, UnitID, TimeOffset, Owner: Integer;
+var Houses: array of Integer;
+begin
+   for P := 0 to TotalLocs do
+   begin
+    if ( (States.GameTime + P) mod 10 = 0) then  //each second(=10 ticks), do:
+    begin
+      //TimeOffset is current time + player number. We add player number to not do all
+      //players at once - each player will be done in a separate "tick" (1/10th of a second)
+      TimeOffset := (States.GameTime + P);
+      //if you want to use something many times, it's better to optimize the code and save
+      //it as a variable - thats why we save the array with houses, so we don't have to
+      //call PlayerGetAllHouses each time in for loop...
+      Houses := States.PlayerGetAllHouses(P);
+      //we start from zero, but length is counted from 1... so we subtract 1 from the Length
+      //so, we take all the buildings of a player, and I is the number of the house
+      for I := 0 to Length(Houses)-1 do
+         SadoGivePlayerUnit( P, States.HouseType(Houses[I]), TimeOffset, Houses[I] );
+	  for F := 0 to (TotalFails - 1) do
+				if ( P <> TotalLocs ) and (FailCount[F][P] > 3) and (FailTimer[F][P] + 100 < States.GameTime) then
+					begin
+						FailTimer[F][P] := 0;
+						FailCount[F][P] := 0;
+						ReloadOverlay;
+					end;
+    end;   //if gametime...
+    if States.PlayerEnabled(P) and not States.PlayerDefeated(P) then //winning conditions
+      if (States.StatArmyCount(P)=0) and (States.StatHouseTypeCount(P, 21)=0) then
+      begin
+        Actions.PlayerDefeat(P);
+        CheckForWinner;
+      end;
+   end;    //for P...
+end;

@@ -1,0 +1,3 @@
+SetSpecial
+BigDesc
+This map shows the great siege of the sea, which was fought a great battle!|Loc 5678 need as quickly attack (Loc 123 can train troops)||Teams:|123+4(AI) vs 5678|Defenders   Aggressors||Win conditions:|- The destruction of the castle, storehouse, school loc of 1 and 2|- The destruction of the castle, storehouse, school loc of 3, and the village of Al (if the AI falls, then the loc of 3 also lose)||Made by PAKER TEAM:|map: woloszek|script: Luki

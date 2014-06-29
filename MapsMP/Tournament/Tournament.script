@@ -1,0 +1,693 @@
+
+var b8p, b4p, bPlayer13, bPlayer14, bPlayer15, bPlayer16, bPlayer21, bPlayer22, bPlayer23, bPlayer24, bPlayer20, bPlayer19, bPlayer11, bPlayer12, bPlayer18, bPlayer17, bPlayer10, bPlayer9, bPlayer8, bPlayer7, bPlayer6, bPlayer5, bPlayer1, bPlayer2, bPlayer3, bPlayer4: Boolean;
+var iBowmen5, iScout5, iAxefighter5, iLancecarrier5, iSwordfighter5, iRogue21, iBowmen6, iScout6, iAxefighter6, iLancecarrier6, iSwordfighter6, iRogue22, iBowmen7, iScout7, iAxefighter7, iLancecarrier7, iSwordfighter7, iRogue23, iBowmen8, iScout8, iAxefighter8, iLancecarrier8, iSwordfighter8, iRogue24: Integer;
+var iVagebond4, iRogue7, iRogue8, iMilitia4, iRebel4 ,iBarbarian4, iVagebond5, iRogue9, iRogue10, iMilitia5, iRebel5, iBarbarian5, iVagebond6, iRogue11, iRogue12, iMilitia6, iRebel6 ,iBarbarian6, iVagebond7, iRogue13, iRogue14, iMilitia7, iRebel7, iBarbarian7, iVagebond8, iRogue15, iRogue16, iMilitia8, iRebel8 ,iBarbarian8: Integer;
+var iMilitia1, iRebel1, iBarbarian1, iVagebond2, iRogue3, iRogue4, iMilitia2, iRebel2 ,iBarbarian2, iVagebond3, iRogue5, iRogue6, iMilitia3, iRebel3, iBarbarian3: Integer;
+var iBowmen4, iScout4, iAxefighter4, iLancecarrier4, iSwordfighter4, iRogue20, iBowmen3, iScout3, iAxefighter3, iLancecarrier3, iSwordfighter3, iRogue19, iBowmen1, iScout1, iAxefighter1, iLancecarrier1, iSwordfighter1, iRogue17, iBowmen2, iScout2, iAxefighter2, iLancecarrier2, iSwordfighter2, iRogue18, iVagebond1, iRogue1, iRogue2: Integer;
+var i : Integer;
+var playerNames : Array[0..7] of AnsiString; 
+var playerColors : Array[0..7] of AnsiString;
+var playerKills : Array[0..7] of Integer;
+
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+
+if aIndex = 0 then Actions.FogRevealAll(0);
+if aIndex = 1 then Actions.FogRevealAll(1);
+if aIndex = 2 then Actions.FogRevealAll(2);
+if aIndex = 3 then Actions.FogRevealAll(3);
+if aIndex = 4 then Actions.FogRevealAll(4);
+if aIndex = 5 then Actions.FogRevealAll(5);
+if aIndex = 6 then Actions.FogRevealAll(6);
+if aIndex = 7 then Actions.FogRevealAll(7);
+
+end;
+
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
+begin
+    if aKillerIndex <> -1 then
+        playerKills[aKillerIndex] := playerKills[aKillerIndex] + 1;
+end;
+
+procedure OnMissionStart;
+begin
+     
+      iVagebond1 := Actions.GiveGroup(0, 27, 16, 227, 0, 8, 4); 
+      iRogue1 := Actions.GiveGroup(0, 25, 12, 232, 0, 12, 4);
+      iRogue2 := Actions.GiveGroup(0, 25, 29, 226, 0, 8, 4);
+      iMilitia1 := Actions.GiveGroup(0, 14, 19, 230 , 0, 12 ,4);
+      iRebel1 := Actions.GiveGroup(0, 24, 23, 225, 0, 15, 5);
+      iBarbarian1 := Actions.GiveGroup(0, 23, 25, 229, 0, 6, 3);
+
+      iVagebond2 := Actions.GiveGroup(1, 27, 6, 162, 4, 8, 4);
+      iRogue3 := Actions.GiveGroup(1, 25, 21, 159, 4, 12, 4);
+      iRogue4 := Actions.GiveGroup(1, 25, 15, 156, 4, 8, 4);
+      iMilitia2 := Actions.GiveGroup(1, 14, 14, 160, 4, 12, 4);
+      iRebel2 := Actions.GiveGroup(1, 24, 12, 165, 4, 15, 5);
+      iBarbarian2 := Actions.GiveGroup(1, 23, 8, 156, 4, 6, 3);
+
+      iVagebond3 := Actions.GiveGroup(2, 27, 69, 230, 0, 8, 4); 
+      iRogue5 := Actions.GiveGroup(2, 25, 79, 232, 0, 12, 4);
+      iRogue6 := Actions.GiveGroup(2, 25, 86, 228, 0, 8, 4);
+      iMilitia3 := Actions.GiveGroup(2, 14, 87, 224 , 0, 12 ,4);
+      iRebel3 := Actions.GiveGroup(2, 24, 79, 226, 0, 15, 5);
+      iBarbarian3 := Actions.GiveGroup(2, 23, 74, 232, 0, 6, 3);
+
+      iVagebond4 := Actions.GiveGroup(3, 27, 77, 167, 4, 8, 4);
+      iRogue7 := Actions.GiveGroup(3, 25, 75, 157, 4, 12, 4);
+      iRogue8 := Actions.GiveGroup(3, 25, 71, 155, 4, 8, 4);
+      iMilitia4 := Actions.GiveGroup(3, 14, 66, 160, 4, 12, 4);
+      iRebel4 := Actions.GiveGroup(3, 24, 80, 160, 4, 15, 5);
+      iBarbarian4 := Actions.GiveGroup(3, 23, 72, 164, 4, 6, 3);
+
+      iVagebond5 := Actions.GiveGroup(4, 27, 137, 230, 0, 8, 4); 
+      iRogue10 := Actions.GiveGroup(4, 25, 141, 234, 0, 12, 4);
+      iRogue9 := Actions.GiveGroup(4, 25, 149, 232, 0, 8, 4);
+      iMilitia5 := Actions.GiveGroup(4, 14, 151, 227 , 0, 12 ,4);
+      iRebel5 := Actions.GiveGroup(4, 24, 144, 226, 0, 15, 5);
+      iBarbarian5 := Actions.GiveGroup(4, 23, 133, 233, 0, 6, 3);
+
+      iVagebond6 := Actions.GiveGroup(5, 27, 141, 159, 4, 8, 4);
+      iRogue11 := Actions.GiveGroup(5, 25, 135, 161, 4, 12, 4);
+      iRogue12 := Actions.GiveGroup(5, 25, 131, 157, 4, 8, 4);
+      iMilitia6 := Actions.GiveGroup(5, 14, 135, 169, 4, 12, 4);
+      iRebel6 := Actions.GiveGroup(5, 24, 131, 166, 4, 15, 5);
+      iBarbarian6 := Actions.GiveGroup(5, 23, 142, 166, 4, 6, 3);
+
+      iVagebond7 := Actions.GiveGroup(6, 27, 211, 232, 0, 8, 4); 
+      iRogue13 := Actions.GiveGroup(6, 25, 205, 234, 0, 12, 4);
+      iRogue14 := Actions.GiveGroup(6, 25, 200, 231, 0, 8, 4);
+      iMilitia7 := Actions.GiveGroup(6, 14, 207, 224 , 0, 12 ,4);
+      iRebel7 := Actions.GiveGroup(6, 24, 203, 227, 0, 15, 5);
+      iBarbarian7 := Actions.GiveGroup(6, 23, 211, 228, 0, 6, 3);
+
+      iVagebond8 := Actions.Givegroup(7, 27, 204, 168, 4, 8, 4);
+      iRogue15 := Actions.GiveGroup(7, 25, 203, 160, 4, 12, 4);
+      iRogue16 := Actions.GiveGroup(7, 25, 196, 161, 4, 8, 4);
+      iMilitia8 := Actions.GiveGroup(7, 14, 190, 159, 4, 12, 4);
+      iRebel8 := Actions.GiveGroup(7, 24, 192, 165, 4, 15, 5);
+      iBarbarian8 := Actions.GiveGroup(7, 23, 197, 168, 4, 6, 3);
+      for i := 0 to 7 do
+	begin
+		playerNames[i] := States.PlayerName(i);
+		playerColors[i] := States.PlayerColorText(i);
+		playerKills[i] := 0;
+	end;
+
+end;
+procedure OnTick;
+begin
+
+
+	Actions.OverlayTextSet(-1, '<$0> :|');
+	for i:=0 to 7 do
+	begin
+		if States.PlayerEnabled(i) then
+		begin
+			Actions.OverlayTextAppendFormatted(-1, '[$%s]%s[] : %d <$1>.|',[playerColors[i], playerNames[i], playerKills[i]]);
+		end;
+	end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+	begin
+	 b8p := true;
+	end;
+   	
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) then
+    begin	
+	 b4p := true;
+	end;
+	
+	
+	
+    if bPlayer1 = false then
+    begin  
+     if States.GroupDead(iVageBond2) and States.GroupDead(iRogue3) and States.GroupDead(iRogue4) and States.GroupDead(iMilitia2) and States.GroupDead(iRebel2) and States.GroupDead(iBarbarian2) then
+     begin
+      iBowmen1 := Actions.GiveGroup(0 ,17 ,21 ,93, 3, 12, 4); 
+      iScout1 := Actions.GiveGroup(0 ,21 ,12 ,93, 2, 8, 4); 
+      iAxefighter1 := Actions.GiveGroup(0 ,15 ,25 ,88, 4, 12, 4);
+      iLancecarrier1 := Actions.GiveGroup(0 ,19 ,19 ,85, 4, 12, 4); 
+      iSwordfighter1 := Actions.GiveGroup(0 ,16 ,11 ,85, 3, 6, 3);
+      iRogue17 := Actions.GiveGroup(0 ,25 ,10 ,88, 2, 8, 4); //Rogue is used in for the second time
+      bPlayer1 := true;
+      bPlayer9 := true;
+      bPlayer20 := true;
+     end;
+    end;
+
+    if bPlayer2 = false then
+    begin 
+     if States.GroupDead(iVageBond1) and States.GroupDead(iRogue1) and States.GroupDead(iRogue2) and States.GroupDead(iMilitia1) and States.GroupDead(iRebel1) and States.GroupDead(iBarbarian1) then
+     begin
+      iBowmen2 := Actions.GiveGroup(1 ,17 ,21 ,93, 3, 12, 4); 
+      iScout2 := Actions.GiveGroup(1 ,21 ,12 ,93, 2, 8, 4); 
+      iAxefighter2 := Actions.GiveGroup(1 ,15 ,25 ,88, 4, 12, 4);
+      iLancecarrier2 := Actions.GiveGroup(1 ,19 ,19 ,85, 4, 12, 4); 
+      iSwordfighter2 := Actions.GiveGroup(1 ,16 ,11 ,85, 3, 6, 3);
+      iRogue18 := Actions.GiveGroup(1 ,25 ,10 ,88, 2, 8, 4);
+      bPlayer2 := true;
+      bPlayer10 := true;
+      bPlayer19 := true;
+     end;
+    end;
+
+    if bPlayer3 = false then
+    begin 
+     if States.GroupDead(iVageBond3) and States.GroupDead(iRogue5) and States.GroupDead(iRogue6) and States.GroupDead(iMilitia3) and States.GroupDead(iRebel3) and States.GroupDead(iBarbarian3) then
+     begin
+      iBowmen3 := Actions.GiveGroup(3, 17, 96, 127, 7, 12 , 4);
+      iScout3 := Actions.GiveGroup(3, 21, 97, 134, 0, 8, 4);
+      iAxefighter3 := Actions.GiveGroup(3, 15, 101, 138, 0, 12, 4);
+      iLancecarrier3 := Actions.GiveGroup(3, 19, 105, 126, 6, 12, 4);
+      iSwordfighter3 := Actions.GiveGroup(3, 16, 110, 129, 6, 6, 3);
+      iRogue19 := Actions.GiveGroup(3, 25, 105, 134, 7, 8, 4);
+      bPlayer3 := true;
+      bPlayer11 := true;
+      bPlayer17 := true;
+     end;
+    end;
+
+    if bPlayer4 = false then
+    begin 
+     if States.GroupDead(iVageBond4) and States.GroupDead(iRogue7) and States.GroupDead(iRogue8) and States.GroupDead(iMilitia4) and States.GroupDead(iRebel4) and States.GroupDead(iBarbarian4) then
+     begin
+      iBowmen4 := Actions.GiveGroup(2, 17, 96, 127, 7, 12 , 4);
+      iScout4 := Actions.GiveGroup(2, 21, 97, 134, 0, 8, 4);
+      iAxefighter4 := Actions.GiveGroup(2, 15, 101, 138, 0, 12, 4);
+      iLancecarrier4 := Actions.GiveGroup(2, 19, 105, 126, 6, 12, 4);
+      iSwordfighter4 := Actions.GiveGroup(2, 16, 110, 129, 6, 6, 3);
+      iRogue20 := Actions.GiveGroup(2, 25, 105, 134, 7, 8, 4);
+      bPlayer4 := true;
+      bPlayer12 := true;
+      bPlayer18 := true;
+     end;
+    end;
+
+    if bPlayer5 = false then
+    begin 
+     if States.GroupDead(iVageBond5) and States.GroupDead(iRogue9) and States.GroupDead(iRogue10) and States.GroupDead(iMilitia5) and States.GroupDead(iRebel5) and States.GroupDead(iBarbarian5) then
+     begin
+      iBowmen5 := Actions.GiveGroup(5 ,17 ,140 ,93, 3, 12, 4); 
+      iScout5 := Actions.GiveGroup(5 ,21 ,131 ,93, 2, 8, 4); 
+      iAxefighter5 := Actions.GiveGroup(5 ,15 ,144 ,88, 4, 12, 4);
+      iLancecarrier5 := Actions.GiveGroup(5 ,19 ,138 ,85, 4, 12, 4); 
+      iSwordfighter5 := Actions.GiveGroup(5 ,16 ,130 ,85, 3, 6, 3);
+      iRogue21 := Actions.GiveGroup(5 ,25 ,129 ,88, 2, 8, 4);
+      bPlayer5 := true;//use for island!
+      bPlayer13 := true;
+      bPlayer21 := true;
+     end;
+    end;
+
+
+    if bPlayer6 = false then
+    begin 
+     if States.GroupDead(iVageBond6) and States.GroupDead(iRogue11) and States.GroupDead(iRogue12) and States.GroupDead(iMilitia6) and States.GroupDead(iRebel6) and States.GroupDead(iBarbarian6) then
+     begin
+      iBowmen6 := Actions.GiveGroup(4 ,17 ,140 ,93, 3, 12, 4); 
+      iScout6 := Actions.GiveGroup(4 ,21 ,131 ,93, 2, 8, 4); 
+      iAxefighter6 := Actions.GiveGroup(4 ,15 ,144 ,88, 4, 12, 4);
+      iLancecarrier6 := Actions.GiveGroup(4 ,19 ,138 ,85, 4, 12, 4); 
+      iSwordfighter6 := Actions.GiveGroup(4 ,16 ,130 ,85, 3, 6, 3);
+      iRogue22 := Actions.GiveGroup(4 ,25 ,129 ,88, 2, 8, 4);
+      bPlayer6 := true;//use for island!
+      bPlayer14 := true;
+      bPlayer22 := true;
+     end;
+    end;
+
+    if bPlayer7 = false then
+    begin 
+     if States.GroupDead(iVageBond7) and States.GroupDead(iRogue13) and States.GroupDead(iRogue14) and States.GroupDead(iMilitia7) and States.GroupDead(iRebel7) and States.GroupDead(iBarbarian7) then
+     begin
+      iBowmen7 := Actions.GiveGroup(7, 17, 215, 127, 7, 12 , 4);
+      iScout7 := Actions.GiveGroup(7, 21, 216, 134, 0, 8, 4);
+      iAxefighter7 := Actions.GiveGroup(7, 15, 220, 138, 0, 12, 4);
+      iLancecarrier7 := Actions.GiveGroup(7, 19, 224, 126, 6, 12, 4);
+      iSwordfighter7 := Actions.GiveGroup(7, 16, 229, 129, 6, 6, 3);
+      iRogue23 := Actions.GiveGroup(7, 25, 224, 134, 7, 8, 4);
+      bPlayer7 := true;
+      bPlayer15 := true;
+      bPlayer23 := true;
+     end;
+    end;
+
+
+    if bPlayer8 = false then
+    begin 
+     if States.GroupDead(iVageBond8) and States.GroupDead(iRogue15) and States.GroupDead(iRogue16) and States.GroupDead(iMilitia8) and States.GroupDead(iRebel8) and States.GroupDead(iBarbarian8) then
+     begin
+      iBowmen8 := Actions.GiveGroup(6, 17, 215, 127, 7, 12 , 4);
+      iScout8 := Actions.GiveGroup(6, 21, 216, 134, 0, 8, 4);
+      iAxefighter8 := Actions.GiveGroup(6, 15, 220, 138, 0, 12, 4);
+      iLancecarrier8 := Actions.GiveGroup(6, 19, 224, 126, 6, 12, 4);
+      iSwordfighter8 := Actions.GiveGroup(6, 16, 229, 129, 6, 6, 3);
+      iRogue24 := Actions.GiveGroup(6, 25, 224, 134, 7, 8, 4);
+      bPlayer8 := true;
+      bPlayer16 := true
+      bPlayer24 := true
+     end;
+    end;
+
+    if bPlayer9 = true then
+    begin
+     if bPlayer17 = true then
+     begin
+      if States.GroupDead(iBowmen3) and States.GroupDead(iScout3) and States.GroupDead(iAxefighter3) and States.GroupDead(iLancecarrier3) and States.GroupDead(iSwordfighter3) and States.GroupDead(iRogue19) then
+      begin
+       Actions.GiveGroup(0, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(0, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(0, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(0, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(0, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(3);
+       Actions.FogRevealAll(3);
+       bPlayer9 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer10 = true then
+    begin
+     if bPlayer17 = true then
+     begin
+      if States.GroupDead(iBowmen3) and States.GroupDead(iScout3) and States.GroupDead(iAxefighter3) and States.GroupDead(iLancecarrier3) and States.GroupDead(iSwordfighter3) and States.GroupDead(iRogue19) then
+      begin
+       Actions.GiveGroup(1, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(1, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(1, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(1, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(1, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(3);
+       Actions.FogRevealAll(3);
+       bPlayer10 := false;
+     end;
+    end;
+   end;
+
+
+    if bPlayer9 = true then
+    begin
+     if bPlayer18 = true then
+     begin
+      if States.GroupDead(iBowmen4) and States.GroupDead(iScout4) and States.GroupDead(iAxefighter4) and States.GroupDead(iLancecarrier4) and States.GroupDead(iSwordfighter4) and States.GroupDead(iRogue20) then
+      begin
+       Actions.GiveGroup(0, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(0, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(0, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(0, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(0, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(2);
+       Actions.FogRevealAll(2);
+       bPlayer9 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer10 = true then
+    begin
+     if bPlayer18 = true then
+     begin
+      if States.GroupDead(iBowmen4) and States.GroupDead(iScout4) and States.GroupDead(iAxefighter4) and States.GroupDead(iLancecarrier4) and States.GroupDead(iSwordfighter4) and States.GroupDead(iRogue20) then
+      begin
+       Actions.GiveGroup(1, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(1, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(1, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(1, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(1, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(2);
+       Actions.FogRevealAll(2);
+       bPlayer10 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer11 = true then
+    begin
+     if bPlayer20 = true then
+     begin
+      if States.GroupDead(iBowmen1) and States.GroupDead(iScout1) and States.GroupDead(iAxefighter1) and States.GroupDead(iLancecarrier1) and States.GroupDead(iSwordfighter1) and States.GroupDead(iRogue17) then
+      begin
+       Actions.GiveGroup(3, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(3, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(3, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(3, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(3, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(0);
+       Actions.FogRevealAll(0);
+       bPlayer11 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer12 = true then
+    begin
+     if bPlayer20 = true then
+     begin
+      if States.GroupDead(iBowmen1) and States.GroupDead(iScout1) and States.GroupDead(iAxefighter1) and States.GroupDead(iLancecarrier1) and States.GroupDead(iSwordfighter2) and States.GroupDead(iRogue17) then
+      begin
+       Actions.GiveGroup(2, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(2, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(2, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(2, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(2, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(0);
+       Actions.FogRevealAll(0);
+       bPlayer12 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer11 = true then
+    begin
+     if bPlayer19 = true then
+     begin
+      if States.GroupDead(iBowmen2) and States.GroupDead(iScout2) and States.GroupDead(iAxefighter2) and States.GroupDead(iLancecarrier2) and States.GroupDead(iSwordfighter2) and States.GroupDead(iRogue18) then
+      begin
+       Actions.GiveGroup(3, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(3, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(3, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(3, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(3, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(1);
+       Actions.FogRevealAll(1);
+       bPlayer11 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer12 = true then
+    begin
+     if bPlayer19 = true then
+     begin
+      if States.GroupDead(iBowmen2) and States.GroupDead(iScout2) and States.GroupDead(iAxefighter2) and States.GroupDead(iLancecarrier2) and States.GroupDead(iSwordfighter2) and States.GroupDead(iRogue18) then
+      begin
+       Actions.GiveGroup(2, 18, 66, 36, 2, 10, 5);
+       Actions.GiveGroup(2, 26, 66, 43, 2, 8, 4);
+       Actions.GiveGroup(2, 16, 69, 41, 2, 8, 4);
+       Actions.GiveGroup(2, 22, 72, 34, 2, 9, 3);
+       Actions.GiveGroup(2, 20, 76, 38, 2, 12, 3);
+       Actions.PlayerDefeat(1);
+       Actions.FogRevealAll(1);
+       bPlayer12 := false;
+     end;
+    end;
+   end;
+
+
+    if bPlayer13 = true then
+    begin
+     if bPlayer23 = true then
+     begin
+      if States.GroupDead(iBowmen7) and States.GroupDead(iScout7) and States.GroupDead(iAxefighter7) and States.GroupDead(iLancecarrier7) and States.GroupDead(iSwordfighter7) and States.GroupDead(iRogue23) then
+      begin
+       Actions.GiveGroup(5, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(5, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(5, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(5, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(5, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(7);
+       Actions.FogRevealAll(7);
+       bPlayer13 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer14 = true then
+    begin
+     if bPlayer23 = true then
+     begin
+      if States.GroupDead(iBowmen7) and States.GroupDead(iScout7) and States.GroupDead(iAxefighter7) and States.GroupDead(iLancecarrier7) and States.GroupDead(iSwordfighter7) and States.GroupDead(iRogue23) then
+      begin
+       Actions.GiveGroup(4, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(4, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(4, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(4, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(4, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(7);
+       Actions.FogRevealAll(7);
+       bPlayer14 := false;
+     end;
+    end;
+   end;
+
+
+    if bPlayer13 = true then
+    begin
+     if bPlayer24 = true then
+     begin
+      if States.GroupDead(iBowmen8) and States.GroupDead(iScout8) and States.GroupDead(iAxefighter8) and States.GroupDead(iLancecarrier8) and States.GroupDead(iSwordfighter8) and States.GroupDead(iRogue24) then
+      begin
+       Actions.GiveGroup(5, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(5, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(5, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(5, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(5, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(6);
+       Actions.FogRevealAll(6);
+       bPlayer13 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer14 = true then
+    begin
+     if bPlayer24 = true then
+     begin
+      if States.GroupDead(iBowmen8) and States.GroupDead(iScout8) and States.GroupDead(iAxefighter8) and States.GroupDead(iLancecarrier8) and States.GroupDead(iSwordfighter8) and States.GroupDead(iRogue24) then
+      begin
+       Actions.GiveGroup(4, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(4, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(4, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(4, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(4, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(6);
+       Actions.FogRevealAll(6);
+       bPlayer14 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer15 = true then
+    begin
+     if bPlayer21 = true then
+     begin
+      if States.GroupDead(iBowmen5) and States.GroupDead(iScout5) and States.GroupDead(iAxefighter5) and States.GroupDead(iLancecarrier5) and States.GroupDead(iSwordfighter5) and States.GroupDead(iRogue21) then
+      begin
+       Actions.GiveGroup(7, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(7, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(7, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(7, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(7, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(5);
+       Actions.FogRevealAll(5);
+       bPlayer15 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer16 = true then
+    begin
+     if bPlayer21 = true then
+     begin
+      if States.GroupDead(iBowmen5) and States.GroupDead(iScout5) and States.GroupDead(iAxefighter5) and States.GroupDead(iLancecarrier5) and States.GroupDead(iSwordfighter5) and States.GroupDead(iRogue21) then
+      begin
+       Actions.GiveGroup(6, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(6, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(6, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(6, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(6, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(5);
+       Actions.FogRevealAll(5);
+       bPlayer16 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer15 = true then
+    begin
+     if bPlayer22 = true then
+     begin
+      if States.GroupDead(iBowmen6) and States.GroupDead(iScout6) and States.GroupDead(iAxefighter6) and States.GroupDead(iLancecarrier6) and States.GroupDead(iSwordfighter6) and States.GroupDead(iRogue22) then
+      begin
+       Actions.GiveGroup(7, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(7, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(7, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(7, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(7, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(4);
+       Actions.FogRevealAll(4);
+       bPlayer15 := false;
+     end;
+    end;
+   end;
+
+    if bPlayer16 = true then
+    begin
+     if bPlayer22 = true then
+     begin
+      if States.GroupDead(iBowmen6) and States.GroupDead(iScout6) and States.GroupDead(iAxefighter6) and States.GroupDead(iLancecarrier6) and States.GroupDead(iSwordfighter6) and States.GroupDead(iRogue22) then
+      begin
+       Actions.GiveGroup(6, 18, 152, 23, 5, 10, 5);
+       Actions.GiveGroup(6, 26, 159, 26, 5, 8, 4);
+       Actions.GiveGroup(6, 16, 158, 29, 5, 8, 4);
+       Actions.GiveGroup(6, 22, 138, 17, 5, 9, 3);
+       Actions.GiveGroup(6, 20, 144, 19, 5, 12, 3);
+       Actions.PlayerDefeat(4);
+       Actions.FogRevealAll(4);
+       bPlayer16 := false;
+     end;
+    end;
+   end;
+
+    if b8p = false then
+    begin   
+     if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) then
+     begin
+	  if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(2) then
+      begin
+       Actions.PlayerWin([3], false);
+	 end;
+    end;
+   end;
+
+   
+    if b8p = false then
+    begin   
+     if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) then
+     begin
+	  if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(3) then
+      begin
+       Actions.PlayerWin([2], false);
+	 end;
+    end;
+   end;
+	
+	
+	
+    if b8p = false then
+    begin	
+     if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) then
+     begin
+      if States.PlayerDefeated(0) and States.PlayerDefeated(3) and States.PlayerDefeated(2) then
+      begin
+       Actions.PlayerWin([1], false);
+	 end;
+    end;
+   end;	
+
+
+
+    if b8p = false then
+    begin  
+     if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) then
+     begin
+      if States.PlayerDefeated(3) and States.PlayerDefeated(1) and States.PlayerDefeated(2) then
+      begin
+       Actions.PlayerWin([0], false);
+     end;
+	end;	
+   end;
+   
+    if b8p = false then
+    begin
+     if b4p = false then
+     begin	 
+      if States.PlayerEnabled(0) and States.PlayerEnabled(1) then
+      begin
+	   if States.PlayerDefeated(1) then
+       begin
+        Actions.PlayerWin([0], false);
+     end;	
+    end;
+
+
+    if b8p = false then
+    begin
+     if b4p = false then
+     begin	 	
+      if States.PlayerEnabled(0) and States.PlayerEnabled(1) then
+      begin
+	   if States.PlayerDefeated(0) then
+       begin
+        Actions.PlayerWin([1], false);
+     end;	
+    end;
+	
+
+
+
+
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(2) and States.PlayerDefeated(4) and States.PlayerDefeated(5) and States.PlayerDefeated(6) and States.PlayerDefeated(7) then
+     begin
+      Actions.PlayerWin([3], false);
+    end;
+   end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(3) and States.PlayerDefeated(4) and States.PlayerDefeated(5) and States.PlayerDefeated(6) and States.PlayerDefeated(7) then
+     begin
+      Actions.PlayerWin([2], false);
+    end;
+   end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(0) and States.PlayerDefeated(3) and States.PlayerDefeated(2) and States.PlayerDefeated(4) and States.PlayerDefeated(5) and States.PlayerDefeated(6) and States.PlayerDefeated(7) then
+     begin
+      Actions.PlayerWin([1], false);
+    end;
+   end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(3) and States.PlayerDefeated(1) and States.PlayerDefeated(2) and States.PlayerDefeated(4) and States.PlayerDefeated(5) and States.PlayerDefeated(6) and States.PlayerDefeated(7) then
+     begin
+      Actions.PlayerWin([0], false);
+    end;
+   end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(2) and States.PlayerDefeated(3) and States.PlayerDefeated(5) and States.PlayerDefeated(6) and States.PlayerDefeated(7) then
+     begin
+      Actions.PlayerWin([4], false);
+    end;
+   end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(2) and States.PlayerDefeated(4) and States.PlayerDefeated(3) and States.PlayerDefeated(6) and States.PlayerDefeated(7) then
+     begin
+      Actions.PlayerWin([5], false);
+    end;
+   end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(2) and States.PlayerDefeated(4) and States.PlayerDefeated(5) and States.PlayerDefeated(3) and States.PlayerDefeated(7) then
+     begin
+      Actions.PlayerWin([6], false);
+    end;
+   end;
+
+    if States.PlayerEnabled(0) and States.PlayerEnabled(1) and States.PlayerEnabled(2) and States.PlayerEnabled(3) and States.PlayerEnabled(4) and States.PlayerEnabled(5) and States.PlayerEnabled(6) and States.PlayerEnabled(7) then
+    begin
+	 if States.PlayerDefeated(0) and States.PlayerDefeated(1) and States.PlayerDefeated(2) and States.PlayerDefeated(4) and States.PlayerDefeated(5) and States.PlayerDefeated(6) and States.PlayerDefeated(3) then
+     begin
+      Actions.PlayerWin([7], false);
+    end;
+   end;
+
+end;
+end;
+end;
+end;
+end;
+

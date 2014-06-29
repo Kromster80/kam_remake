@@ -1,0 +1,5 @@
+SetSpecial
+
+BigDesc
+For each building you own, you get a different kind of unit, just like in regular Conquest. However, here you're not supposed to take any buildings, but you can destroy enemy ones. You have barracks and 3 schools (they autoproduce recruits).  Pro tip: set the barracks on a hotkey (CTRL+1 to set, 1 to use)!||Desert Conquest - script and map by sado.
+

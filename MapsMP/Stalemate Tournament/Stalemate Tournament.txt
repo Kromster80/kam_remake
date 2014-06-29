@@ -1,0 +1,7 @@
+Author
+Duke Valennius
+
+SetSpecial
+
+BigDesc
+East vs West|Unbalanced teams supported||Basic rules:|Your armoury is being constantly resupplied with weapons and recruits, both teams receive equal amounts, divided between players.||Be the one with lowest score when elimination timer hits zero, and you lose. If stalemate timer reaches zero and one team is sieging and other camping - campers lose, otherwise everyone loses. Keep fighting to keep stalemate timer from reaching zero. When whole other team is eliminated, you win!||Scoring:|Kill enemies for points - killing better soldiers yields more points. Lose points for losing units, more for ranged units, so watch their backs! If one side is sieging and other camping, all participating in siege are receiving points, while sieged side receive more reinforcements to help them catch up and sally forth, but camp too much and you'll give your enemies too many points!||Read messages sent in-game if you need more details...||this slaughterhouse is brought to you by Duke Valennius

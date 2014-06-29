@@ -1,0 +1,5 @@
+SetSpecial
+
+BigDesc
+CONQUEST MODE - conquer buildings to get weapons for your army!||You capture a building by going to its entrance with your soldiers. You don't have to stand there for all the time. Warning: knights and scouts are unable to capture buildings! You have barracks and 3 schools (they autoproduce recruits). Pro tip: set the barracks on a hotkey (CTRL+1 to set, 1 to use)!||Script by sado, map by dicsoupcan.
+
