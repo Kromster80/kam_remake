@@ -1,3 +1,5 @@
 SetSpecial
+BlockPeacetime
+BlockTeamSelection
 BigDesc
 This is a special map which will let you play a small tournament for 2, 4 or 8 players. There are up to 3 rounds (all rounds are 1v1). the rounds are simple: if you lose you're out until 1 is left|Made by TheRagingBullet 

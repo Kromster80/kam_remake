@@ -21,6 +21,9 @@ MAP_NAME.txt notes
 	BigDesc - large description shown in SingleMap menu when player chooses the map
 	SetCoop - Sets this mission as cooperative (different list in multiplayer lobby)
 	SetSpecial - Sets this mission as special (different list in multiplayer lobby)
+	BlockPeacetime - Disables peacetime selection in the lobby (automatically set for coop and battles)
+	BlockTeamSelection - Disables team selection in the lobby, alliances from mission will be used (automatically set for coop)
+	BlockFullMapPreview - Disables the entire map being revealed in the lobby preview (automatically set for coop)
 
  - 	Few other options could be added (these are undecided yet, feel free to make 
 	suggestions)

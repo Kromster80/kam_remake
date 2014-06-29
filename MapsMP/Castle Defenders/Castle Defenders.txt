@@ -1,3 +1,5 @@
 SetSpecial
+BlockPeacetime
+BlockTeamSelection
 BigDesc
 In this mission you should defend the Castle and defeat 30 enemy attacks. Every next attack is stronger than previous. You have a lot of weapons, but not so much gold and can't equip strong soldiers at start. You can unlock new soldiers by killing enemy troops.||ARMY UNLOCK ORDER:||50 kills - Lance Carrier;|100 kills - Axe Fighter;|160 kills - Bowman;|250 kills - Crossbowman;|400 kills - Pikeman;|550 kills - Scout;|700 kills - Sword Fighter;|1000 kills - Barbarian;|1250 kills - Knight.||To get Barbarian, enable barracks repair and equip militia when you have more than 1000 points.||You can also get rogues when equipping militias and get extra recruit training recruits. |Also, if you reach 18th wave you get useful bonus!||Made by andreus.
