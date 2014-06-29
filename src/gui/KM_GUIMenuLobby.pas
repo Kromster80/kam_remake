@@ -1003,8 +1003,11 @@ begin
     if (Sender = DropBox_LobbyLoc[I]) and DropBox_LobbyLoc[I].Enabled then
     begin
       fNetworking.SelectLoc(DropBox_LobbyLoc[I].GetSelectedTag, NetI);
-      //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
-      if fNetworking.SelectGameKind <> ngk_None then
+      //Host with HostDoesSetup could have given us some location we don't know about
+      //from a map/save we don't have, so make sure SelectGameKind is valid
+      if (fNetworking.SelectGameKind <> ngk_None)
+      and not fNetworking.IsHost then //Changes are applied instantly for host
+        //Set loc back to NetPlayers value until host processes our request
         DropBox_LobbyLoc[I].SelectByTag(fNetworking.NetPlayers[NetI].StartLocation);
     end;
 
