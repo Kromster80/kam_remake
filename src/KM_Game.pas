@@ -470,7 +470,7 @@ begin
 
   //Setup alliances
   //We mirror Lobby team setup on to alliances. Savegame and coop has the setup already
-  if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsCoop then
+  if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.BlockTeamSelection then
     UpdateMultiplayerTeams;
 
   FreeAndNil(MySpectator); //May have been created earlier

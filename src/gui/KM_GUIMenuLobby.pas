@@ -1079,14 +1079,14 @@ procedure TKMMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
 
 var
   I,K,ID,LocaleID: Integer;
-  MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
+  MyNik, CanEdit, HostCanEdit, IsSave, TeamsAllowed, IsValid: Boolean;
   CurPlayer: TKMNetPlayerInfo;
   FirstUnused: Boolean;
 begin
   UpdateMappings;
 
   IsSave := fNetworking.SelectGameKind = ngk_Save;
-  IsCoop := (fNetworking.SelectGameKind = ngk_Map) and (fNetworking.MapInfo.IsCoop);
+  TeamsAllowed := (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.BlockTeamSelection;
 
   FirstUnused := True;
   for I := 1 to MAX_LOBBY_SLOTS do
@@ -1222,10 +1222,10 @@ begin
       DropBox_LobbyLoc[I].ItemIndex := 0;
 
     //Teams
-    if IsCoop then
-      DropBox_LobbyTeam[I].ItemIndex := 0 //No teams in coop maps, it's done for you
+    if TeamsAllowed then
+      DropBox_LobbyTeam[I].ItemIndex := CurPlayer.Team
     else
-      DropBox_LobbyTeam[I].ItemIndex := CurPlayer.Team;
+      DropBox_LobbyTeam[I].ItemIndex := 0; //No teams in coop maps, it's done for you
 
     DropBox_LobbyColors[I].ItemIndex := CurPlayer.FlagColorID;
     if CurPlayer.IsClosed then
@@ -1243,7 +1243,7 @@ begin
                     not CurPlayer.IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
     //Can't change color or teams in a loaded save (spectators can set color)
-    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop and not CurPlayer.IsSpectator;
+    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and TeamsAllowed and not CurPlayer.IsSpectator;
     DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and (not IsSave or CurPlayer.IsSpectator);
     if MyNik and not fNetworking.IsHost then
     begin
@@ -1267,7 +1267,7 @@ begin
   //If we have a map selected update the preview
   if (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid then
   begin
-    fMinimap.Update(not fNetworking.MapInfo.IsCoop);
+    fMinimap.Update(not fNetworking.MapInfo.BlockFullMapPreview);
     MinimapView_Lobby.SetMinimap(fMinimap);
     for I := 0 to MAX_HANDS - 1 do
     begin
@@ -1614,7 +1614,7 @@ var
 begin
   //Common settings
   MinimapView_Lobby.Visible := (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
-  TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.IsCoop;
+  TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.BlockPeacetime;
   TrackBar_LobbySpeedPT.Enabled := (TrackBar_LobbyPeacetime.Position > 0) and fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   TrackBar_LobbySpeedAfterPT.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   CheckBox_LobbyRandomizeTeamLocations.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind <> ngk_Save);
@@ -1655,10 +1655,10 @@ begin
                 if M.IsValid then
                 begin
                   fMinimap.LoadFromMission(M.FullPath('.dat'), M.HumanUsableLocations);
-                  fMinimap.Update(not M.IsCoop);
+                  fMinimap.Update(not M.BlockFullMapPreview);
                   MinimapView_Lobby.SetMinimap(fMinimap);
 
-                  if fNetworking.MapInfo.IsCoop then
+                  if fNetworking.MapInfo.BlockPeacetime then
                     TrackBar_LobbyPeacetime.Position := 0; //No peacetime in coop (trackbar gets disabled above)
 
                   if M.HasReadme then
@@ -1678,7 +1678,7 @@ procedure TKMMenuLobby.Lobby_OnMapMissing(const aData: UnicodeString; aStartTran
 begin
   //Common settings
   MinimapView_Lobby.Visible := (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
-  TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.IsCoop;
+  TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.BlockPeacetime;
   TrackBar_LobbySpeedPT.Enabled := (TrackBar_LobbyPeacetime.Position > 0) and fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   TrackBar_LobbySpeedAfterPT.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   CheckBox_LobbyRandomizeTeamLocations.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind <> ngk_Save);

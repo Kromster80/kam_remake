@@ -54,6 +54,9 @@ type
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    BlockTeamSelection: Boolean;
+    BlockPeacetime: Boolean;
+    BlockFullMapPreview: Boolean;
 
     constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
     destructor Destroy; override;
@@ -336,6 +339,9 @@ begin
     fMissionParser.Free;
   end;
 
+  if MissionMode = mm_Tactic then
+    BlockPeacetime := True;
+
   //Load additional text info
   if FileExists(fPath + fFileName + '.txt') then
   begin
@@ -351,8 +357,17 @@ begin
         Readln(ft, S);
         LoadDescriptionFromLIBX(StrToIntDef(S, -1));
       end;
-      if SameText(st, 'SetCoop')   then IsCoop := True;
+      if SameText(st, 'SetCoop')   then
+      begin
+        IsCoop := True;
+        BlockPeacetime := True;
+        BlockTeamSelection := True;
+        BlockFullMapPreview := True;
+      end;
       if SameText(st, 'SetSpecial')then IsSpecial := True;
+      if SameText(st, 'BlockPeacetime') then BlockPeacetime := True;
+      if SameText(st, 'BlockTeamSelection') then BlockTeamSelection := True;
+      if SameText(st, 'BlockFullMapPreview') then BlockFullMapPreview := True;
     until(eof(ft));
     CloseFile(ft);
   end;
@@ -412,6 +427,9 @@ begin
   S.Read(IsCoop);
   S.Read(IsSpecial);
   S.Read(CanBeHuman, SizeOf(CanBeHuman));
+  S.Read(BlockTeamSelection);
+  S.Read(BlockPeacetime);
+  S.Read(BlockFullMapPreview);
 
   //Other properties are not saved, they are fast to reload
   S.Free;
@@ -438,6 +456,9 @@ begin
     S.Write(IsCoop);
     S.Write(IsSpecial);
     S.Write(CanBeHuman, SizeOf(CanBeHuman));
+    S.Write(BlockTeamSelection);
+    S.Write(BlockPeacetime);
+    S.Write(BlockFullMapPreview);
 
     //Other properties from text file are not saved, they are fast to reload
     S.SaveToFile(aPath);
