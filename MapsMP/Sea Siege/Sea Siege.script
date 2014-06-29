@@ -1,0 +1,57 @@
+var
+  Barb, axe1, axe2, Timer, I: Integer;
+
+
+const 
+  TIME_LIMIT = 7200;
+
+
+procedure OnMissionStart;
+begin
+  axe1 := States.GroupAt(152, 2);
+  axe2 := States.GroupAt(173, 19);
+  Timer := TIME_LIMIT;
+end;
+
+
+procedure OnTick;
+begin
+
+  if Timer > 0 then
+    Timer := Timer - 1;
+
+  for I := 4 to 7 do
+    if States.PlayerEnabled(I) then
+      Actions.OverlayTextSetFormatted(I, '[$FFBB90]<$1>[]', [((Timer div 600) mod 60), ((Timer div 10) mod 60)]);
+
+  for I := 0 to 3 do
+    if States.PlayerEnabled(I) then
+      Actions.OverlayTextSetFormatted(I, '[$FFBB90]<$2>[]', [((Timer div 600) mod 60), ((Timer div 10) mod 60)]);
+
+  if (Timer = 0) 
+  and (not States.PlayerDefeated(3)) then
+  begin
+    for I := 4 to 7 do 
+      if States.PlayerEnabled(I) then
+         Actions.PlayerDefeat(I);
+
+  for I := 0 to 3 do
+    if States.PlayerEnabled(I) then
+      Actions.PlayerWin([I], True);
+  end;
+
+//Barbarians equip
+
+  if (States.GameTime mod 150 = 0)
+  and (not States.PlayerDefeated(3)) then
+  begin 
+    Barb := Actions.GiveGroup(3, 23, 130, 6, 4, 1, 1); //Equip Barbarian each 15 sec
+    if States.GroupMemberCount(axe1) < 25 then
+      Actions.GroupOrderLink(Barb, axe1)
+    else 
+      Actions.GroupOrderLink(Barb, axe2);
+  end;
+
+  if States.GroupMemberCount(axe1) >= 10 then Actions.GroupSetFormation(axe1, 5);
+  if States.GroupMemberCount(axe2) >= 10 then Actions.GroupSetFormation(axe2, 5);
+end;
