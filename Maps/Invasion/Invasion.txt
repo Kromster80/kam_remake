@@ -1,0 +1,8 @@
+Title
+Invasion
+
+SmallDesc
+Special fighting map by Skypper
+
+BigDesc
+Every 90 seconds there will come a new wave to destory your base. There are 60 waves to defeat with a total amount of 9.605 soldiers. For every wave you survive you get some weapons and recruits the amount of weapons and recruits will increase when you got further. Good luck.||Visit the forum www.knightsandmerchants.net/forum/ for tips to defeat all the 60 waves.
