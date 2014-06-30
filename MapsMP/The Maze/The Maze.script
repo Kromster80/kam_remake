@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////
 ///////**************************************///////
 ///////***************THE MAZE***************///////
-///////**GAME MODE VERSION 4.3 (2014-06-27)**///////
-///////**********SCRIPT VERSION 4.3**********///////
+///////**GAME MODE VERSION 4.4 (2014-07-01)**///////
+///////**********SCRIPT VERSION 4.4**********///////
 ///////************AI VERSION 1.0************///////
 ///////*********BY ANDREUS  2013-2014********///////
 ///////**************************************///////
@@ -63,6 +63,8 @@ type
     TilesY:                  array[0..99] of Integer;                     //Secret tiles
     FoundTiles:              Integer;                                     //Number of found tiles
     TilesChosen:             array[0..99] of Boolean;                     //True if this tile was chosen
+    OutpostCaptureMsg:       Boolean;                                     //True if message about AI trying to take control over outposts shown
+    TeleportMsg:             Boolean;                                     //True if players have found teleports and got a message
     TeamVictoryLogged:       Boolean;                                     //Option for debugging
   end;
 
@@ -82,6 +84,7 @@ type
     Patrol:                  array[0..3] of Integer;                      //Group IDs for patrols
     Pirates:                 array[0..1] of Integer;                      //Group IDs for Pirates groups
     LocChanger:              Integer;                                     //Number of patrol's movements from one position to another
+    OutpostDefenders:        array[0..1] of Integer;                      //Outpost defence groups
   end;
 
 
@@ -365,6 +368,7 @@ var
 
 procedure InitializeTiles;
 begin
+
   Mission.FoundTiles := 0;   //No tiles found yet
 
   Mission.TilesX[0]  := 1;
@@ -1018,6 +1022,7 @@ begin
   Teleport.DelayLeftSide          := 0;               //Will be used to set pause between teleports
   Teleport.DelayRightSide         := 0;               //Will be used to set pause between teleports
   Teleport.Counter                := TELEPORTS_MAX;   //Maximum number of teleports per game
+  Mission.TeleportMsg             := False;           //Not shown yet
 
   for J := 0 to 13 do
   for I := 0 to 3 do
@@ -1040,6 +1045,13 @@ begin
 
   InitializeAIGroups;
 
+  AI.OutpostDefenders[0] := States.GroupAt(6, 113);
+  AI.OutpostDefenders[1] := States.GroupAt(154, 113);
+
+//Message about AI trying to take control over outposts
+
+  Mission.OutpostCaptureMsg := False;
+
 //Secret tiles
 
   InitializeTiles;
@@ -1056,10 +1068,6 @@ begin
     Players[J].Got15TilesBonus := False;
     Players[J].Got25TilesBonus := False;
   end;
-
-//Message about enemy attacks
-
-  Actions.ShowMsg(-1, '<$37>');
 
 //Check alliances to prevent stupid rehosts ;p
 
@@ -1551,6 +1559,16 @@ begin
   + States.GroupMemberCount(AI.Groups[AIGroupID3])
   + States.GroupMemberCount(AI.Groups[AIGroupID4]) = 0) then
     AI.DefenseRanged[AIDefenseID] := False;                     //Ranged groups for this defense don't exist anymore...
+end;
+
+
+//Check outpost defense
+
+
+function OutpostDefenseDead: Boolean;
+begin
+  Result := (States.GroupDead(AI.OutpostDefenders[0]) or (AI.OutpostDefenders[0] = -1))
+  or (States.GroupDead(AI.OutpostDefenders[1]) or (AI.OutpostDefenders[1] = -1));
 end;
 
 
@@ -2935,7 +2953,7 @@ begin
   and not (Mission.Notification) then
   begin
     Actions.ShowMsg(-1, '<$28>');
-    Actions.PlayWAV(-1, 'CASTLE', 0.5);
+    Actions.PlayWAVFadeMusic(-1, 'CASTLE', 0.5);
     AI.ReinforceGroup[0] := Actions.GiveGroup(4, GetSoldiersType, 76, 61, 0, 14, 7);
     AI.ReinforceGroup[1] := Actions.GiveGroup(4, GetSoldiersType, 84, 61, 0, 16, 8);
     AI.ReinforceGroup[2] := Actions.GiveGroup(4, GetSoldiersType, 76, 63, 0, 14, 7);
@@ -2993,7 +3011,7 @@ end;
 procedure AIEquipReport;
 begin
   Actions.ShowMsgGoTo(-1, 66, 87, '<$27>');
-  Actions.PlayWAV(-1, 'CASTLE', 0.5);
+  Actions.PlayWAVFadeMusic(-1, 'CASTLE', 0.5);
   for I := 0 to 3 do
     if States.PlayerEnabled(I) then
       Actions.FogRevealCircle(I, 66, 87, 3);
@@ -3612,6 +3630,15 @@ end;
 
 procedure OnUnitDied(aUnitID, aKillerIndex: Integer);
 begin
+
+//Message about AI trying to take control over outposts
+
+  if (OutpostDefenseDead)
+  and (not Mission.OutpostCaptureMsg) then
+  begin
+    Actions.ShowMsg(-1, '<$37>');
+    Mission.OutpostCaptureMsg := True;
+  end;
 
 //Scores for killed soldiers
 
@@ -5557,6 +5584,15 @@ begin
 end;
 
 
+function TeleportFound: Boolean;
+begin
+  Result := (AreaRevealed(0, 10, 128)
+  or (AreaRevealed(1, 10, 128))
+  or (AreaRevealed(2, 150, 128))
+  or (AreaRevealed(3, 150, 128)));
+end;
+
+
 //Report about teleport
 
 
@@ -5575,6 +5611,9 @@ begin
     Actions.ShowMsgGoTo(I, 154, 133, '<$29>');
     Actions.FogRevealCircle(I, 154, 133, 4);
   end;
+
+  Mission.TeleportMsg := True;
+
 end;
 
 
@@ -5994,7 +6033,8 @@ begin
   if States.GameTime = 30 then
     Actions.ShowMsg(-1, '<$30>');
 
-  if States.GameTime = 400 then
+  if (TeleportFound)
+  and (not Mission.TeleportMsg) then
     TeleportReport;
 
   if States.GameTime mod PATROLS_TIME = 0 then
