@@ -295,9 +295,9 @@ type
 
     procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
-    procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
+    procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word);
     function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
-    function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer;
+    function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word): Integer;
     procedure StopLoopedWAV(aLoopIndex: Integer);
 
     procedure RemoveRoad(X, Y: Word);
@@ -2201,7 +2201,7 @@ begin
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(fullFileName) then Exit;
   if InRange(Volume, 0, 1) then
-    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, False)
+    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, 0, False)
   else
     LogError('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
 end;
@@ -2217,13 +2217,13 @@ begin
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(fullFileName) then Exit;
   if InRange(Volume, 0, 1) then
-    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, True)
+    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, 0, True)
   else
     LogError('Actions.PlayWAVFadeMusic: ' + UnicodeString(aFileName), []);
 end;
 
 
-procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
+procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word);
 var
   fullFileName: UnicodeString;
 begin
@@ -2232,10 +2232,10 @@ begin
   fullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(fullFileName) then Exit;
-  if InRange(Volume, 0, 4) and gTerrain.TileInMapCoords(X,Y) then
+  if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
   begin
     if MySpectator.FogOfWar.CheckTileRevelation(X, Y) > 0 then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume, False);
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume, Radius, False);
   end
   else
     LogError('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [X, Y]);
@@ -2249,20 +2249,20 @@ begin
   Result := -1;
   FileName := Format(SFXPath, [aFileName]);
   if InRange(Volume, 0, 1) then
-    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(0,0), Volume)
+    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(0,0), Volume, 0)
   else
     LogError('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
 end;
 
 
-function TKMScriptActions.PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word): Integer;
+function TKMScriptActions.PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word): Integer;
 var
   FileName: UnicodeString;
 begin
   Result := -1;
   FileName := Format(SFXPath, [aFileName]);
-  if InRange(Volume, 0, 4) and gTerrain.TileInMapCoords(X,Y) then
-    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(X,Y), Volume)
+  if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
+    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(X,Y), Volume, Radius)
   else
     LogError('Actions.PlayWAVAtLocationLooped: ' + UnicodeString(aFileName), [X, Y]);
 end;
