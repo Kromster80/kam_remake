@@ -226,6 +226,24 @@ begin
 end;
 
 
+function HasHouses(aPlayer: Integer): Boolean;
+begin
+  if States.PlayerEnabled(aPlayer) then
+    Result := Length(States.PlayerGetAllHouses(aPlayer)) > 0
+  else
+    Result := False;
+end;
+
+
+function HasUnits(aPlayer: Integer): Boolean;
+begin
+  if States.PlayerEnabled(aPlayer) then
+    Result := Length(States.PlayerGetAllUnits(aPlayer)) > 0
+  else
+    Result := False;
+end;
+
+
 procedure GetTimer;
 begin
   if WaveTime > 0 then
@@ -291,7 +309,7 @@ end;
 procedure ContinueAttack;
 var
   Groups: array of Integer;
-  X, Y: Integer;
+  X, Y, Player: Integer;
 begin
   for I := 4 to 7 do
   begin
@@ -303,13 +321,18 @@ begin
       begin
         X := States.UnitPositionX(States.GroupMember(Groups[K], 0));
         Y := States.UnitPositionY(States.GroupMember(Groups[K], 0));
-        Actions.GroupOrderAttackHouse(Groups[K], States.ClosestHouseMultipleTypes(States.KaMRandomI(4), X, Y, [11, 13, 17, 21, 27]));
+        Player := States.KaMRandomI(4);
+        if HasHouses(Player) then
+          Actions.GroupOrderAttackHouse(Groups[K], States.ClosestHouseMultipleTypes(Player, X, Y, [11, 13, 17, 21, 27]));
         if States.KaMRandom > 0.9 then
-          Actions.GroupOrderAttackUnit(Groups[K], General);
+          if ((not States.UnitDead(General)) or (General <> -1)) then
+            Actions.GroupOrderAttackUnit(Groups[K], General);
         if States.KaMRandom < 0.1 then
-          Actions.GroupOrderAttackUnit(Groups[K], States.ClosestUnitMultipleTypes(States.KaMRandomI(4), X, Y, [0, 9, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]));
+          if HasUnits(Player) then
+            Actions.GroupOrderAttackUnit(Groups[K], States.ClosestUnitMultipleTypes(Player, X, Y, [0, 9, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]));
         if States.KaMRandomI(10) = 5 then
-          Actions.GroupOrderAttackHouse(Groups[K], AIBarracks);
+          if ((not States.HouseDestroyed(AIBarracks)) or (AIBarracks <> -1)) then
+            Actions.GroupOrderAttackHouse(Groups[K], AIBarracks);
       end;
   end;
 end;
@@ -523,7 +546,6 @@ begin
 end;
 
 
-
 procedure OnUnitWounded(aUnitID, aAttacker: Integer);
 begin
   if bImmediateKill then
@@ -652,7 +674,10 @@ end;
 procedure GetAttacks;
 begin
   if Wave < MAX_WAVE then
+  begin
     Wave := Wave + 1;
+    Actions.PlayWAV(-1, 'NEWWAVE', 1);
+  end;
 
   case Wave of
     2: begin
