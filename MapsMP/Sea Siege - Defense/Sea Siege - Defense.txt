@@ -1,3 +1,5 @@
 SetSpecial
+BlockPeacetime
+BlockTeamSelection
 BigDesc
 This map shows the great sea siege. Players 1 and 2 should defend the fortress, player 3 should help the allied village.||You must defeat 25 enemy waves.|The map uses interesting dynamic script with bonus system. For more information see Readme.||Made by:|Map: woloszek;|Script: Luki, andreus;|Dynamic script: andreus;|Ideas: woloszek, Luki, Kamykos, andreus.

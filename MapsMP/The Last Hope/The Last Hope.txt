@@ -1,3 +1,5 @@
 SetSpecial
+BlockPeacetime
+BlockTeamSelection
 BigDesc
 Help the allied village in the battle against a Tyrant!|Made by andreus.
