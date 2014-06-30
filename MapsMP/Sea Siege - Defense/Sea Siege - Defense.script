@@ -1,0 +1,955 @@
+var 
+  I, K, L, CurrentWave, DefeatedWave, RebuildCount, WaveTimer: Integer; 
+  CurrentScore, FactScore, KilledUnits, LostUnits: array[0..3] of Integer;
+  RebuildType, RebuildX, RebuildY: array of Integer;
+  CanRebuild: Boolean;
+  Time: AnsiString;
+  Reinforcement: array[0..5] of Integer;
+
+
+procedure OnMissionStart;
+begin
+  for I := 0 to 3 do
+  begin
+    if States.PlayerEnabled(I) then
+    begin
+      CurrentScore[I] := 0;
+      FactScore[I] := 0;
+      KilledUnits[I] := 0;
+      LostUnits[I] := 0;
+    end;
+  end;
+
+  for K := 0 to 5 do
+    Reinforcement[K] := -1;
+
+  CurrentWave := 1;
+  DefeatedWave := 0;
+  CanRebuild := False;
+  RebuildCount := 0;
+  WaveTimer := 1800;
+
+  for I := 4 to 7 do
+  begin
+    Actions.PlayerShareFog(8, I, False);
+    Actions.PlayerShareFog(I, 8, False);
+  end;
+
+  for I := 0 to 2 do
+  begin
+    Actions.PlayerShareFog(8, I, False);
+    Actions.PlayerShareFog(I, 8, False);
+  end;
+end;
+
+
+//Change alliances and cover fog
+
+procedure ChangeAlliance;
+begin
+  for I := 0 to 2 do
+    if States.PlayerEnabled(I) then
+      Actions.PlayerAllianceChange(8, I, False, True);
+
+  for I := 4 to 7 do
+    if States.PlayerEnabled(I) then
+      Actions.PlayerAllianceChange(8, I, True, True);
+
+end;
+
+
+procedure CoverFog;
+var
+  Soldiers: array of Integer;
+begin
+  for I := 4 to 8 do
+    Soldiers := States.PlayerGetAllUnits(I);
+
+  for I := 0 to 4 do
+  for K := 0 to Length(Soldiers) - 1 do
+    Actions.FogCoverCircle(I, States.UnitPositionX(Soldiers[K]), States.UnitPositionY(Soldiers[K]), 12);
+end;
+
+
+//Waves Balancer
+
+function WavesBalancer: Integer;
+begin
+  case CurrentWave of
+    1..5:   Result := -4;
+    6..9:   Result := -1;
+    10..14: Result := 0;
+    15..19: Result := 2;
+    else    Result := 3;
+  end;
+end;
+
+
+//Scores for each killed soldier
+
+function Score(aUnitID: Integer): Integer; 
+begin
+  case States.UnitType(aUnitID) of
+    14:  Result := 1;   //Militia
+    15:  Result := 3;   //Axe Fighter
+    16:  Result := 5;   //Sword Fighter
+    17:  Result := 2;   //Bowman
+    18:  Result := 2;   //Crossbowman
+    19:  Result := 2;   //Lance Carrier
+    20:  Result := 3;   //Pikeman
+    21:  Result := 4;   //Scout
+    22:  Result := 7;   //Knight
+    23:  Result := 5;   //Barbarian
+    24:  Result := 1;   //Rebel
+    25:  Result := 1;   //Rogue
+    26:  Result := 5;   //Warrior
+    27:  Result := 2;   //Vagabond
+    else Result := 0;   //Civilians
+  end;
+end;
+
+
+//Get soldiers types for waves
+
+function SoldiersType: Integer;
+begin
+  case States.KaMRandomI(100) of
+
+    0..14:  begin
+              Result := 15;            //Axe fighter, chance 15% everytime
+            end;
+
+    15..29: begin
+              if CurrentWave > 7 then
+                Result := 16           //Sword fighter, chance 15% since 8th wave
+              else
+                Result := 15;          //Axe fighter for waves 1..7
+            end;
+
+    30:     begin
+              Result := 24;            //Rebel, chance 1% everytime
+            end;
+
+    31:     begin
+              Result := 27;            //Vagabond, chance 1% everytime
+            end;
+
+    32..41: begin
+              Result := 19;            //Lance carrier, chance 10% everytime
+            end;
+
+    42..69: begin
+              if CurrentWave > 7 then
+                Result := 20           //Pikeman, chance 15% since 8th wave
+              else
+                Result := 19;          //Lance carrier for waves 1..7
+            end;
+
+    70..84: begin
+              Result := 21;            //Scout, chance 15% everytime
+            end;
+
+    85..99: begin
+              if CurrentWave > 10 then
+                Result := 22           //Knight, chance 15% since 11th wave
+              else 
+                Result := 27;          //Vagabond for waves 1..10 
+            end;
+   end;
+end;
+
+
+//Get reinforcements type
+
+function ReinforcementType: Integer;
+begin
+  case States.KaMRandomI(115) of
+    0..9:     Result := 15;  //Axe fighter
+    10..19:   Result := 16;  //Sword fighter
+    20..29:   Result := 17;  //Bowman
+    30..39:   Result := 18;  //Crossbowman
+    40..49:   Result := 19;  //Lance carrier
+    50..59:   Result := 20;  //Pikeman
+    60..69:   Result := 21;  //Scout
+    70..79:   Result := 22;  //Knight
+    80..89:   Result := 23;  //Barbarian
+    90..94:   Result := 24;  //Rebel
+    95..99:   Result := 25;  //Rogue
+    100..104: Result := 26;  //Warrior
+    105..114: Result := 27;  //Vagabond
+  end;
+end;
+
+
+//Get random soldiers types for AI reinforcements and rushes
+
+function RandomMeat: Integer;
+begin
+  case States.KaMRandomI(15) of
+
+    0:  begin
+          case CurrentWave of
+            1..10:  Result := 14; //Militia
+            11..15: Result := 15; //Axe fighter
+            16..20: Result := 19; //Lance carrier
+            21..23: Result := 16  //Sword fighter
+            else    Result := 22; //Knight
+          end;
+        end;
+
+    1:  begin
+          case CurrentWave of
+            1..10:  Result := 14; //Militia
+            11..15: Result := 15; //Axe fighter
+            16..20: Result := 19; //Lance carrier
+            21..23: Result := 22  //Knight
+            else    Result := 16; //Sword fighter
+          end;
+        end;
+
+    2:  begin
+          case CurrentWave of
+            1..10:  Result := 24; //Rebel
+            11..15: Result := 27; //Vagabond
+            16..20: Result := 21; //Scout
+            21..23: Result := 20  //Pikeman
+            else    Result := 26; //Warrior
+          end;
+        end;
+
+    3:  begin
+          case CurrentWave of
+            1..10:  Result := 24; //Rebel
+            11..15: Result := 19; //Lance carrier
+            16..20: Result := 15; //Axe fighter
+            21..23: Result := 23  //Barbarian
+            else    Result := 22; //Pikeman
+          end;
+        end;
+
+    4:  begin
+          case CurrentWave of
+            1..10:  Result := 27; //Vagabond
+            11..20: Result := 19; //Lance carrier
+            21..23: Result := 20  //Pikeman
+            else    Result := 23; //Barbarian
+          end;
+        end;
+
+    5..9:   begin
+              case CurrentWave of
+                1..10:  Result := 25;  //Rogue
+                11..20: Result := 27;  //Vagabond
+                21..23: Result := 20   //Pikeman
+                else    Result := 22;  //Knight
+              end;
+            end;
+
+    10..14: begin
+              case CurrentWave of
+                1..10:  Result := 24;  //Rebel
+                11..15: Result := 15;  //Axe fighter
+                16..20: Result := 21;  //Scout
+                21..23: Result := 20   //Pikeman
+                else    Result := 22;  //Knight
+              end;
+            end;
+  end;
+end;
+
+
+function RandomEnemyReinforcenents: Integer;
+begin
+  case States.KaMRandomI(4) of
+    0: Result := 16;    //Sword Fighter
+    1: Result := 22;    //Knight
+    2: Result := 23;    //Barbarian
+    3: Result := 26;    //Warrior
+  end;
+end;
+
+
+//Random meat attacks at start
+
+procedure RandomMeatAttacks;
+begin
+  Actions.GiveGroup(5, RandomMeat, 8, 152, 0, 2, 2);
+  Actions.GiveGroup(5, RandomMeat, 64, 137, 0, 2, 2);
+  Actions.GiveGroup(7, RandomMeat, 53, 35, 0, 1, 1);
+  Actions.GiveGroup(7, RandomMeat, 68, 41, 0, 1, 1);
+  Actions.GiveGroup(5, RandomMeat, 50, 63, 4, 2, 2);
+  Actions.GiveGroup(5, RandomMeat, 77, 125, 6, 2, 2);
+  Actions.GiveGroup(5, RandomMeat, 75, 116, 6, 2, 2);
+  Actions.GiveGroup(5, RandomMeat, 77, 116, 6, 1, 1);
+  Actions.GiveGroup(5, RandomMeat, 96, 92, 6, 2, 2);
+  Actions.GiveGroup(5, RandomMeat, 95, 85, 6, 1, 1);
+end;
+
+
+//Give random amount of gold every 2 minutes 
+
+function RandomGold: Integer;
+begin
+  case States.KaMRandomI(3) of
+    0, 2: Result := States.KaMRandomI(3) + 1     //Chance 66%, that players will get 1..3 gold every 2 minutes
+    else  Result := 0;
+  end;
+end;
+
+
+//Give bonus for defeated waves
+
+procedure GiveBonusForWaves;
+begin
+  case DefeatedWave of
+
+    0, 25: 
+      Exit;
+
+    1:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWares(I, 12, States.KaMRandomI(3) + 1);    //Give 1..3 leather if 1st wave is defeated
+        end;
+ 
+    2:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWares(I, 12, States.KaMRandomI(5) + 1);    //Give 1..5 leather if 2nd wave is defeated
+        end;
+
+    3:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWares(I, 7, States.KaMRandomI(5) + 1);     //Give 1..5 gold if 3rd wave is defeated
+        end;
+
+    4:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, 18, States.KaMRandomI(5) + 1);  //Give 1..5 leather armour if 4th wave is defeated
+        end;
+
+    5:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, 19, States.KaMRandomI(5) + 1);  //Give 1..5 iron armour if 5th wave is defeated
+        end;
+
+    6:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, States.KaMRandomI(2) + 18, States.KaMRandomI(5) + 1);    //Give 1..5 random armour if 6th wave is defeated
+        end;
+
+    7:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, 26, States.KaMRandomI(5) + 1);  //Give 1..5 horses if 7th wave is defeated
+        end;
+
+    8:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, 17, States.KaMRandomI(5) + 1);  //Give 1..5 iron shields if 8th wave is defeated
+        end;
+
+    9:  begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, States.KaMRandomI(3) + 18, States.KaMRandomI(5) + 1);    //Give 1..5 random armour or iron shields if 9th wave is defeated
+        end;
+
+    10: begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, States.KaMRandomI(2) + 20, States.KaMRandomI(5) + 1);    //Give 1..5 swords or axes if 10th wave is defeated
+        end;
+
+    11: begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWares(I, 12, States.KaMRandomI(6) + 5);    //Give 5..10 leather if 11th wave is defeated
+        end;
+
+    12: begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWares(I, 7, States.KaMRandomI(6) + 5);     //Give 5..10 gold if 12th wave is defeated
+        end;
+
+    13: begin
+          for I := 0 to 3 do
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, 19, States.KaMRandomI(6) + 5);  //Give 5..10 iron armour if 13th wave is defeated
+        end;
+
+    14: begin
+          for I := 0 to 3 do 
+            if (States.PlayerEnabled(I))
+            and not (States.PlayerDefeated(I)) then
+              Actions.GiveWeapons(I, 18, States.KaMRandomI(6) + 5);  //Give 5..10 leather armour if 14th wave is defeated
+        end;
+
+    15: begin
+          if (States.StatArmyCount(3) < 120)
+          and (not States.PlayerDefeated(3)) then
+            Actions.GiveGroup(3, States.KaMRandomI(14) + 14, 123, 7, 4, States.KaMRandomI(4) + 12, 5);  //Ally receives random reinforcement if 15th wave is defeated
+        end;
+
+    16: begin
+          if (States.StatArmyCount(3) < 120) 
+          and (not States.PlayerDefeated(3)) then
+            Actions.GiveGroup(3, States.KaMRandomI(15) + 2, 123, 7, 4, States.KaMRandomI(4) + 12, 5);   //Ally receives swordmen or axe fighters if 16th wave is defeated
+        end;
+ 
+    17: begin
+          if (States.StatArmyCount(3) < 120) 
+          and (not States.PlayerDefeated(3)) then
+            Actions.GiveGroup(3, States.KaMRandomI(17) + 2, 123, 7, 4, States.KaMRandomI(4) + 12, 5);   //Ally receives bowmen or crossbowmen if 17th wave is defeated
+        end;
+
+    18: begin
+          if (States.StatArmyCount(3) < 120) 
+          and (not States.PlayerDefeated(3)) then
+            Actions.GiveGroup(3, States.KaMRandomI(19) + 2, 123, 7, 4, States.KaMRandomI(4) + 12, 5);   //Ally receives lance carriers or pikemen if 18th wave is defeated
+        end;
+
+    19: begin
+          if (States.StatArmyCount(3) < 120) 
+          and (not States.PlayerDefeated(3)) then 
+            Actions.GiveGroup(3, States.KaMRandomI(21) + 2, 123, 7, 4, States.KaMRandomI(4) + 12, 5);   //Ally receives scouts or knights if 19th wave is defeated
+        end;
+
+    20: begin
+          if (States.StatArmyCount(3) < 120) 
+          and (not States.PlayerDefeated(3)) then
+            Actions.GiveGroup(3, 23, 123, 7, 4, States.KaMRandomI(4) + 12, 5);                          //Ally receives barbarians if 20th wave is defeated
+        end;
+
+    21: begin
+          if (States.StatArmyCount(3) < 120) 
+          and (not States.PlayerDefeated(3)) then
+            Actions.GiveGroup(3, 26, 123, 7, 4, States.KaMRandomI(4) + 12, 5);                          //Ally receives warriors if 21st wave is defeated
+        end;
+
+    22, 
+    23, 
+    24: begin                                                                                           //Random reinforcement for players 1-3 if 22nd, 23rd or 24th wave is defeated
+          if (States.PlayerEnabled(0)) 
+          and not (States.PlayerDefeated(0))
+          and (States.StatArmyCount(0) < 100) then
+          begin
+            Reinforcement[3] := Actions.GiveGroup(0, ReinforcementType, 25, 91, 4, States.KaMRandomI(4) + 6, 4);
+            Actions.GroupHungerSet(Reinforcement[3], States.UnitMaxHunger);
+          end;
+
+          if (States.PlayerEnabled(1)) 
+          and not (States.PlayerDefeated(1))
+          and (States.StatArmyCount(1) < 100) then
+          begin
+            Reinforcement[4] := Actions.GiveGroup(1, ReinforcementType, 5, 100, 2, States.KaMRandomI(4) + 6, 4); 
+            Actions.GroupHungerSet(Reinforcement[4], States.UnitMaxHunger);
+          end;
+
+          if (States.PlayerEnabled(2)) 
+          and not (States.PlayerDefeated(2))
+          and (States.StatArmyCount(2) < 100) then
+          begin
+            Reinforcement[5] := Actions.GiveGroup(2, ReinforcementType, 10, 10, 4, States.KaMRandomI(4) + 6, 4);
+            Actions.GroupHungerSet(Reinforcement[5], States.UnitMaxHunger);
+          end;
+        end;
+  end;
+end;
+
+
+//Save information about destroyed house
+
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
+begin
+  if (States.HouseOwner(aHouseID) = 3)
+  and (aDestroyerIndex <> -1) then
+  begin 
+    SetLength(RebuildType, RebuildCount + 1);
+    SetLength(RebuildX, RebuildCount + 1);
+    SetLength(RebuildY, RebuildCount + 1);
+    RebuildType[RebuildCount] := States.HouseType(aHouseID);    //House type
+    RebuildX[RebuildCount] := States.HousePositionX(aHouseID);  //House X position
+    RebuildY[RebuildCount] := States.HousePositionY(aHouseID);  //House Y position
+    RebuildCount := RebuildCount + 1; 
+  end;
+end;
+
+
+//Check that wave is defeated and try to rebuild the allied village
+
+procedure RebuildVillage;
+begin
+  if (not States.PlayerDefeated(3)) 
+  and (States.StatArmyCount(4) = 0) 
+  and (States.StatArmyCount(5) = 0) 
+  and (States.StatArmyCount(6) = 0) 
+  and (States.StatArmyCount(7) = 0) then
+  begin
+    CanRebuild := True; //Wave is defeated if the enemy has no soldiers
+
+//Ally will rebuild the village
+
+    if States.StatUnitTypeCount(3, 9) > 0 then
+    begin 
+      for L := 0 to RebuildCount - 1 do
+      begin
+        if RebuildType[L] <> - 1 then
+        begin
+          Actions.PlanAddHouse(3, RebuildType[L], RebuildX[L], RebuildY[L]);
+          if Actions.PlanAddHouse(3, RebuildType[L], RebuildX[L], RebuildY[L]) then //Plan added successfully
+            RebuildType[L] := -1; 
+        end; 
+      end;
+    end;
+  end;
+end;
+
+
+procedure GetRandomAttacks;
+begin
+  CurrentWave := CurrentWave + 1;
+  CanRebuild := False;
+  Actions.ShowMsg(-1, '<$5>');    //Report that new wave is coming
+
+//Random enemy troops
+
+  Actions.GiveGroup(4, SoldiersType, 2, 141, 0, 8, 2); 
+  Actions.GiveGroup(5, SoldiersType, 27, 134, 0, 6, 3);
+  Actions.GiveGroup(6, SoldiersType, 51, 41, 0, 12 + WavesBalancer, 3);
+  Actions.GiveGroup(6, RandomMeat, 50, 63, 4, 12 + WavesBalancer, 4);
+  Actions.GiveGroup(6, SoldiersType, 12, 151, 6, 4, 2);
+  Actions.GiveGroup(7, SoldiersType, 88, 51, 0, 10 + WavesBalancer, 5);
+  Actions.GiveGroup(7, SoldiersType, 140, 53, 0, 15 + WavesBalancer, 3);
+  Actions.GiveGroup(4, SoldiersType, 5, 139, 0, 4, 2);
+  Actions.GiveGroup(5, SoldiersType, 26, 136, 0, 12 + WavesBalancer, 3);
+  Actions.GiveGroup(5, RandomMeat, 75, 125, 6, 12 + WavesBalancer, 4);
+  Actions.GiveGroup(6, SoldiersType, 54, 41, 0, 12 + WavesBalancer, 3);
+  Actions.GiveGroup(7, SoldiersType, 87, 53, 0, 8, 2);
+  Actions.GiveGroup(7, SoldiersType, 176, 58, 0, 5, 5);
+  Actions.GiveGroup(4, SoldiersType, 7, 139, 0, 6, 3); 
+  Actions.GiveGroup(5, SoldiersType, 33, 138, 0, 6, 3);
+  Actions.GiveGroup(5, SoldiersType, 75, 116, 6, 12 + WavesBalancer, 4);
+  Actions.GiveGroup(6, SoldiersType, 57, 42, 6, 4, 2);
+  Actions.GiveGroup(7, SoldiersType, 186, 54, 0, 3, 3);
+  Actions.GiveGroup(4, SoldiersType, 9, 141, 0, 6, 3); 
+  Actions.GiveGroup(5, SoldiersType, 34, 134, 0, 12 + WavesBalancer, 4);
+  Actions.GiveGroup(4, SoldiersType, 37, 52, 6, 10, 5);
+  Actions.GiveGroup(7, SoldiersType, 147, 53, 0, 9, 3);
+  Actions.GiveGroup(7, SoldiersType, 183, 55, 6, 8, 4);
+  Actions.GiveGroup(4, SoldiersType, 12, 143, 0, 6, 3); 
+  Actions.GiveGroup(5, SoldiersType, 39, 135, 1, 6, 2);
+  Actions.GiveGroup(6, RandomMeat, 58, 63, 4, 16, 4);
+  Actions.GiveGroup(7, SoldiersType, 97, 52, 0, 5, 5);
+  Actions.GiveGroup(7, SoldiersType, 180, 54, 0, 9 + WavesBalancer, 3);
+  Actions.GiveGroup(4, SoldiersType, 8, 152, 0, 10, 5); 
+  Actions.GiveGroup(5, SoldiersType, 41, 133, 0, 6, 3);
+  Actions.GiveGroup(7, SoldiersType, 97, 55, 0, 8, 4);
+  Actions.GiveGroup(7, SoldiersType, 188, 55, 6, 4, 4);
+  Actions.GiveGroup(7, SoldiersType, 92, 51, 0, 12, 2);
+  Actions.GiveGroup(5, SoldiersType, 64, 135, 0, 16, 4); 
+  Actions.GiveGroup(5, SoldiersType, 92, 92, 6, 12, 4);
+  Actions.GiveGroup(7, SoldiersType, 174, 54, 0, 12, 3);
+  Actions.GiveGroup(7, SoldiersType, 146, 56, 0, 12 + WavesBalancer, 6);
+  Actions.GiveGroup(7, SoldiersType, 70, 46, 0, 12 + WavesBalancer, 3);
+  Actions.GiveGroup(7, SoldiersType, 67, 46, 0, 12 + WavesBalancer, 3);
+  Actions.GiveGroup(7, SoldiersType, 73, 47, 6, 4, 2);
+
+  if CurrentWave > 7 then
+  begin                                                                        //Extra units after 7th wave
+    Actions.GiveGroup(5, RandomMeat, 92, 99, 6, 35 + WavesBalancer, 5);
+    Actions.GiveGroup(6, RandomMeat, 92, 85, 6, 28 + WavesBalancer, 4);
+    Actions.GiveGroup(6, RandomMeat, 8, 145, 0, 10, 2);
+    Actions.GiveGroup(6, RandomMeat, 64, 127, 0, 14 + WavesBalancer, 2);
+    Actions.GiveGroup(6, RandomMeat, 8, 150, 0, 12 + WavesBalancer, 6);
+    Actions.GiveGroup(6, RandomMeat, 96, 92, 6, 12 + WavesBalancer, 4);
+    Actions.GiveGroup(6, RandomEnemyReinforcenents, 46, 52, 6, 4, 4);
+  end;
+
+//Random allied reinforcements
+
+  if (States.StatArmyCount(3) < 150) 
+  and not (States.PlayerDefeated(3)) then
+    Actions.GiveGroup(3, ReinforcementType, 123, 7, 4, States.KaMRandomI(4) + 12, 5);
+end;
+
+
+//Get defeated waves count and give bonus for waves
+
+procedure GetDefeatedWavesCount;
+begin
+  if CanRebuild then
+  begin
+    if DefeatedWave < CurrentWave then
+    begin
+      DefeatedWave := DefeatedWave + 1;
+      GiveBonusForWaves;
+      CanRebuild := False;
+    end;
+  end
+    else
+      exit;
+end;
+
+
+//Victory and defeat check
+
+procedure CheckVictoryDefeat;
+begin
+
+//Victory conditions
+
+  if (States.GameTime > 47000) 
+  and not (States.PlayerDefeated(3)) 
+  and (States.StatArmyCount(4) = 0) 
+  and (States.StatArmyCount(5) = 0) 
+  and (States.StatArmyCount(6) = 0) 
+  and (States.StatArmyCount(7) = 0) then
+  begin
+    for I := 0 to 2 do
+    begin
+      if States.playerEnabled(I) then
+        Actions.PlayerWin([I], true);
+    end;
+  end;
+
+//Defeat conditions
+
+  if ((States.HouseAt(20, 102) = -1) or States.HouseDestroyed(States.HouseAt(20, 102)))
+  and ((States.HouseAt(25, 105) = -1) or States.HouseDestroyed(States.HouseAt(25, 105)))
+  and ((States.HouseAt(33, 102) = -1) or States.HouseDestroyed(States.HouseAt(33, 102)))
+  and (States.PlayerEnabled(0)) then
+    Actions.PlayerDefeat(0);
+
+  if ((States.HouseAt(9, 100) = -1) or States.HouseDestroyed(States.HouseAt(9, 100)))
+  and ((States.HouseAt(11, 105) = -1) or States.HouseDestroyed(States.HouseAt(11, 105)))
+  and ((States.HouseAt(16, 102) = -1) or States.HouseDestroyed(States.HouseAt(16, 102)))
+  and (States.PlayerEnabled(1)) then 
+    Actions.PlayerDefeat(1);
+
+  if ((States.HouseAt(4, 5) = -1) or States.HouseDestroyed(States.HouseAt(4, 5)))
+  and ((States.HouseAt(13, 4) = -1) or States.HouseDestroyed(States.HouseAt(13, 4)))
+  and ((States.HouseAt(17, 5) = -1) or States.HouseDestroyed(States.HouseAt(17, 5)))
+  and (States.PlayerEnabled(2)) then 
+    Actions.PlayerDefeat(2);
+
+  if ((States.HouseAt(130, 5) = -1) or States.HouseDestroyed(States.HouseAt(130, 5)))
+  and ((States.HouseAt(140, 5) = -1) or States.HouseDestroyed(States.HouseAt(140, 5)))
+  and ((States.HouseAt(151, 6) = -1) or States.HouseDestroyed(States.HouseAt(151, 6)))
+  and ((States.HouseAt(165, 7) = -1) or States.HouseDestroyed(States.HouseAt(165, 7)))
+  and ((States.HouseAt(127, 14) = -1) or States.HouseDestroyed(States.HouseAt(127, 14)))
+  and (States.PlayerEnabled(3)) then
+  begin
+    Actions.PlayerDefeat(3);
+    for I := 0 to 2 do
+    begin
+      if States.PlayerEnabled(I) then 
+        Actions.PlayerDefeat(I);
+    end;
+  end;
+end;
+
+
+//Feed new trained units
+
+procedure OnUnitTrained(UnitID: Integer);
+begin
+  Actions.UnitHungerSet(UnitID, States.UnitMaxHunger);
+end;
+
+
+//Feed new equipped soldiers
+
+procedure OnWarriorEquipped(aUnitID, aGroupID: Integer);
+begin
+  Actions.UnitHungerSet(aUnitID, States.UnitMaxHunger);
+end;
+
+
+//AutoFeed for ally
+
+procedure AutoFeed;
+var
+  ArmyToFeed: array of Integer;
+begin
+  ArmyToFeed := States.PlayerGetAllUnits(3);
+  for K := 0 to Length(ArmyToFeed) - 1 do 
+    Actions.UnitHungerSet(ArmyToFeed[K], States.UnitMaxHunger); //Set maximum condition for troops, 45 minutes 
+end;
+
+
+//Scores, unit counters and bonus wares
+
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
+var
+  Score1, Score2: array[0..3] of Integer;
+begin
+  for I := 0 to 3 do
+  begin
+    FactScore[I] := CurrentScore[I] - 2 * (1 * States.StatUnitLostCount(I, 14)                //Every lost soldier decreases score
+    + 3 * States.StatUnitLostCount(I, 15) + 5 * States.StatUnitLostCount(I, 16) 
+    + 2 * States.StatUnitLostCount(I, 17) + 2 * States.StatUnitLostCount(I, 18)
+    + 2 * States.StatUnitLostCount(I, 19) + 3 * States.StatUnitLostCount(I, 20) 
+    + 4 * States.StatUnitLostCount(I, 21) + 7 * States.StatUnitLostCount(I, 22) 
+    + 5 * States.StatUnitLostCount(I, 23) + 1 * States.StatUnitLostCount(I, 24)
+    + 1 * States.StatUnitLostCount(I, 25) + 5 * States.StatUnitLostCount(I, 26) 
+    + 2 * States.StatUnitLostCount(I, 27));
+
+    if (States.GameTime mod (10 + I) = 0) then
+    begin    
+      KilledUnits[I] := States.StatUnitKilledMultipletypesCount(I, [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]);
+      LostUnits[I] := States.StatUnitLostMultipleTypesCount(I, [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]);
+    end;
+  end;
+
+  if (aKillerIndex <> -1) 
+  and (aKillerIndex <= 3) then
+  begin
+    Score1[aKillerIndex] := CurrentScore[aKillerIndex];
+    CurrentScore[aKillerIndex] := CurrentScore[aKillerIndex] + Score(aUnitID); 
+    Score2[aKillerIndex] := CurrentScore[aKillerIndex]; 
+
+    if Score1[aKillerIndex] div 50 <> Score2[aKillerIndex] div 50 then 
+      Actions.GiveWeapons(aKillerIndex, States.KaMRandomI(11) + 16, States.KaMRandomI(5) + 2);     //Give random weapons for every 50 points 
+
+    if Score1[aKillerIndex] div 500 <> Score2[aKillerIndex] div 500 then 
+      Actions.GiveWares(aKillerIndex, 7, States.KaMRandomI(6) + 5); //Give gold for every 500 poits 
+
+    if Score1[aKillerIndex] div 750 <> Score2[aKillerIndex] div 750 then 
+      Actions.GiveWeapons(aKillerIndex, States.KamRandomI(2) + 18, States.KaMRandomI(3) + 1);      //Give random armour for every 750 poits 
+
+    if KilledUnits[aKillerIndex] mod 750 = 0 then
+    begin                                                                                          //Give 5..7 armour, shields, swords for every 750 killed units
+      Actions.GiveWeapons(aKillerIndex, 19, 5 + States.KaMRandomI(3));
+      Actions.GiveWeapons(aKillerIndex, 17, 5 + States.KaMRandomI(3));
+      Actions.GiveWeapons(aKillerIndex, 21, 5 + States.KaMRandomI(3));
+    end;
+  end;
+end;
+
+
+//Show current player scores
+
+procedure ShowScore;
+begin
+  Actions.OverlayTextSet(-1, '<$4>' + ' ' + IntToStr(CurrentWave) + ' (' + '<$7>' + ' ' + IntToStr(DefeatedWave) + ')' +'|' + Time + '||<$2>|');
+  for I := 0 to 3 do
+  begin
+    if States.PlayerEnabled(I) then
+      Actions.OverlayTextAppendFormatted(-1, '|<$3>', [States.PlayerColorText(I), States.PlayerName(I), FactScore[I], CurrentScore[I], KilledUnits[I], LostUnits[I]]);
+  end;
+end;
+
+
+//Time before next wave
+
+procedure GetWaveTimer;
+var
+  Secs: AnsiString;
+begin
+  if CurrentWave <= 24 then
+  begin
+    if WaveTimer > 0 then 
+      WaveTimer := WaveTimer - 1; 
+
+    if (WaveTimer div 10) mod 60 < 10 then
+      Secs := '0' + IntToStr((WaveTimer div 10) mod 60)
+    else
+      Secs := IntToStr((WaveTimer div 10) mod 60); 
+
+    Time := '<$8>' + ': ' + '0' + IntToStr((WaveTimer div 600) mod 60) + ':' + Secs; 
+  end
+  else
+   if CurrentWave > 24 then
+     Time := '<$9>';
+end;
+
+
+procedure OnTick;
+begin
+  if States.GameTime = 0 then
+    exit                                    //All we need on mission start is spicified in OnMissionStart procedure
+  else
+
+//Give allied barbarians every 10 minutes
+
+   if (States.GameTime mod 6000 = 0)
+   and (States.StatArmyCount(3) < 150)                                         //Only if ally has less than 150 soldiers
+   and not (States.HouseDestroyed(States.HouseAt(130, 5))) then                //If ally's barracks is not destroyed
+     Actions.GiveGroup(3, 23, 130, 6, 4, 12 + States.KaMRandomI(4), 5); 
+ 
+//Random waves (one wave every 3-3,5 minutes, at the moment first 18 random waves every 3 minutes, next 7 waves every 3,5 minutes plus initial wave)
+//Waves every 3 minutes
+
+  if (States.GameTime mod 1800 = 0) 
+  and (States.GameTime <= 30600) then
+  begin
+    GetRandomAttacks;
+    WaveTimer := 1800;
+  end;
+
+//Random waves (one wave every 3-3,5 minutes, at the moment first 18 random waves every 3 minutes, next 7 waves every 3,5 minutes plus initial wave)
+//Waves every 3,5 minutes
+
+  if ((States.GameTime + 900) mod 2100 = 0) 
+  and (States.GameTime <= 45300) 
+  and (States.GameTime > 30600) then
+  begin
+    GetRandomAttacks;
+    WaveTimer := 2100;
+  end;
+
+//Give random amount of gold every 2 minutes
+
+  if (States.GameTime mod 1200 = 0) then
+  begin
+    for I := 0 to 3 do
+    begin
+      if (States.PlayerEnabled(I)) then
+        Actions.GiveWares(I, 7, RandomGold);
+    end;
+  end;
+
+//Give random reinforcements for players 1-3 every 5 minutes and feed these reinforcements
+
+  if (States.GameTime mod 3000 = 0) then
+  begin
+    if (States.PlayerEnabled(0))
+    and not (States.PlayerDefeated(0)) then
+    begin
+      Reinforcement[0] := Actions.GiveGroup(0, ReinforcementType, 25, 91, 4, States.KaMRandomI(3) + 8, 4);
+      Actions.GroupHungerSet(Reinforcement[0], States.UnitMaxHunger);
+    end;
+
+    if (States.PlayerEnabled(1)) 
+    and not (States.PlayerDefeated(1)) then
+    begin
+      Reinforcement[1] := Actions.GiveGroup(1, ReinforcementType, 5, 100, 2, States.KaMRandomI(3) + 8, 4);
+      Actions.GroupHungerSet(Reinforcement[1], States.UnitMaxHunger);
+    end;
+
+    if (States.PlayerEnabled(2)) 
+    and not (States.PlayerDefeated(2)) then
+    begin
+      Reinforcement[2] := Actions.GiveGroup(2, ReinforcementType, 10, 10, 4, States.KaMRandomI(3) + 8, 4);
+      Actions.GroupHungerSet(Reinforcement[2], States.UnitMaxHunger);
+    end;
+
+  Actions.ShowMsg(-1, '<$6>');    //Report that reinforcement has arrived
+
+end; 
+
+//Extra enemy troops for waves #20-25
+
+  if (States.GameTime > 36600)
+  and ((States.GameTime + 900) mod 2100 = 0)
+  and (States.GameTime < 45300) then
+  begin
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 32, 53, 6, States.KaMRandomI(21) + 20, 5);
+
+//These troops will appear on the shore
+
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 53, 33, 0, States.KaMRandomI(11) + 15, 5);
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 70, 38, 0, States.KaMRandomI(11) + 15, 5);
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 91, 41, 0, States.KaMRandomI(11) + 15, 5);
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 143, 43, 0, States.KaMRandomI(11) + 15, 5);
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 179, 43, 0, States.KaMRandomI(11) + 15, 5); 
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 164, 40, 0, States.KaMRandomI(11) + 15, 5);
+  end; 
+
+//!!!RUSH!!!
+
+  if (States.GameTime mod 150 = 0)
+  and (States.GameTime >= 45200)
+  and (States.GameTime <= 46400) then
+  begin
+    Actions.GiveGroup(6, RandomEnemyReinforcenents, 53, 33, 0, 4, 4);
+    Actions.GiveGroup(6, RandomEnemyReinforcenents, 70, 38, 0, 4, 4);
+    Actions.GiveGroup(6, RandomEnemyReinforcenents, 91, 41, 0, 5, 5);
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 143, 43, 0, 4, 4);
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 179, 43, 0, 5, 5); 
+    Actions.GiveGroup(7, RandomEnemyReinforcenents, 164, 40, 0, 5, 5);
+  end;
+
+  if States.GameTime = 46800 then
+  begin
+    Actions.GiveGroup(7, 15, 153, 37, 0, 200, 25);
+    Actions.GiveGroup(7, 19, 90, 37, 0, 200, 25);
+    Actions.GiveGroup(7, 14, 109, 39, 0, 200, 25);
+    Actions.GiveGroup(6, 24, 53, 33, 0, 200, 25);
+
+  if States.GameTime = 45999 then
+  begin
+    Actions.GiveGroup(7, RandomEnemyReinforcenents - 1, 180, 38, 0, 64, 8);
+    Actions.GiveGroup(5, RandomEnemyReinforcenents, 93, 85, 6, 28, 4);
+    Actions.GiveGroup(5, RandomEnemyReinforcenents, 92, 99, 6, 35, 5);
+  end;
+end;
+
+//Meat at start
+
+  if (States.GameTime >= 300)
+  and (States.GameTime <= 900)
+  and (States.GameTime mod 150 = 0) then
+    RandomMeatAttacks;
+
+//Automatically feed allied units
+
+  if States.GameTime mod 6000 = 0 then 
+    AutoFeed;
+
+//Show current scores
+
+  ShowScore;
+
+//Ally should rebuild the village
+
+  RebuildVillage;
+
+//Number of defeated waves
+
+  GetDefeatedWavesCount;
+
+//Messages
+
+  if States.GameTime = 30 then
+    Actions.ShowMsg(-1, '<$0>');
+
+  if States.GameTime = 450 then
+    Actions.ShowMsg(-1, '<$1>');
+
+//Victory and defeat check
+
+  CheckVictoryDefeat;
+
+//Waves timer
+
+  GetWaveTimer;
+
+//Change alliances and cover fog
+
+  if States.GameTime = 1 then
+  begin
+    ChangeAlliance;
+    CoverFog;
+  end;
+end;

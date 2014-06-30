@@ -1,0 +1,337 @@
+var 
+  Help1, Help2: Boolean;
+  I, Time1, Time2, Store1, Store2, Store3, Barracks1, Wood1: Integer;
+
+
+procedure OnMissionStart;
+begin
+  if States.PlayerEnabled(0) then
+  begin
+    Actions.PlayerShareFog(2, 0, False);
+    Actions.PlayerShareFog(3, 0, False);
+  end;
+
+  if States.PlayerEnabled(1) then
+  begin
+    Actions.PlayerShareFog(2, 1, False);
+    Actions.PlayerShareFog(3, 1, False);
+  end;
+
+  Actions.ShowMsg(-1, '<$0>');
+  Actions.GiveWeapons(4, 18, 100);
+  Help1 := true;
+  Help2 := true;
+  Time1 := 0;
+  Time2 := 0;
+  Store1 := States.HouseAt(80, 22);
+  Store2 := States.HouseAt(25, 84);
+  Store3 := States.HouseAt(79, 56);
+  Barracks1 := States.HouseAt(67, 10);
+  Wood1 := States.HouseAt(29, 63);
+  for I := 0 to 1 do
+  begin
+    if States.PlayerEnabled(I) then
+    begin
+      Actions.FogCoverCircle(I, 14, 90, 20);
+      Actions.FogCoverCircle(I, 50, 90, 20);
+      Actions.FogCoverCircle(I, 70, 90, 20);
+      Actions.FogCoverCircle(I, 57, 86, 10);
+      Actions.FogCoverCircle(I, 31, 81, 10);
+      Actions.FogCoverCircle(I, 26, 106, 10);
+      Actions.FogCoverCircle(I, 59, 73, 5);
+      Actions.FogCoverCircle(I, 35, 105, 4);
+      Actions.FogCoverCircle(I, 3, 135, 12);
+      Actions.FogCoverCircle(I, 1, 122, 5);
+      Actions.FogCoverCircle(I, 5, 71, 5);
+    end;
+  end;
+end;
+
+
+procedure GetAIAttack;
+var
+  AIGroups: array[0..24] of Integer;
+begin
+  AIGroups[0] := Actions.GiveGroup(5, 16, 33, 5, 2, 12, 4);
+  AIGroups[1] := Actions.GiveGroup(5, 16, 31, 11, 2, 12, 4);
+  AIGroups[2] := Actions.GiveGroup(5, 20, 38, 9, 2, 15, 5);
+  AIGroups[3] := Actions.GiveGroup(5, 20, 27, 7, 2, 12, 6);
+  AIGroups[4] := Actions.GiveGroup(5, 22, 40, 13, 2, 15, 5);
+  AIGroups[5] := Actions.GiveGroup(5, 16, 19, 11, 2, 10, 5);
+  AIGroups[6] := Actions.GiveGroup(5, 16, 17, 3, 2, 9, 3);
+  AIGroups[7] := Actions.GiveGroup(6, 20, 10, 10, 2, 12, 4);
+  AIGroups[8] := Actions.GiveGroup(6, 20, 11, 18, 2, 12, 3);
+  AIGroups[9] := Actions.GiveGroup(6, 22, 20, 21, 2, 10, 5);
+  AIGroups[10] := Actions.GiveGroup(6, 22, 6, 24, 2, 8, 4);
+  AIGroups[11] := Actions.GiveGroup(6, 22, 3, 7, 2, 9, 3);
+  AIGroups[12] := Actions.GiveGroup(6, 18, 21, 30, 2, 12, 4);
+  AIGroups[13] := Actions.GiveGroup(6, 20, 11, 35, 2, 15, 5);
+  AIGroups[14] := Actions.GiveGroup(6, 20, 6, 39, 2, 15, 5);
+  AIGroups[15] := Actions.GiveGroup(6, 16, 23, 43, 2, 12, 3);
+  AIGroups[16] := Actions.GiveGroup(7, 18, 5, 37, 2, 15, 5);
+  AIGroups[17] := Actions.GiveGroup(7, 20, 12, 48, 2, 8, 4);
+  AIGroups[18] := Actions.GiveGroup(7, 20, 4, 47, 2, 8, 4);
+  AIGroups[19] := Actions.GiveGroup(7, 20, 18, 40, 2, 9, 3);
+  AIGroups[20] := Actions.GiveGroup(7, 16, 3, 59, 2, 12, 4);
+  AIGroups[21] := Actions.GiveGroup(7, 18, 4, 40, 2, 10, 5);
+  AIGroups[22] := Actions.GiveGroup(7, 16, 3, 57, 2, 12, 4);
+  AIGroups[23] := Actions.GiveGroup(7, 20, 6, 62, 2, 15, 5);
+  AIGroups[24] := Actions.GiveGroup(7, 22, 3, 61, 2, 8, 4);
+  Actions.GroupOrderAttackHouse(AIGroups[0], Barracks1);
+  Actions.GroupOrderAttackHouse(AIGroups[1], Barracks1);
+  Actions.GroupOrderAttackHouse(AIGroups[2], Barracks1);
+  Actions.GroupOrderAttackHouse(AIGroups[3], Barracks1);
+  Actions.GroupOrderAttackHouse(AIGroups[4], Barracks1);
+  Actions.GroupOrderAttackHouse(AIGroups[5], Store1);
+  Actions.GroupOrderAttackHouse(AIGroups[6], Store1);
+  Actions.GroupOrderAttackHouse(AIGroups[7], Store1);
+  Actions.GroupOrderAttackHouse(AIGroups[8], Store1);
+  Actions.GroupOrderAttackHouse(AIGroups[9], Store1);
+  Actions.GroupOrderAttackHouse(AIGroups[10], Store1);
+  Actions.GroupOrderAttackHouse(AIGroups[11], Store3);
+  Actions.GroupOrderAttackHouse(AIGroups[12], Store3);
+  Actions.GroupOrderAttackHouse(AIGroups[13], Store3);
+  Actions.GroupOrderAttackHouse(AIGroups[14], Store3);
+  Actions.GroupOrderAttackHouse(AIGroups[15], Store3);
+  Actions.GroupOrderAttackHouse(AIGroups[16], Wood1);
+  Actions.GroupOrderAttackHouse(AIGroups[17], Wood1);
+  Actions.GroupOrderAttackHouse(AIGroups[18], Wood1);
+  Actions.GroupOrderAttackHouse(AIGroups[19], Store3);
+  Actions.GroupOrderAttackHouse(AIGroups[20], Wood1);
+  Actions.GroupOrderAttackHouse(AIGroups[21], Wood1);
+  Actions.GroupOrderAttackHouse(AIGroups[22], Store2);
+  Actions.GroupOrderAttackHouse(AIGroups[23], Store2);
+  Actions.GroupOrderAttackHouse(AIGroups[24], Store2);
+end;
+
+
+procedure GetAIReinforcement;
+begin
+  Actions.GiveGroup(5, 20, 28, 6, 2, States.KaMRandomI(4) + 12, 5);
+  Actions.GiveGroup(6, 16, 40, 10, 2, States.KaMRandomI(6) + 20, 5);
+  Actions.GiveGroup(7, 22, 34, 11, 2, States.KaMRandomI(5) + 8, 4);
+  Actions.GiveGroup(States.KaMRandomI(3) + 5, 22, 20, 25, 2, States.KaMRandomI(5) + 12, 4);
+end;
+
+
+procedure GetAIBase;
+var
+  AIHouses: array[0..3] of Integer;
+Weapons: Integer;
+begin
+  AIHouses[0] := Actions.GiveHouse(7, 21, 16, 12);
+  AIHouses[1] := Actions.GiveHouse(7, 11, 17, 17);
+  AIHouses[2] := Actions.GiveHouse(7, 13, 22, 20);
+  AIHouses[3] := Actions.GiveHouse(7, 27, 10, 12);
+  Actions.GiveWares(7, 1, States.KaMRandomI(500) + 500);
+  Actions.GiveWares(7, 2, States.KaMRandomI(500) + 500);
+  Actions.GiveWares(7, 6, States.KaMRandomI(500) + 500);
+  Actions.GiveWares(7, 7, States.KaMRandomI(500) + 500);
+  Actions.GiveWares(7, 8, States.KaMRandomI(500) + 500);
+  Actions.GiveWares(7, 10, States.KaMRandomI(500) + 500);
+  Actions.GiveWares(7, 13, States.KaMRandomI(500) + 500);
+  Actions.GiveWares(7, 27, States.KaMRandomI(500) + 500);
+  Actions.HouseAddWaresTo(AIHouses[3], 8, 5);
+  Actions.HouseAddWaresTo(AIHouses[3], 10, 5);
+  Actions.HouseAddWaresTo(AIHouses[3], 13, 5);
+  Actions.HouseAddWaresTo(AIHouses[3], 27, 5);
+  Actions.HouseAddWaresTo(AIHouses[2], 7, 5);
+  Actions.GiveUnit(7, 0, 15, 19, 5);
+  Actions.GiveUnit(7, 0, 15, 20, 5);
+  Actions.GiveUnit(7, 0, 15, 21, 5);
+  Actions.GiveUnit(7, 0, 16, 19, 5);
+  Actions.GiveUnit(7, 0, 16, 20, 5);
+  Actions.GiveUnit(7, 0, 16, 21, 5);
+  Actions.GiveUnit(7, 0, 17, 19, 5);
+  Actions.GiveUnit(7, 0, 17, 20, 5);
+  Actions.GiveUnit(7, 0, 17, 21, 5);
+  Actions.GiveUnit(7, 0, 18, 20, 5);
+  Actions.GiveUnit(7, 9, 11, 15, 5);
+  Actions.GiveUnit(7, 9, 12, 15, 5);
+  Actions.GiveUnit(7, 9, 13, 15, 5);
+  Actions.GiveGroup(7, 22, 23, 12, 4, 15, 5);
+  Actions.GiveGroup(7, 20, 28, 6, 2, 18, 6);
+  Actions.GiveGroup(7, 16, 34, 11, 2, 16, 4);
+  Actions.GiveRoad(7, 10, 13);
+  Actions.GiveRoad(7, 11, 13);
+  Actions.GiveRoad(7, 12, 13);
+  Actions.GiveRoad(7, 13, 13);
+  Actions.GiveRoad(7, 14, 13);
+  Actions.GiveRoad(7, 15, 13);
+  Actions.GiveRoad(7, 16, 13);
+  Actions.GiveRoad(7, 15, 14);
+  Actions.GiveRoad(7, 15, 15);
+  Actions.GiveRoad(7, 15, 16);
+  Actions.GiveRoad(7, 15, 17);
+  Actions.GiveRoad(7, 15, 18);
+  Actions.GiveRoad(7, 16, 18);
+  Actions.GiveRoad(7, 17, 18);
+  Actions.GiveRoad(7, 18, 18);
+  Actions.GiveRoad(7, 19, 18);
+  Actions.GiveRoad(7, 19, 19);
+  Actions.GiveRoad(7, 19, 20);
+  Actions.GiveRoad(7, 19, 21);
+  Actions.GiveRoad(7, 20, 21);
+  Actions.GiveRoad(7, 21, 21);
+  Actions.GiveRoad(7, 22, 21);
+
+  for Weapons := 16 to 26 do
+    Actions.GiveWeapons(7, Weapons, States.KaMRandomI(500) + 500);
+
+  for I := 0 to 1 do
+  if States.PlayerEnabled(I) then
+  begin
+    Actions.FogRevealCircle(I, 15, 15, 10); 
+    Actions.ShowMsgGoTo(I, 15, 15, '<$4>');
+  end;
+end; 
+
+
+procedure RevealFog;
+begin
+  for I := 0 to 1 do
+    if States.PlayerEnabled(I) then
+    begin
+      Actions.FogRevealCircle(I, 20, 132, 15);
+      Actions.FogRevealCircle(I, 47, 118, 15);
+    end;
+end;
+
+
+procedure NotificationAboutHelp;
+begin
+  if States.PlayerEnabled(0) then
+  begin
+    Actions.FogRevealCircle(0, 13, 93, 4);
+    Actions.ShowMsgGoTo(0, 13, 93, '<$1>');
+  end;
+
+  if States.PlayerEnabled(1) then
+  begin
+    Actions.FogRevealCircle(1, 71, 83, 4);
+    Actions.ShowMsgGoTo(1, 71, 83, '<$1>');
+  end;
+end;
+
+
+procedure Reinforcement1;
+begin
+  Actions.GiveGroup(0, 23, 4, 85, 2, 9, 3);
+  Actions.GiveGroup(0, 17, 10, 91, 1, 16, 4);
+  Actions.GiveGroup(0, 17, 13, 110, 0, 8, 4);
+  Actions.GiveGroup(0, 19, 12, 88, 2, 15, 5);
+  Actions.GiveGroup(0, 16, 5, 100, 2, 12, 4);
+  Actions.GiveGroup(0, 21, 11, 98, 0, 18, 6);
+  Actions.GiveGroup(0, 15, 17, 105, 7, 20, 5);
+  Actions.GiveGroup(0, 20, 4, 107, 2, 9, 3);
+end;
+
+
+procedure Reinforcement2;
+begin
+  Actions.GiveGroup(1, 23, 77, 79, 6, 9, 3);
+  Actions.GiveGroup(1, 17, 79, 84, 7, 16, 4);
+  Actions.GiveGroup(1, 17, 72, 87, 0, 8, 4);
+  Actions.GiveGroup(1, 19, 84, 83, 6, 15, 5);
+  Actions.GiveGroup(1, 16, 75, 90, 6, 12, 4);
+  Actions.GiveGroup(1, 21, 86, 90, 0, 18, 6);
+  Actions.GiveGroup(1, 15, 58, 95, 0, 20, 5);
+  Actions.GiveGroup(1, 20, 72, 93, 0, 9, 3);
+end;
+
+
+procedure BonusGold;
+begin
+  Actions.ShowMsg(-1, '<$5>');
+  for I := 0 to 1 do
+    if States.PlayerEnabled(I) then
+      Actions.GiveWares(I, 7, 25);
+end;
+
+
+procedure CheckVictoryDefeat;
+begin
+  if (States.GameTime > 9000)
+  and (States.StatArmyCount(5) = 0)
+  and (States.StatArmyCount(6) = 0)
+  and (States.StatArmyCount(7) = 0)
+  and (States.StatHouseTypeCount(7, 11) = 0)
+  and (States.StatHouseTypeCount(7, 21) = 0)
+  and (States.StatHouseTypeCount(7, 13) = 0)
+  and not (States.PlayerDefeated(4)) then
+    for I := 0 to 4 do 
+      if States.PlayerEnabled(I) then
+        Actions.PlayerWin([I], true);
+
+  if ((States.StatHouseTypeCount(4, 11) = 0)
+  and (States.StatHouseTypeCount(4, 13) = 0)
+  and (States.StatHouseTypeCount(4, 21) = 0)) 
+  or (States.StatHouseTypeCount(2, 11) = 0) 
+  or (States.StatHouseTypeCount(3, 11) = 0) then
+    for I := 0 to 4 do
+      if States.PlayerEnabled(I) then
+        Actions.PlayerDefeat(I);
+end;
+
+
+procedure OnTick;
+begin
+  if States.GameTime = 1 then 
+    RevealFog;
+
+  if States.GameTime = 900 then 
+    NotificationAboutHelp;
+
+  if (States.GroupAt(12, 94) <> -1)
+  and (States.GroupOwner(States.GroupAt(12, 94)) = 0)
+  and (Help1)
+  and (States.GameTime > 900) then
+  begin
+    Time1 := States.GameTime + 900;
+    Help1 := false;
+  end;
+
+  if States.GameTime = Time1 - 800 then
+    Actions.ShowMsg(0, '<$2>');
+
+  if (States.GroupAt(72, 84) <> -1)
+  and (States.GroupOwner(States.GroupAt(72, 84)) = 1)
+  and (Help2)
+  and (States.GameTime > 900) then
+  begin
+    Time2 := States.GameTime + 900;
+    Help2 := false;
+  end;
+
+  if States.GameTime = Time2 - 800 then
+    Actions.ShowMsg(1, '<$2>');
+
+  if (States.GameTime = Time1)
+  and (States.PlayerEnabled(0)) then 
+    Reinforcement1;
+
+  if (States.GameTime = Time2)
+  and (States.PlayerEnabled(1)) then 
+    Reinforcement2;
+
+  if States.GameTime = 5900 then
+    Actions.ShowMsgGoTo(-1, 14, 74, '<$6>');
+
+  if States.GameTime = 6200 then
+    Actions.ShowMsgGoTo(-1, 15, 32, '<$3>');
+
+  if States.GameTime = 6500 then 
+    GetAIAttack;
+
+  if States.GameTime = 7100 then 
+    BonusGold;
+
+  if States.GameTime = 8000 then
+    GetAIReinforcement;
+
+  if States.GameTime = 9000 then 
+    GetAIBase;
+
+  CheckVictoryDefeat;
+
+end;
