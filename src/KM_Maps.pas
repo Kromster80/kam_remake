@@ -646,7 +646,7 @@ begin
        and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
        begin
          RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-         if Dest + SearchRec.Name <> RenamedFile then
+         if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
            {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
            {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
        end;

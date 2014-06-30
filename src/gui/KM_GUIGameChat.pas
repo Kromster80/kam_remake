@@ -230,7 +230,6 @@ end;
 
 //Access text that user was typing to copy it over to lobby chat
 function TKMGUIGameChat.GetChatState: TChatState;
-var WhisperIndex: Integer;
 begin
   if fChatMode = cmWhisper then
     Result.WhisperRecipient := gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer
