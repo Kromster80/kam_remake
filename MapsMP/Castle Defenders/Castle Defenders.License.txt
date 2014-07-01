@@ -1,0 +1,14 @@
+== Map ==
+
+Made by andreus
+
+== Dynamic script ==
+
+"Castle Defenders" dynamic script is licensed under GPLv2. You can find its text here: http://www.gnu.org/licenses/gpl-2.0.html
+
+== Sounds ==
+
+Additional sounds are licensed by freesfx.co.uk.
+
+NEWWAVE.wav: derived from war_horn.mp3 by mosha2010 (http://www.freesfx.co.uk/users/mosha2010/) licensed by http://www.freesfx.co.uk
+
