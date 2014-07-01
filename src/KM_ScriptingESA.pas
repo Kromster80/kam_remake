@@ -2249,7 +2249,7 @@ begin
   Result := -1;
   FileName := Format(SFXPath, [aFileName]);
   if InRange(Volume, 0, 1) then
-    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(0,0), Volume, 0)
+    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(0,0), False, Volume, 0)
   else
     LogError('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
 end;
@@ -2262,7 +2262,7 @@ begin
   Result := -1;
   FileName := Format(SFXPath, [aFileName]);
   if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
-    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(X,Y), Volume, Radius)
+    Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(X,Y), True, Volume, Radius)
   else
     LogError('Actions.PlayWAVAtLocationLooped: ' + UnicodeString(aFileName), [X, Y]);
 end;

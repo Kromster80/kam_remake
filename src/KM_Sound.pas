@@ -75,7 +75,7 @@ type
     procedure Play(SoundID: TSoundFXNew; Volume:Single = 1; FadeMusic:boolean=false); overload;
     procedure Play(SoundID: TSoundFXNew; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
 
-    function PlayLoopSound(const aFile: UnicodeString; aLoc: TKMPointF; aVolume: Single; aRadius: Single): Integer;
+    function PlayLoopSound(const aFile: UnicodeString; aLoc: TKMPointF; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
     procedure StopLoopSound(aIndex: Integer);
 
     procedure Paint;
@@ -94,6 +94,7 @@ type
                         FileName: UnicodeString;
                         Volume: Single;
                         Radius: Single;
+                        Attenuate: Boolean;
                         Loc: TKMPoint;
                         HandIndex: THandIndex;
                       end;
@@ -108,7 +109,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure UpdateState;
 
-    function AddLoopSound(aHandIndex: THandIndex; const aFile: UnicodeString; aLoc: TKMPoint; aVolume: Single; aRadius: Single): Integer;
+    function AddLoopSound(aHandIndex: THandIndex; const aFile: UnicodeString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
     procedure RemoveLoopSound(aScriptIndex: Integer);
     procedure UpdateListener(X,Y: Single);
   end;
@@ -553,14 +554,14 @@ begin
 end;
 
 
-function TKMSoundPlayer.PlayLoopSound(const aFile: UnicodeString; aLoc: TKMPointF; aVolume: Single; aRadius: Single): Integer;
+function TKMSoundPlayer.PlayLoopSound(const aFile: UnicodeString; aLoc: TKMPointF; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
 var I: Integer;
 begin
   Result := -1; //Failed to play
   for I:=Low(fLoopSoundIndex) to High(fLoopSoundIndex) do
     if fLoopSoundIndex[I] = -1 then
     begin
-      fLoopSoundIndex[I] := PlaySound(sfx_None, aFile, aLoc, True, aVolume, aRadius, False, True);
+      fLoopSoundIndex[I] := PlaySound(sfx_None, aFile, aLoc, aAttenuate, aVolume, aRadius, False, True);
       if fLoopSoundIndex[I] <> -1 then
         Result := I; //Successfully playing
       Exit;
@@ -662,10 +663,14 @@ function TKMLoopSoundsManager.CanPlay(aIndex: Integer): Boolean;
 var DistanceSqr: Single;
 begin
   Result := ((fSounds[aIndex].HandIndex = MySpectator.HandIndex) or (fSounds[aIndex].HandIndex = PLAYER_NONE))
-             and (KMSamePoint(fSounds[aIndex].Loc, KMPoint(0,0)) or (MySpectator.FogOfWar.CheckTileRevelation(fSounds[aIndex].Loc.X, fSounds[aIndex].Loc.Y) > 0));
+             and (not fSounds[aIndex].Attenuate or (MySpectator.FogOfWar.CheckTileRevelation(fSounds[aIndex].Loc.X, fSounds[aIndex].Loc.Y) > 0));
   if not Result then Exit;
-  DistanceSqr := KMDistanceSqr(KMPointF(fSounds[aIndex].Loc), fListener);
-  Result := Result and (DistanceSqr < Sqr(fSounds[aIndex].Radius));
+
+  if fSounds[aIndex].Attenuate then
+  begin
+    DistanceSqr := KMDistanceSqr(KMPointF(fSounds[aIndex].Loc), fListener);
+    Result := Result and (DistanceSqr < Sqr(fSounds[aIndex].Radius));
+  end;
 end;
 
 
@@ -678,7 +683,7 @@ begin
   if not FileExists(S) or not CanPlay(aIndex) then
     Exit;
 
-  fSounds[aIndex].PlayingIndex := gSoundPlayer.PlayLoopSound(S, KMPointF(fSounds[aIndex].Loc), fSounds[aIndex].Volume, fSounds[aIndex].Radius);
+  fSounds[aIndex].PlayingIndex := gSoundPlayer.PlayLoopSound(S, KMPointF(fSounds[aIndex].Loc), fSounds[aIndex].Attenuate, fSounds[aIndex].Volume, fSounds[aIndex].Radius);
 end;
 
 
@@ -691,7 +696,7 @@ begin
 end;
 
 
-function TKMLoopSoundsManager.AddLoopSound(aHandIndex: THandIndex; const aFile: UnicodeString; aLoc: TKMPoint; aVolume: Single; aRadius: Single): Integer;
+function TKMLoopSoundsManager.AddLoopSound(aHandIndex: THandIndex; const aFile: UnicodeString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
 var NewIndex: Integer;
 begin
   Inc(fCount);
@@ -704,6 +709,7 @@ begin
   fSounds[NewIndex].PlayingIndex := -1;
   fSounds[NewIndex].FileName := aFile;
   fSounds[NewIndex].Loc := aLoc;
+  fSounds[NewIndex].Attenuate := aAttenuate;
   fSounds[NewIndex].Volume := aVolume;
   fSounds[NewIndex].Radius := aRadius;
   fSounds[NewIndex].HandIndex := aHandIndex;
@@ -747,6 +753,7 @@ begin
     SaveStream.WriteW(fSounds[I].FileName);
     SaveStream.Write(fSounds[I].Volume);
     SaveStream.Write(fSounds[I].Radius);
+    SaveStream.Write(fSounds[I].Attenuate);
     SaveStream.Write(fSounds[I].Loc);
     SaveStream.Write(fSounds[I].HandIndex);
   end;
@@ -765,6 +772,7 @@ begin
     LoadStream.ReadW(fSounds[I].FileName);
     LoadStream.Read(fSounds[I].Volume);
     LoadStream.Read(fSounds[I].Radius);
+    LoadStream.Read(fSounds[I].Attenuate);
     LoadStream.Read(fSounds[I].Loc);
     LoadStream.Read(fSounds[I].HandIndex);
     fSounds[I].PlayingIndex := -1; //Indicates that it is not currently playing
