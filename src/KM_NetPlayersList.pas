@@ -102,6 +102,7 @@ type
     function GetSpectatorCount: Integer;
     function GetConnectedCount: Integer;
     function FurtherVotesNeededForMajority: Integer;
+    function HasOnlySpectators: Boolean;
 
     procedure ResetLocAndReady;
     procedure ResetReady;
@@ -694,12 +695,16 @@ end;
 
 
 function TKMNetPlayersList.FurtherVotesNeededForMajority: Integer;
-var I, VotedYes, Total: Integer;
+var
+  I, VotedYes, Total: Integer;
+  OnlySpecsLeft: Boolean;
 begin
   Total := 0;
   VotedYes := 0;
+  OnlySpecsLeft := HasOnlySpectators; //Store value locally
   for I:=1 to fCount do
-    if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE)
+    if (fNetPlayers[I].PlayerNetType = nptHuman)
+    and (OnlySpecsLeft or (fNetPlayers[I].StartLocation <> LOC_SPECTATE))
     and not fNetPlayers[I].Dropped then
     begin
       Inc(Total);
@@ -707,6 +712,21 @@ begin
         Inc(VotedYes);
     end;
   Result := (Total div 2) + 1 - VotedYes;
+end;
+
+
+//All human players who are not dropped are spectators
+function TKMNetPlayersList.HasOnlySpectators: Boolean;
+var I: Integer;
+begin
+  for I:=1 to fCount do
+    if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE)
+    and not fNetPlayers[I].Dropped then
+    begin
+      Result := False;
+      Exit;
+    end;
+  Result := True;
 end;
 
 

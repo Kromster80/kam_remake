@@ -1837,8 +1837,9 @@ begin
       mk_Vote:
               begin
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                //No need to vote more than once, and spectators don't get to vote
-                if not fNetPlayers[PlayerIndex].VotedYes and not fNetPlayers[PlayerIndex].IsSpectator then
+                //No need to vote more than once, and spectators don't get to vote unless there's only spectators left
+                if not fNetPlayers[PlayerIndex].VotedYes
+                and (fNetPlayers.HasOnlySpectators or not fNetPlayers[PlayerIndex].IsSpectator) then
                 begin
                   fLastVoteTime := TimeGet;
                   fNetPlayers[PlayerIndex].VotedYes := True;

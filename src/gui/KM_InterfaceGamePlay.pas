@@ -2494,9 +2494,10 @@ var
   I, NetI, LocaleID: Integer;
 begin
   Image_AlliesHostStar.Hide;
-  //Can't vote if we already have, and spectators don't get to vote
+  //Can't vote if we already have, and spectators don't get to vote unless there's only spectators left
   Button_Menu_ReturnLobby.Enabled := not gGame.Networking.NetPlayers[gGame.Networking.MyIndex].VotedYes
-                                 and not gGame.Networking.NetPlayers[gGame.Networking.MyIndex].IsSpectator;
+                                     and (gGame.Networking.NetPlayers.HasOnlySpectators
+                                          or not gGame.Networking.NetPlayers[gGame.Networking.MyIndex].IsSpectator);
 
   AlliesUpdateMapping;
   for I := 0 to MAX_LOBBY_SLOTS-1 do
