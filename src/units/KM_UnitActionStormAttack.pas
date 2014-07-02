@@ -131,8 +131,9 @@ begin
     Exit;
   end;
 
-  //First and last steps are walking, inbetween are running
-  if (fTileSteps <= 0) or (fTileSteps >= fStamina - 1) then
+  //Last step is walking, others are running (unit gets tired and slows at the end)
+  //In KaM the first step was also walking, but this makes it less useful/surprising
+  if (fTileSteps >= fStamina - 1) then
   begin
     Distance := gResource.UnitDat[fUnit.UnitType].Speed;
     fActionType := ua_Walk;

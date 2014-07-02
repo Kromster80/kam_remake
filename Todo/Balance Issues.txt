@@ -32,7 +32,8 @@ Pending
 =====================
 ISSUE:
 Storm attack is not practical, especially in MP with lag delays
-SOLUTIONS:
+SOLUTION: Units start running immediately and travel a more consistent (less random) distance
+SUGGESTED SOLUTIONS:
  1. Make storm attack last longer and be easier to aim (tell them where to storm to, rather than clicking button at the right moment)
     + Works well even with high network lag, storm becomes like a special move instruction, where each unit faces that direction (closest) and storms.
 
