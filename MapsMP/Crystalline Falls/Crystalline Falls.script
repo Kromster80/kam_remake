@@ -1,0 +1,597 @@
+var SouthTeam : array[0..3] of Integer;
+var NorthTeam : array[0..3] of Integer;
+var NorthEast : AnsiString;
+var NorthWest : AnsiString;
+var SouthEast : AnsiString;
+var SouthWest : AnsiString;
+
+var NE : array[0..1] of Integer;
+var NW : array[0..1] of Integer;
+var SE : array[0..1] of Integer;
+var SW : array[0..1] of Integer;
+
+var HasAllOutposts : AnsiString;
+var Timer : Integer;
+
+var UnitsSouth : array [1..210] of array [1..210] of integer;
+var UnitsNorth : array [1..210] of array [1..210] of integer;
+
+var i : Integer;
+var j : Integer;
+var k : Integer;
+
+var PTEND : Boolean;
+
+const LOS_CIVILIAN = 4;
+const LOS_SOLDIER = 8;
+const LOS_HOUSE = 10;
+const LOS_TOWER = 18;
+
+
+procedure GetFOW;
+var arr : array of Integer;
+var LOS : Integer;
+begin
+	for i := 0 to 3 do
+	begin
+		if (SouthTeam[i]<>-1) then
+		begin
+			arr := States.PlayerGetAllUnits(SouthTeam[i]);
+			for j:= 0 to length(arr)-1 do
+			begin
+				if States.UnitType(arr[j]) <= 13 then
+				begin
+					LOS := LOS_CIVILIAN;
+				end
+				else
+				begin
+					LOS := LOS_SOLDIER;
+					PTEND := True;
+				end;
+				if UnitsSouth[States.UnitPositionX(arr[j])][States.UnitPositionY(arr[j])] < LOS then
+				begin
+					UnitsSouth[States.UnitPositionX(arr[j])][States.UnitPositionY(arr[j])]:= LOS;
+				end;
+			end;
+			
+			arr := States.PlayerGetAllHouses(SouthTeam[i]);
+			for j:= 0 to length(arr)-1 do
+			begin
+				if States.HouseType(arr[j]) <> 17 then
+				begin
+					LOS := LOS_HOUSE;
+				end
+				else
+				begin
+					LOS := LOS_TOWER;
+				end;
+				if UnitsSouth[States.HousePositionX(arr[j])][States.HousePositionY(arr[j])] < LOS then
+				begin
+					UnitsSouth[States.HousePositionX(arr[j])][States.HousePositionY(arr[j])]:= LOS;
+				end;
+			end;
+		end;
+		if (NorthTeam[i]<>-1) then
+		begin
+			arr := States.PlayerGetAllUnits(NorthTeam[i]);
+			for j:= 0 to length(arr)-1 do
+			begin
+				if States.UnitType(arr[j]) <= 13 then
+				begin
+					LOS := LOS_CIVILIAN;
+				end
+				else
+				begin
+					LOS := LOS_SOLDIER;
+					PTEND := True;
+				end;
+				if UnitsNorth[States.UnitPositionX(arr[j])][States.UnitPositionY(arr[j])] < LOS then
+				begin
+					UnitsNorth[States.UnitPositionX(arr[j])][States.UnitPositionY(arr[j])]:= LOS;
+				end;
+			end;
+			
+			arr := States.PlayerGetAllHouses(NorthTeam[i]);
+			for j:= 0 to length(arr)-1 do
+			begin
+				if States.HouseType(arr[j]) <> 17 then
+				begin
+					LOS := LOS_HOUSE;
+				end
+				else
+				begin
+					LOS := LOS_TOWER;
+				end;
+				if UnitsNorth[States.HousePositionX(arr[j])][States.HousePositionY(arr[j])] < LOS then
+				begin
+					UnitsNorth[States.HousePositionX(arr[j])][States.HousePositionY(arr[j])]:= LOS;
+				end;
+			end;
+		end;
+	end;
+end;
+
+procedure UpdateFOWSouth;
+var temp : Integer;
+begin
+	for i := 0 to 3 do
+	begin
+		if SouthTeam[i] <> -1 then
+		begin
+			for j := 1 to 210 do
+			begin
+				for k := 1 to 210 do
+				begin
+					temp := UnitsSouth[j][k];
+					if temp <> 0 then
+					begin
+						Actions.FogRevealCircle(SouthTeam[i], j, k, temp);
+					end;
+				end;
+			end;
+			Actions.FogRevealCircle(SouthTeam[i], 40, 187, 64);
+			Actions.FogRevealCircle(SouthTeam[i], 144, 187, 64);
+			Actions.FogRevealCircle(SouthTeam[i], 93, 174, 64);
+		end;
+	end;
+
+end;
+
+procedure UpdateFOWNorth;
+var temp : Integer;
+begin
+	for i := 0 to 3 do
+	begin
+		if NorthTeam[i] <> -1 then
+		begin
+			for j := 1 to 210 do
+			begin
+				for k := 1 to 210 do
+				begin
+					temp := UnitsNorth[j][k];
+					if temp <> 0 then
+					begin
+						Actions.FogRevealCircle(NorthTeam[i], j, k, temp);
+					end;
+				end;
+			end;
+			Actions.FogRevealCircle(NorthTeam[i], 43, 15, 64);
+			Actions.FogRevealCircle(NorthTeam[i], 140, 16, 64);
+			Actions.FogRevealCircle(NorthTeam[i], 97, 43, 64);
+		end;
+	end;
+end;
+
+procedure Cover(x : Integer; y : Integer; team : Integer);
+begin
+	if team = 0 then
+	begin
+		for i := 0 to 3 do
+		begin
+			if SouthTeam [i] <> -1 then
+			begin
+				Actions.FogCoverCircle(SouthTeam[i], x, y, 30);
+			end;
+		end;
+	end
+	else
+	begin
+		for i := 0 to 3 do
+		begin
+			if  NorthTeam [i] <> -1 then
+			begin
+				Actions.FogCoverCircle(NorthTeam[i], x, y, 30);
+			end;
+		end;
+	end;
+end;
+
+procedure Reveal(x : Integer; y : Integer; team : Integer);
+begin
+	if team = 0 then
+	begin
+		for i := 0 to 3 do
+		begin
+			if SouthTeam [i] <> -1 then
+			begin
+				Actions.FogRevealCircle(SouthTeam[i], x, y, 30);
+			end;
+		end;
+	end
+	else
+	begin
+		for i := 0 to 3 do
+		begin
+			if  NorthTeam [i] <> -1 then
+			begin
+				Actions.FogRevealCircle(NorthTeam[i], x, y, 30);
+			end;
+		end;
+	end;
+end;
+
+procedure Check;
+var tempS : Integer;
+var tempN : Integer;
+var temp : Integer;
+begin
+	for i := 0 to 1 do
+	begin
+		NE[i] := 0;
+		NW[i] := 0;
+		SE[i] := 0;
+		SW[i] := 0;
+	end;
+	for i := 0 to 3 do
+	begin
+		tempS := SouthTeam[i];
+		tempN := NorthTeam[i];
+			//NORTH EAST
+			for j := 174 to 175 do
+			begin
+				for k := 75 to 78 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								NE[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								NE[1] := 1;
+							end;
+						end;
+					end;
+				end;
+			end;
+			for j := 175 to 177 do
+			begin
+				for k := 75 to 76 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								NE[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								NE[1] := 1;
+							end;
+						end;
+					end;
+				end;
+			end;
+			//NORTH EAST
+			//NORTH WEST
+			for j := 14 to 15 do
+			begin
+				for k := 77 to 78 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								NW[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								NW[1] := 1;
+							end;
+						end;
+					end
+				end;
+			end;
+			for j := 16 to 17 do
+			begin
+				for k := 77 to 80 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								NW[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								NW[1] := 1;
+							end;
+						end;
+					end;
+				end;
+			end;
+			//NORTH WEST
+			//SOUTH  EAST
+			for j := 165 to 67 do
+			begin
+				for k := 121 to 121 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								SE[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								SE[1] := 1;
+							end;
+						end;
+					end;
+				end;
+			end;
+			for j := 165 to 168 do
+			begin
+				for k := 122 to 123 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								SE[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								SE[1] := 1;
+							end;
+						end;
+					end;
+				end;
+			end;
+			//SOUTH  EAST
+			//SOUTH  WEST
+			for j := 24 to 25 do
+			begin
+				for k := 122 to 125 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								SW[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								SW[1] := 1;
+							end;
+						end;
+					end
+				end;
+			end;
+			for j := 22 to 23 do
+			begin
+				for k := 124 to 125 do
+				begin
+					if(States.UnitAt(j, k)) <> -1 then
+					begin
+						if States.UnitType(States.UnitAt(j, k)) >= 14 then
+						begin
+							temp := States.UnitOwner(States.UnitAt(j, k));
+							if temp = tempS then
+							begin
+								SW[0] := 1;
+							end;
+							if temp = tempN then
+							begin
+								SW[1] := 1;
+							end;
+						end;
+					end;
+				end;
+			end;
+			//SOUTH  WEST
+	end;
+end;
+
+procedure Calc;
+begin
+	Check;
+		if (NE[0] = 1) and (NE[1] = 0) and (NorthEast <> '<$10>') then
+		begin
+			Reveal(175, 76, 0);
+			Cover(175, 76, 1);
+			NorthEast := '<$10>';
+			UpdateFOWNorth;
+		end
+		else if (NE[0] = 0) and (NE[1] = 1) and (NorthEast <> '<$11>') then
+		begin
+			Reveal(175, 76, 1);
+			Cover(175, 76, 0);
+			NorthEast := '<$11>';
+			UpdateFOWSouth;
+		end;
+	
+	if (NW[0] = 1) and (NW[1] = 0) and (NorthWest <> '<$10>') then
+	begin
+		Reveal(16, 78, 0);
+		Cover(16, 78, 1);
+		NorthWest := '<$10>';
+		UpdateFOWNorth;
+	end
+	else if (NW[0] = 0) and (NW[1] = 1) and (NorthWest <> '<$11>') then
+	begin
+		Reveal(16, 78, 1);
+		Cover(16, 78, 0);
+		NorthWest := '<$11>';
+		UpdateFOWSouth;
+	end;
+	
+		if (SE[0] = 1) and (SE[1] = 0) and (SouthEast <> '<$10>') then
+		begin
+			Reveal(167, 122, 0);
+			Cover(167, 122, 1);
+			SouthEast := '<$10>';
+			UpdateFOWNorth;
+		end
+		else if (SE[0] = 0) and (SE[1] = 1) and (SouthEast <> '<$11>') then
+		begin
+			Reveal(167, 122, 1);
+			Cover(167, 122, 0);
+			SouthEast := '<$11>';
+			UpdateFOWSouth;
+		end;
+	
+	if (SW[0] = 1) and (SW[1] = 0) and (SouthWest <> '<$10>') then
+	begin
+		Reveal(24, 124, 0);
+		Cover(24, 124, 1);
+		SouthWest := '<$10>';
+		UpdateFOWNorth;
+	end
+	else if (SW[0] = 0) and (SW[1] = 1) and (SouthWest <> '<$11>') then
+	begin
+		Reveal(24, 124, 1);
+		Cover(24, 124, 0);
+		SouthWest := '<$11>';
+		UpdateFOWSouth;
+	end;
+	
+	if (NorthEast = NorthWest) and (NorthWest = SouthEast) and (SouthEast = SouthWest) then
+	begin
+		if NorthEast = '<$10>' then
+		begin
+			HasAllOutposts := '<$13>';
+		end
+		else if NorthEast = '<$11>' then
+		begin
+			HasAllOutposts := '<$14>';
+		end;
+	end
+	else
+	begin
+		HasAllOutposts := '<$12>';
+		Timer := 3000
+	end;
+	
+	if (HasAllOutposts <> '<$12>') and (Timer > 0) then
+	begin
+		Timer := Timer - 1;
+	end
+	else if (HasAllOutposts <> '<$12>') and (Timer = 0) then
+	begin
+		if HasAllOutposts = '<$13>' then
+		begin
+			for i := 0 to 3 do
+			begin
+				if SouthTeam[i] <> -1 then
+				begin
+					Actions.FogRevealAll(SouthTeam[i]);
+				end;
+				if NorthTeam[i] <> -1 then
+				begin
+					Actions.FogCoverAll(NorthTeam[i]);
+				end;
+			end;
+			UpdateFOWNorth;
+		end
+		else if HasAllOutposts = '<$14>' then
+		begin
+			for i := 0 to 3 do
+			begin
+				if SouthTeam[i] <> -1 then
+				begin
+					Actions.FogCoverAll(SouthTeam[i]);
+				end;
+				if NorthTeam[i] <> -1 then
+				begin
+					Actions.FogRevealAll(NorthTeam[i]);
+				end;
+			end;
+			UpdateFOWSouth;
+		end;
+		Timer := -1;
+	end;
+end;
+
+procedure Text;
+begin
+		Actions.OverlayTextSet(-1, '');
+		Actions.OverlayTextAppend(-1, '<$3>||');
+		Actions.OverlayTextAppendFormatted(-1, '<$4> %s|',[NorthEast]);
+		Actions.OverlayTextAppendFormatted(-1, '<$5> %s|',[NorthWest]);
+		Actions.OverlayTextAppendFormatted(-1, '<$6> %s|',[SouthEast]);
+		Actions.OverlayTextAppendFormatted(-1, '<$7> %s||',[SouthWest]);
+		Actions.OverlayTextAppendFormatted(-1, '%s|',[HasAllOutposts]);
+		if (HasAllOutposts <> '<$12>') and (Timer >= 0) then
+		begin
+			if(((Timer/10)mod 60)>=10) then
+			begin
+				Actions.OverlayTextAppendFormatted(-1, '<$8> %d : %d', [((Timer/10)/ 60), ((Timer/10)mod 60)]);
+			end
+			else
+			begin
+				Actions.OverlayTextAppendFormatted(-1, '<$8> %d : 0%d', [((Timer/10)/ 60), ((Timer/10)mod 60)]);
+			end;
+		end
+		else if (HasAllOutposts = '<$13>') and (Timer <= 0) then
+		begin
+			Actions.OverlayTextAppend(-1, '<$9>');
+		end
+		else if (HasAllOutposts = '<$14>') and (Timer <= 0) then
+		begin
+			Actions.OverlayTextAppend(-1, '<$15>');
+		end;
+end;
+
+procedure OnMissionStart;
+begin
+	SouthTeam[0] := States.HouseOwner(States.HouseAt(44, 173));
+	SouthTeam[1] := States.HouseOwner(States.HouseAt(94, 173));
+	SouthTeam[2] := States.HouseOwner(States.HouseAt(166, 176));
+	SouthTeam[3] := States.HouseOwner(States.HouseAt(96, 140));
+	
+	NorthTeam[0] := States.HouseOwner(States.HouseAt(33, 15));
+	NorthTeam[1] := States.HouseOwner(States.HouseAt(91, 41));
+	NorthTeam[2] := States.HouseOwner(States.HouseAt(134, 33));
+	NorthTeam[3] := States.HouseOwner(States.HouseAt(92, 76));
+	
+	NorthEast := '<$2>';
+	NorthWest := '<$2>';
+	SouthEast := '<$2>';
+	SouthWest := '<$2>';
+	
+	for i := 1 to 210 do
+	begin
+		for j := 1 to 210 do
+		begin
+			UnitsSouth[i][j] := 0;
+			UnitsNorth[i][j] := 0;
+		end;
+	end;
+	
+	PTEND := False;
+	HasAllOutposts := '<$12>';
+	Timer := 3000;
+end;
+
+procedure OnTick;
+begin
+	if (States.GameTime mod 10 = 0) and (PTEND) then
+	begin
+		Text;
+	end;
+	Calc;
+	GetFOW;
+end;
