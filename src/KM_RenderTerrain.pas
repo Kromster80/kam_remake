@@ -605,6 +605,25 @@ begin
         glEnd;
       end;
     end;
+  //Similar thing for the bottom of the map (field borders can overhang)
+  with gTerrain do
+    if fClipRect.Bottom >= MapY-1 then
+    begin
+      //1 tile is enough to cover field borders
+      for K := fClipRect.Left to fClipRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
+          glTexCoord1f(Fog^[MapY-1, K - 1] / 255);
+          glVertex2f(K - 1, MapY-1 - Land[MapY, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[MapY-1, K - 1] / 255);
+          glVertex2f(K - 1, MapY - Land[MapY, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[MapY-1, K] / 255);
+          glVertex2f(K, MapY-1 - Land[MapY, K + 1].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[MapY-1, K] / 255);
+          glVertex2f(K, MapY - Land[MapY, K + 1].Height / CELL_HEIGHT_DIV);
+        glEnd;
+      end;
+    end;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D, 0);
