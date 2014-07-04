@@ -2,7 +2,7 @@ unit KM_ResTexts;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF FPC} lconvencoding, {$ENDIF}
+  {$IFDEF FPC} lconvencoding, LazUTF8, {$ENDIF}
   Classes, SysUtils, StrUtils, KromUtils,
   KM_CommonClasses, KM_FileIO, KM_ResLocales;
 
@@ -96,6 +96,7 @@ var
   s: UnicodeString;
   firstDelimiter: Integer;
   id, topId: Integer;
+  {$IFDEF FPC} tmpA: AnsiString; {$ENDIF}
 begin
   if not FileExists(FilePath) then Exit;
 
@@ -129,8 +130,17 @@ begin
     s := RightStr(s, Length(s) - firstDelimiter);
     //Required characters that can't be stored in plain text
     //todo: Remove them in favor of | for eol (and update libx files)
+    {$IFDEF WDC}
     s := StringReplace(s, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
     s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    {$ENDIF}
+    {$IFDEF FPC}
+    //In FPC StringReplace only works for UTF8/Ansi strings
+    tmpA := UTF16toUTF8(s);
+    tmpA := StringReplace(tmpA, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
+    tmpA := StringReplace(tmpA, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    s := UTF8toUTF16(tmpA);
+    {$ENDIF}
     aArray[id] := s;
   end;
 end;

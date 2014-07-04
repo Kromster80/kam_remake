@@ -3,7 +3,7 @@ unit KM_ResLocales;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  KM_CommonTypes;
+  KM_CommonTypes, KM_FileIO;
 
 
 type
@@ -80,7 +80,7 @@ const
   PARAM_COUNT = 6;
 var
   I, L, R: Integer;
-  Chunk: string;
+  Chunk: UnicodeString;
 begin
   Result := False;
   //Skip short lines and comments
@@ -122,7 +122,9 @@ begin
   Assert(FileExists(aFile), 'Locales file could not be found: ' + aFile);
 
   SL := TStringList.Create;
-  SL.LoadFromFile(aFile);
+  {$IFDEF WDC} SL.LoadFromFile(aFile); {$ENDIF}
+  //In FPC TStringList can't cope with BOM (or UnicodeStrings at all really)
+  {$IFDEF FPC} SL.Text := ReadTextU(aFile, 1252); {$ENDIF}
 
   for I := 0 to SL.Count - 1 do
     if ParseLine(SL[I], NewLocale) then
@@ -213,4 +215,4 @@ begin
 end;
 
 
-end.
+end.

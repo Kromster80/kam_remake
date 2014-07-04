@@ -1,7 +1,8 @@
 unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, Math, SysUtils, StrUtils, IOUtils,
+uses Classes, Controls, Math, SysUtils, StrUtils,
+  {$IFDEF WDC} IOUtils, {$ENDIF}
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_RenderPool,
   KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection, KM_FileIO;
 

@@ -1,8 +1,8 @@
-unit KM_FileIO;
+﻿unit KM_FileIO;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF FPC} lconvencoding, FileUtil, {$ENDIF}
+  {$IFDEF FPC} lconvencoding, FileUtil, LazUTF8, {$ENDIF}
   {$IFDEF WDC} System.IOUtils, {$ENDIF}
   Classes, SysUtils;
 
@@ -34,7 +34,7 @@ begin
     MS.Read(Head, 4);
 
     //Trim UTF8 BOM (don't know how to deal with others yet)
-    if (Head xor $EFBBBF = 0) then
+    if Head and $FFFFFF = $BFBBEF then
       MS.Position := 3
     else
       MS.Position := 0;
@@ -50,23 +50,53 @@ end;
 //Load ANSI file with codepage we say into unicode string
 function ReadTextU(aFilename: UnicodeString; aEncoding: Word): UnicodeString;
 var
-  SL: TStringList;
+  {$IFDEF WDC}
+    SL: TStringList;
+  {$ENDIF}
+  {$IFDEF FPC}
+    MS: TMemoryStream;
+    Head: Cardinal;
+    HasBOM: Boolean;
+    TmpA: AnsiString;
+  {$ENDIF}
 begin
-  SL := TStringList.Create;
-  try
-    {$IFDEF WDC}
+  {$IFDEF WDC}
+    SL := TStringList.Create;
+    try
       //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
       SL.DefaultEncoding := TEncoding.GetEncoding(aEncoding);
       SL.LoadFromFile(aFilename);
       Result := SL.Text;
-    {$ENDIF}
-    {$IFDEF FPC}
-      SL.LoadFromFile(aFilename);
-      Result := UTF8Decode(ConvertEncoding(SL.Text, 'cp' + IntToStr(aEncoding), EncodingUTF8));
-    {$ENDIF}
-  finally
-    SL.Free;
-  end;
+    finally
+      SL.Free;
+    end;
+  {$ENDIF}
+  {$IFDEF FPC}
+    MS := TMemoryStream.Create;
+    try
+      MS.LoadFromFile(aFileName);
+      MS.Read(Head, 4);
+
+      //Trim UTF8 BOM (don't know how to deal with others yet)
+      HasBOM := Head and $FFFFFF = $BFBBEF;
+
+      if HasBOM then
+        MS.Position := 3
+      else
+        MS.Position := 0;
+
+      SetLength(TmpA, MS.Size - MS.Position);
+      MS.Read(TmpA[1], MS.Size - MS.Position);
+
+      //Non-UTF8 files must be converted from their native encoding
+      if not HasBOM then
+        TmpA := ConvertEncoding(TmpA, 'cp' + IntToStr(aEncoding), EncodingUTF8);
+
+      Result := UTF8ToUTF16(TmpA);
+    finally
+      MS.Free;
+    end;
+  {$ENDIF}
 end;
 
 

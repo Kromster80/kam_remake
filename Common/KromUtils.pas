@@ -4,8 +4,8 @@ interface
 uses
   Controls, Dialogs, ExtCtrls, Forms, SysUtils, Classes
   {$IFDEF MSWindows} ,Windows, MMSystem {$ENDIF}
-  {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
-  {$IFDEF FPC} ,UTF8Process, LazHelpHTML {$ENDIF}
+  {$IFDEF Unix} ,LCLType {$ENDIF}
+  {$IFDEF FPC} , LCLIntf, UTF8Process, LazHelpHTML {$ENDIF}
   {$IFDEF WDC} , ShellApi {$ENDIF}
   ;
 
