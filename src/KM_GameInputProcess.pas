@@ -75,6 +75,7 @@ type
     gic_GameTeamChange,
     gic_GameHotkeySet,      //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
     gic_GameMessageLogRead, //Player marks a message in their log as read
+    gic_GamePlayerTypeChange, //Players can be changed to AI when loading a save
 
     //VI.      Cheatcodes affecting gameplay (props)
 
@@ -388,6 +389,10 @@ begin
                                       gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
       gic_GameMessageLogRead:     P.MessageLog[Params[1]].IsReadGIP := True;
+      gic_GamePlayerTypeChange:   begin
+                                    Assert(fReplayState <> gipRecording); //Should only occur in replays
+                                    gHands[Params[1]].PlayerType := THandType(Params[2]);
+                                  end;
       else                        Assert(false);
     end;
   end;

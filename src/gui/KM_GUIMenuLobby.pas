@@ -1195,11 +1195,10 @@ begin
                   IsValid := fNetworking.SaveInfo.IsValid;
                   AddLocation(gResTexts[TX_LOBBY_SELECT], I, LOC_RANDOM);
 
-                  if CurPlayer.IsHuman then //Cannot add AIs to MP save, they are filled automatically
-                    for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
-                      if fNetworking.SaveInfo.Info.Enabled[K]
-                      and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
-                        AddLocation(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), I, K+1);
+                  for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
+                    if fNetworking.SaveInfo.Info.Enabled[K]
+                    and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
+                      AddLocation(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), I, K+1);
                 end;
       ngk_Map:  begin
                   IsValid := fNetworking.MapInfo.IsValid;

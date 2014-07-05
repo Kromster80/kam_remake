@@ -464,6 +464,10 @@ begin
       gHands[handIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
       gHands[handIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
 
+      //In saves players can be changed to AIs, which needs to be stored in the replay
+      if fNetworking.SelectGameKind = ngk_Save then
+        TGameInputProcess_Multi(GameInputProcess).PlayerTypeChange(handIndex, gHands[handIndex].PlayerType);
+
       //Set owners name so we can write it into savegame/replay
       gHands[handIndex].SetOwnerNikname(fNetworking.NetPlayers[I].Nikname);
     end;
@@ -1142,6 +1146,15 @@ begin
             gameInfo.PlayerTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
             gameInfo.ColorID[I] := fNetworking.NetPlayers[netIndex].FlagColorID;
             gameInfo.Team[I] := fNetworking.NetPlayers[netIndex].Team;
+          end
+          else
+          begin
+            gameInfo.Enabled[I] := gHands[I].Enabled;
+            gameInfo.CanBeHuman[I] := gHands[I].PlayerType = hndHuman;
+            gameInfo.OwnerNikname[I] := gHands[I].OwnerName;
+            gameInfo.PlayerTypes[I] := gHands[I].PlayerType;
+            gameInfo.ColorID[I] := FindMPColor(gHands[I].FlagColor);
+            gameInfo.Team[I] := 0;
           end;
         end;
       end;
@@ -1340,10 +1353,10 @@ begin
   gTerrain.SyncLoad;
   gProjectiles.SyncLoad;
 
+  SetKaMSeed(LoadedSeed); //Seed is used in MultiplayerRig when changing humans to AIs through GIP for replay
+
   if fGameMode in [gmMulti, gmMultiSpectate] then
     MultiplayerRig;
-
-  SetKaMSeed(LoadedSeed);
 
   if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
   begin

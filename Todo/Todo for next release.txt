@@ -36,4 +36,5 @@ Features:
  +	"Return to Lobby" needs to be a vote
  +	Servers running on the local area network are detected and listed at the top of the server list
  +	Map descriptions should optionally be from the LIBX file (instead of BigDesc use BigDescLIBX with the text index)
+ +	AIs can replace humans in saves in the lobby
     

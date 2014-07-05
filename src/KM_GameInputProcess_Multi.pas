@@ -1,7 +1,8 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonClasses, KM_CommonTypes;
+uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults,
+  KM_CommonClasses, KM_CommonTypes, KM_Hand;
 
 const
   MAX_SCHEDULE = 100; //Size of ring buffers (10 sec) Make them large so overruns do not occur
@@ -68,6 +69,7 @@ type
     destructor Destroy; override;
     procedure WaitingForConfirmation(aTick: Cardinal); override;
     procedure AdjustDelay(aGameSpeed: Single);
+    procedure PlayerTypeChange(aPlayer: THandIndex; aType: THandType);
     function GetNetworkDelay:word;
     property GetNumberConsecutiveWaits:word read fNumberConsecutiveWaits;
     function GetWaitingPlayers(aTick: Cardinal): TKMByteArray;
@@ -82,7 +84,7 @@ type
 implementation
 uses
   KM_Game, KM_GameApp, KM_HandsCollection, KM_Utils, KM_Sound, KM_ResSound, KM_ResTexts,
-  KM_AI, KM_Hand;
+  KM_AI;
 
 
 { TCommandsPack }
@@ -237,6 +239,13 @@ begin
   //for processing the packet and random variations in ping. It's always better for commands to
   //be slightly delayed than for the game to freeze/lag regularly.
   SetDelay(Ceil(aGameSpeed * (fNetworking.NetPlayers.GetMaxHighestRoundTripLatency / 200 + 1.2)));
+end;
+
+
+procedure TGameInputProcess_Multi.PlayerTypeChange(aPlayer: THandIndex; aType: THandType);
+begin
+  Assert(ReplayState = gipRecording);
+  StoreCommand(MakeCommand(gic_GamePlayerTypeChange, [aPlayer, Byte(aType)]));
 end;
 
 

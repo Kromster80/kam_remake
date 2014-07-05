@@ -851,7 +851,8 @@ begin
               end;
     ngk_Save: begin
                 HumanUsableLocs := fSaveInfo.Info.HumanUsableLocations;
-                SetLength(AIUsableLocs, 0); //You can't add AIs into a save
+                //AIs may replace humans
+                AIUsableLocs := fSaveInfo.Info.HumanUsableLocations;
               end;
     else      begin
                 SetLength(HumanUsableLocs, 0);

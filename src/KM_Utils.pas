@@ -29,6 +29,7 @@ uses
   function WrapColor(aText: UnicodeString; aColor: Cardinal): UnicodeString;
   function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
   function StripColor(aText: UnicodeString): UnicodeString;
+  function FindMPColor(aColor: Cardinal): Integer;
 
   procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
 
@@ -524,6 +525,16 @@ begin
     if skippingMarkup and (aText[I] = ']') then
       skippingMarkup := False;
   end;
+end;
+
+
+function FindMPColor(aColor: Cardinal): Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
+    if MP_TEAM_COLORS[I] = aColor then
+      Result := I;
 end;
 
 
