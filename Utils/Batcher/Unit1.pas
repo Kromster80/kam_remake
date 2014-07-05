@@ -474,11 +474,13 @@ begin
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER RECRUTS.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_NO_BUILD.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_REPAIR.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_DEFENCE.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_DEFEND.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_DEFEND_ALLIES.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_ATTACK.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_UNLIMITED_EQUIP.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_ARMY_TYPE.*'+EolA, '');
 
       Txt := TRegEx.Replace(Txt, '!SET_AI_ATTACK.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!COPY_AI_ATTACK.*'+EolA, '');
@@ -497,15 +499,17 @@ begin
           while (CurrEnd < Length(Txt)) and not (Txt[CurrEnd] in ['!', #13, '/']) do
             Inc(CurrEnd);
 
+          Insert(EolA + '!SET_AI_AUTO_REPAIR', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_CHARACTER WORKER_FACTOR 10', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_CHARACTER CONSTRUCTORS 20', Txt, CurrEnd);
-          Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_LEATHER 250', Txt, CurrEnd);
-          Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_IRON 250', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_LEATHER 500', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_IRON 500', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_CHARACTER RECRUTS 10', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_UNLIMITED_EQUIP', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_AUTO_DEFEND', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_AUTO_ATTACK', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_DEFEND_ALLIES', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_ARMY_TYPE 3', Txt, CurrEnd);
 
           CurrLoc := CurrEnd;
         end;
