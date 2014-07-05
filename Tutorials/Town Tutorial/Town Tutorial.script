@@ -56,5 +56,5 @@ end;
 
 procedure OnMissionStart;
 begin
-  Actions.PlayWavAtLocationLooped(-1, 'waterfall', 1, 65, 18);
+  Actions.PlayWavAtLocationLooped(-1, 'waterfall', 0.5, 32, 65, 18);
 end;

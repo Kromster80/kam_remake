@@ -1,0 +1,208 @@
+{
+Space Invaders by sado
+You're free to use and modify the script for use in your maps, as long as you mention that it was made by me.
+However, I have no idea who would use that script for anything cool :P
+}
+{
+todo:
+-patrolling invaders DONE
+-time for life of knights DONE
+-overlay and points: overall and points for the current wave DONE
+-overlay: round X DONE
+-overlay: time DONE
+-invaders: moving invaders, losing conditions - DONE
+-make scout the default unit - DONE
+
+-points system: partially done... need a better idea than counting kills only
+
+TODO
+-sounds for bonuses
+-more waves
+-bug: ranged units waves are not moving downwards
+
+bonuses:
+-watchtower in the center
+-knights rage
+-spam shit (increased unit number for some time)
+-spam shit + change the unit
+-ranged units at top
+
+Ways of getting a bonus:
+-k/d ratio bigger than 0,6 after last wave
+-hitting an bonus-trigger unit
+-
+}
+
+//players: 0 - human, 1 - invaders, 2 - human's bots
+var Wave, Counter, CounterCurrent, Now, UnitsKilled, VariableOfDoom, UnitTypeModifier, IsTheGameLost: Integer;
+
+
+procedure NewWave(Type1: Integer; Type2: Integer);
+var X, Y: Integer;
+begin
+  for X := 7 to 25 do
+    for Y := 7 to 13 do
+    begin
+      if (Y mod 2 = 0) and (X mod 3 = 0) then
+	Actions.GiveGroup(1, Type1, X, Y, 4, 1, 1)
+      else if X mod 3 = 0 then
+	Actions.GiveGroup(1, Type2, X, Y, 4, 1, 1);
+    end;
+  
+end;
+
+procedure MoveInvaders(Direction: Integer);
+var I, X, Y: Integer;
+var Groups: array of Integer;
+begin
+  Groups := States.PlayerGetAllGroups(1);
+  for I := 0 to Length(Groups)-1 do
+  begin
+    X := States.UnitPositionX( States.GroupMember(Groups[I], 0) ) + Direction;
+    Y := States.UnitPositionY( States.GroupMember(Groups[I], 0) ) + VariableOfDoom;
+    Actions.GroupOrderWalk(Groups[I], X, Y, 4);
+  end;
+end;
+
+//Mistake in script usage Actions.GroupOrderWalk: Groups[I], 2, 65535, 4
+
+procedure CheckForAShot;
+var X, Builder, Knight, UnluckyKnight, PotentialInvader: Integer;
+begin
+  for X := 0 to 27 do //real X is 7 to 25
+  begin		      //I need 0 to 27 to kill all the wandering knights
+    Builder := States.UnitAt(X,23);
+    PotentialInvader := States.UnitAt(X, 20);
+    if States.UnitOwner(PotentialInvader) = 1 then
+      IsTheGameLost := 1;
+    if Builder <> -1 then
+    begin
+      if Length(States.PlayerGetAllGroups(2))<5 then
+      begin //21-scout 22-knight
+         Knight := Actions.GiveGroup(2, 21+UnitTypeModifier, X, 21, 0, 1, 1);
+         Actions.GroupOrderWalk(Knight, X, 5, 0);
+         //Counter := Counter + 1;
+         //CounterCurrent := CounterCurrent + 1;
+      end;
+      Actions.UnitKill(Builder, True);
+      Actions.GiveUnit(0, 9, X, 24, 0);
+      Actions.PlanRemove(0, X, 23);
+    end;
+    UnluckyKnight := States.UnitAt(X,5) //why unlucky?
+    if UnluckyKnight<>-1 then
+      Actions.UnitKill(UnluckyKnight, True); //BECAUSE HE'S GONNA DIEEEE!!!1
+   end;
+end;
+
+procedure OnUnitDied(UnitID: Integer; UnitKiller: Integer);
+begin
+  if (States.UnitOwner(UnitID)=1) and (UnitKiller = 2) then
+  begin
+    CounterCurrent := CounterCurrent + Wave + 1;
+    Counter := Counter + Wave + 1; 
+    Actions.OverlayTextSet(0, '|' + IntToStr(States.UnitOwner(UnitID)) );
+  end;
+end;
+
+procedure CheckForWin;
+var Type1, Type2, I: Integer;
+var Knights: array of Integer;
+begin
+  case Wave of
+    0: begin
+	Type1 := 24; //rebels
+	Type2 := 14; //militia
+       end;
+    1: begin
+	Type1 := 14; //militia
+	Type2 := 19; //lancemen
+       end;
+    2: begin
+	Type1 := 19; //lancemen
+	Type2 := 15; //axemen
+       end;
+    3: begin
+	Type1 := 15; //axemen
+	Type2 := 17; //bowmen
+       end;
+    4: begin
+	Type1 := 17; //bowmen
+	Type2 := 16; //swordmen
+       end;
+    5: begin
+	Type1 := 16; //swordmen
+	Type2 := 15; //axemen
+       end;
+    6: begin
+	Type1 := 18; //xbows
+	Type2 := 20; //pikemen
+       end;
+    7: begin
+	Type1 := 0; //serfs
+	Type2 := 0;
+       end;
+    end;
+  Knights := States.PlayerGetAllGroups(2);
+  for I := 0 to Length(Knights)-1 do
+    Actions.GroupOrderWalk(Knights[I], States.UnitPositionX( States.GroupMember(Knights[I], 0) ), 5, 0);
+  if Length(States.PlayerGetAllGroups(1))=0 then
+  begin
+    for I := 0 to Length(Knights)-1 do
+      Actions.UnitKill( States.GroupMember(Knights[I], 0) , True);
+    NewWave(Type1, Type2);
+    Wave := Wave + 1;
+    CounterCurrent := 0;
+    Now := States.GameTime; //Now stores the time when a new wave started
+  end;
+end;
+
+procedure OnMissionStart;
+begin
+  IsTheGameLost := 0;
+  UnitsKilled := 0;
+  Now := 0;
+  UnitTypeModifier := 0;
+  VariableOfDoom := 0; //this one, makes the invaders move downwards
+  Wave := 0;
+  Counter := 0;
+  CounterCurrent := 0;
+  NewWave(14, 14);
+  MoveInvaders(-3);
+end;
+
+procedure OnTick;
+begin
+  if (IsTheGameLost = 0) then
+    if (States.GameTime - Now) mod 10 = 0 then
+    begin
+      //CounterCurrent := CounterCurrent - 1;
+      //Counter := Counter - 1;
+      CheckForAShot;
+      case (States.GameTime - Now) mod 200 of
+      0: begin
+            VariableOfDoom := 1;
+            MoveInvaders(-3);
+         end;
+      50:  MoveInvaders(3);
+      100: MoveInvaders(-3);
+      150: MoveInvaders(3);
+      end;
+      if (VariableOfDoom = 1) then
+         VariableOfDoom := 0;
+      if Wave < 8 then
+      begin
+         CheckForWin;
+         Actions.OverlayTextSet(0,'[$AAAAAA]Round ' + IntToStr(Wave+1) + '|Result: [$FFFFFF]' + IntToStr(Counter) + '||[$AAAAAA]This round: [$FFFFFF]' + IntToStr(CounterCurrent) );
+         Actions.OverlayTextAppend(0, '|[$AAAAAA]Time: [$FFFFFF]' + IntToStr( (States.GameTime - Now) / 10) );
+      end
+      else begin
+         Actions.OverlayTextSet(0,'You win! Your result is ' + IntToStr(Counter) + '.');
+         Actions.PlayerWin([0], False);
+      end;
+    end;
+  if (IsTheGameLost = 1) then
+  begin
+    Actions.OverlayTextSet(0,'You lost the round ' + IntToStr(Wave+1));
+    Actions.PlayerDefeat(0);
+  end;
+end;

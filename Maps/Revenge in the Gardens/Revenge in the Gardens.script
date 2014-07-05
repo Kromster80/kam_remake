@@ -1,0 +1,5 @@
+procedure OnTick;
+begin
+  if States.GameTime = 20 then
+    Actions.ShowMsg(4, 'Welcome back my king, your brother send us some army for the start! You must start rebuilding your city piece by piece, but be careful, you have limited number of suplies.');
+end;

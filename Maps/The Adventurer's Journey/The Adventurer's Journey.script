@@ -1,0 +1,2201 @@
+/// SCRIPT FOR SHADAOE'S MAP :
+/// *THE ADVENTURER'S JOURNEY*
+/// SCRIPT WRITTEN BY SHADAOE
+///You should not COPY any part of this script without crediting the work of the author
+
+///THE SCRIPT CONTAINS SPOILERS FOR THE MISSION
+//Any reference to secondary quests in the script should be ignored, I didn't have time to implement them.
+
+//Types declarations
+
+type TSlot =
+record
+	unitType : Integer;
+	count : Integer;
+	max : Integer;
+end;
+
+type TUnmovableUnit =
+record
+	id : Integer;
+	x : Integer;
+	y : Integer;
+	rotation : Integer;
+end;
+
+type TRandomWalker =
+record
+	id : Integer;
+	xMin, xMax, yMin, yMax : Integer;
+	delayer : Integer;
+end;
+
+//Vriables of no specific group
+var guardsentrancetokill1 : Integer;
+var guardsentrancetokill2 : Integer;
+var guardsentrancetokill3 : Integer;
+var guardsentrancetokill4 : Integer;
+var flavourdialTunnel : Integer;
+var playerstartassaultsiege : Boolean;
+
+//Loops global variables
+var i : Integer;
+var j : Integer;
+
+//Main character's global variables, g stands for global (many more variables are global but it's to see that they are important (main character))
+var g_charactergroup : Integer;
+var g_color : AnsiString;
+var g_gold : Integer;
+var g_rank : AnsiString;
+
+var g_armyslots : Array[1..5] of Tslot; 
+
+var g_mainquest : Integer;
+var g_secondaryquestBool1 : Boolean;
+var g_secondaryquestBool2 : Boolean;
+var g_secondaryquest1 : Integer;
+var g_secondaryquest2 : Integer;
+var g_mainquestText : AnsiString;
+var g_secondarytText1 : AnsiString;
+var g_secondarytText2 : AnsiString;
+
+//Game variables, written in a way you can't miss them (because they are important)
+var ISONFIGHT : Boolean;
+var ISONSIEGE : Boolean;
+var ARENANUMBER : Integer;
+
+var RECRUITINGTUTOTIMER : Integer;
+
+var UNMOVABLEUNITSLOCATIONS : Array of TUnmovableUnit;
+var LENUNMOVABLEUNITS : Integer;
+
+var RANDOMWALKERS : array of TRandomWalker;
+var LENRANDOMWALKERS : Integer;
+
+var TILESREVEALED : Array[1..255] of Array[1..255] of Boolean; //first dimeension x, second y, HEAVY way to know which tiles are discovered
+
+//King's Clovis global variable, c stands for clovis
+var c_color : AnsiString;
+
+//Enemies global variable, e stands for enemy
+var e_bandit1 : Integer;
+var e_bandit2 : Integer;
+var e_enemyvassalmine : Integer;
+var e_bandittunnelentrance1 : Integer;
+var e_bandittunnelentrance2 : Integer;
+var e_bandittunnelentrance3 : Integer;
+var e_banditinvader1 : Integer;
+var e_banditinvader2 : Integer;
+var e_banditinvader3 : Integer;
+var e_banditcampend1 : Integer;
+var e_banditcampend2 : Integer;
+var e_banditcampend3 : Integer;
+var e_banditcampend4 : Integer;
+var e_banditcampend5 : Integer;
+var e_banditcampend6 : Integer;
+var e_banditcampend7 : Integer;
+
+//Battle Global Variables (don't need initialization except lost members, b stands for battle)
+var b_coordXBeforeBattle : Integer;
+var b_coordYBeforeBattle : Integer;
+var b_bounty : Integer;
+
+var b_slotMembers : array [1..5] of array of Integer;
+var b_lostMembers : array [1..5] of Integer;
+
+var b_AIslotMembers : array [1..5] of array of Integer;
+var b_AIlostMembers : array [1..5] of Integer;
+var b_AIinitialMembers : array [1..5] of Integer;
+var b_AIUnitTypes : array [1..5] of Integer;
+var b_ArrayOfGroupsAI : array[1..5] of Integer;
+var b_battleAIAttackBalancer : Integer;
+
+//Custom Functions
+
+function unitTypeToString (unitType : Integer): AnsiString;
+begin
+	case unitType of
+		0 : result := '<$113>';
+		1 : result := '<$114>';
+		2 : result := '<$115>';
+		3 : result := '<$116>';
+		4 : result := '<$117>';
+		5 : result := '<$118>';
+		6 : result := '<$119>';
+		7 : result := '<$120>';
+		8 : result := '<$121>';
+		9 : result := '<$122>';
+		10 : result := '<$123>';
+		11 : result := '<$124>';
+		12 : result := '<$125>';
+		13 : result := '<$126>';
+		14 : result := '<$127>';
+	end;
+end;
+
+function unitTypeToCost (unitType : Integer): Integer;
+begin
+	case unitType of
+		0 : result := 0;
+		1 : result := 20;
+		2 : result := 35;
+		3 : result := 30;
+		4 : result := 80;
+		5 : result := 160;
+		6 : result := 55;
+		7 : result := 110;
+		8 : result := 80;
+		9 : result := 100;
+		10: result := 190;
+		11 : result := 0;
+		12 : result := 0;
+		13 : result := 190;
+		13 : result := 0;
+	end;
+end;
+
+function unitTypeToKamID (unitType : Integer): Integer;
+begin
+	case unitType of
+		1 : result := 14;
+		2 : result := 17;
+		3 : result := 19;
+		4 : result := 21;
+		5 : result := 22;
+		6 : result := 15;
+		7 : result := 16;
+		8 : result := 18;
+		9 : result := 20;
+		10: result := 23;
+		11 : result := 24;
+		12 : result := 25;
+		13 : result := 26;
+		13 : result := 27;
+	end;
+end;
+
+function KamIDToUnitType (unitType : Integer): Integer;
+begin
+	case unitType of
+		14 : result := 1;
+		17 : result := 2;
+		19 : result := 3;
+		21 : result := 4;
+		22 : result := 5;
+		15 : result := 6;
+		16 : result := 7;
+		18 : result := 8;
+		20 : result := 9;
+		23 : result := 10;
+		24 : result := 11;
+		25 : result := 12;
+		26 : result := 13;
+		27 : result := 14;
+	end;
+end;
+
+function KamIDToString (unitType : Integer): AnsiString;
+begin
+	result := unitTypeToString(KamIDToUnitType(unitType));
+end;
+
+//Custom Procedures
+
+procedure DefineVariablesBeginningAndGetCharacter;
+begin
+	Actions.HouseAddWaresTo(States.HouseAt(115, 184), 9, 5); // adding corn to the capital's mill, making it more alive in the early game before the production is running, rather a test than anything else since there are other ways to do it
+	//g_xx variables
+	g_charactergroup := States.UnitAt(153,9); //Get the knight (main character)
+	g_color := States.PlayerColorText(0);
+	g_gold := 0;
+	g_rank := '<$44>';
+	for i := 1 to 5 do
+	begin
+		g_armyslots[i].unitType := 0;
+		g_armyslots[i].count := 0;
+		g_armyslots[i].max := 00;
+	end;
+	g_mainquest := 0;
+	g_secondaryquest1 := 0;
+	g_secondaryquest2 := 0;
+	g_secondaryquestBool1 := False;
+	g_secondaryquestBool2 := False;
+	
+	g_mainquestText := '<$3>';
+	g_secondarytText1 := '';
+	g_secondarytText2 := '';
+	
+	//Game variables
+	ISONFIGHT := false;
+	RECRUITINGTUTOTIMER := 0;
+	LENRANDOMWALKERS := 1;
+	SetLength(RANDOMWALKERS, LENRANDOMWALKERS);
+	LENUNMOVABLEUNITS := 1;
+	SetLength(UNMOVABLEUNITSLOCATIONS, LENUNMOVABLEUNITS);
+	Actions.PlayerShareFog(0, 1, False);
+	Actions.PlayerShareFog(1, 0, False);
+	Actions.PlayerShareFog(0, 3, False);
+	Actions.PlayerShareFog(3, 0, False);
+	Actions.FogCoverCircle(0, 152, 49, 19);
+	Actions.FogCoverCircle(0, 152, 55, 19);
+	Actions.FogCoverCircle(0, 132, 49, 19);
+	
+	//c_xx variables
+	c_color := States.PlayerColorText(1);
+	
+	//b_xx variables
+	for i := 1 to 5 do
+	begin
+		b_lostMembers[i] := 0;
+		b_AIlostMembers[i] := 0;
+	end;
+	
+	//Show the first message
+	Actions.ShowMsgGoto(0, 141, 19, '<$0>');
+	Actions.ShowMsg(0, '<$1>');
+	Actions.ShowMsg(0, '<$2>');
+end;
+
+procedure KillCharacter;
+begin
+	Actions.UnitKill(g_charactergroup, True);
+end;
+
+procedure AddCharacter (x : integer; y : integer);
+begin
+	g_charactergroup := States.GroupMember(Actions.GiveGroup(0, 22, x, y, 4, 1, 1), 0);
+	if g_charactergroup = -1 then
+	begin
+		AddCharacter(x, y);
+	end
+end;
+
+procedure FeedEveryone;
+	var allunits : Array of Integer;
+	var temporaryNumber : Integer;
+begin
+	for i:= 0 to 3 do
+	begin
+		temporaryNumber := Length(States.PlayerGetAllUnits(i));
+		allunits := States.PlayerGetAllUnits(i);
+		if temporaryNumber <> 0 then
+		begin
+			for j:= 0 to (temporaryNumber-1) do
+			begin
+				Actions.UnitHungerSet(allunits[j], States.UnitMaxHunger);
+			end;
+		end;
+	end;
+end;
+
+procedure LifeAddingProcedure;
+begin
+	//This procedure orders weapons in multiple buildings to add life in the world
+	Actions.HouseWeaponsOrderSet(States.HouseAt(214, 164), 21, 200);//swords
+	Actions.HouseWeaponsOrderSet(States.HouseAt(214, 164), 23, 200);//hallberds
+	Actions.HouseWeaponsOrderSet(States.HouseAt(214, 164), 25, 200);//crossbows
+		Actions.HouseWeaponsOrderSet(States.HouseAt(217, 169), 17, 200);//shields
+		Actions.HouseWeaponsOrderSet(States.HouseAt(217, 169), 19, 200);//armors
+		Actions.HouseWeaponsOrderSet(States.HouseAt(62, 160), 21, 200);
+		Actions.HouseWeaponsOrderSet(States.HouseAt(62, 160), 23, 200);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(142, 159), 20, 200);//axes
+	Actions.HouseWeaponsOrderSet(States.HouseAt(142, 159), 22, 200);//lances
+	Actions.HouseWeaponsOrderSet(States.HouseAt(142, 159), 24, 200);//bows
+	
+	//This procedure also add wares to add life in the world
+	Actions.HouseAddWaresTo(States.HouseAt(119, 188), 2, 100); //timber
+	Actions.HouseAddWaresTo(States.HouseAt(119, 188), 5, 100); //coal
+	Actions.HouseAddWaresTo(States.HouseAt(119, 188), 6, 100); //iron
+	Actions.HouseAddWaresTo(States.HouseAt(119, 188), 0, 100); //trunk
+		Actions.HouseAddWaresTo(States.HouseAt(205, 173), 2, 100);
+		Actions.HouseAddWaresTo(States.HouseAt(205, 173), 5, 100);
+		Actions.HouseAddWaresTo(States.HouseAt(205, 173), 6, 100);
+		Actions.HouseAddWaresTo(States.HouseAt(205, 173), 0, 100);
+end;
+
+procedure RepopulateFishSea;
+begin
+	Actions.GiveAnimal(31, 2, 130);
+end;
+
+procedure AddToUnmovableUnitsArray (x : Integer; y : Integer; rotation : Integer);
+	var temporaryNumber : Integer;
+begin
+	temporaryNumber := LENUNMOVABLEUNITS - 1; //Just for readabilty.
+	SetLength(UNMOVABLEUNITSLOCATIONS, LENUNMOVABLEUNITS);
+	
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].id := States.UnitAt(x, y);
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].x := x;
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].y := y;
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].rotation := rotation;
+	
+	LENUNMOVABLEUNITS := LENUNMOVABLEUNITS +1;
+end;
+
+procedure AddToUnmovableUnitsArrayAppearingUnit (x : Integer; y : Integer; rotation : Integer; id : Integer);//Used to avoid RARE bugs where upon adding an enemy or ally during quest, an unit would already be on the tile,
+//you need the direct ID to avoid this rather than a States.UnitAt
+	var temporaryNumber : Integer;//Two versions of the function because the first one is used at game start and thus cannot cause the bug, and it's shorter to call (important for clarity).
+begin
+	temporaryNumber := LENUNMOVABLEUNITS - 1; //Just for readabilty.
+	SetLength(UNMOVABLEUNITSLOCATIONS, LENUNMOVABLEUNITS);
+	
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].id := id;
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].x := x;
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].y := y;
+	UNMOVABLEUNITSLOCATIONS[temporaryNumber].rotation := rotation;
+	
+	LENUNMOVABLEUNITS := LENUNMOVABLEUNITS +1;
+end;
+
+procedure rewriteUnmovableUnitLocationEntry(xC : Integer; yC : Integer; id : Integer);
+begin
+	for i := 0 to LENUNMOVABLEUNITS - 1 do
+	begin
+		if (UNMOVABLEUNITSLOCATIONS[i].x = xC) and (UNMOVABLEUNITSLOCATIONS[i].y = yC) then
+		begin
+			UNMOVABLEUNITSLOCATIONS[i].id := id;
+			i := LENUNMOVABLEUNITS;
+		end;
+	end;
+end;
+
+procedure GetUnmovableUnitsLocations;
+begin
+	//King Clovis
+	AddToUnmovableUnitsArray(142, 20, 3);
+	//Castle Guards
+	AddToUnmovableUnitsArray(141, 22, 4);
+	AddToUnmovableUnitsArray(144, 22, 4);
+	AddToUnmovableUnitsArray(150, 6, 4);
+	AddToUnmovableUnitsArray(156, 6, 4);
+	//Castle's recruiting area
+	AddToUnmovableUnitsArray(136, 39, 4);
+	AddToUnmovableUnitsArray(136, 42, 4);
+	AddToUnmovableUnitsArray(136, 46, 4);
+	AddToUnmovableUnitsArray(136, 49, 4);
+	AddToUnmovableUnitsArray(136, 53, 4);
+	AddToUnmovableUnitsArray(136, 56, 4);
+	AddToUnmovableUnitsArray(136, 60, 4);
+	AddToUnmovableUnitsArray(136, 64, 4);
+	AddToUnmovableUnitsArray(139, 42, 4);
+	AddToUnmovableUnitsArray(139, 49, 4);
+	AddToUnmovableUnitsArray(139, 56, 4);
+	AddToUnmovableUnitsArray(142, 42, 4);
+	AddToUnmovableUnitsArray(142, 49, 4);
+	AddToUnmovableUnitsArray(142, 56, 4);
+	//Bandit camp NPCs before talking to the fisher
+	AddToUnmovableUnitsArray(112, 157, 3);
+	AddToUnmovableUnitsArray(110, 160, 5);
+	//Quest Fishermen Village angry peasant
+	AddToUnmovableUnitsArray(144, 162, 4);
+	//Guards of the cavern entrance main continent
+	AddToUnmovableUnitsArray(151, 219, 4);
+	AddToUnmovableUnitsArray(156, 219, 4);
+	AddToUnmovableUnitsArray(149, 219, 6);
+	guardsentrancetokill1 := States.UnitAt(151, 219);
+	guardsentrancetokill2 := States.UnitAt(156, 219);
+	guardsentrancetokill3 := States.UnitAt(149, 219);
+	//Secondary quest givers
+	AddToUnmovableUnitsArray(52, 241, 4);
+	AddToUnmovableUnitsArray(65, 190, 4);
+	//King's advisors
+	AddToUnmovableUnitsArray(176, 22, 5);
+end;
+
+procedure ResetUnitLocation;
+	var temporaryNumber : Integer;
+begin
+	temporaryNumber := Length(UNMOVABLEUNITSLOCATIONS);
+	for i:= 0 to temporaryNumber-1 do
+	begin
+		if (States.UnitPositionX(UNMOVABLEUNITSLOCATIONS[i].id) <> UNMOVABLEUNITSLOCATIONS[i].x) or (States.UnitPositionY(UNMOVABLEUNITSLOCATIONS[i].id) <> UNMOVABLEUNITSLOCATIONS[i].y) then
+		begin
+			Actions.UnitOrderWalk(UNMOVABLEUNITSLOCATIONS[i].id, UNMOVABLEUNITSLOCATIONS[i].x, UNMOVABLEUNITSLOCATIONS[i].y);
+		end
+		else
+		begin
+			Actions.UnitDirectionSet(UNMOVABLEUNITSLOCATIONS[i].id, UNMOVABLEUNITSLOCATIONS[i].rotation);
+		end;
+	end;
+end;
+
+procedure AddToRandomWalkerArray (id : Integer; xMin : Integer; xMax : Integer; yMin : Integer; yMax : Integer; delayer : Integer);
+	var temporaryNumber : Integer;
+begin
+	temporaryNumber := LENRANDOMWALKERS - 1;
+	SetLength(RANDOMWALKERS, LENRANDOMWALKERS);
+	
+	RANDOMWALKERS[temporaryNumber].id := id; //get the unit
+	RANDOMWALKERS[temporaryNumber].xMin := xMin;   //x minimum
+	RANDOMWALKERS[temporaryNumber].xMax := xMax;   //x maximum
+	RANDOMWALKERS[temporaryNumber].yMin := yMin;   //y minimum
+	RANDOMWALKERS[temporaryNumber].yMax := yMax;   //y maximum
+	RANDOMWALKERS[temporaryNumber].delayer := delayer;   //number of 5 seconds between random walks(ex : 2 = 10 seconds)
+	
+	LENRANDOMWALKERS := LENRANDOMWALKERS +1;
+end;
+
+procedure GetRandomWalkersLocations;
+begin
+	//Workers of the castle's garden
+	AddToRandomWalkerArray (States.UnitAt(167, 5), 164, 175, 3, 11, 1);
+	AddToRandomWalkerArray (States.UnitAt(174, 10), 164, 175, 3, 11, 1);
+	AddToRandomWalkerArray (States.UnitAt(168, 10), 164, 175, 3, 11, 2);
+	//Random Walkers of the castle guard
+	AddToRandomWalkerArray (States.UnitAt(154, 15), 136, 178, 1, 28, 3);
+	AddToRandomWalkerArray (States.UnitAt(143, 3), 136, 149, 1, 8, 4);
+	//Random Walkers castle prisoners
+	AddToRandomWalkerArray (States.UnitAt(139, 2), 139, 140, 1, 4, 3);
+	AddToRandomWalkerArray (States.UnitAt(148, 4), 146, 148, 1, 4, 6);
+	AddToRandomWalkerArray (States.UnitAt(147, 3), 146, 148, 1, 4, 5);
+	//Random Walkers capital city guards
+	AddToRandomWalkerArray (States.UnitAt(106, 186), 106, 121, 182, 191, 4);
+	AddToRandomWalkerArray (States.UnitAt(119, 190), 106, 121, 182, 191, 6);
+	//Random Walkers guard cavern entrance/destroyed village
+	AddToRandomWalkerArray (States.UnitAt(145, 224), 137, 163, 218, 236, 2);
+	guardsentrancetokill4 := States.UnitAt(145, 224);
+	//Random Walkers Builders new village / new royal road
+	AddToRandomWalkerArray (States.UnitAt(91, 158), 89, 96, 155, 159, 2);
+	AddToRandomWalkerArray (States.UnitAt(94, 156), 89, 96, 155, 159, 3);
+	AddToRandomWalkerArray (States.UnitAt(95, 172), 93, 97, 170, 172, 2);
+end;
+
+procedure MakeRandomWalkersMove;
+	var temporaryNumber : Integer;
+begin
+	temporaryNumber := Length(RANDOMWALKERS);
+	for i:= 0 to temporaryNumber-1 do
+	begin
+		if States.GameTime mod RANDOMWALKERS[i].delayer = 0 then //Does the walker have to move now ?
+		begin
+			Actions.UnitOrderWalk(RANDOMWALKERS[i].id, RANDOMWALKERS[i].xMin +States.KaMRandomI(RANDOMWALKERS[i].xMax  - RANDOMWALKERS[i].xMin +1 ), RANDOMWALKERS[i].yMin + States.KaMRandomI(RANDOMWALKERS[i].yMax - RANDOMWALKERS[i].yMin +1));
+		end
+		else if (States.KaMRandomI(21) = 5) or (States.KaMRandomI(21) = 15) then //Odd random nonsense to make the random walkers more alive (but not too much)
+		begin
+			Actions.UnitDirectionSet(RANDOMWALKERS[i].id, States.KaMRandomI(8));
+		end;
+	end;
+end;
+
+procedure DefineRevealedTilesArray;
+begin
+	for i := 1 to 255 do
+	begin
+		for j := 1 to 255 do
+		begin
+			TILESREVEALED[i][j] := False;
+			if (i <= 255) and (i >= 135) and (j >=1) and (j <= 28) then //castle's hall
+			begin
+				TILESREVEALED[i][j] := True;
+			end;
+			if (i <= 148) and (i >= 135) and (j >=37) and (j <= 67) then //castle's recruiting area
+			begin
+				TILESREVEALED[i][j] := True;
+			end;
+			if (i >= 207) and (i <= 255) and (j >=1) and (j <= 127) then //battle map number one/three/four
+			begin
+				TILESREVEALED[i][j] := True;
+			end;
+			if (i >= 134) and (i <= 192) and (j >=78) and (j <= 119) then //battle map number two
+			begin
+				TILESREVEALED[i][j] := True;
+			end;
+			if (i >= 74) and (i <= 120) and (j >=29) and (j <= 58) then //battle map number five
+			begin
+				TILESREVEALED[i][j] := True;
+			end;
+			if (i >= 1) and (i <= 117) and (j >=71) and (j <= 112) then //final battle map
+			begin
+				TILESREVEALED[i][j] := True;
+			end;
+		end;
+	end;
+end;
+
+procedure CoverGlobalMap;
+begin
+	for i:= 1 to 255 do
+	begin
+		Actions.FogCoverCircle(0, i, 255, 130);
+	end;
+	for i:= 1 to 122 do
+	begin
+		for j:= 1 to 20 do
+		begin
+			Actions.FogCoverCircle(0, i, j, 1);
+		end;
+	end;
+end;
+
+procedure CoverCastleMap;
+begin
+	for i:= 135 to 190 do
+	begin
+		for j:= 1 to 67 do
+		begin
+			Actions.FogCoverCircle(0, i, j, 1);
+		end;
+	end;
+end;
+
+procedure CoverBattleMap;
+begin
+	for i:= 194 to 255 do
+	begin
+		for j:= 1 to 129 do
+		begin
+			Actions.FogCoverCircle(0, i, j, 1);
+		end;
+	end;
+	for i:= 134 to 192 do
+	begin
+		for j:= 78 to 120 do
+		begin
+			Actions.FogCoverCircle(0, i, j, 1);
+		end;
+	end;
+	for i:= 73 to 120 do
+	begin
+		for j:= 28 to 58 do
+		begin
+			Actions.FogCoverCircle(0, i, j, 1);
+		end;
+	end;
+end;
+
+procedure GetAllRevealedTiles;
+begin
+	if not States.UnitDead(g_charactergroup) then
+	begin
+		if TILESREVEALED[States.UnitPositionX(g_charactergroup)][States.UnitPositionY(g_charactergroup)] <> True then
+		begin
+			TILESREVEALED[States.UnitPositionX(g_charactergroup)][States.UnitPositionY(g_charactergroup)] := True;
+		end;
+	end;
+end;
+
+procedure RevealTiles(xMin : Integer; xMax : Integer; yMin : Integer; yMax : Integer);
+begin
+	for i := xMin to xMax do
+	begin
+		for j := yMin to yMax do
+		begin
+			if TILESREVEALED[i][j] = true then
+			begin
+				Actions.FogRevealCircle(0, i, j, 9);
+			end;
+		end;
+	end;
+end;
+
+procedure UpdateText;
+begin
+	Actions.OverlayTextSet(0, '');
+	if not ISONFIGHT then //Regular Overlay
+	begin
+		Actions.OverlayTextAppendFormatted(0, '<$102>',[g_color]);//TITLE
+		Actions.OverlayTextAppendFormatted(0, '<$103>',[g_gold]);//Gold
+		Actions.OverlayTextAppendFormatted(0, '<$104>',[g_rank]);//Rank
+		Actions.OverlayTextAppendFormatted(0, '<$105>',[g_color]);//TITLE
+		Actions.OverlayTextAppendFormatted(0, '<$106>',[unitTypeToString(g_armyslots[1].unitType), g_armyslots[1].count, g_armyslots[1].max]);//slot 1 display
+		Actions.OverlayTextAppendFormatted(0, '<$107>',[unitTypeToString(g_armyslots[2].unitType), g_armyslots[2].count, g_armyslots[2].max]);
+		Actions.OverlayTextAppendFormatted(0, '<$108>',[unitTypeToString(g_armyslots[3].unitType), g_armyslots[3].count, g_armyslots[3].max]);
+		Actions.OverlayTextAppendFormatted(0, '<$109>',[unitTypeToString(g_armyslots[4].unitType), g_armyslots[4].count, g_armyslots[4].max]);
+		Actions.OverlayTextAppendFormatted(0,'<$110>', [g_color, g_mainquestText]);//TITLE + main quest text
+		//if 	g_secondaryquestBool1 = True then
+		//begin
+		//Actions.OverlayTextAppendFormatted(0,'<$111>', [g_secondarytText1]);//TITLE + secondary quest 1 text
+		//end;
+		//
+		//if 	g_secondaryquestBool2 = True then
+		//begin
+		//	Actions.OverlayTextAppendFormatted(0,'<$112>', [g_secondarytText2]);//TITLE + secondary quest 2 text
+		//end;
+	end
+	Else //Battle Overlay
+	begin
+		Actions.OverlayTextAppendFormatted(0, '<$82>',[g_color]);//TITLE
+		if g_armyslots[1].count <> 0 then Actions.OverlayTextAppendFormatted(0, '<$83>',[b_lostMembers[1], unitTypeToString(g_armyslots[1].unitType), g_armyslots[1].count])//count of lost soldiers in this slot
+		else Actions.OverlayTextAppend(0, '<$84>');//else display that the player has no army
+		if g_armyslots[2].count <> 0 then Actions.OverlayTextAppendFormatted(0, '<$85>',[b_lostMembers[2], unitTypeToString(g_armyslots[2].unitType), g_armyslots[2].count])
+		else Actions.OverlayTextAppend(0, '<$86>');
+		if g_armyslots[3].count <> 0 then Actions.OverlayTextAppendFormatted(0, '<$87>',[b_lostMembers[3], unitTypeToString(g_armyslots[3].unitType), g_armyslots[3].count])
+		else Actions.OverlayTextAppend(0, '<$88>');
+		if g_armyslots[4].count <> 0 then Actions.OverlayTextAppendFormatted(0, '<$89>',[b_lostMembers[4], unitTypeToString(g_armyslots[4].unitType), g_armyslots[4].count])
+		else Actions.OverlayTextAppend(0, '<$90>');
+		
+		Actions.OverlayTextAppend(0, '|');
+		
+		Actions.OverlayTextAppendFormatted(0, '<$91>',[g_color]);//TITLE
+		if b_AIinitialMembers[1] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$92>',[b_AIlostMembers[1], KamIDToString(b_AIUnitTypes[1]), b_AIinitialMembers[1]])
+		else Actions.OverlayTextAppend(0, '<$93>');
+		if b_AIinitialMembers[2] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$94>',[b_AIlostMembers[2], KamIDToString(b_AIUnitTypes[2]), b_AIinitialMembers[2]])
+		else Actions.OverlayTextAppend(0, '<$95>');
+		if b_AIinitialMembers[3] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$96>',[b_AIlostMembers[3], KamIDToString(b_AIUnitTypes[3]), b_AIinitialMembers[3]])
+		else Actions.OverlayTextAppend(0, '<$97>');
+		if b_AIinitialMembers[4] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$98>',[b_AIlostMembers[4], KamIDToString(b_AIUnitTypes[4]), b_AIinitialMembers[4]])
+		else Actions.OverlayTextAppend(0, '<$99>');
+		if b_AIinitialMembers[5] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$100>',[b_AIlostMembers[5], KamIDToString(b_AIUnitTypes[5]), b_AIinitialMembers[5]])
+		else Actions.OverlayTextAppend(0, '<$101>');
+	end;
+end;
+
+procedure ReleaseRecruitingArea;
+begin
+	Actions.HouseDestroy(States.HouseAt(152, 49) , True);
+end;
+
+procedure RecruitingTutoMessages;
+begin
+	if ((States.UnitPositionX(g_charactergroup) = 148) and  (States.UnitPositionY(g_charactergroup) = 48)) or ((States.UnitPositionX(g_charactergroup) = 148) and  (States.UnitPositionY(g_charactergroup) = 47))
+	or ((States.UnitPositionX(g_charactergroup) = 148) and  (States.UnitPositionY(g_charactergroup) = 49))then //Entering the recruiting area of the castle
+	begin
+		if RECRUITINGTUTOTIMER = 0 then
+		begin
+			Actions.ShowMsg(0, '<$128>');
+			Actions.ShowMsg(0, '<$129>');
+			Actions.ShowMsg(0, '<$130>');
+			Actions.ShowMsg(0, '<$131>');
+			Actions.ShowMsg(0, '<$132>');
+			if g_mainquest < 2 then //When you need to go to the recruiting area for the first time
+			begin
+				RevealTiles(135, 148, 37, 67); //Reveals the area
+			end;
+		end;
+			RECRUITINGTUTOTIMER := RECRUITINGTUTOTIMER + 1;
+		if RECRUITINGTUTOTIMER > 100 then
+		begin
+			RECRUITINGTUTOTIMER := 0;
+		end;
+	end;
+end;
+
+procedure Recruiting;
+begin
+	//SLOT 1 MANAGEMENT
+		//Sell
+		if (States.UnitPositionX(g_charactergroup) = 137) and  (States.UnitPositionY(g_charactergroup) = 39) and (g_armyslots[1].count > 0) then
+		begin
+			g_armyslots[1].count := g_armyslots[1].count - 1;
+			g_gold := g_gold + unitTypeToCost(g_armyslots[1].unitType);
+			if (g_armyslots[1].count = 0) then
+			begin
+				g_armyslots[1].unitType := 0;
+			end;
+		end;
+		//Militia, rank novice
+		if g_rank = '<$44>' then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 43) and (g_armyslots[1].unitType = 0) then //set militia slot 1
+			begin
+				g_armyslots[1].unitType := 1;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 43)
+			and (g_armyslots[1].unitType = 1) and (g_gold >= unitTypeToCost(g_armyslots[1].unitType)) and (g_armyslots[1].count < g_armyslots[1].max) then //militia slot 1
+			begin
+				g_armyslots[1].count := g_armyslots[1].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[1].unitType);
+			end;
+		end
+		//Axefighter, rank patroller
+		else if (g_rank = '<$45>') or (g_rank = '<$60>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 43) and (g_armyslots[1].unitType = 0) then //set axefighter slot 1
+			begin
+				g_armyslots[1].unitType := 6;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 43)
+			and (g_armyslots[1].unitType = 6) and (g_gold >= unitTypeToCost(g_armyslots[1].unitType)) and (g_armyslots[1].count < g_armyslots[1].max) then //axefighter slot 1
+			begin
+				g_armyslots[1].count := g_armyslots[1].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[1].unitType);
+			end;
+		end
+		
+		//Swordfighters, rank defender of the realm
+		else if (g_rank = '<$75>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 43) and (g_armyslots[1].unitType = 0) then //set swordfighter slot 1
+			begin
+				g_armyslots[1].unitType := 7;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 43)
+			and (g_armyslots[1].unitType = 7) and (g_gold >= unitTypeToCost(g_armyslots[1].unitType)) and (g_armyslots[1].count < g_armyslots[1].max) then //swordfighter slot 1
+			begin
+				g_armyslots[1].count := g_armyslots[1].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[1].unitType);
+			end;
+		end;
+		
+		//Bowmen, rank inferior to Explorer
+		if (g_rank = '<$44>') or (g_rank = '<$45>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 43) and (g_armyslots[1].unitType = 0) then //set bowmen slot 1
+			begin
+				g_armyslots[1].unitType := 2;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 43)
+			and (g_armyslots[1].unitType = 2) and (g_gold >= unitTypeToCost(g_armyslots[1].unitType)) and (g_armyslots[1].count < g_armyslots[1].max) then //bowmen slot 1
+			begin
+				g_armyslots[1].count := g_armyslots[1].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[1].unitType);
+			end;
+		end
+		
+		//Crossbowmen, rank Explorer and more
+		else
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 43) and (g_armyslots[1].unitType = 0) then //set crossbowmen slot 1
+			begin
+				g_armyslots[1].unitType := 8;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 43)
+			and (g_armyslots[1].unitType = 8) and (g_gold >= unitTypeToCost(g_armyslots[1].unitType)) and (g_armyslots[1].count < g_armyslots[1].max) then //crossbowmen slot 1
+			begin
+				g_armyslots[1].count := g_armyslots[1].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[1].unitType);
+			end;
+		end;
+		
+		//Lancers
+		if not (g_rank = '<$45>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 43) and (g_armyslots[1].unitType = 0) then //set lancers slot 1
+			begin
+				g_armyslots[1].unitType := 3;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 43)
+			and (g_armyslots[1].unitType = 3) and (g_gold >= unitTypeToCost(g_armyslots[1].unitType)) and (g_armyslots[1].count < g_armyslots[1].max) then //lancers slot 1
+			begin
+				g_armyslots[1].count := g_armyslots[1].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[1].unitType);
+			end;
+		end
+		
+		//Pikemen rank defender of the realm
+		else
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 43) and (g_armyslots[1].unitType = 0) then //set lancers slot 1
+			begin
+				g_armyslots[1].unitType := 9;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 43)
+			and (g_armyslots[1].unitType = 9) and (g_gold >= unitTypeToCost(g_armyslots[1].unitType)) and (g_armyslots[1].count < g_armyslots[1].max) then //lancers slot 1
+			begin
+				g_armyslots[1].count := g_armyslots[1].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[1].unitType);
+			end;
+		end;
+	
+	//SLOT 2 MANAGEMENT
+		//Sell
+		if (States.UnitPositionX(g_charactergroup) = 137) and  (States.UnitPositionY(g_charactergroup) = 46) and (g_armyslots[2].count > 0) then
+		begin
+			g_armyslots[2].count := g_armyslots[2].count - 1;
+			g_gold := g_gold + unitTypeToCost(g_armyslots[2].unitType);
+			if (g_armyslots[2].count = 0) then
+			begin
+				g_armyslots[2].unitType := 0;
+			end;
+		end;
+		//Militia rank novice
+		if g_rank = '<$44>' then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 50) and (g_armyslots[2].unitType = 0) then //set militia slot 2
+			begin
+				g_armyslots[2].unitType := 1;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 50)
+			and (g_armyslots[2].unitType = 1) and (g_gold >= unitTypeToCost(g_armyslots[2].unitType)) and (g_armyslots[2].count < g_armyslots[2].max) then //militia slot 2
+			begin
+				g_armyslots[2].count := g_armyslots[2].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[2].unitType);
+			end;
+		end
+		
+		//Axefighter, rank patroller
+		else if (g_rank = '<$45>') or (g_rank = '<$60>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 50) and (g_armyslots[2].unitType = 0) then //set militia slot 2
+			begin
+				g_armyslots[2].unitType := 6;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 50)
+			and (g_armyslots[2].unitType = 6) and (g_gold >= unitTypeToCost(g_armyslots[2].unitType)) and (g_armyslots[2].count < g_armyslots[2].max) then //militia slot 2
+			begin
+				g_armyslots[2].count := g_armyslots[2].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[2].unitType);
+			end;
+		end
+		
+		//Swordfighters, rank defender of the realm
+		else if (g_rank = '<$75>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 50) and (g_armyslots[2].unitType = 0) then //set militia slot 2
+			begin
+				g_armyslots[2].unitType := 7;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 50)
+			and (g_armyslots[2].unitType = 7) and (g_gold >= unitTypeToCost(g_armyslots[2].unitType)) and (g_armyslots[2].count < g_armyslots[2].max) then //militia slot 2
+			begin
+				g_armyslots[2].count := g_armyslots[2].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[2].unitType);
+			end;
+		end;
+		
+		//Bowmen, rank inferior to Explorer
+		if (g_rank = '<$44>') or (g_rank = '<$45>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 50) and (g_armyslots[2].unitType = 0) then //set bowmen slot 2
+			begin
+				g_armyslots[2].unitType := 2;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 50)
+			and (g_armyslots[2].unitType = 2) and (g_gold >= unitTypeToCost(g_armyslots[2].unitType)) and (g_armyslots[2].count < g_armyslots[2].max) then //bowmen slot 2
+			begin
+				g_armyslots[2].count := g_armyslots[2].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[2].unitType);
+			end;
+		end
+		
+		//Crossbowmen, rank Explorer and more
+		else
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 50) and (g_armyslots[2].unitType = 0) then //set crossbowmen slot 2
+			begin
+				g_armyslots[2].unitType := 8;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 50)
+			and (g_armyslots[2].unitType = 8) and (g_gold >= unitTypeToCost(g_armyslots[2].unitType)) and (g_armyslots[2].count < g_armyslots[2].max) then //crossbowmen slot 2
+			begin
+				g_armyslots[2].count := g_armyslots[2].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[2].unitType);
+			end;
+		end;
+		
+		//Lancers
+		if not (g_rank = '<$45>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 50) and (g_armyslots[2].unitType = 0) then //set lancers slot 2
+			begin
+				g_armyslots[2].unitType := 3;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 50)
+			and (g_armyslots[2].unitType = 3) and (g_gold >= unitTypeToCost(g_armyslots[2].unitType)) and (g_armyslots[2].count < g_armyslots[2].max) then //lancers slot 2
+			begin
+				g_armyslots[2].count := g_armyslots[2].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[2].unitType);
+			end;
+		end
+		
+		//Pikemen rank defender of the realm
+		else
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 50) and (g_armyslots[2].unitType = 0) then //set lancers slot 2
+			begin
+				g_armyslots[2].unitType := 9;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 50)
+			and (g_armyslots[2].unitType = 9) and (g_gold >= unitTypeToCost(g_armyslots[2].unitType)) and (g_armyslots[2].count < g_armyslots[2].max) then //lancers slot 2
+			begin
+				g_armyslots[2].count := g_armyslots[2].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[2].unitType);
+			end;
+		end;
+		
+	//SLOT 3 MANAGEMENT
+		//Sell
+		if (States.UnitPositionX(g_charactergroup) = 137) and  (States.UnitPositionY(g_charactergroup) = 53) and (g_armyslots[3].count > 0) then
+		begin
+			g_armyslots[3].count := g_armyslots[3].count - 1;
+			g_gold := g_gold + unitTypeToCost(g_armyslots[3].unitType);
+			if (g_armyslots[3].count = 0) then
+			begin
+				g_armyslots[3].unitType := 0;
+			end;
+		end;
+		//Militia rank novice
+		if g_rank = '<$44>' then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 57) and (g_armyslots[3].unitType = 0) then //set militia slot 3
+			begin
+				g_armyslots[3].unitType := 1;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 57)
+			and (g_armyslots[3].unitType = 1) and (g_gold >= unitTypeToCost(g_armyslots[3].unitType)) and (g_armyslots[3].count < g_armyslots[3].max) then //militia slot 3
+			begin
+				g_armyslots[3].count := g_armyslots[3].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[3].unitType);
+			end;
+		end
+		
+		//Axefighter, rank patroller
+		else if (g_rank = '<$45>') or (g_rank = '<$60>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 57) and (g_armyslots[3].unitType = 0) then //set militia slot 3
+			begin
+				g_armyslots[3].unitType := 6;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 57)
+			and (g_armyslots[3].unitType = 6) and (g_gold >= unitTypeToCost(g_armyslots[3].unitType)) and (g_armyslots[3].count < g_armyslots[3].max) then //militia slot 3
+			begin
+				g_armyslots[3].count := g_armyslots[3].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[3].unitType);
+			end;
+		end
+		
+		//Swordfighters, rank defender of the realm
+		else if (g_rank = '<$75>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 57) and (g_armyslots[3].unitType = 0) then //set militia slot 3
+			begin
+				g_armyslots[3].unitType := 7;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 57)
+			and (g_armyslots[3].unitType = 7) and (g_gold >= unitTypeToCost(g_armyslots[3].unitType)) and (g_armyslots[3].count < g_armyslots[3].max) then //militia slot 3
+			begin
+				g_armyslots[3].count := g_armyslots[3].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[3].unitType);
+			end;
+		end;
+		
+		//Bowmen, rank inferior to Explorer
+		if (g_rank = '<$44>') or (g_rank = '<$45>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 57) and (g_armyslots[3].unitType = 0) then //set bowmen slot 3
+			begin
+				g_armyslots[3].unitType := 2;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 57)
+			and (g_armyslots[3].unitType = 2) and (g_gold >= unitTypeToCost(g_armyslots[3].unitType)) and (g_armyslots[3].count < g_armyslots[3].max) then //bowmen slot 3
+			begin
+				g_armyslots[3].count := g_armyslots[3].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[3].unitType);
+			end;
+		end
+		
+		//Crossbowmen, rank Explorer and more
+		else
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 57) and (g_armyslots[3].unitType = 0) then //set crossbowmen slot 3
+			begin
+				g_armyslots[3].unitType := 8;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 139) and  (States.UnitPositionY(g_charactergroup) = 57)
+			and (g_armyslots[3].unitType = 8) and (g_gold >= unitTypeToCost(g_armyslots[3].unitType)) and (g_armyslots[3].count < g_armyslots[3].max) then //crossbowmen slot 3
+			begin
+				g_armyslots[3].count := g_armyslots[3].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[3].unitType);
+			end;
+		end;
+		
+		//Lancers
+		if not (g_rank = '<$45>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 57) and (g_armyslots[3].unitType = 0) then //set lancers slot 3
+			begin
+				g_armyslots[3].unitType := 3;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 57)
+			and (g_armyslots[3].unitType = 3) and (g_gold >= unitTypeToCost(g_armyslots[3].unitType)) and (g_armyslots[3].count < g_armyslots[3].max) then //lancers slot 3
+			begin
+				g_armyslots[3].count := g_armyslots[3].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[3].unitType);
+			end;
+		end
+		
+		//Pikemen rank defender of the realm
+		else
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 57) and (g_armyslots[3].unitType = 0) then //set lancers slot 3
+			begin
+				g_armyslots[3].unitType := 9;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 142) and  (States.UnitPositionY(g_charactergroup) = 57)
+			and (g_armyslots[3].unitType = 9) and (g_gold >= unitTypeToCost(g_armyslots[3].unitType)) and (g_armyslots[3].count < g_armyslots[3].max) then //lancers slot 3
+			begin
+				g_armyslots[3].count := g_armyslots[3].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[3].unitType);
+			end;
+		end;
+		
+	//SLOT 4 MANAGEMENT
+		//Sell
+		if (States.UnitPositionX(g_charactergroup) = 137) and  (States.UnitPositionY(g_charactergroup) = 60) and (g_armyslots[4].count > 0) then
+		begin
+			g_armyslots[4].count := g_armyslots[4].count - 1;
+			g_gold := g_gold + unitTypeToCost(g_armyslots[4].unitType);
+			if (g_armyslots[4].count = 0) then
+			begin
+				g_armyslots[4].unitType := 0;
+			end;
+		end;
+		//Tier 1 Scouts rank novice patroller explorer
+		if (g_rank = '<$44>') or (g_rank = '<$45>') or (g_rank = '<$60>') then
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 65) and (g_armyslots[4].unitType = 0) then //set scouts slot 4
+			begin
+				g_armyslots[4].unitType := 4;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 65) and (States.GameTime mod 10 = 0)
+			and (g_armyslots[4].unitType = 4) and (g_gold >= unitTypeToCost(g_armyslots[4].unitType)) and (g_armyslots[4].count < g_armyslots[4].max) then //scouts slot 4
+			begin
+				g_armyslots[4].count := g_armyslots[4].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[4].unitType);
+			end;
+		end
+		//Tier 2 Knights rank > explorer
+		else
+		begin
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 65) and (g_armyslots[4].unitType = 0) then //set knights slot 4
+			begin
+				g_armyslots[4].unitType := 5;
+			end;
+			if (States.UnitPositionX(g_charactergroup) = 136) and  (States.UnitPositionY(g_charactergroup) = 65) and (States.GameTime mod 10 = 0)
+			and (g_armyslots[4].unitType = 5) and (g_gold >= unitTypeToCost(g_armyslots[4].unitType)) and (g_armyslots[4].count < g_armyslots[4].max) then //knights slot 4
+			begin
+				g_armyslots[4].count := g_armyslots[4].count + 1;
+				g_gold := g_gold - unitTypeToCost(g_armyslots[4].unitType);
+			end;
+		end;
+end;
+
+procedure StartBattle(ArenaNum : Integer; s1type : Integer; s1count : Integer; s2type : Integer; s2count : Integer; s3type : Integer; s3count : Integer; s4type : Integer; s4count : Integer; s5type : Integer; s5count : Integer; bounty : Integer);
+	var slot1playerX : Integer;
+	var slot1playerY : Integer;
+	var slot2playerX : Integer;
+	var slot2playerY : Integer;
+	var slot3playerX : Integer;
+	var slot3playerY : Integer;
+	var slot4playerX : Integer;
+	var slot4playerY : Integer;
+	var slot5playerX : Integer;
+	var slot5playerY : Integer;
+
+	var slot1aiX : Integer;
+	var slot1aiY : Integer;
+	var slot2aiX : Integer;
+	var slot2aiY : Integer;
+	var slot3aiX : Integer;
+	var slot3aiY : Integer;
+	var slot4aiX : Integer;
+	var slot4aiY : Integer;
+	var slot5aiX : Integer;
+	var slot5aiY : Integer;
+
+	var menPerRow : Integer;
+	var facedirectionAI : Integer;
+	var facedirectionHuman : Integer;
+	
+	var ArrayOfGroups : array[1..5] of Integer;
+begin
+	ISONFIGHT := True;
+	ARENANUMBER := ArenaNum;
+	b_coordXBeforeBattle := States.UnitPositionX(g_charactergroup);
+	b_coordYBeforeBattle := States.UnitPositionY(g_charactergroup);
+	KillCharacter;
+	AddCharacter(196, 6);
+	b_bounty := bounty;
+	playerstartassaultsiege := False;
+	//ARENA 1 : CONTINENT
+	if ArenaNum=1 then
+	begin
+		CoverGlobalMap;
+		RevealTiles(207, 255, 1, 35);
+		menPerRow := 8;
+		if States.KaMRandomI(101) <= 50 then //randomize sides
+		begin
+			facedirectionAI := 6;
+			facedirectionHuman := 2;
+			slot1playerX := 215;
+			slot1playerY := 6;
+			slot2playerX := 215
+			slot2playerY := 14;
+			slot3playerX := 215;
+			slot3playerY := 22;
+			slot4playerX := 215;
+			slot4playerY := 34;
+			slot5playerX := 222;
+			slot5playerY := 18;
+			slot1aiX := 247;
+			slot1aiY := 6;
+			slot2aiX := 247;
+			slot2aiY := 14;
+			slot3aiX := 247;
+			slot3aiY := 22;
+			slot4aiX := 247;
+			slot4aiY := 34;
+			slot5aiX := 232;
+			slot5aiY := 18;
+		end
+		else
+		begin
+			facedirectionAI := 2;
+			facedirectionHuman := 6;
+			slot1playerX := 247;
+			slot1playerY := 6;
+			slot2playerX := 247
+			slot2playerY := 14;
+			slot3playerX := 247;
+			slot3playerY := 22;
+			slot4playerX := 247;
+			slot4playerY := 34;
+			slot5playerX := 232;
+			slot5playerY := 18;
+			slot1aiX := 215;
+			slot1aiY := 6;
+			slot2aiX := 215;
+			slot2aiY := 14;
+			slot3aiX := 215;
+			slot3aiY := 22;
+			slot4aiX := 215;
+			slot4aiY := 34;
+			slot5aiX := 222;
+			slot5aiY := 18;
+		end;
+	end;
+	
+	//ARENA 2 : COAST
+	if ArenaNum=2 then
+	begin
+		CoverGlobalMap;
+		RevealTiles(134, 192, 78, 121);
+		menPerRow := 6;
+		if States.KaMRandomI(101) <= 50 then //randomize sides
+		begin
+			facedirectionAI := 6;
+			facedirectionHuman := 2;
+			slot1playerX := 155;
+			slot1playerY := 90;
+			slot2playerX := 143;
+			slot2playerY := 90;
+			slot3playerX := 155;
+			slot3playerY := 115;
+			slot4playerX := 143;
+			slot4playerY := 100;
+			slot5playerX := 143;
+			slot5playerY := 110;
+			slot1aiX := 180;
+			slot1aiY := 90;
+			slot2aiX := 180;
+			slot2aiY := 100;
+			slot3aiX := 180;
+			slot3aiY := 110;
+			slot4aiX := 170;
+			slot4aiY := 90;
+			slot5aiX := 170;
+			slot5aiY := 110;
+		end
+		else
+		begin
+			facedirectionAI := 2;
+			facedirectionHuman := 6;
+			slot1playerX := 180;
+			slot1playerY := 90;
+			slot2playerX := 180
+			slot2playerY := 100;
+			slot3playerX := 180;
+			slot3playerY := 110;
+			slot4playerX := 170;
+			slot4playerY := 90;
+			slot5playerX := 170;
+			slot5playerY := 110;
+			slot1aiX := 155;
+			slot1aiY := 90;
+			slot2aiX := 143;
+			slot2aiY := 90;
+			slot3aiX := 155;
+			slot3aiY := 115;
+			slot4aiX := 143;
+			slot4aiY := 100;
+			slot5aiX := 143;
+			slot5aiY := 110;
+		end;
+	end;
+	
+	//ARENA 3 : SIEGE
+	if ArenaNum=3 then
+	begin
+		ISONSIEGE := True;
+		CoverGlobalMap;
+		RevealTiles(207, 255, 51, 76);
+		menPerRow := 5;
+		facedirectionAI := 6;
+		facedirectionHuman := 2;
+		slot1playerX := 212;
+		slot1playerY := 53;
+		slot2playerX := 212;
+		slot2playerY := 60;
+		slot3playerX := 212;
+		slot3playerY := 67;
+		slot4playerX := 219;
+		slot4playerY := 56;
+		slot5playerX := 219;
+		slot5playerY := 75;
+		slot1aiX := 240;
+		slot1aiY := 60;
+		slot2aiX := 240;
+		slot2aiY := 67;
+		slot3aiX := 247;
+		slot3aiY := 68;
+		slot4aiX := 240;
+		slot4aiY := 53;
+		slot5aiX := 244;
+		slot5aiY := 74;
+	end;
+	
+	//ARENA 4 : CAVE
+	if ArenaNum=4 then
+	begin
+		CoverGlobalMap;
+		RevealTiles(205, 255, 87, 122);
+		menPerRow := 7;
+		if States.KaMRandomI(101) <= 50 then //randomize sides
+		begin
+			facedirectionAI := 6;
+			facedirectionHuman := 2;
+			slot1playerX := 213;
+			slot1playerY := 93;
+			slot2playerX := 213;
+			slot2playerY := 103;
+			slot3playerX := 213;
+			slot3playerY := 113;
+			slot4playerX := 222;
+			slot4playerY := 93;
+			slot5playerX := 222;
+			slot5playerY := 106;
+			slot1aiX := 246;
+			slot1aiY := 93;
+			slot2aiX := 246;
+			slot2aiY := 103;
+			slot3aiX := 246;
+			slot3aiY := 113;
+			slot4aiX := 238;
+			slot4aiY := 99;
+			slot5aiX := 238;
+			slot5aiY := 105;
+		end
+		else
+		begin
+			facedirectionAI := 2;
+			facedirectionHuman := 6;
+			slot1playerX := 246;
+			slot1playerY := 93;
+			slot2playerX := 246;
+			slot2playerY := 103;
+			slot3playerX := 246;
+			slot3playerY := 113;
+			slot4playerX := 238;
+			slot4playerY := 99;
+			slot5playerX := 238;
+			slot5playerY := 105;
+			slot1aiX := 213;
+			slot1aiY := 93;
+			slot2aiX := 213;
+			slot2aiY := 103;
+			slot3aiX := 213;
+			slot3aiY := 113;
+			slot4aiX := 222;
+			slot4aiY := 93;
+			slot5aiX := 222;
+			slot5aiY := 106;
+		end;
+	end;
+	
+	//ARENA 5 : DESERT
+	if ArenaNum=5 then
+	begin
+		CoverGlobalMap;
+		RevealTiles(74, 120, 29, 58);
+		menPerRow := 5;
+		if States.KaMRandomI(101) <= 50 then //randomize sides
+		begin
+			facedirectionAI := 6;
+			facedirectionHuman := 2;
+			slot1playerX := 83;
+			slot1playerY := 33;
+			slot2playerX := 83;
+			slot2playerY := 43;
+			slot3playerX := 83;
+			slot3playerY := 53;
+			slot4playerX := 91;
+			slot4playerY := 36;
+			slot5playerX := 91;
+			slot5playerY := 50;
+			slot1aiX := 109;
+			slot1aiY := 33;
+			slot2aiX := 109;
+			slot2aiY := 43;
+			slot3aiX := 109;
+			slot3aiY := 53;
+			slot4aiX := 117;
+			slot4aiY := 36;
+			slot5aiX := 117;
+			slot5aiY := 50;
+		end
+		else
+		begin
+			facedirectionAI := 2;
+			facedirectionHuman := 6;
+			slot1playerX := 109;
+			slot1playerY := 33;
+			slot2playerX := 109;
+			slot2playerY := 43;
+			slot3playerX := 109;
+			slot3playerY := 53;
+			slot4playerX := 117;
+			slot4playerY := 36;
+			slot5playerX := 117;
+			slot5playerY := 50;
+			slot1aiX := 83;
+			slot1aiY := 33;
+			slot2aiX := 83;
+			slot2aiY := 43;
+			slot3aiX := 83;
+			slot3aiY := 53;
+			slot4aiX := 91;
+			slot4aiY := 36;
+			slot5aiX := 91;
+			slot5aiY := 50;
+		end;
+	end;
+	
+	//ARENA 3 : SIEGE
+	if ArenaNum=6 then
+	begin
+		ISONSIEGE := True;
+		CoverGlobalMap;
+		RevealTiles(1, 117, 71, 112);
+		menPerRow := 10;
+		facedirectionAI := 6;
+		facedirectionHuman := 2;
+		slot1playerX := 30;
+		slot1playerY := 77;
+		slot2playerX := 30;
+		slot2playerY := 87;
+		slot3playerX := 30;
+		slot3playerY := 97;
+		slot4playerX := 30;
+		slot4playerY := 107;
+		slot5playerX := 38;
+		slot5playerY := 92;
+		slot1aiX := 100;
+		slot1aiY := 77;
+		slot2aiX := 100;
+		slot2aiY := 87;
+		slot3aiX := 100;
+		slot3aiY := 97;
+		slot4aiX := 100;
+		slot4aiY := 107;
+		slot5aiX := 110;
+		slot5aiY := 92;
+	end;
+
+	//Common Part
+	if g_armySlots[1].unitType <> 0 then ArrayOfGroups[1] := Actions.GiveGroup(0, unitTypeToKamID(g_armySlots[1].unitType), slot1playerX, slot1playerY, facedirectionHuman, g_armySlots[1].count, menPerRow);
+	if g_armySlots[2].unitType <> 0 then ArrayOfGroups[2] := Actions.GiveGroup(0, unitTypeToKamID(g_armySlots[2].unitType), slot2playerX, slot2playerY, facedirectionHuman, g_armySlots[2].count, menPerRow);
+	if g_armySlots[3].unitType <> 0 then ArrayOfGroups[3] := Actions.GiveGroup(0, unitTypeToKamID(g_armySlots[3].unitType), slot3playerX, slot3playerY, facedirectionHuman, g_armySlots[3].count, menPerRow);
+	if g_armySlots[4].unitType <> 0 then ArrayOfGroups[4] := Actions.GiveGroup(0, unitTypeToKamID(g_armySlots[4].unitType), slot4playerX, slot4playerY, facedirectionHuman, g_armySlots[4].count, menPerRow);
+	if g_armySlots[5].unitType <> 0 then ArrayOfGroups[5] := Actions.GiveGroup(0, unitTypeToKamID(g_armySlots[5].unitType), slot5playerX, slot5playerY, facedirectionHuman, g_armySlots[5].count, menPerRow);
+	
+	if s1type <> 0 then b_ArrayOfGroupsAI[1] := Actions.GiveGroup(2, s1type, slot1aiX, slot1aiY, facedirectionAi, s1count, menPerRow);
+	if s2type <> 0 then b_ArrayOfGroupsAI[2] := Actions.GiveGroup(2, s2type, slot2aiX, slot2aiY, facedirectionAi, s2count, menPerRow);
+	if s3type <> 0 then b_ArrayOfGroupsAI[3] := Actions.GiveGroup(2, s3type, slot3aiX, slot3aiY, facedirectionAi, s3count, menPerRow);
+	if s4type <> 0 then b_ArrayOfGroupsAI[4] := Actions.GiveGroup(2, s4type, slot4aiX, slot4aiY, facedirectionAi, s4count, menPerRow);
+	if s5type <> 0 then b_ArrayOfGroupsAI[5] := Actions.GiveGroup(2, s5type, slot5aiX, slot5aiY, facedirectionAi, s5count, menPerRow);
+	
+	for i := 1 to 5 do
+	begin
+		SetLength(b_slotMembers[i], g_armySlots[i].count);
+		for j := 0 to (g_armySlots[i].count - 1) do
+		begin
+			b_slotMembers[i][j] := States.GroupMember(ArrayOfGroups[i], j);
+		end;
+	end;
+	b_AIinitialMembers[1] := s1count;
+	b_AIUnitTypes[1] := s1type;
+	b_AIinitialMembers[2] := s2count;
+	b_AIUnitTypes[2] := s2type;
+	b_AIinitialMembers[3] := s3count;
+	b_AIUnitTypes[3] := s3type;
+	b_AIinitialMembers[4] := s4count;
+	b_AIUnitTypes[4] := s4type;
+	b_AIinitialMembers[5] := s5count;
+	b_AIUnitTypes[5] := s5type;
+	
+	b_battleAIAttackBalancer := 0;
+	
+	for i := 1 to 5 do
+	begin
+		if b_AIUnitTypes[i] <> 0 then
+		begin
+			SetLength(b_AIslotMembers[i], States.GroupMemberCount(b_ArrayOfGroupsAI[i]));
+			for j := 0 to States.GroupMemberCount(b_ArrayOfGroupsAI[i]) - 1 do
+			begin
+				b_AIslotMembers[i][j] := States.GroupMember(b_ArrayOfGroupsAI[i], j);
+			end;
+		end;
+	end;
+end;
+
+procedure EndBattle;
+begin
+	Actions.ShowMsgFormatted(0, '<$81>', [b_bounty, (b_AIlostMembers[1] + b_AIlostMembers[2] + b_AIlostMembers[3] + b_AIlostMembers[4] + b_AIlostMembers[5]),
+	(b_lostMembers[1] + b_lostMembers[2] + b_lostMembers[3] + b_lostMembers[4] + b_lostMembers[5])]);
+	ISONFIGHT := False;
+	ISONSIEGE := False;
+	playerstartassaultsiege := False;
+	g_gold := g_gold + b_bounty;
+	for i:= 1 to 5 do
+	begin
+		if g_Armyslots[i].count <> 0 then
+		begin
+			for j := 0 to (g_Armyslots[i].count -1) do
+			begin
+				if not States.UnitDead(b_slotMembers[i][j]) then
+				begin
+					Actions.UnitKill(b_slotMembers[i][j], True);
+				end;
+			end;
+			g_Armyslots[i].count := g_Armyslots[i].count - b_lostMembers[i];
+		end;
+		if g_Armyslots[i].count = 0 then
+		begin
+			g_Armyslots[i].unitType := 0;
+		end;
+	end;
+	KillCharacter;
+	AddCharacter(b_coordXBeforeBattle, b_coordYBeforeBattle);
+	CoverBattleMap;
+	RevealTiles(1, 255, 129, 255);
+	RevealTiles(1, 121, 1, 17);
+	
+	for i := 1 to 5 do
+	begin
+		b_lostMembers[i] := 0;
+		b_AIlostMembers[i] := 0;
+	end;
+end;
+
+procedure AIAttackInBattle;
+var groupList : array of Integer;
+var distCurr : Integer;
+var distBest : Integer;
+var unitBest : Integer;
+var temp1 : Integer;
+var temp2 : Integer;
+begin
+	for i := 1 to 5 do
+	begin
+		if b_AIinitialMembers[i] <> 0 then
+		begin
+		if States.GroupMemberCount(b_ArrayOfGroupsAI[i]) <> 0 then
+		begin
+			if ((b_battleAIAttackBalancer mod 75 = 0) and ((b_AIUnitTypes[i] = 17) or (b_AIUnitTypes[i] = 18) or (b_AIUnitTypes[i] = 25))) or ((b_AIUnitTypes[i] <> 17) and (b_AIUnitTypes[i] <> 18) and (b_AIUnitTypes[i] <> 25)) then
+			begin
+				distBest := 99999;
+				begin
+				   groupList := States.PlayerGetAllGroups(0);
+				   for j := 0 to Length(groupList) -1 do
+				   begin
+						if States.GroupMember(groupList[j], 0) <> g_charactergroup then
+						begin
+							temp1 := States.UnitPositionX(States.GroupMember(b_ArrayOfGroupsAI[i], 0)) - States.UnitPositionX(States.GroupMember(groupList[j], 0));
+							temp2 := States.UnitPositionY(States.GroupMember(b_ArrayOfGroupsAI[i], 0)) - States.UnitPositionY(States.GroupMember(groupList[j], 0));
+							distCurr := temp1 * temp1 + temp2 * temp2;
+							if States.UnitPositionX(States.GroupMember(groupList[j], 0)) >= 230 then
+							begin
+								playerstartassaultsiege := True
+							end;
+							if (States.UnitType(States.GroupMember(groupList[j], 0)) = 21) or (States.UnitType(States.GroupMember(groupList[j], 0)) = 22) then//priority 20% to cavalry
+							begin
+								distCurr := (distCurr * 80) / 100;
+							end;
+							if (States.UnitType(States.GroupMember(groupList[j], 0)) = 17) or (States.UnitType(States.GroupMember(groupList[j], 0)) = 18) then//priority 50% to ranged
+							begin
+								distCurr := (distCurr * 50) / 100;
+							end;
+							if distCurr  < distBest then
+							begin
+								distBest := distCurr;
+								unitBest := States.GroupMember(groupList[j], 0);
+							end;
+						end;
+					end;
+				end;
+				if ((ISONSIEGE = False) or (g_mainquest = 99)) or (playerstartassaultsiege) then
+				begin
+					Actions.GroupOrderAttackUnit(b_ArrayOfGroupsAI[i], unitBest);
+				end;
+			end;
+		end;
+		end;
+	end;
+end;
+
+procedure HideTheKnightInBattle;
+begin
+	Actions.FogCoverCircle(0, 196, 6, 6);
+end;
+
+procedure QuestMasterProcedure;//Procedure from the hell
+var temp : Integer;
+begin
+	//Flavour dialogs
+	//Flavour dialog if you go to the cavern entrance on the main continent before being asked to
+	if (g_mainquest < 15 )and (States.UnitPositionX(g_charactergroup) >= 147) and (States.UnitPositionX(g_charactergroup) <= 160) and (States.UnitPositionY(g_charactergroup) >= 219) and (States.UnitPositionY(g_charactergroup) <= 222) and (flavourdialTunnel = 0) then
+	begin
+		Actions.ShowMsg(0, '<$59>');
+		flavourdialTunnel := 1;
+	end;
+	
+	//MAIN QUEST//MAIN QUEST//MAIN QUEST//MAIN QUEST
+	if g_mainquest < 7 then
+	begin
+		if (g_mainquest = 0) and (((States.UnitPositionX(g_charactergroup) = 142) and (States.UnitPositionY(g_charactergroup) = 21)) or ((States.UnitPositionX(g_charactergroup) = 143) and (States.UnitPositionY(g_charactergroup) = 21))) then
+		begin
+			ReleaseRecruitingArea;
+			Actions.ShowMsg(0, '<$4>');
+			Actions.ShowMsg(0, '<$5>');
+			Actions.ShowMsg(0, '<$6>');
+			g_mainquestText := '<$7>';
+			for i := 1 to 3 do
+			begin
+				g_armyslots[i].max := 5;
+			end;
+			g_armyslots[4].max := 3;
+			g_gold := 1000;
+			g_mainquest := 1;
+		end;
+		
+		if (g_mainquest = 1) and ((States.UnitPositionX(g_charactergroup) = 142) and (States.UnitPositionY(g_charactergroup) = 21) or (States.UnitPositionX(g_charactergroup) = 143) and (States.UnitPositionY(g_charactergroup) = 21))
+		and ((g_armyslots[1].count + g_armyslots[2].count + g_armyslots[3].count + g_armyslots[4].count) >= 15) then
+		begin
+			Actions.ShowMsg(0, '<$8>');
+			Actions.ShowMsg(0, '<$9>');
+			Actions.ShowMsg(0, '<$10>');
+			g_mainquestText := '<$11>';
+			g_mainquest := 2;
+			Actions.ShowMsg(0, '<$36>');
+			Actions.ShowMsg(0, '<$37>');
+			Actions.ShowMsg(0, '<$38>');
+			Actions.ShowMsg(0, '<$39>');
+			Actions.ShowMsg(0, '<$40>');
+		end;
+		//Flavour dialog if you go to the bandit camp before speaking to the angry fisherman
+		if (g_mainquest = 2)and (States.UnitPositionX(g_charactergroup) >= 108) and (States.UnitPositionX(g_charactergroup) <= 119) and (States.UnitPositionY(g_charactergroup) >= 156) and (States.UnitPositionY(g_charactergroup) <= 163) then
+		begin
+			Actions.ShowMsg(0, '<$12>');
+			g_mainquest := 3;
+		end;
+		//First quest
+		if ((g_mainquest = 2) or (g_mainquest = 3))  and (States.UnitPositionX(g_charactergroup) >= 143) and (States.UnitPositionX(g_charactergroup) <= 145) and (States.UnitPositionY(g_charactergroup) >= 161) and (States.UnitPositionY(g_charactergroup) <= 163) then
+		begin //talking to the peasant
+			Actions.ShowMsg(0, '<$13>');
+			Actions.ShowMsg(0, '<$14>');
+			Actions.ShowMsg(0, '<$15>');
+			g_mainquestText := '<$16>';
+			Actions.ShowMsg(0, '<$35>');
+			g_mainquest := 4;
+			Actions.UnitKill(States.UnitAt(112, 157), True);
+			Actions.UnitKill(States.UnitAt(110, 160), True);
+			e_bandit1 := Actions.GiveGroup(3, 14, 112, 156, 4, 1, 1);
+			e_bandit2 := Actions.GiveGroup(3, 24, 110, 159, 4, 1, 1);
+			e_bandit2 := States.GroupMember(e_bandit2, 0);
+			e_bandit1 := States.GroupMember(e_bandit1, 0);
+			rewriteUnmovableUnitLocationEntry(112, 157, e_bandit1);
+			rewriteUnmovableUnitLocationEntry(110, 160, e_bandit2);
+			Actions.HouseDestroy(States.HouseAt(114, 160), True);
+			Actions.HouseDestroy(States.HouseAt(117, 162), True);
+			Actions.GiveHouse(3, 9, 114, 160);
+			Actions.GiveHouse(3, 17, 117, 162);
+		end;
+		if ((g_mainquest = 4) or (g_mainquest = 5)) and not(States.UnitDead(e_bandit2)) and (States.UnitPositionX(g_charactergroup) >= 109) and (States.UnitPositionX(g_charactergroup) <= 111)
+		and (States.UnitPositionY(g_charactergroup) >= 159) and (States.UnitPositionY(g_charactergroup) <= 161) then
+		begin
+			g_mainquest := g_mainquest + 1;
+			Actions.ShowMsg(0, '<$17>');
+			StartBattle(1, 14, 5, 25, 5, 24, 6, 0, 0, 0, 0, 150); // 5 militias, 6 rebels, 5 rogues, continent arena and 150 gold
+			Actions.UnitKill(e_bandit2, True);
+		end;
+		
+		if ((g_mainquest = 4) or (g_mainquest = 5)) and not(States.UnitDead(e_bandit1)) and (States.UnitPositionX(g_charactergroup) >= 111) and (States.UnitPositionX(g_charactergroup) <= 113)
+		and (States.UnitPositionY(g_charactergroup) >= 156) and (States.UnitPositionY(g_charactergroup) <= 158) then
+		begin
+			g_mainquest := g_mainquest + 1;
+			Actions.ShowMsg(0, '<$18>');
+			StartBattle(1, 14, 5, 25, 5, 24, 6, 25, 4, 0, 0, 150); // 5 militias, 5 rogues, 6 rebels, 4 rogues, continent arena and 150 gold
+			Actions.UnitKill(e_bandit1, True);
+		end;
+		
+		if (g_mainquest = 6) and (ISONFIGHT = False) then
+		begin
+			g_mainquest := 7;
+			Actions.ShowMsg(0, '<$19>');
+			g_mainquestText := '<$20>';
+			Actions.HouseDestroy(States.HouseAt(114, 160), False);
+			Actions.HouseDestroy(States.HouseAt(117, 162), False);
+		end;
+	end;
+	if (g_mainquest >= 7) and (g_mainquest < 14) then
+	begin
+		if (g_mainquest = 7)  and (States.UnitPositionX(g_charactergroup) >= 143) and (States.UnitPositionX(g_charactergroup) <= 145) and (States.UnitPositionY(g_charactergroup) >= 161) and (States.UnitPositionY(g_charactergroup) <= 163) then
+		begin //telling to the peasantt hat you succeeded.
+			g_mainquest := 8;
+			Actions.ShowMsg(0, '<$21>');
+			Actions.ShowMsg(0, '<$22>');
+			Actions.ShowMsg(0, '<$23>');
+			g_mainquestText := '<$24>';
+		end;
+		
+		if (g_mainquest = 8) and (((States.UnitPositionX(g_charactergroup) = 142) and (States.UnitPositionY(g_charactergroup) = 21)) or ((States.UnitPositionX(g_charactergroup) = 143) and (States.UnitPositionY(g_charactergroup) = 21))) then
+		begin
+			g_mainquest := 9;
+			Actions.ShowMsg(0, '<$25>');
+			Actions.ShowMsg(0, '<$26>');
+			Actions.ShowMsg(0, '<$27>');
+			Actions.ShowMsg(0, '<$28>');
+			Actions.ShowMsg(0, '<$29>');
+			Actions.ShowMsg(0, '<$30>');
+			Actions.ShowMsg(0, '<$31>');
+			Actions.ShowMsg(0, '<$32>');
+			Actions.ShowMsg(0, '<$33>');
+			g_mainquestText := '<$34>';
+			e_enemyvassalmine := Actions.GiveGroup(3, 21, 48, 227, 3, 1, 1);//Eastern vassal enemy army at the mines
+			e_enemyvassalmine := States.GroupMember(e_enemyvassalmine, 0);
+			AddToUnmovableUnitsArrayAppearingUnit(48, 227, 3, e_enemyvassalmine);
+		end;
+		
+		if (g_mainquest = 9)  and (States.UnitPositionX(g_charactergroup) >= 47) and (States.UnitPositionX(g_charactergroup) <= 49)
+		and (States.UnitPositionY(g_charactergroup) >= 226) and (States.UnitPositionY(g_charactergroup) <= 229) then //near the vassal army in the desert
+		begin
+			g_mainquest := 10;
+			StartBattle(5, 19, 8, 17, 6, 21, 4, 18, 4, 0, 0, 350); // 8 lancers, 6 bowmen, 4 scouts, 4 crossbowmen, desert arena and 350 gold
+			Actions.UnitKill(e_enemyvassalmine, True);
+		end;
+		
+		if (g_mainquest = 10) and (ISONFIGHT = False) then
+		begin
+			g_mainquest := 11;
+			Actions.ShowMsg(0, '<$41>');
+			g_mainquestText := '<$42>';
+		end;
+
+		if (g_mainquest = 11) and (((States.UnitPositionX(g_charactergroup) = 142) and (States.UnitPositionY(g_charactergroup) = 21)) or ((States.UnitPositionX(g_charactergroup) = 143) and (States.UnitPositionY(g_charactergroup) = 21))) then
+		begin//The king asks to assault the east castle
+			temp := Actions.GiveGroup(1, 22, 47, 229, 4, 1, 1);//Gard of the desert mines
+			temp := States.GroupMember(temp, 0);
+			AddToRandomWalkerArray (temp, 36, 58, 217, 232, 2);
+			//Adding life in the desert, two recruits, two metallurgists, two miners
+			Actions.GiveUnit(1, 13, 48, 228, 4);
+			Actions.GiveUnit(1, 13, 49, 228, 4);
+			Actions.GiveUnit(1, 12, 50, 228, 4);
+			Actions.GiveUnit(1, 12, 51, 228, 4);
+			Actions.GiveUnit(1, 2, 52, 228, 4);
+			Actions.GiveUnit(1, 2, 53, 228, 4);
+			//Quest
+			g_mainquest := 12;
+			Actions.ShowMsg(0, '<$43>');
+			Actions.ShowMsg(0, '<$46>');
+			Actions.ShowMsg(0, '<$47>');
+			Actions.ShowMsg(0, '<$48>');
+			Actions.ShowMsg(0, '<$49>');
+			Actions.ShowMsg(0, '<$51>');
+			Actions.ShowMsg(0, '<$52>');
+			g_mainquestText := '<$50>';
+			//Change the rank and change units in the recruiting area.
+			g_rank := '<$45>';
+			g_gold := g_gold + 580;
+			for i := 1 to 3 do
+			begin
+				g_armyslots[i].max := 8;
+			end;
+			g_armyslots[4].max := 4;
+			
+			Actions.UnitKill(States.UnitAt(136, 42), True);//Switch militia to axefighter
+			Actions.GiveGroup(1, 15, 137, 42, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(136, 42, States.UnitAt(137, 42));
+			
+			Actions.UnitKill(States.UnitAt(136, 49), True);
+			Actions.GiveGroup(1, 15, 137, 49, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(136, 49, States.UnitAt(137, 49));
+			
+			Actions.UnitKill(States.UnitAt(136, 56), True);
+			Actions.GiveGroup(1, 15, 137, 56, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(136, 56, States.UnitAt(137, 56));
+			
+			//Change the eastern castle's owner
+			Actions.HouseDestroy(States.HouseAt(230, 155), True);
+			Actions.GiveHouse(3, 21, 230, 155);
+		end;
+			
+		if (g_mainquest = 12) and (((States.UnitPositionX(g_charactergroup) = 229) and (States.UnitPositionY(g_charactergroup) = 156))
+		or ((States.UnitPositionX(g_charactergroup) = 230) and (States.UnitPositionY(g_charactergroup) = 156))
+		or ((States.UnitPositionX(g_charactergroup) = 231) and (States.UnitPositionY(g_charactergroup) = 156))) then
+		begin//The siege starts upon approaching the castle
+				StartBattle(3, 20, 5, 16, 4, 16, 4, 17, 3, 17, 3, 450); // 5 pikemen, 4 swordfighters, 4 swordfighters, 3 bowmen, 3 bowmen, siege arena and 450 gold
+				Actions.HouseDestroy(States.HouseAt(230, 155), False);
+				g_mainquest := 13;
+		end;
+		
+		if (g_mainquest = 13) and (ISONFIGHT = False) then
+		begin
+			Actions.ShowMsg(0, '<$53>');
+			g_mainquestText := '<$54>';
+			g_mainquest := 14;
+		end;
+	end;
+	
+	if (g_mainquest >= 14) and (g_mainquest < 21) then
+	begin
+		if (g_mainquest = 14) and (((States.UnitPositionX(g_charactergroup) = 142) and (States.UnitPositionY(g_charactergroup) = 21)) or ((States.UnitPositionX(g_charactergroup) = 143) and (States.UnitPositionY(g_charactergroup) = 21))) then
+		begin//The king informs you that you must help to defend the tunnel
+			Actions.ShowMsg(0, '<$55>');
+			Actions.ShowMsg(0, '<$56>');
+			Actions.ShowMsg(0, '<$57>');
+			g_mainquestText := '<$58>';
+			g_mainquest := 15;
+			Actions.UnitKill(guardsentrancetokill1, False);
+			Actions.UnitKill(guardsentrancetokill2, False);
+			Actions.UnitKill(guardsentrancetokill3, False);
+			Actions.UnitKill(guardsentrancetokill4, False);
+			e_bandittunnelentrance1 := Actions.GiveGroup(3, 21, 142, 220, 3, 1, 1)//Scout continental arena
+			e_bandittunnelentrance2 := Actions.GiveGroup(3, 15, 159, 221, 4, 1, 1)//Axefighter coastal arena
+			e_bandittunnelentrance3 := Actions.GiveGroup(3, 14, 154, 226, 5, 1, 1)//Militia coastal arena
+			e_bandittunnelentrance1 := States.GroupMember(e_bandittunnelentrance1, 0);
+			e_bandittunnelentrance2 := States.GroupMember(e_bandittunnelentrance2, 0);
+			e_bandittunnelentrance3 := States.GroupMember(e_bandittunnelentrance3, 0);
+			AddToUnmovableUnitsArrayAppearingUnit(142, 220, 3, e_bandittunnelentrance1);
+			AddToUnmovableUnitsArrayAppearingUnit(159, 221, 4, e_bandittunnelentrance2);
+			AddToUnmovableUnitsArrayAppearingUnit(154, 226, 5, e_bandittunnelentrance3);
+			
+			g_gold := g_gold + 1600;
+			g_rank := '<$60>';
+			
+			for i := 1 to 3 do
+			begin
+				g_armyslots[i].max := 13;
+			end;
+			g_armyslots[4].max := 6;
+			
+			Actions.UnitKill(States.UnitAt(139, 42), True);//Switch archers to xbows
+			Actions.GiveGroup(1, 18, 138, 42, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(139, 42, States.UnitAt(138, 42));
+			
+			Actions.UnitKill(States.UnitAt(139, 49), True);
+			Actions.GiveGroup(1, 18, 138, 49, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(139, 49, States.UnitAt(138, 49));
+			
+			Actions.UnitKill(States.UnitAt(139, 56), True);
+			Actions.GiveGroup(1, 18, 138, 56, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(139, 56, States.UnitAt(138, 56));
+		end;
+		
+		if (g_mainquest = 15 )and (States.UnitPositionX(g_charactergroup) >= 138) and (States.UnitPositionX(g_charactergroup) <= 165) and (States.UnitPositionY(g_charactergroup) >= 214) and (States.UnitPositionY(g_charactergroup) <= 231) and (flavourdialTunnel = 0) then
+		begin
+			g_mainquest := 16;
+			Actions.ShowMsg(0, '<$61>');
+			g_mainquestText := '<$62>';
+		end;
+		
+		if (g_mainquest >= 16) and (g_mainquest <= 19) and not(States.UnitDead(e_bandittunnelentrance1)) and (States.UnitPositionX(g_charactergroup) >= 141) and (States.UnitPositionX(g_charactergroup) <= 143)
+		and (States.UnitPositionY(g_charactergroup) >= 219) and (States.UnitPositionY(g_charactergroup) <= 221) then
+		begin
+			g_mainquest := g_mainquest + 1;
+			StartBattle(1, 21, 6, 16, 4, 16, 4, 17, 8, 15, 7, 800); // 6 scouts, 4 swordfighters, 4 swordfighters, 8 bowmen, 7 axefighters, continental arena and 800 gold
+			Actions.UnitKill(e_bandittunnelentrance1, True);
+		end;
+		if (g_mainquest >= 16) and (g_mainquest <= 19) and not(States.UnitDead(e_bandittunnelentrance2)) and (States.UnitPositionX(g_charactergroup) >= 158) and (States.UnitPositionX(g_charactergroup) <= 160)
+		and (States.UnitPositionY(g_charactergroup) >= 220) and (States.UnitPositionY(g_charactergroup) <= 222) then
+		begin
+			g_mainquest := g_mainquest + 1;
+			StartBattle(2, 15, 6, 16, 4, 16, 3, 16, 4, 15, 6, 800); // 6 axefighters, 4 swordfighters, 3 swordfighters, 4 swordfighters, 6 axefighters, coastal arena and 800 gold
+			Actions.UnitKill(e_bandittunnelentrance2, True);
+		end;
+		if (g_mainquest >= 16) and (g_mainquest <= 19) and not(States.UnitDead(e_bandittunnelentrance3)) and (States.UnitPositionX(g_charactergroup) >= 153) and (States.UnitPositionX(g_charactergroup) <= 155)
+		and (States.UnitPositionY(g_charactergroup) >= 225) and (States.UnitPositionY(g_charactergroup) <= 227) then
+		begin
+			g_mainquest := g_mainquest + 1;
+			StartBattle(2, 14, 12, 17, 6, 14, 12, 17, 6, 14, 12, 800); // 12 militia, 6 bowmen, 12 militia, 6 bowmen, 12 militia axefighters, coastal arena and 800 gold
+			Actions.UnitKill(e_bandittunnelentrance3, True);
+		end;
+		
+		if (g_mainquest = 19) and (ISONFIGHT = False) then
+		begin
+			g_mainquest := 20;
+			Actions.ShowMsg(0, '<$67>');
+			g_mainquestText :=  '<$68>';
+		end;
+		
+		if (g_mainquest = 20) and (((States.UnitPositionX(g_charactergroup) = 142) and (States.UnitPositionY(g_charactergroup) = 21)) or ((States.UnitPositionX(g_charactergroup) = 143) and (States.UnitPositionY(g_charactergroup) = 21))) then
+		begin//The king tells you to see his war concillor
+			Actions.ShowMsg(0, '<$63>');
+			Actions.ShowMsg(0, '<$64>');
+			Actions.ShowMsgGoto(0, 176, 22, '<$65>');
+			g_mainquestText := '<$66>';
+			g_gold := g_gold + 1100;
+			g_mainquest := 21;
+		end;
+	end;
+	
+	if (g_mainquest >= 21) and (g_mainquest < 28) then
+	begin
+		if (g_mainquest = 21) and (States.UnitPositionX(g_charactergroup) >= 175) and (States.UnitPositionX(g_charactergroup) <= 177)
+		and (States.UnitPositionY(g_charactergroup) >= 21) and (States.UnitPositionY(g_charactergroup) <= 23) then
+		begin//The war concillor tells you that you need to kill 3 bandit troops
+			Actions.ShowMsg(0, '<$69>');
+			Actions.ShowMsg(0, '<$70>');
+			g_mainquestText := '<$71>';
+			g_gold := g_gold + 1100;
+			g_mainquest := 22;
+			//Make two swordfighter guards appear near the tunnel
+			temp := Actions.GiveGroup(1, 16, 151, 219, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(151, 219, temp);
+			temp := Actions.GiveGroup(1, 16, 156, 219, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(156, 219, temp);
+			//Make the bandits appear
+
+			e_banditinvader1 := Actions.GiveGroup(3, 16, 78, 228, 4, 1, 1);//swordfighter, desert arena
+			e_banditinvader2 := Actions.GiveGroup(3, 24, 22, 164, 3, 1, 1);//rebel, continental arena
+			e_banditinvader3 := Actions.GiveGroup(3, 21, 69, 145, 4, 1, 1);//Scout, continental arena
+			e_banditinvader1 := States.GroupMember(e_banditinvader1, 0);
+			e_banditinvader2 := States.GroupMember(e_banditinvader2, 0);
+			e_banditinvader3 := States.GroupMember(e_banditinvader3, 0);
+			AddToUnmovableUnitsArrayAppearingUnit(78, 228, 4, e_banditinvader1);
+			AddToUnmovableUnitsArrayAppearingUnit(22, 164, 3, e_banditinvader2);
+			AddToUnmovableUnitsArrayAppearingUnit(69, 145, 4, e_banditinvader3);
+		end;
+		
+		if (g_mainquest >= 22) and (g_mainquest <= 25) and not(States.UnitDead(e_banditinvader1)) and (States.UnitPositionX(g_charactergroup) >= 77) and (States.UnitPositionX(g_charactergroup) <= 79)
+		and (States.UnitPositionY(g_charactergroup) >= 227) and (States.UnitPositionY(g_charactergroup) <= 229) then
+		begin
+			g_mainquest := g_mainquest + 1;
+			StartBattle(5, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 1000); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, desert arena and 1000 gold
+			Actions.UnitKill(e_banditinvader1, True);
+		end;
+		if (g_mainquest >= 22) and (g_mainquest <= 25) and not(States.UnitDead(e_banditinvader2)) and (States.UnitPositionX(g_charactergroup) >= 21) and (States.UnitPositionX(g_charactergroup) <= 23)
+		and (States.UnitPositionY(g_charactergroup) >= 163) and (States.UnitPositionY(g_charactergroup) <= 165) then
+		begin
+			g_mainquest := g_mainquest + 1;
+			StartBattle(1, 16, 5, 16, 5, 16, 5, 24, 10, 24, 10, 1000); //5 swordfighters, 5 swordfighters, 5 swordfighters, 10 rebels, 10 rebels, continental arena and 1000 gold
+			Actions.UnitKill(e_banditinvader2, True);
+		end;
+		if (g_mainquest >= 22) and (g_mainquest <= 25) and not(States.UnitDead(e_banditinvader3)) and (States.UnitPositionX(g_charactergroup) >= 68) and (States.UnitPositionX(g_charactergroup) <= 70)
+		and (States.UnitPositionY(g_charactergroup) >= 144) and (States.UnitPositionY(g_charactergroup) <= 146) then
+		begin
+			Actions.ShowMsg(0, '<$72>');
+			g_mainquest := g_mainquest + 1;
+			StartBattle(1, 21, 6, 21, 6, 22, 6, 22, 3, 22, 3, 1000); // 6 scouts, 6 scouts, 6 knights, 3 knights, 3 knights, continental arena and 1000 gold
+			Actions.UnitKill(e_banditinvader3, True);
+		end;
+		
+		if (g_mainquest = 25) and (ISONFIGHT = False) then
+		begin
+			g_mainquest := 26;
+			Actions.ShowMsg(0, '<$73>');
+			g_mainquestText := '<$74>';
+		end;
+		
+		if (g_mainquest = 26) and (States.UnitPositionX(g_charactergroup) >= 175) and (States.UnitPositionX(g_charactergroup) <= 177)
+		and (States.UnitPositionY(g_charactergroup) >= 21) and (States.UnitPositionY(g_charactergroup) <= 23) then
+		begin//The war concillor tells you to clear the tunnel
+			g_mainquest := 27;
+			Actions.ShowMsg(0, '<$76>');
+			Actions.ShowMsg(0, '<$77>');
+			Actions.ShowMsg(0, '<$78>');
+			Actions.ShowMsg(0, '<$79>');
+			g_mainquestText := '<$80>';
+			//Change the rank and change units in the recruiting area.
+			g_rank := '<$75>';
+			g_gold := g_gold + 1000;
+			for i := 1 to 3 do
+			begin
+				g_armyslots[i].max := 16;
+			end;
+			g_armyslots[4].max := 9;
+			
+				//Random Walkers Knights Of The Realm
+				temp := Actions.GiveGroup(1, 22, 117, 205, 4, 1, 1);
+				temp := States.GroupMember(temp, 0);
+				AddToRandomWalkerArray (temp, 1, 255, 126, 255, 5);
+				temp := Actions.GiveGroup(1, 22, 118, 205, 4, 1, 1);
+				temp := States.GroupMember(temp, 0);
+				AddToRandomWalkerArray (temp, 1, 255, 126, 255, 7);
+				temp := Actions.GiveGroup(1, 22, 119, 205, 4, 1, 1);
+				temp := States.GroupMember(temp, 0);
+				AddToRandomWalkerArray (temp, 1, 255, 126, 255, 5);
+				temp := Actions.GiveGroup(1, 22, 120, 205, 4, 1, 1);
+				temp := States.GroupMember(temp, 0);
+				AddToRandomWalkerArray (temp, 1, 255, 126, 255, 4);
+			
+			Actions.UnitKill(States.UnitAt(136, 42), True);//Switch axefighter to swordfighter
+			Actions.GiveGroup(1, 16, 137, 42, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(136, 42, States.UnitAt(137, 42));
+			
+			Actions.UnitKill(States.UnitAt(136, 49), True);
+			Actions.GiveGroup(1, 16, 137, 49, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(136, 49, States.UnitAt(137, 49));
+			
+			Actions.UnitKill(States.UnitAt(136, 56), True);
+			Actions.GiveGroup(1, 16, 137, 56, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(136, 56, States.UnitAt(137, 56));
+			
+			Actions.UnitKill(States.UnitAt(142, 42), True);//Switch lancer to pikemen
+			Actions.GiveGroup(1, 20, 141, 42, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(142, 42, States.UnitAt(141, 42));
+			
+			Actions.UnitKill(States.UnitAt(142, 49), True);
+			Actions.GiveGroup(1, 20, 141, 49, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(142, 49, States.UnitAt(141, 49));
+			
+			Actions.UnitKill(States.UnitAt(142, 56), True);
+			Actions.GiveGroup(1, 20, 141, 56, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(142, 56, States.UnitAt(141, 56));
+			
+			Actions.UnitKill(States.UnitAt(136, 64), True);//Switch scout to knight
+			Actions.GiveGroup(1, 22, 137, 64, 4, 1, 1);
+			rewriteUnmovableUnitLocationEntry(136, 64, States.UnitAt(137, 64));
+			
+			e_banditcampend1 := Actions.GiveGroup(3, 16, 94, 4, 4, 1, 1);//swordfighter, cave arena
+			e_banditcampend2 := Actions.GiveGroup(3, 15, 14, 7, 3, 1, 1);//axefighter, cave arena
+			e_banditcampend3 := Actions.GiveGroup(3, 21, 111, 12, 4, 1, 1);//scout, cave arena
+			e_banditcampend4 := Actions.GiveGroup(3, 16, 227, 186, 4, 1, 1);//swordfighter, continental arena
+			e_banditcampend5 := Actions.GiveGroup(3, 17, 231, 235, 3, 1, 1);//bowman, continental arena
+			e_banditcampend6 := Actions.GiveGroup(3, 21, 186, 220, 5, 1, 1);//Scout, coastal arena
+			e_banditcampend7 := Actions.GiveGroup(3, 16, 242, 200, 5, 1, 1);//swordfighter, coastal arena
+			e_banditcampend1 := States.GroupMember(e_banditcampend1, 0);
+			e_banditcampend2 := States.GroupMember(e_banditcampend2, 0);
+			e_banditcampend3 := States.GroupMember(e_banditcampend3, 0);
+			e_banditcampend4 := States.GroupMember(e_banditcampend4, 0);
+			e_banditcampend5 := States.GroupMember(e_banditcampend5, 0);
+			e_banditcampend6 := States.GroupMember(e_banditcampend6, 0);
+			e_banditcampend7 := States.GroupMember(e_banditcampend7, 0);
+			AddToUnmovableUnitsArrayAppearingUnit(94, 4, 4, e_banditcampend1);
+			AddToUnmovableUnitsArrayAppearingUnit(14, 7, 3, e_banditcampend2);
+			AddToUnmovableUnitsArrayAppearingUnit(111, 12, 4, e_banditcampend3);
+			AddToUnmovableUnitsArrayAppearingUnit(227, 186, 4, e_banditcampend4);
+			AddToUnmovableUnitsArrayAppearingUnit(231, 235, 3, e_banditcampend5);
+			AddToUnmovableUnitsArrayAppearingUnit(186, 220, 5, e_banditcampend6);
+			AddToUnmovableUnitsArrayAppearingUnit(242, 200, 5, e_banditcampend7);
+		end;
+		if (g_mainquest = 27) and not(States.UnitDead(e_banditcampend1)) and (States.UnitPositionX(g_charactergroup) >= 93) and (States.UnitPositionX(g_charactergroup) <= 95)
+		and (States.UnitPositionY(g_charactergroup) >= 3) and (States.UnitPositionY(g_charactergroup) <= 5) then
+		begin
+			StartBattle(4, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 900); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, cave arena and 900 gold
+			Actions.UnitKill(e_banditcampend1, True);
+		end;
+		if (g_mainquest = 27) and not(States.UnitDead(e_banditcampend2)) and (States.UnitPositionX(g_charactergroup) >= 13) and (States.UnitPositionX(g_charactergroup) <= 15)
+		and (States.UnitPositionY(g_charactergroup) >= 6) and (States.UnitPositionY(g_charactergroup) <= 8) then
+		begin
+			StartBattle(4, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 900); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, cave arena and 900 gold
+			Actions.UnitKill(e_banditcampend2, True);
+		end;
+		if (g_mainquest = 27) and not(States.UnitDead(e_banditcampend3)) and (States.UnitPositionX(g_charactergroup) >= 110) and (States.UnitPositionX(g_charactergroup) <= 112)
+		and (States.UnitPositionY(g_charactergroup) >= 11) and (States.UnitPositionY(g_charactergroup) <= 13) then
+		begin
+			StartBattle(4, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 900); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, cave arena and 900 gold
+			Actions.UnitKill(e_banditcampend3, True);
+		end;
+		if (g_mainquest = 27) and not(States.UnitDead(e_banditcampend4)) and (States.UnitPositionX(g_charactergroup) >= 226) and (States.UnitPositionX(g_charactergroup) <= 228)
+		and (States.UnitPositionY(g_charactergroup) >= 185) and (States.UnitPositionY(g_charactergroup) <= 187) then
+		begin
+			StartBattle(1, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 900); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, continental arena and 900 gold
+			Actions.UnitKill(e_banditcampend4, True);
+		end;
+		if (g_mainquest = 27) and not(States.UnitDead(e_banditcampend5)) and (States.UnitPositionX(g_charactergroup) >= 230) and (States.UnitPositionX(g_charactergroup) <= 232)
+		and (States.UnitPositionY(g_charactergroup) >= 234) and (States.UnitPositionY(g_charactergroup) <= 236) then
+		begin
+			StartBattle(1, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 900); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, continental arena and 900 gold
+			Actions.UnitKill(e_banditcampend5, True);
+		end;
+		if (g_mainquest = 27) and not(States.UnitDead(e_banditcampend6)) and (States.UnitPositionX(g_charactergroup) >= 185) and (States.UnitPositionX(g_charactergroup) <= 187)
+		and (States.UnitPositionY(g_charactergroup) >= 219) and (States.UnitPositionY(g_charactergroup) <= 221) then
+		begin
+			StartBattle(2, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 900); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, coastal arena and 900 gold
+			Actions.UnitKill(e_banditcampend6, True);
+		end;
+		if (g_mainquest = 27) and not(States.UnitDead(e_banditcampend7)) and (States.UnitPositionX(g_charactergroup) >= 241) and (States.UnitPositionX(g_charactergroup) <= 243)
+		and (States.UnitPositionY(g_charactergroup) >= 199) and (States.UnitPositionY(g_charactergroup) <= 201) then
+		begin
+			StartBattle(2, 21, 6, 16, 5, 16, 5, 18, 6, 16, 5, 900); // 6 scouts, 5 swordfighters, 5 swordfighters, 6 crossbowmen, 5 axefighters, coastal arena and 900 gold
+			Actions.UnitKill(e_banditcampend7, True);
+		end;
+		
+		if (g_mainquest = 27) and (((States.UnitPositionX(g_charactergroup) = 214) and (States.UnitPositionY(g_charactergroup) = 222))
+		or ((States.UnitPositionX(g_charactergroup) = 215) and (States.UnitPositionY(g_charactergroup) = 222))
+		or ((States.UnitPositionX(g_charactergroup) = 216) and (States.UnitPositionY(g_charactergroup) = 222))) then
+		begin
+			StartBattle(6, 20, 30, 16, 30, 16, 30, 17, 25, 17, 25, 0); // 30 pikemen, 30 swordfighters, 30 swordfighters, 25 bowmen, 25 bowmen, final arena and 0 gold
+			g_mainquest := 99;
+			Actions.PlayerAllianceChange(1, 3, True, True);
+			temp := Actions.GiveGroup(1, 20, 12, 109, 4, 15, 2);
+			Actions.GroupOrderAttackUnit(temp, States.GroupMember(b_ArrayOfGroupsAI[1], 0));
+			temp := Actions.GiveGroup(1, 22, 12, 77, 4, 15, 2);
+			Actions.GroupOrderAttackUnit(temp, States.GroupMember(b_ArrayOfGroupsAI[2], 0));
+			temp := Actions.GiveGroup(1, 22, 40, 77, 4, 15, 2);
+			Actions.GroupOrderAttackUnit(temp, States.GroupMember(b_ArrayOfGroupsAI[3], 0));
+			temp := Actions.GiveGroup(1, 20, 40, 109, 4, 15, 2);
+			Actions.GroupOrderAttackUnit(temp, States.GroupMember(b_ArrayOfGroupsAI[4], 0));
+		end;
+	end;
+	
+		if (g_mainquest = 99) and (ISONFIGHT = False) then
+		begin
+			Actions.PlayerWin([0], False);
+		end;
+end;
+
+procedure TeleportMasterProcedure;
+begin
+	if (g_mainquest > 1) and (States.UnitPositionX(g_charactergroup) >= 151) and (States.UnitPositionX(g_charactergroup) <= 155) and (States.UnitPositionY(g_charactergroup) = 6) then
+	begin
+		KillCharacter;
+		AddCharacter(111,184);
+		CoverCastleMap;
+		RevealTiles(1, 255, 129, 255);
+		RevealTiles(1, 121, 1, 17);
+	end;
+	
+	if (States.UnitPositionX(g_charactergroup) = 110) and (States.UnitPositionY(g_charactergroup) = 183) then
+	begin
+		KillCharacter;
+		AddCharacter(153,9);
+		CoverGlobalMap;
+		RevealTiles(135, 190, 1, 67);
+		RevealTiles(1, 121, 1, 17);
+	end;
+	
+	if (States.UnitPositionX(g_charactergroup) >= 151) and (g_mainquest > 26) and (States.UnitPositionX(g_charactergroup) < 157) and (States.UnitPositionY(g_charactergroup) = 217) then
+	begin
+		KillCharacter;
+		AddCharacter(5,7);
+		RevealTiles(1, 121, 1, 17);
+	end;
+	if (States.UnitPositionX(g_charactergroup) = 1) and (g_mainquest > 26) then
+	begin
+		KillCharacter;
+		AddCharacter(154, 220);
+		RevealTiles(1, 121, 1, 17);
+	end;
+	if (States.UnitPositionX(g_charactergroup) = 121) and (g_mainquest > 26) and (States.UnitPositionY(g_charactergroup) < 20) then
+	begin
+		KillCharacter;
+		AddCharacter(227, 202);
+		RevealTiles(1, 121, 1, 17);
+	end;
+	
+	if (States.UnitPositionX(g_charactergroup) >= 225) and (g_mainquest > 26) and (States.UnitPositionX(g_charactergroup) < 229) and (States.UnitPositionY(g_charactergroup) = 199) then
+	begin
+		KillCharacter;
+		AddCharacter(117,10);
+		RevealTiles(1, 121, 1, 17);
+	end;
+end;
+
+procedure BattleMasterProcedure;
+	var temp1 : Array [1..5] of Integer;
+	var temp2 : Array [1..5] of Integer;
+begin
+	HideTheKnightInBattle;
+	if ISONFIGHT then
+	begin
+		b_battleAIAttackBalancer := b_battleAIAttackBalancer + 1;
+		for i:= 1 to 5 do
+		begin
+			if g_Armyslots[i].count <> 0 then
+			begin
+				temp1[i] := 0;
+				for j := 0 to (g_Armyslots[i].count -1) do
+				begin
+					if States.UnitDead(b_slotMembers[i][j]) then
+					begin
+						temp1[i] := temp1[i] +1;
+					end;
+				end;
+				b_lostMembers[i] := temp1[i];
+			end;
+		end;
+		
+		for i:= 1 to 5 do
+		begin
+			if b_AIinitialMembers[i] <> 0 then
+			begin
+				temp2[i] := 0;
+				for j := 0 to (b_AIinitialMembers[i] -1) do
+				begin
+					if States.UnitDead(b_AIslotMembers[i][j]) then
+					begin
+						temp2[i] := temp2[i] +1;
+					end;
+				end;
+				b_AIlostMembers[i] := temp2[i];
+			end
+		end;
+
+			if (b_lostMembers[1] = g_Armyslots[1].count) and (b_lostMembers[2] = g_Armyslots[2].count) and (b_lostMembers[3] = g_Armyslots[3].count)
+			and (b_lostMembers[4] = g_Armyslots[4].count) and (b_lostMembers[5] = g_Armyslots[5].count) then // player lost the battle and thus the game
+			begin
+				Actions.PlayerWin([2], False);
+			end
+			Else if (b_AIlostMembers[1] = b_AIinitialMembers[1]) and (b_AIlostMembers[2] = b_AIinitialMembers[2])
+			and (b_AIlostMembers[3] = b_AIinitialMembers[3]) and (b_AIlostMembers[4] = b_AIinitialMembers[4]) and (b_AIlostMembers[5] = b_AIinitialMembers[5]) then // enemy defeated
+			begin
+				EndBattle;
+			end;
+			
+		//AI attacks the closest unit (with priority to ranged and cavalry)
+		if b_battleAIAttackBalancer mod 25 = 0 then //Every 2.5 seconds
+		begin
+			AIAttackInBattle;
+		end;
+	end;
+end;
+
+//Game
+procedure OnMissionStart;
+begin
+	DefineVariablesBeginningAndGetCharacter;
+	DefineRevealedTilesArray;
+	FeedEveryone;
+	GetUnmovableUnitsLocations;
+	GetRandomWalkersLocations;
+	MakeRandomWalkersMove;
+	CoverGlobalMap;
+	CoverBattleMap;
+	LifeAddingProcedure;
+end;
+
+procedure OnTick;
+begin
+	if States.GameTime mod 10 = 0 then //Every second
+	begin
+		UpdateText;
+		Recruiting;
+	end;
+	
+	if States.GameTime mod 20 = 0 then //Every 2 seconds
+	begin
+		ResetUnitLocation;
+	end;
+	
+	if States.GameTime mod 50 = 0 then //Every 5 seconds
+	begin
+		MakeRandomWalkersMove;
+	end;
+	
+	if States.GameTime mod 400 = 0 then //Every 40 seconds
+	begin
+		RepopulateFishSea;
+	end;
+	
+	if States.GameTime mod 7200 = 0 then //Every 12 minutes
+	begin
+		FeedEveryone;
+		LifeAddingProcedure;
+	end;
+	RecruitingTutoMessages;
+	TeleportMasterProcedure;
+	GetAllRevealedTiles;
+	QuestMasterProcedure;
+	BattleMasterProcedure;
+end;

@@ -1,0 +1,10 @@
+SetSpecial
+
+Title
+The Adventurer's Journey
+
+SmallDesc
+By Shadaoe, RPG-like map.
+
+BigDesc
+Read both "gameplay" and "story" sections before playing !|Gameplay :|The bottom of the map is the global map representing the whole world. When you enter in a secondary zone you're placed on the top of the map representing the area you entered. When on the global map or secondary zone, you're moving a knight which is you (the main character) but who represents both you and your army. When you encounter an enemy (you need to get next to him, represented by one unit), you enter a battle and your soldiers are placed on a themed area depending on where you fight. You have to defeat the enemy. The main character isn't on the battlefield, only the army. You can't flee from a fight. Do all the main quests and you win the mission.|IT IS RECOMMENDED THAT YOU SAVE A LOT||Story :|The world is in turmoil. This world is composed of 2 continents and the biggest one is united under the banner of King Clovis but several bandit attacks from another continent happened recently. Many other unexpected events darkened the precious peace that was going since several years. Many experienced knights died, and you, Lothar, a freshly trained knight, are called by the king himself for your first mission !|Made by Shadaoe.

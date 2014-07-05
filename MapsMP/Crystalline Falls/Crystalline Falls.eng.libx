@@ -1,0 +1,19 @@
+
+MaxID:15
+
+0:South team has discovered the map.
+1:North team has discovered the map.
+2:Nobody in control
+3:Outposts :
+4:North-East :
+5:North-West :
+6:South-East :
+7:South-West :
+8:Map revealed in
+9:South team revealed the map !
+10:South team in control
+11:North team in control
+12:Nobody has complete control over the outposts.
+13:South team has complete control over the outposts.
+14:North team has complete control over the outposts.
+15:North team revealed the map !

@@ -1,0 +1,38 @@
+//Simple Script made by Pawel95
+
+
+//In-Game messages
+procedure OnTick;
+begin
+if States.GameTime = 10 then
+	begin
+		Actions.ShowMsg(0, 'We have sent an ambassador to negotiate with the King. The ambassador should make a treaty so that we can live peacefully next to each other. Meanwhile our traveling caravan must wait for the ambassador to return, our food supplies are running low and our people are getting hungry. It would be wise to build some farms and grow some crops. ');
+	end;
+	
+if States.Gametime = 900 then
+
+	begin
+		Actions.ShowMsg(0, 'This is outrageous, the king has slaughtered the ambassador! We should not let this go unheard. We should build our village here and train some recruits. The King knows of our presence and it is very likely that he will try to drive us of his lands. Prepare yourself for this might be the greatest battle of our time, yet to begin. ');
+	end;
+	
+	
+if States.Gametime = 6300 then
+
+	begin
+		Actions.ShowMsg(0, 'Our scouts report that the king gave one of his outposts orders to attack the forest people in the north, though they declined our offer for an alliance we should keep an eye out. They blame us for king’s actions.');
+	end;
+	
+if States.Gametime = 47700 then
+
+	begin
+		Actions.ShowMsg(0, 'One of our spies report that the kings first outpost is prepared for a fight and is marching towards us as we speak, prepare the defenses!');
+	end;
+	
+if States.Gametime = 72000 then
+
+	begin
+		Actions.ShowMsg(0,'It seems that the king has made his decision, we should purge these lands and take them for our own. Without the king these lands can be peaceful once more, let that be our goal.');
+		
+
+	end;
+	end;

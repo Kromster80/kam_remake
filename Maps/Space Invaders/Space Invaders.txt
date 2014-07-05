@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+Space Invaders||The rules: as in the classic game that everyone probably knows, the enemy has soldiers moving left to right then back again for all the time. Your goal is to send your horsemen to kill enemy forces. You can send a knight/scout by ordering your builders to make roads 1 tile above them.||Good luck - invaders must die!

@@ -1,0 +1,8 @@
+Title
+Decaying hearts,purified
+
+SmallDesc
+A mission by WhiteWolf
+
+BigDesc
+The age of good kings has passed and an era of peace has come to an end.|Our father was a good king, though he was careless at his borders.|Barbarians invaded our lands and we could barely escape the same fate as that of our father.|That was 19 years ago.. Long have we traveled and it is time for us to set up a new village and create a safe place for our children to grow up.|We received some information along the way that these lands belong to a certain king theodriad.|As the word goes he used to be a good king as well but.. times have changed and we can not rely on old habits anymore.|Let’s sent an ambassador and see if the king is willing to take us in.||Mission by WhiteWolf|Script by Pawel95

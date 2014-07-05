@@ -1,0 +1,146 @@
+{Created by Tef}
+
+const
+	PLAYER_1 = 0;
+	START_X = 20;
+	START_Y = 10;
+	SNAKE_SPEED = 2; // ticks per tile
+	MIN_LINE_SEGMENT = 2;
+	MAX_LINE_SEGMENT = 10;
+	SNAKE_LENGTH = 12;
+	MAP_SIZE_X = 32;
+	MAP_SIZE_Y = 32;
+	MAX_SCORE = 5;
+	KNIGHT = 22;
+	
+type
+	TypeOfAction = (actCreate, actCheck);
+	TileAttributes = record
+		PosX, PosY: integer;
+	end;
+	
+var
+	ForbiddenDirection, NewDirectionTime, CurrentDirection, CurrentX, CurrentY, Horse, Score, NewHorseGroup: integer;
+	TileHistory: array [0..(SNAKE_LENGTH-1)] of TileAttributes;
+
+
+
+Procedure Snake(DesiredAction: TypeOfAction);
+	var
+		Walker, NewLength, NewRandomX, NewRandomY, NewHorse: integer;
+		ResetSnake: boolean;
+	begin
+		if DesiredAction = actCreate then begin
+			for Walker := 0 to (SNAKE_LENGTH-1) do begin
+				TileHistory[Walker].PosX := START_X;
+				TileHistory[Walker].PosY := START_Y + Walker;
+				Actions.FogRevealAll(PLAYER_1);
+			end;
+			NewDirectionTime := 1;
+			CurrentX := START_X;
+			CurrentY := START_Y + (SNAKE_LENGTH-1);
+			Horse := States.UnitAt(10,10);
+			Actions.OverlayTextSet(PLAYER_1, 'Catch the snake 5 times with your horse! Your winning time will then be displayed.');
+		end;
+		
+		if States.GameTime >= NewDirectionTime then begin
+			CurrentDirection := States.KamRandomI(4);
+			while CurrentDirection = ForbiddenDirection do CurrentDirection := States.KamRandomI(4);
+			if CurrentDirection = 0 then ForbiddenDirection := 2;
+			if CurrentDirection = 1 then ForbiddenDirection := 3;
+			if CurrentDirection = 2 then ForbiddenDirection := 0;
+			if CurrentDirection = 3 then ForbiddenDirection := 1;
+			NewLength := MIN_LINE_SEGMENT + States.KamRandomI(MAX_LINE_SEGMENT - MIN_LINE_SEGMENT + 1);
+			NewDirectionTime := States.GameTime + (SNAKE_SPEED * NewLength);
+		end;
+		
+		if CurrentDirection = 0 then CurrentY := CurrentY - 1;
+		if CurrentDirection = 1 then CurrentX := CurrentX + 1;
+		if CurrentDirection = 2 then CurrentY := CurrentY + 1;
+		if CurrentDirection = 3 then CurrentX := CurrentX - 1;
+		
+		if CurrentX >= MAP_SIZE_X then CurrentX := 1;
+		if CurrentY >= MAP_SIZE_Y then CurrentY := 1;
+		if CurrentX < 1 then CurrentX := MAP_SIZE_X - 1;
+		if CurrentY < 1 then CurrentY := MAP_SIZE_Y - 1;
+		
+		
+		Actions.PlanRemove(PLAYER_1, TileHistory[0].PosX, TileHistory[0].PosY);
+		Actions.PlanAddRoad(PLAYER_1, CurrentX, CurrentY);
+		for Walker := 0 to (SNAKE_LENGTH -2) do begin
+			TileHistory[Walker] := TileHistory[Walker + 1];
+		end;
+		TileHistory[SNAKE_LENGTH -1].PosX := CurrentX;
+		TileHistory[SNAKE_LENGTH -1].PosY := CurrentY;
+		ResetSnake := false;
+		
+		for Walker := 0 to (SNAKE_LENGTH -1) do begin
+			if (States.UnitPositionX(Horse) = TileHistory[Walker].PosX) and (States.UnitPositionY(Horse) = TileHistory[Walker].PosY) then begin
+				Score := Score + 1;
+				if Score < MAX_SCORE then begin
+					Actions.OverlayTextSet(PLAYER_1, 'Score = ' + inttostr(Score));
+					ResetSnake := true;
+					break;
+				end;
+				if Score >= MAX_SCORE then begin
+					Actions.OverlayTextSet(PLAYER_1, 'Score = ' + inttostr(Score) + '! YOUR TIME: ' + inttostr(States.GameTime/10) + ' SECONDS');
+					Actions.PlayerWin([PLAYER_1], true);
+					break;
+				end;
+			end;
+		end;
+		
+		if ResetSnake then begin
+			for Walker := 0 to (SNAKE_LENGTH -1) do begin
+				Actions.PlanRemove(PLAYER_1, TileHistory[Walker].PosX, TileHistory[Walker].PosY);
+				TileHistory[Walker].PosX := States.UnitPositionX(Horse) + round(MAP_SIZE_X /2);
+				TileHistory[Walker].PosY :=  States.UnitPositionY(Horse) + round(MAP_SIZE_Y /2);
+			end;
+			CurrentX := States.UnitPositionX(Horse) + round(MAP_SIZE_X /2);
+			CurrentY := States.UnitPositionY(Horse) + round(MAP_SIZE_Y /2);
+			NewDirectionTime := States.GameTime + SNAKE_SPEED;
+		end;
+		
+		if States.UnitPositionX(Horse) = (MAP_SIZE_X -1) then begin
+			if (States.UnitDirection(Horse) = 1) or (States.UnitDirection(Horse) = 2) or (States.UnitDirection(Horse) = 3) then begin
+				NewHorseGroup := Actions.GiveGroup(PLAYER_1, KNIGHT, 1, States.UnitPositionY(Horse), States.UnitDirection(Horse), 1, 1);
+				Actions.UnitKill(Horse, true);
+				Horse := States.GroupMember(NewHorseGroup, 0)
+			end;
+		end;
+		
+		if States.UnitPositionX(Horse) = 1 then begin
+			if (States.UnitDirection(Horse) = 5) or (States.UnitDirection(Horse) = 6) or (States.UnitDirection(Horse) = 7) then begin
+				NewHorseGroup := Actions.GiveGroup(PLAYER_1, KNIGHT, MAP_SIZE_X -1, States.UnitPositionY(Horse), States.UnitDirection(Horse), 1, 1);
+				Actions.UnitKill(Horse, true);
+				Horse := States.GroupMember(NewHorseGroup, 0)
+			end;
+		end;
+		
+		
+		if States.UnitPositionY(Horse) = (MAP_SIZE_Y -1) then begin
+			if (States.UnitDirection(Horse) = 3) or (States.UnitDirection(Horse) = 4) or (States.UnitDirection(Horse) = 5) then begin
+				NewHorseGroup := Actions.GiveGroup(PLAYER_1, KNIGHT, States.UnitPositionX(Horse), 1, States.UnitDirection(Horse), 1, 1);
+				Actions.UnitKill(Horse, true);
+				Horse := States.GroupMember(NewHorseGroup, 0)
+			end;
+		end;
+		
+		if States.UnitPositionY(Horse) = 1 then begin
+			if (States.UnitDirection(Horse) = 7) or (States.UnitDirection(Horse) = 0) or (States.UnitDirection(Horse) = 1) then begin
+				NewHorseGroup := Actions.GiveGroup(PLAYER_1, KNIGHT, States.UnitPositionX(Horse), MAP_SIZE_Y-1, States.UnitDirection(Horse), 1, 1);
+				Actions.UnitKill(Horse, true);
+				Horse := States.GroupMember(NewHorseGroup, 0)
+			end;
+		end;
+	end;
+	
+Procedure OnMissionStart;
+	begin
+		Snake(actCreate);
+	end;
+	
+Procedure OnTick;
+	begin
+		if States.GameTime mod SNAKE_SPEED = 0 then Snake(actCheck);
+	end;
