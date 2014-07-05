@@ -80,15 +80,16 @@ type
     function FileNameWithoutHash: UnicodeString;
     function HasReadme: Boolean;
     function ViewReadme: Boolean;
+    function GetLobbyColor: Cardinal;
   end;
 
   TTMapsScanner = class(TThread)
   private
-    fMapFolder: TMapFolder;
+    fMapFolders: TMapFolderSet;
     fOnMapAdd: TMapEvent;
     fOnMapAddDone: TNotifyEvent;
   public
-    constructor Create(aMapFolder: TMapFolder; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+    constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
     procedure Execute; override;
   end;
 
@@ -96,7 +97,7 @@ type
   private
     fCount: Integer;
     fMaps: array of TKMapInfo;
-    fMapFolder: TMapFolder;
+    fMapFolders: TMapFolderSet;
     fSortMethod: TMapsSortMethod;
     CS: TCriticalSection;
     fScanner: TTMapsScanner;
@@ -110,7 +111,8 @@ type
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
   public
-    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
+    constructor Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
+    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
     destructor Destroy; override;
 
     property Count: Integer read fCount;
@@ -517,17 +519,32 @@ begin
 end;
 
 
+function TKMapInfo.GetLobbyColor: Cardinal;
+begin
+  if fMapFolder = mfDL then
+    Result := $C9BBBB
+  else
+    Result := $9CF6FF;
+end;
+
+
 { TKMapsCollection }
-constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
+constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc);
 begin
   inherited Create;
-  fMapFolder := aMapFolder;
+  fMapFolders := aMapFolders;
   fSortMethod := aSortMethod;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
   //it mostly acts as a safenet
   CS := TCriticalSection.Create;
+end;
+
+
+constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
+begin
+  Create([aMapFolder], aSortMethod);
 end;
 
 
@@ -746,7 +763,7 @@ begin
 
   //Scan will launch upon create automatcally
   fScanning := True;
-  fScanner := TTMapsScanner.Create(fMapFolder, MapAdd, MapAddDone, ScanComplete);
+  fScanner := TTMapsScanner.Create(fMapFolders, MapAdd, MapAddDone, ScanComplete);
 end;
 
 
@@ -847,7 +864,7 @@ end;
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added
 //aOnComplete - scan is complete
-constructor TTMapsScanner.Create(aMapFolder: TMapFolder; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
@@ -855,7 +872,7 @@ begin
 
   Assert(Assigned(aOnMapAdd));
 
-  fMapFolder := aMapFolder;
+  fMapFolders := aMapFolders;
   fOnMapAdd := aOnMapAdd;
   fOnMapAddDone := aOnMapAddDone;
   OnTerminate := aOnComplete;
@@ -868,25 +885,29 @@ var
   SearchRec: TSearchRec;
   PathToMaps: string;
   Map: TKMapInfo;
+  MF: TMapFolder;
 begin
-  PathToMaps := ExeDir + MAP_FOLDER[fMapFolder] + PathDelim;
+  for MF in fMapFolders do
+  begin
+    PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
 
-  if not DirectoryExists(PathToMaps) then Exit;
+    if not DirectoryExists(PathToMaps) then Exit;
 
-  FindFirst(PathToMaps + '*', faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', fMapFolder))
-    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', fMapFolder)) then
-    begin
-      Map := TKMapInfo.Create(SearchRec.Name, false, fMapFolder);
-      if SLOW_MAP_SCAN then
-        Sleep(50);
-      fOnMapAdd(Map);
-      fOnMapAddDone(Self);
-    end;
-  until (FindNext(SearchRec) <> 0) or Terminated;
-  FindClose(SearchRec);
+    FindFirst(PathToMaps + '*', faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
+      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
+      begin
+        Map := TKMapInfo.Create(SearchRec.Name, False, MF);
+        if SLOW_MAP_SCAN then
+          Sleep(50);
+        fOnMapAdd(Map);
+        fOnMapAddDone(Self);
+      end;
+    until (FindNext(SearchRec) <> 0) or Terminated;
+    FindClose(SearchRec);
+  end;
 end;
 
 

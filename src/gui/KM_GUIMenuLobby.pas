@@ -157,7 +157,7 @@ begin
 
   fMinimap := TKMMinimap.Create(True, True);
 
-  fMapsMP := TKMapsCollection.Create(mfMP);
+  fMapsMP := TKMapsCollection.Create([mfMP, mfDL]);
   fSavesMP := TKMSavesCollection.Create;
 
   CreateControls(aParent);
@@ -409,8 +409,8 @@ begin
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
-      DropCol_LobbyMaps.DropWidth := 430; //Wider to fit mapnames well
-      DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 290, 320]);
+      DropCol_LobbyMaps.DropWidth := 440; //Wider to fit mapnames well
+      DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 0;
       DropCol_LobbyMaps.OnChange := MapChange;
@@ -1333,9 +1333,9 @@ begin
     3:  //Special map Map
         begin
           fMapsMP.Refresh(MapList_ScanUpdate);
-          DropCol_LobbyMaps.DropWidth := 430;
+          DropCol_LobbyMaps.DropWidth := 440;
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 290, 320]);
+          DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
         end;
     4:  //Saved Game
         begin
@@ -1437,9 +1437,9 @@ begin
       end;
 
       if AddMap then
-        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
-                                           IntToStr(fMapsMP[I].HumanPlayerCount),
-                                           fMapsMP[I].SizeText], I));
+        DropCol_LobbyMaps.Add(MakeListRow([WrapColor(fMapsMP[I].FileName,                   fMapsMP[I].GetLobbyColor),
+                                           WrapColor(IntToStr(fMapsMP[I].HumanPlayerCount), fMapsMP[I].GetLobbyColor),
+                                           WrapColor(fMapsMP[I].SizeText,                   fMapsMP[I].GetLobbyColor)], I));
     end;
   finally
     fMapsMP.Unlock;
@@ -1588,17 +1588,19 @@ end;
 
 //Just pass FileName to Networking, it will check validity itself
 procedure TKMMenuLobby.MapChange(Sender: TObject);
+var I: Integer;
 begin
+  I := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag;
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
     fMapsMP.Lock;
-      fNetworking.SelectMap(fMapsMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
+      fNetworking.SelectMap(fMapsMP[I].FileName, fMapsMP[I].MapFolder);
     fMapsMP.Unlock;
   end
   else
   begin
     fSavesMP.Lock;
-      fNetworking.SelectSave(fSavesMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
+      fNetworking.SelectSave(fSavesMP[I].FileName);
     fSavesMP.Unlock;
   end;
 end;
@@ -1666,7 +1668,7 @@ begin
                     Button_LobbySetupReadme.Show;
                   end;
                 end;
-                Label_LobbyMapName.Caption := M.FileName;
+                Label_LobbyMapName.Caption := WrapColor(M.FileName, M.GetLobbyColor);
                 Memo_LobbyMapDesc.Text := M.BigDesc;
             end;
   end;

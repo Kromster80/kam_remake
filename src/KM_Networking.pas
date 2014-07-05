@@ -169,7 +169,7 @@ type
     function  Connected: boolean;
     procedure MatchPlayersToSave(aPlayerID:integer=-1);
     procedure SelectNoMap(const aErrorMessage: UnicodeString);
-    procedure SelectMap(const aName: UnicodeString);
+    procedure SelectMap(const aName: UnicodeString; aMapFolder: TMapFolder);
     procedure SelectSave(const aName: UnicodeString);
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
@@ -560,14 +560,14 @@ end;
 
 //Tell other players which map we will be using
 //Players will reset their starting locations and "Ready" status on their own
-procedure TKMNetworking.SelectMap(const aName: UnicodeString);
+procedure TKMNetworking.SelectMap(const aName: UnicodeString; aMapFolder: TMapFolder);
 begin
   Assert(IsHost, 'Only host can select maps');
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
 
   //Strict scanning to force CRC recalculation
-  fMapInfo := TKMapInfo.Create(aName, True, mfMP);
+  fMapInfo := TKMapInfo.Create(aName, True, aMapFolder);
 
   if not fMapInfo.IsValid then
   begin
@@ -1392,11 +1392,11 @@ begin
                 //Validate request and set up file sender
                 M.ReadW(tmpStringW);
                 case fSelectGameKind of
-                  ngk_Map:  if (tmpStringW <> MapInfo.FileName)
-                            or not fFileSenderManager.StartNewSend(kttMap, MapInfo.FileName, aSenderIndex) then
+                  ngk_Map:  if ((tmpStringW <> MapInfo.FileName) and (tmpStringW <> MapInfo.FileName + '_' + IntToHex(MapInfo.CRC, 8)))
+                            or not fFileSenderManager.StartNewSend(kttMap, MapInfo.FileName, MapInfo.MapFolder, aSenderIndex) then
                               PacketSend(aSenderIndex, mk_FileEnd); //Abort
                   ngk_Save: if (tmpStringW <> SaveInfo.FileName)
-                            or not fFileSenderManager.StartNewSend(kttSave, SaveInfo.FileName, aSenderIndex) then
+                            or not fFileSenderManager.StartNewSend(kttSave, SaveInfo.FileName, mfDL, aSenderIndex) then
                               PacketSend(aSenderIndex, mk_FileEnd); //Abort
                 end;
               end;
@@ -1674,7 +1674,11 @@ begin
                 fMapInfo := TKMapInfo.Create(tmpStringW, True, mfMP);
                 if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
                 begin
-                  fMapInfo := TKMapInfo.Create(tmpStringW+'_'+IntToHex(Integer(tmpCRC), 8), True, mfDL);
+                  //Append CRC to map name if it isn't there already
+                  if RightStr(tmpStringW, 9) <> '_' + IntToHex(Integer(tmpCRC), 8) then
+                    tmpStringW := tmpStringW + '_' + IntToHex(Integer(tmpCRC), 8);
+
+                  fMapInfo := TKMapInfo.Create(tmpStringW, True, mfDL);
                   if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
                     FreeAndNil(fMapInfo);
                 end;
@@ -1692,7 +1696,7 @@ begin
                   fMissingFileCRC := tmpCRC;
                   fSelectGameKind := ngk_None;
                   if Assigned(fOnMapName) then fOnMapName(tmpStringW);
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW + '_' + IntToHex(Integer(tmpCRC), 8), False);
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False);
                 end;
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               end;
