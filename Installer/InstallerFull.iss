@@ -14,5 +14,10 @@ begin
   Result := true; //Complete version can ALWAYS be installed (this function is used for the update installer only)
 end;
 
+function CanUpdate():boolean;
+begin
+  Result := true; //Complete version can ALWAYS be updated (this function is used for the update installer only)
+end;
+
 [Setup]
 #include "InstallerLib.iss"

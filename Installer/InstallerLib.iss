@@ -36,7 +36,7 @@ Name: "hun"; MessagesFile: "compiler:Languages\Hungarian.isl"; LicenseFile: "Lic
 Name: "pol"; MessagesFile: "compiler:Languages\Polish.isl"; LicenseFile: "License.pol.txt"
 Name: "rus"; MessagesFile: "compiler:Languages\Russian.isl"; LicenseFile: "License.rus.txt"
 Name: "ita"; MessagesFile: "compiler:Languages\Italian.isl"; LicenseFile: "License.ita.txt"
-Name: "svk"; MessagesFile: "compiler:Languages\Slovak.isl"; LicenseFile: "License.svk.txt"
+Name: "svk"; MessagesFile: "ExtraLanguages\Slovak.isl"; LicenseFile: "License.svk.txt"
 Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "License.spa.txt"
 Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl"; LicenseFile: "License.swe.txt"
 Name: "ptb"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"; LicenseFile: "License.ptb.txt"
@@ -114,6 +114,21 @@ begin
   Result := ExpandConstant('{app}\Readme_{language}.html'); //Use the user's language if possible
   if not FileExists(Result) then
     Result := ExpandConstant('{app}\Readme_eng.html'); //Otherwise use English
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  NeedsRestart := False;
+  if not CanUpdate() then
+  begin
+    Result := ExpandConstant('{cm:CantUpdate}');
+    Exit;
+  end;
+
+  Result := '';
+  //If previous MapsMP folder exists rename it to -old.
+  if DirExists(ExpandConstant('{app}\MapsMP')) then
+    RenameFile(ExpandConstant('{app}\MapsMP\'), ExpandConstant('{app}\MapsMP-old\'));
 end;
 
 [Files]

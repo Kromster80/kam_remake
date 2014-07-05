@@ -32,16 +32,10 @@ begin
   end;
 end;
 
-[Setup]
-EnableDirDoesntExistWarning=yes
-CreateUninstallRegKey=no
-#include "InstallerLib.iss"
-
-[Code]
-function PrepareToInstall(var NeedsRestart: Boolean): String;
+function CanUpdate(): Boolean;
 var InstallFolder: string;
 begin
-  Result := '';
+  Result := True;
   InstallFolder := ExpandConstant('{app}');
   if(not(
      FileExists(InstallFolder+'\KaM_Remake.exe') and
@@ -50,5 +44,11 @@ begin
      (FileExists(InstallFolder+'\Resource\Tiles1.tga') or FileExists(InstallFolder+'\data\Sprites\Tileset.rxx')) and
      FileExists(InstallFolder+'\data\sfx\sounds.dat')
      )) then
-     Result := ExpandConstant('{cm:CantUpdate}');
+     Result := False;
 end;
+
+[Setup]
+EnableDirDoesntExistWarning=yes
+DirExistsWarning=no
+CreateUninstallRegKey=no
+#include "InstallerLib.iss"
