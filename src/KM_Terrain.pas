@@ -1550,7 +1550,8 @@ begin
       Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];
       //Remember tick when tree was chopped to calc the snim length
       FallingTrees.Add(Loc, ChopableTrees[I, caAgeFall], fAnimStep);
-      gSoundPlayer.Play(sfx_TreeDown, Loc, True);
+      if MySpectator.FogOfWar.CheckTileRevelation(Loc.X, Loc.Y) >= 255 then
+        gSoundPlayer.Play(sfx_TreeDown, Loc, True);
       Exit;
     end;
 end;
