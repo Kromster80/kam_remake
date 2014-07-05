@@ -3303,7 +3303,7 @@ begin
     Path := TPathFindingRoad.Create(aPlayer);
     Points := TKMPointList.Create;
     try
-      PlanExists := Path.Route_ReturnToWalkable(KMPoint(X1, Y1), KMPoint(X2, Y2), Points);
+      PlanExists := Path.Route_ReturnToWalkable(KMPoint(X1, Y1), KMPoint(X2, Y2), 0, Points);
       if not PlanExists then
         Exit;
       for I := 0 to Points.Count - 1 do

@@ -362,6 +362,8 @@ var
   NodeList: TKMPointList;
   H: TKMHouse;
   LocTo: TKMPoint;
+  RoadConnectID: Byte;
+  RoadExists: Boolean;
 begin
   P := gHands[fOwner];
   //Take the first tower from the list
@@ -386,10 +388,16 @@ begin
     H := P.Houses.FindHouse(ht_Any, BestLoc.X, BestLoc.Y, 1, False);
     if H = nil then Exit; //We are screwed, no houses left
     LocTo := KMPointBelow(H.GetEntrance);
+
+    //Find nearest complete house to get the road connect ID
+    H := P.Houses.FindHouse(ht_Any, BestLoc.X, BestLoc.Y, 1, True);
+    if H = nil then Exit; //We are screwed, no houses left
+    RoadConnectID := gTerrain.GetRoadConnectID(KMPointBelow(H.GetEntrance));
+
     NodeList := TKMPointList.Create;
-    fPathFindingRoad.Route_ReturnToWalkable(BestLoc, LocTo, NodeList);
+    RoadExists := fPathFindingRoad.Route_ReturnToWalkable(BestLoc, LocTo, RoadConnectID, NodeList);
     //If length of road is short enough, build the tower
-    if NodeList.Count <= MAX_ROAD_DISTANCE then
+    if RoadExists and (NodeList.Count <= MAX_ROAD_DISTANCE) then
     begin
       gHands[fOwner].AddHousePlan(ht_WatchTower, BestLoc);
       TryConnectToRoad(KMPointBelow(BestLoc));
@@ -412,6 +420,7 @@ var
   P: TKMHand;
   H: TKMHouse;
   LocTo: TKMPoint;
+  RoadConnectID: Byte;
   NodeList: TKMPointList;
   RoadExists: Boolean;
 begin
@@ -423,9 +432,14 @@ begin
   if H = nil then Exit; //We are screwed, no houses left
   LocTo := KMPointBelow(H.GetEntrance);
 
+  //Find nearest complete house to get the road connect ID
+  H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, True);
+  if H = nil then Exit; //We are screwed, no houses left
+  RoadConnectID := gTerrain.GetRoadConnectID(KMPointBelow(H.GetEntrance));
+
   NodeList := TKMPointList.Create;
   try
-    RoadExists := fPathFindingRoad.Route_ReturnToWalkable(aLoc, LocTo, NodeList);
+    RoadExists := fPathFindingRoad.Route_ReturnToWalkable(aLoc, LocTo, RoadConnectID, NodeList);
 
     if not RoadExists then
       Exit;

@@ -12,6 +12,7 @@ type
   TPathFindingRoad = class(TPathFindingAStarNew)
   private
     fOwner: THandIndex;
+    fRoadConnectID: Byte;
   protected
     function CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean; override;
     function DestinationReached(aX, aY: Word): Boolean; override;
@@ -23,7 +24,7 @@ type
 
     procedure OwnerUpdate(aPlayer: THandIndex);
     function Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
-    function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
+    function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aRoadConnectID: Byte; NodeList: TKMPointList): Boolean; reintroduce;
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Load(LoadStream: TKMemoryStream); override;
   end;
@@ -61,6 +62,7 @@ procedure TPathFindingRoad.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fOwner);
+  SaveStream.Write(fRoadConnectID);
 end;
 
 
@@ -68,6 +70,7 @@ procedure TPathFindingRoad.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fOwner);
+  LoadStream.Read(fRoadConnectID);
 end;
 
 
@@ -79,10 +82,18 @@ end;
 
 
 function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+var IsRoad: Boolean;
 begin
+  IsRoad := (CanWalkRoad in gTerrain.Land[aToY, aToX].Passability)
+            or (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aToX, aToY)) = ft_Road)
+            or (gTerrain.Land[aToY, aToX].TileLock = tlRoadWork);
+
   //Since we don't allow roads to be built diagonally we can assume
   //path is always 1 tile (10 points)
-  Result := 10;
+  if IsRoad then
+    Result := 0
+  else
+    Result := 10;
 
   //Building roads over fields is discouraged unless unavoidable
   if gTerrain.TileIsCornField(KMPoint(aToX, aToY))
@@ -113,19 +124,11 @@ end;
 
 
 function TPathFindingRoad.DestinationReached(aX, aY: Word): Boolean;
-var
-  RoadWorkNear: Boolean;
 begin
-  //Since we can't step on to WIP tiles we check for them nearby
-  RoadWorkNear := ((aX > 1) and (gTerrain.Land[aY, aX-1].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY, aX-1].IsUnit).Owner = fOwner))
-  or ((aX < gTerrain.MapX - 1) and (gTerrain.Land[aY, aX+1].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY, aX+1].IsUnit).Owner = fOwner))
-  or ((aY > 1) and (gTerrain.Land[aY-1, aX].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY-1, aX].IsUnit).Owner = fOwner))
-  or ((aY < gTerrain.MapY - 1) and (gTerrain.Land[aY+1, aX].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY+1, aX].IsUnit).Owner = fOwner));
-
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
-            or ((gTerrain.Land[aY, aX].TileOverlay = to_Road) and (gTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
-            or RoadWorkNear //We reached our roadplan being constructed
-            or (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
+            or ((gTerrain.Land[aY, aX].TileOverlay = to_Road) //We reached destination road network
+               and (fRoadConnectID <> 0) //No network
+               and (gTerrain.GetRoadConnectID(KMPoint(aX, aY)) = fRoadConnectID));
 end;
 
 
@@ -136,8 +139,9 @@ end;
 
 
 //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-function TPathFindingRoad.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
+function TPathFindingRoad.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aRoadConnectID: Byte; NodeList: TKMPointList): Boolean;
 begin
+  fRoadConnectID := aRoadConnectID;
   Result := inherited Route_ReturnToWalkable(aLocA, aLocB, wcRoad, 0, [CanMakeRoads, CanWalkRoad], NodeList);
 end;
 
