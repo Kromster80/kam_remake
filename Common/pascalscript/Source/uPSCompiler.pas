@@ -923,6 +923,7 @@ type
     FAllowNoBegin: Boolean;
     FAllowNoEnd: Boolean;
     FAllowUnit: Boolean;
+    FAllowDuplicateRegister : Boolean;
     FBooleanShortCircuit: Boolean;
     FDebugOutput: tbtString;
     FOnExternalProc: TPSOnExternalProc;
@@ -1177,6 +1178,7 @@ type
 	
     property AllowNoEnd: Boolean read FAllowNoEnd write FAllowNoEnd;
 
+    property AllowDuplicateRegister : Boolean read FAllowDuplicateRegister write FAllowDuplicateRegister;
 
     property BooleanShortCircuit: Boolean read FBooleanShortCircuit write FBooleanShortCircuit;
 
@@ -1724,7 +1726,7 @@ procedure DisposeVariant(p: PIfRVariant);
 
 implementation
 
-uses {$IFDEF DELPHI5}ComObj, {$ENDIF}Classes, typInfo;
+uses {$IFDEF DELPHI5}ComObj, {$ENDIF}{$IFDEF PS_FPC_HAS_COM}ComObj, {$ENDIF}Classes, typInfo;
 
 {$IFDEF DELPHI3UP}
 resourceString
@@ -1803,7 +1805,6 @@ const
   RPS_IsNotNeeded =  '%s is not needed';
   RPS_AbstractClass = 'Abstract Class Construction';
   RPS_UnknownWarning = 'Unknown warning';
-
 
   {$IFDEF DEBUG }
   RPS_UnableToRegister = 'Unable to register %s';
@@ -2382,6 +2383,9 @@ begin
   begin
     raise EPSCompilerException.Create(RPS_OnUseEventOnly);
   end;
+
+  if not(AllowDuplicateRegister) and IsDuplicate(FastUpperCase(Name),[dcTypes, dcProcs, dcVars]) then
+      Raise EPSCompilerException.CreateFmt(RPS_DuplicateIdent, [Name]);
 
   case BaseType of
     btProcPtr: Result := TPSProceduralType.Create;
@@ -3564,12 +3568,12 @@ var
   h, l: Longint;
   x: TPSProcedure;
 begin
-  h := MakeHash(s);
   if (s = 'RESULT') then
   begin
     Result := True;
     exit;
   end;
+  h := MakeHash(s);
   if dcTypes in Check then
   for l := FTypes.Count - 1 downto 0 do
   begin
@@ -6152,9 +6156,9 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
         exit;
       end;
       if TPSType(FarrType).BaseType = btVariant then
-        FArrType := FindAndAddType(self, '', 'array of variant');
+        FArrType := at2ut(FindAndAddType(self, '!OPENARRAYOFVARIANT', 'array of variant'));
       if TPSType(FarrType).BaseType <> btArray then 
-        FArrType := FindAndAddType(self, '', 'array of variant');
+        FArrType := at2ut(FindAndAddType(self, '!OPENARRAYOFVARIANT', 'array of variant'));
 
       tmpp := AllocStackReg(FArrType);
       tmpc := AllocStackReg(FindBaseType(bts32));
@@ -8305,20 +8309,20 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                     if (TPSValueData(p2).Data.tu8 <> 0) then
                     begin
                       with MakeWarning('', ewIsNotNeeded, '"and True"') do
-                      if p1.Pos>0 then
+                      if p2.Pos>0 then
                       begin
-                        FRow := p1.Row;
-                        FCol := p1.Col;
-                        FPosition := p1.Pos;
+                        FRow := p2.Row;
+                        FCol := p2.Col;
+                        FPosition := p2.Pos;
                       end;
                     end
                     else
-          begin
+                    begin
                       with MakeWarning('', ewCalculationAlwaysEvaluatesTo, 'False') do
                       begin
-                        FRow := p1.Row;
-                        FCol := p1.Col;
-                        FPosition := p1.Pos;
+                        FRow := p2.Row;
+                        FCol := p2.Col;
+                        FPosition := p2.Pos;
                       end;
                     end;
                   end;
@@ -8349,8 +8353,8 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                     begin
                       with MakeWarning('', ewCalculationAlwaysEvaluatesTo, 'True') do
                       begin
-                        FRow := p1.Row;
-                        FCol := p1.Col;
+                        FRow := p2.Row;
+                        FCol := p2.Col;
                         FPosition := p1.Pos;
                       end;
                     end
@@ -8358,9 +8362,9 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                     begin
                       with MakeWarning('', ewIsNotNeeded, '"or False"') do
                       begin
-                        FRow := p1.Row;
-                        FCol := p1.Col;
-                        FPosition := p1.Pos;
+                        FRow := p2.Row;
+                        FCol := p2.Col;
+                        FPosition := p2.Pos;
                       end;
                     end
                   end;
@@ -12271,6 +12275,7 @@ begin
   FParser.OnParserError := ParserError;
   FAutoFreeList := TPSList.Create;
   FOutput := '';
+  FAllowDuplicateRegister := true;
   {$IFDEF PS_USESSUPPORT}
   FAllowUnit := true;
   {$ENDIF}
@@ -12419,6 +12424,10 @@ begin
   FType := GetTypeCopyLink(FType);
   if FType = nil then
     Raise EPSCompilerException.CreateFmt(RPS_UnableToRegisterConst, [name]);
+
+  if not(AllowDuplicateRegister) and IsDuplicate(FastUpperCase(Name),[dcProcs, dcVars, dcConsts]) then
+      Raise EPSCompilerException.CreateFmt(RPS_DuplicateIdent, [Name]);
+
   pc := TPSConstant.Create;
   pc.OrgName := name;
   pc.Name := FastUppercase(name);
@@ -13380,6 +13389,10 @@ begin
   if FProcs = nil then raise EPSCompilerException.Create(RPS_OnUseEventOnly);
   Parser := TPSPascalParser.Create;
   Parser.SetText(Decl);
+
+  if not(AllowDuplicateRegister) and (FindType(Name)<>nil) then
+      Raise EPSCompilerException.CreateFmt(RPS_DuplicateIdent, [Name]);
+
   Result := ReadType(Name, Parser);
   if Result<>nil then
   begin
@@ -13487,6 +13500,9 @@ begin
     if not ParseMethod(Self, '', Decl, DOrgName, pDecl, FT) then
       Raise EPSCompilerException.CreateFmt(RPS_UnableToRegisterFunction, [Decl]);
 
+    if (FindProc(DOrgName)<>InvalidVal) and not(FAllowDuplicateRegister) then
+      Raise EPSCompilerException.CreateFmt(RPS_DuplicateIdent, [Decl]);
+
     p := TPSRegProc.Create;
     P.Name := FastUppercase(DOrgName);
     p.OrgName := DOrgName;
@@ -13520,6 +13536,9 @@ var
 begin
   if FProcs = nil then raise EPSCompilerException.Create(RPS_OnUseEventOnly);
   f := FindType(Name);
+  if (f<>nil) and not(FAllowDuplicateRegister) then
+    Raise EPSCompilerException.CreateFmt(RPS_DuplicateIdent, [Name]);
+
   if (f <> nil) and (f is TPSInterfaceType) then
   begin
     result := TPSInterfaceType(f).Intf;
@@ -13556,7 +13575,8 @@ var
 begin
   if FProcs = nil then raise EPSCompilerException.Create(RPS_OnUseEventOnly);
   Result := FindClass(tbtstring(aClass.ClassName));
-  if Result <> nil then exit;
+  if (Result<>nil) and not(FAllowDuplicateRegister) then
+    Raise EPSCompilerException.CreateFmt(RPS_DuplicateIdent, [aClass.ClassName]);
   f := AddType(tbtstring(aClass.ClassName), btClass);
   Result := TPSCompileTimeClass.CreateC(aClass, Self, f);
   Result.FInheritsFrom := InheritsFrom;
@@ -13571,6 +13591,8 @@ var
 begin
   if FProcs = nil then raise EPSCompilerException.Create(RPS_OnUseEventOnly);
   Result := FindClass(aClass);
+  if (Result<>nil) and (Result.FInheritsFrom<>nil) and not(FAllowDuplicateRegister) then
+    Raise EPSCompilerException.CreateFmt(RPS_DuplicateIdent, [aClass]);
   if Result <> nil then
   begin
     if InheritsFrom <> nil then
