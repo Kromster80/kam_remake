@@ -52,6 +52,7 @@ function ReadTextU(aFilename: UnicodeString; aEncoding: Word): UnicodeString;
 var
   {$IFDEF WDC}
     SL: TStringList;
+    DefaultEncoding: TEncoding;
   {$ENDIF}
   {$IFDEF FPC}
     MS: TMemoryStream;
@@ -62,13 +63,15 @@ var
 begin
   {$IFDEF WDC}
     SL := TStringList.Create;
+    DefaultEncoding := TEncoding.GetEncoding(aEncoding);
     try
       //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
-      SL.DefaultEncoding := TEncoding.GetEncoding(aEncoding);
+      SL.DefaultEncoding := DefaultEncoding;
       SL.LoadFromFile(aFilename);
       Result := SL.Text;
     finally
       SL.Free;
+      DefaultEncoding.Free;
     end;
   {$ENDIF}
   {$IFDEF FPC}

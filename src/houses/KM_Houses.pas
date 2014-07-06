@@ -395,6 +395,7 @@ begin
 
   //Play sound
   if (fBuildState > hbs_NoGlyph) and not IsSilent
+  and (MySpectator <> nil) //MySpectator is nil during loading
   and (MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) >= 255) then
     gSoundPlayer.Play(sfx_HouseDestroy, fPosition);
 

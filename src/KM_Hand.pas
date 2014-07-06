@@ -274,6 +274,7 @@ destructor TKMHand.Destroy;
 begin
   //Groups freed before units since we need to release pointers they have to units
   FreeThenNil(fUnitGroups);
+  FreeThenNil(fMessageLog);
 
   //Free units
   inherited;

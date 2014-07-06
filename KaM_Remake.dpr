@@ -2,6 +2,7 @@ program KaM_Remake;
 {$I KaM_Remake.inc}
 
 uses
+  //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   {$IFDEF USE_MAD_EXCEPT}
   madExcept,
   madLinkDisAsm,
@@ -9,7 +10,6 @@ uses
   madListModules,
   {$ENDIF}
   {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
-  //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'src\KM_FormMain.pas' {FormMain},
