@@ -43,11 +43,9 @@ var
   gResLocales: TKMLocales;
 
 
-const
-  DEFAULT_LOCALE: AnsiString = 'eng';
-
-
 implementation
+uses
+  KM_Defaults;
 
 
 { TKMLocales }
@@ -215,4 +213,4 @@ begin
 end;
 
 
-end.
+end.

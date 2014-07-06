@@ -36,6 +36,7 @@ const
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
   FONTS_FOLDER          = 'data' + PathDelim + 'gfx' + PathDelim + 'fonts' + PathDelim;
+  DEFAULT_LOCALE: AnsiString = 'eng';
 
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
