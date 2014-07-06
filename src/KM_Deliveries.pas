@@ -689,11 +689,11 @@ begin
   and (fDemand[iD].Ware <> wt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
     Result := Result + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware);
 
-  //Deliver wood to construction sites first
+  //Deliver wood first to equal distance construction sites
   if (fDemand[iD].Loc_House <> nil)
   and not fDemand[iD].Loc_House.IsComplete
   and (fDemand[iD].Ware = wt_Stone) then
-    Result := Result + 10; //Enough to overwrite random element, but distance still matters
+    Result := Result + 5; //Enough to overwrite random element, but distance still matters
 
   //Delivering weapons from store to barracks, make it lowest priority when there are >50 of that weapon in the barracks.
   //In some missions the storehouse has vast amounts of weapons, and we don't want the serfs to spend the whole game moving these.
