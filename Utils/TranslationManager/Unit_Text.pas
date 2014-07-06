@@ -53,6 +53,8 @@ type
 
 
 implementation
+uses
+  KM_Defaults;
 
 
 const

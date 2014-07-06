@@ -1,7 +1,7 @@
 ; For each "Full" build there is only one thing to change: Revision
 
 ; REVISION
-#define Revision 'r5503'
+#define Revision 'r6478'
 
 ; These don't need to change
 #define InstallType 'Full'
@@ -20,4 +20,5 @@ begin
 end;
 
 [Setup]
+DirExistsWarning=yes
 #include "InstallerLib.iss"
