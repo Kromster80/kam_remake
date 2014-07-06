@@ -57,6 +57,12 @@ begin
   Memo1.Text := StringReplace(fScripting.ErrorString, '|', #13#10, [rfReplaceAll]);
   if Memo1.Text = '' then
     Memo1.Text := 'No errors :)';
+
+  if fScripting.WarningsString <> '' then
+  begin
+    Memo1.Text := Memo1.Text + #13#10#13#10 + 'Warnings:' + #13#10;
+    Memo1.Text := Memo1.Text + StringReplace(fScripting.WarningsString, '|', #13#10, [rfReplaceAll]);
+  end;
 end;
 
 

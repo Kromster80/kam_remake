@@ -16,6 +16,7 @@ type
     fByteCode: AnsiString;
     fExec: TPSExec;
     fErrorString: UnicodeString; //Info about found mistakes (Unicode, can be localized later on)
+    fWarningsString: UnicodeString;
 
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
@@ -31,6 +32,7 @@ type
     destructor Destroy; override;
 
     property ErrorString: UnicodeString read fErrorString;
+    property WarningsString: UnicodeString read fWarningsString;
     procedure LoadFromFile(aFileName: string);
     procedure ExportDataToText;
 
@@ -81,6 +83,7 @@ end;
 procedure TKMScripting.LoadFromFile(aFileName: string);
 begin
   fErrorString := '';
+  fWarningsString := '';
 
   //SFX files go in the same folder as the .script file
   fActions.SFXPath := ChangeFileExt(ExtractRelativePath(ExeDir, aFileName), '.%s.wav');
@@ -427,7 +430,10 @@ begin
       for I := 0 to Compiler.MsgCount - 1 do
         fErrorString := fErrorString + UnicodeString(Compiler.Msg[I].MessageToString) + '|';
       Exit;
-    end;
+    end
+      else
+        for I := 0 to Compiler.MsgCount - 1 do
+          fWarningsString := fWarningsString + UnicodeString(Compiler.Msg[I].MessageToString) + '|';
 
     Compiler.GetOutput(fByteCode); // Save the output of the compiler in the string Data.
   finally
