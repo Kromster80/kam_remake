@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+= FUN WITH FLAGS =|Map: Florescence Two||Setup: 1+2, 3+4, 5+6 and 7+8 must be in the same team||THIS MAP CHANGES THE GAMEPLAY!|Please find a detailed description in the pdf file below| |Map made by Shadaoe|modified by Siegfried|Fun With Flags script made by Siegfried 2014|For sound license, see readme

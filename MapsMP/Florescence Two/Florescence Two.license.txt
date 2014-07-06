@@ -1,0 +1,17 @@
+-- Map --
+The map is based on "The Valley of Dangers 2" made from Shadaoe with minor changes to fit. License is the same as "The Valley of Dangers 2".
+
+-- Script --
+"Fun with Flag" is licensed under GPLv2. You should have received the text of GPL with your copy of KaM Remake.
+The text of GPLv2 also can be found here: http://www.gnu.org/licenses/gpl-2.0.html
+
+-- Sounds --
+Additional sounds are licensed under Creative Commons. Credit goes to freesound.org which hosted all of those sounds.
+The creators and license in detail are:
+
+beat.wav: derived from Heartbeat.wav by jobro - http://www.freesound.org/people/jobro/ - under Creative Commons CC BY 3.0
+kick.wav:  derived from COPLAND DRUM 01.wav by sandyrb - http://www.freesound.org/people/sandyrb/ - under Creative Commons CC BY 3.0
+begin.wav:  derived from Battle Horn.wav by Porphyr - http://www.freesound.org/people/Porphyr/ - under Creative Commons CC BY 3.0
+start.wav:  derived from Deep Kick Cinematic.wav by Benboncan - http://www.freesound.org/people/Benboncan/ - under Creative Commons CC BY 3.0
+init.wav:  derived from 109438__klankbeeld__intro_brass_01-1_(before-after).wav by Timbre - http://www.freesound.org/people/Timbre/ - under Creative Commons CC BY NC 3.0
+origin.wav:  derived from remix of 62176 Fanfare (before-after)#.wav by Timbre - http://www.freesound.org/people/Timbre/ - under Creative Commons CC BY NC 3.0

@@ -1,4 +1,4 @@
 SetSpecial
 
 BigDesc
-FUN WITH FLAGS game mode|Map: Florescence One|Please check the readme file for a detailed description by clicking the button below.| |Map made by Shadaoe|Fun With Flags script made by Siegfried|For sound license, see readme
+= FUN WITH FLAGS =|Map: Florescence One|Please check the readme file for a detailed description by clicking the button below.| |Map made by Shadaoe|Fun With Flags script made by Siegfried|For sound license, see readme
