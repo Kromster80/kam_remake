@@ -1437,9 +1437,13 @@ begin
       end;
 
       if AddMap then
-        DropCol_LobbyMaps.Add(MakeListRow([WrapColor(fMapsMP[I].FileName,                   fMapsMP[I].GetLobbyColor),
-                                           WrapColor(IntToStr(fMapsMP[I].HumanPlayerCount), fMapsMP[I].GetLobbyColor),
-                                           WrapColor(fMapsMP[I].SizeText,                   fMapsMP[I].GetLobbyColor)], I));
+        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
+                                           IntToStr(fMapsMP[I].HumanPlayerCount),
+                                           fMapsMP[I].SizeText],
+                                           //Colors
+                                           [fMapsMP[I].GetLobbyColor,
+                                           fMapsMP[I].GetLobbyColor,
+                                           fMapsMP[I].GetLobbyColor], I));
     end;
   finally
     fMapsMP.Unlock;

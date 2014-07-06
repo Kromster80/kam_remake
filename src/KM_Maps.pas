@@ -522,9 +522,9 @@ end;
 function TKMapInfo.GetLobbyColor: Cardinal;
 begin
   if fMapFolder = mfDL then
-    Result := $C9BBBB
+    Result := $FFC9BBBB
   else
-    Result := $9CF6FF;
+    Result := $FF9CF6FF;
 end;
 
 

@@ -1611,7 +1611,7 @@ begin
 
                   fOnMPGameInfoChanged(Self);
                   if (fSelectGameKind = ngk_None)
-                  or ((fSelectGameKind = ngk_Map)  and (not MapInfo.IsValid or (MapInfo.MapFolder = mfDL)))
+                  or ((fSelectGameKind = ngk_Map)  and not MapInfo.IsValid)
                   or ((fSelectGameKind = ngk_Save) and not SaveInfo.IsValid) then
                     SelectNoMap(''); //In case the previous host had the map and we don't
                   SendPlayerListAndRefreshPlayersSetup;
