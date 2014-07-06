@@ -510,7 +510,7 @@ var
   I: Integer;
   skippingMarkup: Boolean;
 begin
-  Result := aText;
+  Result := '';
   skippingMarkup := False;
 
   for I := 1 to Length(aText) do
