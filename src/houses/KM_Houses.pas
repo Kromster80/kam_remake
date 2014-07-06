@@ -394,7 +394,8 @@ begin
   fIsDestroyed := True;
 
   //Play sound
-  if (fBuildState > hbs_NoGlyph) and not IsSilent then
+  if (fBuildState > hbs_NoGlyph) and not IsSilent
+  and (MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) >= 255) then
     gSoundPlayer.Play(sfx_HouseDestroy, fPosition);
 
   //NOTE: We don't run Stats.WareConsumed on fBuildSupplyWood/Stone as the
