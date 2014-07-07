@@ -155,8 +155,9 @@ procedure TKMMenuCampaign.Campaign_SelectMap(Sender: TObject);
 var
   I: Integer;
 begin
+  if TKMControl(Sender).Tag > fCampaign.UnlockedMap then exit; //Skip closed maps
+
   fMapIndex := TKMControl(Sender).Tag;
-  if fMapIndex > fCampaign.UnlockedMap then exit; //Skip closed maps
 
   //Place highlight
   for I := 0 to High(Image_CampaignFlags) do
