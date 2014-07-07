@@ -45,7 +45,7 @@ type
     procedure AfterMissionInit;
 
     function FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean; overload;
-    procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aMaxCount: Word; aLocs: TKMPointTagList); overload;
+    procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aPass: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aHouse: THouseType; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     procedure OwnerUpdate(aPlayer: THandIndex);
@@ -61,7 +61,8 @@ const
 
 
 implementation
-uses KM_Houses, KM_Terrain, KM_HandsCollection, KM_Utils, KM_AIFields, KM_Hand, KM_AIInfluences;
+uses KM_Houses, KM_Terrain, KM_HandsCollection, KM_Utils, KM_AIFields, KM_Hand, KM_AIInfluences,
+KM_Resource, KM_ResUnits;
 
 
 { TKMCityPlanner }
@@ -276,6 +277,7 @@ var
   I, K: Integer;
   Bid, BestBid: Single;
   StoneLoc: TKMPoint;
+  Tmp: TKMPointDir;
   Locs: TKMPointTagList;
   SeedLocs: TKMPointArray;
   J, M: Integer;
@@ -286,8 +288,8 @@ begin
 
   Locs := TKMPointTagList.Create;
   try
-    //Find all tiles from which stone can be mined
-    FindNearest(SeedLocs, 32, fnStone, 12, Locs);
+    //Find all tiles from which stone can be mined, by walking to them
+    FindNearest(SeedLocs, 32, fnStone, [CanWalk], 12, Locs);
     if Locs.Count = 0 then Exit;
 
     //Check few random tiles if we can build Quary nearby
@@ -315,6 +317,10 @@ begin
   finally
     Locs.Free;
   end;
+  //Make sure stonemason actually can reach some stone (avoid build-destroy loop)
+  if Result then
+    if not gTerrain.FindStone(aLoc, gResource.UnitDat[ut_StoneCutter].MiningRange, KMPoint(0,0), True, Tmp) then
+      Result := False;
 end;
 
 
@@ -326,11 +332,11 @@ begin
 end;
 
 
-procedure TKMCityPlanner.FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aMaxCount: Word; aLocs: TKMPointTagList);
+procedure TKMCityPlanner.FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aPass: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
 begin
   fFinder.FindType := aType;
   fFinder.HouseType := ht_None;
-  fFinder.FindNearest(aStart, aRadius, [CanWalkRoad, CanMakeRoads], aMaxCount, aLocs);
+  fFinder.FindNearest(aStart, aRadius, aPass, aMaxCount, aLocs);
 end;
 
 
@@ -514,7 +520,7 @@ begin
   case FindType of
     fnHouse:  Result := gHands[fOwner].CanAddHousePlanAI(X, Y, HouseType, True);
 
-    fnStone:  Result := (gTerrain.TileIsStone(X, Max(Y-2, 1)) > 1);
+    fnStone:  Result := (gTerrain.TileIsStone(X, Max(Y-1, 1)) > 1);
 
     fnCoal:   Result := (gTerrain.TileIsCoal(X, Y) > 1)
                          and gHands[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, False);

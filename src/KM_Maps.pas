@@ -37,6 +37,7 @@ type
     fInfoAmount: TKMMapInfoAmount;
     fMapFolder: TMapFolder;
     procedure ResetInfo;
+    procedure LoadTXTInfo;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
   public
@@ -151,9 +152,8 @@ const
 { TKMapInfo }
 constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
 var
-  st, DatFile, MapFile, ScriptFile, TxtFile: string;
+  DatFile, MapFile, ScriptFile, TxtFile: string;
   DatCRC, OthersCRC: Cardinal;
-  ft: TextFile;
   fMissionParser: TMissionParserInfo;
 begin
   inherited Create;
@@ -210,19 +210,7 @@ begin
     end;
 
     //Load additional text info
-    if FileExists(fPath + fFileName + '.txt') then
-    begin
-      AssignFile(ft, fPath + fFileName + '.txt');
-      FileMode := fmOpenRead;
-      Reset(ft);
-      repeat
-        ReadLn(ft, st);
-        if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
-        if SameText(st, 'SetCoop')   then IsCoop := True;
-        if SameText(st, 'SetSpecial')then IsSpecial := True;
-      until(eof(ft));
-      CloseFile(ft);
-    end;
+    LoadTXTInfo;
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
@@ -307,22 +295,64 @@ begin
 end;
 
 
-//Load additional information for map that is not in main SP list
-procedure TKMapInfo.LoadExtra;
+procedure TKMapInfo.LoadTXTInfo;
 
-  procedure LoadDescriptionFromLIBX(aIndex: Integer);
+  function LoadDescriptionFromLIBX(aIndex: Integer): UnicodeString;
   var MissionTexts: TKMTextLibrarySingle;
   begin
     if aIndex = -1 then Exit;
     MissionTexts := TKMTextLibrarySingle.Create;
     MissionTexts.LoadLocale(fPath + fFileName + '.%s.libx');
-    BigDesc := MissionTexts.Texts[aIndex];
+    Result := MissionTexts.Texts[aIndex];
     MissionTexts.Free;
   end;
 
 var
-  st, DatFile, S: string;
+  st, S: string;
   ft: TextFile;
+begin
+  //Load additional text info
+  if FileExists(fPath + fFileName + '.txt') then
+  begin
+    AssignFile(ft, fPath + fFileName + '.txt');
+    FileMode := fmOpenRead;
+    Reset(ft);
+    repeat
+      ReadLn(ft, st);
+      if SameText(st, 'Author')    then Readln(ft, Author);
+      if SameText(st, 'BigDesc')   then Readln(ft, BigDesc);
+      if SameText(st, 'BigDescLIBX') then
+      begin
+        Readln(ft, S);
+        BigDesc := LoadDescriptionFromLIBX(StrToIntDef(S, -1));
+      end;
+      if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
+      if SameText(st, 'SmallDescLIBX') then
+      begin
+        Readln(ft, S);
+        SmallDesc := LoadDescriptionFromLIBX(StrToIntDef(S, -1));
+      end;
+      if SameText(st, 'SetCoop')   then
+      begin
+        IsCoop := True;
+        BlockPeacetime := True;
+        BlockTeamSelection := True;
+        BlockFullMapPreview := True;
+      end;
+      if SameText(st, 'SetSpecial')then IsSpecial := True;
+      if SameText(st, 'BlockPeacetime') then BlockPeacetime := True;
+      if SameText(st, 'BlockTeamSelection') then BlockTeamSelection := True;
+      if SameText(st, 'BlockFullMapPreview') then BlockFullMapPreview := True;
+    until(eof(ft));
+    CloseFile(ft);
+  end;
+end;
+
+
+//Load additional information for map that is not in main SP list
+procedure TKMapInfo.LoadExtra;
+var
+  DatFile: string;
   fMissionParser: TMissionParserInfo;
 begin
   //Do not append Extra info twice
@@ -344,35 +374,7 @@ begin
   if MissionMode = mm_Tactic then
     BlockPeacetime := True;
 
-  //Load additional text info
-  if FileExists(fPath + fFileName + '.txt') then
-  begin
-    AssignFile(ft, fPath + fFileName + '.txt');
-    FileMode := fmOpenRead;
-    Reset(ft);
-    repeat
-      ReadLn(ft, st);
-      if SameText(st, 'Author')    then Readln(ft, Author);
-      if SameText(st, 'BigDesc')   then Readln(ft, BigDesc);
-      if SameText(st, 'BigDescLIBX') then
-      begin
-        Readln(ft, S);
-        LoadDescriptionFromLIBX(StrToIntDef(S, -1));
-      end;
-      if SameText(st, 'SetCoop')   then
-      begin
-        IsCoop := True;
-        BlockPeacetime := True;
-        BlockTeamSelection := True;
-        BlockFullMapPreview := True;
-      end;
-      if SameText(st, 'SetSpecial')then IsSpecial := True;
-      if SameText(st, 'BlockPeacetime') then BlockPeacetime := True;
-      if SameText(st, 'BlockTeamSelection') then BlockTeamSelection := True;
-      if SameText(st, 'BlockFullMapPreview') then BlockFullMapPreview := True;
-    until(eof(ft));
-    CloseFile(ft);
-  end;
+  LoadTXTInfo;
 
   fInfoAmount := iaExtra;
 end;

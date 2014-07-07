@@ -816,8 +816,7 @@ begin
   Label_LobbyMapName.Caption := '';
   Memo_LobbyMapDesc.Clear;
 
-  if Button_LobbySetupReadme.Visible then
-    Memo_LobbyMapDesc.Height := Memo_LobbyMapDesc.Height + 25;
+  Memo_LobbyMapDesc.Height := Panel_LobbySetupDesc.Height;
   Button_LobbySetupReadme.Hide;
 
   TrackBar_LobbyPeacetime.Position := 0; //Default peacetime = 0
@@ -1633,8 +1632,7 @@ begin
   or ((fNetworking.SelectGameKind = ngk_Save) and fNetworking.SaveInfo.IsValid) then
     Radio_LobbyMapType.ItemIndex := DetectMapType;
 
-  if Button_LobbySetupReadme.Visible then
-    Memo_LobbyMapDesc.Height := Memo_LobbyMapDesc.Height + 25;
+  Memo_LobbyMapDesc.Height := Panel_LobbySetupDesc.Height;
   Button_LobbySetupReadme.Hide;
 
   case fNetworking.SelectGameKind of
@@ -1668,7 +1666,7 @@ begin
 
                   if M.HasReadme then
                   begin
-                    Memo_LobbyMapDesc.Height := Memo_LobbyMapDesc.Height - 25;
+                    Memo_LobbyMapDesc.Height := Panel_LobbySetupDesc.Height - 25;
                     Button_LobbySetupReadme.Show;
                   end;
                 end;
