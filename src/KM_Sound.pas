@@ -332,7 +332,7 @@ function TKMSoundPlayer.PlayWave(const aFile: UnicodeString; Loc: TKMPointF; Att
 begin
   Result := -1;
   if not fIsSoundInitialized then Exit;
-  Result := PlaySound(sfx_None, aFile, Loc, Attenuated, MAX_DISTANCE, Volume, FadeMusic, aLoop); //Redirect
+  Result := PlaySound(sfx_None, aFile, Loc, Attenuated, Volume, MAX_DISTANCE, FadeMusic, aLoop); //Redirect
 end;
 
 

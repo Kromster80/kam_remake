@@ -41,7 +41,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddSprite(aRX: TRXType; aID: Word; aUID: Integer; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
     procedure AddSpriteG(aRX: TRXType; aID: Word; aUID: Integer; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 
     property Stat_Sprites: Integer read fStat_Sprites;
@@ -551,7 +551,7 @@ begin
     cornerX := Loc.X + supply[1, Wood].MoveX / CELL_SIZE_PX - 1;
     cornerY := Loc.Y + (supply[1, Wood].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, id, 0, cornerX, cornerY);
+    fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
 
   if Stone <> 0 then
@@ -560,7 +560,7 @@ begin
     cornerX := Loc.X + supply[2, Stone].MoveX / CELL_SIZE_PX - 1;
     cornerY := Loc.Y + (supply[2, Stone].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, id, 0, cornerX, cornerY);
+    fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
 end;
 
@@ -626,7 +626,7 @@ begin
     //Wood part of the house (may be seen below Stone part before construction is complete, e.g. Sawmill)
     fRenderList.AddSpriteG(rxHouses, PicWood, 0, CornerX(PicWood), CornerY(PicWood), gX, gY, $0, aWoodStep);
     if aStoneStep > 0 then
-      fRenderList.AddSprite(rxHouses, PicStone, 0, CornerX(PicStone), CornerY(PicStone), $0, aStoneStep);
+      fRenderList.AddSprite(rxHouses, PicStone, CornerX(PicStone), CornerY(PicStone), $0, aStoneStep);
   end;
 end;
 
@@ -655,7 +655,7 @@ begin
       CornerY := Loc.Y + (R.Pivot[Id].Y + A.MoveY + R.Size[Id].Y) / CELL_SIZE_PX - 1
                        - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
 
-      fRenderList.AddSprite(rxHouses, Id, 0, CornerX, CornerY, FlagColor);
+      fRenderList.AddSprite(rxHouses, Id, CornerX, CornerY, FlagColor);
     end;
   end;
 end;
@@ -675,7 +675,7 @@ var
     CornerX := Loc.X + R.Pivot[aId].X / CELL_SIZE_PX - 1;
     CornerY := Loc.Y + (R.Pivot[aId].Y + R.Size[aId].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, aId, 0, CornerX, CornerY);
+    fRenderList.AddSprite(rxHouses, aId, CornerX, CornerY);
   end;
 
 begin
@@ -726,7 +726,7 @@ begin
     CornerX := Loc.X + (R.Pivot[Id].X + MarketWaresOffsetX) / CELL_SIZE_PX - 1;
     CornerY := Loc.Y + (R.Pivot[Id].Y + MarketWaresOffsetY + R.Size[Id].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[Loc.Y+1,Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, Id, 0, CornerX, CornerY);
+    fRenderList.AddSprite(rxHouses, Id, CornerX, CornerY);
   end;
 end;
 
@@ -746,7 +746,7 @@ begin
   CornerX := Loc.X + (A.MoveX + R.Pivot[Id].X) / CELL_SIZE_PX - 1;
   CornerY := Loc.Y + (A.MoveY + R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 1
                    - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(aRX, Id, 0, CornerX, CornerY);
+  fRenderList.AddSprite(aRX, Id, CornerX, CornerY);
 end;
 
 
@@ -817,7 +817,7 @@ begin
     if NewInst then
       fRenderList.AddSpriteG(rxUnits, Id, aUID, CornerX, CornerY, pX, Ground, FlagColor)
     else
-      fRenderList.AddSprite(rxUnits, Id, aUID, CornerX, CornerY, FlagColor);
+      fRenderList.AddSprite(rxUnits, Id, CornerX, CornerY, FlagColor);
 
   if SHOW_UNIT_MOVEMENT then
   if NewInst then
@@ -845,7 +845,7 @@ begin
   CornerY := Loc.Y + OffY + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 1
                    - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
 
-  fRenderList.AddSprite(rxUnits, Id, 0, CornerX, CornerY, FlagColor);
+  fRenderList.AddSprite(rxUnits, Id, CornerX, CornerY, FlagColor);
 end;
 
 
@@ -863,7 +863,7 @@ begin
 
   CornerX := pX + (R.Pivot[Id].X + a.MoveX) / CELL_SIZE_PX;
   CornerY := gTerrain.FlatToHeight(pX, pY) + (R.Pivot[Id].Y + R.Size[Id].Y + a.MoveY) / CELL_SIZE_PX;
-  fRenderList.AddSprite(rxUnits, Id, aUID, CornerX, CornerY);
+  fRenderList.AddSprite(rxUnits, Id, CornerX, CornerY);
 end;
 
 
@@ -1402,14 +1402,12 @@ begin
     if RenderOrder[I] <> -1 then
     begin
       K := RenderOrder[I];
-      repeat //Check child sprites after their parent
-        if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
-        begin
-          Result := RenderList[K].UID;
-          Exit;
-        end;
-        Inc(K);
-      until ((K = fCount) or RenderList[K].NewInst);
+      //Don't check child sprites, we don't want to select serfs by the long pike they are carrying
+      if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
+      begin
+        Result := RenderList[K].UID;
+        Exit;
+      end;
     end;
 end;
 
@@ -1553,7 +1551,7 @@ end;
 
 
 //Child items don't need ground level
-procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; aUID: Integer; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then
     SetLength(RenderList, fCount + 256); //Book some space
@@ -1562,8 +1560,8 @@ begin
   RenderList[fCount].Feet       := RenderList[fCount-1].Feet;  //Ground position of sprite for Z-sorting
   RenderList[fCount].RX         := aRX;             //RX library
   RenderList[fCount].Id         := aId;             //Texture Id
-  RenderList[fCount].UID        := aUID;
-  RenderList[fCount].NewInst    := False;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
+  RenderList[fCount].UID        := 0;               //Child sprites aren't used for selecting units
+  RenderList[fCount].NewInst    := False;           //Is this a new item (can be occluded), or a child one (always on top of it's parent)
   RenderList[fCount].TeamColor  := aTeam;           //Team Id (determines color)
   RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
 
@@ -1635,7 +1633,7 @@ begin
 
       repeat //Render child sprites after their parent
         SendToRender(K);
-        if SHOW_SEL_BUFFER and (RenderList[K].UID > 0) then
+        if SHOW_SEL_BUFFER and RenderList[K].NewInst and (RenderList[K].UID > 0) then
           gRenderAux.SquareOnTerrain(RenderList[K].SelectionRect.Left , RenderList[K].SelectionRect.Top,
                                      RenderList[K].SelectionRect.Right, RenderList[K].SelectionRect.Bottom, RenderList[K].UID or $FF000000);
         Inc(K);
