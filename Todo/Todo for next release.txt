@@ -4,7 +4,7 @@ Since r6157 (Winter Tournament Beta)
 
 Bugs:
  +	Lobby map description keeps getting smaller
- +	AI sometimes gets into a loop building and destroying a stonemason
+ +	AI sometimes gets into a loop building and destroying a quarry/gold mine/iron mine
  +	Warrior sounds not working correctly
  +	Sometimes serfs (or another unit) would be selected instead of the unit you clicked
  +	Campaign map screen allowed you to select locked missions
