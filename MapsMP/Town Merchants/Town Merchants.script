@@ -1,0 +1,1775 @@
+/// :* 	 Town Merchants   *:
+/// *    	v1.23	2013 *
+/// *  by Random Lyrics  *
+//	*  		by Sado(terrain)		 *			
+/// licensed under GPLv2
+/// https://gnu.org/licenses/old-licenses/gpl-2.0.txt
+//	Changes: -lower tax, win 30000,  
+//
+
+type aMERCHANT = 
+	record
+	ID: integer;
+	WorkerID: integer;
+	aType: integer;
+	Exp: integer;
+	Level: integer;
+	InHouse: boolean;
+	end;
+type aPLAYER =
+	record
+	Gold: integer;
+	StorehouseID: integer;
+	SchoolID: integer;
+	Merchant: aMerchant;
+	HouseCount: integer;
+	UnitCount: integer;
+	TotalGold: integer;
+	LastTransaction: integer;
+	Tax: integer;
+	TaxPaid: boolean;
+	TaxX: Single;
+	end;
+
+
+const
+OFFER_SCHOOL_X = 122; //serfs spawn 
+OFFER_SCHOOL_Y = 122;
+VICTORY_GOLD_REQUIREMENT = 30000;
+MAX_PLAYERS = 6;
+PLAYER_START_GOLD = 1000;
+PLAYER_START_GOLD_CHESTS = 5; //max 5
+PLAYER_START_FOOD = 2; //max 5
+PLAYER_START_MERCHANT_TYPE = 24; // rebel
+PLAYER_START_LEVEL = 1;
+PLAYER_START_EXP = 0;
+START_GOLD_PRICE = 50; // gold price for school to get workers
+GOLD_PER_PRICE = 1; // Gold per one buy
+MAX_WARE_TYPE = 27; 
+MAX_HOUSE_TYPE = 28;
+START_FOOD_PRICE = 130; // food price bought from market
+FOOD_PER_PRICE = 1; // food amount which landing in storehouse
+START_STONES_PRICE = 50; // stones price to build roads to new houses
+START_TIMBER_PRICE = 90;
+STONES_PER_PRICE = 3;
+TIMBER_PER_PRICE = 2;
+AI_SELLER = 6;
+AI_DUMMY = 7; //
+TIME_FEED_MERCHANTS = 12000; // ticks
+LOCAL_EVENT_MURDER_STARTS = 12000; // ticks - 20 min
+LOCAL_EVENT_ROBBERY_STARTS = 12000; // ticks - 20 min
+LOCAL_EVENT_MIN_HOUSE_COUNT = 1;  //fire
+LOCAL_EVENT_MIN_UNIT_COUNT = 2; //murder
+LOCAL_EVENT_MAX_ROBBERY_COUNT = 6; //5+1 robbery
+LOCAL_EVENT_MIN_RESOURCE_AMOUNT = 3; //min resource amout for robbery
+LOCAL_EVENT_TIME = 5000; //ticks - 5 min
+GLOBAL_EVENT_TIME = 4500; //ticks - 10 min
+GLOBAL_EVENT_FOOD_PERC_INCREASE = 1.50;
+GLOBAL_EVENT_WEAPON_PERC_INCREASE = 1.60;
+GLOBAL_EVENT_MATERIAL_PERC_INCREASE = 1.70;
+GLOBAL_EVENT_LASTS_TIME = 320; //sec
+GLOBAL_EVENT_LASTS_TIME_RANDOM = 7; //random to 6 * 10 = 60 sec // 180+60
+MAX_GLOBAL_EVENTS = 3; //2 + 1 empty
+QUEST_INCREASE_LEVEL_TIME = 3000;
+QUEST_TIME = 1200; //ticks every this game sets quest
+QUEST_LASTS_TIME = 240; //sec
+QUEST_LASTS_TIME_RANDOM = 7; //random to 6 * 10 = 60 sec // 240+60
+QUEST_TYPE_16_RANDOM = 11; // for ware types higher than 16
+QUEST_TYPE_0_RANDOM = 5; // for ware types lower than 16; 10+4*10
+QUEST_REWARD_16 = 50; //for 10 swords you get 250 gold as reward
+QUEST_REWARD_0 = 20; //for 10 vines you get 100 gold as reward
+QUEST_HIGHER_BORDER = 15; //after quest level 15 , quest will be from weapons too
+SELLING_HOUSE_ENABLED = true; // to sell house destroy it
+OFFER_HOUSE_TIME = 410; //sec - offer lasts
+OFFER_HOUSE_TIMEI = 4800; //8 min
+OFFER_SERF_TIMEI = 2900; // ~5 min
+OFFER_SERF_TIME = 180; //sec - offer lasts
+OFFER_COST_PER_SERF = 50;
+OFFER_SERF_RANDOM = 2;
+OFFER_MAX_SERF_BONUS = 10;
+TAX_PER_WORKER = 10;
+TAX_PER_1_RANK = 60;
+TAX_PER_2_RANK = 115;
+TAX_PER_3_RANK = 220;
+TAX_TIME = 12000; // 30 mins ; //12000; // every 20 mins 
+TAX_RISERR = 1.3;
+TAX_START = 1.1;
+TAX_BORDER = 6; // after 1.8 player defeats 
+TAX_ENABLED = true; 
+RESELL_HOUSE_PERC = 0.80; //0.8 * house sell price
+
+
+
+var
+PLAYERS_GOLD: array [0..MAX_PLAYERS] of integer;
+PLAYER_SCORE_COUNTER: array [0..MAX_PLAYERS] of array [0..12] of integer;
+PLAYER_SCORE_TAB_COUNTER: array [0..MAX_PLAYERS] of integer;
+PLAYER_SCORE_TAB_ENABLED: array [0..MAX_PLAYERS] of boolean;
+PLAYER: array [0..MAX_PLAYERS] of aPLAYER;
+LOCAL_EVENT_CURRENT_MAX: integer;
+FIRE_HOUSES_ENABLED: boolean;
+FIRE_HOUSES: array of integer;
+FIRE_HOUSES_COUNTER: integer;
+FIRE_HOUSES_TIMER: integer;
+WARE_SELL_PRICE: array [0..28] of integer;
+GOLD_PRICE, FOOD_PRICE, STONES_PRICE, TIMBER_PRICE: integer;
+OFFER_HOUSE_TIMER: integer;
+OFFER_HOUSE_COUNTER: integer;
+OFFER_HOUSE_CLASS: integer;
+OFFER_HOUSE_COST: integer;
+OFFER_HOUSE_COST_X: integer;
+OFFER_SERF_COST: integer;
+OFFER_SERF_TIMER: integer;
+OFFER_SERF_COUNT: integer;
+OFFER_SERF_MULTIPLIER: integer;
+GLOBAL_EVENT_COUNTER: integer;
+GLOBAL_EVENT_TIMER: array [0..3] of integer;
+GLOBAL_EVENT_ENABLED: array [0..3] of boolean;
+QUEST_ENABLED: array [0..3] of boolean;
+QUEST_TIMER, QUEST_COUNT, QUEST_TYPE, QUEST_REWARD: array [0..3] of integer;
+QUEST_COUNTER: integer;
+QUEST_LEVEL: integer;
+STAT_TOTAL_HOUSE_COUNT: integer;
+GAME_STATE: integer; //0 - game, 1 - ending table
+WINNER: integer;
+TAX_RISER: Single;
+TAX_COUNTER: integer;
+
+function CutFloat(aString: String; aCut: integer): String;
+var 
+temp: String;
+j: integer;
+begin
+	temp:= '';
+	for j:= 1 to (Length(aString)-1) do begin
+		if j < aCut then
+			temp:= temp + aString[j];
+	end;
+	result:= temp;
+end;
+	
+function HouseTypeToRank(aType: integer): integer;
+begin
+	case aType of
+		3: result:= 1; //produce
+		4: result:= 1;
+		5: result:= 1;
+		6: result:= 1;
+		8: result:= 1;
+		9: result:= 1;
+		14: result:= 1;
+		28:	result:= 1;
+		
+		0: result:= 2; //change
+		1: result:= 2;
+		16: result:= 2;
+		22: result:= 2;
+		25: result:= 2;
+		
+		2: result:= 3; //finish
+		7: result:= 3;
+		10: result:= 3;
+		12: result:= 3;
+		15: result:= 3;
+		19: result:= 3;
+		20: result:= 3;
+		24: result:= 3;
+		//27: result:= 3;
+		
+		else result:= 0;
+	end;
+end;
+
+function ClassToString(aClass: integer): String;
+begin
+	case aClass of
+		1: result:= 'III';
+		2: result:= 'II';
+		3: result:= 'I';
+		else result:= '';
+	end;
+end;
+
+function HouseClassToGoldCost(aClass: integer): integer;
+begin
+	case aClass of
+		1: result:= 500 + OFFER_HOUSE_COST_X;
+		2: result:= 650 + Round(OFFER_HOUSE_COST_X*1.5);
+		3: result:= 950 + Round(OFFER_HOUSE_COST_X*2)
+		else result:= 0;
+	end;
+end;
+
+function HouseInArea(aOwner, fType, X, Y, radius: integer): boolean;
+var j, k, c: integer;
+begin
+	result:= false;
+	c:= radius/2;
+	if (X-c > 0) and (Y-c > 0 ) then begin
+		for j:= X-c to X+c do begin
+			for k:=Y-c to Y+c do begin
+				if States.HouseAt(j, k) > 0 then begin
+					if ( States.HouseType(States.HouseAt(j, k)) = fType ) then begin
+						if ( States.HouseOwner(States.HouseAt(j, k)) <> aOwner ) then begin
+							result:= true; exit;
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+
+function ClosestHouse(aPlayer, aType, X, Y, radius: Integer): Integer; 
+var 
+Houses: array of Integer; 
+i, BestDistanceSqr, ThisDistanceSqr, DX, DY, fhouse: Integer;
+begin
+	Result := -1;
+	Houses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(Houses) -1 do begin
+		fhouse:=Houses[i];
+		DX := X - States.HousePositionX(fhouse);
+		DY := Y - States.HousePositionY(fhouse);
+		ThisDistanceSqr := (DX*DX) + (DY*DY);
+		if ((Abs(DX)<radius) and (Abs(DY)<radius)) and ((Result = -1) or (ThisDistanceSqr  < BestDistanceSqr)) and (aType = States.HouseType(fhouse)) then begin
+			BestDistanceSqr := ThisDistanceSqr;
+			Result := Houses[i];
+		end;
+	end;
+end;
+
+function CheckObjectIDTable(aID: integer; aArray: array of integer): boolean;
+var 
+counter1: integer;
+begin
+		for counter1:= 0 to Length(aArray)-1 do begin
+			if( (aArray[counter1]<>NULL) and (aID <> NULL ) ) then begin
+				if(aArray[counter1]=aID) then begin
+				Result:= true; exit;
+				end;
+			end;
+		end;
+end;
+
+function WareTypeToName(aWareType: integer): string;
+begin
+	case aWareType of
+		0: RESULT:= 'tree trunk';
+		1: RESULT:= 'stone';
+		2: RESULT:= 'timber';
+		3: RESULT:= 'iron ore';
+		4: RESULT:= 'gold ore';
+		5: RESULT:= 'coal';
+		6: RESULT:= 'iron';
+		7: RESULT:= 'gold';
+		8: RESULT:= 'vine';
+		9: RESULT:= 'corn';
+		10: RESULT:= 'loaves';
+		11: RESULT:= 'flour';
+		12: RESULT:= 'leather';
+		13: RESULT:= 'sausages';
+		14: RESULT:= 'pig';
+		15: RESULT:= 'skin';
+		16: RESULT:= 'wooden shield';
+		17: RESULT:= 'long shield';
+		18: RESULT:= 'leather armour';
+		19: RESULT:= 'iron armament';
+		20: RESULT:= 'hand-axe';
+		21: RESULT:= 'long sword';
+		22: RESULT:= 'lance';
+		23: RESULT:= 'pike';
+		24: RESULT:= 'longbow';
+		25: RESULT:= 'crossbow';
+		26: RESULT:= 'horse';
+		27: RESULT:= 'fish';
+		else RESULT:= '';
+	end
+end;
+
+function IsArrayHasTrue(aArray: array of boolean): boolean;
+var j: integer;
+begin
+	result:= false;
+	for j:= 0 to Length(aArray)-1 do begin
+		if aArray[j] then begin
+			result:= true;
+			exit;
+		end;
+	end;
+end;
+
+function InRange(aInt, aFrom, aTo: integer): boolean;
+begin
+	Result := (aInt >= aFrom) and (aInt <= aTo);
+end;
+
+function PlayerUnitTypeCount(aPlayer, aType: integer): integer;
+var 
+aUnits: array of integer;
+c, j: integer;
+begin
+	if InRange(aType, 0, 27) and InRange(aPlayer, 0, MAX_PLAYERS-1) then begin
+		c:=0;
+		aUnits:= States.PlayerGetAllUnits(aPlayer);
+		for j:= 0 to Length(aUnits)-1 do begin
+			if ( States.UnitType(aUnits[j]) = aType ) and ( States.UnitDead(aUnits[j]) = false ) then
+				c:= c + 1;
+		end;
+		result:= c;
+	end else
+	result:= 0;
+end;
+function PlayersHasEnoughHouses: boolean;
+var j, c, cc: integer;
+begin
+	c:= 0;
+	cc:= 0;
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then
+			c:= c+1;
+	end;
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			if ( PLAYER[j].HouseCount >= LOCAL_EVENT_MIN_HOUSE_COUNT ) then 
+				cc:= cc + 1;
+		end;
+	end;
+	if c = cc then result:= true 
+	else result:= false;
+end;
+
+function NotMainHouseType(aType: integer): boolean;
+begin
+	case aType of
+		13: result:= false;
+		11: result:= false;
+		27: result:= false;
+	else result:= true;
+	end
+end;
+
+function RandomToRandomEvent(a: integer): integer;
+begin
+	case a of
+		1: result:= 1; //
+		else result:= 0;
+	end;
+end;
+
+function LevelToType(aLevel: integer): integer;
+begin
+	case aLevel of
+		1: result:= 24;
+		2: result:= 19;
+		3: result:= 15;
+		4: result:= 20;
+		5: result:= 16;
+		6: result:= 27;
+		7: result:= 21;
+		8: result:= 22;
+		else result:= 24;
+	end
+end;
+
+function ExpToLevel(aExp: integer): integer;
+begin
+	if aExp < 0 then result:= 1;
+	if aExp >= 0 then result:= 1; 
+	if aExp > 1000 then result:= 2; 
+	if aExp > 2000 then result:= 3; 
+	if aExp > 4000 then result:= 4; 
+	if aExp > 8000 then result:= 5; 
+	if aExp > 16000 then result:= 6; 
+	if aExp > 32000 then result:= 7; 
+	if aExp > 64000 then result:= 8; 
+end;
+procedure Test(a: integer);
+begin
+	Actions.ShowMsg(-1, 'test: ' + inttostr(a));
+end;
+
+function HouseTypeToWorkerType(aType: integer): integer;
+begin
+ case aType of
+	9: RESULT := 1; //woodcutters
+	14: RESULT := 10; //quarry
+	
+	0: RESULT :=5; //sawmill
+	20:RESULT :=5; //armour workshop
+	19:RESULT :=5; //weapons workshop
+	
+	8: RESULT := 4; //farm
+	16: RESULT := 3; //pig farm
+	22: RESULT := 6; // mill
+	12:RESULT :=3; //stables
+	
+	25: RESULT := 7; // tannery
+	
+	7: RESULT := 6; // bakery
+	24: RESULT := 7; // butchers
+	28: RESULT := 4; //vineyard
+	6: RESULT := 8; //fishers
+	
+	3: RESULT := 2; // coal mine
+	4: RESULT := 2; // iron mine
+	5: RESULT := 2; // gold mine
+	
+	15:RESULT :=12; //metallurgists
+	1:RESULT :=12; //iron smithy
+	10:RESULT := 11; //armour smithy
+	2:RESULT := 11; //weapon smithy
+	
+	17:RESULT := 13; //watch tower
+	21: RESULT := 13; //barracks
+    else RESULT := -1; 
+  end
+end;
+
+function HouseTypeToGoldCost(aHouseType: integer): integer;
+begin
+	case aHouseType of
+		14: RESULT := 250; //quarry
+		
+		9: RESULT := 200; //wood cutter
+		8: RESULT := 300; //farm
+		
+		0:RESULT := 400; //sawmill
+		
+		3:RESULT := 300; //coal mine
+		4:RESULT := 450; //iron mine
+		
+		
+		22:RESULT := 450; // mill
+		16:RESULT := 500; // pig farm
+		12:RESULT := 1200; // stables
+		25:RESULT := 500; // tannery
+		
+		28:RESULT := 450; // vineyard
+		7:RESULT := 600; // bakery
+		24:RESULT := 600; // butcher
+		6: RESULT := 500; //fishers hut
+		
+		1:RESULT := 600; // iron smith
+		
+		19:RESULT := 1200; // weap. workshop
+		20:RESULT := 1200; // armor. workshop
+		2:RESULT := 1300; // weap. smith
+		10:RESULT := 1300; // armor. smith
+		
+		5:RESULT := 500; //gold mine
+		15:RESULT := 1200; //metallurgist
+		
+		27: RESULT := 1000; //inn
+    else RESULT := 0; 
+  end
+end;
+function WareTypeToStandardSellPrice(aWareType: integer): integer;
+begin
+	case aWareType of
+		0: RESULT:= 30; //tree trunk
+		1: RESULT:= 15; //stone
+		2: RESULT:= 40; // timber
+		3: RESULT:= 40; //iron ore
+		4: RESULT:= 40; //gold ore
+		5: RESULT:= 28; //coal
+		6: RESULT:= 80; //iron
+		7: RESULT:= 80; //gold
+		8: RESULT:= 30; //vine
+		9: RESULT:= 40; //corn
+		10: RESULT:= 30; //loaves
+		11: RESULT:= 50; //flour
+		12: RESULT:= 50; //leather
+		13: RESULT:= 30; //sausages
+		14: RESULT:= 180; //pig
+		15: RESULT:= 80; //skin
+		16: RESULT:= 80; //wooden shield
+		17: RESULT:= 180; //long shield
+		18: RESULT:= 100; //leather armour
+		19: RESULT:= 180; //iron armament
+		20: RESULT:= 100; //handaxe
+		21: RESULT:= 180; //long sword
+		22: RESULT:= 100; //lance
+		23: RESULT:= 180; //pike
+		24: RESULT:= 100; //longbow
+		25: RESULT:= 180; //crossbow
+		26: RESULT:= 200; //horse
+		27: RESULT:= 30; //fish
+		else RESULT:= 0;
+	end
+end;
+
+function IsNotNULL(aInt: integer): boolean;
+begin
+	if ( aInt >  0 ) then 
+	result:= true
+	else
+	result:= false;
+end;
+
+function HouseChangeOwner(aHouse, toPlayer: integer): integer;
+var 
+t, x, y, h: integer;
+begin
+	if (aHouse > 0) and InRange(toPlayer, 0, MAX_PLAYERS-1) then begin
+		t:= States.HouseType(aHouse);
+		x:= States.HousePositionX(aHouse);
+		y:=  States.HousePositionY(aHouse);
+		Actions.HouseDestroy(aHouse, true);
+		h:= Actions.GiveHouse(toPlayer, t, x, y);
+		//test(h);
+		result:= h;
+	end else
+	result:= -1;
+end;
+
+procedure CamJumpTo(aPlayer, X, Y: integer);
+begin
+	if (X >= 0) and ( Y >= 0 ) and ( aPlayer >= 0 ) and ( aPlayer < 8 ) then begin
+		Actions.CinematicStart(aPlayer);
+		Actions.CinematicPanTo(aPlayer, X, Y, 0);
+		Actions.CinematicEnd(aPlayer);
+	end;
+end;
+
+function NearHouse(aPlayer, x, y: integer): integer;
+var h: integer;
+begin
+	if IsNotNull(x) and IsNotNull(y) then begin
+		h:= States.HouseAt(x, y-1);
+		if IsNotNull(h) and ( HouseTypeToGoldCost(States.HouseType(h)) > 0 ) then begin
+			if States.HouseOwner(h) = aPlayer then begin
+				//if ( States.HousePositionX(h) = x ) and ( States.HousePositionY(h) = y-1 ) then begin
+					result:= h;
+				//end;
+			end;
+		end else begin
+			result:= 0;
+		end;
+	end else begin
+	result:= 0;
+	end;
+end;
+
+function ChangeUnitType(aUnit, aType: integer): integer;
+var owner, x, y: integer;
+begin
+	if (aUnit > 0 ) and (aType >= 0 ) and (aType < 37) then begin
+		owner:= States.UnitOwner(aUnit);
+		x:= States.UnitPositionX(aUnit);
+		y:= States.UnitPositionY(aUnit);
+		Actions.UnitKill(aUnit, true);
+		result:= States.GroupMember(Actions.GiveGroup(owner, aType, x, y, 4, 1, 1), 0);
+	end else begin
+		result:= 0;
+	end;
+end;
+
+
+//		VICTORY CONDITIONS		VICTORY CONDITIONS		VICTORY CONDITIONS		VICTORY CONDITIONS		VICTORY CONDITIONS
+procedure CheckVictoryConditions(aPlayer: integer);
+begin
+ if GAME_STATE = 0 then begin
+	if PLAYER[aPlayer].TaxPaid then begin
+		if PLAYER[aPlayer].Gold >= VICTORY_GOLD_REQUIREMENT then begin
+			GAME_STATE:= 1;
+			WINNER:= aPlayer;
+			Actions.ShowMsgFormatted(-1, '<$37>', [States.PlayerColorText(WINNER), States.PlayerName(WINNER)]);
+		end;
+	end;
+ end;
+end;
+
+//		DEFEAT CONDITIONS		DEFEAT CONDITIONS		DEFEAT CONDITIONS		DEFEAT CONDITIONS		DEFEAT CONDITIONS
+procedure PlayerDefeats(aPlayer: integer);
+var
+aA: array of integer;
+j: integer;
+begin
+	Actions.PlayerDefeat(aPlayer);
+	aA:= States.PlayerGetAllHouses(aPlayer);
+	for j:= 0 to Length(aA)-1 do begin
+		if ( States.HouseType(aA[j]) = 11 ) or ( States.HouseType(aA[j]) = 13 ) then
+		else begin
+			if aA[j] > 0 then begin
+				//test(HouseChangeOwner(aA[j], AI_DUMMY));
+				PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold + HouseTypeToGoldCost(States.HouseType(aA[j]));
+				Actions.HouseDestroy(aA[j], true);
+			end;
+		end;
+	end;
+	aA:= States.PlayerGetAllUnits(aPlayer);
+	for j:= 0 to Length(aA)-1 do begin
+		if ( aA[j] = PLAYER[aPlayer].Merchant.ID ) then
+		else begin
+			if aA[j] > 0 then begin
+				Actions.UnitKill(aA[j], true);
+				PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold + START_GOLD_PRICE;
+			end;
+		end;
+	end;
+	PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - PLAYER[aPlayer].Tax;
+end;
+// TAX TAX
+procedure CheckTax(aPlayer: integer);
+begin
+	if States.PlayerEnabled(aPlayer) then begin
+		if PLAYER[aPlayer].Tax > 0 then begin
+			if ( PLAYER[aPlayer].TaxPaid = false ) then begin
+				Actions.ShowMsg(aPlayer, '<$52>');
+				PLAYER[aPlayer].Tax:= Round(PLAYER[aPlayer].Tax * PLAYER[aPlayer].TaxX);
+				PLAYER[aPlayer].TaxX:= PLAYER[aPlayer].TaxX * TAX_RISERR;
+				if PLAYER[aPlayer].TaxX > TAX_BORDER then 
+					PlayerDefeats(aPlayer);
+			end;
+		end;
+	end;
+end;
+
+procedure CheckTaxPay(aPlayer: integer);
+begin
+	if States.PlayerEnabled(aPlayer) then begin
+		if PLAYER[aPlayer].Tax > 0 then begin
+			if ( PLAYER[aPlayer].TaxPaid = false ) then begin
+				if ( PLAYER[aPlayer].Gold >= PLAYER[aPlayer].Tax ) then begin
+					PLAYER_SCORE_COUNTER[aPlayer][11]:= 25;
+					PLAYER[aPlayer].TaxX:= TAX_START;
+					PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - PLAYER[aPlayer].Tax;
+					PLAYER[aPlayer].Tax:= 0;
+					PLAYER[aPlayer].TaxPaid:= true;
+					CheckVictoryConditions(aPlayer);
+				end else 
+					Actions.ShowMsgFormatted(aPlayer, '<$54>', [PLAYER[aPlayer].Tax]);
+			end;
+		end;
+	end;
+end;
+//
+
+procedure DecrementCounters;
+var j, k: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		for k:= 0 to Length(PLAYER_SCORE_COUNTER[j])-1 do begin
+			if PLAYER_SCORE_COUNTER[j][k] > 0 then begin
+				PLAYER_SCORE_COUNTER[j][k]:= PLAYER_SCORE_COUNTER[j][k] - 1;	
+			end;
+		end;
+	end;
+	for k:= 0 to Length(GLOBAL_EVENT_TIMER)-1 do begin
+		if GLOBAL_EVENT_TIMER[k] > 0 then begin
+			GLOBAL_EVENT_TIMER[k]:= GLOBAL_EVENT_TIMER[k] - 1;	
+		end;
+	end;
+	for k:= 0 to Length(QUEST_TIMER)-1 do begin
+		if QUEST_TIMER[k] > 0 then begin
+			QUEST_TIMER[k]:= QUEST_TIMER[k] - 1;	
+		end;
+	end;
+	if ( OFFER_HOUSE_TIMER > 0 ) then
+		OFFER_HOUSE_TIMER:= OFFER_HOUSE_TIMER - 1;
+	if ( TAX_COUNTER > 0 ) then 
+		TAX_COUNTER:= TAX_COUNTER - 1;
+end;
+//	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	SETTERS	
+
+procedure SetStarvationPrices;
+begin
+	WARE_SELL_PRICE[8]:= Round(WARE_SELL_PRICE[8] * GLOBAL_EVENT_FOOD_PERC_INCREASE);
+	WARE_SELL_PRICE[10]:= Round(WARE_SELL_PRICE[10] * GLOBAL_EVENT_FOOD_PERC_INCREASE);
+	WARE_SELL_PRICE[13]:= Round(WARE_SELL_PRICE[13] * GLOBAL_EVENT_FOOD_PERC_INCREASE);
+	WARE_SELL_PRICE[27]:= Round(WARE_SELL_PRICE[27] * GLOBAL_EVENT_FOOD_PERC_INCREASE);
+end;
+
+procedure SetWarPrices;
+var j: integer;
+begin
+	for j:= 16 to 26 do begin
+		WARE_SELL_PRICE[j]:= Round(WARE_SELL_PRICE[j] * GLOBAL_EVENT_WEAPON_PERC_INCREASE);
+	end;
+end;
+
+procedure SetRisingPrices;
+var j: integer;
+begin
+	for j:= 0 to 2 do begin
+		WARE_SELL_PRICE[j]:= Round(WARE_SELL_PRICE[j] * GLOBAL_EVENT_MATERIAL_PERC_INCREASE);
+	end;
+	WARE_SELL_PRICE[5]:= Round(WARE_SELL_PRICE[5] * GLOBAL_EVENT_MATERIAL_PERC_INCREASE);
+	WARE_SELL_PRICE[26]:= Round(WARE_SELL_PRICE[26] * GLOBAL_EVENT_MATERIAL_PERC_INCREASE);
+	WARE_SELL_PRICE[9]:= Round(WARE_SELL_PRICE[9] * GLOBAL_EVENT_MATERIAL_PERC_INCREASE);
+end;
+
+procedure SetStandardSellPrice;
+var j: integer;
+begin
+	for j:= 0 to MAX_WARE_TYPE do begin
+		WARE_SELL_PRICE[j]:= WareTypeToStandardSellPrice(j);
+	end;
+end;
+
+procedure SetAI;
+var
+aH: array of Integer;
+j: integer;
+begin
+	aH:= States.PlayerGetAllHouses(AI_SELLER);
+	for j:= 0 to Length(aH)-1 do begin
+		if States.HouseType(aH[j]) = 14 then
+			//Actions.HouseAddWaresTo(aH[j], 1, 5); // stones to quarry
+	end;
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		Actions.PlayerAllianceChange(AI_SELLER, j, false, true);
+	end;
+	aH:= States.PlayerGetAllHouses(AI_DUMMY);
+	STAT_TOTAL_HOUSE_COUNT:= Length(aH)-1;
+end;
+
+procedure SetPlayers;
+var
+aH: array of Integer;
+ j, k: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			PLAYER[j].Tax:= 0;
+			PLAYER[j].TaxPaid:= true;
+			PLAYER[j].TaxX:= TAX_START;
+			PLAYER[j].TotalGold:= PLAYER_START_GOLD;
+			PLAYER[j].Gold:= PLAYER_START_GOLD;
+			PLAYER[j].Merchant.Exp:= PLAYER_START_EXP;
+			PLAYER[j].Merchant.Level:= PLAYER_START_LEVEL;
+			aH:= States.PlayerGetAllHouses(j);
+			for k:= 0 to Length(aH)-1 do begin
+				if States.HouseType(aH[k]) = 11 then begin
+					PLAYER[j].StorehouseID:= aH[k];
+					Actions.HouseAddWaresTo(aH[k], 8, PLAYER_START_FOOD);
+					Actions.HouseAddWaresTo(aH[k], 10, PLAYER_START_FOOD);
+					Actions.HouseAddWaresTo(aH[k], 13, PLAYER_START_FOOD);
+					Actions.HouseAddWaresTo(aH[k], 27, PLAYER_START_FOOD);
+				end;
+				if States.HouseType(aH[k]) = 13 then begin
+					PLAYER[j].SchoolID:= aH[k];
+					Actions.HouseAddWaresTo(aH[k], 7, PLAYER_START_GOLD_CHESTS);
+				end;
+				if States.HouseType(aH[k]) = 27 then begin
+					
+				end;
+			end;
+			PLAYER[j].Merchant.ID:= States.GroupMember(Actions.GiveGroup(j, 24, States.HousePositionX(PLAYER[j].StorehouseID), States.HousePositionY(PLAYER[j].StorehouseID)+1, 4, 1, 1), 0);
+			PLAYER[j].Merchant.aType:= PLAYER_START_MERCHANT_TYPE;
+			PLAYER[j].Merchant.InHouse:= false;
+			for k:= 0 to 29 do begin
+				Actions.HouseUnlock(j, k);
+				Actions.HouseAllow(j, k, false);
+				//Actions.HouseUnlock(j, k);
+			end;
+		end;
+		
+	end;
+end;
+
+//	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS	MECHANICS
+
+procedure WhereMerchant;
+var j: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+			if States.HouseRepair(PLAYER[j].SchoolID) then begin
+				Actions.HouseRepairEnable(PLAYER[j].SchoolID, false);
+				CamJumpTo(j, States.UnitPositionX(PLAYER[j].Merchant.ID), States.UnitPositionY(PLAYER[j].Merchant.ID));
+				CamJumpTo(j, States.HousePositionX(PLAYER[j].Merchant.ID), States.HousePositionY(PLAYER[j].Merchant.ID));
+			end;
+		end;
+	end;
+end;
+
+
+
+procedure GiveWorkers(aPlayer, aType, aCount: integer);
+var j: integer;
+begin
+	for j:= 1 to aCount do begin
+		Actions.GiveUnit(aPlayer, aType, OFFER_SCHOOL_X, OFFER_SCHOOL_Y+1, 4);
+		PLAYER[aPlayer].UnitCount:= PLAYER[aPlayer].UnitCount + 1;
+	end;
+end;
+
+
+//	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES	TAXES
+
+procedure SetTaxes;
+var 
+A: array of integer;
+j, k: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+			A:= States.PlayerGetAllHouses(j);
+			for k:= 0 to Length(A)-1 do begin
+				if HouseTypeToRank(States.HouseType(A[k])) = 1 then
+					PLAYER[j].Tax:= PLAYER[j].Tax + TAX_PER_1_RANK
+				else if HouseTypeToRank(States.HouseType(A[k])) = 2 then
+					PLAYER[j].Tax:= PLAYER[j].Tax + TAX_PER_2_RANK
+				else if HouseTypeToRank(States.HouseType(A[k])) = 3 then
+					PLAYER[j].Tax:= PLAYER[j].Tax + TAX_PER_3_RANK;
+			end;
+			PLAYER[j].Tax:= PLAYER[j].Tax + (TAX_PER_WORKER * PLAYER[j].UnitCount );
+			PLAYER[j].TaxPaid:= false;
+		end;
+	end;
+	TAX_COUNTER:= (TAX_TIME/10);
+end;
+
+//	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS	OFFERS
+// SERFS
+procedure SetWorkersOffet(aMultiplier: integer);
+begin
+	OFFER_SERF_TIMER:= OFFER_SERF_TIME;
+	OFFER_SERF_COUNT:= aMultiplier + States.KaMRandomI(OFFER_SERF_RANDOM);
+	OFFER_SERF_COST:= (OFFER_COST_PER_SERF * OFFER_SERF_COUNT);
+end;
+
+procedure BuyWorkersOffer(aPlayer: integer);
+begin
+	if InRange(aPlayer, 0, MAX_PLAYERS-1) then begin
+		if ( OFFER_SERF_TIMER > 0 ) then begin
+			if ( PLAYER[aPlayer].Gold >= OFFER_SERF_COST ) then begin
+				PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - OFFER_SERF_COST;
+				OFFER_SERF_TIMER:= 0;
+				PLAYER_SCORE_COUNTER[aPlayer][10]:= 25;
+				GiveWorkers(aPlayer, 0, OFFER_SERF_COUNT);
+			end else 
+				Actions.ShowMsgFormatted(aPlayer, '<$49>', [OFFER_SERF_COST]);
+		end;
+	end;
+end;
+
+procedure AllowHouseByClass(aPlayer, aClass: integer);
+var j: integer;
+begin
+	for j:= 0 to 28 do begin
+		if HouseTypeToRank(j) = aClass then
+			Actions.HouseAllow(aPlayer, j, true);
+	end;
+end;
+
+procedure ClearAllowHouse(aPlayer: integer);
+var j: integer;
+begin
+	for j:= 0 to 29 do begin
+		Actions.HouseAllow(aPlayer, j, false);
+	end;
+end;
+
+procedure BuyHouseOffer(aPlayer: integer);
+begin
+	if InRange(aPlayer, 0, MAX_PLAYERS-1) then begin
+		if ( OFFER_HOUSE_TIMER > 0 ) then begin
+			if ( PLAYER[aPlayer].Gold >= OFFER_HOUSE_COST ) then begin
+				PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - OFFER_HOUSE_COST;
+				OFFER_HOUSE_TIMER:= 0;
+				AllowHouseByClass(aPlayer, OFFER_HOUSE_CLASS);
+				PLAYER_SCORE_COUNTER[aPlayer][9]:= 20;
+			end else 
+				Actions.ShowMsgFormatted(aPlayer, '<$47>', [OFFER_HOUSE_COST]);
+		end;
+	end;
+end;
+
+procedure SetHouseOffer(aClass: integer);
+begin
+	OFFER_HOUSE_TIMER:= OFFER_HOUSE_TIME;
+	OFFER_HOUSE_CLASS:= aClass;
+	OFFER_HOUSE_COST:= HouseClassToGoldCost(aClass);
+end;
+
+
+
+//		QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS	QUESTS
+procedure RewardFromQuest(aPlayer, aWareType, aAmount: integer);
+var j, x: integer;
+begin
+	x:= aAmount;
+	for j:= 0 to Length(QUEST_ENABLED)-1 do begin
+		if QUEST_ENABLED[j] then begin
+			if QUEST_TYPE[j] = aWareType then begin
+				if ( x >= QUEST_COUNT[j]) then begin
+					x:= x - QUEST_COUNT[j];
+					GLOBAL_EVENT_TIMER[j]:= 0;
+					QUEST_ENABLED[j]:= false;
+					PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold + QUEST_REWARD[j];
+					Actions.ShowMsgFormatted(aPlayer, '<$30>', [QUEST_REWARD[j]]);
+					PLAYER_SCORE_COUNTER[aPlayer][7]:= 20;
+					
+				end;
+			end;
+		end;
+	end;
+end;
+
+procedure CheckSetQuestCounter;
+var j: integer;
+begin
+	for j:= 0 to Length(QUEST_ENABLED)-1 do begin
+		if QUEST_ENABLED[j] = false then begin
+			QUEST_COUNTER:= j;
+			exit;
+		end;
+	end;
+end;
+
+procedure DisableQuests;
+var j: integer;
+begin
+	for j:= 0 to Length(QUEST_ENABLED)-1 do begin
+		if QUEST_ENABLED[j] then begin
+			if QUEST_TIMER[j] = 0 then begin
+				QUEST_ENABLED[j]:= false;
+				CheckSetQuestCounter;
+			end;
+		end;
+	end;
+end;
+
+procedure SetQuest;
+begin
+	if QUEST_COUNTER < (Length(QUEST_ENABLED)-1) then begin
+		QUEST_TIMER[QUEST_COUNTER]:= QUEST_LASTS_TIME + (States.KaMRandomI(QUEST_LASTS_TIME_RANDOM) * 10); // sec
+		
+		if QUEST_LEVEL < QUEST_HIGHER_BORDER  then begin
+			if States.KaMRandomI(28) = 27 then
+				QUEST_TYPE[QUEST_COUNTER]:= 27
+			else
+				QUEST_TYPE[QUEST_COUNTER]:= States.KaMRandomI(10);
+		end else begin
+			QUEST_TYPE[QUEST_COUNTER]:= States.KaMRandomI(28);
+		end;
+		
+		if InRange(QUEST_TYPE[QUEST_COUNTER], 16, 26) then
+			QUEST_COUNT[QUEST_COUNTER]:= 1 + (Round(QUEST_LEVEL/4) + States.KaMRandomI(QUEST_TYPE_16_RANDOM))
+		else
+			QUEST_COUNT[QUEST_COUNTER]:= 3 + Round(QUEST_LEVEL/2) + (States.KaMRandomI(QUEST_TYPE_0_RANDOM) * Round(QUEST_LEVEL/5));
+		
+		if InRange(QUEST_TYPE[QUEST_COUNTER], 16, 26) then
+			QUEST_REWARD[QUEST_COUNTER]:= QUEST_COUNT[QUEST_COUNTER] * QUEST_REWARD_16
+		else
+			QUEST_REWARD[QUEST_COUNTER]:= QUEST_COUNT[QUEST_COUNTER] * QUEST_REWARD_0;
+			
+		QUEST_ENABLED[QUEST_COUNTER]:= true;
+		CheckSetQuestCounter;
+		
+	end;
+end;
+
+
+//		EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS
+procedure RobHouse(aHouse: integer);
+var j: integer;
+begin
+   if ( aHouse > 0 ) then begin
+      Actions.ShowMsgGoto(States.HouseOwner(aHouse), States.HousePositionX(aHouse), States.HousePositionY(aHouse), '<$17>');
+      for j:= 0 to MAX_WARE_TYPE do
+        if States.HouseResourceAmount(aHouse, j) > 0 then
+          Actions.HouseTakeWaresFrom(aHouse, j, 5);
+   end;
+end;
+
+procedure BurningHouses;
+var j, c: integer;
+begin
+	c:=0;
+	for j:= 0 to Length(FIRE_HOUSES)-1 do begin
+		if (FIRE_HOUSES[j] > 0 ) and ( States.HouseDamage(FIRE_HOUSES[j]) > 0 ) then begin
+			Actions.HouseAddDamage(FIRE_HOUSES[j], 1);
+			Actions.HouseDeliveryBlock(FIRE_HOUSES[j], true);
+		end else begin
+			if ( FIRE_HOUSES[j] > 0 ) then begin
+				Actions.HouseRepairEnable(FIRE_HOUSES[j], false);
+				Actions.HouseDeliveryBlock(FIRE_HOUSES[j], false);
+			end;
+			FIRE_HOUSES[j]:=0;
+			c:= c +1;
+			if ( c = Length(FIRE_HOUSES) ) then begin
+				FIRE_HOUSES_ENABLED:= false;
+				SetLength(FIRE_HOUSES, 0);
+				FIRE_HOUSES_COUNTER:= 0;
+			end;
+		end;
+	end;
+end;
+procedure FireHouse(aHouse: integer);
+begin
+	if aHouse > 0 then begin
+		SetLength(FIRE_HOUSES, Length(FIRE_HOUSES)+1);
+		FIRE_HOUSES[FIRE_HOUSES_COUNTER]:= aHouse;
+		FIRE_HOUSES_COUNTER:= FIRE_HOUSES_COUNTER + 1;
+		
+		Actions.ShowMsgGoto(States.HouseOwner(aHouse), States.HousePositionX(aHouse), States.HousePositionY(aHouse), '<$15>');
+		Actions.HouseAddDamage(aHouse, 10);
+	end;
+end;
+
+procedure CheckReverseGlobalEvents;
+begin
+	if GLOBAL_EVENT_ENABLED[0] then //starvation
+		SetStarvationPrices;
+	if GLOBAL_EVENT_ENABLED[1] then //war
+		SetWarPrices;
+	if GLOBAL_EVENT_ENABLED[2] then //rising
+		SetRisingPrices;
+end;
+
+procedure DisableGlobalEvents;
+var j: integer;
+begin
+	for j:= 0 to Length(GLOBAL_EVENT_TIMER)-1 do begin
+		if GLOBAL_EVENT_ENABLED[j] then begin
+			if GLOBAL_EVENT_TIMER[j] = 0 then begin
+				GLOBAL_EVENT_ENABLED[j]:= false;
+				if j = 0 then
+					FOOD_PRICE:= START_FOOD_PRICE;
+				if j = 2 then begin
+					STONES_PRICE:= START_STONES_PRICE;
+					TIMBER_PRICE:= START_TIMBER_PRICE;
+				end;
+				SetStandardSellPrice;
+				CheckReverseGlobalEvents;
+			end;
+		end;
+	end;
+end;
+
+procedure RandomGlobalEvent(aEvent: integer);
+begin
+	if aEvent = 0 then begin	//starvation //vine, loaves, sausages, fishes
+		SetStarvationPrices;
+		FOOD_PRICE:= Round(START_FOOD_PRICE * GLOBAL_EVENT_FOOD_PERC_INCREASE);
+		GLOBAL_EVENT_TIMER[0]:= GLOBAL_EVENT_LASTS_TIME + (States.KaMRandomI(GLOBAL_EVENT_LASTS_TIME_RANDOM)*10);
+		GLOBAL_EVENT_ENABLED[0]:= true;
+	end;
+	if aEvent = 2 then begin	//war //axe, lance, bow; crossbow, sword, pike; wood shield, leather armour; iron armour, long shield;
+		SetWarPrices;
+		GLOBAL_EVENT_TIMER[1]:= GLOBAL_EVENT_LASTS_TIME + (States.KaMRandomI(GLOBAL_EVENT_LASTS_TIME_RANDOM)*10);
+		GLOBAL_EVENT_ENABLED[1]:= true;
+	end;
+	if aEvent = 1 then begin	//rising //timber, stones, tree trunk, coal, horses
+		SetRisingPrices;
+		STONES_PRICE:= Round(START_STONES_PRICE * GLOBAL_EVENT_MATERIAL_PERC_INCREASE);
+		TIMBER_PRICE:= Round(START_TIMBER_PRICE * GLOBAL_EVENT_MATERIAL_PERC_INCREASE);
+		GLOBAL_EVENT_TIMER[2]:= GLOBAL_EVENT_LASTS_TIME + (States.KaMRandomI(GLOBAL_EVENT_LASTS_TIME_RANDOM)*10);
+		GLOBAL_EVENT_ENABLED[2]:= true;	
+	end;
+end;	
+
+procedure RandomLocalEvent(aPlayer, aEvent: integer);
+var 
+aArray: array of integer;
+rh: integer;
+begin
+	//fire
+	if aEvent = 0 then begin
+		if ( PLAYER[aPlayer].HouseCount >= LOCAL_EVENT_MIN_HOUSE_COUNT ) then begin
+			aArray:= States.PlayerGetAllHouses(aPlayer); //houses
+			rh:= aArray[States.KaMRandomI(Length(aArray))];
+			while ( NotMainHouseType(States.HouseType(rh))= false ) or (States.HouseIsComplete(rh) = false ) do begin
+				rh:= aArray[States.KaMRandomI(Length(aArray))];
+			end;
+			FireHouse(rh);
+		end;
+		FIRE_HOUSES_ENABLED:= true;
+	end;
+	//robbery	
+	if aEvent = 1 then begin
+		if ( PLAYER[aPlayer].HouseCount >= LOCAL_EVENT_MIN_HOUSE_COUNT ) then begin
+			aArray:= States.PlayerGetAllHouses(aPlayer); //houses
+			rh:= aArray[States.KaMRandomI(Length(aArray))];
+			while ( NotMainHouseType(States.HouseType(rh))= false ) or (States.HouseIsComplete(rh) = false ) or (PLAYER[aPlayer].Merchant.ID = rh ) do begin
+				rh:= aArray[States.KaMRandomI(Length(aArray))];
+			end;
+			RobHouse(rh);
+		end;
+	end;
+	//murder	
+	if aEvent = 2 then begin
+		if ( PLAYER[aPlayer].UnitCount >= LOCAL_EVENT_MIN_UNIT_COUNT ) then begin
+			aArray:= States.PlayerGetAllUnits(aPlayer); //units
+			rh:= aArray[States.KaMRandomI(Length(aArray))];
+			while ( States.UnitType(rh) < 0 ) or ( States.UnitType(rh) > 13 ) or ( rh = PLAYER[aPlayer].Merchant.WorkerID ) or ( rh = PLAYER[aPlayer].Merchant.ID ) or (States.UnitDead(rh)) do begin
+				rh:= aArray[States.KaMRandomI(Length(aArray))];
+			end;
+			Actions.ShowMsgGotoFormatted(aPlayer, States.UnitPositionX(rh), States.UnitPositionY(rh), '<$16>', [States.UnitTypeName(States.UnitType(rh))]);
+			Actions.UnitKill(rh, false);
+		end;
+	end;
+end;
+
+//		SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS	SELLS
+procedure FeedMerchantsAndAI;
+var 
+aUnits: array of integer;
+j: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			if IsNotNull(PLAYER[j].Merchant.ID) then
+				Actions.UnitHungerSet(PLAYER[j].Merchant.ID, (10*60*35));
+			if IsNotNull(PLAYER[j].Merchant.WorkerID) then
+			Actions.UnitHungerSet(PLAYER[j].Merchant.WorkerID, (10*60*35));
+		end;
+	end;
+	aUnits:= States.PlayerGetAllUnits(AI_SELLER);
+	for j:= 0 to Length(aUnits)-1 do begin
+		if IsNotNull(aUnits[j]) then
+			Actions.UnitHungerSet(aUnits[j], (10*60*35));
+	end;
+end;
+procedure PromoteMerchant(aPlayer: integer);
+var prevID: integer;
+begin
+	if PLAYER[aPlayer].Merchant.Level < ExpToLevel(PLAYER[aPlayer].Merchant.Exp) then begin
+		PLAYER[aPlayer].Merchant.Level:= ExpToLevel(PLAYER[aPlayer].Merchant.Exp);
+		PLAYER[aPlayer].Merchant.aType:= LevelToType(PLAYER[aPlayer].Merchant.Level);
+		PLAYER_SCORE_COUNTER[aPlayer][5]:= 10;
+		if PLAYER[aPlayer].Merchant.InHouse = false then begin
+			prevID:= PLAYER[aPlayer].Merchant.ID;
+			PLAYER[aPlayer].Merchant.ID:= ChangeUnitType(prevID, PLAYER[aPlayer].Merchant.aType);
+		end;
+	end;
+end;
+procedure SellHouse(aHouse, aPlayer: integer);
+begin
+ if HouseTypeToGoldCost(States.HouseType(aHouse)) <> -1 then begin
+	if PLAYER[aPlayer].Gold >= HouseTypeToGoldCost(States.HouseType(aHouse)) then begin
+		PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - HouseTypeToGoldCost(States.HouseType(aHouse));
+		HouseChangeOwner(aHouse, aPlayer);
+		PLAYER[aPlayer].HouseCount:= PLAYER[aPlayer].HouseCount + 1;
+		PLAYER_SCORE_COUNTER[aPlayer][0]:= 5;
+	end else begin
+		Actions.ShowMsgFormatted(aPlayer, '<$5>', [HouseTypeToGoldCost(States.HouseType(aHouse))]);
+	end;
+ end;
+end;	
+procedure BuySchoolGold(aPlayer: integer);
+begin
+	if States.HouseResourceAmount(PLAYER[aPlayer].SchoolID, 7) < 5 then begin
+		if PLAYER[aPlayer].Gold >= GOLD_PRICE then begin
+			PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - GOLD_PRICE;
+			Actions.HouseAddWaresTo(PLAYER[aPlayer].SchoolID, 7, GOLD_PER_PRICE);
+			PLAYER_SCORE_COUNTER[aPlayer][1]:= 5;
+		end else begin
+			Actions.ShowMsgFormatted(aPlayer, '<$6>', [GOLD_PRICE]);
+		end;
+	end else begin
+		Actions.ShowMsg(aPlayer, '<$7>');
+	end;
+end;	
+procedure CheckMerchantsToWork;
+var j, prevID, aHouse, x, y: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+			if PLAYER[j].Merchant.ID > 0 then begin
+				if PLAYER[j].Merchant.InHouse then begin
+					if States.HouseRepair(PLAYER[j].Merchant.ID) = false then begin
+						prevID:= PLAYER[j].Merchant.ID;
+						PLAYER[j].Merchant.ID:= States.GroupMember(Actions.GiveGroup(j, PLAYER[j].Merchant.aType, States.HousePositionX(prevID), States.HousePositionY(prevID)+1, 4, 1, 1), 0);
+						Actions.UnitKill(PLAYER[j].Merchant.WorkerID, true);
+						//HouseChangeOwner(prevID, j);
+						PLAYER[j].HouseCount:= PLAYER[j].HouseCount + 1;
+						PLAYER[j].Merchant.InHouse:= false;
+						PLAYER_SCORE_COUNTER[j][2]:= 0;
+					end;
+				end else begin
+					if PLAYER[j].Merchant.InHouse = false then begin
+						aHouse:= NearHouse(j, States.UnitPositionX(PLAYER[j].Merchant.ID), States.UnitPositionY(PLAYER[j].Merchant.ID));
+						if ( aHouse > 0 ) and (States.HouseOwner(aHouse) = j) and (States.HouseHasOccupant(aHouse) = false ) then begin
+							if (States.HouseHasOccupant(aHouse) = false ) and States.HouseRepair(aHouse) then begin
+								prevID:= PLAYER[j].Merchant.ID;
+								x:=States.UnitPositionX(prevID);
+								y:=States.UnitPositionY(prevID);
+								PLAYER[j].Merchant.ID:= aHouse;
+								Actions.UnitKill(prevID, true);
+								PLAYER[j].Merchant.InHouse:= true;
+								PLAYER[j].Merchant.WorkerID:= Actions.GiveUnit(j, HouseTypeToWorkerType(States.HouseType(aHouse)), x, y, 0);
+								PLAYER_SCORE_COUNTER[j][2]:= 999;
+								PLAYER[j].HouseCount:= PLAYER[j].HouseCount - 1;
+							end;
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+procedure SellWaresFromSerfs(aPlayer: integer);
+var 
+aUnits: array of integer;
+j: integer;
+begin
+	aUnits:= States.PlayerGetAllUnits(aPlayer);
+	for j:= 0 to Length(aUnits)-1 do begin
+		if States.UnitType(aUnits[j]) = 0 then begin
+			if InRange((States.UnitCarrying(aUnits[j])), 0, MAX_WARE_TYPE) then
+				PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold + WARE_SELL_PRICE[(States.UnitCarrying(aUnits[j]))];
+		end;
+	end;
+end;
+
+procedure SellWares;
+var 
+j, k: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+			if ( PLAYER[j].StorehouseID > 0 ) and States.HouseIsComplete(PLAYER[j].StorehouseID) then begin
+				if States.HouseDeliveryBlocked(PLAYER[j].StorehouseID) then begin
+					PLAYER[j].LastTransaction:= 0;
+					for k:= 0 to MAX_WARE_TYPE do begin 
+						if States.HouseWareBlocked(PLAYER[j].StorehouseID, k) then begin
+							RewardFromQuest(j, k, States.HouseResourceAmount(PLAYER[j].StorehouseID, k));
+							PLAYER[j].Gold:= PLAYER[j].Gold + ( States.HouseResourceAmount(PLAYER[j].StorehouseID, k) * WARE_SELL_PRICE[k] );
+							PLAYER[j].TotalGold:= PLAYER[j].TotalGold + ( States.HouseResourceAmount(PLAYER[j].StorehouseID, k) * WARE_SELL_PRICE[k] );
+							PLAYER[j].LastTransaction:= PLAYER[j].LastTransaction + ( States.HouseResourceAmount(PLAYER[j].StorehouseID, k) * WARE_SELL_PRICE[k] );
+							PLAYER[j].Merchant.Exp:= PLAYER[j].Merchant.Exp + ( States.HouseResourceAmount(PLAYER[j].StorehouseID, k) * WARE_SELL_PRICE[k] );
+							Actions.HouseTakeWaresFrom(PLAYER[j].StorehouseID, k, States.HouseResourceAmount(PLAYER[j].StorehouseID, k));
+							Actions.HouseWareBlock(PLAYER[j].StorehouseID, k, false);
+						end;
+					end;
+					Actions.HouseDeliveryBlock(PLAYER[j].StorehouseID, false);
+					PromoteMerchant(j);
+					PLAYER_SCORE_COUNTER[j][3]:= 20;
+					CheckVictoryConditions(j);
+				end;
+			end;
+		end;
+	end;
+end;
+
+procedure BuyFood(aPlayer: integer);
+begin
+	if PLAYER[aPlayer].Gold >= FOOD_PRICE then begin
+		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 8, FOOD_PER_PRICE);
+		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 10, FOOD_PER_PRICE);
+		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 13, FOOD_PER_PRICE);
+		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 27, FOOD_PER_PRICE);
+		PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - FOOD_PRICE;
+		PLAYER_SCORE_COUNTER[aPlayer][4]:= 5;
+	end else begin
+		Actions.ShowMsgFormatted(aPlayer, '<$11>', [FOOD_PRICE]);
+	end;
+end;
+
+procedure BuyStone(aPlayer: integer);
+begin
+	if PLAYER[aPlayer].Gold >= STONES_PRICE then begin
+		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 1, STONES_PER_PRICE);
+		PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - STONES_PRICE;
+		PLAYER_SCORE_COUNTER[aPlayer][6]:= 5;
+	end else begin
+		Actions.ShowMsgFormatted(aPlayer, '<$13>', [STONES_PRICE]);
+	end;
+end;
+
+procedure BuyTimber(aPlayer: integer);
+begin
+	if PLAYER[aPlayer].Gold >= TIMBER_PRICE then begin
+		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 2, TIMBER_PER_PRICE);
+		PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - TIMBER_PRICE;
+		PLAYER_SCORE_COUNTER[aPlayer][6]:= 5;
+	end else begin
+		Actions.ShowMsgFormatted(aPlayer, '<$13>', [TIMBER_PRICE]);
+	end;
+end;
+
+
+procedure AIResource;
+var
+aH: array of integer; 
+j: integer;
+begin
+	aH:= States.PlayerGetAllHouses(AI_SELLER);
+	for j:= 0 to Length(aH)-1 do begin
+		if States.HouseType(aH[j]) = 14 then begin
+			test(aH[j]);
+			Actions.HouseAddWaresTo(aH[j], 1, 5);
+		end;
+		if States.HouseType(aH[j]) = 11 then begin
+			test(aH[j]);
+			Actions.HouseAddWaresTo(aH[j], 1, 5);
+		end;
+	end;
+end;
+// SCORE 	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE	 SCORE 
+
+procedure ShowScores;
+var 
+listOn: array [0..MAX_PLAYERS] of boolean;
+j, k: integer;
+begin
+ if GAME_STATE = 0 then begin
+	for j:= 0 to Length(listOn)-1 do begin
+		listOn[j]:= false;
+	end;
+	//desc
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+		 if PLAYER[j].StorehouseID > 0 then begin
+			if States.HouseRepair(PLAYER[j].StorehouseID) then begin 
+				listOn[j]:= true;
+				if PLAYER_SCORE_TAB_COUNTER[j] = 0 then begin //wares
+					Actions.OverlayTextSet(j, '<$27>');
+					Actions.OverlayTextAppend(j, '|');
+					for k:=0 to MAX_WARE_TYPE do begin
+						if WARE_SELL_PRICE[k] > WareTypeToStandardSellPrice(k) then
+							Actions.OverlayTextAppendFormatted(j, '<$58>', [States.WareTypeName(k), WARE_SELL_PRICE[k]])
+						else
+							Actions.OverlayTextAppendFormatted(j, '<$28>', [States.WareTypeName(k), WARE_SELL_PRICE[k]]);
+						Actions.OverlayTextAppend(j, '|');
+					end;
+					if PLAYER_SCORE_TAB_ENABLED[j] = false then 
+						PLAYER_SCORE_TAB_ENABLED[j]:= true;
+				end else if PLAYER_SCORE_TAB_COUNTER[j] = 1 then begin //houses
+					Actions.OverlayTextSet(j, '<$29>');
+					Actions.OverlayTextAppend(j, '|');
+					for k:=0 to MAX_HOUSE_TYPE do begin
+						if HouseTypeToGoldCost(k) <> 0 then begin
+							Actions.OverlayTextAppendFormatted(j, '<$28>', [States.HouseTypeName(k), HouseTypeToGoldCost(k)]);
+							Actions.OverlayTextAppend(j, '|');
+						end;
+					end;
+					if PLAYER_SCORE_TAB_ENABLED[j] = false then 
+						PLAYER_SCORE_TAB_ENABLED[j]:= true;
+				end;
+				Actions.OverlayTextAppend(j, '|');
+				Actions.OverlayTextAppendFormatted(j, '<$42>', [PLAYER[j].Gold]);
+			end else begin
+				if PLAYER_SCORE_TAB_ENABLED[j] then begin
+					PLAYER_SCORE_TAB_ENABLED[j]:= false;
+					PLAYER_SCORE_TAB_COUNTER[j]:= PLAYER_SCORE_TAB_COUNTER[j] + 1;
+					if PLAYER_SCORE_TAB_COUNTER[j] = 2 then 
+						PLAYER_SCORE_TAB_COUNTER[j]:= 0;
+				end;
+			end;
+		 end;
+		end;
+	end;
+	for j:= 0 to MAX_PLAYERS-1 do begin
+	 if States.PlayerEnabled(j) and (States.PlayerDefeated(j) = false ) then begin
+		if listOn[j] = false then begin
+			Actions.OverlayTextSetFormatted(j, '<$1>', []);
+			Actions.OverlayTextAppend(j, '|');
+			for k:= 0 to MAX_PLAYERS-1 do begin
+				if States.PlayerEnabled(k) and (States.PlayerDefeated(k) = false ) then begin
+					Actions.OverlayTextAppendFormatted(j, '<$2>', [PLAYER[k].Merchant.Level, States.PlayerColorText(k), States.PlayerName(k), PLAYER[k].Gold]);
+					if PLAYER_SCORE_COUNTER[k][2] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$8>', []); //himself work
+					if PLAYER_SCORE_COUNTER[k][0] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$4>', []); //house bought
+					if PLAYER_SCORE_COUNTER[k][1] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$3>', []); //gold bought
+					if PLAYER_SCORE_COUNTER[k][4] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$10>', []); //food bought
+					if PLAYER_SCORE_COUNTER[k][6] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$14>', []); //stones bought
+					if PLAYER_SCORE_COUNTER[k][9] > 0 then
+						Actions.OverlayTextAppendFormatted(j, '<$46>', []); //offer bought
+					if PLAYER_SCORE_COUNTER[k][10] > 0 then
+						Actions.OverlayTextAppendFormatted(j, '<$50>', []); //serfs hired
+					if PLAYER_SCORE_COUNTER[k][3] > 0 then 
+						if PLAYER[k].LastTransaction > 0 then 
+							Actions.OverlayTextAppendFormatted(j, '<$9>', [PLAYER[k].LastTransaction]); //sell goods
+					if PLAYER_SCORE_COUNTER[k][8] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$38>', []); //sell house
+					if PLAYER_SCORE_COUNTER[k][7] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$26>', []); //rewarded
+					if PLAYER_SCORE_COUNTER[k][5] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$12>', []); //was promoted
+					if PLAYER[k].TaxPaid = false then begin
+						if PLAYER[k].TaxX < 1.2 then	// tax
+							Actions.OverlayTextAppendFormatted(j, '<$51>', [PLAYER[k].Tax])
+						else 
+							Actions.OverlayTextAppendFormatted(j, '<$55>', [PLAYER[k].Tax, Round(PLAYER[k].TaxX) ] );
+							//Actions.OverlayTextAppendFormatted(-1, '<$55>', [PLAYER[j].Tax, CutFloat(FloatToStr(PLAYER[j].TaxX), 5) ] );
+					end;
+					if PLAYER_SCORE_COUNTER[k][11] > 0 then 
+						Actions.OverlayTextAppendFormatted(j, '<$53>', []); // tax paid
+					Actions.OverlayTextAppend(j, '|');
+				end;
+			end;
+			Actions.OverlayTextAppend(j, '|');
+			if InRange(TAX_COUNTER, 1, 180) then begin
+				Actions.OverlayTextAppendFormatted(j, '<$57>', [TAX_COUNTER]); // tax paid
+				Actions.OverlayTextAppend(j, '|');
+			end;
+			//Actions.OverlayTextAppend(-1, '|');
+			
+			//Actions.OverlayTextAppend(-1, '|');
+			//global events
+			Actions.OverlayTextAppend(j, '<$21>');
+			//Actions.OverlayTextAppend(-1, '|');
+			if IsArrayHasTrue(GLOBAL_EVENT_ENABLED) then begin
+				if GLOBAL_EVENT_TIMER[0] > 0 then begin
+					//Actions.OverlayTextAppend(-1, '<$24>');
+					Actions.OverlayTextAppendFormatted(j, '<$18>', []); //starvation
+					Actions.OverlayTextAppendFormatted(j, '<$56>', [GLOBAL_EVENT_TIMER[0]]);
+					Actions.OverlayTextAppend(j, '|');
+				end;
+				if GLOBAL_EVENT_TIMER[1] > 0 then begin
+					//Actions.OverlayTextAppend(-1, '<$24>');
+					Actions.OverlayTextAppendFormatted(j, '<$19>', []); //war
+					Actions.OverlayTextAppendFormatted(j, '<$56>', [GLOBAL_EVENT_TIMER[1]]);
+					Actions.OverlayTextAppend(j, '|');
+				end;
+				if GLOBAL_EVENT_TIMER[2] > 0 then begin
+					//Actions.OverlayTextAppend(-1, '<$24>');
+					Actions.OverlayTextAppendFormatted(j, '<$20>', []); //rising
+					Actions.OverlayTextAppendFormatted(j, '<$56>', [GLOBAL_EVENT_TIMER[2]]);
+					Actions.OverlayTextAppend(j, '|');
+				end;
+			end else begin
+				Actions.OverlayTextAppend(j, '<$23>'); // ' -'
+				Actions.OverlayTextAppend(j, '|');
+			end;
+			///																	//offers
+			Actions.OverlayTextAppend(j, '<$45>');
+			//Actions.OverlayTextAppend(-1, '|');
+			if ( OFFER_HOUSE_TIMER > 0 ) or ( OFFER_SERF_TIMER > 0 ) then begin
+				if ( OFFER_HOUSE_TIMER > 0 ) then begin
+					//Actions.OverlayTextAppend(-1, '<$24>');
+					Actions.OverlayTextAppendFormatted(j, '<$44>', [ClassToString(OFFER_HOUSE_CLASS), OFFER_HOUSE_COST]);
+					Actions.OverlayTextAppend(j, ' ');
+					//Actions.OverlayTextAppend(-1, '|');
+					if (  OFFER_SERF_TIMER <= 0 ) then
+						Actions.OverlayTextAppend(j, '|');
+				end;
+				if ( OFFER_SERF_TIMER > 0 ) then begin
+					//Actions.OverlayTextAppend(-1, '<$24>');
+					Actions.OverlayTextAppendFormatted(j, '<$48>', [OFFER_SERF_COUNT, OFFER_SERF_COST]);
+					Actions.OverlayTextAppend(j, '|');
+				end;
+			end else begin
+				Actions.OverlayTextAppend(j, '<$23>'); // ' -'
+				Actions.OverlayTextAppend(j, '|');
+			end;
+			Actions.OverlayTextAppend(j, '|');
+			//quests
+			Actions.OverlayTextAppend(j, '<$22>');
+			//Actions.OverlayTextAppend(-1, '|');
+			if IsArrayHasTrue(QUEST_ENABLED) then begin
+				//Actions.OverlayTextAppend(-1, '<$41>');
+				//Actions.OverlayTextAppend(-1, '|');
+				for k:= 0 to Length(QUEST_TIMER)-1 do begin
+					if QUEST_ENABLED[k] then begin
+						//Actions.OverlayTextAppend(-1, '<$24>');
+						Actions.OverlayTextAppendFormatted(j, '<$25>', [QUEST_REWARD[k], QUEST_COUNT[k], WareTypeToName(QUEST_TYPE[k])]); //quest
+						Actions.OverlayTextAppend(j, ' ');
+						//Actions.OverlayTextAppend(-1, '|');
+					end;
+				end;
+			//
+			end else
+				Actions.OverlayTextAppend(j, '<$23>'); // ' -'
+			Actions.OverlayTextAppend(j, '||');
+		end;
+	 end;
+	end;
+	
+	//Actions.OverlayTextAppend(-1, States.HouseTypeName(4));
+ end;
+ if GAME_STATE = 1 then begin
+	Actions.OverlayTextSetFormatted(-1, '<$32>', []);
+	Actions.OverlayTextAppend(-1, '|');
+	Actions.OverlayTextAppend(-1, '|');
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			Actions.OverlayTextAppendFormatted(-1, '<$31>', [j+1, States.PlayerColorText(j), States.PlayerName(j),PLAYER[j].Merchant.Level]);
+			if WINNER = j then
+				Actions.OverlayTextAppend(-1, '<$33>');
+			Actions.OverlayTextAppend(-1, '|');
+			Actions.OverlayTextAppendFormatted(-1, '<$36>', [PLAYER[j].Gold]);
+			Actions.OverlayTextAppend(-1, '|');
+			Actions.OverlayTextAppendFormatted(-1, '<$35>', [PLAYER[j].TotalGold]);
+			Actions.OverlayTextAppend(-1, '|');
+			k:= round((100*PLAYER[j].HouseCount)/STAT_TOTAL_HOUSE_COUNT);
+			//Actions.ShowMsg(-1, FloatToStr(f));
+			Actions.OverlayTextAppendFormatted(-1, '<$34>', [k, '% ']);
+			Actions.OverlayTextAppend(-1, '|');
+			Actions.OverlayTextAppend(-1, '|');
+		end;
+	end;
+	
+ end;
+end;
+
+
+//	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS	EVENTS
+// ON PLAN FIELD/VINE
+procedure OnHousePlanPlaced(aPlayerIndex, X, Y, aHouseType: integer);
+begin
+	if InRange(aPlayerIndex, 0, MAX_PLAYERS-1) then begin
+		ClearAllowHouse(aPlayerIndex);
+	end;
+end;
+
+procedure OnPlanField(aIndex, X, Y: integer);
+begin
+	if (ClosestHouse(aIndex, 8, X, Y, 6) = -1 ) then 
+		Actions.PlanRemove(aIndex, X, Y);
+end;
+
+procedure OnPlanWinefield(aIndex, X, Y: integer);
+begin
+	if (ClosestHouse(aIndex, 28, X, Y, 6) = -1 ) then 
+		Actions.PlanRemove(aIndex, X, Y);
+end;
+
+procedure OnPlanRoad(aIndex, X, Y: integer);
+begin
+	if ( InRange(Y, 76, 184) = false ) then
+		Actions.PlanRemove(aIndex, X, Y)
+	else
+	if States.IsFieldAt(aIndex, X, Y) or States.IsWinefieldAt(aIndex, X, Y) then
+	else if States.IsFieldAt(-1, X, Y) or States.IsWinefieldAt(-1, X, Y) then
+		Actions.PlanRemove(aIndex, X, Y);
+	if HouseInArea(aIndex, 9, X, Y, 6) then 
+		Actions.PlanRemove(aIndex, X, Y);
+end;
+
+//								ON UNIT DIED
+procedure OnUnitDied(aUnitID, aKillerIndex: integer);
+begin
+	if ( States.UnitOwner(aUnitID) >= 0 ) and ( States.UnitOwner(aUnitID) < MAX_PLAYERS ) then begin
+		PLAYER[States.UnitOwner(aUnitID)].UnitCount:= PLAYER[States.UnitOwner(aUnitID)].UnitCount - 1;
+	end;
+end;
+
+//								ON UNIT TRAINED
+procedure OnUnitTrained(aUnitID: integer);
+begin
+	if ( States.UnitOwner(aUnitID) >= 0 ) and ( States.UnitOwner(aUnitID) < MAX_PLAYERS ) then begin
+		if ( States.UnitType(aUnitID) = 13 ) then begin
+		Actions.UnitKill(aUnitID, true);
+		
+		end else 
+		PLAYER[States.UnitOwner(aUnitID)].UnitCount:= PLAYER[States.UnitOwner(aUnitID)].UnitCount + 1;
+	end;
+end;
+
+// ON HOUSE AFTER DESTROYED
+procedure OnHouseAfterDestroyed(aHouseType, aOwner, aX, aY: integer);
+begin
+	if InRange(aOwner, 0, MAX_PLAYERS-1) then begin
+		if ( aHouseType = 13 ) then begin
+			PLAYER[aOwner].SchoolID:= Actions.GiveHouse(aOwner, aHouseType, aX, aY);
+		end else if  ( aHouseType = 11 ) then begin
+			PLAYER[aOwner].StorehouseID:= Actions.GiveHouse(aOwner, aHouseType, aX, aY);
+		end else begin
+			Actions.GiveHouse(AI_DUMMY, aHouseType, aX, aY);
+		end;
+	end;
+end;
+
+//								ON HOUSE DESTROYED
+procedure OnHouseDestroyed(aHouseID, aDestroyerIndex: integer);
+var p, prevID, x, y, t: integer;
+begin
+	//test(aDestroyerIndex);
+	x:= States.HousePositionX(aHouseID);
+	y:= States.HousePositionY(aHouseID);
+	t:= States.HouseType(aHouseID);
+	p:= States.HouseOwner(aHouseID);
+	if ( p >= 0 ) and ( p < MAX_PLAYERS ) then begin
+		if PLAYER[p].Merchant.InHouse then begin
+			if ( PLAYER[p].Merchant.ID = aHouseID ) then begin
+				prevID:= PLAYER[p].Merchant.ID;
+				PLAYER[p].Merchant.ID:= States.GroupMember(Actions.GiveGroup(p, PLAYER[p].Merchant.aType, States.HousePositionX(prevID), States.HousePositionY(prevID)+1, 4, 1, 1), 0);
+				Actions.UnitKill(PLAYER[p].Merchant.WorkerID, true);
+				PLAYER[p].Merchant.InHouse:= false;
+				PLAYER_SCORE_COUNTER[p][2]:= 0;
+			end;
+		end;
+	end;
+	if ( aDestroyerIndex = -1 ) then begin
+		if CheckObjectIDTable(aHouseID, FIRE_HOUSES) then begin
+			Actions.ShowMsgGoto(p, x, y, '<$40>');
+			PLAYER[p].HouseCount:= PLAYER[p].HouseCount - 1;
+			//test(PLAYER[p].HouseCount);
+		end;
+	end else begin
+		// sell house by destroying it
+		if SELLING_HOUSE_ENABLED then begin
+			if ( States.HouseOwner(aHouseID) = aDestroyerIndex ) then begin
+				if (aHouseID = PLAYER[p].StorehouseID) or (aHouseID = PLAYER[p].SchoolID) then begin
+					Actions.ShowMsg(p, '<$39>');
+				end else begin
+					PLAYER_SCORE_COUNTER[p][8]:= 15;
+					PLAYER[p].Gold:= PLAYER[p].Gold + Round(RESELL_HOUSE_PERC * HouseTypeToGoldCost(States.HouseType(aHouseID)));
+					PLAYER[p].HouseCount:= PLAYER[p].HouseCount - 1;
+				end;
+			end;
+		end;
+	end;
+	
+end;
+//								ON HOUSE DAMAGED
+procedure OnHouseDamaged(aHouse, aUnit: integer);
+begin
+	if IsNotNull(aHouse) and IsNotNull(aUnit) then begin
+		if ( States.PlayerDefeated(States.UnitOwner(aUnit)) = false ) then begin
+			Actions.HouseAddRepair(aHouse, 10);
+			Actions.GroupOrderHalt(States.UnitsGroup(aUnit));
+			if ( States.HouseOwner(aHouse) = AI_SELLER ) then begin
+				if States.HouseType(aHouse) = 15 then 
+					BuySchoolGold(States.UnitOwner(aUnit))
+				else if States.HouseType(aHouse) = 29 then
+					BuyFood(States.UnitOwner(aUnit))
+				else if States.HouseType(aHouse) = 14 then
+					BuyStone(States.UnitOwner(aUnit))
+				else if States.HouseType(aHouse) = 11 then
+					BuyHouseOffer(States.UnitOwner(aUnit))
+				else if States.HouseType(aHouse) = 13 then
+					BuyWorkersOffer(States.UnitOwner(aUnit))
+				else if States.HouseType(aHouse) = 0 then
+					BuyTimber(States.UnitOwner(aUnit))
+				else if States.HouseType(aHouse) = 21 then
+					CheckTaxPay(States.UnitOwner(aUnit));
+			end;
+			if ( States.HouseOwner(aHouse) = AI_DUMMY ) then begin 
+				SellHouse(aHouse, States.UnitOwner(aUnit));
+			end;
+		end;
+	end;
+end;
+//								ON TICK
+procedure OnTick;
+var j, r: integer;
+begin
+	if ( States.GameTime = LOCAL_EVENT_ROBBERY_STARTS ) then begin
+		LOCAL_EVENT_CURRENT_MAX:= 2;
+	end;
+	if ( States.GameTime = LOCAL_EVENT_MURDER_STARTS ) then begin
+		LOCAL_EVENT_CURRENT_MAX:= 3;
+	end;
+	if ( States.GameTime mod 10 = 0 ) then begin
+		if GAME_STATE = 0 then begin
+			DecrementCounters;
+			CheckMerchantsToWork;
+			SellWares;
+			WhereMerchant;
+			if IsArrayHasTrue(QUEST_ENABLED) then
+				DisableQuests;
+			if IsArrayHasTrue(GLOBAL_EVENT_ENABLED) then
+				DisableGlobalEvents;
+			if FIRE_HOUSES_ENABLED then
+				BurningHouses;
+		end;
+		ShowScores;
+	end;
+	if ( States.GameTime mod TIME_FEED_MERCHANTS = 0 ) then begin
+		FeedMerchantsAndAI;
+	end;
+	if GAME_STATE = 0 then begin
+		if ( States.GameTime mod LOCAL_EVENT_TIME = 0 ) then begin
+			r:= States.KaMRandomI(LOCAL_EVENT_CURRENT_MAX); //3 events
+			for j:= 0 to MAX_PLAYERS-1 do begin
+				if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+					RandomLocalEvent(j, r);
+				end;
+			end;
+		end;
+		if ( States.GameTime mod GLOBAL_EVENT_TIME = 0 ) then begin
+			//r:= States.KaMRandomI(3); //3 events
+			RandomGlobalEvent(GLOBAL_EVENT_COUNTER);
+			GLOBAL_EVENT_COUNTER:= GLOBAL_EVENT_COUNTER + 1;
+			if ( GLOBAL_EVENT_COUNTER = MAX_GLOBAL_EVENTS ) then 
+				GLOBAL_EVENT_COUNTER:= 0;
+		end;
+		if ( States.GameTime mod QUEST_TIME = 0 ) then begin
+			SetQuest;
+		end;
+		if ( States.GameTime mod QUEST_INCREASE_LEVEL_TIME = 0 ) then begin
+			QUEST_LEVEL:= QUEST_LEVEL + 1;
+		end;
+		// offer house
+		if ( States.GameTime mod OFFER_HOUSE_TIMEI = 0 ) then begin
+			SetHouseOffer(OFFER_HOUSE_COUNTER);
+			OFFER_HOUSE_COUNTER:= OFFER_HOUSE_COUNTER + 1;
+			if OFFER_HOUSE_COUNTER >= 4 then begin
+				OFFER_HOUSE_COUNTER:= 1;
+				OFFER_HOUSE_COST_X:= OFFER_HOUSE_COST_X + 200;
+			end;
+		end;
+		// offer serf
+		if ( States.GameTime mod OFFER_SERF_TIMEI = 0 ) then begin
+			SetWorkersOffet(OFFER_SERF_MULTIPLIER);
+			if ( States.GameTime mod (OFFER_SERF_TIMEI*2) = 0 ) then
+				if ( OFFER_SERF_MULTIPLIER <= OFFER_MAX_SERF_BONUS ) then
+					OFFER_SERF_MULTIPLIER:= OFFER_SERF_MULTIPLIER + 1;
+		end;
+		//taxes
+		if TAX_ENABLED then begin
+			if ( States.GameTime mod TAX_TIME = 0 ) then begin
+				for j:= 0 to MAX_PLAYERS-1 do begin
+					if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+						CheckTax(j);
+					end;
+				end;
+				SetTaxes;
+			end;
+		end;
+	end;
+end;
+
+// 								ON MISSION START
+procedure OnMissionStart;
+var 
+j, k: integer;
+begin
+	//AIResource;
+	SetPlayers;
+	SetAI;
+	SetStandardSellPrice;
+	FeedMerchantsAndAI;
+	GOLD_PRICE:= START_GOLD_PRICE;
+	FOOD_PRICE:= START_FOOD_PRICE;
+	STONES_PRICE:= START_STONES_PRICE;
+	TIMBER_PRICE:= START_TIMBER_PRICE;
+	
+	FIRE_HOUSES_COUNTER:= 0;
+	FIRE_HOUSES_ENABLED:= false;
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			for k:= 0 to Length(PLAYER_SCORE_COUNTER[j])-1 do begin
+				PLAYER_SCORE_COUNTER[j][k]:= 0;
+			end;
+			//PLAYER[j].HouseCount:= 0;
+			//test(PLAYER[j].HouseCount);
+			//PLAYER[j].UnitCount:= 20;
+			Actions.FogRevealAll(j);	
+			PLAYER_SCORE_TAB_COUNTER[j]:= 0;
+		end;
+	end;
+	for k:= 0 to Length(GLOBAL_EVENT_TIMER)-1 do begin
+		GLOBAL_EVENT_TIMER[k]:= 0;
+	end;
+	for k:= 0 to Length(GLOBAL_EVENT_ENABLED)-1 do begin
+		GLOBAL_EVENT_ENABLED[k]:= false;
+	end;
+	for k:= 0 to Length(QUEST_TIMER)-1 do begin
+		QUEST_TIMER[k]:= 0;
+		QUEST_COUNT[k]:= 0;
+		QUEST_TYPE[k]:= 0;
+		QUEST_REWARD[k]:= 0;
+		QUEST_ENABLED[k]:= false;
+	end;
+	QUEST_COUNTER:= 0;
+	QUEST_LEVEL:= 0;
+	GAME_STATE:= 0;
+	GLOBAL_EVENT_COUNTER:= 0;
+	LOCAL_EVENT_CURRENT_MAX:= 1;
+	OFFER_HOUSE_COUNTER:= 1;
+	OFFER_SERF_MULTIPLIER:= 1;
+	OFFER_HOUSE_COST_X:= 0;
+end;

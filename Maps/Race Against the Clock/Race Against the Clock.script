@@ -1,0 +1,16 @@
+procedure OnMissionStart;
+begin
+  Actions.PlayerShareFog(1, 0, False);
+  Actions.FogCoverCircle(0, 10, 105, 30);
+  Actions.ShowMsg(0, '<$0>');
+end;
+
+procedure OnTick;
+begin
+  if States.GameTime = 200 then Actions.ShowMsg(0, '<$1>');
+  if States.GameTime = 2100 then Actions.ShowMsg(0, '<$2>');
+  if States.GameTime = 6900 then Actions.ShowMsg(0, '<$3>');
+  if States.GameTime = 7100 then Actions.ShowMsg(0, '<$4>');
+  if States.GameTime = 9000 then Actions.ShowMsg(0, '<$5>');
+  if States.GameTime = 12300 then Actions.ShowMsg(0, '<$6>');
+end;

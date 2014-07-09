@@ -1,0 +1,5 @@
+SetSpecial
+BlockPeacetime
+BlockTeamSelection
+BigDesc
+||Map by Random Lyrics / Randziu ; Sado

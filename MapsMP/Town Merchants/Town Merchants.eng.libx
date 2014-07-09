@@ -1,0 +1,60 @@
+MaxID:58
+
+1:[$00D7FF]Coins[]:
+2:([$00FF00]%d[])[$%s]%s[]: %d
+3: - [$00FFFF]gold[]
+4: - [$00FFFF]house[]
+5:Not enough gold! You need %d for this house.
+6:Not enough gold! You need %d to buy gold chest.
+7:You already have the maximum amount of gold in your school! Buy some workers.
+8: << [$00FF00]working[]
+9: + [[$00FF00]%d[]]
+10: - [$00FFFF]food[]
+11:Not enough coins! You need %d to buy food.
+12: << [$00D7FF]promoted[]
+13:Not enough coins! You need %d to buy this material.
+14: - [$00FFFF]materials[]
+15:Some puts fire! Repair your house as fast as you can!
+16:Your %s has been killed!
+17:Your house has been robbed!
+18: starvation.
+19: war.
+20: rising.
+21:[$00FF00]Event[]:
+22:[$00D7FF]Quest[]:
+23:[$000000] - []
+24:[$00FFFF] - []
+25: ([$00D7FF]%d[])[$00FF00]%d[] %s.
+26: << [$00D7FF]rewarded[]
+27:[$00D7FF]Sell Prices[]:
+28: %s : %d
+29:[$00D7FF]House Coins Cost[]:
+30:You complete the quest and receive %d coins!
+31:[$00D7FF]%d[]: [$%s]%s[]([$00FF00]%d[]):
+32:[$00D7FF]Score[]:
+33: << [$00FF00]Winner![]
+34: - [$00FF00]%d%s[]of shares in town.
+35: - [$00FFFF]%d[] of total coins.
+36: - [$00D7FF]%d[] of current coins.
+37:[$%s]%s[] won the game! See details in scoreboard.
+38: + [$00FF00]sold[]
+39: You cannot sell your main houses!
+40: Your house was burned!
+41:The Grand Merchant needs:
+42:Your coins: [$00D7FF]%d[]
+43: + [$00FF00]sold[]
+44: [$00FF00]%s[]([$00D7FF]%d[]).
+45:[$00FF00]Offers[]:
+46: - [$00FFFF]offer[]
+47:Not enough coins! You need %d for this permission.
+48: [$00FFFF]%d[]([$00D7FF]%d[]).
+49:Not enough coins! You need %d to hire these workers.
+50: - [$00FFFF]hired[]
+51: << [$0000FF]tax:[][[$00FFFF]%d[]]
+52: Your tax has been raised, because you didn't pay it!
+53: << [$00FF00]tax paid[]
+54: Not enough coins! You need %d to pay tax.
+55: << [$0000FF]Tax:[] [[$00FFFF]%d[]] - [[$00FFFF]%d[]]
+56:([$00FF00]%d[])
+57:[$0000FF]Tax check[] in ([$00FFFF]%d[])
+58: %s : [$00FF00]%d[]
