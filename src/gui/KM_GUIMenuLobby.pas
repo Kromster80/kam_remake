@@ -1226,6 +1226,16 @@ begin
       DropBox_LobbyTeam[I].ItemIndex := 0; //No teams in coop maps, it's done for you
 
     DropBox_LobbyColors[I].ItemIndex := CurPlayer.FlagColorID;
+
+    //Disable colors that are unavailable
+    for K := 0 to DropBox_LobbyColors[I].List.RowCount-1 do
+      if (K <> CurPlayer.FlagColorID) and (K <> 0)
+      and (not fNetworking.NetPlayers.ColorAvailable(K)
+           or ((fNetworking.SelectGameKind = ngk_Save) and fNetworking.SaveInfo.Info.ColorUsed(K))) then
+        DropBox_LobbyColors[I].List.Rows[K].Cells[0].Enabled := False
+      else
+        DropBox_LobbyColors[I].List.Rows[K].Cells[0].Enabled := True;
+
     if CurPlayer.IsClosed then
       Image_LobbyReady[I].TexID := 0
     else

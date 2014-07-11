@@ -706,7 +706,8 @@ end;
 //For now players colors are not unique, many players may have one color
 procedure TKMNetworking.SelectColor(aIndex:integer; aPlayerIndex:integer);
 begin
-  if not fNetPlayers.ColorAvailable(aIndex) then exit;
+  if not fNetPlayers.ColorAvailable(aIndex) then Exit;
+  if (fSelectGameKind = ngk_Save) and SaveInfo.IsValid and SaveInfo.Info.ColorUsed(aIndex) then Exit;
 
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].FlagColorID := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
@@ -901,8 +902,13 @@ begin
         NetPlayers[i].Team := fSaveInfo.Info.Team[NetPlayers[i].StartLocation-1];
       end
       else
-        //Spectators may still change their color
+      begin
         NetPlayers[i].Team := 0;
+        //Spectators may still change their color, but may not use one from the save
+        if (NetPlayers[i].FlagColorID <> 0)
+        and SaveInfo.Info.ColorUsed(NetPlayers[i].FlagColorID) then
+          NetPlayers[i].FlagColorID := 0;
+      end;
 
   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); //The host's index can change when players are removed
   fHostIndex := fMyIndex;
@@ -1762,7 +1768,8 @@ begin
                 M.Read(tmpInteger);
                 ColorID := tmpInteger;
                 //The player list could have changed since the joiner sent this request (over slow connection)
-                if fNetPlayers.ColorAvailable(ColorID) then
+                if fNetPlayers.ColorAvailable(ColorID)
+                and ((fSelectGameKind <> ngk_Save) or not SaveInfo.IsValid or not SaveInfo.Info.ColorUsed(ColorID)) then
                 begin
                   fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].FlagColorID := ColorID;
                   SendPlayerListAndRefreshPlayersSetup;

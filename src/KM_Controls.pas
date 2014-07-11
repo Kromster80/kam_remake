@@ -739,6 +739,7 @@ type
       Hint: UnicodeString;
       Color: TColor4;
       HighlightColor: TColor4;
+      Enabled: Boolean;
       Pic: TKMPic;
     end;
     Tag: Integer;
@@ -1154,6 +1155,7 @@ begin
   begin
     Result.Cells[I].Caption := aCaption[I];
     Result.Cells[I].Color := $FFFFFFFF;
+    Result.Cells[I].Enabled := True;
   end;
   Result.Tag := aTag;
 end;
@@ -1170,6 +1172,7 @@ begin
   begin
     Result.Cells[I].Caption := aCaption[I];
     Result.Cells[I].Color := aColor[I];
+    Result.Cells[I].Enabled := True;
   end;
   Result.Tag := aTag;
 end;
@@ -1188,6 +1191,7 @@ begin
     Result.Cells[I].Caption := aCaption[I];
     Result.Cells[I].Color := aColor[I];
     Result.Cells[I].Pic := aPic[I];
+    Result.Cells[I].Enabled := True;
   end;
   Result.Tag := aTag;
 end;
@@ -4144,7 +4148,7 @@ begin
                              AvailWidth, fItemHeight, [],
                              Rows[aIndex].Cells[I].Pic.RX,
                              Rows[aIndex].Cells[I].Pic.ID,
-                             True,
+                             Rows[aIndex].Cells[I].Enabled,
                              Rows[aIndex].Cells[I].Color);
 
     if Rows[aIndex].Cells[I].Caption <> '' then

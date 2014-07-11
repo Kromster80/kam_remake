@@ -43,6 +43,7 @@ type
     function GetTimeText: UnicodeString;
     function GetTitleWithTime: UnicodeString;
     function GetSaveTimestamp: UnicodeString;
+    function ColorUsed(aColorID: Integer): Boolean;
   end;
 
 
@@ -201,6 +202,19 @@ end;
 function TKMGameInfo.GetSaveTimestamp: UnicodeString;
 begin
   Result := FormatDateTime('ddddd t', UTCToLocal(SaveTimestamp));
+end;
+
+
+function TKMGameInfo.ColorUsed(aColorID: Integer): Boolean;
+var I: Integer;
+begin
+  for I := 0 to MAX_HANDS - 1 do
+    if Enabled[I] and (ColorID[I] = aColorID) then
+    begin
+      Result := True;
+      Exit;
+    end;
+  Result := False;
 end;
 
 
