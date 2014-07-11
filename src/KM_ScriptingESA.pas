@@ -333,6 +333,13 @@ uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warri
   // - report to player
 
 
+function HouseTypeValid(aHouseType: Integer): Boolean; inline;
+begin
+  Result := (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+            and (HouseIndexToType[aHouseType] <> ht_None); //KaM index 26 is unused (ht_None)
+end;
+
+
 { TKMScriptEvents }
 constructor TKMScriptEvents.Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
 begin
@@ -635,7 +642,7 @@ begin
   Result := -1;
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and gTerrain.TileInMapCoords(X, Y)
-  and ((aHouseType = -1) or (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])) then
+  and ((aHouseType = -1) or HouseTypeValid(aHouseType)) then
   begin
     if aHouseType = -1 then
       HTS := [Low(THouseType)..High(THouseType)]
@@ -663,7 +670,7 @@ begin
   Result := -1;
   HTS := [];
   for B := Low(HouseIndexToType) to High(HouseIndexToType) do
-    if B in aHouseTypes then
+    if (B in aHouseTypes) and (HouseIndexToType[B] <> ht_None) then
       HTS := HTS + [HouseIndexToType[B]];
 
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
@@ -808,7 +815,7 @@ begin
   and (gHands[aPlayer].Enabled) then
   begin
     for B := Low(HouseIndexToType) to High(HouseIndexToType) do
-      if B in aTypes then
+      if (B in aTypes) and (HouseIndexToType[B] <> ht_None) then
         inc(Result, gHands[aPlayer].Stats.GetHouseQty(HouseIndexToType[B]));
   end
   else
@@ -819,8 +826,7 @@ end;
 function TKMScriptStates.StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
-  then
+  and HouseTypeValid(aHouseType) then
     Result := gHands[aPlayer].Stats.GetHouseQty(HouseIndexToType[aHouseType])
   else
   begin
@@ -834,7 +840,7 @@ function TKMScriptStates.StatHouseTypePlansCount(aPlayer: Byte; aHouseType: Byte
 begin
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)]) then
+  and HouseTypeValid(aHouseType) then
     Result := gHands[aPlayer].Stats.GetHousePlans(HouseIndexToType[aHouseType])
   else
   begin
@@ -883,7 +889,7 @@ function TKMScriptStates.PlayerWareDistribution(aPlayer, aWareType, aHouseType: 
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
   and(aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
-  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+  and HouseTypeValid(aHouseType) then
     Result := gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]]
   else
   begin
@@ -1273,7 +1279,7 @@ end;
 function TKMScriptStates.HouseTypeMaxHealth(aHouseType: Integer): Word;
 begin
   Result := 0;
-  if (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+  if HouseTypeValid(aHouseType) then
     Result := gResource.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
   else
     LogError('States.HouseTypeMaxHealth', [aHouseType]);
@@ -1283,7 +1289,7 @@ end;
 function TKMScriptStates.HouseTypeToOccupantType(aHouseType: Integer): Integer;
 begin
   Result := -1;
-  if aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)] then
+  if HouseTypeValid(aHouseType) then
   begin
     Result := UnitTypeToIndex[gResource.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
   end
@@ -1327,7 +1333,7 @@ end;
 
 function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
 begin
-  if (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+  if HouseTypeValid(aHouseType) then
     Result := '<%' + AnsiString(IntToStr(gResource.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
   else
   begin
@@ -1340,7 +1346,7 @@ end;
 function TKMScriptStates.HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)]) then
+  and HouseTypeValid(aHouseType) then
     Result := gHands[aPlayer].Stats.GetCanBuild(HouseIndexToType[aHouseType])
   else
   begin
@@ -2140,7 +2146,7 @@ procedure TKMScriptActions.PlayerWareDistribution(aPlayer, aWareType, aHouseType
 begin
   if (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
   and (WareIndexToType[aWareType] in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
-  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
+  and HouseTypeValid(aHouseType)
   and InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) 
   and InRange(aAmount, 0, 5) then
   begin
@@ -2349,7 +2355,7 @@ begin
 
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
+  and HouseTypeValid(aHouseType)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
     if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
@@ -2374,7 +2380,7 @@ begin
   Result := -1;
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+  and HouseTypeValid(aHouseType)
   and gTerrain.TileInMapCoords(X,Y) then
   begin
     NonEntranceX := X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX;
@@ -2828,7 +2834,7 @@ procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+  and HouseTypeValid(aHouseType) then
     gHands[aPlayer].Stats.HouseGranted[HouseIndexToType[aHouseType]] := True
   else
     LogError('Actions.HouseUnlock', [aPlayer, aHouseType]);
@@ -2839,7 +2845,7 @@ procedure TKMScriptActions.HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boole
 begin
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+  and HouseTypeValid(aHouseType) then
     gHands[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := not aAllowed
   else
     LogError('Actions.HouseAllow', [aPlayer, aHouseType, Byte(aAllowed)]);
@@ -3352,7 +3358,7 @@ begin
   Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
-  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+  and HouseTypeValid(aHouseType)
   and gTerrain.TileInMapCoords(X,Y) then
   begin
     if gHands[aPlayer].CanAddHousePlan(KMPoint(X, Y), HouseIndexToType[aHouseType]) then
