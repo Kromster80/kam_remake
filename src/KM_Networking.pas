@@ -2173,6 +2173,7 @@ begin
   fOnResyncFromTick := nil;
   fOnPlay := nil;
   fOnReadyToPlay := nil;
+  fOnPlayersSetup := nil;
 
   fNetGameState := lgs_Lobby;
   if IsHost then

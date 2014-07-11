@@ -1661,8 +1661,11 @@ begin
                   fMinimap.Update(not M.BlockFullMapPreview);
                   MinimapView_Lobby.SetMinimap(fMinimap);
 
-                  if fNetworking.MapInfo.BlockPeacetime then
+                  if not TrackBar_LobbyPeacetime.Enabled and fNetworking.IsHost then
+                  begin
                     TrackBar_LobbyPeacetime.Position := 0; //No peacetime in coop (trackbar gets disabled above)
+                    GameOptionsChange(nil); //Send it to other clients
+                  end;
 
                   if M.HasReadme then
                   begin
