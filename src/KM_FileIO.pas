@@ -40,7 +40,8 @@ begin
       MS.Position := 0;
 
     SetLength(Result, MS.Size - MS.Position);
-    MS.Read(Result[1], MS.Size - MS.Position);
+    if MS.Size - MS.Position > 0 then
+      MS.Read(Result[1], MS.Size - MS.Position);
   finally
     MS.Free;
   end;

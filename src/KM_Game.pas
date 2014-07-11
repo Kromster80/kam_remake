@@ -1151,7 +1151,7 @@ begin
           begin
             gameInfo.Enabled[I] := gHands[I].Enabled;
             gameInfo.CanBeHuman[I] := gHands[I].PlayerType = hndHuman;
-            gameInfo.OwnerNikname[I] := AnsiString(gHands[I].OwnerName);
+            gameInfo.OwnerNikname[I] := gHands[I].OwnerNikname; //MP nikname, not translated OwnerName
             gameInfo.PlayerTypes[I] := gHands[I].PlayerType;
             gameInfo.ColorID[I] := FindMPColor(gHands[I].FlagColor);
             gameInfo.Team[I] := 0;

@@ -90,6 +90,7 @@ type
 
     procedure SetHandIndex(aNewIndex: THandIndex);
     procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
+    property OwnerNikname: AnsiString read fOwnerNikname;
     function OwnerName(aNumberedAIs: Boolean = True): UnicodeString; //Universal owner name
     function HasAssets: Boolean;
     property PlayerType: THandType read fPlayerType write fPlayerType; //Is it Human or AI

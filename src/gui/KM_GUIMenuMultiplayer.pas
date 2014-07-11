@@ -367,7 +367,10 @@ begin
   ColumnBox_Servers.Clear;
   Label_MP_Desc.Caption := '';
   for I := 1 to MAX_LOBBY_SLOTS do
+  begin
     Label_MP_Players[I].Caption := '';
+    Label_MP_Players[I].Strikethrough := False;
+  end;
 
   //Do not use 'Show' here as it will also make the parent panel visible
   //which could be already hidden if player switched pages

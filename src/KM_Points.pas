@@ -10,8 +10,8 @@ type
 type
   //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
   TKMPoint = record X,Y: Integer; end;
-  TKMPointDir = record Loc: TKMPoint; Dir: TKMDirection; end;
-  TKMPointExact = record Loc: TKMPoint; Exact: Boolean; end;
+  TKMPointDir = packed record Loc: TKMPoint; Dir: TKMDirection; end;
+  TKMPointExact = packed record Loc: TKMPoint; Exact: Boolean; end;
   TKMPointF = record X,Y: Single; end;
   TKMPointW = record X,Y: Word; end; // For backwards compatibility with cmp files
   TKMPointArray = array of TKMPoint;

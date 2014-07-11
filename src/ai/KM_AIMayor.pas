@@ -911,8 +911,9 @@ begin
   fAutoRepair := Value;
 
   //Apply to those houses placed by a script before AutoRepair command
-  for I := 0 to gHands[fOwner].Houses.Count - 1 do
-    gHands[fOwner].Houses[I].BuildingRepair := fAutoRepair;
+  if gHands[fOwner].PlayerType = hndComputer then
+    for I := 0 to gHands[fOwner].Houses.Count - 1 do
+      gHands[fOwner].Houses[I].BuildingRepair := fAutoRepair;
 end;
 
 
