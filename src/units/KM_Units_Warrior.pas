@@ -197,6 +197,9 @@ end;
 
 procedure TKMUnitWarrior.OrderStorm(aDelay: Word);
 begin
+  //Can't order another storm attack until the current one stops
+  if GetUnitAction is TUnitActionStormAttack then Exit;
+
   ClearOrderTarget;
 
   fNextOrder := woStorm;
