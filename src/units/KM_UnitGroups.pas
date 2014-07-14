@@ -187,7 +187,8 @@ type
 implementation
 uses
   KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_Utils, KM_ResTexts, KM_RenderPool,
-  KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI, KM_ResUnits, KM_ScriptingESA;
+  KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI, KM_ResUnits, KM_ScriptingESA,
+  KM_UnitActionStormAttack;
 
 
 const
@@ -1194,6 +1195,8 @@ begin
   Result := nil;
   if IsDead then Exit;
   if Count < 2 then Exit;
+  //If leader is storming don't allow splitting the group (makes it too easy to withdraw)
+  if Members[0].GetUnitAction is TUnitActionStormAttack then Exit;
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   //Choose the new leader
