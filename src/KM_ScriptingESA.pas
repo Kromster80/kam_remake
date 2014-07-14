@@ -2396,9 +2396,9 @@ begin
       for K := 1 to 4 do
         if HA[I, K] <> 0 then
         begin
-          gTerrain.RemoveObject(KMPoint(X + K - 3, Y + I - 4));
-          gTerrain.FlattenTerrain(KMPoint(X + K - 3, Y + I - 4));
-          gTerrain.SetTileLock(KMPoint(X + K - 3, Y + I - 4), tlDigged);
+          gTerrain.RemoveObject(KMPoint(NonEntranceX + K - 3, Y + I - 4));
+          gTerrain.FlattenTerrain(KMPoint(NonEntranceX + K - 3, Y + I - 4));
+          gTerrain.SetTileLock(KMPoint(NonEntranceX + K - 3, Y + I - 4), tlDigged);
         end;
 
       gTerrain.SetField(H.GetEntrance, aPlayer, ft_Road);
