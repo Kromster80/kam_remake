@@ -1,0 +1,1718 @@
+type tPosRec = record
+	X, Y:	integer;
+end;
+
+const
+	nPos = 25;
+
+var
+	aPos: array [0..nPos-1] of tPosRec;
+	bSmile, b1000, b3000, b9000, b15000, bBridge, bVolcano, bTime45, bTime120, bCoward, bTyrant, bKiller, bRush, bNoble: boolean;
+	nTime, nWave, nUnitkill, nPoints0, ntempnumber: integer;
+
+procedure GiveGroupRandom( iSpeler, iUnit, iDir, iCount, iCol: integer );
+var iEmpty: integer;
+begin
+	repeat iEmpty := States.KaMRandomI( nPos ) until States.GroupAt( aPos[iEmpty].X, aPos[iEmpty].Y ) = -1;
+	Actions.GiveGroup (iSpeler, iUnit, aPos[iEmpty].X, aPos[iEmpty].Y, iDir, iCount, iCol);
+end;
+
+procedure OnMissionStart;
+begin
+	aPos[0].X := 3; aPos[0].Y := 43;
+	aPos[1].X := 8; aPos[1].Y := 43;
+	aPos[2].X := 7; aPos[2].Y := 58;
+	aPos[3].X := 20; aPos[3].Y := 53;
+	aPos[4].X := 77; aPos[4].Y := 24;
+	aPos[5].X := 77; aPos[5].Y := 32;
+	aPos[6].X := 40; aPos[6].Y := 61;
+	aPos[7].X := 46; aPos[7].Y := 61;
+	aPos[8].X := 31; aPos[8].Y := 129;
+	aPos[9].X := 31; aPos[9].Y := 137;
+	aPos[10].X := 54; aPos[10].Y := 130;
+	aPos[11].X := 54; aPos[11].Y := 139;
+	aPos[12].X := 26; aPos[12].Y := 81;
+	aPos[13].X := 66; aPos[13].Y := 49;
+	aPos[14].X := 64; aPos[14].Y := 81;
+	aPos[15].X := 39; aPos[15].Y := 89;
+	aPos[16].X := 25; aPos[16].Y := 86;
+	aPos[17].X := 9; aPos[17].Y := 128;
+	aPos[18].X := 53; aPos[18].Y := 64;
+	aPos[19].X := 43; aPos[19].Y := 59;
+	aPos[20].X := 22; aPos[20].Y := 70;
+	aPos[21].X := 71; aPos[21].Y := 103;
+	aPos[22].X := 70; aPos[22].Y := 28;
+	aPos[23].X := 16; aPos[23].Y := 81;
+	aPos[24].X := 30; aPos[24].Y := 102;
+	nPoints0 := 0;
+	bSmile := true;  b1000 := true;  b3000 := true;  b9000 := true;  b15000 := true;  bBridge := true; bKiller := true;  bVolcano := true;  bTime45 := true; bTime120 := true;  bCoward := true; bTyrant := true; bRush := true; bNoble := true;
+end;
+
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
+var iResult: integer;
+begin
+//Find out what kind of unit it was and return the score for that unit
+  case States.UnitType(aUnitID) of
+		14: iResult := 1; // militia
+		15: iResult := 2; // axefighter
+		16: iResult := 5; // swordfighter
+		17: iResult := 1; // bowman
+		18: iResult := 3; // crossbowman
+		19: iResult := 2; // lance carrier
+		20: iResult := 3; // pikeman
+		21: iResult := 3; // scout
+		22: iResult := 7; // knight
+		23: iResult := 6; // barbarian
+		24: iResult := 1; // rebel
+		25: iResult := 1; // rogue
+		26: iResult := 6; // warrior
+		27: iResult := 2; // vagabond
+		else iResult := 0; // civilians
+	end;
+	if aKillerIndex =0 then
+	begin
+		nPoints0 := nPoints0 + iResult;
+		nUnitkill := nUnitkill + 1;
+	end;
+end;
+
+procedure OnTick;
+var
+iStore: integer;
+aSmile, a1000, a3000, a9000, a15000, aBridge, aVolcano, aTime45, aTime120, aCoward, aTyrant, aRush, aNoble, akiller: string;
+begin
+// 2000 units killed
+	if nUnitkill > 1999 then
+	begin
+		aKiller := '|Killer : you are such a Bad-Ass';
+		if bKiller then begin
+// 14 Recruit's
+			Actions.GiveUnit (0, 13, 32, 10, 0);
+			Actions.GiveUnit (0, 13, 33, 10, 0);
+			Actions.GiveUnit (0, 13, 34, 10, 0);
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+			Actions.GiveUnit (0, 13, 44, 10, 0);
+			Actions.GiveUnit (0, 13, 45, 10, 0);
+			Actions.GiveUnit (0, 13, 46, 10, 0);
+			Actions.ShowMsg (-1, 'You just completed the achievement "Killer"|By: Killing 2000 units|Reward: 14 Recruits');
+			bkiller := false
+		end;
+	end
+	else
+	aKiller := '|Killer :';
+	
+// 25 knights recruited
+	if States.StatUnitTypeCount (0, 22) > 24 then
+	begin
+		aNoble := '|Noble : That are a lot of knights';
+		if bNoble then begin
+			nPoints0 := nPoints0 + 350;
+			Actions.ShowMsg (-1, 'You just completed the achievement "Noble"|By: Having 25 knights at one moment|Reward: 350 points');
+			bNoble := false
+		end;
+	end
+	else
+	aNoble := '|Noble :';
+	
+// Militia rush survived
+	if nTime = 50 then
+	begin
+		aRush := '|Rush : quality over quantity';
+		if bRush then begin
+			Actions.GiveGroup (0, 14, 27, 3, 4, 15, 5);
+			Actions.ShowMsg (-1, 'You just completed the achievement "Rush"|By: Surviving the militia first militia rush|Reward: 15 militias');
+			bRush := false
+		end;
+	end
+	else
+	aRush := '|Rush : ';
+	
+// Tyrant Achievement 5 slaves killed
+	if States.StatUnitLostCount (0, 0) > 4 then
+	begin
+		aTyrant := '|Tyrant : you Brutal!';
+		if bTyrant then begin
+			Actions.GiveUnit (0, 0, 43, 1, 4);
+			Actions.GiveUnit (0, 0, 44, 1, 4);
+			Actions.ShowMsg (-1, 'You just completed the achievement "Tyrant"|By: Losing 5 serfs|Reward: Hell no! You Brutal!|you get 2 serfs to right your wrongs!');
+			bTyrant := false
+		end;
+	end
+	else
+	aTyrant := '|Tyrant :';
+	
+// Coward Achievement 200 stones throw en
+	iStore := States.HouseAt (42, 9);
+	if States.HouseResourceAmount (iStore, 1) < 800 then
+	begin
+		aCoward := '|Coward : But alive';
+		if bCoward then begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "Coward"|By: Throwing 200 stones at enemies |Reward: 50 stones!');
+			Actions.GiveWares (0, 1, 50);
+			bCoward := false;
+		end;
+	end
+	else
+	aCoward := '|Coward :';
+		
+// Time Achievement 45 minutes
+	if States.GameTime > 27000 then
+	begin
+		aTime45 := '|Time is money : Or was it Points?';
+		if bTime45 then 
+		begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "Time is money"|By: surviving 45 minutes|Reward: 2 Serves and 6 Knights!');
+			Actions.GiveUnit (0, 0, 43, 1, 4);
+			Actions.GiveUnit (0, 0, 44, 1, 4);
+			Actions.GiveGroup (0, 22, 27, 3, 4, 6, 3);
+			bTime45 := false;
+		end;
+	end 
+	else
+		aTime45 := '|Time is money :';
+		
+// Time Achievement 120 minutes
+	if States.GameTime > 72000 then
+	begin
+		aTime120 := '|Time, Time, Time : Yes you got time.';
+		if bTime120 then 
+		begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "Time, Time, Time"|By: surviving 120 minutes|Reward: 2 Serves and 18 Knights!');
+			Actions.GiveUnit (0, 0, 43, 1, 4);
+			Actions.GiveUnit (0, 0, 44, 1, 4);
+			Actions.GiveGroup (0, 22, 27, 3, 4, 18, 3);
+			bTime120 := false;
+		end;
+	end 
+	else
+		aTime120 := '|Time, Time, Time :';
+	
+// Bridge Achievement
+	if States.FogRevealed (0, 4, 37) and States.FogRevealed (0, 29, 54) and States.FogRevealed (0, 46, 74) and States.FogRevealed (0, 52, 119) and States.FogRevealed (0, 32, 121) then
+	begin
+		aBridge := '|The bridges : Look out dont fall off it';
+		if bBridge then
+		begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "The bridges"|By: Revealing all the bridges|Reward: 6 Recruits and 6 Steel Armours!');
+			Actions.GiveUnit (0, 13, 43, 1, 4);
+			Actions.GiveUnit (0, 13, 44, 1, 4);
+			Actions.GiveUnit (0, 13, 45, 1, 4);
+			Actions.GiveUnit (0, 13, 43, 2, 4);
+			Actions.GiveUnit (0, 13, 44, 2, 4);
+			Actions.GiveUnit (0, 13, 45, 2, 4);
+			Actions.GiveWeapons (0, 19, 6);
+			bBridge := false;
+		end;
+	end
+	else
+		aBridge := '|The bridges : ';
+
+// Volcano Achievement
+	if States.FogRevealed (0, 1, 103) then
+	begin
+		aVolcano := '|The volcano : Its hot!'
+		if bVolcano then 
+		begin
+			Actions.ShowMsgGoTo (-1, 1, 103, 'You just completed the achievement "The volcano"|By: revealing the volcano|Reward: 100 points!');
+			nPoints0 := nPoints0 + 100;
+			bVolcano := false
+		end;
+	end
+	else
+		aVolcano := '|The volcano :';
+		
+// Smile Achievement
+	if States.FogRevealed (0, 63, 139) then
+	begin
+		aSmile := '|Get a smile : You got it :D'
+		if bSmile then 
+		begin
+			Actions.ShowMsgGoTo (-1, 64, 138, 'You just completed the achievement "Get a smile"|By: revealing the smile|Reward: 4 bowmen!');
+			Actions.GiveGroup (0, 17, 27, 3, 4, 4, 2);
+			bSmile := false
+		end;
+	end
+	else
+		aSmile := '|Get a smile :';
+		
+// 1.000 Points Achievement
+	if nPoints0 > 1000 then
+	begin
+		a1000 := '|Get 1.000 points : Whuhaha its just the beginning';
+		if b1000 then begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "Get 1.000 points"|By: Getting 1.000 points|Reward: 4 crossbowmen!');
+			Actions.GiveGroup (0, 18, 27, 3, 4, 4, 2);
+			b1000 := false
+		end;
+	end
+	else
+		a1000 := '|Get 1.000 points : ';
+		
+// 3.000 Points Achievement
+	if nPoints0 > 3000 then
+	begin
+		a3000 := '|Get 3.000 points : Now the fun starts';
+		if b3000 then begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "Get 3.000 points"|By: Getting 3.000 points|Reward: 10 crossbowmen!');
+			Actions.GiveGroup (0, 18, 27, 3, 4, 10, 5);
+			b3000 := false
+		end;
+	end
+	else
+		a3000 := '|Get 3.000 points :';
+	
+// 9.000 Points Achievement
+	if nPoints0 > 9000 then
+	begin
+		a9000 := '|Get 9.000 points : Its getting serious';
+		if b9000 then begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "Get 9.000 points"|By: Getting 9.000 points|Reward: 15 Knights!');
+			Actions.GiveGroup (0, 22, 27, 3, 4, 15, 5);
+			b9000 := false
+		end;
+	end
+	else
+		a9000 := '|Get 9.000 points :';
+	
+// 15.000 Points Achievement
+	if nPoints0 > 15000 then
+	begin
+		a15000 := '|Get 15.000 points : You are a BEAST!!!';
+		if b15000 then begin
+			Actions.ShowMsg (-1, 'You just completed the achievement "Get 15.000 points"|By: Getting 15.000 points|Reward: There is no reward suitable for this performance!!');
+			b15000 := false
+			end;
+	end
+	else
+		a15000 := '|Get 15.000 points :';
+	
+	
+// Points and Achievements 
+	Actions.OverlayTextSet (-1, 'Points: '+IntToStr(nPoints0)+'|kills :'+IntToStr(nUnitkill)+'|Wave: '+IntToStr(nWave+1)+'|Time: '+IntToStr(States.GameTime DIV 36000)+':'+IntToStr((States.GameTime DIV 600)-60*(States.GameTime DIV 36000))+':'+IntToStr((States.GameTime DIV 10)-60*(States.GameTime DIV 600))+'||Achievements:'+aSmile+aBridge+aVolcano+aTime45+aTime120+aKiller+aCoward+aTyrant+aRush+aNoble+a1000+a3000+a9000+a15000);
+	if States.GameTime = 10 then
+		Actions.ShowMsg (-1, 'In this game you get every 90 seconds a small amount of weapons and recruits. Survive as many waves as possible!|This Mini Game is made by Skypper');
+	if States.GameTime MOD 900 = 0 then 
+	begin
+		nWave := States.GameTime DIV 900;
+		nTime := States.GameTime DIV 900;
+		if nTime < 5 then
+		begin
+// 4 Recruit's
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+// Weapons Wood player 0
+			Actions.GiveWeapons (0, 16, 4);
+			Actions.GiveWeapons (0, 18, 4);
+			Actions.GiveWeapons (0, 20, 4);
+			Actions.GiveWeapons (0, 22, 4);
+			Actions.GiveWeapons (0, 24, 4);
+			Actions.GiveWeapons (0, 26, 2);
+		end
+		else if nTime < 15 then
+		begin
+// 6 Recruit's
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+// Weapons Iron and Wood player 0
+			Actions.GiveWeapons (0, 16, 6);
+			Actions.GiveWeapons (0, 17, 2);
+			Actions.GiveWeapons (0, 18, 6);
+			Actions.GiveWeapons (0, 19, 2);
+			Actions.GiveWeapons (0, 20, 6);
+			Actions.GiveWeapons (0, 21, 2);
+			Actions.GiveWeapons (0, 22, 6);
+			Actions.GiveWeapons (0, 23, 2);
+			Actions.GiveWeapons (0, 24, 6);
+			Actions.GiveWeapons (0, 25, 2);
+			Actions.GiveWeapons (0, 26, 4);
+		end
+		else if nTime < 20 then
+		begin
+// 8 Recruit's
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+// Weapons Iron and Wood player 0
+			Actions.GiveWeapons (0, 16, 10);
+			Actions.GiveWeapons (0, 17, 6);
+			Actions.GiveWeapons (0, 18, 10);
+			Actions.GiveWeapons (0, 19, 6);
+			Actions.GiveWeapons (0, 20, 10);
+			Actions.GiveWeapons (0, 21, 6);
+			Actions.GiveWeapons (0, 22, 10);
+			Actions.GiveWeapons (0, 23, 6);
+			Actions.GiveWeapons (0, 24, 10);
+			Actions.GiveWeapons (0, 25, 6);
+			Actions.GiveWeapons (0, 26, 6);
+		end
+		else if nTime < 30 then
+		begin
+// 10 Recruit's
+			Actions.GiveUnit (0, 13, 34, 10, 0);
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+			Actions.GiveUnit (0, 13, 44, 10, 0);
+// Weapons Iron and Wood player 0
+			Actions.GiveWeapons (0, 16, 10);
+			Actions.GiveWeapons (0, 17, 8);
+			Actions.GiveWeapons (0, 18, 10);
+			Actions.GiveWeapons (0, 19, 8);
+			Actions.GiveWeapons (0, 20, 10);
+			Actions.GiveWeapons (0, 21, 8);
+			Actions.GiveWeapons (0, 22, 10);
+			Actions.GiveWeapons (0, 23, 8);
+			Actions.GiveWeapons (0, 24, 10);
+			Actions.GiveWeapons (0, 25, 8);
+			Actions.GiveWeapons (0, 26, 6);
+		end
+		else if nTime < 40 then
+		begin
+// 12 Recruit's
+			Actions.GiveUnit (0, 13, 33, 10, 0);
+			Actions.GiveUnit (0, 13, 34, 10, 0);
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+			Actions.GiveUnit (0, 13, 44, 10, 0);
+			Actions.GiveUnit (0, 13, 45, 10, 0);
+// Weapons Iron and Wood player 0
+			Actions.GiveWeapons (0, 16, 10);
+			Actions.GiveWeapons (0, 17, 8);
+			Actions.GiveWeapons (0, 18, 10);
+			Actions.GiveWeapons (0, 19, 8);
+			Actions.GiveWeapons (0, 20, 10);
+			Actions.GiveWeapons (0, 21, 8);
+			Actions.GiveWeapons (0, 22, 10);
+			Actions.GiveWeapons (0, 23, 8);
+			Actions.GiveWeapons (0, 24, 10);
+			Actions.GiveWeapons (0, 25, 8);
+			Actions.GiveWeapons (0, 26, 6);
+		end
+		else if nTime < 50 then
+		begin
+// 14 Recruit's
+			Actions.GiveUnit (0, 13, 32, 10, 0);
+			Actions.GiveUnit (0, 13, 33, 10, 0);
+			Actions.GiveUnit (0, 13, 34, 10, 0);
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+			Actions.GiveUnit (0, 13, 44, 10, 0);
+			Actions.GiveUnit (0, 13, 45, 10, 0);
+			Actions.GiveUnit (0, 13, 46, 10, 0);
+// Weapons Iron and Wood player 0
+			Actions.GiveWeapons (0, 16, 10);
+			Actions.GiveWeapons (0, 17, 10);
+			Actions.GiveWeapons (0, 18, 10);
+			Actions.GiveWeapons (0, 19, 10);
+			Actions.GiveWeapons (0, 20, 10);
+			Actions.GiveWeapons (0, 21, 10);
+			Actions.GiveWeapons (0, 22, 10);
+			Actions.GiveWeapons (0, 23, 10);
+			Actions.GiveWeapons (0, 24, 10);
+			Actions.GiveWeapons (0, 25, 10);
+			Actions.GiveWeapons (0, 26, 10);
+		end
+		else if nTime < 60 then
+		begin
+// 16 Recruit's
+			Actions.GiveUnit (0, 13, 38, 9, 0);
+			Actions.GiveUnit (0, 13, 32, 10, 0);
+			Actions.GiveUnit (0, 13, 33, 10, 0);
+			Actions.GiveUnit (0, 13, 34, 10, 0);
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+			Actions.GiveUnit (0, 13, 44, 10, 0);
+			Actions.GiveUnit (0, 13, 45, 10, 0);
+			Actions.GiveUnit (0, 13, 46, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 9, 0);
+// Weapons Iron and Wood player 0
+			Actions.GiveWeapons (0, 16, 16);
+			Actions.GiveWeapons (0, 17, 16);
+			Actions.GiveWeapons (0, 18, 16);
+			Actions.GiveWeapons (0, 19, 16);
+			Actions.GiveWeapons (0, 20, 16);
+			Actions.GiveWeapons (0, 21, 16);
+			Actions.GiveWeapons (0, 22, 16);
+			Actions.GiveWeapons (0, 23, 16);
+			Actions.GiveWeapons (0, 24, 16);
+			Actions.GiveWeapons (0, 25, 16);
+			Actions.GiveWeapons (0, 26, 16);
+		end
+		else if nTime < 70 then
+		begin
+// 18 Recruit's
+			Actions.GiveUnit (0, 13, 38, 8, 0);
+			Actions.GiveUnit (0, 13, 38, 9, 0);
+			Actions.GiveUnit (0, 13, 32, 10, 0);
+			Actions.GiveUnit (0, 13, 33, 10, 0);
+			Actions.GiveUnit (0, 13, 34, 10, 0);
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+			Actions.GiveUnit (0, 13, 44, 10, 0);
+			Actions.GiveUnit (0, 13, 45, 10, 0);
+			Actions.GiveUnit (0, 13, 46, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 9, 0);
+			Actions.GiveUnit (0, 13, 40, 8, 0);
+// Weapons Iron and Wood player 0
+			Actions.GiveWeapons (0, 16, 18);
+			Actions.GiveWeapons (0, 17, 18);
+			Actions.GiveWeapons (0, 18, 18);
+			Actions.GiveWeapons (0, 19, 18);
+			Actions.GiveWeapons (0, 20, 18);
+			Actions.GiveWeapons (0, 21, 18);
+			Actions.GiveWeapons (0, 22, 18);
+			Actions.GiveWeapons (0, 23, 18);
+			Actions.GiveWeapons (0, 24, 18);
+			Actions.GiveWeapons (0, 25, 18);
+			Actions.GiveWeapons (0, 26, 18);
+		end
+		else if nTime < 100 then
+		begin
+// 20 Recruit's 
+			Actions.GiveUnit (0, 13, 38, 7, 0);
+			Actions.GiveUnit (0, 13, 38, 8, 0);
+			Actions.GiveUnit (0, 13, 38, 9, 0);
+			Actions.GiveUnit (0, 13, 32, 10, 0);
+			Actions.GiveUnit (0, 13, 33, 10, 0);
+			Actions.GiveUnit (0, 13, 34, 10, 0);
+			Actions.GiveUnit (0, 13, 35, 10, 0);
+			Actions.GiveUnit (0, 13, 36, 10, 0);
+			Actions.GiveUnit (0, 13, 37, 10, 0);
+			Actions.GiveUnit (0, 13, 38, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 10, 0);
+			Actions.GiveUnit (0, 13, 41, 10, 0);
+			Actions.GiveUnit (0, 13, 42, 10, 0);
+			Actions.GiveUnit (0, 13, 43, 10, 0);
+			Actions.GiveUnit (0, 13, 44, 10, 0);
+			Actions.GiveUnit (0, 13, 45, 10, 0);
+			Actions.GiveUnit (0, 13, 46, 10, 0);
+			Actions.GiveUnit (0, 13, 40, 9, 0);
+			Actions.GiveUnit (0, 13, 40, 8, 0);
+			Actions.GiveUnit (0, 13, 40, 7, 0);
+// Weapons Iron and wood player 0
+			Actions.GiveWeapons (0, 17, 20);
+			Actions.GiveWeapons (0, 19, 20);
+			Actions.GiveWeapons (0, 21, 20);
+			Actions.GiveWeapons (0, 23, 20);
+			Actions.GiveWeapons (0, 25, 20);
+			Actions.GiveWeapons (0, 26, 20);
+			Actions.GiveWeapons (0, 16, 20);
+			Actions.GiveWeapons (0, 18, 20);
+			Actions.GiveWeapons (0, 20, 20);
+			Actions.GiveWeapons (0, 22, 20);
+			Actions.GiveWeapons (0, 24, 20);
+			Actions.GiveWeapons (0, 26, 20);
+		end;
+		case nTime of
+			1: begin
+				GiveGroupRandom ( 1, 14, 0, 4, 5); // Militia 4
+				GiveGroupRandom (1, 14, 0, 4, 5); // Militia 4
+			end;
+			2: begin
+				GiveGroupRandom (1, 14, 0, 5, 5); // Militia 5
+				GiveGroupRandom (1, 14, 0, 5, 5); // Militia 5
+			end;
+			3: begin
+				GiveGroupRandom (1, 27, 0, 3, 5); // VageBond 3
+				GiveGroupRandom (1, 27, 0, 3, 5); // VageBond 3
+				GiveGroupRandom (1, 24, 0, 5, 5); // Rebel 5
+			end;
+			4: begin
+				GiveGroupRandom (1, 14, 0, 5, 5); // Militia 5
+				GiveGroupRandom (1, 14, 0, 5, 5); // Militia 5
+				GiveGroupRandom (2, 25, 0, 5, 5); // Rouge 5
+				GiveGroupRandom (2, 25, 0, 5, 5); // Rouge 5
+			end;
+			5: begin
+				GiveGroupRandom (1, 14, 0, 7, 5); // Militia 7
+				GiveGroupRandom (1, 14, 0, 7, 5); // Militia 7
+				GiveGroupRandom (2, 25, 0, 7, 5); // Rouge 7
+				GiveGroupRandom (2, 25, 0, 7, 5); // Rouge 7
+			end;
+			6: begin
+				GiveGroupRandom (1, 14, 0, 10, 5); // Militia 10
+				GiveGroupRandom (1, 14, 0, 10, 5); // Militia 10
+				GiveGroupRandom (2, 25, 0, 6, 5); // Rouge 6
+				GiveGroupRandom (2, 25, 0, 6, 5); // Rouge 6
+			end;
+			7: begin
+				GiveGroupRandom (1, 14, 0, 10, 5); // Militia 10
+				GiveGroupRandom (1, 14, 0, 10, 5); // Militia 10
+				GiveGroupRandom (2, 25, 0, 4, 5); // Rouge 4
+				GiveGroupRandom (2, 25, 0, 4, 5); // Rouge 4
+				GiveGroupRandom (2, 25, 0, 4, 5); // Rouge 4
+			end;
+			8: begin
+				GiveGroupRandom (1, 27, 0, 8, 5); // VageBond 8
+				GiveGroupRandom (1, 24, 0, 10, 5); // Rebel 10
+			end;
+			9: begin
+				GiveGroupRandom (1, 14, 0, 10, 5); // Militia 10
+				GiveGroupRandom (1, 14, 0, 5, 5); // Militia 5
+				GiveGroupRandom (2, 25, 0, 10, 5); // Rouge 10
+				GiveGroupRandom (2, 25, 0, 5, 5); // Rouge 5
+			end;
+			10: begin
+				GiveGroupRandom (1, 15, 0, 10, 5); // AxeFighter 10
+				GiveGroupRandom (2, 25, 0, 10, 5); // Rouge 10
+				GiveGroupRandom (2, 25, 0, 10, 5); // Rouge 10
+			end;
+			11: begin
+				GiveGroupRandom (1, 27, 0, 8, 5); // VageBond 8
+				GiveGroupRandom (1, 19, 0, 8, 5); // Lance 8
+				GiveGroupRandom (1, 19, 0, 8, 5); // Lance 8
+			end;
+			12: begin
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+			end;
+			13: begin
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+			end;
+			14: begin
+				GiveGroupRandom (1, 15, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (1, 15, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+			end;
+			15: begin
+				GiveGroupRandom (1, 15, 0, 8, 5); // Axefighter 8
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (1, 21, 0, 5, 5); // Scout 5
+				GiveGroupRandom (1, 21, 0, 5, 5); // Scout 5
+			end;
+			16: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (1, 21, 0, 5, 5); // Scout 5
+			end;
+			17: begin
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+			end;
+			18: begin
+				GiveGroupRandom (1, 15, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (1, 14, 0, 10, 5); // Militia 10
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (1, 24, 0, 20, 5); // Rebel 20
+			end;
+			19: begin
+				GiveGroupRandom (1, 14, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (1, 14, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (1, 14, 0, 15, 5); // Militia 15
+				GiveGroupRandom (1, 24, 0, 20, 5); // Rebel 20
+			end;
+			20: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 21, 0, 5, 5); // Scout 5
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 5, 5); // Scout 5
+			end;
+			21: begin
+				GiveGroupRandom (1, 19, 0, 15, 5); // Lance 15
+				GiveGroupRandom (1, 19, 0, 15, 5); // Lance 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+			end;
+			22: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+			end;
+			23: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+			end;
+			24: begin
+				GiveGroupRandom (1, 27, 0, 15, 5); // VageBond 15
+				GiveGroupRandom (1, 27, 0, 15, 5); // VageBond 15
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+				GiveGroupRandom (2, 17, 0, 5, 5); // Bow 5
+			end;
+			25: begin
+				GiveGroupRandom (1, 15, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 5, 5); // Scout 5
+			end;
+			26: begin
+				GiveGroupRandom (1, 15, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+			end;
+			27: begin
+				GiveGroupRandom (1, 15, 0, 10, 5); // Axefighter 10
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+			end;
+			28: begin
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 5, 5); // Scout 5
+			end;
+			29: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+			end;
+			30: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			31: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			32: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			33: begin
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (1, 16, 0, 5, 5); // SwordFighter 5
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			34: begin
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (1, 16, 0, 5, 5); // SwordFighter 5
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			35: begin
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (1, 16, 0, 5, 5); // SwordFighter 5
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			36: begin
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (1, 16, 0, 5, 5); // SwordFighter 5
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			37: begin
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (1, 16, 0, 5, 5); // SwordFighter 5
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			38: begin
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (1, 16, 0, 10, 5); // SwordFighter 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			39: begin
+				GiveGroupRandom (1, 15, 0, 35, 5); // Axefighter 25
+				GiveGroupRandom (1, 15, 0, 30, 5); // Axefighter 30
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			40: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 25, 5); // Bow 25
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			41: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 20, 5); // Axefighter 20
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (2, 17, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			42: begin
+				GiveGroupRandom (1, 15, 0, 15, 5); // Axefighter 15
+				GiveGroupRandom (1, 15, 0, 25, 5); // Axefighter 25
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			43: begin
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			44: begin
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (1, 21, 0, 20, 5); // Scout 20
+			end;
+			45: begin
+				Actions.ShowMsg (-1, 'Militia Rush!|300 Militia');
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+			end;
+			46: begin
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+			end;
+			47: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+			end;
+			48: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+			end;
+			49: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Bow 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+			end;
+			50: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			51: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+		52: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			53: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+			end;
+			54: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+			end;
+			55: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			56: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 10, 5); // Swordfighter 10
+				GiveGroupRandom (1, 16, 0, 10, 5); // Swordfighter 10
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			57: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 10, 5); // Swordfighter 10
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			58: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 10, 5); // Swordfighter 10
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			59: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			60: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 21, 0, 10, 5); // Scout 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			61: begin
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			62: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			63: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			64: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			65: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			66: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			67: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 15, 5); // Bow 15
+				GiveGroupRandom (2, 18, 0, 10, 5); // Crossbow10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			68: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			69: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 17, 0, 20, 5); // Bow 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			70: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 21, 0, 15, 5); // Scout 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			71: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			72: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+			end;
+			73: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 10, 5); // Knight 10
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+			end;
+			74: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+			end;
+			75: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 10, 5); // Pikeman 10
+			end;
+			76: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+			end;
+			77: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 5, 5); // Barbarian 5
+				GiveGroupRandom (1, 23, 0, 5, 5); // Barbarian 5
+				GiveGroupRandom (1, 23, 0, 5, 5); // Barbarian 5
+			end;
+			78: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+				GiveGroupRandom (1, 23, 0, 5, 5); // Barbarian 5
+				GiveGroupRandom (1, 23, 0, 5, 5); // Barbarian 5
+			end;
+			79: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+				GiveGroupRandom (1, 23, 0, 5, 5); // Barbarian 5
+			end;
+			80: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+			end;
+			81: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+			end;
+			82: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+				GiveGroupRandom (1, 23, 0, 10, 5); // Barbarian 10
+			end;
+			83: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+			end;
+			84: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+			end;
+			85: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 15, 5); // Barbarian 15
+			end;
+			86: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			87: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			88: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			89: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 15, 5); // Pikeman 15
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			90: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			91: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			92: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 15
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			93: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			94: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			95: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			96: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 15, 5); // Crossbow 15
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			97: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+			end;
+			98: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 10, 5); // Swordfighter 10
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20			
+			end;
+			99: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 15, 5); // Swordfighter 15
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20			
+			end;
+			100: begin
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (1, 16, 0, 20, 5); // Swordfighter 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (2, 18, 0, 20, 5); // Crossbow 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 20, 5); // Knight 20
+				GiveGroupRandom (1, 22, 0, 15, 5); // Knight 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 20, 0, 20, 5); // Pikeman 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20
+				GiveGroupRandom (1, 23, 0, 20, 5); // Barbarian 20			
+			end;
+			101: begin
+				Actions.ShowMsg (-1, 'Militia rush!|500 Militia');
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+				GiveGroupRandom (1, 14, 0, 20, 5); // Militia 20
+			end;
+		end;
+	end;
+end;

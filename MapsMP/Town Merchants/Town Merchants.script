@@ -1,7 +1,7 @@
 /// :* 	 Town Merchants   *:
-/// *    	v1.23	2013 *
-/// *  by Random Lyrics  *
-//	*  		by Sado(terrain)		 *			
+/// *    v1.36	2013-2014 *
+/// *  by Random Lyrics   *
+//	*  	by Sado(terrain)  *			
 /// licensed under GPLv2
 /// https://gnu.org/licenses/old-licenses/gpl-2.0.txt
 //	Changes: -lower tax, win 30000,  
@@ -33,6 +33,9 @@ type aPLAYER =
 
 
 const
+MAIN_SOUND_VOLUME = 0.9;
+LOWER_SOUND_VOLUME = 0.5;
+EVENT_SOUND_VOLUME = 0.7;
 OFFER_SCHOOL_X = 122; //serfs spawn 
 OFFER_SCHOOL_Y = 122;
 VICTORY_GOLD_REQUIREMENT = 30000;
@@ -101,6 +104,7 @@ RESELL_HOUSE_PERC = 0.80; //0.8 * house sell price
 
 
 var
+PLAYER_QUEST_SOUND_ENABLED: array [0..MAX_PLAYERS] of boolean;
 PLAYERS_GOLD: array [0..MAX_PLAYERS] of integer;
 PLAYER_SCORE_COUNTER: array [0..MAX_PLAYERS] of array [0..12] of integer;
 PLAYER_SCORE_TAB_COUNTER: array [0..MAX_PLAYERS] of integer;
@@ -481,7 +485,7 @@ begin
 		11: RESULT:= 50; //flour
 		12: RESULT:= 50; //leather
 		13: RESULT:= 30; //sausages
-		14: RESULT:= 180; //pig
+		14: RESULT:= 240; //pig
 		15: RESULT:= 80; //skin
 		16: RESULT:= 80; //wooden shield
 		17: RESULT:= 180; //long shield
@@ -493,7 +497,7 @@ begin
 		23: RESULT:= 180; //pike
 		24: RESULT:= 100; //longbow
 		25: RESULT:= 180; //crossbow
-		26: RESULT:= 200; //horse
+		26: RESULT:= 280; //horse
 		27: RESULT:= 30; //fish
 		else RESULT:= 0;
 	end
@@ -638,6 +642,7 @@ begin
 					PLAYER[aPlayer].Tax:= 0;
 					PLAYER[aPlayer].TaxPaid:= true;
 					CheckVictoryConditions(aPlayer);
+					Actions.PlayWAV(aPlayer, 'taxpaid', MAIN_SOUND_VOLUME);
 				end else 
 					Actions.ShowMsgFormatted(aPlayer, '<$54>', [PLAYER[aPlayer].Tax]);
 			end;
@@ -816,7 +821,9 @@ begin
 					PLAYER[j].Tax:= PLAYER[j].Tax + TAX_PER_3_RANK;
 			end;
 			PLAYER[j].Tax:= PLAYER[j].Tax + (TAX_PER_WORKER * PLAYER[j].UnitCount );
-			PLAYER[j].TaxPaid:= false;
+			if PLAYER[j].Tax <> 0 then
+				PLAYER[j].TaxPaid:= false;
+			Actions.PlayWAV(j, 'tax', MAIN_SOUND_VOLUME-0.1);
 		end;
 	end;
 	TAX_COUNTER:= (TAX_TIME/10);
@@ -829,6 +836,7 @@ begin
 	OFFER_SERF_TIMER:= OFFER_SERF_TIME;
 	OFFER_SERF_COUNT:= aMultiplier + States.KaMRandomI(OFFER_SERF_RANDOM);
 	OFFER_SERF_COST:= (OFFER_COST_PER_SERF * OFFER_SERF_COUNT);
+	Actions.PlayWAV(-1, 'offer', LOWER_SOUND_VOLUME+0.1);
 end;
 
 procedure BuyWorkersOffer(aPlayer: integer);
@@ -840,6 +848,7 @@ begin
 				OFFER_SERF_TIMER:= 0;
 				PLAYER_SCORE_COUNTER[aPlayer][10]:= 25;
 				GiveWorkers(aPlayer, 0, OFFER_SERF_COUNT);
+				Actions.PlayWAV(aPlayer, 'townoffer', LOWER_SOUND_VOLUME+0.1);
 			end else 
 				Actions.ShowMsgFormatted(aPlayer, '<$49>', [OFFER_SERF_COST]);
 		end;
@@ -872,6 +881,7 @@ begin
 				OFFER_HOUSE_TIMER:= 0;
 				AllowHouseByClass(aPlayer, OFFER_HOUSE_CLASS);
 				PLAYER_SCORE_COUNTER[aPlayer][9]:= 20;
+				Actions.PlayWAV(aPlayer, 'townoffer', LOWER_SOUND_VOLUME+0.1);
 			end else 
 				Actions.ShowMsgFormatted(aPlayer, '<$47>', [OFFER_HOUSE_COST]);
 		end;
@@ -883,6 +893,7 @@ begin
 	OFFER_HOUSE_TIMER:= OFFER_HOUSE_TIME;
 	OFFER_HOUSE_CLASS:= aClass;
 	OFFER_HOUSE_COST:= HouseClassToGoldCost(aClass);
+	Actions.PlayWAV(-1, 'offer', LOWER_SOUND_VOLUME);
 end;
 
 
@@ -902,7 +913,7 @@ begin
 					PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold + QUEST_REWARD[j];
 					Actions.ShowMsgFormatted(aPlayer, '<$30>', [QUEST_REWARD[j]]);
 					PLAYER_SCORE_COUNTER[aPlayer][7]:= 20;
-					
+					PLAYER_QUEST_SOUND_ENABLED[aPlayer]:= true;
 				end;
 			end;
 		end;
@@ -959,6 +970,7 @@ begin
 			
 		QUEST_ENABLED[QUEST_COUNTER]:= true;
 		CheckSetQuestCounter;
+		Actions.PlayWAV(-1, 'quest', LOWER_SOUND_VOLUME);
 		
 	end;
 end;
@@ -1048,11 +1060,13 @@ begin
 		FOOD_PRICE:= Round(START_FOOD_PRICE * GLOBAL_EVENT_FOOD_PERC_INCREASE);
 		GLOBAL_EVENT_TIMER[0]:= GLOBAL_EVENT_LASTS_TIME + (States.KaMRandomI(GLOBAL_EVENT_LASTS_TIME_RANDOM)*10);
 		GLOBAL_EVENT_ENABLED[0]:= true;
+		Actions.PlayWAV(-1, 'eventfire', MAIN_SOUND_VOLUME-0.1);
 	end;
 	if aEvent = 2 then begin	//war //axe, lance, bow; crossbow, sword, pike; wood shield, leather armour; iron armour, long shield;
 		SetWarPrices;
 		GLOBAL_EVENT_TIMER[1]:= GLOBAL_EVENT_LASTS_TIME + (States.KaMRandomI(GLOBAL_EVENT_LASTS_TIME_RANDOM)*10);
 		GLOBAL_EVENT_ENABLED[1]:= true;
+		Actions.PlayWAV(-1, 'eventkilled', MAIN_SOUND_VOLUME-0.1);
 	end;
 	if aEvent = 1 then begin	//rising //timber, stones, tree trunk, coal, horses
 		SetRisingPrices;
@@ -1060,6 +1074,7 @@ begin
 		TIMBER_PRICE:= Round(START_TIMBER_PRICE * GLOBAL_EVENT_MATERIAL_PERC_INCREASE);
 		GLOBAL_EVENT_TIMER[2]:= GLOBAL_EVENT_LASTS_TIME + (States.KaMRandomI(GLOBAL_EVENT_LASTS_TIME_RANDOM)*10);
 		GLOBAL_EVENT_ENABLED[2]:= true;	
+		Actions.PlayWAV(-1, 'eventrob', MAIN_SOUND_VOLUME-0.1);
 	end;
 end;	
 
@@ -1071,6 +1086,7 @@ begin
 	//fire
 	if aEvent = 0 then begin
 		if ( PLAYER[aPlayer].HouseCount >= LOCAL_EVENT_MIN_HOUSE_COUNT ) then begin
+			Actions.PlayWAV(aPlayer, 'eventfire', EVENT_SOUND_VOLUME);
 			aArray:= States.PlayerGetAllHouses(aPlayer); //houses
 			rh:= aArray[States.KaMRandomI(Length(aArray))];
 			while ( NotMainHouseType(States.HouseType(rh))= false ) or (States.HouseIsComplete(rh) = false ) do begin
@@ -1083,6 +1099,7 @@ begin
 	//robbery	
 	if aEvent = 1 then begin
 		if ( PLAYER[aPlayer].HouseCount >= LOCAL_EVENT_MIN_HOUSE_COUNT ) then begin
+			Actions.PlayWAV(aPlayer, 'eventrob', EVENT_SOUND_VOLUME);
 			aArray:= States.PlayerGetAllHouses(aPlayer); //houses
 			rh:= aArray[States.KaMRandomI(Length(aArray))];
 			while ( NotMainHouseType(States.HouseType(rh))= false ) or (States.HouseIsComplete(rh) = false ) or (PLAYER[aPlayer].Merchant.ID = rh ) do begin
@@ -1094,6 +1111,7 @@ begin
 	//murder	
 	if aEvent = 2 then begin
 		if ( PLAYER[aPlayer].UnitCount >= LOCAL_EVENT_MIN_UNIT_COUNT ) then begin
+			Actions.PlayWAV(aPlayer, 'eventkilled', EVENT_SOUND_VOLUME);
 			aArray:= States.PlayerGetAllUnits(aPlayer); //units
 			rh:= aArray[States.KaMRandomI(Length(aArray))];
 			while ( States.UnitType(rh) < 0 ) or ( States.UnitType(rh) > 13 ) or ( rh = PLAYER[aPlayer].Merchant.WorkerID ) or ( rh = PLAYER[aPlayer].Merchant.ID ) or (States.UnitDead(rh)) do begin
@@ -1136,6 +1154,7 @@ begin
 			prevID:= PLAYER[aPlayer].Merchant.ID;
 			PLAYER[aPlayer].Merchant.ID:= ChangeUnitType(prevID, PLAYER[aPlayer].Merchant.aType);
 		end;
+		Actions.PlayWAV(aPlayer, 'promote', MAIN_SOUND_VOLUME-0.1);
 	end;
 end;
 procedure SellHouse(aHouse, aPlayer: integer);
@@ -1146,6 +1165,7 @@ begin
 		HouseChangeOwner(aHouse, aPlayer);
 		PLAYER[aPlayer].HouseCount:= PLAYER[aPlayer].HouseCount + 1;
 		PLAYER_SCORE_COUNTER[aPlayer][0]:= 5;
+		Actions.PlayWAV(aPlayer, 'housebought', MAIN_SOUND_VOLUME);
 	end else begin
 		Actions.ShowMsgFormatted(aPlayer, '<$5>', [HouseTypeToGoldCost(States.HouseType(aHouse))]);
 	end;
@@ -1158,6 +1178,7 @@ begin
 			PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - GOLD_PRICE;
 			Actions.HouseAddWaresTo(PLAYER[aPlayer].SchoolID, 7, GOLD_PER_PRICE);
 			PLAYER_SCORE_COUNTER[aPlayer][1]:= 5;
+			Actions.PlayWAV(aPlayer, 'townhouses', LOWER_SOUND_VOLUME);
 		end else begin
 			Actions.ShowMsgFormatted(aPlayer, '<$6>', [GOLD_PRICE]);
 		end;
@@ -1226,6 +1247,7 @@ begin
 			if ( PLAYER[j].StorehouseID > 0 ) and States.HouseIsComplete(PLAYER[j].StorehouseID) then begin
 				if States.HouseDeliveryBlocked(PLAYER[j].StorehouseID) then begin
 					PLAYER[j].LastTransaction:= 0;
+					PLAYER_QUEST_SOUND_ENABLED[j]:= false;
 					for k:= 0 to MAX_WARE_TYPE do begin 
 						if States.HouseWareBlocked(PLAYER[j].StorehouseID, k) then begin
 							RewardFromQuest(j, k, States.HouseResourceAmount(PLAYER[j].StorehouseID, k));
@@ -1237,10 +1259,17 @@ begin
 							Actions.HouseWareBlock(PLAYER[j].StorehouseID, k, false);
 						end;
 					end;
-					Actions.HouseDeliveryBlock(PLAYER[j].StorehouseID, false);
-					PromoteMerchant(j);
-					PLAYER_SCORE_COUNTER[j][3]:= 20;
-					CheckVictoryConditions(j);
+					if PLAYER[j].LastTransaction > 0 then begin
+						Actions.HouseDeliveryBlock(PLAYER[j].StorehouseID, false);
+						PromoteMerchant(j);
+						PLAYER_SCORE_COUNTER[j][3]:= 20;
+						CheckVictoryConditions(j);
+						if PLAYER_QUEST_SOUND_ENABLED[j] then begin
+							Actions.PlayWAV(j, 'complete', MAIN_SOUND_VOLUME);
+							Actions.PlayWAV(j, 'sell', LOWER_SOUND_VOLUME);
+						end else
+							Actions.PlayWAV(j, 'sell', MAIN_SOUND_VOLUME);
+					end;
 				end;
 			end;
 		end;
@@ -1256,6 +1285,7 @@ begin
 		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 27, FOOD_PER_PRICE);
 		PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - FOOD_PRICE;
 		PLAYER_SCORE_COUNTER[aPlayer][4]:= 5;
+		Actions.PlayWAV(aPlayer, 'townhouses', LOWER_SOUND_VOLUME);
 	end else begin
 		Actions.ShowMsgFormatted(aPlayer, '<$11>', [FOOD_PRICE]);
 	end;
@@ -1267,6 +1297,7 @@ begin
 		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 1, STONES_PER_PRICE);
 		PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - STONES_PRICE;
 		PLAYER_SCORE_COUNTER[aPlayer][6]:= 5;
+		Actions.PlayWAV(aPlayer, 'townhouses', LOWER_SOUND_VOLUME);
 	end else begin
 		Actions.ShowMsgFormatted(aPlayer, '<$13>', [STONES_PRICE]);
 	end;
@@ -1278,6 +1309,7 @@ begin
 		Actions.HouseAddWaresTo(PLAYER[aPlayer].StorehouseID, 2, TIMBER_PER_PRICE);
 		PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - TIMBER_PRICE;
 		PLAYER_SCORE_COUNTER[aPlayer][6]:= 5;
+		Actions.PlayWAV(aPlayer, 'townhouses', LOWER_SOUND_VOLUME);
 	end else begin
 		Actions.ShowMsgFormatted(aPlayer, '<$13>', [TIMBER_PRICE]);
 	end;
@@ -1513,19 +1545,19 @@ begin
 	end;
 end;
 
-procedure OnPlanField(aIndex, X, Y: integer);
+procedure OnPlanFieldPlaced(aIndex, X, Y: integer);
 begin
 	if (ClosestHouse(aIndex, 8, X, Y, 6) = -1 ) then 
 		Actions.PlanRemove(aIndex, X, Y);
 end;
 
-procedure OnPlanWinefield(aIndex, X, Y: integer);
+procedure OnPlanWinefieldPlaced(aIndex, X, Y: integer);
 begin
 	if (ClosestHouse(aIndex, 28, X, Y, 6) = -1 ) then 
 		Actions.PlanRemove(aIndex, X, Y);
 end;
 
-procedure OnPlanRoad(aIndex, X, Y: integer);
+procedure OnPlanRoadPlaced(aIndex, X, Y: integer);
 begin
 	if ( InRange(Y, 76, 184) = false ) then
 		Actions.PlanRemove(aIndex, X, Y)
@@ -1671,6 +1703,7 @@ begin
 		FeedMerchantsAndAI;
 	end;
 	if GAME_STATE = 0 then begin
+		//LOCAL_EVENT_TIME
 		if ( States.GameTime mod LOCAL_EVENT_TIME = 0 ) then begin
 			r:= States.KaMRandomI(LOCAL_EVENT_CURRENT_MAX); //3 events
 			for j:= 0 to MAX_PLAYERS-1 do begin

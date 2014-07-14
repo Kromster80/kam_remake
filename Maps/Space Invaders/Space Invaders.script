@@ -1,43 +1,190 @@
 {
 Space Invaders by sado
 You're free to use and modify the script for use in your maps, as long as you mention that it was made by me.
-However, I have no idea who would use that script for anything cool :P
+However, I have no idea who could use that script for anything cool :P
 }
 {
-todo:
--patrolling invaders DONE
--time for life of knights DONE
--overlay and points: overall and points for the current wave DONE
--overlay: round X DONE
--overlay: time DONE
--invaders: moving invaders, losing conditions - DONE
--make scout the default unit - DONE
 
--points system: partially done... need a better idea than counting kills only
+DONE:
+0 watchtower
+1 mili rage
+2 spam shit
+3 and 4
+
+NOT DONE
+3 and 4 - they cannot be used if you have troops left
+5 - instakill
+6 - new life (no bonus interface, only adding the life)
+
+BUGS:
+(PROBABLY FIXED) fix watchtower not appearing when troops are below it
+-there is a problem with fighting troops on the trigger line of defeat
+-barb should storm attack and its not exactly working
 
 TODO
 -sounds for bonuses
--more waves
--bug: ranged units waves are not moving downwards
-
-bonuses:
--watchtower in the center
--knights rage
--spam shit (increased unit number for some time)
--spam shit + change the unit
--ranged units at top
-
-Ways of getting a bonus:
--k/d ratio bigger than 0,6 after last wave
--hitting an bonus-trigger unit
--
+-losing conditions when your builders get killed/make builders invulnerable
+-maybe feed the builders?
+-idea: different limits fo each unit types? to fix bonuses shit etc
+-idea: more lives - reset the wave then
+-idea: there was sth more from tiank
 }
 
 //players: 0 - human, 1 - invaders, 2 - human's bots
-var Wave, Counter, CounterCurrent, Now, UnitsKilled, VariableOfDoom, UnitTypeModifier, IsTheGameLost: Integer;
+const
+LastWave = 21;
+BONUS_TIME = 200; //ticks
+WatchtowerX = 17;
+WatchtowerY = 15;
+BONUS_NUMBER = 5;
+//kd needed - line 235?
 
+var Wave, Counter, CounterCurrent, DCounterCurrent, Now, UnitsKilled: Integer;
+var VariableOfDoom, UnitTypeModifier, IsTheGameLost, HorsesLimit, ResultInRound: Integer;
+var BonusTimer, BonusID, LastHorsesLimit, LastUnitTypeModifier, TriggerLine: Integer;
+var Type1, Type2, InstaSwitch, WatchCounter: Integer;
+var BArray: array [0..BONUS_NUMBER] of Integer;
 
-procedure NewWave(Type1: Integer; Type2: Integer);
+procedure Watchtower;
+var X, Y, A, B: Integer;
+begin
+  X := WatchtowerX;
+  Y := WatchtowerY;
+  for A := 0 to 4 do
+   for B := 0 to 4 do
+    if States.UnitAt(X+A-2, Y+B-2) <> -1 then Actions.UnitKill(States.UnitAt(X+A-2, Y+B-2), False);
+  {if States.UnitAt(X,     Y) <> -1 then Actions.UnitKill(States.UnitAt(X, Y), False);
+  if States.UnitAt(X-1,   Y) <> -1 then Actions.UnitKill(States.UnitAt(X, Y), False);
+  if States.UnitAt(X,   Y-1) <> -1 then Actions.UnitKill(States.UnitAt(X, Y), False);
+  if States.UnitAt(X-1, Y-1) <> -1 then Actions.UnitKill(States.UnitAt(X, Y), False);}
+  WatchCounter := States.GameTime;
+end;
+
+procedure GiveWatchtower;
+var X, Y: Integer;
+begin
+  X := WatchtowerX;
+  Y := WatchtowerY;
+  Actions.GiveHouse(2, 17, X, Y);
+  Actions.HouseAddWaresTo( Actions.GiveHouse(2, 17, X, Y), 1, 5 ); //adding tower and filling it with stones
+  Actions.GiveUnit(2, 13, X, Y+1, 0) //add recruit to the tower
+end;
+
+procedure Berserker;
+begin
+  UnitTypeModifier := -7; //militia
+  HorsesLimit := 50;
+end;
+
+procedure Spam;
+begin
+  HorsesLimit := HorsesLimit + 3;
+end;
+
+procedure Instakill;
+begin
+  InstaSwitch := 1;
+end;
+
+procedure DisableBonus;
+begin
+  case BonusID of
+    0: begin
+	Actions.HouseDestroy(States.HouseAt(WatchtowerX, WatchtowerY), True);
+       end;
+    1: begin
+	HorsesLimit := LastHorsesLimit;
+	UnitTypeModifier := LastUnitTypeModifier;
+       end;
+    2: begin
+	HorsesLimit := LastHorsesLimit;
+       end;
+    3: begin
+	HorsesLimit := LastHorsesLimit;
+	UnitTypeModifier := LastUnitTypeModifier;
+       end;
+    4: begin
+	HorsesLimit := LastHorsesLimit;
+	UnitTypeModifier := LastUnitTypeModifier;
+       end;
+    5: begin
+	  InstaSwitch := 0;
+	  Actions.Log('Koniec bonusa');
+       end;
+    end;
+end;
+
+procedure Bomb(Mode, X, Y: Integer);
+var A, B: Integer;
+begin
+  case Mode of
+  0: begin
+    for A := 0 to 2 do //rogue bomb
+      for B := 0 to 2 do
+	if (States.GroupAt(X-1+A, Y-1+B) <> -1) and (States.GroupOwner(States.GroupAt(X-1+A, Y-1+B) ) = 1) then 
+	begin
+	  Actions.GroupKillAll(States.GroupAt(X-1+A, Y-1+B), False);
+	end;
+	DisableBonus;
+	BonusTimer := -1;
+	BonusID := -1;
+    end;
+  1: begin
+    for A := 0 to 4 do //nuke (warrior bomb)
+      for B := 0 to 8 do
+	if States.GroupAt(X-2+A, Y-6+B) <> -1 then
+	begin
+	  Actions.GroupKillAll(States.GroupAt(X-2+A, Y-6+B), False);
+	end;
+	DisableBonus;
+	BonusTimer := -1;
+	BonusID := -1;
+    end;
+  end;
+end;
+
+procedure Nuke;
+begin
+ UnitTypeModifier := 5;
+ HorsesLimit := 1;
+end;
+
+procedure MiniNuke;
+begin
+ UnitTypeModifier := 4;
+ HorsesLimit := 5;
+end;
+
+procedure GiveBonus(ID: Integer);
+begin
+  //TODO: add "if bonus counter > 0 then (whole code below)
+  //TODO: kill the old bonuses if time and ID <> 0;
+  BonusTimer := States.GameTime;
+  BonusID := ID;
+  LastUnitTypeModifier := UnitTypeModifier;
+  LastHorsesLimit := HorsesLimit;
+  case ID of
+    0: Watchtower;
+    1: Berserker;
+    2: Spam;
+    3: Nuke;
+    4: MiniNuke;
+    5: Instakill;
+    end;
+end;
+
+procedure DrawBonus;
+begin
+  case States.KaMRandomI(5) of
+    0: BArray[0] := BArray[0] + 1;
+    1: BArray[1] := BArray[1] + 1;
+    2: BArray[2] := BArray[2] + 1;
+    3: BArray[3] := BArray[3] + 1;
+    4: BArray[4] := BArray[4] + 1;
+    5: BArray[5] := BArray[5] + 1;
+    end;
+end;
+procedure NewWave;
 var X, Y: Integer;
 begin
   for X := 7 to 25 do
@@ -48,7 +195,6 @@ begin
       else if X mod 3 = 0 then
 	Actions.GiveGroup(1, Type2, X, Y, 4, 1, 1);
     end;
-  
 end;
 
 procedure MoveInvaders(Direction: Integer);
@@ -65,22 +211,52 @@ begin
 end;
 
 //Mistake in script usage Actions.GroupOrderWalk: Groups[I], 2, 65535, 4
+procedure BonusActivator(ID: Integer);
+var X: Integer;
+begin
+    case ID of
+    0: X := 8;
+    1: X := 11;
+    2: X := 14;
+    3: X := 17;
+    4: X := 20;
+    5: X := 23;
+    else X := 8;
+    end;
+    if States.UnitAt(X, 27) <> -1 then
+	  begin
+	    if (BArray[ID] > 0) and (BonusID = -1) then
+	    begin
+	      BArray[ID] := BArray[ID] - 1;
+	      GiveBonus(ID);
+	      if BonusID = 5 then Actions.Log('Start bonusa');
+	    end;
+	    Actions.UnitKill(States.UnitAt(X, 27), True);
+	    Actions.GiveUnit(0, 9, X-1, 27, 0);
+	    Actions.PlanRemove(0, X, 27);
+	  end;
+end;
 
 procedure CheckForAShot;
-var X, Builder, Knight, UnluckyKnight, PotentialInvader: Integer;
+var I, X, Builder, Knight, UnluckyKnight: Integer;
 begin
-  for X := 0 to 27 do //real X is 7 to 25
-  begin		      //I need 0 to 27 to kill all the wandering knights
+  for X := 6 to 27 do //real X is 7 to 25
+  begin		      //I need 6 to 27 to kill all the wandering knights
     Builder := States.UnitAt(X,23);
-    PotentialInvader := States.UnitAt(X, 20);
-    if States.UnitOwner(PotentialInvader) = 1 then
+    if (States.UnitAt(X, 17) <> -1) and (States.UnitOwner(States.UnitAt(X, 17)) = 1) then //early wave end detection lines
+      TriggerLine := 1;
+    if (States.UnitAt(X, 18) <> -1) and (States.UnitOwner(States.UnitAt(X, 18)) = 1) then //(to award players with bonuses)
+      TriggerLine := -1;
+    if (States.UnitAt(X, 21) <> -1) and (States.UnitOwner(States.UnitAt(X, 21)) = 1) then //potential invader
       IsTheGameLost := 1;
     if Builder <> -1 then
     begin
-      if Length(States.PlayerGetAllGroups(2))<5 then
+      if Length(States.PlayerGetAllGroups(2))<HorsesLimit then
       begin //21-scout 22-knight
          Knight := Actions.GiveGroup(2, 21+UnitTypeModifier, X, 21, 0, 1, 1);
          Actions.GroupOrderWalk(Knight, X, 5, 0);
+         if (States.UnitType(States.GroupMember(Knight, 0) ) = 14) or (States.UnitType(States.GroupMember(Knight, 0) ) = 26) then
+	    Actions.GroupOrderStorm(Knight);
          //Counter := Counter + 1;
          //CounterCurrent := CounterCurrent + 1;
       end;
@@ -91,35 +267,51 @@ begin
     UnluckyKnight := States.UnitAt(X,5) //why unlucky?
     if UnluckyKnight<>-1 then
       Actions.UnitKill(UnluckyKnight, True); //BECAUSE HE'S GONNA DIEEEE!!!1
-   end;
+    end;
+  for I := 0 to BONUS_NUMBER do
+    BonusActivator(I);
+      
 end;
 
 procedure OnUnitDied(UnitID: Integer; UnitKiller: Integer);
 begin
-  if (States.UnitOwner(UnitID)=1) and (UnitKiller = 2) then
+  if (States.UnitOwner(UnitID)=1) and (UnitKiller = 2) then //when AI gets killed by human's AI
   begin
     CounterCurrent := CounterCurrent + Wave + 1;
-    Counter := Counter + Wave + 1; 
-    Actions.OverlayTextSet(0, '|' + IntToStr(States.UnitOwner(UnitID)) );
   end;
 end;
 
-procedure CheckForWin;
-var Type1, Type2, I: Integer;
-var Knights: array of Integer;
+procedure OnUnitWounded(UnitID: Integer; UnitKiller: Integer);
 begin
-  case Wave of
+  if (States.UnitType(UnitID) = 26) and (States.UnitOwner(UnitID)=2) and (States.UnitOwner(UnitKiller) = 1) then 
+    Bomb(1, States.UnitPositionX(UnitID), States.UnitPositionY(UnitID) )
+  else if (States.UnitType(UnitID) = 25) and (States.UnitOwner(UnitID)=2) and (States.UnitOwner(UnitKiller) = 1) then
+    Bomb(0, States.UnitPositionX(UnitID), States.UnitPositionY(UnitID) );
+  
+  if (Instaswitch = 1) and (States.UnitOwner(UnitID)=1) and (States.UnitOwner(UnitKiller) = 2) then
+  begin
+    Actions.UnitKill(UnitID, False);
+    Actions.Log('Poszedl kill - UnitID: '+IntToStr(UnitID)+'UnitKillers ID:'+IntToStr(UnitKiller) + 'gametime '+IntToStr(States.GameTime) );
+  end;
+end;
+
+procedure SwitchWave;
+begin
+case Wave of
     0: begin
 	Type1 := 24; //rebels
 	Type2 := 14; //militia
-       end;
+	HorsesLimit := 5; //this is tha problem! OnMissionStart value was ignored because the script gets inside this "case" loop
+       end;		  //all the goddamn time...
     1: begin
 	Type1 := 14; //militia
 	Type2 := 19; //lancemen
+	HorsesLimit := 6;
        end;
     2: begin
 	Type1 := 19; //lancemen
 	Type2 := 15; //axemen
+	HorsesLimit := 7;
        end;
     3: begin
 	Type1 := 15; //axemen
@@ -128,6 +320,7 @@ begin
     4: begin
 	Type1 := 17; //bowmen
 	Type2 := 16; //swordmen
+	HorsesLimit := 8;
        end;
     5: begin
 	Type1 := 16; //swordmen
@@ -136,28 +329,144 @@ begin
     6: begin
 	Type1 := 18; //xbows
 	Type2 := 20; //pikemen
+	HorsesLimit := 9;
        end;
     7: begin
+	Type1 := 19; //lancemen
+	Type2 := 20; //pikemen
+	HorsesLimit := 10;
+       end;
+    8: begin
+	Type1 := 24; //rebels
+	Type2 := 15; //axemen
+	HorsesLimit := 4;
+	UnitTypeModifier := 1; //knights
+       end;
+    9: begin
+	Type1 := 15; //axemen
+	Type2 := 19; //lancemen
+	HorsesLimit := 5;
+       end;
+    10: begin
+	Type1 := 19; //lancemen
+	Type2 := 16; //swordmen
+	HorsesLimit := 6;
+       end;
+    11: begin
+	Type1 := 16; //swordmen
+	Type2 := 17; //bowmen
+       end;
+    12: begin
+	Type1 := 17; //bowmen
+	Type2 := 20; //pikemen
+	HorsesLimit := 7;
+       end;
+    13: begin
+	Type1 := 16; //swordmen
+	Type2 := 16; //swordmen
+       end;
+    14: begin
+	Type1 := 20; //pikemen
+	Type2 := 16; //swordmen
+	HorsesLimit := 8;
+       end;
+    15: begin
+	Type1 := 20; //pikemen
+	Type2 := 20; //pikemen
+	HorsesLimit := 9;
+       end;
+    16: begin
+	Type1 := 20; //pikemen
+	Type2 := 23; //barbarians
+       end;
+    17: begin
+	Type1 := 23; //barbarians
+	Type2 := 22; //knights
+	HorsesLimit := 10;
+       end;
+    18: begin
+	Type1 := 22; //knights
+	Type2 := 22; //knights
+	HorsesLimit := 12;
+       end;
+    19: begin
+	Type1 := 18; //xbows
+	Type2 := 18; //xbows
+	HorsesLimit := 15;
+	UnitTypeModifier := -7; //militia
+       end;
+    20: begin
+	Type1 := 23; //barbs
+	Type2 := 23; //barbs
+	HorsesLimit := 50;
+	UnitTypeModifier := 3; //rebels
+       end;
+    21: begin
 	Type1 := 0; //serfs
 	Type2 := 0;
        end;
     end;
+end;
+
+procedure CheckForWin;
+var I: Integer;
+var Knights, Units: array of Integer;
+begin //22 + UnitTypeModifier = ID of the troop that human player sends towards north
+  
   Knights := States.PlayerGetAllGroups(2);
+  Units := States.PlayerGetAllUnits(2);
+  
   for I := 0 to Length(Knights)-1 do
+  begin
     Actions.GroupOrderWalk(Knights[I], States.UnitPositionX( States.GroupMember(Knights[I], 0) ), 5, 0);
+    if (States.UnitType(States.GroupMember(Knights[I], 0) ) = 14) or (States.UnitType(States.GroupMember(Knights[I], 0) ) = 26) then
+	    Actions.GroupOrderStorm(Knights[I]);
+  end;
+  for I := 0 to Length(Units)-1 do
+  begin
+    if (BonusID <> 0) and (States.UnitType(Units[I])=13) then
+      Actions.UnitKill(Units[I], True);
+  end;
+  
   if Length(States.PlayerGetAllGroups(1))=0 then
   begin
     for I := 0 to Length(Knights)-1 do
       Actions.UnitKill( States.GroupMember(Knights[I], 0) , True);
-    NewWave(Type1, Type2);
+    case TriggerLine of
+     1: begin
+	  DrawBonus;
+	end;
+     2: begin
+	  DrawBonus;
+	  DrawBonus;
+	end;
+     end;
+    TriggerLine := 2;
+    Counter := Counter + ResultInRound;
+    ResultInRound := 0;
+    NewWave;
+    SwitchWave;
     Wave := Wave + 1;
     CounterCurrent := 0;
+    if BonusID <> -1 then
+    begin
+      DisableBonus;
+      BonusTimer := -1;
+      BonusID := -1;
+    end;
     Now := States.GameTime; //Now stores the time when a new wave started
   end;
 end;
 
 procedure OnMissionStart;
+var I: Integer;
 begin
+  for I := 0 to BONUS_NUMBER do
+    BArray[I] := 0; //cheaters, stay away.
+    WatchCounter := 0;
+  BonusTimer := -1;
+  BonusID := -1;
+  HorsesLimit := 5;
   IsTheGameLost := 0;
   UnitsKilled := 0;
   Now := 0;
@@ -166,17 +475,19 @@ begin
   Wave := 0;
   Counter := 0;
   CounterCurrent := 0;
-  NewWave(14, 14);
+  SwitchWave;
+  NewWave;
   MoveInvaders(-3);
+  DrawBonus;  
 end;
 
 procedure OnTick;
+var A,CurrentTime: Integer;
+var BonusName: String;
 begin
   if (IsTheGameLost = 0) then
-    if (States.GameTime - Now) mod 10 = 0 then
+    if (States.GameTime - Now) mod 5 = 0 then
     begin
-      //CounterCurrent := CounterCurrent - 1;
-      //Counter := Counter - 1;
       CheckForAShot;
       case (States.GameTime - Now) mod 200 of
       0: begin
@@ -189,11 +500,50 @@ begin
       end;
       if (VariableOfDoom = 1) then
          VariableOfDoom := 0;
-      if Wave < 8 then
+      if Wave < LastWave then
       begin
          CheckForWin;
-         Actions.OverlayTextSet(0,'[$AAAAAA]Round ' + IntToStr(Wave+1) + '|Result: [$FFFFFF]' + IntToStr(Counter) + '||[$AAAAAA]This round: [$FFFFFF]' + IntToStr(CounterCurrent) );
+         if States.GameTime - Now <> 0 then ResultInRound := CounterCurrent*10000 div (States.GameTime - Now);
+         Actions.OverlayTextSet(0,'[$AAAAAA]Round ' + IntToStr(Wave+1) + '|Result: [$FFFFFF]' + IntToStr(Counter) );
+         Actions.OverlayTextAppend(0,'||[$AAAAAA]This round: [$FFFFFF]' + IntToStr(ResultInRound) + '|||[$AAAAAA]Troops:');
+         A := Length(States.PlayerGetAllGroups(2));
+         if A = HorsesLimit then
+         Actions.OverlayTextAppend(0, '[$0000FF]' + IntToStr(HorsesLimit) + '/' + IntToStr(HorsesLimit) )
+         else Actions.OverlayTextAppend(0, '[$FFFFFF]' + IntToStr(A) + '/' + IntToStr(HorsesLimit) );
+         
          Actions.OverlayTextAppend(0, '|[$AAAAAA]Time: [$FFFFFF]' + IntToStr( (States.GameTime - Now) / 10) );
+         Actions.OverlayTextAppend(0, '|[$AAAAAA]Bonuses: [$5B819C]'+IntToStr(BArray[0])+' [$00E6CF]'+IntToStr(BArray[1])+' [$FEB1AF]'+IntToStr(BArray[2]) );
+         Actions.OverlayTextAppend(0, ' [$00A4E1]'+IntToStr(BArray[3])+' [$8CDBF7]'+IntToStr(BArray[4])+' [$00876D]'+IntToStr(BArray[5]));
+	 
+         if BonusID <> -1 then
+         begin
+	  if (States.GameTime - BonusTimer) > BONUS_TIME then
+	  begin
+	    DisableBonus;
+	    BonusTimer := -1;
+	    BonusID := -1;
+	  end
+	  else begin
+	    case BonusID of
+	      0: begin
+		    BonusName := 'Watchtower';
+		    if (WatchCounter <> 0) and (WatchCounter < States.GameTime) then
+		    begin
+		      GiveWatchtower;
+		      WatchCounter := 0;
+		    end;
+		 end;
+	      1: BonusName := 'Militia rage';
+	      2: BonusName := 'Increased unit number';
+	      3: BonusName := 'Nuclear strike';
+	      4: BonusName := 'Rogue bomb';
+	      5: BonusName := 'Instakill';
+	      end;
+	    Actions.OverlayTextAppend(0, '|[$0000FF]'+BonusName+'! '+IntToStr((BONUS_TIME - States.GameTime + BonusTimer) div 10 ) );
+	    if States.HouseAt(WatchtowerX, WatchtowerY) <> -1 then
+	      Actions.HouseAddWaresTo(States.HouseAt(WatchtowerX, WatchtowerY), 1, 1);
+	    end;
+	  end;
       end
       else begin
          Actions.OverlayTextSet(0,'You win! Your result is ' + IntToStr(Counter) + '.');
@@ -206,3 +556,50 @@ begin
     Actions.PlayerDefeat(0);
   end;
 end;
+
+{
+some drafty bullshit, will be deleted soon
+
+bonuses interface:
+TODO
+
+bonuses:
+0: watchtower in the center
+check if units are there and kill them
+spawn a tower
+somewhere else, deal with providing the tower with stones
+kill the tower after BONUS_TIME amount of seconds
+
+1: militia rage - a wave of unlimited militia
+save current unit type and amount
+change it to militia and 150
+kill the bonus after BONUS_TIME and restore old type and amount
+new round kills the bonus
+
+2: spam shit (increased unit number for some time)
+save current unit amount and increase it for a while
+kill the bonus after a while and restore old amount
+new round kills the bonus
+-----ranged units at top - not sure how to implement it without too much effort and I am too lazy
+
+3: nuclear strike - bigger bomb (3x3? or range 3? kills everything)
+save current unit and amount
+change unit type to something strange (barb?) and amount to 1
+click to send the barb
+detect OnUnitDied or sth
+run procedure Nuke
+ check for all units in range X no matter what team they're in
+ kill them
+ 
+4: rogue squadron xD a bomb - a human controlled rogue (range 1/kills 4 ENEMY troops?)
+same as above, but run procedure mininuke (different range) and look for enemy only
+
+instakill
+
+Ways of getting a bonus:
+-k/d ratio bigger than 0,6 in previous wave
+-hitting an bonus-trigger unit which will be killed off by the game in X seconds
+-survive earlier - not let the wave reach a certain line
+
+-deleting a certain building will give you a bonus if you already unlocked it (this way you can save a bonus for later)
+}

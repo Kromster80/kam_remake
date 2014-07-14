@@ -1,0 +1,29 @@
+Options:
+Type										Difficulty
+Enemy army strength			1.1					1.3						1.5				multiplier
+Time first attack				80 					60						30				minutes
+Enemy att points				15 					30						50				for the first wave
+Coal supply 						40					20						None			per 10 minutes
+Gold supply							30					15						None			per 10 minutes
+Iron ore supply					15					8							None			per 10 minutes
+Food supply of each type10					5							None			per 10 minutes
+Barbarian only																			On			Unchecked off
+
+
+
+Points table:
+militia:				1
+axe fighter:		2
+sword fighter:	5
+bowman:					2
+crossbowman: 		3
+lance carrier: 	2
+pikeman:				3
+scout:					3
+knight:					7
+barbarian:			6
+rebel:					1
+rogue:					1
+warrior:				6
+vagabond:				2
+civilians:			0

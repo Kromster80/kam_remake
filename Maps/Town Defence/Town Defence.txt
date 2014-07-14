@@ -1,0 +1,8 @@
+Title
+Town Defence Large
+
+SmallDesc
+A mission by Skypper
+
+BigDesc
+Build a town and defend it against the incoming army's. You will be able to choose some difficulty settings. You can choose it by planning a road on one of the grass titles on the right corner of the screen.||Enemy army strength multiplier 1.1, 1.3, 1.5.|Time first attack 80, 60, 30 minutes|Enemy att points 15, 30, 50 for the first wave.|Coal supply 40, 20, None per 10 minutes.|Gold ore supply 30, 15, None per 10 minutes.|Iron ore supply 15, 8, None per 10 minutes.|Food supply of each type 10, 5, None per 10 minutes.|If you check the last option there will only spawn Barbarian's.||Mission made by Skypper, |Timer based on Andreus timer in ZA.

@@ -1,0 +1,315 @@
+var
+attTime, coal, gold, iron, food, waveCounter, attTimeStats, attPointsStats: Integer;
+enemyMultiplier, attPoints: Single;
+enemyMultiplierB, attTimeB, attPointsB, coalB, goldB, ironB, foodB, warriorB: Boolean;
+storehouseB: Boolean;
+fish1: Integer;
+warriorS: AnsiString;
+
+Procedure OnMissionStart;
+begin
+	Actions.FogRevealRect(0, 153, 1, 159, 13);
+	Actions.FogRevealRect(0, 157, 15, 159, 15);
+	enemyMultiplierB := true; attTimeB := true; attPointsB := true; goldB := true; coalB := true; ironB := true; foodB := true; warriorB := true;
+	storehouseB := true;
+	waveCounter := 0;
+	fish1 := 0;
+	Actions.ShowMsg(0, '5: Gold 30/15/0|6 Iron 15/8/0|7: Food 10/5/0|8: Barbarian only On/Off checked On unchecked off');
+	Actions.ShowMsg(0, 'Choose a option by clicking a road one one of the titles, Grass easy, Dirt normal, Snow hard|1: Enemy multiplier 1.1/1.3/1.5|2: Time first attack 30/60/80 minutes|3: Points of first attack 40/110/180|4: Coal 40/20/0');	
+end;
+
+Procedure setAtt();
+var x, y, xC, yC, xAB, yAB, xB, yB: Integer;
+var attPointsLeft: Single;
+begin
+	attPoints := attPoints * enemyMultiplier;
+	attPointsLeft := attPoints;
+	if(warriorB = false)
+	then begin
+// Makes an group of 15 Warriors and Barbarians
+		while attPointsLeft >= 180 do
+		begin
+			x	:= States.KaMRandomI(159);
+			y := States.KaMRandomI(40) + 135;
+			xB := States.KaMRandomI(159);
+			yB := States.KaMRandomI(40) + 135;
+			Actions.GiveGroup(4, 23, xB, yB, 0, 15, 5);	// 15 Barbarians
+			Actions.GiveGroup(4, 26, x, y, 0, 15, 5);	// 15 Warriors
+			attPointsLeft := attPointsLeft - 180;
+		end;
+		x	:= States.KaMRandomI(159);
+		y := States.KaMRandomI(40) + 135;
+		Actions.GiveGroup(4, 23, x, y, 0, Round(attPointsleft / 6), 5);	// Barbarians
+	end
+	else if(waveCounter <= 4)
+	then begin
+//  Makes an army when there are more than 20 attPointsLeft.
+		while attPointsLeft >= 20 do
+		begin
+			x	:= States.KaMRandomI(159);
+			y := States.KaMRandomI(40) + 135;
+			Actions.GiveGroup(4, 14, x, y, 0, 10, 5);	// 10 militia
+			Actions.GiveGroup(4, 25, x, y + 3, 0, 10, 5); // 10 rouge
+			attPointsLeft := attPointsLeft - 20;
+		end;
+// Makes an army when there are less then 20 attPointsLeft.
+		x	:= States.KaMRandomI(159);
+		y := States.KaMRandomI(40) + 135;
+		Actions.GiveGroup(4, 14, x, y, 0, Round(attPointsLeft * 0.6), 5); // militia
+		Actions.GiveGroup(4, 25, x, y + 3, 0, Round(attPointsLeft * 0.4), 5); // rouge
+	end
+	else if(waveCounter <= 9)
+	then begin
+//  Makes an army when there are more than 30 attPointsLeft.
+		while attPointsLeft >= 30 do
+		begin
+			x	:= States.KaMRandomI(159);
+			y := States.KaMRandomI(40) + 135;
+			Actions.GiveGroup(4, 19, x, y, 0, 10, 5); // 10 lance carrier
+			Actions.GiveGroup(4, 17, x, y + 3, 0, 5, 5); // 5 bowman
+			attPointsLeft := attPointsLeft - 30;
+		end;
+// Makes an army when there are less then 30 attPointsLeft.
+		x	:= States.KaMRandomI(159);
+		y := States.KaMRandomI(40) + 135;
+		Actions.GiveGroup(4, 19, x, y, 0, Round((attPointsLeft / 2) * 0.5), 5); // lance carrier
+		Actions.GiveGroup(4, 17, x, y + 3, 0, Round((attPointsLeft / 2) * 0.5), 5); // bowman
+	end
+	else if(waveCounter <= 14)
+	then begin
+//  Makes an army when there are more than 50 attPointsLeft.
+		while attPointsLeft >= 50 do
+		begin
+			xAB	:= States.KaMRandomI(159);
+			yAB := States.KaMRandomI(40) + 135;
+			x	:= States.KaMRandomI(159);
+			y := States.KaMRandomI(40) + 135;
+			Actions.GiveGroup(4, 15, xAB, yAB, 0, 10, 5); // 10 axe fighter
+			Actions.GiveGroup(4, 17, xAB, yAB + 3, 0, 10, 5); // 10 bowman
+			Actions.GiveGroup(4, 19, x, y, 0, 5, 5); // 5 lance carrier
+			attPointsLeft := attPointsLeft - 50;
+		end;
+// Makes an army when there are less then 50 attPointsLeft.
+		x	:= States.KaMRandomI(159);
+		y := States.KaMRandomI(40) + 135;
+		Actions.GiveGroup(4, 15, x, y, 0, Round((attPointsLeft / 2) * 0.6), 5); // axe fighter
+		Actions.GiveGroup(4, 17, x, y + 3, 0, Round((attPointsLeft / 2) * 0.4), 5); // bowman
+	end
+	else if (waveCounter <= 19)
+	then begin
+//  Makes an army when there are more than 65 attPointsLeft.
+		while attPointsLeft >= 65 do
+		begin
+			xAB	:= States.KaMRandomI(159);
+			yAB := States.KaMRandomI(40) + 135;
+			xC	:= States.KaMRandomI(159);
+			yC := States.KaMRandomI(40) + 135;
+			x	:= States.KaMRandomI(159);
+			y := States.KaMRandomI(40) + 135;
+			Actions.GiveGroup(4, 15, xAB, yAB, 0, 10, 5); // 10 axe fighter
+			Actions.GiveGroup(4, 17, xAB, yAB + 3, 0, 10, 5); // 10 bowman
+			Actions.GiveGroup(4, 21, xC, yC, 0, 5, 5); // 5 scout
+			Actions.GiveGroup(4, 19, x, y, 0, 5, 5); // 5 lance carrier
+			attPointsLeft := attPointsLeft - 65;
+		end;
+// Makes an army when there are less then 65 attPointsLeft.
+		x	:= States.KaMRandomI(159);
+		y := States.KaMRandomI(40) + 135;
+		Actions.GiveGroup(4, 16, x, y, 0, Round(attPointsLeft / 5), 5); // sword fighter
+	end
+	else if (waveCounter <= 24)
+	then begin
+//  Makes an army when there are more than 145 attPointsLeft.
+		while attPointsLeft >= 145 do
+		begin
+			xAB	:= States.KaMRandomI(159);
+			yAB := States.KaMRandomI(40) + 135;
+			xC	:= States.KaMRandomI(159);
+			yC := States.KaMRandomI(40) + 135;
+			x	:= States.KaMRandomI(159);
+			y := States.KaMRandomI(40) + 135;
+			Actions.GiveGroup(4, 16, xAB, yAB, 0, 15, 5); // 15 sword fighter
+			Actions.GiveGroup(4, 17, xAB, yAB + 3, 0, 10, 5); // 10 bowman
+			Actions.GiveGroup(4, 21, xC, yC, 0, 10, 5); // 10 scout
+			Actions.GiveGroup(4, 19, x, y, 0, 10, 5); // 10 lance carrier
+			attPointsLeft := attPointsLeft - 65;
+		end;
+// Makes an army when there are less then 145 attPointsLeft.
+		xB	:= States.KaMRandomI(159);
+		yB := States.KaMRandomI(40) + 135;
+		x	:= States.KaMRandomI(159);
+		y := States.KaMRandomI(40) + 135;
+		Actions.GiveGroup(4, 23, xB, yB, 0, Round((attPointsLeft * 0.5) / 6), 5); // barbarian
+		Actions.GiveGroup(4, 23, x, y, 0, Round((attPointsLeft * 0.5) / 6), 5); // barbarian
+	end
+	else if (waveCounter >= 25)
+	then begin
+//  Makes an army when there are more than 165 attPointsLeft.
+		while attPointsLeft >= 165 do
+		begin
+			xAB	:= States.KaMRandomI(159);
+			yAB := States.KaMRandomI(40) + 135;
+			xC	:= States.KaMRandomI(159);
+			yC := States.KaMRandomI(40) + 135;
+			x	:= States.KaMRandomI(159);
+			y := States.KaMRandomI(40) + 135;
+			Actions.GiveGroup(4, 16, xAB, yAB, 0, 15, 5); // 15 sword fighter
+			Actions.GiveGroup(4, 17, xAB, yAB + 3, 0, 20, 5); // 20 bowman
+			Actions.GiveGroup(4, 21, xC, yC, 0, 10, 5); // 10 scout
+			Actions.GiveGroup(4, 19, x, y, 0, 10, 5); // 10 lance carrier
+			attPointsLeft := attPointsLeft - 65;
+		end;
+// Makes an army when there are less then 165 attPointsLeft.
+		xB	:= States.KaMRandomI(159);
+		yB := States.KaMRandomI(40) + 135;
+		x	:= States.KaMRandomI(159);
+		y := States.KaMRandomI(40) + 135;
+		Actions.GiveGroup(4, 23, xB, yB, 0, Round((attPointsLeft * 0.5) / 6), 5); // barbarian
+		Actions.GiveGroup(4, 23, x, y, 0, Round((attPointsLeft * 0.5) / 6), 5); // barbarian
+	end;
+end;
+
+Procedure CheckRoad(xRoad: Integer; yRoad: Integer; xTitle: Integer; yTitle: Integer; bonus: Single; row: Integer; rowCheck: boolean);
+begin
+// Checks if you don't choose multiple option in one row.
+	if(rowCheck)
+	then begin
+// Checks if it is the right title.
+		if((xRoad = xTitle) and (yRoad = yTitle))
+		then begin
+			case row of
+// Sets the bonus.
+				1: begin enemyMultiplier := bonus; enemyMultiplierB := false;end;
+				2: begin attTime := Round(bonus); attTimeStats := Round(Bonus); attTimeB := false;end;
+				3: begin attPoints := Round(bonus); attPointsStats := Round(Bonus); attPointsB := false;end;
+				4: begin coal := Round(bonus); coalB := false;end;
+				5: begin gold := Round(bonus); goldB := false;end;
+				6: begin iron := Round(bonus); ironB := false;end;
+				7: begin food := Round(bonus); foodB := false;end;
+				8: begin warriorB := false;end;
+			end;
+		end;
+		if(gold > 0)
+		then begin
+			Actions.HouseUnlock(0, 15);
+		end;
+		if(iron > 0)
+		then begin
+			Actions.HouseUnlock(0, 1);
+		end;
+	end
+end;
+
+Procedure OnPlanRoadPlaced(aIndex: Integer; X: Integer; Y: Integer);
+begin
+	if(aIndex = 0)
+	then begin
+// Set enemy army multiplier.
+		CheckRoad(X, Y, 154, 1, 1.1, 1, enemyMultiplierB);
+		CheckRoad(X, Y, 156, 1, 1.3, 1, enemyMultiplierB);
+		CheckRoad(X, Y, 158, 1, 1.5, 1, enemyMultiplierB);
+// Set enemy initial attack time.
+		CheckRoad(X, Y, 154, 3, 48000, 2, attTimeB);
+		CheckRoad(X, Y, 156, 3, 36000, 2, attTimeB);
+		CheckRoad(X, Y, 158, 3, 18000, 2, attTimeB);
+// Set att points first wave.
+		CheckRoad(X, Y, 154, 5, 15, 3, attPointsB);
+		CheckRoad(X, Y, 156, 5, 30, 3, attPointsB);
+		CheckRoad(X, Y, 158, 5, 50, 3, attPointsB);
+// Set amount of coal per 10 minutes.
+		CheckRoad(X, Y, 154, 7, 40, 4, coalB);
+		CheckRoad(X, Y, 156, 7, 20, 4, coalB);
+		CheckRoad(X, Y, 158, 7, 0, 4, coalB);
+// Set amount of gold ore per 10 minutes.
+		CheckRoad(X, Y, 154, 9, 30, 5, goldB);
+		CheckRoad(X, Y, 156, 9, 15, 5, goldB);
+		CheckRoad(X, Y, 158, 9, 0, 5, goldB);
+// Set amount of iron ore per 10 minutes.
+		CheckRoad(X, Y, 154, 11, 15, 6, ironB);
+		CheckRoad(X, Y, 156, 11, 8, 6, ironB);
+		CheckRoad(X, Y, 158, 11, 0, 6, ironB);
+// Set amount of food of each type per 10 minutes.
+		CheckRoad(X, Y, 154, 13, 10, 7, foodB);
+		CheckRoad(X, Y, 156, 13, 5, 7, foodB);
+		CheckRoad(X, Y, 158, 13, 0, 7, foodB);
+// Set militia only
+		CheckRoad(X, Y, 158, 15, 0, 8, warriorB);
+	end;
+end;
+
+Procedure OnTick;
+var idStorehouse, attTimeDiv: Integer;
+begin	
+	if(States.GameTime < attTime)
+	then begin
+		attTimeDiv := attTime - States.GameTime;		
+	end
+	else
+	begin
+		attTime := attTime + 6000;
+		waveCounter := waveCounter + 1;
+		setAtt();	
+	end;
+	
+	if(warriorB = false)
+	then begin
+		warriorS := 'On';
+	end
+	else
+	begin
+		warriorS := 'Off';
+	end;
+	
+// Shows stats.																																																																						// Andreus time system from ZA/Invasion
+	Actions.OverlayTextSet(-1, 'Attack points enemy army: ' + IntToStr(Round(attPoints)) + '|Wave: ' + IntToStr(waveCounter) + '|Time until next attack: ' + IntToStr((attTimeDiv DIV 36000)) + ' ' + IntToStr((attTimeDiv DIV 600)-60*(attTimeDiv DIV 36000)) + ' ' + IntToStr((attTimeDiv DIV 10)-60*(attTimeDiv DIV 600))
+	+ '||Chosen options:' + '|Enemy multiplier: ' + FloatToStr(enemyMultiplier) + '|First attack after: ' + IntToStr(attTimeStats / 600) + ' Minutes' + '|Attack points first wave: ' 
+	+ IntToStr(Round(attPointsStats)) + '|Coal bonus: ' + IntToStr(coal) + '|Gold bonus: ' + IntToStr(gold) + '|Iron bonus: ' + IntToStr(iron) + '|Food bonus: ' + IntToStr(food) + '|Barbarian only: ' + warriorS);
+
+// Gives a warning if you didn't choose one option in every row.
+	if((States.GameTime = 600) and (enemyMultiplierB or attTimeB or attPointsB or goldB or coalB or ironB or foodB))
+	then begin
+		Actions.ShowMsg(0, 'You need to choose one option in every row.');
+	end;
+
+// Gives the chosen bonuses.
+	if(States.GameTime MOD 6000 = 0)
+	then begin
+// Player 1
+		Actions.GiveWares(0, 5, coal);
+		Actions.GiveWares(0, 4, gold);
+		Actions.GiveWares(0, 3, iron);
+		Actions.GiveWares(0, 8, food);
+		Actions.GiveWares(0, 10, food);
+		Actions.GiveWares(0, 13, food);
+		Actions.GiveWares(0, 27, food);
+// Gives fish to the pool, not a bonus that you can choose.
+	end;
+	if(States.GameTime MOD 1200 = 0)
+	then begin
+		if(fish1 = 0)
+		then begin
+			Actions.GiveAnimal(31, 24, 59);
+			fish1 := 1;
+		end
+		else if(fish1 = 1)
+		then begin
+			Actions.GiveAnimal(31, 46, 56);
+			fish1 := 2;
+		end
+		else if(fish1 = 2)
+		then begin
+			Actions.GiveAnimal(31, 51, 88);
+			fish1 := 3;
+		end
+		else if(fish1 = 3)
+		then begin
+			Actions.GiveAnimal(31, 7, 74);
+			fish1 := 4;
+		end
+		else
+		begin
+			Actions.GiveAnimal(31, 89, 9);
+			fish1 := 0;
+		end;
+	end;
+end;
