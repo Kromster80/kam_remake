@@ -121,8 +121,6 @@ type
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
-    DrawOutline: Boolean;
-    OutlineColor: Cardinal;
 
     Tag: Integer; //Some tag which can be used for various needs
     Hint: UnicodeString; //Text that shows up when cursor is over that control, mainly for Buttons
@@ -418,6 +416,8 @@ type
     ReadOnly: Boolean;
     ShowColors: Boolean;
     MaxLen: Word;
+    DrawOutline: Boolean;
+    OutlineColor: Cardinal;
     OnChange: TNotifyEvent;
     OnKeyDown: TNotifyEventKey;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
@@ -1299,18 +1299,11 @@ var
 begin
   Inc(CtrlPaintCount);
 
-  if DrawOutline then
-  begin
-    TKMRenderUI.WriteShape(AbsLeft-1, AbsTop-1, Width+2, Height+2, $00000000, OutlineColor);
-    TKMRenderUI.WriteShape(AbsLeft-2, AbsTop-2, Width+4, Height+4, $00000000, OutlineColor);
-  end;
-
   if SHOW_CONTROLS_FOCUS and (csFocus in State) then
   begin
     TKMRenderUI.WriteShape(AbsLeft-1, AbsTop-1, Width+2, Height+2, $00000000, $FF00D0FF);
     TKMRenderUI.WriteShape(AbsLeft-2, AbsTop-2, Width+4, Height+4, $00000000, $FF00D0FF);
   end;
-
 
   if not SHOW_CONTROLS_OVERLAY then exit;
 
@@ -2405,6 +2398,13 @@ var
   OffX: Integer;
 begin
   inherited;
+
+  if DrawOutline then
+  begin
+    TKMRenderUI.WriteShape(AbsLeft-1, AbsTop-1, Width+2, Height+2, $00000000, OutlineColor);
+    TKMRenderUI.WriteShape(AbsLeft-2, AbsTop-2, Width+4, Height+4, $00000000, OutlineColor);
+  end;
+
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
