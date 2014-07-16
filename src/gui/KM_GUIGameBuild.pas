@@ -35,7 +35,8 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_GameCursor, KM_HandsCollection, KM_ResTexts, KM_Resource, KM_ResFonts;
+uses KM_RenderUI, KM_GameCursor, KM_HandsCollection, KM_ResTexts, KM_Resource, KM_ResFonts,
+  KM_Hand;
 
 
 { TKMGUIGameBuild }

@@ -29,7 +29,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_GameCursor, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts,
-  KM_InterfaceGame, KM_ResUnits;
+  KM_InterfaceGame, KM_ResUnits, KM_Hand;
 
 
 { TKMMapEdTownUnits }

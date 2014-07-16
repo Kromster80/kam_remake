@@ -29,7 +29,8 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_ResUnits, KM_RenderUI, KM_ResFonts, KM_Resource, KM_Defaults, KM_HandStats;
+  KM_HandsCollection, KM_ResTexts, KM_ResUnits, KM_RenderUI, KM_ResFonts, KM_Resource, KM_Defaults,
+  KM_HandStats, KM_Hand;
 
 
 { TKMMapEdPlayerBlockUnit }

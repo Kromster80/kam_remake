@@ -25,7 +25,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts,
+  KM_HandsCollection, KM_ResTexts, KM_Hand,
   KM_Resource, KM_ResHouses, KM_RenderUI, KM_ResFonts;
 
 
