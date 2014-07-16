@@ -115,7 +115,7 @@
 114:Missie beëindigen
 115:Terug
 116:Instellingen
-117:Kaartbewerker afsluiten
+117:Afsluiten
 118:Geluiden
 119:Volume wijzigen
 120:Volume wijzigen
@@ -379,12 +379,12 @@
 381:Cirkelvormige borstel
 382:Vierkante borstel
 383:Verhogen / Verlagen
-384:Ongelijk maken / Plat maken
+384:Ongelijk- / Platmaken
 385:Verhogen (linkermuisknop) / Verlagen (rechtermuisknop)
 386:Ongelijf maken (linkermuisknop) / Plat maken (rechtermuisknop)
 387:Borstel
-388:Willekeurige elementen
-389:Willekeurige richting
+388:Willek. elementen
+389:Willek. richting
 390:Vink aan voor willekeurige tegelrichting of gebruik de rechtermuisknop om de geselecteerde tegel te draaien
 392:Blokkeer lopen
 393:Voorwerp verwijderen
@@ -393,12 +393,12 @@
 396:Globale scripts
 397:Menu
 398:Voorwerpen
-399:Aantallen weergeven
-400:Eenheden weergeven
-401:Gebouwen weergeven
-402:Voorwerpen weergeven
+399:Aantallen tonen
+400:Eenheden tonen
+401:Gebouwen tonen
+402:Voorwerpen tonen
 403:Doorgang weergeven
-404:Niet opgeslagen|wijzigingen zullen verloren gaan
+404:Niet opgeslagen|wijzigingen zullen|verloren gaan
 405:Annuleren
 406:Laden
 407:Kaart laden
@@ -417,11 +417,11 @@
 420:Spring naar locatie
 421:Scherm centreren bij start missie
 422:Scherm centreren
-423:Alles onthullen
+423:Onthul alles
 424:Een deel van de kaart onthullen
 425:Mist onthullen
 426:Handelen blokkeren
-427:Gebouwen blokkeren/ontgrendelen
+427:Blokkeren/ontgrendelen
 428:Kleuren
 429:Doel
 432:Speler
@@ -450,7 +450,7 @@
 455:Hoeveel soldaten de AI tegelijk kan hebben
 456:Zet max. soldaten
 457:Hoeveel recruten de AI in de Kazerne zou moeten hebben
-458:Recruten per Kazerne
+458:Recruten / kazerne
 460:Handmatige positie
 463:Dichtstbijzijnde eenheid
 465:Aantal groepen
@@ -468,8 +468,8 @@
 478:Type
 479:Autoaanvallen
 480:AI aanvallen
-481:Uitrustingsratio leer
-482:Uitrustingsratio ijzer
+481:Trainratio leer
+482:Trainratio ijzer
 483:Autoverdediging
 484:AI creëert en beheert verdedigingsposities automatisch
 485:Plaats verdedigingspositie voor AI
@@ -481,8 +481,8 @@
 491:AI instellingen
 492:Gebouwen
 493:Straten
-494:Selectie verticaal spiegelen
-495:Selectie horizontaal spiegelen
+494:Selectie verticaal kantelen
+495:Selectie horizontaal kantelen
 496:Terrein plakken
 497:Terrein kopiëren
 498:Kopiëren/plakken
@@ -542,6 +542,7 @@
 552:Omschrijving
 553:Wachtwoord
 554:Kamerinstellingen
+556:Uit deze lobby verbannen
 557:Kick
 558:Willekeurige locaties binnen teams
 559:Omschrijving
@@ -655,15 +656,15 @@
 667:Een ogenblik geduld...
 668:Kaart opslaan
 669:Vertraging in minuten voordat de AI rekruten gaat trainen
-670:Rekruteringsvertraging (min.)
+670:Trainingsvertraging
 671:Zet de richting voor alle tegels in een waterlichaam
 672:Magisch water
 673:Kopiëren
 674:Plakken
 675:Plakken toepassen
 676:Plakken annuleren
-677:Verticaal spiegelen
-678:Horizontaal spiegelen
+677:Vert. kantelen
+678:Horiz. kantelen
 679:Sleep om een gebied op de kaart te selecteren
 680:AI verdedigingsopties
 681:Uit
@@ -681,3 +682,99 @@
 695:Terug naar de verdedigingspagina
 696:Verdedigingspositie
 697:Eenheden
+698:Wolf
+699:Vis
+700:Waterslang
+701:Zeester
+702:Krab
+703:Waterbloem
+704:Waterlely
+705:Eend
+706:Dit type soldaat is niet beschikbaar
+707:Dit type eenheid is niet beschikbaar
+708:Eenheden blokkeren
+736:Downloaden
+737:Downloaden...
+738:Bestanden overschijven
+739:%s verloor de verbinding
+740:%s is gestopt
+741:%s is weer verbonden
+742:Kan niet deelnemen terwijl het spel aan de gang is
+743:Kamer is vol. Er kunnen geen spelers meer deelnemen
+744:Een speler met dezelfde naam is al aanwezig
+746:Fout: %s heeft andere databestanden dan de host en kan daarom niet deelnemen aan dit spel
+747:Je databestanden komen niet overeen met de host
+748:Hostrechten toegewezen aan %s
+749:%s heeft een andere versie van %s
+750:%s heeft %s niet
+751:Query timed out
+752:De host heeft %s verwijderd van het spel
+753:%s werd gekickt door de host
+754:Poging tot herverbinden...
+755:%s is binnengekomen
+756:Herverbinden mislukt: %s
+757:De host heeft besloten om zonder jou verder te spelen :(
+758:Verbinding verbroken door de server: timeout gedetecteerd
+759:Je bent gekickt door de host
+760:Server reageert niet meer
+761:Ongeldig kamernummer
+765:Fluister naar %s
+766:%s is verbannen van deze lobby door de host
+767:Je bent verbannen door de host
+768:Alle bans resetten
+769:De host heeft alle bans gereset voor deze lobby
+770:Datum
+771:Mist weergeven
+772:Toeschouwen
+773:Toeschouwer
+774:Bereik autoaanvallen
+775:AI groepen vallen automatisch aan als je dichterbij bent dan dit aantal tegels
+776:Verdedig bondg.
+777:Indien ingeschakeld zal de AI gebouwen en eenheden van bondgenoten verdedigen
+778:Toeschouwers toestaan
+779:Promoveren tot host
+780:Toeschouwers
+781:Kan toeschouwers niet uitschakelen: er mogen geen toeschouwers in de lijst staan
+782:Herhalen
+783:Ongedaan maken
+784:Bepaalt de AI startpositie welke gebruikt wordt voor AI aanvallen
+785:AI startpositie
+786:Volgorde
+788:Initiele vertraging
+790:Dichtstbijzijnde huis bij leger
+791:Dichtstbijzijnde huis bij startpositie
+792:Aanvallers
+793:Verdedigers
+794:Toeschouwers
+795:Om een eerder vrijgespeelde missie te spelen, klik je op de missievlag op de kaart tijdens de briefing.
+796:%s heeft gestemd om terug te keren naar de lobby (nog %s stemmen nodig)
+797:Stem om terug naar de lobby te gaan. Het spel kan dan hervat of aangepast worden.
+798:Stem 'terug naar lobby'
+799:%s heeft gestemd om terug te keren naar de lobby (stemmen aangenomen)
+800:Het stemmen om terug te keren naar de lobby is mislukt
+801:Het verwijderen van een herhaling verwijderd ook het bijbehorende opgeslagen spel. Weet je zeker dat je dit spel wil verwijderen?
+802:Willekeurig kiezen
+803:Aantal soldaten om aan te vallen
+804:Herhaling verwijderen
+805:Kaart verwijderen
+806:Weet je zeker dat je deze kaart wil verwijderen?
+807:Gescripte overlay verbergen
+808:Gescripte overlay tonen
+809:Je kunt niet van host veranderen als de server in je spel draait
+810:AI maakt en beheert aanvallen automatisch
+811:Snel trainen
+812:Soldaten worden zo snel mogelijk getraind. Trainingsratio heeft nog steeds invloed op stadsplanning
+813:AI standaardwaarden
+814:Multiplayer bouwer
+815:Past aggressieve AI bouwinstellingen toe op alle spelers (voor alle multiplayer bouwkaarten)
+816:Let op: dit zal alle AI instellingen voor alle spelers overrulen. Doorgaan?
+817:Type leger
+818:IJzer, dan leer
+819:IJzer
+820:Leer
+821:Gevarieerd
+822:Gedownloade kaarten
+823:Naar multiplayerkaarten verplaatsen
+824:Verplaatsen
+825:Readme PDF openen
+826:PDF openen mislukt
