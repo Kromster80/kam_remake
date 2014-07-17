@@ -1,0 +1,5 @@
+SmallDesc
+Original Knights and Merchants map
+
+BigDesc
+Pursue your enemies across the wide open desert.||Warning: This map is challenging. The AI enemies are strong.||Original map from Knights and Merchants The Peasants Rebellion

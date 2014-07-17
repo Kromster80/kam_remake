@@ -1,0 +1,31 @@
+const LOC_COUNT = 4;
+var SOLDIERS: array[0..LOC_COUNT-1] of record X, Y: Integer; end;
+
+procedure OnMissionStart;
+var I, K: Integer;
+begin
+  with SOLDIERS[0] do begin X:=31 ; Y:=158; end;
+  with SOLDIERS[1] do begin X:=125; Y:=159; end;
+  with SOLDIERS[2] do begin X:=111; Y:=25 ; end;
+  with SOLDIERS[3] do begin X:=59 ; Y:=42 ; end;
+  
+  for I:=0 to LOC_COUNT-1 do
+    if States.PlayerIsAI(I) then
+    begin
+      //Add soldiers
+      Actions.GiveGroup(I, 15, SOLDIERS[I].X, SOLDIERS[I].Y+0, 0, 4, 4);
+      Actions.GiveGroup(I, 15, SOLDIERS[I].X, SOLDIERS[I].Y+1, 0, 4, 4);
+      Actions.GiveGroup(I, 15, SOLDIERS[I].X, SOLDIERS[I].Y+2, 0, 4, 4);
+      Actions.GiveGroup(I, 17, SOLDIERS[I].X, SOLDIERS[I].Y+3, 0, 4, 4);
+      Actions.GiveGroup(I, 17, SOLDIERS[I].X, SOLDIERS[I].Y+4, 0, 4, 4);
+      Actions.GiveGroup(I, 19, SOLDIERS[I].X, SOLDIERS[I].Y+5, 0, 4, 4);
+      Actions.GiveGroup(I, 19, SOLDIERS[I].X, SOLDIERS[I].Y+6, 0, 4, 4);
+      //Ally with other AIs
+      for K:=0 to LOC_COUNT-1 do
+        if States.PlayerIsAI(K) then
+          Actions.PlayerAllianceChange(I, K, True, True);
+    end
+    else
+      //Human gets a scout
+      Actions.GiveGroup(I, 21, SOLDIERS[I].X, SOLDIERS[I].Y, 2, 1, 1);
+end;
