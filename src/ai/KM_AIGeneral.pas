@@ -625,7 +625,8 @@ procedure TKMGeneral.UpdateState(aTick: Cardinal);
 begin
   //Update defence positions locations
   if fSetup.AutoDefend then
-    if (aTick + Byte(fOwner)) mod (MAX_HANDS * 120) = 0 then
+    //Checking mod result against MAX_HANDS causes first update to happen ASAP
+    if (aTick + Byte(fOwner)) mod (MAX_HANDS * 120) = MAX_HANDS then
       CheckAutoDefend;
 
   //See if we can launch an attack
