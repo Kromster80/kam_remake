@@ -12,6 +12,7 @@ type
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
+    fMapsDL: TKMapsCollection;
 
     procedure Menu_LoadClick(Sender: TObject);
     procedure Menu_LoadChange(Sender: TObject);
@@ -49,20 +50,22 @@ begin
 
   fMaps := TKMapsCollection.Create(mfSP);
   fMapsMP := TKMapsCollection.Create(mfMP);
+  fMapsDL := TKMapsCollection.Create(mfDL);
 
   Panel_Load := TKMPanel.Create(aParent,0,45,TB_WIDTH,400);
   TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], fnt_Outline, taLeft);
   TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 38);
-  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,35,fnt_Grey);
+  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,54,fnt_Grey);
   Radio_Load_MapType.ItemIndex := 0;
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
+  Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_DLMAPS]);
   Radio_Load_MapType.OnChange := Menu_LoadChange;
-  ListBox_Load := TKMListBox.Create(Panel_Load, 0, 85, TB_WIDTH, 205, fnt_Grey, bsGame);
+  ListBox_Load := TKMListBox.Create(Panel_Load, 0, 104, TB_WIDTH, 205, fnt_Grey, bsGame);
   ListBox_Load.ItemHeight := 18;
   ListBox_Load.AutoHideScrollBar := True;
-  Button_LoadLoad     := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD],bsGame);
-  Button_LoadCancel   := TKMButton.Create(Panel_Load,0,335,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
+  Button_LoadLoad     := TKMButton.Create(Panel_Load,0,318,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD],bsGame);
+  Button_LoadCancel   := TKMButton.Create(Panel_Load,0,354,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
   Button_LoadLoad.OnClick     := Menu_LoadClick;
   Button_LoadCancel.OnClick   := Menu_LoadClick;
 end;
@@ -72,6 +75,7 @@ destructor TKMMapEdMenuLoad.Destroy;
 begin
   fMaps.Free;
   fMapsMP.Free;
+  fMapsDL.Free;
 
   inherited;
 end;
@@ -88,8 +92,8 @@ begin
     if ListBox_Load.ItemIndex = -1 then Exit;
 
     MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
-    IsMulti := Radio_Load_MapType.ItemIndex = 1;
-    fGameApp.NewMapEditor(TKMapsCollection.FullPath(MapName, '.dat', IsMulti), 0, 0);
+    IsMulti := Radio_Load_MapType.ItemIndex <> 0;
+    fGameApp.NewMapEditor(TKMapsCollection.FullPath(MapName, '.dat', TMapFolder(Radio_Load_MapType.ItemIndex)), 0, 0);
 
     //Keep MP/SP selected in the map editor interface
     //(if mission failed to load we would have fGame = nil)
@@ -112,14 +116,17 @@ procedure TKMMapEdMenuLoad.Menu_LoadUpdate;
 begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
+  fMapsDL.TerminateScan;
 
   ListBox_Load.Clear;
   ListBox_Load.ItemIndex := -1;
 
-  if Radio_Load_MapType.ItemIndex = 0 then
-    fMaps.Refresh(Menu_LoadUpdateDone)
-  else
-    fMapsMP.Refresh(Menu_LoadUpdateDone);
+  case Radio_Load_MapType.ItemIndex of
+    0: fMaps.Refresh(Menu_LoadUpdateDone);
+    1: fMapsMP.Refresh(Menu_LoadUpdateDone);
+    2: fMapsDL.Refresh(Menu_LoadUpdateDone)
+    else Exit;
+  end;
 end;
 
 
@@ -130,10 +137,12 @@ var
   PrevTop: Integer;
   M: TKMapsCollection;
 begin
-  if Radio_Load_MapType.ItemIndex = 0 then
-    M := fMaps
-  else
-    M := fMapsMP;
+  case Radio_Load_MapType.ItemIndex of
+    0: M := fMaps;
+    1: M := fMapsMP;
+    2: M := fMapsDL
+    else Exit;
+  end;
 
   //Remember previous map
   if ListBox_Load.ItemIndex <> -1 then
@@ -164,6 +173,7 @@ procedure TKMMapEdMenuLoad.Hide;
 begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
+  fMapsDL.TerminateScan;
   Panel_Load.Hide;
 end;
 
@@ -179,6 +189,7 @@ procedure TKMMapEdMenuLoad.UpdateState;
 begin
   if fMaps <> nil then fMaps.UpdateState;
   if fMapsMP <> nil then fMapsMP.UpdateState;
+  if fMapsDL <> nil then fMapsDL.UpdateState;
 end;
 
 
