@@ -1,0 +1,103 @@
+procedure AutoFeed;
+var
+  I, K: Integer;
+  UnitsToFeed: array of Integer;
+begin
+  for I := 0 to 7 do
+    if States.PlayerEnabled(I) then
+    begin
+      UnitsToFeed := States.PlayerGetAllUnits(I);
+      for K := 0 to Length(UnitsToFeed) - 1 do
+        Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+    end;
+end;
+
+
+procedure OnMissionStart;
+var
+  G, I: Integer;
+begin
+
+//Prisoners mode
+
+  if (States.PlayerEnabled(3)
+  and States.PlayerEnabled(1))
+  and (not States.PlayerAllianceCheck(3, 1)) then
+  begin
+    Actions.GiveGroup(1, 15, 47, 23, 0, 12, 6);
+    Actions.GiveGroup(1, 19, 53, 23, 0, 8, 4);
+    Actions.GiveGroup(1, 17, 57, 23, 0, 9, 3);  
+    Actions.GiveGroup(1, 20, 62, 23, 0, 12, 4);
+    Actions.GiveGroup(1, 22, 67, 23, 0, 8, 4);
+    Actions.GiveGroup(3, 17, 53, 5, 4, 6, 3);
+    Actions.GiveGroup(3, 18, 60, 5, 4, 6, 3);
+  end;
+
+  if (States.PlayerEnabled(7)
+  and States.PlayerEnabled(5))
+  and (not States.PlayerAllianceCheck(7, 5)) then
+  begin
+    Actions.GiveGroup(5, 15, 47, 84, 4, 12, 6);
+    Actions.GiveGroup(5, 19, 53, 84, 4, 8, 4);
+    Actions.GiveGroup(5, 17, 58, 84, 4, 9, 3);  
+    Actions.GiveGroup(5, 20, 62, 84, 4, 12, 4);
+    Actions.GiveGroup(5, 22, 67, 84, 4, 8, 4);
+    Actions.GiveGroup(7, 17, 53, 107, 0, 6, 3);
+    Actions.GiveGroup(7, 18, 60, 107, 0, 6, 3);
+  end;
+
+//Normal mode
+
+  if (States.PlayerEnabled(3)
+  and States.PlayerEnabled(1))
+  and (States.PlayerAllianceCheck(3, 1)) then
+  begin
+    G := Actions.GiveGroup(3, 24, 45, 8, 4, 6, 6);
+    Actions.GroupOrderLink(G, States.GroupAt(45, 10));
+    G := Actions.GiveGroup(3, 22, 56, 8, 4, 4, 4);
+    Actions.GroupOrderLink(G, States.GroupAt(56, 10));
+    G := Actions.GiveGroup(3, 14, 68, 8, 4, 6, 6);
+    Actions.GroupOrderLink(G, States.GroupAt(68, 10));  
+  end;
+
+  if (States.PlayerEnabled(7)
+  and States.PlayerEnabled(5))
+  and (States.PlayerAllianceCheck(7, 5)) then
+  begin
+    G := Actions.GiveGroup(7, 24, 47, 103, 0, 6, 6);
+    Actions.GroupOrderLink(G, States.GroupAt(47, 101));
+    G := Actions.GiveGroup(7, 22, 57, 104, 0, 4, 4);
+    Actions.GroupOrderLink(G, States.GroupAt(57, 102));
+    G := Actions.GiveGroup(7, 14, 66, 104, 0, 6, 6); 
+    Actions.GroupOrderLink(G, States.GroupAt(66, 102)); 
+  end;
+
+  AutoFeed;
+
+//Sounds
+
+  Actions.PlayWavAtLocationLooped(-1, 'Small Fall', 1.5, 30, 28, 10);
+  Actions.PlayWavAtLocationLooped(-1, 'Waterfall Creek', 2, 60, 22, 10);
+  Actions.PlayWavAtLocationLooped(-1, 'Fall', 2, 70, 90, 11);
+  Actions.PlayWavAtLocationLooped(-1, 'Waterfall Creek', 1.8, 30, 100, 13);
+  Actions.PlayWavAtLocationLooped(-1, 'Waterfall Creek', 2, 65, 93, 94);
+  Actions.PlayWavAtLocationLooped(-1, 'Small Fall', 1.6, 30, 82, 92);
+  Actions.PlayWavAtLocationLooped(-1, 'Waterfall Creek', 1.6, 70, 26, 89);
+  Actions.PlayWavAtLocationLooped(-1, 'Fall', 1.8, 30, 20, 106);
+
+//Reveal waterfalls for all players
+
+  for I := 0 to 7 do
+    if States.PlayerEnabled(I) then
+    begin
+      Actions.FogRevealCircle(I, 14, 1, 18);
+      Actions.FogRevealCircle(I, 22, 4, 15);
+      Actions.FogRevealCircle(I, 92, 5, 15);
+      Actions.FogRevealCircle(I, 100, 1, 19);
+      Actions.FogRevealCircle(I, 111, 106, 23);
+      Actions.FogRevealCircle(I, 98, 106, 23);
+      Actions.FogRevealCircle(I, 1, 111, 23);
+      Actions.FogRevealCircle(I, 15, 111, 23);
+      Actions.FogRevealCircle(I, 25, 95, 7);
+    end;
+end;

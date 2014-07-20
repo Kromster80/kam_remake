@@ -1,0 +1,4 @@
+procedure OnMissionStart;
+begin
+  Actions.PlayWAVLooped(-1, 'ColdWind', 1);
+end;
