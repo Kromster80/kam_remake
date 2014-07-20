@@ -1193,12 +1193,12 @@ begin
       if H is TKMHouseBarracks then
         Result := TKMHouseBarracks(H).RallyPoint.X
       else
-        LogError('States.PlayerRallyPointX: Specified house is not Barracks', [aBarracks]);
+        LogError('States.RallyPointX: Specified house is not Barracks', [aBarracks]);
   end
   else
   begin
     Result := 0;
-    LogError('States.PlayerRallyPointX', [aBarracks]);
+    LogError('States.RallyPointX', [aBarracks]);
   end;
 end;
 
@@ -1214,12 +1214,12 @@ begin
       if H is TKMHouseBarracks then
         Result := TKMHouseBarracks(H).RallyPoint.Y
       else
-        LogError('States.PlayerRallyPointY: Specified house is not Barracks', [aBarracks]);
+        LogError('States.RallyPointY: Specified house is not Barracks', [aBarracks]);
   end
   else
   begin
     Result := 0;
-    LogError('States.PlayerRallyPointY', [aBarracks]);
+    LogError('States.RallyPointY', [aBarracks]);
   end;
 end;
 
@@ -1287,7 +1287,7 @@ begin
       Result := H.GetEntrance.X;
   end
   else
-    LogError('States.HouseX', [aHouseID]);
+    LogError('States.HousePositionX', [aHouseID]);
 end;
 
 
@@ -1303,7 +1303,7 @@ begin
       Result := H.GetEntrance.Y;
   end
   else
-    LogError('States.HouseY', [aHouseID]);
+    LogError('States.HousePositionY', [aHouseID]);
 end;
 
 
@@ -1774,7 +1774,7 @@ begin
       Result := U.GetPosition.X;
   end
   else
-    LogError('States.UnitX', [aUnitID]);
+    LogError('States.UnitPositionX', [aUnitID]);
 end;
 
 
@@ -1790,7 +1790,7 @@ begin
       Result := U.GetPosition.Y;
   end
   else
-    LogError('States.UnitY', [aUnitID]);
+    LogError('States.UnitPositionY', [aUnitID]);
 end;
 
 
