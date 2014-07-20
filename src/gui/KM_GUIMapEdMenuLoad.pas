@@ -54,7 +54,7 @@ begin
 
   Panel_Load := TKMPanel.Create(aParent,0,45,TB_WIDTH,400);
   TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], fnt_Outline, taLeft);
-  TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 38);
+  TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 57);
   Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,54,fnt_Grey);
   Radio_Load_MapType.ItemIndex := 0;
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
