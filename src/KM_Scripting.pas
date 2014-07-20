@@ -160,6 +160,7 @@ begin
       RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
       RegisterMethod('function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
+      RegisterMethod('function HouseSiteIsDigged(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseTypeName(aHouseType: Byte): AnsiString');
       RegisterMethod('function HouseUnlocked(aPlayer, aHouseType: Word): Boolean');
@@ -182,6 +183,9 @@ begin
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
+
+      RegisterMethod('function RallyPointX(aBarracks: Integer): Integer');
+      RegisterMethod('function RallyPointY(aBarracks: Integer): Integer');
 
       RegisterMethod('function StatAIDefencePositionsCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
@@ -273,6 +277,7 @@ begin
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
 
+      RegisterMethod('procedure HouseAddBuildingMaterials(aHouseID: Integer)');
       RegisterMethod('procedure HouseAddBuildingProgress(aHouseID: Integer)');
       RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
       RegisterMethod('procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
@@ -304,7 +309,7 @@ begin
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  PlanconnectRoad(aPlayer, X1, Y1, X2, Y2: Integer): Boolean');
+      RegisterMethod('function  PlanconnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean');
       RegisterMethod('function  PlanRemove(aPlayer, X, Y: Word): Boolean');
 
       RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
@@ -529,10 +534,11 @@ begin
       RegisterMethod(@TKMScriptStates.HouseResourceAmount,     'HOUSERESOURCEAMOUNT');
       RegisterMethod(@TKMScriptStates.HouseType,               'HOUSETYPE');
       RegisterMethod(@TKMScriptStates.HouseTypeName,           'HOUSETYPENAME');
+      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,        'HOUSESCHOOLQUEUE');
+      RegisterMethod(@TKMScriptStates.HouseSiteIsDigged,       'HOUSESITEISDIGGED');
       RegisterMethod(@TKMScriptStates.HouseUnlocked,           'HOUSEUNLOCKED');
       RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
       RegisterMethod(@TKMScriptStates.HouseWareBlocked,        'HOUSEWAREBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,        'HOUSESCHOOLQUEUE');
       RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,     'HOUSEWEAPONSORDERED');
 
       RegisterMethod(@TKMScriptStates.IsFieldAt,            'ISFIELDAT');
@@ -550,6 +556,9 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerName,             'PLAYERNAME');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,       'PLAYERVICTORIOUS');
       RegisterMethod(@TKMScriptStates.PlayerWareDistribution, 'PLAYERWAREDISTRIBUTION');
+
+      RegisterMethod(@TKMScriptStates.RallyPointX,            'RALLYPOINTX');
+      RegisterMethod(@TKMScriptStates.RallyPointY,            'RALLYPOINTY');
 
       RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount,              'STATAIDEFENCEPOSITIONSCOUNT');
       RegisterMethod(@TKMScriptStates.StatArmyCount,                            'STATARMYCOUNT');
@@ -640,6 +649,7 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderWalk,            'GROUPORDERWALK');
       RegisterMethod(@TKMScriptActions.GroupSetFormation,         'GROUPSETFORMATION');
 
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterials,     'HOUSEADDBUILDINGMATERIALS');
       RegisterMethod(@TKMScriptActions.HouseAddBuildingProgress,      'HOUSEADDBUILDINGPROGRESS');
       RegisterMethod(@TKMScriptActions.HouseAddDamage,                'HOUSEADDDAMAGE');
       RegisterMethod(@TKMScriptActions.HouseAddRepair,                'HOUSEADDREPAIR');

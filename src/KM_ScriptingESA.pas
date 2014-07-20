@@ -123,6 +123,7 @@ type
     function HouseRepair(aHouseID: Integer): Boolean;
     function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
     function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
+    function HouseSiteIsDigged(aHouseID: Integer): Boolean;
     function HouseType(aHouseID: Integer): Integer;
     function HouseTypeName(aHouseType: Byte): AnsiString;
     function HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
@@ -144,6 +145,7 @@ type
     function PeaceTime: Cardinal;
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
+    function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
@@ -151,9 +153,11 @@ type
     function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
     function PlayerIsAI(aPlayer: Byte): Boolean;
     function PlayerName(aPlayer: Byte): AnsiString;
-    function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
     function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
+
+    function RallyPointX(aBarracks: Integer): Integer;
+    function RallyPointY(aBarracks: Integer): Integer;
 
     function StatAIDefencePositionsCount(aPlayer: Byte): Integer;
     function StatArmyCount(aPlayer: Byte): Integer;
@@ -251,6 +255,7 @@ type
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
 
+    procedure HouseAddBuildingMaterials(aHouseID: Integer);
     procedure HouseAddBuildingProgress(aHouseID: Integer);
     procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
     procedure HouseAddRepair(aHouseID: Integer; aRepair: Word);
@@ -283,7 +288,7 @@ type
     function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
     function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
     function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
-    function PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer): Boolean;
+    function PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean;
     function PlanRemove(aPlayer, X, Y: Word): Boolean;
 
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
@@ -1141,18 +1146,6 @@ begin
 end;
 
 
-function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
-begin
-  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-    Result := AnsiString(gHands[aPlayer].OwnerName)
-  else
-  begin
-    Result := '';
-    LogError('States.PlayerName', [aPlayer]);
-  end;
-end;
-
-
 function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
@@ -1173,6 +1166,60 @@ begin
   begin
     Result := False;
     LogError('States.PlayerEnabled', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+    Result := AnsiString(gHands[aPlayer].OwnerName)
+  else
+  begin
+    Result := '';
+    LogError('States.PlayerName', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.RallyPointX(aBarracks: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  if aBarracks > 0 then
+  begin
+    H := fIDCache.GetHouse(aBarracks);
+    if H <> nil then
+      if H is TKMHouseBarracks then
+        Result := TKMHouseBarracks(H).RallyPoint.X
+      else
+        LogError('States.PlayerRallyPointX: Specified house is not Barracks', [aBarracks]);
+  end
+  else
+  begin
+    Result := 0;
+    LogError('States.PlayerRallyPointX', [aBarracks]);
+  end;
+end;
+
+
+function TKMScriptStates.RallyPointY(aBarracks: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  if aBarracks > 0 then
+  begin
+    H := fIDCache.GetHouse(aBarracks);
+    if H <> nil then
+      if H is TKMHouseBarracks then
+        Result := TKMHouseBarracks(H).RallyPoint.Y
+      else
+        LogError('States.PlayerRallyPointY: Specified house is not Barracks', [aBarracks]);
+  end
+  else
+  begin
+    Result := 0;
+    LogError('States.PlayerRallyPointY', [aBarracks]);
   end;
 end;
 
@@ -1370,6 +1417,22 @@ begin
   end
   else
     LogError('States.HouseSchoolQueue', [aHouseID, QueueIndex]);
+end;
+
+
+function TKMScriptStates.HouseSiteIsDigged(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := (H.BuildingState = hbs_Wood) and (H.BuildingProgress = 0); //Digging finished but no building progress - just digged site
+  end
+  else
+    LogError('States.HouseSiteIsDigged', [aHouseID]);
 end;
 
 
@@ -2863,6 +2926,28 @@ begin
 end;
 
 
+procedure TKMScriptActions.HouseAddBuildingMaterials(aHouseID: Integer);
+var
+  I: Integer;
+  H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      if not H.IsComplete then
+      begin
+        for I := 0 to gResource.HouseDat[H.HouseType].WoodCost - 1 - H.GetBuildWoodDelivered do
+          H.ResAddToBuild(wt_Wood);
+        for I := 0 to gResource.HouseDat[H.HouseType].StoneCost - 1 - H.GetBuildStoneDelivered do
+          H.ResAddToBuild(wt_Stone);
+      end;
+  end
+  else
+    LogError('Actions.HouseAddBuildingMaterials', [aHouseID]);
+end;
+
+
 procedure TKMScriptActions.HouseAddBuildingProgress(aHouseID: Integer);
 var
   H: TKMHouse;
@@ -3293,7 +3378,7 @@ begin
 end;
 
 
-function TKMScriptActions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer): Boolean;
+function TKMScriptActions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean;
 var
   Points: TKMPointList;
   PlanExists: Boolean;
@@ -3314,7 +3399,13 @@ begin
         Exit;
       for I := 0 to Points.Count - 1 do
       if gHands[aPlayer].CanAddFieldPlan(Points[I], ft_Road) then
-        gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road);
+        if not aCompleted then
+          gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road)
+        else
+        begin
+          gTerrain.SetField(Points[I], aPlayer, ft_Road);
+          gTerrain.FlattenTerrain(Points[I]);
+        end;
       Result := True;
     finally
       Points.Free;
