@@ -145,6 +145,8 @@ begin
       RegisterMethod('function GroupType(aGroupID: Integer): Integer');
 
       RegisterMethod('function HouseAt(aX, aY: Word): Integer');
+      RegisterMethod('function HouseBarracksRallyPointX(aBarracks: Integer): Integer');
+      RegisterMethod('function HouseBarracksRallyPointY(aBarracks: Integer): Integer');
       RegisterMethod('function HouseBuildingProgress(aHouseID: Integer): Word');
       RegisterMethod('function HouseCanReachResources(aHouseID: Integer): Boolean)');
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
@@ -183,9 +185,6 @@ begin
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
-
-      RegisterMethod('function RallyPointX(aBarracks: Integer): Integer');
-      RegisterMethod('function RallyPointY(aBarracks: Integer): Integer');
 
       RegisterMethod('function StatAIDefencePositionsCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
@@ -517,29 +516,31 @@ begin
       RegisterMethod(@TKMScriptStates.GroupOwner,       'GROUPOWNER');
       RegisterMethod(@TKMScriptStates.GroupType,        'GROUPTYPE');
 
-      RegisterMethod(@TKMScriptStates.HouseAt,                 'HOUSEAT');
-      RegisterMethod(@TKMScriptStates.HouseBuildingProgress,   'HOUSEBUILDINGPROGRESS');
-      RegisterMethod(@TKMScriptStates.HouseCanReachResources,  'HOUSECANREACHRESOURCES');
-      RegisterMethod(@TKMScriptStates.HouseDamage,             'HOUSEDAMAGE');
-      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,    'HOUSEDELIVERYBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseDestroyed,          'HOUSEDESTROYED');
-      RegisterMethod(@TKMScriptStates.HouseHasOccupant,        'HOUSEHASOCCUPANT');
-      RegisterMethod(@TKMScriptStates.HouseIsComplete,         'HOUSEISCOMPLETE');
-      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,      'HOUSETYPEMAXHEALTH');
-      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType, 'HOUSETYPETOOCCUPANTTYPE');
-      RegisterMethod(@TKMScriptStates.HouseOwner,              'HOUSEOWNER');
-      RegisterMethod(@TKMScriptStates.HousePositionX,          'HOUSEPOSITIONX');
-      RegisterMethod(@TKMScriptStates.HousePositionY,          'HOUSEPOSITIONY');
-      RegisterMethod(@TKMScriptStates.HouseRepair,             'HOUSEREPAIR');
-      RegisterMethod(@TKMScriptStates.HouseResourceAmount,     'HOUSERESOURCEAMOUNT');
-      RegisterMethod(@TKMScriptStates.HouseType,               'HOUSETYPE');
-      RegisterMethod(@TKMScriptStates.HouseTypeName,           'HOUSETYPENAME');
-      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,        'HOUSESCHOOLQUEUE');
-      RegisterMethod(@TKMScriptStates.HouseSiteIsDigged,       'HOUSESITEISDIGGED');
-      RegisterMethod(@TKMScriptStates.HouseUnlocked,           'HOUSEUNLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
-      RegisterMethod(@TKMScriptStates.HouseWareBlocked,        'HOUSEWAREBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,     'HOUSEWEAPONSORDERED');
+      RegisterMethod(@TKMScriptStates.HouseAt,                  'HOUSEAT');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointX, 'HOUSEBARRACKSRALLYPOINTX');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointY, 'HOUSEBARRACKSRALLYPOINTY');
+      RegisterMethod(@TKMScriptStates.HouseBuildingProgress,    'HOUSEBUILDINGPROGRESS');
+      RegisterMethod(@TKMScriptStates.HouseCanReachResources,   'HOUSECANREACHRESOURCES');
+      RegisterMethod(@TKMScriptStates.HouseDamage,              'HOUSEDAMAGE');
+      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,     'HOUSEDELIVERYBLOCKED');
+      RegisterMethod(@TKMScriptStates.HouseDestroyed,           'HOUSEDESTROYED');
+      RegisterMethod(@TKMScriptStates.HouseHasOccupant,         'HOUSEHASOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HouseIsComplete,          'HOUSEISCOMPLETE');
+      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,       'HOUSETYPEMAXHEALTH');
+      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType,  'HOUSETYPETOOCCUPANTTYPE');
+      RegisterMethod(@TKMScriptStates.HouseOwner,               'HOUSEOWNER');
+      RegisterMethod(@TKMScriptStates.HousePositionX,           'HOUSEPOSITIONX');
+      RegisterMethod(@TKMScriptStates.HousePositionY,           'HOUSEPOSITIONY');
+      RegisterMethod(@TKMScriptStates.HouseRepair,              'HOUSEREPAIR');
+      RegisterMethod(@TKMScriptStates.HouseResourceAmount,      'HOUSERESOURCEAMOUNT');
+      RegisterMethod(@TKMScriptStates.HouseType,                'HOUSETYPE');
+      RegisterMethod(@TKMScriptStates.HouseTypeName,            'HOUSETYPENAME');
+      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,         'HOUSESCHOOLQUEUE');
+      RegisterMethod(@TKMScriptStates.HouseSiteIsDigged,        'HOUSESITEISDIGGED');
+      RegisterMethod(@TKMScriptStates.HouseUnlocked,            'HOUSEUNLOCKED');
+      RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly,  'HOUSEWOODCUTTERCHOPONLY');
+      RegisterMethod(@TKMScriptStates.HouseWareBlocked,         'HOUSEWAREBLOCKED');
+      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,      'HOUSEWEAPONSORDERED');
 
       RegisterMethod(@TKMScriptStates.IsFieldAt,            'ISFIELDAT');
       RegisterMethod(@TKMScriptStates.IsWinefieldAt,        'ISWINEFIELDAT');
@@ -556,9 +557,6 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerName,             'PLAYERNAME');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,       'PLAYERVICTORIOUS');
       RegisterMethod(@TKMScriptStates.PlayerWareDistribution, 'PLAYERWAREDISTRIBUTION');
-
-      RegisterMethod(@TKMScriptStates.RallyPointX,            'RALLYPOINTX');
-      RegisterMethod(@TKMScriptStates.RallyPointY,            'RALLYPOINTY');
 
       RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount,              'STATAIDEFENCEPOSITIONSCOUNT');
       RegisterMethod(@TKMScriptStates.StatArmyCount,                            'STATARMYCOUNT');

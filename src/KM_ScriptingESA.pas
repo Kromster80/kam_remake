@@ -108,6 +108,8 @@ type
     function GroupType(aGroupID: Integer): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
+    function HouseBarracksRallyPointX(aBarracks: Integer): Integer;
+    function HouseBarracksRallyPointY(aBarracks: Integer): Integer;
     function HouseBuildingProgress(aHouseID: Integer): Word;
     function HouseCanReachResources(aHouseID: Integer): Boolean;
     function HouseDamage(aHouseID: Integer): Integer;
@@ -155,9 +157,6 @@ type
     function PlayerName(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
     function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
-
-    function RallyPointX(aBarracks: Integer): Integer;
-    function RallyPointY(aBarracks: Integer): Integer;
 
     function StatAIDefencePositionsCount(aPlayer: Byte): Integer;
     function StatArmyCount(aPlayer: Byte): Integer;
@@ -1182,64 +1181,6 @@ begin
 end;
 
 
-function TKMScriptStates.RallyPointX(aBarracks: Integer): Integer;
-var
-  H: TKMHouse;
-begin
-  if aBarracks > 0 then
-  begin
-    H := fIDCache.GetHouse(aBarracks);
-    if H <> nil then
-      if H is TKMHouseBarracks then
-        Result := TKMHouseBarracks(H).RallyPoint.X
-      else
-        LogError('States.RallyPointX: Specified house is not Barracks', [aBarracks]);
-  end
-  else
-  begin
-    Result := 0;
-    LogError('States.RallyPointX', [aBarracks]);
-  end;
-end;
-
-
-function TKMScriptStates.RallyPointY(aBarracks: Integer): Integer;
-var
-  H: TKMHouse;
-begin
-  if aBarracks > 0 then
-  begin
-    H := fIDCache.GetHouse(aBarracks);
-    if H <> nil then
-      if H is TKMHouseBarracks then
-        Result := TKMHouseBarracks(H).RallyPoint.Y
-      else
-        LogError('States.RallyPointY: Specified house is not Barracks', [aBarracks]);
-  end
-  else
-  begin
-    Result := 0;
-    LogError('States.RallyPointY', [aBarracks]);
-  end;
-end;
-
-
-function TKMScriptStates.HouseCanReachResources(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  Result := False;
-  if aHouseID > 0 then
-  begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := not H.ResourceDepletedMsgIssued;
-  end
-  else
-    LogError('States.HouseCanReachResources', [aHouseID]);
-end;
-
-
 function TKMScriptStates.HouseAt(aX, aY: Word): Integer;
 var
   H: TKMHouse;
@@ -1259,6 +1200,44 @@ begin
 end;
 
 
+function TKMScriptStates.HouseBarracksRallyPointX(aBarracks: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  Result := 0;
+  if aBarracks > 0 then
+  begin
+    H := fIDCache.GetHouse(aBarracks);
+    if H <> nil then
+      if H is TKMHouseBarracks then
+        Result := TKMHouseBarracks(H).RallyPoint.X
+      else
+        LogError('States.HouseBarracksRallyPointX: Specified house is not Barracks', [aBarracks]);
+  end
+  else
+    LogError('States.HouseBarracksRallyPointX', [aBarracks]);
+end;
+
+
+function TKMScriptStates.HouseBarracksRallyPointY(aBarracks: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  Result := 0;
+  if aBarracks > 0 then
+  begin
+    H := fIDCache.GetHouse(aBarracks);
+    if H <> nil then
+      if H is TKMHouseBarracks then
+        Result := TKMHouseBarracks(H).RallyPoint.Y
+      else
+        LogError('States.HouseBarracksRallyPointY: Specified house is not Barracks', [aBarracks]);
+  end
+  else
+    LogError('States.HouseBarracksRallyPointY', [aBarracks]);
+end;
+
+
 function TKMScriptStates.HouseBuildingProgress(aHouseID: Integer): Word;
 var
   H: TKMHouse;
@@ -1272,6 +1251,102 @@ begin
   end
   else
     LogError('States.HouseBuildingProgress', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseCanReachResources(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := not H.ResourceDepletedMsgIssued;
+  end
+  else
+    LogError('States.HouseCanReachResources', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseDamage(aHouseID: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  Result := -1; //-1 if house id is invalid
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.GetDamage;
+  end
+  else
+    LogError('States.HouseDamage', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseDeliveryBlocked(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  Result := True;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := (not H.WareDelivery);
+  end
+  else
+    LogError('States.HouseDeliveryBlocked', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseDestroyed(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  Result := True;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.IsDestroyed;
+  end
+  else
+    LogError('States.HouseDestroyed', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseHasOccupant(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.GetHasOwner;
+  end
+  else
+    LogError('States.HouseHasOccupant', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseIsComplete(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.IsComplete;
+  end
+  else
+    LogError('States.HouseIsComplete', [aHouseID]);
 end;
 
 
@@ -1307,44 +1382,6 @@ begin
 end;
 
 
-function TKMScriptStates.HouseDestroyed(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  Result := True;
-  if aHouseID > 0 then
-  begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := H.IsDestroyed;
-  end
-  else
-    LogError('States.HouseDestroyed', [aHouseID]);
-end;
-
-
-function TKMScriptStates.HouseTypeMaxHealth(aHouseType: Integer): Word;
-begin
-  Result := 0;
-  if HouseTypeValid(aHouseType) then
-    Result := gResource.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
-  else
-    LogError('States.HouseTypeMaxHealth', [aHouseType]);
-end;
-
-
-function TKMScriptStates.HouseTypeToOccupantType(aHouseType: Integer): Integer;
-begin
-  Result := -1;
-  if HouseTypeValid(aHouseType) then
-  begin
-    Result := UnitTypeToIndex[gResource.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
-  end
-  else
-    LogError('States.HouseTypeToOccupantType', [aHouseType]);
-end;
-
-
 function TKMScriptStates.HouseOwner(aHouseID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1361,45 +1398,37 @@ begin
 end;
 
 
-//Get the house type
-function TKMScriptStates.HouseType(aHouseID: Integer): Integer;
+function TKMScriptStates.HouseRepair(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
 begin
-  Result := -1;
+  Result := False;
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      Result := HouseTypeToIndex[H.HouseType] - 1;
+      Result := H.BuildingRepair;
   end
   else
-    LogError('States.HouseType', [aHouseID]);
+    LogError('States.HouseRepair', [aHouseID]);
 end;
 
 
-function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
+function TKMScriptStates.HouseResourceAmount(aHouseID, aResource: Integer): Integer;
+var
+  H: TKMHouse;
+  Res: TWareType;
 begin
-  if HouseTypeValid(aHouseType) then
-    Result := '<%' + AnsiString(IntToStr(gResource.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
-  else
+  Result := -1; //-1 if house id is invalid
+  if (aHouseID > 0) and (aResource in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
-    Result := '';
-    LogError('States.HouseTypeName', [aHouseType]);
-  end;
-end;
-
-
-function TKMScriptStates.HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
-begin
-  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
-  and HouseTypeValid(aHouseType) then
-    Result := gHands[aPlayer].Stats.GetCanBuild(HouseIndexToType[aHouseType])
+    Res := WareIndexToType[aResource];
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.CheckResIn(Res) + H.CheckResOut(Res); //Count both in and out
+  end
   else
-  begin
-    Result := False;
-    LogError('States.HouseUnlocked', [aPlayer, aHouseType]);
-  end;
+    LogError('States.HouseResourceAmount', [aHouseID, aResource]);
 end;
 
 
@@ -1429,10 +1458,94 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      Result := (H.BuildingState = hbs_Wood) and (H.BuildingProgress = 0); //Digging finished but no building progress - just digged site
+      Result := H.BuildingState <> hbs_NoGlyph;
   end
   else
     LogError('States.HouseSiteIsDigged', [aHouseID]);
+end;
+
+
+//Get the house type
+function TKMScriptStates.HouseType(aHouseID: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  Result := -1;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := HouseTypeToIndex[H.HouseType] - 1;
+  end
+  else
+    LogError('States.HouseType', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseTypeMaxHealth(aHouseType: Integer): Word;
+begin
+  Result := 0;
+  if HouseTypeValid(aHouseType) then
+    Result := gResource.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
+  else
+    LogError('States.HouseTypeMaxHealth', [aHouseType]);
+end;
+
+
+function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
+begin
+  if HouseTypeValid(aHouseType) then
+    Result := '<%' + AnsiString(IntToStr(gResource.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
+  else
+  begin
+    Result := '';
+    LogError('States.HouseTypeName', [aHouseType]);
+  end;
+end;
+
+
+function TKMScriptStates.HouseTypeToOccupantType(aHouseType: Integer): Integer;
+begin
+  Result := -1;
+  if HouseTypeValid(aHouseType) then
+  begin
+    Result := UnitTypeToIndex[gResource.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
+  end
+  else
+    LogError('States.HouseTypeToOccupantType', [aHouseType]);
+end;
+
+
+function TKMScriptStates.HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
+  and HouseTypeValid(aHouseType) then
+    Result := gHands[aPlayer].Stats.GetCanBuild(HouseIndexToType[aHouseType])
+  else
+  begin
+    Result := False;
+    LogError('States.HouseUnlocked', [aPlayer, aHouseType]);
+  end;
+end;
+
+
+function TKMScriptStates.HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
+var
+  H: TKMHouse;
+  Res: TWareType;
+begin
+  Result := False;
+  if (aHouseID > 0) and (aWareType in [Low(WareIndexToType)..High(WareIndexToType)]) then
+  begin
+    Res := WareIndexToType[aWareType];
+    H := fIDCache.GetHouse(aHouseID);
+    if (H is TKMHouseStore) then
+      Result := TKMHouseStore(H).NotAcceptFlag[Res];
+    if (H is TKMHouseBarracks) and (Res in [WARFARE_MIN..WARFARE_MAX]) then
+      Result := TKMHouseBarracks(H).NotAcceptFlag[Res];
+  end
+  else
+    LogError('States.HouseWareBlocked', [aHouseID, aWareType]);
 end;
 
 
@@ -1488,18 +1601,6 @@ begin
 end;
 
 
-function TKMScriptStates.IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
-begin
-  Result := False;
-  //-1 stands for any player
-  if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
-    Result := gTerrain.TileIsWineField(KMPoint(X,Y))
-              and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
-  else
-    LogError('States.IsWinefieldAt', [aPlayer, X, Y]);
-end;
-
-
 function TKMScriptStates.IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
@@ -1512,121 +1613,15 @@ begin
 end;
 
 
-function TKMScriptStates.HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
-var
-  H: TKMHouse;
-  Res: TWareType;
+function TKMScriptStates.IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
-  if (aHouseID > 0) and (aWareType in [Low(WareIndexToType)..High(WareIndexToType)]) then
-  begin
-    Res := WareIndexToType[aWareType];
-    H := fIDCache.GetHouse(aHouseID);
-    if (H is TKMHouseStore) then
-      Result := TKMHouseStore(H).NotAcceptFlag[Res];
-    if (H is TKMHouseBarracks) and (Res in [WARFARE_MIN..WARFARE_MAX]) then
-      Result := TKMHouseBarracks(H).NotAcceptFlag[Res];
-  end
+  //-1 stands for any player
+  if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
+    Result := gTerrain.TileIsWineField(KMPoint(X,Y))
+              and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
   else
-    LogError('States.HouseWareBlocked', [aHouseID, aWareType]);
-end;
-
-
-function TKMScriptStates.HouseDamage(aHouseID: Integer): Integer;
-var
-  H: TKMHouse;
-begin
-  Result := -1; //-1 if house id is invalid
-  if aHouseID > 0 then
-  begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := H.GetDamage;
-  end
-  else
-    LogError('States.HouseDamage', [aHouseID]);
-end;
-
-
-function TKMScriptStates.HouseRepair(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  Result := False;
-  if aHouseID > 0 then
-  begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := H.BuildingRepair;
-  end
-  else
-    LogError('States.HouseRepair', [aHouseID]);
-end;
-
-
-function TKMScriptStates.HouseDeliveryBlocked(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  Result := True;
-  if aHouseID > 0 then
-  begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := (not H.WareDelivery);
-  end
-  else
-    LogError('States.HouseDeliveryBlocked', [aHouseID]);
-end;
-
-
-function TKMScriptStates.HouseResourceAmount(aHouseID, aResource: Integer): Integer;
-var
-  H: TKMHouse;
-  Res: TWareType;
-begin
-  Result := -1; //-1 if house id is invalid
-  if (aHouseID > 0) and (aResource in [Low(WareIndexToType)..High(WareIndexToType)]) then
-  begin
-    Res := WareIndexToType[aResource];
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := H.CheckResIn(Res) + H.CheckResOut(Res); //Count both in and out
-  end
-  else
-    LogError('States.HouseResourceAmount', [aHouseID, aResource]);
-end;
-
-
-function TKMScriptStates.HouseHasOccupant(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  Result := False;
-  if aHouseID > 0 then
-  begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := H.GetHasOwner;
-  end
-  else
-    LogError('States.HouseHasOccupant', [aHouseID]);
-end;
-
-
-function TKMScriptStates.HouseIsComplete(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  Result := False;
-  if aHouseID > 0 then
-  begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := H.IsComplete;
-  end
-  else
-    LogError('States.HouseIsComplete', [aHouseID]);
+    LogError('States.IsWinefieldAt', [aPlayer, X, Y]);
 end;
 
 
