@@ -309,7 +309,7 @@ begin
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  PlanconnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean');
+      RegisterMethod('function  PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean');
       RegisterMethod('function  PlanRemove(aPlayer, X, Y: Word): Boolean');
 
       RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
