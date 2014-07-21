@@ -1208,8 +1208,8 @@ begin
   if aBarracks > 0 then
   begin
     H := fIDCache.GetHouse(aBarracks);
-    if H <> nil then
-      if H is TKMHouseBarracks then
+    if (H <> nil) and not H.IsDestroyed then
+      if (H is TKMHouseBarracks) and (H.IsComplete) then
         Result := TKMHouseBarracks(H).RallyPoint.X
       else
         LogError('States.HouseBarracksRallyPointX: Specified house is not Barracks', [aBarracks]);
@@ -1227,8 +1227,8 @@ begin
   if aBarracks > 0 then
   begin
     H := fIDCache.GetHouse(aBarracks);
-    if H <> nil then
-      if H is TKMHouseBarracks then
+    if (H <> nil) and not H.IsDestroyed then
+      if (H is TKMHouseBarracks) and (H.IsComplete) then
         Result := TKMHouseBarracks(H).RallyPoint.Y
       else
         LogError('States.HouseBarracksRallyPointY: Specified house is not Barracks', [aBarracks]);
