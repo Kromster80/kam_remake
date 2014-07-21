@@ -137,10 +137,10 @@ begin
       RegisterMethod('function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
 
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
+      RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
       RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
       RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
-      RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
       RegisterMethod('function GroupType(aGroupID: Integer): Integer');
 
@@ -155,8 +155,8 @@ begin
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseTypeMaxHealth(aHouseType: Integer): Word');
-      RegisterMethod('function HouseTypeToOccupantType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseTypeToOccupantType(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
       RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
@@ -526,15 +526,15 @@ begin
       RegisterMethod(@TKMScriptStates.HouseDestroyed,           'HOUSEDESTROYED');
       RegisterMethod(@TKMScriptStates.HouseHasOccupant,         'HOUSEHASOCCUPANT');
       RegisterMethod(@TKMScriptStates.HouseIsComplete,          'HOUSEISCOMPLETE');
-      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,       'HOUSETYPEMAXHEALTH');
-      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType,  'HOUSETYPETOOCCUPANTTYPE');
       RegisterMethod(@TKMScriptStates.HouseOwner,               'HOUSEOWNER');
       RegisterMethod(@TKMScriptStates.HousePositionX,           'HOUSEPOSITIONX');
       RegisterMethod(@TKMScriptStates.HousePositionY,           'HOUSEPOSITIONY');
       RegisterMethod(@TKMScriptStates.HouseRepair,              'HOUSEREPAIR');
       RegisterMethod(@TKMScriptStates.HouseResourceAmount,      'HOUSERESOURCEAMOUNT');
       RegisterMethod(@TKMScriptStates.HouseType,                'HOUSETYPE');
+      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,       'HOUSETYPEMAXHEALTH');
       RegisterMethod(@TKMScriptStates.HouseTypeName,            'HOUSETYPENAME');
+      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType,  'HOUSETYPETOOCCUPANTTYPE');
       RegisterMethod(@TKMScriptStates.HouseSchoolQueue,         'HOUSESCHOOLQUEUE');
       RegisterMethod(@TKMScriptStates.HouseSiteIsDigged,        'HOUSESITEISDIGGED');
       RegisterMethod(@TKMScriptStates.HouseUnlocked,            'HOUSEUNLOCKED');

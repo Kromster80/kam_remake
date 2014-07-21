@@ -2923,7 +2923,7 @@ end;
 
 procedure TKMScriptActions.HouseAddBuildingMaterials(aHouseID: Integer);
 var
-  I: Integer;
+  I, StoneNeeded, WoodNeeded: Integer;
   H: TKMHouse;
 begin
   if aHouseID > 0 then
@@ -2932,9 +2932,11 @@ begin
     if H <> nil then
       if not H.IsComplete then
       begin
-        for I := 0 to gResource.HouseDat[H.HouseType].WoodCost - 1 - H.GetBuildWoodDelivered do
+        StoneNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Stone, gResource.HouseDat[H.HouseType].StoneCost - H.GetBuildStoneDelivered);
+        WoodNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Wood, gResource.HouseDat[H.HouseType].WoodCost - H.GetBuildWoodDelivered);
+        for I := 0 to WoodNeeded - 1 do
           H.ResAddToBuild(wt_Wood);
-        for I := 0 to gResource.HouseDat[H.HouseType].StoneCost - 1 - H.GetBuildStoneDelivered do
+        for I := 0 to StoneNeeded - 1 do
           H.ResAddToBuild(wt_Stone);
       end;
   end
