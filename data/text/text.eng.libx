@@ -778,3 +778,4 @@
 824:Move
 825:View Readme PDF
 826:Failed to launch PDF viewer
+827:Sets serfs count per 10 houses for specified AI player. Selected AI has %d houses

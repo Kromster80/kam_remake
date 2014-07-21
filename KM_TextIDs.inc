@@ -553,6 +553,7 @@ TX_MAPED_AI_DEFENCE_CLOSE_HINT = 695; //Return to the defence page
 TX_MAPED_AI_DEFENCE_POSITION = 696; //Defence position
 TX_MAPED_AI_WORKERS = 487; //Laborers
 TX_MAPED_AI_SERFS_PER_10_HOUSES = 488; //Serfs per 10 houses
+TX_MAPED_AI_SERFS_PER_10_HOUSES_HINT = 827; //Sets serfs count per 10 houses for specified AI player. Selected AI has %d houses
 TX_MAPED_AI_AUTOREPAIR = 489; //Autorepair
 TX_MAPED_AI_AUTOBUILD = 490; //Autobuild
 TX_MAPED_AI_FASTEQUIP = 811; //Fast equip

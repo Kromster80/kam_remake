@@ -19,8 +19,8 @@ Bugs:
 	Recheck the map hash before the game starts in case the files were changed
 
 Features:
+ +	Hint for "Serfs per 10 houses" should display current number of houses for that player
 	Allow MapEd to select any RGB colour instead of KaM's pallete (new static script command for RGB flag colour needed)
-	Hint for "Serfs per 10 houses" should display current number of houses for that player
 	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
 
 
