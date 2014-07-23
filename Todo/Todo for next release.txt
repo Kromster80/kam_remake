@@ -11,6 +11,7 @@ Bugs:
  +	Peacetime was not correctly set to zero when selecting a map with PT disabled
  +	Spectators can end up with the same color as someone in the save
  +	Actions.GiveHouseSite puts fence at X-1
+ +	States.UnitHome doesn't work (Unknown error in loading bytecode to Exec)
 	You can start the game before spectators have downloaded save, which causes an error
 	Map popularity stats need to store hash too to separate modifications
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)

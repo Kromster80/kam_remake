@@ -577,6 +577,7 @@ begin
 
       RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
       RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
+      RegisterMethod(@TKMScriptStates.UnitHome,       'UNITHOME');
       RegisterMethod(@TKMScriptStates.UnitHunger,     'UNITHUNGER');
       RegisterMethod(@TKMScriptStates.UnitCarrying,   'UNITCARRYING');
       RegisterMethod(@TKMScriptStates.UnitLowHunger,  'UNITLOWHUNGER');
