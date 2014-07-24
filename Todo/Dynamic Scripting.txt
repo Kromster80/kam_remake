@@ -69,6 +69,10 @@ Implemented:
  6328   MultipleTypes for StatHouseTypeCount, StatUnitTypeCount
  6331   MultipleTypes for killed, lost units and produced wares
  6338   Split a specific warrior out of a group
+ 6510   Actions.HouseAddBuildingMaterials
+ 6510   PlanConnectRoad can add completed road
+ 6516   States.HouseBarracksRallyPointX/Y
+ 6523   States.UnitIdle/GroupIdle
 
 
 Accepted:

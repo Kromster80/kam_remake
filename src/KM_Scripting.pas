@@ -139,6 +139,7 @@ begin
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
+      RegisterMethod('function GroupIdle(aGroupID: Integer): Boolean');
       RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
       RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
@@ -204,18 +205,19 @@ begin
       RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
 
       RegisterMethod('function UnitAt(aX, aY: Word): Integer');
+      RegisterMethod('function UnitCarrying(aUnitID: Integer): Integer');
       RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
+      RegisterMethod('function UnitDirection(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHome(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitCarrying(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitIdle(aUnitID: Integer): Boolean');
       RegisterMethod('function UnitLowHunger: Integer');
       RegisterMethod('function UnitMaxHunger: Integer');
       RegisterMethod('function UnitOwner(aUnitID: Integer): Integer');
       RegisterMethod('function UnitPositionX(aHouseID: Integer): Integer');
       RegisterMethod('function UnitPositionY(aHouseID: Integer): Integer');
       RegisterMethod('function UnitType(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitDirection(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
       RegisterMethod('function UnitTypeName(aUnitType: Byte): AnsiString');
       RegisterMethod('function WareTypeName(aWareType: Byte): AnsiString');
     end;
@@ -510,6 +512,7 @@ begin
 
       RegisterMethod(@TKMScriptStates.GroupAt,          'GROUPAT');
       RegisterMethod(@TKMScriptStates.GroupDead,        'GROUPDEAD');
+      RegisterMethod(@TKMScriptStates.GroupIdle,        'GROUPIDLE');
       RegisterMethod(@TKMScriptStates.GroupMember,      'GROUPMEMBER');
       RegisterMethod(@TKMScriptStates.GroupColumnCount, 'GROUPCOLUMNCOUNT');
       RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
@@ -576,18 +579,19 @@ begin
       RegisterMethod(@TKMScriptStates.StatUnitTypeCount,                        'STATUNITTYPECOUNT');
 
       RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
+      RegisterMethod(@TKMScriptStates.UnitCarrying,   'UNITCARRYING');
       RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
+      RegisterMethod(@TKMScriptStates.UnitDirection,  'UNITDIRECTION');
+      RegisterMethod(@TKMScriptStates.UnitsGroup,     'UNITSGROUP');
       RegisterMethod(@TKMScriptStates.UnitHome,       'UNITHOME');
       RegisterMethod(@TKMScriptStates.UnitHunger,     'UNITHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitCarrying,   'UNITCARRYING');
+      RegisterMethod(@TKMScriptStates.UnitIdle,       'UNITIDLE');
       RegisterMethod(@TKMScriptStates.UnitLowHunger,  'UNITLOWHUNGER');
       RegisterMethod(@TKMScriptStates.UnitMaxHunger,  'UNITMAXHUNGER');
       RegisterMethod(@TKMScriptStates.UnitOwner,      'UNITOWNER');
       RegisterMethod(@TKMScriptStates.UnitPositionX,  'UNITPOSITIONX');
       RegisterMethod(@TKMScriptStates.UnitPositionY,  'UNITPOSITIONY');
       RegisterMethod(@TKMScriptStates.UnitType,       'UNITTYPE');
-      RegisterMethod(@TKMScriptStates.UnitDirection,  'UNITDIRECTION');
-      RegisterMethod(@TKMScriptStates.UnitsGroup,     'UNITSGROUP');
       RegisterMethod(@TKMScriptStates.UnitTypeName,   'UNITTYPENAME');
       RegisterMethod(@TKMScriptStates.WareTypeName,   'WARETYPENAME');
     end;

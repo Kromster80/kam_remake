@@ -102,6 +102,7 @@ type
     function GroupAt(aX, aY: Word): Integer;
     function GroupColumnCount(aGroupID: Integer): Integer;
     function GroupDead(aGroupID: Integer): Boolean;
+    function GroupIdle(aGroupID: Integer): Boolean;
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
     function GroupMemberCount(aGroupID: Integer): Integer;
     function GroupOwner(aGroupID: Integer): Integer;
@@ -181,6 +182,7 @@ type
     function UnitDirection(aUnitID: Integer): Integer;
     function UnitHome(aUnitID: Integer): Integer;
     function UnitHunger(aUnitID: Integer): Integer;
+    function UnitIdle(aUnitID: Integer): Boolean;
     function UnitLowHunger: Integer;
     function UnitMaxHunger: Integer;
     function UnitOwner(aUnitID: Integer): Integer;
@@ -1208,8 +1210,8 @@ begin
   if aBarracks > 0 then
   begin
     H := fIDCache.GetHouse(aBarracks);
-    if (H <> nil) and not H.IsDestroyed then
-      if (H is TKMHouseBarracks) and (H.IsComplete) then
+    if (H <> nil) and not H.IsDestroyed  and (H.IsComplete) then
+      if (H is TKMHouseBarracks) then
         Result := TKMHouseBarracks(H).RallyPoint.X
       else
         LogError('States.HouseBarracksRallyPointX: Specified house is not Barracks', [aBarracks]);
@@ -1227,8 +1229,8 @@ begin
   if aBarracks > 0 then
   begin
     H := fIDCache.GetHouse(aBarracks);
-    if (H <> nil) and not H.IsDestroyed then
-      if (H is TKMHouseBarracks) and (H.IsComplete) then
+    if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      if (H is TKMHouseBarracks) then
         Result := TKMHouseBarracks(H).RallyPoint.Y
       else
         LogError('States.HouseBarracksRallyPointY: Specified house is not Barracks', [aBarracks]);
@@ -1933,6 +1935,22 @@ begin
 end;
 
 
+function TKMScriptStates.UnitIdle(aUnitID: Integer): Boolean;
+var
+  U: TKMUnit;
+begin
+  Result := False;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if (U <> nil) then
+      Result := U.IsIdle;
+  end
+  else
+    LogError('States.UnitIdle', [aUnitID]);
+end;
+
+
 function TKMScriptStates.UnitMaxHunger: Integer;
 begin
   Result := UNIT_MAX_CONDITION*CONDITION_PACE;
@@ -1997,6 +2015,22 @@ begin
   end
   else
     LogError('States.GroupDead', [aGroupID]);
+end;
+
+
+function TKMScriptStates.GroupIdle(aGroupID: Integer): Boolean;
+var
+  G: TKMUnitGroup;
+begin
+  Result := False;
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      Result := G.Order = goNone;
+  end
+  else
+    LogError('States.GroupIdle', [aGroupID]);
 end;
 
 
