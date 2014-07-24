@@ -1,14 +1,37 @@
+const
+  DEBUG_MODE = False;
+
 var
-Ware, Count: array[0..3] of Integer;
+  Ware, Count: array[0..3] of Integer;
+  AttackTargetY: array[4..10] of Integer;
+  I: Integer;
 
 
 procedure OnMissionStart;
 var
-  I, K: Integer;
+  K: Integer;
 begin
+{Sounds}
+{Waterfalls}
+  Actions.PlayWAVAtLocationLooped(-1, 'Waterfall Creek', 2.5, 32, 91, 7);
+  Actions.PlayWAVAtLocationLooped(-1, 'Fall', 2.5, 32, 91, 22);
+  Actions.PlayWAVAtLocationLooped(-1, 'Small Fall', 2.3, 32, 92, 33);
+  Actions.PlayWAVAtLocationLooped(-1, 'Fall', 2.5, 32, 116, 87);
+  Actions.PlayWAVAtLocationLooped(-1, 'Waterfall Creek', 2.5, 32, 61, 182);
+  Actions.PlayWAVAtLocationLooped(-1, 'Small Fall', 2.5, 32, 113, 181);
+  Actions.PlayWAVAtLocationLooped(-1, 'Fall', 2.5, 32, 118, 181);
+
+{Lava}
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava 1', 3.5, 32, 140, 204);
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava 1', 3.5, 40, 131, 227);
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava 1', 3.5, 40, 150, 237);
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava 1', 3.5, 40, 186, 235);
+
   for I := 4 to 11 do
   for K := 4 to 11 do
-    if I <> K then
+    if (I <> K)
+    and (States.PlayerEnabled(I))
+    and (States.PlayerEnabled(K)) then
     begin
       Actions.PlayerShareFog(I, K, False);
       Actions.PlayerShareFog(K, I, False);
@@ -141,7 +164,7 @@ begin
 end;
 
 
-procedure Autofeed;
+procedure AutoFeed;
 var
   I, K: Integer;
   UnitsToFeed: array of Integer;
@@ -180,4 +203,20 @@ begin
   if States.GameTime mod 9000 = 0 then
     GiveGifts;
 
+  if States.GameTime mod 6000 = 0 then
+  begin
+    AttackTargetY[4] := States.KaMRandomI(64) + 1;    //Top loc
+    AttackTargetY[5] := States.KaMRandomI(64) + 1;    //Top loc
+    AttackTargetY[6] := States.KaMRandomI(115) + 65;  //Middle locs
+    AttackTargetY[7] := States.KaMRandomI(115) + 65;  //Middle locs
+    AttackTargetY[8] := States.KaMRandomI(58) + 180;  //Bottom loc
+    AttackTargetY[9] := States.KaMRandomI(115) + 65;  //Middle locs
+    AttackTargetY[10] := States.KaMRandomI(115) + 65; //Middle locs
+    for I := 4 to 10 do
+    begin
+      Actions.AIStartPosition(I, 10 + States.KaMRandomI(100), AttackTargetY[I]);
+      if DEBUG_MODE then
+        Actions.Log('Attack target for AI Player ' + IntToStr(I) + ': ' + InttoStr(AttackTargetY[I]));  
+    end;
+  end;
 end;
