@@ -1,0 +1,69 @@
+type
+  Fail = (fNone, fTowerSpam, fCheat, fLostHouses);
+
+
+var
+  aFail: Fail;
+
+
+procedure OnMissionStart;
+begin
+  aFail := fNone;
+end;
+
+
+procedure AutoFeed;
+var
+  I, K: Integer;
+  UnitsToFeed: array of Integer;
+begin
+  for I := 1 to 4 do
+    if States.PlayerEnabled(I) then
+    begin
+      UnitsToFeed := States.PlayerGetAllUnits(I);
+      for K := 0 to Length(UnitsToFeed) - 1 do
+        Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+    end;
+end;
+
+
+function FailText: ANSIString;
+begin
+  case aFail of
+    fNone: Result := '';
+    fTowerSpam: Result := 'Tower spam detected! Next time try to play fair! |You should restart the mission.';
+    fCheat: Result := 'Cheats are disallowed here. Try to play fair and restart the mission!';
+    fLostHouses: Result := 'You lost your main houses. Restart the mission!'
+    else Result := '';
+  end;
+end;
+
+
+procedure OnTick;
+begin
+  if States.GameTime mod 6000 = 0 then
+    AutoFeed;
+
+  if States.StatResourceProducedMultipleTypesCount(0, [3, 6, 17, 19, 21, 23, 25]) > 0 then
+    aFail := fCheat;
+
+  if aFail <> fNone then
+    Actions.PlayerDefeat(0);
+
+  Actions.OverlayTextSet(-1, FailText);
+
+end;
+
+
+procedure OnHouseBuilt(aHouseID: Integer);
+begin
+  if States.StatHouseTypeCount(0, 7) > 12 then
+    aFail := fTowerSpam;
+end;
+
+
+procedure OnHouseDestroyed(aHouseID, aDestroyer: Integer);
+begin
+  if States.StatHouseMultipleTypesCount(0, [11, 13, 21]) = 0 then
+    aFail := fLostHouses;
+end;
