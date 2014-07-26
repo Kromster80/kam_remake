@@ -33,10 +33,10 @@ function TMissionParserInfo.LoadMission(const aFileName: string; aMapInfo: TKMap
 const
   CommandsBase: array [0..3] of AnsiString = (
     '!SET_MAX_PLAYER', '!SET_TACTIC', '!SET_CURR_PLAYER', '!SET_USER_PLAYER');
-  CommandsExtra: array [0..9] of AnsiString = (
+  CommandsExtra: array [0..10] of AnsiString = (
     '!SET_MAX_PLAYER', '!SET_TACTIC',
     '!SET_CURR_PLAYER', '!SET_HUMAN_PLAYER', '!SET_USER_PLAYER',
-    '!SET_AI_PLAYER', '!ADD_GOAL', '!ADD_LOST_GOAL', '!SET_ALLIANCE', '!SET_MAP_COLOR');
+    '!SET_AI_PLAYER', '!ADD_GOAL', '!ADD_LOST_GOAL', '!SET_ALLIANCE', '!SET_MAP_COLOR', '!SET_RGB_COLOR');
 var
   FileText: AnsiString;
 begin
@@ -103,6 +103,8 @@ begin
     ct_SetMapColor:     if fLastHand >= 0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fMapInfo.FlagColors[fLastHand] := gResource.Palettes.DefDal.Color32(P[0]);
+    ct_SetRGBColor:     if fLastHand >= 0 then
+                          fMapInfo.FlagColors[fLastHand] := P[0] or $FF000000;
   end;
 
   Result := True;

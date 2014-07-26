@@ -506,6 +506,8 @@ begin
     ct_SetMapColor:     if fLastHand <> PLAYER_NONE then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           gHands[fLastHand].FlagColor := gResource.Palettes.DefDal.Color32(P[0]);
+    ct_SetRGBColor:     if fLastHand <> PLAYER_NONE then
+                          gHands[fLastHand].FlagColor := P[0] or $FF000000;
     ct_AIAttack:        if fLastHand <> PLAYER_NONE then
                         begin
                           //Set up the attack command
@@ -676,7 +678,10 @@ begin
     if gGame.MapEditor.PlayerHuman[I] then AddCommand(ct_UserPlayer, []);
     if gGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
 
+    //Write RGB command second so it will be used if color is not from KaM palette
     AddCommand(ct_SetMapColor, [gHands[I].FlagColorIndex]);
+    AddCommand(ct_SetRGBColor, [gHands[I].FlagColor and $00FFFFFF]);
+
     if not KMSamePoint(gHands[I].CenterScreen, KMPoint(0,0)) then
       AddCommand(ct_CenterScreen, [gHands[I].CenterScreen.X-1, gHands[I].CenterScreen.Y-1]);
 

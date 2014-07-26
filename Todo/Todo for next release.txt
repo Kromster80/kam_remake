@@ -21,7 +21,7 @@ Bugs:
 
 Features:
  +	Hint for "Serfs per 10 houses" should display current number of houses for that player
-	Change MapEd color palette to better cover RGB spectrum, but still 256 colors for UI purposes (new static script command needed)
+ +	Change MapEd color palette to better cover RGB spectrum (new static script command needed)
 	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
 	Add more Unicode characters to fonts such as misc symbols (http://en.wikipedia.org/wiki/Miscellaneous_Symbols)
 

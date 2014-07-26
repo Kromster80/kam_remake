@@ -14,7 +14,7 @@ type
                         );
 
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_HumanPlayer,ct_UserPlayer,ct_SetHouse,
-                    ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
+                    ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_SetRGBColor,ct_CenterScreen,
                     ct_ClearUp,ct_BlockTrade, ct_BlockUnit, ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_SetWinefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_UnitAddToLast,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
@@ -36,6 +36,7 @@ const
     'ENABLE_PLAYER',
     'SET_NEW_REMAP',
     'SET_MAP_COLOR',
+    'SET_RGB_COLOR',
     'CENTER_SCREEN','CLEAR_UP','BLOCK_TRADE', 'BLOCK_UNIT','BLOCK_HOUSE','RELEASE_HOUSE',
     'RELEASE_ALL_HOUSES','ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD',
     'SET_WINEFIELD','SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',

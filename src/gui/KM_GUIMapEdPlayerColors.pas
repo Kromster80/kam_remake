@@ -26,23 +26,41 @@ type
 implementation
 uses
   KM_HandsCollection, KM_Game, KM_ResTexts, KM_RenderUI, KM_Resource, KM_ResFonts,
-  KM_InterfaceGame, KM_Hand;
+  KM_InterfaceGame, KM_Hand, KM_Utils;
 
 
 { TKMMapEdPlayerColors }
 constructor TKMMapEdPlayerColors.Create(aParent: TKMPanel);
+const MAX_COL = 288;
 var
-  I: Integer;
-  Col: array [0..255] of Cardinal;
+  Hue, Sat, Bri, I, K: Integer;
+  R, G, B: Byte;
+  Col: array [0..MAX_COL-1] of Cardinal;
 begin
   inherited Create;
 
   Panel_Color := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
   TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYER_COLORS], fnt_Outline, taCenter);
-  TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 180);
-  ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 2, 32, 16, 16, 11);
-  for I := 0 to 255 do
-    Col[I] := gResource.Palettes.DefDal.Color32(I);
+  TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 202);
+  ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 2, 32, 16, 18, 11);
+
+  //Generate a palette using HSB so the layout is more intuitive
+  I := 0;
+  for Hue := 0 to 16 do //Less than 17 hues doesn't give a good solid yellow hue
+    for Bri := 1 to 4 do
+      for Sat := 4 downto 1 do //Reversed saturation looks more natural
+      begin
+        ConvertHSB2RGB(Hue/17, Sat/4, Bri/5, R, G, B);
+        Col[I] := (B shl 16) or (G shl 8) or R or $FF000000;
+        Inc(I);
+      end;
+  //Add greyscale at the bottom
+  for I := 0 to 15 do
+  begin
+    K := I*16;
+    Col[MAX_COL-16+I] := (K shl 16) or (K shl 8) or K or $FF000000;
+  end;
+
   ColorSwatch_Color.SetColors(Col);
   ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
@@ -65,6 +83,7 @@ end;
 procedure TKMMapEdPlayerColors.Show;
 begin
   Panel_Color.Show;
+  ColorSwatch_Color.SelectByColor(gHands[MySpectator.HandIndex].FlagColor);
 end;
 
 

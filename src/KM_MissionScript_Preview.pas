@@ -155,6 +155,8 @@ begin
                         end;
     ct_SetMapColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
                           fHandPreview[fLastHand].Color := gResource.Palettes.DefDal.Color32(P[0]);
+    ct_SetRGBColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
+                          fHandPreview[fLastHand].Color := P[0] or $FF000000;
     ct_CenterScreen:    fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
     ct_HumanPlayer:     //Default human player can be human, obviously
                         fHandPreview[P[0]].CanHuman := True;
@@ -210,8 +212,8 @@ end;
 //We use custom mission loader for speed (compare only used commands)
 function TMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of THandIndex): Boolean;
 const
-  Commands: array [0..14] of AnsiString = (
-    '!SET_MAP', '!SET_MAP_COLOR', '!SET_AI_PLAYER', '!CENTER_SCREEN',
+  Commands: array [0..15] of AnsiString = (
+    '!SET_MAP', '!SET_MAP_COLOR', '!SET_RGB_COLOR', '!SET_AI_PLAYER', '!CENTER_SCREEN',
     '!SET_CURR_PLAYER', '!SET_HUMAN_PLAYER', '!SET_USER_PLAYER',
     '!SET_STREET', '!SET_FIELD', '!SET_WINEFIELD', '!SET_STOCK',
     '!SET_HOUSE', '!CLEAR_UP', '!SET_UNIT', '!SET_GROUP');

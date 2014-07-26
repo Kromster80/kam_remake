@@ -291,15 +291,16 @@ type
     fCellSize: Byte; //Size of the square in pixels
     fColumnCount: Byte;
     fRowCount: Byte;
-    fColorIndex: Byte; //Index 0..255 should be enough
-    Colors:array of TColor4; //Range is 0..255
+    fColorIndex: Integer;
+    Colors:array of TColor4;
     fOnChange: TNotifyEvent;
     fInclRandom: Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize: Integer);
     procedure SetColors(const aColors: array of TColor4; aInclRandom: Boolean = False);
+    procedure SelectByColor(aColor: TColor4);
     property BackAlpha: single read fBackAlpha write fBackAlpha;
-    property ColorIndex: Byte read fColorIndex write fColorIndex;
+    property ColorIndex: Integer read fColorIndex write fColorIndex;
     function GetColor: TColor4;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     property OnChange: TNotifyEvent write fOnChange;
@@ -1987,6 +1988,7 @@ begin
   fRowCount     := aRowCount;
   fCellSize     := aSize;
   fInclRandom   := false;
+  fColorIndex   := -1;
 
   Width  := fColumnCount * fCellSize;
   Height := fRowCount * fCellSize;
@@ -2010,9 +2012,22 @@ begin
 end;
 
 
+procedure TKMColorSwatch.SelectByColor(aColor: TColor4);
+var I: Integer;
+begin
+  fColorIndex := -1;
+  for I:=0 to Length(Colors)-1 do
+    if Colors[I] = aColor then
+      fColorIndex := I;
+end;
+
+
 function TKMColorSwatch.GetColor: TColor4;
 begin
-  Result := Colors[fColorIndex];
+  if fColorIndex <> -1 then
+    Result := Colors[fColorIndex]
+  else
+    Result := $FF000000; //Black by default
 end;
 
 
@@ -2055,7 +2070,8 @@ begin
     TKMRenderUI.WriteShape(AbsLeft+(i mod fColumnCount)*fCellSize, AbsTop+(i div fColumnCount)*fCellSize, fCellSize, fCellSize, Colors[i]);
 
   //Paint selection
-  TKMRenderUI.WriteOutline(AbsLeft+(fColorIndex mod fColumnCount)*fCellSize, AbsTop+(fColorIndex div fColumnCount)*fCellSize, fCellSize, fCellSize, 1, $FFFFFFFF);
+  if fColorIndex <> -1 then
+    TKMRenderUI.WriteOutline(AbsLeft+(fColorIndex mod fColumnCount)*fCellSize, AbsTop+(fColorIndex div fColumnCount)*fCellSize, fCellSize, fCellSize, 1, $FFFFFFFF);
 end;
 
 
