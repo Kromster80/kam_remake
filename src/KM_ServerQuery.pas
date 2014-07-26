@@ -130,7 +130,7 @@ type
 
     procedure RefreshList;
     procedure FetchAnnouncements(aLocale: AnsiString);
-    procedure SendMapInfo(const aMapName: UnicodeString; aPlayerCount: Integer);
+    procedure SendMapInfo(const aMapName: UnicodeString; aCRC: Cardinal; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
 
@@ -492,9 +492,9 @@ begin
 end;
 
 
-procedure TKMServerQuery.SendMapInfo(const aMapName: UnicodeString; aPlayerCount: Integer);
+procedure TKMServerQuery.SendMapInfo(const aMapName: UnicodeString; aCRC: Cardinal; aPlayerCount: Integer);
 begin
-  fMasterServer.SendMapInfo(aMapName, aPlayerCount);
+  fMasterServer.SendMapInfo(aMapName, aCRC, aPlayerCount);
 end;
 
 

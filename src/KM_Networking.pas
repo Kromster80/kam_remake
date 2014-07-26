@@ -2049,7 +2049,7 @@ begin
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 
   case fSelectGameKind of
-    ngk_Map:  fOnStartMap(fMapInfo.FileName, fMapInfo.MapFolder, fNetPlayers[fMyIndex].IsSpectator);
+    ngk_Map:  fOnStartMap(fMapInfo.FileName, fMapInfo.MapFolder, fMapInfo.CRC, fNetPlayers[fMyIndex].IsSpectator);
     ngk_Save: fOnStartSave(fSaveInfo.FileName, fNetPlayers[fMyIndex].IsSpectator);
     else      Assert(False);
   end;

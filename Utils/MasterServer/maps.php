@@ -9,6 +9,7 @@ if(!CheckVersion($_REQUEST["rev"])) {
 $con = db_connect();
 
 $Map = $con->real_escape_string($_REQUEST["map"]);
+$CRC = $con->real_escape_string($_REQUEST["mapcrc"]);
 $PlayerCount = $con->real_escape_string($_REQUEST["playercount"]);
 $Rev = $con->real_escape_string($_REQUEST["rev"]);
 if(($Map == "") || ($Rev == "") || ($PlayerCount == "")) {
@@ -18,7 +19,7 @@ if(($Map == "") || ($Rev == "") || ($PlayerCount == "")) {
 
 db_init($con);
 $Now = date("Y-m-d H:i:s");
-$query = "INSERT INTO Games (Rev, Timestamp, Map, Players) VALUES ('$Rev', '$Now', '$Map', $PlayerCount)";
+$query = "INSERT INTO Games (Rev, Timestamp, Map, MapCRC, Players) VALUES ('$Rev', '$Now', '$Map', '$CRC', $PlayerCount)";
 if(!$con->query($query)) error_log("Error adding game: ".mysqli_error($con));
 $con->close();
 die('success');

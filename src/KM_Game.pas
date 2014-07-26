@@ -55,6 +55,7 @@ type
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
+    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFile: UnicodeString;   //Relative pathname to mission we are playing, so it gets saved to crashreport
@@ -82,7 +83,7 @@ type
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
     destructor Destroy; override;
 
-    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
+    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: UnicodeString);
 
@@ -291,7 +292,7 @@ end;
 
 
 //New mission
-procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
+procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
     mpm_Single, mpm_Multi, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
@@ -305,6 +306,7 @@ begin
   Assert(fGameMode in [gmMulti, gmMultiSpectate, gmMapEd, gmSingle]);
 
   fGameName := aGameName;
+  fGameMapCRC := aCRC;
   fCampaignName := aCampName;
   fCampaignMap := aCampMap;
   fMissionFile := ExtractRelativePath(ExeDir, aMissionFile);
@@ -1117,6 +1119,7 @@ begin
     gameInfo := TKMGameInfo.Create;
     try
       gameInfo.Title := fGameName;
+      gameInfo.MapCRC := fGameMapCRC;
       gameInfo.TickCount := fGameTickCount;
       gameInfo.SaveTimestamp := aTimestamp;
       gameInfo.MissionMode := fMissionMode;
@@ -1273,6 +1276,7 @@ begin
   try
     GameInfo.Load(LoadStream);
     fGameName := GameInfo.Title;
+    fGameMapCRC := GameInfo.MapCRC;
     fGameTickCount := GameInfo.TickCount;
     fMissionMode := GameInfo.MissionMode;
   finally
@@ -1418,7 +1422,7 @@ begin
                       if (fGameMode in [gmMulti, gmMultiSpectate]) and fNetworking.IsHost and (
                          ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
                          ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
-                        fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
+                        fNetworking.ServerQuery.SendMapInfo(fGameName, fGameMapCRC, fNetworking.NetPlayers.GetConnectedCount);
 
                       fScripting.UpdateState;
                       UpdatePeacetime; //Send warning messages about peacetime if required

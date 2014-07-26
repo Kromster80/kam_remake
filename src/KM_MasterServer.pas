@@ -35,7 +35,7 @@ type
     procedure AnnounceServer(aName, aPort: string; aPlayerCount, aTTL: Integer);
     procedure QueryServer;
     procedure FetchAnnouncements(const aLang: AnsiString);
-    procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
+    procedure SendMapInfo(const aMapName: string; aCRC: Cardinal; aPlayerCount: Integer);
     procedure UpdateStateIdle;
 
     property MasterServerAddress: string write fMasterServerAddress;
@@ -119,10 +119,11 @@ begin
 end;
 
 
-procedure TKMMasterServer.SendMapInfo(const aMapName: string; aPlayerCount: Integer);
+procedure TKMMasterServer.SendMapInfo(const aMapName: string; aCRC: Cardinal; aPlayerCount: Integer);
 begin
   fHTTPMapsClient.OnReceive := nil; //We don't care about the response
   fHTTPMapsClient.GetURL(fMasterServerAddress+'maps.php?map='+UrlEncode(aMapName)
+                         +'&mapcrc='+IntToHex(aCRC, 8)
                          +'&playercount='+UrlEncode(IntToStr(aPlayerCount))
                          +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)
                          +'&coderev='+UrlEncode(GAME_REVISION)

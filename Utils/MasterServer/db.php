@@ -39,6 +39,7 @@ function db_init($con) {
 		Rev VARCHAR(8) NOT NULL,
 		Timestamp DATETIME NOT NULL,
 		Map VARCHAR(64) NOT NULL,
+		MapCRC CHAR(8),
 		Players INT(6) unsigned NOT NULL,
 		PRIMARY KEY (Timestamp)
 	)";
