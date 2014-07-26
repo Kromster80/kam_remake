@@ -1,0 +1,20 @@
+
+MaxID:16
+
+0:Space Invaders||Zasady: zupe³nie jak w klasycznej grze Space Invaders, przeciwnik ma armiê poruszaj¹c¹ siê z lewej na prawo i z powrotem, co jakiœ czas schodz¹c¹ w dó³. Twoim celem jest wysy³anie konnicy i zabicie przeciwnika. Mo¿esz wys³aæ jazdê, polecaj¹c swoim budowniczym budowê drogi 1 kratkê ponad nimi. Dostajesz bonusy za wczeœniejsze wykoñczenie przeciwnika - aktywuj je w podobny sposób jak powy¿ej, poprzez wys³anie budowniczego aby zbudowa³ drogê po swojej prawej.||Powodzenia - najeŸdŸcy musz¹ zgin¹æ!|Map by sado
+1:Runda
+2:Wynik
+3:Wynik w tej rundzie
+4:Jednostki
+5:Czas
+6:Bonusy
+7:Wie¿a stra¿nicza
+8:Wkurzeni ¿o³dacy
+9:Zwiêkszona iloœæ jednostek
+10:Nuklearny wojownik
+11:Pacho³kobomba
+12:Natychmiabójstwo
+13:Wygrywasz! Twój wynik to
+14:Przegra³eœ w rundzie
+15:¯ycia
+16:Dodatkowe ¿ycie

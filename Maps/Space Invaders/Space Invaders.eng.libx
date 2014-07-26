@@ -1,0 +1,20 @@
+
+MaxID:16
+
+0:Space Invaders||The rules: as in the classic game that everyone probably knows, the enemy has soldiers moving left to right then back again for all the time, occasionally moving downwards. Your goal is to send your horsemen to kill enemy forces. You can send a knight/scout by ordering your builders to make roads 1 tile above them. You get bonuses for ending the waves earlier, activate them in a similar way to above - by sending a builder to build a road on his right.||Good luck - invaders must die!|Map by sado
+1:Round
+2:Result
+3:Score this round
+4:Troops
+5:Time
+6:Bonuses
+7:Watchtower
+8:Militia rage
+9:Increased unit number
+10:Nuclear warrior
+11:Rogue bomb
+12:Instakill
+13:You win! Your result is
+14:You lost in round
+15:Lives
+16:Additional life
