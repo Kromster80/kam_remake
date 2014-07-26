@@ -388,6 +388,8 @@ begin
       begin
         StoreCommand(fSchedule[Tick, I].Items[K]); //Store the command first so if Exec fails we still have it in the replay
         ExecCommand(fSchedule[Tick, I].Items[K]);
+        //Returning to the lobby ends the game
+        if gGame = nil then Exit;
       end;
     end;
 

@@ -295,7 +295,9 @@ begin
     SL.Add(s);
   end;
 
-  SL.SaveToFile(aTextPath);
+  //Don't create blank files for unused translations
+  if (SL.Count > 0) or FileExists(aTextPath) then
+    SL.SaveToFile(aTextPath);
   SL.Free;
 end;
 

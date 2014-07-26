@@ -83,6 +83,7 @@ type
     fHostIndex: Integer; //In NetPlayers list
     fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
     fJoinTimeout, fLastVoteTime: Cardinal;
+    fReturnedToLobby: Boolean; //Did we get to the lobby by return to lobby feature?
     fNetPlayers: TKMNetPlayersList;
 
     fMapInfo: TKMapInfo; // Everything related to selected map
@@ -386,6 +387,7 @@ begin
   fIgnorePings := 0;
   fReconnectRequested := 0; //Cancel any reconnection that was requested
   fEnteringPassword := False;
+  fReturnedToLobby := False;
   SetGameState(lgs_None);
   fOnJoinSucc := nil;
   fOnJoinFail := nil;
@@ -1714,9 +1716,23 @@ begin
                 M.ReadW(tmpStringW); //Save name
                 M.Read(tmpCRC); //CRC
 
-                //See if the host selected the same save we already downloaded
+                //See if we already have the save file the host selected
                 FreeAndNil(fSaveInfo);
-                fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, DOWNLOADED_LOBBY_SAVE);
+                fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, tmpStringW);
+
+                if not fSaveInfo.IsValid or (fSaveInfo.CRC <> tmpCRC) then
+                begin
+                  if fReturnedToLobby and (tmpStringW = RETURN_TO_LOBBY_SAVE) then
+                  begin
+                    //Host paused file doesn't match ours, host may be cheating!
+                    PostLocalMessage('Host paused file does not match ours. Host might be attempting to cheat', csSystem);
+                    Exit;
+                  end;
+                  //See if the host selected the same save we already downloaded
+                  FreeAndNil(fSaveInfo);
+                  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, DOWNLOADED_LOBBY_SAVE);
+                end;
+
                 if fSaveInfo.IsValid and (fSaveInfo.CRC = tmpCRC) then
                 begin
                   fSelectGameKind := ngk_Save;
@@ -1730,7 +1746,7 @@ begin
                   //Save file does not exist, so downloaded it
                   fMissingFileType := ngk_Save;
                   fMissingFileName := tmpStringW;
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, True);
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False);
                 end;
               end;
 
@@ -2183,6 +2199,7 @@ begin
   fOnPlayersSetup := nil;
 
   fNetGameState := lgs_Lobby;
+  fReturnedToLobby := True; //Expect pause.sav to match host
   if IsHost then
   begin
     NetPlayers.RemAllAIs; //AIs are included automatically when you start the save

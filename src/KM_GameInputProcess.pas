@@ -72,6 +72,7 @@ type
     gic_GameAlertBeacon,            //Signal alert (beacon)
     gic_GamePause,
     gic_GameAutoSave,
+    gic_GameSaveReturnLobby,
     gic_GameTeamChange,
     gic_GameHotkeySet,      //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
     gic_GameMessageLogRead, //Player marks a message in their log as read
@@ -93,9 +94,9 @@ const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmyLink,
     gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
     gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
-  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
-  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameMessageLogRead, gic_TempDoNothing];
-  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_TempDoNothing];
+  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
+  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
+  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_TempDoNothing];
 
 type
   TGameInputCommand = record
@@ -179,7 +180,9 @@ type
 
 
 implementation
-uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking;
+uses
+  KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI,
+  KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -374,6 +377,11 @@ begin
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
       gic_GameAutoSave:           if (fReplayState = gipRecording) and fGameApp.GameSettings.Autosave then
                                     gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
+      gic_GameSaveReturnLobby:    if fReplayState = gipRecording then
+                                  begin
+                                    fGameApp.StopGameReturnToLobby(DateTimeParam); //Timestamp is synchronised
+                                    Exit;
+                                  end;
       gic_GameTeamChange:         begin
                                     //Currently unused, disabled to prevent potential exploitation
                                     {fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
@@ -543,7 +551,7 @@ end;
 
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime);
 begin
-  Assert(aCommandType = gic_GameAutoSave);
+  Assert(aCommandType in [gic_GameAutoSave, gic_GameSaveReturnLobby]);
   TakeCommand(MakeCommand(aCommandType, '', aDateTime));
 end;
 

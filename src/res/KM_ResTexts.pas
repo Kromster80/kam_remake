@@ -260,15 +260,17 @@ var
 begin
   aStream.Write(gResLocales.Count);
   for I := 0 to gResLocales.Count - 1 do
-  begin
-    aStream.WriteA(gResLocales[I].Code);
+    //Only save locales containing text (otherwise locale list must be synced in MP)
+    if Length(fTexts[I]) > 0 then
+    begin
+      aStream.WriteA(gResLocales[I].Code);
 
-    TextCount := Length(fTexts[I]);
+      TextCount := Length(fTexts[I]);
 
-    aStream.Write(TextCount);
-    for K := 0 to TextCount - 1 do
-      aStream.WriteW(fTexts[I,K]);
-  end;
+      aStream.Write(TextCount);
+      for K := 0 to TextCount - 1 do
+        aStream.WriteW(fTexts[I,K]);
+    end;
 end;
 
 

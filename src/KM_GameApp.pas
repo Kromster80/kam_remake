@@ -39,7 +39,8 @@ type
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
     procedure Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString = '');
-    procedure StopGameReturnToLobby(aSender: TObject);
+    procedure StopGameReturnToLobby(aTimestamp: TDateTime);
+    procedure AnnounceReturnToLobby(Sender: TObject);
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
     procedure ToggleLocale(aLocale: AnsiString);
@@ -92,7 +93,7 @@ implementation
 uses
   KM_Log, KM_Main, KM_GameCursor,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_Utils;
+  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -399,7 +400,7 @@ begin
 end;
 
 
-procedure TKMGameApp.StopGameReturnToLobby(aSender: TObject);
+procedure TKMGameApp.StopGameReturnToLobby(aTimestamp: TDateTime);
 var ChatState: TChatState;
 begin
   if gGame = nil then Exit;
@@ -407,8 +408,7 @@ begin
   //Copy text from in-game chat to lobby (save it before freeing gGame)
   ChatState := gGame.GameplayInterface.GetChatState;
 
-  if fNetworking.IsHost then
-    gGame.Save(RETURN_TO_LOBBY_SAVE, UTCNow);
+  gGame.Save(RETURN_TO_LOBBY_SAVE, aTimestamp);
   FreeThenNil(gGame);
 
   fNetworking.ReturnToLobby; //Clears gGame event pointers from Networking
@@ -420,6 +420,12 @@ begin
   fMainMenuInterface.SetChatState(ChatState);
 
   gLog.AddTime('Gameplay ended - Return to lobby');
+end;
+
+
+procedure TKMGameApp.AnnounceReturnToLobby(Sender: TObject);
+begin
+  gGame.GameInputProcess.CmdGame(gic_GameSaveReturnLobby, UTCNow);
 end;
 
 
@@ -628,7 +634,7 @@ begin
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
   fNetworking.OnStartMap := NewMultiplayerMap;
   fNetworking.OnStartSave := NewMultiplayerSave;
-  fNetworking.OnReturnToLobby := StopGameReturnToLobby;
+  fNetworking.OnReturnToLobby := AnnounceReturnToLobby;
 end;
 
 

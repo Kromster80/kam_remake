@@ -151,8 +151,21 @@ const
 
 { TKMapInfo }
 constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
+
+  function GetLIBXCRC(aSearchFile: UnicodeString): Cardinal;
+  var SearchRec: TSearchRec;
+  begin
+    Result := 0;
+    FindFirst(aSearchFile, faAnyFile - faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+        Result := Result xor Adler32CRC(ExtractFilePath(aSearchFile) + SearchRec.Name);
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+  end;
+
 var
-  DatFile, MapFile, ScriptFile, TxtFile: string;
+  DatFile, MapFile, ScriptFile, TxtFile, LIBXFiles: string;
   DatCRC, OthersCRC: Cardinal;
   fMissionParser: TMissionParserInfo;
 begin
@@ -168,6 +181,7 @@ begin
   MapFile := fPath + fFileName + '.map';
   ScriptFile := fPath + fFileName + '.script'; //Needed for CRC
   TxtFile := fPath + fFileName + '.txt'; //Needed for CRC
+  LIBXFiles := fPath + fFileName + '.*.libx'; //Needed for CRC
 
   if not FileExists(DatFile) then Exit;
 
@@ -182,7 +196,7 @@ begin
   //.map file CRC is the slowest, so only calculate it if necessary
   OthersCRC := 0; //Supresses incorrect warning by Delphi
   if fStrictParsing then
-    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile);
+    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
 
   //Does the map need to be fully rescanned? (.mi cache is outdated?)
   if (fVersion <> GAME_REVISION) or

@@ -1431,6 +1431,9 @@ begin
                       gProjectiles.UpdateState; //If game has stopped it's NIL
 
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
+                      //Returning to the lobby (through MP GIP) ends the game
+                      if gGame = nil then Exit;
+
                       //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
                       if AGGRESSIVE_REPLAYS then
                         fGameInputProcess.CmdTemp(gic_TempDoNothing);
