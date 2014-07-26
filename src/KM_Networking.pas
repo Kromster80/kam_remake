@@ -840,6 +840,7 @@ var
   HumanUsableLocs, AIUsableLocs: TPlayerIndexArray;
   ErrorMessage: UnicodeString;
   M: TKMemoryStream;
+  CheckMapInfo: TKMapInfo;
 begin
   Assert(IsHost, 'Only host can start the game');
   Assert(CanStart, 'Can''t start the game now');
@@ -851,6 +852,15 @@ begin
     ngk_Map:  begin
                 HumanUsableLocs := fMapInfo.HumanUsableLocations;
                 AIUsableLocs := fMapInfo.AIUsableLocations;
+                //Check that map's hash hasn't changed
+                CheckMapInfo := TKMapInfo.Create(fMapInfo.FileName, True, fMapInfo.MapFolder);
+                if CheckMapInfo.CRC <> fMapInfo.CRC then
+                begin
+                  PostLocalMessage('Cannot start: Map files have changed. Please reselect the map', csSystem);
+                  CheckMapInfo.Free;
+                  Exit;
+                end;
+                CheckMapInfo.Free;
               end;
     ngk_Save: begin
                 HumanUsableLocs := fSaveInfo.Info.HumanUsableLocations;
