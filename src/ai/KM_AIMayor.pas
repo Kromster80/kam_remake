@@ -18,8 +18,6 @@ type
     fPathFindingRoad: TPathFindingRoad;
     fPathFindingRoadShortcuts: TPathFindingRoadShortcuts;
 
-    fAutoRepair: Boolean;
-
     fRoadBelowStore: Boolean;
     fDefenceTowersPlanned: Boolean;
     fDefenceTowers: TKMPointTagList;
@@ -27,12 +25,12 @@ type
     WarfareRatios: TWarfareDemands;
 
     procedure SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
-    procedure SetAutoRepair(const Value: Boolean);
 
     function TryBuildHouse(aHouse: THouseType): Boolean;
     function TryConnectToRoad(aLoc: TKMPoint): Boolean;
     function GetMaxPlans: Byte;
 
+    procedure CheckAutoRepair;
     procedure CheckUnitCount;
     procedure CheckWareFlow;
     procedure CheckHouseCount;
@@ -50,7 +48,6 @@ type
     property CityPlanner: TKMCityPlanner read fCityPlanner;
 
     procedure AfterMissionInit;
-    property AutoRepair: Boolean read fAutoRepair write SetAutoRepair;
     procedure OwnerUpdate(aPlayer: THandIndex);
     function BalanceText: UnicodeString;
 
@@ -108,8 +105,6 @@ begin
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
   fPathFindingRoadShortcuts := TPathFindingRoadShortcuts.Create(fOwner);
   fDefenceTowers := TKMPointTagList.Create;
-
-  fAutoRepair := False; //In KaM it is Off by default
 end;
 
 
@@ -128,6 +123,7 @@ procedure TKMayor.AfterMissionInit;
 begin
   fCityPlanner.AfterMissionInit;
   CheckArmyDemand;
+  CheckAutoRepair;
   fBalance.StoneNeed := GetMaxPlans * 2.5;
 end;
 
@@ -904,16 +900,13 @@ begin
 end;
 
 
-procedure TKMayor.SetAutoRepair(const Value: Boolean);
-var
-  I: Integer;
+procedure TKMayor.CheckAutoRepair;
+var I: Integer;
 begin
-  fAutoRepair := Value;
-
-  //Apply to those houses placed by a script before AutoRepair command
-  if gHands[fOwner].PlayerType = hndComputer then
-    for I := 0 to gHands[fOwner].Houses.Count - 1 do
-      gHands[fOwner].Houses[I].BuildingRepair := fAutoRepair;
+  with gHands[fOwner] do
+    if PlayerType = hndComputer then
+      for I := 0 to Houses.Count - 1 do
+        Houses[I].BuildingRepair := fSetup.AutoRepair;
 end;
 
 
@@ -927,6 +920,8 @@ procedure TKMayor.UpdateState(aTick: Cardinal);
 begin
   //Checking mod result against MAX_HANDS causes first update to happen ASAP
   if (aTick + Byte(fOwner)) mod (MAX_HANDS * 10) <> MAX_HANDS then Exit;
+
+  CheckAutoRepair;
 
   //Train new units (citizens, serfs, workers and recruits) if needed
   CheckUnitCount;
@@ -950,7 +945,6 @@ end;
 procedure TKMayor.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
-  SaveStream.Write(fAutoRepair);
   SaveStream.Write(fRoadBelowStore);
   SaveStream.Write(fDefenceTowersPlanned);
   fDefenceTowers.SaveToStream(SaveStream);
@@ -967,7 +961,6 @@ end;
 procedure TKMayor.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
-  LoadStream.Read(fAutoRepair);
   LoadStream.Read(fRoadBelowStore);
   LoadStream.Read(fDefenceTowersPlanned);
   fDefenceTowers.LoadFromStream(LoadStream);

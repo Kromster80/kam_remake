@@ -11,6 +11,7 @@ type
     Aggressiveness: Integer; //-1 means not used or default
     AutoAttack: Boolean;
     AutoBuild: Boolean;
+    AutoRepair: Boolean;
     AutoDefend: Boolean;
     DefendAllies: Boolean;
     UnlimitedEquip: Boolean;
@@ -107,6 +108,8 @@ begin
   ArmyType := atIronAndLeather; //Mixed army
   EquipRateLeather := 500;
   EquipRateIron := 500;
+  AutoBuild := True;
+  AutoRepair := True;
   AutoAttack := True;
   AutoDefend := True;
   DefendAllies := True;

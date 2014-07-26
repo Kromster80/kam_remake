@@ -15,6 +15,7 @@ Bugs:
  +	Returning to the lobby must create paused.sav on all clients to avoid host exploits and refuse to download it if returned to the lobby and paused doesn't match (also don't auto download other saves if we just returned to the lobby, display download button)
  +	Recheck the map hash before the game starts in case the files were changed
  +	Map popularity stats need to store hash too to separate modifications
+ +	Houses placed during loading are on auto repair even if the player is human
 	You can start the game before spectators have downloaded save, which causes an error
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position

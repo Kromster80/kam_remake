@@ -432,7 +432,7 @@ begin
     ct_AINoBuild:       if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AI.Setup.AutoBuild := False;
     ct_AIAutoRepair:    if fLastHand <> PLAYER_NONE then
-                          gHands[fLastHand].AI.Mayor.AutoRepair := True;
+                          gHands[fLastHand].AI.Setup.AutoRepair := True;
     ct_AIAutoAttack:    if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AI.Setup.AutoAttack := True;
     ct_AIAutoDefend:    if fLastHand <> PLAYER_NONE then
@@ -716,7 +716,7 @@ begin
     //is not AI so no data is lost from MapEd (human players will ignore AI script anyway)
     AddCommand(ct_AIStartPosition, [gHands[I].AI.Setup.StartPosition.X-1,gHands[I].AI.Setup.StartPosition.Y-1]);
     if not gHands[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
-    if gHands[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
+    if gHands[I].AI.Setup.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
     if gHands[I].AI.Setup.AutoAttack then    AddCommand(ct_AIAutoAttack, []);
     if gHands[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
     if gHands[I].AI.Setup.DefendAllies then  AddCommand(ct_AIDefendAllies, []);

@@ -84,7 +84,6 @@ begin
       gHands[I].AI.General.DefencePositions.Clear;
       gHands[I].AI.General.Attacks.Clear;
       gHands[I].AI.Setup.ApplyAgressiveBuilderSetup;
-      gHands[I].AI.Mayor.AutoRepair := True; //Setup can't set that
     end;
 
   if (Sender = Button_AIBuilderOK) or (Sender = Button_AIBuilderCancel) then

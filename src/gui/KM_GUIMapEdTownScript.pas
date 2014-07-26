@@ -86,7 +86,7 @@ end;
 procedure TKMMapEdTownScript.Town_ScriptRefresh;
 begin
   CheckBox_AutoBuild.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoBuild;
-  CheckBox_AutoRepair.Checked := gHands[MySpectator.HandIndex].AI.Mayor.AutoRepair;
+  CheckBox_AutoRepair.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoRepair;
   TrackBar_SerfsPer10Houses.Position := Round(10*gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse);
   if MySpectator.HandIndex <> -1 then TrackBar_SerfsPer10Houses.Hint := Format(gResTexts[TX_MAPED_AI_SERFS_PER_10_HOUSES_HINT], [gHands[MySpectator.HandIndex].Stats.GetHouseQty(ht_Any)]);
   TrackBar_WorkerCount.Position := gHands[MySpectator.HandIndex].AI.Setup.WorkerCount;
@@ -107,7 +107,7 @@ end;
 procedure TKMMapEdTownScript.Town_ScriptChange(Sender: TObject);
 begin
   gHands[MySpectator.HandIndex].AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
-  gHands[MySpectator.HandIndex].AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
+  gHands[MySpectator.HandIndex].AI.Setup.AutoRepair := CheckBox_AutoRepair.Checked;
   gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
   gHands[MySpectator.HandIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
   gHands[MySpectator.HandIndex].AI.Setup.UnlimitedEquip := CheckBox_UnlimitedEquip.Checked;

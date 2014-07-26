@@ -2546,7 +2546,7 @@ end;
 procedure TKMScriptActions.AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
 begin
    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-     gHands[aPlayer].AI.Mayor.AutoRepair := aAuto
+     gHands[aPlayer].AI.Setup.AutoRepair := aAuto
    else
      LogError('Actions.AIAutoRepair', [aPlayer, Byte(aAuto)]);
 end;

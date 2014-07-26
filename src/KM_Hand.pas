@@ -699,10 +699,6 @@ function TKMHand.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntra
 begin
   Result := fHouses.AddHouse(aHouseType, PosX, PosY, fHandIndex, RelativeEntrace);
   Result.OnDestroyed := HouseDestroyed;
-
-  //Set default house repair mode
-  if fPlayerType = hndComputer then
-    Result.BuildingRepair := fAI.Mayor.AutoRepair;
 end;
 
 
@@ -727,10 +723,6 @@ function TKMHand.AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint): TKMHouse;
 begin
   Result := fHouses.AddHouseWIP(aHouseType, aLoc.X, aLoc.Y, fHandIndex);
   Result.OnDestroyed := HouseDestroyed;
-
-  //Set default house repair mode
-  if fPlayerType = hndComputer then
-    Result.BuildingRepair := fAI.Mayor.AutoRepair;
 
   fStats.HouseStarted(aHouseType);
 end;
