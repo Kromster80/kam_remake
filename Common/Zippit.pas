@@ -104,7 +104,7 @@ end;
 procedure TZippit.AddFile(const Name: String; PathOnZip:string='');
 var
   F: TFileStream;
-  B: String;
+  B: AnsiString;
 begin
   if not FileExists(Name) then exit;
   if PathOnZip <> '' then PathOnZip := SysUtils.IncludeTrailingBackslash(PathOnZip);

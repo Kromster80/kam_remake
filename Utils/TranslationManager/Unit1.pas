@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus,
   {$IFDEF MSWINDOWS} ComCtrls, FileCtrl, {$ENDIF}
-  StdCtrls, StrUtils, Windows, SysUtils, CheckLst, INIFiles,
+  StdCtrls, StrUtils, Windows, SysUtils, CheckLst, INIFiles, Zippit,
   KM_Defaults, KM_FileIO, KM_ResLocales, Unit_Text, Unit_PathManager;
 
 const
@@ -45,6 +45,8 @@ type
     StatusBar1: TStatusBar;
     Bevel1: TBevel;
     clbFolders: TCheckListBox;
+    mmSaveAllZIP: TMenuItem;
+    sdExportZIP: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -70,6 +72,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure cbShowMisClick(Sender: TObject);
     procedure clbFoldersClickCheck(Sender: TObject);
+    procedure mmSaveAllZIPClick(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -529,6 +532,33 @@ procedure TForm1.Edit1Change(Sender: TObject);
 begin
   RefreshFilter;
   RefreshList;
+end;
+
+
+procedure TForm1.mmSaveAllZIPClick(Sender: TObject);
+var
+  ExportPathManager: TPathManager;
+  I, K: Integer;
+  MyZip: TZippit;
+  S: string;
+begin
+  if not sdExportZIP.Execute(Handle) then Exit;
+
+  ExportPathManager := TPathManager.Create;
+  ExportPathManager.AddPath(fWorkDir, '');
+
+  MyZip := TZippit.Create;
+  for I:=0 to ExportPathManager.Count-1 do
+    for K := 0 to gResLocales.Count - 1 do
+    begin
+      S := Format(ExportPathManager[I], [gResLocales[K].Code]);
+      if FileExists(fWorkDir + S) then
+        MyZip.AddFile(fWorkDir + S, ExtractFilePath(S));
+    end;
+
+  MyZip.SaveToFile(sdExportZIP.FileName);
+  MyZip.Free;
+  ExportPathManager.Free;
 end;
 
 

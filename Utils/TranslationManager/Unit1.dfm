@@ -232,6 +232,10 @@ object Form1: TForm1
         Caption = 'Save'
         OnClick = btnSaveClick
       end
+      object mmSaveAllZIP: TMenuItem
+        Caption = 'Export all translations as ZIP'
+        OnClick = mmSaveAllZIPClick
+      end
       object mnuExit: TMenuItem
         Caption = 'Exit'
         OnClick = mnuExitClick
@@ -259,5 +263,12 @@ object Form1: TForm1
         OnClick = btnUnusedClick
       end
     end
+  end
+  object sdExportZIP: TSaveDialog
+    DefaultExt = 'zip'
+    Filter = 'ZIP file|*.zip'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Left = 448
+    Top = 192
   end
 end
