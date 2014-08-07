@@ -101,13 +101,10 @@ begin
 	Actions.OverlayTextSet(-1, 'Team ' + Team1Name + ': ' + IntToStr(Team1) + ' buildings|Team ' + Team2Name + ': ' + IntToStr(Team2) + ' buildings');
 end;
 
-//need to completely redo this code; damn pascalscript for its lack of
-//2 dimensional arrays support...
-
 procedure FailCase(FailID, UnitOwner: Integer); //this is used both in YouFail and in SadoSetHouseOwner
 begin
-if (FailCount[FailID][UnitOwner] = 3) and (FailTimer[FailID][UnitOwner] + 100 > States.GameTime) then //(if 3 failures in 10 seconds)
-		case FailID of
+if (FailCount[FailID][UnitOwner] = 3) and (FailTimer[FailID][UnitOwner] + 100 > States.GameTime) then //if 3 failures in 10 seconds
+		case FailID of									      // then show the message for 10 seconds
 		0: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a building with a scout or a knight!|Read the rules next time :)');
 		1: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a tower owned by your ally.');
 		end;
@@ -121,21 +118,12 @@ begin
 	FailCase(FailID, UnitOwner);
 end;
 
-{
-procedure YouFail(FailID, UnitOwner: Integer);
-begin
-	case FailID of
-		0: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a building with a scout or a knight!|Read the rules next time :)');
-		1: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a tower owned by your ally.');
-		end;
-end;
-}
 procedure OnMissionStart;
 var P, HouseID, I, J, HouseType: Integer;
 var Houses: array of Integer;
 begin
  CheckForWinner;
- Actions.ShowMsg(-1,'<$0>'); //tutorial message
+ //Actions.ShowMsg(-1,'<$0>'); //tutorial message
  for P := 0 to TotalLocs do
     begin
       if P <> TotalLocs then
@@ -164,11 +152,7 @@ begin
          end;
          Actions.HouseDisableUnoccupiedMessage(HouseID, True);
          if HouseType = 13 then
-		 begin
             Actions.HouseSchoolQueueAdd(HouseID, 13, 1);
-			//for J := 0 to ( TotalLocs - 1 ) do
-            //     Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 3);
-		 end;
          //team buildings counters
          if (P > (TotalLocs / 2 - 1)) and (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
             begin

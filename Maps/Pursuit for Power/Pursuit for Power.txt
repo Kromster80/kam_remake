@@ -1,0 +1,8 @@
+Title
+Pursuit for Power
+
+SmallDesc
+A mission by Vatrix
+
+BigDescLIBX
+1

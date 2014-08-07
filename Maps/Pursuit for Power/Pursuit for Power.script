@@ -1,0 +1,137 @@
+// Waves are inspired by Skyppers Invasion
+
+var Barbs, Pikes, Xbows: Integer;
+
+procedure OnTick;
+begin
+if ((States.PlayerDefeated (5) = false)
+and (States.PlayerDefeated (0) = false)) then
+begin
+// Reinforcements
+	if ((States.GameTime MOD 18000 = 0) 
+	and (States.StatArmyCount (7) = 0)) then
+	begin
+	Barbs:= Actions.GiveGroup (0, 23, 86, 142, 6, 4, 2);
+	Pikes:= Actions.GiveGroup (0, 20, 86, 135, 6, 5, 2);
+	Xbows:= Actions.GiveGroup (0, 18, 91, 139, 6, 7, 3);
+	Actions.ShowMsg (0, '<$2>');
+	end;
+	
+	if States.GameTime = 54000
+	then begin
+// Wave 01
+		Actions.GiveGroup (7, 20, 7, 69, 2, 30, 6); // Pikes 30
+		Actions.GiveGroup (7, 20, 7, 77, 2, 30, 6); // Pikes 30
+	end;
+ 	
+	if States.GameTime = 72000
+	then begin
+// Wave 02
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 20, 7, 77, 2, 36, 6); // Pikes 36
+	end;
+
+	if States.GameTime = 81000
+	then begin
+// Wave 03
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 77, 2, 30, 6); // Swords 30
+	end;
+	
+	if States.GameTime = 90000
+	then begin
+// Wave 04
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 99000
+	then begin
+// Wave 05
+		Actions.GiveGroup (7, 20, 10, 69, 2, 12, 6); // Pikes 12
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 108000
+	then begin
+// Wave 06
+		Actions.GiveGroup (7, 20, 12, 69, 2, 24, 6); // Pikes 24
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 117000
+	then begin
+// Wave 07
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 126000
+	then begin
+// Wave 08
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 10, 77, 2, 12, 6); // Swords 12
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 135000
+	then begin
+// Wave 09
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 12, 77, 2, 24, 6); // Swords 24
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 144000
+	then begin
+// Wave 10
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 13, 77, 2, 30, 6); // Swords 30
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 153000
+	then begin
+// Wave 11
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 20, 7, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 14, 77, 2, 36, 6); // Swords 36
+		Actions.GiveGroup (7, 16, 7, 77, 2, 36, 6); // Swords 36
+	end;
+	
+	if States.GameTime = 162000
+	then begin
+// Wave 12
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 69, 2, 36, 6); // Swords 36
+		Actions.GiveGroup (7, 16, 14, 77, 2, 36, 6); // Swords 36
+		Actions.GiveGroup (7, 22, 7, 77, 2, 12, 6); // Knights 12
+	end;
+	
+	if States.GameTime = 171000
+	then begin
+// Wave 13
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 69, 2, 36, 6); // Swords 36
+		Actions.GiveGroup (7, 16, 14, 77, 2, 36, 6); // Swords 36
+		Actions.GiveGroup (7, 22, 7, 77, 2, 24, 6); // Knights 24
+	end;
+	
+	if States.GameTime = 180000
+	then begin
+// Wave 14
+		Actions.GiveGroup (7, 20, 14, 69, 2, 36, 6); // Pikes 36
+		Actions.GiveGroup (7, 16, 7, 69, 2, 36, 6); // Swords 36
+		Actions.GiveGroup (7, 16, 14, 77, 2, 36, 6); // Swords 36
+		Actions.GiveGroup (7, 22, 7, 77, 2, 36, 6); // Knights 36
+// Message Last Attack
+		Actions.ShowMsg (0, '<$3>')
+	end;
+end;
+end;

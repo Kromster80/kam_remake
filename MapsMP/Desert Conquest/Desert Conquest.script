@@ -21,7 +21,7 @@ On each side:
 1 iron weaponry - swordmen
 1 armor smithy - crossbowmen
 1 stable - knights
-1 tower - it can be captured, the stone there will refill slowly
+1 tower - the stone there will refill slowly
 1 farm - gives random units
 
 For 1 building, you get:
@@ -33,11 +33,9 @@ For 1 building, you get:
 -----------------------------------------------------------------------------------------}
 const
 TotalLocs = 2;
-TotalFails = 2;
 
 var Team1, Team2: Integer;
-var FailTimer, FailCount: array[0..(TotalFails - 1)] of array[0..(TotalLocs - 1)] of Integer;
-var Team1Name, Team2Name: AnsiString;
+var Team1Name, Team2Name, GrammarNazi1, GrammarNazi2: AnsiString;
 
 //lines below are taken from Battle of Octumn script, used with permission
 function PlayerHasUndefeatedEnemy(aPlayer: Integer): Boolean;
@@ -89,32 +87,42 @@ end;
 
 procedure ReloadOverlay;
 begin
-	Actions.OverlayTextSet(-1, Team1Name + ': ' + IntToStr(Team1) + ' buildings|' + Team2Name + ': ' + IntToStr(Team2) + ' buildings');
+	Actions.OverlayTextSet(-1, Team1Name + ': ' + IntToStr(Team1) + ' building' + GrammarNazi1 + Team2Name + ': ' + IntToStr(Team2) + ' building' + GrammarNazi2);
 end;
 
 procedure OnHouseDestroyed(HouseID, DestroyerID: Integer);
 begin
-	if (States.HouseOwner(HouseID) = 0) then
-		Dec(Team1)
-	else if (States.HouseOwner(HouseID) = 1) then
-		Dec(Team2);
-end;
-
-procedure FailCase(FailID, UnitOwner: Integer); //this is used both in YouFail and in SadoSetHouseOwner
-begin
-if (FailCount[FailID][UnitOwner] = 3) and (FailTimer[FailID][UnitOwner] + 100 > States.GameTime) then //(if 3 failures in 10 seconds)
-		case FailID of
-		0: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a building with a scout or a knight!|Read the rules next time :)');
-		1: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a tower owned by your ally.');
+	if (DestroyerID = 1) and (States.HouseType(HouseID)<> 13) and (States.HouseType(HouseID)<> 21) then
+	begin
+		Dec(Team1);
+		case Team1 of
+		1: begin
+		    GrammarNazi1 := '|';
+		    ReloadOverlay;
+		   end;
+		0: begin
+		    GrammarNazi1 := 's|';
+		    ReloadOverlay;
+		   end;
+		else ReloadOverlay;
 		end;
-end;
-
-procedure YouFail(FailID, UnitOwner: Integer); //this procedure handles overlay tips, in case someone didn't read the rules or something :)
-begin
-	if FailTimer[FailID][UnitOwner] = 0 then
-		FailTimer[FailID][UnitOwner] := States.GameTime;
-	FailCount[FailID][UnitOwner] := FailCount[FailID][UnitOwner] + 1;
-	FailCase(FailID, UnitOwner);
+		
+	end
+	else if (DestroyerID = 0) then
+	begin
+		Dec(Team2);
+		case Team2 of
+		1: begin
+		    GrammarNazi2 := '|';
+		    ReloadOverlay;
+		   end;
+		0: begin
+		    GrammarNazi2 := 's|';
+		    ReloadOverlay;
+		   end;
+		else ReloadOverlay;
+		end;
+	end;
 end;
 
 procedure OnMissionStart;
@@ -123,47 +131,36 @@ var Houses: array of Integer;
 begin
  Team1Name := States.PlayerName(0);
  Team2Name := States.PlayerName(1);
+ GrammarNazi1 := 's|';
+ GrammarNazi2 := 's|';
  CheckForWinner;
- Actions.ShowMsg(-1,'<$0>'); //tutorial message
- for P := 0 to TotalLocs do
-    begin
-      if P <> TotalLocs then
-      begin
-         Actions.PlayerShareFog(TotalLocs, P, False);
-         Actions.FogCoverAll(P);
-      end;
-	end;
- for P := 0 to TotalLocs do
+ for P := 0 to TotalLocs-1 do
+      Actions.FogCoverAll(P);
+ for P := 0 to TotalLocs-1 do
     begin
       Houses := States.PlayerGetAllHouses(P);
       for I := 0 to Length(Houses)-1 do
       begin
          HouseID := Houses[I];
          HouseType := States.HouseType(HouseID);
-         case P of
-            TotalLocs: for J := 0 to ( TotalLocs - 1 ) do
-                 Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 3);
-            else for J := 0 to ( TotalLocs - 1 ) do
-			begin
-				if (States.PlayerAllianceCheck( P, J ) = True ) then
-					Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 16);
-				if (HouseType <> 13) and (HouseType <> 21) then
-					Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID)-1, 3);
-			end;
-         end;
+	 for J := 0 to ( TotalLocs - 1 ) do
+	    begin
+	      if (States.PlayerAllianceCheck( P, J ) = True ) then
+		 Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 16);
+	      if (HouseType <> 13) and (HouseType <> 21) then
+		 Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID)-1, 3);
+	    end;
          Actions.HouseDisableUnoccupiedMessage(HouseID, True);
          if HouseType = 13 then
-		 begin
+	 begin
             Actions.HouseSchoolQueueAdd(HouseID, 13, 1);
-			//for J := 0 to ( TotalLocs - 1 ) do
-            //     Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 3);
-		 end;
+	 end;
          //team buildings counters
-         if (P > (TotalLocs / 2 - 1)) and (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
+         if (P = 1) and (HouseType <> 13) and (HouseType <> 21) then
             begin
                Inc(Team2);
             end
-            else if (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
+            else if (HouseType <> 13) and (HouseType <> 21) then
                Inc(Team1);
       end;
     end;
@@ -220,7 +217,7 @@ begin
    17: if (P <> 6) and (TimeOffset mod 600 = 0) then //tower
          begin
             Actions.HouseAddWaresTo(HouseID, 1, 1);
-			Actions.UnitHungerSet(States.UnitAt(States.HousePositionX(HouseID), States.HousePositionY(HouseID)), States.UnitMaxHunger);
+	    Actions.UnitHungerSet(States.UnitAt(States.HousePositionX(HouseID), States.HousePositionY(HouseID)), States.UnitMaxHunger);
          end;
    8: if (TimeOffset mod 1200 = 0) then //farm
          begin
@@ -254,7 +251,7 @@ procedure OnTick;
 var I, P, F, HouseID, UnitID, TimeOffset, Owner: Integer;
 var Houses: array of Integer;
 begin
-   for P := 0 to TotalLocs do
+   for P := 0 to TotalLocs-1 do
    begin
     if ( (States.GameTime + P) mod 10 = 0) then  //each second(=10 ticks), do:
     begin
@@ -269,19 +266,15 @@ begin
       //so, we take all the buildings of a player, and I is the number of the house
       for I := 0 to Length(Houses)-1 do
          SadoGivePlayerUnit( P, States.HouseType(Houses[I]), TimeOffset, Houses[I] );
-	  for F := 0 to (TotalFails - 1) do
-				if ( P <> TotalLocs ) and (FailCount[F][P] > 3) and (FailTimer[F][P] + 100 < States.GameTime) then
-					begin
-						FailTimer[F][P] := 0;
-						FailCount[F][P] := 0;
-						ReloadOverlay;
-					end;
     end;   //if gametime...
-    if States.PlayerEnabled(P) and not States.PlayerDefeated(P) then //winning conditions
+    if (States.PlayerEnabled(P)) and (not States.PlayerDefeated(P)) then //winning conditions
       if (States.StatArmyCount(P)=0) and (States.StatHouseTypeCount(P, 21)=0) then
       begin
         Actions.PlayerDefeat(P);
         CheckForWinner;
+        if P = 1 then
+        Actions.OverlayTextSet(-1, Team1Name + ' wins with ' + IntToStr(Team1) + ' building' + GrammarNazi1)
+        else Actions.OverlayTextSet(-1, Team2Name + ' wins with ' + IntToStr(Team2) + ' building' + GrammarNazi1);
       end;
    end;    //for P...
 end;
