@@ -18,7 +18,7 @@ type
     property Count: Integer read GetCount;
     property Paths[aIndex: Integer]: string read GetPath; default;
     procedure Clear;
-    procedure AddPath(aPath: string);
+    procedure AddPath(aBasePath, aSubPath: string);
   end;
 
 
@@ -53,7 +53,7 @@ begin
   fPaths.Clear;
 end;
 
-procedure TPathManager.AddPath(aPath: string);
+procedure TPathManager.AddPath(aBasePath, aSubPath: string);
 var
   I: Integer;
   FileMask: string;
@@ -62,7 +62,7 @@ var
   PathAdded: Boolean;
 begin
   SubFolders := TStringList.Create;
-  SubFolders.Add(aPath);
+  SubFolders.Add(aBasePath + aSubPath);
 
   I := 0;
   repeat
@@ -75,7 +75,7 @@ begin
           if not PathAdded and SameText(RightStr(SearchRec.Name, 5), '.libx') then
           begin
             FileMask := LeftStr(SearchRec.Name, Length(SearchRec.Name) - 8) + '%s.libx';
-            fPaths.Add(ExtractRelativePath(aPath, SubFolders[I]) + FileMask);
+            fPaths.Add(ExtractRelativePath(aBasePath, SubFolders[I]) + FileMask);
             PathAdded := True;
           end;
     until (FindNext(SearchRec) <> 0);

@@ -47,17 +47,17 @@ object Form1: TForm1
   end
   object lbFolders: TListBox
     Left = 8
-    Top = 8
+    Top = 71
     Width = 321
-    Height = 249
+    Height = 211
     TabOrder = 8
     OnClick = lbFoldersClick
   end
   object ListBox1: TListBox
     Left = 8
-    Top = 264
+    Top = 288
     Width = 321
-    Height = 289
+    Height = 275
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
@@ -206,6 +206,22 @@ object Form1: TForm1
       item
         Width = 50
       end>
+  end
+  object clbFolders: TCheckListBox
+    Left = 8
+    Top = 8
+    Width = 321
+    Height = 57
+    OnClickCheck = clbFoldersClickCheck
+    AutoComplete = False
+    Columns = 2
+    Items.Strings = (
+      'Game'
+      'Tutorials'
+      'Campaigns'
+      'Maps'
+      'MapsMP')
+    TabOrder = 17
   end
   object MainMenu1: TMainMenu
     Left = 32

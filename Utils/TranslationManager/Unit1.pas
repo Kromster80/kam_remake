@@ -44,6 +44,7 @@ type
     cbShowDup: TCheckBox;
     StatusBar1: TStatusBar;
     Bevel1: TBevel;
+    clbFolders: TCheckListBox;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -68,6 +69,7 @@ type
     procedure clbShowLangClickCheck(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure cbShowMisClick(Sender: TObject);
+    procedure clbFoldersClickCheck(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -187,7 +189,18 @@ var
 begin
   lbFolders.Clear;
   fPathManager.Clear;
-  fPathManager.AddPath(fWorkDir);
+
+  //Add paths
+  if clbFolders.Checked[0] then
+    fPathManager.AddPath(fWorkDir, 'data' + PathDelim + 'text' + PathDelim);
+  if clbFolders.Checked[1] then
+    fPathManager.AddPath(fWorkDir, 'Tutorials' + PathDelim);
+  if clbFolders.Checked[2] then
+    fPathManager.AddPath(fWorkDir, 'Campaigns' + PathDelim);
+  if clbFolders.Checked[3] then
+    fPathManager.AddPath(fWorkDir, 'Maps' + PathDelim);
+  if clbFolders.Checked[4] then
+    fPathManager.AddPath(fWorkDir, 'MapsMP' + PathDelim);
 
   for I := 0 to fPathManager.Count - 1 do
     lbFolders.Items.Add(fPathManager[I]);
@@ -248,25 +261,31 @@ procedure TForm1.RefreshList;
 
     //Hide lines that have text
     if cbShowMis.Checked then
-    begin
-      Result := False;
-      if (TextID <> -1) then
-        for I := 0 to gResLocales.Count - 1 do
-          if clbShowLang.Checked[I+1] then
-            Result := Result or (fTextManager.Texts[TextID][I] = '');
-    end;
+      if fTextManager.TextBlankInAll(aIndex) then
+        Result := False
+      else
+      begin
+        Result := False;
+        if (TextID <> -1) then
+          for I := 0 to gResLocales.Count - 1 do
+            if clbShowLang.Checked[I+1] then
+              Result := Result or (fTextManager.Texts[TextID][I] = '');
+      end;
 
     //Show lines that are the same in selected locales
     if Result and cbShowDup.Checked then
-    begin
-      Result := False;
-      if (TextID <> -1) then
-        for I := 0 to gResLocales.Count - 1 do
-          if clbShowLang.Checked[I+1] then
-          for K := 0 to gResLocales.Count - 1 do
-            if (K <> I) and clbShowLang.Checked[K+1] then
-              Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][K]);
-    end;
+      if fTextManager.TextBlankInAll(aIndex) then
+        Result := False
+      else
+      begin
+        Result := False;
+        if (TextID <> -1) then
+          for I := 0 to gResLocales.Count - 1 do
+            if clbShowLang.Checked[I+1] then
+            for K := 0 to gResLocales.Count - 1 do
+              if (K <> I) and clbShowLang.Checked[K+1] then
+                Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][K]);
+      end;
 
     if Result and (Edit1.Text <> '') then
         Result := (TextID <> -1) and (Pos(UpperCase(Edit1.Text), UpperCase(fTextManager.Texts[TextID][DefLoc])) <> 0);
@@ -371,10 +390,17 @@ var
   I: Integer;
   F: TIniFile;
   Locs: string;
+const
+  DEFAULT_FOLDER_CHECKED: array[0..4] of Boolean =
+    (True, True, True,
+     False, False); //Maps/MapsMP are not ticked by default
 begin
   F := TIniFile.Create(aPath);
   try
     Locs := F.ReadString('Root', 'Selected_Locales', 'eng');
+    for I := 0 to clbFolders.Items.Count-1 do
+      if F.ReadBool('Folders', clbFolders.Items[I], DEFAULT_FOLDER_CHECKED[I]) then
+        clbFolders.Checked[I] := True;
   finally
     F.Free;
   end;
@@ -388,6 +414,7 @@ begin
     clbShowLang.Checked[I+1] := True;
 
   RefreshLocales;
+  RefreshFolders;
 end;
 
 
@@ -405,6 +432,8 @@ begin
   F := TIniFile.Create(aPath);
   try
     F.WriteString('Root', 'Selected_Locales', Locs);
+    for I := 0 to clbFolders.Items.Count-1 do
+      F.WriteBool('Folders', clbFolders.Items[I], clbFolders.Checked[I]);
   finally
     F.Free;
   end;
@@ -671,6 +700,12 @@ begin
   btnInsertSeparator.Enabled := MainFile and not Filter;
   btnMoveUp.Enabled := MainFile and not Filter;
   btnMoveDown.Enabled := MainFile and not Filter;
+end;
+
+
+procedure TForm1.clbFoldersClickCheck(Sender: TObject);
+begin
+  RefreshFolders;
 end;
 
 

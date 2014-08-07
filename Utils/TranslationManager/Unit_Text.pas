@@ -38,6 +38,7 @@ type
     function ConstCount: Integer;
     property Consts[aIndex: Integer]: TTextInfo read GetConst write SetConst;
     property Texts[aIndex: Integer]: TStringArray read GetText;
+    function TextBlankInAll(aIndex: Integer): Boolean;
 
     procedure DeleteConst(aIndex: Integer);
     procedure Insert(aIndex: Integer);
@@ -457,6 +458,15 @@ begin
     for I := 0 to gResLocales.Count - 1 do
       fTexts[aIndex,I] := '';
   end;
+end;
+
+
+function TTextManager.TextBlankInAll(aIndex: Integer): Boolean;
+var K: Integer;
+begin
+  Result := True;
+  for K := 0 to gResLocales.Count - 1 do
+    Result := Result and (fTexts[aIndex, K] = '');
 end;
 
 
