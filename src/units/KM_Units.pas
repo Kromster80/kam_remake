@@ -1706,7 +1706,7 @@ begin
       begin
         //There is no space for this unit so it must be destroyed
         //todo: re-route to KillUnit and let it sort out that unit is invisible and cant be placed
-        if (gHands <> nil) and (fOwner <> PLAYER_NONE) then
+        if (gHands <> nil) and (fOwner <> PLAYER_NONE) and not IsDeadOrDying then
         begin
           gHands[fOwner].Stats.UnitLost(fUnitType);
           gScriptEvents.ProcUnitDied(Self, PLAYER_NONE);
