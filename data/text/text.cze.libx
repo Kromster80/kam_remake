@@ -745,3 +745,36 @@
 791:Nejbližší dům ke startovací pozici
 792:Útočníci
 793:Obránci
+794:Diváci
+795:Pro opětovné hraní předešlé mise klikněte na příslušnou vlajku na mapě.
+796:%s hlasovali pro návrat do místnosti (je třeba ještě %s hlasů)
+797:Hlasování pro navrácení do čekací místnosti. Hra poté může pokračovat nebo se změnit.
+798:Hlasovat pro navrácení do čekací místnosti
+799:%s hráčů hlasovalo pro návrat do místnosti (hlasování prošlo)
+800:Hlasování pro návrat do čekací místnosti neprošlo
+801:Smazání záznamu smaže i příslušnou uloženou pozici. Opravdu chcete smazat záznam hry?
+802:Náhodně
+803:Počet útočících vojáků
+804:Smazat záznam
+805:Smazat mapu
+806:Opravdu chcete smazat tuto mapu?
+807:Skrýt skriptované prostředí
+808:Ukázat skriptované prostředí
+809:Nemůžete změnit hostitele když server běží na vašem klientu
+810:Počítač tvoří a řídí útoky automaticky
+811:Rychle vybavit
+812:Vojáci jsou trénováni, co nejrychleji to jde. Rychlost vybavení ovlivňuje plánování města.
+813:Původní nastavení počítače
+814:Stavitel pro hru více hráčů
+815:Použije agresivní nastavení počítače pro všechny hráče (pro stavitelské mapy ve hře více hráčů)
+816:Tímto přepíšete všechna existující nastavení pro všechny hráče. Chcete pokračovat?
+817:Typ vojska
+818:Kožené poté železné
+819:Železné
+820:Kožené
+821:Kombinované
+822:Stažené mapy
+823:Přesunout do map pro více hráčů
+824:Přesunout
+825:Ukázat PDF
+826:Chyba při zapínání zobrazovacího programu pro PDF
