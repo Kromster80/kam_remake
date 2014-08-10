@@ -924,7 +924,7 @@ begin
   //Convert army request into how many weapons are needed
   with fWarfare do
   begin
-    for WT := WEAPON_MIN to WEAPON_MAX do
+    for WT := WARFARE_MIN to WARFARE_MAX do
       Warfare[WT].Demand := aNeeds[WT];
 
     //Calculate ratios at which warfare should be produced in workshops
