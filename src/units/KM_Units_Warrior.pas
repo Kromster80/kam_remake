@@ -42,6 +42,7 @@ type
     function GetOrderTarget: TKMUnit;
     function GetOrderHouseTarget: TKMHouse;
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
+    procedure UpdateOrderTargets;
 
     procedure TakeNextOrder;
     procedure WalkedOut;
@@ -226,9 +227,13 @@ end;
 
 function TKMUnitWarrior.GetOrderTarget: TKMUnit;
 begin
-  //If the target unit has died then clear it
-  if (fOrderTargetUnit <> nil) and (fOrderTargetUnit.IsDead) then ClearOrderTarget;
-  Result := fOrderTargetUnit;
+  //If the target unit has died then return nil
+  //Don't clear fOrderTargetUnit here, since we could get called from UI
+  //depending on player actions (getters should be side effect free)
+  if (fOrderTargetUnit <> nil) and (fOrderTargetUnit.IsDead) then
+    Result := nil
+  else
+    Result := fOrderTargetUnit;
 end;
 
 
@@ -243,9 +248,24 @@ end;
 
 function TKMUnitWarrior.GetOrderHouseTarget:TKMHouse;
 begin
-  //If the target house has been destroyed then clear it
-  if (fOrderTargetHouse <> nil) and (fOrderTargetHouse.IsDestroyed) then ClearOrderTarget;
-  Result := fOrderTargetHouse;
+  //If the target house has been destroyed then return nil
+  //Don't clear fOrderTargetHouse here, since we could get called from UI
+  //depending on player actions (getters should be side effect free)
+  if (fOrderTargetHouse <> nil) and (fOrderTargetHouse.IsDestroyed) then
+    Result := nil
+  else
+    Result := fOrderTargetHouse;
+end;
+
+
+//Clear target unit/house if they are dead/destroyed
+procedure TKMUnitWarrior.UpdateOrderTargets;
+begin
+  if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDead then
+    gHands.CleanUpUnitPointer(fOrderTargetUnit);
+
+  if (fOrderTargetHouse <> nil) and fOrderTargetHouse.IsDestroyed then
+    gHands.CleanUpHousePointer(fOrderTargetHouse);
 end;
 
 
@@ -618,8 +638,8 @@ begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         fNextOrder := woNone;
                         fOrder := woAttackUnit;
-                        fOrderLoc := fOrderTargetUnit.GetPosition;
-                        FightEnemy(fOrderTargetUnit);
+                        fOrderLoc := GetOrderTarget.GetPosition;
+                        FightEnemy(GetOrderTarget);
                       end;
                     end;
     woAttackHouse:  begin
@@ -674,7 +694,7 @@ begin
   if IsRanged then
   begin
     //Check target in range, and if not - chase it / back up from it
-    if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) > GetFightMaxRange) then
+    if (KMLength(GetPosition, GetOrderTarget.GetPosition) > GetFightMaxRange) then
     begin
       //Too far away
       if (GetUnitAction is TUnitActionWalkTo)
@@ -685,13 +705,13 @@ begin
         SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
     end
     else
-    if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) < GetFightMinRange) then
+    if (KMLength(GetPosition, GetOrderTarget.GetPosition) < GetFightMinRange) then
     begin
       //todo: Archer is too close, back up
     end
     else
       //WithinRange
-      FightEnemy(fOrderTargetUnit);
+      FightEnemy(GetOrderTarget);
   end
   else
   //IsMelee
@@ -705,7 +725,7 @@ begin
   end;
 
   fOrder := woAttackUnit;
-  fOrderLoc := fOrderTargetUnit.GetPosition;
+  fOrderLoc := GetOrderTarget.GetPosition;
 end;}
 
 
@@ -720,6 +740,8 @@ begin
     inherited UpdateState;
     Exit;
   end;
+
+  UpdateOrderTargets;
 
   if fCondition < UNIT_MIN_CONDITION then
     fThought := th_Eat; //th_Death checked in parent UpdateState

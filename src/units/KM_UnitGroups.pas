@@ -44,6 +44,8 @@ type
 
     fOrder: TKMGroupOrder; //Remember last order incase we need to repeat it (e.g. to joined members)
     fOrderLoc: TKMPointDir; //Dir is the direction to face after order
+
+    //Avoid accessing these directly
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetGroup: TKMUnitGroup; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
@@ -68,6 +70,7 @@ type
     function GetOrderTargetHouse: TKMHouse;
     procedure SetOrderTargetUnit(aUnit: TKMUnit);
     procedure SetOrderTargetHouse(aHouse: TKMHouse);
+    procedure UpdateOrderTargets;
 
     procedure CheckForFight;
     procedure CheckOrderDone;
@@ -770,7 +773,7 @@ begin
                         if not OrderExecuted then
                           //If our leader is out of range (enemy has walked away) we need to walk closer
                           if (KMLength(fOrderLoc.Loc, OrderTargetUnit.GetPosition) > Members[0].GetFightMaxRange) then
-                            OrderAttackUnit(fOrderTargetUnit, False)
+                            OrderAttackUnit(OrderTargetUnit, False)
                           else
                             //Our leader is in range so each member should get into position
                             for I := 0 to Count - 1 do
@@ -809,7 +812,7 @@ begin
                             //It's wasteful to run pathfinding to correct route every step of the way, so if the target unit
                             //is within 4 tiles, update every step. Within 8, every 2 steps, 12, every 3 steps, etc.
                             if fTargetFollowTicker mod Max((Round(KMLengthDiag(GetPosition, OrderTargetUnit.GetPosition)) div 4), 1) = 0 then
-                              OrderAttackUnit(fOrderTargetUnit, False);
+                              OrderAttackUnit(OrderTargetUnit, False);
                           end;
 
                           for I := 0 to Count - 1 do
@@ -825,7 +828,7 @@ begin
                         if (OrderTargetUnit = nil) and (OrderTargetGroup <> nil) then
                         begin
                           //Old enemy has died, change target to his comrades
-                          U := fOrderTargetGroup.GetNearestMember(Members[0].GetPosition);
+                          U := OrderTargetGroup.GetNearestMember(Members[0].GetPosition);
                           Assert(U <> nil, 'We checked that Group is not dead, hence we should have a valid Unit');
                           OrderAttackUnit(U, False);
                         end;
@@ -1175,8 +1178,8 @@ begin
   case fOrder of
     goNone:         OrderHalt(False);
     goWalkTo:       OrderWalk(fOrderLoc.Loc, False);
-    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(fOrderTargetHouse, False);
-    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(fOrderTargetUnit, False);
+    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(OrderTargetHouse, False);
+    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(OrderTargetUnit, False);
     goStorm:        ;
   end;
 end;
@@ -1499,29 +1502,37 @@ end;
 
 function TKMUnitGroup.GetOrderTargetUnit: TKMUnit;
 begin
-  //If the target unit has died then clear it
+  //If the target unit has died then return nil
+  //Don't clear fOrderTargetUnit here, since we could get called from UI
+  //depending on player actions (getters should be side effect free)
   if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDeadOrDying then
-    gHands.CleanUpUnitPointer(fOrderTargetUnit);
-
-  Result := fOrderTargetUnit;
+    Result := nil
+  else
+    Result := fOrderTargetUnit;
 end;
 
 
 function TKMUnitGroup.GetOrderTargetGroup: TKMUnitGroup;
 begin
-  //If the target group has died then clear it
+  //If the target group has died then return nil
+  //Don't clear fOrderTargetGroup here, since we could get called from UI
+  //depending on player actions (getters should be side effect free)
   if (fOrderTargetGroup <> nil) and fOrderTargetGroup.IsDead then
-    gHands.CleanUpGroupPointer(fOrderTargetGroup);
-
-  Result := fOrderTargetGroup;
+    Result := nil
+  else
+    Result := fOrderTargetGroup;
 end;
 
 
 function TKMUnitGroup.GetOrderTargetHouse: TKMHouse;
 begin
-  //If the target house has been destroyed then clear it
-  if (fOrderTargetHouse <> nil) and fOrderTargetHouse.IsDestroyed then ClearOrderTarget;
-  Result := fOrderTargetHouse;
+  //If the target house has been destroyed then return nil
+  //Don't clear fOrderTargetHouse here, since we could get called from UI
+  //depending on player actions (getters should be side effect free)
+  if (fOrderTargetHouse <> nil) and fOrderTargetHouse.IsDestroyed then
+    Result := nil
+  else
+    Result := fOrderTargetHouse;
 end;
 
 
@@ -1553,10 +1564,26 @@ begin
 end;
 
 
+//Clear target if it is dead
+procedure TKMUnitGroup.UpdateOrderTargets;
+begin
+  if (fOrderTargetUnit <> nil) and (fOrderTargetUnit.IsDeadOrDying) then
+    gHands.CleanUpUnitPointer(fOrderTargetUnit);
+
+  if (fOrderTargetHouse <> nil) and (fOrderTargetHouse.IsDestroyed) then
+    gHands.CleanUpHousePointer(fOrderTargetHouse);
+
+  if (fOrderTargetGroup <> nil) and fOrderTargetGroup.IsDead then
+    gHands.CleanUpGroupPointer(fOrderTargetGroup);
+end;
+
+
 procedure TKMUnitGroup.UpdateState;
 begin
   Inc(fTicker);
   if IsDead then Exit;
+
+  UpdateOrderTargets;
 
   if fTicker mod HUNGER_CHECK_FREQ = 0 then
     UpdateHungerMessage;
