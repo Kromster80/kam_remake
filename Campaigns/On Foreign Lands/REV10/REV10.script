@@ -1,0 +1,16 @@
+var firstAttackMessage : boolean;
+
+procedure OnTick;
+begin
+	if ((States.StatArmyCount(5) = 0) and (firstAttackMessage = false)) then
+		begin
+			firstAttackMessage := true;
+			Actions.ShowMsg(0, '<$0>');
+		end;
+end;
+
+procedure OnMissionStart;
+begin
+	Actions.PlayerAddDefaultGoals(0, true);
+	firstAttackMessage := false;
+end;

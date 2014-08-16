@@ -1,0 +1,110 @@
+var firstRebelRevealed, startGroupsDead: boolean;
+var startGroups : array of integer;
+
+function CheckAllies : boolean;
+var i : integer;
+var unitLives : boolean;
+begin
+	unitLives := true;
+	for i := 1 to 3 do
+		begin
+			unitLives := Length(States.PlayerGetAllUnits(i)) > 0;
+			if (unitLives = false) then break;
+		end;
+	Result := 	 ((States.HouseDestroyed(States.HouseAt(86, 8)) = true) OR
+				 (States.HouseDestroyed(States.HouseAt(45, 6)) = true) OR
+				 (States.HouseDestroyed(States.HouseAt(33, 37)) = true) OR
+				 (unitLives = false));
+end;
+
+procedure LaunchRebel;
+var i, rX, rY, rebelCount, rebels, rebelType, serfCount : integer;
+var civils : array of integer;
+begin
+	rebels := 0;
+	serfCount := States.StatUnitTypeCount(0, 0);
+	rebelCount := States.KaMRandomI(serfCount div 10) + 1;
+	rebelType := States.KaMRandomI(13) + 14;
+	i := 0;
+	civils := States.PlayerGetAllUnits(0);
+	if (serfCount > rebelCount) then
+		begin	
+			while (rebels < rebelCount) do
+				begin
+					if (States.UnitType(civils[i]) = 0) then
+						begin
+							rX := States.UnitPositionX(civils[i]);
+							rY := States.UnitPositionY(civils[i]);
+							Actions.UnitKill(civils[i], true);
+							rebelType := Actions.GiveGroup(5, rebelType, rX, rY, 0, 1, 1);
+							rebels := rebels + 1;
+						end;
+					i := i + 1;
+				end;
+		end;
+end;
+
+procedure MassiveAttack;
+var groups : array of integer;
+var r : array[1..3] of integer;
+var i, rand : integer;
+begin
+	rand := States.KaMRandomI(2) + 1;
+	r[1] := States.HouseAt(86, 8);
+	r[2] := States.HouseAt(33, 37);
+	r[3] := States.HouseAt(50, 9);
+	groups := States.PlayerGetAllGroups(4);
+	
+	for i:=0 to Length(groups) - 1 do
+		Actions.GroupOrderAttackHouse(groups[i], r[rand]);
+end;
+
+procedure OnTick;
+var storehouse, rebelTime, i : integer;
+begin
+	rebelTime := States.KaMRandomI(6000) + 1200;
+	if (States.GameTime = 6000) then 
+		begin 
+			Actions.HouseDestroy(States.HouseAt(68, 4), true);
+			storehouse := Actions.GiveHouse(0, 11, 68, 4);
+			Actions.HouseAddWaresTo(storehouse, 7, 100);
+			Actions.HouseAddWaresTo(storehouse, 15, 150);
+			Actions.HouseAddWaresTo(storehouse, 0, 45);
+			Actions.HouseAddWaresTo(storehouse, 27, 12);
+			Actions.ShowMsgGoto(0, 68, 4, '<$0>');
+		end;
+		
+	if (CheckAllies = true) then Actions.PlayerDefeat(0);
+	
+	if ((States.GameTime mod rebelTime = 0) and (States.GameTime > 24000)) then
+		begin
+			LaunchRebel();
+			if (firstRebelRevealed = false) then 
+				begin 
+					Actions.ShowMsg(0, '<$1>');
+					firstRebelRevealed := true;
+				end;
+		end;
+	
+	if ((startGroupsDead = false) and (States.GameTime mod 400 = 0)) then
+		begin
+			for i := 0 to Length(startGroups) - 1 do
+				begin
+					if (States.GroupDead(startGroups[i]) = false) then 
+						Actions.GroupOrderAttackHouse(startGroups[i], States.HouseAt(70,44));
+				end;
+		end;
+	
+	if (States.GameTime = 59000) then Actions.ShowMsg(0, '<$2>');
+	if (States.GameTime = 60000) then MassiveAttack();
+end;
+
+procedure OnMissionStart;
+var i, g : integer;
+begin
+	for i := 0 to 4 do
+		Actions.PlayerAddDefaultGoals(i, true);
+	firstRebelRevealed := false;
+	startGroupsDead := false;
+	startGroups := States.PlayerGetAllGroups(1);
+end;

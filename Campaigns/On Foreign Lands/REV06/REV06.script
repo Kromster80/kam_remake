@@ -1,0 +1,42 @@
+var firstAttackGroups : array [0..10] of Integer;
+var groupsArrived : Boolean;
+
+procedure OnMissionStart;
+begin
+	firstAttackGroups[0] := States.GroupAt(93, 72);
+	firstAttackGroups[1] := States.GroupAt(47, 66);
+	firstAttackGroups[2] := States.GroupAt(42, 70);
+	firstAttackGroups[3] := States.GroupAt(38, 48);
+	firstAttackGroups[4] := States.GroupAt(42, 44);
+	firstAttackGroups[5] := States.GroupAt(31, 31);
+	firstAttackGroups[6] := States.GroupAt(36, 35);
+	firstAttackGroups[7] := States.GroupAt(36, 27);
+	firstAttackGroups[8] := States.GroupAt(42, 31);
+	firstAttackGroups[9] := States.GroupAt(43, 26);
+	firstAttackGroups[10] := States.GroupAt(36, 18);
+end;
+
+procedure CheckArrival;
+var allDead : Boolean;
+var i : Integer;
+begin
+	allDead := true;
+	for i := 0 to Length(firstAttackGroups) - 1 do
+		begin
+			if (States.GroupDead(firstAttackGroups[i]) = false) then allDead := false;
+		end;
+	
+	if (allDead = true) then
+		begin
+			Actions.GiveGroup(2, 22, 36, 18, 4, 10, 5);
+			groupsArrived := true;
+			Actions.ShowMsg(2, '<$0>');
+		end;
+end;
+
+procedure OnTick;
+begin
+	if (groupsArrived = false) then CheckArrival;
+	if (States.StatArmyCount(2) = 0) then Actions.PlayerDefeat(2);
+	if (States.StatArmyCount(3) = 0) then Actions.PlayerWin([2], false);
+end;

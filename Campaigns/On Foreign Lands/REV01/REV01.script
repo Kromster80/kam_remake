@@ -1,0 +1,115 @@
+const resourcesMaxCount = 27;
+
+var myBottomCrossBowmans, myBottomHorse, iTicks, myMilitary, iLandingTroops, iLandingTroops2, iLandingTroops3 : Integer;
+var attack, portIsTaken, ownerChangedBefore, ownerChangedAfter, unitsArrived, housesRepaired : Boolean;
+var houses, iGroups : array of Integer;
+
+procedure ChangeOwners;
+var x, y, t, d, i, j : Integer;
+var houseRes: array[0..resourcesMaxCount] of Integer;
+begin
+	houses := States.PlayerGetAllHouses(3);
+	for i := 0 to Length(houses) - 1 do
+		begin
+			x := States.HousePositionX(houses[i]);
+			y := States.HousePositionY(houses[i]);
+			t := States.HouseType(houses[i]);
+			d := States.HouseDamage(houses[i]);
+			for j := 0 to resourcesMaxCount do houseRes[j] := States.HouseResourceAmount(houses[i], j);
+			Actions.HouseDestroy(houses[i], true);
+			houses[i] := Actions.GiveHouse(0, t, x, y);
+			Actions.HouseAddDamage(houses[i], d);
+			for j := 0 to resourcesMaxCount do Actions.HouseAddWaresTo(houses[i], j, houseRes[j]);
+		end;
+	ownerChangedAfter := true;
+end;
+
+procedure OnMissionStart;
+begin 
+	myBottomCrossBowmans := States.GroupAt(78, 97);
+	myBottomHorse := States.GroupAt(83, 97);
+	attack := false;
+	portIsTaken := false;
+	ownerChangedBefore := false;
+	ownerChangedAfter := false;
+	unitsArrived := false;
+	housesRepaired := false;
+end;
+
+function CheckHousesDamage : AnsiString;
+var i : Integer;
+begin
+	houses := States.PlayerGetAllHouses(0);
+	housesRepaired := true;
+	for i:= 0 to Length(houses) - 1 do
+		begin
+			if (States.HouseDamage(houses[i]) > 0) then
+				begin
+					housesRepaired := false;
+					break;
+				end;
+		end;
+	if (housesRepaired) then Result := '<$4>'
+	else Result := '<$5>';
+end;
+
+procedure OnTick;
+var i, j : Integer;
+begin
+	if ((States.GroupDead(myBottomCrossBowmans)) and (States.GroupDead(myBottomHorse)) and (attack = false)) then
+		begin
+		for i := 1 to 4 do
+			begin
+				iGroups := States.PlayerGetAllGroups(i);
+				for j := 0 to Length(iGroups) - 1 do
+					begin
+						if not States.GroupDead(iGroups[j]) then Actions.GroupOrderWalk(iGroups[j], 48, 57, 7);
+					end;
+			end;
+		attack := true;
+		end;
+		
+	if ((States.StatArmyCount(0) = 0) and (unitsArrived = false)) then Actions.PlayerDefeat(0);
+	if ((States.StatArmyCount(1) = 0) and (States.StatArmyCount(2) = 0) and (States.StatArmyCount(3) = 0) and (States.StatArmyCount(4) = 0) and (portIsTaken = false)) then
+		begin
+			Actions.PlayerAllianceChange(0, 1, true, true);
+			Actions.PlayerAllianceChange(0, 3, true, true);
+			Actions.PlayerAllianceChange(0, 4, true, true);
+			iTicks := States.GameTime;
+			portIsTaken := true;
+		end;
+	
+	if ((portIsTaken = true) and ((States.GameTime - iTicks) > 20) and (ownerChangedBefore = false)) then 
+		begin
+			ownerChangedBefore := true;		
+			ChangeOwners;
+			iTicks := States.GameTime;
+			Actions.ShowMsg(0, '<$0>');
+		end;
+		
+	if ((ownerChangedBefore = true) and (ownerChangedAfter = true) and ((States.GameTime - iTicks) > 50) and (unitsArrived = false)) then
+		begin
+			for i := 26 to 29 do Actions.GiveUnit(0,0, 54, i, 0);
+			unitsArrived := true;
+		end;
+	
+	if (unitsArrived = true) then
+		begin
+			myMilitary := States.StatUnitTypeCount(0, 16) + States.StatUnitTypeCount(0, 22) +  States.StatUnitTypeCount(0, 26) +  States.StatUnitTypeCount(0, 18) +  States.StatUnitTypeCount(0, 20);
+			Actions.OverlayTextSet(0, '<$1>' + IntToStr(myMilitary) + '|<$2>' + CheckHousesDamage);
+			if (myMilitary = 120) then Actions.PlayerWin([0], false);
+			if ((States.HouseDestroyed(States.HouseAt(80, 64)) = true) or (States.HouseDestroyed(States.HouseAt(51, 52)) = true)) then Actions.PlayerDefeat(0);
+			
+			if (States.GameTime >= 54000) then 
+				if (States.GameTime mod 6000 = 0) then
+					begin
+						iLandingTroops := Actions.GiveGroup(2, 26, 30, 3, 2, 45, 5);
+						Actions.GroupOrderAttackHouse(iLandingTroops, States.HouseAt(51, 52));
+						iLandingTroops2 := Actions.GiveGroup(2, 22, 85, 3, 6, 15, 3);
+						Actions.GroupOrderAttackHouse(iLandingTroops2, States.HouseAt(51, 52));
+						iLandingTroops3 := Actions.GiveGroup(2, 20, 72, 7, 6, 12, 4);
+						Actions.GroupOrderAttackHouse(iLandingTroops3, States.HouseAt(51, 52));
+					end;
+				if (States.GameTime = 54000) then Actions.ShowMsg(0, '<$3>');
+		end;
+end;

@@ -1,0 +1,67 @@
+var StoreHouses : array[0..2] of Integer;
+var Time : Integer;
+
+procedure OnMissionStart;
+begin
+	StoreHouses[0] := States.HouseAt(70, 4);
+	StoreHouses[1] := States.HouseAt(39, 8);
+	StoreHouses[2] := States.HouseAt(31, 27);
+	Time := 72000;
+end;
+
+function Timer : String;
+var secTime, h, m, s : Integer;
+var currentTime : String;
+begin
+	Time := Time - 1;
+	secTime := Time div 10;
+	h := secTime div 3600;
+	secTime := secTime - (h * 3600);
+	m := secTime div 60;
+	secTime := secTime - (m * 60);
+	s := secTime;
+	
+	currentTime := '';
+	if (h > 0) then currentTime := currentTime + IntToStr(h) + 'h ';
+	if (m > 0) then currentTime := currentTime + IntToStr(m) + 'm ';
+	currentTime := currentTime + IntToStr(s) + 's ';
+	
+	Result := currentTime;
+end;
+
+procedure CheckWin;
+var i : Integer;
+var gold, armament, shield, pike, crossbow, sword : Integer;
+var text, currentTime : AnsiString;
+begin
+	for i := 0 to Length(StoreHouses) - 1 do
+	begin	
+		if (not States.HouseDestroyed(StoreHouses[i])) then
+			begin
+				gold := gold + States.HouseResourceAmount(StoreHouses[i], 7);
+				armament := armament + States.HouseResourceAmount(StoreHouses[i], 19);
+				shield := shield + States.HouseResourceAmount(StoreHouses[i], 17);
+				pike := pike + States.HouseResourceAmount(StoreHouses[i], 23);
+				crossbow := crossbow + States.HouseResourceAmount(StoreHouses[i], 25);
+				sword := sword + States.HouseResourceAmount(StoreHouses[i], 21);
+			end;
+	end;
+	
+	if (gold >= 300) then gold := 0 else gold := 300 - gold;
+	if (armament >= 300) then armament := 0 else armament := 300 - armament;
+	if (shield >= 100) then shield := 0 else shield := 100 - shield;
+	if (pike >= 100) then pike := 0 else pike := 100 - pike;
+	if (crossbow >= 100) then crossbow := 0 else crossbow := 100 - crossbow;
+	if (sword >= 100) then sword := 0 else sword := 100 - sword;
+
+	text := '<$1>: ' + Timer + '|<$0>:|<$2>: ' + IntToStr(gold) + '|<$3>: ' + IntToStr(armament) + '|<$4>: ' + IntToStr(shield) + '|<$5>: ' + IntToStr(pike) + '|<$6>: ' + IntToStr(crossbow) + '|<$7>: ' + IntToStr(sword);
+	Actions.OverlayTextSet(0, text);
+	
+	if ((gold <= 0) and (armament <= 0) and (shield <= 0) and (pike <= 0) and (crossbow <= 0) and (sword <= 0) and (Time > 0)) then Actions.PlayerWin([0], false);
+	if (Time <= 0) then Actions.PlayerDefeat(0);
+end;
+
+procedure OnTick;
+begin
+	CheckWin;
+end;

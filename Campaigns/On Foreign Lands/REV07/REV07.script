@@ -1,0 +1,162 @@
+var castleTroops : array[0..5] of Integer;
+var castleSlaves : array[0..9] of Integer;
+var ownersChanged : Boolean;
+
+function CheckState (Win : Boolean) : Boolean;
+var i, j : Integer;
+var allHouses : array of Integer;
+var allDestroyed, allDead, slavesDead : Boolean;
+begin
+	allDestroyed := true;
+	allDead := true;
+	slavesDead := true;
+	if (Win = true) then
+		begin
+			for i := 1 to 4 do
+				begin
+					allHouses := States.PlayerGetAllHouses(i);
+					for j := 0 to Length(allHouses) - 1 do
+						begin
+							if ((States.HouseDestroyed(allHouses[j]) = false) and ((States.HouseType(allHouses[j]) = 11) or (States.HouseType(allHouses[j]) = 13) or (States.HouseType(allHouses[j]) = 21))) then 
+								begin
+									allDestroyed := false;
+									break;
+								end;
+						end;
+					allDead := States.StatArmyCount(i) = 0;
+					if ((allDestroyed = false) or (allDead = false)) then break;
+				end;
+		end
+	else
+		begin
+			allHouses := States.PlayerGetAllHouses(0);
+			for j := 0 to Length(allHouses) - 1 do
+				begin
+					if ((States.HouseDestroyed(allHouses[j]) = false) and ((States.HouseType(allHouses[j]) = 11) or (States.HouseType(allHouses[j]) = 13) or (States.HouseType(allHouses[j]) = 21))) then 
+						begin
+							allDestroyed := false;
+							break;
+						end;
+				end;
+			for j := 0 to Length(castleSlaves) - 1 do
+				begin
+					if (States.UnitDead(castleSlaves[j]) = false) then
+						begin
+							slavesDead := false;
+							break;
+						end;
+				end;
+			allDead := ((States.StatArmyCount(0) = 0) and (slavesDead = true));
+		end;
+	
+	Result := allDestroyed and allDead;
+end;
+
+function CastleTroopsDead : Boolean;
+var i : Integer;
+var dead : Boolean;
+begin
+	dead := true;
+	for i := 0 to Length(castleTroops) - 1 do
+		begin
+			if (States.GroupDead(castleTroops[i]) = false) then
+				begin
+					dead := false;
+					break;
+				end;
+		end;
+	Result := dead;
+end;
+
+procedure ChangeOwners;
+var houses : array[0..4] of Integer;
+var x, y, t, d, i : Integer;
+begin
+	houses[0] := States.HouseAt(24, 48);
+	houses[1] := States.HouseAt(26, 61);
+	houses[2] := States.HouseAt(31, 66);
+	houses[3] := States.HouseAt(37, 61);
+	houses[4] := States.HouseAt(43, 65);
+	
+	for i := 0 to Length(houses) - 1 do
+		begin
+			x := States.HousePositionX(houses[i]);
+			y := States.HousePositionY(houses[i]);
+			t := States.HouseType(houses[i]);
+			d := States.HouseDamage(houses[i]);
+			Actions.HouseDestroy(houses[i], true);
+			houses[i] := Actions.GiveHouse(0, t, x, y);
+			Actions.HouseAddDamage(houses[i], d);
+		end;
+end;
+
+procedure ChangeTroops;
+var groups : array of Integer;
+var x, y, t, d, i, m, c, r, j : Integer;
+begin
+	groups := States.PlayerGetAllGroups(0);
+	for i := 0 to Length(groups) - 1 do
+		begin
+			m := States.GroupMember(groups[i], 0);
+			x := States.UnitPositionX(m);
+			y := States.UnitPositionY(m);
+			t := States.UnitType(m);
+			d := States.UnitDirection(m);
+			c := States.GroupMemberCount(States.UnitsGroup(m));
+			r := States.GroupColumnCount(States.UnitsGroup(m));
+			for j := c - 1 downto 0 do Actions.UnitKill(States.GroupMember(groups[i], j), true);
+			Actions.GroupOrderAttackHouse(Actions.GiveGroup(5, t, x, y, d, c, r), States.HouseAt(89, 31));
+		end;
+end;
+
+procedure OnMissionStart;
+var i : Integer;
+var units: array of Integer;
+begin
+	castleSlaves[0] := States.UnitAt(2, 2);
+	castleSlaves[1] := States.UnitAt(3, 2);
+	castleSlaves[2] := States.UnitAt(4, 2);
+	castleSlaves[3] := States.UnitAt(5, 2);
+	castleSlaves[4] := States.UnitAt(2, 3);
+	castleSlaves[5] := States.UnitAt(3, 3);
+	castleSlaves[6] := States.UnitAt(4, 3);
+	castleSlaves[7] := States.UnitAt(5, 3);
+	castleSlaves[8] := States.UnitAt(2, 4);
+	castleSlaves[9] := States.UnitAt(3, 4);
+	castleTroops[0] := States.GroupAt(4, 10);
+	castleTroops[1] := States.GroupAt(9, 8);
+	castleTroops[2] := States.GroupAt(16, 10);
+	castleTroops[3] := States.GroupAt(20, 10);
+	castleTroops[4] := States.GroupAt(25, 11);
+	castleTroops[5] := States.GroupAt(24, 4);
+	ownersChanged := false;
+	units := States.PlayerGetAllUnits(0);
+	for i := 0 to Length(units) - 1 do
+		begin
+			if ((States.UnitType(units[i]) >= 0) and (States.UnitType(units[i]) <= 13)) then Actions.UnitHungerSet(units[i], States.UnitMaxHunger);
+		end;
+end;
+
+procedure OnTick;
+var g : Integer;
+begin
+	if (States.GameTime = 300) then Actions.ShowMsg(0, '<$0>');
+	if ((CastleTroopsDead = true) and (ownersChanged = false) and (States.HouseDestroyed(States.HouseAt(20, 7))) and (States.HouseDestroyed(States.HouseAt(20, 13)))) then
+		begin
+			ownersChanged := true;
+			ChangeOwners;
+			Actions.ShowMsg(0, '<$1>');
+			ChangeTroops;
+		end;
+		
+	if (States.GameTime = 72000) then 
+		begin
+			g := Actions.GiveGroup(0, 22, 5, 79, 2, 15, 5);
+			Actions.GroupOrderWalk(g, 60, 69, 2);
+			Actions.ShowMsg(0, '<$2>');
+		end;
+	
+	if (CheckState(true)) then Actions.PlayerWin([0], false);
+	if (CheckState(false)) then Actions.PlayerDefeat(0);
+end;
+

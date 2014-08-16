@@ -1,0 +1,52 @@
+var TroopsMessageDisplayed : Boolean;
+
+function CheckTroops : Boolean;
+var j, warriors : Integer;
+begin
+	warriors := 0;
+	for j := 2 to 6 do
+		warriors := warriors + States.StatArmyCount(j);
+	Result := warriors = 0;
+end;
+
+function CheckWin : Boolean;
+var groups : array of integer;
+begin
+	groups := States.PlayerGetAllGroups(1);
+	Result := Length(groups) = 0;
+end;
+
+procedure OnTick;
+var groups: array of integer;
+var i:integer;
+begin
+	if (States.GameTime = 100) then Actions.ShowMsg(0, '<$0>');
+	if (States.GameTime = 24000) then Actions.ShowMsg(0, '<$2>');
+	if (States.GameTime = 45000) then Actions.ShowMsg(0, '<$3>');
+	
+	if (CheckTroops = true and TroopsMessageDisplayed = false) then 
+		begin
+			Actions.ShowMsg(0, '<$1>');
+			TroopsMessageDisplayed := true;
+		end;
+	
+	if (CheckWin = true) then Actions.PlayerWin([0], false);
+end;
+
+procedure OnMissionStart;
+begin
+	Actions.HouseWareBlock(States.HouseAt(17, 40), 8, true);
+	Actions.HouseWareBlock(States.HouseAt(17, 40), 10, true);
+	Actions.HouseWareBlock(States.HouseAt(17, 40), 13, true);
+	Actions.HouseWareBlock(States.HouseAt(17, 40), 27, true);
+	Actions.HouseWareBlock(States.HouseAt(120, 70), 8, true);
+	Actions.HouseWareBlock(States.HouseAt(120, 70), 10, true);
+	Actions.HouseWareBlock(States.HouseAt(120, 70), 13, true);
+	Actions.HouseWareBlock(States.HouseAt(120, 70), 27, true);
+	Actions.HouseWareBlock(States.HouseAt(29, 92), 8, true);
+	Actions.HouseWareBlock(States.HouseAt(29, 92), 10, true);
+	Actions.HouseWareBlock(States.HouseAt(29, 92), 13, true);
+	Actions.HouseWareBlock(States.HouseAt(29, 92), 27, true);
+	TroopsMessageDisplayed := false;
+	Actions.PlayerAddDefaultGoals(0, true);
+end;

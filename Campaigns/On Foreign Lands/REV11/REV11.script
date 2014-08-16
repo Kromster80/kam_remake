@@ -1,0 +1,95 @@
+var orman : integer;
+var startRunning : boolean;
+
+function CheckTroopsPosition : boolean;
+var i, counter : integer;
+var g : array of integer;
+begin
+	g := States.PlayerGetAllUnits(0);
+	counter := 0;
+	
+	for i := 0 to Length(g) - 1 do
+		begin
+			if ((States.UnitType(g[i]) >= 14) and (States.UnitType(g[i]) <= 27) and (States.UnitPositionY(g[i]) <= 21) and (States.UnitPositionX(g[i]) >= 41)) then
+				counter := counter + 1;
+		end;
+	Result := counter >= 5;
+end;
+
+procedure OrmanStartRunning;
+begin
+	Actions.HouseDestroy(States.HouseAt(43, 5), false);
+	Actions.GroupOrderWalk(States.UnitsGroup(orman), 1, 1, 0);
+	startRunning := true;
+	Actions.ShowMsg(0, '<$0>');
+end;
+
+function ABS(value : integer) : Integer;
+var r : integer;
+begin
+	r := 0;
+	if (value < 0) then r := value * (-1) else r:=value;
+	Result := r;
+end;
+
+function ClosestUnit(aUnitX : Integer; aUnitY : Integer) : Integer;
+var g : array of integer;
+var i, min, temp, closest : integer;
+begin
+	min := 999999;
+	closest := -1;
+	g := States.PlayerGetAllUnits(0);
+	for i:=0 to Length(g) - 1 do
+		begin
+			if ((States.UnitType(g[i]) >= 14) and (States.UnitType(g[i]) <= 27)) then
+				begin
+					temp := ABS(States.UnitPositionX(g[i]) - aUnitX) + ABS(States.UnitPositionY(g[i]) - aUnitY);
+					if (temp < min) then
+						begin
+							min := temp;
+							closest := g[i];
+						end;
+				end;
+		end;
+	Result := closest;
+end;
+
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
+var units : array of integer;
+var i, rX, rY, w : integer;
+begin
+	if (aHouseID = States.HouseAt(57, 38)) then
+		begin
+			units := States.PlayerGetAllUnits(2);
+			if (Length(units) > 10) then Actions.ShowMsg(0, '<$1>');
+			for i:=0 to Length(units) - 1 do
+				if (States.UnitType(units[i]) < 14) then
+					begin
+						rX := States.UnitPositionX(units[i]);
+						rY := States.UnitPositionY(units[i]);
+						Actions.UnitKill(units[i], true);
+						w := Actions.GiveGroup(2, 24, rX, rY, 0, 1, 1);
+						Actions.GroupOrderAttackUnit(w, ClosestUnit(rX, rY));
+					end;
+		end;
+end;
+
+procedure OrmanEscaped;
+begin
+	Actions.UnitKill(orman, true);
+	Actions.PlayerDefeat(0);
+end;
+
+procedure OnTick;
+var a :integer;
+begin
+	if ((CheckTroopsPosition() = true) and (startRunning = false) and (States.UnitDead(orman) = false)) then OrmanStartRunning();
+	if ((States.UnitPositionX(orman) = 1) and (States.UnitPositionY(orman) = 1)) then OrmanEscaped();
+end;
+
+procedure OnMissionStart;
+begin
+	orman := States.UnitAt(58, 15);
+	startRunning := false;
+	Actions.PlayerAddDefaultGoals(0, true);
+end;

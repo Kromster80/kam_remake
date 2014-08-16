@@ -1,0 +1,48 @@
+var importants : array[0..2] of Integer;
+
+function PlayerCheckWin : Boolean;
+var kills, destroys : Boolean;
+var i : Integer;
+begin
+	kills := States.StatArmyCount(2) = 0;
+	destroys := true;
+	for i := 0 to 2 do
+		begin
+			if (States.HouseDestroyed(importants[i]) = false) then 
+				begin
+					destroys := false;
+					break;
+				end;
+		end;
+
+	Result := kills and destroys;
+end;
+
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
+begin
+	if (((States.UnitOwner(aUnitID) = 1) or (States.UnitOwner(aUnitID) = 3)) and (States.UnitType(aUnitID) >= 0) and (States.UnitType(aUnitID) <= 13)) then Actions.PlayerDefeat(0);
+end;
+
+procedure OnMissionStart;
+begin
+	importants[0] := States.HouseAt(14, 31);
+	importants[1] := States.HouseAt(16, 22);
+	importants[2] := States.HouseAt(13, 18);
+end;
+
+procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
+var iGroup : Integer;
+begin
+	if (States.UnitOwner(aUnitID) = 3) then
+		begin
+			Actions.UnitKill(aUnitID, true);
+			iGroup := Actions.GiveGroup(3, 23, 9, 73, 1, 1, 1);
+			Actions.GroupOrderLink(iGroup, aGroupID);
+		end;
+end;
+
+procedure OnTick;
+begin
+	if (States.GameTime = 300) then Actions.ShowMsg(0, '<$0>');
+	if (PlayerCheckWin = true) then Actions.PlayerWin([0], false);
+end;
