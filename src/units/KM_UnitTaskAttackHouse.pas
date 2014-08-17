@@ -1,17 +1,17 @@
 unit KM_UnitTaskAttackHouse;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math,
+uses
+  Classes, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
 
 
-//Attack a house
 type
+  // Attack a house
   TTaskAttackHouse = class(TUnitTask)
   private
     fHouse: TKMHouse;
     fDestroyingHouse: Boolean; //House destruction in progress
-    LocID: Byte; //Current attack location
   public
     constructor Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -26,25 +26,15 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Resource, KM_Projectiles, KM_Game,
-  KM_ResUnits;
+  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Resource, KM_Projectiles, KM_Game, KM_ResUnits;
 
 
 const
   MeleeSoundsHouse: array [0..12] of TSoundFX = (
-    sfx_Melee37,
-    sfx_Melee38,
-    sfx_Melee39,
-    sfx_Melee40,
-    sfx_Melee41,
-    sfx_Melee42,
-    sfx_Melee43,
-    sfx_Melee47,
-    sfx_Melee51,
-    sfx_Melee52,
-    sfx_Melee53,
-    sfx_Melee54,
-    sfx_Melee57);
+    sfx_Melee37, sfx_Melee38, sfx_Melee39, sfx_Melee40, sfx_Melee41,
+    sfx_Melee42, sfx_Melee43, sfx_Melee47, sfx_Melee51, sfx_Melee52,
+    sfx_Melee53, sfx_Melee54, sfx_Melee57
+  );
 
 
 { TTaskAttackHouse }
@@ -54,7 +44,6 @@ begin
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := False;
-  LocID  := 0;
 end;
 
 
@@ -63,7 +52,6 @@ begin
   inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
-  LoadStream.Read(LocID);
 end;
 
 
@@ -88,7 +76,9 @@ end;
 
 
 function TTaskAttackHouse.Execute: TTaskResult;
-var AnimLength:integer; Delay, Cycle: Byte;
+var
+   AnimLength: Integer;
+   Delay, Cycle: Byte;
 begin
   Result := TaskContinues;
 
@@ -202,15 +192,15 @@ begin
 end;
 
 
-procedure TTaskAttackHouse.Save(SaveStream:TKMemoryStream);
+procedure TTaskAttackHouse.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+
   if fHouse <> nil then
-    SaveStream.Write(fHouse.UID) //Store ID
+    SaveStream.Write(fHouse.UID)
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fDestroyingHouse);
-  SaveStream.Write(LocID);
 end;
 
 
