@@ -3,7 +3,8 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, Vcl.ComCtrls, KM_RenderControl;
+  Unit_Runner, KM_RenderControl,
+  {$IFDEF WDC} Vcl.ComCtrls {$ELSE} ComCtrls {$ENDIF};
 
 
 type
@@ -39,7 +40,7 @@ type
     fResults: TKMRunResults;
     fRunTime: string;
     RenderArea: TKMRenderControl;
-    procedure RunnerProgress(const aValue: string);
+    procedure RunnerProgress(const aValue: UnicodeString);
     procedure RefreshResults(aImg: TImage);
     procedure RefreshDistribution(aImg: TImage);
     procedure RefreshTimes(aImg: TImage);
@@ -198,8 +199,8 @@ var
   StatMax: Integer;
   Stats: array of Integer;
 begin
-  if aImg.Picture.Graphic <> nil then
-    aImg.Picture.Graphic.SetSize(aImg.Width, aImg.Height);
+  if aImg.Picture.Bitmap <> nil then
+    aImg.Picture.Bitmap.SetSize(aImg.Width, aImg.Height);
   aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
 
   StatMax := 0;
@@ -254,8 +255,8 @@ var
   DotX, DotY: Word;
   TopX, TopY: Integer;
 begin
-  if aImg.Picture.Graphic <> nil then
-    aImg.Picture.Graphic.SetSize(aImg.Width, aImg.Height);
+  if aImg.Picture.Bitmap <> nil then
+    aImg.Picture.Bitmap.SetSize(aImg.Width, aImg.Height);
   aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
 
   for I := 0 to fResults.ValueCount - 1 do
@@ -292,8 +293,8 @@ var
   DotX, DotY: Word;
   TopX, TopY: Integer;
 begin
-  if aImg.Picture.Graphic <> nil then
-    aImg.Picture.Graphic.SetSize(aImg.Width, aImg.Height);
+  if aImg.Picture.Bitmap <> nil then
+    aImg.Picture.Bitmap.SetSize(aImg.Width, aImg.Height);
   aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
 
   CutOff := TrackBar1.Position;
@@ -319,7 +320,7 @@ begin
 end;
 
 
-procedure TForm2.RunnerProgress(const aValue: string);
+procedure TForm2.RunnerProgress(const aValue: UnicodeString);
 begin
   Label2.Caption := aValue;
   Label2.Refresh;

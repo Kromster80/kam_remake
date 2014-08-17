@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -48,9 +48,9 @@
       <Filename Value="Runner"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir);..\..;..\..\Common;..\..\Common\zlib;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source"/>
-      <Libraries Value="..\..;..\..\Common;..\..\Common\zlib;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source"/>
-      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\zlib;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source"/>
+      <IncludeFiles Value="$(ProjOutDir);..\..;..\..\Common;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\src\ai"/>
+      <Libraries Value="..\..;..\..\Common;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\src\ai"/>
+      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\src\ai"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
@@ -60,8 +60,8 @@
     </Parsing>
     <CodeGeneration>
       <Optimizations>
-        <VariablesInRegisters Value="True"/>
         <OptimizationLevel Value="3"/>
+        <VariablesInRegisters Value="True"/>
       </Optimizations>
     </CodeGeneration>
     <Linking>

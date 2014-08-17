@@ -481,7 +481,7 @@ begin
       ProcessedFont := False;
       for F := Low(TKMFont) to High(TKMFont) do
         if LoaderThreads[F] <> nil then //nil threads are ones we already processed
-          if LoaderThreads[F].Finished then
+          if LoaderThreads[F].ReturnValue = 1 then //.Finished doesn't exist in FPC, so use ReturnValue we set
           begin
             FreeAndNil(LoaderThreads[F]);
             fFontData[F].GenerateTextures(FontInfo[F].TexMode);
@@ -696,7 +696,7 @@ end;
 { TKMFontLoadThread }
 constructor TKMFontLoadThread.Create(aFontData: TKMFontData; aPath: UnicodeString);
 begin
-  inherited Create;
+  inherited Create(False);
   FreeOnTerminate := False;
   fFontData := aFontData;
   fPath := aPath;
@@ -707,6 +707,7 @@ procedure TKMFontLoadThread.Execute;
 begin
   inherited;
   fFontData.LoadFontX(fPath);
+  ReturnValue := 1; //Signals that we have finished
 end;
 
 
