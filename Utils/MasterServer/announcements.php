@@ -17,9 +17,14 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r381
   die('[$0000FF]THE SCRIPTING DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
+if($Rev == "r6547")
+{
+  die('Welcome to the 2nd release candidate! Please report bugs');
+}
+
 if($Rev == "r6478")
 {
-  die('Welcome to the 1st release candidate! Please report bugs');
+  die('[$0000FF]THIS RELEASE CANDIDATE IS OUTDATED[]||If you are on our beta tester mailing list you should have received the new release candidate. If you are not on the list, please email contact@kamremake.com to join.');
 }
 
 if($Rev == "r6157")

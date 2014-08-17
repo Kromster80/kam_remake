@@ -1,7 +1,7 @@
 ; For each "Full" build there is only one thing to change: Revision
 
 ; REVISION
-#define Revision 'r6478'
+#define Revision 'r6547'
 
 ; These don't need to change
 #define InstallType 'Full'
