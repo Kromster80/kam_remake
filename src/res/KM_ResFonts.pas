@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, StrUtils, SysUtils, KM_PNG,
+  Classes, Graphics, Math, StrUtils, SysUtils, KromUtils, KM_PNG,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResPalettes
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
@@ -79,6 +79,20 @@ type
   end;
 
 
+  //We can speed up font loading with threads. A large part of loading time is reading
+  //files from disk and decompressing with ZLIB. These tasks are perfect for parallelizing.
+  //Generating OpenGL textures must be done in main thread, however that's <50% of font loading times.
+  //This is a very simple thread which loads a font then exits
+  TKMFontLoadThread = class(TThread)
+    private
+      fFontData: TKMFontData;
+      fPath: UnicodeString;
+    public
+      constructor Create(aFontData: TKMFontData; aPath: UnicodeString);
+      procedure Execute; override;
+  end;
+
+
   //Collection of fonts
   TKMResourceFont = class
   private
@@ -114,6 +128,7 @@ const
 
 
 implementation
+  uses KM_Utils, KM_Log;
 
 
 { TKMFontData }
@@ -436,14 +451,55 @@ procedure TKMResourceFont.LoadFonts;
 var
   F: TKMFont;
   FntPath: string;
+  LoaderThreads: array[TKMFont] of TKMFontLoadThread;
+  Done, ProcessedFont: Boolean;
+  StartTime, TotalTime: Cardinal;
 begin
+  StartTime := TimeGet;
+
   for F := Low(TKMFont) to High(TKMFont) do
   begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
-    fFontData[F].LoadFontX(FntPath);
-    fFontData[F].GenerateTextures(FontInfo[F].TexMode);
-    fFontData[F].Compact;
+
+    if THREADED_FONT_LOAD then
+      LoaderThreads[F] := TKMFontLoadThread.Create(fFontData[F], FntPath)
+    else
+    begin
+      fFontData[F].LoadFontX(FntPath);
+      fFontData[F].GenerateTextures(FontInfo[F].TexMode);
+      fFontData[F].Compact;
+    end;
   end;
+
+  if THREADED_FONT_LOAD then
+  begin
+    //Wait for child threads to finish, then generate textures (can only use OGL from main thread)
+    Done := False;
+    while not Done do
+    begin
+      Done := True;
+      ProcessedFont := False;
+      for F := Low(TKMFont) to High(TKMFont) do
+        if LoaderThreads[F] <> nil then //nil threads are ones we already processed
+          if LoaderThreads[F].Finished then
+          begin
+            FreeAndNil(LoaderThreads[F]);
+            fFontData[F].GenerateTextures(FontInfo[F].TexMode);
+            fFontData[F].Compact;
+            ProcessedFont := True;
+          end
+          else
+            Done := False;
+      //If we didn't find any finished threads this pass, don't hog CPU with main thread
+      //(gives children more time on CPU). If we found a finished thread, keep on checking
+      //because other threads probably finished while we were generating textures
+      if not ProcessedFont then
+        Sleep(10);
+    end;
+  end;
+
+  TotalTime := GetTimeSince(StartTime);
+  gLog.AddTime('Font load took ' + IntToStr(TotalTime) + 'ms');
 end;
 
 
@@ -634,6 +690,23 @@ begin
   Result.Y := (fFontData[Fnt].BaseHeight + fFontData[Fnt].LineSpacing) * LineCount;
   for I := 1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
+end;
+
+
+{ TKMFontLoadThread }
+constructor TKMFontLoadThread.Create(aFontData: TKMFontData; aPath: UnicodeString);
+begin
+  inherited Create;
+  FreeOnTerminate := False;
+  fFontData := aFontData;
+  fPath := aPath;
+end;
+
+
+procedure TKMFontLoadThread.Execute;
+begin
+  inherited;
+  fFontData.LoadFontX(fPath);
 end;
 
 
