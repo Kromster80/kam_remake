@@ -1735,7 +1735,10 @@ begin
                   if fReturnedToLobby and (tmpStringW = RETURN_TO_LOBBY_SAVE) then
                   begin
                     //Host paused file doesn't match ours, host may be cheating!
-                    PostLocalMessage('Host paused file does not match ours. Host might be attempting to cheat', csSystem);
+                    PostLocalMessage('Host''s paused file does not match ours. Host might be attempting to cheat', csSystem);
+                    fSelectGameKind := ngk_None;
+                    FreeAndNil(fSaveInfo);
+                    if Assigned(fOnMapName) then fOnMapName('');
                     Exit;
                   end;
                   //See if the host selected the same save we already downloaded
