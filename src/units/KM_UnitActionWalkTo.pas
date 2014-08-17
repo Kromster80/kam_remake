@@ -1,20 +1,24 @@
 unit KM_UnitActionWalkTo;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils, TypInfo,
+uses
+  Classes, KromUtils, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points,
   KM_Houses, KM_Units;
 
 type
-  TInteractionStatus = (kis_None,       //We have not yet encountered an interaction (we are just walking)
-                        kis_Pushing,    //We are pushing an idle unit out of the way
-                        kis_Pushed,     //We were pushed (idle then asked to move)
-                        kis_Trying,     //We are or have been stuck (difference between this and kis_None is only for debug)
-                        kis_Waiting     //We have been stuck for a while so allow other units to swap with us
+  TInteractionStatus = (
+    kis_None,       //We have not yet encountered an interaction (we are just walking)
+    kis_Pushing,    //We are pushing an idle unit out of the way
+    kis_Pushed,     //We were pushed (idle then asked to move)
+    kis_Trying,     //We are or have been stuck (difference between this and kis_None is only for debug)
+    kis_Waiting     //We have been stuck for a while so allow other units to swap with us
   );
 
-  const
-    TInteractionStatusNames: array [TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
+const
+  TInteractionStatusNames: array [TInteractionStatus] of string = (
+    'None', 'Pushing', 'Pushed', 'Trying', 'Waiting'
+  );
 
 
 type
@@ -80,7 +84,6 @@ type
     property DoesWalking: Boolean read fDoesWalking;
     property DoingExchange: Boolean read fDoExchange; //Critical piece, must not be abandoned
     function GetExplanation: UnicodeString; override;
-    function WalkingToUnit: Boolean; //Are we walking to a unit?
     function WasPushed: Boolean;
     property WalkFrom: TKMPoint read fWalkFrom;
     property WalkTo: TKMPoint read fWalkTo;
@@ -98,8 +101,7 @@ type
 implementation
 uses
   KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain, KM_ResUnits,
-  KM_UnitActionGoInOut, KM_UnitActionStay,
-  KM_UnitTaskBuild,
+  KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitTaskBuild,
   KM_Units_Warrior, KM_Log, KM_Resource;
 
 //INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
@@ -181,7 +183,7 @@ begin
 
   //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    gLog.AddNoTime('Unable to make a route for '+gResource.UnitDat[aUnit.UnitType].GUIName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+GetEnumName(TypeInfo(TPassability), Byte(fPass)));
+    gLog.AddNoTime('Unable to make a route for '+gResource.UnitDat[aUnit.UnitType].GUIName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+PassabilityText[fPass]);
 end;
 
 
@@ -313,19 +315,13 @@ begin
 end;
 
 
-function TUnitActionWalkTo.WalkingToUnit:Boolean;
-begin
-  Result := fTargetUnit <> nil;
-end;
-
-
 function TUnitActionWalkTo.WasPushed: Boolean;
 begin
   Result := fInteractionStatus = kis_Pushed;
 end;
 
 
-procedure TUnitActionWalkTo.PerformExchange(ForcedExchangePos:TKMPoint);
+procedure TUnitActionWalkTo.PerformExchange(ForcedExchangePos: TKMPoint);
 begin
   //If we are being forced to exchange then modify our route to make the exchange,
   //  then return to the tile we are currently on, then continue the route

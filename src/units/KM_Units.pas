@@ -2,7 +2,7 @@ unit KM_Units;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils, TypInfo, Types,
+  Classes, Math, SysUtils, KromUtils, Types,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
   KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool;
 
@@ -1988,10 +1988,10 @@ begin
     if DesiredPassability = CanWalkRoad then
     begin
       if not gTerrain.CheckPassability(fNextPosition, CanWalk) then
-        raise ELocError.Create(gResource.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk',fNextPosition);
+        raise ELocError.Create(gResource.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk', fNextPosition);
     end else
     if not gTerrain.CheckPassability(fNextPosition, DesiredPassability) then
-      raise ELocError.Create(gResource.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+GetEnumName(TypeInfo(TPassability), Byte(DesiredPassability)),fNextPosition);
+      raise ELocError.Create(gResource.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+PassabilityText[DesiredPassability], fNextPosition);
 
 
   //

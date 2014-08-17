@@ -2,7 +2,7 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils, TypInfo,
+  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils,
   KM_RenderControl,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
@@ -489,7 +489,7 @@ begin
   begin
     I := tbPassability.Position;
     tbPassability.Max := Byte(High(TPassability));
-    Label2.Caption := IfThen(I <> 0, GetEnumName(TypeInfo(TPassability), I), '');
+    Label2.Caption := IfThen(I <> 0, PassabilityText[TPassability(I)], '');
     SHOW_TERRAIN_PASS := I;
     SHOW_TERRAIN_WIRES := chkShowWires.Checked;
     SHOW_UNIT_ROUTES := chkShowRoutes.Checked;
