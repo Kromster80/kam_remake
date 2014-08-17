@@ -47,3 +47,6 @@
 46:Now it's really insane
 47:Still alive? No problem!
 48:Time to die!
+49:Congrats! You reached 26th wave! New bonus available: Rescue Squad: You can get a reinforcement immediately if you have too less soldiers.|To use this bonus, place road plan on special Rescue Tile.|NOTE: You can use this bonus 3 times. Every next use is delayed.|You can't use this bonus if you have enough soldiers and recruits!
+50:||||[$%s]Rescue squads available: %d |Delay: %.2d:%.2d[]
+51:In this mission you should defend the Castle and defeat 30 enemy attacks. Every next attack is stronger than previous. You have a lot of weapons, but not so much gold and can't equip strong soldiers at start. You can unlock new soldiers by killing enemy troops.||ARMY UNLOCK ORDER:||50 kills - Lance Carrier;|100 kills - Axe Fighter;|160 kills - Bowman;|250 kills - Crossbowman;|400 kills - Pikeman;|550 kills - Scout;|700 kills - Sword Fighter;|1000 kills - Barbarian;|1250 kills - Knight.||To get Barbarian, enable barracks repair and equip militia when you have more than 1000 points.||You can also get rogues when equipping militias and get extra recruit training recruits. |Also, if you reach 18th and 26th wave you get useful bonus!||Made by andreus.
