@@ -254,13 +254,23 @@ end;
 
 
 procedure TKMTextLibraryMulti.Save(aStream: TKMemoryStream);
+
+  function LocalesWithText: Integer;
+  var I: Integer;
+  begin
+    Result := 0;
+    for I := 0 to gResLocales.Count - 1 do
+      if Length(fTexts[I]) > 0 then
+        Inc(Result);
+  end;
+
 var
   I,K: Integer;
   TextCount: Integer;
 begin
-  aStream.Write(gResLocales.Count);
+  //Only save locales containing text (otherwise locale list must be synced in MP)
+  aStream.Write(LocalesWithText);
   for I := 0 to gResLocales.Count - 1 do
-    //Only save locales containing text (otherwise locale list must be synced in MP)
     if Length(fTexts[I]) > 0 then
     begin
       aStream.WriteA(gResLocales[I].Code);
