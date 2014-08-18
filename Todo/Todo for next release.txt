@@ -3,6 +3,7 @@ Since r6547 (RC 2)
 ====================================
 
 Bugs:
+ +	Using hotkeys in replays/spectating didn't update the selected player
 	You can start the game before spectators have downloaded save, which causes an error
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position

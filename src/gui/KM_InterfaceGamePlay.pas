@@ -2477,6 +2477,20 @@ begin
   end
   else
     MySpectator.Selected := nil;
+
+  //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
+  if fUIMode in [umReplay, umSpectate] then
+  begin
+    if MySpectator.Selected is TKMHouse      then MySpectator.HandIndex := TKMHouse    (MySpectator.Selected).Owner;
+    if MySpectator.Selected is TKMUnit       then MySpectator.HandIndex := TKMUnit     (MySpectator.Selected).Owner;
+    if MySpectator.Selected is TKMUnitGroup  then MySpectator.HandIndex := TKMUnitGroup(MySpectator.Selected).Owner;
+    Dropbox_ReplayFOW.SelectByTag(MySpectator.HandIndex);
+    if Checkbox_ReplayFOW.Checked then
+      MySpectator.FOWIndex := MySpectator.HandIndex
+    else
+      MySpectator.FOWIndex := -1;
+    fMinimap.Update(False); //Force update right now so FOW doesn't appear to lag
+  end;
 end;
 
 
