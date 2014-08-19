@@ -233,7 +233,8 @@ begin
       begin
         //No fight alerts in replays/spectating, and only show alerts for ourselves
         if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-        and (fOwner = MySpectator.HandIndex) then
+        and (fOwner = MySpectator.HandIndex)
+        and (aAttacker <> nil) then //Don't show alerts for annonymous attacks (e.g. script)
           gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town, fGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
       end;
     hndComputer:
