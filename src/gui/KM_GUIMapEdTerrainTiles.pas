@@ -140,8 +140,13 @@ begin
     L := I * MAPED_TILES_X + K;
     TileID := GetTileIDFromTag(L);
     TilesTable[L].TexID := TileID;
-    TilesTable[L].Enabled := TileID <> 0;
-    TilesTable[L].Hint := IntToStr(TileID);
+    //Don't disable it because then scrollwheel doesn't work
+    TilesTable[L].HideHighlight := TileID = 0;
+    TilesTable[L].Clickable := TileID <> 0;
+    if TileID = 0 then
+      TilesTable[L].Hint := ''
+    else
+      TilesTable[L].Hint := IntToStr(TileID);
     //If cursor has a tile then make sure its properly selected in table as well
     TilesTable[L].Down := (GameCursor.Mode = cmTiles) and (GameCursor.Tag1 = TileID - 1);
   end;
