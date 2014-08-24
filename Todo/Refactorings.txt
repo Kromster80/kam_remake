@@ -13,9 +13,7 @@ Internal refactorings that don't affect gameplay, but might be needed for the pr
 
 	Redesign gameplay UI into units similar to main menu pages
 
-	Introduce free-movement forms into MapEd interface (-> next item)
-
-	Redesign interface with focus on moveable forms instead of static left-side menu (so we can add more info)
+	Introduce free-movement forms into MapEd interface (so we can fit more things in them)
 
 	Rework the way wares are stored in houses, allowing to evacuate and removing segregation to In and Out
 
@@ -29,3 +27,7 @@ Internal refactorings that don't affect gameplay, but might be needed for the pr
 	Try out making roadfinder aware of houses it connects (to prefer relevant houses)
 
 	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
+
+	Split Houses and Units into modules. 1 class = a module
+
+	Replace ActionAbandonWalk with a flag in ActionWalkTo that will be checked once unit steps on a new tile
