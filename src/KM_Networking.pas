@@ -1121,12 +1121,14 @@ end;
 
 procedure TKMNetworking.AttemptReconnection;
 begin
-  if fReconnectRequested = 0 then fReconnectRequested := TimeGet; //Do it soon
+  if fReconnectRequested = 0 then
+    fReconnectRequested := TimeGet; //Do it soon
 end;
 
 
 procedure TKMNetworking.DoReconnection;
-var TempMyIndex:integer;
+var
+  TempMyIndex: Integer;
 begin
   if WRITE_RECONNECT_LOG then gLog.AddTime(Format('DoReconnection: %s',[fMyNikname]));
   fReconnectRequested := 0;
@@ -2017,7 +2019,7 @@ procedure TKMNetworking.PacketSendA(aRecipient: Integer; aKind: TKMessageKind; c
 var
   M: TKMemoryStream;
 begin
-  Assert(NetPacketType[aKind] = pfString);
+  Assert(NetPacketType[aKind] = pfStringA);
 
   M := TKMemoryStream.Create;
   M.Write(aKind, SizeOf(TKMessageKind));
@@ -2033,7 +2035,7 @@ procedure TKMNetworking.PacketSendW(aRecipient: Integer; aKind: TKMessageKind; c
 var
   M: TKMemoryStream;
 begin
-  Assert(NetPacketType[aKind] = pfString);
+  Assert(NetPacketType[aKind] = pfStringW);
 
   M := TKMemoryStream.Create;
   M.Write(aKind, SizeOf(TKMessageKind));

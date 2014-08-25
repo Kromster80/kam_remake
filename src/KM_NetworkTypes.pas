@@ -91,28 +91,29 @@ type
     mk_FileEnd,         //Host informs joiner that the whole file has been sent
 
     mk_Vote             //Joiner tells host his vote
-    );
+  );
 
 
   TKMPacketFormat = (
     pfNoData, //Packet contains no data
     pfBinary, //Packet contains binary data (Stream)
     pfNumber, //Packet contains an integer
-    pfString  //Packet contains a string
-    );
+    pfStringA,//Packet contains ANSI string
+    pfStringW //Packet contains Unicode string
+  );
 
 const
-  NetPacketType: array [TKMessageKind] of TKMPacketFormat =
-  ( pfBinary,   //mk_AskToJoin
+  NetPacketType: array [TKMessageKind] of TKMPacketFormat = (
+    pfBinary,   //mk_AskToJoin
     pfNoData,   //mk_AllowToJoin
     pfNumber,   //mk_RefuseToJoin
     pfBinary,   //mk_AskForAuth
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
     pfBinary,   //mk_ReassignHost
-    pfString,   //mk_GameVersion
-    pfString,   //mk_WelcomeMessage
-    pfString,   //mk_ServerName
+    pfStringA,  //mk_GameVersion
+    pfStringW,  //mk_WelcomeMessage
+    pfStringW,  //mk_ServerName
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
     pfBinary,   //mk_SetGameInfo
@@ -121,7 +122,7 @@ const
     pfNumber,   //mk_GiveHost
     pfNoData,   //mk_ResetBans
     pfNumber,   //mk_Kicked
-    pfString,   //mk_LangCode
+    pfStringA,  //mk_LangCode
     pfBinary,   //mk_AuthChallenge
     pfNoData,   //mk_GetServerInfo
     pfBinary,   //mk_ServerInfo
@@ -143,7 +144,7 @@ const
     pfNoData,   //mk_ReturnToLobby
     pfNoData,   //mk_ReadyToPlay
     pfNoData,   //mk_Play
-    pfString,   //mk_AskToReconnect
+    pfStringA,  //mk_AskToReconnect
     pfNumber,   //mk_RefuseReconnect
     pfNumber,   //mk_ResyncFromTick
     pfNoData,   //mk_ReconnectionAccepted
@@ -153,8 +154,8 @@ const
     pfBinary,   //mk_TextChat
     pfNoData,   //mk_ReqPassword
     pfBinary,   //mk_Password
-    pfString,   //mk_SetPassword
-    pfString,   //mk_FileRequest
+    pfStringA,  //mk_SetPassword
+    pfStringW,  //mk_FileRequest
     pfBinary,   //mk_FileChunk
     pfNoData,   //mk_FileAck
     pfNoData,   //mk_FileEnd
