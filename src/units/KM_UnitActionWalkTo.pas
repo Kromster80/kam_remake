@@ -27,14 +27,14 @@ type
 
   TUnitActionWalkTo = class(TUnitAction)
   private
-    fWalkFrom:TKMPoint; //Walking from this spot, used only in Create
-    fWalkTo:TKMPoint; //Where are we going to
-    fNewWalkTo:TKMPoint; //If we recieve a new TargetLoc it will be stored here
-    fDistance:single; //How close we need to get to our aim
+    fWalkFrom: TKMPoint; //Walking from this spot, used only in Create
+    fWalkTo: TKMPoint; //Where are we going to
+    fNewWalkTo: TKMPoint; //If we recieve a new TargetLoc it will be stored here
+    fDistance: Single; //How close we need to get to our target
     fUseExactTarget: boolean; //If we don't care about exact position
-    fTargetUnit:TKMUnit; //Folow this unit
-    fTargetHouse:TKMHouse; //Go to this House
-    fPass:TPassability; //Desired passability set once on Create
+    fTargetUnit: TKMUnit; //Folow this unit
+    fTargetHouse: TKMHouse; //Go to this House
+    fPass: TPassability; //Desired passability set once on Create
     fDoesWalking, fWaitingOnStep: Boolean;
     fDestBlocked: Boolean; //Our route is blocked by busy units, so we must wait for them to clear. Give way to all other units (who might be carrying stone for the worker blocking us)
     fDoExchange: Boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
@@ -44,7 +44,7 @@ type
     function CanWalkToTarget(aFrom: TKMPoint; aPass: TPassability): Boolean;
     function CheckForNewDestination: TDestinationCheck;
     function CheckTargetHasDied: Boolean;
-    function CheckForObstacle:TObstacleCheck;
+    function CheckForObstacle: TObstacleCheck;
     function CheckWalkComplete:boolean;
     function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer): Boolean;
     function DoUnitInteraction: Boolean;
@@ -58,7 +58,7 @@ type
       function IntSolutionSideStep(aPosition: TKMPoint; HighestInteractionCount:integer):boolean;
 
     procedure ChangeStepTo(aPos: TKMPoint);
-    procedure PerformExchange(ForcedExchangePos:TKMPoint);
+    procedure PerformExchange(ForcedExchangePos: TKMPoint);
     procedure IncVertex;
     procedure DecVertex;
     procedure SetInitValues;
@@ -128,7 +128,8 @@ constructor TUnitActionWalkTo.Create( aUnit: TKMUnit;
                                       aTargetUnit: TKMUnit;
                                       aTargetHouse: TKMHouse;
                                       aUseExactTarget: boolean=true);
-var RouteBuilt:boolean; //Check if route was built, otherwise return nil
+var
+  RouteBuilt: Boolean; //Check if route was built, otherwise return nil
 begin
   inherited Create(aUnit, aActionType, False);
 
@@ -137,7 +138,7 @@ begin
 
   Assert(not (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])); //Animals should using TUnitActionSteer instead
 
-  fDistance     := aDistance;
+  fDistance := aDistance;
   //               aSetPushed Dooesn't need to be rememberred (it is used only in Create here)
 
   if aTargetUnit  <> nil then fTargetUnit  := aTargetUnit.GetUnitPointer;
@@ -199,18 +200,19 @@ end;
 
 procedure TUnitActionWalkTo.ExplanationLogAdd;
 begin
-  if not WRITE_WALKTO_LOG then exit;
+  if not WRITE_WALKTO_LOG then
+    Exit;
   ExplanationLog.Add(Format(
   '%d'+#9+'%d:%d > %d:%d > %d:%d'+#9+Explanation+'',
-  [
-  gGame.GameTickCount,
-  fUnit.PrevPosition.X,
-  fUnit.PrevPosition.Y,
-  fUnit.GetPosition.X,
-  fUnit.GetPosition.Y,
-  fUnit.NextPosition.X,
-  fUnit.NextPosition.Y
-  ]))
+  [ gGame.GameTickCount,
+    fUnit.PrevPosition.X,
+    fUnit.PrevPosition.Y,
+    fUnit.GetPosition.X,
+    fUnit.GetPosition.Y,
+    fUnit.NextPosition.X,
+    fUnit.NextPosition.Y
+  ])
+  );
 end;
 
 
@@ -291,11 +293,11 @@ end;
 function TUnitActionWalkTo.CanAbandonInternal: boolean;
 begin
   Result := (fInteractionStatus <> kis_Pushed) //Can be removed, but decreases effectiveness
-            and (not fDoExchange); //Other unit could have set this
+            and not fDoExchange; //Other unit could have set this
 end;
 
 
-{ Returns true only when unit is stuck for some reason }
+// Returns true only when unit is stuck for some reason
 function TUnitActionWalkTo.CanAbandonExternal: boolean;
 begin
   Result := (not fDoExchange) //Other unit could have set this
@@ -361,7 +363,9 @@ end;
 
 
 function TUnitActionWalkTo.AssembleTheRoute: Boolean;
-var I: Integer; NodeList2: TKMPointList;
+var
+  I: Integer;
+  NodeList2: TKMPointList;
 begin
   //Build a piece of route to return to nearest road piece connected to destination road network
   if (fPass = CanWalkRoad)
@@ -572,7 +576,8 @@ end;
 
 
 function TUnitActionWalkTo.IntSolutionExchange(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-var OpponentNextNextPos: TKMPoint;
+var
+  OpponentNextNextPos: TKMPoint;
 begin
   Result := False;
 
@@ -663,7 +668,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+function TUnitActionWalkTo.IntSolutionDodge(fOpponent: TKMUnit; HighestInteractionCount:integer):boolean;
 var
   I: Byte; //Test 2 options really
   TempPos: TKMPoint;
@@ -724,7 +729,8 @@ end;
 //If the blockage won't go away because it's busy (Locked by other unit) then try going around it
 //by re-routing our route and avoiding that tile and all other Locked tiles
 function TUnitActionWalkTo.IntSolutionAvoid(fOpponent: TKMUnit): Boolean;
-var NewNodeList: TKMPointList;
+var
+  NewNodeList: TKMPointList;
 begin
   Result := False;
 
@@ -776,7 +782,9 @@ end;
 
 {This solution tries to find an unoccupied tile where unit can side-step}
 function TUnitActionWalkTo.IntSolutionSideStep(aPosition: TKMPoint; HighestInteractionCount: Integer): Boolean;
-var SideStepTest: TKMPoint; Found: Boolean;
+var
+  SideStepTest: TKMPoint;
+  Found: Boolean;
 begin
   Result := false; //Should only return true if a sidestep was taken (for use in CheckForObstacle)
   if (HighestInteractionCount < SIDESTEP_TIMEOUT) or fDoExchange then exit;
@@ -823,10 +831,10 @@ end;
 
 function TUnitActionWalkTo.DoUnitInteraction: Boolean;
 var
-  fOpponent:TKMUnit;
+  fOpponent: TKMUnit;
   HighestInteractionCount: integer;
 begin
-  Result:=true; //false = interaction yet unsolved, stay and wait.
+  Result := True; //false = interaction yet unsolved, stay and wait.
   if not DO_UNIT_INTERACTION then exit;
 
   //If there's a unit using this vertex to walk diagonally then we must wait, they will be finished after this step
@@ -1000,7 +1008,8 @@ begin
     //Set precise position to avoid rounding errors
     fUnit.PositionF := KMPointF(NodeList[NodePos]);
 
-    if (NodePos > 0) and (not fWaitingOnStep) and KMStepIsDiag(NodeList[NodePos-1],NodeList[NodePos]) then
+    if (NodePos > 0) and (not fWaitingOnStep)
+    and KMStepIsDiag(NodeList[NodePos-1],NodeList[NodePos]) then
       DecVertex; //Unoccupy vertex
 
     fWaitingOnStep := true;
