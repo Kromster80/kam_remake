@@ -109,7 +109,7 @@ end;
 procedure TUnitWorkPlan.SubActAdd(aAct: THouseActionType; aCycles: Single);
 begin
   HouseAct[ActCount].Act := aAct;
-  HouseAct[ActCount].TimeToWork := Round(gResource.HouseDat[fHome].Anim[aAct].Count * aCycles);
+  HouseAct[ActCount].TimeToWork := Round(gRes.HouseDat[fHome].Anim[aAct].Count * aCycles);
   Inc(ActCount);
 end;
 
@@ -118,9 +118,9 @@ procedure TUnitWorkPlan.ResourcePlan(Res1:TWareType; Qty1:byte; Res2:TWareType; 
 begin
   Resource1:=Res1; Count1:=Qty1;
   Resource2:=Res2; Count2:=Qty2;
-  Product1:=Prod1; ProdCount1:=gResource.HouseDat[fHome].ResProductionX;
+  Product1:=Prod1; ProdCount1:=gRes.HouseDat[fHome].ResProductionX;
   if Prod2=wt_None then exit;
-  Product2:=Prod2; ProdCount2:=gResource.HouseDat[fHome].ResProductionX;
+  Product2:=Prod2; ProdCount2:=gRes.HouseDat[fHome].ResProductionX;
 end;
 
 
@@ -132,10 +132,10 @@ var
 begin
   with gTerrain do
   case GatheringScript of
-    gs_StoneCutter:     Found := FindStone(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
-    gs_FarmerSow:       Found := FindCornField(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, taPlant, PlantAct, NewLoc);
+    gs_StoneCutter:     Found := FindStone(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
+    gs_FarmerSow:       Found := FindCornField(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, taPlant, PlantAct, NewLoc);
     gs_FarmerCorn:      begin
-                          Found := FindCornField(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, taAny, PlantAct, NewLoc);
+                          Found := FindCornField(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, taAny, PlantAct, NewLoc);
                           if PlantAct = taPlant then
                           begin
                             GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
@@ -147,12 +147,12 @@ begin
                           end;
                         end;
     gs_FarmerWine:      begin
-                          Found := FindWineField(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, NewLoc);
+                          Found := FindWineField(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, NewLoc);
                           NewLoc.Dir := dir_N; //The animation for picking grapes is only defined for facing north
                         end;
-    gs_FisherCatch:     Found := FindFishWater(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
-    gs_WoodCutterCut:   Found := ChooseTree(aLoc, KMGetVertexTile(aAvoidLoc, WorkDir), gResource.UnitDat[aUnit.UnitType].MiningRange, taCut, aUnit, NewLoc, PlantAct);
-    gs_WoodCutterPlant: Found := ChooseTree(aLoc, aAvoidLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, taPlant, aUnit, NewLoc, PlantAct);
+    gs_FisherCatch:     Found := FindFishWater(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
+    gs_WoodCutterCut:   Found := ChooseTree(aLoc, KMGetVertexTile(aAvoidLoc, WorkDir), gRes.UnitDat[aUnit.UnitType].MiningRange, taCut, aUnit, NewLoc, PlantAct);
+    gs_WoodCutterPlant: Found := ChooseTree(aLoc, aAvoidLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, taPlant, aUnit, NewLoc, PlantAct);
     else                Found := False; //Can find a new resource for an unknown gathering script, so return with false
   end;
 
@@ -229,13 +229,13 @@ begin
   Clear;
 
   fHome := aHome;
-  AfterWorkIdle := gResource.HouseDat[aHome].WorkerRest * 10;
+  AfterWorkIdle := gRes.HouseDat[aHome].WorkerRest * 10;
 
   //Now we need to fill only specific properties
   case aUnit.UnitType of
     ut_Woodcutter:    if aHome = ht_Woodcutters then
                       begin
-                        fIssued := ChooseTree(aLoc, KMPoint(0,0), gResource.UnitDat[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
+                        fIssued := ChooseTree(aLoc, KMPoint(0,0), gRes.UnitDat[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
                         if fIssued then
                         begin
                           case PlantAct of
@@ -251,7 +251,7 @@ begin
                         end
                         else
                           if (aPlantAct = taCut)
-                          and not gTerrain.CanFindTree(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange) then
+                          and not gTerrain.CanFindTree(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange) then
                             ResourceDepleted := True; //No more trees to cut
                       end;
     ut_Miner:         if aHome = ht_CoalMine then
@@ -322,7 +322,7 @@ begin
                       end;
     ut_Farmer:        if aHome = ht_Farm then
                       begin
-                        fIssued := gTerrain.FindCornField(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), aPlantAct, PlantAct, Tmp);
+                        fIssued := gTerrain.FindCornField(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), aPlantAct, PlantAct, Tmp);
                         if fIssued then
                           case PlantAct of
                             taCut:    begin
@@ -336,7 +336,7 @@ begin
 
                       if aHome = ht_Wineyard then
                       begin
-                        fIssued := gTerrain.FindWineField(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), Tmp);
+                        fIssued := gTerrain.FindWineField(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wt_None,0,wt_None,0,wt_Wine);
@@ -461,18 +461,18 @@ begin
                       end;
     ut_Fisher:        if aHome = ht_FisherHut then
                       begin
-                        fIssued := gTerrain.FindFishWater(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
+                        fIssued := gTerrain.FindFishWater(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wt_None,0,wt_None,0,wt_Fish);
                           WalkStyle(Tmp,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch);
                         end else
                           //We must check again this time ignoring working units since they don't indicate the resource is depleted
-                          ResourceDepleted := not gTerrain.FindFishWater(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
+                          ResourceDepleted := not gTerrain.FindFishWater(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
                       end;
     ut_StoneCutter:   if aHome = ht_Quary then
                       begin
-                        fIssued := gTerrain.FindStone(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
+                        fIssued := gTerrain.FindStone(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wt_None,0,wt_None,0,wt_Stone);
@@ -482,7 +482,7 @@ begin
                           SubActAdd(ha_Work5,1);
                         end else
                           //We must check again this time ignoring working units since they don't indicate the resource is depleted
-                          ResourceDepleted := not gTerrain.FindStone(aLoc, gResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
+                          ResourceDepleted := not gTerrain.FindStone(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
                       end;
     ut_Smith:         if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalArmor) then
                       begin
@@ -580,8 +580,8 @@ begin
                       end;
   else
     Assert(false, 'No work plan for ' +
-                  gResource.UnitDat[aUnit.UnitType].GUIName + ' in ' +
-                  gResource.HouseDat[aHome].HouseName);
+                  gRes.UnitDat[aUnit.UnitType].GUIName + ' in ' +
+                  gRes.HouseDat[aHome].HouseName);
   end;
 end;
 

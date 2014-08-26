@@ -415,7 +415,7 @@ var
   Pass: TPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
-  Pass := gResource.UnitDat[aUnitType].AllowedPassability;
+  Pass := gRes.UnitDat[aUnitType].AllowedPassability;
 
   for I := 0 to 255 do
   begin

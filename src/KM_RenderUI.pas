@@ -475,7 +475,7 @@ begin
   until(I = 0);
 
 
-  FontData := gResource.Fonts.FontData[aFont]; //Shortcut
+  FontData := gRes.Fonts.FontData[aFont]; //Shortcut
 
   //Calculate line count and each lines width to be able to properly aAlign them
   LineCount := 1;

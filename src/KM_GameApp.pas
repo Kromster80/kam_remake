@@ -107,8 +107,8 @@ begin
 
   fRender := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
-  gResource := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
-  gResource.LoadMainResources(fGameSettings.Locale);
+  gRes := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
+  gRes.LoadMainResources(fGameSettings.Locale);
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
@@ -173,7 +173,7 @@ begin
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
   FreeThenNil(fMainMenuInterface);
-  FreeThenNil(gResource);
+  FreeThenNil(gRes);
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
   FreeThenNil(gResTexts);
@@ -210,7 +210,7 @@ begin
   FreeAndNil(fMainMenuInterface);
 
   //Recreate resources that use Locale info
-  gResource.LoadLocaleResources(fGameSettings.Locale);
+  gRes.LoadLocaleResources(fGameSettings.Locale);
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
@@ -347,8 +347,8 @@ begin
   Render(False);
 
   GameLoadingStep(gResTexts[TX_MENU_LOADING_DEFINITIONS]);
-  gResource.OnLoadingText := GameLoadingStep;
-  gResource.LoadGameResources(fGameSettings.AlphaShadows);
+  gRes.OnLoadingText := GameLoadingStep;
+  gRes.LoadGameResources(fGameSettings.AlphaShadows);
 
   GameLoadingStep(gResTexts[TX_MENU_LOADING_INITIALIZING]);
 
@@ -707,7 +707,7 @@ end;
 
 function TKMGameApp.CheckDATConsistency: Boolean;
 begin
-  Result := ALLOW_MP_MODS or (gResource.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
+  Result := ALLOW_MP_MODS or (gRes.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
 end;
 
 

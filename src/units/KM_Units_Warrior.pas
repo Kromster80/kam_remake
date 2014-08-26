@@ -337,7 +337,7 @@ end;
 
 function TKMUnitWarrior.IsRanged: Boolean;
 begin
-  Result := gResource.UnitDat[fUnitType].FightType = ft_Ranged;
+  Result := gRes.UnitDat[fUnitType].FightType = ft_Ranged;
 end;
 
 
@@ -732,7 +732,7 @@ end;}
 function TKMUnitWarrior.UpdateState: Boolean;
 begin
   if fCurrentAction = nil then
-    raise ELocError.Create(gResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
+    raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
 
   if IsDeadOrDying then
   begin

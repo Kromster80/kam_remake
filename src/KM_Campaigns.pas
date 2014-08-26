@@ -375,9 +375,9 @@ begin
   fTextLib := TKMTextLibrarySingle.Create;
   fTextLib.LoadLocale(fPath + 'text.%s.libx');
 
-  if gResource.Sprites <> nil then
+  if gRes.Sprites <> nil then
   begin
-    SP := gResource.Sprites[rxGuiMainH];
+    SP := gRes.Sprites[rxGuiMainH];
     FirstSpriteIndex := SP.RXData.Count;
     SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
 

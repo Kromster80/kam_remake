@@ -280,13 +280,13 @@ begin
   if Step = STRIKE_STEP then
   begin
     //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
-    Damage := gResource.UnitDat[fUnit.UnitType].Attack;
+    Damage := gRes.UnitDat[fUnit.UnitType].Attack;
     if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) then
-      Damage := Damage + gResource.UnitDat[fUnit.UnitType].AttackHorse;
+      Damage := Damage + gRes.UnitDat[fUnit.UnitType].AttackHorse;
 
     Damage := Damage * (GetDirModifier(fUnit.Direction,fOpponent.Direction)+1); //Direction modifier
     //Defence modifier
-    Damage := Damage div Math.max(gResource.UnitDat[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
+    Damage := Damage div Math.max(gRes.UnitDat[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
 
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
@@ -318,7 +318,7 @@ function TUnitActionFight.Execute: TActionResult;
 var
   Cycle, Step: Byte;
 begin
-  Cycle := max(gResource.UnitDat[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
+  Cycle := max(gRes.UnitDat[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
   Step  := fUnit.AnimStep mod Cycle;
 
   Result := ExecuteValidateOpponent(Step);

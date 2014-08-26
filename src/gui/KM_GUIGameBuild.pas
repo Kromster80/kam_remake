@@ -72,10 +72,10 @@ begin
     if GUIHouseOrder[I] <> ht_None then
     begin
       Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37, 120+((I-1) div 5)*37, 33, 33,
-                                              gResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+                                              gRes.HouseDat[GUIHouseOrder[I]].GUIIcon);
       Button_Build[I].Tag := Byte(GUIHouseOrder[I]);
       Button_Build[I].OnClick := Build_ButtonClick;
-      Button_Build[I].Hint := gResource.HouseDat[GUIHouseOrder[I]].HouseName;
+      Button_Build[I].Hint := gRes.HouseDat[GUIHouseOrder[I]].HouseName;
     end;
 end;
 
@@ -126,7 +126,7 @@ begin
   else
   begin
     house := THouseType(TKMButton(Sender).Tag);
-    houseDat := gResource.HouseDat[house];
+    houseDat := gRes.HouseDat[house];
     SetCost(cmHouses, Byte(house), houseDat.GUIIcon, houseDat.WoodCost, houseDat.StoneCost, houseDat.HouseName);
   end;
 end;
@@ -163,9 +163,9 @@ begin
   if gHands[MySpectator.HandIndex].Stats.GetCanBuild(GUIHouseOrder[I]) then
   begin
     Button_Build[I].Enable;
-    Button_Build[I].TexID := gResource.HouseDat[GUIHouseOrder[I]].GUIIcon;
+    Button_Build[I].TexID := gRes.HouseDat[GUIHouseOrder[I]].GUIIcon;
     Button_Build[I].OnClick := Build_ButtonClick;
-    Button_Build[I].Hint := gResource.HouseDat[GUIHouseOrder[I]].HouseName;
+    Button_Build[I].Hint := gRes.HouseDat[GUIHouseOrder[I]].HouseName;
   end
   else
   begin

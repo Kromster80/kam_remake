@@ -432,9 +432,9 @@ var
 
   function CanRotate(aTileID: Byte): Boolean;
   begin
-    Result := (gResource.Tileset.TileIsWater(aTileID)
+    Result := (gRes.Tileset.TileIsWater(aTileID)
               and not (aTileID in [114, 115, 119, 194, 200, 210, 211, 235, 236]))
-              or (gResource.Tileset.TileIsIce(aTileID)
+              or (gRes.Tileset.TileIsIce(aTileID)
               and not (aTileID in [4, 10, 12, 22, 23]));
   end;
 

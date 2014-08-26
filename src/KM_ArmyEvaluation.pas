@@ -136,11 +136,11 @@ var
 begin
   for I := WARRIOR_MIN to WARRIOR_MAX do
   begin
-    C1 := gResource.UnitDat[I];
+    C1 := gRes.UnitDat[I];
 
     for K := WARRIOR_MIN to WARRIOR_MAX do
     begin
-      C2 := gResource.UnitDat[K];
+      C2 := gRes.UnitDat[K];
 
       HpRatio := C1.HitPoints / C2.HitPoints;
       DirectPow := C1.Attack + C1.AttackHorse * Byte(UnitGroups[K] = gt_Mounted) / max(C2.Defence, 1);

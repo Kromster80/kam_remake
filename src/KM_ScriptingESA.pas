@@ -455,14 +455,14 @@ end;
 procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
 begin
   if Assigned(fProcHousePlanPlaced) then
-    fProcHousePlanPlaced(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
+    fProcHousePlanPlaced(aPlayer, aX + gRes.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
 end;
 
 
 procedure TKMScriptEvents.ProcHousePlanRemoved(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
 begin
   if Assigned(fProcHousePlanRemoved) then
-    fProcHousePlanRemoved(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
+    fProcHousePlanRemoved(aPlayer, aX + gRes.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
 end;
 
 
@@ -1488,7 +1488,7 @@ function TKMScriptStates.HouseTypeMaxHealth(aHouseType: Integer): Word;
 begin
   Result := 0;
   if HouseTypeValid(aHouseType) then
-    Result := gResource.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
+    Result := gRes.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
   else
     LogError('States.HouseTypeMaxHealth', [aHouseType]);
 end;
@@ -1497,7 +1497,7 @@ end;
 function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
 begin
   if HouseTypeValid(aHouseType) then
-    Result := '<%' + AnsiString(IntToStr(gResource.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
+    Result := '<%' + AnsiString(IntToStr(gRes.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
   else
   begin
     Result := '';
@@ -1511,7 +1511,7 @@ begin
   Result := -1;
   if HouseTypeValid(aHouseType) then
   begin
-    Result := UnitTypeToIndex[gResource.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
+    Result := UnitTypeToIndex[gRes.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
   end
   else
     LogError('States.HouseTypeToOccupantType', [aHouseType]);
@@ -1564,7 +1564,7 @@ begin
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) then
       for I := 1 to 4 do
-        if gResource.HouseDat[H.HouseType].ResOutput[I] = Res then
+        if gRes.HouseDat[H.HouseType].ResOutput[I] = Res then
         begin
           Result := H.ResOrder[I];
           Exit;
@@ -1722,7 +1722,7 @@ begin
   if aRes in [Low(WareIndexToType)..High(WareIndexToType)] then
   begin
     Res := WareIndexToType[aRes];
-    Result := gResource.Wares[Res].MarketPrice;
+    Result := gRes.Wares[Res].MarketPrice;
   end
   else
     LogError('States.MarketValue', [aRes]);
@@ -1858,7 +1858,7 @@ end;
 function TKMScriptStates.UnitTypeName(aUnitType: Byte): AnsiString;
 begin
   if (aUnitType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
-    Result := '<%' + AnsiString(IntToStr(gResource.UnitDat[UnitIndexToType[aUnitType]].GUITextID)) + '>'
+    Result := '<%' + AnsiString(IntToStr(gRes.UnitDat[UnitIndexToType[aUnitType]].GUITextID)) + '>'
   else
   begin
     Result := '';
@@ -1870,7 +1870,7 @@ end;
 function TKMScriptStates.WareTypeName(aWareType: Byte): AnsiString;
 begin
   if (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)]) then
-    Result := '<%' + AnsiString(IntToStr(gResource.Wares[WareIndexToType[aWareType]].TextID)) + '>'
+    Result := '<%' + AnsiString(IntToStr(gRes.Wares[WareIndexToType[aWareType]].TextID)) + '>'
   else
   begin
     Result := '';
@@ -2450,7 +2450,7 @@ begin
   and HouseTypeValid(aHouseType)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
-    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gRes.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
     begin
       H := gHands[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
       if H = nil then Exit;
@@ -2475,7 +2475,7 @@ begin
   and HouseTypeValid(aHouseType)
   and gTerrain.TileInMapCoords(X,Y) then
   begin
-    NonEntranceX := X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX;
+    NonEntranceX := X - gRes.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX;
     if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y)) then
     begin
       H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y));
@@ -2483,7 +2483,7 @@ begin
         Exit;
 
       Result := H.UID;
-      HA := gResource.HouseDat[H.HouseType].BuildArea;
+      HA := gRes.HouseDat[H.HouseType].BuildArea;
       for I := 1 to 4 do
       for K := 1 to 4 do
         if HA[I, K] <> 0 then
@@ -2497,15 +2497,15 @@ begin
       H.BuildingState := hbs_Wood;
       if aAddMaterials then
       begin
-        for I := 0 to gResource.HouseDat[H.HouseType].WoodCost - 1 do
+        for I := 0 to gRes.HouseDat[H.HouseType].WoodCost - 1 do
           H.ResAddToBuild(wt_Wood);
-        for K := 0 to gResource.HouseDat[H.HouseType].StoneCost - 1 do
+        for K := 0 to gRes.HouseDat[H.HouseType].StoneCost - 1 do
           H.ResAddToBuild(wt_Stone);
       end
       else
       begin
-        gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Wood, gResource.HouseDat[H.HouseType].WoodCost, dt_Once, diHigh4);
-        gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Stone, gResource.HouseDat[H.HouseType].StoneCost, dt_Once, diHigh4);
+        gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Wood, gRes.HouseDat[H.HouseType].WoodCost, dt_Once, diHigh4);
+        gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Stone, gRes.HouseDat[H.HouseType].StoneCost, dt_Once, diHigh4);
       end;
       gHands[aPlayer].BuildList.HouseList.AddHouse(H);
     end;
@@ -2966,8 +2966,8 @@ begin
     if H <> nil then
       if not H.IsComplete then
       begin
-        StoneNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Stone, gResource.HouseDat[H.HouseType].StoneCost - H.GetBuildStoneDelivered);
-        WoodNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Wood, gResource.HouseDat[H.HouseType].WoodCost - H.GetBuildWoodDelivered);
+        StoneNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Stone, gRes.HouseDat[H.HouseType].StoneCost - H.GetBuildStoneDelivered);
+        WoodNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Wood, gRes.HouseDat[H.HouseType].WoodCost - H.GetBuildWoodDelivered);
         for I := 0 to WoodNeeded - 1 do
           H.ResAddToBuild(wt_Wood);
         for I := 0 to StoneNeeded - 1 do
@@ -3117,7 +3117,7 @@ begin
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
-    if (H <> nil) and gResource.HouseDat[H.HouseType].AcceptsWares then
+    if (H <> nil) and gRes.HouseDat[H.HouseType].AcceptsWares then
       H.WareDelivery := not aDeliveryBlocked;
   end
   else
@@ -3190,7 +3190,7 @@ begin
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) then
       for I := 1 to 4 do
-        if gResource.HouseDat[H.HouseType].ResOutput[I] = Res then
+        if gRes.HouseDat[H.HouseType].ResOutput[I] = Res then
         begin
           H.ResOrder[I] := aAmount;
           Exit;

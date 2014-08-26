@@ -717,7 +717,7 @@ var
 begin
   Result := False;
   Best := MaxSingle;
-  HD := gResource.HouseDat;
+  HD := gRes.HouseDat;
 
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
@@ -753,7 +753,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (gResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gRes.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     Result := True;
@@ -770,7 +770,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (gResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gRes.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     if fPlans[I].Worker <> nil then
@@ -790,7 +790,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (gResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gRes.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     Result := fPlans[I].HouseType;
@@ -822,7 +822,7 @@ begin
     and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
     and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
     begin
-      HA := gResource.HouseDat[fPlans[I].HouseType].BuildArea;
+      HA := gRes.HouseDat[fPlans[I].HouseType].BuildArea;
 
       for J := 1 to 4 do for K := 1 to 4 do
       if HA[J,K] <> 0 then
@@ -855,7 +855,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
   and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
-    aList.Add(KMPoint(fPlans[I].Loc.X + gResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
+    aList.Add(KMPoint(fPlans[I].Loc.X + gRes.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
 end;
 
 

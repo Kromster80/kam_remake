@@ -102,7 +102,7 @@ var I: Integer;
 begin
   SaveStream.WriteA('KaM_GameInfo');
   SaveStream.WriteA(GAME_REVISION); //Save current revision
-  SaveStream.Write(gResource.GetDATCRC);
+  SaveStream.Write(gRes.GetDATCRC);
   SaveStream.Write(MapCRC);
 
   SaveStream.WriteW(Title); //GameName
@@ -129,7 +129,7 @@ end;
 
 function TKMGameInfo.IsValid(aCheckDATCRC: Boolean): Boolean;
 begin
-  Result := (PlayerCount > 0) and (not aCheckDATCRC or (DATCRC = gResource.GetDATCRC));
+  Result := (PlayerCount > 0) and (not aCheckDATCRC or (DATCRC = gRes.GetDATCRC));
 end;
 
 

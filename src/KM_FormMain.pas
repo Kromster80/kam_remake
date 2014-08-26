@@ -307,69 +307,69 @@ end;
 //Exports
 procedure TFormMain.Export_TreesRXClick(Sender: TObject);
 begin
-  gResource.Sprites.ExportToPNG(rxTrees);
+  gRes.Sprites.ExportToPNG(rxTrees);
 end;
 
 procedure TFormMain.Export_HousesRXClick(Sender: TObject);
 begin
-  gResource.Sprites.ExportToPNG(rxHouses);
+  gRes.Sprites.ExportToPNG(rxHouses);
 end;
 
 procedure TFormMain.Export_UnitsRXClick(Sender: TObject);
 begin
-  gResource.Sprites.ExportToPNG(rxUnits);
+  gRes.Sprites.ExportToPNG(rxUnits);
 end;
 
 procedure TFormMain.Export_GUIClick(Sender: TObject);
 begin
-  gResource.Sprites.ExportToPNG(rxGUI);
+  gRes.Sprites.ExportToPNG(rxGUI);
 end;
 
 procedure TFormMain.Export_GUIMainRXClick(Sender: TObject);
 begin
-  gResource.Sprites.ExportToPNG(rxGUIMain);
+  gRes.Sprites.ExportToPNG(rxGUIMain);
 end;
 
 procedure TFormMain.Export_GUIMainHRXClick(Sender: TObject);
 begin
-  gResource.Sprites.ExportToPNG(rxGUIMainH);
+  gRes.Sprites.ExportToPNG(rxGUIMainH);
 end;
 
 procedure TFormMain.Export_TilesetClick(Sender: TObject);
 begin
-  gResource.Sprites.ExportToPNG(rxTiles);
+  gRes.Sprites.ExportToPNG(rxTiles);
 end;
 
 procedure TFormMain.Export_Sounds1Click(Sender: TObject);
 begin
-  gResource.Sounds.ExportSounds;
+  gRes.Sounds.ExportSounds;
 end;
 
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject);
 begin
-  gResource.ExportTreeAnim;
+  gRes.ExportTreeAnim;
 end;
 
 procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);
 begin
-  gResource.ExportHouseAnim;
+  gRes.ExportHouseAnim;
 end;
 
 procedure TFormMain.Export_UnitAnim1Click(Sender: TObject);
 begin
-  gResource.ExportUnitAnim;
+  gRes.ExportUnitAnim;
 end;
 
 procedure TFormMain.HousesDat1Click(Sender: TObject);
 begin
-  gResource.HouseDat.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
+  gRes.HouseDat.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
 end;
 
 
 procedure TFormMain.Export_Fonts1Click(Sender: TObject);
 begin
-  Assert(gResource <> nil, 'Can''t export Fonts cos they aren''t loaded yet');
-  gResource.Fonts.ExportFonts;
+  Assert(gRes <> nil, 'Can''t export Fonts cos they aren''t loaded yet');
+  gRes.Fonts.ExportFonts;
 end;
 
 
@@ -602,7 +602,7 @@ end;
 
 procedure TFormMain.ResourceValues1Click(Sender: TObject);
 begin
-  gResource.Wares.ExportCostsTable('ResourceValues.txt');
+  gRes.Wares.ExportCostsTable('ResourceValues.txt');
 end;
 
 

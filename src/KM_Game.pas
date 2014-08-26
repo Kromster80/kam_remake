@@ -277,7 +277,7 @@ begin
   if DO_PERF_LOGGING then fPerfLog.Free;
 
   //When leaving the game we should always reset the cursor in case the user had beacon or linking selected
-  gResource.Cursors.Cursor := kmc_Default;
+  gRes.Cursors.Cursor := kmc_Default;
 
   FreeAndNil(MySpectator);
 
@@ -647,7 +647,7 @@ procedure TKMGame.GameHold(DoHold: Boolean; Msg: TGameResultMsg);
 begin
   DoGameHold := false;
   fGamePlayInterface.ReleaseDirectionSelector; //In case of victory/defeat while moving troops
-  gResource.Cursors.Cursor := kmc_Default;
+  gRes.Cursors.Cursor := kmc_Default;
 
   fGamePlayInterface.Viewport.ReleaseScrollKeys;
   PlayOnState := Msg;

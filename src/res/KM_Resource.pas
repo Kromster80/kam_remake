@@ -70,7 +70,7 @@ type
 
 
   var
-    gResource: TKMResource;
+    gRes: TKMResource;
 
 
 implementation

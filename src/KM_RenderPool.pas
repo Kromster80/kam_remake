@@ -138,7 +138,7 @@ begin
   inherited Create;
 
   for RT := Low(TRXType) to High(TRXType) do
-    fRXData[RT] := gResource.Sprites[RT].RXData;
+    fRXData[RT] := gRes.Sprites[RT].RXData;
 
   fRender := aRender;
   fViewport := aViewport;
@@ -524,7 +524,7 @@ var
   R: TRXData;
 begin
   R := fRXData[rxGui];
-  Id := gResource.HouseDat[aHouse].TabletIcon;
+  Id := gRes.HouseDat[aHouse].TabletIcon;
 
   gX := Loc.X + (R.Pivot[Id].X + R.Size[Id].X / 2) / CELL_SIZE_PX - 0.5;
   gY := Loc.Y + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 0.45;
@@ -543,7 +543,7 @@ var
   cornerX, cornerY: Single;
 begin
   rx := fRXData[rxHouses];
-  supply := gResource.HouseDat[aHouse].BuildSupply;
+  supply := gRes.HouseDat[aHouse].BuildSupply;
 
   if Wood <> 0 then
   begin
@@ -589,9 +589,9 @@ begin
 
   R := fRXData[rxHouses];
 
-  PicWood := gResource.HouseDat[aHouse].WoodPic + 1;
-  PicStone := gResource.HouseDat[aHouse].StonePic + 1;
-  PicSnow := gResource.HouseDat[aHouse].SnowPic + 1;
+  PicWood := gRes.HouseDat[aHouse].WoodPic + 1;
+  PicStone := gRes.HouseDat[aHouse].StonePic + 1;
+  PicSnow := gRes.HouseDat[aHouse].SnowPic + 1;
 
   GroundWood := R.Pivot[PicWood].Y + R.Size[PicWood].Y;
   GroundStone := R.Pivot[PicStone].Y + R.Size[PicStone].Y;
@@ -647,7 +647,7 @@ begin
   for AT := Low(THouseActionType) to High(THouseActionType) do
   if AT in aActSet then
   begin
-    A := gResource.HouseDat[aHouse].Anim[AT];
+    A := gRes.HouseDat[aHouse].Anim[AT];
     if A.Count > 0 then
     begin
       Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
@@ -684,7 +684,7 @@ begin
   for I := 1 to 4 do
   if (R1[I - 1]) > 0 then
   begin
-    Id := gResource.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+    Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
     AddHouseSupplySprite(Id);
   end;
 
@@ -696,13 +696,13 @@ begin
     begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
-        Id := gResource.HouseDat[aHouse].SupplyOut[I, K] + 1;
+        Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
         AddHouseSupplySprite(Id);
       end
     end
     else
     begin
-      Id := gResource.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
+      Id := gRes.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
       AddHouseSupplySprite(Id);
     end;
   end;
@@ -740,7 +740,7 @@ var
 begin
   R := fRXData[aRX];
 
-  A := gResource.HouseDat.BeastAnim[aHouse,BeastId,BeastAge];
+  A := gRes.HouseDat.BeastAnim[aHouse,BeastId,BeastAge];
 
   Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
   CornerX := Loc.X + (A.MoveX + R.Pivot[Id].X) / CELL_SIZE_PX - 1;
@@ -769,11 +769,11 @@ begin
   end;
 
   case aProj of
-    pt_Arrow:     with gResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
+    pt_Arrow:     with gRes.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
-    pt_Bolt:      with gResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
+    pt_Bolt:      with gRes.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
-    pt_SlingRock: with gResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
+    pt_SlingRock: with gRes.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
     pt_TowerRock: Id := ProjectileBounds[aProj, 1] + 1;
     else          Id := 1; //Nothing?
@@ -801,7 +801,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
@@ -835,7 +835,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
   R := fRXData[rxUnits];
@@ -856,7 +856,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gResource.UnitDat.SerfCarry[aCarry, aDir];
+  A := gRes.UnitDat.SerfCarry[aCarry, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then Exit;
   R := fRXData[rxUnits];
@@ -881,7 +881,7 @@ begin
   R := fRXData[rxUnits];
 
   //Unit position
-  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   //Units feet
@@ -923,14 +923,14 @@ begin
   R := fRXData[rxUnits];
 
   //Unit position
-  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   //Units feet
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
 
   //Flag position
-  A := gResource.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
+  A := gRes.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
   IdFlag := A.Step[FlagAnim mod Byte(A.Count) + 1] + 1;
   if IdFlag <= 0 then Exit;
 
@@ -945,7 +945,7 @@ procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAc
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; //In map editor always render 5 fish
   AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
-  if gResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
+  if gRes.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
     AddUnit(aUnit, aUID, ua_WalkArm, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
 end;
 
@@ -1180,7 +1180,7 @@ begin
   fHouseOutline.Clear;
 
   Loc := aHouse.GetPosition;
-  gResource.HouseDat[aHouse.HouseType].Outline(fHouseOutline);
+  gRes.HouseDat[aHouse.HouseType].Outline(fHouseOutline);
 
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);

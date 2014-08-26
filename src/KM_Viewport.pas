@@ -249,8 +249,8 @@ begin
     ReleaseScrollKeys;
     fScrolling := False;
 
-    if (gResource.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
-      gResource.Cursors.Cursor := kmc_Default;
+    if (gRes.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
+      gRes.Cursors.Cursor := kmc_Default;
 
     fScrollStarted := 0;
     Exit;
@@ -289,10 +289,10 @@ begin
   //Now do actual the scrolling, if needed
   fScrolling := I <> 0;
   if fScrolling then
-    gResource.Cursors.Cursor := DirectionsBitfield[I] //Sample cursor type from bitfield value
+    gRes.Cursors.Cursor := DirectionsBitfield[I] //Sample cursor type from bitfield value
   else
-    if (gResource.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
-      gResource.Cursors.Cursor := kmc_Default;
+    if (gRes.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
+      gRes.Cursors.Cursor := kmc_Default;
 
   SetZoom(fZoom); //EnsureRanges
   SetPosition(fPosition); //EnsureRanges

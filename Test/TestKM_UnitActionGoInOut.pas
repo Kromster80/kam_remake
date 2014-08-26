@@ -32,8 +32,8 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   SetKaMSeed(4);
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
-  gResource := TKMResource.Create(nil, nil, nil);
-  gResource.LoadMainResources;
+  gRes := TKMResource.Create(nil, nil);
+  gRes.LoadMainResources;
   fScripting := TKMScripting.Create;
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
@@ -53,7 +53,7 @@ begin
   gHands.Free;
   gTerrain.Free;
   fScripting.Free;
-  FreeAndNil(gResource);
+  FreeAndNil(gRes);
   gLog.Free;
   FUnitActionGoInOut := nil;
 end;

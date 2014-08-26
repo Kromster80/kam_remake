@@ -136,7 +136,7 @@ begin
   fGameOptions.Load(LoadStream);
   fSaveError := fInfo.ParseError;
 
-  if (fSaveError = '') and (fInfo.DATCRC <> gResource.GetDATCRC) then
+  if (fSaveError = '') and (fInfo.DATCRC <> gRes.GetDATCRC) then
     fSaveError := gResTexts[TX_SAVE_UNSUPPORTED_MODS];
 
   if fSaveError <> '' then
