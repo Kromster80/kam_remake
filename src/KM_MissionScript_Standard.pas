@@ -64,7 +64,7 @@ var I: Integer;
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
-  fDefaultLocation := -1;
+  fDefaultLocation := 0;
 
   for I := 0 to High(fPlayerEnabled) do
     fPlayerEnabled[I] := True;
@@ -75,7 +75,7 @@ constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEn
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
-  fDefaultLocation := -1;
+  fDefaultLocation := 0;
 
   //Tells us which player should be enabled and which ignored/skipped
   fPlayerEnabled := aPlayersEnabled;

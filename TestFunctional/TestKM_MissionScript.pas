@@ -52,10 +52,8 @@ begin
     for I := 0 to PathToMaps.Count - 1 do
     begin
       try
-        if Pos('\MapsMP\', PathToMaps[I]) <> 0 then
-          fGameApp.NewMultiplayerMap(PathToMaps[I], mfMP, 0, False)
-        else
-          fGameApp.NewSingleMap(PathToMaps[I], '');
+        //Load all maps in SP mode (even MP maps) since we don't have NetPlayers etc. rigged
+        fGameApp.NewSingleMap(PathToMaps[I], '');
 
         //Warnings and Errors are written into the Log
       except
