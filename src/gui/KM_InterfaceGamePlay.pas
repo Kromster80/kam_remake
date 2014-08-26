@@ -1962,6 +1962,10 @@ begin
   if fLastSyncedMessage <> gHands[MySpectator.HandIndex].MessageLog.CountLog then
     ColumnBox_MessageLog.ItemIndex := -1;
 
+  //Clear all rows in case MySpectator.HandIndex was changed and MessageLog now contains less items
+  for I := 0 to MAX_LOG_MSGS - 1 do
+    ColumnBox_MessageLog.Rows[I] := MakeListRow(['', ''], -1);
+
   K := 0;
   for I := Max(gHands[MySpectator.HandIndex].MessageLog.CountLog - MAX_LOG_MSGS, 0) to gHands[MySpectator.HandIndex].MessageLog.CountLog - 1 do
   begin
