@@ -4,7 +4,8 @@ interface
 uses
   Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions{$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
+  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions
+  {$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
 
 type
   TKMMain = class
@@ -23,6 +24,8 @@ type
     procedure DoActivate(Sender: TObject);
     procedure DoDeactivate(Sender: TObject);
     procedure DoIdle(Sender: TObject; var Done: Boolean);
+
+    procedure MapCacheUpdate;
   public
     constructor Create;
     destructor Destroy; override;
@@ -60,7 +63,7 @@ var
 
 
 implementation
-uses KM_Defaults, KM_GameApp, KM_Utils, KM_Log;
+uses KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps;
 
 const
   //Random GUID generated in Delphi by Ctrl+G
@@ -128,6 +131,9 @@ begin
   Application.OnActivate := DoActivate;
   Application.OnDeactivate := DoDeactivate;
   Application.OnRestore := DoRestore; //OnActivate seems to happen at the wrong times, OnRestore happens when alt-tabbing back in full screen mode
+
+  //Update map cache files (*.mi) in the background so map lists load faster
+  MapCacheUpdate;
 
   //Process messages in queue before hiding Loading, so that they all land on Loading form, not main one
   Application.ProcessMessages;
@@ -330,6 +336,13 @@ begin
   {$IFDEF Unix}
     Result := True;
   {$ENDIF}
+end;
+
+
+procedure TKMMain.MapCacheUpdate;
+begin
+  //Thread frees itself automatically
+  TTMapsCacheUpdater.Create([mfSP, mfMP, mfDL]);
 end;
 
 
