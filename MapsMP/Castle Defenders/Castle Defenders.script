@@ -1,15 +1,16 @@
 var
-  Scores, Barracks, SpawnX, SpawnY, RescueTileX, RescueTileY, RescuesCount, RescuesDelay, Direction: array[0..3] of Integer;
+  Scores, Barracks, SpawnX, SpawnY, RescueTileX, RescueTileY, RescuesCount, RescuesDelay, RescueArmy, RescueRecruits, Direction: array[0..3] of Integer;
   RescueColor: array[0..3] of ANSIString;
   RescueSquadPositionX, RescueSquadPositionY, RescueSquadFormation: array[0..3] of array[0..4] of Integer;
   I, K, Wave, General, WaveTime, AIBarracks, AIGroup: Integer;
   Unlocked: array[0..3] of array[15..23] of Boolean;
   bImmediateKill, bDouble, bNewConscription, 
-  bReinforce, bReborn, bNewborn, Check, bMsg, bRescueMsg: Boolean;
+  bReinforce, bReborn, bNewborn, Check, bMsg, bRescueMsg, bRanged: Boolean;
 
 
 const
   MAX_WAVE = 30;                       //Maximum number of AI waves. For now, 30 waves implemented
+  BONUS_WAVE = 18;                     //Players get a random bonus with 18th wave
   BONUS_CHANCE = 0.1375000000000;      //13,75% chance to activate some bonuses
   CHANCE_BALANCER = 1.225;             //Balancer for some bonuses
   MAX_ARMY_COUNT = 120;                //Maximum army count to activate extra recruits bonus
@@ -18,6 +19,7 @@ const
   RESCUE_DELAY = 1200;                 //2 minutes delay
   RESCUES_PER_PLAYER = 3;              //Player can use bonus 3 times
   RESCUE_WAVE = 26;                    //Bonus available since 26th wave
+  MAX_RANGED = 120;                    //Maximum ranged count per player
   DEBUG_MODE = False;                  //Debug option, to see how script works
 
 
@@ -160,6 +162,7 @@ begin
   Check := False;
   bMsg := False;
   bRescueMsg := False;
+  bRanged := False;
 
   for I := 0 to 3 do
   for K := 0 to 3 do
@@ -176,6 +179,8 @@ begin
     begin
       RescuesCount[I] := RESCUES_PER_PLAYER;
       RescuesDelay[I] := 0;
+      RescueArmy[I] := RESCUE_ARMY_COUNT;
+      RescueRecruits[I] := RESCUE_RECRUITS_COUNT;
       Scores[I] := 0;
       Houses := States.PlayerGetAllHouses(I);
       for K := 0 to Length(Houses) - 1 do
@@ -183,19 +188,19 @@ begin
           Actions.HouseSchoolQueueAdd(Houses[K], 13, 1);
     end;
 
-  if States.PlayerEnabled(I) then
     for I := 0 to 3 do
-    for K := 15 to 23 do
-    begin
-      Actions.UnitBlock(I, K, True);
-      Unlocked[I][K] := False;
+    for K := 15 to 23 do    
+      if States.PlayerEnabled(I) then
+      begin
+        Actions.UnitBlock(I, K, True);
+        Unlocked[I][K] := False;
     end;
 end;
 
 
 procedure CheckBonus;
 begin
-  case States.KaMRandomI(120) of
+  case States.KaMRandomI(140) of
 
     0..19: begin
              bImmediateKill := True;
@@ -250,6 +255,15 @@ begin
                   bMsg := True;
                 end;
               end;
+
+    120..139: begin
+                bRanged := True;
+                if not bMsg then
+              begin
+                Actions.ShowMsg(-1, '<$6> ' + '<$52>: ' + '<$53>');
+                bMsg := True;
+              end;
+            end;
 
   end;
 end;
@@ -722,7 +736,8 @@ begin
   begin
     if States.KaMRandom < BONUS_CHANCE then
     begin
-      if States.UnitType(aUnitID) >= 14 then
+      if (States.UnitType(aUnitID) >= 14)
+      and not (InRange(States.UnitType(aUnitID), 17, 18)) then
       begin 
         Addition := Actions.GiveGroup(Owner, States.UnitType(aUnitID), States.HousePositionX(Barracks[States.UnitOwner(aUnitID)]), States.HousePositionY(Barracks[States.UnitOwner(aUnitID)]) + 1, 4, 1, 1);
         GroupToLink := aGroupID;
@@ -732,6 +747,41 @@ begin
           Actions.GroupOrderLink(Addition, GroupToLink);
           Actions.GroupSetFormation(GroupToLink, 1 + Round(sqrt(States.GroupMemberCount(GroupToLink))));
         end;
+      end
+      else
+      if InRange(States.UnitType(aUnitID), 17, 18)
+      and (States.StatUnitMultipleTypesCount(Owner, [17, 18]) <= MAX_RANGED) then
+      begin 
+        Addition := Actions.GiveGroup(Owner, States.UnitType(aUnitID), States.HousePositionX(Barracks[States.UnitOwner(aUnitID)]), States.HousePositionY(Barracks[States.UnitOwner(aUnitID)]) + 1, 4, 1, 1);
+        GroupToLink := aGroupID;
+        if GroupToLink > 0 then
+        begin
+          Actions.GroupHungerSet(Addition, States.UnitMaxHunger);
+          Actions.GroupOrderLink(Addition, GroupToLink);
+          Actions.GroupSetFormation(GroupToLink, 1 + Round(sqrt(States.GroupMemberCount(GroupToLink))));
+        end;
+      end;
+    end;
+  end;
+
+  if bRanged then
+  begin
+    if States.KaMRandom < BONUS_CHANCE then
+    begin
+      if InRange(States.UnitType(aUnitID), 14, 16)
+      and (States.StatUnitMultipleTypesCount(Owner, [17, 18]) <= MAX_RANGED) then
+      begin 
+        Addition := Actions.GiveGroup(Owner, States.KaMRandomI(2) + 17, States.HousePositionX(Barracks[States.UnitOwner(aUnitID)]), States.HousePositionY(Barracks[States.UnitOwner(aUnitID)]) + 1, 4, 1, 1);
+        Actions.GroupHungerSet(Addition, States.UnitMaxHunger);
+        Groups := States.PlayerGetAllGroups(Owner);
+        for I := Length(Groups) - 1 downto 0 do
+          if (States.GroupType(Groups[I]) = 2)
+          and (Abs(States.UnitPositionY(States.GroupMember(Groups[I], States.KaMRandomI(States.GroupMemberCount(Groups[I])))) - States.UnitPositionY(States.GroupMember(Addition, 0))) <= 6)
+          and (Abs(States.UnitPositionX(States.GroupMember(Groups[I], States.KaMRandomI(States.GroupMemberCount(Groups[I])))) - States.UnitPositionX(States.GroupMember(Addition, 0))) <= 6) then
+          begin
+            Actions.GroupOrderLink(Addition, Groups[I]);
+            Actions.GroupSetFormation(Groups[I], 1 + Round(sqrt(States.GroupMemberCount(Groups[I]))));
+          end;
       end;
     end;
   end;
@@ -785,10 +835,13 @@ begin
     if States.PlayerEnabled(I)
     and not (States.PlayerDefeated(I)) then
       begin
-        if States.KaMRandom < 0.5 then
-          R[I] := Actions.GiveGroup(I, States.KaMRandomI(2) + 15, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3))
+        if States.KaMRandom < 0.33 then
+          R[I] := Actions.GiveGroup(I, 16, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3))
         else
-          R[I] := Actions.GiveGroup(I, States.KaMRandomI(4) + 19, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3));
+        if InRange(Round(100 * States.KaMRandom), 33, 66) then 
+          R[I] := Actions.GiveGroup(I, 20, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3))
+        else
+          R[I] := Actions.GiveGroup(I, 22, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3));
         Actions.GroupHungerSet(R[I], States.UnitMaxHunger);
       end;
   end;
@@ -2564,7 +2617,7 @@ begin
 
   for I := 0 to 4 do
   begin
-    Group := Actions.GiveGroup(aPlayer, aTypes[I], RescueSquadPositionX[aPlayer][I], RescueSquadPositionY[aPlayer][I], Direction[aPlayer], 20, RescueSquadFormation[aPlayer][I]);
+    Group := Actions.GiveGroup(aPlayer, aTypes[I], RescueSquadPositionX[aPlayer][I], RescueSquadPositionY[aPlayer][I], Direction[aPlayer], States.KaMRandomI(4) + 15, RescueSquadFormation[aPlayer][I]);
     Actions.GroupHungerSet(Group, States.UnitMaxHunger);
   end;
 end;
@@ -2616,7 +2669,9 @@ end;
 procedure CheckRescueColor(aPlayer: Integer);
 begin
   if (States.StatArmyCount(aPlayer) <= RESCUE_ARMY_COUNT)
-  and (States.StatUnitTypeCount(aPlayer, 13) <= RESCUE_RECRUITS_COUNT) then
+  and (States.StatUnitTypeCount(aPlayer, 13) <= RESCUE_RECRUITS_COUNT)
+  and (RescuesCount[aPlayer] > 0)
+  and (RescuesDelay[aPlayer] = 0) then
     RescueColor[aPlayer] := '00FF00'
   else
     RescueColor[aPlayer] := '0000FF';
@@ -2637,7 +2692,7 @@ begin
   begin
     if States.PlayerEnabled(I) then
       if Wave >= RESCUE_WAVE then
-        Actions.OverlayTextAppendFormatted(I, '<$50>', [RescueColor[I], RescuesCount[I], ((RescuesDelay[I] div 600) mod 60), ((RescuesDelay[I] div 10) mod 60)]);
+        Actions.OverlayTextAppendFormatted(I, '<$50>', [RescueColor[I], RescuesCount[I], ((RescuesDelay[I] div 600) mod 60), ((RescuesDelay[I] div 10) mod 60), States.StatArmyCount(I), RescueArmy[I], States.StatUnitTypeCount(I, 13), RescueRecruits[I]]);
   end;
 
   if (((States.GameTime <= 25200) and (States.GameTime mod 1200 = 0))
@@ -2655,14 +2710,15 @@ begin
   if (States.StatArmyCount(8) = 0)
   or (States.StatHouseTypeCount(8, 21) = 0) then
     for I := 0 to 3 do
-      Actions.PlayerDefeat(I);
+      if States.PlayerEnabled(I) then
+        Actions.PlayerDefeat(I);
 
   GetTimer;
 
   if States.GameTime mod 100 = 0 then
     ContinueAttack;
 
-  if (Wave = 18)
+  if (Wave = BONUS_WAVE)
   and not (Check) then
   begin
     CheckBonus;
