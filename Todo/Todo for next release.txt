@@ -10,6 +10,7 @@ Bugs:
  +	Fixed crash when changing selected player using F11 and then clicking a message in message log
  +	Stack overflow when flattening stone mountains wasn't fixed properly
  +	AI repeatedly destroys and rebuilds iron mines
+ +	MP map Desert Conquest displays a range check error when using random locations (MapEd saves invalid DefaultHuman)
 	You can start the game before spectators have downloaded save, which causes an error
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position

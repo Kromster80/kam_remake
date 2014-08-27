@@ -665,7 +665,9 @@ begin
 
   if gGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
   AddCommand(ct_SetMaxPlayer, [gHands.Count]);
-  AddCommand(ct_HumanPlayer, [gGame.MapEditor.DefaultHuman]);
+  //When removing players DefaultHuman can be left outside the valid range
+  if InRange(gGame.MapEditor.DefaultHuman, 0, gHands.Count - 1) then
+    AddCommand(ct_HumanPlayer, [gGame.MapEditor.DefaultHuman]);
   AddData(''); //NL
 
   //Player loop
