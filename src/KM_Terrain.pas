@@ -2211,7 +2211,7 @@ procedure TKMTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean 
     and not fMapEditor //Allow units to become "stuck" in MapEd, as height changing is allowed anywhere
     then
       //This recursive call should be garanteed to exit, as eventually the terrain will be flat enough
-      FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
+      FlattenTerrain(KMPoint(aX,aY), False, aIgnoreCanElevate); //WalkConnect should be done at the end
   end;
 
   function CanElevateAt(aX, aY: Word): Boolean;
