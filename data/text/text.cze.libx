@@ -448,12 +448,12 @@
 453:Upravit formace
 454:Nastaví limit dostupných vojáků pro počítač
 455:Počet vojáků, které může počítač mít najednou
-456:Max. vojáků
+456:Maximum vojáků
 457:Počet rekrutů, které může počítač mít ve hradu
 458:Rekruti na Hrad
 460:Vlastní pozice
 463:Jednotky
-465:Počet jednotek
+465:Počet skupin
 466:Informace o útoku
 468:Stále
 469:Jednou
@@ -468,8 +468,8 @@
 478:Typ
 479:Autoútok
 480:Útoky počítače
-481:Kožení vojáci
-482:Železní vojáci
+481:Kožení vojáci/min
+482:Železní vojáci/min
 483:Autoobrana
 484:Počítač vytváří a spravuje své obranné pozice automaticky
 485:Umístit obrannou pozici pro počítač
@@ -536,7 +536,7 @@
 546:Není připraven
 547:Začít!
 548:Rychlost hry (doba míru)
-549:Rychlost hry
+549:Rychlost hry (po době míru)
 550:OK
 551:Zpět
 552:Popis
@@ -740,7 +740,7 @@
 784:Nastaví startovací pozici počítače, která je používána pro určení útoků
 785:Startovací pozice AI
 786:Pořadí
-788:Prodlení (s)
+788:Prodlení (sekundy)
 790:Nejbližší dům k armádě
 791:Nejbližší dům ke startovací pozici
 792:Útočníci
@@ -749,12 +749,12 @@
 795:Pro opětovné hraní předešlé mise klikněte na příslušnou vlajku na mapě.
 796:%s hlasovali pro návrat do místnosti (je třeba ještě %s hlasů)
 797:Hlasování pro navrácení do čekací místnosti. Hra poté může pokračovat nebo se změnit.
-798:Hlasovat pro navrácení do čekací místnosti
+798:Do čekací místnosti
 799:%s hráčů hlasovalo pro návrat do místnosti (hlasování prošlo)
 800:Hlasování pro návrat do čekací místnosti neprošlo
 801:Smazání záznamu smaže i příslušnou uloženou pozici. Opravdu chcete smazat záznam hry?
 802:Náhodně
-803:Počet útočících vojáků
+803:Počet vojáků
 804:Smazat záznam
 805:Smazat mapu
 806:Opravdu chcete smazat tuto mapu?
@@ -764,12 +764,12 @@
 810:Počítač tvoří a řídí útoky automaticky
 811:Rychle vybavit
 812:Vojáci jsou trénováni, co nejrychleji to jde. Rychlost vybavení ovlivňuje plánování města.
-813:Původní nastavení počítače
-814:Stavitel pro hru více hráčů
+813:Nastavení počítače
+814:Hra více hráčů
 815:Použije agresivní nastavení počítače pro všechny hráče (pro stavitelské mapy ve hře více hráčů)
 816:Tímto přepíšete všechna existující nastavení pro všechny hráče. Chcete pokračovat?
 817:Typ vojska
-818:Kožené poté železné
+818:Železné poté kožené
 819:Železné
 820:Kožené
 821:Kombinované

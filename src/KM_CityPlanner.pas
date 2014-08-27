@@ -529,7 +529,7 @@ begin
                 Result := gHands[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, False);
                 //If we can build a mine here then search for ore
                 if Result then
-                  for I:=Max(X-4, 1) to Min(X+4, gTerrain.MapX) do
+                  for I:=Max(X-4, 1) to Min(X+3, gTerrain.MapX) do
                     for K:=Max(Y-8, 1) to Y do
                       if gTerrain.TileIsIron(I, K) > 0 then
                         Exit;
