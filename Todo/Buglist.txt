@@ -62,6 +62,7 @@ Bugs:
 	TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
 	When uinstalling KMR, there are a lot of temp files left (.mi, logs, etc)
 	House animations order don't match with wares being taken/made. Many times wares dissappear before citizen goes to take them.
+	When units exit Barracks and auto-join another group, they change that groups formation
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
