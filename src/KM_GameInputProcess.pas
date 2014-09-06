@@ -182,7 +182,7 @@ type
 implementation
 uses
   KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI,
-  KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking;
+  KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking, KM_ScriptingESA;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -390,11 +390,16 @@ begin
                                     if fGame.Networking.IsHost then
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;}
                                   end;
-      gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
-                                    if ((Params[3] = -1) and (gGame.GameMode = gmMultiSpectate)) //HandIndex of -1 means it is for spectators
-                                    or ((Params[3] <> -1) and (gGame.GameMode <> gmMultiSpectate) //Spectators shouldn't see player beacons
-                                        and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
-                                      gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+      gic_GameAlertBeacon:        begin
+                                    //Beacon script event must always be run by all players for consistency
+                                    gScriptEvents.ProcBeacon(Params[3], 1 + (Params[1] div 10), 1 + (Params[2] div 10));
+                                    //However, beacons don't show in replays
+                                    if fReplayState = gipRecording then
+                                      if ((Params[3] = -1) and (gGame.GameMode = gmMultiSpectate)) //HandIndex of -1 means it is for spectators
+                                      or ((Params[3] <> -1) and (gGame.GameMode <> gmMultiSpectate) //Spectators shouldn't see player beacons
+                                          and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
+                                        gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+                                  end;
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
       gic_GameMessageLogRead:     P.MessageLog[Params[1]].IsReadGIP := True;
       gic_GamePlayerTypeChange:   begin

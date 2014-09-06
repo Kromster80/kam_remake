@@ -73,6 +73,7 @@ Implemented:
  6510   PlanConnectRoad can add completed road
  6516   States.HouseBarracksRallyPointX/Y
  6523   States.UnitIdle/GroupIdle
+ 6570	OnBeacon(Player, X, Y)
 
 
 Accepted:

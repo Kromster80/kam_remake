@@ -32,6 +32,7 @@ type
     fExec: TPSExec;
     fIDCache: TKMScriptingIdCache;
 
+    fProcBeacon: TKMScriptEvent3I;
     fProcHouseAfterDestroyed: TKMScriptEvent4I;
     fProcHouseBuilt: TKMScriptEvent1I;
     fProcHousePlanPlaced: TKMScriptEvent4I;
@@ -59,6 +60,7 @@ type
     constructor Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
     procedure LinkEvents;
 
+    procedure ProcBeacon(aPlayer: THandIndex; aX, aY: Word);
     procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
     procedure ProcHouseBuilt(aHouse: TKMHouse);
     procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
@@ -358,6 +360,7 @@ end;
 
 procedure TKMScriptEvents.LinkEvents;
 begin
+  fProcBeacon               := TKMScriptEvent3I(fExec.GetProcAsMethodN('ONBEACON'));
   fProcHouseAfterDestroyed  := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED'));
   fProcHouseBuilt           := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   fProcHousePlanPlaced      := TKMScriptEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
@@ -381,6 +384,13 @@ begin
   fProcUnitTrained          := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
   fProcUnitWounded          := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
   fProcWarriorEquipped      := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
+end;
+
+
+procedure TKMScriptEvents.ProcBeacon(aPlayer: THandIndex; aX, aY: Word);
+begin
+  if Assigned(fProcBeacon) then
+    fProcBeacon(aPlayer, aX, aY);
 end;
 
 
