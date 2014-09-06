@@ -14,7 +14,6 @@ type
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
-    fMapsDL: TKMapsCollection;
     fMinimap: TKMMinimap;
 
     fLastMapCRC: Cardinal; //CRC of selected map
@@ -80,8 +79,7 @@ begin
   fOnPageChange := aOnPageChange;
 
   fMaps := TKMapsCollection.Create(mfSP);
-  fMapsMP := TKMapsCollection.Create(mfMP);
-  fMapsDL := TKMapsCollection.Create(mfDL);
+  fMapsMP := TKMapsCollection.Create([mfMP, mfDL]);
   fMinimap := TKMMinimap.Create(True, True);
 
   Panel_MapEd:=TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
@@ -121,14 +119,13 @@ begin
     Panel_MapEdLoad := TKMPanel.Create(Panel_MapEd, 320, 40, 620, 700);
     Panel_MapEdLoad.Anchors := [anLeft, anTop, anBottom];
       TKMLabel.Create(Panel_MapEdLoad, 6, 0, 288, 20, gResTexts[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_MapEdLoad, 0, 20, 300, 70);
-      Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEdLoad,8,28,286,60,fnt_Grey);
+      TKMBevel.Create(Panel_MapEdLoad, 0, 20, 300, 50);
+      Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEdLoad,8,28,286,40,fnt_Grey);
       Radio_MapEd_MapType.ItemIndex := 0;
       Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
       Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
-      Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_DLMAPS]);
       Radio_MapEd_MapType.OnChange := MapTypeChange;
-      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 100, 440, 526, fnt_Metal,  bsMenu);
+      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 506, fnt_Metal,  bsMenu);
       ColumnBox_MapEd.Anchors := [anLeft, anTop, anBottom];
       ColumnBox_MapEd.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 310, 340]);
       ColumnBox_MapEd.SearchColumn := 0;
@@ -147,10 +144,9 @@ begin
       Button_MapDelete := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_DELETE], bsMenu);
       Button_MapDelete.Anchors := [anLeft, anBottom];
       Button_MapDelete.OnClick := DeleteClick;
-      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_MOVE], bsMenu);
+      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, gResTexts[TX_MENU_MAP_MOVE], bsMenu);
       Button_MapMove.Anchors := [anLeft, anBottom];
       Button_MapMove.OnClick := MoveClick;
-      Button_MapMove.Hide;
 
       //Delete
       Label_MapDeleteConfirm := TKMLabel.Create(Panel_MapEdLoad, 220, 640, gResTexts[TX_MENU_MAP_DELETE_CONFIRM], fnt_Outline, taCenter);
@@ -205,7 +201,6 @@ destructor TKMMenuMapEditor.Destroy;
 begin
   fMaps.Free;
   fMapsMP.Free;
-  fMapsDL.Free;
   fMinimap.Free;
 
   inherited;
@@ -234,7 +229,6 @@ begin
     case Radio_MapEd_MapType.ItemIndex of
       0: Maps := fMaps;
       1: Maps := fMapsMP;
-      2: Maps := fMapsDL;
       else  begin
               Assert(False);
               Exit;
@@ -244,7 +238,6 @@ begin
     //Terminate all
     fMaps.TerminateScan;
     fMapsMP.TerminateScan;
-    fMapsDL.TerminateScan;
 
     Maps.Lock;
       fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
@@ -285,27 +278,10 @@ end;
 
 
 procedure TKMMenuMapEditor.MapTypeChange(Sender: TObject);
-var ScaleShift: Integer;
 begin
   ListUpdate;
   DeleteConfirm(False);
   MoveConfirm(False);
-
-  ScaleShift := (768 - Panel_MapEd.Height);
-  if Radio_MapEd_MapType.ItemIndex = 2 then
-  begin
-    Button_MapMove.Show;
-    Button_MapDelete.Top := 632 - ScaleShift;
-    Button_MapEd_Load.Top := 596 - ScaleShift;
-    ColumnBox_MapEd.Height := 490 - ScaleShift;
-  end
-  else
-  begin
-    Button_MapMove.Hide;
-    Button_MapDelete.Top := 668 - ScaleShift;
-    Button_MapEd_Load.Top := 632 - ScaleShift;
-    ColumnBox_MapEd.Height := 526 - ScaleShift;
-  end;
 end;
 
 
@@ -315,7 +291,6 @@ begin
   //Terminate all
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
-  fMapsDL.TerminateScan;
 
   ColumnBox_MapEd.Clear;
   fLastMapCRC := 0;
@@ -326,7 +301,6 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0: fMaps.Refresh(ScanUpdate);
     1: fMapsMP.Refresh(ScanUpdate);
-    2: fMapsDL.Refresh(ScanUpdate);
     else  begin
             Assert(False);
             Exit;
@@ -358,7 +332,6 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0: Maps := fMaps;
     1: Maps := fMapsMP;
-    2: Maps := fMapsDL;
     else  begin
             Assert(False);
             Exit;
@@ -369,7 +342,13 @@ begin
   try
     for I := 0 to Maps.Count - 1 do
     begin
-      ColumnBox_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].LocCount), Maps[I].SizeText], I));
+      ColumnBox_MapEd.AddItem(MakeListRow( [Maps[I].FileName,
+                                           IntToStr(Maps[I].LocCount),
+                                           Maps[I].SizeText],
+                                           //Colors
+                                           [Maps[I].GetLobbyColor,
+                                           Maps[I].GetLobbyColor,
+                                           Maps[I].GetLobbyColor], I));
 
       if (Maps[I].CRC = fLastMapCRC) then
         ColumnBox_MapEd.ItemIndex := I;
@@ -416,7 +395,6 @@ begin
   //Keep all lists in sync incase user switches between them
   fMaps.Sort(SM, SortUpdate);
   fMapsMP.Sort(SM, SortUpdate);
-  fMapsDL.Sort(SM, SortUpdate);
 end;
 
 
@@ -435,7 +413,6 @@ begin
     case Radio_MapEd_MapType.ItemIndex of
       0: Maps := fMaps;
       1: Maps := fMapsMP;
-      2: Maps := fMapsDL;
       else
       begin
         Assert(False);
@@ -454,6 +431,8 @@ begin
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;
+
+    Button_MapMove.Visible := Maps[ID].MapFolder = mfDL;
   end
   else
   begin
@@ -467,7 +446,6 @@ procedure TKMMenuMapEditor.BackClick(Sender: TObject);
 begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
-  fMapsDL.TerminateScan;
 
   fOnPageChange(gpMainMenu);
 end;
@@ -480,7 +458,9 @@ begin
   Button_MapDeleteCancel.Visible := aVisible;
   Button_MapDelete.Visible := not aVisible;
   Button_MapEd_Load.Visible := not aVisible;
-  Button_MapMove.Visible := (Radio_MapEd_MapType.ItemIndex = 2) and not aVisible;
+
+  Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
+    and (fMapsMP[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
 end;
 
 
@@ -494,7 +474,9 @@ begin
   CheckBox_MoveExists.Visible := aVisible;
   Button_MapDelete.Visible := not aVisible;
   Button_MapEd_Load.Visible := not aVisible;
-  Button_MapMove.Visible := (Radio_MapEd_MapType.ItemIndex = 2) and not aVisible;
+
+  Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
+    and (fMapsMP[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
 end;
 
 
@@ -506,7 +488,6 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0: Maps := fMaps;
     1: Maps := fMapsMP;
-    2: Maps := fMapsDL;
     else  begin
             Assert(False);
             Exit;
@@ -567,14 +548,14 @@ procedure TKMMenuMapEditor.MoveClick(Sender: TObject);
 var
   OldSelection, NewSelection, ID: Integer;
 begin
-  Assert(Radio_MapEd_MapType.ItemIndex = 2);
+  Assert(Radio_MapEd_MapType.ItemIndex = 1);
 
   if ColumnBox_MapEd.ItemIndex = -1 then Exit;
 
   if Sender = Button_MapMove then
   begin
     ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
-    Edit_MapMove.Text := fMapsDL[ID].FileNameWithoutHash;
+    Edit_MapMove.Text := fMapsMP[ID].FileNameWithoutHash;
     MoveConfirm(True);
     MoveEditChange(Button_MapMove);
   end;
@@ -586,15 +567,15 @@ begin
   if Sender = Button_MapMoveConfirm then
   begin
     OldSelection := ColumnBox_MapEd.ItemIndex;
-    fMapsDL.MoveMap(ColumnBox_MapEd.ItemIndex, Edit_MapMove.Text, mfMP);
-    RefreshList(False);
+    fMapsMP.MoveMap(ColumnBox_MapEd.ItemIndex, Edit_MapMove.Text, mfMP);
+    ListUpdate;
     if ColumnBox_MapEd.RowCount > 0 then
       ColumnBox_MapEd.ItemIndex := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 1)
     else
       ColumnBox_MapEd.ItemIndex := -1;
     NewSelection := ColumnBox_MapEd.ItemIndex;
     if NewSelection >= 0 then begin
-      fMinimap.LoadFromMission(fMapsDL[NewSelection].FullPath('.dat'), []);
+      fMinimap.LoadFromMission(fMapsMP[NewSelection].FullPath('.dat'), []);
       fMinimap.Update(True);
       MinimapView_MapEd.SetMinimap(fMinimap);
       MinimapView_MapEd.Show;
@@ -616,7 +597,6 @@ procedure TKMMenuMapEditor.UpdateState;
 begin
   fMaps.UpdateState;
   fMapsMP.UpdateState;
-  fMapsDL.UpdateState;
 end;
 
 
