@@ -318,6 +318,11 @@ begin
       //Fill in colors for each map individually
       //I plan to skip colors that are similar to those on a map already
       DropBox_SingleColor.Clear;
+      //Default colour chosen by map author
+      DropBox_SingleColor.Add(MakeListRow([''], [fMaps[MapId].FlagColors[fMaps[MapId].DefaultHuman]], [MakePic(rxGuiMain, 30)]));
+      //Separator
+      DropBox_SingleColor.Add(MakeListRow([''], [$FF000000], [MakePic(rxGuiMain, 0)]));
+      //MP colours
       for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
         DropBox_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
       DropBox_SingleColor.ItemIndex := 0; //Select default
@@ -342,10 +347,12 @@ begin
   else
     fSingleLoc := -1;
 
-  if InRange(DropBox_SingleColor.ItemIndex + 1, Low(MP_TEAM_COLORS), High(MP_TEAM_COLORS)) then
-    fSingleColor := MP_TEAM_COLORS[DropBox_SingleColor.ItemIndex + 1]
-  else
-    fSingleColor := MP_TEAM_COLORS[1];
+  //Don't allow selecting separator
+  if DropBox_SingleColor.ItemIndex = 1 then
+    DropBox_SingleColor.ItemIndex := 0;
+
+  if InRange(DropBox_SingleColor.ItemIndex, 0, DropBox_SingleColor.List.RowCount - 1) then
+    fSingleColor := DropBox_SingleColor.List.Rows[DropBox_SingleColor.ItemIndex].Cells[0].Color;
 
   Update;
 end;
@@ -381,7 +388,13 @@ begin
   if (fSingleLoc <> -1) and (ColumnBox_SingleMaps.ItemIndex <> -1) then
   begin
     MapId := ColumnBox_SingleMaps.ItemIndex;
+    fMaps.Lock;
     M := fMaps[MapId];
+
+    //Set default colour for this location
+    DropBox_SingleColor.List.Rows[0].Cells[0].Color := fMaps[MapId].FlagColors[fSingleLoc];
+    if DropBox_SingleColor.ItemIndex = 0 then
+      fSingleColor := fMaps[MapId].FlagColors[fSingleLoc];
 
     //Refresh minimap with selected location and player color
     fMinimap.LoadFromMission(M.FullPath('.dat'), [THandIndex(fSingleLoc)]);
@@ -425,6 +438,7 @@ begin
                   end;
       end;
     end;
+    fMaps.Unlock;
 
     Button_SingleStart.Enable;
   end;
