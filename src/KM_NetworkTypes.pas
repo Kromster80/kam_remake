@@ -66,6 +66,7 @@ type
     mk_MapSelect,       //Host selects the map to play
     mk_SaveSelect,      //Host selects the save to play
     mk_ReadyToStart,    //Joiner tells he's ready to play the game
+    mk_HasMapOrSave,    //Joiner tells host he has the map/save file
     mk_Start,           //Host says to start the game
     mk_ReturnToLobby,   //Host tells joiners to return to the lobby
 
@@ -140,6 +141,7 @@ const
     pfBinary,   //mk_MapSelect
     pfBinary,   //mk_SaveSelect
     pfNoData,   //mk_ReadyToStart
+    pfNoData,   //mk_HasMapOrSave
     pfBinary,   //mk_Start
     pfNoData,   //mk_ReturnToLobby
     pfNoData,   //mk_ReadyToPlay

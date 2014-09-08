@@ -27,6 +27,7 @@ type
     Team: Integer;
     ReadyToStart: Boolean;
     ReadyToPlay: Boolean;
+    HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
     FPS: Cardinal;
@@ -244,6 +245,7 @@ begin
   LoadStream.Read(Team);
   LoadStream.Read(ReadyToStart);
   LoadStream.Read(ReadyToPlay);
+  LoadStream.Read(HasMapOrSave);
   LoadStream.Read(Connected);
   LoadStream.Read(Dropped);
   LoadStream.Read(VotedYes);
@@ -261,6 +263,7 @@ begin
   SaveStream.Write(Team);
   SaveStream.Write(ReadyToStart);
   SaveStream.Write(ReadyToPlay);
+  SaveStream.Write(HasMapOrSave);
   SaveStream.Write(Connected);
   SaveStream.Write(Dropped);
   SaveStream.Write(VotedYes);
@@ -374,6 +377,7 @@ begin
   fNetPlayers[fCount].Team := 0;
   fNetPlayers[fCount].FlagColorID := 0;
   fNetPlayers[fCount].ReadyToStart := false;
+  fNetPlayers[fCount].HasMapOrSave := false;
   fNetPlayers[fCount].ReadyToPlay := false;
   fNetPlayers[fCount].Connected := true;
   fNetPlayers[fCount].Dropped := false;
@@ -402,6 +406,7 @@ begin
   fNetPlayers[aSlot].FlagColorID := 0;
   fNetPlayers[aSlot].StartLocation := 0;
   fNetPlayers[aSlot].ReadyToStart := True;
+  fNetPlayers[aSlot].HasMapOrSave := True;
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
@@ -425,6 +430,7 @@ begin
   fNetPlayers[aSlot].FlagColorID := 0;
   fNetPlayers[aSlot].StartLocation := 0;
   fNetPlayers[aSlot].ReadyToStart := True;
+  fNetPlayers[aSlot].HasMapOrSave := True;
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
@@ -603,7 +609,7 @@ begin
   Result := true;
   for i:=1 to fCount do
     if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
-      Result := Result and fNetPlayers[i].ReadyToStart;
+      Result := Result and fNetPlayers[i].ReadyToStart and fNetPlayers[i].HasMapOrSave;
 end;
 
 
@@ -735,6 +741,7 @@ var I: Integer;
 begin
   for i:=1 to fCount do
   begin
+    fNetPlayers[i].HasMapOrSave := False;
     if fNetPlayers[i].StartLocation <> LOC_SPECTATE then
       fNetPlayers[i].StartLocation := LOC_RANDOM;
     //AI/closed players are always ready, spectator ready status is not reset by map change

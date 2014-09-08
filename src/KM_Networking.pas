@@ -41,7 +41,7 @@ const
     [mk_AskForAuth,mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_SaveSelect,
      mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
-     mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
+     mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated,mk_HasMapOrSave],
     //lgs_Loading
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
@@ -552,6 +552,7 @@ begin
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap);
   fNetPlayers.ResetLocAndReady; //Reset start locations
   fNetPlayers[fMyIndex].ReadyToStart := True;
+  fNetPlayers[fMyIndex].HasMapOrSave := True;
 
   if Assigned(fOnMapName) then
     fOnMapName(aErrorMessage);
@@ -583,6 +584,7 @@ begin
 
   fSelectGameKind := ngk_Map;
   fNetPlayers[fMyIndex].ReadyToStart := True;
+  fNetPlayers[fMyIndex].HasMapOrSave := True;
   fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
 
   SendMapOrSave;
@@ -623,6 +625,7 @@ begin
 
   fSelectGameKind := ngk_Save;
   fNetPlayers[fMyIndex].ReadyToStart := True;
+  fNetPlayers[fMyIndex].HasMapOrSave := True;
   //Randomise locations within team is disabled for saves
   NetPlayers.RandomizeTeamLocations := False;
   fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
@@ -1708,6 +1711,7 @@ begin
                   fSelectGameKind := ngk_Map;
                   fMapInfo.LoadExtra; //Lobby requires extra map info such as CanBeHuman
                   if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
+                  PacketSend(NET_ADDRESS_HOST, mk_HasMapOrSave);
                 end
                 else
                 begin
@@ -1753,6 +1757,7 @@ begin
                   fSelectGameKind := ngk_Save;
                   if Assigned(fOnMapName) then fOnMapName(tmpStringW);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                  PacketSend(NET_ADDRESS_HOST, mk_HasMapOrSave);
                 end
                 else
                 begin
@@ -1816,7 +1821,16 @@ begin
       mk_ReadyToStart:
               if IsHost then
               begin
-                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart := not fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart;
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                fNetPlayers[PlayerIndex].ReadyToStart := not fNetPlayers[PlayerIndex].ReadyToStart;
+                SendPlayerListAndRefreshPlayersSetup;
+              end;
+
+      mk_HasMapOrSave:
+              if IsHost then
+              begin
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                fNetPlayers[PlayerIndex].HasMapOrSave := True;
                 SendPlayerListAndRefreshPlayersSetup;
               end;
 
