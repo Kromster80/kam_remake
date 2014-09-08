@@ -14,6 +14,7 @@ Bugs:
  +	MapEd main menu should have one MP maps list with gold/silver like in lobby
  +	Building material delivery priority issues: http://www.knightsandmerchants.net/forum/viewtopic.php?f=26&t=2287&p=39691#p39691
  +	Singleplayer maps has the location's default colour selected by default instead of red
+ +	States.HouseResourceAmount didn't check the market output
 	You can start the game before spectators have downloaded save, which causes an error
 	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position

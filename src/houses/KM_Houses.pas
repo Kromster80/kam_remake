@@ -137,7 +137,7 @@ type
     function GetState: THouseState;
 
     function CheckResIn(aWare: TWareType): Word; virtual;
-    function CheckResOut(aWare: TWareType): Byte;
+    function CheckResOut(aWare: TWareType): Word; virtual;
     function PickOrder: Byte;
     function CheckResToBuild: Boolean;
     function GetMaxInRes: Word;
@@ -815,7 +815,7 @@ end;
 
 
 {How much resources house has in Output}
-function TKMHouse.CheckResOut(aWare: TWareType): Byte;
+function TKMHouse.CheckResOut(aWare: TWareType): Word;
 var I: Integer;
 begin
   Result := 0;

@@ -33,8 +33,9 @@ type
 
     function AllowedToTrade(aRes: TWareType): Boolean;
     function TradeInProgress: Boolean;
-    function GetResTotal(aResource: TWareType): Word; overload;
-    function CheckResIn(aResource: TWareType): Word; override;
+    function GetResTotal(aWare: TWareType): Word; overload;
+    function CheckResIn(aWare: TWareType): Word; override;
+    function CheckResOut(aWare: TWareType): Word; override;
     procedure ResAddToIn(aResource: TWareType; aCount: Word=1; aFromScript: Boolean=false); override;
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
@@ -72,15 +73,21 @@ begin
 end;
 
 
-function TKMHouseMarket.GetResTotal(aResource: TWareType): Word;
+function TKMHouseMarket.GetResTotal(aWare: TWareType): Word;
 begin
-  Result := fMarketResIn[aResource] + fMarketResOut[aResource];
+  Result := fMarketResIn[aWare] + fMarketResOut[aWare];
 end;
 
 
-function TKMHouseMarket.CheckResIn(aResource: TWareType): Word;
+function TKMHouseMarket.CheckResIn(aWare: TWareType): Word;
 begin
-  Result := fMarketResIn[aResource];
+  Result := fMarketResIn[aWare];
+end;
+
+
+function TKMHouseMarket.CheckResOut(aWare: TWareType): Word;
+begin
+  Result := fMarketResOut[aWare];
 end;
 
 
