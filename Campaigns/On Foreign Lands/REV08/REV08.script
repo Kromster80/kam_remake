@@ -1,4 +1,6 @@
 var TroopsMessageDisplayed : Boolean;
+var MyHorseBottom : Integer;
+var attack : Boolean;
 
 function CheckTroops : Boolean;
 var j, warriors : Integer;
@@ -17,20 +19,32 @@ begin
 end;
 
 procedure OnTick;
-var groups: array of integer;
-var i:integer;
+var i, j : Integer;
+var groups : array of integer;
 begin
 	if (States.GameTime = 100) then Actions.ShowMsg(0, '<$0>');
 	if (States.GameTime = 24000) then Actions.ShowMsg(0, '<$2>');
 	if (States.GameTime = 45000) then Actions.ShowMsg(0, '<$3>');
 	
-	if (CheckTroops = true and TroopsMessageDisplayed = false) then 
+	if ((CheckTroops = true) and (TroopsMessageDisplayed = false)) then 
 		begin
 			Actions.ShowMsg(0, '<$1>');
 			TroopsMessageDisplayed := true;
 		end;
 	
 	if (CheckWin = true) then Actions.PlayerWin([0], false);
+	
+	if ((States.GroupDead(MyHorseBottom) = true) and (attack = false)) then
+		begin
+		
+			attack := true;
+			for i := 2 to 3 do
+				begin
+					groups := States.PlayerGetAllGroups(i);
+					for j := 0 to Length(groups) - 1 do
+						Actions.GroupOrderAttackHouse(groups[j], States.HouseAt(43, 4));
+				end;
+		end;
 end;
 
 procedure OnMissionStart;
@@ -49,4 +63,6 @@ begin
 	Actions.HouseWareBlock(States.HouseAt(29, 92), 27, true);
 	TroopsMessageDisplayed := false;
 	Actions.PlayerAddDefaultGoals(0, true);
+	MyHorseBottom := States.GroupAt(14, 139);
+	attack := false;
 end;

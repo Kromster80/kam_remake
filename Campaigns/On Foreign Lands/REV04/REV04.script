@@ -22,7 +22,6 @@ procedure CheckWin;
 var text : AnsiString;
 var zones : array [0..3] of Boolean;
 begin
-	if (States.StatArmyCount(0) < 40) then Actions.PlayerDefeat(0);
 	
 	if (UnitsInZone(45, 56, 33, 38, 10)) then zones[0] := true else zones[0] := false;
 	if (UnitsInZone(1, 16, 33, 42, 10)) then zones[1] := true else zones[1] := false;
@@ -40,6 +39,9 @@ begin
 	
 	if ((zones[0] = true) and (zones[1] = true) and (zones[2] = true) and (zones[3] = true) and (States.StatArmyCount(1) = 0)) then Actions.PlayerWin([0], false);
 	Actions.OverlayTextSet(0, text);
+	
+	if (States.StatArmyCount(0) < 40) then 
+		begin Actions.PlayerDefeat(0); Actions.OverlayTextSet(0, '<$7>'); end;
 end;
 
 procedure OnTick;
@@ -49,8 +51,17 @@ begin
 			Actions.ShowMsg(0,'<$0>');
 			Actions.FogRevealCircle(0, 11, 34, 5);
 			Actions.FogRevealCircle(0, 6, 10, 5);
-			Actions.FogRevealCircle(0, 39, 8, 5);
+			Actions.FogRevealCircle(0, 44, 11, 5);
 			Actions.FogRevealCircle(0, 50, 36, 5);
 		end;
 	if (States.GameTime > 600) then CheckWin;
+end;
+
+procedure OnMissionStart;
+var g : array of Integer;
+var i: Integer;
+begin
+	g := States.PlayerGetAllGroups(0);
+	for i := 0 to Length(g) - 1 do
+		Actions.GroupHungerSet(g[i], 16000);
 end;

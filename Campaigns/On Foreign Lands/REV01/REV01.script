@@ -34,6 +34,22 @@ begin
 	ownerChangedAfter := false;
 	unitsArrived := false;
 	housesRepaired := false;
+	
+	Actions.HouseWeaponsOrderSet(States.HouseAt(75, 11), 16, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(75, 11), 18, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(73, 14), 16, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(74, 14), 18, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(85, 21), 16, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(85, 21), 18, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(76, 18), 20, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(80, 14), 22, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 25), 24, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 17), 19, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 27), 17, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 22), 19, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 22), 17, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(87, 17), 21, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(81, 20), 25, 100);
 end;
 
 function CheckHousesDamage : AnsiString;
@@ -54,9 +70,9 @@ begin
 end;
 
 procedure OnTick;
-var i, j : Integer;
+var i, j, c : Integer;
 begin
-	if ((States.GroupDead(myBottomCrossBowmans)) and (States.GroupDead(myBottomHorse)) and (attack = false)) then
+	if ((States.GroupDead(myBottomCrossBowmans)) and (States.GroupDead(myBottomHorse)) and (attack = false) and (States.GameTime mod 12  = 0)) then
 		begin
 		for i := 1 to 4 do
 			begin
@@ -66,7 +82,8 @@ begin
 						if not States.GroupDead(iGroups[j]) then Actions.GroupOrderWalk(iGroups[j], 48, 57, 7);
 					end;
 			end;
-		attack := true;
+		c := Length(States.PlayerGetAllGroups(1)) + Length(States.PlayerGetAllGroups(2)) + Length(States.PlayerGetAllGroups(3)) + Length(States.PlayerGetAllGroups(4));
+		attack := c = 0;
 		end;
 		
 	if ((States.StatArmyCount(0) = 0) and (unitsArrived = false)) then Actions.PlayerDefeat(0);
@@ -97,7 +114,7 @@ begin
 		begin
 			myMilitary := States.StatUnitTypeCount(0, 16) + States.StatUnitTypeCount(0, 22) +  States.StatUnitTypeCount(0, 26) +  States.StatUnitTypeCount(0, 18) +  States.StatUnitTypeCount(0, 20);
 			Actions.OverlayTextSet(0, '<$1>' + IntToStr(myMilitary) + '|<$2>' + CheckHousesDamage);
-			if (myMilitary = 120) then Actions.PlayerWin([0], false);
+			if (myMilitary >= 120) then Actions.PlayerWin([0], false);
 			if ((States.HouseDestroyed(States.HouseAt(80, 64)) = true) or (States.HouseDestroyed(States.HouseAt(51, 52)) = true)) then Actions.PlayerDefeat(0);
 			
 			if (States.GameTime >= 54000) then 

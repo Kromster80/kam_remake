@@ -10,7 +10,7 @@ begin
 	
 	for i := 0 to Length(g) - 1 do
 		begin
-			if ((States.UnitType(g[i]) >= 14) and (States.UnitType(g[i]) <= 27) and (States.UnitPositionY(g[i]) <= 21) and (States.UnitPositionX(g[i]) >= 41)) then
+			if ((States.UnitType(g[i]) >= 14) and (States.UnitType(g[i]) <= 27) and (States.UnitPositionY(g[i]) <= 21) and (States.UnitPositionY(g[i]) >= 9) and (States.UnitPositionX(g[i]) >= 41)) then
 				counter := counter + 1;
 		end;
 	Result := counter >= 5;

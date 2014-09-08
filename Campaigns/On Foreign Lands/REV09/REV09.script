@@ -62,7 +62,7 @@ end;
 procedure OnTick;
 var storehouse, rebelTime, i : integer;
 begin
-	rebelTime := States.KaMRandomI(6000) + 1200;
+	rebelTime := States.KaMRandomI(9000) + 1200;
 	if (States.GameTime = 6000) then 
 		begin 
 			Actions.HouseDestroy(States.HouseAt(68, 4), true);

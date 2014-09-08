@@ -1,33 +1,34 @@
-var importants : array[0..2] of Integer;
+const canKill = 6;
 
-function PlayerCheckWin : Boolean;
-var kills, destroys : Boolean;
-var i : Integer;
-begin
-	kills := States.StatArmyCount(2) = 0;
-	destroys := true;
-	for i := 0 to 2 do
-		begin
-			if (States.HouseDestroyed(importants[i]) = false) then 
-				begin
-					destroys := false;
-					break;
-				end;
-		end;
-
-	Result := kills and destroys;
-end;
+var killed : Integer;
+var messageShow : Boolean;
 
 procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
 begin
-	if (((States.UnitOwner(aUnitID) = 1) or (States.UnitOwner(aUnitID) = 3)) and (States.UnitType(aUnitID) >= 0) and (States.UnitType(aUnitID) <= 13)) then Actions.PlayerDefeat(0);
+	if (((States.UnitOwner(aUnitID) = 1) or (States.UnitOwner(aUnitID) = 3)) and (States.UnitType(aUnitID) >= 0) and (States.UnitType(aUnitID) <= 13)) then
+		begin
+			if (canKill - killed = 0) then 
+				begin
+					Actions.PlayerDefeat(0);
+					Actions.OverlayTextSet(0, '<$2>');
+				end
+			else killed := killed + 1;
+		end;
+	
+	if ((killed = 1) and ((States.UnitOwner(aUnitID) = 1) or (States.UnitOwner(aUnitID) = 3)) and (aKillerIndex = 0) and (messageShow = false)) then 
+		begin Actions.ShowMsg(0, '<$1>'); messageShow := true; end;
+end;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+  if (aIndex = 2) then Actions.PLayerWin([0], false);
 end;
 
 procedure OnMissionStart;
 begin
-	importants[0] := States.HouseAt(14, 31);
-	importants[1] := States.HouseAt(16, 22);
-	importants[2] := States.HouseAt(13, 18);
+	killed := 0;
+	messageShow := false;
+	Actions.PlayerAddDefaultGoals(2, true);
 end;
 
 procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
@@ -44,5 +45,4 @@ end;
 procedure OnTick;
 begin
 	if (States.GameTime = 300) then Actions.ShowMsg(0, '<$0>');
-	if (PlayerCheckWin = true) then Actions.PlayerWin([0], false);
 end;
