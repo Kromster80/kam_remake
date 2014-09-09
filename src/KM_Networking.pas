@@ -517,8 +517,10 @@ begin
       if not fNetPlayers[I].IsSpectator then
         fNetPlayers[I].StartLocation := LOC_RANDOM;
 
-    for I := 1 to MAX_LOBBY_PLAYERS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
-      if fNetPlayers.Count - fNetPlayers.GetSpectatorCount < MAX_LOBBY_PLAYERS then
+    for I := 1 to MAX_LOBBY_PLAYERS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount
+                                    - Max(fNetPlayers.GetSpectatorCount - MAX_LOBBY_SPECTATORS, 0) do
+      //First 2 spectators don't count towards MAX_LOBBY_PLAYERS (separate section), but additional ones do
+      if fNetPlayers.Count - Min(fNetPlayers.GetSpectatorCount, MAX_LOBBY_SPECTATORS) < MAX_LOBBY_PLAYERS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
 
