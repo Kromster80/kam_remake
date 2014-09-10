@@ -8,7 +8,7 @@ uses
 
 
 const
-  MAX_UI_GOALS = 10;
+  MAX_UI_GOALS = 7;
 
 
 type
@@ -203,9 +203,9 @@ begin
       L.Anchors := [anLeft, anBottom];
       for I := 0 to MAX_HANDS - 1 do
       begin
-        Image_SingleAllies[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*32, 590, 50, 20, 30, rxGuiMain);
+        Image_SingleAllies[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*22, 593, 50, 20, 81, rxGuiMain);
         Image_SingleAllies[I].Anchors := [anLeft, anBottom];
-        Image_SingleEnemies[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*32, 610, 50, 20, 30, rxGuiMain);
+        Image_SingleEnemies[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*22, 613, 50, 20, 81, rxGuiMain);
         Image_SingleEnemies[I].Anchors := [anLeft, anBottom];
       end;
 
