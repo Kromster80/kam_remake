@@ -12,7 +12,8 @@ uses
   KM_GUIGameChat,
   KM_GUIGameHouse,
   KM_GUIGameRatios,
-  KM_GUIGameStats;
+  KM_GUIGameStats,
+  KM_GUIGameMenuSettings;
 
 
 const
@@ -35,6 +36,7 @@ type
     fGuiGameHouse: TKMGUIGameHouse;
     fGuiGameRatios: TKMGUIGameRatios;
     fGuiGameStats: TKMGUIGameStats;
+    fGuiMenuSettings: TKMGameMenuSettings;
 
     //Not saved
     fShowTeamNames: Boolean; //True while the SC_SHOW_TEAM key is pressed
@@ -75,7 +77,6 @@ type
     procedure Create_Menu;
     procedure Create_Save;
     procedure Create_Load;
-    procedure Create_Settings;
     procedure Create_Quit;
     procedure Create_Unit;
 
@@ -87,8 +88,6 @@ type
     procedure Chat_Click(Sender: TObject);
     procedure House_Demolish;
     procedure Unit_Dismiss(Sender: TObject);
-    procedure Menu_Settings_Fill;
-    procedure Menu_Settings_Change(Sender: TObject);
     procedure Menu_QuitMission(Sender: TObject);
     procedure Menu_NextTrack(Sender: TObject);
     procedure Menu_PreviousTrack(Sender: TObject);
@@ -231,15 +230,6 @@ type
         ListBox_Load: TKMListBox;
         Label_LoadDescription: TKMLabel;
         Button_Load: TKMButton;
-
-      Panel_Settings: TKMPanel;
-        CheckBox_Settings_Autosave: TKMCheckBox;
-        TrackBar_Settings_Brightness: TKMTrackBar;
-        TrackBar_Settings_SFX: TKMTrackBar;
-        TrackBar_Settings_Music: TKMTrackBar;
-        TrackBar_Settings_ScrollSpeed: TKMTrackBar;
-        CheckBox_Settings_MusicOff: TKMCheckBox;
-        CheckBox_Settings_ShuffleOn: TKMCheckBox;
 
       Panel_Quit: TKMPanel;
         Button_Quit_Yes, Button_Quit_No: TKMButton;
@@ -459,13 +449,14 @@ begin
   fGuiGameHouse.Hide;
   fGuiGameRatios.Hide;
   fGuiGameStats.Hide;
+  fGuiMenuSettings.Hide;
 end;
 
 
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
 var
-  LastVisiblePage: TKMPanel;
+  LastVisiblePage: TObject;
 
   procedure Flip4MainButtons(ShowEm: Boolean);
   var T: TKMTabButtons;
@@ -482,13 +473,13 @@ begin
     MySpectator.Selected := nil;
 
   //Set LastVisiblePage to which ever page was last visible, out of the ones needed
-  if Panel_Settings.Visible then LastVisiblePage := Panel_Settings else
-  if Panel_Save.Visible     then LastVisiblePage := Panel_Save     else
-  if Panel_Load.Visible     then LastVisiblePage := Panel_Load     else
+  if fGuiMenuSettings.Visible then LastVisiblePage := fGuiMenuSettings else
+  if Panel_Save.Visible       then LastVisiblePage := Panel_Save     else
+  if Panel_Load.Visible       then LastVisiblePage := Panel_Load     else
     LastVisiblePage := nil;
 
   //If they just closed settings then we should save them (if something has changed)
-  if LastVisiblePage = Panel_Settings then
+  if LastVisiblePage = fGuiMenuSettings then
     fGameApp.GameSettings.SaveSettings;
 
   //Ensure, that saves scanning will be stopped when user leaves save/load page
@@ -520,7 +511,7 @@ begin
 
   if (Sender = Button_Main[tbMenu])
   or (Sender = Button_Quit_No)
-  or ((Sender = Button_Back) and ((LastVisiblePage = Panel_Settings)
+  or ((Sender = Button_Back) and ((LastVisiblePage = fGuiMenuSettings)
                                or (LastVisiblePage = Panel_Load)
                                or (LastVisiblePage = Panel_Save))) then begin
     Menu_Update; //Make sure updating happens before it is shown
@@ -557,8 +548,8 @@ begin
   end else
 
   if Sender = Button_Menu_Settings then begin
-    Menu_Settings_Fill;
-    Panel_Settings.Show;
+    fGuiMenuSettings.Menu_Settings_Fill;
+    fGuiMenuSettings.Show;
     Label_MenuTitle.Caption := gResTexts[TX_MENU_SETTINGS];
   end else
 
@@ -788,6 +779,7 @@ begin
   fGuiGameHouse.Free;
   fGuiGameRatios.Free;
   fGuiGameStats.Free;
+  fGuiMenuSettings.Free;
 
   fMessageStack.Free;
   fSaves.Free;
@@ -1091,7 +1083,7 @@ begin
   Create_Menu;
     Create_Save;
     Create_Load;
-    Create_Settings;
+    fGuiMenuSettings := TKMGameMenuSettings.Create(Panel_Controls);
     Create_Quit;
 
   Create_Unit;
@@ -1220,37 +1212,6 @@ begin
 end;
 
 
-{Options page}
-procedure TKMGamePlayInterface.Create_Settings;
-const
-  PAD = 10;
-  WID = TB_WIDTH - PAD * 2;
-begin
-  Panel_Settings := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,15,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
-    CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
-    TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,40,WID,0,20);
-    TrackBar_Settings_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
-    TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,PAD,95,WID,0,20);
-    TrackBar_Settings_ScrollSpeed.Caption := gResTexts[TX_MENU_OPTIONS_SCROLL_SPEED];
-    TrackBar_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,PAD,150,WID,0,20);
-    TrackBar_Settings_SFX.Caption := gResTexts[TX_MENU_SFX_VOLUME];
-    TrackBar_Settings_SFX.Hint := gResTexts[TX_MENU_SFX_VOLUME_HINT];
-    TrackBar_Settings_SFX.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,PAD,205,WID,0,20);
-    TrackBar_Settings_Music.Caption := gResTexts[TX_MENU_MUSIC_VOLUME];
-    TrackBar_Settings_Music.Hint := gResTexts[TX_MENU_MUSIC_VOLUME_HINT];
-    TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
-    CheckBox_Settings_MusicOff.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
-    CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
-    CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
-end;
-
-
 {Quit page}
 procedure TKMGamePlayInterface.Create_Quit;
 begin
@@ -1371,7 +1332,7 @@ begin
     MySpectator.Selected := nil;
     //Close panels unless it is an allowed menu
     if not Panel_Menu.Visible and not Panel_Load.Visible and not Panel_Save.Visible
-    and not Panel_Settings.Visible and not Panel_Quit.Visible and not fGuiGameStats.Visible then
+    and not fGuiMenuSettings.Visible and not Panel_Quit.Visible and not fGuiGameStats.Visible then
       SwitchPage(nil);
 
     fDragScrolling := False;
@@ -1593,53 +1554,6 @@ begin
     ImageStack_Army.SetCount(Sender.Count, Sender.UnitsPerRow, Sender.UnitsPerRow div 2);
     Army_ActivateControls(Sender);
   end;
-end;
-
-
-procedure TKMGamePlayInterface.Menu_Settings_Fill;
-begin
-  TrackBar_Settings_Brightness.Position   := fGameApp.GameSettings.Brightness;
-  CheckBox_Settings_Autosave.Checked      := fGameApp.GameSettings.Autosave;
-  TrackBar_Settings_ScrollSpeed.Position  := fGameApp.GameSettings.ScrollSpeed;
-  TrackBar_Settings_SFX.Position          := Round(fGameApp.GameSettings.SoundFXVolume * TrackBar_Settings_SFX.MaxValue);
-  TrackBar_Settings_Music.Position        := Round(fGameApp.GameSettings.MusicVolume * TrackBar_Settings_Music.MaxValue);
-  CheckBox_Settings_MusicOff.Checked      := fGameApp.GameSettings.MusicOff;
-  CheckBox_Settings_ShuffleOn.Checked     := fGameApp.GameSettings.ShuffleOn;
-
-  TrackBar_Settings_Music.Enabled     := not CheckBox_Settings_MusicOff.Checked;
-  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOff.Checked;
-end;
-
-
-procedure TKMGamePlayInterface.Menu_Settings_Change(Sender: TObject);
-var
-  MusicToggled, ShuffleToggled: Boolean;
-begin
-  //Change these options only if they changed state since last time
-  MusicToggled   := (fGameApp.GameSettings.MusicOff <> CheckBox_Settings_MusicOff.Checked);
-  ShuffleToggled := (fGameApp.GameSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
-
-  fGameApp.GameSettings.Brightness    := TrackBar_Settings_Brightness.Position;
-  fGameApp.GameSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
-  fGameApp.GameSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
-  fGameApp.GameSettings.SoundFXVolume := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
-  fGameApp.GameSettings.MusicVolume   := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;
-  fGameApp.GameSettings.MusicOff      := CheckBox_Settings_MusicOff.Checked;
-  fGameApp.GameSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
-
-  gSoundPlayer.UpdateSoundVolume(fGameApp.GameSettings.SoundFXVolume);
-  fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GameSettings.MusicVolume);
-  if MusicToggled then
-  begin
-    fGameApp.MusicLib.ToggleMusic(not fGameApp.GameSettings.MusicOff);
-    if not fGameApp.GameSettings.MusicOff then
-      ShuffleToggled := True; //Re-shuffle songs if music has been enabled
-  end;
-  if ShuffleToggled then
-    fGameApp.MusicLib.ToggleShuffle(fGameApp.GameSettings.ShuffleOn);
-
-  TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOff.Checked;
-  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOff.Checked;
 end;
 
 
@@ -2090,7 +2004,7 @@ begin
   Button_Menu_Quit.Enabled := fUIMode in [umSP, umMP, umSpectate];
 
   //Toggle gameplay options
-  CheckBox_Settings_Autosave.Enabled := fUIMode in [umSP, umMP, umSpectate];
+  fGuiMenuSettings.SetAutosaveEnabled(fUIMode in [umSP, umMP, umSpectate]);
 
   //Chat and Allies setup should be accessible only in Multiplayer
   Image_MPChat.Visible       := fUIMode in [umMP, umSpectate];

@@ -6,13 +6,15 @@ uses
    KM_Controls, KM_InterfaceGame,
    KM_GUIMapEdMenuLoad,
    KM_GUIMapEdMenuSave,
-   KM_GUIMapEdMenuQuit;
+   KM_GUIMapEdMenuQuit,
+   KM_GUIMapEdMenuSettings;
 
 type
   TKMMapEdMenu = class
   private
     fGuiMenuLoad: TKMMapEdMenuLoad;
     fGuiMenuSave: TKMMapEdMenuSave;
+    fGuiMenuSettings: TKMMapEdMenuSettings;
     fGuiMenuQuit: TKMMapEdMenuQuit;
     procedure MenuClick(Sender: TObject);
     procedure MenuDone(Sender: TObject);
@@ -47,6 +49,7 @@ begin
   fGuiMenuLoad := TKMMapEdMenuLoad.Create(aParent, MenuDone);
   fGuiMenuSave := TKMMapEdMenuSave.Create(aParent, MenuDone);
   fGuiMenuQuit := TKMMapEdMenuQuit.Create(aParent, MenuDone);
+  fGuiMenuSettings := TKMMapEdMenuSettings.Create(aParent);
 
   Panel_Menu := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
   Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
@@ -57,7 +60,7 @@ begin
   Button_Menu_Save.Hint := gResTexts[TX_MAPED_SAVE_TITLE];
   Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
   Button_Menu_Settings.Hint := gResTexts[TX_MENU_SETTINGS];
-  Button_Menu_Settings.Disable;
+  Button_Menu_Settings.OnClick := MenuClick;
   Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 180, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
   Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MAPED];
   Button_Menu_Quit.OnClick := MenuClick;
@@ -69,6 +72,7 @@ begin
   fGuiMenuLoad.Free;
   fGuiMenuSave.Free;
   fGuiMenuQuit.Free;
+  fGuiMenuSettings.Free;
 
   inherited;
 end;
@@ -86,6 +90,11 @@ begin
   else
   if Sender = Button_Menu_Load then
     fGuiMenuLoad.Show;
+  if Sender = Button_Menu_Settings then
+  begin
+    fGuiMenuSettings.Menu_Settings_Fill;
+    fGuiMenuSettings.Show;
+  end;
 end;
 
 
@@ -94,6 +103,7 @@ begin
   fGuiMenuLoad.Hide;
   fGuiMenuSave.Hide;
   fGuiMenuQuit.Hide;
+  fGuiMenuSettings.Hide;
 
   Show;
 end;
