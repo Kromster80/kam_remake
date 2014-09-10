@@ -452,6 +452,7 @@ end;
 
 
 procedure TKMMenuMapEditor.DeleteConfirm(aVisible: Boolean);
+var Maps: TKMapsCollection;
 begin
   Label_MapDeleteConfirm.Visible := aVisible;
   Button_MapDeleteConfirm.Visible := aVisible;
@@ -459,12 +460,18 @@ begin
   Button_MapDelete.Visible := not aVisible;
   Button_MapEd_Load.Visible := not aVisible;
 
+  case Radio_MapEd_MapType.ItemIndex of
+    0: Maps := fMaps;
+    1: Maps := fMapsMP;
+    else Assert(False);
+  end;
   Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
-    and (fMapsMP[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
+    and (Maps[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
 end;
 
 
 procedure TKMMenuMapEditor.MoveConfirm(aVisible: Boolean);
+var Maps: TKMapsCollection;
 begin
   Label_MapMoveConfirm.Visible := aVisible;
   Button_MapMoveConfirm.Visible := aVisible;
@@ -475,8 +482,13 @@ begin
   Button_MapDelete.Visible := not aVisible;
   Button_MapEd_Load.Visible := not aVisible;
 
+  case Radio_MapEd_MapType.ItemIndex of
+    0: Maps := fMaps;
+    1: Maps := fMapsMP;
+    else Assert(False);
+  end;
   Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
-    and (fMapsMP[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
+    and (Maps[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
 end;
 
 
