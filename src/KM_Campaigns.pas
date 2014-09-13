@@ -72,6 +72,7 @@ type
 
     //Initialization
     procedure ScanFolder(const aPath: UnicodeString);
+    procedure SortCampaigns;
     procedure LoadProgress(const aFileName: UnicodeString);
     procedure SaveProgress(const aFileName: UnicodeString);
     procedure Save(SaveStream: TKMemoryStream);
@@ -145,6 +146,30 @@ begin
       AddCampaign(aPath + SearchRec.Name + PathDelim);
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
+
+  SortCampaigns;
+end;
+
+
+procedure TKMCampaignsCollection.SortCampaigns;
+
+  function Compare(Item1: Pointer; Item2: Pointer): Integer;
+  var A, B: TKMCampaign;
+  begin
+    A := TKMCampaign(Item1);
+    B := TKMCampaign(Item2);
+    //TSK is first
+    if      A.CampName = 'TSK' then Result := -1
+    else if B.CampName = 'TSK' then Result := 1
+    //TPR is second
+    else if A.CampName = 'TPR' then Result := -1
+    else if B.CampName = 'TPR' then Result := 1
+    //Others are left in existing order (alphabetical)
+    else                            Result := 0;
+  end;
+
+begin
+  fList.Sort(@Compare);
 end;
 
 
