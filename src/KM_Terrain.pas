@@ -183,6 +183,10 @@ type
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: THandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
+    function ScriptTryTileSet(X, Y: Integer; aType, aRot: Byte): Boolean;
+    function ScriptTryHeightSet(X, Y: Integer; aHeight: Byte): Boolean;
+    function ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
+
     function ObjectIsChopableTree(X,Y: Word): Boolean; overload;
     function ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean; overload;
     function CanWalkDiagonaly(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
@@ -437,6 +441,133 @@ begin
   finally
     S.Free;
   end;
+end;
+
+
+function TKMTerrain.ScriptTryTileSet(X, Y: Integer; aType, aRot: Byte): Boolean;
+
+  function UnitWillGetStuck: Boolean;
+  var U: TKMUnit;
+  begin
+    U := Land[Y, X].IsUnit;
+    if (U = nil) or U.IsDead then
+      Result := False
+    else
+      if gRes.UnitDat[U.UnitType].DesiredPassability = CanFish then
+        Result := not gRes.Tileset.TileIsWater(aType) //Fish need water
+      else
+        Result := not gRes.Tileset.TileIsWalkable(aType); //All other animals need Walkable
+  end;
+
+begin
+  //First see if this change is allowed
+  //Will this change make a unit stuck?
+  if UnitWillGetStuck
+  //Will this change damage a field?
+  or (TileIsCornField(KMPoint(X, Y)) or TileIsWineField(KMPoint(X, Y)))
+  //Will this change block a construction site?
+  or ((Land[Y, X].TileLock in [tlFenced, tlDigged, tlHouse])
+      and (not gRes.Tileset.TileIsRoadable(aType) or not gRes.Tileset.TileIsWalkable(aType))) then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  //Apply change
+  Land[Y, X].Terrain := aType;
+  Land[Y, X].Rotation := aRot;
+  UpdatePassability(KMPoint(X, Y));
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(X, Y, X, Y), False);
+  Result := True;
+end;
+
+
+function TKMTerrain.ScriptTryHeightSet(X, Y: Integer; aHeight: Byte): Boolean;
+
+  function UnitWillGetStuck(CheckX, CheckY: Integer): Boolean;
+  var U: TKMUnit;
+  begin
+    U := Land[CheckY, CheckX].IsUnit;
+    if (U = nil) or U.IsDead
+    or (gRes.UnitDat[U.UnitType].DesiredPassability = CanFish) then //Fish don't care about elevation
+      Result := False
+    else
+      Result := not CheckHeightPass(KMPoint(CheckX, CheckY), hpWalking); //All other units/animals need Walkable
+  end;
+
+var
+  OldHeight: Byte;
+  I, K: Integer;
+begin
+  //To use CheckHeightPass we must apply change then roll it back if it failed
+  OldHeight := aHeight;
+  //Apply change
+  Land[Y, X].Height := aHeight;
+
+  //Don't check canElevate: If scripter wants to block mines that's his choice
+
+  //Elevation affects all 4 tiles around the vertex
+  for I := -1 to 0 do
+    for K := -1 to 0 do
+      if TileInMapCoords(X+K, Y+I) then
+        //Did this change make a unit stuck?
+        if UnitWillGetStuck(X+K, Y+I)
+        //Did this change elevate a house?
+        or (Land[Y+I, X+K].TileLock = tlHouse) then
+        begin
+          //Rollback change
+          Land[Y, X].Height := OldHeight;
+          Result := False;
+          Exit;
+        end;
+
+  //Accept change
+  UpdateLighting(KMRectGrow(KMRect(X, Y, X, Y), 2));
+  UpdatePassability(KMRectGrowTopLeft(KMRect(X, Y, X, Y)));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), False);
+  Result := True;
+end;
+
+
+function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
+
+  function HousesNearObject: Boolean;
+  var I, K: Integer;
+  begin
+    Result := False;
+    //If the object blocks diagonals, houses can't be at -1 either
+    for I := -1*Byte(MapElem[aObject].DiagonalBlocked) to 0 do
+    for K := -1*Byte(MapElem[aObject].DiagonalBlocked) to 0 do
+      if TileInMapCoords(X+K, Y+I) then
+      //Can't put objects near houses or house sites
+      if (Land[Y+I, X+K].TileLock in [tlFenced, tlDigged, tlHouse]) then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
+var DiagonalChanged: Boolean;
+begin
+  //Will this change make a unit stuck?
+  if ((Land[Y, X].IsUnit <> nil) and MapElem[aObject].AllBlocked)
+  //Is this object part of a wine/corn field?
+  or TileIsWineField(KMPoint(X, Y)) or TileIsCornField(KMPoint(X, Y))
+  //Is there a house/site near this object?
+  or HousesNearObject then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
+  DiagonalChanged := MapElem[Land[Y,X].Obj].DiagonalBlocked xor MapElem[aObject].DiagonalBlocked;
+
+  //Apply change
+  Land[Y, X].Obj := aObject;
+  UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
+  Result := True;
 end;
 
 

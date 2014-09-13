@@ -295,6 +295,8 @@ begin
         end;
       end;
   end;
+
+  gScriptEvents.ProcUnitAttacked(aUnit, aAttacker); //At the end since it could kill the unit
 end;
 
 

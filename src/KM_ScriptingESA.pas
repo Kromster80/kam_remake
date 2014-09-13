@@ -52,6 +52,7 @@ type
     fProcPlayerVictory: TKMScriptEvent1I;
     fProcTick: TKMScriptEvent;
     fProcUnitAfterDied: TKMScriptEvent4I;
+    fProcUnitAttacked: TKMScriptEvent2I;
     fProcUnitDied: TKMScriptEvent2I;
     fProcUnitTrained: TKMScriptEvent1I;
     fProcUnitWounded: TKMScriptEvent2I;
@@ -76,6 +77,7 @@ type
     procedure ProcPlayerVictory(aPlayer: THandIndex);
     procedure ProcTick;
     procedure ProcUnitAfterDied(aUnitType: TUnitType; aOwner: THandIndex; aX, aY: Word);
+    procedure ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
     procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
@@ -142,6 +144,12 @@ type
 
     function KaMRandom: Single;
     function KaMRandomI(aMax: Integer): Integer;
+
+    function MapTileType(X, Y: Integer): Integer;
+    function MapTileRotation(X, Y: Integer): Integer;
+    function MapTileHeight(X, Y: Integer): Integer;
+    function MapTileObject(X, Y: Integer): Integer;
+
     function MarketFromWare(aMarketID: Integer): Integer;
     function MarketLossFactor: Single;
     function MarketOrderAmount(aMarketID: Integer): Integer;
@@ -280,6 +288,10 @@ type
 
     procedure Log(aText: AnsiString);
 
+    function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
+    function MapTileHeightSet(X, Y, Height: Integer): Boolean;
+    function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
+
     procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
     procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
     procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
@@ -383,6 +395,7 @@ begin
   fProcUnitDied             := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
   fProcUnitTrained          := TKMScriptEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
   fProcUnitWounded          := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
+  fProcUnitAttacked         := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONUNITATTACKED'));
   fProcWarriorEquipped      := TKMScriptEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
 end;
 
@@ -500,6 +513,22 @@ procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: THandI
 begin
   if Assigned(fProcUnitAfterDied) then
     fProcUnitAfterDied(UnitTypeToIndex[aUnitType], aOwner, aX, aY);
+end;
+
+
+procedure TKMScriptEvents.ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
+begin
+  if Assigned(fProcUnitAttacked) then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    if aAttacker <> nil then
+    begin
+      fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
+      fProcUnitAttacked(aUnit.UID, aAttacker.UID);
+    end
+    else
+      fProcUnitAttacked(aUnit.UID, -1);
+  end;
 end;
 
 
@@ -1647,6 +1676,54 @@ function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
   //No parameters to check, any integer is fine (even negative)
   Result := KM_Utils.KaMRandom(aMax);
+end;
+
+
+function TKMScriptStates.MapTileType(X, Y: Integer): Integer;
+begin
+  if gTerrain.TileInMapCoords(X, Y) then
+    Result := gTerrain.Land[Y, X].Terrain
+  else
+  begin
+    Result := -1;
+    LogError('States.MapTileType', [X, Y]);
+  end;
+end;
+
+
+function TKMScriptStates.MapTileRotation(X, Y: Integer): Integer;
+begin
+  if gTerrain.TileInMapCoords(X, Y) then
+    Result := gTerrain.Land[Y, X].Rotation
+  else
+  begin
+    Result := -1;
+    LogError('States.MapTileRotation', [X, Y]);
+  end;
+end;
+
+
+function TKMScriptStates.MapTileHeight(X, Y: Integer): Integer;
+begin
+  if gTerrain.TileInMapCoords(X, Y) then
+    Result := gTerrain.Land[Y, X].Height
+  else
+  begin
+    Result := -1;
+    LogError('States.MapTileHeight', [X, Y]);
+  end;
+end;
+
+
+function TKMScriptStates.MapTileObject(X, Y: Integer): Integer;
+begin
+  if gTerrain.TileInMapCoords(X, Y) then
+    Result := gTerrain.Land[Y, X].Obj
+  else
+  begin
+    Result := -1;
+    LogError('States.MapTileObject', [X, Y]);
+  end;
 end;
 
 
@@ -3278,6 +3355,44 @@ end;
 procedure TKMScriptActions.Log(aText: AnsiString);
 begin
   gLog.AddTime('Script: '+UnicodeString(aText));
+end;
+
+
+function TKMScriptActions.MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
+begin
+  if gTerrain.TileInMapCoords(X, Y) and InRange(aType, 0, 255) and InRange(aRotation, 0, 3) then
+    Result := gTerrain.ScriptTryTileSet(X, Y, aType, aRotation)
+  else
+  begin
+    LogError('Actions.MapTileSet', [X, Y, aType, aRotation]);
+    Result := False;
+  end;
+end;
+
+
+function TKMScriptActions.MapTileHeightSet(X, Y, Height: Integer): Boolean;
+begin
+  //Height is vertex based not tile based
+  if gTerrain.VerticeInMapCoords(X, Y) and InRange(Height, 0, 100) then
+    Result := gTerrain.ScriptTryHeightSet(X, Y, Height)
+  else
+  begin
+    LogError('Actions.MapTileHeightSet', [X, Y, Height]);
+    Result := False;
+  end;
+end;
+
+
+function TKMScriptActions.MapTileObjectSet(X, Y, Obj: Integer): Boolean;
+begin
+  //Objects are vertex based not tile based
+  if gTerrain.VerticeInMapCoords(X, Y) and InRange(Obj, 0, 255) then
+    Result := gTerrain.ScriptTryObjectSet(X, Y, Obj)
+  else
+  begin
+    LogError('Actions.MapTileObjectSet', [X, Y, Obj]);
+    Result := False;
+  end;
 end;
 
 

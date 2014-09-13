@@ -175,6 +175,11 @@ begin
       RegisterMethod('function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
       RegisterMethod('function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
 
+      RegisterMethod('function MapTileType(X, Y: Integer): Integer');
+      RegisterMethod('function MapTileRotation(X, Y: Integer): Integer');
+      RegisterMethod('function MapTileHeight(X, Y: Integer): Integer');
+      RegisterMethod('function MapTileObject(X, Y: Integer): Integer');
+
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
@@ -301,6 +306,10 @@ begin
       RegisterMethod('procedure Log(aText: AnsiString)');
       RegisterMethod('procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer)');
 
+      RegisterMethod('function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
+      RegisterMethod('function MapTileHeightSet(X, Y, Height: Integer): Boolean');
+      RegisterMethod('function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
+
       RegisterMethod('procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
       RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
       RegisterMethod('procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
@@ -369,7 +378,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..22] of record
+  Procs: array [0..23] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -396,6 +405,7 @@ const
   (Names: 'ONTICK';                 ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONUNITDIED';             ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONUNITAFTERDIED';        ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITATTACKED';         ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONUNITTRAINED';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONUNITWOUNDED';          ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONWARRIOREQUIPPED';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn))
@@ -549,6 +559,11 @@ begin
       RegisterMethod(@TKMScriptStates.IsWinefieldAt,        'ISWINEFIELDAT');
       RegisterMethod(@TKMScriptStates.IsRoadAt,             'ISROADAT');
 
+      RegisterMethod(@TKMScriptStates.MapTileType,             'MAPTILETYPE');
+      RegisterMethod(@TKMScriptStates.MapTileRotation,         'MAPTILEROTATION');
+      RegisterMethod(@TKMScriptStates.MapTileHeight,           'MAPTILEHEIGHT');
+      RegisterMethod(@TKMScriptStates.MapTileObject,           'MAPTILEOBJECT');
+
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,    'PLAYERALLIANCECHECK');
       RegisterMethod(@TKMScriptStates.PlayerColorText,        'PLAYERCOLORTEXT');
       RegisterMethod(@TKMScriptStates.PlayerDefeated,         'PLAYERDEFEATED');
@@ -674,6 +689,10 @@ begin
 
       RegisterMethod(@TKMScriptActions.Log,                        'LOG');
       RegisterMethod(@TKMScriptActions.MarketSetTrade,             'MARKETSETTRADE');
+
+      RegisterMethod(@TKMScriptActions.MapTileSet,                 'MAPTILESET');
+      RegisterMethod(@TKMScriptActions.MapTileHeightSet,           'MAPTILEHEIGHTSET');
+      RegisterMethod(@TKMScriptActions.MapTileObjectSet,           'MAPTILEOBJECTSET');
 
       RegisterMethod(@TKMScriptActions.OverlayTextSet,             'OVERLAYTEXTSET');
       RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,    'OVERLAYTEXTSETFORMATTED');

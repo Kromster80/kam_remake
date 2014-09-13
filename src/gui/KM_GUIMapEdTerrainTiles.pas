@@ -146,7 +146,8 @@ begin
     if TileID = 0 then
       TilesTable[L].Hint := ''
     else
-      TilesTable[L].Hint := IntToStr(TileID);
+      //Show 0..N-1 to be consistent with objects and script commands like States.MapTileObject
+      TilesTable[L].Hint := IntToStr(TileID - 1);
     //If cursor has a tile then make sure its properly selected in table as well
     TilesTable[L].Down := (GameCursor.Mode = cmTiles) and (GameCursor.Tag1 = TileID - 1);
   end;

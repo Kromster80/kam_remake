@@ -71,18 +71,19 @@ Implemented:
  6338   Split a specific warrior out of a group
  6510   Actions.HouseAddBuildingMaterials
  6510   PlanConnectRoad can add completed road
+ 6510	States.HouseSiteIsDigged
  6516   States.HouseBarracksRallyPointX/Y
  6523   States.UnitIdle/GroupIdle
  6570	OnBeacon(Player, X, Y)
+ 6587	OnUnitAttacked
+ 6587	States.MapTileType, States.MapTileRotation, States.MapTileHeight, States.MapTileObject
+ 6587	Actions.MapTileSet, Actions.MapTileHeightSet, Actions.MapTileObjectSet
 
 
 Accepted:
 	OnGroupOrderAttackHouse(aGroup, aHouse: integer)
 	OnGroupOrderAttackUnit(aGroup, aUnit: integer)
 	OnGroupOrderLink(aOldGroup, aNewGroup: integer)
-	States.HouseSiteIsDigged(aHouse: integer) - returns true if laborer finished digging ground for house to start build
-	States.MapTileType(X, Y), States.MapTileRotation(X, Y), States.MapTileHeight(X, Y), States.MapTileObject(X, Y)
-	Actions.MapTileSet(X, Y, Type, Rotation), Actions.MapTileHeightSet(X, Y, Height), Actions.MapTileObjectSet(X, Y, Object) - Return false and do nothing if change would block unit/house/road
 	Change house/unit/group owner
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)	
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
@@ -117,6 +118,7 @@ Proposed:
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
+	Allow storing data between campaign missions somehow (without breaking replays)
 
 
 Rejected:	
