@@ -2273,7 +2273,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   if aUpdateWalkConnects then
-    UpdateWalkConnect([wcWalk, wcRoad, wcWork], fBoundsWC, False);
+    UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrow(fBoundsWC, 1), False);
 end;
 
 
@@ -2290,7 +2290,7 @@ begin
     FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
 
   //wcFish not affected by height
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], fBoundsWC, False);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrow(fBoundsWC, 1), False);
 end;
 
 
