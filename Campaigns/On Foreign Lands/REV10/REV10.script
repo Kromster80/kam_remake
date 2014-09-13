@@ -1,11 +1,19 @@
 var firstAttackMessage : boolean;
 
 procedure OnTick;
+var groups : array of integer;
+var i : integer;
 begin
 	if ((States.StatArmyCount(5) = 0) and (firstAttackMessage = false)) then
 		begin
 			firstAttackMessage := true;
 			Actions.ShowMsg(0, '<$0>');
+		end;
+		
+	if ((States.StatArmyCount(5) > 0) and (States.GameTime mod 200 = 0)) then
+		begin
+			groups := States.PlayerGetAllGroups(5);
+			for i := 0 to Length(groups) - 1 do Actions.GroupOrderAttackHouse(groups[i], States.HouseAt(19, 75));
 		end;
 end;
 

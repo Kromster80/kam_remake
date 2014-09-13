@@ -158,5 +158,6 @@ begin
 	
 	if (CheckState(true)) then Actions.PlayerWin([0], false);
 	if (CheckState(false)) then Actions.PlayerDefeat(0);
+	if ((States.GroupDead(States.GroupAt(9, 8)) = false) AND (States.StatArmyCount(0) = 0)) then Actions.PlayerDefeat(0);
 end;
 
