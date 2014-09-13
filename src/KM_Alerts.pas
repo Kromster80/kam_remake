@@ -303,7 +303,10 @@ procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardi
         end;
       end;
     if (Count > MAX_BEACONS) and (OldestID <> -1) then
+    begin
+      Items[OldestID].Free;
       fList.Delete(OldestID);
+    end;
   end;
 
 begin
