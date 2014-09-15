@@ -87,7 +87,7 @@ begin
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
 
-  fSprites := TKMSpritePackEdit.Create(rxTrees, nil);
+  fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
 
   seMapCountChange(nil); //Initialise it to 1 map
 end;
@@ -241,7 +241,7 @@ begin
   C.LoadFromFile(dlgOpenCampaign.FileName);
 
   fSprites.Free;
-  fSprites := TKMSpritePackEdit.Create(rxTrees, nil);
+  fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
   if FileExists(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx') then
     fSprites.LoadFromRXXFile(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx')
   else

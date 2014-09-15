@@ -156,12 +156,9 @@ begin
   OpenDialog1.Options := OpenDialog1.Options - [ofAllowMultiSelect];
   if not OpenDialog1.Execute then Exit;
 
-  //GuiMain/GuiMainH needs to know it's type to use special palette mappings
+  //GuiMain needs to know it's type to use special palette mappings
   if SameText(ExtractFileName(OpenDialog1.FileName), 'guimain.rx') then
     RT := rxGuiMain
-  else
-  if SameText(ExtractFileName(OpenDialog1.FileName), 'guimainh.rx') then
-    RT := rxGuiMainH
   else
     RT := rxTrees;
 

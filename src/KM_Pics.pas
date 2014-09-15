@@ -10,7 +10,7 @@ type
     rxUnits,
     rxGui,
     rxGuiMain,
-    rxGuiMainH, //Unused, I have moved all used sprites into rxGuiMain
+    rxCustom, //Used for loading stuff like campaign maps (there is no main RXX file)
     rxTiles //Tiles
     );
 

@@ -121,7 +121,6 @@ begin
     case fRT of
       rxHouses:   Palette := HouseWIP(H);
       rxGuiMain:  Palette := fPalettes[RX5Pal[H]];
-      rxGuiMainH: Palette := fPalettes[RX6Pal[H]];
       else        Palette := fPalettes.DefDal;
     end;
 

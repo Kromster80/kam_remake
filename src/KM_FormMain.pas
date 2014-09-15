@@ -28,7 +28,7 @@ type
     Export_HousesRX: TMenuItem;
     Export_UnitsRX: TMenuItem;
     Export_GUIMainRX: TMenuItem;
-    Export_GUIMainH: TMenuItem;
+    Export_Custom: TMenuItem;
     Export_Tileset: TMenuItem;
     Export_Fonts1: TMenuItem;
     GroupBox1: TGroupBox;
@@ -96,7 +96,7 @@ type
     procedure Export_UnitsRXClick(Sender: TObject);
     procedure Export_GUIClick(Sender: TObject);
     procedure Export_GUIMainRXClick(Sender: TObject);
-    procedure Export_GUIMainHRXClick(Sender: TObject);
+    procedure Export_CustomClick(Sender: TObject);
     procedure Export_TilesetClick(Sender: TObject);
     procedure Export_Sounds1Click(Sender: TObject);
     procedure Export_HouseAnim1Click(Sender: TObject);
@@ -330,9 +330,9 @@ begin
   gRes.Sprites.ExportToPNG(rxGUIMain);
 end;
 
-procedure TFormMain.Export_GUIMainHRXClick(Sender: TObject);
+procedure TFormMain.Export_CustomClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxGUIMainH);
+  gRes.Sprites.ExportToPNG(rxCustom);
 end;
 
 procedure TFormMain.Export_TilesetClick(Sender: TObject);

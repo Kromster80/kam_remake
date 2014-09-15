@@ -16,7 +16,7 @@ const
   FLAG_COLOR_LITE = $FFFFFFFF;   //White
 
 type
-  TRXUsage = (ruMenu, ruGame); //Where sprites are used
+  TRXUsage = (ruMenu, ruGame, ruCustom); //Where sprites are used
 
   TRXInfo = record
     FileName: string; //Used for logging and filenames
@@ -28,13 +28,13 @@ type
 
 var
   RXInfo: array [TRXType] of TRXInfo = (
-    (FileName: 'Trees';      TeamColors: False; Usage: ruGame; LoadingTextID: TX_MENU_LOADING_TREES;),
-    (FileName: 'Houses';     TeamColors: True;  Usage: ruGame; LoadingTextID: TX_MENU_LOADING_HOUSES;),
-    (FileName: 'Units';      TeamColors: True;  Usage: ruGame; LoadingTextID: TX_MENU_LOADING_UNITS;),
-    (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu; LoadingTextID: 0;),
-    (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu; LoadingTextID: 0;),
-    (FileName: 'GUIMainH';   TeamColors: False; Usage: ruMenu; LoadingTextID: 0;),
-    (FileName: 'Tileset';    TeamColors: False; Usage: ruMenu; LoadingTextID: TX_MENU_LOADING_TILESET;));
+    (FileName: 'Trees';      TeamColors: False; Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_TREES;),
+    (FileName: 'Houses';     TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_HOUSES;),
+    (FileName: 'Units';      TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_UNITS;),
+    (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu;   LoadingTextID: 0;),
+    (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu;   LoadingTextID: 0;),
+    (FileName: 'Custom';     TeamColors: False; Usage: ruCustom; LoadingTextID: 0;),
+    (FileName: 'Tileset';    TeamColors: False; Usage: ruMenu;   LoadingTextID: TX_MENU_LOADING_TILESET;));
 
 type
   TRXData = record
@@ -185,7 +185,7 @@ var
 begin
   Assert(SameText(ExtractFileExt(aFilename), '.png'));
 
-  if aIndex >= fRXData.Count then
+  if aIndex > fRXData.Count then
     Allocate(aIndex);
 
   LoadFromPng(aFolder + aFilename, pngWidth, pngHeight, pngData);
@@ -295,11 +295,11 @@ begin
     if RXXCount = 0 then
       Exit;
 
-    Allocate(aStartingIndex + RXXCount);
+    Allocate(aStartingIndex + RXXCount - 1);
 
     DecompressionStream.Read(fRXData.Flag[aStartingIndex], RXXCount);
 
-    for I := aStartingIndex to aStartingIndex + RXXCount do
+    for I := aStartingIndex to aStartingIndex + RXXCount - 1 do
       if fRXData.Flag[I] = 1 then
       begin
         DecompressionStream.Read(fRXData.Size[I].X, 4);
@@ -515,7 +515,7 @@ begin
   if LOG_EXTRA_GFX then
   begin
     IdealRAM := 0;
-    for I := aStartingIndex to fRXData.Count - 1 do
+    for I := aStartingIndex to fRXData.Count do
     if fRXData.Flag[I] <> 0 then
       Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
@@ -644,9 +644,9 @@ begin
   BaseRAM := 0;
   ColorRAM := 0;
   //Prepare base atlases
-  SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
+  SetLength(SpriteSizes, fRXData.Count - aStartingIndex + 1);
   K := 0;
-  for I := aStartingIndex to fRXData.Count - 1 do
+  for I := aStartingIndex to fRXData.Count do
   if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) then
   begin
     SpriteSizes[K].ID := I;
@@ -661,9 +661,9 @@ begin
   PrepareAtlases(SpriteInfo, saBase, aTexType);
 
   //Prepare masking atlases
-  SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
+  SetLength(SpriteSizes, fRXData.Count - aStartingIndex + 1);
   K := 0;
-  for I := aStartingIndex to fRXData.Count - 1 do
+  for I := aStartingIndex to fRXData.Count do
   if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) and fRXData.HasMask[I] then
   begin
     SpriteSizes[K].ID := I;
