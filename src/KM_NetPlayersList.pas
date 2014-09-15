@@ -741,9 +741,12 @@ var I: Integer;
 begin
   for i:=1 to fCount do
   begin
-    fNetPlayers[i].HasMapOrSave := False;
+    if fNetPlayers[i].PlayerNetType = nptHuman then
+      fNetPlayers[i].HasMapOrSave := False;
+
     if fNetPlayers[i].StartLocation <> LOC_SPECTATE then
       fNetPlayers[i].StartLocation := LOC_RANDOM;
+
     //AI/closed players are always ready, spectator ready status is not reset by map change
     if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
       fNetPlayers[i].ReadyToStart := false;
