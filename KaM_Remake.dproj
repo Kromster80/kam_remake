@@ -149,6 +149,7 @@
         <DCCReference Include="src\gui\KM_GUIGameHouse.pas"/>
         <DCCReference Include="src\gui\KM_GUIGameRatios.pas"/>
         <DCCReference Include="src\gui\KM_GUIGameStats.pas"/>
+        <DCCReference Include="src\gui\KM_GUIGameMenuSettings.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdAttack.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdExtras.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdFormations.pas"/>
@@ -160,6 +161,7 @@
         <DCCReference Include="src\gui\KM_GUIMapEdMenuLoad.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdMenuSave.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdMenuQuit.pas"/>
+        <DCCReference Include="src\gui\KM_GUIMapEdMenuSettings.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdMessage.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdPlayer.pas"/>
         <DCCReference Include="src\gui\KM_GUIMapEdPlayerBlockHouse.pas"/>

@@ -463,7 +463,10 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0: Maps := fMaps;
     1: Maps := fMapsMP;
-    else Assert(False);
+    else begin
+           Assert(False);
+           Exit;
+         end;
   end;
   Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
     and (Maps[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
@@ -485,7 +488,10 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0: Maps := fMaps;
     1: Maps := fMapsMP;
-    else Assert(False);
+    else begin
+           Assert(False);
+           Exit;
+         end;
   end;
   Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
     and (Maps[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);

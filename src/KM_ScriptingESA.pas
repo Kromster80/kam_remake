@@ -1694,7 +1694,8 @@ end;
 function TKMScriptStates.MapTileRotation(X, Y: Integer): Integer;
 begin
   if gTerrain.TileInMapCoords(X, Y) then
-    Result := gTerrain.Land[Y, X].Rotation
+    //In KaM map format values can be >= 4. Convert again just in case it was missed by gTerrain
+    Result := gTerrain.Land[Y, X].Rotation mod 4
   else
   begin
     Result := -1;
