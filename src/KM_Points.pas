@@ -353,7 +353,7 @@ var
   Scale: Integer;
   A, B: ShortInt;
 begin
-  Scale := Max(Abs(X), Abs(Y));
+  Scale := Max(Max(Abs(X), Abs(Y)), 1);
   A := Round(X / Scale);
   B := Round(Y / Scale);
   Result := DirectionsBitfield[A, B]; // -1, 0, 1
@@ -370,7 +370,7 @@ var
   Scale: Single;
   A, B: ShortInt;
 begin
-  Scale := Max(Abs(X), Abs(Y));
+  Scale := Max(Max(Abs(X), Abs(Y)), 1);
   A := Round(X / Scale);
   B := Round(Y / Scale);
   Result := DirectionsBitfield[A, B]; // -1, 0, 1
