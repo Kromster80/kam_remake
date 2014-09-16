@@ -278,6 +278,7 @@ procedure TKMMenuSingleMap.ListClick(Sender: TObject);
 var
   MapId: Integer;
   I: Integer;
+  LastColor: Integer;
 begin
   fMaps.Lock;
   try
@@ -317,6 +318,8 @@ begin
       //Color
       //Fill in colors for each map individually
       //I plan to skip colors that are similar to those on a map already
+      LastColor := DropBox_SingleColor.ItemIndex;
+      if LastColor = -1 then LastColor := 0; //Default
       DropBox_SingleColor.Clear;
       //Default colour chosen by map author
       DropBox_SingleColor.Add(MakeListRow([''], [fMaps[MapId].FlagColors[fMaps[MapId].DefaultHuman]], [MakePic(rxGuiMain, 30)]));
@@ -325,7 +328,7 @@ begin
       //MP colours
       for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
         DropBox_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
-      DropBox_SingleColor.ItemIndex := 0; //Select default
+      DropBox_SingleColor.ItemIndex := LastColor; //Keep previous selection
     end;
 
     //Block options if there's nothing to choose there

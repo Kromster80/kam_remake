@@ -604,12 +604,14 @@ type
 
 const
   //Colors available for selection in multiplayer
-  MP_COLOR_COUNT = 18;
+  MP_COLOR_COUNT = 22;
   MP_TEAM_COLORS: array [1..MP_COLOR_COUNT] of Cardinal = (
   $FF0000EB, // Red
   $FF076CF8, // Orange
-  $FF00C9FF, // Yellow
+  $FF00B5FF, // Gold
+  $FF07FFFF, // Lauenburg yellow
   $FF0EC5A2, // Lime green
+  $FF07FF07, // Neon green
   $FF00A100, // Bright green
   $FF134B00, // Dark green
   $FF7A9E00, // Teal
@@ -618,9 +620,11 @@ const
   $FFCB3972, // Violet (Amethyst)
   $FF720468, // Purple
   $FFDE8FFB, // Pink
-  $FF519EC9, // Tan
-  $FF103C52, // Brown
+  $FFFF07FF, // Magenta
+  $FF4A00A8, // Dark pink
   $FF00005E, // Maroon
+  $FF103C52, // Brown
+  $FF519EC9, // Tan
   $FFFFFFFF, // White
   $FF838383, // Grey
   $FF1B1B1B  // Black
