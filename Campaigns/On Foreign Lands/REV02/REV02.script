@@ -96,6 +96,7 @@ begin
 			iStoreHouseTaken := true;
 			ChangeOwners;
 			Actions.ShowMsg(0, '<$1>');
+			Actions.ShowMsg(0, '<$4>');
 			Actions.GiveGroup(0, 17, 20, 121, 2, 12, 3);
 			Actions.GiveGroup(0, 20, 19, 115, 2, 12, 3);
 		end;

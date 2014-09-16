@@ -1,7 +1,8 @@
 
-MaxID:3
+MaxID:4
 
-0:Our scouts discovered storehouse near by protected by a small enemy squad. Probably we find there some useful materials.
-1:We took a storehouse! See if you can use these materials. Oh, I forgot, the king send few soldiers to protect the village.
-2:Enemy troops are going in our direction. Prepare to defend.
-3:You don't properly secured the town!
+0:Our scouts discovered a storehouse nearby, protected by a small enemy squad. We can probably find some useful materials there.
+1:We captured the storehouse! See if you can make use of these materials.
+2:Enemy troops are headed in our direction. Prepare to defend!
+3:You haven't properly secured the town!
+4:The King sent a few soldiers to protect the village.
