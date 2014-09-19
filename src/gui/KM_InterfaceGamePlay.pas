@@ -1278,8 +1278,8 @@ begin
     Button_Unit_Dismiss.OnClick := Army_Issue_Order;
 
     //Disable not working buttons
-    Button_Army_GoTo.Disable;
-    Button_Army_Attack.Disable;
+    Button_Army_GoTo.Hide;
+    Button_Army_Attack.Hide;
 
     //Hints
     Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
