@@ -1258,6 +1258,7 @@ var
   GameInfo: TKMGameInfo;
   LoadedSeed: LongInt;
   SaveIsMultiplayer: Boolean;
+  I: Integer;
 begin
   fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');
 
@@ -1335,7 +1336,16 @@ begin
   fTextMission.Load(LoadStream);
 
   if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
+  begin
     MySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
+    //HandIndex is the first enabled player
+    for I := 0 to gHands.Count - 1 do
+      if gHands[I].Enabled then
+      begin
+        MySpectator.HandIndex := I;
+        Break;
+      end;
+  end;
 
   //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
   //todo: Send all message commands through GIP (note: that means there will be a delay when you press delete)
@@ -1374,6 +1384,7 @@ begin
 
   //When everything is ready we can update UI
   fActiveInterface.SyncUI;
+  OverlayUpdate;
 
   if SaveIsMultiplayer then
   begin
