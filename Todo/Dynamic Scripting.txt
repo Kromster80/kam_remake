@@ -79,11 +79,11 @@ Implemented:
  6587	States.MapTileType, States.MapTileRotation, States.MapTileHeight, States.MapTileObject
  6587	Actions.MapTileSet, Actions.MapTileHeightSet, Actions.MapTileObjectSet
  6600	CampaignData for storing data between campaign missions
+ 6602	States.ConnectedByRoad(X1, Y1, X2, Y2): Boolean
+ 6602	States.ConnectedByWalking(X1, Y1, X2, Y2): Boolean
 
 
 Accepted:
-	ConnectedByRoad(X1, Y1, X2, Y2): Boolean
-	ConnectedByWalking(X1, Y1, X2, Y2): Boolean
 	OnGroupOrderAttackHouse(aGroup, aHouse: integer)
 	OnGroupOrderAttackUnit(aGroup, aUnit: integer)
 	OnGroupOrderLink(aOldGroup, aNewGroup: integer)

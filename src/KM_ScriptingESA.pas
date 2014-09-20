@@ -99,6 +99,9 @@ type
     function ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer;
     function ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer;
 
+    function ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean;
+    function ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean;
+
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
     function GameTime: Cardinal;
@@ -784,6 +787,32 @@ begin
   end
   else
     LogError('States.ClosestUnit', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean;
+begin
+  if gTerrain.TileInMapCoords(X1,Y1) and gTerrain.TileInMapCoords(X2,Y2) then
+    Result := (gTerrain.GetRoadConnectID(KMPoint(X1, Y1)) <> 0) and
+              (gTerrain.GetRoadConnectID(KMPoint(X1, Y1)) = gTerrain.GetRoadConnectID(KMPoint(X2, Y2)))
+  else
+  begin
+    Result := False;
+    LogError('States.ConnectedByRoad', [X1, Y1, X2, Y2]);
+  end;
+end;
+
+
+function TKMScriptStates.ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean;
+begin
+  if gTerrain.TileInMapCoords(X1,Y1) and gTerrain.TileInMapCoords(X2,Y2) then
+    Result := (gTerrain.GetWalkConnectID(KMPoint(X1, Y1)) <> 0) and
+              (gTerrain.GetWalkConnectID(KMPoint(X1, Y1)) = gTerrain.GetWalkConnectID(KMPoint(X2, Y2)))
+  else
+  begin
+    Result := False;
+    LogError('States.ConnectedByWalking', [X1, Y1, X2, Y2]);
+  end;
 end;
 
 

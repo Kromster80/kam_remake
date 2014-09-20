@@ -147,6 +147,9 @@ begin
       RegisterMethod('function ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer');
       RegisterMethod('function ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer');
 
+      RegisterMethod('function ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean');
+      RegisterMethod('function ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean');
+
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
@@ -530,6 +533,9 @@ begin
       RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,   'CLOSESTGROUPMULTIPLETYPES');
       RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypes,   'CLOSESTHOUSEMULTIPLETYPES');
       RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypes,    'CLOSESTUNITMULTIPLETYPES');
+
+      RegisterMethod(@TKMScriptStates.ConnectedByRoad,    'CONNECTEDBYROAD');
+      RegisterMethod(@TKMScriptStates.ConnectedByWalking, 'CONNECTEDBYWALKING');
 
       RegisterMethod(@TKMScriptStates.GameTime,          'GAMETIME');
       RegisterMethod(@TKMScriptStates.KaMRandom,         'KAMRANDOM');
