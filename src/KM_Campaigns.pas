@@ -23,6 +23,7 @@ type
     fPath: UnicodeString;
     fTextLib: TKMTextLibrarySingle;
     fUnlockedMap: Byte;
+    fScriptData: TKMemoryStream;
 
     //Saved in CMP
     fCampaignId: TKMCampaignId; //Used to identify the campaign
@@ -49,6 +50,7 @@ type
     property CampaignId: TKMCampaignId read fCampaignId write fCampaignId;
     function CampName: UnicodeString;
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
+    property ScriptData: TKMemoryStream read fScriptData;
 
     function CampaignTitle: UnicodeString;
     function CampaignDescription: UnicodeString;
@@ -56,6 +58,7 @@ type
     function MissionTitle(aIndex: Byte): UnicodeString;
     function MissionBriefing(aIndex: Byte): UnicodeString;
     function BreifingAudioFile(aIndex: Byte): UnicodeString;
+    function ScriptDataTypeFile: UnicodeString;
   end;
 
 
@@ -96,7 +99,8 @@ uses KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
 
 
 const
-  CAMP_HEADER = $FEED; //Just some header to separate right progress files from wrong
+  CAMP_HEADER_V1 = $FEED; //Just some header to separate right progress files from wrong
+  CAMP_HEADER_V2 = $BEEF;
 
 
 { TCampaignsCollection }
@@ -194,6 +198,8 @@ var
   I, campCount: Integer;
   campName: TKMCampaignId;
   unlocked: Byte;
+  HasScriptData: Boolean;
+  ScriptDataSize: Cardinal;
 begin
   if not FileExists(aFileName) then Exit;
 
@@ -202,7 +208,9 @@ begin
     M.LoadFromFile(aFileName);
 
     M.Read(I); //Check for wrong file format
-    if I <> CAMP_HEADER then Exit; //All campaigns will be kept in initial state
+    //All campaigns will be kept in initial state
+    if (I <> CAMP_HEADER_V1) and (I <> CAMP_HEADER_V2) then Exit;
+    HasScriptData := (I = CAMP_HEADER_V2);
 
     M.Read(campCount);
     for I := 0 to campCount - 1 do
@@ -211,7 +219,16 @@ begin
       M.Read(unlocked);
       C := CampaignById(campName);
       if C <> nil then
+      begin
         C.UnlockedMap := unlocked;
+        C.ScriptData.Clear;
+        if HasScriptData then
+        begin
+          M.Read(ScriptDataSize);
+          C.ScriptData.Write(Pointer(Cardinal(M.Memory) + M.Position)^, ScriptDataSize);
+          M.Seek(ScriptDataSize, soCurrent); //Seek past script data
+        end;
+      end;
     end;
   finally
     M.Free;
@@ -229,12 +246,14 @@ begin
 
   M := TKMemoryStream.Create;
   try
-    M.Write(Integer(CAMP_HEADER)); //Identify our format
+    M.Write(Integer(CAMP_HEADER_V2)); //Identify our format
     M.Write(Count);
     for I := 0 to Count - 1 do
     begin
       M.Write(Campaigns[I].CampaignId, SizeOf(TKMCampaignId));
       M.Write(Campaigns[I].UnlockedMap);
+      M.Write(Cardinal(Campaigns[I].ScriptData.Size));
+      M.Write(Campaigns[I].ScriptData.Memory^, Campaigns[I].ScriptData.Size);
     end;
 
     M.SaveToFile(aFileName);
@@ -305,12 +324,14 @@ begin
 
   //1st map is always unlocked to allow to start campaign
   fUnlockedMap := 0;
+  fScriptData := TKMemoryStream.Create;
 end;
 
 
 destructor TKMCampaign.Destroy;
 begin
   FreeAndNil(fTextLib);
+  fScriptData.Free;
 
   inherited;
 end;
@@ -384,6 +405,12 @@ begin
 
   M.SaveToFile(aFileName);
   M.Free;
+end;
+
+
+function TKMCampaign.ScriptDataTypeFile: UnicodeString;
+begin
+  Result := fPath + 'campaigndata.script';
 end;
 
 

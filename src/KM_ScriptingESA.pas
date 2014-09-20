@@ -3555,14 +3555,14 @@ begin
       if not PlanExists then
         Exit;
       for I := 0 to Points.Count - 1 do
-      if gHands[aPlayer].CanAddFieldPlan(Points[I], ft_Road) then
-        if not aCompleted then
-          gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road)
-        else
-        begin
-          gTerrain.SetField(Points[I], aPlayer, ft_Road);
-          gTerrain.FlattenTerrain(Points[I]);
-        end;
+        if gHands[aPlayer].CanAddFieldPlan(Points[I], ft_Road) then
+          if not aCompleted then
+            gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road)
+          else
+          begin
+            gTerrain.SetField(Points[I], aPlayer, ft_Road);
+            gTerrain.FlattenTerrain(Points[I]);
+          end;
       Result := True;
     finally
       Points.Free;

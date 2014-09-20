@@ -13,6 +13,7 @@ type
   TKMScripting = class
   private
     fScriptCode: AnsiString;
+    fCampaignDataTypeCode: AnsiString;
     fByteCode: AnsiString;
     fExec: TPSExec;
     fErrorString: UnicodeString; //Info about found mistakes (Unicode, can be localized later on)
@@ -27,23 +28,31 @@ type
     function ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
     procedure CompileScript;
     procedure LinkRuntime;
+
+    procedure SaveVar(SaveStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
+    procedure LoadVar(LoadStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
   public
     constructor Create;
     destructor Destroy; override;
 
     property ErrorString: UnicodeString read fErrorString;
     property WarningsString: UnicodeString read fWarningsString;
-    procedure LoadFromFile(aFileName: string);
+    procedure LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
     procedure ExportDataToText;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
+
+    procedure SaveCampaignData(SaveStream: TKMemoryStream);
+    procedure LoadCampaignData(LoadStream: TKMemoryStream);
 
     procedure UpdateState;
   end;
 
 
 const
+  CAMPAIGN_DATA_TYPE = 'TCampaignData'; //Type of the global variable
+  CAMPAIGN_DATA_VAR = 'CampaignData'; //Name of the global variable
   VALID_GLOBAL_VAR_TYPES: set of TPSBaseType = [
     btU8, //Byte, Boolean, Enums
     btS32, //Integer
@@ -80,7 +89,7 @@ begin
 end;
 
 
-procedure TKMScripting.LoadFromFile(aFileName: string);
+procedure TKMScripting.LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
 begin
   fErrorString := '';
   fWarningsString := '';
@@ -93,8 +102,15 @@ begin
     Exit;
   end;
 
+  if (aCampaignDataTypeFile <> '') and FileExists(aCampaignDataTypeFile) then
+    fCampaignDataTypeCode := ReadTextA(aCampaignDataTypeFile)
+  else
+    fCampaignDataTypeCode := '';
+
   fScriptCode := ReadTextA(aFileName);
   CompileScript;
+  if aCampaignData <> nil then
+    LoadCampaignData(aCampaignData);
 end;
 
 
@@ -103,12 +119,19 @@ end;
 //For example: uses ii1, ii2;
 //This will call this function 3 times. First with 'SYSTEM' then 'II1' and then 'II2'
 function TKMScripting.ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
+var CampaignDataType: TPSType;
 begin
   if Name = 'SYSTEM' then
   begin
 
-    //Sender.AddTypeS('THouseType', '(utSerf, utAxeman)');
-
+    if fCampaignDataTypeCode <> '' then
+      try
+        CampaignDataType := Sender.AddTypeS(CAMPAIGN_DATA_TYPE, fCampaignDataTypeCode);
+        Sender.AddUsedVariable(CAMPAIGN_DATA_VAR, CampaignDataType);
+      except
+        on E: Exception do
+          fErrorString := fErrorString + 'Error in declaration of global campaign data type|';
+      end;
     //Register classes and methods to the script engine.
     //After that they can be used from within the script.
     with Sender.AddClassN(nil, AnsiString(fStates.ClassName)) do
@@ -792,57 +815,57 @@ begin
 end;
 
 
-procedure TKMScripting.Load(LoadStream: TKMemoryStream);
-
-  procedure LoadVar(Src: Pointer; aType: TPSTypeRec);
-  var
-    ElemCount: Integer;
-    I: Integer;
-    Offset: Cardinal;
-  begin
-    //See uPSRuntime line 1630 for algo idea
-    case aType.BaseType of
-      btU8:            LoadStream.Read(tbtu8(Src^)); //Byte, Boolean
-      btS32:           LoadStream.Read(tbts32(Src^)); //Integer
-      btSingle:        LoadStream.Read(tbtsingle(Src^));
-      btString:        LoadStream.ReadA(tbtString(Src^));
-      btStaticArray:begin
-                      LoadStream.Read(ElemCount);
-                      Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
-                      for I := 0 to ElemCount - 1 do
-                      begin
-                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
-                        LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
-                      end;
+procedure TKMScripting.LoadVar(LoadStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
+var
+  ElemCount: Integer;
+  I: Integer;
+  Offset: Cardinal;
+begin
+  //See uPSRuntime line 1630 for algo idea
+  case aType.BaseType of
+    btU8:            LoadStream.Read(tbtu8(Src^)); //Byte, Boolean
+    btS32:           LoadStream.Read(tbts32(Src^)); //Integer
+    btSingle:        LoadStream.Read(tbtsingle(Src^));
+    btString:        LoadStream.ReadA(tbtString(Src^));
+    btStaticArray:begin
+                    LoadStream.Read(ElemCount);
+                    Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
+                    for I := 0 to ElemCount - 1 do
+                    begin
+                      Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                      LoadVar(LoadStream, Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
                     end;
-      btArray:      begin
-                      LoadStream.Read(ElemCount);
-                      PSDynArraySetLength(Pointer(Src^), aType, ElemCount);
-                      for I := 0 to ElemCount - 1 do
-                      begin
-                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
-                        LoadVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
-                      end;
+                  end;
+    btArray:      begin
+                    LoadStream.Read(ElemCount);
+                    PSDynArraySetLength(Pointer(Src^), aType, ElemCount);
+                    for I := 0 to ElemCount - 1 do
+                    begin
+                      Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                      LoadVar(LoadStream, Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
                     end;
-      btRecord:     begin
-                      LoadStream.Read(ElemCount);
-                      Assert(ElemCount = TPSTypeRec_Record(aType).FieldTypes.Count, 'Script record element count mismatches saved count');
-                      for I := 0 to ElemCount - 1 do
-                      begin
-                        Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
-                        LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
-                      end;
+                  end;
+    btRecord:     begin
+                    LoadStream.Read(ElemCount);
+                    Assert(ElemCount = TPSTypeRec_Record(aType).FieldTypes.Count, 'Script record element count mismatches saved count');
+                    for I := 0 to ElemCount - 1 do
+                    begin
+                      Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
+                      LoadVar(LoadStream, Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
                     end;
-      btSet:        begin
-                      LoadStream.Read(ElemCount);
-                      Assert(ElemCount = TPSTypeRec_Set(aType).RealSize, 'Script set element count mismatches saved count');
-                      LoadStream.Read(Src^, ElemCount);
-                    end;
-      //Already checked and reported as an error in LinkRuntime, no need to crash it here
-      //else Assert(False);
-    end;
+                  end;
+    btSet:        begin
+                    LoadStream.Read(ElemCount);
+                    Assert(ElemCount = TPSTypeRec_Set(aType).RealSize, 'Script set element count mismatches saved count');
+                    LoadStream.Read(Src^, ElemCount);
+                  end;
+    //Already checked and reported as an error in LinkRuntime, no need to crash it here
+    //else Assert(False);
   end;
+end;
 
+
+procedure TKMScripting.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
   V: PIFVariant;
@@ -854,6 +877,7 @@ begin
   LoadStream.ReadW(fActions.SFXPath);
 
   LoadStream.ReadHugeString(fScriptCode);
+  LoadStream.ReadA(fCampaignDataTypeCode);
 
   if fScriptCode <> '' then
     CompileScript;
@@ -864,62 +888,85 @@ begin
   for I := 0 to fExec.GetVarCount - 1 do
   begin
     V := fExec.GetVarNo(I);
-    LoadVar(@PPSVariantData(V).Data, V.FType);
+    LoadVar(LoadStream, @PPSVariantData(V).Data, V.FType);
+  end;
+end;
+
+
+procedure TKMScripting.LoadCampaignData(LoadStream: TKMemoryStream);
+var
+  I: Integer;
+  V: PIFVariant;
+  S: AnsiString;
+begin
+  //Campaign data format might change. If so, do not load it
+  LoadStream.ReadA(S);
+  if S <> fCampaignDataTypeCode then
+    Exit;
+
+  for I := 0 to fExec.GetVarCount - 1 do
+  begin
+    V := fExec.GetVarNo(I);
+    if V.FType.ExportName = FastUppercase(CAMPAIGN_DATA_TYPE) then
+    begin
+      LoadVar(LoadStream, @PPSVariantData(V).Data, V.FType);
+      Exit;
+    end;
+  end;
+end;
+
+
+procedure TKMScripting.SaveVar(SaveStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
+var
+  ElemCount: Integer;
+  I: Integer;
+  Offset: Cardinal;
+begin
+  //See uPSRuntime line 1630 for algo idea
+  case aType.BaseType of
+    btU8:            SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
+    btS32:           SaveStream.Write(tbts32(Src^)); //Integer
+    btSingle:        SaveStream.Write(tbtsingle(Src^));
+    btString:        SaveStream.WriteA(tbtString(Src^));
+    btStaticArray:begin
+                    ElemCount := TPSTypeRec_StaticArray(aType).Size;
+                    SaveStream.Write(ElemCount);
+                    for I := 0 to ElemCount - 1 do
+                    begin
+                      Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                      SaveVar(SaveStream, Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                    end;
+                  end;
+    btArray:      begin
+                    ElemCount := PSDynArrayGetLength(Pointer(Src^), aType);
+                    SaveStream.Write(ElemCount);
+                    for I := 0 to ElemCount - 1 do
+                    begin
+                      Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                      SaveVar(SaveStream, Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                    end;
+                  end;
+    btRecord:     begin
+                    ElemCount := TPSTypeRec_Record(aType).FieldTypes.Count;
+                    SaveStream.Write(ElemCount);
+                    for I := 0 to ElemCount - 1 do
+                    begin
+                      Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
+                      SaveVar(SaveStream, Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
+                    end;
+                  end;
+    btSet:        begin
+                    ElemCount := TPSTypeRec_Set(aType).RealSize;
+                    SaveStream.Write(ElemCount);
+                    SaveStream.Write(Src^, ElemCount);
+                  end;
+    //Already checked and reported as an error in LinkRuntime, no need to crash it here
+    //else Assert(False);
   end;
 end;
 
 
 procedure TKMScripting.Save(SaveStream: TKMemoryStream);
-
-  procedure SaveVar(Src: Pointer; aType: TPSTypeRec);
-  var
-    ElemCount: Integer;
-    I: Integer;
-    Offset: Cardinal;
-  begin
-    //See uPSRuntime line 1630 for algo idea
-    case aType.BaseType of
-      btU8:            SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
-      btS32:           SaveStream.Write(tbts32(Src^)); //Integer
-      btSingle:        SaveStream.Write(tbtsingle(Src^));
-      btString:        SaveStream.WriteA(tbtString(Src^));
-      btStaticArray:begin
-                      ElemCount := TPSTypeRec_StaticArray(aType).Size;
-                      SaveStream.Write(ElemCount);
-                      for I := 0 to ElemCount - 1 do
-                      begin
-                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
-                        SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
-                      end;
-                    end;
-      btArray:      begin
-                      ElemCount := PSDynArrayGetLength(Pointer(Src^), aType);
-                      SaveStream.Write(ElemCount);
-                      for I := 0 to ElemCount - 1 do
-                      begin
-                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
-                        SaveVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
-                      end;
-                    end;
-      btRecord:     begin
-                      ElemCount := TPSTypeRec_Record(aType).FieldTypes.Count;
-                      SaveStream.Write(ElemCount);
-                      for I := 0 to ElemCount - 1 do
-                      begin
-                        Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
-                        SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
-                      end;
-                    end;
-      btSet:        begin
-                      ElemCount := TPSTypeRec_Set(aType).RealSize;
-                      SaveStream.Write(ElemCount);
-                      SaveStream.Write(Src^, ElemCount);
-                    end;
-      //Already checked and reported as an error in LinkRuntime, no need to crash it here
-      //else Assert(False);
-    end;
-  end;
-
 var
   I: Integer;
   V: PIFVariant;
@@ -931,13 +978,32 @@ begin
 
   //Write script code
   SaveStream.WriteHugeString(fScriptCode);
+  SaveStream.WriteA(fCampaignDataTypeCode);
 
   //Write script global variables
   SaveStream.Write(fExec.GetVarCount);
   for I := 0 to fExec.GetVarCount - 1 do
   begin
     V := fExec.GetVarNo(I);
-    SaveVar(@PPSVariantData(V).Data, V.FType);
+    SaveVar(SaveStream, @PPSVariantData(V).Data, V.FType);
+  end;
+end;
+
+
+procedure TKMScripting.SaveCampaignData(SaveStream: TKMemoryStream);
+var
+  I: Integer;
+  V: PIFVariant;
+begin
+  SaveStream.WriteA(fCampaignDataTypeCode);
+  for I := 0 to fExec.GetVarCount - 1 do
+  begin
+    V := fExec.GetVarNo(I);
+    if V.FType.ExportName = FastUppercase(CAMPAIGN_DATA_TYPE) then
+    begin
+      SaveVar(SaveStream, @PPSVariantData(V).Data, V.FType);
+      Exit;
+    end;
   end;
 end;
 

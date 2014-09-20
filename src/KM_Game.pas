@@ -12,7 +12,7 @@ uses
   KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_MapEditor, KM_Networking, KM_Scripting, KM_Campaigns,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
-  KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts;
+  KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts, KM_CommonClasses;
 
 type
   TGameMode = (
@@ -83,7 +83,7 @@ type
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
     destructor Destroy; override;
 
-    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
+    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: UnicodeString);
 
@@ -154,6 +154,7 @@ type
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: UnicodeString);
     {$ENDIF}
     procedure ReplayInconsistancy;
+    procedure SaveCampaignScriptData(SaveStream: TKMemoryStream);
 
     procedure Render(aRender: TRender);
     procedure UpdateGame(Sender: TObject);
@@ -171,7 +172,7 @@ var
 
 implementation
 uses
-  KM_CommonClasses, KM_Log, KM_Utils,
+  KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
   KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound, KM_ScriptingESA,
@@ -292,7 +293,7 @@ end;
 
 
 //New mission
-procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
+procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
     mpm_Single, mpm_Multi, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
@@ -301,13 +302,18 @@ var
   ParseMode: TMissionParsingMode;
   PlayerEnabled: TPlayerEnabledArray;
   Parser: TMissionParserStandard;
+  CampaignData: TKMemoryStream;
+  CampaignDataTypeFile: UnicodeString;
 begin
   gLog.AddTime('GameStart');
   Assert(fGameMode in [gmMulti, gmMultiSpectate, gmMapEd, gmSingle]);
 
   fGameName := aGameName;
   fGameMapCRC := aCRC;
-  fCampaignName := aCampName;
+  if aCampaign <> nil then
+    fCampaignName := aCampaign.CampaignId
+  else
+    fCampaignName := NO_CAMPAIGN;
   fCampaignMap := aCampMap;
   fMissionFile := ExtractRelativePath(ExeDir, aMissionFile);
   fSaveFile := '';
@@ -388,7 +394,19 @@ begin
 
   if fGameMode <> gmMapEd then
   begin
-    fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'));
+    if aCampaign <> nil then
+    begin
+      CampaignData := aCampaign.ScriptData;
+      CampaignData.Seek(0, soBeginning); //Seek to the beginning before we read it
+      CampaignDataTypeFile := aCampaign.ScriptDataTypeFile;
+    end
+    else
+    begin
+      CampaignData := nil;
+      CampaignDataTypeFile := '';
+    end;
+
+    fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
     if (fScripting.ErrorString <> '') then
       fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in script:|' + fScripting.ErrorString);
   end;
@@ -1252,6 +1270,12 @@ begin
 end;
 
 
+procedure TKMGame.SaveCampaignScriptData(SaveStream: TKMemoryStream);
+begin
+  fScripting.SaveCampaignData(SaveStream);
+end;
+
+
 procedure TKMGame.Load(const aPathName: UnicodeString);
 var
   LoadStream: TKMemoryStream;
@@ -1384,7 +1408,6 @@ begin
 
   //When everything is ready we can update UI
   fActiveInterface.SyncUI;
-  OverlayUpdate;
 
   if SaveIsMultiplayer then
   begin

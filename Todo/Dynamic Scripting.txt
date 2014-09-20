@@ -78,9 +78,12 @@ Implemented:
  6587	OnUnitAttacked
  6587	States.MapTileType, States.MapTileRotation, States.MapTileHeight, States.MapTileObject
  6587	Actions.MapTileSet, Actions.MapTileHeightSet, Actions.MapTileObjectSet
+ 6600	CampaignData for storing data between campaign missions
 
 
 Accepted:
+	ConnectedByRoad(X1, Y1, X2, Y2): Boolean
+	ConnectedByWalking(X1, Y1, X2, Y2): Boolean
 	OnGroupOrderAttackHouse(aGroup, aHouse: integer)
 	OnGroupOrderAttackUnit(aGroup, aUnit: integer)
 	OnGroupOrderLink(aOldGroup, aNewGroup: integer)
@@ -99,7 +102,6 @@ Proposed:
 	DelayedExecution(delay, function, params)
 	Forbidden areas where players can't move their troops
 	Way to remove recruits directly from barracks
-	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	HousePlanType(aPlanID), returns the type of the house plan.
@@ -118,7 +120,6 @@ Proposed:
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
-	Allow storing data between campaign missions somehow (without breaking replays)
 
 
 Rejected:	

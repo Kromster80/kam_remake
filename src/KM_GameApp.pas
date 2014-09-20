@@ -30,7 +30,7 @@ type
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(aFilePath: UnicodeString; aGameMode: TGameMode);
-    procedure LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaignName: TKMCampaignId; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
+    procedure LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
   public
@@ -374,21 +374,29 @@ begin
     fNetworking.Disconnect;
   end;
 
+  if aMsg in [gr_Win, gr_Defeat, gr_Cancel, gr_Silent] then
+  begin
+    //If the game was a part of a campaign, select that campaign,
+    //so we know which menu to show next and unlock next map
+    fCampaigns.SetActive(fCampaigns.CampaignById(gGame.CampaignName), gGame.CampaignMap);
+
+    if fCampaigns.ActiveCampaign <> nil then
+    begin
+      //Always save campaign data, even if the player lost (scripter can choose when to modify it)
+      fCampaigns.ActiveCampaign.ScriptData.Clear;
+      gGame.SaveCampaignScriptData(fCampaigns.ActiveCampaign.ScriptData);
+
+      if aMsg = gr_Win then
+        fCampaigns.UnlockNextMap;
+    end;
+  end;
+
   case aMsg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
-                    begin
-                      //If the game was a part of a campaign, select that campaign,
-                      //so we know which menu to show next and unlock next map
-                      fCampaigns.SetActive(fCampaigns.CampaignById(gGame.CampaignName), gGame.CampaignMap);
-
-                      if (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti]) or MP_RESULTS_IN_SP then
-                        fMainMenuInterface.ShowResultsMP(aMsg)
-                      else
-                        fMainMenuInterface.ShowResultsSP(aMsg);
-
-                      if (aMsg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
-                        fCampaigns.UnlockNextMap;
-                    end;
+                    if (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti]) or MP_RESULTS_IN_SP then
+                      fMainMenuInterface.ShowResultsMP(aMsg)
+                    else
+                      fMainMenuInterface.ShowResultsSP(aMsg);
     gr_Error, gr_Disconnect:
                     fMainMenuInterface.PageChange(gpError, aTextMsg);
     gr_Silent:      ;//Used when loading new savegame from gameplay UI
@@ -462,7 +470,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaignName: TKMCampaignId; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
+procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
 var
   LoadError: UnicodeString;
 begin
@@ -475,7 +483,7 @@ begin
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    gGame.GameStart(aMissionFile, aGameName, aCRC, aCampaignName, aMap, aDesiredLoc, aDesiredColor);
+    gGame.GameStart(aMissionFile, aGameName, aCRC, aCampaign, aMap, aDesiredLoc, aDesiredColor);
   except
     on E : Exception do
     begin
@@ -530,13 +538,13 @@ end;
 
 procedure TKMGameApp.NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
 begin
-  LoadGameFromScript(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap), 0, aCampaign.CampaignId, aMap, gmSingle, -1, 0);
+  LoadGameFromScript(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap), 0, aCampaign, aMap, gmSingle, -1, 0);
 end;
 
 
 procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
 begin
-  LoadGameFromScript(aMissionFile, aGameName, 0, NO_CAMPAIGN, 0, gmSingle, aDesiredLoc, aDesiredColor);
+  LoadGameFromScript(aMissionFile, aGameName, 0, nil, 0, gmSingle, aDesiredLoc, aDesiredColor);
 end;
 
 
@@ -554,7 +562,7 @@ begin
     GameMode := gmMultiSpectate
   else
     GameMode := gmMulti;
-  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', aMapFolder), aFileName, aCRC, NO_CAMPAIGN, 0, GameMode, 0, 0);
+  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', aMapFolder), aFileName, aCRC, nil, 0, GameMode, 0, 0);
 
   //Starting the game might have failed (e.g. fatal script error)
   if gGame <> nil then
@@ -584,7 +592,7 @@ end;
 procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave: UnicodeString; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
 begin
   if FileExists(ExeDir + aMission) then
-    LoadGameFromScript(ExeDir + aMission, aGameName, 0, aCampName, aCampMap, gmSingle, aLocation, aColor)
+    LoadGameFromScript(ExeDir + aMission, aGameName, 0, fCampaigns.CampaignById(aCampName), aCampMap, gmSingle, aLocation, aColor)
   else
   if FileExists(ChangeFileExt(ExeDir + aSave, '.bas')) then
     LoadGameFromSave(ChangeFileExt(ExeDir + aSave, '.bas'), gmSingle)
@@ -602,7 +610,7 @@ end;
 procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
 begin
   if aFileName <> '' then
-    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), 0, NO_CAMPAIGN, 0, gmMapEd, 0, 0)
+    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), 0, nil, 0, gmMapEd, 0, 0)
   else
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
 end;
