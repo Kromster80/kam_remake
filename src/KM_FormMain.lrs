@@ -124,18 +124,17 @@ LazarusResources.Add('TFormMain','FORMDATA',[
   +'Units.rx'#7'OnClick'#7#19'Export_UnitsRXClick'#0#0#9'TMenuItem'#12'Export_G'
   +'UIRX'#7'Caption'#6#6'GUI.rx'#7'OnClick'#7#15'Export_GUIClick'#0#0#9'TMenuIt'
   +'em'#16'Export_GUIMainRX'#7'Caption'#6#11'GUI Main.rx'#7'OnClick'#7#21'Expor'
-  +'t_GUIMainRXClick'#0#0#9'TMenuItem'#15'Export_GUIMainH'#7'Caption'#6#12'GUI '
-  +'MainH.rx'#7'OnClick'#7#22'Export_GUIMainHRXClick'#0#0#9'TMenuItem'#14'Expor'
-  +'t_Tileset'#7'Caption'#6#7'Tileset'#7'OnClick'#7#19'Export_TilesetClick'#0#0
-  +#0#9'TMenuItem'#9'AnimData1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'
-  +#16'Export_TreeAnim1'#7'Caption'#6#9'Tree Anim'#7'OnClick'#7#21'Export_TreeA'
-  ,'nim1Click'#0#0#9'TMenuItem'#17'Export_HouseAnim1'#7'Caption'#6#10'House Ani'
-  +'m'#7'OnClick'#7#22'Export_HouseAnim1Click'#0#0#9'TMenuItem'#16'Export_UnitA'
-  +'nim1'#7'Caption'#6#9'Unit Anim'#7'OnClick'#7#21'Export_UnitAnim1Click'#0#0#9
-  +'TMenuItem'#2'N2'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#15'ResourceValues1'#7'C'
-  +'aption'#6#15'Resource Values'#7'OnClick'#7#20'ResourceValues1Click'#0#0#9'T'
-  +'MenuItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver lists'#7
-  +'OnClick'#7#25'Export_Deliverlists1Click'#0#0#9'TMenuItem'#10'HousesDat1'#7
-  +'Caption'#6#10'Houses Dat'#7'OnClick'#7#15'HousesDat1Click'#0#0#0#9'TMenuIte'
-  +'m'#6'About1'#7'Caption'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#0
+  +'t_GUIMainRXClick'#0#0#9'TMenuItem'#14'Export_Tileset'#7'Caption'#6#7'Tilese'
+  +'t'#7'OnClick'#7#19'Export_TilesetClick'#0#0#0#9'TMenuItem'#9'AnimData1'#7'C'
+  +'aption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#16'Export_TreeAnim1'#7'Caption'
+  +#6#9'Tree Anim'#7'OnClick'#7#21'Export_TreeAnim1Click'#0#0#9'TMenuItem'#17'E'
+  +'xport_HouseAnim1'#7'Caption'#6#10'House Anim'#7'OnClick'#7#22'Export_HouseA'
+  ,'nim1Click'#0#0#9'TMenuItem'#16'Export_UnitAnim1'#7'Caption'#6#9'Unit Anim'#7
+  +'OnClick'#7#21'Export_UnitAnim1Click'#0#0#9'TMenuItem'#2'N2'#7'Caption'#6#1
+  +'-'#0#0#9'TMenuItem'#15'ResourceValues1'#7'Caption'#6#15'Resource Values'#7
+  +'OnClick'#7#20'ResourceValues1Click'#0#0#9'TMenuItem'#20'Export_Deliverlists'
+  +'1'#7'Caption'#6#20'Export Deliver lists'#7'OnClick'#7#25'Export_Deliverlist'
+  +'s1Click'#0#0#9'TMenuItem'#10'HousesDat1'#7'Caption'#6#10'Houses Dat'#7'OnCl'
+  +'ick'#7#15'HousesDat1Click'#0#0#0#9'TMenuItem'#6'About1'#7'Caption'#6#7'Abou'
+  +'t..'#7'OnClick'#7#10'AboutClick'#0#0#0#0
 ]);

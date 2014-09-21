@@ -485,10 +485,6 @@ object FormMain: TFormMain
           Caption = 'GUI Main.rx'
           OnClick = Export_GUIMainRXClick
         end
-        object Export_GUIMainH: TMenuItem
-          Caption = 'GUI MainH.rx'
-          OnClick = Export_GUIMainHRXClick
-        end
         object Export_Tileset: TMenuItem
           Caption = 'Tileset'
           OnClick = Export_TilesetClick
