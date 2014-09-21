@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
-  KM_CommonClasses, KM_Defaults, KM_FileIO,
+  KM_CommonClasses, KM_Defaults, KM_FileIO, KM_CommonTypes,
   KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
 
   //Dynamic scripts allow mapmakers to control the mission flow
@@ -32,7 +32,7 @@ type
     procedure SaveVar(SaveStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
     procedure LoadVar(LoadStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
   public
-    constructor Create;
+    constructor Create(aOnShowScriptError: TUnicodeStringEvent);
     destructor Destroy; override;
 
     property ErrorString: UnicodeString read fErrorString;
@@ -67,14 +67,18 @@ uses KM_Log;
 
 
 { TKMScripting }
-constructor TKMScripting.Create;
+constructor TKMScripting.Create(aOnShowScriptError: TUnicodeStringEvent);
 begin
-  inherited;
+  inherited Create;
   fExec := TPSExec.Create;  // Create an instance of the executer.
   fIDCache := TKMScriptingIdCache.Create;
   gScriptEvents := TKMScriptEvents.Create(fExec, fIDCache);
   fStates := TKMScriptStates.Create(fIDCache);
   fActions := TKMScriptActions.Create(fIDCache);
+
+  gScriptEvents.OnShowScriptError := aOnShowScriptError;
+  fStates.OnScriptError := gScriptEvents.HandleScriptError;
+  fActions.OnScriptError := gScriptEvents.HandleScriptError;
 end;
 
 

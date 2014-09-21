@@ -97,6 +97,7 @@ type
     procedure PlayerDefeat(aPlayerIndex: THandIndex);
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
+    procedure ShowScriptError(const aMsg: UnicodeString);
 
     procedure AutoSave(aTimestamp: TDateTime);
     procedure SaveMapEditor(const aPathName: UnicodeString);
@@ -227,7 +228,7 @@ begin
   gLog.AddTime('<== Game creation is done ==>');
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
-  fScripting := TKMScripting.Create;
+  fScripting := TKMScripting.Create(ShowScriptError);
 
   case PathFinderToUse of
     0:    fPathfinding := TPathfindingAStarOld.Create;
@@ -953,6 +954,12 @@ begin
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
   S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
   fGamePlayInterface.MessageIssue(aKind, S, aLoc);
+end;
+
+
+procedure TKMGame.ShowScriptError(const aMsg: UnicodeString);
+begin
+  fGamePlayInterface.MessageIssue(mkQuill, aMsg);
 end;
 
 
