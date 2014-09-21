@@ -1528,6 +1528,9 @@
       </Options>
     </Linking>
     <Other>
+      <Verbosity>
+        <ShowHints Value="False"/>
+      </Verbosity>
       <CompilerMessages>
         <IgnoredMessages idx4055="True" idx4056="True"/>
         <UseMsgFile Value="True"/>
