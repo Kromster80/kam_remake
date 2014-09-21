@@ -157,23 +157,25 @@ end;
 
 procedure TKMCampaignsCollection.SortCampaigns;
 
-  function Compare(Item1: Pointer; Item2: Pointer): Integer;
-  var A, B: TKMCampaign;
+  //Return True if items should be exchanged
+  function Compare(A, B: TKMCampaign): Boolean;
   begin
-    A := TKMCampaign(Item1);
-    B := TKMCampaign(Item2);
     //TSK is first
-    if      A.CampName = 'TSK' then Result := -1
-    else if B.CampName = 'TSK' then Result := 1
+    if      A.CampName = 'TSK' then Result := False
+    else if B.CampName = 'TSK' then Result := True
     //TPR is second
-    else if A.CampName = 'TPR' then Result := -1
-    else if B.CampName = 'TPR' then Result := 1
+    else if A.CampName = 'TPR' then Result := False
+    else if B.CampName = 'TPR' then Result := True
     //Others are left in existing order (alphabetical)
-    else                            Result := 0;
+    else                            Result := False;
   end;
 
+var I, K: Integer;
 begin
-  fList.Sort(@Compare);
+  for I := 0 to Count - 1 do
+    for K := I to Count - 1 do
+      if Compare(Campaigns[I], Campaigns[K]) then
+        SwapInt(NativeUInt(fList.List[I]), NativeUInt(fList.List[K]));
 end;
 
 
