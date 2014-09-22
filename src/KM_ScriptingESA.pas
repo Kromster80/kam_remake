@@ -158,6 +158,7 @@ type
 
     function KaMRandom: Single;
     function KaMRandomI(aMax: Integer): Integer;
+    function LocationCount: Integer;
 
     function MapTileType(X, Y: Integer): Integer;
     function MapTileRotation(X, Y: Integer): Integer;
@@ -2099,6 +2100,17 @@ begin
   try
     //No parameters to check, any integer is fine (even negative)
     Result := KM_Utils.KaMRandom(aMax);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+function TKMScriptStates.LocationCount: Integer;
+begin
+  try
+    Result := gHands.Count;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

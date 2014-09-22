@@ -81,6 +81,7 @@ Implemented:
  6600	CampaignData for storing data between campaign missions
  6602	States.ConnectedByRoad(X1, Y1, X2, Y2): Boolean
  6602	States.ConnectedByWalking(X1, Y1, X2, Y2): Boolean
+ 6611	States.LocationCount: Integer
 
 
 Accepted:

@@ -34,7 +34,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
   OpenDialog1.InitialDir := ExtractFilePath(Application.ExeName);
-  fScripting := TKMScripting.Create;
+  fScripting := TKMScripting.Create(nil);
 end;
 
 
@@ -46,6 +46,7 @@ end;
 
 
 procedure TForm1.btnValidateClick(Sender: TObject);
+var CampaignFile: UnicodeString;
 begin
   if not FileExists(Edit1.Text) then
   begin
@@ -53,7 +54,8 @@ begin
     Exit;
   end;
 
-  fScripting.LoadFromFile(Edit1.Text);
+  CampaignFile := ExtractFilePath(Edit1.Text) + '..\campaigndata.script';
+  fScripting.LoadFromFile(Edit1.Text, CampaignFile, nil);
   Memo1.Text := StringReplace(fScripting.ErrorString, '|', #13#10, [rfReplaceAll]);
   if Memo1.Text = '' then
     Memo1.Text := 'No errors :)';
