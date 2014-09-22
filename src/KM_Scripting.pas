@@ -483,7 +483,7 @@ begin
   finally
     Compiler.Free;
   end;
-              Compiler.AllowDuplicateRegister
+
   LinkRuntime;
 end;
 
