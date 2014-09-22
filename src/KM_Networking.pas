@@ -495,7 +495,7 @@ begin
                 PacketSend(Recipient, mk_SaveSelect, M);
               end;
     ngk_Map:  begin
-                M.WriteW(fMapInfo.FileName);
+                M.WriteW(fMapInfo.FileNameWithoutHash);
                 M.Write(fMapInfo.CRC);
                 PacketSend(Recipient, mk_MapSelect, M);
               end;
@@ -1699,10 +1699,8 @@ begin
                 fMapInfo := TKMapInfo.Create(tmpStringW, True, mfMP);
                 if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
                 begin
-                  //Append CRC to map name if it isn't there already
-                  if RightStr(tmpStringW, 9) <> '_' + IntToHex(Integer(tmpCRC), 8) then
-                    tmpStringW := tmpStringW + '_' + IntToHex(Integer(tmpCRC), 8);
-
+                  //Append CRC to map name
+                  tmpStringW := tmpStringW + '_' + IntToHex(Integer(tmpCRC), 8);
                   fMapInfo := TKMapInfo.Create(tmpStringW, True, mfDL);
                   if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
                     FreeAndNil(fMapInfo);
@@ -2070,7 +2068,7 @@ begin
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 
   case fSelectGameKind of
-    ngk_Map:  fOnStartMap(fMapInfo.FileName, fMapInfo.MapFolder, fMapInfo.CRC, fNetPlayers[fMyIndex].IsSpectator);
+    ngk_Map:  fOnStartMap(fMapInfo.FileNameWithoutHash, fMapInfo.MapFolder, fMapInfo.CRC, fNetPlayers[fMyIndex].IsSpectator);
     ngk_Save: fOnStartSave(fSaveInfo.FileName, fNetPlayers[fMyIndex].IsSpectator);
     else      Assert(False);
   end;

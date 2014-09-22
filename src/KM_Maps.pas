@@ -140,6 +140,8 @@ type
 
     class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string; overload;
+    class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder; aCRC: Cardinal): string; overload;
+    class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
 
     procedure Refresh(aOnRefresh: TNotifyEvent);
@@ -533,7 +535,9 @@ end;
 
 function TKMapInfo.FileNameWithoutHash: UnicodeString;
 begin
-  if (Length(FileName) > 9) and (FileName[Length(FileName)-8] = '_') then
+  if (fMapFolder = mfDL) and (Length(FileName) > 9)
+  and (FileName[Length(FileName)-8] = '_')
+  and (IntToHex(fCRC, 8) = RightStr(FileName, 8)) then
     Result := LeftStr(FileName, Length(FileName)-9)
   else
     Result := FileName;
@@ -600,6 +604,16 @@ begin
   //by another thread before the caller uses it.
   Assert(InRange(aIndex, 0, fCount - 1));
   Result := fMaps[aIndex];
+end;
+
+
+class function TKMapsCollection.GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
+var S: UnicodeString;
+begin
+  S := aName + '_' + IntToHex(aCRC, 8);
+  Result := MAP_FOLDER[mfDL] + PathDelim + S + PathDelim + S + aExt;
+  if not FileExists(ExeDir + Result) then
+    Result := MAP_FOLDER[mfMP] + PathDelim + aName + PathDelim + aName + aExt;
 end;
 
 
@@ -853,6 +867,16 @@ begin
 end;
 
 
+class function TKMapsCollection.FullPath(const aName, aExt: string; aMapFolder: TMapFolder; aCRC: Cardinal): string;
+var S: UnicodeString;
+begin
+  S := aName;
+  if aMapFolder = mfDL then
+    S := S + '_' + IntToHex(Integer(aCRC), 8);
+  Result := FullPath(S, aExt, aMapFolder);
+end;
+
+
 class procedure TKMapsCollection.GetAllMapPaths(aExeDir: string; aList: TStringList);
 var
   I: Integer;
@@ -953,6 +977,14 @@ var
   Map: TKMapInfo;
 begin
   Map := TKMapInfo.Create(aPath, False, aFolder);
+
+  //Maps in the downloads folder must have correct hash appended for lobby logic to work
+  if (aFolder = mfDL) and (RightStr(aPath, 9) <> '_' + IntToHex(Map.CRC, 8)) then
+  begin
+    Map.Free;
+    Exit;
+  end;
+
   if SLOW_MAP_SCAN then
     Sleep(50);
   fOnMapAdd(Map);

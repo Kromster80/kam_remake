@@ -224,7 +224,6 @@ type
     fOnScriptError: TUnicodeStringEvent;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
-    SFXPath: UnicodeString;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
     constructor Create(aIDCache: TKMScriptingIdCache);
     property OnScriptError: TUnicodeStringEvent write fOnScriptError;
 
@@ -446,6 +445,7 @@ begin
       2: TKMScriptEvent2I(aProc)(aParams[0], aParams[1]);
       3: TKMScriptEvent3I(aProc)(aParams[0], aParams[1], aParams[2]);
       4: TKMScriptEvent4I(aProc)(aParams[0], aParams[1], aParams[2], aParams[3]);
+      else Assert(False);
     end;
   except
     on E: Exception do
@@ -3027,7 +3027,7 @@ begin
   try
     if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
-    fullFileName := ExeDir + Format(SFXPath, [aFileName]);
+    fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(Volume, 0, 1) then
@@ -3048,7 +3048,7 @@ begin
   try
     if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
-    fullFileName := ExeDir + Format(SFXPath, [aFileName]);
+    fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(Volume, 0, 1) then
@@ -3069,7 +3069,7 @@ begin
   try
     if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
-    fullFileName := ExeDir + Format(SFXPath, [aFileName]);
+    fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
@@ -3087,14 +3087,11 @@ end;
 
 
 function TKMScriptActions.PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
-var
-  FileName: UnicodeString;
 begin
   try
     Result := -1;
-    FileName := Format(SFXPath, [aFileName]);
     if InRange(Volume, 0, 1) then
-      Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(0,0), False, Volume, 0)
+      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(0,0), False, Volume, 0)
     else
       LogError('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
   except
@@ -3105,14 +3102,11 @@ end;
 
 
 function TKMScriptActions.PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word): Integer;
-var
-  FileName: UnicodeString;
 begin
   try
     Result := -1;
-    FileName := Format(SFXPath, [aFileName]);
     if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
-      Result := gLoopSounds.AddLoopSound(aPlayer, FileName, KMPoint(X,Y), True, Volume, Radius)
+      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(X,Y), True, Volume, Radius)
     else
       LogError('Actions.PlayWAVAtLocationLooped: ' + UnicodeString(aFileName), [X, Y]);
   except

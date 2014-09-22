@@ -19,7 +19,7 @@ Bugs:
  +	Returning to lobby with more than 2 spectators caused a crash
  +	Single maps menu: if there are many enemies their flags don't fit: http://i.imgur.com/h4xwK8o.jpg (EDIT: also happens for win/defeat conditions images, allies' flags)
  +	TSK and TPR should be at the top of the campaigns list (TSK then TPR)
-	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position
+ +	Fixed "Host's paused file does not match ours. Host might be attempting to cheat"
 
 Features:
  +	Add settings menu to map editor (for changing music, brightness, etc.)

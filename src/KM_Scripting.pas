@@ -98,8 +98,6 @@ begin
   fErrorString := '';
   fWarningsString := '';
 
-  //SFX files go in the same folder as the .script file
-  fActions.SFXPath := ChangeFileExt(ExtractRelativePath(ExeDir, aFileName), '.%s.wav');
   if not FileExists(aFileName) then
   begin
     gLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
@@ -485,7 +483,7 @@ begin
   finally
     Compiler.Free;
   end;
-
+              Compiler.AllowDuplicateRegister
   LinkRuntime;
 end;
 
@@ -883,9 +881,6 @@ var
   //TmpString: AnsiString;
 begin
   LoadStream.ReadAssert('Script');
-
-  LoadStream.ReadW(fActions.SFXPath);
-
   LoadStream.ReadHugeString(fScriptCode);
   LoadStream.ReadA(fCampaignDataTypeCode);
 
@@ -982,9 +977,6 @@ var
   V: PIFVariant;
 begin
   SaveStream.WriteA('Script');
-
-  //Write folder where SFX is stored
-  SaveStream.WriteW(fActions.SFXPath);
 
   //Write script code
   SaveStream.WriteHugeString(fScriptCode);

@@ -91,7 +91,7 @@ type
                         PlayingIndex: Integer; //Index into gSoundPlayer, or -1 if not playing
                         //Fields below are saved
                         ScriptIndex: Integer;
-                        FileName: UnicodeString;
+                        SoundName: AnsiString; //Just sound name, not the path
                         Volume: Single;
                         Radius: Single;
                         Attenuate: Boolean;
@@ -109,7 +109,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure UpdateState;
 
-    function AddLoopSound(aHandIndex: THandIndex; const aFile: UnicodeString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
+    function AddLoopSound(aHandIndex: THandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
     procedure RemoveLoopSound(aScriptIndex: Integer);
     procedure UpdateListener(X,Y: Single);
   end;
@@ -121,7 +121,7 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection;
+uses KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection, KM_Game;
 
 
 const
@@ -677,7 +677,7 @@ end;
 procedure TKMLoopSoundsManager.StartLoopSound(aIndex: Integer);
 var S: UnicodeString;
 begin
-  S := ExeDir + fSounds[aIndex].FileName;
+  S := ExeDir + gGame.GetScriptSoundFile(fSounds[aIndex].SoundName);
 
   //Silently ignore missing files
   if not FileExists(S) or not CanPlay(aIndex) then
@@ -696,7 +696,7 @@ begin
 end;
 
 
-function TKMLoopSoundsManager.AddLoopSound(aHandIndex: THandIndex; const aFile: UnicodeString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
+function TKMLoopSoundsManager.AddLoopSound(aHandIndex: THandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
 var NewIndex: Integer;
 begin
   Inc(fCount);
@@ -707,7 +707,7 @@ begin
 
   fSounds[NewIndex].ScriptIndex := fLastScriptIndex;
   fSounds[NewIndex].PlayingIndex := -1;
-  fSounds[NewIndex].FileName := aFile;
+  fSounds[NewIndex].SoundName := aSoundName;
   fSounds[NewIndex].Loc := aLoc;
   fSounds[NewIndex].Attenuate := aAttenuate;
   fSounds[NewIndex].Volume := aVolume;
@@ -750,7 +750,7 @@ begin
   for I := 0 to fCount-1 do
   begin
     SaveStream.Write(fSounds[I].ScriptIndex);
-    SaveStream.WriteW(fSounds[I].FileName);
+    SaveStream.WriteA(fSounds[I].SoundName);
     SaveStream.Write(fSounds[I].Volume);
     SaveStream.Write(fSounds[I].Radius);
     SaveStream.Write(fSounds[I].Attenuate);
@@ -769,7 +769,7 @@ begin
   for I := 0 to fCount-1 do
   begin
     LoadStream.Read(fSounds[I].ScriptIndex);
-    LoadStream.ReadW(fSounds[I].FileName);
+    LoadStream.ReadA(fSounds[I].SoundName);
     LoadStream.Read(fSounds[I].Volume);
     LoadStream.Read(fSounds[I].Radius);
     LoadStream.Read(fSounds[I].Attenuate);

@@ -562,7 +562,7 @@ begin
     GameMode := gmMultiSpectate
   else
     GameMode := gmMulti;
-  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', aMapFolder), aFileName, aCRC, nil, 0, GameMode, 0, 0);
+  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', aMapFolder, aCRC), aFileName, aCRC, nil, 0, GameMode, 0, 0);
 
   //Starting the game might have failed (e.g. fatal script error)
   if gGame <> nil then

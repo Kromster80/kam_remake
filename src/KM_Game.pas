@@ -58,7 +58,7 @@ type
     fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
-    fMissionFile: UnicodeString;   //Relative pathname to mission we are playing, so it gets saved to crashreport
+    fMissionFileSP: UnicodeString; //Relative pathname to mission we are playing, so it gets saved to crashreport. SP only, see GetMissionFile.
     fMissionMode: TKMissionMode;
 
     function ParseTextMarkup(aText: UnicodeString): UnicodeString;
@@ -127,8 +127,9 @@ type
     function PlayerColor: Cardinal;
 
     property GameMode: TGameMode read fGameMode;
-    property MissionFile: UnicodeString read fMissionFile;
     property SaveFile: UnicodeString read fSaveFile;
+    function GetMissionFile: UnicodeString;
+    function GetScriptSoundFile(const aSound: AnsiString): UnicodeString;
 
     property IsExiting: Boolean read fIsExiting;
     property IsPaused: Boolean read fIsPaused write fIsPaused;
@@ -316,7 +317,12 @@ begin
   else
     fCampaignName := NO_CAMPAIGN;
   fCampaignMap := aCampMap;
-  fMissionFile := ExtractRelativePath(ExeDir, aMissionFile);
+
+  if IsMultiplayer then
+    fMissionFileSP := '' //In MP map could be in DL or MP folder, so don't store path
+  else
+    fMissionFileSP := ExtractRelativePath(ExeDir, aMissionFile);
+
   fSaveFile := '';
   FreeAndNil(MySpectator); //In case somebody looks at it while parsing DAT, e.g. destroyed houses
 
@@ -632,9 +638,9 @@ begin
       gLog.AddTime('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message);
   end;
 
-  AttachFile(ExeDir + fMissionFile);
-  AttachFile(ExeDir + ChangeFileExt(fMissionFile, '.map')); //Try to attach the map
-  AttachFile(ExeDir + ChangeFileExt(fMissionFile, '.script')); //Try to attach the script
+  AttachFile(ExeDir + GetMissionFile);
+  AttachFile(ExeDir + ChangeFileExt(GetMissionFile, '.map')); //Try to attach the map
+  AttachFile(ExeDir + ChangeFileExt(GetMissionFile, '.script')); //Try to attach the script
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin
@@ -781,7 +787,7 @@ var
 begin
   fGameName := gResTexts[TX_MAPED_NEW_MISSION];
 
-  fMissionFile := '';
+  fMissionFileSP := '';
   fSaveFile := '';
 
   fMapEditor := TKMMapEditor.Create;
@@ -876,6 +882,22 @@ end;
 procedure TKMGame.RestartReplay;
 begin
   fGameApp.NewReplay(ChangeFileExt(ExeDir + fSaveFile, '.bas'));
+end;
+
+
+function TKMGame.GetMissionFile: UnicodeString;
+begin
+  if not IsMultiplayer then
+    Result := fMissionFileSP //In SP we store it
+  else
+    //In MP we can't store it since it will be MapsMP or MapsDL on different clients
+    Result := TKMapsCollection.GuessMPPath(fGameName, '.dat', fGameMapCRC);
+end;
+
+
+function TKMGame.GetScriptSoundFile(const aSound: AnsiString): UnicodeString;
+begin
+  Result := ChangeFileExt(GetMissionFile, '.' + UnicodeString(aSound) + '.wav')
 end;
 
 
@@ -1208,9 +1230,9 @@ begin
     SaveStream.Write(fCampaignName, SizeOf(TKMCampaignId));
     SaveStream.Write(fCampaignMap);
 
-    //We need to know which mission/savegame to try to restart
-    //(paths are relative and thus - MP safe)
-    SaveStream.WriteW(fMissionFile);
+    //We need to know which mission/savegame to try to restart. This is unused in MP
+    if not IsMultiplayer then
+      SaveStream.WriteW(fMissionFileSP);
 
     SaveStream.Write(fUIDTracker); //Units-Houses ID tracker
     SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
@@ -1340,9 +1362,9 @@ begin
   LoadStream.Read(fCampaignName, SizeOf(TKMCampaignId));
   LoadStream.Read(fCampaignMap);
 
-  //We need to know which mission/savegame to try to restart
-  //(paths are relative and thus - MP safe)
-  LoadStream.ReadW(fMissionFile);
+  //We need to know which mission/savegame to try to restart. This is unused in MP.
+  if not SaveIsMultiplayer then
+    LoadStream.ReadW(fMissionFileSP);
 
   LoadStream.Read(fUIDTracker);
   LoadStream.Read(LoadedSeed);
