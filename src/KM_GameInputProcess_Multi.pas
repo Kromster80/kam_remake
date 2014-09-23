@@ -418,7 +418,8 @@ var
 begin
   for I := aTick + 1 to aTick + fDelay do
   //If the network is not connected then we must send the commands later (fSent will remain false)
-  if (not fSent[I mod MAX_SCHEDULE]) and (fNetworking.Connected) then
+  if (not fSent[I mod MAX_SCHEDULE]) and fNetworking.Connected
+  and (fNetworking.NetGameState = lgs_Game) then //Don't send commands unless game is running normally
   begin
     if not fCommandIssued[I mod MAX_SCHEDULE] then
       fSchedule[I mod MAX_SCHEDULE, gGame.Networking.MyIndex].Clear; //No one has used it since last time through the ring buffer
