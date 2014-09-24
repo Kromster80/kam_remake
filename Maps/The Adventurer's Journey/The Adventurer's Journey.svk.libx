@@ -1,0 +1,133 @@
+﻿0:ROZPRÁVAČ : Ty Lothar, rytier, ktorý len nedávno dokončil svoj tréning, si bol predvolaný pred kráľa Clovisa, aby ti pridelil tvoju prvú úlohu. Kríza, ktorá zmieta celým kontinentom sa zhoršuje každým dňom a kráľovstvo ťa potrebuje! Tento list s kráľovskou pečaťou ti bol odovzdaný dnes ráno.
+1:ZASADENIE DEJA : Miesto kde sa práve nachádzaš, predstavuje interiér kráľovského paláca. Rytier, ktorého ovládaš, predstavuje tvoju hlavnú postavu, Lothara a zároveň všetkých tvojich vojakov. Pre začiatok ale začínaš bez armády.
+2:INŠTRUKTÁŽ : Aby si prehovoril s postavami, od ktorých budeš dostávať úlohy, musíš sa postaviť vedľa nich a príbeh bude pokračovať. Pri každej úlohe nasleduj dané inštrukcie. Kráľ ťa teraz očakáva v ľavej spodnej časti palácovej siene, chránený dvoma halapartníkmi. Choď teda k nemu. Hru často ukladaj a nezabudni vymazávať staré správy.
+3:Pozhováraj sa s kráľom Clovisom.
+4:Kráľ Clovis : Vitaj Lothar, náš nový rytier! Časy sú temné a preto tvoja úloha bude náročná, keďže si ešte stále mladý nováčik a v tomto boji už padlo mnoho skúsených rytierov. Vymenúvam ťa teda teraz za veliteľa malej armády.
+5:Kráľ Clovis : Môžeš teraz prejsť do náborových priestorov hradu, nachádzajúcich sa v poslednej miestnosti podzemnej chodby. Tam budeš môcť, samozrejme za peniaze, zverbovať patričnú armádu. Dávam ti teraz 1000 zlatých ale ak budeš dobre slúžiť kráľovstvu, dostaneš viac.
+6:Kráľ Clovis : Keď naverbuješ aspoň 15 vojakov, hoci aj viac, príď ku mne a ja ti zadám tvoju prvú úlohu!
+7:Kráľ Clovis ti povolil prístup do náborových priestorov,|nachádzajúcich sa v podzemí paláca.|Vráť sa k nemu, ak budeš mať naverbovaných aspoň 15 mužov.
+8:King Clovis : Skvelé! Vidím, že si už zhromaždil armádu! Dostali sme sťažnosť z rybárskej dediny. Jej obyvatelia požadujú, aby sme k nim niekoho poslali. To bude tvoja prvá úloha.
+9:King Clovis : Dedinčania sa vyhrážajú, že pokiaľ nikto nepríde, vzoprú sa nám. Je to teda dôležitá úloha. Ak v nej však uspeješ, tak to čo príde po nej, bude istotne ešte ťažšie.
+10:King Clovis : Choď do tej dediny a zisti, čo jej obyvateľov znepokojuje! Nachádza sa severovýchodne od hlavného mesta, hneď vedľa pobrežia.
+11:Kráľ Clovis ťa vyslal zistiť, čo sa deje|v rybárskej dedine severovýchodne|od hlavného mesta. Choď tam čo najrýchlejšie|ako len môžeš!
+12:Muž z lesného tábora : Zdravím ťa rytier, si na našej pôde, ale keďže si predstaviteľ zákona, si tu rešpektovaný. Avšak neočakávaj od nás voči tebe nijaké služby. Dianie v týchto končinách sa ťa vôbec netýka.
+13:Nahnevaný rybár : Poslali ťa z paláca? Konečne!! Časy sú pre roľníkov ťažké a mnohí hovoria o vzbure! Musíš konať tak rýchlo, ako to len dokážeš, inak sa kráľovstvo rozpadne na kusy!
+14:Nahnevaný rybár : Akurát tu máme jeden hlavný problém. Nejaký banditi si v lese vedľa hlavného mesta založili tábor. Keďže nám z hlavného mesta nikdy nepomohli, myslia si, že sú v bezpečí. To je ten hlavný dôvod, prečo rozložili svoj tábor tak blízko paláca!
+15:Nahnevaný rybár : Pomôž nám a pozabíjaj tých lúpežníkov! Ak sa ti to podarí, vrátime sa do práce pod podmienkou, že kráľ nám pomôže aj nabudúce a ty mu od nás doručíš správu. Choď a zabi tých zločincov!
+16:Dedinčania ťa poslali pozabíjať banditov|nachádzajúcich sa v lesnom tábore|severne od hlavného mesta. Zneškodni|ich a tábor zbor do základov!
+17:Bandit : Chceš na nás zaútočiť? Zomrieš teda, kráľov pes!!
+18:Bandit : Nie si prvý, kto chcel chrániť sedliakov. Poď a pridaj sa k ním!
+19:Mal by si opäť vyhľadať rybára a povedať mu o svojom úspechu. Vráť sa do dediny najrýchlejšie ako môžeš!
+20:Choď do dediny a porozprávaj|sa s rybárom.
+21:Rybár : Teda si uspel? Konečne máme od tých útokov banditov pokoj! Celá naša dedina je ti naveky vďačná Pane. Chcel by som s tebou ešte prebrať nejaké dôležité záležitosti.
+22:Rybár : Môžeš prosím ťa doručiť tento list kráľovi Clovisovi? Je to prosba mnohých obyvaťeľov z dedín na východe o zvýšenie počtu hliadok a venovanie nám väčšej pozornosti!
+23:Rybár : Nemôžeme ti poskytnúť nič okrem uistenia, že u nás budeš vždy vítaný!
+24:Choď opäť do paláca, doruč list od sedliakov|kráľovi Clovisovi a očakávaj ďalšie pokyny.
+25:Kráľ Clovis : Bol si v tej dedine? Banditi hovoríš... dobre, nechaj ma niečo si ujasniť. Pred mesiacom prišli banditi z druhého kontinentu plieniť naše kráľovstvo.
+26:Kráľ Clovis : Všetky dediny na západe boli napadnuté banditmi, poslali sme tam nakoniec armádu a v bojoch stratili mnoho skúsených rytierov. Týto banditi, ktroých si teraz zabil, museli byť pozostatkom ich armády.
+27:Kráľ Clovis : Je pravdou, že spočiatku sme dediny na západe vojensky nebránili, museli sme totiž pred nájazdmi brániť aj hlavné mesto. Pretože ak by bolo zničené, naše oslabené kráľovsktvo by upadlo do úplného chaosu!
+28:Kráľ Clovis : Ako iste vieš, tak vazal na východe, náš najväčší vazal, sa už rok snaží odtrhnúť od nášho kráľovstva! Obávam sa, že ak nám naozaj vyhlási vojnu, nastane koniec mieru, ktorý sme na kontinente udržiavali po dlhé desaťročia a taktiež aj v iných častiach vzplanie túha po vlastnom kráľovstve.
+29:Kráľ Clovis : Predtým ako sa postaráš o tohto vasala, mám pre teba jednu dôležitú úlohu. Nedostali sme denné hlásenie zo zlatých baní v južnej púšti na juhozápade kontinentu. Choď ta a zisti čo sa tam stalo!
+30:Kráľ Clovis : Čo sa týka tej žiadosti od sedliakov, súhlasím s ňou a pošlem stráže do každej dediny a taktiež počas celého roka znížim. Uistím sa ešte, či vedia o tom, že si mi tú žiadosť priniesol.
+31:ROZPRÁVAČ : Havnou autoritou krášovstva je osoba kráľa Clovisa a taktiež je reprezentovaná aj hlavným mestom. Sú však aj takí vazali, vládnuci v niektorých častiach kráľovstva, ktorý reprezentujú starobylé kmene kontinentu existujúce ešte pred jeho zjednotením.
+32:ROZPRÁVAČ : Vazal na východe je najväčším z celého kráľovstva. Je to veľmi dôležitá oblasť, dodávajúca množstvo zbraní celému kráľovstvu. Nedávno napätie dosiahlo maximum a vazal, vyhrážajúci sa kráľovi, prerušil obchod zo zvyškom kráľovstva.
+33:ROZPRÁVAČ : Púsť na juhozápade je známa pre svoje zláté bane. Od ostatných častí kráľovstva je síce dosť izolovaná ale tvorí dôležitú súčasť ekonomiky. Správca týchto pústnych baní každodenne posiela do paláca hlásenie.
+34:Choď do púšte a zisti, prečo sa hlásenie|zo zlatých baní nedostalo do paláca|Nachádzajú sa na juhozápade kontinentu.
+35:INŠTRUKTÁŽ : Pre napadnutie daného vojska sa musíš postaviť do blízkosti vojaka, ktorý ho reprezentuje. Aj teraz keď pôjdeš do lesného tábora, nepriateľa budeš napádať tak, že sa priblížiš do blízkosti každého banditu. Následne sa tvoji aj jeho vojaci ocitnú na bojisku. Pokiaľ bitku prehráš, hra sa skončila.
+36:INŠTRUKTÁŽ : Teraz môžeš už palác môžeš opustiť. Aby si sa dostal vonku, choď ku bránam paláca, ktoré sa nachádzajú úplne na vrchu siene (čierna plocha). Keď vyjdeš, späť sa môžeš vrátiť podídením ku vchodu do hradu.
+37:ZASADENIE DEJA : Keď prejdeš cez brány cez brány paláca, ocitneš sa na hlavnej mape. Táto mapa predstavuje celý svet tohto príbehu! Predstav si, že každý dom je skupinou domov a každý nevoľník je povozom alebo skupinou ľudí prevážajúcich tovar.
+38:ZASADENIE DEJA : Ocitneš sa v hlavnom meste, v| ktorom sa tento palác nachádza. Na hlavnej mape to tak síce vyzerá ale predstav si ho ako veľké mesto. Tvoja predstavivosť je tvojim najlepším priateľom, ako sa orientovať a ponoriť do tohto sveta. Tvoj rytier reprezentuje tvoju postavu Lothara spolu s tvojimi vojakmi.
+39:ROZPRÁVAČ : Na tomto svete sú dva kontinenty. Jeden je hniezdom banditov, kam sa už po generácie nikto iný ako zločinci neodvážil. Ten druhý je prosperujúcim kontinentom, pôvodne pozostávajúcim z mnohých znepriatelených kmeňov, medzi ktorými ale pred desaťročiami zavládol mier a zjednotili sa pod jedeho panovníka.
+40:ROZPRÁVAČ : Tomuto kontinentu, až donedávna bez vnútorných konfliktov, vládne kráľ. Panovali tu šťastné časy, až kým minulého roku vazalstvo na východe nezastavilo obchod so zvyškom kráľovstva. Ba čo viac, pred mesiacom sem začali prúdiť banditi zo susedného kontinentu. Tieto dva kontinenty sú spojené podvodným tunelom.
+41:ROZPRÁVAČ : Počas bitky, a po nej na telách vojakov ležiacich na zemi, si si všimol, že vojaci útočiaci na zlaté bane mali na sebe erb vazala z východu! Ihneď musíš informovať kráľa!
+42:Bol si napadnutý vojakmi vazala z|východu. Musíš informovať kráľa čo najskôr|ako to len bude možné!
+43:Kráľ Clovis : Vojaci východneho vazala vravíš? Opovážili sa napadnúť zlaté bane? Pošlem tam ako ochranu stráže zložené z mojich veteránov! Ty teraz budeš mať za úlohu niečo omnoho dôležitejšie.
+44:Zelenáč
+45:Strážca
+46:Kráľ Clovis : Na ďalšiu misiu budeš potrebovať viac a lepšie vyzbrojených vojakov. Týmto ti udeľujem vyšší rytiersky titul - strážca. Nech aj naďalej šlúžiš nášmu kráľovstvu tak, ako doteraz! A teraz choď do náborových priestorov pre nových vojakov.
+47:Kráľ Clovis : Povedzme si teraz niečo o tvojej misii. Potrebujem ťa, aby si zaútočil na hrad toho prekliateho Lorda Childeberta a doniesol mi ho živého, aby som ho mohol primäť k poslušnosti a obnoviť našu jednotu. Keďže vojna sa už stala skutočnosťou, som si istý, že sa bude ukrývať práve tam.
+48:Kráľ Clovis : Je to náročná úloha a ty by si si mohol pomyslieť, že ťa posielam, na smrť. Je to takmer pravda, ale nemôžem si dovoliť stratiť ani jedného z posledných piatich skusených rytierov a radných, ktroí budú potrební pre neskoršie znovunastolenie mieru.
+49:Kráľ Clovis : To je dôvod, prečo som vybral práve teba. Si ten najlepší spomedzi našich mladých rytierov a preukázal si schopnosť viesť armádu, preto sa tvojho neúspechu veľmi neobávam. Prines mi toho zradcu a dostane sa ti vysokej pocty. Ako pomoc ti dávam 580 zlatých.
+50:Ďaleko smerom na východ leží hrad|toho zradcu Lorda Childeberta! Zaútoč|na hrad a prines ho do hlavného mesta!
+51:Kráľ Clovis : Jeho hrad sa sa nachádza ďaleko vo východných končinách tohto kontinentu, nemôžeš ho minúť. Nezabudni doplniť armádne stavy. Veľa šťastia!
+52:INŠTRUKTÁŽ : Predať všetkých vojakov oddielu musíš nie len vtedy, keď doň chceš naverbovať iný typ vojakov ale aj vtedy, keď chceš naverbovať kvalitnejších! Príklad : naverboval si domobranu, ktorá už teraz nie je prístupná, pred nákupom bojovníkov s mečom ich teda všetkých musíš predať.
+53:ROZPRÁVAČ : Obliehanie bolo úspešné, vyplienil si hrad ale Lorda Childeberta si nenašiel. Ten zbabelec musel utiecť ešte pred tvojim príchodom! Túto smutnú správu musíš oznámiť kráľovi!
+54:Hrad si dobil ale Lorda Childeberta|si nenašiel. Oznám to kráľovi.
+55:Kráľ Clovis : Ten Lord Childebert ... nech sa skrýva hocikde, za svoje činy zaplatí!! Nepriniesol si mi zradcu ale to nebola tvoja chyba. Podarilo sa ti úspešne dobiť hrad, čo je ohromný vojenský úspech.
+56:Kráľ Clovis : Udelím ti nový titul, odteraz budeš Objaviteľ! Môžeš si naverbovať nových vojakov. Avšak mám pre teba aj zlé správy, banditi boli spozorovaní v tuneli medzi kontinentami. Musíš posilniť stráže a strážiť pri vchode do tunela!
+57:Kráľ Clovis : Veľa šťastia, Lothar. Tunel je neďaleko dediny, ktorá bola minulý mesiac vypálená behom útokov, juhovýchodne od hlavného mesta. Dám ti 1600 zlatých ako pomoc pre armádne účely. Nevchádzaj ešte teraz do tunela, iba pomáhaj strážam!
+58:Choď juhovýchodne od hlavného mesta|a nájdi vchod do tunela. Pomôž strážam|a pevne drž pozície!
+59:Strážca : Žiaľ, rytier, žiadam ťa, aby si nevstupoval do tunela, pretože na kráľov rozkaz bol uzavretý.
+60:Objaviteľ
+61:ROZPRÁVAČ : Ako si sa priblížil k tunelu, pochopil si, že stráže boli zabité. Okolie je pokojné až na tri tábory banditov, rozložené pri vchode do tunelu! Cítiš potrebu zničiť ich ... za kráľa!
+62:Stráže boli zabité, pomsti ich!|Znič tie tri armády banditov.
+63:Kráľ Clovis : Ešte raz ti ďakujem za pomoc pri ochrane kráľovstva, Lothar. Toto šialenstvo sa snáď nikdy neskončí ... Postarám sa teraz o zabezpečenie tunela tak, aby som si bol istý, že z neho nevyjde už žiaden bandit. Budem zaneprázdnený organizovaním obrany, mal by si sa porozprávať s mojim vojenským poradcom, Lordom Chilpéricom.
+64:Kráľ Clovis : Podľa našich zvedov, na západnej časti kontinentu ostali ešte poslední banditi, ktorí pravdepodobne patrili k skupine, ktorá minule zaútočila na tunel. Dávam ti 1100 zlatých ako pomoc pri tvojich úlohách.
+65:DÔLEŽITÉ : Lord Chilpéric sa nachádza tam, kam ťa posiela táto správa.
+66:Mal by si vyhľadať Lorda Chilpérica,|ktorý je v paláci, vedľa vstupu|do jeho podzemia.
+67:ROZPRÁVAČ : Podarilo sa ti odraziť banditov, tvoj panovník sa o tomto útoku musí dozvedieť! Rýchlo do paláca.
+68:Choď zo paláca a potozprávaj|sa s kráľom.
+69:Lord Chilpéric : Počul som už o tebe Lothar, javíš sa celkom sľubne; a práve preto ťa potrebujem, aby si pozabíjal ten bandití odpad! Niekoľko banditov je ešte stále v našom kráľovstve a to nesmie zostať nepotrestané. Máme o nich správy a vieme, kde sa nachádzajú.
+70:Lord Chilpéric : Na niektorých z nich sme už poslali rytierov ale na západnej strane kontinentu sa ešte stále nejaké skupiny vojakov nachádzajú. Jedna v púšti a dve na severozápade. Pobi ich do jedného!
+71:Máš zničiť tri skupiny banditov. Jedna je|v púšti a ďalšie dve na severozápade|kontinentu.
+72:Bandita : Zomri ty prekliaty rytier!
+73:ROZPRÁVAČ : Armády s ktorými si bojoval, tvorili banditi aj vojaci z armády Lorda Childeberta! Pozprávaj o svojich bojoch Lordovi Chilpéricovi.
+74:Lord Chilpéric potrebuje|hlásenie z tvojich bojov.
+75:Ochranca kráľovstva
+76:Lord Chilpéric : Zdá sa, že Lord Childebert sa chopil moci na onom kontinente a velí vojskám banditov! Musíme zastaviť toho prekliateho hlupáka ešte predtým, než bude neskoro. Prejdi cez tunel na druhý kontinent.
+77:Lord Chilpéric : Udeľujem ti medailu a titul Ochrancu kráľovstva. Si cťou pre našu armádu. Nazdávame sa, že Lord Childebert sa bude skrývať v jeho hrade, s dezorganizovanými vojakmi navôkol.
+78:Lord Chilpéric : Potrebujeme ťa v záverečnej boji, v ktorom zaútočíme všetci spoločne! Pokiaľ potrebuješ väčšiu armádu, môžeš na ňu zhromaždiť prostriedky útočením na tábory banditov, na ktoré cestou tam narazíš. Podľa správ v nich totiž ukrývajú zlato.
+79:Lord Chilpéric : Kedykoľvek, keď budeš pripravený, zaútoč na hrad. Následne dorazia posily, vedené našim samotným kráľom, ktoré ti pomôžu dolapiť a zabiť toho zradcu! Nezabudni využiť tých najlepších vojakov, akých sme ti poskytli.
+80:Zaútoč na hrad kedykoľvek, keď budeš|pripravený. Ak potrebuješ zlato, zaútoč na|tábory banditov, nachádzajúce sa v|tuneli a na druhom kontinente.
+81:VÝSLEDOK BITKY :||V tejto bitke si zarobil %d zlatých.|Celkovo si zabil %d nepriateľov.|Celkovo si stratil %d vojakov.
+82:[$%s]Bojové štatistiky : tvoji vojaci[]|
+83:1. oddiel : %d stratení %s z %d|
+84:1. oddiel : žiadni vojaci|
+85:2. oddiel : %d stratení %s z %d|
+86:2. oddiel : žiadni vojaci|
+87:3. oddiel : %d stratení %s z %d|
+88:3. oddiel : žiadni vojaci|
+89:4. oddiel : %d stratení %s z %d|
+90:4. oddiel : žiadni vojaci|
+91:[$%s]Bojové štatistiky : nepriateľskí vojaci[]|
+92:1. oddiel : %d zabití %s z %d|
+93:1. oddiel : žiadny vojaci|
+94:2. oddiel : %d zabití %s z %d|
+95:2. oddiel : žiadny vojaci|
+96:3. oddiel : %d zabití %s z %d|
+97:3. oddiel : žiadny vojaci|
+98:4. oddiel : %d zabití %s z %d|
+99:4. oddiel : žiadny vojaci|
+100:5. oddiel : %d zabití %s z %d|
+101:5. oddiel : žiadny vojaci|
+102:[$%s]Tvoje štatistiky[]|
+103:Zlatky : %d|
+104:Hodnosť : %s||
+105:[$%s]Tvoja armáda[]|
+106:1. oddiel : %s  %d/%d|
+107:2. oddiel : %s  %d/%d|
+108:3. oddiel : %s  %d/%d|
+109:4. oddiel : %s  %d/%d||
+110:[$%s]Hlavná úloha[]|%s||
+111:Vedľajšia úloha :|%s||
+112:Vedľajšia úloha :|%s||
+113:Žiadni vojaci
+114:Domobrana
+115:Lukostrelci
+116:Kopijníci
+117:Špehovia
+118:Rytieri
+119:Sekerníci
+120:Bojovníci s mečom
+121:Strelci z kuše
+122:Halpartníci
+123:Barbari
+124:Rebel
+125:Strelci z praku
+126:Bojovníci
+127:Tuláci
+128:INŠTRUKTÁŽ : Aby si naverboval vojakov, postav sa na cestičku nachádzajúcu sa pod každým typom jednotky. Každý riadok predstavuje iný armádny oddiel (1 až 4 zhora smerom dolu). Kováč kupuje späť jednotky daného oddielu. V jednom oddieli môže byť len jeden typ jednotky, t. j. pred zmenou typu jednotiek v oddieli musí byť daný oddiel prázdny.
+129:Každou sekundou strávenou na cestičke kúpiš alebo predáš jednu jednotku. Jednotky predávaš za kúpnu cenu. Pre zrýchlenie verbovania/predávania môžeš použiť klávesové skratky f5 f6 f7 f8.
+130:Cena domobrany : 20|Cena lukostrelca : 35|Cena kopijníka : 30|Cena špeha : 80|Cena sekerníka : 55
+131:Cena bojovníka s mečom : 110|Cena halapartníka : 100|Cena strelca z kuše : 80|Cena rytiera : 160
+132:INŠTRUKTÁŽ : Aby sa ti tieto správy zobrazili znovu, postav sa na niekoľko sekúnd na chodník krížujúci vstup do náborových priestorov.
