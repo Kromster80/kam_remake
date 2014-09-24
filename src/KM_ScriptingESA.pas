@@ -164,6 +164,8 @@ type
     function MapTileRotation(X, Y: Integer): Integer;
     function MapTileHeight(X, Y: Integer): Integer;
     function MapTileObject(X, Y: Integer): Integer;
+    function MapWidth: Integer;
+    function MapHeight: Integer;
 
     function MarketFromWare(aMarketID: Integer): Integer;
     function MarketLossFactor: Single;
@@ -2146,6 +2148,28 @@ begin
       Result := -1;
       LogError('States.MapTileRotation', [X, Y]);
     end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+function TKMScriptStates.MapWidth: Integer;
+begin
+  try
+    Result := gTerrain.MapX
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+function TKMScriptStates.MapHeight: Integer;
+begin
+  try
+    Result := gTerrain.MapY
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

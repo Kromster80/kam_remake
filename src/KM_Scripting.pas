@@ -208,6 +208,8 @@ begin
       RegisterMethod('function MapTileRotation(X, Y: Integer): Integer');
       RegisterMethod('function MapTileHeight(X, Y: Integer): Integer');
       RegisterMethod('function MapTileObject(X, Y: Integer): Integer');
+      RegisterMethod('function MapWidth: Integer');
+      RegisterMethod('function MapHeight: Integer');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
@@ -596,6 +598,8 @@ begin
       RegisterMethod(@TKMScriptStates.MapTileRotation,         'MAPTILEROTATION');
       RegisterMethod(@TKMScriptStates.MapTileHeight,           'MAPTILEHEIGHT');
       RegisterMethod(@TKMScriptStates.MapTileObject,           'MAPTILEOBJECT');
+      RegisterMethod(@TKMScriptStates.MapWidth,                'MAPWIDTH');
+      RegisterMethod(@TKMScriptStates.MapHeight,               'MAPHEIGHT');
 
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,    'PLAYERALLIANCECHECK');
       RegisterMethod(@TKMScriptStates.PlayerColorText,        'PLAYERCOLORTEXT');

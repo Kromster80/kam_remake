@@ -82,6 +82,8 @@ Implemented:
  6602	States.ConnectedByRoad(X1, Y1, X2, Y2): Boolean
  6602	States.ConnectedByWalking(X1, Y1, X2, Y2): Boolean
  6611	States.LocationCount: Integer
+ 6613	States.MapWidth: Integer
+ 6613	States.MapHeight: Integer
 
 
 Accepted:
