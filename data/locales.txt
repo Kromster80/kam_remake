@@ -20,7 +20,7 @@ pol,    Polish,               1250,     47,           ,                Przemysł
 rom,    Romanian,             1250,     66,           ,                mucormucedo
 rus,    Russian,              1251,     54,           ,                Krom
 srb,    Serbian,              1250,     80,           ,                Стефан Дробић (Davidturner) & Baqal
-svk,    Slovak,               1250,     52,           cze,             Róbert Marko
+svk,    Slovak,               1250,     52,           cze,             Róbert Marko & Jozef Müller (Launcelot)
 spa,    Spanish,              1252,     53,           ,                Óscar
 swe,    Swedish,              1252,     56,           ,                Edvin Linge
 tur,    Turkish,              1254,     76,           ,                Uğur Yıldırım
