@@ -1,5 +1,18 @@
 ====================================
-Since r6547 (RC 2)
+Since r6618 (RC 3)
+====================================
+
+Bugs:
+
+
+Features:
+	Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
+	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
+	Add more Unicode characters to fonts such as misc symbols (http://en.wikipedia.org/wiki/Miscellaneous_Symbols)
+
+
+====================================
+Fixed in r6618 (RC 3)
 ====================================
 
 Bugs:
