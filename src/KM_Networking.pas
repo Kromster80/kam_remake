@@ -1741,7 +1741,7 @@ begin
                   if fReturnedToLobby and (tmpStringW = RETURN_TO_LOBBY_SAVE) then
                   begin
                     //Host paused file doesn't match ours, host may be cheating!
-                    PostLocalMessage('Host''s paused file does not match ours. Host might be attempting to cheat', csSystem);
+                    PostLocalMessage(gResTexts[TX_PAUSED_FILE_MISMATCH], csSystem);
                     fSelectGameKind := ngk_None;
                     FreeAndNil(fSaveInfo);
                     if Assigned(fOnMapName) then fOnMapName('');

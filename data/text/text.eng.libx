@@ -779,3 +779,4 @@
 825:View Readme PDF
 826:Failed to launch PDF viewer
 827:Sets serfs count per 10 houses for specified AI player. Selected AI has %d houses
+828:Error: Host's paused file does not match local paused file. An error has occurred or the host might be attempting to cheat.

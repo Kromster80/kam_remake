@@ -193,8 +193,10 @@ var
   I, K: Integer;
   Sx, Sy: Word;
   Bx, By: Word;
-  hMem: THandle;
-  BufPtr: Pointer;
+  {$IFDEF WDC}
+    hMem: THandle;
+    BufPtr: Pointer;
+  {$ENDIF}
   BufferStream: TKMemoryStream;
 begin
   Sx := fSelectionRect.Right - fSelectionRect.Left;

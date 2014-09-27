@@ -780,6 +780,7 @@ TX_MAP_WRONG_VERSION = 640; //Map files do not match the host for the map: %s
 TX_SAVE_WRONG_VERSION = 641; //Save file does not match the host for the save: %s
 
 TX_REPLAY_FAILED = 642; //The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
+TX_PAUSED_FILE_MISMATCH = 828; //Error: Host's paused file does not match local paused file. An error has occurred or the host might be attempting to cheat.
 TX_MULTIPLE_INSTANCES = 643; //You may only have one instance of the game in multiplayer mode at once
 TX_ERROR_MODS = 644; //Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.
 TX_ERROR_MESSAGE = 645; //An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
