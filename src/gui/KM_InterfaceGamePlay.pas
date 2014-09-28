@@ -627,17 +627,19 @@ begin
   if not gTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
-  if (MySpectator.Selected is TKMUnitGroup) and not fJoiningGroups and not fPlacingBeacon
+  if (MySpectator.Selected is TKMUnitGroup) and not fPlacingBeacon
   and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
     Group := TKMUnitGroup(MySpectator.Selected);
-    if Group.CanWalkTo(Loc, 0) then
+    if Group.CanTakeOrders and (Group.Owner = MySpectator.HandIndex)
+    and Group.CanWalkTo(Loc, 0) then
     begin
       gGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, Loc, dir_NA);
       gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
     end;
   end;
-  if (MySpectator.Selected is TKMHouseBarracks) then
+  if (MySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
+  and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
     if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(MySpectator.Selected).GetEntrance), Loc, canWalk, 0) then
       gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(MySpectator.Selected), Loc)
@@ -3134,7 +3136,8 @@ begin
           Exit; //Don't order troops too
         end;
 
-        if (MySpectator.Selected is TKMHouseBarracks) then
+        if (MySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
+        and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
         begin
           if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(MySpectator.Selected).GetEntrance), P, canWalk, 0) then
             gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(MySpectator.Selected), P)

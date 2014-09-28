@@ -147,6 +147,7 @@ begin
       Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, gResTexts[TX_MENU_MAP_MOVE], bsMenu);
       Button_MapMove.Anchors := [anLeft, anBottom];
       Button_MapMove.OnClick := MoveClick;
+      Button_MapMove.Hide;
 
       //Delete
       Label_MapDeleteConfirm := TKMLabel.Create(Panel_MapEdLoad, 220, 640, gResTexts[TX_MENU_MAP_DELETE_CONFIRM], fnt_Outline, taCenter);
@@ -405,7 +406,6 @@ var
 begin
   Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
   Button_MapDelete.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
-  Button_MapMove.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
 
   if Button_MapEd_Load.Enabled then
   begin
