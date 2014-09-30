@@ -91,10 +91,13 @@ begin
   fFirstTick := TimeGet;
   fPreviousTick := TimeGet;
   ForceDirectories(ExtractFilePath((aPath)));
+
   AssignFile(fl, fLogPath);
   Rewrite(fl);
+  //           hh:nn:ss.zzz 12345.678s 1234567ms     text-text-text
+  WriteLn(fl, '   Timestamp    Elapsed     Delta     Description');
   CloseFile(fl);
-  AddLineNoTime('Timestamp'#9'Elapsed'#9'Delta'#9'Description');
+
   AddLineTime('Log is up and running. Game version: ' + GAME_VERSION);
 end;
 
@@ -118,13 +121,15 @@ begin
   //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
   if Abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
   begin
-    WriteLn(fl, '================');
-    WriteLn(fl, 'Date: ' + FormatDateTime('yyyy/mm/dd', Now));
-    WriteLn(fl, '================');
+    WriteLn(fl, '========================');
+    WriteLn(fl, '    Date: ' + FormatDateTime('yyyy/mm/dd', Now));
+    WriteLn(fl, '========================');
   end;
-  WriteLn(fl,FormatDateTime('hh:nn:ss:zzz', Now)+#9+
-             floattostr(GetTimeSince(fFirstTick)/1000)+'s'#9+
-             floattostr(GetTimeSince(fPreviousTick))+'ms'#9+aText);
+  WriteLn(fl, Format('%12s %9.3fs %7dms     %s', [
+                FormatDateTime('hh:nn:ss.zzz', Now),
+                GetTimeSince(fFirstTick) / 1000,
+                GetTimeSince(fPreviousTick),
+                aText]));
   CloseFile(fl);
   fPreviousTick := TimeGet;
   fPreviousDate := Now;
@@ -136,7 +141,7 @@ procedure TKMLog.AddLineNoTime(const aText: UnicodeString);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
-  WriteLn(fl, #9#9#9#9 + aText);
+  WriteLn(fl, '                                      ' + aText);
   CloseFile(fl);
 end;
 
