@@ -66,6 +66,7 @@ type
     fPointerCount: Cardinal;
     fTimeSinceUnoccupiedReminder: Integer;
     fDisableUnoccupiedMessage: Boolean;
+    fIssueOrderCompletedMsg: Boolean;
 
     procedure CheckOnSnow;
 
@@ -260,6 +261,7 @@ begin
 
   fUID := aUID;
   ResourceDepletedMsgIssued := False;
+  fIssueOrderCompletedMsg := False;
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
   begin
@@ -309,6 +311,7 @@ begin
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fTimeSinceUnoccupiedReminder);
   LoadStream.Read(fDisableUnoccupiedMessage);
+  LoadStream.Read(fIssueOrderCompletedMsg);
   LoadStream.Read(fUID);
   LoadStream.Read(HasAct);
   if HasAct then
@@ -845,6 +848,8 @@ begin
   TotalDesired := fResourceOrder[1] + fResourceOrder[2] + fResourceOrder[3] + fResourceOrder[4];
   for I := 1 to 4 do
     fResOrderDesired[I] := fResourceOrder[I] / TotalDesired;
+
+  fIssueOrderCompletedMsg := false;
 end;
 
 
@@ -912,7 +917,16 @@ begin
   end;
 
   if Result <> 0 then
+  begin
     Dec(fResourceOrder[Result]);
+    fIssueOrderCompletedMsg := True;
+  end
+  else
+    if fIssueOrderCompletedMsg then
+    begin
+      fIssueOrderCompletedMsg := False;
+      gGame.ShowMessage(mkHouse, TX_MSG_ORDER_COMPLETED, GetEntrance, fOwner);
+    end;
 end;
 
 
@@ -1203,6 +1217,7 @@ begin
   SaveStream.Write(fPointerCount);
   SaveStream.Write(fTimeSinceUnoccupiedReminder);
   SaveStream.Write(fDisableUnoccupiedMessage);
+  SaveStream.Write(fIssueOrderCompletedMsg);
   SaveStream.Write(fUID);
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct);

@@ -192,6 +192,7 @@ TX_MSG_IRON_DEPLETED = 176; //Your iron mine veins are exhausted.
 TX_MSG_GOLD_DEPLETED = 177; //Your gold mine veins are exhausted.
 TX_MSG_WOODCUTTER_DEPLETED = 178; //Your woodcutter cannot find any further trees to fell
 TX_MSG_HOUSE_UNOCCUPIED = 179; //This house is not occupied.
+TX_MSG_ORDER_COMPLETED = 829; //The order has been completed
 TX_MSG_TROOP_HUNGRY = 180; //This troop is really hungry, they better get something to eat soon!
 TX_POPUP_PAUSE = 181; //PAUSE
 
