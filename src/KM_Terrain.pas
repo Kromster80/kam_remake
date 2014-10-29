@@ -867,31 +867,59 @@ type
     aArray[aCount] := aUnit;
     Inc(aCount);
   end;
+
+  function Get90DegreeSectorRect: TKMRect;
+  var IntegerRadius: Integer;
+  begin
+    //Scan one tile further than the maximum radius due to rounding
+    IntegerRadius := Round(MaxRad + 1);  //1.42 gets rounded to 1
+
+    //If direction is east we can skip left half
+    if Dir in [dir_NE, dir_E, dir_SE] then Result.Left := aLoc.X+1
+                                      else Result.Left := aLoc.X-IntegerRadius;
+    //If direction is west we can skip right half
+    if Dir in [dir_NW, dir_W, dir_SW] then Result.Right := aLoc.X-1
+                                      else Result.Right := aLoc.X+IntegerRadius;
+    //If direction is south we can skip top half
+    if Dir in [dir_SE, dir_S, dir_SW] then Result.Top := aLoc.Y+1
+                                      else Result.Top := aLoc.Y-IntegerRadius;
+    //If direction is north we can skip bottom half
+    if Dir in [dir_NE, dir_N, dir_NW] then Result.Bottom := aLoc.Y-1
+                                      else Result.Bottom := aLoc.Y+IntegerRadius;
+
+    Result := KMClipRect(Result, 1, 1, fMapX, fMapY); //Clip to map bounds
+  end;
+
 var
   I,K: Integer; //Counters
-  LowX,LowY,HighX,HighY: Integer; //Ranges
+  BoundsRect: TKMRect;
   dX,dY: Integer;
   RequiredMaxRad: Single;
   U: TKMUnit;
   P: TKMPoint;
-  WCount, CCount: Integer;
+  WCount, CCount, InitialSize: Integer;
   W, C: TKMUnitArray;
 begin
   WCount := 0;
   CCount := 0;
-  SetLength(W, 1 + Byte(aClosest) * 32);
-  SetLength(C, 1 + Byte(aClosest) * 32);
 
-  //Scan one tile further than the maximum radius due to rounding
-  LowX := Max(Round(aLoc.X-(MaxRad+1)), 1); //1.42 gets rounded to 1
-  LowY := Max(Round(aLoc.Y-(MaxRad+1)), 1); //1.42 gets rounded to 1
-  HighX := Min(Round(aLoc.X+(MaxRad+1)), fMapX); //1.42 gets rounded to 1
-  HighY := Min(Round(aLoc.Y+(MaxRad+1)), fMapY); //1.42 gets rounded to 1
+  if aClosest then
+    InitialSize := 1 //We only need to keep 1 result
+  else
+    InitialSize := 32; //Should be enough most times, Append will add more if needed
 
-  for I := LowY to HighY do
-  for K := LowX to HighX do
-  if (Land[I,K].IsUnit <> nil) then
+  SetLength(W, InitialSize);
+  SetLength(C, InitialSize);
+
+  //This function sets LowX, LowY, HighX, HighY based on the direction
+  BoundsRect := Get90DegreeSectorRect;
+
+  for I := BoundsRect.Top to BoundsRect.Bottom do
+  for K := BoundsRect.Left to BoundsRect.Right do
   begin
+    U := Land[I,K].IsUnit;
+    if U = nil then Continue; //Most tiles are empty, so check it first
+
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
     dX := K - aLoc.X;
     dY := I - aLoc.Y;
@@ -906,11 +934,8 @@ begin
       dir_NW: if not ((dX < 0)         and (dY < 0)) then Continue;
     end;
 
-    U := Land[I,K].IsUnit;
-
     //Alliance is the check that will invalidate most candidates, so do it early on
-    if (U = nil)
-    or U.IsDeadOrDying
+    if U.IsDeadOrDying //U = nil already checked earlier (above sector check)
     or (gHands.CheckAlliance(aPlayer, U.Owner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
     or not U.Visible then //Inside of house
       Continue;
