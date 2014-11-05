@@ -45,7 +45,7 @@ begin
 	Actions.HouseWeaponsOrderSet(States.HouseAt(80, 14), 22, 100);
 	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 25), 24, 100);
 	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 17), 19, 100);
-	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 27), 17, 100);
+	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 17), 17, 100);
 	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 22), 19, 100);
 	Actions.HouseWeaponsOrderSet(States.HouseAt(92, 22), 17, 100);
 	Actions.HouseWeaponsOrderSet(States.HouseAt(87, 17), 21, 100);

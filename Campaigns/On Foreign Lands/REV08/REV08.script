@@ -23,7 +23,6 @@ var i, j : Integer;
 var groups : array of integer;
 begin
 	if (States.GameTime = 100) then Actions.ShowMsg(0, '<$0>');
-	if (States.GameTime = 24000) then Actions.ShowMsg(0, '<$2>');
 	if (States.GameTime = 45000) then Actions.ShowMsg(0, '<$3>');
 	
 	if ((CheckTroops = true) and (TroopsMessageDisplayed = false)) then 

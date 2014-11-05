@@ -1,19 +1,18 @@
-var firstAttackGroups : array [0..10] of Integer;
+var firstAttackGroups : array [0..9] of Integer;
 var groupsArrived : Boolean;
 
 procedure OnMissionStart;
 begin
 	firstAttackGroups[0] := States.GroupAt(93, 72);
-	firstAttackGroups[1] := States.GroupAt(47, 66);
-	firstAttackGroups[2] := States.GroupAt(42, 70);
-	firstAttackGroups[3] := States.GroupAt(38, 48);
-	firstAttackGroups[4] := States.GroupAt(42, 44);
-	firstAttackGroups[5] := States.GroupAt(31, 31);
-	firstAttackGroups[6] := States.GroupAt(36, 35);
-	firstAttackGroups[7] := States.GroupAt(36, 27);
-	firstAttackGroups[8] := States.GroupAt(42, 31);
-	firstAttackGroups[9] := States.GroupAt(43, 26);
-	firstAttackGroups[10] := States.GroupAt(36, 18);
+	firstAttackGroups[1] := States.GroupAt(42, 69);
+	firstAttackGroups[2] := States.GroupAt(38, 48);
+	firstAttackGroups[3] := States.GroupAt(42, 44);
+	firstAttackGroups[4] := States.GroupAt(31, 31);
+	firstAttackGroups[5] := States.GroupAt(36, 35);
+	firstAttackGroups[6] := States.GroupAt(36, 27);
+	firstAttackGroups[7] := States.GroupAt(42, 31);
+	firstAttackGroups[8] := States.GroupAt(43, 26);
+	firstAttackGroups[9] := States.GroupAt(36, 18);
 end;
 
 procedure CheckArrival;

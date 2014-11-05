@@ -1,5 +1,6 @@
 var firstRebelRevealed, startGroupsDead: boolean;
 var startGroups : array of integer;
+var h1, h2, h3 : Integer;
 
 function CheckAllies : boolean;
 var i : integer;
@@ -11,9 +12,9 @@ begin
 			unitLives := Length(States.PlayerGetAllUnits(i)) > 0;
 			if (unitLives = false) then break;
 		end;
-	Result := 	 ((States.HouseDestroyed(States.HouseAt(86, 8)) = true) OR
-				 (States.HouseDestroyed(States.HouseAt(45, 6)) = true) OR
-				 (States.HouseDestroyed(States.HouseAt(33, 37)) = true) OR
+	Result := 	 ((States.HouseDestroyed(h1) = true) OR
+				 (States.HouseDestroyed(h2) = true) OR
+				 (States.HouseDestroyed(h3) = true) OR
 				 (unitLives = false));
 end;
 
@@ -36,7 +37,7 @@ begin
 							rX := States.UnitPositionX(civils[i]);
 							rY := States.UnitPositionY(civils[i]);
 							Actions.UnitKill(civils[i], true);
-							rebelType := Actions.GiveGroup(5, rebelType, rX, rY, 0, 1, 1);
+							Actions.GiveGroup(5, rebelType, rX, rY, 0, 1, 1);
 							rebels := rebels + 1;
 						end;
 					i := i + 1;
@@ -107,4 +108,7 @@ begin
 	firstRebelRevealed := false;
 	startGroupsDead := false;
 	startGroups := States.PlayerGetAllGroups(1);
+	h1 := States.HouseAt(86, 8);
+	h2 := States.HouseAt(45, 6);
+	h3 := States.HouseAt(33, 37);
 end;
