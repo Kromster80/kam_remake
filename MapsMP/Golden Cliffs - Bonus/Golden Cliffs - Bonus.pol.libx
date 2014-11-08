@@ -1,0 +1,17 @@
+﻿0:Witaj! Aby wybrać odpowiedni bonus, umieść plan danego budynku. Bonusy: Sztuka Przetrwania (Gospoda); Inżynieria (Tartak); Bogactwo (Mennica); Zwiadowcy (Stajnia); Mistrzowie Rzemiosła (Dymarka); Twardziele (Warownia); Snajperzy (Wieża Obronna); Odpłata (Targ).
+1:Twój wybór to Mistrzowie Rzemiosła! Twoi poddani są wyjątkowo uzdolnieni, a ich kunszt przeszedł to legendy. Z tego powodu ilość wytwarzanego uzbrojenia jest większa.
+2:Twój wybór to Twardziele! Twoi poddani są wyjątkowo mocni, zahartowani przez surowy klimat ojczyzny; z tego powodu każdy Żołdak to potężny Barbarzyńca. Do wytworzenia ich potężnej broni potrzebne są dwa Topory.
+3:Twój wybór to Bogactwo! Twoi poddani to uzdolnieni handlarze, dzięki czemu Twoje rezerwy Złota są niewyczerpalne, a także zyskujesz dwa razy więcej surowców podczas handlowania na Targu.
+4:Twój wybór to Snajperzy! Twoi poddani to wybitni strzelcy, dumni ze swojego doskonałego wzroku... i słusznie. Mają oni 15% szans na zabicie wroga przy pojednyczym trafieniu.
+5:Twój wybór to Odpłata! Twoi poddani są potomkami potężnego ludu, a rozlanie ich krwi przywołuje klątwę, która ma 5% szans na zabicie kogolwiek, kto odważy się podnieść na nich rękę.
+6:Twój wybór to Zwiadowcy! Doskonali hodowcy koni i znakomici obserwatorzy; trudne życie w dziczy nauczyło ich także jak dbać o swoje schronienie, przez co każdy potrafi sam naprawiać swój uszkodzony budynek.
+7:Twój wybór to Sztuka Przetrwania! Długie lata spędzone na wędrówkach po pustyni uczyniły Twoich poddanych niezywkle odpornych na głód. Potrafią pożywić się tym, co znajdą wokół siebie, przez co nigdy nie są głodni.
+8:Twój wybór to Inżynieria! Wiedza i zdolności Twoich budowniczych są niezwykle zaawansowane, dzięki czemu od razu możesz wybudować każdy budynek, a czas budowy jest o połowę krótszy.
+9:[$%s]%s[] wybiera Mistrzów Rzemiosła!
+10:[$%s]%s[] wybiera Twardzieli!
+11:[$%s]%s[] wybiera Bogactwo!
+12:[$%s]%s[] wybiera Snajperów!
+13:[$%s]%s[] wybiera Odpłatę!
+14:[$%s]%s[] wybiera Zwiadowców!
+15:[$%s]%s[] wybiera Sztukę Przetrwania!
+16:[$%s]%s[] wybiera Inżynierię!

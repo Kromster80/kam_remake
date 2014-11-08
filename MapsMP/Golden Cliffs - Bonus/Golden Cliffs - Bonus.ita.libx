@@ -1,0 +1,17 @@
+﻿0:Benvenuto! Per scegliere un bonus, pianifica un edificio. I bonus sono: Survivalisti (Locanda); Ingegneria (Segheria); Ricchezza (Zecca); Demolitori (Bottega d'armi); Esploratori (Stalle); Maestri artigiani (Fonderia); Gente robusta (Caserma); Cecchini (Torre di guardia), Castigo (Mercato).
+1:Hai scelto di avere i Maestri artigiani! La tua gente appartiene ad una stirpe ingegnosa, la cui abilità nel creare oggetti è materia di leggenda. Per questa ragione, il numero di armi ed armature prodotte è aumentato.
+2:Hai scelto di avere Gente robusta! La tua gente è molto robusta, forgiata dal rigido clima della loro terra natale; per questa ragione, tutti i tuoi Miliziani sono possenti Barbari. Per creare la propria arma, però, hanno bisogno di 2 Accette.
+3:Hai scelto la Ricchezza! La tua gente è composta da abili mercanti; grazie a loro, le tue riserve di Oro sono praticamente illimitate, a ricevi il doppio delle merci dagli scambi nel Mercato.
+4:Hai scelto di avere i Cecchini! La tua gente è composta da abili tiratori, fieri della loro mira... e a ragione. Tutte le tue unità a raggio d'azione sono letali, e hanno il 15% di probabilità di uccidere chiunque colpiscano, con un singolo ma potente colpo alla testa.
+5:Hai scelto Castigo! La tua gente è di una stirpe potente, e versare il suo sangue evoca una maledizione che ha il 5% di probabilità di uccidere chiunque osi farlo.
+6:Hai scelto di avere gli Esploratori! Eccellenti allevatori di cavalli e abili ricognitori, la dura vita all'aperto ha insegnato loro molto riguardo la costruzione e il mantenimento di un rifugio, e possono applicare queste conoscenze ogniqualvolta la loro abitazione sia danneggiata, riparandola lentamente.
+7:Hai scelto di avere i Survivalisti! I lunghi anni passati a vagare nel deserto hanno dato alla tua gente un'impressionante resistenza alla carestia. Possono mangiare qualunque cosa trovino nei boschi e sopravvivere di questo; come conseguenza, la tua gente non ha mai fame.
+8:Hai scelto Ingegneria! La conoscenza e comprensione dei tuoi Operai sono eccellenti, e la loro abilità manuale permette loro di usarle al meglio. Puoi costruire qualunque cosa fin dall'inizio, e i tuoi operai possono costruire qualunque edificio in metà del tempo usuale.
+9:[$%s]%s[] ha scelto di avere i Maestri artigiani!
+10:[$%s]%s[] ha scelto di avere Gente robusta!
+11:[$%s]%s[] ha scelto la Ricchezza!
+12:[$%s]%s[] ha scelto di avere i Cecchini!
+13:[$%s]%s[] ha scelto Castigo!
+14:[$%s]%s[] ha scelto di avere gli Esploratori!
+15:[$%s]%s[] ha scelto di avere i Survivalisti!
+16:[$%s]%s[] ha scelto Ingegneria!

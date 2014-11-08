@@ -1,0 +1,17 @@
+﻿0:Welcome! To choose your bonus, plan a building. The bonuses are: Survivalists (Inn); Engineering (Sawmill); Rich (Metallurgist's); Explorers (Stables); Master crafters (Iron smithy); Tough people (Barracks); Snipers (Watchtower); Retribution (Marketplace).
+1:You chose to have the Master crafters! Your people is of an ingenious kind, whose crafting skill is matter of legends. For this reason, the number of weapons and armors that they make is increased.
+2:You chose to have Tough people! Your people is very tough, forged by the harsh environment of their home land; for this reason, all your Militia forces are powerful Barbarians. To create their own weapon, though, they will need to combine two Hand Axes.
+3:You chose to be Rich! Your people are skilled merchants; thanks to them, your Gold reserves are nigh unlimited, and you gain double the amount of resources from trading in the Marketplace.
+4:You chose to have the Snipers! Your people are skilled marksmen, proud of their aim... and rightfully so. All your ranged units are deadly, and have a 15% chance to kill any target they hit, with a single but powerful headshot.
+5:You chose Retribution! Your people is of a powerful descent, and spilling their blood summons a curse that has a 5% chance to kill whoever dared that.
+6:You chose to have the Explorers! Excellent horse breeders and skilled scouts, the tough life in the wild taught them a lot about building and maintaining their shelter, and they can apply this knowledge whenever their home is damaged, slowly repairing it.
+7:You chose to have the Survivalists! The long years spent wandering the desert gave your people an astonishing resistance to famine. They can eat whatever they find in the woods and sustain themselves with it; as a result, your people is never hungry.
+8:You chose Engineering! The knowledge and understanding of your labourers are excellent, and their manual prowess lets them to make the most of this. You can build anything right from the start, and your laborers can erect any building in half the usual time.
+9:[$%s]%s[] chose to have the Master crafters!
+10:[$%s]%s[] chose to have Tough people!
+11:[$%s]%s[] chose to be Rich!
+12:[$%s]%s[] chose to have the Snipers!
+13:[$%s]%s[] chose to have Retribution!
+14:[$%s]%s[] chose to have the Explorers!
+15:[$%s]%s[] chose to have the Survivalists!
+16:[$%s]%s[] chose Engineering!

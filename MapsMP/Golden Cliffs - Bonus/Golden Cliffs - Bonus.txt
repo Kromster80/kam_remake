@@ -1,0 +1,3 @@
+SetSpecial
+BigDesc
+A land of swamps and forests with plentiful resources divided by golden cliffs.||Uses traditional slow building unlock order.||In this version, each player can choose 1 bonus from 8 available; please refer to the attached readme PDF for further details about the bonuses.||Map by koczis12, PDF by Tiank, script by Esthlos.
