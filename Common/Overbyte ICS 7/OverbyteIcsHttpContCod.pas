@@ -520,7 +520,7 @@ begin
                               QualStr[DecPos] := '.';
                       end;
                     {$IFEND}
-                    {$IF not Defined(VER240) and not Defined(VER250) and not Defined(VER260)}
+                    {$IF not Defined(VER240) and not Defined(VER250) and not Defined(VER260) and not Defined(VER270) and not Defined(VER280)}
                     if DecimalSeparator <> '.' then
                     begin
                         DecPos := Pos(DecimalSeparator, QualStr);
