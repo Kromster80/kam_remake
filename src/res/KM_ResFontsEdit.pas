@@ -25,6 +25,7 @@ type
     procedure ImportPng(const aFilename: string; aIndex: Integer);
     function MaxLetterHeight: Byte;
     function MaxLetterWidth: Byte;
+    procedure TrimLetterHeight;
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
 
@@ -192,7 +193,10 @@ begin
   //Atlas line height
   lineHeight := 0;
   for K := Low(aFonts) to High(aFonts) do
+  begin
+    aFonts[K].TrimLetterHeight; //Lets us use the lowest possible MaxLetterHeight
     lineHeight := Math.max(lineHeight, aFonts[K].MaxLetterHeight);
+  end;
 
   //Texture data
   fAtlasCount := 1;
@@ -542,5 +546,47 @@ begin
   end;
 end;
 
+
+procedure TKMFontDataEdit.TrimLetterHeight;
+var
+  I, L, M: Integer;
+  srcX, srcY: Word;
+  srcPixel: Cardinal;
+  MinY, MaxY: Integer;
+begin
+  for I := 0 to CharCount do
+    if Used[I] <> 0 then
+    begin
+      MinY := Letters[I].Height;
+      MaxY := 0;
+
+      for M := 0 to Letters[I].Height - 1 do
+      for L := 0 to Letters[I].Width - 1 do
+      begin
+        srcX := Round(Letters[I].u1 * fTexSizeX);
+        srcY := Round(Letters[I].v1 * fTexSizeY);
+        srcPixel := (srcY + M) * fTexSizeX + srcX + L;
+        //Is this pixel used?
+        if TexData[Letters[I].AtlasId][srcPixel] and $FF000000 <> 0 then
+        begin
+          MinY := Min(MinY, M);
+          MaxY := Max(MaxY, M);
+        end;
+      end;
+
+      //If all pixels are unused make sure min is not greater than max
+      MinY := Min(MinY, MaxY);
+
+      //Grow max by 1 to avoid rounding errors
+      MaxY := Min(MaxY+1, Letters[I].Height);
+
+      //Trim
+      Letters[I].v1 := Letters[I].v1 + MinY / fTexSizeY;
+      Letters[I].v2 := Letters[I].v2 + (Letters[I].Height - MaxY) / fTexSizeY;
+
+      Inc(Letters[I].YOffset, MinY);
+      Letters[I].Height := MaxY - MinY;
+    end;
+end;
 
 end.
