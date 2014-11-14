@@ -106,8 +106,8 @@ begin
     bmp.Canvas.FillRect(bmp.Canvas.ClipRect);
 
     fAtlasCount := 1;
-    pX := fTexPadding;
-    pY := fTexPadding;
+    pX := 0;
+    pY := 0;
     SetLength(fAtlases, 0);
     SetLength(fAtlases, fAtlasCount);
     SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
@@ -118,17 +118,17 @@ begin
 
       if chWidth = 0 then Continue;
 
-      if pX + chWidth + fTexPadding * 2 >= fTexSizeX then
+      if pX + chWidth + fTexPadding >= fTexSizeX then
       begin
-        pX := fTexPadding;
-        Inc(pY, txtHeight + fTexPadding * 2);
-        if pY + txtHeight + fTexPadding * 2 > fTexSizeY then
+        pX := 0;
+        Inc(pY, txtHeight + fTexPadding);
+        if pY + txtHeight + fTexPadding > fTexSizeY then
         begin
           //Append new atlas
           Assert((AtlasCount < 255), 'We hit a limit of 256 atlases');
           Inc(fAtlasCount);
-          pX := fTexPadding;
-          pY := fTexPadding;
+          pX := 0;
+          pY := 0;
           SetLength(fAtlases, fAtlasCount);
           SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
         end;
@@ -159,7 +159,7 @@ begin
           fAtlases[fAtlasCount - 1].TexData[((pY + J) * fTexSizeX + pX + K)] := Cardinal(PByte(scLine + K * 4+1)^ shl 24) or $FFFFFF;
       end;
 
-      Inc(pX, chWidth + fTexPadding * 2);
+      Inc(pX, chWidth + fTexPadding);
     end;
   finally
     bmp.Free;
@@ -200,8 +200,8 @@ begin
 
   //Texture data
   fAtlasCount := 1;
-  pX := fTexPadding;
-  pY := fTexPadding;
+  pX := 0;
+  pY := 0;
   SetLength(fAtlases, 0);
   SetLength(fAtlases, fAtlasCount);
   SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
@@ -225,17 +225,17 @@ begin
 
       if chWidth = 0 then Continue;
 
-      if pX + chWidth + fTexPadding*2 >= fTexSizeX then
+      if pX + chWidth + fTexPadding >= fTexSizeX then
       begin
-        pX := fTexPadding;
-        Inc(pY, lineHeight + fTexPadding*2);
-        if pY + lineHeight + fTexPadding*2 >= fTexSizeY then
+        pX := 0;
+        Inc(pY, lineHeight + fTexPadding);
+        if pY + lineHeight + fTexPadding >= fTexSizeY then
         begin
           //Append new atlas
           Assert((AtlasCount < 255), 'We hit a limit of 256 atlases');
           Inc(fAtlasCount);
-          pX := fTexPadding;
-          pY := fTexPadding;
+          pX := 0;
+          pY := 0;
           SetLength(fAtlases, fAtlasCount);
           SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
         end;
@@ -262,7 +262,7 @@ begin
       Letters[uniCode].u2 := (pX + chWidth - INS) / fTexSizeX;
       Letters[uniCode].v2 := (pY + chHeight - INS) / fTexSizeY;
 
-      Inc(pX, chWidth + fTexPadding*2);
+      Inc(pX, chWidth + fTexPadding);
     end;
 end;
 
@@ -374,8 +374,8 @@ begin
   end;
 
   fAtlasCount := 1;
-  dstX := fTexPadding;
-  dstY := fTexPadding;
+  dstX := 0;
+  dstY := 0;
   SetLength(fAtlases, 0);
   SetLength(fAtlases, fAtlasCount);
   SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
@@ -386,17 +386,17 @@ begin
   for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
   begin
-    if dstX + Letters[I].Width + fTexPadding * 2 >= fTexSizeX then
+    if dstX + Letters[I].Width + fTexPadding >= fTexSizeX then
     begin
-      dstX := fTexPadding;
-      Inc(dstY, lineHeight + fTexPadding * 2);
-      if dstY + lineHeight + fTexPadding * 2 >= fTexSizeY then
+      dstX := 0;
+      Inc(dstY, lineHeight + fTexPadding);
+      if dstY + lineHeight + fTexPadding >= fTexSizeY then
       begin
         //Append new atlas
         Assert((AtlasCount < 255), 'We hit a limit of 256 atlases');
         Inc(fAtlasCount);
-        dstX := fTexPadding;
-        dstY := fTexPadding;
+        dstX := 0;
+        dstY := 0;
         SetLength(fAtlases, fAtlasCount);
         SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
       end;
@@ -417,7 +417,7 @@ begin
     Letters[I].u2 := (dstX + Letters[I].Width) / fTexSizeX;
     Letters[I].v2 := (dstY + Letters[I].Height) / fTexSizeY;
 
-    Inc(dstX, Letters[I].Width + fTexPadding * 2);
+    Inc(dstX, Letters[I].Width + fTexPadding);
   end;
 end;
 
