@@ -335,6 +335,10 @@ begin
   FreeAndNil(fTextLib);
   fScriptData.Free;
 
+  //Free background texture
+  if fBackGroundPic.ID <> 0 then
+    gRes.Sprites[rxCustom].DeleteSpriteTexture(fBackGroundPic.ID);
+
   inherited;
 end;
 
@@ -439,6 +443,7 @@ begin
     begin
       //Images were successfuly loaded
       SP.MakeGFX(False, FirstSpriteIndex);
+      SP.ClearTemp;
       fBackGroundPic.RX := rxCustom;
       fBackGroundPic.ID := FirstSpriteIndex;
     end

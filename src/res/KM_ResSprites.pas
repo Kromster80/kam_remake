@@ -69,6 +69,7 @@ type
     procedure LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
     procedure OverloadFromFolder(const aFolder: string);
     procedure MakeGFX(aAlphaShadows: Boolean; aStartingIndex: Integer = 1);
+    procedure DeleteSpriteTexture(aIndex: Integer);
 
     function GetSpriteColors(aCount: Byte): TRGBArray;
 
@@ -140,6 +141,19 @@ begin
   //Terrain tiles need padding to avoid edge bleeding
   if fRT = rxTiles then
     fPad := 1;
+end;
+
+
+//This is a crude solution to allow Campaigns to delete sprites they add
+procedure TKMSpritePack.DeleteSpriteTexture(aIndex: Integer);
+begin
+  if GFXData[fRT, aIndex].Tex.ID <> 0 then
+    TRender.DeleteTexture(GFXData[fRT, aIndex].Tex.ID);
+  if GFXData[fRT, aIndex].Alt.ID <> 0 then
+    TRender.DeleteTexture(GFXData[fRT, aIndex].Alt.ID);
+
+  GFXData[fRT, aIndex].Tex.ID := 0;
+  GFXData[fRT, aIndex].Alt.ID := 0;
 end;
 
 

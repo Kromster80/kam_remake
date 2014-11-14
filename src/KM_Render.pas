@@ -35,6 +35,7 @@ type
     class function GetMaxTexSize: Integer;
     class function GenerateTextureCommon: GLuint;
     class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
+    class procedure DeleteTexture(aTex: GLUint);
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
 
     property RendererVersion: UnicodeString read fOpenGL_Version;
@@ -164,6 +165,12 @@ class function TRender.GenTexture(DestX, DestY: Word; const Data: Pointer; Mode:
 begin
   Result := GenerateTextureCommon;
   UpdateTexture(Result, DestX, DestY, Mode, Data);
+end;
+
+
+class procedure TRender.DeleteTexture(aTex: GLUint);
+begin
+  glDeleteTextures(1, @aTex);
 end;
 
 
