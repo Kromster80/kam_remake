@@ -108,7 +108,7 @@ begin
   fRender := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
   gRes := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
-  gRes.LoadMainResources(fGameSettings.Locale);
+  gRes.LoadMainResources(fGameSettings.Locale, fGameSettings.LoadFullFonts);
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
@@ -211,6 +211,8 @@ begin
 
   //Recreate resources that use Locale info
   gRes.LoadLocaleResources(fGameSettings.Locale);
+  //Fonts might need reloading too
+  gRes.LoadLocaleFonts(fGameSettings.Locale, fGameSettings.LoadFullFonts);
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 

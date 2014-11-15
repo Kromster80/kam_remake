@@ -47,9 +47,10 @@ type
 
     function GetDATCRC: Cardinal;
 
-    procedure LoadMainResources(aLocale: AnsiString = '');
+    procedure LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
     procedure LoadLocaleResources(aLocale: AnsiString = '');
     procedure LoadGameResources(aAlphaShadows: boolean);
+    procedure LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
 
     property DataState: TResourceLoadState read fDataState;
     property Cursors: TKMCursors read fCursors;
@@ -131,7 +132,7 @@ begin
 end;
 
 
-procedure TKMResource.LoadMainResources(aLocale: AnsiString = '');
+procedure TKMResource.LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
 begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
@@ -145,9 +146,15 @@ begin
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmc_Default;
 
+  // Locale info is needed for DAT export and font loading
+  LoadLocaleResources(aLocale);
+
   StepCaption('Reading fonts ...');
   fFonts := TKMResourceFont.Create;
-  fFonts.LoadFonts;
+  if aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts then
+    fFonts.LoadFonts(fll_Full)
+  else
+    fFonts.LoadFonts(fll_Minimal);
   gLog.AddTime('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
@@ -158,13 +165,9 @@ begin
 
   fSprites.ClearTemp;
 
-  // Locale info is needed for DAT export
-  LoadLocaleResources(aLocale);
-
   fWares := TKMWaresList.Create;
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
-
 
   StepRefresh;
   gLog.AddTime('ReadGFX is done');
@@ -186,6 +189,15 @@ begin
 
   fSounds := TKMResSounds.Create(gResLocales.UserLocale, gResLocales.FallbackLocale, gResLocales.DefaultLocale);
 end;
+
+
+procedure TKMResource.LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
+begin
+  if (Fonts.LoadLevel <> fll_Full)
+  and (aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts) then
+    Fonts.LoadFonts(fll_Full);
+end;
+
 
 
 procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean);

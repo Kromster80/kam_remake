@@ -428,7 +428,7 @@ end;
 class procedure TKMRenderUI.WriteText(aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
 var
   I, K: Integer;
-  LineCount,AdvX,AdvY,LineHeight,BlockWidth: Integer;
+  LineCount,AdvX,AdvY,LineHeight,BlockWidth,PrevAtlas: Integer;
   LineWidth: array of Integer; //Use signed format since some fonts may have negative CharSpacing
   FontData: TKMFontData;
   Let: TKMLetter;
@@ -489,11 +489,7 @@ begin
 
   for I := 1 to Length(aText) do
   begin
-    if aText[I] <> #124 then
-      if aText[I] = #32 then
-        Inc(LineWidth[LineCount], FontData.WordSpacing)
-      else
-        Inc(LineWidth[LineCount], FontData.Letters[Ord(aText[I])].Width + FontData.CharSpacing);
+    Inc(LineWidth[LineCount], gRes.Fonts.GetCharWidth(aText[I], aFont));
 
     //If EOL or aText end
     if (aText[I] = #124) or (I = Length(aText)) then
@@ -522,25 +518,9 @@ begin
   glColor4ubv(@aColor);
 
   K := 0;
+  PrevAtlas := -1;
   for I := 1 to Length(aText) do
   begin
-    if (I = 1)
-    or (FontData.Letters[Ord(aText[I-1])].AtlasId <> FontData.Letters[Ord(aText[I])].AtlasId) then
-    begin
-      glBindTexture(GL_TEXTURE_2D, FontData.TexID[FontData.Letters[Ord(aText[I])].AtlasId]);
-      glBegin(GL_QUADS);
-    end;
-
-    //Loop as there might be adjoined tags on same position
-    while (K < Length(Colors)) and (I = Colors[K].FirstChar) do
-    begin
-      if Colors[K].Color = 0 then
-        glColor4ubv(@aColor)
-      else
-        glColor4ubv(@Colors[K].Color);
-      Inc(K);
-    end;
-
     case aText[I] of
       #32:  Inc(AdvX, FontData.WordSpacing);
       #124: begin
@@ -555,23 +535,38 @@ begin
               end;
             end;
       else  begin
-              //Show missing letters in font as "?"
-              if FontData.Used[Ord(aText[I])] <> 0 then
-                Let := FontData.Letters[Ord(aText[I])]
-              else
-                Let := FontData.Letters[Ord('?')];
+              Let := FontData.GetLetter(aText[I]);
+
+              if (I = 1)
+              or (PrevAtlas <> Let.AtlasId) then
+              begin
+                if PrevAtlas <> -1 then
+                  glEnd;
+                PrevAtlas := Let.AtlasId;
+                glBindTexture(GL_TEXTURE_2D, FontData.TexID[Let.AtlasId]);
+                glBegin(GL_QUADS);
+              end;
+
+              //Loop as there might be adjoined tags on same position
+              while (K < Length(Colors)) and (I = Colors[K].FirstChar) do
+              begin
+                if Colors[K].Color = 0 then
+                  glColor4ubv(@aColor)
+                else
+                  glColor4ubv(@Colors[K].Color);
+                Inc(K);
+              end;
 
               glTexCoord2f(Let.u1, Let.v1); glVertex2f(AdvX            , AdvY            + Let.YOffset);
               glTexCoord2f(Let.u2, Let.v1); glVertex2f(AdvX + Let.Width, AdvY            + Let.YOffset);
               glTexCoord2f(Let.u2, Let.v2); glVertex2f(AdvX + Let.Width, AdvY+Let.Height + Let.YOffset);
               glTexCoord2f(Let.u1, Let.v2); glVertex2f(AdvX            , AdvY+Let.Height + Let.YOffset);
               Inc(AdvX, Let.Width + FontData.CharSpacing);
+
+              if (I = Length(aText)) then
+                glEnd;
             end;
     end;
-
-    if (I = Length(aText))
-    or (FontData.Letters[Ord(aText[I])].AtlasId <> FontData.Letters[Ord(aText[I+1])].AtlasId) then
-      glEnd;
   end;
   glBindTexture(GL_TEXTURE_2D, 0);
 

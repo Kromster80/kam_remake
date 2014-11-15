@@ -11,6 +11,7 @@ type
     Code: AnsiString; //3-letter code: 'eng', 'rus'
     Title: string; //Full name: 'English', 'Russian'
     FontCodepage: Word;
+    NeedsFullFonts: Boolean;
     FlagSpriteID: Integer;
     FallbackLocale: AnsiString;
     TranslatorCredit: UnicodeString;
@@ -100,9 +101,10 @@ begin
       1: aLocale.Code             := AnsiString(Chunk);
       2: aLocale.Title            := Chunk;
       3: aLocale.FontCodepage     := StrToIntDef(Chunk, 0);
-      4: aLocale.FlagSpriteID     := StrToIntDef(Chunk, 0);
-      5: aLocale.FallbackLocale   := AnsiString(Chunk);
-      6: aLocale.TranslatorCredit := Chunk;
+      4: aLocale.NeedsFullFonts   := Boolean(StrToIntDef(Chunk, 0));
+      5: aLocale.FlagSpriteID     := StrToIntDef(Chunk, 0);
+      6: aLocale.FallbackLocale   := AnsiString(Chunk);
+      7: aLocale.TranslatorCredit := Chunk;
     end;
 
     L := R + 1;

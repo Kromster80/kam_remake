@@ -43,6 +43,7 @@ type
     fBrightness: Byte;
     fScrollSpeed: Byte;
     fAlphaShadows: Boolean;
+    fLoadFullFonts: Boolean;
     fLocale: AnsiString;
     fMusicOff: Boolean;
     fShuffleOn: Boolean;
@@ -71,6 +72,7 @@ type
     procedure SetBrightness(aValue: Byte);
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
+    procedure SetLoadFullFonts(aValue: Boolean);
     procedure SetLocale(aLocale: AnsiString);
     procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue: Boolean);
@@ -105,6 +107,7 @@ type
     property Brightness: Byte read fBrightness write SetBrightness;
     property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
+    property LoadFullFonts: Boolean read fLoadFullFonts write SetLoadFullFonts;
     property Locale: AnsiString read fLocale write SetLocale;
     property MusicOff: Boolean read fMusicOff write SetMusicOff;
     property ShuffleOn: Boolean read fShuffleOn write SetShuffleOn;
@@ -278,6 +281,7 @@ begin
   try
     fBrightness       := F.ReadInteger('GFX', 'Brightness',       1);
     fAlphaShadows     := F.ReadBool   ('GFX', 'AlphaShadows',     True);
+    fLoadFullFonts    := F.ReadBool   ('GFX', 'LoadFullFonts',    False);
 
     fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
     fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
@@ -331,6 +335,7 @@ begin
   try
     F.WriteInteger('GFX','Brightness',    fBrightness);
     F.WriteBool   ('GFX','AlphaShadows',  fAlphaShadows);
+    F.WriteBool   ('GFX','LoadFullFonts', fLoadFullFonts);
 
     F.WriteBool   ('Game','Autosave',     fAutosave);
     F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
@@ -413,6 +418,13 @@ end;
 procedure TGameSettings.SetAlphaShadows(aValue: Boolean);
 begin
   fAlphaShadows := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetLoadFullFonts(aValue: Boolean);
+begin
+  fLoadFullFonts := aValue;
   Changed;
 end;
 

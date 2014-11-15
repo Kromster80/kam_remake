@@ -11,6 +11,8 @@ uses
 type
   TKMFont = (fnt_Antiqua, fnt_Game, fnt_Grey,
     fnt_Metal, fnt_Mini, fnt_Outline, fnt_Arial);
+
+  TKMFontLoadLevel = (fll_Full, fll_Minimal);
   {
   Removed fonts that were in KaM:
   Adam (unused)
@@ -61,13 +63,14 @@ type
     Letters: array [0..High(Word)] of TKMLetter;
 
     procedure LoadFont(const aFileName: string; aPal: TKMPalData);
-    procedure LoadFontX(const aFileName: string);
+    procedure LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fll_Full);
     procedure GenerateTextures(aTexMode: TTexFormat);
     procedure Compact;
     procedure ExportAtlasBmp(aBitmap: TBitmap; aIndex: Integer; aShowCells: Boolean); overload;
     procedure ExportAtlasBmp(const aPath: string; aIndex: Integer); overload;
     procedure ExportAtlasPng(const aFilename: string; aIndex: Integer);
 
+    function GetLetter(aChar: WideChar): TKMLetter;
     property AtlasCount: Byte read fAtlasCount;
     property TexID[aIndex: Integer]: Cardinal read GetTexID;
 
@@ -79,23 +82,10 @@ type
   end;
 
 
-  //We can speed up font loading with threads. A large part of loading time is reading
-  //files from disk and decompressing with ZLIB. These tasks are perfect for parallelizing.
-  //Generating OpenGL textures must be done in main thread, however that's <50% of font loading times.
-  //This is a very simple thread which loads a font then exits
-  TKMFontLoadThread = class(TThread)
-    private
-      fFontData: TKMFontData;
-      fPath: UnicodeString;
-    public
-      constructor Create(aFontData: TKMFontData; aPath: UnicodeString);
-      procedure Execute; override;
-  end;
-
-
   //Collection of fonts
   TKMResourceFont = class
   private
+    fLoadLevel: TKMFontLoadLevel;
     fFontData: array [TKMFont] of TKMFontData;
     function GetFontData(aIndex: TKMFont): TKMFontData;
   public
@@ -103,6 +93,7 @@ type
     destructor Destroy; override;
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
+    property LoadLevel: TKMFontLoadLevel read fLoadLevel;
     class function GuessPalette(aFileName: string): TKMPal;
 
     function GetCharWidth(aChar: WideChar; aFont: TKMFont): Integer;
@@ -110,12 +101,14 @@ type
     function CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: UnicodeString; Fnt: TKMFont; aCountMarkup: Boolean = False): TKMPoint;
 
-    procedure LoadFonts;
+    procedure LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
     procedure ExportFonts;
   end;
 
 
 const
+  PLACEHOLDER_CHAR = 0; //Box, used for characters missing from font
+
   FontInfo: array [TKMFont] of TKMFontInfo = (
     (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'game';        Pal: pal_bw;        TexMode: tf_Alpha8),
@@ -227,7 +220,7 @@ begin
 end;
 
 
-procedure TKMFontData.LoadFontX(const aFileName: string);
+procedure TKMFontData.LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fll_Full);
 const
   FNTX_HEAD: AnsiString = 'FNTX';
 var
@@ -263,6 +256,14 @@ begin
     DecompressionStream.Read(fAtlasCount, 1);
     DecompressionStream.Read(fTexSizeX, 2);
     DecompressionStream.Read(fTexSizeY, 2);
+
+    if aLoadLevel = fll_Minimal then
+    begin
+      fAtlasCount := 1; //Only load the first atlas
+      for I := 0 to High(Word) do
+        Used[I] := Byte(Letters[I].AtlasId = 0); //Only allow letters on first atlas
+    end;
+
     SetLength(fAtlases, fAtlasCount);
     for I := 0 to fAtlasCount - 1 do
     begin
@@ -294,12 +295,30 @@ end;
 procedure TKMFontData.GenerateTextures(aTexMode: TTexFormat);
 var
   I: Integer;
+  TextureRAM: Cardinal;
 begin
+  TextureRAM := 0;
   for I := 0 to fAtlasCount - 1 do
-  if Length(fAtlases[I].TexData) <> 0 then
-    fAtlases[I].TexID := TRender.GenTexture(fTexSizeX, fTexSizeY, @fAtlases[I].TexData[0], aTexMode)
+    if fAtlases[I].TexID = 0 then //Don't load atlases twice if switching from minimal to full
+      if Length(fAtlases[I].TexData) <> 0 then
+      begin
+        fAtlases[I].TexID := TRender.GenTexture(fTexSizeX, fTexSizeY, @fAtlases[I].TexData[0], aTexMode);
+        Inc(TextureRAM, fTexSizeX * fTexSizeY * TexFormatSize[aTexMode]);
+      end
+      else
+        fAtlases[I].TexID := 0;
+
+  if LOG_EXTRA_GFX then
+    gLog.AddNoTime( 'Font RAM usage: '+IntToStr(TextureRAM));
+end;
+
+
+function TKMFontData.GetLetter(aChar: WideChar): TKMLetter;
+begin
+  if Used[Ord(aChar)] <> 0 then
+    Result := Letters[Ord(aChar)]
   else
-    fAtlases[I].TexID := 0;
+    Result := Letters[PLACEHOLDER_CHAR];
 end;
 
 
@@ -447,55 +466,21 @@ begin
 end;
 
 
-procedure TKMResourceFont.LoadFonts;
+procedure TKMResourceFont.LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
 var
   F: TKMFont;
   FntPath: string;
-  LoaderThreads: array[TKMFont] of TKMFontLoadThread;
-  Done, ProcessedFont: Boolean;
   StartTime, TotalTime: Cardinal;
 begin
+  fLoadLevel := aLoadLevel;
   StartTime := TimeGet;
 
   for F := Low(TKMFont) to High(TKMFont) do
   begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
-
-    if THREADED_FONT_LOAD then
-      LoaderThreads[F] := TKMFontLoadThread.Create(fFontData[F], FntPath)
-    else
-    begin
-      fFontData[F].LoadFontX(FntPath);
-      fFontData[F].GenerateTextures(FontInfo[F].TexMode);
-      fFontData[F].Compact;
-    end;
-  end;
-
-  if THREADED_FONT_LOAD then
-  begin
-    //Wait for child threads to finish, then generate textures (can only use OGL from main thread)
-    Done := False;
-    while not Done do
-    begin
-      Done := True;
-      ProcessedFont := False;
-      for F := Low(TKMFont) to High(TKMFont) do
-        if LoaderThreads[F] <> nil then //nil threads are ones we already processed
-          if LoaderThreads[F].ReturnValue = 1 then //.Finished doesn't exist in FPC, so use ReturnValue we set
-          begin
-            FreeAndNil(LoaderThreads[F]);
-            fFontData[F].GenerateTextures(FontInfo[F].TexMode);
-            fFontData[F].Compact;
-            ProcessedFont := True;
-          end
-          else
-            Done := False;
-      //If we didn't find any finished threads this pass, don't hog CPU with main thread
-      //(gives children more time on CPU). If we found a finished thread, keep on checking
-      //because other threads probably finished while we were generating textures
-      if not ProcessedFont then
-        Sleep(10);
-    end;
+    fFontData[F].LoadFontX(FntPath, aLoadLevel);
+    fFontData[F].GenerateTextures(FontInfo[F].TexMode);
+    fFontData[F].Compact;
   end;
 
   TotalTime := GetTimeSince(StartTime);
@@ -529,11 +514,7 @@ begin
     if aChar = #32 then
       Result := fFontData[aFont].WordSpacing
     else
-      if fFontData[aFont].Used[Ord(aChar)] <> 0 then
-        Result := fFontData[aFont].Letters[Ord(aChar)].Width + fFontData[aFont].CharSpacing
-      else
-        //Missing characters get rendered as ? so we should count their width as that too
-        Result := fFontData[aFont].Letters[Ord('?')].Width + fFontData[aFont].CharSpacing;
+      Result := fFontData[aFont].GetLetter(aChar).Width + fFontData[aFont].CharSpacing;
 end;
 
 
@@ -690,24 +671,6 @@ begin
   Result.Y := (fFontData[Fnt].BaseHeight + fFontData[Fnt].LineSpacing) * LineCount;
   for I := 1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
-end;
-
-
-{ TKMFontLoadThread }
-constructor TKMFontLoadThread.Create(aFontData: TKMFontData; aPath: UnicodeString);
-begin
-  inherited Create(False);
-  FreeOnTerminate := False;
-  fFontData := aFontData;
-  fPath := aPath;
-end;
-
-
-procedure TKMFontLoadThread.Execute;
-begin
-  inherited;
-  fFontData.LoadFontX(fPath);
-  ReturnValue := 1; //Signals that we have finished
 end;
 
 

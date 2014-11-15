@@ -1,27 +1,27 @@
-﻿//Code, Title,                Codepage, FlagSpriteID, Fallback Locale, TranslatorCredit
+﻿//Code, Title,                Codepage, FullFonts, FlagSpriteID, Fallback Locale, TranslatorCredit
 
-bel,    Belarusian,           1251,     71,           ,                Mik0
-ptb,    Brazilian Portuguese, 1252,     48,           ,                |Vinycius Maia & Edson Hoffmann Junior
-bul,    Bulgarian,            1251,     58,           ,                Christian & Boyan
-chn,    Chinese,              1252,     69,           ,                [CN] Team
-cze,    Czech,                1250,     49,           svk,             Jolinar_CZ, Milan Molnar,|Jan Minarik & Vatrix
-dut,    Dutch,                1252,     55,           ,                xzaz & Tom
-eng,    English,              1252,     45,           ,
-est,    Estonian,             1252,     59,           ,                Ingvar & Eva
-fre,    French,               1252,     51,           ,                Sylvain Domange & Shadaoe
-ger,    German,               1252,     46,           ,                The Knight
-hun,    Hungarian,            1250,     57,           ,                Osi Attila (Jecy)
-ita,    Italian,              1252,     50,           ,                Esthlos
-jpn,    Japanese,             1252,     72,           ,                Guilherme Antunes da Silva
-kor,    Korean,               1252,     78,           ,                Petrus K.
-lit,    Lithuanian,           1257,     67,           ,                Audrius Arlauskas (Zaero)
-nor,    Norwegian,            1252,     70,           ,                Tokicchi
-pol,    Polish,               1250,     47,           ,                Przemysław Pietras
-rom,    Romanian,             1250,     66,           ,                mucormucedo
-rus,    Russian,              1251,     54,           ,                Krom
-srb,    Serbian,              1250,     80,           ,                Стефан Дробић (Davidturner) & Baqal
-svk,    Slovak,               1250,     52,           cze,             Róbert Marko & Jozef Müller (Launcelot)
-spa,    Spanish,              1252,     53,           ,                Óscar
-swe,    Swedish,              1252,     56,           ,                Edvin Linge
-tur,    Turkish,              1254,     76,           ,                Uğur Yıldırım
-ukr,    Ukrainian,            1251,     68,           ,                Mulberry
+bel,    Belarusian,           1251,     0,         71,           ,                Mik0
+ptb,    Brazilian Portuguese, 1252,     0,         48,           ,                |Vinycius Maia & Edson Hoffmann Junior
+bul,    Bulgarian,            1251,     0,         58,           ,                Christian & Boyan
+chn,    Chinese,              1252,     1,         69,           ,                [CN] Team
+cze,    Czech,                1250,     0,         49,           svk,             Jolinar_CZ, Milan Molnar,|Jan Minarik & Vatrix
+dut,    Dutch,                1252,     0,         55,           ,                xzaz & Tom
+eng,    English,              1252,     0,         45,           ,
+est,    Estonian,             1252,     0,         59,           ,                Ingvar & Eva
+fre,    French,               1252,     0,         51,           ,                Sylvain Domange & Shadaoe
+ger,    German,               1252,     0,         46,           ,                The Knight
+hun,    Hungarian,            1250,     0,         57,           ,                Osi Attila (Jecy)
+ita,    Italian,              1252,     0,         50,           ,                Esthlos
+jpn,    Japanese,             1252,     1,         72,           ,                Guilherme Antunes da Silva
+kor,    Korean,               1252,     1,         78,           ,                Petrus K.
+lit,    Lithuanian,           1257,     0,         67,           ,                Audrius Arlauskas (Zaero)
+nor,    Norwegian,            1252,     0,         70,           ,                Tokicchi
+pol,    Polish,               1250,     0,         47,           ,                Przemysław Pietras
+rom,    Romanian,             1250,     0,         66,           ,                mucormucedo
+rus,    Russian,              1251,     0,         54,           ,                Krom
+srb,    Serbian,              1250,     0,         80,           ,                Стефан Дробић (Davidturner) & Baqal
+svk,    Slovak,               1250,     0,         52,           cze,             Róbert Marko & Jozef Müller (Launcelot)
+spa,    Spanish,              1252,     0,         53,           ,                Óscar
+swe,    Swedish,              1252,     0,         56,           ,                Edvin Linge
+tur,    Turkish,              1254,     0,         76,           ,                Uğur Yıldırım
+ukr,    Ukrainian,            1251,     0,         68,           ,                Mulberry
