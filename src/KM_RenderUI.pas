@@ -537,11 +537,10 @@ begin
       else  begin
               Let := FontData.GetLetter(aText[I]);
 
-              if (I = 1)
-              or (PrevAtlas <> Let.AtlasId) then
+              if (PrevAtlas = -1) or (PrevAtlas <> Let.AtlasId) then
               begin
                 if PrevAtlas <> -1 then
-                  glEnd;
+                  glEnd; //End previous draw
                 PrevAtlas := Let.AtlasId;
                 glBindTexture(GL_TEXTURE_2D, FontData.TexID[Let.AtlasId]);
                 glBegin(GL_QUADS);
@@ -562,11 +561,11 @@ begin
               glTexCoord2f(Let.u2, Let.v2); glVertex2f(AdvX + Let.Width, AdvY+Let.Height + Let.YOffset);
               glTexCoord2f(Let.u1, Let.v2); glVertex2f(AdvX            , AdvY+Let.Height + Let.YOffset);
               Inc(AdvX, Let.Width + FontData.CharSpacing);
-
-              if (I = Length(aText)) then
-                glEnd;
             end;
     end;
+    //When we reach the end, if we painted something then we need to end it
+    if (I = Length(aText)) and (PrevAtlas <> -1) then
+      glEnd;
   end;
   glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -574,7 +573,7 @@ begin
   begin
     glPushMatrix;
       case aAlign of
-        taLeft:   glTranslatef(aLeft,                          aTop, 0);
+        taLeft:   glTranslatef(aLeft,                               aTop, 0);
         taCenter: glTranslatef(aLeft + (aWidth - BlockWidth) div 2, aTop, 0);
         taRight:  glTranslatef(aLeft + (aWidth - BlockWidth),       aTop, 0);
       end;
