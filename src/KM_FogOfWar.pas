@@ -2,7 +2,7 @@ unit KM_FogOfWar;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math,
-  KM_CommonClasses, KM_CommonTypes, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Defaults;
 
 
 { FOW state for each player }
@@ -19,6 +19,13 @@ type
     fAnimStep: Cardinal;
     MapX: Word;
     MapY: Word;
+
+    // Used to optimize RevealCircle
+    // It doesn't work if a cover function is called
+    // No need to save/load it, it's just an optimisation
+    RevealedRadius: array [0..MAX_MAP_SIZE-1, 0..MAX_MAP_SIZE-1] of Word;
+    CoverHasBeenCalled: Boolean;
+
     (*Revelation: array of array of packed record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
       Visibility: Byte;
@@ -67,7 +74,6 @@ const
 
 
 implementation
-uses KM_Defaults;
 
 
 { TKMFogOfWar }
@@ -93,17 +99,34 @@ procedure TKMFogOfWar.RevealCircle(Pos: TKMPoint; Radius, Amount: Word);
 var
   I, K: Word;
   I1, I2, K1, K2: Word;
+  SqrRadius: Integer;
 begin
+  if not CoverHasBeenCalled then
+  begin
+    if RevealedRadius[Pos.Y, Pos.X] >= Radius then Exit;
+    RevealedRadius[Pos.Y, Pos.X] := Radius;
+  end;
+
   //Avoid repeated computing (+2% performance)
   I1 := max(Pos.Y-Radius, 0);
   I2 := min(Pos.Y+Radius, MapY-1);
   K1 := max(Pos.X-Radius, 0);
   K2 := min(Pos.X+Radius, MapX-1);
+  SqrRadius := sqr(Radius);
 
   //Inline maths here to gain performance
-  for I := I1 to I2 do for K := K1 to K2 do
-  if (sqr(Pos.X - K) + sqr(Pos.Y - I)) <= sqr(Radius) then
-    Revelation[I, K] := min(Revelation[I, K] + Amount, FOG_OF_WAR_MAX);
+  if Amount >= FOG_OF_WAR_MAX then
+  begin
+    for I := I1 to I2 do for K := K1 to K2 do
+    if (sqr(Pos.X - K) + sqr(Pos.Y - I)) <= SqrRadius then
+      Revelation[I, K] := FOG_OF_WAR_MAX;
+  end
+  else
+  begin
+    for I := I1 to I2 do for K := K1 to K2 do
+    if (sqr(Pos.X - K) + sqr(Pos.Y - I)) <= SqrRadius then
+      Revelation[I, K] := min(Revelation[I, K] + Amount, FOG_OF_WAR_MAX);
+  end;
 end;
 
 
@@ -111,17 +134,21 @@ procedure TKMFogOfWar.CoverCircle(Pos: TKMPoint; Radius: Word);
 var
   I, K: Word;
   I1, I2, K1, K2: Word;
+  SqrRadius: Integer;
 begin
   //Avoid repeated computing (+2% performance)
   I1 := max(Pos.Y-Radius, 0);
   I2 := min(Pos.Y+Radius, MapY-1);
   K1 := max(Pos.X-Radius, 0);
   K2 := min(Pos.X+Radius, MapX-1);
+  SqrRadius := sqr(Radius);
 
   //Inline maths here to gain performance
   for I := I1 to I2 do for K := K1 to K2 do
-  if (sqr(Pos.X - K) + sqr(Pos.Y - I)) <= sqr(Radius) then
+  if (sqr(Pos.X - K) + sqr(Pos.Y - I)) <= SqrRadius then
     Revelation[I,K] := 0;
+
+  CoverHasBeenCalled := True;
 end;
 
 
@@ -140,6 +167,8 @@ var
 begin
   for I := TL.Y to BR.Y do for K := TL.X to BR.X do
     Revelation[I,K] := 0;
+
+  CoverHasBeenCalled := True;
 end;
 
 
@@ -159,6 +188,8 @@ begin
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
       Revelation[I, K] := 0;
+
+  CoverHasBeenCalled := True;
 end;
 
 
