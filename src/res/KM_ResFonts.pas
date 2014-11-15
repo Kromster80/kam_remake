@@ -124,6 +124,10 @@ implementation
   uses KM_Utils, KM_Log;
 
 
+var
+  LOG_EXTRA_FONTS: Boolean = False;
+
+
 { TKMFontData }
 procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPalData);
 const
@@ -308,7 +312,7 @@ begin
       else
         fAtlases[I].TexID := 0;
 
-  if LOG_EXTRA_GFX then
+  if LOG_EXTRA_FONTS then
     gLog.AddNoTime( 'Font RAM usage: '+IntToStr(TextureRAM));
 end;
 
