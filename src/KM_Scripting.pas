@@ -19,6 +19,10 @@ type
     fErrorString: UnicodeString; //Info about found mistakes (Unicode, can be localized later on)
     fWarningsString: UnicodeString;
 
+    fHasErrorOccured: Boolean; //Has runtime error occurred? (only display first error)
+    fScriptLogFile: UnicodeString;
+    fOnShowScriptError: TUnicodeStringEvent;
+
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
     fIDCache: TKMScriptingIdCache;
@@ -28,6 +32,8 @@ type
     function ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
     procedure CompileScript;
     procedure LinkRuntime;
+
+    procedure HandleScriptError(aType: TScriptErrorType; const aMsg: UnicodeString);
 
     procedure SaveVar(SaveStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
     procedure LoadVar(LoadStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
@@ -63,7 +69,10 @@ const
 
 
 implementation
-uses KM_Log;
+uses KM_Log, KM_Game, KromUtils;
+
+const
+  SCRIPT_LOG_EXT = '.LOG.txt';
 
 
 { TKMScripting }
@@ -76,9 +85,10 @@ begin
   fStates := TKMScriptStates.Create(fIDCache);
   fActions := TKMScriptActions.Create(fIDCache);
 
-  gScriptEvents.OnShowScriptError := aOnShowScriptError;
-  fStates.OnScriptError := gScriptEvents.HandleScriptError;
-  fActions.OnScriptError := gScriptEvents.HandleScriptError;
+  fOnShowScriptError := aOnShowScriptError;
+  gScriptEvents.OnScriptError := HandleScriptError;
+  fStates.OnScriptError := HandleScriptError;
+  fActions.OnScriptError := HandleScriptError;
 end;
 
 
@@ -93,8 +103,43 @@ begin
 end;
 
 
+procedure TKMScripting.HandleScriptError(aType: TScriptErrorType; const aMsg: UnicodeString);
+var
+  fl: textfile;
+begin
+  gLog.AddTime('Script: ' + aMsg); //Always log the error to global game log
+
+  //Log to map specific log file
+  if fScriptLogFile <> '' then
+  begin
+    AssignFile(fl, fScriptLogFile);
+    if not FileExists(fScriptLogFile) then
+      Rewrite(fl)
+    else
+      Append(fl);
+    WriteLn(fl, Format('%23s   %s', [FormatDateTime('yyyy/mm/dd hh:nn:ss.zzz', Now), aMsg]));
+    CloseFile(fl);
+  end;
+
+  //Display compile errors in-game
+  if aType = se_CompileError then
+    fOnShowScriptError(StringReplace(aMsg, EolW, '|', [rfReplaceAll]));
+
+  //Serious runtime errors should be shown to the player
+  if aType in [se_Exception] then
+  begin
+    //Only show the first message in-game to avoid spamming the player
+    if not fHasErrorOccured then
+      fOnShowScriptError('Error(s) have occured in the mission script. ' +
+                         'Please check the log file for further details. First error:||' + aMsg);
+    fHasErrorOccured := True;
+  end;
+end;
+
+
 procedure TKMScripting.LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
 begin
+  fScriptLogFile := ChangeFileExt(aFileName, SCRIPT_LOG_EXT);
   fErrorString := '';
   fWarningsString := '';
 
@@ -111,6 +156,11 @@ begin
 
   fScriptCode := ReadTextA(aFileName);
   CompileScript;
+  if fErrorString <> '' then
+    HandleScriptError(se_CompileError, 'Script compile errors:' + EolW + fErrorString);
+  if fWarningsString <> '' then
+    HandleScriptError(se_CompileWarning, 'Script compile warnings:' + EolW + fWarningsString);
+
   if aCampaignData <> nil then
     LoadCampaignData(aCampaignData);
 end;
@@ -475,12 +525,12 @@ begin
     if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode
     begin
       for I := 0 to Compiler.MsgCount - 1 do
-        fErrorString := fErrorString + UnicodeString(Compiler.Msg[I].MessageToString) + '|';
+        fErrorString := fErrorString + UnicodeString(Compiler.Msg[I].MessageToString) + EolW;
       Exit;
     end
       else
         for I := 0 to Compiler.MsgCount - 1 do
-          fWarningsString := fWarningsString + UnicodeString(Compiler.Msg[I].MessageToString) + '|';
+          fWarningsString := fWarningsString + UnicodeString(Compiler.Msg[I].MessageToString) + EolW;
 
     Compiler.GetOutput(fByteCode); // Save the output of the compiler in the string Data.
   finally
@@ -901,6 +951,11 @@ begin
     V := fExec.GetVarNo(I);
     LoadVar(LoadStream, @PPSVariantData(V).Data, V.FType);
   end;
+
+  //The log path can't be stored in the save since it might be in MapsMP or MapsDL on different clients
+  fScriptLogFile := ExeDir + ChangeFileExt(gGame.GetMissionFile, SCRIPT_LOG_EXT);
+  if not DirectoryExists(ExtractFilePath(fScriptLogFile)) then
+    fScriptLogFile := '';
 end;
 
 

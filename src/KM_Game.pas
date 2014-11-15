@@ -414,8 +414,7 @@ begin
     end;
 
     fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
-    if (fScripting.ErrorString <> '') then
-      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in script:|' + fScripting.ErrorString);
+    //fScripting reports compile errors itself now
   end;
 
 
