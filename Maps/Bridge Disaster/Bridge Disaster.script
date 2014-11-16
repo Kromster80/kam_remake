@@ -22,8 +22,9 @@ begin
       Actions.GiveGroup(I, 19, SOLDIERS[I].X, SOLDIERS[I].Y+6, 0, 4, 4);
       //Ally with other AIs
       for K:=0 to LOC_COUNT-1 do
-        if States.PlayerIsAI(K) then
-          Actions.PlayerAllianceChange(I, K, True, True);
+        if I <> K then
+          if States.PlayerIsAI(K) then
+            Actions.PlayerAllianceChange(I, K, True, True);
     end
     else
       //Human gets a scout
