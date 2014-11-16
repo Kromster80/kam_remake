@@ -39,8 +39,9 @@ type
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
     procedure Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString = '');
-    procedure StopGameReturnToLobby(aTimestamp: TDateTime);
     procedure AnnounceReturnToLobby(Sender: TObject);
+    procedure PrepareReturnToLobby(aTimestamp: TDateTime);
+    procedure StopGameReturnToLobby(Sender: TObject);
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
     procedure ToggleLocale(aLocale: AnsiString);
@@ -410,7 +411,24 @@ begin
 end;
 
 
-procedure TKMGameApp.StopGameReturnToLobby(aTimestamp: TDateTime);
+procedure TKMGameApp.AnnounceReturnToLobby(Sender: TObject);
+begin
+  //When this GIC command is executed, it will run PrepareReturnToLobby
+  gGame.GameInputProcess.CmdGame(gic_GameSaveReturnLobby, UTCNow);
+end;
+
+
+procedure TKMGameApp.PrepareReturnToLobby(aTimestamp: TDateTime);
+begin
+  if gGame = nil then Exit;
+  gGame.Save(RETURN_TO_LOBBY_SAVE, aTimestamp);
+  gGame.IsPaused := True; //Freeze the game
+  fNetworking.AnnounceReadyToReturnToLobby;
+  //Now we wait for other clients to reach this step, then fNetworking triggers StopGameReturnToLobby
+end;
+
+
+procedure TKMGameApp.StopGameReturnToLobby(Sender: TObject);
 var ChatState: TChatState;
 begin
   if gGame = nil then Exit;
@@ -418,9 +436,7 @@ begin
   //Copy text from in-game chat to lobby (save it before freeing gGame)
   ChatState := gGame.GameplayInterface.GetChatState;
 
-  gGame.Save(RETURN_TO_LOBBY_SAVE, aTimestamp);
   FreeThenNil(gGame);
-
   fNetworking.ReturnToLobby; //Clears gGame event pointers from Networking
   fMainMenuInterface.ReturnToLobby(RETURN_TO_LOBBY_SAVE); //Assigns Lobby event pointers to Networking and selects map
   if fNetworking.IsHost then
@@ -430,12 +446,6 @@ begin
   fMainMenuInterface.SetChatState(ChatState);
 
   gLog.AddTime('Gameplay ended - Return to lobby');
-end;
-
-
-procedure TKMGameApp.AnnounceReturnToLobby(Sender: TObject);
-begin
-  gGame.GameInputProcess.CmdGame(gic_GameSaveReturnLobby, UTCNow);
 end;
 
 
@@ -644,7 +654,8 @@ begin
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
   fNetworking.OnStartMap := NewMultiplayerMap;
   fNetworking.OnStartSave := NewMultiplayerSave;
-  fNetworking.OnReturnToLobby := AnnounceReturnToLobby;
+  fNetworking.OnAnnounceReturnToLobby := AnnounceReturnToLobby;
+  fNetworking.OnDoReturnToLobby := StopGameReturnToLobby;
 end;
 
 

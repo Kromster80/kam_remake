@@ -46,7 +46,7 @@ const
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
     //lgs_Game
-    [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReturnToLobby,
+    [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReadyToReturnToLobby,
      mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote],
     //lgs_Reconnecting
     [mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
@@ -112,7 +112,8 @@ type
     fOnMapMissing: TUnicodeStringBoolEvent;
     fOnStartMap: TMapStartEvent;
     fOnStartSave: TGameStartEvent;
-    fOnReturnToLobby: TNotifyEvent;
+    fOnAnnounceReturnToLobby: TNotifyEvent;
+    fOnDoReturnToLobby: TNotifyEvent;
     fOnPlay: TNotifyEvent;
     fOnReadyToPlay: TNotifyEvent;
     fOnDisconnect: TUnicodeStringEvent;
@@ -130,6 +131,7 @@ type
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
+    procedure ReturnToLobbyVoteSucceeded;
 
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
@@ -192,6 +194,7 @@ type
     procedure SendGameOptions;
     procedure RequestFileTransfer;
     procedure VoteReturnToLobby;
+    procedure AnnounceReadyToReturnToLobby;
 
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
@@ -229,7 +232,8 @@ type
     property OnMapMissing: TUnicodeStringBoolEvent write fOnMapMissing;           //Map missing
     property OnStartMap: TMapStartEvent write fOnStartMap;       //Start the game
     property OnStartSave: TGameStartEvent write fOnStartSave;       //Load the game
-    property OnReturnToLobby: TNotifyEvent write fOnReturnToLobby;
+    property OnDoReturnToLobby: TNotifyEvent write fOnDoReturnToLobby;
+    property OnAnnounceReturnToLobby: TNotifyEvent write fOnAnnounceReturnToLobby;
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
@@ -436,11 +440,7 @@ begin
 
   //Player being dropped may cause vote to end
   if (fNetGameState in [lgs_Loading, lgs_Game]) and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
-  begin
-    fNetPlayers.ResetVote;
-    //This packet is also sent to ourself (host), we will return to lobby when it arrives
-    PacketSend(NET_ADDRESS_ALL, mk_ReturnToLobby);
-  end;
+    ReturnToLobbyVoteSucceeded;
 end;
 
 
@@ -882,6 +882,8 @@ begin
     PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], [ErrorMessage]), csSystem);
     Exit;
   end;
+
+  fNetPlayers.ResetReadyToPlay; //Nobody is ready to play
 
   //ValidateSetup removes closed players if successful, so our index changes
   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
@@ -1570,11 +1572,7 @@ begin
                       //Player leaving may cause vote to end
                       if (fNetGameState in [lgs_Loading, lgs_Game])
                       and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
-                      begin
-                        fNetPlayers.ResetVote;
-                        //This packet is also sent to ourself (host), we will return to lobby when it arrives
-                        PacketSend(NET_ADDRESS_ALL, mk_ReturnToLobby);
-                      end;
+                        ReturnToLobbyVoteSucceeded;
                     end;
                 lpk_Joiner:
                     begin
@@ -1814,10 +1812,6 @@ begin
                   SendPlayerListAndRefreshPlayersSetup(aSenderIndex);
               end;
 
-      mk_ReturnToLobby:
-              if Assigned(fOnReturnToLobby) then
-                fOnReturnToLobby(Self);
-
       mk_ReadyToStart:
               if IsHost then
               begin
@@ -1841,6 +1835,16 @@ begin
                 fNetPlayers.LoadFromStream(M);
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 StartGame;
+              end;
+
+      mk_ReadyToReturnToLobby:
+              begin
+                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToReturnToLobby := True;
+                if fNetPlayers.AllReadyToReturnToLobby then
+                begin
+                  fNetPlayers.ResetReadyToReturnToLobby; //So it's reset for next time
+                  fOnDoReturnToLobby(Self);
+                end;
               end;
 
       mk_ReadyToPlay:
@@ -1904,9 +1908,7 @@ begin
                   if fNetPlayers.FurtherVotesNeededForMajority <= 0 then
                   begin
                     PostMessage(TX_NET_VOTE_PASSED, csSystem, UnicodeString(fNetPlayers[PlayerIndex].NiknameColored));
-                    fNetPlayers.ResetVote;
-                    //This packet is also sent to ourself (host), we will return to lobby when it arrives
-                    PacketSend(NET_ADDRESS_ALL, mk_ReturnToLobby);
+                    ReturnToLobbyVoteSucceeded;
                   end
                   else
                   begin
@@ -2218,6 +2220,22 @@ begin
 end;
 
 
+procedure TKMNetworking.AnnounceReadyToReturnToLobby;
+begin
+  //Send it to ourselves too, that's simplest
+  PacketSend(NET_ADDRESS_ALL, mk_ReadyToReturnToLobby);
+end;
+
+
+procedure TKMNetworking.ReturnToLobbyVoteSucceeded;
+begin
+  //Don't run NetPlayers.ResetVote here, wait until we actually return to the lobby so the vote can't start again
+  NetPlayers.ResetReadyToReturnToLobby;
+  SendPlayerListAndRefreshPlayersSetup;
+  fOnAnnounceReturnToLobby(Self); //Sends GIC command to create synchronised save file
+end;
+
+
 procedure TKMNetworking.ReturnToLobby;
 begin
   //Clear events that were used by Game
@@ -2233,6 +2251,7 @@ begin
   begin
     NetPlayers.RemAllAIs; //AIs are included automatically when you start the save
     NetPlayers.RemDisconnectedPlayers; //Disconnected players must not be shown in lobby
+    NetPlayers.ResetVote; //Only reset the vote now that the game has exited
     //Don't refresh player setup here since events aren't attached to lobby yet
   end;
 end;

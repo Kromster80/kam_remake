@@ -68,7 +68,7 @@ type
     mk_ReadyToStart,    //Joiner tells he's ready to play the game
     mk_HasMapOrSave,    //Joiner tells host he has the map/save file
     mk_Start,           //Host says to start the game
-    mk_ReturnToLobby,   //Host tells joiners to return to the lobby
+    mk_ReadyToReturnToLobby, //Joiner/host tells others they are ready to return to lobby
 
     mk_ReadyToPlay,     //Joiner tells Host he has loaded the map and clock can start
     mk_Play,            //Host tells everyone that the game may begin
@@ -143,7 +143,7 @@ const
     pfNoData,   //mk_ReadyToStart
     pfNoData,   //mk_HasMapOrSave
     pfBinary,   //mk_Start
-    pfNoData,   //mk_ReturnToLobby
+    pfNoData,   //mk_ReadyToReturnToLobby
     pfNoData,   //mk_ReadyToPlay
     pfNoData,   //mk_Play
     pfStringA,  //mk_AskToReconnect

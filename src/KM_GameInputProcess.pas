@@ -379,7 +379,7 @@ begin
                                     gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
       gic_GameSaveReturnLobby:    if fReplayState = gipRecording then
                                   begin
-                                    fGameApp.StopGameReturnToLobby(DateTimeParam); //Timestamp is synchronised
+                                    fGameApp.PrepareReturnToLobby(DateTimeParam); //Timestamp is synchronised
                                     Exit;
                                   end;
       gic_GameTeamChange:         begin

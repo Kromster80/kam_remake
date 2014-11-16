@@ -27,6 +27,7 @@ type
     Team: Integer;
     ReadyToStart: Boolean;
     ReadyToPlay: Boolean;
+    ReadyToReturnToLobby: Boolean;
     HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
@@ -96,6 +97,7 @@ type
     function ColorAvailable(aIndex: Integer): Boolean;
     function AllReady: Boolean;
     function AllReadyToPlay: Boolean;
+    function AllReadyToReturnToLobby: Boolean;
     function GetMaxHighestRoundTripLatency: Word;
     function GetNotReadyToPlayPlayers: TKMByteArray;
     function GetAICount: Integer;
@@ -107,6 +109,8 @@ type
 
     procedure ResetLocAndReady;
     procedure ResetReady;
+    procedure ResetReadyToPlay;
+    procedure ResetReadyToReturnToLobby;
     procedure ResetVote;
     procedure SetAIReady;
     procedure RemAllAIs;
@@ -245,6 +249,7 @@ begin
   LoadStream.Read(Team);
   LoadStream.Read(ReadyToStart);
   LoadStream.Read(ReadyToPlay);
+  LoadStream.Read(ReadyToReturnToLobby);
   LoadStream.Read(HasMapOrSave);
   LoadStream.Read(Connected);
   LoadStream.Read(Dropped);
@@ -263,6 +268,7 @@ begin
   SaveStream.Write(Team);
   SaveStream.Write(ReadyToStart);
   SaveStream.Write(ReadyToPlay);
+  SaveStream.Write(ReadyToReturnToLobby);
   SaveStream.Write(HasMapOrSave);
   SaveStream.Write(Connected);
   SaveStream.Write(Dropped);
@@ -379,6 +385,7 @@ begin
   fNetPlayers[fCount].ReadyToStart := false;
   fNetPlayers[fCount].HasMapOrSave := false;
   fNetPlayers[fCount].ReadyToPlay := false;
+  fNetPlayers[fCount].ReadyToReturnToLobby := false;
   fNetPlayers[fCount].Connected := true;
   fNetPlayers[fCount].Dropped := false;
   fNetPlayers[fCount].ResetPingRecord;
@@ -623,6 +630,16 @@ begin
 end;
 
 
+function TKMNetPlayersList.AllReadyToReturnToLobby: Boolean;
+var I: Integer;
+begin
+  Result := True;
+  for I:=1 to fCount do
+    if fNetPlayers[I].Connected and fNetPlayers[I].IsHuman then
+      Result := Result and fNetPlayers[I].ReadyToReturnToLobby;
+end;
+
+
 function TKMNetPlayersList.GetMaxHighestRoundTripLatency:word;
 var I: Integer; Highest, Highest2, PlayerPing: word;
 begin
@@ -761,6 +778,22 @@ begin
     //AI/closed players are always ready, spectator ready status is not reset by options change
     if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
       fNetPlayers[i].ReadyToStart := False;
+end;
+
+
+procedure TKMNetPlayersList.ResetReadyToPlay;
+var I: Integer;
+begin
+  for I:=1 to fCount do
+    fNetPlayers[I].ReadyToPlay := False;
+end;
+
+
+procedure TKMNetPlayersList.ResetReadyToReturnToLobby;
+var I: Integer;
+begin
+  for I:=1 to fCount do
+    fNetPlayers[I].ReadyToReturnToLobby := False;
 end;
 
 
