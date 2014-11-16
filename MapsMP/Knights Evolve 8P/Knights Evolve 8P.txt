@@ -1,0 +1,4 @@
+SetSpecial
+BlockPeacetime 
+BigDesc
+Welcome to [$8CE6F0]Knights Evolve 8 v1.04[]!|Destroy enemy Towers to win!|Troops are spawn near your Tower every few seconds, use them to defeat enemies, get the middle bonus and destroy opponents Towers.|Bonuses: Speed up or Doubled spawn, or God of War - your warriors kill enemies by one shot.||Script by Random Lyrics / Randziu||Map by Skypper

@@ -1,0 +1,816 @@
+/// :* 		Knights Frenzy 		*:
+/// *    	v1.04		*
+/// *  by Random Lyrics 2013 	*
+///TO DO: BOUNTIES
+/// licensed under GPLv2
+/// https://gnu.org/licenses/old-licenses/gpl-2.0.txt
+///
+
+const
+VOLUME_BONUS = 0.9;
+VOLUME_PLAYER_DEFEATED = 0.7;
+MAX_PLAYERS = 4; // 5th - NOTHING	//CHANGEMAP
+FEED_TIME = 9000; //10*60*15; // TICKS
+START_SPAWN_TIME = 7; // SECONDS
+TOWERS_REPAIR_AMOUNT = 10; //PER 2 SECONDS ; TOWER HAS 250 HEALTH
+AUTO_GROUP_COUNT = 15; //MAX COUNT GROUP FOR AUTO GROUP
+AUTO_GROUP_RADIUS = 19; //RANGE FOR AUTOGROUP - KaM Meters
+START_BARB_AMOUNT = 3;
+MAX_BARB_AMOUNT = 12;
+DUMMY_AI = MAX_PLAYERS;
+SPAWN_RANGE_FREQ = 7; 				//CHANGEMAP
+//BONUSES
+BONUS_COOLDOWN = 300;
+BONUS_SPEED = 13;
+BONUS_SPEED_SPAWN_TIME = 4;
+BONUS_SPEED_TIME = 120;
+BONUS_DOUBLE = 8;
+BONUS_DOUBLE_SPAWN_COUNT = 2;
+BONUS_DOUBLE_TIME = 105;
+BONUS_GOW = 29;
+BONUS_GOW_TIME = 75;
+//UNITS THRESHOLD
+LANCE_KN = 50;
+BOW_KN = 9998;
+AXE_KN = 150;
+H_AXE_KN = 300;
+PIKE_KN = 500;
+XBOW_KN = 9999;
+SWORD_KN = 750;
+KNIGHT_KN = 1500;
+BARB_KN = 1000;
+//AI
+AI_THINK_SLOWER = 10; //every 9 ticks
+AI_SNIFF_RADIUS = 2;
+AI_SMELL_RADIUS = 14;
+AI_BASE_RADIUS = 6;
+AI_COVER_RADIUS = 30;
+AI_MIN_ARMY_COUNT = 30;
+AI_COUNT_RANDOM10 = 3;
+AI_MIN_ARMY_DEF = 13;
+AI_MAX_TOWER_DAMAGE = 100;
+
+type TBonus =
+	record
+	Counter: integer;
+	Timer: integer;
+	BType: integer;
+	House: integer;
+	X, Y: integer;
+	end;
+
+type TPlayer =
+	record
+	Tower: integer;
+	TowerOccupant: integer;
+	Kills: integer;
+	SpawnType: integer;
+	ETimer: integer;
+	BTimer: integer;
+	SpawnCount: integer;
+	SpawnTime: integer;
+	SpawnTimeCounter: integer;
+	SpawnTimeCounterRange: integer;
+	BonusType: integer;
+	BonusTimer: integer;
+	end;
+	
+type TAI =
+	record
+	MinCount: integer;
+	State: integer; //0-idle, 1-poking, 2-attacking, 3-defending
+	Base: integer;
+	Enemy: integer;
+	end;
+
+var
+GAME_STATE: integer;
+PLAYER: array [0..MAX_PLAYERS] of TPlayer;
+BONUS: TBonus;
+PLAYERS_SORTED: array [0..MAX_PLAYERS] of integer;
+BARB_COUNT, BARB_AMOUNT: integer;
+GOW_PLAYER: integer;
+AI: array [0..MAX_PLAYERS] of TAI;
+AI_COUNTER: integer;
+
+// FUNCTIONS
+function InArea(tX, tY, pX, pY, radius: integer): boolean;
+begin
+	result:= false;
+	if ( Abs(pX - tX) <= Abs(radius) ) and ( Abs(pY - tY) <= Abs(radius) ) then begin
+		result:= true;
+	end;
+end;
+function InRange(aInt, aFrom, aTo: integer): boolean;
+begin
+	Result := (aInt >= aFrom) and (aInt <= aTo);
+end;
+procedure Test(a: integer);
+begin
+	Actions.ShowMsg(-1, 'test: ' + inttostr(a));
+end;
+function GetUnitTypeFromKillsThreshold(aKills: integer): integer;
+begin
+  // the score is determined by a formula based on the following formula: A*D*L/100 with A attack, D defense, L lifepoints, then rounded to the nearest (or in case of bonus attack, to the higher)
+  case aKills of
+    0: RESULT := 14; // militia
+	LANCE_KN: RESULT := 19; // lance carrier
+	BOW_KN: RESULT := 17; // bowman
+    AXE_KN: RESULT := 15; // axefighter
+	H_AXE_KN: RESULT := 21; // scout
+	
+	PIKE_KN: RESULT := 20; // pikeman
+	XBOW_KN: RESULT := 18; // crossbowman
+    SWORD_KN: RESULT := 16; // swordfighter
+    KNIGHT_KN: RESULT := 22; // knight
+    
+	BARB_KN: RESULT := 26; // warrior
+	
+    //23: RESULT := 6; // barbarian // the town hall units are not accessible in this map, they are included to have this complete
+    //24: RESULT := 1; // rebel
+    //25: RESULT := 1; // rogue
+    //27: RESULT := 2; // vagabond
+    else RESULT := -1; // civilians
+  end
+end;
+
+function GiveSupportUnitType(aType: integer): integer;
+begin
+ case aType of
+    14: RESULT := 25;// militia
+	19: RESULT := 25; // lance carrier
+	17: RESULT := 14; // bowman
+    15: RESULT := 17; // axefighter
+	21: RESULT := 17; // scout
+	
+	20: RESULT := 17; // pikeman
+	18: RESULT := 15; // crossbowman
+    16: RESULT := 18; // swordfighter
+    22: RESULT := 18; // knight
+    
+	26: RESULT := 18; // warrior
+	
+    //23: RESULT := 6; // barbarian // the town hall units are not accessible in this map, they are included to have this complete
+    //24: RESULT := 1; // rebel
+    //25: RESULT := 1; // rogue
+    //27: RESULT := 2; // vagabond
+    else RESULT := 0; // civilians
+  end
+end;
+
+// AI
+function ClosestEnemyHouse(aPlayer, X, Y, radius:Integer): Integer; 
+var 
+Houses: array of Integer; 
+i, j, BestDistanceSqr, ThisDistanceSqr, DX, DY: Integer;
+begin
+	Result := -1;
+	for j := 0 to MAX_PLAYERS-1 do begin
+		if (States.PlayerEnabled(j) = true) and (States.PlayerDefeated(j) = false) and (j <> aPlayer) then begin
+			if( States.PlayerAllianceCheck(aPlayer, j) <> true ) then begin	
+				Houses := States.PlayerGetAllHouses(j);
+				for i := 0 to Length(Houses) -1 do begin
+					if States.HouseDestroyed(Houses[i]) = false then begin
+						DX := X - States.HousePositionX(Houses[i]);
+						DY := Y - States.HousePositionY(Houses[i]);
+						ThisDistanceSqr := (DX*DX) + (DY*DY);
+						if ((Abs(DX)<radius) and (Abs(DY)<radius)) and ((Result = -1) or (ThisDistanceSqr < BestDistanceSqr)) then begin
+							BestDistanceSqr := ThisDistanceSqr;
+							Result := Houses[i];
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+function ClosestEnemyGroup(aPlayer, X, Y, radius:Integer): Integer; 
+var 
+Groups: array of Integer; 
+i, j, BestDistanceSqr, ThisDistanceSqr, DX, DY, fUnit: Integer;
+begin
+	Result := -1;
+	for j := 0 to MAX_PLAYERS-1 do begin
+		if (States.PlayerEnabled(j) = true) and (States.PlayerDefeated(j) = false) and (j <> aPlayer) then begin
+			if( States.PlayerAllianceCheck(aPlayer, j) <> true ) then begin
+				Groups := States.PlayerGetAllGroups(j);
+				for i := 0 to Length(Groups) -1 do begin
+					if States.GroupDead(Groups[i]) = false then begin
+						fUnit:=States.GroupMember(Groups[i], 0);
+						DX := X - States.UnitPositionX(fUnit);
+						DY := Y - States.UnitPositionY(fUnit);
+						ThisDistanceSqr := (DX*DX) + (DY*DY);
+						if (States.UnitPositionX(fUnit) < 198) and ((Abs(DX)<radius) and (Abs(DY)<radius)) and ((Result = -1) or (ThisDistanceSqr < BestDistanceSqr)) then begin
+							BestDistanceSqr := ThisDistanceSqr;
+							Result := Groups[i];
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+function ClosestEnemyGroupType(aPlayer, gType, X, Y, radius:Integer): Integer; 
+var 
+Groups: array of Integer; 
+i, j, BestDistanceSqr, ThisDistanceSqr, DX, DY, fUnit: Integer;
+begin
+	Result := -1;
+	for j := 0 to MAX_PLAYERS-1 do begin
+		if (States.PlayerEnabled(j) = true) and (States.PlayerDefeated(j) = false) and (j <> aPlayer) then begin
+			if( States.PlayerAllianceCheck(aPlayer, j) <> true ) then begin
+				Groups := States.PlayerGetAllGroups(j);
+				for i := 0 to Length(Groups) -1 do begin
+					if ( States.GroupDead(Groups[i]) = false ) and ( States.GroupType(Groups[i]) = 2 ) then begin
+						fUnit:=States.GroupMember(Groups[i], 0);
+						DX := X - States.UnitPositionX(fUnit);
+						DY := Y - States.UnitPositionY(fUnit);
+						ThisDistanceSqr := (DX*DX) + (DY*DY);
+						if (States.UnitPositionX(fUnit) < 198) and ((Abs(DX)<radius) and (Abs(DY)<radius)) and ((Result = -1) or (ThisDistanceSqr < BestDistanceSqr)) then begin
+							BestDistanceSqr := ThisDistanceSqr;
+							Result := Groups[i];
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+function ClosestPlayerGroupType(aPlayer, gType, X, Y, radius:Integer): Integer; 
+var 
+Groups: array of Integer; 
+i, BestDistanceSqr, ThisDistanceSqr, DX, DY, fUnit: Integer;
+begin
+	Result := -1;
+	Groups := States.PlayerGetAllGroups(aPlayer);
+	for i := 0 to Length(Groups) -1 do begin
+		if ( States.GroupDead(Groups[i]) = false ) and ( States.GroupType(Groups[i]) = 2 ) then begin
+			fUnit:=States.GroupMember(Groups[i], 0);
+			DX := X - States.UnitPositionX(fUnit);
+			DY := Y - States.UnitPositionY(fUnit);
+			ThisDistanceSqr := (DX*DX) + (DY*DY);
+			if (States.UnitPositionX(fUnit) < 198) and ((Abs(DX)<radius) and (Abs(DY)<radius)) and ((Result = -1) or (ThisDistanceSqr < BestDistanceSqr)) then begin
+				BestDistanceSqr := ThisDistanceSqr;
+				Result := Groups[i];
+			end;
+		end;
+	end;
+end;
+function AttackGroup(aGroup, aTarget: integer): boolean;
+begin
+	result:= true;
+	if aTarget > 0 then begin
+		Actions.GroupOrderAttackUnit(aGroup, States.GroupMember(aTarget, 0));
+		result:= false;
+	end;
+end;
+function AttackHouse(aGroup, aTarget: integer): boolean;
+begin
+	result:= true;
+	if ( aTarget > 0 ) and ( not States.HouseDestroyed(aTarget) ) then begin
+		Actions.GroupOrderAttackHouse(aGroup, aTarget);
+		result:= false;
+	end;
+end;
+function CoverGroup(aGroup, aTarget: integer): boolean;
+begin
+	result:= true;
+	if ( aTarget > 0 ) then begin
+		if not InArea(States.UnitPositionX(States.GroupMember(aGroup, 0)), States.UnitPositionY(States.GroupMember(aGroup, 0)), States.UnitPositionX(States.GroupMember(aTarget, 0)), States.UnitPositionY(States.GroupMember(aTarget, 0)), AI_SNIFF_RADIUS) then
+			Actions.GroupOrderWalk(aGroup, States.UnitPositionX(States.GroupMember(aTarget, 0)), States.UnitPositionY(States.GroupMember(aTarget, 0)), States.UnitDirection(States.GroupMember(aTarget, 0)));
+		result:= false;
+	end;
+end;
+function GetRandomEnemy(aPlayer: integer): integer;
+var r: integer;
+begin
+	r:= aPlayer;
+	while ( r = aPlayer ) or ( States.PlayerDefeated(r) ) or ( States.PlayerAllianceCheck(aPlayer, r) ) do
+		r:= States.KaMRandomI(MAX_PLAYERS);
+	result:= r;
+end;
+
+procedure AIState(aPlayer: integer);
+begin
+	//AI[aPlayer].State:= 0; //idle
+	if ( States.StatArmyCount(aPlayer) >= AI[aPlayer].MinCount ) then begin
+		if AI[aPlayer].State <> 2 then begin//attacking
+			AI[aPlayer].State:= 2;
+			AI[aPlayer].Enemy:= GetRandomEnemy(aPlayer);
+		end;
+	end else if ( States.HouseDamage(AI[aPlayer].Base) >= AI_MAX_TOWER_DAMAGE ) or ( States.StatArmyCount(aPlayer) <= AI_MIN_ARMY_DEF ) then begin
+		if AI[aPlayer].State <> 3 then
+			AI[aPlayer].State:= 3;
+	end else begin
+		if ( AI[aPlayer].State <> 1 ) and ( AI[aPlayer].State <> 2 ) then begin //poking
+			AI[aPlayer].State:= 1;
+		end;
+	end;
+	//if States.StatArmyCount(aPlayer) = Round(AI[aPlayer].MinCount*0.3) then begin	
+end;
+procedure AIThink;
+var
+aA: array of integer;
+j, k, x, y, p: integer;
+pass: boolean;
+begin
+	j:= AI_COUNTER;
+	if States.PlayerEnabled(j) and States.PlayerIsAI(j) and ( States.PlayerDefeated(j) = false ) then begin
+	//if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+		AIState(j);
+		aA := States.PlayerGetAllGroups(j);
+		for k:= 0 to Length(aA)-1 do begin
+			if States.GroupDead(aA[k]) = false then begin
+				x:= States.UnitPositionX(States.GroupMember(aA[k], 0));
+				y:= States.UnitPositionY(States.GroupMember(aA[k], 0));
+				p:= States.GroupOwner(aA[k]);
+				if AI[j].State = 0 then begin 						//idle
+				
+				end else if AI[j].State = 1 then begin				//POKING
+					if States.GroupType(aA[k]) = 2 then begin //ranged
+						if ClosestEnemyGroup(p, x, y, AI_SMELL_RADIUS-5) > 0 then
+							Actions.GroupOrderWalk(aA[k], States.HousePositionX(AI[j].Base), States.HousePositionY(AI[j].Base)+1, 4)
+						else
+							if AttackGroup(aA[k], ClosestEnemyGroup(p, x, y, AI_SMELL_RADIUS)) then
+								if AttackHouse(aA[k], BONUS.House) then
+									AttackHouse(aA[k], PLAYER[AI[j].Enemy].Tower);
+					end else 								  //melee
+						if AttackGroup(aA[k], ClosestEnemyGroup(p, x, y, AI_SNIFF_RADIUS)) then
+							if ClosestEnemyGroup(p, x, y, AI_SMELL_RADIUS-4) > 0 then begin
+								if AttackHouse(aA[k], BONUS.House) then
+									if CoverGroup(aA[k], ClosestPlayerGroupType(p, 2, x, y, AI_COVER_RADIUS)) then
+										Actions.GroupOrderWalk(aA[k], States.HousePositionX(AI[j].Base), States.HousePositionY(AI[j].Base)+1, 4);
+							end else
+								if CoverGroup(aA[k], ClosestPlayerGroupType(p, 2, x, y, AI_COVER_RADIUS)) then
+									Actions.GroupOrderWalk(aA[k], States.HousePositionX(AI[j].Base), States.HousePositionY(AI[j].Base)+1, 4);
+								
+				end else if AI[j].State = 2 then begin				//ATTACKING
+					if States.GroupType(aA[k]) = 2 then begin //ranged
+						if ClosestEnemyGroup(p, x, y, AI_SMELL_RADIUS-7) > 0 then
+							Actions.GroupOrderWalk(aA[k], States.HousePositionX(AI[j].Base), States.HousePositionY(AI[j].Base)+1, 4)
+						else
+							if AttackGroup(aA[k], ClosestEnemyGroupType(p, 2, x, y, 12)) then
+								if AttackGroup(aA[k], ClosestEnemyGroup(p, x, y, AI_SMELL_RADIUS-4)) then
+									if AttackHouse(aA[k], BONUS.House) then
+										AttackHouse(aA[k], PLAYER[AI[j].Enemy].Tower);
+					end else 								  //melee
+						if AttackGroup(aA[k], ClosestEnemyGroup(p, x, y, AI_SMELL_RADIUS-4)) then
+							if AttackHouse(aA[k], BONUS.House) then
+								AttackHouse(aA[k], PLAYER[AI[j].Enemy].Tower);
+								
+				end else if AI[j].State = 3 then begin				//DEFENDING
+					if States.GroupType(aA[k]) = 2 then begin //ranged
+						if AttackGroup(aA[k], ClosestEnemyGroupType(p, 2, States.HousePositionX(AI[j].Base), States.HousePositionY(AI[j].Base), 12)) then
+							Actions.GroupOrderWalk(aA[k], States.HousePositionX(AI[j].Base), States.HousePositionY(AI[j].Base)+1, 4);
+					end else 								  //melee
+						if AttackGroup(aA[k], ClosestEnemyGroup(p, x, y, AI_SNIFF_RADIUS+2)) then
+							Actions.GroupOrderWalk(aA[k], States.HousePositionX(AI[j].Base), States.HousePositionY(AI[j].Base)+1, 4);
+				end;
+			end;
+		end;
+	end;
+	AI_COUNTER:= AI_COUNTER + 1;
+	if AI_COUNTER = MAX_PLAYERS then
+		AI_COUNTER:= 0;
+end;
+
+procedure SetAI;
+var j: integer;
+begin
+	AI_COUNTER:= 0;
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) and States.PlayerIsAI(j) and ( States.PlayerDefeated(j) = false ) then begin
+		//if States.PlayerEnabled(j) and ( States.PlayerDefeated(j) = false ) then begin
+			AI[j].MinCount:= AI_MIN_ARMY_COUNT + States.KaMRandomI(AI_COUNT_RANDOM10)*10;
+			AI[j].State:= 1; //idle
+			AI[j].Base:= PLAYER[j].Tower;
+			AI[j].Enemy:= GetRandomEnemy(j);
+		end;
+	end;
+end;
+// END AI
+
+// SETTERS
+procedure SetPlayers;
+var
+aAr: array of Integer;
+j, k: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			PLAYERS_SORTED[j]:= j;
+			PLAYER[j].Kills:= 0;
+			PLAYER[j].ETimer:= 0;
+			PLAYER[j].BTimer:= 0;
+			PLAYER[j].SpawnCount:= 1;
+			PLAYER[j].SpawnTime:= START_SPAWN_TIME;
+			PLAYER[j].SpawnTimeCounter:= 0;
+			PLAYER[j].SpawnTimeCounterRange:= 0;
+			
+			PLAYER[j].BonusType:= -1;
+			PLAYER[j].BonusTimer:= -1;
+			PLAYER[j].SpawnType:= GetUnitTypeFromKillsThreshold(PLAYER[j].Kills);
+			
+			Actions.FogRevealAll(j);
+			aAr:= States.PlayerGetAllHouses(j);
+			for k:= 0 to Length(aAr)-1 do begin
+				if States.HouseType(aAr[k]) = 17 then begin
+					PLAYER[j].Tower:= aAr[k];
+					PLAYER[j].TowerOccupant:= Actions.GiveUnit(j, 13, States.HousePositionX(PLAYER[j].Tower), States.HousePositionY(PLAYER[j].Tower)+1, 4);
+				end;
+			end;
+			//for k:= 0 to 29 do begin
+				//Actions.HouseUnlock(j, k);
+				//Actions.HouseAllow(j, k, false);
+			//end;
+		end;
+	end;
+	//set dummy
+	BONUS.Counter:= 0;
+	BONUS.Timer:= -1;
+	BONUS.BType:= -1;
+	aAr:= States.PlayerGetAllHouses(DUMMY_AI);
+	for k:= 0 to Length(aAr)-1 do begin
+		if States.HouseType(aAr[k]) = 21 then begin
+			BONUS.House:= aAr[k];
+			BONUS.X:= States.HousePositionX(BONUS.House)
+			BONUS.Y:= States.HousePositionY(BONUS.House)
+		end;
+	end;
+end;
+
+// MECHANICS
+
+procedure FeedOccupants;
+var j: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			if PLAYER[j].TowerOccupant > 0 then
+				Actions.UnitHungerSet(PLAYER[j].TowerOccupant, 10*60*40);
+		end;
+	end;
+end;
+procedure GiveStoneAndHealthToTowers;
+var j: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			if PLAYER[j].Tower > 0 then begin
+				if (States.HouseResourceAmount(PLAYER[j].Tower, 1) < 5 ) then
+					Actions.HouseAddWaresTo(PLAYER[j].Tower, 1, 5);
+				if (States.HouseDamage(PLAYER[j].Tower) > 0 ) then
+					Actions.HouseAddRepair(PLAYER[j].Tower, TOWERS_REPAIR_AMOUNT);
+			end;
+		end;
+	end;
+end;
+
+function ClosestGroup(aPlayer, aType, X, Y, radius, count: Integer): Integer; 
+var 
+Groups: array of Integer; 
+i, BestDistanceSqr, ThisDistanceSqr, DX, DY, fUnit: Integer;
+begin
+	Result := -1;
+	Groups := States.PlayerGetAllGroups(aPlayer);
+	for i := 0 to Length(Groups) -1 do begin
+		fUnit:=States.GroupMember(Groups[i], 0);
+		DX := X - States.UnitPositionX(fUnit);
+		DY := Y - States.UnitPositionY(fUnit);
+		ThisDistanceSqr := (DX*DX) + (DY*DY);
+			if ((Abs(DX)<radius) and (Abs(DY)<radius)) and ((Result = -1) or (ThisDistanceSqr  < BestDistanceSqr)) and ((aType = States.UnitType(fUnit)) and (States.GroupMemberCount(Groups[i]) < count)) then
+			begin
+				BestDistanceSqr := ThisDistanceSqr;
+				Result := Groups[i];
+			end;
+	end;
+end;
+procedure SpawnArmy;
+var j, g, gt: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) and not States.PlayerDefeated(j) then begin
+			PLAYER[j].SpawnTimeCounter:= PLAYER[j].SpawnTimeCounter + 1;
+			PLAYER[j].SpawnTimeCounterRange:= PLAYER[j].SpawnTimeCounterRange + 1;
+			if PLAYER[j].SpawnTimeCounter >= PLAYER[j].SpawnTime then begin
+				//range
+				if PLAYER[j].SpawnTimeCounterRange >= SPAWN_RANGE_FREQ*PLAYER[j].SpawnTime then begin
+					gt:= ClosestGroup(j, GiveSupportUnitType(PLAYER[j].SpawnType), States.HousePositionX(PLAYER[j].Tower), States.HousePositionY(PLAYER[j].Tower), AUTO_GROUP_RADIUS, AUTO_GROUP_COUNT);
+					g:= Actions.GiveGroup(j, GiveSupportUnitType(PLAYER[j].SpawnType), States.HousePositionX(PLAYER[j].Tower), States.HousePositionY(PLAYER[j].Tower)-2, 4, PLAYER[j].SpawnCount, 1);
+					if not States.HouseDeliveryBlocked(PLAYER[j].Tower) then begin
+						if gt > 0 then begin
+							Actions.GroupOrderLink(g, gt);
+							Actions.GroupSetFormation(gt, Round(Sqrt(States.GroupMemberCount(gt))+1));
+						end;
+					end;
+					PLAYER[j].SpawnTimeCounterRange:= 0;
+				end;
+				//melee
+				gt:= ClosestGroup(j, PLAYER[j].SpawnType, States.HousePositionX(PLAYER[j].Tower), States.HousePositionY(PLAYER[j].Tower), AUTO_GROUP_RADIUS, AUTO_GROUP_COUNT);
+				g:= Actions.GiveGroup(j, PLAYER[j].SpawnType, States.HousePositionX(PLAYER[j].Tower), States.HousePositionY(PLAYER[j].Tower)+1, 4, PLAYER[j].SpawnCount, 1);
+				if not States.HouseDeliveryBlocked(PLAYER[j].Tower) then begin
+					if gt > 0 then begin
+						Actions.GroupOrderLink(g, gt);
+						Actions.GroupSetFormation(gt, Round(Sqrt(States.GroupMemberCount(gt))+1));
+					end;
+				end else 
+					Actions.HouseDeliveryBlock(PLAYER[j].Tower, false);
+				PLAYER[j].SpawnTimeCounter:= 0;
+			end;
+		end;
+	end;
+end;
+
+procedure GiveBarbarians(aPlayer: integer);
+begin
+	Actions.GiveGroup(aPlayer, 23, States.HousePositionX(PLAYER[aPlayer].Tower), States.HousePositionY(PLAYER[aPlayer].Tower)+1, 4, BARB_AMOUNT, Round(Sqrt(BARB_AMOUNT)+1));
+	BARB_COUNT:= BARB_AMOUNT;
+	PLAYER[aPlayer].BTimer:= 45;
+	if BARB_AMOUNT < MAX_BARB_AMOUNT then
+		BARB_AMOUNT:= BARB_AMOUNT + 1;
+end;
+
+// BONUS
+procedure CheckPlayerBonuses;
+var j: integer;
+begin
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) and not States.PlayerDefeated(j) then begin
+			if PLAYER[j].BonusTimer > 0 then
+				PLAYER[j].BonusTimer:= PLAYER[j].BonusTimer - 1;
+			if PLAYER[j].BonusTimer = 0 then begin
+				PLAYER[j].SpawnTime:= START_SPAWN_TIME;
+				PLAYER[j].SpawnCount:= 1;
+				PLAYER[j].BonusTimer:= -1;
+				if GOW_PLAYER = j then 
+					GOW_PLAYER:= -1;
+			end;
+		end;
+	end;
+end;
+
+procedure ClearBonusArea;
+var j, k: integer;
+begin
+	for j:= -2 to 3 do begin
+		for k:= 1 downto -3 do begin
+			if States.UnitAt(BONUS.X + j, BONUS.Y + k) > 0 then 
+				Actions.UnitKill(States.UnitAt(BONUS.X + j, BONUS.Y + k), true);
+		end;
+	end;
+end;
+procedure GiveBonus(aPlayer, aType: integer);
+begin
+	if aType = 21 then
+		GiveBarbarians(aPlayer)
+	else 
+	if aType = BONUS_SPEED then begin
+		PLAYER[aPlayer].BonusType:= 0;
+		PLAYER[aPlayer].BonusTimer:= BONUS_SPEED_TIME;
+		PLAYER[aPlayer].SpawnTimeCounter:= BONUS_SPEED_SPAWN_TIME-2;
+		PLAYER[aPlayer].SpawnTimeCounterRange:= BONUS_SPEED_SPAWN_TIME-2;;
+		PLAYER[aPlayer].SpawnTime:= BONUS_SPEED_SPAWN_TIME;
+	end
+	else 
+	if aType = BONUS_DOUBLE then begin
+		PLAYER[aPlayer].BonusType:= 1;
+		PLAYER[aPlayer].BonusTimer:= BONUS_DOUBLE_TIME;
+		PLAYER[aPlayer].SpawnCount:= BONUS_DOUBLE_SPAWN_COUNT;
+	end
+	else 
+	if aType = BONUS_GOW then begin
+		PLAYER[aPlayer].BonusType:= 2;
+		PLAYER[aPlayer].BonusTimer:= BONUS_GOW_TIME;
+		GOW_PLAYER:= aPlayer;
+	end;
+	BONUS.BType:= -1;
+	BONUS.Timer:= BONUS_COOLDOWN;
+end;
+
+procedure SpawnBonus;
+begin
+	if BONUS.Timer > 0 then begin
+		BONUS.Timer:= BONUS.Timer - 1;
+		if BONUS.Timer = 1 then begin
+			ClearBonusArea;
+			BONUS.BType:= BONUS.Counter;
+			BONUS.Counter:= BONUS.Counter + 1;
+			if BONUS.Counter = 3 then
+				BONUS.Counter:= 0;
+		end;
+		if BONUS.Timer = 0 then begin
+			if BONUS.BType = 0 then begin//speed spawn
+				BONUS.House:= Actions.GiveHouse(DUMMY_AI, BONUS_SPEED, BONUS.X, BONUS.Y);
+				Actions.PlayWAV(-1, 'speedup', VOLUME_BONUS);
+			end;
+			if BONUS.BType = 1 then begin//double spawn
+				BONUS.House:= Actions.GiveHouse(DUMMY_AI, BONUS_DOUBLE, BONUS.X, BONUS.Y);
+				Actions.PlayWAV(-1, 'doubled', VOLUME_BONUS);
+			end;
+			if BONUS.BType = 2 then begin//god of war
+				BONUS.House:= Actions.GiveHouse(DUMMY_AI, BONUS_GOW, BONUS.X+2, BONUS.Y);
+				Actions.PlayWAV(-1, 'godofwar', VOLUME_BONUS);
+			end;
+			BONUS.Timer:= -1;
+		end;
+	end;
+end;
+
+// SCORES
+procedure ShowBonuses(aBonus: integer);
+begin
+	if aBonus = 0 then
+		Actions.OverlayTextAppendFormatted(-1, '<$6>', [])
+	else
+	if aBonus = 1 then
+		Actions.OverlayTextAppendFormatted(-1, '<$7>', [])
+	else 
+	if aBonus = 2 then
+		Actions.OverlayTextAppendFormatted(-1, '<$8>', []);
+end;
+
+procedure SortPlayerByKills;
+var j, temp: integer;
+begin
+	for j:= MAX_PLAYERS-1 downto 1 do begin
+		if States.PlayerEnabled(j) then begin
+			if (PLAYER[PLAYERS_SORTED[j]].Kills > PLAYER[PLAYERS_SORTED[j-1]].Kills) then begin
+				temp := PLAYERS_SORTED[j-1];
+				PLAYERS_SORTED[j-1] := PLAYERS_SORTED[j];
+				PLAYERS_SORTED[j] := temp;
+			end;
+		end;
+	end;
+end;
+procedure ShowScore;
+var j: integer;
+begin
+	Actions.OverlayTextSetFormatted(-1, '<$1>', []);
+	Actions.OverlayTextAppend(-1, '|');
+	if BONUS.Timer > 0 then begin
+		Actions.OverlayTextAppendFormatted(-1, '<$5>', [BONUS.Timer]);
+		Actions.OverlayTextAppend(-1, '|');
+	end else 
+	if BONUS.BType >= 0 then begin
+		ShowBonuses(BONUS.BType);
+		Actions.OverlayTextAppend(-1, '|');
+	end;
+	SortPlayerByKills;
+	for j:= 0 to MAX_PLAYERS-1 do begin
+		if States.PlayerEnabled(j) then begin
+			if PLAYER[PLAYERS_SORTED[j]].BonusTimer > 0 then begin
+				ShowBonuses( PLAYER[PLAYERS_SORTED[j]].BonusType);
+				Actions.OverlayTextAppendFormatted(-1, '<$9>', [PLAYER[PLAYERS_SORTED[j]].BonusTimer]);
+				Actions.OverlayTextAppend(-1, ' >> ');
+			end;
+			Actions.OverlayTextAppendFormatted(-1, '<$2>', [States.PlayerColorText(PLAYERS_SORTED[j]), States.PlayerName(PLAYERS_SORTED[j]), PLAYER[PLAYERS_SORTED[j]].Kills] );
+			//Actions.OverlayTextAppendFormatted(-1, '<$2>', [States.PlayerColorText(PLAYERS_SORTED[j]), States.PlayerName(PLAYERS_SORTED[j]), AI[PLAYERS_SORTED[j]].State] );
+			if PLAYER[PLAYERS_SORTED[j]].ETimer > 0 then begin
+				Actions.OverlayTextAppend(-1, '<$3>');
+				PLAYER[PLAYERS_SORTED[j]].ETimer:= PLAYER[PLAYERS_SORTED[j]].ETimer - 1;
+			end;
+			if PLAYER[PLAYERS_SORTED[j]].BTimer > 0 then begin
+				Actions.OverlayTextAppend(-1, '<$4>');
+				PLAYER[PLAYERS_SORTED[j]].BTimer:= PLAYER[PLAYERS_SORTED[j]].BTimer - 1;
+			end;
+			Actions.OverlayTextAppend(-1, '|');
+		end;
+	end;
+end;
+
+
+//VICTORY CONDITIONS
+
+procedure CheckVictory;
+var j, k, enemies: integer;
+begin
+	for j := 0 to MAX_PLAYERS-1 do begin 
+		enemies:= 0;
+		if (States.PlayerEnabled(j) and (States.PlayerDefeated(j)=false)) then begin
+			for k := 0 to MAX_PLAYERS-1 do begin
+				if (States.PlayerEnabled(k) and (States.PlayerDefeated(k)=false) and (j <> k)) then begin
+					if (States.PlayerAllianceCheck(j, k) <> true ) then begin
+						enemies:= enemies+1;
+					end;
+				end;
+			end;
+			if (enemies <= 0 ) then begin
+				Actions.PlayerWin([j], true);
+				GAME_STATE:=1; //finished game
+				Break; Break;
+			end;
+		end;
+	end;
+end;
+
+// GLOBAL EVENTS
+procedure UpdatePlayerStats(aPlayer, aUnit: integer);
+begin
+	PLAYER[aPlayer].Kills:= PLAYER[aPlayer].Kills + 1;
+	if GetUnitTypeFromKillsThreshold(PLAYER[aPlayer].Kills) > -1 then begin
+		PLAYER[aPlayer].SpawnType:= GetUnitTypeFromKillsThreshold(PLAYER[aPlayer].Kills);
+		PLAYER[aPlayer].ETimer:= 30;
+	end;
+	if States.UnitType(aUnit) = 23 then begin
+		BARB_COUNT:= BARB_COUNT - 1;
+		if BARB_COUNT = 0 then 
+			GiveBarbarians(aPlayer);
+	end;
+end;
+// ON UNIT WOUNDED
+procedure OnUnitWounded(aUnitID, AttackerID: integer);
+begin
+	if GOW_PLAYER >= 0 then begin
+		if States.UnitOwner(AttackerID) = GOW_PLAYER then begin
+			if InRange(States.UnitType(aUnitID), 13, 27) then begin
+				UpdatePlayerStats(GOW_PLAYER, aUnitID);
+			end;
+			Actions.UnitKill(aUnitID, false);
+		end;
+	end;
+end;
+
+// ON HOUSE DESTROYED
+procedure OnHouseDestroyed(aHouseID, aDestroyerIndex: integer);
+begin
+	if InRange(aDestroyerIndex, 0, MAX_PLAYERS-1) then begin
+		if aHouseID = BONUS.House then 
+			GiveBonus(aDestroyerIndex, States.HouseType(aHouseID))
+		else
+		if PLAYER[States.HouseOwner(aHouseID)].Tower = aHouseID then begin
+			Actions.UnitKill(PLAYER[States.HouseOwner(aHouseID)].TowerOccupant, true);
+			Actions.PlayerDefeat(States.HouseOwner(aHouseID));
+			Actions.PlayWAV(-1, 'defeated', VOLUME_PLAYER_DEFEATED);
+			CheckVictory;
+			SetAI;
+		end;
+	end;
+end;
+
+// ON UNIT AFTER DIED
+procedure OnUnitAfterDied(aUnitType, aOwner, aX, aY: integer);
+begin
+end;
+// ON UNIT DIED
+procedure OnUnitDied(aUnit: Integer; aKillerIndex: Integer);
+begin
+	if InRange(aKillerIndex, 0, MAX_PLAYERS-1) and InRange(States.UnitType(aUnit), 14, 27) then begin
+		UpdatePlayerStats(aKillerIndex, aUnit);
+	end;
+end;
+
+// PLANS
+procedure OnHousePlanPlaced(aPlayerIndex, X, Y, aHouseType: integer);
+begin
+	Actions.PlanRemove(aPlayerIndex, X, Y);
+end;
+procedure OnPlanRoad(aIndex, X, Y: integer);
+begin
+	Actions.PlanRemove(aIndex, X, Y);
+end;
+procedure OnPlanField(aIndex, X, Y: integer);
+begin
+	Actions.PlanRemove(aIndex, X, Y);
+end;
+procedure OnPlanWinefield(aIndex, X, Y: integer);
+begin
+	Actions.PlanRemove(aIndex, X, Y);
+end;
+
+// ON TICK
+procedure OnTick;
+var j, k: integer;
+begin
+	if ( States.GameTime mod 10 = 0 ) then begin
+		if GAME_STATE = 0 then begin
+			ShowScore;
+			SpawnArmy;
+			SpawnBonus;
+			CheckPlayerBonuses;
+		end;
+		if GAME_STATE = 1 then begin //finished game
+			ShowScore;
+		end;
+	end;
+	if ( States.GameTime mod FEED_TIME = 0 ) then begin
+		FeedOccupants;
+	end;
+	if ( States.GameTime mod 20 = 0 ) then begin
+		GiveStoneAndHealthToTowers;
+	end;
+	if ( States.GameTime mod AI_THINK_SLOWER = 0 ) and ( GAME_STATE = 0 ) then begin
+		AIThink;
+	end;
+end;
+
+// ON MISSION START
+procedure OnMissionStart;
+var 
+j: integer;
+begin
+	GAME_STATE:= 0; //game
+	BARB_AMOUNT:= START_BARB_AMOUNT;
+	SetPlayers;
+	SetAI;
+	GOW_PLAYER:= -1;
+end;

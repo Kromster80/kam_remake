@@ -1,0 +1,22 @@
+{Script written by Brolian. Free to use for anyone.}
+
+var iCountHouses: Integer;
+
+procedure OnMissionStart;
+begin
+   Actions.PlayWAVAtLocationLooped(-1, 'FIRE', 0.9, 90, 40, 40);
+      iCountHouses := 86;
+end;
+
+procedure OnTick;
+   begin
+       if iCountHouses = 0 then Actions.StopLoopedWAV(1);
+end;
+
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
+begin
+  if States.HouseOwner(aHouseID) = 4 then
+    begin
+      iCountHouses := iCountHouses -1; 
+    end;
+end;
