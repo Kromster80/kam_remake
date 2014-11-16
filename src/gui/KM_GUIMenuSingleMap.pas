@@ -290,6 +290,7 @@ begin
       fLastMapCRC := 0;
       Label_SingleTitle.Caption   := '';
       Memo_SingleDesc.Text        := '';
+      DropBox_SingleLoc.ItemIndex := -1;
 
       MinimapView_Single.Hide;
 
