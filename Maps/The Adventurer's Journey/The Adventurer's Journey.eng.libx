@@ -1,7 +1,4 @@
-
-MaxID:132
-
-0:ROLEPLAY : You, Lothar, a new knight who just finished his training, are called by King Clovis himself for your first mission. The crisis on he continent is getting worse every day and the kingdom needs you ! The letter which had the royal seal was given to you this morning.
+ï»¿0:ROLEPLAY : You, Lothar, a new knight who just finished his training, are called by King Clovis himself for your first mission. The crisis on he continent is getting worse every day and the kingdom needs you ! The letter which had the royal seal was given to you this morning.
 1:SETTING : The place you're currently in represents the interior of the royal castle. You start without an army but the knight you control represents your whole troops and your main character, Lothar.
 2:TUTORIAL : To talk with quest givers you need to stand next to them, and the story will advance. Follow the instructions of each quest. For now, the king awaits you, he is the character protected by two pikemen on the bottom left of the castle hall, go next to him. Save often and don't forget to delete messages.
 3:You should talk to King Clovis.
@@ -64,23 +61,23 @@ MaxID:132
 60:Explorer
 61:ROLEPLAY : As you approach the tunnel, you understand that the guards were killed, the countryside is silent, and three bandit camps are sitting next to the tunnel entrance ! You feel the need to crush them, for the realm !
 62:The guards were killed, avenge them !|Destroy the three bandit armies.
-63:King Clovis : Thank you again Lothar for defending the Kingdom, this madness will never end ... I'll take care of the defensive matters and make sure no bandit can come again from the tunnel. I'll be busy organising the defense, you should talk to my military advisor, Lord Chilpéric.
+63:King Clovis : Thank you again Lothar for defending the Kingdom, this madness will never end ... I'll take care of the defensive matters and make sure no bandit can come again from the tunnel. I'll be busy organising the defense, you should talk to my military advisor, Lord ChilpÃ©ric.
 64:King Clovis : According to our patrollers, there are remaining bandit troops in the western side of the continent, they were probably part of the last bandit tunnel attack. I give you 1100 gold to help you in your tasks.
-65:IMPORTANT : Lord Chilpéric is located where this messages sends you.
-66:You should find Lord Chilpéric in|the castle and talk to him. He's|near the castle's underground.
+65:IMPORTANT : Lord ChilpÃ©ric is located where this messages sends you.
+66:You should find Lord ChilpÃ©ric in|the castle and talk to him. He's|near the castle's underground.
 67:ROLEPLAY : You managed to repell the bandits, your sovereign must know about this attack ! Hurry to the castle.
 68:Go to the castle and talk to the|King.
-69:Lord Chilpéric : I've heard from you Lothar, you seem to be a promising element; and that's what we need to kill these bandits scum ! A few bandit packs are stll in our realm, this can't be left unpunished. We have reports and we know where they are.
-70:Lord Chilpéric : We already sent knights elminate some of them, but there are three remaining bandit troops in the western side of the continent, one in the desert, and two in the North-West, kill them all !
+69:Lord ChilpÃ©ric : I've heard from you Lothar, you seem to be a promising element; and that's what we need to kill these bandits scum ! A few bandit packs are stll in our realm, this can't be left unpunished. We have reports and we know where they are.
+70:Lord ChilpÃ©ric : We already sent knights elminate some of them, but there are three remaining bandit troops in the western side of the continent, one in the desert, and two in the North-West, kill them all !
 71:You need to kill the three bandit troops, one|is in the desert, the others are in the|North-West of the continent.
 72:Bandit : Die little knight !
-73:ROLEPLAY : The armies you fought were a mix of bandits and soldiers from Lord Childebert's army ! Tell Lord Chilpéric about your fights.
-74:Lord Chilpéric needs a report of|your fights.
+73:ROLEPLAY : The armies you fought were a mix of bandits and soldiers from Lord Childebert's army ! Tell Lord ChilpÃ©ric about your fights.
+74:Lord ChilpÃ©ric needs a report of|your fights.
 75:Defender of the Realm
-76:Lord Chilpéric : It seems that Lord Childebert has taken the lead on the second continent and commands the bandit forces ! We must stop this damn fool before it's too late. Go onto the second continent by the tunnel.
-77:Lord Chilpéric : I give you the Defender of the Realm title and medal, you're an honor for our army. We suspect that Lord Childebert will hide in his castle and that disorganized troops will be around.
-78:Lord Chilpéric : We need you in the final battle, we'll strike the castle all together ! If you need more army, you can gather resources by attacking the bandit camps on the road which are reported to protect gold.
-79:Lord Chilpéric : Whenever you're ready, attack the castle and reinforcements will come led by our King and myself to help you kill the traitor ! Don't forget to use the best troops that we provided to you.
+76:Lord ChilpÃ©ric : It seems that Lord Childebert has taken the lead on the second continent and commands the bandit forces ! We must stop this damn fool before it's too late. Go onto the second continent by the tunnel.
+77:Lord ChilpÃ©ric : I give you the Defender of the Realm title and medal, you're an honor for our army. We suspect that Lord Childebert will hide in his castle and that disorganized troops will be around.
+78:Lord ChilpÃ©ric : We need you in the final battle, we'll strike the castle all together ! If you need more army, you can gather resources by attacking the bandit camps on the road which are reported to protect gold.
+79:Lord ChilpÃ©ric : Whenever you're ready, attack the castle and reinforcements will come led by our King and myself to help you kill the traitor ! Don't forget to use the best troops that we provided to you.
 80:Attack the castle whenever you're ready.|If you need gold, attack the bandit camps|located in the tunnel and on the other|continent.
 81:BATTLE RESULT :||You earned %d gold in this battle.|You killed a total of %d enemies.|You lost a total of %d troops.
 82:[$%s]Battle statistics : your troops[]|
@@ -101,16 +98,6 @@ MaxID:132
 97:Slot 3 : no army|
 98:Slot 4 : %d killed %s out of %d|
 99:Slot 4 : no army|
-100:Slot 5 : %d killed %s out of %d|
-101:Slot 5 : no army|
-102:[$%s]Your statistics[]|
-103:Gold : %d|
-104:Rank : %s||
-105:[$%s]Your army[]|
-106:Slot 1 : %s  %d/%d|
-107:Slot 2 : %s  %d/%d|
-108:Slot 3 : %s  %d/%d|
-109:Slot 4 : %s  %d/%d||
 110:[$%s]Main Quest[]|%s||
 111:Secondary quest :|%s||
 112:Secondary quest :|%s||
@@ -134,3 +121,13 @@ MaxID:132
 130:Militia cost : 20|Bowman cost : 35|Lance Carrier cost : 30|Scout cost : 80|Axefighter cost : 55
 131:Swordfighter cost : 110|Pikeman cost : 100|Crossbowman cost : 80|Knights cost : 160
 132:TUTORIAL : To make these messages appear again, stand on the roads at the recruiting area entrance for a few seconds.
+150:Slot 5 : %d killed %s out of %d|
+151:Slot 5 : no army|
+152:[$%s]Your statistics[]|
+153:Gold : %d|
+154:Rank : %s||
+155:[$%s]Your army[]|
+156:Slot 1 : %s  %d/%d|
+157:Slot 2 : %s  %d/%d|
+158:Slot 3 : %s  %d/%d|
+159:Slot 4 : %s  %d/%d||

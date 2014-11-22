@@ -593,14 +593,14 @@ begin
 	Actions.OverlayTextSet(0, '');
 	if not ISONFIGHT then //Regular Overlay
 	begin
-		Actions.OverlayTextAppendFormatted(0, '<$102>',[g_color]);//TITLE
-		Actions.OverlayTextAppendFormatted(0, '<$103>',[g_gold]);//Gold
-		Actions.OverlayTextAppendFormatted(0, '<$104>',[g_rank]);//Rank
-		Actions.OverlayTextAppendFormatted(0, '<$105>',[g_color]);//TITLE
-		Actions.OverlayTextAppendFormatted(0, '<$106>',[unitTypeToString(g_armyslots[1].unitType), g_armyslots[1].count, g_armyslots[1].max]);//slot 1 display
-		Actions.OverlayTextAppendFormatted(0, '<$107>',[unitTypeToString(g_armyslots[2].unitType), g_armyslots[2].count, g_armyslots[2].max]);
-		Actions.OverlayTextAppendFormatted(0, '<$108>',[unitTypeToString(g_armyslots[3].unitType), g_armyslots[3].count, g_armyslots[3].max]);
-		Actions.OverlayTextAppendFormatted(0, '<$109>',[unitTypeToString(g_armyslots[4].unitType), g_armyslots[4].count, g_armyslots[4].max]);
+		Actions.OverlayTextAppendFormatted(0, '<$152>',[g_color]);//TITLE
+		Actions.OverlayTextAppendFormatted(0, '<$153>',[g_gold]);//Gold
+		Actions.OverlayTextAppendFormatted(0, '<$154>',[g_rank]);//Rank
+		Actions.OverlayTextAppendFormatted(0, '<$155>',[g_color]);//TITLE
+		Actions.OverlayTextAppendFormatted(0, '<$156>',[unitTypeToString(g_armyslots[1].unitType), g_armyslots[1].count, g_armyslots[1].max]);//slot 1 display
+		Actions.OverlayTextAppendFormatted(0, '<$157>',[unitTypeToString(g_armyslots[2].unitType), g_armyslots[2].count, g_armyslots[2].max]);
+		Actions.OverlayTextAppendFormatted(0, '<$158>',[unitTypeToString(g_armyslots[3].unitType), g_armyslots[3].count, g_armyslots[3].max]);
+		Actions.OverlayTextAppendFormatted(0, '<$159>',[unitTypeToString(g_armyslots[4].unitType), g_armyslots[4].count, g_armyslots[4].max]);
 		Actions.OverlayTextAppendFormatted(0,'<$110>', [g_color, g_mainquestText]);//TITLE + main quest text
 		//if 	g_secondaryquestBool1 = True then
 		//begin
@@ -635,8 +635,8 @@ begin
 		else Actions.OverlayTextAppend(0, '<$97>');
 		if b_AIinitialMembers[4] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$98>',[b_AIlostMembers[4], KamIDToString(b_AIUnitTypes[4]), b_AIinitialMembers[4]])
 		else Actions.OverlayTextAppend(0, '<$99>');
-		if b_AIinitialMembers[5] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$100>',[b_AIlostMembers[5], KamIDToString(b_AIUnitTypes[5]), b_AIinitialMembers[5]])
-		else Actions.OverlayTextAppend(0, '<$101>');
+		if b_AIinitialMembers[5] <> 0 then Actions.OverlayTextAppendFormatted(0, '<$150>',[b_AIlostMembers[5], KamIDToString(b_AIUnitTypes[5]), b_AIinitialMembers[5]])
+		else Actions.OverlayTextAppend(0, '<$151>');
 	end;
 end;
 

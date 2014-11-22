@@ -98,16 +98,6 @@
 97:3. oddiel : žiadny vojaci|
 98:4. oddiel : %d zabití %s z %d|
 99:4. oddiel : žiadny vojaci|
-100:5. oddiel : %d zabití %s z %d|
-101:5. oddiel : žiadny vojaci|
-102:[$%s]Tvoje štatistiky[]|
-103:Zlatky : %d|
-104:Hodnosť : %s||
-105:[$%s]Tvoja armáda[]|
-106:1. oddiel : %s  %d/%d|
-107:2. oddiel : %s  %d/%d|
-108:3. oddiel : %s  %d/%d|
-109:4. oddiel : %s  %d/%d||
 110:[$%s]Hlavná úloha[]|%s||
 111:Vedľajšia úloha :|%s||
 112:Vedľajšia úloha :|%s||
@@ -131,3 +121,13 @@
 130:Cena domobrany : 20|Cena lukostrelca : 35|Cena kopijníka : 30|Cena špeha : 80|Cena sekerníka : 55
 131:Cena bojovníka s mečom : 110|Cena halapartníka : 100|Cena strelca z kuše : 80|Cena rytiera : 160
 132:INŠTRUKTÁŽ : Aby sa ti tieto správy zobrazili znovu, postav sa na niekoľko sekúnd na chodník krížujúci vstup do náborových priestorov.
+150:5. oddiel : %d zabití %s z %d|
+151:5. oddiel : žiadny vojaci|
+152:[$%s]Tvoje štatistiky[]|
+153:Zlatky : %d|
+154:Hodnosť : %s||
+155:[$%s]Tvoja armáda[]|
+156:1. oddiel : %s  %d/%d|
+157:2. oddiel : %s  %d/%d|
+158:3. oddiel : %s  %d/%d|
+159:4. oddiel : %s  %d/%d||
