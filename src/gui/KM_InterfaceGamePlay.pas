@@ -2691,8 +2691,8 @@ begin
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or (fUIMode = umSP)) then
   case Key of
     Ord(SC_DEBUG_REVEALMAP): gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-    Ord(SC_DEBUG_VICTORY):   begin gGame.PlayerVictory(MySpectator.HandIndex); Exit; end;
-    Ord(SC_DEBUG_DEFEAT):    begin gGame.PlayerDefeat (MySpectator.HandIndex); Exit; end;
+    Ord(SC_DEBUG_VICTORY):   gGame.GameInputProcess.CmdTemp(gic_TempVictory);
+    Ord(SC_DEBUG_DEFEAT):    gGame.GameInputProcess.CmdTemp(gic_TempDefeat);
     Ord(SC_DEBUG_ADDSCOUT):  gGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
   end;
 end;

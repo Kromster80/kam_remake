@@ -83,6 +83,8 @@ type
     //VII. Temporary and debug commands
     gic_TempAddScout,
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
+    gic_TempVictory,
+    gic_TempDefeat,
     gic_TempDoNothing //Used for "aggressive" replays that store a command every tick
 
     { Optional input }
@@ -372,6 +374,10 @@ begin
                                     P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, True);
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
+      gic_TempVictory:            if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGame.IsMultiplayer) then
+                                    P.AI.Victory;
+      gic_TempDefeat:             if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGame.IsMultiplayer) then
+                                    P.AI.Defeat;
       gic_TempDoNothing:          ;
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
@@ -591,7 +597,7 @@ end;
 
 procedure TGameInputProcess.CmdTemp(aCommandType: TGameInputCommandType);
 begin
-  Assert(aCommandType in [gic_TempRevealMap, gic_TempDoNothing]);
+  Assert(aCommandType in [gic_TempRevealMap, gic_TempVictory, gic_TempDefeat, gic_TempDoNothing]);
   TakeCommand(MakeCommand(aCommandType, []));
 end;
 
