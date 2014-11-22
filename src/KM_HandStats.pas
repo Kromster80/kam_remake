@@ -9,22 +9,22 @@ uses Classes, SysUtils,
 //These are stats for each player
 type
   THouseStats = packed record
-    Planned,          //Houseplans were placed
-    PlanRemoved,      //Houseplans were removed
-    Started,          //Construction started
-    Ended,            //Construction ended (either done or destroyed/cancelled)
-    Initial,          //created by script on mission start
-    Built,            //constructed by player
-    SelfDestruct,     //deconstructed by player
-    Lost,             //lost from attacks and self-demolished
-    Destroyed: Word;  //damage to other players
+    Planned,             //Houseplans were placed
+    PlanRemoved,         //Houseplans were removed
+    Started,             //Construction started
+    Ended,               //Construction ended (either done or destroyed/cancelled)
+    Initial,             //created by script on mission start
+    Built,               //constructed by player
+    SelfDestruct,        //deconstructed by player
+    Lost,                //lost from attacks and self-demolished
+    Destroyed: Cardinal; //damage to other players
   end;
 
   TUnitStats = packed record
     Initial,          //Provided at mission start
     Trained,          //Trained by player
     Lost,             //Died of hunger or killed
-    Killed: Word;     //Killed (incl. self)
+    Killed: Cardinal; //Killed (incl. self)
   end;
 
   TWareStats = packed record
