@@ -169,8 +169,15 @@ end;
 procedure TKMHouseMarket.AttemptExchange;
 var TradeCount: Word;
 begin
-  Assert((fResFrom <> wt_None) and (fResTo <> wt_None) and (fResFrom <> fResTo) and
-          AllowedToTrade(fResFrom) and AllowedToTrade(fResTo));
+  Assert((fResFrom <> wt_None) and (fResTo <> wt_None) and (fResFrom <> fResTo));
+
+  //Script might have blocked these resources from trading, if so reset trade order
+  if TradeInProgress
+  and (not AllowedToTrade(fResFrom) or not AllowedToTrade(fResTo)) then
+  begin
+    SetResOrder(0, 0);
+    Exit;
+  end;
 
   if TradeInProgress and (fMarketResIn[fResFrom] >= RatioFrom) then
   begin

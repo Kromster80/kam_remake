@@ -5,6 +5,7 @@ Since r6618 (RC 3)
 Bugs:
  +	Right clicking on the minimap would allow you to move groups when you shouldn't be able to
  +	Return to the lobby issues (players stuck in game or unable to click ready)
+ +	Assertion failure KM_HouseMarket.pas line 166 caused by script blocking market trading while a market was trading that resource
 
 Features:
 	Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
@@ -37,9 +38,6 @@ Bugs:
 
 Features:
  +	Add settings menu to map editor (for changing music, brightness, etc.)
-	Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
-	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
-	Add more Unicode characters to fonts such as misc symbols (http://en.wikipedia.org/wiki/Miscellaneous_Symbols)
 
 
 ====================================
