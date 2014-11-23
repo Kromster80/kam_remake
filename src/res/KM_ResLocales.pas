@@ -76,7 +76,7 @@ end;
 
 function TKMLocales.ParseLine(aLine: UnicodeString; out aLocale: TKMLocaleInfo): Boolean;
 const
-  PARAM_COUNT = 6;
+  PARAM_COUNT = 7;
 var
   I, L, R: Integer;
   Chunk: UnicodeString;
