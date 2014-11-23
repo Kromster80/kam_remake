@@ -542,6 +542,7 @@
 552:Beskrivning
 553:Lösenord
 554:Rumalternativ
+556:Bannlys från lobbyn
 557:Släng ut
 558:Slumpa platser inom team
 559:Beskrivning
@@ -566,7 +567,7 @@
 578:Alla
 579:Team
 580:KaM Remakes skapare
-581:Original Knights & Merchants skapare
+581:Skapare av Knights & Merchants
 582:PROGRAMMERING:
 583:YTTERLIGARE PROGRAMMERING:
 584:YTTERLIGARE GRAFIK:
@@ -681,3 +682,95 @@
 695:Tillbaka en sida
 696:Försvarsplats
 697:Enheter
+698:Varg
+699:Fisk
+700:Vattenorm
+701:Sjöstjärna
+702:Krabba
+703:Näckros
+704:Indiankål
+705:Anka
+706:Den här soldattypen är inte tillgänglig
+707:Den här enhetstypen är inte tillgänglig
+708:Blockera enheter
+736:Ladda ner
+737:laddar ner...
+738:Skriv över existerande filer
+739:%s förlorade uppkopplingen
+740:%s har gått ur
+741:%s har kopplat upp på nytt
+742:Kan inte gå med när spelet är aktivt
+743:Rummet är fullt. Inga fler spelare kan gå med
+744:En spelare med samma namn har redan gått in i rummet
+748:Värdrättigheter har getts till %s
+749:%s har en annan version av %s
+750:%s saknar %s
+751:Förfrågan nådde tidsgränsen
+752:Värden slängde ut %s ur spelet
+753:%s sparkades ut av värden
+754:Försöker återansluta till spelet...
+755:%s har anslutit
+756:Återanslutning misslyckades: %s
+757:Värden beslutade sig för att fortsätta spela utan dig :(
+758:Nerkopplad av servern: Tidsgräns uppnådd
+759:Du sparkades ut av värden
+760:Servern slutade svara
+761:Felaktigt rumsnummer
+765:Viska till %s
+766:%s bannlystes från lobbyn av värden
+767:Du blev bannlyst av värden
+768:Återställ alla bannlysningar
+770:Datum
+771:Visa dimma
+772:Titta på
+773:Åskådare
+774:Räckvidd för autoattack
+775:AI-grupper kommer automatiskt att attackera om du är närmare än så här många rutor
+776:Försvara allierade
+777:Aktivera för att låta varje AI försvara allierade enheter och byggnader som om de var dess egna
+778:Tillåt åskådare
+779:Gör till värd
+780:Åskådare
+781:Kan inte avaktivera åskådare: Listan måste vara tom
+782:Gör om
+783:Ångra
+784:Sätter startpositionen för AI, vilket används för att göra AI attacker
+785:Startposition för AI
+786:Order
+788:Fördröjning (sekunder)
+790:Närmsta hus från armé
+791:Närmsta hus från startposition
+792:Attackerare
+793:Försvarare
+794:Åskådare
+795:Tryck på uppdragsflaggan för ett tidigare upplåst kampanjuppdrag för att spela det igen
+797:Rösta för att låta det här rummet återgå till lobbyn. Då kan spelet återtas eller ändras
+798:Rösta för att återgå til lobbyn
+801:Om du tar bort en repris så försvinner också den associerade sparningen. Vill du ta bort den här reprisen?
+802:Ta slumpmässigt
+803:Antal soldater att attackera
+804:Ta bort repris
+805:Ta bort kartan
+806:Är du säker på att du vill ta bort den här kartan?
+807:Göm skriptad överlappning
+808:Visa skriptad överlappning
+810:AI skapar och hanterar attacker automatiskt
+811:Snabbrusta
+812:Soldater rustas så snabbt som möjligt. Rustningshastighet påverkar fortfarande byplanering
+813:Applicera AI-standard
+814:Flerspelarbyggare
+815:Sätter aggresiva AI-byggarinställningar för alla spelare (för flerspelarbyggarkartor)
+816:Varning: Det här kommer att skriva över alla AI-inställningar. Fortsätt?
+817:Armétyp
+818:Järn sen läder
+819:Järn
+820:Läder
+821:Mixad
+824:Flytta
+825:Visa Läsmig PDF
+826:Kunde inte starta PDF-läsaren
+827:Sätter antal trälar per 10 byggnader för den här AI-spelaren. Vald AI har %d byggnader
+828:Fel: Värdens pausade fil matchar inte den lokala pausade filen. Antingen har ett fel uppstått, eller så försöker värden fuska.
+829:Ordern är utförd
+830:Asiatiska typsnitt
+831:Flytta ut ur nedladdningar
