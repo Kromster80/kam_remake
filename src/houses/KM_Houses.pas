@@ -922,11 +922,14 @@ begin
     fIssueOrderCompletedMsg := True;
   end
   else
-    if fIssueOrderCompletedMsg then
-    begin
-      fIssueOrderCompletedMsg := False;
-      gGame.ShowMessage(mkHouse, TX_MSG_ORDER_COMPLETED, GetEntrance, fOwner);
-    end;
+    //Check all orders are actually finished (input resources might be empty)
+    if  (ResOrder[1] = 0) and (ResOrder[2] = 0)
+    and (ResOrder[3] = 0) and (ResOrder[4] = 0) then
+      if fIssueOrderCompletedMsg then
+      begin
+        fIssueOrderCompletedMsg := False;
+        gGame.ShowMessage(mkHouse, TX_MSG_ORDER_COMPLETED, GetEntrance, fOwner);
+      end;
 end;
 
 
