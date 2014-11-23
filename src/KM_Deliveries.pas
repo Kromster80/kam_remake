@@ -732,7 +732,7 @@ begin
   //even though B is closer.
   //Another example: School is nearly finished digging at start of game. Serf is getting
   //stone for a labourer making a road. School digging finishes and the stone goes to the
-  //school (which is closer). Now the road labourer is stuck even though the player saw
+  //school (which is closer). Now the road labourer is waiting even though the player saw
   //the serf fetching the stone for him before the school digging was finished.
   //This "CheckForBetterDemand" feature is mostly intended to optimise house->house
   //deliveries within village and reduce delay in serf decision making.

@@ -144,7 +144,7 @@ begin
       Button_MapDelete := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_DELETE], bsMenu);
       Button_MapDelete.Anchors := [anLeft, anBottom];
       Button_MapDelete.OnClick := DeleteClick;
-      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, gResTexts[TX_MENU_MAP_MOVE], bsMenu);
+      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], bsMenu);
       Button_MapMove.Anchors := [anLeft, anBottom];
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
@@ -165,7 +165,7 @@ begin
       Button_MapDeleteCancel.Hide;
 
       //Move
-      Label_MapMoveConfirm := TKMLabel.Create(Panel_MapEdLoad, 0, 594, gResTexts[TX_MENU_MAP_MOVE], fnt_Outline, taLeft);
+      Label_MapMoveConfirm := TKMLabel.Create(Panel_MapEdLoad, 0, 594, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], fnt_Outline, taLeft);
       Label_MapMoveConfirm.Anchors := [anLeft, anBottom];
       Label_MapMoveConfirm.Hide;
 
