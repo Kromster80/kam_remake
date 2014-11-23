@@ -116,7 +116,9 @@ begin
 
   Assert(topId <= 1024, 'Dont allow too many strings for no reason');
 
-  SetLength(aArray, topId + 1);
+  //Don't shrink the array, we might be overloading base locale with a partial translation
+  if Length(aArray) < topId + 1 then
+    SetLength(aArray, topId + 1);
 
   for I := 0 to High(Tmp) do
   begin

@@ -5,6 +5,7 @@ Since r6654 (RC 4)
 Bugs:
  +	Color in text is not always working as expected
  +	Translation credits are missing
+ +	Map description would show "out of range" if a translation was partially complete (Castle Defenders)
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
 
 Features:
