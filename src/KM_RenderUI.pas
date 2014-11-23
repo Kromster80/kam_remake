@@ -521,6 +521,16 @@ begin
   PrevAtlas := -1;
   for I := 1 to Length(aText) do
   begin
+    //Loop as there might be adjoined tags on same position
+    while (K < Length(Colors)) and (I = Colors[K].FirstChar) do
+    begin
+      if Colors[K].Color = 0 then
+        glColor4ubv(@aColor)
+      else
+        glColor4ubv(@Colors[K].Color);
+      Inc(K);
+    end;
+
     case aText[I] of
       #32:  Inc(AdvX, FontData.WordSpacing);
       #124: begin
@@ -544,16 +554,6 @@ begin
                 PrevAtlas := Let.AtlasId;
                 glBindTexture(GL_TEXTURE_2D, FontData.TexID[Let.AtlasId]);
                 glBegin(GL_QUADS);
-              end;
-
-              //Loop as there might be adjoined tags on same position
-              while (K < Length(Colors)) and (I = Colors[K].FirstChar) do
-              begin
-                if Colors[K].Color = 0 then
-                  glColor4ubv(@aColor)
-                else
-                  glColor4ubv(@Colors[K].Color);
-                Inc(K);
               end;
 
               glTexCoord2f(Let.u1, Let.v1); glVertex2f(AdvX            , AdvY            + Let.YOffset);
