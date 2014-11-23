@@ -17,12 +17,12 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r381
   die('[$0000FF]THE SCRIPTING DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
-if($Rev == "r6547")
+if($Rev == "r6654")
 {
-  die('Welcome to the 2nd release candidate! Please report bugs');
+  die('Welcome to the 4th and hopefully final release candidate! Please report bugs.||Map authors: Please send us any changes to your maps before December 7th.||Translators: You should have received an email with instructions. Please send your translations back to us before December 7th.');
 }
 
-if($Rev == "r6478")
+if(($Rev == "r6478") || ($Rev == "r6547") || ($Rev == "r6618") || ($Rev == "r6619"))
 {
   die('[$0000FF]THIS RELEASE CANDIDATE IS OUTDATED[]||If you are on our beta tester mailing list you should have received the new release candidate. If you are not on the list, please email contact@kamremake.com to join.');
 }
