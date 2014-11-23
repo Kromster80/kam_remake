@@ -1,0 +1,16 @@
+procedure OnMissionStart;
+begin
+
+{Wind}
+	{From Top left}
+  Actions.PlayWAVAtLocationLooped(-1, 'Cold Wind Strong', 2.8, 36, 18, 15);
+  Actions.PlayWAVAtLocationLooped(-1, 'Cold Wind Strong', 2.8, 40, 133, 15);
+  Actions.PlayWAVAtLocationLooped(-1, 'Cold Wind Strong', 2.8, 43, 130, 50);
+
+  Actions.PlayWAVAtLocationLooped(-1, 'Cold Wind Strong', 2.8, 43, 20, 50);
+  Actions.PlayWAVAtLocationLooped(-1, 'Cold Wind Strong', 2.8, 43, 87, 61);
+
+
+  Actions.PlayWAVAtLocationLooped(-1, 'Cold Wind Strong', 2.8, 43, 83, 134);
+
+end;

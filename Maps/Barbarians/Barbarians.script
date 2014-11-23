@@ -1,0 +1,38 @@
+                        var i,n:integer;
+
+
+
+
+                        procedure OnMissionStart;
+                             begin
+                                       n:=-1;
+                                       Actions.HouseWareBlock(States.HouseAt(33,11),5,true);
+                                       Actions.HouseWareBlock(States.HouseAt(27,22),5,true);
+                                       Actions.HouseWareBlock(States.HouseAt(33,11),3,true);
+                                       Actions.HouseWareBlock(States.HouseAt(27,22),3,true);
+                                       Actions.HouseWareBlock(States.HouseAt(33,11),4,true);
+                                       Actions.HouseWareBlock(States.HouseAt(27,22),4,true);
+                                       Actions.HouseWareBlock(States.HouseAt(33,11),6,true);
+                                       Actions.HouseWareBlock(States.HouseAt(27,22),6,true);
+                                       Actions.HouseWareBlock(States.HouseAt(33,11),7,true);
+                                       Actions.HouseWareBlock(States.HouseAt(27,22),7,true);
+                             end;
+
+
+
+
+                        procedure OnTick;
+                             begin
+                                       if States.GameTime mod 18000 = 0 then 
+                                            begin
+                                                      n:=n+1;
+                                                      for i:=0 to n do
+                                                           begin
+                                                                     if not States.PlayerDefeated(1) then
+                                                                          Actions.GiveGroup(3,23,5,20,4,12,4);
+                                                                     if not States.PlayerDefeated(2) then
+                                                                          Actions.GiveGroup(4,23,100,10,4,12,4);
+                                                           end;
+                                            end;
+                             end;
+

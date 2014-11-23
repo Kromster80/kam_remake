@@ -1,0 +1,44 @@
+Version 0.8
+- Uploaded to Knightsandmerchants.net to get some feedback
+
+Version 0.9
+- Fixed boken tiles
+- Increased Stone resources from 810 to 1110
+- Various minor fixes
+
+Version 0.9a
+- Added Wolfs
+- Used "Magic Ice"-Tool
+- Fixed Stone-Mining-Bug at Position3
+- Made Ice-Routes a little bigger
+- Various minor fixes
+
+Version 0.9b
+- Fixed Iron-distribution, including changes on Mountains
+- Added even more stone
+- Changed amount of starting materials in storehouse (drastically reduced)
+- Added an additional forest to every island (15?)
+- Added more trees to already existing forest (16 -> 22)
+- More stuff on the ground
+- Various minor fixes
+
+Version 0.9c
+- Increased Gold-resources (225 -> 285)
+- Increased Serf count (3 -> 5)
+- Ice-pathways are a bit wider now
+- More stuff on the ground
+- More different tiles used on Gold-mountain
+- Various minor fixes
+
+Version 1.0
+- Fixed elevation
+- Replaced uncuttable trees
+- Sounds added by Tiank
+
+Version 1.1
+- Smoothed Cole-Fields
+- Added a 4th Cole-Field to every location
+- Increased the amount of Iron in the mountains
+- Smoothed Iron-Patches
+- Incresed the amount of Wood in the Storehouse
+- Other little Changes to terran

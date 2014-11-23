@@ -1,0 +1,17 @@
+Version 0.9
+- First Beta-Release
+
+Version 0.9a
+- Added Wolfs to the game
+- Made coal-fields and iron in the mountains smoother
+- Various minor fixes (Elevation, Tiles,...)
+
+Version 1.0
+- Fixed elevation
+- Replaced uncutable trees
+- Sounds added by Tiank
+
+Version 1.0b
+- Removed Crabs
+- Checked again for uncutable trees
+- Minor changes to elevation
