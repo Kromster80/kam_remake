@@ -1,0 +1,100 @@
+//Script by Randziu/Random Lyrics
+const
+PLAYER = 0;
+MAX_PLAYERS = 1;
+
+// CHANGEABLE
+MUSIC_VOLUME = 1.0;
+
+var
+GENERAL: integer;
+ENEMY_GROUPS: array of integer;
+ENEMY_ENABLED: boolean;
+
+//ENEMY AI
+procedure SetEnemyGroups;
+begin
+	SetLength(ENEMY_GROUPS, 9);
+	ENEMY_GROUPS[0]:= States.GroupAt(9 ,30);
+	ENEMY_GROUPS[1]:= States.GroupAt(15 ,31);
+	ENEMY_GROUPS[2]:= States.GroupAt(21 ,31);
+	ENEMY_GROUPS[3]:= States.GroupAt(28 ,30);
+	ENEMY_GROUPS[4]:= States.GroupAt(38 ,30);
+	ENEMY_GROUPS[5]:= States.GroupAt(48 ,30);
+	ENEMY_GROUPS[6]:= States.GroupAt(55 ,30);
+	ENEMY_GROUPS[7]:= States.GroupAt(64 ,30);
+	ENEMY_GROUPS[8]:= States.GroupAt(69 ,30);
+end;
+procedure EnemyAttack;
+var
+A: array of integer;
+j, u, r: integer;
+begin
+	if ENEMY_ENABLED = false then begin
+		A:= States.PlayerGetAllUnits(PLAYER);
+		for j:= 0 to Length(A)-1 do 
+			if States.UnitPositionY(A[j]) <= 45 then begin
+				ENEMY_ENABLED:= true;
+				Actions.GroupOrderStorm(ENEMY_GROUPS[3]);
+				Actions.GroupOrderStorm(ENEMY_GROUPS[4]);
+				Actions.GroupOrderStorm(ENEMY_GROUPS[5]);
+				EnemyAttack;
+			end;
+	end else begin
+		for j:= 0 to Length(ENEMY_GROUPS)-1 do begin
+			if States.StatArmyCount(PLAYER) > 0 then begin
+				A:= States.PlayerGetAllUnits(PLAYER);
+				r:= States.KamRandomI(Length(A)-1);
+				if States.UnitDead(A[r]) = false then
+					u:= A[r]
+				else 
+					u:= -1;
+				if u > 0 then
+					Actions.GroupOrderAttackUnit(ENEMY_GROUPS[j], u);
+			end;
+		end;
+	end;
+end;
+//VICTORY CONDITIONS
+procedure CheckVictory;
+var c, j: integer;
+begin
+	c:= 0;
+	for j:=1 to 4 do c:= c + States.StatArmyCount(j);
+	if ( States.UnitPositionY(GENERAL) < 6 ) and ( c < 20 ) then
+		Actions.PlayerWin([PLAYER], true);
+end;
+// SCORE - LABELS
+procedure ShowMissionObjectives(aPlayer: integer);
+begin
+	Actions.OverlayTextSetFormatted(aPlayer, '<$4>', []);
+	Actions.OverlayTextAppendFormatted(aPlayer, '<$6>', []);
+	Actions.OverlayTextAppend(aPlayer, '|');
+end;
+
+// GLOBAL EVENTS
+procedure OnUnitDied(aUnitID, aKillerIndex: integer);
+begin
+	if GENERAL = aUnitID then
+		Actions.PlayerDefeat(PLAYER);
+end;
+//								ON TICK
+procedure OnTick;
+begin
+	if ( States.GameTime mod 10 = 0 ) then begin
+		ShowMissionObjectives(PLAYER);
+		CheckVictory;
+	end;
+	if ( States.GameTime mod 150 = 0 ) then begin
+		EnemyAttack;
+	end;
+end;
+// 								ON MISSION START
+procedure OnMissionStart;
+begin
+	GENERAL:= States.UnitAt(43, 59);
+	Actions.ShowMsgFormatted(PLAYER, '<$0>', []);
+	Actions.PlayWAVFadeMusic(PLAYER, 'kevin_mcleod_dangeour', MUSIC_VOLUME);
+	SetEnemyGroups;
+	ENEMY_ENABLED:= false;
+end;

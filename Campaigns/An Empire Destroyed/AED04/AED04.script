@@ -1,0 +1,168 @@
+//type Unit =
+//record
+//	uGroup : Integer;
+//	uTime : Integer;
+//	uType : Integer;
+//end;
+
+var i : Integer;
+var j : Integer;
+var k : Integer;
+var l : Integer;
+var arrayUnit : array of array[0..2] of Integer;
+var current : Integer;
+var len : Integer;
+var t : Integer;
+var change : Boolean;
+
+procedure UpdateObjective (Text : String);
+begin
+	Actions.OverlayTextSet(0, '');
+	Actions.OverlayTextAppendFormatted(0, Text,[States.PlayerColorText(0)]);
+end;
+
+procedure Autolink(Group : Integer; typeU : Integer);
+var arrayT : array of Integer;
+var tempunit : Integer;
+var distBest : Integer;
+var distCurr : Integer;
+var temp1 : Integer;
+var temp2 : Integer;
+var BestUnit : Integer;
+var BestGroup : Integer;
+var number : Boolean;
+begin
+	arrayT := States.PlayerGetAllGroups(0);
+	distBest := 99999;
+	number := False;
+	for i := 0 to Length(arrayT)-1 do
+	begin
+		tempunit := States.GroupMember(arrayT[i], 0);
+		if (States.UnitType(tempunit) = typeU) and (tempunit <> States.GroupMember(Group, 0)) then
+		begin
+			number := True;
+			for j := 0 to States.GroupMemberCount(arrayT[i])-1 do
+			begin
+				tempunit := States.GroupMember(arrayT[i], j);
+				temp1 := States.UnitPositionX(tempunit) - States.UnitPositionX(States.GroupMember(Group, 0));
+				temp2 := States.UnitPositionY(tempunit) - States.UnitPositionY(States.GroupMember(Group, 0));
+				distCurr := temp1 * temp1 + temp2 * temp2;
+				if distCurr  < distBest then
+				begin
+					distBest := distCurr;
+					BestUnit := tempunit;
+					BestGroup := arrayT[i];
+				end;
+			end;
+		end;
+	end;
+	if number and (distBest < 20) then
+	begin
+		Actions.GroupOrderLink(Group, BestGroup);
+	end;
+end;
+
+procedure AutolinkProc;
+begin
+	if len	<> 0 then
+	begin
+		for l := current to len-1 do
+		begin
+			if States.GameTime > (arrayUnit[l][1] +1) then
+			begin
+				current := current +1;
+				Autolink (arrayUnit[l][0], arrayUnit[l][2]);
+			end
+			else
+			begin
+				break;
+			end;
+		end;
+	end;
+end;
+
+procedure OnWarriorEquipped(aUnitID : Integer; aGroupID : Integer);
+var tempX : Integer;
+var tempY : Integer;
+var temporary : Integer;
+var typeU : Integer;
+begin
+	typeU := States.UnitType(aUnitID);
+	if (typeU = 21) and (States.UnitOwner(aUnitID) = 0) then
+	begin
+		tempX := States.UnitPositionX(aUnitID);
+		tempY := States.UnitPositionY(aUnitID);
+		Actions.UnitKill(aUnitID, True);
+		typeU := 27;
+		temporary := Actions.GiveGroup(0, 27, tempX, tempY, 4, 1, 1);
+		len := len +1;
+		SetLength(arrayUnit, len);
+		arrayUnit[len-1][0] := temporary;
+		arrayUnit[len-1][1] := States.GameTime;
+		arrayUnit[len-1][2] := typeU;
+	end;
+end;
+
+procedure updateProc;
+var arrayT : array of Integer;
+begin
+	arrayT := States.PlayerGetAllUnits(0);
+	for i := 0 to Length(arrayT)-1 do
+	begin
+		if States.UnitPositionX(arrayT[i]) = 60 then
+		begin
+			change := True;
+			UpdateObjective('<$3>');
+			Actions.ShowMsg(0, '<$2>');
+			break;
+		end;
+	end;
+end;
+
+procedure WinningCondition;
+var arrayT : array of Integer;
+var count : Integer;
+var temp : Integer;
+begin
+	count := 0;
+	for i := 1 to 4 do
+	begin
+		arrayT := States.PlayerGetAllHouses(i);
+		for j := 0 to length(arrayT)-1 do
+		begin
+			temp := States.HouseType(arrayT[j]);
+			if (temp = 11) or (temp = 13) or (temp = 21) or (temp = 27) then
+			begin
+				count := count + 1;
+			end;
+		end;
+	end;
+	if count = 0 then
+	begin
+		Actions.PlayerWin([0], true);
+	end;
+end;
+
+procedure OnMissionStart;
+begin
+	UpdateObjective('<$1>');
+	Actions.ShowMsg(0, '<$0>');
+	current := 0;
+	len := 0;
+	arrayUnit := [];
+	t := 0;
+	change := False;
+end;
+
+procedure OnTick;
+begin
+	if not change then
+	begin
+		updateProc
+	end;
+	if States.GameTime mod 10 = 0 then
+	begin
+		WinningCondition;
+	end;
+	AutolinkProc;
+end;

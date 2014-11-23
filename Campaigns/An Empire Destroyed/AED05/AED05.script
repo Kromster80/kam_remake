@@ -1,0 +1,265 @@
+type Patrol =
+record
+	group : Integer;
+	coord : array of array [0..1] of Integer;
+	sawEnemy : boolean;
+	curr : Integer;
+	max : Integer;
+end;
+
+var PatrolArray : array of Patrol;
+var FirstBlood : Integer;
+var Endgame : Boolean;
+var Endgametime : Integer;
+var bool : Boolean;
+var bool1 : Boolean;
+var bool2 : Boolean;
+var bool3 : Boolean;
+var bool4 : Boolean;
+var bool5 : Boolean;
+var bool6 : Boolean;
+var bool7 : Boolean;
+var special : array[0..8] of Integer;
+
+function isGroupAt (groupID : Integer; x : Integer; y : Integer): boolean;
+var i : Integer;
+begin
+	result := false;
+	for i := 0 to States.GroupMemberCount(groupID)-1 do
+	begin
+		if (States.UnitPositionX(States.GroupMember(groupID, i)) = x) and (States.UnitPositionY(States.GroupMember(groupID, i)) = y) then
+		begin
+			result := true;
+			break;
+		end;
+	end;
+end;
+
+Function IsPlayerUnitOn (xmin : Integer; xmax : Integer; ymin : Integer; ymax : Integer): Boolean;
+var UnitsPlayer : Array of Integer;
+var i : Integer;
+begin
+	UnitsPlayer  := States.PlayerGetAllUnits(0);
+	Result := False;
+	for i := 0 to Length(UnitsPlayer) -1 do
+	begin
+		if (States.UnitPositionX(UnitsPlayer[i]) >= xmin) and (States.UnitPositionX(UnitsPlayer[i]) <= xmax) and (States.UnitPositionY(UnitsPlayer[i]) >= ymin) and (States.UnitPositionY(UnitsPlayer[i]) <= ymax) then
+		begin
+			Result := True;
+			Break;
+		end;
+	end;
+end;
+
+procedure FeedEveryone;
+var allunits : Array of Integer;
+var i : Integer;
+var j : Integer;
+begin
+   for i:= 0 to 2 do
+   begin
+      allunits := States.PlayerGetAllUnits(i);
+      for j:= 0 to Length(allunits)-1 do
+      begin
+         Actions.UnitHungerSet(allunits[j], States.UnitMaxHunger);
+      end;
+   end;
+end;
+
+procedure UpdateObjective (Text : String);
+begin
+	Actions.OverlayTextSet(0, '');
+	Actions.OverlayTextAppendFormatted(0, Text,[States.PlayerColorText(0)]);
+end;
+
+procedure AddPatrolGroup(groupID : Integer; coords : array of Integer);
+var i : Integer;
+var j : Integer;
+var len : Integer;
+begin
+	SetLength(PatrolArray, length(PatrolArray)+1);
+	len := length(PatrolArray);
+	PatrolArray[len-1].group := groupID;
+	j := 0;
+	for i := 0 to (length(coords))-1 do
+	begin
+		setLength(PatrolArray[len-1].coord, length(PatrolArray[len-1].coord)+1);
+		if i mod 2 = 0 then
+		begin
+			PatrolArray[len-1].coord[j][0] := coords[i];
+		end
+		else
+		begin
+			PatrolArray[len-1].coord[j][1] := coords[i];
+			j := j+1;
+		end;
+	end;
+	PatrolArray[len-1].sawEnemy := false;
+	PatrolArray[len-1].curr := 1;
+	PatrolArray[len-1].max := length(coords)/2;
+end;
+
+procedure Patrols();
+var i : Integer;
+var tempx : Integer;
+var tempy : Integer;
+begin
+	for i := 0 to length(PatrolArray)-1 do
+	begin
+		if not States.GroupDead(PatrolArray[i].group) then
+		begin
+			if not PatrolArray[i].sawEnemy then
+			begin
+				if(States.GameTime mod 10 = 0) then
+				begin
+					if isGroupAt(PatrolArray[i].group, PatrolArray[i].coord[PatrolArray[i].curr][0], PatrolArray[i].coord[PatrolArray[i].curr][1]) then
+					begin
+						if PatrolArray[i].curr > PatrolArray[i].max-2 then
+						begin
+							PatrolArray[i].curr := 0;
+						end
+						else
+						begin
+							PatrolArray[i].curr := PatrolArray[i].curr + 1;
+						end;
+					end
+					else
+					begin
+						Actions.GroupOrderWalk(PatrolArray[i].group, PatrolArray[i].coord[PatrolArray[i].curr][0], PatrolArray[i].coord[PatrolArray[i].curr][1] , 0);
+					end;
+					tempx:=States.UnitPositionX(States.GroupMember(PatrolArray[i].group,0));
+					tempy:=States.UnitPositionY(States.GroupMember(PatrolArray[i].group,0));
+					if IsPlayerUnitOn(tempx-5, tempx+5, tempy-5, tempy+5) then
+					begin
+						PatrolArray[i].sawEnemy:=True;
+					end;
+				end;
+			end
+			else
+			begin
+				if States.StatArmyCount(0) > 0 then
+				begin
+					Actions.GroupOrderAttackUnit(PatrolArray[i].group,States.ClosestUnit(0,States.UnitPositionX(States.GroupMember(PatrolArray[i].group,0)),States.UnitPositionY(States.GroupMember(PatrolArray[i].group,0)),-1));
+				end;
+			end;
+		end;
+	end;
+end;
+
+procedure OnMissionStart;
+begin
+	AddPatrolGroup(States.GroupAt(15,97), [15,97,  32,110,  36,97,  10,91,  6,78,  24,82]);
+	AddPatrolGroup(States.GroupAt(70,102), [70,102,  39,95,  40,111,  70,114]);
+	AddPatrolGroup(States.GroupAt(78,118), [78,118,  82,120,  119,120,  125,116,  126,113,  125,107,  80,103]);
+	AddPatrolGroup(States.GroupAt(121,118), [121,118,  77,119,  80,103,  125,107]);
+	
+	AddPatrolGroup(States.GroupAt(84,83), [84,83,  90,93,  82,99,  71,88]);
+	AddPatrolGroup(States.GroupAt(79,83), [79,83,  69,88,  77,99,  89,90]);
+	
+	AddPatrolGroup(States.GroupAt(96,82), [96,82,  98,100,  116,99,  125,95,  121,75]);
+	AddPatrolGroup(States.GroupAt(70,61), [70,61,  63,75,  63,83,  94,78,  85,57]);
+	
+	AddPatrolGroup(States.GroupAt(42,65), [42,65,  48,72,  54,67,  49,60]);
+	AddPatrolGroup(States.GroupAt(4,46), [4,46,  3,74,  4,39]);
+	
+	AddPatrolGroup(States.GroupAt(11,30), [11,30,  26,24,  15,13,  2,18,  2,24]);
+	AddPatrolGroup(States.GroupAt(29,4), [29,4,  20,14,  34,30,  46,17]);
+	
+	AddPatrolGroup(States.GroupAt(43,40), [43,40,  53,49,  60,49,  55,38]);
+	AddPatrolGroup(States.GroupAt(58,40), [58,40,  79,37,  84,18,  60,25]);
+	
+	AddPatrolGroup(States.GroupAt(73,13), [73,13,  96,25,  105,13,  84,7]);
+	
+	AddPatrolGroup(States.GroupAt(109,28), [109,28,  119,51,  122,18,  107,14]);
+	
+	UpdateObjective('<$1>');
+	FirstBlood:=States.UnitAt(7,120);
+	Endgame := False;
+	bool1:=False;
+	bool2:=False;
+	bool3:=False;
+	bool4:=False;
+	bool5:=False;
+	bool:=True;
+	special[0]:=States.GroupAt(91,54);
+	special[1]:=States.GroupAt(92,55);
+	special[2]:=States.GroupAt(94,56);
+	special[3]:=States.GroupAt(96,56);
+	special[4]:=States.GroupAt(97,55);
+	special[5]:=States.GroupAt(97,54);
+	special[6]:=States.GroupAt(96,53);
+	special[7]:=States.GroupAt(94,52);
+	special[8]:=States.GroupAt(92,53);
+end;
+
+procedure OnTick;
+var i : Integer;
+begin
+	if States.StatArmyCount(0) = 0 then
+	begin
+		Actions.PlayerDefeat(0);
+	end;
+	Patrols();
+	
+	if States.UnitDead(FirstBlood) and bool then
+	begin
+		Actions.ShowMsg(0, '<$0>');
+		bool:=False;
+	end;
+	
+	if States.GameTime mod 7200 = 0 then //every 12 minutes
+	begin
+		FeedEveryone;
+	end;
+	
+	if Endgame then
+	begin
+		if States.GameTime = Endgametime +2 then
+		begin
+			Actions.ShowMsg(0, '<$2>');
+		end;
+		if States.GameTime = Endgametime +80 then
+		begin
+			Actions.PlayerWin([0], False);
+		end;
+	end;
+	
+	if(bool1=False) then
+	if(IsPlayerUnitOn(103,127,1,10)) then
+	begin
+		Endgame:=True;
+		bool1:=True;
+		Endgametime:= States.GameTime;
+	end;
+	
+	if(bool2=False) then
+	if(IsPlayerUnitOn(72,76,40,45)) then
+	begin
+		Actions.GroupOrderAttackUnit(States.GroupAt(74,31),States.ClosestUnit(0,74,31,-1));
+		bool2:=True;
+	end;
+	
+	if(bool3=False) then
+	if(IsPlayerUnitOn(90,101,25,31)) then
+	begin
+		Actions.GroupOrderAttackUnit(States.GroupAt(96,31),States.UnitAt(96,29));
+		bool3:=True;
+	end;
+	
+	if(bool4=False) then
+	if(IsPlayerUnitOn(94,113,115,127)) then
+	begin
+		Actions.GroupOrderStorm(States.GroupAt(103,113));
+		bool4:=True;
+	end;
+	
+	if(bool5=False) then
+	if(IsPlayerUnitOn(87,101,49,59)) then
+	begin
+		for i := 0 to 8 do
+		begin
+			Actions.GroupOrderAttackUnit(special[i],States.ClosestUnit(0,94,54,-1));
+		end;
+		bool5:=True;
+	end;
+end;

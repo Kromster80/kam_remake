@@ -1,0 +1,437 @@
+//Mission 01
+
+var i : Integer;
+var j : Integer;
+var AttackBalancer : Integer;
+var StoreAttackBalancer : Integer;
+var wave : Integer;
+var timeWaveTwo : Integer;
+var timeWaveThree :  Integer;
+var timeVictory : Integer;
+var victory : Boolean;
+var scoutP1 : Integer;
+var scoutP2 : Integer;
+var scoutP3 : Integer;
+var scoutP4 : Integer;
+
+type GroupStatus =
+record
+	id : Integer;
+	targetType : Integer;//0 specified building upon adding the troop, 1 closest building, 2 closest troop
+	targetx : Integer;
+	targety : Integer;
+	delayer : Integer;
+	targetAcquired: Boolean;
+end;
+
+var enemyGroupList : array [1..5] of array of GroupStatus;
+var storehouseList : array of Integer;
+var builderList : array of Integer;
+
+procedure UpdateObjective (Text : String);
+begin
+	Actions.OverlayTextSet(0, '');
+	Actions.OverlayTextAppendFormatted(0, Text,[States.PlayerColorText(0)]);
+end;
+
+procedure AddUnitSpecifiedBuilding (X : Integer; Y : Integer; Player : Integer; UnitType : Integer; FaceDir : Integer; Men : Integer; MenPerRow : Integer; XTarget : Integer; YTarget : Integer; XWalk : Integer; YWalk : Integer);
+begin
+	SetLength(enemyGroupList[Player], (Length(enemyGroupList[Player]) + 1));
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].id := Actions.GiveGroup(Player, UnitType, X, Y, FaceDir, Men, MenPerRow)
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetType := 0;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetx := XTarget;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targety := YTarget;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].delayer := 70;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetAcquired := False;
+	Actions.GroupOrderWalk(enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].id, XWalk, YWalk, 4);
+end;
+
+procedure AddUnitAttackBuilding (X : Integer; Y : Integer; Player : Integer; UnitType : Integer; FaceDir : Integer; Men : Integer; MenPerRow : Integer; XWalk : Integer; YWalk : Integer);
+begin
+	SetLength(enemyGroupList[Player], (Length(enemyGroupList[Player]) + 1));
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].id := Actions.GiveGroup(Player, UnitType, X, Y, FaceDir, Men, MenPerRow)
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetType := 1;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetx := 0;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targety := 0;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].delayer := 70;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetAcquired := False;
+	Actions.GroupOrderWalk(enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].id, XWalk, YWalk, 4);
+end;
+
+procedure AddUnitAttackUnit (X : Integer; Y : Integer; Player : Integer; UnitType : Integer; FaceDir : Integer; Men : Integer; MenPerRow : Integer; XWalk : Integer; YWalk : Integer);
+begin
+	SetLength(enemyGroupList[Player], (Length(enemyGroupList[Player]) + 1));
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].id := Actions.GiveGroup(Player, UnitType, X, Y, FaceDir, Men, MenPerRow)
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetType := 2;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetx := 0;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targety := 0;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].delayer := 70;
+	enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].targetAcquired := False;
+	Actions.GroupOrderWalk(enemyGroupList[Player][Length(enemyGroupList[Player]) - 1].id, XWalk, YWalk, 4);
+end;
+
+procedure EnemyAutoAttack (Player : Integer);
+var groupList : array of Integer;
+var buildingList : array of Integer;
+var distCurr : Integer;
+var distBest : Integer;
+var buildingBest : Integer;
+var unitBest : Integer;
+var temp1 : Integer;
+var temp2 : Integer;
+begin
+	buildingList := States.PlayerGetAllHouses(0);
+	groupList := States.PlayerGetAllGroups(0);
+	for i := 0 to Length(enemyGroupList[Player]) - 1 do
+	begin
+			if not (States.GroupDead(enemyGroupList[Player][i].id)) then
+			begin
+				if enemyGroupList[Player][i].delayer <> 0 then
+				begin
+					enemyGroupList[Player][i].delayer := enemyGroupList[Player][i].delayer - 1;
+				end
+				else
+				begin
+					if (enemyGroupList[Player][i].targetType = 0) then
+					begin
+						if States.HouseAt(enemyGroupList[Player][i].targetx, enemyGroupList[Player][i].targety) = -1 then
+						begin
+							enemyGroupList[Player][i].targetType := 1;
+						end
+						else if (enemyGroupList[Player][i].delayer = 0) and not (enemyGroupList[Player][i].targetAcquired) then
+						begin
+							Actions.GroupOrderAttackHouse(enemyGroupList[Player][i].id, States.HouseAt(enemyGroupList[Player][i].targetx, enemyGroupList[Player][i].targety));
+							enemyGroupList[Player][i].targetAcquired := True;
+						end
+						else if StoreAttackBalancer = 30 then
+						begin
+							enemyGroupList[Player][i].targetAcquired := False
+						end;
+					end
+					else if enemyGroupList[Player][i].targetType = 1 then
+					begin
+						if (enemyGroupList[Player][i].targetAcquired = False) or ((enemyGroupList[Player][i].delayer = 0) and (States.HouseAt(enemyGroupList[Player][i].targetx, enemyGroupList[Player][i].targety) = -1)) then
+						begin
+							distBest := 999999;
+							for j := 0 to Length(buildingList) -1 do
+							begin
+								temp1 := States.UnitPositionX(States.GroupMember(enemyGroupList[Player][i].id, 0)) - States.HousePositionX(buildingList[j]);
+								temp2 := States.UnitPositionY(States.GroupMember(enemyGroupList[Player][i].id, 0)) - States.HousePositionY(buildingList[j]);
+								distCurr := temp1 * temp1 + temp2 * temp2;
+								if distCurr  < distBest then
+								begin
+									distBest := distCurr;
+									buildingBest := buildingList[j];
+								end;
+							end;
+							Actions.GroupOrderAttackHouse(enemyGroupList[Player][i].id, buildingBest);
+							enemyGroupList[Player][i].targetx := States.HousePositionX(buildingBest);
+							enemyGroupList[Player][i].targety := States.HousePositionY(buildingBest);
+							enemyGroupList[Player][i].targetAcquired := True
+						end
+						else if StoreAttackBalancer = 30 then
+						begin
+							enemyGroupList[Player][i].targetAcquired := False;
+						end;
+					end
+					else if enemyGroupList[Player][i].targetType = 2 then
+					begin
+						distBest := 999999;
+						for j := 0 to Length(groupList) -1 do
+						begin
+							temp1 := States.UnitPositionX(States.GroupMember(enemyGroupList[Player][i].id, 0)) - States.UnitPositionX(States.GroupMember(groupList[j], 0));
+							temp2 := States.UnitPositionY(States.GroupMember(enemyGroupList[Player][i].id, 0)) - States.UnitPositionY(States.GroupMember(groupList[j], 0));
+							distCurr := temp1 * temp1 + temp2 * temp2;
+							if distCurr  < distBest then
+							begin
+								distBest := distCurr;
+								unitBest := States.GroupMember(groupList[j], 0);
+							end;
+						end;
+						Actions.GroupOrderAttackUnit(enemyGroupList[Player][i].id, unitBest);
+					end;
+				end;
+			end;
+	end;
+end;
+
+Procedure OnMissionStart;
+var temp : array of Integer;
+begin
+	UpdateObjective('<$9>');
+	Actions.ShowMsg(0, '<$0>');
+	wave := 0;
+	temp := States.PlayerGetAllHouses(0);
+	for i := 0 to Length(temp) - 1 do
+	begin
+		if States.HouseType(temp[i]) = 11 then
+		begin
+			SetLength(storehouseList, (Length(storehouseList) + 1));
+			storehouseList[Length(storehouseList) - 1] := temp[i];
+		end;
+	end;
+	temp := States.PlayerGetAllUnits(0);
+	for i := 0 to Length(temp) - 1 do
+	begin
+		if States.UnitType(temp[i]) = 9 then
+		begin
+			SetLength(builderList, (Length(builderList) + 1));
+			builderList[Length(builderList) - 1] := temp[i];
+		end;
+	end;
+	
+	victory := False;
+	
+	scoutP1 := States.UnitAt(130, 8);
+	scoutP2 := States.UnitAt(15, 15);
+	scoutP3 := States.UnitAt(8, 135);
+	scoutP4 := States.UnitAt(125, 123);
+end;
+
+Procedure OnTick;
+var temp : Integer;
+var tempx : Integer;
+var tempy : Integer;
+var tempArray1 : Array of Integer;
+var tempArray2 : Array of Integer;
+var tempArray3 : Array of Integer;
+var tempArray4 : Array of Integer;
+begin
+	if (AttackBalancer = 0) or (AttackBalancer = 9) then
+	begin
+		EnemyAutoAttack(1);
+	end
+	else if (AttackBalancer = 2) or (AttackBalancer = 5) then
+	begin
+		EnemyAutoAttack(2);
+	end
+	else if (AttackBalancer = 4) or (AttackBalancer = 7) then
+	begin
+		EnemyAutoAttack(3);
+	end
+	else if (AttackBalancer = 6) or (AttackBalancer = 3) then
+	begin
+		EnemyAutoAttack(4);
+	end
+	else if (AttackBalancer = 8) or (AttackBalancer = 1) then
+	begin
+		EnemyAutoAttack(5);
+	end;
+		
+	if (AttackBalancer <> 9) then
+	begin
+		AttackBalancer := AttackBalancer + 1;
+	end
+	else
+	begin
+		AttackBalancer := 0;
+	end;
+	
+	if States.GameTime = 100 then//10 seconds
+	begin
+		Actions.ShowMsg(0, '<$1>');
+	end;
+	if States.GameTime = 150 then//15 seconds
+	begin
+		AddUnitSpecifiedBuilding(130, 21, 1, 23, 4, 15, 5, 127, 70, 129, 44);
+		AddUnitAttackBuilding(121, 21, 1, 14, 4, 25, 7, 129, 44);
+		AddUnitAttackUnit(138, 7, 1, 27, 4, 20, 6, 129, 44);
+		
+		AddUnitSpecifiedBuilding(110, 5, 1, 23, 6, 9, 5, 82, 21, 83, 24);
+		AddUnitAttackBuilding(105, 10, 1, 14, 6, 15, 7, 83, 24);
+		AddUnitAttackUnit(105, 15, 1, 15, 6, 20, 6, 83, 24);
+	end;
+	
+	if States.GameTime = 250 then//25 seconds
+	begin
+		Actions.ShowMsg(0, '<$2>');
+	end;
+	if States.GameTime = 300 then//30 seconds
+	begin
+		AddUnitSpecifiedBuilding(17, 11, 2, 15, 4, 25, 5, 82, 21, 56, 15);
+		AddUnitAttackUnit(17, 17, 2, 15, 4, 25, 6, 52, 26);
+		
+		AddUnitSpecifiedBuilding(4, 26, 2, 15, 6, 9, 5, 22, 66, 4, 49);
+		AddUnitAttackBuilding(14, 26, 2, 27, 6, 15, 7, 4, 49);
+		AddUnitAttackUnit(9, 13, 2, 27, 6, 20, 6, 23, 49);
+		wave := 1;
+	end;
+	
+	if States.GameTime = 400 then//40 seconds
+	begin
+		Actions.ShowMsg(0, '<$3>');
+	end;
+	if States.GameTime = 450 then//45 seconds
+	begin
+		AddUnitSpecifiedBuilding(111, 112, 4, 27, 0, 25, 6, 127, 70, 140, 82);
+		AddUnitAttackUnit(117, 112, 4, 27, 0, 25, 6, 115, 85);
+		AddUnitAttackBuilding(123, 112, 4, 19, 0, 25, 6, 126, 84);
+		
+		AddUnitSpecifiedBuilding(113, 116, 4, 15, 6, 30, 5, 65, 119, 80, 140);
+		AddUnitAttackBuilding(113, 120, 4, 15, 6, 25, 5, 86, 112);
+		AddUnitAttackUnit(113, 124, 4, 27, 6, 15, 5, 80, 140);
+	end;
+	
+	if States.GameTime = 550 then//55 seconds
+	begin
+		Actions.ShowMsg(0, '<$4>');
+	end;
+	if States.GameTime = 600 then//60 seconds
+	begin
+		AddUnitSpecifiedBuilding(3, 117, 3, 21, 0, 40, 9, 22, 66, 14, 94);
+		AddUnitAttackUnit(7, 117, 3, 14, 0, 15, 5, 14, 94);
+		AddUnitAttackBuilding(11, 117, 3, 24, 0, 12, 4, 14, 94);
+		
+		AddUnitSpecifiedBuilding(30, 110, 3, 21, 2, 15, 5, 65, 119, 49, 113);
+		AddUnitAttackBuilding(30, 130, 3, 21, 2, 15, 5, 48, 136);
+		AddUnitAttackUnit(30, 119, 3, 14, 2, 15, 5, 49, 113);
+		AddUnitAttackUnit(30, 136, 3, 14, 2, 20, 5, 48, 136);
+	end;
+	
+	if wave = 1 then
+	begin
+		for i := 0 to Length(storehouseList) - 1 do
+		begin
+			if States.HouseDestroyed(storehouseList[i]) then
+			begin
+				Actions.PlayerDefeat(0);
+			end;
+		end;
+		temp := 0;
+		for i := 1 to 5 do
+		begin
+			temp := temp + Length(States.PlayerGetAllUnits(i));
+		end;
+		if (temp = 0) or ((Length(States.PlayerGetAllUnits(1)) = 1) and (Length(States.PlayerGetAllUnits(2)) = 1) and (Length(States.PlayerGetAllUnits(3)) = 1) and (Length(States.PlayerGetAllUnits(4)) = 1)) then
+		begin
+			tempArray1 := States.PlayerGetAllUnits(1);
+			tempArray2 := States.PlayerGetAllUnits(2);
+			tempArray3 := States.PlayerGetAllUnits(3);
+			tempArray4 := States.PlayerGetAllUnits(4);
+			if (temp = 0) then
+			begin
+				timeWaveTwo := States.GameTime;
+				wave := 2;
+				Actions.ShowMsg(0, '<$8>');
+				UpdateObjective('<$10>');
+			end
+			else if (tempArray1[0] = scoutP1) and (tempArray2[0] = scoutP2) and (tempArray3[0] = scoutP3) and (tempArray4[0] = scoutP4) then
+			begin
+				timeWaveTwo := States.GameTime;
+				wave := 2;
+				Actions.ShowMsg(0, '<$8>');
+				UpdateObjective('<$10>');
+			end;
+		end;
+		temp := 0;
+	end;
+	
+	if (wave = 2) and ((States.GameTime - timeWaveTwo) = 300) then//wave two starts
+	begin
+		Actions.ShowMsg(0, '<$5>');
+		
+		AddUnitSpecifiedBuilding(129, 18, 1, 23, 4, 50, 10, 67, 71, 114, 68);
+		
+		AddUnitAttackBuilding(23, 17, 2, 20, 2, 20, 5, 66, 31);
+		AddUnitAttackUnit(23, 25, 2, 16, 0, 40, 9, 66, 31);
+		
+		AddUnitAttackBuilding(119, 113, 4, 19, 2, 60, 15, 67, 110);
+		AddUnitAttackUnit(114, 119, 4, 15, 2, 30, 10, 67, 110);
+		
+		AddUnitAttackUnit(28, 115, 3, 27, 2, 15, 5, 26, 72);
+		AddUnitAttackUnit(28, 125, 3, 21, 2, 20, 5, 26, 72);
+		AddUnitSpecifiedBuilding(28, 135, 3, 22, 0, 40, 15, 67, 71, 26, 72);
+	end;
+	
+	if (wave = 2) and ((States.GameTime - timeWaveTwo) = 750) then//wave two builder revolt
+	begin
+		Actions.ShowMsg(0, '<$6>');
+		for i := 0 to Length(builderList) - 1 do
+		begin
+			if not (States.UnitDead(builderList[i])) then
+			begin
+				tempx := States.UnitPositionX(builderList[i]);
+				tempy := States.UnitPositionY(builderList[i]);
+				Actions.UnitKill(builderList[i], True);
+				AddUnitAttackBuilding(tempx, tempy, 5, 24, 4, 1, 1, 71, 69);
+			end;
+		end;
+	end;
+	
+	if (wave = 2) and ((States.GameTime - timeWaveTwo) > 750) then
+	begin
+		temp := 0;
+		for i := 1 to 5 do
+		begin
+			temp := temp + Length(States.PlayerGetAllUnits(i));
+		end;
+		if (temp = 0) or ((Length(States.PlayerGetAllUnits(1)) = 1) and (Length(States.PlayerGetAllUnits(2)) = 1) and (Length(States.PlayerGetAllUnits(3)) = 1) and (Length(States.PlayerGetAllUnits(4)) = 1)) then
+		begin
+			tempArray1 := States.PlayerGetAllUnits(1);
+			tempArray2 := States.PlayerGetAllUnits(2);
+			tempArray3 := States.PlayerGetAllUnits(3);
+			tempArray4 := States.PlayerGetAllUnits(4);
+			if (temp = 0) then
+			begin
+				timeWaveThree := States.GameTime;
+				wave := 3;
+			end
+			else if (tempArray1[0] = scoutP1) and (tempArray2[0] = scoutP2) and (tempArray3[0] = scoutP3) and (tempArray4[0] = scoutP4) then
+			begin
+				timeWaveThree := States.GameTime;
+				wave := 3;
+			end;
+		end;
+		temp := 0;
+	end;
+	
+	if (wave = 3) and ((States.GameTime - timeWaveThree) = 100) then//wave two starts
+	begin
+		Actions.ShowMsg(0, '<$7>');
+		UpdateObjective('<$11>');
+		
+		AddUnitSpecifiedBuilding(129, 18, 1, 23, 4, 75, 15, 67, 71, 114, 68);
+		
+		AddUnitSpecifiedBuilding(23, 17, 2, 16, 4, 50, 15, 67, 71, 66, 31);
+		
+		AddUnitSpecifiedBuilding(28, 115, 3, 21, 4, 80, 15, 67, 71, 26, 72);
+		
+		AddUnitSpecifiedBuilding(119, 113, 4, 19, 4, 40, 15, 67, 71, 67, 110);
+		AddUnitSpecifiedBuilding(114, 125, 4, 15, 4, 40, 15, 67, 71, 67, 110);
+	end;
+	
+	if (wave = 3) and ((States.GameTime - timeWaveThree) = 250) then//wave two starts
+	begin
+		AddUnitSpecifiedBuilding(129, 18, 1, 26, 4, 1, 1, 67, 71, 114, 68);
+		
+		AddUnitSpecifiedBuilding(23, 17, 2, 22, 4, 6, 6, 67, 71, 66, 31);
+		
+		AddUnitSpecifiedBuilding(28, 115, 3, 22, 4, 1, 1, 67, 71, 26, 72);
+		
+		AddUnitSpecifiedBuilding(119, 113, 4, 21, 4, 1, 1, 67, 71, 67, 110);
+	end;
+	
+	if (victory = False) and (States.HouseDestroyed(States.HouseAt(67, 71))) then
+	begin
+		if wave = 2 then
+		begin
+			Actions.ShowMsg(0, '<$7>');
+		end;
+		timeVictory := States.GameTime;
+		victory := True;
+	end;
+	
+	if (victory = True) and ((States.GameTime - timeVictory) = 60) then//victory ! (yes you lost your capital.)
+	begin
+		Actions.PlayerWin([0], False);
+	end;
+	
+	if (StoreAttackBalancer <> 30) then
+	begin
+		StoreAttackBalancer := StoreAttackBalancer + 1;
+	end
+	else
+	begin
+		StoreAttackBalancer := 0;
+	end;
+end;

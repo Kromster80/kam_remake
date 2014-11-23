@@ -1,0 +1,14 @@
+
+MaxID:12
+
+0: General, the king has entrusted you to gather the supplies and men we need so he can convince the other resistances to unite and aid us in our final battle.
+1: General, our scouting party returned with grave news. Enemy troops are marching towards our city and shall soon be upon us!.
+4:[$00D7FF]Objective[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Gather resources:[]
+7: %d [$D2FAFA]Wave[] in %d
+8:[$D2FAFA]%s[] - %d/%d
+9:[$2FFFAD]%s[]
+10:[$00FF7F]Group up army:[]
+11:[$00FF7F]Survive[]
+12:Be careful, the enemy has small raiding parties going towards your city. they could come form everywhere

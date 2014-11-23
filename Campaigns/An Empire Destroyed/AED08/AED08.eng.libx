@@ -1,0 +1,14 @@
+
+MaxID:10
+
+0:General, the resistance leader sent this message for you. Allow me to read it: Dear general, thank you for your support. We like to ask you a favor, could you bring %d stone by one of your warriors to our storehouse, then we cloud send to your marketplace our goods.
+1:General, it appears the enemy is heavily fortified, the defense looks impenetrable!
+2:Thank you general, we shall start sending wares to you right now.
+3:We need marketplace to send wares!
+4:[$00D7FF]Objective[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Assault Niss[]
+7: - [$D2FAFA]Wares[] in %d
+8: - %d [$D2FAFA]%s[]
+9:Thank you general, we will be waiting for your marketplace.
+10:Now, just bring to us %d stones.

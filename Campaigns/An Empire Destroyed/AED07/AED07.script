@@ -1,0 +1,338 @@
+//Script by Randziu/Random Lyrics
+const
+PLAYER = 0;
+MAX_PLAYERS = 1;
+PLAYER_CHASING = 2;
+
+
+// CHANGEABLE
+MUSIC_VOLUME = 1.0;
+AMBUSH_RADIUS = 10;
+HALF_WAY_X = 52;
+var
+CARAVAN_GROUPS: array of integer;
+AMBUSH_GROUPS: array of integer;
+AMBUSH_ENABLED: array of boolean;
+CHASING_GROUPS: array of integer;
+CHASING_ENABLED: boolean;
+QUEST_NUMBER: integer;
+
+//GLOBAL FUNCTIONS
+function Sqr(A: integer): integer;
+begin
+	result:= ( A*A );
+end;
+procedure Test(a: integer);
+begin
+	Actions.ShowMsg(-1, 'test: ' + inttostr(a));
+end;
+function InRange(aInt, aFrom, aTo: integer): boolean;
+begin
+	Result := (aInt >= aFrom) and (aInt <= aTo);
+end;
+
+function GroupInArrayGroup(aGroup: integer; aArray: array of integer): boolean;
+var j: integer;
+begin
+	result:= false;
+	if aGroup > 0 then begin
+		for j:= 0 to Length(aArray)-1 do begin
+			if aGroup = aArray[j] then begin
+				result:= true;
+				exit;
+			end;
+		end;
+	end;
+end;
+
+// AI
+function ClosestEnemyGroup(aPlayer, X, Y, radius:Integer): Integer; 
+var 
+Groups: array of Integer; 
+i, j, BestDistanceSqr, ThisDistanceSqr, DX, DY, fUnit: Integer;
+begin
+	Result := -1;
+	for j := 0 to MAX_PLAYERS-1 do begin
+		if (States.PlayerEnabled(j) = true) and (States.PlayerDefeated(j) = false) and (j <> aPlayer) then begin
+			if( States.PlayerAllianceCheck(aPlayer, j) <> true ) then begin
+				Groups := States.PlayerGetAllGroups(j);
+				for i := 0 to Length(Groups) -1 do begin
+					if States.GroupDead(Groups[i]) = false then begin
+						fUnit:=States.GroupMember(Groups[i], 0);
+						DX := X - States.UnitPositionX(fUnit);
+						DY := Y - States.UnitPositionY(fUnit);
+						ThisDistanceSqr := (DX*DX) + (DY*DY);
+						if (States.UnitPositionX(fUnit) < 198) and ((Abs(DX)<radius) and (Abs(DY)<radius)) and ((Result = -1) or (ThisDistanceSqr < BestDistanceSqr)) then begin
+							BestDistanceSqr := ThisDistanceSqr;
+							Result := Groups[i];
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+
+//CHASING
+function GetRandomUnit(aPlayer: integer): integer;
+var 
+A: array of integer;
+r, j: integer;
+begin
+	result:= -1;
+	A:= States.PlayerGetAllUnits(aPlayer);
+	if Length(A) > 0 then begin
+		for j:=0 to 10 do begin
+			r:= States.KaMRandomI(Length(A));
+			if InRange(States.UnitType(A[r]), 14, 27) and ( States.UnitDead(A[r]) = false ) then begin
+				result:= A[r];
+				exit;
+			end;
+		end;
+	end;
+end;
+procedure Chase(aPlayer: integer);
+var u, j, a: integer;
+begin
+	for j:= 0 to Length(CHASING_GROUPS)-1 do begin
+		if ( CHASING_GROUPS[j] > 0 ) and (States.GroupDead(CHASING_GROUPS[j]) = false) then begin
+			u:= GetRandomUnit(aPlayer);
+			if u > 0 then
+				Actions.GroupOrderAttackUnit(CHASING_GROUPS[j], u);
+		end;
+	end;
+end;
+procedure SetChasingGroups;
+begin
+	SetLength(CHASING_GROUPS, 5);
+	CHASING_GROUPS[0]:= Actions.GiveGroup(1, 23, 18, 88, 0, 20, 10);
+	CHASING_GROUPS[1]:= Actions.GiveGroup(3, 14, 16, 91, 0, 20, 10);
+	CHASING_GROUPS[2]:= Actions.GiveGroup(4, 15, 11, 86, 0, 20, 10);
+	CHASING_GROUPS[3]:= Actions.GiveGroup(2, 16, 12, 89, 0, 20, 10);
+	Actions.ShowMsg(PLAYER, '<$2>');
+	Actions.PlayWAVFadeMusic(PLAYER, 'kevin_mcleod_chase', MUSIC_VOLUME);
+	CHASING_ENABLED:= true;
+end;
+function UnitInLineX(aPlayer, X: integer): boolean;
+var
+A: array of integer;
+j, u: integer;
+begin
+	result:= false;
+	A:= States.PlayerGetAllUnits(aPlayer);
+	for j:=0 to Length(A)-1 do begin
+		if States.UnitPositionX(A[j]) >= X then begin
+			result:= true;
+			exit;
+		end;
+	end;
+end;
+procedure CheckHalfWay;
+begin
+	if CHASING_ENABLED = false then begin
+		if UnitInLineX(PLAYER, HALF_WAY_X) then begin
+			SetChasingGroups;
+			CHASING_ENABLED:= true;
+		end;
+	end;
+end;
+
+//AMBUSHES
+procedure SetAmbushGroups;
+var j: integer;
+begin
+	SetLength(AMBUSH_GROUPS, 11);
+	AMBUSH_GROUPS[0]:= States.GroupAt(41, 53);
+	AMBUSH_GROUPS[1]:= States.GroupAt(30, 26);
+	AMBUSH_GROUPS[2]:= States.GroupAt(6, 4);
+	AMBUSH_GROUPS[3]:= States.GroupAt(24, 3);
+	AMBUSH_GROUPS[4]:= States.GroupAt(52, 33);
+	AMBUSH_GROUPS[5]:= States.GroupAt(63, 3);
+	AMBUSH_GROUPS[6]:= States.GroupAt(88, 4);
+	AMBUSH_GROUPS[7]:= States.GroupAt(93, 19);
+	AMBUSH_GROUPS[8]:= States.GroupAt(64, 64);
+	AMBUSH_GROUPS[9]:= States.GroupAt(91, 66);
+	AMBUSH_GROUPS[10]:= States.GroupAt(86, 86);
+	SetLength(AMBUSH_ENABLED, 9);
+	for j:= 0 to 8 do 
+		AMBUSH_ENABLED[j]:= true;
+end;
+function UnitInRadius(aPlayer, X, Y, radius: integer): integer;
+var 
+kX, kY, u: integer;
+begin
+	result:= -1;
+	if InRange(X, 1+radius, 95-radius) and InRange(Y, 1+radius, 95-radius) then begin
+		for kX:= ( X - radius ) to ( X + radius ) do begin
+			for kY:= ( Y - radius ) to ( Y + radius ) do begin
+				if ( Sqr( X - kX) + Sqr( Y - kY)) <= Sqr(radius) then begin
+					u:= States.UnitAt(kX, kY);
+					if ( u > 0 ) and (States.UnitOwner(u) = aPlayer) then begin
+						result:= u;
+						exit;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+procedure CheckAmbushes;
+var u: integer;
+begin
+	if AMBUSH_ENABLED[0] then begin
+		u:= UnitInRadius(PLAYER, 20, 60, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[0], u);
+			AMBUSH_ENABLED[0]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[1] then begin
+		u:= UnitInRadius(PLAYER, 18, 30, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[1], u);
+			AMBUSH_ENABLED[1]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[2] then begin
+		u:= UnitInRadius(PLAYER, 20, 15, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[1], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[2], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[3], u);
+			AMBUSH_ENABLED[2]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[3] then begin
+		u:= UnitInRadius(PLAYER, 45, 28, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[4], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[2], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[3], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[1], u);
+			AMBUSH_ENABLED[3]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[4] then begin
+		u:= UnitInRadius(PLAYER, 78, 33, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[6], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[7], u);
+			AMBUSH_ENABLED[4]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[5] then begin
+		u:= UnitInRadius(PLAYER, 64, 58, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[8], u);
+			AMBUSH_ENABLED[5]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[6] then begin
+		u:= UnitInRadius(PLAYER, 90, 60, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[9], u);
+			AMBUSH_ENABLED[6]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[7] then begin
+		u:= UnitInRadius(PLAYER, 80, 73, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[8], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[9], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[10], u);
+			Actions.ShowMsg(PLAYER, '<$3>');
+			AMBUSH_ENABLED[7]:= false;
+		end;
+	end;
+	if AMBUSH_ENABLED[8] then begin
+		u:= UnitInRadius(PLAYER, 60, 12, AMBUSH_RADIUS);
+		if u > 0 then begin
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[5], u);
+			Actions.GroupOrderAttackUnit(AMBUSH_GROUPS[4], u);
+			AMBUSH_ENABLED[8]:= false;
+		end;
+	end;
+end;
+//QUEST 1
+procedure SetCaravan;
+begin
+	SetLength(CARAVAN_GROUPS, 6);
+	CARAVAN_GROUPS[0]:= States.GroupAt(9, 13);
+	CARAVAN_GROUPS[1]:= States.GroupAt(9, 16);
+	CARAVAN_GROUPS[2]:= States.GroupAt(9, 19);
+	CARAVAN_GROUPS[3]:= States.GroupAt(9, 22);
+	CARAVAN_GROUPS[4]:= States.GroupAt(9, 25);
+end;
+function CaravanDead: boolean;
+var c, j: integer;
+begin
+	result:= false;
+	c:= 1 
+	for j:= 0 to Length(CARAVAN_GROUPS)-1 do
+		if ( CARAVAN_GROUPS[j] > 0 ) and States.GroupDead(CARAVAN_GROUPS[j]) then
+			c:= c + 1;
+	if c = Length(CARAVAN_GROUPS)-1 then
+		result:= true;
+end;
+//QUEST 2
+procedure SetQuest2;
+begin
+	if QUEST_NUMBER = 1 then begin
+		QUEST_NUMBER:= 2;
+		Actions.FogRevealCircle(PLAYER, 94, 94, 10);
+		Actions.ShowMsg(PLAYER, '<$1>');
+	end;
+end;
+//VICTORY CONDITIONS
+
+// SCORE - LABELS
+procedure ShowMissionObjectives(aPlayer: integer);
+begin
+	Actions.OverlayTextSetFormatted(aPlayer, '<$4>', []);
+	if QUEST_NUMBER = 1 then begin
+		Actions.OverlayTextAppendFormatted(aPlayer, '<$6>', []);
+		Actions.OverlayTextAppend(aPlayer, '|');
+	end;
+	if QUEST_NUMBER = 2 then begin
+		Actions.OverlayTextAppendFormatted(aPlayer, '<$8>', []);
+		Actions.OverlayTextAppend(aPlayer, '|');
+	end;
+end;
+
+// GLOBAL EVENTS
+//								ON UNIT DIED
+procedure OnUnitDied(aUnitID, aKillerIndex: integer);
+begin
+	if ( aKillerIndex = PLAYER ) then begin
+		if QUEST_NUMBER = 1 then
+			if CaravanDead then
+				SetQuest2;
+		if QUEST_NUMBER = 2 then
+			if States.GroupDead(AMBUSH_GROUPS[10]) then
+				Actions.PlayerWin([PLAYER], true);
+	end;
+end;
+//								ON TICK
+procedure OnTick;
+begin
+	if ( States.GameTime mod 10 = 0 ) then begin
+		CheckAmbushes;
+		CheckHalfWay;
+		ShowMissionObjectives(PLAYER);
+		if States.StatArmyCount(PLAYER) <= 0 then
+			Actions.PlayerDefeat(PLAYER);
+	end;
+	if CHASING_ENABLED then begin
+		if ( States.GameTime mod 200 = 0 ) then
+			Chase(PLAYER);
+	end;
+end;
+// 								ON MISSION START
+procedure OnMissionStart;
+begin
+	SetAmbushGroups;
+	SetCaravan;
+	CHASING_ENABLED:= false;
+	QUEST_NUMBER:= 1;
+	Actions.ShowMsg(PLAYER, '<$0>');
+end;

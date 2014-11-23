@@ -1,0 +1,19 @@
+
+MaxID:15
+
+0:Men, it is our job to capture this city at all costs, they will not give it up without a fight, but we shall be victorious!
+1:
+2:I cannot believe it, they were expecting us!  Take what iron is left and prepare the defenses! Our workers are on the move.
+3:General, it appears our scouts found  nearby encampments that allows the enemy to send reinforcements. We have to take them out in order to secure Maul!
+4:[$20A5DA]Objective[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Capture Maul[]
+7:Barbarians left: [$00FF7F]%d[]
+8:[$00FF7F]Defend Maul[]
+9: Wave [$00FF7F]%d[] in [$00FF7F]%d[]
+10:[$00FF7F]Prepare to defend Maul[]
+11:Time left: [$00FF7F]%s[]
+12:[$00FF7F]Wave:[] %d/%d
+13: in [$00FF7F]%s[]
+14: - [$00FF7F]%d[]
+15:[$00FF7F]Destroy enemy encampments[]

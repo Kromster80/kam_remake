@@ -1,0 +1,15 @@
+
+MaxID:11
+
+0:My Lord, the enemy forces are starting their siege on the capital. We must prepare the defenses.
+1:My lord, enemies have been spotted in the northeast!
+2:My lord, enemies have been spotted in the northwest!
+3:My lord, enemies have been spotted in the southeast!
+4:My lord, enemies have been spotted in the southwest!
+5:My lord, enemies are attacking from every direction at once!
+6:My lord, traitors have infiltrated the castle! We must repel them at all costs!
+7:My lord, the enemy is overwhelming us, we cannot save the capital. We have to escape.
+8:My lord, we have to retreat to our castle, this is our last line of defense. There will be no falling back. 
+9:[$%s]Objective :[] Defend the storehouses
+10:[$%s]Objective :[] Retreat to the castle and defend the castle walls
+11:[$%s]Objective :[] The capital is lost, there is nothing you can do

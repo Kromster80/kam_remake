@@ -1,0 +1,11 @@
+
+MaxID:9
+
+0:If the king his predictions are right the caravan must pass through here. Lets find a good ambush position.
+1:Ok we got the goods, but we also alerted the patrols! The main force shall be here soon enough. Escape over the ice and break it making it impossible for them to follow us!
+2:The main army has arrived, we must hurry men!
+3:They have set up a blockade! Break through it men!
+4:[$20A5DA]Objective[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Ambush the caravan[]
+8:[$00FF7F]Escape to the ice![]

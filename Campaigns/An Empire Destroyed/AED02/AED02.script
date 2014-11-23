@@ -1,0 +1,261 @@
+var i : Integer;
+var j : Integer;
+
+var King : Integer;
+var AutoAttackList : Array of Integer;
+
+var group1 : Array of Integer;
+var bool1 : Boolean;
+var group2 : Array of Integer;
+var bool2 : Boolean;
+var group3additional : Integer;
+var group3 : Array of Integer;
+var bool3 : Boolean;
+var group4 : Array of Integer;
+var bool4 : Boolean;
+var group5 : Array of Integer;
+var bool5 : Boolean;
+var group6 : Array of Integer;
+var bool6 : Boolean;
+var group7 : Array of Integer;
+var bool7 : Boolean;
+var group8 : Array of Integer;
+var bool8 : Boolean;
+var group9 : Array of Integer;
+var bool9 : Boolean;
+var group10 : Array of Integer;
+var bool10 : Boolean;
+var group10additional1 : Integer;
+var group10additional2 : Integer;
+var group11 : Array of Integer;
+var bool11 : Boolean;
+var group12 : Array of Integer;
+var bool12 : Boolean;
+
+Function IsPlayerUnitOn (xmin : Integer; xmax : Integer; ymin : Integer; ymax : Integer): Boolean;
+var UnitsPlayer : Array of Integer;
+begin
+	UnitsPlayer  := States.PlayerGetAllUnits(0);
+	Result := False;
+	for i := 0 to Length(UnitsPlayer) -1 do
+	begin
+		if (States.UnitPositionX(UnitsPlayer[i]) >= xmin) and (States.UnitPositionX(UnitsPlayer[i]) <= xmax) and (States.UnitPositionY(UnitsPlayer[i]) >= ymin) and (States.UnitPositionY(UnitsPlayer[i]) <= ymax) then
+		begin
+			Result := True;
+			Break;
+		end;
+	end;
+end;
+
+procedure UpdateObjective (Text : String);
+begin
+	Actions.OverlayTextSet(0, '');
+	Actions.OverlayTextAppendFormatted(0, Text,[States.PlayerColorText(0)]);
+end;
+
+procedure FeedEveryone;
+	var allunits : Array of Integer;
+	var temporaryNumber : Integer;
+begin
+	for i:= 0 to 5 do
+	begin
+		temporaryNumber := Length(States.PlayerGetAllUnits(i));
+		allunits := States.PlayerGetAllUnits(i);
+		if temporaryNumber <> 0 then
+		begin
+			for j:= 0 to (temporaryNumber-1) do
+			begin
+				Actions.UnitHungerSet(allunits[j], States.UnitMaxHunger);
+			end;
+		end;
+	end;
+end;
+
+Function IsKingArrived: Boolean;
+var UnitsPlayer : Array of Integer;
+begin
+	Result := False;
+	if (States.UnitPositionX(King) >= 105) and (States.UnitPositionX(King) <= 109) and (States.UnitPositionY(King) >= 8) and (States.UnitPositionY(King) <= 11) then
+	begin
+		Result := True;
+	end;
+end;
+
+Procedure AddGroupsAutoAttack (GroupList : Array of Integer);
+begin
+	for i := 0 to Length(GroupList) - 1 do
+	begin
+		SetLength(AutoAttackList, Length(AutoAttackList) + 1);
+		AutoAttackList[Length(AutoAttackList) - 1] := GroupList[i];
+	end;
+end;
+
+Procedure AIAutoAttack;
+var temp1 : Integer;
+var temp2 : Integer;
+var distCurr : Integer;
+var distBest : Integer;
+var unitBest : Integer;
+var PlayerGroups : Array of Integer;
+begin
+	PlayerGroups := States.PlayerGetAllGroups(0);
+	for i := 0 to Length(AutoAttackList) - 1 do
+	begin
+		if not (States.GroupDead(AutoAttackList[i])) then
+		begin
+			distBest := 999999;
+			for j := 0 to Length(PlayerGroups) -1 do
+			begin
+				temp1 := States.UnitPositionX(States.GroupMember(AutoAttackList[i], 0)) - States.UnitPositionX(States.GroupMember(PlayerGroups[j], 0));
+				temp2 := States.UnitPositionY(States.GroupMember(AutoAttackList[i], 0)) - States.UnitPositionY(States.GroupMember(PlayerGroups[j], 0));
+				distCurr := temp1 * temp1 + temp2 * temp2;
+				if distCurr  < distBest then
+				begin
+					distBest := distCurr;
+					unitBest := States.GroupMember(PlayerGroups[j], 0);
+				end;
+			end;
+			Actions.GroupOrderAttackUnit(AutoAttackList[i], unitBest);
+		end;
+	end;
+end;
+
+Procedure OnMissionStart;
+begin
+	UpdateObjective('<$2>');
+	Actions.ShowMsg(0, '<$0>');
+	King := States.UnitAt(16, 97);
+	group1 := [States.GroupAt(3, 87), States.GroupAt(23, 67), States.GroupAt(23, 64)];
+	bool1 := False;
+	group2 := [States.GroupAt(33, 77), States.GroupAt(37, 73)];
+	bool2 := False;
+	group3 := [States.GroupAt(36, 49), States.GroupAt(31, 59), States.GroupAt(17, 48)];
+	bool3 := False;
+	group3additional := States.GroupAt(12, 52);
+	group4 := [States.GroupAt(37, 35)];
+	bool4 := False;
+	group5 := [States.GroupAt(18, 27), States.GroupAt(13, 21), States.GroupAt(8, 29)];
+	bool5 := False;
+	group6 := [States.GroupAt(45, 4)];
+	bool6 := False;
+	group7 := [States.GroupAt(2, 3)];
+	bool7 := False;
+	group8 := [States.GroupAt(91, 3)];
+	bool8 := False;
+	group9 := [States.GroupAt(81, 17)];
+	bool9 := False;
+	group10 := [States.GroupAt(54, 104), States.GroupAt(57, 106), States.GroupAt(57, 108), States.GroupAt(57, 110), States.GroupAt(86, 95), States.GroupAt(106, 108), States.GroupAt(77, 84), States.GroupAt(72, 80)];
+	bool10 := False;
+	group10additional1 := States.GroupAt(84, 98);
+	group10additional2 := States.UnitAt(86, 95);
+	group11 := [States.GroupAt(109, 98), States.GroupAt(110, 79), States.GroupAt(99, 64), States.GroupAt(87, 48), States.GroupAt(74, 48)];
+	bool11 := False;
+	group12 := [States.GroupAt(108, 50), States.GroupAt(107, 22)];
+	bool12 := False;
+end;
+
+Procedure OnTick;
+begin
+	if States.UnitDead(King) then
+	begin
+		Actions.PlayerDefeat(0);
+	end;
+	AIAutoAttack;
+	
+	if States.GameTime mod 7200 = 0 then //every 12 minutes
+	begin
+		FeedEveryone;
+	end;
+	
+	if (bool1 = False) then
+	if (IsPlayerUnitOn(8, 12, 71, 71) or IsPlayerUnitOn(8, 8, 72, 77)) then
+	begin
+		AddGroupsAutoAttack(group1);
+		bool1 := True;
+	end;
+	
+	if (bool2 = False) then
+	if (IsPlayerUnitOn(30, 32, 77, 78) or IsPlayerUnitOn(32, 34, 79, 80) or IsPlayerUnitOn(35, 37, 80, 81) or IsPlayerUnitOn(43, 43, 68, 73)) then
+	begin
+		AddGroupsAutoAttack(group2);
+		bool2 := True;
+	end;
+	
+	if (bool3 = False) then
+	if (IsPlayerUnitOn(25, 25, 54, 69) or IsPlayerUnitOn(5, 14, 50, 56)) then
+	begin
+		AddGroupsAutoAttack(group3);
+		bool3 := True;
+		Actions.GroupOrderStorm(group3additional);
+	end;
+	
+	if (bool4 = False) then
+	if (IsPlayerUnitOn(28, 28, 27, 38)) then
+	begin
+		AddGroupsAutoAttack(group4);
+		bool4 := True;
+	end;
+	
+	if (bool5 = False) then
+	if (IsPlayerUnitOn(20, 23, 19, 23) or IsPlayerUnitOn(14, 20, 15, 18)) then
+	begin
+		AddGroupsAutoAttack(group5);
+		bool5 := True;
+	end;
+	
+	if (bool6 = False) then
+	if (IsPlayerUnitOn(39, 47, 1, 7)) then
+	begin
+		AddGroupsAutoAttack(group6);
+		bool6 := True;
+	end;
+	
+	if (bool7 = False) then
+	if (IsPlayerUnitOn(1, 9, 8, 8) or IsPlayerUnitOn(36, 45, 1, 8)) then
+	begin
+		AddGroupsAutoAttack(group7);
+		bool7 := True;
+	end;
+	
+	if (bool8 = False) then
+	if (IsPlayerUnitOn(84, 84, 1, 13) or IsPlayerUnitOn(63, 72, 15, 16)) then
+	begin
+		AddGroupsAutoAttack(group8);
+		bool8 := True;
+	end;
+	
+	if (bool9 = False) then
+	if (IsPlayerUnitOn(79, 79, 16, 19) or IsPlayerUnitOn(89, 89, 15, 18)) then
+	begin
+		AddGroupsAutoAttack(group9);
+		bool9 := True;
+	end;
+	
+	if (bool10 = False) then
+	if (IsPlayerUnitOn(74, 74, 95, 108)) then
+	begin
+		Actions.GroupOrderAttackUnit(group10additional1, group10additional2);
+		AddGroupsAutoAttack(group10);
+		bool10 := True;
+		Actions.ShowMsg(0, '<$1>');
+	end;
+	
+	if (bool11 = False) then
+	if (IsPlayerUnitOn(71, 76, 75, 79) or IsPlayerUnitOn(76, 85, 74, 74) or IsPlayerUnitOn(98, 107, 76, 83)) then
+	begin
+		AddGroupsAutoAttack(group11);
+		bool11 := True;
+	end;
+	
+	if (bool12 = False) then
+	if (IsPlayerUnitOn(91, 91, 24, 34)) then
+	begin
+		AddGroupsAutoAttack(group12);
+		bool12 := True;
+	end;
+	
+	if IsKingArrived then
+	begin
+		Actions.PlayerWin([0], False);
+	end;
+end;
