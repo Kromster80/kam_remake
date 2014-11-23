@@ -725,6 +725,24 @@ begin
   iO := fQueue[aDeliveryID].OfferID;
   OldD := fQueue[aDeliveryID].DemandID;
 
+  //Special rule to prevent an annoying situation: If we were delivering to a unit
+  //do not look for a better demand. Deliveries to units are closely watched/controlled
+  //by the player. For example if player orders food for group A, then after serfs start
+  //walking to storehouse orders food for closer group B. Player expects A to be fed first
+  //even though B is closer.
+  //Another example: School is nearly finished digging at start of game. Serf is getting
+  //stone for a labourer making a road. School digging finishes and the stone goes to the
+  //school (which is closer). Now the road labourer is stuck even though the player saw
+  //the serf fetching the stone for him before the school digging was finished.
+  //This "CheckForBetterDemand" feature is mostly intended to optimise house->house
+  //deliveries within village and reduce delay in serf decision making.
+  if fDemand[OldD].Loc_Unit <> nil then
+  begin
+    aToHouse := fDemand[OldD].Loc_House;
+    aToUnit := fDemand[OldD].Loc_Unit;
+    Exit;
+  end;
+
   //By default we keep the old demand, so that's our starting bid
   BestD := OldD;
   if not fDemand[OldD].IsDeleted then
