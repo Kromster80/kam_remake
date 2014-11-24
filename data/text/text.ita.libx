@@ -542,6 +542,7 @@
 552:Descrizione
 553:Password
 554:Impostazioni stanza
+556:Espelli da questa lobby
 557:Caccia
 558:Posizioni casuali all'interno delle squadre
 559:Descrizione
@@ -681,3 +682,95 @@
 695:Torna alla pagina di difesa IA
 696:Posizione da difendere
 697:Unità
+698:Lupo
+699:Pesci
+700:Biscia
+701:Stella marina
+702:Granchio
+703:Ninfea
+704:Foglie d'acqua
+705:Anatra
+706:Questo tipo di soldato non è disponibile
+707:Questo tipo di unità non è disponibile
+708:Blocca unità
+736:Scarica
+737:in scaricamento...
+738:Sovrascrivi i file esistenti
+739:%s è disconnesso
+740:%s ha abbandonato
+741:%s si è riconnesso
+742:Impossibile unirsi ad una partita in corso
+743:La stanza è piena. Impossibile unirsi alla partita
+744:Un giocatore con lo stesso nome è già presente nella stanza
+748:%s è stato promosso ad host
+749:%s ha una versione diversa di %s
+750:%s non ha %s
+751:Richiesta scaduta
+752:L'host ha cacciato %s dalla partita
+753:%s è stato cacciato dall'host
+754:Tentativo di riconnessione in corso...
+755:%s è entrato
+756:Riconnessione fallita: %s
+757:L'host ha deciso di continuare la partita senza di te :(
+758:Disconnesso dal server. Rilevato timeout
+759:Sei stato cacciato dall'host
+760:Il server ha smesso di rispondere
+761:Numero di stanza non valido
+765:Sussurra a %s
+766:L'host ha espulso %s da questa lobby
+767:Sei stato espulso dall'host
+768:Resetta le espulsioni
+770:Data
+771:Mostra nebbia
+772:Spetta
+773:Spettatore
+774:Raggio di attacco
+775:Le truppe dell'IA attaccheranno chiunque sia più vicino di questo numero di tasselli.
+776:Difesa alleati
+777:Se abilitato, l'IA difenderà unità ed edifici degli alleati come se fossero i suoi
+778:Permetti spettatori
+779:Promuovi ad host
+780:Spettatori
+781:Non è possibile disabilitare gli spettatori: la lista non è vuota
+782:Ripeti
+783:Annulla
+784:Imposta la posizione iniziale, usata per la pianificazione automatica degli attacchi
+785:Posizione iniziale
+786:Ordine
+788:Ritardo iniziale (secondi)
+790:Edificio più vicino all'esercito
+791:Edificio più vicino alla posizione iniziale
+792:Attaccanti
+793:Difensori
+794:Spettatori
+795:Per giocare una missione sbloccata in precedenza, seleziona la sua bandiera sulla mappa della campagna
+797:Vota per tornare alla lobby. La partita potrà quindi essere ripresa o modificata
+798:Vota per tornare alla lobby
+801:Cancellando un replay cancellerai anche il salvataggio associato. Vuoi davvero cancellare questo salvataggio?
+802:Casuale
+803:Numero di soldati ad attaccare
+804:Cancella Replay
+805:Cancella mappa
+806:Vuoi davvero cancellare questa mappa?
+807:Nascondi testo dello script
+808:Mostra testo dello script
+810:L'IA crea e gestisce autonomamente gli attacchi
+811:Rapido
+812:I soldati sono reclutati subito. Le impostazioni sono usate per la pianificazione del villaggio
+813:Impostazioni delle IA
+814:Costruttore
+815:Applica le impostazioni di IA aggressiva a tutti i giocatori (per mappe multigiocatore)
+816:Attenzione: Questo sovrascriverà tutte le impostazioni dell'IA per tutti i giocatori. Continuare?
+817:Tipo di esercito
+818:Ferro e poi cuoio
+819:Ferro
+820:Cuoio
+821:Misto
+824:Muovi
+825:Guarda il PDF allegato
+826:Avvio del lettore PDF fallito
+827:Imposta il numero di Servi per ogni 10 edifici. Questa IA ha %d edifici
+828:Errore: il file dell'host non corrisponde alla versione locale. Si è verificato un errore o l'host potrebbe star tentando di barare.
+829:L'ordine è stato completato
+830:Carica font asiatici
+831:Sposta fuori dai download

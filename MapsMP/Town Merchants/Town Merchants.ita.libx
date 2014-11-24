@@ -1,0 +1,58 @@
+﻿1:[$00D7FF]Monete[]:
+2:([$00FF00]%d[])[$%s]%s[]: %d
+3: - [$00FFFF]oro[]
+4: - [$00FFFF]edificio[]
+5:Oro insuficiente! Ne serve %d per questo edificio.
+6:Oro insuficiente! Ne serve %d per comprare uno scrigno.
+7:Possiedi già la quantità massima di oro nella tua scuola! Assolda dei lavoratori.
+8: << [$00FF00]a lavoro[]
+9: + [[$00FF00]%d[]]
+10: - [$00FFFF]cibo[]
+11:Monete insuficienti! Ne servono %d per acquistare cibo.
+12: << [$00D7FF]promosso[]
+13:Monete insuficienti! Ne servono %d per acquistare questo materiale.
+14: - [$00FFFF]materiali[]
+15:Incendio! Ripara il tuo edificio più in fretta che puoi!
+16:Il tuo %s è stato ucciso!
+17:Il tuo edificio è stato saccheggiato!
+18: inedia.
+19: guerra.
+20: rivolta.
+21:[$00FF00]Evento[]:
+22:[$00D7FF]Missione[]:
+23:[$000000] - []
+24:[$00FFFF] - []
+25: ([$00D7FF]%d[])[$00FF00]%d[] %s.
+26: << [$00D7FF]premiato[]
+27:[$00D7FF]Prezzi di Vendita[]:
+28: %s : %d
+29:[$00D7FF]Costo Edifici in Monete[]:
+30:Hai completato la missione e ricevuto %d monete!
+31:[$00D7FF]%d[]: [$%s]%s[]([$00FF00]%d[]):
+32:[$00D7FF]Punteggio[]:
+33: << [$00FF00]Vincitore![]
+34: - [$00FF00]%d%s[]di azioni in città.
+35: - [$00FFFF]%d[] di monete totali.
+36: - [$00D7FF]%d[] di monete correnti.
+37:[$%s]%s[] ha vinto il gioco! Per dettagli vedi la tabella dei punteggi.
+38: + [$00FF00]venduto[]
+39: Non puoi vendere i tuoi edifici principali!
+40: Il tuo edificio è bruciato!
+41:Il Grande Mercante necessita:
+42:Tue monete: [$00D7FF]%d[]
+43: + [$00FF00]venduto[]
+44: [$00FF00]%s[]([$00D7FF]%d[]).
+45:[$00FF00]Offre[]:
+46: - [$00FFFF]offerta[]
+47:Monete insuficienti! Ne servono %d per questo permesso.
+48: [$00FFFF]%d[]([$00D7FF]%d[]).
+49:Monete insuficienti! Ne servono %d per assoldare questi lavoratori.
+50: - [$00FFFF]assoldato[]
+51: << [$0000FF]tasse:[][[$00FFFF]%d[]]
+52: Le tasse sono aumentate, dato che non le hai pagate!
+53: << [$00FF00]tassa pagata[]
+54: Monete insuficienti! Ne servono %d per pagare la tassa.
+55: << [$0000FF]Tassa:[] [[$00FFFF]%d[]] - [[$00FFFF]%d[]]
+56:([$00FF00]%d[])
+57:[$0000FF]Controllo tassa[] in ([$00FFFF]%d[])
+58: %s : [$00FF00]%d[]

@@ -1,0 +1,133 @@
+﻿0:GIOCO DI RUOLO: Tu, Lothar, un nuovo cavaliere fresco d'addestramento, sei stato chamato da Re Clovis in persona per la tua prima missione. La crisi nel continente si fa peggiore ogni giorno e il regno ha bisogno di te! La lettera col sigillo regale ti è stata consegnata questa mattina.
+1:AMBIENTAZIONE: Il luogo in cui ti trovi rappresenta l'interno del castello reale. L'unico cavaliere che controlli rappresenta il tuo personaggio principale, Lothar.
+2:TUTORIAL: Per parlare con qualcuno devi avvicinartici, e la storia proseguirà. Segui le istruzioni di ogni cerca. Per adesso, il re ti aspetta; è il personaggio protetto da due picchieri in basso a sinistra nel salone, vai vicino a lui. Salva spesso e non dimenticare di cancellare i messaggi.
+3:Dovresti parlare a Re Clovis.
+4:Re Clovis: Benvenuto Lothar, il nostro nuovo cavaliere! Oscuri sono i tempi e greve sarà il tuo compito; non sei che un novizio ma molti dei nostri cavalieri più esperti sono caduti in battaglia. Ti affido il potere di comandare una piccola forza armata.
+5:Re Clovis: Ora puoi entrare nell'area di reclutamento del castello, nell'ultima stanza del corridoio, e lì potrai avere un'armata decente, per un costo però. Ti affido anche 1000 monete d'oro. Se servirai bene il regno, ne avrai altre.
+6:Re Clovis: Torna da me quando avrai reclutato dei soldati, almeno 15 dovrebbero andare, e ti assegnerò la tua prima missione!
+7:Re Clovis ti ha aperto l'area di reclutamento,|posta nei sotterranei del castello; torna da|lui dopo aver reclutato almeno 15 uomini.
+8:Re Clovis: Ottimo, vedo che hai radunato una forza armata! Abbiamo ricevuto delle lamentele da un villaggio di pescatori; chiedono che inviamo qualcuno, e questa sarà la tua prima missione.
+9:Re Clovis: Gli abitanti del villaggio minacciano di ribellarsi se nessuno arriverà, quindi questa è una missione importante, e se avrai successo ne verranno altre, più ardue.
+10:Re Clovis: Vai al villaggio, a Nord-Est della capitale, sulla costa, e scopri la causa del malcontento degli abitanti del villaggio!
+11:Re Clovis ti ha inviato a scoprire cosa|stia accadendo al villaggio di pescatori, a|Nord-Est della capitale; vai là il prima|possibile!
+12:Uomo in un accampamento nel bosco: Saluti cavaliere; sei sulla nostra terra, ma dato che sei un rappresentante della legge sei tollerato; non aspettarti però che facciamo alcunché per te, ciò che accade qui non ti riguarda.
+13:Pescatore adirato: Arrivi dalla capitale? Finalmente!! I tempi sono duri per i contadini e molti parlano di rivolta! Devi cambiare quesra situazione il prima possibile o il regno si disgregherà!
+14:Pescatore adirato: Al momento abbiamo un problema principale. Alcuni razziatori hanno eretto un campo nella foresta, vicino la capitale. Dato che dalla capitale non ci hanno mai aiutato pensano di essere al sicuro, per questo si sono sistemati non lontano dal castello!
+15:Pescatore adirato: Aiutaci e uccidi i rapinatori! Se lo farai, torneremo al lavoro, ma avremo bisogno di altro aiuto dal Re e tu gli porterai un messaggio da parte nostra. Vai e uccidi quei malvagi!
+16:Gli abitanti del villaggio ti hanno mandato|ad uccidere i banditi nella foresta, a Nord|della capitale. Eliminali e radi al suolo|il loro accampamento!
+17:Bandito: Vorresti attaccarci? Morirai, cane del Re!!
+18:Bandito: Non sei il primo a cercare di proteggere i contadini, vieni e unisciti agli altri!
+19:Dovresti tornare dal pescatore e dirgli dell'accaduto, vai al villaggio il prima possibile!
+20:Vai al villaggio e parla col|pescatore.
+21:Pescatore: Quindi, ci sei riuscito? Finalmente finiranno le razzie! Il villaggio intero ti sarà sempre grato Messere, e vorrei discutere di una questione importante.
+22:Pescatore: Potresti per favore portare una lettera a Re Clovis da parte nostra? È una petizione di molti dei villaggi orientiali, che chiedono più pattuglie e maggiore attenzione a noi!
+23:Pescatore: Non possiamo offrirti molto, se non l'assicurazione che sarai sempre il benvenuto tra noi!
+24:Torna al castello, porta la petizione|a Re Clovis, e attendi ulteriori ordini.
+25:Re Clovis: Sei andato al villaggio? Banditi dici... bene lascia che ti spieghi. Da circa un mese sono arrivati dei banditi da un altro continente per fare razzia del nostro regno.
+26:Re Clovis: Tutti i villaggi occidentali sono stati colpiti, abbiamo inviato l'esercito e perso molti cavalieri esperti nelle battaglie. Quella che hai ucciso doveva essere l'ultima forza dei banditi.
+27:Re Clovis: È vero che durante questo periodo non abbiamo mandato truppe a difendere i villaggi occidentali, ma abbiamo dovuto difendere la capitale, e se la capitale fosse caduta, l'intero regno sarebbe sprofondato nel caos!
+28:Re Clovis: Come saprai dall'anno scorso il nostro vassallo orientale, il nostro vassallo più grande, tenta la secessione dal regno! Temo che se dovesse decidere di dichiarare guerra, questa sarebbe la fine della pace che regna da decenni sul nostro continente e ognuno vorrà un suo regno.
+29:Re Clovis: Avrai un compito importante da svolgere prima di occuparti del vassallo: non abbiamo ricevuto il rapporto giornaliero dalle miniere d'oro del deserto meridionale; scopri cosa sia successo! Si trova a Sud-Ovest del continente.
+30:Re Clovis: Riguardo la petizione dei contadini, manderò delle guardie in ogni villaggio e ridurrò le tasse per il prossimo anno. Farò in modo che i contadini sappiano che mi hai fatto avere la loro petizione.
+31:GIOCO DI RUOLO: L'autorità centrale del regno è rappresentata da Re Clovis e dalla capitale. Ci sono però dei vassalli, che controllano parti del regno, i quali rappresentano le antiche tribù di quando il continente non era unito.
+32:GIOCO DI RUOLO: Il vassallo orientale è il più grande del regno; è una potente entità che rifornisce di armi l'intero regno. Recentemente, le tensioni hanno raggiunto un picco, e hanno interrotto i rapporti commerciali, mentre minacciano il re.
+33:GIOCO DI RUOLO: Il deserto sud-occidentale è famoso per le sue miniere d'oro; è piuttosto isolato dal resto del regno ma è una parte importante della sua economia. Il governatore delle miniere manda quotidianamente un rapporto alla capitale.
+34:Vai nel deserto e scopri perché il rapporto|delle miniere d'oro non ha raggiunto|il castello.|Si trova nell'area Sud-Ovest del continente.
+35:TUTORIAL: Per ingaggiare battaglia con una truppa devi avvicinarti al personaggio che la rappresenta. Vai al campo nella foresta ed avvicinati a ciascun bandito per ingaggiare battaglia; le tue truppe e le loro saranno poste su un campo di battaglia. Se perderai la battaglia perderai la partita.
+36:TUTORIAL: Ora puoi uscire dal castello. Per farlo vai alle porte del castello (l'area nera nella parte alta del salone). Una volta fuori puoi rientrare avvicinandoti all'ingresso del castello.
+37:AMBIENTAZIONE: Quando esci dal castello, sei sulla mappa globale. La mappa rappresenta l'intero modno dell'avventura! Immagina che ogni edificio sia un gruppo di case, e che ogni servo sia un convoglio o un gruppo di persone che trasportano merci.
+38:AMBIENTAZIONE: Comparirai nella capitale, dove si trova il castello. Sembra piccola sulla mappa globale ma immaginala come una grandiosa città; la tua immaginazione è lo strumento migliore per muoverti ed immergerti in questo mondo. Il tuo cavaliere rappresenta il tuo personaggio, Lothar, e le sue truppe.
+39:GIOCO DI RUOLO: Ci sono due continenti al mondo, uno è il covo dei banditi, dove nessuno va da generazioni. L'altro è un prospero continente abitato da molte tribù un tempo rivali che da decenni vivono in pace sotto un'autorità centrale.
+40:GIOCO DI RUOLO: Ora c'è un Re del continente e nessun conflitto interno. I tempi erano felici, finché l'anno scorso il vassallo orientale ha interrotto tutti i commerci e, da circa un mese, dei banditi dall'altro continente hanno cominciato ad arrivare. I due continenti sono collegati da un tunnel sottomarino.
+41:GIOCO DI RUOLO: Durante la battaglia e sui cadaveri a terra, hai visto che gli uomini che hanno attaccato le miniere indossano la divisa del vassallo orientale! Devi informare immediatamente il Re della cosa!
+42:Sei stato attaccato dalle truppe del|vassallo orientale, devi informarne il Re|il prima possibile!
+43:Re Clovis: Le truppe del vassallo orientale dici? Hanno osato attaccare le miniere d'oro? Invierò una guarnigione di veterani a proteggerle! Tu dovrai fare qualcosa di molto più importante ora.
+44:Novizio
+45:Perlustratore
+46:Re Clovis: Per la prossima missione ti serviranno altre e migliori truppe. Ti insignisco del grado di Perlustratore, possa tu continuare a servire il Regno come hai fatto finora! Vai all'area di reclutamento, queste truppe ti serviranno.
+47:Re Clovis: Ora, per quanto riguarda la missione. Ho bisogno che tu assedi il castello e mi porti il dannato Lord Childebert, vivo, così che io possa ripristinare l'unità del regno! La guerra è dichiarata ufficialmente e sono sicuro che starà tremando nel suo castello.
+48:Re Clovis: Questa è una missione difficile e starai pensando che ti sto mandando incontro alla morte. Questo è quasi vero, non posso permettermi di perdere altri dei cinque cavalieri esperti e consiglieri; serviranno per riportare la pace.
+49:Re Clovis: Questo è il motivo per cui sto inviando te; sei il più promettente dei nostri nuovi cavalieri e hai provato di saper comandare delle truppe, quindi non sono preoccupato per te; portami quel traditore e avrai grandi onori. Ti darò 580 monete d'oro per aiutarti.
+50:Il castello del traditore Lord Childebert| si trova ad oriente! Assali il castello|e portalo alla capitale!
+51:Re Clovis: Il castello si trova all'estremo orientale del continente, non puoi sbagliare. Non dimenticare di reclutare dei rinforzi, e buona fortuna!
+52:TUTORIAL: Per cambiare tipo di soldato devi prima congedare ogni soldato dello slot. Ad esempio: se hai assoldato dei miliziani, che ora non puoi più assoldare, per cambiarli con dei guerrieri con ascia devi prima congedarli.
+53:GIOCO DI RUOLO: Hai vinto l'assedio e saccheggiato il castello, ma non hai trovato Lord Childebert. Quel codardo dev'essere fuggito prima del tuo arrivo! Devi portare la cattiva notizia al Re.
+54:Hai vinto l'assedio ma Lord|Childebert è fuggito, riferisci al Re.
+55:Re Clovis: Questo Lord Childebert... dovunque si nasconda, pagherà per i suoi crimini!! Non mi hai portato il traditore, ma non è stato per una tua mancanza: sei riuscito a prendere il castello, il che è una grande impresa militare.
+56:Re Clovis: Ti darò un nuovo titolo: da ora sei un Esploratore! Puoi reclutare altre truppe. Ho però delle cattive notizie: sono stati avvistati dei banditi nel tunnel tra i due continenti; devi rinforzare la guardia all'ingresso del tunnel!
+57:Re Clovis: Buona fortuna, Lothar. Il tunnel è vicino ad un villaggio che è stato incendiato durante gli attacchi dell'ultimo mese, a Sud-Est della capitale. Prendi queste 1600 monete d'oro per reclutare altri soldati. Non entrare nel tunnel per ora, limitati ad aiutare le guardie!
+58:Vai a Sud Est della capitale e trova|l'ingresso del tunnel, assisti le guardie|e tieni la posizione!
+59:Guardia: Sfortunatamente, cavaliere, dovrò chiederti di non entrare nella caverna: è sigillata per ordine del Re.
+60:Esploratore
+61:GIOCO DI RUOLO: Avvicinandoti al tunnel, ti accorgi che la campagna è silenziosa, le guardie sono state uccise, e tre accampamenti di banditi sono sorti vicino all'ingresso del tunnel! Senti il bisogno di polverizzarli, per il reame!
+62:Le guardie sono morte, vendicale!|Distruggi le tre armate di banditi.
+63:Re Clovis: Grazie di nuovo, Lothar, per aver difeso il Regno; questa follia non avrà mai fine... mi prenderò cura della difesa e mi assicurerò che nessun bandito possa venire di nuovo dal tunnel. Sarò occupato ad organizzare le difese, dovresti parlare col mio consigliere militare, Lord Chilpéric.
+64:Re Clovis: Secondo le nostre pattuglie, ci sono ancora dei banditi nell'area occidentale del continente; probabilmente facevano parte dell'ultimo attacco. Prendi queste 1100 monete d'oro per aiutarti.
+65:IMPORTANTE: Lord Chilpéric si trova dove punta questo messaggio.
+66:Dovresti trovare Lord Chilpéric nel|castello e parlargli. Si trova|vicino ai sotterranei.
+67:GIOCO DI RUOLO: Sei riuscito a respingere i banditi, il tuo sire deve sapere di questo attacco! Corri al castello.
+68:Vai al castello e parla con il Re.
+69:Lord Chilpéric: Ho sentito parlare di te, Lothar, sembri un elemento promettente; e questo è proprio ciò di cui abbiamo bisogno per uccidere questa feccia di banditi! Alcuni gruppi si trovano ancora nel nostro regno, e ciò non si può lasciare impunito. Sappiamo dove si trovano.
+70:Lord Chilpéric: Abbiamo già inviato dei cavalieri ad eliminarne alcuni, ma ce ne sono ancora tre nell'area occidentale del continente, uno nel deserto, e due a Nord-Ovest. Uccidili tutti!
+71:Devi uccidere i tre gruppi di banditi; uno si|trova nel deserto, gli altri sono nell'area|Nord-Ovest del continente.
+72:Bandito: Muori piccolo cavaliere!
+73:GIOCO DI RUOLO: Le armate che hai combattuto erano un mix di banditi e soldati dell'esercito di Lord Childebert! Riferisci a Lord Chilpéric delle tue battaglie.
+74:Lord Chilpéric attende il rapporto|sulle tue battaglie.
+75:Protettore del Reame
+76:Lord Chilpéric: Sembra che Lord Childebert abbia preso il controllo del secondo continente e controlli le forze dei banditi! Dobbiamo fermare quel folle prima che sia troppo tardi. Vai attraverso il tunnel nel secondo continente.
+77:Lord Chilpéric: Ti consegno il titolo di protettore del Reame e una medaglia, sei l'orgoglio del nostro esercito. Sospettiamo che Lord Childebert si nasconda nel suo castello e che nei dintorni si trovino delle truppe disorganizzate.
+78:Lord Chilpéric: Avremo bisogno di te nella battaglia finale, colpiremo il castello tutti insieme! Se hai bisogno di altri soldati puoi raccogliere le risorse necessarie attaccando gli accampamenti nemici lungo la strada, che risulta abbiano dell'oro.
+79:Lord Chilpéric: Appena sarai pronto, attacca il castello e i rinforzi, guidati personalmente da me e dal Re, arriveranno per aiutarti ad uccidere il traditore! Non dimenticare di usare le truppe migliori che ti abbiamo fornito.
+80:Attacca il castello non appena sei pronto.|Se ti serve oro, attacca gli accampamenti|dei banditi nel tunnel e sull'altro|continente.
+81:RISULTATO DELLA BATTAGLIA:||Con questa battaglia hai guadagnato %d oro.|Hai ucciso un totale di %d nemici.|Hai perso un totale di %d soldati.
+82:[$%s]Statistiche : le tue truppe[]|
+83:Slot 1 : %d %s persi di %d|
+84:Slot 1 : nessun soldato|
+85:Slot 2 : %d %s persi di %d|
+86:Slot 2 : nessun soldato|
+87:Slot 3 : %d %s persi di %d|
+88:Slot 3 : nessun soldato|
+89:Slot 4 : %d %s persi di %d|
+90:Slot 4 : nessun soldato|
+91:[$%s]Statistiche : le truppe nemiche[]|
+92:Slot 1 : %d %s uccisi di %d|
+93:Slot 1 : nessun soldato|
+94:Slot 2 : %d %s uccisi di %d|
+95:Slot 2 : nessun soldato|
+96:Slot 3 : %d %s uccisi di %d|
+97:Slot 3 : nessun soldato|
+98:Slot 4 : %d %s uccisi di %d|
+99:Slot 4 : nessun soldato|
+100:Slot 5 : %d %s uccisi di %d|
+101:Slot 5 : nessun soldato|
+102:[$%s]Statistiche personali[]|
+103:Oro : %d|
+104:Grado : %s||
+105:[$%s]Il tuo esercito[]|
+106:Slot 1 : %s  %d/%d|
+107:Slot 2 : %s  %d/%d|
+108:Slot 3 : %s  %d/%d|
+109:Slot 4 : %s  %d/%d|
+110:[$%s]Cerca Principale[]|%s||
+111:Cerca secondaria :|%s||
+112:Cerca secondaria :|%s||
+113:Ancora nessun esercito
+114:Miliziani
+115:Arcieri
+116:Lancieri
+117:Esploratori
+118:Cavalieri
+119:Soldati con ascia
+120:Soldati con spada
+121:Balestrieri
+122:Picchieri
+123:Barbari
+124:Ribelli
+125:Furfanti
+126:Guerrieri
+127:Vagabondi
+128:TUTORIAL: Per reclutare truppe, vai sulla strada sotto uno dei tipi di soldato. Ogni riga rappresenta uno slot dell'esercito (da 1 a 4, dall'alto verso il basso). Il fabbro è il congedatore di uno slot. Devi congedare ogni unità di uno slot prima di poter cambiare tipo di unità.
+129:Ogni secondo sulla strada recluta o congeda una unità. Puoi congedare truppe allo stesso prezzo per cui le recluti. Puoi usare i tasti F5, F6, F7 od F8 per velocizzare l'operazione.
+130:Milizia costo : 20|Arciere costo : 35|Lanciere costo : 30|Esploratore costo : 80|Soldato con ascia costo : 55
+131:Soldato con spada costo : 110|Picchiere costo : 100|Balestriere costo : 80|Cavaliere costo : 160
+132:TUTORIAL: Per far sì che questi messaggi appaiano di nuovo, sosta per qualche secondo sulle strade all'ingresso dell'area di reclutamento.

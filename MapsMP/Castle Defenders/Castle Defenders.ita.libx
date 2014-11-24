@@ -1,0 +1,54 @@
+﻿0:[$%s]%s[]: %d
+1:Punteggi
+2:Ondata:
+3:Nuovi soldati disponibili: %s!
+4:Per assoldare dei barbari, abilita la riparazione della Caserma e recluta la Milizia
+5:Prossima ondata tra: %.2d:%.2d
+6:Congratulazioni! Hai raggiunto la 18esima ondata! Il tuo bonus:
+7:Uccisione Immediata
+8:Doppio
+9:Nuova Coscrizione
+10:Rinforzi
+11:Rinascita
+12:Nascita Alleato
+13:Hai la possibilità di uccidere un soldato nemico con un colpo.
+14:Hai la possibilità di ricevere soldati extra quando recluti delle truppe.
+15:Ricevi 10 reclute extra per ondata.
+16:Hai la possibilità di ottenere dei rinforzi con ogni ondata.
+17:I tuoi soldati possono rinascere.
+18:I soldati nemici possono rinascere dalla tua parte.
+19:L'inizio...
+20:Noob e i suoi fratelli
+21:La sicurezza è nel numero!
+22:Cuoio???
+23:Già. Cuoio.
+24:Altro cuoio!
+25:Comincia a farsi interessante...
+26:Puoi esplorare qui?
+27:Cecchini in arrivo?
+28:La rivolta dei cavalli? Ah, no, mi sono sbagliato :D
+29:Esplora tutte le...
+30:Ferro?
+31:Fianchi!
+32:Hey, sono Vaga-Vaga :D
+33:Altri Vagazzz!
+34:Equatore?
+35:Wow, possono persino reclutare dei soldati con spada!
+36:Si fa ancora più interessante...
+37:Serve a distanza?
+38:Picchietelli...
+39:Sei sopravvissuto finora... O no?
+40:Cavalieri!
+41:Diventa pazzo?
+42:Serve ancora a distanza?
+43:Cavalieri. Ancora. Cavalieri arrabbiati!
+44:Pazzia? No, solo rinforzi.
+45:Sei ancora vivo?
+46:Ora è davvero folle.
+47:Ancora vivo? No problem!
+48:Tempo di morire!
+49:Congratulazione! Hai raggiunto la 26esima ondata! Nuovo bonus disponibile: Squadra di Salvataggio: Ottieni immediatamente dei rinforzi se ti restano troppo pochi soldati.|Per usare questo bonus, pianifica una strada sullo speciale Tassello di Salvataggio.|NOTA: Puoi usare questo bonus 3 volte. Ogni uso successivo è ritardato.|Non puoi usare questo bonus se ti restano troppi soldati e reclute!
+50:||||[$%s]Squadre di salvataggio disponibili: %d |Ritardo: %.2d:%.2d ||Il tuo esercito (CORRENTE/LIMITE): %d/%d|Le tue reclute (CORRENTI/LIMITE): %d/%d[]
+51:In questa missione devi difendere il Castello e sconfiggere 30 attacchi nemici. Ogni attacco è più forte del precedente. Hai molte armi, ma poco oro e all'inizio non puoi reclutare soldati potenti. Puoi sbloccare nuovi soldati uccidendo le truppe nemiche.||ORDINE DI SBLOCCO DEi SOLDATI:||50 morti - Lanciere;|100 morti - Soldato con ascia;|160 morti - Arciere;|250 morti - Balestriere;|400 morti - Picchiere;|550 morti - Esploratore;|700 morti - Soldato con spada;|1000 morti - Barbaro;|1250 morti - Cavaliere.||Per reclutare Barbari, dopo averli sbloccati abilita la riparazione della caserma e recluta la milizia.||Puoi anche ottenere dei furfanti reclutando la milizia e ottenendo delle reclute extra. |Inoltre, riceverai degli utili bonus una volta raggiunte la 18esima e la 26esima ondata!||Creata da andreus.
+52:Divisione Fucili
+53:Hai la possibilità di ricevere combattenti a distanza extra quando recluti soldati di mischia.
