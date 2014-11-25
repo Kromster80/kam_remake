@@ -70,7 +70,7 @@ begin
 
   for I := 0 to 4 do
   for K := 0 to Length(Soldiers) - 1 do
-    if states.PlayerEnabled(I) then
+    if States.PlayerEnabled(I) then
       Actions.FogCoverCircle(I, States.UnitPositionX(Soldiers[K]), States.UnitPositionY(Soldiers[K]), 12);
 end;
 
