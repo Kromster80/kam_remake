@@ -542,6 +542,7 @@
 552:Açıklama
 553:Şifre
 554:Oda ayarları
+556:Bu odadan uzaklaştır
 557:Oyunda At
 558:Takım içinde konumlar rastgele ayarla
 559:Açıklama
@@ -681,3 +682,95 @@
 695:Savunma sayfasına geri dön
 696:Savunma pozisyonu
 697:Birimler
+698:Kurt
+699:Balık
+700:Su Yılanı
+701:Deniz Yıldızı
+702:Yengeç
+703:Su Çiçeği
+704:Su Yaprağı
+705:Ördek
+706:Bu asker tipi mevcut değil
+707:Bu birim tipi mevcut değil
+708:Birimleri engelle
+736:İndir
+737:indiriliyor...
+738:Var olan dosyanın üzerine yaz
+739:%s'in bağlantısı koptu
+740:%s oyundan çıktı
+741:%s tekrar bağlandı
+742:Oyun oyanırken bağlanamazsınız
+743:Oda dolu. Daha fazla oyuncu oyuna giremez
+744:Odada aynı isimli bir oyuncu var
+748:Ev sahibi hakları %s'e verildi
+749:%s, %s'nin faklı bir versiyonuna sahip
+750:%s, %s dosyalarına sahip değil
+751:Sorgu süresi doldu
+752:Ev sahibi %s'i oyundan düşürdü
+753:%s, ev sahibi tarafından atıldı
+754:Oyuna tekrar bağlanılmaya çalışılıyor...
+755:%s katıldı
+756:Tekrar bağlanma başarısız oldu: %s
+757:Ev sahibi sizsiz oynamaya karar verdi :(
+758:Sunucu tarafından bağlantı koparıldı
+759:Ev sahibi tarafından atıldınız
+760:Sunucu yanıt vermeyi kesti
+761:Geçersiz oda numarası
+765:%s'e fısılda
+766:%s, ev sahibi tarafından uzaklaştırıldı
+767:Ev sahibi tarafından uzaklaştırıldınız
+768:Tüm yasaklamaları sil
+770:Tarih
+771:Sisi göster
+772:İzle
+773:İzleyici
+774:Oto saldırı mesafesi
+775:Eğer belirlenen mesafeden daha yakın olursanız YZ grupları otomatik olarak saldıracaktır
+776:Müttefikleri koru
+777:YZ müttefiklerinin bina ve birimlerini korur
+778:İzleyicilere izin ver
+779:Ev sahibi yetkisi ver
+780:İzleyiciler
+781:İzleyiciler engellenemez: İzleyici listesinin boş olması lazım
+782:İleri al
+783:Geri al
+784:YZ'nin saldırıları için YZ'nin başlangıç konumunu düzenler
+785:YZ başlangıç konumu
+786:Sıra
+788:İlk gecikme (saniye)
+790:Orduya en yakın ev
+791:Başlangıç pozisyonuna en yakın ev
+792:Saldıranlar
+793:Savunanlar
+794:İzleyiciler
+795:Önceki sefer görevlerini oynamak için haritadan ilgili görevin bayrağını seçiniz
+797:Lobiye dönmek için oyla. Oyun devam ettirilebilir veya değiştirilebilir.
+798:Odaya geri dönmek için oyla
+801:Bir izleme kaydını silmek aynı zamanda ilgili oyun kaydını da siler. Silmek istediğinize emin misiniz?
+802:Rastgele
+803:Saldıracak asker sayısı
+804:İzleme Kaydını Sil
+805:Haritayı Sil
+806:Haritayı silmek istediğinize emin misiniz?
+807:Hide scripted overlay
+808:Show scripted overlay
+810:YZ otomatik olarak saldırı üretir ve yönetir
+811:Hızlıca donat
+812:Askerler mümkün olduğunca hızlıca donatılır. Donatma oranı köy planını etkiler
+813:Varsayılan YZ ayarlarını uygula
+814:Çokoyunculu yapıcı
+815:Tüm oyuncular için YZ'nin agresiv davranmasını sağlar (çok oyunculu yapım haritaları için)
+816:Uyarı: Mevcut YZ ayarlarının üzerine yazılacak. Devam etmek ister misiniz?
+817:Ordu tipi
+818:Deriden sonra demir
+819:Demir
+820:Deri
+821:Karışık
+824:Taşı
+825:Benioku dosyasını gör
+826:PDF okuyucu çalıştırma hatası
+827:YZ'nin 10 bina başına sahip olacağı hamal sayısını düzenler. Seçili YZ'nin %d binası var
+828:Hata: Ev sahibi kayıtlı dosyası ile yerel kayıtlı dosya tutarlı değil. Bir hata oluştu veya ev sahibi hile yapmaya çalıştı.
+829:İstek tamamlandı
+830:Asya yazı tiplerini yükle
+831:İndirilenlerden kaldır
