@@ -30,16 +30,18 @@ begin
   WaveTimer := 1800;
 
   for I := 4 to 7 do
-  begin
-    Actions.PlayerShareFog(8, I, False);
-    Actions.PlayerShareFog(I, 8, False);
-  end;
+    if States.PlayerEnabled(I) then
+    begin
+      Actions.PlayerShareFog(8, I, False);
+      Actions.PlayerShareFog(I, 8, False);
+    end;
 
   for I := 0 to 2 do
-  begin
-    Actions.PlayerShareFog(8, I, False);
-    Actions.PlayerShareFog(I, 8, False);
-  end;
+    if States.PlayerEnabled(I) then
+    begin
+      Actions.PlayerShareFog(8, I, False);
+      Actions.PlayerShareFog(I, 8, False);
+    end;
 end;
 
 
@@ -63,11 +65,13 @@ var
   Soldiers: array of Integer;
 begin
   for I := 4 to 8 do
-    Soldiers := States.PlayerGetAllUnits(I);
+    if States.PlayerEnabled(I) then
+      Soldiers := States.PlayerGetAllUnits(I);
 
   for I := 0 to 4 do
   for K := 0 to Length(Soldiers) - 1 do
-    Actions.FogCoverCircle(I, States.UnitPositionX(Soldiers[K]), States.UnitPositionY(Soldiers[K]), 12);
+    if states.PlayerEnabled(I) then
+      Actions.FogCoverCircle(I, States.UnitPositionX(Soldiers[K]), States.UnitPositionY(Soldiers[K]), 12);
 end;
 
 
@@ -704,22 +708,23 @@ var
   Score1, Score2: array[0..3] of Integer;
 begin
   for I := 0 to 3 do
-  begin
-    FactScore[I] := CurrentScore[I] - 2 * (1 * States.StatUnitLostCount(I, 14)                //Every lost soldier decreases score
-    + 3 * States.StatUnitLostCount(I, 15) + 5 * States.StatUnitLostCount(I, 16) 
-    + 2 * States.StatUnitLostCount(I, 17) + 2 * States.StatUnitLostCount(I, 18)
-    + 2 * States.StatUnitLostCount(I, 19) + 3 * States.StatUnitLostCount(I, 20) 
-    + 4 * States.StatUnitLostCount(I, 21) + 7 * States.StatUnitLostCount(I, 22) 
-    + 5 * States.StatUnitLostCount(I, 23) + 1 * States.StatUnitLostCount(I, 24)
-    + 1 * States.StatUnitLostCount(I, 25) + 5 * States.StatUnitLostCount(I, 26) 
-    + 2 * States.StatUnitLostCount(I, 27));
+    if States.PlayerEnabled(I) then
+    begin
+      FactScore[I] := CurrentScore[I] - 2 * (1 * States.StatUnitLostCount(I, 14)              //Every lost soldier decreases score
+      + 3 * States.StatUnitLostCount(I, 15) + 5 * States.StatUnitLostCount(I, 16) 
+      + 2 * States.StatUnitLostCount(I, 17) + 2 * States.StatUnitLostCount(I, 18)
+      + 2 * States.StatUnitLostCount(I, 19) + 3 * States.StatUnitLostCount(I, 20) 
+      + 4 * States.StatUnitLostCount(I, 21) + 7 * States.StatUnitLostCount(I, 22) 
+      + 5 * States.StatUnitLostCount(I, 23) + 1 * States.StatUnitLostCount(I, 24)
+      + 1 * States.StatUnitLostCount(I, 25) + 5 * States.StatUnitLostCount(I, 26) 
+      + 2 * States.StatUnitLostCount(I, 27));
 
-    if (States.GameTime mod (10 + I) = 0) then
-    begin    
-      KilledUnits[I] := States.StatUnitKilledMultipletypesCount(I, [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]);
-      LostUnits[I] := States.StatUnitLostMultipleTypesCount(I, [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]);
+      if (States.GameTime mod (10 + I) = 0) then
+      begin    
+        KilledUnits[I] := States.StatUnitKilledMultipletypesCount(I, [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]);
+        LostUnits[I] := States.StatUnitLostMultipleTypesCount(I, [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]);
+      end;
     end;
-  end;
 
   if (aKillerIndex <> -1) 
   and (aKillerIndex <= 3) then

@@ -2663,17 +2663,17 @@ begin
   and (AI.Defense[21]) then
     AIDefenseRightMiningAreaKnights(aRanged);
 
-  if ((AreaRevealed(0, 5, 25))
-  or (AreaRevealed(1, 5, 25))
-  or (AreaRevealed(2, 5, 25))
-  or (AreaRevealed(3, 5, 25)))
+  if ((AreaRevealed(0, 5, 27))
+  or (AreaRevealed(1, 5, 27))
+  or (AreaRevealed(2, 5, 27))
+  or (AreaRevealed(3, 5, 27)))
   and (AI.Defense[22]) then
     AIDefenseLeftMiningAreaBarbarians(aRanged);
 
-  if ((AreaRevealed(0, 155, 25))
-  or (AreaRevealed(1, 155, 25))
-  or (AreaRevealed(2, 155, 25))
-  or (AreaRevealed(3, 155, 25)))
+  if ((AreaRevealed(0, 155, 27))
+  or (AreaRevealed(1, 155, 27))
+  or (AreaRevealed(2, 155, 27))
+  or (AreaRevealed(3, 155, 27)))
   and (AI.Defense[23]) then
     AIDefenseRightMiningAreaBarbarians(aRanged);
 
@@ -4909,7 +4909,7 @@ begin
               and (States.UnitOwner(U) <= 3) then
                 if (States.UnitType(U) = 21)
                 or (States.UnitType(U) = 22) then
-                  SendMounted.CurrentCount := SendMounted.CurrentCount +1;
+                  SendMounted.CurrentCount := SendMounted.CurrentCount + 1;
             end;
              if SendMounted.CurrentCount >= ADD_TASK_ARMY_COUNT then
                Mission.RandomTaskCompleted := True
@@ -4931,7 +4931,7 @@ begin
              and (States.UnitOwner(U) <= 3) then
                if (States.UnitType(U) = 17)
                or (States.UnitType(U) = 18) then
-                 SendRanged.CurrentCount := SendRanged.CurrentCount +1;
+                 SendRanged.CurrentCount := SendRanged.CurrentCount + 1;
            end;
            if SendRanged.CurrentCount >= ADD_TASK_ARMY_COUNT then
              Mission.RandomTaskCompleted := True
@@ -4952,7 +4952,7 @@ begin
              and (States.UnitOwner(U) >= 0)
              and (States.UnitOwner(U) <= 3) then
                if (States.UnitType(U) = 23) then
-                 SendBarbs.CurrentCount := SendBarbs.CurrentCount +1;
+                 SendBarbs.CurrentCount := SendBarbs.CurrentCount + 1;
            end;
            if SendBarbs.CurrentCount >= ADD_TASK_BARBS_COUNT then
              Mission.RandomTaskCompleted := True
@@ -4975,7 +4975,7 @@ begin
                if (States.UnitType(U) = 15)
                or (States.UnitType(U) = 16)
                or (States.UnitType(U) = 23) then
-                 SendMelee.CurrentCount := SendMelee.CurrentCount +1;
+                 SendMelee.CurrentCount := SendMelee.CurrentCount + 1;
            end;
            if SendMelee.CurrentCount >= ADD_TASK_ARMY_COUNT then
              Mission.RandomTaskCompleted := True
@@ -4997,7 +4997,7 @@ begin
              and (States.UnitOwner(U) <= 3) then
                if (States.UnitType(U) = 19)
                or (States.UnitType(U) = 20) then
-                 SendAntihorse.CurrentCount := SendAntihorse.CurrentCount +1;
+                 SendAntihorse.CurrentCount := SendAntihorse.CurrentCount + 1;
            end;
            if SendAntihorse.CurrentCount >= ADD_TASK_ARMY_COUNT then
              Mission.RandomTaskCompleted := True
