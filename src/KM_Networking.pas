@@ -1338,6 +1338,7 @@ begin
                           fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                           fHostIndex := fMyIndex;
                           fNetPlayers[fMyIndex].ReadyToStart := True;
+                          fNetPlayers[fMyIndex].HasMapOrSave := True;
                           if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                           SetGameState(lgs_Lobby);
                           gSoundPlayer.Play(sfxn_MPChatSystem); //Sound for joining the lobby
