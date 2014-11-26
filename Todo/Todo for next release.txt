@@ -8,6 +8,7 @@ Bugs:
  +	Map description would show "out of range" if a translation was partially complete (Castle Defenders)
  +	"Order complete" message would show at incorrect times (when inputs are empty)
  +	Host was shown as not ready when they first joined the room
+ +	After using Actions.HouseTakeWaresFrom on an input ware the house would not re-add demand for the taken wares
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
 
 Features:

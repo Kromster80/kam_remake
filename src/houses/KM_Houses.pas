@@ -1069,10 +1069,10 @@ begin
       //Script might try to take too many
       aCount := Min(aCount, fResourceIn[I]);
       gHands[Owner].Stats.WareConsumed(aWare, aCount);
-    end
-    else
-      //Serf delivered it here so keep track of how many are ordered
-      fResourceDeliveryCount[I] := Max(fResourceDeliveryCount[I] - aCount, 0);
+    end;
+
+    //Keep track of how many are ordered
+    fResourceDeliveryCount[I] := Max(fResourceDeliveryCount[I] - aCount, 0);
 
     Assert(fResourceIn[I] >= aCount, 'fResourceIn[i] < 0');
     Dec(fResourceIn[I], aCount);
