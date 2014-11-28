@@ -1,0 +1,11 @@
+procedure OnTick;
+var X, UType: Integer;
+begin
+if (States.Gametime mod 200 = 0) then
+	begin
+	X := States.UnitAt(196, 119);
+	UType := States.UnitType(X);
+	if (UType > 13) and (UType < 28) and (States.UnitOwner(X) <> -1) then
+		Actions.ShowMsgGoTo(States.UnitOwner(X), 196, 119, 'Well, don''t be afraid... it''s just a duck');
+	end;
+end;

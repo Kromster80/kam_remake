@@ -98,16 +98,6 @@
 97:Slot 3 : nessun soldato|
 98:Slot 4 : %d %s uccisi di %d|
 99:Slot 4 : nessun soldato|
-100:Slot 5 : %d %s uccisi di %d|
-101:Slot 5 : nessun soldato|
-102:[$%s]Statistiche personali[]|
-103:Oro : %d|
-104:Grado : %s||
-105:[$%s]Il tuo esercito[]|
-106:Slot 1 : %s  %d/%d|
-107:Slot 2 : %s  %d/%d|
-108:Slot 3 : %s  %d/%d|
-109:Slot 4 : %s  %d/%d|
 110:[$%s]Cerca Principale[]|%s||
 111:Cerca secondaria :|%s||
 112:Cerca secondaria :|%s||
@@ -131,3 +121,13 @@
 130:Milizia costo : 20|Arciere costo : 35|Lanciere costo : 30|Esploratore costo : 80|Soldato con ascia costo : 55
 131:Soldato con spada costo : 110|Picchiere costo : 100|Balestriere costo : 80|Cavaliere costo : 160
 132:TUTORIAL: Per far sì che questi messaggi appaiano di nuovo, sosta per qualche secondo sulle strade all'ingresso dell'area di reclutamento.
+150:Slot 5 : %d %s uccisi di %d|
+151:Slot 5 : nessun soldato|
+152:[$%s]Statistiche personali[]|
+153:Oro : %d|
+154:Grado : %s||
+155:[$%s]Il tuo esercito[]|
+156:Slot 1 : %s  %d/%d|
+157:Slot 2 : %s  %d/%d|
+158:Slot 3 : %s  %d/%d|
+159:Slot 4 : %s  %d/%d|
