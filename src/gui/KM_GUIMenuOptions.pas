@@ -33,6 +33,7 @@ type
       Panel_Options_GFX: TKMPanel;
         TrackBar_Options_Brightness: TKMTrackBar;
         CheckBox_Options_VSync: TKMCheckBox;
+      Panel_Options_Fonts: TKMPanel;
         CheckBox_Options_FullFonts: TKMCheckBox;
         RadioGroup_Options_Shadows: TKMRadioGroup;
       Panel_Options_Ctrl: TKMPanel;
@@ -104,22 +105,28 @@ begin
       CheckBox_Options_Autosave.OnClick := Change;
 
     //Graphics section
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,198);
+    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,310,220,178);
     Panel_Options_GFX.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,gResTexts[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_GFX,0,20,220,178);
+      TKMBevel.Create(Panel_Options_GFX,0,20,220,158);
       TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       TrackBar_Options_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
       TrackBar_Options_Brightness.OnChange:=Change;
       CheckBox_Options_VSync := TKMCheckBox.Create(Panel_Options_GFX, 10, 90, 200, 20, gResTexts[TX_MENU_OPTIONS_VSYNC], fnt_Metal);
       CheckBox_Options_VSync.OnClick := Change;
-      CheckBox_Options_FullFonts := TKMCheckBox.Create(Panel_Options_GFX, 10, 110, 200, 20, gResTexts[TX_MENU_OPTIONS_FONTS], fnt_Metal);
-      CheckBox_Options_FullFonts.OnClick := Change;
-      TKMLabel.Create(Panel_Options_GFX,10,140,200,20,gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
-      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,158,200,32, fnt_Metal);
+      TKMLabel.Create(Panel_Options_GFX,10,120,200,20,gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
+      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,138,200,32, fnt_Metal);
       RadioGroup_Options_Shadows.Add(gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
       RadioGroup_Options_Shadows.Add(gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
       RadioGroup_Options_Shadows.OnChange := Change;
+
+    //Fonts section
+    Panel_Options_Fonts := TKMPanel.Create(Panel_Options,360,508,220,50);
+    Panel_Options_Fonts.Anchors := [anLeft];
+      TKMLabel.Create(Panel_Options_Fonts,6,0,188,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
+      TKMBevel.Create(Panel_Options_Fonts,0,20,220,30);
+      CheckBox_Options_FullFonts := TKMCheckBox.Create(Panel_Options_Fonts, 10, 27, 200, 20, gResTexts[TX_MENU_OPTIONS_FONTS], fnt_Metal);
+      CheckBox_Options_FullFonts.OnClick := Change;
 
     //SFX section
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,220,167);
