@@ -18,7 +18,7 @@ lit,    Lithuanian,           1257,     0,         67,           ,              
 nor,    Norwegian,            1252,     0,         70,           ,                Tokicchi
 pol,    Polish,               1250,     0,         47,           ,                Przemysław Pietras
 rom,    Romanian,             1250,     0,         66,           ,                mucormucedo
-rus,    Russian,              1251,     0,         54,           ,                Krom
+rus,    Russian,              1251,     0,         54,           ,                Krom & andreus
 srb,    Serbian,              1250,     0,         80,           ,                Стефан Дробић (Davidturner) & Baqal
 svk,    Slovak,               1250,     0,         52,           cze,             Róbert Marko & Jozef Müller (Launcelot)
 spa,    Spanish,              1252,     0,         53,           ,                Óscar
