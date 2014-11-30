@@ -1078,14 +1078,13 @@ procedure TKMMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
 
 var
   I,K,ID,LocaleID: Integer;
-  MyNik, CanEdit, HostCanEdit, IsSave, TeamsAllowed, IsValid: Boolean;
+  MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
   CurPlayer: TKMNetPlayerInfo;
   FirstUnused: Boolean;
 begin
   UpdateMappings;
 
   IsSave := fNetworking.SelectGameKind = ngk_Save;
-  TeamsAllowed := (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.BlockTeamSelection;
 
   FirstUnused := True;
   for I := 1 to MAX_LOBBY_SLOTS do
@@ -1219,11 +1218,11 @@ begin
     else
       DropBox_LobbyLoc[I].ItemIndex := 0;
 
-    //Teams
-    if TeamsAllowed then
-      DropBox_LobbyTeam[I].ItemIndex := CurPlayer.Team
+    //Always show the selected teams, except when the map denies it
+    if (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.BlockTeamSelection then
+      DropBox_LobbyTeam[I].ItemIndex := 0 //Hide selected teams since they will be overridden
     else
-      DropBox_LobbyTeam[I].ItemIndex := 0; //No teams in coop maps, it's done for you
+      DropBox_LobbyTeam[I].ItemIndex := CurPlayer.Team;
 
     DropBox_LobbyColors[I].ItemIndex := CurPlayer.FlagColorID;
 
@@ -1251,8 +1250,12 @@ begin
                     not CurPlayer.IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
     //Can't change color or teams in a loaded save (spectators can set color)
-    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and TeamsAllowed and not CurPlayer.IsSpectator;
-    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and (not IsSave or CurPlayer.IsSpectator);
+    //Can only edit teams for maps (not saves), but the map may deny this
+    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not CurPlayer.IsSpectator
+                                    and (fNetworking.SelectGameKind = ngk_Map)
+                                    and not fNetworking.MapInfo.BlockTeamSelection;
+    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart))
+                                      and (not IsSave or CurPlayer.IsSpectator);
     if MyNik and not fNetworking.IsHost then
     begin
       if CurPlayer.ReadyToStart then
