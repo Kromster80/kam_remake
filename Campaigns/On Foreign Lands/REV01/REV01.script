@@ -19,7 +19,8 @@ begin
 			Actions.HouseDestroy(houses[i], true);
 			houses[i] := Actions.GiveHouse(0, t, x, y);
 			Actions.HouseAddDamage(houses[i], d);
-			for j := 0 to resourcesMaxCount do Actions.HouseAddWaresTo(houses[i], j, houseRes[j]);
+			for j := 0 to resourcesMaxCount do 
+				if (houseRes[j] > 0) then Actions.HouseAddWaresTo(houses[i], j, houseRes[j]);
 		end;
 	ownerChangedAfter := true;
 end;

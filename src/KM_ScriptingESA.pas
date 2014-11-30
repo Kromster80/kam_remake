@@ -4039,8 +4039,11 @@ begin
       if H <> nil then
         if H.ResCanAddToIn(Res) or H.ResCanAddToOut(Res) then
         begin
-          H.ResAddToEitherFromScript(Res, aCount);
-          gHands[H.Owner].Stats.WareProduced(Res, aCount);
+          if aCount > 0 then
+          begin
+            H.ResAddToEitherFromScript(Res, aCount);
+            gHands[H.Owner].Stats.WareProduced(Res, aCount);
+          end;
         end
         else
           LogParamWarning('Actions.HouseAddWaresTo wrong ware type', [aHouseID, aType, aCount]);
@@ -4069,10 +4072,13 @@ begin
         //Store/barracks mix input/output (add to input, take from output) so we must process them together
         if H.ResCanAddToIn(Res) or H.ResCanAddToOut(Res) then
         begin
-          //Range checking is done within ResTakeFromIn and ResTakeFromOut when aFromScript=True
-          //Only one will succeed, we don't care which one it is
-          H.ResTakeFromIn(Res, aCount, True);
-          H.ResTakeFromOut(Res, aCount, True);
+          if aCount > 0 then
+          begin
+            //Range checking is done within ResTakeFromIn and ResTakeFromOut when aFromScript=True
+            //Only one will succeed, we don't care which one it is
+            H.ResTakeFromIn(Res, aCount, True);
+            H.ResTakeFromOut(Res, aCount, True);
+          end;
         end
         else
           LogParamWarning('Actions.HouseTakeWaresFrom wrong ware type', [aHouseID, aType, aCount]);

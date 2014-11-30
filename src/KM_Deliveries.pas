@@ -327,6 +327,8 @@ procedure TKMDeliverQueue.AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: I
 var
   I, K: Integer;
 begin
+  if aCount = 0 then Exit;
+
   //Add Count of resource to old offer
   for I := 1 to fOfferCount do
     if (fOffer[I].Loc_House = aHouse)
