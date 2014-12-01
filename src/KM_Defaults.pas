@@ -155,6 +155,7 @@ const
   MAX_LOBBY_SLOTS = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
 
   AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
+  CHAT_COOLDOWN        = 500; //Minimum time in milliseconds between chat messages
 
 var
   HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)

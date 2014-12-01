@@ -13,6 +13,7 @@ type
   private
     fChatMode: TChatMode;
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
+    fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
     procedure Chat_Close(Sender: TObject);
     procedure Chat_Post(Sender: TObject; Key:word);
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
@@ -106,8 +107,10 @@ begin
   //Sending chat during reconnections at best causes messages to be lost and at worst causes
   //crashes due to intermediate connecting states. Therefore we block sending completely.
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '')
-  and (gGame.Networking <> nil) and not gGame.Networking.IsReconnecting then
+  and (gGame.Networking <> nil) and not gGame.Networking.IsReconnecting
+  and (GetTimeSince(fLastChatTime) >= CHAT_COOLDOWN) then
   begin
+    fLastChatTime := TimeGet;
     if fChatMode = cmWhisper then
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer)
     else

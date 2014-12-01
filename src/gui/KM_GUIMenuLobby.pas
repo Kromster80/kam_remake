@@ -24,6 +24,7 @@ type
     fLobbyTab: TLobbyTab;
     fChatMode: TChatMode;
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
+    fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
 
     fLocalToNetPlayers: array[1..MAX_LOBBY_SLOTS] of Integer;
     fNetPlayersToLocal: array[1..MAX_LOBBY_SLOTS] of Integer;
@@ -1749,8 +1750,11 @@ procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
 var
   ChatMessage: UnicodeString;
 begin
-  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then Exit;
-
+  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '')
+  or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
+    Exit;
+  
+  fLastChatTime := TimeGet;
   ChatMessage := Edit_LobbyPost.Text;
 
   //Console commands are disabled for now, maybe we'll reuse them later
