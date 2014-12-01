@@ -608,7 +608,7 @@ var
   S: TKMemoryStream;
 begin
   S := TKMemoryStream.Create;
-  S.WriteA(GAME_VERSION);
+  S.WriteA(GAME_REVISION);
   S.Write(fCount);
   for I := 1 to fCount do
   begin
@@ -632,7 +632,7 @@ begin
   S := TKMemoryStream.Create;
   S.LoadFromFile(aFileName);
   S.ReadA(FileVersion);
-  Assert(FileVersion = GAME_VERSION, 'Old or unexpected replay file. '+GAME_VERSION+' is required.');
+  Assert(FileVersion = GAME_REVISION, 'Old or unexpected replay file. '+GAME_REVISION+' is required.');
   S.Read(fCount);
   setlength(fQueue, fCount+1);
   for I := 1 to fCount do

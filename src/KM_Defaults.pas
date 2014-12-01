@@ -30,8 +30,8 @@ const
   {$ELSE}
     GAME_VERSION_POSTFIX  = ' (UNSECURE!)';
   {$ENDIF}
-  GAME_VERSION_PREFIX   = 'Next Demo Release Candidate 4'; //Game version string displayed in menu corner
-  GAME_VERSION          = GAME_VERSION_PREFIX + ' ' + GAME_REVISION + GAME_VERSION_POSTFIX;
+  GAME_VERSION_PREFIX   = 'Release Candidate 4 '; //Game version string displayed in menu corner
+  GAME_VERSION          = GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';

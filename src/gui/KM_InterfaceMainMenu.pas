@@ -209,7 +209,7 @@ var
   I: Integer;
   cmp: TKMCampaignId;
 begin
-  Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
+  Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + fGameApp.RenderVersion;
 
   //Hide all other pages
   for I := 0 to Panel_Menu.ChildCount - 1 do

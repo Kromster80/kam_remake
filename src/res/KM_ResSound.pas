@@ -387,7 +387,7 @@ begin
   try
     MS.LoadFromFile(aFile);
     MS.ReadA(S);
-    if S = GAME_VERSION then
+    if S = GAME_REVISION then
     begin
       MS.Read(WarriorSoundCount, SizeOf(WarriorSoundCount));
       MS.Read(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
@@ -406,7 +406,7 @@ var
 begin
   MS := TKMemoryStream.Create;
   try
-    MS.WriteA(GAME_VERSION);
+    MS.WriteA(GAME_REVISION);
     MS.Write(WarriorSoundCount, SizeOf(WarriorSoundCount));
     MS.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
     MS.Write(NotificationSoundCount, SizeOf(NotificationSoundCount));
