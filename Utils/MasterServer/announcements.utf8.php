@@ -70,6 +70,9 @@ function EchoUpdateMessage($Lang, $Rev, $MAIN_VERSION)
 		case 'ger':
 			echo "Deine Version des Remakes ist veraltet! Du hast ".$Rev.", die neuste ist ".$MAIN_VERSION.".||Bitte lade das neuste Update von www.kamremake.com runter.";
 			break;
+		case 'chn':
+			echo "你的骑士与商人重制版的版本已经过期！你正在运行的是 ".$Rev." ，但最新版本是 ".$MAIN_VERSION." 。||请在 www.kamremake.com 下载升级版本。";
+			break;
 		default:
 			echo "Your KaM Remake version is out of date! You are running ".$Rev." but the most recent version is ".$MAIN_VERSION.".||Please download the update at: www.kamremake.com";
 	}

@@ -86,20 +86,20 @@
 85:游民
 86:投石车
 87:弩炮
-88:你的农奴会给建筑供应必要的原材料.以及搬运各种原材料. ||注意建筑物之间的道路必需连通.
-89:伐木工会生产木头. ||他也可以种植树木.
-90:矿工会在煤矿.铁矿和金矿中采取需要的资源.
-91:饲养员会用小麦来喂养猪和马来进行生产.
-92:农夫会在农田上种植小麦. ||他还会在酿酒房中生产葡萄酒.
-93:木匠一般在锯木厂中工作.他也会在木制武器加工厂.皮甲防具店中工作. ||他还会在公攻城车间制作机器.
-94:面包师会把小麦磨成面粉. ||当然他也会在面包房里烤面包.
-95:屠夫可以在制革厂加工皮革.也可以在屠宰场制作香肠.
-96:渔民会在附近的范围进行打渔.
-97:劳工会建造建筑物和道路.选好位置.他会执行你的命令.
-98:为了确保你的劳工有足够的材料来铺设道路和建造建筑物,石匠将削切加工石料.
-99:铁匠会使用钢材来制作盔甲和武器.
-100:炼金师使用煤矿金矿和铁矿来制作铁锭和黄金.
-101:招募一个新兵,他可以在兵营里面武装自己. ||他也可以驻守瞭望塔.
+88:你的农奴会给建筑供应|必要的原材料，以及搬|运各种原材料。 ||注意：建筑物之间的道|路必需连通。
+89:伐木工会生产木头。 |他也可以种植树木。
+90:矿工会在煤矿井、铁矿|井和金矿井中采挖需要|的资源。
+91:饲养员会用小麦来喂养|猪和马来进行生产。
+92:农夫会在农田上种植小|麦。 ||他还会在酿酒房中生产|葡萄酒。
+93:木匠一般在锯木厂中工|作。他也会在木制武器|加工厂或皮甲防具店中|工作。 ||他还会在公攻城车间制|作机器。
+94:面包师会把小麦磨成面|粉。 ||当然他也会在面包房里|烤面包。
+95:屠夫可以在制革厂加工|皮革，也可以在屠宰场|制作香肠。
+96:渔夫会在鱼场附近进行|钓鱼。
+97:劳工会建造建筑物和道|路，选好位置，他会执|行你的命令。
+98:为了确保你的劳工有足|够的材料来铺设道路和|建造建筑物，石匠将削|切加工石料。
+99:铁匠会使用煤矿和钢材|来制作盔甲和武器。
+100:炼金师使用煤矿和金矿|来制作黄金，也能使用|煤矿和铁矿来制作铁锭。
+101:招募一个新兵，他可以|在兵营里面武装自己。 ||他也可以驻守瞭望塔。
 102:建筑列表
 103:物资分配
 104:数据统计
@@ -137,9 +137,9 @@
 136:取消当前训练
 137:需求:
 140:存货
-141:房屋 | 正在建造
+141:房屋 || 正在建造
 142:拆除
-143:你真的想 | 拆除这个建筑吗?
+143:你真的想 || 拆除这个建筑吗?
 144:拆除选择的建筑
 145:减少数量
 146:增加数量
@@ -176,7 +176,7 @@
 177:你的金矿枯竭
 178:伐木屋周围没有任何树木砍伐了
 179:房屋没人使用
-180:这队士兵非常饥饿,他们需要尽快吃一些东西!
+180:这队士兵非常饥饿，他们需要尽快吃一些东西!
 181:暂停
 182:运输中
 183:修建道路
@@ -252,16 +252,16 @@
 253:任务完成:
 254:数据统计:
 255:经济
-256:单位|训练
-257:单位|死亡
-258:士兵|训练
-259:士兵|死亡
-260:士兵|杀死
-261:建筑物|建造
-262:建筑物|损失
-263:建筑物|摧毁
-264:物资|生产
-265:武器|生产
+256:单位||训练
+257:单位||死亡
+258:士兵||训练
+259:士兵||死亡
+260:士兵||杀死
+261:建筑物||建造
+262:建筑物||损失
+263:建筑物||摧毁
+264:物资||生产
+265:武器||生产
 266:军队
 267:单位
 268:建筑
@@ -275,7 +275,7 @@
 276:所有
 277:战争
 278:食物
-279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:||Peter Ohlmann||GAME GRAPHICS:||Adam Sprys||LEVEL DESIGN:||Adam Sprys||André Quaß||SOUND EDITING AND MIXING:||Tonstudio Mannheim||MUSIC:||Gerd Hofmann||Joachim Schäfer||Jürgen Rebhann||Klaus Staendike||Steffen Schüngel||ILLUSTRATIONS:||Boleslaw Kasza||Christoph Werner||TRANSLATION:||Ronnie Shankland||Patricia Bellantuono||Andrea Rumpelt||||ZUXXEZ ENTERTAINMENT AG||PRODUCER:||Uwe Schäfer||MANUAL:||Peter Ohlmann||Uwe Schäfer||BETA TESTING:||Peter Ohlmann||Adam Sprys||Alexandra Constandache||Dirk P。 Hassinger||Achim Heidelauf||Uwe Schäfer||Ingrid Schäfer||Dirk U。 Jantz||Ion Constandache||Yaman Egeli||Roman Eich||Iris Mocsnek||Anke Jantz||Paul Hassinger||Liza Hassinger||GAMES DIRECTOR:||Achim Heidelauf||PUBLISHED BY:||TopWare Interactive||CUTSCENES:||DIRECTION:||Slawomir Jedrzejewski||Kajetan Czarnecki||Wojciech Drazek||Daniel Duplaga||Rafal Januszkiewicz||Andrzej Rams||Piotr Rulka||Krzysztof Rybczynski||Grzegorz Wisniewski||VOICES:||Claus Boyen (Storyteller)||Tim Timmermann||Peter Houska||Dirk Mühlbach||Ralf Ditze||Gerhard Piske||Gernot Wassmann||ARTWORK:||Boleslaw Kasza||Adam Sprys||OPENING ANIMATION:||Uwe Schäfer||Christian Bigalk||Additional 3D-Modelling:||Niels Horstmann||SPECIAL THANKS TO:||Tadeusz Zuber||Dieter Ohlmann||Alexandra Constandache||Ingrid Schäfer
 280:任务取消
 281:录像结束
 282:建造教程
@@ -310,7 +310,7 @@
 311:阴影效果:
 312:低
 313:高
-314:载入中…请稍等
+314:载入中……[请稍等]
 315:有错误发生
 316:新的语言环境加载
 317:存 档 游 戏 列 表
@@ -341,7 +341,7 @@
 342:覆盖
 343:记录
 344:读取
-345:"检测到OpenGL版本较早,游戏运行可能缓慢或者出现图形问题"
+345:"检测到OpenGL版本较早，游戏运行可能缓慢或者出现图形问题"
 346:请更新你的显卡驱动来获得更好的性能
 347:网络错误:
 348:错误:玩家姓名不能空白
@@ -351,8 +351,8 @@
 352:你已经断开连接
 353:任务 %d
 354:消息日志
-355:你的渔夫小屋离水太远.
-356:你的渔夫在附近水域内不能再捉到更多的鱼
+355:你的渔夫小屋离水太远。
+356:你的渔夫在附近水域内不能再捉到更多的鱼。
 357:从头开始
 358:暂停
 359:前进一步
@@ -373,9 +373,9 @@
 375:大小
 376:滑动以改变笔刷的大小
 377:坡度
-378:滑动变化高度:1 =很低…15 =非常高
+378:滑动变化高度:1 =很低……15 =非常高
 379:速度
-380:滑动变化速度:1 =慢…15 =非常快
+380:滑动变化速度:1 =很慢……15 =非常快
 381:圆形刷子
 382:方形刷子
 383:提高/降低
@@ -398,7 +398,7 @@
 401:显示房屋
 402:显示对象
 403:视图通过性
-404:任何未保存的更改将丢失
+404:任何未保存||的更改将丢失
 405:取消
 406:载入
 407:载入地图
@@ -448,7 +448,7 @@
 453:编辑部队
 454:设定限制电脑总兵力
 455:电脑每一次出兵有多少士兵
-456:设定士兵数的最大额
+456:设定士兵的最大数
 457:电脑有多少新兵在兵营
 458:每个兵营的新兵
 460:自定义的位置
@@ -475,7 +475,7 @@
 485:AI地方的防御
 486:AI防御
 487:工人
-488:每个工人10个房子
+488:每10栋房屋的农奴
 489:自动维修
 490:自动建造
 491:AI设置
@@ -513,9 +513,9 @@
 523:服务器细节
 524:玩家列表:
 525:加入
-526:"连接中,请稍等…"
-527:加载公告…
-528:刷新…
+526:"连接中，请稍等……"
+527:加载公告……
+528:刷新……
 529:玩家名
 530:开始位置
 531:队伍
@@ -525,12 +525,12 @@
 535:延迟/帧数
 536:打开
 537:电脑
-538:选择…
+538:选择……
 539:随机
 540:没有
 541:保存游戏
 542:选择一个地图
-543:选择一个记录…
+543:选择一个记录……
 544:退出大厅
 545:准备
 546:取消准备
@@ -587,16 +587,16 @@
 599:建筑和战斗
 600:战斗
 601:准备
-602:错误的协议版本: %s.服务器适用: %s
+602:错误的协议版本: %s。服务器适用: %s
 603:增加交易额度
 604:减少交易额度
-605:保存游戏…
+605:保存游戏……
 606:%s被击败了!
 607:丢弃玩家
 608:主机将在%d秒后放弃这些玩家
 609:主机现在将放弃这些玩家
 610:主机(%s)已经退出
-611:到服务器的连接丢失.试图重新连接…
+611:到服务器的连接丢失。试图重新连接……
 612:你确定你想要退出吗?
 613:你确定你想永久去除这些玩家吗?
 614:取消
@@ -605,8 +605,8 @@
 617:仅砍伐
 618:和平时期不允许这么做
 619:和平时间剩余: %s
-620:和平时期结束, 战斗模式开启. 骑士们,尽情的冲锋吧!
-621:游戏时间: |%s
+620:和平时期结束， 战斗模式开启。 骑士们，尽情的冲锋吧!
+621:游戏时间: ||%s
 622:停止队伍 ('%s')
 623:合并队伍 ('%s')
 624:单独队伍 ('%s')
@@ -627,10 +627,10 @@
 639:记录没有发现: %s
 640:映射文件不匹配主机的地图: %s
 641:记录不匹配主机的记录: %s
-642:回放失败的一个致命错误.这是一个已经缺陷影像播放一些录像.你想继续吗?
+642:回放失败的一个致命错误。这是一个已经缺陷影像播放一些录像。你想继续吗?
 643:你可能只有一个实例的游戏的多人模式一次
-644:Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files
-645:"在应用程序中发生错误.请点击发送错误报告,我们可以研究这个问题.谢谢你的帮助!"
+644:
+645:"在应用程序中发生错误。请点击发送错误报告，我们可以研究这个问题。谢谢你的帮助!"
 646:发送错误报告
 647:显示原始数据
 648:恢复应用程序
@@ -647,12 +647,12 @@
 659:(点击标记图像)
 660:发送报告
 661:取消
-662:发送错误报告…
-663:连接到服务器…
-664:发送数据…
-665:"发送崩溃报告失败!我们的服务器可能很忙,请尝试再次发送他."
+662:发送错误报告……
+663:连接到服务器……
+664:发送数据……
+665:"发送崩溃报告失败!我们的服务器可能很忙，请尝试再次发送他。"
 666:信息
-667:请稍等…
+667:请稍等……
 668:保存地图
 669:在AI开始训练新兵的前几分钟的延迟
 670:训练延迟(分钟)
@@ -664,7 +664,7 @@
 676:粘贴取消
 677:垂直翻转
 678:水平翻转
-679:拖动选择地图上的一个地区
+679:拖动选择地图||上的一个地区
 680:AI的防御方案
 681:关闭
 682:半径
@@ -745,7 +745,7 @@
 792:攻击者
 793:防御者
 794:观众
-795:想玩已经解锁的战役任务，需要先选择好地图上相应的旗帜
+795:想玩已经解锁的战役任务，需要先选择好地图上相应的旗帜。
 796:%s 已投票同意回到大厅 (还需要 %s 位选票)
 797:通过表决来决定回到大厅，然后游戏才会暂停后回到大厅
 798:表决回到大厅
@@ -759,7 +759,7 @@
 806:你确定想删除此地图？
 807:隐藏脚本覆盖
 808:显示脚本覆盖
-809:当你的客户端运行时，你不能改变主服务器
+809:当你的客户端运行时，你不能改变主服务器 
 810:电脑自动建立攻击指令并且控制攻击
 811:快速装备
 812:士兵尽可能快的装备出来。装备速度仍然影响村庄规划率
@@ -773,6 +773,12 @@
 820:皮革
 821:混合型
 822:下载地图
+823:移到多人地图
 824:移动
 825:查看PDF自述文件
 826:启动PDF查看器失败
+827:设置电脑人工智能每10栋房屋的农奴数，你已选择电脑人工智能有 %d 房屋。
+828:错误: 网络主机暂停文件与你的本机暂停文件不匹配。发生了一个错误或主机可能试图欺骗。
+829:订单已经完成
+830:调用亚洲字体库
+831:脱离下载

@@ -45,7 +45,7 @@ Name: "est"; MessagesFile: "ExtraLanguages\Estonian.isl"; LicenseFile: "License.
 Name: "rom"; MessagesFile: "ExtraLanguages\Romanian.isl"; LicenseFile: "License.rom.txt"
 Name: "lit"; MessagesFile: "ExtraLanguages\Lithuanian.isl";
 Name: "ukr"; MessagesFile: "compiler:Languages\Ukrainian.isl"; LicenseFile: "License.ukr.txt"
-Name: "chn"; MessagesFile: "ExtraLanguages\ChineseSimplified.isl";
+Name: "chn"; MessagesFile: "ExtraLanguages\ChineseSimplified.isl"; LicenseFile: "License.chn.txt"
 Name: "nor"; MessagesFile: "compiler:Languages\Norwegian.isl"; LicenseFile: "License.nor.txt"
 Name: "bel"; MessagesFile: "ExtraLanguages\Belarusian.isl"; LicenseFile: "License.bel.txt"
 Name: "jpn"; MessagesFile: "compiler:Languages\Japanese.isl"; LicenseFile: "License.jpn.txt"
