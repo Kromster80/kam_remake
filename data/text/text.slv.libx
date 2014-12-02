@@ -1,0 +1,781 @@
+﻿0:Žaga
+1:Železarna
+2:Kovačija oklepov
+3:Premogovnik
+4:Rudnik železa
+5:Rudnik zlata
+6:Ribičija
+7:Pekarna
+8:Kmetija
+9:Gozdarjeva hiša
+10:Kovačija oklepov
+11:Skladišče
+12:Konjušnica
+13:Šola
+14:Kamnolom
+15:Zlatarna
+16:Prašičja kmetija
+17:Stražni stolp
+18:Občina
+19:Delavnica orožja
+20:Delavnica oklepov
+21:Vojašnica
+22:Mlin
+23:Delavnica naprav
+24:Klavnica
+25:Usnjarna
+26:Hiša za trening
+27:Gostilna
+28:Vinograd
+29:Market
+30:Hlodi
+31:Kamenje
+32:Deske
+33:Železna ruda
+34:Zlata ruda
+35:Premog
+36:Železo
+37:Zlato
+38:Vino
+39:Koruza
+40:Hlebci
+41:Moka
+42:Usnje
+43:Klobase
+44:Pujsi
+45:Kože
+46:Leseni ščiti
+47:Železni ščit
+48:Usnjeni oklepi
+49:Železni oklepi
+50:Sekire
+51:Meči
+52:Sulice
+53:Halabarde
+54:Loki
+55:Samostreli
+56:Konji
+57:Ribe
+58:Tlačan
+59:Gozdar
+60:Rudar
+61:Živinorejec
+62:Kmet
+63:Mizar
+64:Pek
+65:Mesar
+66:Ribič
+67:Gradbenik
+68:Kamnosek
+69:Kovač
+70:Metalurg
+71:Rekrut
+72:Milica
+73:Bojevnik s sekiro
+74:Mečevalec
+75:Lokostrelec
+76:Samostrelec
+77:Suličar
+78:Halabarder
+79:Izvidnik
+80:Vitez
+81:Barbar
+82:Upornik
+83:Lopov
+84:Bojevnik
+85:Potepuh
+86:Katapult
+87:Ježevec
+88:Tlačan oskrbuje hiše z potrebnimi surovinami.||Pazi hiše morajo biti povezane s cesto.
+89:Za proizvodnjo hlodov rabiš gozdarja.||Gozdar pogozduje neodvisno.
+90:Rudar koplje rudo iz rudnika premoga,železa in zlata
+91:Živinorejec hrani prašiče in konje s koruzo.
+92:Kmet posadi in požane koruzo na kmetiji.||kmet tudi proizvaja vino.
+93:Mizar dela na žagi, delavnici orožja in oklepov.||Izdeluje tudi katapulte in ježevce v delavnici naprav.
+94:Pek zmelje pšenico v moko v mlinu.||Peče tudi kruh v pekarni
+95:Mesar dela klobase v klavnici in usnje v usnjarni.
+96:Ribič lovi ribe v bljižnih vodah.
+97:Gradbenik dela cesto in gradi hiše.Preprosto označi poljubno lokacijo in bo izvršil ukaz.||Gradbenik tudi popravlja hiše.
+98:Za oskrbo gradbenikov z materijalom za ceste in hiše mora kamnosek narediti kamenje.
+99:Kovač kuje železna orožja in oklepe v kovačiji za orožje in oklepe.
+100:Metalurgist s pomočjo premoga loči zlato in železo od rude.
+101:Rekrut se opremi z orožjem v baraki.||Zavzame tudi stražne stolpe
+102:V izbiro hiš
+103:V razporeditev surovin
+104:V statistiko
+105:V opcije
+106:Pojdi nazaj
+107:Gradnja|izbira
+108:Razdelitev surovin
+109:Statistika
+110:Možnosti
+111:Naloži igro
+112:Shrani igro
+113:Ali si prepričan|da hočeš zapustiti|to igro
+114:Prenehaj z misijo
+115:Pojdi nazaj
+116:Nastavitve
+117:Zapusti urejevalnik
+118:SFX
+119:Spremeni glasnost
+120:Spremeni glasnost
+121:Glasba
+122:Glasba vklop/izklop
+123:Avtomatsko shranjevanje
+124:Predvajalnik glasbe
+125:Prejšnja skladba
+126:Naslednja skladba
+127:Poruši
+128:Odstrani hišo
+129:Zgradi cesto
+130:Zgradi ceste
+131:Okopaj polje
+132:Okopaj polja
+133:Postavi trto za vino
+134:Postavi trte za vina
+135:Prekliči
+136:Prekliči trenutno urjenje
+137:Potrebuje:
+140:Proizvede
+141:Hiša v|gradnji
+142:Uniči
+143:Ali zares hočeš|uničiti to zgradbo
+144:Uniči izbrano hišo
+145:Znižaj naročila
+146:Povečaj naročilo
+147:Prejšnji vojak
+148:Naslednji vojak
+149:Izuri vojaka
+150:Naslednji poklic
+151:Prejšnji poklic
+152:Dodaj v vrsto
+153:Vklopi/izklopi dostavo surovin
+154:Cena:
+155:Vklopi/izklopi popravilo hiše
+156:Hiša ni na voljo
+157:Stanje
+158:Obrni četo levo
+159:Obrni četo desno
+160:Napad ("a")
+161:Pošlji četo ("d")
+162:Nahrani četo
+163:Začni hitri napad
+164:Dodaj vrsto
+165:Odstrani vrsto
+166:Izberi|skupino
+167:Prekliči
+168:Izbriši
+169:Izbriši to sporočilo
+170:Pojdi
+171:Skoči na pozicijo sporočila
+172:Zapri
+173:Zapre okno
+174:Vaš kamnosek ne najde nič več kamenja
+175:Vaš rudnik premoga je prazen
+176:Vaš rudnik železa je prazen
+177:Vaš rudnik zlata je prazen
+178:Vaš gozdar ne najde več dreves za poreti
+179:Ta hiša nima stanovalca
+180:Ta četa je zelo lačna, prinesi jih hrano hitro!
+181:PAVZA
+182:Dostavljam
+183:Gradim cesto
+184:Kopljem polje
+185:Gradim vinsko trto
+186:Ravnam polje za hišo
+187:Gradim hišo
+188:Popravljam hišo
+189:Grem domov
+190:Grem v gostilno
+191:Napadam hišo
+192:Streljam
+193:Bojujem se
+194:Hitri napad
+195:Napadam
+196:Premikam se
+197:Stojim
+198:Nabiram kamenje
+199:Sejem koruzo
+200:Žanjem koruzo
+201:Nabiram grozdje
+202:Lovim ribe
+203:Podiram drevo
+204:Sadim drevo
+205:Duh
+206:Zaposlen
+207:Rog srednjega veka
+208:Pomlad
+209:Flavta
+210:Plačanec
+211:Princesa
+212:Kraljica
+213:Na tržnici
+214:Na bojišču
+215:Dvorni ples
+216:Vojska
+217:V gradu
+218:Fanfare
+219:Na sodišču
+220:Vstop
+221:Globoka modra
+222:Boj
+223:Plemiški prostori
+224:Aristokracija
+225:Pri pomolu
+226:Potovanje
+227:Kampanje
+228:Kampanje
+229:Začni kampanjo
+230:Igraj enoigralno mapo
+231:Začni mapo
+232:Nazaj na meni
+233:Naloži shranjeno igro
+234:Večigralstvo
+235:Možnosti
+236:Zahvale
+237:Zapusti igro
+238:Nadaljuj
+239:Ponovi misijo
+240:Resolucija:
+241:Ni podprta
+242:Ni podprta
+243:ZMAGA!
+244:PORAZ!
+245:Izgubljenih enot:
+246:Poraženih enot:
+247:Izgubljenih hiš:
+248:Uničenih hiš:
+249:Zgrajenih hiš
+250:Izurjenih enot:
+251:Narejenega orožja:
+252:Izurjenih vojakov:
+253:Misija končana v:
+254:Statistika
+255:Ekonomija
+256:Izurjenih|meščanov
+257:Izgubljenih|meščanov
+258:Izurjenih|vojakov
+259:Izgubljenih|vojakov
+260:Poraženih|vojakov
+261:Zgrajenih|hiš
+262:Izgubljenih|hiš
+263:Uničenih|hiš
+264:Proizvedenih|surovin
+265:Proizvedenega|orožja
+266:Vojska
+267:Meščani
+268:Hiše
+269:Surovine
+270:Proizvedene surovine
+271:Ni podatka
+272:Ti
+273:Igralec %d
+274:Nazaj na Večigralstvo
+275:Nazaj na pregledovalnik
+276:vse
+277:Vojskovanje
+278:Hrana
+279:JOYMANIA ENTERTAINMENT||PROGRAMIRANJE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||NAČRTOVANJE:|Adam Sprys|André Quaß||ZVOKI:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACIJE:|Boleslaw Kasza|Christoph Werner||PREVODI:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||PRIROČNIK:|Peter Ohlmann|Uwe Schäfer||BETA TESTIRANJE:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||IZDAL:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||RISANJE:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||POSEBNE ZAHVALE:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Misija preklicana
+281:Pregled se je končal
+282:Učenje gradnnje mesta
+283:Učenje vojskovanja
+284:Enoigralni način
+285:Urejevalnik map
+286:Začni misijo
+287:Naslov
+288:Velikost
+289:Pogoji za zmago:
+290:Pogoji za poraz:
+291:Zavezniki:
+292:Sovražniki:
+293:Čas
+294:Velikost nove mape
+295:Širina
+296:Višina
+297:Ustvari novo mapo
+298:Mape na voljo
+299:Naloži obstoječo mapo
+300:Lokacija
+301:Kontrole:
+302:Igralstvo:
+303:Zvok:
+304:Onemogoči muziko
+305:Grafika:
+306:Svetlost
+307:Vertikalni Sync
+308:Polni zaslon
+309:Uporabi
+310:Jezik:
+311:Kvaliteta sence:
+312:Nizka
+313:Visoka
+314:Nalaganje... Prosim počakajte
+315:Pojavila se je napaka
+316:Nalaganje novega prizorišča
+317:Seznam shranjenih iger
+318:Ime datoteke
+319:Opis
+320:Naloži
+321:Zbriši
+322:Ali ste prepričani da želite zbrisati to shranjeno igro
+323:Zbriši
+324:Prekliči
+325:Naslov
+326:Mape
+327:Odklenjeno
+328:Zmagal si
+329:Nadaljuj z igranjem
+330:Zmaga!
+331:Izgubil si!
+332:Nadaljuj z gledanjem
+333:Poraz
+334:Pregled se je končal
+335:Nadaljuj z ogledom
+336:Izhod v meni
+337:Ni na voljo
+338:Pritisni %s za naaljevanje
+339:Informacije o igralcu
+340:Pogovor
+341:Shranjena igra že obstaja
+342:Prepiši
+343:Shrani
+344:Naloži
+345:Zaznana je zastarela verzija OpenGL,igra lahko poteka počasi in/ali z grafičnimi napakami
+346:Prosimo nadgradite grafične driverje za boljšo zmogljivost
+347:Omrežna napaka:
+348:Napaka: Igralčevo ime ne sme biti prazno
+349:Napaka: Igralčevo ime ne sme vsebovati več kot %d črk
+350:Napaka: Igralčevo ime vsebuje ilegalne znake
+351:Povezava ni uspela %s
+352:Prekinili ste povezavo
+353:Misija %d
+354:Dnevnik sporočila
+355:Ribičeva hiša je predaleč od vode
+356:Vaš ribič ne more loviti več rib v vodah
+357:Ponovno začni pregled
+358:Pavziraj pregled
+359:Naprej za 1 tik
+360:Nadaljuj pregled
+361:Zapusti pregled
+362:Označi posamezno igralčevo perspektivo
+364:Uporabi levi klik mišek za izbiro surovine ki jo želiš zamenjati
+365:Uporabi desni klik mišek za izbiro surovine ki jo želiš zamenjati
+366:Za x%d
+367:Dobiš x%d
+368:Urejanje pokrajine
+369:Čopiči
+370:Višine
+371:Ploščice
+372:Objekti
+373:Višine
+374:Oblika čopiča
+375:Velikost
+376:Drsni za spremembo velikosti čopiča
+377:Klanec
+378:Drsni za spremembo hitrosti dvigovanja klanca: 1 = najnižje... 15 = najvišje
+379:Hitrost
+380:Drsni za spremembo hitrosti dvigovanja: 1 = počasi... 15 = zelo hitro
+381:Okrogli čopič
+382:Kvadratni čopič
+383:Dviguj / Spušaj
+384:Neizenači / Zravnaj
+385:Dviguj (levi klik) / spusti (desni klik)
+386:Neizenači (levi klik) / Zravnaj (desni klik)
+387:Čopič
+388:Naključni elementi
+389:Naključna smer
+390:Tik za nključno smer ploščice alo uporabi desni klik za obrat izbrane ploščice
+392:Blokiraj hojo
+393:Odstrani objekt
+394:Planiranje vasi
+395:Vizualni scenarij
+396:Globali scenarij
+397:Meni
+398:Objekti
+399:Pokaži depozite
+400:Pokaži enote
+401:Pohaži hiše
+402:Pokaži objekte
+403:Pokaži prosojnost
+404:Vse neshranjene|spremembe bodo izgubljene
+405:Prekliči
+406:Naloži
+407:Naloži mapo
+408:Prekliči
+409:Shrani
+410:Prepiši
+411:Mapa že obstaja
+412:Igralci:
+413:Privzeto
+414:Tipi Igralcev
+415:Simetrično
+416:Zavezništvo
+417:Taktična
+418:Normalna
+419:Način misije
+420:Skoči na lokacijo
+421:Sredina zaslona na začetku misije
+422:Sredina zaslona
+423:Pokaži vse
+424:Razkrij del mape
+425:Odstrani meglo
+426:Blokiraj menjavo
+427:Blokkiraj/dovoli hiše
+428:Barve
+429:Cilj
+432:Igralec
+433:Ekonomske hiše
+434:Tlačane in šole
+435:Vojska sredstva
+436:Neznano
+437:Čete
+438:Hiše
+439:Čas
+440:Učenje gradnje
+441:Nič
+442:Pogoj
+443:Preživi
+444:Zmaga
+445:Nič
+446:Tip
+447:Cilji
+448:OK
+449:Prekliči
+450:Stolpci
+451:Število
+452:Postavitev čete
+453:Uredi postavitev
+454:Nastavi limit koliko vojakov ima lahko računalnik
+455:Koliko vojakov ima lahko računalnik naenkrat
+456:Nastavi max. vojakov
+457:Koliko rekrutov naj ima računalnik v baraki
+458:Rekrutov na vojašnico
+460:Pozicija po meri
+463:Najbljižna enota
+465:Število skupine
+466:Informacija o napadu
+468:Ponavljajoče
+469:Enkrat
+470:Konjenca
+471:Strelci
+472:Proti konjenicam
+473:Ročni
+474:loc.
+475:Tarča
+476:Možje
+477:Zaostanek
+478:Tip
+479:Samodejni napad
+480:Računalnik napada
+481:Stopnja opremljanja usnja
+482:Stopnja opremljanja železa
+483:Samodejna obramba
+484:Računalnik ustvarja in nadzoruje obrambne pozicije avtomatsko
+485:Postavi obrambno pozicijo za računalnik
+486:Računalnikove obrambne pozicije
+487:Gradbeniki
+488:10 tlačanov na hišo
+489:Samodejno popravljanje
+490:Samodejna gradnja
+491:Nastavitve računalnika
+492:Hiše
+493:Ceste
+494:Vertikalno obrni izbrano
+495:Horizontalno obrni izbrano
+496:Prilepi površino
+497:Kopiraj površino
+498:Kopiraj/priplepi
+499:Nova misija
+500:Igralčevo ime
+501:Status:
+502:Ustvari strežnik
+503:USTVARI STREŽNIK
+504:Ime
+505:Port
+506:Ustvari lokalni strežnik
+507:Ustvari internetni strežnik
+508:Preliči
+509:Najdi strežnik z IP
+510:NAJDI STREŽNIK
+511:Naslov
+512:Port
+513:Soba
+514:Poveži
+515:Prekliči
+516:Soba zaščitena z geslom
+517:Geslo
+518:Ime strežnika
+519:Stanje
+520:Igralci
+521:Ping
+522:Osveži listo strežnikov
+523:DETAJLI O STREŽNIKU
+524:Lista igralcev
+525:Pridruži
+526:Povezujem, prosimo počakajte...
+527:Nalaganje Obvestil...
+528:Osvežujem...
+529:Lista igralcev
+530:Začetna lokacija
+531:Ekipa
+532:Barva
+533:Pripravljen
+534:Ping
+535:Ping / FPS
+536:Odpri
+537:Računalnik
+538:Izberi...
+539:Naključno
+540:Nobena
+541:Shranjena igra
+542:Izberi mapo...
+543:Izberi shranjeno igro
+544:Izhod v ložo
+545:Pripravljen
+546:Nepripravljen
+547:Začni!
+548:Hitrost igre (mirovno obdobje)
+549:Hitrost igre
+550:OK
+551:Prekliči
+552:Opis
+553:Geslo
+554:Nastavitve sobe
+556:Ban-aj iz te sobe\n
+557:Brcni
+558:Naključne lokacija znotraj ekipe
+559:Opis
+560:Možnosti
+561:Lokacija %d
+562:Napaka: Izberi igralca s shranjene igre
+563:Napaka: Mapa ni naložena ali izbrana
+564:Nemorem zagnati: %s
+565:Niso vsi igralci pripravljeni na začetek
+566:Ni mogoče dodeliti naključne lokacije
+567:Strežnik je dodelil gostiteljeve pravice vam
+568:Igra je začeta
+569:Mapa za gradnjo
+570:Mapa za bojevanje
+571:Mapa za sodelovanje
+572:Posebna mapa
+573:Možnosti igre:
+574:Mirovno obdobje (minut)
+575:Zaprto
+576:Gostitelj določa nastavitve igralcev
+577:Čakamo igralce:
+578:Vsi
+579:Ekipa
+580:KaM Remake Zahvale
+581:Originalni Knights & Merchants Credits
+582:PROGRAMIRANJE:
+583:DODATNO PROGRAMIRANJE:
+584:DODATNE GRAFIKE:
+585:DODATNI ZVOKI:
+586:DODATNA GLASBA:
+587:DODATNI PREVODI:
+588:POSEBNE ZAHVALE:
+589:Večigralne mape
+590:Enoigralne mape
+591:Hitrost pomikanja
+592:Ni najdenih strežnikov
+593:Mešaj skladbe
+594:Informacije o igri:
+595:-
+596:Loža
+597:Nalaganje
+598:Igra
+599:Gradnja in bojevanje
+600:Bojevanje
+601:Pripravljen
+602:Napačni protokol verzije: %s Strežnik uporablja: %s
+603:Zvišaj naročilo menjav
+604:Znižaj naročilo menjav
+605:Shranjujem igro...
+606:%s je bil poražen
+607:Odstrani igralce
+608:Gostitelj bo lahko odstranil te igralce po %d sekunah
+609:Gostitelj sedaj lahko odstrani te igralce
+610:Gostitelj (%s) je odšel
+611:Povezava z strežnikom je izgubljena. Poskišam se povezati...
+612:Ali si prepričan da želiš zapustiti?
+613:Ali si prepričan da želiš trajno odstraniti te igralce?
+614:prekliči
+615:Menjava surovin ni na voljo v tej misiji
+616:Podri in obnovi
+617:Samo podri
+618:To ni dovoljeno med mirovnem obdobju
+619:Mirovno obdobje na voljo: %s
+620:Mirovno obdobje je končano. H orožju
+621:Čas igre:|%s
+622:Ustavi četo ('%s')
+623:Poveži čete ('%s')
+624:Razčleni četo ('%s')
+625:Pregledovalnik
+626:Oglej si pregled
+627:Nepodprti format %s
+628:Nepodprta verzija %s
+629:Nepodprte spremembe
+630:Napaka se je pojavila med razčlenjevanjem datoteke %s
+631:Inicializiram
+632:Skripta
+633:Enote
+634:Hiše
+635:Drevesa
+636:Definicije
+637:Ploščice
+638:Mapa ni najdena: %s
+639:Shranjena igra ni najdena: %s
+640:Mapa se ne ujema z gostiteljevo: %s
+641:Shranjena datoteka se ne ujema z gostiteljevo datoteko: %s
+642:Pregled ni opravil pregleda. To je znan hrošč ki vpliva na nekatere preglede. Ali želite gledati naprej?
+643:Imate lahko odprto samo eno instanco večigralnega načina igre na enkrat
+644:Spremembe v igri niso dovoljene v večigralskem načinu.|prosimo da ponovno naložite da obnovite originalne datoteke
+645:Napaka se je pojavila v aplikaciji. Prosimo pritisnite pošlji poročilo o hrošču da lahko preučimo napako. Hvala za pomoč
+646:Pošlji poročilo o hrošču
+647:Pokaži surove podatke
+648:Nadaljuj z aplikacijop
+649:Ustavi aplikacijo
+650:Naprej
+651:Podatki o kontaktu
+652:Vaše ime: (ni obvezno)
+653:Vaš email: (ni obvezno)
+654:Zapomni si me
+655:Podrobnosti napake
+656:V kateri situaciji se je napaka pojavila? Ali lahko podate še dodatne informacije? (Če je možno v angleščini)
+657:Posnetek zaslona
+658:Pripni posnetek zaslona k poročilu o hrošču
+659:(Pritisni za urejanje slike)
+660:Pošlji poročilo
+661:Prekliči
+662:Pošiljam poročilo o hrošču...
+663:Povezujem s strežnikom...
+664:Pošiljanje podatkov...
+665:Pošiljanje poročila o napaki ni uspelo!naš server je morda zaposlen,poskusite ponovno.
+666:Informacija
+667:Prosim počakajte trenutek...
+668:Shrani mapo
+669:Zaostanek v minutah preden računalnik začne uriti rekrute
+670:Zaostanek rekrutov (minut)
+671:Nastavi smer za vse ploščice v vodi
+672:Čarobna voda
+673:Kopiraj
+674:Prilepi
+675:Uporabi priplepi
+676:Prekliči prilepi
+677:Obrni vertikalno
+678:Obrni horizontalno
+679:Povleci da izbereš območje na mapi
+680:Računalikove obrambne možnosti
+681:Izključi
+682:Območje
+683:Izbriši trenutni kazalec
+684:Nazaj na stran razkrij meglo
+685:Zapri
+686:Skupni ukaz
+687:Noben
+688:Pozicija napada
+689:Pojdi
+690:Smer
+693:Območje obrambe
+694:Izbriši trenutno pozicijo obrambe
+695:Vrni se na obrambno stran
+696:Pozicija obrambe
+697:Enote
+698:Volk
+699:Riba
+700:Vodna kača
+701:Morska zvezda
+702:Rak
+703:Vodna roža
+704:Vodni list
+705:Raca
+706:Tega vojaka ni mogoče izuriti
+707:Ta poklic ni mogoče izuriti
+708:Blokiraj enote
+736:Prenesi
+737:Prenašam
+738:Prepiši že obstoječo datoteko
+739:%s je izgubil povezavo
+740:%s je odšel
+741:%s se je ponovno povezal
+742:Ne moreš se pridružiti dokler poteka igra
+743:Soba je polna. Nič več igralcev se ne more pridružiti
+744:Igralec z istim imenom se je že pridružil sobi
+746:Napaka: %s ima drugačne datoteke kot gostitelj in se zato ne more pridružiti igri
+747:Tvoji podatki se ne ujemajo z gostiteljivimi
+748:Pravice gostitelja so dodeljene %s
+749:%s ima drugo verzijo kot %s
+750:%s nima %s
+751:Čakanje se je izteklo
+752:Gostitelj je odstranil %s iz igre
+753:%s je gostitelj odstranil
+754:Poizkušam se ponovno povezati z igro...
+755:%s se je pridružil
+756:Poizks povezave neuspešen: %s
+757:Gostitelj se je odločil da se igra nadaljuje brez tebe :(
+758:Povezava s strežnikom prekinjena: Pomankanje časa
+759:Gostitelj te je odstranil
+760:Strežnik se ne odziva
+761:Napačna številka sobe
+765:Zašepetaj %s
+766:%s je gostitelj ban-al
+767:Gostitelj te je ban-al
+768:Osveži ban-e
+769:Gostitelj je osvežil vse ban-e za to ložo
+770:Datum
+771:Pokaži meglo
+772:Glej
+773:Gledalec
+774:Samodejni napad strelci
+775:Računalnikove skupine bodo avtomatično napadale če si bližje kot toliko ploščic
+776:Brani zaveznike
+777:Če je vključeno bo računalnik branil zaveznikove enote in hiše kot svoje
+778:Dovoli gledalce
+779:Nadgradi v gostitelja
+780:Gledalci
+781:Ne morem zapreti gledalcev: Lista gledalcev mora biti prazna
+782:Naprej
+783:Nazaj
+784:Nastavi računalnikovo začetno pozicijo ki se uporablja za računalnikovo napadanje
+785:Računalnikova začetna pozicija
+786:Ukaz
+788:Začetni zaostanek (sekunde)
+790:Najbljiža hiša zraven vojske
+791:Najbljižna hiša začetne pozicije
+792:Napadalci
+793:Zaščitniki
+794:Gledalci
+795:Za igranje prejšnje misije te kampanje, izberi zastavo za misijo na mapi te kampanje
+796:%s je glasoval da se vrnemo v ložo (potrebno je še %s glasov)
+797:Glasuj da se soba vrne v ložo. Igra se potem lahko nadaljuje
+798:Glasuj vrni se v ložo
+799:%s je glasoval da se vrnemo v ložo (glasovanje uspelo)
+800:Glasovanje za vrnitev v ložo ni uspelo
+801:Če izbrišete pregled bo izbrisana tudi njena shranjena igra.Ali ste prepričani da želite izbrisati to shranjeno igro?
+802:Izbere naključno
+803:Število vojakov za napad
+804:Izbriši pregled
+805:Zbriši mapo
+806:Ali ste prepričani da želite zbrisati to mapo
+807:Zapri pregled nad skripto
+808:Pokaži pregled nad skripto
+809:Nemoreš spremeniti gostitelja medtem ko strežnik teče na tvojem omrežju
+810:Računalnik dela in organizira napade samodejno
+811:Hitro opremljanje
+812:Vojaki so opremljeni hitro kolikor je mogoče.Opremljanje vpliva na planiranje vasi
+813:Uporabi privzeto za računalnik
+814:Večigralski gradnik
+815:Uporabi agresivno gradnjo za vse računalnike (za večigralske mape)
+816:Opozorilo: To bo prepisalo nastavitve računalnika za vse igralce. Nadaljujem?
+817:Tip vojske
+818:Železne nato usnjene
+819:Železne
+820:Usnjene
+821:Mešano
+822:Prenešene mape
+823:Premakni v več igralne mape
+824:Premakni
+825:Poglej besedilo PDF
+826:Neuspešno zagnani PDF viewer
+827:Nastavi šrevilo tlačanov za določen računalnik. Izbrai računalnik ma %d hiš

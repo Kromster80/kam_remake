@@ -86,7 +86,7 @@ begin
     end;
 
     //Controls section
-    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,80);
+    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,120,220,80);
     Panel_Options_Ctrl.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,gResTexts[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Ctrl,0,20,220,60);
@@ -96,7 +96,7 @@ begin
       TrackBar_Options_ScrollSpeed.OnChange := Change;
 
     //Gameplay section
-    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,220,50);
+    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,220,220,50);
     Panel_Options_Game.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Game,6,0,188,20,gResTexts[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,220,30);
@@ -105,7 +105,7 @@ begin
       CheckBox_Options_Autosave.OnClick := Change;
 
     //Graphics section
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,310,220,178);
+    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,178);
     Panel_Options_GFX.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,gResTexts[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,220,158);
@@ -121,7 +121,7 @@ begin
       RadioGroup_Options_Shadows.OnChange := Change;
 
     //Fonts section
-    Panel_Options_Fonts := TKMPanel.Create(Panel_Options,360,508,220,50);
+    Panel_Options_Fonts := TKMPanel.Create(Panel_Options,360,498,220,50);
     Panel_Options_Fonts.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Fonts,6,0,188,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Fonts,0,20,220,30);
@@ -129,7 +129,7 @@ begin
       CheckBox_Options_FullFonts.OnClick := Change;
 
     //SFX section
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,220,167);
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,290,220,167);
     Panel_Options_Sound.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,188,20,gResTexts[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
@@ -146,7 +146,7 @@ begin
       CheckBox_Options_ShuffleOn.OnClick := Change;
 
     //Resolutions section
-    Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 130, 210, 160);
+    Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 120, 210, 160);
     Panel_Options_Res.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Res, 6, 0, 188, 20, gResTexts[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_Options_Res, 0, 20, 220, 140);
@@ -164,7 +164,7 @@ begin
       Button_Options_ResApply.OnClick := ApplyResolution;
 
     //Language section
-    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,130,240,30+gResLocales.Count*20);
+    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,120,240,30+gResLocales.Count*20);
     Panel_Options_Lang.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,260,10+gResLocales.Count*20);
