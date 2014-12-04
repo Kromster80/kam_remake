@@ -337,7 +337,7 @@
 338:Trykk %s for å fortsette spillet
 339:Spillerinfo
 340:Chat
-341:Spillet finnes allerede
+341:Det lagrede spillet finnes allerede
 342:Erstatt
 343:Lagre
 344:Last
@@ -542,12 +542,13 @@
 552:Beskrivelse
 553:Passord
 554:Rominnstillinger
+556:Utesteng fra denne lobbyen
 557:Kast ut
 558:Gjør plasseringer tilfeldige innenfor lagene
 559:Beskrivelse
 560:Innstillinger
 561:Sted %d
-562:Feil: Vennligst velg en spiller fra det lagrede spillet å kontrollere
+562:Feil: Vennligst velg en spiller fra det lagrede spillet som du vil kontrollere
 563:Feil: Kartet mislyktes i å laste, ellers er intet kart valgt
 564:Kan ikke starte: %s
 565:Ikke alle er klar til å starte
@@ -681,3 +682,103 @@
 695:Tilbake til forsvarssiden
 696:Forsvarsposisjon
 697:Enheter
+698:Ulv
+699:Fisk
+700:Vannslange
+701:Sjøstjerne
+702:Krabbe
+703:Vannblomst
+704:Vannblad
+705:And
+706:Denne soldattypen er ikke tilgjengelig
+707:Denne enhetstypen er ikke tilgjengelig
+708:Blokker enheter
+736:Last ned
+737:laster ned...
+738:Overskriv eksisterende filer
+739:%s mistet forbindelsen
+740:%s har avsluttet
+741:%s har koblet til igjen
+742:Kan ikke bli med mens spillet er i gang
+743:Rommet er fullt. Ingen flere spillere kan bli med i spillet
+744:Spiller med samme navn har allerede blitt med i rommet
+746:Feil: %s har forskjellige datafiler fra de verten har, og kan derfor ikke bli med i dette spillet
+747:Datafilene dine samsvarer ikke med vertens
+748:Vertsrettigheter overført til %s
+749:%s har en annen versjon av %s
+750:%s har ikke %s
+751:Forespørslen gikk ut på tid
+752:Verten slapp %s fra spillet
+753:%s ble sparket ut av verten
+754:Forsøker å koble til spillet på nytt...
+755:%s har blitt med
+756:Gjentilkobling feilet: %s
+757:Verten bestemte seg for å spille videre uten deg :(
+758:Frakoblet av serveren: Tidsavbrudd oppdaget
+759:Du ble sparket ut av verten
+760:Serveren sluttet å svare
+761:Ugyldig romnummer
+765:Hvisk til %s
+766:%s ble utestengt av denne lobbyen av verten
+767:Du ble utestengt av verten
+768:Tilbakestill alle utestengelser
+769:Verten tilbakestilte alle utestengelser for denne lobbyen
+770:Dato
+771:Vis tåke
+772:Se på
+773:Tilskuer
+774:Rekkevidde for auto-angrep
+775:AI-grupper vil automatisk angripe hvis du er nærmere enn dette antall felter
+776:Beskytt allierte
+777:Hvis aktivert vil AI-en beskytte enheter og hus til allierte som om de var deres egne
+778:Tillat tilskuere
+779:Forfrem til vert
+780:Tilskuere
+781:Kan ikke deaktivere tilskuere: Tilskuerlisten må være tom
+782:Gjør om
+783:Angre
+784:Velger startposisjonen for AI som brukes til å målrette AI-angrep
+785:AI startposisjon
+786:Rekkefølge
+788:Forsinkelse fra starten (sekunder)
+790:Nærmeste hus fra hæren
+791:Nærmeste hus fra startposisjon
+792:Angripere
+793:Beskyttere
+794:Tilskuere
+795:For å spille et tidligere opplåst kampanjeoppdrag, velg oppdragsflagget på kartet for kampanjeoppsummering
+796:%s stemte for å returnere til lobbyen (trenger %s flere stemmer)
+797:Stem for å returnere dette rommet til lobbyen. Spillet kan deretter gjenopptas eller endres
+798:Stem Gå til lobby
+799:%s stemte for å returnere til lobbyen (avstemming vedtatt)
+800:Avstemmingen for å returnere til lobbyen mislyktes
+801:Det å slette en reprise vil også slette det lagrede spillet som assosieres med den. Er du sikker på at du vil slette dette lagrede spillet?
+802:Ta tilfeldig
+803:Antall soldater å angripe
+804:Slett reprise
+805:Slett kart
+806:Er du sikker på at du vil slette dette kartet?
+807:Skjul skriptet overlegg
+808:Vis skriptet overlegg
+809:Du kan ikke endre vert mens serveren fremdeles kjøres i din klient
+810:AI oppretter og behandler angrep automatisk
+811:Rask utrustning
+812:Soldater blir utrustet så fort det lar seg gjøre. Rustningsrater vil fremdeles påvirke planlegging
+813:Bruk AI-standarder
+814:Flerspillerbygger
+815:Bruker aggressive AI-byggerinnstillinger for alle spillere (for kart for flerspillerbygging)
+816:Advarsel: Dette vil overstyre alle eksisterende AI-innstillinger for alle spillere. Fortsett?
+817:Hærtype
+818:Jern, deretter lær
+819:Jern
+820:Lær
+821:Mikset
+822:Nedlastede kart
+824:Flytt
+825:Vis Readme-PDF
+826:Kunne ikke starte PDF-leser
+827:Setter antall treller per 10 hus for spesifisert AI-spiller. Valgt AI har %d hus
+828:Feil: Vertens pausede fil samsvarer ikke med lokal pauset fil. En feil oppstod eller så forsøker kanskje verten å jukse.
+829:Ordren har blitt fullført
+830:Last asiatiske skrifttyper
+831:Flytt ut av nedlastinger

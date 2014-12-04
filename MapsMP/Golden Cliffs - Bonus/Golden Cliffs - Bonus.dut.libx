@@ -1,0 +1,17 @@
+﻿0:Welkom! Plaats een gebouw om je bonus te kiezen. De bonussen zijn: Overlevers (Herberg); Ingenieurs (Houtzagerij); Rijken (Goudsmelterij); Verkenners (Stallen); Meester Ambachtslieden (Wapentuigsmederij); Tuig (Kazerne); Scherpschutters (Wachttoren); Vergelders (Markt).
+1:Je hebt gekozen voor de Meester Ambachtslieden! Je volk is ingenieus, over wiens ambachten legendes bestaan. Om deze reden is het aantal wapens en pantser dat ze maken verhoogd.
+2:Je hebt gekozen voor het Tuig! Je volk is hard, gevormd door de zware omgeving van hun vaderland. Om deze reden zijn al je Milities sterke Barbaren. Om hun eigen wapen te creëren moeten ze echter wel twee handbijlen combineren.
+3:Je hebt gekozen voor de Rijken! Je volk bestaat uit bekwame handelaren. Dankzij hen is je goudvoorraad zo goed als onbeperkt en krijg je tweemaal de producten als je de Markt gebruikt om te handelen.
+4:Je hebt gekozen voor de Sluipschutters! Je volk bestaat uit bekwame schutters, trots op hun nauwkeurigheid.. en terecht. Al je afstandseenheden zijn dodelijk en hebben een 15% kans om een doel in één schot te doden.
+5:Je hebt gekozen voor de Vergelders! Je volk is van machtige afkomst en het verspillen van hun bloed activeert een vloek die 5% kans heeft om de doder te laten sterven.
+6:Je hebt gekozen voor de Verkenners! Uitstekende paardenfokkers en bekwame spionnen. Het zware leven in de wildernis heeft hen een hoop geleerd over het bouwen en onderhouden van schuilplaatsen. Zij kunnen deze kennis toepassen wanneer hun huizen beschadigd zijn, waardoor deze langzaam repareren.
+7:Je hebt gekozen voor de Overlevers! De lange jaren zwervend door de woestijn hebben je volk een flinke weerstand opgeleverd tegen hongersnood. Ze kunnen alles eten wat ze kunnen vinden in de bossen en zich daarmee zoet houden. Daarom zal je volk nooit honger hebben.
+8:Je hebt gekozen voor de Ingenieus! De kennis en het begrip van je bouwvakkers is uitstekend en waardevol in combinatie met hun dapperheid. Je kunt vanaf het begin alles bouwen en alles wordt tweemaal zo snel gebouwd.
+9:[$%s]%s[] 
+10:[$%s]%s[] heeft het Tuig gekozen!
+11:[$%s]%s[] heeft de Rijken gekozen!
+12:[$%s]%s[] heeft de Sluipschutters gekozen!
+13:[$%s]%s[] heeft de Vergelders gekozen!
+14:[$%s]%s[] heeft de Verkenners gekozen!
+15:[$%s]%s[] heeft de Overlevers gekozen!
+16:[$%s]%s[] heeft de Ingenieurs gekozen!

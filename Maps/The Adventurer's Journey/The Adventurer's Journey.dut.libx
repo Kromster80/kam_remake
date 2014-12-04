@@ -1,0 +1,133 @@
+﻿0:VERHAAL: Jij, Lothar - een nieuwe, pas opgeleide ridder - bent ontboden door Koning Clovis voor je eerste missie. De crisis op zijn continent wordt met de dag erger en het koninkrijk heeft je nodig! De brief met het koninklijk zegel werd je vanmorgen overhandigd.
+1:OMGEVING: Je bevindt je momenteel in het koninklijk paleis. Je start zonder leger, maar de ridder onder jouw bevel is de hoofdpersoon: Lothar.
+2:UITLEG: Om met opdrachtgevers te praten moet je naast ze staan, zodat het verhaal verder gaat. Volg de instructies voor elke opdracht. Op dit moment verwacht de koning je. Hij wordt bewaakt door twee piekeniers, linksonder in de paleishal. Vergeet niet regelmatig op te slaan en berichten te verwijderen.
+3:Koning Clovis verwacht je.
+4:Koning Clovis: Welkom Lothar, onze nieuwe ridder! Dit zijn donkere tijden en jouw taak zal zwaar zijn. Je bent nog steeds een beginneling, maar veel van onze ervaren ridders zijn gesneuveld. Bij dezen geeft ik jou het bevel over een klein leger.
+5:Koning Clovis: Je kunt nu naar het rekrutengedeelte van het paleis, in de laatste kamer van de hal. Daar zul je in staat zijn tegen vergoeding een aardig leger samen te stellen. Tevens geef ik je 1000 goudstukken en als je ons koninkrijk goed dient, zul je meer verdienen.
+6:Koning Clovis: Kom hier terug nadat je een leger hebt samengesteld. 15 man moet voldoende zijn. Dan geef ik je je eerste missie.
+7:Koning Clovis heeft het recrutengedeelte voor je geopend.|onder de begane grond van het paleis.Kom terug|als je een leger van minimaal 15 man hebt.
+8:Koning Clovis: Mooi, ik zie dat je een leger hebt verzameld! We hebben een hulproep ontvangen van een vissersdorp. Ik stuur jou daarheen voor je eerste missie.
+9:Koning Clovis: De burgers hebben gedreigd in opstand te komen met andere dorpen als we niemand sturen, dus dit is een belangrijke missie. Als je slaagt, zal het er echter niet makkelijker op worden.
+10:Koning Clovis: Ga naar het dorp en achterhaal waarom er om hulp is gevraagd. Het ligt ten noordoosten van het paleis, naast de kust.
+11:Koning Clovis heeft je gestuurd om uit|te vinden wat er speelt in het vissersdorp,|ten noordoosten van de hoofdstad.
+12:Boswachter: Gegroet ridder. Je bevindt je op ons land, maar omdat je de wet vertegenwoordigd zal je aanwezigheid gedoogd worden. Verwacht echter geen hulp van ons; wat hier gebeurt zijn jouw zaken niet.
+13:Boze visser: Ben jij gestuurd door de hoofdstad? Eindelijk! Het zijn moeilijke tijden voor de boeren en velen spreken over een opstand! Je moet zo snel mogelijk de situatie verbeteren of het koninkrijk zal uit elkaar vallen!
+14:Boze visser: Op dit moment hebben we één grote zorg: sommige burgers hebben in het bos een kamp opgezet, vlakbij de hoofdstad. Omdat de hoofdstad ons nooit geholpen heeft denken ze dat ze daar wel veilig zijn. Daarom hebben ze hun kamp vlakbij het paleis opgezet.
+15:Boze visser: Help ons de overvallers te doden! Dan kunnen we weer aan het werk. We zullen echter extra hulp nodig hebben van de koning en jij zal die boodschap overbrengen als je in je missie slaagd. Dood de schurken!
+16:De burgers willen dat je de bandieten|in het boskamp ten noorden van de hoofstad doodt.|Schakel ze uit en vernietig hun kamp!
+17:Bandiet: Je wil ons aanvallen? Je zal sterven, hond!
+18:Bandiet: Je bent niet de eerste die de boeren wil verdedigen. Kom en voeg je maar bij de anderen!
+19:Ga terug naar de visser en vertel hem dat je geslaagd bent in je missie. Ga zo snel mogelijk naar het dorp!
+20:Ga naar het dorp en|praat met de visser.
+21:Visser: Dus het is gelukt? Eindelijk zijn we verlost van hun aanvallen! Ons dorp is je voor eeuwig dankbaar. Er zijn echter nog meer belangrijke zaken.
+22:Visser: Kun je een brief van ons afgeven bij Koning Clovis? Het is een petitie van veel van de oostelijke dorpen met het verzoek om meer patrouilles en meer aandacht voor ons!
+23:Visser: We kunnen je helaas niets meer aanbieden dan onze belofte dat je altijd goed door ons ontvangen zult worden!
+24:Ga terug naar het paleis en breng de petitie mee. Wacht dan op verdere instructies.
+25:Koning Clovis: Ben je naar het dorp geweest? Bandieten, zeg je? Sinds afgelopen maand steken bandieten uit een ander continent de grenzen over om ons koninkrijk in as te leggen.
+26:Koning Clovis: Alle westerse dorpen zijn overvallen door de bandieten. We hebben ons leger gestuurd, maar vele ervaren ridders zijn daar gesneuveld. Dit moeten de overgebleven bandieten zijn geweest.
+27:Koning Clovis: Het is waar dat we gedurende die tijd geen troepen hebben gestuurd om de oostelijke dorpen te verdedigen, maar we moesten de hoofdstad ook verdedigen. Als de hoofdstad zou vallen zou ons koninkrijk in chaos terecht komen!
+28:Koning Clovis: Zoals je weet probeert de oostelijke regent zich los te maken van ons koninkrijk! Ik ben bang dat als hij ons de oorlog verklaart dit het einde zal zijn van de vrede die al tientallen jaren heerst en iedereen zijn eigen koninkrijk wil.
+29:Koning Clovis: Je hebt nog een belangrijke taak voordat je afrekent met de regent. We hebben het dagelijkse rapport van de goudmijnen uit de woestijn in het zuidwesten nog niet ontvangen. Zoek uit wat er is gebeurd!
+30:Koning Clovis: Over de petitie van de boeren; ik zal bewakers naar elk dorp sturen en hun belastingen verlagen voor het komende jaar. Ik zal ervoor zorgen dat de boeren weten dat je me de petitie hebt gebracht.
+31:VERHAAL: Het koninkrijk heeft Koning Clovis als centrale authoriteit en wordt gerepresentateerd door de hoofdstad. Er zijn echter regenten die provincies regeren. Zij representeren de oude stammen van het continent toen het nog niet verenigd was.
+32:VERHAAL: De oostelijke provincie is het grootst en sterkst van het hele koninkrijk. Zij voorzien het koninkrijk van wapens. Sinds kort spelen er maximale spanningen; ze handelen niet meer en bedreigen de koning.
+33:VERHAAL: De woestijn in het zuidoosten staat bekend om zijn goudmijnen. Hoewel vrij geïsoleerd van het koninkrijk is het een belangrijk onderdeel van de economie. De gouverneur van de woestijnmijnen stuurt dagelijks een rapport naar de hoofdstad.
+34:Ga naar de woestijn en zoek uit waarom|het rapport niet bij het paleis aangekomen is.|De woestijn ligt in het zuidwesten.
+35:UITLEG: Ga naast een vijand staan om een gevecht te beginnen tegen zijn troepen. Ga naar het boskamp en ga naast een bandiet staan om een gevecht te beginnen. Jouw troepen en die van de vijand zullen op het slagveld geplaatst worden. Als je het gevecht verliest, verlies je het spel.
+36:UITLEG: Je kunt nu het paleis verlaten. Om het paleis te verlaten moet je naast het zwarte gedeelte gaan staan aan de bovenkant van de hal. Nadat je buiten bent kun je terugkomen door bij de ingang van de kazerne te gaan staan.
+37:OMGEVING: Als je door de paleisdeur gaat, sta je op het echte land. Dit land representeert een wereld vol avontuur! Stel je voor alsof elk huis een groep huizen is, dat elke bediende een groep burgers is of een groep mensen die goederen verplaatst.
+38:OMGEVING: Je begint in de hoofdstad, waar het paleis staat. Het lijkt klein op de kaart, maar stel het je voor alsof het een hele grote stad is. Je fantasie is je beste vriend om te navigeren en je in te leven in deze wereld. Je ridder representeert je personage, Lothar en je troepen.
+39:VERHAAL: Er zijn twee continenten in de wereld: de bandietenschuilplaats, waar niemand ooit is geweest behalve slechteriken en het bloeiende continent dat bestaat uit verschillende, door één centrale authoriteit verenigde, stammen.
+40:VERHAAL: Er is nu een koning en er zijn geen interne conflicten. Gelukkig waren de tijd, toen vorig jaar de oostelijke provincie plotseling ophield met handelen. Sinds afgelopen maand komen er bandieten uit het andere continent. De twee continenten zijn verbonden via een onderwatertunnel.
+41:VERHAAL: Tijdens het gevecht en aan de doden op de grond heb je gezien dat de mannen die de goudmijnen aanvielen mantels droegen met het wapen van de oostelijke regent! Informeer de koning meteen!
+42:Je werd aangevallen door troepen van de|oostelijke regent. Je moet meteen de|koning informeren!
+43:Koning Clovis: De troepen van de oostelijke regent, zeg je? Ze hebben het aangedurfd de goudmijnen aan te vallen? Ik zal een ervaren groep wachters sturen om de mijnen te beschermen! Voor jou heb ik een belangrijkere taak.
+44:Beginner
+45:Patrouilleerder
+46:Koning Clovis: Voor de volgende missie heb je meer en betere troepen nodig. Ik geef je bij dezen de rang van Patrouilleerder. Moge je ons koninkrijk goed dienen! Ga naar het rekrutengedeelte, je zult de troepen nodig hebben.
+47:Koning Clovis: Nu over de missie zelf. Ik wil dat je een kasteel belegert en me deze verdomde Heer Childebert levend brengt, zodat ik de eenheid in het koninkrijk kan herstellen. De oorlog is officieel verklaard en ik weet zeker dat hij bang in zijn kasteeltje zit.
+48:Koning Clovis: Dit is een lastige missie en misschien denk je zelfs dat ik je de dood in stuur. Dat is bijna waar, maar ik kan me niet veroorloven om vijf ervaren ridders en adviseurs te verliezen. Zij zijn nodig om de vrede te herstellen.
+49:Koning Clovis: Daarom stuur ik jou. Je bent de meest veelbelovende ridder van de nieuwelingen en je hebt bewezen dat je troepen kunt commanderen. Ik maak me dus geen zorgen. Breng me deze verrader en je zult flink aanzien krijgen. Je krijg 580 goudstukken om je te helpen.
+50:In het verre oosten ligt het kasteel van|Heer Childebert, de verrader! Beleger het kasteel|en breng hem naar de hoofdstad!
+51:Koning Clovis: Het kasteel ligt in het verre oosten. Het is niet te missen. Vergeet niet om je leger aan te vullen. Veel succes!
+52:UITLEG: Je moet elke soldaat van een groep verkopen voordat je van soldaattype kunt veranderen, zelfs als je wil upgraden naar een betere klasse! Voorbeeld: je hebt militias gekocht. Deze zijn nu niet beschikbaar, maar je zult ze moeten verkopen voordat je bijlvechters kunt kopen.
+53:VERHAAL: Je hebt de belegering gewonnen en het kasteel doorzocht, maar Heer Childebert niet gevonden. De lafaard moet zijn ontsnapt voordat jij arriveerde! Breng het slechte nieuws aan de koning.
+54:Je hebt de belegering gewonnen|maar Heer Childebert niet gevonden.|Vertel het aan de koning.
+55:Koning Clovis: Deze Heer Childebert... waar hij zich ook schuilhoudt: hij zal boeten voor zijn daden! Je hebt hem niet gepakt, maar het was niet jouw schuld. Je bent erin geslaagd zijn kasteel te belegeren, wat een grootse prestatie is.
+56:Koning Clovis: Ik geef je bij dezen een nieuwe titel: Verkenner! Je kunt nu nieuwe troepen recruteren. Ik heb echter slecht nieuws: er zijn bandieten gespot in de tunnel tussen de twee continenten. Voorzie de wachters van hulp bij de ingang van de tunnel!
+57:Koning Clovis: Veel succes, Lothar. De tunnel ligt vlakbij een dorp dat platgebrand is tijdens de aanvallen van afgelopen maand, ten zuidoosten van de hoofstad. Ik geef je 1600 goudstukken om een leger samen te stellen. Betreed de tunnel nog niet, help alleen de wachters!
+58:Ga ten zuidoosten van de hoofdstad en vind|de ingang van de tunnel. Help de wachters|de linie te houden!
+59:Wachter: Helaas ridder, je mag de tunnel niet in op orders van de koning.
+60:Verkenner
+61:VERHAAL: Als je de tunnel nadert begrijp je dat de wachters zijn vermoord. Het platteland is stil en er liggen drie bandietkampen naast de tunnelingang! Het gevoel bekruipt je dat je ze wil slachten, voor het rijk!
+62:De wachters zijn vermoord, neem wraak!|Vernietig de drie bandietenlegers.
+63:Koning Clovis: Wederom bedankt, Lothar, voor het verdedigen van dit koninkrijk. Deze krankzinnigheid zal nooit ophouden... Ik zal me bezighouden met verdedigende zaken en ervoor zorgen dat er nooit meer één bandiet door die tunnel komt. Spreek met mijn militaire adviseur, Heer Chilpéric, voor een nieuwe opdracht.
+64:Koning Clovis: Volgens onze patrouilleerders zijn er nog resterende troepen bandieten in het westen van het continent. Zij waren waarschijnlijk onderdeel van de laatste aanval in de tunnel. Je krijgt 1100 goudstukken om je te helpen.
+65:BELANGRIJK: Je vindt Heer Chilpéric waar dit bericht je heen stuurt.
+66:Je zou Heer Chilpéric in het kasteel moeten|vinden. Spreek met hem. Hij is vlakbij|de kerkers van het kasteel.
+67:VERHAAL: Je bent erin geslaagd de bandieten te verjagen. Je vorst moet op de hoogte worden gebracht van deze aanval! Haast je naar het paleis.
+68:Ga naar het paleis en spreek met de koning.
+69:Heer Chilpéric: Ik heb over je gehoord, Lothar. Je lijkt veelbelovend te zijn en dat is precies wat we nodig hebben tegen deze bandieten! Er zijn nog een paar groepen over in ons rijk; zij mogen niet ongestraft blijven. We hebben rapporten en weten waar ze zijn.
+70:Heer Chilpéric: We hebben al ridders gestuurd om sommigen van hen te doden, maar er zijn nog drie groepen over in het westen van het continent. Eén in de woestijn en de andere twee in het noordwesten. Dood ze allemaal!
+71:Je moet de drie bandietentroepen doden. Eén is|in de woestijn. De andere in het noordwesten.
+72:Bandiet: Sterf, riddertje!
+73:VERHAAL: De legers die je bevochten hebt waren een mix van bandieten en soldaten van Heer Childebert's leger! Vertel Heer Chilpéric over deze gevechten.
+74:Heer Chilpéric heeft een verslag van|je gevechten nodig.
+75:Verdediger van het Rijk
+76:Heer Chilpéric: Het lijkt erop dat Heer Childebert leiding heeft genomen over het tweede continent en de bandieten aanvoerd! We moeten deze dwaas stoppen voordat het te laat is. Ga door de tunnel naar het tweede continent.
+77:Heer Chilpéric: Ik geef je de titel van Verdediger van het Rijk en een eremedaille. Je bent een voorbeeld voor ons leger. We verwachten dat Heer Childebert zich verschuilt in zijn kasteel en dat ongeorganiseerde troepen in de buurt zijn.
+78:Heer Chilpéric: We hebben je nodig in het laatste gevecht. We belegeren het kasteel allemaal tegelijk! Als je nog een leger nodig hebt kun je de bandietkampen aanvallen die volgens rapporten goud bewaken.
+79:Heer Chilpéric: Als je klaar bent, beleger dan het kasteel en versterking geleid door de koning en mij zullen volgen om de verrader te doden! Vergeet niet de beste troepen te gebruiken die we je ter beschikking stellen.
+80:Bestorm het kasteel als je er klaar voor bent.|Als je goud nodig hebt kun je de bandietkampen|in de tunnel en het andere continent aanvallen.
+81:GEVECHTSRESULTAAT:||Je hebt %d goudstukken verdiend in dit gevecht.|Je hebt in totaal %d vijanden gedood.|Je hebt in totaal %d troepen verloren.
+82:[$%s]Gevechtsstatistieken: jouw troepen[]|
+83:Groep 1: %d heeft %s van de %d gedood|
+84:Groep 1: geen leger|
+85:Groep 2: %d heeft %s van de %d gedood|
+86:Groep 2: geen leger|
+87:Groep 3: %d heeft %s van de %d gedood|
+88:Groep 3: geen leger|
+89:Groep 4: %d heeft %s van de %d gedood|
+90:Groep 4: geen leger|
+91:[$%s]Gevechtsstatistieken: vijandelijke troepen[]|
+92:Groep 1: %d heeft %s van de %d gedood|
+93:Groep 1: geen leger|
+94:Groep 2: %d heeft %s van de %d gedood|
+95:Groep 2: geen leger|
+96:Groep 3: %d heeft %s van de %d gedood|
+97:Groep 3: geen leger|
+98:Groep 4: %d heeft %s van de %d gedood|
+99:Groep 4: geen leger|
+100:Groep 5: %d heeft %s van de %d gedood|
+101:Groep 5: geen leger|
+102:[$%s]Jouw statistieken[]|
+103:Goudstukken: %d|
+104:Rang: %s||
+105:[$%s]Jouw leger[]|
+106:Groep 1: %s  %d/%d||
+107:Groep 2: %s  %d/%d||
+108:Groep 3: %s  %d/%d||
+109:Groep 4: %s  %d/%d||
+110:[$%s]Primaire opdracht[]|%s||
+111:Secundaire opdracht: |%s||
+112:Secundaire opdracht: |%s||
+113:Nog geen leger
+114:Milities
+115:Boogschutters
+116:Lansiers
+117:Spionnen
+118:Riddergardes
+119:Bijlvechters
+120:Zwaardvechters
+121:Kruisboogschutters
+122:Piekeniers
+123:Barbaren
+124:Rebel
+125:Schildknapen
+126:Krijgers
+127:Vagebonden
+128:UITLEG: Om troepen te kopen moet je op de straat onder de betreffende eenheid gaan staan. Elke lijn representeert één groep (1 t/m 4 van boven naar beneden). Elke smid is de verkoper van die groep. Je moet elke eenheid uit een groep verkopen voordat je een ander type eenheid voor die groep kunt kopen.
+129:Elke seconde op een straat koopt of verkoopt één eenheid. Je verkoopt eenheden voor dezelfde prijs als je ze koopt. Je kunt F5 / F6 / F7 en F8 gebruiken om dit proces te versnellen.
+130:Militie: 20|Boogschutter: 35|Lansier: 30|Spion: 80|Bijlvechter: 55
+131:Zwaardvechter: 110|Piekenier: 100|Kruisboogschutter: 80|Riddergarde: 160
+132:UITLEG: Om deze berichten opnieuw te laten zien, moet je een paar seconden op de wegen gaan staan bij de ingang van het recrutengedeelte.

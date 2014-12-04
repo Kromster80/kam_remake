@@ -1,0 +1,58 @@
+﻿1:[$00D7FF]Munten[]:
+2:([$00FF00]%d[])[$%s]%s[]: %d
+3: - [$00FFFF]goud[]
+4: - [$00FFFF]huis[]
+5:Niet genoeg goud! Je hebt %d nodig voor dit huis.
+6:Niet genoeg goud! Je hebt %d nodig om een goudkist te kopen.
+7:Je hebt al de maximale hoeveelheid goud in je School! Koop wat werklieden.
+8: << [$00FF00]bezig[]
+9: + [[$00FF00]%d[]]
+10: - [$00FFFF]voedsel[]
+11:Niet genoeg munten! Je hebt %d nodig om voedsel te kopen.
+12: << [$00D7FF]gepromoveerd[]
+13:Niet genoeg munten! Je hebt %d nodig om dit materiaal te kopen.
+14: - [$00FFFF]materialen[]
+15:Brand! Repareer je huis zo snel als je kan!
+16:Je %s is gedood!
+17:Je huis is beroofd!
+18:uithongering.
+19:oorlog.
+20:rijst.
+21:[$00FF00]Gebeurtenis[]:
+22:[$00D7FF]Opdracht[]:
+23:[$000000] - []
+24:[$00FFFF] - []
+25: ([$00D7FF]%d[])[$00FF00]%d[] %s.
+26: << [$00D7FF]beloond[]
+27:[$00D7FF]Verkoopprijzen[]:
+28: %s : %d
+29:[$00D7FF]Huis muntkosten[]:
+30:Je hebt de opdracht voltooid en krijgt %d munten!
+31:[$00D7FF]%d[]: [$%s]%s[]([$00FF00]%d[]):
+32:[$00D7FF]Score[]:
+33: << [$00FF00]Winnaar![]
+34: - [$00FF00]%d%s[] aandelen in deze stad.
+35: - [$00FFFF]%d[] totale munten.
+36: - [$00D7FF]%d[] huidige munten.
+37:[$%s]%s[] heeft gewonnen! Bekijk de details in je scorebord.
+38: + [$00FF00]verkocht[]
+39:Je kunt je standaardhuizen niet verkopen!
+40:Je huis is afgebrand!
+41:De Grote Handelaar benodigd:
+42:Je munten: [$00D7FF]%d[]
+43: + [$00FF00]verkocht[]
+44: [$00FF00]%s[]([$00D7FF]%d[]).
+45:[$00FF00]Aanbiedingen[]:
+46: - [$00FFFF]aanbod[]
+47:Niet genoeg munten! Je hebt %d nodig voor dit recht.
+48: [$00FFFF]%d[]([$00D7FF]%d[]).
+49:Niet genoeg munten! Je hebt %d nodig om deze arbeiders aan te nemen.
+50: - [$00FFFF]aangenomen[]
+51: << [$0000FF]belasting:[][[$00FFFF]%d[]]
+52:Je belasting is verhoogd omdat je niet betaald hebt!
+53: << [$00FF00]belasting betaald[]
+54:Niet genoeg munten! Je hebt %d nodig om belasting te betalen.
+55: << [$0000FF]Belasting:[] [[$00FFFF]%d[]] - [[$00FFFF]%d[]]
+56:([$00FF00]%d[])
+57:[$0000FF]Belastingcontrole[] over ([$00FFFF]%d[])
+58: %s : [$00FF00]%d[]

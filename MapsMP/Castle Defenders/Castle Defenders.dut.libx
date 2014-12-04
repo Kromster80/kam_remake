@@ -1,0 +1,54 @@
+﻿0:[$%s]%s[]: %d
+1:Scores
+2:Ronde:
+3:Nieuwe soldaat beschikbaar: %s!
+4:Om Barbaren in te huren moet je reparatie van de kazerne inschakelen en Milities trainen.
+5:Volgende ronde in: %.2d:%.2d
+6:Gefeliciteerd! Je hebt de 18e ronde bereikt! Je bonus voor dit spel:
+7:Direct doden
+8:Dubbel
+9:Nieuwe aanmelding
+10:Versterking
+11:Herboren
+12:Nieuwe bondgenoot
+13:Je hebt de kans om een vijandelijke soldaat met één slag te doden.
+14:Je hebt de kans om extra soldaten te krijgen tijdens het uitrusten van je leger.
+15:10 extra recruten per ronde zullen zich bij je voegen.
+16:Je hebt elke ronde de kans op versterkingen.
+17:Je soldaten kunnen herboren worden.
+18:Vijandelijke soldaten kunnen herboren worden en zich bij jou voegen.
+19:Het begin...
+20:Kneusje en zijn broers
+21:Hoe meer hoe beter!
+22:Leer???
+23:Yep. Leer.
+24:Meer leer!
+25:Het wordt interessant...
+26:Kun je hier verkennen?
+27:Sluipschutters inkomend?
+28:Paardenrebellie? Ah nee, toch niet :D
+29:Verken alle...
+30:IJzer?
+31:Flanken!
+32:Hey, Ik ben Vaga-Vaga :D
+33:Meer Vagazzz!
+34:Evenaar?
+35:Wow, ze kunnen zelfs zwaardvechters uitrusten!
+36:Het wordt interessanter...
+37:Boogschutters nodig?
+38:Piekendolheid...
+39:Je hebt zo lang overleefd... Toch?
+40:Riddergardes!
+41:Wordt het krankzinnig?
+42:Nog steeds boogschutters nodig?
+43:Riddergardes, alweer. Boze riddergardes!
+44:Krankzinnigheid? Nee, gewoon versterkingen.
+45:Leef je nog steeds?
+46:Nu is het gestoord
+47:Nog steeds levend? Geen probleem!
+48:Tijd om te sterven!
+49:Gefeliciteerd! Je hebt de 26e ronde bereikt! Nieuwe bonus beschikbaar: Reddingsteam. Je kunt direct versterkingen krijgen als je te weinig soldaten hebt.|Plaats een weg op de speciale Reddings Tegel om de bonus te gebruiken.|Let op: Je kunt deze bonus 3 keer gebruiken. Elke daaropvolgende keer is vertraagd.|Je kunt deze bonus niet gebruiken als je genoeg soldaten en rekruten hebt!
+50:||||[$%s]Reddingsteams beschikbaar: %d |Vertraging: %.2d:%.2d ||Jouw leger (HUIDIG/LIMIET): %d/%d|Jouw rekruten (HUIDIG/LIMIET): %d/%d[]
+51:In deze missie moet je het kasteel verdedigen en 30 rondes van vijandelijke aanvallen afslaan. Elke aanval is sterker dan de vorige. Je hebt een hoop wapens, maar niet zoveel goud en kan nog geen sterke soldaten uitrusten op het begin. Je kunt nieuwe soldaten vrijspelen door vijanden te doden.||VOLGORDE VAN VRIJSPELEN:||50 doden - Lansier;|100 doden - Bijlvechter;|160 doden - Boogschutter;|250 doden - Kruisboogschutter;|400 doden - Piekenier;|550 doden - Spion;|700 doden - Zwaardvechter;|1000 doden - Barbaar;|1250 doden - Riddergarde.||Om de Barbaar te krijgen moet je in de Kazerne reparatie aanzetten en Milities uitrusten als je meer dan 1000 punten hebt.||Je kunt ook
+52:Geweerdivisie
+53:Je hebt de kans om extra afstandseenheden te krijgen als je melee-eenheden uitrust.
