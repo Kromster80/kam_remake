@@ -57,6 +57,7 @@ type
 
 
 const
+  MAX_LOG_SIZE = 1024 * 1024; //1 MB
   CAMPAIGN_DATA_TYPE = 'TCampaignData'; //Type of the global variable
   CAMPAIGN_DATA_VAR = 'CampaignData'; //Name of the global variable
   VALID_GLOBAL_VAR_TYPES: set of TPSBaseType = [
@@ -116,7 +117,15 @@ begin
     if not FileExists(fScriptLogFile) then
       Rewrite(fl)
     else
-      Append(fl);
+      if GetFileSize(fScriptLogFile) > MAX_LOG_SIZE then
+      begin
+        //Reset the log if it gets too long so poorly written scripts don't waste disk space
+        Rewrite(fl);
+        WriteLn(fl, Format('%23s   %s', [FormatDateTime('yyyy/mm/dd hh:nn:ss.zzz', Now),
+                'Log file exceeded ' + IntToStr(MAX_LOG_SIZE) + ' bytes and was reset']));
+      end
+      else
+        Append(fl);
     WriteLn(fl, Format('%23s   %s', [FormatDateTime('yyyy/mm/dd hh:nn:ss.zzz', Now), aMsg]));
     CloseFile(fl);
   end;
