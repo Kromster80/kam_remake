@@ -89,6 +89,7 @@ procedure TKMGUIGameBuild.Build_ButtonClick(Sender: TObject);
     Label_BuildCost_Wood.Caption  := IfThen(aWood <> 0, IntToStr(aWood), '-');
     Label_BuildCost_Stone.Caption := IfThen(aStone <> 0, IntToStr(aStone), '-');
     Label_Build.Caption := aCaption;
+    Image_Build_Selected.TexID := aTexId;
   end;
 var
   I: Integer;
