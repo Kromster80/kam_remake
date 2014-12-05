@@ -1,440 +1,681 @@
-//Bonuses v1.13
-//1 Master crafters
-//2 Tough people
+//Bonuses v2.00
+//1 Survivalists
+//2 Engineering
 //3 Rich
-//4 Snipers
-//5 Retribution
-//6 Explorers
-//7 Survivalists
-//8 Engineering
-//The welcoming message does not follow this order when presenting the possible choices
+//4 Explorers
+//5 Master crafters
+//6 Tough people
+//7 Snipers
+//8 Retribution
 
-type TBonusType = (bt0None, bt1Crafters, bt2Tough, bt3Rich, bt4Snipers, bt5Retribution, bt6Explorers, bt7Survivalists, bt8Engineering);
-var PCstore: array of TBonusType; //Store each player's choice
-var aaaQty: array of Integer; //Store each player's amount of wares, to keep track of newly produced ones
-var aaaCount: array of array[0..27] of Integer; //Keep track of the production bonuses
-var aaaChoicePlaceholders: array of Integer; //Define placeholders
-var aaaChoiceOrder: array of Integer; //Players don't need to notice when the Overlay is refreshed
-var aaaQueryBarbarians: array of array of Integer; //Change Militia to Barbarians
-var aaaProducedByCrafters: array of array[16..25] of Integer; //Weapons and Armor produced by Master Crafters, in the same order the Ware Types are.
-var aaaWareIsProducedByBuilding: array[16..25] of Integer; //Weapons and Armor produced by Master Crafters, in the same order the Ware Types are.
+//Customizable settings
+const aEnableOldBuildOrder = True; //Set to False to use the new build order instead
 
-var aaaUnlocks: array[0..29] of array of Integer; //Build order
-var aEnableOldBuildOrder: Boolean;
+//Production boost constants; after how many produced wares the player gets one extra
+const aCraftersPoint = 2; 
+const aHorsesPoint = 1; 
+
+//Other global variables
+type TBonusType = (btNone, btSurvivalists, btEngineering, btRich, btExplorers, btMasterCrafters, btToughPeople, btSnipers, btRetribution);
+var aPCstore: array of TBonusType; //Store each player's choice
+var aPCorder: array of Integer;
+var aPChousesExplorers: array of array of Record aID, aHorsesCount, aHorsesPoint: Integer; end;
+var aPChousesCrafters: array of array of Record aID, aWShieldCount, aWShieldPoint, aIShieldCount, aIShieldPoint, aLArmorCount, aLArmorPoint, aIArmorCount, aIArmorPoint, aAxeCount, aAxePoint, aLanceCount, aLancePoint, aBowCount, aBowPoint, aSwordCount, aSwordPoint, aPikeCount, aPikePoint, aCrossbowCount, aCrossbowPoint: Integer; end;
 var aForbidden: array of array[0..29] of Boolean;
 
-procedure OnMissionStart;
-var P: Integer;
+var aChoicePlaceholders: array of Integer;
+var aBuildOrder: array[0..29] of array of Integer; //The first ID unlocks the second IDs
+
+//Bonuses
+//Survivalists; to be placed OnTick
+procedure aSurvivalist(aPlayer: Integer);
+var aiUnits: array of Integer;
 var i: Integer;
-var aaaiAIChoice: array of TBonusType;
 begin
-	aEnableOldBuildOrder := True; //Set to False to use the new build order instead
-	
-	Actions.ShowMSG(-1, '<$0>'); //Welcome!
-	aaaChoicePlaceholders := [1, 21, 15, 17, 29, 12, 27, 0]; //They are: Iron Smithy, Barracks, Metallurgist's, Watch Tower, Weapons Workshop, Stables, Inn, Sawmill.
-	
-	aaaiAIChoice := [bt1Crafters, bt2Tough, bt3Rich, bt4Snipers, bt5Retribution, bt6Explorers, bt7Survivalists, bt8Engineering] //The AI can choose
-	
-	//Set build order
-	aaaUnlocks[0] := [3, 4, 5, 6, 8, 19, 21, 28, 29];
-	aaaUnlocks[1] := [2, 10, 23];
-	aaaUnlocks[2] := [];
-	aaaUnlocks[3] := [];
-	aaaUnlocks[4] := [1];
-	aaaUnlocks[5] := [15];
-	aaaUnlocks[6] := [];
-	aaaUnlocks[7] := [];
-	aaaUnlocks[8] := [12, 16, 22];
-	aaaUnlocks[9] := [0];
-	aaaUnlocks[10] := [];
-	aaaUnlocks[11] := [13, 27];
-	aaaUnlocks[12] := [];
-	aaaUnlocks[13] := [9, 14];
-	aaaUnlocks[14] := [17];
-	aaaUnlocks[15] := [18];
-	aaaUnlocks[16] := [24, 25];
-	aaaUnlocks[17] := [];
-	aaaUnlocks[18] := [];
-	aaaUnlocks[19] := [];
-	aaaUnlocks[20] := [];
-	aaaUnlocks[21] := [];
-	aaaUnlocks[22] := [7];
-	aaaUnlocks[23] := [];
-	aaaUnlocks[24] := [];
-	aaaUnlocks[25] := [20];
-	aaaUnlocks[26] := [];
-	aaaUnlocks[27] := [];
-	aaaUnlocks[28] := [];
-	aaaUnlocks[29] := [];
-	
-	//Old build order
-	if aEnableOldBuildOrder = True then begin
-		aaaUnlocks[11] := [13];
-		aaaUnlocks[13] := [27];
-		aaaUnlocks[14] := [9, 17];
-		aaaUnlocks[27] := [14];
+	if States.GameTime mod (States.LocationCount*50) = aPlayer then begin
+		aiUnits := States.PlayerGetAllUnits(aPlayer);
+		for i := 0 to Length(aiUnits)-1 do if States.UnitHunger(aiUnits[i]) < States.UnitLowHunger*2 then Actions.UnitHungerSet(aiUnits[i], States.UnitMaxHunger);
 	end;
-	
-	//Nobody made a choice yet
-	Setlength(PCstore, States.LocationCount);
-	Setlength(aaaQty, States.LocationCount);
-	Setlength(aaaCount, States.LocationCount);
-	Setlength(aaaChoiceOrder, 0);
-	Setlength(aaaQueryBarbarians, States.LocationCount);
-	Setlength(aaaProducedByCrafters, States.LocationCount);
-	Setlength(aForbidden, States.LocationCount);
-	for i := 0 to States.LocationCount-1 do begin
-		PCstore[i] := bt0None;
-		aaaQty[i] := 0;
-		Setlength(aaaQueryBarbarians[i], 0);
-		
-		for P := 0 to 27 do aaaCount[i][P] := 0;
-		for P := 16 to 25 do aaaProducedByCrafters[i][P] := 0;
-		for P := 0 to 29 do aForbidden[i][P] := False;
-	end;
-	
-	aaaWareIsProducedByBuilding[21] := 2;
-	aaaWareIsProducedByBuilding[23] := 2;
-	aaaWareIsProducedByBuilding[25] := 2;
-	
-	aaaWareIsProducedByBuilding[17] := 10;
-	aaaWareIsProducedByBuilding[19] := 10;
-	
-	aaaWareIsProducedByBuilding[20] := 19;
-	aaaWareIsProducedByBuilding[22] := 19;
-	aaaWareIsProducedByBuilding[24] := 19;
-	
-	aaaWareIsProducedByBuilding[16] := 20;
-	aaaWareIsProducedByBuilding[18] := 20;
-	
-	
-	//Give each player the ability to choose a bonus. Also, let the AI choose a bonus too.
-	for P := 0 to States.LocationCount-1 do if States.PlayerEnabled(P) then begin
-		if States.PlayerIsAI(P) = FALSE then begin //We don't want players to build their towns before choosing a bonus, do we?
-			Actions.HouseAllow(P, 11, False);
-			Actions.HouseAllow(P, 13, False);
-		end;
-		
-		for i := 0 to Length(aaaChoicePlaceholders)-1 do begin Actions.HouseUnlock(P, aaaChoicePlaceholders[i]); Actions.HouseAllow(P, aaaChoicePlaceholders[i], True); end; //Enable the placeholders
-		
-		if States.PlayerIsAI(P) = TRUE then begin //Now the AI gets the bonuses
-			PCstore[P] := aaaiAIChoice[States.KamRandomI(8)]; //The AI chose
-			
-			if PCstore[P] = bt1Crafters then begin
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$9>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			if PCstore[P] = bt2Tough then begin
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$10>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			if PCstore[P] = bt3Rich then begin
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$11>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			if PCstore[P] = bt4Snipers then begin
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$12>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			if PCstore[P] = bt5Retribution then begin
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$13>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			if PCstore[P] = bt6Explorers then begin
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$14>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			if PCstore[P] = bt7Survivalists then begin
-				Actions.HouseAllow(P, 14, True);
-				Actions.HouseUnlock(P, 14);
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$15>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			if PCstore[P] = bt8Engineering then begin
-				for i := 0 to 29 do if i <> 26 then begin
-					Actions.HouseUnlock(P, i);
-					Actions.HouseAllow(P, i, True);
-				end;
-				for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(P) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(P, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$16>|', [States.PlayerColorText(P), States.PlayerName(P)]);
-			end;
-			
-			//Set forbidden buildings
-			if PCstore[P] = bt7Survivalists then begin
-				aForbidden[P][27] := True;
-				aForbidden[P][28] := True;
-				aForbidden[P][6] := True;
-				aForbidden[P][22] := True;
-				aForbidden[P][24] := True;
-			end;
-			for i := 0 to 29 do if aForbidden[P][i] = True then Actions.HouseAllow(P, i, False);
-			
-			//Store the order in which the players chose
-			SetLength(aaaChoiceOrder, Length(aaaChoiceOrder)+1);
-			aaaChoiceOrder[Length(aaaChoiceOrder)-1] := P;
-		end;
+end;
+//Survivalists; to be placed OnHouseBuilt
+procedure aSurvivalistsBuilt(aHouse: Integer);
+begin
+	if States.HouseType(aHouse) = 13 then begin //After building the Schoolhouse, unlock the Quarry for the Survivalists
+		Actions.HouseUnlock(States.HouseOwner(aHouse), 14);
+		Actions.HouseAllow(States.HouseOwner(aHouse), 14, True);
 	end;
 end;
 
-procedure OnHouseBuilt(aHouse: Integer);
+//Engineering; to be placed OnTick
+procedure aEngineering(aPlayer: Integer);
+var aiHouses: array of Integer;
+var i: Integer;
+var i2: Integer;
+begin
+	//If the Labourers just started using one of the building materials, then add 25 completion
+	aiHouses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(aiHouses)-1 do if States.HouseIsComplete(aiHouses[i]) = False then if (States.HouseBuildingProgress(aiHouses[i]) mod 50 > 0) AND (States.HouseBuildingProgress(aiHouses[i]) mod 50 <= 25) then for i2 := 0 to 4 do Actions.HouseAddBuildingProgress(aiHouses[i]);
+end;
+
+//Rich; to be placed OnTick
+procedure aRich(aPlayer: Integer);
+var aiHouses: array of Integer;
 var i: Integer;
 begin
-	//Re-enable the placeholders (and the old build order, if set so OnMissionStart)
-	if Length(aaaUnlocks[States.HouseType(aHouse)]) > 0 then for i := 0 to Length(aaaUnlocks[States.HouseType(aHouse)])-1 do if (States.HouseUnlocked(States.HouseOwner(aHouse), aaaUnlocks[States.HouseType(aHouse)][i]) = False) AND (aForbidden[States.HouseOwner(aHouse)][aaaUnlocks[States.HouseType(aHouse)][i]] = False) then Actions.HouseAllow(States.HouseOwner(aHouse), aaaUnlocks[States.HouseType(aHouse)][i], True);
+	aiHouses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(aiHouses)-1 do if States.HouseType(aiHouses[i]) = 13 then if States.HouseIsComplete(aiHouses[i]) = True then if States.HouseResourceAmount(aiHouses[i], 7) < 5 then Actions.HouseAddWaresTo(aiHouses[i], 7, 1);
+end;
+//Rich; to be placed OnHouseBuilt
+procedure aGiveStartingGold(aHouse: Integer);
+begin
+	if States.HouseType(aHouse) = 13 then if States.HouseResourceAmount(aHouse, 7) < 5 then Actions.HouseAddWaresTo(aHouse, 7, 5-States.HouseResourceAmount(aHouse, 7));
+end;
+//Rich; to be placed OnHouseBuilt
+procedure aDoubleTrade(aMarket, aFromWare, aToWare: Integer);
+var aaaTradeRatio: Single;
+begin
+	aaaTradeRatio := ((States.MarketLossFactor*States.MarketValue(aToWare))/States.MarketValue(aFromWare))
+	if aaaTradeRatio >= 1 then Actions.HouseAddWaresTo(aMarket, aToWare, 1);
+	if aaaTradeRatio < 1 then Actions.HouseAddWaresTo(aMarket, aToWare, Round(1/aaaTradeRatio));
+end;
 
-	//Bonuses
-	if States.HouseType(aHouse) = 13 then begin //After building the Schoolhouse, give it Gold for the Rich and unlock the Quarry for the Survivalists
-		if PCstore[States.HouseOwner(aHouse)] = bt7Survivalists then begin
-			Actions.HouseUnlock(States.HouseOwner(aHouse), 14);
-			Actions.HouseAllow(States.HouseOwner(aHouse), 14, True); //Survivalists got quarry after School house
+//Explorers; to be placed OnTick
+procedure aExplorer(aPlayer: Integer);
+var aiHouses: array of Integer;
+var aiUnits: array of Integer;
+var i: Integer;
+var i2: Integer;
+var iCount: Integer;
+begin
+	if States.GameTime mod (States.LocationCount*4) = aPlayer then begin
+		aiHouses := States.PlayerGetAllHouses(aPlayer);
+		for i := 0 to Length(aiHouses)-1 do if States.HouseIsComplete(aiHouses[i]) = True then if (States.HouseDamage(aiHouses[i]) > 0) AND (States.HouseHasOccupant(aiHouses[i]) = True) then begin
+			i2 := States.LocationCount;
+			if States.HouseDamage(aiHouses[i]) < i2 then i2 := States.HouseDamage(aiHouses[i]);
+			
+			Actions.HouseAddRepair(aiHouses[i], i2);
 		end;
-		
-		if PCstore[States.HouseOwner(aHouse)] = bt3Rich then begin Actions.HouseAddWaresTo(aHouse, 7, 5); Actions.HouseDeliveryBlock(aHouse, TRUE); end; //Rich 1/3 got Gold in their new School house
 	end;
 	
-	if PCstore[States.HouseOwner(aHouse)] = bt6Explorers then begin
-		if States.HouseType(aHouse) = 27 then begin //Unlock Farm
-			Actions.HouseUnlock(States.HouseOwner(aHouse), 8);
-			Actions.HouseAllow(States.HouseOwner(aHouse), 8, True);
+	if States.GameTime mod States.LocationCount = aPlayer then begin
+		aiUnits := States.PlayerGetAllUnits(aPlayer);
+		for i := 0 to Length(aiUnits)-1 do if (States.UnitType(aiUnits[i]) >= 14) AND (States.UnitType(aiUnits[i]) <= 27) then Actions.FogRevealCircle(aPlayer, States.UnitPositionX(aiUnits[i]), States.UnitPositionY(aiUnits[i]), 18);
+	end;
+	
+	if Length(aPChousesExplorers[aPlayer]) > 0 then begin
+		iCount := 0;
+		
+		for i := 0 to Length(aPChousesExplorers[aPlayer])-1 do begin
+			if States.HouseDestroyed(aPChousesExplorers[aPlayer][i-iCount].aID) = True then begin
+				for i2 := i-iCount to Length(aPChousesExplorers[aPlayer])-2 do aPChousesExplorers[aPlayer][i2] := aPChousesExplorers[aPlayer][i2+1];
+				iCount := iCount+1;
+			end;
+			if States.HouseDestroyed(aPChousesExplorers[aPlayer][i-iCount].aID) = False then begin
+				if States.HouseResourceAmount(aPChousesExplorers[aPlayer][i-iCount].aID, 26) < aPChousesExplorers[aPlayer][i-iCount].aHorsesCount then aPChousesExplorers[aPlayer][i-iCount].aHorsesCount := States.HouseResourceAmount(aPChousesExplorers[aPlayer][i-iCount].aID, 26);
+				if States.HouseResourceAmount(aPChousesExplorers[aPlayer][i-iCount].aID, 26) > aPChousesExplorers[aPlayer][i-iCount].aHorsesCount then begin
+					aPChousesExplorers[aPlayer][i-iCount].aHorsesCount := States.HouseResourceAmount(aPChousesExplorers[aPlayer][i-iCount].aID, 26);
+					aPChousesExplorers[aPlayer][i-iCount].aHorsesPoint := aPChousesExplorers[aPlayer][i-iCount].aHorsesPoint+1;
+					
+					if aPChousesExplorers[aPlayer][i-iCount].aHorsesPoint >= aHorsesPoint then begin
+						Actions.HouseAddWaresTo(aPChousesExplorers[aPlayer][i-iCount].aID, 26, 1);
+						aPChousesExplorers[aPlayer][i-iCount].aHorsesCount := States.HouseResourceAmount(aPChousesExplorers[aPlayer][i-iCount].aID, 26);
+						aPChousesExplorers[aPlayer][i-iCount].aHorsesPoint := aPChousesExplorers[aPlayer][i-iCount].aHorsesPoint-aHorsesPoint;
+					end;
+				end;
+			end;
+			
+			if iCount > 0 then SetLength(aPChousesExplorers[aPlayer], Length(aPChousesExplorers[aPlayer])-iCount);
 		end;
-		if States.HouseType(aHouse) = 17 then Actions.FogRevealCircle(States.HouseOwner(aHouse), States.HousePositionX(aHouse), States.HousePositionY(aHouse), 36); //Double vision range for towers
 	end;
 end;
-
-procedure OnHousePlanPlaced(aIndex: Integer; X: Integer; Y: Integer; aHouseType: Integer); //Detect players' bonus choice
-var i: Integer;
-var aaaiHouses: array of Integer;
+//Explorers; to be placed OnHouseBuilt
+procedure aExplorersBuilt(aHouse: Integer);
 begin
-	if PCstore[aIndex] = bt0None then begin //Players now choose... notify them and their allies
-		if aHouseType = aaaChoicePlaceholders[0] then begin
-			PCstore[aIndex] := bt1Crafters;
-			Actions.ShowMSG(aIndex, '<$1>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$9>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if aHouseType = aaaChoicePlaceholders[1] then begin
-			PCstore[aIndex] := bt2Tough;
-			Actions.ShowMSG(aIndex, '<$2>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$10>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if aHouseType = aaaChoicePlaceholders[2] then begin
-			PCstore[aIndex] := bt3Rich;
-			Actions.ShowMSG(aIndex, '<$3>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$11>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if aHouseType = aaaChoicePlaceholders[3] then begin
-			PCstore[aIndex] := bt4Snipers;
-			Actions.ShowMSG(aIndex, '<$4>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$12>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if aHouseType = aaaChoicePlaceholders[4] then begin
-			PCstore[aIndex] := bt5Retribution;
-			Actions.ShowMSG(aIndex, '<$5>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$13>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if aHouseType = aaaChoicePlaceholders[5] then begin
-			PCstore[aIndex] := bt6Explorers;
-			Actions.ShowMSG(aIndex, '<$6>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$14>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if aHouseType = aaaChoicePlaceholders[6] then begin
-			PCstore[aIndex] := bt7Survivalists;
-			aaaiHouses := States.PlayerGetAllHouses(aIndex);
-			for i := 0 to Length(aaaiHouses)-1 do if States.HouseType(aaaiHouses[i]) = 11 then begin
-				Actions.HouseTakeWaresFrom(aaaiHouses[i], 27, States.HouseResourceAmount(aaaiHouses[i], 27));
-				Actions.HouseTakeWaresFrom(aaaiHouses[i], 8, States.HouseResourceAmount(aaaiHouses[i], 8));
-				Actions.HouseTakeWaresFrom(aaaiHouses[i], 10, States.HouseResourceAmount(aaaiHouses[i], 10));
-				Actions.HouseTakeWaresFrom(aaaiHouses[i], 13, States.HouseResourceAmount(aaaiHouses[i], 13));
-			end;
-			Actions.ShowMSG(aIndex, '<$7>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$15>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if aHouseType = aaaChoicePlaceholders[7] then begin
-			PCstore[aIndex] := bt8Engineering;
-			for i := 0 to 29 do if i <> 26 then begin
-				Actions.HouseUnlock(aIndex, i);
-				Actions.HouseAllow(aIndex, i, True);
-			end; //Engineering 1/2; unlock everything
-			Actions.ShowMSG(aIndex, '<$8>');
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aIndex) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aIndex, i) = TRUE then Actions.OverlayTextAppendFormatted(i, '<$16>|', [States.PlayerColorText(aIndex), States.PlayerName(aIndex)]);
-		end;
-		if PCstore[aIndex] <> bt0None then begin
-			Actions.PlanRemove(aIndex,X,Y);
-			if PCstore[aIndex] <> bt8Engineering then begin
-				for i := 0 to Length(aaaChoicePlaceholders)-1 do Actions.HouseAllow(aIndex, aaaChoicePlaceholders[i], False);
-				if aEnableOldBuildOrder = True then begin
-					Actions.HouseAllow(aIndex, 27, False);  //inn
-					Actions.HouseAllow(aIndex, 14, False);  //quarry
-					Actions.HouseAllow(aIndex, 9, False);  //cutter
-				end;
-				if aEnableOldBuildOrder = False then begin
-					Actions.HouseAllow(aIndex, 27, True);  //inn
-				end;
-				Actions.HouseAllow(aIndex, 11, True);
-				Actions.HouseAllow(aIndex, 13, True);
-			end;
-			
-			//Set forbidden buildings
-			if PCstore[aIndex] = bt7Survivalists then begin
-				aForbidden[aIndex][27] := True;
-				aForbidden[aIndex][28] := True;
-				aForbidden[aIndex][6] := True;
-				aForbidden[aIndex][22] := True;
-				aForbidden[aIndex][24] := True;
-			end;
-			for i := 0 to 29 do if aForbidden[aIndex][i] = True then Actions.HouseAllow(aIndex, i, False);
-			
-			//Store the order in which the players chose
-			SetLength(aaaChoiceOrder, Length(aaaChoiceOrder)+1);
-			aaaChoiceOrder[Length(aaaChoiceOrder)-1] := aIndex;
-		end;
+	//After building the Inn, unlock the Farm for the Explorers
+	if States.HouseType(aHouse) = 27 then begin
+		Actions.HouseUnlock(States.HouseOwner(aHouse), 8);
+		Actions.HouseAllow(States.HouseOwner(aHouse), 8, True);
+	end;
+	//Double vision range for towers
+	if States.HouseType(aHouse) = 17 then Actions.FogRevealCircle(States.HouseOwner(aHouse), States.HousePositionX(aHouse), States.HousePositionY(aHouse), 36);
+	//Count built Stables
+	if States.HouseType(aHouse) = 12 then begin
+		SetLength(aPChousesExplorers[States.HouseOwner(aHouse)], Length(aPChousesExplorers[States.HouseOwner(aHouse)])+1);
+		aPChousesExplorers[States.HouseOwner(aHouse)][Length(aPChousesExplorers[States.HouseOwner(aHouse)])-1].aID := aHouse;
+		aPChousesExplorers[States.HouseOwner(aHouse)][Length(aPChousesExplorers[States.HouseOwner(aHouse)])-1].aHorsesCount := 0;
+		aPChousesExplorers[States.HouseOwner(aHouse)][Length(aPChousesExplorers[States.HouseOwner(aHouse)])-1].aHorsesPoint := 0;
 	end;
 end;
 
-procedure OnTick;
-var u: Integer;
-var aWhich: Integer;
-var aaaiUnit: array of Integer;
-var aNew: Integer;
-var aaaiHouses: array of Integer;
+//Master crafters; to be placed OnTick
+procedure aMasterCrafter(aPlayer: Integer);
 var i: Integer;
+var i2: Integer;
+var iCount: Integer;
+begin
+	if Length(aPChousesCrafters[aPlayer]) > 0 then begin
+		iCount := 0;
+		
+		for i := 0 to Length(aPChousesCrafters[aPlayer])-1 do begin
+			if States.HouseDestroyed(aPChousesCrafters[aPlayer][i-iCount].aID) = True then begin
+				for i2 := i-iCount to Length(aPChousesCrafters[aPlayer])-2 do aPChousesCrafters[aPlayer][i2] := aPChousesCrafters[aPlayer][i2+1];
+				iCount := iCount+1;
+			end;
+			if States.HouseDestroyed(aPChousesCrafters[aPlayer][i-iCount].aID) = False then begin
+				if States.HouseType(aPChousesCrafters[aPlayer][i-iCount].aID) = 20 then begin //Armory workshop
+					//Wooden shield
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 16) < aPChousesCrafters[aPlayer][i-iCount].aWShieldCount then aPChousesCrafters[aPlayer][i-iCount].aWShieldCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 16);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 16) > aPChousesCrafters[aPlayer][i-iCount].aWShieldCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aWShieldCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 16);
+						aPChousesCrafters[aPlayer][i-iCount].aWShieldPoint := aPChousesCrafters[aPlayer][i-iCount].aWShieldPoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aWShieldPoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 16, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aWShieldCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 16);
+							aPChousesCrafters[aPlayer][i-iCount].aWShieldPoint := aPChousesCrafters[aPlayer][i-iCount].aWShieldPoint-aCraftersPoint;
+						end;
+					end;
+					//Leather armor
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 18) < aPChousesCrafters[aPlayer][i-iCount].aLArmorCount then aPChousesCrafters[aPlayer][i-iCount].aLArmorCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 18);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 18) > aPChousesCrafters[aPlayer][i-iCount].aLArmorCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aLArmorCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 18);
+						aPChousesCrafters[aPlayer][i-iCount].aLArmorPoint := aPChousesCrafters[aPlayer][i-iCount].aLArmorPoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aLArmorPoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 18, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aLArmorCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 18);
+							aPChousesCrafters[aPlayer][i-iCount].aLArmorPoint := aPChousesCrafters[aPlayer][i-iCount].aLArmorPoint-aCraftersPoint;
+						end;
+					end;
+				end;
+				if States.HouseType(aPChousesCrafters[aPlayer][i-iCount].aID) = 10 then begin //Armor smithy
+					//Iron shield
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 17) < aPChousesCrafters[aPlayer][i-iCount].aIShieldCount then aPChousesCrafters[aPlayer][i-iCount].aIShieldCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 17);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 17) > aPChousesCrafters[aPlayer][i-iCount].aIShieldCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aIShieldCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 17);
+						aPChousesCrafters[aPlayer][i-iCount].aIShieldPoint := aPChousesCrafters[aPlayer][i-iCount].aIShieldPoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aIShieldPoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 17, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aIShieldCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 17);
+							aPChousesCrafters[aPlayer][i-iCount].aIShieldPoint := aPChousesCrafters[aPlayer][i-iCount].aIShieldPoint-aCraftersPoint;
+						end;
+					end;
+					//Iron armor
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 19) < aPChousesCrafters[aPlayer][i-iCount].aIArmorCount then aPChousesCrafters[aPlayer][i-iCount].aIArmorCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 19);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 19) > aPChousesCrafters[aPlayer][i-iCount].aIArmorCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aIArmorCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 19);
+						aPChousesCrafters[aPlayer][i-iCount].aIArmorPoint := aPChousesCrafters[aPlayer][i-iCount].aIArmorPoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aIArmorPoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 19, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aIArmorCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 19);
+							aPChousesCrafters[aPlayer][i-iCount].aIArmorPoint := aPChousesCrafters[aPlayer][i-iCount].aIArmorPoint-aCraftersPoint;
+						end;
+					end;
+				end;
+				if States.HouseType(aPChousesCrafters[aPlayer][i-iCount].aID) = 19 then begin //Weapons workshop
+					//Hand axe
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 20) < aPChousesCrafters[aPlayer][i-iCount].aAxeCount then aPChousesCrafters[aPlayer][i-iCount].aAxeCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 20);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 20) > aPChousesCrafters[aPlayer][i-iCount].aAxeCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aAxeCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 20);
+						aPChousesCrafters[aPlayer][i-iCount].aAxePoint := aPChousesCrafters[aPlayer][i-iCount].aAxePoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aAxePoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 20, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aAxeCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 20);
+							aPChousesCrafters[aPlayer][i-iCount].aAxePoint := aPChousesCrafters[aPlayer][i-iCount].aAxePoint-aCraftersPoint;
+						end;
+					end;
+					//Lance
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 22) < aPChousesCrafters[aPlayer][i-iCount].aLanceCount then aPChousesCrafters[aPlayer][i-iCount].aLanceCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 22);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 22) > aPChousesCrafters[aPlayer][i-iCount].aLanceCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aLanceCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 22);
+						aPChousesCrafters[aPlayer][i-iCount].aLancePoint := aPChousesCrafters[aPlayer][i-iCount].aLancePoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aLancePoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 22, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aLanceCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 22);
+							aPChousesCrafters[aPlayer][i-iCount].aLancePoint := aPChousesCrafters[aPlayer][i-iCount].aLancePoint-aCraftersPoint;
+						end;
+					end;
+					//Bow
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 24) < aPChousesCrafters[aPlayer][i-iCount].aBowCount then aPChousesCrafters[aPlayer][i-iCount].aBowCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 24);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 24) > aPChousesCrafters[aPlayer][i-iCount].aBowCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aBowCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 24);
+						aPChousesCrafters[aPlayer][i-iCount].aBowPoint := aPChousesCrafters[aPlayer][i-iCount].aBowPoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aBowPoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 24, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aBowCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 24);
+							aPChousesCrafters[aPlayer][i-iCount].aBowPoint := aPChousesCrafters[aPlayer][i-iCount].aBowPoint-aCraftersPoint;
+						end;
+					end;
+				end;
+				if States.HouseType(aPChousesCrafters[aPlayer][i-iCount].aID) = 2 then begin //Weapon Smithy
+					//Sword
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 21) < aPChousesCrafters[aPlayer][i-iCount].aSwordCount then aPChousesCrafters[aPlayer][i-iCount].aSwordCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 21);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 21) > aPChousesCrafters[aPlayer][i-iCount].aSwordCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aSwordCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 21);
+						aPChousesCrafters[aPlayer][i-iCount].aSwordPoint := aPChousesCrafters[aPlayer][i-iCount].aSwordPoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aSwordPoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 21, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aSwordCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 21);
+							aPChousesCrafters[aPlayer][i-iCount].aSwordPoint := aPChousesCrafters[aPlayer][i-iCount].aSwordPoint-aCraftersPoint;
+						end;
+					end;
+					//Pike
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 23) < aPChousesCrafters[aPlayer][i-iCount].aPikeCount then aPChousesCrafters[aPlayer][i-iCount].aPikeCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 23);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 23) > aPChousesCrafters[aPlayer][i-iCount].aPikeCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aPikeCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 23);
+						aPChousesCrafters[aPlayer][i-iCount].aPikePoint := aPChousesCrafters[aPlayer][i-iCount].aPikePoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aPikePoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 23, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aPikeCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 23);
+							aPChousesCrafters[aPlayer][i-iCount].aPikePoint := aPChousesCrafters[aPlayer][i-iCount].aPikePoint-aCraftersPoint;
+						end;
+					end;
+					//Crossbow
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 25) < aPChousesCrafters[aPlayer][i-iCount].aCrossbowCount then aPChousesCrafters[aPlayer][i-iCount].aCrossbowCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 25);
+					if States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 25) > aPChousesCrafters[aPlayer][i-iCount].aCrossbowCount then begin
+						aPChousesCrafters[aPlayer][i-iCount].aCrossbowCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 25);
+						aPChousesCrafters[aPlayer][i-iCount].aCrossbowPoint := aPChousesCrafters[aPlayer][i-iCount].aCrossbowPoint+1;
+						
+						if aPChousesCrafters[aPlayer][i-iCount].aCrossbowPoint >= aCraftersPoint then begin
+							Actions.HouseAddWaresTo(aPChousesCrafters[aPlayer][i-iCount].aID, 25, 1);
+							aPChousesCrafters[aPlayer][i-iCount].aCrossbowCount := States.HouseResourceAmount(aPChousesCrafters[aPlayer][i-iCount].aID, 25);
+							aPChousesCrafters[aPlayer][i-iCount].aCrossbowPoint := aPChousesCrafters[aPlayer][i-iCount].aCrossbowPoint-aCraftersPoint;
+						end;
+					end;
+				end;
+			end;
+			
+			if iCount > 0 then SetLength(aPChousesExplorers[aPlayer], Length(aPChousesExplorers[aPlayer])-iCount);
+		end;
+	end;
+end;
+//Master crafters; to be placed OnHouseBuilt
+procedure aMasterCrafterBuilt(aHouse: Integer);
+begin
+	//Count built Workshops and Smithies
+	if (States.HouseType(aHouse) = 2) OR (States.HouseType(aHouse) = 10) OR (States.HouseType(aHouse) = 19) OR (States.HouseType(aHouse) = 20) then begin
+		SetLength(aPChousesCrafters[States.HouseOwner(aHouse)], Length(aPChousesCrafters[States.HouseOwner(aHouse)])+1);
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aID := aHouse;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aWShieldCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aWShieldPoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aIShieldCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aIShieldPoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aLArmorCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aLArmorPoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aIArmorCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aIArmorPoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aAxeCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aAxePoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aLanceCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aLancePoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aBowCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aBowPoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aSwordCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aSwordPoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aPikeCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aPikePoint := 0;
+		
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aCrossbowCount := 0;
+		aPChousesCrafters[States.HouseOwner(aHouse)][Length(aPChousesCrafters[States.HouseOwner(aHouse)])-1].aCrossbowPoint := 0;
+	end;
+end;
+
+//Tough People; to be placed OnWarriorEquipped
+procedure aSwitchToBarbarian(aUnitID: Integer; aGroupID: Integer);
 var aBarracks: Integer;
 var aDone: Boolean;
 begin
-	if States.GameTime mod 150 = 0 then begin
-		Actions.OverlayTextSet(-1, ''); //Let's refresh the overlay texts
-		for u := 0 to Length(aaaChoiceOrder)-1 do begin
-			for i := 0 to States.LocationCount-1 do if (States.PlayerEnabled(aaaChoiceOrder[u]) = TRUE) AND (States.PlayerEnabled(i) = TRUE) then if States.PlayerAllianceCheck(aaaChoiceOrder[u], i) = TRUE then begin
-				if PCstore[aaaChoiceOrder[u]] = bt1Crafters then Actions.OverlayTextAppendFormatted(i, '<$9>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
-				if PCstore[aaaChoiceOrder[u]] = bt2Tough then Actions.OverlayTextAppendFormatted(i, '<$10>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
-				if PCstore[aaaChoiceOrder[u]] = bt3Rich then Actions.OverlayTextAppendFormatted(i, '<$11>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
-				if PCstore[aaaChoiceOrder[u]] = bt4Snipers then Actions.OverlayTextAppendFormatted(i, '<$12>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
-				if PCstore[aaaChoiceOrder[u]] = bt5Retribution then Actions.OverlayTextAppendFormatted(i, '<$13>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
-				if PCstore[aaaChoiceOrder[u]] = bt6Explorers then Actions.OverlayTextAppendFormatted(i, '<$14>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
-				if PCstore[aaaChoiceOrder[u]] = bt7Survivalists then Actions.OverlayTextAppendFormatted(i, '<$15>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
-				if PCstore[aaaChoiceOrder[u]] = bt8Engineering then Actions.OverlayTextAppendFormatted(i, '<$16>|', [States.PlayerColorText(aaaChoiceOrder[u]), States.PlayerName(aaaChoiceOrder[u])]);
+	if States.UnitType(aUnitID) = 14 then begin
+		aBarracks := States.ClosestHouse(States.UnitOwner(aUnitID), States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 21);
+		if aBarracks > -1 then begin
+			aDone := False;
+			
+			if (States.HouseResourceAmount(aBarracks, 20) >= 1) AND (aDone = False) then begin
+				Actions.HouseTakeWaresFrom(aBarracks, 20, 1);
+				Actions.GroupOrderLink(Actions.GiveGroup(States.UnitOwner(aUnitID), 23, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), States.UnitDirection(aUnitID),1,1), aGroupID);
+				aDone := True;
 			end;
+			
+			if (States.HouseResourceAmount(aBarracks, 20) < 1) AND (aDone = False) then begin
+				Actions.HouseBarracksGiveRecruit(aBarracks);
+				Actions.HouseAddWaresTo(aBarracks, 20, 1);
+				aDone := True;
+			end;
+			
+			Actions.UnitKill(aUnitID, True);
 		end;
 	end;
-	for u := 0 to States.LocationCount-1 do begin
-		if PCstore[u] <> bt0None then begin //No sense getting started if no choice has been made yet
-			if PCstore[u] = bt1Crafters then begin //Master crafters
-				for i := 16 to 25 do if States.StatResourceProducedCount(u, i) > aaaProducedByCrafters[u][i] then begin
-					aaaiHouses := States.PlayerGetAllHouses(u);
-					for aWhich := 0 to Length(aaaiHouses)-1 do if States.HouseType(aaaiHouses[aWhich]) = aaaWareIsProducedByBuilding[i] then begin
-						if (States.HouseResourceAmount(aaaiHouses[aWhich], i) > 0) AND (States.StatResourceProducedCount(u, i) > aaaProducedByCrafters[u][i]) then begin
-							aaaProducedByCrafters[u][i] := aaaProducedByCrafters[u][i]+1;
-							aaaCount[u][i] := aaaCount[u][i]+1;
-							if aaaCount[u][i] >= 2 then begin
-								Actions.HouseAddWaresTo(aaaiHouses[aWhich], i, 1);
-								aaaProducedByCrafters[u][i] := aaaProducedByCrafters[u][i]+1;
-								aaaCount[u][i] := aaaCount[u][i]-2;
-							end;
-						end;
-					end;
-				end;
-			end;
-			
-			if (PCstore[u] = bt2Tough) AND (Length(aaaQueryBarbarians[u]) > 0) then begin //Tough people; find any Militia, then kill him and create a Barbarian if there is one unused Axe, or reimburse him if there is no Axe
-				for aWhich := 0 to Length(aaaQueryBarbarians[u])-1 do begin
-					aBarracks := States.ClosestHouse(States.unitOwner(aaaQueryBarbarians[u][aWhich]), States.UnitPositionX(aaaQueryBarbarians[u][aWhich]), States.UnitPositionY(aaaQueryBarbarians[u][aWhich]), 21);
-					if aBarracks > -1 then begin
-						aDone := False;
-						if (States.HouseResourceAmount(aBarracks, 20) >= 1) AND (aDone = False) then begin
-							Actions.HouseTakeWaresFrom(aBarracks, 20, 1);
-							aNew := Actions.GiveGroup(u, 23, States.UnitPositionX(aaaQueryBarbarians[u][aWhich]), States.UnitPositionY(aaaQueryBarbarians[u][aWhich]), 4,1,1);
-							Actions.GroupOrderLink(aNew, States.UnitsGroup(aaaQueryBarbarians[u][aWhich]));
-							aDone := True;
-						end;
-						if (States.HouseResourceAmount(aBarracks, 20) < 1) AND (aDone = False) then begin
-							Actions.HouseBarracksGiveRecruit(aBarracks);
-							Actions.HouseAddWaresTo(aBarracks, 20, 1);
-							aDone := True;
-						end;
-						Actions.UnitKill(aaaQueryBarbarians[u][aWhich], TRUE);
-					end;
-				end;
-				SetLength(aaaQueryBarbarians[u], 0);
-			end;
-			
-			if PCstore[u] = bt3Rich then begin //Rich 2/3; every Schoolhouse is given Gold; in version 1.0 it gave the difference between 5 and the current amount, but since School houses only use 1 gold at a time (and are given the initial 5 immediately after construction) this difference should always be either 1 or 0...
-				aaaiHouses := States.PlayerGetAllHouses(u);
-				for aWhich := 0 to Length(aaaiHouses)-1 do begin
-				if States.HouseType(aaaiHouses[aWhich]) = 13 then begin if States.HouseResourceAmount(aaaiHouses[aWhich], 7) < 5 then Actions.HouseAddWaresTo(aaaiHouses[aWhich], 7, 1); end;
-				end;
-			end;
-			
-			if PCstore[u] = bt6Explorers then begin //Explorers 2/2; occupied houses get repaired for 1 health every 4 ticks. A troop of 12 Bowmen can still destroy a Tower, even though they do need quite some time.
-				if States.GameTime mod 4 = 0 then begin
-					aaaiHouses := States.PlayerGetAllHouses(u);
-					for aWhich := 0 to Length(aaaiHouses)-1 do begin
-						if (States.HouseDamage(aaaiHouses[aWhich]) > 0) AND (States.HouseHasOccupant(aaaiHouses[aWhich]) = TRUE) then Actions.HouseAddRepair(aaaiHouses[aWhich],1);
-					end;
-					
-					aaaiUnit := States.PlayerGetAllUnits(u);
-					for aWhich := 0 to Length(aaaiUnit)-1 do begin
-						if (States.UnitType(aaaiUnit[aWhich]) >= 14) AND (States.UnitType(aaaiUnit[aWhich]) <= 27) then Actions.FogRevealCircle(u, States.UnitPositionX(aaaiUnit[aWhich]), States.UnitPositionY(aaaiUnit[aWhich]), 18);
-					end;
-				end;
-				
-				if States.StatResourceProducedCount(u, 26) > aaaQty[u] then begin //Horses cost 3 corn instead of 4... add 1 every 3 horses produced
-					aaaiHouses := States.PlayerGetAllHouses(u);
-					for aWhich := 0 to Length(aaaiHouses)-1 do if States.HouseType(aaaiHouses[aWhich]) = 12 then begin
-						if (States.HouseResourceAmount(aaaiHouses[aWhich], 26) > 0) AND (States.StatResourceProducedCount(u, 26) > aaaQty[u]) then begin
-							aaaQty[u] := aaaQty[u]+1;
-							aaaCount[u][26] := aaaCount[u][26]+1;
-							if aaaCount[u][26] >= 1 then begin
-								Actions.HouseAddWaresTo(aaaiHouses[aWhich], 26, 1);
-								aaaQty[u] := aaaQty[u]+1;
-								aaaCount[u][26] := aaaCount[u][26]-1;
-							end;
-						end;
-					end;
-				end;
-			end;
-			
-			if PCstore[u] = bt7Survivalists then begin //Survivalists never eat: their hunger bar is filled every 30 seconds
-				if States.GameTime mod 300 = 0 then begin
-					aaaiUnit := States.PlayerGetAllUnits(u);
-					for aWhich := 0 to Length(aaaiUnit)-1 do if States.UnitHunger(aaaiUnit[aWhich]) < States.UnitLowHunger*2 then begin
-						Actions.UnitHungerSet(aaaiUnit[aWhich], States.UnitMaxHunger);
-					end;
-				end;
-			end;
+end;
+
+//Snipers; to be placed OnUnitAttacked
+procedure aSniper(aUnitID: Integer; AttackerID: Integer);
+begin
+	//Snipers; BOOM, HEADSHOT!
+	if (AttackerID > -1) AND (aUnitID > -1) then if (States.UnitDead(AttackerID) = False) AND (States.UnitDead(aUnitID) = False) then if (States.UnitType(AttackerID) = 17 ) OR (States.UnitType(AttackerID) = 18 ) then if States.KamRandomI(101) < 15 then Actions.UnitKill(aUnitID, False);
+end;
+
+//Retribution; to be placed OnUnitAttacked
+procedure aRetribute(aUnitID: Integer; AttackerID: Integer);
+begin
+	if (AttackerID > -1) AND (aUnitID > -1) then if (States.UnitDead(AttackerID) = False) AND (States.UnitDead(aUnitID) = False) then if States.KamRandomI(101) < 5 then Actions.UnitKill(AttackerID, False);
+end;
+
+//Check build order; to be placed OnHouseBuilt
+procedure aCheckBuildOrder(aHouse: Integer);
+var i: Integer;
+begin
+	if Length(aBuildOrder[States.HouseType(aHouse)]) > 0 then for i := 0 to Length(aBuildOrder[States.HouseType(aHouse)])-1 do if (States.HouseUnlocked(States.HouseOwner(aHouse), aBuildOrder[States.HouseType(aHouse)][i]) = False) AND (aForbidden[States.HouseOwner(aHouse)][aBuildOrder[States.HouseType(aHouse)][i]] = False) then begin
+		Actions.HouseAllow(States.HouseOwner(aHouse), aBuildOrder[States.HouseType(aHouse)][i], True);
+		Actions.HouseUnlock(States.HouseOwner(aHouse), aBuildOrder[States.HouseType(aHouse)][i]);
+	end;
+end;
+
+//Choose a bonus
+procedure aChoiceMade(aPlayer: Integer);
+var aiHouses: array of Integer;
+var i: Integer;
+begin
+	SetLength(aPCorder, Length(aPCorder)+1);
+	aPCorder[Length(aPCorder)-1] := aPlayer;
+	
+	for i := 0 to Length(aChoicePlaceholders)-1 do Actions.HouseAllow(aPlayer, aChoicePlaceholders[i], False);
+	
+	if aEnableOldBuildOrder = True then begin
+		Actions.HouseAllow(aPlayer, 27, False);  //inn
+		Actions.HouseAllow(aPlayer, 14, False);  //quarry
+		Actions.HouseAllow(aPlayer, 9, False);  //cutter
+	end;
+	if aEnableOldBuildOrder = False then begin
+		Actions.HouseAllow(aPlayer, 27, True);  //inn
+	end;
+	Actions.HouseAllow(aPlayer, 11, True);
+	Actions.HouseAllow(aPlayer, 13, True);
+	
+	for i := 0 to 29 do if (i <> 26) AND (aForbidden[aPlayer][i] = True) then Actions.HouseAllow(aPlayer, i, False);
+	
+	aiHouses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(aiHouses)-1 do aCheckBuildOrder(aiHouses[i]);
+end;
+procedure aChoseSurvivalists(aPlayer: Integer);
+var aiHouses: array of Integer;
+var i: Integer;
+begin
+	aiHouses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(aiHouses)-1 do begin
+		aSurvivalistsBuilt(aiHouses[i]);
 		
-			if PCstore[u] = bt8Engineering then begin //Engineering 2/2; the House's building progress always is a multiple of 5; if it isn't a multiple of 10 too, then add 5 to it. 
-				aaaiHouses := States.PlayerGetAllHouses(u);
-				for aWhich := 0 to Length(aaaiHouses)-1 do begin
-					if States.HouseBuildingProgress(aaaiHouses[aWhich]) < States.HouseTypeMaxHealth(States.HouseType(aaaiHouses[aWhich])) then begin //Only affect incomplete houses, of course.
-						if (States.HouseBuildingProgress(aaaiHouses[aWhich]) mod 50 > 0) AND (States.HouseBuildingProgress(aaaiHouses[aWhich]) mod 50 <= 25) then for i := 0 to 4 do Actions.HouseAddBuildingProgress(aaaiHouses[aWhich]);
-					end;
-				end;
+		if States.HouseType(aiHouses[i]) = 11 then begin
+			Actions.HouseTakeWaresFrom(aiHouses[i], 27, States.HouseResourceAmount(aiHouses[i], 27));
+			Actions.HouseTakeWaresFrom(aiHouses[i], 8, States.HouseResourceAmount(aiHouses[i], 8));
+			Actions.HouseTakeWaresFrom(aiHouses[i], 10, States.HouseResourceAmount(aiHouses[i], 10));
+			Actions.HouseTakeWaresFrom(aiHouses[i], 13, States.HouseResourceAmount(aiHouses[i], 13));
+		end;
+	end;
+	
+	aForbidden[aPlayer][27] := True;
+	aForbidden[aPlayer][28] := True;
+	aForbidden[aPlayer][6] := True;
+	aForbidden[aPlayer][22] := True;
+	aForbidden[aPlayer][24] := True;
+	
+	aPCstore[aPlayer] := btSurvivalists;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$7>');
+end;
+procedure aChoseEngineering(aPlayer: Integer);
+var i: Integer;
+begin
+	aPCstore[aPlayer] := btEngineering;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$8>');
+	
+	for i := 0 to 29 do if i <> 26 then begin
+		Actions.HouseUnlock(aPlayer, i);
+		Actions.HouseAllow(aPlayer, i, True);
+	end;
+end;
+procedure aChoseRich(aPlayer: Integer);
+var aiHouses: array of Integer;
+var i: Integer;
+begin
+	aiHouses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(aiHouses)-1 do aGiveStartingGold(aiHouses[i]);
+	
+	aPCstore[aPlayer] := btRich;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$3>');
+end;
+procedure aChoseExplorers(aPlayer: Integer);
+var aiHouses: array of Integer;
+var i: Integer;
+begin
+	aiHouses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(aiHouses)-1 do aExplorersBuilt(aiHouses[i]);
+	
+	aPCstore[aPlayer] := btExplorers;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$6>');
+end;
+procedure aChoseMasterCrafters(aPlayer: Integer);
+var aiHouses: array of Integer;
+var i: Integer;
+begin
+	aiHouses := States.PlayerGetAllHouses(aPlayer);
+	for i := 0 to Length(aiHouses)-1 do aMasterCrafterBuilt(aiHouses[i]);
+	
+	aPCstore[aPlayer] := btMasterCrafters;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$1>');
+end;
+procedure aChoseToughPeople(aPlayer: Integer);
+begin
+	aPCstore[aPlayer] := btToughPeople;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$2>');
+end;
+procedure aChoseSnipers(aPlayer: Integer);
+begin
+	aPCstore[aPlayer] := btSnipers;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$4>');
+end;
+procedure aChoseRetribution(aPlayer: Integer);
+begin
+	aPCstore[aPlayer] := btRetribution;
+	aChoiceMade(aPlayer);
+	Actions.ShowMSG(aPlayer, '<$5>');
+end;
+procedure aHumanChooses(aPlayer: Integer; aType: Integer; aX: Integer; aY: Integer);
+begin
+	if aType = aChoicePlaceholders[0] then aChoseSurvivalists(aPlayer);
+	if aType = aChoicePlaceholders[1] then aChoseEngineering(aPlayer);
+	if aType = aChoicePlaceholders[2] then aChoseRich(aPlayer);
+	if aType = aChoicePlaceholders[3] then aChoseExplorers(aPlayer);
+	if aType = aChoicePlaceholders[4] then aChoseMasterCrafters(aPlayer);
+	if aType = aChoicePlaceholders[5] then aChoseToughPeople(aPlayer);
+	if aType = aChoicePlaceholders[6] then aChoseSnipers(aPlayer);
+	if aType = aChoicePlaceholders[7] then aChoseRetribution(aPlayer);
+	
+	Actions.PlanRemove(aPlayer, aX, aY);
+end;
+
+//Update Overlay; to be placed OnTick
+procedure aUpdateOverlay(aPlayer: Integer);
+var i: Integer;
+var aString: String;
+begin
+	Actions.OverlayTextSet(aPlayer, '');
+	if Length(aPCorder) > 0 then for i := 0 to Length(aPCorder)-1 do if States.PlayerEnabled(aPCorder[i]) = True then if States.PlayerAllianceCheck(aPCorder[i], aPlayer) = True then begin
+		if aPCstore[aPCorder[i]] = btSurvivalists then aString := '<$15>';
+		if aPCstore[aPCorder[i]] = btEngineering then aString := '<$16>';
+		if aPCstore[aPCorder[i]] = btRich then aString := '<$11>';
+		if aPCstore[aPCorder[i]] = btExplorers then aString := '<$14>';
+		if aPCstore[aPCorder[i]] = btMasterCrafters then aString := '<$9>';
+		if aPCstore[aPCorder[i]] = btToughPeople then aString := '<$10>';
+		if aPCstore[aPCorder[i]] = btSnipers then aString := '<$12>';
+		if aPCstore[aPCorder[i]] = btRetribution then aString := '<$13>';
+		
+		Actions.OverlayTextAppendFormatted(aPlayer, aString+'|', [States.PlayerColorText(aPCorder[i]), States.PlayerName(aPCorder[i])]);
+	end;
+end;
+
+//Other
+procedure OnMissionStart;
+var i: Integer;
+var i2: Integer;
+begin
+	//Set build orders
+	//New build order
+	aBuildOrder[0] := [3, 4, 5, 6, 8, 19, 21, 28, 29];
+	aBuildOrder[1] := [2, 10, 23];
+	aBuildOrder[2] := [];
+	aBuildOrder[3] := [];
+	aBuildOrder[4] := [1];
+	aBuildOrder[5] := [15];
+	aBuildOrder[6] := [];
+	aBuildOrder[7] := [];
+	aBuildOrder[8] := [12, 16, 22];
+	aBuildOrder[9] := [0];
+	aBuildOrder[10] := [];
+	aBuildOrder[11] := [13, 27];
+	aBuildOrder[12] := [];
+	aBuildOrder[13] := [9, 14];
+	aBuildOrder[14] := [17];
+	aBuildOrder[15] := [18];
+	aBuildOrder[16] := [24, 25];
+	aBuildOrder[17] := [];
+	aBuildOrder[18] := [];
+	aBuildOrder[19] := [];
+	aBuildOrder[20] := [];
+	aBuildOrder[21] := [];
+	aBuildOrder[22] := [7];
+	aBuildOrder[23] := [];
+	aBuildOrder[24] := [];
+	aBuildOrder[25] := [20];
+	aBuildOrder[26] := [];
+	aBuildOrder[27] := [];
+	aBuildOrder[28] := [];
+	aBuildOrder[29] := [];
+	//Old build order
+	if aEnableOldBuildOrder = True then begin
+		aBuildOrder[11] := [13];
+		aBuildOrder[13] := [27];
+		aBuildOrder[14] := [9, 17];
+		aBuildOrder[27] := [14];
+	end;
+	
+	//Default values
+	aChoicePlaceholders := [27, 0, 15, 12, 1, 21, 17, 29]; //They are: Inn, Sawmill, Metallurgist's, Stables, Iron Smithy, Barracks, Watchtower, Market.
+	
+	SetLength(aPCorder, 0);
+	SetLength(aPChousesExplorers, States.LocationCount);
+	SetLength(aPChousesCrafters, States.LocationCount);
+	SetLength(aForbidden, States.LocationCount);
+	SetLength(aPCstore, States.LocationCount);
+	
+	for i := 0 to States.LocationCount-1 do begin
+		SetLength(aPChousesExplorers[i], 0);
+		SetLength(aPChousesCrafters[i], 0);
+		
+		for i2 := 0 to 29 do aForbidden[i][i2] := False;
+		
+		aPCstore[i] := btNone; //Obviously, nobody chose a bonus yet
+		
+		if States.PlayerEnabled(i) = True then begin
+			Actions.HouseAllow(i, 11, False);
+			Actions.HouseAllow(i, 13, False);
+			for i2 := 0 to Length(aChoicePlaceholders)-1 do begin
+				Actions.HouseAllow(i, aChoicePlaceholders[i2], True);
+				Actions.HouseUnlock(i, aChoicePlaceholders[i2]);
+			end;
+			
+			//The AI chooses now
+			if States.PlayerIsAI(i) = True then begin
+				i2 := States.KamRandomI(8);
+				
+				if i2 = 0 then aChoseSurvivalists(i);
+				if i2 = 1 then aChoseEngineering(i);
+				if i2 = 2 then aChoseRich(i);
+				if i2 = 3 then aChoseExplorers(i);
+				if i2 = 4 then aChoseMasterCrafters(i);
+				if i2 = 5 then aChoseToughPeople(i);
+				if i2 = 6 then aChoseSnipers(i);
+				if i2 = 7 then aChoseRetribution(i);
 			end;
 		end;
 	end;
+	
+	Actions.ShowMSG(-1, '<$0>'); //Welcome!
+end;
+
+procedure OnHousePlanPlaced(aIndex: Integer; X: Integer; Y: Integer; aHouseType: Integer); //Detect players' bonus choice
+begin
+	if aPCstore[aIndex] = btNone then aHumanChooses(aIndex, aHouseType, X, Y);
+end;
+
+procedure OnHouseBuilt(aHouse: Integer);
+begin
+	aCheckBuildOrder(aHouse);
+	
+	if aPCstore[States.HouseOwner(aHouse)] = btRich then aGiveStartingGold(aHouse);
+	if aPCstore[States.HouseOwner(aHouse)] = btSurvivalists then aSurvivalistsBuilt(aHouse);
+	if aPCstore[States.HouseOwner(aHouse)] = btExplorers then aExplorersBuilt(aHouse);
+	if aPCstore[States.HouseOwner(aHouse)] = btMasterCrafters then aMasterCrafterBuilt(aHouse);
 end;
 
 procedure OnMarketTrade(aHouseID: Integer; aFromWare: Integer; aToWare: Integer);
-var aaaTradeRatio: Single;
 begin
-	if PCstore[States.HouseOwner(aHouseID)] = bt3Rich then begin //Rich 3/3; double the wares gained from trading
-		aaaTradeRatio := ((States.MarketLossFactor*States.MarketValue(aToWare))/States.MarketValue(aFromWare))
-		if aaaTradeRatio >= 1 then Actions.HouseAddWaresTo(aHouseID, aToWare, 1);
-		if aaaTradeRatio < 1 then Actions.HouseAddWaresTo(aHouseID, aToWare, Round(1/aaaTradeRatio));
-	end;
-end;
-
-procedure OnUnitAttacked(aUnitID: Integer; AttackerID: Integer);
-begin
-	if (AttackerID > -1) AND (aUnitID > -1) then begin
-		if (States.UnitDead(AttackerID) = FALSE) AND (States.UnitDead(aUnitID) = FALSE) then begin
-			if PCstore[States.UnitOwner(AttackerID)] = bt4Snipers then begin //Snipers; BOOM, HEADSHOT!
-				if (States.UnitType(AttackerID) = 17 ) OR (States.UnitType(AttackerID) = 18 ) then begin //A Bowman or Crossbowman hit an enemy unit
-					if States.KamRandomI(101) < 15 then Actions.UnitKill(aUnitID, False);
-				end;
-			end;
-			if PCstore[States.UnitOwner(aUnitID)] = bt5Retribution then begin //Retribution
-				if States.KamRandomI(101) < 5 then Actions.UnitKill(AttackerID, False);
-			end;
-		end;
-	end;
+	if aPCstore[States.HouseOwner(aHouseID)] = btRich then aDoubleTrade(aHouseID, aFromWare, aToWare);
 end;
 
 procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
 begin
-	if (States.UnitType(aUnitID) =14) AND (PCstore[States.unitOwner(aUnitID)] = bt2Tough) then begin //Remember equipped Militia for Tough people
-		Setlength(aaaQueryBarbarians[States.unitOwner(aUnitID)], Length(aaaQueryBarbarians[States.unitOwner(aUnitID)])+1);
-		aaaQueryBarbarians[States.unitOwner(aUnitID)][Length(aaaQueryBarbarians[States.unitOwner(aUnitID)])-1] := aUnitID;
+	if aPCstore[States.UnitOwner(aUnitID)] = btToughPeople then aSwitchToBarbarian(aUnitID, aGroupID);
+end;
+
+procedure OnUnitAttacked(aUnitID: Integer; AttackerID: Integer);
+begin
+	if States.UnitOwner(AttackerID) > -1 then if aPCstore[States.UnitOwner(AttackerID)] = btSnipers then aSniper(aUnitID, AttackerID);
+	
+	if States.UnitOwner(aUnitID) > -1 then if aPCstore[States.UnitOwner(aUnitID)] = btRetribution then aRetribute(aUnitID, AttackerID);
+end;
+
+procedure OnTick;
+var aPlayer: Integer;
+begin
+	aPlayer := States.GameTime mod States.LocationCount;
+	
+	if States.PlayerEnabled(aPlayer) = True then begin
+		aUpdateOverlay(aPlayer);
+		
+		if aPCstore[aPlayer] = btSurvivalists then aSurvivalist(aPlayer);
+		
+		if aPCstore[aPlayer] = btEngineering then aEngineering(aPlayer);
+		
+		if aPCstore[aPlayer] = btRich then aRich(aPlayer);
+		
+		if aPCstore[aPlayer] = btExplorers then aExplorer(aPlayer);
+		
+		if aPCstore[aPlayer] = btMasterCrafters then aMasterCrafter(aPlayer);
+		
+		if aPCstore[aPlayer] = btSnipers then begin end;
+		
+		if aPCstore[aPlayer] = btRetribution then begin end;
 	end;
 end;
