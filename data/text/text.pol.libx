@@ -542,6 +542,7 @@
 552:Opis
 553:Hasło
 554:Ustawienia pokoju
+556:Zbanuj w tym pokoju
 557:Wyrzuć
 558:Przydziel losowo lokalizacje w drużynach
 559:Opis
@@ -681,3 +682,95 @@
 695:Powrót do widoku obrony
 696:Pozycja obrony
 697:Jednostki
+698:Wilk
+699:Ryba
+700:Wąż wodny
+701:Rozgwiazda
+702:Krab
+703:Lilia wodna
+704:Liść wodny
+705:Kaczka
+706:Ten typ żołnierza nie jest dostępny
+707:Ten typ jednostki nie jest dostępny
+708:Zablokuj jednostki
+736:Pobierz
+737:pobieranie...
+738:Nadpisz istniejące pliki
+739:%s stracił połączenie
+740:%s wyszedł
+741:%s odzyskał połączenie
+742:Nie można dołączyć, gdy gra jest w toku
+743:Pokój jest pełen. Nie można dołączyć do gry
+744:Gracz o tej samej nazwie już dołączył do pokoju
+748:Prawa hosta przeniesione do %s
+749:%s ma inną wersję %s
+750:%s nie posiada %s
+751:Przekroczono limit czasu połączenia
+752:Host usunął %s z gry
+753:%s został wyrzucony przez hosta
+754:Próbuję podłączyć się do gry...
+755:%s dołączył
+756:Ponowne połączenie nie powiodło się: %s
+757:Host postanowił kontynuować grę bez Ciebie :(
+758:Odłączono od serwera: Wykryto przekroczenie czasu oczekiwania
+759:Zostałeś wyrzucony przez hosta
+760:Serwer przestał odpowiadać
+761:Nieprawidłowy numer pokoju
+765:Szept do %s
+766:%s został zbanowany w tym pokoju przez hosta
+767:Zostałeś zbanowany przez hosta
+768:Zresetuj wszystkie bany
+770:Data
+771:Pokaż Mgłę
+772:Oglądaj
+773:Widz
+774:Zasięg auto-ataku
+775:Grupy komputera automatycznie zaatakują, jeśli jesteś bliżej niż tyle płytek
+776:Broń sojuszników
+777:Jeśli włączone to komputer będzie bronić jednostek i budynki sojuszników, jak gdyby były jego własnymi
+778:Zezwalaj na oglądanie
+779:Przypisz prawa hosta
+780:Widzowie
+781:Nie można wyłączyć widzów: Lista widzów musi być pusta
+782:Powtórz
+783:Cofnij
+784:Ustawia pozycję początkową komputera, która jest wykorzystywana do kierowania ataków komputera
+785:Pozycja początkowa komputera
+786:Rozkaz
+788:Początkowe opóźnienie (w sekundach)
+790:Budynek najbliżej armii
+791:Najbliższy budynek od pozycji startowej
+792:Atakujący
+793:Obrońcy
+794:Widzowie
+795:Aby odtworzyć wcześniej odblokowaną misję kampanii, wybierz flagę misji na mapie kampanii
+797:Głosuj, aby powrócić lobby. Gra może zostać wznowiona lub zmieniona
+798:Zagłosuj za powrotem do lobby
+801:Usunięcie powtórki usuwa również powiązany zapis. Czy na pewno chcesz usunąć ten zapis?
+802:Losowo
+803:Liczba żołnierzy do ataku
+804:Usuń Powtórkę
+805:Usuń Mapę
+806:Czy na pewno chcesz usunąć tę mapę?
+807:Ukryj nakładkę skryptową
+808:Pokaż nakładkę skryptową
+810:Komputer automatycznie tworzy i zarządza atakami
+811:Szybkie wyposażanie
+812:Żołnierze są wyposażani tak szybko, jak to możliwe. Na tempo wyposażania nadal wpływa rozplanowanie wioski
+813:Zastosuj ustawienia domyślne komputera
+814:Wieloosobowa ekonomia
+815:Zastosowuje agresywne ustawienia ekonomii komputera do wszystkich graczy (dla wieloosobowych map ekonomicznych)
+816:Ostrzeżenie: To zastąpi wszystkie istniejące ustawienia komputera dla wszystkich graczy. Kontynuować?
+817:Typ armii
+818:Żelazna następnie skórzana
+819:Żelazna
+820:Skórzana
+821:Mieszana
+824:Przenieś
+825:Zobacz plik Readme
+826:Nie można uruchomić przeglądarki PDF
+827:Ustaw liczbę pomocników na 10 domów dla wybranego komputera. Wybrany komputer ma %d domów
+828:Error: Plik pauzy hosta nie odpowiada lokalnemu plikowi pauzy. Wystąpił błąd lub host próbuje oszukiwać.
+829:Rozkaz został wykonany
+830:Załaduj azjatyckie czcionki
+831:Wyjdź z pobranych
