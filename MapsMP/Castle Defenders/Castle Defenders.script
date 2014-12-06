@@ -14,11 +14,11 @@ const
   MAX_WAVE = 30;                       //Maximum number of AI waves. For now, 30 waves implemented
   BONUS_WAVE = 18;                     //Players get a random bonus with 18th wave
   BONUS_CHANCE = 0.1375;               //13,75% chance to activate some bonuses
-  KILL_CHANCE = 0.15;                  //15% chance to activate Immediate Kill bonus
-  DOUBLE_CHANCE = 0.20;                //20% chance to activate Double bonus
-  REBORN_CHANCE = 0.18;                //18% chance to activate Reborn bonus
-  NEWBORN_CHANCE = 0.15;               //15% chance to activate Newborn Ally  bonus
-  RANGED_CHANCE = 0.20;                //20% chance to activate Ranged bonus
+  KILL_CHANCE = 0.125;                 //12,5% chance to activate Immediate Kill bonus
+  DOUBLE_CHANCE = 0.15;                //15% chance to activate Double bonus
+  REBORN_CHANCE = 0.15;                //15% chance to activate Reborn bonus
+  NEWBORN_CHANCE = 0.125;              //12,5% chance to activate Newborn Ally  bonus
+  RANGED_CHANCE = 0.175;               //17,5% chance to activate Ranged bonus
   MAX_ARMY_COUNT = 120;                //Maximum army count to activate extra recruits bonus
   RESCUE_RECRUITS_COUNT = 10;          //Maximum recruits count for rescue squad bonus
   RESCUE_ARMY_COUNT = 110;             //Player should have no more than 110 soldiers to use rescue squad bonus
@@ -82,7 +82,7 @@ end;
 
 function DebugHeader: ANSIString;
 begin
-  Result := '';
+  Result := 'WARNING! DEBUG MODE IS ON!';
 
   if not DEBUG_MODE then
     Result := ''
