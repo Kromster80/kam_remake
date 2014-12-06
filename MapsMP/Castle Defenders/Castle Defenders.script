@@ -6,16 +6,22 @@ var
   Unlocked: array[0..3] of array[15..23] of Boolean;
   bImmediateKill, bDouble, bNewConscription, 
   bReinforce, bReborn, bNewborn, Check, bMsg, bRescueMsg, bRanged: Boolean;
+  RallyPointX, RallyPointY, AttackPointX, AttackPointY: array[4..7] of Integer;
+  AISpawnX, AISpawnY: array[0..2] of array[4..7] of Integer;
 
 
 const
   MAX_WAVE = 30;                       //Maximum number of AI waves. For now, 30 waves implemented
   BONUS_WAVE = 18;                     //Players get a random bonus with 18th wave
-  BONUS_CHANCE = 0.1375000000000;      //13,75% chance to activate some bonuses
-  CHANCE_BALANCER = 1.225;             //Balancer for some bonuses
+  BONUS_CHANCE = 0.1375;               //13,75% chance to activate some bonuses
+  KILL_CHANCE = 0.15;                  //15% chance to activate Immediate Kill bonus
+  DOUBLE_CHANCE = 0.20;                //20% chance to activate Double bonus
+  REBORN_CHANCE = 0.18;                //18% chance to activate Reborn bonus
+  NEWBORN_CHANCE = 0.15;               //15% chance to activate Newborn Ally  bonus
+  RANGED_CHANCE = 0.20;                //20% chance to activate Ranged bonus
   MAX_ARMY_COUNT = 120;                //Maximum army count to activate extra recruits bonus
   RESCUE_RECRUITS_COUNT = 10;          //Maximum recruits count for rescue squad bonus
-  RESCUE_ARMY_COUNT = 75;              //Player should have no more than 75 soldiers to use rescue squad bonus
+  RESCUE_ARMY_COUNT = 110;             //Player should have no more than 110 soldiers to use rescue squad bonus
   RESCUE_DELAY = 1200;                 //2 minutes delay
   RESCUES_PER_PLAYER = 3;              //Player can use bonus 3 times
   RESCUE_WAVE = 26;                    //Bonus available since 26th wave
@@ -37,11 +43,114 @@ begin
 end;
 
 
+procedure CheckDebugBonus;
+begin
+  if Wave = 18 then
+    bImmediateKill := True;
+
+  if Wave = 20 then
+  begin
+    bImmediateKill := False;
+    bDouble := True;
+  end;
+
+  if Wave = 22 then
+  begin
+    bDouble := False;
+    bNewConscription := True;
+  end;
+
+  if Wave = 24 then
+  begin
+    bNewConscription := False;
+    bReinforce := True;
+  end;
+
+  if Wave = 26 then
+  begin
+    bReinforce := False;
+    bReborn := True;
+  end;
+
+  if Wave = 28 then
+  begin
+    bReborn := False;
+    bNewborn := True;
+  end;
+end;
+
+
+function DebugHeader: ANSIString;
+begin
+  Result := '';
+
+  if not DEBUG_MODE then
+    Result := ''
+
+  else
+  begin
+
+    if bImmediateKill then
+      Result := 'DEBUG MODE ON! You now test bonus: Immediate Kill|';
+
+    if bDouble then
+      Result := 'DEBUG MODE ON! You now test bonus: Double|';
+
+    if bNewConscription then
+      Result := 'DEBUG MODE ON! You now test bonus: New Conscription|';
+
+    if bReinforce then
+      Result := 'DEBUG MODE ON! You now test bonus: Reinforcement|';
+
+    if bReborn then
+      Result := 'DEBUG MODE ON! You now test bonus: Reborn|';
+
+    if bNewborn then
+      Result := 'DEBUG MODE ON! You now test bonus: Newborn Ally|';
+
+  end;
+end;
+
+
+procedure GetInitialAttack;
+var
+  AIGroup: Integer;
+begin
+
+  AIGroup := States.GroupAt(41, 21);
+  Actions.GroupOrderWalk(AIGroup, 58, 54, 4);
+
+  AIGroup := States.GroupAt(112, 22);
+  Actions.GroupOrderWalk(AIGroup, 93, 54, 4);
+
+  AIGroup := States.GroupAt(135, 38);
+  Actions.GroupOrderWalk(AIGroup, 97, 58, 6);
+
+  AIGroup := States.GroupAt(132, 112);
+  Actions.GroupOrderWalk(AIGroup, 98, 94, 6);
+
+  AIGroup := States.GroupAt(113, 127);
+  Actions.GroupOrderWalk(AIGroup, 94, 97, 0);
+
+  AIGroup := States.GroupAt(37, 126);
+  Actions.GroupOrderWalk(AIGroup, 58, 97, 0);
+
+  AIGroup := States.GroupAt(16, 112);
+  Actions.GroupOrderWalk(AIGroup, 52, 93, 2);
+
+  AIGroup := States.GroupAt(13, 39);
+  Actions.GroupOrderWalk(AIGroup, 53, 57, 2);
+
+end;
+
+
 procedure OnMissionStart;
 var
   Houses: array of Integer;
 begin
   AutoFeed;
+
+  GetInitialAttack;
 
   if DEBUG_MODE then
     for I := 0 to 3 do
@@ -152,6 +261,56 @@ begin
   RescueSquadFormation[3][2] := 4;
   RescueSquadFormation[3][3] := 5;
   RescueSquadFormation[3][4] := 5;
+
+  RallyPointX[4] := 75;
+  RallyPointX[5] := 130;
+  RallyPointX[6] := 75;
+  RallyPointX[7] := 20;
+  RallyPointY[4] := 20;
+  RallyPointY[5] := 75;
+  RallyPointY[6] := 130;
+  RallyPointY[7] := 75;
+
+  AttackPointX[4] := 75;
+  AttackPointX[5] := 95;
+  AttackPointX[6] := 75;
+  AttackPointX[7] := 55;
+  AttackPointY[4] := 55;
+  AttackPointY[5] := 75;
+  AttackPointY[6] := 95;
+  AttackPointY[7] := 75;
+
+  AISpawnX[0][4] := 65;
+  AISpawnX[1][4] := 75;
+  AISpawnX[2][4] := 85;
+
+  AISpawnY[0][4] := 10;
+  AISpawnY[1][4] := 10;
+  AISpawnY[2][4] := 10;
+
+  AISpawnX[0][5] := 140;
+  AISpawnX[1][5] := 140;
+  AISpawnX[2][5] := 140;
+
+  AISpawnY[0][5] := 65;
+  AISpawnY[1][5] := 75;
+  AISpawnY[2][5] := 85;
+
+  AISpawnX[0][6] := 65;
+  AISpawnX[1][6] := 75;
+  AISpawnX[2][6] := 85;
+
+  AISpawnY[0][6] := 140;
+  AISpawnY[1][6] := 140;
+  AISpawnY[2][6] := 140;
+
+  AISpawnX[0][7] := 10;
+  AISpawnX[1][7] := 10;
+  AISpawnX[2][7] := 10;
+
+  AISpawnY[0][7] := 65;
+  AISpawnY[1][7] := 75;
+  AISpawnY[2][7] := 85;
 
   bImmediateKill := False;
   bDouble := False;
@@ -331,36 +490,36 @@ end;
 function WaveName: AnsiString;
 begin
   case Wave of
-    1: Result := '<$19>';
-    2: Result := '<$20>';
-    3: Result := '<$21>';
-    4: Result := '<$22>';
-    5: Result := '<$23>';
-    6: Result := '<$24>';
-    7: Result := '<$25>';
-    8: Result := '<$26>';
-    9: Result := '<$27>';
-    10:Result := '<$28>';
-    11:Result := '<$29>';
-    12:Result := '<$30>';
-    13:Result := '<$31>';
-    14:Result := '<$32>';
-    15:Result := '<$33>';
-    16:Result := '<$34>';
-    17:Result := '<$35>';
-    18:Result := '<$36>';
-    19:Result := '<$37>';
-    20:Result := '<$38>';
-    21:Result := '<$39>';
-    22:Result := '<$40>';
-    23:Result := '<$41>';
-    24:Result := '<$42>';
-    25:Result := '<$43>';
-    26:Result := '<$44>';
-    27:Result := '<$45>';
-    28:Result := '<$46>';
-    29:Result := '<$47>';
-    30:Result := '<$48>'
+    1:   Result := '<$19>';
+    2:   Result := '<$20>';
+    3:   Result := '<$21>';
+    4:   Result := '<$22>';
+    5:   Result := '<$23>';
+    6:   Result := '<$24>';
+    7:   Result := '<$25>';
+    8:   Result := '<$26>';
+    9:   Result := '<$27>';
+    10:  Result := '<$28>';
+    11:  Result := '<$29>';
+    12:  Result := '<$30>';
+    13:  Result := '<$31>';
+    14:  Result := '<$32>';
+    15:  Result := '<$33>';
+    16:  Result := '<$34>';
+    17:  Result := '<$35>';
+    18:  Result := '<$36>';
+    19:  Result := '<$37>';
+    20:  Result := '<$38>';
+    21:  Result := '<$39>';
+    22:  Result := '<$40>';
+    23:  Result := '<$41>';
+    24:  Result := '<$42>';
+    25:  Result := '<$43>';
+    26:  Result := '<$44>';
+    27:  Result := '<$45>';
+    28:  Result := '<$46>';
+    29:  Result := '<$47>';
+    30:  Result := '<$48>'
     else Result := '';
   end;
 end;
@@ -465,25 +624,66 @@ begin
     Groups := States.PlayerGetAllGroups(I);
 
     for K := 0 to Length(Groups) - 1 do
-      if (InRange(States.UnitPositionX(States.GroupMember(Groups[K], 0)), 52, 99))
-      and (InRange(States.UnitPositionY(States.GroupMember(Groups[K], 0)), 52, 99)) then
-      begin
-        X := States.UnitPositionX(States.GroupMember(Groups[K], 0));
-        Y := States.UnitPositionY(States.GroupMember(Groups[K], 0));
-        Player := States.KaMRandomI(4);
-        if HasHouses(Player) then
-          Actions.GroupOrderAttackHouse(Groups[K], States.ClosestHouseMultipleTypes(Player, X, Y, [11, 13, 17, 21, 27]));
-        if States.KaMRandom > 0.9 then
-          if ((not States.UnitDead(General)) or (General <> -1)) then
-            Actions.GroupOrderAttackUnit(Groups[K], General);
-        if States.KaMRandom < 0.1 then
-          if HasUnits(Player) then
-            Actions.GroupOrderAttackUnit(Groups[K], States.ClosestUnitMultipleTypes(Player, X, Y, [0, 9, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]));
-        if States.KaMRandomI(10) = 5 then
-          if ((not States.HouseDestroyed(AIBarracks)) or (AIBarracks <> -1)) then
-            Actions.GroupOrderAttackHouse(Groups[K], AIBarracks);
-      end;
+      if (Groups[K] <> -1)
+      and (States.GroupMember(Groups[K], 0) <> -1) then
+        if (InRange(States.UnitPositionX(States.GroupMember(Groups[K], 0)), 52, 99))
+        and (InRange(States.UnitPositionY(States.GroupMember(Groups[K], 0)), 52, 99)) then
+        begin
+          X := States.UnitPositionX(States.GroupMember(Groups[K], 0));
+          Y := States.UnitPositionY(States.GroupMember(Groups[K], 0));
+          Player := States.KaMRandomI(4);
+          if HasHouses(Player) then
+            Actions.GroupOrderAttackHouse(Groups[K], States.ClosestHouseMultipleTypes(Player, X, Y, [11, 13, 17, 21, 27]));
+          if States.KaMRandom > 0.9 then
+            if ((not States.UnitDead(General)) or (General <> -1)) then
+              Actions.GroupOrderAttackUnit(Groups[K], General);
+          if States.KaMRandom < 0.1 then
+            if HasUnits(Player) then
+              Actions.GroupOrderAttackUnit(Groups[K], States.ClosestUnitMultipleTypes(Player, X, Y, [0, 9, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]));
+          if States.KaMRandomI(10) = 5 then
+            if ((not States.HouseDestroyed(AIBarracks)) or (AIBarracks <> -1)) then
+              Actions.GroupOrderAttackHouse(Groups[K], AIBarracks);
+        end;
   end;
+end;
+
+
+procedure AttackCenter;
+var
+  Groups: array of Integer;
+  K: Integer;
+begin
+  Groups := States.PlayerGetAllGroups(4);
+  for K := 0 to length(Groups) - 1 do
+    if (Groups[K] <> -1)
+    and (States.GroupMember(Groups[K], 0) <> -1) then
+      if (InRange(States.UnitPositionX(States.GroupMember(Groups[K], 0)), RallyPointX[4] - 1, RallyPointX[4] + 1))
+      and (InRange(States.UnitPositionY(States.GroupMember(Groups[K], 0)), RallyPointY[4] - 1, RallyPointY[4] + 1)) then
+        Actions.GroupOrderWalk(Groups[K], AttackPointX[4], AttackPointY[4], 4);
+
+  Groups := States.PlayerGetAllGroups(5);
+  for K := 0 to length(Groups) - 1 do
+    if (Groups[K] <> -1)
+    and (States.GroupMember(Groups[K], 0) <> -1) then
+      if (InRange(States.UnitPositionX(States.GroupMember(Groups[K], 0)), RallyPointX[5] - 1, RallyPointX[5] + 1))
+      and (InRange(States.UnitPositionY(States.GroupMember(Groups[K], 0)), RallyPointY[5] - 1, RallyPointY[5] + 1)) then
+        Actions.GroupOrderWalk(Groups[K], AttackPointX[5], AttackPointY[5], 6);
+
+  Groups := States.PlayerGetAllGroups(6);
+  for K := 0 to length(Groups) - 1 do
+    if (Groups[K] <> -1)
+    and (States.GroupMember(Groups[K], 0) <> -1) then
+      if (InRange(States.UnitPositionX(States.GroupMember(Groups[K], 0)), RallyPointX[6] - 1, RallyPointX[6] + 1))
+      and (InRange(States.UnitPositionY(States.GroupMember(Groups[K], 0)), RallyPointY[6] - 1, RallyPointY[6] + 1)) then
+        Actions.GroupOrderWalk(Groups[K], AttackPointX[6], AttackPointY[6], 0);
+
+  Groups := States.PlayerGetAllGroups(7);
+  for K := 0 to length(Groups) - 1 do
+    if (Groups[K] <> -1)
+    and (States.GroupMember(Groups[K], 0) <> -1) then
+      if (InRange(States.UnitPositionX(States.GroupMember(Groups[K], 0)), RallyPointX[7] - 1, RallyPointX[7] + 1))
+      and (InRange(States.UnitPositionY(States.GroupMember(Groups[K], 0)), RallyPointY[7] - 1, RallyPointY[7] + 1)) then
+        Actions.GroupOrderWalk(Groups[K], AttackPointX[7], AttackPointY[7], 2);
 end;
 
 
@@ -643,7 +843,7 @@ begin
 
     if bReborn then
     begin
-      if States.KaMRandom < (BONUS_CHANCE * CHANCE_BALANCER) then
+      if States.KaMRandom < REBORN_CHANCE then
       begin
         if (InRange(States.UnitOwner(aUnitID), 0, 3)) then
         begin
@@ -671,7 +871,7 @@ begin
 
     if bNewborn then
     begin
-      if States.KaMRandom < BONUS_CHANCE then
+      if States.KaMRandom < NEWBORN_CHANCE then
       begin
         if (InRange(aKillerIndex, 0, 3))
         and (InRange(States.UnitOwner(aUnitID), 4, 7)) then
@@ -705,7 +905,7 @@ procedure OnUnitWounded(aUnitID, aAttacker: Integer);
 begin
   if bImmediateKill then
   begin
-    if States.KaMRandom < (BONUS_CHANCE * CHANCE_BALANCER) then
+    if States.KaMRandom < KILL_CHANCE then
     begin
       if InRange(States.UnitOwner(aAttacker), 0, 3) then
         inc(Scores[States.UnitOwner(aAttacker)]);
@@ -718,7 +918,7 @@ end;
 
 function BarbDouble: Integer;
 begin
-  if States.KaMRandom < BONUS_CHANCE * 2 then
+  if States.KaMRandom < DOUBLE_CHANCE then
     Result := 1 + Byte(bDouble)
   else
     Result := 1;
@@ -734,7 +934,7 @@ begin
 
   if bDouble then
   begin
-    if States.KaMRandom < BONUS_CHANCE then
+    if States.KaMRandom < DOUBLE_CHANCE then
     begin
       if (States.UnitType(aUnitID) >= 14)
       and not (InRange(States.UnitType(aUnitID), 17, 18)) then
@@ -766,7 +966,7 @@ begin
 
   if bRanged then
   begin
-    if States.KaMRandom < BONUS_CHANCE then
+    if States.KaMRandom < RANGED_CHANCE then
     begin
       if InRange(States.UnitType(aUnitID), 14, 16)
       and (States.StatUnitMultipleTypesCount(Owner, [17, 18]) <= MAX_RANGED) then
@@ -836,12 +1036,12 @@ begin
     and not (States.PlayerDefeated(I)) then
       begin
         if States.KaMRandom < 0.33 then
-          R[I] := Actions.GiveGroup(I, 16, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3))
+          R[I] := Actions.GiveGroup(I, 16, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(5), 3 + States.KaMRandomI(3))
         else
         if InRange(Round(100 * States.KaMRandom), 33, 66) then 
-          R[I] := Actions.GiveGroup(I, 20, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3))
+          R[I] := Actions.GiveGroup(I, 20, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(5), 3 + States.KaMRandomI(3))
         else
-          R[I] := Actions.GiveGroup(I, 22, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(4), 3 + States.KaMRandomI(3));
+          R[I] := Actions.GiveGroup(I, 22, SpawnX[I], SpawnY[I], 4, 12 + States.KaMRandomI(5), 3 + States.KaMRandomI(3));
         Actions.GroupHungerSet(R[I], States.UnitMaxHunger);
       end;
   end;
@@ -863,33 +1063,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 12);
 
-         AIGroup := Actions.GiveGroup(4, 14, 57, 10, 4, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 14, 75, 10, 4, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 14, 93, 10, 4, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[0][4], AISpawnY[0][4], 4, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[1][4], AISpawnY[1][4], 4, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[2][4], AISpawnY[2][4], 4, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 14, 140, 59, 6, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 14, 140, 75, 6, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 14, 140, 93, 6, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[0][5], AISpawnY[0][5], 6, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[1][5], AISpawnY[1][5], 6, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[2][5], AISpawnY[2][5], 6, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 14, 57, 140, 0, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 14, 75, 140, 0, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 14, 93, 140, 0, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[0][6], AISpawnY[0][6], 0, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[1][6], AISpawnY[1][6], 0, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[2][6], AISpawnY[2][6], 0, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 14, 10, 57, 2, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 14, 10, 75, 2, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 14, 10, 93, 2, 9, 3);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[0][7], AISpawnY[0][7], 2, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[1][7], AISpawnY[1][7], 2, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[2][7], AISpawnY[2][7], 2, 9, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     3: begin
@@ -898,68 +1098,68 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 12);
 
-         AIGroup := Actions.GiveGroup(4, 14, 57, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 14, 75, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 14, 93, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[0][4], AISpawnY[0][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[1][4], AISpawnY[1][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[2][4], AISpawnY[2][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 14, 140, 59, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 14, 140, 75, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[0][5], AISpawnY[0][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[1][5], AISpawnY[1][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
          AIGroup := Actions.GiveGroup(5, 14, 140, 95, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 14, 57, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 14, 75, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 14, 93, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[0][6], AISpawnY[0][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[1][6], AISpawnY[1][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[2][6], AISpawnY[2][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 14, 10, 57, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 14, 10, 75, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 14, 10, 93, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[0][7], AISpawnY[0][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[1][7], AISpawnY[1][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[2][7], AISpawnY[2][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
-     4: begin
+    4: begin
 
          for I := 0 to 3 do
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 12);
 
-         AIGroup := Actions.GiveGroup(4, 14, 57, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 19, 75, 10, 4, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 14, 93, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[0][4], AISpawnY[0][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 19, AISpawnX[1][4], AISpawnY[1][4], 4, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[2][4], AISpawnY[2][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 14, 140, 59, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 19, 140, 75, 6, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 14, 140, 93, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[0][5], AISpawnY[0][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 19, AISpawnX[1][5], AISpawnY[1][5], 6, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[2][5], AISpawnY[2][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 14, 57, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 19, 75, 140, 0, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 14, 93, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[0][6], AISpawnY[0][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 19, AISpawnX[1][6], AISpawnY[1][6], 0, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[2][6], AISpawnY[2][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 14, 10, 57, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 19, 10, 75, 2, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 14, 10, 93, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[0][7], AISpawnY[0][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 19, AISpawnX[1][7], AISpawnY[1][7], 2, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[2][7], AISpawnY[2][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     5: begin
@@ -968,33 +1168,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 12);
 
-         AIGroup := Actions.GiveGroup(4, 19, 57, 10, 4, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 14, 75, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 19, 93, 10, 4, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 19, AISpawnX[0][4], AISpawnY[0][4], 4, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 14, AISpawnX[1][4], AISpawnY[1][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 19, AISpawnX[2][4], AISpawnY[2][4], 4, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 19, 140, 59, 6, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 14, 140, 75, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 19, 140, 93, 6, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 19, AISpawnX[0][5], AISpawnY[0][5], 6, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 14, AISpawnX[1][5], AISpawnY[1][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 19, AISpawnX[2][5], AISpawnY[2][5], 6, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 19, 57, 140, 0, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 14, 75, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 19, 93, 140, 0, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 19, AISpawnX[0][6], AISpawnY[0][6], 0, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 14, AISpawnX[1][6], AISpawnY[1][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 19, AISpawnX[2][6], AISpawnY[2][6], 0, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 19, 10, 57, 2, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 14, 10, 75, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 19, 10, 93, 2, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 19, AISpawnX[0][7], AISpawnY[0][7], 2, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 14, AISpawnX[1][7], AISpawnY[1][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 19, AISpawnX[2][7], AISpawnY[2][7], 2, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     6: begin
@@ -1003,33 +1203,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 12);
 
-         AIGroup := Actions.GiveGroup(4, 19, 57, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 15, 75, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 19, 93, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 19, AISpawnX[0][4], AISpawnY[0][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[1][4], AISpawnY[1][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 19, AISpawnX[2][4], AISpawnY[2][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 19, 140, 59, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 15, 140, 75, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 19, 140, 93, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 19, AISpawnX[0][5], AISpawnY[0][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[1][5], AISpawnY[1][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 19, AISpawnX[2][5], AISpawnY[2][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 19, 57, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 15, 75, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 19, 93, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 19, AISpawnX[0][6], AISpawnY[0][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[1][6], AISpawnY[1][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 19, AISpawnX[2][6], AISpawnY[2][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 19, 10, 57, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 15, 10, 75, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 19, 10, 93, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 19, AISpawnX[0][7], AISpawnY[0][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[1][7], AISpawnY[1][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 19, AISpawnX[2][7], AISpawnY[2][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     7: begin
@@ -1038,33 +1238,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 12);
 
-         AIGroup := Actions.GiveGroup(4, 15, 57, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 19, 75, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 15, 93, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[0][4], AISpawnY[0][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 19, AISpawnX[1][4], AISpawnY[1][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[2][4], AISpawnY[2][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 15, 140, 59, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 19, 140, 75, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 15, 140, 93, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[0][5], AISpawnY[0][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 19, AISpawnX[1][5], AISpawnY[1][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[2][5], AISpawnY[2][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 15, 57, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 19, 75, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 15, 93, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[0][6], AISpawnY[0][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 19, AISpawnX[1][6], AISpawnY[1][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[2][6], AISpawnY[2][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 15, 10, 57, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 19, 10, 75, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 15, 10, 93, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[0][7], AISpawnY[0][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 19, AISpawnX[1][7], AISpawnY[1][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[2][7], AISpawnY[2][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     8: begin
@@ -1073,33 +1273,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 15);
 
-         AIGroup := Actions.GiveGroup(4, 15, 57, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 21, 75, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 15, 93, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[0][4], AISpawnY[0][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 21, AISpawnX[1][4], AISpawnY[1][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[2][4], AISpawnY[2][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 15, 140, 59, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 21, 140, 75, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 15, 140, 93, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[0][5], AISpawnY[0][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 21, AISpawnX[1][5], AISpawnY[1][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[2][5], AISpawnY[2][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 15, 57, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 21, 75, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 15, 93, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[0][6], AISpawnY[0][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 21, AISpawnX[1][6], AISpawnY[1][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[2][6], AISpawnY[2][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 15, 10, 57, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 21, 10, 75, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 15, 10, 93, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[0][7], AISpawnY[0][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 21, AISpawnX[1][7], AISpawnY[1][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[2][7], AISpawnY[2][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     9: begin
@@ -1108,33 +1308,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 15);
 
-         AIGroup := Actions.GiveGroup(4, 21, 57, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 17, 75, 10, 4, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 15, 93, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 21, AISpawnX[0][4], AISpawnY[0][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 17, AISpawnX[1][4], AISpawnY[1][4], 4, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[2][4], AISpawnY[2][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 21, 140, 59, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 17, 140, 75, 6, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 15, 140, 93, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 21, AISpawnX[0][5], AISpawnY[0][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 17, AISpawnX[1][5], AISpawnY[1][5], 6, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[2][5], AISpawnY[2][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 21, 57, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 17, 75, 140, 0, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 15, 93, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 21, AISpawnX[0][6], AISpawnY[0][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 17, AISpawnX[1][6], AISpawnY[1][6], 0, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[2][6], AISpawnY[2][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 21, 10, 57, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 17, 10, 75, 2, 8, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 15, 10, 93, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 21, AISpawnX[0][7], AISpawnY[0][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 17, AISpawnX[1][7], AISpawnY[1][7], 2, 8, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[2][7], AISpawnY[2][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     10: begin
@@ -1143,33 +1343,33 @@ begin
             if States.PlayerEnabled(I) then
               Actions.GiveWares(I, 7, 15);
 
-         AIGroup := Actions.GiveGroup(4, 21, 57, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 15, 75, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 21, 93, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 21, AISpawnX[0][4], AISpawnY[0][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[1][4], AISpawnY[1][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 21, AISpawnX[2][4], AISpawnY[2][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 21, 140, 59, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 15, 140, 75, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 21, 140, 93, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 21, AISpawnX[0][5], AISpawnY[0][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[1][5], AISpawnY[1][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 21, AISpawnX[2][5], AISpawnY[2][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 21, 57, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 15, 75, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 21, 93, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 21, AISpawnX[0][6], AISpawnY[0][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[1][6], AISpawnY[1][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 21, AISpawnX[2][6], AISpawnY[2][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 21, 10, 57, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 15, 10, 75, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 21, 10, 93, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 21, AISpawnX[0][7], AISpawnY[0][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[1][7], AISpawnY[1][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 21, AISpawnX[2][7], AISpawnY[2][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     11: begin
@@ -1178,33 +1378,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 15);
 
-         AIGroup := Actions.GiveGroup(4, 21, 57, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 21, 75, 10, 4, 16, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 21, 93, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 21, AISpawnX[0][4], AISpawnY[0][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 21, AISpawnX[1][4], AISpawnY[1][4], 4, 16, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 21, AISpawnX[2][4], AISpawnY[2][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 21, 140, 59, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 21, 140, 75, 6, 16, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 21, 140, 93, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 21, AISpawnX[0][5], AISpawnY[0][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 21, AISpawnX[1][5], AISpawnY[1][5], 6, 16, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 21, AISpawnX[2][5], AISpawnY[2][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 21, 57, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 21, 75, 140, 0, 16, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 21, 93, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 21, AISpawnX[0][6], AISpawnY[0][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 21, AISpawnX[1][6], AISpawnY[1][6], 0, 16, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 21, AISpawnX[2][6], AISpawnY[2][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 21, 10, 57, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 21, 10, 75, 2, 16, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 21, 10, 93, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 21, AISpawnX[0][7], AISpawnY[0][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 21, AISpawnX[1][7], AISpawnY[1][7], 2, 16, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 21, AISpawnX[2][7], AISpawnY[2][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     12: begin
@@ -1213,33 +1413,33 @@ begin
            if States.PlayerEnabled(I) then
              Actions.GiveWares(I, 7, 15);
 
-         AIGroup := Actions.GiveGroup(4, 20, 57, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 18, 75, 10, 4, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
-         AIGroup := Actions.GiveGroup(4, 15, 93, 10, 4, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
+         AIGroup := Actions.GiveGroup(4, 20, AISpawnX[0][4], AISpawnY[0][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 18, AISpawnX[1][4], AISpawnY[1][4], 4, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
+         AIGroup := Actions.GiveGroup(4, 15, AISpawnX[2][4], AISpawnY[2][4], 4, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[4], RallyPointY[4], 4);
 
-         AIGroup := Actions.GiveGroup(5, 20, 140, 59, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 18, 140, 75, 6, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 15, 140, 93, 6, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
+         AIGroup := Actions.GiveGroup(5, 20, AISpawnX[0][5], AISpawnY[0][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 18, AISpawnX[1][5], AISpawnY[1][5], 6, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
+         AIGroup := Actions.GiveGroup(5, 15, AISpawnX[2][5], AISpawnY[2][5], 6, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[5], RallyPointY[5], 6);
 
-         AIGroup := Actions.GiveGroup(6, 20, 57, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 18, 75, 140, 0, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 15, 93, 140, 0, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 75, 95, 0);
+         AIGroup := Actions.GiveGroup(6, 20, AISpawnX[0][6], AISpawnY[0][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 18, AISpawnX[1][6], AISpawnY[1][6], 0, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
+         AIGroup := Actions.GiveGroup(6, 15, AISpawnX[2][6], AISpawnY[2][6], 0, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[6], RallyPointY[6], 0);
 
-         AIGroup := Actions.GiveGroup(7, 20, 10, 57, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 18, 10, 75, 2, 6, 3);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
-         AIGroup := Actions.GiveGroup(7, 15, 10, 93, 2, 12, 4);
-         Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
+         AIGroup := Actions.GiveGroup(7, 20, AISpawnX[0][7], AISpawnY[0][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 18, AISpawnX[1][7], AISpawnY[1][7], 2, 6, 3);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
+         AIGroup := Actions.GiveGroup(7, 15, AISpawnX[2][7], AISpawnY[2][7], 2, 12, 4);
+         Actions.GroupOrderWalk(AIGroup, RallyPointX[7], RallyPointY[7], 2);
        end;
 
     13: begin
@@ -2653,7 +2853,15 @@ end;
 
 
 procedure OnPlanWinefieldPlaced(aIndex, aX, aY: Integer);
+var
+  Troops: array of Integer;
 begin
+  if DEBUG_MODE then
+  begin
+    Troops := States.PlayerGetAllUnits(aIndex);
+    for K := 0 to length(Troops) - 1 do
+      Actions.UnitHungerSet(Troops[K], States.UnitMaxHunger);
+  end;
   Actions.PlanRemove(aIndex, aX, aY);
 end;
 
@@ -2681,7 +2889,7 @@ end;
 procedure OnTick;
 begin
 
-  Actions.OverlayTextSetFormatted(-1, '<$2> ' + IntToStr(Wave) + ' - ' + WaveName + '|<$5>' + '|<$1>', [((WaveTime div 600) mod 60), ((WaveTime div 10) mod 60)]);
+  Actions.OverlayTextSetFormatted(-1, DebugHeader + '<$2> ' + IntToStr(Wave) + ' - ' + WaveName + '|<$5>' + '|<$1>', [((WaveTime div 600) mod 60), ((WaveTime div 10) mod 60)]);
   for I := 0 to 3 do
   begin
     if States.PlayerEnabled(I) then
@@ -2718,7 +2926,12 @@ begin
   if States.GameTime mod 100 = 0 then
     ContinueAttack;
 
+  if (States.GameTime mod 15 = 0)
+  and (InRange(Wave, 2, 12)) then
+    AttackCenter;
+
   if (Wave = BONUS_WAVE)
+  and not (DEBUG_MODE)
   and not (Check) then
   begin
     CheckBonus;
@@ -2739,5 +2952,9 @@ begin
   for I := 0 to 3 do
     if States.PlayerEnabled(I) then
       CheckRescueColor(I);
+
+  if (Wave >= BONUS_WAVE)
+  and (DEBUG_MODE) then
+    CheckDebugBonus;
 
 end;
