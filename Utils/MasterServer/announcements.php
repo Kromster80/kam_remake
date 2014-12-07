@@ -17,7 +17,7 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r381
   die('[$0000FF]THE SCRIPTING DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
-if(($Rev == "r6478") || ($Rev == "r6547") || ($Rev == "r6618") || ($Rev == "r6619"))
+if(($Rev == "r6478") || ($Rev == "r6547") || ($Rev == "r6618") || ($Rev == "r6619") || ($Rev == "r6654"))
 {
   die('[$0000FF]THIS RELEASE CANDIDATE IS OUTDATED[]||If you are on our beta tester mailing list you should have received the new release candidate. If you are not on the list, please email contact@kamremake.com to join.');
 }
@@ -32,9 +32,9 @@ if(($RevNum > 6097) && ($Lang == 'chn')) {
 	echo "感谢游戏汉化团队: [CN] Team；感谢游戏服务器提供者：[CN]-Coffee(文化)、 [CN]-CMB(菜太咸)。||骑士与商人QQ群：高手群-167329860 ，新手群-16174516 ，欢迎加入！||";
 }
 
-if($Rev == "r6654")
+if($Rev == "r6703")
 {
-  die('Welcome to the 4th and hopefully final release candidate! Please report bugs.||Map authors: Please send us any changes to your maps before December 7th.||Translators: You should have received an email with instructions. Please send your translations back to us before December 7th.');
+  die('Welcome to release candidate 5.');
 }
 
 //First see if they are up to date
