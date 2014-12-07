@@ -1,0 +1,15 @@
+﻿0:Páni, našou úlohou získať mesto za každú cenu. Nevzdajú sa ho bez boja, víťazmi však budeme my!
+2:Nemôžem tomu uveriť, oni nás očakávali! Zoberte zostávajúce železo a pripravte obranu! Naši robotníci sú na ceste.
+3:Generál, zdá sa, že naši zvedi objavili v blízkosti tábory, ktoré umožňujú nepriateľovi posielať posily. Musíme sa o nich postarať, aby sme zabezpečili Maul!
+4:[$20A5DA]Úloha[]:
+5:[$8CE6F0] - []
+6:[$00FF7F]Obsaďte Maul[]
+7:Ostávajúci barbari: [$00FF7F]%d[]
+8:[$00FF7F]Bráňte Maul[]
+9:Vlna [$00FF7F]%d[] za [$00FF7F]%d[]
+10:[$00FF7F]Pripravte sa na obranu Maulu[]
+11:Zostávajúci čas: [$00FF7F]%s[]
+12:[$00FF7F]Vlna:[] %d/%d
+13:za [$00FF7F]%s[]
+14: - [$00FF7F]%d[]
+15:[$00FF7F]Zničte nepriateľské tábory[]

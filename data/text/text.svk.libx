@@ -704,6 +704,8 @@
 744:V miestnosti už je pripojený hráč s rovnakým menom
 746:Chyba: Hráč %s sa nemôže pripojiť do hry, pretože nemá dáta zhodné s hostom
 747:Vaše dáta sa nezhodujú s hostom
+748:Hostovacie práva boli prenesené na %s
+749:%s má rozdielnu verziu od %s
 750:Hráč %s nemá %s
 751:Čas vypršal
 752:Host vyhodil z hry hráča %
@@ -773,3 +775,7 @@
 825:Ukázať Readme PDF
 826:Spúštanie prehliadača PDF zlyhalo
 827:Nastaví počet nevoľníkov pripadajúcich na desať budov pre aktuálnu AI. Vybraný AI má %d budov
+828:Chyba: Pozastavený súbor hosta sa nezhoduje s lokálnym súborom. Objavila sa chyba alebo sa host mohol pokúsiť o cheat.
+829:Príkaz bol splnený
+830:Načítať ázijské fonty
+831:Odísť z downloadov

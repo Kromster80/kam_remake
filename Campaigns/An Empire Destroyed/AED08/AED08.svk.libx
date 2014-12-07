@@ -1,0 +1,11 @@
+﻿0:Generál, veliteľ odporu Vám poslal túto správu. Dovoľte mi ju prečítať: Drahý Generál, ďakujem Vám za vašu podporu. Prosíme Vás o láskavosť, aby ste nám po jednom z vašich bojovníkov priniesli %d kameňov do nášho skladiska. Následne by sme Vám mohli do vášho trhoviska poslať náš tovar.
+1:Generál, zdá sa, že nepriateľ je silno opevnený, obrana sa zdá byť nepreraziteľná!
+2:Vďaka Vám generál, akurát teraz by sme ku Vám mali začať posielať tovar.
+3:Na poslanie tovaru potrebujeme skladisko!
+4:[$00D7FF]Úloha[]:
+5:[$8CE6F0] - []
+6:[$00FF7F]Zaútočte na Niss[]
+7: - [$D2FAFA]Zásoby[] za %d
+8: - %d [$D2FAFA]%s[]
+9:Ďakujeme Generál, počkáme na Vaše skladisko.
+10:Teraz nám iba prineste %d kameňov.
