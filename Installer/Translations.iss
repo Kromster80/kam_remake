@@ -165,3 +165,9 @@ chn.NoKaM=安装向导检测到没有《骑士与商人之农民起义》的安�
 chn.CantUpdate=安装向导无法找到一个存在的重制版能够被升级。请重新下载并安装完整的安装包。本安装程序将被终止。
 chn.OpenAL=你想用安装向导来安装OpenAL吗？（强烈推荐）这是音效文件运行的必需程序。
 chn.ViewReadme=查看自述文件
+
+;Slovenian
+slv.CreateStartShortcut=Ustvari bljižnico na meniju
+slv.NoKaM=Čarovnik za namestitev je zaznal da nimate nameščeno igro Knights and Merchants: The Peasants Rebellion. Morate imeti nameščeno originalno igro če želite igrati KaM Remake. Namestitev bo prekinjena
+slv.OpenAL=Ali želite namestiti OpenAL? (Močno priporočeno) potrebno je za elovanje zvokov v igri KaM Remake.
+slv.ViewReadme=Poglej si opis

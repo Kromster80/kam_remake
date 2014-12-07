@@ -4,6 +4,9 @@ function EchoUpdateMessage($Lang, $Rev, $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'slv':
+			echo "Vaša verzija KaM remake-a je zastarela! Imate verzijo ".$Rev." ampak najnovejša verzija je ".$MAIN_VERSION.".||prosimo prenesite nadgradnjo na: www.kamremake.com";
+			break;
 		case 'srb':
 			echo "Ваш Кам Ремаке верзија није савремена! Ви користите ".$Rev." али најновија верзија је ".$MAIN_VERSION.". Молимо вас скините најновију верзију на сајту: www.kamremake.com";
 			break;

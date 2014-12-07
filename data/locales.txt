@@ -20,7 +20,7 @@ pol,    Polish,               1250,     0,         47,           ,              
 rom,    Romanian,             1250,     0,         66,           ,                mucormucedo
 rus,    Russian,              1251,     0,         54,           ,                Krom & andreus
 srb,    Serbian,              1251,     0,         80,           ,                Стефан Дробић (Davidturner) & Baqal
-slv,    Slovenian,            1250,     0,         82,           ,                Tilen
+slv,    Slovenian,            1250,     0,         82,           ,                Youlazy TrueMan
 svk,    Slovak,               1250,     0,         52,           cze,             Róbert Marko & Jozef Müller (Launcelot)
 spa,    Spanish,              1252,     0,         53,           ,                Óscar
 swe,    Swedish,              1252,     0,         56,           ,                Edvin Linge
