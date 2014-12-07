@@ -473,6 +473,9 @@ begin
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE_IRON.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER EQUIP_RATE.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER RECRUTS.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER RECRUT_COUNT.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER MAX_SOLDIER.*'+EolA, '');
+      Txt := TRegEx.Replace(Txt, '!SET_AI_CHARACTER AUTO_ATTACK_RANGE.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_NO_BUILD.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_REPAIR.*'+EolA, '');
       Txt := TRegEx.Replace(Txt, '!SET_AI_AUTO_DEFENCE.*'+EolA, '');
@@ -505,6 +508,7 @@ begin
           Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_LEATHER 500', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_CHARACTER EQUIP_RATE_IRON 500', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_CHARACTER RECRUTS 10', Txt, CurrEnd);
+          Insert(EolA + '!SET_AI_CHARACTER AUTO_ATTACK_RANGE 6', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_UNLIMITED_EQUIP', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_AUTO_DEFEND', Txt, CurrEnd);
           Insert(EolA + '!SET_AI_AUTO_ATTACK', Txt, CurrEnd);

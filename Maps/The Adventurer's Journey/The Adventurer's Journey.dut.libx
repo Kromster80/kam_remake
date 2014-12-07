@@ -98,16 +98,6 @@
 97:Groep 3: geen leger|
 98:Groep 4: %d heeft %s van de %d gedood|
 99:Groep 4: geen leger|
-100:Groep 5: %d heeft %s van de %d gedood|
-101:Groep 5: geen leger|
-102:[$%s]Jouw statistieken[]|
-103:Goudstukken: %d|
-104:Rang: %s||
-105:[$%s]Jouw leger[]|
-106:Groep 1: %s  %d/%d||
-107:Groep 2: %s  %d/%d||
-108:Groep 3: %s  %d/%d||
-109:Groep 4: %s  %d/%d||
 110:[$%s]Primaire opdracht[]|%s||
 111:Secundaire opdracht: |%s||
 112:Secundaire opdracht: |%s||
@@ -131,3 +121,13 @@
 130:Militie: 20|Boogschutter: 35|Lansier: 30|Spion: 80|Bijlvechter: 55
 131:Zwaardvechter: 110|Piekenier: 100|Kruisboogschutter: 80|Riddergarde: 160
 132:UITLEG: Om deze berichten opnieuw te laten zien, moet je een paar seconden op de wegen gaan staan bij de ingang van het recrutengedeelte.
+150:Groep 5: %d heeft %s van de %d gedood|
+151:Groep 5: geen leger|
+152:[$%s]Jouw statistieken[]|
+153:Goudstukken: %d|
+154:Rang: %s||
+155:[$%s]Jouw leger[]|
+156:Groep 1: %s  %d/%d||
+157:Groep 2: %s  %d/%d||
+158:Groep 3: %s  %d/%d||
+159:Groep 4: %s  %d/%d||

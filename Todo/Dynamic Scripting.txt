@@ -93,6 +93,7 @@ Accepted:
 	Change house/unit/group owner
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)	
 	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
+	Overlay should have sensible default word wrap length (512px?)
 
 
 Proposed:

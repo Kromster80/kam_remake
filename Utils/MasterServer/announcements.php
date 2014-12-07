@@ -29,7 +29,7 @@ if($Rev == "r6157")
 
 //Special announcement for Chinese players about QQ group
 if(($RevNum > 6097) && ($Lang == 'chn')) {
-	echo "骑士与商人QQ群：|高手群-167329860-|新手群-16174516--||";
+	echo "感谢游戏汉化团队: [CN] Team；感谢游戏服务器提供者：[CN]-Coffee(文化)、 [CN]-CMB(菜太咸)。||骑士与商人QQ群：高手群-167329860 ，新手群-16174516 ，欢迎加入！||";
 }
 
 if($Rev == "r6654")
