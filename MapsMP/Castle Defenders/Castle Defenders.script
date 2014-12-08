@@ -22,7 +22,7 @@ const
   MAX_ARMY_COUNT = 120;                //Maximum army count to activate extra recruits bonus
   RESCUE_RECRUITS_COUNT = 10;          //Maximum recruits count for rescue squad bonus
   RESCUE_ARMY_COUNT = 110;             //Player should have no more than 110 soldiers to use rescue squad bonus
-  RESCUE_DELAY = 1800;                 //3 minutes delay
+  RESCUE_DELAY = 2400;                 //4 minutes delay
   RESCUES_PER_PLAYER = 3;              //Player can use bonus 3 times
   RESCUE_WAVE = 26;                    //Bonus available since 26th wave
   MAX_RANGED = 120;                    //Maximum ranged count per player
@@ -2285,7 +2285,7 @@ begin
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
          AIGroup := Actions.GiveGroup(5, 16, 140, 93, 6, 20, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 20, 140, 93, 6, 10, 5);
+         AIGroup := Actions.GiveGroup(5, 20, 135, 93, 6, 10, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
 
          AIGroup := Actions.GiveGroup(6, 16, 57, 140, 0, 20, 5);
@@ -2397,7 +2397,7 @@ begin
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
          AIGroup := Actions.GiveGroup(5, 16, 140, 93, 6, 18, 6);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 20, 140, 93, 6, 15, 5);
+         AIGroup := Actions.GiveGroup(5, 20, 135, 93, 6, 15, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
 
          AIGroup := Actions.GiveGroup(6, 16, 57, 140, 0, 18, 6);
@@ -2509,7 +2509,7 @@ begin
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
          AIGroup := Actions.GiveGroup(5, 16, 140, 93, 6, 20, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 20, 140, 93, 6, 20, 5);
+         AIGroup := Actions.GiveGroup(5, 20, 135, 93, 6, 20, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
 
          AIGroup := Actions.GiveGroup(6, 16, 57, 140, 0, 20, 5);
@@ -2621,7 +2621,7 @@ begin
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
          AIGroup := Actions.GiveGroup(5, 16, 140, 93, 6, 20, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 16, 140, 93, 6, 20, 5);
+         AIGroup := Actions.GiveGroup(5, 16, 135, 93, 6, 20, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
 
          AIGroup := Actions.GiveGroup(6, 16, 57, 140, 0, 20, 5);
@@ -2733,7 +2733,7 @@ begin
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
          AIGroup := Actions.GiveGroup(5, 16, 140, 93, 6, 25, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
-         AIGroup := Actions.GiveGroup(5, 16, 140, 93, 6, 25, 5);
+         AIGroup := Actions.GiveGroup(5, 16, 135, 93, 6, 25, 5);
          Actions.GroupOrderWalk(AIGroup, 95, 75, 6);
 
          AIGroup := Actions.GiveGroup(6, 16, 57, 140, 0, 25, 5);
