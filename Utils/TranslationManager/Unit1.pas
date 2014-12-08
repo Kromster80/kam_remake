@@ -264,30 +264,28 @@ procedure TForm1.RefreshList;
 
     //Hide lines that have text
     if cbShowMis.Checked then
-      if fTextManager.TextBlankInAll(aIndex) then
+      if TextID = -1 then
         Result := False
       else
       begin
         Result := False;
-        if (TextID <> -1) then
-          for I := 0 to gResLocales.Count - 1 do
-            if clbShowLang.Checked[I+1] then
-              Result := Result or (fTextManager.Texts[TextID][I] = '');
+        for I := 0 to gResLocales.Count - 1 do
+          if clbShowLang.Checked[I+1] then
+            Result := Result or (fTextManager.Texts[TextID][I] = '');
       end;
 
     //Show lines that are the same in selected locales
     if Result and cbShowDup.Checked then
-      if fTextManager.TextBlankInAll(aIndex) then
+      if TextID = -1 then
         Result := False
       else
       begin
         Result := False;
-        if (TextID <> -1) then
-          for I := 0 to gResLocales.Count - 1 do
-            if clbShowLang.Checked[I+1] then
-            for K := 0 to gResLocales.Count - 1 do
-              if (K <> I) and clbShowLang.Checked[K+1] then
-                Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][K]);
+        for I := 0 to gResLocales.Count - 1 do
+          if clbShowLang.Checked[I+1] then
+          for K := 0 to gResLocales.Count - 1 do
+            if (K <> I) and clbShowLang.Checked[K+1] then
+              Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][K]);
       end;
 
     if Result and (Edit1.Text <> '') then
