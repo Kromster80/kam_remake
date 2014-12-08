@@ -1,0 +1,9 @@
+﻿1:[$00D7FF]Moedas[]:
+2:([$00FF00]%d[])[$%s]%s[]: %d
+3: - [$00FFFF]ouro[]
+4: - [$00FFFF]casa[]
+5:Ouro insuficiente! Você precisa de %d para essa casa.
+6:Ouro insuficiente! Você precisa de %d para comprar baú.
+8: << [$00FF00]trabalhando[]
+10: - [$00FFFF]comida[]
+19: guerra.

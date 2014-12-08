@@ -88,7 +88,7 @@
 87:Balista
 88:El ayudante abastece los edificios con las materias necesarias.||Tenga en cuenta que deberá haber un camino construído de casa a casa.
 89:Para abastecer el aserradero con troncos necesita al leñador.||El leñador foresta de nuevo el terreno.
-90:El minero extrae mine- rales de las minas de carbón, de hierro y de oro.
+90:El minero extrae minerales de las minas de carbón, de hierro y de oro.
 91:En ganadero cría cerdos y caballos en los criaderos, alimentándolos con cereales.
 92:El campesino siembra y cosecha el grano en el campo.||Además pisa la uva en la viña.
 93:El carpintero trabaja en el aserradero, en el taller de armas y en el taller de armaduras.
@@ -121,14 +121,14 @@
 120:Modificar volumen
 121:Música
 122:Música si/no.
-123:Autoalmacenar
+123:Autoguardado
 124:Canción:
 125:Canción anterior
 126:Próxima canción
 127:Derribar
 128:Derribar edificios/marcas
-129:Construír calle
-130:Construcción de calles
+129:Construír caminos
+130:Construcción de caminos
 131:Arar campo
 132:Agricultura
 133:Plantar viñas
@@ -300,10 +300,10 @@
 301:Controles:
 302:Juego:
 303:Sonido:
-304:Desactivar música
+304:Apagar música
 305:Gráficos:
 306:Brillo
-307:Sincronización|Vertical
+307:Sinc. Vertical
 308:Pantalla completa
 309:Aplicar
 310:Lenguaje:
@@ -542,6 +542,7 @@
 552:Descripción
 553:Contraseña
 554:Ajustes de la sala
+556:Baneado de esta sala
 557:Expulsar
 558:Selección aleatoria de las ubicaciones en los equipos
 559:Descripción
@@ -563,7 +564,7 @@
 575:Cerrado
 576:El Anfitrión hace la configuración
 577:Esperando a los jugadores:
-578:Todo
+578:Todos
 579:Equipo
 580:KaM Remake Créditos
 581:Créditos originales Knights & Merchants
@@ -576,9 +577,9 @@
 588:ESPECIALES GRACIAS A:
 589:Mapas Multijugador
 590:Mapas de un solo jugador
-591:Velocidad de desplazamiento
+591:Vel. desplazamiento
 592:Servidores no encontrados
-593:Pistas aleatorias
+593:Músi. Aleatoria
 594:Información de la partida:
 595:-
 596:En la Sala
@@ -681,3 +682,96 @@
 695:Volver a la página de defensa
 696:Posición defensiba
 697:Unidades
+698:Lobo
+699:Pescado
+700:Serpiente marina
+701:Estrella de mar
+702:Cangrejo
+703:Flor de agua
+704:Hojas de agua
+705:Pato
+706:Este tipo de soldado no está disponible
+707:Este tipo de unidad no está disponible
+708:Bloquear unidades
+736:Descargar
+737:descargando...
+738:Sobrescribiendo archivos existentes
+739:%s perdida de conexión
+740:%s a abandonado
+741:%s se ha reconectado
+742:No puedes unirse mientras el juego está en marcha
+743:La sala está completa. No pueden entrar más jugadores
+744:Un jugador con el mismo nombre ya se ha unido en la sala
+748:Derechos de anfitrión reasignados a %s
+749:%s tiene una diferente versión de %s
+750:%s no tiene %s
+751:Consulta el tiempo de espera
+752:El anfitrión ha dejado caer a %s de este juego
+753:%s  ha sido expulsado por el anfitrión
+754:Intentando volver a reconectar con el juego...
+755:%s ha entrado
+756:Reconexión fallida %s
+757:El anfitrión ha decidido continuar jugando sin ti :(
+758:Desconectado por el servidor: Se ha acabado el tiempo
+759:Has sido expulsado por el anfitrión
+760:Servidor a dejado de responder
+761:Número de sala no válido
+765:Hablar solo con %s
+766:%s ha sido baneado de esta sala por el anfitrión
+767:Has sido baneado por el anfitrión
+768:Resetear todas las prohibiciones
+770:Fecha
+771:Mostrar niebla
+772:De espectador
+773:Espectador
+774:Rango de ataque automático
+775:Grupos de AI atacarán automáticamente si se encuentra a menos de esta cantidad de cuadrados
+776:Defender aliados
+777:Si se activa la IA defenderá unidades y casas de aliados como si fueran propias
+778:Permitir espectadores
+779:Promociona a anfitrión
+780:Espectadores
+781:No se puede deshabilitar espectadores: La lista de espectadores debe estar vacía
+782:Rehacer
+783:Deshacer
+784:Establece la posición de inicio de AI que se utiliza para la orientación ataques AI
+785:AI posición inicial
+786:Ordenes
+788:Retardo inicial (segundos)
+790:Casa más cercana del ejército
+791:Casa más cercana de la posicion inicial
+792:Atacantes
+793:Defensores
+794:Espectadores
+795:Para jugar a misiones bloqueadas de la campaña tienes que superar previamente la misión anterior, seleccione la misión en las banderas del mapa de  la campaña
+797:Votar prara volver de esta habitacion para el sala de espera. El juego se puede reanudar o puede ser cambiado
+798:Votar para ir a la Sala
+801:Eliminando una repetición tambien eliminas todo lo guardado con la repetición. ¿estás seguro de que quieres eleminar lo guardado?
+802:Al Azar
+803:Número de soldados a atacar
+804:Eliminar repetición
+805:Eliminar Mapa
+806:¿Estás seguro de que quieres eliminar este mapa?
+807:Ocultar la superposición de secuencias de comandos
+808:Mostrar la superposición de secuencias de comandos
+810:AI crea y gestiona automáticamente los ataques
+811:Equipo rápido
+812:Los soldados están siendo equipados lo más rápido posible. Equipar las tasas afectarán a la planificación pueblo
+813:Aplicar los valores predeterminados de IA
+814:Construcción de Multijugador
+815:Aplicar ajustes de construccion agresivos a la AI para todos los jugadores (para construcciones en multijugador)
+816:Advertencia: Esto anulará todos los ajustes de la IA existentes para todos los jugadores. ¿Desea continuar?
+817:Tipo de ejército
+818:Hierro con cuero
+819:Hierro
+820:Cuero
+821:Mixto
+822:Descargandose mapas
+824:Mover
+825:Ver el leeame PDF
+826:Error al iniciar el reproductor de PDF
+827:Establece a los siervos cuentan por 10 casas para el jugador AI especificado. AI seleccionado tiene %d casas
+828:Error: El archivo de pausa del anfitrión no coincide con el archivo local de pausa. Se ha producido un error ó el anfitrión a podido de tratar de hacer trampas.
+829:El pedido ha sido completado
+830:Fuent. asiáticas
+831:Desplazar fuera las descargas

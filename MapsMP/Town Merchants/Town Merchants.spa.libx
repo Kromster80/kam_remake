@@ -1,0 +1,58 @@
+﻿1:[$00D7FF]Monedas[]:
+2:([$00FF00]%d[])[$%s]%s[]: %d
+3: - [$00FFFF]oro[]
+4: - [$00FFFF]casa[]
+5:¡No hay suficiente oro! Necesitas %d para este edicicio
+6:¡No hay suficiente oro! Necesitas %d  para comprar un cofre de oro
+7:¡Ya tienes la máxima cantidad de oro en la escuela! Compra algunos trabajadores.
+8: << [$00FF00]trabajando[]
+9: + [[$00FF00]%d[]]
+10: - [$00FFFF]comida[]
+11:¡No hay suficientes monedas! Necesitas %d para comprar comida.
+12: << [$00D7FF]promover[]
+13:¡No hay suficientes monedas! Necesitas %d  para comprar este material
+14: - [$00FFFF]materiales[]
+15:¡Hay algunas casas en llamas! ¡Repara tus edificios tan rápido como puedas!
+16:¡Tus %s  han sido asesinadas!
+17:¡Tus casas han sido saqueadas!
+18:inanicion.
+19:Guerra.
+20:Creciente
+21:[$00FF00]Evento[]:
+22:[$00D7FF]Busqueda[]:
+23:[$000000] - []
+24:[$00FFFF] - []
+25: ([$00D7FF]%d[])[$00FF00]%d[] %s.
+26: << [$00D7FF]recompensado[]
+27:[$00D7FF]Precios de Venta[]:
+28: %s : %d
+29:[$00D7FF]Monedas gastadas en casas[]:
+30:¡Has completado la misión y recibes %d monedas!
+31:[$00D7FF]%d[]: [$%s]%s[]([$00FF00]%d[]):
+32:[$00D7FF]Puntuación[]:
+33: << [$00FF00]¡Ganador![]
+34: - [$00FF00]%d%s[]de acciones en la ciudad.
+35: - [$00FFFF]%d[] de total de monedas.
+36: - [$00D7FF]%d[] de monedas actuales.
+37:[$%s]%s[] ¡Has completado el juego! Mira los detalles en el marcador
+38: + [$00FF00]vendido[]
+39:¡No puedes vender tu casa principal!
+40:¡Tu casa ha sido quemada!
+41:Los grandes comerciantes necesitan:
+42:Tus monedas: [$00D7FF]%d[]
+43: + [$00FF00]vendido[]
+44: [$00FF00]%s[]([$00D7FF]%d[]).
+45:[$00FF00]Ofertas[]:
+46: - [$00FFFF]oferta[]
+47:¡No hay suficientes monedas! Necesitas %d para este perniso
+48: [$00FFFF]%d[]([$00D7FF]%d[]).
+49:¡No hay suficientes monedas! Necesitas %d para contratar a estos trabajadores
+50: - [$00FFFF]alquilado[]
+51: << [$0000FF]impuesto:[][[$00FFFF]%d[]]
+52:Los impuestos han aumentado, a causa de los impagos.
+53: << [$00FF00]pagar impuestos[]
+54:¡No hay suficientes monedas! Necesitas %d para pagar los impuestos.
+55: << [$0000FF]Impuestos:[] [[$00FFFF]%d[]] - [[$00FFFF]%d[]]
+56:([$00FF00]%d[])
+57:[$0000FF]Comprobar impuestos[] in ([$00FFFF]%d[])
+58: %s : [$00FF00]%d[]

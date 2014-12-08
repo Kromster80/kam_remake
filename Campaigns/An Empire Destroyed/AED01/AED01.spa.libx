@@ -1,0 +1,12 @@
+﻿0:Mi Señor, las fuerzas enemigas están comenzando su asedio a la capital. Debemos preparar las defensas.
+1:Mi señor, ¡los enemigos han sido vistos en el noreste!
+2:Mi señor, ¡los enemigos han sido vistos en el noroeste!
+3:Mi señor, ¡los enemigos han sido vistos en el sureste!
+4:Mi señor, ¡los enemigos han sido vistos en el suroeste!
+5:Mi señor, ¡los enemigos están atacando desde todas las direcciones a la vez!
+6:Mi señor, ¡los traidores se han infiltrado en el castillo! Debemos repelerlos a toda costa!
+7:Mi señor, el enemigo nos está abrumando, no puede salvar al capital. Tenemos que escapar.
+8:Mi señor, tiene que retirarse a nuestro castillo, esta es nuestra última línea de defensa. No podemos retroceder más.
+9:[$% s] Objetivo: [] Defiende los almacenes
+10:[$% s] Objetivo: [] Retirarse al castillo y defender los muros del castillo
+11:[$% s] Objetivo: [] La capital está perdida, no hay nada que usted pueda hacer
