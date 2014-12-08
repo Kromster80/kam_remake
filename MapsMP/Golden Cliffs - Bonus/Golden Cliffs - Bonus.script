@@ -1,4 +1,4 @@
-//Bonuses v2.00
+//Bonuses v2.01
 //1 Survivalists
 //2 Engineering
 //3 Rich
@@ -70,7 +70,7 @@ procedure aGiveStartingGold(aHouse: Integer);
 begin
 	if States.HouseType(aHouse) = 13 then if States.HouseResourceAmount(aHouse, 7) < 5 then Actions.HouseAddWaresTo(aHouse, 7, 5-States.HouseResourceAmount(aHouse, 7));
 end;
-//Rich; to be placed OnHouseBuilt
+//Rich; to be placed OnMarketTrade
 procedure aDoubleTrade(aMarket, aFromWare, aToWare: Integer);
 var aaaTradeRatio: Single;
 begin
@@ -97,10 +97,8 @@ begin
 		end;
 	end;
 	
-	if States.GameTime mod States.LocationCount = aPlayer then begin
-		aiUnits := States.PlayerGetAllUnits(aPlayer);
-		for i := 0 to Length(aiUnits)-1 do if (States.UnitType(aiUnits[i]) >= 14) AND (States.UnitType(aiUnits[i]) <= 27) then Actions.FogRevealCircle(aPlayer, States.UnitPositionX(aiUnits[i]), States.UnitPositionY(aiUnits[i]), 18);
-	end;
+	aiUnits := States.PlayerGetAllUnits(aPlayer);
+	for i := 0 to Length(aiUnits)-1 do if (States.UnitType(aiUnits[i]) >= 14) AND (States.UnitType(aiUnits[i]) <= 27) then Actions.FogRevealCircle(aPlayer, States.UnitPositionX(aiUnits[i]), States.UnitPositionY(aiUnits[i]), 18);
 	
 	if Length(aPChousesExplorers[aPlayer]) > 0 then begin
 		iCount := 0;
@@ -345,6 +343,8 @@ begin
 		aBarracks := States.ClosestHouse(States.UnitOwner(aUnitID), States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 21);
 		if aBarracks > -1 then begin
 			aDone := False;
+			
+			if States.PlayerIsAI(States.UnitOwner(aUnitID)) = True then Actions.HouseAddWaresTo(aBarracks, 20, 1); //AIs don't like to be told that they can't recruit a soldier
 			
 			if (States.HouseResourceAmount(aBarracks, 20) >= 1) AND (aDone = False) then begin
 				Actions.HouseTakeWaresFrom(aBarracks, 20, 1);
@@ -673,9 +673,5 @@ begin
 		if aPCstore[aPlayer] = btExplorers then aExplorer(aPlayer);
 		
 		if aPCstore[aPlayer] = btMasterCrafters then aMasterCrafter(aPlayer);
-		
-		if aPCstore[aPlayer] = btSnipers then begin end;
-		
-		if aPCstore[aPlayer] = btRetribution then begin end;
 	end;
 end;

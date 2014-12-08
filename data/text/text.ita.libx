@@ -553,7 +553,7 @@
 564:Impossibile iniziare: %s
 565:Non tutti i giocatori sono pronti per iniziare
 566:Impossibile assegnare posizioni casuali
-567:Il server ci ha assegato il ruolo di host
+567:Il server ci ha assegnato il ruolo di host
 568:Partita iniziata
 569:Costruzione
 570:Battaglia
@@ -702,6 +702,8 @@
 742:Impossibile unirsi ad una partita in corso
 743:La stanza è piena. Impossibile unirsi alla partita
 744:Un giocatore con lo stesso nome è già presente nella stanza
+746:Errore: %s ha file diversi da quelli dell'host e quindi non può unirsi alla partita
+747:I tuoi file non corrispondono a quelli dell'host
 748:%s è stato promosso ad host
 749:%s ha una versione diversa di %s
 750:%s non ha %s
@@ -720,6 +722,7 @@
 766:L'host ha espulso %s da questa lobby
 767:Sei stato espulso dall'host
 768:Resetta le espulsioni
+769:L'host ha azzerato i ban per questa lobby
 770:Data
 771:Mostra nebbia
 772:Spetta
@@ -744,8 +747,11 @@
 793:Difensori
 794:Spettatori
 795:Per giocare una missione sbloccata in precedenza, seleziona la sua bandiera sulla mappa della campagna
+796:%s ha votato per il ritorno alla lobby (servono altri %s voti)
 797:Vota per tornare alla lobby. La partita potrà quindi essere ripresa o modificata
 798:Vota ritorno lobby
+799:%s ha votato per tornare alla lobby (ritorno approvato)
+800:Il ritorno alla lobby è stato rifiutato
 801:Cancellando un replay cancellerai anche il salvataggio associato. Vuoi davvero cancellare questo salvataggio?
 802:Casuale
 803:Numero di soldati ad attaccare
@@ -754,6 +760,7 @@
 806:Vuoi davvero cancellare questa mappa?
 807:Nascondi testo dello script
 808:Mostra testo dello script
+809:Impossibile cambiare host quando il server gira sul tuo client
 810:L'IA crea e gestisce autonomamente gli attacchi
 811:Rapido
 812:I soldati sono reclutati subito. Le impostazioni sono usate per la pianificazione del villaggio
@@ -766,6 +773,7 @@
 819:Ferro
 820:Cuoio
 821:Misto
+822:Mappe scaricate
 824:Muovi
 825:Guarda il PDF allegato
 826:Avvio del lettore PDF fallito
