@@ -374,7 +374,7 @@ begin
   begin
     case aPass of
       0: begin
-           AddAlert(P, 249, gHands[MySpectator.HandIndex].FlagColor);
+           AddAlert(P, 249, gHands[B.Owner].FlagColor);
            gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
          end;
       1: if MySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
