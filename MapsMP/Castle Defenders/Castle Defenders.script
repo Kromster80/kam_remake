@@ -22,7 +22,7 @@ const
   MAX_ARMY_COUNT = 120;                //Maximum army count to activate extra recruits bonus
   RESCUE_RECRUITS_COUNT = 10;          //Maximum recruits count for rescue squad bonus
   RESCUE_ARMY_COUNT = 110;             //Player should have no more than 110 soldiers to use rescue squad bonus
-  RESCUE_DELAY = 1200;                 //2 minutes delay
+  RESCUE_DELAY = 1800;                 //3 minutes delay
   RESCUES_PER_PLAYER = 3;              //Player can use bonus 3 times
   RESCUE_WAVE = 26;                    //Bonus available since 26th wave
   MAX_RANGED = 120;                    //Maximum ranged count per player
@@ -76,6 +76,20 @@ begin
   begin
     bReborn := False;
     bNewborn := True;
+  end;
+end;
+
+
+procedure CheckIdleGroups;
+var
+  Groups: array of Integer;
+begin
+  for K := 4 to 7 do
+  begin
+    Groups := States.PlayerGetAllGroups(K);
+  for I := 0 to length(Groups) - 1 do
+    if States.GroupIdle(Groups[I]) then
+      Actions.GroupOrderWalk(Groups[I], AttackPointX[States.GroupOwner(Groups[I])], AttackPointY[States.GroupOwner(Groups[I])], States.KaMRandomI(8));
   end;
 end;
 
@@ -1446,7 +1460,7 @@ begin
 
          for I := 0 to 3 do
            if States.PlayerEnabled(I) then
-             Actions.GiveWares(I, 7, 16);
+             Actions.GiveWares(I, 7, 15);
 
          AIGroup := Actions.GiveGroup(4, 15, 57, 10, 4, 12, 4);
          Actions.GroupOrderWalk(AIGroup, 75, 55, 4);
@@ -2068,22 +2082,22 @@ begin
          AIGroup := Actions.GiveGroup(7, 16, 10, 93, 2, 25, 5);
          Actions.GroupOrderWalk(AIGroup, 55, 75, 2);
 
-         AIGroup := Actions.GiveGroup(4, 22, 30, 10, 4, 9, 3);
+         AIGroup := Actions.GiveGroup(4, 23, 30, 10, 4, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 58, 55, 4);
          AIGroup := Actions.GiveGroup(4, 23, 120, 10, 4, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 93, 55, 4);
 
-         AIGroup := Actions.GiveGroup(5, 22, 140, 30, 6, 9, 3);
+         AIGroup := Actions.GiveGroup(5, 23, 140, 30, 6, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 95, 58, 6);
          AIGroup := Actions.GiveGroup(5, 23, 140, 120, 6, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 95, 94, 6);
 
-         AIGroup := Actions.GiveGroup(6, 22, 30, 140, 0, 9, 3);
+         AIGroup := Actions.GiveGroup(6, 23, 30, 140, 0, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 57, 95, 0);
          AIGroup := Actions.GiveGroup(6, 23, 120, 140, 0, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 94, 95, 0);
 
-         AIGroup := Actions.GiveGroup(7, 22, 10, 30, 2, 9, 3);
+         AIGroup := Actions.GiveGroup(7, 23, 10, 30, 2, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 55, 58, 2);
          AIGroup := Actions.GiveGroup(7, 23, 10, 120, 2, 9, 3);
          Actions.GroupOrderWalk(AIGroup, 55, 94, 2);
@@ -2147,14 +2161,14 @@ begin
          AIGroup := Actions.GiveGroup(5, 16, 140, 120, 6, 12, 4);
          Actions.GroupOrderWalk(AIGroup, 95, 94, 6);
 
-         AIGroup := Actions.GiveGroup(6, 22, 30, 140, 0, 12, 4);
+         AIGroup := Actions.GiveGroup(6, 16, 30, 140, 0, 12, 4);
          Actions.GroupOrderWalk(AIGroup, 57, 95, 0);
-         AIGroup := Actions.GiveGroup(6, 16, 120, 140, 0, 12, 4);
+         AIGroup := Actions.GiveGroup(6, 22, 120, 140, 0, 12, 4);
          Actions.GroupOrderWalk(AIGroup, 94, 95, 0);
 
-         AIGroup := Actions.GiveGroup(7, 22, 10, 30, 2, 12, 4);
+         AIGroup := Actions.GiveGroup(7, 16, 10, 30, 2, 12, 4);
          Actions.GroupOrderWalk(AIGroup, 55, 58, 2);
-         AIGroup := Actions.GiveGroup(7, 16, 10, 120, 2, 12, 4);
+         AIGroup := Actions.GiveGroup(7, 22, 10, 120, 2, 12, 4);
          Actions.GroupOrderWalk(AIGroup, 55, 94, 2);
        end;
 
@@ -2573,7 +2587,7 @@ begin
 
          for I := 0 to 3 do
            if States.PlayerEnabled(I) then
-             Actions.GiveWares(I, 7, 24);
+             Actions.GiveWares(I, 7, 30);
 
          if TotalArmyCount <= MAX_ARMY_COUNT then
            AddRecruits10;
@@ -2685,7 +2699,7 @@ begin
 
          for I := 0 to 3 do
            if States.PlayerEnabled(I) then
-             Actions.GiveWares(I, 7, 25);
+             Actions.GiveWares(I, 7, 30);
 
          if TotalArmyCount <= MAX_ARMY_COUNT then
            AddRecruits10;
@@ -2869,8 +2883,12 @@ end;
 procedure CheckRescueDelay;
 begin
   for I := 0 to 3 do
+  begin
     if RescuesDelay[I] > 0 then
       RescuesDelay[I] := RescuesDelay[I] - 1;
+    if RescuesCount[I] = 0 then
+      RescuesDelay[I] := 0;
+  end;
 end;
 
 
@@ -2956,5 +2974,9 @@ begin
   if (Wave >= BONUS_WAVE)
   and (DEBUG_MODE) then
     CheckDebugBonus;
+
+
+  if States.GameTime mod 101 = 0 then
+    CheckIdleGroups;
 
 end;
