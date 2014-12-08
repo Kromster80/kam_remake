@@ -33,7 +33,7 @@ const // const is like C's #DEFINE, not a real const, so no assignment of types 
   NUM_FLAGS = 15; // if you change the number of flags be careful because the program uses some inner sorting logic (example in FirstFlagManagement); you will encounter strange bugs if you are not careful here
   WIN_HOLDING_TICK = 1800; // how long does the leader have to keep his flags until he wins the match -> 3 minutes, written as game ticks
   TICKS_PER_SECOND = 10; // atm not needed because it's not accessible, but it's there for future manipulation
-  GIVE_GOLD_PER_LEADER_TICK = 300; // give one gold each nn seconds of leading time in ticks
+  GIVE_GOLD_PER_LEADER_TICK = 100; // give one gold each nn seconds of leading time in ticks
 
 type // needed to enable passing by reference in functions
   arr_loc = array[1..LOCATIONS_TOTAL] of integer; // BEWARE: it's 1..8, however all system IDs are 0..7 - so all API calls need additional '- 1'
@@ -195,7 +195,7 @@ begin
   if (loc < 1) OR (loc > LOCATIONS_TOTAL) then EXIT;
   // it makes use of the fact that the valley is rectangular here, so 4 players are on the left side, 4 on the right -> coordx will give only index 1 & 2
   if xy = coordx then if loc < 5 then RESULT := 1 else RESULT := 2;
-  if xy = coordy then RESULT := 1 + ((loc - 1) mod 4); // 'y' will give index 1, 2, 3, 4
+  if xy = coordy then RESULT := 1 + ((loc - 1) MOD 4); // 'y' will give index 1, 2, 3, 4
 end;
 
 //
@@ -1117,7 +1117,7 @@ begin
   if (balancer_loc = 9) then
   begin
     if (NOT GAME_WON) then CheckVictory;
-	if (States.GameTime - 9) mod 95 = 0 then CheckFish; // check fish every 95 seconds
+	if (States.GameTime - 9) mod 115 = 0 then CheckFish; // check fish every 115 seconds
   end;
   // balancer_loc = 0 is checked below - after the texts were updated with BALANCER_DISP 
 

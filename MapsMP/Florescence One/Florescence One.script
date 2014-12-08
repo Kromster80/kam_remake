@@ -1,7 +1,7 @@
 /// :: Fun with Flags! ::
 /// **** FLORESCENCE ****
-/// *     v1.1 r21      *
-/// * by Siegfried 2013 *
+/// *     v1.2 r22      *
+/// * by Siegfried 2014 *
 ///
 /// licenced under GPLv2
 /// https://gnu.org/licenses/old-licenses/gpl-2.0.txt
@@ -33,7 +33,7 @@ const // const is like C's #DEFINE, not a real const, so no assignment of types 
   NUM_FLAGS = 15; // if you change the number of flags be careful because the program uses some inner sorting logic (example in FirstFlagManagement); you will encounter strange bugs if you are not careful here
   WIN_HOLDING_TICK = 1800; // how long does the leader have to keep his flags until he wins the match -> 3 minutes, written as game ticks
   TICKS_PER_SECOND = 10; // atm not needed because it's not accessible, but it's there for future manipulation
-  GIVE_GOLD_PER_LEADER_TICK = 300; // give one gold each nn seconds of leading time in ticks
+  GIVE_GOLD_PER_LEADER_TICK = 100; // give one gold each nn seconds of leading time in ticks
 
 type // needed to enable passing by reference in functions
   arr_loc = array[1..LOCATIONS_TOTAL] of integer; // BEWARE: it's 1..8, however all system IDs are 0..7 - so all API calls need additional '- 1'
@@ -218,7 +218,7 @@ begin
   begin
     for y := CONST_FORB_LOC_Y_START[index_y] to CONST_FORB_LOC_Y_END[index_y] do
 	begin
-	  uid := States.UnitAt(x,y);
+	  uid := States.UnitAt(x, y);
 	  if uid = -1 then continue // no unit in forbidden area
 	  else
 	  begin
@@ -228,7 +228,7 @@ begin
 		begin
 		  owner := States.UnitOwner(uid);
 	      if (owner = -1) OR (owner = loc - 1) then continue // own military stands in own forbidden area or unknown military owner (neutral?)
-	      else Actions.UnitKill(uid,false);
+	      else Actions.UnitKill(uid, false);
 		end
 	  end
 	end
@@ -417,7 +417,7 @@ var
   lt: TLoc;
 begin
   if TEAMGAME AND (TEAM_OF_PLAYER[WINNING_PLAYER] <> 0) then begin for lt := p1 to p8 do if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[WINNING_PLAYER]]) then Actions.GiveWares(LoctypeToInt(lt) - 1, 7 , 1); end
-  else Actions.GiveWares(WINNING_PLAYER - 1, 7 , 1);
+  else Actions.GiveWares(WINNING_PLAYER - 1, 7, 1);
 end;
 
 /// ----------------------
@@ -629,7 +629,7 @@ begin
   // has to be called late so the TEAM_OF_PLAYER-array is properly filled; teams count here, not single players
   case TeamingPlayersCount of // rule: the player has to have double the number (rounded up and/or +2 because of 3 final flags) compared to the followers;
     2:  FLAGS_TO_WIN := 10; // 2:1 needed of the fighting flags (6 out of 9) + your final flags (2 out of 2) + your share of the first flag (2 out of 4)
-    3:  FLAGS_TO_WIN := 9; // 2:2 needed (5/9) + (2/2) + (2/4)
+    3:  FLAGS_TO_WIN := 8; // 2:2 needed (5/9) + (2/2) + (2/4)
     4:  FLAGS_TO_WIN := 7; // 2:3 needed (4/9) + (2/2) + (1/4)
     5:  FLAGS_TO_WIN := 6; // 2:4 needed (3/9) + (2/2) + (1/4)
     6:  FLAGS_TO_WIN := 6; // 2:5 needed (3/9) + (2/2) + (1/4)
@@ -1040,7 +1040,7 @@ begin
 	begin
 	  Dec(SCORES[owner + 1][3]); // -1 for losing house (owner)
 	  // increase score number for all other players if they are not teamed up with the owner
-	  for i := 1 to LOCATIONS_TOTAL do if (States.PlayerEnabled(i)) AND (i <> owner + 1) AND ((TEAM_OF_PLAYER[i] <> TEAM_OF_PLAYER[owner + 1]) OR (TEAM_OF_PLAYER[i] = 0)) then Inc(SCORES[i][3]); // +1 for destroying house (attacker)
+	  for i := 1 to LOCATIONS_TOTAL do if (States.PlayerEnabled(i - 1)) AND (i <> owner + 1) AND ((TEAM_OF_PLAYER[i] <> TEAM_OF_PLAYER[owner + 1]) OR (TEAM_OF_PLAYER[i] = 0)) then Inc(SCORES[i][3]); // +1 for destroying house (attacker)
 	end
   end
 end;
@@ -1092,6 +1092,6 @@ begin
 	UpdateTextHead;
 	UpdateTextTail;
 	Actions.OverlayTextSet(-1, TEXT_HEAD); // all players get the match time
-	for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then Actions.OverlayTextAPPEND(i - 1, TEXT_BODY[i]); // display each player his personal flag score overview
+	for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then Actions.OverlayTextAppend(i - 1, TEXT_BODY[i]); // display each player his personal flag score overview
   end
 end;

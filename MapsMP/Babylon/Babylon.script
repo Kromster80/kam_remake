@@ -1,0 +1,9 @@
+Procedure OnTick;
+Begin
+if States.GameTime = 1 then
+  Actions.ShowMsg(-1, '<$0>');
+if States.GameTime = 60 then
+  Actions.ShowMsg(-1, '<$1>');
+if States.GameTime = 120 then
+  Actions.ShowMsg(-1, '<$2>');
+End;
