@@ -383,7 +383,7 @@
 388:Elemente zufällig
 389:Richtung zufällig
 390:Anklicken für eine zufällige Ausrichtung der Kacheln. Mit Rechtsklick wird die Kachel gedreht.
-392:Gehen blockieren
+392:Blockiert Felder, auf denen man dann weder laufen noch bauen kann.
 393:Entferne Objekte
 394:Häuser bearbeiten
 395:Optische Skripte
@@ -654,7 +654,8 @@
 668:Map speichern
 669:Stellt Verzögerung ein, wann KI mit der Ausbildung von Rekruten beginnt.
 670:Start Rekrut. (Min.)
-672:Magisches Wasser
+671:Bei Aktivierung fließen alle Gewässer und Flüße in die selbe Richtung.
+672:"Magisches Wasser"
 673:Kopieren
 674:Einfügen
 675:Bestätigen
@@ -728,6 +729,7 @@
 780:Zuschauer
 782:Wiederholen
 783:Rückgängig
+784:Platziert die Startposition der KI, welche für KI-Attacken benötigt wird.
 785:KI Startposition
 786:Befehl
 790:nahestes Haus von Armee aus
@@ -736,6 +738,11 @@
 793:Verteidiger
 794:Zuschauer
 795:Um eine vorher freigeschaltete Mission spielen zu können, markiere die entsprechende Fahne auf der Kampagnen-Karte.
+796:%s haben abgestimmt und wollen zur Lobby zurück (%s mehr erforderlich)
+797:Abstimmen um zur Lobby zurückzukehren. Spiel kann dann wieder aufgenommen oder geändert werden.
+798:Zur Lobby zurück?
+799:%s hat abgestimmt zur Lobby zurückzukehren (Abstimmung erfolgreich).
+800:Abstimmung zur Lobby zurückzukehren wurde abgelehnt.
 802:Truppe zufällig
 803:Anzahl
 804:Replay löschen
@@ -757,5 +764,6 @@
 822:Heruntergeladene Maps
 825:Zeige Readme PDF an
 826:PDF konnte nicht angezeigt werden
+827:Setzt Anzahl Gehilfen für je 10 Gebäude für den KI-Spieler. Ausgewählte KI hat %d Häuser.
 829:Der Auftrag ist vollständig.
 830:Asiatische Fonts

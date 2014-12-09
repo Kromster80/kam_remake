@@ -24,13 +24,13 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r6703';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r6720';       //Should be updated for every release (each time save format is changed)
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
   {$ELSE}
     GAME_VERSION_POSTFIX  = ' (UNSECURE!)';
   {$ENDIF}
-  GAME_VERSION_PREFIX   = 'Release Candidate 5 '; //Game version string displayed in menu corner
+  GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
   GAME_VERSION          = GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 

@@ -2,7 +2,7 @@
 global $MAIN_VERSION, $MAX_TTL, $STATS_REFRESH, $TABLE_REFRESH, $TIME_REFRESH, $BASE_URL;
 
 //Used as default when a specific revision is not requested
-$MAIN_VERSION = 'r5503';
+$MAIN_VERSION = 'r6720';
 
 //Maximum TTL (time to live) a server can specify, otherwise an entry could be added that would expire in 100 years
 $MAX_TTL = 600; //10 minutes

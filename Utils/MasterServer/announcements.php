@@ -12,29 +12,14 @@ if($RevNum > 6097) {
     include('announcements.ansi.php');
 }
 
-if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125") || ($Rev == "r4297") || ($Rev == "r5057") || ($Rev == "r5116") || ($Rev == "r5349") || ($Rev == "r5459"))
+if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125") || ($Rev == "r4297") || ($Rev == "r5057") || ($Rev == "r5116") || ($Rev == "r5349") || ($Rev == "r5459") || ($Rev == "r6157") || ($Rev == "r6478") || ($Rev == "r6547") || ($Rev == "r6618") || ($Rev == "r6619") || ($Rev == "r6654"))
 {
-  die('[$0000FF]THE SCRIPTING DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
-}
-
-if(($Rev == "r6478") || ($Rev == "r6547") || ($Rev == "r6618") || ($Rev == "r6619") || ($Rev == "r6654"))
-{
-  die('[$0000FF]THIS RELEASE CANDIDATE IS OUTDATED[]||If you are on our beta tester mailing list you should have received the new release candidate. If you are not on the list, please email contact@kamremake.com to join.');
-}
-
-if($Rev == "r6157")
-{
-  die('[$0000FF]THIS BETA IS OUTDATED![]||We are now testing the release candidate. Please email contact@kamremake.com to be added to the beta tester mailing list and receive the release candidate.');
+  die('[$0000FF]KaM Remake r6720 IS OUT![]||This release candidate / beta is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
 //Special announcement for Chinese players about QQ group
 if(($RevNum > 6097) && ($Lang == 'chn')) {
 	echo "感谢游戏汉化团队: [CN] Team；感谢游戏服务器提供者：[CN]-Coffee(文化)、 [CN]-CMB(菜太咸)。||骑士与商人QQ群：高手群-167329860 ，新手群-16174516 ，欢迎加入！||";
-}
-
-if($Rev == "r6703")
-{
-  die('Welcome to release candidate 5.');
 }
 
 //First see if they are up to date
@@ -44,7 +29,7 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-    echo 'Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
+    echo 'Welcome to [$C6FFB0]KaM Remake r6720[]! We hope you enjoy the update.||Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
     //echo 'The community is organising a [$00CC74]2vs2 tournament[]. Show your KaM skill in front of [$FF78A5]live stream audiences[]! Registrations close 5th February so find a partner and enter soon :) More information at [$F8A070]www.kamremake.com[]||Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
     //echo 'Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
     //echo 'Did you know we have an official forum? Read about the latest developments to the KaM Remake, discuss your ideas and get responses from developers, see the latest fan-made maps, and take part in community events like tournaments and beta testing. Visit our forum at:|[$F8A070]knightsandmerchants.net/forum[]||Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';

@@ -1,7 +1,7 @@
 ; For each "Update" build there are two things to change. Revision and Upgradable Versions
 
 ; REVISION
-#define Revision 'r5503'
+#define Revision 'r6720'
 
 ; These don't need to change
 #define InstallType 'Update'
@@ -13,7 +13,7 @@
 function CheckRemakeVersion(aVersion:string):boolean;
 begin
   //Place all Remake versions that are allowed to be upgraded here
-  Result := (aVersion = 'r4179');
+  Result := (aVersion = 'r5503');
 end;
 
 function CanInstall():boolean;

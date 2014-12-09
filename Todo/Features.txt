@@ -13,7 +13,8 @@ Future
 	Checkbox to allow allies to share group/house control (or two players controling one hand)
 	When a server shuts down clients should automatically switch servers so the game can continue
 
-Next Demo
+
+KaM Remake r6720 - 2014-12-10
  +	Select objects by shape
  +	Undo/Redo in MapEd terrain editing
  +	File transfer in multiplayer for missions and saves [Lewin]
