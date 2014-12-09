@@ -1,0 +1,16 @@
+MaxID:15
+
+1:[$00FF00]Furious Warriors[]
+2:[$%s]%s[]: %d
+3:[$00D7FF]Gold[]: %d
+4:[$00D7FF]Defeated[]:
+5: +[$00FF00]%d[]
+6: /[$00D7FF]%d[]
+7: +[$32CD32]%d[]
+8:[$E6D8AD]Elite[]: %d/%d
+9: - [$E6D8AD]%d[]
+10: Not enough coins! You need [$00FF00]%d[] to buy this plans ( [$00FF00]%s[] ).
+11: You already have maximum amount of watch towers is %d.
+12: - [$FAFFF5]%s[]([$20A5DA]%d[][$32CD32]+%d[]) -> [$FAFFF5]%s[]
+13: - [$FAFFF5]%s[]([$20A5DA]%d[])
+14: - [$FAFFF5]%s[]([$20A5DA]%d[][$32CD32]+%d[]) -> [$FAFFF5]upgrade to irontroops[]

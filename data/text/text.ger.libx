@@ -272,6 +272,7 @@
 274:Zurück zum Multiplayer
 275:Zurück zu den Replays
 276:Alles
+277:Kriegsführung
 278:Nahrung
 279:JOYMANIA ENTERTAINMENT||PROGRAMMIERUNG:|Peter Ohlmann||SPIELGRAFIK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||TONSCHNITT UND -MISCHUNG:|Tonstudio Mannheim||MUSIK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONEN:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBUCH:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|BlackStar Interactive||CUTSCENES:||LEITUNG:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||SPRECHER:|Claus Boyen (Erzähler)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBUCH SATZ+DESIGN:|Uwe Schäfer|Alexandra Constandache||HANDBUCH TEXTE:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||ERÖFFNUNGSANIMATION:|Uwe Schäfer|Christian Bigalk|Zusätzliches 3D-Modelling:|Niels Horstmann||BESONDEREN DANK AN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Mission abgebrochen
@@ -279,7 +280,7 @@
 282:Aufbaututorial
 283:Kampftutorial
 284:Einzelspieler
-285:Karteneditor
+285:Mapeditor
 286:Mission starten
 287:Szenario
 288:Größe
@@ -288,12 +289,12 @@
 291:Verbündete:
 292:Gegner:
 293:Zeit
-294:Kartengröße
+294:Größe
 295:Breite
 296:Höhe
-297:Neue Karte erstellen
-298:Vorhandene Karten
-299:Vorhandene Karte öffnen
+297:Neue Map erstellen
+298:Map Typ
+299:Map öffnen
 301:Steuerung:
 302:Spieleinstellungen:
 303:Sound:
@@ -350,7 +351,7 @@
 354:Nachrichten
 355:Diese Fischerhütte ist zu weit vom Wasser entfernt!
 356:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
-357:Starte Replay neu
+357:Replay neustarten
 358:Replay pausieren
 359:1 Schritt vorwärts
 360:Replay fortsetzen
@@ -380,7 +381,7 @@
 386:Ansteigen (Linksklick) / Ebnen (Rechtsklick)
 387:Pinsel
 388:Elemente zufällig
-389:Ausrichtung zufällig
+389:Richtung zufällig
 390:Anklicken für eine zufällige Ausrichtung der Kacheln. Mit Rechtsklick wird die Kachel gedreht.
 392:Gehen blockieren
 393:Entferne Objekte
@@ -397,11 +398,11 @@
 404:Alle nicht gespeicherten|Änderungen gehen verloren!
 405:Abbrechen
 406:Laden
-407:Lade Karte
+407:Map laden
 408:Abbrechen
 409:Speichern
 410:Überschreiben
-411:Karte existiert bereits
+411:Map existiert bereits
 412:Spieler:
 413:Standard
 414:Spieler Typ
@@ -409,7 +410,7 @@
 416:Bündnisse
 417:Taktik
 418:Normal
-419:Art der Mission
+419:Missionstyp
 420:Springe zu Gebiet
 421:Startbildschirm zu Beginn der Mission
 422:Startbildschirm
@@ -431,8 +432,8 @@
 440:Aufbau Tutorial
 441:Keine
 442:Bedingung
-443:Überleben
-444:Sieger
+443:Überleben (S)
+444:Sieger (V)
 445:Keine
 446:Typ
 447:Siegbedingungen
@@ -447,8 +448,8 @@
 456:Soldatenlimit
 457:Anzahl Rekruten in der Kaserne.
 458:Rekruten in Kaserne
-460:Spez. Position
-463:Näheste Einheit
+460:Bestimmte Position
+463:naheste Einheit
 465:Gruppen Anzahl
 466:Angriff Einstellungen
 468:Wiederholt
@@ -457,25 +458,28 @@
 471:Schützen
 472:Lanzer
 473:Infanterie
+474:X/Y
 475:Ziel
 476:Menge
 477:Verz.
-478:Typ
+478:Anzahl Angriffe
 479:Autom. Angriff
 480:KI Angriffe
 481:Intervall Lederrek.
-482:Intervall Eisenrekrut.
+482:Intervall Eisenrek.
 483:Autoverteidigung
 484:KI erstellt und verwaltet Verteidigungsposition automatisch.
 485:Platziere die Verteidigungsposition der KI.
 486:KI Verteidigung
 487:Arbeiter
-488:Gehilfen pro 10 Häuser
+488:Gehilfen / 10 Häuser
 489:Repariert Gebäude
 490:Errichtet Gebäude
 491:KI Einstellungen
 492:Gebäude
 493:Felder
+494:Ausgewähltes Terrain vertikal umkehren.
+495:Ausgewähltes Terrain horizontal umkehren
 496:Terrain einfügen
 497:Terrain kopieren
 498:Kopieren / Einfügen
@@ -522,7 +526,7 @@
 539:Zufällig
 540:Keine Info vorhanden.
 541:Spielstand laden
-542:Wähle eine Karte...
+542:Wähle eine Map...
 543:Spielstand wählen...
 544:Lobby verlassen
 545:Bereit!
@@ -535,21 +539,23 @@
 552:Beschreibung
 553:Passwort
 554:Raum Einstellungen
+556:Aus dieser Lobby verbannen
 557:Kicken
 558:Zufällige Vergabe der Locations innerhalb der Teams
 559:Beschreibung
 560:Optionen
 561:Standort %d
 562:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
-563:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
+563:Fehler: Map konnte nicht geladen werden oder keine Map ausgewählt!
 564:Kann nicht starten: %s.
 565:Es ist noch nicht jeder bereit zu starten.
+566:Zufällige Zuordnung der Gebiete nicht möglich.
 567:Der Server hat dir die Hostingrechte übertragen.
 568:Spiel gestartet
 569:Aufbau
 570:Gefecht
 571:Koop-Modus
-572:Spezial Karte
+572:Spezielle Maps
 573:Einstellungen:
 574:Friedenszeit (in Minuten):
 575:Leer
@@ -566,8 +572,8 @@
 586:ZUSÄTZLICHE MUSIK:
 587:ZUSÄTZLICHE ÜBERSETZUNGEN:
 588:BESONDERER DANK AN:
-589:Mehrspieler Karten
-590:Einzelspieler Karten
+589:Mehrspieler Maps
+590:Einzelspieler Maps
 591:Scrollgeschw.
 592:Keinen Server gefunden.
 593:Lieder zufällig
@@ -615,9 +621,9 @@
 635:Bäume
 636:Definitionen
 637:Texturen
-638:Karte nicht gefunden: %s
+638:Map nicht gefunden: %s
 639:Spielstand nicht gefunden: %s
-640:Kartendateien stimmen nicht mit denen des Hosts überein: %s
+640:Map-Dateien stimmen nicht mit denen des Hosts überein: %s
 641:Spielstanddatei stimmt nicht mit der des Hosts überein: %s
 642:Das Replay läuft instabil wegen einem Konsistenz Check. Das ist ein bekannter Fehler, der sich auf die Wiedergabe von Replays auswirkt. Möchtest du dennoch weiterhin zuschauen?
 643:Du kannst nur eine Instanz des Spiels im Multiplayer starten.
@@ -645,13 +651,16 @@
 665:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle überlastet zu sein. Bitte versuche es später erneut.
 666:Information
 667:Bitte gedulde Dich einen Augenblick...
-668:Karte speichern
+668:Map speichern
 669:Stellt Verzögerung ein, wann KI mit der Ausbildung von Rekruten beginnt.
 670:Start Rekrut. (Min.)
+672:Magisches Wasser
 673:Kopieren
 674:Einfügen
 675:Bestätigen
 676:Abbrechen
+677:Vertikal drehen
+678:Horizontal drehen
 679:Ziehe einen Rahmen um ein Gebiet auf der Karte.
 680:KI Verteidigung
 681:Aus
@@ -664,8 +673,89 @@
 688:Angriffspunkt
 689:Gehe zu
 690:Richtung
-693:Radius / Größe
+693:Radius
 694:Entferne die aktuelle Verteidigungsposition.
 695:Zurück zur Verteidigungsübersicht.
 696:Verteid. Position
 697:Einheiten
+698:Wolf
+699:Fisch
+700:Wasserschlange
+701:Seestern
+702:Krabbe
+703:Teichblatt
+704:Wasserblattgewächs
+705:Ente
+706:Diese Einheit ist nicht verfügbar.
+707:Dieser Beruf ist nicht verfügbar.
+708:Einheiten Erlaubnis
+738:Überschreibe bestehende Dateien
+739:%s Verbindung getrennt
+740:%s ist raus
+741:%s ist wieder verbunden
+742:Einstieg in ein laufendes Spiel nicht möglich.
+743:Raum ist voll. Es können keine weiteren Spieler ins Spiel eintreten.
+744:Ein Spieler mit diesem Namen hat bereits den Raum betreten.
+746:Fehler: %s Dateien unterscheiden sich von denen des Hosts, Eintritt ins Spiel nicht möglich!
+748:%s hat nun Host-Rechte
+749:%s hat eine andere Version als %s
+750:%s hat nicht %s
+751:Anfrage Timeout
+752:Host hat %s aus dem Spiel geworfen.
+753:%s wurde vom Host gekickt!
+754:Versucht Spiel neu zu verbinden...
+755:%s ist beigetreten
+756:Wiederverbindung fehlgeschlagen: %s
+757:Der Host hat abgelehnt weiterhin mit dir zu spielen. :(
+758:Verbindungsabbruch durch Server: Timout ermittelt
+759:Du wurdest vom Host gekickt!
+760:Server hat Antwort gestoppt
+761:Ungültige Raum Nummer
+765:%s etwas flüstern
+766:%s wurde vom Host aus dieser Lobby verbannt.
+767:Du wurdest vom Host verbannt!
+768: Verbannungen löschen
+769:Der Host hat alle Verbannungen dieser Lobby gelöscht.
+770:Datum
+771:Nebel anzeigen
+772:Zuschauen
+773:Zuschauer
+774:Autom. Angriff
+775:KI attackiert automatisch, wenn man in den Bereich eindringt.
+776:Verteidige Verbündete
+777:Wenn aktiviert, KI verteidigt Gebäude und Einheiten des Verbündeten, als wären es die eigenen.
+778:Zuschauer erlauben
+780:Zuschauer
+782:Wiederholen
+783:Rückgängig
+785:KI Startposition
+786:Befehl
+790:nahestes Haus von Armee aus
+791:nahestes Haus von Startposition aus
+792:Angreifer
+793:Verteidiger
+794:Zuschauer
+795:Um eine vorher freigeschaltete Mission spielen zu können, markiere die entsprechende Fahne auf der Kampagnen-Karte.
+802:Truppe zufällig
+803:Anzahl
+804:Replay löschen
+805:Map löschen
+806:Bist du sicher, dass du die Map löschen möchtest?
+809:Host kann nicht geändert werden, wenn der Server in deinem Client läuft.
+810:KI plant Attacken automatisch und führt sie selber durch.
+811:Schnellrekrutierung
+812:Soldaten werden so schnell wie möglich rekrutiert. Das Rekrutierungsintervall beeinflusst den Siedlungsbau.
+813:KI Standard Werte
+814:Multiplayer KI
+815:Löscht KI-Einstellungen und lässt alle Spieler Siedlungen bauen (für Multiplayer Maps).
+816:Warnung: Überschreibt alle bestehenden KI-Einstellungen aller Spieler. Fortsetzen?
+817:Armee Typ
+818:Eisen dann Leder
+819:Eisen
+820:Leder
+821:Gemischt
+822:Heruntergeladene Maps
+825:Zeige Readme PDF an
+826:PDF konnte nicht angezeigt werden
+829:Der Auftrag ist vollständig.
+830:Asiatische Fonts

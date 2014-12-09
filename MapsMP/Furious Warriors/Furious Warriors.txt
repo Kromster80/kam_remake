@@ -1,0 +1,4 @@
+SetSpecial
+BlockPeacetime
+BigDesc
+[$00FF00]Furious Warriors[] v0.95||Script by Random Lyrics / Randziu|Map by dicsoupcan

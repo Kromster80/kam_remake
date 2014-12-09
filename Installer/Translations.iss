@@ -41,11 +41,11 @@ hun.OpenAL=Szeretnéd, hogy a telepítő telepítse az OpenAL-t? (Erősen ajánl
 hun.ViewReadme=Olvass el fájl megtekintése
 
 ;French
-fre.CreateStartShortcut=Créer un raccourci dans le Menu Démarrer
-fre.NoKaM=L’assistant d’installation à détecter que vous n’avez pas installé Knights and Merchants : The Peasants Rebellion. L’installation va être interrompue.
-fre.CantUpdate=L’assistant d’installation n’a pas pu trouver de version existante de KaM Remake afin de la mettre à jour. Veuillez télécharger et installer l’installateur complet. L’installation va être interrompue.
-fre.OpenAL=Voulez-vous que l’assistant d’installation installe OpenAL ? (Fortement recommandée) Il est nécessaire pour le fonctionnement du son dans KaM Remake.
-fre.ViewReadme=Voir le Readme
+fre.CreateStartShortcut=Créer un raccourci dans le menu Démarrer
+fre.NoKaM=L'assistant d'installation n'a détecté aucune installation de Knights and Merchants : The Peasants Rebellion. L'installation sera interrompue.
+fre.CantUpdate=L'assistant d'installation n'a détecté aucune version existante de KaM Remake à mettre à jour. Veuillez télécharger et utiliser l'installateur complet. L'installation sera interrompue.
+fre.OpenAL=Voulez-vous que l'assistant d'installation installe OpenAL ? (fortement recommandé) OpenAL est requis pour le fonctionnement audio de KaM Remake.
+fre.ViewReadme=Voir le lisez-moi
 
 ;Czech
 cze.CreateStartShortcut=Vytvořit zástupce v nabídce Start

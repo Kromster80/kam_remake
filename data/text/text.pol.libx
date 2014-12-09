@@ -176,7 +176,7 @@
 177:Zasoby Twojej Kopalni Złota są wyczerpane.
 178:Twój drwal nie może znaleźć żadnych drzew do ścięcia
 179:Ten budynek nie ma gospodarza.
-180:Ten oddział jest bardzo głodny! Dostarcz im szybko żywnośći!
+180:Ten oddział jest bardzo głodny! Dostarcz im szybko żywność!
 181:PAUZA
 182:Dostarcza towary
 183:Buduje drogę
@@ -282,9 +282,9 @@
 283:Samouczek dowodzenia podczas bitwy
 284:Jeden Gracz
 285:Edytor Map
-286:Rozpocznij Misje
+286:Rozpocznij Misję
 287:Tytuł
-288:Rozmiar
+288:Wlk.
 289:Warunki wygranej:
 290:Warunki przegranej:
 291:Sojusznicy:
@@ -299,12 +299,12 @@
 300:Położenie
 301:Kontrola:
 302:Rozgrywka:
-303:Dźwięk
+303:Dźwięk:
 304:Wyłącz muzykę
 305:Grafika:
-306:Jasność:
+306:Jasność
 307:Synchronizacja Pionowa
-308:Pełny Ekran:
+308:Pełny Ekran
 309:Zastosuj
 310:Język:
 311:Jakość cieni:
@@ -324,10 +324,10 @@
 325:Tytuł
 326:Mapy
 327:Odblokowane
-328:Wygrałeś!
+328:Wygrana!
 329:Kontynuuj grę
 330:Zwycięstwo!
-331:Przegrałeś!
+331:Przegrana!
 332:Kontynuuj oglądanie
 333:Porażka
 334:Powtórka się zakończyła
@@ -335,7 +335,7 @@
 336:Wyjdź do menu
 337:Niedostępne
 338:Naciśnij %s aby wznowić grę
-339:Informacje gracza
+339:Informacje o graczach
 340:Czat
 341:Zapis już istnieje
 342:Zastąp
@@ -369,7 +369,7 @@
 371:Płytki
 372:Obiekty
 373:Wysokości
-374:Kształt pędzla
+374:Rodzaj pędzla
 375:Rozmiar
 376:Przesuń, aby zmienić rozmiar pędzla
 377:Zbocze
@@ -379,13 +379,13 @@
 381:Okrągły pędzel
 382:Kwadratowy pędzel
 383:Podniesienie / Obniżenie
-384:Pofałdowanie / Wyrównanie
+384:Fałd / Wyrównanie
 385:Podnieś (lewy przycisk) /Obniż (prawy przycisk)
 386:Pofałduj (lewy przycisk)/Wyrównaj (prawy przycisk)
 387:Pędzel
 388:Losowe elementy
 389:Losowy kierunek
-390:Zaznacz dla losowego kierunku płytki lub kliknij prawym przyciskiem myszy, aby obrócić wybrany płytkę
+390:Zaznacz dla losowego kierunku pola lub kliknij prawym przyciskiem myszy, aby obrócić wybrane pole
 392:Zablokuj przejście
 393:Usuń obiekt
 394:Planowanie osady
@@ -417,11 +417,11 @@
 420:Przejdź do lokalizacji
 421:Środek ekranu na początku misji
 422:Środek ekranu
-423:Odsłoń wszystko
+423:Pokaż całość
 424:Odsłoń część mapy
 425:Odsłoń mgłę
 426:Zablokuj handel
-427:Zablokuj/odblokuj budynki
+427:Blokuj/odblokuj domy
 428:Kolory
 429:Cel
 432:Gracz
@@ -446,11 +446,11 @@
 451:Liczba
 452:Formacje Wojsk
 453:Edytuj formacje
-454:Ustaw limit liczby żołnierzy których może mieć AI
-455:Ilu żołnierzy AI może mieć jednocześnie
-456:Ustaw maksymalną liczbę żołnierzy
+454:Ustaw limit liczby posiadanych żołnierzy dla AI
+455:Ilu żołnierzy jednocześnie może mieć AI
+456:Maks. żołnierzy
 457:Ile rekrutów AI powinien mieć w Warowni
-458:Rekrutów na Warownię
+458:Rekruci na Zamek
 460:Niestandardowa pozycja
 463:Najbliższa jednostka
 465:Liczba oddziałów
@@ -458,31 +458,31 @@
 468:Powtarzany
 469:Raz
 470:Jazda
-471:Walczący na dystans
+471:Strzelcy
 472:Anty-jazda
-473:Walczący wręcz
+473:Piechota
 474:Loc.
 475:Cel
 476:Ludzi
 477:Opóźnienie
 478:typ
-479:Automatyczny atak
+479:Autom. atak
 480:Ataki AI
-481:Wyposażyć w oręż skórzany
-482:Wyposażyć w oręż żalazny
-483:Automatyczna obrona
+481:Uzbrój skórzanych
+482:Uzbrój żelaznych
+483:Autom. obrona
 484:AI tworzy i zarządza pozycjami obrony automatycznie
 485:Umieść pozycje obrony dla AI
 486:Pozycje obrony AI
 487:Robotnicy
-488:Pomocników na 10 budynków
-489:Automatyczne naprawianie
-490:Automatyczne bydowanie
+488:Pomocnicy/10 domów
+489:Autom. naprawa
+490:Autom. budowa
 491:Ustawienia AI
 492:Budynki
 493:Prace drogowe
-494:Odwróć zaznaczone w pionie
-495:Odwróć zaznaczone w poziomie
+494:Odwróć zaznaczenie w pionie
+495:Odwróć zaznaczenie w poziomie
 496:Wklej teren
 497:Skopiuj teren
 498:Kopiuj/wklej
@@ -517,7 +517,7 @@
 527:Ładowanie ogłoszeń...
 528:Odświeżanie...
 529:Lista graczy
-530:Lokalizacja początkowa
+530:Lokacja
 531:Drużyna
 532:Kolor
 533:Gotowy
@@ -526,7 +526,7 @@
 536:Wolne
 537:Komputer
 538:Wybierz...
-539:Przypadkowe
+539:Przypadkowa
 540:Żadna
 541:Zapisane Gry
 542:Wybierz mapę...
@@ -573,7 +573,7 @@
 584:DODATKOWE GRAFIKI;
 585:DODATKOWE DŹWIĘKI:
 586:DODATKOWA MUZYKA:
-587:DODATKOWE TŁUMACZENIE:
+587:DODATKOWE TŁUMACZENIA:
 588:SPECJALNE PODZIĘKOWANIA DLA:
 589:Mapy dla wielu graczy
 590:Mapy dla jednego gracza
@@ -601,7 +601,7 @@
 612:Czy na pewno chcesz wyjść?
 613:Czy na pewno chcesz bezpowrotnie wyrzucić tych graczy?
 614:Anuluj
-615:Handlowanie tym zasobem jest nie możliwe w tej misji
+615:Handlowanie tym zasobem jest niemożliwe w tej misji
 616:Sadź i ścinaj
 617:Tylko ścinaj
 618:Nie masz prawa tego robić w okresie pokoju
@@ -656,15 +656,15 @@
 667:Proszę czekać...
 668:Zapisz mapę
 669:Opóźnienie w minutach zanim AI zacznie szkolenie rekrutów
-670:Opóźnienie rekrutacji (min)
+670:Opóźnienie (min)
 671:Ustawia kierunek dla wszystkich płytek w zbiorniku wodnym
 672:Magiczna woda
 673:Kopiuj
 674:Wklej
-675:Potwierdź wklejenie
+675:Akceptuj wklejenie
 676:Anuluj wklejenie
-677:Odwróć w pionie
-678:Odwróć w poziomie
+677:Obróć w pionie
+678:Obróć w poziomie
 679:Przeciągnij, aby zaznaczyć obszar na mapie
 680:Opcje obrony AI
 681:Wył.
@@ -701,7 +701,9 @@
 741:%s odzyskał połączenie
 742:Nie można dołączyć, gdy gra jest w toku
 743:Pokój jest pełen. Nie można dołączyć do gry
-744:Gracz o tej samej nazwie już dołączył do pokoju
+744:Gracz o tym samym nicku przyłączył się już do lobby
+746:Błąd: %s ma pliki gry niezgodne z plikami hosta i przez to nie może dołączyć do tej gry
+747:Twoje pliki gry są niezgodne z plikami hosta
 748:Prawa hosta przeniesione do %s
 749:%s ma inną wersję %s
 750:%s nie posiada %s
@@ -716,36 +718,40 @@
 759:Zostałeś wyrzucony przez hosta
 760:Serwer przestał odpowiadać
 761:Nieprawidłowy numer pokoju
-765:Szept do %s
+765:Szeptaj do %s
 766:%s został zbanowany w tym pokoju przez hosta
 767:Zostałeś zbanowany przez hosta
-768:Zresetuj wszystkie bany
+768:Zresetuj bany
+769:Host zresetował wszystkie bany w tym lobby
 770:Data
 771:Pokaż Mgłę
 772:Oglądaj
 773:Widz
 774:Zasięg auto-ataku
-775:Grupy komputera automatycznie zaatakują, jeśli jesteś bliżej niż tyle płytek
-776:Broń sojuszników
-777:Jeśli włączone to komputer będzie bronić jednostek i budynki sojuszników, jak gdyby były jego własnymi
+775:Grupy komputera automatycznie zaatakują, jeśli jesteś bliżej niż tyle pól
+776:Chroń sojuszników
+777:Jeśli włączone, to komputer będzie bronić jednostek i budynków sojuszników, jak gdyby były jego własnymi
 778:Zezwalaj na oglądanie
 779:Przypisz prawa hosta
 780:Widzowie
 781:Nie można wyłączyć widzów: Lista widzów musi być pusta
 782:Powtórz
 783:Cofnij
-784:Ustawia pozycję początkową komputera, która jest wykorzystywana do kierowania ataków komputera
-785:Pozycja początkowa komputera
+784:Ustawia pozycję początkową komputera, która jest wykorzystywana do kierowania atakami komputera
+785:Pozycja startowa AI
 786:Rozkaz
-788:Początkowe opóźnienie (w sekundach)
+788:Pierwsze opóźnienie (w sekundach)
 790:Budynek najbliżej armii
 791:Najbliższy budynek od pozycji startowej
 792:Atakujący
 793:Obrońcy
 794:Widzowie
-795:Aby odtworzyć wcześniej odblokowaną misję kampanii, wybierz flagę misji na mapie kampanii
-797:Głosuj, aby powrócić lobby. Gra może zostać wznowiona lub zmieniona
-798:Zagłosuj za powrotem do lobby
+795:Aby ponownie zagrać w odblokowaną misję kampanii, wybierz odpowiednią flagę misji na mapie kampanii
+796:%s głosuje za powrotem do lobby (ilość potrzebnych głosów: %s)
+797:Głosuj, aby powrócić do lobby. Gra może zostać wznowiona lub zmieniona
+798:Powrót do lobby?
+799:%s zagłosował za powrotem do lobby (głosowanie udane)
+800:Głosowanie za powrotem do lobby nie powiodło się
 801:Usunięcie powtórki usuwa również powiązany zapis. Czy na pewno chcesz usunąć ten zapis?
 802:Losowo
 803:Liczba żołnierzy do ataku
@@ -754,23 +760,25 @@
 806:Czy na pewno chcesz usunąć tę mapę?
 807:Ukryj nakładkę skryptową
 808:Pokaż nakładkę skryptową
+809:Nie możesz zmienić hosta kiedy serwer jest uruchomiony na Twoim kliencie
 810:Komputer automatycznie tworzy i zarządza atakami
-811:Szybkie wyposażanie
+811:Szybko wyposaż
 812:Żołnierze są wyposażani tak szybko, jak to możliwe. Na tempo wyposażania nadal wpływa rozplanowanie wioski
-813:Zastosuj ustawienia domyślne komputera
-814:Wieloosobowa ekonomia
-815:Zastosowuje agresywne ustawienia ekonomii komputera do wszystkich graczy (dla wieloosobowych map ekonomicznych)
+813:Ustaw standard AI
+814:Buduje agresywnie
+815:Wprowadza agresywne ustawienia ekonomii komputera dla wszystkich graczy (dla wieloosobowych map ekonomicznych)
 816:Ostrzeżenie: To zastąpi wszystkie istniejące ustawienia komputera dla wszystkich graczy. Kontynuować?
 817:Typ armii
-818:Żelazna następnie skórzana
+818:Żelazo --> skóra
 819:Żelazna
 820:Skórzana
 821:Mieszana
+822:Pobrane mapy
 824:Przenieś
-825:Zobacz plik Readme
+825:Zobacz plik PDF
 826:Nie można uruchomić przeglądarki PDF
-827:Ustaw liczbę pomocników na 10 domów dla wybranego komputera. Wybrany komputer ma %d domów
-828:Error: Plik pauzy hosta nie odpowiada lokalnemu plikowi pauzy. Wystąpił błąd lub host próbuje oszukiwać.
-829:Rozkaz został wykonany
-830:Załaduj azjatyckie czcionki
+827:Ustaw liczbę pomocników na 10 domów dla wybranego komputera. Ilość domów wybranego AI: %d 
+828:Błąd: Plik pauzy hosta nie odpowiada lokalnemu plikowi pauzy. Wystąpił błąd lub host próbuje oszukiwać.
+829:Zamówienie zostało zrealizowane
+830:Dodaj azjatyckie czcionki
 831:Wyjdź z pobranych

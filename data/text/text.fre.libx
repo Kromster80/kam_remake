@@ -1,53 +1,53 @@
 ﻿0:Scierie
 1:Fonderie
-2:Forge d'Armes
-3:Mine de Charbon
-4:Mine de Fer
-5:Mine d'Or
-6:Hutte du Pêcheur
+2:Forge d'armes
+3:Mine de charbon
+4:Mine de fer
+5:Mine d'or
+6:Hutte du pêcheur
 7:Fournil
 8:Ferme
-9:Cabane du Bûcheron
-10:Forge d'Armures
+9:Cabane du bûcheron
+10:Forge d'armures
 11:Entrepôt
 12:Écuries
 13:École
 14:Carrière
-15:Atelier Monétaire
+15:Atelier monétaire
 16:Porcherie
-17:Tour de Guet
-18:Hôtel de Ville
-19:Atelier d'Armes
-20:Atelier d'Armures
+17:Tour de guet
+18:Hôtel de ville
+19:Atelier d'armes
+20:Atelier d'armures
 21:Château
 22:Moulin
-23:Atelier de Siège
+23:Atelier de siège
 24:Charcuterie
 25:Tannerie
-26:Salle d'Armes
+26:Salle d'armes
 27:Auberge
 28:Chai
-29:Place du Marché
-30:Tronc d'Arbre
+29:Place du marché
+30:Tronc d'arbre
 31:Pierre
 32:Planche
-33:Minerai de Fer
-34:Minerai d'Or
+33:Minerai de fer
+34:Minerai d'or
 35:Charbon
 36:Fer
-37:Caisse d'Or
-38:Barrique de Vin
+37:Caisse d'or
+38:Barrique de vin
 39:Blé
-40:Miche de Pain
+40:Miche de pain
 41:Farine
 42:Cuir
 43:Saucisse
-44:Porc Dépecé
+44:Porc dépecé
 45:Peau
-46:Bouclier de Bois
-47:Bouclier de Fer
-48:Armure de Cuir
-49:Armure de Fer
+46:Bouclier de bois
+47:Bouclier de fer
+48:Armure de cuir
+49:Armure de fer
 50:Hache
 51:Épée
 52:Lance
@@ -66,7 +66,7 @@
 65:Charcutier
 66:Pêcheur
 67:Maçon
-68:Tailleur de Pierres
+68:Tailleur de pierres
 69:Forgeron
 70:Métallurgiste
 71:Recrue
@@ -77,7 +77,7 @@
 76:Arbalétrier
 77:Lancier
 78:Hallebardier
-79:Cav. Légère
+79:Cav. légère
 80:Chevalier
 81:Barbare
 82:Rebelle
@@ -100,8 +100,8 @@
 99:Les armures et les armes lourdes sont fabriquées par les forgerons à la forge d'armures et à la forge d'armes.
 100:Le métallurgiste produit des caisses d'or et des barres de fer à partir du minerai extrait dans les mines d'or et de fer.
 101:Dans l'enceinte du château, la recrue est équipée et entraînée.||Elle se poste également dans la tour de guet.
-102:Sélection d'un Bâtiment
-103:Répartition des Matières Premières
+102:Sélection des bâtiments
+103:Répartition des matières premières
 104:Statistiques
 105:Options
 106:Retour
@@ -116,23 +116,23 @@
 115:Annuler
 116:Paramètres
 117:Quitter l'Éditeur
-118:Effets Sonores
+118:Effets sonores
 119:Régler le volume
 120:Régler le volume
 121:Musique
-122:Musique Oui/Non
-123:Sauvegarde Auto.
+122:Musique oui/non
+123:Sauvegarde auto.
 124:Lecteur de Musique
 125:Morceau précédent
 126:Morceau suivant
 127:Démolir
-128:Démolition/Annulation
-129:Construire une Route
-130:Construire des Routes
-131:Labourer un Champ
-132:Labourer des Champs
-133:Planter une Vigne
-134:Planter des Vignes
+128:Démolition / annulation
+129:Construire une route
+130:Construire des routes
+131:Labourer un champ
+132:Labourer des champs
+133:Planter une vigne
+134:Planter des vignes
 135:Annuler
 136:Annuler l'apprentissage en cours
 137:Besoins :
@@ -149,19 +149,19 @@
 150:Catégorie suivante
 151:Catégorie précédente
 152:Ajouter à la liste
-153:Livraison de marchandises Oui/Non
+153:Livraison de marchandises oui/non
 154:Coût :
-155:Réparation du bâtiment Oui/Non
+155:Réparation du bâtiment oui/non
 156:Bâtiment indisponible actuellement
 157:Santé
 158:Pivoter à gauche
 159:Pivoter à droite
 160:Attaquer ('a')
-161:Envoyer les Troupes ('d')
-162:Ravitailler les Troupes
-163:Attaquer : Charger !
-164:Changer la Formation : Ajouter un rang
-165:Changer la Formation : Enlever un rang
+161:Envoyer les troupes ('d')
+162:Ravitailler les troupes
+163:Charger !
+164:Changer de formation : ajouter un rang
+165:Changer de formation : enlever un rang
 166:Sélectionner|l'autre unité
 167:Annuler
 168:Supprimer
@@ -174,7 +174,7 @@
 175:Vos gisements de charbon sont épuisés.
 176:Vos gisements de fer sont épuisés.
 177:Vos gisements d'or sont épuisés.
-178:Votre bûcheron ne peut plus trouver d'arbres à couper.
+178:Votre bûcheron ne peut plus rien abattre dans cette forêt.
 179:Ce bâtiment est inoccupé.
 180:Ces troupes sont affamées, vous devriez les nourrir !
 181:PAUSE
@@ -182,17 +182,17 @@
 183:Construit une route
 184:Laboure un champ
 185:Plante une vigne
-186:Aplatit l'emplacement
+186:Aplanit un emplacement
 187:Construit un bâtiment
 188:Répare un bâtiment
-189:Déplacement vers son bâtiment
-190:Déplacement vers l'auberge
+189:Se déplace vers son bâtiment
+190:Se déplace vers une auberge
 191:Attaque un bâtiment
 192:Tire
 193:Combat
 194:Charge
 195:Attaque
-196:Mouvement
+196:En mouvement
 197:Inoccupé
 198:Extrait de la pierre
 199:Sème du blé
@@ -201,28 +201,28 @@
 202:Pêche du poisson
 203:Abat un arbre
 204:Plante un arbre
-205:Spirit
-206:Busy
-207:Middle Ages Horn
-208:Spring
-209:Lute
-210:Mercenary
-211:The Princess
-212:The Queen
-213:In the Marketplace
-214:On the Battlefield
-215:Court Dance
-216:The Army
-217:In the Castle
+205:Esprit
+206:Animation
+207:Cors du Moyen-Âge
+208:Printemps
+209:Luth
+210:Mercenaire
+211:La Princesse
+212:La Reine
+213:La Place du Marché
+214:Le Champ de Bataille
+215:Danse à la Cour
+216:L'Armée
+217:Au Château
 218:Fanfares
-219:At Court
-220:Entree
-221:Deep Blue
-222:Struggle
-223:Royal Quarters
-224:Aristocracy
-225:At the Harbor
-226:Journey
+219:À la Cour
+220:Entrée
+221:Bleu Profond
+222:Guerre
+223:Quartiers Royaux
+224:Aristocratie
+225:Le Lac
+226:Fugue
 227:Campagnes
 228:Campagnes
 229:Débuter !
@@ -240,7 +240,7 @@
 241:Non supportée
 242:Non supporté
 243:VICTOIRE !
-244:DEFAITE !
+244:DÉFAITE !
 245:Unités perdues :
 246:Unités éliminées :
 247:Bâtiments perdus :
@@ -252,8 +252,8 @@
 253:Mission accomplie en :
 254:Statistiques
 255:Économie
-256:Unités|formées
-257:Unités|perdues
+256:Citoyens|formés
+257:Citoyens|perdus
 258:Soldats|entraînés
 259:Soldats|perdus
 260:Soldats|éliminés
@@ -267,7 +267,7 @@
 268:Bâtiments
 269:Ressources
 270:Ressources produites
-271:Pas de données
+271:Aucune donnée
 272:Vous
 273:Joueur %d
 274:Retour au Multijoueur
@@ -275,95 +275,95 @@
 276:Toutes
 277:Militaire
 278:Nourriture
-279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||MIXAGE ET ÉDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-280:Mission Annulée
+279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|André Quaß||MONTAGE SON :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||TRADUCTION :|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRECTEUR DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION D'OUVERTURE :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Mission annulée
 281:Replay terminé
 282:Tutoriel de Construction
 283:Tutoriel de Bataille
-284:Jouer en Solo
+284:Joueur Unique
 285:Éditeur de Cartes
 286:Débuter !
 287:Titre
 288:Taille
-289:Condition de Victoire :
-290:Condition de Défaite :
+289:Condition de victoire :
+290:Condition de défaite :
 291:Alliés :
 292:Ennemis :
 293:Temps
-294:Taille de la Carte :
+294:Taille de la carte
 295:Largeur
 296:Hauteur
 297:Créer une Carte
-298:Cartes Existantes :
-299:Charger une Carte Existante
+298:Cartes disponibles
+299:Charger la Carte
 300:Position
 301:Contrôles :
 302:Jouabilité :
-303:Effets Sonores :
+303:Son :
 304:Désactiver la musique
 305:Graphismes :
 306:Luminosité
 307:Synchronisation verticale
-308:Plein Écran
+308:Plein écran
 309:Appliquer
 310:Langage :
-311:Qualité de l'Ombre :
+311:Qualité de l'ombre :
 312:Basse
 313:Haute
 314:Chargement... Veuillez patienter
-315:Une Erreur S'est Produite !
-316:Chargement du nouveau langage
-317:Liste des Sauvegardes :
-318:Nom du Fichier
+315:Une erreur s'est produite !
+316:Chargement du langage
+317:Liste des parties enregistrées
+318:Nom du fichier
 319:Description
 320:Charger
 321:Supprimer
-322:Êtes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
+322:Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
 323:Supprimer
 324:Annuler
 325:Titre
 326:Cartes
 327:Débloquées
-328:Vous avez Gagné !
-329:Continuer à Jouer
+328:Vous avez gagné !
+329:Continuer à jouer
 330:Victoire !
-331:Vous avez Perdu !
-332:Continuer à Regarder
+331:Vous avez perdu !
+332:Continuer à regarder
 333:Défaite !
 334:Le replay est terminé
-335:Continuer à Regarder
-336:Quitter au Menu
+335:Continuer à regarder
+336:Quitter au menu
 337:Non disponible
-338:Appuyer sur %s pour reprendre le jeu
-339:Infos sur les joueurs
+338:Appuyer sur %s pour reprendre la partie
+339:Infos des joueurs
 340:Chat
 341:Fichier déjà existant
 342:Écraser
 343:Enregistrer
 344:Charger
-345:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
-346:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
+345:Une ancienne version de OpenGL a été détectée. L'application pourrait tourner lentement et/ou avoir des défauts graphiques
+346:Veuillez mettre à jour vos pilotes graphiques afin d'obtenir de meilleures performances
 347:Erreur réseau :
-348:Erreur : Le nom du joueur doit contenir au moins un caractère.
-349:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractères.
-350:Erreur : Le nom du joueur ne peut pas contenir de caractères interdits.
-351:Connexion échouée : %s.
-352:Vous vous êtes déconnecté.
+348:Erreur : Le nom du joueur doit contenir au moins un caractère
+349:Erreur : Le nom du joueur ne peut contenir plus de %d caractères
+350:Erreur : Le nom du joueur ne peut contenir de caractères illégaux
+351:Connexion échouée : %s
+352:Vous vous êtes déconnecté
 353:Mission %d
-354:Liste des messages
+354:Log des messages
 355:La hutte de votre pêcheur est trop éloignée de l'eau.
-356:Votre pêcheur ne peut plus trouver de poissons à pêcher.
-357:Relancer le replay
-358:Suspendre
-359:Avancer d"une frame
+356:Votre pêcheur ne peut plus rien pêcher dans l'eau à proximité.
+357:Redémarrer le replay
+358:Suspendre le replay
+359:Avancer d'une frame
 360:Reprendre le replay
 361:Stopper le replay
-362:Activer la vue par joueur
-364:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
-365:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
-366:De : %dx
-367:à : %dx
-368:Édition du Terrain
+362:Basculer vers la perspective du joueur
+364:Sélectionnez une marchandise à échanger à l'aide du bouton gauche de la souris
+365:Sélectionnez une marchandise à échanger à l'aide du bouton droit de la souris
+366:De x%d
+367:à x%d
+368:Édition du terrain
 369:Brosses
 370:Reliefs
 371:Tiles
@@ -373,7 +373,7 @@
 375:Taille
 376:Glisser pour changer la taille de la brosse
 377:Variation
-378:Glisser pour changer la variation de hauteur : 1 = plateau ... 15 = pic
+378:Glisser pour changer la variation de la hauteur : 1 = plateau ... 15 = pic
 379:Vitesse
 380:Glisser pour changer la vitesse de l'élévation : 1 = lent ... 15 = très rapide
 381:Brosse en cercle
@@ -385,30 +385,30 @@
 387:Brosse
 388:Élements aléatoires
 389:Orientation aléatoire
-390:Cocher pour une direction aléatoire des cases ou utiliser le clic droit pour effectuer une rotation de la case selectionnée
+390:Cocher pour une orientation aléatoire ou utiliser le clic droit pour effectuer une rotation au tile sélectionné
 392:Bloquer les mouvements
 393:Enlever un objet
-394:Planification du Village
-395:Scripts Visuels
-396:Scripts Globaux
+394:Planification du village
+395:Scripts visuels
+396:Scripts globaux
 397:Menu
 398:Objets
-399:Montrer les gisements
-400:Montrer les unités
-401:Montrer les maisons
-402:Montrer les objets
-403:Montrer la passabilité
-404:Tout changement|non sauvegardé sera perdu
+399:Afficher les gisements
+400:Afficher les unités
+401:Afficher les bâtiments
+402:Afficher les objets
+403:Afficher la passabilité
+404:Tout changement|non sauvegardé|sera perdu
 405:Annuler
 406:Charger
 407:Charger Carte
 408:Annuler
-409:Sauvegarder
+409:Enregistrer
 410:Écraser
-411:La carte existe déjà
+411:Carte déjà existante
 412:Joueurs :
 413:Défaut
-414:Type de joueur
+414:Types de joueur
 415:Symétrique
 416:Alliances
 417:Tactique
@@ -419,9 +419,9 @@
 422:Centrer l'écran
 423:Tout révéler
 424:Révèle une portion de la carte
-425:Réveler brouillard
+425:Révéler le brouillard
 426:Bloquer le commerce
-427:Bloquer/Déverouiller des maisons
+427:Bloquer/déverouiller des maisons
 428:Couleurs
 429:Buts
 432:Joueur
@@ -432,7 +432,7 @@
 437:Troupes
 438:Batiments
 439:Temps
-440:Tutoriel de construction
+440:Tutoriel de Construction
 441:Aucun
 442:Condition
 443:Survivre
@@ -444,7 +444,7 @@
 449:Annuler
 450:Colonnes
 451:Nombre
-452:Formation de la troupe
+452:Formation des troupes
 453:Éditer les formations
 454:Limiter le nombre de soldats que l'IA peut avoir
 455:Combien de soldats l'IA peut avoir en même temps
@@ -452,7 +452,7 @@
 457:Combien de recrues l'IA doit avoir au château
 458:Recrues par Château
 460:Position perso.
-463:Unit. la + proche
+463:Unit. la plus proche
 465:Nombre de groupes
 466:Infos d'attaque
 468:Répét.
@@ -475,9 +475,9 @@
 485:Placer une position de défense IA
 486:Positions de défense IA
 487:Maçons
-488:Serfs par 10 maisons
-489:Autoréparer
-490:Auto construction
+488:Serfs par 10 bâtiments
+489:Réparation auto.
+490:Construction auto.
 491:Paramètres IA
 492:Maisons
 493:Routes
@@ -485,39 +485,39 @@
 495:Tourne la sélection horizontalement
 496:Copier terrain
 497:Copie le terrain
-498:Copier/Coller
-499:Nouvelle Mission
-500:Nom du Joueur :
+498:Copier/coller
+499:Nouvelle mission
+500:Nom du joueur
 501:Statut :
 502:Créer un Serveur
 503:CRÉER UN SERVEUR
-504:Nom :
-505:Port :
+504:Nom
+505:Port
 506:Créer un Serveur Local
 507:Créer un Serveur Internet
 508:Annuler
 509:Trouver un Serveur par IP
 510:TROUVER UN SERVEUR
-511:Adresse :
-512:Port :
-513:Salle :
+511:Adresse
+512:Port
+513:Session
 514:Connexion
 515:Annuler
-516:Salle protégée par Mot de Passe
-517:Mot de Passe
-518:Nom du Serveur
+516:Session protégée par mot de passe
+517:Mot de passe
+518:Nom du serveur
 519:État
 520:Joueurs
 521:Ping
-522:Rafraichir la Liste des Serveurs
+522:Rafraîchir la Liste des Serveurs
 523:DÉTAILS DU SERVEUR
-524:Liste des Joueurs :
+524:Liste de joueur :
 525:Joindre
 526:Connexion, veuillez patienter...
 527:Chargement des annonces...
-528:Rafraichissement...
-529:Liste des Joueurs
-530:Position de Départ
+528:Rafraîchissement...
+529:Liste des joueurs
+530:Position de départ
 531:Alliance
 532:Couleur
 533:Prêt
@@ -525,61 +525,62 @@
 535:Ping / FPS
 536:Libre
 537:Joueur IA
-538:Sélect...
+538:Sélectionnez...
 539:Aléatoire
 540:Aucune
-541:Partie Enregistrée
+541:Partie enregistrée
 542:Sélect. une mission...
-543:Sélect. une sauvegarde...
-544:Quitter la Préparation
+543:Sélect. un fichier...
+544:Quitter la préparation
 545:Prêt
-546:Non Prêt
+546:Non prêt
 547:Débuter !
-548:Vitesse du jeu (temps de paix)
-549:Vitesse du jeu
+548:Vitesse de jeu (temps de paix)
+549:Vitesse de jeu
 550:OK
 551:Annuler
 552:Description
-553:Mot de Passe
-554:Paramètres de la Salle
+553:Mot de passe
+554:Paramètres de la session
+556:Bannir de la session
 557:Exclure
-558:Positions aléatoire dans chaque équipe
+558:Positions aléatoires dans l'équipe
 559:Description
 560:Options
 561:Position %d
-562:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler.
-563:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
-564:Impossible de débuter : %s.
-565:Tout le monde n'est pas prêt pour débuter.
-566:Impossible d'assigner une position aléatoire.
-567:Le Serveur vous a attribué les droits d'hébergement.
+562:Erreur : Veuillez sélectionner un joueur de la partie enregistrée pour le contrôler
+563:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée
+564:Impossible de débuter : %s
+565:Tout le monde n'est pas prêt pour débuter
+566:Impossible d'assigner de positions aléatoires
+567:Le serveur vous a attribué les droits d'hébergement
 568:La partie a débuté !
 569:Développement
 570:Bataille
-571:Carte Coopérative
-572:Carte Spéciale
-573:Options de Jeu :
-574:Temps de Paix (minutes)
+571:Carte coopérative
+572:Carte spéciale
+573:Options de jeu :
+574:Temps de paix (minutes)
 575:Fermé
-576:L'hôte configure les joueurs
-577:Attente des Joueurs :
+576:L'hôte paramètre les joueurs
+577:En attente de joueurs :
 578:Tous
-579:Équipe
+579:Alliance
 580:Crédits de KaM Remake
-581:Crédits Originaux de Knights & Merchants
+581:Crédits originaux de Knights & Merchants
 582:PROGRAMMATION :
 583:PROGRAMMATION ADDITIONNELLE :
 584:GRAPHISMES ADDITIONNELS :
 585:EFFETS SONORES ADDITIONNELS :
 586:MUSIQUES ADDITIONNELLES :
 587:TRADUCTIONS ADDITIONNELLES :
-588:REMERCIMENTS SPÉCIAUX À :
-589:Cartes Multijoueur
-590:Cartes Solo
+588:REMERCIEMENTS PARTICULIERS À :
+589:Cartes multijoueur
+590:Cartes solo
 591:Vitesse de défilement
 592:Aucun serveur n'a été trouvé
 593:Lecture aléatoire
-594:Informations sur la Partie :
+594:Informations de partie :
 595:-
 596:Préparation
 597:Chargement
@@ -587,35 +588,35 @@
 599:Développement
 600:Bataille
 601:Prêt
-602:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
+602:Mauvaise version du protocole : %s. Le serveur utilise la version : %s
 603:Augmenter le nombre d'échanges
 604:Réduire le nombre d'échanges
 605:Enregistrement de la partie...
 606:%s a perdu !
-607:Abandonner ces Joueurs
-608:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
-609:L'hôte est désormais autorisé à abandonner ces joueurs.
-610:L'hôte (%s) a quitté.
+607:Abandonner les joueurs
+608:L'hôte sera autorisé à abandonner ces joueurs après %d secondes
+609:L'hôte est maintenant autorisé à abandonner ces joueurs
+610:L'hôte (%s) a quitté
 611:La connexion vers le serveur a été perdue. Tentative de reconnexion...
 612:Êtes-vous sûr(e) de vouloir quitter ?
 613:Êtes-vous sûr(e) de vouloir abandonner ces joueurs ?
 614:Annuler
 615:L'échange de cette ressource est indisponible dans cette mission
-616:Planter et Abattre
-617:Abattre Seulement
-618:Vous n'êtes pas autorisé à faire cela pendant le temps de paix.
-619:Temps de Paix restant : %s
+616:Planter et abattre
+617:Abattre seulement
+618:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
+619:Temps de paix restant : %s
 620:Le temps de paix est terminé. À vos armes !
-621:Temps de Jeu :|%s
+621:Temps de jeu :|%s
 622:Halte ('%s')
-623:Regrouper les Unités ('%s')
-624:Scinder les Unités ('%s')
+623:Regrouper les unités ('%s')
+624:Scinder les unités ('%s')
 625:Lecteur de Replay
-626:Voir le Replay
+626:Regarder le Replay
 627:Format non supporté %s
 628:Version non supportée %s
 629:Modifications non supportées
-630:Une erreur est survenue lors de l'analyse du fichier %s.
+630:Une erreur s'est produite lors de l'analyse du fichier %s
 631:initialisation
 632:script
 633:unités
@@ -625,38 +626,38 @@
 637:tileset
 638:Carte non trouvée : %s
 639:Sauvegarde non trouvée : %s
-640:Les fichiers de la mission ne sont pas les mêmes que ceux de l'hôte : %s
-641:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
-642:Le replay a échoué à une vérification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer à le regarder ?
-643:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur à la fois.
-644:Les modifications du jeu ne sont pas autorisées en multijoueur.|Veuillez le réinstaller pour restaurer les fichiers originaux.
-645:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce problème. Merci pour votre aide !
-646:Envoyer le Rapport de Bug
-647:Afficher les Données Brutes
-648:Reprendre l'Application
-649:Quitter l'Application
+640:Les fichiers de la carte ne correspondent pas à ceux de l'hôte pour : %s
+641:Le fichier de sauvegarde ne correspond pas à celui de l'hôte pour : %s
+642:Le replay a échoué à une vérification de consistance. Il s'agit d'un bug connu qui affecte la lecture de certains replays. Voulez-vous continuer à le regarder ?
+643:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur à la fois
+644:Les modifications apportées au jeu ne sont pas autorisées en multijoueur.|Veuillez le réinstaller pour restaurer les fichiers originaux.
+645:Une erreur s'est produite au niveau de l'application. Veuillez nous envoyer un rapport de bug afin que nous puissions examiner le problème. Merci de votre aide !
+646:Envoyer un rapport de bug
+647:Afficher les données brutes
+648:Reprendre l'application
+649:Arrêter l'application
 650:Suivant
-651:Détails de Contact
+651:Détails de contact
 652:Votre nom : (optionnel)
 653:Votre email : (optionnel)
 654:Se souvenir de moi
-655:Détails de l'Erreur
-656:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplémentaire ? (en anglais de préférence)
+655:Détails de l'erreur
+656:Dans quelle situation l'erreur s'est-elle produite ? Pouvez-vous fournir toute information supplémentaire ? (en anglais de préférence)
 657:Capture d'écran
-658:Joindre une capture d'écran au rapport de bug
+658:Joindre une capture d'écran au rapport
 659:(cliquez pour modifier l'image)
-660:Envoyer le Rapport
+660:Envoyer le rapport
 661:Annuler
 662:Envoi du rapport de bug...
 663:Connexion au serveur...
 664:Envoi des données...
-665:L'envoi du rapport de crash a échoué ! Notre serveur était peut-être occupé, veuillez réessayer l'envoi à nouveau.
+665:L'envoi du rapport de crash a échoué ! Notre serveur peut être occupé, veuillez retenter l'envoi à nouveau.
 666:Information
 667:Veuillez patienter un moment...
-668:Sauvegarder Carte
+668:Enregistrer Carte
 669:Délai en minutes avant que l'IA ne commence à entraîner des recrues
 670:Delai recrues (mins)
-671:Permet de choisir une direction commune à un corps de cases d'eau connectées
+671:Définit une orientation commune à tous les tiles d'eau connectés ensemble
 672:Eau magique
 673:Copier
 674:Coller
@@ -666,12 +667,12 @@
 678:Tourner horizontalement
 679:Glissez pour sélectionner une zone de la carte
 680:Options défense IA
-681:Off
+681:Sans
 682:Rayon
-683:Détruire le révélateur actuel
-684:Retourner à la page pour révéler le brouillard
+683:Supprimer le révélateur actuel
+684:Retourner à la page révéler le brouillard
 685:Fermer
-686:Ordre de groupe
+686:Ordre du groupe
 687:Aucun
 688:Attaquer position
 689:Marcher vers
@@ -681,3 +682,103 @@
 695:Retourner à la page défense
 696:Positions de défense
 697:Unités
+698:Loup
+699:Poisson
+700:Serpent d'eau
+701:Étoile de mer
+702:Crabe
+703:Nénuphar
+704:Nénuphar rose
+705:Canard
+706:Unité indisponible
+707:Catégorie indisponible
+708:Bloquer les unités
+736:Télécharger
+737:téléchargement...
+738:Écraser les fichiers existants
+739:%s a perdu la connexion
+740:%s a quitté
+741:%s s'est reconnecté
+742:Impossible de rejoindre une partie en cours
+743:La session est complète. Plus aucun joueur ne peut rejoindre.
+744:Un joueur avec un nom identique est déjà présent dans la session.
+746:Erreur : %s a des fichiers de données différents de ceux de l'hôte et ne peut donc pas rejoindre la partie
+747:Vos fichiers de données ne correspondent pas à ceux de l'hôte
+748:Les droits d'hébergement ont été réattribués à %s
+749:%s a une version différente de %s
+750:%s n'a pas %s
+751:Délai de requête expiré
+752:L'hôte a abandonné %s de la partie
+753:%s a été exclu par l'hôte
+754:Tentative de reconnexion dans la partie...
+755:%s a rejoint
+756:Reconnexion échouée : %s
+757:L'hôte a décidé de continuer la partie sans vous :(
+758:Déconnecté du serveur : Délai d'attente expiré
+759:Vous avez été exclu par l'hôte
+760:Le serveur a cessé de répondre
+761:Numéro de session invalide
+765:Murmurer à %s
+766:%s a été banni de la session par l'hôte
+767:Vous avez été banni par l'hôte
+768:Réinitialiser les bans
+769:L'hôte a réinitialisé les bans de la session
+770:Date
+771:Afficher le brouillard
+772:Visionner
+773:Spectateur
+774:Portée d'attaque auto.
+775:Les groupes d'IA vont automatiquement attaquer si vous êtes aussi proche que ce nombre de tiles
+776:Défendre les alliés
+777:L'IA défendra les unités et les bâtiments des l'alliés comme s'ils étaient les siens.
+778:Autoriser les spectateurs
+779:Promouvoir en tant qu'hôte
+780:Spectateurs
+781:Impossible de désactiver le mode spectateur : La liste des spectateurs doit être vide
+782:Répéter
+783:Annuler
+784:Défini la position de départ de l'IA, qui est utilisé pour le ciblage de ses attaques
+785:Position de départ de l'IA
+786:Commande
+788:Délai initial (secondes)
+790:Bâtiment le plus proche de l'armée
+791:Bâtiment le plus proche de la position de départ
+792:Attaquants
+793:Défenseurs
+794:Spectateurs
+795:Pour sélectionner une mission débloquée précédemment, cliquez sur le drapeau correspondant sur la carte de la campagne.
+796:%s a voté pour retourner à la préparation de la session (besoin de %s votes)
+797:Voter pour retourner à la préparation de la session. La partie peut alors être reprise ou modifiée.
+798:Retour Préparation
+799:%s a voté pour retourner à la préparation de la session (vote passé)
+800:Le vote pour retourner à la préparation de la session a échoué
+801:La suppression d'un replay entraîne celle de la sauvegarde associée. Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
+802:Prendre aléatoirement
+803:Nombre de soldats à attaquer
+804:Supprimer le Replay
+805:Supprimer la Carte
+806:Êtes-vous sûr(e) de vouloir supprimer cette carte ?
+807:Masquer l'overlay scripté
+808:Afficher l'overlay scripté
+809:Vous ne pouvez pas changer d'hôte lorsque le serveur tourne sur votre client
+810:L'IA crée et gère les attaques automatiquement
+811:Équipement rapide
+812:Les soldats seront entraîner aussi vite que possible. Le taux d'entraînement affecte quand même la plannification du village
+813:Appliquer les IA par défaut
+814:Constructeur multijoueur
+815:Appliquer les paramètres de l'IA agressive et constructeur à tous les joueurs (pour les cartes multijoueur)
+816:Attention : Cela va écraser les paramètres de l'IA existants pour tous les joueurs. Continuer ?
+817:Type d'armée
+818:Fer puis cuir
+819:Fer
+820:Cuir
+821:Mixe
+822:Cartes téléchargées
+824:Retirer
+825:Voir le PDF lisez-moi
+826:Le lancement du lecteur PDF a échoué
+827:Définir le nombre de serfs par 10 bâtiments pour l'IA spécifiée. L'IA sélectionnée a %d bâtiments
+828:Erreur : Le fichier de pause de l'hôte ne correspond pas au fichier local. Une erreur s'est produite ou l'hôte pourrait tenter de tricher.
+829:Votre commande a été traitée.
+830:Charger les fontes asiatiques
+831:Retirer des téléchargements
