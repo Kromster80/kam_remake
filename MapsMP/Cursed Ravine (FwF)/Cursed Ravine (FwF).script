@@ -1,0 +1,1152 @@
+/// :: Fun with Flags! ::
+/// *** CURSED RAVINE ***
+/// *     v1.4 r25      *
+/// * by Siegfried 2014 *
+///
+/// licenced under GPLv2
+/// https://gnu.org/licenses/old-licenses/gpl-2.0.txt
+///
+
+// script explanation: used conventions
+// THIS - capital letters are a global variable (also AND and OR to not overlook them in a condition, as well as RESULT and EXIT for return values in a function)
+// ThisFunction - is a function/procedure
+// this - lowerscore letters is a local parameter or data type or keyword (except logical keywords AND & OR)
+// function parameters as well as local parameters and definitions are written explicitly for readability, so function f(i: integer; j: integer), not f(i, j: integer)
+
+// structure:
+// OnTick distributes all calculations within 2 balancers:
+// balancer 1 controls the forbidden areas [KillBaseIntruderers], the tests for a winner [CheckVictory] and the GUI
+// balancer 2 alternately calculates flags [CalculateFlag] and display text for players [UpdateTextFlags]
+// flag calculation checks for the flag conditions [NumberOfLeaders] and then stores it in specific global arrays [UpdateFlagOwners, FirstFlagManagement]
+// test for a winner then accesses these arrays to check if winning conditions are fulfilled [GenericNumberOfLeaders] or all the team functions if there are teams
+// some flags are not purely based on statistics, therefore they are calculated differently [OnHouseDestroyed, OnUnitDied, CityScatter]
+// and of course a few helper functions to do so [FormatTimeString, LocToIndex, ScoreForUnit, LoctypeToInt]
+
+// fun with flags explanation: grab as many flags as you can; the one that holds the majority for 3 minutes in a row wins the match
+// First Flag  #4 -> only the first one to achieve the event gets this flag and keeps it
+// Final Flag  #2 -> awarded after a special event, this flag will stay yours
+// Fact Flag   #4 -> started after a special event
+// Future Flag #5 -> started after a special time
+
+const // const is like C's #DEFINE, not a real const, so no assignment of types like "TIME: integer;" is possible
+  LOCATIONS_TOTAL = 8; // it's a 8 player map; if you change this, take care to change also TLoc and therefore also the for-loops over TLoc
+  NUM_FLAGS = 15; // if you change the number of flags be careful because the program uses some inner sorting logic (example in FirstFlagManagement); you will encounter strange bugs if you are not careful here
+  WIN_HOLDING_TICK = 1800; // how long does the leader have to keep his flags until he wins the match -> 3 minutes, written as game ticks
+  TICKS_PER_SECOND = 10; // atm not needed because it's not accessible, but it's there for future manipulation
+  GIVE_GOLD_PER_LEADER_TICK = 100; // give one gold each nn seconds of leading time in ticks
+
+type // needed to enable passing by reference in functions
+  arr_loc = array[1..LOCATIONS_TOTAL] of integer; // BEWARE: it's 1..8, however all system IDs are 0..7 - so all API calls need additional '- 1'
+  arr_col = array[1..2] of integer; // 2 player columns, map specific
+  arr_row = array[1..4] of integer; // 4 rows per column, map specific
+  arr_flg = array[1..NUM_FLAGS] of integer;
+  arrb_loc = array[1..LOCATIONS_TOTAL] of boolean; // stores whether player holds a final flags
+  arr_scr = array[1..LOCATIONS_TOTAL] of array[1..NUM_FLAGS] of integer;
+  arr_hus = array[1..27] of integer; // houses; needed for cityscatter
+  arrb_fct = array[1..4] of boolean; // number of fact flags
+  str_loc = array[1..LOCATIONS_TOTAL] of AnsiString; // text-GUI storage
+  arrb_flg = array[1..NUM_FLAGS] of boolean; // text-GUI check wether the flag has been assigned yet (then playername), else the goal score is displayed
+  TLoc = (undef, p1, p2, p3, p4, p5, p6, p7, p8);
+  arr_tloc = array[0..LOCATIONS_TOTAL] of set of TLoc;
+  TFlag = (first, final, fact, future);
+  RFlag = record
+    Tflagtype: TFlag;
+	unlocked_at: integer;
+  end;
+  arr_rflags = array[1..NUM_FLAGS] of RFlag; // holds the flag properties (excet the name, which is stored in the libx)
+  Tcoord = (coordx, coordy);
+
+var
+  FLAGS: arr_rflags;
+  // overall storage to calculate winner
+  SCORES: arr_scr;
+  FLAGS_TO_WIN: integer;
+  FLAGS_OF_PLAYER: arr_loc;
+  PLAYER_OWNS_FLAG: arr_flg; // stores the indices of the player holding this flag -> this player index is the key to other arrays
+  TEAM_OF_PLAYER: arr_loc;
+  GAME_WON: boolean; // this ends the calculations of the winning condition; flags are still updated when game is won
+  WINNING_FLAG_REACHED_TICK: integer;
+  WINNING_PLAYER: integer; // keeps player index as the key to other arrays
+  FACTFLAG_UNLOCKED: arrb_fct;
+  FLAG_UNLOCKED: arrb_flg;
+  TEAM_MEMBERS: arr_tloc; // a set; it contains 9 entries, from 0 (= in no team) to 8 possible teams (only 4 are available atm)
+  // the coordinate corners of the forbidden areas; opponent military units die when they enter this area; own units can pass - map specific constants
+  CONST_FORB_LOC_X_START: arr_col;
+  CONST_FORB_LOC_X_END: arr_col;
+  CONST_FORB_LOC_Y_START: arr_row;
+  CONST_FORB_LOC_Y_END: arr_row;
+  REPOPULATE_FISH: arrb_fct; // whether or not fish of lake n should be refilled
+  // final flag arrays needed because you can't determine it by a single index (multiple owners possible)
+  HAS_FINALFLAG_ONE: arrb_loc;
+  HAS_FINALFLAG_TWO: arrb_loc;
+  STARVED_CIVS: arr_loc; // starved civilians
+  // balancers that save unneeded calculation time
+  BALANCER_DISP: integer;
+  TEAMGAME: boolean;
+  // text GUI text blocks - updating them is asynchronous to displaying them, so they need to be cached here
+  TEXT_HEAD: AnsiString;
+  TEXT_BODY: str_loc;
+
+///
+/// ====================
+/// * static functions *
+/// ====================
+///
+
+//
+// casting: TLoc to integer
+//
+function LoctypeToInt(lt: TLoc): integer;
+begin
+  RESULT := -1;
+  case lt of
+    undef: RESULT := 0;
+    p1: RESULT := 1;
+    p2: RESULT := 2;
+    p3: RESULT := 3;
+    p4: RESULT := 4;
+    p5: RESULT := 5;
+    p6: RESULT := 6;
+    p7: RESULT := 7;
+    p8: RESULT := 8;
+  end
+end;
+
+//
+// formats display time to be 'h:mm:ss'
+//
+function FormatTimeString(sec: integer; hours: boolean): AnsiString;
+var
+  s: integer; // seconds
+  m: integer; // minutes
+  h: integer; // hours
+  mz: AnsiString; // separator h/m
+  sz: AnsiString; // separator m/s
+begin
+  s := sec mod 60;
+  m := ((sec - s) div 60) mod 60;
+  h := (sec - (m * 60) - s) div 3600;
+  if m > 9 then mz := ':' else mz := ':0';
+  if s > 9 then sz := ':' else sz := ':0';
+  RESULT := IntToStr(m) + sz + IntToStr(s);
+  if hours then RESULT := IntToStr(h) + mz + RESULT;
+end;
+
+//
+// corrects for unreadable colors (like white that matches normal text)
+//
+function PlayerColorsCorrected(loc: integer): AnsiString;
+begin
+  RESULT := '';
+  if (loc > 0) AND (loc <= LOCATIONS_TOTAL) then RESULT := States.PlayerColorText(loc - 1);
+  case RESULT of
+	'9A9A9A': RESULT := '606060'; // light gray -> medium gray
+	'FFFFFF': RESULT := '909090'; // white -> light gray
+	'': RESULT := 'FFFFFF'; // if something went wrong, make it the default color
+  end
+end;
+
+//
+// makes '[$bbggrr]name' (without the trailing []) out of a location and replaces white
+//
+function PlayerColorName(loc: integer): AnsiString;
+begin
+  RESULT := '';
+  if (loc > 0) AND (loc <= LOCATIONS_TOTAL) then RESULT := '[$' + PlayerColorsCorrected(loc) + ']' + States.PlayerName(loc - 1); // color correction must be an extra function because it's also for final flag score only
+end;
+
+//
+// delivers scores for unit types
+//
+function ScoreForUnit(uid: integer): integer;
+begin
+  // the score is determined by a formula based on the following formula: A*D*L/100 with A attack, D defense, L lifepoints, then rounded to the nearest (or in case of bonus attack, to the higher)
+  case States.UnitType(uid) of
+    14: RESULT := 1; // militia
+    15: RESULT := 2; // axefighter
+    16: RESULT := 5; // swordfighter
+    17: RESULT := 1; // bowman
+    18: RESULT := 3; // crossbowman
+    19: RESULT := 2; // lance carrier
+    20: RESULT := 3; // pikeman
+    21: RESULT := 3; // scout
+    22: RESULT := 7; // knight -- would be 6 (6.6 truncated) but took 7 to counter knighthood-flag
+    23: RESULT := 6; // barbarian // the town hall units are not accessible in this map, they are included to have this complete
+    24: RESULT := 1; // rebel
+    25: RESULT := 1; // rogue
+    26: RESULT := 6; // warrior
+    27: RESULT := 2; // vagabond
+    else RESULT := 0; // civilians
+  end
+end;
+
+///
+/// =====================
+/// * map-specific part *
+/// =====================
+///
+
+//
+// returns the equivalent array index in CONST_START_LOC and CONST_FORB_LOC to look at out of the location index
+//
+function LocToIndex(xy: Tcoord; loc: integer): integer;
+begin
+  RESULT := -1;
+  if (loc < 1) OR (loc > LOCATIONS_TOTAL) then EXIT;
+  // it makes use of the fact that the valley is rectangular here, so 4 players are on the left side, 4 on the right -> coordx will give only index 1 & 2
+  if xy = coordx then if loc < 5 then RESULT := 1 else RESULT := 2;
+  if xy = coordy then RESULT := 1 + ((loc - 1) MOD 4); // 'y' will give index 1, 2, 3, 4
+end;
+
+//
+// Checks if enemy units stand in forbidden area of player loc and in case kill them
+//
+procedure KillBaseIntruderers(loc: integer);
+var
+  index_x: integer;
+  index_y: integer;
+  x: integer;
+  y: integer;
+  uid: integer;
+  utyp: integer;
+  owner: integer;
+begin
+  if NOT States.PlayerEnabled(loc - 1) then EXIT; // if slot is not occupied, there is no forbidden area there
+  index_x := LocToIndex(coordx, loc);
+  index_y := LocToIndex(coordy, loc);
+  if (index_x = -1) OR (index_y = -1) then EXIT; // only called in case of a bug
+  for x := CONST_FORB_LOC_X_START[index_x] to CONST_FORB_LOC_X_END[index_x] do
+  begin
+    for y := CONST_FORB_LOC_Y_START[index_y] to CONST_FORB_LOC_Y_END[index_y] do
+	begin
+	  uid := States.UnitAt(x, y);
+	  if uid = -1 then continue // no unit in forbidden area
+	  else
+	  begin
+	    utyp := States.UnitType(uid);
+	    if (utyp < 14) OR (utyp > 27) then continue // unit in forbidden area is not military
+	    else
+		begin
+		  owner := States.UnitOwner(uid);
+	      if (owner = -1) OR (owner = loc - 1) then continue // own military stands in own forbidden area or unknown military owner (neutral?)
+	      else if (TEAM_OF_PLAYER[loc] = 0) OR (TEAM_OF_PLAYER[owner + 1] <> TEAM_OF_PLAYER[loc]) then Actions.UnitKill(uid, false);
+		end
+	  end
+	end
+  end
+end; // end 5 in a row ;)
+
+//
+// enable Marketplace and disable weapon trading
+//
+procedure EnableMarketplace;
+var
+  i: integer;
+  k: integer;
+begin
+  for i := 1 to LOCATIONS_TOTAL do
+  begin
+    Actions.HouseAllow(i - 1, 29, true);
+	for k := 16 to 25 do Actions.SetTradeAllowed(i - 1, k, false);
+  end
+end;
+
+//
+// refills all 4 lakes with one fish each
+//
+procedure CheckFish;
+var
+  i: integer;
+  x_coord: integer;
+  y_coord: integer;
+begin
+  for i := 1 to 4 do begin
+    if i < 3 then x_coord := 14
+	else x_coord := 190;
+	if i = 1 then y_coord := 8;
+	if i = 2 then y_coord := 102;
+	if i = 3 then y_coord := 13;
+	if i = 4 then y_coord := 100;
+	if REPOPULATE_FISH[i] then Actions.GiveAnimal(31, x_coord, y_coord);
+  end
+end;
+
+///
+/// ===============================
+/// * fun with flag-specific part *
+/// ===============================
+///
+
+//
+// the flags
+//
+procedure DefineFlags; // names are stored in libx #1-15
+begin
+  FLAGS[1].Tflagtype := fact;
+  FLAGS[1].unlocked_at := 50;
+  FLAGS[2].Tflagtype := fact;
+  FLAGS[2].unlocked_at := 360;
+  FLAGS[3].Tflagtype := fact;
+  FLAGS[3].unlocked_at := 5;
+  FLAGS[4].Tflagtype := fact;
+  FLAGS[4].unlocked_at := 60;
+  FLAGS[5].Tflagtype := future;
+  FLAGS[5].unlocked_at := 9000;
+  FLAGS[6].Tflagtype := future;
+  FLAGS[6].unlocked_at := 18000;
+  FLAGS[7].Tflagtype := future;
+  FLAGS[7].unlocked_at := 27000;
+  FLAGS[8].Tflagtype := future;
+  FLAGS[8].unlocked_at := 36000;
+  FLAGS[9].Tflagtype := future;
+  FLAGS[9].unlocked_at := 45000;
+  FLAGS[10].Tflagtype := first;
+  FLAGS[10].unlocked_at := 25;
+  FLAGS[11].Tflagtype := first;
+  FLAGS[11].unlocked_at := 150;
+  FLAGS[12].Tflagtype := first;
+  FLAGS[12].unlocked_at := 38; // 40 with fisherman and fisherman's hut; 41 if you include market
+  FLAGS[13].Tflagtype := first;
+  FLAGS[13].unlocked_at := 5;
+  FLAGS[14].Tflagtype := final;
+  FLAGS[14].unlocked_at := 160;
+  FLAGS[15].Tflagtype := final;
+  FLAGS[15].unlocked_at := 20;
+end;
+
+/// -------------------------------
+/// functions for team calculations
+/// -------------------------------
+
+//
+// checks if there are any teams at all - must be used at the correct place where teamed players have team -1
+//
+function AnyTeamsExist: boolean;
+var
+  i: integer;
+begin
+  RESULT := false;
+  for i := 1 to LOCATIONS_TOTAL do
+  begin
+    RESULT := RESULT OR (TEAM_OF_PLAYER[i] = -1);
+	if RESULT then EXIT
+  end
+end;
+
+//
+// checks if the player is in any team
+//
+function IsPlayerTeamedUp(loc: integer): boolean;
+var
+  i: integer;
+begin
+  RESULT := false;
+  if (loc < 1) OR (loc > LOCATIONS_TOTAL) OR NOT States.PlayerEnabled(loc - 1) then EXIT;
+  for i := 1 to LOCATIONS_TOTAL do
+  begin
+    if i = loc then continue; // self-team would give a true that may be wrong
+	if States.PlayerEnabled(i - 1) then RESULT := RESULT OR States.PlayerAllianceCheck(loc - 1, i - 1);
+	if RESULT then EXIT
+  end
+end;
+
+//
+// count the total competitors: each team counts 1, each unteamed player counts 1
+//
+function TeamingPlayersCount: integer;
+var
+  i: integer;
+  k: integer;
+begin
+  RESULT := 0; // k cycles unteamed plus all possible teams (0..8), i cycles all player positions (1..8)
+  for k := 0 to LOCATIONS_TOTAL do for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) AND (TEAM_OF_PLAYER[i] = k) then
+	begin
+	  Inc(RESULT);
+	  if k > 0 then break; // k = 0 runs through all players i and counts them all; k > 0 breaks after the first search success so a team is not counted twice
+	end
+end;
+
+//
+// counts the total available number final flags for a team
+//
+function CountExcessFinalFlagsForTeam(loc: integer): integer;
+var
+  count: integer;
+  lt: TLoc;
+begin
+  RESULT := 0;
+  if (loc < 1) OR (loc > LOCATIONS_TOTAL) then EXIT;
+  if TEAM_OF_PLAYER[loc] = 0 then EXIT;
+  count := 0;
+  for lt := p1 to p8 do if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[loc]]) then
+  begin
+	if HAS_FINALFLAG_ONE[LoctypeToInt(lt)] then Inc(RESULT); // sum of population flags per team
+    if HAS_FINALFLAG_TWO[LoctypeToInt(lt)] then Inc(count); // sum of knighthood flags per team
+  end;
+  if RESULT > 0 then Dec(RESULT); // so we can subtract RESULT from the sum of population flags to end up with 1 flag only (per team)
+  if count > 0 then RESULT := RESULT + count - 1; // the same with knighthood
+end;
+
+//
+// creates the text for the teamed up final flags
+//
+function TeamFinalFlagText(loc: integer; flg: integer): AnsiString;
+var
+  i: integer;
+  k: integer;
+  lt: TLoc;
+  count: integer;
+  multi: boolean;
+  brake: boolean; // = break, but that's a reserved word :)
+begin
+  RESULT := '';
+  if (flg < (NUM_FLAGS - 1)) OR (flg > NUM_FLAGS) then EXIT;
+  for i := 1 to LOCATIONS_TOTAL do
+  begin
+    if TEAM_OF_PLAYER[i] = 0 then continue;
+    brake := false;
+    if i > 1 then for k := 1 to i - 1 do if TEAM_OF_PLAYER[i] = TEAM_OF_PLAYER[k] then brake := true; // team has been worked on earlier
+    if brake then continue;
+    count := 0;
+    multi := false;
+    for lt := p1 to p8 do if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[i]]) then
+    begin
+	  if (flg = NUM_FLAGS - 1) then begin if HAS_FINALFLAG_ONE[LoctypeToInt(lt)] then Inc(count); end
+	  else begin if HAS_FINALFLAG_TWO[LoctypeToInt(lt)] then Inc(count); end;
+    end;
+    if count > 0 then
+    begin
+      RESULT := RESULT + '|     <$25> ' + IntToStr(TEAM_OF_PLAYER[i]) + ' (';
+      for lt := p1 to p8 do if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[i]]) then
+      begin
+	    if (flg = NUM_FLAGS - 1) then begin if NOT HAS_FINALFLAG_ONE[LoctypeToInt(lt)] then continue end
+		else if NOT HAS_FINALFLAG_TWO[LoctypeToInt(lt)] then continue;
+        if multi then RESULT := RESULT + ', ';
+        RESULT := RESULT + '[$' + PlayerColorsCorrected(LoctypeToInt(lt)) + '](' + IntToStr(SCORES[LoctypeToInt(lt)][flg]) + ')[]';
+        multi := true;
+      end;
+      RESULT := RESULT + ')';
+    end;
+  end;
+end;
+
+//
+// give a gold chest to the leading player(s) during final countdown
+//
+procedure GiveGoldToLeaders;
+var
+  lt: TLoc;
+begin
+  if TEAMGAME AND (TEAM_OF_PLAYER[WINNING_PLAYER] <> 0) then begin for lt := p1 to p8 do if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[WINNING_PLAYER]]) then Actions.GiveWares(LoctypeToInt(lt) - 1, 7 , 1); end
+  else Actions.GiveWares(WINNING_PLAYER - 1, 7, 1);
+end;
+
+/// ----------------------
+/// functions for text GUI
+/// ----------------------
+
+//
+// creates match timer (if there's no leader) and countdown (if there's a leader)
+//
+function UpdateTextTail: AnsiString;
+var
+  timeuntilwin: integer;
+  textcolor: AnsiString;
+  leadorwon: AnsiString;
+  currentormatch: AnsiString;
+  lt: TLoc;
+  multi: boolean;
+begin
+  if GAME_WON then begin
+    leadorwon := '<$34>';
+    currentormatch := '<$35>';
+  end
+  else
+  begin
+    leadorwon := '<$31>';
+    currentormatch := '<$32>';
+  end;
+  RESULT := ' - <$33>: ' + FormatTimeString(States.GameTime div 10, true);
+  timeuntilwin := (WIN_HOLDING_TICK + WINNING_FLAG_REACHED_TICK - States.GameTime) div TICKS_PER_SECOND;
+  if (timeuntilwin >= 90) OR (timeuntilwin < 0) then textcolor := 'F'
+  else textcolor := IntToStr((timeuntilwin div 10) + 1); // slowly fade the color of the countdown to red
+  textcolor := textcolor + textcolor + textcolor + textcolor + 'FF'; // make a BGR out of a single letter
+  if (timeuntilwin > 30) AND (WINNING_FLAG_REACHED_TICK > 0) then Actions.PlayWAV(-1, 'beat', 0.6); // check WINNING_FLAG_REACHED_TICK to prevent premature wav playback
+  if (timeuntilwin < 30) AND (timeuntilwin > 0) then
+  begin
+    if (timeuntilwin mod 2) = 0 then textcolor := '000000'; // make the countdown blink red -> black in the last 30 seconds with frequency 1 per second
+	if WINNING_FLAG_REACHED_TICK > 0 then Actions.PlayWAV(-1, 'beat', 1.0 - (timeuntilwin / 75)); // make it even more dramatic ;)
+  end;
+  if timeuntilwin < 0 then timeuntilwin := (WIN_HOLDING_TICK + WINNING_FLAG_REACHED_TICK) div 10; // set the winning time
+  if (WINNING_PLAYER > 0) AND (WINNING_PLAYER <= LOCATIONS_TOTAL) then
+  begin
+    if TEAMGAME AND (TEAM_OF_PLAYER[WINNING_PLAYER] <> 0) then
+	begin // we are sure now that it's a team that is leading, so we can build the team string here
+      RESULT := ' = <$25> ' + IntToStr(TEAM_OF_PLAYER[WINNING_PLAYER]) + ' ('; // -> "Team X ("
+	  multi := false;
+      for lt := p1 to p8 do
+	  begin
+	    if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[WINNING_PLAYER]]) then
+		begin
+	      if multi then RESULT := RESULT + ' ';
+		  RESULT := RESULT + PlayerColorName(LoctypeToInt(lt)) + '[]'; // -> "<player1 player 2 ...>"
+	      multi := true;
+		end;
+	  end;
+	  RESULT := RESULT + ') ' + leadorwon + ' =|      = '; // -> ") is leading"
+	end // sum: "Team X (<player1 player 2 ...>) is leading"
+    else RESULT := ' = ' + PlayerColorName(WINNING_PLAYER) + '[] ' + leadorwon + ' - '; // no teams, so only the player name needs to be shown
+	RESULT := RESULT + currentormatch + ': [$' + textcolor + ']' + FormatTimeString(timeuntilwin, GAME_WON) + '[] ='; // the countdown is in common for all winning conditions
+  end
+end;
+
+//
+// creates display text - as long as no proper GUI interaction is possible, this text will be the GUI
+//
+procedure UpdateTextHead;
+var
+  i: integer;
+  lt: TLoc;
+  count: integer;
+  multi: boolean;
+  newteam: boolean;
+  k: integer;
+begin
+  TEXT_HEAD := 'FUN WITH FLAGS' + UpdateTextTail;
+  TEXT_HEAD := TEXT_HEAD + '| |<$17>: (' + IntToStr(FLAGS_TO_WIN) + ' <$20>)|';
+  if TEAMGAME then
+  begin
+    for i := 1 to LOCATIONS_TOTAL do
+	begin
+	  if NOT States.PlayerEnabled(i - 1) then continue;
+	  count := 0;
+	  multi := false;
+	  newteam := true;
+	  if TEAM_OF_PLAYER[i] = 0 then TEXT_HEAD := TEXT_HEAD + PlayerColorName(i) + '[]: ' + IntToStr(FLAGS_OF_PLAYER[i]) + '|' // if not teamed up, show player names and the score
+	  else
+	  begin
+	    if i > 1 then for k := 1 to i - 1 do if TEAM_OF_PLAYER[i] = TEAM_OF_PLAYER[k] then newteam := false; // if the team has already been displayed, skip the next step
+		if newteam then // skip this if the team is already on the scoring list
+		begin
+	      TEXT_HEAD := TEXT_HEAD + '<$25> ' + IntToStr(TEAM_OF_PLAYER[i]) + ' (';
+	      for lt := p1 to p8 do if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[i]]) then
+		  begin
+		    count := count + FLAGS_OF_PLAYER[LoctypeToInt(lt)];
+		    if multi then TEXT_HEAD := TEXT_HEAD + ', ';
+		    TEXT_HEAD := TEXT_HEAD + PlayerColorName(LoctypeToInt(lt)) + '[]';
+		    multi := true;
+		  end;
+	      TEXT_HEAD := TEXT_HEAD + '): ' + IntToStr(count - CountExcessFinalFlagsForTeam(i)) + '|'; // the final flags count only 1 per team, so the display must also do this
+		end
+	  end
+	end
+  end
+  else for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then TEXT_HEAD := TEXT_HEAD + PlayerColorName(i) + '[]: ' + IntToStr(FLAGS_OF_PLAYER[i]) + '|'; // teamgame=false only needs player name, no team names
+end;
+
+//
+// creates display text - as long as no GUI interaction is possible, the text will be the GUI
+//
+procedure UpdateTextFlags(loc: integer);
+var
+  flg: integer;
+  i: integer;
+  txtfact: AnsiString;
+  txtfuture: AnsiString;
+  txtfirst: AnsiString;
+  txtfinal: AnsiString;
+begin
+  if (loc < 1) OR (loc > LOCATIONS_TOTAL) then EXIT;
+  txtfact := ' |<$21>';
+  txtfuture := '| |<$22> - <$26>';
+  txtfirst := '| |<$23> - <$27>';
+  txtfinal := '| |<$24> - <$28>';
+  for flg := 1 to NUM_FLAGS do
+  begin
+	case FLAGS[flg].Tflagtype of
+      first: begin
+	    txtfirst := txtfirst + '|<$' + IntToStr(flg) + '>';
+        if PLAYER_OWNS_FLAG[flg] > 0 then txtfirst := txtfirst + ': ' + PlayerColorName(PLAYER_OWNS_FLAG[flg]) + '[]'
+		else if NOT FLAG_UNLOCKED[flg] then txtfirst := txtfirst + ' [' + IntToStr(SCORES[loc][flg]) + ']: <<$18> ' + IntToStr(FLAGS[flg].unlocked_at) + '>';
+      end;
+	  final: begin
+	    txtfinal := txtfinal + '|<$' + IntToStr(flg) + '> [' + IntToStr(SCORES[loc][flg]) + ' <$19> ' + IntToStr(FLAGS[flg].unlocked_at) + ']:';
+		for i := 1 to LOCATIONS_TOTAL do if TEAM_OF_PLAYER[i] = 0 then if ((flg = NUM_FLAGS - 1) AND HAS_FINALFLAG_ONE[i]) OR ((flg = NUM_FLAGS) AND HAS_FINALFLAG_TWO[i]) then txtfinal := txtfinal + ' [$' + PlayerColorsCorrected(i) + '](' + IntToStr(SCORES[i][flg]) + ')[]';
+		// up to now, only unteamed players who posses the final flag have been added to the list - now also add the teams
+		txtfinal := txtfinal + TeamFinalFlagText(loc, flg);
+      end;
+      fact: begin
+	    txtfact := txtfact + '|<$' + IntToStr(flg) + '> [' + IntToStr(SCORES[loc][flg]) + ']: ';
+        if PLAYER_OWNS_FLAG[flg] > 0 then txtfact := txtfact + PlayerColorName(PLAYER_OWNS_FLAG[flg]) + ' (' + IntToStr(SCORES[PLAYER_OWNS_FLAG[flg]][flg]) + ')[]'
+		else if NOT FLAG_UNLOCKED[flg] then txtfact := txtfact + '<<$18> ' + IntToStr(FLAGS[flg].unlocked_at) + '>';
+	  end;
+	  future: begin
+	    txtfuture := txtfuture + '|<$' + IntToStr(flg) + '> [' + IntToStr(SCORES[loc][flg]) + ']: ';
+        if PLAYER_OWNS_FLAG[flg] > 0 then txtfuture := txtfuture + PlayerColorName(PLAYER_OWNS_FLAG[flg]) + ' (' + IntToStr(SCORES[PLAYER_OWNS_FLAG[flg]][flg]) + ')[]'
+		else if NOT FLAG_UNLOCKED[flg] then txtfuture := txtfuture + '<<$29> ' + IntToStr(FLAGS[flg].unlocked_at div 600) + '<$30>>';
+	  end
+	end
+  end;
+  TEXT_BODY[loc] := txtfact + txtfuture + txtfirst + txtfinal;
+end;
+
+/// --------------
+/// Initialization
+/// --------------
+
+//
+// defines and sets all constants that are needed throughout match
+//
+procedure DefineConstants;
+var
+  i: integer;
+  k: integer;
+  count: integer;
+  lt: TLoc;
+begin
+  DefineFlags;
+
+  GAME_WON := false;
+  WINNING_PLAYER := -1;
+  BALANCER_DISP := 0;
+  WINNING_FLAG_REACHED_TICK := 0;
+  
+  // the forbidden area has to be at least 3 tiles broad, because with 2 tiles I managed to get one knight past this zone with gamespeed x3 without getting killed
+  // 2 values are needed for this map:  top left und lower right corner of forbidden zone rectangle - map specific
+  CONST_FORB_LOC_X_START[1] := 61;
+  CONST_FORB_LOC_X_END[1] := 63;
+  CONST_FORB_LOC_X_START[2] := 144;
+  CONST_FORB_LOC_X_END[2] := 147;
+  CONST_FORB_LOC_Y_START[1] := 1;
+  CONST_FORB_LOC_Y_END[1] := 35;
+  CONST_FORB_LOC_Y_START[2] := 1;
+  CONST_FORB_LOC_Y_END[2] := 37;
+  CONST_FORB_LOC_Y_START[3] := 155;
+  CONST_FORB_LOC_Y_END[3] := 191;
+  CONST_FORB_LOC_Y_START[4] := 156;
+  CONST_FORB_LOC_Y_END[4] := 191;
+
+  for i := 1 to NUM_FLAGS do PLAYER_OWNS_FLAG[i] := -1; // no flag owners at the beginning
+  for i := 1 to LOCATIONS_TOTAL do 
+  begin
+    FLAGS_OF_PLAYER[i] := 0; // so everybody has 0 flags
+    HAS_FINALFLAG_ONE[i] := false;
+    HAS_FINALFLAG_TWO[i] := false;
+	STARVED_CIVS[i] := 0;
+	if IsPlayerTeamedUp(i) then TEAM_OF_PLAYER[i] := -1 else TEAM_OF_PLAYER[i] := 0; // make it easier to build up team arrays ... 0 means no team or loc disabled, -1 not assigned (treated later), >0 is team nr
+  end;
+  for i := 1 to LOCATIONS_TOTAL do for k := 1 to NUM_FLAGS do SCORES[i][k] := 0;
+  for i := 1 to 4 do 
+  begin
+    FACTFLAG_UNLOCKED[i] := false;
+	REPOPULATE_FISH[i] := false;
+  end;
+  for i := 1 to NUM_FLAGS do FLAG_UNLOCKED[i] := false;
+
+  // start team assign
+  TEAMGAME := AnyTeamsExist;
+  if TEAMGAME then
+  begin
+    count := 1; // team number to start assign with
+    for i := 1 to LOCATIONS_TOTAL do 
+    begin
+      if TEAM_OF_PLAYER[i] = -1 then // only teamed player whose team has not yet been assigend to a number have to be assigned - a whole team is assigned in one loop, so no problems with double-assigning occurs
+	  begin
+	    TEAM_OF_PLAYER[i] := count;
+	    if i < LOCATIONS_TOTAL then for k := i + 1 to LOCATIONS_TOTAL do if States.PlayerAllianceCheck(i - 1, k - 1) then TEAM_OF_PLAYER[k] := count; // sort all teammates into the same team number
+	    Inc(count); // next team number
+	  end
+    end
+  end;
+
+  for i := 0 to LOCATIONS_TOTAL do TEAM_MEMBERS[i] := [];
+  for lt := p1 to p8 do Include(TEAM_MEMBERS[TEAM_OF_PLAYER[LoctypeToInt(lt)]], lt);
+  
+  // has to be called late so the TEAM_OF_PLAYER-array is properly filled; teams count here, not single players
+  case TeamingPlayersCount of // rule: the player has to have double the number (rounded up and/or +2 because of 3 final flags) compared to the followers;
+    2:  FLAGS_TO_WIN := 10; // 2:1 needed of the fighting flags (6 out of 9) + your final flags (2 out of 2) + your share of the first flag (2 out of 4)
+    3:  FLAGS_TO_WIN := 8; // 2:2 needed (5/9) + (2/2) + (2/4)
+    4:  FLAGS_TO_WIN := 7; // 2:3 needed (4/9) + (2/2) + (1/4)
+    5:  FLAGS_TO_WIN := 6; // 2:4 needed (3/9) + (2/2) + (1/4)
+    6:  FLAGS_TO_WIN := 6; // 2:5 needed (3/9) + (2/2) + (1/4)
+    7:  FLAGS_TO_WIN := 5; // 2:6 needed (2/9) + (2/2) + (1/4)
+    8:  FLAGS_TO_WIN := 5; // 2:7 needed (2/9) + (2/2) + (1/4)
+    else FLAGS_TO_WIN := NUM_FLAGS - 4; //In singleplayer, you need to achieve every flag minus the 4 fighting flags that are not reachable
+  end
+end;
+
+/// --------------------------------
+/// functions for winner calculation
+/// --------------------------------
+
+//
+// the generic version of NumberOfLeaders that behaves like a fact flag and takes all kind of arrays
+//
+procedure GenericNumberOfLeaders(var num_leaders: integer; var leader_id: integer; var scorearray: arr_loc);
+var
+  i: integer;
+  highscore: integer;
+begin
+  highscore := 0;
+  num_leaders := 0;
+  leader_id := -1;
+  for i := 1 to LOCATIONS_TOTAL do if scorearray[i] > highscore then highscore := scorearray[i]; // check the highscore first
+  if highscore < FLAGS_TO_WIN then EXIT // if highscore is too low, return; except for future flags
+  else
+  for i := 1 to LOCATIONS_TOTAL do if scorearray[i] = highscore then
+  begin
+	Inc(num_leaders);
+	leader_id := i;
+  end
+end;
+
+//
+// check the state of the flag highscore; retun values: 0 highscore not reached, 1 one leader, >1 more than one leader
+// leader returns the last leading player; this makes only sense of there is only one leader
+// Tflagtype: 2 needs to be checked differently with the same logic that flag type 1 should be pre-checked to avoid unneccessary CPU load
+//
+procedure NumberOfLeaders(var num_leaders: integer; var leader_id: integer; flg: integer);
+var
+  i: integer;
+  highscore: integer;
+begin
+  highscore := 0;
+  num_leaders := 0;
+  leader_id := -1;
+  if (flg < 1) OR (flg > NUM_FLAGS) then EXIT;
+  if FLAGS[flg].Tflagtype = final then EXIT; // flag 2 is treated differently, the rest are safety checks
+  if (FLAGS[flg].Tflagtype = future) AND (States.GameTime < FLAGS[flg].unlocked_at) then EXIT; // time limit not yet reached
+  for i := 1 to LOCATIONS_TOTAL do if SCORES[i][flg] > highscore then highscore := SCORES[i][flg]; // check the highscore first
+  if (highscore < FLAGS[flg].unlocked_at) AND ((FLAGS[flg].Tflagtype = first) OR (FLAGS[flg].Tflagtype = final)) then EXIT; // if highscore is too low, return; only for first and final flags
+  if FLAGS[flg].Tflagtype = fact then // only fact flags - check this here to avoid fence post error on checking FACTFLAG_UNLOCKED[flg]
+  begin
+    if NOT FACTFLAG_UNLOCKED[flg] then // fact flags shall be calculated always if they are unlocked, so only skip if they were not unlocked before
+    begin
+      if (highscore < FLAGS[flg].unlocked_at) then EXIT // if limit has not yet been reached before, then exit if highscore is still not reached
+      else FACTFLAG_UNLOCKED[flg] := true; // else the limit has been reached and the flag is unlocked
+    end
+  end;
+  for i := 1 to LOCATIONS_TOTAL do if SCORES[i][flg] = highscore then
+  begin
+    //Team members shouldn't cause flag to be unclaimed when they have the same score
+    if (num_leaders = 0) OR (TEAM_OF_PLAYER[i] = 0) OR (TEAM_OF_PLAYER[i] <> TEAM_OF_PLAYER[leader_id]) then Inc(num_leaders);
+	leader_id := i;
+  end
+end;
+
+//
+// check if a the leader has kept his lead long enough so he can be declared the winner
+//
+procedure CheckVictory;
+var
+  num_leaders: integer;
+  leader_id: integer;
+  teamarr: arr_loc;
+  i: integer;
+  k: integer;
+  newteam: boolean;
+  lt: TLoc;
+begin
+  if TEAMGAME then
+  begin
+    for i := 1 to LOCATIONS_TOTAL do
+	begin
+	  teamarr[i] := 0; // initialize to 0
+	  newteam := true;
+	  if TEAM_OF_PLAYER[i] = 0 then teamarr[i] := FLAGS_OF_PLAYER[i] // if not teamed up, copy the score
+	  else
+	  begin // if the loop hits the next teammates, it skips everything, so teamarr[next] should stay at 0 to not interfere with the single leader calculations
+	    if i > 1 then for k := 1 to i - 1 do if TEAM_OF_PLAYER[i] = TEAM_OF_PLAYER[k] then newteam := false; // if the team has already been displayed, skip the next step
+		if newteam then
+		begin
+		  for lt := p1 to p8 do if (lt IN TEAM_MEMBERS[TEAM_OF_PLAYER[i]]) then teamarr[i] := teamarr[i] + FLAGS_OF_PLAYER[LoctypeToInt(lt)]; // collect all score in the first teammate index to be able to do a proper NumberOfLeaders
+		  teamarr[i] := teamarr[i] - CountExcessFinalFlagsForTeam(i); // if there are final flags, only 1 will be be counted per team per flag
+		end
+	  end
+	end;
+    GenericNumberOfLeaders(num_leaders, leader_id, teamarr);
+  end
+  else GenericNumberOfLeaders(num_leaders, leader_id, FLAGS_OF_PLAYER); // when there are not teams, it's straightforward
+
+  if num_leaders <> 1 then
+  begin
+	  WINNING_FLAG_REACHED_TICK := 0;
+	  WINNING_PLAYER := 0;
+  end
+  else // we have a single leader with at least max score (or, when more than one players hit the winning limit, the one with the most flags)
+  begin
+    if leader_id <> WINNING_PLAYER then // if the leadership has changed, abort the countdown
+	begin
+	  WINNING_FLAG_REACHED_TICK := States.GameTime;
+	  WINNING_PLAYER := leader_id;
+	end
+	else
+	begin
+	  if ((States.GameTime - WINNING_FLAG_REACHED_TICK) mod GIVE_GOLD_PER_LEADER_TICK) = 0 then GiveGoldToLeaders;
+	  if (WIN_HOLDING_TICK + WINNING_FLAG_REACHED_TICK - States.GameTime) < 0 then 
+	  begin
+        if not GAME_WON then GAME_WON := true;
+        Actions.PlayerWin([WINNING_PLAYER - 1], true); // for team games, the scores where added into first teams first player id, so this can be called regardless of TEAMGAME
+		for i := 1 to LOCATIONS_TOTAL do Actions.FogRevealAll(i - 1);
+	  end
+	end
+  end
+end;
+
+/// ------------------------------
+/// functions for flag calculation
+/// ------------------------------
+
+//
+// update the arrays containing the flag information
+//
+procedure UpdateFlagOwners(num_leaders: integer; leader_id: integer; flg: integer);
+var
+  i: integer;
+  cur: integer;
+begin
+  if (flg < 1) OR (flg > NUM_FLAGS) OR (leader_id < 1) OR (leader_id > LOCATIONS_TOTAL) then EXIT;
+  FLAG_UNLOCKED[flg] := true;
+  if (num_leaders = 1) then
+  begin
+    if (leader_id > 0) AND (leader_id <= LOCATIONS_TOTAL) then
+    begin
+      cur := PLAYER_OWNS_FLAG[flg];
+	  if cur <> leader_id then // change scores only when leadership has changed
+	  begin
+	   PLAYER_OWNS_FLAG[flg] := leader_id;
+	   Inc(FLAGS_OF_PLAYER[leader_id]);
+	   if (cur > 0) AND (cur <= LOCATIONS_TOTAL) then Dec(FLAGS_OF_PLAYER[cur]);
+	   for i := 1 to LOCATIONS_TOTAL do if i = leader_id then Actions.PlayWAV(i - 1, 'start', 1.0) else Actions.PlayWAV(i - 1, 'kick', 1.0); // flag owner gets start, everyone else is kicked sound-wise
+	  end
+	end
+  end
+  else // we have more than one or no leader at all - or leader give wrong information
+  begin
+    cur := PLAYER_OWNS_FLAG[flg];
+	PLAYER_OWNS_FLAG[flg] := -1;
+	if (cur > 0) AND (cur <= LOCATIONS_TOTAL) then Dec(FLAGS_OF_PLAYER[cur]);
+  end
+end;
+
+//
+// Updates the database for first flags
+//
+procedure FirstFlagManagement(flg: integer);
+var
+  i: integer;
+  leader_id: integer;
+  num_leaders: integer;
+begin
+  if (flg < 10) OR (flg > 13) then EXIT; // array boundaries & check for first flag
+  if (PLAYER_OWNS_FLAG[flg] > 0) then EXIT; // flag already issued
+  NumberOfLeaders(num_leaders, leader_id, flg);
+  if (num_leaders <> 1) OR (leader_id < 1) OR (leader_id > LOCATIONS_TOTAL) then EXIT;
+  FLAG_UNLOCKED[flg] := true;
+  PLAYER_OWNS_FLAG[flg] := leader_id;
+  Inc(FLAGS_OF_PLAYER[leader_id]);
+  for i := 1 to LOCATIONS_TOTAL do if i = leader_id then Actions.PlayWAV(i - 1, 'origin', 0.5) else Actions.PlayWAV(i - 1, 'init', 0.5);
+end;
+
+//
+// Weighting the pure number of houses with types of houses - evenly distributed number of houses results in higher number than a pure monoculture of one house type -- expect it to usually divide by a factor of 3 for kam cities
+//
+function CityScatter(var houses: arr_hus): integer;
+var
+  i: integer;
+  count: integer;
+  medium: double;
+  stddev: double;
+  len: integer;
+begin
+  count := 0;
+  stddev := 0.0;
+  len:= Length(houses);
+  for i := 1 to len do count := count + houses[i]; // count all houses
+  medium := count / len;
+  for i := 1 to len do stddev := stddev + ((houses[i] - medium) * (houses[i] - medium));
+  stddev := Sqrt(stddev / (len - 1)); // estimator for standard deviation that underestimates the spread; but that's the only chance he have because we don't know the distribution probabilities
+  RESULT := Round(count / (stddev + 1)); // 1/1+x makes the function <1 and >0, with tending to 0 for large stddev -> punish for monoculture
+end;
+
+//
+// Variety flag checks
+//
+function CheckVariety(loc: integer): integer;
+var
+  k: integer;
+begin
+  RESULT := 0; // no player reached the limit
+  for k := 13 downto 0 do
+  begin
+    if (k = 8) then continue; // fisherman not accessible to half of the players
+    if States.StatUnitTypeCount(loc - 1, k) > 0 then Inc(RESULT);
+  end;
+  for k := 29 downto 0 do
+  begin
+    if (k = 26) OR (k = 23) OR (k = 18) OR (k = 29) OR (k = 6) then continue; // 26 unused; 23 vehicle workshop; 18 town hall; 29 market; 6 fisherman's hut
+    if States.StatHouseTypeCount(loc - 1, k) > 0 then Inc(RESULT);
+  end
+end;
+
+//
+// Strategist flag checks
+//
+function CheckStrategist(loc: integer; flg: integer): integer;
+var
+  k: integer;
+  t: integer;
+begin
+  RESULT := FLAGS[flg].unlocked_at;
+  for k := 22 downto 14 do
+  begin
+    t := States.StatUnitTypeCount(loc - 1, k);
+    if t < RESULT then RESULT := t; // do a backwards calculation to check for the minimum number of units that you have
+	if t = 0 then EXIT; // save at least some calculation time as t will be 0 most of the time
+  end
+end;
+
+//
+// Updates the flag arrays for the current owner
+//
+procedure CalculateFlag(flg: integer);
+var
+  i: integer;
+  k: integer;
+  leader_id: integer;
+  num_leaders: integer;
+  count: integer;
+  houses: arr_hus;
+  house_index: integer;
+begin
+  if (flg < 1) OR (flg > NUM_FLAGS) then EXIT;
+  case flg of
+  /// 1 - 4: fact flags, unlocked after a specific event -- all players compete for these flags
+    1: for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then
+	  begin
+	    count := 0;
+		for k := 8 to 12 do count := count + States.StatResourceProducedCount(i - 1, 2 * k) - States.StatResourceProducedCount(i - 1, (2 * k) + 1); // wooden weapons - iron weapons
+		SCORES[i][flg] := count;
+	  end;
+    2: for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then
+	begin
+	  SCORES[i][flg] := (3 * States.StatResourceProducedCount(i - 1, 8)) + (5 * States.StatResourceProducedCount(i - 1, 10)) + (7 * States.StatResourceProducedCount(i - 1, 13)); // 8 wine of 30%; 10 bread of 50%, 13 sausage of 70%
+	  count := States.StatHouseTypeCount(i - 1, 27); // number of inns
+	  if count < 1 then continue;
+	  for k := 1 to count do SCORES[i][flg] := Round(SCORES[i][flg] * 1.1); // increase nutrition by 10% for every inn built
+	end;
+    //3: // the array calculations for houses is done in OnHouseDestroyed
+    //4: // the array calculations for fighting is done in OnUnitDied
+  /// 5 - 9: future flags, unlocked after a specific time -- all players compete for these flags
+    5: for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then SCORES[i][flg] := States.StatResourceProducedCount(i - 1, 0) + States.StatResourceProducedCount(i - 1, 5) + States.StatResourceProducedCount(i - 1, 9); // tree trunks plus coal plus corn
+    6: for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then SCORES[i][flg] := States.StatResourceProducedCount(i - 1, 7) + States.StatResourceProducedCount(i - 1, 8) + States.StatResourceProducedCount(i - 1, 13); // gold and wine and sausage
+    7: for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then SCORES[i][flg] := States.StatResourceProducedCount(i - 1, 8) + States.StatResourceProducedCount(i - 1, 10) - States.StatResourceProducedCount(i - 1, 13) - States.StatResourceProducedCount(i - 1, 27); // wine + bread - sausage - fish
+    8: for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then
+	  begin
+	    count := 0;
+		for k := 1 to 7 do
+		begin
+		  if (k = 2) OR (k = 6) then continue; // 9: woodcutter; 25: tannery
+		  count := count + States.StatHouseTypeCount(i - 1, (k * 4) + 1); // 5: gold mine; 13: schools; 17: towers; 21: barracks; 29: markets
+		end;
+		SCORES[i][flg] := count + States.StatHouseTypeCount(i - 1, 12) + States.StatHouseTypeCount(i - 1, 4) - States.StatHouseTypeCount(i - 1, 3); // stables + iron mines - coal mines
+	  end;
+    9: for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then
+	  begin
+	    count := 0;
+	    for k := 14 to 27 do count := count + States.StatUnitKilledCount(i - 1, k) - States.StatUnitLostCount(i - 1, k); // killed - lost soldiers
+		SCORES[i][flg] := States.StatArmyCount(i - 1) + count; // plus living soldiers
+	  end;
+  /// 10 - 13: first flags, -- all players compete for these flags, but only the first one gets it and then keeps it until the end; this cannot be lost
+  // if 2 persons reach this goal in the same update interval this flag is not awarded
+    10: begin
+	  if PLAYER_OWNS_FLAG[flg] > 0 then EXIT; // already awarded
+      for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then
+	  begin
+	    house_index := 1;
+		for k := 0 to 29 do
+		begin
+		  if (k = 26) OR (k = 23) OR (k = 18) then continue; // 26 unused; 23 vehicle workshop; 18 town hall
+		  houses[house_index] := States.StatHouseTypeCount(i - 1, k);
+		  Inc(house_index);
+		end;
+		SCORES[i][flg] := CityScatter(houses);
+	  end;
+	  FirstFlagManagement(flg);
+	EXIT end;
+    11: begin
+	  if PLAYER_OWNS_FLAG[flg] > 0 then EXIT;
+      for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then SCORES[i][flg] := States.StatResourceProducedCount(i - 1, 6) + States.StatResourceProducedCount(i - 1, 12); // iron + leather
+	  FirstFlagManagement(flg);
+	EXIT end;
+    12: begin
+	  if PLAYER_OWNS_FLAG[flg] > 0 then EXIT;
+      for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then SCORES[i][flg] := CheckVariety(i);
+	  FirstFlagManagement(flg);
+	EXIT end;
+    13: begin
+	  if PLAYER_OWNS_FLAG[flg] > 0 then EXIT;
+      for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then SCORES[i][flg] := CheckStrategist(i, flg);
+	  FirstFlagManagement(flg);
+	EXIT end;
+  /// 14 - 15: final flags -- no competition for this flag; as soon as you've reached the limit, you'll get this flag; you can lose it again when you fall below this limit
+    14: begin
+      for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then
+	  begin
+		count := States.StatCitizenCount(i - 1) - STARVED_CIVS[i]; // population - starved citizens
+		if count >= FLAGS[flg].unlocked_at then
+		begin
+		  if NOT HAS_FINALFLAG_ONE[i] then
+		  begin
+		    Inc(FLAGS_OF_PLAYER[i]);
+			Actions.PlayWAV(i - 1, 'start', 1.0);
+		  end;
+		  HAS_FINALFLAG_ONE[i] := true;
+		end
+		else
+		begin
+		  if HAS_FINALFLAG_ONE[i] then
+		  begin
+		    Dec(FLAGS_OF_PLAYER[i]); // makes it possible to lose the flag again
+			Actions.PlayWAV(i - 1, 'kick', 1.0);
+		  end;
+		  HAS_FINALFLAG_ONE[i] := false;
+		end;
+		SCORES[i][flg] := count;
+	  end;
+    EXIT end;
+    15: begin
+      for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then
+	  begin
+		count := States.StatUnitTypeCount(i - 1, 22); // knights
+		if count >= FLAGS[flg].unlocked_at then
+		begin
+		  if NOT HAS_FINALFLAG_TWO[i] then
+		  begin
+		    Inc(FLAGS_OF_PLAYER[i]);
+			Actions.PlayWAV(i - 1, 'start', 1.0);
+		  end;
+		  HAS_FINALFLAG_TWO[i] := true;
+		end
+		else
+		begin
+		  if HAS_FINALFLAG_TWO[i] then
+		  begin
+		    Dec(FLAGS_OF_PLAYER[i]); // makes it possible to lose the flag again
+			Actions.PlayWAV(i - 1, 'kick', 1.0);
+		  end;
+		  HAS_FINALFLAG_TWO[i] := false;
+		end;
+		SCORES[i][flg] := count;
+	  end;
+	EXIT end
+  end;
+  NumberOfLeaders(num_leaders, leader_id, flg);
+  UpdateFlagOwners(num_leaders, leader_id, flg);
+end;
+
+///
+/// * API to game *
+///
+
+procedure OnMissionStart;
+begin
+  DefineConstants;
+end;
+
+procedure OnHouseBuilt(aHouseID: integer);
+var
+  owner: integer;
+begin
+  if States.HouseType(aHouseID) = 6 then
+  begin
+    owner := States.HouseOwner(aHouseID);
+    if (owner < 0) OR (owner >= LOCATIONS_TOTAL) then EXIT;
+	REPOPULATE_FISH[1 + (owner DIV 2)] := true;
+  end
+end;
+
+procedure OnHouseDestroyed(aHouseID: integer; aDestroyerIndex: integer);
+var
+  owner: integer;
+  xcoord: integer;
+  ycoord: integer;
+  i: integer;
+begin
+  if (aDestroyerIndex < 0) OR (aDestroyerIndex >= LOCATIONS_TOTAL) then EXIT;
+  if NOT States.HouseIsComplete(aHouseID) then EXIT;
+  owner := States.HouseOwner(aHouseID);
+  if (owner < 0) OR (owner >= LOCATIONS_TOTAL) then EXIT;
+  if aDestroyerIndex <> owner then
+  begin
+    Inc(SCORES[aDestroyerIndex + 1][3]); // +1 for destroying house (attacker)
+	Dec(SCORES[owner + 1][3]); // -1 for losing house (owner)
+  end
+  else // demolished by owner
+  begin
+    ycoord := States.HousePositionY(aHouseID); // y-coord needed because the valley is not rectangular
+    xcoord := States.HousePositionX(aHouseID);
+	// complicated, because the valley is tailored in the middle, so we stick to 3 squares: top: y<36,x=64-143 -- middle: y=37-148,x=64-140 -- bottom: y>148,x=64-143
+	if (((ycoord < 37) OR (ycoord > 148)) AND (xcoord > 63) AND (xcoord < 144)) OR
+	   (((ycoord > 36) AND (ycoord < 149)) AND (xcoord > 63) AND (xcoord < 141)) then
+	begin
+	  Dec(SCORES[owner + 1][3]); // -1 for losing house (owner)
+	  // increase score number for all other players if they are not teamed up with the owner
+	  for i := 1 to LOCATIONS_TOTAL do if (States.PlayerEnabled(i - 1)) AND (i <> owner + 1) AND ((TEAM_OF_PLAYER[i] <> TEAM_OF_PLAYER[owner + 1]) OR (TEAM_OF_PLAYER[i] = 0)) then Inc(SCORES[i][3]); // +1 for destroying house (attacker)
+	end
+  end
+end;
+
+procedure OnUnitDied(aUnitID: integer; aKillerIndex: integer);
+var
+  owner: integer;
+begin
+  owner := States.UnitOwner(aUnitID);
+  if (owner < 0) OR (owner >= LOCATIONS_TOTAL) then EXIT;
+  if (aKillerIndex = -1) then if (States.UnitType(aUnitID) < 14) AND (States.UnitType(aUnitID) >= 0) then Inc(STARVED_CIVS[owner + 1]); // a civilian starved
+  if (aKillerIndex < 0) OR (aKillerIndex >= LOCATIONS_TOTAL) then EXIT;
+  if aKillerIndex <> owner then SCORES[aKillerIndex + 1][4] := SCORES[aKillerIndex + 1][4] + ScoreForUnit(aUnitID); // no spectial treatment for civilians as ScoreForUnit will give 0 for them anyways
+end;
+
+procedure OnTick;
+var
+  balancer_loc: integer;
+  balancer_flag: integer;
+  i: integer;
+begin
+  // OnTick is called each tick, so calculations here should be stripped to the absolute minimum
+  // in this function, only the balancers are running
+  // a balancer is a number that runs from a lower to upper limit; it's increased in each tick
+  // every state the balancer reaches, a different calculation is done - just like old TSK and TPR worked
+  // so the overall calculations are spread over different tickes; no need to do everything at once and at every tick :)
+ 
+  // balancer_loc balances the forbidden zones, the winner calculations and the text gui
+  // those are calculations that need to be updated every 1 second, so this balancer runs from 0 .. 9
+  balancer_loc := States.GameTime mod TICKS_PER_SECOND;
+  if (balancer_loc > 0) AND (balancer_loc <= LOCATIONS_TOTAL) then KillBaseIntruderers(balancer_loc);
+  if (balancer_loc = 9) then
+  begin
+    if (NOT GAME_WON) then CheckVictory;
+	if (States.GameTime - 9) mod 135 = 0 then CheckFish; // check fish every 135 seconds
+  end;
+  // balancer_loc = 0 is checked below - after the texts were updated with BALANCER_DISP 
+
+  if States.GameTime = 18000 then EnableMarketplace;
+  for i := 5 to 9 do if States.GameTime = FLAGS[i].unlocked_at then Actions.PlayWAV(-1, 'begin', 0.8); // future flag begin sound
+
+  // balance calculations so each flag gets updated every 3 seconds; one flag calculated on odd tick
+  balancer_flag := States.GameTime mod 30;
+  if (balancer_flag mod 2) = 1 then CalculateFlag(1 + (balancer_flag div 2)) // balancer_flag div 2 -> 0..14 distributes the flag calculation
+  else // every even tick the flag text is updated, so all in all it updates 15 times in 24 seconds (once per 1.6 seconds)
+  begin // further distributes the display calculations along the different player locations
+    BALANCER_DISP := 1 + (BALANCER_DISP mod 8);
+    if States.PlayerEnabled(BALANCER_DISP - 1) then UpdateTextFlags(BALANCER_DISP); // this wrapping is needed to access HAS_FINALFLAG_TWO so every player is shown his own score there
+  end;
+
+  if balancer_loc = 0 then // Text-GUI needs to be below the balancer_flag, because it displays the updated text
+  begin
+	UpdateTextHead;
+	Actions.OverlayTextSet(-1, TEXT_HEAD); // all players get the match time
+	for i := 1 to LOCATIONS_TOTAL do if States.PlayerEnabled(i - 1) then Actions.OverlayTextAppend(i - 1, TEXT_BODY[i]); // display each player his personal flag score overview
+  end
+end;
