@@ -989,7 +989,6 @@ type
   protected
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
-    procedure SetAnchors(aValue: TKMAnchorsSet); override;
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetTop(aValue: Integer); override;
@@ -3252,15 +3251,6 @@ begin
   inherited;
   fScrollBar.Left := Left + Width - fScrollBar.Width;
   ReformatText; //Repositions the scroll bar as well
-end;
-
-
-procedure TKMMemo.SetAnchors(aValue: TKMAnchorsSet);
-begin
-  inherited;
-  //Scrollbar is nil during TKMControl.Create
-  if fScrollBar <> nil then
-    fScrollBar.Anchors := aValue;
 end;
 
 
