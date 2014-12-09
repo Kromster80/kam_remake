@@ -57,6 +57,7 @@ type
     property OnRequestUnfade: TNotifyEvent write fOnUnfadeMusic;
     procedure AbortAllFadeSounds;
     procedure AbortAllLoopedSounds;
+    procedure AbortAllLongSounds;
 
     procedure UpdateListener(X,Y: Single);
     procedure UpdateSoundVolume(Value: Single);
@@ -264,6 +265,23 @@ begin
 end;
 
 
+procedure TKMSoundPlayer.AbortAllLongSounds;
+var I: Integer;
+begin
+  if SKIP_SOUND or not fIsSoundInitialized then Exit;
+
+  //This is used to abort long sounds from the game when you quit so they don't play in the menu
+  for I := 1 to MAX_SOUNDS do
+    if (fSound[I].PlaySince <> 0) and (GetTimeSince(fSound[I].PlaySince) < fSound[I].Duration)
+    and not fSound[I].Looped //Looped sounds manage themselves
+    and (fSound[I].Duration > 8000) then //Sounds <= 8 seconds can keep playing (e.g. victory music)
+    begin
+      fSound[I].PlaySince := 0;
+      alSourceStop(fSound[i].ALSource);
+    end;
+end;
+
+
 {Update listener position in 3D space}
 procedure TKMSoundPlayer.UpdateListener(X,Y:single);
 begin
@@ -283,10 +301,16 @@ begin
   fSoundGain := Value;
   //alListenerf(AL_GAIN, fSoundGain); //Set in source property
 
-  //Loop sounds must be updated
+  //Loop sounds must be updated separately
   for I:=Low(fLoopSoundIndex) to High(fLoopSoundIndex) do
     if fLoopSoundIndex[I] <> -1 then
       AlSourcef(fSound[fLoopSoundIndex[I]].ALSource, AL_GAIN, 1 * fSound[fLoopSoundIndex[I]].Volume * fSoundGain);
+
+  //Update the volume of all other playing sounds
+  for I := 1 to MAX_SOUNDS do
+    if not fSound[I].Looped //Looped sounds are handled above
+    and (fSound[I].PlaySince <> 0) and (GetTimeSince(fSound[I].PlaySince) < fSound[I].Duration) then
+      AlSourcef(fSound[I].ALSource, AL_GAIN, 1 * fSound[I].Volume * fSoundGain);
 end;
 
 

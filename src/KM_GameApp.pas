@@ -377,6 +377,8 @@ begin
     fNetworking.Disconnect;
   end;
 
+  gSoundPlayer.AbortAllLongSounds; //SFX with a long duration should be stopped when quitting
+
   if aMsg in [gr_Win, gr_Defeat, gr_Cancel, gr_Silent] then
   begin
     //If the game was a part of a campaign, select that campaign,
