@@ -1,0 +1,11 @@
+﻿0:Generale, il capo della resistenza ha inviato questo messaggio per te. Permettimi di leggerlo: Caro generale, grazie per il tuo supporto. Vorremmo chiederti un favore: se potessi mandare %d pietre con un tuo guerriero al nostro magazzino, potremmo inviare le nostre merci al tuo mercato.
+1:Generale, pare che il nemico sia pesantemente fortificato, le loro difese sembrano impenetrabili!
+2:Grazie generale, inizieremo immediatamente ad inviare le merci.
+3:Abbiamo bisogno di un mercato cui inviare le merci!
+4:[$0000FC]Obiettivo[]:
+5:[$8CE6F0] - []
+6:[$00FF7F]Assalta Niss[]
+7: - [$D2FAFA]Merci[] in %d
+8: - %d [$D2FAFA]%s[]
+9:Grazie generale, siamo in attesa del tuo mercato.
+10:Adesso basterà che tu ci porti %d pietre.

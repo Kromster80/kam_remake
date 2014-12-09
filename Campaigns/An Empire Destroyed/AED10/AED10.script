@@ -1,100 +1,435 @@
-//Script by Randziu/Random Lyrics
-const
-PLAYER = 0;
-MAX_PLAYERS = 1;
+const aaaHumanPlayer = 0;
 
-// CHANGEABLE
-MUSIC_VOLUME = 1.0;
+var aAmbushArmiesL1: array of Integer;
+var aAmbushArmiesL2: array of Integer;
+var aAmbushArmiesR1: array of Integer;
+var aAmbushArmiesR2: array of Integer;
+var aAmbushArmiesR3: array of Integer;
+var aAmbushArmiesC: array of Integer;
+var aAttackArmyV1: array[0..1] of array of Integer;
+var aAttackArmyV2L: array of Integer;
+var aAttackArmyV3I: array[0..1] of array of Integer;
+var aArmyEnd: array of Integer;
 
-var
-GENERAL: integer;
-ENEMY_GROUPS: array of integer;
-ENEMY_ENABLED: boolean;
+var aJoinQueue: array of Record aType, aX, aY, aDir, aGroupNum: Integer; end;
+var aJoinGroupQueue: array of Record aID, aColumns: Integer; end;
+var aJoinQueueSkip: Integer;
 
-//ENEMY AI
-procedure SetEnemyGroups;
+var aAmbushSprung: Record aL1, aL2, aR1, aR2, aR3, aC, aVillage1, aVillage2L, aVillage3I, aEnd: Boolean; end;
+
+var aObjectiveCompleted: Record LiberateTPRVillage, LiberateLeatherVillage, LiberateIronVillage: Boolean; end;
+
+Type tEndGameResult = (aNotYet, aWon, aLost);
+var aEndGameResult: tEndGameResult;
+var aEndCount: Integer;
+
+procedure OnMissionStart;
+var aiEnemyGroups: array of Integer;
+var i: Integer;
+var i2: Integer;
 begin
-	SetLength(ENEMY_GROUPS, 9);
-	ENEMY_GROUPS[0]:= States.GroupAt(9 ,30);
-	ENEMY_GROUPS[1]:= States.GroupAt(15 ,31);
-	ENEMY_GROUPS[2]:= States.GroupAt(21 ,31);
-	ENEMY_GROUPS[3]:= States.GroupAt(28 ,30);
-	ENEMY_GROUPS[4]:= States.GroupAt(38 ,30);
-	ENEMY_GROUPS[5]:= States.GroupAt(48 ,30);
-	ENEMY_GROUPS[6]:= States.GroupAt(55 ,30);
-	ENEMY_GROUPS[7]:= States.GroupAt(64 ,30);
-	ENEMY_GROUPS[8]:= States.GroupAt(69 ,30);
-end;
-procedure EnemyAttack;
-var
-A: array of integer;
-j, u, r: integer;
-begin
-	if ENEMY_ENABLED = false then begin
-		A:= States.PlayerGetAllUnits(PLAYER);
-		for j:= 0 to Length(A)-1 do 
-			if States.UnitPositionY(A[j]) <= 45 then begin
-				ENEMY_ENABLED:= true;
-				Actions.GroupOrderStorm(ENEMY_GROUPS[3]);
-				Actions.GroupOrderStorm(ENEMY_GROUPS[4]);
-				Actions.GroupOrderStorm(ENEMY_GROUPS[5]);
-				EnemyAttack;
-			end;
-	end else begin
-		for j:= 0 to Length(ENEMY_GROUPS)-1 do begin
-			if States.StatArmyCount(PLAYER) > 0 then begin
-				A:= States.PlayerGetAllUnits(PLAYER);
-				r:= States.KamRandomI(Length(A)-1);
-				if States.UnitDead(A[r]) = false then
-					u:= A[r]
-				else 
-					u:= -1;
-				if u > 0 then
-					Actions.GroupOrderAttackUnit(ENEMY_GROUPS[j], u);
-			end;
+	Actions.ShowMSG(aaaHumanPlayer, '<$0>'); //They might reward us
+	
+	//Play music
+	Actions.PlayWAVFadeMusic(aaaHumanPlayer, 'Kevin_Mac_Leod_-_Five_Armies', 1);
+	
+	//Variable defaults
+	aObjectiveCompleted.LiberateTPRVillage := False;
+	aObjectiveCompleted.LiberateLeatherVillage := False;
+	aObjectiveCompleted.LiberateIronVillage := False;
+	
+	SetLength(aJoinQueue, 0);
+	SetLength(aJoinGroupQueue, 1);
+	
+	aAmbushSprung.aL1 := False;
+	aAmbushSprung.aL2 := False;
+	aAmbushSprung.aR1 := False;
+	aAmbushSprung.aR2 := False;
+	aAmbushSprung.aR3 := False;
+	aAmbushSprung.aC := False;
+	aAmbushSprung.aVillage1 := False; //TPR
+	aAmbushSprung.aVillage2L := False; //Leather
+	aAmbushSprung.aVillage3I := False; //Iron
+	aAmbushSprung.aEnd := False; //Iron
+	
+	aEndGameResult := aNotYet;
+	aEndCount := 0;
+	
+	//Define troops
+	aAmbushArmiesL1 := [States.GroupAt(69, 202), States.GroupAt(34, 174), States.GroupAt(2, 205), States.GroupAt(3, 186), States.GroupAt(11, 183)];
+	aAmbushArmiesL2 := [States.GroupAt(3, 159), States.GroupAt(8, 159), States.GroupAt(15, 153)];
+	aAmbushArmiesR1 := [States.GroupAt(69, 202)];
+	aAmbushArmiesR2 := [States.GroupAt(63, 179), States.GroupAt(68, 189), States.GroupAt(75, 178), States.GroupAt(97, 189), States.GroupAt(94, 202)];
+	aAmbushArmiesR3 := [States.GroupAt(34, 174)];
+	aAmbushArmiesC := [States.GroupAt(2, 205), States.GroupAt(11, 183), States.GroupAt(34, 174), States.GroupAt(62, 179), States.GroupAt(69, 202)];
+	aAttackArmyV1[0] := [States.GroupAt(40, 151), States.GroupAt(87, 149), States.GroupAt(93, 122), States.GroupAt(40, 114), States.GroupAt(19, 133)];
+	aAttackArmyV1[1] := [States.GroupAt(39, 114), States.GroupAt(63, 108), States.GroupAt(56, 104), States.GroupAt(91, 99), States.GroupAt(102, 118)];
+	aAttackArmyV2L := [States.GroupAt(4, 72), States.GroupAt(32, 72), States.GroupAt(46, 98), States.GroupAt(7, 114)];
+	aAttackArmyV3I[0] := [States.GroupAt(25, 52), States.GroupAt(37, 55), States.GroupAt(40, 43), States.GroupAt(77, 57), States.GroupAt(91, 74), States.GroupAt(72, 89)];
+	aAttackArmyV3I[1] := [States.GroupAt(7, 41), States.GroupAt(42, 35), States.GroupAt(54, 36), States.GroupAt(104, 45), States.GroupAt(104, 49)];
+	
+	SetLength(aArmyEnd, 0);
+	
+	for i2 := 1 to 5 do if i2 <> 3 then begin
+		aiEnemyGroups := States.PlayerGetAllGroups(i2);
+		
+		if Length(aiEnemyGroups) > 0 then for i := 0 to Length(aiEnemyGroups)-1 do if States.GroupDead(aiEnemyGroups[i]) = False then if States.UnitPositionY(States.GroupMember(aiEnemyGroups[i], 0)) < 70 then begin
+			SetLength(aArmyEnd, Length(aArmyEnd)+1);
+			
+			aArmyEnd[Length(aArmyEnd)-1] := aiEnemyGroups[i];
 		end;
 	end;
 end;
-//VICTORY CONDITIONS
-procedure CheckVictory;
-var c, j: integer;
+
+procedure aJoinHuman(aPlayer: Integer);
+var aiUnits: array of Integer;
+var i: Integer;
+var i2: Integer;
+var aAddGroup: Boolean;
 begin
-	c:= 0;
-	for j:=1 to 4 do c:= c + States.StatArmyCount(j);
-	if ( States.UnitPositionY(GENERAL) < 6 ) and ( c < 20 ) then
-		Actions.PlayerWin([PLAYER], true);
-end;
-// SCORE - LABELS
-procedure ShowMissionObjectives(aPlayer: integer);
-begin
-	Actions.OverlayTextSetFormatted(aPlayer, '<$4>', []);
-	Actions.OverlayTextAppendFormatted(aPlayer, '<$6>', []);
-	Actions.OverlayTextAppend(aPlayer, '|');
+	aiUnits := States.PlayerGetAllUnits(aPlayer);
+	if Length(aiUnits) > 0 then for i := 0 to Length(aiUnits)-1 do if States.UnitType(aiUnits[i]) >= 14 then begin
+		SetLength(aJoinQueue, Length(aJoinQueue)+1);
+		
+		aJoinQueue[Length(aJoinQueue)-1].aType := 24;
+		aJoinQueue[Length(aJoinQueue)-1].aGroupNum := 0;
+		
+		if States.UnitType(aiUnits[i]) >= 14 then begin
+			aAddGroup := True;
+			
+			if (Length(aJoinGroupQueue) > 1) then for i2 := 1 to Length(aJoinGroupQueue)-1 do if aJoinGroupQueue[i2].aID = States.UnitsGroup(aiUnits[i]) then begin
+				aAddGroup := False;
+				aJoinQueue[Length(aJoinQueue)-1].aGroupNum := i2;
+			end;
+			
+			if aAddGroup = True then begin
+				SetLength(aJoinGroupQueue, Length(aJoinGroupQueue)+1);
+				aJoinQueue[Length(aJoinQueue)-1].aGroupNum := Length(aJoinGroupQueue)-1;
+				aJoinGroupQueue[Length(aJoinGroupQueue)-1].aColumns := States.GroupColumnCount(States.UnitsGroup(aiUnits[i]));
+				aJoinGroupQueue[Length(aJoinGroupQueue)-1].aID := States.UnitsGroup(aiUnits[i]);
+			end;
+			
+			aJoinQueue[Length(aJoinQueue)-1].aType := States.UnitType(aiUnits[i]);
+		end;
+		
+		aJoinQueue[Length(aJoinQueue)-1].aX := States.UnitPositionX(aiUnits[i]);
+		aJoinQueue[Length(aJoinQueue)-1].aY := States.UnitPositionY(aiUnits[i]);
+		aJoinQueue[Length(aJoinQueue)-1].aDir := States.UnitDirection(aiUnits[i]);
+		
+		Actions.UnitKill(aiUnits[i], True);
+	end;
+	
+	aJoinQueueSkip := 1;
 end;
 
-// GLOBAL EVENTS
-procedure OnUnitDied(aUnitID, aKillerIndex: integer);
+procedure aCivToRebels(aPlayer: Integer);
+var aiUnits: array of Integer;
+var i: Integer;
 begin
-	if GENERAL = aUnitID then
-		Actions.PlayerDefeat(PLAYER);
+	aiUnits := States.PlayerGetAllUnits(aPlayer);
+	if Length(aiUnits) > 0 then for i := 0 to Length(aiUnits)-1 do if States.UnitType(aiUnits[i]) < 14 then begin
+		SetLength(aJoinQueue, Length(aJoinQueue)+1);
+		
+		aJoinQueue[Length(aJoinQueue)-1].aType := 24;
+		aJoinQueue[Length(aJoinQueue)-1].aGroupNum := 0;
+		
+		aJoinQueue[Length(aJoinQueue)-1].aX := States.UnitPositionX(aiUnits[i]);
+		aJoinQueue[Length(aJoinQueue)-1].aY := States.UnitPositionY(aiUnits[i]);
+		aJoinQueue[Length(aJoinQueue)-1].aDir := States.UnitDirection(aiUnits[i]);
+		
+		Actions.UnitKill(aiUnits[i], True);
+	end;
+	
+	aJoinQueueSkip := 1;
 end;
-//								ON TICK
+
+function aAmbush(aArmy: array of Integer; aTargetPlayer: Integer): Integer;
+var i: Integer;
+var i2: Integer;
+var iCount: Integer;
+var aTargetG: Integer;
+var aTargetH: Integer;
+var aTargetLast: Integer;
+begin
+	result := 0;
+	
+	if Length(aArmy) > 0 then begin
+		iCount := 0;
+		
+		for i := 0 to Length(aArmy)-1 do begin
+			if States.GroupDead(aArmy[i-iCount]) = False then begin
+				aTargetG := States.ClosestGroup(aTargetPlayer, States.UnitPositionX(States.GroupMember(aArmy[i-iCount], 0)), States.UnitPositionY(States.GroupMember(aArmy[i-iCount], 0)), -1);
+				if aTargetG > 0 then Actions.GroupOrderAttackUnit(aArmy[i-iCount], States.GroupMember(aTargetG, 0));
+				if aTargetG <= 0 then begin
+					aTargetH := States.ClosestHouse(aTargetPlayer, States.UnitPositionX(States.GroupMember(aArmy[i-iCount], 0)), States.UnitPositionY(States.GroupMember(aArmy[i-iCount], 0)), -1);
+					if (aTargetH > 0) AND (States.GroupIdle(aArmy[i-iCount]) = True) then Actions.GroupOrderAttackHouse(aArmy[i-iCount], aTargetH);
+					
+					if aTargetH <= 0 then begin
+						aTargetLast := States.ClosestGroup(aaaHumanPlayer, States.UnitPositionX(States.GroupMember(aArmy[i-iCount], 0)), States.UnitPositionY(States.GroupMember(aArmy[i-iCount], 0)), -1);
+						if (aTargetLast > 0) AND (States.GroupIdle(aArmy[i-iCount]) = True) then Actions.GroupOrderAttackUnit(aArmy[i-iCount], States.GroupMember(aTargetLast, 0));
+					end;
+				end;
+			end;
+			
+			if States.GroupDead(aArmy[i-iCount]) = True then begin
+				for i2 := i-iCount to Length(aArmy)-2 do aArmy[i2] := aArmy[i2+1];
+				iCount := iCount+1;
+			end;
+		end;
+		
+		result := iCount;
+	end;
+end;
+
 procedure OnTick;
+var aiGroups: array of Integer;
+var aiHouses: array of Integer;
+var i: Integer;
+var iX: Integer;
+var iY: Integer;
+var i2: Integer;
+var aGivenGroups: array of array of Integer;
 begin
-	if ( States.GameTime mod 10 = 0 ) then begin
-		ShowMissionObjectives(PLAYER);
-		CheckVictory;
+	
+	//After getting the first reinforcements, you could just wait for all the enemies to starve for an easy win... could.
+	aiGroups := States.PlayerGetAllGroups(1);
+	if Length(aiGroups) > 0 then for i := 0 to Length(aiGroups)-1 do if States.UnitHunger(States.GroupMember(aiGroups[i], 0)) < States.UnitLowHunger*2 then Actions.GroupHungerSet(aiGroups[i], States.UnitMaxHunger);
+	
+	aiGroups := States.PlayerGetAllGroups(2);
+	if Length(aiGroups) > 0 then for i := 0 to Length(aiGroups)-1 do if States.UnitHunger(States.GroupMember(aiGroups[i], 0)) < States.UnitLowHunger*2 then Actions.GroupHungerSet(aiGroups[i], States.UnitMaxHunger);
+	
+	aiGroups := States.PlayerGetAllGroups(4);
+	if Length(aiGroups) > 0 then for i := 0 to Length(aiGroups)-1 do if States.UnitHunger(States.GroupMember(aiGroups[i], 0)) < States.UnitLowHunger*2 then Actions.GroupHungerSet(aiGroups[i], States.UnitMaxHunger);
+	
+	aiGroups := States.PlayerGetAllGroups(5);
+	if Length(aiGroups) > 0 then for i := 0 to Length(aiGroups)-1 do if States.UnitHunger(States.GroupMember(aiGroups[i], 0)) < States.UnitLowHunger*2 then Actions.GroupHungerSet(aiGroups[i], States.UnitMaxHunger);
+
+	//Win cooldown
+	if aEndGameResult <> aNotYet then begin
+		aEndCount := aEndCount+1;
+		
+		if aEndGameResult = aWon then Actions.OverlayTextSet(aaaHumanPlayer, '<$7>');
+		
+		if aEndCount >= 150 then begin
+			if aEndGameResult = aLost then Actions.PlayerDefeat(aaaHumanPlayer);
+			if aEndGameResult = aWon then Actions.PlayerWin([aaaHumanPlayer], True);
+		end;
 	end;
-	if ( States.GameTime mod 150 = 0 ) then begin
-		EnemyAttack;
+
+	if aEndGameResult = aNotYet then begin
+		//Objective
+		Actions.OverlayTextSetFormatted(aaaHumanPlayer, '<$6>', [States.PlayerColorText(aaaHumanPlayer)]);
+		
+		//Check if the player is defeated
+		aiGroups := States.PlayerGetAllGroups(aaaHumanPlayer);
+		if Length(aiGroups) <= 0 then begin
+			Actions.ShowMSG(aaaHumanPlayer, '<$5>'); //All is lost
+			aEndGameResult := aLost;
+		end;
+		
+		//Check for ambushes
+		if Length(aiGroups) > 0 then begin
+			//Check if the player is in the right place
+			for i := 0 to Length(aiGroups)-1 do begin
+				iX := States.UnitPositionX(States.GroupMember(aiGroups[i], 0));
+				iY := States.UnitPositionY(States.GroupMember(aiGroups[i], 0));
+				
+				if aAmbushSprung.aL1 = False then if (iY >= 194) AND (iY < 207) AND (iX >= 1) AND (iX < 12) then aAmbushSprung.aL1 := True;
+
+				if aAmbushSprung.aL2 = False then if (iY >= 165) AND (iY < 171) AND (iX >= 1) AND (iX < 15) then aAmbushSprung.aL2 := True;
+
+				if aAmbushSprung.aR1 = False then if (iY >= 200) AND (iY < 207) AND (iX >= 52) AND (iX < 60) then aAmbushSprung.aR1 := True;
+
+				if aAmbushSprung.aR2 = False then if (iY >= 191) AND (iY < 207) AND (iX >= 58) AND (iX < 78) then aAmbushSprung.aR2 := True;
+
+				if aAmbushSprung.aR3 = False then if (iY >= 158) AND (iY < 168) AND (iX >= 67) AND (iX < 80) then aAmbushSprung.aR3 := True;
+
+				if aAmbushSprung.aC = False then if (iY >= 175) AND (iY < 185) AND (iX >= 25) AND (iX < 45) then aAmbushSprung.aC := True;
+				
+				if aAmbushSprung.aVillage1 = False then if iY < 163 then begin
+					aAmbushSprung.aVillage1 := True;
+					
+					aJoinHuman(3);
+				end;
+				
+				if aAmbushSprung.aVillage2L = False then if ( (iY < 123) AND (iX < 28) ) OR ( (iY < 112) AND (iX > 28) ) then begin
+					aAmbushSprung.aVillage2L := True;
+					
+					aJoinHuman(6);
+				end;
+				
+				if aAmbushSprung.aVillage3I = False then if iY < 65 then begin
+					aAmbushSprung.aVillage3I := True;
+
+					aJoinHuman(7);
+				end;
+				
+				if aAmbushSprung.aEnd = False then if iY < 33 then aAmbushSprung.aEnd := True;
+				
+				if iY < 7 then aEndGameResult := aWon;
+			end;
+			
+			//Ambush!
+			if (aAmbushSprung.aC = True) AND (Length(aAmbushArmiesC) > 0) then begin
+				i := aAmbush(aAmbushArmiesC, aaaHumanPlayer);
+				if i > 0 then SetLength(aAmbushArmiesC, Length(aAmbushArmiesC)-i);
+			end;
+			
+			if (aAmbushSprung.aL1 = True) AND (Length(aAmbushArmiesL1) > 0) then begin
+				i := aAmbush(aAmbushArmiesL1, aaaHumanPlayer);
+				if i > 0 then SetLength(aAmbushArmiesL1, Length(aAmbushArmiesL1)-i);
+			end;
+			
+			if (aAmbushSprung.aL2 = True) AND (Length(aAmbushArmiesL2) > 0) then begin
+				i := aAmbush(aAmbushArmiesL2, aaaHumanPlayer);
+				if i > 0 then SetLength(aAmbushArmiesL2, Length(aAmbushArmiesL2)-i);
+			end;
+			
+			if (aAmbushSprung.aR1 = True) AND (Length(aAmbushArmiesR1) > 0) then begin
+				i := aAmbush(aAmbushArmiesR1, aaaHumanPlayer);
+				if i > 0 then SetLength(aAmbushArmiesR1, Length(aAmbushArmiesR1)-i);
+			end;
+			
+			if (aAmbushSprung.aR2 = True) AND (Length(aAmbushArmiesR2) > 0) then begin
+				i := aAmbush(aAmbushArmiesR2, aaaHumanPlayer);
+				if i > 0 then SetLength(aAmbushArmiesR2, Length(aAmbushArmiesR2)-i);
+			end;
+			
+			if (aAmbushSprung.aR3 = True) AND (Length(aAmbushArmiesR3) > 0) then begin
+				i := aAmbush(aAmbushArmiesR3, aaaHumanPlayer);
+				if i > 0 then SetLength(aAmbushArmiesR3, Length(aAmbushArmiesR3)-i);
+			end;
+			
+			if (aAmbushSprung.aVillage1 = True) AND ( (Length(aAttackArmyV1[0]) > 0) OR (Length(aAttackArmyV1[1]) > 0) ) then begin
+				if Length(aAttackArmyV1[0]) > 0 then begin
+					i := aAmbush(aAttackArmyV1[0], 3);
+					if i > 0 then SetLength(aAttackArmyV1[0], Length(aAttackArmyV1[0])-i);
+				end;
+				if Length(aAttackArmyV1[0]) = 0 then begin
+					i := aAmbush(aAttackArmyV1[1], 3);
+					if i > 0 then SetLength(aAttackArmyV1[1], Length(aAttackArmyV1[1])-i);
+				end;
+				
+				if aObjectiveCompleted.LiberateTPRVillage = False then begin
+					aiHouses := States.PlayerGetAllHouses(3);
+					
+					if Length(aiHouses) = 0 then begin
+						Actions.ShowMSGGoTo(aaaHumanPlayer, 64, 133, '<$2>'); //Village razed
+						aObjectiveCompleted.LiberateTPRVillage := True;
+					end;
+					
+					
+					if (Length(aiHouses) > 0) AND (Length(aAttackArmyV1[0]) = 0) AND (Length(aAttackArmyV1[1]) = 0) then begin
+						Actions.ShowMSGGoTo(aaaHumanPlayer, 64, 133, '<$1>'); //TPR liberated
+						
+						//Reinforcements
+						Actions.GiveGroup(aaaHumanPlayer, 24, 54, 141, 5, 15, 5);
+						Actions.GiveGroup(aaaHumanPlayer, 14, 71, 143, 3, 15, 5);
+						Actions.GiveGroup(aaaHumanPlayer, 27, 72, 129, 1, 10, 5);
+						Actions.GiveGroup(aaaHumanPlayer, 25, 56, 126, 7, 10, 5);
+						
+						aCivToRebels(3);
+					end;
+				end;
+			end;
+				
+			if (aAmbushSprung.aVillage2L = True) AND (Length(aAttackArmyV2L) > 0) then begin
+				i := aAmbush(aAttackArmyV2L, 6);
+				if i > 0 then SetLength(aAttackArmyV2L, Length(aAttackArmyV2L)-i);
+
+				if aObjectiveCompleted.LiberateLeatherVillage = False then begin
+					aiHouses := States.PlayerGetAllHouses(6);
+					
+					if Length(aiHouses) = 0 then begin
+						Actions.ShowMSGGoTo(aaaHumanPlayer, 20, 93, '<$2>'); //Village razed
+						aObjectiveCompleted.LiberateLeatherVillage := True;
+					end;
+					
+					if (Length(aiHouses) > 0) AND (Length(aAttackArmyV2L) = 0) then begin
+						Actions.ShowMSGGoTo(aaaHumanPlayer, 20, 93, '<$3>'); //Leather liberated
+						
+						//Reinforcements
+						Actions.GiveGroup(aaaHumanPlayer, 21, 25, 81, 1, 20, 5);
+						Actions.GiveGroup(aaaHumanPlayer, 15, 31, 96, 2, 20, 5);
+						Actions.GiveGroup(aaaHumanPlayer, 19, 18, 106, 4, 25, 5);
+						
+						aCivToRebels(6);
+						
+						//Attack iron village
+						if aAmbushSprung.aVillage3I = False then begin
+							aAmbushSprung.aVillage3I := True;
+
+							aJoinHuman(7);
+						end;
+					end;
+				end;
+			end;
+			
+			if (aAmbushSprung.aVillage3I = True) AND ( (Length(aAttackArmyV3I[0]) > 0) OR (Length(aAttackArmyV3I[1]) > 0) ) then begin
+				if Length(aAttackArmyV3I[0]) > 0 then begin
+					i := aAmbush(aAttackArmyV3I[0], 7);
+					if i > 0 then SetLength(aAttackArmyV3I[0], Length(aAttackArmyV3I[0])-i);
+				end;
+				if Length(aAttackArmyV3I[0]) = 0 then begin
+					i := aAmbush(aAttackArmyV3I[1], 7);
+					if i > 0 then SetLength(aAttackArmyV3I[1], Length(aAttackArmyV3I[1])-i);
+				end;
+				
+				if aObjectiveCompleted.LiberateIronVillage = False then begin
+					aiHouses := States.PlayerGetAllHouses(7);
+					
+					if Length(aiHouses) = 0 then begin
+						Actions.ShowMSGGoTo(aaaHumanPlayer, 56, 71, '<$2>'); //Village razed
+						aObjectiveCompleted.LiberateIronVillage := True;
+					end;
+					
+					if (Length(aiHouses) > 0) AND (Length(aAttackArmyV3I[0]) = 0) AND (Length(aAttackArmyV3I[1]) = 0) then begin
+						Actions.ShowMSGGoTo(aaaHumanPlayer, 56, 71, '<$4>'); //Iron liberated
+						
+						//Reinforcements
+						Actions.GiveGroup(aaaHumanPlayer, 26, 43, 66, 7, 6, 3);
+						Actions.GiveGroup(aaaHumanPlayer, 20, 53, 60, 0, 10, 5);
+						Actions.GiveGroup(aaaHumanPlayer, 16, 61, 66, 1, 6, 3);
+						
+						aCivToRebels(7);
+					end;
+				end;
+			end;
+			
+			if (aAmbushSprung.aEnd = True) AND (Length(aArmyEnd) > 0) then begin
+				i := aAmbush(aArmyEnd, aaaHumanPlayer);
+				if i > 0 then SetLength(aArmyEnd, Length(aArmyEnd)-i);
+			end;
+		end;
+		
+		//This way, they join smoothly
+		if (Length(aJoinQueue) > 0) AND (aJoinQueueSkip <= 0) then begin
+			SetLength(aGivenGroups, Length(aJoinGroupQueue));
+			
+			aJoinGroupQueue[0].aColumns := 0;
+			
+			for i := 0 to Length(aJoinQueue)-1 do begin
+				if aJoinQueue[i].aGroupNum = 0 then aJoinGroupQueue[0].aColumns := aJoinGroupQueue[0].aColumns+1;
+			
+				SetLength(aGivenGroups[aJoinQueue[i].aGroupNum], Length(aGivenGroups[aJoinQueue[i].aGroupNum])+1);
+				
+				aGivenGroups[aJoinQueue[i].aGroupNum][Length(aGivenGroups[aJoinQueue[i].aGroupNum])-1] := Actions.GiveGroup(aaaHumanPlayer, aJoinQueue[i].aType, aJoinQueue[i].aX, aJoinQueue[i].aY, aJoinQueue[i].aDir, 1, 1);
+			end;
+			
+			aJoinGroupQueue[0].aColumns := Round(Sqrt(aJoinGroupQueue[0].aColumns));
+			
+			if Length(aGivenGroups) > 0 then for i := 0 to Length(aGivenGroups)-1 do if Length(aGivenGroups[i]) > 0 then begin
+				if Length(aGivenGroups[i]) > 1 then for i2 := 1 to Length(aGivenGroups[i])-1 do Actions.GroupOrderLink(aGivenGroups[i][i2], aGivenGroups[i][0]);
+				
+				Actions.GroupSetFormation(aGivenGroups[i][0], aJoinGroupQueue[i].aColumns);
+				
+				Actions.GroupOrderHalt(aGivenGroups[i][0]);
+			end;
+			
+			SetLength(aJoinQueue, 0);
+			SetLength(aJoinGroupQueue, 1);
+		end;
+		
+		if aJoinQueueSkip > 0 then aJoinQueueSkip := aJoinQueueSkip-1;
 	end;
-end;
-// 								ON MISSION START
-procedure OnMissionStart;
-begin
-	GENERAL:= States.UnitAt(43, 59);
-	Actions.ShowMsgFormatted(PLAYER, '<$0>', []);
-	Actions.PlayWAVFadeMusic(PLAYER, 'kevin_mcleod_dangeour', MUSIC_VOLUME);
-	SetEnemyGroups;
-	ENEMY_ENABLED:= false;
 end;

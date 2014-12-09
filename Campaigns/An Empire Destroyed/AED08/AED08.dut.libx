@@ -1,0 +1,14 @@
+
+MaxID:10
+
+0:Generaal, de verzetsleider heeft u dit bericht gestuurd. Sta me toe het voor te lezen:Beste generaal, bedankt voor us steun. We willen u om een gunst vragen, kunt u %d steen brengen naar onze warenhuis met een van uw krijgers?Dan kunnen we goederen naar uw markt sturen.
+1:Generaal,het ziet ernaar uit dat de vijand aardig is ingegraven. De verdediging ziet er onverslaanbaar uit!
+2:Thank you general, we shall start sending wares to you right now.
+3:We hebben de markt nodig om waren te sturen!
+4:[$0000FC]Objectief[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Val Niss aan[]
+7: - [$D2FAFA]Goederen[] in %d
+8: - %d [$D2FAFA]%s[]
+9:Dank u generaal, we wachten op uw markt.
+10:nu, breng ons %d stenen.

@@ -1,0 +1,11 @@
+﻿0:Generale, il re ti ha affidato il compito di raccogliere i rifornimenti e gli uomini necessari a convincere le altre forze di resistenza ad unirsi a noi, e ad aiutarci nella battaglia finale.
+1:Generale, i nostri esploratori hanno riportato cattive nuove. Truppe nemiche stanno marciando sulla nostra città e presto ci saranno addosso!
+4:[$0000FC]Obiettivo[]:
+5:[$8CE6F0] - []
+6:[$00FF7F]Raccogli risorse:[]
+7:[$D2FAFA]Ondata[] %d tra %d
+8:[$D2FAFA]%s[] - %d/%d
+9:[$2FFFAD]%s[]
+10:[$00FF7F]Recluta soldati:[]
+11:[$00FF7F]Sopravvivi[]
+12:Fai attenzione, il nemico ha inviato piccoli gruppi per azioni di disturbo contro la tua città. Potrebbero arrivare da qualunque direzione.

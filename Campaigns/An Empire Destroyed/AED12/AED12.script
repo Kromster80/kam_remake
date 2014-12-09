@@ -1,0 +1,208 @@
+const aaaHumanPlayer = 0;
+const aTimeBetweenReinfocements = 600;
+
+var aWestGateArmies: array of Integer;
+var aEastGateArmies: array of Integer;
+var aNorthGateArmies: array of Integer;
+
+var aObjectiveCompleted: Record SecureWalls, SecureWestWall, SecureEastWall, SecureNorthWall, KillGeneral, CaptureBarracks: Boolean; end;
+
+Type tEndGameResult = (aNotYet, aWon, aLost);
+var aEndGameResult: tEndGameResult;
+var aEndCount: Integer;
+
+var aPlayerAvatar: Integer;
+var aGeneralAvatar: Integer;
+var aBarracks: Integer;
+
+var aReinforcementsTime: Integer;
+
+procedure OnMissionStart;
+var i: Integer;
+var p: Integer;
+var aiGroups: array of Integer;
+begin
+	Actions.ShowMSG(aaaHumanPlayer, '<$0>'); //Grave news
+	
+	//Play music
+	Actions.PlayWAVFadeMusic(aaaHumanPlayer, 'Kevin_Mac_Leod_-_Evil_March', 1);
+	
+	//Variable defaults
+	SetLength(aWestGateArmies, 0);
+	SetLength(aEastGateArmies, 0);
+	SetLength(aNorthGateArmies, 0);
+	
+	aObjectiveCompleted.SecureWalls := False;
+	aObjectiveCompleted.SecureWestWall := False;
+	aObjectiveCompleted.SecureEastWall := False;
+	aObjectiveCompleted.SecureNorthWall := False;
+	aObjectiveCompleted.KillGeneral := False;
+	aObjectiveCompleted.CaptureBarracks := False;
+	
+	aEndGameResult := aNotYet;
+	aEndCount := 0;
+	
+	//Define troops
+	for p := 0 to States.LocationCount-1 do if (p <> aaaHumanPlayer) AND (States.PlayerEnabled(p) = True) then begin
+		aiGroups := States.PlayerGetAllGroups(p);
+		for i := 0 to Length(aiGroups)-1 do begin
+			if States.UnitPositionY(States.GroupMember(aiGroups[i], 0)) < 14 then begin
+				SetLength(aNorthGateArmies, Length(aNorthGateArmies)+1);
+				aNorthGateArmies[Length(aNorthGateArmies)-1] := aiGroups[i];
+			end;
+			if States.UnitPositionX(States.GroupMember(aiGroups[i], 0)) < 24 then begin
+				SetLength(aWestGateArmies, Length(aWestGateArmies)+1);
+				aWestGateArmies[Length(aWestGateArmies)-1] := aiGroups[i];
+			end;
+			if States.UnitPositionX(States.GroupMember(aiGroups[i], 0)) > 94 then begin
+				SetLength(aEastGateArmies, Length(aEastGateArmies)+1);
+				aEastGateArmies[Length(aEastGateArmies)-1] := aiGroups[i];
+			end;
+		end;
+		
+		//Give stone
+		aiGroups := States.PlayerGetAllHouses(p);
+		for i := 0 to Length(aiGroups)-1 do if States.HouseType(aiGroups[i]) = 17 then if States.HouseResourceAmount(aiGroups[i], 1) < 5 then Actions.HouseAddWaresTo(aiGroups[i], 1, 5-States.HouseResourceAmount(aiGroups[i], 1));
+	end;
+	
+	//Find player and general
+	aPlayerAvatar := States.unitAt(63, 110);
+	aGeneralAvatar := States.unitAt(60, 49);
+	aBarracks := States.HouseAt(60, 48);
+end;
+
+procedure OnTick;
+var i: Integer;
+var aCompleted: Boolean;
+var aBarracksContents: array[16..27] of Integer;
+var aiUnits: array of Integer;
+var aSeconds: String;
+var aMinutes: String;
+begin
+	//Win cooldown
+	if aEndGameResult <> aNotYet then begin
+		if aEndGameResult = aLost then Actions.OverlayTextSet(aaaHumanPlayer, '<$10>');
+		if aEndGameResult = aWon then Actions.OverlayTextSet(aaaHumanPlayer, '<$9>');
+	
+		aEndCount := aEndCount+1;
+		
+		if aEndCount >= 150 then begin
+			if aEndGameResult = aLost then Actions.PlayerDefeat(aaaHumanPlayer);
+			if aEndGameResult = aWon then Actions.PlayerWin([aaaHumanPlayer], True);
+		end;
+	end;
+
+	//Check the player
+	if States.UnitDead(aPlayerAvatar) = True then if aEndGameResult = aNotYet then aEndGameResult := aLost;
+	
+	//Check walls status
+	if aObjectiveCompleted.SecureWalls = False then begin
+		if aEndGameResult = aNotYet then Actions.OverlayTextSet(aaaHumanPlayer, '<$5>'); //Secure walls
+		
+		if States.GameTime mod 10 = 0 then begin
+			if aObjectiveCompleted.SecureWestWall = False then begin
+				aCompleted := True;
+				
+				for i := 0 to Length(aWestGateArmies)-1 do if States.GroupDead(aWestGateArmies[i]) = False then aCompleted := False;
+				
+				//Spawn army
+				if aCompleted = True then begin
+					Actions.GiveGroup(aaaHumanPlayer, 16, 5, 38, 2, 12, 4);
+					Actions.GiveGroup(aaaHumanPlayer, 24, 5, 46, 2, 40, 10);
+					Actions.GiveGroup(aaaHumanPlayer, 21, 5, 54, 2, 20, 5);
+					Actions.GiveGroup(aaaHumanPlayer, 15, 5, 60, 2, 25, 5);
+					
+					Actions.ShowMSG(aaaHumanPlayer, '<$1>'); //Maul
+					
+					aObjectiveCompleted.SecureWestWall := True;
+				end;
+			end;
+			
+			if aObjectiveCompleted.SecureEastWall = False then begin
+				aCompleted := True;
+				
+				for i := 0 to Length(aEastGateArmies)-1 do if States.GroupDead(aEastGateArmies[i]) = False then aCompleted := False;
+				
+				//Spawn army
+				if aCompleted = True then begin
+					Actions.GiveGroup(aaaHumanPlayer, 16, 109, 42, 6, 20, 5);
+					Actions.GiveGroup(aaaHumanPlayer, 26, 109, 48, 6, 20, 5);
+					Actions.GiveGroup(aaaHumanPlayer, 22, 109, 54, 6, 20, 5);
+					Actions.GiveGroup(aaaHumanPlayer, 20, 109, 60, 6, 20, 5);
+					
+					Actions.ShowMSG(aaaHumanPlayer, '<$3>'); //Wolheim
+					
+					aObjectiveCompleted.SecureEastWall := True;
+				end;
+			end;
+			
+			if aObjectiveCompleted.SecureNorthWall = False then begin
+				aCompleted := True;
+				
+				for i := 0 to Length(aNorthGateArmies)-1 do if States.GroupDead(aNorthGateArmies[i]) = False then aCompleted := False;
+				
+				//Spawn army
+				if aCompleted = True then begin
+					Actions.GiveGroup(aaaHumanPlayer, 14, 54, 3, 4, 30, 10);
+					Actions.GiveGroup(aaaHumanPlayer, 15, 63, 3, 4, 20, 5);
+					Actions.GiveGroup(aaaHumanPlayer, 19, 69, 3, 4, 15, 5);
+					
+					Actions.ShowMSG(aaaHumanPlayer, '<$2>'); //Niss
+					
+					aObjectiveCompleted.SecureNorthWall := True;
+				end;
+			end;
+			
+			if (aObjectiveCompleted.SecureWestWall = True) AND (aObjectiveCompleted.SecureEastWall = True) AND (aObjectiveCompleted.SecureNorthWall = True) then begin
+				Actions.FogRevealCircle(aaaHumanPlayer, 60, 48, 5); //Reveal Barracks; its vision range would be 11
+				
+				Actions.ShowMSG(aaaHumanPlayer, '<$4>'); //Walls secured
+				
+				aReinforcementsTime := 0;
+				
+				aObjectiveCompleted.SecureWalls := True;
+			end;
+		end;
+	end;
+	
+	//Spawn armies regularly
+	if aObjectiveCompleted.SecureWalls = True then begin
+		if aEndGameResult = aNotYet then Actions.OverlayTextSet(aaaHumanPlayer, '<$6>'); //Capture the capital
+		
+		aReinforcementsTime := aReinforcementsTime+1;
+		
+		if aReinforcementsTime >= aTimeBetweenReinfocements then begin
+			Actions.GiveGroup(aaaHumanPlayer, 15, 3, 51, 2, 15, 5); //West
+			Actions.GiveGroup(aaaHumanPlayer, 15, 63, 109, 0, 15, 5); //South
+			Actions.GiveGroup(aaaHumanPlayer, 15, 109, 51, 6, 15, 5); //East
+			Actions.GiveGroup(aaaHumanPlayer, 15, 63, 3, 4, 15, 5); //North
+			
+			Actions.ShowMSG(aaaHumanPlayer, '<$7>'); //Reinforcements arrived
+			
+			aReinforcementsTime := 0;
+		end;
+		
+		i := ((aTimeBetweenReinfocements-aReinforcementsTime)-((aTimeBetweenReinfocements-aReinforcementsTime) mod 10))/10;
+		aMinutes := '0'+IntToStr((i-(i mod 60))/60);
+		aSeconds := IntToStr(i mod 60);
+		if i mod 60 < 10 then aSeconds := '0'+aSeconds;
+		if aEndGameResult = aNotYet then Actions.OverlayTextAppendFormatted(aaaHumanPlayer, '|<$8>', [aMinutes, aSeconds]);
+	end;
+	
+	//Check the general
+	if aObjectiveCompleted.KillGeneral = False then if States.UnitDead(aGeneralAvatar) = True then begin
+		aObjectiveCompleted.KillGeneral := True;
+	end;
+	
+	//Capture Barracks
+	if (aObjectiveCompleted.CaptureBarracks = False) AND (aObjectiveCompleted.KillGeneral = True) AND (States.UnitAt(60, 49) = aPlayerAvatar) then begin
+		if aBarracks > 0 then Actions.HouseDestroy(aBarracks, True);
+
+		Actions.GiveHouse(aaaHumanPlayer, 21, 60, 48);
+		
+		aObjectiveCompleted.CaptureBarracks := True;
+		if aEndGameResult = aNotYet then aEndGameResult := aWon;
+	end;
+	
+	if States.HouseDestroyed(aBarracks) = True then if aEndGameResult = aNotYet then aEndGameResult := aWon;
+end;

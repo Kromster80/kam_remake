@@ -1,11 +1,5 @@
-﻿0:Sire, grevi notizie! Le altre armate non sono state in grado di superare le mura del castello, dobbiamo aiutarle.
-1:Ottimo lavoro, il generale ha radunato dei rinforzi da Maul per aiutarci.
-2:Bene, la situazione sta cambiando. Il capo ribelle da Niss è al vostro comando.
-3:Ho avvistato dei soldati da Wolheim, sono qui per sostenere la nostra causa!
-4:Uomini, abbiamo le mura esterne e assicurato l'arrivo di rinforzi, oggi il nemico cadrà. Vi chiedo di combattere ancora una volta con me e assicurarci la vittoria!
-5:Cattura le mura esterne
-6:Cattura la capitale, per la gloria!
-7:I rinforzi sono arrivati
-8:I rinforzi arrriveranno tra %s:%s
-9:La battaglia è finita. Abbiamo vinto!
-10:Senza la vostra guida, sire, tutto è perduto.
+﻿0:Uomini, siamo dinanzi la capitale. L'ultimo bastione di un nemico insidioso. So che è grazie a voi che siamo arrivati tanto lontano, e so anche che è grazie a voi che saremo vittoriosi oggi, e scacceremo per sempre i nemici dal nostro regno!
+1:Quindi armatevi e combattete, oggi le nostre armi si spezzeranno per l'uso, e l'unica cosa che scorrerà sarà il sangue dei nemici. Allora festeggeremo tutta la notte sui loro cadaveri. Questo non è per me, questo è per tutti coloro che sono caduti per la causa. Questo è per voi, e per la gloria di Circino. ALL'ATTACCO!
+4:[$0000FC]Obiettivo[]:
+5:[$8CE6F0] - []
+6:[$00FF7F]Penetra le mura del castello; il re deve sopravvivere![]

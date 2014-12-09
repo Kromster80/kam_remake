@@ -1,0 +1,15 @@
+﻿0:Uomini, il nostro compito è catturare questa città a tutti i costi; non vi rinunceranno senza combattere, ma saremo vincitori!
+2:Non posso crederci, ci stavano aspettando! Prendi il ferro rimasto e prepara le difese! I nostri lavoratori si stanno già muovendo.
+3:Generale, sembra che i nostri esploratori abbiano trovato degli accampamenti nei dintorni dai quali i nemici inviano i rinforzi. Dobbiamo eliminarli per assicurarci Maul!
+4:[$0000FC]Obiettivo[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Cattura Maul[]
+7:Barbari rimasti: [$00FF7F]%d[]
+8:[$00FF7F]Difendi Maul[]
+9:Ondata [$00FF7F]%d[] tra [$00FF7F]%d[]
+10:[$00FF7F]Preparati a difendere Maul[]
+11:Tempo rimasto: [$00FF7F]%s[]
+12:[$00FF7F]Ondata:[] %d/%d
+13: in [$00FF7F]%s[]
+14: - [$00FF7F]%d[]
+15:[$00FF7F]Distruggi gli accampamenti nemici[]

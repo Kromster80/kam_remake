@@ -1,0 +1,15 @@
+
+MaxID:11
+
+0:Mijn heer, de vijandelijke troepen beginnen de hoofdstad te belegeren. we moeten de verdedigingen voorbereiden.
+1:Mijn heer, vijanden zijn gespot in het noordoosten!
+2:Mijn heer, vijanden zijn gespot in het noorwesten!
+3:Mijn heer, vijanden zijn gespot in het zuidoosten!
+4:Mijn heer, vijanden zijn gespot in het zuidwesten!
+5:Mijn heer, de vijand valt van elke kant aan!
+6:Mijn heer, verraders hebben het kasteel geinfiltreerd! We moeten ze koste at het kost stoppen!
+7:Mijn heer, the enemy is overwhelming us, we cannot save the capital. We have to escape.
+8:Mijn heer, we moeten terugtrekken naar het kasteel, dit is onze laatste verdedigingslinie. we kunnen niet verder terugtrekken. 
+9:[$0000FC]Objective :[$FFFFFF]%d[] Verdedig de magazijnen
+10:[$0000FC]Objective :[$FFFFFF]%d[] Trek terug naar het kasteel en verdedig de kasteelmuren.
+11:[$0000FC]Objective :[$FFFFFF]%d[] De hoofdstad is verloren, er is niks meer wat je kunt doen.

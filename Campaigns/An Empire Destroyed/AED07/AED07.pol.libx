@@ -1,0 +1,12 @@
+
+MaxID:9
+
+0:Jeœli przewidywania króla oka¿¹ siê prawdziwe, karawana musi przeci¹æ nasz¹ pozycjê. ZnajdŸmy dobr¹ pozycjê na zasadzkê.
+1:Mamy ju¿ surowce, lecz patrole wroga nas zauwa¿y³y! G³ówne si³y przybêd¹ tu wkrótce. Uciekaj przez lód, i skrusz go, odcinaj¹c drogê potencjalnego poœcigu!
+2:G³ówne si³y wroga ju¿ przyby³y, musimy siê pospieszyæ!
+3:
+They have set up a blockade! Break through it men!
+4:[$0000FC]Zadanie[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Zasadzka[]
+8:[$00FF7F]Uciekaj przez lód![]

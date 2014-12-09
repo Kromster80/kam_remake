@@ -1,7 +1,8 @@
-
-MaxID:10
-
-0:Men, here we stand before capital. The last bastion of the treacherous enemy.  I know it is because of you that we came this far,  and I also know it is because of you that we shall be victorious today and drive the enemies out of our kingdom for good! So take up your arms and fight, today our weapons shall break from overuse, and the only thing that shall flow is the blood of the enemy. Then we feast all night long upon our fallen enemies. This is not only for me, this is for all the people that died for this cause. This is for you, and for the glory of Circino.  ATTACK!1:General, it appears the enemy is heavily fortified, the defense looks impenetrable!
-4:[$00D7FF]Objective[]: 
-5:[$8CE6F0] - []
-6:[$00FF7F]Breach the castle walls, the king must survive![]
+﻿0:My lord, if we are able to help the villages in need they might reward us. It is wise to liberate them.
+1:Thank you, my king; we do not have many good trained soldiers to spare, but we are more than willing to fight.
+2:My lord, the enemies have razed the village. We cannot count on their aid anymore.
+3:Hoorray, the king is here to save us! Lead us, to battle!
+4:Thank you for your assistance my lord, our men are ready to give their lives for you.
+5:Your soldiers are now corpses, and your commands are lost in a grim silence. All is lost, my lord.
+6:[$%s]Objective :[] March towards the capital
+7:Objective completed

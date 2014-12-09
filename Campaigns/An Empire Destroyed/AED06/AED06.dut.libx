@@ -1,0 +1,19 @@
+
+MaxID:15
+
+0:Mannen, het is onze taak om deze stad koste wat het kost te veroveren. Ze zullen niet opgeven zonder gevecht maar wij zullen overwinnen!
+1:
+2:I kan het niet geloven, ze verwachtten ons! Pak het ijzer dat over is en bereid de verdedigingen voor! Onze werkers zijn onderweg.
+3:Generaal, onze verkenners hebben kampen vlakbij gevonden waar de vijand versterkingen vandaan stuurt. We moeten ze buiten werking stellen om Maul te redden!
+4:[$0000FC]Objectief[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Verover Maul[]
+7:Barbaren over: [$00FF7F]%d[]
+8:[$00FF7F]Verdedig Maul[]
+9: aanvalsgolf [$00FF7F]%d[] in [$00FF7F]%d[]
+10:[$00FF7F]Bereid de verdedigingen van Maul voor[]
+11:Tijd over: [$00FF7F]%s[]
+12:[$00FF7F]aanvalsgolf:[] %d/%d
+13: in [$00FF7F]%s[]
+14: - [$00FF7F]%d[]
+15:[$00FF7F]Vernietig vijandelijke kampen[]

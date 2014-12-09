@@ -5,7 +5,7 @@ MaxID:15
 1:
 2:I cannot believe it, they were expecting us!  Take what iron is left and prepare the defenses! Our workers are on the move.
 3:General, it appears our scouts found  nearby encampments that allows the enemy to send reinforcements. We have to take them out in order to secure Maul!
-4:[$20A5DA]Objective[]: 
+4:[$0000FC]Objective[]: 
 5:[$8CE6F0] - []
 6:[$00FF7F]Capture Maul[]
 7:Barbarians left: [$00FF7F]%d[]

@@ -1,0 +1,14 @@
+
+MaxID:12
+
+0: Generaal, de koning heeft ons het verzamelen van goederne en manschappen toevertrouwd zodat hij de andere verzetsgroepen kan overtuigen en verenigen om ons te steunen in de laatste veldslag.
+1: Generaal, onze verkenners keren terug met slecht nieuws. vijandelijke troepen marcheren naar onze stad en zullen zich snel op ons storten!
+4:[$0000FC]Objectief[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Verzamel goederen:[]
+7: %d [$D2FAFA]Aanvalsgolf[] in %d
+8:[$D2FAFA]%s[] - %d/%d
+9:[$2FFFAD]%s[]
+10:[$00FF7F]Rekruteer soldaten:[]
+11:[$00FF7F]overleef[]
+12:Wees voorzichtig, de vijand heeft kleine overvalslegers lopen onderweg naar onze stad. ze kunnen van overal vandaan komen.
