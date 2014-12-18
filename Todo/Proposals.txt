@@ -61,6 +61,7 @@ Once an agreement is made or implementation details are made - item is moved to 
 		Campaign builder could allow overriding the map flag/dot icons (or at least change their colors)
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 			Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
+	L	Add more Unicode characters to fonts such as misc symbols (http://en.wikipedia.org/wiki/Miscellaneous_Symbols)
 
         L       MapEd: Height indicator to make sure that f.e. walls have the same height
 

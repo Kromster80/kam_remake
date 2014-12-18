@@ -14,6 +14,7 @@ type
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
     smByHumanPlayersAsc, smByHumanPlayersDesc,
+    smByHumanPlayersMPAsc, smByHumanPlayersMPDesc,
     smByModeAsc, smByModeDesc);
 
   TKMapInfo = class;
@@ -77,6 +78,7 @@ type
     function SizeText: string;
     function IsValid: Boolean;
     function HumanPlayerCount: Byte;
+    function HumanPlayerCountMP: Byte;
     function AIOnlyLocCount: Byte;
     function FileNameWithoutHash: UnicodeString;
     function HasReadme: Boolean;
@@ -523,6 +525,16 @@ begin
 end;
 
 
+function TKMapInfo.HumanPlayerCountMP: Byte;
+var I: Integer;
+begin
+  Result := HumanPlayerCount;
+  //Enforce MP limit
+  if Result > MAX_LOBBY_PLAYERS then
+    Result := MAX_LOBBY_PLAYERS;
+end;
+
+
 function TKMapInfo.AIOnlyLocCount: Byte;
 var I: Integer;
 begin
@@ -742,6 +754,8 @@ procedure TKMapsCollection.DoSort;
       smByPlayersDesc:  Result := A.LocCount > B.LocCount;
       smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
       smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
+      smByHumanPlayersMPAsc:   Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
+      smByHumanPlayersMPDesc:  Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
       smByModeAsc:      Result := A.MissionMode < B.MissionMode;
       smByModeDesc:     Result := A.MissionMode > B.MissionMode;
     end;

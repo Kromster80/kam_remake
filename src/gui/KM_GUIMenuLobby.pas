@@ -1451,7 +1451,7 @@ begin
 
       if AddMap then
         DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
-                                           IntToStr(fMapsMP[I].HumanPlayerCount),
+                                           IntToStr(fMapsMP[I].HumanPlayerCountMP),
                                            fMapsMP[I].SizeText],
                                            //Colors
                                            [fMapsMP[I].GetLobbyColor,
@@ -1564,9 +1564,9 @@ begin
           else
             SM := smByNameAsc;
       1:  if SortDirection = sdDown then
-            SM := smByHumanPlayersDesc
+            SM := smByHumanPlayersMPDesc
           else
-            SM := smByHumanPlayersAsc;
+            SM := smByHumanPlayersMPAsc;
       2:  if SortDirection = sdDown then
             SM := smBySizeDesc
           else
