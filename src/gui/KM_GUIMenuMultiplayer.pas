@@ -108,6 +108,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
       TKMLabel.Create(Panel_MPCreateServer, 20, 10, 280, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_HEADER], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPCreateServer, 20, 50, 280, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_NAME], fnt_Outline, taLeft);
       Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 20, 70, 280, 20, fnt_Grey);
+      Edit_MP_ServerName.AllowedChars := acANSI7;
       TKMLabel.Create(Panel_MPCreateServer, 20, 100, 284, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_PORT], fnt_Outline, taLeft);
       Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 20, 120, 100, 20, fnt_Grey);
       Edit_MP_ServerPort.AllowedChars := acDigits;
@@ -257,7 +258,7 @@ begin
 
   Edit_MP_PlayerName.Text := UnicodeString(fGameApp.GameSettings.MultiplayerName);
 
-  Edit_MP_ServerName.Text := fGameApp.GameSettings.ServerName;
+  Edit_MP_ServerName.Text := UnicodeString(fGameApp.GameSettings.ServerName);
   Edit_MP_ServerPort.Text := fGameApp.GameSettings.ServerPort;
 
   Edit_MP_FindIP.Text := fGameApp.GameSettings.LastIP;
@@ -327,7 +328,7 @@ begin
   fGameApp.GameSettings.MultiplayerName := AnsiString(Edit_MP_PlayerName.Text);
 
   //Create Server popup
-  fGameApp.GameSettings.ServerName := Edit_MP_ServerName.Text;
+  fGameApp.GameSettings.ServerName := AnsiString(Edit_MP_ServerName.Text);
   fGameApp.GameSettings.ServerPort := Edit_MP_ServerPort.Text;
 
   //Join server popup
@@ -558,7 +559,7 @@ begin
   fOnPageChange(gpLobby, 'HOST');
 
   fGameApp.Networking.OnHostFail := MP_HostFail;
-  fGameApp.Networking.Host(Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, AnsiString(Edit_MP_PlayerName.Text), (Sender = Button_MP_CreateWAN));
+  fGameApp.Networking.Host(AnsiString(Edit_MP_ServerName.Text), Edit_MP_ServerPort.Text, AnsiString(Edit_MP_PlayerName.Text), (Sender = Button_MP_CreateWAN));
 end;
 
 

@@ -59,7 +59,7 @@ type
     fLastRoom: string;
     fServerPort: string;
     fMasterServerAddress: string;
-    fServerName: UnicodeString;
+    fServerName: AnsiString;
     fMasterAnnounceInterval: Integer;
     fMaxRooms: Integer;
     fFlashOnMessage: Boolean;
@@ -81,7 +81,7 @@ type
     procedure SetMultiplayerName(aValue: AnsiString);
     procedure SetLastIP(aValue: string);
     procedure SetMasterServerAddress(aValue: string);
-    procedure SetServerName(aValue: UnicodeString);
+    procedure SetServerName(aValue: AnsiString);
     procedure SetLastPort(aValue: string);
     procedure SetLastRoom(aValue: string);
     procedure SetServerPort(aValue: string);
@@ -123,7 +123,7 @@ type
     property LastRoom: string read fLastRoom write SetLastRoom;
     property ServerPort: string read fServerPort write SetServerPort;
     property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
-    property ServerName: UnicodeString read fServerName write SetServerName;
+    property ServerName: AnsiString read fServerName write SetServerName;
     property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
     property AnnounceServer: Boolean read fAnnounceServer write SetAnnounceServer;
     property MaxRooms: Integer read fMaxRooms write SetMaxRooms;
@@ -169,7 +169,7 @@ var
 begin
   Result := FileExists(aFileName);
 
-  F := TMemIniFile.Create(aFileName);
+  F := TMemIniFile.Create(aFileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
 
   fFullScreen         := F.ReadBool   ('GFX', 'FullScreen',       False);
   fVSync              := F.ReadBool   ('GFX', 'VSync',            True);
@@ -187,7 +187,7 @@ procedure TMainSettings.SaveToINI(aFileName: UnicodeString);
 var
   F: TMemIniFile;
 begin
-  F := TMemIniFile.Create(aFileName);
+  F := TMemIniFile.Create(aFileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
 
   F.WriteBool   ('GFX','FullScreen',      fFullScreen);
   F.WriteBool   ('GFX','VSync',           fVSync);
@@ -277,7 +277,7 @@ var
 begin
   Result := FileExists(FileName);
 
-  F := TMemIniFile.Create(FileName);
+  F := TMemIniFile.Create(FileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
   try
     fBrightness       := F.ReadInteger('GFX', 'Brightness',       1);
     fAlphaShadows     := F.ReadBool   ('GFX', 'AlphaShadows',     True);
@@ -312,12 +312,12 @@ begin
     fMasterServerAddress    := F.ReadString ('Server','MasterServerAddressNew','http://kam.hodgman.id.au/');
     fMasterAnnounceInterval := F.ReadInteger('Server','MasterServerAnnounceInterval',180);
     fAnnounceServer         := F.ReadBool   ('Server','AnnounceDedicatedServer',True);
-    fServerName             := F.ReadString ('Server','ServerName','KaM Remake Server');
+    fServerName             := AnsiString(F.ReadString ('Server','ServerName','KaM Remake Server'));
     fMaxRooms               := F.ReadInteger('Server','MaxRooms',16);
     fAutoKickTimeout        := F.ReadInteger('Server','AutoKickTimeout',20);
     fPingInterval           := F.ReadInteger('Server','PingMeasurementInterval',1000);
     fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
-    fServerWelcomeMessage   := F.ReadString ('Server','WelcomeMessage','');
+    fServerWelcomeMessage   := {$IFDEF FPC} UTF8Decode {$ENDIF} (F.ReadString ('Server','WelcomeMessage',''));
   finally
     F.Free;
   end;
@@ -331,7 +331,7 @@ procedure TGameSettings.SaveToINI(FileName: UnicodeString);
 var
   F: TMemIniFile;
 begin
-  F := TMemIniFile.Create(FileName);
+  F := TMemIniFile.Create(FileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
   try
     F.WriteInteger('GFX','Brightness',    fBrightness);
     F.WriteBool   ('GFX','AlphaShadows',  fAlphaShadows);
@@ -359,8 +359,8 @@ begin
     F.WriteString ('Multiplayer','LastRoom',        fLastRoom);
     F.WriteBool   ('Multiplayer','FlashOnMessage',  fFlashOnMessage);
 
-    F.WriteString ('Server','ServerName',                   fServerName);
-    F.WriteString ('Server','WelcomeMessage',               fServerWelcomeMessage);
+    F.WriteString ('Server','ServerName',                   UnicodeString(fServerName));
+    F.WriteString ('Server','WelcomeMessage',               {$IFDEF FPC} UTF8Encode {$ENDIF}(fServerWelcomeMessage));
     F.WriteString ('Server','ServerPort',                   fServerPort);
     F.WriteBool   ('Server','AnnounceDedicatedServer',      fAnnounceServer);
     F.WriteInteger('Server','MaxRooms',                     fMaxRooms);
@@ -457,7 +457,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetServerName(aValue: UnicodeString);
+procedure TGameSettings.SetServerName(aValue: AnsiString);
 begin
   fServerName := aValue;
   Changed;

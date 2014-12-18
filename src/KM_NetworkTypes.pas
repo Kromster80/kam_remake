@@ -114,7 +114,7 @@ const
     pfBinary,   //mk_ReassignHost
     pfStringA,  //mk_GameVersion
     pfStringW,  //mk_WelcomeMessage
-    pfStringW,  //mk_ServerName
+    pfStringA,  //mk_ServerName
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
     pfBinary,   //mk_SetGameInfo

@@ -74,7 +74,7 @@ type
     fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
     fMyNikname: AnsiString;
     fWelcomeMessage: UnicodeString;
-    fServerName: UnicodeString; // Name of the server we are currently in (shown in the lobby)
+    fServerName: AnsiString; // Name of the server we are currently in (shown in the lobby)
     fPassword: AnsiString;
     fDescription: UnicodeString;
     fEnteringPassword: Boolean;
@@ -154,7 +154,7 @@ type
     property HostIndex: Integer read fHostIndex;
     property NetGameState: TNetGameState read fNetGameState;
     function MyIPString:string;
-    property ServerName: UnicodeString read fServerName;
+    property ServerName: AnsiString read fServerName;
     property ServerAddress: string read fServerAddress;
     property ServerPort: string read fServerPort;
     property ServerRoom: Integer read fRoomToJoin;
@@ -164,7 +164,7 @@ type
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
-    procedure Host(aServerName: UnicodeString; aPort: string; aNikname: AnsiString; aAnnounceServer: Boolean);
+    procedure Host(aServerName: AnsiString; aPort: string; aNikname: AnsiString; aAnnounceServer: Boolean);
     procedure Join(aServerAddress, aPort: string; aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;
     procedure Disconnect;
@@ -304,7 +304,7 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aServerName: UnicodeString; aPort: string; aNikname: AnsiString; aAnnounceServer: Boolean);
+procedure TKMNetworking.Host(aServerName: AnsiString; aPort: string; aNikname: AnsiString; aAnnounceServer: Boolean);
 begin
   fWelcomeMessage := '';
   fPassword := '';
@@ -1282,8 +1282,8 @@ begin
 
       mk_ServerName:
               begin
-                M.ReadW(tmpStringW);
-                fServerName := tmpStringW;
+                M.ReadA(tmpStringA);
+                fServerName := tmpStringA;
               end;
 
       mk_IndexOnServer:

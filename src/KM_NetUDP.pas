@@ -27,12 +27,12 @@ type
 
   TKMNetUDPAnnounce = class(TKMNetUDP)
   private
-    fGamePort, fServerName: string;
+    fGamePort, fServerName: AnsiString;
     procedure Receive(aAddress: string; aData:pointer; aLength:cardinal); override;
   public
-    procedure StartAnnouncing(const aGamePort: string; const aName: string);
+    procedure StartAnnouncing(const aGamePort: AnsiString; const aName: AnsiString);
     procedure StopAnnouncing;
-    procedure UpdateSettings(const aName: string);
+    procedure UpdateSettings(const aName: AnsiString);
   end;
 
   TKMNetUDPScan = class(TKMNetUDP)
@@ -79,7 +79,7 @@ end;
 
 
 { TKMNetUDPAnnounce }
-procedure TKMNetUDPAnnounce.StartAnnouncing(const aGamePort: string; const aName: string);
+procedure TKMNetUDPAnnounce.StartAnnouncing(const aGamePort: AnsiString; const aName: AnsiString);
 begin
   fGamePort := aGamePort;
   fServerName := aName;
@@ -100,9 +100,9 @@ begin
 end;
 
 
-procedure TKMNetUDPAnnounce.UpdateSettings(const aName: string);
+procedure TKMNetUDPAnnounce.UpdateSettings(const aName: AnsiString);
 begin
-  fGamePort := aName;
+  fServerName := aName;
 end;
 
 
@@ -132,8 +132,8 @@ begin
     M.WriteA('KaM Remake');
     M.WriteA(NET_PROTOCOL_REVISON);
     M.WriteA('announce');
-    M.WriteA(AnsiString(fGamePort));
-    M.WriteA(AnsiString(fServerName));
+    M.WriteA(fGamePort);
+    M.WriteA(fServerName);
 
     fUDP.SendPacket(aAddress, '56788', M.Memory, M.Size);
   finally

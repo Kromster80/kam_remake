@@ -18,20 +18,20 @@ type
     fAnnounceInterval: word;
     fPingInterval: word;
     fPort:string;
-    fServerName: UnicodeString;
+    fServerName: AnsiString;
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
   public
     constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
                        const aMasterServerAddress:string; const aHTMLStatusFile:string;
-                       const aWelcomeMessage:string; aDedicated:Boolean);
+                       const aWelcomeMessage:UnicodeString; aDedicated:Boolean);
     destructor Destroy; override;
 
-    procedure Start(const aServerName: UnicodeString; const aPort:string; aPublishServer:boolean);
+    procedure Start(const aServerName: AnsiString; const aPort:string; aPublishServer:boolean);
     procedure Stop;
     procedure UpdateState;
-    procedure UpdateSettings(const aServerName: UnicodeString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
-                             const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
+    procedure UpdateSettings(const aServerName: AnsiString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
+                             const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:UnicodeString);
     property OnMessage: TUnicodeStringEvent write fOnMessage;
     
     procedure GetServerInfo(var aList: TList);
@@ -50,7 +50,7 @@ uses KM_Utils;
 //Announce interval of -1 means the server will not be published (LAN)
 constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
                                       const aMasterServerAddress:string; const aHTMLStatusFile:string;
-                                      const aWelcomeMessage:string; aDedicated:Boolean);
+                                      const aWelcomeMessage:UnicodeString; aDedicated:Boolean);
 begin
   inherited Create;
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
@@ -76,14 +76,14 @@ begin
 end;
 
 
-procedure TKMDedicatedServer.Start(const aServerName: UnicodeString; const aPort:string; aPublishServer:boolean);
+procedure TKMDedicatedServer.Start(const aServerName: AnsiString; const aPort:string; aPublishServer:boolean);
 begin
   fPort := aPort;
   fServerName := aServerName;
   fPublishServer := aPublishServer;
   fNetServer.OnStatusMessage := StatusMessage;
   fNetServer.StartListening(fPort, fServerName);
-  fUDPAnnounce.StartAnnouncing(fPort, fServerName);
+  fUDPAnnounce.StartAnnouncing(AnsiString(fPort), fServerName);
 end;
 
 
@@ -114,14 +114,14 @@ begin
 
   if fPublishServer and (GetTimeSince(fLastAnnounce) >= fAnnounceInterval*1000) then
   begin
-    fMasterServer.AnnounceServer(fServerName,fPort,fNetServer.GetPlayerCount,fAnnounceInterval+20);
+    fMasterServer.AnnounceServer(UnicodeString(fServerName),fPort,fNetServer.GetPlayerCount,fAnnounceInterval+20);
     fLastAnnounce := TickCount;
   end;
 end;
 
 
-procedure TKMDedicatedServer.UpdateSettings(const aServerName: UnicodeString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
-                                            const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
+procedure TKMDedicatedServer.UpdateSettings(const aServerName: AnsiString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
+                                            const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:UnicodeString);
 begin
   fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
   fPingInterval := aPingInterval;
