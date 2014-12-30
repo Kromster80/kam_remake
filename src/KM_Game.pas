@@ -367,9 +367,12 @@ begin
 
     if fGameMode = gmMapEd then
     begin
-      gHands.AddPlayers(MAX_HANDS - gHands.Count); //Activate all players
+      // Activate all players
+      gHands.AddPlayers(MAX_HANDS - gHands.Count);
+
       for I := 0 to gHands.Count - 1 do
         gHands[I].FogOfWar.RevealEverything;
+
       MySpectator := TKMSpectator.Create(0);
       MySpectator.FOWIndex := PLAYER_NONE;
     end
@@ -379,22 +382,24 @@ begin
       for I := 0 to gHands.Count - 1 do
         gHands[I].PlayerType := hndComputer;
 
-      //-1 means automatically detect the location (used for tutorials and campaigns)
+      // -1 means automatically detect the location (used for tutorials and campaigns)
       if aLocation = -1 then
         aLocation := Parser.DefaultLocation;
 
       Assert(InRange(aLocation, 0, gHands.Count - 1), 'No human player detected');
       gHands[aLocation].PlayerType := hndHuman;
       MySpectator := TKMSpectator.Create(aLocation);
-      if aColor <> $00000000 then //If no color specified use default from mission file (don't overwrite it)
+
+      // If no color specified use default from mission file (don't overwrite it)
+      if aColor <> $00000000 then
         gHands[MySpectator.HandIndex].FlagColor := aColor;
     end;
 
-    if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
-      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors);
-
-    if (Parser.MinorErrors <> '') and (fGameMode = gmMapEd) then
-      fMapEditorInterface.ShowMessage('Warnings in mission script:|' + Parser.MinorErrors);
+    if Parser.MinorErrors <> '' then
+      if IsMapEditor then
+        fMapEditorInterface.ShowMessage('Warnings in mission script:|' + Parser.MinorErrors)
+      else
+        fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors);
   finally
     Parser.Free;
   end;
