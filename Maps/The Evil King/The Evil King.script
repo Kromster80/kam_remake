@@ -1,0 +1,49 @@
+var house : Integer;
+var servant : Integer;
+
+procedure OnMissionStart;
+begin
+	house := States.HouseAt(35, 24);	// storehouse
+	Actions.HouseRepairEnable(house, true);
+
+	Actions.ShowMsg(0, '<$0>');
+	Actions.CinematicStart(0);
+end;
+
+procedure OnTick;
+begin
+	if States.GameTime = 1 then
+	begin
+		servant := States.UnitAt(3, 48);
+		Actions.UnitOrderWalk(servant, 34, 28);
+		servant := States.UnitAt(3, 49);
+		Actions.UnitOrderWalk(servant, 35, 28);
+		servant := States.UnitAt(5, 49);
+		Actions.UnitOrderWalk(servant, 36, 28);
+	end;
+
+	if States.GameTime = 10 then
+	begin
+		Actions.CinematicPanTo(0, 35, 25, 120);
+	end;
+
+	if States.GameTime = 20 then
+	begin
+		servant := States.UnitAt(3, 48);
+		Actions.UnitOrderWalk(servant, 34, 28);
+		servant := States.UnitAt(3, 49);
+		Actions.UnitOrderWalk(servant, 35, 28);
+		servant := States.UnitAt(5, 49);
+		Actions.UnitOrderWalk(servant, 36, 28);
+	end;
+
+	if States.GameTime = 280 then
+	begin
+		Actions.CinematicEnd(0);
+	end;
+
+	if States.GameTime = 280 then
+	begin
+		Actions.ShowMsgGoto(0, 79, 108, '<$1>');
+	end;
+end;

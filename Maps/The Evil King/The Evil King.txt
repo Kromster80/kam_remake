@@ -1,0 +1,11 @@
+Title
+The Evil King
+
+Author
+Freshprince
+
+SmallDesc
+A mission by Freshprince
+
+BigDesc
+Kill the enemy king to seize control over the land.||Warning: This map is challenging. The AI enemies are strong.
