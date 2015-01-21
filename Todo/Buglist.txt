@@ -30,6 +30,9 @@ Bugs:
 	When units exit Barracks and auto-join another group, they change that groups formation
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position
 	AI groups retaliating to threat or provoked by auto attack range should return to their defence positions after pursuing unsuccessfully for a certain time/distance
+	On 2 display setup, when the game is fullscreen cursor should not be locked to that one display.
+	On 2 display setup, the game should not scroll the map if cursor is on the second display (windowed or fullscreen)
+	
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
