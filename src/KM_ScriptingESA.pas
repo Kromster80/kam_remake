@@ -4734,7 +4734,7 @@ begin
         if U.IsIdle and U.Visible then
         begin
           Result := True;
-          U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);
+          U.SetActionWalkToSpot(KMPoint(X,Y), ua_Walk);
         end;
     end
     else
