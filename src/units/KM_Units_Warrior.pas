@@ -603,6 +603,8 @@ end;
 //As well let the unit finish it's curent Attack action before taking a new order
 //This should make units response a bit delayed.
 procedure TKMUnitWarrior.TakeNextOrder;
+var
+  loc: TKMPoint;
 begin
   //Make sure attack orders are still valid
   if ((fNextOrder = woAttackUnit) and (GetOrderTarget = nil))
@@ -617,7 +619,13 @@ begin
                       and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-                        TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc, 0, fUseExactTarget);
+
+                        if fUseExactTarget then
+                          loc := fOrderLoc
+                        else
+                          loc := gTerrain.GetClosestTile(fOrderLoc, GetPosition, GetDesiredPassability, False);
+
+                        TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(loc, 0);
                         fNextOrder := woNone;
                         fOrder := woWalk;
                       end
@@ -626,7 +634,13 @@ begin
                       if CanInterruptAction then
                       begin
                         FreeAndNil(fUnitTask);
-                        SetActionWalkToSpot(fOrderLoc, ua_Walk, fUseExactTarget);
+
+                        if fUseExactTarget then
+                          loc := fOrderLoc
+                        else
+                          loc := gTerrain.GetClosestTile(fOrderLoc, GetPosition, GetDesiredPassability, False);
+
+                        SetActionWalkToSpot(loc, ua_Walk);
                         fNextOrder := woNone;
                         fOrder := woWalk;
                       end;

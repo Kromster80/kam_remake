@@ -88,7 +88,7 @@ type
     property WalkTo: TKMPoint read fWalkTo;
 
     //Modify route to go to this destination instead
-    procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True); overload;
+    procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single); overload;
     procedure ChangeWalkTo(aNewTargetUnit: TKMUnit; aDistance: Single); overload;
 
     function Execute: TActionResult; override;
@@ -910,7 +910,7 @@ end;
 
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc: TKMPoint; aDistance: Single);
 begin
   if not gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     raise ELocError.Create('Invalid Change Walk To for '+gRes.UnitDat[fUnit.UnitType].GUIName, aLoc);
@@ -919,12 +919,8 @@ begin
   if fInteractionStatus = kis_Pushed then
     fInteractionStatus := kis_None;
 
-  fDistance   := aDistance;
-
-  if aUseExactTarget then
-    fNewWalkTo := aLoc
-  else
-    fNewWalkTo := gTerrain.GetClosestTile(aLoc, fUnit.GetPosition, fPass, False);
+  fNewWalkTo := aLoc;
+  fDistance  := aDistance;
 
   //Release pointers if we had them
   gHands.CleanUpHousePointer(fTargetHouse);
@@ -938,9 +934,8 @@ begin
   if fInteractionStatus = kis_Pushed then
     fInteractionStatus := kis_None;
 
-  fDistance   := aDistance;
-
   fNewWalkTo := aNewTargetUnit.GetPosition;
+  fDistance  := aDistance;
 
   //Release pointers if we had them
   gHands.CleanUpHousePointer(fTargetHouse);

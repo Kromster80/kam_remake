@@ -122,7 +122,7 @@ type
 
     function HitTest(X,Y: Integer; const UT: TUnitType = ut_Any): Boolean;
 
-    procedure SetActionAbandonWalk(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionAbandonWalk(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay: Integer; aAction: TUnitActionType; aStayStill: Boolean=true; aStillFrame:byte=0; aStep: Integer=0);
@@ -133,10 +133,10 @@ type
     procedure SetActionWalk(aLocB: TKMPoint; aActionType:TUnitActionType; aDistance:single; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse);
     procedure SetActionWalkToHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
-    procedure SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk);
-    procedure SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType:TUnitActionType=ua_Walk);
-    procedure SetActionWalkToSpot(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk; aUseExactTarget: Boolean=true);
-    procedure SetActionWalkPushed(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType: TUnitActionType = ua_Walk);
+    procedure SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
+    procedure SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
+    procedure SetActionWalkPushed(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
@@ -1484,7 +1484,7 @@ end;
 
 
 //Approach unit
-procedure TKMUnit.SetActionWalkToUnit(aUnit: TKMUnit; aDistance: Single; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionWalkToUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
    Assert(False);
@@ -1501,7 +1501,7 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(False);
@@ -1512,20 +1512,17 @@ end;
 
 
 //Walk to spot or its neighbourhood
-procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk; aUseExactTarget: Boolean=true);
+procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(False, 'Interrupting unabandonable Walk action');
 
-  if not aUseExactTarget and not (Self is TKMUnitWarrior) and not (Self.fUnitTask is TTaskMining) then
-    Assert(False, 'Only true warriors don''t care ''bout exact location on reposition; Miners compete over resources, so they can handle is location is taken already');
-
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil, aUseExactTarget));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil));
 end;
 
 
 //We were pushed (walk to spot with wider Passability)
-procedure TKMUnit.SetActionWalkPushed(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionWalkPushed(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 begin
   //1. Only idle units can be pushed, for they are low priority to busy units
   //2. If unit can't get away it will re-push itself once again
@@ -1538,7 +1535,7 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionAbandonWalk(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionAbandonWalk(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 var TempVertexOccupied: TKMPoint;
 begin
   if GetUnitAction is TUnitActionWalkTo then
