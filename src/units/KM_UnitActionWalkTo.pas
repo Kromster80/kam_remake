@@ -31,7 +31,6 @@ type
     fWalkTo: TKMPoint; //Where are we going to
     fNewWalkTo: TKMPoint; //If we recieve a new TargetLoc it will be stored here
     fDistance: Single; //How close we need to get to our target
-    fUseExactTarget: boolean; //If we don't care about exact position
     fTargetUnit: TKMUnit; //Folow this unit
     fTargetHouse: TKMHouse; //Go to this House
     fPass: TPassability; //Desired passability set once on Create
@@ -147,9 +146,8 @@ begin
   fWalkFrom     := fUnit.GetPosition;
   fNewWalkTo    := KMPoint(0,0);
   fPass         := fUnit.DesiredPassability;
-  fUseExactTarget := aUseExactTarget;
 
-  if fUseExactTarget then
+  if aUseExactTarget then
     fWalkTo := aLocB
   else
     fWalkTo := gTerrain.GetClosestTile(aLocB, aUnit.GetPosition, fPass, False);
@@ -237,7 +235,6 @@ begin
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fNewWalkTo);
   LoadStream.Read(fDistance);
-  LoadStream.Read(fUseExactTarget);
   LoadStream.Read(fTargetUnit, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fTargetHouse, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fPass, SizeOf(fPass));
@@ -923,9 +920,8 @@ begin
     fInteractionStatus := kis_None;
 
   fDistance   := aDistance;
-  fUseExactTarget := aUseExactTarget;
 
-  if fUseExactTarget then
+  if aUseExactTarget then
     fNewWalkTo := aLoc
   else
     fNewWalkTo := gTerrain.GetClosestTile(aLoc, fUnit.GetPosition, fPass, False);
@@ -943,7 +939,6 @@ begin
     fInteractionStatus := kis_None;
 
   fDistance   := aDistance;
-  fUseExactTarget := True; //When chasing unit it is always an exact target
 
   fNewWalkTo := aNewTargetUnit.GetPosition;
 
@@ -1162,7 +1157,6 @@ begin
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fNewWalkTo);
   SaveStream.Write(fDistance);
-  SaveStream.Write(fUseExactTarget);
   if fTargetUnit <> nil then
     SaveStream.Write(fTargetUnit.UID) //Store ID, then substitute it with reference on SyncLoad
   else
