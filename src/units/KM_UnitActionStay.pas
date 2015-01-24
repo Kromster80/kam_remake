@@ -16,7 +16,6 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     function ActName: TUnitActionName; override;
     function GetExplanation: UnicodeString; override;
-    function HowLongLeftToStay:integer;
     function Execute: TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -54,13 +53,6 @@ end;
 function TUnitActionStay.GetExplanation: UnicodeString;
 begin
   Result := 'Staying';
-end;
-
-
-//If someone whats to know how much time unit has to stay
-function TUnitActionStay.HowLongLeftToStay:integer;
-begin
-  Result := EnsureRange(TimeToStay, 0, maxint);
 end;
 
 
