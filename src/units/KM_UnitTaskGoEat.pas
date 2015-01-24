@@ -109,7 +109,7 @@ begin
       begin
         fInn.ResTakeFromIn(wt_Bread);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Bread);
-        SetActionLockedStay(29*4, ua_Eat, False);
+        SetActionLockedStay(29*4, ua_Eat);
         Feed(UNIT_MAX_CONDITION * BREAD_RESTORE);
         fInn.UpdateEater(fPlace, wt_Bread);
       end else
@@ -118,7 +118,7 @@ begin
       begin
         fInn.ResTakeFromIn(wt_Sausages);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Sausages);
-        SetActionLockedStay(29*4, ua_Eat, False);
+        SetActionLockedStay(29*4, ua_Eat);
         Feed(UNIT_MAX_CONDITION * SAUSAGE_RESTORE);
         fInn.UpdateEater(fPlace, wt_Sausages);
       end else
@@ -127,7 +127,7 @@ begin
       begin
         fInn.ResTakeFromIn(wt_Wine);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Wine);
-        SetActionLockedStay(29*4, ua_Eat, False);
+        SetActionLockedStay(29*4, ua_Eat);
         Feed(UNIT_MAX_CONDITION * WINE_RESTORE);
         fInn.UpdateEater(fPlace, wt_Wine);
       end else
@@ -136,7 +136,7 @@ begin
       begin
         fInn.ResTakeFromIn(wt_Fish);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Fish);
-        SetActionLockedStay(29*4, ua_Eat, False);
+        SetActionLockedStay(29*4, ua_Eat);
         Feed(UNIT_MAX_CONDITION * FISH_RESTORE);
         fInn.UpdateEater(fPlace, wt_Fish);
       end else
