@@ -69,7 +69,7 @@ const
   //Random GUID generated in Delphi by Ctrl+G
   KAM_MUTEX = '07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D';
 
-{ TKMRemake }
+{ TKMMain }
 constructor TKMMain.Create;
 begin
   inherited;

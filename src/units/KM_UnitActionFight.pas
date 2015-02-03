@@ -149,18 +149,18 @@ var
   //Battlecry is the most noticable random sound, we would like to repeat it exactly the same in each replay (?)
   MakeBattleCry: Boolean;
 begin
-  //Randomly make a battle cry. KaMRandom must always happen regardless of tile relevation.
+  //Randomly make a battle cry. KaMRandom must always happen regardless of tile revelation
   MakeBattleCry := KaMRandom(20) = 0;
 
   //Do not play sounds if unit is invisible to MySpectator
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-  if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then exit;
+  if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then Exit;
 
   if MakeBattleCry then gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
 
   case fUnit.UnitType of
-    ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, fUnit.PositionF); //Aiming
-    ut_Bowman:     gSoundPlayer.Play(sfx_BowDraw,      fUnit.PositionF); //Aiming
+    ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, fUnit.PositionF); // Aiming
+    ut_Bowman:     gSoundPlayer.Play(sfx_BowDraw,      fUnit.PositionF); // Aiming
     ut_Slingshot:  gSoundPlayer.Play(sfx_SlingerShoot, fUnit.PositionF);
     else           begin
                      if IsHit then
