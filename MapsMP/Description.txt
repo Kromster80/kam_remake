@@ -13,7 +13,7 @@ other files may be included later
 
 ________________________________________________________________________________________
 
-MAP_NAME.txt notes
+MAP_NAME.txt notes (mirrored in MissionDescription wiki)
 
  - 	Following options will remain and maybe get changed a little
 	Author - author(s) of the map
