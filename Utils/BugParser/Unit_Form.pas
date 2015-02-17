@@ -69,8 +69,8 @@ procedure TForm1.ScanFolder(aPath: string);
     S.LoadFromFile(aFilename);
     SS := S.Text;
 
-    //Date/time
-    I := Pos('date/time         : ', SS);
+    // Date/time
+    I := Pos('date/time          : ', SS);
     if I <> 0 then
     begin
       Inc(I, 20);
@@ -79,8 +79,8 @@ procedure TForm1.ScanFolder(aPath: string);
         Result[0] := Copy(SS, I, K-I-1);
     end;
 
-    //Exception text
-    I := Pos('exception message : ', SS);
+    // Exception text
+    I := Pos('exception message  : ', SS);
     if I <> 0 then
     begin
       Inc(I, 20);
@@ -89,7 +89,7 @@ procedure TForm1.ScanFolder(aPath: string);
         Result[1] := Copy(SS, I, K-I-1);
     end;
 
-    //Username
+    // Additional information from user
     I := Pos('from user:'#13#10, SS);
     if I <> 0 then
     begin
@@ -100,7 +100,7 @@ procedure TForm1.ScanFolder(aPath: string);
     end;
 
     //Contact email
-    I := Pos('contact email     : ', SS);
+    I := Pos('contact email      : ', SS);
     if I <> 0 then
     begin
       Inc(I, 20);

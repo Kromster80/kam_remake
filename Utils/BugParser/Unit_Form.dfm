@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'Bug Parser'
   ClientHeight = 337
   ClientWidth = 633
   Color = clBtnFace
@@ -60,7 +60,7 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
     TabOrder = 2
-    Text = 'C:\Users\Krom\Desktop\123\'
+    Text = 'C:\Users\Krom\Desktop\r6720\'
   end
   object Button2: TButton
     Left = 400
