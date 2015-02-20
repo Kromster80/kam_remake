@@ -81,6 +81,7 @@ Improvements:
 	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
 	M	Renaming replays in replay menu
 	L	load saved games with double click
+	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
