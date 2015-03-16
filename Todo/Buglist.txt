@@ -33,7 +33,6 @@ Bugs:
 	On 2 display setup, when the game is fullscreen cursor should not be locked to that one display.
 	On 2 display setup, the game should not scroll the map if cursor is on the second display (windowed or fullscreen)
 	Army orientation changes after attack. This is annoying, but sometimes could be vital when armies strike and return for next fight.
-	Self-sustained AI should help allied players in game
 	AI does not repair houses after Save/Load
 	
 
@@ -84,6 +83,7 @@ Improvements:
 	M	Renaming replays in replay menu
 	L	load saved games with double click
 	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
+	M	Self-sustained AI should help allied players in game
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
