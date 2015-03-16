@@ -33,6 +33,8 @@ Bugs:
 	On 2 display setup, when the game is fullscreen cursor should not be locked to that one display.
 	On 2 display setup, the game should not scroll the map if cursor is on the second display (windowed or fullscreen)
 	Army orientation changes after attack. This is annoying, but sometimes could be vital when armies strike and return for next fight.
+	Self-sustained AI should help allied players in game
+	AI does not repair houses after Save/Load
 	
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
