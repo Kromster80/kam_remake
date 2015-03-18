@@ -933,7 +933,7 @@ begin
 end;
 
 
-{Check if house has enough resource supply to be built depending on it's state}
+// Check if house has enough resource supply to be built depending on it's state
 function TKMHouse.CheckResToBuild:boolean;
 begin
   case fBuildState of
@@ -1014,7 +1014,7 @@ begin
 end;
 
 
-{Add resources to building process}
+// Add resources to building process
 procedure TKMHouse.ResAddToBuild(aWare: TWareType);
 begin
   case aWare of
@@ -1055,7 +1055,7 @@ begin
 end;
 
 
-//Take resource from Input and order more of that kind if DistributionRatios allow
+// Take resource from Input and order more of that kind if DistributionRatios allow
 procedure TKMHouse.ResTakeFromIn(aWare: TWareType; aCount: Word=1; aFromScript: Boolean = False);
 var I,K: Integer;
 begin

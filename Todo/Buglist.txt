@@ -85,6 +85,7 @@ Improvements:
 	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
 	M	Self-sustained AI should help allied players in game
 	L	Do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
+	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
@@ -100,6 +101,7 @@ Improvements:
 	L	MapEd: Lasso selection for copy/paste
 	L	Add a button into barracks UI to allow to set a rally point
 	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
+	L	MapEd: allow to grab an object with a MouseDown and drag it around until MouseUp 
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
  -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
