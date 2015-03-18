@@ -81,9 +81,10 @@ Improvements:
 	M	Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
 	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
 	M	Renaming replays in replay menu
-	L	load saved games with double click
+	L	Load saved games with double click
 	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
 	M	Self-sustained AI should help allied players in game
+	L	Do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display

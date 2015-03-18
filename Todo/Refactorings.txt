@@ -11,13 +11,13 @@ Internal refactorings that don't affect gameplay, but might be needed for the pr
 
 	Smooth shadows generator for user override sprites in Sprites folder
 
-	Redesign gameplay UI into units similar to main menu pages
+	Redesign gameplay UI into modules similar to main menu pages
 
 	Introduce free-movement forms into MapEd interface (so we can fit more things in them)
 
-	Rework the way wares are stored in houses, allowing to evacuate and removing segregation to In and Out
+	Rework the way wares are stored in houses, allowing to evacuate (removing segregation to In and Out?)
 
-	Networking needs refactoring, maybe we can split it into common, lobby and gameplay parts
+	Networking module needs refactoring, maybe we can split it into common, lobby and gameplay parts
 
 	Replace indexing of terrain and net parts from 1..N to a convenient 0..N-1
 
@@ -28,6 +28,6 @@ Internal refactorings that don't affect gameplay, but might be needed for the pr
 
 	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
 
-	Split Houses and Units into modules. 1 class = a module
+	Split Houses and Units into modules. 1 class = 1 module
 
 	Replace ActionAbandonWalk with a flag in ActionWalkTo that will be checked once unit steps on a new tile
