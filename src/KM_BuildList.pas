@@ -9,10 +9,11 @@ uses
 
 type
   TJobStatus = (
-        js_Empty,   //Empty - empty spot for a new job
-        js_Open,    //Open - job is free to take by anyone
-        js_Taken);  //Taken - job is taken by some worker
-
+    js_Empty,   // Empty - empty spot for a new job
+    js_Open,    // Open - job is free to take by anyone
+    js_Taken    // Taken - job is taken by some worker
+  );
+  
   //List of houses ready to build
   TKMHouseList = class
   private
@@ -120,8 +121,8 @@ type
   end;
 
 
-  //Use simple approach since repairs are quite rare events
-  //Houses are only added to the list. List checks itself when House should be removed from it
+  // Use simple approach since repairs are quite rare events
+  // Houses are only added to the list. List checks itself when House should be removed from it
   TKMRepairList = class
   private
     fHousesCount: Integer;
@@ -148,7 +149,7 @@ type
   end;
 
 
-  //Matchmaking service of workers to building sites, fields, repairs, etc
+  // Matchmaking service of workers to building sites, fields, repairs, etc
   TKMBuildList = class
   private
     fFieldworksList: TKMFieldworksList;
@@ -193,11 +194,11 @@ uses
 
 
 const
-  LENGTH_INC = 32; //Increment array lengths by this value
-  BID_MODIF = 5; //Modificator for every next assigned worker
+  LENGTH_INC = 32; // Increment array lengths by this value
+  BID_MODIF = 5; // Modificator for every next assigned worker
 
   //Limit number of workers building each house, so they all fit in around
-  MAX_WORKERS: array[THouseType] of Byte = (
+  MAX_WORKERS: array [THouseType] of Byte = (
     0,0, //ht_None, ht_Any
     8, {ht_ArmorSmithy}  8,{ht_ArmorWorkshop}  8, {ht_Bakery}      12,{ht_Barracks}      8, {ht_Butchers}
     6, {ht_CoalMine}     8,{ht_Farm}           7, {ht_FisherHut}   3, {ht_GoldMine}      10,{ht_Inn}
