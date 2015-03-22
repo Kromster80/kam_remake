@@ -1,4 +1,4 @@
-unit KM_CityPlanner;
+unit KM_AICityPlanner;
 {$I KaM_Remake.inc}
 interface
 uses

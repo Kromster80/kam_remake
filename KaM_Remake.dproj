@@ -112,7 +112,9 @@
             <Form>FormLoading</Form>
         </DCCReference>
         <DCCReference Include="src\ai\KM_AI.pas"/>
+        <DCCReference Include="src\ai\KM_AIArmyEvaluation.pas"/>
         <DCCReference Include="src\ai\KM_AIAttacks.pas"/>
+        <DCCReference Include="src\ai\KM_AICityPlanner.pas"/>
         <DCCReference Include="src\ai\KM_AIDefensePos.pas"/>
         <DCCReference Include="src\ai\KM_AIInfluences.pas"/>
         <DCCReference Include="src\ai\KM_AIFields.pas"/>
@@ -122,11 +124,9 @@
         <DCCReference Include="src\ai\KM_AIMayorBalance.pas"/>
         <DCCReference Include="src\ai\KM_AISetup.pas"/>
         <DCCReference Include="src\KM_Alerts.pas"/>
-        <DCCReference Include="src\KM_ArmyEvaluation.pas"/>
         <DCCReference Include="src\KM_BinPacking.pas"/>
         <DCCReference Include="src\KM_BuildList.pas"/>
         <DCCReference Include="src\KM_Campaigns.pas"/>
-        <DCCReference Include="src\KM_CityPlanner.pas"/>
         <DCCReference Include="src\KM_CommonClasses.pas"/>
         <DCCReference Include="src\KM_CommonTypes.pas"/>
         <DCCReference Include="src\KM_Controls.pas"/>
