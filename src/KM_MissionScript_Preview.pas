@@ -10,7 +10,7 @@ type
   TKMTilePreview = record
                        TileID: Byte;
                        TileHeight: Byte; //Used for calculating light
-                       TileOwner: THandIndex;
+                       TileOwner: TKMHandIndex;
                        Revealed: Boolean;
                      end;
 
@@ -28,7 +28,7 @@ type
     fHandPreview: array [0 .. MAX_HANDS-1] of TKMHandPreview;
     fMapPreview: array of TKMTilePreview;
 
-    fRevealFor: array of THandIndex;
+    fRevealFor: array of TKMHandIndex;
 
     function GetTileInfo(X, Y: Integer): TKMTilePreview;
     function GetPlayerInfo(aIndex: Byte): TKMHandPreview;
@@ -40,7 +40,7 @@ type
     property PlayerPreview[aIndex: Byte]: TKMHandPreview read GetPlayerInfo;
     property MapX: Integer read fMapX;
     property MapY: Integer read fMapY;
-    function LoadMission(const aFileName: string; const aRevealFor: array of THandIndex): Boolean; reintroduce;
+    function LoadMission(const aFileName: string; const aRevealFor: array of TKMHandIndex): Boolean; reintroduce;
   end;
 
 
@@ -110,7 +110,7 @@ function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: ar
     fMapPreview[X + Y*fMapX].TileOwner := fLastHand;
   end;
 
-  function RevealForPlayer(aPlayerIndex: THandIndex): Boolean;
+  function RevealForPlayer(aPlayerIndex: TKMHandIndex): Boolean;
   var
     I: Integer;
   begin
@@ -210,7 +210,7 @@ end;
 
 
 //We use custom mission loader for speed (compare only used commands)
-function TMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of THandIndex): Boolean;
+function TMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of TKMHandIndex): Boolean;
 const
   Commands: array [0..15] of AnsiString = (
     '!SET_MAP', '!SET_MAP_COLOR', '!SET_RGB_COLOR', '!SET_AI_PLAYER', '!CENTER_SCREEN',

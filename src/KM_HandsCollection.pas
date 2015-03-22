@@ -26,14 +26,14 @@ type
     procedure AddPlayers(aCount: Byte); //Batch add several players
 
     procedure RemoveEmptyPlayers;
-    procedure RemovePlayer(aIndex: THandIndex);
+    procedure RemovePlayer(aIndex: TKMHandIndex);
     procedure AfterMissionInit(aFlattenRoads: Boolean);
     function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
-    function GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
-    function GetClosestHouse(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
-    function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: THandIndex): Single;
+    function GetClosestUnit(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType): TKMUnit;
+    function GetClosestHouse(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+    function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TKMHandIndex): Single;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
@@ -46,13 +46,13 @@ type
     //Check how Player1 feels towards Player2
     //Note: this is position dependant, e.g. Player1 may be allied with
     //      Player2, but Player2 could be an enemy to Player1
-    function CheckAlliance(aPlay1, aPlay2: THandIndex): TAllianceType;
+    function CheckAlliance(aPlay1, aPlay2: TKMHandIndex): TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
     procedure CleanUpHousePointer(var aHouse: TKMHouse);
     procedure RemAnyHouse(Position: TKMPoint);
     procedure RemAnyUnit(Position: TKMPoint);
-    procedure RevealForTeam(aPlayer: THandIndex; Pos: TKMPoint; Radius,Amount:word);
+    procedure RevealForTeam(aPlayer: TKMHandIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
     procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
 
@@ -162,7 +162,7 @@ end;
 
 //Remove player 'aIndex'
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
-procedure TKMHandsCollection.RemovePlayer(aIndex: THandIndex);
+procedure TKMHandsCollection.RemovePlayer(aIndex: TKMHandIndex);
 var
   I, K: Integer;
 begin
@@ -175,7 +175,7 @@ begin
   for I := aIndex to fCount - 2 do
   begin
     fHandsList[I] := fHandsList[I + 1];
-    fHandsList[I].SetHandIndex(I);
+    fHandsList[I].SeTKMHandIndex(I);
   end;
 
   Dec(fCount);
@@ -232,7 +232,7 @@ end;
 
 
 //Check opponents for closest Unit with given Alliance setting
-function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
+function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType): TKMUnit;
 var
   I: Integer;
   U: TKMUnit;
@@ -252,7 +252,7 @@ end;
 
 //Check opponents for closest House with given Alliance setting
 //Note: we check by house cells, not by entrance
-function TKMHandsCollection.GetClosestHouse(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+function TKMHandsCollection.GetClosestHouse(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
 var
   I: Integer;
   H: TKMHouse;
@@ -271,7 +271,7 @@ end;
 
 
 //Return distance from the tile to the closest enemy tower
-function TKMHandsCollection.DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: THandIndex): Single;
+function TKMHandsCollection.DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TKMHandIndex): Single;
 var
   I, K: Integer;
   H: TKMHouse;
@@ -437,7 +437,7 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
-function TKMHandsCollection.CheckAlliance(aPlay1,aPlay2: THandIndex): TAllianceType;
+function TKMHandsCollection.CheckAlliance(aPlay1,aPlay2: TKMHandIndex): TAllianceType;
 begin
   if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) then
     Result := at_Ally //In KaM animals are always friendly
@@ -497,7 +497,7 @@ end;
 
 //Reveal portion of terrain for said player and his allies (if they share vision)
 //In singleplayer KaM sometimes you should not see your allies till some time
-procedure TKMHandsCollection.RevealForTeam(aPlayer: THandIndex; Pos: TKMPoint; Radius, Amount: Word);
+procedure TKMHandsCollection.RevealForTeam(aPlayer: TKMHandIndex; Pos: TKMPoint; Radius, Amount: Word);
 var
   I: Integer;
 begin

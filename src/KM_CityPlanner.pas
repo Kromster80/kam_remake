@@ -13,21 +13,21 @@ type
   //Terrain finder optimized for CityPlanner demands of finding resources and houses
   TKMTerrainFinderCity = class(TKMTerrainFinderCommon)
   protected
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     function CanWalkHere(const X,Y: Word): Boolean; override;
     function CanUse(const X,Y: Word): Boolean; override;
   public
     FindType: TFindNearest;
     HouseType: THouseType;
-    constructor Create(aOwner: THandIndex);
-    procedure OwnerUpdate(aPlayer: THandIndex);
+    constructor Create(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandIndex);
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Load(LoadStream: TKMemoryStream); override;
   end;
 
   TKMCityPlanner = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fListGold: TKMPointList; //List of possible goldmine locations
     fFinder: TKMTerrainFinderCity;
 
@@ -39,7 +39,7 @@ type
     function NextToTrees(aHouse: THouseType; aSeed: array of THouseType; out aLoc: TKMPoint): Boolean;
     function NextToGrass(aHouse: THouseType; aSeed: array of THouseType; out aLoc: TKMPoint): Boolean;
   public
-    constructor Create(aPlayer: THandIndex);
+    constructor Create(aPlayer: TKMHandIndex);
     destructor Destroy; override;
 
     procedure AfterMissionInit;
@@ -48,7 +48,7 @@ type
     procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aPass: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aHouse: THouseType; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-    procedure OwnerUpdate(aPlayer: THandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandIndex);
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
@@ -66,7 +66,7 @@ KM_Resource, KM_ResUnits;
 
 
 { TKMCityPlanner }
-constructor TKMCityPlanner.Create(aPlayer: THandIndex);
+constructor TKMCityPlanner.Create(aPlayer: TKMHandIndex);
 begin
   inherited Create;
   fOwner := aPlayer;
@@ -476,7 +476,7 @@ begin
 end;
 
 
-procedure TKMCityPlanner.OwnerUpdate(aPlayer: THandIndex);
+procedure TKMCityPlanner.OwnerUpdate(aPlayer: TKMHandIndex);
 begin
   fOwner := aPlayer;
   fFinder.OwnerUpdate(fOwner);
@@ -500,7 +500,7 @@ end;
 
 
 { TKMTerrainFinderCity }
-constructor TKMTerrainFinderCity.Create(aOwner: THandIndex);
+constructor TKMTerrainFinderCity.Create(aOwner: TKMHandIndex);
 begin
   inherited Create;
 
@@ -508,7 +508,7 @@ begin
 end;
 
 
-procedure TKMTerrainFinderCity.OwnerUpdate(aPlayer: THandIndex);
+procedure TKMTerrainFinderCity.OwnerUpdate(aPlayer: TKMHandIndex);
 begin
   fOwner := aPlayer;
 end;
@@ -554,7 +554,7 @@ end;
 
 function TKMTerrainFinderCity.CanWalkHere(const X,Y: Word): Boolean;
 var
-  TerOwner: THandIndex;
+  TerOwner: TKMHandIndex;
 begin
   //Check for specific passabilities
   case FindType of

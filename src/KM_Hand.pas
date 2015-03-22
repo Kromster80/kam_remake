@@ -16,12 +16,12 @@ type
   //Player manages its assets
   TKMHandCommon = class
   private
-    fHandIndex: THandIndex; //Index of this hand in gHands
+    fHandIndex: TKMHandIndex; //Index of this hand in gHands
     fUnits: TKMUnitsCollection;
   public
-    constructor Create(aHandIndex: THandIndex);
+    constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
-    property HandIndex: THandIndex read fHandIndex;
+    property HandIndex: TKMHandIndex read fHandIndex;
     property Units: TKMUnitsCollection read fUnits;
 
     function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint): TKMUnit;
@@ -64,8 +64,8 @@ type
     function  GetShareFOW(aIndex: Integer): Boolean;
     procedure SetShareFOW(aIndex: Integer; aValue: Boolean);
     procedure GroupDied(aGroup: TKMUnitGroup);
-    procedure HouseDestroyed(aHouse: TKMHouse; aFrom: THandIndex);
-    procedure UnitDied(aUnit: TKMUnit; aFrom: THandIndex);
+    procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TKMHandIndex);
+    procedure UnitDied(aUnit: TKMUnit; aFrom: TKMHandIndex);
     procedure UnitTrained(aUnit: TKMUnit);
     procedure WarriorWalkedOut(aUnit: TKMUnitWarrior);
   public
@@ -75,7 +75,7 @@ type
     //Used for syncing hotkeys in multiplayer saves only. UI keeps local value to avoid GIP delays
     SelectionHotkeys: array[0..9] of Integer;
 
-    constructor Create(aHandIndex: THandIndex);
+    constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
 
     property AI: TKMHandAI read fAI;
@@ -88,7 +88,7 @@ type
     property UnitGroups: TKMUnitGroups read fUnitGroups;
     property MessageLog: TKMMessageLog read fMessageLog;
 
-    procedure SetHandIndex(aNewIndex: THandIndex);
+    procedure SeTKMHandIndex(aNewIndex: TKMHandIndex);
     procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
     property OwnerNikname: AnsiString read fOwnerNikname;
     function OwnerName(aNumberedAIs: Boolean = True): UnicodeString; //Universal owner name
@@ -165,7 +165,7 @@ const
 
 
 { TKMHandCommon }
-constructor TKMHandCommon.Create(aHandIndex: THandIndex);
+constructor TKMHandCommon.Create(aHandIndex: TKMHandIndex);
 begin
   inherited Create;
   fHandIndex  := aHandIndex;
@@ -238,7 +238,7 @@ end;
 
 
 { TKMHand }
-constructor TKMHand.Create(aHandIndex: THandIndex);
+constructor TKMHand.Create(aHandIndex: TKMHandIndex);
 var
   I: Integer;
 begin
@@ -446,7 +446,7 @@ begin
 end;
 
 
-procedure TKMHand.SetHandIndex(aNewIndex: THandIndex);
+procedure TKMHand.SeTKMHandIndex(aNewIndex: TKMHandIndex);
 begin
   fHandIndex := aNewIndex;
   fUnits.OwnerUpdate(aNewIndex);
@@ -539,7 +539,7 @@ var
   I, K, J, S, T, Tx, Ty: Integer;
   HA: THouseArea;
   EnterOff: ShortInt;
-  TerOwner: THandIndex;
+  TerOwner: TKMHandIndex;
 begin
   Result := False;
 
@@ -876,7 +876,7 @@ end;
 
 
 //Which house whas destroyed and by whom
-procedure TKMHand.HouseDestroyed(aHouse: TKMHouse; aFrom: THandIndex);
+procedure TKMHand.HouseDestroyed(aHouse: TKMHouse; aFrom: TKMHandIndex);
 begin
   //Dispose of delivery tasks performed in DeliverQueue unit
   if aHouse.BuildingState in [hbs_Wood .. hbs_Done] then
@@ -1019,7 +1019,7 @@ end;
 
 procedure TKMHand.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake: Boolean);
 var
-  I: THandIndex;
+  I: TKMHandIndex;
 begin
   //Include self and allies
   for I := 0 to gHands.Count - 1 do
@@ -1030,7 +1030,7 @@ end;
 
 procedure TKMHand.GetHousePlans(aList: TKMPointDirList; aRect: TKMRect);
 var
-  I: THandIndex;
+  I: TKMHandIndex;
 begin
   //Include self and allies
   for I := 0 to gHands.Count - 1 do
@@ -1041,7 +1041,7 @@ end;
 
 procedure TKMHand.GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
 var
-  I: THandIndex;
+  I: TKMHandIndex;
 begin
   //Include self and allies
   for I := 0 to gHands.Count - 1 do
@@ -1214,7 +1214,7 @@ begin
 end;
 
 
-procedure TKMHand.UnitDied(aUnit: TKMUnit; aFrom: THandIndex);
+procedure TKMHand.UnitDied(aUnit: TKMUnit; aFrom: TKMHandIndex);
 begin
   Stats.UnitLost(aUnit.UnitType);
   if aFrom <> PLAYER_NONE then

@@ -17,14 +17,14 @@ type
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
     RallyPoint: TKMPoint;
-    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
 
     procedure Activate(aWasBuilt: Boolean); override;
-    procedure DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
@@ -48,7 +48,7 @@ uses
 
 
 { TKMHouseBarracks }
-constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
+constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
 begin
   inherited;
   fRecruitsList := TList.Create;
@@ -106,7 +106,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False);
+procedure TKMHouseBarracks.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
 var
   R: TWareType;
 begin

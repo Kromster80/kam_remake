@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdFormations = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     procedure Formations_Close(Sender: TObject);
   protected
     Panel_Formations: TKMPanel;
@@ -22,7 +22,7 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
-    procedure Show(aPlayer: THandIndex);
+    procedure Show(aPlayer: TKMHandIndex);
   end;
 
 
@@ -71,7 +71,7 @@ begin
 end;
 
 
-procedure TKMMapEdFormations.Show(aPlayer: THandIndex);
+procedure TKMMapEdFormations.Show(aPlayer: TKMHandIndex);
 var
   GT: TGroupType;
 begin

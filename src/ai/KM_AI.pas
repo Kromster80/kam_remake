@@ -15,7 +15,7 @@ type
   //Player AI exists both for AI and Human players, but for AI it does significantly more
   TKMHandAI = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fGoals: TKMGoals;
     fSetup: TKMHandAISetup;
     fMayor: TKMayor;
@@ -25,7 +25,7 @@ type
 
     procedure CheckGoals;
   public
-    constructor Create(aHandIndex: THandIndex);
+    constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
 
     property Setup: TKMHandAISetup read fSetup;
@@ -37,7 +37,7 @@ type
     procedure Victory; //Set this player as victorious, this is not reversible
     procedure AddDefaultGoals(aBuildings: Boolean);
     property WonOrLost: TWonOrLost read fWonOrLost;
-    procedure OwnerUpdate(aPlayer: THandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandIndex);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
     procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnit);
 
@@ -55,7 +55,7 @@ uses
 
 
 { TKMHandAI }
-constructor TKMHandAI.Create(aHandIndex: THandIndex);
+constructor TKMHandAI.Create(aHandIndex: TKMHandIndex);
 begin
   inherited Create;
 
@@ -119,7 +119,7 @@ end;
 procedure TKMHandAI.AddDefaultGoals(aBuildings: Boolean);
 var
   I: Integer;
-  Enemies: array of THandIndex;
+  Enemies: array of TKMHandIndex;
 begin
   SetLength(Enemies, 0);
   for I := 0 to gHands.Count - 1 do
@@ -216,7 +216,7 @@ begin
 end;
 
 
-procedure TKMHandAI.OwnerUpdate(aPlayer: THandIndex);
+procedure TKMHandAI.OwnerUpdate(aPlayer: TKMHandIndex);
 begin
   fOwner := aPlayer;
   fMayor.OwnerUpdate(fOwner);

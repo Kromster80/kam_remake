@@ -59,7 +59,7 @@ type
     procedure DisplayHint(Sender: TObject);
     procedure RightClick_Cancel;
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
-    procedure Player_SetActive(aIndex: THandIndex);
+    procedure Player_SetActive(aIndex: TKMHandIndex);
     procedure Player_UpdatePages;
   protected
     MinimapView: TKMMinimapView;
@@ -420,7 +420,7 @@ end;
 
 
 //Active player can be set either from buttons clicked or by selecting a unit or a house
-procedure TKMapEdInterface.Player_SetActive(aIndex: THandIndex);
+procedure TKMapEdInterface.Player_SetActive(aIndex: TKMHandIndex);
 var
   I: Integer;
 begin

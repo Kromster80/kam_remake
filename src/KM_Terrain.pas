@@ -60,7 +60,7 @@ type
       //Used to display half-dug road
       TileOverlay: TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-      TileOwner: THandIndex; //Who owns the tile by having a house/road/field on it
+      TileOwner: TKMHandIndex; //Who owns the tile by having a house/road/field on it
       IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
       IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
@@ -91,12 +91,12 @@ type
 
     procedure SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
     procedure UnlockTile(aLoc: TKMPoint);
-    procedure SetRoads(aList: TKMPointList; aOwner: THandIndex; aUpdateWalkConnects: Boolean = True);
-    procedure SetField(Loc: TKMPoint; aOwner: THandIndex; aFieldType: TFieldType);
-    procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: THandIndex; const aFlattenTerrain: Boolean = False);
-    procedure SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: THandIndex);
+    procedure SetRoads(aList: TKMPointList; aOwner: TKMHandIndex; aUpdateWalkConnects: Boolean = True);
+    procedure SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType);
+    procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TKMHandIndex; const aFlattenTerrain: Boolean = False);
+    procedure SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TKMHandIndex);
 
-    procedure RemovePlayer(aPlayer: THandIndex);
+    procedure RemovePlayer(aPlayer: TKMHandIndex);
     procedure RemRoad(Loc: TKMPoint);
     procedure RemField(Loc: TKMPoint);
     procedure IncDigState(Loc: TKMPoint);
@@ -181,7 +181,7 @@ type
     function TileIsLocked(aLoc: TKMPoint): Boolean;
     function UnitsHitTest(X, Y: Word): Pointer;
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
-    function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: THandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+    function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TKMHandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
     function ScriptTryTileSet(X, Y: Integer; aType, aRot: Byte): Boolean;
     function ScriptTryHeightSet(X, Y: Integer; aHeight: Byte): Boolean;
@@ -856,7 +856,7 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: THandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TKMHandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 type
   TKMUnitArray = array of TKMUnit;
   procedure Append(var aArray: TKMUnitArray; var aCount: Integer; const aUnit: TKMUnit);
@@ -1089,7 +1089,7 @@ begin
 end;
 
 
-procedure TKMTerrain.SetRoads(aList: TKMPointList; aOwner: THandIndex; aUpdateWalkConnects: Boolean = True);
+procedure TKMTerrain.SetRoads(aList: TKMPointList; aOwner: TKMHandIndex; aUpdateWalkConnects: Boolean = True);
 var
   I: Integer;
   Bounds: TKMRect;
@@ -1159,7 +1159,7 @@ begin
 end;
 
 
-procedure TKMTerrain.RemovePlayer(aPlayer: THandIndex);
+procedure TKMTerrain.RemovePlayer(aPlayer: TKMHandIndex);
 var
   I, K: Word;
 begin
@@ -1173,7 +1173,7 @@ end;
 
 
 {Set field on tile - corn/wine}
-procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: THandIndex; aFieldType: TFieldType);
+procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType);
 begin
   Land[Loc.Y,Loc.X].TileOwner   := aOwner;
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
@@ -2510,7 +2510,7 @@ end;
 
 
 {Place house plan on terrain and change terrain properties accordingly}
-procedure TKMTerrain.SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: THandIndex; const aFlattenTerrain: Boolean = False);
+procedure TKMTerrain.SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TKMHandIndex; const aFlattenTerrain: Boolean = False);
 var
   I, K, X, Y: Word;
   ToFlatten: TKMPointList;
@@ -2579,7 +2579,7 @@ end;
 
 
 {That is mainly used for minimap now}
-procedure TKMTerrain.SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: THandIndex);
+procedure TKMTerrain.SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TKMHandIndex);
 var i,k:integer; HA: THouseArea;
 begin
   HA := gRes.HouseDat[aHouseType].BuildArea;

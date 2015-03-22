@@ -12,7 +12,7 @@ type
 
   TKMMapEdMarker = record
     MarkerType: TMarkerType;
-    Owner: THandIndex;
+    Owner: TKMHandIndex;
     Index: SmallInt;
   end;
 
@@ -35,7 +35,7 @@ type
     ActiveMarker: TKMMapEdMarker;
 
     RevealAll: array [0..MAX_HANDS-1] of Boolean;
-    DefaultHuman: THandIndex;
+    DefaultHuman: TKMHandIndex;
     PlayerHuman: array [0..MAX_HANDS - 1] of Boolean;
     PlayerAI: array [0..MAX_HANDS - 1] of Boolean;
     constructor Create;

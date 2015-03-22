@@ -8,7 +8,7 @@ uses
 type
   TKMMapEdGoal = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fIndex: Integer;
 
     procedure Goal_Change(Sender: TObject);
@@ -26,7 +26,7 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
-    procedure Show(aPlayer: THandIndex; aIndex: Integer);
+    procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
   end;
 
 
@@ -133,7 +133,7 @@ begin
 end;
 
 
-procedure TKMMapEdGoal.Show(aPlayer: THandIndex; aIndex: Integer);
+procedure TKMMapEdGoal.Show(aPlayer: TKMHandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

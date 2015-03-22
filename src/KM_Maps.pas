@@ -23,7 +23,7 @@ type
 
   TKMMapGoalInfo = packed record
     Cond: TGoalCondition;
-    Play: THandIndex;
+    Play: TKMHandIndex;
     Stat: TGoalStatus;
   end;
 
@@ -47,7 +47,7 @@ type
     LocCount: Byte;
     CanBeHuman: array [0..MAX_HANDS-1] of Boolean;
     CanBeAI: array [0..MAX_HANDS-1] of Boolean;
-    DefaultHuman: THandIndex;
+    DefaultHuman: TKMHandIndex;
     GoalsVictoryCount, GoalsSurviveCount: array [0..MAX_HANDS-1] of Byte;
     GoalsVictory: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
     GoalsSurvive: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
@@ -63,7 +63,7 @@ type
     constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
     destructor Destroy; override;
 
-    procedure AddGoal(aType: TGoalType; aPlayer: THandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: THandIndex);
+    procedure AddGoal(aType: TGoalType; aPlayer: TKMHandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TKMHandIndex);
     procedure LoadExtra;
 
     property InfoAmount: TKMMapInfoAmount read fInfoAmount;
@@ -74,7 +74,7 @@ type
     function HumanUsableLocations: TPlayerIndexArray;
     function AIUsableLocations: TPlayerIndexArray;
     property CRC: Cardinal read fCRC;
-    function LocationName(aIndex: THandIndex): string;
+    function LocationName(aIndex: TKMHandIndex): string;
     function SizeText: string;
     function IsValid: Boolean;
     function HumanPlayerCount: Byte;
@@ -261,7 +261,7 @@ begin
 end;
 
 
-procedure TKMapInfo.AddGoal(aType: TGoalType; aPlayer: THandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: THandIndex);
+procedure TKMapInfo.AddGoal(aType: TGoalType; aPlayer: TKMHandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TKMHandIndex);
 var G: TKMMapGoalInfo;
 begin
   G.Cond := aCondition;
@@ -318,7 +318,7 @@ begin
 end;
 
 
-function TKMapInfo.LocationName(aIndex: THandIndex): string;
+function TKMapInfo.LocationName(aIndex: TKMHandIndex): string;
 begin
   Result := Format(gResTexts[TX_LOBBY_LOCATION_X], [aIndex + 1]);
 end;

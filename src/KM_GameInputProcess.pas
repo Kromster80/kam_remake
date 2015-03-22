@@ -106,7 +106,7 @@ type
     Params: array[1..MAX_PARAMS]of integer;
     TextParam: UnicodeString;
     DateTimeParam: TDateTime;
-    HandIndex: THandIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
+    HandIndex: TKMHandIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
   //As TGameInputCommand is no longer fixed size (due to the string) we cannot simply read/write it as a block
@@ -159,7 +159,7 @@ type
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aParam1, aParam2: Integer); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue: Integer); overload;
 
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
@@ -581,7 +581,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal);
 begin
   Assert(aCommandType = gic_GameAlertBeacon);
   TakeCommand(MakeCommand(aCommandType, [Round(aLoc.X * 10), Round(aLoc.Y * 10), aOwner, (aColor and $FFFFFF)]));

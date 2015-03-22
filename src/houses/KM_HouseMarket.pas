@@ -22,10 +22,10 @@ type
     function GetResOrder(aId: Byte): Integer; override;
     procedure SetResOrder(aId: Byte; aValue: Integer); override;
   public
-    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
 
-    procedure DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     property ResFrom: TWareType read fResFrom write SetResFrom;
     property ResTo: TWareType read fResTo write SetResTo;
     function RatioFrom: Byte;
@@ -52,7 +52,7 @@ uses
 
 
 { TKMHouseMarket }
-constructor TKMHouseMarket.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
+constructor TKMHouseMarket.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
 begin
   inherited;
 
@@ -61,7 +61,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False);
+procedure TKMHouseMarket.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
 var
   R: TWareType;
 begin

@@ -23,7 +23,7 @@ type
 
     procedure TabChange(Sender: TObject);
     procedure WareChange(Sender: TObject);
-    function GetChartWares(aPlayer: THandIndex; aWare: TWareType): TKMCardinalArray;
+    function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType): TKMCardinalArray;
     procedure Refresh;
     procedure RefreshBars;
     procedure RefreshCharts;
@@ -588,7 +588,7 @@ begin
 end;
 
 
-function TKMMenuResultsMP.GetChartWares(aPlayer: THandIndex; aWare: TWareType): TKMCardinalArray;
+function TKMMenuResultsMP.GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType): TKMCardinalArray;
 var
   RT: TWareType;
   I: Integer;

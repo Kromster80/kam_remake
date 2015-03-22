@@ -54,7 +54,7 @@ end;
 function TTaskDie.Execute: TTaskResult;
 var
   SequenceLength: SmallInt;
-  TempOwner: THandIndex;
+  TempOwner: TKMHandIndex;
   TempUnitType: TUnitType;
   TempX, TempY: Word;
 begin

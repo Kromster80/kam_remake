@@ -32,7 +32,7 @@ type
     fPointerCount: Cardinal;
     fTicker: Cardinal;
     fTargetFollowTicker: Cardinal;
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fMembers: TList;
     fOffenders: TList;
     fSelected: TKMUnitWarrior; //Unit selected by player in GUI. Should not be saved or affect game logic for MP consistency.
@@ -91,7 +91,7 @@ type
     OnGroupDied: TKMUnitGroupEvent;
 
     constructor Create(aID: Cardinal; aCreator: TKMUnitWarrior); overload;
-    constructor Create(aID: Cardinal; aOwner: THandIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word); overload;
+    constructor Create(aID: Cardinal; aOwner: TKMHandIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word); overload;
     constructor Create(LoadStream: TKMemoryStream); overload;
     procedure SyncLoad;
     procedure Save(SaveStream: TKMemoryStream);
@@ -122,7 +122,7 @@ type
     property Count: Integer read GetCount;
     property MapEdCount: Word read fMapEdCount write fMapEdCount;
     property Members[aIndex: Integer]: TKMUnitWarrior read GetMember;
-    property Owner: THandIndex read fOwner;
+    property Owner: TKMHandIndex read fOwner;
     property Position: TKMPoint read GetPosition write SetPosition;
     property Direction: TKMDirection read GetDirection write SetDirection;
     property UnitsPerRow: Word read fUnitsPerRow write SetUnitsPerRow;
@@ -167,7 +167,7 @@ type
     destructor Destroy; override;
 
     function AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup; overload;
-    function AddGroup(aOwner: THandIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup; overload;
+    function AddGroup(aOwner: TKMHandIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup; overload;
     procedure RemGroup(aGroup: TKMUnitGroup);
 
     property Count: Integer read GetCount;
@@ -219,7 +219,7 @@ end;
 
 
 //Create a Group from script (creates all the warriors as well)
-constructor TKMUnitGroup.Create(aID: Cardinal; aOwner: THandIndex; aUnitType: TUnitType;
+constructor TKMUnitGroup.Create(aID: Cardinal; aOwner: TKMHandIndex; aUnitType: TUnitType;
   PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word);
 var
   Warrior: TKMUnitWarrior;
@@ -1686,7 +1686,7 @@ begin
 end;
 
 
-function TKMUnitGroups.AddGroup(aOwner: THandIndex; aUnitType: TUnitType;
+function TKMUnitGroups.AddGroup(aOwner: TKMHandIndex; aUnitType: TUnitType;
   PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 begin
   Result := nil;

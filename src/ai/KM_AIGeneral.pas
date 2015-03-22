@@ -11,7 +11,7 @@ type
   TKMGeneral = class
   private
     fLastEquippedTimeIron, fLastEquippedTimeLeather: Cardinal;
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fSetup: TKMHandAISetup;
     fAttacks: TAIAttacks;
     fDefencePositions: TAIDefencePositions;
@@ -23,11 +23,11 @@ type
     procedure CheckAutoDefend;
     procedure OrderAttack(aGroup: TKMUnitGroup; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
   public
-    constructor Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
+    constructor Create(aPlayer: TKMHandIndex; aSetup: TKMHandAISetup);
     destructor Destroy; override;
 
     procedure AfterMissionInit;
-    procedure OwnerUpdate(aPlayer: THandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandIndex);
     property Attacks: TAIAttacks read fAttacks;
     property DefencePositions: TAIDefencePositions read fDefencePositions;
     procedure RetaliateAgainstThreat(aAttacker: TKMUnit);
@@ -53,7 +53,7 @@ const
 
 
 { TKMGeneral }
-constructor TKMGeneral.Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
+constructor TKMGeneral.Create(aPlayer: TKMHandIndex; aSetup: TKMHandAISetup);
 begin
   inherited Create;
 
@@ -80,7 +80,7 @@ begin
 end;
 
 
-procedure TKMGeneral.OwnerUpdate(aPlayer: THandIndex);
+procedure TKMGeneral.OwnerUpdate(aPlayer: TKMHandIndex);
 begin
   fOwner := aPlayer;
 end;

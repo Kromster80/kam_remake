@@ -93,8 +93,8 @@ type
     procedure GameMPReadyToPlay(Sender: TObject);
     procedure GameHold(DoHold: Boolean; Msg: TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg: TGameResultMsg);
-    procedure PlayerVictory(aPlayerIndex: THandIndex);
-    procedure PlayerDefeat(aPlayerIndex: THandIndex);
+    procedure PlayerVictory(aPlayerIndex: TKMHandIndex);
+    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex);
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
     procedure ShowScriptError(const aMsg: UnicodeString);
@@ -110,7 +110,7 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
-    procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: THandIndex);
+    procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
     procedure OverlayUpdate;
@@ -475,7 +475,7 @@ end;
 procedure TKMGame.MultiplayerRig;
 var
   I: Integer;
-  handIndex: THandIndex;
+  handIndex: TKMHandIndex;
 begin
   //Copy game options from lobby to this game
   fGameOptions.Peacetime := fNetworking.NetGameOptions.Peacetime;
@@ -697,7 +697,7 @@ begin
 end;
 
 
-procedure TKMGame.PlayerVictory(aPlayerIndex: THandIndex);
+procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
   if aPlayerIndex = MySpectator.HandIndex then
     gSoundPlayer.Play(sfxn_Victory, 1, True); //Fade music
@@ -722,7 +722,7 @@ begin
 end;
 
 
-procedure TKMGame.PlayerDefeat(aPlayerIndex: THandIndex);
+procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex);
 begin
   case GameMode of
     gmSingle: if aPlayerIndex = MySpectator.HandIndex then
@@ -953,7 +953,7 @@ begin
 end;
 
 
-procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: THandIndex);
+procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
 begin
   //Once you have lost no messages can be received
   if gHands[aHandIndex].AI.WonOrLost = wol_Lost then Exit;

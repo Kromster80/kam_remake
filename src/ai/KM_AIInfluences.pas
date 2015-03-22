@@ -11,7 +11,7 @@ type
   private
     fMapX: Word;
     fMapY: Word;
-    fUpdatePlayerId: THandIndex; //Player we will be updating next
+    fUpdatePlayerId: TKMHandIndex; //Player we will be updating next
     //This is cache for CanOwn in gTerrain.Land
     Ownable: array of array of Boolean;
 
@@ -28,8 +28,8 @@ type
 
     procedure InitInfluenceAvoid;
     procedure InitInfluenceOwnable;
-    procedure UpdateDirectInfluence(aIndex: THandIndex);
-    procedure UpdateOwnershipInfluence(aIndex: THandIndex);
+    procedure UpdateDirectInfluence(aIndex: TKMHandIndex);
+    procedure UpdateOwnershipInfluence(aIndex: TKMHandIndex);
   public
     //Common map of areas where building is undesired (around Store, Mines, Woodcutters)
     AvoidBuilding: array of array of Byte;
@@ -40,7 +40,7 @@ type
 
     procedure AddAvoidBuilding(X,Y: Word; aRad: Single);
     procedure RemAvoidBuilding(aArea: TKMRect);
-    function GetBestOwner(X, Y: Word): THandIndex;
+    function GetBestOwner(X, Y: Word): TKMHandIndex;
     procedure Init;
     procedure ExportInfluenceMaps;
 
@@ -111,7 +111,7 @@ end;
 
 
 //Return index of player who has most influence on this tile, or none
-function TKMInfluences.GetBestOwner(X, Y: Word): THandIndex;
+function TKMInfluences.GetBestOwner(X, Y: Word): TKMHandIndex;
 var
   I: Integer;
   Best: Integer;
@@ -196,7 +196,7 @@ begin
 end;
 
 
-procedure TKMInfluences.UpdateDirectInfluence(aIndex: THandIndex);
+procedure TKMInfluences.UpdateDirectInfluence(aIndex: TKMHandIndex);
   procedure DoFill(X,Y: Word; V: Byte);
   begin
     if  (V > Influence[aIndex, Y, X])
@@ -244,7 +244,7 @@ begin
 end;
 
 
-procedure TKMInfluences.UpdateOwnershipInfluence(aIndex: THandIndex);
+procedure TKMInfluences.UpdateOwnershipInfluence(aIndex: TKMHandIndex);
 var
   I, K, H: Integer;
   T: Integer;

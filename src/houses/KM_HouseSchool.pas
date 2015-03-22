@@ -18,10 +18,10 @@ type
     function GetQueue(aIndex: Integer): TUnitType; //Used in UI. First item is the unit currently being trained, 1..5 are the actual queue
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
   public
-    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
@@ -43,7 +43,7 @@ uses
 
 
 { TKMHouseSchool }
-constructor TKMHouseSchool.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
+constructor TKMHouseSchool.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
 var I: Integer;
 begin
   inherited;
@@ -71,7 +71,7 @@ end;
 
 
 //Remove all queued units first, to avoid unnecessary shifts in queue
-procedure TKMHouseSchool.DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False);
+procedure TKMHouseSchool.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
 var
   I: Integer;
 begin

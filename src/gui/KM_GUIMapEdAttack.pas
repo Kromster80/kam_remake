@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdAttack = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fIndex: Integer;
     procedure Attack_Change(Sender: TObject);
     procedure Attack_Close(Sender: TObject);
@@ -36,7 +36,7 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
-    procedure Show(aPlayer: THandIndex; aIndex: Integer);
+    procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
   end;
 
 
@@ -219,7 +219,7 @@ begin
 end;
 
 
-procedure TKMMapEdAttack.Show(aPlayer: THandIndex; aIndex: Integer);
+procedure TKMMapEdAttack.Show(aPlayer: TKMHandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

@@ -89,7 +89,7 @@ type
     function ServerToLocal(aIndexOnServer: Integer): Integer;
     function NiknameToLocal(aNikname: AnsiString): Integer;
     function StartingLocToLocal(aLoc: Integer): Integer;
-    function PlayerIndexToLocal(aIndex: THandIndex): Integer;
+    function PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
 
     function CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): Integer;
     function CheckCanReconnect(aLocalIndex: Integer): Integer;
@@ -538,7 +538,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.PlayerIndexToLocal(aIndex: THandIndex): Integer;
+function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
 var I: Integer;
 begin
   Result := -1;

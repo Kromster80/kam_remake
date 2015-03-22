@@ -84,7 +84,7 @@ type
 type
   TKMayorBalance = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
 
     fAdvice: array of THouseType;
 
@@ -131,9 +131,9 @@ type
     GoldNeed: Single; //How much gold the town needs per minute (may change over time)
     StoneNeed: Single; //How much building materials do we need for city development
     WoodNeed: Single; //How much building materials do we need for city development
-    constructor Create(aPlayer: THandIndex);
+    constructor Create(aPlayer: TKMHandIndex);
 
-    procedure OwnerUpdate(aPlayer: THandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandIndex);
     procedure Refresh;
     function Peek: THouseType;
     procedure Take;
@@ -151,7 +151,7 @@ uses KM_HandsCollection, KM_Hand, KM_Resource;
 
 
 { TKMayorBalance }
-constructor TKMayorBalance.Create(aPlayer: THandIndex);
+constructor TKMayorBalance.Create(aPlayer: TKMHandIndex);
 begin
   inherited Create;
   fOwner := aPlayer;
@@ -406,7 +406,7 @@ begin
 end;
 
 
-procedure TKMayorBalance.OwnerUpdate(aPlayer: THandIndex);
+procedure TKMayorBalance.OwnerUpdate(aPlayer: TKMHandIndex);
 begin
   fOwner := aPlayer;
 end;

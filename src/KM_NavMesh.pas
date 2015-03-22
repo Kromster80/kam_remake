@@ -45,20 +45,20 @@ type
     procedure AssembleNavMesh;
     procedure InitConnectivity;
 
-    function GetOwnerPolys(aOwner: THandIndex): TKMWordArray;
+    function GetOwnerPolys(aOwner: TKMHandIndex): TKMWordArray;
     function ConvertPolysToEdges(aPolys: TKMWordArray): TKMEdgesArray;
     function RemoveInnerEdges(const aEdges: TKMEdgesArray): TKMEdgesArray;
-    function EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: THandIndex): TKMWeightSegments;
+    function EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: TKMHandIndex): TKMWeightSegments;
 
-    function GetBestOwner(aIndex: Integer): THandIndex;
-    function NodeEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
-    function PolyEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
+    function GetBestOwner(aIndex: Integer): TKMHandIndex;
+    function NodeEnemyPresence(aIndex: Integer; aOwner: TKMHandIndex): Word;
+    function PolyEnemyPresence(aIndex: Integer; aOwner: TKMHandIndex): Word;
     procedure UpdateOwnership;
   public
     constructor Create(aInfluences: TKMInfluences);
 
     procedure Init;
-    procedure GetDefenceOutline(aOwner: THandIndex; out aOutline1, aOutline2: TKMWeightSegments);
+    procedure GetDefenceOutline(aOwner: TKMHandIndex; out aOutline1, aOutline2: TKMWeightSegments);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -332,7 +332,7 @@ begin
 end;
 
 
-function TKMNavMesh.GetBestOwner(aIndex: Integer): THandIndex;
+function TKMNavMesh.GetBestOwner(aIndex: Integer): TKMHandIndex;
 var
   I: Integer;
   Best: Byte;
@@ -348,7 +348,7 @@ begin
 end;
 
 
-function TKMNavMesh.NodeEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
+function TKMNavMesh.NodeEnemyPresence(aIndex: Integer; aOwner: TKMHandIndex): Word;
 var I: Integer;
 begin
   Result := 0;
@@ -358,7 +358,7 @@ begin
 end;
 
 
-function TKMNavMesh.PolyEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
+function TKMNavMesh.PolyEnemyPresence(aIndex: Integer; aOwner: TKMHandIndex): Word;
 var I: Integer;
 begin
   Result := 0;
@@ -370,7 +370,7 @@ begin
 end;
 
 
-function TKMNavMesh.GetOwnerPolys(aOwner: THandIndex): TKMWordArray;
+function TKMNavMesh.GetOwnerPolys(aOwner: TKMHandIndex): TKMWordArray;
 var I,K: Integer;
 begin
   //Collect polys that are well within our ownership area
@@ -484,7 +484,7 @@ begin
 end;
 
 
-function TKMNavMesh.EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: THandIndex): TKMWeightSegments;
+function TKMNavMesh.EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: TKMHandIndex): TKMWeightSegments;
 var I: Integer;
 begin
   SetLength(Result, aEdges.Count);
@@ -498,7 +498,7 @@ begin
 end;
 
 
-procedure TKMNavMesh.GetDefenceOutline(aOwner: THandIndex; out aOutline1, aOutline2: TKMWeightSegments);
+procedure TKMNavMesh.GetDefenceOutline(aOwner: TKMHandIndex; out aOutline1, aOutline2: TKMWeightSegments);
 const
   AP_CLEAR = 0;
   AP_SEED = 255;

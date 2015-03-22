@@ -15,7 +15,7 @@ type
   TKMUnit = class;
   TKMUnitWorker = class;
   TKMUnitEvent = procedure(aUnit: TKMUnit) of object;
-  TKMUnitFromEvent = procedure(aUnit: TKMUnit; aFrom: THandIndex) of object;
+  TKMUnitFromEvent = procedure(aUnit: TKMUnit; aFrom: TKMHandIndex) of object;
 
   TActionResult = (ActContinues, ActDone, ActAborted); //
 
@@ -72,7 +72,7 @@ type
     fHitPointCounter: Cardinal; //Counter for hit point restoration, separate cos it resets on first hit
     fCondition: Integer; //Unit condition, when it reaches zero unit should die (rarely can be negative due to WalkExchange)
     fTicker: Cardinal; //ticks of life for the unit (allows to spread updates)
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fHome: TKMHouse;
     fPosition: TKMPointF;
     fVisible: Boolean;
@@ -103,7 +103,7 @@ type
     OnUnitDied: TKMUnitFromEvent;
     OnUnitTrained: TKMUnitEvent;
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -112,7 +112,7 @@ type
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount: Word read fPointerCount;
 
-    procedure KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
+    procedure KillUnit(aFrom: TKMHandIndex; aShowAnimation, aForceDelay: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
     property UID: Integer read fUID;
@@ -141,7 +141,7 @@ type
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
     property DesiredPassability: TPassability read GetDesiredPassability;
-    property Owner: THandIndex read fOwner;
+    property Owner: TKMHandIndex read fOwner;
     property GetHome: TKMHouse read fHome;
     procedure SetHome(aHome: TKMHouse);
     property GetUnitAction: TUnitAction read fCurrentAction;
@@ -149,7 +149,7 @@ type
     property UnitType: TUnitType read fUnitType;
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
-    procedure SetOwner(aOwner: THandIndex);
+    procedure SetOwner(aOwner: TKMHandIndex);
     procedure HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
     property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
@@ -216,7 +216,7 @@ type
   private
     fCarry: TWareType;
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
@@ -252,7 +252,7 @@ type
   private
     fFishCount: Byte; //1-5
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex); overload;
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex); overload;
     constructor Load(LoadStream: TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish: Boolean;
@@ -657,7 +657,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
+constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited;
   fCarry := wt_None;
@@ -903,7 +903,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
+constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited;
 
@@ -1015,7 +1015,7 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
+constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited Create;
   fUID           := aID;
@@ -1211,7 +1211,7 @@ end;
 // Kill - release all unit-specific tasks
 // TTaskDie - perform dying animation
 // CloseUnit - erase all unit data and hide it from further access
-procedure TKMUnit.KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean);
+procedure TKMUnit.KillUnit(aFrom: TKMHandIndex; aShowAnimation, aForceDelay: Boolean);
 begin
   //Don't kill unit if it's already dying
   if IsDeadOrDying then
@@ -1247,7 +1247,7 @@ begin
 end;
 
 
-procedure TKMUnit.SetOwner(aOwner: THandIndex);
+procedure TKMUnit.SetOwner(aOwner: TKMHandIndex);
 begin
   fOwner := aOwner;
 end;

@@ -97,7 +97,7 @@ type
                         Radius: Single;
                         Attenuate: Boolean;
                         Loc: TKMPoint;
-                        HandIndex: THandIndex;
+                        HandIndex: TKMHandIndex;
                       end;
     function CanPlay(aIndex: Integer): Boolean;
     procedure StartLoopSound(aIndex: Integer);
@@ -110,7 +110,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure UpdateState;
 
-    function AddLoopSound(aHandIndex: THandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
+    function AddLoopSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
     procedure RemoveLoopSound(aScriptIndex: Integer);
     procedure UpdateListener(X,Y: Single);
   end;
@@ -720,7 +720,7 @@ begin
 end;
 
 
-function TKMLoopSoundsManager.AddLoopSound(aHandIndex: THandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
+function TKMLoopSoundsManager.AddLoopSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
 var NewIndex: Integer;
 begin
   Inc(fCount);

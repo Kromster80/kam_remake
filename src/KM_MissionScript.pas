@@ -52,7 +52,7 @@ type
   protected
     fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
-    fLastHand: THandIndex; //Current Player
+    fLastHand: TKMHandIndex; //Current Player
     fFatalErrors: string; //Fatal errors descriptions accumulate here
     fMinorErrors: string; //Minor error descriptions accumulate here
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;

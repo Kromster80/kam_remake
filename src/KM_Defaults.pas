@@ -218,9 +218,9 @@ const
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
 type
-  THandIndex = {type} ShortInt;
-  TPlayerArray = array [0..MAX_HANDS-1] of THandIndex;
-  TPlayerIndexArray = array of THandIndex;
+  TKMHandIndex = {type} ShortInt;
+  TPlayerArray = array [0..MAX_HANDS-1] of TKMHandIndex;
+  TPlayerIndexArray = array of TKMHandIndex;
   TPlayerEnabledArray = array [0..MAX_HANDS-1] of Boolean;
 
 const

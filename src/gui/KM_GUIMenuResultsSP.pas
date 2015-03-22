@@ -110,7 +110,7 @@ var
   I: Integer;
   R: TWareType;
   G: TKMCardinalArray;
-  HumanId: THandIndex;
+  HumanId: TKMHandIndex;
   ShowAIResults: Boolean;
 begin
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)

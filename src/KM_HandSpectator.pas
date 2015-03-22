@@ -11,25 +11,25 @@ type
   //or several players to control 1 town in future)
   TKMSpectator = class
   private
-    fHandIndex: THandIndex;
+    fHandIndex: TKMHandIndex;
     fHighlight: TObject; //Unit/House/Group that is shown highlighted to draw players attention
     fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject;
-    fFOWIndex: THandIndex; //Unit/House/Group selected by player and shown in UI
+    fFOWIndex: TKMHandIndex; //Unit/House/Group selected by player and shown in UI
     fFogOfWarOpen: TKMFogOfWarOpen; //Stub for MapEd
     fFogOfWar: TKMFogOfWarCommon; //Pointer to current FOW view, updated by UpdateFogOfWarIndex
     procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
-    procedure SetHandIndex(const Value: THandIndex);
-    procedure SetFOWIndex(const Value: THandIndex);
+    procedure SeTKMHandIndex(const Value: TKMHandIndex);
+    procedure SetFOWIndex(const Value: TKMHandIndex);
     procedure UpdateFogOfWarIndex;
   public
-    constructor Create(aHandIndex: THandIndex);
+    constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
     property Highlight: TObject read fHighlight write SetHighlight;
     property Selected: TObject read fSelected write SetSelected;
-    property HandIndex: THandIndex read fHandIndex write SetHandIndex;
-    property FOWIndex: THandIndex read fFOWIndex write SetFOWIndex;
+    property HandIndex: TKMHandIndex read fHandIndex write SeTKMHandIndex;
+    property FOWIndex: TKMHandIndex read fFOWIndex write SetFOWIndex;
     property FogOfWar: TKMFogOfWarCommon read fFogOfWar;
     function HitTestCursor: TObject;
     procedure UpdateSelect;
@@ -46,7 +46,7 @@ uses
 
 
 { TKMSpectator }
-constructor TKMSpectator.Create(aHandIndex: THandIndex);
+constructor TKMSpectator.Create(aHandIndex: TKMHandIndex);
 begin
   inherited Create;
 
@@ -167,7 +167,7 @@ begin
 end;
 
 
-procedure TKMSpectator.SetFOWIndex(const Value: THandIndex);
+procedure TKMSpectator.SetFOWIndex(const Value: TKMHandIndex);
 begin
   fFOWIndex := Value;
   UpdateFogOfWarIndex;
@@ -183,7 +183,7 @@ begin
 end;
 
 
-procedure TKMSpectator.SetHandIndex(const Value: THandIndex);
+procedure TKMSpectator.SeTKMHandIndex(const Value: TKMHandIndex);
 begin
   Assert(MULTIPLAYER_CHEATS or (gGame.GameMode <> gmMulti));
   fHandIndex := Value;

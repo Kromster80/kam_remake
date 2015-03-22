@@ -78,24 +78,24 @@ type
     constructor Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
     procedure LinkEvents;
 
-    procedure ProcBeacon(aPlayer: THandIndex; aX, aY: Word);
-    procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
+    procedure ProcBeacon(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: TKMHandIndex; aX, aY: Word);
     procedure ProcHouseBuilt(aHouse: TKMHouse);
-    procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
-    procedure ProcHousePlanRemoved(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+    procedure ProcHousePlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
+    procedure ProcHousePlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
-    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
+    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandIndex);
     procedure ProcGroupHungry(aGroup: TKMUnitGroup);
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
-    procedure ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
-    procedure ProcPlanRemoved(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
-    procedure ProcPlayerDefeated(aPlayer: THandIndex);
-    procedure ProcPlayerVictory(aPlayer: THandIndex);
+    procedure ProcPlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
+    procedure ProcPlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
+    procedure ProcPlayerDefeated(aPlayer: TKMHandIndex);
+    procedure ProcPlayerVictory(aPlayer: TKMHandIndex);
     procedure ProcTick;
-    procedure ProcUnitAfterDied(aUnitType: TUnitType; aOwner: THandIndex; aX, aY: Word);
+    procedure ProcUnitAfterDied(aUnitType: TUnitType; aOwner: TKMHandIndex; aX, aY: Word);
     procedure ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
-    procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
+    procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
@@ -451,7 +451,7 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcBeacon(aPlayer: THandIndex; aX, aY: Word);
+procedure TKMScriptEvents.ProcBeacon(aPlayer: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcBeacon) then
     DoProc(fProcBeacon, [aPlayer, aX, aY]);
@@ -509,7 +509,7 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
+procedure TKMScriptEvents.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandIndex);
 begin
   if MethodAssigned(fProcHouseDestroyed) then
   begin
@@ -519,21 +519,21 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
+procedure TKMScriptEvents.ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcHouseAfterDestroyed) then
     DoProc(fProcHouseAfterDestroyed, [HouseTypeToIndex[aHouseType] - 1, aOwner, aX, aY]);
 end;
 
 
-procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
 begin
   if MethodAssigned(fProcHousePlanPlaced) then
     DoProc(fProcHousePlanPlaced, [aPlayer, aX + gRes.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1]);
 end;
 
 
-procedure TKMScriptEvents.ProcHousePlanRemoved(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+procedure TKMScriptEvents.ProcHousePlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
 begin
   if MethodAssigned(fProcHousePlanRemoved) then
     DoProc(fProcHousePlanRemoved, [aPlayer, aX + gRes.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1]);
@@ -550,7 +550,7 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
+procedure TKMScriptEvents.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandIndex);
 begin
   if MethodAssigned(fProcUnitDied) then
   begin
@@ -560,7 +560,7 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: THandIndex; aX, aY: Word);
+procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcUnitAfterDied) then
     DoProc(fProcUnitAfterDied, [UnitTypeToIndex[aUnitType], aOwner, aX, aY]);
@@ -620,7 +620,7 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
+procedure TKMScriptEvents.ProcPlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
 begin
   case aPlanType of
     ft_Road: if MethodAssigned(fProcPlanPlacedRoad)      then DoProc(fProcPlanPlacedRoad     , [aPlayer, aX, aY]);
@@ -631,7 +631,7 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcPlanRemoved(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
+procedure TKMScriptEvents.ProcPlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
 begin
   case aPlanType of
     ft_Road: if MethodAssigned(fProcPlanRemovedRoad)      then DoProc(fProcPlanRemovedRoad     , [aPlayer, aX, aY]);
@@ -642,14 +642,14 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcPlayerDefeated(aPlayer: THandIndex);
+procedure TKMScriptEvents.ProcPlayerDefeated(aPlayer: TKMHandIndex);
 begin
   if MethodAssigned(fProcPlayerDefeated) then
     DoProc(fProcPlayerDefeated, [aPlayer]);
 end;
 
 
-procedure TKMScriptEvents.ProcPlayerVictory(aPlayer: THandIndex);
+procedure TKMScriptEvents.ProcPlayerVictory(aPlayer: TKMHandIndex);
 begin
   if MethodAssigned(fProcPlayerVictory) then
     DoProc(fProcPlayerVictory, [aPlayer]);

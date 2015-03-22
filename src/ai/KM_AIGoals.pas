@@ -13,7 +13,7 @@ type
     GoalTime: Cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
     MessageToShow: Integer; //Message to be shown when the goal is completed
     MessageHasShown: Boolean; //Whether we have shown this message yet
-    HandIndex: THandIndex; //Player whose buildings or troops must be destroyed
+    HandIndex: TKMHandIndex; //Player whose buildings or troops must be destroyed
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
@@ -61,12 +61,12 @@ type
     procedure Clear;
     property Count: Integer read fCount;
     property Item[aIndex: Integer]: TKMGoal read GetGoal write SetGoal; default;
-    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: THandIndex); overload;
+    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: TKMHandIndex); overload;
     procedure AddGoal(aGoal: TKMGoal); overload;
     procedure Delete(aIndex: Integer);
-    procedure RemoveReference(aHandIndex: THandIndex);
+    procedure RemoveReference(aHandIndex: TKMHandIndex);
     procedure SetMessageHasShown(aIndex: Integer);
-    procedure AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: THandIndex; const aEnemyIndexes: array of THandIndex);
+    procedure AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: TKMHandIndex; const aEnemyIndexes: array of TKMHandIndex);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -91,7 +91,7 @@ begin
 end;
 
 
-procedure TKMGoals.AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: THandIndex);
+procedure TKMGoals.AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: TKMHandIndex);
 begin
   SetLength(fGoals, fCount + 1);
   fGoals[fCount].GoalType := aType;
@@ -134,7 +134,7 @@ end;
 
 //We don't want anyones goal to use deleted player
 //Used when we delete certain player from MapEd
-procedure TKMGoals.RemoveReference(aHandIndex: THandIndex);
+procedure TKMGoals.RemoveReference(aHandIndex: TKMHandIndex);
 var
   I: Integer;
 begin
@@ -152,7 +152,7 @@ begin
 end;
 
 
-procedure TKMGoals.AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: THandIndex; const aEnemyIndexes: array of THandIndex);
+procedure TKMGoals.AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: TKMHandIndex; const aEnemyIndexes: array of TKMHandIndex);
 var
   I: Integer;
   GoalCondition: TGoalCondition;

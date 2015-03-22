@@ -52,14 +52,14 @@ type
     OnWarriorWalkOut: TKMWarriorEvent;
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); override;
     destructor Destroy; override;
 
     function GetWarriorActivityText(aIsAttackingUnit: Boolean): UnicodeString;
-    procedure KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean); override;
+    procedure KillUnit(aFrom: TKMHandIndex; aShowAnimation, aForceDelay: Boolean); override;
 
     //Commands from TKMUnitGroup
     procedure OrderFood;
@@ -101,7 +101,7 @@ uses KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAt
 
 
 { TKMUnitWarrior }
-constructor TKMUnitWarrior.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
+constructor TKMUnitWarrior.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited;
   fOrderTargetUnit   := nil;
@@ -158,7 +158,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean);
+procedure TKMUnitWarrior.KillUnit(aFrom: TKMHandIndex; aShowAnimation, aForceDelay: Boolean);
 var AlreadyDeadOrDying: Boolean;
 begin
   AlreadyDeadOrDying := IsDeadOrDying; //Inherrited will kill the unit

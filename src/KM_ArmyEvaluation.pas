@@ -8,7 +8,7 @@ uses
 
 type
   TKMEvaluation = record
-    EnemyIndex: THandIndex; //Evaluation made against this player
+    EnemyIndex: TKMHandIndex; //Evaluation made against this player
     VictoryChance: Single;
     Power: Single;
     UnitTypesPower: array [WARRIOR_MIN .. WARRIOR_MAX] of Single;
@@ -18,17 +18,17 @@ type
   //This class evaluate self army relatively enemy armies
   TKMArmyEvaluation = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fEvals: array [0 .. MAX_HANDS - 1] of TKMEvaluation; //Results of evaluetion
 
-    function GetEvaluation(aIndex: THandIndex): TKMEvaluation;
+    function GetEvaluation(aIndex: TKMHandIndex): TKMEvaluation;
     procedure Reset;
-    procedure EvaluatePower(aEnemyIndex: THandIndex);
+    procedure EvaluatePower(aEnemyIndex: TKMHandIndex);
   public
-    constructor Create(aOwner: THandIndex);
+    constructor Create(aOwner: TKMHandIndex);
     destructor Destroy; override;
 
-    property Evaluations[aIndex: THandIndex]: TKMEvaluation read GetEvaluation;
+    property Evaluations[aIndex: TKMHandIndex]: TKMEvaluation read GetEvaluation;
     procedure UpdateState; //Call to update evaluation
   end;
 
@@ -46,7 +46,7 @@ var
 
 
 { TKMArmyEvaluation }
-constructor TKMArmyEvaluation.Create(aOwner: THandIndex);
+constructor TKMArmyEvaluation.Create(aOwner: TKMHandIndex);
 var I: Integer;
 begin
   inherited Create;
@@ -65,7 +65,7 @@ begin
 end;
 
 
-function TKMArmyEvaluation.GetEvaluation(aIndex: THandIndex): TKMEvaluation;
+function TKMArmyEvaluation.GetEvaluation(aIndex: TKMHandIndex): TKMEvaluation;
 begin
   Result := fEvals[aIndex];
 end;
@@ -78,7 +78,7 @@ end;
 
 
 //Calculate our power against specified player
-procedure TKMArmyEvaluation.EvaluatePower(aEnemyIndex: THandIndex);
+procedure TKMArmyEvaluation.EvaluatePower(aEnemyIndex: TKMHandIndex);
 var
   SelfStats, EnemyStats: TKMHandStats;
   Eval: TKMEvaluation;

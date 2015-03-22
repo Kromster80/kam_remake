@@ -11,7 +11,7 @@ type
   //to prefer connecting to supply/demand houses
   TPathFindingRoad = class(TPathFindingAStarNew)
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fRoadConnectID: Byte;
   protected
     function CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean; override;
@@ -20,9 +20,9 @@ type
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
     function EstimateToFinish(aX, aY: Word): Word; override;
   public
-    constructor Create(aOwner: THandIndex);
+    constructor Create(aOwner: TKMHandIndex);
 
-    procedure OwnerUpdate(aPlayer: THandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandIndex);
     function Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
     function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aRoadConnectID: Byte; NodeList: TKMPointList): Boolean; reintroduce;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -45,14 +45,14 @@ uses KM_HandsCollection, KM_Terrain, KM_Units, KM_Hand;
 
 
 { TPathFindingRoad }
-constructor TPathFindingRoad.Create(aOwner: THandIndex);
+constructor TPathFindingRoad.Create(aOwner: TKMHandIndex);
 begin
   inherited Create;
   fOwner := aOwner;
 end;
 
 
-procedure TPathFindingRoad.OwnerUpdate(aPlayer: THandIndex);
+procedure TPathFindingRoad.OwnerUpdate(aPlayer: TKMHandIndex);
 begin
   fOwner := aPlayer;
 end;

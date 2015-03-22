@@ -11,7 +11,7 @@ type
   //Mayor is the one who manages the town
   TKMayor = class
   private
-    fOwner: THandIndex;
+    fOwner: TKMHandIndex;
     fSetup: TKMHandAISetup;
     fBalance: TKMayorBalance;
     fCityPlanner: TKMCityPlanner;
@@ -42,13 +42,13 @@ type
     procedure PlanDefenceTowers;
     procedure TryBuildDefenceTower;
   public
-    constructor Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
+    constructor Create(aPlayer: TKMHandIndex; aSetup: TKMHandAISetup);
     destructor Destroy; override;
 
     property CityPlanner: TKMCityPlanner read fCityPlanner;
 
     procedure AfterMissionInit;
-    procedure OwnerUpdate(aPlayer: THandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandIndex);
     function BalanceText: UnicodeString;
 
     procedure UpdateState(aTick: Cardinal);
@@ -93,7 +93,7 @@ const //Sample list made by AntonP
 
 
 { TKMayor }
-constructor TKMayor.Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
+constructor TKMayor.Create(aPlayer: TKMHandIndex; aSetup: TKMHandAISetup);
 begin
   inherited Create;
 
@@ -770,7 +770,7 @@ begin
 end;
 
 
-procedure TKMayor.OwnerUpdate(aPlayer: THandIndex);
+procedure TKMayor.OwnerUpdate(aPlayer: TKMHandIndex);
 begin
   fOwner := aPlayer;
   fBalance.OwnerUpdate(aPlayer);
