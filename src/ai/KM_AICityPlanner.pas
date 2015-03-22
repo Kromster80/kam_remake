@@ -223,7 +223,7 @@ begin
     if CanPlaceHouse(aHouse, K, I) then
     begin
       Bid := KMLength(KMPoint(K,I), S)
-             - fAIFields.Influences.Ownership[fOwner, I, K] / 5
+             - gAIFields.Influences.Ownership[fOwner, I, K] / 5
              + KaMRandom * 4;
       if Bid < BestBid then
       begin
@@ -255,7 +255,7 @@ begin
     for I := 0 to Locs.Count - 1 do
     begin
       Bid := Locs.Tag[I]
-             - fAIFields.Influences.Ownership[fOwner,Locs[I].Y,Locs[I].X] / 5;
+             - gAIFields.Influences.Ownership[fOwner,Locs[I].Y,Locs[I].X] / 5;
       if (Bid < BestBid) then
       begin
         aLoc := Locs[I];
@@ -303,7 +303,7 @@ begin
       if gHands[fOwner].CanAddHousePlanAI(K, I, aHouse, True) then
       begin
         Bid := Locs.Tag[M]
-               - fAIFields.Influences.Ownership[fOwner,I,K] / 10
+               - gAIFields.Influences.Ownership[fOwner,I,K] / 10
                + KaMRandom * 3
                + KMLengthDiag(K, I, StoneLoc); //Distance to stone is important
         if (Bid < BestBid) then
@@ -449,7 +449,7 @@ begin
     Mx := Round(TargetLoc.X - SEARCH_RAD + (K + 0.5) * SEARCH_DIV);
     My := Round(TargetLoc.Y - SEARCH_RAD + (I + 0.5) * SEARCH_DIV);
     if InRange(Mx, 1, gTerrain.MapX - 1) and InRange(My, 1, gTerrain.MapY - 1)
-    and (fAIFields.Influences.AvoidBuilding[My, Mx] = 0) then
+    and (gAIFields.Influences.AvoidBuilding[My, Mx] = 0) then
     begin
       Bid := MyForest[I, K] + KaMRandom * 2; //Add some noise for varied results
       if Bid > BestBid then
@@ -570,7 +570,7 @@ begin
   if not Result then Exit;
 
   //Don't build on allies and/or enemies territory
-  TerOwner := fAIFields.Influences.GetBestOwner(X,Y);
+  TerOwner := gAIFields.Influences.GetBestOwner(X,Y);
   Result := ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE));
 end;
 

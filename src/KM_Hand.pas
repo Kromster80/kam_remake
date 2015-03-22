@@ -566,13 +566,13 @@ begin
     if aCheckInfluence and AI_GEN_INFLUENCE_MAPS then
     begin
       //Check if tile's blocked
-      if (fAIFields.Influences.AvoidBuilding[Ty, Tx] > 0) then
+      if (gAIFields.Influences.AvoidBuilding[Ty, Tx] > 0) then
         Exit;
 
       //Check ownership for entrance (good enough since it does not changes that fast)
       if (HA[I,K] = 2) then
       begin
-        TerOwner := fAIFields.Influences.GetBestOwner(Tx,Ty);
+        TerOwner := gAIFields.Influences.GetBestOwner(Tx,Ty);
         if ((TerOwner <> fHandIndex) and (TerOwner <> PLAYER_NONE)) then
           Exit;
       end;

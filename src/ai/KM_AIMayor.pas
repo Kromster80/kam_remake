@@ -325,7 +325,7 @@ begin
   if not P.Stats.GetCanBuild(ht_WatchTower) then Exit;
 
   //Get defence Outline with weights representing how important each segment is
-  fAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
+  gAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
   //Make list of defence positions
   for I := 0 to High(Outline2) do
   begin
@@ -547,7 +547,7 @@ begin
 
   //Block any buildings nearby
   if aHouse = ht_Woodcutters then
-    fAIFields.Influences.AddAvoidBuilding(Loc.X-1, Loc.Y, WOOD_BLOCK_RAD); //X-1 because entrance is on right
+    gAIFields.Influences.AddAvoidBuilding(Loc.X-1, Loc.Y, WOOD_BLOCK_RAD); //X-1 because entrance is on right
 
   //Build more roads around 2nd Store
   if aHouse = ht_Store then
@@ -631,7 +631,7 @@ begin
     if Houses[I].HouseType = ht_CoalMine then
     begin
       Loc := Houses[I].GetEntrance;
-      fAIFields.Influences.RemAvoidBuilding(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+1));
+      gAIFields.Influences.RemAvoidBuilding(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+1));
     end;
     Houses[I].DemolishHouse(fOwner);
   end;

@@ -342,7 +342,7 @@ begin
     fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold, rdFish]);
 
   //todo: if mlNavMesh in VisibleLayers then
-    //fAIFields.NavMesh.Init;
+    //gAIFields.NavMesh.Init;
 end;
 
 

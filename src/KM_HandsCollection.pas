@@ -138,7 +138,7 @@ procedure TKMHandsCollection.AfterMissionInit(aFlattenRoads: Boolean);
 var
   I: Integer;
 begin
-  fAIFields.AfterMissionInit;
+  gAIFields.AfterMissionInit;
 
   for I := 0 to fCount - 1 do
     fHandsList[I].AfterMissionInit(aFlattenRoads);

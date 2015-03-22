@@ -221,7 +221,7 @@ begin
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   gTerrain := TKMTerrain.Create;
   gHands := TKMHandsCollection.Create;
-  fAIFields := TKMAIFields.Create;
+  gAIFields := TKMAIFields.Create;
 
   InitUnitStatEvals; //Army
 
@@ -264,7 +264,7 @@ begin
   FreeThenNil(fMapEditor);
   FreeThenNil(gHands);
   FreeThenNil(gTerrain);
-  FreeAndNil(fAIFields);
+  FreeAndNil(gAIFields);
   FreeAndNil(gProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fScripting);
@@ -1248,7 +1248,7 @@ begin
     gHands.Save(SaveStream, fGameMode in [gmMulti, gmMultiSpectate]); //Saves all players properties individually
     if not IsMultiplayer then
       MySpectator.Save(SaveStream);
-    fAIFields.Save(SaveStream);
+    gAIFields.Save(SaveStream);
     fPathfinding.Save(SaveStream);
     gProjectiles.Save(SaveStream);
     fScripting.Save(SaveStream);
@@ -1383,7 +1383,7 @@ begin
   MySpectator := TKMSpectator.Create(0);
   if not SaveIsMultiplayer then
     MySpectator.Load(LoadStream);
-  fAIFields.Load(LoadStream);
+  gAIFields.Load(LoadStream);
   fPathfinding.Load(LoadStream);
   gProjectiles.Load(LoadStream);
   fScripting.Load(LoadStream);
@@ -1494,7 +1494,7 @@ begin
                       fScripting.UpdateState;
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       gTerrain.UpdateState;
-                      fAIFields.UpdateState(fGameTickCount);
+                      gAIFields.UpdateState(fGameTickCount);
                       gHands.UpdateState(fGameTickCount); //Quite slow
                       if gGame = nil then Exit; //Quit the update if game was stopped for some reason
                       MySpectator.UpdateState(fGameTickCount);
@@ -1546,7 +1546,7 @@ begin
                     fScripting.UpdateState;
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     gTerrain.UpdateState;
-                    fAIFields.UpdateState(fGameTickCount);
+                    gAIFields.UpdateState(fGameTickCount);
                     gHands.UpdateState(fGameTickCount); //Quite slow
                     if gGame = nil then Exit; //Quit the update if game was stopped for some reason
                     MySpectator.UpdateState(fGameTickCount);

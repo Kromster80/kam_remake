@@ -286,8 +286,8 @@ begin
   if gGame.IsMapEditor then
     gGame.MapEditor.Paint(plTerrain, aRect);
 
-  if fAIFields <> nil then
-    fAIFields.Paint(aRect);
+  if gAIFields <> nil then
+    gAIFields.Paint(aRect);
 
   if SHOW_WALK_CONNECT then
   begin

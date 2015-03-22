@@ -30,7 +30,7 @@ type
 
 
 var
-  fAIFields: TKMAIFields;
+  gAIFields: TKMAIFields;
 
 
 implementation
