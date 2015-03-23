@@ -154,7 +154,7 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint); overload;
 
-    procedure CmdRatio(aCommandType: TGameInputCommandType; aRes: TWareType; aHouseType: THouseType; aValue:integer);
+    procedure CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
@@ -546,10 +546,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdRatio(aCommandType: TGameInputCommandType; aRes: TWareType; aHouseType: THouseType; aValue:integer);
+procedure TGameInputProcess.CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
 begin
   Assert(aCommandType = gic_RatioChange);
-  TakeCommand(MakeCommand(aCommandType, [byte(aRes), byte(aHouseType), aValue]));
+  TakeCommand(MakeCommand(aCommandType, [byte(aWare), byte(aHouseType), aValue]));
 end;
 
 
