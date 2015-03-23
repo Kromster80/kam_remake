@@ -148,9 +148,9 @@ type
     procedure ResAddToBuild(aWare: TWareType);
     procedure ResTakeFromIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual;
-    function ResCanAddToIn(aRes: TWareType): Boolean; virtual;
-    function ResCanAddToOut(aRes: TWareType): Boolean;
-    function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; virtual;
+    function ResCanAddToIn(aWare: TWareType): Boolean; virtual;
+    function ResCanAddToOut(aWare: TWareType): Boolean;
+    function ResOutputAvailable(aWare: TWareType; const aCount: Word): Boolean; virtual;
     property ResOrder[aId: Byte]: Integer read GetResOrder write SetResOrder;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
@@ -185,12 +185,12 @@ type
     NotAcceptFlag: array [WARE_MIN .. WARE_MAX] of Boolean;
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
-    procedure ToggleAcceptFlag(aRes: TWareType);
+    procedure ToggleAcceptFlag(aWare: TWareType);
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
-    function ResCanAddToIn(aRes: TWareType): Boolean; override;
-    function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
+    function ResCanAddToIn(aWare: TWareType): Boolean; override;
+    function ResOutputAvailable(aWare: TWareType; const aCount: Word): Boolean; override;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
@@ -1025,32 +1025,32 @@ begin
 end;
 
 
-function TKMHouse.ResCanAddToIn(aRes: TWareType): Boolean;
+function TKMHouse.ResCanAddToIn(aWare: TWareType): Boolean;
 var I: Integer;
 begin
   Result := False;
   for I := 1 to 4 do
-    if aRes = gRes.HouseDat[fHouseType].ResInput[I] then
+    if aWare = gRes.HouseDat[fHouseType].ResInput[I] then
       Result := True;
 end;
 
 
-function TKMHouse.ResCanAddToOut(aRes: TWareType): Boolean;
+function TKMHouse.ResCanAddToOut(aWare: TWareType): Boolean;
 var I: Integer;
 begin
   Result := False;
   for I := 1 to 4 do
-    if aRes = gRes.HouseDat[fHouseType].ResOutput[I] then
+    if aWare = gRes.HouseDat[fHouseType].ResOutput[I] then
       Result := True;
 end;
 
 
-function TKMHouse.ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean;
+function TKMHouse.ResOutputAvailable(aWare: TWareType; const aCount: Word): Boolean;
 var I: Integer;
 begin
   Result := False;
   for I := 1 to 4 do
-    if aRes = gRes.HouseDat[fHouseType].ResOutput[I] then
+    if aWare = gRes.HouseDat[fHouseType].ResOutput[I] then
       Result := fResourceOut[I] >= aCount;
 end;
 
@@ -1479,16 +1479,16 @@ begin
 end;
 
 
-function TKMHouseStore.ResCanAddToIn(aRes: TWareType): Boolean;
+function TKMHouseStore.ResCanAddToIn(aWare: TWareType): Boolean;
 begin
-  Result := (aRes in [WARE_MIN..WARE_MAX]);
+  Result := (aWare in [WARE_MIN..WARE_MAX]);
 end;
 
 
-function TKMHouseStore.ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean;
+function TKMHouseStore.ResOutputAvailable(aWare: TWareType; const aCount: Word): Boolean;
 begin
-  Assert(aRes in [WARE_MIN..WARE_MAX]);
-  Result := (ResourceCount[aRes] >= aCount);
+  Assert(aWare in [WARE_MIN..WARE_MAX]);
+  Result := (ResourceCount[aWare] >= aCount);
 end;
 
 
@@ -1532,7 +1532,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.ToggleAcceptFlag(aRes: TWareType);
+procedure TKMHouseStore.ToggleAcceptFlag(aWare: TWareType);
 const
   //Using shortints instead of bools makes it look much neater in code-view
   CheatPattern: array [WARE_MIN..WARE_MAX] of Byte = (
@@ -1546,7 +1546,7 @@ var
   R: TWareType;
   ApplyCheat: Boolean;
 begin
-  Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
+  Assert(aWare in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
   //We need to skip cheats in MP replays too, not just MP games, so don't use fGame.IsMultiplayer
   if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti])) then
@@ -1558,7 +1558,7 @@ begin
       ApplyCheat := ApplyCheat and (NotAcceptFlag[R] = boolean(CheatPattern[R]));
 
     if ApplyCheat then
-    case aRes of
+    case aWare of
       wt_Arbalet: begin
                     ResAddToIn(wt_All, 10);
                     gHands[fOwner].Stats.WareProduced(wt_All, 10);
@@ -1581,7 +1581,7 @@ begin
     end;
   end;
 
-  NotAcceptFlag[aRes] := not NotAcceptFlag[aRes];
+  NotAcceptFlag[aWare] := not NotAcceptFlag[aWare];
 end;
 
 
