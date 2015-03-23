@@ -1,13 +1,14 @@
 unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
-uses Math, SysUtils,
+uses
+  Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Units, KM_Units_Workplan, KM_Terrain,
   KM_ResWares;
 
 
-{Perform resource mining}
+// Do resource mining
 type
   TTaskMining = class(TUnitTask)
   private
@@ -18,9 +19,9 @@ type
     function ChooseToCutOrPlant: TPlantAct;
     procedure FindAnotherWorkPlan;
   public
-    constructor Create(aUnit: TKMUnit; aRes: TWareType);
+    constructor Create(aUnit: TKMUnit; aWare: TWareType);
     destructor Destroy; override;
-    function WalkShouldAbandon:boolean; override;
+    function WalkShouldAbandon: Boolean; override;
     constructor Load(LoadStream: TKMemoryStream); override;
     function GetActivityText: UnicodeString;
     property WorkPlan: TUnitWorkPlan read fWorkPlan;
@@ -36,16 +37,17 @@ uses
 
 
 { TTaskMining }
-constructor TTaskMining.Create(aUnit: TKMUnit; aRes: TWareType);
+constructor TTaskMining.Create(aUnit: TKMUnit; aWare: TWareType);
 begin
   inherited Create(aUnit);
+
   fTaskName := utn_Mining;
   fWorkPlan := TUnitWorkPlan.Create;
   fBeastID  := 0;
 
   fWorkPlan.FindPlan( fUnit,
                       fUnit.GetHome.HouseType,
-                      aRes,
+                      aWare,
                       KMPointBelow(aUnit.GetHome.GetEntrance),
                       ChooseToCutOrPlant
                       );
@@ -57,6 +59,7 @@ begin
   if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
   FreeAndNil(fWorkPlan);
+
   inherited;
 end;
 
