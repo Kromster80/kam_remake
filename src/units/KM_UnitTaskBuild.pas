@@ -203,7 +203,12 @@ begin
          Thought := th_None;
          gTerrain.SetTileLock(fLoc, tlRoadWork);
          TileLockSet := True;
+
          CancelThePlan;
+
+         gHands[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, diHigh4);
+         DemandSet := true;
+
          SetActionLockedStay(11,ua_Work1,false);
        end;
     2: begin
@@ -214,8 +219,6 @@ begin
     3: begin
          gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
-         gHands[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, diHigh4);
-         DemandSet := true;
        end;
     4: begin //This step is repeated until Serf brings us some stone
          SetActionLockedStay(30,ua_Work1);
@@ -332,9 +335,15 @@ begin
    1: begin
         Thought := th_None;
         gTerrain.SetTileLock(fLoc, tlFieldWork);
-        gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        CancelThePlan;
         TileLockSet := True;
+
+        CancelThePlan;
+
+        gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+
+        gHands[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, diHigh4);
+        DemandSet := true;
+
         SetActionLockedStay(12*4,ua_Work1,false);
       end;
    2: begin
@@ -344,8 +353,6 @@ begin
    3: begin
         gTerrain.IncDigState(fLoc);
         SetActionLockedStay(24,ua_Work1,false);
-        gHands[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, diHigh4);
-        DemandSet := true;
       end;
    4: begin
         gTerrain.ResetDigState(fLoc);
