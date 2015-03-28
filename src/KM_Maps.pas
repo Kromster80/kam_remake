@@ -526,7 +526,6 @@ end;
 
 
 function TKMapInfo.HumanPlayerCountMP: Byte;
-var I: Integer;
 begin
   Result := HumanPlayerCount;
   //Enforce MP limit

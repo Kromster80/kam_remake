@@ -1,4 +1,4 @@
-unit KM_ArmyEvaluation;
+unit KM_AIArmyEvaluation;
 {$I KaM_Remake.inc}
 interface
 uses
