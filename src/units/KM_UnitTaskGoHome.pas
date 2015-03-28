@@ -1,16 +1,17 @@
 unit KM_UnitTaskGoHome;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses
+  Classes, SysUtils,
   KM_Defaults, KM_Units, KM_Points;
 
 
 type
   TTaskGoHome = class(TUnitTask)
-    public
-      constructor Create(aUnit: TKMUnit);
-      function Execute:TTaskResult; override;
-    end;
+  public
+    constructor Create(aUnit: TKMUnit);
+    function Execute:TTaskResult; override;
+  end;
 
 
 implementation

@@ -1,7 +1,8 @@
 ﻿unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
-uses dglOpenGL, Controls, Math, KromOGLUtils, StrUtils, SysUtils,
+uses
+  dglOpenGL, Controls, Math, KromOGLUtils, StrUtils, SysUtils,
   KM_Defaults, KM_CommonTypes, KM_Points, KM_Pics,
   KM_ResFonts, KM_ResSprites;
 

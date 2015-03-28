@@ -32,7 +32,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_ResLocales;
+uses
+  KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_ResLocales;
 
 
 { TKMGUIMainCredits }

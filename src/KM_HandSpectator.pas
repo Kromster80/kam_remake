@@ -1,7 +1,8 @@
 unit KM_HandSpectator;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils,
+uses
+  KromUtils,
   KM_CommonClasses, KM_Defaults,
   KM_FogOfWar;
 

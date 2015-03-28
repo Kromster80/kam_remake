@@ -1,7 +1,8 @@
 unit KM_NetUDPLNet;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils, LNet;
+uses
+  Classes, Math, SysUtils, LNet;
 
 
 type

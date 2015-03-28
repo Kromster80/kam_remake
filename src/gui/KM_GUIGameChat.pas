@@ -43,7 +43,8 @@ type
 
 
 implementation
-uses KM_Main, KM_RenderUI, KM_ResTexts, KM_Game, KM_GameApp, KM_Utils,
+uses
+  KM_Main, KM_RenderUI, KM_ResTexts, KM_Game, KM_GameApp, KM_Utils,
   KM_ResSound, KM_Resource, KM_ResFonts, KM_Sound, KM_NetPlayersList;
 
 

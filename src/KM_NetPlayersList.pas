@@ -1,7 +1,8 @@
 unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, StrUtils, Math, SysUtils,
+uses
+  Classes, KromUtils, StrUtils, Math, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Hand, KM_ResLocales, KM_NetworkTypes;
 
 const
@@ -126,7 +127,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Utils;
+uses
+  KM_ResTexts, KM_Utils;
 
 
 { TKMNetPlayerInfo }

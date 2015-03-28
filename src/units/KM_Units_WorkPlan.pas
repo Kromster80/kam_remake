@@ -1,7 +1,8 @@
 unit KM_Units_WorkPlan;
 {$I KaM_Remake.inc}
 interface
-uses KM_Defaults, KM_CommonClasses, KM_Points, KM_Terrain, KM_Units,
+uses
+  KM_Defaults, KM_CommonClasses, KM_Points, KM_Terrain, KM_Units,
   KM_ResHouses, KM_ResWares;
 
 
@@ -51,7 +52,8 @@ type
 
 
 implementation
-uses KM_Resource, KM_Utils, KM_Hand, KM_ResUnits;
+uses
+  KM_Resource, KM_Utils, KM_Hand, KM_ResUnits;
 
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)

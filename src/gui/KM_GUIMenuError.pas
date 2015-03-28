@@ -24,7 +24,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_RenderUI, KM_ResFonts;
+uses
+  KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuError }

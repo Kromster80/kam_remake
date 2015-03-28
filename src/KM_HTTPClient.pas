@@ -1,9 +1,10 @@
 unit KM_HTTPClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils
-     {$IFDEF WDC} ,KM_HTTPClientOverbyte {$ENDIF}
-     {$IFDEF FPC} ,KM_HTTPClientLNet {$ENDIF};
+uses
+  Classes, SysUtils
+  {$IFDEF WDC} ,KM_HTTPClientOverbyte {$ENDIF}
+  {$IFDEF FPC} ,KM_HTTPClientLNet {$ENDIF};
 
 type
   //General wrapper for Delphi/Lazarus implementations

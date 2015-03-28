@@ -1,7 +1,8 @@
 unit KM_UnitTaskSelfTrain;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonClasses, KM_Defaults, KM_Houses, KM_HouseSchool, KM_Units, SysUtils;
+uses
+  Classes, KM_CommonClasses, KM_Defaults, KM_Houses, KM_HouseSchool, KM_Units, SysUtils;
 
 
 //Train citizen in school
@@ -20,7 +21,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Game;
+uses
+  KM_HandsCollection, KM_Game;
 
 
 { TTaskSelfTrain }

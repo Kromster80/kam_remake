@@ -1,7 +1,8 @@
 unit KM_Hand;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, Math,
+uses
+  Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_AIArmyEvaluation, KM_BuildList, KM_Deliveries, KM_FogOfWar, KM_MessageLog,
   KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats,

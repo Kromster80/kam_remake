@@ -1,7 +1,8 @@
 unit KM_UnitTaskGoEat;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonClasses, KM_Defaults, KM_Units, KM_Houses, KM_HouseInn, SysUtils, KM_Points;
+uses
+  Classes, KM_CommonClasses, KM_Defaults, KM_Units, KM_Houses, KM_HouseInn, SysUtils, KM_Points;
 
 
 type
@@ -22,7 +23,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_ResWares, KM_Hand;
+uses
+  KM_HandsCollection, KM_ResWares, KM_Hand;
 
 
 { TTaskGoEat }

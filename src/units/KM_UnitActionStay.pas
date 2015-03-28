@@ -1,10 +1,11 @@
 unit KM_UnitActionStay;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KromUtils, KM_CommonClasses, KM_Units, SysUtils, Math, KM_Points;
+uses
+  Classes, KM_Defaults, KromUtils, KM_CommonClasses, KM_Units, SysUtils, Math, KM_Points;
 
-{Stay in place for set time}
 type
+  {Stay in place for set time}
   TUnitActionStay = class(TUnitAction)
   private
     StayStill:boolean;
@@ -22,7 +23,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Sound, KM_ResSound, KM_Resource, KM_ResUnits;
+uses
+  KM_HandsCollection, KM_Sound, KM_ResSound, KM_Resource, KM_ResUnits;
 
 
 { TUnitActionStay }

@@ -44,7 +44,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
+uses
+  KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuLoad }

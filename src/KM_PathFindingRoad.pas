@@ -1,7 +1,8 @@
 unit KM_PathFindingRoad;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KromUtils,
+uses
+  SysUtils, KromUtils,
   KM_CommonClasses, KM_Defaults, KM_PathFinding, KM_PathFindingAStarNew, KM_Points;
 
 
@@ -41,7 +42,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Terrain, KM_Units, KM_Hand;
+uses
+  KM_HandsCollection, KM_Terrain, KM_Units, KM_Hand;
 
 
 { TPathFindingRoad }

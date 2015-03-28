@@ -1,7 +1,8 @@
 unit KM_Sound;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Dialogs, Forms, SysUtils, TypInfo,
+uses
+  Classes, Dialogs, Forms, SysUtils, TypInfo,
   {$IFDEF WDC} UITypes, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   OpenAL, KromUtils,
@@ -122,7 +123,8 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection, KM_Game;
+uses
+  KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection, KM_Game;
 
 
 const

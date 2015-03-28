@@ -37,7 +37,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Hand, KM_AI, KM_AIDefensePos, KM_TerrainPainter, KM_HouseBarracks,
+uses
+  KM_HandsCollection, KM_Hand, KM_AI, KM_AIDefensePos, KM_TerrainPainter, KM_HouseBarracks,
   KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares, KM_Game, KM_Units_Warrior, KM_HouseCollection,
   KM_UnitsCollection;
 

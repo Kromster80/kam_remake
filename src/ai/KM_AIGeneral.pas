@@ -41,7 +41,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Hand, KM_Terrain, KM_Game, KM_HouseBarracks,
+uses
+  KM_HandsCollection, KM_Hand, KM_Terrain, KM_Game, KM_HouseBarracks,
   KM_AIFields, KM_NavMesh, KM_Houses, KM_Utils, KM_ResHouses;
 
 

@@ -1,7 +1,8 @@
 unit KM_UnitActionSteer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_Defaults, KM_CommonClasses, KM_Units, KM_Points;
+uses
+  Classes, SysUtils, Math, KM_Defaults, KM_CommonClasses, KM_Units, KM_Points;
 
 {Steer in place for set time}
 type
@@ -25,7 +26,8 @@ type
 
 
 implementation
-uses KM_Utils, KM_Resource, KM_ResUnits;
+uses
+  KM_Utils, KM_Resource, KM_ResUnits;
 
 
 { TUnitActionSteer }

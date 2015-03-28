@@ -1,7 +1,8 @@
 unit KM_TerrainWalkConnect;
 {$I KaM_Remake.inc}
 interface
-uses KM_Terrain, KM_Points, KM_Defaults;
+uses
+  KM_Terrain, KM_Points, KM_Defaults;
 
 type
   //We use class procedues/functions here because we don't need to store anything,
@@ -28,7 +29,8 @@ type
   end;
 
 implementation
-uses Math, KM_ResMapElements;
+uses
+  Math, KM_ResMapElements;
 
 { TKMTerrainWalkConnect }
 class procedure TKMTerrainWalkConnect.DoUpdate(aAreaAffected:TKMRect; aWC:TWalkConnect; aPass:TPassability; aAllowDiag: Boolean; aDiagObjectsEffected: Boolean);

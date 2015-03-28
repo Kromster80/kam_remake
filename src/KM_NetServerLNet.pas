@@ -1,7 +1,8 @@
 unit KM_NetServerLNet;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, lNet;
+uses
+  Classes, SysUtils, lNet;
 
 
 { This unit knows nothing about KaM, it's just a puppet in hands of KM_ServerControl,
@@ -16,7 +17,6 @@ const
 
 
 type
-
   TClientInfo = class
     Tag: Integer;
     Buffer: array of byte;
@@ -27,7 +27,6 @@ type
     procedure PutInBuffer(aData:pointer; aLength:cardinal);
     function BufferFull: Boolean;
   end;
-
 
   THandleEvent = procedure (aHandle:integer) of object;
   TNotifyDataEvent = procedure(aHandle:integer; aData:pointer; aLength:cardinal)of object;
@@ -68,14 +67,14 @@ implementation
 
 constructor TClientInfo.Create(aTag: Integer);
 begin
-  Inherited Create;
+  inherited Create;
   Tag := aTag;
 end;
 
 
 destructor TClientInfo.Destroy;
 begin
-  Inherited;
+  inherited;
 end;
 
 

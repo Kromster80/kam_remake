@@ -1,7 +1,8 @@
 unit KM_MasterServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses
+  Classes, SysUtils,
   URLUtils, //This is a common URLUtils file used by both Delphi and Lazarus for two reasons:
             //1. Library specific stuff should all be done in wrappers (e.g. KM_NetServer_Overbyte) so we can easily switch systems.
             //2. Lazarus' LNet library has broken/incorrectly implemented URLUtils at the moment, so we can't rely on them.
@@ -43,6 +44,7 @@ type
 
 
 implementation
+
 const
   {$IFDEF MSWindows} OS = 'Windows'; {$ENDIF}
   {$IFDEF UNIX}      OS = 'Unix'; {$ENDIF}

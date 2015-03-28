@@ -1,7 +1,8 @@
 unit KM_NetClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_NetworkTypes
+uses
+  Classes, SysUtils, KM_NetworkTypes
   {$IFDEF WDC} ,KM_NetClientOverbyte {$ENDIF}
   {$IFDEF FPC} ,KM_NetClientLNet {$ENDIF}
   ;

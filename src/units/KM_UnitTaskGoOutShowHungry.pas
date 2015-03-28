@@ -1,18 +1,20 @@
 unit KM_UnitTaskGoOutShowHungry;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Units, SysUtils, KM_Points;
+uses
+  Classes, KM_Defaults, KM_Units, SysUtils, KM_Points;
 
-  type
-    TTaskGoOutShowHungry = class(TUnitTask)
-    public
-      constructor Create(aUnit:TKMUnit);
-      function Execute:TTaskResult; override;
-    end;
+type
+  TTaskGoOutShowHungry = class(TUnitTask)
+  public
+    constructor Create(aUnit:TKMUnit);
+    function Execute:TTaskResult; override;
+  end;
 
 
 implementation
-uses KM_Utils;
+uses
+  KM_Utils;
 
 
 { TTaskGoOutShowHungry }

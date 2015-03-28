@@ -1,7 +1,8 @@
 unit KM_UnitTaskDie;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonClasses, KM_Defaults, KM_Units, SysUtils;
+uses
+  Classes, KM_CommonClasses, KM_Defaults, KM_Units, SysUtils;
 
 type
   {Yep, this is a Task}

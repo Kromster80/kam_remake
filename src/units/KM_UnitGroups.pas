@@ -1,9 +1,10 @@
 unit KM_UnitGroups;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils, Types,
-     KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Houses, KM_Units,
-     KM_Units_Warrior;
+uses
+  Classes, Math, SysUtils, Types,
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Houses, KM_Units,
+  KM_Units_Warrior;
 
 type
   TKMUnitGroup = class;

@@ -34,7 +34,8 @@ type
 
 
 implementation
-uses KM_Game, KM_HandsCollection;
+uses
+  KM_Game, KM_HandsCollection;
 
 
 { TKMScriptingIdCache }

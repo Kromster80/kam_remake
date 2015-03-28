@@ -1,7 +1,8 @@
 unit KM_UnitTaskThrowRock;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses
+  Classes, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Units;
 
 
@@ -22,7 +23,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Projectiles, KM_ResWares, KM_Hand;
+uses
+  KM_HandsCollection, KM_Projectiles, KM_ResWares, KM_Hand;
 
 
 { TTaskThrowRock }

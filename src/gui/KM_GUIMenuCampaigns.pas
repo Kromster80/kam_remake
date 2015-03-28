@@ -29,7 +29,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_ResFonts, KM_GameApp, KM_RenderUI;
+uses
+  KM_ResTexts, KM_ResFonts, KM_GameApp, KM_RenderUI;
 
 
 { TKMMainMenuInterface }

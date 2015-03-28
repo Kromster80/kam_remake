@@ -38,7 +38,8 @@ type
 
 
 implementation
-uses KM_Defaults;
+uses
+  KM_Defaults;
 
 
 //New thread, in which old logs are deleted (used internally)

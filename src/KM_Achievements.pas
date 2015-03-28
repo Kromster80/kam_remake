@@ -79,7 +79,8 @@ type
 
 
 implementation
-uses Math, KM_PlayersCollection, KM_Resource;
+uses
+  Math, KM_PlayersCollection, KM_Resource;
 
 
 { TKMAchievement }

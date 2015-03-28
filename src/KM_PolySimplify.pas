@@ -58,7 +58,8 @@ procedure CheckForDegenerates(var aTriMesh: TKMTriMesh);
 
 
 implementation
-uses KromUtils, PolyTriangulate;
+uses
+  KromUtils, PolyTriangulate;
 
 
 const

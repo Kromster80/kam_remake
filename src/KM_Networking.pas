@@ -252,7 +252,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
+uses
+  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
 
 
 { TKMNetworking }

@@ -1,8 +1,9 @@
 unit KM_AIAttacks;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
-    KM_CommonClasses, KM_Defaults, KM_Points;
+uses
+  Classes, KromUtils, Math, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 type
   TAIAttackType = (aat_Once,       //Attack will occur once (after the set time has passed and if they have enough troops

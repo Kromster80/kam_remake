@@ -30,7 +30,8 @@ type
 
 
 implementation
-uses KM_Defaults;
+uses
+  KM_Defaults;
 
 const
   //Screen.Cursors[0] is used by System default cursor

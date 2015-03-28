@@ -1,7 +1,8 @@
 unit KM_BinPacking;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math;
+uses
+  Classes, Math;
 
 type
   TBinRect = record X, Y, Width, Height: Word; end;
@@ -59,7 +60,8 @@ type
 
 
 implementation
-uses KromUtils;
+uses
+  KromUtils;
 
 
 function BinRect(aX, aY, aWidth, aHeight: Word): TBinRect;

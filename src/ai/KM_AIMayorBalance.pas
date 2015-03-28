@@ -147,7 +147,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Hand, KM_Resource;
+uses
+  KM_HandsCollection, KM_Hand, KM_Resource;
 
 
 { TKMayorBalance }

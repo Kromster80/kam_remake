@@ -1,7 +1,8 @@
 unit KM_Defaults;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils;
+uses
+  SysUtils;
 
 
 //Global const

@@ -57,7 +57,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Game, KM_GameApp, KM_HandsCollection,
+uses
+  KM_ResTexts, KM_Game, KM_GameApp, KM_HandsCollection,
   KM_Utils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
   KM_ResWares;
 

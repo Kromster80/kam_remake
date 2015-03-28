@@ -1,7 +1,8 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults,
+uses
+  Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults,
   KM_CommonClasses, KM_CommonTypes, KM_Hand;
 
 const

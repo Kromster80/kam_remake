@@ -1,7 +1,8 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils,
+uses
+  SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Terrain, KM_Units, KM_ResHouses;
 
@@ -9,9 +10,9 @@ uses SysUtils,
 //Do the building
 type
   TTaskBuild = class(TUnitTask)
-    public
-      procedure CancelThePlan; virtual; abstract;
-    end;
+  public
+    procedure CancelThePlan; virtual; abstract;
+  end;
 
   TTaskBuildRoad = class(TTaskBuild)
   private
@@ -117,7 +118,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
+uses
+  KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
 
 
 { TTaskBuildRoad }
