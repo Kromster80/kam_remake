@@ -133,8 +133,8 @@ begin
 end;
 
 
-//We don't want anyones goal to use deleted player
-//Used when we delete certain player from MapEd
+// We don't want anyones goal to use deleted player
+// Used when we delete certain player from MapEd
 procedure TKMGoals.RemoveReference(aHandIndex: TKMHandIndex);
 var
   I: Integer;
@@ -156,17 +156,19 @@ end;
 procedure TKMGoals.AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: TKMHandIndex; const aEnemyIndexes: array of TKMHandIndex);
 var
   I: Integer;
-  GoalCondition: TGoalCondition;
+  gc: TGoalCondition;
 begin
   if aBuildings then
-    GoalCondition := gc_Buildings
+    gc := gc_Buildings
   else
-    GoalCondition := gc_Troops;
-  //Defeat condition
-  AddGoal(glt_Survive, GoalCondition, gs_True, 0, 0, aOurPlayerIndex);
-  //Victory conditions
+    gc := gc_Troops;
+
+  // Default Defeat condition is to lose army/town
+  AddGoal(glt_Survive, gc, gs_True, 0, 0, aOurPlayerIndex);
+
+  // Default Victory conditions is to kill armies / destroy towns of all other players
   for I := 0 to Length(aEnemyIndexes) - 1 do
-    AddGoal(glt_Victory, GoalCondition, gs_False, 0, 0, aEnemyIndexes[I]);
+    AddGoal(glt_Victory, gc, gs_False, 0, 0, aEnemyIndexes[I]);
 end;
 
 

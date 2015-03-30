@@ -375,7 +375,9 @@ end;
 
 
 procedure TKMGeneral.CheckAutoAttack;
-var SimpleAttack: TAIAttack; H: TKMHouse;
+var
+  SimpleAttack: TAIAttack;
+  H: TKMHouse;
 begin
   //Simple test for now
   FillChar(SimpleAttack, SizeOf(SimpleAttack), #0);
@@ -565,10 +567,11 @@ begin
                                         if (TargetHouse <> nil) and
                                            (gHands.CheckAlliance(fOwner, TargetHouse.Owner) = at_Ally) then
                                           TargetHouse := nil;
+
                                         TargetUnit := gTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
-                                        if (TargetUnit <> nil) and
-                                           ((gHands.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally)
-                                             or TargetUnit.IsDeadOrDying) then
+                                        if (TargetUnit <> nil)
+                                        and ((gHands.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally)
+                                            or TargetUnit.IsDeadOrDying) then
                                           TargetUnit := nil;
                                       end;
   end;
@@ -646,9 +649,7 @@ begin
     //CheckAndIssueAttack; //Attack enemy
     //Anything Else?
   end;
-
 end;
 
 
-end.
-
+end.

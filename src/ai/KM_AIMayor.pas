@@ -116,6 +116,7 @@ begin
   fPathFindingRoad.Free;
   fPathFindingRoadShortcuts.Free;
   fDefenceTowers.Free;
+
   inherited;
 end;
 
@@ -129,7 +130,7 @@ begin
 end;
 
 
-{ Check existing unit count vs house count and train missing citizens }
+// Check existing unit count vs house count and train missing citizens
 procedure TKMayor.CheckUnitCount;
 var
   P: TKMHand;
