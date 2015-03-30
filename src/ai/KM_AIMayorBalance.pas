@@ -629,6 +629,7 @@ begin
   begin
     //How much Gold do we need
     Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * gHands[fOwner].AI.Setup.WarriorsPerMinute;
+
     GoldOreReserve := gHands[fOwner].Stats.GetWareBalance(wt_GoldOre) / (2 * Consumption);
 
     //How much gold in theory we could get
