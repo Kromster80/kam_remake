@@ -9,14 +9,14 @@ uses
 type
   //MayorBalance is a cluster of functions that choose optimal houses to build
 
-//Calculate various demands and save intermediate numbers in case we need them
-//in determing what exactly to build to satisfy demand the best
-//Production is how much of this resource gets made each minute
-// - we evaluate each links theoretical production of end resource (f.e. 1 Corn = 3/5 Sausages)
-// - in chain production the speed is limited by slowest link
-//todo: - resource in reserve adds to each production rate a fraction
-//Consumption is how much gets consumed
-//Balance = Production - Consumption;
+  // Calculate various demands and save intermediate numbers in case we need them
+  // in determing what exactly to build to satisfy demand the best
+  // Production is how much of this resource gets made each minute
+  //  - we evaluate each links theoretical production of end resource (f.e. 1 Corn = 3/5 Sausages)
+  //  - in chain production the speed is limited by slowest link
+  // todo: - resource in reserve adds to each production rate a fraction
+  // Consumption is how much gets consumed
+  // Balance = Production - Consumption;
 
   TKMCoreBalance = record
     StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance: Single;
@@ -777,7 +777,7 @@ begin
     SchoolBalance   := HouseCount(ht_School)      - 1 - Byte((gHands[fOwner].Stats.GetHouseQty(ht_Barracks) > 0) and (gHands[fOwner].AI.Setup.WarriorsPerMinute > 2));
     InnBalance      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
     BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
-    TowerBalance    := HouseCount(ht_WatchTower) - 1 * gHands[fOwner].Stats.GetHouseQty(ht_Barracks);
+    TowerBalance    := HouseCount(ht_WatchTower)  - 1 * gHands[fOwner].Stats.GetHouseQty(ht_Barracks);
 
     Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance]);
     fCoreText := Format
