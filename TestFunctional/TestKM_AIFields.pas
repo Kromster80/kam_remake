@@ -28,12 +28,12 @@ begin
   gRes := TKMResource.Create(nil, nil);
   gRes.LoadMainResources;
   gTerrain := TKMTerrain.Create;
-  fAIFields := TKMAIFields.Create;
+  gAIFields := TKMAIFields.Create;
 end;
 
 procedure TestTKMAIFields.TearDown;
 begin
-  fAIFields.Free;
+  gAIFields.Free;
   gTerrain.Free;
   FreeAndNil(gRes);
   gLog.Free;
@@ -73,7 +73,7 @@ begin
           begin
             try
               gTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
-              fAIFields.UpdateState(0);
+              gAIFields.UpdateState(0);
               Inc(Count);
             except
               //Report and swallow asserts

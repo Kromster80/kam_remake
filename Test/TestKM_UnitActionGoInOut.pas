@@ -22,7 +22,8 @@ type
 
 
 implementation
-uses KM_Log, KM_HandsCollection, KM_HandSpectator, KM_Resource, KM_ResSound, KM_Terrain, KM_Utils, KM_ResHouses;
+uses
+  KM_Log, KM_HandsCollection, KM_HandSpectator, KM_Resource, KM_ResSound, KM_Terrain, KM_Utils, KM_ResHouses;
 
 
 procedure TestTUnitActionGoInOut.SetUp;
@@ -34,7 +35,7 @@ begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   gRes := TKMResource.Create(nil, nil);
   gRes.LoadMainResources;
-  fScripting := TKMScripting.Create;
+  fScripting := TKMScripting.Create(nil);
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
   gHands := TKMHandsCollection.Create;

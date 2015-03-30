@@ -144,25 +144,27 @@ uses
   KM_MissionScript_Standard in 'src\KM_MissionScript_Standard.pas',
   KM_Music in 'src\KM_Music.pas',
   KM_NavMesh in 'src\KM_NavMesh.pas',
+
   {$IFDEF USESECUREAUTH}
-    KM_NetAuthSecure in 'src\KM_NetAuthSecure.pas',
+    KM_NetAuthSecure in 'src\net\KM_NetAuthSecure.pas',
   {$ELSE}
-    KM_NetAuthUnsecure in 'src\KM_NetAuthUnsecure.pas',
+    KM_NetAuthUnsecure in 'src\net\KM_NetAuthUnsecure.pas',
   {$ENDIF}
-  KM_NetClient in 'src\KM_NetClient.pas',
-  {$IFDEF WDC} KM_NetClientOverbyte in 'src\KM_NetClientOverbyte.pas', {$ENDIF}
-  {$IFDEF FPC} KM_NetClientLNet in 'src\KM_NetClientLNet.pas', {$ENDIF}
-  KM_NetFileTransfer in 'src\KM_NetFileTransfer.pas',
-  KM_NetServer in 'src\KM_NetServer.pas',
-  {$IFDEF WDC} KM_NetServerOverbyte in 'src\KM_NetServerOverbyte.pas', {$ENDIF}
-  {$IFDEF FPC} KM_NetServerLNet in 'src\KM_NetServerLNet.pas', {$ENDIF}
-  KM_NetUDP in 'src\KM_NetUDP.pas',
-  {$IFDEF WDC} KM_NetUDPOverbyte in 'src\KM_NetUDPOverbyte.pas', {$ENDIF}
-  {$IFDEF FPC} KM_NetUDPLNet in 'src\KM_NetUDPLNet.pas', {$ENDIF}
-  KM_Networking in 'src\KM_Networking.pas',
-  KM_NetworkClasses in 'src\KM_NetworkClasses.pas',
-  KM_NetworkTypes in 'src\KM_NetworkTypes.pas',
-  KM_NetPlayersList in 'src\KM_NetPlayersList.pas',
+  KM_NetClient in 'src\net\KM_NetClient.pas',
+  {$IFDEF WDC} KM_NetClientOverbyte in 'src\net\KM_NetClientOverbyte.pas', {$ENDIF}
+  {$IFDEF FPC} KM_NetClientLNet in 'src\net\KM_NetClientLNet.pas', {$ENDIF}
+  KM_NetFileTransfer in 'src\net\KM_NetFileTransfer.pas',
+  KM_NetPlayersList in 'src\net\KM_NetPlayersList.pas',
+  KM_NetServer in 'src\net\KM_NetServer.pas',
+  {$IFDEF WDC} KM_NetServerOverbyte in 'src\net\KM_NetServerOverbyte.pas', {$ENDIF}
+  {$IFDEF FPC} KM_NetServerLNet in 'src\net\KM_NetServerLNet.pas', {$ENDIF}
+  KM_NetUDP in 'src\net\KM_NetUDP.pas',
+  {$IFDEF WDC} KM_NetUDPOverbyte in 'src\net\KM_NetUDPOverbyte.pas', {$ENDIF}
+  {$IFDEF FPC} KM_NetUDPLNet in 'src\net\KM_NetUDPLNet.pas', {$ENDIF}
+  KM_NetworkClasses in 'src\net\KM_NetworkClasses.pas',
+  KM_Networking in 'src\net\KM_Networking.pas',
+  KM_NetworkTypes in 'src\net\KM_NetworkTypes.pas',
+
   KM_Outline in 'src\KM_Outline.pas',
   KM_PathFinding in 'src\KM_PathFinding.pas',
   KM_PathFindingAStarOld in 'src\KM_PathFindingAStarOld.pas',
