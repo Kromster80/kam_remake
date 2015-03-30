@@ -16,10 +16,11 @@ type
   TKMHandAI = class
   private
     fOwner: TKMHandIndex;
-    fGoals: TKMGoals;
-    fSetup: TKMHandAISetup;
-    fMayor: TKMayor;
+
     fGeneral: TKMGeneral;
+    fGoals: TKMGoals;
+    fMayor: TKMayor;
+    fSetup: TKMHandAISetup;
 
     fWonOrLost: TWonOrLost; //Has this player won/lost? If so, do not check goals
 
@@ -28,10 +29,10 @@ type
     constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
 
-    property Setup: TKMHandAISetup read fSetup;
-    property Mayor: TKMayor read fMayor;
     property General: TKMGeneral read fGeneral;
     property Goals: TKMGoals read fGoals;
+    property Mayor: TKMayor read fMayor;
+    property Setup: TKMHandAISetup read fSetup;
 
     procedure Defeat; //Defeat the player, this is not reversible
     procedure Victory; //Set this player as victorious, this is not reversible
@@ -135,7 +136,8 @@ end;
 procedure TKMHandAI.CheckGoals;
 
   function GoalConditionSatisfied(aGoal: TKMGoal): Boolean;
-  var Stat: TKMHandStats;
+  var
+    Stat: TKMHandStats;
   begin
     Assert((aGoal.GoalCondition = gc_Time) or (aGoal.HandIndex <> PLAYER_NONE), 'Only gc_Time can have nil Player');
 
@@ -175,7 +177,7 @@ begin
 
   //Assume they will win/survive, then prove it with goals
   HasVictoryGoal := False;
-  VictorySatisfied  := True;
+  VictorySatisfied := True;
   SurvivalSatisfied := True;
 
   with gHands[fOwner] do
@@ -224,9 +226,10 @@ begin
 end;
 
 
-//aHouse is our house that was attacked
+// aHouse is our house that was attacked
 procedure TKMHandAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
-var I: Integer;
+var
+  I: Integer;
 begin
   case gHands[fOwner].PlayerType of
     hndHuman:
@@ -252,7 +255,7 @@ begin
 end;
 
 
-//aUnit is our unit that was attacked
+// aUnit is our unit that was attacked
 procedure TKMHandAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnit);
 const
   NotifyKind: array [Boolean] of TAttackNotification = (an_Citizens, an_Troops);
@@ -302,7 +305,7 @@ end;
 
 procedure TKMHandAI.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.WriteA('PlayerAI');
+  SaveStream.WriteA('HandAI');
   SaveStream.Write(fOwner);
   SaveStream.Write(fWonOrLost, SizeOf(fWonOrLost));
 
@@ -315,7 +318,7 @@ end;
 
 procedure TKMHandAI.Load(LoadStream: TKMemoryStream);
 begin
-  LoadStream.ReadAssert('PlayerAI');
+  LoadStream.ReadAssert('HandAI');
   LoadStream.Read(fOwner);
   LoadStream.Read(fWonOrLost, SizeOf(fWonOrLost));
 
