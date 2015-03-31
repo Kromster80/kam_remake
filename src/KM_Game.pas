@@ -302,7 +302,7 @@ const
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
-  PlayerEnabled: TPlayerEnabledArray;
+  PlayerEnabled: TKMHandEnabledArray;
   Parser: TMissionParserStandard;
   CampaignData: TKMemoryStream;
   CampaignDataTypeFile: UnicodeString;

@@ -116,7 +116,7 @@ type
     procedure SetAIReady;
     procedure RemAllAIs;
     procedure RemDisconnectedPlayers;
-    function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: UnicodeString): Boolean;
+    function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TKMHandIndexArray; out ErrorMsg: UnicodeString): Boolean;
 
     //Import/Export
     procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
@@ -840,7 +840,7 @@ end;
 
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
-function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: UnicodeString):boolean;
+function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TKMHandIndexArray; out ErrorMsg: UnicodeString):boolean;
 
   function IsHumanLoc(aLoc: Byte): Boolean;
   var I: Integer;

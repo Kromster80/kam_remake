@@ -220,9 +220,8 @@ const
 
 type
   TKMHandIndex = {type} ShortInt;
-  TPlayerArray = array [0..MAX_HANDS-1] of TKMHandIndex;
-  TPlayerIndexArray = array of TKMHandIndex;
-  TPlayerEnabledArray = array [0..MAX_HANDS-1] of Boolean;
+  TKMHandIndexArray = array of TKMHandIndex;
+  TKMHandEnabledArray = array [0..MAX_HANDS-1] of Boolean;
 
 const
   PLAYER_NONE = -1; //No player

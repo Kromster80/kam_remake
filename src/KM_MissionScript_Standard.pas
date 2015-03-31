@@ -16,7 +16,7 @@ type
   TMissionParserStandard = class(TMissionParserCommon)
   private
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
-    fPlayerEnabled: TPlayerEnabledArray;
+    fPlayerEnabled: TKMHandEnabledArray;
     fLastHouse: TKMHouse;
     fLastTroop: TKMUnitGroup;
     fAIAttack: TAIAttack;
@@ -28,7 +28,7 @@ type
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
   public
     constructor Create(aMode: TMissionParsingMode; aStrictParsing: Boolean); overload;
-    constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TPlayerEnabledArray; aStrictParsing: Boolean); overload;
+    constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray; aStrictParsing: Boolean); overload;
     function LoadMission(const aFileName: string): Boolean; overload; override;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
@@ -72,7 +72,7 @@ begin
 end;
 
 
-constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEnabled: TPlayerEnabledArray; aStrictParsing: Boolean);
+constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray; aStrictParsing: Boolean);
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;

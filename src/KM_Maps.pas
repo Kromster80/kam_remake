@@ -71,8 +71,8 @@ type
     property MapFolder: TMapFolder read fMapFolder;
     property FileName: UnicodeString read fFileName;
     function FullPath(const aExt: string): string;
-    function HumanUsableLocations: TPlayerIndexArray;
-    function AIUsableLocations: TPlayerIndexArray;
+    function HumanUsableLocations: TKMHandIndexArray;
+    function AIUsableLocations: TKMHandIndexArray;
     property CRC: Cardinal read fCRC;
     function LocationName(aIndex: TKMHandIndex): string;
     function SizeText: string;
@@ -291,7 +291,7 @@ begin
 end;
 
 
-function TKMapInfo.HumanUsableLocations: TPlayerIndexArray;
+function TKMapInfo.HumanUsableLocations: TKMHandIndexArray;
 var
   I: Integer;
 begin
@@ -305,7 +305,7 @@ begin
 end;
 
 
-function TKMapInfo.AIUsableLocations: TPlayerIndexArray;
+function TKMapInfo.AIUsableLocations: TKMHandIndexArray;
 var
   I: Integer;
 begin
