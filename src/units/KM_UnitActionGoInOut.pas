@@ -1,7 +1,8 @@
 unit KM_UnitActionGoInOut;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils,
+uses
+  Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
   KM_Houses, KM_Units;
 

@@ -175,7 +175,7 @@ var
 implementation
 uses
   KM_Log, KM_Utils,
-  KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
+  KM_AIArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
   KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound, KM_ScriptingESA,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI;
@@ -302,7 +302,7 @@ const
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
-  PlayerEnabled: TPlayerEnabledArray;
+  PlayerEnabled: TKMHandEnabledArray;
   Parser: TMissionParserStandard;
   CampaignData: TKMemoryStream;
   CampaignDataTypeFile: UnicodeString;

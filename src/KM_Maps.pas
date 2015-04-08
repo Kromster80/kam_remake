@@ -71,8 +71,8 @@ type
     property MapFolder: TMapFolder read fMapFolder;
     property FileName: UnicodeString read fFileName;
     function FullPath(const aExt: string): string;
-    function HumanUsableLocations: TPlayerIndexArray;
-    function AIUsableLocations: TPlayerIndexArray;
+    function HumanUsableLocations: TKMHandIndexArray;
+    function AIUsableLocations: TKMHandIndexArray;
     property CRC: Cardinal read fCRC;
     function LocationName(aIndex: TKMHandIndex): string;
     function SizeText: string;
@@ -161,7 +161,8 @@ type
 
 
 implementation
-uses KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
+uses
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
 
 
 const
@@ -290,7 +291,7 @@ begin
 end;
 
 
-function TKMapInfo.HumanUsableLocations: TPlayerIndexArray;
+function TKMapInfo.HumanUsableLocations: TKMHandIndexArray;
 var
   I: Integer;
 begin
@@ -304,7 +305,7 @@ begin
 end;
 
 
-function TKMapInfo.AIUsableLocations: TPlayerIndexArray;
+function TKMapInfo.AIUsableLocations: TKMHandIndexArray;
 var
   I: Integer;
 begin
@@ -526,7 +527,6 @@ end;
 
 
 function TKMapInfo.HumanPlayerCountMP: Byte;
-var I: Integer;
 begin
   Result := HumanPlayerCount;
   //Enforce MP limit

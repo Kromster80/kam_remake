@@ -61,7 +61,8 @@ const
 
 
 implementation
-uses KM_Houses, KM_Terrain, KM_HandsCollection, KM_Utils, KM_AIFields, KM_Hand, KM_AIInfluences,
+uses
+  KM_Houses, KM_Terrain, KM_HandsCollection, KM_Utils, KM_AIFields, KM_Hand, KM_AIInfluences,
 KM_Resource, KM_ResUnits;
 
 
@@ -277,10 +278,10 @@ var
   I, K: Integer;
   Bid, BestBid: Single;
   StoneLoc: TKMPoint;
-  Tmp: TKMPointDir;
   Locs: TKMPointTagList;
   SeedLocs: TKMPointArray;
   J, M: Integer;
+  tmp: TKMPointDir;
 begin
   Result := False;
 
@@ -317,9 +318,10 @@ begin
   finally
     Locs.Free;
   end;
+
   //Make sure stonemason actually can reach some stone (avoid build-destroy loop)
   if Result then
-    if not gTerrain.FindStone(aLoc, gRes.UnitDat[ut_StoneCutter].MiningRange, KMPoint(0,0), True, Tmp) then
+    if not gTerrain.FindStone(aLoc, gRes.UnitDat[ut_StoneCutter].MiningRange, KMPoint(0,0), True, tmp) then
       Result := False;
 end;
 
@@ -400,6 +402,7 @@ begin
   end;
 
   //todo: If there's no ore AI should not keep calling this over and over again
+  // Maybe AI can cache search results for such non-replenishing resources
 
   aLoc := P;
   Result := True;
@@ -416,7 +419,7 @@ var
   I, K: Integer;
   Bid, BestBid: Single;
   SeedLocs: TKMPointArray;
-  TargetLoc, TreeLoc: TKMPoint;
+  seedLoc, TreeLoc: TKMPoint;
   Mx, My: SmallInt;
   MyForest: array [0..SEARCH_RES-1, 0..SEARCH_RES-1] of ShortInt;
 begin
@@ -425,29 +428,30 @@ begin
   SeedLocs := GetSeeds(aSeed);
   if Length(SeedLocs) = 0 then Exit;
 
-  TargetLoc := SeedLocs[KaMRandom(Length(SeedLocs))];
+  // Pick one random seed loc from given
+  seedLoc := SeedLocs[KaMRandom(Length(SeedLocs))];
 
     //todo: Rework through FindNearest to avoid roundabouts
   //Fill in MyForest map
   FillChar(MyForest[0,0], SizeOf(MyForest), #0);
-  for I := Max(TargetLoc.Y - SEARCH_RAD, 1) to Min(TargetLoc.Y + SEARCH_RAD, gTerrain.MapY - 1) do
-  for K := Max(TargetLoc.X - SEARCH_RAD, 1) to Min(TargetLoc.X + SEARCH_RAD, gTerrain.MapX - 1) do
+  for I := Max(seedLoc.Y - SEARCH_RAD, 1) to Min(seedLoc.Y + SEARCH_RAD, gTerrain.MapY - 1) do
+  for K := Max(seedLoc.X - SEARCH_RAD, 1) to Min(seedLoc.X + SEARCH_RAD, gTerrain.MapX - 1) do
   if gTerrain.ObjectIsChopableTree(K, I) then
   begin
-    Mx := (K - TargetLoc.X + SEARCH_RAD) div SEARCH_DIV;
-    My := (I - TargetLoc.Y + SEARCH_RAD) div SEARCH_DIV;
+    Mx := (K - seedLoc.X + SEARCH_RAD) div SEARCH_DIV;
+    My := (I - seedLoc.Y + SEARCH_RAD) div SEARCH_DIV;
 
     Inc(MyForest[My, Mx]);
   end;
 
   //Find cell with most trees
   BestBid := -MaxSingle;
-  TreeLoc := TargetLoc; //Init incase we cant find a spot at all
+  TreeLoc := seedLoc; //Init incase we cant find a spot at all
   for I := Low(MyForest) to High(MyForest) do
   for K := Low(MyForest[I]) to High(MyForest[I]) do
   begin
-    Mx := Round(TargetLoc.X - SEARCH_RAD + (K + 0.5) * SEARCH_DIV);
-    My := Round(TargetLoc.Y - SEARCH_RAD + (I + 0.5) * SEARCH_DIV);
+    Mx := Round(seedLoc.X - SEARCH_RAD + (K + 0.5) * SEARCH_DIV);
+    My := Round(seedLoc.Y - SEARCH_RAD + (I + 0.5) * SEARCH_DIV);
     if InRange(Mx, 1, gTerrain.MapX - 1) and InRange(My, 1, gTerrain.MapY - 1)
     and (gAIFields.Influences.AvoidBuilding[My, Mx] = 0) then
     begin
@@ -465,7 +469,7 @@ begin
   for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, gTerrain.MapX - 1) do
     if gHands[fOwner].CanAddHousePlanAI(K, I, aHouse, True) then
     begin
-      Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 5;
+      Bid := KMLength(KMPoint(K,I), seedLoc) + KaMRandom * 5;
       if (Bid < BestBid) then
       begin
         aLoc := KMPoint(K,I);

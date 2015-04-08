@@ -1,11 +1,12 @@
 unit KM_RenderControl;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, ExtCtrls, Forms, KromOGLUtils, Types
-{$IFDEF MSWindows} , Windows, dglOpenGL  {$ENDIF}
-{$IFDEF Unix} , OpenGLContext, dglOpenGL {$ENDIF}
-{$IFDEF WDC}, Messages {$ENDIF}
-;
+uses
+  Classes, Controls, ExtCtrls, Forms, KromOGLUtils, Types
+  {$IFDEF MSWindows} , Windows, dglOpenGL  {$ENDIF}
+  {$IFDEF Unix} , OpenGLContext, dglOpenGL {$ENDIF}
+  {$IFDEF WDC}, Messages {$ENDIF}
+  ;
 
 type
   TResizeEvent = procedure(aWidth, aHeight: Integer) of object;
@@ -44,9 +45,8 @@ type
   end;
 
 
-
 implementation
-     
+
 
 { TKMRenderControl }
 

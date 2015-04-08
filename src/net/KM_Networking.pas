@@ -252,7 +252,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
+uses
+  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
 
 
 { TKMNetworking }
@@ -842,7 +843,7 @@ end;
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
 var
-  HumanUsableLocs, AIUsableLocs: TPlayerIndexArray;
+  HumanUsableLocs, AIUsableLocs: TKMHandIndexArray;
   ErrorMessage: UnicodeString;
   M: TKMemoryStream;
   CheckMapInfo: TKMapInfo;

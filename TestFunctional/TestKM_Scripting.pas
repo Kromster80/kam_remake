@@ -19,7 +19,8 @@ type
 
 
 implementation
-uses KM_Maps;
+uses
+  KM_Maps;
 
 
 procedure TestKMScripting.SetUp;
@@ -27,7 +28,7 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fScripting := TKMScripting.Create;
+  fScripting := TKMScripting.Create(nil);
 end;
 
 

@@ -1,7 +1,8 @@
 unit KM_PerfLog;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils;
+uses
+  Classes, KromUtils, SysUtils;
 
 
 type

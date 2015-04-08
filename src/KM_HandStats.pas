@@ -1,7 +1,8 @@
 unit KM_HandStats;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses
+  Classes, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults,
   KM_ResHouses, KM_ResWares;
 
@@ -121,7 +122,8 @@ type
 
 
 implementation
-uses KM_Resource;
+uses
+  KM_Resource;
 
 
 const

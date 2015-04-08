@@ -43,7 +43,8 @@ type
 
 
 implementation
-uses KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Sound, KM_ResSound;
+uses
+  KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Sound, KM_ResSound;
 
 const
   FLAG_LABEL_OFFSET_X = 10;

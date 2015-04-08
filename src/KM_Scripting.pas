@@ -70,7 +70,8 @@ const
 
 
 implementation
-uses KM_Log, KM_Game, KromUtils;
+uses
+  KM_Log, KM_Game, KromUtils;
 
 const
   SCRIPT_LOG_EXT = '.LOG.txt';

@@ -152,7 +152,8 @@ const
 
 
 implementation
-uses KromUtils, KM_ResTexts;
+uses
+  KromUtils, KM_ResTexts;
 
 
 { TKMUnitsDatClass }

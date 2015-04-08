@@ -1,7 +1,8 @@
 unit KM_TerrainSelection;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, Clipbrd, KromUtils,
+uses
+  Classes, Math, Clipbrd, KromUtils,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_CommonClasses, KM_Points, KM_Terrain, KM_TerrainPainter, KM_RenderPool;
 
@@ -51,7 +52,8 @@ var
 
 
 implementation
-uses KM_GameCursor, KM_RenderAux;
+uses
+  KM_GameCursor, KM_RenderAux;
 
 
 { TKMSelection }

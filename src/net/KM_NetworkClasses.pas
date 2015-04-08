@@ -30,7 +30,8 @@ type
 
 
 implementation
-uses VerySimpleXML, KM_Utils;
+uses
+  VerySimpleXML, KM_Utils;
 
 
 { TMPGameInfo }

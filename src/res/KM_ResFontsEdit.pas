@@ -46,7 +46,8 @@ type
 
 
 implementation
-uses KM_PNG;
+uses
+  KM_PNG;
 
 const
   BG_COLOR = $FFAF6B6B;

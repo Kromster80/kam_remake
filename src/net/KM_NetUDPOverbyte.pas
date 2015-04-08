@@ -1,7 +1,8 @@
 unit KM_NetUDPOverbyte;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils, OverbyteIcsWSocket, OverbyteIcsWinSock;
+uses
+  Classes, Math, SysUtils, OverbyteIcsWSocket, OverbyteIcsWinSock;
 
 
 type

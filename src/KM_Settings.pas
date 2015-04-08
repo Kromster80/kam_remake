@@ -1,7 +1,8 @@
 ﻿unit KM_Settings;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_Defaults, INIfiles;
+uses
+  Classes, SysUtils, Math, KM_Defaults, INIfiles;
 
 
 type
@@ -136,7 +137,8 @@ type
 
 
 implementation
-uses KM_Log;
+uses
+  KM_Log;
 
 
 { TMainSettings }

@@ -1,7 +1,8 @@
 unit KM_UnitTaskDelivery;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses
+  Classes, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Units, KM_ResWares;
 
@@ -32,7 +33,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
+uses
+  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
 
 
 { TTaskDeliver }

@@ -1,7 +1,8 @@
 unit KM_AIDefensePos;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils,
+uses
+  Classes, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_UnitGroups, KM_Points;
 
 
@@ -79,7 +80,8 @@ type
 
 
 implementation
-uses KM_Game, KM_HandsCollection, KM_RenderAux;
+uses
+  KM_Game, KM_HandsCollection, KM_RenderAux;
 
 
 { TAIDefencePosition }

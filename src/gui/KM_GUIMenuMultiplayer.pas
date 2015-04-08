@@ -88,7 +88,8 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp, KM_ResLocales,
+uses
+  KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp, KM_ResLocales,
   KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, KM_ResFonts;
 
 

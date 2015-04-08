@@ -15,15 +15,16 @@ interface
   {$DEFINE USELIBZPLAY}
 {$ENDIF}
 
-uses Classes, SysUtils, KromUtils, Math, Types,
-     KM_Defaults
-     {$IFDEF USEBASS}     , Bass {$ENDIF}
-     {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
-     ;
-
-type TFadeState = (fsNone, fsFadeOut, fsFadeIn, fsFaded);
+uses
+  Classes, SysUtils, KromUtils, Math, Types,
+  KM_Defaults
+  {$IFDEF USEBASS}     , Bass {$ENDIF}
+  {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
+  ;
 
 type
+  TFadeState = (fsNone, fsFadeOut, fsFadeIn, fsFaded);
+
   TMusicLib = class
   private
     fMusicCount: Integer;
@@ -68,7 +69,8 @@ type
 
 
 implementation
-uses KM_Log, KM_Utils;
+uses
+  KM_Log, KM_Utils;
 
 const FADE_TIME = 2000; //Time that a fade takes to occur in ms
 

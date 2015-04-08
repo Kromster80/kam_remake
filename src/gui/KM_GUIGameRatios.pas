@@ -35,7 +35,8 @@ type
 
 
 implementation
-uses KM_GameInputProcess, KM_RenderUI, KM_HandsCollection, KM_ResTexts, KM_Game,
+uses
+  KM_GameInputProcess, KM_RenderUI, KM_HandsCollection, KM_ResTexts, KM_Game,
   KM_Resource, KM_ResFonts, KM_ResWares, KM_Hand;
 
 

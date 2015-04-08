@@ -1,7 +1,8 @@
 unit KM_Deliveries;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, Math,
+uses
+  Classes, SysUtils, KromUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Units, KM_ResWares;
 

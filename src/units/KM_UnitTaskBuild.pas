@@ -1,7 +1,8 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils,
+uses
+  SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Terrain, KM_Units, KM_ResHouses;
 
@@ -9,9 +10,9 @@ uses SysUtils,
 //Do the building
 type
   TTaskBuild = class(TUnitTask)
-    public
-      procedure CancelThePlan; virtual; abstract;
-    end;
+  public
+    procedure CancelThePlan; virtual; abstract;
+  end;
 
   TTaskBuildRoad = class(TTaskBuild)
   private
@@ -117,7 +118,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
+uses
+  KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
 
 
 { TTaskBuildRoad }
@@ -201,7 +203,12 @@ begin
          Thought := th_None;
          gTerrain.SetTileLock(fLoc, tlRoadWork);
          TileLockSet := True;
+
          CancelThePlan;
+
+         gHands[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, diHigh4);
+         DemandSet := true;
+
          SetActionLockedStay(11,ua_Work1,false);
        end;
     2: begin
@@ -212,8 +219,6 @@ begin
     3: begin
          gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
-         gHands[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, diHigh4);
-         DemandSet := true;
        end;
     4: begin //This step is repeated until Serf brings us some stone
          SetActionLockedStay(30,ua_Work1);
@@ -330,9 +335,15 @@ begin
    1: begin
         Thought := th_None;
         gTerrain.SetTileLock(fLoc, tlFieldWork);
-        gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        CancelThePlan;
         TileLockSet := True;
+
+        CancelThePlan;
+
+        gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+
+        gHands[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, diHigh4);
+        DemandSet := true;
+
         SetActionLockedStay(12*4,ua_Work1,false);
       end;
    2: begin
@@ -342,8 +353,6 @@ begin
    3: begin
         gTerrain.IncDigState(fLoc);
         SetActionLockedStay(24,ua_Work1,false);
-        gHands[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, diHigh4);
-        DemandSet := true;
       end;
    4: begin
         gTerrain.ResetDigState(fLoc);

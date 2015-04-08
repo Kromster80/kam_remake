@@ -1,7 +1,8 @@
 unit KM_NetUDP;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils, KM_CommonClasses, KM_Defaults
+uses
+  Classes, Math, SysUtils, KM_CommonClasses, KM_Defaults
   {$IFDEF WDC} ,KM_NetUDPOverbyte {$ENDIF}
   {$IFDEF FPC} ,KM_NetUDPLNet {$ENDIF}
   ;

@@ -1,7 +1,8 @@
 unit KM_HTTPClientLNet;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, lNet, URLUtils, lHTTP;
+uses
+  Classes, SysUtils, lNet, URLUtils, lHTTP;
 
 type
   TKMHTTPClientLNet = class

@@ -153,7 +153,8 @@ type
 
 
 implementation
-uses KM_Utils;
+uses
+  KM_Utils;
 
 
 { ELocError }

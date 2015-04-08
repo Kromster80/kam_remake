@@ -1,7 +1,8 @@
 unit KM_TerrainDeposits;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils,
+uses
+  Classes, Math, SysUtils,
   KM_Defaults, KM_Points, KM_Terrain, KM_Units;
 
 

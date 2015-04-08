@@ -1,7 +1,8 @@
 unit KM_TerrainFinder;
 {$I KaM_Remake.inc}
 interface
-uses Math, SysUtils,
+uses
+  Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
@@ -46,7 +47,8 @@ type
 
 
 implementation
-uses KM_ResMapElements, KM_Terrain;
+uses
+  KM_ResMapElements, KM_Terrain;
 
 
 { TKMTerrainFinder }

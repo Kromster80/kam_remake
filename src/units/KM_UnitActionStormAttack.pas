@@ -1,7 +1,8 @@
 unit KM_UnitActionStormAttack;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math,
+uses
+  Classes, Math,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
   KM_Units;
 
@@ -29,7 +30,8 @@ type
   end;
 
 implementation
-uses KM_Resource, KM_ResUnits, KM_Units_Warrior;
+uses
+  KM_Resource, KM_ResUnits, KM_Units_Warrior;
 
 
 const

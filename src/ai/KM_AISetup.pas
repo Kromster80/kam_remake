@@ -1,8 +1,9 @@
 unit KM_AISetup;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
-    KM_CommonClasses, KM_Points, KM_Defaults;
+uses
+  Classes, KromUtils, Math, SysUtils,
+  KM_CommonClasses, KM_Points, KM_Defaults;
 
 
 type

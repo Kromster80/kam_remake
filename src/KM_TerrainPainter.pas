@@ -1,7 +1,8 @@
 unit KM_TerrainPainter;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
+uses
+  Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain;
 
@@ -59,7 +60,6 @@ type
   public
     Land2: array of array of TKMPainterTile;
     RandomizeTiling: Boolean;
-    constructor Create;
     procedure InitEmpty;
     procedure LoadFromFile(aFileName: UnicodeString);
     procedure SaveToFile(aFileName: UnicodeString);
@@ -151,17 +151,11 @@ const
 
 
 implementation
-uses KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
+uses
+  KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
 
 
 { TKMTerrainPainter }
-constructor TKMTerrainPainter.Create;
-begin
-  inherited;
-
-end;
-
-
 procedure TKMTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TKMTerrainKind);
 begin
   if not gTerrain.TileInMapCoords(X, Y) then

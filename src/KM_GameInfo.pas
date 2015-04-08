@@ -38,7 +38,7 @@ type
     function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Byte;
     function HumanCount: Byte;
-    function HumanUsableLocations: TPlayerIndexArray;
+    function HumanUsableLocations: TKMHandIndexArray;
     function SizeText: UnicodeString;
     function MissionModeText: UnicodeString;
     function GetTimeText: UnicodeString;
@@ -49,7 +49,8 @@ type
 
 
 implementation
-uses KM_Resource, KM_ResTexts, KM_Utils;
+uses
+  KM_Resource, KM_ResTexts, KM_Utils;
 
 
 { TKMGameInfo }
@@ -157,7 +158,7 @@ begin
 end;
 
 
-function TKMGameInfo.HumanUsableLocations: TPlayerIndexArray;
+function TKMGameInfo.HumanUsableLocations: TKMHandIndexArray;
 var
   I: Integer;
 begin

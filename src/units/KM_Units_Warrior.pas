@@ -1,7 +1,8 @@
 unit KM_Units_Warrior;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, Math,
+uses
+  Classes, SysUtils, KromUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Terrain, KM_Units;
 
@@ -94,7 +95,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
+uses
+  KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResUnits, KM_Hand,
   KM_ResWares, KM_Game, KM_ResHouses;

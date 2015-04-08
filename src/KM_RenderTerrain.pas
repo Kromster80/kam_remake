@@ -49,7 +49,8 @@ type
 
 
 implementation
-uses KM_Render;
+uses
+  KM_Render;
 
 
 constructor TRenderTerrain.Create;

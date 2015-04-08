@@ -1,12 +1,15 @@
 unit KM_AIAttacks;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
-    KM_CommonClasses, KM_Defaults, KM_Points;
+uses
+  Classes, KromUtils, Math, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 type
-  TAIAttackType = (aat_Once,       //Attack will occur once (after the set time has passed and if they have enough troops
-                   aat_Repeating); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+  TAIAttackType = (
+    aat_Once,     // Attack will occur once (after the set time has passed and if they have enough troops
+    aat_Repeating // Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+  );
 
 const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
   RemakeAttackType: array [0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
@@ -132,7 +135,8 @@ end;
 
 
 procedure TAIAttacks.Save(SaveStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   SaveStream.WriteA('AIAttacks');
   SaveStream.Write(fCount);
@@ -142,7 +146,8 @@ end;
 
 
 procedure TAIAttacks.Load(LoadStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   LoadStream.ReadAssert('AIAttacks');
   LoadStream.Read(fCount);

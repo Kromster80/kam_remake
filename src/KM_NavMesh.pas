@@ -69,7 +69,8 @@ type
 
 
 implementation
-uses KM_Outline, KM_HandsCollection, KM_RenderAux, KM_Terrain;
+uses
+  KM_Outline, KM_HandsCollection, KM_RenderAux, KM_Terrain;
 
 
 { TKMNavMesh }

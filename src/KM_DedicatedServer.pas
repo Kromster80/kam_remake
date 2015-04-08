@@ -40,7 +40,8 @@ type
 
 
 implementation
-uses KM_Utils;
+uses
+  KM_Utils;
 
   //Enforce a minimum so our master server doesn't get spammed
   const MINIMUM_ANNOUNCE_INTERVAL = 180;

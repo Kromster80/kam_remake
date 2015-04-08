@@ -120,7 +120,8 @@ const
 
 
 implementation
-uses KM_ResTexts;
+uses
+  KM_ResTexts;
 
 
 { TKMWaresList }

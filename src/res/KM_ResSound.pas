@@ -1,7 +1,8 @@
 unit KM_ResSound;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, TypInfo,
+uses
+  Classes, SysUtils, TypInfo,
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   KromUtils, KM_Defaults;
 
@@ -138,7 +139,8 @@ type
 
 
 implementation
-uses KM_CommonClasses;
+uses
+  KM_CommonClasses;
 
 
 const

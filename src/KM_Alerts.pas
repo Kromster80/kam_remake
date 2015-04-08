@@ -1,7 +1,8 @@
 unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses
+  Classes, SysUtils,
   KM_Defaults, KM_Pics, KM_Points, KM_ResSound, KM_Viewport;
 
 type
@@ -65,7 +66,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar, KM_Hand;
+uses
+  KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar, KM_Hand;
 
 
 type

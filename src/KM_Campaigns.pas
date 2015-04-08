@@ -95,7 +95,8 @@ const
   NO_CAMPAIGN: TKMCampaignId = (0, 0, 0);
 
 implementation
-uses KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
+uses
+  KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
 
 
 const

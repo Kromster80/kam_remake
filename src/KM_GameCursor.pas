@@ -1,6 +1,7 @@
 unit KM_GameCursor;
 interface
-uses Classes, KM_Defaults, KM_Points;
+uses
+  Classes, KM_Defaults, KM_Points;
 
 
 var

@@ -121,7 +121,8 @@ const
 
 
 implementation
-  uses KM_Utils, KM_Log;
+uses
+  KM_Utils, KM_Log;
 
 
 var

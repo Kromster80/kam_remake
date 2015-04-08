@@ -1,7 +1,8 @@
 unit KM_Hungarian;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_CommonClasses, KM_CommonTypes, KM_Points;
+uses
+  Classes, SysUtils, Math, KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
 type

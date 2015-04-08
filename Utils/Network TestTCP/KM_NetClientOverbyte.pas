@@ -1,21 +1,22 @@
 unit KM_NetClientOverbyte;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, WSocket, WinSock;
+uses
+  Classes, SysUtils, WSocket, WinSock;
 
 
 { This unit knows nothing about KaM, it's just a puppet in hands of KM_ClientControl,
 doing all the low level work on TCP. So we can replace this unit with other TCP client
-without KaM even noticing. }
+without KaM even noticing.}
 type
-  TNotifyDataEvent = procedure(aData:pointer; aLength:cardinal)of object;
+  TNotifyDataEvent = procedure (aData: Pointer; aLength: Cardinal) of object;
 
   TKMNetClientOverbyte = class
   private
-    fSocket:TWSocket;
-    fOnError:TGetStrProc;
-    fOnConnectSucceed:TNotifyEvent;
-    fOnConnectFailed:TGetStrProc;
+    fSocket: TWSocket;
+    fOnError: TGetStrProc;
+    fOnConnectSucceed: TNotifyEvent;
+    fOnConnectFailed: TGetStrProc;
     fOnSessionDisconnected:TNotifyEvent;
     fOnRecieveData:TNotifyDataEvent;
     procedure Connected(Sender: TObject; Error: Word);
@@ -24,15 +25,15 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function MyIPString:string;  
-    procedure ConnectTo(const aAddress:string; const aPort:string);
+    function MyIPString:string;
+    procedure ConnectTo(const aAddress: string; const aPort: string);
     procedure Disconnect;
-    procedure SendData(aData:pointer; aLength:cardinal);
-    property OnError:TGetStrProc write fOnError;
-    property OnConnectSucceed:TNotifyEvent write fOnConnectSucceed;
-    property OnConnectFailed:TGetStrProc write fOnConnectFailed;
-    property OnSessionDisconnected:TNotifyEvent write fOnSessionDisconnected;
-    property OnRecieveData:TNotifyDataEvent write fOnRecieveData;
+    procedure SendData(aData: Pointer; aLength: Cardinal);
+    property OnError: TGetStrProc write fOnError;
+    property OnConnectSucceed: TNotifyEvent write fOnConnectSucceed;
+    property OnConnectFailed: TGetStrProc write fOnConnectFailed;
+    property OnSessionDisconnected: TNotifyEvent write fOnSessionDisconnected;
+    property OnRecieveData: TNotifyDataEvent write fOnRecieveData;
   end;
 
 
@@ -54,7 +55,7 @@ begin
 end;
 
 
-function TKMNetClientOverbyte.MyIPString:string;
+function TKMNetClientOverbyte.MyIPString: string;
 begin
   if LocalIPList.Count >= 1 then
     Result := LocalIPList[0] //First address should be ours
@@ -63,7 +64,7 @@ begin
 end;
 
 
-procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:string);
+procedure TKMNetClientOverbyte.ConnectTo(const aAddress: string; const aPort: string);
 begin
   fSocket := TWSocket.Create(nil);
   fSocket.Proto     := 'tcp';
@@ -83,7 +84,7 @@ begin
 end;
 
 
-procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
+procedure TKMNetClientOverbyte.SendData(aData: Pointer; aLength: Cardinal);
 begin
   fSocket.Send(aData, aLength);
 end;
