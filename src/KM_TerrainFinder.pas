@@ -16,7 +16,7 @@ type
     fMaxCount: Word;
     BestDist: Byte;
     BestLoc: TKMPoint;
-    Visited: array of array of Byte;
+    fVisited: array of array of Byte;
 
     //Temp for list that we need to fill
     fLocs: TKMPointTagList;
@@ -59,7 +59,7 @@ begin
 
   fMapX := gTerrain.MapX;
   fMapY := gTerrain.MapY;
-  SetLength(Visited, fMapY+1, fMapX+1);
+  SetLength(fVisited, fMapY+1, fMapX+1);
 end;
 
 
@@ -136,12 +136,12 @@ end;
 
 procedure TKMTerrainFinderCommon.InitVisited;
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
-  //Initially all tiles are unexplored
+  // Initially all tiles are unexplored (iterating 1..N)
   for I := 1 to fMapY do
   for K := 1 to fMapX do
-    Visited[I,K] := 255;
+    fVisited[I, K] := 255;
 end;
 
 
@@ -150,7 +150,7 @@ procedure TKMTerrainFinderCommon.UseFinder;
   procedure Visit(const X,Y: Word; aWalkDistance: Byte);
   begin
     //If new path is longer than old we don't care about it
-    if (aWalkDistance >= Visited[Y,X]) then Exit;
+    if (aWalkDistance >= fVisited[Y,X]) then Exit;
 
     //Check if we can walk through this tile
     if not CanWalkHere(X,Y) then Exit;
@@ -160,7 +160,7 @@ procedure TKMTerrainFinderCommon.UseFinder;
       SaveTile(X,Y,aWalkDistance);
 
     //Mark this tile as visited
-    Visited[Y,X] := aWalkDistance;
+    fVisited[Y,X] := aWalkDistance;
 
     //Run again on surrounding tiles
     //We check only 4 neighbors, because that x6 times faster than 8 neighbors
@@ -195,7 +195,7 @@ end;
 procedure TKMTerrainFinderCommon.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
 const
   STRAIGHT_COST = 5;
-  DIAG_COST = Round(STRAIGHT_COST * 1.41);
+  DIAG_COST = 7; // 5 * 1.41
   MAX_RAD = (255 - DIAG_COST) div STRAIGHT_COST;
 
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
@@ -208,14 +208,14 @@ const
     not (aPass in gTerrain.Land[Y,X].Passability) then Exit;
     Xt := aStart.X - X + aRadius;
     Yt := aStart.Y - Y + aRadius;
-    if (aWalkDistance >= Visited[Yt,Xt]) then Exit;
+    if (aWalkDistance >= fVisited[Yt,Xt]) then Exit;
 
     //Only add to results once (255 is the intial value)
-    if Visited[Yt,Xt] = 255 then
+    if fVisited[Yt,Xt] = 255 then
       aList.Add(KMPoint(X,Y));
 
     //Mark this tile as visited
-    Visited[Yt,Xt] := aWalkDistance;
+    fVisited[Yt,Xt] := aWalkDistance;
 
     //Run again on surrounding tiles
     //We use +10 for straights and +14 for diagonals rather than +1 and +1.41 then div by 10 in
@@ -242,23 +242,25 @@ const
     end;
   end;
 
-var I,K: Integer;
+var
+  I, K: Integer;
 begin
   if USE_WALKING_DISTANCE then
   begin
     //Because we use 10 for straight and 14 for diagonal in byte storage 24 is the maximum allowed
     Assert(aRadius <= MAX_RAD, 'GetTilesWithinDistance can''t handle radii > ' + IntToStr(MAX_RAD));
-    SetLength(Visited, aRadius * 2 + 1, aRadius * 2 + 1);
+
+    SetLength(fVisited, aRadius * 2 + 1, aRadius * 2 + 1);
     for I := 0 to aRadius * 2 do
       for K := 0 to aRadius * 2 do
-        Visited[I, K] := 255; //Maximum distance so we will always prefer the route we find
+        fVisited[I, K] := 255; //Maximum distance so we will always prefer the route we find
 
     Visit(aStart.X, aStart.Y, 0); //Starting tile is at walking distance zero
   end
   else
   begin
-    for I := max(aStart.Y-aRadius, 1) to min(aStart.Y+aRadius, fMapY-1) do
-      for K := max(aStart.X-aRadius, 1) to min(aStart.X+aRadius, fMapX-1) do
+    for I := Max(aStart.Y-aRadius, 1) to Min(aStart.Y+aRadius, fMapY-1) do
+      for K := Max(aStart.X-aRadius, 1) to Min(aStart.X+aRadius, fMapX-1) do
         if (aPass in gTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
           aList.Add(KMPoint(K,I));
   end;

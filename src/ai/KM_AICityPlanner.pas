@@ -63,7 +63,7 @@ const
 implementation
 uses
   KM_Houses, KM_Terrain, KM_HandsCollection, KM_Utils, KM_AIFields, KM_Hand, KM_AIInfluences,
-KM_Resource, KM_ResUnits;
+  KM_Resource, KM_ResUnits;
 
 
 { TKMCityPlanner }
@@ -519,7 +519,8 @@ end;
 
 
 function TKMTerrainFinderCity.CanUse(const X, Y: Word): Boolean;
-var I,K: Integer;
+var
+  I, K: Integer;
 begin
   case FindType of
     fnHouse:  Result := gHands[fOwner].CanAddHousePlanAI(X, Y, HouseType, True);
