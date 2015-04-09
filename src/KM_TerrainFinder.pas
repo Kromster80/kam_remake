@@ -30,7 +30,6 @@ type
     function CanUse(const X,Y: Word): Boolean; virtual; abstract;
   public
     constructor Create;
-    destructor Destroy; override;
     function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean; overload;
     procedure FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure Save(SaveStream: TKMemoryStream); virtual;
@@ -61,13 +60,6 @@ begin
   fMapX := gTerrain.MapX;
   fMapY := gTerrain.MapY;
   SetLength(fVisited, fMapY+1, fMapX+1);
-end;
-
-
-destructor TKMTerrainFinderCommon.Destroy;
-begin
-
-  inherited;
 end;
 
 
