@@ -153,11 +153,11 @@ procedure TKMTerrainFinderCommon.UseFinder;
     if (aWalkDistance >= fVisited[Y,X]) then Exit;
 
     //Check if we can walk through this tile
-    if not CanWalkHere(X,Y) then Exit;
+    if not CanWalkHere(X, Y) then Exit;
 
     //Check if we can take this tile
-    if CanUse(X,Y) then
-      SaveTile(X,Y,aWalkDistance);
+    if CanUse(X, Y) then
+      SaveTile(X, Y, aWalkDistance);
 
     //Mark this tile as visited
     fVisited[Y,X] := aWalkDistance;
@@ -167,10 +167,10 @@ procedure TKMTerrainFinderCommon.UseFinder;
     //and we don't really care for perfect circle test
     if (aWalkDistance + 1 <= BestDist) then
     begin
-      if X-1 >= 1 then     Visit(X-1, Y, aWalkDistance+1);
-      if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+1);
-      if Y+1 <= fMapY then  Visit(X, Y+1, aWalkDistance+1);
-      if X+1 <= fMapX then  Visit(X+1, Y, aWalkDistance+1);
+      if X-1 >=     1 then Visit(X-1, Y, aWalkDistance+1);
+      if Y-1 >=     1 then Visit(X, Y-1, aWalkDistance+1);
+      if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance+1);
+      if X+1 <= fMapX then Visit(X+1, Y, aWalkDistance+1);
     end;
   end;
 var
