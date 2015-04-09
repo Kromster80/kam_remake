@@ -33,7 +33,6 @@ type
     destructor Destroy; override;
     function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean; overload;
     procedure FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
-    procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
   end;
@@ -44,6 +43,8 @@ type
   protected
     function CanWalkHere(const X,Y: Word): Boolean; override;
     function CanUse(const X,Y: Word): Boolean; override;
+  public
+    procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
   end;
 
 
@@ -190,9 +191,35 @@ begin
 end;
 
 
+procedure TKMTerrainFinderCommon.Save(SaveStream: TKMemoryStream);
+begin
+  //Everything we have so far is Temp
+end;
+
+
+procedure TKMTerrainFinderCommon.Load(LoadStream: TKMemoryStream);
+begin
+  //Everything we have so far is Temp
+end;
+
+
+{ TKMTerrainFinder }
+function TKMTerrainFinder.CanUse(const X, Y: Word): Boolean;
+begin
+  //We don't need to check anything extra in common case
+  Result := True;
+end;
+
+
+function TKMTerrainFinder.CanWalkHere(const X, Y: Word): Boolean;
+begin
+  Result := (fPassability * gTerrain.Land[Y,X].Passability <> []);
+end;
+
+
 //Fills aList with all of the tiles within aRadius of aStart with aPass using either a
 //simple radius or a floodfill walking distance calculation depending on USE_WALKING_DISTANCE
-procedure TKMTerrainFinderCommon.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
+procedure TKMTerrainFinder.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
 const
   STRAIGHT_COST = 5;
   DIAG_COST = 7; // 5 * 1.41
@@ -267,32 +294,6 @@ begin
         if (aPass in gTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
           aList.Add(KMPoint(K,I));
   end;
-end;
-
-
-procedure TKMTerrainFinderCommon.Save(SaveStream: TKMemoryStream);
-begin
-  //Everything we have so far is Temp
-end;
-
-
-procedure TKMTerrainFinderCommon.Load(LoadStream: TKMemoryStream);
-begin
-  //Everything we have so far is Temp
-end;
-
-
-{ TKMTerrainFinder }
-function TKMTerrainFinder.CanUse(const X, Y: Word): Boolean;
-begin
-  //We don't need to check anything extra in common case
-  Result := True;
-end;
-
-
-function TKMTerrainFinder.CanWalkHere(const X, Y: Word): Boolean;
-begin
-  Result := (fPassability * gTerrain.Land[Y,X].Passability <> []);
 end;
 
 
