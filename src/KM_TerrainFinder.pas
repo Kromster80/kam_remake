@@ -221,7 +221,7 @@ const
     fVisited[visitY, visitX] := aWalkDistance;
 
     //Run again on surrounding tiles
-    //We use +10 for straights and +14 for diagonals rather than +1 and +1.41 then div by 10 in
+    //We use +5 for straights and +7 for diagonals rather than +1 and +1.41 then div by 5 in
     //calculations so we can still store it as bytes to save space and time
     if X-1 >= 1 then
     begin
