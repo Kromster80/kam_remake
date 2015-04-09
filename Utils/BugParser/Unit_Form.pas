@@ -20,7 +20,8 @@ type
     procedure SortStringGrid(var aStringGrid: TStringGrid; aColumn: Integer);
   end;
 
-  TStringArray = array [0..5] of string;
+  TBugInfo = (biNum, biDate, biException, biMethod, biComments, biEmail, biZip);
+  TStringArray = array [TBugInfo] of string;
 
 
 var
@@ -55,16 +56,14 @@ end;
 procedure TForm1.ScanFolder(aPath: string);
   function ExtractInfo(aFilename: string): TStringArray;
   var
+    bi: TBugInfo;
     S: TStringList;
     SS: string;
     I, K: Integer;
   begin
-    Result[0] := '';
-    Result[1] := '';
-    Result[2] := '';
-    Result[3] := '';
-    Result[4] := '';
-    Result[5] := '';
+    for bi := Low(TBugInfo) to High(TBugInfo) do
+      Result[bi] := '';
+
     S := TStringList.Create;
     S.LoadFromFile(aFilename);
     SS := S.Text;
@@ -76,7 +75,7 @@ procedure TForm1.ScanFolder(aPath: string);
       Inc(I, 20);
       K := PosEx(#10, SS, I);
       if K > I then
-        Result[0] := Copy(SS, I, K-I-1);
+        Result[biDate] := Copy(SS, I, K-I-1);
     end;
 
     // Exception text
@@ -86,7 +85,17 @@ procedure TForm1.ScanFolder(aPath: string);
       Inc(I, 20);
       K := PosEx(#10, SS, I);
       if K > I then
-        Result[1] := Copy(SS, I, K-I-1);
+        Result[biException] := Copy(SS, I, K-I-1);
+    end;
+
+    // Method
+    I := Pos('TKM', SS);
+    if I <> 0 then
+    begin
+      //Inc(I, 20);
+      K := PosEx(#10, SS, I);
+      if K > I then
+        Result[biMethod] := Copy(SS, I, K-I-1);
     end;
 
     // Additional information from user
@@ -96,7 +105,7 @@ procedure TForm1.ScanFolder(aPath: string);
       Inc(I, 12);
       K := PosEx(#10, SS, I);
       if K > I then
-        Result[2] := Copy(SS, I, K-I-1);
+        Result[biComments] := Copy(SS, I, K-I-1);
     end;
 
     //Contact email
@@ -106,7 +115,7 @@ procedure TForm1.ScanFolder(aPath: string);
       Inc(I, 20);
       K := PosEx(#10, SS, I);
       if K > I then
-        Result[3] := Copy(SS, I, K-I-1);
+        Result[biEmail] := Copy(SS, I, K-I-1);
     end;
 
     //Link to crashreport
@@ -115,30 +124,32 @@ procedure TForm1.ScanFolder(aPath: string);
     begin
       K := PosEx('.zip', SS, I);
       if K > I then
-        Result[4] := Copy(SS, I, K-I+4);
+        Result[biZip] := Copy(SS, I, K-I+4);
     end;
   end;
 var
   SearchRec: TSearchRec;
-  I: Integer;
   StringInfo: TStringArray;
+  bi: TBugInfo;
 begin
   if not DirectoryExists(aPath) then Exit;
 
-  StringGrid1.ColCount := 10;
+  StringGrid1.ColCount := 7;
   StringGrid1.ColWidths[0] := 40;
   StringGrid1.ColWidths[1] := 200;
   StringGrid1.ColWidths[2] := 300;
   StringGrid1.ColWidths[3] := 300;
-  StringGrid1.ColWidths[4] := 200;
-  StringGrid1.ColWidths[5] := 350;
+  StringGrid1.ColWidths[4] := 300;
+  StringGrid1.ColWidths[5] := 200;
+  StringGrid1.ColWidths[6] := 350;
 
   StringGrid1.Cols[0].Text := '#';
   StringGrid1.Cols[1].Text := 'Timestamp';
   StringGrid1.Cols[2].Text := 'Exception';
-  StringGrid1.Cols[3].Text := 'Description';
-  StringGrid1.Cols[4].Text := 'Contact';
-  StringGrid1.Cols[5].Text := 'Link';
+  StringGrid1.Cols[3].Text := 'Method';
+  StringGrid1.Cols[4].Text := 'Description';
+  StringGrid1.Cols[5].Text := 'Contact';
+  StringGrid1.Cols[6].Text := 'Link';
 
   FindFirst(aPath + '*.eml', faAnyFile - faDirectory, SearchRec);
   repeat
@@ -147,8 +158,8 @@ begin
     StringGrid1.RowCount := StringGrid1.RowCount + 1;
     StringGrid1.Cells[0, StringGrid1.RowCount-1] := IntToStr(StringGrid1.RowCount-1);
 
-    for I := 0 to High(StringInfo) do
-      StringGrid1.Cells[I+1, StringGrid1.RowCount-1] := StringInfo[I];
+    for bi := biDate to High(TBugInfo) do
+      StringGrid1.Cells[Byte(bi), StringGrid1.RowCount-1] := StringInfo[bi];
 
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
