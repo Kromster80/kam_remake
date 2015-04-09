@@ -213,7 +213,7 @@ const
     visitY := aStart.Y - Y + aRadius;
     if (aWalkDistance >= fVisited[visitY, visitX]) then Exit;
 
-    //Only add to results once (255 is the intial value)
+    //Only add to results once (255 is the initial value)
     if fVisited[visitY, visitX] = 255 then
       aList.Add(KMPoint(X, Y));
 
