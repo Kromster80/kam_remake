@@ -232,7 +232,7 @@ const
         Visit(X-1,Y+1, aWalkDistance + DIAG_COST);
     end;
 
-    if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance + STRAIGHT_COST);
+    if Y-1 >=     1 then Visit(X, Y-1, aWalkDistance + STRAIGHT_COST);
     if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance + STRAIGHT_COST);
 
     if X+1 <= fMapX then
