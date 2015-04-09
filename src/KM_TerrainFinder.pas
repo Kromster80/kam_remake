@@ -200,22 +200,25 @@ const
 
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
   procedure Visit(X,Y: Word; aWalkDistance: Byte);
-  var Xt, Yt: Word;
+  var
+    visitX, visitY: Word;
   begin
     //Test whether this tile is valid and exit immediately if not
-    //Multiply the radius by 10 because of diagonal approximation (straight=10, diagonal=14)
-    if (aWalkDistance > aRadius * STRAIGHT_COST) or
-    not (aPass in gTerrain.Land[Y,X].Passability) then Exit;
-    Xt := aStart.X - X + aRadius;
-    Yt := aStart.Y - Y + aRadius;
-    if (aWalkDistance >= fVisited[Yt,Xt]) then Exit;
+    //Multiply the radius because of diagonal approximation (straight=5, diagonal=7)
+    if (aWalkDistance > aRadius * STRAIGHT_COST)
+    or not (aPass in gTerrain.Land[Y,X].Passability) then
+      Exit;
+
+    visitX := aStart.X - X + aRadius;
+    visitY := aStart.Y - Y + aRadius;
+    if (aWalkDistance >= fVisited[visitY, visitX]) then Exit;
 
     //Only add to results once (255 is the intial value)
-    if fVisited[Yt,Xt] = 255 then
-      aList.Add(KMPoint(X,Y));
+    if fVisited[visitY, visitX] = 255 then
+      aList.Add(KMPoint(X, Y));
 
     //Mark this tile as visited
-    fVisited[Yt,Xt] := aWalkDistance;
+    fVisited[visitY, visitX] := aWalkDistance;
 
     //Run again on surrounding tiles
     //We use +10 for straights and +14 for diagonals rather than +1 and +1.41 then div by 10 in
