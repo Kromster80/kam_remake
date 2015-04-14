@@ -7,12 +7,14 @@ uses
 
 
 type
+  // Common AI settings
+  // Could be a record, but we want to have default values initialization in constructor
   TKMHandAISetup = class
   public
     Aggressiveness: Integer; //-1 means not used or default
     AutoAttack: Boolean;
-    AutoBuild: Boolean;
     AutoRepair: Boolean;
+    AutoBuild: Boolean;
     AutoDefend: Boolean;
     DefendAllies: Boolean;
     UnlimitedEquip: Boolean;
@@ -49,8 +51,8 @@ begin
 
   //TSK/TPR properties
   Aggressiveness := 100; //No idea what the default for this is, it's barely used
-  AutoBuild := True; //In KaM it is On by default, and most missions turn it off
   AutoAttack := False; //It did not exist in KaM, we add it, Off by default
+  AutoBuild := True; //In KaM it is On by default, and most missions turn it off
   AutoDefend := False; //It did not exist in KaM, we add it, Off by default
   DefendAllies := False; //It did not exist in KaM, we add it, Off by default (tested by Lewin, AI doesn't defend allies in TPR)
 
@@ -125,6 +127,7 @@ end;
 
 procedure TKMHandAISetup.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.WriteW('AISetup');
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(AutoAttack);
   SaveStream.Write(AutoBuild);
@@ -147,6 +150,7 @@ end;
 
 procedure TKMHandAISetup.Load(LoadStream: TKMemoryStream);
 begin
+  LoadStream.ReadAssert('AISetup');
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(AutoAttack);
   LoadStream.Read(AutoBuild);

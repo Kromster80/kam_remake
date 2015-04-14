@@ -51,6 +51,8 @@ uses
 { TKMGUIGameChat }
 constructor TKMGUIGameChat.Create(aParent: TKMPanel);
 begin
+  inherited Create;
+
   Panel_Chat := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
   Panel_Chat.Anchors := [anLeft, anBottom];
   Panel_Chat.Hide;

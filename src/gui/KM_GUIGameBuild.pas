@@ -45,6 +45,8 @@ constructor TKMGUIGameBuild.Create(aParent: TKMPanel);
 var
   I: Integer;
 begin
+  inherited Create;
+
   Panel_Build := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
     Label_Build := TKMLabel.Create(Panel_Build, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
     Image_Build_Selected := TKMImage.Create(Panel_Build, 0, 40, 32, 32, 335);

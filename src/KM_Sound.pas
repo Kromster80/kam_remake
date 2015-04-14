@@ -646,7 +646,8 @@ end;
 
 
 procedure TKMSoundPlayer.UpdateStateIdle;
-var I: Integer;
+var
+  I: Integer;
 begin
   if not fMusicIsFaded then Exit;
 
@@ -669,11 +670,14 @@ end;
 destructor TKMLoopSoundsManager.Destroy;
 begin
   gSoundPlayer.AbortAllLoopedSounds;
+
+  inherited;
 end;
 
 
 procedure TKMLoopSoundsManager.UpdateState;
-var I: Integer;
+var
+  I: Integer;
 begin
   //Check whether a sound needs starting or stopping
   for I := 0 to fCount-1 do
@@ -686,7 +690,8 @@ end;
 
 
 function TKMLoopSoundsManager.CanPlay(aIndex: Integer): Boolean;
-var DistanceSqr: Single;
+var
+  DistanceSqr: Single;
 begin
   Result := ((fSounds[aIndex].HandIndex = MySpectator.HandIndex) or (fSounds[aIndex].HandIndex = PLAYER_NONE))
              and (not fSounds[aIndex].Attenuate or (MySpectator.FogOfWar.CheckTileRevelation(fSounds[aIndex].Loc.X, fSounds[aIndex].Loc.Y) > 0));
@@ -723,7 +728,8 @@ end;
 
 
 function TKMLoopSoundsManager.AddLoopSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
-var NewIndex: Integer;
+var
+  NewIndex: Integer;
 begin
   Inc(fCount);
   Inc(fLastScriptIndex);
@@ -746,7 +752,8 @@ end;
 
 
 procedure TKMLoopSoundsManager.RemoveLoopSound(aScriptIndex: Integer);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount-1 do
     if fSounds[I].ScriptIndex = aScriptIndex then
@@ -769,7 +776,8 @@ end;
 
 
 procedure TKMLoopSoundsManager.Save(SaveStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   SaveStream.Write(fLastScriptIndex);
   SaveStream.Write(fCount);
@@ -787,7 +795,8 @@ end;
 
 
 procedure TKMLoopSoundsManager.Load(LoadStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   LoadStream.Read(fLastScriptIndex);
   LoadStream.Read(fCount);
