@@ -57,6 +57,8 @@ var
   I: TKMRatioTab;
   K: Integer;
 begin
+  inherited Create;
+
   fAllowEditing := aAllowEditing;
   Panel_Ratios:=TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
 

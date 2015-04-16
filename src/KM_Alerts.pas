@@ -287,24 +287,24 @@ end;
 procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aShowUntil: Cardinal);
   procedure RemoveExcessBeacons;
   var
-    I, OldestID, Count: Integer;
+    I, OldestID, qty: Integer;
     OldestExpiry: Cardinal;
   begin
-    Count := 0;
+    qty := 0;
     OldestID := -1;
     OldestExpiry := 0;
     for I := 0 to fList.Count - 1 do
       if (Items[I].AlertType = atBeacon)
       and (Items[I].Owner = aOwner) then
       begin
-        Inc(Count);
+        Inc(qty);
         if (OldestID = -1) or (Items[I].fExpiration < OldestExpiry) then
         begin
           OldestExpiry := Items[I].fExpiration;
           OldestID := I;
         end;
       end;
-    if (Count > MAX_BEACONS) and (OldestID <> -1) then
+    if (qty > MAX_BEACONS) and (OldestID <> -1) then
     begin
       Items[OldestID].Free;
       fList.Delete(OldestID);

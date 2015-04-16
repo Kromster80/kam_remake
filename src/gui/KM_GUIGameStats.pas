@@ -44,6 +44,8 @@ var
   UT: TUnitType;
   OffX: Integer;
 begin
+  inherited Create;
+
   Panel_Stats := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
   Panel_Stats.Anchors := [anLeft, anTop, anBottom];
 
