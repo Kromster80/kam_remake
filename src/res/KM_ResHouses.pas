@@ -230,8 +230,8 @@ const
     NeedsPlayerOrder: True;
     BuildIcon:        311;
     TabletSpriteId:   261;
-    Input:            (wt_Steel,      wt_Coal,       wt_None,       wt_None);
-    Output:           (wt_MetalArmor, wt_MetalShield,wt_None,       wt_None);
+    Input:            (wt_Coal,       wt_Steel,      wt_None,       wt_None);
+    Output:           (wt_MetalShield,wt_MetalArmor, wt_None,       wt_None);
     UnlockedByHouse:  ht_IronSmithy;
     SnowSpriteId:     -1;
     ),

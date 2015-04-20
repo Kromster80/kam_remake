@@ -486,9 +486,9 @@ begin
                           //We must check again this time ignoring working units since they don't indicate the resource is depleted
                           ResourceDepleted := not gTerrain.FindStone(aLoc, gRes.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
                       end;
-    ut_Smith:         if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalArmor) then
+    ut_Smith:         if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalShield) then
                       begin
-                        ResourcePlan(wt_Steel,1,wt_Coal,1,wt_MetalArmor);
+                        ResourcePlan(wt_Steel,1,wt_Coal,1,wt_MetalShield);
                         for I := 0 to 3 do
                         begin
                           SubActAdd(ha_Work2,1);
@@ -500,9 +500,9 @@ begin
                         fIssued := True;
                       end else
 
-                      if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalShield) then
+                      if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalArmor) then
                       begin
-                        ResourcePlan(wt_Steel,1,wt_Coal,1,wt_MetalShield);
+                        ResourcePlan(wt_Steel,1,wt_Coal,1,wt_MetalArmor);
                         for I := 0 to 3 do
                         begin
                           SubActAdd(ha_Work2,1);

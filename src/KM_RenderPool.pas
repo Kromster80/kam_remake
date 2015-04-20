@@ -664,7 +664,7 @@ end;
 
 procedure TRenderPool.AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1, R2: array of Byte);
 var
-  Id,I,K: Integer;
+  Id,I,K,Ident1,Ident2: Integer;
   R: TRXData;
 
   procedure AddHouseSupplySprite(aId: Integer);
@@ -685,8 +685,31 @@ begin
   for I := 1 to 4 do
   if (R1[I - 1]) > 0 then
   begin
-    Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
-    AddHouseSupplySprite(Id);
+    // Begin temp fix for input sprites of Armor smithy
+    if aHouse = ht_ArmorSmithy then
+    begin
+      if I = 1 then // If sprite 1 gets called, render house sprite 2 (Coal)
+      begin
+        Ident1 := 2;
+        Id := gRes.HouseDat[aHouse].SupplyIn[Ident1, Min(R1[I - 1], 5)] + 1;
+        AddHouseSupplySprite(Id);
+      end else
+      if I = 2 then // If sprite 2 gets called, render house sprite 1 (Steel)
+      begin
+        Ident1 := 1;
+        Id := gRes.HouseDat[aHouse].SupplyIn[Ident1, Min(R1[I - 1], 5)] + 1;
+        AddHouseSupplySprite(Id);
+      end else // Back to normal processing for remaining two entries
+      begin
+        Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+        AddHouseSupplySprite(Id);
+      end
+    end else
+    // End temp fix for input sprites of Armor smithy
+    begin
+      Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+      AddHouseSupplySprite(Id);
+    end;
   end;
 
   for I := 1 to 4 do
@@ -697,8 +720,31 @@ begin
     begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
-        Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
-        AddHouseSupplySprite(Id);
+        // Begin temp fix for output sprites of Armor smithy
+        if aHouse = ht_ArmorSmithy then
+        begin
+          if I = 1 then // If sprite 1 gets called, render house sprite 2 (Metalshield)
+          begin
+            Ident2 := 2;
+            Id := gRes.HouseDat[aHouse].SupplyOut[Ident2, K] + 1;
+            AddHouseSupplySprite(Id);
+          end else
+          if I = 2 then // If sprite 2 gets called, render house sprite 1 (MetalArmor)
+          begin
+            Ident2 := 1;
+            Id := gRes.HouseDat[aHouse].SupplyOut[Ident2, K] + 1;
+            AddHouseSupplySprite(Id);
+          end else // Back to normal processing for remaining two entries
+          begin
+            Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
+            AddHouseSupplySprite(Id);
+          end
+        end else
+        // End temp fix for output sprites of Armor smithy
+        begin
+          Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
+          AddHouseSupplySprite(Id);
+        end
       end
     end
     else
