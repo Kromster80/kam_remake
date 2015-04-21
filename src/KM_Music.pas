@@ -51,6 +51,7 @@ type
     constructor Create(aVolume: Single);
     destructor Destroy; override;
     procedure UpdateMusicVolume(Value: Single);
+    procedure StartMusicVolume; // Used to fix audio crackling after loading screen
     procedure PlayMenuTrack;
     procedure PlayNextTrack;
     procedure PlayPreviousTrack;
@@ -72,7 +73,7 @@ implementation
 uses
   KM_Log, KM_Utils;
 
-const FADE_TIME = 2000; //Time that a fade takes to occur in ms
+const FADE_TIME = 3000; //Time that a fade takes to occur in ms <- Set to 3000 for a nicer overflow of sound
 
 
 {Music Lib}
@@ -98,7 +99,7 @@ begin
   end;
   {$ENDIF}
 
-  UpdateMusicVolume(aVolume);
+  UpdateMusicVolume(aVolume); // Must stay here, sets audio volume to fade to.
 
   // Initialise TrackOrder
   for I := 0 to fMusicCount - 1 do
@@ -215,6 +216,18 @@ begin
 end;
 
 
+procedure TMusicLib.StartMusicVolume; // Used to fix audio crackling after loading screen
+begin
+  if not IsMusicInitialized then Exit; //Keep silent
+  {$IFDEF USELIBZPLAY}
+  ZPlayer.SetPlayerVolume(Round(0 * 100), Round(0 * 100)); //0=silent, 100=max
+  {$ENDIF}
+  {$IFDEF USEBASS}
+  BASS_ChannelSetAttribute(fBassStream, BASS_ATTRIB_VOL, 0); //0=silent, 1=max
+  {$ENDIF}
+end; // End if fix part
+
+
 procedure TMusicLib.ScanMusicTracks(aPath: UnicodeString);
 var
   SearchRec: TSearchRec;
@@ -269,7 +282,10 @@ begin
   if fMusicCount = 0 then Exit; //no music files found
   if fMusicIndex = 0 then Exit; //It's already playing
   fMusicIndex := 0;
-  PlayMusicFile(fMusicTracks[0]);
+  PlayMusicFile(fMusicTracks[0]); // Must start playing before being able to adjust volume
+  // Used to fix audio crackling after loading screen
+  StartMusicVolume; // Set audio level to 0
+  UnfadeMusic(nil); // Slowly fade the music to set volume (3s)
 end;
 
 
