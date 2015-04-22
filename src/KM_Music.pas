@@ -51,7 +51,6 @@ type
     constructor Create(aVolume: Single);
     destructor Destroy; override;
     procedure UpdateMusicVolume(Value: Single);
-    procedure StartMusicVolume; // Used to fix audio crackling after loading screen
     procedure PlayMenuTrack;
     procedure PlayNextTrack;
     procedure PlayPreviousTrack;
@@ -216,18 +215,6 @@ begin
 end;
 
 
-procedure TMusicLib.StartMusicVolume; // Used to fix audio crackling after loading screen
-begin
-  if not IsMusicInitialized then Exit; //Keep silent
-  {$IFDEF USELIBZPLAY}
-  ZPlayer.SetPlayerVolume(Round(0 * 100), Round(0 * 100)); //0=silent, 100=max
-  {$ENDIF}
-  {$IFDEF USEBASS}
-  BASS_ChannelSetAttribute(fBassStream, BASS_ATTRIB_VOL, 0); //0=silent, 1=max
-  {$ENDIF}
-end; // End if fix part
-
-
 procedure TMusicLib.ScanMusicTracks(aPath: UnicodeString);
 var
   SearchRec: TSearchRec;
@@ -277,15 +264,19 @@ end;
 
 
 procedure TMusicLib.PlayMenuTrack;
+var
+  remVolume: Single;
 begin
   if not IsMusicInitialized then Exit;
   if fMusicCount = 0 then Exit; //no music files found
   if fMusicIndex = 0 then Exit; //It's already playing
   fMusicIndex := 0;
+  // There was audio crackling after loading screen, here we fix it
+  remVolume := MusicGain; // Store volume setting to re-apply later on
+  MusicGain := 0; // Set audio level to 0
   PlayMusicFile(fMusicTracks[0]); // Must start playing before being able to adjust volume
-  // Used to fix audio crackling after loading screen
-  StartMusicVolume; // Set audio level to 0
-  UnfadeMusic(nil); // Slowly fade the music to set volume (3s)
+  MusicGain := remVolume; // Set audio level to stored volume setting
+  UnfadeMusic(nil); // Slowly fade-in to set volume (3s)
 end;
 
 
@@ -439,10 +430,12 @@ begin
   ZPlayer.GetPosition(StartTime);
   EndTime.ms := StartTime.ms + FADE_TIME;
   ZPlayer.GetPlayerVolume(Left, Right); //Start fade from the current volume
+  Sleep(25); // Sleep for 25 ms, give the stream time to buffer a few bytes
   ZPlayer.SlideVolume(tfMillisecond, StartTime, Left, Right, tfMillisecond, EndTime, Round(MusicGain * 100), Round(MusicGain * 100));
   {$ENDIF}
   {$IFDEF USEBASS}
   BASS_ChannelPlay(fBassStream, False); //Music may have been paused due to fade out
+  Sleep(25); // Sleep for 25 ms, give the stream time to buffer a few bytes
   BASS_ChannelSlideAttribute(fBassStream, BASS_ATTRIB_VOL, MusicGain, FADE_TIME);
   {$ENDIF}
 end;
