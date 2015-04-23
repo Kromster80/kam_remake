@@ -73,7 +73,7 @@ implementation
 uses
   KM_Log, KM_Utils;
 
-const FADE_TIME = 3000; //Time that a fade takes to occur in ms <- Set to 3000 for a nicer overflow of sound
+const FADE_TIME = 2000; //Time that a fade takes to occur in ms
 
 
 {Music Lib}
@@ -82,7 +82,6 @@ var I: Integer;
 begin
   inherited Create;
   IsMusicInitialized := True;
-  fStartState := False; // Set this to False so it only gets used when needed
   ScanMusicTracks(ExeDir + 'Music'+PathDelim);
 
 
@@ -100,7 +99,7 @@ begin
   end;
   {$ENDIF}
 
-  UpdateMusicVolume(aVolume); // Must stay here, sets audio volume to fade to.
+  UpdateMusicVolume(aVolume);
 
   // Initialise TrackOrder
   for I := 0 to fMusicCount - 1 do
@@ -273,13 +272,18 @@ begin
   if fMusicCount = 0 then Exit; //no music files found
   if fMusicIndex = 0 then Exit; //It's already playing
   fMusicIndex := 0;
-  // There was audio crackling after loading screen, here we fix it
-  prevVolume := MusicGain; // Store volume setting to re-apply later on
-  MusicGain := 0; // Set audio level to 0
-  fStartState := True; // Set fStartState to True so the delay will be applied
-  PlayMusicFile(fMusicTracks[0]); // Must start playing before being able to adjust volume
-  MusicGain := prevVolume; // Set audio level to stored volume setting
-  UnfadeMusic(nil); // Slowly fade-in to set volume (3s)
+  {There was audio crackling after loading screen, here we fix it with these steps:
+    * Store current volume variable
+    * Activate 25 ms delay
+    * Start playback at volume of 0
+    * Re-apply previous volume variable
+    * Fade-in from 0 to volume variable}
+  prevVolume := MusicGain;
+  MusicGain := 0;
+  fStartState := True;
+  PlayMusicFile(fMusicTracks[0]);
+  MusicGain := prevVolume;
+  UnfadeMusic(nil);
 end;
 
 
@@ -435,8 +439,8 @@ begin
   ZPlayer.GetPlayerVolume(Left, Right); //Start fade from the current volume
   if fStartState then
   begin
-    Sleep(25); // Sleep for 25 ms, give the stream time to buffer a few bytes, only if USELIBZPLAY
-    fStartState := False; // Set fStartState to False so normal opperation returns
+    Sleep(25);
+    fStartState := False; // Return to normal opperation
   end;
   ZPlayer.SlideVolume(tfMillisecond, StartTime, Left, Right, tfMillisecond, EndTime, Round(MusicGain * 100), Round(MusicGain * 100));
   {$ENDIF}
@@ -444,8 +448,8 @@ begin
   BASS_ChannelPlay(fBassStream, False); //Music may have been paused due to fade out
   if fStartState then
   begin
-    Sleep(25); // Sleep for 25 ms, give the stream time to buffer a few bytes, only if USEBASS
-    fStartState := False; // Set fStartState to False so normal opperation returns
+    Sleep(25);
+    fStartState := False; // Return to normal opperation
   end;
   BASS_ChannelSlideAttribute(fBassStream, BASS_ATTRIB_VOL, MusicGain, FADE_TIME);
   {$ENDIF}
