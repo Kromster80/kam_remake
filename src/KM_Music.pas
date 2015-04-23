@@ -389,7 +389,7 @@ begin
 end;
 
 
-procedure TMusicLib.FadeMusic;
+procedure TMusicLib.FadeMusic(Sender: TObject);
 {$IFDEF USELIBZPLAY} var StartTime, EndTime: TStreamTime; Left, Right:integer; {$ENDIF}
 begin
   if (not IsMusicInitialized) then exit;
@@ -407,7 +407,7 @@ begin
 end;
 
 
-procedure TMusicLib.UnfadeMusic;
+procedure TMusicLib.UnfadeMusic(Sender: TObject);
 {$IFDEF USELIBZPLAY}
 var
   StartTime, EndTime: TStreamTime;
