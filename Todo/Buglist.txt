@@ -2,12 +2,12 @@
 <===================================================================================>
 Bugs:
  +	Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
+ +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Server welcome message should support Unicode
 	Flattening stone can cause field tile type to change (BlueAI.png)
 	Campaign progress from r5503 was lost
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
 	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
-	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
 	Archers should step backwards when too close to attack target
 	Replays sometimes end up with a mismatch while watching them, cause unknown
