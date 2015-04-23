@@ -686,6 +686,10 @@ begin
   if (R1[I - 1]) > 0 then
   begin
     Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+    // Need to swap Coal and Steel for the ArmorSmithy
+    // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
+    if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
+      Id := gRes.HouseDat[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
     AddHouseSupplySprite(Id);
   end;
 
@@ -698,14 +702,14 @@ begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
         Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
-        AddHouseSupplySprite(Id);
-      end
-    end
-    else
-    begin
+        // Need to swap Coal and Steel for the ArmorSmithy
+        // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
+        if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
+          Id := gRes.HouseDat[aHouse].SupplyOut[3-I, K] + 1;
+      end;
+    end else
       Id := gRes.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
-      AddHouseSupplySprite(Id);
-    end;
+    AddHouseSupplySprite(Id);
   end;
 end;
 
