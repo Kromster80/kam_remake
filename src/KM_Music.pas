@@ -60,7 +60,7 @@ type
     procedure ToggleMusic(aEnableMusic: Boolean);
     procedure ToggleShuffle(aEnableShuffle: Boolean);
     procedure FadeMusic;
-    procedure UnfadeMusic;
+    procedure UnfadeMusic(aHandleCrackling: Boolean);
     procedure PauseMusicToPlayFile(aFileName: UnicodeString; aVolume: Single);
     procedure StopPlayingOtherFile;
     function GetTrackTitle: UnicodeString;
@@ -410,7 +410,8 @@ begin
 end;
 
 
-procedure TKMMusicLib.UnfadeMusic;
+// aHandleCrackling flag is used to mitigate initial sound crackling
+procedure TKMMusicLib.UnfadeMusic(aHandleCrackling: Boolean);
 {$IFDEF USELIBZPLAY}
 var
   StartTime, EndTime: TStreamTime;
@@ -464,7 +465,7 @@ begin
   if fFadedToPlayOther and (fFadeState = fsFaded) and IsOtherEnded then
   begin
     fFadedToPlayOther := False;
-    UnfadeMusic;
+    UnfadeMusic(False);
   end;
 end;
 

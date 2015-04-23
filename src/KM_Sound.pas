@@ -42,7 +42,7 @@ type
     fMusicIsFaded:boolean;
 
     fOnFadeMusic: TEvent;
-    fOnUnfadeMusic: TEvent;
+    fOnUnfadeMusic: TBooleanEvent;
     procedure CheckOpenALError;
 
     function PlayWave(const aFile: UnicodeString; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false; aLoop: Boolean=False): Integer;
@@ -55,7 +55,7 @@ type
     function ActiveCount: Byte;
 
     property OnRequestFade: TEvent write fOnFadeMusic;
-    property OnRequestUnfade: TEvent write fOnUnfadeMusic;
+    property OnRequestUnfade: TBooleanEvent write fOnUnfadeMusic;
     procedure AbortAllFadeSounds;
     procedure AbortAllLoopedSounds;
     procedure AbortAllLongSounds;
@@ -662,7 +662,7 @@ begin
   //If we reached the end without exiting then we need to resume the music
   fMusicIsFaded := False;
   if Assigned(fOnUnfadeMusic) then
-    fOnUnfadeMusic;
+    fOnUnfadeMusic(False);
 end;
 
 
