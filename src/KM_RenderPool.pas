@@ -685,16 +685,11 @@ begin
   for I := 1 to 4 do
   if (R1[I - 1]) > 0 then
   begin
-    if aHouse = ht_ArmorSmithy then // For some reason KaM stores these wares in swapped order, here we fix it
-    begin
-      if I = 1 then // If sprite 1 gets called, render house sprite 2 (Coal)
-        Id := gRes.HouseDat[aHouse].SupplyIn[2, Min(R1[I - 1], 5)] + 1
-      else if I = 2 then // If sprite 2 gets called, render house sprite 1 (Steel)
-        Id := gRes.HouseDat[aHouse].SupplyIn[1, Min(R1[I - 1], 5)] + 1
-      else // Back to normal processing for remaining two entries
-        Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
-    end else // End of fix
-      Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+    Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+    // Need to swap Coal and Steel for the ArmorSmithy
+    // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
+    if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
+      Id := gRes.HouseDat[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
     AddHouseSupplySprite(Id);
   end;
 
@@ -706,16 +701,11 @@ begin
     begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
-        if aHouse = ht_ArmorSmithy then // For some reason KaM stores these wares in swapped order, here we fix it
-        begin
-          if I = 1 then // If sprite 1 gets called, render house sprite 2 (Metalshield)
-            Id := gRes.HouseDat[aHouse].SupplyOut[2, K] + 1
-          else if I = 2 then // If sprite 2 gets called, render house sprite 1 (MetalArmor)
-            Id := gRes.HouseDat[aHouse].SupplyOut[1, K] + 1
-          else // Back to normal processing for remaining two entries
-            Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
-        end else // End of fix
-          Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
+        Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
+        // Need to swap Coal and Steel for the ArmorSmithy
+        // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
+        if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
+          Id := gRes.HouseDat[aHouse].SupplyOut[3-I, K] + 1;
       end;
     end else
       Id := gRes.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
