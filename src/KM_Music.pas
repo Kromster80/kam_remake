@@ -39,6 +39,7 @@ type
     {$IFDEF USELIBZPLAY} ZPlayer, ZPlayerOther: ZPlay; {$ENDIF} //I dislike that it's not TZPlay... Guess they don't know Delphi conventions.
     fFadeState: TFadeState;
     fFadeStarted: Cardinal;
+    fStartState: Boolean;
     fToPlayAfterFade: UnicodeString;
     fFadedToPlayOther: Boolean;
     fOtherVolume: Single;
@@ -264,12 +265,25 @@ end;
 
 
 procedure TMusicLib.PlayMenuTrack;
+var
+  prevVolume: Single;
 begin
   if not IsMusicInitialized then Exit;
   if fMusicCount = 0 then Exit; //no music files found
   if fMusicIndex = 0 then Exit; //It's already playing
   fMusicIndex := 0;
+  {There was audio crackling after loading screen, here we fix it with these steps:
+    * Store current volume variable
+    * Activate 25 ms delay
+    * Start playback at volume of 0
+    * Re-apply previous volume variable
+    * Fade-in from 0 to volume variable}
+  prevVolume := MusicGain;
+  MusicGain := 0;
+  fStartState := True;
   PlayMusicFile(fMusicTracks[0]);
+  MusicGain := prevVolume;
+  UnfadeMusic(nil);
 end;
 
 
@@ -423,10 +437,20 @@ begin
   ZPlayer.GetPosition(StartTime);
   EndTime.ms := StartTime.ms + FADE_TIME;
   ZPlayer.GetPlayerVolume(Left, Right); //Start fade from the current volume
+  if fStartState then
+  begin
+    Sleep(25);
+    fStartState := False; // Return to normal opperation
+  end;
   ZPlayer.SlideVolume(tfMillisecond, StartTime, Left, Right, tfMillisecond, EndTime, Round(MusicGain * 100), Round(MusicGain * 100));
   {$ENDIF}
   {$IFDEF USEBASS}
   BASS_ChannelPlay(fBassStream, False); //Music may have been paused due to fade out
+  if fStartState then
+  begin
+    Sleep(25);
+    fStartState := False; // Return to normal opperation
+  end;
   BASS_ChannelSlideAttribute(fBassStream, BASS_ATTRIB_VOL, MusicGain, FADE_TIME);
   {$ENDIF}
 end;
