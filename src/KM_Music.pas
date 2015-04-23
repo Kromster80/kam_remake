@@ -267,12 +267,19 @@ end;
 
 
 procedure TKMMusicLib.PlayMenuTrack;
+var
+  prevVolume: Single;
 begin
   if not IsMusicInitialized then Exit;
   if fMusicCount = 0 then Exit; //no music files found
   if fMusicIndex = 0 then Exit; //It's already playing
   fMusicIndex := 0;
+  // There was audio crackling after loading screen, here we fix it by setting a delay and fading the volume.
+  prevVolume := MusicGain;
+  MusicGain := 0;
   PlayMusicFile(fMusicTracks[0]);
+  MusicGain := prevVolume;
+  UnfadeMusic(True);
 end;
 
 
@@ -424,6 +431,7 @@ begin
   {$IFDEF USELIBZPLAY}
   //LibZPlay has a nice SlideVolume function we can use
   ZPlayer.ResumePlayback; //Music may have been paused due to fade out
+  if aHandleCrackling then Sleep(25);
   ZPlayer.GetPosition(StartTime);
   EndTime.ms := StartTime.ms + FADE_TIME;
   ZPlayer.GetPlayerVolume(Left, Right); //Start fade from the current volume
@@ -431,6 +439,7 @@ begin
   {$ENDIF}
   {$IFDEF USEBASS}
   BASS_ChannelPlay(fBassStream, False); //Music may have been paused due to fade out
+  if aHandleCrackling then Sleep(25);
   BASS_ChannelSlideAttribute(fBassStream, BASS_ATTRIB_VOL, MusicGain, FADE_TIME);
   {$ENDIF}
 end;
@@ -531,7 +540,6 @@ begin
   mciopen.lpstrElementName := pchar (filename);
   Result := mciSendCommand ($0, mci_open , mci_open_type or mci_open_element, longint (@mciopen));
   if Result <> 0 then exit;
-
   // The device opened successfully; get the device ID.
   // Check if the output port is the MIDI mapper.
   wDeviceID := mciOpen.wDeviceID;
@@ -542,7 +550,6 @@ begin
     mciSendCommand (wDeviceID, MCI_CLOSE, 0, 0);
     exit;
   end;
-
   // Begin playback. The window procedure function for the parent
   // Window will be notified with an MM_MCINOTIFY message when
   // Playback is complete. At this time, the window procedure closes
