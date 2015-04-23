@@ -72,12 +72,15 @@ implementation
 uses
   KM_Log, KM_Utils;
 
-const FADE_TIME = 2000; //Time that a fade takes to occur in ms
+
+const
+  FADE_TIME = 2000; //Time that a fade takes to occur in ms
 
 
-{Music Lib}
+{ TKMMusicLib }
 constructor TKMMusicLib.Create(aVolume: Single);
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited Create;
   IsMusicInitialized := True;
