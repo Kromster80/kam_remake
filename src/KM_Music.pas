@@ -272,12 +272,7 @@ begin
   if fMusicCount = 0 then Exit; //no music files found
   if fMusicIndex = 0 then Exit; //It's already playing
   fMusicIndex := 0;
-  {There was audio crackling after loading screen, here we fix it with these steps:
-    * Store current volume variable
-    * Activate 25 ms delay
-    * Start playback at volume of 0
-    * Re-apply previous volume variable
-    * Fade-in from 0 to volume variable}
+  // There was audio crackling after loading screen, here we fix it by setting a delay and fading the volume.
   prevVolume := MusicGain;
   MusicGain := 0;
   fStartState := True;
