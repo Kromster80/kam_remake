@@ -6,7 +6,7 @@ uses
   {$IFDEF WDC} UITypes, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   OpenAL, KromUtils,
-  KM_Defaults, KM_CommonClasses, KM_Points, KM_ResSound;
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_ResSound;
 
 const
   MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
@@ -41,8 +41,8 @@ type
     fSoundGain:single; //aka "Global volume"
     fMusicIsFaded:boolean;
 
-    fOnFadeMusic: TNotifyEvent;
-    fOnUnfadeMusic: TNotifyEvent;
+    fOnFadeMusic: TEvent;
+    fOnUnfadeMusic: TEvent;
     procedure CheckOpenALError;
 
     function PlayWave(const aFile: UnicodeString; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false; aLoop: Boolean=False): Integer;
@@ -54,8 +54,8 @@ type
     destructor Destroy; override;
     function ActiveCount: Byte;
 
-    property OnRequestFade: TNotifyEvent write fOnFadeMusic;
-    property OnRequestUnfade: TNotifyEvent write fOnUnfadeMusic;
+    property OnRequestFade: TEvent write fOnFadeMusic;
+    property OnRequestUnfade: TEvent write fOnUnfadeMusic;
     procedure AbortAllFadeSounds;
     procedure AbortAllLoopedSounds;
     procedure AbortAllLongSounds;
@@ -422,7 +422,7 @@ begin
   //Fade music if required (don't fade it if the user has SoundGain = 0, that's confusing)
   if FadeMusic and (fSoundGain > 0) and not fMusicIsFaded then
   begin
-    if Assigned(fOnFadeMusic) then fOnFadeMusic(Self);
+    if Assigned(fOnFadeMusic) then fOnFadeMusic;
     fMusicIsFaded := true;
   end;
 
@@ -662,11 +662,11 @@ begin
   //If we reached the end without exiting then we need to resume the music
   fMusicIsFaded := False;
   if Assigned(fOnUnfadeMusic) then
-    fOnUnfadeMusic(Self);
+    fOnUnfadeMusic;
 end;
 
 
-{TKMLoopSoundsManager}
+{ TKMLoopSoundsManager }
 destructor TKMLoopSoundsManager.Destroy;
 begin
   gSoundPlayer.AbortAllLoopedSounds;

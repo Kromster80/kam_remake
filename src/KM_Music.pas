@@ -59,8 +59,8 @@ type
     procedure StopMusic;
     procedure ToggleMusic(aEnableMusic: Boolean);
     procedure ToggleShuffle(aEnableShuffle: Boolean);
-    procedure FadeMusic(Sender: TObject);
-    procedure UnfadeMusic(Sender: TObject);
+    procedure FadeMusic;
+    procedure UnfadeMusic;
     procedure PauseMusicToPlayFile(aFileName: UnicodeString; aVolume: Single);
     procedure StopPlayingOtherFile;
     function GetTrackTitle: UnicodeString;
@@ -389,7 +389,7 @@ begin
 end;
 
 
-procedure TKMMusicLib.FadeMusic(Sender: TObject);
+procedure TKMMusicLib.FadeMusic;
 {$IFDEF USELIBZPLAY} var StartTime, EndTime: TStreamTime; Left, Right:integer; {$ENDIF}
 begin
   if (not IsMusicInitialized) then exit;
@@ -407,7 +407,7 @@ begin
 end;
 
 
-procedure TKMMusicLib.UnfadeMusic(Sender: TObject);
+procedure TKMMusicLib.UnfadeMusic;
 {$IFDEF USELIBZPLAY}
 var
   StartTime, EndTime: TStreamTime;
@@ -461,7 +461,7 @@ begin
   if fFadedToPlayOther and (fFadeState = fsFaded) and IsOtherEnded then
   begin
     fFadedToPlayOther := False;
-    UnfadeMusic(nil);
+    UnfadeMusic;
   end;
 end;
 
@@ -471,7 +471,7 @@ begin
   fOtherVolume := aVolume;
   if fFadeState in [fsNone, fsFadeIn] then
   begin
-    FadeMusic(nil);
+    FadeMusic;
     fToPlayAfterFade := aFilename
   end
   else
