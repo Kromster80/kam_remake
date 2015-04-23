@@ -19,7 +19,7 @@ type
 
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TGameSettings;
-    fMusicLib: TMusicLib;
+    fMusicLib: TKMMusicLib;
     fNetworking: TKMNetworking;
     fRender: TRender;
     fTimerUI: TTimer;
@@ -67,7 +67,7 @@ type
     function Game: TKMGame;
     property GameSettings: TGameSettings read fGameSettings;
     property MainMenuInterface: TKMMainMenuInterface read fMainMenuInterface;
-    property MusicLib: TMusicLib read fMusicLib;
+    property MusicLib: TKMMusicLib read fMusicLib;
     property Networking: TKMNetworking read fNetworking;
     property GlobalTickCount: Cardinal read fGlobalTickCount;
 
@@ -120,7 +120,7 @@ begin
     MessageDlg(gResTexts[TX_GAME_ERROR_OLD_OPENGL] + EolW + EolW + gResTexts[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   gSoundPlayer  := TKMSoundPlayer.Create(fGameSettings.SoundFXVolume);
-  fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
+  fMusicLib     := TKMMusicLib.Create(fGameSettings.MusicVolume);
   gSoundPlayer.OnRequestFade   := fMusicLib.FadeMusic;
   gSoundPlayer.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
