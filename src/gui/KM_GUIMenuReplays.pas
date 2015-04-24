@@ -336,8 +336,6 @@ begin
 end;
 
 procedure TKMMenuReplays.RenameClick(Sender: TObject);
-var
-  OldSelection: Integer;
 begin
   if ColumnBox_Replays.ItemIndex = -1 then Exit;
 
@@ -350,10 +348,13 @@ begin
   // Change name of the save
   if Sender = Button_RenameConfirm then
   begin
-    // fSaves.RenameSave(ColumnBox_Replays.ItemIndex); <-- Have to create this function still, will go in fSaves to comply to curent format of code.
-    Replays_RefreshList(False);
-    ColumnBox_Replays.ItemIndex := -1;
-    Replays_ListClick(ColumnBox_Replays);
+    fSaves.RenameSave(ColumnBox_Replays.ItemIndex, Edit_Rename.Text);
+    // If any scan is active, terminate it and reload the list
+    fSaves.TerminateScan;
+    fLastSaveCRC := 0;
+    ColumnBox_Replays.Clear;
+    Replays_ListClick(nil);
+    fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1));
   end;
 end;
 
