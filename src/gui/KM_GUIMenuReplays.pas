@@ -41,8 +41,8 @@ type
       Button_Rename, Button_RenameConfirm, Button_RenameCancel: TKMButton;
       PopUp_Rename: TKMPopUpMenu;
       Image_Rename: TKMImage;
+      Label_RenameTitle, Label_RenameName: TKMLabel;
       Edit_Rename: TKMEdit;
-      Label_RenameInfo, Label_RenameName: TKMLabel;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -130,8 +130,8 @@ begin
   Image_Rename := TKMImage.Create(PopUp_Rename,0,0, 400, 180, 3, rxGuiMain);
   Image_Rename.ImageStretch;
 
-  Label_RenameInfo := TKMLabel.Create(PopUp_Rename, 20, 25, 360, 30, 'Rename this Replay', fnt_Outline, taCenter);
-  Label_RenameInfo.Anchors := [anLeft,anBottom];
+  Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 25, 360, 30, 'Rename this Replay', fnt_Outline, taCenter);
+  Label_RenameTitle.Anchors := [anLeft,anBottom];
 
   Label_RenameName := TKMLabel.Create(PopUp_Rename, 20, 75, 60, 20, 'Name:', fnt_Metal, taLeft);
   Label_RenameName.Anchors := [anLeft,anBottom];
