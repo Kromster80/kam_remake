@@ -127,7 +127,7 @@ end;
 
 procedure TKMHandAISetup.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.WriteW('AISetup');
+  SaveStream.WriteA('AISetup');
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(AutoAttack);
   SaveStream.Write(AutoBuild);
