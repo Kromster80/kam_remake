@@ -37,7 +37,9 @@ type
       Button_ReplaysBack:TKMButton;
       MinimapView_Replay: TKMMinimapView;
       Button_Delete, Button_DeleteConfirm, Button_DeleteCancel: TKMButton;
-      Label_DeleteConfirm: TKMLabel;
+      PopUp_Delete: TKMPopUpMenu;
+      Image_Delete: TKMImage;
+      Label_DeleteTitle, Label_DeleteConfirm: TKMLabel;
       Button_Rename, Button_RenameConfirm, Button_RenameCancel: TKMButton;
       PopUp_Rename: TKMPopUpMenu;
       Image_Rename: TKMImage;
@@ -103,48 +105,64 @@ begin
   Button_Delete.Anchors := [anLeft,anBottom];
   Button_Delete.OnClick := DeleteClick;
 
-  Label_DeleteConfirm := TKMLabel.Create(Panel_Replays, aParent.Width div 2, 634, gResTexts[TX_MENU_REPLAY_DELETE_CONFIRM], fnt_Outline, taCenter);
-  Label_DeleteConfirm.Anchors := [anLeft,anBottom];
-  Label_DeleteConfirm.Hide;
-
-  Button_DeleteConfirm := TKMButton.Create(Panel_Replays, 337, 660, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
-  Button_DeleteConfirm.Anchors := [anLeft,anBottom];
-  Button_DeleteConfirm.OnClick := DeleteClick;
-  Button_DeleteConfirm.Hide;
-
-  Button_DeleteCancel  := TKMButton.Create(Panel_Replays, 517, 660, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
-  Button_DeleteCancel.Anchors := [anLeft,anBottom];
-  Button_DeleteCancel.OnClick := DeleteClick;
-  Button_DeleteCancel.Hide;
-
-  Button_Rename := TKMButton.Create(Panel_Replays, 805, 499, 199, 30, 'Rename Replay', bsMenu);
+  Button_Rename := TKMButton.Create(Panel_Replays, 337, 658, 350, 30, gResTexts[TX_MENU_REPLAY_RENAME], bsMenu);
   Button_Rename.Anchors := [anLeft,anBottom];
   Button_Rename.OnClick := RenameClick;
 
-  PopUp_Rename := TKMPopUpMenu.Create(Panel_Replays, 400);
-  PopUp_Rename.Height := 180;
+  PopUp_Delete := TKMPopUpMenu.Create(Panel_Replays, 400);
+  PopUp_Delete.Height := 200;
   // Keep the pop-up centered
+  PopUp_Delete.Anchors := [];
+  PopUp_Delete.Left := (Panel_Replays.Width Div 2) - 200;
+  PopUp_Delete.Top := (Panel_Replays.Height Div 2) - 90;
+
+  TKMBevel.Create(PopUp_Delete, -1000,  -1000, 4000, 4000);
+
+  Image_Delete := TKMImage.Create(PopUp_Delete, 0, 0, 400, 200, 15, rxGuiMain);
+  Image_Delete.ImageStretch;
+
+  Label_DeleteTitle := TKMLabel.Create(PopUp_Delete, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_DELETE_TITLE], fnt_Outline, taCenter);
+  Label_DeleteTitle.Anchors := [anLeft,anBottom];
+
+  Label_DeleteConfirm := TKMLabel.Create(PopUp_Delete, 25, 75, 350, 75, gResTexts[TX_MENU_REPLAY_DELETE_CONFIRM], fnt_Metal, taCenter);
+  Label_DeleteConfirm.Anchors := [anLeft,anBottom];
+  Label_DeleteConfirm.AutoWrap := true;
+
+  Button_DeleteConfirm := TKMButton.Create(PopUp_Delete, 20, 155, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
+  Button_DeleteConfirm.Anchors := [anLeft,anBottom];
+  Button_DeleteConfirm.OnClick := DeleteClick;
+
+  Button_DeleteCancel  := TKMButton.Create(PopUp_Delete, 210, 155, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
+  Button_DeleteCancel.Anchors := [anLeft,anBottom];
+  Button_DeleteCancel.OnClick := DeleteClick;
+
+  PopUp_Rename := TKMPopUpMenu.Create(Panel_Replays, 400);
+  PopUp_Rename.Height := 200;
+  // Keep the pop-up centered
+  PopUp_Rename.Anchors := [];
   PopUp_Rename.Left := (Panel_Replays.Width Div 2) - 200;
   PopUp_Rename.Top := (Panel_Replays.Height Div 2) - 90;
 
-  Image_Rename := TKMImage.Create(PopUp_Rename,0,0, 400, 180, 3, rxGuiMain);
+  TKMBevel.Create(PopUp_Rename, -1000,  -1000, 4000, 4000);
+
+  Image_Rename := TKMImage.Create(PopUp_Rename,0,0, 400, 200, 15, rxGuiMain);
   Image_Rename.ImageStretch;
 
-  Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 25, 360, 30, 'Rename this Replay', fnt_Outline, taCenter);
+  Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_RENAME_TITLE], fnt_Outline, taCenter);
   Label_RenameTitle.Anchors := [anLeft,anBottom];
 
-  Label_RenameName := TKMLabel.Create(PopUp_Rename, 20, 75, 60, 20, 'Name:', fnt_Metal, taLeft);
+  Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fnt_Metal, taLeft);
   Label_RenameName.Anchors := [anLeft,anBottom];
 
-  Edit_Rename := TKMEdit.Create(PopUp_Rename, 80, 72, 290, 20, fnt_Metal);
+  Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fnt_Metal);
   Edit_Rename.Anchors := [anLeft,anBottom];
   Edit_Rename.AllowedChars := acFileName;
 
-  Button_RenameConfirm := TKMButton.Create(PopUp_Rename, 20, 125, 170, 30, 'Confirm', bsMenu);
+  Button_RenameConfirm := TKMButton.Create(PopUp_Rename, 20, 155, 170, 30, gResTexts[TX_MENU_REPLAY_RENAME_CONFIRM], bsMenu);
   Button_RenameConfirm.Anchors := [anLeft,anBottom];
   Button_RenameConfirm.OnClick := RenameClick;
 
-  Button_RenameCancel := TKMButton.Create(PopUp_Rename, 200, 125, 170, 30, 'Cancel', bsMenu);
+  Button_RenameCancel := TKMButton.Create(PopUp_Rename, 210, 155, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
   Button_RenameCancel.Anchors := [anLeft,anBottom];
   Button_RenameCancel.OnClick := RenameClick;
 end;
@@ -198,6 +216,7 @@ begin
   Replays_ListClick(nil);
   fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1));
   DeleteConfirm(False);
+  RenameConfirm(False);
 end;
 
 
@@ -293,10 +312,11 @@ end;
 
 procedure TKMMenuReplays.DeleteConfirm(aVisible: Boolean);
 begin
-  Label_DeleteConfirm.Visible := aVisible;
-  Button_DeleteConfirm.Visible := aVisible;
-  Button_DeleteCancel.Visible := aVisible;
-  Button_Delete.Visible := not aVisible;
+  if aVisible then
+  begin
+    PopUp_Delete.Show;
+  end else
+    PopUp_Delete.Hide;
 end;
 
 procedure TKMMenuReplays.DeleteClick(Sender: TObject);
