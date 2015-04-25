@@ -279,7 +279,8 @@ end;
 
 
 procedure TRenderPool.RenderBackgroundUI(aRect: TKMRect);
-var I,K: Integer;
+var
+  I,K: Integer;
 begin
   if MySpectator.Highlight is TKMHouse then
     RenderHouseOutline(TKMHouse(MySpectator.Highlight));
@@ -365,7 +366,9 @@ end;
 
 
 procedure TRenderPool.PaintRallyPoints(aPass: Byte);
-var B: TKMHouseBarracks; P: TKMPointF;
+var
+  B: TKMHouseBarracks;
+  P: TKMPointF;
 begin
   if gGame.IsMapEditor then Exit; //Don't render rally point in map editor
   if not (MySpectator.Selected is TKMHouseBarracks) then Exit;
@@ -702,7 +705,7 @@ begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
         Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
-        // Need to swap Coal and Steel for the ArmorSmithy
+        // Need to swap Shields and Armor for the ArmorSmithy
         // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
         if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
           Id := gRes.HouseDat[aHouse].SupplyOut[3-I, K] + 1;
@@ -715,8 +718,10 @@ end;
 
 
 procedure TRenderPool.AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
-var i,Id: Integer;
-  CornerX,CornerY: Single; R: TRXData;
+var
+  i,Id: Integer;
+  CornerX,CornerY: Single;
+  R: TRXData;
 begin
   if ResType = wt_Horse then //Horses are a beast, BeastId is the count, age is 1
     for i:=1 to Min(ResCount, MarketWares[ResType].Count) do //Render each beast
@@ -1397,7 +1402,8 @@ end;
 
 
 function TRenderList.GetSelectionUID(CurPos: TKMPointF): Integer;
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   Result := -1; //Didn't hit anything
   //Skip if cursor is over FOW
@@ -1424,7 +1430,8 @@ end;
 
 
 procedure TRenderList.ClipRenderList;
-var I, J: Integer;
+var
+  I, J: Integer;
 begin
   SetLength(RenderOrder, fCount);
   J := 0;
@@ -1466,7 +1473,8 @@ var
   end;
 
   procedure Merge(aStart, aMid, aEnd: Integer);
-  var I, A, B: Integer;
+  var
+    I, A, B: Integer;
   begin
     A := aStart;
     B := aMid;
@@ -1484,7 +1492,8 @@ var
 
   //The same as Merge, but RenderOrder and RenderOrderAux are switched
   procedure MergeAux(aStart, aMid, aEnd: Integer);
-  var I, A, B: Integer;
+  var
+    I, A, B: Integer;
   begin
     A := aStart;
     B := aMid;
@@ -1502,7 +1511,8 @@ var
 
   //aUseAux tells us which array to store results in, it should flip each recurse
   procedure DoMergeSort(aStart, aEnd: Integer; aUseAux: Boolean);
-  var Mid: Integer;
+  var
+    Mid: Integer;
   begin
     if aEnd - aStart < 2 then Exit;
     Mid := (aStart + aEnd) div 2;
