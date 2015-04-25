@@ -178,7 +178,8 @@ end;
 
 
 procedure TKMMenuReplays.Replays_ListClick(Sender: TObject);
-var ID: Integer;
+var
+  ID: Integer;
 begin
   fSaves.Lock;
     ID := ColumnBox_Replays.ItemIndex;
@@ -313,9 +314,8 @@ end;
 procedure TKMMenuReplays.DeleteConfirm(aVisible: Boolean);
 begin
   if aVisible then
-  begin
-    PopUp_Delete.Show;
-  end else
+    PopUp_Delete.Show
+  else
     PopUp_Delete.Hide;
 end;
 
