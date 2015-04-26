@@ -1286,7 +1286,7 @@ begin
 
     //Hints
     Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
+    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [Char(SC_ARMY_HALT)]);
     Button_Army_Attack.Hint   := gResTexts[TX_ARMY_ATTACK_HINT];
     Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + SC_ARMY_ROTATE_CW_CHAR + ''')';
     Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + SC_ARMY_STORM + ''')';
@@ -1294,7 +1294,7 @@ begin
     Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + SC_ARMY_ADD_LINE_CHAR + ''')';
     Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + SC_ARMY_DEL_LINE_CHAR + ''')';
     Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
-    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [SC_ARMY_LINK]);
+    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [Char(SC_ARMY_LINK)]);
     Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + SC_ARMY_FOOD + ''')';
     Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
@@ -2672,8 +2672,8 @@ begin
                           end;
 
     //Standard army shortcuts from KaM
-    Ord(SC_ARMY_HALT):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
-    Ord(SC_ARMY_LINK):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
+    {Ord(}SC_ARMY_HALT{)}:        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
+    {Ord(}SC_ARMY_LINK{)}:        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
     Ord(SC_ARMY_SPLIT):       if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
 
     //Additional hotkeys for all group orders

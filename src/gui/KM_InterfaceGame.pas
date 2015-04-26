@@ -50,9 +50,9 @@ const
   SC_SELECT_LOW = '0';
   SC_SELECT_HIGH = '9';
 
-  SC_ARMY_HALT = 'H';
+  SC_ARMY_HALT = 72;//'H';
   SC_ARMY_SPLIT = 'S';
-  SC_ARMY_LINK = 'L';
+  SC_ARMY_LINK = 76; //'L';
   SC_ARMY_FOOD = 'F';
   SC_ARMY_STORM = 'X';
   SC_ARMY_ADD_LINE = VK_OEM_PLUS;      // +
