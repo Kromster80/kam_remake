@@ -27,7 +27,7 @@ type
     fKeys: TIntegerArray;
     function GetKeys(aIndex: Word): String;
   public
-    procedure LoadKeys(aPathTemplate: string); //initial locale for UI strings
+    procedure LoadKeys; //initial locale for UI strings
     property Keys[aIndex: Word]: String read GetKeys; default;
   end;
 
@@ -35,11 +35,11 @@ type
   TKMKeyLibraryMulti = class(TKMKeyLibraryCommon)
   private
     fPref: Integer;
-    fKeys: array of TIntegerArray;
+    fKeys: TIntegerArray;
     function GetKeys(aIndex: Word): Integer;
   public
     constructor Create;
-    procedure LoadKeys(aPathTemplate: string); //All locales for Mission strings
+    procedure LoadKeys; //All locales for Mission strings
     function HasKey(aIndex: Word): Boolean;
     property Keys[aIndex: Word]: Integer read GetKeys; default;
     procedure Save(aStream: TKMemoryStream);
@@ -85,19 +85,14 @@ procedure TKMKeyLibraryCommon.LoadKeymapFile(var aArray: TIntegerArray);
   end;
 var
   Tmp: TStringArray;
-  //langCode: AnsiString;
-  libKey: String;
-  I: Integer;
-  s: String;
-  firstDelimiter: Integer;
-  id, topId: Integer;
+  s, libKey: String;
+  I, id, topId, firstDelimiter: Integer;
   {$IFDEF FPC} tmpA: AnsiString; {$ENDIF}
 begin
   FILE_PATH := (ExeDir + 'data' + PathDelim + 'keys.keymap');
   if not FileExists(FILE_PATH) then Exit;
 
-  //Load ANSI file with codepage we say into unicode string
-  //langCode := AnsiString(Copy(FILE_PATH, Length(FILE_PATH) - 7, 3));
+  //Load ANSI file with codepage
   libKey := ReadTextA(FILE_PATH);
   Tmp := KeyToArray(libKey);
 
@@ -171,14 +166,14 @@ end;
 //Check if requested string is empty
 function TKMKeyLibraryMulti.HasKey(aIndex: Word): Boolean;
 begin
-  Result := ((fPref <> -1) and (aIndex < Length(fKeys[fPref])) and (fKeys[fPref, aIndex] <> 0));
+  Result := ((fPref <> -1) and (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0));
 end;
 
 
 function TKMKeyLibraryMulti.GetKeys(aIndex: Word): Integer;
 begin
-  if (fPref <> -1) and (aIndex < Length(fKeys[fPref])) and (fKeys[fPref, aIndex] <> 0) then
-    Result := fKeys[fPref, aIndex]
+  if (fPref <> -1) and (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0) then
+    Result := fKeys[aIndex]
   //else
     //Result := '~~~Key ' + IntToStr(aIndex) + ' out of range!~~~';
 end;
@@ -187,7 +182,7 @@ end;
 //Path template with %s
 procedure TKMKeyLibraryMulti.LoadKeys;
 begin
-  LoadKeymapFile(fKeys[0]);
+  LoadKeymapFile(fKeys);
 end;
 
 
@@ -198,15 +193,15 @@ var
 begin
   //Only save values containing keys
   aStream.Write(1);
-  if Length(fKeys[0]) > 0 then
+  if Length(fKeys) > 0 then
   begin
     aStream.WriteA('keys');
 
-    KeyCount := Length(fKeys[0]);
+    KeyCount := Length(fKeys);
 
     aStream.Write(KeyCount);
     for K := 0 to KeyCount - 1 do
-      aStream.Write(fKeys[0,K]);
+      aStream.Write(fKeys[K]);
   end;
 end;
 
@@ -221,9 +216,9 @@ begin
 
   for I := 0 to 27 do
   if I <= High(fKeys) then
-  if fKeys[I, aKeyID] <> 0 then
+  if fKeys[aKeyID] <> 0 then
   begin
-    s := IntToStr(I) + ':'+ IntToStr(fKeys[I, aKeyID]);
+    s := IntToStr(I) + ':'+ IntToStr(fKeys[aKeyID]);
     s := StringReplace(s, '\', '\\', [rfReplaceAll, rfIgnoreCase]); //Slash
     s := StringReplace(s, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]); //EOL
     SL.Add(s);
@@ -255,9 +250,9 @@ begin
     aStream.ReadA(curLoc);
     aStream.Read(KeyCount);
 
-    SetLength(fKeys[0], KeyCount);
+    SetLength(fKeys, KeyCount);
     for K := 0 to KeyCount - 1 do
-      aStream.Read(fKeys[0,K]);
+      aStream.Read(fKeys[K]);
   end;
 end;
 

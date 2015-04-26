@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, SysUtils, KromOGLUtils,
   KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions,
-  KM_InterfaceDefaults;
+  KM_InterfaceDefaults, KM_ResKeys;
 
 
 type
@@ -21,10 +21,13 @@ type
     //Try to pick the same refresh rate on resolution change
     DesiredRefRate: Integer;
 
+    fKeys: TKMKeyLibraryMulti;
+
     procedure ApplyResolution(Sender: TObject);
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
+    procedure KeybindClick(Sender: TObject);
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
@@ -53,6 +56,12 @@ type
         DropBox_Options_Resolution: TKMDropList;
         DropBox_Options_RefreshRate: TKMDropList;
         Button_Options_ResApply: TKMButton;
+      PopUp_Options_Keys: TKMPopUpMenu;
+        Image_Options_Keys: TKMImage;
+        Label_Options_Keys_Title, Label_DeleteConfirm: TKMLabel;
+        Button_Options_Keys_Save, Button_Options_Keys_Cancel: TKMButton;
+        ColumnBox_Options_Keys: TKMColumnBox;
+      Button_Options_Keys: TKMButton;
       Button_Options_Back: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
@@ -75,6 +84,8 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  fKeys := TKMKeyLibraryMulti.Create;
+  fKeys.LoadKeys;
 
   //We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
 
@@ -181,16 +192,56 @@ begin
       end;
       Radio_Options_Lang.OnChange := Change;
 
+    //Keybindings button and popup
+    Button_Options_Keys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, 'temp keybind button', bsMenu);
+    Button_Options_Keys.Anchors := [anLeft];
+    Button_Options_Keys.OnClick := KeybindClick;
+
+
     //Back button
     Button_Options_Back:=TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
     Button_Options_Back.Anchors := [anLeft];
     Button_Options_Back.OnClick := BackClick;
+
+    //Panel_Options
+    PopUp_Options_Keys := TKMPopUpMenu.Create(Panel_Options, 600);
+    PopUp_Options_Keys.Height := 400;
+    // Keep the pop-up centered
+    PopUp_Options_Keys.Anchors := [];
+    PopUp_Options_Keys.Left := (Panel_Options.Width Div 2) - 300;
+    PopUp_Options_Keys.Top := (Panel_Options.Height Div 2) - 200;
+
+      TKMBevel.Create(PopUp_Options_Keys, -1000,  -1000, 4000, 4000);
+
+      Image_Options_Keys := TKMImage.Create(PopUp_Options_Keys,0,0, 600, 400, 15, rxGuiMain);
+      Image_Options_Keys.ImageStretch;
+
+      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 70, 560, 30, 'Edit your keybindings', fnt_Outline, taCenter);
+      Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
+
+      //Label_DeleteConfirm := TKMLabel.Create(PopUp_Options_Keys, 25, 100, 60, 20, 'Confirm', fnt_Metal, taLeft);
+      //Label_DeleteConfirm.Anchors := [anLeft,anBottom];
+
+      Button_Options_Keys_Save := TKMButton.Create(PopUp_Options_Keys, 20, 350, 170, 30, 'Save', bsMenu);
+      Button_Options_Keys_Save.Anchors := [anLeft,anBottom];
+      Button_Options_Keys_Save.OnClick := KeybindClick;
+
+      Button_Options_Keys_Cancel := TKMButton.Create(PopUp_Options_Keys, 210, 350, 170, 30, 'Cancel', bsMenu);
+      Button_Options_Keys_Cancel.Anchors := [anLeft,anBottom];
+      Button_Options_Keys_Cancel.OnClick := KeybindClick;
+
+      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 560, 240, fnt_Metal, bsMenu);
+      ColumnBox_Options_Keys.SetColumns(fnt_Outline, ['Key number', 'Key value'], [0, 250]);
+      ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
+      ColumnBox_Options_Keys.SearchColumn := 0;
+      //ColumnBox_Options_Keys.OnChange := Replays_ListClick;
+      //ColumnBox_Options_Keys.OnDoubleClick := Options_Edit_Key;
 end;
 
 
 destructor TKMMenuOptions.Destroy;
 begin
-
+  fKeys.Free; // To make sure there's no mem leak
   inherited;
 end;
 
@@ -402,8 +453,34 @@ begin
 end;
 
 
+
+procedure TKMMenuOptions.KeybindClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  //if ColumnBox_Options_Keys.ItemIndex = -1 then Exit;
+
+  if Sender = Button_Options_Keys then
+  begin
+    for I := 0 to 27 do
+      ColumnBox_Options_Keys.AddItem(MakeListRow([IntToStr(I), IntToStr(fKeys.Keys[I])], [$FFFFFFFF, $FFFFFFFF]));
+    PopUp_Options_Keys.Show;
+  end;
+
+  if (Sender = Button_Options_Keys_Save) or (Sender = Button_Options_Keys_Cancel) then
+    PopUp_Options_Keys.Hide;
+
+  // Change name of the save
+  if Sender = Button_Options_Keys_Save then
+  begin
+    //ToDo
+  end;
+end;
+
+
 procedure TKMMenuOptions.BackClick(Sender: TObject);
 begin
+  fKeys.Free;
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
 
