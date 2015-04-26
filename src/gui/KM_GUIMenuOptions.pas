@@ -493,6 +493,9 @@ Procedure TKMMenuOptions.ReloadKeys;
 var
   I: Integer;
 begin
+  fKeys.Free;
+  fKeys := TKMKeyLibraryMulti.Create;
+  fKeys.LoadKeys;
   ColumnBox_Options_Keys.Clear;
   for I := 0 to 36 do
     //Hide the debug keys

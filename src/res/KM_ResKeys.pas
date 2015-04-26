@@ -322,8 +322,19 @@ begin
     VK_RMENU: Result := 'Right Alt';
     VK_PLAY: Result := 'Play';
     VK_ZOOM: Result := 'Zoom';
+    106: Result := 'Num *';
+    107: Result := 'Num +';
+    186: Result := ';';
     187: Result := '=';
+    188: Result := ',';
     189: Result := '-';
+    190: Result := '.';
+    191: Result := '/';
+    192: Result := '`';
+    219: Result := '[';
+    220: Result := '\';
+    221: Result := ']';
+    222: Result := '''';
   else
     Result := Char(aKey);
   end;
