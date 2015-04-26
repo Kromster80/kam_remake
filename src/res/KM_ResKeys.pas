@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF FPC} lconvencoding, LazUTF8, {$ENDIF}
   Classes, SysUtils, StrUtils, KromUtils,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResLocales;
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO;
 
 
 const
@@ -20,6 +20,7 @@ type
   TKMKeyLibraryCommon = class
   private
     FILE_PATH: String;
+    fKeyCount: Integer;
     procedure LoadKeymapFile(var aArray: TIntegerArray);
   end;
 
@@ -30,6 +31,7 @@ type
     fKeys: TIntegerArray;
     function GetKeys(aIndex: Word): Integer;
   public
+    KeyCount: Integer;
     constructor Create;
     procedure LoadKeys; //All locales for Mission strings
     function HasKey(aIndex: Word): Boolean;
@@ -89,6 +91,7 @@ begin
   //Load ANSI file with codepage
   libKey := ReadTextA(FILE_PATH);
   Tmp := KeyToArray(libKey);
+  fKeyCount := High(Tmp);
 
   for I := High(Tmp) downto 0 do
   begin
@@ -157,17 +160,17 @@ begin
 end;
 
 
-//Path template with %s
 procedure TKMKeyLibraryMulti.LoadKeys;
 begin
   LoadKeymapFile(fKeys);
+  KeyCount := fKeyCount;
 end;
 
 
 procedure TKMKeyLibraryMulti.Save(aStream: TKMemoryStream);
 var
   K: Integer;
-  KeyCount: Integer;
+  aKeyCount: Integer;
 begin
   //Only save values containing keys
   aStream.Write(1);
@@ -175,13 +178,14 @@ begin
   begin
     aStream.WriteA('keys');
 
-    KeyCount := Length(fKeys);
+    aKeyCount := Length(fKeys);
 
-    aStream.Write(KeyCount);
-    for K := 0 to KeyCount - 1 do
+    aStream.Write(aKeyCount);
+    for K := 0 to aKeyCount - 1 do
       aStream.Write(fKeys[K]);
   end;
 end;
+
 
 procedure TKMKeyLibraryMulti.SaveKey(aKeyID, aKeyValue: Integer);
 var
@@ -192,7 +196,7 @@ begin
   SL := TStringList.Create;
   SL.DefaultEncoding := TEncoding.UTF8;
 
-  for I := 0 to 36 do
+  for I := 0 to KeyCount do
     if (fKeys[I] = aKeyID) then
     begin
       s := IntToStr(I) + ':'+ IntToStr(aKeyValue);
@@ -217,8 +221,8 @@ end;
 procedure TKMKeyLibraryMulti.Load(aStream: TKMemoryStream);
 var
   I,K: Integer;
-  LocCount, KeyCount: Integer;
-  curLoc: AnsiString;
+  KCount, aKeyCount: Integer;
+  curK: AnsiString;
   Tmp: String;
 begin
   //Try to match savegame locales with players locales,
@@ -227,14 +231,14 @@ begin
 
   SetLength(fKeys, 1);
 
-  aStream.Read(LocCount);
-  for I := 0 to LocCount - 1 do
+  aStream.Read(KCount);
+  for I := 0 to KCount - 1 do
   begin
-    aStream.ReadA(curLoc);
-    aStream.Read(KeyCount);
+    aStream.ReadA(curK);
+    aStream.Read(aKeyCount);
 
-    SetLength(fKeys, KeyCount);
-    for K := 0 to KeyCount - 1 do
+    SetLength(fKeys, aKeyCount);
+    for K := 0 to aKeyCount - 1 do
       aStream.Read(fKeys[K]);
   end;
 end;

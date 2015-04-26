@@ -497,7 +497,7 @@ begin
   fKeys := TKMKeyLibraryMulti.Create;
   fKeys.LoadKeys;
   ColumnBox_Options_Keys.Clear;
-  for I := 0 to 36 do
+  for I := 0 to fKeys.KeyCount do
     //Hide the debug keys
     if (I in [0..16]) or (I in [21..36]) then
       ColumnBox_Options_Keys.AddItem(MakeListRow([fKeys.GetNameForKey(I),
