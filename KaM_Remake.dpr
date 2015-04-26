@@ -2,7 +2,7 @@ program KaM_Remake;
 {$I KaM_Remake.inc}
 
 uses
-  //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
+  {$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   {$IFDEF USE_MAD_EXCEPT}
   madExcept,
   madLinkDisAsm,
@@ -189,6 +189,7 @@ uses
   KM_ResCursors in 'src\res\KM_ResCursors.pas',
   KM_ResFonts in 'src\res\KM_ResFonts.pas',
   KM_ResHouses in 'src\res\KM_ResHouses.pas',
+  KM_ResKeys in 'src\res\KM_ResKeys.pas',
   KM_ResLocales in 'src\res\KM_ResLocales.pas',
   KM_ResMapElements in 'src\res\KM_ResMapElements.pas',
   KM_ResPalettes in 'src\res\KM_ResPalettes.pas',
