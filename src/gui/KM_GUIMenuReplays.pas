@@ -27,6 +27,7 @@ type
     procedure DeleteClick(Sender: TObject);
     procedure DeleteConfirm(aVisible: Boolean);
     procedure RenameClick(Sender: TObject);
+    procedure Edit_Rename_Change(Sender: TObject);
     procedure RenameConfirm(aVisible: Boolean);
 
   protected
@@ -157,6 +158,7 @@ begin
   Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fnt_Metal);
   Edit_Rename.Anchors := [anLeft,anBottom];
   Edit_Rename.AllowedChars := acFileName;
+  Edit_Rename.OnChange := Edit_Rename_Change;
 
   Button_RenameConfirm := TKMButton.Create(PopUp_Rename, 20, 155, 170, 30, gResTexts[TX_MENU_REPLAY_RENAME_CONFIRM], bsMenu);
   Button_RenameConfirm.Anchors := [anLeft,anBottom];
@@ -350,9 +352,27 @@ begin
   if aVisible then
   begin
     Edit_Rename.Text := fSaves[ColumnBox_Replays.ItemIndex].FileName;
+    Button_RenameConfirm.Enabled := False;
     PopUp_Rename.Show;
   end else
     PopUp_Rename.Hide;
+end;
+
+// Check if save name already exists.
+procedure TKMMenuReplays.Edit_Rename_Change(Sender: TObject);
+var
+  I, C: Integer;
+begin
+  if (Sender <> fSaves) then
+  begin
+    C := 0;
+    for I := 0 to fSaves.Count - 1 do
+      // Must go to lower case, otherwise Windows will overwrite.
+      if (Edit_Rename.Text.ToLower() = fSaves[I].FileName.ToLower()) then
+        Inc(C);
+    Button_RenameConfirm.Enabled := (not (C <> 0) and (Edit_Rename.Text <> '') and not (Edit_Rename.Text[1] = ' ') and
+                                     not (Edit_Rename.Text[Length(Edit_Rename.Text)] = ' '));
+  end;
 end;
 
 procedure TKMMenuReplays.RenameClick(Sender: TObject);
