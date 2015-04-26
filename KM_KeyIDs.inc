@@ -8,27 +8,36 @@ SC_MENU_RATIO = 5; //Ratio Menu
 SC_MENU_STATS = 6; //Stats Menu
 SC_MENU_MENU = 7; //Main Menu
 
-SC_SELECT_LOW = 8;
-SC_SELECT_HIGH = 9;
+SC_ARMY_HALT = 8; //Halt Command
+SC_ARMY_SPLIT = 9; //Splitup Command
+SC_ARMY_LINK = 10; //Linkup Command
+SC_ARMY_FOOD = 11; //Food Command
+SC_ARMY_STORM = 12; //Storm Command
+SC_ARMY_ADD_LINE = 13; //Formation Increase Line Command
+SC_ARMY_DEL_LINE = 14; //Formation Shrink Line Command
+SC_ARMY_ROTATE_CW = 15; //Turn Right Command
+SC_ARMY_ROTATE_CCW = 16; //Turn Left Command
 
-SC_ARMY_HALT = 10; //Halt Command
-SC_ARMY_SPLIT = 11; //Splitup Command
-SC_ARMY_LINK = 12; //Linkup Command
-SC_ARMY_FOOD = 13; //Food Command
-SC_ARMY_STORM = 14; //Storm Command
-SC_ARMY_ADD_LINE = 15; //Formation Increase Line Command
-SC_ARMY_DEL_LINE = 16; //Formation Shrink Line Command
-SC_ARMY_ROTATE_CW = 17; //Turn Right Command
-SC_ARMY_ROTATE_CCW = 18; //Turn Left Command
+SC_DEBUG_REVEALMAP = 17; //Debug Menu Reveal Map
+SC_DEBUG_VICTORY = 18; //Debug Menu Victory
+SC_DEBUG_DEFEAT = 19; //Debug Menu Defeat
+SC_DEBUG_ADDSCOUT = 20; //Debug Menu Add Scout
 
-SC_DEBUG_REVEALMAP = 19; //Debug Menu Reveal Map
-SC_DEBUG_VICTORY = 20; //Debug Menu Victory
-SC_DEBUG_DEFEAT = 21; //Debug Menu Defeat
-SC_DEBUG_ADDSCOUT = 22; //Debug Menu Add Scout
+SC_BEACON = 21; //Beacon
+SC_PAUSE = 22; //Pause
+SC_SHOW_TEAMS = 23; //Show teams in MP
+SC_ZOOM_IN = 24; //Zoom In
+SC_ZOOM_OUT = 25; //Zoom Out
+SC_ZOOM_RESET = 26; //Reset Zoom
 
-SC_BEACON = 23; //Beacon
-SC_PAUSE = 24; //Pause
-SC_SHOW_TEAMS = 25; //Show teams in MP
-SC_ZOOM_IN = 26; //Zoom In
-SC_ZOOM_OUT = 27; //Zoom Out
+SC_SELECT_1 = 27; //Select 1
+SC_SELECT_2 = 28; //Select 2
+SC_SELECT_3 = 29; //Select 3
+SC_SELECT_4 = 30; //Select 4
+SC_SELECT_5 = 31; //Select 5
+SC_SELECT_6 = 32; //Select 6
+SC_SELECT_7 = 33; //Select 7
+SC_SELECT_8 = 34; //Select 8
+SC_SELECT_9 = 35; //Select 9
+SC_SELECT_10 = 36; //Select 10
 
