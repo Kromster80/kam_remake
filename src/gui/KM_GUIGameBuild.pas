@@ -86,8 +86,8 @@ end;
 procedure TKMGUIGameBuild.Build_ButtonClick(Sender: TObject);
   procedure SetCost(aCursor: TKMCursorMode; aTag, aTexId, aWood, aStone: Word; aCaption: UnicodeString);
   begin
-    GameCursor.Mode := aCursor;
-    GameCursor.Tag1 := aTag;
+    gGameCursor.Mode := aCursor;
+    gGameCursor.Tag1 := aTag;
 
     Label_BuildCost_Wood.Caption  := IfThen(aWood <> 0, IntToStr(aWood), '-');
     Label_BuildCost_Stone.Caption := IfThen(aStone <> 0, IntToStr(aStone), '-');
@@ -101,7 +101,7 @@ var
 begin
   if Sender = nil then
   begin
-    GameCursor.Mode := cmNone;
+    gGameCursor.Mode := cmNone;
     Exit;
   end;
 

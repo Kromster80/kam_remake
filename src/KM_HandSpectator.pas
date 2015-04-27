@@ -98,7 +98,7 @@ end;
 //Units and Houses, not Groups
 function TKMSpectator.HitTestCursor: TObject;
 begin
-  Result := gHands.GetUnitByUID(GameCursor.ObjectUID);
+  Result := gHands.GetUnitByUID(gGameCursor.ObjectUID);
   if ((Result is TKMUnit) and TKMUnit(Result).IsDeadOrDying)
   or (Result is TKMUnitAnimal) then
     Result := nil;
@@ -106,7 +106,7 @@ begin
   //If there's no unit try pick a house on the Cell below
   if Result = nil then
   begin
-    Result := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    Result := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
     if (Result is TKMHouse) and TKMHouse(Result).IsDestroyed then
       Result := nil;
   end;
@@ -121,9 +121,9 @@ var
 begin
   //In-game player can select only own Units
   if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti] then
-    NewSelected := gHands.GetUnitByUID(GameCursor.ObjectUID)
+    NewSelected := gHands.GetUnitByUID(gGameCursor.ObjectUID)
   else
-    NewSelected := gHands[fHandIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
+    NewSelected := gHands[fHandIndex].Units.GetUnitByUID(gGameCursor.ObjectUID);
 
   //Don't allow the player to select dead units
   if ((NewSelected is TKMUnit) and TKMUnit(NewSelected).IsDeadOrDying)
@@ -147,15 +147,15 @@ begin
 
   //Update selected groups selected unit
   if NewSelected is TKMUnitGroup then
-    TKMUnitGroup(NewSelected).SelectedUnit := TKMUnitGroup(NewSelected).MemberByUID(GameCursor.ObjectUID);
+    TKMUnitGroup(NewSelected).SelectedUnit := TKMUnitGroup(NewSelected).MemberByUID(gGameCursor.ObjectUID);
 
   //If there's no unit try pick a house on the Cell below
   if NewSelected = nil then
   begin
     if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]  then
-      NewSelected := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
+      NewSelected := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y)
     else
-      NewSelected := gHands[fHandIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      NewSelected := gHands[fHandIndex].HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
 
     //Don't allow the player to select destroyed houses
     if (NewSelected is TKMHouse) and TKMHouse(NewSelected).IsDestroyed then

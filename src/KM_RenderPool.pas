@@ -686,10 +686,12 @@ begin
   if (R1[I - 1]) > 0 then
   begin
     Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+
     // Need to swap Coal and Steel for the ArmorSmithy
     // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
     if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
       Id := gRes.HouseDat[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
+
     AddHouseSupplySprite(Id);
   end;
 
@@ -709,13 +711,15 @@ begin
       end;
     end else
       Id := gRes.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
+
     AddHouseSupplySprite(Id);
   end;
 end;
 
 
 procedure TRenderPool.AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
-var i,Id: Integer;
+var
+  i,Id: Integer;
   CornerX,CornerY: Single; R: TRXData;
 begin
   if ResType = wt_Horse then //Horses are a beast, BeastId is the count, age is 1
@@ -1250,21 +1254,21 @@ var
   Tmp: Single;
   Rad, Slope: Byte;
 begin
-  if GameCursor.Cell.Y * GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
+  if gGameCursor.Cell.Y * gGameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if gGame.IsMapEditor then
     gGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));
 
-  P := GameCursor.Cell;
-  F := GameCursor.Float;
+  P := gGameCursor.Cell;
+  F := gGameCursor.Float;
 
-  if (GameCursor.Mode <> cmNone) and (GameCursor.Mode <> cmHouses) and
+  if (gGameCursor.Mode <> cmNone) and (gGameCursor.Mode <> cmHouses) and
      (MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0) then
     RenderSpriteOnTile(P, TC_BLOCK)       //Red X
   else
 
   with gTerrain do
-  case GameCursor.Mode of
+  case gGameCursor.Mode of
     cmNone:       ;
     cmErase:      if not gGame.IsMapEditor then
                   begin
@@ -1288,10 +1292,10 @@ begin
                     RenderWireTile(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmHouses:     RenderWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
-    cmBrush:      if GameCursor.Tag1 <> 0 then
+    cmHouses:     RenderWireHousePlan(P, THouseType(gGameCursor.Tag1)); //Cyan quads and red Xs
+    cmBrush:      if gGameCursor.Tag1 <> 0 then
                   begin
-                    Rad := GameCursor.MapEdSize;
+                    Rad := gGameCursor.MapEdSize;
                     if Rad = 0 then
                       //brush size smaller than one cell
                       gRenderAux.DotOnTerrain(Round(F.X), Round(F.Y), $FF80FF80)
@@ -1304,9 +1308,9 @@ begin
                       for I := -Rad to Rad do
                       for K := -Rad to Rad do
                       //Rounding corners in a nice way
-                      if (GameCursor.MapEdShape = hsSquare)
+                      if (gGameCursor.MapEdShape = hsSquare)
                       or (Sqr(I) + Sqr(K) < Sqr(Rad+0.5)) then
-                        RenderTile(Combo[TKMTerrainKind(GameCursor.Tag1), TKMTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
+                        RenderTile(Combo[TKMTerrainKind(gGameCursor.Tag1), TKMTerrainKind(gGameCursor.Tag1),1],P.X+K,P.Y+I,0);
                     end
                     else
                     begin
@@ -1315,29 +1319,29 @@ begin
                       for I := -Rad to Rad - 1 do
                       for K := -Rad to Rad - 1 do
                       //Rounding corners in a nice way
-                      if (GameCursor.MapEdShape = hsSquare)
+                      if (gGameCursor.MapEdShape = hsSquare)
                       or (Sqr(I+0.5)+Sqr(K+0.5) < Sqr(Rad)) then
-                        RenderTile(Combo[TKMTerrainKind(GameCursor.Tag1), TKMTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
+                        RenderTile(Combo[TKMTerrainKind(gGameCursor.Tag1), TKMTerrainKind(gGameCursor.Tag1),1],P.X+K,P.Y+I,0);
                     end;
                   end;
-    cmTiles:      if GameCursor.MapEdDir in [0..3] then
-                    fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.MapEdDir)
+    cmTiles:      if gGameCursor.MapEdDir in [0..3] then
+                    fRenderTerrain.RenderTile(gGameCursor.Tag1, P.X, P.Y, gGameCursor.MapEdDir)
                   else
-                    fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, (gTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
+                    fRenderTerrain.RenderTile(gGameCursor.Tag1, P.X, P.Y, (gTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
     cmObjects:    begin
                     //If there's object below - paint it in Red
                     RenderMapElement(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, true, true);
-                    RenderMapElement(GameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
+                    RenderMapElement(gGameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
                   end;
     cmMagicWater: ; //TODO: Render some effect to show magic water is selected
     cmElevate,
     cmEqualize:   begin
-                    Rad := GameCursor.MapEdSize;
-                    Slope := GameCursor.MapEdSlope;
+                    Rad := gGameCursor.MapEdSize;
+                    Slope := gGameCursor.MapEdSlope;
                     for I := Max((Round(F.Y) - Rad), 1) to Min((Round(F.Y) + Rad), gTerrain.MapY -1) do
                     for K := Max((Round(F.X) - Rad), 1) to Min((Round(F.X) + Rad), gTerrain.MapX - 1) do
                     begin
-                      case GameCursor.MapEdShape of
+                      case gGameCursor.MapEdShape of
                         hsCircle: Tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / Rad;
                         hsSquare: Tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / Rad;
                         else                 Tmp := 0;
@@ -1346,27 +1350,27 @@ begin
                       Tmp := EnsureRange(Tmp * 2.5, 0, 1); //*2.5 makes dots more visible
                       gRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
                     end;
-                    case GameCursor.MapEdShape of
+                    case gGameCursor.MapEdShape of
                       hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), Rad, $00000000,  $FFFFFFFF);
                       hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
                     end;
                   end;
-    cmUnits:      if (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = 255) then
+    cmUnits:      if (gGameCursor.Mode = cmUnits) and (gGameCursor.Tag1 = 255) then
                   begin
                     U := gTerrain.UnitsHitTest(P.X, P.Y);
                     if U <> nil then
                       AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,gHands[MySpectator.HandIndex].FlagColor,true,true);
                   end
                   else
-                    if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                      AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gHands[MySpectator.HandIndex].FlagColor, True)
+                    if CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
+                      AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gHands[MySpectator.HandIndex].FlagColor, True)
                     else
                       RenderSpriteOnTile(P, TC_BLOCK); //Red X
-    cmMarkers:    case GameCursor.Tag1 of
+    cmMarkers:    case gGameCursor.Tag1 of
                     MARKER_REVEAL:        begin
                                             RenderSpriteOnTile(P, 394, gHands[MySpectator.HandIndex].FlagColor);
                                             gRenderAux.CircleOnTerrain(P.X, P.Y,
-                                             GameCursor.MapEdSize,
+                                             gGameCursor.MapEdSize,
                                              gHands[MySpectator.HandIndex].FlagColor AND $10FFFFFF,
                                              gHands[MySpectator.HandIndex].FlagColor);
                                           end;
@@ -1397,7 +1401,8 @@ end;
 
 
 function TRenderList.GetSelectionUID(CurPos: TKMPointF): Integer;
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   Result := -1; //Didn't hit anything
   //Skip if cursor is over FOW
@@ -1424,7 +1429,8 @@ end;
 
 
 procedure TRenderList.ClipRenderList;
-var I, J: Integer;
+var
+  I, J: Integer;
 begin
   SetLength(RenderOrder, fCount);
   J := 0;
@@ -1438,7 +1444,7 @@ begin
 end;
 
 
-//Sort all items in list from top-right to bottom-left
+// Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
 var
   RenderOrderAux: TSmallIntArray;
@@ -1466,7 +1472,8 @@ var
   end;
 
   procedure Merge(aStart, aMid, aEnd: Integer);
-  var I, A, B: Integer;
+  var
+    I, A, B: Integer;
   begin
     A := aStart;
     B := aMid;
@@ -1484,7 +1491,8 @@ var
 
   //The same as Merge, but RenderOrder and RenderOrderAux are switched
   procedure MergeAux(aStart, aMid, aEnd: Integer);
-  var I, A, B: Integer;
+  var
+    I, A, B: Integer;
   begin
     A := aStart;
     B := aMid;
@@ -1500,9 +1508,10 @@ var
       end;
   end;
 
-  //aUseAux tells us which array to store results in, it should flip each recurse
+  // aUseAux tells us which array to store results in, it should flip each recurse
   procedure DoMergeSort(aStart, aEnd: Integer; aUseAux: Boolean);
-  var Mid: Integer;
+  var
+    Mid: Integer;
   begin
     if aEnd - aStart < 2 then Exit;
     Mid := (aStart + aEnd) div 2;
@@ -1555,7 +1564,7 @@ begin
 end;
 
 
-//Child items don't need ground level
+// Child items don't need ground level
 procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then
@@ -1614,7 +1623,7 @@ begin
 end;
 
 
-{Now render all these items from list}
+// Now render all these items from list
 procedure TRenderList.Render;
 var
   I, K, objectCount: Integer;

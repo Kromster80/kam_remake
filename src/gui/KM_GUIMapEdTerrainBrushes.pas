@@ -79,18 +79,18 @@ end;
 
 procedure TKMMapEdTerrainBrushes.BrushChange(Sender: TObject);
 begin
-  GameCursor.Mode := cmBrush;
-  GameCursor.MapEdSize := BrushSize.Position;
+  gGameCursor.Mode := cmBrush;
+  gGameCursor.MapEdSize := BrushSize.Position;
   gGame.MapEditor.TerrainPainter.RandomizeTiling := BrushRandom.Checked;
 
   if Sender = BrushCircle then
-    GameCursor.MapEdShape := hsCircle
+    gGameCursor.MapEdShape := hsCircle
   else
   if Sender = BrushSquare then
-    GameCursor.MapEdShape := hsSquare
+    gGameCursor.MapEdShape := hsSquare
   else
   if Sender is TKMButtonFlat then
-    GameCursor.Tag1 := TKMButtonFlat(Sender).Tag;
+    gGameCursor.Tag1 := TKMButtonFlat(Sender).Tag;
 
   BrushRefresh;
 end;
@@ -100,13 +100,13 @@ procedure TKMMapEdTerrainBrushes.BrushRefresh;
 var
   I,K: Integer;
 begin
-  BrushCircle.Down := (GameCursor.MapEdShape = hsCircle);
-  BrushSquare.Down := (GameCursor.MapEdShape = hsSquare);
+  BrushCircle.Down := (gGameCursor.MapEdShape = hsCircle);
+  BrushSquare.Down := (gGameCursor.MapEdShape = hsSquare);
 
   for I := Low(BrushTable) to High(BrushTable) do
   for K := Low(BrushTable[I]) to High(BrushTable[I]) do
   if BrushTable[I,K] <> nil then
-    BrushTable[I,K].Down := (BrushTable[I,K].Tag = GameCursor.Tag1);
+    BrushTable[I,K].Down := (BrushTable[I,K].Tag = gGameCursor.Tag1);
 end;
 
 

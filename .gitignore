@@ -24,3 +24,5 @@
 /data/sfx
 /dcu
 /src/net/KM_NetAuthSecure.pas
+__history
+*.tvsconfig

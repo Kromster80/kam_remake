@@ -81,8 +81,8 @@ end;
 
 procedure TKMMapEdTownUnits.Town_UnitChange(Sender: TObject);
 begin
-  GameCursor.Mode := cmUnits;
-  GameCursor.Tag1 := Byte(TKMButtonFlat(Sender).Tag);
+  gGameCursor.Mode := cmUnits;
+  gGameCursor.Tag1 := Byte(TKMButtonFlat(Sender).Tag);
 
   Town_UnitRefresh;
 end;
@@ -97,7 +97,7 @@ begin
   if Panel_Units.Childs[I] is TKMButtonFlat then
   begin
     B := TKMButtonFlat(Panel_Units.Childs[I]);
-    B.Down := (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = B.Tag);
+    B.Down := (gGameCursor.Mode = cmUnits) and (gGameCursor.Tag1 = B.Tag);
   end;
 end;
 

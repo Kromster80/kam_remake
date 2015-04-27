@@ -86,10 +86,10 @@ var
   MoveX, MoveY: Integer;
 begin
   //Last row/col of the map is not visible or selectable
-  CursorFloat.X := EnsureRange(GameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
-  CursorFloat.Y := EnsureRange(GameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
-  CursorCell.X := EnsureRange(GameCursor.Cell.X, 1, gTerrain.MapX-1);
-  CursorCell.Y := EnsureRange(GameCursor.Cell.Y, 1, gTerrain.MapY-1);
+  CursorFloat.X := EnsureRange(gGameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
+  CursorFloat.Y := EnsureRange(gGameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
+  CursorCell.X := EnsureRange(gGameCursor.Cell.X, 1, gTerrain.MapX-1);
+  CursorCell.Y := EnsureRange(gGameCursor.Cell.Y, 1, gTerrain.MapY-1);
 
   case fSelectionEdit of
     seNone:       ;
@@ -127,10 +127,10 @@ var
   CursorCell: TKMPoint;
 begin
   //Last row/col of the map is not visible or selectable
-  CursorFloat.X := EnsureRange(GameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
-  CursorFloat.Y := EnsureRange(GameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
-  CursorCell.X := EnsureRange(GameCursor.Cell.X, 1, gTerrain.MapX-1);
-  CursorCell.Y := EnsureRange(GameCursor.Cell.Y, 1, gTerrain.MapY-1);
+  CursorFloat.X := EnsureRange(gGameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
+  CursorFloat.Y := EnsureRange(gGameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
+  CursorCell.X := EnsureRange(gGameCursor.Cell.X, 1, gTerrain.MapX-1);
+  CursorCell.Y := EnsureRange(gGameCursor.Cell.Y, 1, gTerrain.MapY-1);
 
   if fSelectionMode = smSelecting then
   begin

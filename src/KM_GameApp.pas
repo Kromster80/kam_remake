@@ -301,8 +301,8 @@ begin
       fMainMenuInterface.MouseMove(Shift, X,Y);
 
   if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
-                                                            GameCursor.Cell.X, GameCursor.Cell.Y]));
+    fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [gGameCursor.Float.X, gGameCursor.Float.Y,
+                                                            gGameCursor.Cell.X, gGameCursor.Cell.Y]));
 end;
 
 
@@ -692,7 +692,7 @@ begin
 
   if not aForPrintScreen and (gGame <> nil) then
     if Assigned(fOnCursorUpdate) then
-      fOnCursorUpdate(4, 'Objects: ' + IntToStr(GameCursor.ObjectUID));
+      fOnCursorUpdate(4, 'Objects: ' + IntToStr(gGameCursor.ObjectUID));
 end;
 
 

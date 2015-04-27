@@ -85,6 +85,7 @@ type
     property ScanFinished: Boolean read fScanFinished;
 
     procedure DeleteSave(aIndex: Integer);
+    procedure RenameSave(aIndex: Integer; aName: UnicodeString);
 
     function SavesList: UnicodeString;
     procedure UpdateState;
@@ -233,7 +234,8 @@ end;
 
 
 procedure TKMSavesCollection.Clear;
-var I: Integer;
+var
+  I: Integer;
 begin
   Assert(not fScanning, 'Guarding from access to inconsistent data');
   for I := 0 to fCount - 1 do
@@ -252,7 +254,8 @@ end;
 
 
 procedure TKMSavesCollection.DeleteSave(aIndex: Integer);
-var I: Integer;
+var
+  I: Integer;
 begin
   Lock;
     Assert(InRange(aIndex, 0, fCount-1));
@@ -264,6 +267,20 @@ begin
       fSaves[I] := fSaves[I+1]; //Move them down
     dec(fCount);
     SetLength(fSaves, fCount);
+  Unlock;
+end;
+
+
+procedure TKMSavesCollection.RenameSave(aIndex: Integer; aName: UnicodeString);
+var
+  aFileOld, aFileNew: UnicodeString;
+begin
+  Lock;
+    aFileOld := fSaves[aIndex].Path + fSaves[aIndex].fFileName;
+    aFileNew := fSaves[aIndex].Path + aName;
+    RenameFile(aFileOld + '.sav', aFileNew + '.sav');
+    RenameFile(aFileOld + '.rpl', aFileNew + '.rpl');
+    RenameFile(aFileOld + '.bas', aFileNew + '.bas');
   Unlock;
 end;
 

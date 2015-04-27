@@ -205,12 +205,12 @@ begin
   if (fMyControls.CtrlOver = nil) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
-    PrevCursor := GameCursor.Float;
+    PrevCursor := gGameCursor.Float;
     fViewport.Zoom := fViewport.Zoom + WheelDelta / 2000;
     UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                   fViewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-gGameCursor.Float.X,
+                                   fViewport.Position.Y + PrevCursor.Y-gGameCursor.Float.Y);
     UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
   end;
 end;
@@ -247,7 +247,7 @@ end;
 //Compute cursor position and store it in global variables
 procedure TKMUserInterfaceGame.UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
 begin
-  with GameCursor do
+  with gGameCursor do
   begin
     Pixel.X := X;
     Pixel.Y := Y;

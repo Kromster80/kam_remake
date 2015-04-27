@@ -2694,7 +2694,7 @@ begin
     Ord(SC_DEBUG_REVEALMAP): gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
     Ord(SC_DEBUG_VICTORY):   gGame.GameInputProcess.CmdTemp(gic_TempVictory);
     Ord(SC_DEBUG_DEFEAT):    gGame.GameInputProcess.CmdTemp(gic_TempDefeat);
-    Ord(SC_DEBUG_ADDSCOUT):  gGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
+    Ord(SC_DEBUG_ADDSCOUT):  gGame.GameInputProcess.CmdTemp(gic_TempAddScout, gGameCursor.Cell);
   end;
 end;
 
@@ -2761,7 +2761,7 @@ begin
 
     if canWalkTo then
     begin
-      if Group.CanWalkTo(GameCursor.Cell, 0) then
+      if Group.CanWalkTo(gGameCursor.Cell, 0) then
       begin
         SelectingTroopDirection := True; //MouseMove will take care of cursor changing
         //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
@@ -2777,7 +2777,7 @@ begin
         gRes.Cursors.Cursor := kmc_Invisible;
       end
       else
-        gSoundPlayer.Play(sfx_CantPlace, GameCursor.Cell, False, 4);
+        gSoundPlayer.Play(sfx_CantPlace, gGameCursor.Cell, False, 4);
     end;
   end;
 end;
@@ -2858,42 +2858,42 @@ begin
 
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
-    P := GameCursor.Cell; //Get cursor position tile-wise
+    P := gGameCursor.Cell; //Get cursor position tile-wise
     if gHands[MySpectator.HandIndex].FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
-    case GameCursor.Mode of
+    case gGameCursor.Mode of
       cmRoad:  if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
-                  LastDragPoint := GameCursor.Cell;
+                  LastDragPoint := gGameCursor.Cell;
                 end;
       cmField: if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
-                  LastDragPoint := GameCursor.Cell;
+                  LastDragPoint := gGameCursor.Cell;
                 end;
       cmWine:  if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-                  LastDragPoint := GameCursor.Cell;
+                  LastDragPoint := gGameCursor.Cell;
                 end;
       cmErase: if not KMSamePoint(LastDragPoint, P) then
                 begin
                   if gHands[MySpectator.HandIndex].BuildList.HousePlanList.HasPlan(P) then
                   begin
                     gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
-                    LastDragPoint := GameCursor.Cell;
+                    LastDragPoint := gGameCursor.Cell;
                   end
                   else
                     if (gHands[MySpectator.HandIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
                     begin
                       gGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove any plans
-                      LastDragPoint := GameCursor.Cell;
+                      LastDragPoint := gGameCursor.Cell;
                     end;
                 end;
     end;
   end;
 
-  if GameCursor.Mode <> cmNone then
+  if gGameCursor.Mode <> cmNone then
   begin
     //Use the default cursor while placing roads, don't become stuck on c_Info or others
     if not fViewport.Scrolling then
@@ -2929,7 +2929,7 @@ begin
   if (MySpectator.Selected is TKMUnitGroup)
   and (fUIMode in [umSP, umMP]) and not HasLostMPGame
   and not gHands[MySpectator.HandIndex].InCinematic
-  and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
+  and (MySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then
   begin
     if ((Obj is TKMUnit) and (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Enemy))
     or ((Obj is TKMHouse) and (gHands[MySpectator.HandIndex].Alliances[TKMHouse(Obj).Owner] = at_Enemy)) then
@@ -2981,7 +2981,7 @@ begin
 
   if gGame.IsPaused and (fUIMode in [umSP, umMP]) then Exit;
 
-  P := GameCursor.Cell; //It's used in many places here
+  P := gGameCursor.Cell; //It's used in many places here
 
   case Button of
     mbLeft:
@@ -3012,19 +3012,19 @@ begin
 
         if fPlacingBeacon then
         begin
-          Beacon_Place(GameCursor.Float);
+          Beacon_Place(gGameCursor.Float);
           Exit;
         end;
 
         //Only allow placing of roads etc. with the left mouse button
         if MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0 then
         begin
-          if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmHouses] then
+          if gGameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmHouses] then
             //Can't place noise when clicking on unexplored areas
             gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
         end
         else
-          case GameCursor.Mode of
+          case gGameCursor.Mode of
             cmNone:
               begin
                 //Remember previous selection to play sound if it changes
@@ -3087,10 +3087,10 @@ begin
               if KMSamePoint(LastDragPoint, KMPoint(0,0)) then gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
 
             cmHouses:
-              if gHands[MySpectator.HandIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+              if gHands[MySpectator.HandIndex].CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
               begin
                 gGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
-                  THouseType(GameCursor.Tag1));
+                  THouseType(gGameCursor.Tag1));
                 //If shift pressed do not reset cursor (keep selected building)
                 if not (ssShift in Shift) then
                   fGuiGameBuild.Show;
