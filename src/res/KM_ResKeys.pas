@@ -39,7 +39,7 @@ type
     function GetNameForKey(aValue: Integer): String;
     property Keys[aIndex: Word]: Integer read GetKeys; default;
     procedure Save(aStream: TKMemoryStream);
-    procedure SaveKey(aKeyID, aKeyValue: Integer);
+    procedure SaveKey(aKeyID: Integer; aKeyValue: Word);
     procedure Load(aStream: TKMemoryStream);
   end;
 
@@ -187,7 +187,7 @@ begin
 end;
 
 
-procedure TKMKeyLibraryMulti.SaveKey(aKeyID, aKeyValue: Integer);
+procedure TKMKeyLibraryMulti.SaveKey(aKeyID: Integer; aKeyValue: Word);
 var
   SL: TStringList;
   I: Integer;
@@ -197,23 +197,19 @@ begin
   SL.DefaultEncoding := TEncoding.UTF8;
 
   for I := 0 to KeyCount do
-    if (fKeys[I] = aKeyID) then
+    if (I = aKeyID) then
     begin
       s := IntToStr(I) + ':'+ IntToStr(aKeyValue);
-      s := StringReplace(s, '\', '\\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      s := StringReplace(s, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]); //EOL
       SL.Add(s);
     end else
     begin
       s := IntToStr(I) + ':'+ IntToStr(fKeys[I]);
-      s := StringReplace(s, '\', '\\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      s := StringReplace(s, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]); //EOL
       SL.Add(s);
     end;
 
   //Don't create blank files for unused translations
   if (SL.Count > 0) or FileExists(FILE_PATH) then
-    SL.SaveToFile(FILE_PATH);
+    SL.SaveToFile(FILE_PATH, TEncoding.UTF8);
   SL.Free;
 end;
 

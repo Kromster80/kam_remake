@@ -27,7 +27,9 @@ type
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
+    procedure Keybind_DoubleClick(Sender: TObject);
     procedure KeybindClick(Sender: TObject);
+    procedure Keybind_ListKeySave(Sender: TObject);
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
@@ -59,9 +61,15 @@ type
         Button_Options_ResApply: TKMButton;
       PopUp_Options_Keys: TKMPopUpMenu;
         Image_Options_Keys: TKMImage;
-        Label_Options_Keys_Title, Label_DeleteConfirm: TKMLabel;
-        Button_Options_Keys_Save, Button_Options_Keys_Cancel: TKMButton;
+        Label_Options_Keys_Title: TKMLabel;
+        Button_Options_Keys_OK: TKMButton;
         ColumnBox_Options_Keys: TKMColumnBox;
+        PopUp_Options_Keys_Input: TKMPopUpMenu;
+          Image_Options_Keys_Input: TKMImage;
+          Label_Options_Keys_Title_Input: TKMLabel;
+          Button_Options_Keys_Input_Save: TKMButton;
+          Button_Options_Keys_Input_Cancel: TKMButton;
+          Edit_Options_Keys_Input: TKMEdit;
       Button_Options_Keys: TKMButton;
       Button_Options_Back: TKMButton;
   public
@@ -198,13 +206,12 @@ begin
     Button_Options_Keys.Anchors := [anLeft];
     Button_Options_Keys.OnClick := KeybindClick;
 
-
     //Back button
     Button_Options_Back:=TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
     Button_Options_Back.Anchors := [anLeft];
     Button_Options_Back.OnClick := BackClick;
 
-    //Panel_Options
+    // Panel_Options
     PopUp_Options_Keys := TKMPopUpMenu.Create(Panel_Options, 600);
     PopUp_Options_Keys.Height := 400;
     // Keep the pop-up centered
@@ -220,23 +227,45 @@ begin
       Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 560, 30, 'Keybindings', fnt_Outline, taCenter);
       Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
 
-      //Label_DeleteConfirm := TKMLabel.Create(PopUp_Options_Keys, 25, 100, 60, 20, 'Confirm', fnt_Metal, taLeft);
-      //Label_DeleteConfirm.Anchors := [anLeft,anBottom];
-
-      Button_Options_Keys_Save := TKMButton.Create(PopUp_Options_Keys, 20, 550, 170, 30, 'OK', bsMenu);
-      Button_Options_Keys_Save.Anchors := [anLeft,anBottom];
-      Button_Options_Keys_Save.OnClick := KeybindClick;
-
-      Button_Options_Keys_Cancel := TKMButton.Create(PopUp_Options_Keys, 210, 550, 170, 30, 'Cancel', bsMenu);
-      Button_Options_Keys_Cancel.Anchors := [anLeft,anBottom];
-      Button_Options_Keys_Cancel.OnClick := KeybindClick;
+      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 20, 550, 170, 30, 'OK', bsMenu);
+      Button_Options_Keys_OK.Anchors := [anLeft,anBottom];
+      Button_Options_Keys_OK.OnClick := KeybindClick;
 
       ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 560, 440, fnt_Metal, bsMenu);
       ColumnBox_Options_Keys.SetColumns(fnt_Outline, ['Function', 'Key'], [0, 250]);
       ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_Options_Keys.SearchColumn := 0;
-      //ColumnBox_Options_Keys.OnChange := Replays_ListClick;
-      //ColumnBox_Options_Keys.OnDoubleClick := Options_Edit_Key;
+      ColumnBox_Options_Keys.OnClick := Keybind_DoubleClick;
+
+      //The change key input popup
+      PopUp_Options_Keys_Input := TKMPopUpMenu.Create(PopUp_Options_Keys, 240);
+      PopUp_Options_Keys_Input.Height := 180;
+      // Keep the pop-up centered
+      PopUp_Options_Keys_Input.Anchors := [];
+      PopUp_Options_Keys_Input.Left := (PopUp_Options_Keys.Width Div 2) - 120;
+      PopUp_Options_Keys_Input.Top := (PopUp_Options_Keys.Height Div 2) - 90;
+
+        TKMBevel.Create(PopUp_Options_Keys_Input, -1000, 1000, 4000, 4000);
+
+        Image_Options_Keys_Input := TKMImage.Create(PopUp_Options_Keys_Input,0,0, 240, 200, 15, rxGuiMain);
+        Image_Options_Keys_Input.ImageStretch;
+
+        Label_Options_Keys_Title_Input := TKMLabel.Create(PopUp_Options_Keys_Input, 20, 30, 200, 30, 'Press the key to asign', fnt_Outline, taCenter);
+        Label_Options_Keys_Title_Input.Anchors := [anLeft,anBottom];
+
+        Edit_Options_Keys_Input := TKMEdit.Create(PopUp_Options_Keys_Input, 20, 70, 200, 30, fnt_Metal);
+        Edit_Options_Keys_Input.Anchors := [anLeft,anBottom];
+        Edit_Options_Keys_Input.MaxLen := 1;
+
+        Button_Options_Keys_Input_Save:= TKMButton.Create(PopUp_Options_Keys_Input, 20, 130, 85, 30, 'Save', bsMenu);
+        Button_Options_Keys_Input_Save.Anchors := [anLeft,anBottom];
+        Button_Options_Keys_Input_Save.OnClick := Keybind_ListKeySave;
+
+        Button_Options_Keys_Input_Cancel:= TKMButton.Create(PopUp_Options_Keys_Input, 135, 130, 85, 30, 'Cancel', bsMenu);
+        Button_Options_Keys_Input_Cancel.Anchors := [anLeft,anBottom];
+        Button_Options_Keys_Input_Cancel.OnClick := KeybindClick;
+
+      // Keybind_ListKeyUp
   ReloadKeys;
 end;
 
@@ -457,26 +486,47 @@ end;
 
 
 procedure TKMMenuOptions.KeybindClick(Sender: TObject);
-var
-  I: Integer;
 begin
   //ReloadKeys;
   if ColumnBox_Options_Keys.TopIndex < 0 then Exit;
 
   if Sender = Button_Options_Keys then
-  begin
     PopUp_Options_Keys.Show;
-  end;
 
-  if (Sender = Button_Options_Keys_Save) or (Sender = Button_Options_Keys_Cancel) then
+  if (Sender = Button_Options_Keys_OK) then
     PopUp_Options_Keys.Hide;
 
-  // Change Key value
-  if Sender = Button_Options_Keys_Save then
+  if (Sender = Button_Options_Keys_Input_Cancel) then
+    PopUp_Options_Keys_Input.Hide;
+end;
+
+
+procedure TKMMenuOptions.Keybind_DoubleClick(Sender: TObject);
+begin
+  PopUp_Options_Keys_Input.Show;
+end;
+
+
+procedure TKMMenuOptions.Keybind_ListKeySave(Sender: TObject);
+var
+  aID, I, D: Integer;
+  aKey: Word;
+begin
+  aID := ColumnBox_Options_Keys.ItemIndex;
+  aKey := Ord(Edit_Options_Keys_Input.Text.ToUpper.Chars[0]);
+  D := 0;
+  if (aID >= 0) then
   begin
-    //ToDo
-    ReloadKeys;
+    for I := 0 to fKeys.KeyCount do
+      if (Ord(aKey) = fKeys.Keys[I]) then Inc(D);
+
+    if (D <> 0) then
+      exit
+    else
+      fKeys.SaveKey(aID, Ord(aKey));
   end;
+  ReloadKeys;
+  PopUp_Options_Keys_Input.Hide;
 end;
 
 
@@ -496,6 +546,7 @@ begin
   fKeys.Free;
   fKeys := TKMKeyLibraryMulti.Create;
   fKeys.LoadKeys;
+  ColumnBox_Options_Keys.ItemIndex := -1;
   ColumnBox_Options_Keys.Clear;
   for I := 0 to fKeys.KeyCount do
     //Hide the debug keys
