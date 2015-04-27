@@ -214,7 +214,7 @@ end;
 procedure TKMMapEditor.MouseDown(Button: TMouseButton);
 begin
   if (Button = mbLeft) then
-  case GameCursor.Mode of
+  case gGameCursor.Mode of
     cmSelection:  fSelection.Selection_Start;
   end;
 end;
@@ -224,10 +224,10 @@ procedure TKMMapEditor.MouseMove;
 var
   P: TKMPoint;
 begin
-  if ssLeft in GameCursor.SState then //Only allow placing of roads etc. with the left mouse button
+  if ssLeft in gGameCursor.SState then //Only allow placing of roads etc. with the left mouse button
   begin
-    P := GameCursor.Cell;
-    case GameCursor.Mode of
+    P := gGameCursor.Cell;
+    case gGameCursor.Mode of
       cmRoad:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Road) then
                     begin
                       //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
@@ -239,7 +239,7 @@ begin
                       gHands[MySpectator.HandIndex].AddField(P, ft_Corn);
       cmWine:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Wine) then
                       gHands[MySpectator.HandIndex].AddField(P, ft_Wine);
-      cmUnits:      if GameCursor.Tag1 = 255 then gHands.RemAnyUnit(P);
+      cmUnits:      if gGameCursor.Tag1 = 255 then gHands.RemAnyUnit(P);
       cmErase:      begin
                       gHands.RemAnyHouse(P);
                       if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
@@ -261,14 +261,14 @@ begin
   if not aOverMap then
   begin
     //Still need to make a checkpoint since painting has now stopped
-    if GameCursor.Mode in [cmElevate, cmEqualize, cmBrush, cmObjects, cmTiles] then
+    if gGameCursor.Mode in [cmElevate, cmEqualize, cmBrush, cmObjects, cmTiles] then
       fTerrainPainter.MakeCheckpoint;
     Exit;
   end;
 
-  P := GameCursor.Cell; //Get cursor position tile-wise
+  P := gGameCursor.Cell; //Get cursor position tile-wise
   case Button of
-    mbLeft:   case GameCursor.Mode of
+    mbLeft:   case gGameCursor.Mode of
                 cmRoad:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Road) then
                               begin
                                 //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
@@ -280,33 +280,33 @@ begin
                                 gHands[MySpectator.HandIndex].AddField(P, ft_Corn);
                 cmWine:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Wine) then
                                 gHands[MySpectator.HandIndex].AddField(P, ft_Wine);
-                cmHouses:     if gHands[MySpectator.HandIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+                cmHouses:     if gHands[MySpectator.HandIndex].CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
                               begin
-                                gHands[MySpectator.HandIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
+                                gHands[MySpectator.HandIndex].AddHouse(THouseType(gGameCursor.Tag1), P.X, P.Y, true);
                                 //Holding shift allows to place that house multiple times
-                                if not (ssShift in GameCursor.SState) then
-                                  GameCursor.Mode := cmRoad;
+                                if not (ssShift in gGameCursor.SState) then
+                                  gGameCursor.Mode := cmRoad;
                               end;
                 cmElevate, cmEqualize,
                 cmBrush, cmObjects,
                 cmTiles:      fTerrainPainter.MakeCheckpoint;
                 cmMagicWater: fTerrainPainter.MagicWater(P);
-                cmUnits:      if GameCursor.Tag1 = 255 then
+                cmUnits:      if gGameCursor.Tag1 = 255 then
                                 gHands.RemAnyUnit(P)
                               else
-                              if gTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+                              if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
                               begin
                                 //Check if we can really add a unit
-                                if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                                  gHands[MySpectator.HandIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
+                                if TUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
+                                  gHands[MySpectator.HandIndex].AddUnit(TUnitType(gGameCursor.Tag1), P, False)
                                 else
-                                if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                                  gHands[MySpectator.HandIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
+                                if TUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
+                                  gHands[MySpectator.HandIndex].AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
                                 else
-                                  gHands.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
+                                  gHands.PlayerAnimals.AddUnit(TUnitType(gGameCursor.Tag1), P);
                               end;
-                cmMarkers:    case GameCursor.Tag1 of
-                                MARKER_REVEAL:        fRevealers[MySpectator.HandIndex].Add(P, GameCursor.MapEdSize);
+                cmMarkers:    case gGameCursor.Tag1 of
+                                MARKER_REVEAL:        fRevealers[MySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
                                 MARKER_DEFENCE:       gHands[MySpectator.HandIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                                 MARKER_CENTERSCREEN:  begin
                                                         gHands[MySpectator.HandIndex].CenterScreen := P;
@@ -322,7 +322,7 @@ begin
                                   gTerrain.RemField(P);
                               end;
               end;
-    mbRight:  case GameCursor.Mode of
+    mbRight:  case gGameCursor.Mode of
                 cmElevate,
                 cmEqualize: begin
                               //Actual change was made in UpdateStateIdle, we just register it is done here
@@ -354,11 +354,11 @@ var
   G: TKMUnitGroup;
   DP: TAIDefencePosition;
 begin
-  P := GameCursor.Cell;
+  P := gGameCursor.Cell;
 
   if aLayer = plCursors then
     //With Buildings tab see if we can remove Fields or Houses
-    if GameCursor.Mode = cmErase then
+    if gGameCursor.Mode = cmErase then
       if gTerrain.TileIsCornField(P)
       or gTerrain.TileIsWineField(P)
       or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)

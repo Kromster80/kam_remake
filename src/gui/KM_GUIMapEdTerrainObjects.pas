@@ -103,17 +103,17 @@ begin
   and not (TKMButtonFlat(Sender).Tag = 61) then
     Exit;
 
-  GameCursor.Mode := cmObjects;
+  gGameCursor.Mode := cmObjects;
   if TKMButtonFlat(Sender).Tag = 255 then
     //Erase
-    GameCursor.Tag1 := 255
+    gGameCursor.Tag1 := 255
   else
   if TKMButtonFlat(Sender).Tag = 61 then
     //Block
-    GameCursor.Tag1 := 61
+    gGameCursor.Tag1 := 61
   else
     //Object
-    GameCursor.Tag1 := fCompactToMapElem[ObjID]; //0..n-1
+    gGameCursor.Tag1 := fCompactToMapElem[ObjID]; //0..n-1
 
   //Remember last selected object
   fLastObject := TKMButtonFlat(Sender).Tag;
@@ -143,11 +143,11 @@ begin
       ObjectsTable[I].Disable;
     end;
     //Mark the selected one using reverse lookup
-    ObjectsTable[I].Down := (GameCursor.Mode = cmObjects) and (ObjID = fMapElemToCompact[GameCursor.Tag1]);
+    ObjectsTable[I].Down := (gGameCursor.Mode = cmObjects) and (ObjID = fMapElemToCompact[gGameCursor.Tag1]);
   end;
 
-  ObjectErase.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 255); //or delete button
-  ObjectBlock.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 61); //or block button
+  ObjectErase.Down := (gGameCursor.Mode = cmObjects) and (gGameCursor.Tag1 = 255); //or delete button
+  ObjectBlock.Down := (gGameCursor.Mode = cmObjects) and (gGameCursor.Tag1 = 61); //or block button
 end;
 
 

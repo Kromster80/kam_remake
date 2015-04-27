@@ -166,7 +166,7 @@ begin
   Land2[Y + 1, X + 1].TerKind := aTerrainKind;
   Land2[Y + 1, X].TerKind := aTerrainKind;
 
-  gTerrain.Land[Y, X].Terrain := PickRandomTile(TKMTerrainKind(GameCursor.Tag1));
+  gTerrain.Land[Y, X].Terrain := PickRandomTile(TKMTerrainKind(gGameCursor.Tag1));
   gTerrain.Land[Y, X].Rotation := Random(4); //Random direction for all plain tiles
 end;
 
@@ -286,20 +286,20 @@ var
   I,K,Size,Rad: Integer;
 begin
   //Cell below cursor
-  MapXc := EnsureRange(round(GameCursor.Float.X+0.5),1,gTerrain.MapX);
-  MapYc := EnsureRange(round(GameCursor.Float.Y+0.5),1,gTerrain.MapY);
+  MapXc := EnsureRange(round(gGameCursor.Float.X+0.5),1,gTerrain.MapX);
+  MapYc := EnsureRange(round(gGameCursor.Float.Y+0.5),1,gTerrain.MapY);
 
   //Node below cursor
-  MapXn := EnsureRange(round(GameCursor.Float.X+1),1,gTerrain.MapX);
-  MapYn := EnsureRange(round(GameCursor.Float.Y+1),1,gTerrain.MapY);
+  MapXn := EnsureRange(round(gGameCursor.Float.X+1),1,gTerrain.MapX);
+  MapYn := EnsureRange(round(gGameCursor.Float.Y+1),1,gTerrain.MapY);
 
-  Size := GameCursor.MapEdSize;
+  Size := gGameCursor.MapEdSize;
   Rad := Size div 2;
 
   if Size = 0 then
   begin
     if (MapXn2 <> MapXn) or (MapYn2 <> MapYn) then
-      Land2[MapYn, MapXn].TerKind := TKMTerrainKind(GameCursor.Tag1);
+      Land2[MapYn, MapXn].TerKind := TKMTerrainKind(gGameCursor.Tag1);
   end
   else
     if (MapXc2 <> MapXc) or (MapYc2 <> MapYc) then
@@ -309,18 +309,18 @@ begin
       begin
         //first comes odd sizes 1,3,5..
         for I:=-Rad to Rad do for K:=-Rad to Rad do
-        if (GameCursor.MapEdShape = hsSquare) or (Sqr(I) + Sqr(K) < Sqr(Rad + 0.5)) then               //Rounding corners in a nice way
-        BrushTerrainTile(MapXc+K, MapYc+I, TKMTerrainKind(GameCursor.Tag1));
+        if (gGameCursor.MapEdShape = hsSquare) or (Sqr(I) + Sqr(K) < Sqr(Rad + 0.5)) then               //Rounding corners in a nice way
+        BrushTerrainTile(MapXc+K, MapYc+I, TKMTerrainKind(gGameCursor.Tag1));
       end
       else
       begin
         //even sizes 2,4,6..
         for I:=-Rad to Rad-1 do for K:=-Rad to Rad-1 do
-        if (GameCursor.MapEdShape = hsSquare) or (Sqr(I + 0.5) + Sqr(K + 0.5) < Sqr(Rad)) then           //Rounding corners in a nice way
-        BrushTerrainTile(MapXc+K, MapYc+I, TKMTerrainKind(GameCursor.Tag1));
+        if (gGameCursor.MapEdShape = hsSquare) or (Sqr(I + 0.5) + Sqr(K + 0.5) < Sqr(Rad)) then           //Rounding corners in a nice way
+        BrushTerrainTile(MapXc+K, MapYc+I, TKMTerrainKind(gGameCursor.Tag1));
       end;
     end;
-  RebuildMap(MapXc, MapYc, Rad+3, (GameCursor.MapEdShape = hsSquare)); //+3 for surrounding tiles
+  RebuildMap(MapXc, MapYc, Rad+3, (gGameCursor.MapEdShape = hsSquare)); //+3 for surrounding tiles
 
   MapXn2 := MapXn;
   MapYn2 := MapYn;
@@ -340,11 +340,11 @@ var
   aLoc : TKMPointF;
   aRaise: Boolean;
 begin
-  aLoc    := KMPointF(GameCursor.Float.X+1, GameCursor.Float.Y+1); // Mouse point
-  aRaise  := ssLeft in GameCursor.SState;         // Raise or Lowered (Left or Right mousebtn)
-  Rad     := GameCursor.MapEdSize;                // Radius basing on brush size
-  Slope   := GameCursor.MapEdSlope;               // Elevation slope
-  Speed   := GameCursor.MapEdSpeed;               // Elvation speed
+  aLoc    := KMPointF(gGameCursor.Float.X+1, gGameCursor.Float.Y+1); // Mouse point
+  aRaise  := ssLeft in gGameCursor.SState;         // Raise or Lowered (Left or Right mousebtn)
+  Rad     := gGameCursor.MapEdSize;                // Radius basing on brush size
+  Slope   := gGameCursor.MapEdSlope;               // Elevation slope
+  Speed   := gGameCursor.MapEdSpeed;               // Elvation speed
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), gTerrain.MapY) do
   for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), gTerrain.MapX) do
   begin
@@ -352,14 +352,14 @@ begin
     // We have square area basing on mouse point +/- radius
     // Now we need to check whether point is inside brush type area(circle etc.)
     // Every MapEdShape case has it's own check routine
-    case GameCursor.MapEdShape of
+    case gGameCursor.MapEdShape of
       hsCircle: Tmp := Max((1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad), 0);   // Negative number means that point is outside circle
       hsSquare: Tmp := 1 - Max(Abs(I - round(aLoc.Y)), Abs(K - round(aLoc.X))) / Rad;
       else      Tmp := 0;
     end;
 
     // Default cursor mode is elevate/decrease
-    if GameCursor.Mode = cmEqualize then
+    if gGameCursor.Mode = cmEqualize then
     begin // START Unequalize
       if aRaise then
       begin
@@ -931,19 +931,19 @@ end;
 
 procedure TKMTerrainPainter.UpdateStateIdle;
 begin
-  case GameCursor.Mode of
+  case gGameCursor.Mode of
     cmElevate,
-    cmEqualize:   if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
+    cmEqualize:   if (ssLeft in gGameCursor.SState) or (ssRight in gGameCursor.SState) then
                     EditHeight;
-    cmBrush:      if (ssLeft in GameCursor.SState) then
-                    EditBrush(GameCursor.Cell);
-    cmTiles:      if (ssLeft in GameCursor.SState) then
-                    if GameCursor.MapEdDir in [0..3] then //Defined direction
-                      EditTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.MapEdDir)
+    cmBrush:      if (ssLeft in gGameCursor.SState) then
+                    EditBrush(gGameCursor.Cell);
+    cmTiles:      if (ssLeft in gGameCursor.SState) then
+                    if gGameCursor.MapEdDir in [0..3] then //Defined direction
+                      EditTile(gGameCursor.Cell, gGameCursor.Tag1, gGameCursor.MapEdDir)
                     else //Random direction
-                      EditTile(GameCursor.Cell, GameCursor.Tag1, KaMRandom(4));
-    cmObjects:    if (ssLeft in GameCursor.SState) then
-                    gTerrain.SetTree(GameCursor.Cell, GameCursor.Tag1);
+                      EditTile(gGameCursor.Cell, gGameCursor.Tag1, KaMRandom(4));
+    cmObjects:    if (ssLeft in gGameCursor.SState) then
+                    gTerrain.SetTree(gGameCursor.Cell, gGameCursor.Tag1);
   end;
 end;
 

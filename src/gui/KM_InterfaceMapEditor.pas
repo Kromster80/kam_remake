@@ -251,8 +251,8 @@ end;
 procedure TKMapEdInterface.Main_ButtonClick(Sender: TObject);
 begin
   //Reset cursor mode
-  GameCursor.Mode := cmNone;
-  GameCursor.Tag1 := 0;
+  gGameCursor.Mode := cmNone;
+  gGameCursor.Tag1 := 0;
 
   //Reset shown item when user clicks on any of the main buttons
   MySpectator.Selected := nil;
@@ -491,8 +491,8 @@ begin
   if fGuiHouse.Visible then Exit;
 
   //Reset cursor
-  GameCursor.Mode := cmNone;
-  GameCursor.Tag1 := 0;
+  gGameCursor.Mode := cmNone;
+  gGameCursor.Tag1 := 0;
 end;
 
 
@@ -709,7 +709,7 @@ begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
     if not fViewport.Scrolling and not (gRes.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
       gRes.Cursors.Cursor := kmc_Default;
-    GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
+    gGameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
   end
   else
@@ -719,9 +719,9 @@ begin
     fMouseDownOnMap := True;
 
   UpdateGameCursor(X,Y,Shift);
-  if GameCursor.Mode = cmNone then
+  if gGameCursor.Mode = cmNone then
   begin
-    Marker := gGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
     if Marker.MarkerType <> mtNone then
       gRes.Cursors.Cursor := kmc_Info
     else
@@ -732,7 +732,7 @@ begin
       gRes.Cursors.Cursor := kmc_Default;
   end;
 
-  Label_Coordinates.Caption := Format('X: %d, Y: %d', [GameCursor.Cell.X, GameCursor.Cell.Y]);
+  Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
 
   gGame.MapEditor.MouseMove;
 end;
@@ -769,11 +769,11 @@ begin
   fMouseDownOnMap := False;
 
   case Button of
-    mbLeft:   if GameCursor.Mode = cmNone then
+    mbLeft:   if gGameCursor.Mode = cmNone then
               begin
                 //If there are some additional layers we first HitTest them
                 //since they are rendered ontop of Houses/Objects
-                Marker := gGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
                 if Marker.MarkerType <> mtNone then
                 begin
                   ShowMarkerInfo(Marker);
@@ -805,27 +805,27 @@ begin
               end;
     mbRight:  begin
                 //Right click performs some special functions and shortcuts
-                if GameCursor.Mode = cmTiles then
-                  GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
+                if gGameCursor.Mode = cmTiles then
+                  gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
 
                 //Move the selected object to the cursor location
                 if MySpectator.Selected is TKMHouse then
-                  TKMHouse(MySpectator.Selected).SetPosition(GameCursor.Cell); //Can place is checked in SetPosition
+                  TKMHouse(MySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
 
                 if MySpectator.Selected is TKMUnit then
-                  TKMUnit(MySpectator.Selected).SetPosition(GameCursor.Cell);
+                  TKMUnit(MySpectator.Selected).SetPosition(gGameCursor.Cell);
 
                 if MySpectator.Selected is TKMUnitGroup then
-                  TKMUnitGroup(MySpectator.Selected).Position := GameCursor.Cell;
+                  TKMUnitGroup(MySpectator.Selected).Position := gGameCursor.Cell;
 
                 if fGuiMarkerDefence.Visible then
                 begin
                   DP := gHands[fGuiMarkerDefence.Owner].AI.General.DefencePositions[fGuiMarkerDefence.Index];
-                  DP.Position := KMPointDir(GameCursor.Cell, DP.Position.Dir);
+                  DP.Position := KMPointDir(gGameCursor.Cell, DP.Position.Dir);
                 end;
 
                 if fGuiMarkerReveal.Visible then
-                  gGame.MapEditor.Revealers[fGuiMarkerReveal.Owner][fGuiMarkerReveal.Index] := GameCursor.Cell;
+                  gGame.MapEditor.Revealers[fGuiMarkerReveal.Owner][fGuiMarkerReveal.Index] := gGameCursor.Cell;
               end;
   end;
 
@@ -834,7 +834,7 @@ begin
   gGame.MapEditor.MouseUp(Button, True);
 
   //Update the XY coordinates of the Center Screen button
-  if (GameCursor.Mode = cmMarkers) and (GameCursor.Tag1 = MARKER_CENTERSCREEN) then
+  if (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_CENTERSCREEN) then
     fGuiPlayer.ChangePlayer; //Forces an update
 end;
 

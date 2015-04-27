@@ -72,7 +72,7 @@ begin
     Button_Reveal.Down := False;
   end;
 
-  if (Sender = nil) and (GameCursor.Mode = cmNone) then
+  if (Sender = nil) and (gGameCursor.Mode = cmNone) then
   begin
     Button_Reveal.Down := False;
     Button_CenterScreen.Down := False;
@@ -80,20 +80,20 @@ begin
 
   if Button_Reveal.Down then
   begin
-    GameCursor.Mode := cmMarkers;
-    GameCursor.Tag1 := MARKER_REVEAL;
-    GameCursor.MapEdSize := TrackBar_RevealNewSize.Position;
+    gGameCursor.Mode := cmMarkers;
+    gGameCursor.Tag1 := MARKER_REVEAL;
+    gGameCursor.MapEdSize := TrackBar_RevealNewSize.Position;
   end
   else
   if Button_CenterScreen.Down then
   begin
-    GameCursor.Mode := cmMarkers;
-    GameCursor.Tag1 := MARKER_CENTERSCREEN;
+    gGameCursor.Mode := cmMarkers;
+    gGameCursor.Tag1 := MARKER_CENTERSCREEN;
   end
   else
   begin
-    GameCursor.Mode := cmNone;
-    GameCursor.Tag1 := 0;
+    gGameCursor.Mode := cmNone;
+    gGameCursor.Tag1 := 0;
   end;
 
   if Sender = CheckBox_RevealAll then
