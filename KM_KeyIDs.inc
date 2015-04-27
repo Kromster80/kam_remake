@@ -18,10 +18,10 @@ SC_ARMY_DEL_LINE = 14; //Formation Shrink Line Command
 SC_ARMY_ROTATE_CW = 15; //Turn Right Command
 SC_ARMY_ROTATE_CCW = 16; //Turn Left Command
 
-SC_DEBUG_REVEALMAP = 17; //Debug Menu Reveal Map
-SC_DEBUG_VICTORY = 18; //Debug Menu Victory
-SC_DEBUG_DEFEAT = 19; //Debug Menu Defeat
-SC_DEBUG_ADDSCOUT = 20; //Debug Menu Add Scout
+SC_Speedup_1 = 17; //Speed up 1
+SC_Speedup_2 = 18; //Speed up 2
+SC_Speedup_3 = 19; //Speed up 3
+SC_Speedup_4 = 20; //Speed up 4
 
 SC_BEACON = 21; //Beacon
 SC_PAUSE = 22; //Pause
@@ -41,3 +41,11 @@ SC_SELECT_8 = 34; //Select 8
 SC_SELECT_9 = 35; //Select 9
 SC_SELECT_10 = 36; //Select 10
 
+SC_Center_Alert = 37; //Center to alert
+SC_Delete_Msg = 38; //Delete message
+SC_Chat_MP = 39; //Show the chat
+
+SC_DEBUG_REVEALMAP = 40; //Debug Menu Reveal Map
+SC_DEBUG_VICTORY = 41; //Debug Menu Victory
+SC_DEBUG_DEFEAT = 42; //Debug Menu Defeat
+SC_DEBUG_ADDSCOUT = 43; //Debug Menu Add Scout

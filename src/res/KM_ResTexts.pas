@@ -47,6 +47,7 @@ type
     procedure LoadLocale(aPathTemplate: string); //All locales for Mission strings
     function ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
     function HasText(aIndex: Word): Boolean;
+    function GetNameForKey(aValue: Integer): String;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
     procedure Save(aStream: TKMemoryStream);
     procedure Load(aStream: TKMemoryStream);
@@ -322,6 +323,60 @@ begin
   end;
 
   InitLocaleIds;
+end;
+
+
+// Here we define the action name values
+function TKMTextLibraryMulti.GetNameForKey(aValue: Integer): String;
+begin
+  case aValue of
+    0: Result := 'Scroll Left';
+    1: Result := 'Scroll Right';
+    2: Result := 'Scroll Up';
+    3: Result := 'Scroll Down';
+    4: Result := 'Build Menu';
+    5: Result := 'Ratio Menu';
+    6: Result := 'Stats Menu';
+    7: Result := 'Main Menu';
+    8: Result := 'Halt Command';
+    9: Result := 'Split Command';
+    10: Result := 'Linkup Command';
+    11: Result := 'Food Command';
+    12: Result := 'Storm Command';
+    13: Result := 'Increase Formation';
+    14: Result := 'Decrease Formation';
+    15: Result := 'Turn Clockwise';
+    16: Result := 'Turn Counter-clockwise';
+    17: Result := 'Normal Game speed';
+    18: Result := 'Game speed x3';
+    19: Result := 'Game speed x6';
+    20: Result := 'Game speed x8';
+    21: Result := 'Beacon';
+    22: Result := 'Pause';
+    23: Result := 'Show teams in MP';
+    24: Result := 'Zoom In';
+    25: Result := 'Zoom Out';
+    26: Result := 'Reset Zoom';
+    27: Result := 'Selection 1';
+    28: Result := 'Selection 2';
+    29: Result := 'Selection 3';
+    30: Result := 'Selection 4';
+    31: Result := 'Selection 5';
+    32: Result := 'Selection 6';
+    33: Result := 'Selection 7';
+    34: Result := 'Selection 8';
+    35: Result := 'Selection 9';
+    36: Result := 'Selection 10';
+    37: Result := 'Center to latest alert'; //Center to alert
+    38: Result := 'Delete message'; //Delete message
+    39: Result := 'Show game chat in MP'; //Show the chat
+    40: Result := 'Debug Menu Map';
+    41: Result := 'Debug Menu Victory';
+    42: Result := 'Debug Menu Defeat';
+    43: Result := 'Debug Menu Add Scout';
+  else
+    Result := '~~~ Unknown value ' + IntToStr(aValue) + '! ~~~';
+  end;
 end;
 
 

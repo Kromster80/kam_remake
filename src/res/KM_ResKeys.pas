@@ -17,18 +17,13 @@ const
   NO_KEY = nil;
 
 type
-  TKMKeyLibraryCommon = class
-  private
-    FILE_PATH: String;
-    fKeyCount: Integer;
-    procedure LoadKeymapFile(var aArray: TIntegerArray);
-  end;
-
-
-  TKMKeyLibraryMulti = class(TKMKeyLibraryCommon)
+  TKMKeyLibraryMulti = class
   private
     fPref: Integer;
     fKeys: TIntegerArray;
+    FILE_PATH: String;
+    fKeyCount: Integer;
+    procedure LoadKeymapFile(var aArray: TIntegerArray);
     function GetKeys(aIndex: Word): Integer;
   public
     KeyCount: Integer;
@@ -36,7 +31,6 @@ type
     procedure LoadKeys; //All locales for Mission strings
     function HasKey(aIndex: Word): Boolean;
     function GetCharFromVK(aKey: Word): String;
-    function GetNameForKey(aValue: Integer): String;
     property Keys[aIndex: Word]: Integer read GetKeys; default;
     procedure Save(aStream: TKMemoryStream);
     procedure SaveKey(aKeyID: Integer; aKeyValue: Word);
@@ -54,7 +48,7 @@ implementation
 
 { TKMKeyLibraryCommon }
 //keymap files consist of lines. Each line has an index and a text. Lines without index are skipped
-procedure TKMKeyLibraryCommon.LoadKeymapFile(var aArray: TIntegerArray);
+procedure TKMKeyLibraryMulti.LoadKeymapFile(var aArray: TIntegerArray);
   function KeyToArray(const Value: String): TStringArray;
   var
     P, Start: PWideChar;
@@ -337,53 +331,6 @@ begin
     222: Result := '''';
   else
     Result := Char(aKey);
-  end;
-end;
-
-
-// Here we define the action name values
-function TKMKeyLibraryMulti.GetNameForKey(aValue: Integer): String;
-begin
-  case aValue of
-    0: Result := 'Scroll Left';
-    1: Result := 'Scroll Right';
-    2: Result := 'Scroll Up';
-    3: Result := 'Scroll Down';
-    4: Result := 'Build Menu';
-    5: Result := 'Ratio Menu';
-    6: Result := 'Stats Menu';
-    7: Result := 'Main Menu';
-    8: Result := 'Halt Command';
-    9: Result := 'Split Command';
-    10: Result := 'Linkup Command';
-    11: Result := 'Food Command';
-    12: Result := 'Storm Command';
-    13: Result := 'Increase Formation';
-    14: Result := 'Decrease Formation';
-    15: Result := 'Turn Clockwise';
-    16: Result := 'Turn Counter-clockwise';
-    17: Result := 'Debug Menu Map';
-    18: Result := 'Debug Menu Victory';
-    19: Result := 'Debug Menu Defeat';
-    20: Result := 'Debug Menu Add Scout';
-    21: Result := 'Beacon';
-    22: Result := 'Pause';
-    23: Result := 'Show teams in MP';
-    24: Result := 'Zoom In';
-    25: Result := 'Zoom Out';
-    26: Result := 'Reset Zoom';
-    27: Result := 'Selection 1';
-    28: Result := 'Selection 2';
-    29: Result := 'Selection 3';
-    30: Result := 'Selection 4';
-    31: Result := 'Selection 5';
-    32: Result := 'Selection 6';
-    33: Result := 'Selection 7';
-    34: Result := 'Selection 8';
-    35: Result := 'Selection 9';
-    36: Result := 'Selection 10';
-  else
-    Result := '~~~ Unknown value ' + IntToStr(aValue) + '! ~~~';
   end;
 end;
 

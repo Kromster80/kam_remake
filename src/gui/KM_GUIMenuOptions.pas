@@ -23,6 +23,8 @@ type
 
     fKeys: TKMKeyLibraryMulti;
 
+    fKeysOpen: Boolean;
+
     procedure ApplyResolution(Sender: TObject);
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
@@ -33,7 +35,7 @@ type
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
-    Procedure ReloadKeys;
+    procedure LoadKeys;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -61,7 +63,7 @@ type
         Button_Options_ResApply: TKMButton;
       PopUp_Options_Keys: TKMPopUpMenu;
         Image_Options_Keys: TKMImage;
-        Label_Options_Keys_Title: TKMLabel;
+        Label_Options_Keys_Title{, Label_Options_Keys_Test}: TKMLabel;
         Button_Options_Keys_OK: TKMButton;
         ColumnBox_Options_Keys: TKMColumnBox;
         PopUp_Options_Keys_Input: TKMPopUpMenu;
@@ -202,7 +204,7 @@ begin
       Radio_Options_Lang.OnChange := Change;
 
     //Keybindings button and popup
-    Button_Options_Keys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, 'temp keybind button', bsMenu);
+    Button_Options_Keys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
     Button_Options_Keys.Anchors := [anLeft];
     Button_Options_Keys.OnClick := KeybindClick;
 
@@ -224,17 +226,21 @@ begin
       Image_Options_Keys := TKMImage.Create(PopUp_Options_Keys,0,0, 600, 600, 15, rxGuiMain);
       Image_Options_Keys.ImageStretch;
 
-      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 560, 30, 'Keybindings', fnt_Outline, taCenter);
+      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 560, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter);
       Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
 
-      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 20, 550, 170, 30, 'OK', bsMenu);
+      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 20, 550, 170, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
       Button_Options_Keys_OK.Anchors := [anLeft,anBottom];
       Button_Options_Keys_OK.OnClick := KeybindClick;
 
+      //Label_Options_Keys_Test := TKMLabel.Create(PopUp_options_Keys, 210, 550, 170, 30, '', fnt_Metal, taCenter);
+      //Label_Options_Keys_Test.Anchors := [anLeft,anBottom];
+
       ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 560, 440, fnt_Metal, bsMenu);
-      ColumnBox_Options_Keys.SetColumns(fnt_Outline, ['Function', 'Key'], [0, 250]);
+      ColumnBox_Options_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 250]);
       ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_Options_Keys.SearchColumn := 0;
+      ColumnBox_Options_Keys.ShowLines := True;
       ColumnBox_Options_Keys.OnClick := Keybind_DoubleClick;
 
       //The change key input popup
@@ -243,36 +249,39 @@ begin
       // Keep the pop-up centered
       PopUp_Options_Keys_Input.Anchors := [];
       PopUp_Options_Keys_Input.Left := (PopUp_Options_Keys.Width Div 2) - 120;
-      PopUp_Options_Keys_Input.Top := (PopUp_Options_Keys.Height Div 2) - 90;
+      PopUp_Options_Keys_Input.Top := (PopUp_Options_Keys.Height Div 2) - 80;
 
         TKMBevel.Create(PopUp_Options_Keys_Input, -1000, 1000, 4000, 4000);
 
-        Image_Options_Keys_Input := TKMImage.Create(PopUp_Options_Keys_Input,0,0, 240, 200, 15, rxGuiMain);
+        Image_Options_Keys_Input := TKMImage.Create(PopUp_Options_Keys_Input,0,0, 240, 180, 15, rxGuiMain);
         Image_Options_Keys_Input.ImageStretch;
 
-        Label_Options_Keys_Title_Input := TKMLabel.Create(PopUp_Options_Keys_Input, 20, 30, 200, 30, 'Press the key to asign', fnt_Outline, taCenter);
+        Label_Options_Keys_Title_Input := TKMLabel.Create(PopUp_Options_Keys_Input, 20, 30, 200, 30, gResTexts[TX_MENU_OPTIONS_PRESS_KEY], fnt_Outline, taCenter);
         Label_Options_Keys_Title_Input.Anchors := [anLeft,anBottom];
 
         Edit_Options_Keys_Input := TKMEdit.Create(PopUp_Options_Keys_Input, 20, 70, 200, 30, fnt_Metal);
         Edit_Options_Keys_Input.Anchors := [anLeft,anBottom];
         Edit_Options_Keys_Input.MaxLen := 1;
 
-        Button_Options_Keys_Input_Save:= TKMButton.Create(PopUp_Options_Keys_Input, 20, 130, 85, 30, 'Save', bsMenu);
+        Button_Options_Keys_Input_Save:= TKMButton.Create(PopUp_Options_Keys_Input, 10, 130, 105, 30, gResTexts[TX_MENU_OPTIONS_APPLY], bsMenu);
         Button_Options_Keys_Input_Save.Anchors := [anLeft,anBottom];
         Button_Options_Keys_Input_Save.OnClick := Keybind_ListKeySave;
 
-        Button_Options_Keys_Input_Cancel:= TKMButton.Create(PopUp_Options_Keys_Input, 135, 130, 85, 30, 'Cancel', bsMenu);
+        Button_Options_Keys_Input_Cancel:= TKMButton.Create(PopUp_Options_Keys_Input, 125, 130, 105, 30, gResTexts[TX_MAPED_SAVE_CANCEL], bsMenu);
         Button_Options_Keys_Input_Cancel.Anchors := [anLeft,anBottom];
         Button_Options_Keys_Input_Cancel.OnClick := KeybindClick;
 
-      // Keybind_ListKeyUp
-  ReloadKeys;
+  LoadKeys;
 end;
 
 
 destructor TKMMenuOptions.Destroy;
 begin
-  fKeys.Free; // To make sure there's no mem leak
+  if fKeysOpen then
+  begin
+    fKeys.Free; // To make sure there's no mem leak
+    fKeysOpen := False;
+  end;
   inherited;
 end;
 
@@ -487,23 +496,32 @@ end;
 
 procedure TKMMenuOptions.KeybindClick(Sender: TObject);
 begin
-  //ReloadKeys;
   if ColumnBox_Options_Keys.TopIndex < 0 then Exit;
 
   if Sender = Button_Options_Keys then
+  begin
+    LoadKeys;
     PopUp_Options_Keys.Show;
+  end;
 
-  if (Sender = Button_Options_Keys_OK) then
+  if Sender = Button_Options_Keys_OK then
+  begin
+    LoadKeys;
     PopUp_Options_Keys.Hide;
+  end;
 
-  if (Sender = Button_Options_Keys_Input_Cancel) then
+  if Sender = Button_Options_Keys_Input_Cancel then
+  begin
     PopUp_Options_Keys_Input.Hide;
+    Edit_Options_Keys_Input.Text := '';
+  end;
 end;
 
 
 procedure TKMMenuOptions.Keybind_DoubleClick(Sender: TObject);
 begin
   PopUp_Options_Keys_Input.Show;
+  //Label_Options_Keys_Test.Caption := ColumnBox_Options_Keys.ItemIndex.ToString(); // For testing to see the ID's
 end;
 
 
@@ -525,8 +543,9 @@ begin
     else
       fKeys.SaveKey(aID, Ord(aKey));
   end;
-  ReloadKeys;
+  Edit_Options_Keys_Input.Text := '';
   PopUp_Options_Keys_Input.Hide;
+  LoadKeys;
 end;
 
 
@@ -534,25 +553,29 @@ procedure TKMMenuOptions.BackClick(Sender: TObject);
 begin
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
-
   fOnPageChange(gpMainMenu);
+  if fKeysOpen then
+  begin
+    fKeys.Free; // To make sure there's no mem leak
+    fKeysOpen := False;
+  end;
 end;
 
 
-Procedure TKMMenuOptions.ReloadKeys;
+Procedure TKMMenuOptions.LoadKeys;
 var
   I: Integer;
 begin
   fKeys.Free;
   fKeys := TKMKeyLibraryMulti.Create;
   fKeys.LoadKeys;
+  fKeysOpen := True;
   ColumnBox_Options_Keys.ItemIndex := -1;
   ColumnBox_Options_Keys.Clear;
-  for I := 0 to fKeys.KeyCount do
-    //Hide the debug keys
-    if (I in [0..16]) or (I in [21..36]) then
-      ColumnBox_Options_Keys.AddItem(MakeListRow([fKeys.GetNameForKey(I),
-                                                  fKeys.GetCharFromVK(fKeys.Keys[I])], [$FFFFFFFF, $FFFFFFFF]));
+  //Hide the debug keys
+  for I := 0 to (fKeys.KeyCount - 4) do
+    ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts.GetNameForKey(I),
+                                   fKeys.GetCharFromVK(fKeys.Keys[I])], [$FFFFFFFF, $FFFFFFFF]));
 end;
 
 
