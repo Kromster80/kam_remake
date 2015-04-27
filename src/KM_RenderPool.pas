@@ -686,10 +686,12 @@ begin
   if (R1[I - 1]) > 0 then
   begin
     Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+
     // Need to swap Coal and Steel for the ArmorSmithy
     // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
     if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
       Id := gRes.HouseDat[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
+
     AddHouseSupplySprite(Id);
   end;
 
@@ -709,13 +711,15 @@ begin
       end;
     end else
       Id := gRes.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
+
     AddHouseSupplySprite(Id);
   end;
 end;
 
 
 procedure TRenderPool.AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
-var i,Id: Integer;
+var
+  i,Id: Integer;
   CornerX,CornerY: Single; R: TRXData;
 begin
   if ResType = wt_Horse then //Horses are a beast, BeastId is the count, age is 1
@@ -1397,7 +1401,8 @@ end;
 
 
 function TRenderList.GetSelectionUID(CurPos: TKMPointF): Integer;
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   Result := -1; //Didn't hit anything
   //Skip if cursor is over FOW
@@ -1424,7 +1429,8 @@ end;
 
 
 procedure TRenderList.ClipRenderList;
-var I, J: Integer;
+var
+  I, J: Integer;
 begin
   SetLength(RenderOrder, fCount);
   J := 0;
@@ -1438,7 +1444,7 @@ begin
 end;
 
 
-//Sort all items in list from top-right to bottom-left
+// Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
 var
   RenderOrderAux: TSmallIntArray;
@@ -1466,7 +1472,8 @@ var
   end;
 
   procedure Merge(aStart, aMid, aEnd: Integer);
-  var I, A, B: Integer;
+  var
+    I, A, B: Integer;
   begin
     A := aStart;
     B := aMid;
@@ -1484,7 +1491,8 @@ var
 
   //The same as Merge, but RenderOrder and RenderOrderAux are switched
   procedure MergeAux(aStart, aMid, aEnd: Integer);
-  var I, A, B: Integer;
+  var
+    I, A, B: Integer;
   begin
     A := aStart;
     B := aMid;
@@ -1500,9 +1508,10 @@ var
       end;
   end;
 
-  //aUseAux tells us which array to store results in, it should flip each recurse
+  // aUseAux tells us which array to store results in, it should flip each recurse
   procedure DoMergeSort(aStart, aEnd: Integer; aUseAux: Boolean);
-  var Mid: Integer;
+  var
+    Mid: Integer;
   begin
     if aEnd - aStart < 2 then Exit;
     Mid := (aStart + aEnd) div 2;
@@ -1555,7 +1564,7 @@ begin
 end;
 
 
-//Child items don't need ground level
+// Child items don't need ground level
 procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then
@@ -1614,7 +1623,7 @@ begin
 end;
 
 
-{Now render all these items from list}
+// Now render all these items from list
 procedure TRenderList.Render;
 var
   I, K, objectCount: Integer;
