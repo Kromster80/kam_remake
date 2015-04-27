@@ -81,23 +81,23 @@ end;
 
 procedure TKMMapEdTerrainHeights.HeightChange(Sender: TObject);
 begin
-  GameCursor.MapEdSize := HeightSize.Position;
-  GameCursor.MapEdSlope := HeightSlope.Position;
-  GameCursor.MapEdSpeed := HeightSpeed.Position;
+  gGameCursor.MapEdSize := HeightSize.Position;
+  gGameCursor.MapEdSlope := HeightSlope.Position;
+  gGameCursor.MapEdSpeed := HeightSpeed.Position;
 
   //Shape
   if Sender = HeightCircle then
-    GameCursor.MapEdShape := hsCircle
+    gGameCursor.MapEdShape := hsCircle
   else
   if Sender = HeightSquare then
-    GameCursor.MapEdShape := hsSquare;
+    gGameCursor.MapEdShape := hsSquare;
 
   //Kind
   if Sender = HeightElevate then
-    GameCursor.Mode := cmElevate
+    gGameCursor.Mode := cmElevate
   else
   if Sender = HeightUnequalize then
-    GameCursor.Mode := cmEqualize;
+    gGameCursor.Mode := cmEqualize;
 
   HeightRefresh;
 end;
@@ -105,11 +105,11 @@ end;
 
 procedure TKMMapEdTerrainHeights.HeightRefresh;
 begin
-  HeightCircle.Down := (GameCursor.MapEdShape = hsCircle);
-  HeightSquare.Down := (GameCursor.MapEdShape = hsSquare);
+  HeightCircle.Down := (gGameCursor.MapEdShape = hsCircle);
+  HeightSquare.Down := (gGameCursor.MapEdShape = hsSquare);
 
-  HeightElevate.Down := (GameCursor.Mode = cmElevate);
-  HeightUnequalize.Down := (GameCursor.Mode = cmEqualize);
+  HeightElevate.Down := (gGameCursor.Mode = cmElevate);
+  HeightUnequalize.Down := (gGameCursor.Mode = cmEqualize);
 end;
 
 

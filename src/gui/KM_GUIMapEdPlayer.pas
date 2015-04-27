@@ -101,8 +101,8 @@ end;
 procedure TKMMapEdPlayer.PageChange(Sender: TObject);
 begin
   //Reset cursor mode
-  GameCursor.Mode := cmNone;
-  GameCursor.Tag1 := 0;
+  gGameCursor.Mode := cmNone;
+  gGameCursor.Tag1 := 0;
 
   //Hide existing pages
   fGuiPlayerGoals.Hide;

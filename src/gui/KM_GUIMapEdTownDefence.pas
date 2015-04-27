@@ -98,13 +98,13 @@ begin
 
   if Button_DefencePosAdd.Down then
   begin
-    GameCursor.Mode := cmMarkers;
-    GameCursor.Tag1 := MARKER_DEFENCE;
+    gGameCursor.Mode := cmMarkers;
+    gGameCursor.Tag1 := MARKER_DEFENCE;
   end
   else
   begin
-    GameCursor.Mode := cmNone;
-    GameCursor.Tag1 := 0;
+    gGameCursor.Mode := cmNone;
+    gGameCursor.Tag1 := 0;
   end;
 end;
 

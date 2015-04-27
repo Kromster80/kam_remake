@@ -74,8 +74,8 @@ end;
 
 procedure TKMMapEdTerrainSelection.SelectionClick(Sender: TObject);
 begin
-  GameCursor.Mode := cmSelection;
-  GameCursor.Tag1 := 0;
+  gGameCursor.Mode := cmSelection;
+  gGameCursor.Tag1 := 0;
 
   if Sender = Button_SelectCopy then
   begin
@@ -141,8 +141,8 @@ end;
 
 procedure TKMMapEdTerrainSelection.Show;
 begin
-  GameCursor.Mode := cmSelection;
-  GameCursor.Tag1 := 0;
+  gGameCursor.Mode := cmSelection;
+  gGameCursor.Tag1 := 0;
   gGame.MapEditor.Selection.Selection_PasteCancel; //Could be leftover from last time we were visible
 
   Button_SelectPasteApply.Disable;

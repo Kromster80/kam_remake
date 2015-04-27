@@ -68,28 +68,28 @@ procedure TKMMapEdTownHouses.Town_BuildChange(Sender: TObject);
 var I: Integer;
 begin
   //Reset cursor and see if it needs to be changed
-  GameCursor.Mode := cmNone;
-  GameCursor.Tag1 := 0;
+  gGameCursor.Mode := cmNone;
+  gGameCursor.Tag1 := 0;
 
   if Sender = Button_BuildCancel then
-    GameCursor.Mode := cmErase
+    gGameCursor.Mode := cmErase
   else
   if Sender = Button_BuildRoad then
-    GameCursor.Mode := cmRoad
+    gGameCursor.Mode := cmRoad
   else
   if Sender = Button_BuildField then
-    GameCursor.Mode := cmField
+    gGameCursor.Mode := cmField
   else
   if Sender = Button_BuildWine then
-    GameCursor.Mode := cmWine
+    gGameCursor.Mode := cmWine
   else
 
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
   if Sender = Button_Build[I] then
   begin
-    GameCursor.Mode := cmHouses;
-    GameCursor.Tag1 := Byte(GUIHouseOrder[I]);
+    gGameCursor.Mode := cmHouses;
+    gGameCursor.Tag1 := Byte(GUIHouseOrder[I]);
   end;
 
   Town_BuildRefresh;
@@ -100,14 +100,14 @@ procedure TKMMapEdTownHouses.Town_BuildRefresh;
 var
   I: Integer;
 begin
-  Button_BuildCancel.Down := (GameCursor.Mode = cmErase);
-  Button_BuildRoad.Down   := (GameCursor.Mode = cmRoad);
-  Button_BuildField.Down  := (GameCursor.Mode = cmField);
-  Button_BuildWine.Down   := (GameCursor.Mode = cmWine);
+  Button_BuildCancel.Down := (gGameCursor.Mode = cmErase);
+  Button_BuildRoad.Down   := (gGameCursor.Mode = cmRoad);
+  Button_BuildField.Down  := (gGameCursor.Mode = cmField);
+  Button_BuildWine.Down   := (gGameCursor.Mode = cmWine);
 
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
-    Button_Build[I].Down := (GameCursor.Mode = cmHouses) and (GameCursor.Tag1 = Byte(GUIHouseOrder[I]));
+    Button_Build[I].Down := (gGameCursor.Mode = cmHouses) and (gGameCursor.Tag1 = Byte(GUIHouseOrder[I]));
 end;
 
 

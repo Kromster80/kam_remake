@@ -5,7 +5,7 @@ uses
 
 
 var
-  GameCursor: record
+  gGameCursor: record
     Pixel: TKMPoint;      //Cursor position in screen-space
     Float: TKMPointF;     //Precise cursor position in map coords
     Cell: TKMPoint;       //Cursor position cell

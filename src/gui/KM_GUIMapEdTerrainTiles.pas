@@ -89,10 +89,10 @@ procedure TKMMapEdTerrainTiles.TilesChange(Sender: TObject);
 begin
   TilesMagicWater.Down := (Sender = TilesMagicWater);
   if Sender = TilesMagicWater then
-    GameCursor.Mode := cmMagicWater;
+    gGameCursor.Mode := cmMagicWater;
 
   if Sender = TilesRandom then
-    GameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
+    gGameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
 
   if (Sender is TKMButtonFlat) and not (Sender = TilesMagicWater) then
     TilesSet(TKMButtonFlat(Sender).TexID);
@@ -106,10 +106,10 @@ begin
   TilesMagicWater.Down := False;
   if aIndex <> 0 then
   begin
-    GameCursor.Mode := cmTiles;
-    GameCursor.Tag1 := aIndex - 1; //MapEdTileRemap is 1 based, tag is 0 based
+    gGameCursor.Mode := cmTiles;
+    gGameCursor.Tag1 := aIndex - 1; //MapEdTileRemap is 1 based, tag is 0 based
     if TilesRandom.Checked then
-      GameCursor.MapEdDir := 4;
+      gGameCursor.MapEdDir := 4;
 
     //Remember last selected Tile
     fLastTile := aIndex;
@@ -132,7 +132,7 @@ var
   I,K,L: Integer;
   TileID: Integer;
 begin
-  TilesRandom.Checked := (GameCursor.MapEdDir = 4);
+  TilesRandom.Checked := (gGameCursor.MapEdDir = 4);
 
   for I := 0 to MAPED_TILES_Y - 1 do
   for K := 0 to MAPED_TILES_X - 1 do
@@ -149,7 +149,7 @@ begin
       //Show 0..N-1 to be consistent with objects and script commands like States.MapTileObject
       TilesTable[L].Hint := IntToStr(TileID - 1);
     //If cursor has a tile then make sure its properly selected in table as well
-    TilesTable[L].Down := (GameCursor.Mode = cmTiles) and (GameCursor.Tag1 = TileID - 1);
+    TilesTable[L].Down := (gGameCursor.Mode = cmTiles) and (gGameCursor.Tag1 = TileID - 1);
   end;
 end;
 
@@ -157,7 +157,7 @@ end;
 procedure TKMMapEdTerrainTiles.Show;
 begin
   TilesSet(fLastTile);
-  GameCursor.MapEdDir := 0;
+  gGameCursor.MapEdDir := 0;
   Panel_Tiles.Show;
 end;
 
@@ -176,7 +176,7 @@ end;
 
 procedure TKMMapEdTerrainTiles.UpdateState;
 begin
-  TilesRandom.Checked := (GameCursor.MapEdDir = 4);
+  TilesRandom.Checked := (gGameCursor.MapEdDir = 4);
 end;
 
 
