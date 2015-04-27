@@ -617,7 +617,7 @@ begin
       else
       begin
         // Render stone with snow blended on top using AlphaTest
-        // ToDo: Shadow shouldn't get rendered twice
+        //todo: Shadow shouldn't get rendered twice
         fRenderList.AddSpriteG(rxHouses, PicStone, 0, CornerX(PicStone), CornerY(PicStone), gX, gY, $0);
         fRenderList.AddSpriteG(rxHouses, PicSnow, 0, CornerX(PicSnow), CornerY(PicSnow), gX, gY, $0, aSnowStep);
       end;
@@ -1335,7 +1335,7 @@ begin
                     RenderMapElement(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, true, true);
                     RenderMapElement(gGameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
                   end;
-    cmMagicWater: ; // TODO: Render some effect to show magic water is selected
+    cmMagicWater: ; //TODO: Render some effect to show magic water is selected
     cmElevate,
     cmEqualize:   begin
                     Rad := gGameCursor.MapEdSize;
