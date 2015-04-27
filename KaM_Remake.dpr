@@ -2,7 +2,7 @@ program KaM_Remake;
 {$I KaM_Remake.inc}
 
 uses
-  {$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
+  //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   {$IFDEF USE_MAD_EXCEPT}
   madExcept,
   madLinkDisAsm,
