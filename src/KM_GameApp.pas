@@ -177,7 +177,6 @@ begin
   FreeThenNil(gRes);
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
-  FreeThenNil(gResTexts);
   FreeAndNil(fNetworking);
 
   FreeThenNil(fRender);
