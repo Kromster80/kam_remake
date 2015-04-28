@@ -13,6 +13,7 @@ type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
+  TNotifyEventKeyDown = procedure(Key: Word; Shift: TShiftState) of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
@@ -798,6 +799,8 @@ type
     HideSelection: Boolean;
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
+    OnKeyDown: TNotifyEventKeyDown;
+    PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
@@ -4025,34 +4028,41 @@ function TKMColumnBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var
   NewIndex: Integer;
 begin
-  Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
-  if inherited KeyDown(Key, Shift) then Exit;
-
-  if HideSelection then Exit; //Can't change selection if it's hidden
-  case Key of
-    VK_UP:      NewIndex := fItemIndex - 1;
-    VK_DOWN:    NewIndex := fItemIndex + 1;
-    VK_RETURN:  begin
-                  //Trigger click to hide drop downs
-                  if Assigned(fOnClick) then
-                    fOnClick(Self);
-                  Exit;
-                end;
-    else        Exit;
-  end;
-
-  if InRange(NewIndex, 0, fRowCount - 1) then
+  if PassAllKeys then
   begin
-    fItemIndex := NewIndex;
-    if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
-      TopIndex := fItemIndex - GetVisibleRows + 1
-    else
-    if TopIndex > fItemIndex then //Moving up
-      TopIndex := fItemIndex;
-  end;
+    if Assigned(OnKeyDown) then
+      OnKeyDown(Key, Shift);
+  end else
+  begin
+    Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
+    if inherited KeyDown(Key, Shift) then Exit;
 
-  if Assigned(fOnChange) then
-    fOnChange(Self);
+    if HideSelection then Exit; //Can't change selection if it's hidden
+    case Key of
+      VK_UP:      NewIndex := fItemIndex - 1;
+      VK_DOWN:    NewIndex := fItemIndex + 1;
+      VK_RETURN:  begin
+                    //Trigger click to hide drop downs
+                    if Assigned(fOnClick) then
+                      fOnClick(Self);
+                    Exit;
+                  end;
+      else        Exit;
+    end;
+
+    if InRange(NewIndex, 0, fRowCount - 1) then
+    begin
+      fItemIndex := NewIndex;
+      if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
+        TopIndex := fItemIndex - GetVisibleRows + 1
+      else
+      if TopIndex > fItemIndex then //Moving up
+        TopIndex := fItemIndex;
+    end;
+
+    if Assigned(fOnChange) then
+      fOnChange(Self);
+  end;
 end;
 
 
@@ -4060,27 +4070,33 @@ procedure TKMColumnBox.KeyPress(Key: Char);
 var
   I: Integer;
 begin
-  if SearchColumn = -1 then
-    Exit;
-
-  //Allow to type several characters in a row to pick some item
-  if GetTimeSince(fLastKeyTime) < 1000 then
-    fSearch := fSearch + Key
-  else
-    fSearch := Key;
-
-  fLastKeyTime := TimeGet;
-
-  for I := 0 to fRowCount - 1 do
-  if AnsiStartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
+  if PassAllKeys then
   begin
-    fItemIndex := I;
-    TopIndex := fItemIndex - GetVisibleRows div 2;
-    Break;
-  end;
+    exit;
+  end else
+  begin
+    if SearchColumn = -1 then
+      Exit;
 
-  if Assigned(fOnChange) then
-    fOnChange(Self);
+    //Allow to type several characters in a row to pick some item
+    if GetTimeSince(fLastKeyTime) < 1000 then
+      fSearch := fSearch + Key
+    else
+      fSearch := Key;
+
+    fLastKeyTime := TimeGet;
+
+    for I := 0 to fRowCount - 1 do
+    if AnsiStartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
+    begin
+      fItemIndex := I;
+      TopIndex := fItemIndex - GetVisibleRows div 2;
+      Break;
+    end;
+
+    if Assigned(fOnChange) then
+      fOnChange(Self);
+  end;
 end;
 
 

@@ -49,10 +49,10 @@ implementation
 { TKMKeyLibraryCommon }
 //keymap files consist of lines. Each line has an index and a text. Lines without index are skipped
 procedure TKMKeyLibraryMulti.LoadKeymapFile(var aArray: TIntegerArray);
-  function KeyToArray(const Value: String): TStringArray;
+  function KeyToArray(const Value: UnicodeString): TUnicodeStringArray;
   var
     P, Start: PWideChar;
-    S: String;
+    S: UnicodeString;
   begin
     SetLength(Result, 0);
     P := Pointer(Value);
@@ -74,8 +74,8 @@ procedure TKMKeyLibraryMulti.LoadKeymapFile(var aArray: TIntegerArray);
     end;
   end;
 var
-  Tmp: TStringArray;
-  s, libKey: String;
+  Tmp: TUnicodeStringArray;
+  s, libKey: UnicodeString;
   I, id, topId, firstDelimiter: Integer;
   {$IFDEF FPC} tmpA: AnsiString; {$ENDIF}
 begin
@@ -83,7 +83,7 @@ begin
   if not FileExists(FILE_PATH) then Exit;
 
   //Load ANSI file with codepage
-  libKey := ReadTextA(FILE_PATH);
+  libKey := ReadTextU(FILE_PATH, 1252);
   Tmp := KeyToArray(libKey);
   fKeyCount := High(Tmp);
 
@@ -188,7 +188,7 @@ var
   s: string;
 begin
   SL := TStringList.Create;
-  SL.DefaultEncoding := TEncoding.UTF8;
+  {$IFDEF WDC}SL.DefaultEncoding := TEncoding.UTF8;{$ENDIF}
 
   for I := 0 to KeyCount do
     if (I = aKeyID) then
@@ -203,7 +203,7 @@ begin
 
   //Don't create blank files for unused translations
   if (SL.Count > 0) or FileExists(FILE_PATH) then
-    SL.SaveToFile(FILE_PATH, TEncoding.UTF8);
+    SL.SaveToFile(FILE_PATH{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
   SL.Free;
 end;
 
