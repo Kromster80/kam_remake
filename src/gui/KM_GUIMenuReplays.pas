@@ -368,7 +368,8 @@ begin
     C := 0;
     for I := 0 to fSaves.Count - 1 do
       // Must go to lower case, otherwise Windows will overwrite.
-      if (Edit_Rename.Text.ToLower() = fSaves[I].FileName.ToLower()) then
+      {$IFDEF WDC}if (Edit_Rename.Text.ToLower() = fSaves[I].FileName.ToLower()) then{$ENDIF}
+      {$IFDEF FPC}if (LowerCase(Edit_Rename.Text) = LowerCase(fSaves[I].FileName)) then{$ENDIF}
         Inc(C);
     Button_RenameConfirm.Enabled := (not (C <> 0) and (Edit_Rename.Text <> '') and not (Edit_Rename.Text[1] = ' ') and
                                      not (Edit_Rename.Text[Length(Edit_Rename.Text)] = ' '));
