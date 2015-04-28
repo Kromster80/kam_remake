@@ -8,12 +8,7 @@ uses
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
-  KM_GUIGameBuild,
-  KM_GUIGameChat,
-  KM_GUIGameHouse,
-  KM_GUIGameRatios,
-  KM_GUIGameStats,
-  KM_GUIGameMenuSettings;
+  KM_GUIGameBuild, KM_GUIGameChat, KM_GUIGameHouse, KM_GUIGameRatios, KM_GUIGameStats,KM_GUIGameMenuSettings;
 
 
 const
@@ -307,7 +302,7 @@ implementation
 uses
   KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
   KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks,
-  KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
+  KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog;
 
 
@@ -1286,16 +1281,16 @@ begin
 
     //Hints
     Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [Char(SC_ARMY_HALT)]);
+    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [gResTexts.GetNameForKey(SC_ARMY_HALT)]);
     Button_Army_Attack.Hint   := gResTexts[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + SC_ARMY_ROTATE_CW_CHAR + ''')';
-    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + SC_ARMY_STORM + ''')';
-    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT] + ' (''' + SC_ARMY_ROTATE_CCW_CHAR + ''')';
-    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + SC_ARMY_ADD_LINE_CHAR + ''')';
-    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + SC_ARMY_DEL_LINE_CHAR + ''')';
-    Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
-    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [Char(SC_ARMY_LINK)]);
-    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + SC_ARMY_FOOD + ''')';
+    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_ROTATE_CW) + ''')';
+    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_STORM) + ''')';
+    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_ROTATE_CCW) + ''')';
+    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_ADD_LINE) + ''')';
+    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_DEL_LINE) + ''')';
+    Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [gResTexts.GetNameForKey(SC_ARMY_SPLIT)]);
+    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [gResTexts.GetNameForKey(SC_ARMY_LINK)]);
+    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_FOOD) + ''')';
     Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
     {Army controls...
@@ -2539,15 +2534,16 @@ begin
     Exit;
   end;
 
-  case Key of
-    VK_LEFT:          fViewport.ScrollKeyLeft  := True;
-    VK_RIGHT:         fViewport.ScrollKeyRight := True;
-    VK_UP:            fViewport.ScrollKeyUp    := True;
-    VK_DOWN:          fViewport.ScrollKeyDown  := True;
-    Ord(SC_ZOOM_IN):  fViewport.ZoomKeyIn      := True;
-    Ord(SC_ZOOM_OUT): fViewport.ZoomKeyOut     := True;
+  //case Key of
+  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := True;
+  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := True;
+  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := True;
+  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := True;
+  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := True;
+  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := True;
     //As we don't have names for teams in SP we only allow showing team names in MP or MP replays
-    Ord(SC_SHOW_TEAMS): if (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
+  if (Key = gResKeys[SC_SHOW_TEAMS]) then
+    if (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
       fShowTeamNames := True;
       //Update it immediately so there's no 300ms lag after pressing the key
@@ -2555,7 +2551,6 @@ begin
       Rect := fViewport.GetMinimapClip;
       gHands.GetUnitsInRect(Rect, fTeamNames);
     end;
-  end;
 end;
 
 
@@ -2567,7 +2562,7 @@ var LastAlert: TKMAlert;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
-    if Key = Ord(SC_PAUSE) then
+    if Key = gResKeys[SC_PAUSE] then
       SetPause(False);
     Exit;
   end;
@@ -2583,68 +2578,71 @@ begin
   end;
 
   //These keys are allowed during replays
-  case Key of
-    //Scrolling
-    VK_LEFT:          fViewport.ScrollKeyLeft  := False;
-    VK_RIGHT:         fViewport.ScrollKeyRight := False;
-    VK_UP:            fViewport.ScrollKeyUp    := False;
-    VK_DOWN:          fViewport.ScrollKeyDown  := False;
-    Ord(SC_ZOOM_IN):  fViewport.ZoomKeyIn      := False;
-    Ord(SC_ZOOM_OUT): fViewport.ZoomKeyOut     := False;
-    VK_BACK:          fViewport.ResetZoom;
+  //case Key of
+  //Scrolling
+  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := False;
+  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := False;
+  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := False;
+  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := False;
+  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := False;
+  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := False;
+  if Key = gResKeys[SC_ZOOM_RESET]   then fViewport.ResetZoom;
+  if Key = gResKeys[SC_SHOW_TEAMS]   then fShowTeamNames := False;
+  if Key = gResKeys[SC_BEACON] then
+    if not SelectingTroopDirection then
+    begin
+      fPlacingBeacon := True;
+      MinimapView.ClickableOnce := True;
+      gRes.Cursors.Cursor := kmc_Beacon;
+    end;
 
-    Ord(SC_SHOW_TEAMS):  fShowTeamNames := False;
-    Ord(SC_BEACON): if not SelectingTroopDirection then
-                    begin
-                      fPlacingBeacon := True;
-                      MinimapView.ClickableOnce := True;
-                      gRes.Cursors.Cursor := kmc_Beacon;
-                    end;
-
-    VK_ESCAPE:            begin
-                            //Progressively hide open elements on Esc
-                            if fJoiningGroups then
-                              Army_HideJoinMenu(nil)
-                            else
-                            if ShownMessage <> -1 then
-                              Message_Close(nil)
-                            else
-                            if fGuiGameChat.Visible then
-                              fGuiGameChat.Hide
-                            else
-                            if Panel_Allies.Visible then
-                              Allies_Close(nil)
-                            else
-                            if Panel_MessageLog.Visible then
-                              MessageLog_Close(nil)
-                            else
-                            if Button_Back.Visible then
-                              SwitchPage(Button_Back);
-                          end;
-
-    Ord(SC_SELECT_LOW)..Ord(SC_SELECT_HIGH):
-                    if (ssCtrl in Shift) then
-                      Selection_Assign(Key, MySpectator.Selected)
-                    else
-                      if (ssShift in Shift) and (fUIMode in [umSP, umMP]) then
-                        Selection_Link(Key, MySpectator.Selected)
-                      else
-                        Selection_Select(Key);
-
-    //Menu shortcuts
-    SC_MENU_BUILD:  Button_Main[tbBuild].Click;
-    SC_MENU_RATIO:  Button_Main[tbRatio].Click;
-    SC_MENU_STATS:  Button_Main[tbStats].Click;
-    SC_MENU_MENU:   Button_Main[tbMenu].Click;
+  if Key = VK_ESCAPE then
+  begin
+  //Progressively hide open elements on Esc
+    if fJoiningGroups then
+      Army_HideJoinMenu(nil)
+    else
+    if ShownMessage <> -1 then
+      Message_Close(nil)
+    else
+    if fGuiGameChat.Visible then
+      fGuiGameChat.Hide
+    else
+    if Panel_Allies.Visible then
+      Allies_Close(nil)
+    else
+    if Panel_MessageLog.Visible then
+      MessageLog_Close(nil)
+    else
+    if Button_Back.Visible then
+      SwitchPage(Button_Back);
   end;
 
+  if Key in [Ord(SC_SELECT_LOW)..Ord(SC_SELECT_HIGH)] then
+  begin
+    if (ssCtrl in Shift) then
+      Selection_Assign(Key, MySpectator.Selected)
+    else
+    if (ssShift in Shift) and (fUIMode in [umSP, umMP]) then
+      Selection_Link(Key, MySpectator.Selected)
+    else
+      Selection_Select(Key);
+  end;
+
+    //Menu shortcuts
+  if Key = gResKeys[SC_MENU_BUILD] then Button_Main[tbBuild].Click;
+  if Key = gResKeys[SC_MENU_RATIO] then Button_Main[tbRatio].Click;
+  if Key = gResKeys[SC_MENU_STATS] then Button_Main[tbStats].Click;
+  if Key = gResKeys[SC_MENU_MENU]  then Button_Main[tbMenu].Click;
+
   if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
-  case Key of
+  begin
+  //case Key of
     //Game speed/pause: Not available in multiplayer mode
-    VK_F5:    gGame.SetGameSpeed(1, False);
-    VK_F6:    gGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium, True);
-    VK_F7:    gGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast, True);
-    VK_F8:    gGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast, True);
+    if Key = gResKeys[SC_Speedup_1] then gGame.SetGameSpeed(1, False);
+    if Key = gResKeys[SC_Speedup_2] then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium, True);
+    if Key = gResKeys[SC_Speedup_3] then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast, True);
+    if Key = gResKeys[SC_Speedup_4] then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast, True);
   end;
 
   //All the following keys don't work in Replay, because they alter game state
@@ -2652,49 +2650,60 @@ begin
   //thus the easy way to make that is to exit now
   if fUIMode = umReplay then Exit;
 
-  case Key of
+  //case Key of
     //Messages
-    VK_SPACE:             begin
-                            //Spacebar centers you on the latest alert
-                            LastAlert := fAlerts.GetLatestAlert;
-                            if LastAlert <> nil then
-                              fViewport.Position := LastAlert.Loc;
-                          end;
-    VK_DELETE:            Button_MessageDelete.Click;
-    VK_RETURN:            //Enter is the shortcut to bring up chat in multiplayer
-                          if (fUIMode in [umMP, umSpectate]) and not fGuiGameChat.Visible then
-                          begin
-                            Allies_Close(nil);
-                            Message_Close(nil);
-                            MessageLog_Close(nil);
-                            Label_MPChatUnread.Caption := ''; //No unread messages
-                            fGuiGameChat.Show;
-                          end;
+  if Key = gResKeys[SC_Center_Alert] then
+  begin
+    //Spacebar centers you on the latest alert
+    LastAlert := fAlerts.GetLatestAlert;
+    if LastAlert <> nil then
+      fViewport.Position := LastAlert.Loc;
+  end;
+  if Key = gResKeys[SC_Delete_Msg] then Button_MessageDelete.Click;
+  if Key = gResKeys[SC_Chat_MP] then            //Enter is the shortcut to bring up chat in multiplayer
+    if (fUIMode in [umMP, umSpectate]) and not fGuiGameChat.Visible then
+    begin
+      Allies_Close(nil);
+      Message_Close(nil);
+      MessageLog_Close(nil);
+      Label_MPChatUnread.Caption := ''; //No unread messages
+      fGuiGameChat.Show;
+    end;
 
     //Standard army shortcuts from KaM
-    {Ord(}SC_ARMY_HALT{)}:        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
-    {Ord(}SC_ARMY_LINK{)}:        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
-    Ord(SC_ARMY_SPLIT):       if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
+  if Key = gResKeys[SC_ARMY_HALT] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
+  if Key = gResKeys[SC_ARMY_LINK] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
+  if Key = gResKeys[SC_ARMY_SPLIT] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
 
     //Additional hotkeys for all group orders
-    Ord(SC_ARMY_FOOD):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Feed.Click;
-    Ord(SC_ARMY_STORM):       if Panel_Army.Visible and Button_Army_Storm.Enabled and not SelectingTroopDirection then Button_Army_Storm.Click;
-    Ord(SC_ARMY_ADD_LINE):    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForDown.Click;
-    Ord(SC_ARMY_DEL_LINE):    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForUp.Click;
-    Ord(SC_ARMY_ROTATE_CW):   if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCW.Click;
-    Ord(SC_ARMY_ROTATE_CCW):  if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCCW.Click;
+  if Key = gResKeys[SC_ARMY_FOOD] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Feed.Click;
+  if Key = gResKeys[SC_ARMY_STORM] then
+    if Panel_Army.Visible and Button_Army_Storm.Enabled and not SelectingTroopDirection then Button_Army_Storm.Click;
+  if Key = gResKeys[SC_ARMY_ADD_LINE] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForDown.Click;
+  if Key = gResKeys[SC_ARMY_DEL_LINE] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForUp.Click;
+  if Key = gResKeys[SC_ARMY_ROTATE_CW] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCW.Click;
+  if Key = gResKeys[SC_ARMY_ROTATE_CCW] then
+    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCCW.Click;
 
     //General function keys
-    Ord(SC_PAUSE):  if (fUIMode = umSP) then SetPause(True); //Display pause overlay
-  end;
+  if Key = gResKeys[SC_PAUSE] then
+    if (fUIMode = umSP) then SetPause(True); //Display pause overlay
+  //end;
 
   {Temporary cheat codes}
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or (fUIMode = umSP)) then
-  case Key of
-    Ord(SC_DEBUG_REVEALMAP): gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-    Ord(SC_DEBUG_VICTORY):   gGame.GameInputProcess.CmdTemp(gic_TempVictory);
-    Ord(SC_DEBUG_DEFEAT):    gGame.GameInputProcess.CmdTemp(gic_TempDefeat);
-    Ord(SC_DEBUG_ADDSCOUT):  gGame.GameInputProcess.CmdTemp(gic_TempAddScout, gGameCursor.Cell);
+  begin
+    if Key = gResKeys[SC_DEBUG_REVEALMAP] then gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
+    if Key = gResKeys[SC_DEBUG_VICTORY]   then gGame.GameInputProcess.CmdTemp(gic_TempVictory);
+    if Key = gResKeys[SC_DEBUG_DEFEAT]    then gGame.GameInputProcess.CmdTemp(gic_TempDefeat);
+    if Key = gResKeys[SC_DEBUG_ADDSCOUT]  then gGame.GameInputProcess.CmdTemp(gic_TempAddScout, gGameCursor.Cell);
   end;
 end;
 

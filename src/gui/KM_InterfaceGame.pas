@@ -42,38 +42,9 @@ const
   //Shortcuts
   //All shortcuts are in English and are the same for all languages to avoid
   //naming collisions and confusion in discussions
-  SC_MENU_BUILD = VK_F1;
-  SC_MENU_RATIO = VK_F2;
-  SC_MENU_STATS = VK_F3;
-  SC_MENU_MENU  = VK_F4;
 
   SC_SELECT_LOW = '0';
   SC_SELECT_HIGH = '9';
-
-  SC_ARMY_HALT = 72;//'H';
-  SC_ARMY_SPLIT = 'S';
-  SC_ARMY_LINK = 76; //'L';
-  SC_ARMY_FOOD = 'F';
-  SC_ARMY_STORM = 'X';
-  SC_ARMY_ADD_LINE = VK_OEM_PLUS;      // +
-  SC_ARMY_ADD_LINE_CHAR = '+'; //Used in hint
-  SC_ARMY_DEL_LINE = VK_OEM_MINUS;     // -
-  SC_ARMY_DEL_LINE_CHAR = '-'; //Used in hint
-  SC_ARMY_ROTATE_CW = VK_OEM_PERIOD;   // >
-  SC_ARMY_ROTATE_CW_CHAR = '.'; //Used in hint
-  SC_ARMY_ROTATE_CCW = VK_OEM_COMMA;   // <
-  SC_ARMY_ROTATE_CCW_CHAR = ','; //Used in hint
-
-  SC_DEBUG_REVEALMAP = 'M';
-  SC_DEBUG_VICTORY = 'V';
-  SC_DEBUG_DEFEAT = 'D';
-  SC_DEBUG_ADDSCOUT = 'C'; //Usefull when mouse has no middle-button
-
-  SC_BEACON = 'B';
-  SC_PAUSE = 'P';
-  SC_SHOW_TEAMS = 'T';
-  SC_ZOOM_IN = VK_NEXT; //PageDown
-  SC_ZOOM_OUT = VK_PRIOR; //PageUp
 
   //
   GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI

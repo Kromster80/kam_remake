@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, SysUtils, KromOGLUtils,
   KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions,
-  KM_InterfaceDefaults, KM_ResKeys;
+  KM_InterfaceDefaults;
 
 
 type
@@ -20,10 +20,6 @@ type
     PrevResolutionId: TResIndex;
     //Try to pick the same refresh rate on resolution change
     DesiredRefRate: Integer;
-
-    //fKeys: TKMKeyLibraryMulti;
-
-    fKeysOpen: Boolean;
 
     procedure ApplyResolution(Sender: TObject);
     procedure Change(Sender: TObject);
@@ -77,7 +73,7 @@ type
 
 implementation
 uses
-  KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_Sound, KM_RenderUI, KM_ResFonts, KM_Resource;
+  KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_Sound, KM_RenderUI, KM_ResFonts, KM_Resource, KM_ResKeys;
 
 
 { TKMGUIMainOptions }
@@ -238,10 +234,6 @@ end;
 
 destructor TKMMenuOptions.Destroy;
 begin
-  if fKeysOpen then
-  begin
-    gResKeys.Free; // To make sure there's no mem leak
-  end;
   inherited;
 end;
 
@@ -478,7 +470,8 @@ var
 begin
   aID := ColumnBox_Options_Keys.ItemIndex;
   D := 0;
-  if (aID >= 0) then
+  // Never allow to change secret debug keys.
+  if (aID >= 0) and (aID <= (gResKeys.KeyCount - 4)) then
   begin
     for I := 0 to gResKeys.KeyCount do
       if (Ord(Key) = gResKeys.Keys[I]) then Inc(D);
@@ -497,11 +490,6 @@ begin
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
   fOnPageChange(gpMainMenu);
-  if fKeysOpen then
-  begin
-    gResKeys.Free; // To make sure there's no mem leak
-    fKeysOpen := False;
-  end;
 end;
 
 
@@ -509,19 +497,14 @@ Procedure TKMMenuOptions.LoadKeys;
 var
   I: Integer;
 begin
-  if fKeysOpen then
-  begin
-    gResKeys.Free; // To make sure there's no mem leak
-  end;
-  gResKeys := TKMKeyLibraryMulti.Create;
   gResKeys.LoadKeys;
-  fKeysOpen := True;
   ColumnBox_Options_Keys.ItemIndex := -1;
   ColumnBox_Options_Keys.Clear;
   //Hide the debug keys
   for I := 0 to (gResKeys.KeyCount - 4) do
     ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts.GetNameForKey(I),
                                    gResKeys.GetCharFromVK(gResKeys.Keys[I])], [$FFFFFFFF, $FFFFFFFF]));
+    ColumnBox_Options_Keys.AddItem(MakeListRow(['Quit the game', gResKeys.GetCharFromVK(27)], [$FFFFFFFF, $FFFFFFFF]));
 end;
 
 

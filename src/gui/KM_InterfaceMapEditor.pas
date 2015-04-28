@@ -100,8 +100,8 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp, KM_Utils, KM_Hand,
-  KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses;
+  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -610,12 +610,12 @@ begin
   end;
 
   //Scrolling
-  if Key = VK_LEFT          then fViewport.ScrollKeyLeft  := True;
-  if Key = VK_RIGHT         then fViewport.ScrollKeyRight := True;
-  if Key = VK_UP            then fViewport.ScrollKeyUp    := True;
-  if Key = VK_DOWN          then fViewport.ScrollKeyDown  := True;
-  if Key = Ord(SC_ZOOM_IN)  then fViewport.ZoomKeyIn   := True;
-  if Key = Ord(SC_ZOOM_OUT) then fViewport.ZoomKeyOut := True;
+  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := True;
+  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := True;
+  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := True;
+  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := True;
+  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := True;
+  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := True;
 end;
 
 
@@ -638,19 +638,18 @@ begin
     if fGuiMission.Visible then fGuiMission.ShowIndex(Key-49);
 
   //Scrolling
-  if Key = VK_LEFT          then fViewport.ScrollKeyLeft  := False;
-  if Key = VK_RIGHT         then fViewport.ScrollKeyRight := False;
-  if Key = VK_UP            then fViewport.ScrollKeyUp    := False;
-  if Key = VK_DOWN          then fViewport.ScrollKeyDown  := False;
-  if Key = Ord(SC_ZOOM_IN)  then fViewport.ZoomKeyIn   := False;
-  if Key = Ord(SC_ZOOM_OUT) then fViewport.ZoomKeyOut := False;
+  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := False;
+  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := False;
+  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := False;
+  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := False;
+  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := False;
+  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := False;
+  //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
+  //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
+  if Key = gResKeys[SC_ZOOM_RESET]   then fViewport.ResetZoom;
 
   //For undo/redo shortcuts
   if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);
-
-  //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
-  //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = VK_BACK  then fViewport.ResetZoom;
 end;
 
 
