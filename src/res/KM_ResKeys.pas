@@ -8,7 +8,6 @@ uses
   Classes, SysUtils, StrUtils, KromUtils,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO;
 
-
 const
   //Load key IDs from this include file
   {$I KM_KeyIDs.inc}
@@ -19,7 +18,6 @@ const
 type
   TKMKeyLibraryMulti = class
   private
-    fPref: Integer;
     fKeys: TIntegerArray;
     FILE_PATH: String;
     fKeyCount: Integer;
@@ -37,16 +35,19 @@ type
     procedure Load(aStream: TKMemoryStream);
   end;
 
-
 var
   //All games Keys accessible from everywhere
   gResKeys: TKMKeyLibraryMulti;
 
-
 implementation
 
+{ TKMKeyLibraryMulti }
+constructor TKMKeyLibraryMulti.Create;
+begin
+  inherited Create;
+end;
 
-{ TKMKeyLibraryCommon }
+
 //keymap files consist of lines. Each line has an index and a text. Lines without index are skipped
 procedure TKMKeyLibraryMulti.LoadKeymapFile(var aArray: TIntegerArray);
   function KeyToArray(const Value: UnicodeString): TUnicodeStringArray;
@@ -129,33 +130,26 @@ begin
   end;
 end;
 
-{ TKMKeyLibraryMulti }
-constructor TKMKeyLibraryMulti.Create;
-begin
-  inherited Create;
-
-  fPref := 0;
-end;
-
 
 //Check if requested string is empty
 function TKMKeyLibraryMulti.HasKey(aIndex: Word): Boolean;
 begin
-  Result := ((fPref <> -1) and (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0));
+  Result := ((0 <> -1) and (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0));
 end;
 
 
 function TKMKeyLibraryMulti.GetKeys(aIndex: Word): Integer;
 begin
-  if (fPref <> -1) and (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0) then
+  if (0 <> -1) and (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0) then
     Result := fKeys[aIndex]
-  //else
-    //Result := '~~~Key ' + IntToStr(aIndex) + ' out of range!~~~';
+  else
+    Result := -1;
 end;
 
 
 procedure TKMKeyLibraryMulti.LoadKeys;
 begin
+  fKeys := nil;
   LoadKeymapFile(fKeys);
   KeyCount := fKeyCount;
 end;
@@ -215,10 +209,6 @@ var
   curK: AnsiString;
   Tmp: String;
 begin
-  //Try to match savegame locales with players locales,
-  //cos some players might have non-native locales missing
-  //We might add locale selection to setup.exe
-
   SetLength(fKeys, 1);
 
   aStream.Read(KCount);

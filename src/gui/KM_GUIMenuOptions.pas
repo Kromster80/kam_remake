@@ -21,7 +21,7 @@ type
     //Try to pick the same refresh rate on resolution change
     DesiredRefRate: Integer;
 
-    fKeys: TKMKeyLibraryMulti;
+    //fKeys: TKMKeyLibraryMulti;
 
     fKeysOpen: Boolean;
 
@@ -29,7 +29,6 @@ type
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
-    //procedure Keybind_DoubleClick(Key: Word; Shift: TShiftState);
     procedure KeybindClick(Sender: TObject);
     procedure Keybind_ListKeySave(Key: Word; Shift: TShiftState);
     procedure FlagClick(Sender: TObject);
@@ -89,8 +88,6 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  fKeys := TKMKeyLibraryMulti.Create;
-  fKeys.LoadKeys;
 
   //We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
 
@@ -243,8 +240,7 @@ destructor TKMMenuOptions.Destroy;
 begin
   if fKeysOpen then
   begin
-    fKeys.Free; // To make sure there's no mem leak
-    fKeysOpen := False;
+    gResKeys.Free; // To make sure there's no mem leak
   end;
   inherited;
 end;
@@ -480,18 +476,17 @@ procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
   aID, I, D: Integer;
 begin
-  Label_Options_Keys_Test.Caption := IntToStr(Key);
   aID := ColumnBox_Options_Keys.ItemIndex;
   D := 0;
   if (aID >= 0) then
   begin
-    for I := 0 to fKeys.KeyCount do
-      if (Ord(Key) = fKeys.Keys[I]) then Inc(D);
+    for I := 0 to gResKeys.KeyCount do
+      if (Ord(Key) = gResKeys.Keys[I]) then Inc(D);
 
     if (D <> 0) then
       exit
     else
-      fKeys.SaveKey(aID, Ord(Key));
+      gResKeys.SaveKey(aID, Ord(Key));
   end;
   LoadKeys;
 end;
@@ -504,7 +499,7 @@ begin
   fOnPageChange(gpMainMenu);
   if fKeysOpen then
   begin
-    fKeys.Free; // To make sure there's no mem leak
+    gResKeys.Free; // To make sure there's no mem leak
     fKeysOpen := False;
   end;
 end;
@@ -514,16 +509,19 @@ Procedure TKMMenuOptions.LoadKeys;
 var
   I: Integer;
 begin
-  fKeys.Free;
-  fKeys := TKMKeyLibraryMulti.Create;
-  fKeys.LoadKeys;
+  if fKeysOpen then
+  begin
+    gResKeys.Free; // To make sure there's no mem leak
+  end;
+  gResKeys := TKMKeyLibraryMulti.Create;
+  gResKeys.LoadKeys;
   fKeysOpen := True;
   ColumnBox_Options_Keys.ItemIndex := -1;
   ColumnBox_Options_Keys.Clear;
   //Hide the debug keys
-  for I := 0 to (fKeys.KeyCount - 4) do
+  for I := 0 to (gResKeys.KeyCount - 4) do
     ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts.GetNameForKey(I),
-                                   fKeys.GetCharFromVK(fKeys.Keys[I])], [$FFFFFFFF, $FFFFFFFF]));
+                                   gResKeys.GetCharFromVK(gResKeys.Keys[I])], [$FFFFFFFF, $FFFFFFFF]));
 end;
 
 
