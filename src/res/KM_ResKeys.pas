@@ -30,9 +30,7 @@ type
     function HasKey(aIndex: Word): Boolean;
     function GetCharFromVK(aKey: Word): String;
     property Keys[aIndex: Word]: Integer read GetKeys; default;
-    procedure Save(aStream: TKMemoryStream);
     procedure SaveKey(aKeyID: Integer; aKeyValue: Word);
-    procedure Load(aStream: TKMemoryStream);
   end;
 
 var
@@ -155,26 +153,6 @@ begin
 end;
 
 
-procedure TKMKeyLibraryMulti.Save(aStream: TKMemoryStream);
-var
-  K: Integer;
-  aKeyCount: Integer;
-begin
-  //Only save values containing keys
-  aStream.Write(1);
-  if Length(fKeys) > 0 then
-  begin
-    aStream.WriteA('keys');
-
-    aKeyCount := Length(fKeys);
-
-    aStream.Write(aKeyCount);
-    for K := 0 to aKeyCount - 1 do
-      aStream.Write(fKeys[K]);
-  end;
-end;
-
-
 procedure TKMKeyLibraryMulti.SaveKey(aKeyID: Integer; aKeyValue: Word);
 var
   SL: TStringList;
@@ -199,28 +177,6 @@ begin
   if (SL.Count > 0) or FileExists(FILE_PATH) then
     SL.SaveToFile(FILE_PATH{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
   SL.Free;
-end;
-
-
-procedure TKMKeyLibraryMulti.Load(aStream: TKMemoryStream);
-var
-  I,K: Integer;
-  KCount, aKeyCount: Integer;
-  curK: AnsiString;
-  Tmp: String;
-begin
-  SetLength(fKeys, 1);
-
-  aStream.Read(KCount);
-  for I := 0 to KCount - 1 do
-  begin
-    aStream.ReadA(curK);
-    aStream.Read(aKeyCount);
-
-    SetLength(fKeys, aKeyCount);
-    for K := 0 to aKeyCount - 1 do
-      aStream.Read(fKeys[K]);
-  end;
 end;
 
 
