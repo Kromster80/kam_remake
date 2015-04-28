@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, SysUtils, KromOGLUtils,
   KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions,
-  KM_InterfaceDefaults;
+  KM_InterfaceDefaults, KM_ResKeys;
 
 
 type
@@ -21,13 +21,21 @@ type
     //Try to pick the same refresh rate on resolution change
     DesiredRefRate: Integer;
 
+    fKeys: TKMKeyLibraryMulti;
+
+    fKeysOpen: Boolean;
+
     procedure ApplyResolution(Sender: TObject);
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
+    procedure Keybind_DoubleClick(Sender: TObject);
+    procedure KeybindClick(Sender: TObject);
+    procedure Keybind_ListKeySave(Sender: TObject);
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
+    procedure LoadKeys;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -53,6 +61,18 @@ type
         DropBox_Options_Resolution: TKMDropList;
         DropBox_Options_RefreshRate: TKMDropList;
         Button_Options_ResApply: TKMButton;
+      PopUp_Options_Keys: TKMPopUpMenu;
+        Image_Options_Keys: TKMImage;
+        Label_Options_Keys_Title{, Label_Options_Keys_Test}: TKMLabel;
+        Button_Options_Keys_OK: TKMButton;
+        ColumnBox_Options_Keys: TKMColumnBox;
+        PopUp_Options_Keys_Input: TKMPopUpMenu;
+          Image_Options_Keys_Input: TKMImage;
+          Label_Options_Keys_Title_Input: TKMLabel;
+          Button_Options_Keys_Input_Save: TKMButton;
+          Button_Options_Keys_Input_Cancel: TKMButton;
+          Edit_Options_Keys_Input: TKMEdit;
+      Button_Options_Keys: TKMButton;
       Button_Options_Back: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
@@ -75,6 +95,8 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  fKeys := TKMKeyLibraryMulti.Create;
+  fKeys.LoadKeys;
 
   //We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
 
@@ -181,16 +203,85 @@ begin
       end;
       Radio_Options_Lang.OnChange := Change;
 
+    //Keybindings button and popup
+    Button_Options_Keys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
+    Button_Options_Keys.Anchors := [anLeft];
+    Button_Options_Keys.OnClick := KeybindClick;
+
     //Back button
     Button_Options_Back:=TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
     Button_Options_Back.Anchors := [anLeft];
     Button_Options_Back.OnClick := BackClick;
+
+    // Panel_Options
+    PopUp_Options_Keys := TKMPopUpMenu.Create(Panel_Options, 600);
+    PopUp_Options_Keys.Height := 400;
+    // Keep the pop-up centered
+    PopUp_Options_Keys.Anchors := [];
+    PopUp_Options_Keys.Left := (Panel_Options.Width Div 2) - 300;
+    PopUp_Options_Keys.Top := (Panel_Options.Height Div 2) - 300;
+
+      TKMBevel.Create(PopUp_Options_Keys, -1000,  -1000, 4000, 4000);
+
+      Image_Options_Keys := TKMImage.Create(PopUp_Options_Keys,0,0, 600, 600, 15, rxGuiMain);
+      Image_Options_Keys.ImageStretch;
+
+      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 560, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter);
+      Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
+
+      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 20, 550, 170, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+      Button_Options_Keys_OK.Anchors := [anLeft,anBottom];
+      Button_Options_Keys_OK.OnClick := KeybindClick;
+
+      //Label_Options_Keys_Test := TKMLabel.Create(PopUp_options_Keys, 210, 550, 170, 30, '', fnt_Metal, taCenter);
+      //Label_Options_Keys_Test.Anchors := [anLeft,anBottom];
+
+      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 560, 440, fnt_Metal, bsMenu);
+      ColumnBox_Options_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 250]);
+      ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
+      ColumnBox_Options_Keys.SearchColumn := 0;
+      ColumnBox_Options_Keys.ShowLines := True;
+      ColumnBox_Options_Keys.OnClick := Keybind_DoubleClick;
+
+      //The change key input popup
+      PopUp_Options_Keys_Input := TKMPopUpMenu.Create(PopUp_Options_Keys, 240);
+      PopUp_Options_Keys_Input.Height := 180;
+      // Keep the pop-up centered
+      PopUp_Options_Keys_Input.Anchors := [];
+      PopUp_Options_Keys_Input.Left := (PopUp_Options_Keys.Width Div 2) - 120;
+      PopUp_Options_Keys_Input.Top := (PopUp_Options_Keys.Height Div 2) - 80;
+
+        TKMBevel.Create(PopUp_Options_Keys_Input, -1000, 1000, 4000, 4000);
+
+        Image_Options_Keys_Input := TKMImage.Create(PopUp_Options_Keys_Input,0,0, 240, 180, 15, rxGuiMain);
+        Image_Options_Keys_Input.ImageStretch;
+
+        Label_Options_Keys_Title_Input := TKMLabel.Create(PopUp_Options_Keys_Input, 20, 30, 200, 30, gResTexts[TX_MENU_OPTIONS_PRESS_KEY], fnt_Outline, taCenter);
+        Label_Options_Keys_Title_Input.Anchors := [anLeft,anBottom];
+
+        Edit_Options_Keys_Input := TKMEdit.Create(PopUp_Options_Keys_Input, 20, 70, 200, 30, fnt_Metal);
+        Edit_Options_Keys_Input.Anchors := [anLeft,anBottom];
+        Edit_Options_Keys_Input.MaxLen := 1;
+
+        Button_Options_Keys_Input_Save:= TKMButton.Create(PopUp_Options_Keys_Input, 10, 130, 105, 30, gResTexts[TX_MENU_OPTIONS_APPLY], bsMenu);
+        Button_Options_Keys_Input_Save.Anchors := [anLeft,anBottom];
+        Button_Options_Keys_Input_Save.OnClick := Keybind_ListKeySave;
+
+        Button_Options_Keys_Input_Cancel:= TKMButton.Create(PopUp_Options_Keys_Input, 125, 130, 105, 30, gResTexts[TX_MAPED_SAVE_CANCEL], bsMenu);
+        Button_Options_Keys_Input_Cancel.Anchors := [anLeft,anBottom];
+        Button_Options_Keys_Input_Cancel.OnClick := KeybindClick;
+
+  LoadKeys;
 end;
 
 
 destructor TKMMenuOptions.Destroy;
 begin
-
+  if fKeysOpen then
+  begin
+    fKeys.Free; // To make sure there's no mem leak
+    fKeysOpen := False;
+  end;
   inherited;
 end;
 
@@ -402,12 +493,89 @@ begin
 end;
 
 
+
+procedure TKMMenuOptions.KeybindClick(Sender: TObject);
+begin
+  if ColumnBox_Options_Keys.TopIndex < 0 then Exit;
+
+  if Sender = Button_Options_Keys then
+  begin
+    LoadKeys;
+    PopUp_Options_Keys.Show;
+  end;
+
+  if Sender = Button_Options_Keys_OK then
+  begin
+    LoadKeys;
+    PopUp_Options_Keys.Hide;
+  end;
+
+  if Sender = Button_Options_Keys_Input_Cancel then
+  begin
+    PopUp_Options_Keys_Input.Hide;
+    Edit_Options_Keys_Input.Text := '';
+  end;
+end;
+
+
+procedure TKMMenuOptions.Keybind_DoubleClick(Sender: TObject);
+begin
+  PopUp_Options_Keys_Input.Show;
+  //Label_Options_Keys_Test.Caption := ColumnBox_Options_Keys.ItemIndex.ToString(); // For testing to see the ID's
+end;
+
+
+procedure TKMMenuOptions.Keybind_ListKeySave(Sender: TObject);
+var
+  aID, I, D: Integer;
+  aKey: Word;
+begin
+  aID := ColumnBox_Options_Keys.ItemIndex;
+  aKey := Ord(Edit_Options_Keys_Input.Text.ToUpper.Chars[0]);
+  D := 0;
+  if (aID >= 0) then
+  begin
+    for I := 0 to fKeys.KeyCount do
+      if (Ord(aKey) = fKeys.Keys[I]) then Inc(D);
+
+    if (D <> 0) then
+      exit
+    else
+      fKeys.SaveKey(aID, Ord(aKey));
+  end;
+  Edit_Options_Keys_Input.Text := '';
+  PopUp_Options_Keys_Input.Hide;
+  LoadKeys;
+end;
+
+
 procedure TKMMenuOptions.BackClick(Sender: TObject);
 begin
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
-
   fOnPageChange(gpMainMenu);
+  if fKeysOpen then
+  begin
+    fKeys.Free; // To make sure there's no mem leak
+    fKeysOpen := False;
+  end;
+end;
+
+
+Procedure TKMMenuOptions.LoadKeys;
+var
+  I: Integer;
+begin
+  fKeys.Free;
+  fKeys := TKMKeyLibraryMulti.Create;
+  fKeys.LoadKeys;
+  fKeysOpen := True;
+  ColumnBox_Options_Keys.ItemIndex := -1;
+  ColumnBox_Options_Keys.Clear;
+  //Hide the debug keys
+  for I := 0 to (fKeys.KeyCount - 4) do
+    ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts.GetNameForKey(I),
+                                   fKeys.GetCharFromVK(fKeys.Keys[I])], [$FFFFFFFF, $FFFFFFFF]));
 end;
 
 

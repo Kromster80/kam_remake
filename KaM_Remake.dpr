@@ -189,6 +189,7 @@ uses
   KM_ResCursors in 'src\res\KM_ResCursors.pas',
   KM_ResFonts in 'src\res\KM_ResFonts.pas',
   KM_ResHouses in 'src\res\KM_ResHouses.pas',
+  KM_ResKeys in 'src\res\KM_ResKeys.pas',
   KM_ResLocales in 'src\res\KM_ResLocales.pas',
   KM_ResMapElements in 'src\res\KM_ResMapElements.pas',
   KM_ResPalettes in 'src\res\KM_ResPalettes.pas',
