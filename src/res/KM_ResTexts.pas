@@ -47,6 +47,7 @@ type
     procedure LoadLocale(aPathTemplate: string); // All locales for Mission strings
     function ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
     function HasText(aIndex: Word): Boolean;
+    function GetCharFromVK(aKey: Word): String;
     function GetNameForKey(aValue: Integer): String;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
     procedure Save(aStream: TKMemoryStream);
@@ -58,9 +59,7 @@ var
   // All games texts accessible from everywhere
   gResTexts: TKMTextLibraryMulti;
 
-
 implementation
-
 
 { TKMTextLibraryCommon }
 // LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped
@@ -392,6 +391,110 @@ begin
     113: Result := 'Unassignable Delphi';
   else
     Result := '~~~ Unknown value ' + IntToStr(aValue) + '! ~~~';
+  end;
+end;
+
+
+// Here we fix the issue where Char() doesn't always give us the character/button
+function TKMTextLibraryMulti.GetCharFromVK(aKey: Word): String;
+begin
+  case aKey of
+    1: Result := 'Left mouse button';
+    2: Result := 'Right mouse button';
+    3: Result := 'Control-break';
+    4: Result := 'Middle mouse button';
+    8: Result := 'Backspace';
+    9: Result := 'Tab';
+    12: Result := 'Clear';
+    13: Result := 'Enter';
+    16: Result := 'Shift';
+    17: Result := 'CTRL';
+    18: Result := 'Alt';
+    19: Result := 'Pause';
+    20: Result := 'Caps Lock';
+    27: Result := 'Escape';
+    32: Result := 'Space bar';
+    33: Result := 'Page Up';
+    34: Result := 'Page Down';
+    35: Result := 'End';
+    36: Result := 'Home';
+    37: Result := 'Left Arrow';
+    38: Result := 'Up Arrow';
+    39: Result := 'Right Arrow';
+    40: Result := 'Down Arrow';
+    41: Result := 'Select';
+    42: Result := 'Print';
+    43: Result := 'Execute';
+    44: Result := 'Print Screen';
+    45: Result := 'Insert';
+    46: Result := 'Delete';
+    47: Result := 'Help';
+    96: Result := 'NumPad 0';
+    97: Result := 'NumPad 1';
+    98: Result := 'NumPad 2';
+    99: Result := 'NumPad 3';
+    100: Result := 'NumPad 4';
+    101: Result := 'NumPad 5';
+    102: Result := 'NumPad 6';
+    103: Result := 'NumPad 7';
+    104: Result := 'NumPad 8';
+    105: Result := 'NumPad 9';
+    106: Result := 'NumPad *';
+    107: Result := 'NumPad +';
+    108: Result := 'Separator';
+    109: Result := 'NumPad -';
+    110: Result := 'NumPad .';
+    111: Result := 'NumPad /';
+    112: Result := 'F1';
+    113: Result := 'F2';
+    114: Result := 'F3';
+    115: Result := 'F4';
+    116: Result := 'F5';
+    117: Result := 'F6';
+    118: Result := 'F7';
+    119: Result := 'F8';
+    120: Result := 'F9';
+    121: Result := 'F10';
+    122: Result := 'F11';
+    123: Result := 'F12';
+    { F13..F24 are the special function keys, enabled by default in the EFI(UEFI) BIOS
+      This is especially the case with Windows 8/8.1 laptops.
+      Most manufacturers don't give the option to change it in the BIOS, hence we name them here anyways. }
+    124: Result := 'F13';
+    125: Result := 'F14';
+    126: Result := 'F15';
+    127: Result := 'F16';
+    128: Result := 'F17';
+    129: Result := 'F18';
+    130: Result := 'F19';
+    131: Result := 'F20';
+    132: Result := 'F21';
+    133: Result := 'F22';
+    134: Result := 'F23';
+    135: Result := 'F24';
+    144: Result := 'Num Lock';
+    145: Result := 'Scroll Lock';
+    160: Result := 'Left Shift';
+    161: Result := 'Right Shift';
+    162: Result := 'Left CTRL';
+    163: Result := 'Right CTRL';
+    164: Result := 'Left Alt';
+    165: Result := 'Right Alt';
+    186: Result := ';';
+    187: Result := '=';
+    188: Result := ',';
+    189: Result := '-';
+    190: Result := '.';
+    191: Result := '/';
+    192: Result := '`';
+    219: Result := '[';
+    220: Result := '\';
+    221: Result := ']';
+    222: Result := '''';
+    250: Result := 'Play';
+    251: Result := 'Zoom';
+  else
+    Result := Char(aKey);
   end;
 end;
 

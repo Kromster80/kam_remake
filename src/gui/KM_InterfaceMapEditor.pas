@@ -603,7 +603,7 @@ begin
   if Key = VK_RETURN then
     Message_Click(Image_Extra);
 
-  if Key = gResKeys[SC_Close_Menu] then
+  if Key = gResKeys[SC_CLOSE_MENU] then
   begin
     if fGuiMessage.Visible then fGuiMessage.Hide;
     if fGuiExtras.Visible then fGuiExtras.Hide;

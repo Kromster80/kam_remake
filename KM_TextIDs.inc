@@ -349,6 +349,7 @@ TX_MENU_OPTIONS_FUNCTION = 840; //Function
 TX_MENU_OPTIONS_KEY = 841; //Key
 TX_MENU_OPTIONS_SPECIAL_KEYBIND = 842; //Special non-editable Key-bindings
 TX_MENU_OPTIONS_SPECIAL_KEYS = 843; //Special Key-bindings
+TX_MENU_OPTIONS_RESET = 844; //Reset key-bindings
 TX_MENU_LOADING = 314; //Loading... Please wait
 TX_MENU_ERROR = 315; //An Error Has Occurred!
 TX_MENU_NEW_LOCALE = 316; //Loading new locale

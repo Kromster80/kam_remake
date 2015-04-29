@@ -797,6 +797,7 @@ type
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
     HideSelection: Boolean;
+    HighlightError: Boolean;
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
     OnKeyDown: TNotifyEventKeyDown;
@@ -1142,6 +1143,7 @@ type
 
   function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow; overload;
   function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; aTag: Integer = 0): TKMListRow; overload;
+  function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; const aColorHighlight: array of TColor4; aTag: Integer = 0): TKMListRow; overload;
   function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; const aPic: array of TKMPic; aTag: Integer = 0): TKMListRow; overload;
 
 
@@ -1151,7 +1153,8 @@ uses
 
 
 function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow;
-var I: Integer;
+var
+  I: Integer;
 begin
   SetLength(Result.Cells, Length(aCaption));
 
@@ -1176,6 +1179,26 @@ begin
   begin
     Result.Cells[I].Caption := aCaption[I];
     Result.Cells[I].Color := aColor[I];
+    Result.Cells[I].Enabled := True;
+  end;
+  Result.Tag := aTag;
+end;
+
+
+function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; const aColorHighlight: array of TColor4; aTag: Integer = 0): TKMListRow;
+var
+  I: Integer;
+begin
+  Assert(Length(aCaption) = Length(aColor));
+  Assert(Length(aCaption) = Length(aColorHighlight));
+
+  SetLength(Result.Cells, Length(aCaption));
+
+  for I := 0 to High(aCaption) do
+  begin
+    Result.Cells[I].Caption := aCaption[I];
+    Result.Cells[I].Color := aColor[I];
+    Result.Cells[I].HighlightColor := aColorHighlight[I];
     Result.Cells[I].Enabled := True;
   end;
   Result.Tag := aTag;
@@ -4029,10 +4052,9 @@ var
   NewIndex: Integer;
 begin
   if PassAllKeys then
-  begin
     if Assigned(OnKeyDown) then
-      OnKeyDown(Key, Shift);
-  end else
+      OnKeyDown(Key, Shift)
+  else
   begin
     Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
     if inherited KeyDown(Key, Shift) then Exit;
@@ -4071,9 +4093,8 @@ var
   I: Integer;
 begin
   if PassAllKeys then
-  begin
-    exit;
-  end else
+    exit
+  else
   begin
     if SearchColumn = -1 then
       Exit;
@@ -4108,7 +4129,8 @@ end;
 
 
 procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
-var NewIndex: Integer;
+var
+  NewIndex: Integer;
 begin
   inherited;
   if  InRange(X, AbsLeft, AbsLeft + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
@@ -4193,6 +4215,9 @@ begin
         TextSize := gRes.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
         if HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex) then
           Color := Rows[aIndex].Cells[I].HighlightColor //Brighten(Rows[aIndex].Cells[I].Color)
+        else
+        if HighlightError and (aIndex = ItemIndex) then
+          Color := Rows[aIndex].Cells[I].HighlightColor
         else
           Color := Rows[aIndex].Cells[I].Color;
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,

@@ -1,45 +1,45 @@
-﻿0:37
-1:39
-2:38
-3:40
-4:112
-5:113
-6:114
-7:115
-8:72
-9:83
-10:76
-11:70
-12:88
-13:187
-14:189
-15:190
-16:188
-17:116
-18:117
-19:118
-20:119
-21:66
-22:80
-23:84
-24:34
-25:33
-26:8
-27:49
-28:50
-29:51
-30:52
-31:53
-32:54
-33:55
-34:56
-35:57
-36:48
-37:32
-38:46
-39:13
-40:27
-41:77
-42:86
-43:68
-44:67
+﻿0:37//Scroll Left
+1:39//Scroll Right
+2:38//Scroll Up
+3:40//Scroll Down
+4:112//Build Menu
+5:113//Ratio Menu
+6:114//Stats Menu
+7:115//Main Menu
+8:72//Halt Command
+9:83//Split Command
+10:76//Linkup Command
+11:70//Food Command
+12:88//Storm Command
+13:187//Increase Formation
+14:189//Decrease Formation
+15:190//Turn Clockwise
+16:188//Turn Counter-clockwise
+17:116//Normal Game speed
+18:117//Game speed x3
+19:118//Game speed x6
+20:119//Game speed x10
+21:66//Beacon
+22:80//Pause
+23:84//Show teams in MP
+24:34//Zoom In
+25:33//Zoom Out
+26:8//Reset Zoom
+27:49//Selection 1
+28:50//Selection 2
+29:51//Selection 3
+30:52//Selection 4
+31:53//Selection 5
+32:54//Selection 6
+33:55//Selection 7
+34:56//Selection 8
+35:57//Selection 9
+36:48//Selection 10
+37:32//Center to latest alert
+38:46//Delete message
+39:13//Show game chat in MP
+40:27//Close menu's
+41:77//Debug Menu Map
+42:86//Debug Menu Victory
+43:68//Debug Menu Defeat
+44:67//Debug Menu Add Scout

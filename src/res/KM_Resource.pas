@@ -147,7 +147,7 @@ begin
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmc_Default;
 
-  gResKeys := TKMKeyLibraryMulti.Create;
+  gResKeys := TKMKeyLibrary.Create;
   gResKeys.LoadKeys;
 
   // Locale info is needed for DAT export and font loading
