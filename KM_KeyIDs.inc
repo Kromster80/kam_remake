@@ -9,7 +9,7 @@ SC_MENU_STATS = 6; //Stats Menu
 SC_MENU_MENU = 7; //Main Menu
 
 SC_ARMY_HALT = 8; //Halt Command
-SC_ARMY_SPLIT = 9; //Splitup Command
+SC_ARMY_SPLIT = 9; //Split up Command
 SC_ARMY_LINK = 10; //Linkup Command
 SC_ARMY_FOOD = 11; //Food Command
 SC_ARMY_STORM = 12; //Storm Command
@@ -45,7 +45,9 @@ SC_Center_Alert = 37; //Center to alert
 SC_Delete_Msg = 38; //Delete message
 SC_Chat_MP = 39; //Show the chat
 
-SC_DEBUG_REVEALMAP = 40; //Debug Menu Reveal Map
-SC_DEBUG_VICTORY = 41; //Debug Menu Victory
-SC_DEBUG_DEFEAT = 42; //Debug Menu Defeat
-SC_DEBUG_ADDSCOUT = 43; //Debug Menu Add Scout
+SC_Close_Menu = 40; //Close opened menu
+
+SC_DEBUG_REVEALMAP = 41; //Debug Menu Reveal Map
+SC_DEBUG_VICTORY = 42; //Debug Menu Victory
+SC_DEBUG_DEFEAT = 43; //Debug Menu Defeat
+SC_DEBUG_ADDSCOUT = 44; //Debug Menu Add Scout

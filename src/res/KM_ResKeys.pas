@@ -9,10 +9,10 @@ uses
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO;
 
 const
-  //Load key IDs from this include file
+  // Load key IDs from this include file
   {$I KM_KeyIDs.inc}
 
-  //for missing Keys
+  // For missing Keys
   NO_KEY = nil;
 
 type
@@ -26,7 +26,7 @@ type
   public
     KeyCount: Integer;
     constructor Create;
-    procedure LoadKeys; //All locales for Mission strings
+    procedure LoadKeys; // Load all the keys
     function HasKey(aIndex: Word): Boolean;
     function GetCharFromVK(aKey: Word): String;
     property Keys[aIndex: Word]: Integer read GetKeys; default;
@@ -34,7 +34,7 @@ type
   end;
 
 var
-  //All games Keys accessible from everywhere
+  // All games Keys accessible from everywhere
   gResKeys: TKMKeyLibraryMulti;
 
 implementation
@@ -46,7 +46,7 @@ begin
 end;
 
 
-//keymap files consist of lines. Each line has an index and a text. Lines without index are skipped
+// .keymap files consist of lines. Each line has an index and a text. Lines without index are skipped
 procedure TKMKeyLibraryMulti.LoadKeymapFile(var aArray: TIntegerArray);
   function KeyToArray(const Value: UnicodeString): TUnicodeStringArray;
   var
@@ -81,7 +81,7 @@ begin
   FILE_PATH := (ExeDir + 'data' + PathDelim + 'keys.keymap');
   if not FileExists(FILE_PATH) then Exit;
 
-  //Load ANSI file with codepage
+  // Load UniCode file with codepage
   libKey := ReadTextU(FILE_PATH, 1252);
   Tmp := KeyToArray(libKey);
   fKeyCount := High(Tmp);
@@ -97,7 +97,7 @@ begin
 
   Assert(topId <= 1024, 'Dont allow too many strings for no reason');
 
-  //Don't shrink the array, we might be overloading base locale with a partial translation
+  // Don't shrink the array, we might be overloading
   if Length(aArray) < topId + 1 then
     SetLength(aArray, topId + 1);
 
@@ -105,23 +105,23 @@ begin
   begin
     s := Tmp[I];
 
-    //Get string index and skip erroneous lines
+    // Get Key index and skip erroneous lines
     firstDelimiter := Pos(':', s);
     if firstDelimiter = 0 then Continue;
     if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter - 1)), id) then Continue;
 
     s := RightStr(s, Length(s) - firstDelimiter);
-    //Required characters that can't be stored in plain text
+    // Required characters that can't be stored in plain text
     //todo: Remove them in favor of | for eol (and update libx files)
     {$IFDEF WDC}
-    s := StringReplace(s, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
-    s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    s := StringReplace(s, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); // EOL
+    s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); // Slash
     {$ENDIF}
     {$IFDEF FPC}
-    //In FPC StringReplace only works for UTF8/Ansi strings
+    // In FPC StringReplace only works for UTF8/Ansi strings
     tmpA := UTF16toUTF8(s);
-    tmpA := StringReplace(tmpA, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
-    tmpA := StringReplace(tmpA, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    tmpA := StringReplace(tmpA, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); // EOL
+    tmpA := StringReplace(tmpA, '\\', '\', [rfReplaceAll, rfIgnoreCase]); // Slash
     s := UTF8toUTF16(tmpA);
     {$ENDIF}
     aArray[id] := StrToInt(s);
@@ -129,7 +129,7 @@ begin
 end;
 
 
-//Check if requested string is empty
+// Check if requested string is empty
 function TKMKeyLibraryMulti.HasKey(aIndex: Word): Boolean;
 begin
   Result := ((0 <> -1) and (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0));
@@ -173,7 +173,7 @@ begin
       SL.Add(s);
     end;
 
-  //Don't create blank files for unused translations
+  // Don't create blank files for unused Keys
   if (SL.Count > 0) or FileExists(FILE_PATH) then
     SL.SaveToFile(FILE_PATH{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
   SL.Free;
@@ -184,86 +184,87 @@ end;
 function TKMKeyLibraryMulti.GetCharFromVK(aKey: Word): String;
 begin
   case aKey of
-    VK_LBUTTON: Result := 'Left mouse button';
-    VK_RBUTTON: Result := 'Right mouse button';
-    VK_CANCEL: Result := 'Control-break';
-    VK_MBUTTON: Result := 'Middle mouse button';
-    VK_BACK: Result := 'Backspace';
-    VK_TAB: Result := 'Tab';
-    VK_CLEAR: Result := 'Clear';
-    VK_RETURN: Result := 'Enter';
-    VK_SHIFT: Result := 'Shift';
-    VK_CONTROL: Result := 'CTRL';
-    VK_MENU: Result := 'Alt';
-    VK_PAUSE: Result := 'Pause';
-    VK_CAPITAL: Result := 'Caps Lock';
-    VK_ESCAPE: Result := 'Escape';
-    VK_SPACE: Result := 'Space bar';
-    VK_PRIOR: Result := 'Page Up';
-    VK_NEXT: Result := 'Page Down';
-    VK_END: Result := 'End';
-    VK_HOME: Result := 'Home';
-    VK_LEFT: Result := 'Left Arrow';
-    VK_UP: Result := 'Up Arrow';
-    VK_RIGHT: Result := 'Right Arrow';
-    VK_DOWN: Result := 'Down Arrow';
-    VK_SELECT: Result := 'Select';
-    VK_PRINT: Result := 'Print';
-    VK_EXECUTE: Result := 'Execute';
-    VK_SNAPSHOT: Result := 'Print Screen';
-    VK_INSERT: Result := 'Insert';
-    VK_DELETE: Result := 'Delete';
-    VK_HELP: Result := 'Help';
-    VK_NUMPAD0: Result := 'Num 0';
-    VK_NUMPAD1: Result := 'Num 1';
-    VK_NUMPAD2: Result := 'Num 2';
-    VK_NUMPAD3: Result := 'Num 3';
-    VK_NUMPAD4: Result := 'Num 4';
-    VK_NUMPAD5: Result := 'Num 5';
-    VK_NUMPAD6: Result := 'Num 6';
-    VK_NUMPAD7: Result := 'Num 7';
-    VK_NUMPAD8: Result := 'Num 8';
-    VK_NUMPAD9: Result := 'Num 9';
-    VK_SEPARATOR: Result := 'Separator';
-    VK_SUBTRACT: Result := 'Num -';
-    VK_DECIMAL: Result := 'Num .';
-    VK_DIVIDE: Result := 'Num /';
-    VK_F1: Result := 'F1';
-    VK_F2: Result := 'F2';
-    VK_F3: Result := 'F3';
-    VK_F4: Result := 'F4';
-    VK_F5: Result := 'F5';
-    VK_F6: Result := 'F6';
-    VK_F7: Result := 'F7';
-    VK_F8: Result := 'F8';
-    VK_F9: Result := 'F9';
-    VK_F10: Result := 'F10';
-    VK_F11: Result := 'F11';
-    VK_F12: Result := 'F12';
-    VK_F13: Result := 'F13';
-    VK_F14: Result := 'F14';
-    VK_F15: Result := 'F15';
-    VK_F16: Result := 'F16';
-    VK_F17: Result := 'F17';
-    VK_F18: Result := 'F18';
-    VK_F19: Result := 'F19';
-    VK_F20: Result := 'F20';
-    VK_F21: Result := 'F21';
-    VK_F22: Result := 'F22';
-    VK_F23: Result := 'F23';
-    VK_F24: Result := 'F24';
-    VK_NUMLOCK: Result := 'Num Lock';
-    VK_SCROLL: Result := 'Scroll Lock';
-    VK_LSHIFT: Result := 'Left Shift';
-    VK_RSHIFT: Result := 'Right Shift';
-    VK_LCONTROL: Result := 'Left CTRL';
-    VK_RCONTROL: Result := 'Right CTRL';
-    VK_LMENU: Result := 'Left Alt';
-    VK_RMENU: Result := 'Right Alt';
-    VK_PLAY: Result := 'Play';
-    VK_ZOOM: Result := 'Zoom';
-    106: Result := 'Num *';
-    107: Result := 'Num +';
+    1: Result := 'Left mouse button';
+    2: Result := 'Right mouse button';
+    3: Result := 'Control-break';
+    4: Result := 'Middle mouse button';
+    8: Result := 'Backspace';
+    9: Result := 'Tab';
+    12: Result := 'Clear';
+    13: Result := 'Enter';
+    16: Result := 'Shift';
+    17: Result := 'CTRL';
+    18: Result := 'Alt';
+    19: Result := 'Pause';
+    20: Result := 'Caps Lock';
+    27: Result := 'Escape';
+    32: Result := 'Space bar';
+    33: Result := 'Page Up';
+    34: Result := 'Page Down';
+    35: Result := 'End';
+    36: Result := 'Home';
+    37: Result := 'Left Arrow';
+    38: Result := 'Up Arrow';
+    39: Result := 'Right Arrow';
+    40: Result := 'Down Arrow';
+    41: Result := 'Select';
+    42: Result := 'Print';
+    43: Result := 'Execute';
+    44: Result := 'Print Screen';
+    45: Result := 'Insert';
+    46: Result := 'Delete';
+    47: Result := 'Help';
+    96: Result := 'NumPad 0';
+    97: Result := 'NumPad 1';
+    98: Result := 'NumPad 2';
+    99: Result := 'NumPad 3';
+    100: Result := 'NumPad 4';
+    101: Result := 'NumPad 5';
+    102: Result := 'NumPad 6';
+    103: Result := 'NumPad 7';
+    104: Result := 'NumPad 8';
+    105: Result := 'NumPad 9';
+    106: Result := 'NumPad *';
+    107: Result := 'NumPad +';
+    108: Result := 'Separator';
+    109: Result := 'NumPad -';
+    110: Result := 'NumPad .';
+    111: Result := 'NumPad /';
+    112: Result := 'F1';
+    113: Result := 'F2';
+    114: Result := 'F3';
+    115: Result := 'F4';
+    116: Result := 'F5';
+    117: Result := 'F6';
+    118: Result := 'F7';
+    119: Result := 'F8';
+    120: Result := 'F9';
+    121: Result := 'F10';
+    122: Result := 'F11';
+    123: Result := 'F12';
+    { F13..F24 are the special function keys, enabled by default in the EFI(UEFI) BIOS
+      This is especially the case with Windows 8/8.1 laptops.
+      Most manufacturers don't give the option to change it in the BIOS, hence we name them here anyways. }
+    124: Result := 'F13';
+    125: Result := 'F14';
+    126: Result := 'F15';
+    127: Result := 'F16';
+    128: Result := 'F17';
+    129: Result := 'F18';
+    130: Result := 'F19';
+    131: Result := 'F20';
+    132: Result := 'F21';
+    133: Result := 'F22';
+    134: Result := 'F23';
+    135: Result := 'F24';
+    144: Result := 'Num Lock';
+    145: Result := 'Scroll Lock';
+    160: Result := 'Left Shift';
+    161: Result := 'Right Shift';
+    162: Result := 'Left CTRL';
+    163: Result := 'Right CTRL';
+    164: Result := 'Left Alt';
+    165: Result := 'Right Alt';
     186: Result := ';';
     187: Result := '=';
     188: Result := ',';
@@ -275,6 +276,8 @@ begin
     220: Result := '\';
     221: Result := ']';
     222: Result := '''';
+    250: Result := 'Play';
+    251: Result := 'Zoom';
   else
     Result := Char(aKey);
   end;

@@ -10,7 +10,7 @@ uses
 
 
 type
-  //Common class for ingame interfaces (Gameplay, MapEd)
+  // Common class for ingame interfaces (Gameplay, MapEd)
   TKMUserInterfaceGame = class(TKMUserInterfaceCommon)
   protected
     fMinimap: TKMMinimap;
@@ -34,20 +34,16 @@ type
 
 
 const
-  //Toolbar pads
-  TB_PAD = 9; //Picked up empirically
-  TB_WIDTH = 180; //max widht of sidebar elements
-  PAGE_TITLE_Y = 5; //Page title offset
+  // Toolbar pads
+  TB_PAD = 9; // Picked up empirically
+  TB_WIDTH = 180; // Max width of sidebar elements
+  PAGE_TITLE_Y = 5; // Page title offset
 
-  //Shortcuts
-  //All shortcuts are in English and are the same for all languages to avoid
-  //naming collisions and confusion in discussions
+  // Shortcuts
+  // All shortcuts are in English and are the same for all languages to avoid
+  // naming collisions and confusion in discussions
 
-  SC_SELECT_LOW = '0';
-  SC_SELECT_HIGH = '9';
-
-  //
-  GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI
+  GUI_HOUSE_COUNT = 27;   // Number of KaM houses to show in GUI
   GUIHouseOrder: array [1..GUI_HOUSE_COUNT] of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
     ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,
@@ -56,13 +52,13 @@ const
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
     ht_FisherHut, ht_Marketplace);
 
-  //Template for how resources are shown in Barracks
+  // Template for how resources are shown in Barracks
   BARRACKS_RES_COUNT = 11;
   BarracksResType: array [1..BARRACKS_RES_COUNT] of TWareType =
     (wt_Shield, wt_MetalShield, wt_Armor, wt_MetalArmor, wt_Axe, wt_Sword,
      wt_Pike, wt_Hallebard, wt_Bow, wt_Arbalet, wt_Horse);
 
-  //Layout of resources in Store
+  // Layout of resources in Store
   STORE_RES_COUNT = 28;
   StoreResType: array [1..STORE_RES_COUNT] of TWareType =
     (wt_Trunk,    wt_Stone,   wt_Wood,        wt_IronOre,   wt_GoldOre,
@@ -81,8 +77,8 @@ const
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
 
-  //Stats get stacked by UI logic (so that on taller screens they all were
-  //in nice pairs, and would stack up only on short screens)
+  // Stats get stacked by UI logic (so that on taller screens they all were
+  // in nice pairs, and would stack up only on short screens)
   StatPlan: array [0..12] of record
     HouseType: array [0..3] of THouseType;
     UnitType: array [0..1] of TUnitType;
@@ -121,22 +117,22 @@ const
     75, 76, 77, 78);
 
 
-  //Amounts for placing orders
+  // Amounts for placing orders
   ORDER_WHEEL_AMOUNT = 5;
 
   MARKET_RES_HEIGHT = 35;
 
-  //Big tab buttons in MapEd
+  // Big tab buttons in MapEd
   BIG_TAB_W = 36;
   BIG_PAD_W = 36;
   BIG_TAB_H = 36;
-  //Small sub-tab buttons in MapEd
+  // Small sub-tab buttons in MapEd
   SMALL_TAB_W = 30;
   SMALL_PAD_W = 30;
   SMALL_TAB_H = 26;
 
-  MESSAGE_AREA_HEIGHT = 173+17; //Image_ChatHead + Image_ChatBody
-  MESSAGE_AREA_RESIZE_Y = 200; //How much can we resize it
+  MESSAGE_AREA_HEIGHT = 173+17; // Image_ChatHead + Image_ChatBody
+  MESSAGE_AREA_RESIZE_Y = 200; // How much can we resize it
 
 
 implementation
@@ -170,19 +166,19 @@ var
 begin
   inherited;
 
-  if (X < 0) or (Y < 0) then Exit; //This happens when you use the mouse wheel on the window frame
+  if (X < 0) or (Y < 0) then Exit; // This happens when you use the mouse wheel on the window frame
 
-  //Allow to zoom only when curor is over map. Controls handle zoom on their own
+  // Allow to zoom only when curor is over map. Controls handle zoom on their own
   if (fMyControls.CtrlOver = nil) then
   begin
-    UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
+    UpdateGameCursor(X, Y, Shift); // Make sure we have the correct cursor position to begin with
     PrevCursor := gGameCursor.Float;
     fViewport.Zoom := fViewport.Zoom + WheelDelta / 2000;
-    UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
-    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
+    UpdateGameCursor(X, Y, Shift); // Zooming changes the cursor position
+    // Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
     fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-gGameCursor.Float.X,
                                    fViewport.Position.Y + PrevCursor.Y-gGameCursor.Float.Y);
-    UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
+    UpdateGameCursor(X, Y, Shift); // Recentering the map changes the cursor position
   end;
 end;
 
@@ -215,7 +211,7 @@ begin
 end;
 
 
-//Compute cursor position and store it in global variables
+// Compute cursor position and store it in global variables
 procedure TKMUserInterfaceGame.UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
 begin
   with gGameCursor do
@@ -224,8 +220,8 @@ begin
     Pixel.Y := Y;
     Float := CursorToMapCoord(X, Y);
 
-    //Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); //Cell below cursor in map bounds
+    // Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
+    Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); // Cell below cursor in map bounds
     Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
 
     ObjectUID := fRenderPool.RenderList.GetSelectionUID(Float);
