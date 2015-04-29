@@ -1282,16 +1282,16 @@ begin
 
     // Hints
     Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [gResTexts.GetNameForKey(SC_ARMY_HALT)]);
+    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [gResKeys.GetCharFromVK(gResKeys[SC_ARMY_HALT])]);
     Button_Army_Attack.Hint   := gResTexts[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_ROTATE_CW) + ''')';
-    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_STORM) + ''')';
-    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_ROTATE_CCW) + ''')';
-    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_ADD_LINE) + ''')';
-    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_DEL_LINE) + ''')';
-    Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [gResTexts.GetNameForKey(SC_ARMY_SPLIT)]);
-    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [gResTexts.GetNameForKey(SC_ARMY_LINK)]);
-    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + gResTexts.GetNameForKey(SC_ARMY_FOOD) + ''')';
+    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + gResKeys.GetCharFromVK(gResKeys[SC_ARMY_ROTATE_CW]) + ''')';
+    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + gResKeys.GetCharFromVK(gResKeys[SC_ARMY_STORM]) + ''')';
+    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT] + ' (''' + gResKeys.GetCharFromVK(gResKeys[SC_ARMY_ROTATE_CCW]) + ''')';
+    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + gResKeys.GetCharFromVK(gResKeys[SC_ARMY_ADD_LINE]) + ''')';
+    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + gResKeys.GetCharFromVK(gResKeys[SC_ARMY_DEL_LINE]) + ''')';
+    Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [gResKeys.GetCharFromVK(gResKeys[SC_ARMY_SPLIT])]);
+    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [gResKeys.GetCharFromVK(gResKeys[SC_ARMY_LINK])]);
+    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + gResKeys.GetCharFromVK(gResKeys[SC_ARMY_FOOD]) + ''')';
     Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
     { Army controls...
