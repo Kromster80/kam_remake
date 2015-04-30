@@ -507,7 +507,7 @@ begin
 
   if Sender = Button_Options_Keys_Reset then
   begin
-    gResKeys.ResetKeyBind;
+    gResKeys.ResetKeymap;
     LoadKeys;
   end;
 
