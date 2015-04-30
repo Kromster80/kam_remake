@@ -214,19 +214,19 @@ begin
     Button_Options_Back.OnClick := BackClick;
 
     // Panel_Options_Keys
-    PopUp_Options_Keys := TKMPopUpMenu.Create(Panel_Options, 600);
-    PopUp_Options_Keys.Height := 400;
+    PopUp_Options_Keys := TKMPopUpMenu.Create(Panel_Options, 700);
+    PopUp_Options_Keys.Height := 600;
     // Keep the pop-up centered
     PopUp_Options_Keys.Anchors := [];
-    PopUp_Options_Keys.Left := (Panel_Options.Width Div 2) - 300;
+    PopUp_Options_Keys.Left := (Panel_Options.Width Div 2) - 350;
     PopUp_Options_Keys.Top := (Panel_Options.Height Div 2) - 300;
 
       TKMBevel.Create(PopUp_Options_Keys, -1000,  -1000, 4000, 4000);
 
-      Image_Options_Keys := TKMImage.Create(PopUp_Options_Keys,0,0, 600, 600, 15, rxGuiMain);
+      Image_Options_Keys := TKMImage.Create(PopUp_Options_Keys,0,0, 700, 600, 15, rxGuiMain);
       Image_Options_Keys.ImageStretch;
 
-      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 560, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter);
+      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter);
       Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
 
       Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 20, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
@@ -237,8 +237,8 @@ begin
       Button_Options_Keys_Reset.Anchors := [anLeft,anBottom];
       Button_Options_Keys_Reset.OnClick := KeybindClick;
 
-      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 560, 440, fnt_Metal, bsMenu);
-      ColumnBox_Options_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 250]);
+      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 660, 440, fnt_Metal, bsMenu);
+      ColumnBox_Options_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
       ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_Options_Keys.ShowLines := True;
       ColumnBox_Options_Keys.PassAllKeys := True;
@@ -246,27 +246,27 @@ begin
       ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;
 
     // Panel_Options_Special_Keys
-    PopUp_Options_Special_Keys := TKMPopUpMenu.Create(Panel_Options, 600);
-    PopUp_Options_Special_Keys.Height := 400;
+    PopUp_Options_Special_Keys := TKMPopUpMenu.Create(Panel_Options, 700);
+    PopUp_Options_Special_Keys.Height := 600;
     // Keep the pop-up centered
     PopUp_Options_Special_Keys.Anchors := [];
-    PopUp_Options_Special_Keys.Left := (Panel_Options.Width Div 2) - 300;
+    PopUp_Options_Special_Keys.Left := (Panel_Options.Width Div 2) - 350;
     PopUp_Options_Special_Keys.Top := (Panel_Options.Height Div 2) - 300;
 
       TKMBevel.Create(PopUp_Options_Special_Keys, -1000,  -1000, 4000, 4000);
 
-      Image_Options_Special_Keys := TKMImage.Create(PopUp_Options_Special_Keys,0,0, 600, 600, 15, rxGuiMain);
+      Image_Options_Special_Keys := TKMImage.Create(PopUp_Options_Special_Keys,0,0, 700, 600, 15, rxGuiMain);
       Image_Options_Special_Keys.ImageStretch;
 
-      Label_Options_Special_Keys_Title := TKMLabel.Create(PopUp_Options_Special_Keys, 20, 35, 560, 30, gResTexts[TX_MENU_OPTIONS_SPECIAL_KEYBIND], fnt_Outline, taCenter);
+      Label_Options_Special_Keys_Title := TKMLabel.Create(PopUp_Options_Special_Keys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_SPECIAL_KEYBIND], fnt_Outline, taCenter);
       Label_Options_Special_Keys_Title.Anchors := [anLeft,anBottom];
 
       Button_Options_Special_Keys_OK := TKMButton.Create(PopUp_Options_Special_Keys, 20, 550, 170, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
       Button_Options_Special_Keys_OK.Anchors := [anLeft,anBottom];
       Button_Options_Special_Keys_OK.OnClick := KeybindClick;
 
-      ColumnBox_Options_Special_Keys := TKMColumnBox.Create(PopUp_Options_Special_Keys, 20, 100, 560, 440, fnt_Metal, bsMenu);
-      ColumnBox_Options_Special_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 250]);
+      ColumnBox_Options_Special_Keys := TKMColumnBox.Create(PopUp_Options_Special_Keys, 20, 100, 660, 440, fnt_Metal, bsMenu);
+      ColumnBox_Options_Special_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
       ColumnBox_Options_Special_Keys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_Options_Special_Keys.ShowLines := True;
 

@@ -854,3 +854,59 @@
 901:MapEdit Sub-menu 6
 902:Unassignable Delphi Key
 903:~~~ Unknown value
+904:Left Mouse Button
+905:Middle Mouse Button
+906:Right Mouse Button
+907:Break
+908:Backspace
+909:TAB
+910:Clear
+911:Return
+912:Shift
+913:Control
+914:Alt
+915:Pause
+916:Caps Lock
+917:Escape
+918:Space Bar
+919:Page Up
+920:Page Down
+921:End
+922:Home
+923:Left Arrow Key
+924:Up Arrow Key
+925:Right Arrow Key
+926:Down Arrow Key
+927:Select
+928:Print
+929:Execute
+930:Print Screen
+931:Insert
+932:Delete
+933:Help
+934:Num Pad 0
+935:Num Pad 1
+936:Num Pad 2
+937:Num Pad 3
+938:Num Pad 4
+939:Num Pad 5
+940:Num Pad 6
+941:Num Pad 7
+942:Num Pad 8
+943:Num Pad 9
+944:Num Pad *
+945:Separator
+946:Num Pad  -
+947:Num Pad .
+948:Num Pad /
+949:Num Lock
+950:Scroll Lock
+951:Left Shift
+952:Right Shift
+953:Left Control
+954:Right Control
+955:Left Alt
+956:Right Alt
+957:Play
+958:Zoom
+960:Num Pad +
