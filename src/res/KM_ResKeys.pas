@@ -34,7 +34,7 @@ type
     property Count: Integer read fCount;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
-    function GetFunctionNameById(aValue: Integer): string;
+    function GetFunctionNameById(aId: Integer): string;
     property Keys[aIndex: Word]: Integer read GetKeys write SetKeys; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
@@ -137,9 +137,9 @@ end;
 
 
 // Here we define the action name values
-function TKMKeyLibrary.GetFunctionNameById(aValue: Integer): string;
+function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
-  case aValue of
+  case aId of
     0:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_LEFT];
     1:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_RIGHT];
     2:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_UP];
@@ -201,7 +201,7 @@ begin
     112: Result := gResTexts[TX_KEY_FUNC_UNASSIGNABLE];
     113: Result := gResTexts[TX_KEY_FUNC_UNASSIGNABLE];
   else
-    Result := gResTexts[TX_KEY_FUNC_UNKNOWN] + ' ' + IntToStr(aValue) + '! ~~~';
+    Result := gResTexts[TX_KEY_FUNC_UNKNOWN] + ' ' + IntToStr(aId) + '! ~~~';
   end;
 end;
 
