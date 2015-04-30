@@ -313,6 +313,7 @@ begin
   fOnPageChange(gpMainMenu);
 end;
 
+
 procedure TKMMenuReplays.DeleteConfirm(aVisible: Boolean);
 begin
   if aVisible then
@@ -320,6 +321,7 @@ begin
   else
     PopUp_Delete.Hide;
 end;
+
 
 procedure TKMMenuReplays.DeleteClick(Sender: TObject);
 var
@@ -347,6 +349,7 @@ begin
   end;
 end;
 
+
 procedure TKMMenuReplays.RenameConfirm(aVisible: Boolean);
 begin
   if aVisible then
@@ -358,23 +361,13 @@ begin
     PopUp_Rename.Hide;
 end;
 
-// Check if save name already exists.
+
+// Check if new name is allowed
 procedure TKMMenuReplays.Edit_Rename_Change(Sender: TObject);
-var
-  I, C: Integer;
 begin
-  if (Sender <> fSaves) then
-  begin
-    C := 0;
-    for I := 0 to fSaves.Count - 1 do
-      // Must go to lower case, otherwise Windows will overwrite.
-      {$IFDEF WDC}if (Edit_Rename.Text.ToLower() = fSaves[I].FileName.ToLower()) then{$ENDIF}
-      {$IFDEF FPC}if (LowerCase(Edit_Rename.Text) = LowerCase(fSaves[I].FileName)) then{$ENDIF}
-        Inc(C);
-    Button_RenameConfirm.Enabled := (not (C <> 0) and (Edit_Rename.Text <> '') and not (Edit_Rename.Text[1] = ' ') and
-                                     not (Edit_Rename.Text[Length(Edit_Rename.Text)] = ' '));
-  end;
+  Button_RenameConfirm.Enabled := (Trim(Edit_Rename.Text) <> '') and not fSaves.Contains(Edit_Rename.Text);
 end;
+
 
 procedure TKMMenuReplays.RenameClick(Sender: TObject);
 begin

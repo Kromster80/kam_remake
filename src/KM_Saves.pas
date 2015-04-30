@@ -84,6 +84,7 @@ type
     property SortMethod: TSavesSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
     property ScanFinished: Boolean read fScanFinished;
 
+    function Contains(aNewName: UnicodeString): Boolean;
     procedure DeleteSave(aIndex: Integer);
     procedure RenameSave(aIndex: Integer; aName: UnicodeString);
 
@@ -253,6 +254,21 @@ begin
 end;
 
 
+function TKMSavesCollection.Contains(aNewName: UnicodeString): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+
+  for I := 0 to fCount - 1 do
+    if LowerCase(fSaves[I].FileName) = LowerCase(aNewName) then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+
 procedure TKMSavesCollection.DeleteSave(aIndex: Integer);
 var
   I: Integer;
@@ -273,14 +289,14 @@ end;
 
 procedure TKMSavesCollection.RenameSave(aIndex: Integer; aName: UnicodeString);
 var
-  aFileOld, aFileNew: UnicodeString;
+  fileOld, fileNew: UnicodeString;
 begin
   Lock;
-    aFileOld := fSaves[aIndex].Path + fSaves[aIndex].fFileName;
-    aFileNew := fSaves[aIndex].Path + aName;
-    RenameFile(aFileOld + '.sav', aFileNew + '.sav');
-    RenameFile(aFileOld + '.rpl', aFileNew + '.rpl');
-    RenameFile(aFileOld + '.bas', aFileNew + '.bas');
+    fileOld := fSaves[aIndex].Path + fSaves[aIndex].fFileName;
+    fileNew := fSaves[aIndex].Path + aName;
+    RenameFile(fileOld + '.sav', fileNew + '.sav');
+    RenameFile(fileOld + '.rpl', fileNew + '.rpl');
+    RenameFile(fileOld + '.bas', fileNew + '.bas');
   Unlock;
 end;
 
