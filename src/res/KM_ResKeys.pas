@@ -16,7 +16,7 @@ type
   TKMKeyLibrary = class
   private
     fKeys: TIntegerArray;
-    FilePath: String;
+    fKeyMapPath: string;
     function GetKeys(aIndex: Word): Integer;
     procedure LoadKeymapFile(var aArray: TIntegerArray);
   public
@@ -40,10 +40,11 @@ implementation
 { TKMKeyLibrary }
 constructor TKMKeyLibrary.Create;
 begin
-  FilePath := (ExeDir + 'data' + PathDelim + 'keys.keymap');
-  if (not FileExists(FilePath)) then // If file is missing, create one here
+  inherited;
+
+  fKeyMapPath := (ExeDir + 'data' + PathDelim + 'keys.keymap');
+  if (not FileExists(fKeyMapPath)) then // If file is missing, create one here
     ResetKeyBind;
-  inherited Create;
 end;
 
 
@@ -80,10 +81,10 @@ var
   KeyString, LibKey: UnicodeString;
   I, KeyID, KeyValue, TopId, FirstDelimiter, SecondDelimiter: Integer;
 begin
-  if not FileExists(FilePath) then Exit;
+  if not FileExists(fKeyMapPath) then Exit;
 
   // Load UniCode file with codepage
-  LibKey := ReadTextU(FilePath, 1252);
+  LibKey := ReadTextU(fKeyMapPath, 1252);
   KeyStringArray := KeyToArray(LibKey);
 
   for I := High(KeyStringArray) downto 0 do
@@ -152,7 +153,7 @@ begin
     KeyStringList.Add(Keystring);
   end;
 
-  KeyStringList.SaveToFile(FilePath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
+  KeyStringList.SaveToFile(fKeyMapPath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
   KeyStringList.Free;
 end;
 
@@ -221,7 +222,7 @@ begin
     KeyStringList.Add(Keystring);
   end;
 
-  KeyStringList.SaveToFile(FilePath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
+  KeyStringList.SaveToFile(fKeyMapPath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
   KeyStringList.Free;
 end;
 
