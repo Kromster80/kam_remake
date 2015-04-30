@@ -21,6 +21,18 @@ const
     27,  77,  86,  68,  67
   );
 
+  KEY_FUNC_TX: array [0..KEYMAP_COUNT-1] of Word = (
+    TX_KEY_FUNC_SCROLL_LEFT,   TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN, TX_KEY_FUNC_MENU_BUILD,
+    TX_KEY_FUNC_MENU_RATIO,    TX_KEY_FUNC_MENU_STATS,   TX_KEY_FUNC_MENU_MAIN, TX_KEY_FUNC_HALT,        TX_KEY_FUNC_SPLIT,
+    TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM, TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE,
+    TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW, TX_KEY_FUNC_GAME_SPEED_1, TX_KEY_FUNC_GAME_SPEED_2, TX_KEY_FUNC_GAME_SPEED_3,
+    TX_KEY_FUNC_GAME_SPEED_4, TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS, TX_KEY_FUNC_ZOOM_IN,
+    TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET, TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3,
+    TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5, TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8,
+    TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10, TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,
+    TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT
+  );
+
 type
   TKMKeyLibrary = class
   private
@@ -41,11 +53,14 @@ type
     procedure SaveKeymap;
   end;
 
+
 var
   // All games Keys accessible from everywhere
   gResKeys: TKMKeyLibrary;
 
+
 implementation
+
 
 { TKMKeyLibrary }
 constructor TKMKeyLibrary.Create;
@@ -139,53 +154,11 @@ end;
 // Here we define the action name values
 function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
+
   case aId of
-    0:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_LEFT];
-    1:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_RIGHT];
-    2:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_UP];
-    3:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_DOWN];
-    4:  Result :=  gResTexts[TX_KEY_FUNC_MENU_BUILD];
-    5:  Result :=  gResTexts[TX_KEY_FUNC_MENU_RATIO];
-    6:  Result :=  gResTexts[TX_KEY_FUNC_MENU_STATS];
-    7:  Result :=  gResTexts[TX_KEY_FUNC_MENU_MAIN];
-    8:  Result :=  gResTexts[TX_KEY_FUNC_HALT];
-    9:  Result :=  gResTexts[TX_KEY_FUNC_SPLIT];
-    10: Result :=  gResTexts[TX_KEY_FUNC_LINKUP];
-    11: Result :=  gResTexts[TX_KEY_FUNC_FOOD];
-    12: Result :=  gResTexts[TX_KEY_FUNC_STORM];
-    13: Result :=  gResTexts[TX_KEY_FUNC_FORM_INCREASE];
-    14: Result :=  gResTexts[TX_KEY_FUNC_FORM_DECREASE];
-    15: Result :=  gResTexts[TX_KEY_FUNC_TURN_CW];
-    16: Result :=  gResTexts[TX_KEY_FUNC_TURN_CCW];
-    17: Result :=  gResTexts[TX_KEY_FUNC_GAME_SPEED_1];
-    18: Result :=  gResTexts[TX_KEY_FUNC_GAME_SPEED_2];
-    19: Result :=  gResTexts[TX_KEY_FUNC_GAME_SPEED_3];
-    20: Result :=  gResTexts[TX_KEY_FUNC_GAME_SPEED_4];
-    21: Result :=  gResTexts[TX_KEY_FUNC_BEACON];
-    22: Result :=  gResTexts[TX_KEY_FUNC_PAUSE];
-    23: Result :=  gResTexts[TX_KEY_FUNC_SHOW_TEAMS];
-    24: Result :=  gResTexts[TX_KEY_FUNC_ZOOM_IN];
-    25: Result :=  gResTexts[TX_KEY_FUNC_ZOOM_OUT];
-    26: Result :=  gResTexts[TX_KEY_FUNC_ZOOM_RESET];
-    27: Result :=  gResTexts[TX_KEY_FUNC_SELECT_1];
-    28: Result :=  gResTexts[TX_KEY_FUNC_SELECT_2];
-    29: Result :=  gResTexts[TX_KEY_FUNC_SELECT_3];
-    30: Result :=  gResTexts[TX_KEY_FUNC_SELECT_4];
-    31: Result :=  gResTexts[TX_KEY_FUNC_SELECT_5];
-    32: Result :=  gResTexts[TX_KEY_FUNC_SELECT_6];
-    33: Result :=  gResTexts[TX_KEY_FUNC_SELECT_7];
-    34: Result :=  gResTexts[TX_KEY_FUNC_SELECT_8];
-    35: Result :=  gResTexts[TX_KEY_FUNC_SELECT_9];
-    36: Result :=  gResTexts[TX_KEY_FUNC_SELECT_10];
-    37: Result :=  gResTexts[TX_KEY_FUNC_CENTER_ALERT];
-    38: Result :=  gResTexts[TX_KEY_FUNC_DELETE_MSG];
-    39: Result :=  gResTexts[TX_KEY_FUNC_SHOW_GAME_CHAT];
-    40: Result :=  gResTexts[TX_KEY_FUNC_CLOSE_MENU];
-    41: Result :=  gResTexts[TX_KEY_FUNC_DBG_MAP];
-    42: Result :=  gResTexts[TX_KEY_FUNC_DBG_VICTORY];
-    43: Result :=  gResTexts[TX_KEY_FUNC_DBG_DEFEAT];
-    44: Result :=  gResTexts[TX_KEY_FUNC_DBG_SCOUT];
-    // Higher value to seporate bindable keys from special keys
+    0..KEYMAP_COUNT - 1: Result := gResTexts[KEY_FUNC_TX[aId]];
+
+    // Higher value to separate bindable keys from special keys
     100: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_EXTRA];
     101: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT];
     102: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN];
@@ -313,5 +286,6 @@ function TKMKeyLibrary.GetKeyNameById(aId: Word): string;
 begin
   Result := GetKeyName(fKeys[aId]);
 end;
+
 
 end.
