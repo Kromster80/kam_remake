@@ -5,29 +5,40 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF FPC} lconvencoding, LazUTF8, {$ENDIF}
-  Classes, SysUtils, StrUtils, KromUtils,
+  Classes, SysUtils, StrUtils, KromUtils, Math,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResTexts;
 
 const
   // Load key IDs from this include file
+  KEYMAP_COUNT = 45;
   {$I KM_KeyIDs.inc}
+
+  DEF_KEYS: array [0..KEYMAP_COUNT-1] of Byte = (
+    37,  39,  38,  40, 112, 113, 114, 115,  72,  83,
+    76,  70,  88, 187, 189, 190, 188, 116, 117, 118,
+    119, 66,  80,  84,  34,  33,   8,  49,  50,  51,
+    52,  53,  54,  55,  56,  57,  48,  32,  46,  13,
+    27,  77,  86,  68,  67
+  );
 
 type
   TKMKeyLibrary = class
   private
-    fKeys: TIntegerArray;
+    fCount: Integer;
+    fKeys: array [0..KEYMAP_COUNT-1] of Integer;
     fKeymapPath: string;
     function GetKeys(aIndex: Word): Integer;
+    procedure SetKeys(aIndex: Word; aValue: Integer);
   public
-    KeyCount: Integer;
     constructor Create;
+    property Count: Integer read fCount;
     function HasKey(aIndex: Word): Boolean;
     function GetCharFromVK(aKey: Word): String;
     function GetNameForKey(aValue: Integer): String;
-    property Keys[aIndex: Word]: Integer read GetKeys; default;
+    property Keys[aIndex: Word]: Integer read GetKeys write SetKeys; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
-    procedure SaveKey(aKeyID: Integer; aKeyValue: Word);
+    procedure SaveKeymap;
   end;
 
 var
@@ -41,44 +52,20 @@ constructor TKMKeyLibrary.Create;
 begin
   inherited;
 
+  fCount := KEYMAP_COUNT;
   fKeymapPath := (ExeDir + 'keys.keymap');
 
   LoadKeymapFile;
 end;
 
 
-// .keymap files consist of lines. Each line has an index and a text. Lines without index are skipped
+// Each line in .keymap file has an index and a text. Lines without index are skipped
 procedure TKMKeyLibrary.LoadKeymapFile;
-  function KeyToArray(const Value: UnicodeString): TUnicodeStringArray;
-  var
-    Point, Start: PWideChar;
-    KeyString: UnicodeString;
-  begin
-    SetLength(Result, 0);
-    KeyCount := 0;
-    Point := Pointer(Value);
-    if Point = nil then Exit;
-
-    // This is a lot faster than using StrPos/AnsiStrPos when
-    // LineBreak is the default (#13#10)
-    while Point^ <> #0 do
-    begin
-      Start := Point;
-      while not KromUtils.CharInSet(Point^, [#0, #10, #13]) do Inc(Point);
-      SetString(KeyString, Start, Point - Start);
-
-      SetLength(Result, KeyCount + 1);
-      Result[KeyCount] := KeyString;
-      Inc(KeyCount);
-
-      if Point^ = #13 then Inc(Point);
-      if Point^ = #10 then Inc(Point);
-    end;
-  end;
 var
-  KeyStringArray: TUnicodeStringArray;
-  KeyString, LibKey: UnicodeString;
-  I, KeyID, KeyValue, TopId, FirstDelimiter, SecondDelimiter: Integer;
+  I: Integer;
+  SL: TStringList;
+  delim1, delim2: Integer;
+  keyId, keyVal: Integer;
 begin
   if not FileExists(fKeymapPath) then
   begin
@@ -86,34 +73,24 @@ begin
     Exit;
   end;
 
-  // Load UniCode file with codepage
-  LibKey := ReadTextU(fKeymapPath, 1252);
-  KeyStringArray := KeyToArray(LibKey);
+  SL := TStringList.Create;
+  {$IFDEF WDC} SL.LoadFromFile(fKeymapPath); {$ENDIF}
+  //In FPC TStringList can't cope with BOM (or UnicodeStrings at all really)
+  {$IFDEF FPC} SL.Text := ReadTextU(aFile, 1252); {$ENDIF}
 
-  for I := High(KeyStringArray) downto 0 do
+  // Parse text
+  for I := 0 to SL.Count - 1 do
   begin
-    FirstDelimiter := Pos(':', KeyStringArray[I]);
-    if FirstDelimiter = 0 then Continue;
+    delim1 := Pos(':', SL[I]);
+    delim2 := Pos('//', SL[I]);
+    if (delim1 = 0) or (delim2 = 0) or (delim1 > delim2) then Continue;
 
-    if TryStrToInt(LeftStr(KeyStringArray[I], FirstDelimiter - 1), TopId) then
-      Break;
-  end;
+    keyId := StrToIntDef(Copy(SL[I], 0, delim1 - 1), -1);
+    keyVal := StrToIntDef(Copy(SL[I], delim1 + 1, delim2 - delim1 - 1), -1);
 
-  Assert(TopId <= 1024, 'Dont allow too many strings for no reason');
+    if not InRange(keyId, 0, fCount - 1) or (keyVal = -1) then Continue;
 
-  // Don't shrink the array, we might be overloading
-  if Length(fKeys) < TopId + 1 then
-    SetLength(fKeys, TopId + 1);
-
-  for I := 0 to High(KeyStringArray) do
-  begin
-    KeyString := KeyStringArray[I];
-    // Get Key index and Value
-    FirstDelimiter := Pos(':', KeyString);
-    SecondDelimiter := Pos('//', KeyString);
-    KeyID := StrToInt(Copy(KeyString, 0, FirstDelimiter - 1));
-    KeyValue := StrToInt(Copy(KeyString, FirstDelimiter + 1, SecondDelimiter - FirstDelimiter -1));
-    fKeys[KeyID] := KeyValue;
+    fKeys[keyId] := keyVal;
   end;
 end;
 
@@ -127,14 +104,17 @@ end;
 
 function TKMKeyLibrary.GetKeys(aIndex: Word): Integer;
 begin
-  if (aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0) then
-    Result := fKeys[aIndex]
-  else
-    Result := -1;
+  Result := fKeys[aIndex];
 end;
 
 
-procedure TKMKeyLibrary.SaveKey(aKeyID: Integer; aKeyValue: Word);
+procedure TKMKeyLibrary.SetKeys(aIndex: Word; aValue: Integer);
+begin
+  fKeys[aIndex] := aValue;
+end;
+
+
+procedure TKMKeyLibrary.SaveKeymap;
 var
   Keystring: string;
   KeyStringList: TStringList;
@@ -142,9 +122,8 @@ var
 begin
   KeyStringList := TStringList.Create;
   {$IFDEF WDC}KeyStringList.DefaultEncoding := TEncoding.UTF8;{$ENDIF}
-  fKeys[aKeyID] := aKeyValue;
 
-  for I := 0 to KeyCount - 1 do
+  for I := 0 to fCount - 1 do
   begin
     Keystring := IntToStr(I) + ':'+ IntToStr(fKeys[I]) + '//' + GetNameForKey(I);
     KeyStringList.Add(Keystring);
@@ -157,70 +136,10 @@ end;
 
 procedure TKMKeyLibrary.ResetKeymap;
 var
-  Keystring: string;
-  KeyStringList: TStringList;
-  I, KeyValue: Integer;
+  I: Integer;
 begin
-  KeyStringList := TStringList.Create;
-  {$IFDEF WDC}KeyStringList.DefaultEncoding := TEncoding.UTF8;{$ENDIF}
-
-  for I := 0 to KeyCount - 1 do
-  begin
-    case I of
-      0:  KeyValue := 37;
-      1:  KeyValue := 39;
-      2:  KeyValue := 38;
-      3:  KeyValue := 40;
-      4:  KeyValue := 112;
-      5:  KeyValue := 113;
-      6:  KeyValue := 114;
-      7:  KeyValue := 115;
-      8:  KeyValue := 72;
-      9:  KeyValue := 83;
-      10: KeyValue := 76;
-      11: KeyValue := 70;
-      12: KeyValue := 88;
-      13: KeyValue := 187;
-      14: KeyValue := 189;
-      15: KeyValue := 190;
-      16: KeyValue := 188;
-      17: KeyValue := 116;
-      18: KeyValue := 117;
-      19: KeyValue := 118;
-      20: KeyValue := 119;
-      21: KeyValue := 66;
-      22: KeyValue := 80;
-      23: KeyValue := 84;
-      24: KeyValue := 34;
-      25: KeyValue := 33;
-      26: KeyValue := 8;
-      27: KeyValue := 49;
-      28: KeyValue := 50;
-      29: KeyValue := 51;
-      30: KeyValue := 52;
-      31: KeyValue := 53;
-      32: KeyValue := 54;
-      33: KeyValue := 55;
-      34: KeyValue := 56;
-      35: KeyValue := 57;
-      36: KeyValue := 48;
-      37: KeyValue := 32;
-      38: KeyValue := 46;
-      39: KeyValue := 13;
-      40: KeyValue := 27;
-      41: KeyValue := 77;
-      42: KeyValue := 86;
-      43: KeyValue := 68;
-      44: KeyValue := 67;
-    else
-      KeyValue := -1;
-    end;
-    Keystring := IntToStr(I) + ':' + IntToStr(KeyValue) + '//' + GetNameForKey(I);
-    KeyStringList.Add(Keystring);
-  end;
-
-  KeyStringList.SaveToFile(fKeymapPath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
-  KeyStringList.Free;
+  for I := 0 to fCount - 1 do
+    fKeys[I] := DEF_KEYS[I];
 end;
 
 

@@ -30,7 +30,7 @@ type
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
-    procedure LoadKeys;
+    procedure RefreshKeyList;
     procedure LoadSpecialKeys;
   protected
     Panel_Options: TKMPanel;
@@ -270,7 +270,6 @@ begin
       ColumnBox_Options_Special_Keys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_Options_Special_Keys.ShowLines := True;
 
-  LoadKeys;
   LoadSpecialKeys;
 end;
 
@@ -494,10 +493,18 @@ begin
   if ColumnBox_Options_Keys.TopIndex < 0 then Exit;
 
   if Sender = Button_Options_Keys then
+  begin
+    // Reload the keymap in case player changed it and checks his changes in game
+    gResKeys.LoadKeymapFile;
+    RefreshKeyList;
     PopUp_Options_Keys.Show;
+  end;
 
   if Sender = Button_Options_Keys_OK then
+  begin
     PopUp_Options_Keys.Hide;
+    gResKeys.SaveKeymap;
+  end;
 
   if Sender = Button_Options_Special_Keys then
     PopUp_Options_Special_Keys.Show;
@@ -508,7 +515,7 @@ begin
   if Sender = Button_Options_Keys_Reset then
   begin
     gResKeys.ResetKeymap;
-    LoadKeys;
+    RefreshKeyList;
   end;
 
   if Sender = ColumnBox_Options_Keys then
@@ -523,17 +530,17 @@ begin
   ColumnBox_Options_Keys.HighlightError := False;
   aID := ColumnBox_Options_Keys.ItemIndex;
   // Never allow to change secret debug keys.
-  if (aID >= 0) and (aID <= gResKeys.KeyCount - 5) then
+  if (aID >= 0) and (aID <= gResKeys.Count - 5) then
   begin
-    for I := 0 to gResKeys.KeyCount -1 do
+    for I := 0 to gResKeys.Count -1 do
       if (Key = gResKeys.Keys[I]) or (Key in [121, 122]) then
       begin
         ColumnBox_Options_Keys.HighlightError := True;
         gSoundPlayer.Play(sfxn_Error);
-        exit;
+        Exit;
       end;
-    gResKeys.SaveKey(aID, Key);
-    LoadKeys;
+    gResKeys.Keys[aID] := Key;
+    RefreshKeyList;
   end;
 end;
 
@@ -546,18 +553,20 @@ begin
 end;
 
 
-procedure TKMMenuOptions.LoadKeys;
+procedure TKMMenuOptions.RefreshKeyList;
 var
-  I: Integer;
+  I, prevI: Integer;
 begin
-  // Reload the keymap in case player changed it and checks his changes in game
-  gResKeys.LoadKeymapFile;
+  prevI := ColumnBox_Options_Keys.TopIndex;
 
   ColumnBox_Options_Keys.Clear;
+
   // Hide the debug keys
-  for I := 0 to gResKeys.KeyCount - 5 do
+  for I := 0 to gResKeys.Count - 5 do
     ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetNameForKey(I), gResKeys.GetCharFromVK(gResKeys.Keys[I])],
                                                [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF]));
+
+  ColumnBox_Options_Keys.TopIndex := prevI;
 end;
 
 
