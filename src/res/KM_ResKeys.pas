@@ -12,9 +12,6 @@ const
   // Load key IDs from this include file
   {$I KM_KeyIDs.inc}
 
-  // For missing Keys
-  NO_KEY = nil;
-
 type
   TKMKeyLibrary = class
   private
