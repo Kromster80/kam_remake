@@ -800,6 +800,49 @@
 847:Scroll Up
 848:Scroll Down
 849:Build Menu
+850:Ratio Menu
+851:Statistics Menu
+852:Main Menu
+853:Halt Command
+854:Splitup Command
+855:Linkup Command
+856:Food Command
+857:Storm Command
+858:Increase Formation
+859:Decrease Formation
+860:Turn Clockwise
+861:Turn Counterclockwise
+862:Normal Game Speed
+863:Game Speed x3
+864:Game Speed x6
+865:Game Speed x10
+866:Beacon
+867:Pause
+868:Show Teams (MP)
+869:Zoom In
+870:Zoom Out
+871:Reset Zoom
+872:Select Group 1
+873:Select Group 2
+874:Select Group 3
+875:Select Group 4
+876:Select Group 5
+877:Select Group 6
+878:Select Group 7
+879:Select Group 8
+880:Select Group 9
+881:Select Group 10
+882:Center to Alert
+883:Delete Message
+884:Show Game Chat (MP)
+885:Close Menu's
+886:Debug Show Map
+887:Debug Victory
+888:Debug Defeat
+889:Debug Add Scout
+890:MapEdit Extra's Menu
+891:MapEdit Terain Editor
+892:MapEdit Village Planning
 893:MapEdit Visual Scripting
 894:MapEdit Global Scripting
 895:MapEdit Main Menu
