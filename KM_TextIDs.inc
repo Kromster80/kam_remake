@@ -821,3 +821,8 @@ TX_ERROR_SENDING_DATA = 664; //Sending data...
 TX_ERROR_SENDING_FAILED = 665; //Sending the crash report failed! Our server might be busy, please try sending it again.
 TX_ERROR_WAIT_TITLEBAR = 666; //Information
 TX_ERROR_WAIT_MESSAGE = 667; //Please wait a moment...
+
+TX_KEYS_SCROLL_LEFT = 845; //Scroll Left
+TX_KEYS_SCROLL_RIGHT = 846; //Scroll Right
+TX_KEYS_SCROLL_UP = 847; //Scroll Up
+TX_KEYS_SCROLL_DOWN = 848; //Scroll Down

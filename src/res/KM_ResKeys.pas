@@ -26,6 +26,8 @@ type
     KeyCount: Integer;
     constructor Create;
     function HasKey(aIndex: Word): Boolean;
+    function GetCharFromVK(aKey: Word): String;
+    function GetNameForKey(aValue: Integer): String;
     property Keys[aIndex: Word]: Integer read GetKeys; default;
     procedure LoadKeys; // Load all the keys
     procedure ResetKeyBind;
@@ -149,7 +151,7 @@ begin
 
   for I := 0 to KeyCount - 1 do
   begin
-    Keystring := IntToStr(I) + ':'+ IntToStr(fKeys[I]) + '//' + gResTexts.GetNameForKey(I);
+    Keystring := IntToStr(I) + ':'+ IntToStr(fKeys[I]) + '//' + GetNameForKey(I);
     KeyStringList.Add(Keystring);
   end;
 
@@ -215,13 +217,190 @@ begin
       42: KeyValue := 86;
       43: KeyValue := 68;
       44: KeyValue := 67;
+    else
+      KeyValue := -1;
     end;
-    Keystring := IntToStr(I) + ':' + IntToStr(KeyValue) + '//' + gResTexts.GetNameForKey(I);
+    Keystring := IntToStr(I) + ':' + IntToStr(KeyValue) + '//' + GetNameForKey(I);
     KeyStringList.Add(Keystring);
   end;
 
   KeyStringList.SaveToFile(FilePath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
   KeyStringList.Free;
 end;
+
+
+// Here we define the action name values
+function TKMKeyLibrary.GetNameForKey(aValue: Integer): String;
+begin
+  case aValue of
+    0: Result := gResTexts[TX_KEYS_SCROLL_LEFT];
+    1: Result := gResTexts[TX_KEYS_SCROLL_RIGHT];
+    2: Result := gResTexts[TX_KEYS_SCROLL_UP];
+    3: Result := gResTexts[TX_KEYS_SCROLL_DOWN];
+    4: Result := 'Build Menu';
+    5: Result := 'Ratio Menu';
+    6: Result := 'Stats Menu';
+    7: Result := 'Main Menu';
+    8: Result := 'Halt Command';
+    9: Result := 'Split Command';
+    10: Result := 'Linkup Command';
+    11: Result := 'Food Command';
+    12: Result := 'Storm Command';
+    13: Result := 'Increase Formation';
+    14: Result := 'Decrease Formation';
+    15: Result := 'Turn Clockwise';
+    16: Result := 'Turn Counter-clockwise';
+    17: Result := 'Normal Game speed';
+    18: Result := 'Game speed x3';
+    19: Result := 'Game speed x6';
+    20: Result := 'Game speed x10';
+    21: Result := 'Beacon';
+    22: Result := 'Pause';
+    23: Result := 'Show teams in MP';
+    24: Result := 'Zoom In';
+    25: Result := 'Zoom Out';
+    26: Result := 'Reset Zoom';
+    27: Result := 'Selection 1';
+    28: Result := 'Selection 2';
+    29: Result := 'Selection 3';
+    30: Result := 'Selection 4';
+    31: Result := 'Selection 5';
+    32: Result := 'Selection 6';
+    33: Result := 'Selection 7';
+    34: Result := 'Selection 8';
+    35: Result := 'Selection 9';
+    36: Result := 'Selection 10';
+    37: Result := 'Center to latest alert';
+    38: Result := 'Delete message';
+    39: Result := 'Show game chat in MP';
+    40: Result := 'Close menu''s';
+    41: Result := 'Debug Menu Map';
+    42: Result := 'Debug Menu Victory';
+    43: Result := 'Debug Menu Defeat';
+    44: Result := 'Debug Menu Add Scout';
+    // Higher value to seporate bindable keys from special keys
+    100: Result := 'MapEdit Extra''s Menu';
+    101: Result := 'MapEdit Terain Editing';
+    102: Result := 'MapEdit Village Planning';
+    103: Result := 'MapEdit Visual Scripts';
+    104: Result := 'MapEdit Global Scripting';
+    105: Result := 'MapEdit Main Menu';
+    106: Result := 'MapEdit Sub-menu 1';
+    107: Result := 'MapEdit Sub-menu 2';
+    108: Result := 'MapEdit Sub-menu 3';
+    109: Result := 'MapEdit Sub-menu 4';
+    110: Result := 'MapEdit Sub-menu 5';
+    111: Result := 'MapEdit Sub-menu 6';
+    112: Result := 'Unassignable Delphi';
+    113: Result := 'Unassignable Delphi';
+  else
+    Result := '~~~ Unknown value ' + IntToStr(aValue) + '! ~~~';
+  end;
+end;
+
+
+// Here we fix the issue where Char() doesn't always give us the character/button
+function TKMKeyLibrary.GetCharFromVK(aKey: Word): String;
+begin
+  case aKey of
+    1: Result := 'Left mouse button';
+    2: Result := 'Right mouse button';
+    3: Result := 'Control-break';
+    4: Result := 'Middle mouse button';
+    8: Result := 'Backspace';
+    9: Result := 'Tab';
+    12: Result := 'Clear';
+    13: Result := 'Enter';
+    16: Result := 'Shift';
+    17: Result := 'CTRL';
+    18: Result := 'Alt';
+    19: Result := 'Pause';
+    20: Result := 'Caps Lock';
+    27: Result := 'Escape';
+    32: Result := 'Space bar';
+    33: Result := 'Page Up';
+    34: Result := 'Page Down';
+    35: Result := 'End';
+    36: Result := 'Home';
+    37: Result := 'Left Arrow';
+    38: Result := 'Up Arrow';
+    39: Result := 'Right Arrow';
+    40: Result := 'Down Arrow';
+    41: Result := 'Select';
+    42: Result := 'Print';
+    43: Result := 'Execute';
+    44: Result := 'Print Screen';
+    45: Result := 'Insert';
+    46: Result := 'Delete';
+    47: Result := 'Help';
+    96: Result := 'NumPad 0';
+    97: Result := 'NumPad 1';
+    98: Result := 'NumPad 2';
+    99: Result := 'NumPad 3';
+    100: Result := 'NumPad 4';
+    101: Result := 'NumPad 5';
+    102: Result := 'NumPad 6';
+    103: Result := 'NumPad 7';
+    104: Result := 'NumPad 8';
+    105: Result := 'NumPad 9';
+    106: Result := 'NumPad *';
+    107: Result := 'NumPad +';
+    108: Result := 'Separator';
+    109: Result := 'NumPad -';
+    110: Result := 'NumPad .';
+    111: Result := 'NumPad /';
+    112: Result := 'F1';
+    113: Result := 'F2';
+    114: Result := 'F3';
+    115: Result := 'F4';
+    116: Result := 'F5';
+    117: Result := 'F6';
+    118: Result := 'F7';
+    119: Result := 'F8';
+    120: Result := 'F9';
+    121: Result := 'F10';
+    122: Result := 'F11';
+    123: Result := 'F12';
+    { F13..F24 are the special function keys, enabled by default in the EFI(UEFI) BIOS
+      This is especially the case with Windows 8/8.1 laptops.
+      Most manufacturers don't give the option to change it in the BIOS, hence we name them here anyways. }
+    124: Result := 'F13';
+    125: Result := 'F14';
+    126: Result := 'F15';
+    127: Result := 'F16';
+    128: Result := 'F17';
+    129: Result := 'F18';
+    130: Result := 'F19';
+    131: Result := 'F20';
+    132: Result := 'F21';
+    133: Result := 'F22';
+    134: Result := 'F23';
+    135: Result := 'F24';
+    144: Result := 'Num Lock';
+    145: Result := 'Scroll Lock';
+    160: Result := 'Left Shift';
+    161: Result := 'Right Shift';
+    162: Result := 'Left CTRL';
+    163: Result := 'Right CTRL';
+    164: Result := 'Left Alt';
+    165: Result := 'Right Alt';
+    186: Result := ';';
+    187: Result := '=';
+    188: Result := ',';
+    189: Result := '-';
+    190: Result := '.';
+    191: Result := '/';
+    192: Result := '`';
+    219: Result := '[';
+    220: Result := '\';
+    221: Result := ']';
+    222: Result := '''';
+    250: Result := 'Play';
+    251: Result := 'Zoom';
+  else
+    Result := Char(aKey);
+  end;
+end;
+
 
 end.
