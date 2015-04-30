@@ -76,7 +76,7 @@ type
 
 implementation
 uses
-  KromUtils, KM_Log, KM_Points, KM_ResTexts;
+  KromUtils, KM_Log, KM_Points, KM_ResTexts, KM_ResKeys;
 
 
 { TKMResource }
@@ -106,6 +106,7 @@ begin
   FreeAndNil(gResTexts);
   FreeAndNil(fTileset);
   FreeAndNil(fUnitDat);
+  FreeAndNil(gResKeys);
   inherited;
 end;
 
@@ -145,6 +146,9 @@ begin
   fSprites.LoadMenuResources;
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmc_Default;
+
+  gResKeys := TKMKeyLibrary.Create;
+  gResKeys.LoadKeys;
 
   // Locale info is needed for DAT export and font loading
   LoadLocaleResources(aLocale);

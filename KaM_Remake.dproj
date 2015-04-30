@@ -275,6 +275,7 @@
         <DCCReference Include="src\res\KM_ResCursors.pas"/>
         <DCCReference Include="src\res\KM_ResFonts.pas"/>
         <DCCReference Include="src\res\KM_ResHouses.pas"/>
+        <DCCReference Include="src\res\KM_ResKeys.pas"/>
         <DCCReference Include="src\res\KM_ResLocales.pas"/>
         <DCCReference Include="src\res\KM_ResMapElements.pas"/>
         <DCCReference Include="src\res\KM_ResPalettes.pas"/>

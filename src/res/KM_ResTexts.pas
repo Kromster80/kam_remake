@@ -8,14 +8,14 @@ uses
 
 
 const
-  //NAME__## means that this const defines first element of some range that is ## long
-  //TX_UNITS_NAMES__29 = 70; //todo: add animal unit names
+  // NAME__## means that this const defines first element of some range that is ## long
+  // TX_UNITS_NAMES__29 = 70; //todo: add animal unit names
 
-  //Load text IDs from this include file that is managed by the Translation Manager
+  // Load text IDs from this include file that is managed by the Translation Manager
   {$I KM_TextIDs.inc}
 
-  //Supposed for places where some text must be placed
-  //That string was used in all Synetic games for missing texts
+  // Supposed for places where some text must be placed
+  // That string was used in all Synetic games for missing texts
   NO_TEXT = '<<<LEER>>>';
 
 type
@@ -30,7 +30,7 @@ type
     fTexts: TUnicodeStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
   public
-    procedure LoadLocale(aPathTemplate: string); //initial locale for UI strings
+    procedure LoadLocale(aPathTemplate: string); // Initial locale for UI strings
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
   end;
 
@@ -44,7 +44,7 @@ type
     procedure InitLocaleIds;
   public
     constructor Create;
-    procedure LoadLocale(aPathTemplate: string); //All locales for Mission strings
+    procedure LoadLocale(aPathTemplate: string); // All locales for Mission strings
     function ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
     function HasText(aIndex: Word): Boolean;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
@@ -54,15 +54,13 @@ type
 
 
 var
-  //All games texts accessible from everywhere
+  // All games texts accessible from everywhere
   gResTexts: TKMTextLibraryMulti;
-
 
 implementation
 
-
 { TKMTextLibraryCommon }
-//LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped
+// LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped
 procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TUnicodeStringArray);
   function TextToArray(const Value: UnicodeString): TUnicodeStringArray;
   var
@@ -100,7 +98,7 @@ var
 begin
   if not FileExists(FilePath) then Exit;
 
-  //Load ANSI file with codepage we say into unicode string
+  // Load ANSI file with codepage we say into unicode string
   langCode := AnsiString(Copy(FilePath, Length(FilePath) - 7, 3));
   libTxt := ReadTextU(FilePath, gResLocales.LocaleByCode(langCode).FontCodepage);
   Tmp := TextToArray(libTxt);
@@ -116,7 +114,7 @@ begin
 
   Assert(topId <= 1024, 'Dont allow too many strings for no reason');
 
-  //Don't shrink the array, we might be overloading base locale with a partial translation
+  // Don't shrink the array, we might be overloading base locale with a partial translation
   if Length(aArray) < topId + 1 then
     SetLength(aArray, topId + 1);
 
@@ -124,23 +122,23 @@ begin
   begin
     s := Tmp[I];
 
-    //Get string index and skip erroneous lines
+    // Get string index and skip erroneous lines
     firstDelimiter := Pos(':', s);
     if firstDelimiter = 0 then Continue;
     if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter - 1)), id) then Continue;
 
     s := RightStr(s, Length(s) - firstDelimiter);
-    //Required characters that can't be stored in plain text
+    // Required characters that can't be stored in plain text
     //todo: Remove them in favor of | for eol (and update libx files)
     {$IFDEF WDC}
-    s := StringReplace(s, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
-    s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    s := StringReplace(s, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); // EOL
+    s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); // Slash
     {$ENDIF}
     {$IFDEF FPC}
-    //In FPC StringReplace only works for UTF8/Ansi strings
+    // In FPC StringReplace only works for UTF8/Ansi strings
     tmpA := UTF16toUTF8(s);
-    tmpA := StringReplace(tmpA, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
-    tmpA := StringReplace(tmpA, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    tmpA := StringReplace(tmpA, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); // EOL
+    tmpA := StringReplace(tmpA, '\\', '\', [rfReplaceAll, rfIgnoreCase]); // Slash
     s := UTF8toUTF16(tmpA);
     {$ENDIF}
     aArray[id] := s;
@@ -157,12 +155,12 @@ begin
 end;
 
 
-//Text file template, e.g.: ExeDir\text.%s.libx
-//We need locale separate to assemble Fallback and Default locales paths
+// Text file template, e.g.: ExeDir\text.%s.libx
+// We need locale separate to assemble Fallback and Default locales paths
 procedure TKMTextLibrarySingle.LoadLocale(aPathTemplate: string);
 begin
-  //We load the English LIBX by default, then overwrite it with the selected language
-  //(this way missing strings are in English)
+  // We load the English LIBX by default, then overwrite it with the selected language
+  // (this way missing strings are in English)
   LoadLIBXFile(Format(aPathTemplate, [gResLocales.DefaultLocale]), fTexts);
 
   if gResLocales.FallbackLocale <> '' then
@@ -183,14 +181,14 @@ end;
 
 procedure TKMTextLibraryMulti.InitLocaleIds;
 begin
-  //Using indexes is fatsre than always looking them up for every string requested
+  // Using indexes is fatsre than always looking them up for every string requested
   fPref[0] := gResLocales.IndexByCode(gResLocales.UserLocale);
   fPref[1] := gResLocales.IndexByCode(gResLocales.FallbackLocale);
   fPref[2] := gResLocales.IndexByCode(gResLocales.DefaultLocale);
 end;
 
 
-//Check if requested string is empty
+// Check if requested string is empty
 function TKMTextLibraryMulti.HasText(aIndex: Word): Boolean;
 begin
   Result := ((fPref[0] <> -1) and (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> ''))
@@ -199,8 +197,8 @@ begin
 end;
 
 
-//Order of preference: Locale > Fallback > Default(Eng)
-//Some locales may have no strings at all, just skip them
+// Order of preference: Locale > Fallback > Default(Eng)
+// Some locales may have no strings at all, just skip them
 function TKMTextLibraryMulti.GetTexts(aIndex: Word): UnicodeString;
 begin
   if (fPref[0] <> -1) and (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> '') then
@@ -216,7 +214,7 @@ begin
 end;
 
 
-//Path template with %s
+// Path template with %s
 procedure TKMTextLibraryMulti.LoadLocale(aPathTemplate: string);
 var
   I: Integer;
@@ -228,8 +226,8 @@ begin
 end;
 
 
-//Dynamic Scripts should not have access to the actual strings (script variables should be identical for all MP players)
-//Take the string and replace every occurence of <$tag> with corresponding text from LibX
+// Dynamic Scripts should not have access to the actual strings (script variables should be identical for all MP players)
+// Take the string and replace every occurence of <$tag> with corresponding text from LibX
 function TKMTextLibraryMulti.ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
 var
   I, ID, Last: Integer;
@@ -270,7 +268,7 @@ var
   I,K: Integer;
   TextCount: Integer;
 begin
-  //Only save locales containing text (otherwise locale list must be synced in MP)
+  // Only save locales containing text (otherwise locale list must be synced in MP)
   aStream.Write(LocalesWithText);
   for I := 0 to gResLocales.Count - 1 do
     if Length(fTexts[I]) > 0 then
@@ -294,9 +292,9 @@ var
   Id: Integer;
   Tmp: UnicodeString;
 begin
-  //Try to match savegame locales with players locales,
-  //cos some players might have non-native locales missing
-  //We might add locale selection to setup.exe
+  // Try to match savegame locales with players locales,
+  // because some players might have non-native locales missing
+  // We might add locale selection to setup.exe
 
   SetLength(fTexts, gResLocales.Count);
 

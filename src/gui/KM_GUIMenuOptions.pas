@@ -8,26 +8,30 @@ uses
 
 
 type
-  TKMMenuOptions = class {(TKMGUIPage)}
+  TKMMenuOptions = class { (TKMGUIPage) }
   private
-    fOnPageChange: TGUIEventText; //will be in ancestor class
+    fOnPageChange: TGUIEventText; // will be in ancestor class
 
     fMainSettings: TMainSettings;
     fGameSettings: TGameSettings;
     fResolutions: TKMResolutions;
 
-    //We remember old values to enable/disable "Apply" button dynamicaly
+    // We remember old values to enable/disable "Apply" button dynamicaly
     PrevResolutionId: TResIndex;
-    //Try to pick the same refresh rate on resolution change
+    // Try to pick the same refresh rate on resolution change
     DesiredRefRate: Integer;
 
     procedure ApplyResolution(Sender: TObject);
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
+    procedure KeybindClick(Sender: TObject);
+    procedure Keybind_ListKeySave(Key: Word; Shift: TShiftState);
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
+    procedure LoadKeys;
+    procedure LoadSpecialKeys;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -53,7 +57,20 @@ type
         DropBox_Options_Resolution: TKMDropList;
         DropBox_Options_RefreshRate: TKMDropList;
         Button_Options_ResApply: TKMButton;
+      Button_Options_Keys: TKMButton;
+      Button_Options_Special_Keys: TKMButton;
       Button_Options_Back: TKMButton;
+      PopUp_Options_Keys: TKMPopUpMenu;
+        Image_Options_Keys: TKMImage;
+        Label_Options_Keys_Title: TKMLabel;
+        Button_Options_Keys_OK: TKMButton;
+        Button_Options_Keys_Reset: TKMButton;
+        ColumnBox_Options_Keys: TKMColumnBox;
+      PopUp_Options_Special_Keys: TKMPopUpMenu;
+        Image_Options_Special_Keys: TKMImage;
+        Label_Options_Special_Keys_Title: TKMLabel;
+        Button_Options_Special_Keys_OK: TKMButton;
+        ColumnBox_Options_Special_Keys: TKMColumnBox;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -64,7 +81,7 @@ type
 
 implementation
 uses
-  KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_Sound, KM_RenderUI, KM_ResFonts, KM_Resource;
+  KM_Main, KM_GameApp, KM_Sound, KM_RenderUI, KM_Resource, KM_ResTexts, KM_ResLocales, KM_ResFonts, KM_ResKeys, KM_ResSound;
 
 
 { TKMGUIMainOptions }
@@ -76,7 +93,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  //We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
+  // We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
 
   Panel_Options := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Options.AnchorsStretch;
@@ -86,7 +103,7 @@ begin
       Anchors := [anLeft];
     end;
 
-    //Controls section
+    // Controls section
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,60,120,280,80);
     Panel_Options_Ctrl.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Ctrl,6,0,270,20,gResTexts[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
@@ -96,7 +113,7 @@ begin
       TrackBar_Options_ScrollSpeed.Caption := gResTexts[TX_MENU_OPTIONS_SCROLL_SPEED];
       TrackBar_Options_ScrollSpeed.OnChange := Change;
 
-    //Gameplay section
+    // Gameplay section
     Panel_Options_Game:=TKMPanel.Create(Panel_Options,60,220,280,50);
     Panel_Options_Game.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Game,6,0,270,20,gResTexts[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
@@ -105,7 +122,7 @@ begin
       CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,256,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Change;
 
-    //Graphics section
+    // Graphics section
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,280,178);
     Panel_Options_GFX.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_GFX,6,0,270,20,gResTexts[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
@@ -121,7 +138,7 @@ begin
       RadioGroup_Options_Shadows.Add(gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
       RadioGroup_Options_Shadows.OnChange := Change;
 
-    //Fonts section
+    // Fonts section
     Panel_Options_Fonts := TKMPanel.Create(Panel_Options,360,498,280,50);
     Panel_Options_Fonts.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Fonts,6,0,270,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
@@ -129,7 +146,7 @@ begin
       CheckBox_Options_FullFonts := TKMCheckBox.Create(Panel_Options_Fonts, 10, 27, 260, 20, gResTexts[TX_MENU_OPTIONS_FONTS], fnt_Metal);
       CheckBox_Options_FullFonts.OnClick := Change;
 
-    //SFX section
+    // SFX section
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,60,290,280,167);
     Panel_Options_Sound.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,270,20,gResTexts[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
@@ -146,7 +163,7 @@ begin
       CheckBox_Options_MusicOff.OnClick  := Change;
       CheckBox_Options_ShuffleOn.OnClick := Change;
 
-    //Resolutions section
+    // Resolutions section
     Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 120, 280, 160);
     Panel_Options_Res.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Res, 6, 0, 270, 20, gResTexts[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
@@ -164,7 +181,7 @@ begin
       Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 260, 30, gResTexts[TX_MENU_OPTIONS_APPLY], bsMenu);
       Button_Options_ResApply.OnClick := ApplyResolution;
 
-    //Language section
+    // Language section
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,660,120,240,30+gResLocales.Count*20);
     Panel_Options_Lang.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
@@ -181,23 +198,92 @@ begin
       end;
       Radio_Options_Lang.OnChange := Change;
 
-    //Back button
+    // Keybindings button
+    Button_Options_Keys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
+    Button_Options_Keys.Anchors := [anLeft];
+    Button_Options_Keys.OnClick := KeybindClick;
+
+    // Special Keybindings button
+    Button_Options_Special_Keys := TKMButton.Create(Panel_Options, 60, 560, 280, 30, gResTexts[TX_MENU_OPTIONS_SPECIAL_KEYS], bsMenu);
+    Button_Options_Special_Keys.Anchors := [anLeft];
+    Button_Options_Special_Keys.OnClick := KeybindClick;
+
+    // Back button
     Button_Options_Back:=TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
     Button_Options_Back.Anchors := [anLeft];
     Button_Options_Back.OnClick := BackClick;
+
+    // Panel_Options_Keys
+    PopUp_Options_Keys := TKMPopUpMenu.Create(Panel_Options, 700);
+    PopUp_Options_Keys.Height := 600;
+    // Keep the pop-up centered
+    PopUp_Options_Keys.Anchors := [];
+    PopUp_Options_Keys.Left := (Panel_Options.Width Div 2) - 350;
+    PopUp_Options_Keys.Top := (Panel_Options.Height Div 2) - 300;
+
+      TKMBevel.Create(PopUp_Options_Keys, -1000,  -1000, 4000, 4000);
+
+      Image_Options_Keys := TKMImage.Create(PopUp_Options_Keys,0,0, 700, 600, 15, rxGuiMain);
+      Image_Options_Keys.ImageStretch;
+
+      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter);
+      Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
+
+      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 20, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+      Button_Options_Keys_OK.Anchors := [anLeft,anBottom];
+      Button_Options_Keys_OK.OnClick := KeybindClick;
+
+      Button_Options_Keys_Reset := TKMButton.Create(PopUp_Options_Keys, 230, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+      Button_Options_Keys_Reset.Anchors := [anLeft,anBottom];
+      Button_Options_Keys_Reset.OnClick := KeybindClick;
+
+      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 660, 440, fnt_Metal, bsMenu);
+      ColumnBox_Options_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
+      ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
+      ColumnBox_Options_Keys.ShowLines := True;
+      ColumnBox_Options_Keys.PassAllKeys := True;
+      ColumnBox_Options_Keys.OnChange := KeybindClick;
+      ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;
+
+    // Panel_Options_Special_Keys
+    PopUp_Options_Special_Keys := TKMPopUpMenu.Create(Panel_Options, 700);
+    PopUp_Options_Special_Keys.Height := 600;
+    // Keep the pop-up centered
+    PopUp_Options_Special_Keys.Anchors := [];
+    PopUp_Options_Special_Keys.Left := (Panel_Options.Width Div 2) - 350;
+    PopUp_Options_Special_Keys.Top := (Panel_Options.Height Div 2) - 300;
+
+      TKMBevel.Create(PopUp_Options_Special_Keys, -1000,  -1000, 4000, 4000);
+
+      Image_Options_Special_Keys := TKMImage.Create(PopUp_Options_Special_Keys,0,0, 700, 600, 15, rxGuiMain);
+      Image_Options_Special_Keys.ImageStretch;
+
+      Label_Options_Special_Keys_Title := TKMLabel.Create(PopUp_Options_Special_Keys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_SPECIAL_KEYBIND], fnt_Outline, taCenter);
+      Label_Options_Special_Keys_Title.Anchors := [anLeft,anBottom];
+
+      Button_Options_Special_Keys_OK := TKMButton.Create(PopUp_Options_Special_Keys, 20, 550, 170, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+      Button_Options_Special_Keys_OK.Anchors := [anLeft,anBottom];
+      Button_Options_Special_Keys_OK.OnClick := KeybindClick;
+
+      ColumnBox_Options_Special_Keys := TKMColumnBox.Create(PopUp_Options_Special_Keys, 20, 100, 660, 440, fnt_Metal, bsMenu);
+      ColumnBox_Options_Special_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
+      ColumnBox_Options_Special_Keys.Anchors := [anLeft,anTop,anBottom];
+      ColumnBox_Options_Special_Keys.ShowLines := True;
+
+  LoadKeys;
+  LoadSpecialKeys;
 end;
 
 
 destructor TKMMenuOptions.Destroy;
 begin
-
   inherited;
 end;
 
 
-//This is called when the options page is shown, so update all the values
-//Note: Options can be required to fill before fGameApp is completely initialized,
-//hence we need to pass either fGameApp.Settings or a direct Settings link
+// This is called when the options page is shown, so update all the values
+// Note: Options can be required to fill before fGameApp is completely initialized,
+// hence we need to pass either fGameApp.Settings or a direct Settings link
 procedure TKMMenuOptions.Refresh;
 begin
   CheckBox_Options_Autosave.Checked     := fGameSettings.Autosave;
@@ -216,17 +302,17 @@ begin
 
   Radio_Options_Lang.ItemIndex := gResLocales.IndexByCode(fGameSettings.Locale);
 
-  //We need to reset dropboxes every time we enter Options page
+  // We need to reset dropboxes every time we enter Options page
   RefreshResolutions;
 end;
 
 
-//Changed options are saved immediately (cos they are easy to restore/rollback)
+// Changed options are saved immediately (cos they are easy to restore/rollback)
 procedure TKMMenuOptions.Change(Sender: TObject);
 var
   MusicToggled, ShuffleToggled: Boolean;
 begin
-  //Change these options only if they changed state since last time
+  // Change these options only if they changed state since last time
   MusicToggled := (fGameSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
   ShuffleToggled := (fGameSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
 
@@ -249,7 +335,7 @@ begin
   begin
     fGameApp.MusicLib.ToggleMusic(not fGameSettings.MusicOff);
     if not fGameSettings.MusicOff then
-      ShuffleToggled := True; //Re-shuffle songs if music has been enabled
+      ShuffleToggled := True; // Re-shuffle songs if music has been enabled
   end;
   if ShuffleToggled then
     fGameApp.MusicLib.ToggleShuffle(fGameSettings.ShuffleOn);
@@ -259,21 +345,21 @@ begin
     fGameSettings.LoadFullFonts := CheckBox_Options_FullFonts.Checked;
     if CheckBox_Options_FullFonts.Checked and (gRes.Fonts.LoadLevel <> fll_Full) then
     begin
-      //When enabling full fonts, use ToggleLocale reload the entire interface
+      // When enabling full fonts, use ToggleLocale reload the entire interface
       fGameApp.ToggleLocale(gResLocales[Radio_Options_Lang.ItemIndex].Code);
-      Exit; //Exit ASAP because whole interface will be recreated
+      Exit; // Exit ASAP because whole interface will be recreated
     end;
   end;
 
   if Sender = Radio_Options_Lang then
   begin
     fGameApp.ToggleLocale(gResLocales[Radio_Options_Lang.ItemIndex].Code);
-    Exit; //Exit ASAP because whole interface will be recreated
+    Exit; // Exit ASAP because whole interface will be recreated
   end;
 end;
 
 
-//Apply resolution changes
+// Apply resolution changes
 procedure TKMMenuOptions.ChangeResolution(Sender: TObject);
 var
   I: Integer;
@@ -284,30 +370,30 @@ begin
   DropBox_Options_Resolution.Enabled := CheckBox_Options_FullScreen.Checked;
   DropBox_Options_RefreshRate.Enabled := CheckBox_Options_FullScreen.Checked;
 
-  //Repopulate RefreshRates list
+  // Repopulate RefreshRates list
   if Sender = DropBox_Options_Resolution then
   begin
     ResID := DropBox_Options_Resolution.ItemIndex;
 
-    //Reset refresh rates, because they are different for each resolution
+    // Reset refresh rates, because they are different for each resolution
     DropBox_Options_RefreshRate.Clear;
     for I := 0 to fResolutions.Items[ResID].RefRateCount - 1 do
     begin
       DropBox_Options_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[ResID].RefRate[I]]));
-      //Make sure to select something. SelectedRefRate is prefered, otherwise select first
+      // Make sure to select something. SelectedRefRate is prefered, otherwise select first
       if (I = 0) or (fResolutions.Items[ResID].RefRate[I] = DesiredRefRate) then
         DropBox_Options_RefreshRate.ItemIndex := I;
     end;
   end;
 
-  //Make button enabled only if new resolution/mode differs from old
+  // Make button enabled only if new resolution/mode differs from old
   ResID := DropBox_Options_Resolution.ItemIndex;
   RefID := DropBox_Options_RefreshRate.ItemIndex;
   Button_Options_ResApply.Enabled :=
       (fMainSettings.FullScreen <> CheckBox_Options_FullScreen.Checked) or
       (CheckBox_Options_FullScreen.Checked and ((PrevResolutionId.ResID <> ResID) or
                                                 (PrevResolutionId.RefID <> RefID)));
-  //Remember which one we have selected so we can reselect it if the user changes resolution
+  // Remember which one we have selected so we can reselect it if the user changes resolution
   DesiredRefRate := fResolutions.Items[ResID].RefRate[RefID];
 end;
 
@@ -340,7 +426,7 @@ begin
 end;
 
 
-//Resets dropboxes, they will have correct values
+// Resets dropboxes, they will have correct values
 procedure TKMMenuOptions.RefreshResolutions;
 var I: Integer; R: TResIndex;
 begin
@@ -370,7 +456,7 @@ begin
   end
   else
   begin
-    //no supported resolutions
+    // No supported resolutions
     DropBox_Options_Resolution.Add(gResTexts[TX_MENU_OPTIONS_RESOLUTION_NOT_SUPPORTED]);
     DropBox_Options_RefreshRate.Add(gResTexts[TX_MENU_OPTIONS_REFRESH_RATE_NOT_SUPPORTED]);
     DropBox_Options_Resolution.ItemIndex := 0;
@@ -378,7 +464,7 @@ begin
   end;
 
   CheckBox_Options_FullScreen.Checked := fMainSettings.FullScreen;
-  //Controls should be disabled, when there is no resolution to choose
+  // Controls should be disabled, when there is no resolution to choose
   CheckBox_Options_FullScreen.Enabled := fResolutions.Count > 0;
   DropBox_Options_Resolution.Enabled  := (fMainSettings.FullScreen) and (fResolutions.Count > 0);
   DropBox_Options_RefreshRate.Enabled := (fMainSettings.FullScreen) and (fResolutions.Count > 0);
@@ -390,9 +476,9 @@ end;
 
 procedure TKMMenuOptions.Show;
 begin
-  //Remember what we are working with
-  //(we do that on Show because Create gets called from Main/Game constructor and fMain/fGameApp are not yet assigned)
-  //Ideally we could pass them as parameters here
+  // Remember what we are working with
+  // (we do that on Show because Create gets called from Main/Game constructor and fMain/fGameApp are not yet assigned)
+  // Ideally we could pass them as parameters here
   fMainSettings := fMain.Settings;
   fGameSettings := fGameApp.GameSettings;
   fResolutions := fMain.Resolutions;
@@ -402,12 +488,102 @@ begin
 end;
 
 
+
+procedure TKMMenuOptions.KeybindClick(Sender: TObject);
+begin
+  if ColumnBox_Options_Keys.TopIndex < 0 then Exit;
+
+  if Sender = Button_Options_Keys then
+    PopUp_Options_Keys.Show;
+
+  if Sender = Button_Options_Keys_OK then
+    PopUp_Options_Keys.Hide;
+
+  if Sender = Button_Options_Special_Keys then
+    PopUp_Options_Special_Keys.Show;
+
+  if Sender = Button_Options_Special_Keys_OK then
+    PopUp_Options_Special_Keys.Hide;
+
+  if Sender = Button_Options_Keys_Reset then
+  begin
+    gResKeys.ResetKeyBind;
+    LoadKeys;
+  end;
+
+  if Sender = ColumnBox_Options_Keys then
+    ColumnBox_Options_Keys.HighlightError := False;
+end;
+
+
+procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
+var
+  aID, I: Integer;
+begin
+  ColumnBox_Options_Keys.HighlightError := False;
+  aID := ColumnBox_Options_Keys.ItemIndex;
+  // Never allow to change secret debug keys.
+  if (aID >= 0) and (aID <= gResKeys.KeyCount - 5) then
+  begin
+    for I := 0 to gResKeys.KeyCount -1 do
+      if (Key = gResKeys.Keys[I]) or (Key in [121, 122]) then
+      begin
+        ColumnBox_Options_Keys.HighlightError := True;
+        gSoundPlayer.Play(sfxn_Error);
+        exit;
+      end;
+    gResKeys.SaveKey(aID, Key);
+    LoadKeys;
+  end;
+end;
+
+
 procedure TKMMenuOptions.BackClick(Sender: TObject);
 begin
-  //Return to MainMenu and restore resolution changes
+  // Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
-
   fOnPageChange(gpMainMenu);
+end;
+
+
+procedure TKMMenuOptions.LoadKeys;
+var
+  I: Integer;
+begin
+  gResKeys.LoadKeys;
+  ColumnBox_Options_Keys.Clear;
+  // Hide the debug keys
+  for I := 0 to gResKeys.KeyCount - 5 do
+    ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetNameForKey(I), gResKeys.GetCharFromVK(gResKeys.Keys[I])],
+                                               [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF]));
+end;
+
+
+procedure TKMMenuOptions.LoadSpecialKeys;
+var
+  I, D: Integer;
+begin
+  for I := 100 to 113 do
+  begin
+    case I of
+      100: D := 13;   // MapEdit Extra's menu
+      101: D := 112;  // MapEdit Terain Editing
+      102: D := 113;  // MapEdit Village Planning
+      103: D := 114;  // MapEdit Visual Scripts
+      104: D := 115;  // MapEdit Global Scripting
+      105: D := 116;  // MapEdit Main Menu
+      106: D := 49;   // MapEdit Sub-menu 1
+      107: D := 50;   // MapEdit Sub-menu 2
+      108: D := 51;   // MapEdit Sub-menu 3
+      109: D := 52;   // MapEdit Sub-menu 4
+      110: D := 53;   // MapEdit Sub-menu 5
+      111: D := 54;   // MapEdit Sub-menu 6
+      112: D := 121;  // Unassignable F10 key, Delphi special key
+      113: D := 122;  // Unassignable F11 key, debug menu
+    end;
+    ColumnBox_Options_Special_Keys.AddItem(MakeListRow([gResKeys.GetNameForKey(I), gResKeys.GetCharFromVK(D)],
+                                                       [$FFFFFFFF, $FFFFFFFF]));
+  end;
 end;
 
 
