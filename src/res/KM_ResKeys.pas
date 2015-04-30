@@ -32,7 +32,6 @@ type
   public
     constructor Create;
     property Count: Integer read fCount;
-    function HasKey(aIndex: Word): Boolean;
     function GetCharFromVK(aKey: Word): String;
     function GetNameForKey(aValue: Integer): String;
     property Keys[aIndex: Word]: Integer read GetKeys write SetKeys; default;
@@ -92,13 +91,6 @@ begin
 
     fKeys[keyId] := keyVal;
   end;
-end;
-
-
-// Check if requested string is empty
-function TKMKeyLibrary.HasKey(aIndex: Word): Boolean;
-begin
-  Result := ((aIndex < Length(fKeys)) and (fKeys[aIndex] <> 0));
 end;
 
 
