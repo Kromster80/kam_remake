@@ -550,7 +550,9 @@ procedure TKMMenuOptions.LoadKeys;
 var
   I: Integer;
 begin
+  // Reload the keymap in case player changed it and checks his changes in game
   gResKeys.LoadKeymapFile;
+
   ColumnBox_Options_Keys.Clear;
   // Hide the debug keys
   for I := 0 to gResKeys.KeyCount - 5 do

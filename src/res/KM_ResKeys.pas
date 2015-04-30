@@ -43,8 +43,7 @@ begin
 
   fKeymapPath := (ExeDir + 'keys.keymap');
 
-  if not FileExists(fKeymapPath) then
-    ResetKeymap;
+  LoadKeymapFile;
 end;
 
 
@@ -81,7 +80,11 @@ var
   KeyString, LibKey: UnicodeString;
   I, KeyID, KeyValue, TopId, FirstDelimiter, SecondDelimiter: Integer;
 begin
-  if not FileExists(fKeymapPath) then Exit;
+  if not FileExists(fKeymapPath) then
+  begin
+    ResetKeymap;
+    Exit;
+  end;
 
   // Load UniCode file with codepage
   LibKey := ReadTextU(fKeymapPath, 1252);
