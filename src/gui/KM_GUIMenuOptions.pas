@@ -563,7 +563,7 @@ begin
 
   // Hide the debug keys
   for I := 0 to gResKeys.Count - 5 do
-    ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetNameForKey(I), gResKeys.GetCharFromVK(gResKeys.Keys[I])],
+    ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyNameById(I)],
                                                [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF]));
 
   ColumnBox_Options_Keys.TopIndex := prevI;
@@ -592,7 +592,7 @@ begin
       112: D := 121;  // Unassignable F10 key, Delphi special key
       113: D := 122;  // Unassignable F11 key, debug menu
     end;
-    ColumnBox_Options_Special_Keys.AddItem(MakeListRow([gResKeys.GetNameForKey(I), gResKeys.GetCharFromVK(D)],
+    ColumnBox_Options_Special_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyName(D)],
                                                        [$FFFFFFFF, $FFFFFFFF]));
   end;
 end;

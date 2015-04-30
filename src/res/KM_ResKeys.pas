@@ -32,8 +32,9 @@ type
   public
     constructor Create;
     property Count: Integer read fCount;
-    function GetCharFromVK(aKey: Word): String;
-    function GetNameForKey(aValue: Integer): String;
+    function GetKeyName(aKey: Word): string;
+    function GetKeyNameById(aId: Word): string;
+    function GetFunctionNameById(aValue: Integer): string;
     property Keys[aIndex: Word]: Integer read GetKeys write SetKeys; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
@@ -117,7 +118,7 @@ begin
 
   for I := 0 to fCount - 1 do
   begin
-    Keystring := IntToStr(I) + ':'+ IntToStr(fKeys[I]) + '//' + GetNameForKey(I);
+    Keystring := IntToStr(I) + ':'+ IntToStr(fKeys[I]) + '// ' + GetFunctionNameById(I);
     KeyStringList.Add(Keystring);
   end;
 
@@ -136,19 +137,19 @@ end;
 
 
 // Here we define the action name values
-function TKMKeyLibrary.GetNameForKey(aValue: Integer): String;
+function TKMKeyLibrary.GetFunctionNameById(aValue: Integer): string;
 begin
   case aValue of
-    0: Result :=   gResTexts[TX_KEY_FUNC_SCROLL_LEFT];
-    1: Result :=   gResTexts[TX_KEY_FUNC_SCROLL_RIGHT];
-    2: Result :=   gResTexts[TX_KEY_FUNC_SCROLL_UP];
-    3: Result :=   gResTexts[TX_KEY_FUNC_SCROLL_DOWN];
-    4: Result :=   gResTexts[TX_KEY_FUNC_MENU_BUILD];
-    5: Result :=   gResTexts[TX_KEY_FUNC_MENU_RATIO];
-    6: Result :=   gResTexts[TX_KEY_FUNC_MENU_STATS];
-    7: Result :=   gResTexts[TX_KEY_FUNC_MENU_MAIN];
-    8: Result :=   gResTexts[TX_KEY_FUNC_HALT];
-    9: Result :=   gResTexts[TX_KEY_FUNC_SPLIT];
+    0:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_LEFT];
+    1:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_RIGHT];
+    2:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_UP];
+    3:  Result :=  gResTexts[TX_KEY_FUNC_SCROLL_DOWN];
+    4:  Result :=  gResTexts[TX_KEY_FUNC_MENU_BUILD];
+    5:  Result :=  gResTexts[TX_KEY_FUNC_MENU_RATIO];
+    6:  Result :=  gResTexts[TX_KEY_FUNC_MENU_STATS];
+    7:  Result :=  gResTexts[TX_KEY_FUNC_MENU_MAIN];
+    8:  Result :=  gResTexts[TX_KEY_FUNC_HALT];
+    9:  Result :=  gResTexts[TX_KEY_FUNC_SPLIT];
     10: Result :=  gResTexts[TX_KEY_FUNC_LINKUP];
     11: Result :=  gResTexts[TX_KEY_FUNC_FOOD];
     12: Result :=  gResTexts[TX_KEY_FUNC_STORM];
@@ -205,16 +206,15 @@ begin
 end;
 
 
-// Here we fix the issue where Char() doesn't always give us the character/button
-function TKMKeyLibrary.GetCharFromVK(aKey: Word): String;
+function TKMKeyLibrary.GetKeyName(aKey: Word): string;
 begin
   case aKey of
-    1: Result :=   gResTexts[TX_KEY_LMB];
-    2: Result :=   gResTexts[TX_KEY_RMB];
-    3: Result :=   gResTexts[TX_KEY_BREAK];
-    4: Result :=   gResTexts[TX_KEY_MMB];
-    8: Result :=   gResTexts[TX_KEY_BACKSPACE];
-    9: Result :=   gResTexts[TX_KEY_TAB];
+    1:  Result :=  gResTexts[TX_KEY_LMB];
+    2:  Result :=  gResTexts[TX_KEY_RMB];
+    3:  Result :=  gResTexts[TX_KEY_BREAK];
+    4:  Result :=  gResTexts[TX_KEY_MMB];
+    8:  Result :=  gResTexts[TX_KEY_BACKSPACE];
+    9:  Result :=  gResTexts[TX_KEY_TAB];
     12: Result :=  gResTexts[TX_KEY_CLEAR];
     13: Result :=  gResTexts[TX_KEY_ENTER];
     16: Result :=  gResTexts[TX_KEY_SHIFT];
@@ -267,9 +267,9 @@ begin
     121: Result := 'F10';
     122: Result := 'F11';
     123: Result := 'F12';
-    { F13..F24 are the special function keys, enabled by default in the EFI(UEFI) BIOS
-      This is especially the case with Windows 8/8.1 laptops.
-      Most manufacturers don't give the option to change it in the BIOS, hence we name them here anyways. }
+    // F13..F24 are the special function keys, enabled by default in the EFI(UEFI) BIOS
+    //  This is especially the case with Windows 8/8.1 laptops.
+    //  Most manufacturers don't give the option to change it in the BIOS, hence we name them here anyways.
     124: Result := 'F13';
     125: Result := 'F14';
     126: Result := 'F15';
@@ -308,5 +308,10 @@ begin
   end;
 end;
 
+
+function TKMKeyLibrary.GetKeyNameById(aId: Word): string;
+begin
+  Result := GetKeyName(fKeys[aId]);
+end;
 
 end.
