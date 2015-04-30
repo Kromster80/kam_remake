@@ -18,7 +18,6 @@ type
     fKeys: TIntegerArray;
     fKeymapPath: string;
     function GetKeys(aIndex: Word): Integer;
-    procedure LoadKeymapFile(var aArray: TIntegerArray);
   public
     KeyCount: Integer;
     constructor Create;
@@ -26,7 +25,7 @@ type
     function GetCharFromVK(aKey: Word): String;
     function GetNameForKey(aValue: Integer): String;
     property Keys[aIndex: Word]: Integer read GetKeys; default;
-    procedure LoadKeys; // Load all the keys
+    procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKey(aKeyID: Integer; aKeyValue: Word);
   end;
@@ -50,7 +49,7 @@ end;
 
 
 // .keymap files consist of lines. Each line has an index and a text. Lines without index are skipped
-procedure TKMKeyLibrary.LoadKeymapFile(var aArray: TIntegerArray);
+procedure TKMKeyLibrary.LoadKeymapFile;
   function KeyToArray(const Value: UnicodeString): TUnicodeStringArray;
   var
     Point, Start: PWideChar;
@@ -100,8 +99,8 @@ begin
   Assert(TopId <= 1024, 'Dont allow too many strings for no reason');
 
   // Don't shrink the array, we might be overloading
-  if Length(aArray) < TopId + 1 then
-    SetLength(aArray, TopId + 1);
+  if Length(fKeys) < TopId + 1 then
+    SetLength(fKeys, TopId + 1);
 
   for I := 0 to High(KeyStringArray) do
   begin
@@ -111,7 +110,7 @@ begin
     SecondDelimiter := Pos('//', KeyString);
     KeyID := StrToInt(Copy(KeyString, 0, FirstDelimiter - 1));
     KeyValue := StrToInt(Copy(KeyString, FirstDelimiter + 1, SecondDelimiter - FirstDelimiter -1));
-    aArray[KeyID] := KeyValue;
+    fKeys[KeyID] := KeyValue;
   end;
 end;
 
@@ -129,12 +128,6 @@ begin
     Result := fKeys[aIndex]
   else
     Result := -1;
-end;
-
-
-procedure TKMKeyLibrary.LoadKeys;
-begin
-  LoadKeymapFile(fKeys);
 end;
 
 

@@ -550,7 +550,7 @@ procedure TKMMenuOptions.LoadKeys;
 var
   I: Integer;
 begin
-  gResKeys.LoadKeys;
+  gResKeys.LoadKeymapFile;
   ColumnBox_Options_Keys.Clear;
   // Hide the debug keys
   for I := 0 to gResKeys.KeyCount - 5 do

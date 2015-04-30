@@ -148,7 +148,7 @@ begin
   fCursors.Cursor := kmc_Default;
 
   gResKeys := TKMKeyLibrary.Create;
-  gResKeys.LoadKeys;
+  gResKeys.LoadKeymapFile;
 
   // Locale info is needed for DAT export and font loading
   LoadLocaleResources(aLocale);
