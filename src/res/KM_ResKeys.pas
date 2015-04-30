@@ -148,7 +148,6 @@ begin
 end;
 
 
-// Here we define the action name values
 function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
   case aId of
