@@ -42,7 +42,7 @@ constructor TKMKeyLibrary.Create;
 begin
   inherited;
 
-  fKeyMapPath := (ExeDir + 'data' + PathDelim + 'keys.keymap');
+  fKeyMapPath := (ExeDir + 'keys.keymap');
   if (not FileExists(fKeyMapPath)) then // If file is missing, create one here
     ResetKeyBind;
 end;
