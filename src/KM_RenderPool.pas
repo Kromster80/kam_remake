@@ -701,13 +701,17 @@ begin
   for I := 1 to 4 do
   if (R2[I - 1]) > 0 then
   begin
+    // Makes compiler happy
+    Id := 0;
+
     // Exception for houses whose wares are layered
     if aHouse in [ht_WeaponSmithy, ht_ArmorSmithy, ht_WeaponWorkshop, ht_ArmorWorkshop] then
     begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
         Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
-        // Need to swap Shields and Armor for the ArmorSmithy        // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
+        // Need to swap Shields and Armor for the ArmorSmithy
+        // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
         if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
           Id := gRes.HouseDat[aHouse].SupplyOut[3-I, K] + 1;
       end;
