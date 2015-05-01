@@ -31,7 +31,7 @@ type
     procedure Refresh;
     procedure RefreshResolutions;
     procedure RefreshKeyList;
-    procedure LoadSpecialKeys;
+    procedure RefreshKeyList2;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -270,7 +270,7 @@ begin
       ColumnBox_Options_Special_Keys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_Options_Special_Keys.ShowLines := True;
 
-  LoadSpecialKeys;
+  RefreshKeyList2;
 end;
 
 
@@ -570,7 +570,7 @@ begin
 end;
 
 
-procedure TKMMenuOptions.LoadSpecialKeys;
+procedure TKMMenuOptions.RefreshKeyList2;
 var
   I, D: Integer;
 begin
@@ -592,8 +592,8 @@ begin
       112: D := 121;  // Unassignable F10 key, Delphi special key
       113: D := 122;  // Unassignable F11 key, debug menu
     end;
-    ColumnBox_Options_Special_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyName(D)],
-                                                       [$FFFFFFFF, $FFFFFFFF]));
+
+    ColumnBox_Options_Special_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyName(D)], [$FFFFFFFF, $FFFFFFFF]));
   end;
 end;
 
