@@ -39,10 +39,10 @@ const
 
 type
   TKMFuncInfo = record
-    Value: Byte;
-    FuncTextId: Word;
+    Key: Byte;
+    TextId: Word;
     Area: TKMKeyArea;
-    FuncId: Integer;
+    Id: Integer;
     IsDebug: Boolean; // Hide key and function
   end;
 
@@ -59,7 +59,7 @@ type
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    property Keys[aIndex: Word]: TKMFuncInfo read GetKeys{ write SetKeys}; default;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetKeys{ write SetKeys}; default;
     {procedure LoadKeymapFile; }
     {procedure ResetKeymap; }
     {procedure SaveKeymap; }
@@ -87,8 +87,8 @@ begin
 
   for I := 0 to KEYMAP_COUNT - 1 do
   begin
-    fFuncs[I].Value := DEF_KEYS[I];
-    fFuncs[I].FuncTextId := KEY_FUNC_TX[I];
+    fFuncs[I].Key := DEF_KEYS[I];
+    fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     if (I in [0..3]) or (I in [24..26]) or (I in [40..44]) then
       fFuncs[I].Area := kaCommon
@@ -97,7 +97,7 @@ begin
     else
       fFuncs[I].Area := kaMapEdit;
 
-    fFuncs[I].FuncId := I;
+    fFuncs[I].Id := I;
 
     if I in [41..44] then
       fFuncs[I].IsDebug := True
@@ -324,7 +324,7 @@ end;
 
 function TKMKeyLibrary.GetKeyNameById(aId: Word): string;
 begin
-  Result := GetKeyName(fFuncs[aId].Value);
+  Result := GetKeyName(fFuncs[aId].Key);
 end;
 
 
