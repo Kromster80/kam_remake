@@ -266,7 +266,7 @@ begin
     TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
 
     //Intent of this design is to rip the specified lines with least impact
-    MP := TMissionParserPatcher.Create(False);
+    MP := TMissionParserPatcher.Create;
 
     for I := 0 to PathToMaps.Count - 1 do
     begin
@@ -347,7 +347,7 @@ begin
   SetUp;
 
   //Intent of this design is to rip the specified lines with least impact
-  MP := TMissionParserPatcher.Create(False);
+  MP := TMissionParserPatcher.Create;
 
   PathToMaps := TStringList.Create;
   try
@@ -451,7 +451,7 @@ begin
   SetUp;
 
   //Intent of this design is to rip the specified lines with least impact
-  MP := TMissionParserPatcher.Create(False);
+  MP := TMissionParserPatcher.Create;
 
   PathToMaps := TStringList.Create;
   try
@@ -557,7 +557,7 @@ begin
     TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
 
     //Intent of this design is to rip the specified lines with least impact
-    MP := TMissionParserPatcher.Create(False);
+    MP := TMissionParserPatcher.Create;
 
     for I := 0 to PathToMaps.Count - 1 do
     begin
@@ -623,7 +623,7 @@ begin
   SetUp;
 
   //Intent of this design is to rip the specified lines with least impact
-  MP := TMissionParserPatcher.Create(False);
+  MP := TMissionParserPatcher.Create;
 
   PathToMaps := TStringList.Create;
   try

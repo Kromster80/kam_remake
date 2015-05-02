@@ -70,7 +70,7 @@ begin
   //We don't need terrain on main menu, just a parser
   //Otherwise access synced Game terrain
   if aFromParser then
-    fParser := TMissionParserPreview.Create(False);
+    fParser := TMissionParserPreview.Create;
 end;
 
 

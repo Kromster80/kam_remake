@@ -50,7 +50,6 @@ const
 type
   TMissionParserCommon = class
   protected
-    fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
     fLastHand: TKMHandIndex; //Current Player
     fFatalErrors: string; //Fatal errors descriptions accumulate here
@@ -61,7 +60,6 @@ type
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; virtual; abstract;
     procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
   public
-    constructor Create(aStrictParsing: Boolean);
     property FatalErrors: string read fFatalErrors;
     property MinorErrors: string read fMinorErrors;
     function LoadMission(const aFileName: string): Boolean; overload; virtual;
@@ -72,13 +70,6 @@ implementation
 
 
 { TMissionParserCommon }
-constructor TMissionParserCommon.Create(aStrictParsing: boolean);
-begin
-  inherited Create;
-  fStrictParsing := aStrictParsing;
-end;
-
-
 function TMissionParserCommon.LoadMission(const aFileName: string):boolean;
 begin
   fMissionFileName := aFileName;
@@ -254,10 +245,9 @@ end;
 //Shows the error to the user so they know exactly what they did wrong.
 procedure TMissionParserCommon.AddError(const ErrorMsg: string; aFatal: Boolean = False);
 begin
-  if fStrictParsing or aFatal then
-    fFatalErrors := fFatalErrors + ErrorMsg + '|';
-
-  if not aFatal then
+  if aFatal then
+    fFatalErrors := fFatalErrors + ErrorMsg + '|'
+  else
     fMinorErrors := fMinorErrors + ErrorMsg + '|';
 end;
 

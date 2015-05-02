@@ -31,6 +31,16 @@ const
   );
 
 type
+  {todo:
+  TKMKeyArea = (kaCommon, kaGame, kaMapEd);
+
+  TKMKeyInfo = record
+    DefKey: Byte;
+    FuncTextId: Word;
+    Area: TKMKeyArea;
+    Id: Integer;
+  end;}
+
   TKMKeyLibrary = class
   private
     fCount: Integer;

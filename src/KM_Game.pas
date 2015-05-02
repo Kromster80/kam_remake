@@ -360,7 +360,7 @@ begin
     fMapEditor.DetectAttachedFiles(aMissionFile);
   end;
 
-  Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled, False);
+  Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled);
   try
     if not Parser.LoadMission(aMissionFile) then
       raise Exception.Create(Parser.FatalErrors);
@@ -861,7 +861,7 @@ begin
   fMapEditor.SaveAttachements(aPathName);
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
   fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'));
-  fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
+  fMissionParser := TMissionParserStandard.Create(mpm_Editor);
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
   FreeAndNil(fMissionParser);
 

@@ -234,7 +234,7 @@ begin
     //First reset everything because e.g. CanBeHuman is assumed false by default and set true when we encounter SET_USER_PLAYER
     ResetInfo;
 
-    fMissionParser := TMissionParserInfo.Create(False);
+    fMissionParser := TMissionParserInfo.Create;
     try
       //Fill Self properties with MissionParser
       fMissionParser.LoadMission(DatFile, Self, pmBase);
@@ -396,7 +396,7 @@ begin
 
   DatFile := fPath + fFileName + '.dat';
 
-  fMissionParser := TMissionParserInfo.Create(False);
+  fMissionParser := TMissionParserInfo.Create;
   try
     //Fill Self properties with MissionParser
     fMissionParser.LoadMission(DatFile, Self, pmExtra);

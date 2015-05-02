@@ -27,8 +27,8 @@ type
   protected
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
   public
-    constructor Create(aMode: TMissionParsingMode; aStrictParsing: Boolean); overload;
-    constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray; aStrictParsing: Boolean); overload;
+    constructor Create(aMode: TMissionParsingMode); overload;
+    constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray); overload;
     function LoadMission(const aFileName: string): Boolean; overload; override;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
@@ -60,10 +60,10 @@ const
 
 { TMissionParserStandard }
 //Mode affect how certain parameters are loaded a bit differently
-constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aStrictParsing: boolean);
+constructor TMissionParserStandard.Create(aMode: TMissionParsingMode);
 var I: Integer;
 begin
-  inherited Create(aStrictParsing);
+  inherited Create;
   fParsingMode := aMode;
   fDefaultLocation := 0;
 
@@ -72,9 +72,9 @@ begin
 end;
 
 
-constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray; aStrictParsing: Boolean);
+constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray);
 begin
-  inherited Create(aStrictParsing);
+  inherited Create;
   fParsingMode := aMode;
   fDefaultLocation := 0;
 
