@@ -153,8 +153,6 @@ type
     procedure DeleteMap(aIndex: Integer);
     procedure MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 
-    //Should be accessed only as a part of aOnRefresh/aOnSort events handlers
-    function MapList: UnicodeString;
     procedure UpdateState;
   end;
 
@@ -635,18 +633,6 @@ end;
 procedure TKMapsCollection.Unlock;
 begin
   CS.Leave;
-end;
-
-
-function TKMapsCollection.MapList: UnicodeString;
-var
-  I: Integer;
-begin
-  Lock;
-    Result := '';
-    for I := 0 to fCount - 1 do
-      Result := Result + fMaps[I].FileName + EolW;
-  Unlock;
 end;
 
 
