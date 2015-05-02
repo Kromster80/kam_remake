@@ -565,9 +565,9 @@ begin
     ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF0000FF, $FF0000FF], [$FF0000FF, $FF0000FF], -1));
     // Hide the debug keys
     for I := 0 to gResKeys.Count - 1 do
-     if (TKMKeyArea(K) = gResKeys.Keys[I].fFuncArea) and not gResKeys.Keys[I].fFuncIsDebug then
+     if (TKMKeyArea(K) = gResKeys.Keys[I].Area) and not gResKeys.Keys[I].IsDebug then
        ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyNameById(I)],
-                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], gResKeys.Keys[I].fFuncId));
+                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], gResKeys.Keys[I].FuncId));
   end;
 
   ColumnBox_Options_Keys.TopIndex := prevI;

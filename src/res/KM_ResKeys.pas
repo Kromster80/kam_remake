@@ -38,20 +38,20 @@ const
   );
 
 type
-  TKMKeyInfo = record
-    fDefKey: Byte;
-    fFuncTextId: Word;
-    fFuncArea: TKMKeyArea;
-    fFuncId: Integer;
-    fFuncIsDebug: Boolean; // Hide key and function
+  TKMFuncInfo = record
+    Value: Byte;
+    FuncTextId: Word;
+    Area: TKMKeyArea;
+    FuncId: Integer;
+    IsDebug: Boolean; // Hide key and function
   end;
 
   TKMKeyLibrary = class
   private
     fCount: Integer;
-    fKeys: array [0..KEYMAP_COUNT-1] of TKMKeyInfo;
+    fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
-    function GetKeys(aIndex: Word): TKMKeyInfo;
+    function GetKeys(aIndex: Word): TKMFuncInfo;
     {procedure SetKeys(aIndex: Word; aValue: Integer); }
   public
     constructor Create;
@@ -59,7 +59,7 @@ type
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    property Keys[aIndex: Word]: TKMKeyInfo read GetKeys{ write SetKeys}; default;
+    property Keys[aIndex: Word]: TKMFuncInfo read GetKeys{ write SetKeys}; default;
     {procedure LoadKeymapFile; }
     {procedure ResetKeymap; }
     {procedure SaveKeymap; }
@@ -87,22 +87,22 @@ begin
 
   for I := 0 to KEYMAP_COUNT - 1 do
   begin
-    fKeys[I].fDefKey := DEF_KEYS[I];
-    fKeys[I].fFuncTextId := KEY_FUNC_TX[I];
+    fFuncs[I].Value := DEF_KEYS[I];
+    fFuncs[I].FuncTextId := KEY_FUNC_TX[I];
 
     if (I in [0..3]) or (I in [24..26]) or (I in [40..44]) then
-      fKeys[I].fFuncArea := kaCommon
+      fFuncs[I].Area := kaCommon
     else if (I in [4..23]) or (I in [27..39]) then
-      fKeys[I].fFuncArea := kaGame
+      fFuncs[I].Area := kaGame
     else
-      fKeys[I].fFuncArea := kaMapEdit;
+      fFuncs[I].Area := kaMapEdit;
 
-    fKeys[I].fFuncId := I;
+    fFuncs[I].FuncId := I;
 
     if I in [41..44] then
-      fKeys[I].fFuncIsDebug := True
+      fFuncs[I].IsDebug := True
     else
-      fKeys[I].fFuncIsDebug := False;
+      fFuncs[I].IsDebug := False;
   end;
 
   //LoadKeymapFile;
@@ -112,7 +112,7 @@ end;
 destructor TKMKeyLibrary.Destroy;
 begin
   inherited;
-  FreeAndNil(fKeys);
+  FreeAndNil(fFuncs);
 end;
 
 
@@ -152,9 +152,9 @@ begin
 end;  }
 
 
-function TKMKeyLibrary.GetKeys(aIndex: Word): TKMKeyInfo;
+function TKMKeyLibrary.GetKeys(aIndex: Word): TKMFuncInfo;
 begin
-  Result := fKeys[aIndex];
+  Result := fFuncs[aIndex];
 end;
 
 
@@ -324,7 +324,7 @@ end;
 
 function TKMKeyLibrary.GetKeyNameById(aId: Word): string;
 begin
-  Result := GetKeyName(fKeys[aId].fDefKey);
+  Result := GetKeyName(fFuncs[aId].Value);
 end;
 
 
