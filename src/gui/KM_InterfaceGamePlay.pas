@@ -2305,25 +2305,25 @@ procedure TKMGamePlayInterface.Selection_Assign(aKey: Word; aObject: TObject);
 var Key: Integer;
 begin
   // Here we solve the issue caused by dynamic key-binding
-  if aKey = gResKeys[SC_SELECT_1] then
+  if aKey = gResKeys[SC_SELECT_1].fDefKey then
     Key := 0;
-  if aKey = gResKeys[SC_SELECT_2] then
+  if aKey = gResKeys[SC_SELECT_2].fDefKey then
     Key := 1;
-  if aKey = gResKeys[SC_SELECT_3] then
+  if aKey = gResKeys[SC_SELECT_3].fDefKey then
     Key := 2;
-  if aKey = gResKeys[SC_SELECT_4] then
+  if aKey = gResKeys[SC_SELECT_4].fDefKey then
     Key := 3;
-  if aKey = gResKeys[SC_SELECT_5] then
+  if aKey = gResKeys[SC_SELECT_5].fDefKey then
     Key := 4;
-  if aKey = gResKeys[SC_SELECT_6] then
+  if aKey = gResKeys[SC_SELECT_6].fDefKey then
     Key := 5;
-  if aKey = gResKeys[SC_SELECT_7] then
+  if aKey = gResKeys[SC_SELECT_7].fDefKey then
     Key := 6;
-  if aKey = gResKeys[SC_SELECT_8] then
+  if aKey = gResKeys[SC_SELECT_8].fDefKey then
     Key := 7;
-  if aKey = gResKeys[SC_SELECT_9] then
+  if aKey = gResKeys[SC_SELECT_9].fDefKey then
     Key := 8;
-  if aKey = gResKeys[SC_SELECT_10] then
+  if aKey = gResKeys[SC_SELECT_10].fDefKey then
     Key := 9;
 
   if not InRange(Key, 0, 9) then Exit;
@@ -2347,25 +2347,25 @@ procedure TKMGamePlayInterface.Selection_Link(aKey: Word; aObject: TObject);
 var Key: Integer; G: TKMUnitGroup;
 begin
   // Here we solve the issue caused by dynamic key-binding
-  if aKey = gResKeys[SC_SELECT_1] then
+  if aKey = gResKeys[SC_SELECT_1].fDefKey then
     Key := 0;
-  if aKey = gResKeys[SC_SELECT_2] then
+  if aKey = gResKeys[SC_SELECT_2].fDefKey then
     Key := 1;
-  if aKey = gResKeys[SC_SELECT_3] then
+  if aKey = gResKeys[SC_SELECT_3].fDefKey then
     Key := 2;
-  if aKey = gResKeys[SC_SELECT_4] then
+  if aKey = gResKeys[SC_SELECT_4].fDefKey then
     Key := 3;
-  if aKey = gResKeys[SC_SELECT_5] then
+  if aKey = gResKeys[SC_SELECT_5].fDefKey then
     Key := 4;
-  if aKey = gResKeys[SC_SELECT_6] then
+  if aKey = gResKeys[SC_SELECT_6].fDefKey then
     Key := 5;
-  if aKey = gResKeys[SC_SELECT_7] then
+  if aKey = gResKeys[SC_SELECT_7].fDefKey then
     Key := 6;
-  if aKey = gResKeys[SC_SELECT_8] then
+  if aKey = gResKeys[SC_SELECT_8].fDefKey then
     Key := 7;
-  if aKey = gResKeys[SC_SELECT_9] then
+  if aKey = gResKeys[SC_SELECT_9].fDefKey then
     Key := 8;
-  if aKey = gResKeys[SC_SELECT_10] then
+  if aKey = gResKeys[SC_SELECT_10].fDefKey then
     Key := 9;
 
   G := gHands.GetGroupByUID(fSelection[Key]);
@@ -2384,25 +2384,25 @@ begin
   if gHands[MySpectator.HandIndex].InCinematic then
     Exit;
   // Here we solve the issue caused by dynamic key-binding
-  if aKey = gResKeys[SC_SELECT_1] then
+  if aKey = gResKeys[SC_SELECT_1].fDefKey then
     Key := 0;
-  if aKey = gResKeys[SC_SELECT_2] then
+  if aKey = gResKeys[SC_SELECT_2].fDefKey then
     Key := 1;
-  if aKey = gResKeys[SC_SELECT_3] then
+  if aKey = gResKeys[SC_SELECT_3].fDefKey then
     Key := 2;
-  if aKey = gResKeys[SC_SELECT_4] then
+  if aKey = gResKeys[SC_SELECT_4].fDefKey then
     Key := 3;
-  if aKey = gResKeys[SC_SELECT_5] then
+  if aKey = gResKeys[SC_SELECT_5].fDefKey then
     Key := 4;
-  if aKey = gResKeys[SC_SELECT_6] then
+  if aKey = gResKeys[SC_SELECT_6].fDefKey then
     Key := 5;
-  if aKey = gResKeys[SC_SELECT_7] then
+  if aKey = gResKeys[SC_SELECT_7].fDefKey then
     Key := 6;
-  if aKey = gResKeys[SC_SELECT_8] then
+  if aKey = gResKeys[SC_SELECT_8].fDefKey then
     Key := 7;
-  if aKey = gResKeys[SC_SELECT_9] then
+  if aKey = gResKeys[SC_SELECT_9].fDefKey then
     Key := 8;
-  if aKey = gResKeys[SC_SELECT_10] then
+  if aKey = gResKeys[SC_SELECT_10].fDefKey then
     Key := 9;
 
   if not InRange(Key, 0, 9) then Exit;
@@ -2599,14 +2599,14 @@ begin
     Exit;
   end;
 
-  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := True;
-  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := True;
-  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := True;
-  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := True;
-  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := True;
-  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := True;
+  if Key = gResKeys[SC_SCROLL_LEFT].fDefKey  then fViewport.ScrollKeyLeft  := True;
+  if Key = gResKeys[SC_SCROLL_RIGHT].fDefKey then fViewport.ScrollKeyRight := True;
+  if Key = gResKeys[SC_SCROLL_UP].fDefKey    then fViewport.ScrollKeyUp    := True;
+  if Key = gResKeys[SC_SCROLL_DOWN].fDefKey  then fViewport.ScrollKeyDown  := True;
+  if Key = gResKeys[SC_ZOOM_IN].fDefKey      then fViewport.ZoomKeyIn      := True;
+  if Key = gResKeys[SC_ZOOM_OUT].fDefKey     then fViewport.ZoomKeyOut     := True;
     // As we don't have names for teams in SP we only allow showing team names in MP or MP replays
-  if (Key = gResKeys[SC_SHOW_TEAMS]) then
+  if (Key = gResKeys[SC_SHOW_TEAMS].fDefKey) then
     if (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
       fShowTeamNames := True;
@@ -2626,7 +2626,7 @@ var LastAlert: TKMAlert;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
-    if Key = gResKeys[SC_PAUSE] then
+    if Key = gResKeys[SC_PAUSE].fDefKey then
       SetPause(False);
     Exit;
   end;
@@ -2643,22 +2643,22 @@ begin
 
   // These keys are allowed during replays
   // Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := False;
-  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := False;
-  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := False;
-  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := False;
-  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := False;
-  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := False;
-  if Key = gResKeys[SC_ZOOM_RESET]   then fViewport.ResetZoom;
-  if Key = gResKeys[SC_SHOW_TEAMS]   then fShowTeamNames := False;
-  if Key = gResKeys[SC_BEACON] then
+  if Key = gResKeys[SC_SCROLL_LEFT].fDefKey  then fViewport.ScrollKeyLeft  := False;
+  if Key = gResKeys[SC_SCROLL_RIGHT].fDefKey then fViewport.ScrollKeyRight := False;
+  if Key = gResKeys[SC_SCROLL_UP].fDefKey    then fViewport.ScrollKeyUp    := False;
+  if Key = gResKeys[SC_SCROLL_DOWN].fDefKey  then fViewport.ScrollKeyDown  := False;
+  if Key = gResKeys[SC_ZOOM_IN].fDefKey      then fViewport.ZoomKeyIn      := False;
+  if Key = gResKeys[SC_ZOOM_OUT].fDefKey     then fViewport.ZoomKeyOut     := False;
+  if Key = gResKeys[SC_ZOOM_RESET].fDefKey   then fViewport.ResetZoom;
+  if Key = gResKeys[SC_SHOW_TEAMS].fDefKey   then fShowTeamNames := False;
+  if Key = gResKeys[SC_BEACON].fDefKey then
     if not SelectingTroopDirection then
     begin
       fPlacingBeacon := True;
       MinimapView.ClickableOnce := True;
       gRes.Cursors.Cursor := kmc_Beacon;
     end;
-  if Key = gResKeys[SC_CLOSE_MENU] then
+  if Key = gResKeys[SC_CLOSE_MENU].fDefKey then
   begin
     // Progressively hide open elements on Esc
     if fJoiningGroups then
@@ -2681,9 +2681,9 @@ begin
   end;
 
   // More secure then if Key in [gResKeys[SC_SELECT_1]..gResKeys[SC_SELECT_10]] then
-  if Key in [gResKeys[SC_SELECT_1], gResKeys[SC_SELECT_2], gResKeys[SC_SELECT_3], gResKeys[SC_SELECT_4],
-             gResKeys[SC_SELECT_5], gResKeys[SC_SELECT_6], gResKeys[SC_SELECT_7], gResKeys[SC_SELECT_8],
-             gResKeys[SC_SELECT_9], gResKeys[SC_SELECT_10]] then
+  if Key in [gResKeys[SC_SELECT_1].fDefKey, gResKeys[SC_SELECT_2].fDefKey, gResKeys[SC_SELECT_3].fDefKey, gResKeys[SC_SELECT_4].fDefKey,
+             gResKeys[SC_SELECT_5].fDefKey, gResKeys[SC_SELECT_6].fDefKey, gResKeys[SC_SELECT_7].fDefKey, gResKeys[SC_SELECT_8].fDefKey,
+             gResKeys[SC_SELECT_9].fDefKey, gResKeys[SC_SELECT_10].fDefKey] then
   begin
     if (ssCtrl in Shift) then
       Selection_Assign(Key, MySpectator.Selected)
@@ -2695,18 +2695,18 @@ begin
   end;
 
     // Menu shortcuts
-  if Key = gResKeys[SC_MENU_BUILD] then Button_Main[tbBuild].Click;
-  if Key = gResKeys[SC_MENU_RATIO] then Button_Main[tbRatio].Click;
-  if Key = gResKeys[SC_MENU_STATS] then Button_Main[tbStats].Click;
-  if Key = gResKeys[SC_MENU_MENU]  then Button_Main[tbMenu].Click;
+  if Key = gResKeys[SC_MENU_BUILD].fDefKey then Button_Main[tbBuild].Click;
+  if Key = gResKeys[SC_MENU_RATIO].fDefKey then Button_Main[tbRatio].Click;
+  if Key = gResKeys[SC_MENU_STATS].fDefKey then Button_Main[tbStats].Click;
+  if Key = gResKeys[SC_MENU_MENU].fDefKey  then Button_Main[tbMenu].Click;
 
   if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
   begin
     // Game speed/pause: Not available in multiplayer mode
-    if Key = gResKeys[SC_SPEEDUP_1] then gGame.SetGameSpeed(1, False);
-    if Key = gResKeys[SC_SPEEDUP_2] then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium, True);
-    if Key = gResKeys[SC_SPEEDUP_3] then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast, True);
-    if Key = gResKeys[SC_SPEEDUP_4] then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast, True);
+    if Key = gResKeys[SC_SPEEDUP_1].fDefKey then gGame.SetGameSpeed(1, False);
+    if Key = gResKeys[SC_SPEEDUP_2].fDefKey then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium, True);
+    if Key = gResKeys[SC_SPEEDUP_3].fDefKey then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast, True);
+    if Key = gResKeys[SC_SPEEDUP_4].fDefKey then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast, True);
   end;
 
   // All the following keys don't work in Replay, because they alter game state
@@ -2715,15 +2715,15 @@ begin
   if fUIMode = umReplay then Exit;
 
   // Messages
-  if Key = gResKeys[SC_CENTER_ALERT] then
+  if Key = gResKeys[SC_CENTER_ALERT].fDefKey then
   begin
     // Spacebar centers you on the latest alert
     LastAlert := fAlerts.GetLatestAlert;
     if LastAlert <> nil then
       fViewport.Position := LastAlert.Loc;
   end;
-  if Key = gResKeys[SC_DELETE_MSG] then Button_MessageDelete.Click;
-  if Key = gResKeys[SC_CHAT_MP] then            // Enter is the shortcut to bring up chat in multiplayer
+  if Key = gResKeys[SC_DELETE_MSG].fDefKey then Button_MessageDelete.Click;
+  if Key = gResKeys[SC_CHAT_MP].fDefKey then            // Enter is the shortcut to bring up chat in multiplayer
     if (fUIMode in [umMP, umSpectate]) and not fGuiGameChat.Visible then
     begin
       Allies_Close(nil);
@@ -2734,38 +2734,38 @@ begin
     end;
 
     // Standard army shortcuts from KaM
-  if Key = gResKeys[SC_ARMY_HALT] then
+  if Key = gResKeys[SC_ARMY_HALT].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
-  if Key = gResKeys[SC_ARMY_LINK] then
+  if Key = gResKeys[SC_ARMY_LINK].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
-  if Key = gResKeys[SC_ARMY_SPLIT] then
+  if Key = gResKeys[SC_ARMY_SPLIT].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
 
     // Additional hotkeys for all group orders
-  if Key = gResKeys[SC_ARMY_FOOD] then
+  if Key = gResKeys[SC_ARMY_FOOD].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Feed.Click;
-  if Key = gResKeys[SC_ARMY_STORM] then
+  if Key = gResKeys[SC_ARMY_STORM].fDefKey then
     if Panel_Army.Visible and Button_Army_Storm.Enabled and not SelectingTroopDirection then Button_Army_Storm.Click;
-  if Key = gResKeys[SC_ARMY_ADD_LINE] then
+  if Key = gResKeys[SC_ARMY_ADD_LINE].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForDown.Click;
-  if Key = gResKeys[SC_ARMY_DEL_LINE] then
+  if Key = gResKeys[SC_ARMY_DEL_LINE].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForUp.Click;
-  if Key = gResKeys[SC_ARMY_ROTATE_CW] then
+  if Key = gResKeys[SC_ARMY_ROTATE_CW].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCW.Click;
-  if Key = gResKeys[SC_ARMY_ROTATE_CCW] then
+  if Key = gResKeys[SC_ARMY_ROTATE_CCW].fDefKey then
     if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCCW.Click;
 
     // General function keys
-  if Key = gResKeys[SC_PAUSE] then
+  if Key = gResKeys[SC_PAUSE].fDefKey then
     if (fUIMode = umSP) then SetPause(True); // Display pause overlay
 
   { Temporary cheat codes }
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or (fUIMode = umSP)) then
   begin
-    if Key = gResKeys[SC_DEBUG_REVEALMAP] then gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-    if Key = gResKeys[SC_DEBUG_VICTORY]   then gGame.GameInputProcess.CmdTemp(gic_TempVictory);
-    if Key = gResKeys[SC_DEBUG_DEFEAT]    then gGame.GameInputProcess.CmdTemp(gic_TempDefeat);
-    if Key = gResKeys[SC_DEBUG_ADDSCOUT]  then gGame.GameInputProcess.CmdTemp(gic_TempAddScout, gGameCursor.Cell);
+    if Key = gResKeys[SC_DEBUG_REVEALMAP].fDefKey then gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
+    if Key = gResKeys[SC_DEBUG_VICTORY].fDefKey   then gGame.GameInputProcess.CmdTemp(gic_TempVictory);
+    if Key = gResKeys[SC_DEBUG_DEFEAT].fDefKey    then gGame.GameInputProcess.CmdTemp(gic_TempDefeat);
+    if Key = gResKeys[SC_DEBUG_ADDSCOUT].fDefKey  then gGame.GameInputProcess.CmdTemp(gic_TempAddScout, gGameCursor.Cell);
   end;
 end;
 

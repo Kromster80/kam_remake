@@ -937,3 +937,6 @@ TX_KEY_LEFT_ALT = 955; //Left Alt
 TX_KEY_RIGHT_ALT = 956; //Right Alt
 TX_KEY_PLAY = 957; //Play
 TX_KEY_ZOOM = 958; //Zoom
+TX_KEY_COMMON = 961; //Common Keys
+TX_KEY_GAME = 962; //Game Keys
+TX_KEY_MAPEDIT = 963; //Map Editor Keys

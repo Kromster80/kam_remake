@@ -26,7 +26,7 @@ type
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
     procedure KeybindClick(Sender: TObject);
-    procedure Keybind_ListKeySave(Key: Word; Shift: TShiftState);
+    {procedure Keybind_ListKeySave(Key: Word; Shift: TShiftState);  }
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
@@ -243,7 +243,7 @@ begin
       ColumnBox_Options_Keys.ShowLines := True;
       ColumnBox_Options_Keys.PassAllKeys := True;
       ColumnBox_Options_Keys.OnChange := KeybindClick;
-      ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;
+      {ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;    }
 
     // Panel_Options_Special_Keys
     PopUp_Options_Special_Keys := TKMPopUpMenu.Create(Panel_Options, 700);
@@ -495,7 +495,7 @@ begin
   if Sender = Button_Options_Keys then
   begin
     // Reload the keymap in case player changed it and checks his changes in game
-    gResKeys.LoadKeymapFile;
+    //gResKeys.LoadKeymapFile;
     RefreshKeyList;
     PopUp_Options_Keys.Show;
   end;
@@ -503,7 +503,7 @@ begin
   if Sender = Button_Options_Keys_OK then
   begin
     PopUp_Options_Keys.Hide;
-    gResKeys.SaveKeymap;
+    //gResKeys.SaveKeymap;
   end;
 
   if Sender = Button_Options_Special_Keys then
@@ -514,7 +514,7 @@ begin
 
   if Sender = Button_Options_Keys_Reset then
   begin
-    gResKeys.ResetKeymap;
+    //gResKeys.ResetKeymap;
     RefreshKeyList;
   end;
 
@@ -523,7 +523,7 @@ begin
 end;
 
 
-procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
+{procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
   aID, I: Integer;
 begin
@@ -533,16 +533,16 @@ begin
   if (aID >= 0) and (aID <= gResKeys.Count - 5) then
   begin
     for I := 0 to gResKeys.Count -1 do
-      if (Key = gResKeys.Keys[I]) or (Key in [121, 122]) then
+      if (Key = gResKeys.Keys[I].fDefKey) or (Key in [121, 122]) then
       begin
         ColumnBox_Options_Keys.HighlightError := True;
         gSoundPlayer.Play(sfxn_Error);
         Exit;
       end;
-    gResKeys.Keys[aID] := Key;
+    gResKeys[aID] := Key;
     RefreshKeyList;
   end;
-end;
+end; }
 
 
 procedure TKMMenuOptions.BackClick(Sender: TObject);
@@ -555,16 +555,20 @@ end;
 
 procedure TKMMenuOptions.RefreshKeyList;
 var
-  I, prevI: Integer;
+  I, K, prevI: Integer;
 begin
   prevI := ColumnBox_Options_Keys.TopIndex;
 
   ColumnBox_Options_Keys.Clear;
-
-  // Hide the debug keys
-  for I := 0 to gResKeys.Count - 5 do
-    ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyNameById(I)],
-                                               [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF]));
+  for K := 0 to 2 do
+  begin
+    ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF0000FF, $FF0000FF], [$FF0000FF, $FF0000FF], -1));
+    // Hide the debug keys
+    for I := 0 to gResKeys.Count - 1 do
+     if (TKMKeyArea(K) = gResKeys.Keys[I].fFuncArea) and not gResKeys.Keys[I].fFuncIsDebug then
+       ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyNameById(I)],
+                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], gResKeys.Keys[I].fFuncId));
+  end;
 
   ColumnBox_Options_Keys.TopIndex := prevI;
 end;
