@@ -56,7 +56,7 @@ begin
     if FileExists(ChangeFileExt(PathToMaps[I], '.script')) then
     begin
       try
-        fScripting.LoadFromFile(ChangeFileExt(PathToMaps[I], '.script'));
+        fScripting.LoadFromFile(ChangeFileExt(PathToMaps[I], '.script'), '', nil);
         Inc(GoodMaps);
       except
         //Report and swallow asserts
