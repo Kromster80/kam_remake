@@ -31,7 +31,6 @@ type
   private
     fPath: string;
     fFileName: UnicodeString; //without extension
-    fStrictParsing: Boolean; //Use strict map checking, important for MP
     fCRC: Cardinal;
     fDatCRC: Cardinal; //Used to speed up scanning
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
@@ -197,8 +196,6 @@ begin
   fFileName := aFolder;
   fMapFolder := aMapFolder;
 
-  fStrictParsing := aStrictParsing;
-
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
   ScriptFile := fPath + fFileName + '.script'; //Needed for CRC
@@ -217,17 +214,17 @@ begin
   DatCRC := Adler32CRC(DatFile);
   //.map file CRC is the slowest, so only calculate it if necessary
   OthersCRC := 0; //Supresses incorrect warning by Delphi
-  if fStrictParsing then
+  if aStrictParsing then
     OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
 
   //Does the map need to be fully rescanned? (.mi cache is outdated?)
   if (fVersion <> GAME_REVISION) or
      (fDatCRC <> DatCRC) or //In non-strict mode only DAT CRC matters (SP)
-     (fStrictParsing and (fCRC <> DatCRC xor OthersCRC)) //In strict mode we check all CRCs (MP)
+     (aStrictParsing and (fCRC <> DatCRC xor OthersCRC)) //In strict mode we check all CRCs (MP)
   then
   begin
     //Calculate OthersCRC if it wasn't calculated before
-    if not fStrictParsing then
+    if not aStrictParsing then
       OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile);
 
     fCRC := DatCRC xor OthersCRC;
