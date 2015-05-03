@@ -482,27 +482,35 @@ end;
 
 procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
-  aID, I: Integer;
-  TempFuncInfo: TKMFuncInfo;
+  ID, I: Integer;
+  fi: TKMFuncInfo;
 begin
   ColumnBox_Options_Keys.HighlightError := False;
-  aID := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
+  ID := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
   // Never allow to set F10 or F11 keys.
-  if (aID >= 0) and (aID <= gResKeys.Count - 1) then
+  if (ID >= 0) and (ID <= gResKeys.Count - 1) then
   begin
-    for I := 0 to gResKeys.Count -1 do
+    if not gResKeys.AllowKeySet(Key) then
     begin
-      if Key in [121, 122] then
-      begin
-        ColumnBox_Options_Keys.HighlightError := True;
-        gSoundPlayer.Play(sfxn_Error);
-        Exit;
-      end;
+      ColumnBox_Options_Keys.HighlightError := True;
+      gSoundPlayer.Play(sfxn_Error);
+      Exit;
     end;
 
-    TempFuncInfo := gResKeys[aID];
-    TempFuncInfo.Key := Key;
-    gResKeys[aID] := TempFuncInfo;
+    for I := 0 to gResKeys.Count - 1 do
+    begin
+      if gResKeys[ID].Area = kaCommon then
+        if Key = gResKeys[I].Key then
+        begin
+          fi := gResKeys[I];
+          fi.Key := 0;
+          gResKeys[I] := fi;
+        end;
+    end;
+
+    fi := gResKeys[ID];
+    fi.Key := Key;
+    gResKeys[ID] := fi;
 
     RefreshKeyList;
   end;
@@ -519,17 +527,18 @@ end;
 
 procedure TKMMenuOptions.RefreshKeyList;
 var
-  I, K, prevI: Integer;
+  I, prevI: Integer;
+  K: TKMKeyArea;
 begin
   prevI := ColumnBox_Options_Keys.TopIndex;
 
   ColumnBox_Options_Keys.Clear;
-  for K := 0 to 2 do
+  for K := Low(TKMKeyArea) to High(TKMKeyArea) do
   begin
     ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
     // Hide the debug keys
     for I := 0 to gResKeys.Count - 1 do
-     if (TKMKeyArea(K) = gResKeys[I].Area) and not gResKeys[I].IsDebug then
+     if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
        ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
                                                   [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], gResKeys[I].Id));
   end;

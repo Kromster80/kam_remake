@@ -37,7 +37,7 @@ const
     TX_KEY_FUNC_MAPEDIT_SUBMENU_3, TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6
   );
 
-  KEY_SEP_TX: array [0..2] of Word = (
+  KEY_SEP_TX: array [TKMKeyArea] of Word = (
     TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_MAPEDIT
   );
 
@@ -55,15 +55,16 @@ type
     fCount: Integer;
     fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
-    function GetKeys(aIndex: Word): TKMFuncInfo;
-    procedure SetKeys(aIndex: Word; aValue: TKMFuncInfo);
+    function GetFuncs(aIndex: Word): TKMFuncInfo;
+    procedure SetFuncs(aIndex: Word; aValue: TKMFuncInfo);
   public
     constructor Create;
     property Count: Integer read fCount;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    property Funcs[aIndex: Word]: TKMFuncInfo read GetKeys write SetKeys; default;
+    function AllowKeySet(Key: Word): Boolean;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs write SetFuncs; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKeymap;
@@ -90,14 +91,31 @@ begin
   fKeymapPath := (ExeDir + 'keys.keymap');
 
   LoadKeymapFile;
+
+  for I := 0 to KEYMAP_COUNT - 1 do
+  begin
+    fFuncs[I].TextId := KEY_FUNC_TX[I];
+
+    if (I in [0..3, 24..26, 40..44]) then
+      fFuncs[I].Area := kaCommon
+    else if (I in [4..23, 27..39]) then
+      fFuncs[I].Area := kaGame
+    else
+      fFuncs[I].Area := kaMapEdit;
+
+    fFuncs[I].Id := I;
+
+    if I in [41..44] then
+      fFuncs[I].IsDebug := True
+    else
+      fFuncs[I].IsDebug := False;
+  end;
 end;
 
 
 destructor TKMKeyLibrary.Destroy;
 begin
   inherited;
-
-  FreeAndNil(fFuncs);
 end;
 
 
@@ -133,33 +151,18 @@ begin
     if not InRange(keyId, 0, fCount - 1) or (keyVal = -1) then Continue;
 
     fFuncs[keyId].Key := keyVal;
-    fFuncs[keyId].TextId := KEY_FUNC_TX[keyId];
-
-    if (keyId in [0..3]) or (keyId in [24..26]) or (keyId in [40..44]) then
-      fFuncs[keyId].Area := kaCommon
-    else if (keyId in [4..23]) or (keyId in [27..39]) then
-      fFuncs[keyId].Area := kaGame
-    else
-      fFuncs[keyId].Area := kaMapEdit;
-
-    fFuncs[keyId].Id := keyId;
-
-    if keyId in [41..44] then
-      fFuncs[keyId].IsDebug := True
-    else
-      fFuncs[keyId].IsDebug := False;
   end;
   SL.Free;
 end;
 
 
-function TKMKeyLibrary.GetKeys(aIndex: Word): TKMFuncInfo;
+function TKMKeyLibrary.GetFuncs(aIndex: Word): TKMFuncInfo;
 begin
   Result := fFuncs[aIndex];
 end;
 
 
-procedure TKMKeyLibrary.SetKeys(aIndex: Word; aValue: TKMFuncInfo);
+procedure TKMKeyLibrary.SetFuncs(aIndex: Word; aValue: TKMFuncInfo);
 begin
   fFuncs[aIndex] := aValue;
 end;
@@ -190,24 +193,7 @@ var
   I: Integer;
 begin
   for I := 0 to KEYMAP_COUNT - 1 do
-  begin
     fFuncs[I].Key := DEF_KEYS[I];
-    fFuncs[I].TextId := KEY_FUNC_TX[I];
-
-    if (I in [0..3]) or (I in [24..26]) or (I in [40..44]) then
-      fFuncs[I].Area := kaCommon
-    else if (I in [4..23]) or (I in [27..39]) then
-      fFuncs[I].Area := kaGame
-    else
-      fFuncs[I].Area := kaMapEdit;
-
-    fFuncs[I].Id := I;
-
-    if I in [41..44] then
-      fFuncs[I].IsDebug := True
-    else
-      fFuncs[I].IsDebug := False;
-  end;
 end;
 
 
@@ -327,6 +313,15 @@ end;
 function TKMKeyLibrary.GetKeyNameById(aId: Word): string;
 begin
   Result := GetKeyName(fFuncs[aId].Key);
+end;
+
+
+function TKMKeyLibrary.AllowKeySet(Key: Word): Boolean;
+begin
+  if Key in [121, 122] then
+    Result := False
+  else
+    Result := True;
 end;
 
 

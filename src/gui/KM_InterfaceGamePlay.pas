@@ -2304,28 +2304,6 @@ end;
 procedure TKMGamePlayInterface.Selection_Assign(aKey: Word; aObject: TObject);
 var Key: Integer;
 begin
-  // Here we solve the issue caused by dynamic key-binding
-  if aKey = gResKeys[SC_SELECT_1].Key then
-    Key := 0;
-  if aKey = gResKeys[SC_SELECT_2].Key then
-    Key := 1;
-  if aKey = gResKeys[SC_SELECT_3].Key then
-    Key := 2;
-  if aKey = gResKeys[SC_SELECT_4].Key then
-    Key := 3;
-  if aKey = gResKeys[SC_SELECT_5].Key then
-    Key := 4;
-  if aKey = gResKeys[SC_SELECT_6].Key then
-    Key := 5;
-  if aKey = gResKeys[SC_SELECT_7].Key then
-    Key := 6;
-  if aKey = gResKeys[SC_SELECT_8].Key then
-    Key := 7;
-  if aKey = gResKeys[SC_SELECT_9].Key then
-    Key := 8;
-  if aKey = gResKeys[SC_SELECT_10].Key then
-    Key := 9;
-
   if not InRange(Key, 0, 9) then Exit;
 
   if aObject is TKMUnit then
@@ -2346,28 +2324,6 @@ end;
 procedure TKMGamePlayInterface.Selection_Link(aKey: Word; aObject: TObject);
 var Key: Integer; G: TKMUnitGroup;
 begin
-  // Here we solve the issue caused by dynamic key-binding
-  if aKey = gResKeys[SC_SELECT_1].Key then
-    Key := 0;
-  if aKey = gResKeys[SC_SELECT_2].Key then
-    Key := 1;
-  if aKey = gResKeys[SC_SELECT_3].Key then
-    Key := 2;
-  if aKey = gResKeys[SC_SELECT_4].Key then
-    Key := 3;
-  if aKey = gResKeys[SC_SELECT_5].Key then
-    Key := 4;
-  if aKey = gResKeys[SC_SELECT_6].Key then
-    Key := 5;
-  if aKey = gResKeys[SC_SELECT_7].Key then
-    Key := 6;
-  if aKey = gResKeys[SC_SELECT_8].Key then
-    Key := 7;
-  if aKey = gResKeys[SC_SELECT_9].Key then
-    Key := 8;
-  if aKey = gResKeys[SC_SELECT_10].Key then
-    Key := 9;
-
   G := gHands.GetGroupByUID(fSelection[Key]);
   if (aObject <> G) and (aObject is TKMUnitGroup) and (G is TKMUnitGroup)
   and (TKMUnitGroup(aObject).GroupType = G.GroupType) then
@@ -2383,27 +2339,6 @@ var Key: Integer; OldSelected: TObject;
 begin
   if gHands[MySpectator.HandIndex].InCinematic then
     Exit;
-  // Here we solve the issue caused by dynamic key-binding
-  if aKey = gResKeys[SC_SELECT_1].Key then
-    Key := 0;
-  if aKey = gResKeys[SC_SELECT_2].Key then
-    Key := 1;
-  if aKey = gResKeys[SC_SELECT_3].Key then
-    Key := 2;
-  if aKey = gResKeys[SC_SELECT_4].Key then
-    Key := 3;
-  if aKey = gResKeys[SC_SELECT_5].Key then
-    Key := 4;
-  if aKey = gResKeys[SC_SELECT_6].Key then
-    Key := 5;
-  if aKey = gResKeys[SC_SELECT_7].Key then
-    Key := 6;
-  if aKey = gResKeys[SC_SELECT_8].Key then
-    Key := 7;
-  if aKey = gResKeys[SC_SELECT_9].Key then
-    Key := 8;
-  if aKey = gResKeys[SC_SELECT_10].Key then
-    Key := 9;
 
   if not InRange(Key, 0, 9) then Exit;
 
@@ -2622,7 +2557,9 @@ end;
 // thats why MyControls.KeyUp is only in gsRunning clause
 // Ignore all keys if game is on 'Pause'
 procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
-var LastAlert: TKMAlert;
+var
+  LastAlert: TKMAlert;
+  FuncKey: Word;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2685,13 +2622,27 @@ begin
              gResKeys[SC_SELECT_5].Key, gResKeys[SC_SELECT_6].Key, gResKeys[SC_SELECT_7].Key, gResKeys[SC_SELECT_8].Key,
              gResKeys[SC_SELECT_9].Key, gResKeys[SC_SELECT_10].Key] then
   begin
+    // Here we solve the issue caused by dynamic key-binding
+    case Key of
+      gResKeys[SC_SELECT_1].Key:  FuncKey := 0;
+      gResKeys[SC_SELECT_2].Key:  FuncKey := 1;
+      gResKeys[SC_SELECT_3].Key:  FuncKey := 2;
+      gResKeys[SC_SELECT_4].Key:  FuncKey := 3;
+      gResKeys[SC_SELECT_5].Key:  FuncKey := 4;
+      gResKeys[SC_SELECT_6].Key:  FuncKey := 5;
+      gResKeys[SC_SELECT_7].Key:  FuncKey := 6;
+      gResKeys[SC_SELECT_8].Key:  FuncKey := 7;
+      gResKeys[SC_SELECT_9].Key:  FuncKey := 8;
+      gResKeys[SC_SELECT_10].Key: FuncKey := 9;
+    end;
+
     if (ssCtrl in Shift) then
-      Selection_Assign(Key, MySpectator.Selected)
+      Selection_Assign(FuncKey, MySpectator.Selected)
     else
     if (ssShift in Shift) and (fUIMode in [umSP, umMP]) then
-      Selection_Link(Key, MySpectator.Selected)
+      Selection_Link(FuncKey, MySpectator.Selected)
     else
-      Selection_Select(Key);
+      Selection_Select(FuncKey);
   end;
 
     // Menu shortcuts
