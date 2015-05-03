@@ -10,7 +10,7 @@ type
 
 const
   // Load key IDs from this include file
-  KEYMAP_COUNT = 45;
+  KEYMAP_COUNT = 57;
   {$I KM_KeyIDs.inc}
 
   DEF_KEYS: array [0..KEYMAP_COUNT-1] of Byte = (
@@ -18,7 +18,8 @@ const
     76,  70,  88, 187, 189, 190, 188, 116, 117, 118,
     119, 66,  80,  84,  34,  33,   8,  49,  50,  51,
     52,  53,  54,  55,  56,  57,  48,  32,  46,  13,
-    27,  77,  86,  68,  67
+    27,  77,  86,  68,  67,  13, 112, 113, 114, 115,
+    116, 49,  50,  51,  52,  53,  54
   );
 
   KEY_FUNC_TX: array [0..KEYMAP_COUNT-1] of Word = (
@@ -30,7 +31,10 @@ const
     TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET, TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3,
     TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5, TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8,
     TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10, TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,
-    TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT
+    TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,
+    TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN, TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT,
+    TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN, TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2,
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_3, TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6
   );
 
   KEY_SEP_TX: array [0..2] of Word = (
@@ -58,7 +62,7 @@ type
     property Count: Integer read fCount;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
-    function GetFunctionNameById(aId: Integer): string;
+    {function GetFunctionNameById(aId: Integer): string;}
     property Funcs[aIndex: Word]: TKMFuncInfo read GetKeys{ write SetKeys}; default;
     {procedure LoadKeymapFile; }
     {procedure ResetKeymap; }
@@ -181,10 +185,10 @@ begin
 
   //KeyStringList.SaveToFile(fKeymapPath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
 {  KeyStringList.Free;
-end;
+end; }
 
 
-procedure TKMKeyLibrary.ResetKeymap;
+{procedure TKMKeyLibrary.ResetKeymap;
 var
   I: Integer;
 begin
@@ -193,7 +197,7 @@ begin
 end; }
 
 
-function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
+{ function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
   case aId of
     0..KEYMAP_COUNT - 1: Result := gResTexts[KEY_FUNC_TX[aId]];
@@ -216,7 +220,7 @@ begin
   else
     Result := gResTexts[TX_KEY_FUNC_UNKNOWN] + ' ' + IntToStr(aId) + '! ~~~';
   end;
-end;
+end;  }
 
 
 function TKMKeyLibrary.GetKeyName(aKey: Word): string;

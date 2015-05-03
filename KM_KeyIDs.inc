@@ -51,3 +51,16 @@ SC_DEBUG_REVEALMAP = 41; //Debug Menu Reveal Map
 SC_DEBUG_VICTORY = 42; //Debug Menu Victory
 SC_DEBUG_DEFEAT = 43; //Debug Menu Defeat
 SC_DEBUG_ADDSCOUT = 44; //Debug Menu Add Scout
+
+SC_MAPEDIT_EXTRA = 45; // MapEdit Extra's menu
+SC_MAPEDIT_TERRAIN = 46; // MapEdit Terrain Editing
+SC_MAPEDIT_VILLAGE = 47; // MapEdit Village Planning
+SC_MAPEDIT_VISUAL = 48; // MapEdit Visual Scripts
+SC_MAPEDIT_GLOBAL = 49; // MapEdit Global Scripting
+SC_MAPEDIT_MAIN_MANU = 50; // MapEdit Main Menu
+SC_MAPEDIT_SUB_MENU_1 = 51; // MapEdit Sub-menu 1
+SC_MAPEDIT_SUB_MENU_2 = 52; // MapEdit Sub-menu 2
+SC_MAPEDIT_SUB_MENU_3 = 53; // MapEdit Sub-menu 3
+SC_MAPEDIT_SUB_MENU_4 = 54; // MapEdit Sub-menu 4
+SC_MAPEDIT_SUB_MENU_5 = 55; // MapEdit Sub-menu 5
+SC_MAPEDIT_SUB_MENU_6 = 56; // MapEdit Sub-menu 6
