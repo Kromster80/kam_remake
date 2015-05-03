@@ -80,7 +80,7 @@ type
     procedure ShowMessage(aText: string);
     procedure ExportPages(aPath: string); override;
     property Minimap: TKMMinimap read fMinimap;
-    property Viewport: TViewport read fViewport;
+    property Viewport: TKMViewport read fViewport;
 
     procedure KeyDown(Key: Word; Shift: TShiftState); override;
     procedure KeyUp(Key: Word; Shift: TShiftState); override;

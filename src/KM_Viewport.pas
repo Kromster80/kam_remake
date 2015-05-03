@@ -2,12 +2,12 @@ unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, classes, Controls, {$IFDEF MSWindows} Windows, {$ENDIF}
+  Math, Classes, Controls, 
+  {$IFDEF MSWINDOWS} Windows, {$ENDIF}
   KromUtils, KM_CommonClasses, KM_Points;
 
 type
-  { Here should be viewport routines }
-  TViewport = class
+  TKMViewport = class
   private
     fMapX, fMapY: Word;
     fTopHill: Single;
@@ -53,9 +53,11 @@ uses
   KM_Defaults, KM_Utils, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
 
 
-constructor TViewport.Create(aWidth, aHeight: Integer);
+{ TKMViewport }
+constructor TKMViewport.Create(aWidth, aHeight: Integer);
 begin
   inherited Create;
+
   fMapX := 1; //Avoid division by 0
   fMapY := 1; //Avoid division by 0
 
@@ -68,7 +70,7 @@ begin
 end;
 
 
-procedure TViewport.SetZoom(aZoom: Single);
+procedure TKMViewport.SetZoom(aZoom: Single);
 begin
   fZoom := EnsureRange(aZoom, 0.01, 8);
   //Limit the zoom to within the map boundaries
@@ -78,13 +80,13 @@ begin
 end;
 
 
-procedure TViewport.ResetZoom;
+procedure TKMViewport.ResetZoom;
 begin
   Zoom := 1;
 end;
 
 
-procedure TViewport.Resize(NewWidth, NewHeight: Integer);
+procedure TKMViewport.Resize(NewWidth, NewHeight: Integer);
 begin
   fViewRect.Left   := TOOLBAR_WIDTH;
   fViewRect.Top    := 0;
@@ -98,7 +100,7 @@ begin
 end;
 
 
-procedure TViewport.ResizeMap(aMapX, aMapY: Word; aTopHill: Single);
+procedure TKMViewport.ResizeMap(aMapX, aMapY: Word; aTopHill: Single);
 begin
   fMapX := aMapX;
   fMapY := aMapY;
@@ -107,14 +109,14 @@ begin
 end;
 
 
-function TViewport.GetPosition: TKMPointF;
+function TKMViewport.GetPosition: TKMPointF;
 begin
   Result.X := EnsureRange(fPosition.X, 1, fMapX);
   Result.Y := EnsureRange(fPosition.Y, 1, fMapY);
 end;
 
 
-procedure TViewport.SetPosition(Value: TKMPointF);
+procedure TKMViewport.SetPosition(Value: TKMPointF);
 var PadTop, TilesX, TilesY: Single;
 begin
   PadTop := fTopHill + 0.75; //Leave place on top for highest hills + 1 unit
@@ -132,7 +134,7 @@ end;
 
 //Acquire boundaries of area visible to user (including mountain tops from the lower tiles)
 //TestViewportClipInset is for debug, allows to see if everything gets clipped correct
-function TViewport.GetClip: TKMRect;
+function TKMViewport.GetClip: TKMRect;
 begin
   Result.Left   := Math.max(Round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom), 1);
   Result.Right  := Math.min(Round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, fMapX-1);
@@ -145,7 +147,7 @@ end;
 
 
 //Same as above function but with some values changed to suit minimap
-function TViewport.GetMinimapClip: TKMRect;
+function TKMViewport.GetMinimapClip: TKMRect;
 begin
   Result.Left   := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, 1);
   Result.Right  := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, fMapX);
@@ -154,7 +156,7 @@ begin
 end;
 
 
-procedure TViewport.ReleaseScrollKeys;
+procedure TKMViewport.ReleaseScrollKeys;
 begin
   ScrollKeyLeft  := false;
   ScrollKeyRight := false;
@@ -165,14 +167,14 @@ begin
 end;
 
 
-function TViewport.MapToScreen(aMapLoc: TKMPointF): TKMPoint;
+function TKMViewport.MapToScreen(aMapLoc: TKMPointF): TKMPoint;
 begin
   Result.X := Round((aMapLoc.X - fPosition.X) * CELL_SIZE_PX * fZoom + fViewRect.Right / 2 + TOOLBAR_WIDTH / 2);
   Result.Y := Round((aMapLoc.Y - fPosition.Y) * CELL_SIZE_PX * fZoom + fViewRect.Bottom / 2);
 end;
 
 
-procedure TViewport.PanTo(aLoc: TKMPointF; aDuration: Cardinal);
+procedure TKMViewport.PanTo(aLoc: TKMPointF; aDuration: Cardinal);
 begin
   fPanTo := aLoc;
   fPanFrom := fPosition;
@@ -186,7 +188,7 @@ end;
 
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
-procedure TViewport.UpdateStateIdle(aFrameTime: Cardinal; aInCinematic: Boolean);
+procedure TKMViewport.UpdateStateIdle(aFrameTime: Cardinal; aInCinematic: Boolean);
 const
   DirectionsBitfield: array [0..15] of TKMCursor = (
     kmc_Default, kmc_Scroll6, kmc_Scroll0, kmc_Scroll7,
@@ -301,7 +303,7 @@ begin
 end;
 
 
-procedure TViewport.Save(SaveStream: TKMemoryStream);
+procedure TKMViewport.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.WriteA('Viewport');
   SaveStream.Write(fMapX);
@@ -311,7 +313,7 @@ begin
 end;
 
 
-procedure TViewport.Load(LoadStream: TKMemoryStream);
+procedure TKMViewport.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.ReadAssert('Viewport');
   //Load map dimensions then Position so it could be fit to map

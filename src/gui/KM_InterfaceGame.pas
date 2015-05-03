@@ -14,13 +14,13 @@ type
   TKMUserInterfaceGame = class(TKMUserInterfaceCommon)
   protected
     fMinimap: TKMMinimap;
-    fViewport: TViewport;
+    fViewport: TKMViewport;
   public
     constructor Create(aRender: TRender); reintroduce;
     destructor Destroy; override;
 
     property Minimap: TKMMinimap read fMinimap;
-    property Viewport: TViewport read fViewport;
+    property Viewport: TKMViewport read fViewport;
 
     function CursorToMapCoord(X, Y: Integer): TKMPointF;
 
@@ -146,7 +146,7 @@ begin
   inherited Create(aRender.ScreenX, aRender.ScreenY);
 
   fMinimap := TKMMinimap.Create(False, False);
-  fViewport := TViewport.Create(aRender.ScreenX, aRender.ScreenY);
+  fViewport := TKMViewport.Create(aRender.ScreenX, aRender.ScreenY);
   fRenderPool := TRenderPool.Create(fViewport, aRender);
 end;
 

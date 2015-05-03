@@ -1110,7 +1110,7 @@ type
   TKMMinimapView = class(TKMControl)
   private
     fMinimap: TKMMinimap;
-    fView: TViewport;
+    fView: TKMViewport;
     fPaintWidth: Integer;
     fPaintHeight: Integer;
     fLeftOffset: Integer;
@@ -1128,7 +1128,7 @@ type
     function LocalToMapCoords(X,Y: Integer; const Inset: ShortInt = 0): TKMPoint;
     function MapCoordsToLocal(X,Y: Single; const Inset: ShortInt = 0): TKMPoint;
     procedure SetMinimap(aMinimap: TKMMinimap);
-    procedure SetViewport(aViewport: TViewport);
+    procedure SetViewport(aViewport: TKMViewport);
     property ShowLocs: Boolean read fShowLocs write fShowLocs;
     property ClickableOnce: Boolean read fClickableOnce write fClickableOnce;
     property OnChange: TPointEvent write fOnChange;
@@ -4948,7 +4948,7 @@ begin
 end;
 
 
-procedure TKMMinimapView.SetViewport(aViewport: TViewport);
+procedure TKMMinimapView.SetViewport(aViewport: TKMViewport);
 begin
   fView := aViewport;
 end;

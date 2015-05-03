@@ -48,12 +48,12 @@ type
   //lived and last only a few seconds
   TKMAlerts = class
   private
-    fViewport: TViewport;
+    fViewport: TKMViewport;
     fList: TList;
     function GetAlert(aIndex: Integer): TKMAlert;
     function GetCount: Integer;
   public
-    constructor Create(aViewport: TViewport);
+    constructor Create(aViewport: TKMViewport);
     destructor Destroy; override;
     procedure AddBeacon(aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aShowUntil: Cardinal);
     procedure AddFight(aLoc: TKMPointF; aPlayer: TKMHandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
@@ -250,7 +250,7 @@ end;
 
 
 { TKMAlerts }
-constructor TKMAlerts.Create(aViewport: TViewport);
+constructor TKMAlerts.Create(aViewport: TKMViewport);
 begin
   inherited Create;
 

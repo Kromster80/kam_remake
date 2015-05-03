@@ -56,7 +56,7 @@ type
   TRenderPool = class
   private
     fRXData: array [TRXType] of TRXData; // Shortcuts
-    fViewport: TViewport;
+    fViewport: TKMViewport;
     fRender: TRender;
     // fSampleHouse: TOBJModel;
     rPitch,rHeading,rBank: Integer;
@@ -87,7 +87,7 @@ type
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
-    constructor Create(aViewport: TViewport; aRender: TRender);
+    constructor Create(aViewport: TKMViewport; aRender: TRender);
     destructor Destroy; override;
 
     procedure AddAlert(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4);
@@ -132,7 +132,7 @@ uses
   KM_FogOfWar, KM_Hand;
 
 
-constructor TRenderPool.Create(aViewport: TViewport; aRender: TRender);
+constructor TRenderPool.Create(aViewport: TKMViewport; aRender: TRender);
 var
   RT: TRXType;
 begin
