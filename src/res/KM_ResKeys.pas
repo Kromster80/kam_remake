@@ -56,17 +56,17 @@ type
     fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
     function GetKeys(aIndex: Word): TKMFuncInfo;
-    {procedure SetKeys(aIndex: Word; aValue: Integer); }
+    {procedure SetKeys(aIndex: Word; aValue: Integer); } // Gives an error that types miss-match
   public
     constructor Create;
     property Count: Integer read fCount;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
-    {function GetFunctionNameById(aId: Integer): string;}
+    function GetFunctionNameById(aId: Integer): string;
     property Funcs[aIndex: Word]: TKMFuncInfo read GetKeys{ write SetKeys}; default;
-    {procedure LoadKeymapFile; }
-    {procedure ResetKeymap; }
-    {procedure SaveKeymap; }
+    procedure LoadKeymapFile;
+    procedure ResetKeymap;
+    procedure SaveKeymap;  // Need to make this work properly still
     destructor Destroy;
   end;
 
@@ -89,6 +89,106 @@ begin
   fCount := KEYMAP_COUNT;
   fKeymapPath := (ExeDir + 'keys.keymap');
 
+  LoadKeymapFile;
+end;
+
+
+destructor TKMKeyLibrary.Destroy;
+begin
+  inherited;
+
+  FreeAndNil(fFuncs);
+end;
+
+
+// Each line in .keymap file has an index and a text. Lines without index are skipped
+procedure TKMKeyLibrary.LoadKeymapFile;
+var
+  I: Integer;
+  SL: TStringList;
+  delim1, delim2: Integer;
+  keyId, keyVal: Integer;
+begin
+  if not FileExists(fKeymapPath) then
+  begin
+    ResetKeymap;
+    Exit;
+  end;
+
+  SL := TStringList.Create;
+  {$IFDEF WDC} SL.LoadFromFile(fKeymapPath); {$ENDIF}
+  // In FPC TStringList can't cope with BOM (or UnicodeStrings at all really)
+  {$IFDEF FPC} SL.Text := ReadTextU(aFile, 1252); {$ENDIF}
+
+  // Parse text
+  for I := 0 to SL.Count - 1 do
+  begin
+    delim1 := Pos(':', SL[I]);
+    delim2 := Pos('//', SL[I]);
+    if (delim1 = 0) or (delim2 = 0) or (delim1 > delim2) then Continue;
+
+    keyId := StrToIntDef(Copy(SL[I], 0, delim1 - 1), -1);
+    keyVal := StrToIntDef(Copy(SL[I], delim1 + 1, delim2 - delim1 - 1), -1);
+
+    if not InRange(keyId, 0, fCount - 1) or (keyVal = -1) then Continue;
+
+    fFuncs[keyId].Key := keyVal;
+    fFuncs[keyId].TextId := KEY_FUNC_TX[keyId];
+
+    if (keyId in [0..3]) or (keyId in [24..26]) or (keyId in [40..44]) then
+      fFuncs[keyId].Area := kaCommon
+    else if (keyId in [4..23]) or (keyId in [27..39]) then
+      fFuncs[keyId].Area := kaGame
+    else
+      fFuncs[keyId].Area := kaMapEdit;
+
+    fFuncs[keyId].Id := keyId;
+
+    if keyId in [41..44] then
+      fFuncs[keyId].IsDebug := True
+    else
+      fFuncs[keyId].IsDebug := False;
+  end;
+  SL.Free;
+end;
+
+
+function TKMKeyLibrary.GetKeys(aIndex: Word): TKMFuncInfo;
+begin
+  Result := fFuncs[aIndex];
+end;
+
+
+{procedure TKMKeyLibrary.SetKeys(aIndex: Word; aValue: Byte);
+begin
+  fFuncs[aIndex].Key := aValue;
+end;  }
+
+
+procedure TKMKeyLibrary.SaveKeymap;
+var
+  Keystring: string;
+  KeyStringList: TStringList;
+  I: Integer;
+begin
+  KeyStringList := TStringList.Create;
+  {$IFDEF WDC}KeyStringList.DefaultEncoding := TEncoding.UTF8;{$ENDIF}
+
+  for I := 0 to fCount - 1 do
+  begin
+    Keystring := IntToStr(I) + ':'+ IntToStr(fFuncs[I].Key) + '// ' + GetFunctionNameById(I);
+    KeyStringList.Add(Keystring);
+  end;
+
+  KeyStringList.SaveToFile(fKeymapPath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
+  KeyStringList.Free;
+end;
+
+
+procedure TKMKeyLibrary.ResetKeymap;
+var
+  I: Integer;
+begin
   for I := 0 to KEYMAP_COUNT - 1 do
   begin
     fFuncs[I].Key := DEF_KEYS[I];
@@ -108,119 +208,17 @@ begin
     else
       fFuncs[I].IsDebug := False;
   end;
-
-  //LoadKeymapFile;
 end;
 
 
-destructor TKMKeyLibrary.Destroy;
-begin
-  inherited;
-  FreeAndNil(fFuncs);
-end;
-
-
-// Each line in .keymap file has an index and a text. Lines without index are skipped
-{procedure TKMKeyLibrary.LoadKeymapFile;
-var
-  I: Integer;
-  SL: TStringList;
-  delim1, delim2: Integer;
-  keyId, keyVal: Integer;
-begin
-  if not FileExists(fKeymapPath) then
-  begin
-    ResetKeymap;
-    Exit;
-  end;
-
-  SL := TStringList.Create; }
-  //{$IFDEF WDC} SL.LoadFromFile(fKeymapPath); {$ENDIF}
-  // In FPC TStringList can't cope with BOM (or UnicodeStrings at all really)
-  //{$IFDEF FPC} SL.Text := ReadTextU(aFile, 1252); {$ENDIF}
-
-  // Parse text
-{  for I := 0 to SL.Count - 1 do
-  begin
-    delim1 := Pos(':', SL[I]);
-    delim2 := Pos('//', SL[I]);
-    if (delim1 = 0) or (delim2 = 0) or (delim1 > delim2) then Continue;
-
-    keyId := StrToIntDef(Copy(SL[I], 0, delim1 - 1), -1);
-    keyVal := StrToIntDef(Copy(SL[I], delim1 + 1, delim2 - delim1 - 1), -1);
-
-    if not InRange(keyId, 0, fCount - 1) or (keyVal = -1) then Continue;
-
-    //fKeys[keyId] := keyVal;
-  end;
-end;  }
-
-
-function TKMKeyLibrary.GetKeys(aIndex: Word): TKMFuncInfo;
-begin
-  Result := fFuncs[aIndex];
-end;
-
-
-{procedure TKMKeyLibrary.SetKeys(aIndex: Word; aValue: Byte);
-begin
-  fKeys[aIndex].fDefKey := aValue;
-end;  }
-
-
-{procedure TKMKeyLibrary.SaveKeymap;
-var
-  Keystring: string;
-  KeyStringList: TStringList;
-  I: Integer;
-begin
-  KeyStringList := TStringList.Create;}
-  //{$IFDEF WDC}KeyStringList.DefaultEncoding := TEncoding.UTF8;{$ENDIF}
-
-{  for I := 0 to fCount - 1 do
-  begin
-    Keystring := IntToStr(I) + ':'+ IntToStr(fKeys[I]) + '// ' + GetFunctionNameById(I);
-    KeyStringList.Add(Keystring);
-  end; }
-
-  //KeyStringList.SaveToFile(fKeymapPath{$IFDEF WDC}, TEncoding.UTF8{$ENDIF});
-{  KeyStringList.Free;
-end; }
-
-
-{procedure TKMKeyLibrary.ResetKeymap;
-var
-  I: Integer;
-begin
-  for I := 0 to fCount - 1 do
-    fKeys[I] := DEF_KEYS[I];
-end; }
-
-
-{ function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
+function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
   case aId of
     0..KEYMAP_COUNT - 1: Result := gResTexts[KEY_FUNC_TX[aId]];
-
-    // Higher value to separate bindable keys from special keys
-    100: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_EXTRA];
-    101: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT];
-    102: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN];
-    103: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT];
-    104: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT];
-    105: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_MENU_MAIN];
-    106: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_1];
-    107: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_2];
-    108: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_3];
-    109: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_4];
-    110: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_5];
-    111: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_6];
-    112: Result := gResTexts[TX_KEY_FUNC_UNASSIGNABLE];
-    113: Result := gResTexts[TX_KEY_FUNC_UNASSIGNABLE];
   else
     Result := gResTexts[TX_KEY_FUNC_UNKNOWN] + ' ' + IntToStr(aId) + '! ~~~';
   end;
-end;  }
+end;
 
 
 function TKMKeyLibrary.GetKeyName(aKey: Word): string;

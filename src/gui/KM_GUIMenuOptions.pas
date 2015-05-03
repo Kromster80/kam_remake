@@ -26,12 +26,11 @@ type
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
     procedure KeybindClick(Sender: TObject);
-    {procedure Keybind_ListKeySave(Key: Word; Shift: TShiftState);  }
+    procedure Keybind_ListKeySave(Key: Word; Shift: TShiftState);
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
     procedure RefreshKeyList;
-    {procedure RefreshKeyList2;  }
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -231,7 +230,7 @@ begin
       ColumnBox_Options_Keys.ShowLines := True;
       ColumnBox_Options_Keys.PassAllKeys := True;
       ColumnBox_Options_Keys.OnChange := KeybindClick;
-      {ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;    }
+      ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;
 
       Label_Options_Keys_Unassignable := TKMLabel.Create(PopUp_Options_Keys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
 
@@ -459,7 +458,7 @@ begin
   if Sender = Button_Options_Keys then
   begin
     // Reload the keymap in case player changed it and checks his changes in game
-    //gResKeys.LoadKeymapFile;
+    gResKeys.LoadKeymapFile;
     RefreshKeyList;
     PopUp_Options_Keys.Show;
   end;
@@ -467,12 +466,12 @@ begin
   if Sender = Button_Options_Keys_OK then
   begin
     PopUp_Options_Keys.Hide;
-    //gResKeys.SaveKeymap;
+    gResKeys.SaveKeymap;
   end;
 
   if Sender = Button_Options_Keys_Reset then
   begin
-    //gResKeys.ResetKeymap;
+    gResKeys.ResetKeymap;
     RefreshKeyList;
   end;
 
@@ -481,26 +480,27 @@ begin
 end;
 
 
-{procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
+procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
   aID, I: Integer;
 begin
   ColumnBox_Options_Keys.HighlightError := False;
   aID := ColumnBox_Options_Keys.ItemIndex;
   // Never allow to change secret debug keys.
-  if (aID >= 0) and (aID <= gResKeys.Count - 5) then
+  if (aID >= 0) and (aID <= gResKeys.Count - 1) then
   begin
     for I := 0 to gResKeys.Count -1 do
-      if (Key = gResKeys.Keys[I].fDefKey) or (Key in [121, 122]) then
+      if (Key = gResKeys[I].Key) or (Key in [121, 122]) then
       begin
         ColumnBox_Options_Keys.HighlightError := True;
         gSoundPlayer.Play(sfxn_Error);
         Exit;
       end;
-    gResKeys[aID] := Key;
+
+    // gResKeys[aID].Key := Key; // Won't work due to SetKey issue
     RefreshKeyList;
   end;
-end; }
+end;
 
 
 procedure TKMMenuOptions.BackClick(Sender: TObject);
