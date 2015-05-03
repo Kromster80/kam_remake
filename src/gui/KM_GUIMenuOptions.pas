@@ -487,7 +487,7 @@ var
 begin
   ColumnBox_Options_Keys.HighlightError := False;
   aID := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
-  // Never allow to change secret debug keys.
+  // Never allow to set F10 or F11 keys.
   if (aID >= 0) and (aID <= gResKeys.Count - 1) then
   begin
     for I := 0 to gResKeys.Count -1 do
