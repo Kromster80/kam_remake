@@ -43,15 +43,15 @@
 42:86// Debug Victory
 43:68// Debug Defeat
 44:67// Debug Add Scout
-45:13// MapEdit Extra's menu
-46:112// MapEdit Terain Editing
-47:113// MapEdit Village Planning
-48:114// MapEdit Visual Scripts
-49:115// MapEdit Global Scripting
-50:116// MapEdit Main Menu
-51:49// MapEdit Sub-menu 1
-52:50// MapEdit Sub-menu 2
-53:51// MapEdit Sub-menu 3
-54:52// MapEdit Sub-menu 4
-55:53// MapEdit Sub-menu 5
-56:54// MapEdit Sub-menu 6
+45:13// Extra's Menu
+46:112// Terrain Editor
+47:113// Village Planning
+48:114// Visual Scripting
+49:115// Global Scripting
+50:116// Main Menu
+51:49// Sub-menu 1
+52:50// Sub-menu 2
+53:51// Sub-menu 3
+54:52// Sub-menu 4
+55:53// Sub-menu 5
+56:54// Sub-menu 6

@@ -600,7 +600,7 @@ begin
   //  Button_Main[Key-48].DoPress;
 
   //For now enter can open up Extra panel
-  if Key = VK_RETURN then
+  if Key = gResKeys[SC_MAPEDIT_EXTRA].Key then
     Message_Click(Image_Extra);
 
   if Key = gResKeys[SC_CLOSE_MENU].Key then
@@ -624,18 +624,43 @@ begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
   //F1-F5 menu shortcuts
-  if Key = VK_F1 then Button_Main[1].Click;
-  if Key = VK_F2 then Button_Main[2].Click;
-  if Key = VK_F3 then Button_Main[3].Click;
-  if Key = VK_F4 then Button_Main[4].Click;
-  if Key = VK_F5 then Button_Main[5].Click;
+  if Key = gResKeys[SC_MAPEDIT_TERRAIN].Key   then Button_Main[1].Click;
+  if Key = gResKeys[SC_MAPEDIT_VILLAGE].Key   then Button_Main[2].Click;
+  if Key = gResKeys[SC_MAPEDIT_VISUAL].Key    then Button_Main[3].Click;
+  if Key = gResKeys[SC_MAPEDIT_GLOBAL].Key    then Button_Main[4].Click;
+  if Key = gResKeys[SC_MAPEDIT_MAIN_MANU].Key then Button_Main[5].Click;
 
   //1-6 submenu shortcuts
-  if Key in [49..54] then
-    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(Key-49) else
-    if fGuiTown.Visible    then fGuiTown.ShowIndex(Key-49) else
-    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(Key-49) else
-    if fGuiMission.Visible then fGuiMission.ShowIndex(Key-49);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_1].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(0) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(0) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(0) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(0);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_2].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(1) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(1) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(1) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(1);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_3].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(2) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(2) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(2) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(2);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_4].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(3) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(3) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(3) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(3);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_5].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(4) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(4) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(4) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(4);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_6].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(5) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(5) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(5) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(5);
 
   //Scrolling
   if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;

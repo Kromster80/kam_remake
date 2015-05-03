@@ -56,17 +56,17 @@ type
     fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
     function GetKeys(aIndex: Word): TKMFuncInfo;
-    {procedure SetKeys(aIndex: Word; aValue: Integer); } // Gives an error that types miss-match
+    procedure SetKeys(aIndex: Word; aValue: TKMFuncInfo); // Gives an error that types miss-match
   public
     constructor Create;
     property Count: Integer read fCount;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    property Funcs[aIndex: Word]: TKMFuncInfo read GetKeys{ write SetKeys}; default;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetKeys write SetKeys; default; // Need to make this work properly still
     procedure LoadKeymapFile;
     procedure ResetKeymap;
-    procedure SaveKeymap;  // Need to make this work properly still
+    procedure SaveKeymap;
     destructor Destroy;
   end;
 
@@ -159,10 +159,10 @@ begin
 end;
 
 
-{procedure TKMKeyLibrary.SetKeys(aIndex: Word; aValue: Byte);
+procedure TKMKeyLibrary.SetKeys(aIndex: Word; aValue: TKMFuncInfo);
 begin
-  fFuncs[aIndex].Key := aValue;
-end;  }
+  fFuncs[aIndex] := aValue;
+end;
 
 
 procedure TKMKeyLibrary.SaveKeymap;

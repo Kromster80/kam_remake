@@ -483,21 +483,27 @@ end;
 procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
   aID, I: Integer;
+  TempFuncInfo: TKMFuncInfo;
 begin
   ColumnBox_Options_Keys.HighlightError := False;
-  aID := ColumnBox_Options_Keys.ItemIndex;
+  aID := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
   // Never allow to change secret debug keys.
   if (aID >= 0) and (aID <= gResKeys.Count - 1) then
   begin
     for I := 0 to gResKeys.Count -1 do
-      if (Key = gResKeys[I].Key) or (Key in [121, 122]) then
+    begin
+      if Key in [121, 122] then
       begin
         ColumnBox_Options_Keys.HighlightError := True;
         gSoundPlayer.Play(sfxn_Error);
         Exit;
       end;
+    end;
 
-    // gResKeys[aID].Key := Key; // Won't work due to SetKey issue
+    TempFuncInfo := gResKeys[aID];
+    TempFuncInfo.Key := Key;
+    gResKeys[aID] := TempFuncInfo;
+
     RefreshKeyList;
   end;
 end;
