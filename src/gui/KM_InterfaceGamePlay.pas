@@ -111,9 +111,9 @@ type
     procedure Menu_Load_RefreshList(Sender: TObject);
     procedure Menu_Load_ListClick(Sender: TObject);
     procedure Menu_Load_Click(Sender: TObject);
-    procedure Selection_Assign(aKey: Word; aObject: TObject);
-    procedure Selection_Link(aKey: Word; aObject: TObject);
-    procedure Selection_Select(aKey: Word);
+    procedure Selection_Assign(aId: Word; aObject: TObject);
+    procedure Selection_Link(aId: Word; aObject: TObject);
+    procedure Selection_Select(aId: Word);
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender: TObject);
@@ -2301,30 +2301,30 @@ end;
 
 // Assign Object to a Key
 // we use ID to avoid use of pointer counter
-procedure TKMGamePlayInterface.Selection_Assign(aKey: Word; aObject: TObject);
-var Key: Integer;
+procedure TKMGamePlayInterface.Selection_Assign(aId: Word; aObject: TObject);
 begin
-  if not InRange(Key, 0, 9) then Exit;
+  if not InRange(aId, 0, 9) then Exit;
 
   if aObject is TKMUnit then
-    fSelection[Key] := TKMUnit(aObject).UID
+    fSelection[aId] := TKMUnit(aObject).UID
   else
   if aObject is TKMHouse then
-    fSelection[Key] := TKMHouse(aObject).UID
+    fSelection[aId] := TKMHouse(aObject).UID
   else
   if aObject is TKMUnitGroup then
-    fSelection[Key] := TKMUnitGroup(aObject).UID
+    fSelection[aId] := TKMUnitGroup(aObject).UID
   else
-    fSelection[Key] := -1;
+    fSelection[aId] := -1;
 
-  gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, Key, fSelection[Key]);
+  gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, aId, fSelection[aId]);
 end;
 
 
-procedure TKMGamePlayInterface.Selection_Link(aKey: Word; aObject: TObject);
-var Key: Integer; G: TKMUnitGroup;
+procedure TKMGamePlayInterface.Selection_Link(aId: Word; aObject: TObject);
+var
+  G: TKMUnitGroup;
 begin
-  G := gHands.GetGroupByUID(fSelection[Key]);
+  G := gHands.GetGroupByUID(fSelection[aId]);
   if (aObject <> G) and (aObject is TKMUnitGroup) and (G is TKMUnitGroup)
   and (TKMUnitGroup(aObject).GroupType = G.GroupType) then
   begin
@@ -2334,18 +2334,19 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Selection_Select(aKey: Word);
-var Key: Integer; OldSelected: TObject;
+procedure TKMGamePlayInterface.Selection_Select(aId: Word);
+var
+  OldSelected: TObject;
 begin
   if gHands[MySpectator.HandIndex].InCinematic then
     Exit;
 
-  if not InRange(Key, 0, 9) then Exit;
+  if not InRange(aId, 0, 9) then Exit;
 
-  if fSelection[Key] <> -1 then
+  if fSelection[aId] <> -1 then
   begin
     OldSelected := MySpectator.Selected;
-    MySpectator.Selected := gHands.GetUnitByUID(fSelection[Key]);
+    MySpectator.Selected := gHands.GetUnitByUID(fSelection[aId]);
     if MySpectator.Selected <> nil then
     begin
       if TKMUnit(MySpectator.Selected).IsDeadOrDying then
@@ -2361,7 +2362,7 @@ begin
     end
     else
     begin
-      MySpectator.Selected := gHands.GetHouseByUID(fSelection[Key]);
+      MySpectator.Selected := gHands.GetHouseByUID(fSelection[aId]);
       if MySpectator.Selected <> nil then
       begin
         if TKMHouse(MySpectator.Selected).IsDestroyed then
@@ -2375,7 +2376,7 @@ begin
       end
       else
       begin
-        MySpectator.Selected := gHands.GetGroupByUID(fSelection[Key]);
+        MySpectator.Selected := gHands.GetGroupByUID(fSelection[aId]);
         if (MySpectator.Selected = nil) or TKMUnitGroup(MySpectator.Selected).IsDead then
         begin
           MySpectator.Selected := nil; // Don't select dead groups
@@ -2559,7 +2560,7 @@ end;
 procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 var
   LastAlert: TKMAlert;
-  FuncKey: Word;
+  SelectId: Word;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2623,26 +2624,24 @@ begin
              gResKeys[SC_SELECT_9].Key, gResKeys[SC_SELECT_10].Key] then
   begin
     // Here we solve the issue caused by dynamic key-binding
-    case Key of
-      gResKeys[SC_SELECT_1].Key:  FuncKey := 0;
-      gResKeys[SC_SELECT_2].Key:  FuncKey := 1;
-      gResKeys[SC_SELECT_3].Key:  FuncKey := 2;
-      gResKeys[SC_SELECT_4].Key:  FuncKey := 3;
-      gResKeys[SC_SELECT_5].Key:  FuncKey := 4;
-      gResKeys[SC_SELECT_6].Key:  FuncKey := 5;
-      gResKeys[SC_SELECT_7].Key:  FuncKey := 6;
-      gResKeys[SC_SELECT_8].Key:  FuncKey := 7;
-      gResKeys[SC_SELECT_9].Key:  FuncKey := 8;
-      gResKeys[SC_SELECT_10].Key: FuncKey := 9;
-    end;
+    if      Key = gResKeys[SC_SELECT_1].Key  then SelectId := 0
+    else if Key = gResKeys[SC_SELECT_2].Key  then SelectId := 1
+    else if Key = gResKeys[SC_SELECT_3].Key  then SelectId := 2
+    else if Key = gResKeys[SC_SELECT_4].Key  then SelectId := 3
+    else if Key = gResKeys[SC_SELECT_5].Key  then SelectId := 4
+    else if Key = gResKeys[SC_SELECT_6].Key  then SelectId := 5
+    else if Key = gResKeys[SC_SELECT_7].Key  then SelectId := 6
+    else if Key = gResKeys[SC_SELECT_8].Key  then SelectId := 7
+    else if Key = gResKeys[SC_SELECT_9].Key  then SelectId := 8
+    else if Key = gResKeys[SC_SELECT_10].Key then SelectId := 9;
 
     if (ssCtrl in Shift) then
-      Selection_Assign(FuncKey, MySpectator.Selected)
+      Selection_Assign(SelectId, MySpectator.Selected)
     else
     if (ssShift in Shift) and (fUIMode in [umSP, umMP]) then
-      Selection_Link(FuncKey, MySpectator.Selected)
+      Selection_Link(SelectId, MySpectator.Selected)
     else
-      Selection_Select(FuncKey);
+      Selection_Select(SelectId);
   end;
 
     // Menu shortcuts

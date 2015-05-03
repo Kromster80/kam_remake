@@ -487,7 +487,6 @@ var
 begin
   ColumnBox_Options_Keys.HighlightError := False;
   ID := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
-  // Never allow to set F10 or F11 keys.
   if (ID >= 0) and (ID <= gResKeys.Count - 1) then
   begin
     if not gResKeys.AllowKeySet(Key) then
@@ -497,6 +496,10 @@ begin
       Exit;
     end;
 
+    //TODO: finnish this block where it should check to see if the pressed key is already assigned
+    //to another function within the kaCommon area or the function's own area.
+    //If this is the case, set the key value 0 to the function that curently has the key value
+    //and set the p-ressed value to the currently selected function.
     for I := 0 to gResKeys.Count - 1 do
     begin
       if gResKeys[ID].Area = kaCommon then
@@ -536,11 +539,11 @@ begin
   for K := Low(TKMKeyArea) to High(TKMKeyArea) do
   begin
     ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
-    // Hide the debug keys
+    // Do not show the debug keys
     for I := 0 to gResKeys.Count - 1 do
      if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
        ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
-                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], gResKeys[I].Id));
+                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
   end;
 
   ColumnBox_Options_Keys.TopIndex := prevI;

@@ -46,7 +46,6 @@ type
     Key: Byte;
     TextId: Word;
     Area: TKMKeyArea;
-    Id: Integer;
     IsDebug: Boolean; // Hide key and function
   end;
 
@@ -102,8 +101,6 @@ begin
       fFuncs[I].Area := kaGame
     else
       fFuncs[I].Area := kaMapEdit;
-
-    fFuncs[I].Id := I;
 
     if I in [41..44] then
       fFuncs[I].IsDebug := True
@@ -318,6 +315,7 @@ end;
 
 function TKMKeyLibrary.AllowKeySet(Key: Word): Boolean;
 begin
+  // False if Key equals F10 or F11
   if Key in [121, 122] then
     Result := False
   else
