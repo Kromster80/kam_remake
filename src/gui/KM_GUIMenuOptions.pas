@@ -496,19 +496,29 @@ begin
       Exit;
     end;
 
-    //TODO: finnish this block where it should check to see if the pressed key is already assigned
-    //to another function within the kaCommon area or the function's own area.
-    //If this is the case, set the key value 0 to the function that curently has the key value
-    //and set the p-ressed value to the currently selected function.
+    // Check if the key already exists in the function's own area (Or kaCommon) if so, set current owner to 0
     for I := 0 to gResKeys.Count - 1 do
     begin
-      if gResKeys[ID].Area = kaCommon then
-        if Key = gResKeys[I].Key then
-        begin
-          fi := gResKeys[I];
-          fi.Key := 0;
-          gResKeys[I] := fi;
-        end;
+      case gResKeys[ID].Area of
+        kaCommon: if Key = gResKeys[I].Key then
+          begin
+            fi := gResKeys[I];
+            fi.Key := 0;
+            gResKeys[I] := fi;
+          end;
+        kaGame: if (gResKeys[I].Area in [kaGame, kaCommon]) and (Key = gResKeys[I].Key) then
+          begin
+            fi := gResKeys[I];
+            fi.Key := 0;
+            gResKeys[I] := fi;
+          end;
+        kaMapEdit: if (gResKeys[I].Area in [kaMapEdit, kaCommon]) and (Key = gResKeys[I].Key) then
+          begin
+            fi := gResKeys[I];
+            fi.Key := 0;
+            gResKeys[I] := fi;
+          end;
+      end;
     end;
 
     fi := gResKeys[ID];
