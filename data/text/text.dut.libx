@@ -840,19 +840,19 @@
 887:Debug Overwinning
 888:Debug Verlies
 889:Debug Scout Toevoegen
-890:MapEdit Extra's Menu
-891:MapEdit Terein bewerker
-892:MapEdit Dorps Planning
-893:MapEdit Visuele Scripting
-894:MapEdit Globale Scripting
-895:MapEdit Hoofd Menu
-896:MapEdit Sub-menu 1
-897:MapEdit Sub-menu 2
-898:MapEdit Sub-menu 3
-899:MapEdit Sub-menu 4
-900:MapEdit Sub-menu 5
-901:MapEdit Sub-menu 6
-902:Onbindbare Delphi Toets
+890:Extra's Menu
+891:Terein bewerker
+892:Dorps Planning
+893:Visuele Scripting
+894:Globale Scripting
+895:Hoofd Menu
+896:Sub-menu 1
+897:Sub-menu 2
+898:Sub-menu 3
+899:Sub-menu 4
+900:Sub-menu 5
+901:Sub-menu 6
+902:F10 en F11 zijn onbindbaar
 903:~~~ Onbekende waarde
 904:Linken Muisknop
 905:Middelste Muisknop
@@ -910,3 +910,6 @@
 957:Play
 958:Zoom
 960:Numeriek Blok +
+961:Generieke Toetsen
+962:Spel Toetsen
+963:Map Editor Toetsen

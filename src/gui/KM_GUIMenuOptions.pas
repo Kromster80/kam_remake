@@ -31,7 +31,6 @@ type
     procedure Refresh;
     procedure RefreshResolutions;
     procedure RefreshKeyList;
-    procedure RefreshKeyList2;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -58,19 +57,12 @@ type
         DropBox_Options_RefreshRate: TKMDropList;
         Button_Options_ResApply: TKMButton;
       Button_Options_Keys: TKMButton;
-      Button_Options_Special_Keys: TKMButton;
       Button_Options_Back: TKMButton;
       PopUp_Options_Keys: TKMPopUpMenu;
         Image_Options_Keys: TKMImage;
-        Label_Options_Keys_Title: TKMLabel;
-        Button_Options_Keys_OK: TKMButton;
-        Button_Options_Keys_Reset: TKMButton;
+        Label_Options_Keys_Title, Label_Options_Keys_Unassignable: TKMLabel;
+        Button_Options_Keys_Reset, Button_Options_Keys_OK: TKMButton;
         ColumnBox_Options_Keys: TKMColumnBox;
-      PopUp_Options_Special_Keys: TKMPopUpMenu;
-        Image_Options_Special_Keys: TKMImage;
-        Label_Options_Special_Keys_Title: TKMLabel;
-        Button_Options_Special_Keys_OK: TKMButton;
-        ColumnBox_Options_Special_Keys: TKMColumnBox;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -203,11 +195,6 @@ begin
     Button_Options_Keys.Anchors := [anLeft];
     Button_Options_Keys.OnClick := KeybindClick;
 
-    // Special Keybindings button
-    Button_Options_Special_Keys := TKMButton.Create(Panel_Options, 60, 560, 280, 30, gResTexts[TX_MENU_OPTIONS_SPECIAL_KEYS], bsMenu);
-    Button_Options_Special_Keys.Anchors := [anLeft];
-    Button_Options_Special_Keys.OnClick := KeybindClick;
-
     // Back button
     Button_Options_Back:=TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
     Button_Options_Back.Anchors := [anLeft];
@@ -229,15 +216,15 @@ begin
       Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter);
       Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
 
-      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 20, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
-      Button_Options_Keys_OK.Anchors := [anLeft,anBottom];
-      Button_Options_Keys_OK.OnClick := KeybindClick;
-
-      Button_Options_Keys_Reset := TKMButton.Create(PopUp_Options_Keys, 230, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+      Button_Options_Keys_Reset := TKMButton.Create(PopUp_Options_Keys, 20, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
       Button_Options_Keys_Reset.Anchors := [anLeft,anBottom];
       Button_Options_Keys_Reset.OnClick := KeybindClick;
 
-      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 100, 660, 440, fnt_Metal, bsMenu);
+      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 230, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+      Button_Options_Keys_OK.Anchors := [anLeft,anBottom];
+      Button_Options_Keys_OK.OnClick := KeybindClick;
+
+      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 110, 660, 400, fnt_Metal, bsMenu);
       ColumnBox_Options_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
       ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_Options_Keys.ShowLines := True;
@@ -245,32 +232,8 @@ begin
       ColumnBox_Options_Keys.OnChange := KeybindClick;
       ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;
 
-    // Panel_Options_Special_Keys
-    PopUp_Options_Special_Keys := TKMPopUpMenu.Create(Panel_Options, 700);
-    PopUp_Options_Special_Keys.Height := 600;
-    // Keep the pop-up centered
-    PopUp_Options_Special_Keys.Anchors := [];
-    PopUp_Options_Special_Keys.Left := (Panel_Options.Width Div 2) - 350;
-    PopUp_Options_Special_Keys.Top := (Panel_Options.Height Div 2) - 300;
+      Label_Options_Keys_Unassignable := TKMLabel.Create(PopUp_Options_Keys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
 
-      TKMBevel.Create(PopUp_Options_Special_Keys, -1000,  -1000, 4000, 4000);
-
-      Image_Options_Special_Keys := TKMImage.Create(PopUp_Options_Special_Keys,0,0, 700, 600, 15, rxGuiMain);
-      Image_Options_Special_Keys.ImageStretch;
-
-      Label_Options_Special_Keys_Title := TKMLabel.Create(PopUp_Options_Special_Keys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_SPECIAL_KEYBIND], fnt_Outline, taCenter);
-      Label_Options_Special_Keys_Title.Anchors := [anLeft,anBottom];
-
-      Button_Options_Special_Keys_OK := TKMButton.Create(PopUp_Options_Special_Keys, 20, 550, 170, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
-      Button_Options_Special_Keys_OK.Anchors := [anLeft,anBottom];
-      Button_Options_Special_Keys_OK.OnClick := KeybindClick;
-
-      ColumnBox_Options_Special_Keys := TKMColumnBox.Create(PopUp_Options_Special_Keys, 20, 100, 660, 440, fnt_Metal, bsMenu);
-      ColumnBox_Options_Special_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
-      ColumnBox_Options_Special_Keys.Anchors := [anLeft,anTop,anBottom];
-      ColumnBox_Options_Special_Keys.ShowLines := True;
-
-  RefreshKeyList2;
 end;
 
 
@@ -506,12 +469,6 @@ begin
     gResKeys.SaveKeymap;
   end;
 
-  if Sender = Button_Options_Special_Keys then
-    PopUp_Options_Special_Keys.Show;
-
-  if Sender = Button_Options_Special_Keys_OK then
-    PopUp_Options_Special_Keys.Hide;
-
   if Sender = Button_Options_Keys_Reset then
   begin
     gResKeys.ResetKeymap;
@@ -525,21 +482,33 @@ end;
 
 procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
-  aID, I: Integer;
+  ID, I: Integer;
+  fi: TKMFuncInfo;
 begin
   ColumnBox_Options_Keys.HighlightError := False;
-  aID := ColumnBox_Options_Keys.ItemIndex;
-  // Never allow to change secret debug keys.
-  if (aID >= 0) and (aID <= gResKeys.Count - 5) then
+  ID := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
+
+  if (ID >= 0) and (ID <= gResKeys.Count - 1) then
   begin
+    if not gResKeys.AllowKeySet(Key) then
+    begin
+      ColumnBox_Options_Keys.HighlightError := True;
+      gSoundPlayer.Play(sfxn_Error);
+      Exit;
+    end;
+
     for I := 0 to gResKeys.Count -1 do
-      if (Key = gResKeys.Keys[I]) or (Key in [121, 122]) then
+      if not gResKeys.AllowSet(Area, Key) then
       begin
-        ColumnBox_Options_Keys.HighlightError := True;
-        gSoundPlayer.Play(sfxn_Error);
-        Exit;
+        fi := gResKeys[I];
+        fi.Key := 0;
+        gResKeys[I] := fi;
       end;
-    gResKeys.Keys[aID] := Key;
+
+    fi := gResKeys[ID];
+    fi.Key := Key;
+    gResKeys[ID] := fi;
+
     RefreshKeyList;
   end;
 end;
@@ -556,45 +525,24 @@ end;
 procedure TKMMenuOptions.RefreshKeyList;
 var
   I, prevI: Integer;
+  K: TKMKeyArea;
 begin
   prevI := ColumnBox_Options_Keys.TopIndex;
 
   ColumnBox_Options_Keys.Clear;
 
-  // Hide the debug keys
-  for I := 0 to gResKeys.Count - 5 do
-    ColumnBox_Options_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyNameById(I)],
-                                               [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF]));
+  for K := Low(TKMKeyArea) to High(TKMKeyArea) do
+  begin
+    ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
+
+    // Do not show the debug keys
+    for I := 0 to gResKeys.Count - 1 do
+     if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
+       ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
+                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
+   end;
 
   ColumnBox_Options_Keys.TopIndex := prevI;
-end;
-
-
-procedure TKMMenuOptions.RefreshKeyList2;
-var
-  I, D: Integer;
-begin
-  for I := 100 to 113 do
-  begin
-    case I of
-      100: D := 13;   // MapEdit Extra's menu
-      101: D := 112;  // MapEdit Terain Editing
-      102: D := 113;  // MapEdit Village Planning
-      103: D := 114;  // MapEdit Visual Scripts
-      104: D := 115;  // MapEdit Global Scripting
-      105: D := 116;  // MapEdit Main Menu
-      106: D := 49;   // MapEdit Sub-menu 1
-      107: D := 50;   // MapEdit Sub-menu 2
-      108: D := 51;   // MapEdit Sub-menu 3
-      109: D := 52;   // MapEdit Sub-menu 4
-      110: D := 53;   // MapEdit Sub-menu 5
-      111: D := 54;   // MapEdit Sub-menu 6
-      112: D := 121;  // Unassignable F10 key, Delphi special key
-      113: D := 122;  // Unassignable F11 key, debug menu
-    end;
-
-    ColumnBox_Options_Special_Keys.AddItem(MakeListRow([gResKeys.GetFunctionNameById(I), gResKeys.GetKeyName(D)], [$FFFFFFFF, $FFFFFFFF]));
-  end;
 end;
 
 

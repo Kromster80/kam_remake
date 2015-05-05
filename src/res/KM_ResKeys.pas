@@ -5,9 +5,12 @@ uses
   Classes, SysUtils, StrUtils, KromUtils, Math,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResTexts;
 
+type
+  TKMKeyArea = (kaCommon, kaGame, kaMapEdit);
+
 const
   // Load key IDs from this include file
-  KEYMAP_COUNT = 45;
+  KEYMAP_COUNT = 57;
   {$I KM_KeyIDs.inc}
 
   DEF_KEYS: array [0..KEYMAP_COUNT-1] of Byte = (
@@ -15,7 +18,8 @@ const
     76,  70,  88, 187, 189, 190, 188, 116, 117, 118,
     119, 66,  80,  84,  34,  33,   8,  49,  50,  51,
     52,  53,  54,  55,  56,  57,  48,  32,  46,  13,
-    27,  77,  86,  68,  67
+    27,  77,  86,  68,  67,  13, 112, 113, 114, 115,
+    116, 49,  50,  51,  52,  53,  54
   );
 
   KEY_FUNC_TX: array [0..KEYMAP_COUNT-1] of Word = (
@@ -27,37 +31,44 @@ const
     TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET, TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3,
     TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5, TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8,
     TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10, TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,
-    TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT
+    TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,
+    TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN, TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT,
+    TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN, TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2,
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_3, TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6
+  );
+
+  KEY_SEP_TX: array [TKMKeyArea] of Word = (
+    TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_MAPEDIT
   );
 
 type
-  {todo:
-  TKMKeyArea = (kaCommon, kaGame, kaMapEd);
-
-  TKMKeyInfo = record
-    DefKey: Byte;
-    FuncTextId: Word;
+  TKMFuncInfo = record
+    Key: Byte;
+    TextId: Word;
     Area: TKMKeyArea;
-    Id: Integer;
-  end;}
+    IsDebug: Boolean; // Hide key and function
+  end;
 
   TKMKeyLibrary = class
   private
     fCount: Integer;
-    fKeys: array [0..KEYMAP_COUNT-1] of Integer;
+    fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
-    function GetKeys(aIndex: Word): Integer;
-    procedure SetKeys(aIndex: Word; aValue: Integer);
+    function GetFuncs(aIndex: Word): TKMFuncInfo;
+    procedure SetFuncs(aIndex: Word; aValue: TKMFuncInfo);
   public
     constructor Create;
     property Count: Integer read fCount;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    property Keys[aIndex: Word]: Integer read GetKeys write SetKeys; default;
+    function AllowKeySet(Key: Word): Boolean; overload;
+    function AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean; overload;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs write SetFuncs; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKeymap;
+    destructor Destroy;
   end;
 
 
@@ -71,6 +82,8 @@ implementation
 
 { TKMKeyLibrary }
 constructor TKMKeyLibrary.Create;
+var
+  I: Integer;
 begin
   inherited;
 
@@ -78,6 +91,29 @@ begin
   fKeymapPath := (ExeDir + 'keys.keymap');
 
   LoadKeymapFile;
+
+  for I := 0 to KEYMAP_COUNT - 1 do
+  begin
+    fFuncs[I].TextId := KEY_FUNC_TX[I];
+
+    if (I in [0..3, 24..26, 40..44]) then
+      fFuncs[I].Area := kaCommon
+    else if (I in [4..23, 27..39]) then
+      fFuncs[I].Area := kaGame
+    else
+      fFuncs[I].Area := kaMapEdit;
+
+    if I in [41..44] then
+      fFuncs[I].IsDebug := True
+    else
+      fFuncs[I].IsDebug := False;
+  end;
+end;
+
+
+destructor TKMKeyLibrary.Destroy;
+begin
+  inherited;
 end;
 
 
@@ -97,7 +133,7 @@ begin
 
   SL := TStringList.Create;
   {$IFDEF WDC} SL.LoadFromFile(fKeymapPath); {$ENDIF}
-  //In FPC TStringList can't cope with BOM (or UnicodeStrings at all really)
+  // In FPC TStringList can't cope with BOM (or UnicodeStrings at all really)
   {$IFDEF FPC} SL.Text := ReadTextU(aFile, 1252); {$ENDIF}
 
   // Parse text
@@ -112,20 +148,20 @@ begin
 
     if not InRange(keyId, 0, fCount - 1) or (keyVal = -1) then Continue;
 
-    fKeys[keyId] := keyVal;
+    fFuncs[keyId].Key := keyVal;
   end;
 end;
 
 
-function TKMKeyLibrary.GetKeys(aIndex: Word): Integer;
+function TKMKeyLibrary.GetFuncs(aIndex: Word): TKMFuncInfo;
 begin
-  Result := fKeys[aIndex];
+  Result := fFuncs[aIndex];
 end;
 
 
-procedure TKMKeyLibrary.SetKeys(aIndex: Word; aValue: Integer);
+procedure TKMKeyLibrary.SetFuncs(aIndex: Word; aValue: TKMFuncInfo);
 begin
-  fKeys[aIndex] := aValue;
+  fFuncs[aIndex] := aValue;
 end;
 
 
@@ -140,7 +176,7 @@ begin
 
   for I := 0 to fCount - 1 do
   begin
-    Keystring := IntToStr(I) + ':'+ IntToStr(fKeys[I]) + '// ' + GetFunctionNameById(I);
+    Keystring := IntToStr(I) + ':'+ IntToStr(fFuncs[I].Key) + '// ' + GetFunctionNameById(I);
     KeyStringList.Add(Keystring);
   end;
 
@@ -153,8 +189,8 @@ procedure TKMKeyLibrary.ResetKeymap;
 var
   I: Integer;
 begin
-  for I := 0 to fCount - 1 do
-    fKeys[I] := DEF_KEYS[I];
+  for I := 0 to KEYMAP_COUNT - 1 do
+    fFuncs[I].Key := DEF_KEYS[I];
 end;
 
 
@@ -162,22 +198,6 @@ function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
   case aId of
     0..KEYMAP_COUNT - 1: Result := gResTexts[KEY_FUNC_TX[aId]];
-
-    // Higher value to separate bindable keys from special keys
-    100: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_EXTRA];
-    101: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT];
-    102: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN];
-    103: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT];
-    104: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT];
-    105: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_MENU_MAIN];
-    106: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_1];
-    107: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_2];
-    108: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_3];
-    109: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_4];
-    110: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_5];
-    111: Result := gResTexts[TX_KEY_FUNC_MAPEDIT_SUBMENU_6];
-    112: Result := gResTexts[TX_KEY_FUNC_UNASSIGNABLE];
-    113: Result := gResTexts[TX_KEY_FUNC_UNASSIGNABLE];
   else
     Result := gResTexts[TX_KEY_FUNC_UNKNOWN] + ' ' + IntToStr(aId) + '! ~~~';
   end;
@@ -289,7 +309,27 @@ end;
 
 function TKMKeyLibrary.GetKeyNameById(aId: Word): string;
 begin
-  Result := GetKeyName(fKeys[aId]);
+  Result := GetKeyName(fFuncs[aId].Key);
+end;
+
+
+function TKMKeyLibrary.AllowKeySet(Key: Word): Boolean;
+begin
+  // False if Key equals F10 or F11
+  if Key in [121, 122] then
+    Result := False
+  else
+    Result := True;
+end;
+
+
+function TKMKeyLibrary.AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean;
+begin
+  // False if Key equals F10 or F11
+  if Key in [121, 122] then
+    Result := False
+  else
+    Result := True;
 end;
 
 
