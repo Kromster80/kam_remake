@@ -600,22 +600,22 @@ begin
   //  Button_Main[Key-48].DoPress;
 
   //For now enter can open up Extra panel
-  if Key = VK_RETURN then
+  if Key = gResKeys[SC_MAPEDIT_EXTRA].Key then
     Message_Click(Image_Extra);
 
-  if Key = gResKeys[SC_CLOSE_MENU] then
+  if Key = gResKeys[SC_CLOSE_MENU].Key then
   begin
     if fGuiMessage.Visible then fGuiMessage.Hide;
     if fGuiExtras.Visible then fGuiExtras.Hide;
   end;
 
   //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := True;
-  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := True;
-  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := True;
-  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := True;
-  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := True;
-  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := True;
+  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
+  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
+  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
+  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
+  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
+  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
 end;
 
 
@@ -624,29 +624,54 @@ begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
   //F1-F5 menu shortcuts
-  if Key = VK_F1 then Button_Main[1].Click;
-  if Key = VK_F2 then Button_Main[2].Click;
-  if Key = VK_F3 then Button_Main[3].Click;
-  if Key = VK_F4 then Button_Main[4].Click;
-  if Key = VK_F5 then Button_Main[5].Click;
+  if Key = gResKeys[SC_MAPEDIT_TERRAIN].Key   then Button_Main[1].Click;
+  if Key = gResKeys[SC_MAPEDIT_VILLAGE].Key   then Button_Main[2].Click;
+  if Key = gResKeys[SC_MAPEDIT_VISUAL].Key    then Button_Main[3].Click;
+  if Key = gResKeys[SC_MAPEDIT_GLOBAL].Key    then Button_Main[4].Click;
+  if Key = gResKeys[SC_MAPEDIT_MAIN_MANU].Key then Button_Main[5].Click;
 
   //1-6 submenu shortcuts
-  if Key in [49..54] then
-    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(Key-49) else
-    if fGuiTown.Visible    then fGuiTown.ShowIndex(Key-49) else
-    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(Key-49) else
-    if fGuiMission.Visible then fGuiMission.ShowIndex(Key-49);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_1].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(0) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(0) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(0) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(0);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_2].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(1) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(1) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(1) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(1);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_3].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(2) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(2) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(2) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(2);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_4].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(3) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(3) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(3) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(3);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_5].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(4) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(4) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(4) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(4);
+  if Key = gResKeys[SC_MAPEDIT_SUB_MENU_6].Key then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(5) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(5) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(5) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(5);
 
   //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT]  then fViewport.ScrollKeyLeft  := False;
-  if Key = gResKeys[SC_SCROLL_RIGHT] then fViewport.ScrollKeyRight := False;
-  if Key = gResKeys[SC_SCROLL_UP]    then fViewport.ScrollKeyUp    := False;
-  if Key = gResKeys[SC_SCROLL_DOWN]  then fViewport.ScrollKeyDown  := False;
-  if Key = gResKeys[SC_ZOOM_IN]      then fViewport.ZoomKeyIn      := False;
-  if Key = gResKeys[SC_ZOOM_OUT]     then fViewport.ZoomKeyOut     := False;
-  //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
+  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
+  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
+  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
+  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
+  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
+  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
+  //Resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = gResKeys[SC_ZOOM_RESET]   then fViewport.ResetZoom;
+  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
 
   //For undo/redo shortcuts
   if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);

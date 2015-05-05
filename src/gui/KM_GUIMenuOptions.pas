@@ -490,20 +490,12 @@ begin
 
   if (ID >= 0) and (ID <= gResKeys.Count - 1) then
   begin
-    if not gResKeys.AllowKeySet(Key) then
+    if not gResKeys.AllowKeySet(gResKeys[ID].Area, Key) then
     begin
       ColumnBox_Options_Keys.HighlightError := True;
       gSoundPlayer.Play(sfxn_Error);
       Exit;
     end;
-
-    for I := 0 to gResKeys.Count -1 do
-      if not gResKeys.AllowSet(Area, Key) then
-      begin
-        fi := gResKeys[I];
-        fi.Key := 0;
-        gResKeys[I] := fi;
-      end;
 
     fi := gResKeys[ID];
     fi.Key := Key;
@@ -537,10 +529,10 @@ begin
 
     // Do not show the debug keys
     for I := 0 to gResKeys.Count - 1 do
-     if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
-       ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
+      if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
+        ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
                                                   [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
-   end;
+  end;
 
   ColumnBox_Options_Keys.TopIndex := prevI;
 end;

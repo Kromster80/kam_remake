@@ -62,8 +62,7 @@ type
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    function AllowKeySet(Key: Word): Boolean; overload;
-    function AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean; overload;
+    function AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean;
     property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs write SetFuncs; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
@@ -150,6 +149,8 @@ begin
 
     fFuncs[keyId].Key := keyVal;
   end;
+
+  SL.Free;
 end;
 
 
@@ -207,6 +208,7 @@ end;
 function TKMKeyLibrary.GetKeyName(aKey: Word): string;
 begin
   case aKey of
+    0:  Result := '';
     1:  Result :=  gResTexts[TX_KEY_LMB];
     2:  Result :=  gResTexts[TX_KEY_RMB];
     3:  Result :=  gResTexts[TX_KEY_BREAK];
@@ -313,23 +315,35 @@ begin
 end;
 
 
-function TKMKeyLibrary.AllowKeySet(Key: Word): Boolean;
-begin
-  // False if Key equals F10 or F11
-  if Key in [121, 122] then
-    Result := False
-  else
-    Result := True;
-end;
-
-
 function TKMKeyLibrary.AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean;
+var
+  I: Integer;
+  fi: TKMFuncInfo;
 begin
   // False if Key equals F10 or F11
   if Key in [121, 122] then
     Result := False
   else
+  // Else check it key already has an owner in it's own area (or kaCommon)
+  begin
+    for I := 0 to KEYMAP_COUNT -1 do
+      case Area of
+        kaCommon: if Key = gResKeys[I].Key then
+          begin
+            fFuncs[I].Key := 0;
+          end;
+        kaGame: if (gResKeys[I].Area in [kaGame, kaCommon]) and (Key = gResKeys[I].Key) then
+          begin
+            fFuncs[I].Key := 0;
+          end;
+        kaMapEdit: if (gResKeys[I].Area in [kaMapEdit, kaCommon]) and (Key = gResKeys[I].Key) then
+          begin
+            fFuncs[I].Key := 0;
+          end;
+      end;
+
     Result := True;
+  end;
 end;
 
 
