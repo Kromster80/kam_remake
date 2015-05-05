@@ -9,10 +9,12 @@ type
   TKMKeyArea = (kaCommon, kaGame, kaMapEdit);
 
 const
-  // Load key IDs from this include file
   KEYMAP_COUNT = 57;
+   
+  // Load key IDs from this include file
   {$I KM_KeyIDs.inc}
 
+  // Default keys
   DEF_KEYS: array [0..KEYMAP_COUNT-1] of Byte = (
     37,  39,  38,  40, 112, 113, 114, 115,  72,  83,
     76,  70,  88, 187, 189, 190, 188, 116, 117, 118,
@@ -22,6 +24,7 @@ const
     116, 49,  50,  51,  52,  53,  54
   );
 
+  // Function text values
   KEY_FUNC_TX: array [0..KEYMAP_COUNT-1] of Word = (
     TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN, TX_KEY_FUNC_MENU_BUILD,
     TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN, TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT,
@@ -58,21 +61,20 @@ type
     procedure SetFuncs(aIndex: Word; aValue: TKMFuncInfo);
   public
     constructor Create;
-    property Count: Integer read fCount;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    function AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean;
+    function AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean; 
+    property Count: Integer read fCount;
     property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs write SetFuncs; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKeymap;
-    destructor Destroy;
   end;
 
 
 var
-  // All games Keys accessible from everywhere
+  // All Keys accessible from everywhere
   gResKeys: TKMKeyLibrary;
 
 
@@ -110,13 +112,7 @@ begin
 end;
 
 
-destructor TKMKeyLibrary.Destroy;
-begin
-  inherited;
-end;
-
-
-// Each line in .keymap file has an index and a text. Lines without index are skipped
+// Each line in .keymap file has an index and a key value. Lines without index are skipped
 procedure TKMKeyLibrary.LoadKeymapFile;
 var
   I: Integer;
@@ -324,7 +320,7 @@ begin
   if Key in [121, 122] then
     Result := False
   else
-  // Else check it key already has an owner in it's own area (or kaCommon)
+  // Check if the key already has an owner in it's own area (or kaCommon)
   begin
     for I := 0 to KEYMAP_COUNT -1 do
       case Area of
