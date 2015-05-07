@@ -54,10 +54,9 @@ type
 
   TKMKeyLibrary = class
   private
-    fCount: Integer;
     fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
-    function GetFuncs(aIndex: Word): TKMFuncInfo;
+    function GetFunc(aIndex: Word): TKMFuncInfo;
   public
     constructor Create;
     function GetKeyName(aKey: Word): string;
@@ -65,8 +64,8 @@ type
     function GetFunctionNameById(aId: Integer): string;
     function AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
     function SetKey(aId: Integer; aKey: Word): Boolean;
-    property Count: Integer read fCount;
-    property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs; default;
+    function Count: Integer;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKeymap;
@@ -88,7 +87,6 @@ var
 begin
   inherited;
 
-  fCount := KEYMAP_COUNT;
   fKeymapPath := (ExeDir + 'keys.keymap');
 
   LoadKeymapFile;
@@ -109,6 +107,12 @@ begin
     else
       fFuncs[I].IsDebug := False;
   end;
+end;
+
+
+function TKMKeyLibrary.Count: Integer;
+begin
+  Result := KEYMAP_COUNT;
 end;
 
 
@@ -141,7 +145,7 @@ begin
     keyId := StrToIntDef(Copy(SL[I], 0, delim1 - 1), -1);
     keyVal := StrToIntDef(Copy(SL[I], delim1 + 1, delim2 - delim1 - 1), -1);
 
-    if not InRange(keyId, 0, fCount - 1) or (keyVal = -1) then Continue;
+    if not InRange(keyId, 0, KEYMAP_COUNT - 1) or (keyVal = -1) then Continue;
 
     fFuncs[keyId].Key := keyVal;
   end;
@@ -150,7 +154,7 @@ begin
 end;
 
 
-function TKMKeyLibrary.GetFuncs(aIndex: Word): TKMFuncInfo;
+function TKMKeyLibrary.GetFunc(aIndex: Word): TKMFuncInfo;
 begin
   Result := fFuncs[aIndex];
 end;
@@ -165,9 +169,9 @@ begin
   KeyStringList := TStringList.Create;
   {$IFDEF WDC}KeyStringList.DefaultEncoding := TEncoding.UTF8;{$ENDIF}
 
-  for I := 0 to fCount - 1 do
+  for I := 0 to KEYMAP_COUNT - 1 do
   begin
-    Keystring := IntToStr(I) + ':'+ IntToStr(fFuncs[I].Key) + '// ' + GetFunctionNameById(I);
+    Keystring := IntToStr(I) + ':' + IntToStr(fFuncs[I].Key) + '// ' + GetFunctionNameById(I);
     KeyStringList.Add(Keystring);
   end;
 
@@ -187,11 +191,10 @@ end;
 
 function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
-  case aId of
-    0..KEYMAP_COUNT - 1: Result := gResTexts[KEY_FUNC_TX[aId]];
+  if InRange(aId, 0, KEYMAP_COUNT - 1) then
+    Result := gResTexts[KEY_FUNC_TX[aId]]
   else
     Result := gResTexts[TX_KEY_FUNC_UNKNOWN] + ' ' + IntToStr(aId) + '! ~~~';
-  end;
 end;
 
 
