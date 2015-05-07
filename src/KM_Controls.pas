@@ -4052,9 +4052,13 @@ var
   NewIndex: Integer;
 begin
   if PassAllKeys then
+  begin
+    // Assume handler always handles the KeyDown
+    Result := Assigned(OnKeyDown);
+
     if Assigned(OnKeyDown) then
-      OnKeyDown(Key, Shift)
-  else
+      OnKeyDown(Key, Shift);
+  end else
   begin
     Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
     if inherited KeyDown(Key, Shift) then Exit;
@@ -4093,7 +4097,7 @@ var
   I: Integer;
 begin
   if PassAllKeys then
-    exit
+    Exit
   else
   begin
     if SearchColumn = -1 then
