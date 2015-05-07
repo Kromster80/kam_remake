@@ -64,7 +64,7 @@ type
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    function AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean; 
+    function AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
     property Count: Integer read fCount;
     property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs write SetFuncs; default;
     procedure LoadKeymapFile;
@@ -311,35 +311,25 @@ begin
 end;
 
 
-function TKMKeyLibrary.AllowKeySet(Area: TKMKeyArea; Key: Word): Boolean;
+function TKMKeyLibrary.AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
 var
   I: Integer;
-  fi: TKMFuncInfo;
 begin
-  // False if Key equals F10 or F11
-  if Key in [121, 122] then
-    Result := False
-  else
-  // Check if the key already has an owner in it's own area (or kaCommon)
-  begin
-    for I := 0 to KEYMAP_COUNT -1 do
-      case Area of
-        kaCommon: if Key = gResKeys[I].Key then
-          begin
-            fFuncs[I].Key := 0;
-          end;
-        kaGame: if (gResKeys[I].Area in [kaGame, kaCommon]) and (Key = gResKeys[I].Key) then
-          begin
-            fFuncs[I].Key := 0;
-          end;
-        kaMapEdit: if (gResKeys[I].Area in [kaMapEdit, kaCommon]) and (Key = gResKeys[I].Key) then
-          begin
-            fFuncs[I].Key := 0;
-          end;
-      end;
+  // False if Key equals F10 or F11 (those are used by Delphi IDE when running an App from debugger)
+  Result := not (aKey in [121, 122]);
 
-    Result := True;
-  end;
+  if not Result then Exit;
+
+  // Reset previous key binding if Key areas overlap
+  for I := 0 to KEYMAP_COUNT -1 do
+  if gResKeys[I].Key = aKey then
+    case aArea of
+      kaCommon:   fFuncs[I].Key := 0;
+      kaGame:     if (gResKeys[I].Area in [kaGame, kaCommon]) then
+                    fFuncs[I].Key := 0;
+      kaMapEdit:  if (gResKeys[I].Area in [kaMapEdit, kaCommon]) then
+                    fFuncs[I].Key := 0;
+    end;
 end;
 
 
