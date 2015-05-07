@@ -2560,7 +2560,7 @@ end;
 procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 var
   LastAlert: TKMAlert;
-  SelectId: Word;
+  SelectId: Integer;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2618,23 +2618,20 @@ begin
       SwitchPage(Button_Back);
   end;
 
-  // More secure then if Key in [gResKeys[SC_SELECT_1]..gResKeys[SC_SELECT_10]] then
-  if Key in [gResKeys[SC_SELECT_1].Key, gResKeys[SC_SELECT_2].Key, gResKeys[SC_SELECT_3].Key, gResKeys[SC_SELECT_4].Key,
-             gResKeys[SC_SELECT_5].Key, gResKeys[SC_SELECT_6].Key, gResKeys[SC_SELECT_7].Key, gResKeys[SC_SELECT_8].Key,
-             gResKeys[SC_SELECT_9].Key, gResKeys[SC_SELECT_10].Key] then
-  begin
-    // Here we solve the issue caused by dynamic key-binding
-    if      Key = gResKeys[SC_SELECT_1].Key  then SelectId := 0
-    else if Key = gResKeys[SC_SELECT_2].Key  then SelectId := 1
-    else if Key = gResKeys[SC_SELECT_3].Key  then SelectId := 2
-    else if Key = gResKeys[SC_SELECT_4].Key  then SelectId := 3
-    else if Key = gResKeys[SC_SELECT_5].Key  then SelectId := 4
-    else if Key = gResKeys[SC_SELECT_6].Key  then SelectId := 5
-    else if Key = gResKeys[SC_SELECT_7].Key  then SelectId := 6
-    else if Key = gResKeys[SC_SELECT_8].Key  then SelectId := 7
-    else if Key = gResKeys[SC_SELECT_9].Key  then SelectId := 8
-    else if Key = gResKeys[SC_SELECT_10].Key then SelectId := 9;
+  // Dynamic key-binding means we cannot use "case of"
+  if Key = gResKeys[SC_SELECT_1].Key  then SelectId := 0 else
+  if Key = gResKeys[SC_SELECT_2].Key  then SelectId := 1 else
+  if Key = gResKeys[SC_SELECT_3].Key  then SelectId := 2 else
+  if Key = gResKeys[SC_SELECT_4].Key  then SelectId := 3 else
+  if Key = gResKeys[SC_SELECT_5].Key  then SelectId := 4 else
+  if Key = gResKeys[SC_SELECT_6].Key  then SelectId := 5 else
+  if Key = gResKeys[SC_SELECT_7].Key  then SelectId := 6 else
+  if Key = gResKeys[SC_SELECT_8].Key  then SelectId := 7 else
+  if Key = gResKeys[SC_SELECT_9].Key  then SelectId := 8 else
+  if Key = gResKeys[SC_SELECT_10].Key then SelectId := 9 else
+    SelectId := -1;
 
+  if SelectId <> -1 then
     if (ssCtrl in Shift) then
       Selection_Assign(SelectId, MySpectator.Selected)
     else
@@ -2642,7 +2639,6 @@ begin
       Selection_Link(SelectId, MySpectator.Selected)
     else
       Selection_Select(SelectId);
-  end;
 
     // Menu shortcuts
   if Key = gResKeys[SC_MENU_BUILD].Key then Button_Main[tbBuild].Click;

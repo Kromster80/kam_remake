@@ -2,7 +2,7 @@ unit KM_GUIMenuOptions;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, SysUtils, KromOGLUtils,
+  Classes, Controls, KromOGLUtils, Math, SysUtils,
   KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions,
   KM_InterfaceDefaults;
 
@@ -482,27 +482,26 @@ end;
 
 procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
-  ID, I: Integer;
+  id: Integer;
   fi: TKMFuncInfo;
 begin
   ColumnBox_Options_Keys.HighlightError := False;
-  ID := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
+  id := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
 
-  if (ID >= 0) and (ID <= gResKeys.Count - 1) then
+  if InRange(id, 0, gResKeys.Count - 1) then Exit;
+
+  if not gResKeys.AllowKeySet(gResKeys[id].Area, Key) then
   begin
-    if not gResKeys.AllowKeySet(gResKeys[ID].Area, Key) then
-    begin
-      ColumnBox_Options_Keys.HighlightError := True;
-      gSoundPlayer.Play(sfxn_Error);
-      Exit;
-    end;
-
-    fi := gResKeys[ID];
-    fi.Key := Key;
-    gResKeys[ID] := fi;
-
-    RefreshKeyList;
+    ColumnBox_Options_Keys.HighlightError := True;
+    gSoundPlayer.Play(sfxn_Error);
+    Exit;
   end;
+
+  fi := gResKeys[id];
+  fi.Key := Key;
+  gResKeys[id] := fi;
+
+  RefreshKeyList;
 end;
 
 
