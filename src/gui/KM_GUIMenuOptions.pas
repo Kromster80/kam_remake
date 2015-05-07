@@ -65,7 +65,6 @@ type
         ColumnBox_Options_Keys: TKMColumnBox;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-    destructor Destroy; override;
 
     procedure Show;
   end;
@@ -233,13 +232,6 @@ begin
       ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;
 
       Label_Options_Keys_Unassignable := TKMLabel.Create(PopUp_Options_Keys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
-
-end;
-
-
-destructor TKMMenuOptions.Destroy;
-begin
-  inherited;
 end;
 
 
@@ -483,12 +475,11 @@ end;
 procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
 var
   id: Integer;
-  fi: TKMFuncInfo;
 begin
   ColumnBox_Options_Keys.HighlightError := False;
   id := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
 
-  if InRange(id, 0, gResKeys.Count - 1) then Exit;
+  if not InRange(id, 0, gResKeys.Count - 1) then Exit;
 
   if not gResKeys.AllowKeySet(gResKeys[id].Area, Key) then
   begin
@@ -497,9 +488,7 @@ begin
     Exit;
   end;
 
-  fi := gResKeys[id];
-  fi.Key := Key;
-  gResKeys[id] := fi;
+  gResKeys.SetKey(id, Key);
 
   RefreshKeyList;
 end;

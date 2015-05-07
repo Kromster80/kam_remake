@@ -58,15 +58,15 @@ type
     fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
     function GetFuncs(aIndex: Word): TKMFuncInfo;
-    procedure SetFuncs(aIndex: Word; aValue: TKMFuncInfo);
   public
     constructor Create;
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
     function AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
+    function SetKey(aId: Integer; aKey: Word): Boolean;
     property Count: Integer read fCount;
-    property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs write SetFuncs; default;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetFuncs; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKeymap;
@@ -153,12 +153,6 @@ end;
 function TKMKeyLibrary.GetFuncs(aIndex: Word): TKMFuncInfo;
 begin
   Result := fFuncs[aIndex];
-end;
-
-
-procedure TKMKeyLibrary.SetFuncs(aIndex: Word; aValue: TKMFuncInfo);
-begin
-  fFuncs[aIndex] := aValue;
 end;
 
 
@@ -312,24 +306,28 @@ end;
 
 
 function TKMKeyLibrary.AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
-var
-  I: Integer;
 begin
   // False if Key equals F10 or F11 (those are used by Delphi IDE when running an App from debugger)
   Result := not (aKey in [121, 122]);
+end;
 
-  if not Result then Exit;
 
+function TKMKeyLibrary.SetKey(aId: Integer; aKey: Word): Boolean;
+var
+  I: Integer;
+begin
   // Reset previous key binding if Key areas overlap
-  for I := 0 to KEYMAP_COUNT -1 do
+  for I := 0 to KEYMAP_COUNT - 1 do
   if gResKeys[I].Key = aKey then
-    case aArea of
+    case gResKeys[I].Area of
       kaCommon:   fFuncs[I].Key := 0;
-      kaGame:     if (gResKeys[I].Area in [kaGame, kaCommon]) then
+      kaGame:     if (gResKeys[aId].Area in [kaGame, kaCommon]) then
                     fFuncs[I].Key := 0;
-      kaMapEdit:  if (gResKeys[I].Area in [kaMapEdit, kaCommon]) then
+      kaMapEdit:  if (gResKeys[aId].Area in [kaMapEdit, kaCommon]) then
                     fFuncs[I].Key := 0;
     end;
+
+  gResKeys.fFuncs[aId].Key := aKey;
 end;
 
 
