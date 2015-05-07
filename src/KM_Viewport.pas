@@ -190,6 +190,8 @@ end;
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
 procedure TKMViewport.UpdateStateIdle(aFrameTime: Cardinal; aInCinematic: Boolean);
 const
+  SCROLL_ACCEL_TIME = 400; // Time in ms that scrolling will be affected by acceleration
+  SCROLL_FLEX = 4;         // Number of pixels either side of the edge of the screen which will count as scrolling
   DirectionsBitfield: array [0..15] of TKMCursor = (
     kmc_Default, kmc_Scroll6, kmc_Scroll0, kmc_Scroll7,
     kmc_Scroll2, kmc_Default, kmc_Scroll1, kmc_Default,
@@ -260,7 +262,8 @@ begin
     Exit;
   end;
 
-  ScrollAdv := (SCROLL_SPEED + fGameApp.GameSettings.ScrollSpeed / 5) * aFrameTime / 100;
+  // Both advancements have minimal value > 0
+  ScrollAdv := (0.5 + fGameApp.GameSettings.ScrollSpeed / 5) * aFrameTime / 100;
   ZoomAdv := (0.2 + fGameApp.GameSettings.ScrollSpeed / 20) * aFrameTime / 1000;
 
   if SCROLL_ACCEL then

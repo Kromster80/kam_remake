@@ -5,7 +5,7 @@ uses
   SysUtils;
 
 
-//Global const
+//Global constants
 const
 //|===================| <- constant name length
   MAX_MAP_SIZE          = 256;
@@ -17,9 +17,6 @@ const
 
   FPS_LAG               = 16;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
-  SCROLL_SPEED          = 0.5;          //This is the number of tiles that the viewport will scroll every second at minimum speed
-  SCROLL_ACCEL_TIME     = 400;          //Time in ms that scrolling will be affected by acceleration
-  SCROLL_FLEX           = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
