@@ -10,10 +10,48 @@ type
 
 const
   KEYMAP_COUNT = 57;
-   
-  // Load key IDs from this include file
+
+  // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
 
+  KEY_SEP_TX: array [TKMKeyArea] of Word = (
+    TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_MAPEDIT
+  );
+
+type
+  TKMFuncInfo = record
+    Key: Byte;
+    TextId: Word;
+    Area: TKMKeyArea;
+    IsDebug: Boolean; // Hide key and function from UI
+  end;
+
+  TKMKeyLibrary = class
+  private
+    fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
+    fKeymapPath: string;
+    function GetFunc(aIndex: Word): TKMFuncInfo;
+  public
+    constructor Create;
+    function GetKeyName(aKey: Word): string;
+    function GetKeyNameById(aId: Word): string;
+    function GetFunctionNameById(aId: Integer): string;
+    function AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
+    procedure SetKey(aId: Integer; aKey: Word);
+    function Count: Integer;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc; default;
+    procedure LoadKeymapFile;
+    procedure ResetKeymap;
+    procedure SaveKeymap;
+  end;
+
+var
+  // All Keys accessible from everywhere
+  gResKeys: TKMKeyLibrary;
+
+implementation
+
+const
   // Default keys
   DEF_KEYS: array [0..KEYMAP_COUNT-1] of Byte = (
     37,  39,  38,  40, 112, 113, 114, 115,  72,  83,
@@ -40,46 +78,6 @@ const
     TX_KEY_FUNC_MAPEDIT_SUBMENU_3, TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6
   );
 
-  KEY_SEP_TX: array [TKMKeyArea] of Word = (
-    TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_MAPEDIT
-  );
-
-type
-  TKMFuncInfo = record
-    Key: Byte;
-    TextId: Word;
-    Area: TKMKeyArea;
-    IsDebug: Boolean; // Hide key and function
-  end;
-
-  TKMKeyLibrary = class
-  private
-    fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
-    fKeymapPath: string;
-    function GetFunc(aIndex: Word): TKMFuncInfo;
-  public
-    constructor Create;
-    function GetKeyName(aKey: Word): string;
-    function GetKeyNameById(aId: Word): string;
-    function GetFunctionNameById(aId: Integer): string;
-    function AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
-    procedure SetKey(aId: Integer; aKey: Word);
-    function Count: Integer;
-    property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc; default;
-    procedure LoadKeymapFile;
-    procedure ResetKeymap;
-    procedure SaveKeymap;
-  end;
-
-
-var
-  // All Keys accessible from everywhere
-  gResKeys: TKMKeyLibrary;
-
-
-implementation
-
-
 { TKMKeyLibrary }
 constructor TKMKeyLibrary.Create;
 var
@@ -95,17 +93,13 @@ begin
   begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
-    if (I in [0..3, 24..26, 40..44]) then
-      fFuncs[I].Area := kaCommon
-    else if (I in [4..23, 27..39]) then
-      fFuncs[I].Area := kaGame
-    else
-      fFuncs[I].Area := kaMapEdit;
+    case I of
+      0..3, 24..26, 40..44: fFuncs[I].Area := kaCommon;
+      4..23, 27..39:        fFuncs[I].Area := kaGame;
+      else                  fFuncs[I].Area := kaMapEdit;
+    end;
 
-    if I in [41..44] then
-      fFuncs[I].IsDebug := True
-    else
-      fFuncs[I].IsDebug := False;
+    fFuncs[I].IsDebug := (I in [41..44]);
   end;
 end;
 
