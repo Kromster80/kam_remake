@@ -63,7 +63,7 @@ type
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
     function AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
-    function SetKey(aId: Integer; aKey: Word): Boolean;
+    procedure SetKey(aId: Integer; aKey: Word);
     function Count: Integer;
     property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc; default;
     procedure LoadKeymapFile;
@@ -315,7 +315,7 @@ begin
 end;
 
 
-function TKMKeyLibrary.SetKey(aId: Integer; aKey: Word): Boolean;
+procedure TKMKeyLibrary.SetKey(aId: Integer; aKey: Word);
 var
   I: Integer;
 begin
