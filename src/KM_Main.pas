@@ -192,17 +192,22 @@ end;
 procedure TKMMain.Stop(Sender: TObject);
 begin
   //Reset the resolution
-  if fResolutions<>nil then FreeThenNil(fResolutions);
-  if fMainSettings<>nil then FreeThenNil(fMainSettings);
+  FreeThenNil(fResolutions);
+  FreeThenNil(fMainSettings);
   FreeThenNil(fGameApp);
-  if gLog<>nil then FreeThenNil(gLog);
+  FreeThenNil(gLog);
+
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
   ClipCursor(nil); //Release the cursor restriction
   {$ENDIF}
 
-  //We could be asked to close from MainForm or from other place
-  //In first case Form will take care about closing itself
+  // We could have been asked to close by MainForm or from other place (e.g. MainMenu Exit button)
+  // In first case Form will take care about closing itself
+
+  // Do not call gMain.Stop from FormClose handler again
+  fFormMain.OnClose := nil;
+
   if Sender <> fFormMain then
     fFormMain.Close;
 end;
