@@ -2,7 +2,8 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, KM_Defaults, INIfiles;
+  Classes, SysUtils, Math, INIfiles,
+  KM_Defaults, KM_Resolutions;
 
 
 type
@@ -13,10 +14,10 @@ type
     fNeedsSave: Boolean;
 
     fFullScreen: Boolean;
-    fResolution: TScreenRes;
+    fResolution: TKMScreenRes;
     fVSync: Boolean;
     procedure SetFullScreen(aValue: Boolean);
-    procedure SetResolution(const Value: TScreenRes);
+    procedure SetResolution(const Value: TKMScreenRes);
     procedure SetVSync(aValue: Boolean);
   protected
     procedure Changed;
@@ -30,7 +31,7 @@ type
     procedure ReloadSettings;
 
     property FullScreen: Boolean read fFullScreen write SetFullScreen;
-    property Resolution: TScreenRes read fResolution write SetResolution;
+    property Resolution: TKMScreenRes read fResolution write SetResolution;
     property VSync: Boolean read fVSync write SetVSync;
   end;
 
@@ -209,7 +210,7 @@ begin
 end;
 
 
-procedure TMainSettings.SetResolution(const Value: TScreenRes);
+procedure TMainSettings.SetResolution(const Value: TKMScreenRes);
 begin
   fResolution := Value;
   Changed;

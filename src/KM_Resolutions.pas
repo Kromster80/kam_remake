@@ -7,20 +7,28 @@ uses
   KM_Defaults;
 
 type
+  TKMScreenRes = record
+    Width, Height, RefRate: SmallInt;
+  end;
+
+  TKMScreenResIndex = record
+    ResId, RefId: Integer;
+  end;
+
   //Record storing resolution and list of its allowed refresh rates
-  TScreenResData = record
-                 Width, Height: Word;
-                 RefRateCount: Integer;
-                 RefRate: array of Word;
-               end;
+  TKMScreenResData = record
+    Width, Height: Word;
+    RefRateCount: Integer;
+    RefRate: array of Word;
+  end;
 
   TKMResolutions = class
   private
     fCount: Integer;
-    fItems: array of TScreenResData;
+    fItems: array of TKMScreenResData;
     fNeedsRestoring: Boolean;
 
-    function GetItem(aIndex: Integer): TScreenResData;
+    function GetItem(aIndex: Integer): TKMScreenResData;
     procedure ReadAvailable;
     procedure Sort;
     function SupportedRes(aWidth, aHeight, aRate, aBPP: Word): Boolean;
@@ -30,12 +38,12 @@ type
     procedure Restore; //restores resolution used before program was started
 
     property Count: Integer read fCount; //Used by UI
-    property Items[aIndex: Integer]: TScreenResData read GetItem; //Used by UI
+    property Items[aIndex: Integer]: TKMScreenResData read GetItem; //Used by UI
 
-    function IsValid(aResolution: TScreenRes): Boolean; //Check, if resolution is correct
-    function FindCorrect(aResolution: TScreenRes): TScreenRes; //Try to find correct resolution
-    function GetResolutionIDs(aResolution: TScreenRes): TResIndex;  //prepares IDs for TMainSettings
-    procedure SetResolution(aResolution: TScreenRes); //Apply the resolution
+    function IsValid(aResolution: TKMScreenRes): Boolean; //Check, if resolution is correct
+    function FindCorrect(aResolution: TKMScreenRes): TKMScreenRes; //Try to find correct resolution
+    function GetResolutionIDs(aResolution: TKMScreenRes): TKMScreenResIndex;  //prepares IDs for TMainSettings
+    procedure SetResolution(aResolution: TKMScreenRes); //Apply the resolution
   end;
 
 
@@ -46,6 +54,7 @@ implementation
 constructor TKMResolutions.Create;
 begin
   inherited;
+
   ReadAvailable;
   Sort;
 end;
@@ -54,6 +63,7 @@ end;
 destructor TKMResolutions.Destroy;
 begin
   Restore;
+
   inherited;
 end;
 
@@ -93,7 +103,7 @@ begin
         //increasing length of array
         SetLength(fItems, N+1);
         //we don't want random data in freshly allocated space
-        FillChar(fItems[N], SizeOf(TScreenResData), #0);
+        FillChar(fItems[N], SizeOf(TKMScreenResData), #0);
         inc(fCount);
       end;
       if (N < fCount) and (fItems[N].Width = 0) then
@@ -126,49 +136,49 @@ end;
 
 
 procedure TKMResolutions.Sort;
-var I,J,K: Integer;
-    TempScreenResData: TScreenResData;
-    TempRefRate: Word;
+var
+  I,J,K: Integer;
+  TempScreenResData: TKMScreenResData;
+  TempRefRate: Word;
 begin
-  if fCount > 0 then
-    for I:=0 to fCount-1 do
+  for I := 0 to fCount - 1 do
+  begin
+    for J := 0 to fItems[I].RefRateCount - 1 do
     begin
-      for J:=0 to fItems[I].RefRateCount-1 do
-      begin
-        //firstly, refresh rates for each resolution are being sorted
-        K:=J;  //iterator will be modified, but we don't want to lose it
-        while ((K>0) and (fItems[I].RefRate[K] < fItems[I].RefRate[K-1]) and
-             //excluding zero values from sorting, so they are kept at the end of array
-               (fItems[I].RefRate[K] > 0)) do
-        begin
-          //Exchange places
-          TempRefRate := fItems[I].RefRate[K];
-          fItems[I].RefRate[K] := fItems[I].RefRate[K-1];
-          fItems[I].RefRate[K-1] := TempRefRate;
-          dec(K);
-        end;
-      end;
-
-      if I=0 then continue;
-      J:=I;  //iterator will be modified, but we don't want to lose it
-      //moving resolution to its final position
-      while ((J>0) and (((fItems[J].Width < fItems[J-1].Width) and
+      //firstly, refresh rates for each resolution are being sorted
+      K:=J;  //iterator will be modified, but we don't want to lose it
+      while ((K>0) and (fItems[I].RefRate[K] < fItems[I].RefRate[K-1]) and
            //excluding zero values from sorting, so they are kept at the end of array
-             (fItems[J].Width > 0) and (fItems[J].Height > 0)) or
-             ((fItems[J].Width = fItems[J-1].Width) and
-             (fItems[J].Height < fItems[J-1].Height)))) do
+             (fItems[I].RefRate[K] > 0)) do
       begin
         //Exchange places
-        TempScreenResData := fItems[J];
-        fItems[J] := fItems[J-1];
-        fItems[J-1] := TempScreenResData;
-        dec(J);
+        TempRefRate := fItems[I].RefRate[K];
+        fItems[I].RefRate[K] := fItems[I].RefRate[K-1];
+        fItems[I].RefRate[K-1] := TempRefRate;
+        dec(K);
       end;
     end;
+
+    if I = 0 then Continue;
+    J := I;  //iterator will be modified, but we don't want to lose it
+    //moving resolution to its final position
+    while ((J>0) and (((fItems[J].Width < fItems[J-1].Width) and
+         //excluding zero values from sorting, so they are kept at the end of array
+           (fItems[J].Width > 0) and (fItems[J].Height > 0)) or
+           ((fItems[J].Width = fItems[J-1].Width) and
+           (fItems[J].Height < fItems[J-1].Height)))) do
+    begin
+      //Exchange places
+      TempScreenResData := fItems[J];
+      fItems[J] := fItems[J-1];
+      fItems[J-1] := TempScreenResData;
+      dec(J);
+    end;
+  end;
 end;
 
 
-function TKMResolutions.GetItem(aIndex: Integer): TScreenResData;
+function TKMResolutions.GetItem(aIndex: Integer): TKMScreenResData;
 begin
   //Make sure we access valid item
   Assert(InRange(aIndex, 0, fCount - 1));
@@ -186,13 +196,13 @@ begin
 end;
 
 
-function TKMResolutions.IsValid(aResolution: TScreenRes): Boolean;
+function TKMResolutions.IsValid(aResolution: TKMScreenRes): Boolean;
 begin
   Result := GetResolutionIDs(aResolution).RefID <> -1;
 end;
 
 
-procedure TKMResolutions.SetResolution(aResolution: TScreenRes);
+procedure TKMResolutions.SetResolution(aResolution: TKMScreenRes);
 {$IFDEF MSWindows}
 var
   DeviceMode: TDeviceMode;
@@ -219,7 +229,7 @@ begin
 end;
 
 
-function TKMResolutions.FindCorrect(aResolution: TScreenRes): TScreenRes;
+function TKMResolutions.FindCorrect(aResolution: TKMScreenRes): TKMScreenRes;
 {$IFDEF MSWindows}
 var
   DevMode: TDevMode;
@@ -257,8 +267,9 @@ end;
 
 //we need to set this IDs in settings, so we don't work on "physical" values
 //and everything is kept inside this class, not in TMainSettings
-function TKMResolutions.GetResolutionIDs(aResolution: TScreenRes): TResIndex;
-var I,J: Integer;
+function TKMResolutions.GetResolutionIDs(aResolution: TKMScreenRes): TKMScreenResIndex;
+var
+  I,J: Integer;
 begin
   Result.ResID := -1;
   Result.RefID := -1;

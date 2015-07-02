@@ -590,15 +590,6 @@ type
     mlWaterFlow);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
-//Record storing resolution and refresh rate
-type
-  TScreenRes = record
-                 Width, Height, RefRate: SmallInt;
-               end;
-
-  TResIndex = record ResID, RefID: Integer; end;
-
-
 const
   //Colors available for selection in multiplayer
   MP_COLOR_COUNT = 22;
