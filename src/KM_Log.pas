@@ -33,8 +33,8 @@ type
     property LogPath: UnicodeString read fLogPath; //Used by dedicated server
   end;
 
-  var
-    gLog: TKMLog;
+var
+  gLog: TKMLog;
 
 
 implementation
