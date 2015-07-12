@@ -124,7 +124,10 @@ Proposed:
 	Change player color (changing colors during the game sounds like inconsistency)
 	Actions.PlaceBeacon(aPlayer, X, Y: integer; aMinimapOnly: Boolean) - Needs to not be confused with beacons from other players
 	States.PlayerHasQuit / Event OnPlayerQuit - Currently not possible, player quitting would need to go through GIP for net/replays
-
+	OnWareAdd(houseId, wareType)
+	OnWareTake(houseId, wareType)
+	PlayerGetAllHouseMultipleTypes(playerID, array of byte[] (house types) returns array of id of buildings
+	PlayerGetAllUnitsMultipleTypes(playerID, array of byte[] (unit types) returns array of id of units
 
 Rejected:	
 	Actions.SetAIName (Player names can be written in libx, changing names during the game sounds like inconsistency)
