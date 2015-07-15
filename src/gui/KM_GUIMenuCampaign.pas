@@ -183,15 +183,15 @@ begin
   Image_ScrollRestore.Hide;
   Panel_CampScroll.Show;
 
-  fGameApp.MusicLib.StopPlayingOtherFile; //Stop playing the previous breifing even if this one doesn't exist
-  fGameApp.PauseMusicToPlayFile(fCampaign.BreifingAudioFile(fMapIndex));
+  gGameApp.MusicLib.StopPlayingOtherFile; //Stop playing the previous breifing even if this one doesn't exist
+  gGameApp.PauseMusicToPlayFile(fCampaign.BreifingAudioFile(fMapIndex));
 end;
 
 
 procedure TKMMenuCampaign.StartClick(Sender: TObject);
 begin
-  fGameApp.MusicLib.StopPlayingOtherFile;
-  fGameApp.NewCampaignMap(fCampaign, fMapIndex);
+  gGameApp.MusicLib.StopPlayingOtherFile;
+  gGameApp.NewCampaignMap(fCampaign, fMapIndex);
 end;
 
 
@@ -229,7 +229,7 @@ end;
 
 procedure TKMMenuCampaign.Show(aCampaign: TKMCampaignId);
 begin
-  Campaign_Set(fGameApp.Campaigns.CampaignById(aCampaign));
+  Campaign_Set(gGameApp.Campaigns.CampaignById(aCampaign));
 
   //Refresh;
   Panel_Campaign.Show;
@@ -238,7 +238,7 @@ end;
 
 procedure TKMMenuCampaign.BackClick(Sender: TObject);
 begin
-  fGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
+  gGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
 
   fOnPageChange(gpCampSelect);
 end;

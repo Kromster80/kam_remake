@@ -467,7 +467,7 @@ begin
       fMaps.TerminateScan;
 
       //Provide mission FileName mask and title here
-      fGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName, fSingleLoc, fSingleColor);
+      gGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName, fSingleLoc, fSingleColor);
       Exit;
     end;
   Assert(False); //We should NOT reach here, since we checked that the start button was enabled

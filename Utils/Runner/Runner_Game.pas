@@ -146,7 +146,7 @@ end;
 
 procedure TKMRunnerFight95.Execute(aRun: Integer);
 begin
-  fGameApp.NewEmptyMap(128, 128);
+  gGameApp.NewEmptyMap(128, 128);
   SetKaMSeed(aRun + 1);
 
   //fPlayers[0].AddUnitGroup(ut_Cavalry, KMPoint(63, 64), dir_E, 8, 24);
@@ -168,7 +168,7 @@ begin
   fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(ut_Any);
   fResults.Value[aRun, 1] := gHands[1].Stats.GetUnitQty(ut_Any);
 
-  fGameApp.Stop(gr_Silent);
+  gGameApp.Stop(gr_Silent);
 end;
 
 
@@ -190,17 +190,17 @@ end;
 
 procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
-  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
+  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
 
   gHands[MySpectator.HandIndex].FogOfWar.RevealEverything;
-  fGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(136, 25), 0);
-  fGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.25;
+  gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(136, 25), 0);
+  gGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.25;
 
   SetKaMSeed(aRun + 1);
 
   SimulateGame;
 
-  fGameApp.Game.Save('AI Build #' + IntToStr(aRun), Now);
+  gGameApp.Game.Save('AI Build #' + IntToStr(aRun), Now);
 
   {fResults.Value[aRun, 0] := gHands[0].Stats.GetWarriorsTrained;
   fResults.Value[aRun, 1] := gHands[1].Stats.GetWarriorsTrained;
@@ -222,7 +222,7 @@ begin
   fResults.Value[aRun, 4] := gHands[4].Stats.GetHousesBuilt;
   fResults.Value[aRun, 5] := gHands[5].Stats.GetHousesBuilt;
 
-  fGameApp.Stop(gr_Silent);
+  gGameApp.Stop(gr_Silent);
 end;
 
 
@@ -250,7 +250,7 @@ begin
 //  PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
 //  CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
 
-  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
+  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
 
   SetKaMSeed(aRun div 4 + 1); //11112222
 
@@ -258,7 +258,7 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  fGameApp.Stop(gr_Silent);
+  gGameApp.Stop(gr_Silent);
 end;
 
 
@@ -282,7 +282,7 @@ var
 begin
   inherited;
 
-  fGameApp.NewReplay(ExtractFilePath(ParamStr(0)) + '\runner_replay.bas');
+  gGameApp.NewReplay(ExtractFilePath(ParamStr(0)) + '\runner_replay.bas');
 
   //Don't set random seed or the replay won't work
 
@@ -290,7 +290,7 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  fGameApp.Stop(gr_Silent);
+  gGameApp.Stop(gr_Silent);
 end;
 
 
@@ -317,12 +317,12 @@ var
 begin
   inherited;
 
-  C := fGameApp.Campaigns.CampaignById(cmp);
-  fGameApp.NewCampaignMap(C, 1);
+  C := gGameApp.Campaigns.CampaignById(cmp);
+  gGameApp.NewCampaignMap(C, 1);
 
   MySpectator.FOWIndex := -1;
-  fGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(162, 26), 0);
-  fGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.5;
+  gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(162, 26), 0);
+  gGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.5;
 
   //Don't set random seed or the replay won't work
 
@@ -330,7 +330,7 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  fGameApp.Stop(gr_Silent);
+  gGameApp.Stop(gr_Silent);
 end;
 
 initialization

@@ -26,15 +26,15 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
-  fGameApp.GameSettings.Autosave := False;
+  gGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
+  gGameApp.GameSettings.Autosave := False;
 end;
 
 
 procedure TestKMMissionScript.TearDown;
 begin
-  fGameApp.Stop(gr_Silent);
-  FreeAndNil(fGameApp);
+  gGameApp.Stop(gr_Silent);
+  FreeAndNil(gGameApp);
   FreeAndNil(gLog);
 end;
 
@@ -53,7 +53,7 @@ begin
     begin
       try
         //Load all maps in SP mode (even MP maps) since we don't have NetPlayers etc. rigged
-        fGameApp.NewSingleMap(PathToMaps[I], '');
+        gGameApp.NewSingleMap(PathToMaps[I], '');
 
         //Warnings and Errors are written into the Log
       except

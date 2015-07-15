@@ -156,18 +156,18 @@ begin
   //pauses here until the user clicks ok. However for some reason we chose MessageBox
   //thus we need to pause the game manually
 
-  CanClose := (fGameApp = nil) or (fGameApp.Game = nil) or fGameApp.Game.IsReplay;
+  CanClose := (gGameApp = nil) or (gGameApp.Game = nil) or gGameApp.Game.IsReplay;
 
   if not CanClose then
   begin
     //We want to pause the game for the time user verifies he really wants to close
-    WasRunning := not fGameApp.Game.IsMultiplayer
-                  and not fGameApp.Game.IsMapEditor
-                  and not fGameApp.Game.IsPaused;
+    WasRunning := not gGameApp.Game.IsMultiplayer
+                  and not gGameApp.Game.IsMapEditor
+                  and not gGameApp.Game.IsPaused;
 
     //Pause the game
     if WasRunning then
-      fGameApp.Game.IsPaused := True;
+      gGameApp.Game.IsPaused := True;
 
     //Ask the Player
     {$IFDEF MSWindows}
@@ -184,7 +184,7 @@ begin
 
     //Resume the game
     if not CanClose and WasRunning then
-      fGameApp.Game.IsPaused := False;
+      gGameApp.Game.IsPaused := False;
   end;
 end;
 
@@ -194,7 +194,7 @@ begin
   //Reset the resolution
   FreeThenNil(fResolutions);
   FreeThenNil(fMainSettings);
-  FreeThenNil(fGameApp);
+  FreeThenNil(gGameApp);
   FreeThenNil(gLog);
 
   {$IFDEF MSWindows}
@@ -269,7 +269,7 @@ begin
     inc(fFrameCount);
     if fOldFrameTimes >= FPS_INTERVAL then
     begin
-      if fGameApp <> nil then fGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
+      if gGameApp <> nil then gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
       StatusBarText(3, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
                        IfThen(CAP_MAX_FPS, ' (' + inttostr(FPS_LAG) + ')'));
       fOldFrameTimes := 0;
@@ -281,10 +281,10 @@ begin
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
   Set8087CW($133F);
-  if fGameApp <> nil then
+  if gGameApp <> nil then
   begin
-    fGameApp.UpdateStateIdle(FrameTime);
-    fGameApp.Render(False);
+    gGameApp.UpdateStateIdle(FrameTime);
+    gGameApp.Render(False);
   end;
 
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
@@ -305,15 +305,15 @@ begin
   fFormMain.ToggleFullscreen(fMainSettings.FullScreen);
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
-  FreeThenNil(fGameApp); //Saves all settings into ini file in midst
-  fGameApp := TKMGameApp.Create(fFormMain.RenderArea,
+  FreeThenNil(gGameApp); //Saves all settings into ini file in midst
+  gGameApp := TKMGameApp.Create(fFormMain.RenderArea,
                                 fFormMain.RenderArea.Width,
                                 fFormMain.RenderArea.Height,
                                 fMainSettings.VSync,
                                 fFormLoading.LoadingStep,
                                 fFormLoading.LoadingText,
                                 StatusBarText);
-  fGameApp.AfterConstruction(aReturnToOptions);
+  gGameApp.AfterConstruction(aReturnToOptions);
 
   gLog.AddTime('ToggleFullscreen');
   gLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
@@ -479,15 +479,15 @@ end;
 
 procedure TKMMain.Render;
 begin
-  if fGameApp <> nil then
-    fGameApp.Render(False);
+  if gGameApp <> nil then
+    gGameApp.Render(False);
 end;
 
 
 procedure TKMMain.Resize(X, Y: Integer);
 begin
-  if fGameApp <> nil then
-    fGameApp.Resize(X, Y);
+  if gGameApp <> nil then
+    gGameApp.Resize(X, Y);
 end;
 
 

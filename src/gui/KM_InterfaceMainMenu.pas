@@ -209,7 +209,7 @@ var
   I: Integer;
   cmp: TKMCampaignId;
 begin
-  Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + fGameApp.RenderVersion;
+  Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
 
   //Hide all other pages
   for I := 0 to Panel_Menu.ChildCount - 1 do
@@ -224,10 +224,10 @@ begin
     gpMultiplayer:  fMenuMultiplayer.Show(aText);
     gpLobby:        begin
                       if aText = 'HOST' then
-                        fMenuLobby.Show(lpk_Host, fGameApp.Networking, Panel_Menu.Height)
+                        fMenuLobby.Show(lpk_Host, gGameApp.Networking, Panel_Menu.Height)
                       else
                       if aText = 'JOIN' then
-                        fMenuLobby.Show(lpk_Joiner, fGameApp.Networking, Panel_Menu.Height)
+                        fMenuLobby.Show(lpk_Joiner, gGameApp.Networking, Panel_Menu.Height)
                       else
                         Assert(False);
                     end;
@@ -269,14 +269,14 @@ begin
 
       Panel_Menu.Childs[I].Show;
 
-      fGameApp.PrintScreen(path + 'Panel' + int2fix(I, 3) + '.jpg');
+      gGameApp.PrintScreen(path + 'Panel' + int2fix(I, 3) + '.jpg');
     end;
 end;
 
 
 procedure TKMMainMenuInterface.ReturnToLobby(const aSaveName: UnicodeString);
 begin
-  if fGameApp.Networking.IsHost then
+  if gGameApp.Networking.IsHost then
     PageChange(gpLobby, 'HOST')
   else
     PageChange(gpLobby, 'JOIN');
@@ -315,7 +315,7 @@ end;
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
   fMyControls.MouseUp(X,Y,Shift,Button);
-  Exit; //We could have caused fGameApp reinit (i.e. resolution change), so exit at once
+  Exit; //We could have caused gGameApp reinit (i.e. resolution change), so exit at once
 end;
 
 

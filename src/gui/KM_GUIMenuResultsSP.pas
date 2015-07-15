@@ -122,7 +122,7 @@ begin
   Button_ResultsRepeat.Visible := not (fGameResultMsg in [gr_ReplayEnd, gr_Win]);
 
   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-  Button_ResultsContinue.Visible := (fGameApp.Campaigns.ActiveCampaign <> nil) and (fGameResultMsg <> gr_ReplayEnd);
+  Button_ResultsContinue.Visible := (gGameApp.Campaigns.ActiveCampaign <> nil) and (fGameResultMsg <> gr_ReplayEnd);
   Button_ResultsContinue.Enabled := fGameResultMsg = gr_Win;
 
   //Header
@@ -408,7 +408,7 @@ end;
 procedure TKMMenuResultsSP.RepeatClick(Sender: TObject);
 begin
   //Means replay last map
-  fGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
+  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
 end;
 
 

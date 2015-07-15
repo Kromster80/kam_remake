@@ -87,7 +87,7 @@ type
 
 
 var
-  fGameApp: TKMGameApp;
+  gGameApp: TKMGameApp;
 
 
 implementation

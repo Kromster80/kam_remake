@@ -263,8 +263,8 @@ begin
   end;
 
   // Both advancements have minimal value > 0
-  ScrollAdv := (0.5 + fGameApp.GameSettings.ScrollSpeed / 5) * aFrameTime / 100;
-  ZoomAdv := (0.2 + fGameApp.GameSettings.ScrollSpeed / 20) * aFrameTime / 1000;
+  ScrollAdv := (0.5 + gGameApp.GameSettings.ScrollSpeed / 5) * aFrameTime / 100;
+  ZoomAdv := (0.2 + gGameApp.GameSettings.ScrollSpeed / 20) * aFrameTime / 1000;
 
   if SCROLL_ACCEL then
   begin

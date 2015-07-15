@@ -266,7 +266,7 @@ end;
 
 procedure TKMGUIGameChat.ChatMessage(const aData: UnicodeString);
 begin
-  if fGameApp.GameSettings.FlashOnMessage then
+  if gGameApp.GameSettings.FlashOnMessage then
     fMain.FlashingStart;
 
   Memo_ChatText.Add(aData);

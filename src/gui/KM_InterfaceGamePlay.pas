@@ -407,7 +407,7 @@ procedure TKMGamePlayInterface.Menu_Load_Click(Sender: TObject);
 begin
   if not InRange(ListBox_Load.ItemIndex, 0, fSaves.Count - 1) then Exit;
   fSaves.TerminateScan; // Stop scan as it is no longer needed
-  fGameApp.NewSingleSave(fSaves[ListBox_Load.ItemIndex].FileName);
+  gGameApp.NewSingleSave(fSaves[ListBox_Load.ItemIndex].FileName);
 end;
 
 
@@ -476,7 +476,7 @@ begin
 
   // If they just closed settings then we should save them (if something has changed)
   if LastVisiblePage = fGuiMenuSettings then
-    fGameApp.GameSettings.SaveSettings;
+    gGameApp.GameSettings.SaveSettings;
 
   // Ensure, that saves scanning will be stopped when user leaves save/load page
   if (LastVisiblePage = Panel_Save) or (LastVisiblePage = Panel_Load) then
@@ -599,7 +599,7 @@ begin
 
       Panel_Main.Childs[I].Show;
 
-      fGameApp.PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpg');
+      gGameApp.PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpg');
     end;
 end;
 
@@ -1562,19 +1562,19 @@ procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
   // Show outcome depending on actual situation.
   // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  fGameApp.Stop(gGame.PlayOnState);
+  gGameApp.Stop(gGame.PlayOnState);
 end;
 
 
 procedure TKMGamePlayInterface.Menu_NextTrack(Sender: TObject);
 begin
-  fGameApp.MusicLib.PlayNextTrack;
+  gGameApp.MusicLib.PlayNextTrack;
 end;
 
 
 procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender: TObject);
 begin
-  fGameApp.MusicLib.PlayPreviousTrack;
+  gGameApp.MusicLib.PlayPreviousTrack;
 end;
 
 
@@ -1938,16 +1938,16 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Update;
 begin
-  if fGameApp.GameSettings.MusicOff then
+  if gGameApp.GameSettings.MusicOff then
     Label_Menu_Track.Caption := '-'
   else
-    Label_Menu_Track.Caption := fGameApp.MusicLib.GetTrackTitle;
+    Label_Menu_Track.Caption := gGameApp.MusicLib.GetTrackTitle;
 
   Label_GameTime.Caption := Format(gResTexts[TX_GAME_TIME], [TimeToString(gGame.MissionTime)]);
 
-  Label_Menu_Track.Enabled      := not fGameApp.GameSettings.MusicOff;
-  Button_Menu_TrackUp.Enabled   := not fGameApp.GameSettings.MusicOff;
-  Button_Menu_TrackDown.Enabled := not fGameApp.GameSettings.MusicOff;
+  Label_Menu_Track.Enabled      := not gGameApp.GameSettings.MusicOff;
+  Button_Menu_TrackUp.Enabled   := not gGameApp.GameSettings.MusicOff;
+  Button_Menu_TrackDown.Enabled := not gGameApp.GameSettings.MusicOff;
 end;
 
 
@@ -1964,7 +1964,7 @@ procedure TKMGamePlayInterface.Beacon_Place(aLoc: TKMPointF);
 begin
   // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
   case fUIMode of
-    umReplay:   Alerts.AddBeacon(aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor, fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+    umReplay:   Alerts.AddBeacon(aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
     umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, -1, gGame.Networking.NetPlayers[gGame.Networking.MyIndex].FlagColor);
     else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor);
   end;
@@ -2111,9 +2111,9 @@ begin
 
   if Sender = Button_PlayQuit then
     case PlayMoreMsg of
-      gr_Win:       fGameApp.Stop(gr_Win);
-      gr_Defeat:    fGameApp.Stop(gr_Defeat);
-      gr_ReplayEnd: fGameApp.Stop(gr_ReplayEnd);
+      gr_Win:       gGameApp.Stop(gr_Win);
+      gr_Defeat:    gGameApp.Stop(gr_Defeat);
+      gr_ReplayEnd: gGameApp.Stop(gr_ReplayEnd);
     end
   else // GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
@@ -2131,9 +2131,9 @@ begin
 
   if Sender = Button_MPPlayQuit then
     case PlayMoreMsg of
-      gr_Win:       fGameApp.Stop(gr_Win);
-      gr_Defeat:    fGameApp.Stop(gr_Defeat);
-      gr_ReplayEnd: fGameApp.Stop(gr_ReplayEnd);
+      gr_Win:       gGameApp.Stop(gr_Win);
+      gr_Defeat:    gGameApp.Stop(gr_Defeat);
+      gr_ReplayEnd: gGameApp.Stop(gr_ReplayEnd);
     end
   // If they click continue no other action is necessary, the game is still running
 end;
@@ -2242,7 +2242,7 @@ begin
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_DROP_PLAYERS] then
       gGame.WaitingPlayersDrop else
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_QUIT_TO_MENU] then
-      fGameApp.Stop(gr_Cancel);
+      gGameApp.Stop(gr_Cancel);
   end
   else Assert(false, 'Wrong Sender in NetWaitClick');
 end;
@@ -2650,9 +2650,9 @@ begin
   begin
     // Game speed/pause: Not available in multiplayer mode
     if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, False);
-    if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium, True);
-    if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast, True);
-    if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast, True);
+    if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
+    if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);
+    if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True);
   end;
 
   // All the following keys don't work in Replay, because they alter game state

@@ -93,7 +93,7 @@ begin
 
     MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
     IsMulti := Radio_Load_MapType.ItemIndex <> 0;
-    fGameApp.NewMapEditor(TKMapsCollection.FullPath(MapName, '.dat', TMapFolder(Radio_Load_MapType.ItemIndex)), 0, 0);
+    gGameApp.NewMapEditor(TKMapsCollection.FullPath(MapName, '.dat', TMapFolder(Radio_Load_MapType.ItemIndex)), 0, 0);
 
     //Keep MP/SP selected in the map editor interface
     //(if mission failed to load we would have fGame = nil)

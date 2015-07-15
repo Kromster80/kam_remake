@@ -79,7 +79,7 @@ begin
   begin
     if fMain.LockMutex then
     begin
-      if not fGameApp.CheckDATConsistency then
+      if not gGameApp.CheckDATConsistency then
         fOnPageChange(gpError, gResTexts[TX_ERROR_MODS])
       else
         fOnPageChange(gpMultiplayer);

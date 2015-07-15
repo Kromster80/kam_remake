@@ -138,7 +138,7 @@ begin
   if not Button_Load.Enabled then exit; //This is also called by double clicking
   if not InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.NewSingleSave(fSaves[ColumnBox_Load.ItemIndex].FileName);
+  gGameApp.NewSingleSave(fSaves[ColumnBox_Load.ItemIndex].FileName);
 end;
 
 

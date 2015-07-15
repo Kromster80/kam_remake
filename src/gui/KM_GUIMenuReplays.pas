@@ -301,7 +301,7 @@ begin
   ID := ColumnBox_Replays.ItemIndex;
   if not InRange(ID, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.NewReplay(fSaves[ID].Path + fSaves[ID].FileName + '.bas');
+  gGameApp.NewReplay(fSaves[ID].Path + fSaves[ID].FileName + '.bas');
 end;
 
 

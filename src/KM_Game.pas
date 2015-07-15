@@ -610,7 +610,7 @@ begin
   else
   begin
     fNetworking.Disconnect;
-    fGameApp.Stop(gr_Disconnect, gResTexts[TX_GAME_ERROR_NETWORK] + ' ' + aData)
+    gGameApp.Stop(gr_Disconnect, gResTexts[TX_GAME_ERROR_NETWORK] + ' ' + aData)
   end;
 end;
 
@@ -665,7 +665,7 @@ begin
   fIsPaused := True;
   gLog.AddTime('Replay failed a consistency check at tick ' + IntToStr(fGameTickCount));
   if MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
-    fGameApp.Stop(gr_Error, '')
+    gGameApp.Stop(gr_Error, '')
   else
     fIsPaused := False;
 end;
@@ -885,7 +885,7 @@ end;
 
 procedure TKMGame.RestartReplay;
 begin
-  fGameApp.NewReplay(ChangeFileExt(ExeDir + fSaveFile, '.bas'));
+  gGameApp.NewReplay(ChangeFileExt(ExeDir + fSaveFile, '.bas'));
 end;
 
 
@@ -1108,7 +1108,7 @@ begin
   begin
     fGameSpeed := 1;
     fGameSpeedMultiplier := 1;
-    fTimerGame.Interval := Round(fGameApp.GameSettings.SpeedPace / fGameSpeed);
+    fTimerGame.Interval := Round(gGameApp.GameSettings.SpeedPace / fGameSpeed);
     Exit;
   end;
 
@@ -1123,12 +1123,12 @@ begin
   if fGameSpeed > 5 then
   begin
     fGameSpeedMultiplier := Round(fGameSpeed / 4);
-    fTimerGame.Interval := Round(fGameApp.GameSettings.SpeedPace / fGameSpeed * fGameSpeedMultiplier);
+    fTimerGame.Interval := Round(gGameApp.GameSettings.SpeedPace / fGameSpeed * fGameSpeedMultiplier);
   end
   else
   begin
     fGameSpeedMultiplier := 1;
-    fTimerGame.Interval := Round(fGameApp.GameSettings.SpeedPace / fGameSpeed);
+    fTimerGame.Interval := Round(gGameApp.GameSettings.SpeedPace / fGameSpeed);
   end;
 
   //don't show speed clock in MP since you can't turn it on/off
@@ -1355,7 +1355,7 @@ begin
     if fMain.LockMutex then
       fGameLockedMutex := True //Remember so we unlock it in Destroy
     else
-      //Abort loading (exception will be caught in fGameApp and shown to the user)
+      //Abort loading (exception will be caught in gGameApp and shown to the user)
       raise Exception.Create(gResTexts[TX_MULTIPLE_INSTANCES]);
 
   //Not used, (only stored for SP preview) but it's easiest way to skip past it
@@ -1519,7 +1519,7 @@ begin
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow) //Timestamp must be synchronised
                         end
                         else
-                          if fGameApp.GameSettings.Autosave then
+                          if gGameApp.GameSettings.Autosave then
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
                       end;
 

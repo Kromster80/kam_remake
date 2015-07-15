@@ -382,11 +382,11 @@ begin
       gic_TempDoNothing:          ;
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
-      gic_GameAutoSave:           if (fReplayState = gipRecording) and fGameApp.GameSettings.Autosave then
+      gic_GameAutoSave:           if (fReplayState = gipRecording) and gGameApp.GameSettings.Autosave then
                                     gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
       gic_GameSaveReturnLobby:    if fReplayState = gipRecording then
                                   begin
-                                    fGameApp.PrepareReturnToLobby(DateTimeParam); //Timestamp is synchronised
+                                    gGameApp.PrepareReturnToLobby(DateTimeParam); //Timestamp is synchronised
                                     Exit;
                                   end;
       gic_GameTeamChange:         begin
@@ -405,7 +405,7 @@ begin
                                       if ((Params[3] = -1) and (gGame.GameMode = gmMultiSpectate)) //HandIndex of -1 means it is for spectators
                                       or ((Params[3] <> -1) and (gGame.GameMode <> gmMultiSpectate) //Spectators shouldn't see player beacons
                                           and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
-                                        gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+                                        gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
                                   end;
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
       gic_GameMessageLogRead:     P.MessageLog[Params[1]].IsReadGIP := True;

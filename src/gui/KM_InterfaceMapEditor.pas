@@ -552,37 +552,37 @@ begin
   begin
     HidePages;
     fGuiTerrain.Show(I);
-    fGameApp.PrintScreen(path + 'Terrain' + IntToStr(Byte(I)) + '.jpg');
+    gGameApp.PrintScreen(path + 'Terrain' + IntToStr(Byte(I)) + '.jpg');
   end;
 
   for K := Low(TKMTownTab) to High(TKMTownTab) do
   begin
     HidePages;
     fGuiTown.Show(K);
-    fGameApp.PrintScreen(path + 'Town' + IntToStr(Byte(K)) + '.jpg');
+    gGameApp.PrintScreen(path + 'Town' + IntToStr(Byte(K)) + '.jpg');
   end;
 
   for L := Low(TKMPlayerTab) to High(TKMPlayerTab) do
   begin
     HidePages;
     fGuiPlayer.Show(L);
-    fGameApp.PrintScreen(path + 'Player' + IntToStr(Byte(L)) + '.jpg');
+    gGameApp.PrintScreen(path + 'Player' + IntToStr(Byte(L)) + '.jpg');
   end;
 
   for M := Low(TKMMissionTab) to High(TKMMissionTab) do
   begin
     HidePages;
     fGuiMission.Show(M);
-    fGameApp.PrintScreen(path + 'Mission' + IntToStr(Byte(M)) + '.jpg');
+    gGameApp.PrintScreen(path + 'Mission' + IntToStr(Byte(M)) + '.jpg');
   end;
 
   HidePages;
   fGuiHouse.Show(nil);
-  fGameApp.PrintScreen(path + 'House.jpg');
+  gGameApp.PrintScreen(path + 'House.jpg');
 
   HidePages;
   fGuiUnit.Show(TKMUnit(nil));
-  fGameApp.PrintScreen(path + 'Unit.jpg');
+  gGameApp.PrintScreen(path + 'Unit.jpg');
 end;
 
 

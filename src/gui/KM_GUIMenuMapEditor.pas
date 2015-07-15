@@ -220,7 +220,7 @@ begin
   begin
     MapEdSizeX := NumEdit_MapSizeX.Value;
     MapEdSizeY := NumEdit_MapSizeY.Value;
-    fGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
+    gGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
   end;
 
   //This is also called by double clicking on a map in the list
@@ -242,7 +242,7 @@ begin
     fMapsMP.TerminateScan;
 
     Maps.Lock;
-      fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
+      gGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
     Maps.Unlock;
 
     //Keep MP/SP selected in the map editor interface

@@ -84,7 +84,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  // We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
+  // We cant pass pointers to Settings in here cos on GUI creation fMain/gGameApp are not initialized yet
 
   Panel_Options := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Options.AnchorsStretch;
@@ -236,8 +236,8 @@ end;
 
 
 // This is called when the options page is shown, so update all the values
-// Note: Options can be required to fill before fGameApp is completely initialized,
-// hence we need to pass either fGameApp.Settings or a direct Settings link
+// Note: Options can be required to fill before gGameApp is completely initialized,
+// hence we need to pass either gGameApp.Settings or a direct Settings link
 procedure TKMMenuOptions.Refresh;
 begin
   CheckBox_Options_Autosave.Checked     := fGameSettings.Autosave;
@@ -283,16 +283,16 @@ begin
   CheckBox_Options_ShuffleOn.Enabled  := not CheckBox_Options_MusicOff.Checked;
 
   gSoundPlayer.UpdateSoundVolume(fGameSettings.SoundFXVolume);
-  fGameApp.MusicLib.UpdateMusicVolume(fGameSettings.MusicVolume);
+  gGameApp.MusicLib.UpdateMusicVolume(fGameSettings.MusicVolume);
   SetupVSync(fMainSettings.VSync);
   if MusicToggled then
   begin
-    fGameApp.MusicLib.ToggleMusic(not fGameSettings.MusicOff);
+    gGameApp.MusicLib.ToggleMusic(not fGameSettings.MusicOff);
     if not fGameSettings.MusicOff then
       ShuffleToggled := True; // Re-shuffle songs if music has been enabled
   end;
   if ShuffleToggled then
-    fGameApp.MusicLib.ToggleShuffle(fGameSettings.ShuffleOn);
+    gGameApp.MusicLib.ToggleShuffle(fGameSettings.ShuffleOn);
 
   if Sender = CheckBox_Options_FullFonts then
   begin
@@ -300,14 +300,14 @@ begin
     if CheckBox_Options_FullFonts.Checked and (gRes.Fonts.LoadLevel <> fll_Full) then
     begin
       // When enabling full fonts, use ToggleLocale reload the entire interface
-      fGameApp.ToggleLocale(gResLocales[Radio_Options_Lang.ItemIndex].Code);
+      gGameApp.ToggleLocale(gResLocales[Radio_Options_Lang.ItemIndex].Code);
       Exit; // Exit ASAP because whole interface will be recreated
     end;
   end;
 
   if Sender = Radio_Options_Lang then
   begin
-    fGameApp.ToggleLocale(gResLocales[Radio_Options_Lang.ItemIndex].Code);
+    gGameApp.ToggleLocale(gResLocales[Radio_Options_Lang.ItemIndex].Code);
     Exit; // Exit ASAP because whole interface will be recreated
   end;
 end;
@@ -431,10 +431,10 @@ end;
 procedure TKMMenuOptions.Show;
 begin
   // Remember what we are working with
-  // (we do that on Show because Create gets called from Main/Game constructor and fMain/fGameApp are not yet assigned)
+  // (we do that on Show because Create gets called from Main/Game constructor and fMain/gGameApp are not yet assigned)
   // Ideally we could pass them as parameters here
   fMainSettings := fMain.Settings;
-  fGameSettings := fGameApp.GameSettings;
+  fGameSettings := gGameApp.GameSettings;
   fResolutions := fMain.Resolutions;
 
   Refresh;

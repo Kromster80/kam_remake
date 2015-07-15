@@ -199,14 +199,14 @@ end;
 procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-  if fGameApp <> nil then fGameApp.KeyDown(Key, Shift);
+  if gGameApp <> nil then gGameApp.KeyDown(Key, Shift);
 end;
 
 
 procedure TFormMain.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-  if fGameApp <> nil then fGameApp.KeyPress(Key);
+  if gGameApp <> nil then gGameApp.KeyPress(Key);
 end;
 
 
@@ -219,27 +219,27 @@ begin
     ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
   end;
 
-  if fGameApp <> nil then fGameApp.KeyUp(Key, Shift);
+  if gGameApp <> nil then gGameApp.KeyUp(Key, Shift);
 end;
 
 
 procedure TFormMain.RenderAreaMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if fGameApp <> nil then fGameApp.MouseDown(Button, Shift, X, Y); end;
+begin if gGameApp <> nil then gGameApp.MouseDown(Button, Shift, X, Y); end;
 
 
 procedure TFormMain.RenderAreaMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-begin if fGameApp <> nil then fGameApp.MouseMove(Shift, X, Y); end;
+begin if gGameApp <> nil then gGameApp.MouseMove(Shift, X, Y); end;
 
 
 procedure TFormMain.RenderAreaMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if fGameApp <> nil then fGameApp.MouseUp(Button, Shift, X, Y); end;
+begin if gGameApp <> nil then gGameApp.MouseUp(Button, Shift, X, Y); end;
 
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y); end;
+begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y); end;
 
 procedure TFormMain.RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
+begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
 
 
 procedure TFormMain.RenderAreaResize(aWidth, aHeight: Integer);
@@ -258,14 +258,14 @@ end;
 procedure TFormMain.Open_MissionMenuClick(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
-    fGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
+    gGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
 end;
 
 
 procedure TFormMain.MenuItem1Click(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
-    fGameApp.NewMapEditor(OpenDialog1.FileName, 0, 0);
+    gGameApp.NewMapEditor(OpenDialog1.FileName, 0, 0);
 end;
 
 
@@ -293,8 +293,8 @@ end;
 
 procedure TFormMain.Debug_PrintScreenClick(Sender: TObject);
 begin
-  if fGameApp <> nil then
-    fGameApp.PrintScreen;
+  if gGameApp <> nil then
+    gGameApp.PrintScreen;
 end;
 
 
@@ -378,7 +378,7 @@ var I: Integer;
 begin
   if gHands = nil then Exit;
   //You could possibly cheat in multiplayer by seeing what supplies your enemy has
-  if (fGameApp.Game <> nil) and (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS) then
+  if (gGameApp.Game <> nil) and (not gGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS) then
   for I := 0 to gHands.Count - 1 do
     gHands[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
 end;
@@ -386,9 +386,9 @@ end;
 
 procedure TFormMain.RGPlayerClick(Sender: TObject);
 begin
-  if (fGameApp.Game = nil)
-  or fGameApp.Game.IsMapEditor
-  or fGameApp.Game.IsMultiplayer then
+  if (gGameApp.Game = nil)
+  or gGameApp.Game.IsMapEditor
+  or gGameApp.Game.IsMultiplayer then
     Exit;
 
   if (gHands <> nil) and (RGPlayer.ItemIndex < gHands.Count) then
@@ -398,21 +398,21 @@ end;
 
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
-  if (fGameApp.Game = nil)
-  or (fGameApp.Game.IsMultiplayer and not MULTIPLAYER_SPEEDUP and not fGameApp.Game.IsReplay) then
+  if (gGameApp.Game = nil)
+  or (gGameApp.Game.IsMultiplayer and not MULTIPLAYER_SPEEDUP and not gGameApp.Game.IsReplay) then
     Exit;
 
-  fGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, 1), False);
+  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, 1), False);
 end;
 
 
 procedure TFormMain.Button_StopClick(Sender: TObject);
 begin
-  if fGameApp.Game <> nil then
-    if fGameApp.Game.IsMapEditor then
-      fGameApp.Stop(gr_MapEdEnd)
+  if gGameApp.Game <> nil then
+    if gGameApp.Game.IsMapEditor then
+      gGameApp.Stop(gr_MapEdEnd)
     else
-      fGameApp.Stop(gr_Cancel);
+      gGameApp.Stop(gr_Cancel);
 end;
 
 
@@ -480,8 +480,8 @@ begin
   if fUpdating then Exit;
 
   //You could possibly cheat in multiplayer by seeing debug render info
-  AllowDebugChange := (fGameApp.Game = nil)
-                   or (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS)
+  AllowDebugChange := (gGameApp.Game = nil)
+                   or (not gGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS)
                    or (Sender = nil); //Happens in ControlsReset only (using this anywhere else could allow MP cheating)
 
   //Debug render
@@ -567,17 +567,17 @@ end;
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
 begin
   ForceDirectories(ExeDir + 'Export' + PathDelim);
-  fGameApp.MainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export' + PathDelim + 'MainMenu.txt');
+  gGameApp.MainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export' + PathDelim + 'MainMenu.txt');
 end;
 
 
 procedure TFormMain.Debug_ExportUIPagesClick(Sender: TObject);
 begin
-  if (fGameApp.Game <> nil) and (fGameApp.Game.ActiveInterface <> nil) then
-    fGameApp.Game.ActiveInterface.ExportPages(ExeDir + 'Export' + PathDelim)
+  if (gGameApp.Game <> nil) and (gGameApp.Game.ActiveInterface <> nil) then
+    gGameApp.Game.ActiveInterface.ExportPages(ExeDir + 'Export' + PathDelim)
   else
-  if fGameApp.MainMenuInterface <> nil then
-    fGameApp.MainMenuInterface.ExportPages(ExeDir + 'Export' + PathDelim);
+  if gGameApp.MainMenuInterface <> nil then
+    gGameApp.MainMenuInterface.ExportPages(ExeDir + 'Export' + PathDelim);
 end;
 
 

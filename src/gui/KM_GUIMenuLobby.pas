@@ -706,8 +706,8 @@ begin
   fNetworking.OnMapName      := Lobby_OnMapName;
   fNetworking.OnMapMissing   := Lobby_OnMapMissing;
   fNetworking.OnPingInfo     := Lobby_OnPingInfo;
-  //fNetworking.OnStartMap - already assigned in fGameApp when Net is created
-  //fNetworking.OnStartSave - already assigned in fGameApp when Net is created
+  //fNetworking.OnStartMap - already assigned in gGameApp when Net is created
+  //fNetworking.OnStartSave - already assigned in gGameApp when Net is created
   fNetworking.OnDisconnect   := Lobby_OnDisconnect;
   fNetworking.OnReassignedHost := Lobby_OnReassignedToHost;
   fNetworking.OnReassignedJoiner := Lobby_OnReassignedToJoiner;
@@ -1776,7 +1776,7 @@ end;
 
 procedure TKMMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
-  if fGameApp.GameSettings.FlashOnMessage then
+  if gGameApp.GameSettings.FlashOnMessage then
     fMain.FlashingStart;
 
   Memo_LobbyPosts.Add(aText);

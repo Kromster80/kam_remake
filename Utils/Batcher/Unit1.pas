@@ -126,15 +126,15 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
-  fGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
-  fGameApp.GameSettings.Autosave := False;
+  gGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
+  gGameApp.GameSettings.Autosave := False;
 end;
 
 
 procedure TForm1.TearDown;
 begin
-  fGameApp.Stop(gr_Silent);
-  FreeAndNil(fGameApp);
+  gGameApp.Stop(gr_Silent);
+  FreeAndNil(gGameApp);
   FreeAndNil(gLog);
 end;
 
@@ -173,13 +173,13 @@ begin
   ControlsEnable(False);
   SetUp;
 
-  for I := 0 to fGameApp.Campaigns.CampaignById(cmp).MapCount - 1 do
+  for I := 0 to gGameApp.Campaigns.CampaignById(cmp).MapCount - 1 do
   begin
-    fGameApp.NewCampaignMap(fGameApp.Campaigns.CampaignById(cmp), I);
+    gGameApp.NewCampaignMap(gGameApp.Campaigns.CampaignById(cmp), I);
 
     gHands[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 
-    fGameApp.Stop(gr_Silent);
+    gGameApp.Stop(gr_Silent);
   end;
 
   TearDown;

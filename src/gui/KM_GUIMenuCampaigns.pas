@@ -85,7 +85,7 @@ var
   I: Integer;
   Camps: TKMCampaignsCollection;
 begin
-  Camps := fGameApp.Campaigns;
+  Camps := gGameApp.Campaigns;
 
   Image_CampsPreview.TexID := 0; //Clear preview image
   ColumnBox_Camps.Clear;
@@ -115,8 +115,8 @@ begin
   else
   begin
     Button_Camp_Start.Enable;
-    cmp := fGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
-    Camp := fGameApp.Campaigns.CampaignById(cmp);
+    cmp := gGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
+    Camp := gGameApp.Campaigns.CampaignById(cmp);
 
     Image_CampsPreview.RX := Camp.BackGroundPic.RX;
     Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
@@ -132,7 +132,7 @@ var
 begin
   //Get the caption and pass it to Campaign selection menu (it will be casted to TKMCampaignName there)
   //so that we avoid cast/uncast/cast along the event chain
-  cmp := fGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampName;
+  cmp := gGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampName;
   fOnPageChange(gpCampaign, cmp);
 end;
 

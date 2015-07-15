@@ -138,15 +138,15 @@ begin
     tgtHeight := fRenderTarget.Height;
   end;
 
-  fGameApp := TKMGameApp.Create(fRenderTarget, tgtWidth, tgtHeight, False, nil, nil, nil, True);
-  fGameApp.GameSettings.Autosave := False;
+  gGameApp := TKMGameApp.Create(fRenderTarget, tgtWidth, tgtHeight, False, nil, nil, nil, True);
+  gGameApp.GameSettings.Autosave := False;
 end;
 
 
 procedure TKMRunnerCommon.TearDown;
 begin
-  fGameApp.Stop(gr_Silent);
-  FreeAndNil(fGameApp);
+  gGameApp.Stop(gr_Silent);
+  FreeAndNil(gGameApp);
   FreeAndNil(gLog);
 end;
 
@@ -158,13 +158,13 @@ begin
   begin
     fResults.Times[fRun, I] := TimeGet;
 
-    fGameApp.Game.UpdateGame(nil);
-    fGameApp.Render(False);
+    gGameApp.Game.UpdateGame(nil);
+    gGameApp.Render(False);
 
     fResults.Times[fRun, I] := TimeGet - fResults.Times[fRun, I];
 
-    if fGameApp.Game.IsPaused then
-      fGameApp.Game.GameHold(False, gr_Win);
+    if gGameApp.Game.IsPaused then
+      gGameApp.Game.GameHold(False, gr_Win);
 
     if (I mod 60*10 = 0) and Assigned(OnProgress) then
       OnProgress(Format('%d (%d min)', [fRun, I div 600]));
