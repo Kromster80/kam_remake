@@ -17,21 +17,21 @@ type
     fPublishServer: boolean;
     fAnnounceInterval: word;
     fPingInterval: word;
-    fPort:string;
+    fPort: string;
     fServerName: AnsiString;
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
   public
-    constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
-                       const aMasterServerAddress:string; const aHTMLStatusFile:string;
+    constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval: Word;
+                       const aMasterServerAddress: string; const aHTMLStatusFile: string;
                        const aWelcomeMessage:UnicodeString; aDedicated:Boolean);
     destructor Destroy; override;
 
     procedure Start(const aServerName: AnsiString; const aPort:string; aPublishServer:boolean);
     procedure Stop;
     procedure UpdateState;
-    procedure UpdateSettings(const aServerName: AnsiString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
-                             const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:UnicodeString);
+    procedure UpdateSettings(const aServerName: AnsiString; aPublishServer: Boolean; aKickTimeout, aPingInterval, aAnnounceInterval: Word;
+                             const aMasterServerAddress: string; const aHTMLStatusFile: string; const aWelcomeMessage: UnicodeString);
     property OnMessage: TUnicodeStringEvent write fOnMessage;
     
     procedure GetServerInfo(var aList: TList);
@@ -43,9 +43,9 @@ implementation
 uses
   KM_Utils;
 
-  //Enforce a minimum so our master server doesn't get spammed
-  const MINIMUM_ANNOUNCE_INTERVAL = 180;
-
+const
+  // Enforce a minimum so our master server doesn't get spammed
+  MINIMUM_ANNOUNCE_INTERVAL = 180;
 
 
 //Announce interval of -1 means the server will not be published (LAN)

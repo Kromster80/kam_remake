@@ -521,6 +521,8 @@ procedure TKMNetServer.SendMessageA(aRecipient: Integer; aKind: TKMessageKind; a
 var
   M: TKMemoryStream;
 begin
+  Assert(NetPacketType[aKind] = pfStringA);
+
   M := TKMemoryStream.Create;
   M.WriteA(aText);
   SendMessageAct(aRecipient, aKind, M);
@@ -532,6 +534,8 @@ procedure TKMNetServer.SendMessageW(aRecipient: Integer; aKind: TKMessageKind; a
 var
   M: TKMemoryStream;
 begin
+  Assert(NetPacketType[aKind] = pfStringW);
+
   M := TKMemoryStream.Create;
   M.WriteW(aText);
   SendMessageAct(aRecipient, aKind, M);

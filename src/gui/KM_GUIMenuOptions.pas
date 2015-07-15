@@ -17,7 +17,7 @@ type
     fResolutions: TKMResolutions;
 
     // We remember old values to enable/disable "Apply" button dynamicaly
-    PrevResolutionId: TResIndex;
+    PrevResolutionId: TKMScreenResIndex;
     // Try to pick the same refresh rate on resolution change
     DesiredRefRate: Integer;
 
@@ -355,7 +355,7 @@ end;
 procedure TKMMenuOptions.ApplyResolution(Sender: TObject);
 var
   ResID, RefID: Integer;
-  NewResolution: TScreenRes;
+  NewResolution: TKMScreenRes;
 begin
   if fResolutions.Count = 0 then Exit;
 
@@ -382,7 +382,9 @@ end;
 
 // Resets dropboxes, they will have correct values
 procedure TKMMenuOptions.RefreshResolutions;
-var I: Integer; R: TResIndex;
+var
+  I: Integer;
+  R: TKMScreenResIndex;
 begin
   DropBox_Options_Resolution.Clear;
   DropBox_Options_RefreshRate.Clear;

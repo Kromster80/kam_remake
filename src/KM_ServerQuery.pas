@@ -432,7 +432,7 @@ begin
     ReceiveServerList('Localhost,127.0.0.1,56789,0,Windows') //For debugging
     //+#13+'Localhost,127.0.0.1,56788,1,Windows'+#13+'Localhost,127.0.0.1,56787,1,Unix'
   else
-    fMasterServer.QueryServer; //Start the query
+    fMasterServer.QueryServerList; //Start the query
 end;
 
 
