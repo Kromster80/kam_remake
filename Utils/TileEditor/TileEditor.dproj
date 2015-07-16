@@ -46,7 +46,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
+			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
 			<Manifest_File>None</Manifest_File>
 			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\hands;..\src\houses;..\..\src\net;..\..\src\res;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<Icon_MainIcon>TileEditor_Icon.ico</Icon_MainIcon>
@@ -148,7 +148,6 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Program Files\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>

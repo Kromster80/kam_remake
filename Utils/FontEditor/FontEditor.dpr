@@ -4,13 +4,10 @@ uses
   umain in 'umain.pas', {frmMain}
   Constants in 'Constants.pas';
 
-
-  var
-    frmMain: TfrmMain;
-
+var
+  frmMain: TfrmMain;
 
 {$R *.res}
-
 
 begin
   Application.Initialize;

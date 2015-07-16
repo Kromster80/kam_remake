@@ -40,7 +40,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
+			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<ImageDebugInfo>true</ImageDebugInfo>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
@@ -144,7 +144,6 @@
 						<Source Name="MainSource">ServerPoller.dpr</Source>
 					</Source>
 					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Program Files\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
