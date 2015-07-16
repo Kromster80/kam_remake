@@ -178,12 +178,14 @@ uses
   KM_Points in 'src\KM_Points.pas',
   KM_PolySimplify in 'src\KM_PolySimplify.pas',
   KM_Projectiles in 'src\KM_Projectiles.pas',
-  KM_Render in 'src\KM_Render.pas',
-  KM_RenderAux in 'src\KM_RenderAux.pas',
-  KM_RenderControl in 'src\KM_RenderControl.pas',
-  KM_RenderPool in 'src\KM_RenderPool.pas',
-  KM_RenderTerrain in 'src\KM_RenderTerrain.pas',
-  KM_RenderUI in 'src\KM_RenderUI.pas',
+
+  KM_Render in 'src\render\KM_Render.pas',
+  KM_RenderAux in 'src\render\KM_RenderAux.pas',
+  KM_RenderControl in 'src\render\KM_RenderControl.pas',
+  KM_RenderPool in 'src\render\KM_RenderPool.pas',
+  KM_RenderTerrain in 'src\render\KM_RenderTerrain.pas',
+  KM_RenderUI in 'src\render\KM_RenderUI.pas',
+
   KM_Resolutions in 'src\KM_Resolutions.pas',
 
   KM_Resource in 'src\res\KM_Resource.pas',
