@@ -45,7 +45,7 @@
 			<Manifest_File>None</Manifest_File>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\units;..\..\src\ai;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src;..\..\src\ai;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src\gui;..\..\src\hands;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1049</VerInfo_Locale>
 			<DCC_UsePackage>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;DataSnapCommon;DataSnapClient;DataSnapServer;DataSnapProviderClient;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;soaprtl;DBXOracleDriver;dsnap;DBXInformixDriver;IndyCore;fmxase;DBXFirebirdDriver;inet;fmxobj;inetdbxpress;DBXSybaseASADriver;fmxdae;dbexpress;DataSnapIndy10ServerTransport;IPIndyImpl;$(DCC_UsePackage)</DCC_UsePackage>
 			<Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
@@ -141,7 +141,6 @@
 						<Source Name="MainSource">Batcher.dpr</Source>
 					</Source>
 					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Program Files\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>

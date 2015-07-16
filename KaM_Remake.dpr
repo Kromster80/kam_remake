@@ -111,10 +111,11 @@ uses
   KM_GUIMenuSingleMap in 'src\gui\KM_GUIMenuSingleMap.pas',
   KM_GUIMenuSinglePlayer in 'src\gui\KM_GUIMenuSinglePlayer.pas',
 
-  KM_Hand in 'src\KM_Hand.pas',
-  KM_HandsCollection in 'src\KM_HandsCollection.pas',
-  KM_HandSpectator in 'src\KM_HandSpectator.pas',
-  KM_HandStats in 'src\KM_HandStats.pas',
+  KM_Hand in 'src\hands\KM_Hand.pas',
+  KM_HandsCollection in 'src\hands\KM_HandsCollection.pas',
+  KM_HandSpectator in 'src\hands\KM_HandSpectator.pas',
+  KM_HandStats in 'src\hands\KM_HandStats.pas',
+
   KM_HouseBarracks in 'src\houses\KM_HouseBarracks.pas',
   KM_HouseInn in 'src\houses\KM_HouseInn.pas',
   KM_HouseCollection in 'src\houses\KM_HouseCollection.pas',
