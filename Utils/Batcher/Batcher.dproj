@@ -40,7 +40,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
+			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
 			<DCC_COMPARING_SIGNED_UNSIGNED>false</DCC_COMPARING_SIGNED_UNSIGNED>
 			<Manifest_File>None</Manifest_File>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
