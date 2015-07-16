@@ -44,7 +44,7 @@
 			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
 			<DCC_RangeChecking>true</DCC_RangeChecking>
-			<DCC_UnitSearchPath>..\..\;..\..\Common\;..\..\Common\Overbyte ICS 8;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<DCC_K>false</DCC_K>
 			<DCC_N>true</DCC_N>

@@ -42,7 +42,7 @@
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
 			<Manifest_File>None</Manifest_File>
-			<DCC_UnitSearchPath>..\..\;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\units;..\..\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\units;..\..\src\common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<Icon_MainIcon></Icon_MainIcon>
 			<DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
 			<VerInfo_Locale>3081</VerInfo_Locale>
