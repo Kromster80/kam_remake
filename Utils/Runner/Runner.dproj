@@ -46,7 +46,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DcuOutput>..\dcu\</DCC_DcuOutput>
+			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
 			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\hands;..\..\src\houses;..\..\src\net;..\..\src\render;..\..\src\res;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_Locale>1049</VerInfo_Locale>
