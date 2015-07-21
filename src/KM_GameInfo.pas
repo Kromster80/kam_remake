@@ -39,8 +39,6 @@ type
     function AICount: Byte;
     function HumanCount: Byte;
     function HumanUsableLocations: TKMHandIndexArray;
-    function SizeText: UnicodeString;
-    function MissionModeText: UnicodeString;
     function GetTimeText: UnicodeString;
     function GetTitleWithTime: UnicodeString;
     function GetSaveTimestamp: UnicodeString;
@@ -169,22 +167,6 @@ begin
       SetLength(Result, Length(Result)+1);
       Result[Length(Result)-1] := I;
     end;
-end;
-
-
-function TKMGameInfo.SizeText: UnicodeString;
-begin
-  Result := MapSizeText(MapSizeX, MapSizeY);
-end;
-
-
-function TKMGameInfo.MissionModeText: UnicodeString;
-begin
-  case MissionMode of
-    mm_Normal: Result := gResTexts[TX_MODE_BUILD_FIGHT];
-    mm_Tactic: Result := gResTexts[TX_MODE_FIGHTING]
-    else       Result := 'Unknown';
-  end;
 end;
 
 
