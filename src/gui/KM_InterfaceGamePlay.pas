@@ -1965,7 +1965,7 @@ begin
   // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
   case fUIMode of
     umReplay:   Alerts.AddBeacon(aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, -1, gGame.Networking.NetPlayers[gGame.Networking.MyIndex].FlagColor);
+    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.NetPlayers[gGame.Networking.MyIndex].FlagColor);
     else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor);
   end;
   Beacon_Cancel;

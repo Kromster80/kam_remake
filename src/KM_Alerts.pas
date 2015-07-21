@@ -137,6 +137,9 @@ end;
 constructor TKMAlertBeacon.Create(aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aExpiry: Cardinal);
 begin
   inherited Create(atBeacon, aLoc, aOwner, aExpiry);
+
+  // Owner and Color became separate because Spectators set beacons under PLAYER_NONE, but still in their color
+
   fFlagColor := aColor;
 end;
 

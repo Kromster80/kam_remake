@@ -402,8 +402,8 @@ begin
                                     gScriptEvents.ProcBeacon(Params[3], 1 + (Params[1] div 10), 1 + (Params[2] div 10));
                                     //However, beacons don't show in replays
                                     if fReplayState = gipRecording then
-                                      if ((Params[3] = -1) and (gGame.GameMode = gmMultiSpectate)) //HandIndex of -1 means it is for spectators
-                                      or ((Params[3] <> -1) and (gGame.GameMode <> gmMultiSpectate) //Spectators shouldn't see player beacons
+                                      if ((Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
+                                      or ((Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
                                           and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
                                         gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
                                   end;
