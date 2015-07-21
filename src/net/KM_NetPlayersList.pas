@@ -679,7 +679,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetAICount:integer;
+function TKMNetPlayersList.GetAICount: Integer;
 var I: Integer;
 begin
   Result := 0;
@@ -689,7 +689,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetClosedCount:integer;
+function TKMNetPlayersList.GetClosedCount: Integer;
 var I: Integer;
 begin
   Result := 0;
@@ -699,7 +699,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetSpectatorCount:integer;
+function TKMNetPlayersList.GetSpectatorCount: Integer;
 var I: Integer;
 begin
   Result := 0;
@@ -709,7 +709,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetConnectedCount:integer;
+function TKMNetPlayersList.GetConnectedCount: Integer;
 var I: Integer;
 begin
   Result := 0;
@@ -840,7 +840,7 @@ end;
 
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
-function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TKMHandIndexArray; out ErrorMsg: UnicodeString):boolean;
+function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TKMHandIndexArray; out ErrorMsg: UnicodeString): Boolean;
 
   function IsHumanLoc(aLoc: Byte): Boolean;
   var I: Integer;
@@ -1002,8 +1002,8 @@ end;
 
 
 //Save whole amount of data as string to be sent across network to other players
-//I estimate it ~50bytes per player at max
-//later it will be byte array?
+//I estimate it ~50 Bytes per player at max
+//later it will be Byte array?
 procedure TKMNetPlayersList.SaveToStream(aStream: TKMemoryStream);
 var
   I: Integer;
