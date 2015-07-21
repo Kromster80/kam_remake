@@ -19,17 +19,22 @@ uses
     - send binary data to other server clients
     - recieve binary data from other server clients
 
-    - optionaly report non-important status messages
+    - optionaly report non-important status messages }
 
-}
 type
+  {$IFDEF WDC}
+    TKMNetClientImplementation = class(TKMNetClientOverbyte);
+  {$ENDIF}
+  {$IFDEF FPC}
+    TKMNetClientImplementation = class(TKMNetClientLNet);
+  {$ENDIF}
+
   TKMNetClient = class;
   TNotifySenderDataEvent = procedure (aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal) of object;
 
   TKMNetClient = class
   private
-    {$IFDEF WDC} fClient: TKMNetClientOverbyte; {$ENDIF}
-    {$IFDEF FPC} fClient: TKMNetClientLNet;     {$ENDIF}
+    fClient: TKMNetClientImplementation;
     fConnected: Boolean;
 
     fBufferSize: Cardinal;
@@ -71,11 +76,12 @@ type
 implementation
 
 
+ { TKMNetClient }
 constructor TKMNetClient.Create;
 begin
   inherited;
-  {$IFDEF WDC} fClient := TKMNetClientOverbyte.Create; {$ENDIF}
-  {$IFDEF FPC} fClient := TKMNetClientLNet.Create;     {$ENDIF}
+
+  fClient := TKMNetClientImplementation.Create;
   fConnected := False;
   SetLength(fBuffer, 0);
   fBufferSize := 0;
@@ -172,8 +178,9 @@ end;
 
 //Assemble the packet as [Sender.Recepient.Length.Data]
 //We can pack/clean the header later on (if we hit bandwidth limits)
-procedure TKMNetClient.SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
-var P:Pointer;
+procedure TKMNetClient.SendData(aSender,aRecepient: Integer; aData: Pointer; aLength: Cardinal);
+var
+  P: Pointer;
 begin
   assert(aLength <= MAX_PACKET_SIZE,'Packet over size limit');
   GetMem(P, aLength+12);

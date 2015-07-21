@@ -257,9 +257,10 @@ uses
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
+constructor TKMNetworking.Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
 begin
   inherited Create;
+
   SetGameState(lgs_None);
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);
   fNetClient := TKMNetClient.Create;
@@ -282,6 +283,7 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fNetGameOptions);
+
   inherited;
 end;
 
@@ -292,7 +294,7 @@ begin
 end;
 
 
-function TKMNetworking.IsHost:boolean;
+function TKMNetworking.IsHost: Boolean;
 begin
   Result := (fNetPlayerKind = lpk_Host);
 end;
@@ -459,11 +461,11 @@ end;
 
 procedure TKMNetworking.DecodePingInfo(aStream: TKMemoryStream);
 var
-  i:integer;
-  PingCount:integer;
-  PlayerHandle:integer;
-  PingValue:word;
-  LocalHandle:integer;
+  i: Integer;
+  PingCount: Integer;
+  PlayerHandle: Integer;
+  PingValue: Word;
+  LocalHandle: Integer;
 begin
   if fIgnorePings > 0 then
   begin
