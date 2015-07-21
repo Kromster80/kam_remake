@@ -73,6 +73,7 @@ type
     procedure cbShowMisClick(Sender: TObject);
     procedure clbFoldersClickCheck(Sender: TObject);
     procedure mmSaveAllZIPClick(Sender: TObject);
+    procedure ListBox1KeyPress(Sender: TObject; var Key: Char);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -211,8 +212,10 @@ end;
 
 
 procedure TForm1.lbFoldersClick(Sender: TObject);
-const MSG_WARNING: string = 'You have unsaved changes that will be lost, load new libx anyway?';
-var ID: Integer;
+const
+  MSG_WARNING: string = 'You have unsaved changes that will be lost, load new libx anyway?';
+var
+  ID: Integer;
 begin
   //Let the user abort and save edited translations
   if mnuSave.Enabled
@@ -239,7 +242,8 @@ end;
 
 
 procedure TForm1.btnSaveClick(Sender: TObject);
-var ID: Integer;
+var
+  ID: Integer;
 begin
   ID := lbFolders.ItemIndex;
   if ID = -1 then Exit;
@@ -462,6 +466,13 @@ begin
 end;
 
 
+procedure TForm1.ListBox1KeyPress(Sender: TObject; var Key: Char);
+begin
+  if Ord(Key) = VK_DELETE then
+    btnDeleteClick(Self);
+end;
+
+
 //Sort the items by TextID
 procedure TForm1.btnSortByIndexClick(Sender: TObject);
 begin
@@ -669,7 +680,7 @@ begin
   T := fTextManager.Consts[ID];
 
   OldName := T.ConstName;
-  NewName := InputBox('', 'New name:', OldName);
+  NewName := UpperCase(InputBox('', 'New name:', OldName));
 
   if NewName = OldName then
     Exit;
@@ -770,8 +781,7 @@ end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  CanClose := (not mnuSave.Enabled) or
-              (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, [mbYes,mbNo], 0) = mrYes);
+  CanClose := (not mnuSave.Enabled) or (MessageDlg('Exit without saving?', mtWarning, [mbYes, mbNo], 0) = mrYes);
 end;
 
 

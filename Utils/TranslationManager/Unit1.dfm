@@ -61,6 +61,7 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
+    OnKeyPress = ListBox1KeyPress
   end
   object btnInsert: TButton
     Left = 336
