@@ -74,7 +74,7 @@ type
   //These classes are only accessed locally, hence they aren't interfaced
   TKMAlertBeacon = class(TKMAlert)
   private
-    fFlagColor: Cardinal; //Spectators don't have hand so fOwner isn't enough
+    fFlagColor: Cardinal; //Spectators don't have Hand so fOwner isn't enough
   protected
     function GetTexMinimap: TKMPic; override;
     function GetTexTerrain: TKMPic; override;
@@ -87,7 +87,7 @@ type
 
   TKMAlertAttacked = class(TKMAlert)
   private
-    fAsset: TAttackNotification; //What was attacked?
+    fAsset: TAttackNotification; // What was attacked
     fLastLookedAt: Byte;
   protected
     function GetTexMinimap: TKMPic; override;
