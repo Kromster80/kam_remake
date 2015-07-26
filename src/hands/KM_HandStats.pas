@@ -365,7 +365,8 @@ end;
 
 
 function TKMHandStats.GetUnitQty(aType: TUnitType): Integer;
-var UT: TUnitType;
+var
+  UT: TUnitType;
 begin
   Result := 0;
   case aType of
@@ -394,9 +395,10 @@ begin
 end;
 
 
-//How many wares player has
+//How many wares player has right now
 function TKMHandStats.GetWareBalance(aRT: TWareType): Integer;
-var RT: TWareType;
+var
+  RT: TWareType;
 begin
   Result := 0;
   case aRT of
@@ -665,7 +667,8 @@ end;
 
 
 procedure TKMHandStats.Save(SaveStream: TKMemoryStream);
-var R: TWareType;
+var
+  R: TWareType;
 begin
   SaveStream.WriteA('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));

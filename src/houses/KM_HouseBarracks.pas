@@ -51,6 +51,7 @@ uses
 constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
 begin
   inherited;
+
   fRecruitsList := TList.Create;
   RallyPoint := KMPointBelow(GetEntrance);
 end;
@@ -62,6 +63,7 @@ var
   U: TKMUnit;
 begin
   inherited;
+
   LoadStream.Read(fResourceCount, SizeOf(fResourceCount));
   fRecruitsList := TList.Create;
   LoadStream.Read(NewCount);

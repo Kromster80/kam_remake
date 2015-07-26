@@ -44,7 +44,8 @@ uses
 
 { TKMHouseSchool }
 constructor TKMHouseSchool.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited;
 
@@ -116,7 +117,8 @@ end;
 
 //DoCancelTraining and remove untrained unit
 procedure TKMHouseSchool.RemUnitFromQueue(aID: Byte);
-var I: Integer;
+var
+  I: Integer;
 begin
   if fQueue[aID] = ut_None then Exit; //Ignore clicks on empty queue items
 
