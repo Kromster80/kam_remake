@@ -436,8 +436,8 @@ begin
   fUpdating := True;
   ResetGroupBox(GroupBox1);
 
-  tbOwnMargin.Position := OWN_MARGIN;
-  tbOwnThresh.Position := OWN_THRESHOLD;
+  tbOwnMargin.Position := OWN_MARGIN_DEF;
+  tbOwnThresh.Position := OWN_THRESHOLD_DEF;
 
   fUpdating := False;
   ControlsUpdate(nil);

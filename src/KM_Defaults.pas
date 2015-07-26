@@ -224,10 +224,13 @@ const
   PLAYER_NONE = -1; //No player
   PLAYER_ANIMAL = -2; //animals
 
+  OWN_MARGIN_DEF   :Byte = 190;
+  OWN_THRESHOLD_DEF:Byte = 126;
+
 var
   //Values are empirical
-  OWN_MARGIN   :Byte = 190;
-  OWN_THRESHOLD:Byte = 126;
+  OWN_MARGIN   :Byte = OWN_MARGIN_DEF;
+  OWN_THRESHOLD:Byte = OWN_THRESHOLD_DEF;
 
 
 {Cursors}
