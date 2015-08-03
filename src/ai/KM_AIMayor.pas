@@ -134,23 +134,23 @@ end;
 procedure TKMayor.CheckUnitCount;
 var
   P: TKMHand;
-  HS: TKMHouseSchool;
   UnitReq: array [CITIZEN_MIN..CITIZEN_MAX] of Integer;
 
-  function HasEnoughGold: Boolean;
+  // Check that AI has enough Gold to train serfs/workers
+  function HasEnoughGoldForAux: Boolean;
   begin
     //Producing gold or (Gold > 10)
     Result := (P.Stats.GetWaresProduced(wt_Gold) > 1)
               or (P.Stats.GetWareBalance(wt_Gold) > 20);
   end;
 
-  function TryAddToQueue(aUnitType: TUnitType; aReq: Integer): Boolean;
+  function TryToTrain(aSchool: TKMHouseSchool; aUnitType: TUnitType; aRequiredCount: Integer): Boolean;
   begin
-    //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if P.Stats.GetUnitQty(aUnitType) < (aReq + UnitReq[aUnitType]) then
+    // We summ up requirements for e.g. Recruits required at Towers and Barracks
+    if P.Stats.GetUnitQty(aUnitType) < (aRequiredCount + UnitReq[aUnitType]) then
     begin
       Dec(UnitReq[aUnitType]); //So other schools don't order same unit
-      HS.AddUnitToQueue(aUnitType, 1);
+      aSchool.AddUnitToQueue(aUnitType, 1);
       Result := True;
     end
     else
@@ -188,6 +188,8 @@ var
   H: THouseType;
   UT: TUnitType;
   Schools: array of TKMHouseSchool;
+  HS: TKMHouseSchool;
+  serfCount: Integer;
 begin
   //todo: When training new units make sure we have enough gold left to train
   //stonemason-woodcutter-carpenter-2miners-metallurgist. In other words -
@@ -225,7 +227,7 @@ begin
     begin
       //Order citizen training
       for UT := Low(UnitReq) to High(UnitReq) do
-        if (UnitReq[UT] > 0) //Skip units that dont needed by houses (Serf/Worker)
+        if (UnitReq[UT] > 0) //Skip units that houses dont need (Serfs/Workers)
         and (UnitReq[UT] > P.Stats.GetUnitQty(UT)) then
         begin
           Dec(UnitReq[UT]); //So other schools don't order same unit
@@ -233,17 +235,25 @@ begin
           Break; //Don't need more UnitTypes yet
         end;
 
-      //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
-      //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
-      while (HS.QueueCount < 2) //Still haven't found a match...
-      and HasEnoughGold do  //If we are low on Gold don't hire more ppl
-        if not TryAddToQueue(ut_Serf, Round(fSetup.SerfsPerHouse * (P.Stats.GetHouseQty(ht_Any) + P.Stats.GetUnitQty(ut_Worker)/2))) then
-          if not TryAddToQueue(ut_Worker, fSetup.WorkerCount) then
+      // If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
+      // Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
+
+      // While still haven't found a match...
+      while (HS.QueueCount < 2) do
+      begin
+        // If we are low on Gold don't hire more ppl (next school will fail this too, so we can exit)
+        if not HasEnoughGoldForAux then Exit;
+
+        serfCount := Round(fSetup.SerfsPerHouse * (P.Stats.GetHouseQty(ht_Any) + P.Stats.GetUnitQty(ut_Worker)/2));
+
+        if not TryToTrain(HS, ut_Serf, serfCount) then
+          if not TryToTrain(HS, ut_Worker, fSetup.WorkerCount) then
             if not gGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
               Break
             else
-              if not TryAddToQueue(ut_Recruit, RecruitsNeeded) then
+              if not TryToTrain(HS, ut_Recruit, RecruitsNeeded) then
                 Break; //There's no unit demand at all
+      end;
     end;
   end;
 end;
