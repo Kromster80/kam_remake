@@ -87,7 +87,7 @@ begin
 
     for I := 0 to 3 do
     begin
-      ResRow_Resource_Input[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
+      ResRow_Resource_Input[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH);
       ResRow_Resource_Input[I].RX := rxGui;
       ResRow_Resource_Input[I].OrderAdd.OnClickShift := HouseChange;
       ResRow_Resource_Input[I].OrderRem.OnClickShift := HouseChange;
@@ -95,7 +95,7 @@ begin
     Label_House_Output := TKMLabel.Create(Panel_House, 0, 155, TB_WIDTH, 0, gResTexts[TX_HOUSE_DELIVERS]+':', fnt_Grey, taCenter);
     for I := 0 to 3 do
     begin
-      ResRow_Resource_Output[I] := TKMWareOrderRow.Create(Panel_House, 0, 175 + I * 25, TB_WIDTH, 20);
+      ResRow_Resource_Output[I] := TKMWareOrderRow.Create(Panel_House, 0, 175 + I * 25, TB_WIDTH);
       ResRow_Resource_Output[I].RX := rxGui;
       ResRow_Resource_Output[I].OrderAdd.OnClickShift := HouseChange;
       ResRow_Resource_Output[I].OrderRem.OnClickShift := HouseChange;
