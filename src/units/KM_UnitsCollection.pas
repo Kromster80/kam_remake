@@ -254,17 +254,7 @@ var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
-  begin
-    Units[I].SyncLoad(* of
-      ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
-      ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;
-      ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                                TKMUnitCitizen(Items[I]).SyncLoad;
-      ut_Recruit:               TKMUnitRecruit(Items[I]).SyncLoad;
-      WARRIOR_MIN..WARRIOR_MAX: TKMUnitWarrior(Items[I]).SyncLoad;
-      ANIMAL_MIN..ANIMAL_MAX:   TKMUnitAnimal(Items[I]).SyncLoad;
-    end;*)
-  end;
+    Units[I].SyncLoad;
 end;
 
 
