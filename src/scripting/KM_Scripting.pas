@@ -10,6 +10,18 @@ uses
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
+  //Two classes exposed to scripting States and Actions
+
+  //All functions can be split into these three categories:
+  // - Event, when something has happened (e.g. House was built)
+  // - State, describing the state of something (e.g. Houses.Count >= 1)
+  // - Action, when we need to perform something (e.g. show a message)
+
+  //How to add new a method exposed to the scripting? Three steps:
+  //1. Add method to published section here below
+  //2. Add method declaration to Compiler (TKMScripting.ScriptOnUses)
+  //3. Add method name to Runtime (TKMScripting.LinkRuntime)
+
 type
   TKMScripting = class
   private
@@ -22,7 +34,7 @@ type
 
     fHasErrorOccured: Boolean; //Has runtime error occurred? (only display first error)
     fScriptLogFile: UnicodeString;
-    fOnShowScriptError: TUnicodeStringEvent;
+    fOnScriptError: TUnicodeStringEvent;
 
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
@@ -39,7 +51,7 @@ type
     procedure SaveVar(SaveStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
     procedure LoadVar(LoadStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
   public
-    constructor Create(aOnShowScriptError: TUnicodeStringEvent);
+    constructor Create(aOnScriptError: TUnicodeStringEvent);
     destructor Destroy; override;
 
     property ErrorString: UnicodeString read fErrorString;
@@ -72,7 +84,7 @@ const
 
 implementation
 uses
-  KM_Log, KM_Game, KromUtils;
+  KromUtils, KM_Game, KM_Log;
 
 
 const
@@ -80,11 +92,12 @@ const
 
 
 { TKMScripting }
-constructor TKMScripting.Create(aOnShowScriptError: TUnicodeStringEvent);
+constructor TKMScripting.Create(aOnScriptError: TUnicodeStringEvent);
 begin
   inherited Create;
 
-  fExec := TPSExec.Create;  // Create an instance of the executer.
+  // Create an instance of the script executer
+  fExec := TPSExec.Create;
   fIDCache := TKMScriptingIdCache.Create;
 
   // Global object to get events
@@ -92,7 +105,7 @@ begin
   fStates := TKMScriptStates.Create(fIDCache);
   fActions := TKMScriptActions.Create(fIDCache);
 
-  fOnShowScriptError := aOnShowScriptError;
+  fOnScriptError := aOnScriptError;
   gScriptEvents.OnScriptError := HandleScriptError;
   fStates.OnScriptError := HandleScriptError;
   fActions.OnScriptError := HandleScriptError;
@@ -138,14 +151,14 @@ begin
 
   //Display compile errors in-game
   if aType = se_CompileError then
-    fOnShowScriptError(StringReplace(aMsg, EolW, '|', [rfReplaceAll]));
+    fOnScriptError(StringReplace(aMsg, EolW, '|', [rfReplaceAll]));
 
   //Serious runtime errors should be shown to the player
   if aType in [se_Exception] then
   begin
     //Only show the first message in-game to avoid spamming the player
     if not fHasErrorOccured then
-      fOnShowScriptError('Error(s) have occured in the mission script. ' +
+      fOnScriptError('Error(s) have occured in the mission script. ' +
                          'Please check the log file for further details. First error:||' + aMsg);
     fHasErrorOccured := True;
   end;
