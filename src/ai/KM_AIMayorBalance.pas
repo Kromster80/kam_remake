@@ -299,6 +299,7 @@ var SkipSausage: Boolean;
 begin
   //When making iron only don't make sausages, they're inefficient if you don't use skins
   SkipSausage := gHands[fOwner].AI.Setup.ArmyType = atIron;
+  
   //Pick smallest production and increase it
   //If all 3 shares 0 we whould pick Sausages first to ensure Leather supply
   with fFood do

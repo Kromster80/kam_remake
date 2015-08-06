@@ -102,7 +102,6 @@ type
   end;
 
   TKMScriptStates = class(TKMScriptEntity)
-  private
   public
     function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
     function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
@@ -223,7 +222,6 @@ type
   end;
 
   TKMScriptActions = class(TKMScriptEntity)
-  private
   public
     procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word);
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
