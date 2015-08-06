@@ -19,7 +19,7 @@ type
 
 implementation
 uses
-  KM_ResSound, KM_Sound, KM_HandsCollection, KM_Resource, KM_Units_Warrior, KM_ScriptingESA,
+  KM_ResSound, KM_Sound, KM_HandsCollection, KM_Resource, KM_Units_Warrior, KM_ScriptingEvents,
   KM_ResUnits;
 
 

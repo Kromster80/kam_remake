@@ -206,8 +206,10 @@ uses
   KM_Saves in 'src\KM_Saves.pas',
 
   KM_Scripting in 'src\scripting\KM_Scripting.pas',
-  KM_ScriptingESA in 'src\scripting\KM_ScriptingESA.pas',
+  KM_ScriptingActions in 'src\scripting\KM_ScriptingActions.pas',
+  KM_ScriptingEvents in 'src\scripting\KM_ScriptingEvents.pas',
   KM_ScriptingIdCache in 'src\scripting\KM_ScriptingIdCache.pas',
+  KM_ScriptingStates in 'src\scripting\KM_ScriptingStates.pas',
 
   KM_ServerQuery in 'src\KM_ServerQuery.pas',
   KM_Settings in 'src\KM_Settings.pas',

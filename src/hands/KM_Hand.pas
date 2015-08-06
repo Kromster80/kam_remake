@@ -158,7 +158,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
-  KM_ResTexts, KM_AIFields, KM_ScriptingESA, KM_HouseBarracks;
+  KM_ResTexts, KM_AIFields, KM_ScriptingEvents, KM_HouseBarracks;
 
 
 const

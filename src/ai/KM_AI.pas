@@ -52,7 +52,7 @@ type
 implementation
 uses
   KM_Game, KM_HandsCollection, KM_Hand, KM_HandStats,
-  KM_ResSound, KM_ScriptingESA, KM_ResHouses, KM_Alerts, KM_GameApp;
+  KM_ResSound, KM_ScriptingEvents, KM_ResHouses, KM_Alerts, KM_GameApp;
 
 
 { TKMHandAI }
