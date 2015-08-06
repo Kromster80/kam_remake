@@ -204,9 +204,11 @@ uses
   KM_ResWares in 'src\res\KM_ResWares.pas',
 
   KM_Saves in 'src\KM_Saves.pas',
-  KM_Scripting in 'src\KM_Scripting.pas',
-  KM_ScriptingESA in 'src\KM_ScriptingESA.pas',
-  KM_ScriptingIdCache in 'src\KM_ScriptingIdCache.pas',
+
+  KM_Scripting in 'src\scripting\KM_Scripting.pas',
+  KM_ScriptingESA in 'src\scripting\KM_ScriptingESA.pas',
+  KM_ScriptingIdCache in 'src\scripting\KM_ScriptingIdCache.pas',
+
   KM_ServerQuery in 'src\KM_ServerQuery.pas',
   KM_Settings in 'src\KM_Settings.pas',
   KM_Sound in 'src\KM_Sound.pas',

@@ -203,10 +203,10 @@
 			<DCCReference Include="src\gui\KM_GUIMenuResultsSP.pas"/>
 			<DCCReference Include="src\gui\KM_GUIMenuSingleMap.pas"/>
 			<DCCReference Include="src\gui\KM_GUIMenuSinglePlayer.pas"/>
-			<DCCReference Include="src\KM_Hand.pas"/>
-			<DCCReference Include="src\KM_HandsCollection.pas"/>
-			<DCCReference Include="src\KM_HandSpectator.pas"/>
-			<DCCReference Include="src\KM_HandStats.pas"/>
+			<DCCReference Include="src\hands\KM_Hand.pas"/>
+			<DCCReference Include="src\hands\KM_HandsCollection.pas"/>
+			<DCCReference Include="src\hands\KM_HandSpectator.pas"/>
+			<DCCReference Include="src\hands\KM_HandStats.pas"/>
 			<DCCReference Include="src\houses\KM_HouseBarracks.pas"/>
 			<DCCReference Include="src\houses\KM_HouseInn.pas"/>
 			<DCCReference Include="src\houses\KM_HouseCollection.pas"/>
@@ -236,22 +236,15 @@
 			<DCCReference Include="src\KM_MissionScript_Standard.pas"/>
 			<DCCReference Include="src\KM_Music.pas"/>
 			<DCCReference Include="src\KM_NavMesh.pas"/>
-        <DCCReference Include="src\KM_NetAuthSecure.pas"/>
-        <DCCReference Include="src\KM_NetAuthUnsecure.pas"/>
-        <DCCReference Include="src\KM_NetClient.pas"/>
-        <DCCReference Include="src\KM_NetClientOverbyte.pas"/>
-        <DCCReference Include="src\KM_NetClientLNet.pas"/>
-        <DCCReference Include="src\KM_NetFileTransfer.pas"/>
-        <DCCReference Include="src\KM_NetServer.pas"/>
-        <DCCReference Include="src\KM_NetServerOverbyte.pas"/>
-        <DCCReference Include="src\KM_NetServerLNet.pas"/>
-        <DCCReference Include="src\KM_NetUDP.pas"/>
-        <DCCReference Include="src\KM_NetUDPOverbyte.pas"/>
-        <DCCReference Include="src\KM_NetUDPLNet.pas"/>
-        <DCCReference Include="src\KM_Networking.pas"/>
-        <DCCReference Include="src\KM_NetworkClasses.pas"/>
-        <DCCReference Include="src\KM_NetworkTypes.pas"/>
-        <DCCReference Include="src\KM_NetPlayersList.pas"/>
+			<DCCReference Include="src\net\KM_NetAuthUnsecure.pas"/>
+			<DCCReference Include="src\net\KM_NetClient.pas"/>
+			<DCCReference Include="src\net\KM_NetFileTransfer.pas"/>
+			<DCCReference Include="src\net\KM_NetPlayersList.pas"/>
+			<DCCReference Include="src\net\KM_NetServer.pas"/>
+			<DCCReference Include="src\net\KM_NetUDP.pas"/>
+			<DCCReference Include="src\net\KM_NetworkClasses.pas"/>
+			<DCCReference Include="src\net\KM_Networking.pas"/>
+			<DCCReference Include="src\net\KM_NetworkTypes.pas"/>
 			<DCCReference Include="src\KM_Outline.pas"/>
 			<DCCReference Include="src\KM_PathFinding.pas"/>
 			<DCCReference Include="src\KM_PathFindingAStarOld.pas"/>
@@ -264,12 +257,12 @@
 			<DCCReference Include="src\KM_Points.pas"/>
 			<DCCReference Include="src\KM_PolySimplify.pas"/>
 			<DCCReference Include="src\KM_Projectiles.pas"/>
-			<DCCReference Include="src\KM_Render.pas"/>
-			<DCCReference Include="src\KM_RenderAux.pas"/>
-			<DCCReference Include="src\KM_RenderControl.pas"/>
-			<DCCReference Include="src\KM_RenderPool.pas"/>
-			<DCCReference Include="src\KM_RenderTerrain.pas"/>
-			<DCCReference Include="src\KM_RenderUI.pas"/>
+			<DCCReference Include="src\render\KM_Render.pas"/>
+			<DCCReference Include="src\render\KM_RenderAux.pas"/>
+			<DCCReference Include="src\render\KM_RenderControl.pas"/>
+			<DCCReference Include="src\render\KM_RenderPool.pas"/>
+			<DCCReference Include="src\render\KM_RenderTerrain.pas"/>
+			<DCCReference Include="src\render\KM_RenderUI.pas"/>
 			<DCCReference Include="src\KM_Resolutions.pas"/>
 			<DCCReference Include="src\res\KM_Resource.pas"/>
 			<DCCReference Include="src\res\KM_ResCursors.pas"/>
@@ -286,18 +279,18 @@
 			<DCCReference Include="src\res\KM_ResUnits.pas"/>
 			<DCCReference Include="src\res\KM_ResWares.pas"/>
 			<DCCReference Include="src\KM_Saves.pas"/>
-			<DCCReference Include="src\KM_Scripting.pas"/>
-			<DCCReference Include="src\KM_ScriptingESA.pas"/>
-			<DCCReference Include="src\KM_ScriptingIdCache.pas"/>
+			<DCCReference Include="src\scripting\KM_Scripting.pas"/>
+			<DCCReference Include="src\scripting\KM_ScriptingESA.pas"/>
+			<DCCReference Include="src\scripting\KM_ScriptingIdCache.pas"/>
 			<DCCReference Include="src\KM_ServerQuery.pas"/>
 			<DCCReference Include="src\KM_Settings.pas"/>
 			<DCCReference Include="src\KM_Sound.pas"/>
-			<DCCReference Include="src\KM_Terrain.pas"/>
-			<DCCReference Include="src\KM_TerrainDeposits.pas"/>
-			<DCCReference Include="src\KM_TerrainFinder.pas"/>
-			<DCCReference Include="src\KM_TerrainPainter.pas"/>
-			<DCCReference Include="src\KM_TerrainSelection.pas"/>
-			<DCCReference Include="src\KM_TerrainWalkConnect.pas"/>
+			<DCCReference Include="src\terrain\KM_Terrain.pas"/>
+			<DCCReference Include="src\terrain\KM_TerrainDeposits.pas"/>
+			<DCCReference Include="src\terrain\KM_TerrainFinder.pas"/>
+			<DCCReference Include="src\terrain\KM_TerrainPainter.pas"/>
+			<DCCReference Include="src\terrain\KM_TerrainSelection.pas"/>
+			<DCCReference Include="src\terrain\KM_TerrainWalkConnect.pas"/>
 			<DCCReference Include="src\units\KM_UnitActionAbandonWalk.pas"/>
 			<DCCReference Include="src\units\KM_UnitActionFight.pas"/>
 			<DCCReference Include="src\units\KM_UnitActionGoInOut.pas"/>
@@ -365,8 +358,8 @@
 						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 					</VersionInfoKeys>
 					<Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k170.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp170.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k170.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp170.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
 				</Delphi.Personality>
 				<Platforms>
