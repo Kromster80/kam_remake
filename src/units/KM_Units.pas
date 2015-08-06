@@ -1018,6 +1018,7 @@ end;
 constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited Create;
+
   fUID           := aID;
   fTicker       := fUID; //Units update states will be spread more evenly that way
   fPointerCount := 0;
@@ -1140,8 +1141,12 @@ end;
 
 procedure TKMUnit.SyncLoad;
 begin
-  if fUnitTask<>nil then fUnitTask.SyncLoad;
-  if fCurrentAction<>nil then fCurrentAction.SyncLoad;
+  if fUnitTask <> nil then
+    fUnitTask.SyncLoad;
+
+  if fCurrentAction <> nil then
+    fCurrentAction.SyncLoad;
+
   fHome := gHands.GetHouseByUID(cardinal(fHome));
   fInHouse := gHands.GetHouseByUID(cardinal(fInHouse));
 end;
@@ -2039,9 +2044,10 @@ begin
   fTaskName := utn_Unknown;
   Assert(aUnit <> nil);
   fUnit := aUnit.GetUnitPointer;
-  fUnit.SetActionLockedStay(0, ua_Walk);
   fPhase  := 0;
   fPhase2 := 0;
+
+  fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 

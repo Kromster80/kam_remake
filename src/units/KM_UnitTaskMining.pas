@@ -8,8 +8,8 @@ uses
   KM_ResWares;
 
 
-// Do resource mining
 type
+  // Resource mining task
   TTaskMining = class(TUnitTask)
   private
     fBeastID: Byte;
@@ -56,8 +56,11 @@ end;
 
 destructor TTaskMining.Destroy;
 begin
-  if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
-    fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
+  // Make sure we don't abandon and leave our house with "working" animations
+  if (not fUnit.GetHome.IsDestroyed)
+  and (fUnit.GetHome.GetState = hst_Work) then
+    fUnit.GetHome.SetState(hst_Idle);
+
   FreeAndNil(fWorkPlan);
 
   inherited;
@@ -202,8 +205,9 @@ end;
 {This is execution of Resource mining}
 function TTaskMining.Execute: TTaskResult;
 const
+  // Shortcuts to skip certain Phases
   SkipWalk = 9;
-  SkipWork = 11 + MAX_WORKPLAN; //Skip to certain Phases
+  SKIP_WORK = 11 + MAX_WORKPLAN; //Skip to certain Phases
 var
   D: TKMDirection;
   TimeToWork, StillFrame: Integer;
@@ -332,7 +336,7 @@ begin
             end
             else
             begin
-              fPhase := SkipWork; //Skip to work complete
+              fPhase := SKIP_WORK; //Skip to work complete
               SetActionLockedStay(0, ua_Walk);
               Exit;
             end;
@@ -356,7 +360,7 @@ begin
             end
             else
             begin
-              fPhase := SkipWork; //Skip to step 31
+              fPhase := SKIP_WORK; //Skip to step 31
               SetActionLockedStay(0, ua_Walk);
               Exit;
             end;
@@ -392,7 +396,7 @@ begin
 end;
 
 
-procedure TTaskMining.Save(SaveStream:TKMemoryStream);
+procedure TTaskMining.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   fWorkPlan.Save(SaveStream);

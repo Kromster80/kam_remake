@@ -20,7 +20,8 @@ implementation
 { TTaskGoHome }
 constructor TTaskGoHome.Create(aUnit: TKMUnit);
 begin
-  inherited Create(aUnit);
+  inherited;
+
   fTaskName := utn_GoHome;
 end;
 
@@ -28,6 +29,7 @@ end;
 function TTaskGoHome.Execute: TTaskResult;
 begin
   Result := TaskContinues;
+
   if fUnit.GetHome.IsDestroyed then
   begin
     Result := TaskDone;

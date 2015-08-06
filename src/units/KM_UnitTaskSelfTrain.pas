@@ -2,7 +2,8 @@ unit KM_UnitTaskSelfTrain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KM_CommonClasses, KM_Defaults, KM_Houses, KM_HouseSchool, KM_Units, SysUtils;
+  Classes, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Houses, KM_HouseSchool, KM_Units;
 
 
 //Train citizen in school
@@ -29,6 +30,7 @@ uses
 constructor TTaskSelfTrain.Create(aUnit: TKMUnit; aSchool: TKMHouseSchool);
 begin
   inherited Create(aUnit);
+
   fTaskName := utn_SelfTrain;
   fSchool   := TKMHouseSchool(aSchool.GetHousePointer);
   fUnit.Visible := False;
@@ -52,8 +54,13 @@ end;
 destructor TTaskSelfTrain.Destroy;
 begin
   if gGame.IsExiting then Exit; //fSchool will already be freed
-  if (fPhase <= 5) and not fSchool.IsDestroyed then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
+
+  // If we abandon for some reason, clear the school animation
+  if (fPhase <= 5) and not fSchool.IsDestroyed then
+    fSchool.SetState(hst_Idle);
+
   gHands.CleanUpHousePointer(TKMHouse(fSchool));
+
   inherited;
 end;
 
@@ -99,7 +106,8 @@ begin
           SetActionLockedStay(9, ua_Walk);
          end;
       6: begin
-          fUnit.SetInHouse(fSchool); //Put him in the school, so if it is destroyed while he is inside he is placed somewhere
+          // Put him in the school, so if it is destroyed while he is looking for place to exit he is placed somewhere
+          fUnit.SetInHouse(fSchool);
           SetActionGoIn(ua_Walk, gd_GoOutside, fSchool);
           fSchool.UnitTrainingComplete(fUnit);
           if Assigned(fUnit.OnUnitTrained) then
@@ -115,7 +123,7 @@ procedure TTaskSelfTrain.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fSchool <> nil then
-    SaveStream.Write(fSchool.UID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fSchool.UID)
   else
     SaveStream.Write(Integer(0));
 end;
