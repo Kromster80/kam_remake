@@ -153,10 +153,10 @@ begin
       //They get repositioned on display
       for I := 1 to 4 do
       begin
-        ResRow_Common_Resource[I] := TKMWaresRow.Create(Panel_House_Common, 0, 0, TB_WIDTH, 21);
+        ResRow_Common_Resource[I] := TKMWaresRow.Create(Panel_House_Common, 0, 0, TB_WIDTH);
         ResRow_Common_Resource[I].RX := rxGui;
 
-        ResRow_Order[I] := TKMWareOrderRow.Create(Panel_House_Common, 0, 0, TB_WIDTH, 21);
+        ResRow_Order[I] := TKMWareOrderRow.Create(Panel_House_Common, 0, 0, TB_WIDTH);
         ResRow_Order[I].RX := rxGui;
         ResRow_Order[I].OrderRem.OnClickShift := House_OrderClick;
         ResRow_Order[I].OrderAdd.OnClickShift := House_OrderClick;
@@ -280,7 +280,7 @@ begin
 
     TKMLabel.Create(Panel_House_School,0,2,TB_WIDTH,30,gResTexts[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
 
-    ResRow_School_Resource := TKMWaresRow.Create(Panel_House_School, 0, 21, TB_WIDTH, 21);
+    ResRow_School_Resource := TKMWaresRow.Create(Panel_House_School, 0, 21, TB_WIDTH);
     ResRow_School_Resource.RX := rxGui;
     ResRow_School_Resource.TexID := gRes.Wares[wt_Gold].GUIIcon;
     ResRow_School_Resource.Caption := gRes.Wares[wt_Gold].Title;

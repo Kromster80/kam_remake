@@ -503,6 +503,7 @@ type
     TexID: Word;
     Caption: UnicodeString;
     WareCount: Byte;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
     procedure Paint; override;
   end;
 
@@ -554,7 +555,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     OrderCount: Word;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
     property OrderAdd: TKMButton read fOrderAdd; //UI sets and handles OnClickEither itself
     property OrderRem: TKMButton read fOrderRem;
     procedure Paint; override;
@@ -2286,7 +2287,8 @@ end;
 
 //
 procedure TKMEdit.SetCursorPos(aPos: Integer);
-var RText: UnicodeString;
+var
+  RText: UnicodeString;
 begin
   fCursorPos := EnsureRange(aPos, 0, Length(fText));
   if fCursorPos < fLeftIndex then
@@ -2559,7 +2561,8 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMRadioGroup.Paint;
-const FntCol: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
+const
+  FntCol: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
 var
   LineHeight, CheckSize: Integer;
   I: Integer;
@@ -2577,6 +2580,7 @@ begin
     if fItemIndex = I then
       TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
 
+    // Caption
     TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop + I * LineHeight, Width-LineHeight, fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
   end;
 end;
@@ -2622,8 +2626,17 @@ end;
 
 
 { TKMWaresRow }
+constructor TKMWaresRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
+const
+  WARE_ROW_HEIGHT = 21;
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT);
+end;
+
+
 procedure TKMWaresRow.Paint;
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited;
   TKMRenderUI.WriteBevel(AbsLeft,AbsTop,Width,Height);
@@ -2885,13 +2898,13 @@ end;
 
 
 { TKMWareOrderRow }
-constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
 begin
-  inherited Create(aParent, aLeft+68, aTop, aWidth-68, aHeight);
+  inherited Create(aParent, aLeft+68, aTop, aWidth-68);
 
-  fOrderRem := TKMButton.Create(aParent, aLeft, 0, 20, aHeight - 2, '-', bsGame);
+  fOrderRem := TKMButton.Create(aParent, aLeft, 0, 20, fHeight - 2, '-', bsGame);
   fOrderLab := TKMLabel.Create(aParent, aLeft+33, 0, '', fnt_Grey, taCenter);
-  fOrderAdd := TKMButton.Create(aParent, aLeft+46, 0, 20, aHeight - 2, '+', bsGame);
+  fOrderAdd := TKMButton.Create(aParent, aLeft+46, 0, 20, fHeight - 2, '+', bsGame);
 end;
 
 
