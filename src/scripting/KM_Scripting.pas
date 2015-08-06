@@ -4,8 +4,9 @@ interface
 uses
   Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
-  KM_CommonClasses, KM_Defaults, KM_FileIO, KM_CommonTypes,
-  KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
+  KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates,
+  KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
@@ -73,6 +74,7 @@ implementation
 uses
   KM_Log, KM_Game, KromUtils;
 
+
 const
   SCRIPT_LOG_EXT = '.LOG.txt';
 
@@ -81,8 +83,11 @@ const
 constructor TKMScripting.Create(aOnShowScriptError: TUnicodeStringEvent);
 begin
   inherited Create;
+
   fExec := TPSExec.Create;  // Create an instance of the executer.
   fIDCache := TKMScriptingIdCache.Create;
+
+  // Global object to get events
   gScriptEvents := TKMScriptEvents.Create(fExec, fIDCache);
   fStates := TKMScriptStates.Create(fIDCache);
   fActions := TKMScriptActions.Create(fIDCache);
@@ -165,7 +170,9 @@ begin
     fCampaignDataTypeCode := '';
 
   fScriptCode := ReadTextA(aFileName);
+
   CompileScript;
+
   if fErrorString <> '' then
     HandleScriptError(se_CompileError, 'Script compile errors:' + EolW + fErrorString);
   if fWarningsString <> '' then
@@ -867,6 +874,7 @@ begin
   finally
     ClassImp.Free;
   end;
+
   //Link events into the script
   gScriptEvents.LinkEvents;
 end;
@@ -943,8 +951,6 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
   V: PIFVariant;
-  //Do not save PS global variables strings
-  //TmpString: AnsiString;
 begin
   LoadStream.ReadAssert('Script');
   LoadStream.ReadHugeString(fScriptCode);

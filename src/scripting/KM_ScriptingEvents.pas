@@ -1,4 +1,4 @@
-unit KM_ScriptingESA;
+unit KM_ScriptingEvents;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -7,24 +7,7 @@ uses
   KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares;
 
 
-  //Two classes exposed to scripting States and Actions
-
-  //All functions can be split into these three categories:
-  // - Event, when something has happened (e.g. House was built)
-  // - State, describing the state of something (e.g. Houses.Count >= 1)
-  // - Action, when we need to perform something (e.g. show a message)
-
-  //How to add new a method exposed to the scripting? Three steps:
-  //1. Add method to published section here below
-  //2. Add method declaration to Compiler (TKMScripting.ScriptOnUses)
-  //3. Add method name to Runtime (TKMScripting.LinkRuntime)
 type
-  TKMScriptEvent = procedure of object;
-  TKMScriptEvent1I = procedure (aIndex: Integer) of object;
-  TKMScriptEvent2I = procedure (aIndex, aParam: Integer) of object;
-  TKMScriptEvent3I = procedure (aIndex, aParam1, aParam2: Integer) of object;
-  TKMScriptEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
-
   TScriptErrorType = (se_InvalidParameter, se_Exception, se_CompileError, se_CompileWarning, se_Log);
   TKMScriptErrorEvent = procedure (aType: TScriptErrorType; const aData: UnicodeString) of object;
 
@@ -114,6 +97,14 @@ uses
   KM_UnitsCollection, KM_PathFindingRoad;
 
 
+type
+  TKMScriptEvent = procedure of object;
+  TKMScriptEvent1I = procedure (aIndex: Integer) of object;
+  TKMScriptEvent2I = procedure (aIndex, aParam: Integer) of object;
+  TKMScriptEvent3I = procedure (aIndex, aParam1, aParam2: Integer) of object;
+  TKMScriptEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
+
+
   //We need to check all input parameters as could be wildly off range due to
   //mistakes in scripts. In that case we have two options:
   // - skip silently and log
@@ -131,6 +122,7 @@ end;
 constructor TKMScriptEvents.Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
 begin
   inherited Create(aIDCache);
+
   fExec := aExec;
 end;
 
@@ -358,7 +350,7 @@ begin
       DoProc(fProcUnitWounded, [aUnit.UID, aAttacker.UID]);
     end
     else
-      DoProc(fProcUnitWounded, [aUnit.UID, -1]);
+      DoProc(fProcUnitWounded, [aUnit.UID, PLAYER_NONE]);
   end;
 end;
 
