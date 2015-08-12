@@ -679,7 +679,8 @@ end;
 
 
 function TKMUnitSerf.TryDeliverFrom(aFrom: TKMHouse): Boolean;
-var T: TUnitTask;
+var
+  T: TUnitTask;
 begin
   //Remember current task
   T := fUnitTask;

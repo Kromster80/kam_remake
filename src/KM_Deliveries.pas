@@ -9,9 +9,10 @@ uses
 
 type
   TJobStatus = (
-        js_Empty,   //Empty - empty spot for a new job
-        js_Open,    //Open - job is free to take by anyone
-        js_Taken);  //Taken - job is taken by some worker
+    js_Empty, // Empty - empty spot for a new job
+    js_Open,  // Open - job is free to take by anyone
+    js_Taken  // Taken - job is taken by some worker
+);
 
   TKMDeliveryOffer = record
     Ware: TWareType;
@@ -593,7 +594,7 @@ begin
 end;
 
 
-//Delivery is only permitted if the serf can access the from house.
+// Delivery is only permitted if the serf can access the From house.
 function TKMDeliverQueue.SerfCanDoDelivery(iO,iD: Integer; aSerf: TKMUnitSerf): Boolean;
 var
   LocA, LocB: TKMPoint;
@@ -933,7 +934,7 @@ end;
 
 procedure TKMDeliverQueue.CloseDemand(aID:integer);
 begin
-  assert(fDemand[aID].BeingPerformed = 0);
+  Assert(fDemand[aID].BeingPerformed = 0);
   fDemand[aID].Ware := wt_None;
   fDemand[aID].DemandType := dt_Once;
   fDemand[aID].Importance := diNorm;
