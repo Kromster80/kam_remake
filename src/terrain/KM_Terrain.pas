@@ -548,6 +548,15 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
       end;
   end;
 
+  function AllowableObject : Boolean;
+  begin
+      if (aObject <> 61) and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
+      and (MapElem[aObject].Stump = -1) then //Hide falling trees and invisible wall (61)
+        Result := True
+      else
+        Result := False;
+  end;
+
 var DiagonalChanged: Boolean;
 begin
   //Will this change make a unit stuck?
@@ -555,20 +564,58 @@ begin
   //Is this object part of a wine/corn field?
   or TileIsWineField(KMPoint(X, Y)) or TileIsCornField(KMPoint(X, Y))
   //Is there a house/site near this object?
-  or HousesNearObject then
+  or HousesNearObject
+  or not AllowableObject then
   begin
     Result := False;
     Exit;
   end;
+
+
 
   //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
   DiagonalChanged := MapElem[Land[Y,X].Obj].DiagonalBlocked xor MapElem[aObject].DiagonalBlocked;
 
   //Apply change
   Land[Y, X].Obj := aObject;
-  UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
-  Result := True;
+  case aObject of
+
+    55..58:
+      if CanAddField(X, Y, ft_Wine) then
+      begin
+         SetField(KMPoint(X, Y), -1, ft_Wine);
+         Result := True;
+      end
+      else
+        Result := False;
+    59..63:
+      if CanAddField(X, Y, ft_Corn) then
+      begin
+        SetField(KMPoint(X, Y), -1, ft_Corn);
+        Result := True;
+      end
+      else
+        Result := False;
+    88..124,
+    126..172:
+    begin
+      if ObjectIsChopableTree(KMPoint(X,Y), caAge1) then Land[Y,X].TreeAge := 1;
+      if ObjectIsChopableTree(KMPoint(X,Y), caAge2) then Land[Y,X].TreeAge := TREE_AGE_1;
+      if ObjectIsChopableTree(KMPoint(X,Y), caAge3) then Land[Y,X].TreeAge := TREE_AGE_2;
+      if ObjectIsChopableTree(KMPoint(X,Y), caAgeFull) then Land[Y,X].TreeAge := TREE_AGE_FULL;
+      UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+      UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
+      Result := True;
+    end
+    else
+    begin
+      UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+      UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
+      Result := True;
+    end;
+  end;
+
+
 end;
 
 
