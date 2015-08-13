@@ -577,6 +577,7 @@ begin
   DiagonalChanged := MapElem[Land[Y,X].Obj].DiagonalBlocked xor MapElem[aObject].DiagonalBlocked;
 
   //Apply change
+  //UpdatePassability and UpdateWalkConnect is used in SetField so that we only use it in trees and other objects
   Land[Y, X].Obj := aObject;
   case aObject of
 
