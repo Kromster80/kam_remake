@@ -1856,16 +1856,8 @@ begin
 
   // Try to highlight the house in question
   H := gHands.HousesHitTest(Msg.Loc.X, Msg.Loc.Y);
-
-  // Check if house exists, then if it does not have owner (but can have one) and it is not Barracks)
-  // highlight it, other condition is when the resources have been depleted for this house
-  // NOTE: It will highlight next house built on the 'ruins' which is unoccupied to be precise
-  //       even the NEW message has not been issued yet
-  if (H <> nil) then
-    if ((Msg.fTextID = TX_MSG_HOUSE_UNOCCUPIED) and (not H.GetHasOwner) and
-        (gRes.HouseDat[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks)) or
-        (H.ResourceDepletedMsgIssued) then
-          MySpectator.Highlight := H;
+  if H <> nil then
+    MySpectator.Highlight := H;
 
   MessageLog_Update(True);
 end;
