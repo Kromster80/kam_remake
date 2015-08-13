@@ -547,7 +547,7 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
         Exit;
       end;
   end;
-
+  // Function allows objects in the same manner like in KaM Editor - we do not want falling trees, hidden objects etc.
   function AllowableObject : Boolean;
   begin
       if (aObject <> 61) and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
@@ -565,6 +565,7 @@ begin
   or TileIsWineField(KMPoint(X, Y)) or TileIsCornField(KMPoint(X, Y))
   //Is there a house/site near this object?
   or HousesNearObject
+  //Is this object allowed to be placed - like in KaM Editor?
   or not AllowableObject then
   begin
     Result := False;
@@ -581,7 +582,7 @@ begin
   Land[Y, X].Obj := aObject;
   case aObject of
 
-    55..58:
+    55..58: // Wine in different stages
       if CanAddField(X, Y, ft_Wine) then
       begin
          SetField(KMPoint(X, Y), -1, ft_Wine);
@@ -589,7 +590,7 @@ begin
       end
       else
         Result := False;
-    59..63:
+    59..63: // Corn in different stages
       if CanAddField(X, Y, ft_Corn) then
       begin
         SetField(KMPoint(X, Y), -1, ft_Corn);
@@ -597,7 +598,7 @@ begin
       end
       else
         Result := False;
-    88..124,
+    88..124, // Trees - 125 is mushroom
     126..172:
     begin
       if ObjectIsChopableTree(KMPoint(X,Y), caAge1) then Land[Y,X].TreeAge := 1;
@@ -608,7 +609,7 @@ begin
       UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
       Result := True;
     end
-    else
+    else // Other objects
     begin
       UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
       UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
