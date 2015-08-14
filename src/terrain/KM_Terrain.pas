@@ -547,6 +547,15 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
         Exit;
       end;
   end;
+  // Function allows objects in the same manner like in KaM Editor - we do not want falling trees, hidden objects etc.
+  function AllowableObject : Boolean;
+  begin
+      if (aObject <> 61) and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
+      and (MapElem[aObject].Stump = -1) then //Hide falling trees and invisible wall (61)
+        Result := True
+      else
+        Result := False;
+  end;
 
 var DiagonalChanged: Boolean;
 begin
@@ -555,20 +564,63 @@ begin
   //Is this object part of a wine/corn field?
   or TileIsWineField(KMPoint(X, Y)) or TileIsCornField(KMPoint(X, Y))
   //Is there a house/site near this object?
-  or HousesNearObject then
+  or HousesNearObject
+  //Is this object allowed to be placed - like in KaM Editor?
+  or not AllowableObject then
   begin
     Result := False;
     Exit;
   end;
 
+
+
   //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
   DiagonalChanged := MapElem[Land[Y,X].Obj].DiagonalBlocked xor MapElem[aObject].DiagonalBlocked;
 
   //Apply change
-  Land[Y, X].Obj := aObject;
-  UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
-  Result := True;
+  //UpdatePassability and UpdateWalkConnect is used in SetField so that we only use it in trees and other objects
+  case aObject of
+
+    55..58: // Wine in different stages
+      if CanAddField(X, Y, ft_Wine) and (TileIsCoal(X, Y) <= 0) then // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
+      begin
+         Land[Y, X].Obj := aObject;
+         SetField(KMPoint(X, Y), -1, ft_Wine);
+         Result := True;
+      end
+      else
+        Result := False;
+    59..63: // Corn in different stages
+      if CanAddField(X, Y, ft_Corn) and (TileIsCoal(X, Y) <= 0) then  // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
+      begin
+        Land[Y, X].Obj := aObject;
+        SetField(KMPoint(X, Y), -1, ft_Corn);
+        Result := True;
+      end
+      else
+        Result := False;
+    88..124, // Trees - 125 is mushroom
+    126..172:
+    begin
+      Land[Y, X].Obj := aObject;
+      if ObjectIsChopableTree(KMPoint(X,Y), caAge1) then Land[Y,X].TreeAge := 1;
+      if ObjectIsChopableTree(KMPoint(X,Y), caAge2) then Land[Y,X].TreeAge := TREE_AGE_1;
+      if ObjectIsChopableTree(KMPoint(X,Y), caAge3) then Land[Y,X].TreeAge := TREE_AGE_2;
+      if ObjectIsChopableTree(KMPoint(X,Y), caAgeFull) then Land[Y,X].TreeAge := TREE_AGE_FULL;
+      UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+      UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
+      Result := True;
+    end
+    else // Other objects
+    begin
+      Land[Y, X].Obj := aObject;
+      UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+      UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
+      Result := True;
+    end;
+  end;
+
+
 end;
 
 
