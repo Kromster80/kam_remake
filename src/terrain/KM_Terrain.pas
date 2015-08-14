@@ -530,16 +530,18 @@ begin
 end;
 
 
+// Try to set an object from the script. Failure is an option
 function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
 
   function HousesNearObject: Boolean;
-  var I, K: Integer;
+  var
+    I, K: Integer;
   begin
     Result := False;
     //If the object blocks diagonals, houses can't be at -1 either
-    for I := -1*Byte(MapElem[aObject].DiagonalBlocked) to 0 do
-    for K := -1*Byte(MapElem[aObject].DiagonalBlocked) to 0 do
-      if TileInMapCoords(X+K, Y+I) then
+    for I := -1 * Byte(MapElem[aObject].DiagonalBlocked) to 0 do
+    for K := -1 * Byte(MapElem[aObject].DiagonalBlocked) to 0 do
+    if TileInMapCoords(X+K, Y+I) then
       //Can't put objects near houses or house sites
       if (Land[Y+I, X+K].TileLock in [tlFenced, tlDigged, tlHouse]) then
       begin
@@ -547,17 +549,18 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
         Exit;
       end;
   end;
+
   // Function allows objects in the same manner like in KaM Editor - we do not want falling trees, hidden objects etc.
-  function AllowableObject : Boolean;
+  function AllowableObject: Boolean;
   begin
-      if (aObject <> 61) and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
-      and (MapElem[aObject].Stump = -1) then //Hide falling trees and invisible wall (61)
-        Result := True
-      else
-        Result := False;
+    // Hide invisible wall (61), falling trees
+    Result := (aObject <> 61)
+              and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
+              and (MapElem[aObject].Stump = -1);
   end;
 
-var DiagonalChanged: Boolean;
+var
+  DiagonalChanged: Boolean;
 begin
   //Will this change make a unit stuck?
   if ((Land[Y, X].IsUnit <> nil) and MapElem[aObject].AllBlocked)
@@ -572,55 +575,50 @@ begin
     Exit;
   end;
 
-
-
   //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
   DiagonalChanged := MapElem[Land[Y,X].Obj].DiagonalBlocked xor MapElem[aObject].DiagonalBlocked;
 
   //Apply change
-  //UpdatePassability and UpdateWalkConnect is used in SetField so that we only use it in trees and other objects
+  //UpdatePassability and UpdateWalkConnect are called in SetField so that we only use it in trees and other objects
   case aObject of
-
-    55..58: // Wine in different stages
-      if CanAddField(X, Y, ft_Wine) and (TileIsCoal(X, Y) <= 0) then // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
-      begin
-         Land[Y, X].Obj := aObject;
-         SetField(KMPoint(X, Y), -1, ft_Wine);
-         Result := True;
-      end
-      else
-        Result := False;
-    59..63: // Corn in different stages
-      if CanAddField(X, Y, ft_Corn) and (TileIsCoal(X, Y) <= 0) then  // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
-      begin
-        Land[Y, X].Obj := aObject;
-        SetField(KMPoint(X, Y), -1, ft_Corn);
-        Result := True;
-      end
-      else
-        Result := False;
-    88..124, // Trees - 125 is mushroom
-    126..172:
-    begin
-      Land[Y, X].Obj := aObject;
-      if ObjectIsChopableTree(KMPoint(X,Y), caAge1) then Land[Y,X].TreeAge := 1;
-      if ObjectIsChopableTree(KMPoint(X,Y), caAge2) then Land[Y,X].TreeAge := TREE_AGE_1;
-      if ObjectIsChopableTree(KMPoint(X,Y), caAge3) then Land[Y,X].TreeAge := TREE_AGE_2;
-      if ObjectIsChopableTree(KMPoint(X,Y), caAgeFull) then Land[Y,X].TreeAge := TREE_AGE_FULL;
-      UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
-      UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
-      Result := True;
-    end
-    else // Other objects
-    begin
-      Land[Y, X].Obj := aObject;
-      UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
-      UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
-      Result := True;
-    end;
+    55..58:   // Wine in different stages
+              if CanAddField(X, Y, ft_Wine) and (TileIsCoal(X, Y) <= 0) then // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
+              begin
+                Land[Y, X].Obj := aObject;
+                SetField(KMPoint(X, Y), -1, ft_Wine);
+                Result := True;
+              end
+              else
+                Result := False;
+    59..63:   // Corn in different stages
+              if CanAddField(X, Y, ft_Corn) and (TileIsCoal(X, Y) <= 0) then  // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
+              begin
+                Land[Y, X].Obj := aObject;
+                SetField(KMPoint(X, Y), -1, ft_Corn);
+                Result := True;
+              end
+              else
+                Result := False;
+    88..124,
+    126..172: // Trees - 125 is mushroom
+              begin
+                Land[Y, X].Obj := aObject;
+                if ObjectIsChopableTree(KMPoint(X,Y), caAge1) then Land[Y,X].TreeAge := 1;
+                if ObjectIsChopableTree(KMPoint(X,Y), caAge2) then Land[Y,X].TreeAge := TREE_AGE_1;
+                if ObjectIsChopableTree(KMPoint(X,Y), caAge3) then Land[Y,X].TreeAge := TREE_AGE_2;
+                if ObjectIsChopableTree(KMPoint(X,Y), caAgeFull) then Land[Y,X].TreeAge := TREE_AGE_FULL;
+                UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+                UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
+                Result := True;
+              end
+    else      // Other objects
+              begin
+                Land[Y, X].Obj := aObject;
+                UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+                UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
+                Result := True;
+              end;
   end;
-
-
 end;
 
 
