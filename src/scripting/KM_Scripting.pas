@@ -739,7 +739,7 @@ begin
       RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveAll, 'AIDEFENCEPOSITIONREMOVEALL');
       RegisterMethod(@TKMScriptActions.AIDefendAllies,             'AIDEFENDALLIES');
       RegisterMethod(@TKMScriptActions.AIEquipRate,                'AIEQUIPRATE');
-      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet,       'AIGROUPSFORMATIONSET)');
+      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet,       'AIGROUPSFORMATIONSET');
       RegisterMethod(@TKMScriptActions.AIRecruitDelay,             'AIRECRUITDELAY');
       RegisterMethod(@TKMScriptActions.AIRecruitLimit,             'AIRECRUITLIMIT');
       RegisterMethod(@TKMScriptActions.AISerfsPerHouse,            'AISERFSPERHOUSE');
