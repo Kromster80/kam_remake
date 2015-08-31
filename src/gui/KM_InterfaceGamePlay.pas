@@ -253,12 +253,19 @@ type
         Button_Army_Join_Cancel: TKMButton;
         Label_Army_Join_Message: TKMLabel;
   public
+    fTimedMsg: array of record
+      MsgId: Integer;
+      msgTime: Cardinal;
+    end;
     constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
     procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString); overload;
     procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint); overload;
+    procedure TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aTime: Integer); overload;
+    procedure TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer); overload;
+    procedure TimedMessageRemove(aMsgId: Integer);
     procedure SetMenuState(aTactic: Boolean);
     procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
@@ -778,6 +785,7 @@ begin
   fGuiGameRatios.Free;
   fGuiGameStats.Free;
   fGuiMenuSettings.Free;
+  FreeAndNil(fTimedMsg);
 
   fMessageStack.Free;
   fSaves.Free;
@@ -1446,14 +1454,30 @@ end;
 
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
 var
-  OldMsg: Integer;
+  OldMsg, I, J: Integer;
+  ALength: Cardinal;
 begin
   if ShownMessage = -1 then Exit; // Player pressed DEL with no Msg opened
-
   OldMsg := ShownMessage;
 
   Message_Close(Sender);
   fMessageStack.RemoveStack(OldMsg);
+  for I := High(fTimedMsg) downto 0 do
+    if Length(fTimedMsg) >= 0 then
+      if fTimedMsg[I].MsgId = OldMsg then
+      begin
+        try
+          ALength := Length(fTimedMsg);
+          Assert(ALength > 0);
+          for J := OldMsg + 1 to Length(fTimedMsg) - 1 do
+          begin
+            fTimedMsg[J].MsgId := fTimedMsg[J].MsgId - 1;
+            fTimedMsg[J - 1] := fTimedMsg[J];
+          end;
+        finally
+          SetLength(fTimedMsg, Length(fTimedMsg)-1);
+        end;
+      end;
 
   Message_UpdateStack;
   DisplayHint(nil);
@@ -1801,6 +1825,52 @@ begin
   fMessageStack.Add(aKind, aText, aLoc);
   Message_UpdateStack;
   gSoundPlayer.Play(sfx_MessageNotice, 4); // Play horn sound on new message if it is the right type
+end;
+
+
+procedure TKMGamePlayInterface.TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aTime: Integer);
+begin
+  TimedMessageIssue(aKind, aText, KMPoint(0, 0), aTime);
+end;
+
+
+procedure TKMGamePlayInterface.TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
+var
+  i: Integer;
+begin
+  SetLength(fTimedMsg, Length(fTimedMsg)+1);
+  if fUIMode in [umReplay, umSpectate] then Exit; // No message stack in replay/spectate
+  fMessageStack.Add(aKind, aText, aLoc);
+  Message_UpdateStack;
+  gSoundPlayer.Play(sfx_MessageNotice, 4); // Play horn sound on new message if it is the right type
+  for i := 0 to fMessageStack.CountStack - 1 do
+    if fMessageStack.MessagesStack[i].fText = aText then
+      fTimedMsg[High(fTimedMsg)].MsgId := i;
+  fTimedMsg[High(fTimedMsg)].msgTime := aTime;
+end;
+
+
+procedure TKMGamePlayInterface.TimedMessageRemove(aMsgId: Integer);
+var
+  I: Integer;
+  ALength: Cardinal;
+begin
+  if fUIMode in [umReplay, umSpectate] then Exit;
+  fMessageStack.RemoveStack(aMsgId);
+  Message_UpdateStack;
+  gSoundPlayer.Play(sfx_MessageClose, 4);
+
+  try
+    ALength := Length(fTimedMsg);
+    Assert(ALength > 0);
+    for I := aMsgId + 1 to Length(fTimedMsg) - 1 do
+    begin
+      fTimedMsg[I].MsgId := fTimedMsg[I].MsgId - 1;
+      fTimedMsg[I - 1] := fTimedMsg[I];
+    end;
+  finally
+    SetLength(fTimedMsg, Length(fTimedMsg)-1);
+  end;
 end;
 
 

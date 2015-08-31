@@ -125,6 +125,7 @@ type
     procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
     procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString);
     procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
+    procedure ShowTimedMsg(aPlayer: Shortint; aText: AnsiString; aTime: Integer);
 
     procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
@@ -1183,6 +1184,19 @@ begin
       //Format may throw an exception
       on E: EConvertError do LogParamWarning('Actions.ShowMsgGotoFormatted: '+E.Message, []);
     end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//Input text is ANSI with libx codes to substitute
+procedure TKMScriptActions.ShowTimedMsg(aPlayer: Shortint; aText: AnsiString; aTime: Integer);
+begin
+  try
+    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+      gGame.ShowTimedMessageLocal(mkText, UnicodeString(aText), KMPoint(0,0), aTime);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

@@ -454,6 +454,7 @@ begin
       RegisterMethod('procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
       RegisterMethod('procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString)');
       RegisterMethod('procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const)');
+      RegisterMethod('procedure ShowTimedMsg(aPlayer: Shortint; aText: AnsiString; aTime: Integer)');
 
       RegisterMethod('procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)');
       RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
@@ -844,6 +845,7 @@ begin
       RegisterMethod(@TKMScriptActions.ShowMsgFormatted,      'SHOWMSGFORMATTED');
       RegisterMethod(@TKMScriptActions.ShowMsgGoto,           'SHOWMSGGOTO');
       RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,  'SHOWMSGGOTOFORMATTED');
+      RegisterMethod(@TKMScriptActions.ShowTimedMsg,          'SHOWTIMEDMSG');
 
       RegisterMethod(@TKMScriptActions.UnitBlock,         'UNITBLOCK');
       RegisterMethod(@TKMScriptActions.UnitDirectionSet,  'UNITDIRECTIONSET');

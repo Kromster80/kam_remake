@@ -113,6 +113,7 @@ type
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
+    procedure ShowTimedMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
     procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
@@ -240,6 +241,7 @@ begin
   gProjectiles := TKMProjectiles.Create;
 
   fGameTickCount := 0; //Restart counter
+  SetLength(fGamePlayInterface.fTimedMsg, 0);
 end;
 
 
@@ -982,6 +984,11 @@ begin
   fGamePlayInterface.MessageIssue(aKind, S, aLoc);
 end;
 
+procedure TKMGame.ShowTimedMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
+begin
+  fGamePlayInterface.TimedMessageIssue(aKind, ParseTextMarkup(aText), aLoc, fGameTickCount + aTime);
+end;
+
 
 procedure TKMGame.ShowScriptError(const aMsg: UnicodeString);
 begin
@@ -1461,7 +1468,7 @@ end;
 
 procedure TKMGame.UpdateGame(Sender: TObject);
 var
-  I: Integer;
+  I, J: Integer;
 begin
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
@@ -1513,15 +1520,20 @@ begin
                       //Don't autosave if the game was put on hold during this tick
                       if fGameTickCount mod 600 = 0 then
                       begin
-                        if IsMultiplayer then
-                        begin
-                          if fNetworking.IsHost then
+                        if IsMultiplayer and fNetworking.IsHost then
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow) //Timestamp must be synchronised
-                        end
                         else
                           if gGameApp.GameSettings.Autosave then
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
                       end;
+
+
+                      for J := High(fGamePlayInterface.fTimedMsg) downto 0 do
+                        if Length(fGamePlayInterface.fTimedMsg) >= 0 then
+                          if fGamePlayInterface.fTimedMsg[J].msgTime <= fGameTickCount then
+                          begin
+                            fGamePlayInterface.TimedMessageRemove(fGamePlayInterface.fTimedMsg[J].MsgId);
+                          end;
 
                       //if (fGameTickCount mod 10 = 0) then
                       //  SaveGame(ExeDir + 'SavesLog'+PathDelim + int2fix(fGameTickCount, 6));
