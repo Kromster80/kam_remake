@@ -986,6 +986,8 @@ end;
 
 procedure TKMGame.ShowTimedMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
 begin
+  // Add the message with the current tickcount plus the ticks stated in the script
+  // This way the timing is very accurate
   fGamePlayInterface.TimedMessageIssue(aKind, ParseTextMarkup(aText), aLoc, fGameTickCount + aTime);
 end;
 

@@ -1462,6 +1462,7 @@ begin
 
   Message_Close(Sender);
   fMessageStack.RemoveStack(OldMsg);
+
   if (Length(fTimedMsg) >= 0) then
     for I := High(fTimedMsg) downto 0 do
     // Reversed checking as we will remove items.
@@ -1840,11 +1841,14 @@ procedure TKMGamePlayInterface.TimedMessageIssue(aKind: TKMMessageKind; aText: U
 var
   i: Integer;
 begin
-  SetLength(fTimedMsg, Length(fTimedMsg)+1);
   if fUIMode in [umReplay, umSpectate] then Exit; // No message stack in replay/spectate
+
+  SetLength(fTimedMsg, Length(fTimedMsg)+1);
   fMessageStack.Add(aKind, aText, aLoc);
   Message_UpdateStack;
   gSoundPlayer.Play(sfx_MessageNotice, 4); // Play horn sound on new message if it is the right type
+
+  // Scan the message stack to retrieve the ID of the message
   for i := 0 to fMessageStack.CountStack - 1 do
     if fMessageStack.MessagesStack[i].fText = aText then
       fTimedMsg[High(fTimedMsg)].MsgId := i;
@@ -1858,12 +1862,16 @@ var
   ALength: Cardinal;
 begin
   if fUIMode in [umReplay, umSpectate] then Exit;
+
   fMessageStack.RemoveStack(aMsgId);
   Message_UpdateStack;
-  gSoundPlayer.Play(sfx_MessageClose, 4);
+  gSoundPlayer.Play(sfx_MessageClose, 4); // Play the "Close" sound as it's the only sound that fits
   ALength := Length(fTimedMsg);
+
   try
     Assert(ALength > 0);
+    Assert(ALength > aMsgId);
+
     for I := aMsgId + 1 to ALength - 1 do // Move items down to fill the gap
     begin
       fTimedMsg[I].MsgId := fTimedMsg[I].MsgId - 1; // Update message ID's
