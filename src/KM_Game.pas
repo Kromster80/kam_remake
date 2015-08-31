@@ -1527,13 +1527,12 @@ begin
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
                       end;
 
-
-                      for J := High(fGamePlayInterface.fTimedMsg) downto 0 do
-                        if Length(fGamePlayInterface.fTimedMsg) >= 0 then
+                      if Length(fGamePlayInterface.fTimedMsg) >= 0 then
+                      // Reversed checking as we will remove items.
+                      // If we do not check in reverse we will run into range-check errors.
+                        for J := High(fGamePlayInterface.fTimedMsg) downto 0 do
                           if fGamePlayInterface.fTimedMsg[J].msgTime <= fGameTickCount then
-                          begin
                             fGamePlayInterface.TimedMessageRemove(fGamePlayInterface.fTimedMsg[J].MsgId);
-                          end;
 
                       //if (fGameTickCount mod 10 = 0) then
                       //  SaveGame(ExeDir + 'SavesLog'+PathDelim + int2fix(fGameTickCount, 6));

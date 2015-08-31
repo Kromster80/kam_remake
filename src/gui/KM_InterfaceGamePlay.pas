@@ -1462,20 +1462,22 @@ begin
 
   Message_Close(Sender);
   fMessageStack.RemoveStack(OldMsg);
-  for I := High(fTimedMsg) downto 0 do
-    if Length(fTimedMsg) >= 0 then
-      if fTimedMsg[I].MsgId = OldMsg then
+  if (Length(fTimedMsg) >= 0) then
+    for I := High(fTimedMsg) downto 0 do
+    // Reversed checking as we will remove items.
+    // If we do not check in reverse we will run into range-check errors.
+      if fTimedMsg[I].MsgId = OldMsg then // Check if the item even exists in the array
       begin
+        ALength := Length(fTimedMsg);
         try
-          ALength := Length(fTimedMsg);
           Assert(ALength > 0);
-          for J := OldMsg + 1 to Length(fTimedMsg) - 1 do
+          for J := OldMsg + 1 to ALength - 1 do // Move items down to fill the gap
           begin
-            fTimedMsg[J].MsgId := fTimedMsg[J].MsgId - 1;
-            fTimedMsg[J - 1] := fTimedMsg[J];
+            fTimedMsg[J].MsgId := fTimedMsg[J].MsgId - 1; // Update message ID's
+            fTimedMsg[J - 1] := fTimedMsg[J]; // Update positions in the array
           end;
         finally
-          SetLength(fTimedMsg, Length(fTimedMsg)-1);
+          SetLength(fTimedMsg, ALength - 1);
         end;
       end;
 
@@ -1859,17 +1861,16 @@ begin
   fMessageStack.RemoveStack(aMsgId);
   Message_UpdateStack;
   gSoundPlayer.Play(sfx_MessageClose, 4);
-
+  ALength := Length(fTimedMsg);
   try
-    ALength := Length(fTimedMsg);
     Assert(ALength > 0);
-    for I := aMsgId + 1 to Length(fTimedMsg) - 1 do
+    for I := aMsgId + 1 to ALength - 1 do // Move items down to fill the gap
     begin
-      fTimedMsg[I].MsgId := fTimedMsg[I].MsgId - 1;
-      fTimedMsg[I - 1] := fTimedMsg[I];
+      fTimedMsg[I].MsgId := fTimedMsg[I].MsgId - 1; // Update message ID's
+      fTimedMsg[I - 1] := fTimedMsg[I]; // Update positions in the array
     end;
   finally
-    SetLength(fTimedMsg, Length(fTimedMsg)-1);
+    SetLength(fTimedMsg, ALength - 1);
   end;
 end;
 
