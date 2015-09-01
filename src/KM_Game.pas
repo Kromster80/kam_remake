@@ -241,7 +241,6 @@ begin
   gProjectiles := TKMProjectiles.Create;
 
   fGameTickCount := 0; //Restart counter
-  SetLength(fGamePlayInterface.fTimedMsg, 0);
 end;
 
 

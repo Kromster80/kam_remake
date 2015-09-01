@@ -663,6 +663,7 @@ constructor TKMGamePlayInterface.Create(aRender: TRender; aUIMode: TUIMode);
 var S: TKMShape; I: Integer;
 begin
   inherited Create(aRender);
+  SetLength(fTimedMsg, 0);
   fUIMode := aUIMode;
 
   fAlerts := TKMAlerts.Create(fViewport);
