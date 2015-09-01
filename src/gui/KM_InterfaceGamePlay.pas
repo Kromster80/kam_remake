@@ -1871,7 +1871,6 @@ begin
 
   try
     Assert(ALength > 0);
-    Assert(ALength > aMsgId);
 
     for I := aMsgId + 1 to ALength - 1 do // Move items down to fill the gap
     begin
