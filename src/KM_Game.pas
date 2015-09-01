@@ -114,6 +114,7 @@ type
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
     procedure ShowTimedMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
+    procedure ShowTimedMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const; aTime: Integer);
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
     procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
@@ -983,11 +984,23 @@ begin
   fGamePlayInterface.MessageIssue(aKind, S, aLoc);
 end;
 
+
 procedure TKMGame.ShowTimedMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
 begin
   // Add the message with the current tickcount plus the ticks stated in the script
   // This way the timing is very accurate
   fGamePlayInterface.TimedMessageIssue(aKind, ParseTextMarkup(aText), aLoc, fGameTickCount + aTime);
+end;
+
+
+procedure TKMGame.ShowTimedMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const; aTime: Integer);
+var
+  S: UnicodeString;
+begin
+  //We must parse for text markup before AND after running Format, since individual format
+  //parameters can contain strings that need parsing (see Annie's Garden for an example)
+  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
+  fGamePlayInterface.TimedMessageIssue(aKind, S, aLoc, aTime);
 end;
 
 
