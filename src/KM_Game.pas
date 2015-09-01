@@ -1000,7 +1000,7 @@ begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
   S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
-  fGamePlayInterface.TimedMessageIssue(aKind, S, aLoc, aTime);
+  fGamePlayInterface.TimedMessageIssue(aKind, S, aLoc, fGameTickCount + aTime);
 end;
 
 
