@@ -1224,47 +1224,6 @@ begin
 end;
 
 
-//Input text is ANSI with libx codes to substitute
-procedure TKMScriptActions.ShowTimedMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; aTime: Integer);
-begin
-  try
-    if gTerrain.TileInMapCoords(aX, aY) then
-    begin
-      if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowTimedMessageLocal(mkText, UnicodeString(aText), KMPoint(aX,aY), aTime);
-    end
-    else
-      LogParamWarning('Actions.ShowTimedMsgGoto', [aPlayer, aX, aY]);
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
-
-//Input text is ANSI with libx codes to substitute
-procedure TKMScriptActions.ShowTimedMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const; aTime: Integer);
-begin
-  try
-    try
-      if gTerrain.TileInMapCoords(aX, aY) then
-      begin
-        if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-          gGame.ShowTimedMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params, aTime);
-      end
-      else
-        LogParamWarning('Actions.ShowTimedMsgGotoFormatted', [aPlayer, aX, aY]);
-    except
-      //Format may throw an exception
-      on E: EConvertError do LogParamWarning('Actions.ShowTimedMsgGotoFormatted: '+E.Message, []);
-    end;
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
-
 procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   try

@@ -1534,8 +1534,11 @@ begin
                       //Don't autosave if the game was put on hold during this tick
                       if fGameTickCount mod 600 = 0 then
                       begin
-                        if IsMultiplayer and fNetworking.IsHost then
-                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow) //Timestamp must be synchronised
+                        if IsMultiplayer then
+                        begin
+                          if fNetworking.IsHost then
+                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow); //Timestamp must be synchronised
+                        end
                         else
                           if gGameApp.GameSettings.Autosave then
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
