@@ -25,13 +25,13 @@ type
     procedure SaveTile(const X,Y: Word; aWalkDistance: Byte);
     procedure UseFinder;
   protected
-    fPassability: TPassabilitySet;
+    fPassability: TKMTerrainPassabilitySet;
     function CanWalkHere(const X,Y: Word): Boolean; virtual; abstract;
     function CanUse(const X,Y: Word): Boolean; virtual; abstract;
   public
     constructor Create;
-    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean; overload;
-    procedure FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
+    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TKMTerrainPassabilitySet; out aEnd: TKMPoint): Boolean; overload;
+    procedure FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TKMTerrainPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
   end;
@@ -43,7 +43,7 @@ type
     function CanWalkHere(const X,Y: Word): Boolean; override;
     function CanUse(const X,Y: Word): Boolean; override;
   public
-    procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
+    procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TKMTerrainPassability; aList: TKMPointList);
   end;
 
 
@@ -63,7 +63,7 @@ begin
 end;
 
 
-function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean;
+function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TKMTerrainPassabilitySet; out aEnd: TKMPoint): Boolean;
 begin
   SetLength(fStart, 1);
   fStart[0] := aStart;
@@ -78,7 +78,7 @@ begin
 end;
 
 
-procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
+procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TKMTerrainPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
 begin
   fStart := aStart;
   fRadius := aRadius;
@@ -211,7 +211,7 @@ end;
 
 //Fills aList with all of the tiles within aRadius of aStart with aPass using either a
 //simple radius or a floodfill walking distance calculation depending on USE_WALKING_DISTANCE
-procedure TKMTerrainFinder.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
+procedure TKMTerrainFinder.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TKMTerrainPassability; aList: TKMPointList);
 const
   STRAIGHT_COST = 5;
   DIAG_COST = 7; // 5 * 1.41

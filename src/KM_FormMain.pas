@@ -488,8 +488,8 @@ begin
   if AllowDebugChange then
   begin
     I := tbPassability.Position;
-    tbPassability.Max := Byte(High(TPassability));
-    Label2.Caption := IfThen(I <> 0, PassabilityText[TPassability(I)], '');
+    tbPassability.Max := Byte(High(TKMTerrainPassability));
+    Label2.Caption := IfThen(I <> 0, PassabilityText[TKMTerrainPassability(I)], '');
     SHOW_TERRAIN_PASS := I;
     SHOW_TERRAIN_WIRES := chkShowWires.Checked;
     SHOW_UNIT_ROUTES := chkShowRoutes.Checked;

@@ -45,7 +45,7 @@ type
     procedure AfterMissionInit;
 
     function FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean; overload;
-    procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aPass: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
+    procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aPass: TKMTerrainPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure FindNearest(const aStart: TKMPointArray; aRadius: Byte; aHouse: THouseType; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     procedure OwnerUpdate(aPlayer: TKMHandIndex);
@@ -334,7 +334,7 @@ begin
 end;
 
 
-procedure TKMCityPlanner.FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aPass: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
+procedure TKMCityPlanner.FindNearest(const aStart: TKMPointArray; aRadius: Byte; aType: TFindNearest; aPass: TKMTerrainPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
 begin
   fFinder.FindType := aType;
   fFinder.HouseType := ht_None;

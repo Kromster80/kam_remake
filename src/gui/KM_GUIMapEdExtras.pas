@@ -62,7 +62,7 @@ begin
   Image_ExtraClose.OnClick := Extra_Close;
   Image_ExtraClose.HighlightOnMouseOver := True;
 
-  TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 50, 70, 180, 0, Byte(High(TPassability)));
+  TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 50, 70, 180, 0, Byte(High(TKMTerrainPassability)));
   TrackBar_Passability.Font := fnt_Antiqua;
   TrackBar_Passability.Caption := gResTexts[TX_MAPED_VIEW_PASSABILITY];
   TrackBar_Passability.Position := 0; //Disabled by default
@@ -103,7 +103,7 @@ begin
   SHOW_TERRAIN_PASS := TrackBar_Passability.Position;
 
   if TrackBar_Passability.Position <> 0 then
-    Label_Passability.Caption := PassabilityText[TPassability(SHOW_TERRAIN_PASS)]
+    Label_Passability.Caption := PassabilityText[TKMTerrainPassability(SHOW_TERRAIN_PASS)]
   else
     Label_Passability.Caption := gResTexts[TX_MAPED_PASSABILITY_OFF];
 

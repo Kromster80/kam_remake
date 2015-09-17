@@ -107,7 +107,7 @@ type
     function GetClosestCell(aPos: TKMPoint): TKMPoint;
     function GetDistance(aPos: TKMPoint): Single;
     function InReach(aPos: TKMPoint; aDistance: Single): Boolean;
-    procedure GetListOfCellsAround(Cells: TKMPointDirList; aPassability: TPassability);
+    procedure GetListOfCellsAround(Cells: TKMPointDirList; aPassability: TKMTerrainPassability);
     procedure GetListOfCellsWithin(Cells: TKMPointList);
     function GetRandomCellWithin: TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
@@ -523,7 +523,7 @@ begin
 end;
 
 
-procedure TKMHouse.GetListOfCellsAround(Cells: TKMPointDirList; aPassability: TPassability);
+procedure TKMHouse.GetListOfCellsAround(Cells: TKMPointDirList; aPassability: TKMTerrainPassability);
 var
   I,K: Integer;
   Loc: TKMPoint;

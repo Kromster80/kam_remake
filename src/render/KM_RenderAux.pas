@@ -266,7 +266,7 @@ begin
     glColor4f(0,1,0,0.25);
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
-      if TPassability(aPass) in gTerrain.Land[I,K].Passability then
+      if TKMTerrainPassability(aPass) in gTerrain.Land[I,K].Passability then
         RenderQuad(K,I);
   end;
 end;

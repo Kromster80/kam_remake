@@ -70,7 +70,7 @@ type
 
       //DEDUCTED
       Light: Single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
-      Passability: TPassabilitySet; //Meant to be set of allowed actions on the tile
+      Passability: TKMTerrainPassabilitySet; //Meant to be set of allowed actions on the tile
 
       WalkConnect: array [TWalkConnect] of Word; //Whole map is painted into interconnected areas
 
@@ -138,19 +138,19 @@ type
     procedure DecStoneDeposit(Loc: TKMPoint);
     function DecOreDeposit(Loc: TKMPoint; rt: TWareType): Boolean;
 
-    function CheckPassability(Loc: TKMPoint; aPass: TPassability): Boolean;
+    function CheckPassability(Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
     function HasUnit(Loc: TKMPoint): Boolean;
     function HasVertexUnit(Loc: TKMPoint): Boolean;
     function GetRoadConnectID(Loc: TKMPoint): Byte;
     function GetWalkConnectID(Loc: TKMPoint): Byte;
     function GetConnectID(aWalkConnect: TWalkConnect; Loc: TKMPoint): Byte;
 
-    function CheckAnimalIsStuck(Loc: TKMPoint; aPass: TPassability; aCheckUnits: Boolean = True): Boolean;
-    function GetOutOfTheWay(aUnit: Pointer; PusherLoc: TKMPoint; aPass: TPassability): TKMPoint;
-    function FindSideStepPosition(Loc, Loc2, Loc3: TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: Boolean = False): Boolean;
-    function Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
-    function Route_CanBeMadeToVertex(LocA, LocB: TKMPoint; aPass: TPassability): Boolean;
-    function GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean): TKMPoint;
+    function CheckAnimalIsStuck(Loc: TKMPoint; aPass: TKMTerrainPassability; aCheckUnits: Boolean = True): Boolean;
+    function GetOutOfTheWay(aUnit: Pointer; PusherLoc: TKMPoint; aPass: TKMTerrainPassability): TKMPoint;
+    function FindSideStepPosition(Loc, Loc2, Loc3: TKMPoint; aPass: TKMTerrainPassability; out SidePoint: TKMPoint; OnlyTakeBest: Boolean = False): Boolean;
+    function Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean;
+    function Route_CanBeMadeToVertex(LocA, LocB: TKMPoint; aPass: TKMTerrainPassability): Boolean;
+    function GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean): TKMPoint;
 
     procedure UnitAdd(LocTo: TKMPoint; aUnit: Pointer);
     procedure UnitRem(LocFrom: TKMPoint);
@@ -1928,7 +1928,7 @@ end;
 
 
 procedure TKMTerrain.UpdatePassability(Loc: TKMPoint);
-  procedure AddPassability(aPass: TPassability);
+  procedure AddPassability(aPass: TKMTerrainPassability);
   begin
     Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability + [aPass];
   end;
@@ -2034,7 +2034,7 @@ begin
 end;
 
 
-function TKMTerrain.CheckPassability(Loc: TKMPoint; aPass: TPassability): Boolean;
+function TKMTerrain.CheckPassability(Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y) and (aPass in Land[Loc.Y,Loc.X].Passability);
 end;
@@ -2077,7 +2077,7 @@ begin
 end;
 
 
-function TKMTerrain.CheckAnimalIsStuck(Loc: TKMPoint; aPass: TPassability; aCheckUnits: Boolean=true): Boolean;
+function TKMTerrain.CheckAnimalIsStuck(Loc: TKMPoint; aPass: TKMTerrainPassability; aCheckUnits: Boolean=true): Boolean;
 var I,K: integer;
 begin
   Result := true; //Assume we are stuck
@@ -2096,7 +2096,7 @@ end;
 
 //Return random tile surrounding Loc with aPass property. PusherLoc is the unit that pushed us
 //which is preferable to other units (otherwise we can get two units swapping places forever)
-function TKMTerrain.GetOutOfTheWay(aUnit: Pointer; PusherLoc: TKMPoint; aPass: TPassability): TKMPoint;
+function TKMTerrain.GetOutOfTheWay(aUnit: Pointer; PusherLoc: TKMPoint; aPass: TKMTerrainPassability): TKMPoint;
 var
   U: TKMUnit;
   Loc: TKMPoint;
@@ -2158,7 +2158,7 @@ begin
 end;
 
 
-function TKMTerrain.FindSideStepPosition(Loc,Loc2,Loc3: TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false): Boolean;
+function TKMTerrain.FindSideStepPosition(Loc,Loc2,Loc3: TKMPoint; aPass: TKMTerrainPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false): Boolean;
 var
   I, K: Integer;
   L1, L2: TKMPointList;
@@ -2195,7 +2195,7 @@ end;
 
 
 //Test wherever it is possible to make the route without actually making it to save performance
-function TKMTerrain.Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
+function TKMTerrain.Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean;
 var i,k:integer; TestRadius: Boolean; WC: TWalkConnect;
 begin
   Result := True;
@@ -2246,7 +2246,7 @@ end;
 
 
 //Check if a route can be made to this vertex, from any direction (used for woodcutter cutting trees)
-function TKMTerrain.Route_CanBeMadeToVertex(LocA, LocB: TKMPoint; aPass: TPassability): Boolean;
+function TKMTerrain.Route_CanBeMadeToVertex(LocA, LocB: TKMPoint; aPass: TKMTerrainPassability): Boolean;
 var i,k:integer;
 begin
   Result := false;
@@ -2259,7 +2259,7 @@ end;
 
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
 //If no tile found - return Origin location
-function TKMTerrain.GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean): TKMPoint;
+function TKMTerrain.GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean): TKMPoint;
 const TestDepth = 255;
 var
   i:integer;
@@ -2541,7 +2541,7 @@ end;
 //Rebuilds connected areas using flood fill algorithm
 procedure TKMTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
 const
-  WC_PASS: array [TWalkConnect] of TPassability = (
+  WC_PASS: array [TWalkConnect] of TKMTerrainPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWorker);
 var
   J: Integer;

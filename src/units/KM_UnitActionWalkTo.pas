@@ -33,14 +33,14 @@ type
     fDistance: Single; //How close we need to get to our target
     fTargetUnit: TKMUnit; //Folow this unit
     fTargetHouse: TKMHouse; //Go to this House
-    fPass: TPassability; //Desired passability set once on Create
+    fPass: TKMTerrainPassability; //Desired passability set once on Create
     fDoesWalking, fWaitingOnStep: Boolean;
     fDestBlocked: Boolean; //Our route is blocked by busy units, so we must wait for them to clear. Give way to all other units (who might be carrying stone for the worker blocking us)
     fDoExchange: Boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
     fInteractionCount, fLastSideStepNodePos: integer;
     fInteractionStatus: TInteractionStatus;
     function AssembleTheRoute: Boolean;
-    function CanWalkToTarget(aFrom: TKMPoint; aPass: TPassability): Boolean;
+    function CanWalkToTarget(aFrom: TKMPoint; aPass: TKMTerrainPassability): Boolean;
     function CheckForNewDestination: TDestinationCheck;
     function CheckTargetHasDied: Boolean;
     function CheckForObstacle: TObstacleCheck;
@@ -63,7 +63,7 @@ type
     procedure SetInitValues;
     function CanAbandonInternal: Boolean;
     function GetNextNextPosition(out NextNextPos: TKMPoint): Boolean;
-    function GetEffectivePassability: TPassability; //Returns passability that unit is allowed to walk on
+    function GetEffectivePassability: TKMTerrainPassability; //Returns passability that unit is allowed to walk on
     procedure ExplanationLogCreate;
     procedure ExplanationLogAdd;
   private //Debug items
@@ -536,7 +536,7 @@ end;
 
 { We can push idling unit }
 function TUnitActionWalkTo.IntSolutionPush(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-var OpponentPassability: TPassability;
+var OpponenTKMTerrainPassability: TKMTerrainPassability;
 begin
   Result := False;
 
@@ -556,14 +556,14 @@ begin
       Exit;
 
     fInteractionStatus := kis_Pushing;
-    OpponentPassability := fOpponent.DesiredPassability;
-    if OpponentPassability = CanWalkRoad then
-      OpponentPassability := CanWalk;
+    OpponenTKMTerrainPassability := fOpponent.DesiredPassability;
+    if OpponenTKMTerrainPassability = CanWalkRoad then
+      OpponenTKMTerrainPassability := CanWalk;
 
     if not CanAbandonInternal then
       raise ELocError.Create('Unit walk IntSolutionPush', fUnit.GetPosition);
 
-    fOpponent.SetActionWalkPushed(gTerrain.GetOutOfTheWay(fOpponent, fUnit.GetPosition, OpponentPassability));
+    fOpponent.SetActionWalkPushed(gTerrain.GetOutOfTheWay(fOpponent, fUnit.GetPosition, OpponenTKMTerrainPassability));
 
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     ExplanationLogAdd; //Hopefully next tick tile will be free and we will walk there
@@ -819,7 +819,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.CanWalkToTarget(aFrom: TKMPoint; aPass: TPassability): Boolean;
+function TUnitActionWalkTo.CanWalkToTarget(aFrom: TKMPoint; aPass: TKMTerrainPassability): Boolean;
 begin
   Result := ((fTargetHouse = nil) and fUnit.CanWalkTo(aFrom, fWalkTo, aPass, fDistance))
          or ((fTargetHouse <> nil) and fUnit.CanWalkTo(aFrom, fTargetHouse, aPass, fDistance));
@@ -945,7 +945,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
+function TUnitActionWalkTo.GetEffectivePassability:TKMTerrainPassability; //Returns passability that unit is allowed to walk on
 begin
   //Road walking is only recomended. (i.e. for route building) We are allowed to step off the road sometimes.
   if fPass = CanWalkRoad then

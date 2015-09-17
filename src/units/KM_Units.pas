@@ -86,7 +86,7 @@ type
     fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
     fDirection: TKMDirection; //
 
-    function GetDesiredPassability: TPassability;
+    function GetDesiredPassability: TKMTerrainPassability;
     function GetHitPointsMax: Byte;
     procedure SetDirection(aValue: TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep: Integer = 0);
@@ -140,7 +140,7 @@ type
 
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
-    property DesiredPassability: TPassability read GetDesiredPassability;
+    property DesiredPassability: TKMTerrainPassability read GetDesiredPassability;
     property Owner: TKMHandIndex read fOwner;
     property GetHome: TKMHouse read fHome;
     procedure SetHome(aHome: TKMHouse);
@@ -167,12 +167,12 @@ type
     function IsIdle: Boolean;
     procedure TrainInHouse(aSchool: TKMHouseSchool);
 
-    function CanStepTo(X,Y: Integer; aPass: TPassability): Boolean;
+    function CanStepTo(X,Y: Integer; aPass: TKMTerrainPassability): Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean; overload;
-    function CanWalkTo(aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean; overload;
+    function CanWalkTo(aTo: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean; overload;
     function CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single): Boolean; overload;
-    function CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean; overload;
-    function CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TPassability; aDistance: Single): Boolean; overload;
+    function CanWalkTo(aFrom, aTo: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean; overload;
+    function CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TKMTerrainPassability; aDistance: Single): Boolean; overload;
     function CanWalkDiagonaly(aFrom, aTo: TKMPoint): Boolean;
     procedure VertexRem(aLoc: TKMPoint);
     function VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
@@ -1574,7 +1574,7 @@ end;
 
 
 //Specific unit desired passability may depend on several factors
-function TKMUnit.GetDesiredPassability: TPassability;
+function TKMUnit.GetDesiredPassability: TKMTerrainPassability;
 begin
   Result := gRes.UnitDat[fUnitType].DesiredPassability;
 
@@ -1630,7 +1630,7 @@ begin
 end;
 
 
-function TKMUnit.CanWalkTo(aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
+function TKMUnit.CanWalkTo(aTo: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean;
 begin
   Result := gTerrain.Route_CanBeMade(GetPosition, aTo, aPass, aDistance);
 end;
@@ -1642,14 +1642,14 @@ begin
 end;
 
 
-function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
+function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean;
 begin
   Result := gTerrain.Route_CanBeMade(aFrom, aTo, aPass, aDistance);
 end;
 
 
 //Check if a route can be made to any tile around this house
-function TKMUnit.CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TPassability; aDistance: Single): Boolean;
+function TKMUnit.CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TKMTerrainPassability; aDistance: Single): Boolean;
 var
   I: Integer;
   Cells: TKMPointList;
@@ -1666,7 +1666,7 @@ begin
 end;
 
 
-function TKMUnit.CanStepTo(X,Y: Integer; aPass: TPassability): Boolean;
+function TKMUnit.CanStepTo(X,Y: Integer; aPass: TKMTerrainPassability): Boolean;
 begin
   Result := gTerrain.TileInMapCoords(X,Y)
         and (gTerrain.Land[Y,X].IsUnit = nil)

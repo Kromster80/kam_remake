@@ -89,7 +89,7 @@ var
   SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
-  SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)
+  SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TKMTerrainPassability)
   SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
   SHOW_SEL_BUFFER       :Boolean = False; //Display selection buffer
   SHOW_PROJECTILES      :Boolean = False; //Shows projectiles trajectory
@@ -295,7 +295,7 @@ type
 
 { Terrain }
 type
-  TPassability = (
+  TKMTerrainPassability = (
     CanUnused,
     CanWalk,        // General passability of tile for any walking units
     CanWalkRoad,    // Type of passability for Serfs when transporting wares, only roads have it
@@ -309,12 +309,12 @@ type
     CanOwn,         // For AI ownership
     CanFactor       // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
     );
-  TPassabilitySet = set of TPassability;
+  TKMTerrainPassabilitySet = set of TKMTerrainPassability;
 
   THeightPass = (hpWalking, hpBuilding, hpBuildingMines);
 
 const
-  PassabilityText: array [TPassability] of UnicodeString = (
+  PassabilityText: array [TKMTerrainPassability] of UnicodeString = (
     'Unused',
     'CanWalk',
     'CanWalkRoad',

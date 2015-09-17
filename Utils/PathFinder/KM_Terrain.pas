@@ -16,13 +16,13 @@ type
     MapY: Word;
     Land: array [1..MAX_SIZE, 1..MAX_SIZE] of record
       IsUnit: Pointer;
-      Passability: TPassabilitySet; //Meant to be set of allowed actions on the tile
+      Passability: TKMTerrainPassabilitySet; //Meant to be set of allowed actions on the tile
     end;
     function TileInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
     function CanWalkDiagonaly(const aFrom: TKMPoint; tx, ty: SmallInt): Boolean;
     function TileIsLocked(aLoc:TKMPoint): Boolean;
     function GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint): Byte;
-    function CheckPassability(Loc:TKMPoint; aPass:TPassability): Boolean;
+    function CheckPassability(Loc:TKMPoint; aPass:TKMTerrainPassability): Boolean;
   end;
 
 
@@ -40,7 +40,7 @@ begin
 end;
 
 
-function TKMTerrain.CheckPassability(Loc: TKMPoint; aPass: TPassability): Boolean;
+function TKMTerrain.CheckPassability(Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y) and (aPass in Land[Loc.Y,Loc.X].Passability);
 end;

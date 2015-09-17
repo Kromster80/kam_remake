@@ -412,7 +412,7 @@ function TKMHandsCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnit
 var
   I: Integer;
   P: TKMPoint;
-  Pass: TPassability; //temp for required passability
+  Pass: TKMTerrainPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
   Pass := gRes.UnitDat[aUnitType].AllowedPassability;

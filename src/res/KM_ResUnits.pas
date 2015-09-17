@@ -31,9 +31,9 @@ type
     fUnitDat: TKMUnitDat;
     fUnitSprite: TKMUnitSprite;
     fUnitSprite2: TKMUnitSprite2;
-    function GetAllowedPassability: TPassability;
+    function GetAllowedPassability: TKMTerrainPassability;
     function GetDescription: UnicodeString;
-    function GetDesiredPassability: TPassability;
+    function GetDesiredPassability: TKMTerrainPassability;
     function GetFightType: TFightType;
     function GetGUIIcon: Word;
     function GetGUIScroll: Word;
@@ -57,8 +57,8 @@ type
     property Description: UnicodeString read GetDescription;
     property Sight:smallint read fUnitDat.Sight;
     //Additional properties added by Remake
-    property AllowedPassability:TPassability read GetAllowedPassability;
-    property DesiredPassability:TPassability read GetDesiredPassability;
+    property AllowedPassability:TKMTerrainPassability read GetAllowedPassability;
+    property DesiredPassability:TKMTerrainPassability read GetDesiredPassability;
     property FightType:TFightType read GetFightType;
     property GUIIcon:word read GetGUIIcon;
     property GUIScroll:word read GetGUIScroll;
@@ -234,9 +234,9 @@ begin
 end;
 
 
-function TKMUnitDatClass.GetAllowedPassability: TPassability;
+function TKMUnitDatClass.GetAllowedPassability: TKMTerrainPassability;
 //Defines which animal prefers which terrain
-const AnimalTerrain: array[ANIMAL_MIN .. ANIMAL_MAX] of TPassability = (
+const AnimalTerrain: array[ANIMAL_MIN .. ANIMAL_MAX] of TKMTerrainPassability = (
     CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
 begin
   case fUnitType of
@@ -247,7 +247,7 @@ end;
 
 
 //Where unit would like to be
-function TKMUnitDatClass.GetDesiredPassability: TPassability;
+function TKMUnitDatClass.GetDesiredPassability: TKMTerrainPassability;
 begin
   if fUnitType in [CITIZEN_MIN..CITIZEN_MAX] - [ut_Worker] then
     Result := CanWalkRoad //Citizens except Worker
