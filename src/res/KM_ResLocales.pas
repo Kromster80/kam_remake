@@ -8,13 +8,13 @@ uses
 
 type
   TKMLocaleInfo = record
-    Code: AnsiString; //3-letter code: 'eng', 'rus'
-    Title: string; //Full name: 'English', 'Russian'
+    Code: AnsiString;                // 3-letter code: 'eng', 'rus'
+    Title: string;                   // Full name: 'English', 'Russian'
     FontCodepage: Word;
     NeedsFullFonts: Boolean;
     FlagSpriteID: Integer;
-    FallbackLocale: AnsiString;
-    TranslatorCredit: UnicodeString;
+    FallbackLocale: AnsiString;      // Locale to use if this one is empty. English is universal 2nd fallback locale
+    TranslatorCredit: UnicodeString; // Who did the translation
   end;
 
   TKMLocales = class
@@ -50,7 +50,8 @@ uses
 
 
 { TKMLocales }
-//Path to locales info file, usually \data\locales.txt
+// aPath - Path to locales info file, usually \data\text\locales.txt
+// aUserLocale - Locale that the user wants to see
 constructor TKMLocales.Create(aPath: string; aUserLocale: AnsiString);
 begin
   inherited Create;
