@@ -103,7 +103,7 @@ begin
   SHOW_TERRAIN_PASS := TrackBar_Passability.Position;
 
   if TrackBar_Passability.Position <> 0 then
-    Label_Passability.Caption := PassabilityText[TKMTerrainPassability(SHOW_TERRAIN_PASS)]
+    Label_Passability.Caption := PassabilityGuiText[TKMTerrainPassability(SHOW_TERRAIN_PASS)]
   else
     Label_Passability.Caption := gResTexts[TX_MAPED_PASSABILITY_OFF];
 

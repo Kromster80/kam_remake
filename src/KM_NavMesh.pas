@@ -133,7 +133,7 @@ begin
   //1 - obstacle
   for I := 0 to gTerrain.MapY - 2 do
   for K := 0 to gTerrain.MapX - 2 do
-    Tmp[I,K] := 1 - Byte(CanOwn in gTerrain.Land[I+1,K+1].Passability);
+    Tmp[I,K] := 1 - Byte(tpOwn in gTerrain.Land[I+1,K+1].Passability);
 
   GenerateOutline(Tmp, 12, aTileOutlines);
 

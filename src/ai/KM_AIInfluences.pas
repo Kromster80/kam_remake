@@ -192,7 +192,7 @@ begin
 
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
-    Ownable[I,K] := (CanOwn in gTerrain.Land[I,K].Passability);
+    Ownable[I,K] := (tpOwn in gTerrain.Land[I,K].Passability);
 end;
 
 

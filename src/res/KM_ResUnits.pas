@@ -237,11 +237,11 @@ end;
 function TKMUnitDatClass.GetAllowedPassability: TKMTerrainPassability;
 //Defines which animal prefers which terrain
 const AnimalTerrain: array[ANIMAL_MIN .. ANIMAL_MAX] of TKMTerrainPassability = (
-    CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
+    tpWolf, tpFish, tpFish, tpFish, tpCrab, tpFish, tpFish, tpFish);
 begin
   case fUnitType of
     ANIMAL_MIN..ANIMAL_MAX:  Result := AnimalTerrain[fUnitType]; //Animals
-    else                     Result := CanWalk; //Worker, Warriors
+    else                     Result := tpWalk; //Worker, Warriors
   end;
 end;
 
@@ -250,7 +250,7 @@ end;
 function TKMUnitDatClass.GetDesiredPassability: TKMTerrainPassability;
 begin
   if fUnitType in [CITIZEN_MIN..CITIZEN_MAX] - [ut_Worker] then
-    Result := CanWalkRoad //Citizens except Worker
+    Result := tpWalkRoad //Citizens except Worker
   else
     Result := GetAllowedPassability; //Workers, warriors, animals
 end;

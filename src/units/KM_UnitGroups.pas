@@ -447,7 +447,7 @@ begin
                                     gTerrain.MapX, gTerrain.MapY,
                                     Result.Exact);
   //Fits on map and is on passable terrain
-  Result.Exact := Result.Exact and gTerrain.CheckPassability(Result.Loc, CanWalk);
+  Result.Exact := Result.Exact and gTerrain.CheckPassability(Result.Loc, tpWalk);
 end;
 
 
@@ -999,7 +999,7 @@ begin
     if (KMLength(Members[0].GetPosition, OrderTargetUnit.GetPosition) > Members[0].GetFightMaxRange) then
     begin
       NodeList := TKMPointList.Create;
-      if gGame.Pathfinding.Route_Make(Members[0].GetPosition, OrderTargetUnit.NextPosition, [canWalk], Members[0].GetFightMaxRange, nil, NodeList) then
+      if gGame.Pathfinding.Route_Make(Members[0].GetPosition, OrderTargetUnit.NextPosition, [tpWalk], Members[0].GetFightMaxRange, nil, NodeList) then
       begin
         fOrderLoc.Loc := NodeList[NodeList.Count-1];
         fOrderLoc.Dir := KMGetDirection(NodeList[NodeList.Count-1], OrderTargetUnit.NextPosition);

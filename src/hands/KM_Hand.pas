@@ -560,7 +560,7 @@ begin
     Ty := aY + I - 4;
 
     //Make sure we don't block existing roads
-    if gTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad) then
+    if gTerrain.CheckPassability(KMPoint(Tx, Ty), tpWalkRoad) then
       Exit;
 
     //Check with influence maps
@@ -581,17 +581,17 @@ begin
 
     //Avoid placing houses in choke-points _/house\_ by checking upper corners
     if not (aHouseType in [ht_GoldMine, ht_IronMine]) then
-      if (gTerrain.Land[Ty-1, Tx - 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
-      or (gTerrain.Land[Ty-1, Tx + 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      if (gTerrain.Land[Ty-1, Tx - 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      or (gTerrain.Land[Ty-1, Tx + 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
       then
         Exit;
 
     //Make sure we can add road below house, full width + 1 on each side
     //Terrain already checked we are 1 tile away from map edge
     if (I = 4) and not (aHouseType in [ht_GoldMine, ht_IronMine]) then
-      if (gTerrain.Land[Ty+1, Tx - 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
-      or (gTerrain.Land[Ty+1, Tx    ].Passability * [CanMakeRoads, CanWalkRoad] = [])
-      or (gTerrain.Land[Ty+1, Tx + 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      if (gTerrain.Land[Ty+1, Tx - 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      or (gTerrain.Land[Ty+1, Tx    ].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      or (gTerrain.Land[Ty+1, Tx + 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
       then
         Exit;
 
@@ -822,7 +822,7 @@ begin
   repeat
     //First make sure that it is valid
     if (H <> nil) and H.HasFood and H.HasSpace
-    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), CanWalk, 0) then
+    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), tpWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
       Dist := KMLengthSqr(H.GetPosition, Loc);

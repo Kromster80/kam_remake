@@ -296,37 +296,37 @@ type
 { Terrain }
 type
   TKMTerrainPassability = (
-    CanUnused,
-    CanWalk,        // General passability of tile for any walking units
-    CanWalkRoad,    // Type of passability for Serfs when transporting wares, only roads have it
-    CanBuild,       // Can we build a house on this tile?
-    CanMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
-    CanFish,        // Water tiles where fish Can move around
-    CanCrab,        // Sand tiles where crabs Can move around
-    CanWolf,        // Soil tiles where wolfs Can move around
-    CanElevate,     // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
-    CanWorker,      // Like CanWalk but allows walking on building sites
-    CanOwn,         // For AI ownership
-    CanFactor       // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
-    );
+    tpUnused,
+    tpWalk,         // General passability of tile for any walking units
+    tpWalkRoad,    // Type of passability for Serfs when transporting wares, only roads have it
+    tpBuild,       // Can we build a house on this tile?
+    tpMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
+    tpFish,        // Water tiles where fish Can move around
+    tpCrab,        // Sand tiles where crabs Can move around
+    tpWolf,        // Soil tiles where wolfs Can move around
+    tpElevate,     // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
+    tpWorker,      // Like CanWalk but allows walking on building sites
+    tpOwn,         // For AI ownership
+    tpFactor       // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
+  );
   TKMTerrainPassabilitySet = set of TKMTerrainPassability;
 
   THeightPass = (hpWalking, hpBuilding, hpBuildingMines);
 
 const
-  PassabilityText: array [TKMTerrainPassability] of UnicodeString = (
+  PassabilityGuiText: array [TKMTerrainPassability] of UnicodeString = (
     'Unused',
-    'CanWalk',
-    'CanWalkRoad',
-    'CanBuild',
-    'CanMakeRoads',
-    'CanFish',
-    'CanCrab',
-    'CanWolf',
-    'CanElevate',
-    'CanWorker',
-    'CanOwn',
-    'CanFactor'
+    'Can walk',
+    'Can walk road',
+    'Can build',
+    'Can make roads',
+    'Can fish',
+    'Can crab',
+    'Can wolf',
+    'Can elevate',
+    'Can worker',
+    'Can own',
+    'Can factor'
   );
 
 

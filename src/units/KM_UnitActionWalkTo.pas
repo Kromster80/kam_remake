@@ -154,8 +154,8 @@ begin
 
   //Walking on roads is preferable, but not esential. Some cases (e.g. citizens going
   //to home with no road below doorway) it will crash if we strictly enforce it
-  if (fPass = CanWalkRoad) and (gTerrain.GetRoadConnectID(fWalkTo) = 0) then
-    fPass := CanWalk;
+  if (fPass = tpWalkRoad) and (gTerrain.GetRoadConnectID(fWalkTo) = 0) then
+    fPass := tpWalk;
 
   ExplanationLogCreate;
   Explanation := 'Walk action created';
@@ -182,7 +182,9 @@ begin
 
   //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    gLog.AddNoTime('Unable to make a route for '+gRes.UnitDat[aUnit.UnitType].GUIName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+PassabilityText[fPass]);
+    gLog.AddNoTime('Unable to make a route for ' + gRes.UnitDat[aUnit.UnitType].GUIName +
+                   ' from ' + KM_Points.TypeToString(fWalkFrom) + ' to ' + KM_Points.TypeToString(fWalkTo) +
+                   ' with "' + PassabilityGuiText[fPass] + '"');
 end;
 
 
@@ -365,12 +367,12 @@ var
   NodeList2: TKMPointList;
 begin
   //Build a piece of route to return to nearest road piece connected to destination road network
-  if (fPass = CanWalkRoad)
+  if (fPass = tpWalkRoad)
   and (fDistance = 0) //That is Citizens walking to spot
   and (gTerrain.GetRoadConnectID(fWalkFrom) <> gTerrain.GetRoadConnectID(fWalkTo)) //NoRoad returns 0
   and (gTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
-    if CanWalkToTarget(fWalkFrom, CanWalk) then
-      gGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, gTerrain.GetRoadConnectID(fWalkTo), [CanWalk], NodeList);
+    if CanWalkToTarget(fWalkFrom, tpWalk) then
+      gGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, gTerrain.GetRoadConnectID(fWalkTo), [tpWalk], NodeList);
 
   //Build a route A*
   if NodeList.Count = 0 then //Build a route from scratch
@@ -557,8 +559,8 @@ begin
 
     fInteractionStatus := kis_Pushing;
     OpponenTKMTerrainPassability := fOpponent.DesiredPassability;
-    if OpponenTKMTerrainPassability = CanWalkRoad then
-      OpponenTKMTerrainPassability := CanWalk;
+    if OpponenTKMTerrainPassability = tpWalkRoad then
+      OpponenTKMTerrainPassability := tpWalk;
 
     if not CanAbandonInternal then
       raise ELocError.Create('Unit walk IntSolutionPush', fUnit.GetPosition);
@@ -948,8 +950,8 @@ end;
 function TUnitActionWalkTo.GetEffectivePassability:TKMTerrainPassability; //Returns passability that unit is allowed to walk on
 begin
   //Road walking is only recomended. (i.e. for route building) We are allowed to step off the road sometimes.
-  if fPass = CanWalkRoad then
-    Result := CanWalk
+  if fPass = tpWalkRoad then
+    Result := tpWalk
   else
     Result := fPass;
 end;
@@ -1083,7 +1085,7 @@ begin
     //Both exchanging units have fDoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
     if fDoExchange then
     begin
-    
+
        //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
       if KMStepIsDiag(fUnit.GetPosition,NodeList[NodePos+1])
       and (not gTerrain.VertexUsageCompatible(fUnit.GetPosition,NodeList[NodePos+1])) then

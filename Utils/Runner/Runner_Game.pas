@@ -108,7 +108,7 @@ begin
 
     if gTerrain.TileIsStone(P.X,P.Y) > 0 then
     begin
-      if gTerrain.CheckPassability(KMPointBelow(P), CanWalk) then
+      if gTerrain.CheckPassability(KMPointBelow(P), tpWalk) then
       begin
         gTerrain.DecStoneDeposit(P);
         fResults.Value[aRun, 0] := fResults.Value[aRun, 0] + 3;

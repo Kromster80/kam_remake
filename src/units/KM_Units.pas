@@ -1276,7 +1276,7 @@ end;
 
 function TKMUnit.CanAccessHome: Boolean;
 begin
-  Result := (fHome = nil) or CanWalkTo(KMPointBelow(fHome.GetEntrance), CanWalk, 0);
+  Result := (fHome = nil) or CanWalkTo(KMPointBelow(fHome.GetEntrance), tpWalk, 0);
 end;
 
 
@@ -1583,19 +1583,19 @@ begin
   and (fUnitTask is TTaskDeliver)
   and (TTaskDeliver(fUnitTask).DeliverKind = dk_ToUnit)
   then
-    Result := CanWalk;
+    Result := tpWalk;
 
   //Preparing house area
   if (fUnitType = ut_Worker) and (fUnitTask is TTaskBuildHouseArea)
   and TTaskBuildHouseArea(fUnitTask).Digging
   then
-    Result := CanWorker; //Special mode that allows us to walk on building sites
+    Result := tpWorker; //Special mode that allows us to walk on building sites
 
   //Miners at work need to go off roads
   if (fUnitType in [ut_Woodcutter, ut_Farmer, ut_Fisher, ut_StoneCutter])
   and (fUnitTask is TTaskMining)
   then
-    Result := CanWalk;
+    Result := tpWalk;
 end;
 
 
@@ -1988,13 +1988,13 @@ begin
   //Shortcut to freeze unit in place if it's on an unwalkable tile. We use fNextPosition rather than fCurrPosition
   //because once we have taken a step from a tile we no longer care about it. (fNextPosition matches up with IsUnit in terrain)
   if fCurrentAction is TUnitActionWalkTo then
-    if DesiredPassability = CanWalkRoad then
+    if DesiredPassability = tpWalkRoad then
     begin
-      if not gTerrain.CheckPassability(fNextPosition, CanWalk) then
-        raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk', fNextPosition);
+      if not gTerrain.CheckPassability(fNextPosition, tpWalk) then
+        raise ELocError.Create( gRes.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk', fNextPosition);
     end else
     if not gTerrain.CheckPassability(fNextPosition, DesiredPassability) then
-      raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+PassabilityText[DesiredPassability], fNextPosition);
+      raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' "'+PassabilityGuiText[DesiredPassability] + '"', fNextPosition);
 
 
   //

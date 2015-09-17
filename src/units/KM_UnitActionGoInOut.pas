@@ -157,13 +157,13 @@ function TUnitActionGoInOut.FindBestExit(aLoc: TKMPoint): TBestExit;
 var
   U: TKMUnit;
 begin
-  if fUnit.CanStepTo(aLoc.X, aLoc.Y, canWalk) then
+  if fUnit.CanStepTo(aLoc.X, aLoc.Y, tpWalk) then
     Result := be_Center
   else
-  if fUnit.CanStepTo(aLoc.X-1, aLoc.Y, canWalk) then
+  if fUnit.CanStepTo(aLoc.X-1, aLoc.Y, tpWalk) then
     Result := be_Left
   else
-  if fUnit.CanStepTo(aLoc.X+1, aLoc.Y, canWalk) then
+  if fUnit.CanStepTo(aLoc.X+1, aLoc.Y, tpWalk) then
     Result := be_Right
   else
   begin
@@ -189,7 +189,7 @@ begin
     if U <> nil then
     begin
       fPushedUnit := U.GetUnitPointer;
-      fPushedUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(U, KMPoint(0,0), CanWalk));
+      fPushedUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(U, KMPoint(0,0), tpWalk));
     end;
   end;
 end;

@@ -489,7 +489,7 @@ begin
   begin
     I := tbPassability.Position;
     tbPassability.Max := Byte(High(TKMTerrainPassability));
-    Label2.Caption := IfThen(I <> 0, PassabilityText[TKMTerrainPassability(I)], '');
+    Label2.Caption := IfThen(I <> 0, PassabilityGuiText[TKMTerrainPassability(I)], '');
     SHOW_TERRAIN_PASS := I;
     SHOW_TERRAIN_WIRES := chkShowWires.Checked;
     SHOW_UNIT_ROUTES := chkShowRoutes.Checked;

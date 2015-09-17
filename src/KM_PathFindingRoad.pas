@@ -86,7 +86,7 @@ end;
 function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
 var IsRoad: Boolean;
 begin
-  IsRoad := (CanWalkRoad in gTerrain.Land[aToY, aToX].Passability)
+  IsRoad := (tpWalkRoad in gTerrain.Land[aToY, aToX].Passability)
             or (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aToX, aToY)) = ft_Road)
             or (gTerrain.Land[aToY, aToX].TileLock = tlRoadWork);
 
@@ -119,7 +119,7 @@ end;
 
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
-  Result := ([CanMakeRoads, CanWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
+  Result := ([tpMakeRoads, tpWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
             and (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
             and not gHands[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
 end;
@@ -136,7 +136,7 @@ end;
 
 function TPathFindingRoad.Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
 begin
-  Result := inherited Route_Make(aLocA, aLocB, [CanMakeRoads, CanWalkRoad], 0, nil, NodeList);
+  Result := inherited Route_Make(aLocA, aLocB, [tpMakeRoads, tpWalkRoad], 0, nil, NodeList);
 end;
 
 
@@ -144,7 +144,7 @@ end;
 function TPathFindingRoad.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aRoadConnectID: Byte; NodeList: TKMPointList): Boolean;
 begin
   fRoadConnectID := aRoadConnectID;
-  Result := inherited Route_ReturnToWalkable(aLocA, aLocB, wcRoad, 0, [CanMakeRoads, CanWalkRoad], NodeList);
+  Result := inherited Route_ReturnToWalkable(aLocA, aLocB, wcRoad, 0, [tpMakeRoads, tpWalkRoad], NodeList);
 end;
 
 
@@ -157,7 +157,7 @@ begin
   Result := 10;
 
   //Off road costs extra
-  IsRoad := (CanWalkRoad in gTerrain.Land[aToY, aToX].Passability)
+  IsRoad := (tpWalkRoad in gTerrain.Land[aToY, aToX].Passability)
             or (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aToX, aToY)) = ft_Road)
             or (gTerrain.Land[aToY, aToX].TileLock = tlRoadWork);
   if not IsRoad then
@@ -172,7 +172,7 @@ end;
 
 function TPathFindingRoadShortcuts.IsWalkableTile(aX, aY: Word): Boolean;
 begin
-  Result := ([CanMakeRoads, CanWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
+  Result := ([tpMakeRoads, tpWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
             or (gTerrain.Land[aY, aX].TileLock = tlRoadWork);
   Result := Result and (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
                    and not gHands[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));

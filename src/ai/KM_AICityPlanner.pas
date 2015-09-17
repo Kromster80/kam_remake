@@ -290,7 +290,7 @@ begin
   Locs := TKMPointTagList.Create;
   try
     //Find all tiles from which stone can be mined, by walking to them
-    FindNearest(SeedLocs, 32, fnStone, [CanWalk], 12, Locs);
+    FindNearest(SeedLocs, 32, fnStone, [tpWalk], 12, Locs);
     if Locs.Count = 0 then Exit;
 
     //Check few random tiles if we can build Quary nearby
@@ -330,7 +330,7 @@ function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aType
 begin
   fFinder.FindType := aType;
   fFinder.HouseType := ht_None;
-  Result := fFinder.FindNearest(aStart, aRadius, [CanWalkRoad, CanMakeRoads], aResultLoc);
+  Result := fFinder.FindNearest(aStart, aRadius, [tpWalkRoad, tpMakeRoads], aResultLoc);
 end;
 
 
@@ -346,7 +346,7 @@ procedure TKMCityPlanner.FindNearest(const aStart: TKMPointArray; aRadius: Byte;
 begin
   fFinder.FindType := fnHouse;
   fFinder.HouseType := aHouse;
-  fFinder.FindNearest(aStart, aRadius, [CanWalkRoad, CanMakeRoads], aMaxCount, aLocs);
+  fFinder.FindNearest(aStart, aRadius, [tpWalkRoad, tpMakeRoads], aMaxCount, aLocs);
 end;
 
 

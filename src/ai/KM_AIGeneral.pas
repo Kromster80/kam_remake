@@ -418,7 +418,7 @@ procedure TKMGeneral.CheckAutoDefend;
     IX, IY, BestDistSqr: Integer;
     Best: TKMPoint;
   begin
-    if gTerrain.CheckPassability(Loc, canWalk) then
+    if gTerrain.CheckPassability(Loc, tpWalk) then
     begin
       Result := True;
       Exit;
@@ -427,7 +427,7 @@ procedure TKMGeneral.CheckAutoDefend;
     BestDistSqr := High(Integer);
     for IY := Max(1, Loc.Y-2) to Min(gTerrain.MapY, Loc.Y+2) do
       for IX := Max(1, Loc.X-2) to Min(gTerrain.MapX, Loc.X+2) do
-        if gTerrain.CheckPassability(KMPoint(IX, IY), canWalk)
+        if gTerrain.CheckPassability(KMPoint(IX, IY), tpWalk)
         and (KMLengthSqr(Loc, KMPoint(IX, IY)) < BestDistSqr) then
         begin
           BestDistSqr := KMLengthSqr(Loc, KMPoint(IX, IY));

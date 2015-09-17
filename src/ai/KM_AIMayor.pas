@@ -760,7 +760,7 @@ begin
           FromLoc := TUnitActionWalkTo(gHands[fOwner].Units[I].GetUnitAction).WalkFrom;
           ToLoc := TUnitActionWalkTo(gHands[fOwner].Units[I].GetUnitAction).WalkTo;
           //Unit's route must be using road network, not f.e. delivering to soldiers
-          if gTerrain.Route_CanBeMade(FromLoc, ToLoc, CanWalkRoad, 0) then
+          if gTerrain.Route_CanBeMade(FromLoc, ToLoc, tpWalkRoad, 0) then
           begin
             //Check for shortcuts we could build
             NodeList.Clear;
