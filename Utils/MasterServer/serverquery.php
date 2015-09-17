@@ -74,7 +74,8 @@ function ServerQuery($format, $rev)
             case "kamclubeng":
             case "table":
                 //Clean color codes matching [$xxxxxx] or []
-                $Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex
+                $Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex (remove color codes)
+                $Name = htmlentities($Name); //Prevent XSS in server names
                 $Country = IPToCountry($IP);
                 $Warning = '';
                 if(!$Alive) $Warning = ' <IMG src="'.$BASE_URL.'error.png" alt="Server unreachable" style="vertical-align:middle">';
@@ -82,7 +83,8 @@ function ServerQuery($format, $rev)
                 break;
             case "ajaxupdate":
                 //Clean color codes matching [$xxxxxx] or []
-                $Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex
+                $Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex (remove color codes)
+                $Name = htmlentities($Name); //Prevent XSS in server names
                 $srvsgl = array();
                 $srvsgl['c'] = strtolower(IPToCountry($IP));
                 $srvsgl['n'] = $Name;
