@@ -1419,7 +1419,7 @@ end;
 function TKMTerrain.FindOre(aLoc: TKMPoint; aRes: TWareType; out OrePoint: TKMPoint): Boolean;
 var
   I,K: Integer;
-  RadLeft, RadRight, RadTop, RadBottom: Integer;
+  MiningRect: TKMRect;
   R1,R2,R3,R4: Byte; //Ore densities
   L: array [1..4] of TKMPointList;
 begin
@@ -1432,27 +1432,27 @@ begin
 
   //These values have been measured from KaM
   case aRes of
-    wt_GoldOre: begin RadLeft:=7; RadRight:=6; RadTop:=11; RadBottom:=2; R1:=144; R2:=145; R3:=146; R4:=147; end;
-    wt_IronOre: begin RadLeft:=7; RadRight:=5; RadTop:=11; RadBottom:=2; R1:=148; R2:=149; R3:=150; R4:=151; end;
-    wt_Coal:    begin RadLeft:=4; RadRight:=5; RadTop:= 5; RadBottom:=2; R1:=152; R2:=153; R3:=154; R4:=155; end;
-    else        begin RadLeft:=0; RadRight:=0; RadTop:= 0; RadBottom:=0; R1:=  0; R2:=  0; R3:=  0; R4:=  0; end;
+    wt_GoldOre: begin MiningRect := KMRect(7, 11, 6, 2); R1:=144; R2:=145; R3:=146; R4:=147; end;
+    wt_IronOre: begin MiningRect := KMRect(7, 11, 5, 2); R1:=148; R2:=149; R3:=150; R4:=151; end;
+    wt_Coal:    begin MiningRect := KMRect(4,  5, 5, 2); R1:=152; R2:=153; R3:=154; R4:=155; end;
+    else        begin MiningRect := KMRect(0,  0, 0, 0); R1:=  0; R2:=  0; R3:=  0; R4:=  0; end;
   end;
 
-  for I := Max(aLoc.Y - RadTop, 1) to Min(aLoc.Y + RadBottom, fMapY - 1) do
-  for K := Max(aLoc.X - RadLeft, 1) to Min(aLoc.X + RadRight, fMapX - 1) do
+  for I := Max(aLoc.Y - MiningRect.Top, 1) to Min(aLoc.Y + MiningRect.Bottom, fMapY - 1) do
+  for K := Max(aLoc.X - MiningRect.Left, 1) to Min(aLoc.X + MiningRect.Right, fMapX - 1) do
   begin
     if Land[I, K].Terrain = R1 then
     begin
       //Poorest ore gets mined in range - 2
-      if InRange(I - aLoc.Y, - RadTop + 2, RadBottom - 2) then
-        if InRange(K - aLoc.X, - RadLeft + 2, RadRight - 2) then
+      if InRange(I - aLoc.Y, - MiningRect.Top + 2, MiningRect.Bottom - 2) then
+        if InRange(K - aLoc.X, - MiningRect.Left + 2, MiningRect.Right - 2) then
           L[1].Add(KMPoint(K, I))
     end
     else if Land[I, K].Terrain = R2 then
     begin
       //Second poorest ore gets mined in range - 1
-      if InRange(I - aLoc.Y, - RadTop + 1, RadBottom - 1) then
-        if InRange(K - aLoc.X, - RadLeft + 1, RadRight - 1) then
+      if InRange(I - aLoc.Y, - MiningRect.Top + 1, MiningRect.Bottom - 1) then
+        if InRange(K - aLoc.X, - MiningRect.Left + 1, MiningRect.Right - 1) then
           L[2].Add(KMPoint(K, I))
     end
     else if Land[I, K].Terrain = R3 then
