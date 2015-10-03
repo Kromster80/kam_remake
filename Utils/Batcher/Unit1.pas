@@ -7,7 +7,6 @@ uses
   KM_GameApp, KM_Log, KM_HandsCollection,
   KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
 
-
 type
   TForm1 = class(TForm)
     Button3: TButton;
@@ -38,15 +37,14 @@ type
     procedure ControlsEnable(aFlag: Boolean);
   end;
 
-
 var
   Form1: TForm1;
 
-
 implementation
-uses KM_Campaigns, KM_MissionScript;
-{$R *.dfm}
+uses
+  KM_Campaigns, KM_MissionScript;
 
+{$R *.dfm}
 
 type
   TMissionParserPatcher = class(TMissionParserCommon)
