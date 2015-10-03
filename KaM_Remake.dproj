@@ -77,6 +77,8 @@
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
+			<DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
 			<DCC_MapFile>3</DCC_MapFile>
 			<DCC_DebugInformation>true</DCC_DebugInformation>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
@@ -133,7 +135,6 @@
 			<DCCReference Include="src\KM_DedicatedServer.pas"/>
 			<DCCReference Include="src\KM_Defaults.pas"/>
 			<DCCReference Include="src\KM_Deliveries.pas"/>
-        <DCCReference Include="src\KM_Exceptions.pas"/>
 			<DCCReference Include="src\KM_FileIO.pas"/>
 			<DCCReference Include="src\KM_FogOfWar.pas"/>
 			<DCCReference Include="src\KM_Game.pas"/>
@@ -144,65 +145,65 @@
 			<DCCReference Include="src\KM_GameInputProcess.pas"/>
 			<DCCReference Include="src\KM_GameInputProcess_Multi.pas"/>
 			<DCCReference Include="src\KM_GameInputProcess_Single.pas"/>
-			<DCCReference Include="src\gui\KM_GUIGameBuild.pas"/>
-			<DCCReference Include="src\gui\KM_GUIGameChat.pas"/>
-			<DCCReference Include="src\gui\KM_GUIGameHouse.pas"/>
-			<DCCReference Include="src\gui\KM_GUIGameRatios.pas"/>
-			<DCCReference Include="src\gui\KM_GUIGameStats.pas"/>
-			<DCCReference Include="src\gui\KM_GUIGameMenuSettings.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdAttack.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdExtras.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdFormations.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdGoal.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdHouse.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMarkerDefence.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMarkerReveal.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMenu.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMenuLoad.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMenuSave.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMenuQuit.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMenuSettings.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMessage.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdPlayer.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdPlayerBlockHouse.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdPlayerBlockTrade.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdPlayerBlockUnit.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdPlayerColors.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdPlayerGoals.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdPlayerView.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMission.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMissionAlliances.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMissionMode.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdMissionPlayers.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTerrain.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTerrainBrushes.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTerrainHeights.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTerrainTiles.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTerrainObjects.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTerrainSelection.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTown.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTownUnits.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTownHouses.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTownScript.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTownDefence.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdTownOffence.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMapEdUnit.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuCampaign.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuCampaigns.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuCredits.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuError.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuLoad.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuLoading.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuLobby.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuMain.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuMapEditor.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuMultiplayer.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuOptions.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuReplays.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuResultsMP.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuResultsSP.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuSingleMap.pas"/>
-			<DCCReference Include="src\gui\KM_GUIMenuSinglePlayer.pas"/>
+			<DCCReference Include="src\gui\pages_game\KM_GUIGameBuild.pas"/>
+			<DCCReference Include="src\gui\pages_game\KM_GUIGameChat.pas"/>
+			<DCCReference Include="src\gui\pages_game\KM_GUIGameHouse.pas"/>
+			<DCCReference Include="src\gui\pages_game\KM_GUIGameRatios.pas"/>
+			<DCCReference Include="src\gui\pages_game\KM_GUIGameStats.pas"/>
+			<DCCReference Include="src\gui\pages_game\KM_GUIGameMenuSettings.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdAttack.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdExtras.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdFormations.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdGoal.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdHouse.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMarkerDefence.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMarkerReveal.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenu.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuLoad.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuSave.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuQuit.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuSettings.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMessage.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayer.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerBlockHouse.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerBlockTrade.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerBlockUnit.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerColors.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerGoals.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerView.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMission.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMissionAlliances.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMissionMode.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMissionPlayers.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrain.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainBrushes.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainHeights.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainTiles.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainObjects.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainSelection.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTown.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownUnits.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownHouses.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownScript.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownDefence.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownOffence.pas"/>
+			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdUnit.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaign.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaigns.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuCredits.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuError.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuLoad.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuLoading.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuLobby.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuMain.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuMapEditor.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuMultiplayer.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuOptions.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuReplays.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuResultsMP.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuResultsSP.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuSingleMap.pas"/>
+			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuSinglePlayer.pas"/>
 			<DCCReference Include="src\hands\KM_Hand.pas"/>
 			<DCCReference Include="src\hands\KM_HandsCollection.pas"/>
 			<DCCReference Include="src\hands\KM_HandSpectator.pas"/>
@@ -214,8 +215,6 @@
 			<DCCReference Include="src\houses\KM_Houses.pas"/>
 			<DCCReference Include="src\houses\KM_HouseSchool.pas"/>
 			<DCCReference Include="src\KM_HTTPClient.pas"/>
-        <DCCReference Include="src\KM_HTTPClientOverbyte.pas"/>
-        <DCCReference Include="src\KM_HTTPClientLNet.pas"/>
 			<DCCReference Include="src\KM_Hungarian.pas"/>
 			<DCCReference Include="src\gui\KM_InterfaceDefaults.pas"/>
 			<DCCReference Include="src\gui\KM_InterfaceGame.pas"/>
@@ -280,8 +279,10 @@
 			<DCCReference Include="src\res\KM_ResWares.pas"/>
 			<DCCReference Include="src\KM_Saves.pas"/>
 			<DCCReference Include="src\scripting\KM_Scripting.pas"/>
-			<DCCReference Include="src\scripting\KM_ScriptingESA.pas"/>
+			<DCCReference Include="src\scripting\KM_ScriptingActions.pas"/>
+			<DCCReference Include="src\scripting\KM_ScriptingEvents.pas"/>
 			<DCCReference Include="src\scripting\KM_ScriptingIdCache.pas"/>
+			<DCCReference Include="src\scripting\KM_ScriptingStates.pas"/>
 			<DCCReference Include="src\KM_ServerQuery.pas"/>
 			<DCCReference Include="src\KM_Settings.pas"/>
 			<DCCReference Include="src\KM_Sound.pas"/>
@@ -363,23 +364,23 @@
 					</Excluded_Packages>
 				</Delphi.Personality>
 				<Platforms>
-                <Platform value="Win32">True</Platform>
 					<Platform value="Win64">False</Platform>
+					<Platform value="Win32">True</Platform>
 				</Platforms>
 				<UnitTesting>
 					<TestProjectName>G:\Delphi\KaM Remake\Test\KaM_RemakeTests.dproj</TestProjectName>
 				</UnitTesting>
 				<ModelSupport>False</ModelSupport>
 				<Deployment>
-                <DeployFile LocalName="KaM_Remake.exe" Configuration="Release" Class="ProjectOutput">
+					<DeployFile LocalName="KaM_Remake.exe" Configuration="Release" Class="ProjectOutput">
 						<Platform Name="Win32"/>
 					</DeployFile>
-                <DeployFile LocalName="KaM_Remake.rsm" Configuration="Release" Class="DebugSymbols">
+					<DeployFile LocalName="KaM_Remake.rsm" Configuration="Release" Class="DebugSymbols">
 						<Platform Name="Win32">
 							<RemoteName>KaM_Remake.rsm</RemoteName>
 						</Platform>
 					</DeployFile>
-                <DeployClass Required="true" Name="DependencyPackage">
+					<DeployClass Name="DependencyPackage" Required="true">
 						<Platform Name="iOSDevice">
 							<Operation>1</Operation>
 							<Extensions>.dylib</Extensions>
@@ -493,7 +494,7 @@
 							<Operation>1</Operation>
 						</Platform>
 					</DeployClass>
-                <DeployClass Required="true" Name="ProjectOutput">
+					<DeployClass Name="ProjectOutput" Required="true">
 						<Platform Name="iOSDevice">
 							<Operation>1</Operation>
 						</Platform>
@@ -582,16 +583,16 @@
 							<Operation>1</Operation>
 						</Platform>
 					</DeployClass>
-                <ProjectRoot Platform="iOSDevice" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+					<ProjectRoot Name="$(PROJECTNAME).app" Platform="iOSDevice"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win32"/>
+					<ProjectRoot Name="$(PROJECTNAME).app" Platform="OSX32"/>
+					<ProjectRoot Name="$(PROJECTNAME).app" Platform="iOSSimulator"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win64"/>
 				</Deployment>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
 		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
-    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
+		<Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
 	</Project>
