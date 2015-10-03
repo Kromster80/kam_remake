@@ -6,29 +6,26 @@ uses
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResTexts;
 
 type
-  TKMKeyArea = (kaCommon, kaGame, kaMapEdit);
+  TKMFuncArea = (faCommon, faGame, faMapEdit);
 
 const
-  KEYMAP_COUNT = 57;
+  // There are total of 57 different functions in the game that can have a shortcut
+  FUNC_COUNT = 57;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
 
-  KEY_SEP_TX: array [TKMKeyArea] of Word = (
-    TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_MAPEDIT
-  );
-
 type
   TKMFuncInfo = record
-    Key: Byte;
-    TextId: Word;
-    Area: TKMKeyArea;
-    IsDebug: Boolean; // Hide key and function from UI
+    Key: Byte;        // Key assigned to this function
+    TextId: Word;     // Text description of the function
+    Area: TKMFuncArea; // Area of effect for the function (common, game, maped)
+    IsDebug: Boolean; // Hide debug key and its function from UI
   end;
 
   TKMKeyLibrary = class
   private
-    fFuncs: array [0..KEYMAP_COUNT-1] of TKMFuncInfo;
+    fFuncs: array [0..FUNC_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
     function GetFunc(aIndex: Word): TKMFuncInfo;
   public
@@ -36,7 +33,7 @@ type
     function GetKeyName(aKey: Word): string;
     function GetKeyNameById(aId: Word): string;
     function GetFunctionNameById(aId: Integer): string;
-    function AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
+    function AllowKeySet(aArea: TKMFuncArea; aKey: Word): Boolean;
     procedure SetKey(aId: Integer; aKey: Word);
     function Count: Integer;
     property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc; default;
@@ -53,7 +50,7 @@ implementation
 
 const
   // Default keys
-  DEF_KEYS: array [0..KEYMAP_COUNT-1] of Byte = (
+  DEF_KEYS: array [0..FUNC_COUNT-1] of Byte = (
     37,  39,  38,  40, 112, 113, 114, 115,  72,  83,
     76,  70,  88, 187, 189, 190, 188, 116, 117, 118,
     119, 66,  80,  84,  34,  33,   8,  49,  50,  51,
@@ -63,7 +60,7 @@ const
   );
 
   // Function text values
-  KEY_FUNC_TX: array [0..KEYMAP_COUNT-1] of Word = (
+  KEY_FUNC_TX: array [0..FUNC_COUNT-1] of Word = (
     TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN, TX_KEY_FUNC_MENU_BUILD,
     TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN, TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT,
     TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM, TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE,
@@ -89,14 +86,14 @@ begin
 
   LoadKeymapFile;
 
-  for I := 0 to KEYMAP_COUNT - 1 do
+  for I := 0 to FUNC_COUNT - 1 do
   begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     case I of
-      0..3, 24..26, 40..44: fFuncs[I].Area := kaCommon;
-      4..23, 27..39:        fFuncs[I].Area := kaGame;
-      else                  fFuncs[I].Area := kaMapEdit;
+      0..3, 24..26, 40..44: fFuncs[I].Area := faCommon;
+      4..23, 27..39:        fFuncs[I].Area := faGame;
+      else                  fFuncs[I].Area := faMapEdit;
     end;
 
     fFuncs[I].IsDebug := (I in [41..44]);
@@ -106,7 +103,7 @@ end;
 
 function TKMKeyLibrary.Count: Integer;
 begin
-  Result := KEYMAP_COUNT;
+  Result := FUNC_COUNT;
 end;
 
 
@@ -116,7 +113,7 @@ var
   I: Integer;
   SL: TStringList;
   delim1, delim2: Integer;
-  keyId, keyVal: Integer;
+  funcId, keyVal: Integer;
 begin
   if not FileExists(fKeymapPath) then
   begin
@@ -136,12 +133,13 @@ begin
     delim2 := Pos('//', SL[I]);
     if (delim1 = 0) or (delim2 = 0) or (delim1 > delim2) then Continue;
 
-    keyId := StrToIntDef(Copy(SL[I], 0, delim1 - 1), -1);
+    funcId := StrToIntDef(Copy(SL[I], 0, delim1 - 1), -1);
     keyVal := StrToIntDef(Copy(SL[I], delim1 + 1, delim2 - delim1 - 1), -1);
 
-    if not InRange(keyId, 0, KEYMAP_COUNT - 1) or (keyVal = -1) then Continue;
+    if not InRange(funcId, 0, FUNC_COUNT - 1) or (keyVal = -1) then Continue;
+    if not InRange(keyVal, 0, 255) then Continue;
 
-    fFuncs[keyId].Key := keyVal;
+    fFuncs[funcId].Key := keyVal;
   end;
 
   SL.Free;
@@ -163,7 +161,7 @@ begin
   KeyStringList := TStringList.Create;
   {$IFDEF WDC}KeyStringList.DefaultEncoding := TEncoding.UTF8;{$ENDIF}
 
-  for I := 0 to KEYMAP_COUNT - 1 do
+  for I := 0 to FUNC_COUNT - 1 do
   begin
     Keystring := IntToStr(I) + ':' + IntToStr(fFuncs[I].Key) + '// ' + GetFunctionNameById(I);
     KeyStringList.Add(Keystring);
@@ -178,14 +176,14 @@ procedure TKMKeyLibrary.ResetKeymap;
 var
   I: Integer;
 begin
-  for I := 0 to KEYMAP_COUNT - 1 do
+  for I := 0 to FUNC_COUNT - 1 do
     fFuncs[I].Key := DEF_KEYS[I];
 end;
 
 
 function TKMKeyLibrary.GetFunctionNameById(aId: Integer): string;
 begin
-  if InRange(aId, 0, KEYMAP_COUNT - 1) then
+  if InRange(aId, 0, FUNC_COUNT - 1) then
     Result := gResTexts[KEY_FUNC_TX[aId]]
   else
     Result := gResTexts[TX_KEY_FUNC_UNKNOWN] + ' ' + IntToStr(aId) + '! ~~~';
@@ -194,6 +192,7 @@ end;
 
 function TKMKeyLibrary.GetKeyName(aKey: Word): string;
 begin
+  // All the special keys (not characters and not numbers) need a localized name
   case aKey of
     0:  Result := '';
     1:  Result :=  gResTexts[TX_KEY_LMB];
@@ -226,6 +225,7 @@ begin
     45: Result :=  gResTexts[TX_KEY_INSERT];
     46: Result :=  gResTexts[TX_KEY_DELETE];
     47: Result :=  gResTexts[TX_KEY_HELP];
+    // NumPad keys
     96: Result :=  gResTexts[TX_KEY_NUM_0];
     97: Result :=  gResTexts[TX_KEY_NUM_1];
     98: Result :=  gResTexts[TX_KEY_NUM_2];
@@ -236,12 +236,13 @@ begin
     103: Result := gResTexts[TX_KEY_NUM_7];
     104: Result := gResTexts[TX_KEY_NUM_8];
     105: Result := gResTexts[TX_KEY_NUM_9];
-    106: Result := gResTexts[TX_KEY_NUM_TIMES];
+    106: Result := gResTexts[TX_KEY_NUM_MULTIPLY];
     107: Result := gResTexts[TX_KEY_NUM_PLUS];
     108: Result := gResTexts[TX_KEY_SEPARATOR];
     109: Result := gResTexts[TX_KEY_NUM_MINUS];
     110: Result := gResTexts[TX_KEY_NUM_DOT];
-    111: Result := gResTexts[TX_KEY_NUM_DEVIDE];
+    111: Result := gResTexts[TX_KEY_NUM_DIVIDE];
+    // F keys
     112: Result := 'F1';
     113: Result := 'F2';
     114: Result := 'F3';
@@ -302,7 +303,7 @@ begin
 end;
 
 
-function TKMKeyLibrary.AllowKeySet(aArea: TKMKeyArea; aKey: Word): Boolean;
+function TKMKeyLibrary.AllowKeySet(aArea: TKMFuncArea; aKey: Word): Boolean;
 begin
   // False if Key equals F10 or F11 (those are used by Delphi IDE when running an App from debugger)
   Result := not (aKey in [121, 122]);
@@ -314,13 +315,13 @@ var
   I: Integer;
 begin
   // Reset previous key binding if Key areas overlap
-  for I := 0 to KEYMAP_COUNT - 1 do
+  for I := 0 to FUNC_COUNT - 1 do
   if gResKeys[I].Key = aKey then
     case gResKeys[I].Area of
-      kaCommon:   fFuncs[I].Key := 0;
-      kaGame:     if (gResKeys[aId].Area in [kaGame, kaCommon]) then
+      faCommon:   fFuncs[I].Key := 0;
+      faGame:     if (gResKeys[aId].Area in [faGame, faCommon]) then
                     fFuncs[I].Key := 0;
-      kaMapEdit:  if (gResKeys[aId].Area in [kaMapEdit, kaCommon]) then
+      faMapEdit:  if (gResKeys[aId].Area in [faMapEdit, faCommon]) then
                     fFuncs[I].Key := 0;
     end;
 

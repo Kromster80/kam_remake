@@ -466,21 +466,24 @@ end;
 
 
 procedure TKMMenuOptions.KeysRefreshList;
+const
+  KEY_TX: array [TKMFuncArea] of Word = (TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_MAPEDIT);
 var
   I, prevI: Integer;
-  K: TKMKeyArea;
+  K: TKMFuncArea;
 begin
   prevI := ColumnBox_OptionsKeys.TopIndex;
 
   ColumnBox_OptionsKeys.Clear;
 
-  for K := Low(TKMKeyArea) to High(TKMKeyArea) do
+  for K := Low(TKMFuncArea) to High(TKMFuncArea) do
   begin
-    ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
+    // Section
+    ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[KEY_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
 
     // Do not show the debug keys
     for I := 0 to gResKeys.Count - 1 do
-      if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
+      if (gResKeys[I].Area = K) and not gResKeys[I].IsDebug then
         ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
                                                   [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
   end;
@@ -493,6 +496,8 @@ procedure TKMMenuOptions.KeysUpdate(Key: Word; Shift: TShiftState);
 var
   id: Integer;
 begin
+  if ColumnBox_OptionsKeys.ItemIndex = -1 then Exit;
+
   ColumnBox_OptionsKeys.HighlightError := False;
   id := ColumnBox_OptionsKeys.Rows[ColumnBox_OptionsKeys.ItemIndex].Tag;
 
