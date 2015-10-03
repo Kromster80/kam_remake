@@ -25,12 +25,12 @@ type
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
-    procedure KeybindClick(Sender: TObject);
-    procedure Keybind_ListKeySave(Key: Word; Shift: TShiftState);
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
-    procedure RefreshKeyList;
+    procedure KeysClick(Sender: TObject);
+    procedure KeysRefreshList;
+    procedure KeysUpdate(Key: Word; Shift: TShiftState);
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -56,13 +56,12 @@ type
         DropBox_Options_Resolution: TKMDropList;
         DropBox_Options_RefreshRate: TKMDropList;
         Button_Options_ResApply: TKMButton;
-      Button_Options_Keys: TKMButton;
-      Button_Options_Back: TKMButton;
-      PopUp_Options_Keys: TKMPopUpMenu;
-        Image_Options_Keys: TKMImage;
-        Label_Options_Keys_Title, Label_Options_Keys_Unassignable: TKMLabel;
-        Button_Options_Keys_Reset, Button_Options_Keys_OK: TKMButton;
-        ColumnBox_Options_Keys: TKMColumnBox;
+      Button_OptionsKeys: TKMButton;
+      PopUp_OptionsKeys: TKMPopUpMenu;
+        ColumnBox_OptionsKeys: TKMColumnBox;
+        Button_OptionsKeysReset: TKMButton;
+        Button_OptionsKeysOK: TKMButton;
+      Button_OptionsBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 
@@ -190,48 +189,43 @@ begin
       Radio_Options_Lang.OnChange := Change;
 
     // Keybindings button
-    Button_Options_Keys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
-    Button_Options_Keys.Anchors := [anLeft];
-    Button_Options_Keys.OnClick := KeybindClick;
+    Button_OptionsKeys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
+    Button_OptionsKeys.Anchors := [anLeft];
+    Button_OptionsKeys.OnClick := KeysClick;
 
     // Back button
-    Button_Options_Back:=TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
-    Button_Options_Back.Anchors := [anLeft];
-    Button_Options_Back.OnClick := BackClick;
+    Button_OptionsBack := TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
+    Button_OptionsBack.Anchors := [anLeft];
+    Button_OptionsBack.OnClick := BackClick;
 
     // Panel_Options_Keys
-    PopUp_Options_Keys := TKMPopUpMenu.Create(Panel_Options, 700);
-    PopUp_Options_Keys.Height := 600;
-    // Keep the pop-up centered
-    PopUp_Options_Keys.Anchors := [];
-    PopUp_Options_Keys.Left := (Panel_Options.Width Div 2) - 350;
-    PopUp_Options_Keys.Top := (Panel_Options.Height Div 2) - 300;
+    PopUp_OptionsKeys := TKMPopUpMenu.Create(Panel_Options, 700);
+    PopUp_OptionsKeys.Height := 600;
+    PopUp_OptionsKeys.Anchors := []; // Keep centered, don't stretch already poor BG image
+    PopUp_OptionsKeys.Left := (Panel_Options.Width - 700) div 2;
+    PopUp_OptionsKeys.Top := (Panel_Options.Height - 600) div 2;
 
-      TKMBevel.Create(PopUp_Options_Keys, -1000,  -1000, 4000, 4000);
+      TKMBevel.Create(PopUp_OptionsKeys, -1000, -1000, 4000, 4000);
 
-      Image_Options_Keys := TKMImage.Create(PopUp_Options_Keys,0,0, 700, 600, 15, rxGuiMain);
-      Image_Options_Keys.ImageStretch;
+      TKMImage.Create(PopUp_OptionsKeys, 0, 0, 700, 600, 15, rxGuiMain).ImageStretch;
 
-      Label_Options_Keys_Title := TKMLabel.Create(PopUp_Options_Keys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter);
-      Label_Options_Keys_Title.Anchors := [anLeft,anBottom];
+      TKMLabel.Create(PopUp_OptionsKeys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter).Anchors := [anLeft,anBottom];
 
-      Button_Options_Keys_Reset := TKMButton.Create(PopUp_Options_Keys, 20, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
-      Button_Options_Keys_Reset.Anchors := [anLeft,anBottom];
-      Button_Options_Keys_Reset.OnClick := KeybindClick;
+      ColumnBox_OptionsKeys := TKMColumnBox.Create(PopUp_OptionsKeys, 20, 110, 660, 400, fnt_Metal, bsMenu);
+      ColumnBox_OptionsKeys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
+      ColumnBox_OptionsKeys.Anchors := [anLeft,anTop,anBottom];
+      ColumnBox_OptionsKeys.ShowLines := True;
+      ColumnBox_OptionsKeys.PassAllKeys := True;
+      ColumnBox_OptionsKeys.OnChange := KeysClick;
+      ColumnBox_OptionsKeys.OnKeyDown := KeysUpdate;
 
-      Button_Options_Keys_OK := TKMButton.Create(PopUp_Options_Keys, 230, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
-      Button_Options_Keys_OK.Anchors := [anLeft,anBottom];
-      Button_Options_Keys_OK.OnClick := KeybindClick;
+      TKMLabel.Create(PopUp_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
 
-      ColumnBox_Options_Keys := TKMColumnBox.Create(PopUp_Options_Keys, 20, 110, 660, 400, fnt_Metal, bsMenu);
-      ColumnBox_Options_Keys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
-      ColumnBox_Options_Keys.Anchors := [anLeft,anTop,anBottom];
-      ColumnBox_Options_Keys.ShowLines := True;
-      ColumnBox_Options_Keys.PassAllKeys := True;
-      ColumnBox_Options_Keys.OnChange := KeybindClick;
-      ColumnBox_Options_Keys.OnKeyDown := Keybind_ListKeySave;
+      Button_OptionsKeysReset := TKMButton.Create(PopUp_OptionsKeys, 20, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+      Button_OptionsKeysReset.OnClick := KeysClick;
 
-      Label_Options_Keys_Unassignable := TKMLabel.Create(PopUp_Options_Keys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
+      Button_OptionsKeysOK := TKMButton.Create(PopUp_OptionsKeys, 230, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+      Button_OptionsKeysOK.OnClick := KeysClick;
 end;
 
 
@@ -444,55 +438,76 @@ begin
 end;
 
 
-
-procedure TKMMenuOptions.KeybindClick(Sender: TObject);
+procedure TKMMenuOptions.KeysClick(Sender: TObject);
 begin
-  if ColumnBox_Options_Keys.TopIndex < 0 then Exit;
-
-  if Sender = Button_Options_Keys then
+  if Sender = Button_OptionsKeys then
   begin
     // Reload the keymap in case player changed it and checks his changes in game
     gResKeys.LoadKeymapFile;
-    RefreshKeyList;
-    PopUp_Options_Keys.Show;
+    KeysRefreshList;
+    PopUp_OptionsKeys.Show;
   end;
 
-  if Sender = Button_Options_Keys_OK then
+  if Sender = Button_OptionsKeysOK then
   begin
-    PopUp_Options_Keys.Hide;
+    PopUp_OptionsKeys.Hide;
     gResKeys.SaveKeymap;
   end;
 
-  if Sender = Button_Options_Keys_Reset then
+  if Sender = Button_OptionsKeysReset then
   begin
     gResKeys.ResetKeymap;
-    RefreshKeyList;
+    KeysRefreshList;
   end;
 
-  if Sender = ColumnBox_Options_Keys then
-    ColumnBox_Options_Keys.HighlightError := False;
+  if Sender = ColumnBox_OptionsKeys then
+    ColumnBox_OptionsKeys.HighlightError := False;
 end;
 
 
-procedure TKMMenuOptions.Keybind_ListKeySave(Key: Word; Shift: TShiftState);
+procedure TKMMenuOptions.KeysRefreshList;
+var
+  I, prevI: Integer;
+  K: TKMKeyArea;
+begin
+  prevI := ColumnBox_OptionsKeys.TopIndex;
+
+  ColumnBox_OptionsKeys.Clear;
+
+  for K := Low(TKMKeyArea) to High(TKMKeyArea) do
+  begin
+    ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
+
+    // Do not show the debug keys
+    for I := 0 to gResKeys.Count - 1 do
+      if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
+        ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
+                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
+  end;
+
+  ColumnBox_OptionsKeys.TopIndex := prevI;
+end;
+
+
+procedure TKMMenuOptions.KeysUpdate(Key: Word; Shift: TShiftState);
 var
   id: Integer;
 begin
-  ColumnBox_Options_Keys.HighlightError := False;
-  id := ColumnBox_Options_Keys.Rows[ColumnBox_Options_Keys.ItemIndex].Tag;
+  ColumnBox_OptionsKeys.HighlightError := False;
+  id := ColumnBox_OptionsKeys.Rows[ColumnBox_OptionsKeys.ItemIndex].Tag;
 
   if not InRange(id, 0, gResKeys.Count - 1) then Exit;
 
   if not gResKeys.AllowKeySet(gResKeys[id].Area, Key) then
   begin
-    ColumnBox_Options_Keys.HighlightError := True;
+    ColumnBox_OptionsKeys.HighlightError := True;
     gSoundPlayer.Play(sfxn_Error);
     Exit;
   end;
 
   gResKeys.SetKey(id, Key);
 
-  RefreshKeyList;
+  KeysRefreshList;
 end;
 
 
@@ -501,30 +516,6 @@ begin
   // Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
   fOnPageChange(gpMainMenu);
-end;
-
-
-procedure TKMMenuOptions.RefreshKeyList;
-var
-  I, prevI: Integer;
-  K: TKMKeyArea;
-begin
-  prevI := ColumnBox_Options_Keys.TopIndex;
-
-  ColumnBox_Options_Keys.Clear;
-
-  for K := Low(TKMKeyArea) to High(TKMKeyArea) do
-  begin
-    ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[KEY_SEP_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
-
-    // Do not show the debug keys
-    for I := 0 to gResKeys.Count - 1 do
-      if (K = gResKeys[I].Area) and not gResKeys[I].IsDebug then
-        ColumnBox_Options_Keys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
-                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
-  end;
-
-  ColumnBox_Options_Keys.TopIndex := prevI;
 end;
 
 
