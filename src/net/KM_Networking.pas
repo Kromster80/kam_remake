@@ -8,6 +8,7 @@ uses
   KM_Saves, KM_GameOptions, KM_ResLocales, KM_NetFileTransfer, KM_Maps, KM_NetPlayersList,
   KM_DedicatedServer, KM_NetClient, KM_ServerQuery,
   {$IFDEF USESECUREAUTH}
+    // If you don't have this file - disable USESECUREAUTH in KaM_Remake.inc
     KM_NetAuthSecure
   {$ELSE}
     KM_NetAuthUnsecure
@@ -28,8 +29,8 @@ type
                 end;
 
 const
-  NetMPGameState:array[TNetGameState] of TMPGameState = (mgsNone, mgsNone, mgsNone, mgsLobby, mgsLoading, mgsGame, mgsGame);
-  NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
+  NetMPGameState: array [TNetGameState] of TMPGameState = (mgsNone, mgsNone, mgsNone, mgsLobby, mgsLoading, mgsGame, mgsGame);
+  NetAllowedPackets: array [TNetGameState] of set of TKMessageKind = (
     //lgs_None
     [],
     //lgs_Connecting
