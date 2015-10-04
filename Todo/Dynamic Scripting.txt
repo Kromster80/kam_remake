@@ -128,6 +128,9 @@ Proposed:
 	OnWareTake(houseId, wareType)
 	PlayerGetAllHouseMultipleTypes(playerID, array of byte[] (house types) returns array of id of buildings
 	PlayerGetAllUnitsMultipleTypes(playerID, array of byte[] (unit types) returns array of id of units
+	GetAllTeams - return array of teams in multiplayer
+	PlayerTeam(playerId) - return id of team of specified player
+
 
 Rejected:	
 	Actions.SetAIName (Player names can be written in libx, changing names during the game sounds like inconsistency)
