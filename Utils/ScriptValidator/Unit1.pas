@@ -14,11 +14,16 @@ type
     OpenDialog1: TOpenDialog;
     Memo1: TMemo;
     Label2: TLabel;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnBrowseClick(Sender: TObject);
     procedure btnValidateClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     fScripting: TKMScripting;
+
+    procedure Validate(aPath: string; aReportGood: Boolean);
   end;
 
 
@@ -27,16 +32,25 @@ var
 
 
 implementation
-{$R *.dfm}
+uses
+  KM_Maps;
 
+{$R *.dfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
+
   OpenDialog1.InitialDir := ExtractFilePath(Application.ExeName);
+
   fScripting := TKMScripting.Create(nil);
 end;
 
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  fScripting.Free;
+end;
 
 procedure TForm1.btnBrowseClick(Sender: TObject);
 begin
@@ -46,25 +60,63 @@ end;
 
 
 procedure TForm1.btnValidateClick(Sender: TObject);
-var CampaignFile: UnicodeString;
 begin
-  if not FileExists(Edit1.Text) then
+  Validate(Edit1.Text, True);
+end;
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  maps: TStringList;
+  I: Integer;
+begin
+  maps := TStringList.Create;
+
+  // Exe path
+  TKMapsCollection.GetAllMapPaths(ExtractFilePath(Application.ExeName), maps);
+  for I := 0 to maps.Count - 1 do
+    Validate(ChangeFileExt(maps[I], '.script'), False);
+
+  Memo1.Lines.Append('Checked ' + IntToStr(maps.Count) + ' in .\');
+
+  // Utils path
+  TKMapsCollection.GetAllMapPaths(ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\'), maps);
+  for I := 0 to maps.Count - 1 do
+    Validate(ChangeFileExt(maps[I], '.script'), False);
+
+  Memo1.Lines.Append('Checked ' + IntToStr(maps.Count) + ' in ..\..\');
+end;
+
+
+procedure TForm1.Validate(aPath: string; aReportGood: Boolean);
+var
+  CampaignFile: UnicodeString;
+  txt: string;
+begin
+  if not FileExists(aPath) and aReportGood then
   begin
-    Memo1.Text := 'File not found';
+    Memo1.Lines.Append('File not found ' + aPath);
     Exit;
   end;
 
-  CampaignFile := ExtractFilePath(Edit1.Text) + '..\campaigndata.script';
-  fScripting.LoadFromFile(Edit1.Text, CampaignFile, nil);
-  Memo1.Text := StringReplace(fScripting.ErrorString, '|', #13#10, [rfReplaceAll]);
-  if Memo1.Text = '' then
-    Memo1.Text := 'No errors :)';
+  CampaignFile := ExtractFilePath(aPath) + '..\campaigndata.script';
+  fScripting.LoadFromFile(aPath, CampaignFile, nil);
+
+  txt := StringReplace(fScripting.ErrorString, '|', sLineBreak, [rfReplaceAll]);
 
   if fScripting.WarningsString <> '' then
   begin
-    Memo1.Text := Memo1.Text + #13#10#13#10 + 'Warnings:' + #13#10;
-    Memo1.Text := Memo1.Text + StringReplace(fScripting.WarningsString, '|', #13#10, [rfReplaceAll]);
+    if txt <> '' then
+      txt := txt + sLineBreak;
+    txt := txt + 'Warnings:' + sLineBreak;
+    txt := txt + StringReplace(fScripting.WarningsString, '|', sLineBreak, [rfReplaceAll]);
   end;
+
+  if txt <> '' then
+    Memo1.Lines.Append(aPath + sLineBreak + txt)
+  else
+  if aReportGood then
+    Memo1.Lines.Append(aPath + ' - No errors :)');
 end;
 
 

@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 148
   Anchors = [akLeft, akTop, akRight, akBottom]
   Caption = 'Script Validator'
-  ClientHeight = 346
+  ClientHeight = 345
   ClientWidth = 593
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,11 +13,10 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
-  ExplicitWidth = 320
-  ExplicitHeight = 240
+  OnDestroy = FormDestroy
   DesignSize = (
     593
-    346)
+    345)
   PixelsPerInch = 96
   TextHeight = 18
   object Label1: TLabel
@@ -65,11 +64,21 @@ object Form1: TForm1
     Width = 577
     Height = 241
     Anchors = [akLeft, akTop, akRight, akBottom]
+    ScrollBars = ssVertical
     TabOrder = 3
+  end
+  object Button1: TButton
+    Left = 416
+    Top = 64
+    Width = 169
+    Height = 25
+    Caption = 'Validate all'
+    TabOrder = 4
+    OnClick = Button1Click
   end
   object OpenDialog1: TOpenDialog
     Filter = 'KaM Remake script files (*.script)|*.script'
-    Left = 376
-    Top = 32
+    Left = 32
+    Top = 104
   end
 end
