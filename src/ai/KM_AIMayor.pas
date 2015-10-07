@@ -334,7 +334,7 @@ begin
   if fDefenceTowersPlanned then Exit;
   fDefenceTowersPlanned := True;
   P := gHands[fOwner];
-  if not P.Locks.GetCanBuild(ht_WatchTower) then Exit;
+  if not P.Locks.HouseCanBuild(ht_WatchTower) then Exit;
 
   //Get defence Outline with weights representing how important each segment is
   gAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
@@ -477,7 +477,7 @@ begin
   P := gHands[fOwner];
 
   //Skip disabled houses
-  if not P.Locks.GetCanBuild(aHouse) then Exit;
+  if not P.Locks.HouseCanBuild(aHouse) then Exit;
 
   //Number of simultaneous WIP houses is limited
   if (P.Stats.GetHouseWip(ht_Any) > GetMaxPlans) then Exit;
@@ -676,7 +676,7 @@ begin
   //Reject - we can't build this house (that could affect other houses in queue)
 
   //Build towers if village is done, or peacetime is nearly over
-  if P.Locks.GetCanBuild(ht_WatchTower) then
+  if P.Locks.HouseCanBuild(ht_WatchTower) then
     if ((fBalance.Peek = ht_None) and (P.Stats.GetHouseWip(ht_Any) = 0)) //Finished building
     or ((gGame.GameOptions.Peacetime <> 0) and gGame.CheckTime(600 * Max(0, gGame.GameOptions.Peacetime - 15))) then
       PlanDefenceTowers;

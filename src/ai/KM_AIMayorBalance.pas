@@ -201,7 +201,7 @@ var
 begin
   //ArmorWorkshop is needed to produce Shields before Tannery is made
   //Handle in generic way since in custom missions it might apply to other houses
-  if not gHands[fOwner].Locks.GetCanBuild(aHouse)
+  if not gHands[fOwner].Locks.HouseCanBuild(aHouse)
   and (gRes.HouseDat[aHouse].ReleasedBy <> ht_None) //Storehouse might be blocked
   and (gHands[fOwner].Stats.GetHouseTotal(gRes.HouseDat[aHouse].ReleasedBy) = 0) then
     Append(gRes.HouseDat[aHouse].ReleasedBy);

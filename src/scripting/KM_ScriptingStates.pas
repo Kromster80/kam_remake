@@ -1404,7 +1404,7 @@ begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and HouseTypeValid(aHouseType) then
-      Result := gHands[aPlayer].Locks.GetCanBuild(HouseIndexToType[aHouseType])
+      Result := gHands[aPlayer].Locks.HouseCanBuild(HouseIndexToType[aHouseType])
     else
     begin
       Result := False;

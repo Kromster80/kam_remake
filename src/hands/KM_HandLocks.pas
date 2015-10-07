@@ -3,7 +3,7 @@ unit KM_HandLocks;
 interface
 uses
   Classes, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
+  KM_CommonClasses, KM_Defaults,
   KM_ResHouses, KM_ResWares;
 
 
@@ -22,7 +22,7 @@ type
     constructor Create;
 
     procedure HouseCreated(aType: THouseType);
-    function GetCanBuild(aType: THouseType): Boolean;
+    function HouseCanBuild(aType: THouseType): Boolean;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -65,8 +65,9 @@ begin
   UpdateReqDone(aType);
 end;
 
+
 // Houses might be blocked by mission script
-function TKMHandLocks.GetCanBuild(aType: THouseType): Boolean;
+function TKMHandLocks.HouseCanBuild(aType: THouseType): Boolean;
 begin
   Result := (fHouseUnlocked[aType] or HouseGranted[aType]) and not HouseBlocked[aType];
 end;
