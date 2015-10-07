@@ -115,6 +115,7 @@ uses
 
   KM_Hand in 'src\hands\KM_Hand.pas',
   KM_HandsCollection in 'src\hands\KM_HandsCollection.pas',
+  KM_HandLocks in 'src\hands\KM_HandLocks.pas',
   KM_HandSpectator in 'src\hands\KM_HandSpectator.pas',
   KM_HandStats in 'src\hands\KM_HandStats.pas',
 

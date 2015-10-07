@@ -145,7 +145,7 @@ begin
     Tmp2 := gHands[MySpectator.HandIndex].Stats.GetHouseWip(HT);
     Stat_HouseQty[HT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_HouseWip[HT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    if gHands[MySpectator.HandIndex].Stats.GetCanBuild(HT) or (Tmp > 0) then
+    if gHands[MySpectator.HandIndex].Locks.GetCanBuild(HT) or (Tmp > 0) then
     begin
       Stat_HousePic[HT].TexID := gRes.HouseDat[HT].GUIIcon;
       Stat_HousePic[HT].Hint := gRes.HouseDat[HT].HouseName;

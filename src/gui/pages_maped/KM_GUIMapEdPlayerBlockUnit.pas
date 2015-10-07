@@ -74,7 +74,7 @@ begin
   I := TKMButtonFlat(Sender).Tag;
   U := School_Order[I];
 
-  gHands[MySpectator.HandIndex].Stats.UnitBlocked[U] := not gHands[MySpectator.HandIndex].Stats.UnitBlocked[U];
+  gHands[MySpectator.HandIndex].Locks.UnitBlocked[U] := not gHands[MySpectator.HandIndex].Locks.UnitBlocked[U];
 
   Player_BlockUnitRefresh;
 end;
@@ -88,7 +88,7 @@ begin
   K := TKMButtonFlat(Sender).Tag;
   W := Barracks_Order[K];
 
-  gHands[MySpectator.HandIndex].Stats.UnitBlocked[W] := not gHands[MySpectator.HandIndex].Stats.UnitBlocked[W];
+  gHands[MySpectator.HandIndex].Locks.UnitBlocked[W] := not gHands[MySpectator.HandIndex].Locks.UnitBlocked[W];
 
   Player_BlockWarriorsRefresh;
 end;
@@ -102,9 +102,9 @@ begin
   for I := 0 to 13 do
   begin
     U := School_Order[I];
-    if gHands[MySpectator.HandIndex].Stats.UnitBlocked[U] then
+    if gHands[MySpectator.HandIndex].Locks.UnitBlocked[U] then
       Image_BlockUnit[I].TexID := 32
-    else if not gHands[MySpectator.HandIndex].Stats.UnitBlocked[U] then
+    else if not gHands[MySpectator.HandIndex].Locks.UnitBlocked[U] then
       Image_BlockUnit[I].TexID := 0
     else
       Image_BlockUnit[I].TexID := 24;
@@ -120,9 +120,9 @@ begin
   for K := 0 to 8 do
   begin
     W := Barracks_Order[K];
-    if gHands[MySpectator.HandIndex].Stats.UnitBlocked[W] then
+    if gHands[MySpectator.HandIndex].Locks.UnitBlocked[W] then
       Image_BlockWarriors[K].TexID := 32
-    else if not gHands[MySpectator.HandIndex].Stats.UnitBlocked[W] then
+    else if not gHands[MySpectator.HandIndex].Locks.UnitBlocked[W] then
       Image_BlockWarriors[K].TexID := 0
     else
       Image_BlockWarriors[K].TexID := 24;

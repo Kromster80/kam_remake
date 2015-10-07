@@ -349,26 +349,26 @@ begin
     ct_BlockTrade:      if fLastHand <> PLAYER_NONE then
                         begin
                           if WareIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
-                            gHands[fLastHand].Stats.AllowToTrade[WareIndexToType[P[0]]] := false;
+                            gHands[fLastHand].Locks.AllowToTrade[WareIndexToType[P[0]]] := false;
                         end;
     ct_BlockUnit:       if fLastHand <> PLAYER_NONE then
                         begin
                           if UnitIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
-                            gHands[fLastHand].Stats.UnitBlocked[UnitIndexToType[P[0]]] := True;
+                            gHands[fLastHand].Locks.UnitBlocked[UnitIndexToType[P[0]]] := True;
                         end;
     ct_BlockHouse:      if fLastHand <> PLAYER_NONE then
                         begin
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                            gHands[fLastHand].Stats.HouseBlocked[HouseIndexToType[P[0]]] := True;
+                            gHands[fLastHand].Locks.HouseBlocked[HouseIndexToType[P[0]]] := True;
                         end;
     ct_ReleaseHouse:    if fLastHand <> PLAYER_NONE then
                         begin
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                            gHands[fLastHand].Stats.HouseGranted[HouseIndexToType[P[0]]] := True;
+                            gHands[fLastHand].Locks.HouseGranted[HouseIndexToType[P[0]]] := True;
                         end;
     ct_ReleaseAllHouses:if fLastHand <> PLAYER_NONE then
                           for HT := HOUSE_MIN to HOUSE_MAX do
-                            gHands[fLastHand].Stats.HouseGranted[HT] := True;
+                            gHands[fLastHand].Locks.HouseGranted[HT] := True;
     ct_SetGroup:        if fLastHand <> PLAYER_NONE then
                           if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
                           try
@@ -784,13 +784,13 @@ begin
     ReleaseAllHouses := True;
     for HT := HOUSE_MIN to HOUSE_MAX do
     begin
-      if gHands[I].Stats.HouseBlocked[HT] then
+      if gHands[I].Locks.HouseBlocked[HT] then
       begin
         AddCommand(ct_BlockHouse, [HouseTypeToIndex[HT]-1]);
         ReleaseAllHouses := false;
       end
       else
-        if gHands[I].Stats.HouseGranted[HT] then
+        if gHands[I].Locks.HouseGranted[HT] then
           AddCommand(ct_ReleaseHouse, [HouseTypeToIndex[HT]-1])
         else
           ReleaseAllHouses := false;
@@ -800,12 +800,12 @@ begin
 
     //Block units
     for UT := HUMANS_MIN to HUMANS_MAX do
-      if gHands[I].Stats.UnitBlocked[UT] then
+      if gHands[I].Locks.UnitBlocked[UT] then
         AddCommand(ct_BlockUnit, [UnitTypeToIndex[UT]]);
 
     //Block trades
     for Res := WARE_MIN to WARE_MAX do
-      if not gHands[I].Stats.AllowToTrade[Res] then
+      if not gHands[I].Locks.AllowToTrade[Res] then
         AddCommand(ct_BlockTrade, [WareTypeToIndex[Res]]);
 
     //Houses

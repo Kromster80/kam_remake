@@ -114,7 +114,7 @@ begin
   begin
     HT := ResRatioHouse[fActiveTab, I];
     //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
-    if (not gHands[MySpectator.HandIndex].Stats.HouseBlocked[HT])
+    if (not gHands[MySpectator.HandIndex].Locks.HouseBlocked[HT])
     or (gHands[MySpectator.HandIndex].Stats.GetHouseQty(HT) > 0) then
     begin
       Image_RatioPic[I].TexID := gRes.HouseDat[HT].GUIIcon;
@@ -157,7 +157,7 @@ begin
   for I := Low(TKMRatioTab) to High(TKMRatioTab) do
     for K := 0 to ResRatioHouseCount[fActiveTab] - 1 do
       //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
-      if (not gHands[MySpectator.HandIndex].Stats.HouseBlocked[ResRatioHouse[I, K]])
+      if (not gHands[MySpectator.HandIndex].Locks.HouseBlocked[ResRatioHouse[I, K]])
       or (gHands[MySpectator.HandIndex].Stats.GetHouseQty(ResRatioHouse[I, K]) > 0) then
       begin
         //Select first tab we find with an unblocked house

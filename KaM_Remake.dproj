@@ -206,6 +206,7 @@
 			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuSinglePlayer.pas"/>
 			<DCCReference Include="src\hands\KM_Hand.pas"/>
 			<DCCReference Include="src\hands\KM_HandsCollection.pas"/>
+			<DCCReference Include="src\hands\KM_HandLocks.pas"/>
 			<DCCReference Include="src\hands\KM_HandSpectator.pas"/>
 			<DCCReference Include="src\hands\KM_HandStats.pas"/>
 			<DCCReference Include="src\houses\KM_HouseBarracks.pas"/>

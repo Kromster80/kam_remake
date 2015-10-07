@@ -5,7 +5,7 @@ uses
   Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_AIArmyEvaluation, KM_BuildList, KM_Deliveries, KM_FogOfWar, KM_MessageLog,
-  KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats,
+  KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats, KM_HandLocks,
   KM_Units, KM_UnitsCollection, KM_Units_Warrior, KM_UnitGroups, KM_ResHouses;
 
 
@@ -46,6 +46,7 @@ type
     fDeliveries: TKMDeliveries;
     fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
     fHouses: TKMHousesCollection;
+    fLocks: TKMHandLocks;
     fRoadsList: TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMHandStats;
     fUnitGroups: TKMUnitGroups;
@@ -83,6 +84,7 @@ type
     property BuildList: TKMBuildList read fBuildList;
     property Deliveries: TKMDeliveries read fDeliveries;
     property Houses: TKMHousesCollection read fHouses;
+    property Locks: TKMHandLocks read fLocks;
     property Stats: TKMHandStats read fStats;
     property FogOfWar: TKMFogOfWar read fFogOfWar;
     property ArmyEval: TKMArmyEvaluation read fArmyEval;
@@ -249,6 +251,7 @@ begin
 
   fAI           := TKMHandAI.Create(fHandIndex);
   fFogOfWar     := TKMFogOfWar.Create(gTerrain.MapX, gTerrain.MapY);
+  fLocks        := TKMHandLocks.Create;
   fStats        := TKMHandStats.Create;
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
@@ -286,6 +289,7 @@ begin
   FreeThenNil(fHouses);
 
   //Should be freed after Houses and Units, as they write Stats on Destroy
+  FreeThenNil(fLocks);
   FreeThenNil(fStats);
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliveries);
@@ -1131,6 +1135,7 @@ begin
   fDeliveries.Save(SaveStream);
   fFogOfWar.Save(SaveStream);
   fHouses.Save(SaveStream);
+  fLocks.Save(SaveStream);
   fStats.Save(SaveStream);
   fUnitGroups.Save(SaveStream);
   fMessageLog.Save(SaveStream);
@@ -1158,6 +1163,7 @@ begin
   fDeliveries.Load(LoadStream);
   fFogOfWar.Load(LoadStream);
   fHouses.Load(LoadStream);
+  fLocks.Load(LoadStream);
   fStats.Load(LoadStream);
   fUnitGroups.Load(LoadStream);
   fMessageLog.Load(LoadStream);

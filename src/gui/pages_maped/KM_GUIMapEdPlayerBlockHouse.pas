@@ -25,7 +25,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Hand,
+  KM_HandsCollection, KM_ResTexts, KM_Hand, KM_HandLocks,
   KM_Resource, KM_ResHouses, KM_RenderUI, KM_ResFonts;
 
 
@@ -56,24 +56,27 @@ procedure TKMMapEdPlayerBlockHouse.Player_BlockHouseClick(Sender: TObject);
 var
   I: Integer;
   H: THouseType;
+  locks: TKMHandLocks;
 begin
   I := TKMButtonFlat(Sender).Tag;
   H := GUIHouseOrder[I];
 
+  locks := gHands[MySpectator.HandIndex].Locks;
+
   //Loop through states CanBuild > CantBuild > Released
-  if not gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] and not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] then
+  if not locks.HouseBlocked[H] and not locks.HouseGranted[H] then
   begin
-    gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] := True;
-    gHands[MySpectator.HandIndex].Stats.HouseGranted[H] := False;
+    locks.HouseBlocked[H] := True;
+    locks.HouseGranted[H] := False;
   end else
-  if gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] and not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] then
+  if locks.HouseBlocked[H] and not locks.HouseGranted[H] then
   begin
-    gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] := False;
-    gHands[MySpectator.HandIndex].Stats.HouseGranted[H] := True;
+    locks.HouseBlocked[H] := False;
+    locks.HouseGranted[H] := True;
   end else
   begin
-    gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] := False;
-    gHands[MySpectator.HandIndex].Stats.HouseGranted[H] := False;
+    locks.HouseBlocked[H] := False;
+    locks.HouseGranted[H] := False;
   end;
 
   Player_BlockHouseRefresh;
@@ -84,17 +87,20 @@ procedure TKMMapEdPlayerBlockHouse.Player_BlockHouseRefresh;
 var
   I: Integer;
   H: THouseType;
+  locks: TKMHandLocks;
 begin
+  locks := gHands[MySpectator.HandIndex].Locks;
+
   for I := 1 to GUI_HOUSE_COUNT do
   begin
     H := GUIHouseOrder[I];
-    if gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] and not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] then
+    if locks.HouseBlocked[H] and not locks.HouseGranted[H] then
       Image_BlockHouse[I].TexID := 32
     else
-    if gHands[MySpectator.HandIndex].Stats.HouseGranted[H] and not gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] then
+    if locks.HouseGranted[H] and not locks.HouseBlocked[H] then
       Image_BlockHouse[I].TexID := 33
     else
-    if not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] and not gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] then
+    if not locks.HouseGranted[H] and not locks.HouseBlocked[H] then
       Image_BlockHouse[I].TexID := 0
     else
       Image_BlockHouse[I].TexID := 24; //Some erroneous value

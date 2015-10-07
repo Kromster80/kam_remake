@@ -216,7 +216,7 @@ end;
 
 function TKMHouseMarket.AllowedToTrade(aRes: TWareType): Boolean;
 begin
-  Result := gHands[fOwner].Stats.AllowToTrade[aRes];
+  Result := gHands[fOwner].Locks.AllowToTrade[aRes];
 end;
 
 

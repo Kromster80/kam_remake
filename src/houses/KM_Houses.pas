@@ -358,7 +358,10 @@ end;
 procedure TKMHouse.Activate(aWasBuilt: Boolean);
 var I: Integer; Res: TWareType;
 begin
-  gHands[fOwner].Stats.HouseCreated(fHouseType, aWasBuilt); //Only activated houses count
+  // Only activated houses count
+  gHands[fOwner].Locks.HouseCreated(fHouseType);
+  gHands[fOwner].Stats.HouseCreated(fHouseType, aWasBuilt);
+
   gHands.RevealForTeam(fOwner, fPosition, gRes.HouseDat[fHouseType].Sight, FOG_OF_WAR_MAX);
 
   fCurrentAction := THouseAction.Create(Self, hst_Empty);

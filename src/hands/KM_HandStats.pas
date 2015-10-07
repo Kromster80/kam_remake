@@ -44,7 +44,6 @@ type
     fChartArmy: TKMCardinalArray;
     fChartWares: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
 
-    fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
     Houses: array [THouseType] of THouseStats;
     Units: array [HUMANS_MIN..HUMANS_MAX] of TUnitStats;
     Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
@@ -52,13 +51,7 @@ type
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
     function GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
-    procedure UpdateReqDone(aType: THouseType);
   public
-    HouseBlocked: array [THouseType] of Boolean; //Allowance derived from mission script
-    HouseGranted: array [THouseType] of Boolean; //Allowance derived from mission script
-    UnitBlocked: array [TUnitType] of Boolean;   //Allowance derived from mission script
-
-    AllowToTrade: array [WARE_MIN..WARE_MAX] of Boolean; //Allowance derived from mission script
     constructor Create;
 
     //Input reported by Player
@@ -92,7 +85,6 @@ type
     function GetWareBalance(aRT: TWareType): Integer;
     function GetArmyCount: Integer;
     function GetCitizensCount: Integer;
-    function GetCanBuild(aType: THouseType): Boolean;
 
     function GetCitizensTrained: Cardinal;
     function GetCitizensLost: Cardinal;
@@ -140,28 +132,12 @@ const
 { TKMHandStats }
 constructor TKMHandStats.Create;
 var
-  W: TWareType;
   I, K: Integer;
 begin
   inherited;
 
-  for W := WARE_MIN to WARE_MAX do
-    AllowToTrade[W] := True;
-
-  //Release Store at the start of the game by default
-  fHouseUnlocked[ht_Store] := True;
-
   for I := 1 to 4 do for K := 1 to 4 do
     fResourceRatios[I, K] := DistributionDefaults[I, K];
-end;
-
-
-procedure TKMHandStats.UpdateReqDone(aType: THouseType);
-var H: THouseType;
-begin
-  for H := HOUSE_MIN to HOUSE_MAX do
-    if gRes.HouseDat[H].ReleasedBy = aType then
-      fHouseUnlocked[H] := True;
 end;
 
 
@@ -199,7 +175,6 @@ begin
     Inc(Houses[aType].Built)
   else
     Inc(Houses[aType].Initial);
-  UpdateReqDone(aType);
 end;
 
 
@@ -427,13 +402,6 @@ begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
     Inc(Result, GetUnitQty(UT));
-end;
-
-
-//Houses might be blocked by mission script
-function TKMHandStats.GetCanBuild(aType: THouseType): Boolean;
-begin
-  Result := (fHouseUnlocked[aType] or HouseGranted[aType]) and not HouseBlocked[aType];
 end;
 
 
@@ -675,11 +643,6 @@ begin
   SaveStream.Write(Units, SizeOf(Units));
   SaveStream.Write(Wares, SizeOf(Wares));
   SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
-  SaveStream.Write(HouseBlocked, SizeOf(HouseBlocked));
-  SaveStream.Write(HouseGranted, SizeOf(HouseGranted));
-  SaveStream.Write(UnitBlocked, SizeOf(UnitBlocked));
-  SaveStream.Write(AllowToTrade, SizeOf(AllowToTrade));
-  SaveStream.Write(fHouseUnlocked, SizeOf(fHouseUnlocked));
 
   SaveStream.Write(fChartCount);
   if fChartCount <> 0 then
@@ -702,11 +665,6 @@ begin
   LoadStream.Read(Units, SizeOf(Units));
   LoadStream.Read(Wares, SizeOf(Wares));
   LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
-  LoadStream.Read(HouseBlocked, SizeOf(HouseBlocked));
-  LoadStream.Read(HouseGranted, SizeOf(HouseGranted));
-  LoadStream.Read(UnitBlocked, SizeOf(UnitBlocked));
-  LoadStream.Read(AllowToTrade, SizeOf(AllowToTrade));
-  LoadStream.Read(fHouseUnlocked, SizeOf(fHouseUnlocked));
 
   LoadStream.Read(fChartCount);
   if fChartCount <> 0 then

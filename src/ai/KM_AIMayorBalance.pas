@@ -201,7 +201,7 @@ var
 begin
   //ArmorWorkshop is needed to produce Shields before Tannery is made
   //Handle in generic way since in custom missions it might apply to other houses
-  if not gHands[fOwner].Stats.GetCanBuild(aHouse)
+  if not gHands[fOwner].Locks.GetCanBuild(aHouse)
   and (gRes.HouseDat[aHouse].ReleasedBy <> ht_None) //Storehouse might be blocked
   and (gHands[fOwner].Stats.GetHouseTotal(gRes.HouseDat[aHouse].ReleasedBy) = 0) then
     Append(gRes.HouseDat[aHouse].ReleasedBy);
@@ -794,7 +794,7 @@ begin
   with fMaterials do
   begin
     //In some maps there is no stone so quarry is blocked
-    if gHands[fOwner].Stats.HouseBlocked[ht_Quary] then
+    if gHands[fOwner].Locks.HouseBlocked[ht_Quary] then
       StoneProduction := 99999
     else
     begin

@@ -334,7 +334,7 @@ begin
   if fDefenceTowersPlanned then Exit;
   fDefenceTowersPlanned := True;
   P := gHands[fOwner];
-  if not P.Stats.GetCanBuild(ht_WatchTower) then Exit;
+  if not P.Locks.GetCanBuild(ht_WatchTower) then Exit;
 
   //Get defence Outline with weights representing how important each segment is
   gAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
@@ -477,7 +477,7 @@ begin
   P := gHands[fOwner];
 
   //Skip disabled houses
-  if not P.Stats.GetCanBuild(aHouse) then Exit;
+  if not P.Locks.GetCanBuild(aHouse) then Exit;
 
   //Number of simultaneous WIP houses is limited
   if (P.Stats.GetHouseWip(ht_Any) > GetMaxPlans) then Exit;
@@ -676,7 +676,7 @@ begin
   //Reject - we can't build this house (that could affect other houses in queue)
 
   //Build towers if village is done, or peacetime is nearly over
-  if P.Stats.GetCanBuild(ht_WatchTower) then
+  if P.Locks.GetCanBuild(ht_WatchTower) then
     if ((fBalance.Peek = ht_None) and (P.Stats.GetHouseWip(ht_Any) = 0)) //Finished building
     or ((gGame.GameOptions.Peacetime <> 0) and gGame.CheckTime(600 * Max(0, gGame.GameOptions.Peacetime - 15))) then
       PlanDefenceTowers;
@@ -807,26 +807,26 @@ procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single)
   begin
     if aIron then
       case aGT of
-        gt_Melee:     Result := gHands[fOwner].Stats.UnitBlocked[ut_Swordsman];
-        gt_AntiHorse: Result := gHands[fOwner].Stats.UnitBlocked[ut_Hallebardman];
-        gt_Ranged:    Result := gHands[fOwner].Stats.UnitBlocked[ut_Arbaletman];
-        gt_Mounted:   Result := gHands[fOwner].Stats.UnitBlocked[ut_Cavalry];
+        gt_Melee:     Result := gHands[fOwner].Locks.UnitBlocked[ut_Swordsman];
+        gt_AntiHorse: Result := gHands[fOwner].Locks.UnitBlocked[ut_Hallebardman];
+        gt_Ranged:    Result := gHands[fOwner].Locks.UnitBlocked[ut_Arbaletman];
+        gt_Mounted:   Result := gHands[fOwner].Locks.UnitBlocked[ut_Cavalry];
         else          Result := True;
       end
     else
       case aGT of
-        gt_Melee:     Result := gHands[fOwner].Stats.UnitBlocked[ut_Militia] and
-                                gHands[fOwner].Stats.UnitBlocked[ut_AxeFighter];
-        gt_AntiHorse: Result := gHands[fOwner].Stats.UnitBlocked[ut_Pikeman];
-        gt_Ranged:    Result := gHands[fOwner].Stats.UnitBlocked[ut_Bowman];
-        gt_Mounted:   Result := gHands[fOwner].Stats.UnitBlocked[ut_HorseScout];
+        gt_Melee:     Result := gHands[fOwner].Locks.UnitBlocked[ut_Militia] and
+                                gHands[fOwner].Locks.UnitBlocked[ut_AxeFighter];
+        gt_AntiHorse: Result := gHands[fOwner].Locks.UnitBlocked[ut_Pikeman];
+        gt_Ranged:    Result := gHands[fOwner].Locks.UnitBlocked[ut_Bowman];
+        gt_Mounted:   Result := gHands[fOwner].Locks.UnitBlocked[ut_HorseScout];
         else          Result := True;
       end;
   end;
 
   function GetUnitRatio(aUT: TUnitType): Byte;
   begin
-    if gHands[fOwner].Stats.UnitBlocked[aUT] then
+    if gHands[fOwner].Locks.UnitBlocked[aUT] then
       Result := 0 //This warrior is blocked
     else
       if (fSetup.ArmyType = atIronAndLeather)

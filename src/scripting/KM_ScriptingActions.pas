@@ -1196,7 +1196,7 @@ begin
     //Verify all input parameters
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and HouseTypeValid(aHouseType) then
-      gHands[aPlayer].Stats.HouseGranted[HouseIndexToType[aHouseType]] := True
+      gHands[aPlayer].Locks.HouseGranted[HouseIndexToType[aHouseType]] := True
     else
       LogParamWarning('Actions.HouseUnlock', [aPlayer, aHouseType]);
   except
@@ -1212,7 +1212,7 @@ begin
     //Verify all input parameters
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and HouseTypeValid(aHouseType) then
-      gHands[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := not aAllowed
+      gHands[aPlayer].Locks.HouseBlocked[HouseIndexToType[aHouseType]] := not aAllowed
     else
       LogParamWarning('Actions.HouseAllow', [aPlayer, aHouseType, Byte(aAllowed)]);
   except
@@ -1228,7 +1228,7 @@ begin
     //Verify all input parameters
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and (aResType in [Low(WareIndexToType)..High(WareIndexToType)]) then
-      gHands[aPlayer].Stats.AllowToTrade[WareIndexToType[aResType]] := aAllowed
+      gHands[aPlayer].Locks.AllowToTrade[WareIndexToType[aResType]] := aAllowed
     else
       LogParamWarning('Actions.SetTradeAllowed', [aPlayer, aResType, Byte(aAllowed)]);
   except
@@ -1986,7 +1986,7 @@ begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and (aType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
-      gHands[aPlayer].Stats.UnitBlocked[UnitIndexToType[aType]] := aBlock
+      gHands[aPlayer].Locks.UnitBlocked[UnitIndexToType[aType]] := aBlock
     else
       LogParamWarning('Actions.UnitBlock', [aPlayer, aType, Byte(aBlock)]);
   except
