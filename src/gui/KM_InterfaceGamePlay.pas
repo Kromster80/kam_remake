@@ -253,12 +253,19 @@ type
         Button_Army_Join_Cancel: TKMButton;
         Label_Army_Join_Message: TKMLabel;
   public
+    fTimedMsg: array of record
+      MsgId: Integer;
+      msgTime: Cardinal;
+    end;
     constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
     procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString); overload;
     procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint); overload;
+    procedure TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aTime: Integer); overload;
+    procedure TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer); overload;
+    procedure TimedMessageRemove(aMsgId: Integer);
     procedure SetMenuState(aTactic: Boolean);
     procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
@@ -656,6 +663,7 @@ constructor TKMGamePlayInterface.Create(aRender: TRender; aUIMode: TUIMode);
 var S: TKMShape; I: Integer;
 begin
   inherited Create(aRender);
+  SetLength(fTimedMsg, 0);
   fUIMode := aUIMode;
 
   fAlerts := TKMAlerts.Create(fViewport);
@@ -778,6 +786,7 @@ begin
   fGuiGameRatios.Free;
   fGuiGameStats.Free;
   fGuiMenuSettings.Free;
+  FreeAndNil(fTimedMsg);
 
   fMessageStack.Free;
   fSaves.Free;
@@ -1446,14 +1455,33 @@ end;
 
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
 var
-  OldMsg: Integer;
+  OldMsg, I, J: Integer;
+  ALength: Cardinal;
 begin
   if ShownMessage = -1 then Exit; // Player pressed DEL with no Msg opened
-
   OldMsg := ShownMessage;
 
   Message_Close(Sender);
   fMessageStack.RemoveStack(OldMsg);
+
+  if (Length(fTimedMsg) >= 0) then
+    for I := High(fTimedMsg) downto 0 do
+    // Reversed checking as we will remove items.
+    // If we do not check in reverse we will run into range-check errors.
+      if fTimedMsg[I].MsgId = OldMsg then // Check if the item even exists in the array
+      begin
+        ALength := Length(fTimedMsg);
+        try
+          Assert(ALength > 0);
+          for J := OldMsg + 1 to ALength - 1 do // Move items down to fill the gap
+          begin
+            fTimedMsg[J].MsgId := fTimedMsg[J].MsgId - 1; // Update message ID's
+            fTimedMsg[J - 1] := fTimedMsg[J]; // Update positions in the array
+          end;
+        finally
+          SetLength(fTimedMsg, ALength - 1);
+        end;
+      end;
 
   Message_UpdateStack;
   DisplayHint(nil);
@@ -1801,6 +1829,57 @@ begin
   fMessageStack.Add(aKind, aText, aLoc);
   Message_UpdateStack;
   gSoundPlayer.Play(sfx_MessageNotice, 4); // Play horn sound on new message if it is the right type
+end;
+
+
+procedure TKMGamePlayInterface.TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aTime: Integer);
+begin
+  TimedMessageIssue(aKind, aText, KMPoint(0, 0), aTime);
+end;
+
+
+procedure TKMGamePlayInterface.TimedMessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
+var
+  i: Integer;
+begin
+  if fUIMode in [umReplay, umSpectate] then Exit; // No message stack in replay/spectate
+
+  SetLength(fTimedMsg, Length(fTimedMsg)+1);
+  fMessageStack.Add(aKind, aText, aLoc);
+  Message_UpdateStack;
+  gSoundPlayer.Play(sfx_MessageNotice, 4); // Play horn sound on new message if it is the right type
+
+  // Scan the message stack to retrieve the ID of the message
+  for i := 0 to fMessageStack.CountStack - 1 do
+    if fMessageStack.MessagesStack[i].fText = aText then
+      fTimedMsg[High(fTimedMsg)].MsgId := i;
+  fTimedMsg[High(fTimedMsg)].msgTime := aTime;
+end;
+
+
+procedure TKMGamePlayInterface.TimedMessageRemove(aMsgId: Integer);
+var
+  I: Integer;
+  ALength: Cardinal;
+begin
+  if fUIMode in [umReplay, umSpectate] then Exit;
+
+  fMessageStack.RemoveStack(aMsgId);
+  Message_UpdateStack;
+  gSoundPlayer.Play(sfx_MessageClose, 4); // Play the "Close" sound as it's the only sound that fits
+  ALength := Length(fTimedMsg);
+
+  try
+    Assert(ALength > 0);
+
+    for I := aMsgId + 1 to ALength - 1 do // Move items down to fill the gap
+    begin
+      fTimedMsg[I].MsgId := fTimedMsg[I].MsgId - 1; // Update message ID's
+      fTimedMsg[I - 1] := fTimedMsg[I]; // Update positions in the array
+    end;
+  finally
+    SetLength(fTimedMsg, ALength - 1);
+  end;
 end;
 
 

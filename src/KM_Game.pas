@@ -113,6 +113,8 @@ type
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
+    procedure ShowTimedMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
+    procedure ShowTimedMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const; aTime: Integer);
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
     procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
@@ -983,6 +985,25 @@ begin
 end;
 
 
+procedure TKMGame.ShowTimedMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aTime: Integer);
+begin
+  // Add the message with the current tickcount plus the ticks stated in the script
+  // This way the timing is very accurate
+  fGamePlayInterface.TimedMessageIssue(aKind, ParseTextMarkup(aText), aLoc, fGameTickCount + aTime);
+end;
+
+
+procedure TKMGame.ShowTimedMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const; aTime: Integer);
+var
+  S: UnicodeString;
+begin
+  //We must parse for text markup before AND after running Format, since individual format
+  //parameters can contain strings that need parsing (see Annie's Garden for an example)
+  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
+  fGamePlayInterface.TimedMessageIssue(aKind, S, aLoc, fGameTickCount + aTime);
+end;
+
+
 procedure TKMGame.ShowScriptError(const aMsg: UnicodeString);
 begin
   fGamePlayInterface.MessageIssue(mkQuill, aMsg);
@@ -1461,7 +1482,7 @@ end;
 
 procedure TKMGame.UpdateGame(Sender: TObject);
 var
-  I: Integer;
+  I, J: Integer;
 begin
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
@@ -1516,12 +1537,19 @@ begin
                         if IsMultiplayer then
                         begin
                           if fNetworking.IsHost then
-                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow) //Timestamp must be synchronised
+                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow); //Timestamp must be synchronised
                         end
                         else
                           if gGameApp.GameSettings.Autosave then
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
                       end;
+
+                      if Length(fGamePlayInterface.fTimedMsg) >= 0 then
+                      // Reversed checking as we will remove items.
+                      // If we do not check in reverse we will run into range-check errors.
+                        for J := High(fGamePlayInterface.fTimedMsg) downto 0 do
+                          if fGamePlayInterface.fTimedMsg[J].msgTime <= fGameTickCount then
+                            fGamePlayInterface.TimedMessageRemove(fGamePlayInterface.fTimedMsg[J].MsgId);
 
                       //if (fGameTickCount mod 10 = 0) then
                       //  SaveGame(ExeDir + 'SavesLog'+PathDelim + int2fix(fGameTickCount, 6));
