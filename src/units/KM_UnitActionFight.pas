@@ -153,9 +153,9 @@ begin
   //Randomly make a battle cry. KaMRandom must always happen regardless of tile revelation
   MakeBattleCry := KaMRandom(20) = 0;
 
-  //Do not play sounds if unit is invisible to MySpectator
+  //Do not play sounds if unit is invisible to gMySpectator
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-  if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then Exit;
+  if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then Exit;
 
   if MakeBattleCry then gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
 

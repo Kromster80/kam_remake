@@ -633,7 +633,7 @@ begin
     if CanAddFieldPlan(aLoc, aFieldType) then
     begin
       if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-      and (HandIndex = MySpectator.HandIndex) then
+      and (HandIndex = gMySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType);
       gScriptEvents.ProcPlanPlaced(fHandIndex, aLoc.X, aLoc.Y, aFieldType);
@@ -641,7 +641,7 @@ begin
     else
     begin
       if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-      and (HandIndex = MySpectator.HandIndex) then
+      and (HandIndex = gMySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
@@ -665,17 +665,17 @@ begin
   begin
     fBuildList.FieldworksList.RemFakeField(aLoc); //Remove our fake marker which is shown to the user
     fBuildList.FieldworksList.AddFakeDeletedField(aLoc); //This will hide the real field until it is deleted from game
-    if HandIndex = MySpectator.HandIndex then gSoundPlayer.Play(sfx_Click);
+    if HandIndex = gMySpectator.HandIndex then gSoundPlayer.Play(sfx_Click);
   end
   else
     if CanAddFakeFieldPlan(aLoc, aFieldType) then
     begin
       fBuildList.FieldworksList.AddFakeField(aLoc, aFieldType);
-      if HandIndex = MySpectator.HandIndex then
+      if HandIndex = gMySpectator.HandIndex then
         gSoundPlayer.Play(sfx_placemarker);
     end
     else
-      if HandIndex = MySpectator.HandIndex then
+      if HandIndex = gMySpectator.HandIndex then
         gSoundPlayer.Play(sfx_CantPlace, 4);
 end;
 
@@ -719,7 +719,7 @@ begin
   fStats.HousePlanned(aHouseType);
   gScriptEvents.ProcHousePlanPlaced(fHandIndex, Loc.X, Loc.Y, aHouseType);
 
-  if (HandIndex = MySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
+  if (HandIndex = gMySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_placemarker);
 end;
 
@@ -755,7 +755,7 @@ begin
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
   gScriptEvents.ProcHousePlanRemoved(fHandIndex, Position.X, Position.Y, HT);
-  if (HandIndex = MySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
+  if (HandIndex = gMySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_Click);
 end;
 
@@ -770,7 +770,7 @@ begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
   gScriptEvents.ProcPlanRemoved(fHandIndex, Position.X, Position.Y, aFieldType);
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-  and (HandIndex = MySpectator.HandIndex) then
+  and (HandIndex = gMySpectator.HandIndex) then
     gSoundPlayer.Play(sfx_Click);
 end;
 
@@ -793,7 +793,7 @@ procedure TKMHand.RemFakeFieldPlan(Position: TKMPoint);
 begin
   fBuildList.FieldworksList.RemFakeField(Position); //Remove our fake marker which is shown to the user
   fBuildList.FieldworksList.AddFakeDeletedField(Position); //This will hide the real field until it is deleted from game
-  if HandIndex = MySpectator.HandIndex then gSoundPlayer.Play(sfx_Click);
+  if HandIndex = gMySpectator.HandIndex then gSoundPlayer.Play(sfx_Click);
 end;
 
 
@@ -908,13 +908,13 @@ begin
   //Scripting events happen AFTER updating statistics
   gScriptEvents.ProcHouseDestroyed(aHouse, aFrom);
 
-  //MySpectator is nil during loading, when houses can be destroyed at the start
-  if MySpectator <> nil then
+  //gMySpectator is nil during loading, when houses can be destroyed at the start
+  if gMySpectator <> nil then
   begin
-    if MySpectator.Highlight = aHouse then
-      MySpectator.Highlight := nil;
-    if MySpectator.Selected = aHouse then
-      MySpectator.Selected := nil;
+    if gMySpectator.Highlight = aHouse then
+      gMySpectator.Highlight := nil;
+    if gMySpectator.Selected = aHouse then
+      gMySpectator.Selected := nil;
   end;
 end;
 
@@ -1230,13 +1230,13 @@ begin
   //Call script event after updating statistics
   gScriptEvents.ProcUnitDied(aUnit, aFrom);
 
-  //MySpectator is nil during loading
-  if MySpectator <> nil then
+  //gMySpectator is nil during loading
+  if gMySpectator <> nil then
   begin
-    if MySpectator.Highlight = aUnit then
-      MySpectator.Highlight := nil;
-    if MySpectator.Selected = aUnit then
-      MySpectator.Selected := nil;
+    if gMySpectator.Highlight = aUnit then
+      gMySpectator.Highlight := nil;
+    if gMySpectator.Selected = aUnit then
+      gMySpectator.Selected := nil;
   end;
 end;
 
@@ -1244,10 +1244,10 @@ end;
 procedure TKMHand.GroupDied(aGroup: TKMUnitGroup);
 begin
   //Groups arent counted in statistics
-  if MySpectator.Highlight = aGroup then
-    MySpectator.Highlight := nil;
-  if MySpectator.Selected = aGroup then
-    MySpectator.Selected := nil;
+  if gMySpectator.Highlight = aGroup then
+    gMySpectator.Highlight := nil;
+  if gMySpectator.Selected = aGroup then
+    gMySpectator.Selected := nil;
 end;
 
 

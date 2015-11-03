@@ -236,7 +236,7 @@ var
   I: Integer;
 begin
   Result.CommandType := aGIC;
-  Result.HandIndex := MySpectator.HandIndex;
+  Result.HandIndex := gMySpectator.HandIndex;
 
   for I := Low(aParam) to High(aParam) do
     Result.Params[I+1] := aParam[I];
@@ -253,7 +253,7 @@ var
   I: Integer;
 begin
   Result.CommandType := aGIC;
-  Result.HandIndex := MySpectator.HandIndex;
+  Result.HandIndex := gMySpectator.HandIndex;
 
   for I := Low(Result.Params) to High(Result.Params) do
     Result.Params[I] := MaxInt;
@@ -271,8 +271,8 @@ var
   TgtUnit: TKMUnit;
   SrcHouse, TgtHouse: TKMHouse;
 begin
-  //NOTE: MySpectator.PlayerIndex should not be used for important stuff here, use P instead (commands must be executed the same for all players)
-  IsSilent := (aCommand.HandIndex <> MySpectator.HandIndex);
+  //NOTE: gMySpectator.PlayerIndex should not be used for important stuff here, use P instead (commands must be executed the same for all players)
+  IsSilent := (aCommand.HandIndex <> gMySpectator.HandIndex);
   P := gHands[aCommand.HandIndex];
   SrcGroup := nil;
   TgtGroup := nil;
@@ -404,7 +404,7 @@ begin
                                     if fReplayState = gipRecording then
                                       if ((Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
                                       or ((Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
-                                          and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
+                                          and (gHands.CheckAlliance(Params[3], gMySpectator.HandIndex) = at_Ally)) then
                                         gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
                                   end;
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
@@ -465,11 +465,11 @@ procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: 
 begin
   Assert(aCommandType in [gic_BuildRemoveFieldPlan, gic_BuildRemoveHouse, gic_BuildRemoveHousePlan]);
 
-  //Remove fake markup that will be visible only to MySpectator until Server verifies it.
+  //Remove fake markup that will be visible only to gMySpectator until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if gGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
-    gHands[MySpectator.HandIndex].RemFakeFieldPlan(aLoc);
+    gMySpectator.Hand.RemFakeFieldPlan(aLoc);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
@@ -479,11 +479,11 @@ procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: 
 begin
   Assert(aCommandType in [gic_BuildAddFieldPlan]);
 
-  //Add fake markup that will be visible only to MySpectator until Server verifies it.
+  //Add fake markup that will be visible only to gMySpectator until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if gGame.IsMultiplayer then
-    gHands[MySpectator.HandIndex].ToggleFakeFieldPlan(aLoc, aFieldType);
+    gMySpectator.Hand.ToggleFakeFieldPlan(aLoc, aFieldType);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 end;

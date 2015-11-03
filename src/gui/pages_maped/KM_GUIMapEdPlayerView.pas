@@ -97,14 +97,14 @@ begin
   end;
 
   if Sender = CheckBox_RevealAll then
-    gGame.MapEditor.RevealAll[MySpectator.HandIndex] := CheckBox_RevealAll.Checked
+    gGame.MapEditor.RevealAll[gMySpectator.HandIndex] := CheckBox_RevealAll.Checked
   else
-    CheckBox_RevealAll.Checked := gGame.MapEditor.RevealAll[MySpectator.HandIndex];
+    CheckBox_RevealAll.Checked := gGame.MapEditor.RevealAll[gMySpectator.HandIndex];
 
   if Sender = Button_PlayerCenterScreen then
-    gGame.ActiveInterface.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
+    gGame.ActiveInterface.Viewport.Position := KMPointF(gMySpectator.Hand.CenterScreen); //Jump to location
 
-  Button_PlayerCenterScreen.Caption := TypeToString(gHands[MySpectator.HandIndex].CenterScreen);
+  Button_PlayerCenterScreen.Caption := TypeToString(gMySpectator.Hand.CenterScreen);
 end;
 
 
@@ -117,8 +117,8 @@ end;
 procedure TKMMapEdPlayerView.Show;
 begin
   Panel_PlayerView.Show;
-  Button_PlayerCenterScreen.Caption := TypeToString(gHands[MySpectator.HandIndex].CenterScreen);
-  CheckBox_RevealAll.Checked := gGame.MapEditor.RevealAll[MySpectator.HandIndex];
+  Button_PlayerCenterScreen.Caption := TypeToString(gMySpectator.Hand.CenterScreen);
+  CheckBox_RevealAll.Checked := gGame.MapEditor.RevealAll[gMySpectator.HandIndex];
 end;
 
 
@@ -130,7 +130,7 @@ end;
 
 procedure TKMMapEdPlayerView.UpdatePlayerColor;
 begin
-  Button_Reveal.FlagColor := gHands[MySpectator.HandIndex].FlagColor;
+  Button_Reveal.FlagColor := gMySpectator.Hand.FlagColor;
 end;
 
 

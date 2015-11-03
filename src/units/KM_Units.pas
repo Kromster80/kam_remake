@@ -1207,7 +1207,7 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
 
-  Assert(MySpectator.Selected <> Self,
+  Assert(gMySpectator.Selected <> Self,
     'Removed units should be flushed from UI earlier inTaskDie or never appear there when training cancelled or alike');
 end;
 

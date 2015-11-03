@@ -60,7 +60,7 @@ begin
   I := TKMButtonFlat(Sender).Tag;
   R := StoreResType[I];
 
-  gHands[MySpectator.HandIndex].Locks.AllowToTrade[R] := not gHands[MySpectator.HandIndex].Locks.AllowToTrade[R];
+  gMySpectator.Hand.Locks.AllowToTrade[R] := not gMySpectator.Hand.Locks.AllowToTrade[R];
 
   Player_BlockTradeRefresh;
 end;
@@ -74,7 +74,7 @@ begin
   for I := 1 to STORE_RES_COUNT do
   begin
     R := StoreResType[I];
-    if gHands[MySpectator.HandIndex].Locks.AllowToTrade[R] then
+    if gMySpectator.Hand.Locks.AllowToTrade[R] then
       Image_BlockTrade[I].TexID := 0
     else
       Image_BlockTrade[I].TexID := 32; //Red cross

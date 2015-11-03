@@ -245,7 +245,7 @@ begin
       fLastLookedAt := INTERVAL_ATTACKED_MSG;
 
     //Make the sound
-    if (fOwner = MySpectator.HandIndex)
+    if (fOwner = gMySpectator.HandIndex)
     and (fLastLookedAt = INTERVAL_ATTACKED_MSG) then
       gSoundPlayer.PlayNotification(fAsset);
   end;
@@ -378,9 +378,9 @@ begin
   and KMInRect(Items[I].Loc, R) then
   begin
     case aPass of
-      0:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
+      0:  if gMySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
             fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
-      1:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) < FOG_OF_WAR_MAX then
+      1:  if gMySpectator.FogOfWar.CheckRevelation(Items[I].Loc) < FOG_OF_WAR_MAX then
             fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
     end;
   end;

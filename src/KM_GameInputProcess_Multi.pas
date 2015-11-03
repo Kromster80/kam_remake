@@ -187,7 +187,7 @@ begin
     exit;
   end;
 
-  if (gGame.GameMode <> gmMultiSpectate) and (gHands[MySpectator.HandIndex].AI.WonOrLost = wol_Lost)
+  if (gGame.GameMode <> gmMultiSpectate) and (gMySpectator.Hand.AI.WonOrLost = wol_Lost)
   and not (aCommand.CommandType in AllowedAfterDefeat) then
   begin
     gSoundPlayer.Play(sfx_CantPlace);

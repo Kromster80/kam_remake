@@ -164,7 +164,7 @@ var
 begin
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
-  if gHands[MySpectator.HandIndex].Locks.HouseCanBuild(GUIHouseOrder[I]) then
+  if gMySpectator.Hand.Locks.HouseCanBuild(GUIHouseOrder[I]) then
   begin
     Button_Build[I].Enable;
     Button_Build[I].TexID := gRes.HouseDat[GUIHouseOrder[I]].GUIIcon;

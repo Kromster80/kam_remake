@@ -68,7 +68,7 @@ end;
 
 procedure TKMMapEdPlayerColors.Player_ColorClick(Sender: TObject);
 begin
-  gHands[MySpectator.HandIndex].FlagColor := ColorSwatch_Color.GetColor;
+  gMySpectator.Hand.FlagColor := ColorSwatch_Color.GetColor;
 
   gGame.ActiveInterface.SyncUI(False);
 end;
@@ -83,7 +83,7 @@ end;
 procedure TKMMapEdPlayerColors.Show;
 begin
   Panel_Color.Show;
-  ColorSwatch_Color.SelectByColor(gHands[MySpectator.HandIndex].FlagColor);
+  ColorSwatch_Color.SelectByColor(gMySpectator.Hand.FlagColor);
 end;
 
 

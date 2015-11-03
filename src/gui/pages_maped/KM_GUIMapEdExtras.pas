@@ -119,7 +119,7 @@ end;
 
 procedure TKMMapEdExtras.Extra_FOWChange(Sender: TObject);
 begin
-  MySpectator.FOWIndex := Dropbox_PlayerFOW.GetTag(Dropbox_PlayerFOW.ItemIndex);
+  gMySpectator.FOWIndex := Dropbox_PlayerFOW.GetTag(Dropbox_PlayerFOW.ItemIndex);
   //fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
 end;
 

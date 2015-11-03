@@ -174,7 +174,7 @@ procedure TKMMapEdTown.ChangePlayer;
 var
   isAI: Boolean;
 begin
-  isAI := gGame.MapEditor.PlayerAI[MySpectator.HandIndex];
+  isAI := gGame.MapEditor.PlayerAI[gMySpectator.HandIndex];
 
   Button_Town[ttScript].Enabled := isAI;
   Button_Town[ttDefences].Enabled := isAI;
@@ -194,7 +194,7 @@ end;
 procedure TKMMapEdTown.UpdatePlayerColor;
 begin
   //Update colors
-  Button_Town[ttUnits].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
+  Button_Town[ttUnits].FlagColor := gMySpectator.Hand.FlagColor;
   fGuiUnits.UpdatePlayerColor;
 end;
 

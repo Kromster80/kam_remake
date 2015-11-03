@@ -61,7 +61,7 @@ begin
   I := TKMButtonFlat(Sender).Tag;
   H := GUIHouseOrder[I];
 
-  locks := gHands[MySpectator.HandIndex].Locks;
+  locks := gMySpectator.Hand.Locks;
 
   //Loop through states CanBuild > CantBuild > Released
   if not locks.HouseBlocked[H] and not locks.HouseGranted[H] then
@@ -89,7 +89,7 @@ var
   H: THouseType;
   locks: TKMHandLocks;
 begin
-  locks := gHands[MySpectator.HandIndex].Locks;
+  locks := gMySpectator.Hand.Locks;
 
   for I := 1 to GUI_HOUSE_COUNT do
   begin

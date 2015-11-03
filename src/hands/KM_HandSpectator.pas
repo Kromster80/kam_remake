@@ -4,7 +4,7 @@ interface
 uses
   KromUtils,
   KM_CommonClasses, KM_Defaults,
-  KM_FogOfWar;
+  KM_FogOfWar, KM_Hand;
 
 
 type
@@ -29,6 +29,7 @@ type
     destructor Destroy; override;
     property Highlight: TObject read fHighlight write SetHighlight;
     property Selected: TObject read fSelected write SetSelected;
+    function Hand: TKMHand;
     property HandIndex: TKMHandIndex read fHandIndex write SeTKMHandIndex;
     property FOWIndex: TKMHandIndex read fFOWIndex write SetFOWIndex;
     property FogOfWar: TKMFogOfWarCommon read fFogOfWar;
@@ -43,7 +44,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_Game, KM_Houses, KM_Units, KM_UnitGroups, KM_GameCursor,
-  KM_Units_Warrior, KM_Hand;
+  KM_Units_Warrior;
 
 
 { TKMSpectator }
@@ -91,6 +92,12 @@ end;
 procedure TKMSpectator.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fHandIndex);
+end;
+
+
+function TKMSpectator.Hand: TKMHand;
+begin
+  Result := gHands[fHandIndex];
 end;
 
 

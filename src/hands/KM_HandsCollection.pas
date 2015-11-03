@@ -67,7 +67,7 @@ type
 
 var
   gHands: TKMHandsCollection;
-  MySpectator: TKMSpectator; //Wrap to access player/fow separately
+  gMySpectator: TKMSpectator; //Wrap to access player/fow separately
 
 
 implementation

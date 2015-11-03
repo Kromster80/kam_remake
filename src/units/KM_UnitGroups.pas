@@ -1144,9 +1144,9 @@ begin
   end;
 
   //In MP commands execution may be delayed, check if we still selected
-  if MySpectator.Selected = Self then
+  if gMySpectator.Selected = Self then
   begin
-    MySpectator.Selected := aTargetGroup;
+    gMySpectator.Selected := aTargetGroup;
     //What if fSelected died by now
     if not fSelected.IsDeadOrDying then
     begin
@@ -1238,7 +1238,7 @@ begin
   //Keep the selected unit Selected
   if NewGroup.HasMember(fSelected) then
   begin
-    MySpectator.Selected := NewGroup;
+    gMySpectator.Selected := NewGroup;
     NewGroup.fSelected := fSelected;
   end;
 
@@ -1293,7 +1293,7 @@ begin
   //Save unit selection
   if NewGroup.HasMember(fSelected) then
   begin
-    MySpectator.Selected := NewGroup;
+    gMySpectator.Selected := NewGroup;
     NewGroup.fSelected := fSelected;
   end;
 
@@ -1619,7 +1619,7 @@ begin
 
   //Highlight selected group
   FlagColor := gHands[FlagCarrier.Owner].FlagColor;
-  if MySpectator.Selected = Self then
+  if gMySpectator.Selected = Self then
     //If base color is brighter than $FFFF40 then use black highlight
     if (FlagColor and $FF) + (FlagColor shr 8 and $FF) + (FlagColor shr 16 and $FF) > $240 then
       FlagColor := $FF404040
@@ -1845,7 +1845,7 @@ var
   I: Integer;
 begin
   //We delete dead groups only next tick after they died
-  //so that MySpectator.Selected could register their death and reset
+  //so that gMySpectator.Selected could register their death and reset
   //(this could be outdated with Spectators appearence)
   for I := Count - 1 downto 0 do
   if FREE_POINTERS

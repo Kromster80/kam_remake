@@ -282,7 +282,7 @@ begin
   //When leaving the game we should always reset the cursor in case the user had beacon or linking selected
   gRes.Cursors.Cursor := kmc_Default;
 
-  FreeAndNil(MySpectator);
+  FreeAndNil(gMySpectator);
 
   inherited;
 end;
@@ -324,7 +324,7 @@ begin
     fMissionFileSP := ExtractRelativePath(ExeDir, aMissionFile);
 
   fSaveFile := '';
-  FreeAndNil(MySpectator); //In case somebody looks at it while parsing DAT, e.g. destroyed houses
+  FreeAndNil(gMySpectator); //In case somebody looks at it while parsing DAT, e.g. destroyed houses
 
   gLog.AddTime('Loading DAT file: ' + aMissionFile);
 
@@ -373,8 +373,8 @@ begin
       for I := 0 to gHands.Count - 1 do
         gHands[I].FogOfWar.RevealEverything;
 
-      MySpectator := TKMSpectator.Create(0);
-      MySpectator.FOWIndex := PLAYER_NONE;
+      gMySpectator := TKMSpectator.Create(0);
+      gMySpectator.FOWIndex := PLAYER_NONE;
     end
     else
     if fGameMode = gmSingle then
@@ -388,11 +388,11 @@ begin
 
       Assert(InRange(aLocation, 0, gHands.Count - 1), 'No human player detected');
       gHands[aLocation].PlayerType := hndHuman;
-      MySpectator := TKMSpectator.Create(aLocation);
+      gMySpectator := TKMSpectator.Create(aLocation);
 
       // If no color specified use default from mission file (don't overwrite it)
       if aColor <> $00000000 then
-        gHands[MySpectator.HandIndex].FlagColor := aColor;
+        gMySpectator.Hand.FlagColor := aColor;
     end;
 
     if Parser.MinorErrors <> '' then
@@ -465,7 +465,7 @@ begin
   if IsMapEditor then
     fActiveInterface.SyncUIView(KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2))
   else
-    fActiveInterface.SyncUIView(KMPointF(gHands[MySpectator.HandIndex].CenterScreen));
+    fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
 
   gLog.AddTime('Gameplay initialized', True);
 end;
@@ -508,7 +508,7 @@ begin
   if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.BlockTeamSelection then
     UpdateMultiplayerTeams;
 
-  FreeAndNil(MySpectator); //May have been created earlier
+  FreeAndNil(gMySpectator); //May have been created earlier
   if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
   begin
     //Find the first enabled hand to be spectating initially
@@ -519,11 +519,11 @@ begin
         handIndex := I;
         Break;
       end;
-    MySpectator := TKMSpectator.Create(handIndex);
-    MySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
+    gMySpectator := TKMSpectator.Create(handIndex);
+    gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
   end
   else
-    MySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
+    gMySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
@@ -699,12 +699,12 @@ end;
 
 procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
-  if aPlayerIndex = MySpectator.HandIndex then
+  if aPlayerIndex = gMySpectator.HandIndex then
     gSoundPlayer.Play(sfxn_Victory, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
-    if aPlayerIndex = MySpectator.HandIndex then
+    if aPlayerIndex = gMySpectator.HandIndex then
     begin
       PlayOnState := gr_Win;
       fGamePlayInterface.ShowMPPlayMore(gr_Win);
@@ -718,14 +718,14 @@ end;
 //Wrap for GameApp to access player color (needed for restart mission)
 function TKMGame.PlayerColor: Cardinal;
 begin
-  Result := gHands[MySpectator.HandIndex].FlagColor;
+  Result := gMySpectator.Hand.FlagColor;
 end;
 
 
 procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex);
 begin
   case GameMode of
-    gmSingle: if aPlayerIndex = MySpectator.HandIndex then
+    gmSingle: if aPlayerIndex = gMySpectator.HandIndex then
               begin
                 gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
                 RequestGameHold(gr_Defeat);
@@ -734,7 +734,7 @@ begin
     gmMulti: begin
                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
                                                    [gHands[aPlayerIndex].OwnerName]), csSystem);
-               if aPlayerIndex = MySpectator.HandIndex then
+               if aPlayerIndex = gMySpectator.HandIndex then
                begin
                  gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
                  PlayOnState := gr_Defeat;
@@ -751,7 +751,7 @@ end;
 
 function TKMGame.PlayerLoc: Byte;
 begin
-  Result := MySpectator.HandIndex;
+  Result := gMySpectator.HandIndex;
 end;
 
 
@@ -804,8 +804,8 @@ begin
   for I := 0 to gHands.Count - 1 do
     gHands[I].FogOfWar.RevealEverything;
 
-  MySpectator := TKMSpectator.Create(0);
-  MySpectator.FOWIndex := PLAYER_NONE;
+  gMySpectator := TKMSpectator.Create(0);
+  gMySpectator.FOWIndex := PLAYER_NONE;
 
   gHands.AfterMissionInit(false);
 
@@ -962,7 +962,7 @@ begin
   gHands[aHandIndex].MessageLog.Add(aKind, aTextID, aLoc);
 
   //Don't play sound in replays or spectator
-  if (aHandIndex = MySpectator.HandIndex) and (fGameMode in [gmSingle, gmMulti]) then
+  if (aHandIndex = gMySpectator.HandIndex) and (fGameMode in [gmSingle, gmMulti]) then
     gSoundPlayer.Play(sfx_MessageNotice, 2);
 end;
 
@@ -991,7 +991,7 @@ end;
 
 procedure TKMGame.OverlayUpdate;
 begin
-  fGamePlayInterface.SetScriptedOverlay(fOverlayText[MySpectator.HandIndex]);
+  fGamePlayInterface.SetScriptedOverlay(fOverlayText[gMySpectator.HandIndex]);
   fGamePlayInterface.UpdateOverlayControls;
 end;
 
@@ -1247,7 +1247,7 @@ begin
     gTerrain.Save(SaveStream); //Saves the map
     gHands.Save(SaveStream, fGameMode in [gmMulti, gmMultiSpectate]); //Saves all players properties individually
     if not IsMultiplayer then
-      MySpectator.Save(SaveStream);
+      gMySpectator.Save(SaveStream);
     gAIFields.Save(SaveStream);
     fPathfinding.Save(SaveStream);
     gProjectiles.Save(SaveStream);
@@ -1380,9 +1380,9 @@ begin
   gTerrain.Load(LoadStream);
 
   gHands.Load(LoadStream);
-  MySpectator := TKMSpectator.Create(0);
+  gMySpectator := TKMSpectator.Create(0);
   if not SaveIsMultiplayer then
-    MySpectator.Load(LoadStream);
+    gMySpectator.Load(LoadStream);
   gAIFields.Load(LoadStream);
   fPathfinding.Load(LoadStream);
   gProjectiles.Load(LoadStream);
@@ -1394,12 +1394,12 @@ begin
 
   if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
   begin
-    MySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
+    gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
     //HandIndex is the first enabled player
     for I := 0 to gHands.Count - 1 do
       if gHands[I].Enabled then
       begin
-        MySpectator.HandIndex := I;
+        gMySpectator.HandIndex := I;
         Break;
       end;
   end;
@@ -1445,7 +1445,7 @@ begin
   if SaveIsMultiplayer then
   begin
     //MP does not saves view position cos of save identity for all players
-    fActiveInterface.SyncUIView(KMPointF(gHands[MySpectator.HandIndex].CenterScreen));
+    fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
     //In MP saves hotkeys can't be saved by UI, they must be network synced
     if fGameMode in [gmSingle, gmMulti] then
       fGamePlayInterface.LoadHotkeysFromHand;
@@ -1497,7 +1497,7 @@ begin
                       gAIFields.UpdateState(fGameTickCount);
                       gHands.UpdateState(fGameTickCount); //Quite slow
                       if gGame = nil then Exit; //Quit the update if game was stopped for some reason
-                      MySpectator.UpdateState(fGameTickCount);
+                      gMySpectator.UpdateState(fGameTickCount);
                       fPathfinding.UpdateState;
                       gProjectiles.UpdateState; //If game has stopped it's NIL
 
@@ -1549,7 +1549,7 @@ begin
                     gAIFields.UpdateState(fGameTickCount);
                     gHands.UpdateState(fGameTickCount); //Quite slow
                     if gGame = nil then Exit; //Quit the update if game was stopped for some reason
-                    MySpectator.UpdateState(fGameTickCount);
+                    gMySpectator.UpdateState(fGameTickCount);
                     fPathfinding.UpdateState;
                     gProjectiles.UpdateState; //If game has stopped it's NIL
 

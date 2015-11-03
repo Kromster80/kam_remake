@@ -693,8 +693,8 @@ function TKMLoopSoundsManager.CanPlay(aIndex: Integer): Boolean;
 var
   DistanceSqr: Single;
 begin
-  Result := ((fSounds[aIndex].HandIndex = MySpectator.HandIndex) or (fSounds[aIndex].HandIndex = PLAYER_NONE))
-             and (not fSounds[aIndex].Attenuate or (MySpectator.FogOfWar.CheckTileRevelation(fSounds[aIndex].Loc.X, fSounds[aIndex].Loc.Y) > 0));
+  Result := ((fSounds[aIndex].HandIndex = gMySpectator.HandIndex) or (fSounds[aIndex].HandIndex = PLAYER_NONE))
+             and (not fSounds[aIndex].Attenuate or (gMySpectator.FogOfWar.CheckTileRevelation(fSounds[aIndex].Loc.X, fSounds[aIndex].Loc.Y) > 0));
   if not Result then Exit;
 
   if fSounds[aIndex].Attenuate then

@@ -108,7 +108,7 @@ begin
 
     //Replays/spectators don't see victory screen
     if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-    and (gGame.IsMultiplayer or (MySpectator.HandIndex = fOwner)) then  //Let everyone know in MP mode
+    and (gGame.IsMultiplayer or (gMySpectator.HandIndex = fOwner)) then  //Let everyone know in MP mode
       gGame.PlayerVictory(fOwner);
 
     //Script may have additional event processors
@@ -236,7 +236,7 @@ begin
       begin
         //No fight alerts in replays/spectating, and only show alerts for ourselves
         if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-        and (fOwner = MySpectator.HandIndex)
+        and (fOwner = gMySpectator.HandIndex)
         and (aAttacker <> nil) then //Don't show alerts for annonymous attacks (e.g. script)
           gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town, gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
       end;
@@ -267,7 +267,7 @@ begin
     hndHuman:
       //No fight alerts in replays, and only show alerts for ourselves
       if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-      and (fOwner = MySpectator.HandIndex) then
+      and (fOwner = gMySpectator.HandIndex) then
         gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior], gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
     hndComputer:
       begin

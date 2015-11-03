@@ -111,16 +111,16 @@ end;
 
 procedure TKMMapEdTownDefence.Town_DefenceChange(Sender: TObject);
 begin
-  gHands[MySpectator.HandIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
-  gHands[MySpectator.HandIndex].AI.Setup.DefendAllies := CheckBox_DefendAllies.Checked;
-  gHands[MySpectator.HandIndex].AI.Setup.AutoAttackRange := TrackBar_AutoAttackRange.Position;
-  gHands[MySpectator.HandIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
-  gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
+  gMySpectator.Hand.AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
+  gMySpectator.Hand.AI.Setup.DefendAllies := CheckBox_DefendAllies.Checked;
+  gMySpectator.Hand.AI.Setup.AutoAttackRange := TrackBar_AutoAttackRange.Position;
+  gMySpectator.Hand.AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
+  gMySpectator.Hand.AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
 
   if not CheckBox_MaxSoldiers.Checked then
-    gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers := -1
+    gMySpectator.Hand.AI.Setup.MaxSoldiers := -1
   else
-    gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
+    gMySpectator.Hand.AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
 
   Town_DefenceRefresh;
 end;
@@ -128,21 +128,21 @@ end;
 
 procedure TKMMapEdTownDefence.Town_DefenceFormations(Sender: TObject);
 begin
-  FormationsPopUp.Show(MySpectator.HandIndex);
+  FormationsPopUp.Show(gMySpectator.HandIndex);
 end;
 
 
 procedure TKMMapEdTownDefence.Town_DefenceRefresh;
 begin
-  CheckBox_AutoDefence.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoDefend;
-  CheckBox_DefendAllies.Checked := gHands[MySpectator.HandIndex].AI.Setup.DefendAllies;
-  TrackBar_AutoAttackRange.Position := gHands[MySpectator.HandIndex].AI.Setup.AutoAttackRange;
-  TrackBar_RecruitCount.Position := gHands[MySpectator.HandIndex].AI.Setup.RecruitCount;
-  TrackBar_RecruitDelay.Position := Round(gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay / 600);
+  CheckBox_AutoDefence.Checked := gMySpectator.Hand.AI.Setup.AutoDefend;
+  CheckBox_DefendAllies.Checked := gMySpectator.Hand.AI.Setup.DefendAllies;
+  TrackBar_AutoAttackRange.Position := gMySpectator.Hand.AI.Setup.AutoAttackRange;
+  TrackBar_RecruitCount.Position := gMySpectator.Hand.AI.Setup.RecruitCount;
+  TrackBar_RecruitDelay.Position := Round(gMySpectator.Hand.AI.Setup.RecruitDelay / 600);
 
-  CheckBox_MaxSoldiers.Checked := (gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers >= 0);
+  CheckBox_MaxSoldiers.Checked := (gMySpectator.Hand.AI.Setup.MaxSoldiers >= 0);
   TrackBar_MaxSoldiers.Enabled := CheckBox_MaxSoldiers.Checked;
-  TrackBar_MaxSoldiers.Position := Max(gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers, 0);
+  TrackBar_MaxSoldiers.Position := Max(gMySpectator.Hand.AI.Setup.MaxSoldiers, 0);
 end;
 
 

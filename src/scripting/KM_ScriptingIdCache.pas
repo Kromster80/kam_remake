@@ -6,7 +6,7 @@ uses
 
 
 //For caching unit/house/group IDs. Shared between States and Actions.
-//Because scripts runs the same on every computer (i.e. no access to MySpectator)
+//Because scripts runs the same on every computer (i.e. no access to gMySpectator)
 //we can safely use pointers within the cache
 const
   CACHE_SIZE = 16; //Too big means caching becomes slow

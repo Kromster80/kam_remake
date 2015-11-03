@@ -642,12 +642,12 @@ end;
 
 procedure TKMGUIGameHouse.House_Demolish(Sender: TObject);
 begin
-  if (MySpectator.Selected = nil) or not (MySpectator.Selected is TKMHouse) then Exit;
+  if (gMySpectator.Selected = nil) or not (gMySpectator.Selected is TKMHouse) then Exit;
 
   if Sender = Button_House_DemolishYes then
   begin
-    gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(MySpectator.Selected).GetPosition);
-    MySpectator.Selected := nil; //fPlayers.Selected MUST be reset before calling ShowHouseInfo
+    gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(gMySpectator.Selected).GetPosition);
+    gMySpectator.Selected := nil; //fPlayers.Selected MUST be reset before calling ShowHouseInfo
     Panel_House.Hide; //Simpliest way to reset page and ShownHouse
   end;
 
@@ -658,19 +658,19 @@ end;
 
 procedure TKMGUIGameHouse.House_RepairToggle(Sender: TObject);
 begin
-  if (MySpectator.Selected = nil) or not (MySpectator.Selected is TKMHouse) then Exit;
+  if (gMySpectator.Selected = nil) or not (gMySpectator.Selected is TKMHouse) then Exit;
 
-  gGame.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(MySpectator.Selected));
-  Button_HouseRepair.TexID := IfThen(TKMHouse(MySpectator.Selected).BuildingRepair, 39, 40);
+  gGame.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(gMySpectator.Selected));
+  Button_HouseRepair.TexID := IfThen(TKMHouse(gMySpectator.Selected).BuildingRepair, 39, 40);
 end;
 
 
 procedure TKMGUIGameHouse.House_WareDeliveryToggle(Sender: TObject);
 begin
-  if (MySpectator.Selected = nil) or not (MySpectator.Selected is TKMHouse) then Exit;
+  if (gMySpectator.Selected = nil) or not (gMySpectator.Selected is TKMHouse) then Exit;
 
-  gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(MySpectator.Selected));
-  Button_HouseWaresBlock.TexID := IfThen(TKMHouse(MySpectator.Selected).WareDelivery, 37, 38);
+  gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected));
+  Button_HouseWaresBlock.TexID := IfThen(TKMHouse(gMySpectator.Selected).WareDelivery, 37, 38);
 end;
 
 
@@ -679,9 +679,9 @@ var
   I: Integer;
   H: TKMHouse;
 begin
-  if not (MySpectator.Selected is TKMHouse) then Exit;
+  if not (gMySpectator.Selected is TKMHouse) then Exit;
 
-  H := TKMHouse(MySpectator.Selected);
+  H := TKMHouse(gMySpectator.Selected);
 
   for I := 1 to 4 do begin
     if Sender = ResRow_Order[I].OrderRem then
@@ -697,9 +697,9 @@ var
   Amount: Integer;
   H: TKMHouse;
 begin
-  if not (MySpectator.Selected is TKMHouse) then Exit;
+  if not (gMySpectator.Selected is TKMHouse) then Exit;
 
-  H := TKMHouse(MySpectator.Selected);
+  H := TKMHouse(gMySpectator.Selected);
 
   Amount := ORDER_WHEEL_AMOUNT * Sign(WheelDelta);
 
@@ -717,7 +717,7 @@ var
   W: TKMHouseWoodcutters;
   WMode: TWoodcutterMode;
 begin
-  W := TKMHouseWoodcutters(MySpectator.Selected);
+  W := TKMHouseWoodcutters(gMySpectator.Selected);
   if Sender = Button_Woodcutter then
     Radio_Woodcutter.ItemIndex := (Radio_Woodcutter.ItemIndex + 1) mod 2; //Cycle
 
@@ -750,10 +750,10 @@ var
   I, K, Tmp: Integer;
   Barracks: TKMHouseBarracks;
 begin
-  if MySpectator.Selected = nil then exit;
-  if not (MySpectator.Selected is TKMHouseBarracks) then exit;
+  if gMySpectator.Selected = nil then exit;
+  if not (gMySpectator.Selected is TKMHouseBarracks) then exit;
 
-  Barracks := TKMHouseBarracks(MySpectator.Selected);
+  Barracks := TKMHouseBarracks(gMySpectator.Selected);
 
   //Update graphics owner color
   Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
@@ -802,9 +802,9 @@ begin
   Image_Barracks_Train.TexID := gRes.UnitDat[Barracks_Order[fLastBarracksUnit]].GUIScroll;
   Label_Barracks_Unit.Caption := gRes.UnitDat[Barracks_Order[fLastBarracksUnit]].GUIName;
 
-  Image_Barracks_Train.Enabled := (not gHands[MySpectator.HandIndex].Locks.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]]);
+  Image_Barracks_Train.Enabled := (not gMySpectator.Hand.Locks.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]]);
 
-  if not gHands[MySpectator.HandIndex].Locks.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]] then
+  if not gMySpectator.Hand.Locks.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]] then
     Button_Barracks_Train.Hint := gResTexts[TX_HOUSE_BARRACKS_TRAIN_HINT]
   else
     Button_Barracks_Train.Hint := gResTexts[TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT];
@@ -820,9 +820,9 @@ var
   I: Byte;
   School: TKMHouseSchool;
 begin
-  if MySpectator.Selected = nil then exit;
-  if not (MySpectator.Selected is TKMHouseSchool) then exit;
-  School := TKMHouseSchool(MySpectator.Selected);
+  if gMySpectator.Selected = nil then exit;
+  if not (gMySpectator.Selected is TKMHouseSchool) then exit;
+  School := TKMHouseSchool(gMySpectator.Selected);
 
   if (ssRight in Shift) and (Sender = Button_School_Left) then fLastSchoolUnit := 0;
   if (ssRight in Shift) and (Sender = Button_School_Right) then fLastSchoolUnit := High(School_Order);
@@ -852,7 +852,7 @@ begin
       Button_School_UnitPlan[I].Hint:='';
     end;
 
-  Button_School_Train.Enabled := (not School.QueueIsFull) and (not gHands[MySpectator.HandIndex].Locks.UnitBlocked[School_Order[fLastSchoolUnit]]);
+  Button_School_Train.Enabled := (not School.QueueIsFull) and (not gMySpectator.Hand.Locks.UnitBlocked[School_Order[fLastSchoolUnit]]);
   Button_School_Left.Enabled := fLastSchoolUnit > 0;
   Button_School_Right.Enabled := fLastSchoolUnit < High(School_Order);
   Image_School_Left.Visible := Button_School_Left.Enabled;
@@ -864,9 +864,9 @@ begin
   Label_School_Unit.Caption := gRes.UnitDat[School_Order[fLastSchoolUnit]].GUIName;
   Image_School_Train.TexID := gRes.UnitDat[School_Order[fLastSchoolUnit]].GUIScroll;
 
-  Image_School_Train.Enabled := (not gHands[MySpectator.HandIndex].Locks.UnitBlocked[School_Order[fLastSchoolUnit]]);
+  Image_School_Train.Enabled := (not gMySpectator.Hand.Locks.UnitBlocked[School_Order[fLastSchoolUnit]]);
 
-  if not gHands[MySpectator.HandIndex].Locks.UnitBlocked[School_Order[fLastSchoolUnit]] then
+  if not gMySpectator.Hand.Locks.UnitBlocked[School_Order[fLastSchoolUnit]] then
     Button_School_Train.Hint := gResTexts[TX_HOUSE_SCHOOL_TRAIN_HINT]
   else
     Button_School_Train.Hint := gResTexts[TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT];
@@ -882,7 +882,7 @@ var
   School: TKMHouseSchool;
   I, id: Integer;
 begin
-  School := TKMHouseSchool(MySpectator.Selected);
+  School := TKMHouseSchool(gMySpectator.Selected);
   id := TKMControl(Sender).Tag; //Item number that was clicked from the school queue
 
   //Right click clears entire queue after this item.
@@ -902,9 +902,9 @@ end;
 {Ware determined by Button.Tag property}
 procedure TKMGUIGameHouse.House_BarracksAcceptFlag(Sender: TObject);
 begin
-  if MySpectator.Selected = nil then Exit;
-  if not (MySpectator.Selected is TKMHouseBarracks) then Exit;
-  gGame.GameInputProcess.CmdHouse(gic_HouseBarracksAcceptFlag, TKMHouse(MySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
+  if gMySpectator.Selected = nil then Exit;
+  if not (gMySpectator.Selected is TKMHouseBarracks) then Exit;
+  gGame.GameInputProcess.CmdHouse(gic_HouseBarracksAcceptFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
 end;
 
 
@@ -912,9 +912,9 @@ end;
 {Ware determined by Button.Tag property}
 procedure TKMGUIGameHouse.House_StoreAcceptFlag(Sender: TObject);
 begin
-  if MySpectator.Selected = nil then Exit;
-  if not (MySpectator.Selected is TKMHouseStore) then Exit;
-  gGame.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(MySpectator.Selected), StoreResType[(Sender as TKMControl).Tag]);
+  if gMySpectator.Selected = nil then Exit;
+  if not (gMySpectator.Selected is TKMHouseStore) then Exit;
+  gGame.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(gMySpectator.Selected), StoreResType[(Sender as TKMControl).Tag]);
 end;
 
 
@@ -985,9 +985,9 @@ procedure TKMGUIGameHouse.House_MarketOrderClick(Sender: TObject; Shift: TShiftS
 var
   M: TKMHouseMarket;
 begin
-  if not (MySpectator.Selected is TKMHouseMarket) then Exit;
+  if not (gMySpectator.Selected is TKMHouseMarket) then Exit;
 
-  M := TKMHouseMarket(MySpectator.Selected);
+  M := TKMHouseMarket(gMySpectator.Selected);
 
   if Sender = Button_Market_Remove then
     gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -GetMultiplicator(Shift));
@@ -1000,9 +1000,9 @@ procedure TKMGUIGameHouse.House_MarketSelect(Sender: TObject; Shift: TShiftState
 var
   M: TKMHouseMarket;
 begin
-  if not (MySpectator.Selected is TKMHouseMarket) then Exit;
+  if not (gMySpectator.Selected is TKMHouseMarket) then Exit;
 
-  M := TKMHouseMarket(MySpectator.Selected);
+  M := TKMHouseMarket(gMySpectator.Selected);
 
   if Shift = [ssLeft] then
     gGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TWareType(TKMButtonFlat(Sender).Tag));
@@ -1017,14 +1017,14 @@ procedure TKMGUIGameHouse.House_StoreFill;
 var
   I, Tmp: Integer;
 begin
-  if MySpectator.Selected = nil then Exit;
-  if not (MySpectator.Selected is TKMHouseStore) then Exit;
+  if gMySpectator.Selected = nil then Exit;
+  if not (gMySpectator.Selected is TKMHouseStore) then Exit;
 
   for I := 1 to STORE_RES_COUNT do
   begin
-    Tmp := TKMHouseStore(MySpectator.Selected).CheckResIn(StoreResType[I]);
+    Tmp := TKMHouseStore(gMySpectator.Selected).CheckResIn(StoreResType[I]);
     Button_Store[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
-    Image_Store_Accept[I].Visible := TKMHouseStore(MySpectator.Selected).NotAcceptFlag[StoreResType[I]];
+    Image_Store_Accept[I].Visible := TKMHouseStore(gMySpectator.Selected).NotAcceptFlag[StoreResType[I]];
   end;
 end;
 

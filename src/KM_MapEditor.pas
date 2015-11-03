@@ -228,17 +228,17 @@ begin
   begin
     P := gGameCursor.Cell;
     case gGameCursor.Mode of
-      cmRoad:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Road) then
+      cmRoad:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Road) then
                     begin
                       //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                       if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                         gTerrain.RemField(P);
-                      gHands[MySpectator.HandIndex].AddField(P, ft_Road);
+                      gMySpectator.Hand.AddField(P, ft_Road);
                     end;
-      cmField:      if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Corn) then
-                      gHands[MySpectator.HandIndex].AddField(P, ft_Corn);
-      cmWine:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Wine) then
-                      gHands[MySpectator.HandIndex].AddField(P, ft_Wine);
+      cmField:      if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
+                      gMySpectator.Hand.AddField(P, ft_Corn);
+      cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
+                      gMySpectator.Hand.AddField(P, ft_Wine);
       cmUnits:      if gGameCursor.Tag1 = 255 then gHands.RemAnyUnit(P);
       cmErase:      begin
                       gHands.RemAnyHouse(P);
@@ -269,20 +269,20 @@ begin
   P := gGameCursor.Cell; //Get cursor position tile-wise
   case Button of
     mbLeft:   case gGameCursor.Mode of
-                cmRoad:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Road) then
+                cmRoad:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Road) then
                               begin
                                 //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
-                                gHands[MySpectator.HandIndex].AddField(P, ft_Road);
+                                gMySpectator.Hand.AddField(P, ft_Road);
                               end;
-                cmField:      if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Corn) then
-                                gHands[MySpectator.HandIndex].AddField(P, ft_Corn);
-                cmWine:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Wine) then
-                                gHands[MySpectator.HandIndex].AddField(P, ft_Wine);
-                cmHouses:     if gHands[MySpectator.HandIndex].CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
+                cmField:      if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
+                                gMySpectator.Hand.AddField(P, ft_Corn);
+                cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
+                                gMySpectator.Hand.AddField(P, ft_Wine);
+                cmHouses:     if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
                               begin
-                                gHands[MySpectator.HandIndex].AddHouse(THouseType(gGameCursor.Tag1), P.X, P.Y, true);
+                                gMySpectator.Hand.AddHouse(THouseType(gGameCursor.Tag1), P.X, P.Y, true);
                                 //Holding shift allows to place that house multiple times
                                 if not (ssShift in gGameCursor.SState) then
                                   gGameCursor.Mode := cmRoad;
@@ -298,21 +298,21 @@ begin
                               begin
                                 //Check if we can really add a unit
                                 if TUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                                  gHands[MySpectator.HandIndex].AddUnit(TUnitType(gGameCursor.Tag1), P, False)
+                                  gMySpectator.Hand.AddUnit(TUnitType(gGameCursor.Tag1), P, False)
                                 else
                                 if TUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                                  gHands[MySpectator.HandIndex].AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
+                                  gMySpectator.Hand.AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
                                 else
                                   gHands.PlayerAnimals.AddUnit(TUnitType(gGameCursor.Tag1), P);
                               end;
                 cmMarkers:    case gGameCursor.Tag1 of
-                                MARKER_REVEAL:        fRevealers[MySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
-                                MARKER_DEFENCE:       gHands[MySpectator.HandIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
+                                MARKER_REVEAL:        fRevealers[gMySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
+                                MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                                 MARKER_CENTERSCREEN:  begin
-                                                        gHands[MySpectator.HandIndex].CenterScreen := P;
+                                                        gMySpectator.Hand.CenterScreen := P;
                                                         //Updating XY display is done in InterfaceMapEd
                                                       end;
-                                MARKER_AISTART:       gHands[MySpectator.HandIndex].AI.Setup.StartPosition := P;
+                                MARKER_AISTART:       gMySpectator.Hand.AI.Setup.StartPosition := P;
                               end;
                 cmErase:      begin
                                 gHands.RemAnyHouse(P);
@@ -446,9 +446,9 @@ begin
 
 
   //Show selected group order target
-  if MySpectator.Selected is TKMUnitGroup then
+  if gMySpectator.Selected is TKMUnitGroup then
   begin
-    G := TKMUnitGroup(MySpectator.Selected);
+    G := TKMUnitGroup(gMySpectator.Selected);
     if G.MapEdOrder.Order <> ioNoOrder then
     begin
       gRenderAux.Quad(G.MapEdOrder.Pos.Loc.X, G.MapEdOrder.Pos.Loc.Y, $40FF00FF);
