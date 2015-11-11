@@ -19,8 +19,6 @@ type
     SaveTimestamp: TDateTime; //UTC time when the save was created (unused for maps)
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MapSizeX, MapSizeY: Integer;
-    VictoryCondition: UnicodeString;
-    DefeatCondition: UnicodeString;
 
     PlayerCount: Byte;
     Enabled: array [0..MAX_HANDS-1] of Boolean;
@@ -75,13 +73,11 @@ begin
   LoadStream.Read(MapCRC);
 
   LoadStream.ReadW(Title); //GameName
-  LoadStream.Read(TickCount); //TickCount
+  LoadStream.Read(TickCount);
   LoadStream.Read(SaveTimestamp);
   LoadStream.Read(MissionMode, SizeOf(MissionMode));
   LoadStream.Read(MapSizeX);
   LoadStream.Read(MapSizeY);
-  LoadStream.ReadW(VictoryCondition);
-  LoadStream.ReadW(DefeatCondition);
 
   LoadStream.Read(PlayerCount);
   for I := 0 to PlayerCount - 1 do
@@ -110,8 +106,6 @@ begin
   SaveStream.Write(MissionMode, SizeOf(MissionMode));
   SaveStream.Write(MapSizeX);
   SaveStream.Write(MapSizeY);
-  SaveStream.WriteW(VictoryCondition);
-  SaveStream.WriteW(DefeatCondition);
 
   SaveStream.Write(PlayerCount);
   for I := 0 to PlayerCount - 1 do

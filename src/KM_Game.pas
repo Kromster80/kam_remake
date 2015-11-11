@@ -1176,8 +1176,7 @@ begin
       gameInfo.MissionMode := fMissionMode;
       gameInfo.MapSizeX := gTerrain.MapX;
       gameInfo.MapSizeY := gTerrain.MapY;
-      gameInfo.VictoryCondition := 'Win';
-      gameInfo.DefeatCondition := 'Lose';
+
       gameInfo.PlayerCount := gHands.Count;
       for I := 0 to gHands.Count - 1 do
       begin
