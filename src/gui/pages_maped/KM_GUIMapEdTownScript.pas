@@ -85,19 +85,19 @@ end;
 
 procedure TKMMapEdTownScript.Town_ScriptRefresh;
 begin
-  CheckBox_AutoBuild.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoBuild;
-  CheckBox_AutoRepair.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoRepair;
-  TrackBar_SerfsPer10Houses.Position := Round(10*gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse);
-  if MySpectator.HandIndex <> -1 then TrackBar_SerfsPer10Houses.Hint := Format(gResTexts[TX_MAPED_AI_SERFS_PER_10_HOUSES_HINT], [gHands[MySpectator.HandIndex].Stats.GetHouseQty(ht_Any)]);
-  TrackBar_WorkerCount.Position := gHands[MySpectator.HandIndex].AI.Setup.WorkerCount;
-  CheckBox_UnlimitedEquip.Checked := gHands[MySpectator.HandIndex].AI.Setup.UnlimitedEquip;
-  TrackBar_EquipRateLeather.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather div 10;
-  TrackBar_EquipRateIron.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron div 10;
-  DropBox_ArmyType.SelectByTag(Byte(gHands[MySpectator.HandIndex].AI.Setup.ArmyType));
+  CheckBox_AutoBuild.Checked := gMySpectator.Hand.AI.Setup.AutoBuild;
+  CheckBox_AutoRepair.Checked := gMySpectator.Hand.AI.Setup.AutoRepair;
+  TrackBar_SerfsPer10Houses.Position := Round(10*gMySpectator.Hand.AI.Setup.SerfsPerHouse);
+  if gMySpectator.HandIndex <> -1 then TrackBar_SerfsPer10Houses.Hint := Format(gResTexts[TX_MAPED_AI_SERFS_PER_10_HOUSES_HINT], [gMySpectator.Hand.Stats.GetHouseQty(ht_Any)]);
+  TrackBar_WorkerCount.Position := gMySpectator.Hand.AI.Setup.WorkerCount;
+  CheckBox_UnlimitedEquip.Checked := gMySpectator.Hand.AI.Setup.UnlimitedEquip;
+  TrackBar_EquipRateLeather.Position := gMySpectator.Hand.AI.Setup.EquipRateLeather div 10;
+  TrackBar_EquipRateIron.Position := gMySpectator.Hand.AI.Setup.EquipRateIron div 10;
+  DropBox_ArmyType.SelectByTag(Byte(gMySpectator.Hand.AI.Setup.ArmyType));
 
   TrackBar_EquipRateLeather.Enable;
   TrackBar_EquipRateIron.Enable;
-  case gHands[MySpectator.HandIndex].AI.Setup.ArmyType of
+  case gMySpectator.Hand.AI.Setup.ArmyType of
     atLeather: TrackBar_EquipRateIron.Disable;
     atIron:    TrackBar_EquipRateLeather.Disable;
   end;
@@ -106,18 +106,18 @@ end;
 
 procedure TKMMapEdTownScript.Town_ScriptChange(Sender: TObject);
 begin
-  gHands[MySpectator.HandIndex].AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
-  gHands[MySpectator.HandIndex].AI.Setup.AutoRepair := CheckBox_AutoRepair.Checked;
-  gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
-  gHands[MySpectator.HandIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
-  gHands[MySpectator.HandIndex].AI.Setup.UnlimitedEquip := CheckBox_UnlimitedEquip.Checked;
-  gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
-  gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
-  gHands[MySpectator.HandIndex].AI.Setup.ArmyType := TArmyType(DropBox_ArmyType.GetSelectedTag);
+  gMySpectator.Hand.AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
+  gMySpectator.Hand.AI.Setup.AutoRepair := CheckBox_AutoRepair.Checked;
+  gMySpectator.Hand.AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
+  gMySpectator.Hand.AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
+  gMySpectator.Hand.AI.Setup.UnlimitedEquip := CheckBox_UnlimitedEquip.Checked;
+  gMySpectator.Hand.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
+  gMySpectator.Hand.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+  gMySpectator.Hand.AI.Setup.ArmyType := TArmyType(DropBox_ArmyType.GetSelectedTag);
 
   TrackBar_EquipRateLeather.Enable;
   TrackBar_EquipRateIron.Enable;
-  case gHands[MySpectator.HandIndex].AI.Setup.ArmyType of
+  case gMySpectator.Hand.AI.Setup.ArmyType of
     atLeather: TrackBar_EquipRateIron.Disable;
     atIron:    TrackBar_EquipRateLeather.Disable;
   end;

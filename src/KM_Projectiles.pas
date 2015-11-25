@@ -244,7 +244,7 @@ begin
   fItems[I].fLength   := KMLength(fItems[I].fScreenStart, fItems[I].fScreenEnd); //route length
   fItems[I].fMaxLength:= aMaxLength;
 
-  if (MySpectator.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
+  if (gMySpectator.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
     gSoundPlayer.Play(ProjectileLaunchSounds[aProjType], aStart);
 
   Result := Round(fItems[I].fLength / fItems[I].fSpeed);
@@ -269,7 +269,7 @@ begin
 
         //Will hit the target in X..X-1 ticks (this ensures it only happens once)
         //Can't use InRange cos it might get called twice due to <= X <= comparison
-        if MySpectator.FogOfWar.CheckRevelation(fTarget) >= 255 then
+        if gMySpectator.FogOfWar.CheckRevelation(fTarget) >= 255 then
           if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks - 1) * fSpeed) then
             gSoundPlayer.Play(ProjectileHitSounds[fType], fTarget);
 

@@ -76,10 +76,10 @@ var
   AA: TAIAttack;
 begin
   FillChar(AA, SizeOf(AA), #0);
-  gHands[MySpectator.HandIndex].AI.General.Attacks.AddAttack(AA);
+  gMySpectator.Hand.AI.General.Attacks.AddAttack(AA);
 
   Attacks_Refresh;
-  ColumnBox_Attacks.ItemIndex := gHands[MySpectator.HandIndex].AI.General.Attacks.Count - 1;
+  ColumnBox_Attacks.ItemIndex := gMySpectator.Hand.AI.General.Attacks.Count - 1;
 
   //Edit the attack we have just appended
   Attacks_Edit(ColumnBox_Attacks.ItemIndex);
@@ -90,8 +90,8 @@ procedure TKMMapEdTownOffence.Attacks_Del(Sender: TObject);
 var I: Integer;
 begin
   I := ColumnBox_Attacks.ItemIndex;
-  if InRange(I, 0, gHands[MySpectator.HandIndex].AI.General.Attacks.Count - 1) then
-    gHands[MySpectator.HandIndex].AI.General.Attacks.Delete(I);
+  if InRange(I, 0, gMySpectator.Hand.AI.General.Attacks.Count - 1) then
+    gMySpectator.Hand.AI.General.Attacks.Delete(I);
 
   Attacks_Refresh;
 end;
@@ -99,8 +99,8 @@ end;
 
 procedure TKMMapEdTownOffence.Attacks_Edit(aIndex: Integer);
 begin
-  Assert(InRange(aIndex, 0, gHands[MySpectator.HandIndex].AI.General.Attacks.Count - 1));
-  AttackPopUp.Show(MySpectator.HandIndex, aIndex);
+  Assert(InRange(aIndex, 0, gMySpectator.Hand.AI.General.Attacks.Count - 1));
+  AttackPopUp.Show(gMySpectator.HandIndex, aIndex);
 end;
 
 
@@ -109,7 +109,7 @@ var
   I: Integer;
 begin
   I := ColumnBox_Attacks.ItemIndex;
-  Button_AttacksDel.Enabled := InRange(I, 0, gHands[MySpectator.HandIndex].AI.General.Attacks.Count - 1);
+  Button_AttacksDel.Enabled := InRange(I, 0, gMySpectator.Hand.AI.General.Attacks.Count - 1);
 end;
 
 
@@ -120,7 +120,7 @@ begin
   I := ColumnBox_Attacks.ItemIndex;
 
   //Check if user double-clicked on an existing item (not on an empty space)
-  if InRange(I, 0, gHands[MySpectator.HandIndex].AI.General.Attacks.Count - 1) then
+  if InRange(I, 0, gMySpectator.Hand.AI.General.Attacks.Count - 1) then
     Attacks_Edit(I);
 end;
 
@@ -141,21 +141,21 @@ var
 begin
   ColumnBox_Attacks.Clear;
 
-  for I := 0 to gHands[MySpectator.HandIndex].AI.General.Attacks.Count - 1 do
+  for I := 0 to gMySpectator.Hand.AI.General.Attacks.Count - 1 do
   begin
-    A := gHands[MySpectator.HandIndex].AI.General.Attacks[I];
+    A := gMySpectator.Hand.AI.General.Attacks[I];
     ColumnBox_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay div 10), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
   end;
 
   Attacks_ListClick(nil);
 
-  CheckBox_AutoAttack.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoAttack;
+  CheckBox_AutoAttack.Checked := gMySpectator.Hand.AI.Setup.AutoAttack;
 end;
 
 
 procedure TKMMapEdTownOffence.AutoAttackClick(Sender: TObject);
 begin
-  gHands[MySpectator.HandIndex].AI.Setup.AutoAttack := CheckBox_AutoAttack.Checked;
+  gMySpectator.Hand.AI.Setup.AutoAttack := CheckBox_AutoAttack.Checked;
 end;
 
 

@@ -196,8 +196,8 @@ end;
 
 procedure TKMMapEdPlayer.UpdatePlayerColor;
 begin
-  Button_Player[ptColor].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
-  Button_Player[ptBlockUnit].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
+  Button_Player[ptColor].FlagColor := gMySpectator.Hand.FlagColor;
+  Button_Player[ptBlockUnit].FlagColor := gMySpectator.Hand.FlagColor;
 
   fGuiPlayerView.UpdatePlayerColor;
   fGuiPlayerBlockUnit.UpdatePlayerColor;

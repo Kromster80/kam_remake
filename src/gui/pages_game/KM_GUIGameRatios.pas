@@ -114,12 +114,12 @@ begin
   begin
     HT := ResRatioHouse[fActiveTab, I];
     //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
-    if (not gHands[MySpectator.HandIndex].Locks.HouseBlocked[HT])
-    or (gHands[MySpectator.HandIndex].Stats.GetHouseQty(HT) > 0) then
+    if (not gMySpectator.Hand.Locks.HouseBlocked[HT])
+    or (gMySpectator.Hand.Stats.GetHouseQty(HT) > 0) then
     begin
       Image_RatioPic[I].TexID := gRes.HouseDat[HT].GUIIcon;
       TrackBar_RatioValue[I].Caption := gRes.HouseDat[HT].HouseName;
-      TrackBar_RatioValue[I].Position := gHands[MySpectator.HandIndex].Stats.Ratio[ResRatioType[fActiveTab], HT];
+      TrackBar_RatioValue[I].Position := gMySpectator.Hand.Stats.Ratio[ResRatioType[fActiveTab], HT];
       TrackBar_RatioValue[I].Enabled := fAllowEditing;
     end else begin
       Image_RatioPic[I].TexID := 41; //Question mark
@@ -157,8 +157,8 @@ begin
   for I := Low(TKMRatioTab) to High(TKMRatioTab) do
     for K := 0 to ResRatioHouseCount[fActiveTab] - 1 do
       //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
-      if (not gHands[MySpectator.HandIndex].Locks.HouseBlocked[ResRatioHouse[I, K]])
-      or (gHands[MySpectator.HandIndex].Stats.GetHouseQty(ResRatioHouse[I, K]) > 0) then
+      if (not gMySpectator.Hand.Locks.HouseBlocked[ResRatioHouse[I, K]])
+      or (gMySpectator.Hand.Stats.GetHouseQty(ResRatioHouse[I, K]) > 0) then
       begin
         //Select first tab we find with an unblocked house
         RatioTabSet(I);

@@ -255,7 +255,7 @@ begin
   gGameCursor.Tag1 := 0;
 
   //Reset shown item when user clicks on any of the main buttons
-  MySpectator.Selected := nil;
+  gMySpectator.Selected := nil;
 
   HidePages;
 
@@ -412,8 +412,8 @@ begin
   fGuiMarkerDefence.Hide;
   fGuiMarkerReveal.Hide;
 
-  if MySpectator.Selected <> nil then
-    MySpectator.Selected := nil;
+  if gMySpectator.Selected <> nil then
+    gMySpectator.Selected := nil;
 
   Player_SetActive(TKMControl(Sender).Tag);
 end;
@@ -424,10 +424,10 @@ procedure TKMapEdInterface.Player_SetActive(aIndex: TKMHandIndex);
 var
   I: Integer;
 begin
-  MySpectator.HandIndex := aIndex;
+  gMySpectator.HandIndex := aIndex;
 
   for I := 0 to MAX_HANDS - 1 do
-    Button_PlayerSelect[I].Down := (I = MySpectator.HandIndex);
+    Button_PlayerSelect[I].Down := (I = gMySpectator.HandIndex);
 
   Player_UpdatePages;
 end;
@@ -749,7 +749,7 @@ begin
     if Marker.MarkerType <> mtNone then
       gRes.Cursors.Cursor := kmc_Info
     else
-    if MySpectator.HitTestCursor <> nil then
+    if gMySpectator.HitTestCursor <> nil then
       gRes.Cursors.Cursor := kmc_Info
     else
     if not fViewport.Scrolling then
@@ -801,29 +801,29 @@ begin
                 if Marker.MarkerType <> mtNone then
                 begin
                   ShowMarkerInfo(Marker);
-                  MySpectator.Selected := nil; //We might have had a unit/group/house selected
+                  gMySpectator.Selected := nil; //We might have had a unit/group/house selected
                 end
                 else
                 begin
-                  MySpectator.UpdateSelect;
+                  gMySpectator.UpdateSelect;
 
-                  if MySpectator.Selected is TKMHouse then
+                  if gMySpectator.Selected is TKMHouse then
                   begin
                     HidePages;
-                    Player_SetActive(TKMHouse(MySpectator.Selected).Owner);
-                    fGuiHouse.Show(TKMHouse(MySpectator.Selected));
+                    Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
+                    fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
                   end;
-                  if MySpectator.Selected is TKMUnit then
+                  if gMySpectator.Selected is TKMUnit then
                   begin
                     HidePages;
-                    Player_SetActive(TKMUnit(MySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnit(MySpectator.Selected));
+                    Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
+                    fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
                   end;
-                  if MySpectator.Selected is TKMUnitGroup then
+                  if gMySpectator.Selected is TKMUnitGroup then
                   begin
                     HidePages;
-                    Player_SetActive(TKMUnitGroup(MySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnitGroup(MySpectator.Selected));
+                    Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
+                    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
                   end;
                 end;
               end;
@@ -833,14 +833,14 @@ begin
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
 
                 //Move the selected object to the cursor location
-                if MySpectator.Selected is TKMHouse then
-                  TKMHouse(MySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                if gMySpectator.Selected is TKMHouse then
+                  TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
 
-                if MySpectator.Selected is TKMUnit then
-                  TKMUnit(MySpectator.Selected).SetPosition(gGameCursor.Cell);
+                if gMySpectator.Selected is TKMUnit then
+                  TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);
 
-                if MySpectator.Selected is TKMUnitGroup then
-                  TKMUnitGroup(MySpectator.Selected).Position := gGameCursor.Cell;
+                if gMySpectator.Selected is TKMUnitGroup then
+                  TKMUnitGroup(gMySpectator.Selected).Position := gGameCursor.Cell;
 
                 if fGuiMarkerDefence.Visible then
                 begin

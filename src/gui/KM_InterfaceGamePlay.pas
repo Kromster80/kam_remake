@@ -466,7 +466,7 @@ begin
   if (Sender = Button_Main[tbBuild]) or (Sender = Button_Main[tbRatio])
   or (Sender = Button_Main[tbStats]) or (Sender = Button_Main[tbMenu])
   or (Sender = Button_Menu_Settings) or (Sender = Button_Menu_Quit) then
-    MySpectator.Selected := nil;
+    gMySpectator.Selected := nil;
 
   // Set LastVisiblePage to which ever page was last visible, out of the ones needed
   if fGuiMenuSettings.Visible then LastVisiblePage := fGuiMenuSettings else
@@ -607,7 +607,7 @@ end;
 // Update viewport position when user interacts with minimap
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
 begin
-  if gHands[MySpectator.HandIndex].InCinematic then
+  if gMySpectator.Hand.InCinematic then
     Exit;
 
   fViewport.Position := KMPointF(X,Y);
@@ -623,22 +623,22 @@ begin
   if not gTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; // Must be inside map
 
   // Send move order, if applicable
-  if (MySpectator.Selected is TKMUnitGroup) and not fPlacingBeacon
+  if (gMySpectator.Selected is TKMUnitGroup) and not fPlacingBeacon
   and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
-    Group := TKMUnitGroup(MySpectator.Selected);
-    if Group.CanTakeOrders and (Group.Owner = MySpectator.HandIndex)
+    Group := TKMUnitGroup(gMySpectator.Selected);
+    if Group.CanTakeOrders and (Group.Owner = gMySpectator.HandIndex)
     and Group.CanWalkTo(Loc, 0) then
     begin
       gGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, Loc, dir_NA);
       gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
     end;
   end;
-  if (MySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
+  if (gMySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
   and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
-    if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(MySpectator.Selected).GetEntrance), Loc, tpWalk, 0) then
-      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(MySpectator.Selected), Loc)
+    if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(gMySpectator.Selected).GetEntrance), Loc, tpWalk, 0) then
+      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), Loc)
     else
       gSoundPlayer.Play(sfx_CantPlace, Loc, False, 4);
   end;
@@ -1326,9 +1326,9 @@ end;
 procedure TKMGamePlayInterface.CinematicUpdate;
 var I: Integer;
 begin
-  if gHands[MySpectator.HandIndex].InCinematic then
+  if gMySpectator.Hand.InCinematic then
   begin
-    MySpectator.Selected := nil;
+    gMySpectator.Selected := nil;
     // Close panels unless it is an allowed menu
     if not Panel_Menu.Visible and not Panel_Load.Visible and not Panel_Save.Visible
     and not fGuiMenuSettings.Visible and not Panel_Quit.Visible and not fGuiGameStats.Visible then
@@ -1364,7 +1364,7 @@ procedure TKMGamePlayInterface.LoadHotkeysFromHand;
 var I: Integer;
 begin
   for I := 0 to 9 do
-    fSelection[I] := gHands[MySpectator.HandIndex].SelectionHotkeys[I];
+    fSelection[I] := gMySpectator.Hand.SelectionHotkeys[I];
 end;
 
 
@@ -1484,7 +1484,7 @@ end;
 
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender: TKMUnit; aAskDismiss: Boolean = False);
 begin
-  Assert(MySpectator.Selected = Sender);
+  Assert(gMySpectator.Selected = Sender);
 
   fAskDismiss  := aAskDismiss;
 
@@ -1517,7 +1517,7 @@ procedure TKMGamePlayInterface.ShowGroupInfo(Sender: TKMUnitGroup);
 var
   W: TKMUnitWarrior;
 begin
-  Assert(MySpectator.Selected = Sender);
+  Assert(gMySpectator.Selected = Sender);
 
   if (Sender = nil) or (Sender.SelectedUnit = nil) then
   begin
@@ -1582,16 +1582,16 @@ procedure TKMGamePlayInterface.Army_Issue_Order(Sender: TObject);
 var
   Group: TKMUnitGroup;
 begin
-  if MySpectator.Selected = nil then exit;
-  if not (MySpectator.Selected is TKMUnitGroup) then Exit;
+  if gMySpectator.Selected = nil then exit;
+  if not (gMySpectator.Selected is TKMUnitGroup) then Exit;
 
   { Not implemented yet
   if Sender = Button_Unit_Dismiss then
   begin
-    ShowUnitInfo(TKMUnit(MySpectator.Selected), true);
+    ShowUnitInfo(TKMUnit(gMySpectator.Selected), true);
   end; }
 
-  Group := TKMUnitGroup(MySpectator.Selected);
+  Group := TKMUnitGroup(gMySpectator.Selected);
 
   // if Sender = Button_Army_GoTo    then ; // This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
@@ -1646,8 +1646,8 @@ end;
 
 procedure TKMGamePlayInterface.Unit_Dismiss(Sender: TObject);
 begin
-  if (MySpectator.Selected = nil)
-  or not (MySpectator.Selected is TKMUnit) then
+  if (gMySpectator.Selected = nil)
+  or not (gMySpectator.Selected is TKMUnit) then
     Exit;
 
   if Sender = Button_Unit_DismissYes then
@@ -1660,7 +1660,7 @@ begin
   else
   begin
     fAskDismiss := False;
-    ShowUnitInfo(TKMUnit(MySpectator.Selected), False);  // Cancel and return to selected unit
+    ShowUnitInfo(TKMUnit(gMySpectator.Selected), False);  // Cancel and return to selected unit
   end;
 end;
 
@@ -1671,7 +1671,7 @@ begin
   if gRes.Cursors.Cursor in [kmc_JoinYes, kmc_JoinNo] then // Do not override non-joining cursors
     gRes.Cursors.Cursor := kmc_Default; // In case this is run with keyboard shortcut, mouse move won't happen
   Panel_Army_JoinGroups.Hide;
-  if MySpectator.Selected is TKMUnitWarrior then
+  if gMySpectator.Selected is TKMUnitWarrior then
     Panel_Army.Show;
 end;
 
@@ -1763,11 +1763,11 @@ begin
 
   if (Sender = Dropbox_ReplayFOW) then
   begin
-    MySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
     if Checkbox_ReplayFOW.Checked then
-      MySpectator.FOWIndex := MySpectator.HandIndex
+      gMySpectator.FOWIndex := gMySpectator.HandIndex
     else
-      MySpectator.FOWIndex := -1;
+      gMySpectator.FOWIndex := -1;
     fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
     gGame.OverlayUpdate; // Display the overlay seen by the selected player
   end;
@@ -1775,9 +1775,9 @@ begin
   if (Sender = Checkbox_ReplayFOW) then
   begin
     if Checkbox_ReplayFOW.Checked then
-      MySpectator.FOWIndex := MySpectator.HandIndex
+      gMySpectator.FOWIndex := gMySpectator.HandIndex
     else
-      MySpectator.FOWIndex := -1;
+      gMySpectator.FOWIndex := -1;
     fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
   end;
 end;
@@ -1847,7 +1847,7 @@ begin
   MessageId := ColumnBox_MessageLog.Rows[ItemId].Tag;
   if MessageId = -1 then Exit;
 
-  Msg := gHands[MySpectator.HandIndex].MessageLog[MessageId];
+  Msg := gMySpectator.Hand.MessageLog[MessageId];
   Msg.IsReadLocal := True;
   gGame.GameInputProcess.CmdGame(gic_GameMessageLogRead, MessageId);
 
@@ -1865,7 +1865,7 @@ begin
     if ((Msg.fTextID = TX_MSG_HOUSE_UNOCCUPIED) and not H.GetHasOwner
         and (gRes.HouseDat[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
     or H.ResourceDepletedMsgIssued then
-      MySpectator.Highlight := H;
+      gMySpectator.Highlight := H;
 
   MessageLog_Update(True);
 end;
@@ -1879,25 +1879,25 @@ var
   R: TKMListRow;
 begin
   // Exit if synced already
-  if not aFullRefresh and (fLastSyncedMessage = gHands[MySpectator.HandIndex].MessageLog.CountLog) then Exit;
+  if not aFullRefresh and (fLastSyncedMessage = gMySpectator.Hand.MessageLog.CountLog) then Exit;
 
   // Clear the selection if a new item is added so the wrong one is not selected
-  if fLastSyncedMessage <> gHands[MySpectator.HandIndex].MessageLog.CountLog then
+  if fLastSyncedMessage <> gMySpectator.Hand.MessageLog.CountLog then
     ColumnBox_MessageLog.ItemIndex := -1;
 
-  // Clear all rows in case MySpectator.HandIndex was changed and MessageLog now contains less items
+  // Clear all rows in case gMySpectator.HandIndex was changed and MessageLog now contains less items
   for I := 0 to MAX_LOG_MSGS - 1 do
     ColumnBox_MessageLog.Rows[I] := MakeListRow(['', ''], -1);
 
   K := 0;
-  for I := Max(gHands[MySpectator.HandIndex].MessageLog.CountLog - MAX_LOG_MSGS, 0) to gHands[MySpectator.HandIndex].MessageLog.CountLog - 1 do
+  for I := Max(gMySpectator.Hand.MessageLog.CountLog - MAX_LOG_MSGS, 0) to gMySpectator.Hand.MessageLog.CountLog - 1 do
   begin
-    R := MakeListRow(['', gHands[MySpectator.HandIndex].MessageLog[I].Text], I);
+    R := MakeListRow(['', gMySpectator.Hand.MessageLog[I].Text], I);
 
-    if gHands[MySpectator.HandIndex].MessageLog[I].Kind = mkUnit then
+    if gMySpectator.Hand.MessageLog[I].Kind = mkUnit then
     begin
       R.Cells[0].Pic := MakePic(rxGui, 588);
-      if gHands[MySpectator.HandIndex].MessageLog[I].IsRead then
+      if gMySpectator.Hand.MessageLog[I].IsRead then
       begin
         R.Cells[1].Color := $FF0080B0;
         R.Cells[1].HighlightColor := $FF006797;
@@ -1911,7 +1911,7 @@ begin
     else
     begin
       R.Cells[0].Pic := MakePic(rxGui, 587);
-      if gHands[MySpectator.HandIndex].MessageLog[I].IsRead then
+      if gMySpectator.Hand.MessageLog[I].IsRead then
       begin
         R.Cells[1].Color := $FFA0A0A0;
         R.Cells[1].HighlightColor := $FF808080;
@@ -1927,7 +1927,7 @@ begin
     Inc(K);
   end;
 
-  fLastSyncedMessage := gHands[MySpectator.HandIndex].MessageLog.CountLog;
+  fLastSyncedMessage := gMySpectator.Hand.MessageLog.CountLog;
 end;
 
 
@@ -1972,9 +1972,9 @@ procedure TKMGamePlayInterface.Beacon_Place(aLoc: TKMPointF);
 begin
   // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
   case fUIMode of
-    umReplay:   Alerts.AddBeacon(aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+    umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
     umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.NetPlayers[gGame.Networking.MyIndex].FlagColor);
-    else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor);
+    else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor);
   end;
   Beacon_Cancel;
 end;
@@ -2003,8 +2003,8 @@ procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 var
   I: Integer;
 begin
-  Button_Main[tbBuild].Enabled := not aTactic and (fUIMode in [umSP, umMP]) and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
-  Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic));
+  Button_Main[tbBuild].Enabled := not aTactic and (fUIMode in [umSP, umMP]) and not HasLostMPGame and not gMySpectator.Hand.InCinematic;
+  Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gMySpectator.Hand.InCinematic));
   Button_Main[tbStats].Enabled := not aTactic;
 
   // No loading during multiplayer games
@@ -2287,7 +2287,7 @@ end;
 
 function TKMGamePlayInterface.HasLostMPGame: Boolean;
 begin
-  Result := (fUIMode = umMP) and (gHands[MySpectator.HandIndex].AI.WonOrLost = wol_Lost);
+  Result := (fUIMode = umMP) and (gMySpectator.Hand.AI.WonOrLost = wol_Lost);
 end;
 
 
@@ -2346,74 +2346,74 @@ procedure TKMGamePlayInterface.Selection_Select(aId: Word);
 var
   OldSelected: TObject;
 begin
-  if gHands[MySpectator.HandIndex].InCinematic then
+  if gMySpectator.Hand.InCinematic then
     Exit;
 
   if not InRange(aId, 0, 9) then Exit;
 
   if fSelection[aId] <> -1 then
   begin
-    OldSelected := MySpectator.Selected;
-    MySpectator.Selected := gHands.GetUnitByUID(fSelection[aId]);
-    if MySpectator.Selected <> nil then
+    OldSelected := gMySpectator.Selected;
+    gMySpectator.Selected := gHands.GetUnitByUID(fSelection[aId]);
+    if gMySpectator.Selected <> nil then
     begin
-      if TKMUnit(MySpectator.Selected).IsDeadOrDying then
+      if TKMUnit(gMySpectator.Selected).IsDeadOrDying then
       begin
-        MySpectator.Selected := nil; // Don't select dead/dying units
+        gMySpectator.Selected := nil; // Don't select dead/dying units
         Exit;
       end;
-      if (OldSelected <> MySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-        gSoundPlayer.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
+      if (OldSelected <> gMySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+        gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, sp_Select);
       // Selecting a unit twice is the shortcut to center on that unit
-      if OldSelected = MySpectator.Selected then
-        fViewport.Position := TKMUnit(MySpectator.Selected).PositionF;
+      if OldSelected = gMySpectator.Selected then
+        fViewport.Position := TKMUnit(gMySpectator.Selected).PositionF;
     end
     else
     begin
-      MySpectator.Selected := gHands.GetHouseByUID(fSelection[aId]);
-      if MySpectator.Selected <> nil then
+      gMySpectator.Selected := gHands.GetHouseByUID(fSelection[aId]);
+      if gMySpectator.Selected <> nil then
       begin
-        if TKMHouse(MySpectator.Selected).IsDestroyed then
+        if TKMHouse(gMySpectator.Selected).IsDestroyed then
         begin
-          MySpectator.Selected := nil; // Don't select destroyed houses
+          gMySpectator.Selected := nil; // Don't select destroyed houses
           Exit;
         end;
         // Selecting a house twice is the shortcut to center on that house
-        if OldSelected = MySpectator.Selected then
-          fViewport.Position := KMPointF(TKMHouse(MySpectator.Selected).GetEntrance);
+        if OldSelected = gMySpectator.Selected then
+          fViewport.Position := KMPointF(TKMHouse(gMySpectator.Selected).GetEntrance);
       end
       else
       begin
-        MySpectator.Selected := gHands.GetGroupByUID(fSelection[aId]);
-        if (MySpectator.Selected = nil) or TKMUnitGroup(MySpectator.Selected).IsDead then
+        gMySpectator.Selected := gHands.GetGroupByUID(fSelection[aId]);
+        if (gMySpectator.Selected = nil) or TKMUnitGroup(gMySpectator.Selected).IsDead then
         begin
-          MySpectator.Selected := nil; // Don't select dead groups
+          gMySpectator.Selected := nil; // Don't select dead groups
           Exit;
         end;
-        TKMUnitGroup(MySpectator.Selected).SelectFlagBearer;
-        if (OldSelected <> MySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-          gSoundPlayer.PlayWarrior(TKMUnitGroup(MySpectator.Selected).SelectedUnit.UnitType, sp_Select);
+        TKMUnitGroup(gMySpectator.Selected).SelectFlagBearer;
+        if (OldSelected <> gMySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+          gSoundPlayer.PlayWarrior(TKMUnitGroup(gMySpectator.Selected).SelectedUnit.UnitType, sp_Select);
         // Selecting a group twice is the shortcut to center on that group
-        if OldSelected = MySpectator.Selected then
-          fViewport.Position := TKMUnitGroup(MySpectator.Selected).SelectedUnit.PositionF;
+        if OldSelected = gMySpectator.Selected then
+          fViewport.Position := TKMUnitGroup(gMySpectator.Selected).SelectedUnit.PositionF;
       end;
     end;
 
   end
   else
-    MySpectator.Selected := nil;
+    gMySpectator.Selected := nil;
 
   // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
   if fUIMode in [umReplay, umSpectate] then
   begin
-    if MySpectator.Selected is TKMHouse      then MySpectator.HandIndex := TKMHouse    (MySpectator.Selected).Owner;
-    if MySpectator.Selected is TKMUnit       then MySpectator.HandIndex := TKMUnit     (MySpectator.Selected).Owner;
-    if MySpectator.Selected is TKMUnitGroup  then MySpectator.HandIndex := TKMUnitGroup(MySpectator.Selected).Owner;
-    Dropbox_ReplayFOW.SelectByTag(MySpectator.HandIndex);
+    if gMySpectator.Selected is TKMHouse      then gMySpectator.HandIndex := TKMHouse    (gMySpectator.Selected).Owner;
+    if gMySpectator.Selected is TKMUnit       then gMySpectator.HandIndex := TKMUnit     (gMySpectator.Selected).Owner;
+    if gMySpectator.Selected is TKMUnitGroup  then gMySpectator.HandIndex := TKMUnitGroup(gMySpectator.Selected).Owner;
+    Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandIndex);
     if Checkbox_ReplayFOW.Checked then
-      MySpectator.FOWIndex := MySpectator.HandIndex
+      gMySpectator.FOWIndex := gMySpectator.HandIndex
     else
-      MySpectator.FOWIndex := -1;
+      gMySpectator.FOWIndex := -1;
     fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
   end;
 end;
@@ -2641,10 +2641,10 @@ begin
 
   if SelectId <> -1 then
     if (ssCtrl in Shift) then
-      Selection_Assign(SelectId, MySpectator.Selected)
+      Selection_Assign(SelectId, gMySpectator.Selected)
     else
     if (ssShift in Shift) and (fUIMode in [umSP, umMP]) then
-      Selection_Link(SelectId, MySpectator.Selected)
+      Selection_Link(SelectId, gMySpectator.Selected)
     else
       Selection_Select(SelectId);
 
@@ -2736,7 +2736,7 @@ begin
   fMyControls.MouseDown(X, Y, Shift, Button);
 
   if (gGame.IsPaused and (fUIMode in [umSP, umMP])) or (fMyControls.CtrlOver <> nil)
-  or gHands[MySpectator.HandIndex].InCinematic then
+  or gMySpectator.Hand.InCinematic then
     Exit;
 
   if (Button = mbMiddle) then
@@ -2769,16 +2769,16 @@ begin
   and not HasLostMPGame
   and not fJoiningGroups
   and not fPlacingBeacon
-  and (MySpectator.Selected is TKMUnitGroup) then
+  and (gMySpectator.Selected is TKMUnitGroup) then
   begin
-    Group := TKMUnitGroup(MySpectator.Selected);
-    Obj := MySpectator.HitTestCursor;
+    Group := TKMUnitGroup(gMySpectator.Selected);
+    Obj := gMySpectator.HitTestCursor;
 
     canWalkTo := True;
 
     // Group can walk to allies units place
     if Obj is TKMUnit then
-      canWalkTo := (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Ally);
+      canWalkTo := (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Ally);
 
     // Can't walk on to a house
     if Obj is TKMHouse then
@@ -2885,32 +2885,32 @@ begin
   if ssLeft in Shift then // Only allow placing of roads etc. with the left mouse button
   begin
     P := gGameCursor.Cell; // Get cursor position tile-wise
-    if gHands[MySpectator.HandIndex].FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
+    if gMySpectator.Hand.FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
     case gGameCursor.Mode of
-      cmRoad:  if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
+      cmRoad:  if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
                   LastDragPoint := gGameCursor.Cell;
                 end;
-      cmField: if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
+      cmField: if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
                   LastDragPoint := gGameCursor.Cell;
                 end;
-      cmWine:  if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
+      cmWine:  if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
                   LastDragPoint := gGameCursor.Cell;
                 end;
       cmErase: if not KMSamePoint(LastDragPoint, P) then
                 begin
-                  if gHands[MySpectator.HandIndex].BuildList.HousePlanList.HasPlan(P) then
+                  if gMySpectator.Hand.BuildList.HousePlanList.HasPlan(P) then
                   begin
                     gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
                     LastDragPoint := gGameCursor.Cell;
                   end
                   else
-                    if (gHands[MySpectator.HandIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
+                    if (gMySpectator.Hand.BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
                     begin
                       gGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); // Remove any plans
                       LastDragPoint := gGameCursor.Cell;
@@ -2927,14 +2927,14 @@ begin
     Exit;
   end;
 
-  Obj := MySpectator.HitTestCursor;
+  Obj := gMySpectator.HitTestCursor;
 
-  if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
+  if fJoiningGroups and (gMySpectator.Selected is TKMUnitGroup) then
   begin
-    Group := TKMUnitGroup(MySpectator.Selected);
+    Group := TKMUnitGroup(gMySpectator.Selected);
     if (Obj <> nil)
     and (Obj is TKMUnitWarrior)
-    and (TKMUnitWarrior(Obj).Owner = MySpectator.HandIndex)
+    and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandIndex)
     and not Group.HasMember(TKMUnitWarrior(Obj))
     and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
       gRes.Cursors.Cursor := kmc_JoinYes
@@ -2943,22 +2943,22 @@ begin
     Exit;
   end;
 
-  if not gHands[MySpectator.HandIndex].InCinematic then
+  if not gMySpectator.Hand.InCinematic then
     // Only own units can be selected
-    if ((Obj is TKMUnit) and ((TKMUnit(Obj).Owner = MySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate])))
-    or ((Obj is TKMHouse) and ((TKMHouse(Obj).Owner = MySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate]))) then
+    if ((Obj is TKMUnit) and ((TKMUnit(Obj).Owner = gMySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate])))
+    or ((Obj is TKMHouse) and ((TKMHouse(Obj).Owner = gMySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate]))) then
     begin
       gRes.Cursors.Cursor := kmc_Info;
       Exit;
     end;
 
-  if (MySpectator.Selected is TKMUnitGroup)
+  if (gMySpectator.Selected is TKMUnitGroup)
   and (fUIMode in [umSP, umMP]) and not HasLostMPGame
-  and not gHands[MySpectator.HandIndex].InCinematic
-  and (MySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then
+  and not gMySpectator.Hand.InCinematic
+  and (gMySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then
   begin
-    if ((Obj is TKMUnit) and (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Enemy))
-    or ((Obj is TKMHouse) and (gHands[MySpectator.HandIndex].Alliances[TKMHouse(Obj).Owner] = at_Enemy)) then
+    if ((Obj is TKMUnit) and (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Enemy))
+    or ((Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Enemy)) then
       gRes.Cursors.Cursor := kmc_Attack
     else
       if not fViewport.Scrolling then
@@ -3013,18 +3013,18 @@ begin
     mbLeft:
       begin
         // Process groups joining
-        if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
+        if fJoiningGroups and (gMySpectator.Selected is TKMUnitGroup) then
         begin
-          Group := TKMUnitGroup(MySpectator.Selected);
-          Obj := MySpectator.HitTestCursor;
+          Group := TKMUnitGroup(gMySpectator.Selected);
+          Obj := gMySpectator.HitTestCursor;
 
           if (Obj <> nil)
           and (Obj is TKMUnitWarrior)
-          and (TKMUnitWarrior(Obj).Owner = MySpectator.HandIndex)
+          and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandIndex)
           and not Group.HasMember(TKMUnitWarrior(Obj))
           and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
           begin
-            Group2 := gHands[MySpectator.HandIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Obj));
+            Group2 := gMySpectator.Hand.UnitGroups.GetGroupByMember(TKMUnitWarrior(Obj));
             // Warrior might not have a group yet if he's still walking out of the barracks
             if Group2 <> nil then
             begin
@@ -3043,7 +3043,7 @@ begin
         end;
 
         // Only allow placing of roads etc. with the left mouse button
-        if MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0 then
+        if gMySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0 then
         begin
           if gGameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmHouses] then
             // Can't place noise when clicking on unexplored areas
@@ -3054,48 +3054,48 @@ begin
             cmNone:
               begin
                 // Remember previous selection to play sound if it changes
-                OldSelected := MySpectator.Selected;
+                OldSelected := gMySpectator.Selected;
                 OldSelectedUnit := nil;
 
                 if OldSelected is TKMUnitGroup then
-                  OldSelectedUnit := TKMUnitGroup(MySpectator.Selected).SelectedUnit;
+                  OldSelectedUnit := TKMUnitGroup(gMySpectator.Selected).SelectedUnit;
 
                 // Don't allow selecting during a cinematic
-                if not gHands[MySpectator.HandIndex].InCinematic then
-                  MySpectator.UpdateSelect;
+                if not gMySpectator.Hand.InCinematic then
+                  gMySpectator.UpdateSelect;
 
                 // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fUIMode in [umReplay, umSpectate] then
                 begin
-                  if MySpectator.Selected is TKMHouse      then MySpectator.HandIndex := TKMHouse    (MySpectator.Selected).Owner;
-                  if MySpectator.Selected is TKMUnit       then MySpectator.HandIndex := TKMUnit     (MySpectator.Selected).Owner;
-                  if MySpectator.Selected is TKMUnitGroup  then MySpectator.HandIndex := TKMUnitGroup(MySpectator.Selected).Owner;
-                  Dropbox_ReplayFOW.SelectByTag(MySpectator.HandIndex);
+                  if gMySpectator.Selected is TKMHouse      then gMySpectator.HandIndex := TKMHouse    (gMySpectator.Selected).Owner;
+                  if gMySpectator.Selected is TKMUnit       then gMySpectator.HandIndex := TKMUnit     (gMySpectator.Selected).Owner;
+                  if gMySpectator.Selected is TKMUnitGroup  then gMySpectator.HandIndex := TKMUnitGroup(gMySpectator.Selected).Owner;
+                  Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandIndex);
                   if Checkbox_ReplayFOW.Checked then
-                    MySpectator.FOWIndex := MySpectator.HandIndex
+                    gMySpectator.FOWIndex := gMySpectator.HandIndex
                   else
-                    MySpectator.FOWIndex := -1;
+                    gMySpectator.FOWIndex := -1;
                   fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
                 end;
 
-                if (MySpectator.Selected is TKMHouse) then
+                if (gMySpectator.Selected is TKMHouse) then
                 begin
                   HidePages;
                   SwitchPage(nil); // Hide main back button if we were in e.g. stats
-                  fGuiGameHouse.Show(TKMHouse(MySpectator.Selected), False);
+                  fGuiGameHouse.Show(TKMHouse(gMySpectator.Selected), False);
                 end;
 
-                if (MySpectator.Selected is TKMUnit) then
+                if (gMySpectator.Selected is TKMUnit) then
                 begin
-                  ShowUnitInfo(TKMUnit(MySpectator.Selected));
+                  ShowUnitInfo(TKMUnit(gMySpectator.Selected));
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
-                  and (OldSelected <> MySpectator.Selected) then
-                    gSoundPlayer.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
+                  and (OldSelected <> gMySpectator.Selected) then
+                    gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, sp_Select);
                 end;
 
-                if (MySpectator.Selected is TKMUnitGroup) then
+                if (gMySpectator.Selected is TKMUnitGroup) then
                 begin
-                  Group := TKMUnitGroup(MySpectator.Selected);
+                  Group := TKMUnitGroup(gMySpectator.Selected);
                   ShowGroupInfo(Group);
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
                   and ((OldSelected <> Group) or (OldSelectedUnit <> Group.SelectedUnit)) then
@@ -3113,7 +3113,7 @@ begin
               if KMSamePoint(LastDragPoint, KMPoint(0,0)) then gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
 
             cmHouses:
-              if gHands[MySpectator.HandIndex].CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
+              if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
               begin
                 gGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
                   THouseType(gGameCursor.Tag1));
@@ -3126,11 +3126,11 @@ begin
             cmErase:
               if KMSamePoint(LastDragPoint, KMPoint(0,0)) then
               begin
-                H := gHands[MySpectator.HandIndex].HousesHitTest(P.X, P.Y);
+                H := gMySpectator.Hand.HousesHitTest(P.X, P.Y);
                 // Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
                 if H <> nil then
                 begin
-                  MySpectator.Selected := H; // Select the house irregardless of unit below/above
+                  gMySpectator.Selected := H; // Select the house irregardless of unit below/above
                   HidePages;
                   SwitchPage(nil); // Hide main back button if we were in e.g. stats
                   fGuiGameHouse.Show(H, True);
@@ -3139,10 +3139,10 @@ begin
                 else
                 begin
                   // Now remove houses that are not started
-                  if gHands[MySpectator.HandIndex].BuildList.HousePlanList.HasPlan(P) then
+                  if gMySpectator.Hand.BuildList.HousePlanList.HasPlan(P) then
                     gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
                   else
-                    if gHands[MySpectator.HandIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None then
+                    if gMySpectator.Hand.BuildList.FieldworksList.HasFakeField(P) <> ft_None then
                       gGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) // Remove plans
                     else
                       gSoundPlayer.Play(sfx_CantPlace, P, False, 4); // Otherwise there is nothing to erase
@@ -3163,11 +3163,11 @@ begin
           Exit; // Don't order troops too
         end;
 
-        if (MySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
+        if (gMySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
         and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
         begin
-          if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(MySpectator.Selected).GetEntrance), P, tpWalk, 0) then
-            gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(MySpectator.Selected), P)
+          if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(gMySpectator.Selected).GetEntrance), P, tpWalk, 0) then
+            gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), P)
           else
             gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
           Exit;
@@ -3178,23 +3178,23 @@ begin
         and not HasLostMPGame
         and not fJoiningGroups
         and not fPlacingBeacon
-        and (MySpectator.Selected is TKMUnitGroup) then
+        and (gMySpectator.Selected is TKMUnitGroup) then
         begin
-          Group := TKMUnitGroup(MySpectator.Selected);
+          Group := TKMUnitGroup(gMySpectator.Selected);
 
           // Attack or Walk
-          if Group.CanTakeOrders and (Group.Owner = MySpectator.HandIndex) then
+          if Group.CanTakeOrders and (Group.Owner = gMySpectator.HandIndex) then
           begin
             // Try to Attack unit
-            Obj := MySpectator.HitTestCursor;
-            if (Obj is TKMUnit) and (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Enemy) then
+            Obj := gMySpectator.HitTestCursor;
+            if (Obj is TKMUnit) and (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Enemy) then
             begin
               gGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, TKMUnit(Obj));
               gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
             end
             else
             // If there's no unit - try to Attack house
-            if (Obj is TKMHouse) and (gHands[MySpectator.HandIndex].Alliances[TKMHouse(Obj).Owner] = at_Enemy) then
+            if (Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Enemy) then
             begin
               gGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, TKMHouse(Obj));
               gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
@@ -3285,19 +3285,19 @@ begin
   fAlerts.UpdateState(aTickCount);
 
   // Update unit/house information
-  if MySpectator.Selected is TKMUnitGroup then
-    ShowGroupInfo(TKMUnitGroup(MySpectator.Selected))
+  if gMySpectator.Selected is TKMUnitGroup then
+    ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected))
   else
-  if MySpectator.Selected is TKMUnit then
-    ShowUnitInfo(TKMUnit(MySpectator.Selected), fAskDismiss)
+  if gMySpectator.Selected is TKMUnit then
+    ShowUnitInfo(TKMUnit(gMySpectator.Selected), fAskDismiss)
   else
   begin
     fJoiningGroups := False;
-    if MySpectator.Selected is TKMHouse then
+    if gMySpectator.Selected is TKMHouse then
     begin
       HidePages;
       SwitchPage(nil); // Hide main back button if we were in e.g. stats
-      fGuiGameHouse.Show(TKMHouse(MySpectator.Selected));
+      fGuiGameHouse.Show(TKMHouse(gMySpectator.Selected));
     end
     else
       if fGuiGameHouse.Visible then
@@ -3341,13 +3341,13 @@ begin
   Label_MPChatUnread.Visible := (fUIMode in [umMP, umSpectate]) and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := fGuiGameChat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
-  if (fUIMode in [umSP, umMP]) and not Image_MessageLog.Visible and (gHands[MySpectator.HandIndex].MessageLog.CountLog > 0) then
+  if (fUIMode in [umSP, umMP]) and not Image_MessageLog.Visible and (gMySpectator.Hand.MessageLog.CountLog > 0) then
   begin
     Image_MessageLog.Show;
     MessageStack_UpdatePositions;
   end;
   Image_MessageLog.Highlight := not Panel_MessageLog.Visible and not (aTickCount mod 10 < 5)
-                                and (fLastSyncedMessage <> gHands[MySpectator.HandIndex].MessageLog.CountLog);
+                                and (fLastSyncedMessage <> gMySpectator.Hand.MessageLog.CountLog);
 
   if Panel_MessageLog.Visible then
     MessageLog_Update(False);
@@ -3387,7 +3387,7 @@ end;
 procedure TKMGamePlayInterface.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   // Check to see if we need to scroll
-  fViewport.UpdateStateIdle(aFrameTime, gHands[MySpectator.HandIndex].InCinematic);
+  fViewport.UpdateStateIdle(aFrameTime, gMySpectator.Hand.InCinematic);
 end;
 
 
@@ -3406,7 +3406,7 @@ begin
          IntToStr(CtrlPaintCount) + ' controls rendered|';
 
   if SHOW_POINTER_COUNT then
-    S := S + Format('Pointers: %d units, %d houses|', [gHands[MySpectator.HandIndex].Units.GetTotalPointers, gHands[MySpectator.HandIndex].Houses.GetTotalPointers]);
+    S := S + Format('Pointers: %d units, %d houses|', [gMySpectator.Hand.Units.GetTotalPointers, gMySpectator.Hand.Houses.GetTotalPointers]);
 
   if SHOW_CMDQUEUE_COUNT then
     S := S + IntToStr(gGame.GameInputProcess.Count) + ' commands stored|';
@@ -3420,11 +3420,11 @@ begin
   // Temporary inteface (by @Crow)
   if SHOW_ARMYEVALS then
     for I := 0 to gHands.Count - 1 do
-    if I <> MySpectator.HandIndex then
-      S := S + Format('Enemy %d: %f|', [I, RoundTo(gHands[MySpectator.HandIndex].ArmyEval.Evaluations[I].Power, -3)]);
+    if I <> gMySpectator.HandIndex then
+      S := S + Format('Enemy %d: %f|', [I, RoundTo(gMySpectator.Hand.ArmyEval.Evaluations[I].Power, -3)]);
 
   if SHOW_AI_WARE_BALANCE then
-    S := S + gHands[MySpectator.HandIndex].AI.Mayor.BalanceText + '|';
+    S := S + gMySpectator.Hand.AI.Mayor.BalanceText + '|';
 
   Label_DebugInfo.Caption := S;
 end;
@@ -3444,7 +3444,7 @@ begin
     for I := 0 to fTeamNames.Count - 1 do
     begin
       U := TKMUnit(fTeamNames[I]);
-      if U.Visible and (MySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN) then
+      if U.Visible and (gMySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN) then
       begin
         Label_TeamName.Caption := gHands[U.Owner].OwnerName;
         Label_TeamName.FontColor := FlagColorToTextColor(gHands[U.Owner].FlagColor);

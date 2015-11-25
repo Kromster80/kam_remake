@@ -141,11 +141,11 @@ begin
   if StatPlan[I].HouseType[K] <> ht_None then
   begin
     HT := StatPlan[I].HouseType[K];
-    Tmp := gHands[MySpectator.HandIndex].Stats.GetHouseQty(HT);
-    Tmp2 := gHands[MySpectator.HandIndex].Stats.GetHouseWip(HT);
+    Tmp := gMySpectator.Hand.Stats.GetHouseQty(HT);
+    Tmp2 := gMySpectator.Hand.Stats.GetHouseWip(HT);
     Stat_HouseQty[HT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_HouseWip[HT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    if gHands[MySpectator.HandIndex].Locks.HouseCanBuild(HT) or (Tmp > 0) then
+    if gMySpectator.Hand.Locks.HouseCanBuild(HT) or (Tmp > 0) then
     begin
       Stat_HousePic[HT].TexID := gRes.HouseDat[HT].GUIIcon;
       Stat_HousePic[HT].Hint := gRes.HouseDat[HT].HouseName;
@@ -159,12 +159,12 @@ begin
 
   for UT := CITIZEN_MIN to CITIZEN_MAX do
   begin
-    Tmp := gHands[MySpectator.HandIndex].Stats.GetUnitQty(UT);
-    Tmp2 := 0;//fPlayers[MySpectator.PlayerIndex].Stats.GetUnitWip(UT);
+    Tmp := gMySpectator.Hand.Stats.GetUnitQty(UT);
+    Tmp2 := 0;//fPlayers[gMySpectator.PlayerIndex].Stats.GetUnitWip(UT);
     Stat_UnitQty[UT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_UnitWip[UT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
     Stat_UnitPic[UT].Hint := gRes.UnitDat[UT].GUIName;
-    Stat_UnitPic[UT].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
+    Stat_UnitPic[UT].FlagColor := gMySpectator.Hand.FlagColor;
   end;
 end;
 

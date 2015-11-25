@@ -192,7 +192,7 @@ procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
   gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
 
-  gHands[MySpectator.HandIndex].FogOfWar.RevealEverything;
+  gMySpectator.Hand.FogOfWar.RevealEverything;
   gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(136, 25), 0);
   gGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.25;
 
@@ -320,7 +320,7 @@ begin
   C := gGameApp.Campaigns.CampaignById(cmp);
   gGameApp.NewCampaignMap(C, 1);
 
-  MySpectator.FOWIndex := -1;
+  gMySpectator.FOWIndex := -1;
   gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(162, 26), 0);
   gGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.5;
 

@@ -126,7 +126,7 @@ var
   I: Integer;
   Col: Cardinal;
 begin
-  Col := gHands[MySpectator.HandIndex].FlagColor;
+  Col := gMySpectator.Hand.FlagColor;
 
   for I := Low(Button_Citizen) to High(Button_Citizen) do
     Button_Citizen[I].FlagColor := Col;

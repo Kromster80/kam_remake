@@ -237,7 +237,7 @@ begin
 
     // Everything flat of terrain
     fRenderTerrain.ClipRect := ClipRect;
-    fRenderTerrain.RenderBase(gTerrain.AnimStep, MySpectator.FogOfWar);
+    fRenderTerrain.RenderBase(gTerrain.AnimStep, gMySpectator.FogOfWar);
 
     // Disable depth test //and write to depth buffer,
     // so that terrain shadows could be applied seamlessly ontop
@@ -264,7 +264,7 @@ begin
     fRenderList.SortRenderList;
     fRenderList.Render;
 
-    fRenderTerrain.RenderFOW(MySpectator.FogOfWar, False);
+    fRenderTerrain.RenderFOW(gMySpectator.FogOfWar, False);
 
     // Alerts/rally second pass is rendered after FOW
     PaintRallyPoints(1);
@@ -282,8 +282,8 @@ procedure TRenderPool.RenderBackgroundUI(aRect: TKMRect);
 var
   I, K: Integer;
 begin
-  if MySpectator.Highlight is TKMHouse then
-    RenderHouseOutline(TKMHouse(MySpectator.Highlight));
+  if gMySpectator.Highlight is TKMHouse then
+    RenderHouseOutline(TKMHouse(gMySpectator.Highlight));
 
   if gGame.IsMapEditor then
     gGame.MapEditor.Paint(plTerrain, aRect);
@@ -352,13 +352,13 @@ begin
   // Tablets on house plans, for self and allies
   fTabletsList.Clear;
   if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
-    if MySpectator.FOWIndex = -1 then
+    if gMySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
         gHands[I].GetPlansTablets(fTabletsList, aRect)
     else
-      gHands[MySpectator.FOWIndex].GetPlansTablets(fTabletsList, aRect)
+      gHands[gMySpectator.FOWIndex].GetPlansTablets(fTabletsList, aRect)
   else
-    gHands[MySpectator.HandIndex].GetPlansTablets(fTabletsList, aRect);
+    gMySpectator.Hand.GetPlansTablets(fTabletsList, aRect);
 
   for I := 0 to fTabletsList.Count - 1 do
     AddHouseTablet(THouseType(fTabletsList.Tag[I]), fTabletsList[I]);
@@ -371,8 +371,8 @@ var
   P: TKMPointF;
 begin
   if gGame.IsMapEditor then Exit; // Don't render rally point in map editor
-  if not (MySpectator.Selected is TKMHouseBarracks) then Exit;
-  B := TKMHouseBarracks(MySpectator.Selected);
+  if not (gMySpectator.Selected is TKMHouseBarracks) then Exit;
+  B := TKMHouseBarracks(gMySpectator.Selected);
   P := KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5);
   if B.IsRallyPointSet then
   begin
@@ -381,7 +381,7 @@ begin
            AddAlert(P, 249, gHands[B.Owner].FlagColor);
            gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
          end;
-      1: if MySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
+      1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
            fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
     end;
 
@@ -431,7 +431,7 @@ begin
 
     if DYNAMIC_FOG_OF_WAR then
     begin
-      FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
+      FOW := gMySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
       if FOW <= 128 then AnimStep := 0; // Stop animation
     end;
     A := MapElem[aIndex].Anim;
@@ -485,7 +485,7 @@ var
 begin
   if DYNAMIC_FOG_OF_WAR then
   begin
-    FOW := MySpectator.FogOfWar.CheckTileRevelation(pX, pY);
+    FOW := gMySpectator.FogOfWar.CheckTileRevelation(pX, pY);
     if FOW <= 128 then AnimStep := 0; // Stop animation
   end;
 
@@ -780,7 +780,7 @@ begin
 
   if DYNAMIC_FOG_OF_WAR then
   begin
-    FOW := MySpectator.FogOfWar.CheckRevelation(aRenderPos);
+    FOW := gMySpectator.FogOfWar.CheckRevelation(aRenderPos);
     if FOW <= 128 then Exit; // Don't render objects which are behind FOW
   end;
 
@@ -1137,32 +1137,32 @@ begin
   // Collect field plans (road, corn, wine)
   if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
   begin
-    if MySpectator.FOWIndex = -1 then
+    if gMySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
         // Don't use Hand.GetFieldPlans as it will give us plans multiple times for allies
         gHands[I].BuildList.FieldworksList.GetFields(fFieldsList, aRect, False)
     else
-      gHands[MySpectator.FOWIndex].GetFieldPlans(fFieldsList, aRect, False)
+      gHands[gMySpectator.FOWIndex].GetFieldPlans(fFieldsList, aRect, False)
   end
   else
   begin
     // Field plans for self and allies
     // Include fake field plans for painting
-    gHands[MySpectator.HandIndex].GetFieldPlans(fFieldsList, aRect, True);
+    gMySpectator.Hand.GetFieldPlans(fFieldsList, aRect, True);
   end;
 
   // House plans for self and allies
   if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
   begin
-    if MySpectator.FOWIndex = -1 then
+    if gMySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
         // Don't use Hand.GetHousePlans as it will give us plans multiple times for allies
         gHands[I].BuildList.HousePlanList.GetOutlines(fHousePlansList, aRect)
     else
-      gHands[MySpectator.FOWIndex].GetHousePlans(fHousePlansList, aRect)
+      gHands[gMySpectator.FOWIndex].GetHousePlans(fHousePlansList, aRect)
   end
   else
-    gHands[MySpectator.HandIndex].GetHousePlans(fHousePlansList, aRect);
+    gMySpectator.Hand.GetHousePlans(fHousePlansList, aRect);
 end;
 
 
@@ -1241,7 +1241,7 @@ var
   I: Integer;
 begin
   fMarksList.Clear;
-  gHands[MySpectator.HandIndex].GetHouseMarks(P, aHouseType, fMarksList);
+  gMySpectator.Hand.GetHouseMarks(P, aHouseType, fMarksList);
 
   for I := 0 to fMarksList.Count - 1 do
   if fMarksList.Tag[I] = TC_OUTLINE then
@@ -1269,7 +1269,7 @@ begin
   F := gGameCursor.Float;
 
   if (gGameCursor.Mode <> cmNone) and (gGameCursor.Mode <> cmHouses) and
-     (MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0) then
+     (gMySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0) then
     RenderSpriteOnTile(P, TC_BLOCK)       // Red X
   else
 
@@ -1278,23 +1278,23 @@ begin
     cmNone:       ;
     cmErase:      if not gGame.IsMapEditor then
                   begin
-                    if ((gHands[MySpectator.HandIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
-                        or gHands[MySpectator.HandIndex].BuildList.HousePlanList.HasPlan(P)
-                        or (gHands[MySpectator.HandIndex].HousesHitTest(P.X, P.Y) <> nil))
+                    if ((gMySpectator.Hand.BuildList.FieldworksList.HasFakeField(P) <> ft_None)
+                        or gMySpectator.Hand.BuildList.HousePlanList.HasPlan(P)
+                        or (gMySpectator.Hand.HousesHitTest(P.X, P.Y) <> nil))
                     then
                       RenderWireTile(P, $FFFFFF00) // Cyan quad
                     else
                       RenderSpriteOnTile(P, TC_BLOCK); // Red X
                   end;
-    cmRoad:       if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Road) then
+    cmRoad:       if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Road) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmField:      if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Corn) then
+    cmField:      if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmWine:       if gHands[MySpectator.HandIndex].CanAddFakeFieldPlan(P, ft_Wine) then
+    cmWine:       if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
@@ -1365,24 +1365,24 @@ begin
                   begin
                     U := gTerrain.UnitsHitTest(P.X, P.Y);
                     if U <> nil then
-                      AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,gHands[MySpectator.HandIndex].FlagColor,true,true);
+                      AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,gMySpectator.Hand.FlagColor,true,true);
                   end
                   else
                     if CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
-                      AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gHands[MySpectator.HandIndex].FlagColor, True)
+                      AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
                     else
                       RenderSpriteOnTile(P, TC_BLOCK); // Red X
     cmMarkers:    case gGameCursor.Tag1 of
                     MARKER_REVEAL:        begin
-                                            RenderSpriteOnTile(P, 394, gHands[MySpectator.HandIndex].FlagColor);
+                                            RenderSpriteOnTile(P, 394, gMySpectator.Hand.FlagColor);
                                             gRenderAux.CircleOnTerrain(P.X, P.Y,
                                              gGameCursor.MapEdSize,
-                                             gHands[MySpectator.HandIndex].FlagColor AND $10FFFFFF,
-                                             gHands[MySpectator.HandIndex].FlagColor);
+                                             gMySpectator.Hand.FlagColor AND $10FFFFFF,
+                                             gMySpectator.Hand.FlagColor);
                                           end;
-                    MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, gHands[MySpectator.HandIndex].FlagColor);
-                    MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, gHands[MySpectator.HandIndex].FlagColor);
-                    MARKER_AISTART:       RenderSpriteOnTile(P, 390, gHands[MySpectator.HandIndex].FlagColor);
+                    MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, gMySpectator.Hand.FlagColor);
+                    MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, gMySpectator.Hand.FlagColor);
+                    MARKER_AISTART:       RenderSpriteOnTile(P, 390, gMySpectator.Hand.FlagColor);
                   end;
   end;
 
@@ -1412,7 +1412,7 @@ var
 begin
   Result := -1; // Didn't hit anything
   // Skip if cursor is over FOW
-  if MySpectator.FogOfWar.CheckRevelation(CurPos) <= FOG_OF_WAR_MIN then Exit;
+  if gMySpectator.FogOfWar.CheckRevelation(CurPos) <= FOG_OF_WAR_MIN then Exit;
   // Select closest (higher Z) units first (list is in low..high Z-order)
   for I := Length(RenderOrder) - 1 downto 0 do
     if RenderOrder[I] <> -1 then

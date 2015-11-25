@@ -40,7 +40,7 @@ begin
   gTerrain.MakeNewMap(32, 32, False);
   gHands := TKMHandsCollection.Create;
   gHands.AddPlayers(1);
-  MySpectator := TKMSpectator.Create(0);
+  gMySpectator := TKMSpectator.Create(0);
 
   fUnit := TKMUnit.Create(0, ut_Serf, KMPoint(8, 10), 0);
   fHouse := TKMHouse.Create(0, ht_Store, 9, 9, 0, hbs_Done);

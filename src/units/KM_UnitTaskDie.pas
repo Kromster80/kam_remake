@@ -80,9 +80,9 @@ begin
             begin
               SequenceLength := gRes.UnitDat[UnitType].UnitAnim[ua_Die, Direction].Count;
               SetActionLockedStay(SequenceLength, ua_Die, False);
-              //Do not play sounds if unit is invisible to MySpectator
+              //Do not play sounds if unit is invisible to gMySpectator
               //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-              if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
+              if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
               begin
                 if fUnit is TKMUnitWarrior then
                   gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)

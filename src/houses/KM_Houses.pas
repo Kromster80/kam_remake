@@ -401,8 +401,8 @@ begin
 
   //Play sound
   if (fBuildState > hbs_NoGlyph) and not IsSilent
-  and (MySpectator <> nil) //MySpectator is nil during loading
-  and (MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) >= 255) then
+  and (gMySpectator <> nil) //gMySpectator is nil during loading
+  and (gMySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) >= 255) then
     gSoundPlayer.Play(sfx_HouseDestroy, fPosition);
 
   //NOTE: We don't run Stats.WareConsumed on fBuildSupplyWood/Stone as the
@@ -453,7 +453,7 @@ begin
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, PLAYER_NONE);
   gTerrain.RemRoad(GetEntrance);
-  if gHands[MySpectator.HandIndex].CanAddHousePlan(aPos, HouseType) then
+  if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
     fPosition.X := aPos.X - gRes.HouseDat[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
@@ -1142,9 +1142,9 @@ begin
 
   Step := WorkAnimStep mod Step;
 
-  //Do not play sounds if house is invisible to MySpectator
+  //Do not play sounds if house is invisible to gMySpectator
   //This check is slower so we do it after other Exit checks
-  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
+  if gMySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
     ht_School:        if (Work = ha_Work5)and(Step = 28) then gSoundPlayer.Play(sfx_SchoolDing, fPosition); //Ding as the clock strikes 12
@@ -1400,7 +1400,7 @@ procedure TKMHouseSwineStable.MakeSound;
 var I: Byte;
 begin
   inherited;
-  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then Exit;
+  if gMySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then Exit;
 
   for I := 0 to 4 do
   if BeastAge[I+1] > 0 then

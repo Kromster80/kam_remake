@@ -197,7 +197,7 @@ begin
     and gTerrain.TileInMapCoords(X, Y)
     and gHands[aPlayer].InCinematic then
     begin
-      if aPlayer = MySpectator.HandIndex then
+      if aPlayer = gMySpectator.HandIndex then
         //Duration is in ticks (1/10 sec), viewport wants miliseconds (1/1000 sec)
         gGame.GamePlayInterface.Viewport.PanTo(KMPointF(X, Y), Duration*100);
     end
@@ -353,7 +353,7 @@ var
   fullFileName: UnicodeString;
 begin
   try
-    if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
+    if (aPlayer <> gMySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
     fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
@@ -374,7 +374,7 @@ var
   fullFileName: UnicodeString;
 begin
   try
-    if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
+    if (aPlayer <> gMySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
     fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
@@ -395,14 +395,14 @@ var
   fullFileName: UnicodeString;
 begin
   try
-    if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
+    if (aPlayer <> gMySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
     fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
     begin
-      if MySpectator.FogOfWar.CheckTileRevelation(X, Y) > 0 then
+      if gMySpectator.FogOfWar.CheckTileRevelation(X, Y) > 0 then
         gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume, Radius, False);
     end
     else
@@ -1122,7 +1122,7 @@ end;
 procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   try
-    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+    if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
       gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(0,0));
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -1136,7 +1136,7 @@ procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString
 begin
   try
     try
-      if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+      if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
         gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
     except
       //Format may throw an exception
@@ -1155,7 +1155,7 @@ begin
   try
     if gTerrain.TileInMapCoords(aX, aY) then
     begin
-      if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+      if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
         gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(aX,aY));
     end
     else
@@ -1174,7 +1174,7 @@ begin
     try
       if gTerrain.TileInMapCoords(aX, aY) then
       begin
-        if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+        if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
           gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
       end
       else
