@@ -66,7 +66,7 @@ begin
 end;
 
 
-// Houses might be blocked by mission script
+// Get effective permission
 function TKMHandLocks.HouseCanBuild(aType: THouseType): Boolean;
 begin
   Result := (fHouseUnlocked[aType] or HouseGranted[aType]) and not HouseBlocked[aType];

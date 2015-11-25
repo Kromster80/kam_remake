@@ -1503,7 +1503,7 @@ begin
 end;
 
 
-{Check Control including all its Parents to see if Control is actually displayed/visible}
+// Check Control including all its Parents to see if Control is actually displayed/visible
 function TKMControl.GetVisible: Boolean;
 begin
   Result := fVisible and ((Parent = nil) or Parent.Visible);
@@ -1511,8 +1511,15 @@ end;
 
 
 procedure TKMControl.SetEnabled(aValue: Boolean);
+var
+  OldEnabled: Boolean;
 begin
+  OldEnabled := fEnabled;
   fEnabled := aValue;
+
+  // Only swap focus if enability changed
+  if (OldEnabled <> Enabled) and (Focusable or (Self is TKMPanel)) then
+    MasterParent.fCollection.UpdateFocus(Self);
 end;
 
 
@@ -1523,12 +1530,13 @@ end;
 
 
 procedure TKMControl.SetVisible(aValue: Boolean);
-var OldVisible: Boolean;
+var
+  OldVisible: Boolean;
 begin
   OldVisible := fVisible;
   fVisible := aValue;
 
-  //Only swap focus if visibility is now different
+  //Only swap focus if visibility changed
   if (OldVisible <> fVisible) and (Focusable or (Self is TKMPanel)) then
     MasterParent.fCollection.UpdateFocus(Self);
 end;
@@ -5527,22 +5535,23 @@ procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
     end;
   end;
 begin
-  //Something showed up
-  if aSender.Visible then
+  if aSender.Visible and aSender.Enabled then
   begin
-    //If something showed up - focus on it
+    // Something showed up or became enabled
+
+    // If something showed up - focus on it
     if not (aSender is TKMPanel) and aSender.Focusable then
       CtrlFocus := aSender;
-    //If panel showed up - try to focus on its contents
+    // If panel showed up - try to focus on its contents
     if aSender is TKMPanel then
       FindFocusable(TKMPanel(aSender));
-  end
-  else
-  //Something went hidden
+  end else
   begin
+    // Something went hidden or disabled
+
     if (CtrlFocus = nil) or not CtrlFocus.Visible or not CtrlFocus.Enabled then
     begin
-      //If something went hidden
+      // If there was no focus, or it is our Focus control that went hidden or disabled
       CtrlFocus := nil;
       FindFocusable(fCtrl);
     end;
