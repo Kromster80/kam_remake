@@ -553,7 +553,7 @@ begin
 
   Range := GetFightMaxRange(true);
   //AI has an "auto attack range" for melee like in TSK/TPR so you can't sneak past them (when idle)
-  if not IsRanged and IsIdle and (gHands[fOwner].PlayerType = hndComputer) then
+  if not IsRanged and IsIdle and (gHands[fOwner].HandType = hndComputer) then
     Range := Max(Range, gHands[fOwner].AI.Setup.AutoAttackRange);
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)

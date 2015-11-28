@@ -1740,7 +1740,7 @@ var
 begin
   Result := nil; //Makes compiler happy
 
-  case gHands[aUnit.Owner].PlayerType of
+  case gHands[aUnit.Owner].HandType of
     hndHuman:    begin
                    LinkUnit := aUnit.FindLinkUnit(aUnit.GetPosition);
                    if LinkUnit <> nil then

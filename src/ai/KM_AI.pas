@@ -231,7 +231,7 @@ procedure TKMHandAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnit
 var
   I: Integer;
 begin
-  case gHands[fOwner].PlayerType of
+  case gHands[fOwner].HandType of
     hndHuman:
       begin
         //No fight alerts in replays/spectating, and only show alerts for ourselves
@@ -245,7 +245,7 @@ begin
         fGeneral.RetaliateAgainstThreat(aAttacker);
         //Our allies might like to help us too
         for I := 0 to gHands.Count-1 do
-          if gHands[I].Enabled and (gHands[I].PlayerType = hndComputer)
+          if gHands[I].Enabled and (gHands[I].HandType = hndComputer)
           and (gHands.CheckAlliance(I, fOwner) = at_Ally) and gHands[I].AI.Setup.DefendAllies then
             gHands[I].AI.General.RetaliateAgainstThreat(aAttacker);
       end;
@@ -263,7 +263,7 @@ var
   Group: TKMUnitGroup;
   I: Integer;
 begin
-  case gHands[fOwner].PlayerType of
+  case gHands[fOwner].HandType of
     hndHuman:
       //No fight alerts in replays, and only show alerts for ourselves
       if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
@@ -278,7 +278,7 @@ begin
 
           //Our allies might like to help us too
           for I := 0 to gHands.Count-1 do
-            if gHands[I].Enabled and (gHands[I].PlayerType = hndComputer)
+            if gHands[I].Enabled and (gHands[I].HandType = hndComputer)
             and (gHands.CheckAlliance(I, fOwner) = at_Ally) and gHands[I].AI.Setup.DefendAllies then
               gHands[I].AI.General.RetaliateAgainstThreat(aAttacker);
 
@@ -345,7 +345,7 @@ begin
   if (aTick + Byte(fOwner)) mod MAX_HANDS = 0 then
     CheckGoals; //This procedure manages victory and loss
 
-  case gHands[fOwner].PlayerType of
+  case gHands[fOwner].HandType of
     hndHuman:     begin
                     //Humans dont need Mayor and Army management
                   end;

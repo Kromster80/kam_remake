@@ -411,7 +411,7 @@ begin
       gic_GameMessageLogRead:     P.MessageLog[Params[1]].IsReadGIP := True;
       gic_GamePlayerTypeChange:   begin
                                     Assert(fReplayState <> gipRecording); //Should only occur in replays
-                                    gHands[Params[1]].PlayerType := THandType(Params[2]);
+                                    gHands[Params[1]].HandType := THandType(Params[2]);
                                   end;
       else                        Assert(false);
     end;

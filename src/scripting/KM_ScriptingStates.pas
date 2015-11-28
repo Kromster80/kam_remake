@@ -714,7 +714,7 @@ function TKMScriptStates.PlayerIsAI(aPlayer: Byte): Boolean;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      Result := gHands[aPlayer].PlayerType = hndComputer
+      Result := gHands[aPlayer].HandType = hndComputer
     else
     begin
       Result := False;

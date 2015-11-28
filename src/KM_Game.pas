@@ -380,14 +380,14 @@ begin
     if fGameMode = gmSingle then
     begin
       for I := 0 to gHands.Count - 1 do
-        gHands[I].PlayerType := hndComputer;
+        gHands[I].HandType := hndComputer;
 
       // -1 means automatically detect the location (used for tutorials and campaigns)
       if aLocation = -1 then
         aLocation := Parser.DefaultLocation;
 
       Assert(InRange(aLocation, 0, gHands.Count - 1), 'No human player detected');
-      gHands[aLocation].PlayerType := hndHuman;
+      gHands[aLocation].HandType := hndHuman;
       gMySpectator := TKMSpectator.Create(aLocation);
 
       // If no color specified use default from mission file (don't overwrite it)
@@ -492,12 +492,12 @@ begin
     if not fNetworking.NetPlayers[I].IsSpectator then
     begin
       handIndex := fNetworking.NetPlayers[I].StartLocation - 1;
-      gHands[handIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
+      gHands[handIndex].HandType := fNetworking.NetPlayers[I].GetPlayerType;
       gHands[handIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
 
       //In saves players can be changed to AIs, which needs to be stored in the replay
       if fNetworking.SelectGameKind = ngk_Save then
-        TGameInputProcess_Multi(GameInputProcess).PlayerTypeChange(handIndex, gHands[handIndex].PlayerType);
+        TGameInputProcess_Multi(GameInputProcess).PlayerTypeChange(handIndex, gHands[handIndex].HandType);
 
       //Set owners name so we can write it into savegame/replay
       gHands[handIndex].SetOwnerNikname(fNetworking.NetPlayers[I].Nikname);
@@ -800,7 +800,7 @@ begin
   fMapEditor.TerrainPainter.MakeCheckpoint;
 
   gHands.AddPlayers(MAX_HANDS); //Create MAX players
-  gHands[0].PlayerType := hndHuman; //Make Player1 human by default
+  gHands[0].HandType := hndHuman; //Make Player1 human by default
   for I := 0 to gHands.Count - 1 do
     gHands[I].FogOfWar.RevealEverything;
 
@@ -1185,7 +1185,7 @@ begin
           gameInfo.Enabled[I] := False;
           gameInfo.CanBeHuman[I] := False;
           gameInfo.OwnerNikname[I] := '';
-          gameInfo.PlayerTypes[I] := hndHuman;
+          gameInfo.HandTypes[I] := hndHuman;
           gameInfo.ColorID[I] := 0;
           gameInfo.Team[I] := 0;
         end else
@@ -1196,16 +1196,16 @@ begin
             gameInfo.Enabled[I] := True;
             gameInfo.CanBeHuman[I] := fNetworking.NetPlayers[netIndex].IsHuman;
             gameInfo.OwnerNikname[I] := fNetworking.NetPlayers[netIndex].Nikname;
-            gameInfo.PlayerTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
+            gameInfo.HandTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
             gameInfo.ColorID[I] := fNetworking.NetPlayers[netIndex].FlagColorID;
             gameInfo.Team[I] := fNetworking.NetPlayers[netIndex].Team;
           end
           else
           begin
             gameInfo.Enabled[I] := gHands[I].Enabled;
-            gameInfo.CanBeHuman[I] := gHands[I].PlayerType = hndHuman;
+            gameInfo.CanBeHuman[I] := gHands[I].HandType = hndHuman;
             gameInfo.OwnerNikname[I] := gHands[I].OwnerNikname; //MP nikname, not translated OwnerName
-            gameInfo.PlayerTypes[I] := gHands[I].PlayerType;
+            gameInfo.HandTypes[I] := gHands[I].HandType;
             gameInfo.ColorID[I] := FindMPColor(gHands[I].FlagColor);
             gameInfo.Team[I] := 0;
           end;

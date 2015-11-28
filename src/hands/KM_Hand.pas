@@ -53,7 +53,7 @@ type
     fMessageLog: TKMMessageLog;
 
     fOwnerNikname: AnsiString; //Multiplayer owner nikname
-    fPlayerType: THandType;
+    fHandType: THandType;
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
     fAlliances: array [0 .. MAX_HANDS - 1] of TAllianceType;
@@ -96,7 +96,7 @@ type
     property OwnerNikname: AnsiString read fOwnerNikname;
     function OwnerName(aNumberedAIs: Boolean = True): UnicodeString; //Universal owner name
     function HasAssets: Boolean;
-    property PlayerType: THandType read fPlayerType write fPlayerType; //Is it Human or AI
+    property HandType: THandType read fHandType write fHandType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex: Byte read GetColorIndex;
     property Alliances[aIndex: Integer]: TAllianceType read GetAlliances write SetAlliances;
@@ -262,7 +262,7 @@ begin
   fMessageLog   := TKMMessageLog.Create;
 
   fOwnerNikname := '';
-  fPlayerType   := hndComputer;
+  fHandType   := hndComputer;
   for I := 0 to MAX_HANDS - 1 do
     fShareFOW[I] := True; //Share FOW between allies by default (it only affects allied players)
   for I := 0 to 9 do
@@ -383,7 +383,7 @@ begin
   G := fUnitGroups.WarriorTrained(aUnit);
   Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
   G.OnGroupDied := GroupDied;
-  if PlayerType = hndComputer then
+  if HandType = hndComputer then
   begin
     AI.General.WarriorEquipped(G);
     G := UnitGroups.GetGroupByMember(aUnit); //AI might assign warrior to different group
@@ -521,7 +521,7 @@ begin
     Ty := aLoc.Y + I - 4;
     //AI ignores FOW (this function is used from scripting)
     Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
-                     and ((fPlayerType = hndComputer) or (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0));
+                     and ((fHandType = hndComputer) or (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0));
     //This checks below require Tx;Ty to be within the map so exit immediately if they are not
     if not Result then exit;
 
@@ -959,7 +959,7 @@ end;
 function TKMHand.OwnerName(aNumberedAIs: Boolean = True): UnicodeString;
 begin
   //Default names
-  if PlayerType = hndHuman then
+  if HandType = hndHuman then
     Result := gResTexts[TX_PLAYER_YOU]
   else
     if aNumberedAIs then
@@ -971,7 +971,7 @@ begin
   //Do not use names in MP ot avoid confusion of AI players with real player niknames
   if gGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle] then
     if gGame.TextMission.HasText(HANDS_NAMES_OFFSET + fHandIndex) then
-      if PlayerType = hndHuman then
+      if HandType = hndHuman then
         Result := gResTexts[TX_PLAYER_YOU] + ' (' + gGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex] + ')'
       else
         Result := gGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex];
@@ -1142,7 +1142,7 @@ begin
 
   SaveStream.Write(fHandIndex);
   SaveStream.WriteA(fOwnerNikname);
-  SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
+  SaveStream.Write(fHandType, SizeOf(fHandType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
   SaveStream.Write(fCenterScreen);
@@ -1170,7 +1170,7 @@ begin
 
   LoadStream.Read(fHandIndex);
   LoadStream.ReadA(fOwnerNikname);
-  LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
+  LoadStream.Read(fHandType, SizeOf(fHandType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fShareFOW, SizeOf(fShareFOW));
   LoadStream.Read(fCenterScreen);

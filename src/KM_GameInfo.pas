@@ -24,7 +24,7 @@ type
     Enabled: array [0..MAX_HANDS-1] of Boolean;
     CanBeHuman: array [0..MAX_HANDS-1] of Boolean;
     OwnerNikname: array [0..MAX_HANDS-1] of AnsiString; //Nikname of the player who plays this location
-    PlayerTypes: array [0..MAX_HANDS-1] of THandType;
+    HandTypes: array [0..MAX_HANDS-1] of THandType;
     ColorID: array [0..MAX_HANDS-1] of Integer;
     Team: array [0..MAX_HANDS-1] of Integer;
 
@@ -85,7 +85,7 @@ begin
     LoadStream.Read(CanBeHuman[I]);
     LoadStream.Read(Enabled[I]);
     LoadStream.ReadA(OwnerNikname[I]);
-    LoadStream.Read(PlayerTypes[I], SizeOf(PlayerTypes[I]));
+    LoadStream.Read(HandTypes[I], SizeOf(HandTypes[I]));
     LoadStream.Read(ColorID[I]);
     LoadStream.Read(Team[I]);
   end;
@@ -113,7 +113,7 @@ begin
     SaveStream.Write(CanBeHuman[I]);
     SaveStream.Write(Enabled[I]);
     SaveStream.WriteA(OwnerNikname[I]);
-    SaveStream.Write(PlayerTypes[I], SizeOf(PlayerTypes[I]));
+    SaveStream.Write(HandTypes[I], SizeOf(HandTypes[I]));
     SaveStream.Write(ColorID[I]);
     SaveStream.Write(Team[I]);
   end;
@@ -134,7 +134,7 @@ var
 begin
   Result := 0;
   for I := 0 to PlayerCount - 1 do
-    if PlayerTypes[I] = hndComputer then
+    if HandTypes[I] = hndComputer then
       Inc(Result);
 end;
 
@@ -145,7 +145,7 @@ var
 begin
   Result := 0;
   for I := 0 to PlayerCount - 1 do
-    if Enabled[I] and (PlayerTypes[I] = hndHuman) then
+    if Enabled[I] and (HandTypes[I] = hndHuman) then
       Inc(Result);
 end;
 

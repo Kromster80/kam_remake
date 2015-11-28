@@ -140,7 +140,7 @@ begin
   //This is SP menu, we are dead sure there's only one Human player
   HumanId := -1;
   for I := 0 to gHands.Count - 1 do
-  if gHands[I].PlayerType = hndHuman then
+  if gHands[I].HandType = hndHuman then
     HumanId := I;
 
   //List values (like old KaM did)
@@ -178,7 +178,7 @@ begin
     TempGraphCount := 0; //Reset
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
-      if PlayerType = hndComputer then
+      if HandType = hndComputer then
         AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy)
       else
         Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
@@ -191,7 +191,7 @@ begin
     TempGraphCount := 0; //Reset
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
-      if PlayerType = hndComputer then
+      if HandType = hndComputer then
         AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartCitizens)
       else
       begin
@@ -208,7 +208,7 @@ begin
     TempGraphCount := 0; //Reset
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
-      if PlayerType = hndComputer then
+      if HandType = hndComputer then
         AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartHouses)
       else
         Chart_Houses.AddLine(OwnerName, FlagColor, Stats.ChartHouses);

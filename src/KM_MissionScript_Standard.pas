@@ -407,7 +407,7 @@ begin
                         end;
     ct_AICharacter:     if fLastHand <> PLAYER_NONE then
                         begin
-                          if gHands[fLastHand].PlayerType <> hndComputer then Exit;
+                          if gHands[fLastHand].HandType <> hndComputer then Exit;
                           iPlayerAI := gHands[fLastHand].AI; //Setup the AI's character
                           if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.Setup.RecruitCount  := P[1];
                           if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.Setup.WorkerCount   := P[1];

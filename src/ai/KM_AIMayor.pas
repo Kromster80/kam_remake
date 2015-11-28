@@ -916,7 +916,7 @@ procedure TKMayor.CheckAutoRepair;
 var I: Integer;
 begin
   with gHands[fOwner] do
-    if PlayerType = hndComputer then
+    if HandType = hndComputer then
       for I := 0 to Houses.Count - 1 do
         Houses[I].BuildingRepair := fSetup.AutoRepair;
 end;
