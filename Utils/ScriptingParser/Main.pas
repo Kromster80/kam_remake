@@ -5,48 +5,96 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ExtDlgs,
-  SysUtils, Variants, Classes,StdCtrls, StrUtils,
-  FormHelp;
+  SysUtils, Variants, Classes,StdCtrls, StrUtils, INIFiles;
 
 
 type
   TForm1 = class(TForm)
-    MainMenu1: TMainMenu;
-    btnMenuFile: TMenuItem;
-    menuSep1: TMenuItem;
-    btnMenuExit: TMenuItem;
-    btnMenuSave: TMenuItem;
-    btnMenuOpen: TMenuItem;
     OpenTxtDlg: TOpenTextFileDialog;
-    SaveTxtDlg: TSaveTextFileDialog;
     txtParserOutput: TMemo;
-    btnMenuHelp: TMenuItem;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    edtActionsFile: TEdit;
+    edtEventsFile: TEdit;
+    edtStatesFile: TEdit;
+    edtOutputFileActions: TEdit;
+    btnParse: TButton;
+    btnSave: TButton;
+    Label5: TLabel;
+    Label6: TLabel;
+    edtOutputFileEvents: TEdit;
+    edtOutputFileStates: TEdit;
     procedure btnMenuExitClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure btnMenuOpenClick(Sender: TObject);
-    procedure btnMenuSaveClick(Sender: TObject);
-    procedure btnMenuHelpClick(Sender: TObject);
+    procedure btnParseClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
+    procedure edtOnTextChange(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
-    frmHelpForm: ThelpForm;
+    iniLoc: String;
+    actStringList, evntStringList, stsStringList: TStringList;
     procedure txtParser(aFile: String; aList: TStringList);
   end;
 
 
 var
   Form1: TForm1;
+  SettingsFile: TINIFile;
 
 
 implementation
 {$R *.dfm}
 
 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  FreeAndNil(actStringList);
+  FreeAndNil(evntStringList);
+  FreeAndNil(stsStringList);
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   OpenTxtDlg := TOpenTextFileDialog.Create(Self);
-  SaveTxtDlg := TSaveTextFileDialog.Create(Self);
   OpenTxtDlg.Filter := 'Pascal files (*.pas)|*.PAS|Any file (*.*)|*.*';
-  SaveTxtDlg.Filter := 'Text files (*.txt)|*.TXT|Any file (*.*)|*.*';
+
+  iniLoc := ExtractFilePath(Application.ExeName) + '\settings.ini';
+  SettingsFile := TINIFile.Create(iniLoc);
+
+  if not FileExists(iniLoc) then
+  begin
+    SettingsFile.WriteString('INPUT', 'Actions', '');
+    SettingsFile.WriteString('INPUT', 'Events',  '');
+    SettingsFile.WriteString('INPUT', 'States',  '');
+    SettingsFile.WriteString('OUTPUT', 'Actions',  '');
+    SettingsFile.WriteString('OUTPUT', 'Events',  '');
+    SettingsFile.WriteString('OUTPUT', 'States',  '');
+  end;
+
+  edtActionsFile.Text := SettingsFile.ReadString('INPUT', 'Actions', '');
+  edtEventsFile.Text  := SettingsFile.ReadString('INPUT', 'Events',  '');
+  edtStatesFile.Text  := SettingsFile.ReadString('INPUT', 'States',  '');
+
+  edtOutputFileActions.Text := SettingsFile.ReadString('OUTPUT', 'Actions', '');
+  edtOutputFileEvents.Text  := SettingsFile.ReadString('OUTPUT', 'Events',  '');
+  edtOutputFileStates.Text  := SettingsFile.ReadString('OUTPUT', 'States',  '');
+  FreeAndNil(SettingsFile);
+
+  edtActionsFile.OnChange := edtOnTextChange;
+  edtEventsFile.OnChange  := edtOnTextChange;
+  edtStatesFile.OnChange  := edtOnTextChange;
+
+  edtOutputFileActions.OnChange := edtOnTextChange;
+  edtOutputFileEvents.OnChange  := edtOnTextChange;
+  edtOutputFileStates.OnChange  := edtOnTextChange;
+
+  actStringList  := TStringList.Create;
+  evntStringList := TStringList.Create;
+  stsStringList  := TStringList.Create;
 end;
 
 
@@ -133,6 +181,7 @@ begin
         aList.Add(finalStr);
     end;
   finally
+    aList.Add('' + sLineBreak + '');
     FreeAndNil(SourceTxt);
   end;
 end;
@@ -148,54 +197,109 @@ begin
 end;
 
 
-procedure TForm1.btnMenuHelpClick(Sender: TObject);
-begin
-  // Open form
-  frmHelpForm:=ThelpForm.Create(Nil);
-  frmHelpForm.ShowModal;
-  FreeAndNil(frmHelpForm);
-end;
-
-
-procedure TForm1.btnMenuOpenClick(Sender: TObject);
+procedure TForm1.btnParseClick(Sender: TObject);
 var
   Filename: String;
-  ParsedStringList: TStringList;
 begin
-  ParsedStringList := TStringList.Create;
+  txtParserOutput.Lines.Clear;
+  actStringList.Clear;
+  evntStringList.Clear;
+  stsStringList.Clear;
 
-  try
+  if not (edtActionsFile.Text = '') then
+  begin
+    if FileExists(edtActionsFile.Text) then
+      begin
+        actStringList.Clear;
+        actStringList.Add('##Actions' + sLineBreak);
+        txtParser(edtActionsFile.Text, actStringList);
+        txtParserOutput.Lines.AddStrings(actStringList);
+      end else
+        raise Exception.Create('File does not exist.');
+  end;
+
+  if not (edtEventsFile.Text = '') then
+  begin
+    if FileExists(edtEventsFile.Text) then
+      begin
+        evntStringList.Clear;
+        evntStringList.Add('##Events' + sLineBreak);
+        txtParser(edtEventsFile.Text, evntStringList);
+        txtParserOutput.Lines.AddStrings(evntStringList);
+      end else
+        raise Exception.Create('File does not exist.');
+  end;
+
+  if not (edtStatesFile.Text = '') then
+  begin
+    if FileExists(edtStatesFile.Text) then
+      begin
+        stsStringList.Clear;
+        stsStringList.Add('##States' + sLineBreak);
+        txtParser(edtStatesFile.Text, stsStringList);
+        txtParserOutput.Lines.AddStrings(stsStringList);
+      end else
+        raise Exception.Create('File does not exist.');
+  end;
+
+  if txtParserOutput.Lines.Count <= 0 then
     if OpenTxtDlg.Execute(Self.Handle) then
     begin
       Filename := OpenTxtDlg.FileName;
 
       if FileExists(Filename) then
       begin
-        txtParser(Filename, ParsedStringList);
-        txtParserOutput.Lines.Assign(ParsedStringList);
+        actStringList.Clear;
+        txtParser(Filename, actStringList);
+        txtParserOutput.Lines.Assign(actStringList);
       end else
         raise Exception.Create('File does not exist.');
     end;
-  finally
-    FreeAndNil(ParsedStringList);
-  end;
 end;
 
 
-procedure TForm1.btnMenuSaveClick(Sender: TObject);
+procedure TForm1.btnSaveClick(Sender: TObject);
 var
   Filename : String;
 begin
   if txtParserOutput.Lines.Count > 0 then
-    if SaveTxtDlg.Execute(Self.Handle) then
+  begin
+    if not (edtOutputFileActions.Text = '') and (actStringList.Count > 0) then
     begin
-      Filename := SaveTxtDlg.FileName;
-
-      if (SaveTxtDlg.FilterIndex = 0) and not (Filename.EndsWith('.txt')) then
-        Filename := Filename + '.txt';
-
-      txtParserOutput.Lines.SaveToFile(FileName);
+      Filename := edtOutputFileActions.Text;
+      actStringList.SaveToFile(Filename);
     end;
+    if not (edtOutputFileEvents.Text = '') and (evntStringList.Count > 0) then
+    begin
+      Filename := edtOutputFileEvents.Text;
+      evntStringList.SaveToFile(Filename);
+    end;
+    if not (edtOutputFileStates.Text = '') and (stsStringList.Count > 0) then
+    begin
+      Filename := edtOutputFileStates.Text;
+      stsStringList.SaveToFile(Filename);
+    end;
+  end;
+end;
+
+
+procedure TForm1.edtOnTextChange(Sender: TObject);
+begin
+  SettingsFile := TINIFile.Create(iniLoc);
+  if Sender = edtActionsFile then
+    SettingsFile.WriteString('INPUT', 'Actions', edtActionsFile.Text);
+  if Sender = edtEventsFile then
+    SettingsFile.WriteString('INPUT', 'Events',  edtEventsFile.Text);
+  if Sender = edtStatesFile then
+    SettingsFile.WriteString('INPUT', 'States',  edtStatesFile.Text);
+  if Sender = edtOutputFileActions then
+    SettingsFile.WriteString('OUTPUT', 'Actions',  edtOutputFileActions.Text);
+  if Sender = edtOutputFileEvents then
+    SettingsFile.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
+  if Sender = edtOutputFileStates then
+    SettingsFile.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
+
+  FreeAndNil(SettingsFile);
 end;
 
 
