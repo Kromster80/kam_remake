@@ -197,6 +197,8 @@ begin
 end;
 
 
+//* Version: 6570
+//* Occurs when a player places a beacon on the map.
 procedure TKMScriptEvents.ProcBeacon(aPlayer: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcBeacon) then
@@ -204,6 +206,8 @@ begin
 end;
 
 
+//* Version: 6216
+//* Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).
 procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
 begin
   if MethodAssigned(fProcMarketTrade) then
@@ -214,6 +218,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Occurs immediately after the mission is loaded.
 procedure TKMScriptEvents.ProcMissionStart;
 begin
   if MethodAssigned(fProcMissionStart) then
@@ -221,6 +227,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Occurs every game logic update.
 procedure TKMScriptEvents.ProcTick;
 begin
   if MethodAssigned(fProcTick) then
@@ -228,6 +236,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Occurs when player has built a house.
 procedure TKMScriptEvents.ProcHouseBuilt(aHouse: TKMHouse);
 begin
   if MethodAssigned(fProcHouseBuilt) then
@@ -238,6 +248,9 @@ begin
 end;
 
 
+//* Version: 5882
+//* Occurs when a house is damaged by the enemy soldier.
+//* !AttackerIndex is -1 the house was damaged some other way, such as from Actions.!HouseAddDamage.
 procedure TKMScriptEvents.ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
 begin
   if MethodAssigned(fProcHouseDamaged) then
@@ -255,6 +268,14 @@ begin
 end;
 
 
+//* Version: 5407
+//* Occurs when a house is destroyed.
+//* If !DestroyerIndex is -1 the house was destroyed some other way, such as from Actions.!HouseDestroy.
+//* If !DestroyerIndex is the same as the house owner (States.!HouseOwner),
+//* the house was demolished by the player who owns it.
+//* Otherwise it was destroyed by an enemy.
+//* Called just before the house is destroyed so HouseID is usable only during this event,
+//* and the area occupied by the house is still unusable.
 procedure TKMScriptEvents.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandIndex);
 begin
   if MethodAssigned(fProcHouseDestroyed) then
@@ -265,6 +286,10 @@ begin
 end;
 
 
+//* Version: 6114
+//* Occurs after a house is destroyed and has been completely removed from the game,
+//* meaning the area it previously occupied can be used.
+//* If you need more information about the house use the !OnHouseDestroyed event.
 procedure TKMScriptEvents.ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcHouseAfterDestroyed) then
@@ -272,6 +297,8 @@ begin
 end;
 
 
+//* Version: 5871
+//* Occurs when player has placed a house plan.
 procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
 begin
   if MethodAssigned(fProcHousePlanPlaced) then
@@ -279,6 +306,8 @@ begin
 end;
 
 
+//* Version: 6298
+//* Occurs when player has removed a house plan.
 procedure TKMScriptEvents.ProcHousePlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
 begin
   if MethodAssigned(fProcHousePlanRemoved) then
@@ -286,6 +315,10 @@ begin
 end;
 
 
+//* Version: 6220
+//* Occurs when the player would be shown a message about a group being hungry
+//* (when they first get hungry, then every 4 minutes after that if there are still hungry group members).
+//* Occurs regardless of whether the group has hunger messages enabled or not.
 procedure TKMScriptEvents.ProcGroupHungry(aGroup: TKMUnitGroup);
 begin
   if MethodAssigned(fProcGroupHungry) then
@@ -296,6 +329,10 @@ begin
 end;
 
 
+//* Version: 5407
+//* Occurs when a unit dies. If !KillerIndex is -1 the unit died from another cause such as hunger or Actions.!UnitKill.
+//* Called just before the unit is killed so UnitID is usable only during this event,
+//* and the tile occupied by the unit is still taken.
 procedure TKMScriptEvents.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandIndex);
 begin
   if MethodAssigned(fProcUnitDied) then
@@ -306,6 +343,10 @@ begin
 end;
 
 
+//* Version: 6114
+//* Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used.
+//* If you need more information about the unit use the !OnUnitDied event.
+//* Note: Because units have a death animation there is a delay of several ticks between !OnUnitDied and !OnUnitAfterDied.
 procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcUnitAfterDied) then
@@ -313,6 +354,10 @@ begin
 end;
 
 
+//* Version: 6587
+//* Happens when a unit is attacked (shot at by archers or hit in melee).
+//* Attacker is always a warrior (could be archer or melee).
+//* This event will occur very frequently during battles.
 procedure TKMScriptEvents.ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
 begin
   if MethodAssigned(fProcUnitAttacked) then
@@ -329,6 +374,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Occurs when player trains a unit.
 procedure TKMScriptEvents.ProcUnitTrained(aUnit: TKMUnit);
 begin
   if MethodAssigned(fProcUnitTrained) then
@@ -339,6 +386,9 @@ begin
 end;
 
 
+//* Version: 5884
+//* Happens when unit is wounded.
+//* Attacker can be a warrior, recruit in tower or unknown (-1).
 procedure TKMScriptEvents.ProcUnitWounded(aUnit, aAttacker: TKMUnit);
 begin
   if MethodAssigned(fProcUnitWounded) then
@@ -355,6 +405,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Occurs when player equips a warrior.
 procedure TKMScriptEvents.ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
 begin
   if MethodAssigned(fProcWarriorEquipped) then
@@ -388,6 +440,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Occurs when certain player has been defeated.
+//* Defeat conditions are checked separately by Player AI.
 procedure TKMScriptEvents.ProcPlayerDefeated(aPlayer: TKMHandIndex);
 begin
   if MethodAssigned(fProcPlayerDefeated) then
@@ -395,6 +450,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Occurs when certain player is declared victorious.
+//* Victory conditions are checked separately by Player AI.
 procedure TKMScriptEvents.ProcPlayerVictory(aPlayer: TKMHandIndex);
 begin
   if MethodAssigned(fProcPlayerVictory) then
