@@ -21,10 +21,10 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object txtParserOutput: TMemo
-    Left = 8
-    Top = 207
-    Width = 768
-    Height = 347
+    Left = 0
+    Top = 199
+    Width = 785
+    Height = 364
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssBoth
@@ -32,15 +32,15 @@ object Form1: TForm1
     OnKeyPress = txtParserOutputKeyPress
   end
   object GroupBox1: TGroupBox
-    Left = 8
-    Top = 8
-    Width = 680
+    Left = 0
+    Top = 0
+    Width = 688
     Height = 193
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Settings'
     TabOrder = 1
     DesignSize = (
-      680
+      688
       193)
     object Label1: TLabel
       Left = 3
@@ -87,55 +87,67 @@ object Form1: TForm1
     object edtActionsFile: TEdit
       Left = 65
       Top = 16
-      Width = 612
+      Width = 620
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
+      OnChange = edtOnTextChange
+      ExplicitWidth = 612
     end
     object edtEventsFile: TEdit
       Left = 65
       Top = 43
-      Width = 612
+      Width = 620
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
+      OnChange = edtOnTextChange
+      ExplicitWidth = 612
     end
     object edtStatesFile: TEdit
       Left = 65
       Top = 70
-      Width = 612
+      Width = 620
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
+      OnChange = edtOnTextChange
+      ExplicitWidth = 612
     end
     object edtOutputFileActions: TEdit
       Left = 102
       Top = 114
-      Width = 574
+      Width = 582
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
+      OnChange = edtOnTextChange
+      ExplicitWidth = 574
     end
     object edtOutputFileEvents: TEdit
       Left = 102
       Top = 141
-      Width = 574
+      Width = 582
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
+      OnChange = edtOnTextChange
+      ExplicitWidth = 574
     end
     object edtOutputFileStates: TEdit
       Left = 102
       Top = 168
-      Width = 575
+      Width = 583
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 5
+      OnChange = edtOnTextChange
+      ExplicitWidth = 575
     end
   end
   object btnParse: TButton
     Left = 694
-    Top = 49
+    Top = 41
     Width = 82
     Height = 25
     Anchors = [akTop, akRight]
@@ -146,12 +158,14 @@ object Form1: TForm1
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
+    ParentShowHint = False
+    ShowHint = False
     TabOrder = 2
     OnClick = btnParseClick
   end
   object btnSave: TButton
     Left = 694
-    Top = 147
+    Top = 139
     Width = 82
     Height = 25
     Anchors = [akTop, akRight]
