@@ -92,7 +92,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       OnChange = edtOnTextChange
-      ExplicitWidth = 593
     end
     object edtEventsFile: TEdit
       Left = 72
@@ -102,7 +101,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
       OnChange = edtOnTextChange
-      ExplicitWidth = 593
     end
     object edtStatesFile: TEdit
       Left = 72
@@ -112,7 +110,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       OnChange = edtOnTextChange
-      ExplicitWidth = 593
     end
     object edtOutputFileActions: TEdit
       Left = 112
@@ -122,7 +119,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       OnChange = edtOnTextChange
-      ExplicitWidth = 553
     end
     object edtOutputFileEvents: TEdit
       Left = 112
@@ -132,12 +128,11 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       OnChange = edtOnTextChange
-      ExplicitWidth = 553
     end
     object edtOutputFileStates: TEdit
       Left = 112
       Top = 168
-      Width = 545
+      Width = 546
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 5
@@ -153,7 +148,7 @@ object Form1: TForm1
     Caption = 'Parse'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -13
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
@@ -171,7 +166,7 @@ object Form1: TForm1
     Caption = 'Save'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -13
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False

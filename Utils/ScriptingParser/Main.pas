@@ -29,7 +29,7 @@ type
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
     procedure edtOnTextChange(Sender: TObject);
   private
-    fSettinfsPath: String;
+    fSettingsPath: String;
     fListActions, fListEvents, fListStates: TStringList;
     fSafeToWrite: Boolean;
     procedure txtParser(aFile: String; aList: TStringList);
@@ -45,10 +45,10 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   Settings: TINIFile;
 begin
-  fSettinfsPath  := ExtractFilePath(Application.ExeName) + 'ScriptingParser.ini';
-  Settings      := TINIFile.Create(fSettinfsPath);
+  fSettingsPath := ExtractFilePath(Application.ExeName) + 'ScriptingParser.ini';
+  Settings      := TINIFile.Create(fSettingsPath);
 
-  if not FileExists(fSettinfsPath) then
+  if not FileExists(fSettingsPath) then
   begin
     Settings.WriteString('INPUT',  'Actions', '..\..\src\scripting\KM_ScriptingActions.pas');
     Settings.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
@@ -67,8 +67,8 @@ begin
   FreeAndNil(Settings);
 
   fListActions := TStringList.Create;
-  fListEvents := TStringList.Create;
-  fListStates := TStringList.Create;
+  fListEvents  := TStringList.Create;
+  fListStates  := TStringList.Create;
   fSafeToWrite := True;
 end;
 
@@ -89,6 +89,7 @@ var
   SourceTxt: TStringList;
 begin
   SourceTxt := TStringList.Create;
+
   try
     aList.Add('| Version | Name | Description | Parameters and types | Returns |');
     aList.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
@@ -274,7 +275,7 @@ var
 begin
   if fSafeToWrite then
   begin
-    Settings := TINIFile.Create(fSettinfsPath);
+    Settings := TINIFile.Create(fSettingsPath);
 
     if Sender = edtActionsFile then
       Settings.WriteString('INPUT',  'Actions', edtActionsFile.Text);
