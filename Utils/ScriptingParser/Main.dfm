@@ -92,7 +92,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       OnChange = edtOnTextChange
-      ExplicitWidth = 612
     end
     object edtEventsFile: TEdit
       Left = 65
@@ -102,7 +101,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
       OnChange = edtOnTextChange
-      ExplicitWidth = 612
     end
     object edtStatesFile: TEdit
       Left = 65
@@ -112,7 +110,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       OnChange = edtOnTextChange
-      ExplicitWidth = 612
     end
     object edtOutputFileActions: TEdit
       Left = 102
@@ -122,7 +119,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       OnChange = edtOnTextChange
-      ExplicitWidth = 574
     end
     object edtOutputFileEvents: TEdit
       Left = 102
@@ -132,7 +128,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       OnChange = edtOnTextChange
-      ExplicitWidth = 574
     end
     object edtOutputFileStates: TEdit
       Left = 102
@@ -142,7 +137,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 5
       OnChange = edtOnTextChange
-      ExplicitWidth = 575
     end
   end
   object btnParse: TButton
@@ -180,6 +174,7 @@ object Form1: TForm1
     OnClick = btnSaveClick
   end
   object OpenTxtDlg: TOpenTextFileDialog
+    Filter = 'Pascal files (*.pas)|*.PAS|Any file (*.*)|*.*'
     Left = 552
     Top = 336
   end

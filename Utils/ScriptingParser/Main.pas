@@ -1,10 +1,7 @@
 unit Main;
-
 interface
-
 uses
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtDlgs,
-  SysUtils, Classes, StdCtrls, StrUtils, INIFiles;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtDlgs, SysUtils, Classes, StdCtrls, StrUtils, INIFiles;
 
 type
   TForm1 = class(TForm)
@@ -32,10 +29,9 @@ type
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
     procedure edtOnTextChange(Sender: TObject);
   private
-    SettingsFile: TINIFile;
-    iniLoc: String;
-    actStringList, evntStringList, stsStringList: TStringList;
-    safeToWrite: Boolean;
+    fSettinfsPath: String;
+    fListActions, fListEvents, fListStates: TStringList;
+    fSafeToWrite: Boolean;
     procedure txtParser(aFile: String; aList: TStringList);
   end;
 
@@ -46,42 +42,42 @@ implementation
 {$R *.dfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  Settings: TINIFile;
 begin
-  OpenTxtDlg        := TOpenTextFileDialog.Create(Self);
-  OpenTxtDlg.Filter := 'Pascal files (*.pas)|*.PAS|Any file (*.*)|*.*';
-  iniLoc            := ExtractFilePath(Application.ExeName) + '\settings.ini';
-  SettingsFile      := TINIFile.Create(iniLoc);
+  fSettinfsPath  := ExtractFilePath(Application.ExeName) + 'ScriptingParser.ini';
+  Settings      := TINIFile.Create(fSettinfsPath);
 
-  if not FileExists(iniLoc) then
+  if not FileExists(fSettinfsPath) then
   begin
-    SettingsFile.WriteString('INPUT',  'Actions', '');
-    SettingsFile.WriteString('INPUT',  'Events',  '');
-    SettingsFile.WriteString('INPUT',  'States',  '');
-    SettingsFile.WriteString('OUTPUT', 'Actions', '');
-    SettingsFile.WriteString('OUTPUT', 'Events',  '');
-    SettingsFile.WriteString('OUTPUT', 'States',  '');
+    Settings.WriteString('INPUT',  'Actions', '..\..\src\scripting\KM_ScriptingActions.pas');
+    Settings.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
+    Settings.WriteString('INPUT',  'States',  '..\..\src\scripting\KM_ScriptingStates.pas');
+    Settings.WriteString('OUTPUT', 'Actions', 'Actions.wiki');
+    Settings.WriteString('OUTPUT', 'Events',  'Events.wiki');
+    Settings.WriteString('OUTPUT', 'States',  'States.wiki');
   end;
 
-  edtActionsFile.Text       := SettingsFile.ReadString('INPUT',  'Actions', '');
-  edtEventsFile.Text        := SettingsFile.ReadString('INPUT',  'Events',  '');
-  edtStatesFile.Text        := SettingsFile.ReadString('INPUT',  'States',  '');
-  edtOutputFileActions.Text := SettingsFile.ReadString('OUTPUT', 'Actions', '');
-  edtOutputFileEvents.Text  := SettingsFile.ReadString('OUTPUT', 'Events',  '');
-  edtOutputFileStates.Text  := SettingsFile.ReadString('OUTPUT', 'States',  '');
-  FreeAndNil(SettingsFile);
+  edtActionsFile.Text       := Settings.ReadString('INPUT',  'Actions', '');
+  edtEventsFile.Text        := Settings.ReadString('INPUT',  'Events',  '');
+  edtStatesFile.Text        := Settings.ReadString('INPUT',  'States',  '');
+  edtOutputFileActions.Text := Settings.ReadString('OUTPUT', 'Actions', '');
+  edtOutputFileEvents.Text  := Settings.ReadString('OUTPUT', 'Events',  '');
+  edtOutputFileStates.Text  := Settings.ReadString('OUTPUT', 'States',  '');
+  FreeAndNil(Settings);
 
-  actStringList  := TStringList.Create;
-  evntStringList := TStringList.Create;
-  stsStringList  := TStringList.Create;
-  safeToWrite    := True;
+  fListActions := TStringList.Create;
+  fListEvents := TStringList.Create;
+  fListStates := TStringList.Create;
+  fSafeToWrite := True;
 end;
 
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FreeAndNil(actStringList);
-  FreeAndNil(evntStringList);
-  FreeAndNil(stsStringList);
+  FreeAndNil(fListActions);
+  FreeAndNil(fListEvents);
+  FreeAndNil(fListStates);
 end;
 
 
@@ -179,18 +175,18 @@ var
   Filename: String;
 begin
   txtParserOutput.Lines.Clear;
-  actStringList.Clear;
-  evntStringList.Clear;
-  stsStringList.Clear;
+  fListActions.Clear;
+  fListEvents.Clear;
+  fListStates.Clear;
 
   if not (edtActionsFile.Text = '') then
   begin
     if FileExists(edtActionsFile.Text) then
     begin
-      actStringList.Clear;
-      actStringList.Add('##Actions' + sLineBreak);
-      txtParser(edtActionsFile.Text, actStringList);
-      txtParserOutput.Lines.AddStrings(actStringList);
+      fListActions.Clear;
+      fListActions.Add('##Actions' + sLineBreak);
+      txtParser(edtActionsFile.Text, fListActions);
+      txtParserOutput.Lines.AddStrings(fListActions);
     end else
       raise Exception.Create('File does not exist.');
   end;
@@ -199,10 +195,10 @@ begin
   begin
     if FileExists(edtEventsFile.Text) then
     begin
-      evntStringList.Clear;
-      evntStringList.Add('##Events' + sLineBreak);
-      txtParser(edtEventsFile.Text, evntStringList);
-      txtParserOutput.Lines.AddStrings(evntStringList);
+      fListEvents.Clear;
+      fListEvents.Add('##Events' + sLineBreak);
+      txtParser(edtEventsFile.Text, fListEvents);
+      txtParserOutput.Lines.AddStrings(fListEvents);
     end else
       raise Exception.Create('File does not exist.');
   end;
@@ -211,10 +207,10 @@ begin
   begin
     if FileExists(edtStatesFile.Text) then
     begin
-      stsStringList.Clear;
-      stsStringList.Add('##States' + sLineBreak);
-      txtParser(edtStatesFile.Text, stsStringList);
-      txtParserOutput.Lines.AddStrings(stsStringList);
+      fListStates.Clear;
+      fListStates.Add('##States' + sLineBreak);
+      txtParser(edtStatesFile.Text, fListStates);
+      txtParserOutput.Lines.AddStrings(fListStates);
     end else
       raise Exception.Create('File does not exist.');
   end;
@@ -226,9 +222,9 @@ begin
 
       if FileExists(Filename) then
       begin
-        actStringList.Clear;
-        txtParser(Filename, actStringList);
-        txtParserOutput.Lines.Assign(actStringList);
+        fListActions.Clear;
+        txtParser(Filename, fListActions);
+        txtParserOutput.Lines.Assign(fListActions);
       end else
         raise Exception.Create('File does not exist.');
     end;
@@ -241,22 +237,22 @@ var
 begin
   if txtParserOutput.Lines.Count > 0 then
   begin
-    if not (edtOutputFileActions.Text = '') and (actStringList.Count > 0) then
+    if not (edtOutputFileActions.Text = '') and (fListActions.Count > 0) then
     begin
       Filename := edtOutputFileActions.Text;
-      actStringList.SaveToFile(Filename);
+      fListActions.SaveToFile(Filename);
     end;
 
-    if not (edtOutputFileEvents.Text = '') and (evntStringList.Count > 0) then
+    if not (edtOutputFileEvents.Text = '') and (fListEvents.Count > 0) then
     begin
       Filename := edtOutputFileEvents.Text;
-      evntStringList.SaveToFile(Filename);
+      fListEvents.SaveToFile(Filename);
     end;
 
-    if not (edtOutputFileStates.Text = '') and (stsStringList.Count > 0) then
+    if not (edtOutputFileStates.Text = '') and (fListStates.Count > 0) then
     begin
       Filename := edtOutputFileStates.Text;
-      stsStringList.SaveToFile(Filename);
+      fListStates.SaveToFile(Filename);
     end;
   end;
 end;
@@ -273,31 +269,34 @@ end;
 
 
 procedure TForm1.edtOnTextChange(Sender: TObject);
+var
+  Settings: TINIFile;
 begin
-  if safeToWrite then
+  if fSafeToWrite then
   begin
-    SettingsFile := TINIFile.Create(iniLoc);
+    Settings := TINIFile.Create(fSettinfsPath);
 
     if Sender = edtActionsFile then
-      SettingsFile.WriteString('INPUT',  'Actions', edtActionsFile.Text);
+      Settings.WriteString('INPUT',  'Actions', edtActionsFile.Text);
 
     if Sender = edtEventsFile then
-      SettingsFile.WriteString('INPUT',  'Events',  edtEventsFile.Text);
+      Settings.WriteString('INPUT',  'Events',  edtEventsFile.Text);
 
     if Sender = edtStatesFile then
-      SettingsFile.WriteString('INPUT',  'States',  edtStatesFile.Text);
+      Settings.WriteString('INPUT',  'States',  edtStatesFile.Text);
 
     if Sender = edtOutputFileActions then
-      SettingsFile.WriteString('OUTPUT', 'Actions',  edtOutputFileActions.Text);
+      Settings.WriteString('OUTPUT', 'Actions',  edtOutputFileActions.Text);
 
     if Sender = edtOutputFileEvents then
-      SettingsFile.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
+      Settings.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
 
     if Sender = edtOutputFileStates then
-      SettingsFile.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
+      Settings.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
 
-    FreeAndNil(SettingsFile);
+    FreeAndNil(Settings);
   end;
 end;
+
 
 end.
