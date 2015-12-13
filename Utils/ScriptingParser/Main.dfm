@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Pascal To Wiki Parser'
-  ClientHeight = 562
-  ClientWidth = 784
+  ClientHeight = 561
+  ClientWidth = 785
   Color = clBtnFace
   Constraints.MinHeight = 400
   Constraints.MinWidth = 500
@@ -16,123 +16,128 @@ object Form1: TForm1
   OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
-    784
-    562)
+    785
+    561)
   PixelsPerInch = 96
   TextHeight = 13
   object txtParserOutput: TMemo
     Left = 0
-    Top = 199
+    Top = 224
     Width = 785
-    Height = 364
+    Height = 337
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
-    ScrollBars = ssBoth
+    ScrollBars = ssVertical
     TabOrder = 0
     OnKeyPress = txtParserOutputKeyPress
   end
   object GroupBox1: TGroupBox
-    Left = 0
-    Top = 0
-    Width = 688
-    Height = 193
+    Left = 8
+    Top = 8
+    Width = 673
+    Height = 201
     Anchors = [akLeft, akTop, akRight]
-    Caption = 'Settings'
+    Caption = ' Settings '
     TabOrder = 1
     DesignSize = (
-      688
-      193)
+      673
+      201)
     object Label1: TLabel
-      Left = 3
+      Left = 11
       Top = 19
       Width = 56
       Height = 13
       Caption = 'Actions file:'
     end
     object Label2: TLabel
-      Left = 3
+      Left = 11
       Top = 46
       Width = 54
       Height = 13
       Caption = 'Events file:'
     end
     object Label3: TLabel
-      Left = 3
+      Left = 11
       Top = 73
       Width = 52
       Height = 13
       Caption = 'States file:'
     end
     object Label4: TLabel
-      Left = 3
+      Left = 11
       Top = 117
       Width = 93
       Height = 13
       Caption = 'Output file Actions:'
     end
     object Label5: TLabel
-      Left = 3
+      Left = 11
       Top = 144
       Width = 91
       Height = 13
       Caption = 'Output file Events:'
     end
     object Label6: TLabel
-      Left = 3
+      Left = 11
       Top = 171
       Width = 89
       Height = 13
       Caption = 'Output file States:'
     end
     object edtActionsFile: TEdit
-      Left = 65
+      Left = 72
       Top = 16
-      Width = 620
+      Width = 586
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       OnChange = edtOnTextChange
+      ExplicitWidth = 593
     end
     object edtEventsFile: TEdit
-      Left = 65
+      Left = 72
       Top = 43
-      Width = 620
+      Width = 586
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
       OnChange = edtOnTextChange
+      ExplicitWidth = 593
     end
     object edtStatesFile: TEdit
-      Left = 65
+      Left = 72
       Top = 70
-      Width = 620
+      Width = 586
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       OnChange = edtOnTextChange
+      ExplicitWidth = 593
     end
     object edtOutputFileActions: TEdit
-      Left = 102
+      Left = 112
       Top = 114
-      Width = 582
+      Width = 546
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       OnChange = edtOnTextChange
+      ExplicitWidth = 553
     end
     object edtOutputFileEvents: TEdit
-      Left = 102
+      Left = 112
       Top = 141
-      Width = 582
+      Width = 546
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       OnChange = edtOnTextChange
+      ExplicitWidth = 553
     end
     object edtOutputFileStates: TEdit
-      Left = 102
+      Left = 112
       Top = 168
-      Width = 583
+      Width = 545
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 5
@@ -140,10 +145,10 @@ object Form1: TForm1
     end
   end
   object btnParse: TButton
-    Left = 694
-    Top = 41
-    Width = 82
-    Height = 25
+    Left = 688
+    Top = 24
+    Width = 90
+    Height = 73
     Anchors = [akTop, akRight]
     Caption = 'Parse'
     Font.Charset = DEFAULT_CHARSET
@@ -158,10 +163,10 @@ object Form1: TForm1
     OnClick = btnParseClick
   end
   object btnSave: TButton
-    Left = 694
-    Top = 139
-    Width = 82
-    Height = 25
+    Left = 688
+    Top = 120
+    Width = 90
+    Height = 73
     Anchors = [akTop, akRight]
     Caption = 'Save'
     Font.Charset = DEFAULT_CHARSET
