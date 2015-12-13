@@ -20,12 +20,10 @@ type
     edtOutputFileActions: TEdit;
     edtOutputFileEvents: TEdit;
     edtOutputFileStates: TEdit;
-    btnParse: TButton;
-    btnSave: TButton;
+    btnGenerate: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure btnParseClick(Sender: TObject);
-    procedure btnSaveClick(Sender: TObject);
+    procedure btnGenerateClick(Sender: TObject);
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
     procedure edtOnTextChange(Sender: TObject);
   private
@@ -171,7 +169,7 @@ begin
 end;
 
 
-procedure TForm1.btnParseClick(Sender: TObject);
+procedure TForm1.btnGenerateClick(Sender: TObject);
 var
   Filename: String;
 begin
@@ -229,13 +227,7 @@ begin
       end else
         raise Exception.Create('File does not exist.');
     end;
-end;
 
-
-procedure TForm1.btnSaveClick(Sender: TObject);
-var
-  Filename: String;
-begin
   if txtParserOutput.Lines.Count > 0 then
   begin
     if not (edtOutputFileActions.Text = '') and (fListActions.Count > 0) then

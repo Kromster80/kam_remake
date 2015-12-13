@@ -139,39 +139,23 @@ object Form1: TForm1
       OnChange = edtOnTextChange
     end
   end
-  object btnParse: TButton
-    Left = 688
-    Top = 24
+  object btnGenerate: TButton
+    Left = 687
+    Top = 123
     Width = 90
     Height = 73
     Anchors = [akTop, akRight]
-    Caption = 'Parse'
+    Caption = 'Generate'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -15
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
     ParentShowHint = False
     ShowHint = False
     TabOrder = 2
-    OnClick = btnParseClick
-  end
-  object btnSave: TButton
-    Left = 688
-    Top = 120
-    Width = 90
-    Height = 73
-    Anchors = [akTop, akRight]
-    Caption = 'Save'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 3
-    OnClick = btnSaveClick
+    OnClick = btnGenerateClick
   end
   object OpenTxtDlg: TOpenTextFileDialog
     Filter = 'Pascal files (*.pas)|*.PAS|Any file (*.*)|*.*'
