@@ -41,6 +41,14 @@ type
     Name, varType: string;
   end;
 
+  TCommandInfo = record
+    Version: string;
+    Name: string;
+    Description: string;
+    Parameters: string;
+    Return: string;
+  end;
+
 const
   VAR_TYPE_NAME: array[0..24] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
@@ -120,7 +128,7 @@ var
   paramHolder: array of TParamHolder;
   lastType: string;
 begin
-  Result := '<sub>';
+  Result := '';
 
   listTokens := TStringList.Create;
   paramList := TStringList.Create;
@@ -177,8 +185,6 @@ begin
       if i <> 0 then
         Result := Result + ' <br> ';
     end;
-
-    Result := Result + ' </sub>';
   finally
     FreeAndNil(listTokens);
     FreeAndNil(paramList);
@@ -191,8 +197,9 @@ end;
 procedure TForm1.ParseText(aFile: string; aList: TStringList);
 var
   i, iPlus: Integer;
-  versionStr, descStr, restStr, finalStr: string;
+  restStr: string;
   SourceTxt: TStringList;
+  res: TCommandInfo;
 begin
   SourceTxt := TStringList.Create;
   try
@@ -200,83 +207,80 @@ begin
 
     for i := 0 to SourceTxt.Count-1 do
     begin
-      versionStr := '';
-      descStr    := ' |';
-      restStr    := '';
-      finalStr   := '';
-      iPlus      := 0;
+      // Reset old values
+      res.Version     := '';
+      res.Name        := '';
+      res.Description := '';
+      res.Parameters  := '';
+      res.Return      := '';
+      iPlus := 0;
 
       // Before anything it should start with "//* Version:"
       if SourceTxt[i].StartsWith('//* Version:') then
       begin
-        versionStr := '| ' + SourceTxt[i].Substring(SourceTxt[i].IndexOf(':') + 2);
+        restStr := Trim(SourceTxt[i].Substring(SourceTxt[i].IndexOf(':') + 2));
+        res.Version := IfThen(restStr = '', '-', restStr);
         Inc(iPlus);
-      end;
 
-      // Descriptions are only added by lines starting with "//* "
-      if SourceTxt[i+iPlus].StartsWith('//* ') and not (versionStr = '') then
-      begin
-        // Repeat until no description tags are found
-        while SourceTxt[i+iPlus].StartsWith('//* ') do
+        // Descriptions are only added by lines starting with "//* "
+        if SourceTxt[i+iPlus].StartsWith('//* ') then
         begin
-          descStr := descStr + ' ' + SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].IndexOf('*') + 2);
+          // Repeat until no description tags are found
+          while SourceTxt[i+iPlus].StartsWith('//* ') do
+          begin
+            res.Description := res.Description + ' ' + SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].IndexOf('*') + 2);
+            Inc(iPlus);
+          end;
+        end;
+
+        // Skip empty or "faulty" lines
+        while not (SourceTxt[i+iPlus].StartsWith('procedure') or SourceTxt[i+iPlus].StartsWith('function')) do
           Inc(iPlus);
-        end;
-      end;
 
-      // Skip empty or "faulty" lines
-      while not ((SourceTxt[i+iPlus].StartsWith('procedure')) or
-                 (SourceTxt[i+iPlus].StartsWith('function'))) and not (versionStr = '') do
-        Inc(iPlus);
-
-      // Format procedures
-      if SourceTxt[i+iPlus].StartsWith('procedure') and not (versionStr = '') then
-      begin
-        if SourceTxt[i+iPlus].Contains('(') then
+        // Format procedures
+        if SourceTxt[i+iPlus].StartsWith('procedure') then
         begin
-          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                                  SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
-          restStr := ReplaceStr(restStr, 'Proc', 'On');
-          restStr := restStr + descStr + ' | ' + ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                  SourceTxt[i+iPlus].IndexOf(')') - (
-                                                                  SourceTxt[i+iPlus].IndexOf('(') + 1))) + ' | |';
-        end else
-        begin
-          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                                  SourceTxt[i+iPlus].IndexOf(';') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
-          restStr := ReplaceStr(restStr, 'Proc', 'On');
-          restStr := restStr.TrimRight([';']) + descStr + ' | | |';
+          if SourceTxt[i+iPlus].Contains('(') then
+          begin
+            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                            SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            res.Name := ReplaceStr(restStr, 'Proc', 'On');
+            res.Parameters := ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
+                                                                   SourceTxt[i+iPlus].IndexOf(')') - (
+                                                                   SourceTxt[i+iPlus].IndexOf('(') + 1)));
+          end else
+          begin
+            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                            SourceTxt[i+iPlus].IndexOf(';') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            res.Name := ReplaceStr(restStr, 'Proc', 'On');
+          end;
         end;
 
-        finalStr := versionStr + restStr;
-      end;
+        // Format functions
+        if SourceTxt[i+iPlus].StartsWith('function') then
+        begin
+          if SourceTxt[i+iPlus].Contains('(') then
+          begin
+            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                            SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            res.Name := ReplaceStr(restStr, 'Func', 'On');
+            res.Parameters := ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
+                                                                   SourceTxt[i+iPlus].IndexOf(')') - (
+                                                                   SourceTxt[i+iPlus].IndexOf('(') + 1)));
+          end else
+          begin
+            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                            SourceTxt[i+iPlus].IndexOf(':') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            res.Name := ReplaceStr(restStr, 'Func', 'On');
+          end;
 
-      // Format functions
-      if SourceTxt[i+iPlus].StartsWith('function') and not (versionStr = '') then
-      begin
-        if SourceTxt[i+iPlus].Contains('(') then
-        begin
-          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                                  SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
-          restStr := ReplaceStr(restStr, 'Func', 'On');
-          restStr := restStr + descStr + ' | ' + ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                  SourceTxt[i+iPlus].IndexOf(')') - (
-                                                                  SourceTxt[i+iPlus].IndexOf('(') + 1))) + ' | ';
-        end else
-        begin
-          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                                  SourceTxt[i+iPlus].IndexOf(':') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
-          restStr := ReplaceStr(restStr, 'Func', 'On');
-          restStr := restStr + descStr + ' | | ';
+          restStr  := SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].LastIndexOf(':') + 2);
+          res.Return  := restStr.TrimRight([';']);
         end;
 
-        restStr  := restStr + SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].LastIndexOf(':') + 2);
-        restStr  := restStr.TrimRight([';']) + ' |';
-        finalStr := versionStr + restStr;
+        // Now we have all the parts and can combine them however we like
+        aList.Add(' | ' + res.Version + ' | ' + res.Name + ' | ' + res.Description + ' | <sub>' + res.Parameters + '</sub> | ' + res.Return + ' | ');
       end;
-
-      if not (finalStr = '') then
-        aList.Add(finalStr);
     end;
   finally
     aList.Add(sLineBreak);
