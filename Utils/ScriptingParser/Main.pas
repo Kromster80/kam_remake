@@ -112,14 +112,15 @@ var
   i, varTypeInt, nextType: Integer;
   isType: Boolean;
   splitList, paramList, typeList: TStringList;
-  resultStr, varTypeName: string;
+  varTypeName: string;
   paramHolder: array of TParamHolder;
 begin
-  splitList   := TStringList.Create;
-  paramList   := TStringList.Create;
-  typeList    := TStringList.Create;
+  Result := '';
+
+  splitList := TStringList.Create;
+  paramList := TStringList.Create;
+  typeList  := TStringList.Create;
   try
-    resultStr   := '';
     // If not set to -1 it skips the first variable
     nextType    := -1;
 
@@ -164,12 +165,10 @@ begin
     // Add numbers and line-break tags
     for i := 0 to Length(paramHolder) - 1 do
     begin
-      resultStr := resultStr + IntToStr(i + 1) + ' - ' + paramHolder[i].Name + ': ' + typeList[paramHolder[i].varType] + ';';
-      if not (i = Length(paramHolder) - 1) then
-        resultStr := resultStr + ' <br> ';
+      Result := Result + IntToStr(i + 1) + ' - ' + paramHolder[i].Name + ': ' + typeList[paramHolder[i].varType] + ';';
+      if i <> Length(paramHolder) - 1 then
+        Result := Result + ' <br> ';
     end;
-
-    Result := resultStr;
   finally
     FreeAndNil(splitList);
     FreeAndNil(paramList);
