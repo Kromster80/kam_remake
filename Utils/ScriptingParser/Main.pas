@@ -31,7 +31,25 @@ type
     fListActions, fListEvents, fListStates: TStringList;
     fSafeToWrite: Boolean;
     procedure txtParser(aFile: String; aList: TStringList);
+    function paramParser(aString: String): String;
   end;
+
+  tParamHolder = Record
+    Name: String;
+    varType: Integer;
+  end;
+
+const
+  VAR_TYPES: array[0..39] of String = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Longint',
+    'Longword', 'Int64', 'QWord', 'Real', 'Single', 'Double', 'Extended',
+    'Currency', 'TByteSet', 'Boolean', 'ByteBool', 'WordBool', 'LongBool',
+    'Char', 'WideChar', 'PChar', 'String', 'AnsiString', 'UnicodeString',
+    'TKMHandIndex', 'TKMHouse', 'TKMUnit', 'TKMUnitGroup',
+    'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
+    'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
+    'array of const', 'array of Integer'
+  );
 
 var
   Form1: TForm1;
@@ -79,6 +97,62 @@ begin
 end;
 
 
+{
+  Parses the param string into prefered wiki-format.
+  Results:
+  1 - [name]: [type];
+  2 - etc
+}
+function TForm1.paramParser(aString: String): String;
+var
+  i, j: Integer;
+  inList: Boolean;
+  paramList, convertList, typeList: TStringList;
+  resultStr, varType: String;
+  paramHolder: Array of tParamHolder;
+begin
+  try
+    paramList := TStringList.Create;
+    convertList := TStringList.Create;
+    typeList := TStringList.Create;
+    resultStr := '';
+    j := 0;
+    paramList.AddStrings(aString.Split([' ']));
+
+    for i := 0 to paramList.Count - 1 do
+    begin
+      inList := False;
+      paramList[i] := paramList[i].TrimRight([',', ':', ';']);
+      for varType in VAR_TYPES do
+        if paramList[i] = varType then
+        begin
+          typeList.Add(paramList[i]);
+          Inc(j);
+          inList := True;
+        end;
+      if not inList then
+      begin
+        SetLength(paramHolder, Length(paramHolder) + 1);
+        paramHolder[High(paramHolder)].Name := paramList[i];
+        paramHolder[High(paramHolder)].varType := J;
+      end;
+    end;
+
+    for i := 0 to Length(paramHolder) - 1 do
+    begin
+      resultStr := resultStr + IntToStr(i + 1) + ' - ' + paramHolder[i].Name + ': ' + typeList[paramHolder[i].varType] + ';';
+      if not (i = Length(paramHolder) - 1) then
+        resultStr := resultStr + ' <br> ';
+    end;
+    Result := resultStr;
+  finally
+    FreeAndNil(paramList);
+    FreeAndNil(convertList);
+    FreeAndNil(typeList);
+  end;
+end;
+
+
 // Scans file's contents and puts it all in proper formatting for most wikis.
 procedure TForm1.txtParser(aFile: String; aList: TStringList);
 var
@@ -86,9 +160,8 @@ var
   versionStr, descStr, restStr, finalStr: String;
   SourceTxt: TStringList;
 begin
-  SourceTxt := TStringList.Create;
-
   try
+    SourceTxt := TStringList.Create;
     aList.Add('| Version | Name | Description | Parameters and types | Returns |');
     aList.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
     SourceTxt.LoadFromFile(aFile);
@@ -127,15 +200,21 @@ begin
       // Format procedures
       if SourceTxt[i+iPlus].StartsWith('procedure') and not (versionStr = '') then
       begin
-        restStr := ' | ' + SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].IndexOf('.') + 1);
-        restStr := ReplaceStr(restStr, 'Proc', 'On');
-
-        if restStr.Contains('(') then
+        if SourceTxt[i+iPlus].Contains('(') then
         begin
-          restStr := ReplaceStr(restStr, '(', descStr + ' | `');
-          restStr := restStr.TrimRight([')', ';']) + '` | |';
+          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                                  SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+          restStr := ReplaceStr(restStr, 'Proc', 'On');
+          restStr := restStr + descStr + ' | ' + paramParser(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
+                                                                  SourceTxt[i+iPlus].IndexOf(')') - (
+                                                                  SourceTxt[i+iPlus].IndexOf('(') + 1))) + ' | |';
         end else
+        begin
+          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                                  SourceTxt[i+iPlus].IndexOf(';') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+          restStr := ReplaceStr(restStr, 'Proc', 'On');
           restStr := restStr.TrimRight([';']) + descStr + ' | | |';
+        end;
 
         finalStr := versionStr + restStr;
       end;
@@ -143,19 +222,25 @@ begin
       // Format functions
       if SourceTxt[i+iPlus].StartsWith('function') and not (versionStr = '') then
       begin
-        restStr := ' | ' + SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].IndexOf('.') + 1);
-        Delete(restStr, restStr.LastIndexOf(':')+1, restStr.Length);
-        restStr := ReplaceStr(restStr, 'Proc', 'On');
-
-        if restStr.Contains('(') then
+        if SourceTxt[i+iPlus].Contains('(') then
         begin
-          restStr := ReplaceStr(restStr, '(', descStr + ' | `');
-          restStr := restStr.TrimRight([')', ';']) + '` | `';
+          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                                  SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+          restStr := ReplaceStr(restStr, 'Func', 'On');
+          restStr := restStr + descStr + ' | ' + paramParser(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
+                                                                  SourceTxt[i+iPlus].IndexOf(')') - (
+                                                                  SourceTxt[i+iPlus].IndexOf('(') + 1))) + ' | ';
+          restStr := restStr.TrimRight([')', ';']) + ' | ';
         end else
-          restStr := restStr + descStr + ' | | `';
+        begin
+          restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
+                                  SourceTxt[i+iPlus].IndexOf(':') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+          restStr := ReplaceStr(restStr, 'Func', 'On');
+          restStr := restStr + descStr + ' | | ';
+        end;
 
         restStr  := restStr + SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].LastIndexOf(':') + 2);
-        restStr  := restStr.TrimRight([';']) + '` |';
+        restStr  := restStr.TrimRight([';']) + ' |';
         finalStr := versionStr + restStr;
       end;
 
@@ -183,7 +268,7 @@ begin
     if FileExists(edtActionsFile.Text) then
     begin
       fListActions.Clear;
-      fListActions.Add('##Actions' + sLineBreak);
+      fListActions.Add('####Actions' + sLineBreak);
       txtParser(edtActionsFile.Text, fListActions);
       txtParserOutput.Lines.AddStrings(fListActions);
     end else
@@ -195,7 +280,7 @@ begin
     if FileExists(edtEventsFile.Text) then
     begin
       fListEvents.Clear;
-      fListEvents.Add('##Events' + sLineBreak);
+      fListEvents.Add('####Events' + sLineBreak);
       txtParser(edtEventsFile.Text, fListEvents);
       txtParserOutput.Lines.AddStrings(fListEvents);
     end else
@@ -207,7 +292,7 @@ begin
     if FileExists(edtStatesFile.Text) then
     begin
       fListStates.Clear;
-      fListStates.Add('##States' + sLineBreak);
+      fListStates.Add('####States' + sLineBreak);
       txtParser(edtStatesFile.Text, fListStates);
       txtParserOutput.Lines.AddStrings(fListStates);
     end else
