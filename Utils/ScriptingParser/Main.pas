@@ -157,7 +157,7 @@ begin
       begin
         SetLength(paramHolder, Length(paramHolder) + 1);
         paramHolder[High(paramHolder)].Name := paramList[i];
-        paramHolder[High(paramHolder)].varType := varTypeInt;
+        paramHolder[High(paramHolder)].varType := varTypeInt; //todo: Bug, varTypeInt is not initialized
       end;
     end;
 
