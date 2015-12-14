@@ -175,9 +175,4 @@ object Form1: TForm1
     TabOrder = 4
     OnClick = Button2Click
   end
-  object OpenTxtDlg: TOpenTextFileDialog
-    Filter = 'Pascal files (*.pas)|*.PAS|Any file (*.*)|*.*'
-    Left = 552
-    Top = 336
-  end
 end

@@ -5,7 +5,6 @@ uses
 
 type
   TForm1 = class(TForm)
-    OpenTxtDlg: TOpenTextFileDialog;
     GroupBox1: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
@@ -290,7 +289,6 @@ begin
 
   if FileExists(edtActionsFile.Text) then
   begin
-    fListActions.Clear;
     fListActions.Add('####Actions' + sLineBreak);
     txtParser(edtActionsFile.Text, fListActions);
     txtParserOutput.Lines.AddStrings(fListActions);
@@ -299,7 +297,6 @@ begin
 
   if FileExists(edtEventsFile.Text) then
   begin
-    fListEvents.Clear;
     fListEvents.Add('####Events' + sLineBreak);
     txtParser(edtEventsFile.Text, fListEvents);
     txtParserOutput.Lines.AddStrings(fListEvents);
@@ -308,47 +305,20 @@ begin
 
   if FileExists(edtStatesFile.Text) then
   begin
-    fListStates.Clear;
     fListStates.Add('####States' + sLineBreak);
     txtParser(edtStatesFile.Text, fListStates);
     txtParserOutput.Lines.AddStrings(fListStates);
   end else
     raise Exception.Create('File does not exist.');
 
-  if txtParserOutput.Lines.Count <= 0 then
-    if OpenTxtDlg.Execute(Handle) then
-    begin
-      Filename := OpenTxtDlg.FileName;
+  if edtOutputFileActions.Text <> '' then
+    fListActions.SaveToFile(edtOutputFileActions.Text);
 
-      if FileExists(Filename) then
-      begin
-        fListActions.Clear;
-        txtParser(Filename, fListActions);
-        txtParserOutput.Lines.Assign(fListActions);
-      end else
-        raise Exception.Create('File does not exist.');
-    end;
+  if edtOutputFileEvents.Text <> '' then
+    fListEvents.SaveToFile(edtOutputFileEvents.Text);
 
-  if txtParserOutput.Lines.Count > 0 then
-  begin
-    if not (edtOutputFileActions.Text = '') and (fListActions.Count > 0) then
-    begin
-      Filename := edtOutputFileActions.Text;
-      fListActions.SaveToFile(Filename);
-    end;
-
-    if not (edtOutputFileEvents.Text = '') and (fListEvents.Count > 0) then
-    begin
-      Filename := edtOutputFileEvents.Text;
-      fListEvents.SaveToFile(Filename);
-    end;
-
-    if not (edtOutputFileStates.Text = '') and (fListStates.Count > 0) then
-    begin
-      Filename := edtOutputFileStates.Text;
-      fListStates.SaveToFile(Filename);
-    end;
-  end;
+  if edtOutputFileStates.Text <> '' then
+    fListStates.SaveToFile(edtOutputFileStates.Text);
 
   FreeAndNil(fListActions);
   FreeAndNil(fListEvents);
