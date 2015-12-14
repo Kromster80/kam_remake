@@ -42,20 +42,22 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..22] of string = (
+  VAR_TYPE_NAME: array[0..24] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
-    'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex', // Werewolf types
+    'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
-    'array of const', 'array of Integer'
+    'TKMObjectiveStatus', 'TKMObjectiveType',
+    'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..22] of string = (
+  VAR_TYPE_ALIAS: array[0..24] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
-    'Integer', 'Integer', 'Integer', 'Integer', // Werewolf types
+    'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
-    'array of const', 'array of Integer'
+    'TKMObjectiveStatus', 'TKMObjectiveType',
+    'Integer', 'Integer', 'Integer', 'Integer' // Werewolf types
   );
 
 var
@@ -112,13 +114,13 @@ end;
 }
 function TForm1.ParseParams(aString: string): string;
 var
-  i, K, varTypeInt, nextType: Integer;
+  i, K, nextType: Integer;
   isParam: Boolean;
   listTokens, paramList, typeList: TStringList;
   paramHolder: array of TParamHolder;
   lastType: string;
 begin
-  Result := '';
+  Result := '<sub>';
 
   listTokens := TStringList.Create;
   paramList := TStringList.Create;
@@ -171,10 +173,12 @@ begin
     // Add numbers and line-breaks
     for i := High(paramHolder) downto 0 do
     begin
-      Result := Result + IntToStr(High(paramHolder) - i + 1) + ' - ' + paramHolder[i].Name + ': ' + paramHolder[i].varType + ';';
+      Result := Result + {IntToStr(High(paramHolder) - i + 1) + ' - ' +} paramHolder[i].Name + ': ' + paramHolder[i].varType + ';';
       if i <> 0 then
         Result := Result + ' <br> ';
     end;
+
+    Result := Result + ' </sub>';
   finally
     FreeAndNil(listTokens);
     FreeAndNil(paramList);
@@ -291,8 +295,8 @@ begin
   begin
     listActions := TStringList.Create;
     listActions.Add('####Actions' + sLineBreak);
-    listActions.Add('| Ver<br>sion | Action | Description | Parameters and types |');
-    listActions.Add('| ------- | ---- | ----------- | -------------------- |');
+    listActions.Add('| Ver<br>sion | Action | Description | Parameters<br>and types | Returns |');
+    listActions.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
     ParseText(edtActionsFile.Text, listActions);
     txtParserOutput.Lines.AddStrings(listActions);
 
@@ -305,7 +309,7 @@ begin
   begin
     listEvents  := TStringList.Create;
     listEvents.Add('####Events' + sLineBreak);
-    listEvents.Add('| Ver<br>sion | Event | Description | Parameters and types |');
+    listEvents.Add('| Ver<br>sion | Event | Description | Parameters<br>and types |');
     listEvents.Add('| ------- | ---- | ----------- | -------------------- |');
     ParseText(edtEventsFile.Text, listEvents);
     txtParserOutput.Lines.AddStrings(listEvents);
@@ -319,7 +323,7 @@ begin
   begin
     listStates  := TStringList.Create;
     listStates.Add('####States' + sLineBreak);
-    listStates.Add('| Ver<br>sion | State | Description | Parameters and types | Returns |');
+    listStates.Add('| Ver<br>sion | State | Description | Parameters<br>and types | Returns |');
     listStates.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
     ParseText(edtStatesFile.Text, listStates);
     txtParserOutput.Lines.AddStrings(listStates);
