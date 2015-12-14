@@ -27,20 +27,20 @@ type
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
     procedure edtOnTextChange(Sender: TObject);
   private
-    fSettingsPath: String;
+    fSettingsPath: string;
     fListActions, fListEvents, fListStates: TStringList;
     fSafeToWrite: Boolean;
-    procedure txtParser(aFile: String; aList: TStringList);
-    function paramParser(aString: String): String;
+    procedure txtParser(aFile: string; aList: TStringList);
+    function paramParser(aString: string): string;
   end;
 
-  TParamHolder = Record
-    Name: String;
+  TParamHolder = record
+    Name: string;
     varType: Integer;
   end;
 
 const
-  VAR_TYPES: array[0..42] of String = (
+  VAR_TYPES: array[0..42] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Longint',
     'Longword', 'Int64', 'QWord', 'Real', 'Single', 'Double', 'Extended',
     'Currency', 'TByteSet', 'Boolean', 'ByteBool', 'WordBool', 'LongBool',
@@ -104,13 +104,13 @@ end;
   1 - [name]: [type];
   2 - etc
 }
-function TForm1.paramParser(aString: String): String;
+function TForm1.paramParser(aString: string): string;
 var
   i, varTypeInt, nextType: Integer;
   isType: Boolean;
   splitList, paramList, typeList: TStringList;
-  resultStr, varTypeName: String;
-  paramHolder: Array of TParamHolder;
+  resultStr, varTypeName: string;
+  paramHolder: array of TParamHolder;
 begin
   splitList   := TStringList.Create;
   paramList   := TStringList.Create;
@@ -174,10 +174,10 @@ end;
 
 
 // Scans file's contents and puts it all in proper formatting for most wikis.
-procedure TForm1.txtParser(aFile: String; aList: TStringList);
+procedure TForm1.txtParser(aFile: string; aList: TStringList);
 var
   i, iPlus: Integer;
-  versionStr, descStr, restStr, finalStr: String;
+  versionStr, descStr, restStr, finalStr: string;
   SourceTxt: TStringList;
 begin
   SourceTxt := TStringList.Create;
@@ -275,7 +275,7 @@ end;
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
-  Filename: String;
+  Filename: string;
 begin
   txtParserOutput.Lines.Clear;
   fListActions.Clear;
