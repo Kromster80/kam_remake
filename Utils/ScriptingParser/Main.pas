@@ -146,12 +146,13 @@ begin
     begin
       isType := False;
       for varTypeName in VAR_TYPES do
-        if paramList[i] = varTypeName then
+        if varTypeName = paramList[i] then
         begin
           typeList.Add(paramList[i]);
           Inc(varTypeInt);
           isType := True;
         end;
+
       if not isType then
       begin
         SetLength(paramHolder, Length(paramHolder) + 1);
@@ -167,6 +168,7 @@ begin
       if not (i = Length(paramHolder) - 1) then
         resultStr := resultStr + ' <br> ';
     end;
+
     Result := resultStr;
   finally
     FreeAndNil(splitList);
@@ -270,7 +272,7 @@ begin
         aList.Add(finalStr);
     end;
   finally
-    aList.Add('' + sLineBreak + '');
+    aList.Add(sLineBreak);
     FreeAndNil(SourceTxt);
   end;
 end;
@@ -278,51 +280,45 @@ end;
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
-  Filename: string;
-  fListActions, fListEvents, fListStates: TStringList;
+  listActions, listEvents, listStates: TStringList;
 begin
   txtParserOutput.Lines.Clear;
 
-  fListActions := TStringList.Create;
-  fListEvents  := TStringList.Create;
-  fListStates  := TStringList.Create;
-
   if FileExists(edtActionsFile.Text) then
   begin
-    fListActions.Add('####Actions' + sLineBreak);
-    ParseText(edtActionsFile.Text, fListActions);
-    txtParserOutput.Lines.AddStrings(fListActions);
-  end else
-    raise Exception.Create('File does not exist.');
+    listActions := TStringList.Create;
+    listActions.Add('####Actions' + sLineBreak);
+    ParseText(edtActionsFile.Text, listActions);
+    txtParserOutput.Lines.AddStrings(listActions);
+
+    if edtOutputFileActions.Text <> '' then
+      listActions.SaveToFile(edtOutputFileActions.Text);
+    FreeAndNil(listActions);
+  end;
 
   if FileExists(edtEventsFile.Text) then
   begin
-    fListEvents.Add('####Events' + sLineBreak);
-    ParseText(edtEventsFile.Text, fListEvents);
-    txtParserOutput.Lines.AddStrings(fListEvents);
-  end else
-    raise Exception.Create('File does not exist.');
+    listEvents  := TStringList.Create;
+    listEvents.Add('####Events' + sLineBreak);
+    ParseText(edtEventsFile.Text, listEvents);
+    txtParserOutput.Lines.AddStrings(listEvents);
+
+    if edtOutputFileEvents.Text <> '' then
+      listEvents.SaveToFile(edtOutputFileEvents.Text);
+    FreeAndNil(listEvents);
+  end;
 
   if FileExists(edtStatesFile.Text) then
   begin
-    fListStates.Add('####States' + sLineBreak);
-    ParseText(edtStatesFile.Text, fListStates);
-    txtParserOutput.Lines.AddStrings(fListStates);
-  end else
-    raise Exception.Create('File does not exist.');
+    listStates  := TStringList.Create;
+    listStates.Add('####States' + sLineBreak);
+    ParseText(edtStatesFile.Text, listStates);
+    txtParserOutput.Lines.AddStrings(listStates);
 
-  if edtOutputFileActions.Text <> '' then
-    fListActions.SaveToFile(edtOutputFileActions.Text);
-
-  if edtOutputFileEvents.Text <> '' then
-    fListEvents.SaveToFile(edtOutputFileEvents.Text);
-
-  if edtOutputFileStates.Text <> '' then
-    fListStates.SaveToFile(edtOutputFileStates.Text);
-
-  FreeAndNil(fListActions);
-  FreeAndNil(fListEvents);
-  FreeAndNil(fListStates);
+    if edtOutputFileStates.Text <> '' then
+      listStates.SaveToFile(edtOutputFileStates.Text);
+    FreeAndNil(listStates);
+  end;
 end;
 
 
