@@ -192,8 +192,6 @@ var
 begin
   SourceTxt := TStringList.Create;
   try
-    aList.Add('| Version | Name | Description | Parameters and types | Returns |');
-    aList.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
     SourceTxt.LoadFromFile(aFile);
 
     for i := 0 to SourceTxt.Count-1 do
@@ -293,6 +291,8 @@ begin
   begin
     listActions := TStringList.Create;
     listActions.Add('####Actions' + sLineBreak);
+    listActions.Add('| Ver<br>sion | Action | Description | Parameters and types |');
+    listActions.Add('| ------- | ---- | ----------- | -------------------- |');
     ParseText(edtActionsFile.Text, listActions);
     txtParserOutput.Lines.AddStrings(listActions);
 
@@ -305,6 +305,8 @@ begin
   begin
     listEvents  := TStringList.Create;
     listEvents.Add('####Events' + sLineBreak);
+    listEvents.Add('| Ver<br>sion | Event | Description | Parameters and types |');
+    listEvents.Add('| ------- | ---- | ----------- | -------------------- |');
     ParseText(edtEventsFile.Text, listEvents);
     txtParserOutput.Lines.AddStrings(listEvents);
 
@@ -317,6 +319,8 @@ begin
   begin
     listStates  := TStringList.Create;
     listStates.Add('####States' + sLineBreak);
+    listStates.Add('| Ver<br>sion | State | Description | Parameters and types | Returns |');
+    listStates.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
     ParseText(edtStatesFile.Text, listStates);
     txtParserOutput.Lines.AddStrings(listStates);
 
