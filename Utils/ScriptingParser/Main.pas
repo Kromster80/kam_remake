@@ -106,20 +106,18 @@ end;
 }
 function TForm1.paramParser(aString: String): String;
 var
-  i, j, nextType: Integer;
-  inList: Boolean;
-  paramList, convertList, typeList, splitList: TStringList;
-  resultStr, varType: String;
+  i, varTypeInt, nextType: Integer;
+  isType: Boolean;
+  splitList, paramList, typeList: TStringList;
+  resultStr, varTypeName: String;
   paramHolder: Array of tParamHolder;
 begin
   try
-    paramList   := TStringList.Create;
-    convertList := TStringList.Create;
-    typeList    := TStringList.Create;
     splitList   := TStringList.Create;
+    paramList   := TStringList.Create;
+    typeList    := TStringList.Create;
     resultStr   := '';
-    j           := 0;
-    nextType    := 0;
+    varTypeInt  := 0;
 
     splitList.AddStrings(aString.Split([' ']));
 
@@ -142,19 +140,19 @@ begin
     // Bind variable names to their type
     for i := 0 to paramList.Count - 1 do
     begin
-      inList := False;
-      for varType in VAR_TYPES do
-        if paramList[i] = varType then
+      isType := False;
+      for varTypeName in VAR_TYPES do
+        if paramList[i] = varTypeName then
         begin
           typeList.Add(paramList[i]);
-          Inc(j);
-          inList := True;
+          Inc(varTypeInt);
+          isType := True;
         end;
-      if not inList then
+      if not isType then
       begin
         SetLength(paramHolder, Length(paramHolder) + 1);
         paramHolder[High(paramHolder)].Name := paramList[i];
-        paramHolder[High(paramHolder)].varType := J;
+        paramHolder[High(paramHolder)].varType := varTypeInt;
       end;
     end;
 
@@ -167,10 +165,9 @@ begin
     end;
     Result := resultStr;
   finally
-    FreeAndNil(paramList);
-    FreeAndNil(convertList);
-    FreeAndNil(typeList);
     FreeAndNil(splitList);
+    FreeAndNil(paramList);
+    FreeAndNil(typeList);
   end;
 end;
 
