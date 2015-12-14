@@ -32,8 +32,8 @@ type
   private
     fSettingsPath: string;
     fSafeToWrite: Boolean;
-    procedure txtParser(aFile: string; aList: TStringList);
-    function paramParser(aString: string): string;
+    procedure ParseText(aFile: string; aList: TStringList);
+    function ParseParams(aString: string): string;
     procedure Reinit;
   end;
 
@@ -107,7 +107,7 @@ end;
   1 - [name]: [type];
   2 - etc
 }
-function TForm1.paramParser(aString: string): string;
+function TForm1.ParseParams(aString: string): string;
 var
   i, varTypeInt, nextType: Integer;
   isType: Boolean;
@@ -177,7 +177,7 @@ end;
 
 
 // Scans file's contents and puts it all in proper formatting for most wikis.
-procedure TForm1.txtParser(aFile: string; aList: TStringList);
+procedure TForm1.ParseText(aFile: string; aList: TStringList);
 var
   i, iPlus: Integer;
   versionStr, descStr, restStr, finalStr: string;
@@ -228,7 +228,7 @@ begin
           restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
                                   SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
           restStr := ReplaceStr(restStr, 'Proc', 'On');
-          restStr := restStr + descStr + ' | ' + paramParser(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
+          restStr := restStr + descStr + ' | ' + ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
                                                                   SourceTxt[i+iPlus].IndexOf(')') - (
                                                                   SourceTxt[i+iPlus].IndexOf('(') + 1))) + ' | |';
         end else
@@ -250,7 +250,7 @@ begin
           restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
                                   SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
           restStr := ReplaceStr(restStr, 'Func', 'On');
-          restStr := restStr + descStr + ' | ' + paramParser(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
+          restStr := restStr + descStr + ' | ' + ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
                                                                   SourceTxt[i+iPlus].IndexOf(')') - (
                                                                   SourceTxt[i+iPlus].IndexOf('(') + 1))) + ' | ';
         end else
@@ -290,7 +290,7 @@ begin
   if FileExists(edtActionsFile.Text) then
   begin
     fListActions.Add('####Actions' + sLineBreak);
-    txtParser(edtActionsFile.Text, fListActions);
+    ParseText(edtActionsFile.Text, fListActions);
     txtParserOutput.Lines.AddStrings(fListActions);
   end else
     raise Exception.Create('File does not exist.');
@@ -298,7 +298,7 @@ begin
   if FileExists(edtEventsFile.Text) then
   begin
     fListEvents.Add('####Events' + sLineBreak);
-    txtParser(edtEventsFile.Text, fListEvents);
+    ParseText(edtEventsFile.Text, fListEvents);
     txtParserOutput.Lines.AddStrings(fListEvents);
   end else
     raise Exception.Create('File does not exist.');
@@ -306,7 +306,7 @@ begin
   if FileExists(edtStatesFile.Text) then
   begin
     fListStates.Add('####States' + sLineBreak);
-    txtParser(edtStatesFile.Text, fListStates);
+    ParseText(edtStatesFile.Text, fListStates);
     txtParserOutput.Lines.AddStrings(fListStates);
   end else
     raise Exception.Create('File does not exist.');
