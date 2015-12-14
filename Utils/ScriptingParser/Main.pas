@@ -112,10 +112,10 @@ var
   resultStr, varTypeName: String;
   paramHolder: Array of TParamHolder;
 begin
+  splitList   := TStringList.Create;
+  paramList   := TStringList.Create;
+  typeList    := TStringList.Create;
   try
-    splitList   := TStringList.Create;
-    paramList   := TStringList.Create;
-    typeList    := TStringList.Create;
     resultStr   := '';
     // If not set to -1 it skips the first variable
     nextType    := -1;
