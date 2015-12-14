@@ -560,6 +560,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* How many active players there are.
 function TKMScriptStates.StatPlayerCount: Integer;
 var
   I: Integer;
