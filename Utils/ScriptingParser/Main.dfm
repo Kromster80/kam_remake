@@ -157,6 +157,24 @@ object Form1: TForm1
     TabOrder = 2
     OnClick = btnGenerateClick
   end
+  object Button1: TButton
+    Left = 696
+    Top = 16
+    Width = 25
+    Height = 25
+    Caption = '1'
+    TabOrder = 3
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 720
+    Top = 16
+    Width = 25
+    Height = 25
+    Caption = '2'
+    TabOrder = 4
+    OnClick = Button2Click
+  end
   object OpenTxtDlg: TOpenTextFileDialog
     Filter = 'Pascal files (*.pas)|*.PAS|Any file (*.*)|*.*'
     Left = 552

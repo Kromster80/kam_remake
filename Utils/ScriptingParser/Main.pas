@@ -21,17 +21,21 @@ type
     edtOutputFileEvents: TEdit;
     edtOutputFileStates: TEdit;
     btnGenerate: TButton;
+    Button1: TButton;
+    Button2: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnGenerateClick(Sender: TObject);
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
     procedure edtOnTextChange(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     fSettingsPath: string;
-    fListActions, fListEvents, fListStates: TStringList;
     fSafeToWrite: Boolean;
     procedure txtParser(aFile: string; aList: TStringList);
     function paramParser(aString: string): string;
+    procedure Reinit;
   end;
 
   TParamHolder = record
@@ -58,11 +62,17 @@ var
 implementation
 {$R *.dfm}
 
+
 procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Button1.Click;
+end;
+
+
+procedure TForm1.Reinit;
 var
   Settings: TINIFile;
 begin
-  fSettingsPath := ExtractFilePath(Application.ExeName) + 'ScriptingParser.ini';
   Settings      := TINIFile.Create(fSettingsPath);
 
   if not FileExists(fSettingsPath) then
@@ -83,18 +93,12 @@ begin
   edtOutputFileStates.Text  := Settings.ReadString('OUTPUT', 'States',  '');
   FreeAndNil(Settings);
 
-  fListActions := TStringList.Create;
-  fListEvents  := TStringList.Create;
-  fListStates  := TStringList.Create;
   fSafeToWrite := True;
 end;
 
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FreeAndNil(fListActions);
-  FreeAndNil(fListEvents);
-  FreeAndNil(fListStates);
 end;
 
 
@@ -276,11 +280,13 @@ end;
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
   Filename: string;
+  fListActions, fListEvents, fListStates: TStringList;
 begin
   txtParserOutput.Lines.Clear;
-  fListActions.Clear;
-  fListEvents.Clear;
-  fListStates.Clear;
+
+  fListActions := TStringList.Create;
+  fListEvents  := TStringList.Create;
+  fListStates  := TStringList.Create;
 
   if not (edtActionsFile.Text = '') then
   begin
@@ -352,6 +358,10 @@ begin
       fListStates.SaveToFile(Filename);
     end;
   end;
+
+  FreeAndNil(fListActions);
+  FreeAndNil(fListEvents);
+  FreeAndNil(fListStates);
 end;
 
 
@@ -362,6 +372,20 @@ begin
     (Sender as TMemo).SelectAll;
     Key := #0;
   end;
+end;
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  fSettingsPath := ExtractFilePath(Application.ExeName) + 'ScriptingParser.ini';
+  Reinit;
+end;
+
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  fSettingsPath := ExtractFilePath(Application.ExeName) + 'ScriptingParser2.ini';
+  Reinit;
 end;
 
 
