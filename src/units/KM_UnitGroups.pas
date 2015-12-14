@@ -146,6 +146,7 @@ type
     procedure OrderNone;
     procedure OrderRepeat;
     function OrderSplit(aClearOffenders: Boolean): TKMUnitGroup;
+    function OrderSplitSingle(aClearOffenders: Boolean): TKMUnitGroup;
     function OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): TKMUnitGroup;
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
     procedure OrderStorm(aClearOffenders: Boolean);
@@ -1234,6 +1235,54 @@ begin
     NewGroup.AddMember(Members[I], 1); // Join new group (insert next to commander)
     fMembers.Delete(I); // Leave this group
   end;
+
+  //Keep the selected unit Selected
+  if NewGroup.HasMember(fSelected) then
+  begin
+    gMySpectator.Selected := NewGroup;
+    NewGroup.fSelected := fSelected;
+  end;
+
+  //Make sure units per row is still valid for both groups
+  UnitsPerRow := fUnitsPerRow;
+  NewGroup.UnitsPerRow := fUnitsPerRow;
+
+  //If we are hungry then don't repeat message each time we split, give new commander our counter
+  NewGroup.fTimeSinceHungryReminder := fTimeSinceHungryReminder;
+
+  //Commander OrderLoc must always be valid, but because this guy wasn't a commander it might not be
+  NewGroup.fOrderLoc := KMPointDir(NewLeader.GetPosition, fOrderLoc.Dir);
+
+  //Tell both groups to reposition
+  OrderHalt(False);
+  NewGroup.OrderHalt(False);
+
+  Result := NewGroup; //Return the new group in case somebody is interested in it
+end;
+
+
+// Split one single unit from the group.
+function TKMUnitGroup.OrderSplitSingle(aClearOffenders: Boolean): TKMUnitGroup;
+var
+  NewGroup: TKMUnitGroup;
+  NewLeader: TKMUnitWarrior;
+begin
+  Result := nil;
+  if IsDead then Exit;
+  if Count < 2 then Exit;
+  //If leader is storming don't allow splitting the group (makes it too easy to withdraw)
+  if Members[0].GetUnitAction is TUnitActionStormAttack then Exit;
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
+
+  //Choose the new leader
+  NewLeader := Members[Count - 1];
+
+  //Remove from the group
+  NewLeader.ReleaseUnitPointer;
+  fMembers.Remove(NewLeader);
+
+  NewGroup := gHands[Owner].UnitGroups.AddGroup(NewLeader);
+  NewGroup.OnGroupDied := OnGroupDied;
 
   //Keep the selected unit Selected
   if NewGroup.HasMember(fSelected) then
