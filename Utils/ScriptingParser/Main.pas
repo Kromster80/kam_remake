@@ -38,21 +38,24 @@ type
   end;
 
   TParamHolder = record
-    Name: string;
-    varType: Integer;
+    Name, varType: string;
   end;
 
 const
-  VAR_TYPES: array[0..42] of string = (
-    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Longint',
-    'Longword', 'Int64', 'QWord', 'Real', 'Single', 'Double', 'Extended',
-    'Currency', 'TByteSet', 'Boolean', 'ByteBool', 'WordBool', 'LongBool',
-    'Char', 'WideChar', 'PChar', 'String', 'AnsiString', 'UnicodeString',
-    'TKMHandIndex', 'TKMHouse', 'TKMUnit', 'TKMUnitGroup',
+  VAR_TYPE_NAME: array[0..22] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
+    'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex', // Werewolf types
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
-    'array of const', 'Array of const', 'Array of Const',
-    'array of Integer', 'Array of Integer'
+    'array of const', 'array of Integer'
+  );
+
+  VAR_TYPE_ALIAS: array[0..22] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
+    'Integer', 'Integer', 'Integer', 'Integer', // Werewolf types
+    'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
+    'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
+    'array of const', 'array of Integer'
   );
 
 var
@@ -109,68 +112,71 @@ end;
 }
 function TForm1.ParseParams(aString: string): string;
 var
-  i, varTypeInt, nextType: Integer;
-  isType: Boolean;
-  splitList, paramList, typeList: TStringList;
-  varTypeName: string;
+  i, K, varTypeInt, nextType: Integer;
+  isParam: Boolean;
+  listTokens, paramList, typeList: TStringList;
   paramHolder: array of TParamHolder;
+  lastType: string;
 begin
   Result := '';
 
-  splitList := TStringList.Create;
+  listTokens := TStringList.Create;
   paramList := TStringList.Create;
   typeList  := TStringList.Create;
   try
     // If not set to -1 it skips the first variable
-    nextType    := -1;
+    nextType := -1;
 
-    splitList.AddStrings(aString.Split([' ']));
+    listTokens.AddStrings(aString.Split([' ']));
 
     // Re-combine type arrays
-    for i := 0 to splitList.Count - 1 do
+    for i := 0 to listTokens.Count - 1 do
     begin
-      splitList[i] := splitList[i].TrimRight([',', ':', ';']);
+      listTokens[i] := listTokens[i].TrimRight([',', ':', ';']);
 
-      if splitList[i] = 'array' then
+      if SameText(listTokens[i], 'array') then
       begin
         nextType := i + 2;
         // For some reason this kept giving 'array of Integer;' hence the trim
-        paramList.Add((splitList[i] + ' ' + splitList[nextType - 1] + ' ' + splitList[nextType]).TrimRight([',', ':', ';']));
+        paramList.Add((listTokens[i] + ' ' + listTokens[nextType - 1] + ' ' + listTokens[nextType]).TrimRight([',', ':', ';']));
       end else
         // Skip unused stuff
-        if not ((splitList[i] = 'of') or (splitList[i] = 'const') or (i = nextType)) then
-          paramList.Add(splitList[i]);
+        if not ((SameText(listTokens[i], 'of')) or (SameText(listTokens[i], 'const')) or (i = nextType)) then
+          paramList.Add(listTokens[i]);
     end;
 
     // Bind variable names to their type
-    for i := 0 to paramList.Count - 1 do
+    // Use reverse scan, so that we can remember last met type and apply it to all preceeding parameters
+    lastType := '';
+    for i := paramList.Count - 1 downto 0 do
     begin
-      isType := False;
-      for varTypeName in VAR_TYPES do
-        if varTypeName = paramList[i] then
+      // See if this token is a Type
+      isParam := True;
+      for K := 0 to High(VAR_TYPE_NAME) do
+        if SameText(VAR_TYPE_NAME[K], paramList[i]) then
         begin
-          typeList.Add(paramList[i]);
-          Inc(varTypeInt);
-          isType := True;
+          lastType := VAR_TYPE_ALIAS[K];
+          isParam := False;
+          Break;
         end;
 
-      if not isType then
+      if isParam then
       begin
         SetLength(paramHolder, Length(paramHolder) + 1);
         paramHolder[High(paramHolder)].Name := paramList[i];
-        paramHolder[High(paramHolder)].varType := varTypeInt; //todo: Bug, varTypeInt is not initialized
+        paramHolder[High(paramHolder)].varType := lastType;
       end;
     end;
 
-    // Add numbers and line-break tags
-    for i := 0 to Length(paramHolder) - 1 do
+    // Add numbers and line-breaks
+    for i := High(paramHolder) downto 0 do
     begin
-      Result := Result + IntToStr(i + 1) + ' - ' + paramHolder[i].Name + ': ' + typeList[paramHolder[i].varType] + ';';
-      if i <> Length(paramHolder) - 1 then
+      Result := Result + IntToStr(High(paramHolder) - i + 1) + ' - ' + paramHolder[i].Name + ': ' + paramHolder[i].varType + ';';
+      if i <> 0 then
         Result := Result + ' <br> ';
     end;
   finally
-    FreeAndNil(splitList);
+    FreeAndNil(listTokens);
     FreeAndNil(paramList);
     FreeAndNil(typeList);
   end;
