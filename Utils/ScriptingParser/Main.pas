@@ -40,7 +40,7 @@ type
   end;
 
 const
-  VAR_TYPES: array[0..39] of String = (
+  VAR_TYPES: array[0..42] of String = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Longint',
     'Longword', 'Int64', 'QWord', 'Real', 'Single', 'Double', 'Extended',
     'Currency', 'TByteSet', 'Boolean', 'ByteBool', 'WordBool', 'LongBool',
@@ -48,7 +48,8 @@ const
     'TKMHandIndex', 'TKMHouse', 'TKMUnit', 'TKMUnitGroup',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
-    'array of const', 'array of Integer'
+    'array of const', 'Array of const', 'Array of Const',
+    'array of Integer', 'Array of Integer'
   );
 
 var
@@ -105,24 +106,43 @@ end;
 }
 function TForm1.paramParser(aString: String): String;
 var
-  i, j: Integer;
+  i, j, nextType: Integer;
   inList: Boolean;
-  paramList, convertList, typeList: TStringList;
+  paramList, convertList, typeList, splitList: TStringList;
   resultStr, varType: String;
   paramHolder: Array of tParamHolder;
 begin
   try
-    paramList := TStringList.Create;
+    paramList   := TStringList.Create;
     convertList := TStringList.Create;
-    typeList := TStringList.Create;
-    resultStr := '';
-    j := 0;
-    paramList.AddStrings(aString.Split([' ']));
+    typeList    := TStringList.Create;
+    splitList   := TStringList.Create;
+    resultStr   := '';
+    j           := 0;
+    nextType    := 0;
 
+    splitList.AddStrings(aString.Split([' ']));
+
+    // Re-combine arrays
+    for i := 0 to splitList.Count - 1 do
+    begin
+      splitList[i] := splitList[i].TrimRight([',', ':', ';']);
+
+      if splitList[i] = 'array' then
+      begin
+        nextType := i + 2;
+        // For some reason this kept giving 'array of Integer;' hence the trim
+        paramList.Add((splitList[i] + ' ' + splitList[nextType - 1] + ' ' + splitList[nextType]).TrimRight([',', ':', ';']));
+      end else
+        // Skip unused stuff
+        if not ((splitList[i] = 'of') or (splitList[i] = 'const') or (i = nextType)) then
+          paramList.Add(splitList[i]);
+    end;
+
+    // Bind variable names to their type
     for i := 0 to paramList.Count - 1 do
     begin
       inList := False;
-      paramList[i] := paramList[i].TrimRight([',', ':', ';']);
       for varType in VAR_TYPES do
         if paramList[i] = varType then
         begin
@@ -138,6 +158,7 @@ begin
       end;
     end;
 
+    // Add numbers and line-break tags
     for i := 0 to Length(paramHolder) - 1 do
     begin
       resultStr := resultStr + IntToStr(i + 1) + ' - ' + paramHolder[i].Name + ': ' + typeList[paramHolder[i].varType] + ';';
@@ -149,6 +170,7 @@ begin
     FreeAndNil(paramList);
     FreeAndNil(convertList);
     FreeAndNil(typeList);
+    FreeAndNil(splitList);
   end;
 end;
 
