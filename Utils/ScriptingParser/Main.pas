@@ -180,8 +180,8 @@ var
   versionStr, descStr, restStr, finalStr: String;
   SourceTxt: TStringList;
 begin
+  SourceTxt := TStringList.Create;
   try
-    SourceTxt := TStringList.Create;
     aList.Add('| Version | Name | Description | Parameters and types | Returns |');
     aList.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
     SourceTxt.LoadFromFile(aFile);
