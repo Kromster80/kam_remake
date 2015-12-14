@@ -92,7 +92,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       OnChange = edtOnTextChange
-      ExplicitWidth = 593
     end
     object edtEventsFile: TEdit
       Left = 72
@@ -102,7 +101,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
       OnChange = edtOnTextChange
-      ExplicitWidth = 593
     end
     object edtStatesFile: TEdit
       Left = 72
@@ -112,7 +110,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       OnChange = edtOnTextChange
-      ExplicitWidth = 593
     end
     object edtOutputFileActions: TEdit
       Left = 112
@@ -122,7 +119,6 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       OnChange = edtOnTextChange
-      ExplicitWidth = 553
     end
     object edtOutputFileEvents: TEdit
       Left = 112
@@ -132,51 +128,34 @@ object Form1: TForm1
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       OnChange = edtOnTextChange
-      ExplicitWidth = 553
     end
     object edtOutputFileStates: TEdit
       Left = 112
       Top = 168
-      Width = 545
+      Width = 546
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 5
       OnChange = edtOnTextChange
     end
   end
-  object btnParse: TButton
-    Left = 688
-    Top = 24
+  object btnGenerate: TButton
+    Left = 687
+    Top = 123
     Width = 90
     Height = 73
     Anchors = [akTop, akRight]
-    Caption = 'Parse'
+    Caption = 'Generate'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -15
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
     ParentShowHint = False
     ShowHint = False
     TabOrder = 2
-    OnClick = btnParseClick
-  end
-  object btnSave: TButton
-    Left = 688
-    Top = 120
-    Width = 90
-    Height = 73
-    Anchors = [akTop, akRight]
-    Caption = 'Save'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 3
-    OnClick = btnSaveClick
+    OnClick = btnGenerateClick
   end
   object OpenTxtDlg: TOpenTextFileDialog
     Filter = 'Pascal files (*.pas)|*.PAS|Any file (*.*)|*.*'
