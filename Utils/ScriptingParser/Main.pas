@@ -73,7 +73,7 @@ procedure TForm1.Reinit;
 var
   Settings: TINIFile;
 begin
-  Settings      := TINIFile.Create(fSettingsPath);
+  Settings := TINIFile.Create(fSettingsPath);
 
   if not FileExists(fSettingsPath) then
   begin
@@ -288,44 +288,35 @@ begin
   fListEvents  := TStringList.Create;
   fListStates  := TStringList.Create;
 
-  if not (edtActionsFile.Text = '') then
+  if FileExists(edtActionsFile.Text) then
   begin
-    if FileExists(edtActionsFile.Text) then
-    begin
-      fListActions.Clear;
-      fListActions.Add('####Actions' + sLineBreak);
-      txtParser(edtActionsFile.Text, fListActions);
-      txtParserOutput.Lines.AddStrings(fListActions);
-    end else
-      raise Exception.Create('File does not exist.');
-  end;
+    fListActions.Clear;
+    fListActions.Add('####Actions' + sLineBreak);
+    txtParser(edtActionsFile.Text, fListActions);
+    txtParserOutput.Lines.AddStrings(fListActions);
+  end else
+    raise Exception.Create('File does not exist.');
 
-  if not (edtEventsFile.Text = '') then
+  if FileExists(edtEventsFile.Text) then
   begin
-    if FileExists(edtEventsFile.Text) then
-    begin
-      fListEvents.Clear;
-      fListEvents.Add('####Events' + sLineBreak);
-      txtParser(edtEventsFile.Text, fListEvents);
-      txtParserOutput.Lines.AddStrings(fListEvents);
-    end else
-      raise Exception.Create('File does not exist.');
-  end;
+    fListEvents.Clear;
+    fListEvents.Add('####Events' + sLineBreak);
+    txtParser(edtEventsFile.Text, fListEvents);
+    txtParserOutput.Lines.AddStrings(fListEvents);
+  end else
+    raise Exception.Create('File does not exist.');
 
-  if not (edtStatesFile.Text = '') then
+  if FileExists(edtStatesFile.Text) then
   begin
-    if FileExists(edtStatesFile.Text) then
-    begin
-      fListStates.Clear;
-      fListStates.Add('####States' + sLineBreak);
-      txtParser(edtStatesFile.Text, fListStates);
-      txtParserOutput.Lines.AddStrings(fListStates);
-    end else
-      raise Exception.Create('File does not exist.');
-  end;
+    fListStates.Clear;
+    fListStates.Add('####States' + sLineBreak);
+    txtParser(edtStatesFile.Text, fListStates);
+    txtParserOutput.Lines.AddStrings(fListStates);
+  end else
+    raise Exception.Create('File does not exist.');
 
   if txtParserOutput.Lines.Count <= 0 then
-    if OpenTxtDlg.Execute(Self.Handle) then
+    if OpenTxtDlg.Execute(Handle) then
     begin
       Filename := OpenTxtDlg.FileName;
 
