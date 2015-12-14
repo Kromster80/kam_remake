@@ -34,7 +34,7 @@ type
     function paramParser(aString: String): String;
   end;
 
-  tParamHolder = Record
+  TParamHolder = Record
     Name: String;
     varType: Integer;
   end;
@@ -110,18 +110,19 @@ var
   isType: Boolean;
   splitList, paramList, typeList: TStringList;
   resultStr, varTypeName: String;
-  paramHolder: Array of tParamHolder;
+  paramHolder: Array of TParamHolder;
 begin
   try
     splitList   := TStringList.Create;
     paramList   := TStringList.Create;
     typeList    := TStringList.Create;
     resultStr   := '';
-    varTypeInt  := 0;
+    // If not set to -1 it skips the first variable
+    nextType    := -1;
 
     splitList.AddStrings(aString.Split([' ']));
 
-    // Re-combine arrays
+    // Re-combine type arrays
     for i := 0 to splitList.Count - 1 do
     begin
       splitList[i] := splitList[i].TrimRight([',', ':', ';']);
@@ -249,7 +250,6 @@ begin
           restStr := restStr + descStr + ' | ' + paramParser(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
                                                                   SourceTxt[i+iPlus].IndexOf(')') - (
                                                                   SourceTxt[i+iPlus].IndexOf('(') + 1))) + ' | ';
-          restStr := restStr.TrimRight([')', ';']) + ' | ';
         end else
         begin
           restStr := ' | ' + Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
