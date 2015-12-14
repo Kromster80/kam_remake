@@ -1206,7 +1206,7 @@ begin
 
   //Choose the new leader
   if aSplitSingle then
-    NewLeader := Members[Count - 2]
+    NewLeader := Members[Count - 1]
   else
   begin
     NewLeader := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
