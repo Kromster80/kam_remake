@@ -369,30 +369,29 @@ procedure TForm1.edtOnTextChange(Sender: TObject);
 var
   Settings: TINIFile;
 begin
-  if fSafeToWrite then
-  begin
-    Settings := TINIFile.Create(fSettingsPath);
+  if not fSafeToWrite then Exit;
 
-    if Sender = edtActionsFile then
-      Settings.WriteString('INPUT',  'Actions', edtActionsFile.Text);
+  Settings := TINIFile.Create(fSettingsPath);
 
-    if Sender = edtEventsFile then
-      Settings.WriteString('INPUT',  'Events',  edtEventsFile.Text);
+  if Sender = edtActionsFile then
+    Settings.WriteString('INPUT',  'Actions', edtActionsFile.Text);
 
-    if Sender = edtStatesFile then
-      Settings.WriteString('INPUT',  'States',  edtStatesFile.Text);
+  if Sender = edtEventsFile then
+    Settings.WriteString('INPUT',  'Events',  edtEventsFile.Text);
 
-    if Sender = edtOutputFileActions then
-      Settings.WriteString('OUTPUT', 'Actions',  edtOutputFileActions.Text);
+  if Sender = edtStatesFile then
+    Settings.WriteString('INPUT',  'States',  edtStatesFile.Text);
 
-    if Sender = edtOutputFileEvents then
-      Settings.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
+  if Sender = edtOutputFileActions then
+    Settings.WriteString('OUTPUT', 'Actions',  edtOutputFileActions.Text);
 
-    if Sender = edtOutputFileStates then
-      Settings.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
+  if Sender = edtOutputFileEvents then
+    Settings.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
 
-    FreeAndNil(Settings);
-  end;
+  if Sender = edtOutputFileStates then
+    Settings.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
+
+  FreeAndNil(Settings);
 end;
 
 
