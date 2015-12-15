@@ -199,6 +199,9 @@ end;
 
 //* Version: 6570
 //* Occurs when a player places a beacon on the map.
+//- Player ID
+//- X coordinate
+//- Y coordinate
 procedure TKMScriptEvents.ProcBeacon(aPlayer: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcBeacon) then
@@ -208,6 +211,9 @@ end;
 
 //* Version: 6216
 //* Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).
+//- House ID
+//- From wate type
+//- To ware type
 procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
 begin
   if MethodAssigned(fProcMarketTrade) then

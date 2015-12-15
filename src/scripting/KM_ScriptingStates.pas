@@ -155,6 +155,11 @@ end;
 //* Returns the group of the specified player and group type that is closest to the specified coordinates,
 //* r -1 if no such group was found.
 //* If the group type is -1 any group type will be accepted
+//- Player ID
+//- X coordinate
+//- Y coordinate
+//- Group type
+//+ Group ID
 function TKMScriptStates.ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
 var
   GTS: TGroupTypeSet;
@@ -191,6 +196,11 @@ end;
 //* Returns the group of the specified player and group types that is closest to the specified coordinates,
 //* or -1 if no such group was found.
 //* The group types is a "set of Byte", for example [1,3]
+//- Player ID
+//- X coordinate
+//- Y coordinate
+//- Multiple group types
+//+ Group ID
 function TKMScriptStates.ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -227,6 +237,11 @@ end;
 //* Returns the house of the specified player and house type that is closest to the specified coordinates,
 //* or -1 if no such house was found.
 //* If the house type is -1 any house type will be accepted
+//- Player ID
+//- X coordinate
+//- Y coordinate
+//- House type
+//+ House ID
 function TKMScriptStates.ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer;
 var
   HTS: THouseTypeSet;
@@ -263,6 +278,11 @@ end;
 //* Returns the house of the specified player and house types that is closest to the specified coordinates,
 //* or -1 if no such house was found.
 //* The house types is a "set of Byte", for example [11,13,21]
+//- Player ID
+//- X coordinate
+//- Y coordinate
+//- Multiple house types
+//+ House ID
 function TKMScriptStates.ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -299,6 +319,11 @@ end;
 //* Returns the unit of the specified player and unit type that is closest to the specified coordinates,
 //* or -1 if no such unit was found.
 //* If the unit type is -1 any unit type will be accepted
+//- Player ID
+//- X coordinate
+//- Y coordinate
+//- Unit type
+//+ Unit ID
 function TKMScriptStates.ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer;
 var
   UTS: TUnitTypeSet;
@@ -335,6 +360,11 @@ end;
 //* Returns the unit of the specified player and unit types that is closest to the specified coordinates,
 //* or -1 if no such unit was found.
 //* The unit types is a "set of Byte", for example [0,9]
+//- Player ID
+//- X coordinate
+//- Y coordinate
+//- Multiple unit types
+//+ Unit ID
 function TKMScriptStates.ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -369,6 +399,11 @@ end;
 
 //* Version: 6602
 //* Check if two tiles are connected by walkable road
+//- X start coordinate
+//- Y start coordinate
+//- X end coordinate
+//- Y end coordinate
+//+ Connected
 function TKMScriptStates.ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean;
 begin
   try
@@ -389,6 +424,11 @@ end;
 
 //* Version: 6602
 //* Check if two tiles are connected by a walkable route
+//- X start coordinate
+//- Y start coordinate
+//- X end coordinate
+//- Y end coordinate
+//+ Walkable
 function TKMScriptStates.ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean;
 begin
   try
@@ -562,6 +602,7 @@ end;
 
 //* Version: 5057
 //* How many active players there are.
+//+ Number of players
 function TKMScriptStates.StatPlayerCount: Integer;
 var
   I: Integer;
