@@ -233,7 +233,7 @@ begin
       //* Large description of the method, optional
       //* aX: Small optional description of parameter
       //* aY: Small optional description of parameter
-      //* Return: Small optional description of returned value
+      //* Result: Small optional description of returned value
 
       // Before anything it should start with "//* Version:"
       if sourceTxt[i].StartsWith('//* Version:') then
@@ -247,8 +247,8 @@ begin
           // Repeat until no description tags are found
           while sourceTxt[i+iPlus].StartsWith('//* ') do
           begin
-            // Handle return description separately to keep the output clean.
-            if sourceTxt[i+iPlus].StartsWith('//* Return:') then
+            // Handle Result description separately to keep the output clean.
+            if sourceTxt[i+iPlus].StartsWith('//* Result:') then
               res.ReturnDesc := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf(':') + 2)
             else
               descrTxt.Add(sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf('*') + 2));

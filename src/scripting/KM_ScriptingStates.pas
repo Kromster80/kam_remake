@@ -156,10 +156,7 @@ end;
 //* r -1 if no such group was found.
 //* If the group type is -1 any group type will be accepted
 //* aPlayer: Player ID
-//* X: X coordinate
-//* Y: Y coordinate
-//* aGroupType: Group type
-//* Return: Group ID
+//* Result: Group ID
 function TKMScriptStates.ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
 var
   GTS: TGroupTypeSet;
@@ -198,7 +195,7 @@ end;
 //* The group types is a "set of Byte", for example [1,3]
 //* aPlayer: Player ID
 //* aGroupTypes: Multiple group types
-//* Return: Group ID
+//* Result: Group ID
 function TKMScriptStates.ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -236,8 +233,7 @@ end;
 //* or -1 if no such house was found.
 //* If the house type is -1 any house type will be accepted
 //* aPlayer: Player ID
-//* aHouseType: House type
-//* Return: House ID
+//* Result: House ID
 function TKMScriptStates.ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer;
 var
   HTS: THouseTypeSet;
@@ -276,7 +272,7 @@ end;
 //* The house types is a "set of Byte", for example [11,13,21]
 //* aPlayer: Player ID
 //* aHouseTypes: Multiple house types
-//* Return: House ID
+//* Result: House ID
 function TKMScriptStates.ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -314,8 +310,7 @@ end;
 //* or -1 if no such unit was found.
 //* If the unit type is -1 any unit type will be accepted
 //* aPlayer: Player ID
-//* aUnitType: Unit type
-//* Return: Unit ID
+//* Result: Unit ID
 function TKMScriptStates.ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer;
 var
   UTS: TUnitTypeSet;
@@ -354,7 +349,7 @@ end;
 //* The unit types is a "set of Byte", for example [0,9]
 //* aPlayer: Player ID
 //* aUnitTypes: Multiple unit types
-//* Return: Unit ID
+//* Result: Unit ID
 function TKMScriptStates.ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -389,11 +384,11 @@ end;
 
 //* Version: 6602
 //* Check if two tiles are connected by walkable road
-//* X1: X start coordinate
-//* Y1: Y start coordinate
-//* X2: X end coordinate
-//* Y2: Y end coordinate
-//* Return: Connected
+//* X1: left coordinate
+//* Y1: top coordinate
+//* X2: right coordinate
+//* Y2: bottom coordinate
+//* Result: Connected
 function TKMScriptStates.ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean;
 begin
   try
@@ -414,11 +409,11 @@ end;
 
 //* Version: 6602
 //* Check if two tiles are connected by a walkable route
-//* X1: X start coordinate
-//* Y1: Y start coordinate
-//* X2: X end coordinate
-//* Y2: Y end coordinate
-//* Return: Walkable
+//* X1: left coordinate
+//* Y1: top coordinate
+//* X2: right coordinate
+//* Y2: bottom coordinate
+//* Result: Connected
 function TKMScriptStates.ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean;
 begin
   try
