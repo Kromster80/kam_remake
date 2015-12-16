@@ -311,7 +311,6 @@ begin
       end;
     end;
   finally
-    aList.Add(sLineBreak);
     FreeAndNil(sourceTxt);
     FreeAndNil(descrTxt);
   end;
@@ -338,11 +337,14 @@ begin
   if FileExists(edtActionsFile.Text) then
   begin
     listActions := TStringList.Create;
-    listActions.Add('####Actions' + sLineBreak);
-    listActions.Add('| Ver<br>sion | Action | Description | Parameters<br>and types | Returns |');
-    listActions.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
+
     ParseText(edtActionsFile.Text, listActions, True);
     listActions.CustomSort(DoSort);
+
+    listActions.Insert(0, '####Actions' + sLineBreak);
+    listActions.Insert(1, '| Ver<br>sion | Action | Description | Parameters<br>and types | Returns |');
+    listActions.Insert(2, '| ------- | ---- | ----------- | -------------------- | ------- |');
+
     txtParserOutput.Lines.AddStrings(listActions);
 
     if edtOutputFileActions.Text <> '' then
@@ -353,11 +355,14 @@ begin
   if FileExists(edtEventsFile.Text) then
   begin
     listEvents := TStringList.Create;
-    listEvents.Add('####Events' + sLineBreak);
-    listEvents.Add('| Ver<br>sion | Event | Description | Parameters<br>and types |');
-    listEvents.Add('| ------- | ---- | ----------- | -------------------- |');
+
     ParseText(edtEventsFile.Text, listEvents, False);
     listEvents.CustomSort(DoSort);
+
+    listEvents.Insert(0, '####Events' + sLineBreak);
+    listEvents.Insert(1, '| Ver<br>sion | Event | Description | Parameters<br>and types |');
+    listEvents.Insert(2, '| ------- | ---- | ----------- | -------------------- |');
+
     txtParserOutput.Lines.AddStrings(listEvents);
 
     if edtOutputFileEvents.Text <> '' then
@@ -368,11 +373,13 @@ begin
   if FileExists(edtStatesFile.Text) then
   begin
     listStates := TStringList.Create;
-    listStates.Add('####States' + sLineBreak);
-    listStates.Add('| Ver<br>sion | State | Description | Parameters<br>and types | Returns |');
-    listStates.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
     ParseText(edtStatesFile.Text, listStates, True);
     listStates.CustomSort(DoSort);
+
+    listStates.Insert(0, '####States' + sLineBreak);
+    listStates.Insert(1, '| Ver<br>sion | State | Description | Parameters<br>and types | Returns |');
+    listStates.Insert(2, '| ------- | ---- | ----------- | -------------------- | ------- |');
+
     txtParserOutput.Lines.AddStrings(listStates);
 
     if edtOutputFileStates.Text <> '' then
