@@ -33,7 +33,7 @@ type
     fSettingsPath: string;
     fSafeToWrite: Boolean;
     procedure ParseText(aFile: string; aList: TStringList);
-    function ParseParams(aString: string): string;
+    function ParseParams(aString: string; aDescriptions: TStringList): string;
     procedure Reinit;
   end;
 
@@ -120,9 +120,9 @@ end;
   1 - [name]: [type];
   2 - etc
 }
-function TForm1.ParseParams(aString: string): string;
+function TForm1.ParseParams(aString: string; aDescriptions: TStringList): string;
 var
-  i, K, nextType: Integer;
+  i, j, K, nextType: Integer;
   isParam: Boolean;
   listTokens, paramList, typeList: TStringList;
   paramHolder: array of TParamHolder;
@@ -182,6 +182,16 @@ begin
     for i := High(paramHolder) downto 0 do
     begin
       Result := Result + {IntToStr(High(paramHolder) - i + 1) + ' - ' +} paramHolder[i].Name + ': ' + paramHolder[i].varType + ';';
+
+      // Add micro descriptions to the parameters and remove them from the stringlist.
+      for j := aDescriptions.Count - 1 downto 0 do
+        if aDescriptions[j].StartsWith(paramHolder[i].Name) then
+        begin
+          Result := Result + ' <br> ' + aDescriptions[j].Substring(aDescriptions[j].IndexOf(':') + 2);
+          aDescriptions.Delete(j);
+          Break;
+        end;
+
       if i <> 0 then
         Result := Result + ' <br> ';
     end;
@@ -196,16 +206,17 @@ end;
 // Scans file's contents and puts it all in proper formatting for most wikis.
 procedure TForm1.ParseText(aFile: string; aList: TStringList);
 var
-  i, iPlus: Integer;
-  restStr: string;
-  SourceTxt: TStringList;
+  i, j, iPlus: Integer;
+  restStr, returnDescr: string;
+  sourceTxt, descrTxt: TStringList;
   res: TCommandInfo;
 begin
-  SourceTxt := TStringList.Create;
+  sourceTxt := TStringList.Create;
+  descrTxt  := TStringList.Create;
   try
-    SourceTxt.LoadFromFile(aFile);
+    sourceTxt.LoadFromFile(aFile);
 
-    for i := 0 to SourceTxt.Count-1 do
+    for i := 0 to SourceTxt.Count - 1 do
     begin
       // Reset old values
       res.Version     := '';
@@ -213,78 +224,89 @@ begin
       res.Description := '';
       res.Parameters  := '';
       res.Return      := '';
+      returnDescr     := '';
       iPlus := 0;
+      descrTxt.Clear;
 
       // Before anything it should start with "//* Version:"
-      if SourceTxt[i].StartsWith('//* Version:') then
+      if sourceTxt[i].StartsWith('//* Version:') then
       begin
-        restStr := Trim(SourceTxt[i].Substring(SourceTxt[i].IndexOf(':') + 2));
+        restStr := Trim(sourceTxt[i].Substring(sourceTxt[i].IndexOf(':') + 2));
         res.Version := IfThen(restStr = '', '-', restStr);
         Inc(iPlus);
 
         // Descriptions are only added by lines starting with "//* "
-        if SourceTxt[i+iPlus].StartsWith('//* ') then
-        begin
+        if sourceTxt[i+iPlus].StartsWith('//* ') then
           // Repeat until no description tags are found
-          while SourceTxt[i+iPlus].StartsWith('//* ') do
+          while sourceTxt[i+iPlus].StartsWith('//* ') do
           begin
-            res.Description := res.Description + ' ' + SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].IndexOf('*') + 2);
+            // Handle return description separately to keep the output clean.
+            if sourceTxt[i+iPlus].StartsWith('//* Return:') then
+              returnDescr := ' <br> ' + sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf(':') + 2)
+            else
+              descrTxt.Add(sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf('*') + 2));
             Inc(iPlus);
           end;
-        end;
 
         // Skip empty or "faulty" lines
-        while not (SourceTxt[i+iPlus].StartsWith('procedure') or SourceTxt[i+iPlus].StartsWith('function')) do
+        while not (sourceTxt[i+iPlus].StartsWith('procedure') or sourceTxt[i+iPlus].StartsWith('function')) do
           Inc(iPlus);
 
         // Format procedures
-        if SourceTxt[i+iPlus].StartsWith('procedure') then
+        if sourceTxt[i+iPlus].StartsWith('procedure') then
         begin
-          if SourceTxt[i+iPlus].Contains('(') then
+          if sourceTxt[i+iPlus].Contains('(') then
           begin
-            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                            SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
+                            sourceTxt[i+iPlus].IndexOf('(') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
             res.Name := ReplaceStr(restStr, 'Proc', 'On');
-            res.Parameters := ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                   SourceTxt[i+iPlus].IndexOf(')') - (
-                                                                   SourceTxt[i+iPlus].IndexOf('(') + 1)));
+            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('(') + 2,
+                                                                   sourceTxt[i+iPlus].IndexOf(')') - (
+                                                                   sourceTxt[i+iPlus].IndexOf('(') + 1)), descrTxt);
           end else
           begin
-            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                            SourceTxt[i+iPlus].IndexOf(';') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
+                            sourceTxt[i+iPlus].IndexOf(';') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
             res.Name := ReplaceStr(restStr, 'Proc', 'On');
           end;
         end;
 
         // Format functions
-        if SourceTxt[i+iPlus].StartsWith('function') then
+        if sourceTxt[i+iPlus].StartsWith('function') then
         begin
-          if SourceTxt[i+iPlus].Contains('(') then
+          if sourceTxt[i+iPlus].Contains('(') then
           begin
-            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                            SourceTxt[i+iPlus].IndexOf('(') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
+                            sourceTxt[i+iPlus].IndexOf('(') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
             res.Name := ReplaceStr(restStr, 'Func', 'On');
-            res.Parameters := ParseParams(Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                   SourceTxt[i+iPlus].IndexOf(')') - (
-                                                                   SourceTxt[i+iPlus].IndexOf('(') + 1)));
+            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('(') + 2,
+                                                                   sourceTxt[i+iPlus].IndexOf(')') - (
+                                                                   sourceTxt[i+iPlus].IndexOf('(') + 1)), descrTxt);
           end else
           begin
-            restStr := Copy(SourceTxt[i+iPlus], SourceTxt[i+iPlus].IndexOf('.') + 2,
-                            SourceTxt[i+iPlus].IndexOf(':') - (SourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
+                            sourceTxt[i+iPlus].IndexOf(':') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
             res.Name := ReplaceStr(restStr, 'Func', 'On');
           end;
 
-          restStr  := SourceTxt[i+iPlus].Substring(SourceTxt[i+iPlus].LastIndexOf(':') + 2);
+          restStr  := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].LastIndexOf(':') + 2);
           res.Return  := restStr.TrimRight([';']);
         end;
 
+        for j := 0 to descrTxt.Count - 1 do
+        begin
+          res.Description := res.Description + ' ' + descrTxt[j];
+        end;
+
         // Now we have all the parts and can combine them however we like
-        aList.Add(' | ' + res.Version + ' | ' + res.Name + ' | ' + res.Description + ' | <sub>' + res.Parameters + '</sub> | ' + res.Return + ' | ');
+        aList.Add('| ' + res.Version + ' | ' + res.Name + ' | ' + res.Description +
+                  ' | <sub>' + res.Parameters + '</sub> | ' + res.Return + returnDescr + ' |');
       end;
     end;
   finally
     aList.Add(sLineBreak);
-    FreeAndNil(SourceTxt);
+    FreeAndNil(sourceTxt);
+    FreeAndNil(descrTxt);
   end;
 end;
 
