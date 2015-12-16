@@ -51,22 +51,22 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..24] of string = (
+  VAR_TYPE_NAME: array[0..25] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
-    'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex' // Werewolf types
+    'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex', 'array of TKMHandIndex' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..24] of string = (
+  VAR_TYPE_ALIAS: array[0..25] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
-    'Integer', 'Integer', 'Integer', 'Integer' // Werewolf types
+    'Integer', 'Integer', 'Integer', 'Integer', 'array of Integer' // Werewolf types
   );
 
 var
@@ -179,16 +179,16 @@ begin
       end;
     end;
 
-    // Add numbers and line-breaks
+    // Add line-breaks
     for i := High(paramHolder) downto 0 do
     begin
-      Result := Result + {IntToStr(High(paramHolder) - i + 1) + ' - ' +} paramHolder[i].Name + ': ' + paramHolder[i].varType + ';';
+      Result := Result + paramHolder[i].Name + ': ' + paramHolder[i].varType + ';';
 
       // Add micro descriptions to the parameters and remove them from the stringlist.
       for j := aDescriptions.Count - 1 downto 0 do
         if aDescriptions[j].StartsWith(paramHolder[i].Name) then
         begin
-          Result := Result + ' <br> ' + aDescriptions[j].Substring(aDescriptions[j].IndexOf(':') + 2);
+          Result := Result + ' // ' + aDescriptions[j].Substring(aDescriptions[j].IndexOf(':') + 2);
           aDescriptions.Delete(j);
           Break;
         end;
@@ -305,9 +305,10 @@ begin
           res.Description := res.Description + ' ' + descrTxt[j];
 
         // Now we have all the parts and can combine them however we like
-        aList.Add('| ' + res.Version + ' | ' + res.Name + ' | ' + res.Description +
-                  ' | <sub>' + res.Parameters + '</sub> | ' +
-                  IfThen(aHasReturn, res.Return + IfThen(res.ReturnDesc <> '', ' //' + res.ReturnDesc) + ' |'));
+        aList.Add('| ' + res.Version + ' | ' + res.Name + '<br><sub>' + res.Description + '</sub>' +
+                  ' | <sub>' + res.Parameters + '</sub>' +
+                  IfThen(aHasReturn, ' | <sub>' + res.Return + IfThen(res.ReturnDesc <> '', ' //' + res.ReturnDesc) + '</sub>') +
+                  ' |');
       end;
     end;
   finally
@@ -342,8 +343,8 @@ begin
     listActions.CustomSort(DoSort);
 
     listActions.Insert(0, '####Actions' + sLineBreak);
-    listActions.Insert(1, '| Ver<br>sion | Action | Description | Parameters<br>and types | Returns |');
-    listActions.Insert(2, '| ------- | ---- | ----------- | -------------------- | ------- |');
+    listActions.Insert(1, '| Ver<br>sion | Action Description | Parameters<br>and types | Returns |');
+    listActions.Insert(2, '| ------- | --------------- | -------------------- | ------- |');
 
     txtParserOutput.Lines.AddStrings(listActions);
 
@@ -360,8 +361,8 @@ begin
     listEvents.CustomSort(DoSort);
 
     listEvents.Insert(0, '####Events' + sLineBreak);
-    listEvents.Insert(1, '| Ver<br>sion | Event | Description | Parameters<br>and types |');
-    listEvents.Insert(2, '| ------- | ---- | ----------- | -------------------- |');
+    listEvents.Insert(1, '| Ver<br>sion | Event Description | Parameters<br>and types |');
+    listEvents.Insert(2, '| ------- | --------------- | -------------------- |');
 
     txtParserOutput.Lines.AddStrings(listEvents);
 
@@ -377,8 +378,8 @@ begin
     listStates.CustomSort(DoSort);
 
     listStates.Insert(0, '####States' + sLineBreak);
-    listStates.Insert(1, '| Ver<br>sion | State | Description | Parameters<br>and types | Returns |');
-    listStates.Insert(2, '| ------- | ---- | ----------- | -------------------- | ------- |');
+    listStates.Insert(1, '| Ver<br>sion | State Description | Parameters<br>and types | Returns |');
+    listStates.Insert(2, '| ------- | --------------- | -------------------- | ------- |');
 
     txtParserOutput.Lines.AddStrings(listStates);
 
