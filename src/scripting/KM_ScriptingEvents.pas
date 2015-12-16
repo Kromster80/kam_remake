@@ -199,9 +199,7 @@ end;
 
 //* Version: 6570
 //* Occurs when a player places a beacon on the map.
-//- Player ID
-//- X coordinate
-//- Y coordinate
+//* aPlayer: Player ID
 procedure TKMScriptEvents.ProcBeacon(aPlayer: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcBeacon) then
@@ -211,9 +209,9 @@ end;
 
 //* Version: 6216
 //* Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).
-//- House ID
-//- From wate type
-//- To ware type
+//* aMarket: House ID
+//* aFrom: From wate type
+//* aTo: To ware type
 procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
 begin
   if MethodAssigned(fProcMarketTrade) then
@@ -244,6 +242,7 @@ end;
 
 //* Version: 5057
 //* Occurs when player has built a house.
+//* aHouse: House ID
 procedure TKMScriptEvents.ProcHouseBuilt(aHouse: TKMHouse);
 begin
   if MethodAssigned(fProcHouseBuilt) then
@@ -257,6 +256,8 @@ end;
 //* Version: 5882
 //* Occurs when a house is damaged by the enemy soldier.
 //* !AttackerIndex is -1 the house was damaged some other way, such as from Actions.!HouseAddDamage.
+//* aHouse: House ID
+//* aAttacker: Unit ID
 procedure TKMScriptEvents.ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
 begin
   if MethodAssigned(fProcHouseDamaged) then
@@ -282,6 +283,8 @@ end;
 //* Otherwise it was destroyed by an enemy.
 //* Called just before the house is destroyed so HouseID is usable only during this event,
 //* and the area occupied by the house is still unusable.
+//* aHouse: House ID
+//* aDestroyerIndex: Player ID
 procedure TKMScriptEvents.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandIndex);
 begin
   if MethodAssigned(fProcHouseDestroyed) then

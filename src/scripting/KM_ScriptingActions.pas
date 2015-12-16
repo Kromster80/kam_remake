@@ -245,6 +245,8 @@ end;
 //* Version: 5057
 //* Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true.
 //* All players who were not set to victorious are set to defeated.
+//* aVictors: Player IDs
+//* aTeamVictory: Team victory
 //Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
 //All other players are set to defeated.
 procedure TKMScriptActions.PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
