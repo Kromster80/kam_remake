@@ -229,6 +229,12 @@ begin
       iPlus := 0;
       descrTxt.Clear;
 
+      //* Version: 1234
+      //* Large description of the method, optional
+      //* aX: Small optional description of parameter
+      //* aY: Small optional description of parameter
+      //* Return: Small optional description of returned value
+
       // Before anything it should start with "//* Version:"
       if sourceTxt[i].StartsWith('//* Version:') then
       begin
@@ -294,10 +300,9 @@ begin
           res.Return  := restStr.TrimRight([';']);
         end;
 
+        // Now we can assemble Description, after we have detected and removed parameters descriptions from it
         for j := 0 to descrTxt.Count - 1 do
-        begin
           res.Description := res.Description + ' ' + descrTxt[j];
-        end;
 
         // Now we have all the parts and can combine them however we like
         aList.Add('| ' + res.Version + ' | ' + res.Name + ' | ' + res.Description +
