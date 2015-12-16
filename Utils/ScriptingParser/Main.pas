@@ -47,6 +47,7 @@ type
     Description: string;
     Parameters: string;
     Return: string;
+    ReturnDesc: string;
   end;
 
 const
@@ -207,7 +208,7 @@ end;
 procedure TForm1.ParseText(aFile: string; aList: TStringList);
 var
   i, j, iPlus: Integer;
-  restStr, returnDescr: string;
+  restStr: string;
   sourceTxt, descrTxt: TStringList;
   res: TCommandInfo;
 begin
@@ -224,7 +225,7 @@ begin
       res.Description := '';
       res.Parameters  := '';
       res.Return      := '';
-      returnDescr     := '';
+      res.ReturnDesc  := '';
       iPlus := 0;
       descrTxt.Clear;
 
@@ -242,7 +243,7 @@ begin
           begin
             // Handle return description separately to keep the output clean.
             if sourceTxt[i+iPlus].StartsWith('//* Return:') then
-              returnDescr := ' <br> ' + sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf(':') + 2)
+              res.ReturnDesc := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf(':') + 2)
             else
               descrTxt.Add(sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf('*') + 2));
             Inc(iPlus);
@@ -300,7 +301,8 @@ begin
 
         // Now we have all the parts and can combine them however we like
         aList.Add('| ' + res.Version + ' | ' + res.Name + ' | ' + res.Description +
-                  ' | <sub>' + res.Parameters + '</sub> | ' + res.Return + returnDescr + ' |');
+                  ' | <sub>' + res.Parameters + '</sub> | ' +
+                  res.Return + IfThen(res.ReturnDesc <> '', ' //' + res.ReturnDesc) + ' |');
       end;
     end;
   finally
