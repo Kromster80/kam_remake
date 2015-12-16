@@ -199,7 +199,6 @@ end;
 
 //* Version: 6570
 //* Occurs when a player places a beacon on the map.
-//* aPlayer: Owner of the beacon
 procedure TKMScriptEvents.ProcBeacon(aPlayer: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcBeacon) then

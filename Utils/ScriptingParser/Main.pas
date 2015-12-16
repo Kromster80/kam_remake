@@ -32,7 +32,7 @@ type
   private
     fSettingsPath: string;
     fSafeToWrite: Boolean;
-    procedure ParseText(aFile: string; aList: TStringList);
+    procedure ParseText(aFile: string; aList: TStringList; aHasReturn: Boolean);
     function ParseParams(aString: string; aDescriptions: TStringList): string;
     procedure Reinit;
   end;
@@ -205,7 +205,7 @@ end;
 
 
 // Scans file's contents and puts it all in proper formatting for most wikis.
-procedure TForm1.ParseText(aFile: string; aList: TStringList);
+procedure TForm1.ParseText(aFile: string; aList: TStringList; aHasReturn: Boolean);
 var
   i, j, iPlus: Integer;
   restStr: string;
@@ -307,7 +307,7 @@ begin
         // Now we have all the parts and can combine them however we like
         aList.Add('| ' + res.Version + ' | ' + res.Name + ' | ' + res.Description +
                   ' | <sub>' + res.Parameters + '</sub> | ' +
-                  res.Return + IfThen(res.ReturnDesc <> '', ' //' + res.ReturnDesc) + ' |');
+                  IfThen(aHasReturn, res.Return + IfThen(res.ReturnDesc <> '', ' //' + res.ReturnDesc) + ' |'));
       end;
     end;
   finally
@@ -317,6 +317,17 @@ begin
   end;
 end;
 
+function DoSort(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  A, B: string;
+begin
+  A := List[Index1];
+  B := List[Index2];
+  // Sort in assumption that method name is in the second || clause
+  A := Copy(A, PosEx('| ', A, 2) + 2, 40);
+  B := Copy(B, PosEx('| ', B, 2) + 2, 40);
+  Result := CompareText(A, B);
+end;
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
@@ -330,7 +341,8 @@ begin
     listActions.Add('####Actions' + sLineBreak);
     listActions.Add('| Ver<br>sion | Action | Description | Parameters<br>and types | Returns |');
     listActions.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
-    ParseText(edtActionsFile.Text, listActions);
+    ParseText(edtActionsFile.Text, listActions, True);
+    listActions.CustomSort(DoSort);
     txtParserOutput.Lines.AddStrings(listActions);
 
     if edtOutputFileActions.Text <> '' then
@@ -340,11 +352,12 @@ begin
 
   if FileExists(edtEventsFile.Text) then
   begin
-    listEvents  := TStringList.Create;
+    listEvents := TStringList.Create;
     listEvents.Add('####Events' + sLineBreak);
     listEvents.Add('| Ver<br>sion | Event | Description | Parameters<br>and types |');
     listEvents.Add('| ------- | ---- | ----------- | -------------------- |');
-    ParseText(edtEventsFile.Text, listEvents);
+    ParseText(edtEventsFile.Text, listEvents, False);
+    listEvents.CustomSort(DoSort);
     txtParserOutput.Lines.AddStrings(listEvents);
 
     if edtOutputFileEvents.Text <> '' then
@@ -354,11 +367,12 @@ begin
 
   if FileExists(edtStatesFile.Text) then
   begin
-    listStates  := TStringList.Create;
+    listStates := TStringList.Create;
     listStates.Add('####States' + sLineBreak);
     listStates.Add('| Ver<br>sion | State | Description | Parameters<br>and types | Returns |');
     listStates.Add('| ------- | ---- | ----------- | -------------------- | ------- |');
-    ParseText(edtStatesFile.Text, listStates);
+    ParseText(edtStatesFile.Text, listStates, True);
+    listStates.CustomSort(DoSort);
     txtParserOutput.Lines.AddStrings(listStates);
 
     if edtOutputFileStates.Text <> '' then
