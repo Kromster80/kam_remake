@@ -145,7 +145,7 @@ type
     procedure OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
     procedure OrderNone;
     procedure OrderRepeat;
-    function OrderSplit(aClearOffenders: Boolean): TKMUnitGroup;
+    function OrderSplit(aClearOffenders: Boolean; aSplitSingle: Boolean = False): TKMUnitGroup;
     function OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): TKMUnitGroup;
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
     procedure OrderStorm(aClearOffenders: Boolean);
@@ -1188,7 +1188,7 @@ end;
 
 //Split group in half
 //or split different unit types apart
-function TKMUnitGroup.OrderSplit(aClearOffenders: Boolean): TKMUnitGroup;
+function TKMUnitGroup.OrderSplit(aClearOffenders: Boolean; aSplitSingle: Boolean = False): TKMUnitGroup;
 var
   I: Integer;
   NewGroup: TKMUnitGroup;
@@ -1203,20 +1203,25 @@ begin
   if Members[0].GetUnitAction is TUnitActionStormAttack then Exit;
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
+
   //Choose the new leader
-  NewLeader := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
+  if aSplitSingle then
+    NewLeader := Members[Count - 1]
+  else
+  begin
+    NewLeader := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
 
-  //If there are different unit types in the group, split should just split them first
-  MultipleTypes := False;
-  for I := 1 to Count - 1 do
-    if Members[I].UnitType <> Members[0].UnitType then
-    begin
-      MultipleTypes := True;
-      //New commander is first unit of different type, for simplicity
-      NewLeader := Members[I];
-      Break;
-    end;
-
+    //If there are different unit types in the group, split should just split them first
+    MultipleTypes := False;
+    for I := 1 to Count - 1 do
+      if Members[I].UnitType <> Members[0].UnitType then
+      begin
+        MultipleTypes := True;
+        //New commander is first unit of different type, for simplicity
+        NewLeader := Members[I];
+        Break;
+      end;
+  end;
   //Remove from the group
   NewLeader.ReleaseUnitPointer;
   fMembers.Remove(NewLeader);
@@ -1224,16 +1229,17 @@ begin
   NewGroup := gHands[Owner].UnitGroups.AddGroup(NewLeader);
   NewGroup.OnGroupDied := OnGroupDied;
 
-  //Split by UnitTypes or by Count (make NewGroup half or smaller half)
-  for I := Count - 1 downto 0 do
-  if (MultipleTypes and (Members[I].UnitType = NewLeader.UnitType))
-  or (not MultipleTypes and (Count > NewGroup.Count + 1)) then
-  begin
-    U := Members[I];
-    gHands.CleanUpUnitPointer(U);
-    NewGroup.AddMember(Members[I], 1); // Join new group (insert next to commander)
-    fMembers.Delete(I); // Leave this group
-  end;
+  if not aSplitSingle then
+    //Split by UnitTypes or by Count (make NewGroup half or smaller half)
+    for I := Count - 1 downto 0 do
+      if (MultipleTypes and (Members[I].UnitType = NewLeader.UnitType))
+         or (not MultipleTypes and (Count > NewGroup.Count + 1)) then
+      begin
+        U := Members[I];
+        gHands.CleanUpUnitPointer(U);
+        NewGroup.AddMember(Members[I], 1); // Join new group (insert next to commander)
+        fMembers.Delete(I); // Leave this group
+      end;
 
   //Keep the selected unit Selected
   if NewGroup.HasMember(fSelected) then

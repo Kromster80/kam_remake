@@ -1627,7 +1627,10 @@ begin
   end;
   if Sender = Button_Army_Split   then
   begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmySplit, Group);
+    if GetKeyState(VK_CONTROL) < 0 then
+      gGame.GameInputProcess.CmdArmy(gic_ArmySplitSingle, Group)
+    else
+      gGame.GameInputProcess.CmdArmy(gic_ArmySplit, Group);
     gSoundPlayer.PlayWarrior(Group.UnitType, sp_Split);
   end;
   if Sender = Button_Army_Join    then

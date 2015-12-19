@@ -37,6 +37,7 @@ type
     //I.      Army commands, only warriors (TKMUnitWarrior, OrderInfo)
     gic_ArmyFeed,
     gic_ArmySplit,
+    gic_ArmySplitSingle,
     gic_ArmyLink,
     gic_ArmyAttackUnit,
     gic_ArmyAttackHouse,
@@ -94,9 +95,9 @@ type
     //IX.     Text messages for multiplayer (moved to Networking)
     );
 const
-  BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmyLink,
-    gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
-    gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
+  BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmySplitSingle,
+    gic_ArmyLink, gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt,
+    gic_ArmyFormation,  gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
   AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
   AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
   AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_TempDoNothing];
@@ -283,9 +284,9 @@ begin
   with aCommand do
   begin
     //It is possible that units/houses have died by now
-    if CommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyLink, gic_ArmyAttackUnit,
-                       gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
-                       gic_ArmyWalk, gic_ArmyStorm]
+    if CommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmySplitSingle, gic_ArmyLink,
+                       gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt,
+                       gic_ArmyFormation, gic_ArmyWalk, gic_ArmyStorm]
     then
     begin
       SrcGroup := gHands.GetGroupByUID(Params[1]);
@@ -337,6 +338,7 @@ begin
     case CommandType of
       gic_ArmyFeed:         SrcGroup.OrderFood(True);
       gic_ArmySplit:        SrcGroup.OrderSplit(True);
+      gic_ArmySplitSingle:  SrcGroup.OrderSplit(True, True);
       gic_ArmyStorm:        SrcGroup.OrderStorm(True);
       gic_ArmyLink:         SrcGroup.OrderLinkTo(TgtGroup, True);
       gic_ArmyAttackUnit:   SrcGroup.OrderAttackUnit(TgtUnit, True);
@@ -421,7 +423,7 @@ end;
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup);
 begin
-  Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm, gic_ArmyHalt]);
+  Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmySplitSingle, gic_ArmyStorm, gic_ArmyHalt]);
   TakeCommand(MakeCommand(aCommandType, [aGroup.UID]));
 end;
 
