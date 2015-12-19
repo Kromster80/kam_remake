@@ -1203,6 +1203,8 @@ begin
   if Members[0].GetUnitAction is TUnitActionStormAttack then Exit;
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
+  //If there are different unit types in the group, split should just split them first
+  MultipleTypes := False;
 
   //Choose the new leader
   if aSplitSingle then
@@ -1211,8 +1213,6 @@ begin
   begin
     NewLeader := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
 
-    //If there are different unit types in the group, split should just split them first
-    MultipleTypes := False;
     for I := 1 to Count - 1 do
       if Members[I].UnitType <> Members[0].UnitType then
       begin
