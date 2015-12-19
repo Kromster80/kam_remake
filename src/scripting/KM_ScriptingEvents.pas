@@ -274,6 +274,7 @@ end;
 //* If !DestroyerIndex is the same as the house owner (States.!HouseOwner), the house was demolished by the player who owns it.
 //* Otherwise it was destroyed by an enemy.
 //* Called just before the house is destroyed so HouseID is usable only during this event, and the area occupied by the house is still unusable.
+//* aDestroyerIndex: Index of player who destroyed it
 procedure TKMScriptEvents.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandIndex);
 begin
   if MethodAssigned(fProcHouseDestroyed) then
@@ -331,6 +332,7 @@ end;
 //* Occurs when a unit dies. If !KillerIndex is -1 the unit died from another cause such as hunger or Actions.!UnitKill.
 //* Called just before the unit is killed so UnitID is usable only during this event,
 //* and the tile occupied by the unit is still taken.
+//* aKillerOwner: Index of player who killed it
 procedure TKMScriptEvents.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandIndex);
 begin
   if MethodAssigned(fProcUnitDied) then
@@ -356,6 +358,7 @@ end;
 //* Happens when a unit is attacked (shot at by archers or hit in melee).
 //* Attacker is always a warrior (could be archer or melee).
 //* This event will occur very frequently during battles.
+//* aAttacker: Warrior who attacked the unit
 procedure TKMScriptEvents.ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
 begin
   if MethodAssigned(fProcUnitAttacked) then
@@ -387,6 +390,7 @@ end;
 //* Version: 5884
 //* Happens when unit is wounded.
 //* Attacker can be a warrior, recruit in tower or unknown (-1).
+//* aAttacker: Unit who attacked the unit
 procedure TKMScriptEvents.ProcUnitWounded(aUnit, aAttacker: TKMUnit);
 begin
   if MethodAssigned(fProcUnitWounded) then
