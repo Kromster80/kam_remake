@@ -1193,10 +1193,10 @@ end;
 
 //* Version: 5777
 //* Reveals a rectangular area in fog of war for player
-//* X1: From X
-//* Y1: From Y
-//* X2: To X
-//* Y2: To Y
+//* X1: Left coordinate
+//* Y1: Top coordinate
+//* X2: Right coordinate
+//* Y2: Bottom coordinate
 procedure TKMScriptActions.FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word);
 begin
   try
@@ -1215,10 +1215,10 @@ end;
 
 //* Version: 5777
 //* Covers a rectangular area in fog of war for player
-//* X1: From X
-//* Y1: From Y
-//* X2: To X
-//* Y2: To Y
+//* X1: Left coordinate
+//* Y1: Top coordinate
+//* X2: Right coordinate
+//* Y2: Bottom coordinate
 procedure TKMScriptActions.FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word);
 begin
   try
@@ -2144,10 +2144,10 @@ end;
 //* Version: 6303
 //* Connects road plans between two points like AI builder and returns True if road plan was successfully added.
 //* If CompletedRoad = True, road will be added instead of plans
-//* X1: From X
-//* Y1: From Y
-//* X2: To X
-//* Y2: To Y
+//* X1: Left coordinate
+//* Y1: Top coordinate
+//* X2: Right coordinate
+//* Y2: Bottom coordinate
 //* aCompleted: Completed road
 function TKMScriptActions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean;
 var
