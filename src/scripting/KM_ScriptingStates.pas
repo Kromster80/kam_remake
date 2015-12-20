@@ -155,7 +155,6 @@ end;
 //* Returns the group of the specified player and group type that is closest to the specified coordinates,
 //* r -1 if no such group was found.
 //* If the group type is -1 any group type will be accepted
-//* aPlayer: Player ID
 //* Result: Group ID
 function TKMScriptStates.ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
 var
@@ -193,8 +192,7 @@ end;
 //* Returns the group of the specified player and group types that is closest to the specified coordinates,
 //* or -1 if no such group was found.
 //* The group types is a "set of Byte", for example [1,3]
-//* aPlayer: Player ID
-//* aGroupTypes: Multiple group types
+//* aGroupTypes: Set of group types
 //* Result: Group ID
 function TKMScriptStates.ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
 var
@@ -232,7 +230,6 @@ end;
 //* Returns the house of the specified player and house type that is closest to the specified coordinates,
 //* or -1 if no such house was found.
 //* If the house type is -1 any house type will be accepted
-//* aPlayer: Player ID
 //* Result: House ID
 function TKMScriptStates.ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer;
 var
@@ -270,8 +267,7 @@ end;
 //* Returns the house of the specified player and house types that is closest to the specified coordinates,
 //* or -1 if no such house was found.
 //* The house types is a "set of Byte", for example [11,13,21]
-//* aPlayer: Player ID
-//* aHouseTypes: Multiple house types
+//* aHouseTypes: Set of house types
 //* Result: House ID
 function TKMScriptStates.ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer;
 var
@@ -309,7 +305,6 @@ end;
 //* Returns the unit of the specified player and unit type that is closest to the specified coordinates,
 //* or -1 if no such unit was found.
 //* If the unit type is -1 any unit type will be accepted
-//* aPlayer: Player ID
 //* Result: Unit ID
 function TKMScriptStates.ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer;
 var
@@ -347,8 +342,7 @@ end;
 //* Returns the unit of the specified player and unit types that is closest to the specified coordinates,
 //* or -1 if no such unit was found.
 //* The unit types is a "set of Byte", for example [0,9]
-//* aPlayer: Player ID
-//* aUnitTypes: Multiple unit types
+//* aUnitTypes: Set of unit types
 //* Result: Unit ID
 function TKMScriptStates.ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer;
 var
@@ -409,10 +403,10 @@ end;
 
 //* Version: 6602
 //* Check if two tiles are connected by a walkable route
-//* X1: left coordinate
-//* Y1: top coordinate
-//* X2: right coordinate
-//* Y2: bottom coordinate
+//* X1: Left coordinate
+//* Y1: Top coordinate
+//* X2: Right coordinate
+//* Y2: Bottom coordinate
 //* Result: Connected
 function TKMScriptStates.ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean;
 begin
@@ -432,6 +426,11 @@ begin
 end;
 
 
+
+//* Version: 6323
+//* How many defence positions AI player has.
+//* Useful for scripts like "if not enough positions and too much groups then add a new position"
+//* Result: Defence position count
 function TKMScriptStates.StatAIDefencePositionsCount(aPlayer: Byte): Integer;
 begin
   try
@@ -450,6 +449,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* How many military units player has
+//* Result: Army count
 function TKMScriptStates.StatArmyCount(aPlayer: Byte): Integer;
 begin
   try
@@ -467,6 +469,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* How many citizen player has
+//* Result: Citizen count
 function TKMScriptStates.StatCitizenCount(aPlayer: Byte): Integer;
 begin
   try
@@ -484,6 +489,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Get the number of game ticks since mission start
+//* Result: Ticks (~10 per second)
 function TKMScriptStates.GameTime: Cardinal;
 begin
   try
@@ -495,6 +503,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Length of peacetime in ticks (multiplayer)
+//* Result: Ticks (~10 per second)
 function TKMScriptStates.PeaceTime: Cardinal;
 begin
   try
@@ -506,6 +517,10 @@ begin
 end;
 
 
+//* Version: 5057
+//* Check how player 1 feels towards player 2 (order matters).
+//* Returns true for ally, false for enemy
+//* Result: Allied
 function TKMScriptStates.PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
 begin
   try
@@ -526,6 +541,10 @@ begin
 end;
 
 
+//* Version: 6328
+//* Returns number of specified house types for specified player.
+//* aTypes: House types eg. [11, 13, 21]
+//* Result: Total number of houses
 function TKMScriptStates.StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -548,6 +567,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the total number of the specified house type for the specified player.
+//* Result: Number of houses
 function TKMScriptStates.StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 begin
   try
@@ -566,6 +588,9 @@ begin
 end;
 
 
+//* Version: 6313
+//* Specified house type plans count
+//* Result: Number of plans
 function TKMScriptStates.StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer;
 begin
   try
@@ -587,7 +612,7 @@ end;
 
 //* Version: 5057
 //* How many active players there are.
-//+ Number of players
+//* Result: Number of players
 function TKMScriptStates.StatPlayerCount: Integer;
 var
   I: Integer;
@@ -604,6 +629,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* See if player was defeated
+//* Result: Defeated
 function TKMScriptStates.PlayerDefeated(aPlayer: Byte): Boolean;
 begin
   try
@@ -621,6 +649,9 @@ begin
 end;
 
 
+//* Version: 4545
+//* See if player is victorious
+//* Result: Victorious
 function TKMScriptStates.PlayerVictorious(aPlayer: Byte): Boolean;
 begin
   try
@@ -638,6 +669,9 @@ begin
 end;
 
 
+//* Version: 5345
+//* Returns the ware distribution for the specified resource, house and player
+//* Result: Ware distribution [0..5]
 function TKMScriptStates.PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
 begin
   try
@@ -657,6 +691,9 @@ begin
 end;
 
 
+//* Version: 5165
+//* Returns an array with IDs for all the units of the specified player
+//* Result: Array of unit IDs
 function TKMScriptStates.PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
 var
   I, UnitCount: Integer;
@@ -694,6 +731,9 @@ begin
 end;
 
 
+//* Version: 5209
+//* Returns an array with IDs for all the houses of the specified player
+//* Result: Array of house IDs
 function TKMScriptStates.PlayerGetAllHouses(aPlayer: Byte): TIntegerArray;
 var
   I, HouseCount: Integer;
@@ -730,6 +770,9 @@ begin
 end;
 
 
+//* Version: 5209
+//* Returns an array with IDs for all the groups of the specified player
+//* Result: Array of group IDs
 function TKMScriptStates.PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
 var
   I, GroupCount: Integer;
@@ -766,6 +809,9 @@ begin
 end;
 
 
+//* Version: 5927
+//* Wherever player is controlled by AI
+//* Result: Player is AI
 function TKMScriptStates.PlayerIsAI(aPlayer: Byte): Boolean;
 begin
   try
@@ -783,6 +829,9 @@ begin
 end;
 
 
+//* Version: 4289
+//* Returns the number of units of the specified player
+//* Result: Number of units
 function TKMScriptStates.StatUnitCount(aPlayer: Byte): Integer;
 begin
   try
@@ -800,6 +849,10 @@ begin
 end;
 
 
+//* Version: 6328
+//* Returns number of specified unit types for specified player.
+//* aTypes: Set of unit types eg. [0, 5, 13]
+//* Result: Total number of  units
 function TKMScriptStates.StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -822,6 +875,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns number of specified unit type for specified player
+//* Result: Number of units
 function TKMScriptStates.StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 begin
   try
@@ -841,6 +897,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the number of the specified unit killed by the specified player
+//* Result: Number of killed units
 function TKMScriptStates.StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
 begin
   try
@@ -860,6 +919,9 @@ begin
 end;
 
 
+//* Version: 6331
+//* Returns the number of the specified unit types killed by the specified player.
+//* Result: Set of unit types eg. [0, 5, 13]
 function TKMScriptStates.StatUnitKilledMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -882,6 +944,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the number of the specified unit lost by the specified player
+//* Result: Number of lost units
 function TKMScriptStates.StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
 begin
   try
@@ -901,6 +966,10 @@ begin
 end;
 
 
+//* Version: 6331
+//* Returns the number of the specified unit types lost by the specified player.
+//* aTypes: Set of unit types eg. [0, 5, 13]
+//* Result: Number of lost units
 function TKMScriptStates.StatUnitLostMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -923,6 +992,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the number of the specified resource produced by the specified player
+//* Result: Number of produced resources
 function TKMScriptStates.StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
 begin
   try
@@ -942,6 +1014,10 @@ begin
 end;
 
 
+//* Version: 6331
+//* Returns the number of the specified resource types produced by the specified player.
+//* aTypes: Set of ware types eg. [8, 10, 13, 27] for food
+//* Result: Number of produced resources
 function TKMScriptStates.StatResourceProducedMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
 var
   B: Byte;
@@ -964,6 +1040,9 @@ begin
 end;
 
 
+//* Version: 4758
+//* Get players color as text in hex format
+//* Result: Player color
 function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   try
@@ -981,6 +1060,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Will be false if nobody selected that location in multiplayer
+//* Result: Enabled
 function TKMScriptStates.PlayerEnabled(aPlayer: Byte): Boolean;
 begin
   try
@@ -998,6 +1080,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Get name of player as a string (for multiplayer)
+//* Result: Player name
 function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
 begin
   try
@@ -1015,6 +1100,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the ID of the house at the specified location or -1 if no house exists there
+//* Result: House ID
 function TKMScriptStates.HouseAt(aX, aY: Word): Integer;
 var
   H: TKMHouse;
@@ -1039,6 +1127,9 @@ begin
 end;
 
 
+//* Version: 6516
+//* Returns X coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid
+//* Result: X coordinate
 function TKMScriptStates.HouseBarracksRallyPointX(aBarracks: Integer): Integer;
 var
   H: TKMHouse;
@@ -1063,6 +1154,9 @@ begin
 end;
 
 
+//* Version: 6516
+//* Returns Y coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid
+//* Result: Y coordinate
 function TKMScriptStates.HouseBarracksRallyPointY(aBarracks: Integer): Integer;
 var
   H: TKMHouse;
@@ -1087,6 +1181,9 @@ begin
 end;
 
 
+//* Version: 6285
+//* Returns building progress of the specified house
+//* Result: Building progress
 function TKMScriptStates.HouseBuildingProgress(aHouseID: Integer): Word;
 var
   H: TKMHouse;
@@ -1108,6 +1205,9 @@ begin
 end;
 
 
+//* Version: 5993
+//* Returns true if the specified house can reach the resources that it mines (coal, stone, fish, etc.)
+//* Result: Reachable
 function TKMScriptStates.HouseCanReachResources(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1129,6 +1229,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the damage of the specified house or -1 if House ID invalid
+//* Result: House damage
 function TKMScriptStates.HouseDamage(aHouseID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1150,6 +1253,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns true if the specified house has delivery disabled
+//* Result: Blocked
 function TKMScriptStates.HouseDeliveryBlocked(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1171,6 +1277,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns true if the house is destroyed
+//* Result: Destroyed
 function TKMScriptStates.HouseDestroyed(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1192,6 +1301,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns true if the specified house currently has an occupant
+//* Result: Has occupant
 function TKMScriptStates.HouseHasOccupant(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1213,6 +1325,9 @@ begin
 end;
 
 
+//* Version: 5345
+//* Returns true if the specified house is fully built
+//* Result:
 function TKMScriptStates.HouseIsComplete(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1234,6 +1349,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the X coordinate of the specified house or -1 if House ID invalid
+//* Result: X coordinate
 function TKMScriptStates.HousePositionX(aHouseID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1255,6 +1373,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the Y coordinate of the specified house or -1 if House ID invalid
+//* Result: Y coordinate
 function TKMScriptStates.HousePositionY(aHouseID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1276,6 +1397,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the owner of the specified house or -1 if House ID invalid
+//* Result: Player ID
 function TKMScriptStates.HouseOwner(aHouseID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1297,6 +1421,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns true if the specified house has repair enabled
+//* Result: Repair enabled
 function TKMScriptStates.HouseRepair(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1318,6 +1445,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the amount of the specified resource in the specified house
+//* Result: Number of resources
 function TKMScriptStates.HouseResourceAmount(aHouseID, aResource: Integer): Integer;
 var
   H: TKMHouse;
@@ -1341,6 +1471,11 @@ begin
 end;
 
 
+//* Version: 5165
+//* Returns the unit type in the specified slot of the school queue.
+//* Slot 0 is the unit currently training, slots 1..5 are the queue.
+//* QueueIndex: Queue index (0..5)
+//* Result: Unit type
 //Get the unit type in Schools queue
 function TKMScriptStates.HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
 var
@@ -1363,6 +1498,9 @@ begin
 end;
 
 
+//* Version: 6510
+//* Returns true if specified WIP house area is digged
+//* Result: Digged
 function TKMScriptStates.HouseSiteIsDigged(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1384,6 +1522,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the type of the specified house
+//* Result: House type
 //Get the house type
 function TKMScriptStates.HouseType(aHouseID: Integer): Integer;
 var
@@ -1406,6 +1547,9 @@ begin
 end;
 
 
+//* Version: 6284
+//* Returns max health of the specified house type
+//* Result: Max health
 function TKMScriptStates.HouseTypeMaxHealth(aHouseType: Integer): Word;
 begin
   try
@@ -1421,6 +1565,12 @@ begin
 end;
 
 
+//* Version: 6001
+//* Returns the the translated name of the specified house type.
+//* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is
+//* decoded on output, not the actual translated text.
+//* Therefore string operations like !LowerCase will not work.
+//* Result: House type name
 function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
 begin
   try
@@ -1438,6 +1588,9 @@ begin
 end;
 
 
+//* Version: 5345
+//* Returns the type of unit that should occupy the specified type of house, or -1 if no unit should occupy it.
+//* Result: Unit type
 function TKMScriptStates.HouseTypeToOccupantType(aHouseType: Integer): Integer;
 begin
   try
@@ -1455,6 +1608,9 @@ begin
 end;
 
 
+//* Version: 6220
+//* Returns true if the specified player can build the specified house type (unlocked and allowed).
+//* Result: House unlocked
 function TKMScriptStates.HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
 begin
   try
@@ -1473,6 +1629,9 @@ begin
 end;
 
 
+//* Version: 5099
+//* Returns true if the specified ware in the specified storehouse or barracks is blocked
+//* Result: Ware blocked
 function TKMScriptStates.HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1498,6 +1657,9 @@ begin
 end;
 
 
+//* Version: 5165
+//* Returns the number of the specified weapon ordered to be produced in the specified house
+//* Result: Number of ordered weapons
 function TKMScriptStates.HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
 var
   H: TKMHouse;
@@ -1527,6 +1689,9 @@ begin
 end;
 
 
+//* Version: 5099
+//* Returns true if the specified woodcutter's hut is on chop-only mode
+//* Result: Chop-only
 function TKMScriptStates.HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
 var
   H: TKMHouse;
@@ -1548,6 +1713,10 @@ begin
 end;
 
 
+//* Version: 5345
+//* Returns true if the specified player has a corn field at the specified location.
+//* If player index is -1 it will return true if any player has a corn field at the specified tile
+//* Result: Is field
 function TKMScriptStates.IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   try
@@ -1565,6 +1734,10 @@ begin
 end;
 
 
+//* Version: 5345
+//* Returns true if the specified player has a road at the specified location.
+//* If player index is -1 it will return true if any player has a road at the specified tile
+//* Result: Is road
 function TKMScriptStates.IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   try
@@ -1582,6 +1755,10 @@ begin
 end;
 
 
+//* Version: 5345
+//* Returns true if the specified player has a winefield at the specified location.
+//* If player index is -1 it will return true if any player has a winefield at the specified tile
+//* Result: Is winefield
 function TKMScriptStates.IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   try
@@ -1599,6 +1776,9 @@ begin
 end;
 
 
+//* Version: 6216
+//* Returns a random single (float) such that: 0 <= Number < 1.0
+//* Result: Decimal number 0.0 to 1.0
 function TKMScriptStates.KaMRandom: Single;
 begin
   try
@@ -1610,6 +1790,9 @@ begin
 end;
 
 
+//* Version: 6216
+//* Returns a random integer such that: 0 <= Number
+//* Result: Number 0 to aMax
 function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
   try
@@ -1622,6 +1805,10 @@ begin
 end;
 
 
+//* Version: 6611
+//* Returns the number of player locations available on the map (including AIs),
+//* regardless of whether the location was taken in multiplayer (use !PlayerEnabled to check if a location is being used)
+//* Result: Number of locations
 function TKMScriptStates.LocationCount: Integer;
 begin
   try
@@ -1633,6 +1820,10 @@ begin
 end;
 
 
+//* Version: 6587
+//* Returns the tile type ID of the tile at the specified XY coordinates.
+//* Tile IDs can be seen by hovering over the tiles on the terrain tiles tab in the map editor.
+//* Result: Tile type (0..255)
 function TKMScriptStates.MapTileType(X, Y: Integer): Integer;
 begin
   try
@@ -1650,6 +1841,9 @@ begin
 end;
 
 
+//* Version: 6587
+//* Returns the rotation of the tile at the specified XY coordinates.
+//* Result: Rotation (0..3)
 function TKMScriptStates.MapTileRotation(X, Y: Integer): Integer;
 begin
   try
@@ -1668,6 +1862,9 @@ begin
 end;
 
 
+//* Version: 6613
+//* Returns the width of the map
+//* Result: Width
 function TKMScriptStates.MapWidth: Integer;
 begin
   try
@@ -1679,6 +1876,9 @@ begin
 end;
 
 
+//* Version: 6613
+//* Returns the height of the map
+//* Result: Height
 function TKMScriptStates.MapHeight: Integer;
 begin
   try
@@ -1690,6 +1890,9 @@ begin
 end;
 
 
+//* Version: 6587
+//* Returns the height of the terrain at the top left corner (vertex) of the tile at the specified XY coordinates.
+//* Result: Height (0..100)
 function TKMScriptStates.MapTileHeight(X, Y: Integer): Integer;
 begin
   try
@@ -1707,6 +1910,12 @@ begin
 end;
 
 
+//* Version: 6587
+//* Returns the terrain object ID on the tile at the specified XY coordinates.
+//* Object IDs can be seen in the map editor on the objects tab.
+//* Object 61 is "block walking".
+//* If there is no object on the tile, the result will be 255.
+//* Result: Object type (0..255)
 function TKMScriptStates.MapTileObject(X, Y: Integer): Integer;
 begin
   try
@@ -1724,6 +1933,9 @@ begin
 end;
 
 
+//* Version: 6287
+//* Returns type of !FromWare in specified market, or -1 if no ware is selected
+//* Result: Ware type
 function TKMScriptStates.MarketFromWare(aMarketID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1753,6 +1965,11 @@ begin
 end;
 
 
+//* Version: 6217
+//* Returns the factor of resources lost during market trading,
+//* used to calculate the !TradeRatio (see explanation in MarketValue).
+//* This value is constant within one KaM Remake release, but may change in future KaM Remake releases
+//* Result: Loss factor
 function TKMScriptStates.MarketLossFactor: Single;
 begin
   try
@@ -1764,6 +1981,9 @@ begin
 end;
 
 
+//* Version: 6287
+//* Returns trade order amount in specified market
+//* Result: Order amount
 function TKMScriptStates.MarketOrderAmount(aMarketID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1789,6 +2009,9 @@ begin
 end;
 
 
+//* Version: 6287
+//* Returns type of !ToWare in specified market, or -1 if no ware is selected
+//* Result: Ware type
 function TKMScriptStates.MarketToWare(aMarketID: Integer): Integer;
 var
   H: TKMHouse;
@@ -1818,6 +2041,14 @@ begin
 end;
 
 
+//* Version: 6216
+//* Returns the relative market value of the specified resource type,
+//* which is a rough indication of the cost to produce that resource.
+//* These values are constant within one KaM Remake release, but may change in future KaM Remake releases.
+//* The !TradeRatio is calculated as: MarketLossFactor * MarketValue(To) / (MarketValue(From).
+//* If the !TradeRatio is >= 1, then the number of From resources required to receive 1 To resource is: Round(TradeRatio).
+//* If the trade ratio is < 1 then the number of To resources received for trading 1 From resource is: Round(1 / TradeRatio)
+//* Result: Value
 function TKMScriptStates.MarketValue(aRes: Integer): Single;
 var
   Res: TWareType;
@@ -1838,6 +2069,9 @@ begin
 end;
 
 
+//* Version: 5097
+//* Check if a tile is revealed in fog of war for a player
+//* Result: Revealed
 function TKMScriptStates.FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 begin
   try
@@ -1854,6 +2088,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the ID of the unit on the specified tile or -1 if no unit exists there
+//* Result: Unit ID
 function TKMScriptStates.UnitAt(aX, aY: Word): Integer;
 var
   U: TKMUnit;
@@ -1878,6 +2115,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the X coordinate of the specified unit or -1 if Unit ID invalid
+//* Result: X coordinate
 function TKMScriptStates.UnitPositionX(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -1899,6 +2139,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the Y coordinate of the specified unit or -1 if Unit ID invalid
+//* Result: Y coordinate
 function TKMScriptStates.UnitPositionY(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -1920,6 +2163,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns true if the unit is dead
+//* Result: Dead
 function TKMScriptStates.UnitDead(aUnitID: Integer): Boolean;
 var
   U: TKMUnit;
@@ -1941,6 +2187,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the owner of the specified unit or -1 if Unit ID invalid
+//* Result: Player ID
 function TKMScriptStates.UnitOwner(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -1962,6 +2211,9 @@ begin
 end;
 
 
+//* Version: 5165
+//* Returns the direction the specified unit is facing
+//* Result: Direction (0..7)
 function TKMScriptStates.UnitDirection(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -1983,6 +2235,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the type of the specified unit
+//* Result: Unit type
 function TKMScriptStates.UnitType(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -2004,6 +2259,12 @@ begin
 end;
 
 
+//* Version: 6001
+//* Returns the the translated name of the specified unit type.
+//* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup
+//* which is decoded on output, not the actual translated text.
+//* Therefore string operations like !LowerCase will not work.
+//* Result: Unit type name
 function TKMScriptStates.UnitTypeName(aUnitType: Byte): AnsiString;
 begin
   try
@@ -2021,6 +2282,12 @@ begin
 end;
 
 
+//* Version: 6001
+//* Returns the the translated name of the specified ware type.
+//* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup
+//* which is decoded on output, not the actual translated text.
+//* Therefore string operations like !LowerCase will not work.
+//* Result: Ware type name
 function TKMScriptStates.WareTypeName(aWareType: Byte): AnsiString;
 begin
   try
@@ -2038,6 +2305,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid
+//* Result: Hunger
 function TKMScriptStates.UnitHunger(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -2059,6 +2329,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the ware a serf is carrying, or -1 if the unit is not a serf or is not carrying anything
+//* Result: Ware type
 function TKMScriptStates.UnitCarrying(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -2080,6 +2353,9 @@ begin
 end;
 
 
+//* Version: 5997
+//* Returns the ID of the house which is the home of the specified unit or -1 if the unit does not have a home
+//* Result: House ID
 function TKMScriptStates.UnitHome(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -2109,6 +2385,9 @@ begin
 end;
 
 
+//* Version: 6523
+//* Returns true if specified unit is idle (has no orders/action)
+//* Result: Idle
 function TKMScriptStates.UnitIdle(aUnitID: Integer): Boolean;
 var
   U: TKMUnit;
@@ -2130,6 +2409,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Gives the maximum hunger level a unit can have in ticks until death
+//* Result: Hunger in ticks
 function TKMScriptStates.UnitMaxHunger: Integer;
 begin
   try
@@ -2141,6 +2423,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Gives the hunger level when a unit will try to eat in ticks until death
+//* Result: Hunger in ticks
 function TKMScriptStates.UnitLowHunger: Integer;
 begin
   try
@@ -2152,6 +2437,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the ID of the group of the unit on the specified tile or -1 if no group exists there
+//* Result: Group ID
 function TKMScriptStates.GroupAt(aX, aY: Word): Integer;
 var
   G: TKMUnitGroup;
@@ -2172,6 +2460,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group
+//* Result: Group ID
 function TKMScriptStates.UnitsGroup(aUnitID: Integer): Integer;
 var
   U: TKMUnit;
@@ -2201,6 +2492,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns true if the group is dead (all members dead or joined other groups)
+//* Result: Dead
 function TKMScriptStates.GroupDead(aGroupID: Integer): Boolean;
 var
   G: TKMUnitGroup;
@@ -2222,6 +2516,9 @@ begin
 end;
 
 
+//* Version: 6523
+//* Returns true if specified group is idle (has no orders/action)
+//* Result: Idle
 function TKMScriptStates.GroupIdle(aGroupID: Integer): Boolean;
 var
   G: TKMUnitGroup;
@@ -2243,6 +2540,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the owner of the specified group or -1 if Group ID invalid
+//* Result: Player ID
 function TKMScriptStates.GroupOwner(aGroupID: Integer): Integer;
 var
   G: TKMUnitGroup;
@@ -2264,6 +2564,9 @@ begin
 end;
 
 
+//* Version: 5932
+//* Returns the type of the specified group or -1 if Group ID invalid
+//* Result: Group type
 function TKMScriptStates.GroupType(aGroupID: Integer): Integer;
 var
   G: TKMUnitGroup;
@@ -2285,6 +2588,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the total number of members of the specified group
+//* Result: Member count
 function TKMScriptStates.GroupMemberCount(aGroupID: Integer): Integer;
 var
   G: TKMUnitGroup;
@@ -2306,6 +2612,9 @@ begin
 end;
 
 
+//* Version: 5272
+//* Returns the number of columns (units per row) of the specified group
+//* Result: Column count
 function TKMScriptStates.GroupColumnCount(aGroupID: Integer): Integer;
 var
   G: TKMUnitGroup;
@@ -2327,6 +2636,11 @@ begin
 end;
 
 
+//* Version: 5057
+//* Returns the unit ID of the specified group member.
+//* Member 0 will be the flag holder, 1...!GroupMemberCount-1 will be the other members
+//* (0 <= !MemberIndex <= !GroupMemberCount-1)
+//* Result: Unit ID
 function TKMScriptStates.GroupMember(aGroupID, aMemberIndex: Integer): Integer;
 var
   G: TKMUnitGroup;
