@@ -51,22 +51,24 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..25] of string = (
+  VAR_TYPE_NAME: array[0..27] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
-    'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex', 'array of TKMHandIndex' // Werewolf types
+    'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex', 'array of TKMHandIndex', // Werewolf types
+    'TByteSet', 'TIntegerArray' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..25] of string = (
+  VAR_TYPE_ALIAS: array[0..27] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
-    'Integer', 'Integer', 'Integer', 'Integer', 'array of Integer' // Werewolf types
+    'Integer', 'Integer', 'Integer', 'Integer', 'array of Integer', // Werewolf types
+    'set of Byte', 'array of Integer' // Werewolf types
   );
 
 var
@@ -296,8 +298,8 @@ begin
             res.Name := ReplaceStr(restStr, 'Func', 'On');
           end;
 
-          restStr  := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].LastIndexOf(':') + 2);
-          res.Return  := restStr.TrimRight([';']);
+          restStr  := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].LastIndexOf(':') + 2).TrimRight([';']);;
+          res.Return  := IfThen(SameText(restStr, 'TIntegerArray'), 'array of Integer', restStr);
         end;
 
         // Now we can assemble Description, after we have detected and removed parameters descriptions from it
@@ -307,7 +309,7 @@ begin
         // Now we have all the parts and can combine them however we like
         aList.Add('| ' + res.Version + ' | ' + res.Name + '<br><sub>' + res.Description + '</sub>' +
                   ' | <sub>' + res.Parameters + '</sub>' +
-                  IfThen(aHasReturn, ' | <sub>' + res.Return + IfThen(res.ReturnDesc <> '', ' //' + res.ReturnDesc) + '</sub>') +
+                  IfThen(aHasReturn, ' | <sub>' + res.Return + IfThen(res.ReturnDesc <> '', ' // ' + res.ReturnDesc) + '</sub>') +
                   ' |');
       end;
     end;
