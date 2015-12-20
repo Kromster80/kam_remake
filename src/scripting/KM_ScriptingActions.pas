@@ -156,6 +156,8 @@ end;
 
 
 { TKMScriptActions }
+//* Version: 5938
+//* Puts the player in cinematic mode, blocking user input and allowing the screen to be panned
 procedure TKMScriptActions.CinematicStart(aPlayer: Byte);
 begin
   try
@@ -173,6 +175,8 @@ begin
 end;
 
 
+//* Version: 5938
+//* Exits cinematic mode
 procedure TKMScriptActions.CinematicEnd(aPlayer: Byte);
 begin
   try
@@ -190,6 +194,9 @@ begin
 end;
 
 
+//* Version: 5938
+//* Pans the center of the player's screen to the given location over a set number of ticks.
+//* If Duration = 0 then the screen moves instantly.
 procedure TKMScriptActions.CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
 begin
   try
@@ -210,6 +217,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Proclaims player defeated
 procedure TKMScriptActions.PlayerDefeat(aPlayer: Word);
 begin
   try
@@ -225,6 +234,9 @@ begin
 end;
 
 
+//* Version: 5345
+//* Sets whether player A shares his vision with player B.
+//* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
 procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
 begin
   try
@@ -245,8 +257,7 @@ end;
 //* Version: 5057
 //* Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true.
 //* All players who were not set to victorious are set to defeated.
-//* aVictors: Player IDs
-//* aTeamVictory: Team victory
+//* aVictors: Array of player IDs
 //Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
 //All other players are set to defeated.
 procedure TKMScriptActions.PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
@@ -283,6 +294,9 @@ begin
 end;
 
 
+//* Version: 5345
+//* Sets ware distribution for the specified resource, house and player.
+//* aAmount: Distribution amount (0..5)
 procedure TKMScriptActions.PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
 begin
   try
@@ -304,6 +318,10 @@ begin
 end;
 
 
+//* Version: 5097
+//* Change whether player1 is allied to player2.
+//* If Compliment is true, then it is set both ways (so also whether player2 is allied to player1)
+//* aCompliment: Both ways
 procedure TKMScriptActions.PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
 const
   ALLIED: array [Boolean] of TAllianceType = (at_Enemy, at_Ally);
@@ -335,6 +353,10 @@ begin
 end;
 
 
+//* Version: 5165
+//* Add default goals/lost goals for the specified player.
+//* If the parameter buildings is true the goals will be important buildings.
+//* Otherwise it will be troops.
 procedure TKMScriptActions.PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
 begin
   try
@@ -353,6 +375,12 @@ begin
 end;
 
 
+//* Version: 5309
+//* Plays audio file.
+//* If the player index is -1 the sound will be played to all players.
+//* Mono and stereo WAV files are supported.
+//* WAV file goes in mission folder named: Mission Name.filename.wav
+//* Volume: Audio level (0.0 to 1.0)
 procedure TKMScriptActions.PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
 var
   fullFileName: UnicodeString;
@@ -374,6 +402,10 @@ begin
 end;
 
 
+//* Version: 6220
+//* Same as PlayWAV except music will fade then mute while the WAV is playing, then fade back in afterwards.
+//* You should leave a small gap at the start of your WAV file to give the music time to fade
+//* Volume: Audio level (0.0 to 1.0)
 procedure TKMScriptActions.PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
 var
   fullFileName: UnicodeString;
@@ -395,6 +427,16 @@ begin
 end;
 
 
+//* Version: 5309
+//* Plays audio file at a location on the map.
+//* If the player index is -1 the sound will be played to all players.
+//* Radius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use radius 32).
+//* Only mono WAV files are supported.
+//* WAV file goes in mission folder named: Mission Name.filename.wav.
+//* Will not play if the location is not revealed to the player.
+//* Higher volume range is allowed than PlayWAV as positional sounds are quieter
+//* Volume: Audio level (0.0 to 1.0)
+//* Radius: Radius (minimum 28)
 procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word);
 var
   fullFileName: UnicodeString;
@@ -419,6 +461,14 @@ begin
 end;
 
 
+//* Version: 6222
+//* Plays looped audio file.
+//* If the player index is -1 the sound will be played to all players.
+//* Mono or stereo WAV files are supported.
+//* WAV file goes in mission folder named: Mission Name.filename.wav.
+//* The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.
+//* Volume: Audio level (0.0 to 1.0)
+//* Result: LoopIndex of the sound
 function TKMScriptActions.PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
 begin
   try
@@ -434,6 +484,18 @@ begin
 end;
 
 
+//* Version: 6222
+//* Plays looped audio file at a location on the map.
+//* If the player index is -1 the sound will be played to all players.
+//* Radius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use radius 32).
+//* Only mono WAV files are supported.
+//* WAV file goes in mission folder named: Mission Name.filename.wav.
+//* Will not play if the location is not revealed to the player (will start playing automatically when it is revealed).
+//* Higher volume range is allowed than PlayWAV as positional sounds are quieter.
+//* The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.
+//* Volume: Audio level (0.0 to 1.0)
+//* Radius: Radius (minimum 28)
+//* Result: LoopIndex of the sound
 function TKMScriptActions.PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word): Integer;
 begin
   try
@@ -449,6 +511,9 @@ begin
 end;
 
 
+//* Version: 6222
+//* Stops playing a looped sound that was previously started with either Actions.PlayWAVLooped or Actions.PlayWAVAtLocationLooped.
+//* LoopIndex is the value that was returned by either of those functions when the looped sound was started.
 procedure TKMScriptActions.StopLoopedWAV(aLoopIndex: Integer);
 begin
   try
@@ -460,6 +525,8 @@ begin
 end;
 
 
+//* Version: 5927
+//* Removes road
 procedure TKMScriptActions.RemoveRoad(X, Y: Word);
 var
   Pos: TKMPoint;
@@ -481,6 +548,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Give player group of warriors and return the group ID or -1 if the group was not able to be added
+//* aColumns: Units per row
 function TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
 var
   G: TKMUnitGroup;
@@ -512,6 +582,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added
 function TKMScriptActions.GiveUnit(aPlayer, aType, X, Y, aDir: Word): Integer;
 var
   U: TKMUnit;
@@ -542,6 +614,8 @@ begin
 end;
 
 
+//* Version: 5097
+//* Give player a built house and returns the house ID or -1 if the house was not able to be added
 function TKMScriptActions.GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
 var
   H: TKMHouse;
@@ -570,6 +644,9 @@ begin
 end;
 
 
+//* Version: 6288
+//* Give player a digged house area and returns House ID or -1 if house site was not able to be added.
+//* If !AddMaterials = True, wood and stone will be added
 function TKMScriptActions.GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
 var
   H: TKMHouse;
@@ -628,6 +705,10 @@ begin
 end;
 
 
+//* Version: 6251
+//* Sets AI auto attack range.
+//* AI groups will automatically attack if you are closer than this many tiles.
+//* aRange: Range (1 to 20)
 procedure TKMScriptActions.AIAutoAttackRange(aPlayer: Byte; aRange: Word);
 begin
   try
@@ -643,6 +724,8 @@ begin
 end;
 
 
+//* Version: 5924
+//* Sets whether the AI should build and manage his own village
 procedure TKMScriptActions.AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
 begin
   try
@@ -657,6 +740,8 @@ begin
 end;
 
 
+//* Version: 5924
+//* Sets whether the AI should position his soldiers automatically
 procedure TKMScriptActions.AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
 begin
   try
@@ -671,6 +756,8 @@ begin
 end;
 
 
+//* Version: 5932
+//* Sets whether the AI should automatically repair damaged buildings
 procedure TKMScriptActions.AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
 begin
   try
@@ -685,6 +772,8 @@ begin
 end;
 
 
+//* Version: 5932
+//* Adds a defence position for the specified AI player
 procedure TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
 begin
   try
@@ -703,6 +792,8 @@ begin
 end;
 
 
+//* Version: 6309
+//* Removes defence position at X, Y
 procedure TKMScriptActions.AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer);
 var
   I: Integer;
@@ -729,6 +820,8 @@ begin
 end;
 
 
+//* Version: 6323
+//* Removes all defence positions for specified AI player
 procedure TKMScriptActions.AIDefencePositionRemoveAll(aPlayer: Byte);
 var
   I: Integer;
@@ -747,6 +840,8 @@ begin
 end;
 
 
+//* Version: 6251
+//* Sets whether AI should defend units and houses of allies as if they were its own
 procedure TKMScriptActions.AIDefendAllies(aPlayer: Byte; aDefend: Boolean);
 begin
   try
@@ -761,6 +856,9 @@ begin
 end;
 
 
+//* Version: 5778
+//* Sets the warriors equip rate for AI.
+//* aType: type: 0 - leather, 1 - iron
 procedure TKMScriptActions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
 begin
   try
@@ -779,6 +877,8 @@ begin
 end;
 
 
+//* Version: 5778
+//* Sets the formation the AI uses for defence positions
 procedure TKMScriptActions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
 var
   gt: TGroupType;
@@ -801,6 +901,8 @@ begin
 end;
 
 
+//* Version: 5924
+//* Sets the number of ticks before the specified AI will start training recruits
 procedure TKMScriptActions.AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
 begin
   try
@@ -815,6 +917,8 @@ begin
 end;
 
 
+//* Version: 5345
+//* Sets the number of recruits the AI will keep in each barracks
 procedure TKMScriptActions.AIRecruitLimit(aPlayer, aLimit: Byte);
 begin
   try
@@ -829,6 +933,9 @@ begin
 end;
 
 
+//* Version: 5924
+//* Sets the number of serfs the AI will train per house.
+//* Can be a decimal (0.25 for 1 serf per 4 houses)
 procedure TKMScriptActions.AISerfsPerHouse(aPlayer: Byte; aSerfs: Single);
 begin
   try
@@ -843,6 +950,8 @@ begin
 end;
 
 
+//* Version: 5932
+//* Sets the maximum number of soldiers the AI will train, or -1 for unlimited
 procedure TKMScriptActions.AISoldiersLimit(aPlayer: Byte; aLimit: Integer);
 begin
   try
@@ -858,6 +967,8 @@ begin
 end;
 
 
+//* Version: 6251
+//* Sets the AI start position which is used for targeting AI attacks
 procedure TKMScriptActions.AIStartPosition(aPlayer: Byte; X, Y: Word);
 begin
   try
@@ -873,6 +984,8 @@ begin
 end;
 
 
+//* Version: 5924
+//* Sets the maximum number of laborers the AI will train
 procedure TKMScriptActions.AIWorkerLimit(aPlayer, aLimit: Byte);
 begin
   try
@@ -887,6 +1000,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added
 function TKMScriptActions.GiveAnimal(aType, X, Y: Word): Integer;
 var
   U: TKMUnit;
@@ -911,6 +1026,8 @@ begin
 end;
 
 
+//* Version: 6311
+//* Adds finished field and returns true if field was successfully added
 function TKMScriptActions.GiveField(aPlayer, X, Y: Word): Boolean;
 begin
   try
@@ -932,6 +1049,8 @@ begin
 end;
 
 
+//* Version: 6311
+//* Adds finished road and returns true if road was successfully added
 function TKMScriptActions.GiveRoad(aPlayer, X, Y: Word): Boolean;
 begin
   try
@@ -955,6 +1074,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Adds amount of wares to players 1st Store
 //Wares are added to first Store
 procedure TKMScriptActions.GiveWares(aPlayer, aType, aCount: Word);
 var
@@ -981,7 +1102,8 @@ begin
   end;
 end;
 
-
+//* Version: 5165
+//* Adds amount of weapons to players 1st Barracks
 //Weapons are added to first Barracks
 procedure TKMScriptActions.GiveWeapons(aPlayer, aType, aCount: Word);
 var
@@ -1010,6 +1132,8 @@ begin
 end;
 
 
+//* Version 6311
+//* Adds finished winefield and returns true if winefield was successfully added
 function TKMScriptActions.GiveWineField(aPlayer, X, Y: Word): Boolean;
 begin
   try
@@ -1031,6 +1155,8 @@ begin
 end;
 
 
+//* Version: 5097
+//* Reveals a circle in fog of war for player
 procedure TKMScriptActions.FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 begin
   try
@@ -1047,6 +1173,8 @@ begin
 end;
 
 
+//* Version: 5097
+//* Reveals a circle in fog of war for player
 procedure TKMScriptActions.FogCoverCircle(aPlayer, X, Y, aRadius: Word);
 begin
   try
@@ -1063,6 +1191,12 @@ begin
 end;
 
 
+//* Version: 5777
+//* Reveals a rectangular area in fog of war for player
+//* X1: From X
+//* Y1: From Y
+//* X2: To X
+//* Y2: To Y
 procedure TKMScriptActions.FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word);
 begin
   try
@@ -1079,6 +1213,12 @@ begin
 end;
 
 
+//* Version: 5777
+//* Covers a rectangular area in fog of war for player
+//* X1: From X
+//* Y1: From Y
+//* X2: To X
+//* Y2: To Y
 procedure TKMScriptActions.FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word);
 begin
   try
@@ -1095,6 +1235,8 @@ begin
 end;
 
 
+//* Version: 5097
+//* Reveals the entire map in fog of war for player
 procedure TKMScriptActions.FogRevealAll(aPlayer: Byte);
 begin
   try
@@ -1109,6 +1251,8 @@ begin
 end;
 
 
+//* Version: 5097
+//* Covers (un-reveals) the entire map in fog of war for player
 procedure TKMScriptActions.FogCoverAll(aPlayer: Byte);
 begin
   try
@@ -1123,6 +1267,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Displays a message to a player.
+//* If the player index is -1 the message will be shown to all players.
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
@@ -1136,6 +1283,10 @@ begin
 end;
 
 
+//* Version: 5333
+//* Displays a message to a player with formatted arguments (same as Format function).
+//* If the player index is -1 the message will be shown to all players.
+//* Params: Array of arguments
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
@@ -1154,6 +1305,9 @@ begin
 end;
 
 
+//* Version: 5345
+//* Displays a message to a player with a goto button that takes the player to the specified location.
+//* If the player index is -1 the message will be shown to all players.
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString);
 begin
@@ -1172,6 +1326,11 @@ begin
 end;
 
 
+//* Version: 5345
+//* Displays a message to a player with formatted arguments (same as Format function)
+//* and a goto button that takes the player to the specified location.
+//* If the player index is -1 the message will be shown to all players.
+//* Params: Array of arguments
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
 begin
@@ -1195,6 +1354,10 @@ begin
 end;
 
 
+//* Version: 5057
+//* Allows player to build the specified house even if they don't have the house built that normally unlocks it
+//* (e.g. sawmill for farm).
+//* Note: Does not override blocked houses, use !HouseAllow for that.
 procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   try
@@ -1211,6 +1374,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Sets whether the player is allowed to build the specified house.
+//* Note: The house must still be unlocked normally (e.g. sawmill for farm), use !HouseUnlock to override that.
 procedure TKMScriptActions.HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
 begin
   try
@@ -1227,6 +1393,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Sets whether the player is allowed to trade the specified resource.
 procedure TKMScriptActions.SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
 begin
   try
@@ -1243,6 +1411,8 @@ begin
 end;
 
 
+//* Version: 6510
+//* Add building materials to the specified WIP house area
 procedure TKMScriptActions.HouseAddBuildingMaterials(aHouseID: Integer);
 var
   I, StoneNeeded, WoodNeeded: Integer;
@@ -1272,6 +1442,8 @@ begin
 end;
 
 
+//* Version: 6297
+//* Add 5 points of building progress to the specified WIP house area
 procedure TKMScriptActions.HouseAddBuildingProgress(aHouseID: Integer);
 var
   H: TKMHouse;
@@ -1299,6 +1471,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Add damage to the specified house
 procedure TKMScriptActions.HouseAddDamage(aHouseID: Integer; aDamage: Word);
 var
   H: TKMHouse;
@@ -1319,6 +1493,8 @@ begin
 end;
 
 
+//* Version: 5441
+//* Reduces damage to the specified house
 procedure TKMScriptActions.HouseAddRepair(aHouseID: Integer; aRepair: Word);
 var
   H: TKMHouse;
@@ -1339,6 +1515,9 @@ begin
 end;
 
 
+//* Version: 5263
+//* Destroys the specified house.
+//* Silent means the house will not leave rubble or play destroy sound
 procedure TKMScriptActions.HouseDestroy(aHouseID: Integer; aSilent: Boolean);
 var
   H: TKMHouse;
@@ -1359,6 +1538,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Add wares to the specified house
 procedure TKMScriptActions.HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
 var
   H: TKMHouse;
@@ -1391,6 +1572,9 @@ begin
 end;
 
 
+//* Version: 6015
+//* Remove wares from the specified house.
+//* If a serf was on the way to pick up the ware, the serf will abandon his task
 procedure TKMScriptActions.HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word);
 var
   H: TKMHouse;
@@ -1426,6 +1610,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Enables house repair for the specified house
 procedure TKMScriptActions.HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
 var H: TKMHouse;
 begin
@@ -1445,6 +1631,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Sets delivery blocking for the specified house
 procedure TKMScriptActions.HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
 var H: TKMHouse;
 begin
@@ -1464,6 +1652,8 @@ begin
 end;
 
 
+//* Version: 5345
+//* Sets whether the specified house displays unoccupied messages to the player
 procedure TKMScriptActions.HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
 var
   H: TKMHouse;
@@ -1484,6 +1674,8 @@ begin
 end;
 
 
+//* Version: 5099
+//* Sets whether a woodcutter's hut is on chop-only mode
 procedure TKMScriptActions.HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
 const
   CHOP_ONLY: array [Boolean] of TWoodcutterMode = (wcm_ChopAndPlant, wcm_Chop);
@@ -1506,6 +1698,8 @@ begin
 end;
 
 
+//* Version: 5099
+//* Blocks a specific ware in a storehouse or barracks
 procedure TKMScriptActions.HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
 var
   H: TKMHouse;
@@ -1531,6 +1725,8 @@ begin
 end;
 
 
+//* Version: 5165
+//* Sets the amount of the specified weapon ordered to be produced in the specified house
 procedure TKMScriptActions.HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
 var
   H: TKMHouse;
@@ -1560,6 +1756,9 @@ begin
 end;
 
 
+//* Version: 5174
+//* Removes the unit from the specified slot of the school queue.
+//* Slot 0 is the unit currently training, slots 1..5 are the queue.
 procedure TKMScriptActions.HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
 var
   H: TKMHouse;
@@ -1580,6 +1779,9 @@ begin
 end;
 
 
+//* Version: 5174
+//* Adds the specified unit to the specified school's queue.
+//* Returns the number of units successfully added to the queue.
 function TKMScriptActions.HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var
   H: TKMHouse;
@@ -1602,6 +1804,9 @@ begin
 end;
 
 
+//* Version: 5174
+//* Equips the specified unit from the specified barracks.
+//* Returns the number of units successfully equipped.
 function TKMScriptActions.HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var
   H: TKMHouse;
@@ -1624,6 +1829,8 @@ begin
 end;
 
 
+//* Version: 6125
+//* Adds a recruit inside the specified barracks
 procedure TKMScriptActions.HouseBarracksGiveRecruit(aHouseID: Integer);
 var
   H: TKMHouse;
@@ -1644,6 +1851,10 @@ begin
 end;
 
 
+//* Version: 6067
+//* Writes a line of text to the game log file. Useful for debugging.
+//* Note that many calls to this procedure will have a noticeable performance impact,
+//* as well as creating a large log file, so it is recommended you don't use it outside of debugging
 procedure TKMScriptActions.Log(aText: AnsiString);
 begin
   try
@@ -1655,6 +1866,13 @@ begin
 end;
 
 
+//* Version: 6587
+//* Sets the tile type and rotation at the specified XY coordinates.
+//* Tile IDs can be seen by hovering over the tiles on the terrain tiles tab in the map editor.
+//* Returns true if the change succeeded or false if it failed.
+//* The change will fail if it would cause a unit to become stuck or a house/field to be damaged
+//* aType: Tile type (0..255)
+//* aRotation: Tile rotation (0..3)
 function TKMScriptActions.MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
 begin
   try
@@ -1672,6 +1890,11 @@ begin
 end;
 
 
+//* Version: 6587
+//* Sets the height of the terrain at the top left corner (vertex) of the tile at the specified XY coordinates.
+//* Returns true if the change succeeded or false if it failed.
+//* The change will fail if it would cause a unit to become stuck or a house to be damaged
+//* Height: Height (0..100)
 function TKMScriptActions.MapTileHeightSet(X, Y, Height: Integer): Boolean;
 begin
   try
@@ -1690,6 +1913,13 @@ begin
 end;
 
 
+//* Version: 6587
+//* Sets the terrain object on the tile at the specified XY coordinates.
+//* Object IDs can be seen in the map editor on the objects tab.
+//* Object 61 is "block walking". To set no object, use object type 255.
+//* Returns true if the change succeeded or false if it failed.
+//* The change will fail if it would cause a unit to become stuck or a house/field to be damaged
+//* Obj: Object type (0..255)
 function TKMScriptActions.MapTileObjectSet(X, Y, Obj: Integer): Boolean;
 begin
   try
@@ -1708,6 +1938,9 @@ begin
 end;
 
 
+//* Version: 5333
+//* Sets text overlaid on top left of screen.
+//* If the player index is -1 it will be set for all players.
 procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
   try
@@ -1723,6 +1956,10 @@ begin
 end;
 
 
+//* Version: 5333
+//* Sets text overlaid on top left of screen with formatted arguments (same as Format function).
+//* If the player index is -1 it will be set for all players.
+//* Params: Array of arguments
 procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
   try
@@ -1745,6 +1982,9 @@ begin
 end;
 
 
+//* Version: 5333
+//* Appends to text overlaid on top left of screen.
+//* If the player index is -1 it will be appended for all players.
 procedure TKMScriptActions.OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
 begin
   try
@@ -1760,6 +2000,10 @@ begin
 end;
 
 
+//* Version: 5333
+//* Appends to text overlaid on top left of screen with formatted arguments (same as Format function).
+//* If the player index is -1 it will be appended for all players.
+//* Params: Array of arguments
 procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
   try
@@ -1782,6 +2026,8 @@ begin
 end;
 
 
+//* Version: 6216
+//* Sets the trade in the specified market
 procedure TKMScriptActions.MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer);
 var
   H: TKMHouse;
@@ -1817,6 +2063,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Adds a road plan.
+//* Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanAddRoad(aPlayer, X, Y: Word): Boolean;
 begin
   try
@@ -1840,6 +2089,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Adds a corn field plan.
+//* Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanAddField(aPlayer, X, Y: Word): Boolean;
 begin
   try
@@ -1863,6 +2115,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Adds a wine field plan.
+//* Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
 begin
   try
@@ -1886,6 +2141,14 @@ begin
 end;
 
 
+//* Version: 6303
+//* Connects road plans between two points like AI builder and returns True if road plan was successfully added.
+//* If CompletedRoad = True, road will be added instead of plans
+//* X1: From X
+//* Y1: From Y
+//* X2: To X
+//* Y2: To Y
+//* aCompleted: Completed road
 function TKMScriptActions.PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean;
 var
   Points: TKMPointList;
@@ -1930,6 +2193,9 @@ begin
 end;
 
 
+//* Version: 5345
+//* Removes house, road or field plans from the specified tile for the specified player
+//* Returns true if the plan was successfully removed or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanRemove(aPlayer, X, Y: Word): Boolean;
 var
   HT: THouseType;
@@ -1962,6 +2228,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Adds a road plan.
+//* Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
 begin
   try
@@ -1986,6 +2255,8 @@ begin
 end;
 
 
+//* Version: 5993
+//* Sets whether the specified player can train/equip the specified unit type
 procedure TKMScriptActions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
 begin
   try
@@ -2001,6 +2272,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Sets the hunger level of the specified unit in ticks until death
+//* aHungerLevel: Hunger level (ticks until death)
 procedure TKMScriptActions.UnitHungerSet(aUnitID, aHungerLevel: Integer);
 var
   U: TKMUnit;
@@ -2022,6 +2296,10 @@ begin
 end;
 
 
+//* Version: 5057
+//* Makes the specified unit face a certain direction.
+//* Note: Only works on idle units so as not to interfere with game logic and cause crashes.
+//* Returns true on success or false on failure.
 function TKMScriptActions.UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
 var
   U: TKMUnit;
@@ -2047,6 +2325,10 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified unit to walk somewhere.
+//* Note: Only works on idle units so as not to interfere with game logic and cause crashes.
+//* Returns true on success or false on failure.
 function TKMScriptActions.UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
 var
   U: TKMUnit;
@@ -2079,6 +2361,9 @@ begin
 end;
 
 
+//* Version: 5099
+//* Kills the specified unit.
+//* Silent means the death animation (ghost) and sound won't play
 procedure TKMScriptActions.UnitKill(aUnitID: Integer; aSilent: Boolean);
 var
   U: TKMUnit;
@@ -2100,6 +2385,8 @@ begin
 end;
 
 
+//* Version: 6277
+//* Disables (Disable = True) or enables (Disable = False) control over specifed warriors group
 procedure TKMScriptActions.GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
 var
   G: TKMUnitGroup;
@@ -2120,6 +2407,9 @@ begin
 end;
 
 
+//* Version: 5993
+//* Sets whether the specified group will alert the player when they become hungry
+//* (true to disable hunger messages, false to enable them)
 procedure TKMScriptActions.GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean);
 var
   G: TKMUnitGroup;
@@ -2140,6 +2430,9 @@ begin
 end;
 
 
+//* Version: 5993
+//* Set hunger level for all group members
+//* aHungerLevel: Hunger level (ticks until death)
 procedure TKMScriptActions.GroupHungerSet(aGroupID, aHungerLevel: Integer);
 var
   G: TKMUnitGroup;
@@ -2164,6 +2457,8 @@ begin
 end;
 
 
+//* Version: 5993
+//* Kills all members of the specified group
 procedure TKMScriptActions.GroupKillAll(aGroupID: Integer; aSilent: Boolean);
 var
   G: TKMUnitGroup;
@@ -2186,6 +2481,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified group to walk somewhere
 procedure TKMScriptActions.GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
 var
   G: TKMUnitGroup;
@@ -2208,6 +2505,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified group to attack the specified house
 procedure TKMScriptActions.GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
 var
   G: TKMUnitGroup;
@@ -2230,6 +2529,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified group to attack the specified unit
 procedure TKMScriptActions.GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
 var
   G: TKMUnitGroup;
@@ -2254,6 +2555,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified group to request food
 procedure TKMScriptActions.GroupOrderFood(aGroupID: Integer);
 var
   G: TKMUnitGroup;
@@ -2274,6 +2577,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified group to storm attack
 procedure TKMScriptActions.GroupOrderStorm(aGroupID: Integer);
 var
   G: TKMUnitGroup;
@@ -2294,6 +2599,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified group to halt
 procedure TKMScriptActions.GroupOrderHalt(aGroupID: Integer);
 var
   G: TKMUnitGroup;
@@ -2314,6 +2621,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the first specified group to link to the second specified group
 procedure TKMScriptActions.GroupOrderLink(aGroupID, aDestGroupID: Integer);
 var
   G, G2: TKMUnitGroup;
@@ -2335,6 +2644,9 @@ begin
 end;
 
 
+//* Version: 5057
+//* Order the specified group to split in half.
+//* Return the newly create group ID or -1 if splitting failed (e.g. only 1 member)
 function TKMScriptActions.GroupOrderSplit(aGroupID: Integer): Integer;
 var
   G, G2: TKMUnitGroup;
@@ -2360,6 +2672,9 @@ begin
 end;
 
 
+//* Version: 6338
+//* Splits specified unit from the group.
+//* Returns the newly create group ID or -1 if splitting failed (e.g. only 1 member)
 function TKMScriptActions.GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer;
 var
   G, G2: TKMUnitGroup;
@@ -2390,6 +2705,8 @@ begin
 end;
 
 
+//* Version: 5057
+//* Sets the number of columns (units per row) for the specified group
 procedure TKMScriptActions.GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
 var
   G: TKMUnitGroup;
