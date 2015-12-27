@@ -2,7 +2,7 @@ unit KM_Saves;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, SyncObjs,
+  Classes, KromUtils, Math, Windows, SysUtils, SyncObjs,
   KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_Minimap, KM_ResTexts, KM_Resource;
 
 
