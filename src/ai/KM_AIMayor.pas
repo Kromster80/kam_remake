@@ -712,7 +712,8 @@ end;
 
 
 procedure TKMayor.CheckRoadsCount;
-const SHORTCUT_CHECKS_PER_UPDATE = 10;
+const
+  SHORTCUT_CHECKS_PER_UPDATE = 10;
 var
   P: TKMHand;
   Store: TKMHouse;

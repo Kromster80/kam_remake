@@ -50,7 +50,7 @@ object Form1: TForm1
     Top = 71
     Width = 321
     Height = 211
-    TabOrder = 8
+    TabOrder = 7
     OnClick = lbFoldersClick
   end
   object ListBox1: TListBox
@@ -110,16 +110,6 @@ object Form1: TForm1
     TabOrder = 6
     OnClick = btnMoveDownClick
   end
-  object Button1: TButton
-    Left = 16
-    Top = 16
-    Width = 75
-    Height = 25
-    Caption = 'Export TSK'
-    TabOrder = 7
-    Visible = False
-    OnClick = Button1Click
-  end
   object btnCopy: TButton
     Left = 488
     Top = 533
@@ -127,7 +117,7 @@ object Form1: TForm1
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Copy all strings'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = btnCopyClick
   end
   object btnPaste: TButton
@@ -138,7 +128,7 @@ object Form1: TForm1
     Anchors = [akLeft, akBottom]
     Caption = 'Paste all strings'
     Enabled = False
-    TabOrder = 10
+    TabOrder = 9
     OnClick = btnPasteClick
   end
   object Edit1: TEdit
@@ -146,7 +136,7 @@ object Form1: TForm1
     Top = 240
     Width = 145
     Height = 24
-    TabOrder = 11
+    TabOrder = 10
     OnChange = Edit1Change
   end
   object btnRename: TButton
@@ -155,7 +145,7 @@ object Form1: TForm1
     Width = 145
     Height = 25
     Caption = 'Rename'
-    TabOrder = 12
+    TabOrder = 11
     OnClick = btnRenameClick
   end
   object clbShowLang: TCheckListBox
@@ -166,7 +156,7 @@ object Form1: TForm1
     OnClickCheck = clbShowLangClickCheck
     AutoComplete = False
     Columns = 3
-    TabOrder = 13
+    TabOrder = 12
   end
   object cbShowMis: TCheckBox
     Left = 336
@@ -174,7 +164,7 @@ object Form1: TForm1
     Width = 105
     Height = 17
     Caption = 'Only missing'
-    TabOrder = 14
+    TabOrder = 13
     OnClick = cbShowMisClick
   end
   object cbShowDup: TCheckBox
@@ -183,7 +173,7 @@ object Form1: TForm1
     Width = 113
     Height = 17
     Caption = 'Only duplicate'
-    TabOrder = 15
+    TabOrder = 14
     OnClick = cbShowMisClick
   end
   object btnDelete: TButton
@@ -222,7 +212,7 @@ object Form1: TForm1
       'Campaigns'
       'Maps'
       'MapsMP')
-    TabOrder = 17
+    TabOrder = 16
   end
   object MainMenu1: TMainMenu
     Left = 32

@@ -22,7 +22,6 @@ type
     btnInsertSeparator: TButton;
     btnMoveUp: TButton;
     btnMoveDown: TButton;
-    Button1: TButton;
     lbFolders: TListBox;
     btnCopy: TButton;
     btnPaste: TButton;
@@ -59,7 +58,6 @@ type
     procedure btnMoveDownClick(Sender: TObject);
     procedure btnCompactIndexesClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure lbFoldersClick(Sender: TObject);
     procedure btnCopyClick(Sender: TObject);
     procedure btnPasteClick(Sender: TObject);
@@ -489,43 +487,6 @@ begin
   //Compact Indexes
   RefreshList;
   mnuSave.Enabled := True;
-end;
-
-
-//Export TSK/TPR texts into separate files
-procedure TForm1.Button1Click(Sender: TObject);
-const
-  TSK: array [1..21] of Integer =
-    (529, 530, 531, 531, 532, 534, 534, 537, 538, 539,
-     540, 541, 542, 542, 543, 543, 543, 543, 546, 547, 548);
-  TPR: array [1..15] of Integer =
-    (549, 550, 550, 551, 553, 553, 554, 556, 556, 558,
-     559, 559, 560, 561, 563);
-var I: Integer;
-begin
-  //Export campaign in-mission texts
-  {for I := 1 to 20 do
-  if (TSK[I+1] - TSK[I] <> 0) then
-  begin
-    fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
-    fTextManager.Slice(TSK[I], TSK[I+1] - TSK[I]);
-    fTextManager.Save(fWorkDir + 'Campaigns\The Shattered Kingdom\TSK' + Format('%.2d', [I]) + '\TSK' + Format('%.2d', [I]) + '.%s.libx', '');
-  end;
-  for I := 1 to 14 do
-  if (TPR[I+1] - TPR[I] <> 0) then
-  begin
-    fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
-    fTextManager.Slice(TPR[I], TPR[I+1] - TPR[I]);
-    fTextManager.Save(fWorkDir + 'Campaigns\The Peasants Rebellion\TPR' + Format('%.2d', [I]) + '\TPR' + Format('%.2d', [I]) + '.%s.libx', '');
-  end;}
-
-  //Export campaign briefings
-  fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
-  fTextManager.Slice(1249, 20);
-  fTextManager.Save(fWorkDir + 'Campaigns\The Shattered Kingdom\text.%s.libx', '');
-  fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
-  fTextManager.Slice(1349, 14);
-  fTextManager.Save(fWorkDir + 'Campaigns\The Peasants Rebellion\text.%s.libx', '');
 end;
 
 
