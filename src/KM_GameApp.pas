@@ -465,7 +465,7 @@ begin
   try
     gGame.Load(aFilePath);
   except
-    on E : Exception do
+    on E: Exception do
     begin
       //Trap the exception and show it to the user in nicer form.
       //Note: While debugging, Delphi will still stop execution for the exception,
@@ -768,9 +768,7 @@ end;
 //This is our real-time "thread", use it wisely
 procedure TKMGameApp.UpdateStateIdle(aFrameTime: Cardinal);
 begin
-  if gGame <> nil then
-    gGame.UpdateStateIdle(aFrameTime);
-
+  if gGame <> nil then gGame.UpdateStateIdle(aFrameTime);
   if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
   if gSoundPlayer <> nil then gSoundPlayer.UpdateStateIdle;
   if fNetworking <> nil then fNetworking.UpdateStateIdle;

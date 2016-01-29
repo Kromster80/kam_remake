@@ -202,7 +202,8 @@ end;
 
 { TAIDefencePositions }
 constructor TAIDefencePositions.Create;
-var GT: TGroupType;
+var
+  GT: TGroupType;
 begin
   inherited Create;
 
@@ -323,7 +324,8 @@ end;
 
 
 procedure TAIDefencePositions.RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
-var Needed: integer;
+var
+  Needed: integer;
 begin
   Needed := TroopFormations[aDefenceGroup.GroupType].NumUnits - aDefenceGroup.Count;
   if Needed <= 0 then exit;

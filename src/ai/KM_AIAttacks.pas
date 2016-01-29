@@ -11,7 +11,8 @@ type
     aat_Repeating // Attack will happen multiple times, (after delay time) whenever the AI has enough troops
   );
 
-const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
+const
+  //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
   RemakeAttackType: array [0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
   KaMAttackType: array [TAIAttackType] of Byte = (1, 0);
 
@@ -23,7 +24,7 @@ type
                      att_CustomPosition=3); //Custom point defined with CustomPosition
 
 
-  //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
+  //Records must be packed so they are stored identically in MP saves (? padding bytes are unknown values)
   TAIAttack = packed record
     AttackType: TAIAttackType; //Once or repeating
     HasOccured: Boolean; //Has this attack happened already?

@@ -388,7 +388,9 @@ end;
 
 //IsSilent parameter is used by Editor and scripts
 procedure TKMHouse.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
-var I: Integer; R: TWareType;
+var
+  I: Integer;
+  R: TWareType;
 begin
   if IsDestroyed or fIsBeingDemolished then Exit;
 
@@ -406,7 +408,7 @@ begin
     gSoundPlayer.Play(sfx_HouseDestroy, fPosition);
 
   //NOTE: We don't run Stats.WareConsumed on fBuildSupplyWood/Stone as the
-  //delivery task already did that upon delivery (this was the cause of a bug)
+  //delivery task already did that upon delivery (they are irreversibly consumed at that point)
 
   for I := 1 to 4 do
   begin
