@@ -540,7 +540,7 @@ procedure TKMMenuLobby.ChatMenuSelect(aItem: Integer);
   const MIN_SIZE = 80; //Minimum size for the button
   begin
     //Update button width according to selected item
-    CapWidth := gRes.Fonts.GetTextSize(aCaption, Button_LobbyPost.Font).X;
+    CapWidth := gRes.Fonts[Button_LobbyPost.Font].GetTextSize(aCaption).X;
     CapWidth := Max(MIN_SIZE, CapWidth+10); //Apply minimum size
     if aColor <> 0 then
       aCaption := WrapColor(aCaption, aColor);

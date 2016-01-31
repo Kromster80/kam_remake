@@ -476,7 +476,7 @@ begin
   until(I = 0);
 
 
-  FontData := gRes.Fonts.FontData[aFont]; //Shortcut
+  FontData := gRes.Fonts[aFont]; //Shortcut
 
   //Calculate line count and each lines width to be able to properly aAlign them
   LineCount := 1;
@@ -490,7 +490,7 @@ begin
 
   for I := 1 to Length(aText) do
   begin
-    Inc(LineWidth[LineCount], gRes.Fonts.GetCharWidth(aText[I], aFont));
+    Inc(LineWidth[LineCount], FontData.GetCharWidth(aText[I]));
 
     //If EOL or aText end
     if (aText[I] = #124) or (I = Length(aText)) then

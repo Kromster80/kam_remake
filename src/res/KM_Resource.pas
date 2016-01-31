@@ -26,7 +26,7 @@ type
   private
     fDataState: TResourceLoadState;
     fCursors: TKMCursors;
-    fFonts: TKMResourceFont;
+    fFonts: TKMResFonts;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMPalettes;
@@ -57,7 +57,7 @@ type
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property MapElements: TKMMapElements read fMapElements;
     property Palettes: TKMPalettes read fPalettes;
-    property Fonts: TKMResourceFont read fFonts;
+    property Fonts: TKMResFonts read fFonts;
     property Wares: TKMWaresList read fWares;
     property Sounds: TKMResSounds read fSounds;
     property Sprites: TKMSprites read fSprites;
@@ -70,8 +70,8 @@ type
   end;
 
 
-  var
-    gRes: TKMResource;
+var
+  gRes: TKMResource;
 
 
 implementation
@@ -153,7 +153,7 @@ begin
   LoadLocaleResources(aLocale);
 
   StepCaption('Reading fonts ...');
-  fFonts := TKMResourceFont.Create;
+  fFonts := TKMResFonts.Create;
   if aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts then
     fFonts.LoadFonts(fll_Full)
   else

@@ -419,10 +419,11 @@ begin
 end;
 
 
-//Remove Demand from the list. List is stored without sorting
-//so we parse it to find all entries..
+//Remove Demand from the list
+// List is stored without sorting so we parse it to find all entries..
 procedure TKMDeliverQueue.RemDemand(aHouse: TKMHouse);
-var i:integer;
+var
+  i:integer;
 begin
   assert(aHouse <> nil);
   for i:=1 to fDemandCount do
@@ -432,16 +433,17 @@ begin
       //Can't free it yet, some serf is using it
       fDemand[i].IsDeleted := true
     else
-     CloseDemand(i); //Clear up demand
-     //Keep on scanning cos House can have multiple demands entries
+      CloseDemand(i); //Clear up demand
+    //Keep on scanning cos House can have multiple demands entries
   end;
 end;
 
 
-//Remove Demand from the list. List is stored without sorting
-//so we parse it to find all entries..
+//Remove Demand from the list
+// List is stored without sorting so we parse it to find all entries..
 procedure TKMDeliverQueue.RemDemand(aUnit:TKMUnit);
-var i:integer;
+var
+  i:integer;
 begin
   assert(aUnit <> nil);
   for i:=1 to fDemandCount do
@@ -452,7 +454,7 @@ begin
       fDemand[i].IsDeleted := true
     else
       CloseDemand(i); //Clear up demand
-      //Keep on scanning cos Unit can have multiple demands entries (foreseeing Walls building)
+    //Keep on scanning cos Unit can have multiple demands entries (foreseeing Walls building)
   end;
 end;
 
@@ -489,7 +491,8 @@ begin
     begin
       inc(fDemandCount, LENGTH_INC);
       SetLength(fDemand, fDemandCount+1);
-      for j:=i to fDemandCount do FillChar(fDemand[j],SizeOf(fDemand[j]),#0); //Initialise the new queue space
+      for j:=i to fDemandCount do
+        FillChar(fDemand[j], SizeOf(fDemand[j]), #0); //Initialise the new queue space
     end;
 
     with fDemand[i] do

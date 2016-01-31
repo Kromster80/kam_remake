@@ -277,7 +277,8 @@ end;
 
 
 procedure TKMapEdInterface.HidePages;
-var I,K: Integer;
+var
+  I,K: Integer;
 begin
   //Hide all existing pages (2 levels)
   for I := 0 to Panel_Common.ChildCount - 1 do
@@ -304,7 +305,7 @@ begin
   begin
     Label_Hint.Caption := TKMControl(Sender).Hint;
     Bevel_HintBG.Show;
-    Bevel_HintBG.Width := 8 + gRes.Fonts.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+    Bevel_HintBG.Width := 8 + gRes.Fonts[Label_Hint.Font].GetTextSize(Label_Hint.Caption).X;
   end;
 
   fPrevHint := Sender;

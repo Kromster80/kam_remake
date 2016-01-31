@@ -1845,17 +1845,18 @@ end;
 procedure TKMLabel.ReformatText;
 begin
   if fAutoWrap then
-    fText := gRes.Fonts.WordWrap(fCaption, fFont, Width, True, False)
+    fText := gRes.Fonts[fFont].WordWrap(fCaption, Width, True, False)
   else
     fText := fCaption;
 
-  fTextSize := gRes.Fonts.GetTextSize(fText, fFont);
+  fTextSize := gRes.Fonts[fFont].GetTextSize(fText);
 end;
 
 
-{Send caption to render}
+// Send caption to render
 procedure TKMLabel.Paint;
-var Col: Cardinal;
+var
+  Col: Cardinal;
 begin
   inherited;
 
@@ -2247,7 +2248,7 @@ begin
   fCaption    := aCaption;
   ShapeColor  := aShapeColor;
   fFont       := aFont;
-  fFontHeight := gRes.Fonts.FontData[fFont].BaseHeight + 2;
+  fFontHeight := gRes.Fonts[fFont].BaseHeight + 2;
   FontColor   := $FFFFFFFF;
 end;
 
@@ -2305,7 +2306,7 @@ begin
   begin
     //Remove characters to the left of fLeftIndex
     RText := Copy(fText, fLeftIndex+1, Length(fText));
-    while fCursorPos-fLeftIndex > gRes.Fonts.CharsThatFit(RText, fFont, Width-8) do
+    while fCursorPos-fLeftIndex > gRes.Fonts[fFont].CharsThatFit(RText, Width-8) do
     begin
       Inc(fLeftIndex);
       //Remove characters to the left of fLeftIndex
@@ -2473,7 +2474,7 @@ begin
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos - fLeftIndex);
-    OffX := AbsLeft + 2 + gRes.Fonts.GetTextSize(RText, fFont, True).X;
+    OffX := AbsLeft + 2 + gRes.Fonts[fFont].GetTextSize(RText, True).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
 end;
@@ -2505,7 +2506,7 @@ begin
   inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  CheckSize := gRes.Fonts.GetTextSize('I', fFont).Y + 1;
+  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
 
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 1, 0.3);
 
@@ -2579,7 +2580,7 @@ begin
   if Count = 0 then Exit; //Avoid dividing by zero
 
   LineHeight := Round(fHeight / Count);
-  CheckSize := gRes.Fonts.GetTextSize('I', fFont).Y + 1;
+  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
 
   for I := 0 to Count - 1 do
   begin
@@ -2661,7 +2662,7 @@ var
   W: Word;
 begin
   // Text width + padding + buttons
-  W := gRes.Fonts.GetTextSize(IntToStr(aValueMax), fnt_Grey).X + 16 + 20 + 20;
+  W := gRes.Fonts[fnt_Grey].GetTextSize(IntToStr(aValueMax)).X + 16 + 20 + 20;
 
   inherited Create(aParent, aLeft, aTop, W, 20);
 
@@ -2821,7 +2822,7 @@ begin
   begin
     //Remove characters to the left of fLeftIndex
     RText := Copy(fText, fLeftIndex+1, Length(fText));
-    while fCursorPos-fLeftIndex > gRes.Fonts.CharsThatFit(RText, fFont, Width-8) do
+    while fCursorPos-fLeftIndex > gRes.Fonts[fFont].CharsThatFit(RText, Width-8) do
     begin
       Inc(fLeftIndex);
       //Remove characters to the left of fLeftIndex
@@ -2899,7 +2900,7 @@ begin
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos - fLeftIndex);
-    OffX := AbsLeft + 22 + gRes.Fonts.GetTextSize(RText, fFont).X;
+    OffX := AbsLeft + 22 + gRes.Fonts[fFont].GetTextSize(RText).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
 end;
@@ -2966,7 +2967,7 @@ begin
   fTrackHeight := 20;
   Position := (fMinValue + fMaxValue) div 2;
   Caption := '';
-  ThumbWidth := gRes.Fonts.GetTextSize(IntToStr(MaxValue), fFont).X + 24;
+  ThumbWidth := gRes.Fonts[fFont].GetTextSize(IntToStr(MaxValue)).X + 24;
 
   Font := fnt_Metal;
   Step := 1;
@@ -3370,7 +3371,7 @@ var
   newText: UnicodeString;
 begin
   if fAutoWrap then
-    newText := gRes.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
+    newText := gRes.Fonts[fFont].WordWrap(fText, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
   else
     newText := fText;
 
@@ -3805,7 +3806,7 @@ begin
       TKMRenderUI.WritePicture(ColumnLeft + 4, AbsTop, ColumnWidth - 8, Height, [], fColumns[I].Glyph.RX, fColumns[I].Glyph.ID)
     else
     begin
-      TextSize := gRes.Fonts.GetTextSize(fColumns[I].Caption, fFont);
+      TextSize := gRes.Fonts[fFont].GetTextSize(fColumns[I].Caption);
       TKMRenderUI.WriteText(ColumnLeft + 4, AbsTop + (Height - TextSize.Y) div 2 + 2, ColumnWidth - 8, fColumns[I].Caption, fFont, fTextAlign);
     end;
 
@@ -4224,7 +4225,7 @@ begin
     if Rows[aIndex].Cells[I].Caption <> '' then
       if Rows[aIndex].Cells[I].Hint <> '' then
       begin
-        TextSize := gRes.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
+        TextSize := gRes.Fonts[fFont].GetTextSize(Rows[aIndex].Cells[I].Caption);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + 4,
                             AvailWidth,
@@ -4237,7 +4238,7 @@ begin
                             fColumns[I].HintFont, fColumns[I].TextAlign, $FFB0B0B0);
       end else
       begin
-        TextSize := gRes.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
+        TextSize := gRes.Fonts[fFont].GetTextSize(Rows[aIndex].Cells[I].Caption);
         if HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex) then
           Color := Rows[aIndex].Cells[I].HighlightColor //Brighten(Rows[aIndex].Cells[I].Color)
         else

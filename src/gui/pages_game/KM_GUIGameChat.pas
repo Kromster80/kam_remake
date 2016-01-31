@@ -124,7 +124,8 @@ end;
 
 
 procedure TKMGUIGameChat.Chat_Resize(Sender: TObject; X,Y: Integer);
-var H: Integer;
+var
+  H: Integer;
 begin
   H := EnsureRange(-Y, 0, MESSAGE_AREA_RESIZE_Y);
   Panel_Chat.Top := Panel_Chat.Parent.Height - (MESSAGE_AREA_HEIGHT + H);
@@ -141,7 +142,7 @@ procedure TKMGUIGameChat.Chat_MenuSelect(aItem: Integer);
     txtWidth: Word;
   begin
     //Update button width according to selected item
-    txtWidth := gRes.Fonts.GetTextSize(aCaption, Button_ChatRecipient.Font).X;
+    txtWidth := gRes.Fonts[Button_ChatRecipient.Font].GetTextSize(aCaption).X;
     txtWidth := Max(MIN_SIZE, txtWidth + 10); //Apply minimum size
 
     if aColor <> 0 then

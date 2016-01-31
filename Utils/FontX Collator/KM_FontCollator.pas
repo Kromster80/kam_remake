@@ -68,7 +68,7 @@ begin
     pals := TKMPalettes.Create;
     pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
 
-    fntPal := TKMResourceFont.GuessPalette(srcFontFile);
+    fntPal := TKMResFonts.GuessPalette(srcFontFile);
 
     if srcFontFile[Length(srcFontFile)] = 'x' then
       srcFonts[I].LoadFontX(srcFontFile)

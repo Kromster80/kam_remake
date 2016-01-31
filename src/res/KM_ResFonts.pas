@@ -79,11 +79,16 @@ type
     property LineSpacing: Byte read fLineSpacing;
     property BaseHeight: SmallInt read fBaseHeight;
     property WordSpacing: SmallInt read fWordSpacing;
+
+    function GetCharWidth(aChar: WideChar): Integer;
+    function WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
+    function CharsThatFit(const aText: UnicodeString; aMaxPxWidth: integer): integer;
+    function GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False): TKMPoint;
   end;
 
 
   //Collection of fonts
-  TKMResourceFont = class
+  TKMResFonts = class
   private
     fLoadLevel: TKMFontLoadLevel;
     fFontData: array [TKMFont] of TKMFontData;
@@ -92,14 +97,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
+    property FontData[aIndex: TKMFont]: TKMFontData read GetFontData; default;
     property LoadLevel: TKMFontLoadLevel read fLoadLevel;
     class function GuessPalette(aFileName: string): TKMPal;
-
-    function GetCharWidth(aChar: WideChar; aFont: TKMFont): Integer;
-    function WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
-    function CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: integer): integer;
-    function GetTextSize(const aText: UnicodeString; Fnt: TKMFont; aCountMarkup: Boolean = False): TKMPoint;
 
     procedure LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
     procedure ExportFonts;
@@ -425,7 +425,7 @@ end;
 
 
 { TResourceFont }
-constructor TKMResourceFont.Create;
+constructor TKMResFonts.Create;
 var
   F: TKMFont;
 begin
@@ -436,8 +436,9 @@ begin
 end;
 
 
-destructor TKMResourceFont.Destroy;
-var F: TKMFont;
+destructor TKMResFonts.Destroy;
+var
+  F: TKMFont;
 begin
   for F := Low(TKMFont) to High(TKMFont) do
     fFontData[F].Free;
@@ -446,13 +447,13 @@ begin
 end;
 
 
-function TKMResourceFont.GetFontData(aIndex: TKMFont): TKMFontData;
+function TKMResFonts.GetFontData(aIndex: TKMFont): TKMFontData;
 begin
   Result := fFontData[aIndex];
 end;
 
 
-class function TKMResourceFont.GuessPalette(aFileName: string): TKMPal;
+class function TKMResFonts.GuessPalette(aFileName: string): TKMPal;
 var
   fileName: string;
   filePart: string;
@@ -471,7 +472,7 @@ begin
 end;
 
 
-procedure TKMResourceFont.LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
+procedure TKMResFonts.LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
 var
   F: TKMFont;
   FntPath: string;
@@ -493,7 +494,7 @@ begin
 end;
 
 
-procedure TKMResourceFont.ExportFonts;
+procedure TKMResFonts.ExportFonts;
 var
   F: TKMFont;
   FntPath: string;
@@ -511,19 +512,19 @@ begin
 end;
 
 
-function TKMResourceFont.GetCharWidth(aChar: WideChar; aFont: TKMFont): Integer;
+function TKMFontData.GetCharWidth(aChar: WideChar): Integer;
 begin
   if aChar = #124 then
     Result := 0
   else
     if aChar = #32 then
-      Result := fFontData[aFont].WordSpacing
+      Result := WordSpacing
     else
-      Result := fFontData[aFont].GetLetter(aChar).Width + fFontData[aFont].CharSpacing;
+      Result := GetLetter(aChar).Width + CharSpacing;
 end;
 
 
-function TKMResourceFont.WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
+function TKMFontData.WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
 const
   INDENT = '   ';
 var
@@ -562,7 +563,7 @@ begin
       and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
         Inc(I,8) //Skip past this markup
       else
-        Inc(AdvX, GetCharWidth(aText[I], aFont));
+        Inc(AdvX, GetCharWidth(aText[I]));
 
     if (aText[I]=#32) or (aText[I]=#124) then
     begin
@@ -578,7 +579,7 @@ begin
       begin
         Insert(INDENT, aText, LastWrappable);
         Inc(I, Length(INDENT));
-        Inc(AdvX, Length(INDENT)*fFontData[aFont].WordSpacing);
+        Inc(AdvX, Length(INDENT) * WordSpacing);
       end;
       if LastWrappableIsSpace then
         aText[LastWrappable] := #124 //Replace last whitespace with EOL
@@ -597,7 +598,7 @@ begin
       begin
         Insert(INDENT, aText, I+1);
         Inc(I, Length(INDENT));
-        Inc(AdvX, Length(INDENT)*fFontData[aFont].WordSpacing);
+        Inc(AdvX, Length(INDENT) * WordSpacing);
       end;
     end;
     Inc(I);
@@ -606,15 +607,16 @@ begin
 end;
 
 
-function TKMResourceFont.CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth:integer):integer;
-var I, AdvX: Integer;
+function TKMFontData.CharsThatFit(const aText: UnicodeString; aMaxPxWidth:integer):integer;
+var
+  I, AdvX: Integer;
 begin
   AdvX := 0;
   Result := Length(aText);
 
   for I := 1 to Length(aText) do
   begin
-    Inc(AdvX, GetCharWidth(aText[I], aFont));
+    Inc(AdvX, GetCharWidth(aText[I]));
 
     if (AdvX > aMaxPxWidth) then
     begin
@@ -625,10 +627,10 @@ begin
 end;
 
 
-function TKMResourceFont.GetTextSize(const aText: UnicodeString; Fnt: TKMFont; aCountMarkup: Boolean = False): TKMPoint;
+function TKMFontData.GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False): TKMPoint;
 var
   I: Integer;
-  CharSpacing, LineCount, TmpColor: Integer;
+  LineCount, TmpColor: Integer;
   LineWidth: array of Integer; // Some fonts may have negative CharSpacing
 begin
   Result.X := 0;
@@ -643,13 +645,12 @@ begin
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
-  CharSpacing := fFontData[Fnt].CharSpacing; //Spacing between letters varies between fonts
   I := 1;
   while I <= Length(aText) do
   begin
     if aCountMarkup then
       //Count all characters including markup
-      Inc(LineWidth[LineCount], GetCharWidth(aText[I], Fnt))
+      Inc(LineWidth[LineCount], GetCharWidth(aText[I]))
     else
       //Ignore color markups [$FFFFFF][]
       if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
@@ -661,7 +662,7 @@ begin
           Inc(I,8) //Skip past this markup
         else
           //Not markup so count width normally
-          Inc(LineWidth[LineCount], GetCharWidth(aText[I], Fnt));
+          Inc(LineWidth[LineCount], GetCharWidth(aText[I]));
 
     if (aText[I] = #124) or (I = Length(aText)) then
     begin // If EOL or aText end
@@ -673,7 +674,7 @@ begin
   end;
 
   Dec(LineCount);
-  Result.Y := (fFontData[Fnt].BaseHeight + fFontData[Fnt].LineSpacing) * LineCount;
+  Result.Y := (BaseHeight + LineSpacing) * LineCount;
   for I := 1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
 end;
