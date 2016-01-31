@@ -97,7 +97,6 @@ Accepted:
 
 
 Proposed:
-	Change position/alignment/font of overlay text
 	Render sprite onto map (from provided RXX file)
 	Render sprite overlaid on the screen like TKMImage (from provided RXX file)
 	Change which player MySpectator is viewing/controlling
@@ -130,6 +129,9 @@ Proposed:
 	PlayerGetAllUnitsMultipleTypes(playerID, array of byte[] (unit types) returns array of id of units
 	GetAllTeams - return array of teams in multiplayer
 	PlayerTeam(playerId) - return id of team of specified player
+	Actions.UnitHPGet - how many HP unit has left
+	Actions.UnitHPMax - how many HP unit can have max
+	Actions.UnitHPSet - set units HP (EnsureRange(newHP, 1, UnitHPMax))
 
 
 Rejected:	
