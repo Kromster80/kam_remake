@@ -142,7 +142,8 @@ implementation
 { TKMRoomList }
 destructor TKMRoomList.Destroy;
 begin
-  Clear; //Frees GameInfo
+  // Free GameInfo
+  Clear; 
   inherited;
 end;
 
@@ -166,7 +167,8 @@ end;
 
 
 procedure TKMRoomList.Clear;
-var i: Integer;
+var
+  i: Integer;
 begin
   for i := 0 to fCount - 1 do
     fRooms[i].GameInfo.Free;
@@ -189,11 +191,12 @@ end;
 
 
 procedure TKMRoomList.SwapRooms(A,B: Integer);
-var TempRoomInfo: TKMRoomInfo;
+var
+  Temp: TKMRoomInfo;
 begin
-  TempRoomInfo := fRooms[A];
+  Temp := fRooms[A];
   fRooms[A] := fRooms[B];
-  fRooms[B] := TempRoomInfo;
+  fRooms[B] := Temp;
 end;
 
 
@@ -437,7 +440,8 @@ end;
 
 
 procedure TKMServerQuery.DetectUDPServer(const aAddress: string; const aPort: string; const aName: string);
-var I: Integer;
+var
+  I: Integer;
 begin
   //Make sure this isn't a duplicate (UDP is connectionless so we could get a response from an old query)
   for I := 0 to fServerList.Count-1 do
@@ -452,7 +456,8 @@ end;
 
 
 procedure TKMServerQuery.ReceiveServerList(const S: string);
-var I: Integer;
+var
+  I: Integer;
 begin
   fReceivedMasterServerList := True;
   fServerList.AddFromText(S);
@@ -500,7 +505,8 @@ end;
 
 
 procedure TKMServerQuery.UpdateStateIdle;
-var I: Integer;
+var
+  I: Integer;
 begin
   fMasterServer.UpdateStateIdle;
   fUDPScanner.UpdateStateIdle;

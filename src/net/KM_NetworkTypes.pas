@@ -96,11 +96,11 @@ type
 
 
   TKMPacketFormat = (
-    pfNoData, //Packet contains no data
-    pfBinary, //Packet contains binary data (Stream)
-    pfNumber, //Packet contains an integer
-    pfStringA,//Packet contains ANSI string
-    pfStringW //Packet contains Unicode string
+    pfNoData,   // Packet contains no data
+    pfBinary,   // Packet contains binary data (Stream)
+    pfNumber,   // Packet contains an integer
+    pfStringA,  // Packet contains ANSI string
+    pfStringW   // Packet contains Unicode string
   );
 
 const
