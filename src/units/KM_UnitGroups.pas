@@ -118,6 +118,7 @@ type
     function IsDead: Boolean;
     function UnitType: TUnitType;
     function GetOrderText: UnicodeString;
+    procedure SetOwner(aOwner: TKMHandIndex);
     property GroupType: TGroupType read fGroupType;
     property UID: Integer read fUID;
     property Count: Integer read GetCount;
@@ -1391,6 +1392,12 @@ begin
     Members[I].OrderWalk(P.Loc, P.Exact);
     Members[I].FaceDir := NewDir;
   end;
+end;
+
+
+procedure TKMUnitGroup.SetOwner(aOwner: TKMHandIndex);
+begin
+  fOwner := aOwner;
 end;
 
 
