@@ -1858,21 +1858,36 @@ end;
 //* Changes the owner of the specified house
 procedure TKMScriptActions.HouseOwnerChange(aHouseID: Integer; aNewOwnerID: Shortint);
 var
-  aHouse: TKMHouse;
+  housePtr: TKMHouse;
+  houseDmg: Word;
+  housePos: TKMPoint;
+  houseType: THouseType;
+  houseState: THouseState;
+  // Add something to store wares?
 begin
   try
     if aHouseID > 0 then
     begin
-      aHouse := fIDCache.GetHouse(aHouseID);
+      housePtr := fIDCache.GetHouse(aHouseID);
+      if not (housePtr.BuildingState = hbs_Done) then Exit;
 
-      if aHouse <> nil then
-        if aHouse.Owner = aNewOwnerID then
+      if housePtr <> nil then
+        if housePtr.Owner = aNewOwnerID then
           Log('Defined new owner ID is equal to the curent one in Actions.HouseOwnerChange(' +
               AnsiString(IntToStr(aHouseID) + ', ' + IntToStr(aNewOwnerID)) + ')')
         else
         begin
-          aHouse.OwnerUpdate(aNewOwnerID);
-          fIDCache.CacheHouse(aHouse, aHouse.UID);
+          houseDmg   := housePtr.GetDamage;
+          housePos   := housePtr.GetPosition;
+          houseType  := housePtr.HouseType;
+          houseState := housePtr.GetState;
+          housePtr.DemolishHouse(PLAYER_NONE, True);
+          housePtr := gHands.Hands[aNewOwnerID].Houses.AddHouse(houseType, housePos.X,
+                                                                housePos.Y, aNewOwnerID,
+                                                                False);
+          housePtr.SetState(houseState);
+          housePtr.AddDamage(houseDmg, nil);
+          fIDCache.CacheHouse(housePtr, housePtr.UID);
         end;
     end else
       LogParamWarning('Actions.HouseOwnerChange', [aHouseID, aNewOwnerID]);
@@ -2420,14 +2435,14 @@ end;
 //* Version: ????
 //* Changes the owner of the specified unit
 procedure TKMScriptActions.UnitOwnerChange(aUnitID: Integer; aNewOwnerID: Shortint);
-var
-  aUnit: TKMUnit;
-  aUnitGroup: TKMUnitGroup;
+{ var
+  aUnit:      TKMUnit;
+  aUnitGroup: TKMUnitGroup; }
 begin
   try
     if aUnitID > 0 then
     begin
-      aUnit := fIDCache.GetUnit(aUnitID);
+      { aUnit := fIDCache.GetUnit(aUnitID);
 
       if aUnit <> nil then
         if aUnit.Owner = aNewOwnerID then
@@ -2437,7 +2452,7 @@ begin
         begin
           if aUnit is TKMUnitWarrior then
           begin
-            aUnitGroup := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+            aUnitGroup := gHands.Hands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
             if aUnitGroup <> nil then
             begin
               aUnitGroup.SetOwner(aNewOwnerID);
@@ -2447,7 +2462,8 @@ begin
 
           aUnit.SetOwner(aNewOwnerID);
           fIDCache.CacheUnit(aUnit, aUnit.UID);
-        end;
+        end; }
+        Exit;
     end else
       LogParamWarning('Actions.UnitOwnerChange', [aUnitID, aNewOwnerID]);
   except
@@ -2802,15 +2818,15 @@ end;
 //* Version: ????
 //* Changes the owner of the specified group
 procedure TKMScriptActions.GroupOwnerChange(aGroupID: Integer; aNewOwnerID: Shortint);
-var
+{ var
   aUnit: TKMUnit;
   aGroup: TKMUnitGroup;
-  I: Integer;
+  I: Integer; }
 begin
   try
     if aGroupID > 0 then
     begin
-      aGroup := fIDCache.GetGroup(aGroupID);
+      { aGroup := fIDCache.GetGroup(aGroupID);
 
       if aGroup <> nil then
         if aGroup.Owner = aNewOwnerID then
@@ -2827,7 +2843,8 @@ begin
 
           aGroup.SetOwner(aNewOwnerID);
           fIDCache.CacheGroup(aGroup, aGroup.UID);
-        end;
+        end; }
+        Exit;
     end else
       LogParamWarning('Actions.GroupOwnerChange', [aGroupID, aNewOwnerID]);
   except
