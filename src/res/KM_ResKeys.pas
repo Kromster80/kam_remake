@@ -124,7 +124,7 @@ begin
   SL := TStringList.Create;
   {$IFDEF WDC} SL.LoadFromFile(fKeymapPath); {$ENDIF}
   // In FPC TStringList can't cope with BOM (or UnicodeStrings at all really)
-  {$IFDEF FPC} SL.Text := ReadTextU(aFile, 1252); {$ENDIF}
+  {$IFDEF FPC} SL.Text := ReadTextU(fKeymapPath, 1252); {$ENDIF}
 
   // Parse text
   for I := 0 to SL.Count - 1 do
