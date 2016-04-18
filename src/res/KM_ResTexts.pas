@@ -62,13 +62,13 @@ implementation
 { TKMTextLibraryCommon }
 // LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped
 procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TUnicodeStringArray);
-  function TextToArray(const Value: UnicodeString): TUnicodeStringArray;
+  function TextToArray(const aText: UnicodeString): TUnicodeStringArray;
   var
     P, Start: PWideChar;
     S: UnicodeString;
   begin
     SetLength(Result, 0);
-    P := Pointer(Value);
+    P := Pointer(aText);
     if P = nil then Exit;
 
     // This is a lot faster than using StrPos/AnsiStrPos when
