@@ -531,12 +531,12 @@ var
   I: Integer;
   LastWrappable: Integer;
   LastWrappableIsSpace: Boolean;
-  AdvX, PrevX: Integer;
+  dx, PrevX: Integer;
   TmpColor: Integer;
 begin
   Assert(aMaxPxWidth > 0);
 
-  AdvX := 0;
+  dx := 0;
   PrevX := 0;
   LastWrappable := -1;
   LastWrappableIsSpace := False;
@@ -545,12 +545,12 @@ begin
   while I <= Length(aText) do
   begin
     //Chinese/Japanese characters (not punctuation) can always be wrapped before
-    //Check this before we update AdvX since we are allowing wrapping before this char
+    //Check this before we update dx since we are allowing wrapping before this char
     if ((Ord(aText[I]) >= 19968) and (Ord(aText[I]) <= 40870))
     or ((Ord(aText[I]) >= $3040) and (Ord(aText[I]) <= $30ff)) then
     begin
       LastWrappable := I;
-      PrevX := AdvX; //AdvX does not include this char yet, since we are wrapping before it
+      PrevX := dx; //dx does not include this char yet, since we are wrapping before it
       LastWrappableIsSpace := False;
     end;
 
@@ -563,42 +563,42 @@ begin
       and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
         Inc(I,8) //Skip past this markup
       else
-        Inc(AdvX, GetCharWidth(aText[I]));
+        Inc(dx, GetCharWidth(aText[I]));
 
     if (aText[I]=#32) or (aText[I]=#124) then
     begin
       LastWrappable := I;
-      PrevX := AdvX;
+      PrevX := dx;
       LastWrappableIsSpace := True;
     end;
 
     //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-    if ((AdvX > aMaxPxWidth)and(LastWrappable<>-1))or(aText[I]=#124) then
+    if ((dx > aMaxPxWidth)and(LastWrappable<>-1))or(aText[I]=#124) then
     begin
       if (aText[I] <> #124) and aIndentAfterNL then
       begin
         Insert(INDENT, aText, LastWrappable);
         Inc(I, Length(INDENT));
-        Inc(AdvX, Length(INDENT) * WordSpacing);
+        Inc(dx, Length(INDENT) * WordSpacing);
       end;
       if LastWrappableIsSpace then
         aText[LastWrappable] := #124 //Replace last whitespace with EOL
       else
         Insert(#124, aText, LastWrappable+1); //Insert EOL after last wrappable char
-      dec(AdvX, PrevX); //Subtract width since replaced whitespace
+      dec(dx, PrevX); //Subtract width since replaced whitespace
       LastWrappable := -1;
     end;
     //Force an EOL part way through a word
-    if aForced and (AdvX > aMaxPxWidth) and (LastWrappable = -1) then
+    if aForced and (dx > aMaxPxWidth) and (LastWrappable = -1) then
     begin
       Insert(#124, aText, I); //Insert an EOL before this character
-      AdvX := 0;
+      dx := 0;
       LastWrappable := -1;
       if aIndentAfterNL then
       begin
         Insert(INDENT, aText, I+1);
         Inc(I, Length(INDENT));
-        Inc(AdvX, Length(INDENT) * WordSpacing);
+        Inc(dx, Length(INDENT) * WordSpacing);
       end;
     end;
     Inc(I);
@@ -609,16 +609,16 @@ end;
 
 function TKMFontData.CharsThatFit(const aText: UnicodeString; aMaxPxWidth:integer):integer;
 var
-  I, AdvX: Integer;
+  I, dx: Integer;
 begin
-  AdvX := 0;
+  dx := 0;
   Result := Length(aText);
 
   for I := 1 to Length(aText) do
   begin
-    Inc(AdvX, GetCharWidth(aText[I]));
+    Inc(dx, GetCharWidth(aText[I]));
 
-    if (AdvX > aMaxPxWidth) then
+    if (dx > aMaxPxWidth) then
     begin
       Result := I - 1; //Previous character fits, this one does not
       Exit;

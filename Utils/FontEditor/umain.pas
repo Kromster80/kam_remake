@@ -415,7 +415,7 @@ procedure TfrmMain.Edit1Change(Sender: TObject);
 var
   Bmp: TBitmap;
   I, ci, ck: integer;
-  AdvX, Pal, t: integer;
+  dx, Pal, t: integer;
   MyRect: TRect;
   Text: string;
 begin
@@ -424,7 +424,7 @@ begin
   Bmp.Width := 512;
   Bmp.Height := 20;
 
-  AdvX := 0;
+  dx := 0;
 
   {$IFDEF FPC} //FPC uses unicode strings in Edit1
     Text := UTF8ToAnsi(Edit1.Text);
@@ -445,14 +445,14 @@ begin
     begin
       t := FontData.Letters[ord(Text[i])].Data[ci*FontData.Letters[ord(Text[i])].Width+ck+1]+1;
       if t<>1 then //don't bother for clear pixels, speed-up
-      Bmp.Canvas.Pixels[ck+AdvX,ci+FontData.Letters[ord(Text[i])].YOffset] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
+      Bmp.Canvas.Pixels[ck+dx,ci+FontData.Letters[ord(Text[i])].YOffset] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
     end;
-    inc(AdvX,FontData.Letters[ord(Text[i])].Width+FontData.CharOffset);
+    inc(dx, FontData.Letters[ord(Text[i])].Width+FontData.CharOffset);
   end else
-    inc(AdvX,FontData.WordSpacing);
+    inc(dx, FontData.WordSpacing);
 
   //Match phrase bounds
-  Bmp.Width := AdvX+1;
+  Bmp.Width := dx+1;
   Bmp.Height := 20;
 
   Image4.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;

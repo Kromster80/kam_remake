@@ -429,7 +429,7 @@ end;
 class procedure TKMRenderUI.WriteText(aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
 var
   I, K: Integer;
-  LineCount,AdvX,AdvY,LineHeight,BlockWidth,PrevAtlas: Integer;
+  LineCount,dx,dy,LineHeight,BlockWidth,PrevAtlas: Integer;
   LineWidth: array of Integer; //Use signed format since some fonts may have negative CharSpacing
   FontData: TKMFontData;
   Let: TKMLetter;
@@ -508,12 +508,12 @@ begin
     BlockWidth := Math.max(BlockWidth, LineWidth[I]);
 
   case aAlign of
-    taLeft:   AdvX := aLeft;
-    taCenter: AdvX := aLeft + (aWidth - LineWidth[1]) div 2;
-    taRight:  AdvX := aLeft + aWidth - LineWidth[1];
-    else      AdvX := aLeft;
+    taLeft:   dx := aLeft;
+    taCenter: dx := aLeft + (aWidth - LineWidth[1]) div 2;
+    taRight:  dx := aLeft + aWidth - LineWidth[1];
+    else      dx := aLeft;
   end;
-  AdvY := aTop;
+  dy := aTop;
   LineCount := 1;
 
   glColor4ubv(@aColor);
@@ -533,16 +533,16 @@ begin
     end;
 
     case aText[I] of
-      #32:  Inc(AdvX, FontData.WordSpacing);
+      #32:  Inc(dx, FontData.WordSpacing);
       #124: begin
               //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
               //so lets do the same here. Saves complex conversions...
-              Inc(AdvY, LineHeight);
+              Inc(dy, LineHeight);
               Inc(LineCount);
               case aAlign of
-                taLeft:   AdvX := aLeft;
-                taCenter: AdvX := aLeft + (aWidth - LineWidth[LineCount]) div 2;
-                taRight:  AdvX := aLeft + aWidth - LineWidth[LineCount];
+                taLeft:   dx := aLeft;
+                taCenter: dx := aLeft + (aWidth - LineWidth[LineCount]) div 2;
+                taRight:  dx := aLeft + aWidth - LineWidth[LineCount];
               end;
             end;
       else  begin
@@ -557,11 +557,11 @@ begin
                 glBegin(GL_QUADS);
               end;
 
-              glTexCoord2f(Let.u1, Let.v1); glVertex2f(AdvX            , AdvY            + Let.YOffset);
-              glTexCoord2f(Let.u2, Let.v1); glVertex2f(AdvX + Let.Width, AdvY            + Let.YOffset);
-              glTexCoord2f(Let.u2, Let.v2); glVertex2f(AdvX + Let.Width, AdvY+Let.Height + Let.YOffset);
-              glTexCoord2f(Let.u1, Let.v2); glVertex2f(AdvX            , AdvY+Let.Height + Let.YOffset);
-              Inc(AdvX, Let.Width + FontData.CharSpacing);
+              glTexCoord2f(Let.u1, Let.v1); glVertex2f(dx            , dy            + Let.YOffset);
+              glTexCoord2f(Let.u2, Let.v1); glVertex2f(dx + Let.Width, dy            + Let.YOffset);
+              glTexCoord2f(Let.u2, Let.v2); glVertex2f(dx + Let.Width, dy+Let.Height + Let.YOffset);
+              glTexCoord2f(Let.u1, Let.v2); glVertex2f(dx            , dy+Let.Height + Let.YOffset);
+              Inc(dx, Let.Width + FontData.CharSpacing);
             end;
     end;
     //When we reach the end, if we painted something then we need to end it

@@ -366,7 +366,7 @@ var
   Bmp: TBitmap;
   I, L, M: Integer;
   srcCol, dstCol: Integer;
-  AdvX: Integer;
+  dx: Integer;
   MyRect: TRect;
   Let: TKMLetter;
   pX, pY: Word;
@@ -377,7 +377,7 @@ begin
   Bmp.Width := 512;
   Bmp.Height := 22;
 
-  AdvX := 10;
+  dx := 10;
 
   //Fill area
   Bmp.Canvas.Brush.Color := BG_COLOR;
@@ -400,7 +400,7 @@ begin
       pY := Round(Let.v1 * fFnt.TexSizeY) + L;
 
       srcCol := fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] and $FFFFFF;
-      dstCol := Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] and $FFFFFF;
+      dstCol := Bmp.Canvas.Pixels[dx + M, Let.YOffset + L + PAD] and $FFFFFF;
       alpha := 255 - (fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] shr 24) and $FF;
 
       if fPreviewCells then
@@ -411,18 +411,18 @@ begin
       end;
 
       //srcCol + (dstCol - srcCol) * alpha
-      Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] :=
+      Bmp.Canvas.Pixels[dx + M, Let.YOffset + L + PAD] :=
         ((srcCol and $FF) + ((dstCol and $FF - srcCol and $FF) * alpha) div 256) +
         ((srcCol shr 8 and $FF) + ((dstCol shr 8 and $FF - srcCol shr 8 and $FF) * alpha) div 256) shl 8 +
         ((srcCol shr 16 and $FF) + ((dstCol shr 16 and $FF - srcCol shr 16 and $FF) * alpha) div 256) shl 16;
     end;
 
-    Inc(AdvX, Let.Width + fFnt.CharSpacing);
+    Inc(dx, Let.Width + fFnt.CharSpacing);
   end else
-    Inc(AdvX, fFnt.WordSpacing);
+    Inc(dx, fFnt.WordSpacing);
 
   //Match phrase bounds
-  Bmp.Width := Max(AdvX - Min(fFnt.CharSpacing, 0), 0) + 20; //Revert last char overlap (if spacing is negative)
+  Bmp.Width := Max(dx - Min(fFnt.CharSpacing, 0), 0) + 20; //Revert last char overlap (if spacing is negative)
   Bmp.Height := 22;
 
   imgPreviewSmall.Canvas.Brush.Color := BG_COLOR;
