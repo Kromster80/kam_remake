@@ -161,10 +161,10 @@ type
     procedure Paint; virtual;
   end;
 
-  {SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation}
+  // SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation
   TKMHouseSwineStable = class(TKMHouse)
   private
-    BeastAge:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
+    BeastAge: array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
   public
     constructor Load(LoadStream: TKMemoryStream); override;
     function FeedBeasts: Byte;
@@ -175,10 +175,10 @@ type
   end;
 
 
-  {Storehouse keeps all the resources and flags for them}
+  // Storehouse keeps all the resources and flags for them
   TKMHouseStore = class(TKMHouse)
   private
-    ResourceCount: array [WARE_MIN .. WARE_MAX] of Word;
+    WaresCount: array [WARE_MIN .. WARE_MAX] of Word;
   protected
     procedure Activate(aWasBuilt: Boolean); override;
   public
@@ -1461,7 +1461,7 @@ end;
 constructor TKMHouseStore.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
-  LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
+  LoadStream.Read(WaresCount, SizeOf(WaresCount));
   LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 
@@ -1470,13 +1470,13 @@ procedure TKMHouseStore.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScri
 var R: TWareType;
 begin
   case aWare of
-    wt_All:     for R := Low(ResourceCount) to High(ResourceCount) do begin
-                  ResourceCount[R] := EnsureRange(ResourceCount[R]+aCount, 0, High(Word));
+    wt_All:     for R := Low(WaresCount) to High(WaresCount) do begin
+                  WaresCount[R] := EnsureRange(WaresCount[R]+aCount, 0, High(Word));
                   gHands[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
                 end;
     WARE_MIN..
     WARE_MAX:   begin
-                  ResourceCount[aWare]:=EnsureRange(ResourceCount[aWare]+aCount, 0, High(Word));
+                  WaresCount[aWare]:=EnsureRange(WaresCount[aWare]+aCount, 0, High(Word));
                   gHands[fOwner].Deliveries.Queue.AddOffer(Self,aWare,aCount);
                 end;
     else        raise ELocError.Create('Cant''t add '+gRes.Wares[aWare].Title, GetPosition);
@@ -1493,14 +1493,14 @@ end;
 function TKMHouseStore.ResOutputAvailable(aWare: TWareType; const aCount: Word): Boolean;
 begin
   Assert(aWare in [WARE_MIN..WARE_MAX]);
-  Result := (ResourceCount[aWare] >= aCount);
+  Result := (WaresCount[aWare] >= aCount);
 end;
 
 
 function TKMHouseStore.CheckResIn(aWare: TWareType): Word;
 begin
   if aWare in [WARE_MIN..WARE_MAX] then
-    Result := ResourceCount[aWare]
+    Result := WaresCount[aWare]
   else
   begin
     Result := 0;
@@ -1514,7 +1514,7 @@ var
   R: TWareType;
 begin
   for R := WARE_MIN to WARE_MAX do
-    gHands[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
+    gHands[fOwner].Stats.WareConsumed(R, WaresCount[R]);
 
   inherited;
 end;
@@ -1524,23 +1524,23 @@ procedure TKMHouseStore.ResTakeFromOut(aWare: TWareType; aCount: Word=1; aFromSc
 begin
   if aFromScript then
   begin
-    aCount := Min(aCount, ResourceCount[aWare]);
+    aCount := Min(aCount, WaresCount[aWare]);
     if aCount > 0 then
     begin
       gHands[fOwner].Stats.WareConsumed(aWare, aCount);
       gHands[fOwner].Deliveries.Queue.RemOffer(Self, aWare, aCount);
     end;
   end;
-  Assert(aCount <= ResourceCount[aWare]);
+  Assert(aCount <= WaresCount[aWare]);
 
-  Dec(ResourceCount[aWare], aCount);
+  Dec(WaresCount[aWare], aCount);
 end;
 
 
 procedure TKMHouseStore.ToggleAcceptFlag(aWare: TWareType);
 const
   //Using shortints instead of bools makes it look much neater in code-view
-  CheatPattern: array [WARE_MIN..WARE_MAX] of Byte = (
+  CHEAT_SP_PATTERN: array [WARE_MIN..WARE_MAX] of Byte = (
     0,0,1,0,0,
     0,1,0,1,0,
     1,0,0,0,1,
@@ -1548,42 +1548,42 @@ const
     1,1,1,1,1,
     0,0,0);
 var
-  R: TWareType;
-  ApplyCheat: Boolean;
+  ware: TWareType;
+  cheatPattern: Boolean;
 begin
-  Assert(aWare in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
+  // Dunno why thats happening sometimes..
+  Assert(aWare in [WARE_MIN .. WARE_MAX]);
 
-  //We need to skip cheats in MP replays too, not just MP games, so don't use fGame.IsMultiplayer
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti])) then
+  // We need to skip cheats in MP replays too, not just MP games, so don't use fGame.IsMultiplayer
+  if CHEATS_SP_ENABLED and (MULTIPLAYER_CHEATS or not (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti])) then
   begin
-    ApplyCheat := True;
+    // Check the cheat pattern
+    cheatPattern := True;
+    for ware := Low(WaresCount) to High(WaresCount) do
+      cheatPattern := cheatPattern and (NotAcceptFlag[ware] = Boolean(CHEAT_SP_PATTERN[ware]));
 
-    //Check the cheat pattern
-    for R := Low(ResourceCount) to High(ResourceCount) do
-      ApplyCheat := ApplyCheat and (NotAcceptFlag[R] = boolean(CheatPattern[R]));
-
-    if ApplyCheat then
-    case aWare of
-      wt_Arbalet: begin
-                    ResAddToIn(wt_All, 10);
-                    gHands[fOwner].Stats.WareProduced(wt_All, 10);
-                    Exit;
-                  end;
-      wt_Horse:   if not gGame.IsMultiplayer then
-                  begin
-                    //Game results cheats should not be used in MP even in debug
-                    //MP does Win/Defeat differently (without Hold)
-                    gGame.RequestGameHold(gr_Win);
-                    Exit;
-                  end;
-      wt_Fish:    if not gGame.IsMultiplayer then
-                  begin
-                    //Game results cheats should not be used in MP even in debug
-                    //MP does Win/Defeat differently (without Hold)
-                    gGame.RequestGameHold(gr_Defeat);
-                    Exit;
-                  end;
-    end;
+    if cheatPattern then
+      case aWare of
+        wt_Arbalet: begin
+                      ResAddToIn(wt_All, 10);
+                      gHands[fOwner].Stats.WareProduced(wt_All, 10);
+                      Exit;
+                    end;
+        wt_Horse:   if not gGame.IsMultiplayer then
+                    begin
+                      // Game results cheats should not be used in MP even in debug
+                      // MP does Win/Defeat differently (without Hold)
+                      gGame.RequestGameHold(gr_Win);
+                      Exit;
+                    end;
+        wt_Fish:    if not gGame.IsMultiplayer then
+                    begin
+                      // Game results cheats should not be used in MP even in debug
+                      // MP does Win/Defeat differently (without Hold)
+                      gGame.RequestGameHold(gr_Defeat);
+                      Exit;
+                    end;
+      end;
   end;
 
   NotAcceptFlag[aWare] := not NotAcceptFlag[aWare];
@@ -1593,7 +1593,7 @@ end;
 procedure TKMHouseStore.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
+  SaveStream.Write(WaresCount, SizeOf(WaresCount));
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 
