@@ -23,7 +23,6 @@ type
     Button1: TButton;
     Button2: TButton;
     procedure FormCreate(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnGenerateClick(Sender: TObject);
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
     procedure edtOnTextChange(Sender: TObject);
@@ -51,8 +50,8 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..27] of string = (
-    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
+  VAR_TYPE_NAME: array[0..28] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
@@ -61,8 +60,8 @@ const
     'TByteSet', 'TIntegerArray' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..27] of string = (
-    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'String',
+  VAR_TYPE_ALIAS: array[0..28] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
@@ -112,11 +111,6 @@ begin
 end;
 
 
-procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-end;
-
-
 {
   Parses the param string into prefered wiki-format.
   Results:
@@ -131,6 +125,9 @@ var
   paramHolder: array of TParamHolder;
   lastType: string;
 begin
+  if aString = 'aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single' then
+    Sleep(0);
+
   Result := '';
 
   listTokens := TStringList.Create;
