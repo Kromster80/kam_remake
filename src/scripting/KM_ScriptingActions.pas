@@ -111,11 +111,11 @@ type
     procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
 
-    procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
-    procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
-    procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word);
-    function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
-    function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word): Integer;
+    procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single);
+    procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single);
+    procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word);
+    function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer;
+    function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer;
     procedure StopLoopedWAV(aLoopIndex: Integer);
 
     procedure RemoveRoad(X, Y: Word);
@@ -380,8 +380,8 @@ end;
 //* If the player index is -1 the sound will be played to all players.
 //* Mono and stereo WAV files are supported.
 //* WAV file goes in mission folder named: Mission Name.filename.wav
-//* Volume: Audio level (0.0 to 1.0)
-procedure TKMScriptActions.PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
+//* aVolume: Audio level (0.0 to 1.0)
+procedure TKMScriptActions.PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single);
 var
   fullFileName: UnicodeString;
 begin
@@ -391,8 +391,8 @@ begin
     fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
-    if InRange(Volume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, 0, False)
+    if InRange(aVolume, 0, 1) then
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, False)
     else
       LogParamWarning('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
   except
@@ -405,8 +405,8 @@ end;
 //* Version: 6220
 //* Same as PlayWAV except music will fade then mute while the WAV is playing, then fade back in afterwards.
 //* You should leave a small gap at the start of your WAV file to give the music time to fade
-//* Volume: Audio level (0.0 to 1.0)
-procedure TKMScriptActions.PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
+//* aVolume: Audio level (0.0 to 1.0)
+procedure TKMScriptActions.PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single);
 var
   fullFileName: UnicodeString;
 begin
@@ -416,8 +416,8 @@ begin
     fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
-    if InRange(Volume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume, 0, True)
+    if InRange(aVolume, 0, 1) then
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, True)
     else
       LogParamWarning('Actions.PlayWAVFadeMusic: ' + UnicodeString(aFileName), []);
   except
@@ -435,9 +435,9 @@ end;
 //* WAV file goes in mission folder named: Mission Name.filename.wav.
 //* Will not play if the location is not revealed to the player.
 //* Higher volume range is allowed than PlayWAV as positional sounds are quieter
-//* Volume: Audio level (0.0 to 1.0)
-//* Radius: Radius (minimum 28)
-procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word);
+//* aVolume: Audio level (0.0 to 1.0)
+//* aRadius: Radius (minimum 28)
+procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word);
 var
   fullFileName: UnicodeString;
 begin
@@ -447,13 +447,13 @@ begin
     fullFileName := ExeDir + gGame.GetScriptSoundFile(aFileName);
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
-    if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
+    if InRange(aVolume, 0, 4) and (aRadius >= 28) and gTerrain.TileInMapCoords(aX,aY) then
     begin
-      if gMySpectator.FogOfWar.CheckTileRevelation(X, Y) > 0 then
-        gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume, Radius, False);
+      if gMySpectator.FogOfWar.CheckTileRevelation(aX, aY) > 0 then
+        gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(aX,aY), True, aVolume, aRadius, False);
     end
     else
-      LogParamWarning('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [X, Y]);
+      LogParamWarning('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [aX, aY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -467,14 +467,14 @@ end;
 //* Mono or stereo WAV files are supported.
 //* WAV file goes in mission folder named: Mission Name.filename.wav.
 //* The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.
-//* Volume: Audio level (0.0 to 1.0)
+//* aVolume: Audio level (0.0 to 1.0)
 //* Result: LoopIndex of the sound
-function TKMScriptActions.PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single): Integer;
+function TKMScriptActions.PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer;
 begin
   try
     Result := -1;
-    if InRange(Volume, 0, 1) then
-      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(0,0), False, Volume, 0)
+    if InRange(aVolume, 0, 1) then
+      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(0,0), False, aVolume, 0)
     else
       LogParamWarning('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
   except
@@ -487,23 +487,23 @@ end;
 //* Version: 6222
 //* Plays looped audio file at a location on the map.
 //* If the player index is -1 the sound will be played to all players.
-//* Radius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use radius 32).
+//* aRadius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use aRadius 32).
 //* Only mono WAV files are supported.
 //* WAV file goes in mission folder named: Mission Name.filename.wav.
 //* Will not play if the location is not revealed to the player (will start playing automatically when it is revealed).
-//* Higher volume range is allowed than PlayWAV as positional sounds are quieter.
+//* Higher aVolume range is allowed than PlayWAV as positional sounds are quieter.
 //* The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.
-//* Volume: Audio level (0.0 to 1.0)
-//* Radius: Radius (minimum 28)
+//* aVolume: Audio level (0.0 to 1.0)
+//* aRadius: aRadius (minimum 28)
 //* Result: LoopIndex of the sound
-function TKMScriptActions.PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; Radius: Single; X, Y: Word): Integer;
+function TKMScriptActions.PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer;
 begin
   try
     Result := -1;
-    if InRange(Volume, 0, 4) and (Radius >= 28) and gTerrain.TileInMapCoords(X,Y) then
-      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(X,Y), True, Volume, Radius)
+    if InRange(aVolume, 0, 4) and (aRadius >= 28) and gTerrain.TileInMapCoords(aX,aY) then
+      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(aX,aY), True, aVolume, aRadius)
     else
-      LogParamWarning('Actions.PlayWAVAtLocationLooped: ' + UnicodeString(aFileName), [X, Y]);
+      LogParamWarning('Actions.PlayWAVAtLocationLooped: ' + UnicodeString(aFileName), [aX, aY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -513,7 +513,7 @@ end;
 
 //* Version: 6222
 //* Stops playing a looped sound that was previously started with either Actions.PlayWAVLooped or Actions.PlayWAVAtLocationLooped.
-//* LoopIndex is the value that was returned by either of those functions when the looped sound was started.
+//* aLoopIndex is the value that was returned by either of those functions when the looped sound was started.
 procedure TKMScriptActions.StopLoopedWAV(aLoopIndex: Integer);
 begin
   try
