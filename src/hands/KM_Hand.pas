@@ -621,7 +621,7 @@ end;
 //Due to lag there could be already plans placed by user in previous ticks
 //Check if Plan can be placed once again, as we might have conflicting commands caused by lag
 //This is called by GIP when a place field command is processed
-procedure TKMHand.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound:Boolean);
+procedure TKMHand.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound: Boolean);
 var Plan: TFieldType;
 begin
   Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine], 'Placing wrong FieldType');
@@ -636,7 +636,13 @@ begin
       and (HandIndex = gMySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType);
-      gScriptEvents.ProcPlanPlaced(fHandIndex, aLoc.X, aLoc.Y, aFieldType);
+      case aFieldType of
+         ft_Road: gScriptEvents.ProcPlanRoadPlaced(fHandIndex, aLoc.X, aLoc.Y);
+         ft_Corn: gScriptEvents.ProcPlanFieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
+         ft_Wine: gScriptEvents.ProcPlanWinefieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
+      else
+        Assert(False);
+      end;
     end
     else
     begin
@@ -763,12 +769,20 @@ end;
 //This is called by the GIP when an erase command is processed
 procedure TKMHand.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
 var
-  aFieldType: TFieldType;
+  fieldType: TFieldType;
 begin
-  aFieldType := fBuildList.FieldworksList.HasField(Position);
-  if aFieldType = ft_None then Exit; //Can happen due to network delays
+  fieldType := fBuildList.FieldworksList.HasField(Position);
+  if fieldType = ft_None then Exit; //Can happen due to network delays
   fBuildList.FieldworksList.RemFieldPlan(Position);
-  gScriptEvents.ProcPlanRemoved(fHandIndex, Position.X, Position.Y, aFieldType);
+
+  case fieldType of
+    ft_Road: gScriptEvents.ProcPlanRoadRemoved(fHandIndex, Position.X, Position.Y);
+    ft_Corn: gScriptEvents.ProcPlanFieldRemoved(fHandIndex, Position.X, Position.Y);
+    ft_Wine: gScriptEvents.ProcPlanWinefieldRemoved(fHandIndex, Position.X, Position.Y);
+  else
+    Assert(False);
+  end;
+
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
   and (HandIndex = gMySpectator.HandIndex) then
     gSoundPlayer.Play(sfx_Click);

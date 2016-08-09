@@ -37,12 +37,12 @@ type
     fProcGroupHungry: TMethod;
     fProcMarketTrade: TMethod;
     fProcMissionStart: TMethod;
-    fProcPlanPlacedRoad: TMethod;
-    fProcPlanPlacedField: TMethod;
-    fProcPlanPlacedWinefield: TMethod;
-    fProcPlanRemovedRoad: TMethod;
-    fProcPlanRemovedField: TMethod;
-    fProcPlanRemovedWinefield: TMethod;
+    fProcPlanRoadPlaced: TMethod;
+    fProcPlanRoadRemoved: TMethod;
+    fProcPlanFieldPlaced: TMethod;
+    fProcPlanFieldRemoved: TMethod;
+    fProcPlanWinefieldPlaced: TMethod;
+    fProcPlanWinefieldRemoved: TMethod;
     fProcPlayerDefeated: TMethod;
     fProcPlayerVictory: TMethod;
     fProcTick: TMethod;
@@ -71,8 +71,12 @@ type
     procedure ProcGroupHungry(aGroup: TKMUnitGroup);
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
-    procedure ProcPlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
-    procedure ProcPlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
+    procedure ProcPlanRoadPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcPlanRoadRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcPlanFieldPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcPlanFieldRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcPlanWinefieldPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcPlanWinefieldRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlayerDefeated(aPlayer: TKMHandIndex);
     procedure ProcPlayerVictory(aPlayer: TKMHandIndex);
     procedure ProcTick;
@@ -139,12 +143,12 @@ begin
   fProcGroupHungry          := fExec.GetProcAsMethodN('ONGROUPHUNGRY');
   fProcMarketTrade          := fExec.GetProcAsMethodN('ONMARKETTRADE');
   fProcMissionStart         := fExec.GetProcAsMethodN('ONMISSIONSTART');
-  fProcPlanPlacedRoad       := fExec.GetProcAsMethodN('ONPLANROADPLACED');
-  fProcPlanPlacedField      := fExec.GetProcAsMethodN('ONPLANFIELDPLACED');
-  fProcPlanPlacedWinefield  := fExec.GetProcAsMethodN('ONPLANWINEFIELDPLACED');
-  fProcPlanRemovedRoad      := fExec.GetProcAsMethodN('ONPLANROADREMOVED');
-  fProcPlanRemovedField     := fExec.GetProcAsMethodN('ONPLANFIELDREMOVED');
-  fProcPlanRemovedWinefield := fExec.GetProcAsMethodN('ONPLANWINEFIELDREMOVED');
+  fProcPlanRoadPlaced       := fExec.GetProcAsMethodN('ONPLANROADPLACED');
+  fProcPlanRoadRemoved      := fExec.GetProcAsMethodN('ONPLANROADREMOVED');
+  fProcPlanFieldPlaced      := fExec.GetProcAsMethodN('ONPLANFIELDPLACED');
+  fProcPlanFieldRemoved     := fExec.GetProcAsMethodN('ONPLANFIELDREMOVED');
+  fProcPlanWinefieldPlaced  := fExec.GetProcAsMethodN('ONPLANWINEFIELDPLACED');
+  fProcPlanWinefieldRemoved := fExec.GetProcAsMethodN('ONPLANWINEFIELDREMOVED');
   fProcPlayerDefeated       := fExec.GetProcAsMethodN('ONPLAYERDEFEATED');
   fProcPlayerVictory        := fExec.GetProcAsMethodN('ONPLAYERVICTORY');
   fProcTick                 := fExec.GetProcAsMethodN('ONTICK');
@@ -420,25 +424,57 @@ begin
 end;
 
 
-procedure TKMScriptEvents.ProcPlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
+//* Version: 5964
+//* Occurs when player has placed a road plan.
+procedure TKMScriptEvents.ProcPlanRoadPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
 begin
-  case aPlanType of
-    ft_Road: if MethodAssigned(fProcPlanPlacedRoad)      then DoProc(fProcPlanPlacedRoad     , [aPlayer, aX, aY]);
-    ft_Corn: if MethodAssigned(fProcPlanPlacedField)     then DoProc(fProcPlanPlacedField    , [aPlayer, aX, aY]);
-    ft_Wine: if MethodAssigned(fProcPlanPlacedWinefield) then DoProc(fProcPlanPlacedWinefield, [aPlayer, aX, aY]);
-    else     Assert(False);
-  end;
+  if MethodAssigned(fProcPlanRoadPlaced) then
+    DoProc(fProcPlanRoadPlaced, [aPlayer, aX, aY]);
 end;
 
 
-procedure TKMScriptEvents.ProcPlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aPlanType: TFieldType);
+//* Version: 6301
+//* Occurs when player has removed a road plan.
+procedure TKMScriptEvents.ProcPlanRoadRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
 begin
-  case aPlanType of
-    ft_Road: if MethodAssigned(fProcPlanRemovedRoad)      then DoProc(fProcPlanRemovedRoad     , [aPlayer, aX, aY]);
-    ft_Corn: if MethodAssigned(fProcPlanRemovedField)     then DoProc(fProcPlanRemovedField    , [aPlayer, aX, aY]);
-    ft_Wine: if MethodAssigned(fProcPlanRemovedWinefield) then DoProc(fProcPlanRemovedWinefield, [aPlayer, aX, aY]);
-    else     Assert(False);
-  end;
+  if MethodAssigned(fProcPlanRoadRemoved) then
+    DoProc(fProcPlanRoadRemoved, [aPlayer, aX, aY]);
+end;
+
+
+//* Version: 5964
+//* Occurs when player has placed a field plan.
+procedure TKMScriptEvents.ProcPlanFieldPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcPlanFieldPlaced) then
+    DoProc(fProcPlanFieldPlaced, [aPlayer, aX, aY]);
+end;
+
+
+//* Version: 6301
+//* Occurs when player has removed a field plan.
+procedure TKMScriptEvents.ProcPlanFieldRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcPlanFieldRemoved) then
+    DoProc(fProcPlanFieldRemoved, [aPlayer, aX, aY]);
+end;
+
+
+//* Version: 5964
+//* Occurs when player has placed a wine field plan.
+procedure TKMScriptEvents.ProcPlanWinefieldPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcPlanWinefieldPlaced) then
+    DoProc(fProcPlanWinefieldPlaced, [aPlayer, aX, aY]);
+end;
+
+
+//* Version: 6301
+//* Occurs when player has removed a wine field plan.
+procedure TKMScriptEvents.ProcPlanWinefieldRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcPlanWinefieldRemoved) then
+    DoProc(fProcPlanWinefieldRemoved, [aPlayer, aX, aY]);
 end;
 
 
