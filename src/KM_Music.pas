@@ -243,7 +243,6 @@ begin
     or (GetFileExt(SearchRec.Name) = 'OGA')
     or (GetFileExt(SearchRec.Name) = 'AC3')
     or (GetFileExt(SearchRec.Name) = 'AAC')
-    or (GetFileExt(SearchRec.Name) = 'OGA')
     {$ENDIF}
     then
     begin
