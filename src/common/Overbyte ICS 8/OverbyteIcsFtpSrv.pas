@@ -4,7 +4,7 @@ Author:       François PIETTE
 Description:  TFtpServer class encapsulate the FTP protocol (server side)
               See RFC-959 for a complete protocol description.
 Creation:     April 21, 1998
-Version:      8.05
+Version:      8.06
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
@@ -418,6 +418,7 @@ Jun 24, 2013 V8.04 Angus added new Options of ftpsCompressDirs defaults false
                    Skip using thread in zmode if level=Z_NO_COMPRESSION and
                       size less than one meg since really a straight stream copy
 Dec 09, 2014 V8.05 - Angus added SslHandshakeRespMsg for better error handling
+Feb 23, 2016 V8.06 - Angus renamed TBufferedFileStream to TIcsBufferedFileStream
 
 
 Angus pending -
@@ -533,8 +534,8 @@ uses
 
 
 const
-    FtpServerVersion         = 805;
-    CopyRight : String       = ' TFtpServer (c) 1998-2014 F. Piette V8.05 ';
+    FtpServerVersion         = 806;
+    CopyRight : String       = ' TFtpServer (c) 1998-2016 F. Piette V8.06 ';
     UtcDateMaskPacked        = 'yyyymmddhhnnss';         { angus V1.38 }
     DefaultRcvSize           = 16384;    { V7.00 used for both xmit and recv, was 2048, too small }
 
@@ -2477,7 +2478,7 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TFtpServer.OpenFileStream (const FileName: string; Mode: Word): TStream;   { V1.54 }
 begin
-    Result := TBufferedFileStream.Create(FileName, Mode, MAX_BUFSIZE);
+    Result := TIcsBufferedFileStream.Create(FileName, Mode, MAX_BUFSIZE);
 end ;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}

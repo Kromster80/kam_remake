@@ -5,11 +5,11 @@ Description:  Delphi component which does Ansi terminal emulation
               Not every escape sequence is implemented, but a large subset.
 Author:       François PIETTE
 Creation:     May, 1996
-Version:      8.02
+Version:      8.03
 EMail:        http://www.overbyte.be       francois.piette@overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1996-2014 by François PIETTE
+Legal issues: Copyright (C) 1996-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -100,6 +100,7 @@ May 28, 2014 v8.02 DrJohn fixed problem with (border) colours
                    AutoResize property added with improved font resizing
                    SoundOn property added
                    GetScreenText function added
+Feb 20, 2016 V8.03 Angus fixed typos COMPILE12_UP
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsEmulVT;
@@ -151,8 +152,8 @@ uses
     OverbyteIcsUtils;
 
 const
-  EmulVTVersion      = 802;
-  CopyRight : String = ' TEmulVT (c) 1996-2014 F. Piette V8.02 ';
+  EmulVTVersion      = 803;
+  CopyRight : String = ' TEmulVT (c) 1996-2016 F. Piette V8.03 ';
   MAX_ROW            = 50;
   MAX_COL            = 160;
   NumPaletteEntries  = 16;
@@ -438,7 +439,7 @@ type
 {$ENDIF}
     procedure   WriteStr(Str : String);
     procedure   WriteBuffer(Buffer : PChar; Len : Integer); overload;
-{$IFDEF COMPILE12_UP}
+{$IFDEF COMPILER12_UP}    { V8.03 }
     procedure   WriteBuffer(Buffer : PAnsiChar; Len : Integer); overload;
 {$ENDIF}
     function    ReadStr : String;
@@ -2824,7 +2825,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{$IFDEF COMPILE12_UP}
+{$IFDEF COMPILER12_UP}    { V8.03 }
 procedure TCustomEmulVT.WriteBuffer(
     Buffer : PAnsiChar;
     Len    : Integer);

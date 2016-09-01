@@ -38,6 +38,7 @@ Jan 04, 2012 Moved code from unit OverbyteIcsWinsock2 here and made some
              breaking changes to support OSX and IPv6.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Mar 21, 2016 - V8.01 - added Types to remove inline warning
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -83,6 +84,7 @@ uses
   Posix.NetinetIn,
   Posix.ArpaInet,
 {$ENDIF}
+  {$IFDEF RTL_NAMESPACES}System.Types{$ELSE}Types{$ENDIF},    { V8.01 }
   {$IFDEF RTL_NAMESPACES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.Classes{$ELSE}Classes{$ENDIF};
 

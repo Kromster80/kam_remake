@@ -3,8 +3,8 @@
 Author:       Angus Robertson, Magenta Systems Ltd
 Description:  Client Cookie Handling, see RFC2109/RFC6265 (RFC2965 is obsolete)
 Creation:     19 March 2012
-Updated:      22 May 2012
-Version:      8.02
+Updated:      5 Nov 2015
+Version:      8.03
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
@@ -51,9 +51,10 @@ Updates:
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
 Oct 8, 2012  V8.01 remove compiler warning
-Dec 15, 2012 V8.01 Arno removed Windows.pas from uses clause and fixed a small bug
+Dec 15, 2012 V8.02 Arno removed Windows.pas from uses clause and fixed a small bug
                    in GetCookies() when path was empty. Also removed use of "with"
                    in GetCookies() for better debugging.
+Nov 5, 2015 V8.03  restored Windows to remove compiler warning 
 
 Note - needs more testing for domain and path matching
 Pending - not yet thread safe
@@ -79,6 +80,9 @@ unit OverbyteIcsCookies;
 interface
 
 uses
+{$IFDEF MSWINDOWS}
+  {$IFDEF RTL_NAMESPACES}Winapi.Windows{$ELSE}Windows{$ENDIF},
+{$ENDIF}
   {$IFDEF RTL_NAMESPACES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.IniFiles{$ELSE}IniFiles{$ENDIF},

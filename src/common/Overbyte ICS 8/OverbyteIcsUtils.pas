@@ -3,11 +3,11 @@
 Author:       Arno Garrels <arno.garrels@gmx.de>
 Description:  A place for common utilities.
 Creation:     Apr 25, 2008
-Version:      8.07
+Version:      8.09
 EMail:        http://www.overbyte.be       francois.piette@overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2002-2013 by François PIETTE
+Legal issues: Copyright (C) 2002-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -135,6 +135,8 @@ Jul 06, 2013 V8.06 Arno reverted the conditional define from previous fix and
              fixed IcsStrPCopy instead.
 Jul 13, 2013 V8.07 Arno added an overloaded version of IcsGetBufferCodepage that
              returns BOM's size.
+Nov 23, 2015 V8.08 Eugene Kotlyarov fix MacOSX compilation and compiler warnings
+Feb 22, 2016 V8.09 Angus moved RFC1123_Date and RFC1123_StrToDate from HttpProt
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsUtils;
@@ -311,6 +313,8 @@ const
     function  IcsGetLocalTimeZoneBias: LongInt;
     function  IcsDateTimeToUTC (dtDT: TDateTime): TDateTime;
     function  IcsUTCToDateTime (dtDT: TDateTime): TDateTime;
+    function  RFC1123_Date(aDate : TDateTime) : String;       { V8.09 }
+    function  RFC1123_StrToDate(aDate : String) : TDateTime;  { V8.09 }
     function  IcsGetTickCount: LongWord;
     function  IcsWcToMb(CodePage: LongWord; Flags: Cardinal;
                         WStr: PWideChar; WStrLen: Integer; MbStr: PAnsiChar;
@@ -900,6 +904,46 @@ begin
     Result := dtDT - IcsGetLocalTimeZoneBias / (60.0 * 24.0);
 end;
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+const
+   RFC1123_StrWeekDay : String = 'MonTueWedThuFriSatSun';
+   RFC1123_StrMonth   : String = 'JanFebMarAprMayJunJulAugSepOctNovDec';
+{ We cannot use Delphi own function because the date must be specified in   }
+{ english and Delphi use the current language.                              }
+function RFC1123_Date(aDate : TDateTime) : String;
+var
+   Year, Month, Day       : Word;
+   Hour, Min,   Sec, MSec : Word;
+   DayOfWeek              : Word;
+begin
+   DecodeDate(aDate, Year, Month, Day);
+   DecodeTime(aDate, Hour, Min,   Sec, MSec);
+   DayOfWeek := ((Trunc(aDate) - 2) mod 7);
+   Result := Copy(RFC1123_StrWeekDay, 1 + DayOfWeek * 3, 3) + ', ' +
+             Format('%2.2d %s %4.4d %2.2d:%2.2d:%2.2d',
+                    [Day, Copy(RFC1123_StrMonth, 1 + 3 * (Month - 1), 3),
+                     Year, Hour, Min, Sec]);
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ Bug: time zone is ignored !! }
+{ RFC1123 5.2.14 redefine RFC822 Section 5.                                 }
+function RFC1123_StrToDate(aDate : String) : TDateTime;
+var
+    Year, Month, Day : Word;
+    Hour, Min,   Sec : Word;
+begin
+    { Fri, 30 Jul 2004 10:10:35 GMT }
+    Day    := StrToIntDef(Copy(aDate, 6, 2), 0);
+    Month  := (Pos(Copy(aDate, 9, 3), RFC1123_StrMonth) + 2) div 3;
+    Year   := StrToIntDef(Copy(aDate, 13, 4), 0);
+    Hour   := StrToIntDef(Copy(aDate, 18, 2), 0);
+    Min    := StrToIntDef(Copy(aDate, 21, 2), 0);
+    Sec    := StrToIntDef(Copy(aDate, 24, 2), 0);
+    Result := EncodeDate(Year, Month, Day);
+    Result := Result + EncodeTime(Hour, Min, Sec, 0);
+end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFDEF MSWINDOWS}
@@ -3758,7 +3802,7 @@ begin
     Result := IcsStrCompOrdinalW(PWideChar(S1), Length(S1), PWideChar(S2),
                              Length(S2), True);
 {$ELSE}
-    Result := SysUtils.AnsiCompareFileName(S1, S2);
+    Result := {$IFDEF RTL_NAMESPACES}System.{$ENDIF}SysUtils.AnsiCompareFileName(S1, S2);  { V8.08 }
 {$ENDIF}
 end;
 

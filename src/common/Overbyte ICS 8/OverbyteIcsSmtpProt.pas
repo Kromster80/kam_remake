@@ -7,16 +7,16 @@ Object:       TSmtpCli class implements the SMTP protocol (RFC-821)
               Support authentification (RFC-2104)
               Support HTML mail with embedded images.
 Creation:     09 october 1997
-Version:      8.04
+Version:      8.08
 EMail:        http://www.overbyte.be        francois.piette@overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1997-2014 by François PIETTE
+Legal issues: Copyright (C) 1997-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
               Berlin, Germany, contact: <arno.garrels@gmx.de>
-              
+
               This software is provided 'as-is', without any express or
               implied warranty.  In no event will the author be held liable
               for any  damages arising from the use of this software.
@@ -408,6 +408,13 @@ Mar 19, 2013 V8.03 Angus added LocalAddr6 for IPv6
              Note: SocketFamily must be set to sfAny, sfIPv6 or sfAnyIPv6 to
                    allow a host name to resolve to an IPv6 address.
 Dec 10, 2014 V8.04 - Angus added SslHandshakeRespMsg for better error handling
+Mar 18, 2015 V8.05 Angus added IcsLogger
+Jun 01, 2015 V8.06 Angus update SslServerName for SSL SNI support allowing server to
+                     select correct SSL context and certificate
+Oct 05, 2015 V8.07 Angus changed to receive with LineMode for more reliable line
+                     parsing, which fixes an endless loop if remote server returned
+                     nulls, thanks to Max Terentiev for finding a bad server
+Feb 23, 2016 V8.08 - Angus renamed TBufferedFileStream to TIcsBufferedFileStream
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -484,6 +491,9 @@ uses
     OverbyteIcsWndControl,
     OverbyteIcsWSocket,
 {$ENDIF}
+{$IFNDEF NO_DEBUG_LOG}
+    OverbyteIcsLogger,
+{$ENDIF}
     OverbyteIcsNtlmMsgs,
     OverbyteIcsMimeUtils,
     OverbyteIcsMD5,
@@ -492,10 +502,10 @@ uses
     OverbyteIcsCharsetUtils;
 
 const
-  SmtpCliVersion     = 804;
-  CopyRight : String = ' SMTP component (c) 1997-2014 Francois Piette V8.04 ';
+  SmtpCliVersion     = 808;
+  CopyRight : String = ' SMTP component (c) 1997-2016 Francois Piette V8.08 ';
   smtpProtocolError  = 20600; {AG}
-  SMTP_RCV_BUF_SIZE  = 4096;
+{  SMTP_RCV_BUF_SIZE  = 4096;  V8.07 no longer used }
 
   SmtpDefEncArray : array [0..3] of AnsiString = ('7bit',             '8bit',
                                                   'quoted-printable', 'base64'); {AG}
@@ -536,7 +546,7 @@ type
         property  IsMultiByteCP : Boolean read FIsMultiByteCP write FIsMultiByteCP;
         property  DefaultEncoding : TSmtpDefaultEncoding read  FDefaultEncoding
                                                         write SetDefaultEncoding;
-        property  EncType : Char read FEncType;                                                
+        property  EncType : Char read FEncType;
     end;
 
     TSmtpMessageText = class(TObject)                                      {AG}
@@ -686,7 +696,7 @@ type
     { Base component, implementing the transport, without MIME support }
     TCustomSmtpClient = class(TIcsWndControl)
     protected
-        FWSocket             : TWSocket;     { Underlaying socket          }
+        FWSocket             : TWSocket; { Underlaying socket  }
         FHost                : String;       { SMTP server hostname or IP  }
         FSocketFamily        : TSocketFamily;
         FLocalAddr           : String; {bb}  { Local Address for mulithome }
@@ -744,10 +754,10 @@ type
         FESmtpSupported      : Boolean;
         FRequestType         : TSmtpRequest;
         FRequestDoneFlag     : Boolean;
-        FReceiveLen          : Integer;
+     {   FReceiveLen          : Integer;     V8.07 no longer used }
         FRequestResult       : Integer;
         FStatusCode          : Integer;
-        FReceiveBuffer       : array [0..SMTP_RCV_BUF_SIZE - 1] of AnsiChar;
+    {    FReceiveBuffer       : array [0..SMTP_RCV_BUF_SIZE - 1] of AnsiChar;  V8.07 no longer used }
         FNext                : TSmtpNextProc;
         FWhenConnected       : TSmtpNextProc;
         FFctSet              : TSmtpFctSet;
@@ -868,6 +878,12 @@ type
         procedure   SetOnMessagePump(const Value: TNotifyEvent); override;
         procedure   AbortComponent; override; { V7.35 }
         procedure   SetOnBgException(const Value: TIcsBgExceptionEvent); override; { V7.35 }
+{$IFNDEF NO_DEBUG_LOG}
+        function  GetIcsLogger: TIcsLogger;                 { V8.05 }
+        procedure SetIcsLogger(const Value: TIcsLogger);    { V8.05 }
+        procedure DebugLog(LogOption: TLogOption; const Msg : string); virtual;   { V8.05 }
+        function  CheckLogOptions(const LogOption: TLogOption): Boolean; virtual; { V8.05 }
+{$ENDIF}
     public
         constructor Create(AOwner : TComponent); override;
         destructor  Destroy;                     override;
@@ -1030,6 +1046,10 @@ type
         property ProxyHttpAuthType : THttpTunnelAuthType
                                                      read  FProxyHttpAuthType
                                                      write FProxyHttpAuthType;
+{$IFNDEF NO_DEBUG_LOG}
+        property IcsLogger          : TIcsLogger     read  GetIcsLogger   { V8.04 }
+                                                     write SetIcsLogger;
+{$ENDIF}
     end;
 
     { Descending component adding MIME (file attach) support }
@@ -1134,6 +1154,7 @@ type
         property ProxyUserCode;
         property ProxyPassword;
         property ProxyHttpAuthType;
+        property IcsLogger;  { V8.03 }
 
         property EmailFiles : TStrings               read  FEmailFiles
                                                      write SetEmailFiles;
@@ -1917,6 +1938,7 @@ begin
 {$ENDIF}
     FWSocket.ExceptAbortProc := AbortComponent; { V7.35 }
     FWSocket.OnSessionClosed := WSocketSessionClosed;
+    FWSocket.LineMode        := True;  { V8.07 }
     FSocketFamily            := DefaultSocketFamily;
     FState                   := smtpReady;
     FRcptName                := TStringList.Create;
@@ -2182,13 +2204,23 @@ end;
 procedure TCustomSmtpClient.WSocketDataAvailable(Sender: TObject; ErrorCode: Word);
 var
     Len : Integer;
-    I   : Integer;
+ //I   : Integer;
     p   : PChar;
 {$IFDEF COMPILER12_UP}
-    TempS : AnsiString;
+ // TempS : AnsiString;
 {$ENDIF}
 begin
-    Len := FWSocket.Receive(@FReceiveBuffer[FReceiveLen],
+    if (Error <> ERROR_SUCCESS) then begin   { V8.07 don't ignore errors }
+        FStatusCode := 500;
+        SetErrorMessage;
+        FRequestResult := FStatusCode;
+        FWSocket.Close;
+        Exit;
+    end;
+
+  (* V8.07 now using line mode, which is simpler
+
+     Len := FWSocket.Receive(@FReceiveBuffer[FReceiveLen],
                             sizeof(FReceiveBuffer) - FReceiveLen);
 
     if Len <= 0 then
@@ -2208,7 +2240,7 @@ begin
             end;
             Inc(I);
         end;
-        if I <= 0 then
+        if I <= 0 then  { V8.07 if buffer contains null, now enters endless loop }
             break;
         if I > FReceiveLen then
             break;
@@ -2219,51 +2251,63 @@ begin
         Move(FReceiveBuffer[0], Pointer(Temps)^, I - 1);
         FLastResponse := String(Temps);
 {$ENDIF}
-        TriggerResponse(FLastResponse);
+*)
+
+  { V8.07 line mode gives us complete lines, need to remove CR/LF }
+    FLastResponse := FWSocket.ReceiveStr;
+    Len := Length(FLastResponse);
+    if (Len > 0) and (FLastResponse[Len] = #10) then begin  { LF first }
+        Dec(Len);
+        if (Len > 0) and (FLastResponse[Len] = #13) then    { may be no CR }
+            Dec(Len);
+        SetLength(FLastResponse, Len);
+    end;
+    TriggerResponse(FLastResponse);
 
 {$IFDEF DUMP}
-        FDumpBuf := '>|';
-        FDumpStream.WriteBuffer(FDumpBuf[1], Length(FDumpBuf));
-        FDumpStream.WriteBuffer(FLastResponse[1], Length(FLastResponse));
-        FDumpBuf := '|' + #13#10;
-        FDumpStream.WriteBuffer(FDumpBuf[1], Length(FDumpBuf));
+    FDumpBuf := '>|';
+    FDumpStream.WriteBuffer(FDumpBuf[1], Length(FDumpBuf));
+    FDumpStream.WriteBuffer(FLastResponse[1], Length(FLastResponse));
+    FDumpBuf := '|' + #13#10;
+    FDumpStream.WriteBuffer(FDumpBuf[1], Length(FDumpBuf));
 {$ENDIF}
-        FReceiveLen := FReceiveLen - I - 1;
+{        FReceiveLen := FReceiveLen - I - 1;
         if FReceiveLen > 0 then
             Move(FReceiveBuffer[I + 1], FReceiveBuffer[0], FReceiveLen + 1);
-
-        if FState = smtpWaitingBanner then begin
-            DisplayLastResponse;
-            p := GetInteger(@FLastResponse[1], FStatusCode);
-            if p^ = '-' then
-                Continue;  { Continuation line, ignore }
-            if FStatusCode <> 220 then begin
-                SetErrorMessage;
-                FRequestResult := FStatusCode;
-                FWSocket.Close;
-                Exit;
-            end;
-
-            StateChange(smtpConnected);
-            TriggerSessionConnected(ErrorCode);
-
-            if Assigned(FWhenConnected) then
-                FWhenConnected
-            else begin
-                TriggerRequestDone(0);
-            end;
-        end
-        else if FState = smtpWaitingResponse then begin
-            if Assigned(FNext) then
-                FNext
-            else
-                raise SmtpException.Create('Program error: FNext is nil');
-        end
-        else begin
-            { Unexpected data received }
-            DisplayLastResponse;
+}
+    if FState = smtpWaitingBanner then begin
+        DisplayLastResponse;
+        p := GetInteger(@FLastResponse[1], FStatusCode);
+        if p^ = '-' then  { Continuation line, ignore }
+         //   Continue;
+            Exit;   { V8.07 }
+        if FStatusCode <> 220 then begin
+            SetErrorMessage;
+            FRequestResult := FStatusCode;
+            FWSocket.Close;
+            Exit;
         end;
+
+        StateChange(smtpConnected);
+        TriggerSessionConnected(ErrorCode);
+
+        if Assigned(FWhenConnected) then
+            FWhenConnected
+        else begin
+            TriggerRequestDone(0);
+        end;
+    end
+    else if FState = smtpWaitingResponse then begin
+        if Assigned(FNext) then
+            FNext
+        else
+            raise SmtpException.Create('Program error: FNext is nil');
+    end
+    else begin
+        { Unexpected data received }
+        DisplayLastResponse;
     end;
+  //  end;
 end;
 
 
@@ -3401,7 +3445,7 @@ begin
     if not FHighLevelFlag then
         FRequestType  := smtpConnect;   { 10/05/99 }
     FRequestDoneFlag  := FALSE;
-    FReceiveLen       := 0;
+  { FReceiveLen       := 0;   }
     FRequestResult    := 0;
     FESmtpSupported   := FALSE;
     FErrorMessage     := '';
@@ -3961,7 +4005,7 @@ begin
         raise Exception.Create('File name not specified');
     FreeAndNil(FOutStream);
 {$IFDEF USE_BUFFERED_STREAM}
-    FOutStream := TBufferedFileStream.Create(FileName, fmCreate, MAX_BUFSIZE);
+    FOutStream := TIcsBufferedFileStream.Create(FileName, fmCreate, MAX_BUFSIZE);
 {$ELSE}
     FOutStream := TFileStream.Create(FileName, fmCreate);
 {$ENDIF}
@@ -4029,6 +4073,36 @@ begin
         FErrorMessage := FLastResponse;
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{$IFNDEF NO_DEBUG_LOG}
+function TCustomSmtpClient.GetIcsLogger: TIcsLogger;                            { V8.04}
+begin
+    Result := FWSocket.IcsLogger;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSmtpClient.SetIcsLogger(const Value: TIcsLogger);              { V8.04 }
+begin
+    FWSocket.IcsLogger := Value;
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSmtpClient.CheckLogOptions(const LogOption: TLogOption): Boolean;  { V8.04 }
+begin
+    Result := Assigned(IcsLogger) and (LogOption in IcsLogger.LogOptions);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSmtpClient.DebugLog(LogOption: TLogOption; const Msg: string);    { V8.04 }
+begin
+    if Assigned(IcsLogger) then
+        IcsLogger.DoDebugLog(Self, LogOption, Msg);
+end;
+{$ENDIF}
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 constructor TSmtpCli.Create(AOwner : TComponent);
@@ -4637,7 +4711,7 @@ begin
         raise SmtpException.Create('File name not specified');
     FreeAndNil(FOutStream);
 {$IFDEF USE_BUFFERED_STREAM}
-    FOutStream := TBufferedFileStream.Create(FileName, fmCreate, MAX_BUFSIZE);
+    FOutStream := TIcsBufferedFileStream.Create(FileName, fmCreate, MAX_BUFSIZE);
 {$ELSE}
     FOutStream := TFileStream.Create(FileName, fmCreate);
 {$ENDIF}
@@ -5502,6 +5576,7 @@ begin
     try
         //raise Exception.Create('Test');
         FWSocket.SslEnable := TRUE;
+        FWSocket.SslServerName := FHost;  { V8.06 needed for SNI support }
         FWSocket.StartSslHandshake;
     except
         on E: Exception do begin
@@ -5557,6 +5632,7 @@ begin
         TriggerDisplay('! Starting SSL handshake');
         FWSocket.OnSslHandshakeDone := TransferSslHandShakeDone;
         FWSocket.SslEnable := TRUE;
+        FWSocket.SslServerName := FHost;  { V8.06 needed for SNI support }
         try
             //raise Exception.Create('Test');
             FWSocket.StartSslHandshake;
@@ -5564,7 +5640,7 @@ begin
             on E: Exception do begin
                 FWSocket.SslEnable := FALSE;
                 FErrorMessage  := 'SSL Handshake failed ' + E.Classname + ' ' +
-                                  E.Message; 
+                                  E.Message;
                 FStatusCode    := 500;
                 FRequestResult := FStatusCode;
                 { Temporarily disable RequestDone }

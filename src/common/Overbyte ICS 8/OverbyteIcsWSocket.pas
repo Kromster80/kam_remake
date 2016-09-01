@@ -3,11 +3,11 @@
 Author:       François PIETTE
 Description:  TWSocket class encapsulate the Windows Socket paradigm
 Creation:     April 1996
-Version:      8.14
+Version:      8.26
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1996-2014 by François PIETTE
+Legal issues: Copyright (C) 1996-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -959,8 +959,48 @@ Dec 11, 2014 V8.14 Angus made LastOpenSslErrMsg public for better error reportin
                    Added SslEncryption, SslKeyExchange and SslMessAuth extracted from SslCipherDesc
                    Stop SSL reporting handshaking steps as errors and report real SSL errors
                    Other various SSL error reporting improvements
-}
+Mar 16, 2015 V8.15 Angus added more SslOptions: sslOpt_NO_COMPRESSION, sslOpt_TLSEXT_PADDING,
+                     sslOpt_SAFARI_ECDHE_ECDSA_BUG, sslOpt_CISCO_ANYCONNECT, sslOpt_NO_TLSv1_1
+                     and sslOpt_NO_TLSv1_2
+                   Added more SslVersionMethods: sslTLS_V1_1, sslTLS_V1_2 and sslBestVer which
+                     is eqivalent to sslV23 and actually means any of SSLV3, TLS1, TLS1.1 or TLS1.2
+                   To disable some versions, use sslBestVer and disable specific ones using SslOptions
+                   To force only one version, set SslVersionMethod to that version
+                   Choosing a specific TLS version will fail if matching Ciphers are not available
+                   OPENSSL_NO_TLSEXT removed so SSL Server Name Identification is always supported
+                   Added SslDHParamFile to load a DH Parameters for Diiffie-Hellman DH and EDH key ciphers
+                     DH param files may have key lengths of 512,1024,2048,4096 bits and currently need
+                     to be generated using the opensll.exe utility (or use those that come with ICS)
+                   Added SslECDHMethod to select Elliptic Curves to support ECDH and EECDH key ciphers
+                   Note, only OpenSSL 1.0.1 and later are now supported since this added TLS 1.1/1.2
+Mar 26, 2015 V8.16 Angus, the OpenSSL version check is relaxed so minor versions with a letter suffix
+                      are now supported up to the next major version, so now support up to 1.0.2z
+May 08, 2015 V8.17 Angus, added SslOpt_SINGLE_ECDH_USE
+                   check for SslECDHMethodAuto after SSL initialised since need version
+Jun 05, 2015 V8.18 Angus, enabled SSL engine support, which are cryptographic modules adding extra algorithms
+                   ICS packages are now include OverbyteIcsMsSslUtils and OverbyteIcsSslX509Utils
+                     which include certificate display and validation functions, and which were
+                     previously only in the SSL samples directory
+Oct 25, 2015 V8.19 Angus, version bump only for SSL changes in other units
+Nov 3, 2015  V8.20 Angus, SslECDHMethod defaults to sslECDHAuto since web sites are increasingly needing ECDH
+                   added two more protocols to sslCiphersMozillaSrvInter according to latest Mozilla update
+Nov 23, 2015 V8.21 Eugene Kotlyarov fix MacOSX compilation and compiler warnings
+Feb 1, 2016  V8.22 Fixed SSL bug where two consecutive requests from a client would leave a server in
+                     a waiting state and not process any other requests, thanks to AviaVox for the fix
+Feb 23, 2016 V8.23 Angus, version bump only for changes in other units
+Mar 3, 2016  V8.24 Angus, OpenSSL 1.0.2g and 1.0.1s, and later, no longer generally support SSLv2
+                   Added define OPENSSL_ALLOW_SSLV2 which must be enabled to allow SSLv2 methods t
+                      to be specifically selected for older DLLs or new ones that specifically
+                      have SSLv2 support compiled.
+                   Don't attempt to set DH, EC and SNI that SSLv2 does not support
+Mar 17, 2015  V8.25 Angus, updated sslCiphersMozillaSrvxxx cipher literals to latest versions,
+                    but left old versions with suffix 38 for backward compatibility
+                    OverbyteIcsSslWebServ1 has cipher menu selection to allow comparison testing
+Mar 22, 2015  V8.26 Angus, OnSslServerName event error now defaults to OK instead of
+                      ERR_ALERT_WARNING which prevented Java clients connecting with SSL.
+                      
 
+}
 {
 About multithreading and event-driven:
     TWSocket is a pure asynchronous component. It is non-blocking and
@@ -1045,9 +1085,9 @@ uses
 {$IFDEF MSWINDOWS}
   {$IFDEF RTL_NAMESPACES}Winapi.Windows{$ELSE}Windows{$ENDIF},
   {$IFDEF RTL_NAMESPACES}Winapi.Messages{$ELSE}Messages{$ENDIF},
-  {$IFDEF RTL_NAMESPACES}System.Types{$ELSE}Types{$ENDIF},
   OverbyteIcsWinsock,
 {$ENDIF}
+  {$IFDEF RTL_NAMESPACES}System.Types{$ELSE}Types{$ENDIF},    { V8.21 }
   {$IFDEF RTL_NAMESPACES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.Contnrs{$ELSE}Contnrs{$ENDIF},
@@ -1110,8 +1150,8 @@ type
   TSocketFamily = (sfAny, sfAnyIPv4, sfAnyIPv6, sfIPv4, sfIPv6);
 
 const
-  WSocketVersion            = 814;
-  CopyRight    : String     = ' TWSocket (c) 1996-2014 Francois Piette V8.14 ';
+  WSocketVersion            = 826;
+  CopyRight    : String     = ' TWSocket (c) 1996-2016 Francois Piette V8.26 ';
   WSA_WSOCKET_TIMEOUT       = 12001;
   DefaultSocketFamily       = sfIPv4;
 
@@ -2119,6 +2159,7 @@ Jun 20, 2007 Changes by Arno Garrels: Fixed TX509Base.PostConnectionCheck to
              verification process several times which overwrites value of
              VerifyResult.
 Nov 08, 2007 A. Garrels added property PublicKey to TX509Base.
+Later SSL changes are detailed above with main changes
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFDEF VER80}
@@ -2132,11 +2173,11 @@ Nov 08, 2007 A. Garrels added property PublicKey to TX509Base.
 {$IFDEF DEBUG_DUMP}
     {$DEFINE DEBUG_OUTPUT}
 {$ENDIF}
-const
+{const
      SslWSocketVersion            = 100;
      SslWSocketDate               = 'Jan 18, 2006';
      SslWSocketCopyRight : String = ' TSslWSocket (c) 2003-2010 Francois Piette V1.00.5e ';
-
+}
 const
 
      //SSL_POST_CONNECTION_CHECK_FAILED = 12101;
@@ -2151,15 +2192,17 @@ const
     sslCiphersNormal = 'ALL:!ADH:RC4+RSA:+SSLv2:@STRENGTH';
     sslCiphersServer = 'TLSv1+HIGH:!SSLv2:RC4+MEDIUM:!aNULL:!eNULL:!3DES:!CAMELLIA@STRENGTH';
 
-  { from https://wiki.mozilla.org/Security/Server_Side_TLS - Version 3.3 - 20th October 2013
+{ from https://wiki.mozilla.org/Security/Server_Side_TLS - Version 4.0 - February 2016
+   Note these ciphers change peridically, old ones remain with their version
     Configuration   Oldest compatible client
-        sslCiphersMozillaSrvHigh - Firefox 27, Chrome 22, IE 11, Opera 14, Safari 7, Android 4.4, Java 8
+        sslCiphersMozillaSrvHigh - Firefox 27, Chrome 30, IE 11, Edge, Opera 17, Safari 9, Android 5, Java 8
         sslCiphersMozillaSrvInter -  Firefox 1, Chrome 1, IE 7, Opera 5, Safari 1, Windows XP IE8, Android 2.3, Java 7
         sslCiphersMozillaSrvBack - Windows XP IE6, Java 6 }
 
    { Backward Compatible, works with all clients back to Windows XP/IE6,  Versions: SSLv3, TLSv1, TLSv1.1, TLSv1.2
-    RSA key size: 2048, DH Parameter size: 1024, Elliptic curves: secp256r1, secp384r1, secp521r1 }
-    sslCiphersMozillaSrvBack =
+    RSA key size: 2048, DH Parameter size: 1024, Elliptic curves: secp256r1, secp384r1, secp521r1,
+    Certificate signature: SHA-1 (windows XP pre-sp3 is incompatible with sha-256)  }
+    sslCiphersMozillaSrvBack38 =
         'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:' +
         'ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:' +
         'ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:' +
@@ -2168,29 +2211,70 @@ const
         'DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:' +
         'AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:' +
         '!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA' ;
+
+   { Backward Compatible, works with all clients back to Windows XP/IE6,  Versions: SSLv3, TLSv1, TLSv1.1, TLSv1.2
+    RSA key size: 2048, DH Parameter size: 1024, Elliptic curves: secp256r1, secp384r1, secp521r1,
+    Certificate signature: sha1WithRSAEncryption (windows XP pre-sp3 is incompatible with sha-256)  }
+    sslCiphersMozillaSrvBack =
+        'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES128-GCM-SHA256:' +
+        'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:' +
+        'DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:' +
+        'ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:' +
+        'ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:' +
+        'DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:' +
+        'ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:' +
+        'ES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:DES-CBC3-SHA:HIGH:SEED:' +
+        '!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!RSAPSK:!aDH:!aECDH:!EDH-DSS-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA:!SRP' ;
+
   { For services that don't need backward compatibility, the parameters below provide a higher level of security
-   Versions: TLSv1.1, TLSv1.2, RSA key size: 2048, DH Parameter size: 2048, Elliptic curves: secp256r1, secp384r1, secp521r1 }
-    sslCiphersMozillaSrvHigh =
+   Versions: TLSv1.1, TLSv1.2, RSA key size: 2048, DH Parameter size: 2048, Elliptic curves: secp256r1, secp384r1, secp521r1,
+   Certificate signature: SHA-256, HSTS: max-age=15724800  }
+    sslCiphersMozillaSrvHigh38 =
         'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:' +
         'ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:' +
         'ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:' +
         'ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:' +
         'DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:' +
         'DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK' ;
+
+  { For services that don't need backward compatibility, the parameters below provide a higher level of security
+   Versions: TLSv1.2, RSA key size: 2048, DH Parameter size: none, Elliptic curves: secp256r1, secp384r1, secp521r1,
+    TLS curves: prime256v1, secp384r1, secp521r1, Certificate ECDSA, signature sha256WithRSAEncryption, ecdsa-with-SHA256,
+    ecdsa-with-SHA384, ecdsa-with-SHA512, ECDH Parameter size: 256, HSTS: max-age=15724800  }
+    sslCiphersMozillaSrvHigh =
+        'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:' +
+        'ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:' +
+        'ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
+
   {Intermediate compatibility - For services that don't need compatibility with legacy clients (mostly WinXP),
    but still need to support a wide range of clients, this configuration is recommended. It is is compatible with
    Firefox 1, Chrome 1, IE 7, Opera 5 and Safari 1.   Versions: TLSv1, TLSv1.1, TLSv1.2,  RSA key size: 2048
     DH Parameter size: 2048 (1024 tolerable), Elliptic curves: secp256r1, secp384r1, secp521r1 (at a minimum)
     Certificate signature: SHA-256 }
-    sslCiphersMozillaSrvInter =
+    sslCiphersMozillaSrvInter38 =
         'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:' +
         'ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:' +
         'ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:' +
         'ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:' +
         'DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:' +
-        'DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:' +
-        'AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:' +
-        '!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';
+        'DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:' +
+        'AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:' +
+        '!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';
+
+  {Intermediate compatibility - For services that don't need compatibility with legacy clients (mostly WinXP),
+   but still need to support a wide range of clients, this configuration is recommended. It is is compatible with
+   Firefox 1, Chrome 1, IE 7, Opera 5 and Safari 1.   Versions: TLSv1, TLSv1.1, TLSv1.2,  RSA key size: 2048
+    DH Parameter size: 2048, Elliptic curves: secp256r1, secp384r1, secp521r1 (at a minimum)
+    ECDH Parameter size: 256, Certificate signature: sha256WithRSAEncryption}
+    sslCiphersMozillaSrvInter =
+        'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:' +
+        'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:' +
+        'DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:' +
+        'ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:' +
+        'ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:' +
+        'DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:' +
+        'AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS';
+
 
 {$IFNDEF NO_SSL_MT}
 var
@@ -2201,9 +2285,7 @@ var
      LockNewSessCB      : TIcsCriticalSection;
      LockGetSessCB      : TIcsCriticalSection;
      LockClientCertCB   : TIcsCriticalSection;
-   {$IFNDEF OPENSSL_NO_TLSEXT}
      LockServerNameCB   : TIcsCriticalSection;
-   {$ENDIF}
 {$ENDIF}
      procedure UnloadSsl;
      procedure LoadSsl;
@@ -2438,7 +2520,16 @@ type
                          sslTLS_V1_SERVER,
                          sslV23,
                          sslV23_CLIENT,
-                         sslV23_SERVER);
+                         sslV23_SERVER,
+                         sslTLS_V1_1,           { V8.15 added 1.1 and 1.2  }
+                         sslTLS_V1_1_CLIENT,
+                         sslTLS_V1_1_SERVER,
+                         sslTLS_V1_2,
+                         sslTLS_V1_2_CLIENT,
+                         sslTLS_V1_2_SERVER,
+                         sslBestVer,           { V8.15 same as sslV23 but easier to understand, now default }
+                         sslBestVer_CLIENT,
+                         sslBestVer_SERVER);
 
     TSslVerifyPeerMode = (SslVerifyMode_NONE,
                           SslVerifyMode_PEER,
@@ -2460,9 +2551,9 @@ type
                    sslOpt_MICROSOFT_SESS_ID_BUG,
                    sslOpt_NETSCAPE_CHALLENGE_BUG,
                    sslOpt_NETSCAPE_REUSE_CIPHER_CHANGE_BUG,
-                   sslOpt_SSLREF2_REUSE_CERT_TYPE_BUG,
+                   sslOpt_SSLREF2_REUSE_CERT_TYPE_BUG,  { V8.15 unused }
                    sslOpt_MICROSOFT_BIG_SSLV3_BUFFER,
-                   sslOpt_MSIE_SSLV2_RSA_PADDING,
+                   sslOpt_MSIE_SSLV2_RSA_PADDING,       { V8.15 unused }
                    sslOpt_SSLEAY_080_CLIENT_DH_BUG,
                    sslOpt_TLS_D5_BUG,
                    sslOpt_TLS_BLOCK_PADDING_BUG,
@@ -2473,14 +2564,22 @@ type
                    sslOpt_NO_SSLv2,
                    sslOpt_NO_SSLv3,
                    sslOpt_NO_TLSv1,
-                   sslOpt_PKCS1_CHECK_1,
-                   sslOpt_PKCS1_CHECK_2,
+                   sslOpt_PKCS1_CHECK_1,          { V8.15 unused }
+                   sslOpt_PKCS1_CHECK_2,          { V8.15 unused }
                    sslOpt_NETSCAPE_CA_DN_BUG,
-                   //sslOP_NO_TICKET,
+                   //sslOP_NO_TICKET,             { no session tickets, this is forced later }
                    sslOpt_NO_SESSION_RESUMPTION_ON_RENEGOTIATION, // 12/09/05
                    sslOpt_NETSCAPE_DEMO_CIPHER_CHANGE_BUG,
-                   sslOpt_ALLOW_UNSAFE_LEGACY_RENEGOTIATION);  // Since OSSL 0.9.8n
-    TSslOptions = set of TSslOption;
+                   sslOpt_ALLOW_UNSAFE_LEGACY_RENEGOTIATION, // Since OSSL 0.9.8n
+                   sslOpt_NO_COMPRESSION,         { V8.15 }
+                   sslOpt_TLSEXT_PADDING,         { V8.15 }
+                   sslOpt_SAFARI_ECDHE_ECDSA_BUG, { V8.15 }
+                   sslOpt_CISCO_ANYCONNECT,       { V8.15 }
+                   sslOpt_NO_TLSv1_1,             { V8.15 }
+                   sslOpt_NO_TLSv1_2,             { V8.15 }
+                   SslOpt_SINGLE_ECDH_USE);       { V8.16 }
+   TSslOptions = set of TSslOption;
+
 
     TSslSessCacheMode = (//sslSESS_CACHE_OFF,
                          sslSESS_CACHE_CLIENT,
@@ -2493,6 +2592,13 @@ type
     TSslSessCacheModes = set of TSslSessCacheMode;
 
     TSslSessionIdContext = String;//[SSL_MAX_SSL_SESSION_ID_LENGTH];
+
+  // V8.15 ECDH (Ellliptic Curve Diiffie-Hellman) method selection, auto is OpenSSL 1.0.2 and later
+    TSslECDHMethod = (sslECDHNone,
+                      sslECDHAuto,
+                      sslECDH_P256,
+                      sslECDH_P384,
+                      sslECDH_P521);
 
     {
     TSslX509Trust = (ssl_X509_TRUST_NOT_DEFINED, // Custom value
@@ -2548,6 +2654,7 @@ type
         FSslCAPath                  : String;
         FSslCRLFile                 : String;
         FSslCRLPath                 : String;
+        FSslDHParamFile             : String;  { V8.15 }
         //FSslIntermCAFile            : String;
         //FSslIntermCAPath            : String;
         FSslVerifyPeer              : Boolean;
@@ -2555,6 +2662,7 @@ type
         FSslVerifyFlags             : Integer;
         FSslOptionsValue            : Longint;
         FSslCipherList              : String;
+        FSslECDHMethod              : TSslECDHMethod; { V8.15 }
         FSslSessCacheModeValue      : Longint;
         FSslSessionCacheSize        : Longint;
         FSslSessionTimeout          : Longword;
@@ -2580,6 +2688,7 @@ type
         procedure SetSslPrivKeyFile(const Value : String);
         procedure SetSslCAFile(const Value : String);
         procedure SetSslCAPath(const Value : String);
+        procedure SetSslDHParamFile(const Value : String);    { V8.15 }
         procedure SetSslCRLFile(const Value : String);
         procedure SetSslCRLPath(const Value : String);
         procedure SetSslSessionCacheSize(Value : Longint);
@@ -2600,6 +2709,8 @@ type
         procedure LoadVerifyLocations(const CAFile, CAPath: String);
         procedure LoadCertFromChainFile(const FileName : String);
         procedure LoadPKeyFromFile(const FileName : String);
+        procedure LoadDHParamsFromFile(const FileName: String);   { V8.15 }
+        procedure SetSslECDHMethod(Value : TSslECDHMethod);
         //procedure DebugLogInfo(const Msg: string);        { V5.21 }
         //procedure SetSslX509Trust(const Value: TSslX509Trust);
         function  GetIsCtxInitialized : Boolean;
@@ -2641,6 +2752,8 @@ type
                                                         write SetSslCRLFile;
         property  SslCRLPath        : String            read  FSslCRLPath
                                                         write SetSslCRLPath;
+        property  SslDHParamFile    : String            read  FSslDHParamFile
+                                                        write SetSslDHParamFile; { V8.15 }
         {property  SslIntermCAFile   : String            read  FSslIntermCAFile
                                                         write FSslIntermCAFile;
         property  SslIntermCAPath    : String           read  FSslIntermCAPath
@@ -2664,6 +2777,9 @@ type
         property  SslVersionMethod  : TSslVersionMethod
                                                     read  FSslVersionMethod
                                                     write SetSslVersionMethod;
+        property  SslECDHMethod  : TSslECDHMethod  { V8.15 }
+                                                    read  FSslECDHMethod
+                                                    write SetSslECDHMethod;
         property  SslSessionTimeout : Longword      read  FSslSessionTimeout
                                                     write SetSslSessionTimeout;
         property  SslSessionCacheSize : Integer
@@ -2750,7 +2866,6 @@ type
   TSslShutDownComplete      = procedure(Sender          : TObject;
                                         Bidirectional   : Boolean;
                                         ErrCode         : Integer) of object;
-{$IFNDEF OPENSSL_NO_TLSEXT}
   TTlsExtError = (teeOk, teeAlertWarning, teeAlertFatal, teeNoAck);
 {
   SSL_TLSEXT_ERR_OK                           = 0;
@@ -2761,7 +2876,6 @@ type
   TSslServerNameEvent       = procedure(Sender               : TObject;
                                         var Ctx              : TSslContext;
                                         var ErrCode          : TTlsExtError) of object;
-{$ENDIF}
 
   TCustomSslWSocket = class(TCustomSocksWSocket)
   private
@@ -2773,9 +2887,7 @@ type
         FOnSslCliGetSession         : TSslCliGetSession;
         FOnSslCliNewSession         : TSslCliNewSession;
         FOnSslSetSessionIDContext   : TSslSetSessionIDContext;
-    {$IFNDEF OPENSSL_NO_TLSEXT}
         FOnSslServerName            : TSslServerNameEvent;
-    {$ENDIF}
         FOnSslCliCertRequest        : TSslCliCertRequest;
         FX509Class                  : TX509Class;
         FSslCertChain               : TX509List;
@@ -2835,9 +2947,7 @@ type
         FOnSslVerifyPeer            : TSslVerifyPeerEvent;
         FOnSslHandshakeDone         : TSslHandshakeDoneEvent;
         FHandShakeCount             : Integer;
-    {$IFNDEF OPENSSL_NO_TLSEXT}
         FSslServerName              : String;
-    {$ENDIF}
         //procedure   SetSslEnable(const Value: Boolean); virtual;
         procedure   RaiseLastOpenSslError(EClass          : ExceptClass;
                                           Dump            : Boolean = FALSE;
@@ -2850,7 +2960,7 @@ type
         procedure WMSslBiShutDown(var msg: TMessage);
         procedure WMSslASyncSelect(var msg: TMessage);
         procedure WMTriggerSslShutDownComplete(var msg: TMessage);
-        procedure Do_SSL_FD_READ(var Msg: TMessage);
+     {   procedure Do_SSL_FD_READ(var Msg: TMessage);    removed V8.22 }
         function  TriggerEvent(Event: TSslEvent; ErrCode: Word): Boolean;
 
         procedure AssignDefaultValue; override;
@@ -2913,10 +3023,8 @@ type
         property    LastSslError       : Integer          read FLastSslError;
         property    ExplizitSsl        : Boolean          read  FExplizitSsl
                                                           write FExplizitSsl;
-    {$IFNDEF OPENSSL_NO_TLSEXT}
         property    SslServerName      : String           read  FSslServerName
                                                           write FSslServerName;
-    {$ENDIF}
         property  OnSslShutDownComplete : TSslShutDownComplete
                                                read   FOnSslShutDownComplete
                                                write  FOnSslShutDownComplete;
@@ -2951,11 +3059,9 @@ type
         property  OnSslSetSessionIDContext : TSslSetSessionIDContext
                                                           read  FOnSslSetSessionIDContext
                                                           write FOnSslSetSessionIDContext;
-    {$IFNDEF OPENSSL_NO_TLSEXT}
         property  OnSslServerName    : TSslServerNameEvent
                                                           read  FOnSslServerName
                                                           write FOnSslServerName;
-    {$ENDIF}
         property  SslAcceptableHosts : TStrings           read  FSslAcceptableHosts
                                                           write SetSslAcceptableHosts;
         property  SslMode            : TSslMode           read  FSslMode
@@ -3275,10 +3381,8 @@ type
       property  X509Class;
       //property  SslEstablished;
       property  SslState;
-{$IFNDEF OPENSSL_NO_TLSEXT}
       property  SslServerName;
       property  OnSslServerName;
-{$ENDIF}
   published
 {$IFNDEF NO_DEBUG_LOG}
       property IcsLogger;                      { V5.21 }
@@ -7844,7 +7948,7 @@ begin
         begin
             if AHostName = ICS_BROADCAST_V4 then
             begin
-                PSockAddrIn(@ASockAddrIn6)^.sin_addr.S_addr := Integer(INADDR_BROADCAST);
+                PSockAddrIn(@ASockAddrIn6)^.sin_addr.S_addr := {$IFDEF MACOS}Cardinal{$ELSE}Integer{$ENDIF}(INADDR_BROADCAST);   { V8.21 }
                 Exit;
             end;
             raise ESocketException.Create('Winsock Resolve Host: ''' + AHostName +
@@ -8415,9 +8519,13 @@ begin
             TriggerDnsLookupDone(WSocket_Synchronized_WSAGetLastError)
         else begin
           {$IFDEF POSIX}
-            FDnsResult := String(StrPas(Phe^.hname));
+            {$IFDEF DELPHI23_UP}          { V8.21 }
+            FDnsResult := String(StrPas(Phe^.h_name));
+            {$ELSE}
+            FDnsResult := String(StrPas(Phe^.hname)); // Typo in Posix header
+            {$ENDIF}
           {$ELSE}
-            FDnsResult := String(StrPas(Phe^.h_name)); // Typo in Posix header
+            FDnsResult := String(StrPas(Phe^.h_name));
           {$ENDIF}
             FDnsResultList.Add(FDnsResult);
             GetAliasList(Phe, FDnsResultList);
@@ -9530,8 +9638,13 @@ begin
             SetLength(Result, StrLen(Phe^.h_name));
             StrCopy(@Result[1], Phe^.h_name);
           {$ELSE}
+            {$IFDEF DELPHI23_UP}           { V8.21 }
+            SetLength(Result, StrLen(Phe^.h_name));
+            StrCopy(@Result[1], Phe^.h_name);
+            {$ELSE}
             SetLength(Result, StrLen(Phe^.hname));
             StrCopy(@Result[1], Phe^.hname);
+            {$ENDIF}
           {$ENDIF}
         end;
     end
@@ -12848,7 +12961,14 @@ const
             SSL_OP_NETSCAPE_CA_DN_BUG,
             SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION,
             SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG,
-            SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION); // Since OSSL 0.9.8n
+            SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION,  // Since OSSL 0.9.8n
+            SSL_OP_NO_COMPRESSION,         { V8.15 }
+            SSL_OP_TLSEXT_PADDING,         { V8.15 }
+            SSL_OP_SAFARI_ECDHE_ECDSA_BUG, { V8.15 }
+            SSL_OP_CISCO_ANYCONNECT,       { V8.15 }
+            SSL_OP_NO_TLSv1_1,             { V8.15 }
+            SSL_OP_NO_TLSv1_2,             { V8.15 }
+            SSL_OP_SINGLE_ECDH_USE);       { V8.16 }
 
   SslIntSessCacheModes: array[TSslSessCacheMode] of Integer =     { V7.30 }
             (SSL_SESS_CACHE_CLIENT,
@@ -12867,6 +12987,13 @@ const
             X509_V_FLAG_X509_STRICT,
             X509_V_FLAG_ALLOW_PROXY_CERTS);
 
+ SslECDHMethods: array [TSslECDHMethod] of integer =   { V8.15 }
+           (0,
+            0,
+            NID_X9_62_prime256v1,
+            NID_secp384r1,
+            NID_secp521r1);
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 
@@ -12879,7 +13006,8 @@ begin
     FSslCtx := nil;
     SetSslVerifyPeerModes([SslVerifyMode_PEER]);
     SetSslCipherList(sslCiphersNormal);  // V8.10 same as 'ALL:!ADH:RC4+RSA:+SSLv2:@STRENGTH'
-    FSslVersionMethod    := sslV23;
+    FSslVersionMethod    := sslBestVer;  // V8.15 same as sslV23 but easier to understand
+    FSslECDHMethod       := sslECDHAuto; // V8.20 web sites are increasingly needing ECDH so default it on
     SslVerifyDepth       := 9;
     FSslSessionTimeOut   := 0; // OSSL-default
     FSslSessionCacheSize := SSL_SESSION_CACHE_MAX_SIZE_DEFAULT;
@@ -12958,18 +13086,29 @@ var
     Meth : PSSL_METHOD;
 begin
     case FSslVersionMethod of
+{$IFDEF OPENSSL_ALLOW_SSLV2}
     sslV2:            Meth := f_SSLv2_method;
     sslV2_CLIENT:     Meth := f_SSLv2_client_method;
     sslV2_SERVER:     Meth := f_SSLv2_server_method;
+{$ELSE}
+    sslV2, sslV2_CLIENT, sslV2_SERVER:             { V8.24 }
+        raise ESslContextException.Create('SSLv2 not supported');
+{$ENDIF}
     sslV3:            Meth := f_SSLv3_method;
     sslV3_CLIENT:     Meth := f_SSLv3_client_method;
     sslV3_SERVER:     Meth := f_SSLv3_server_method;
     sslTLS_V1:        Meth := f_TLSv1_method;
     sslTLS_V1_CLIENT: Meth := f_TLSv1_client_method;
     sslTLS_V1_SERVER: Meth := f_TLSv1_server_method;
-    sslV23:           Meth := f_SSLv23_method;
-    sslV23_CLIENT:    Meth := f_SSLv23_client_method;
-    sslV23_SERVER:    Meth := f_SSLv23_server_method;
+    sslTLS_V1_1:          Meth := f_TLSv1_1_method;          { V8.15 added 1.1 and 1.2  }
+    sslTLS_V1_1_CLIENT:   Meth := f_TLSv1_1_client_method;
+    sslTLS_V1_1_SERVER:   Meth := f_TLSv1_1_server_method;
+    sslTLS_V1_2:          Meth := f_TLSv1_2_method;
+    sslTLS_V1_2_CLIENT:   Meth := f_TLSv1_2_client_method;
+    sslTLS_V1_2_SERVER:   Meth := f_TLSv1_2_server_method;
+    sslV23, sslBestVer:                Meth := f_SSLv23_method;
+    sslV23_CLIENT, sslBestVer_CLIENT:  Meth := f_SSLv23_client_method;
+    sslV23_SERVER, sslBestVer_SERVER:  Meth := f_SSLv23_server_method;
     else              raise ESslContextException.Create('Unknown SslVersionMethod');
     end;
     Result := f_SSL_CTX_new(Meth);
@@ -13660,6 +13799,43 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.LoadDHParamsFromFile(const FileName: String);   { V8.15 }
+var
+    FileBio : PBIO;
+    MyPDH: PDH;
+begin
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    if (FSslVersionMethod < sslV3) then Exit;   { V8.24 SSLv2 does not support DH }
+    if (FileName <> '') and (not FileExists(FileName)) then
+        raise ESslContextException.Create('File not found "' + FileName + '"');
+    if (FileName <> '') then begin
+        FileBio := OpenFileBio(FileName, bomRead);
+        MyPDH := nil;
+        try
+            MyPDH := f_PEM_read_bio_DHParams(FileBio, nil, nil, nil);
+            if not Assigned(MyPDH) then
+                RaiseLastOpenSslError(EX509Exception, TRUE,
+                     'Error reading DHparam file "' +  Filename + '"');
+            if (f_SSL_CTX_set_tmp_dh(FSslCtx, MyPDH) = 0) then begin
+{$IFNDEF NO_DEBUG_LOG}
+               if CheckLogOptions(loSslInfo) then
+                    DebugLog(loSslInfo, String(LastOpenSslErrMsg(TRUE)));
+{$ELSE}
+               f_ERR_clear_error;
+{$ENDIF}
+               RaiseLastOpenSslError(ESslContextException, TRUE,
+                     'Can''t load DHParam ' + 'file "' + FileName + '"');
+            end;
+        finally
+            f_bio_free(FileBio);
+            if Assigned (MyPDH) then f_DH_free(MyPDH);
+        end;
+    end;
+
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF OPENSSL_NO_ENGINE}
 procedure TSslContext.Notification(
     AComponent : TComponent;
@@ -13769,6 +13945,7 @@ procedure TSslContext.InitContext;
 var
     SslSessCacheModes : TSslSessCacheModes;
     LOpts: LongWord;
+    MyECkey: PEC_KEY;
 begin
     InitializeSsl; //loads libs
 {$IFNDEF NO_SSL_MT}
@@ -13824,6 +14001,31 @@ begin
             LoadCRLFromPath(FSslCRLPath);
             //f_SSL_CTX_ctrl(FSslCtx, SSL_CTRL_MODE, SSL_MODE_ENABLE_PARTIAL_WRITE, nil); // Test
 
+            // V8.15 Diffie-Hellman key agreement protocol.- DHparam file needed to generate DH keys
+            LoadDHParamsFromFile(FSslDHParamFile);
+
+            // V8.15 Elliptic Curve to generate Ephemeral ECDH keys
+            if (ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1002) and  { V8.17 do this after SSL initialised }
+                (FSslECDHMethod = sslECDHAuto) then FSslECDHMethod := sslECDH_P256;
+            if (FSslVersionMethod < sslV3) then FSslECDHMethod := sslECDHNone;   { V8.24 SSLv2 does not support EC }
+
+            if FSslECDHMethod = sslECDHAuto then begin
+                if f_SSL_CTX_set_ecdh_auto(FSslCtx, 1) = 0 then
+                    RaiseLastOpenSslError(ESslContextException, TRUE,
+                                          'Error setting auto elliptic curve');
+            end
+            else if FSslECDHMethod > sslECDHNone then begin
+                MyECkey := f_EC_KEY_new_by_curve_name (SslECDHMethods[FSslECDHMethod]);
+                if NOT Assigned (MyECkey) then
+                    RaiseLastOpenSslError(ESslContextException, TRUE,
+                                          'Error getting elliptic curve key');
+                if f_SSL_CTX_set_tmp_ecdh (FSslCtx, MyECkey) = 0 then
+                    RaiseLastOpenSslError(ESslContextException, TRUE,
+                                          'Error setting elliptic curve key');
+                f_EC_KEY_free(MyECkey);
+            end;
+
+            // verify flags
             f_X509_STORE_set_flags(f_SSL_CTX_get_cert_store(FSslCtx),
                                    FSslVerifyFlags);
 
@@ -13835,10 +14037,10 @@ begin
                 if f_SSL_CTX_set_trust(FSslCtx, Integer(FSslX509Trust)) = 0 then
                     raise Exception.Create('Error setting trust'); }
 
-            { No tickets yet                                       }
+            { No s yet - angus don't want it since it stops forward secrecy ciphers }
             LOpts := FSslOptionsValue or SSL_OP_NO_TICKET;
 
-            if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1000 then begin
+        //    if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1000 then begin
                 { This is a workaround a possible bug in OSSL 1.0.0(d)
                   check if future versions fix it.
                   SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER causes
@@ -13847,7 +14049,7 @@ begin
                 if LOpts and SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER =
                   SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER then
                     LOpts := LOpts and not SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER;
-            end;
+        //    end;
             { Adds the options set via bitmask to Ctx.    }
             { Options already set before are not cleared? }
             f_SSL_CTX_set_options(FSslCtx, LOpts);
@@ -13996,6 +14198,21 @@ begin
 {$ENDIF}
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslDHParamFile(const Value : String);    { V8.15 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        FSslDHParamFile := Value
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TSslContext.SetSslCRLFile(const Value: String);
@@ -14105,6 +14322,24 @@ begin
     try
 {$ENDIF}
         FSslVersionMethod := Value
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslECDHMethod(Value : TSslECDHMethod);    { V8.15 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        FSslECDHMethod := Value;
+   {     if (ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1002) and    V8.17 do this after SSL initialised
+                         (FSslECDHMethod = sslECDHAuto) then
+                              FSslECDHMethod := sslECDH_P256;  }
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock
@@ -15877,6 +16112,8 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+(* V8.22 moved this code into Do_FD_READ so it's called correctly
+
 procedure TCustomSslWSocket.Do_SSL_FD_READ(var Msg: TMessage);
 begin
     WSocket_Synchronized_WSAASyncSelect(
@@ -15900,7 +16137,7 @@ begin
                                             FD_READ or FD_WRITE or FD_CLOSE or
                                             FD_CONNECT);
     end;
-end;
+end;  *)
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -15914,166 +16151,175 @@ var
     PBuf       : TWSocketData;
     Dummy      : Byte;
 begin
-    if (not FSslEnable) or (FSocksState <> socksData) or
-       (FHttpTunnelState <> htsData) then begin
-        inherited Do_FD_READ(msg);
-        Exit;
-    end;
+ { V8.22 moved here from Do_SSL_FD_READ  }
+    WSocket_Synchronized_WSAASyncSelect({$IFDEF POSIX}Self,{$ENDIF}
+         FHSocket, Handle, FMsg_WM_ASYNCSELECT, FD_WRITE or FD_CLOSE or FD_CONNECT);
+    try
+        if (not FSslEnable) or (FSocksState <> socksData) or
+           (FHttpTunnelState <> htsData) then begin
+            inherited Do_FD_READ(msg);
+            Exit;
+        end;
 
-  {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' TCustomSslWSocket.Do_FD_READ ' + IntToStr(FHSocket));
-  {$ENDIF}
-
-    if (FNetworkError > 0) then
-        Exit;
-
-    if (f_SSL_state(FSsl) = SSL_ST_OK) and (FSslBioWritePendingBytes < 0) and // <= 12/08/05
-       (my_BIO_ctrl_pending(FSslbio) > 0) then begin
       {$IFNDEF NO_DEBUG_LOG}
         if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
             DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-               ' TriggerDataAvailable (Do_FD_READ_1) ' + IntToStr(FHSocket));
+                          ' TCustomSslWSocket.Do_FD_READ ' + IntToStr(FHSocket));
       {$ENDIF}
-        TriggerDataAvailable(0);
-        Exit;
-    end;
 
-    FMayTriggerFD_Read := FALSE;
+        if (FNetworkError > 0) then
+            Exit;
 
-    { Get number of bytes we can receive and store in the network input bio.  }
-    { New call to BIO_ctrl_get_read_request in order to read only the amount  }
-    { of data from the socket that is needed to satisfy a read request, if    }
-    { any. Without that call I had random errors on bi-directional shutdowns. }
-    Len := my_BIO_ctrl_get_read_request(FNBio);
-    if Len = 0 then
-        Len := my_BIO_ctrl_get_write_guarantee(FNBio);
-    if Len > SizeOf(Buffer) then
-        Len := SizeOf(Buffer)
-    else if Len = 0 then begin
-        FMayTriggerFD_Read := TRUE;
-        TriggerEvents;
-        Exit;
-    end;
-    // Receive data
-    PBuf := @Buffer[0];
-    NumRead := my_WSocket_recv(FHSocket, PBuf, Len, 0);
-    if (NumRead > 0) then begin
-        // Store it in the network input bio and process data
-        my_BIO_write(FNBio, @Buffer, NumRead);
-        my_BIO_ctrl(FNBio, BIO_CTRL_FLUSH, 0, nil);
-        // Look if input data was valid.
-        // We may not call BIO_read if a write operation is pending !!
-        if (FSslBioWritePendingBytes < 0) then begin
-            Res := my_BIO_read(FSslBio, @Dummy, 0); //Pointer(1)
-            if Res < 0 then begin
-                if not my_BIO_should_retry(FSslBio) then begin
-                    HandleSslError;
-                    if (not FExplizitSsl) or
-                       (f_SSL_state(FSsl) <> SSL_ST_OK) then begin
-                        WSocket_WSASetLastError(WSAECONNABORTED);
-                        FNetworkError := WSAECONNABORTED;
-                        FLastError    := WSAECONNABORTED; //XX
-                        TriggerEvent(sslFdClose, 0);
+        if (f_SSL_state(FSsl) = SSL_ST_OK) and (FSslBioWritePendingBytes < 0) and // <= 12/08/05
+           (my_BIO_ctrl_pending(FSslbio) > 0) then begin
+          {$IFNDEF NO_DEBUG_LOG}
+            if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                   ' TriggerDataAvailable (Do_FD_READ_1) ' + IntToStr(FHSocket));
+          {$ENDIF}
+            TriggerDataAvailable(0);
+            Exit;
+        end;
+
+        FMayTriggerFD_Read := FALSE;
+
+        { Get number of bytes we can receive and store in the network input bio.  }
+        { New call to BIO_ctrl_get_read_request in order to read only the amount  }
+        { of data from the socket that is needed to satisfy a read request, if    }
+        { any. Without that call I had random errors on bi-directional shutdowns. }
+        Len := my_BIO_ctrl_get_read_request(FNBio);
+        if Len = 0 then
+            Len := my_BIO_ctrl_get_write_guarantee(FNBio);
+        if Len > SizeOf(Buffer) then
+            Len := SizeOf(Buffer)
+        else if Len = 0 then begin
+            FMayTriggerFD_Read := TRUE;
+            TriggerEvents;
+            Exit;
+        end;
+        // Receive data
+        PBuf := @Buffer[0];
+        NumRead := my_WSocket_recv(FHSocket, PBuf, Len, 0);
+        if (NumRead > 0) then begin
+            // Store it in the network input bio and process data
+            my_BIO_write(FNBio, @Buffer, NumRead);
+            my_BIO_ctrl(FNBio, BIO_CTRL_FLUSH, 0, nil);
+            // Look if input data was valid.
+            // We may not call BIO_read if a write operation is pending !!
+            if (FSslBioWritePendingBytes < 0) then begin
+                Res := my_BIO_read(FSslBio, @Dummy, 0); //Pointer(1)
+                if Res < 0 then begin
+                    if not my_BIO_should_retry(FSslBio) then begin
+                        HandleSslError;
+                        if (not FExplizitSsl) or
+                           (f_SSL_state(FSsl) <> SSL_ST_OK) then begin
+                            WSocket_WSASetLastError(WSAECONNABORTED);
+                            FNetworkError := WSAECONNABORTED;
+                            FLastError    := WSAECONNABORTED; //XX
+                            TriggerEvent(sslFdClose, 0);
+                        end
+                        else begin
+                            WSocket_WSASetLastError(WSAEWOULDBLOCK);
+                            FLastError := WSAEWOULDBLOCK; //XX
+                            FSslEnable := False;
+                            ResetSsl;
+                            if FSslIntShutDown < 2 then
+                                TriggerSslShutDownComplete(FLastSslError);
+                        end;
+                      {$IFNDEF NO_DEBUG_LOG}
+                        if CheckLogOptions(loSslInfo) then  { V5.21 }
+                            DebugLog(loSslInfo,
+                                    IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                                     ' NetworkError #' + IntToStr(FNetworkError));
+                      {$ENDIF}
+                        Exit;
                     end
                     else begin
+                        FMayTriggerDoRecv := TRUE;
                         WSocket_WSASetLastError(WSAEWOULDBLOCK);
                         FLastError := WSAEWOULDBLOCK; //XX
-                        FSslEnable := False;
-                        ResetSsl;
-                        if FSslIntShutDown < 2 then
-                            TriggerSslShutDownComplete(FLastSslError);
                     end;
-                  {$IFNDEF NO_DEBUG_LOG}
-                    if CheckLogOptions(loSslInfo) then  { V5.21 }
-                        DebugLog(loSslInfo,
-                                IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                                 ' NetworkError #' + IntToStr(FNetworkError));
-                  {$ENDIF}
-                    Exit;
                 end
-                else begin
-                    FMayTriggerDoRecv := TRUE;
+                else if (FSslVersNum >= SSL3_VERSION) then begin // Doesn't work in SSLv2 - 12/06/05
+                    if f_SSL_get_Error(FSSL, Res) = SSL_ERROR_ZERO_RETURN then begin
+                    { SSL closure alert received }
+                        if FSslState < sslInShutdown then begin
+                            FSslState := sslInShutdown;
+                            { V7.80 }
+                            if (not FSslBiShutDownFlag) then // May be set later in the message handler if a SSL bi-shutdown message is pending
+                            begin
+                                SslShutDownAsync(1); // If a SSL bi-shutdown is pending this will be ignored in the message handler
+                                WSocket_WSASetLastError(WSAEWOULDBLOCK);
+                                FLastError := WSAEWOULDBLOCK;
+                                Exit;
+                            end;
+                            { / V7.80 }
+                        end;
+                        if (not FSslBiShutDownFlag) and (FSslIntShutDown = 2) then
+                            TriggerEvent(sslFdClose, FNetWorkError);
+                    end;
                     WSocket_WSASetLastError(WSAEWOULDBLOCK);
                     FLastError := WSAEWOULDBLOCK; //XX
+                    FMayTriggerDoRecv := TRUE;
                 end;
             end
-            else if (FSslVersNum >= SSL3_VERSION) then begin // Doesn't work in SSLv2 - 12/06/05
-                if f_SSL_get_Error(FSSL, Res) = SSL_ERROR_ZERO_RETURN then begin
-                { SSL closure alert received }
-                    if FSslState < sslInShutdown then begin
-                        FSslState := sslInShutdown;
-                        { V7.80 }
-                        if (not FSslBiShutDownFlag) then // May be set later in the message handler if a SSL bi-shutdown message is pending
-                        begin
-                            SslShutDownAsync(1); // If a SSL bi-shutdown is pending this will be ignored in the message handler
-                            WSocket_WSASetLastError(WSAEWOULDBLOCK);
-                            FLastError := WSAEWOULDBLOCK;
-                            Exit;
-                        end;
-                        { / V7.80 }
-                    end;
-                    if (not FSslBiShutDownFlag) and (FSslIntShutDown = 2) then
-                        TriggerEvent(sslFdClose, FNetWorkError);
-                end;
+            else begin
+                FMayTriggerDoRecv := TRUE;
                 WSocket_WSASetLastError(WSAEWOULDBLOCK);
                 FLastError := WSAEWOULDBLOCK; //XX
-                FMayTriggerDoRecv := TRUE;
+              {$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loSslInfo) then  { V5.21 }
+                   DebugLog(loSslInfo, 'SslBio write operation pending: ' +
+                                            IntToStr(FSslBioWritePendingBytes));
+              {$ENDIF}
+            end;
+        end else
+        if Numread = 0 then begin
+            if FState = wsconnected then begin
+                TriggerEvent(sslFdClose, msg.LParamHi);
             end;
         end
-        else begin
-            FMayTriggerDoRecv := TRUE;
-            WSocket_WSASetLastError(WSAEWOULDBLOCK);
-            FLastError := WSAEWOULDBLOCK; //XX
+        else if Numread = SOCKET_ERROR then begin
+            nError := WSocket_WSAGetLastError;
+            if (nError > WSABASEERR) and (nError <> WSAEWOULDBLOCK) and
+               (nError <> WSAENOTCONN) then begin
+                FNetworkError := nError;
+                FLastError    := FNetworkError;
+                TriggerEvent(sslFdClose, 0);
+              {$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loSslErr) then  { V5.21 }
+                    DebugLog(loSslErr, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                             ' NetworkError #' + IntToStr(FNetworkError));
+              {$ENDIF}
+                Exit;
+            end;
+        end;
+
+        if (f_SSL_state(FSsl) = SSL_ST_OK) {(FSslState >= sslEstablished)} and
+           (FSslBioWritePendingBytes < 0) and // <= 12/08/05
+           (my_BIO_ctrl_pending(FSslbio) > 0) then begin
           {$IFNDEF NO_DEBUG_LOG}
-            if CheckLogOptions(loSslInfo) then  { V5.21 }
-               DebugLog(loSslInfo, 'SslBio write operation pending: ' +
-                                        IntToStr(FSslBioWritePendingBytes));
+            if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                         ' TriggerDataAvailable (Do_FD_READ_2) ' +
+                         IntToStr(FHSocket));
           {$ENDIF}
+            TriggerDataAvailable(0);
         end;
-    end else
-    if Numread = 0 then begin
-        if FState = wsconnected then begin
-            TriggerEvent(sslFdClose, msg.LParamHi);
-        end;
-    end
-    else if Numread = SOCKET_ERROR then begin
-        nError := WSocket_WSAGetLastError;
-        if (nError > WSABASEERR) and (nError <> WSAEWOULDBLOCK) and
-           (nError <> WSAENOTCONN) then begin
-            FNetworkError := nError;
-            FLastError    := FNetworkError;
-            TriggerEvent(sslFdClose, 0);
-          {$IFNDEF NO_DEBUG_LOG}
-            if CheckLogOptions(loSslErr) then  { V5.21 }
-                DebugLog(loSslErr, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                         ' NetworkError #' + IntToStr(FNetworkError));
-          {$ENDIF}
-            Exit;
-        end;
-    end;
 
-    if (f_SSL_state(FSsl) = SSL_ST_OK) {(FSslState >= sslEstablished)} and
-       (FSslBioWritePendingBytes < 0) and // <= 12/08/05
-       (my_BIO_ctrl_pending(FSslbio) > 0) then begin
-      {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                     ' TriggerDataAvailable (Do_FD_READ_2) ' +
-                     IntToStr(FHSocket));
-      {$ENDIF}
-        TriggerDataAvailable(0);
-    end;
-
-    if (FSslIntShutDown = 1) and SslShutDownCompleted(FShutDownHow) then begin
-        if not FSslBiShutDownFlag then begin
-            TriggerEvent(sslFdClose, 0);
-            Exit;
+        if (FSslIntShutDown = 1) and SslShutDownCompleted(FShutDownHow) then begin
+            if not FSslBiShutDownFlag then begin
+                TriggerEvent(sslFdClose, 0);
+                Exit;
+            end;
         end;
-    end;
 
-    TriggerEvents;
+        TriggerEvents;
+    finally
+       { V8.22 moved here from Do_SSL_FD_READ }
+        WSocket_Synchronized_WSAASyncSelect({$IFDEF POSIX}Self,{$ENDIF}
+          FHSocket, Handle, FMsg_WM_ASYNCSELECT, FD_READ or FD_WRITE or FD_CLOSE or FD_CONNECT);
+    end;
 end;
 
 
@@ -16732,7 +16978,7 @@ begin
      { due to renegotiation vulnerability of the SSL protocol.          }
      ICS_SSL_NO_RENEGOTIATION or // v0.9.8L and v0.9.8m
      (
-        (ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_0908N) and
+      {  (ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_0908N) and }
         (
           { In v0.9.8n renegotiation support was re-enabled and RFC5746 }
           { implemented but require the extension as needed.            }
@@ -16876,7 +17122,6 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{$IFNDEF OPENSSL_NO_TLSEXT}
 function ServerNameCallback(SSL: PSSL; var ad: Integer; arg: Pointer): Longint; cdecl;
 var
     Ws : TCustomSslWSocket;
@@ -16885,7 +17130,7 @@ var
     Err : TTlsExtError;
 begin
 {$IFNDEF NO_SSL_MT}
-    _EnterCriticalSection(LockServerNameCB);
+    LockServerNameCB.Enter;  { V8.15 }
     try
 {$ENDIF}
     PServerName := f_SSL_get_servername(SSL, TLSEXT_NAMETYPE_host_name);
@@ -16898,7 +17143,8 @@ begin
             try
                 Ws.FSslServerName := String(UTF8String(PServerName));
                 Ctx := nil;
-                Err := teeAlertWarning; //SSL_TLSEXT_ERR_ALERT_WARNING
+             {   Err := teeAlertWarning; //SSL_TLSEXT_ERR_ALERT_WARNING  }
+                Err := teeOk;  { V8.26 warning stop Java clients connecting }
                 Ws.FOnSslServerName(Ws, Ctx, Err);
                 { Do not switch context if not initialized }
                 if Assigned(Ctx) and Assigned(Ctx.FSslCtx) then
@@ -16938,7 +17184,7 @@ begin
         Result := SSL_TLSEXT_ERR_OK;
 {$IFNDEF NO_SSL_MT}
     finally
-        _LeaveCriticalSection(LockServerNameCB);
+        LockServerNameCB.Leave;  { V8.15 }
     end;
 {$ENDIF}
 end;
@@ -16986,7 +17232,6 @@ begin
 end;
 {$ENDIF}
 
-{$ENDIF OPENSSL_NO_TLSEXT}
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -17374,14 +17619,12 @@ begin
                 else
                     f_SSL_set_session(FSsl, nil);
 
-            {$IFNDEF OPENSSL_NO_TLSEXT}
                 { FSslServerName is the servername to be sent in client helo. }
                 { If not empty, enables SNI in SSL client mode.               }
-                if (FSslServerName <> '') and
+                if (FSslServerName <> '') and (FSslContext.FSslVersionMethod >= sslV3) and   { V8.24 not SSLv2 }
                     (f_SSL_set_tlsext_host_name(FSsl, FSslServerName) = 0) then
                         RaiseLastOpenSslError(EOpenSslError, TRUE,
                              'Unable to set TLS servername extension');
-            {$ENDIF}
 
                 f_SSL_set_connect_state(FSsl);
             end
@@ -17418,11 +17661,10 @@ begin
                     end;
                 end;
 
-            {$IFNDEF OPENSSL_NO_TLSEXT}
                 { FSslServerName receives the servername from client helo if }
                 { FOnSslServerName was assigned in SSL server mode.          }
                 FSslServerName := '';
-                if Assigned(FOnSslServerName) and
+                if Assigned(FOnSslServerName) and (FSslContext.FSslVersionMethod >= sslV3) and   { V8.24 not SSLv2 }
                    (f_SSL_CTX_set_tlsext_servername_callback(pSSLContext,
                                             @ServerNameCallBack) = 0) then
                     RaiseLastOpenSslError(EOpenSslError, TRUE,
@@ -17431,7 +17673,6 @@ begin
                     if CheckLogOptions(loSslInfo) then
                         f_SSL_set_tlsext_debug_callback(FSsl, @TlsExtension_CB);
                 {$ENDIF}
-            {$ENDIF}
 
                 f_SSL_set_accept_state(FSsl);
             end;
@@ -17959,7 +18200,8 @@ begin
     }
     if msg.lParamLo and FD_READ <> 0 then begin
         FPendingSslEvents := FPendingSslEvents - [sslFdRead];
-        Do_Ssl_FD_READ(Msg);
+        Do_FD_READ(Msg);  { V8.22 }
+       {   Do_Ssl_FD_READ(Msg);  }
     end
     else if msg.lParamLo and FD_WRITE <> 0 then begin
         FPendingSslEvents := FPendingSslEvents - [sslFdWrite];
@@ -18031,12 +18273,12 @@ begin
             Str := Str + IntToHex(State, 8);
 
         DebugLog(loSslInfo, Str +
-              ' // MayFD_Read='      + BoolToStr(FMayTriggerFD_Read, FALSE) +
-              ' MayDoRecv='       + BoolToStr(FMayTriggerDoRecv, FALSE)  +
-              ' MayFD_Write='     + BoolToStr(FMayTriggerFD_Write, FALSE) +
-              ' MaySslTryToSend=' + BoolToStr(FMayTriggerSslTryToSend, FALSE) +
-              ' bSslAllSent='     + BoolToStr(bSslAllSent, FALSE) +
-              ' bAllSent='        + BoolToStr(bAllSent, FALSE));
+              ' // MayFD_Read='      + BoolToStr(FMayTriggerFD_Read, True) +
+              ' MayDoRecv='       + BoolToStr(FMayTriggerDoRecv, True)  +
+              ' MayFD_Write='     + BoolToStr(FMayTriggerFD_Write, True) +
+              ' MaySslTryToSend=' + BoolToStr(FMayTriggerSslTryToSend, True) +
+              ' bSslAllSent='     + BoolToStr(bSslAllSent, True) +
+              ' bAllSent='        + BoolToStr(bAllSent, True));   { V8.22 display words }
     end;
 {$ENDIF}
 
@@ -20927,9 +21169,7 @@ initialization
         LockNewSessCB     := TIcsCriticalSection.Create;
         LockGetSessCB     := TIcsCriticalSection.Create;
         LockClientCertCB  := TIcsCriticalSection.Create;
-      {$IFNDEF OPENSSL_NO_TLSEXT}
         LockServerNameCB  := TIcsCriticalSection.Create;
-      {$ENDIF}
     {$ENDIF}
 {$ENDIF}
 {$IFDEF POSIX}
@@ -20956,9 +21196,7 @@ finalization
         FreeAndNil(LockNewSessCB);
         FreeAndNil(LockGetSessCB);
         FreeAndNil(LockClientCertCB);
-      {$IFNDEF OPENSSL_NO_TLSEXT}
         FreeAndNil(LockServerNameCB);
-      {$ENDIF}
     {$ENDIF}
     FreeAndNil(SslCritSect);
 {$ENDIF}

@@ -6,11 +6,11 @@ Object:       TMimeDecode is a component whose job is to decode MIME encoded
               decode messages received with a POP3 or NNTP component.
               MIME is described in RFC-1521. Headers are described if RFC-822.
 Creation:     March 08, 1998
-Version:      8.02
+Version:      8.04
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1998-2013 by François PIETTE
+Legal issues: Copyright (C) 1998-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -300,7 +300,11 @@ May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
 Apr 25, 2013 V8.01 Arno minor XE4 changes.
 Jul 14, 2013 V8.02 Arno - Some default values changed in TMimeDecode.MessageBegin.
-                   Set IsTextPart to False if FPartContentType contains "application/". 
+                   Set IsTextPart to False if FPartContentType contains "application/".
+Nov 11, 2015 V8.03 Angus fixed bug that ignored body if boundary specified but
+                     never found, also meant base64 decoding was ignored
+Feb 20, 2016 V8.04 Angus content-disposition now reads non-delimited filename
+
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsMimeDec;
@@ -353,8 +357,8 @@ uses
     OverbyteIcsCharsetUtils;
 
 const
-    MimeDecodeVersion  = 801;
-    CopyRight : String = ' TMimeDecode (c) 1998-2013 Francois Piette V8.01';
+    MimeDecodeVersion  = 804;
+    CopyRight : String = ' TMimeDecode (c) 1998-2016 Francois Piette V8.04';
 
 type
     TMimeDecodePartLine = procedure (Sender  : TObject;
@@ -405,6 +409,7 @@ type
         FBufferSize               : Integer;
         FCurrentData              : PAnsiChar;
         FBoundary                 : AnsiString;
+        FBoundaryFound            : Boolean;    { V8.03 } 
         FUUProcessFlag            : Boolean;
         FProcessFlagYBegin        : Boolean;   { AS: YEnc handling }
         FSizeFileY                : Integer;   { AS: YEnc handling }
@@ -1615,6 +1620,7 @@ var
 begin
     S := IcsLowerCase(IcsStrPas(FCurrentData));
     if S = FBoundary then begin
+        FBoundaryFound := True;  { V8.03 }
         PreparePart;
         Exit;
     end
@@ -1698,10 +1704,12 @@ begin
     if (FCurrentData <> nil) and (FCurrentData^ <> #0) then begin
         s := IcsLowerCase(IcsStrPas(FCurrentData));
         if (s = FBoundary) then begin
+            FBoundaryFound := True;  { V8.03 }
             PreparePart;
             exit;
         end
         else if (s = (FBoundary + '--')) then begin
+            FBoundaryFound := True;  { V8.03 }
             FEndOfMime := TRUE;
             PreparePart;
             exit;
@@ -1840,7 +1848,10 @@ begin
         while Delim = ';' do begin
             p := GetToken(p, Token, Delim);
             if Delim = '=' then begin
-                p := GetQuoted(p, Value);
+                if p^ = #34 then     { V8.04 support non-delimited file names }
+                  p := GetQuoted(p, Value)
+                else
+                  p := GetToken(p, Value, Delim);  { V8.04 }
                 if Token = 'filename' then
                     FPartFileName := UnfoldHdrValue(Value);
             end;
@@ -1877,7 +1888,7 @@ begin
         FLineNum           := 0;
         FUUProcessFlag     := FALSE;
         FProcessFlagYBegin := FALSE;
-        if FBoundary = '' then
+        if (FBoundary = '') or (not FBoundaryFound) then  { V8.03 }
             FNext := ProcessMessageLine
         else begin
             FPartFirstLine := TRUE;
@@ -1933,6 +1944,8 @@ begin
                     else if Token = 'boundary' then begin
                         FBoundary := '--' + IcsLowerCase(Value);
                         FIsMultipart := TRUE;
+                        if (Pos (AnsiString('multipart'), IcsLowerCase (FContentType)) = 1) then
+                                                                   FBoundaryFound := True; { V8.03 }
                     end;             { ##ERIC }
                 end;
             end;
@@ -1961,7 +1974,7 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TMimeDecode.MessageEnd;
 begin
-    if (FBoundary = '') or FPartOpened then
+    if (FBoundary = '') or FPartOpened or (NOT FBoundaryFound) then { V8.03 don't ignore body without a boundary }
         TriggerPartEnd;
     TriggerMessageEnd;
 end;
@@ -1973,6 +1986,7 @@ begin
     FIsTextPart              := TRUE; 
     FApplicationType         := '';
     FBoundary                := '';
+    FBoundaryFound           := false;             { V8.03  }
     FCharset                 := 'us-ascii';        { V8.02 }
     FCodePage                := FDefaultCodePage;
     FContentType             := 'text/plain';      { V8.02 }
@@ -2155,6 +2169,9 @@ begin
         FCurrentData := FBuffer + nStart;
         FNext;
     end;
+
+    { vxx see if reached end of file before end of part }
+    if FPartOpened then TriggerPartEnd;
 
     MessageEnd;
 end;

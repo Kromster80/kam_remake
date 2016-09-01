@@ -4,11 +4,11 @@ Author:       François PIETTE
 Description:  Delphi encapsulation for SSLEAY32.DLL (OpenSSL)
               This is only the subset needed by ICS.
 Creation:     Jan 12, 2003
-Version:      8.00
+Version:      8.04
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list ics-ssl@elists.org
               Follow "SSL" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2003-2011 by François PIETTE
+Legal issues: Copyright (C) 2003-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -68,6 +68,13 @@ May 03, 2011 Arno added some function declarations.
 May 31, 2011 Arno removed the packed modifier from non-dummy records.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Mar 13, 2015 V8.01 Angus updated SSL_OP option literals, added TLS v1.1 and 1.2 methods
+             Added functions need to generate DH keys for EDH ciphers with Forward Secrecy
+             Note, only OpenSSL 1.0.1 and later are now supported, removed various conditionals
+May 08, 2015 V8.02 Angus adding missing SSL_OP_SINGLE_ECDH_USE
+Nov 20, 2015 V8.03 Eugene Kotlyarov added RSA key related stuff
+Mar 3, 2016  V8.04 Angus support define OPENSSL_ALLOW_SSLV2 to load old OpenSSL
+                     DLLs that still export such methods
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$B-}                                 { Enable partial boolean evaluation   }
@@ -107,8 +114,8 @@ uses
     OverbyteIcsUtils;
 
 const
-    IcsSSLEAYVersion   = 800;
-    CopyRight : String = ' IcsSSLEAY (c) 2003-2012 F. Piette V8.00 ';
+    IcsSSLEAYVersion   = 804;
+    CopyRight : String = ' IcsSSLEAY (c) 2003-2016 F. Piette V8.04 ';
 
     EVP_MAX_IV_LENGTH                 = 16;       { 03/02/07 AG }
     EVP_MAX_BLOCK_LENGTH              = 32;       { 11/08/07 AG }
@@ -126,8 +133,8 @@ type
     // members defined in the OpenSSL header !
     TCRYPTO_THREADID_st = packed record
         Dummy : array [0..0] of Byte;
-	      //ptr : Pointer;
-	      //val : LongWord;
+          //ptr : Pointer;
+          //val : LongWord;
     end;
     PCRYPTO_THREADID = ^TCRYPTO_THREADID_st;
 
@@ -240,10 +247,18 @@ type
     end;
     PEVP_MD = ^TEVP_MD_st;
 
+    BN_ULONG = Cardinal;               { V8.03 }
+
+    TBIGNUM_st = packed record         { V8.03 }
+        Dummy : array [0..0] of Byte;
+    end;
+    PBIGNUM = ^TBIGNUM_st;
+
     TRSA_st = packed record
         Dummy : array [0..0] of Byte;      //AG
     end;
     PRSA = ^TRSA_st;
+    PPRSA = ^PRSA;                        { V8.03 }
 
     TDSA_st = packed record                //AG
         Dummy : array [0..0] of Byte;
@@ -660,10 +675,8 @@ type
     TClient_cert_cb = function (Ssl : PSSL; X509 : PPX509; PKEY : PPEVP_PKEY): Integer; cdecl;
     PClient_cert_cb = ^TClient_cert_cb;
 
-{$IFNDEF OPENSSL_NO_TLSEXT}
     TCallback_ctrl_fp = procedure (p : Pointer); cdecl;
     TSsl_servername_cb = function (s: PSSL; var ad: Integer; arg: Pointer): Integer; cdecl;
-{$ENDIF}
 
 const
     SSL2_VERSION                                = $0002;
@@ -673,9 +686,20 @@ const
     SSL3_VERSION                                = $0300;
     SSL3_VERSION_MAJOR                          = $03;
     SSL3_VERSION_MINOR                          = $00;
+
     TLS1_VERSION                                = $0301;
     TLS1_VERSION_MAJOR                          = $03;
     TLS1_VERSION_MINOR                          = $01;
+
+    TLS1_1_VERSION                              = $0302;  // V8.01
+    TLS1_1_VERSION_MAJOR                        = $03;    // V8.01
+    TLS1_1_VERSION_MINOR                        = $02;    // V8.01
+
+    TLS1_2_VERSION                              = $0303;  // V8.01
+    TLS1_2_VERSION_MAJOR                        = $03;    // V8.01
+    TLS1_2_VERSION_MINOR                        = $03;    // V8.01
+
+ {   DTLS1_2_VERSION is for UDP, sorry not supported yet }
 
     BIO_NOCLOSE                                 = 0;
     BIO_CLOSE                                   = 1;
@@ -688,7 +712,7 @@ const
     SSL_ERROR_ZERO_RETURN                       = 6;
     SSL_ERROR_WANT_CONNECT                      = 7;
     SSL_ERROR_WANT_ACCEPT                       = 8;
-    
+
     X509_FILETYPE_PEM                           = 1;
     X509_FILETYPE_ASN1                          = 2;
     X509_FILETYPE_DEFAULT                       = 3;
@@ -702,23 +726,28 @@ const
     SSL_VERIFY_FAIL_IF_NO_PEER_CERT             = 2;
     SSL_VERIFY_CLIENT_ONCE                      = 4;
 
-    { Removed 12/07/05 - due to changes in v0.9.8a
+    { Removed 12/07/05 - due to changes in v0.9.8a - restored and corrected V8.01 }
     SSL_CTRL_NEED_TMP_RSA                       = 1;
     SSL_CTRL_SET_TMP_RSA                        = 2;
     SSL_CTRL_SET_TMP_DH                         = 3;
-    SSL_CTRL_SET_TMP_RSA_CB                     = 4;
-    SSL_CTRL_SET_TMP_DH_CB                      = 5;
-    SSL_CTRL_GET_SESSION_REUSED                 = 6;
-    SSL_CTRL_GET_CLIENT_CERT_REQUEST            = 7;
-    SSL_CTRL_GET_NUM_RENEGOTIATIONS             = 8;
-    SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS           = 9;
-    SSL_CTRL_GET_TOTAL_RENEGOTIATIONS           = 10;
-    SSL_CTRL_GET_FLAGS                          = 11;
-    SSL_CTRL_EXTRA_CHAIN_CERT                   = 12;}
+    SSL_CTRL_SET_TMP_ECDH                       = 4;
+    SSL_CTRL_SET_TMP_RSA_CB                     = 5;
+    SSL_CTRL_SET_TMP_DH_CB                      = 6;
+    SSL_CTRL_SET_TMP_ECDH_CB                    = 7;
+    SSL_CTRL_GET_SESSION_REUSED                 = 8;
+    SSL_CTRL_GET_CLIENT_CERT_REQUEST            = 9;
+    SSL_CTRL_GET_NUM_RENEGOTIATIONS             = 10;
+    SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS           = 11;
+    SSL_CTRL_GET_TOTAL_RENEGOTIATIONS           = 12;
+    SSL_CTRL_GET_FLAGS                          = 13;
+    SSL_CTRL_EXTRA_CHAIN_CERT                   = 14;
+    SSL_CTRL_SET_MSG_CALLBACK                   = 15;
+    SSL_CTRL_SET_MSG_CALLBACK_ARG               = 16;
+    SSL_CTRL_SET_MTU                            = 17; // only applies to datagram connections
 
-    { These constants will be set dynamically in IcsLibeay.Load() } //12/07/05 added
-    SSL_CTRL_EXTRA_CHAIN_CERT    : Integer = 12; // v.0.9.7 - Ssl.h SSL_CTRL_EXTRA_CHAIN_CERT;
-    SSL_CTRL_GET_SESSION_REUSED  : Integer = 6; // v.0.9.7  - Ssl.h SSL_CTRL_GET_SESSION_REUSED
+    { These constants will be set dynamically in IcsLibeay.Load() } //12/07/05 added   V8.01 not needed
+//    SSL_CTRL_EXTRA_CHAIN_CERT    : Integer = 12; // v.0.9.7 - Ssl.h SSL_CTRL_EXTRA_CHAIN_CERT;
+//    SSL_CTRL_GET_SESSION_REUSED  : Integer = 6; // v.0.9.7  - Ssl.h SSL_CTRL_GET_SESSION_REUSED
 
     // stats
     SSL_CTRL_SESS_NUMBER                        = 20;
@@ -741,16 +770,52 @@ const
     SSL_CTRL_GET_SESS_CACHE_SIZE                = 43;
     SSL_CTRL_SET_SESS_CACHE_MODE                = 44;
     SSL_CTRL_GET_SESS_CACHE_MODE                = 45;
-
+    SSL_CTRL_GET_MAX_CERT_LIST                  = 50;   // V8.01
+    SSL_CTRL_SET_MAX_CERT_LIST                  = 51;   // V8.01
+    SSL_CTRL_SET_MAX_SEND_FRAGMENT              = 52;   // V8.01
+ { TLSXEXT stuff later }
     SSL_CTRL_GET_RI_SUPPORT                     = 76; { 0.9.8n }
     SSL_CTRL_CLEAR_OPTIONS                      = 77; { 0.9.8n }
+    SSL_CTRL_CLEAR_MODE                         = 78;   // V8.01
+    SSL_CTRL_GET_EXTRA_CHAIN_CERTS              = 82;   // V8.01
+    SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS            = 83;   // V8.01
+    SSL_CTRL_CHAIN                              = 88;   // V8.01
+    SSL_CTRL_CHAIN_CERT                         = 89;   // V8.01
+    SSL_CTRL_GET_CURVES                         = 90;   // V8.01
+    SSL_CTRL_SET_CURVES                         = 91;   // V8.01
+    SSL_CTRL_SET_CURVES_LIST                    = 92;   // V8.01
+    SSL_CTRL_GET_SHARED_CURVE                   = 93;   // V8.01
+    SSL_CTRL_SET_ECDH_AUTO                      = 94;   // V8.01
+    SSL_CTRL_SET_SIGALGS                        = 97;   // V8.01
+    SSL_CTRL_SET_SIGALGS_LIST                   = 98;   // V8.01
+    SSL_CTRL_CERT_FLAGS                         = 99;   // V8.01
+    SSL_CTRL_CLEAR_CERT_FLAGS                   = 100;   // V8.01
+    SSL_CTRL_SET_CLIENT_SIGALGS                 = 101;   // V8.01
+    SSL_CTRL_SET_CLIENT_SIGALGS_LIST            = 102;   // V8.01
+    SSL_CTRL_GET_CLIENT_CERT_TYPES              = 103;   // V8.01
+    SSL_CTRL_SET_CLIENT_CERT_TYPES              = 104;   // V8.01
+    SSL_CTRL_BUILD_CERT_CHAIN                   = 105;   // V8.01
+    SSL_CTRL_SET_VERIFY_CERT_STORE              = 106;   // V8.01
+    SSL_CTRL_SET_CHAIN_CERT_STORE               = 107;   // V8.01
+    SSL_CTRL_GET_PEER_SIGNATURE_NID             = 108;   // V8.01
+    SSL_CTRL_GET_SERVER_TMP_KEY                 = 109;   // V8.01
+    SSL_CTRL_GET_RAW_CIPHERLIST                 = 110;   // V8.01
+    SSL_CTRL_GET_EC_POINT_FORMATS               = 111;   // V8.01
+    SSL_CTRL_GET_CHAIN_CERTS                    = 115;   // V8.01
+    SSL_CTRL_SELECT_CURRENT_CERT                = 116;   // V8.01
+    SSL_CTRL_SET_CURRENT_CERT                   = 117;   // V8.01
+    SSL_CTRL_CHECK_PROTO_VERSION                = 119;   // V8.01
+    DTLS_CTRL_SET_LINK_MTU                      = 120;   // V8.01
+    DTLS_CTRL_GET_LINK_MIN_MTU                  = 121;   // V8.01
 
     SSL_OP_MICROSOFT_SESS_ID_BUG                = $00000001;
     SSL_OP_NETSCAPE_CHALLENGE_BUG               = $00000002;
     SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG     = $00000008;
-    SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG          = $00000010;
+    SSL_OP_TLSEXT_PADDING                       = $00000010;   // V8.01
+    SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG          = $00000000;   // gone V8.01
     SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER           = $00000020;
-    SSL_OP_MSIE_SSLV2_RSA_PADDING               = $00000040;
+    SSL_OP_SAFARI_ECDHE_ECDSA_BUG               = $00000040;   // V8.01
+    SSL_OP_MSIE_SSLV2_RSA_PADDING               = $00000000;   //gone V8.01
     SSL_OP_SSLEAY_080_CLIENT_DH_BUG             = $00000080;
     SSL_OP_TLS_D5_BUG                           = $00000100;
     SSL_OP_TLS_BLOCK_PADDING_BUG                = $00000200;
@@ -765,7 +830,7 @@ const
     //SSL_OP_ALL: various bug workarounds that should be rather harmless.
     //This used to be 0x000FFFFFL before 0.9.7.
     // 0.9.8h, 0.9.8n, 0.9.8e, 0.9.7g $00000FFF
-    SSL_OP_ALL                                  = $00000FFF;
+    SSL_OP_ALL                                  = $00000BFF;    // V8.01
     //SSL_OP_ALL                                  = $80000FFF; 1.0.0d
 
     //* DTLS options */ since 0.9.8
@@ -776,34 +841,53 @@ const
     // Don't use RFC4507 ticket extension
     SSL_OP_NO_TICKET                            = $00004000;
 
+    // Use Cisco's "speshul" version of DTLS_BAD_VER (as client)
+    SSL_OP_CISCO_ANYCONNECT                     = $00008000;    // V8.01
+
     // As server, disallow session resumption on renegotiation
     SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION  = $00010000;
+
     // Don't use compression even if supported
     SSL_OP_NO_COMPRESSION                          = $00020000; // 1.0.0x
+
     // Permit unsafe legacy renegotiation { 0.9.8n }
     // which can be set with SSL_CTX_set_options(). This is really
     // not recommended unless you know what you are doing.
     SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION    = $00040000;
 
+    // If set, always create a new key when using tmp_ecdh parameters
+    SSL_OP_SINGLE_ECDH_USE                       = $00080000;  // V8.02
+
+    // If set, always create a new key when using tmp_ecdh parameters
     SSL_OP_SINGLE_DH_USE                        = $00100000;
+
+   // Set to always use the tmp_rsa key when doing RSA operations,
+   // even when this violates protocol specs
     SSL_OP_EPHEMERAL_RSA                        = $00200000;
+
     // Set on servers to choose the cipher according to the server's
     // preferences */
     SSL_OP_CIPHER_SERVER_PREFERENCE             = $00400000;
+
     // If set, a server will allow a client to issue a SSLv3.0 version number
     // as latest version supported in the premaster secret, even when TLSv1.0
     // (version 3.1) was announced in the client hello. Normally this is
     // forbidden to prevent version rollback attacks.
-    ////SSL_OP_TLS_ROLLBACK_BUG                 = $00000400;
     SSL_OP_TLS_ROLLBACK_BUG                     = $00800000;
 
     SSL_OP_NO_SSLv2                             = $01000000;
     SSL_OP_NO_SSLv3                             = $02000000;
     SSL_OP_NO_TLSv1                             = $04000000;
-    SSL_OP_PKCS1_CHECK_1                        = $08000000;
-    SSL_OP_PKCS1_CHECK_2                        = $10000000;
+    SSL_OP_NO_TLSv1_2                           = $08000000;     // V8.01
+    SSL_OP_NO_TLSv1_1                           = $10000000;     // V8.01
+
+// These next two were never actually used for anything since SSLeay
+// zap so we have some more flags.
+    SSL_OP_PKCS1_CHECK_1                        = $00000000;    // gone V8.01
+    SSL_OP_PKCS1_CHECK_2                        = $00000000;    // gone V8.01
+
     SSL_OP_NETSCAPE_CA_DN_BUG                   = $20000000;
-    //SSL_OP_NON_EXPORT_FIRST                     = $40000000;
+
     SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG      = $40000000;
     // Make server add server-hello extension from early version of
     // cryptopro draft, when GOST ciphersuite is negotiated.
@@ -867,7 +951,6 @@ const
     SSL_MAX_SSL_SESSION_ID_LENGTH               = 32; //AG
     SSL_MAX_SID_CTX_LENGTH                      = 32; //AG
 
-{$IFNDEF OPENSSL_NO_TLSEXT}
     {* ExtensionType values from RFC 3546 *}
     TLSEXT_TYPE_server_name                     = 0;
     TLSEXT_TYPE_max_fragment_length             = 1;
@@ -887,22 +970,48 @@ const
     SSL_CTRL_SET_TLSEXT_HOSTNAME                = 55;
     SSL_CTRL_SET_TLSEXT_DEBUG_CB                = 56;
     SSL_CTRL_SET_TLSEXT_DEBUG_ARG               = 57;
+    SSL_CTRL_GET_TLSEXT_TICKET_KEYS             = 58;   // V8.01
+    SSL_CTRL_SET_TLSEXT_TICKET_KEYS             = 59;   // V8.01
+    SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT        = 60;   // V8.01
+    SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB     = 61;   // V8.01
+    SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB_ARG   = 62;   // V8.01
+    SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB           = 63;   // V8.01
+    SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG       = 64;   // V8.01
+    SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE         = 65;   // V8.01
+    SSL_CTRL_GET_TLSEXT_STATUS_REQ_EXTS         = 66;   // V8.01
+    SSL_CTRL_SET_TLSEXT_STATUS_REQ_EXTS         = 67;   // V8.01
+    SSL_CTRL_GET_TLSEXT_STATUS_REQ_IDS          = 68;   // V8.01
+    SSL_CTRL_SET_TLSEXT_STATUS_REQ_IDS          = 69;   // V8.01
+    SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP    = 70;   // V8.01
+    SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP    = 71;   // V8.01
+    SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB           = 72;   // V8.01
+    SSL_CTRL_SET_TLS_EXT_SRP_USERNAME_CB        = 75;   // V8.01
+    SSL_CTRL_SET_SRP_VERIFY_PARAM_CB            = 76;   // V8.01
+    SSL_CTRL_SET_SRP_GIVE_CLIENT_PWD_CB         = 77;   // V8.01
+    SSL_CTRL_SET_SRP_ARG                        = 78;   // V8.01
+    SSL_CTRL_SET_TLS_EXT_SRP_USERNAME           = 79;   // V8.01
+    SSL_CTRL_SET_TLS_EXT_SRP_STRENGTH           = 80;   // V8.01
+    SSL_CTRL_SET_TLS_EXT_SRP_PASSWORD           = 81;   // V8.01
+    SSL_CTRL_TLS_EXT_SEND_HEARTBEAT             = 85;   // V8.01
+    SSL_CTRL_GET_TLS_EXT_HEARTBEAT_PENDING      = 86;   // V8.01
+    SSL_CTRL_SET_TLS_EXT_HEARTBEAT_NO_REQUESTS  = 87;   // V8.01
 
     SSL_TLSEXT_ERR_OK                           = 0;
     SSL_TLSEXT_ERR_ALERT_WARNING                = 1;
     SSL_TLSEXT_ERR_ALERT_FATAL                  = 2;
     SSL_TLSEXT_ERR_NOACK                        = 3;
-{$ENDIF}
-    
+
 const
     f_SSL_do_handshake :                       function(S: PSSL): Integer; cdecl = nil; //AG
     f_SSL_renegotiate :                        function(S: PSSL): Integer; cdecl = nil; //AG
     f_SSL_renegotiate_pending :                function(S: PSSL): Integer; cdecl = nil; //AG
     f_SSL_library_init :                       function: Integer; cdecl = nil;
     f_SSL_load_error_strings :                 procedure; cdecl = nil;
+{$IFDEF OPENSSL_ALLOW_SSLV2}
     f_SSLv2_method :                           function: PSSL_METHOD; cdecl = nil;
     f_SSLv2_client_method :                    function: PSSL_METHOD; cdecl = nil;
     f_SSLv2_server_method :                    function: PSSL_METHOD; cdecl = nil;
+{$ENDIF}
     f_SSLv3_method :                           function: PSSL_METHOD; cdecl = nil;
     f_SSLv3_client_method :                    function: PSSL_METHOD; cdecl = nil;
     f_SSLv3_server_method :                    function: PSSL_METHOD; cdecl = nil;
@@ -912,6 +1021,12 @@ const
     f_TLSv1_method :                           function: PSSL_METHOD; cdecl = nil;
     f_TLSv1_client_method :                    function: PSSL_METHOD; cdecl = nil;
     f_TLSv1_server_method :                    function: PSSL_METHOD; cdecl = nil;
+    f_TLSv1_1_method :                         function: PSSL_METHOD; cdecl = nil;    // V8.01 added TLS 1.1 and 1.2
+    f_TLSv1_1_client_method :                  function: PSSL_METHOD; cdecl = nil;
+    f_TLSv1_1_server_method :                  function: PSSL_METHOD; cdecl = nil;
+    f_TLSv1_2_method :                         function: PSSL_METHOD; cdecl = nil;
+    f_TLSv1_2_client_method :                  function: PSSL_METHOD; cdecl = nil;
+    f_TLSv1_2_server_method :                  function: PSSL_METHOD; cdecl = nil;
     f_SSL_CTX_new :                            function(Meth: PSSL_METHOD): PSSL_CTX; cdecl = nil;
     f_SSL_new :                                function(Ctx: PSSL_CTX): PSSL; cdecl = nil;
     f_SSL_set_bio :                            procedure(S: PSSL; RBio: PBIO; WBio: PBIO); cdecl = nil;
@@ -983,7 +1098,6 @@ const
     f_SSL_CTX_get_ex_data :                    function(const C: PSSL_CTX; Idx: Integer): PAnsiChar; cdecl = nil;
     f_SSL_CTX_set_cipher_list :                function(C: PSSL_CTX; CipherString: PAnsiChar): Integer; cdecl = nil;
     f_SSL_CTX_set_trust :                      function(C: PSSL_CTX; Trust: Integer): Integer; cdecl = nil; //AG
-{$IFNDEF BEFORE_OSSL_098E}
     f_SSL_CTX_set_client_cert_cb:              procedure(CTX: PSSL_CTX; CB: TClient_cert_cb); cdecl = nil; //AG
     f_SSL_CTX_get_client_cert_cb:              function(CTX: PSSL_CTX): TClient_cert_cb; cdecl = nil; //AG
     f_SSL_CTX_sess_set_remove_cb:              procedure(Ctx: PSSL_CTX; CB: TRemove_session_cb); cdecl = nil; //AG
@@ -993,13 +1107,12 @@ const
     f_SSL_CTX_sess_set_new_cb:                 procedure(Ctx: PSSL_CTX; CB: TNew_session_cb); cdecl = nil; //AG
     f_SSL_CTX_sess_get_new_cb:                 function (CTX: PSSL_CTX): TNew_session_cb; cdecl = nil; //AG
     f_SSL_SESSION_get_id:                      function (const Ses: PSSL_SESSION; var Len: LongInt): PAnsiChar; cdecl = nil; //AG
-{$ENDIF}
+
     { The next four functions are only useful for TLS/SSL servers. }
     f_SSL_CTX_add_client_CA :                  function(C: PSSL_CTX; CaCert: PX509): Integer; cdecl = nil; //AG
     f_SSL_add_client_CA :                      function(ssl: PSSL; CaCert: PX509): Integer; cdecl = nil; //AG
     f_SSL_CTX_set_client_CA_list :             procedure(C: PSSL_CTX; List: PSTACK_OF_X509_NAME); cdecl = nil; //AG
     f_SSL_set_client_CA_list :                 procedure(s: PSSL; List: PSTACK_OF_X509_NAME); cdecl = nil; //AG
-
 {$IFNDEF OPENSSL_NO_ENGINE}
     f_SSL_CTX_set_client_cert_engine :         function(Ctx: PSSL_CTX; e: PENGINE): Integer; cdecl = nil; //AG
 {$ENDIF}
@@ -1016,13 +1129,13 @@ const
 
     f_SSL_get_SSL_CTX:                         function(const S: PSSL): PSSL_CTX; cdecl = nil;
     f_SSL_get_client_CA_list :                 function(const S: PSSL): PSTACK_OF_X509_NAME; cdecl = nil;
-{$IFNDEF OPENSSL_NO_TLSEXT}
     f_SSL_set_SSL_CTX:                         function(S: PSSL; ctx: PSSL_CTX): PSSL_CTX; cdecl = nil;
     f_SSL_get_servername:                      function(const S: PSSL; const type_: Integer): PAnsiChar; cdecl = nil;
     f_SSL_get_servername_type:                 function(const S: PSSL): Integer; cdecl = nil;
     f_SSL_CTX_callback_ctrl:                   function(ctx: PSSL_CTX; cb_id: Integer; fp: TCallback_ctrl_fp): Longint; cdecl = nil;
     f_SSL_callback_ctrl:                       function(s: PSSL; cb_id: Integer; fp: TCallback_ctrl_fp): Longint; cdecl = nil;
-{$ENDIF}
+
+
 
 function Load : Boolean;
 function WhichFailedToLoad : String;
@@ -1032,6 +1145,8 @@ function GetFileVerInfo(
     out   FileVersion     : String;
     out   FileDescription : String): Boolean;
 {$ENDIF}
+
+// macro functions not exported from DLL
 function  f_SSL_CTX_set_options(C: PSSL_CTX; Op: LongInt): LongInt; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function  f_SSL_CTX_get_options(C: PSSL_CTX): LongInt; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function  f_SSL_get_options(S: PSSL): LongInt; {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -1045,24 +1160,18 @@ function  f_SSL_session_reused(SSL: PSSL): Integer; {$IFDEF USE_INLINE} inline; 
 function  f_SSL_CTX_set_session_cache_mode(Ctx: PSSL_CTX; Mode: Integer): Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function  f_SSL_CTX_sess_set_cache_size(Ctx: PSSL_CTX; CacheSize: Integer): Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function  f_SSL_CTX_add_extra_chain_cert(Ctx: PSSL_CTX; Cert: PX509): Longword; {$IFDEF USE_INLINE} inline; {$ENDIF}
+function  f_SSL_CTX_set_tmp_dh(C: PSSL_CTX; DH: Pointer) : Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}    { V8.01 }
+function  f_SSL_CTX_set_tmp_ecdh(C: PSSL_CTX; ECDH: Pointer) : Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}    { V8.01 }
+function  f_SSL_CTX_set_ecdh_auto(C: PSSL_CTX; onoff: integer) : Integer;    { V8.01 }
+function  f_SSL_set_tmp_dh(S: PSSL; DH: Pointer) : Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}            { V8.01 }
+function  f_SSL_set_tmp_ecdh(S: PSSL; ECDH: Pointer) : Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}    { V8.01 }
+function  f_SSL_set_ecdh_auto(S: PSSL; onoff: integer) : Integer;    { V8.01 }
 
-{$IFDEF BEFORE_OSSL_098E}
-//procedure f_SSL_session_get_id(Ses: PSSL_SESSION; var SessID: Pointer; var IdLen: Integer);
-function  f_SSL_SESSION_get_id(const Ses: PSSL_SESSION; var IdLen: LongInt): PAnsiChar;
-procedure f_SSL_CTX_sess_set_new_cb(Ctx: PSSL_CTX; CB: TNew_session_cb);
-procedure f_SSL_CTX_sess_set_get_cb(Ctx: PSSL_CTX; CB: TGet_session_cb);
-procedure f_SSL_CTX_sess_set_remove_cb(Ctx: PSSL_CTX; CB: TRemove_session_cb);
-procedure f_SSL_CTX_set_client_cert_cb(Ctx: PSSL_CTX; CB: TClient_cert_cb);
-function  f_SSL_CTX_get_client_cert_cb(CTX: PSSL_CTX): Pointer;
-{$ENDIF}
-
-{$IFNDEF OPENSSL_NO_TLSEXT}
 function f_SSL_set_tlsext_host_name(const S: PSSL; const name: String): LongInt; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function f_SSL_CTX_set_tlsext_servername_callback(ctx: PSSL_CTX; cb: TCallback_ctrl_fp): LongInt; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function f_SSL_CTX_set_tlsext_servername_arg(ctx: PSSL_CTX; arg: Pointer): LongInt; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function f_SSL_set_tlsext_debug_callback(S: PSSL; cb: TCallback_ctrl_fp): Longint; {$IFDEF USE_INLINE} inline; {$ENDIF}
 function f_SSL_set_tlsext_debug_arg(S: PSSL; arg: Pointer): Longint; {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
 
 const
     GSSLEAY_DLL_Handle          : THandle = 0;
@@ -1181,9 +1290,11 @@ begin
     f_SSL_renegotiate_pending                := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_renegotiate_pending');
     f_SSL_library_init                       := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_library_init');
     f_SSL_load_error_strings                 := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_load_error_strings');
+ {$IFDEF OPENSSL_ALLOW_SSLV2}
     f_SSLv2_method                           := GetProcAddress(GSSLEAY_DLL_Handle, 'SSLv2_method');
     f_SSLv2_client_method                    := GetProcAddress(GSSLEAY_DLL_Handle, 'SSLv2_client_method');
     f_SSLv2_server_method                    := GetProcAddress(GSSLEAY_DLL_Handle, 'SSLv2_server_method');
+ {$ENDIF}
     f_SSLv3_method                           := GetProcAddress(GSSLEAY_DLL_Handle, 'SSLv3_method');
     f_SSLv3_client_method                    := GetProcAddress(GSSLEAY_DLL_Handle, 'SSLv3_client_method');
     f_SSLv3_server_method                    := GetProcAddress(GSSLEAY_DLL_Handle, 'SSLv3_server_method');
@@ -1193,6 +1304,12 @@ begin
     f_TLSv1_method                           := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_method');
     f_TLSv1_client_method                    := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_client_method');
     f_TLSv1_server_method                    := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_server_method');
+    f_TLSv1_1_method                         := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_1_method');      // V8.01 added TLS 1.1 and 1.2
+    f_TLSv1_1_client_method                  := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_1_client_method');
+    f_TLSv1_1_server_method                  := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_1_server_method');
+    f_TLSv1_2_method                         := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_2_method');
+    f_TLSv1_2_client_method                  := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_2_client_method');
+    f_TLSv1_2_server_method                  := GetProcAddress(GSSLEAY_DLL_Handle, 'TLSv1_2_server_method');
     f_SSL_CTX_new                            := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_new');
     f_SSL_new                                := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_new');
     f_SSL_set_bio                            := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_set_bio');
@@ -1264,7 +1381,6 @@ begin
     f_SSL_CTX_get_ex_data                    := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_get_ex_data');
     f_SSL_CTX_get_cert_store                 := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_get_cert_store');
     f_SSL_CTX_set_trust                      := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_set_trust');
-{$IFNDEF BEFORE_OSSL_098E}
     f_SSL_CTX_set_client_cert_cb             := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_set_client_cert_cb'); //AG
     f_SSL_CTX_get_client_cert_cb             := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_get_client_cert_cb'); //AG
     f_SSL_CTX_sess_set_remove_cb             := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_sess_set_remove_cb'); //AG
@@ -1274,14 +1390,14 @@ begin
     f_SSL_CTX_sess_set_new_cb                := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_sess_set_new_cb'); //AG
     f_SSL_CTX_sess_get_new_cb                := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_sess_get_new_cb'); //AG
     f_SSL_SESSION_get_id                     := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_SESSION_get_id'); //AG
-{$ENDIF}
     f_SSL_CTX_add_client_CA                  := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_add_client_CA'); //AG
     f_SSL_add_client_CA                      := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_add_client_CA'); //AG
     f_SSL_CTX_set_client_CA_list             := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_set_client_CA_list'); //AG
     f_SSL_set_client_CA_list                 := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_set_client_CA_list'); //AG
+
 {$IFNDEF OPENSSL_NO_ENGINE}
     f_SSL_CTX_set_client_cert_engine         := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_set_client_cert_engine'); //AG
-{$ENDIF}    
+{$ENDIF}
     f_SSL_load_client_CA_file                := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_load_client_CA_file'); //AG
 
     f_SSL_get_ex_data_X509_STORE_CTX_idx     := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_get_ex_data_X509_STORE_CTX_idx');
@@ -1295,13 +1411,13 @@ begin
 
     f_SSL_get_SSL_CTX                        := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_get_SSL_CTX'); //AG
     f_SSL_get_client_CA_list                 := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_get_client_CA_list'); //AG
-{$IFNDEF OPENSSL_NO_TLSEXT}
     f_SSL_set_SSL_CTX                        := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_set_SSL_CTX'); //AG
     f_SSL_get_servername                     := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_get_servername'); //AG
     f_SSL_get_servername_type                := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_get_servername_type'); //AG
     f_SSL_CTX_callback_ctrl                  := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_CTX_callback_ctrl'); //AG
     f_SSL_callback_ctrl                      := GetProcAddress(GSSLEAY_DLL_Handle, 'SSL_callback_ctrl'); //AG
-{$ENDIF}
+
+
 
     // Check if any failed
     Result := not ((@f_SSL_do_handshake                       = nil) or
@@ -1309,15 +1425,26 @@ begin
                    (@f_SSL_renegotiate_pending                = nil) or
                    (@f_SSL_library_init                       = nil) or
                    (@f_SSL_load_error_strings                 = nil) or
+ {$IFDEF OPENSSL_ALLOW_SSLV2}
                    (@f_SSLv2_method                           = nil) or
                    (@f_SSLv2_client_method                    = nil) or
                    (@f_SSLv2_server_method                    = nil) or
+ {$ENDIF}
                    (@f_SSLv3_method                           = nil) or
                    (@f_SSLv3_client_method                    = nil) or
                    (@f_SSLv3_server_method                    = nil) or
                    (@f_SSLv23_method                          = nil) or
                    (@f_SSLv23_client_method                   = nil) or
                    (@f_SSLv23_server_method                   = nil) or
+                   (@f_TLSv1_method                           = nil) or
+                   (@f_TLSv1_client_method                    = nil) or
+                   (@f_TLSv1_server_method                    = nil) or
+                   (@f_TLSv1_1_method                         = nil) or    // V8.01 added TLS 1.1 and 1.2
+                   (@f_TLSv1_1_client_method                  = nil) or
+                   (@f_TLSv1_1_server_method                  = nil) or
+                   (@f_TLSv1_2_method                         = nil) or
+                   (@f_TLSv1_2_client_method                  = nil) or
+                   (@f_TLSv1_2_server_method                  = nil) or
                    (@f_TLSv1_method                           = nil) or
                    (@f_TLSv1_client_method                    = nil) or
                    (@f_TLSv1_server_method                    = nil) or
@@ -1391,7 +1518,6 @@ begin
                    (@f_SSL_CTX_set_ex_data                    = nil) or
                    (@f_SSL_CTX_get_cert_store                 = nil) or
                    (@f_SSL_CTX_set_trust                      = nil) or
-              {$IFNDEF BEFORE_OSSL_098E}
                    (@f_SSL_CTX_set_client_cert_cb             = nil) or
                    (@f_SSL_CTX_get_client_cert_cb             = nil) or
                    (@f_SSL_CTX_sess_set_remove_cb             = nil) or
@@ -1401,7 +1527,6 @@ begin
                    (@f_SSL_CTX_sess_set_new_cb                = nil) or
                    (@f_SSL_CTX_sess_get_new_cb                = nil) or
                    (@f_SSL_SESSION_get_id                     = nil) or
-              {$ENDIF}
                    (@f_SSL_CTX_add_client_CA                  = nil) or
                    (@f_SSL_add_client_CA                      = nil) or
                    (@f_SSL_CTX_set_client_CA_list             = nil) or
@@ -1421,17 +1546,12 @@ begin
                    (@f_SSL_get_wfd                            = nil) or
                    (@f_SSL_CTX_use_PrivateKey                 = nil) or
                    (@f_SSL_get_SSL_CTX                        = nil) or
-
-                   (@f_SSL_get_client_CA_list                 = nil)
-              {$IFNDEF OPENSSL_NO_TLSEXT}
-                                                                     or
-
+                   (@f_SSL_get_client_CA_list                 = nil) or
                    (@f_SSL_set_SSL_CTX                        = nil) or
                    (@f_SSL_get_servername                     = nil) or
                    (@f_SSL_get_servername_type                = nil) or
                    (@f_SSL_CTX_callback_ctrl                  = nil) or
-                   (@f_SSL_callback_ctrl                      = nil)
-              {$ENDIF}
+                   (@f_SSL_callback_ctrl                      = nil) 
                    );
 end;
 
@@ -1445,9 +1565,11 @@ begin
     if @f_SSL_renegotiate_pending                = nil then Result := Result + ' SSL_renegotiate_pending';
     if @f_SSL_library_init                       = nil then Result := Result + ' SSL_library_init';
     if @f_SSL_load_error_strings                 = nil then Result := Result + ' SSL_load_error_strings';
+ {$IFDEF OPENSSL_ALLOW_SSLV2}
     if @f_SSLv2_method                           = nil then Result := Result + ' SSLv2_method';
     if @f_SSLv2_client_method                    = nil then Result := Result + ' SSLv2_client_method';
     if @f_SSLv2_server_method                    = nil then Result := Result + ' SSLv2_server_method';
+ {$ENDIF}
     if @f_SSLv3_method                           = nil then Result := Result + ' SSLv3_method';
     if @f_SSLv3_client_method                    = nil then Result := Result + ' SSLv3_client_method';
     if @f_SSLv3_server_method                    = nil then Result := Result + ' SSLv3_server_method';
@@ -1457,6 +1579,12 @@ begin
     if @f_TLSv1_method                           = nil then Result := Result + ' TLSv1_method';
     if @f_TLSv1_client_method                    = nil then Result := Result + ' TLSv1_client_method';
     if @f_TLSv1_server_method                    = nil then Result := Result + ' TLSv1_server_method';
+    if @f_TLSv1_1_method                         = nil then Result := Result + ' TLSv1_1_method';
+    if @f_TLSv1_1_client_method                  = nil then Result := Result + ' TLSv1_1_client_method';
+    if @f_TLSv1_1_server_method                  = nil then Result := Result + ' TLSv1_1_server_method';
+    if @f_TLSv1_2_method                         = nil then Result := Result + ' TLSv1_2_method';
+    if @f_TLSv1_2_client_method                  = nil then Result := Result + ' TLSv1_2_client_method';
+    if @f_TLSv1_2_server_method                  = nil then Result := Result + ' TLSv1_2_server_method';
     if @f_SSL_CTX_new                            = nil then Result := Result + ' SSL_CTX_new';
     if @f_SSL_new                                = nil then Result := Result + ' SSL_new';
     if @f_SSL_set_bio                            = nil then Result := Result + ' SSL_set_bio';
@@ -1529,7 +1657,6 @@ begin
     if @f_SSL_CTX_set_ex_data                    = nil then Result := Result + ' SSL_CTX_set_ex_data';
     if @f_SSL_CTX_get_cert_store                 = nil then Result := Result + ' SSL_CTX_get_cert_store';
     if @f_SSL_CTX_set_trust                      = nil then Result := Result + ' SSL_CTX_set_trust';
-{$IFNDEF BEFORE_OSSL_098E}
     if @f_SSL_CTX_set_client_cert_cb             = nil then Result := Result + ' SSL_CTX_set_client_cert_cb';
     if @f_SSL_CTX_get_client_cert_cb             = nil then Result := Result + ' SSL_CTX_get_client_cert_cb';
     if @f_SSL_CTX_sess_set_remove_cb             = nil then Result := Result + ' SSL_CTX_sess_set_remove_cb';
@@ -1539,7 +1666,6 @@ begin
     if @f_SSL_CTX_sess_set_new_cb                = nil then Result := Result + ' SSL_CTX_sess_set_new_cb';
     if @f_SSL_CTX_sess_get_new_cb                = nil then Result := Result + ' SSL_CTX_sess_get_new_cb';
     if @f_SSL_SESSION_get_id                     = nil then Result := Result + ' SSL_SESSION_get_id';
-{$ENDIF}
     if @f_SSL_CTX_add_client_CA                  = nil then Result := Result + ' SSL_CTX_add_client_CA';
     if @f_SSL_add_client_CA                      = nil then Result := Result + ' SSL_add_client_CA';
     if @f_SSL_CTX_set_client_CA_list             = nil then Result := Result + ' SSL_CTX_set_client_CA_list';
@@ -1560,14 +1686,11 @@ begin
 
     if @f_SSL_get_SSL_CTX                        = nil then Result := Result + ' SSL_get_SSL_CTX';
     if @f_SSL_get_client_CA_list                 = nil then Result := Result + ' SSL_get_client_CA_list';
-{$IFNDEF OPENSSL_NO_TLSEXT}
     if @f_SSL_set_SSL_CTX                        = nil then Result := Result + ' SSL_set_SSL_CTX';
     if @f_SSL_get_servername                     = nil then Result := Result + ' SSL_get_servername';
     if @f_SSL_get_servername_type                = nil then Result := Result + ' SSL_get_servername_type';
     if @f_SSL_CTX_callback_ctrl                  = nil then Result := Result + ' SSL_CTX_callback_ctrl';
     if @f_SSL_callback_ctrl                      = nil then Result := Result + ' SSL_callback_ctrl';
-{$ENDIF}
-
     if Length(Result) > 0 then
        Delete(Result, 1, 1);
 end;
@@ -1665,79 +1788,6 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{$IFDEF BEFORE_OSSL_098E}
-function f_SSL_SESSION_get_id(const Ses: PSSL_SESSION; var IdLen: LongInt): PAnsiChar; { 03/02/07 AG }
-begin
-    // This is a hack : SSL_SESSION structure has not been defined.
-    // There's also no function in openssl to get the session_id
-    // from the SSL_SESSION_st.
-    IdLen  := PInteger(PAnsiChar(Ses) + 68)^;
-    Result := PAnsiChar(Ses) + 72;
-end;
-
-{ procedure f_SSL_session_get_id(Ses: PSSL_SESSION; var SessID: Pointer; var IdLen: Integer);
-begin
-    // This is a hack : SSL_SESSION structure has not been defined.
-    // There's also no function in openssl to get the session_id
-    // from the SSL_SESSION_st.
-    IdLen  := PInteger(PAnsiChar(Ses) + 68)^;
-    SessID := Pointer(PAnsiChar(Ses) + 72);
-end; }
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure f_SSL_CTX_sess_set_new_cb(Ctx: PSSL_CTX; CB: TNew_session_cb);
-begin
-    // This is a hack : Ctx structure has not been defined. But we know
-    // CB member is the 11th 32 bit field in the structure (index is 10)
-    // This could change when OpenSSL is updated. Check "struct ssl_ctx_st".
-    PNew_session_cb(PAnsiChar(Ctx) + 10 * 4)^ := @CB;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure f_SSL_CTX_sess_set_remove_cb(Ctx: PSSL_CTX; CB: TRemove_session_cb);
-begin
-    // This is a hack : Ctx structure has not been defined. But we know
-    // CB member is the 12th 32 bit field in the structure (index is 11)
-    // This could change when OpenSSL is updated. Check "struct ssl_ctx_st".
-    PRemove_session_cb(PAnsiChar(Ctx) + 11 * 4)^ := @CB;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure f_SSL_CTX_sess_set_get_cb(Ctx: PSSL_CTX; CB: TGet_session_cb);
-begin
-    // This is a hack : Ctx structure has not been defined. But we know
-    // CB member is the 13th 32 bit field in the structure (index is 12)
-    // This could change when OpenSSL is updated. Check "struct ssl_ctx_st".
-    PGet_session_cb(PAnsiChar(Ctx) + 12 * 4)^ := @CB;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure f_SSL_CTX_set_client_cert_cb(CTX: PSSL_CTX; CB: TClient_cert_cb);
-begin
-    // This is a hack : Ctx structure has not been defined. But we know
-    // CB member is the 30th 32 bit field in the structure (index is 29)
-    // This could change when OpenSSL is updated. Check "struct ssl_ctx_st".
-    PClient_cert_cb(PAnsiChar(CTX) + 29 * 4)^ := @CB;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function f_SSL_CTX_get_client_cert_cb(CTX: PSSL_CTX): Pointer;
-begin
-    // This is a hack : Ctx structure has not been defined. But we know
-    // CB member is the 30th 32 bit field in the structure (index is 29)
-    // This could change when OpenSSL is updated. Check "struct ssl_ctx_st".
-    Result := PAnsiChar(CTX) + 29 * 4;
-    if PAnsiChar(Result)^ = #0 then
-        Result := nil
-end;
-{$ENDIF}
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{$IFNDEF OPENSSL_NO_TLSEXT}
 function f_SSL_set_tlsext_host_name(const S: PSSL; const name: String): Longint;
 begin
     Result := f_SSL_ctrl(S, SSL_CTRL_SET_TLSEXT_HOSTNAME,
@@ -1772,8 +1822,47 @@ function f_SSL_set_tlsext_debug_arg(S: PSSL; arg: Pointer): Longint;
 begin
     Result := f_SSL_ctrl(S, SSL_CTRL_SET_TLSEXT_DEBUG_ARG, 0, arg);
 end;
-{$ENDIF}
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  f_SSL_CTX_set_tmp_dh(C: PSSL_CTX; DH: Pointer) : Integer;   { V8.01 }
+begin
+    Result := f_SSL_CTX_ctrl(C, SSL_CTRL_SET_TMP_DH, 0, DH);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  f_SSL_CTX_set_tmp_ecdh(C: PSSL_CTX; ECDH: Pointer) : Integer;    { V8.01 }
+begin
+    Result := f_SSL_CTX_ctrl(C, SSL_CTRL_SET_TMP_ECDH, 0, ECDH);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  f_SSL_CTX_set_ecdh_auto(C: PSSL_CTX; onoff: Integer): Integer;    { V8.01 }
+begin
+    Result := f_SSL_CTX_ctrl(C, SSL_CTRL_SET_ECDH_AUTO, onoff, Nil);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  f_SSL_set_tmp_dh(S: PSSL; DH: Pointer) : Integer;     { V8.01 }
+begin
+    Result := f_SSL_ctrl(S, SSL_CTRL_SET_TMP_DH, 0, DH);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  f_SSL_set_tmp_ecdh(S: PSSL; ECDH: Pointer) : Integer;    { V8.01 }
+begin
+    Result := f_SSL_ctrl(S, SSL_CTRL_SET_TMP_ECDH, 0, ECDH);
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  f_SSL_set_ecdh_auto(S: PSSL; onoff: integer) : Integer;    { V8.01 }
+begin
+    Result := f_SSL_ctrl(S, SSL_CTRL_SET_ECDH_AUTO, onoff, Nil);
+end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$ENDIF}//USE_SSL

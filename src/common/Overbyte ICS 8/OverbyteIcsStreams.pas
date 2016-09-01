@@ -3,10 +3,10 @@
 Author:       Arno Garrels <arno.garrels@gmx.de>
 Creation:     Oct 25, 2005
 Description:  Fast streams for ICS tested on D5 and D7.
-Version:      8.00
-Legal issues: Copyright (C) 2005-2012 by Arno Garrels, Berlin, Germany,
+Version:      8.01
+Legal issues: Copyright (C) 2005-2016 by Arno Garrels, Berlin, Germany,
               contact: <arno.garrels@gmx.de>
-              
+
               This software is provided 'as-is', without any express or
               implied warranty.  In no event will the author be held liable
               for any  damages arising from the use of this software.
@@ -84,7 +84,8 @@ Feb 08, 2012 V6.17 Fixed a 64-bit bug and a memory leak in TBufferedFileStream.
 Mar 31, 2012 V6.18 Fixed TMultiPartFileReader.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
-
+Feb 23, 2016 V8.01 Angus renamed TBufferedFileStream to TIcsBufferedFileStream
+                   to avoid conflicts with other libraries
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsStreams;
@@ -108,7 +109,7 @@ interface
 {$I Include\OverbyteIcsDefs.inc}
 {$ObjExportAll On}
 
-{ Comment next line in order to replace TBufferedFileStream by TIcsBufferedStream }
+{ Comment next line in order to replace TIcsBufferedFileStream by TIcsBufferedStream }
 {$Define USE_OLD_BUFFERED_FILESTREAM}
 
 uses
@@ -138,12 +139,12 @@ const
 type
     BigInt = Int64;
     EBufferedStreamError = class(Exception);
-    
+
     TIcsBufferedStream = class; // forward
 {$IFNDEF USE_OLD_BUFFERED_FILESTREAM}
-    TBufferedFileStream = TIcsBufferedStream;
+    TIcsBufferedFileStream = TIcsBufferedStream;
 {$ELSE}
-    TBufferedFileStream = class(TStream)
+    TIcsBufferedFileStream = class(TStream)
     private
         FHandle     : {$IFDEF COMPILER16_UP} THandle {$ELSE} Integer {$ENDIF};
         FFileSize   : BigInt;
@@ -294,7 +295,7 @@ type
         { Seeks as well. IsReadOnly is set to TRUE if a constructor with     }
         { filename is called with a read only mode and a share lock.         }
         property    IsReadOnly: Boolean read FIsReadOnly write SetIsReadOnly;
-        property    FastSize: Int64 read GetSize; // For compatibility with old TBufferedFileStream; 
+        property    FastSize: Int64 read GetSize; // For compatibility with old TIcsBufferedFileStream; 
     end;
 
     EStreamReaderError = class(Exception);
@@ -533,7 +534,7 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFDEF USE_OLD_BUFFERED_FILESTREAM}
-procedure TBufferedFileStream.Init(BufSize: Longint);
+procedure TIcsBufferedFileStream.Init(BufSize: Longint);
 begin
     FBufSize := BufSize;
     if FBufSize < MIN_BUFSIZE then
@@ -553,7 +554,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-constructor TBufferedFileStream.Create(const FileName: String; Mode: Word;
+constructor TIcsBufferedFileStream.Create(const FileName: String; Mode: Word;
     BufferSize: Longint);
 begin
 {$IFDEF MSWINDOWS}
@@ -566,7 +567,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-constructor TBufferedFileStream.Create(const FileName : String; Mode: Word;
+constructor TIcsBufferedFileStream.Create(const FileName : String; Mode: Word;
     Rights: Cardinal; BufferSize: Longint);
 {$IFDEF COMPILER16_UP}
 var
@@ -608,7 +609,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-constructor TBufferedFileStream.Create(const FileName: WideString; Mode: Word;
+constructor TIcsBufferedFileStream.Create(const FileName: WideString; Mode: Word;
     BufferSize: Longint);
 begin
 {$IFDEF MSWINDOWS}
@@ -621,7 +622,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-constructor TBufferedFileStream.Create(const FileName : WideString; Mode: Word;
+constructor TIcsBufferedFileStream.Create(const FileName : WideString; Mode: Word;
     Rights: Cardinal; BufferSize: Longint);
 begin
     inherited Create;
@@ -649,7 +650,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-destructor TBufferedFileStream.Destroy;
+destructor TIcsBufferedFileStream.Destroy;
 begin
     if FHandle <> ICS_INVALID_FILE_HANDLE then begin
         if FDirty then
@@ -661,7 +662,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TBufferedFileStream.GetFileSize: BigInt;
+function TIcsBufferedFileStream.GetFileSize: BigInt;
 var
     OldPos : BigInt;
 begin
@@ -674,7 +675,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TBufferedFileStream.ReadFromFile;
+procedure TIcsBufferedFileStream.ReadFromFile;
 begin
     if FileSeek(FHandle, FFileOffset, sofromBeginning) <> FFileOffset then
         raise EBufferedStreamError.Create('Seek before read from file failed');
@@ -685,7 +686,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TBufferedFileStream.WriteToFile;
+procedure TIcsBufferedFileStream.WriteToFile;
 begin
     if FileSeek(FHandle, FFileOffset, soFromBeginning) <> FFileOffset then
         raise EBufferedStreamError.Create('Seek before write to file failed');
@@ -699,7 +700,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TBufferedFileStream.Flush;
+procedure TIcsBufferedFileStream.Flush;
 begin
     if FDirty and (FHandle <> ICS_INVALID_FILE_HANDLE) and (FBuf <> nil) then
         WriteToFile;
@@ -708,7 +709,7 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$R-} { V6.11 }
-function TBufferedFileStream.Read(var Buffer; Count: Longint): Longint;
+function TIcsBufferedFileStream.Read(var Buffer; Count: Longint): Longint;
 var
     Remaining   : Longint;
     Copied      : Longint;
@@ -747,7 +748,7 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$R-}  { V6.11 }
-function TBufferedFileStream.Write(const Buffer; Count: Longint): Longint;
+function TIcsBufferedFileStream.Write(const Buffer; Count: Longint): Longint;
 var
     Remaining : Longint;
     Copied    : Longint;
@@ -797,14 +798,14 @@ end;
 {$ENDIF}
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TBufferedFileStream.Seek(Offset: Longint; Origin: Word): Longint;
+function TIcsBufferedFileStream.Seek(Offset: Longint; Origin: Word): Longint;
 begin
     Result := Seek(Int64(Offset), TSeekOrigin(Origin));
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TBufferedFileStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
+function TIcsBufferedFileStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 var
     NewPos        : BigInt;
     NewFileOffset : BigInt;
@@ -848,14 +849,14 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TBufferedFileStream.SetSize(NewSize: Integer);
+procedure TIcsBufferedFileStream.SetSize(NewSize: Integer);
 begin
     SetSize(Int64(NewSize));
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TBufferedFileStream.SetSize(const NewSize: Int64);
+procedure TIcsBufferedFileStream.SetSize(const NewSize: Int64);
 var
     NSize : Int64;                                          { V6.11 }
 begin

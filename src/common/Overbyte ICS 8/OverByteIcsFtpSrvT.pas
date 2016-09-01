@@ -4,11 +4,11 @@ Author:       François PIETTE
 Description:  Time functions.
 Creation:     Nov 24, 1999 from Bruce Christensen <bkc51831234@hotmail.com>
               code used with his permission. Thanks.
-Version:      8.00
+Version:      8.01
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1999-2010 by François PIETTE
+Legal issues: Copyright (C) 1999-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium. 
               <francois.piette@overbyte.be>
 
@@ -72,6 +72,7 @@ Feb 22, 2011 V7.09 Angus IcsGetDirList always keeps directories for FTP recursiv
                       subdirectory listings
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Feb 23, 2016 V8.01 Angus renamed TBufferedFileStream to TIcsBufferedFileStream
 
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -109,8 +110,8 @@ uses
     OverbyteIcsStreams;    { angus V7.7 }
 
 const
-    FtpSrvT_Unit       = 800;
-    CopyRight : String = ' FtpSrvT  (c) 1999-2012 F. Piette V8.00 ';
+    FtpSrvT_Unit       = 801;
+    CopyRight : String = ' FtpSrvT  (c) 1999-2016 F. Piette V8.01 ';
 
   { V1.16 Tick and Trigger constants }
   TicksPerDay      : longword =  24 * 60 * 60 * 1000 ;
@@ -986,7 +987,7 @@ var
 begin
     Result := '';
     { Open file }
-    Stream := TBufferedFileStream.Create(FileName, Mode, MAX_BUFSIZE);
+    Stream := TIcsBufferedFileStream.Create(FileName, Mode, MAX_BUFSIZE);
 //  Stream := TFileStream.Create(Filename, Mode);
     try
         Result := String(StreamMD5(Stream, Obj, ProgressCallback, StartPos, EndPos));  { V7.07a }
@@ -1005,7 +1006,7 @@ var
 begin
     Result := '';
     { Open file }
-    Stream := TBufferedFileStream.Create(FileName, Mode, MAX_BUFSIZE);
+    Stream := TIcsBufferedFileStream.Create(FileName, Mode, MAX_BUFSIZE);
 //  Stream := TFileStream.Create(Filename, Mode);
     try
         Result := StreamCRC32B(Stream, Obj, ProgressCallback, StartPos, EndPos);

@@ -2,7 +2,7 @@
 
 Author:       François PIETTE
 Creation:     November 23, 1997
-Version:      8.10
+Version:      8.13
 Description:  THttpCli is an implementation for the HTTP protocol
               RFC 1945 (V1.0), and some of RFC 2068 (V1.1)
 Credit:       This component was based on a freeware from by Andreas
@@ -11,7 +11,7 @@ Credit:       This component was based on a freeware from by Andreas
 EMail:        francois.piette@overbyte.be         http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1997-2012 by François PIETTE
+Legal issues: Copyright (C) 1997-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -377,7 +377,7 @@ Nov 27, 2005 V1.90 implemented redirection limiting to avoid continuous
              and set httpoEnableContentCoding in Options to enable it
              by Maurizio Lotauro <Lotauro.Maurizio@dnet.it>
 Dec 20, 2005 V1.91 new configurable DebugOptions to replace IFDEF DEBUG_OUTPUT,
-             see wsocket for more information 
+             see wsocket for more information
 Apr 10, 2006 V6.00.1 Added LowerCase for FTransferEncoding? Thanks to Fastream.
 Dec 10, 2006 V6.00.2 Jack <jlist9@gmail.com> fixed BandwidthTimerTimer to clear
              the count.
@@ -499,6 +499,12 @@ Jul 14, 2014 V8.08 Angus try and match how Chrome and Firefox handle POST reloca
 Jul 16, 2014 V8.09 Angus added new methods: OPTIONS and TRACE
                    published RequestType for events
 Jul 18, 2014 V8.10 Angus applied V8.08 change to another function
+Jun 01, 2015 V8.11 Angus update SslServerName for SSL SNI support allowing server to
+                     select correct SSL context and certificate
+Oct 19, 2015 V8.12 Angus allow better SSL Handshake error reporting
+Feb 22, 2016 V8.13 Angus check statuscode with StrToIntDef to avoid errors
+                   ensure headers added in event are logged
+                   Angus moved RFC1123_Date and RFC1123_StrToDate to Utils
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -587,8 +593,8 @@ uses
     OverbyteIcsTypes, OverbyteIcsUtils;
 
 const
-    HttpCliVersion       = 810;
-    CopyRight : String   = ' THttpCli (c) 1997-2014 F. Piette V8.10 ';
+    HttpCliVersion       = 813;
+    CopyRight : String   = ' THttpCli (c) 1997-2016 F. Piette V8.13 ';
     DefaultProxyPort     = '80';
     //HTTP_RCV_BUF_SIZE    = 8193;
     //HTTP_SND_BUF_SIZE    = 8193;
@@ -1241,8 +1247,8 @@ type
 {$ENDIF} // USE_SSL
 
 procedure ReplaceExt(var FName : String; const newExt : String);
-function RFC1123_Date(aDate : TDateTime) : String;
-function RFC1123_StrToDate(aDate : String) : TDateTime;
+{function RFC1123_Date(aDate : TDateTime) : String;
+function RFC1123_StrToDate(aDate : String) : TDateTime;  }
 function EncodeLine(
     Encoding : THttpEncoding;
     SrcData  : PAnsiChar;
@@ -1288,7 +1294,7 @@ begin
     FErrorCode := ErrCode;
 end;
 
-
+(* moved to OverbyteIcsUtilt to share with web server
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 const
    RFC1123_StrWeekDay : String = 'MonTueWedThuFriSatSun';
@@ -1325,7 +1331,7 @@ begin
     Sec    := StrToIntDef(Copy(aDate, 24, 2), 0);
     Result := EncodeDate(Year, Month, Day);
     Result := Result + EncodeTime(Hour, Min, Sec, 0);
-end;
+end; *)
 (*
 {$IFDEF NOFORMS}
 { This function is a callback function. It means that it is called by       }
@@ -2575,15 +2581,15 @@ begin
 {SendCommand('UA-OS: Windows 95'); }
 {SendCommand('UA-CPU: x86'); }
 {SendCommand('Proxy-Connection: Keep-Alive'); }
-    {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loProtSpecInfo) then  { V1.91 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loProtSpecInfo, IntToStr(Headers.Count) +
-            ' header lines to send'#13#10 + Headers.Text);
-    {$ENDIF}
         TriggerBeforeHeaderSend(Method, Headers);
         for N := 0 to Headers.Count - 1 do
             SendCommand(Headers[N]);
         TriggerRequestHeaderEnd;
+    {$IFNDEF NO_DEBUG_LOG}    { V8.13 ensure headers added in event are logged }
+        if CheckLogOptions(loProtSpecInfo) then  { V1.91 } { replaces $IFDEF DEBUG_OUTPUT  }
+            DebugLog(loProtSpecInfo, IntToStr(Headers.Count) +
+            ' header lines to send'#13#10 + Headers.Text);
+    {$ENDIF}
         SendCommand('');
         FCtrlSocket.PutDataInSendBuffer(FReqStream.Memory, FReqStream.Size);
         FReqStream.Clear;
@@ -3031,7 +3037,7 @@ begin
                 if AnsiChar(FLastResponse[tmpInt]) in ['0'..'9'] then
                     break;
             end;
-            FStatusCode   := StrToInt(Copy(FLastResponse, tmpInt, 3));
+            FStatusCode   := StrToIntDef(Copy(FLastResponse, tmpInt, 3), 0);  { V8.13 }
             FReasonPhrase := Copy(FLastResponse, tmpInt + 4, Length(FLastResponse));
             { Changed end }
         end
@@ -4501,17 +4507,21 @@ procedure THttpCli.SslHandshakeDone(
     PeerCert       : TX509Base;
     var Disconnect : Boolean);
 begin
-    if Assigned(TSslHttpCli(Self).FOnSslHandshakeDone) then
+    if Assigned(TSslHttpCli(Self).FOnSslHandshakeDone) then begin
+        FReasonPhrase := '';  { V8.12 }
         TSslHttpCli(Self).FOnSslHandshakeDone(Self,       // FP: was Sender
                                               ErrCode,
                                               PeerCert,
                                               Disconnect);
+    end;
     if (ErrCode <> 0) or Disconnect then begin
         FStatusCode       := 404;
-        if Disconnect then
-            FReasonPhrase := 'SSL custom abort'
-        else
-            FReasonPhrase := 'SSL handshake failed';
+        if FReasonPhrase = '' then begin  { V8.12 may have set better reason in event }
+            if Disconnect then
+                FReasonPhrase := 'SSL custom abort'
+            else
+                FReasonPhrase := 'SSL handshake failed - ' + CtrlSocket.SslHandshakeRespMsg;  { V8.12 }
+        end;
         FRequestDoneError := httperrAborted;
         FConnected        := False;
         Exit;
@@ -5109,6 +5119,7 @@ end;
 procedure TSslHttpCli.DoBeforeConnect;
 begin
     inherited DoBeforeConnect;
+    FCtrlSocket.SslServerName       := FHostName;  { V8.11 needed for SNI support }
     FCtrlSocket.OnSslVerifyPeer     := TransferSslVerifyPeer;
     FCtrlSocket.OnSslCliGetSession  := TransferSslCliGetSession;
     FCtrlSocket.OnSslCliNewSession  := TransferSslCliNewSession;

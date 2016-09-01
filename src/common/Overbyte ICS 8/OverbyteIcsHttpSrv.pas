@@ -9,11 +9,11 @@ Description:  THttpServer implement the HTTP server protocol, that is a
               check for '..\', '.\', drive designation and UNC.
               Do the check in OnGetDocument and similar event handlers.
 Creation:     Oct 10, 1999
-Version:      8.08
+Version:      8.11
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1999-2014 by François PIETTE
+Legal issues: Copyright (C) 1999-2016 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -383,6 +383,17 @@ Jul 17 2014 V8.08 Angus - added HTTP/1.1 methods OPTIONS, PUT, DELETE, TRACE, PA
                   added ServerHeader property optionally sent if hoSendServerHdr
                   added RequestMethod property for client of THttpMethod
                   added RequestUpgrade property for client, websoocket is protocol should be changed
+Mar 23 2015 V8.09 Angus onSslServerName event added
+Jan 25 2016 V8.10 Angus added ReqTarget property for client, which is similar to Path but may
+                    contain an absolute-form path starting with http://host
+                  Convert Path absolute-form to origin-form per RFC7230 section 5.3.2
+                    (a future version of HTTP may require absolute-form)
+Feb 23 2016 V8.11 Angus get If-Modified-Since request header to RequestIfModSince
+                  SendDocument does not return unchanged files but 304
+                  Added Option hoIgnoreIfModSince to ignore date
+                  Added Answer304
+                  Moved RFC1123_Date to Utils
+                  renamed TBufferedFileStream to TIcsBufferedFileStream
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -482,9 +493,9 @@ uses
     OverbyteIcsWinsock;
 
 const
-    THttpServerVersion = 808;
-    CopyRight : String = ' THttpServer (c) 1999-2014 F. Piette V8.08 ';
-    DefServerHeader : string = 'Server: ICS-HttpServer-8.08';   { V8.08 }
+    THttpServerVersion = 811;
+    CopyRight : String = ' THttpServer (c) 1999-2016 F. Piette V8.11 ';
+    DefServerHeader : string = 'Server: ICS-HttpServer-8.11';   { V8.09 }
     CompressMinSize = 5000;  { V7.20 only compress responses within a size range, these are defaults only }
     CompressMaxSize = 5000000;
     MinSndBlkSize = 8192 ;  { V7.40 }
@@ -557,7 +568,8 @@ type
     THttpConnectionState = (hcRequest, hcHeader, hcPostedData, hcSendData);   { V8.01 }
     THttpOption          = (hoAllowDirList, hoAllowOutsideRoot, hoContentEncoding, { V7.20 }
                             hoAllowOptions, hoAllowPut, hoAllowDelete, hoAllowTrace,
-                            hoAllowPatch, hoAllowConnect, hoSendServerHdr);        { V8.08 allow new methods }
+                            hoAllowPatch, hoAllowConnect, hoSendServerHdr,   { V8.08 allow new methods }
+                            hoIgnoreIfModSince);                             { V8.11 }
     THttpOptions         = set of THttpOption;
     THttpRangeInt        = Int64;
 {$IFNDEF NO_AUTHENTICATION_SUPPORT}
@@ -771,6 +783,8 @@ type
         FOnTraceDocument       : THttpGetConnEvent;    { V8.08 }
         FOnPatchDocument       : THttpGetConnEvent;    { V8.08 }
         FOnConnectDocument     : THttpGetConnEvent;    { V8.08 }
+        FReqTarget             : string;               { V8.10 }
+        FRequestIfModSince     : TDateTime;            { V8.11 }
         procedure SetSndBlkSize(const Value: Integer);
         procedure ConnectionDataAvailable(Sender: TObject; Error : Word); virtual;
         procedure ConnectionDataSent(Sender : TObject; Error : WORD); virtual;
@@ -789,6 +803,7 @@ type
         procedure ProcessPostPutPat; virtual;  { V8.08 }
         procedure Answer416; virtual;
         procedure Answer404; virtual;
+        procedure Answer304; virtual;   { V8.11 }
         procedure Answer403; virtual;
         procedure Answer401; virtual;
         procedure Answer400; virtual;   { V7.30 }
@@ -997,7 +1012,8 @@ type
                                                      write FMaxRequestsKeepAlive;
         property AnswerStatus          : Integer     read  FAnswerStatus;  { V7.19 }
         property RequestMethod         : THttpMethod read  FRequestMethod; { V8.08 }
-        property RequestUpgrade        : string      read FRequestUpgrade; { V8.08 }
+        property RequestUpgrade        : string      read  FRequestUpgrade; { V8.08 }
+        property RequestIfModSince     : TDateTime   read  FRequestIfModSince; { V8.11 }
     published
         { Where all documents are stored. Default to c:\wwwroot }
         property DocDir         : String            read  FDocDir
@@ -1011,9 +1027,12 @@ type
         { Complete document path and file name on local file system }
         property Document       : String            read  FDocument
                                                     write FDocument;
-        { Document path as requested by client }
+        { Origin-form Document path as requested by client }
         property Path           : String            read  FPath
                                                     write FPath;
+        { Absolute-form path that may start with http://host as requested by client }
+        property ReqTarget      : string            read FReqTarget     { V8.10 }
+                                                    write FReqTarget;
         { Parameters in request (Question mark is separator) }
         property Params         : String            read  FParams
                                                     write FParams;
@@ -1563,10 +1582,10 @@ Description:  A component adding SSL support to THttpServer.
 {$H+}                                 { Use long strings                    }
 {$J+}                                 { Allow typed constant to be modified }
 
-const
+{const
      SslHttpSrvVersion            = 802;
      SslHttpSrvDate               = 'Jul 19, 2012';
-     SslHttpSrvCopyRight : String = ' TSslHttpSrv (c) 2003-2012 Francois Piette V8.00.2 ';
+     SslHttpSrvCopyRight : String = ' TSslHttpSrv (c) 2003-2012 Francois Piette V8.00.2 '; }
 
 type
     TCustomSslHttpServer = class(THttpServer)  //  V8.02 Angus - was TSslHttpServer
@@ -1577,6 +1596,7 @@ type
         FOnSslSetSessionIDContext      : TSslSetSessionIDContext;
         FOnSslSvrNewSession            : TSslSvrNewSession;
         FOnSslSvrGetSession            : TSslSvrGetSession;
+        FOnSslServerName               : TSslServerNameEvent;     // V8.09
         procedure CreateSocket; override;
         procedure SetSslContext(Value: TSslContext);
         function  GetSslContext: TSslContext;
@@ -1606,6 +1626,8 @@ type
                                              ErrCode : Word); override;
         procedure WSocketServerClientCreate(Sender : TObject;
                                             Client : TWSocketClient); override;
+        procedure TransferSslServerName(Sender: TObject;   // V8.09
+                     var Ctx: TSslContext; var ErrCode: TTlsExtError); virtual;
     public
         constructor Create(AOwner : TComponent); override;
         destructor  Destroy; override;
@@ -1627,6 +1649,9 @@ type
         property  OnSslHandshakeDone : TSslHandshakeDoneEvent
                                                            read  FOnSslHandshakeDone
                                                            write FOnSslHandshakeDone;
+        property  OnSslServerName    : TSslServerNameEvent
+                                                           read  FOnSslServerName     // V8.09
+                                                           write FOnSslServerName;
     end;
 
     TSslHttpServer = class(TCustomSslHttpServer)     //  V8.02 Angus
@@ -1638,6 +1663,7 @@ type
         property OnSslSvrNewSession;
         property OnSslSvrGetSession;
         property OnSslHandshakeDone;
+        property OnSslServerName;
     end;
 
 {$ENDIF} // USE_SSL
@@ -1684,7 +1710,7 @@ function UrlDecode(const Url   : RawByteString;
 
 function FileDate(FileName : String) : TDateTime; deprecated
   {$IFDEF COMPILER12_UP}'Use OverbyteIcsUtils.IcsFileUtcModified'{$ENDIF};
-function RFC1123_Date(aDate : TDateTime) : String;
+{ function RFC1123_Date(aDate : TDateTime) : String;  }
 function DocumentToContentType(const FileName : String) : String;
 function TextToHtmlText(const Src : UnicodeString) : String; overload;
 function TextToHtmlText(const Src : RawByteString) : String; overload;
@@ -2915,6 +2941,7 @@ begin
         FRequestHostName       := '';     {DAVID}
         FRequestHostPort       := '';     {DAVID}
         FRequestConnection     := '';
+        FRequestIfModSince     := 0;      { V8.11 }
         FDataSent              := 0;      {TURCAN}
         FDocSize               := 0;      {TURCAN}
 {$IFNDEF NO_AUTHENTICATION_SUPPORT}
@@ -2939,7 +2966,7 @@ begin
         FAnswerStatus          := 0;      { V7.19 changed to 200, 404, etc whenever header status is set, used for logging }
         OnDataSent             := ConnectionDataSent;  { V7.19 always need an event after header is sent }
         { The line we just received is HTTP command, parse it  }
-        ParseRequest;
+        ParseRequest;   { sets FReqTarget, FPath, FMethod, FParams, FHttpVerNum, FKeepAlive }
         if FMethod = 'HEAD' then        { V7.44 }
             FSendType := httpSendHead   { V7.44 }
         else                            { V7.44 }
@@ -3020,8 +3047,11 @@ begin
                 RequestRangeValues.InitFromString(Trim(Copy(FRcvdLine, I,
                                                            Length(FRcvdLine))));
             end
-            else if StrLIComp(@FRcvdLine[1], 'Upgrade:', 7) = 0 then begin   { V8.08 for websockets }
+            else if StrLIComp(@FRcvdLine[1], 'Upgrade:', 8) = 0 then begin   { V8.08 for websockets }
                 FRequestUpgrade := Copy(FRcvdLine, I, Length(FRcvdLine));
+            end
+            else if StrLIComp(@FRcvdLine[1], 'If-Modified-Since:', 17) = 0 then begin   { V8.11 added }
+                FRequestIfModSince := RFC1123_StrToDate (Copy(FRcvdLine, I, Length(FRcvdLine)));
             end;
         except
             { Ignore any exception in parsing header line }
@@ -3033,10 +3063,10 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { Request is in FRcvdLine property.                                         }
-{ Split it into FMethod, FPath, FVersion and parameters.                    }
+{ Split it into FMethod, FPath/FReqTarget, FVersion and parameters.         }
 procedure THttpConnection.ParseRequest;
 var
-    I, J : Integer;
+    I, J, K : Integer;
 begin
     I := 1;
     while (I <= Length(FRcvdLine)) and (FRcvdLine[I] <> ' ') do
@@ -3049,6 +3079,23 @@ begin
     while (I <= Length(FRcvdLine)) and (FRcvdLine[I] <> ' ') do
         Inc(I);
     FPath := Copy(FRcvdLine, J, I - J);
+
+  { V8.10 check if absolute-form path supplied, ie a complete URL, strip
+      off protocol and host and port for backward compatility }
+    FReqTarget := FPath;
+    if Pos ('HTTP', Trim(UpperCase(FPath))) = 1 then begin
+        J := 0;
+        K := 1;
+        while (K <= Length (FPath)) do begin
+            if FPath[K] = '/' then inc (J);
+            if J = 3 then begin
+                FPath := Copy (FPath, K, 999);
+                Break;
+            end;
+            Inc(K);
+        end;
+    end;
+
     { Find parameters }
     J := Pos('?', FPath);
     if J <= 0 then
@@ -3589,6 +3636,17 @@ begin
         SendStr(Body);
 end;
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure THttpConnection.Answer304;    { V8.11 }
+begin
+    SendHeader(FVersion + ' 304 Not Modified' + #13#10 +
+               'Content-Length: 0' + #13#10 +
+               GetKeepAliveHdrLines +
+               #13#10);
+    FAnswerStatus := 304;
+    Send(nil, 0)
+end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure THttpConnection.Answer400;
@@ -4672,7 +4730,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ See also RFC822_DateTime function in SmtpCli component                    }
+(* { See also RFC822_DateTime function in SmtpCli component                    }
 { RFC1123 5.2.14 redefine RFC822 Section 5.                                 }
 function RFC1123_Date(aDate : TDateTime) : String;
 const
@@ -4690,7 +4748,7 @@ begin
               Format('%2.2d %s %4.4d %2.2d:%2.2d:%2.2d',
                      [Day, Copy(StrMonth, 1 + 3 * (Month - 1), 3),
                       Year, Hour, Min, Sec]);
-end;
+end;   *)
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -4741,6 +4799,12 @@ var
 begin
     ProtoNumber        := 200;
     FLastModified      := IcsFileUtcModified(FDocument);
+  { V8.11 see if document actually changed, within one second of time stamp }
+    if (NOT (hoIgnoreIfModSince in FOptions)) and
+             (FRequestIfModSince >= (FLastModified - (1 / SecsPerDay))) then begin
+        Answer304;
+        Exit;
+    end;
     if Assigned (FServer.MimeTypesList) then
         FAnswerContentType := FServer.MimeTypesList.TypeFromFile(FDocument)  { V7.46 }
     else
@@ -4748,7 +4812,7 @@ begin
     TriggerMimeContentType(FDocument, FAnswerContentType);  { V7.41 allow content type to be changed }
 
     FDocStream.Free;
-    FDocStream := TBufferedFileStream.Create(FDocument, fmOpenRead + fmShareDenyWrite, MAX_BUFSIZE); { V7.40 faster }
+    FDocStream := TIcsBufferedFileStream.Create(FDocument, fmOpenRead + fmShareDenyWrite, MAX_BUFSIZE); { V7.40 faster }
 
     CompleteDocSize := FDocStream.Size;
     {ANDREAS Create the virtual 'byte-range-doc-stream', if we are ask for ranges}
@@ -6431,6 +6495,7 @@ begin
     FWSocketServer.OnSslSvrNewSession       := TransferSslSvrNewSession;
     FWSocketServer.OnSslSvrGetSession       := TransferSslSvrGetSession;
     FWSocketServer.OnSslHandshakeDone       := TransferSslHandshakeDone;
+    FWSocketServer.OnSslServerName          := TransferSslServerName;  // V8.09
     fSslEnable                              := TRUE;   // V8.02 Angus
 end;
 
@@ -6460,6 +6525,7 @@ begin
     THttpConnection(Client).OnSslSvrGetSession       := TransferSslSvrGetSession;
     THttpConnection(Client).OnSslSetSessionIDContext := TransferSslSetSessionIDContext;
     THttpConnection(Client).OnSslHandshakeDone       := TransferSslHandshakeDone;
+    THttpConnection(Client).OnSslServerName          := TransferSslServerName; // V8.09 Angus
     FWSocketServer.SslEnable                         := fSslEnable;    // V8.02 Angus
     inherited WSocketServerClientCreate(Sender, Client);
 end;
@@ -6541,6 +6607,14 @@ begin
         FOnSslHandshakeDone(Sender, ErrCode, PeerCert, Disconnect);
 end;
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.TransferSslServerName(Sender: TObject;   // V8.09
+    var Ctx: TSslContext; var ErrCode: TTlsExtError);
+begin
+    if Assigned(FOnSslServerName) then
+        FOnSslServerName(Sender, Ctx, ErrCode);
+end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TCustomSslHttpServer.WSocketServerClientConnect(
