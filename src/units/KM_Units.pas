@@ -158,7 +158,6 @@ type
     property GetInHouse: TKMHouse read fInHouse;
     property IsDead: Boolean read fIsDead;
     function IsDeadOrDying: Boolean;
-    function CanGoEat: Boolean;
     property GetPosition: TKMPoint read fCurrPosition;
     procedure SetPosition(aPos: TKMPoint);
     property PositionF: TKMPointF read fPosition write fPosition;
@@ -1609,12 +1608,6 @@ end;
 function TKMUnit.IsDeadOrDying: Boolean;
 begin
   Result := fIsDead or fKillASAP or (fUnitTask is TTaskDie);
-end;
-
-
-function TKMUnit.CanGoEat: Boolean;
-begin
-  Result := gHands[fOwner].FindInn(fCurrPosition,Self) <> nil;
 end;
 
 
