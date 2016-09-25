@@ -50,22 +50,24 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..28] of string = (
+  VAR_TYPE_NAME: array[0..29] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
+    'TKMHouseFace',
     'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex', 'array of TKMHandIndex', // Werewolf types
     'TByteSet', 'TIntegerArray' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..28] of string = (
+  VAR_TYPE_ALIAS: array[0..29] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
     'array of const', 'array of Integer',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
+    'TKMHouseFace',
     'Integer', 'Integer', 'Integer', 'Integer', 'array of Integer', // Werewolf types
     'set of Byte', 'array of Integer' // Werewolf types
   );
