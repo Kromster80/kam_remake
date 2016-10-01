@@ -483,16 +483,6 @@ type
   ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8);
   THouseActionSet = set of THouseActionType;
 
-  TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
-  //Must be sorted from lowest to highest importance
-  TDemandImportance = (
-    diNorm,  //Everything (lowest importance)
-    diHigh4, //Materials to workers
-    diHigh3, //Food to Inn
-    diHigh2, //Food to soldiers
-    diHigh1  //Gold to School (highest importance)
-    );
-
 const
   HouseAction: array [THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish

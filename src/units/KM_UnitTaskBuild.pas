@@ -119,7 +119,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
+  KM_Deliveries, KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
 
 
 { TTaskBuildRoad }
@@ -206,7 +206,7 @@ begin
 
          CancelThePlan;
 
-         gHands[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, diHigh4);
+         gHands[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dtOnce, diHigh4);
          DemandSet := true;
 
          SetActionLockedStay(11,ua_Work1,false);
@@ -341,7 +341,7 @@ begin
 
         gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
 
-        gHands[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, diHigh4);
+        gHands[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dtOnce, diHigh4);
         DemandSet := true;
 
         SetActionLockedStay(12*4,ua_Work1,false);
@@ -571,8 +571,8 @@ begin
   begin
     fHouse.BuildingState := hbs_Wood;
     gHands[fUnit.Owner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
-    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, gRes.HouseDat[fHouse.HouseType].WoodCost, dt_Once, diHigh4);
-    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, gRes.HouseDat[fHouse.HouseType].StoneCost, dt_Once, diHigh4);
+    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, gRes.HouseDat[fHouse.HouseType].WoodCost, dtOnce, diHigh4);
+    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, gRes.HouseDat[fHouse.HouseType].StoneCost, dtOnce, diHigh4);
   end;
 
   gHands.CleanUpHousePointer(fHouse);

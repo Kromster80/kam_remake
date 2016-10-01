@@ -8,11 +8,24 @@ uses
 
 
 type
-  TJobStatus = (
+  TKMDemandType = (
+    dtOnce,   // One-time demand like usual
+    dtAlways  // Constant (store, barracks)
+  );
+
+  // Sorted from lowest to highest importance
+  TKMDemandImportance = (
+    diNorm,  //Everything (lowest importance)
+    diHigh4, //Materials to workers
+    diHigh3, //Food to Inn
+    diHigh2, //Food to soldiers
+    diHigh1  //Gold to School (highest importance)
+  );
+
+  TKMDeliveryJobStatus = (
     js_Empty, // Empty - empty spot for a new job
-    js_Open,  // Open - job is free to take by anyone
     js_Taken  // Taken - job is taken by some worker
-);
+  );
 
   TKMDeliveryOffer = record
     Ware: TWareType;
@@ -25,8 +38,8 @@ type
 
   TKMDeliveryDemand =  record
     Ware: TWareType;
-    DemandType: TDemandType; //Once for everything, Always for Store and Barracks
-    Importance: TDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
+    DemandType: TKMDemandType; //Once for everything, Always for Store and Barracks
+    Importance: TKMDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
     Loc_House: TKMHouse;
     Loc_Unit: TKMUnit;
     BeingPerformed: Cardinal; //Can be performed multiple times for dt_Always
@@ -56,7 +69,7 @@ type
     fQueue: array of
     record
       OfferID, DemandID: Integer;
-      JobStatus: TJobStatus; //Empty slot, resource Taken, job Done
+      JobStatus: TKMDeliveryJobStatus; //Empty slot, resource Taken, job Done
     end;
 
     procedure CloseDelivery(aID: Integer);
@@ -71,7 +84,7 @@ type
     procedure RemAllOffers(aHouse: TKMHouse);
     procedure RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Cardinal);
 
-    procedure AddDemand(aHouse: TKMHouse; aUnit: TKMUnit; aResource: TWareType; aCount: Byte; aType: TDemandType; aImp: TDemandImportance);
+    procedure AddDemand(aHouse: TKMHouse; aUnit: TKMUnit; aResource: TWareType; aCount: Byte; aType: TKMDemandType; aImp: TKMDemandImportance);
     function TryRemoveDemand(aHouse: TKMHouse; aResource: TWareType; aCount: Word): word;
     procedure RemDemand(aHouse: TKMHouse); overload;
     procedure RemDemand(aUnit: TKMUnit); overload;
@@ -251,7 +264,7 @@ procedure TKMDeliveries.UpdateState;
 var
   I, K, iD, iO, FoundO, FoundD: Integer;
   Bid, BestBid: Single;
-  BestImportance: TDemandImportance;
+  BestImportance: TKMDemandImportance;
   AvailableDeliveries, AvailableSerfs: Integer;
   Serf: TKMUnitSerf;
 begin
@@ -277,7 +290,7 @@ begin
       //Note: All deliveries will be taken, because we have enough serfs to fill them all.
       //The important concept here is to always get the shortest delivery when a delivery can be taken to multiple places.
       BestBid := MaxSingle;
-      BestImportance := diNorm;
+      BestImportance := Low(TKMDemandImportance);
       FoundO := -1;
       FoundD := -1;
       for iD := 1 to fQueue.fDemandCount do
@@ -479,7 +492,7 @@ end;
 
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
-procedure TKMDeliverQueue.AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TWareType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
+procedure TKMDeliverQueue.AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TWareType; aCount:byte; aType: TKMDemandType; aImp: TKMDemandImportance);
 var i,k,j:integer;
 begin
   Assert(aResource <> wt_None, 'Demanding rt_None');
@@ -531,7 +544,7 @@ begin
             ((fDemand[iD].Ware = wt_Food) and (fOffer[iO].Ware in [wt_Bread, wt_Sausages, wt_Wine, wt_Fish]));
 
   //If Demand and Offer aren't reserved already
-  Result := Result and (((fDemand[iD].DemandType = dt_Always) or (fDemand[iD].BeingPerformed = 0))
+  Result := Result and (((fDemand[iD].DemandType = dtAlways) or (fDemand[iD].BeingPerformed = 0))
                    and (aIgnoreOffer or (fOffer[iO].BeingPerformed < fOffer[iO].Count)));
 
   //If Demand and Offer aren't deleted
@@ -637,7 +650,7 @@ begin
       for iD:=1 to fDemandCount do
         if (fDemand[iD].Ware <> wt_None) and not DemandTaken[iD] and ValidDelivery(iO,iD) then
         begin
-          if fDemand[iD].DemandType = dt_Once then
+          if fDemand[iD].DemandType = dtOnce then
           begin
             DemandTaken[iD] := True;
             inc(Result);
@@ -727,7 +740,7 @@ procedure TKMDeliverQueue.CheckForBetterDemand(aDeliveryID: Integer; out aToHous
 var
   iD, iO, BestD, OldD: Integer;
   Bid, BestBid: Single;
-  BestImportance: TDemandImportance;
+  BestImportance: TKMDemandImportance;
 begin
   iO := fQueue[aDeliveryID].OfferID;
   OldD := fQueue[aDeliveryID].DemandID;
@@ -762,7 +775,7 @@ begin
     //Our old demand is no longer valid (e.g. house destroyed), so give it minimum weight
     //If no other demands are found we can still return this invalid one, TaskDelivery handles that
     BestBid := MaxSingle;
-    BestImportance := diNorm;
+    BestImportance := Low(TKMDemandImportance);
   end;
 
   for iD := 1 to fDemandCount do
@@ -803,14 +816,14 @@ procedure TKMDeliverQueue.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = 
 var
   iD, iO, BestD, BestO: Integer;
   Bid, BestBid: Single;
-  BestImportance: TDemandImportance;
+  BestImportance: TKMDemandImportance;
 begin
   //Find Offer matching Demand
   //TravelRoute Asker>Offer>Demand should be shortest
   BestBid := MaxSingle;
   BestO := -1;
   BestD := -1;
-  BestImportance := diNorm;
+  BestImportance := Low(TKMDemandImportance);
 
   for iD := 1 to fDemandCount do
     if (fDemand[iD].Ware <> wt_None)
@@ -893,7 +906,7 @@ begin
 
   Dec(fDemand[iD].BeingPerformed); //Remove reservation
 
-  if (fDemand[iD].DemandType = dt_Once)
+  if (fDemand[iD].DemandType = dtOnce)
   or (fDemand[iD].IsDeleted and (fDemand[iD].BeingPerformed = 0)) then
     CloseDemand(iD) //Remove resource from Demand list
 end;
@@ -939,8 +952,8 @@ procedure TKMDeliverQueue.CloseDemand(aID:integer);
 begin
   Assert(fDemand[aID].BeingPerformed = 0);
   fDemand[aID].Ware := wt_None;
-  fDemand[aID].DemandType := dt_Once;
-  fDemand[aID].Importance := diNorm;
+  fDemand[aID].DemandType := dtOnce;
+  fDemand[aID].Importance := Low(TKMDemandImportance);
   gHands.CleanUpHousePointer(fDemand[aID].Loc_House);
   gHands.CleanUpUnitPointer(fDemand[aID].Loc_Unit);
   fDemand[aID].IsDeleted := false;
@@ -958,7 +971,8 @@ end;
 
 
 procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
-var i:integer;
+var
+  i: Integer;
 begin
   SaveStream.WriteA('Deliveries');
   SaveStream.Write(fOfferCount);

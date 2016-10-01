@@ -216,7 +216,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
-  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts,
+  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_Deliveries,
   KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand;
 
 
@@ -375,10 +375,10 @@ begin
     with gHands[fOwner].Deliveries.Queue do
     case Res of
       wt_None:    ;
-      wt_Warfare: AddDemand(Self, nil, Res, 1, dt_Always, diNorm);
-      wt_All:     AddDemand(Self, nil, Res, 1, dt_Always, diNorm);
+      wt_Warfare: AddDemand(Self, nil, Res, 1, dtAlways, diNorm);
+      wt_All:     AddDemand(Self, nil, Res, 1, dtAlways, diNorm);
       else        begin
-                    AddDemand(Self, nil, Res, GetResDistribution(I), dt_Once,   diNorm); //Every new house needs 5 resourceunits
+                    AddDemand(Self, nil, Res, GetResDistribution(I), dtOnce, diNorm); //Every new house needs 5 resourceunits
                     inc(fResourceDeliveryCount[I],GetResDistribution(I)); //Keep track of how many resources we have on order (for distribution of wares)
                   end;
     end;
@@ -1085,7 +1085,7 @@ begin
     for K := 1 to aCount do
       if fResourceDeliveryCount[I] < GetResDistribution(I) then
       begin
-        gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dt_Once, diNorm);
+        gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dtOnce, diNorm);
         Inc(fResourceDeliveryCount[I]);
       end;
     Exit;
@@ -1282,7 +1282,7 @@ begin
       begin
         Count := GetResDistribution(I)-fResourceDeliveryCount[I];
         gHands[fOwner].Deliveries.Queue.AddDemand(
-          Self, nil, gRes.HouseDat[fHouseType].ResInput[I], Count, dt_Once, diNorm);
+          Self, nil, gRes.HouseDat[fHouseType].ResInput[I], Count, dtOnce, diNorm);
 
         inc(fResourceDeliveryCount[I], Count);
       end;

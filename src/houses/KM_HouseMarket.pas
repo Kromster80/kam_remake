@@ -48,7 +48,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderPool, KM_Resource, KM_Sound, KM_ResSound, KM_ScriptingEvents, KM_Hand;
+  KM_Deliveries, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_Sound, KM_ResSound, KM_ScriptingEvents, KM_Hand;
 
 
 { TKMHouseMarket }
@@ -141,7 +141,7 @@ begin
     if ResRequired > 0 then
     begin
       inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
-      gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, diNorm);
+      gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dtOnce, diNorm);
     end;
     AttemptExchange;
   end
@@ -288,7 +288,7 @@ begin
   if (ResRequired > 0) and (OrdersAllowed > 0) then
   begin
     inc(fMarketDeliveryCount[fResFrom], Min(ResRequired,OrdersAllowed));
-    gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, diNorm)
+    gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dtOnce, diNorm)
   end
   else
     //There are too many resources ordered, so remove as many as we can from the delivery list (some will be being performed)

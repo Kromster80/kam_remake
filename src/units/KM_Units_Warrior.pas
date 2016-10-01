@@ -96,7 +96,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
+  KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse, KM_Deliveries,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResUnits, KM_Hand,
   KM_ResWares, KM_Game, KM_ResHouses;
@@ -183,7 +183,7 @@ procedure TKMUnitWarrior.OrderFood;
 begin
   if (fCondition < (UNIT_MAX_CONDITION * TROOPS_FEED_MAX)) and not fRequestedFood then
   begin
-    gHands[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, diHigh2);
+    gHands[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dtOnce, diHigh2);
     fRequestedFood := True;
   end;
 end;
