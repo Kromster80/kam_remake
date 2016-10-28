@@ -16,7 +16,9 @@ type
     fTrainProgress: Byte; //Was it 150 steps in KaM?
     fQueue: array [0..5] of TUnitType;
     function GetQueue(aIndex: Integer): TUnitType; //Used in UI. First item is the unit currently being trained, 1..5 are the actual queue
+    procedure CreateUnit; //This should Create new unit and start training cycle
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
+    procedure CancelTrainingUnit;
   public
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -24,6 +26,7 @@ type
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
+    procedure ChangeUnitTrainPriority(aUnitType: TUnitType; aOldPriority, aNewPriority: Byte); //Change unit priority in queue
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
     function GetTrainingProgress: Single;
@@ -115,6 +118,48 @@ begin
 end;
 
 
+procedure TKMHouseSchool.CancelTrainingUnit;
+begin
+  SetState(hst_Idle);
+  if fUnitWip <> nil then
+  begin //Make sure unit started training
+    TKMUnit(fUnitWip).CloseUnit(False); //Don't remove tile usage, we are inside the school
+    fHideOneGold := False;
+  end;
+  fUnitWip := nil;
+  fQueue[0] := ut_None; //Removed the in training unit
+end;
+
+//Change unit priority in training queue
+procedure TKMHouseSchool.ChangeUnitTrainPriority(aUnitType: TUnitType; aOldPriority, aNewPriority: Byte);
+var tmpUnit: TUnitType;
+  I: Byte;
+begin
+  Assert((aNewPriority >= 0) and (aOldPriority <= 5));
+  // Do not cancel current training process, if unit type is the same.
+  if (aNewPriority = 0) and (fQueue[aOldPriority] = fQueue[0]) then
+    aNewPriority := 1;
+
+  if (fQueue[aOldPriority] = ut_None) or (aOldPriority = aNewPriority) then Exit;
+
+  Assert(aNewPriority < aOldPriority);
+
+  tmpUnit := fQueue[aOldPriority];
+  for I := aOldPriority downto max(aNewPriority, 0)+1 do
+  begin
+    fQueue[I] := fQueue[I-1];
+  end;
+
+  if (aNewPriority = 0) then
+    CancelTrainingUnit;
+
+  fQueue[aNewPriority] := tmpUnit;
+
+  if (aNewPriority = 0) then
+    CreateUnit;
+end;
+
+
 //DoCancelTraining and remove untrained unit
 procedure TKMHouseSchool.RemUnitFromQueue(aID: Byte);
 var
@@ -124,14 +169,7 @@ begin
 
   if aID = 0 then
   begin
-    SetState(hst_Idle);
-    if fUnitWip <> nil then
-    begin //Make sure unit started training
-      TKMUnit(fUnitWip).CloseUnit(False); //Don't remove tile usage, we are inside the school
-      fHideOneGold := False;
-    end;
-    fUnitWip := nil;
-    fQueue[0] := ut_None; //Removed the in training unit
+    CancelTrainingUnit;
     StartTrainingUnit; //Start on the next unit in the queue
   end
   else
@@ -143,6 +181,18 @@ begin
 end;
 
 
+procedure TKMHouseSchool.CreateUnit;
+begin
+  fHideOneGold := true;
+
+  //Create the Unit
+  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], GetEntrance);
+  TKMUnit(fUnitWip).TrainInHouse(Self); //Let the unit start the training task
+
+  WorkAnimStep := 0;
+end;
+
+
 procedure TKMHouseSchool.StartTrainingUnit;
 var I: Integer;
 begin
@@ -150,16 +200,11 @@ begin
   if fQueue[1] = ut_None then exit; //If there is a unit waiting to be trained
   if CheckResIn(wt_Gold) = 0 then exit; //There must be enough gold to perform training
 
-  fHideOneGold := true;
   for I := 0 to High(fQueue) - 1 do
     fQueue[I] := fQueue[I+1]; //Shift by one
   fQueue[High(fQueue)] := ut_None; //Set the last one empty
 
-  //Create the Unit
-  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], GetEntrance);
-  TKMUnit(fUnitWip).TrainInHouse(Self); //Let the unit start the training task
-
-  WorkAnimStep := 0;
+  CreateUnit;
 end;
 
 
@@ -218,7 +263,7 @@ end;
 
 function TKMHouseSchool.QueueCount: Byte;
 var
-  I: Integer;
+  I: Byte;
 begin
   Result := 0;
   for I := 0 to High(fQueue) do
