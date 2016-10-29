@@ -62,12 +62,10 @@ type
     gic_HouseWoodcutterMode,      //Switch the woodcutter mode
     gic_HouseStoreAcceptFlag,     //Control wares delivery to store
     gic_HouseSchoolTrain,         //Place an order to train citizen
-    gic_HouseSchoolTrainChPriority, //Change school train order (priority)
     gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
     gic_HouseBarracksEquip,       //Place an order to train warrior
     gic_HouseBarracksRally,       //Set the rally point for the barracks
     gic_HouseRemoveTrain,         //Remove unit being trained from School
-    gic_HouseWoodcuttersCutting,       //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
     gic_RatioChange,
@@ -155,7 +153,6 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: TWareType); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aWoodcutterMode: TWoodcutterMode); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aCount:byte); overload;
-    procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aOldPriority, aNewPriority: Byte); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint); overload;
 
@@ -311,9 +308,9 @@ begin
         Exit;
     end;
     if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle,
-      gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseBarracksRally, gic_HouseWoodcuttersCutting,
+      gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseBarracksRally,
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
-      gic_HouseSchoolTrain, gic_HouseSchoolTrainChPriority, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
+      gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
       SrcHouse := gHands.GetHouseByUID(Params[1]);
       if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
@@ -368,9 +365,7 @@ begin
       gic_HouseBarracksEquip:     TKMHouseBarracks(SrcHouse).Equip(TUnitType(Params[2]), Params[3]);
       gic_HouseBarracksRally:     TKMHouseBarracks(SrcHouse).RallyPoint := KMPoint(Params[2], Params[3]);
       gic_HouseSchoolTrain:       TKMHouseSchool(SrcHouse).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
-      gic_HouseSchoolTrainChPriority: TKMHouseSchool(SrcHouse).ChangeUnitTrainPriority(TUnitType(Params[2]), Params[3], Params[4]);
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
-      gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
       gic_RatioChange:            begin
                                     P.Stats.Ratio[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
@@ -537,13 +532,6 @@ begin
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aUnitType), aCount]));
 end;
 
-//UnitType parameter ignored...
-procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aOldPriority, aNewPriority: Byte);
-begin
-  Assert(aCommandType = gic_HouseSchoolTrainChPriority);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aUnitType), aOldPriority, aNewPriority]));
-end;
-
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem:integer);
 begin
@@ -555,8 +543,8 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint);
 begin
-  Assert((aCommandType = gic_HouseBarracksRally) or (aCommandType = gic_HouseWoodcuttersCutting));
-  Assert((aHouse is TKMHouseBarracks) or (aHouse is TKMHouseWoodcutters));
+  Assert(aCommandType = gic_HouseBarracksRally);
+  Assert(aHouse is TKMHouseBarracks);
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aLoc.X, aLoc.Y]));
 end;
 
@@ -723,3 +711,4 @@ end;
 
 
 end.
+
