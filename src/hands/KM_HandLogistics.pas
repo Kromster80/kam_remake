@@ -1,4 +1,4 @@
-unit KM_Deliveries;
+unit KM_HandLogistics;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -59,7 +59,7 @@ type
   //e.g. with no houses signals it can sleep till first on. At any case - not more frequent than 1/tick
   //TKMDeliveryList = class; //Serfs, Houses/Warriors/Workers
 
-  TKMDeliverQueue = class
+  TKMDeliveries = class
   private
     fOfferCount: Integer;
     fOffer: array of TKMDeliveryOffer;
@@ -104,9 +104,9 @@ type
     procedure ExportToFile(aFileName: UnicodeString);
   end;
 
-  TKMDeliveries = class
+  TKMHandLogistics = class
   private
-    fQueue: TKMDeliverQueue;
+    fQueue: TKMDeliveries;
 
     fSerfCount: Integer;
     fSerfs: array of record //Not sure what else props we planned to add here
@@ -121,7 +121,7 @@ type
     destructor Destroy; override;
 
     procedure AddSerf(aSerf: TKMUnitSerf);
-    property Queue: TKMDeliverQueue read fQueue;
+    property Queue: TKMDeliveries read fQueue;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -140,22 +140,22 @@ const
   LENGTH_INC = 32; //Increment array lengths by this value
 
 
-{ TKMDeliveries }
-constructor TKMDeliveries.Create;
+{ TKMHandLogistics }
+constructor TKMHandLogistics.Create;
 begin
   inherited;
-  fQueue := TKMDeliverQueue.Create;
+  fQueue := TKMDeliveries.Create;
 end;
 
 
-destructor TKMDeliveries.Destroy;
+destructor TKMHandLogistics.Destroy;
 begin
   fQueue.Free;
   inherited;
 end;
 
 
-procedure TKMDeliveries.Save(SaveStream: TKMemoryStream);
+procedure TKMHandLogistics.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
   SaveStream.WriteA('SerfList');
@@ -173,7 +173,7 @@ begin
 end;
 
 
-procedure TKMDeliveries.Load(LoadStream: TKMemoryStream);
+procedure TKMHandLogistics.Load(LoadStream: TKMemoryStream);
 var I: Integer;
 begin
   LoadStream.ReadAssert('SerfList');
@@ -187,7 +187,7 @@ begin
 end;
 
 
-procedure TKMDeliveries.SyncLoad;
+procedure TKMHandLogistics.SyncLoad;
 var
   I: Integer;
   U: TKMUnit;
@@ -203,7 +203,7 @@ end;
 
 
 //Add the Serf to the List
-procedure TKMDeliveries.AddSerf(aSerf: TKMUnitSerf);
+procedure TKMHandLogistics.AddSerf(aSerf: TKMUnitSerf);
 begin
   if fSerfCount >= Length(fSerfs) then
     SetLength(fSerfs, fSerfCount + LENGTH_INC);
@@ -214,7 +214,7 @@ end;
 
 
 //Remove died Serf from the List
-procedure TKMDeliveries.RemSerf(aIndex: Integer);
+procedure TKMHandLogistics.RemSerf(aIndex: Integer);
 begin
   gHands.CleanUpUnitPointer(TKMUnit(fSerfs[aIndex].Serf));
 
@@ -226,7 +226,7 @@ begin
 end;
 
 
-function TKMDeliveries.GetIdleSerfCount: Integer;
+function TKMHandLogistics.GetIdleSerfCount: Integer;
 var I: Integer;
 begin
   Result := 0;
@@ -237,7 +237,7 @@ end;
 
 
 //Remove dead serfs
-procedure TKMDeliveries.RemoveExtraSerfs;
+procedure TKMHandLogistics.RemoveExtraSerfs;
 var
   I: Integer;
 begin
@@ -247,7 +247,7 @@ begin
 end;
 
 
-procedure TKMDeliveries.UpdateState;
+procedure TKMHandLogistics.UpdateState;
 
   function AnySerfCanDoDelivery(iO,iD: Integer): Boolean;
   var I: Integer;
@@ -334,11 +334,11 @@ begin
 end;
 
 
-{ TKMDeliverQueue }
+{ TKMDeliveries }
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
+procedure TKMDeliveries.AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
 var
   I, K: Integer;
 begin
@@ -390,7 +390,7 @@ end;
 
 //Remove Offer from the list. E.G on house demolish
 //List is stored without sorting so we have to parse it to find that entry..
-procedure TKMDeliverQueue.RemAllOffers(aHouse: TKMHouse);
+procedure TKMDeliveries.RemAllOffers(aHouse: TKMHouse);
 var i:integer;
 begin
   //We need to parse whole list, never knowing how many offers the house had
@@ -407,7 +407,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Cardinal);
+procedure TKMDeliveries.RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Cardinal);
 var
   I: Integer;
 begin
@@ -434,7 +434,7 @@ end;
 
 //Remove Demand from the list
 // List is stored without sorting so we parse it to find all entries..
-procedure TKMDeliverQueue.RemDemand(aHouse: TKMHouse);
+procedure TKMDeliveries.RemDemand(aHouse: TKMHouse);
 var
   i:integer;
 begin
@@ -454,7 +454,7 @@ end;
 
 //Remove Demand from the list
 // List is stored without sorting so we parse it to find all entries..
-procedure TKMDeliverQueue.RemDemand(aUnit:TKMUnit);
+procedure TKMDeliveries.RemDemand(aUnit:TKMUnit);
 var
   i:integer;
 begin
@@ -473,7 +473,7 @@ end;
 
 
 //Attempt to remove aCount demands from this house and report the number (only ones that are not yet being performed)
-function TKMDeliverQueue.TryRemoveDemand(aHouse:TKMHouse; aResource:TWareType; aCount:word):word;
+function TKMDeliveries.TryRemoveDemand(aHouse:TKMHouse; aResource:TWareType; aCount:word):word;
 var i:integer;
 begin
   Result := 0;
@@ -492,7 +492,7 @@ end;
 
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
-procedure TKMDeliverQueue.AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TWareType; aCount:byte; aType: TKMDemandType; aImp: TKMDemandImportance);
+procedure TKMDeliveries.AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TWareType; aCount:byte; aType: TKMDemandType; aImp: TKMDemandImportance);
 var i,k,j:integer;
 begin
   Assert(aResource <> wt_None, 'Demanding rt_None');
@@ -532,7 +532,7 @@ end;
 
 
 //IgnoreOffer means we don't check whether offer was already taken or deleted (used after offer was already claimed)
-function TKMDeliverQueue.ValidDelivery(iO,iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
+function TKMDeliveries.ValidDelivery(iO,iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
 var
   I: Integer;
   B: TKMHouseBarracks;
@@ -611,7 +611,7 @@ end;
 
 
 // Delivery is only permitted if the serf can access the From house.
-function TKMDeliverQueue.SerfCanDoDelivery(iO,iD: Integer; aSerf: TKMUnitSerf): Boolean;
+function TKMDeliveries.SerfCanDoDelivery(iO,iD: Integer; aSerf: TKMUnitSerf): Boolean;
 var
   LocA, LocB: TKMPoint;
 begin
@@ -626,14 +626,14 @@ begin
 end;
 
 
-function TKMDeliverQueue.PermitDelivery(iO,iD: Integer; aSerf: TKMUnitSerf): Boolean;
+function TKMDeliveries.PermitDelivery(iO,iD: Integer; aSerf: TKMUnitSerf): Boolean;
 begin
   Result := ValidDelivery(iO, iD) and SerfCanDoDelivery(iO, iD, aSerf);
 end;
 
 
 //Get the total number of possible deliveries with current Offers and Demands
-function TKMDeliverQueue.GetAvailableDeliveriesCount: Integer;
+function TKMDeliveries.GetAvailableDeliveriesCount: Integer;
 var
   iD,iO:integer;
   OffersTaken:Cardinal;
@@ -669,7 +669,7 @@ begin
 end;
 
 
-function TKMDeliverQueue.CalculateBid(iO,iD:Integer; aSerf: TKMUnitSerf):Single;
+function TKMDeliveries.CalculateBid(iO,iD:Integer; aSerf: TKMUnitSerf):Single;
 begin
   //Basic Bid is length of route
   if fDemand[iD].Loc_House <> nil then
@@ -736,7 +736,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
+procedure TKMDeliveries.CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
 var
   iD, iO, BestD, OldD: Integer;
   Bid, BestBid: Single;
@@ -812,7 +812,7 @@ end;
 
 //Should issue a job based on requesters location and job importance
 //Serf may ask for a job from within a house after completing previous delivery
-procedure TKMDeliverQueue.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil);
+procedure TKMDeliveries.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil);
 var
   iD, iO, BestD, BestO: Integer;
   Bid, BestBid: Single;
@@ -848,7 +848,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.AssignDelivery(iO,iD:Integer; aSerf:TKMUnitSerf);
+procedure TKMDeliveries.AssignDelivery(iO,iD:Integer; aSerf:TKMUnitSerf);
 var i:Integer;
 begin
   //Find a place where Delivery will be written to after Offer-Demand pair is found
@@ -877,7 +877,7 @@ end;
 
 
 //Resource has been taken from Offer
-procedure TKMDeliverQueue.TakenOffer(aID: Integer);
+procedure TKMDeliveries.TakenOffer(aID: Integer);
 var iO: Integer;
 begin
   if WRITE_DELIVERY_LOG then gLog.AddTime('Taken offer from delivery ID', aID);
@@ -897,7 +897,7 @@ end;
 
 
 //Resource has been delivered to Demand
-procedure TKMDeliverQueue.GaveDemand(aID:integer);
+procedure TKMDeliveries.GaveDemand(aID:integer);
 var iD:integer;
 begin
   if WRITE_DELIVERY_LOG then gLog.AddTime('Gave demand from delivery ID', aID);
@@ -913,7 +913,7 @@ end;
 
 
 //AbandonDelivery
-procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
+procedure TKMDeliveries.AbandonDelivery(aID:integer);
 begin
   if WRITE_DELIVERY_LOG then gLog.AddTime('Abandoned delivery ID', aID);
 
@@ -938,7 +938,7 @@ end;
 
 
 //Job successfully done and we ommit it
-procedure TKMDeliverQueue.CloseDelivery(aID:integer);
+procedure TKMDeliveries.CloseDelivery(aID:integer);
 begin
   if WRITE_DELIVERY_LOG then gLog.AddTime('Closed delivery ID', aID);
 
@@ -948,7 +948,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.CloseDemand(aID:integer);
+procedure TKMDeliveries.CloseDemand(aID:integer);
 begin
   Assert(fDemand[aID].BeingPerformed = 0);
   fDemand[aID].Ware := wt_None;
@@ -960,7 +960,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.CloseOffer(aID:integer);
+procedure TKMDeliveries.CloseOffer(aID:integer);
 begin
   assert(fOffer[aID].BeingPerformed = 0);
   fOffer[aID].IsDeleted := false;
@@ -970,7 +970,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
+procedure TKMDeliveries.Save(SaveStream:TKMemoryStream);
 var
   i: Integer;
 begin
@@ -1011,7 +1011,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.Load(LoadStream:TKMemoryStream);
+procedure TKMDeliveries.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   LoadStream.ReadAssert('Deliveries');
@@ -1051,7 +1051,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.SyncLoad;
+procedure TKMDeliveries.SyncLoad;
 var i:integer;
 begin
   for i:=1 to fOfferCount do
@@ -1066,7 +1066,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.ExportToFile(aFileName: UnicodeString);
+procedure TKMDeliveries.ExportToFile(aFileName: UnicodeString);
 var
   I: Integer;
   SL: TStringList;
