@@ -368,51 +368,24 @@ end;
 procedure TRenderPool.PaintRallyPoints(aPass: Byte);
 var
   B: TKMHouseBarracks;
-  C: TKMHouseWoodcutters;
   P: TKMPointF;
-  PcPrev, PcNext: TKMPointF;
-  i: Integer;
 begin
   if gGame.IsMapEditor then Exit; // Don't render rally point in map editor
-  if not (gMySpectator.Selected is TKMHouseBarracks) and not (gMySpectator.Selected is TKMHouseWoodcutters) then
-    Exit;
-
-  if gMySpectator.Selected is TKMHouseBarracks then
+  if not (gMySpectator.Selected is TKMHouseBarracks) then Exit;
+  B := TKMHouseBarracks(gMySpectator.Selected);
+  P := KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5);
+  if B.IsRallyPointSet then
   begin
-    B := TKMHouseBarracks(gMySpectator.Selected);
-    P := KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5);
-    if B.IsRallyPointSet then
-    begin
-      case aPass of
-        0: begin
-             AddAlert(P, 249, gHands[B.Owner].FlagColor);
-             gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
-           end;
-        1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-             fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
-      end;
-
-    end;
-  end
-  else
-    if gMySpectator.Selected is TKMHouseWoodcutters then
-    begin
-      C := TKMHouseWoodcutters(gMySpectator.Selected);
-      P := KMPointF(C.CuttingPoint.X - 0.5, C.CuttingPoint.Y - 0.5);
-      if C.IsCuttingPointSet then
-      begin
-        case aPass of
-          0: begin
-               AddAlert(P, 249, gHands[C.Owner].FlagColor);
-               gRenderAux.LineOnTerrain(C.GetEntrance.X - 0.5, C.GetEntrance.Y - 0.5, P.X, P.Y, gHands[C.Owner].FlagColor, $F0F0, False);
-               gRenderAux.CircleOnTerrain(P.X, P.Y, gRes.UnitDat[ut_Woodcutter].MiningRange, gHands[C.Owner].FlagColor - $CC000000, gHands[C.Owner].FlagColor);
-             end;
-          1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-               fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[C.Owner].FlagColor);
-        end;
-      end;
+    case aPass of
+      0: begin
+           AddAlert(P, 249, gHands[B.Owner].FlagColor);
+           gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
+         end;
+      1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
+           fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
     end;
 
+  end;
 end;
 
 

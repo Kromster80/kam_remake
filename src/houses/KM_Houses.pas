@@ -206,12 +206,10 @@ type
     fWoodcutterMode: TWoodcutterMode;
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
   public
-    CuttingPoint: TKMPoint;
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
-    function IsCuttingPointSet: Boolean;
   end;
 
 
@@ -324,6 +322,7 @@ begin
   LoadStream.Read(ResourceDepletedMsgIssued);
   LoadStream.Read(DoorwayUse);
 end;
+
 
 procedure TKMHouse.SyncLoad;
 begin
@@ -459,7 +458,6 @@ begin
   if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
     fPosition.X := aPos.X - gRes.HouseDat[fHouseType].EntranceOffsetX;
-
     fPosition.Y := aPos.Y;
   end;
   gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
@@ -1605,15 +1603,13 @@ constructor TKMHouseWoodcutters.Create(aUID: Integer; aHouseType: THouseType; Po
 begin
   inherited;
   WoodcutterMode := wcm_ChopAndPlant;
-  CuttingPoint := KMPointBelow(GetEntrance);
 end;
+
 
 constructor TKMHouseWoodcutters.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fWoodcutterMode, SizeOf(fWoodcutterMode));
-  CuttingPoint := KMPointBelow(GetEntrance);
-  LoadStream.Read(CuttingPoint);
 end;
 
 
@@ -1621,12 +1617,6 @@ procedure TKMHouseWoodcutters.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fWoodcutterMode, SizeOf(fWoodcutterMode));
-  SaveStream.Write(CuttingPoint);
-end;
-
-function TKMHouseWoodcutters.IsCuttingPointSet: Boolean;
-begin
-  Result := not KMSamePoint(CuttingPoint, KMPointBelow(GetEntrance));
 end;
 
 

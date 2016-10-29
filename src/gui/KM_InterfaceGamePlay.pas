@@ -634,17 +634,11 @@ begin
       gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
     end;
   end;
-  if ((gMySpectator.Selected is TKMHouseBarracks) or (gMySpectator.Selected is TKMHouseWoodcutters)) and not fPlacingBeacon
+  if (gMySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
   and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
     if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(gMySpectator.Selected).GetEntrance), Loc, tpWalk, 0) then
-    begin
-      if gMySpectator.Selected is TKMHouseBarracks then
-        gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), Loc)
-      else
-        if gMySpectator.Selected is TKMHouseWoodcutters then
-        gGame.GameInputProcess.CmdHouse(gic_HouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), Loc);
-    end
+      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), Loc)
     else
       gSoundPlayer.Play(sfx_CantPlace, Loc, False, 4);
   end;
@@ -3172,17 +3166,11 @@ begin
           Exit; // Don't order troops too
         end;
 
-        if ((gMySpectator.Selected is TKMHouseBarracks) or (gMySpectator.Selected is TKMHouseWoodcutters)) and not fPlacingBeacon
+        if (gMySpectator.Selected is TKMHouseBarracks) and not fPlacingBeacon
         and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
         begin
           if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(gMySpectator.Selected).GetEntrance), P, tpWalk, 0) then
-          begin
-            if gMySpectator.Selected is TKMHouseBarracks then
-              gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), P)
-            else
-              if gMySpectator.Selected is TKMHouseWoodcutters then
-                gGame.GameInputProcess.CmdHouse(gic_HouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), P);
-          end
+            gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), P)
           else
             gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
           Exit;
