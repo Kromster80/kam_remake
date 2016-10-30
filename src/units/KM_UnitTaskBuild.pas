@@ -119,7 +119,7 @@ type
 
 implementation
 uses
-  KM_Deliveries, KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
+  KM_HandLogistics, KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
 
 
 { TTaskBuildRoad }

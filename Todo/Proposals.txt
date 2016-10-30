@@ -69,7 +69,6 @@ Once an agreement is made or implementation details are made - item is moved to 
 
         L       ScriptValidator: Show all (or just 5-10?) errors/mistakes at once to make fixing them easier
 		Priority button to focus builders attention on a house
-		Select area to work in for woodcutters
 
 
 REJECTED:

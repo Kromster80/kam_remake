@@ -204,19 +204,22 @@ type
   TKMHouseWoodcutters = class(TKMHouse)
   private
     fWoodcutterMode: TWoodcutterMode;
+    fCuttingPoint: TKMPoint;
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
+    procedure SetCuttingPoint(Value: TKMPoint);
   public
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
+    function IsCuttingPointSet: Boolean;
+    property CuttingPoint: TKMPoint read fCuttingPoint write SetCuttingPoint;
   end;
-
 
 implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
-  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_Deliveries,
+  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
   KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand;
 
 
@@ -1603,6 +1606,7 @@ constructor TKMHouseWoodcutters.Create(aUID: Integer; aHouseType: THouseType; Po
 begin
   inherited;
   WoodcutterMode := wcm_ChopAndPlant;
+  CuttingPoint := KMPointBelow(GetEntrance);
 end;
 
 
@@ -1610,6 +1614,7 @@ constructor TKMHouseWoodcutters.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fWoodcutterMode, SizeOf(fWoodcutterMode));
+  LoadStream.Read(fCuttingPoint);
 end;
 
 
@@ -1617,8 +1622,27 @@ procedure TKMHouseWoodcutters.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fWoodcutterMode, SizeOf(fWoodcutterMode));
+  SaveStream.Write(fCuttingPoint);
 end;
 
+function TKMHouseWoodcutters.IsCuttingPointSet: Boolean;
+begin
+  Result := not KMSamePoint(CuttingPoint, KMPointBelow(GetEntrance));
+end;
+
+procedure TKMHouseWoodcutters.SetCuttingPoint(Value: TKMPoint);
+var
+  EntrancePoint: TKMPoint;
+begin
+  EntrancePoint := GetEntrance;
+  if KMDistanceSqr(EntrancePoint, Value) > Sqr(MAX_WOODCUTTER_CUT_PNT_DISTANCE) then
+  begin
+    Value := KMNormVector(KMPoint(Value.X - EntrancePoint.X, Value.Y - EntrancePoint.Y), MAX_WOODCUTTER_CUT_PNT_DISTANCE);
+    fCuttingPoint := KMPoint(EntrancePoint.X + Value.X, EntrancePoint.Y + Value.Y);
+  end
+  else
+    fCuttingPoint := Value;
+end;
 
 procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
 begin
@@ -1627,7 +1651,6 @@ begin
   if fWoodcutterMode = wcm_ChopAndPlant then
     ResourceDepletedMsgIssued := False;
 end;
-
 
 { THouseAction }
 constructor THouseAction.Create(aHouse: TKMHouse; aHouseState: THouseState);

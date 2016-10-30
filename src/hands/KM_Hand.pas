@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_AIArmyEvaluation, KM_BuildList, KM_Deliveries, KM_FogOfWar, KM_MessageLog,
+  KM_AIArmyEvaluation, KM_BuildList, KM_HandLogistics, KM_FogOfWar, KM_MessageLog,
   KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats, KM_HandLocks,
   KM_Units, KM_UnitsCollection, KM_Units_Warrior, KM_UnitGroups, KM_ResHouses;
 
@@ -43,7 +43,7 @@ type
     fAI: TKMHandAI;
     fArmyEval: TKMArmyEvaluation;
     fBuildList: TKMBuildList; //Not the best name for buildingManagement
-    fDeliveries: TKMDeliveries;
+    fDeliveries: TKMHandLogistics;
     fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
     fHouses: TKMHousesCollection;
     fLocks: TKMHandLocks;
@@ -82,7 +82,7 @@ type
 
     property AI: TKMHandAI read fAI;
     property BuildList: TKMBuildList read fBuildList;
-    property Deliveries: TKMDeliveries read fDeliveries;
+    property Deliveries: TKMHandLogistics read fDeliveries;
     property Houses: TKMHousesCollection read fHouses;
     property Locks: TKMHandLocks read fLocks;
     property Stats: TKMHandStats read fStats;
@@ -255,7 +255,7 @@ begin
   fStats        := TKMHandStats.Create;
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
-  fDeliveries   := TKMDeliveries.Create;
+  fDeliveries   := TKMHandLogistics.Create;
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(aHandIndex);
   fUnitGroups   := TKMUnitGroups.Create;

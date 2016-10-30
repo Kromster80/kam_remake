@@ -147,6 +147,9 @@ const
   MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
+  MAX_WOODCUTTER_CUT_PNT_DISTANCE = 8; //Max distance for woodcutter new cutting point from his house
+
+const
   MAX_HANDS            = 12; //Maximum players (human or AI) per map
   MAX_LOBBY_PLAYERS    = 8;  //Maximum number of players (not spectators) allowed in the lobby. Map can have additional AI locations up to MAX_HANDS (for co-op).
   MAX_LOBBY_SPECTATORS = 2;  //Slots available in lobby. Additional slots can be used by spectators

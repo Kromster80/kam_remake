@@ -134,7 +134,6 @@
 			<DCCReference Include="src\KM_Controls.pas"/>
 			<DCCReference Include="src\KM_DedicatedServer.pas"/>
 			<DCCReference Include="src\KM_Defaults.pas"/>
-			<DCCReference Include="src\KM_Deliveries.pas"/>
 			<DCCReference Include="src\KM_FileIO.pas"/>
 			<DCCReference Include="src\KM_FogOfWar.pas"/>
 			<DCCReference Include="src\KM_Game.pas"/>
@@ -207,6 +206,7 @@
 			<DCCReference Include="src\hands\KM_Hand.pas"/>
 			<DCCReference Include="src\hands\KM_HandsCollection.pas"/>
 			<DCCReference Include="src\hands\KM_HandLocks.pas"/>
+			<DCCReference Include="src\hands\KM_HandLogistics.pas"/>
 			<DCCReference Include="src\hands\KM_HandSpectator.pas"/>
 			<DCCReference Include="src\hands\KM_HandStats.pas"/>
 			<DCCReference Include="src\houses\KM_HouseBarracks.pas"/>

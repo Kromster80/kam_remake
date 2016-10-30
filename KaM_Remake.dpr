@@ -38,7 +38,6 @@ uses
   KM_Controls in 'src\KM_Controls.pas',
   KM_DedicatedServer in 'src\KM_DedicatedServer.pas',
   KM_Defaults in 'src\KM_Defaults.pas',
-  KM_Deliveries in 'src\KM_Deliveries.pas',
   {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'src\KM_Exceptions.pas',{$ENDIF}
   KM_FileIO in 'src\KM_FileIO.pas',
   KM_FogOfWar in 'src\KM_FogOfWar.pas',
@@ -116,6 +115,7 @@ uses
   KM_Hand in 'src\hands\KM_Hand.pas',
   KM_HandsCollection in 'src\hands\KM_HandsCollection.pas',
   KM_HandLocks in 'src\hands\KM_HandLocks.pas',
+  KM_HandLogistics in 'src\hands\KM_HandLogistics.pas',
   KM_HandSpectator in 'src\hands\KM_HandSpectator.pas',
   KM_HandStats in 'src\hands\KM_HandStats.pas',
 
