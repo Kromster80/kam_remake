@@ -840,9 +840,9 @@ begin
       QueueCount := School.QueueCount;
       gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 1);
       if (ssShift in Shift) then
-        gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChPriority, School, ut_None, QueueCount, 0)
+        gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChOrder, School, QueueCount, 0)
       else if ssCtrl in Shift then
-        gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChPriority, School, ut_None, QueueCount, min(QueueCount,1));
+        gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChOrder, School, QueueCount, min(QueueCount,1));
     end;
   end;
 
@@ -904,9 +904,9 @@ begin
     for I := School.QueueLength - 1 downto id do
       gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, I)
   else if (ssShift in Shift) then
-    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChPriority, School, ut_None, id, 0)
+    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChOrder, School, id, 0)
   else if ssCtrl in Shift then
-    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChPriority, School, ut_None, id, min(id,1))
+    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChOrder, School, id, min(id,1))
   else
     gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, id);
 

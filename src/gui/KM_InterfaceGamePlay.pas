@@ -643,7 +643,7 @@ begin
         gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), Loc)
       else
         if gMySpectator.Selected is TKMHouseWoodcutters then
-        gGame.GameInputProcess.CmdHouse(gic_HouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), Loc);
+          gGame.GameInputProcess.CmdHouse(gic_HouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), Loc);
     end
     else
       gSoundPlayer.Play(sfx_CantPlace, Loc, False, 4);
@@ -3486,3 +3486,4 @@ end;
 
 
 end.
+

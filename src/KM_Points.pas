@@ -37,6 +37,7 @@ type
   function KMPointX1Y1(P:TKMPoint): TKMPoint;
   function KMPointBelow(P: TKMPoint): TKMPoint;
   function KMPointAbove(P: TKMPoint): TKMPoint;
+  function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;
 
   function KMPointRound(const P: TKMPointF): TKMPoint;
   function KMSamePoint(P1,P2: TKMPoint): Boolean; overload;
@@ -168,6 +169,11 @@ begin
   Result.Y := P.Y - 1;
 end;
 
+function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;
+begin
+  Result.X := Round(R*P.X / sqrt(sqr(P.X) + sqr(P.Y)));
+  Result.Y := Round(R*P.Y / sqrt(sqr(P.X) + sqr(P.Y)));
+end;
 
 function KMPointRound(const P: TKMPointF): TKMPoint;
 begin

@@ -26,7 +26,7 @@ type
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
-    procedure ChangeUnitTrainPriority(aUnitType: TUnitType; aOldPriority, aNewPriority: Byte); //Change unit priority in queue
+    procedure ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer); //Change unit order in queue
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
     function GetTrainingProgress: Single;
@@ -131,31 +131,34 @@ begin
 end;
 
 //Change unit priority in training queue
-procedure TKMHouseSchool.ChangeUnitTrainPriority(aUnitType: TUnitType; aOldPriority, aNewPriority: Byte);
+procedure TKMHouseSchool.ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer);
 var tmpUnit: TUnitType;
   I: Byte;
 begin
-  Assert((aNewPriority >= 0) and (aOldPriority <= 5));
+  Assert((aNewPosition >= 0) and (aOldPosition <= 5));
+
+  if aOldPosition = 0 then Exit;
+
   // Do not cancel current training process, if unit type is the same.
-  if (aNewPriority = 0) and (fQueue[aOldPriority] = fQueue[0]) then
-    aNewPriority := 1;
+  if (aNewPosition = 0) and (fQueue[aOldPosition] = fQueue[0]) then
+    aNewPosition := 1;
 
-  if (fQueue[aOldPriority] = ut_None) or (aOldPriority = aNewPriority) then Exit;
+  if (fQueue[aOldPosition] = ut_None) or (aOldPosition = aNewPosition) then Exit;
 
-  Assert(aNewPriority < aOldPriority);
+  Assert(aNewPosition < aOldPosition);
 
-  tmpUnit := fQueue[aOldPriority];
-  for I := aOldPriority downto max(aNewPriority, 0)+1 do
+  tmpUnit := fQueue[aOldPosition];
+  for I := aOldPosition downto max(aNewPosition, 0)+1 do
   begin
     fQueue[I] := fQueue[I-1];
   end;
 
-  if (aNewPriority = 0) then
+  if (aNewPosition = 0) then
     CancelTrainingUnit;
 
-  fQueue[aNewPriority] := tmpUnit;
+  fQueue[aNewPosition] := tmpUnit;
 
-  if (aNewPriority = 0) then
+  if (aNewPosition = 0) then
     CreateUnit;
 end;
 

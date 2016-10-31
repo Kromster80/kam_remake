@@ -238,7 +238,7 @@ begin
     ut_Woodcutter:    if aHome = ht_Woodcutters then
                       begin
                         if TKMHouseWoodcutters(aUnit.GetHome).IsCuttingPointSet then
-                          aLoc := KMPointBelow(TKMHouseWoodcutters(aUnit.GetHome).CuttingPoint);
+                          aLoc := TKMHouseWoodcutters(aUnit.GetHome).CuttingPoint;
                         fIssued := ChooseTree(aLoc, KMPoint(0,0), gRes.UnitDat[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
                         if fIssued then
                         begin

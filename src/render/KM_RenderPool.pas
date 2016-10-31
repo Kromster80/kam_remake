@@ -370,8 +370,6 @@ var
   B: TKMHouseBarracks;
   C: TKMHouseWoodcutters;
   P: TKMPointF;
-  PcPrev, PcNext: TKMPointF;
-  i: Integer;
 begin
   if gGame.IsMapEditor then Exit; // Don't render rally point in map editor
   if not (gMySpectator.Selected is TKMHouseBarracks) and not (gMySpectator.Selected is TKMHouseWoodcutters) then
@@ -391,28 +389,25 @@ begin
         1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
              fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
       end;
-
     end;
   end
   else
     if gMySpectator.Selected is TKMHouseWoodcutters then
     begin
       C := TKMHouseWoodcutters(gMySpectator.Selected);
-      P := KMPointF(C.CuttingPoint.X - 0.5, C.CuttingPoint.Y - 0.5);
       if C.IsCuttingPointSet then
       begin
+        P := KMPointF(C.CuttingPoint.X - 0.5, C.CuttingPoint.Y - 0.5);
         case aPass of
           0: begin
-               AddAlert(P, 249, gHands[C.Owner].FlagColor);
+               AddAlert(P, 660, gHands[C.Owner].FlagColor);
                gRenderAux.LineOnTerrain(C.GetEntrance.X - 0.5, C.GetEntrance.Y - 0.5, P.X, P.Y, gHands[C.Owner].FlagColor, $F0F0, False);
-               gRenderAux.CircleOnTerrain(P.X, P.Y, gRes.UnitDat[ut_Woodcutter].MiningRange, gHands[C.Owner].FlagColor - $CC000000, gHands[C.Owner].FlagColor);
              end;
           1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-               fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[C.Owner].FlagColor);
+             fRenderPool.RenderSpriteOnTerrain(P, 660, gHands[C.Owner].FlagColor);
         end;
       end;
     end;
-
 end;
 
 
@@ -1692,3 +1687,4 @@ end;
 
 
 end.
+
