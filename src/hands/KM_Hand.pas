@@ -491,9 +491,8 @@ function TKMHand.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolea
 begin
   Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasField(aLoc) = ft_None)
-            and not fBuildList.HousePlanList.HasPlan(aLoc);
-  if (Result) then
-    Result := Result and HasNoAllyPlans(aLoc);
+            and not fBuildList.HousePlanList.HasPlan(aLoc)
+            and HasNoAllyPlans(aLoc);
 end;
 
 
@@ -504,9 +503,8 @@ function TKMHand.CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Bo
 begin
   Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasFakeField(aLoc) = ft_None)
-            and not fBuildList.HousePlanList.HasPlan(aLoc);
-  if (Result) then
-    Result := Result and HasNoAllyPlans(aLoc);
+            and not fBuildList.HousePlanList.HasPlan(aLoc)
+            and HasNoAllyPlans(aLoc);
 end;
 
 
@@ -514,9 +512,8 @@ end;
 function TKMHand.CanRemFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 var I: Integer;
 begin
-  Result := (fBuildList.FieldworksList.HasFakeField(aLoc) = aFieldType);
-  if (Result) then
-    Result := Result and HasNoAllyPlans(aLoc);
+  Result := (fBuildList.FieldworksList.HasFakeField(aLoc) = aFieldType)
+            and HasNoAllyPlans(aLoc);
 end;
 
 
