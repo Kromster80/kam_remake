@@ -260,6 +260,14 @@ type
     cmMarkers //CenterScreen, Defence, FOW markers
     );
 
+type
+  TKMCursorFieldMode = (
+    cfmNone,
+    cfmPlan,
+    cfmErase
+  );
+
+
 const
   MARKER_REVEAL = 1;
   MARKER_DEFENCE = 2;
