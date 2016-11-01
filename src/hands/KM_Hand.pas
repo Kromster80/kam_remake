@@ -70,6 +70,7 @@ type
     procedure UnitDied(aUnit: TKMUnit; aFrom: TKMHandIndex);
     procedure UnitTrained(aUnit: TKMUnit);
     procedure WarriorWalkedOut(aUnit: TKMUnitWarrior);
+    function HasNoAllyPlans(aLoc: TKMPoint): Boolean;
   public
     Enabled: Boolean;
     InCinematic: Boolean;
@@ -112,6 +113,7 @@ type
 
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
+    function CanRemFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
     function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aCheckInfluence: Boolean): Boolean;
 
@@ -472,19 +474,26 @@ begin
 end;
 
 
+function TKMHand.HasNoAllyPlans(aLoc: TKMPoint): Boolean;
+var I: Byte;
+begin
+  Result := True;
+  //Don't allow placing on allies plans either
+  for I := 0 to gHands.Count - 1 do
+    if (I <> fHandIndex) and (fAlliances[I] = at_Ally) then
+      Result := Result and (gHands[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+                       and not gHands[i].fBuildList.HousePlanList.HasPlan(aLoc);
+end;
+
+
 //See comment on CanAddFakeFieldPlan
 function TKMHand.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
-var I: Integer;
 begin
   Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
-  //Don't allow placing on allies plans either
-  if Result then
-    for I := 0 to gHands.Count - 1 do
-      if (I <> fHandIndex) and (fAlliances[I] = at_Ally) then
-        Result := Result and (gHands[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
-                         and not gHands[i].fBuildList.HousePlanList.HasPlan(aLoc);
+  if (Result) then
+    Result := Result and HasNoAllyPlans(aLoc);
 end;
 
 
@@ -492,17 +501,22 @@ end;
 //We need it because the user expects to be blocked by fake field plans, but the gameplay should not.
 //When the result effects the outcome of the game, the above function should be used instead.
 function TKMHand.CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
-var I: Integer;
 begin
   Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasFakeField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
-  //Don't allow placing on allies plans either
-  if Result then
-    for I := 0 to gHands.Count - 1 do
-      if (I <> fHandIndex) and (fAlliances[I] = at_Ally) then
-        Result := Result and (gHands[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
-                         and not gHands[i].fBuildList.HousePlanList.HasPlan(aLoc);
+  if (Result) then
+    Result := Result and HasNoAllyPlans(aLoc);
+end;
+
+
+//Same as for CanAddFakeFieldPlan, but check can we delete plan
+function TKMHand.CanRemFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
+var I: Integer;
+begin
+  Result := (fBuildList.FieldworksList.HasFakeField(aLoc) = aFieldType);
+  if (Result) then
+    Result := Result and HasNoAllyPlans(aLoc);
 end;
 
 
