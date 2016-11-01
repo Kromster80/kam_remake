@@ -2736,11 +2736,27 @@ end;
 // 1. Process Controls
 // 2. Show SelectingTroopDirection
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+  procedure HandleFieldLMBDown(P: TKMPoint; aFieldType: TFieldType);
+  begin
+    if gMySpectator.Hand.CanAddFakeFieldPlan(P, aFieldType) then
+    begin
+      gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+      LastDragPoint := gGameCursor.Cell;
+      gGameCursor.Tag1 := Byte(cfmPlan);
+    end else if gMySpectator.Hand.CanRemFakeFieldPlan(P, aFieldType) then
+    begin
+      gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+      LastDragPoint := gGameCursor.Cell;
+      // Set cursor into "Erase" mode, so dragging it will erase next tiles with the same field type
+      gGameCursor.Tag1 := Byte(cfmErase);
+    end;
+  end;
 var
   Group: TKMUnitGroup;
   Obj: TObject;
   canWalkTo: Boolean;
   MyRect: TRect;
+  P: TKMPoint;
 begin
   fMyControls.MouseDown(X, Y, Shift, Button);
 
@@ -2770,6 +2786,17 @@ begin
     fMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false;
     DirectionCursorHide;
+  end;
+
+  if Button = mbLeft then
+  begin
+    P := gGameCursor.Cell; // Get cursor position tile-wise
+    if gMySpectator.Hand.FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
+      case gGameCursor.Mode of
+        cmRoad:   HandleFieldLMBDown(P, ft_Road);
+        cmField:  HandleFieldLMBDown(P, ft_Corn);
+        cmWine:   HandleFieldLMBDown(P, ft_Wine);
+      end;
   end;
 
   // See if we can show DirectionSelector
@@ -2822,6 +2849,19 @@ end;
 // 2. Perform SelectingTroopDirection if it is active
 // 3. Display various cursors depending on whats below (might be called often)
 procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
+  procedure HandleFieldLMBDrag(P: TKMPoint; aFieldType: TFieldType);
+  begin
+    if not KMSamePoint(LastDragPoint, P) then
+      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, aFieldType)) and (gGameCursor.Tag1 = Byte(cfmPlan)) then
+      begin
+        gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+        LastDragPoint := gGameCursor.Cell;
+      end else if (gMySpectator.Hand.CanRemFakeFieldPlan(P, aFieldType)) and (gGameCursor.Tag1 = Byte(cfmErase)) then
+      begin
+        gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+        LastDragPoint := gGameCursor.Cell;
+      end;
+  end;
 var
   DeltaX, DeltaY, DeltaDistanceSqr: integer;
   NewPoint: TPoint;
@@ -2895,37 +2935,25 @@ begin
   begin
     P := gGameCursor.Cell; // Get cursor position tile-wise
     if gMySpectator.Hand.FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
-    case gGameCursor.Mode of
-      cmRoad:  if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
-                begin
-                  gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
-                  LastDragPoint := gGameCursor.Cell;
-                end;
-      cmField: if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
-                begin
-                  gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
-                  LastDragPoint := gGameCursor.Cell;
-                end;
-      cmWine:  if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
-                begin
-                  gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-                  LastDragPoint := gGameCursor.Cell;
-                end;
-      cmErase: if not KMSamePoint(LastDragPoint, P) then
-                begin
-                  if gMySpectator.Hand.BuildList.HousePlanList.HasPlan(P) then
+      case gGameCursor.Mode of
+        cmRoad:   HandleFieldLMBDrag(P, ft_Road);
+        cmField:  HandleFieldLMBDrag(P, ft_Corn);
+        cmWine:   HandleFieldLMBDrag(P, ft_Wine);
+        cmErase:  if not KMSamePoint(LastDragPoint, P) then
                   begin
-                    gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
-                    LastDragPoint := gGameCursor.Cell;
-                  end
-                  else
-                    if (gMySpectator.Hand.BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
+                    if gMySpectator.Hand.BuildList.HousePlanList.HasPlan(P) then
                     begin
-                      gGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); // Remove any plans
+                      gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
                       LastDragPoint := gGameCursor.Cell;
-                    end;
-                end;
-    end;
+                    end
+                    else
+                      if (gMySpectator.Hand.BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
+                      begin
+                        gGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); // Remove any plans
+                        LastDragPoint := gGameCursor.Cell;
+                      end;
+                  end;
+      end;
   end;
 
   if gGameCursor.Mode <> cmNone then
@@ -3112,15 +3140,9 @@ begin
                 end;
               end;
 
-            cmRoad:
-              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
-
-            cmField:
-              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
-
-            cmWine:
-              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-
+            cmRoad: gGameCursor.Tag1 := Byte(cfmNone);
+            cmField: gGameCursor.Tag1 := Byte(cfmNone);
+            cmWine: gGameCursor.Tag1 := Byte(cfmNone);
             cmHouses:
               if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
               begin
@@ -3486,3 +3508,4 @@ end;
 
 
 end.
+
