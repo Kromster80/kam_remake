@@ -26,7 +26,8 @@ type
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
-    procedure ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer); //Change unit order in queue
+    procedure ChangeUnitTrainOrder(aNewPosition: Integer); overload; //Change last unit in queue training order
+    procedure ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer); overload; //Change unit order in queue
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
     function GetTrainingProgress: Single;
@@ -129,6 +130,12 @@ begin
   end;
   fUnitWip := nil;
   fQueue[0] := ut_None; //Removed the in training unit
+end;
+
+//Change unit priority in training queue
+procedure TKMHouseSchool.ChangeUnitTrainOrder(aNewPosition: Integer);
+begin
+  ChangeUnitTrainOrder(max(LastUnitPosInQueue, 1), aNewPosition);
 end;
 
 //Change unit priority in training queue
@@ -268,7 +275,7 @@ end;
 
 function TKMHouseSchool.QueueCount: Byte;
 var
-  I: Byte;
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to High(fQueue) do
@@ -277,6 +284,8 @@ begin
 end;
 
 
+// Returns position of the last unit in queue.
+// If queue is empty, return -1
 function TKMHouseSchool.LastUnitPosInQueue: Integer;
 var I: Integer;
 begin
@@ -284,8 +293,6 @@ begin
   for I := 0 to High(fQueue) do
     if fQueue[I] <> ut_None then
       Result := I
-    else
-      Continue
 end;
 
 
