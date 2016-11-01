@@ -268,7 +268,7 @@ end;
 
 function TKMHouseSchool.QueueCount: Byte;
 var
-  I: Byte;
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to High(fQueue) do
@@ -284,8 +284,6 @@ begin
   for I := 0 to High(fQueue) do
     if fQueue[I] <> ut_None then
       Result := I
-    else
-      Continue
 end;
 
 
