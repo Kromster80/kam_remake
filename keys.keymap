@@ -1,57 +1,57 @@
-﻿0:37// ~~~String 845 out of range!~~~
-1:39// ~~~String 846 out of range!~~~
-2:38// ~~~String 847 out of range!~~~
-3:40// ~~~String 848 out of range!~~~
-4:112// ~~~String 849 out of range!~~~
-5:113// ~~~String 850 out of range!~~~
-6:114// ~~~String 851 out of range!~~~
-7:115// ~~~String 852 out of range!~~~
-8:72// ~~~String 853 out of range!~~~
-9:83// ~~~String 854 out of range!~~~
-10:76// ~~~String 855 out of range!~~~
-11:70// ~~~String 856 out of range!~~~
-12:88// ~~~String 857 out of range!~~~
-13:187// ~~~String 858 out of range!~~~
-14:189// ~~~String 859 out of range!~~~
-15:190// ~~~String 860 out of range!~~~
-16:188// ~~~String 861 out of range!~~~
-17:116// ~~~String 862 out of range!~~~
-18:117// ~~~String 863 out of range!~~~
-19:118// ~~~String 864 out of range!~~~
-20:119// ~~~String 865 out of range!~~~
-21:66// ~~~String 866 out of range!~~~
-22:80// ~~~String 867 out of range!~~~
-23:84// ~~~String 868 out of range!~~~
-24:34// ~~~String 869 out of range!~~~
-25:33// ~~~String 870 out of range!~~~
-26:8// ~~~String 871 out of range!~~~
-27:49// ~~~String 872 out of range!~~~
-28:50// ~~~String 873 out of range!~~~
-29:51// ~~~String 874 out of range!~~~
-30:52// ~~~String 875 out of range!~~~
-31:53// ~~~String 876 out of range!~~~
-32:54// ~~~String 877 out of range!~~~
-33:55// ~~~String 878 out of range!~~~
-34:56// ~~~String 879 out of range!~~~
-35:57// ~~~String 880 out of range!~~~
-36:48// ~~~String 881 out of range!~~~
-37:32// ~~~String 882 out of range!~~~
-38:46// ~~~String 883 out of range!~~~
-39:13// ~~~String 884 out of range!~~~
-40:27// ~~~String 885 out of range!~~~
-41:77// ~~~String 886 out of range!~~~
-42:86// ~~~String 887 out of range!~~~
-43:68// ~~~String 888 out of range!~~~
-44:67// ~~~String 889 out of range!~~~
-45:13// ~~~String 890 out of range!~~~
-46:112// ~~~String 891 out of range!~~~
-47:113// ~~~String 892 out of range!~~~
-48:114// ~~~String 893 out of range!~~~
-49:115// ~~~String 894 out of range!~~~
-50:116// ~~~String 895 out of range!~~~
-51:49// ~~~String 896 out of range!~~~
-52:50// ~~~String 897 out of range!~~~
-53:51// ~~~String 898 out of range!~~~
-54:52// ~~~String 899 out of range!~~~
-55:53// ~~~String 900 out of range!~~~
-56:54// ~~~String 901 out of range!~~~
+﻿0:37// Scroll Left
+1:39// Scroll Right
+2:38// Scroll Up
+3:40// Scroll Down
+4:112// Build Menu
+5:113// Ratio Menu
+6:114// Statistics Menu
+7:115// Main Menu
+8:72// Halt Command
+9:83// Splitup Command
+10:76// Linkup Command
+11:70// Food Command
+12:88// Storm Command
+13:187// Increase Formation
+14:189// Decrease Formation
+15:190// Turn Clockwise
+16:188// Turn Counterclockwise
+17:116// Normal Game Speed
+18:117// Game Speed x3
+19:118// Game Speed x6
+20:119// Game Speed x10
+21:66// Beacon
+22:80// Pause
+23:84// Show Teams (MP)
+24:34// Zoom In
+25:33// Zoom Out
+26:8// Reset Zoom
+27:49// Select Group 1
+28:50// Select Group 2
+29:51// Select Group 3
+30:52// Select Group 4
+31:53// Select Group 5
+32:54// Select Group 6
+33:55// Select Group 7
+34:56// Select Group 8
+35:57// Select Group 9
+36:48// Select Group 10
+37:32// Center to Alert
+38:46// Delete Message
+39:13// Show Game Chat (MP)
+40:27// Close Menu's
+41:77// Debug Show Map
+42:86// Debug Victory
+43:68// Debug Defeat
+44:67// Debug Add Scout
+45:13// Extra's Menu
+46:112// Terrain Editor
+47:113// Village Planning
+48:114// Visual Scripting
+49:115// Global Scripting
+50:116// Main Menu
+51:49// Sub-menu 1
+52:50// Sub-menu 2
+53:51// Sub-menu 3
+54:52// Sub-menu 4
+55:53// Sub-menu 5
+56:54// Sub-menu 6

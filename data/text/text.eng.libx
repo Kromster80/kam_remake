@@ -782,4 +782,134 @@
 829:The order has been completed
 830:Load Asian fonts
 831:Move out of downloads
-832:Woodcutter can not work too far from his house
+832:Rename this Replay
+833:Rename Replay
+834:Delete this Replay
+835:Name:
+836:Confirm
+837:Edit Key-bindings
+838:Key-bindings
+839:OK
+840:Function
+841:Key
+842:Special non-editable Key-bindings
+843:Special Key-bindings
+844:Reset key-bindings
+845:Scroll Left
+846:Scroll Right
+847:Scroll Up
+848:Scroll Down
+849:Build Menu
+850:Ratio Menu
+851:Statistics Menu
+852:Main Menu
+853:Halt Command
+854:Splitup Command
+855:Linkup Command
+856:Food Command
+857:Storm Command
+858:Increase Formation
+859:Decrease Formation
+860:Turn Clockwise
+861:Turn Counterclockwise
+862:Normal Game Speed
+863:Game Speed x3
+864:Game Speed x6
+865:Game Speed x10
+866:Beacon
+867:Pause
+868:Show Teams (MP)
+869:Zoom In
+870:Zoom Out
+871:Reset Zoom
+872:Select Group 1
+873:Select Group 2
+874:Select Group 3
+875:Select Group 4
+876:Select Group 5
+877:Select Group 6
+878:Select Group 7
+879:Select Group 8
+880:Select Group 9
+881:Select Group 10
+882:Center to Alert
+883:Delete Message
+884:Show Game Chat (MP)
+885:Close Menu's
+886:Debug Show Map
+887:Debug Victory
+888:Debug Defeat
+889:Debug Add Scout
+890:Extra's Menu
+891:Terrain Editor
+892:Village Planning
+893:Visual Scripting
+894:Global Scripting
+895:Main Menu
+896:Sub-menu 1
+897:Sub-menu 2
+898:Sub-menu 3
+899:Sub-menu 4
+900:Sub-menu 5
+901:Sub-menu 6
+902:F10 and F11 are unassignable
+903:~~~ Unknown value
+904:Left Mouse Button
+905:Middle Mouse Button
+906:Right Mouse Button
+907:Break
+908:Backspace
+909:TAB
+910:Clear
+911:Return
+912:Shift
+913:Control
+914:Alt
+915:Pause
+916:Caps Lock
+917:Escape
+918:Space Bar
+919:Page Up
+920:Page Down
+921:End
+922:Home
+923:Left Arrow Key
+924:Up Arrow Key
+925:Right Arrow Key
+926:Down Arrow Key
+927:Select
+928:Print
+929:Execute
+930:Print Screen
+931:Insert
+932:Delete
+933:Help
+934:Num Pad 0
+935:Num Pad 1
+936:Num Pad 2
+937:Num Pad 3
+938:Num Pad 4
+939:Num Pad 5
+940:Num Pad 6
+941:Num Pad 7
+942:Num Pad 8
+943:Num Pad 9
+944:Num Pad *
+945:Separator
+946:Num Pad  -
+947:Num Pad .
+948:Num Pad /
+949:Num Lock
+950:Scroll Lock
+951:Left Shift
+952:Right Shift
+953:Left Control
+954:Right Control
+955:Left Alt
+956:Right Alt
+957:Play
+958:Zoom
+960:Num Pad +
+961:Common Keys
+962:Game Keys
+963:Map Editor Keys

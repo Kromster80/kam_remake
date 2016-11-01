@@ -1068,7 +1068,7 @@ procedure TRenderPool.RenderSpriteAlphaTest(
 begin
   // Skip rendering if alphas are zero (occurs so non-started houses can still have child sprites)
   if (aWoodProgress = 0) and (aStoneProgress = 0) then Exit;
-
+  
   glClear(GL_STENCIL_BUFFER_BIT);
 
   // Setup stencil mask
@@ -1308,15 +1308,15 @@ begin
                     else
                       RenderSpriteOnTile(P, TC_BLOCK); // Red X
                   end;
-    cmRoad:       if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Road) then
+    cmRoad:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Road)) and (gGameCursor.Tag1 <> Byte(cfmErase)) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmField:      if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn) then
+    cmField:      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn)) and (gGameCursor.Tag1 <> Byte(cfmErase)) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmWine:       if gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine) then
+    cmWine:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine)) and (gGameCursor.Tag1 <> Byte(cfmErase))  then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
@@ -1687,4 +1687,3 @@ end;
 
 
 end.
-
