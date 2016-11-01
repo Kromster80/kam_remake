@@ -62,6 +62,7 @@ type
     gic_HouseWoodcutterMode,      //Switch the woodcutter mode
     gic_HouseStoreAcceptFlag,     //Control wares delivery to store
     gic_HouseSchoolTrain,         //Place an order to train citizen
+    gic_HouseSchoolTrainChOrder,  //Change school training order
     gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
     gic_HouseBarracksEquip,       //Place an order to train warrior
     gic_HouseBarracksRally,       //Set the rally point for the barracks
@@ -311,7 +312,7 @@ begin
     if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle, gic_HouseWoodcuttersCutting,
       gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseBarracksRally,
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
-      gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
+      gic_HouseSchoolTrain, gic_HouseSchoolTrainChOrder, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
       SrcHouse := gHands.GetHouseByUID(Params[1]);
       if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
@@ -366,6 +367,7 @@ begin
       gic_HouseBarracksEquip:     TKMHouseBarracks(SrcHouse).Equip(TUnitType(Params[2]), Params[3]);
       gic_HouseBarracksRally:     TKMHouseBarracks(SrcHouse).RallyPoint := KMPoint(Params[2], Params[3]);
       gic_HouseSchoolTrain:       TKMHouseSchool(SrcHouse).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
+      gic_HouseSchoolTrainChOrder:TKMHouseSchool(SrcHouse).ChangeUnitTrainOrder(Params[2], Params[3]);
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
       gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
@@ -509,7 +511,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmountChange: Integer);
 begin
-  Assert(aCommandType = gic_HouseOrderProduct);
+  Assert(aCommandType in [gic_HouseOrderProduct, gic_HouseSchoolTrainChOrder]);
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem, aAmountChange]));
 end;
 
