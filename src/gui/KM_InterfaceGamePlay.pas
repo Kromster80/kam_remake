@@ -248,6 +248,7 @@ type
         Button_Army_ForUp,Button_Army_ForDown: TKMButton;
         ImageStack_Army: TKMImageStack;
         Button_Army_Split,Button_Army_Join,Button_Army_Feed: TKMButton;
+        Label_Army_MembersCount: TKMLabel;
 
       Panel_Army_JoinGroups: TKMPanel;
         Button_Army_Join_Cancel: TKMButton;
@@ -1262,6 +1263,7 @@ begin
     Button_Army_RotCW  := TKMButton.Create(Panel_Army,124, 46, 56, 40, 24, rxGui, bsGame);
     Button_Army_ForUp  := TKMButton.Create(Panel_Army,  0, 92, 56, 40, 33, rxGui, bsGame);
     ImageStack_Army    := TKMImageStack.Create(Panel_Army, 62, 92, 56, 40, 43, 50);
+    Label_Army_MembersCount := TKMLabel.Create(Panel_Army, 62, 106, 56, 20, '', fnt_Outline, taCenter);
     Button_Army_ForDown:= TKMButton.Create(Panel_Army,124, 92, 56, 40, 32, rxGui, bsGame);
     Button_Army_Split  := TKMButton.Create(Panel_Army,  0,138, 56, 34, 31, rxGui, bsGame);
     Button_Army_Join   := TKMButton.Create(Panel_Army, 62,138, 56, 34, 30, rxGui, bsGame);
@@ -1559,6 +1561,7 @@ begin
   begin
     ImageStack_Army.SetCount(Sender.Count, Sender.UnitsPerRow, Sender.UnitsPerRow div 2);
     Army_ActivateControls(Sender);
+    Label_Army_MembersCount.Caption := IntToStr(Sender.Count);
   end;
 end;
 
