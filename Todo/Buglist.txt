@@ -47,6 +47,8 @@ Improvements:
  +	L	Allow to customize and save hotkeys settings
  +		Select area to work in for woodcutters
  +		Change unit training order in School on Ctrl+click, Shift+click
+ +	L	Pressing LMB over placed plans and dragging it - will remove plans
+ +	L	Pressing Enter/Esc in multiplayer password entering form will submit/cancel it
 
 
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
