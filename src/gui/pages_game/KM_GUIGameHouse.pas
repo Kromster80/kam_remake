@@ -708,9 +708,6 @@ begin
   for I := 1 to 2 do
   if gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].IsValid then
   begin
-    //Button_CommonRes_Lock[RowRes].Hint := ;
-    //Button_CommonRes_Lock[RowRes].Top := Base + Line * LineAdv;
-    //Button_CommonRes_Lock[RowRes].Show;
     ResRow_Common_Resource_WS[RowRes].TexID := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].GUIIcon;
     ResRow_Common_Resource_WS[RowRes].Caption := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].Title;
     ResRow_Common_Resource_WS[RowRes].Hint := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].Title;

@@ -42,34 +42,34 @@ type
     gic_ArmyAttackUnit,
     gic_ArmyAttackHouse,
     gic_ArmyHalt,
-    gic_ArmyFormation,         //Formation commands
+    gic_ArmyFormation,    //Formation commands
     gic_ArmyWalk,         //Walking
     gic_ArmyStorm,        //StormAttack
 
     //II.     Building/road plans (what to build and where)
     gic_BuildAddFieldPlan,
-    gic_BuildRemoveFieldPlan,  //Removal of a plan
-    gic_BuildRemoveHouse,     //Removal of house
+    gic_BuildRemoveFieldPlan,   //Removal of a plan
+    gic_BuildRemoveHouse,       //Removal of house
     gic_BuildRemoveHousePlan,
-    gic_BuildHousePlan,   //Build HouseType
+    gic_BuildHousePlan,         //Build HouseType
 
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
     gic_HouseRepairToggle,
-    gic_HouseDeliveryToggle,      //Including storehouse. (On/Off, ResourceType)
-    gic_HouseOrderProduct,        //Place an order to manufacture warfare
-    gic_HouseMarketFrom,          //Select wares to trade in marketplace
-    gic_HouseMarketTo,            //Select wares to trade in marketplace
-    gic_HouseWoodcutterMode,      //Switch the woodcutter mode
-    gic_HouseArmorWSDeliveryToggle, //Toggle resourse delivery to armor workshop
-    gic_HouseStoreAcceptFlag,     //Control wares delivery to store
-    gic_HouseSchoolTrain,         //Place an order to train citizen
-    gic_HouseSchoolTrainChOrder,  //Change school training order
-    gic_HouseSchoolTrainChLastUOrder,  //Change school training order for last unit in queue
-    gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
-    gic_HouseBarracksEquip,       //Place an order to train warrior
-    gic_HouseBarracksRally,       //Set the rally point for the barracks
-    gic_HouseRemoveTrain,         //Remove unit being trained from School    
-    gic_HouseWoodcuttersCutting,  //Set the cutting point for the Woodcutters
+    gic_HouseDeliveryToggle,          //Including storehouse. (On/Off, ResourceType)
+    gic_HouseOrderProduct,            //Place an order to manufacture warfare
+    gic_HouseMarketFrom,              //Select wares to trade in marketplace
+    gic_HouseMarketTo,                //Select wares to trade in marketplace
+    gic_HouseWoodcutterMode,          //Switch the woodcutter mode
+    gic_HouseArmorWSDeliveryToggle,   //Toggle resourse delivery to armor workshop
+    gic_HouseStoreAcceptFlag,         //Control wares delivery to store
+    gic_HouseSchoolTrain,             //Place an order to train citizen
+    gic_HouseSchoolTrainChOrder,      //Change school training order
+    gic_HouseSchoolTrainChLastUOrder, //Change school training order for last unit in queue
+    gic_HouseBarracksAcceptFlag,      //Control wares delivery to barracks
+    gic_HouseBarracksEquip,           //Place an order to train warrior
+    gic_HouseBarracksRally,           //Set the rally point for the barracks
+    gic_HouseRemoveTrain,             //Remove unit being trained from School
+    gic_HouseWoodcuttersCutting,      //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
     gic_RatioChange,
@@ -80,8 +80,8 @@ type
     gic_GameAutoSave,
     gic_GameSaveReturnLobby,
     gic_GameTeamChange,
-    gic_GameHotkeySet,      //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
-    gic_GameMessageLogRead, //Player marks a message in their log as read
+    gic_GameHotkeySet,        //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
+    gic_GameMessageLogRead,   //Player marks a message in their log as read
     gic_GamePlayerTypeChange, //Players can be changed to AI when loading a save
 
     //VI.      Cheatcodes affecting gameplay (props)
