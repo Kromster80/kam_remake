@@ -107,7 +107,8 @@ type
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
     procedure PlayerDefeat(aPlayer: Word);
-    procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+    procedure PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
+    procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
     procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
 
@@ -234,19 +235,49 @@ begin
 end;
 
 
-//* Version: 5345
-//* Sets whether player A shares his vision with player B.
+//* Version: 7000+
+//* Sets whether player A shares his beacons with player B.
 //* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
-procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+//* aCompliment: Both ways
+procedure TKMScriptActions.PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
 begin
   try
     if  InRange(aPlayer1, 0, gHands.Count - 1)
     and InRange(aPlayer2, 0, gHands.Count - 1)
     and (gHands[aPlayer1].Enabled)
     and (gHands[aPlayer2].Enabled) then
-      gHands[aPlayer1].ShareFOW[aPlayer2] := aShare
+    begin
+      gHands[aPlayer1].ShareBeacons[aPlayer2] := aShare;
+      if aCompliment then
+        gHands[aPlayer2].ShareBeacons[aPlayer1] := aShare;
+    end
     else
-      LogParamWarning('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aShare)]);
+      LogParamWarning('Actions.PlayerShareBeacons', [aPlayer1, aPlayer2, Byte(aCompliment), Byte(aShare)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 5345
+//* Sets whether player A shares his vision with player B.
+//* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
+//* aCompliment: Both ways
+procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
+begin
+  try
+    if  InRange(aPlayer1, 0, gHands.Count - 1)
+    and InRange(aPlayer2, 0, gHands.Count - 1)
+    and (gHands[aPlayer1].Enabled)
+    and (gHands[aPlayer2].Enabled) then
+    begin
+      gHands[aPlayer1].ShareFOW[aPlayer2] := aShare;
+      if aCompliment then
+        gHands[aPlayer2].ShareFOW[aPlayer1] := aShare;
+    end
+    else
+      LogParamWarning('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aCompliment), Byte(aShare)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

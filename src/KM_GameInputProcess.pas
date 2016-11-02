@@ -413,7 +413,8 @@ begin
                                     if fReplayState = gipRecording then
                                       if ((Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
                                       or ((Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
-                                          and (gHands.CheckAlliance(Params[3], gMySpectator.HandIndex) = at_Ally)) then
+                                      and (gHands.CheckAlliance(Params[3], gMySpectator.HandIndex) = at_Ally)
+                                      and (gHands[Params[3]].ShareBeacons[gMySpectator.HandIndex])) then
                                         gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
                                   end;
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];

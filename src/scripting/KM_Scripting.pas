@@ -436,7 +436,8 @@ begin
       RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
       RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
-      RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean)');
+      RegisterMethod('procedure PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)');
+      RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)');
       RegisterMethod('procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
@@ -826,6 +827,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange,  'PLAYERALLIANCECHANGE');
       RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PLAYERADDDEFAULTGOALS');
       RegisterMethod(@TKMScriptActions.PlayerDefeat,          'PLAYERDEFEAT');
+      RegisterMethod(@TKMScriptActions.PlayerShareBeacons,    'PLAYERSHAREBEACONS');
       RegisterMethod(@TKMScriptActions.PlayerShareFog,        'PLAYERSHAREFOG');
       RegisterMethod(@TKMScriptActions.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
       RegisterMethod(@TKMScriptActions.PlayerWin,             'PLAYERWIN');

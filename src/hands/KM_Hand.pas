@@ -58,6 +58,7 @@ type
     fCenterScreen: TKMPoint;
     fAlliances: array [0 .. MAX_HANDS - 1] of TAllianceType;
     fShareFOW: array [0 .. MAX_HANDS - 1] of Boolean;
+    fShareBeacons: array [0 .. MAX_HANDS - 1] of Boolean;
 
     function GetColorIndex: Byte;
 
@@ -65,6 +66,8 @@ type
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType); inline;
     function  GetShareFOW(aIndex: Integer): Boolean;
     procedure SetShareFOW(aIndex: Integer; aValue: Boolean);
+    function  GetShareBeacons(aIndex: Integer): Boolean;
+    procedure SetShareBeacons(aIndex: Integer; aValue: Boolean);
     procedure GroupDied(aGroup: TKMUnitGroup);
     procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TKMHandIndex);
     procedure UnitDied(aUnit: TKMUnit; aFrom: TKMHandIndex);
@@ -101,6 +104,7 @@ type
     property FlagColorIndex: Byte read GetColorIndex;
     property Alliances[aIndex: Integer]: TAllianceType read GetAlliances write SetAlliances;
     property ShareFOW[aIndex: Integer]: Boolean read GetShareFOW write SetShareFOW;
+    property ShareBeacons[aIndex: Integer]: Boolean read GetShareBeacons write SetShareBeacons;
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
@@ -264,7 +268,10 @@ begin
   fOwnerNikname := '';
   fHandType   := hndComputer;
   for I := 0 to MAX_HANDS - 1 do
+  begin
     fShareFOW[I] := True; //Share FOW between allies by default (it only affects allied players)
+    fShareBeacons[I] := True; //Share beacons between allies by default (it only affects allied players)
+  end;
   for I := 0 to 9 do
     SelectionHotkeys[I] := -1; //Not set
 
@@ -1020,6 +1027,18 @@ begin
 end;
 
 
+function  TKMHand.GetShareBeacons(aIndex: Integer): Boolean;
+begin
+  Result := fShareBeacons[aIndex];
+end;
+
+
+procedure TKMHand.SetShareBeacons(aIndex: Integer; aValue: Boolean);
+begin
+  fShareBeacons[aIndex] := aValue;
+end;
+
+
 { See if player owns any Fields/Roads/Walls (has any assets on Terrain)
   If Player has none and no Units/Houses we can assume it's empty and does not needs to be saved
   Queried by MapEditor.SaveDAT;
@@ -1159,6 +1178,7 @@ begin
   SaveStream.Write(fHandType, SizeOf(fHandType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
+  SaveStream.Write(fShareBeacons, SizeOf(fShareBeacons));
   SaveStream.Write(fCenterScreen);
   SaveStream.Write(fFlagColor);
   SaveStream.Write(SelectionHotkeys, SizeOf(SelectionHotkeys));
@@ -1187,6 +1207,7 @@ begin
   LoadStream.Read(fHandType, SizeOf(fHandType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fShareFOW, SizeOf(fShareFOW));
+  LoadStream.Read(fShareBeacons, SizeOf(fShareBeacons));
   LoadStream.Read(fCenterScreen);
   LoadStream.Read(fFlagColor);
   LoadStream.Read(SelectionHotkeys, SizeOf(SelectionHotkeys));
