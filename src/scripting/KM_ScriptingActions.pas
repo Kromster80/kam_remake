@@ -260,7 +260,7 @@ begin
 end;
 
 
-//* Version: 5345
+//* Version: 7000+
 //* Sets whether player A shares his vision with player B.
 //* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
 //* aCompliment: Both ways
