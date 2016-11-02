@@ -62,10 +62,13 @@ type
     gic_HouseWoodcutterMode,      //Switch the woodcutter mode
     gic_HouseStoreAcceptFlag,     //Control wares delivery to store
     gic_HouseSchoolTrain,         //Place an order to train citizen
+    gic_HouseSchoolTrainChOrder,  //Change school training order
+    gic_HouseSchoolTrainChLastUOrder,  //Change school training order for last unit in queue
     gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
     gic_HouseBarracksEquip,       //Place an order to train warrior
     gic_HouseBarracksRally,       //Set the rally point for the barracks
-    gic_HouseRemoveTrain,         //Remove unit being trained from School
+    gic_HouseRemoveTrain,         //Remove unit being trained from School    
+    gic_HouseWoodcuttersCutting,  //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
     gic_RatioChange,
@@ -307,10 +310,11 @@ begin
       if (TgtUnit = nil) or TgtUnit.IsDeadOrDying then //Unit has died before command could be executed
         Exit;
     end;
-    if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle,
+    if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle, gic_HouseWoodcuttersCutting,
       gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseBarracksRally,
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
-      gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
+      gic_HouseSchoolTrain, gic_HouseSchoolTrainChOrder, gic_HouseSchoolTrainChLastUOrder, gic_HouseRemoveTrain,
+      gic_HouseWoodcutterMode] then
     begin
       SrcHouse := gHands.GetHouseByUID(Params[1]);
       if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
@@ -365,7 +369,10 @@ begin
       gic_HouseBarracksEquip:     TKMHouseBarracks(SrcHouse).Equip(TUnitType(Params[2]), Params[3]);
       gic_HouseBarracksRally:     TKMHouseBarracks(SrcHouse).RallyPoint := KMPoint(Params[2], Params[3]);
       gic_HouseSchoolTrain:       TKMHouseSchool(SrcHouse).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
+      gic_HouseSchoolTrainChOrder:TKMHouseSchool(SrcHouse).ChangeUnitTrainOrder(Params[2], Params[3]);
+      gic_HouseSchoolTrainChLastUOrder: TKMHouseSchool(SrcHouse).ChangeUnitTrainOrder(Params[2]);
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
+      gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
       gic_RatioChange:            begin
                                     P.Stats.Ratio[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
@@ -507,7 +514,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmountChange: Integer);
 begin
-  Assert(aCommandType = gic_HouseOrderProduct);
+  Assert(aCommandType in [gic_HouseOrderProduct, gic_HouseSchoolTrainChOrder]);
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem, aAmountChange]));
 end;
 
@@ -535,7 +542,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem:integer);
 begin
-  Assert(aCommandType = gic_HouseRemoveTrain);
+  Assert(aCommandType in [gic_HouseRemoveTrain, gic_HouseSchoolTrainChLastUOrder]);
   Assert(aHouse is TKMHouseSchool);
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem]));
 end;
@@ -543,8 +550,8 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint);
 begin
-  Assert(aCommandType = gic_HouseBarracksRally);
-  Assert(aHouse is TKMHouseBarracks);
+  Assert((aCommandType = gic_HouseBarracksRally) or (aCommandType = gic_HouseWoodcuttersCutting));
+  Assert((aHouse is TKMHouseBarracks) or (aHouse is TKMHouseWoodcutters));
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aLoc.X, aLoc.Y]));
 end;
 

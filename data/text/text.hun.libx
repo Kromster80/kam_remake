@@ -115,6 +115,7 @@
 114:Kilépés
 115:Vissza
 116:Beállítások
+117:Szerkesztő elhagyás
 118:Hangok
 119:Hangerő
 120:Hangerő
@@ -173,6 +174,7 @@
 175:Szénbányád kimerült.
 176:Vasércbányád kimerült.
 177:Aranybányád kimerült.
+178:Favágód nem talál több kivágásra alkalmas fát
 179:Ez a ház nincs birtokba véve.
 180:Ez a csapat valóban éhes, legjobb lenne gyorsan enni adni nekik!
 181:SZÜNET
@@ -222,6 +224,7 @@
 225:A kikötőnél
 226:Utazás
 227:Hadjáratok
+228:Hadjáratok
 229:Hadjárat Indítása!
 230:Egyéni küldetés
 231:Játék indítása
@@ -264,8 +267,14 @@
 268:Házak
 269:Nyersanyagok
 270:Termelt nyersanyagok
+271:Nincs adat
 272:Te
 273:Játékos %d
+274:Vissza a hálózati játékhoz
+275:A visszajátszásokhoz
+276:Összes
+277:Hadviselés
+278:Élelmiszer
 279:JOYMANIA ENTERTAINMENT||PROGRAMOZÁS:|Peter Ohlmann||JÁTÉK GRAFIKA:|Adam Sprys||PÁLYATERVEZÉS:|Adam Sprys|André Quass||HANGSZERKESZTÉS ÉS|KEVERÉS:|Tonstudio Mannheim||ZENE:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSZTRÁCIÓK:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GYÁRTÁSVEZETŐ:|Uwe Schäfer||SZÖVEG:|Peter Ohlmann|Uwe Schäfer||BÉTA TESZT:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||JÁTÉK IGAZGATÓ:|Achim Heidelauf||ÁTVEZETŐK:||IGAZGATÓ:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||HANGOK:|Claus Boysen (Mesélö)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KÉZIKÖNYV GRAFIKÁI:|Uwe Schäfer|Alexandra Constandache||KÉZIKÖNYV SZÖVEGEI:|Peter Ohlmann|Uwe Schäfer||MŰREMEK:|Boleslaw Kasza|Adam Sprys||ANIMÁCIÓK:|Uwe Schäfer|Christian Bigalk|További 3D Modellezés:|Niels Horstmann||KÖSZÖNET TOVÁBI|MUNKATÁRSAINKNAK:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 280:Küldetés megszakítva
 281:Visszajátszás véget ért
@@ -287,12 +296,14 @@
 297:Új Térkép Készítése
 298:Elérhető térképek
 299:Térkép Betöltése
+300:Hely
 301:Vezérlők:
 302:Játékmenet:
 303:Hangok:
 304:Zene kikapcsolása
 305:Grafika:
 306:Fényerősség
+307:Függőleges szinkronizálás
 308:Teljes képernyő
 309:Alkalmaz
 310:Nyelv:
@@ -339,6 +350,7 @@
 351:Kapcsolódási hiba: %s
 352:Megszakadt a kapcsolat
 353:Küldetés %d
+354:Értesítések
 355:A halászkunyhód túl messze van a víztől.
 356:A halászod nem tud több halat fogni a közeli vízből.
 357:Visszajátszás újraindítása
@@ -346,15 +358,134 @@
 359:1 egységet léptet előre
 360:Megállított visszajátszás folytatása
 361:Kilépés a visszajátszásból
+362:Váltás másik játékos nézőpontjára
 364:Eladni kívánt áru kiválasztása a bal egér gombal
 365:Vásárolni kívánt áru kiválasztása a jobb egér gombal
 366:Elad x%d
 367:Vesz x%d
 368:Tereprendezés
+369:Ecset
+370:Domborzat
+371:Textúrák
+372:Objektumok
+373:Domborzat
+374:Ecset forma
+375:Méret
+376:Csúsztasd az ecset méret változtatáshoz
+377:Lejtés
+378:Csúsztasd a meredekség változtatásához: 1 = fennsík ... 15 = hegycsúcs
+379:Sebesség
+380:Csúsztasd az emelkedés sebességének változtatásához: 1 = lassú ... 15 = gyors
+381:Kör alakú ecset
+382:Négyzet alakú ecset
+383:Emel / Süllyeszt
+384:Egyenetlenít / Lapít
+385:Emel (bal egér) / Süllyeszt (jobb egér)
+386:Egyenetlenít (bal egér) / Lapít (jobb egér)
+387:Ecset
+388:Véletlenszerű részek
+389:Véletlenszerű irány
+390:Jelöld be a véletlenszerű irányú elhelyezéshez, vagy használd a jobb egérgombot a forgatáshoz
+392:Láthatatlan fal
+393:Objektum eltávolítása
 394:Település tervezés
 395:Vizuális szkriptek
 396:Globális szkriptek
 397:Menü
+398:Objektumok
+399:Mennyiségek megjelenítése
+400:Egységek megjelenítése
+401:Épületek megjelenítése
+402:Objektumok megjelenítése
+403:Megfelelő területek
+404:A nem mentett|változtatások elvesznek
+405:Mégse
+406:Betöltés
+407:Térkép betöltése
+408:Mégse
+409:Mentés
+410:Felülírás
+411:A térkép már létezik
+412:Játékosok:
+413:Alapértelmezett
+414:Játékos típusok
+415:Szimmetrikus
+416:Szövetségek
+417:Taktikai
+418:Normál
+419:Küldetés mód
+420:Ugrás a megadott pontra
+421:A kamera kezdőpontja a küldetés indításakor
+422:Képernyő középpont
+423:Minden felfedése
+424:Felfedi a térkép egy részét
+425:Köd felfedése
+426:Kereskedelem tiltása
+427:Épületek engedélyezése/tiltása
+428:Színek
+429:Cél
+432:Játékos
+433:Gazdasági épületek
+434:Inasok és iskolák
+435:Katonai eszközök
+436:Ismeretlen
+437:Katonák
+438:Épületek
+439:Idő
+440:Építési oktató
+441:Nincs
+442:Feltétel
+443:Túlélés
+444:Győzelem
+445:Nincs
+446:Típus
+447:Célok
+448:OK
+449:Mégse
+450:Oszlopok
+451:Mennyiség
+452:Katonai formációk
+453:Formációk módosítása
+454:Határozd meg, hogy az AI mennyi katonával rendelkezhet maximum
+455:Mennyi katonával rendelkezhet egyszerre az AI
+456:Max. katonák
+457:Mennyi újonc legyen az AI erődjében
+458:Újonc per erőd
+460:Meghatátozott pozíció
+463:A legközelebbi egység
+465:Csapat darabszám
+466:Támadási infó
+468:Ismétlés
+469:Egyszer
+470:Lovas
+471:Távolsági
+472:Anti-lovasság
+473:Közelharci
+474:Poz.
+475:Cél
+476:Egys.
+477:Késl.
+478:Típus
+479:Auto. támadás
+480:AI támadások
+481:Bőr felszerelés aránya
+482:Vas felszerelés aránya
+483:Auto. védekezés
+484:AI automatikusan létrehozza és kezeli a védelmi pontokat
+485:Védelmi pontok elhelyezése az AI számára
+486:AI védelmi pontok
+487:Munkások
+488:Inas per 10 ház
+489:Auto. javítás
+490:Auto. építés
+491:AI beállítások
+492:Épületek
+493:Földmunkálatok
+494:A kijelölt terület függőleges tükrözése
+495:A kijelölt terület vízszintes tükrözése
+496:Felszín beillesztése
+497:Felszín másolása
+498:Másolás/beillesztés
 499:Új Küldetés
 500:Játékos neve
 501:Állapot:
@@ -372,6 +503,8 @@
 513:Szoba
 514:Kapcsolódás
 515:Mégsem
+516:Jelszóval védett szoba
+517:Jelszó
 518:Szerver név
 519:Állapot
 520:Játékosok
@@ -389,6 +522,7 @@
 532:Szín
 533:Kész
 534:Ping
+535:Ping / FPS
 536:Nyitva
 537:Számítógép
 538:Válassz...
@@ -401,21 +535,37 @@
 545:Kész
 546:Nincs kész
 547:Indítás!
+548:Játék sebessége (békeidő)
+549:Játék sebessége
+550:OK
+551:Mégse
+552:Leírás
+553:Jelszó
+554:Szoba beállítások
+556:Kitiltás
+557:Kidobás
+558:Véletlenszerű csapat elhelyezkedés
+559:Leírás
+560:Opciók
 561:Kezdőhely %d
 562:Hiba: Kérem válasszon egy játékost a mentésből, hogy irányíthassa
 563:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
 564:Nem lehet indítani: %s
 565:Nem áll mindenki készen a kezdésre
+566:Nem lehet véletlenszerű elhelyezkedést beállítani
 567:A szerver átadta a házigazda szerepét nekünk
 568:A játék elkezdődött
 569:Építkezés
 570:Csata
 571:Kooperatív
+572:Speciális térkép
 573:Játék beállítások:
 574:Békeidő (percben)
 575:Zárva
 576:A hoszt állítja be a játékosokat
 577:Várakozás a játékosokra:
+578:Mind
+579:Csapat
 580:KaM Remake Készítők
 581:Eredeti Knights & Merchants Készítők
 582:PROGRAMOZÁS:
@@ -465,6 +615,7 @@
 626:Visszajátszás megtekintése
 627:Nem támogatott formátum %s
 628:Nem támogatott verzió %s
+629:Nem támogatott módosítások
 630:Hiba történt a %s fájl beolvasása közben
 631:felkészülés
 632:szkript
@@ -479,6 +630,7 @@
 641:A mentés nem egyezik a szerver mentésével: %s
 642:Az összetétel ellenőrzés nem sikerült a visszajátszásnál. Ez egy ismert hiba, ami hatással van némelyik visszajátszásra. Szeretnéd folytatni a megtekintést?
 643:Csak egyetlen példányt futtathatsz a játékból többjátékos módban egyszerre
+644:A módosítások nem engedélyezettek hálózati játékban.|Telepítsd újra, vagy állítsd vissza az eredeti fájlokat.
 645:Hiba történt az alkalmazásban. Kérlek kattints Hibajelentés Küldésére, hogy utánajárhassunk a problémának. Köszönjük a segítséged!
 646:Hibajelentés Küldése
 647:Nyers Adatok Megtekintése
@@ -502,3 +654,131 @@
 665:A hibajelentés elküldése sikertelen! A szerverünk valószínűleg túlterhelt, kérlek próbáld meg újra.
 666:Információ
 667:Kérlek várj egy pillanatot...
+668:Térkép mentése
+669:A késleltetés percekben, mielőtt az AI újoncokat képez
+670:Újonc késleltetés (perc)
+671:Összefüggő vízfelületek folyásirányának módosítása
+672:Folyásirány
+673:Másolás
+674:Beillesztés
+675:Elfogadás
+676:Elvetés
+677:Függ. tükrözés
+678:Vízsz. tükrözés
+679:Húzd a terület kijelöléséhez
+680:AI védelmi opciók
+681:Ki
+682:Sugár
+683:Jelenlegi felfedés törlése
+684:Vissza a köd felfedése menüponthoz
+685:Bezárás
+686:Csapat utasítás
+687:Nincs
+688:Támad
+689:Menetel
+690:Irány
+693:Védelmi sugár
+694:A jelenlegi védelmi pont törlése
+695:Vissza a védelem menüponthoz
+696:Védelmi pontok
+697:Egységek
+698:Farkas
+699:Hal
+700:Vízisikló
+701:Tengeri csillag
+702:Rák
+703:Tavirózsa
+704:Tavirózsa
+705:Kacsa
+706:Ez az egység nem képezhető
+707:Ez az egység nem képezhető
+708:Egységek tiltása
+736:Letöltés
+737:letöltés...
+738:Meglévő fájlok felülírása
+739:%s elveszítette a kapcsolatot
+740:%s kilépett
+741:%s visszatért
+742:Nem lehet csatlakozni, ameddig folyik a játék
+743:A szoba tele van. Több játékos nem csatlakozhat
+744:Ilyen nevű játékos már csatlakozott a szobához
+746:Hiba: %s eltérő fájlokkal rendelkezik a hoszthoz képest, így nem csatlakozhat a játékhoz
+747:Hoszttól eltérő fájlokkal rendelkezel
+748:%s hoszt jogot kapott
+749:%s ettől eltérő verzióval rendelkezik: %s
+750:%s nem rendelkezik ezzel: %s
+751:Lekérdezés túllépte az időkorlátot
+752:A hoszt kidobta %s -t a játékból
+753:%s ki lett rúgva a játékból a hoszt által
+754:Csatlakozási kísérlet...
+755:%s csatlakozott
+756:Újracsatlakozás sikertelen: %s
+757:A hoszt úgy döntött, hogy a játék nélküled megy tovább :(
+758:A szerverrel történő kapcsolat megszűnt: Időtúllépés
+759:A hoszt kirúgott téged
+760:A szerver nem válaszol
+761:Érvénytelen szoba azonosító
+765:Suttogás neki: %s
+766:%s ki lett tiltva a játékból a hoszt által
+767:A hoszt kitiltott téged
+768:Kitiltások resetelése
+769:A hoszt minden kitiltást resetelt ebben a lobbyban
+770:Dátum
+771:Köd megjelenítése
+772:Szemlélés
+773:Szemlélő
+774:Auto. támadási távolság
+775:AI csapatok automatikusan támadásba indulnak, ha ennyi egységnél közelebb vagy
+776:Szövetséges védelme
+777:Ha engedélyezve van, az AI védeni fogja szövetségeseinek épületeit és egységeit, mintha sajátjai volnának
+778:Szemlélők engedélyezése
+779:Kinevezés hosztnak
+780:Szemlélők
+781:Nem lehet tiltani a szemlélőket: A szemlélő listának üresnek kell lennie
+782:Előre
+783:Visszavon
+784:Meghatározza az AI kezdőpontját, ami befolyásolja az AI támadások célpontját
+785:AI kezdőpont
+786:Sorrend
+788:Kezdő késleltetés (másodperc)
+790:A hadsereghez legközelebb eső épület
+791:A kezdőponthoz legközelebbi épület
+792:Támadók
+793:Védők
+794:Szemlélők
+795:A korábban feloldott küldetés újrajátszásához válaszd ki a hozzá tartozó zászlót az eligazító térképen
+796:%s szavazott a lobbyba való visszatérésre (még %s szavazat szükséges)
+797:Szavazz a Lobbyba való visszatéréshez. A játék folytatható, vagy megváltoztatható
+798:Vissza a Lobbyba
+799:%s szavazott a lobbyba való visszatérésre (megszavazva)
+800:Sikertelen szavazás
+801:A visszajátszás törlése törli a hozzá tartozó mentést is. Folytatod a műveletet?
+802:Véletlenszerű választás
+803:Támadó katonák száma
+804:Visszajátszás törlése
+805:Térkép törlése
+806:Biztosan törölni akarod a térképet?
+807:Szöveges takarás elrejtése
+808:Szöveges takarás megjelenítése
+809:Nem tudsz hosztot váltani, hogyha a szerver a te klienseden fut
+810:AI automatikusan létrehozza és kezeli a támadásokat
+811:Gyors felszerelés
+812:A katonák a lehető leggyorsabban fel lesznek szerelve. A felszerelési arányok befolyásolják a település tervezést
+813:AI alapértelmezések alkalmazása
+814:Többjátékos építő
+815:Agresszív AI építő beállításokat alkalmaz minden játékosra (többjátékos építő térképekre)
+816:Figyelem: Ez minden létező AI beállítást felül fog írni minden játékosnál. Folytatod?
+817:Hadsereg típus
+818:Vas aztán bőr
+819:Vas
+820:Bőr
+821:Vegyes
+822:Letöltött térképek
+824:Mozgatás
+825:"Olvass el" PDF megtekintése
+826:PDF megtekintő indítása sikertelen
+827:Inasok számának meghatározása 10 házanként a megadott AI számára. A kiválasztott AI %d házzal rendelkezik
+828:Hiba: A hoszt szüneteltetett fájlja nem egyezik meg a lokális szüneteltetett fájllal. Hiba történt, vagy a hoszt csalni próbál.
+829:A megrendelés teljesítve
+830:Ázsiai karakterkészlet betöltése
+831:Mozgatás a letöltések közül

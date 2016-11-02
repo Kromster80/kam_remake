@@ -5,6 +5,8 @@ Bugs:
  +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +	Disabled controls could have focus and receive keyboard input
+ +	Change unit training order in School on Ctrl+click, Shift+click
+
 	Server welcome message should support Unicode
 	Campaign progress from r5503 was lost
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
@@ -44,6 +46,8 @@ Bugs:
 Improvements:
  +	M	Renaming replays in replay menu
  +	L	Allow to customize and save hotkeys settings
+ +		Select area to work in for woodcutters
+
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

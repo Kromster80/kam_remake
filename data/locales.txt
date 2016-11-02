@@ -10,7 +10,7 @@ eng,    English,              1252,     0,         45,           ,
 est,    Estonian,             1252,     0,         59,           ,                Ingvar & Eva
 fre,    French,               1252,     0,         51,           ,                Sylvain Domange & Shadaoe
 ger,    German,               1252,     0,         46,           ,                The Knight
-hun,    Hungarian,            1250,     0,         57,           ,                Osi Attila (Jecy)
+hun,    Hungarian,            1250,     0,         57,           ,                Osi Attila (Jecy), Máté
 ita,    Italian,              1252,     0,         50,           ,                Esthlos
 jpn,    Japanese,             1252,     1,         72,           ,                Guilherme Antunes da Silva
 kor,    Korean,               1252,     1,         78,           ,                Petrus K.

@@ -53,7 +53,7 @@ type
 
 implementation
 uses
-  KM_Resource, KM_Utils, KM_Hand, KM_ResUnits;
+  KM_Resource, KM_Utils, KM_Hand, KM_ResUnits, KM_Houses;
 
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
@@ -237,6 +237,8 @@ begin
   case aUnit.UnitType of
     ut_Woodcutter:    if aHome = ht_Woodcutters then
                       begin
+                        if TKMHouseWoodcutters(aUnit.GetHome).IsCuttingPointSet then
+                          aLoc := TKMHouseWoodcutters(aUnit.GetHome).CuttingPoint;
                         fIssued := ChooseTree(aLoc, KMPoint(0,0), gRes.UnitDat[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
                         if fIssued then
                         begin

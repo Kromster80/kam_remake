@@ -33,7 +33,7 @@ type
     procedure House_MarketSelect(Sender: TObject; Shift: TShiftState);
 
     procedure House_SchoolUnitChange(Sender: TObject; Shift: TShiftState);
-    procedure House_SchoolUnitRemove(Sender: TObject; Shift: TShiftState);
+    procedure House_SchoolUnitQueueClick(Sender: TObject; Shift: TShiftState);
 
     procedure House_StoreAcceptFlag(Sender: TObject);
     procedure House_StoreFill;
@@ -289,13 +289,13 @@ begin
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  0,48,32,32,0, rxGui, bsGame);
     Button_School_UnitWIP.Hint := gResTexts[TX_HOUSE_SCHOOL_WIP_HINT];
     Button_School_UnitWIP.Tag := 0;
-    Button_School_UnitWIP.OnClickShift := House_SchoolUnitRemove;
+    Button_School_UnitWIP.OnClickShift := House_SchoolUnitQueueClick;
     Button_School_UnitWIPBar := TKMPercentBar.Create(Panel_House_School,34,54,146,20);
     for I := 1 to 5 do
     begin
       Button_School_UnitPlan[i] := TKMButtonFlat.Create(Panel_House_School, (I-1) * 36, 80, 32, 32, 0);
       Button_School_UnitPlan[i].Tag := I;
-      Button_School_UnitPlan[i].OnClickShift := House_SchoolUnitRemove;
+      Button_School_UnitPlan[i].OnClickShift := House_SchoolUnitQueueClick;
     end;
 
     Label_School_Unit := TKMLabel.Create(Panel_House_School,   0,116,TB_WIDTH,30,'',fnt_Outline,taCenter);
@@ -830,8 +830,23 @@ begin
   if (Sender = Button_School_Left) and (fLastSchoolUnit > 0) then Dec(fLastSchoolUnit);
   if (Sender = Button_School_Right) and (fLastSchoolUnit < High(School_Order)) then Inc(fLastSchoolUnit);
 
-  if Sender = Button_School_Train then //Add unit to training queue
-    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], GetMultiplicator(Shift));
+  if Sender = Button_School_Train then
+  begin
+    // Right click - fill queue with same units
+    if (ssRight in Shift) then
+      gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 10)
+    else if (ssLeft in Shift) then
+    begin
+      // Left click - add Unit to queue
+      gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 1);
+      // If Shift is also pressed, then change last unit order to 0
+      if (ssShift in Shift) then
+        gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChLastUOrder, School, 0)
+      // else If Ctrl is also pressed, then change last unit order to 1
+      else if ssCtrl in Shift then
+        gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChLastUOrder, School, 1);
+    end;
+  end;
 
   if School.Queue[0] <> ut_None then
     Button_School_UnitWIP.TexID := gRes.UnitDat[School.Queue[0]].GUIIcon
@@ -876,8 +891,8 @@ begin
 end;
 
 
-{Process click on Remove-from-queue buttons of School}
-procedure TKMGUIGameHouse.House_SchoolUnitRemove(Sender: TObject; Shift: TShiftState);
+{Process click on Units queue buttons of School}
+procedure TKMGUIGameHouse.House_SchoolUnitQueueClick(Sender: TObject; Shift: TShiftState);
 var
   School: TKMHouseSchool;
   I, id: Integer;
@@ -887,12 +902,18 @@ begin
 
   //Right click clears entire queue after this item.
   //In that case we remove the same id repeatedly because they're automatically move along
-  if ssLeft in Shift then
-    gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, id)
-  else
   if ssRight in Shift then
     for I := School.QueueLength - 1 downto id do
-      gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, I);
+      gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, I)
+  else if (ssShift in Shift) then
+    // Left click + Shift - change Unit order in queue to 0
+    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChOrder, School, id, 0)
+  else if ssCtrl in Shift then
+    // Left click + Ctrl - change Unit order in queue to 1
+    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrainChOrder, School, id, min(id,1))
+  else
+    //Left click removes 1 unit from queue
+    gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, id);
 
   House_SchoolUnitChange(nil, []);
 end;
