@@ -2,6 +2,8 @@ unit KM_GUIMenuMultiplayer;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults, KM_ServerQuery;
@@ -43,6 +45,7 @@ type
     procedure MP_HostFail(const aData: UnicodeString);
     procedure BackClick(Sender: TObject);
     function ValidatePlayerName(const aName: UnicodeString): Boolean;
+    procedure KeyDown(Sender: TObject; aKey: Word);
   protected
     Panel_MultiPlayer: TKMPanel;
       Panel_MPAnnouncement: TKMPanel;
@@ -159,6 +162,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
       Button_MP_PasswordOk.OnClick := MP_PasswordClick;
       Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, gResTexts[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
       Button_MP_PasswordCancel.OnClick := MP_PasswordClick;
+      Edit_MP_Password.OnKeyDown := KeyDown;
   end;
 var I: Integer;
 begin
@@ -232,6 +236,16 @@ begin
   CreateServerPopUp;
   FindServerPopUp;
   PasswordPopUp;
+end;
+
+
+procedure TKMMenuMultiplayer.KeyDown(Sender: TObject; aKey: Word);
+begin
+  if Panel_MPPassword.Visible then
+    case aKey of
+      VK_RETURN: MP_PasswordClick(Button_MP_PasswordOk);
+      VK_ESCAPE: MP_PasswordClick(Button_MP_PasswordCancel);
+    end;
 end;
 
 
