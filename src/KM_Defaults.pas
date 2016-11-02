@@ -261,10 +261,11 @@ type
     );
 
 type
+  // How cursor field placing will act (depends on which tile LMB was pressed)
   TKMCursorFieldMode = (
-    cfmNone,
-    cfmPlan,
-    cfmErase
+    cfmNone, // Disabled
+    cfmPlan, // Placing plans
+    cfmErase // Erasing plans
   );
 
 

@@ -1055,7 +1055,9 @@ end;
 
 
 function TKMTerrain.ObjectIsChopableTree(X,Y: Word): Boolean;
-var I: Byte; K: TChopableAge;
+var
+  I: Integer;
+  K: TChopableAge;
 begin
   Result := True;
 
@@ -1068,7 +1070,8 @@ end;
 
 
 function TKMTerrain.ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean;
-var I: Byte;
+var
+  I: Integer;
 begin
   Result := True;
 

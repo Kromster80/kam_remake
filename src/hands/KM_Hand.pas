@@ -475,7 +475,8 @@ end;
 
 
 function TKMHand.LocHasNoAllyPlans(aLoc: TKMPoint): Boolean;
-var I: Byte;
+var
+  I: Integer;
 begin
   Result := True;
   //Don't allow placing on allies plans either

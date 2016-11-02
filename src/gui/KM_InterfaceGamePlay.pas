@@ -3144,17 +3144,14 @@ begin
                 end;
               end;
 
-            cmRoad: gGameCursor.Tag1 := Byte(cfmNone);
-
-            cmField: gGameCursor.Tag1 := Byte(cfmNone);
-
-            cmWine: gGameCursor.Tag1 := Byte(cfmNone);
+            cmRoad:  gGameCursor.Tag1 := Ord(cfmNone);
+            cmField: gGameCursor.Tag1 := Ord(cfmNone);
+            cmWine:  gGameCursor.Tag1 := Ord(cfmNone);
 
             cmHouses:
               if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
               begin
-                gGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
-                  THouseType(gGameCursor.Tag1));
+                gGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(gGameCursor.Tag1));
                 // If shift pressed do not reset cursor (keep selected building)
                 if not (ssShift in Shift) then
                   fGuiGameBuild.Show;

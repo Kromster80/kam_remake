@@ -1383,7 +1383,8 @@ end;
 
 //Return ID of beast that has grown up
 function TKMHouseSwineStable.FeedBeasts: Byte;
-var i:integer;
+var
+  I: Integer;
 begin
   Result:=0;
   inc(BeastAge[KaMRandom(5)+1]); //Let's hope it never overflows MAX
@@ -1402,7 +1403,8 @@ end;
 
 //Make beast noises - each beast makes a noise (if it exists) with two second pauses between each one
 procedure TKMHouseSwineStable.MakeSound;
-var I: Byte;
+var
+  I: Integer;
 begin
   inherited;
   if gMySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then Exit;
