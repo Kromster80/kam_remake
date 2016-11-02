@@ -4,9 +4,10 @@ interface
 uses
   StrUtils, SysUtils, Math, Classes, Controls,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics,
-  KM_InterfaceGame, KM_Houses, KM_HouseMarket;
+  KM_InterfaceGame, KM_Houses, KM_HouseMarket, KM_ResWares;
 
-  const LineAdv = 25; //Each new Line is placed ## pixels after previous
+const LINE_HEIGHT = 25; //Each new Line is placed ## pixels after previous
+const WORKSHOP_WARE: array [1..2] of TWareType = (wt_Wood, wt_Leather);
 
 type
   TKMGUIGameHouse = class
@@ -116,7 +117,7 @@ implementation
 uses
   KM_Game, KM_GameInputProcess, KM_Hand,
   KM_HouseBarracks, KM_HouseSchool, KM_HandsCollection, KM_RenderUI, KM_Utils,
-  KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResUnits, KM_ResWares;
+  KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResUnits;
 
 
 constructor TKMGUIGameHouse.Create(aParent: TKMPanel);
@@ -407,7 +408,7 @@ procedure TKMGUIGameHouse.Create_HouseArmorWorkshop;
 var  I: Integer;
 begin
   // Panel should cover only 3 lines, to let common panel handle mouse events
-  Panel_HouseArmorWorkshop := TKMPanel.Create(Panel_House, 0, 76, TB_WIDTH, LineAdv*3);
+  Panel_HouseArmorWorkshop := TKMPanel.Create(Panel_House, 0, 76, TB_WIDTH, LINE_HEIGHT*3);
     Label_Common_Demand_WS := TKMLabel.Create(Panel_HouseArmorWorkshop,0,2,TB_WIDTH,0,gResTexts[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
 
     //They get repositioned on display
@@ -416,7 +417,8 @@ begin
       ResRow_Common_Resource_WS[I] := TKMWaresRow.Create(Panel_HouseArmorWorkshop, 0, 0, TB_WIDTH, True);
       ResRow_Common_Resource_WS[I].RX := rxGui;
       ResRow_Common_Resource_WS[I].OnClick := House_ArmorWSDeliveryToggle;
-      Image_ArmorWS_Accept[I] := TKMImage.Create(Panel_HouseArmorWorkshop, TB_WIDTH - 12, 2+I*25, 12, 12, 49);
+      ResRow_Common_Resource_WS[I].Tag := I;
+      Image_ArmorWS_Accept[I] := TKMImage.Create(Panel_HouseArmorWorkshop, TB_WIDTH - 12, 2+I*LINE_HEIGHT, 12, 12, 49);
       Image_ArmorWS_Accept[I].Hitable := False;
     end;
 end;
@@ -555,7 +557,7 @@ begin
           ResRow_Common_Resource[1].Caption := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResOutput[1]].Title;
           ResRow_Common_Resource[1].Hint := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResOutput[1]].Title;
           ResRow_Common_Resource[1].Show;
-          ResRow_Common_Resource[1].Top := 2 + LineAdv;
+          ResRow_Common_Resource[1].Top := 2 + LINE_HEIGHT;
         end;
     ht_ArmorWorkshop: ShowArmorWorkshop(aHouse);
     ht_TownHall:;
@@ -590,7 +592,7 @@ begin
   if gRes.HouseDat[aHouse.HouseType].AcceptsWares then
   begin
     Label_Common_Demand.Show;
-    Label_Common_Demand.Top := Base+Line*LineAdv+6;
+    Label_Common_Demand.Top := Base+Line*LINE_HEIGHT+6;
     inc(Line);
 
     for I := 1 to 4 do
@@ -600,7 +602,7 @@ begin
       ResRow_Common_Resource[RowRes].Caption := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].Title;
       ResRow_Common_Resource[RowRes].Hint := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].Title;
       ResRow_Common_Resource[RowRes].WareCount := aHouse.CheckResIn(gRes.HouseDat[aHouse.HouseType].ResInput[I]);
-      ResRow_Common_Resource[RowRes].Top := Base + Line * LineAdv;
+      ResRow_Common_Resource[RowRes].Top := Base + Line * LINE_HEIGHT;
       ResRow_Common_Resource[RowRes].Show;
       inc(Line);
       inc(RowRes);
@@ -618,7 +620,7 @@ begin
     begin
       Label_Common_Offer.Show;
       Label_Common_Offer.Caption := gResTexts[TX_HOUSE_DELIVERS]+'(x'+inttostr(gRes.HouseDat[aHouse.HouseType].ResProductionX)+'):';
-      Label_Common_Offer.Top := Base+Line*LineAdv+6;
+      Label_Common_Offer.Top := Base+Line*LINE_HEIGHT+6;
       inc(Line);
 
       for I := 1 to 4 do
@@ -629,7 +631,7 @@ begin
         ResRow_Common_Resource[RowRes].Caption := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResOutput[I]].Title;
         ResRow_Common_Resource[RowRes].Hint := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResOutput[I]].Title;
         ResRow_Common_Resource[RowRes].Show;
-        ResRow_Common_Resource[RowRes].Top := Base + Line * LineAdv;
+        ResRow_Common_Resource[RowRes].Top := Base + Line * LINE_HEIGHT;
         inc(Line);
         inc(RowRes);
       end;
@@ -645,7 +647,7 @@ begin
   begin
     Label_Common_Offer.Show;
     Label_Common_Offer.Caption:=gResTexts[TX_HOUSE_DELIVERS]+'(x'+inttostr(gRes.HouseDat[aHouse.HouseType].ResProductionX)+'):';
-    Label_Common_Offer.Top:=Base+Line*LineAdv+6;
+    Label_Common_Offer.Top:=Base+Line*LINE_HEIGHT+6;
     inc(Line);
     for I := 1 to 4 do //Orders
     begin
@@ -658,12 +660,12 @@ begin
         ResRow_Order[I].WareCount := aHouse.CheckResOut(Res);
         ResRow_Order[I].OrderCount := aHouse.ResOrder[I];
         ResRow_Order[I].Show;
-        ResRow_Order[I].Top := Base + Line * LineAdv;
+        ResRow_Order[I].Top := Base + Line * LINE_HEIGHT;
         inc(Line);
       end;
     end;
     Label_Common_Costs.Show;
-    Label_Common_Costs.Top:=Base+Line*LineAdv+2;
+    Label_Common_Costs.Top:=Base+Line*LINE_HEIGHT+2;
     inc(Line);
     for I := 1 to 4 do //Costs
     begin
@@ -679,7 +681,7 @@ begin
         else ResRow_Costs[I].TexID2 := gRes.Wares[WarfareCosts[Res, 2]].GUIIcon;
 
         ResRow_Costs[I].Show;
-        ResRow_Costs[I].Top := Base + Line * LineAdv - 2*I - 6; //Pack them closer so they fit on 1024x576
+        ResRow_Costs[I].Top := Base + Line * LINE_HEIGHT - 2*I - 6; //Pack them closer so they fit on 1024x576
         inc(Line);
       end;
     end;
@@ -702,7 +704,7 @@ begin
           
   //Show Demand
   Label_Common_Demand_WS.Show;
-  Label_Common_Demand_WS.Top := Base+Line*LineAdv+6;
+  Label_Common_Demand_WS.Top := Base+Line*LINE_HEIGHT+6;
   inc(Line);
 
   for I := 1 to 2 do
@@ -712,7 +714,7 @@ begin
     ResRow_Common_Resource_WS[RowRes].Caption := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].Title;
     ResRow_Common_Resource_WS[RowRes].Hint := gRes.Wares[gRes.HouseDat[aHouse.HouseType].ResInput[I]].Title;
     ResRow_Common_Resource_WS[RowRes].WareCount := aHouse.CheckResIn(gRes.HouseDat[aHouse.HouseType].ResInput[I]);
-    ResRow_Common_Resource_WS[RowRes].Top := Base + Line * LineAdv;
+    ResRow_Common_Resource_WS[RowRes].Top := Base + Line * LINE_HEIGHT;
     ResRow_Common_Resource_WS[RowRes].Show;
     inc(Line);
     inc(RowRes);
@@ -991,21 +993,16 @@ end;
 
 {Toggle ware delivery for separate resources (wood, leather) in Armor workshop}
 procedure TKMGUIGameHouse.House_ArmorWSDeliveryToggle(Sender: TObject);
-var I: Byte;
-    WareType: TWareType;
+var I: Integer;
     ArmorWS: TKMHouseArmorWorkshop;
 begin
-  WareType := wt_None;
   ArmorWS := TKMHouseArmorWorkshop(gMySpectator.Selected);
   for I := 1 to 2 do
   begin
-    if (I = 1) then WareType := wt_Wood
-    else if (I = 2) then WareType := wt_Leather;
-
     if Sender = ResRow_Common_Resource_WS[I] then
-      gGame.GameInputProcess.CmdHouse(gic_HouseArmorWSDeliveryToggle, ArmorWS, WareType);
+      gGame.GameInputProcess.CmdHouse(gic_HouseArmorWSDeliveryToggle, ArmorWS, WORKSHOP_WARE[I]);
 
-    Image_ArmorWS_Accept[I].Visible := not ArmorWS.AcceptWareForDelivery(WareType);
+    Image_ArmorWS_Accept[I].Visible := not ArmorWS.AcceptWareForDelivery(WORKSHOP_WARE[I]);
   end;
 end;
 
