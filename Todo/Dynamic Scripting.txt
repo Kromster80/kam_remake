@@ -84,6 +84,8 @@ Implemented:
  6611	States.LocationCount: Integer
  6613	States.MapWidth: Integer
  6613	States.MapHeight: Integer
+ 6714g	Actions.PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)
+ 6714g	Actions.PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)
 
 
 Accepted:
