@@ -553,12 +553,17 @@ begin
   //If Demand house has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.WareDelivery));
 
+  //If Demand is a ArmorWorkshop and
+  Result := Result and ((fDemand[iD].Loc_House = nil) or
+                        (fDemand[iD].Loc_House.HouseType <> ht_ArmorWorkshop) or
+                        (TKMHouseArmorWorkshop(fDemand[iD].Loc_House).AcceptWareForDelivery(fOffer[iO].Ware)));
+
   //If Demand is a Storehouse and it has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House = nil) or
                         (fDemand[iD].Loc_House.HouseType <> ht_Store) or
                         (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Ware]));
 
-  //Warfare has a preference to be deivered to Barracks
+  //Warfare has a preference to be delivered to Barracks
   if Result
   and (fOffer[iO].Ware in [WARFARE_MIN..WARFARE_MAX])
   and (fDemand[iD].Loc_House <> nil) then

@@ -216,6 +216,21 @@ type
     property CuttingPoint: TKMPoint read fCuttingPoint write SetCuttingPoint;
   end;
 
+
+  TKMHouseArmorWorkshop = class(TKMHouse)
+  private
+    fAcceptWood: Boolean;
+    fAcceptLeather: Boolean;
+  public
+    property AcceptWood: Boolean read fAcceptWood write fAcceptWood;
+    property AcceptLeather: Boolean read fAcceptLeather write fAcceptLeather;
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+    procedure ToggleResDelivery(aWareType: TWareType);
+    function AcceptWareForDelivery(aWareType: TWareType): Boolean;
+  end;
+
 implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
@@ -1651,6 +1666,50 @@ begin
   if fWoodcutterMode = wcm_ChopAndPlant then
     ResourceDepletedMsgIssued := False;
 end;
+
+
+{ TKMHouseArmorWorkshop }
+constructor TKMHouseArmorWorkshop.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
+begin
+  inherited;
+  fAcceptWood := True;
+  fAcceptLeather := True;
+end;
+
+constructor TKMHouseArmorWorkshop.Load(LoadStream: TKMemoryStream);
+begin
+  inherited;
+  LoadStream.Read(fAcceptWood);
+  LoadStream.Read(fAcceptLeather);
+end;
+
+
+procedure TKMHouseArmorWorkshop.Save(SaveStream: TKMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fAcceptWood);
+  SaveStream.Write(fAcceptLeather);
+end;
+
+
+procedure TKMHouseArmorWorkshop.ToggleResDelivery(aWareType: TWareType);
+begin
+  case aWareType of
+    wt_Wood: fAcceptWood := not fAcceptWood;
+    wt_Leather: fAcceptLeather := not fAcceptLeather;
+  end;
+end;
+
+
+function TKMHouseArmorWorkshop.AcceptWareForDelivery(aWareType: TWareType): Boolean;
+begin
+  Result := True;
+  case aWareType of
+    wt_Wood: Result := fAcceptWood;
+    wt_Leather: Result := fAcceptLeather;
+  end;
+end;
+
 
 { THouseAction }
 constructor THouseAction.Create(aHouse: TKMHouse; aHouseState: THouseState);
