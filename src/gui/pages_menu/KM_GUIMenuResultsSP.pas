@@ -110,6 +110,7 @@ var
 var
   I: Integer;
   R: TWareType;
+  W: TUnitType;
   G: TKMCardinalArray;
   HumanId: TKMHandIndex;
   ShowAIResults: Boolean;
@@ -175,17 +176,17 @@ begin
     Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
 
     //Army
-    TempGraphCount := 0; //Reset
-    for I := 0 to gHands.Count - 1 do
-    with gHands[I] do
-      if HandType = hndComputer then
-        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy)
-      else
-        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
-
-    if ShowAIResults then
-      for I := 0 to TempGraphCount - 1 do
-        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+//    TempGraphCount := 0; //Reset
+//    for I := 0 to gHands.Count - 1 do
+//    with gHands[I] do
+//      if HandType = hndComputer then
+//        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy)
+//      else
+//        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
+//
+//    if ShowAIResults then
+//      for I := 0 to TempGraphCount - 1 do
+//        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
     //Citizens
     TempGraphCount := 0; //Reset
@@ -225,6 +226,18 @@ begin
         if G[I] <> 0 then
         begin
           Chart_Wares.AddLine(gRes.Wares[R].Title, gRes.Wares[R].GUIColor or $FF000000, G);
+          Break;
+        end;
+    end;
+
+    //Army
+    for W := WARRIOR_MIN to WARRIOR_MAX do
+    begin
+      G := gHands[HumanId].Stats.ChartArmy[W];
+      for I := 0 to High(G) do
+        if G[I] <> 0 then
+        begin
+          Chart_Army.AddLine(gRes.UnitDat.UnitsDat[W].GUIName, gRes.UnitDat.UnitsDat[W].MinimapColor or $FF000000, G);
           Break;
         end;
     end;

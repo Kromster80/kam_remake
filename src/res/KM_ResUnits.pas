@@ -47,6 +47,8 @@ type
     constructor Create(aType: TUnitType);
     function IsValid: Boolean;
     function IsAnimal: Boolean;
+    function IsCitizen: Boolean;
+    function IsWarrior: Boolean;
     function GetDefenceVsProjectiles(aIsBolt: Boolean): Single;
     procedure LoadFromStream(Stream: TMemoryStream);
     //Derived from KaM
@@ -176,6 +178,18 @@ begin
 end;
 
 
+function TKMUnitDatClass.IsCitizen: boolean;
+begin
+  Result := fUnitType in [CITIZEN_MIN..CITIZEN_MAX];
+end;
+
+
+function TKMUnitDatClass.IsWarrior: boolean;
+begin
+  Result := fUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX];
+end;
+
+
 function TKMUnitDatClass.GetDefenceVsProjectiles(aIsBolt: Boolean): Single;
 begin
   Result := Defence;
@@ -277,10 +291,12 @@ end;
 
 function TKMUnitDatClass.GetGUIIcon: word;
 begin
+  Result := 0;
   if IsValid then
-    Result := 141 + UnitTypeToIndex[fUnitType]
-  else
-    Result := 0;
+    if IsCitizen then
+      Result := 141 + UnitTypeToIndex[fUnitType]
+    else if isWarrior then
+      Result := 47 + UnitTypeToIndex[fUnitType]
 end;
 
 
@@ -358,10 +374,11 @@ end;
 
 function TKMUnitDatClass.GetUnitName: UnicodeString;
 begin
-  if IsValid then
-    Result := gResTexts[GetUnitTextID]
-  else
-    Result := 'N/A';
+  case fUnitType of
+    ut_Any:             Result := gResTexts[TX_RESOURCES_ALL]; //Resourse_ALL is just 'ALL', so we can reuse it here
+    ut_None:            Result := 'N/A';
+    else                Result := gResTexts[GetUnitTextID];
+  end;
 end;
 
 
