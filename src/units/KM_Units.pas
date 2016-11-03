@@ -103,6 +103,8 @@ type
     OnUnitDied: TKMUnitFromEvent;
     OnUnitTrained: TKMUnitEvent;
 
+    HitPointsUnlimited: Boolean;
+
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
@@ -119,6 +121,7 @@ type
     property PrevPosition: TKMPoint read fPrevPosition;
     property NextPosition: TKMPoint read fNextPosition write SetNextPosition;
     property Direction: TKMDirection read fDirection write SetDirection;
+    property CurrentHitPoints: Byte read fHitPoints;
 
     function HitTest(X,Y: Integer; const UT: TUnitType = ut_Any): Boolean;
 
@@ -150,6 +153,7 @@ type
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
     procedure SetOwner(aOwner: TKMHandIndex);
+    procedure HitPointsChangeFromScript(aAmount: Integer);
     procedure HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
     property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
@@ -1045,6 +1049,7 @@ begin
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
+  HitPointsUnlimited := False;
 
   SetActionLockedStay(10, ua_Walk); //Must be locked for this initial pause so animals don't get pushed
   gTerrain.UnitAdd(NextPosition,Self);
@@ -1294,7 +1299,8 @@ begin
   if fHitPoints = HitPointsMax then
     fHitPointCounter := 1;
 
-  fHitPoints := Max(fHitPoints - aAmount, 0);
+  if not HitPointsUnlimited then
+    fHitPoints := Max(fHitPoints - aAmount, 0);
 
   gScriptEvents.ProcUnitWounded(Self, aAttacker);
 
@@ -1304,6 +1310,16 @@ begin
       KillUnit(aAttacker.Owner, True, False)
     else
       KillUnit(PLAYER_NONE, True, False)
+end;
+
+
+procedure TKMUnit.HitPointsChangeFromScript(aAmount: Integer);
+begin
+  fHitPoints := EnsureRange(fHitPoints + aAmount, 0, GetHitPointsMax);
+  if (fHitPoints = 0)
+  and (not IsDeadOrDying)
+  and (not HitPointsUnlimited) then
+    KillUnit(PLAYER_NONE, True, False);
 end;
 
 
