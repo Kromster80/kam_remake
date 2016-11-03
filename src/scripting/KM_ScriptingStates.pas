@@ -1940,7 +1940,7 @@ function TKMScriptStates.MapTilePassability(X, Y: Integer; Passability: Byte): B
 begin
   try
     if (gTerrain.TileInMapCoords(X, Y))
-    and (TKMTerrainPassability(Passability) in [tpUnused..tpFactor]) then
+    and (TKMTerrainPassability(Passability) in [Low(TKMTerrainPassability)..High(TKMTerrainPassability)]) then
       Result := TKMTerrainPassability(Passability) in gTerrain.Land[Y, X].Passability
     else
     begin
