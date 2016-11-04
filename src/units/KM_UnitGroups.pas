@@ -1242,7 +1242,7 @@ begin
       end;
 
   //Keep the selected unit Selected
-  if NewGroup.HasMember(fSelected) then
+  if NewGroup.HasMember(fSelected) or aSplitSingle then
   begin
     gMySpectator.Selected := NewGroup;
     NewGroup.fSelected := fSelected;
