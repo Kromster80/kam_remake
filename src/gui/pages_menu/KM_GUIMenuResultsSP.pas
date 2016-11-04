@@ -115,6 +115,14 @@ var
   HumanId: TKMHandIndex;
   ShowAIResults: Boolean;
 begin
+  // When exit mission update stats to build actual charts
+  // without CHARTS_SAMPLING_FOR_TACTICS or CHARTS_SAMPLING_FOR_ECONOMY delays
+  // so measurements for warriors/goods produces will not differ from charts
+  for I := 0 to gHands.Count - 1 do
+  begin
+    gHands[I].Stats.UpdateState;
+  end;
+
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
   //That info should only be visible if the mission was won or a replay
   ShowAIResults := (fGameResultMsg in [gr_Win, gr_ReplayEnd]);
