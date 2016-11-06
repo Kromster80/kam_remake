@@ -52,9 +52,9 @@ type
     fMusicVolume: Single;
     fSoundFXVolume: Single;
     fSpeedPace: Word;
-    fSpeedMedium: Word;
-    fSpeedFast: Word;
-    fSpeedVeryFast: Word;
+    fSpeedMedium: Single;
+    fSpeedFast: Single;
+    fSpeedVeryFast: Single;
     fMultiplayerName: AnsiString;
     fLastIP: string;
     fLastPort: string;
@@ -116,9 +116,9 @@ type
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
     property SoundFXVolume: Single read fSoundFXVolume write SetSoundFXVolume;
     property SpeedPace: Word read fSpeedPace;
-    property SpeedMedium: Word read fSpeedMedium;
-    property SpeedFast: Word read fSpeedFast;
-    property SpeedVeryFast: Word read fSpeedVeryFast;
+    property SpeedMedium: Single read fSpeedMedium;
+    property SpeedFast: Single read fSpeedFast;
+    property SpeedVeryFast: Single read fSpeedVeryFast;
     property MultiplayerName: AnsiString read fMultiplayerName write SetMultiplayerName;
     property LastIP: string read fLastIP write SetLastIP;
     property LastPort: string read fLastPort write SetLastPort;
@@ -290,9 +290,9 @@ begin
     fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
     fLocale         := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
     fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
-    fSpeedMedium    := F.ReadInteger('Game', 'SpeedMedium',    3);
-    fSpeedFast      := F.ReadInteger('Game', 'SpeedFast',      6);
-    fSpeedVeryFast  := F.ReadInteger('Game', 'SpeedVeryFast',  10);
+    fSpeedMedium    := F.ReadFloat('Game', 'SpeedMedium',    3);
+    fSpeedFast      := F.ReadFloat('Game', 'SpeedFast',      6);
+    fSpeedVeryFast  := F.ReadFloat('Game', 'SpeedVeryFast',  10);
 
     fSoundFXVolume  := F.ReadFloat  ('SFX',  'SFXVolume',      0.5);
     fMusicVolume    := F.ReadFloat  ('SFX',  'MusicVolume',    0.5);
@@ -344,9 +344,9 @@ begin
     F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
     F.WriteString ('Game','Locale',       UnicodeString(fLocale));
     F.WriteInteger('Game','SpeedPace',    fSpeedPace);
-    F.WriteInteger('Game','SpeedMedium',  fSpeedMedium);
-    F.WriteInteger('Game','SpeedFast',    fSpeedFast);
-    F.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
+    F.WriteFloat('Game','SpeedMedium',    fSpeedMedium);
+    F.WriteFloat('Game','SpeedFast',      fSpeedFast);
+    F.WriteFloat('Game','SpeedVeryFast',  fSpeedVeryFast);
 
     F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
     F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
