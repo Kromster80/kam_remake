@@ -133,8 +133,6 @@ begin
     IconInfo.fIcon := false; //true=Icon, false=Cursor
     IconInfo.hbmColor := bm.Handle;
 
-    //bm.AlphaFormat := afDefined;  // AlphaBlend below, premultiply channels
-
     //I have a suspicion that maybe Windows could create icon delayed, at a time when bitmap data is
     //no longer valid (replaced by other bitmap or freed). Hence issues with transparency.
     {$IFDEF MSWindows}
