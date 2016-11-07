@@ -58,6 +58,7 @@ type
     function GetNearestMember(aUnit: TKMUnitWarrior): Integer; overload;
     function GetNearestMember(aLoc: TKMPoint): TKMUnitWarrior; overload;
     function GetMemberLoc(aIndex: Integer): TKMPointExact;
+    procedure SetMapEdCount(aCount: Word);
     procedure SetUnitsPerRow(aCount: Word);
     procedure SetDirection(Value: TKMDirection);
     procedure SetCondition(aValue: Integer);
@@ -121,7 +122,7 @@ type
     property GroupType: TGroupType read fGroupType;
     property UID: Integer read fUID;
     property Count: Integer read GetCount;
-    property MapEdCount: Word read fMapEdCount write fMapEdCount;
+    property MapEdCount: Word read fMapEdCount write SetMapEdCount;
     property Members[aIndex: Integer]: TKMUnitWarrior read GetMember;
     property Owner: TKMHandIndex read fOwner;
     property Position: TKMPoint read GetPosition write SetPosition;
@@ -547,6 +548,13 @@ begin
   Assert(gGame.IsMapEditor);
   fOrderLoc.Dir := Value;
   Members[0].Direction := Value;
+end;
+
+
+procedure TKMUnitGroup.SetMapEdCount(aCount: Word);
+begin
+  fMapEdCount := aCount;
+  SetUnitsPerRow(fUnitsPerRow);
 end;
 
 
