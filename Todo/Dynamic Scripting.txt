@@ -86,7 +86,11 @@ Implemented:
  6613	States.MapHeight: Integer
  6714g	Actions.PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)
  6714g	Actions.PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)
-
+ 6722g	States.UnitHPCurrent(aUnitID: Integer): Integer
+ 6722g	States.UnitHPMax(aUnitID: Integer): Integer
+ 6722g	States.UnitHPUnlimited(aUnitID: Integer): Boolean
+ 6722g	Actions.UnitHPChange(aUnitID, aHP: Integer)
+ 6722g	Actions.UnitHPSetUnlimited(aUnitID: Integer; aUnlimited: Boolean)
 
 Accepted:
 	OnGroupOrderAttackHouse(aGroup, aHouse: integer)
@@ -131,9 +135,6 @@ Proposed:
 	PlayerGetAllUnitsMultipleTypes(playerID, array of byte[] (unit types) returns array of id of units
 	GetAllTeams - return array of teams in multiplayer
 	PlayerTeam(playerId) - return id of team of specified player
-	Actions.UnitHPGet - how many HP unit has left
-	Actions.UnitHPMax - how many HP unit can have max
-	Actions.UnitHPSet - set units HP (EnsureRange(newHP, 1, UnitHPMax))
 
 
 Rejected:	
