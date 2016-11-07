@@ -841,7 +841,22 @@ begin
                   TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);
 
                 if gMySpectator.Selected is TKMUnitGroup then
-                  TKMUnitGroup(gMySpectator.Selected).Position := gGameCursor.Cell;
+                begin
+                  if ssShift in gGameCursor.SState then
+                  begin
+                    if (gTerrain.UnitsHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil)
+                    or (gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil) then
+                      TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Order := ioAttackPosition
+                    else
+                      TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Order := ioSendGroup;
+                    TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Pos.Loc.X := gGameCursor.Cell.X;
+                    TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Pos.Loc.Y := gGameCursor.Cell.Y;
+                    TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Pos.Dir := TKMUnitGroup(gMySpectator.Selected).Direction;
+                    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
+                  end
+                  else
+                    TKMUnitGroup(gMySpectator.Selected).Position := gGameCursor.Cell;
+                end;
 
                 if fGuiMarkerDefence.Visible then
                 begin
