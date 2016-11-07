@@ -206,6 +206,10 @@ begin
     NewCount := fGroup.MapEdCount + GetMultiplicator(Shift);
 
   fGroup.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
+
+  if (fGroup.MapEdCount < fGroup.UnitsPerRow) then
+    fGroup.UnitsPerRow := fGroup.MapEdCount;
+
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
 end;
