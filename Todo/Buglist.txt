@@ -49,7 +49,7 @@ Improvements:
  +		Change unit training order in School on Ctrl+click, Shift+click
  +	L	Pressing LMB over placed plans and dragging it - will remove plans
  +	L	Pressing Enter/Esc in multiplayer password entering form will submit/cancel it
-
+ +	L	When splitting one soldier from the group - select him
 
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
