@@ -11,6 +11,7 @@ type
   private
     fUnit: TKMUnit;
     fGroup: TKMUnitGroup;
+
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
     procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState); overload;
@@ -214,7 +215,6 @@ begin
     NewCount := fGroup.MapEdCount + GetMultiplicator(Shift);
 
   fGroup.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
-
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
 end;

@@ -554,6 +554,7 @@ end;
 procedure TKMUnitGroup.SetMapEdCount(aCount: Word);
 begin
   fMapEdCount := aCount;
+  // Ensure fUnitsPerRow not more then fMapEdCount
   SetUnitsPerRow(fUnitsPerRow);
 end;
 
