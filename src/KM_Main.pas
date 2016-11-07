@@ -34,9 +34,10 @@ type
     procedure CloseQuery(var CanClose: Boolean);
     procedure Stop(Sender: TObject);
 
-    procedure UpdateWindowParams(aWindowParams: TKMWindowParams);
+    procedure UpdateWindowParams(aWindowParams: TKMWindowParamsRecord);
+    procedure Move(aWindowParams: TKMWindowParamsRecord);
     procedure Resize(aWidth, aHeight: Integer); overload;
-    procedure Resize(aWidth, aHeight: Integer; aWindowParams: TKMWindowParams); overload;
+    procedure Resize(aWidth, aHeight: Integer; aWindowParams: TKMWindowParamsRecord); overload;
     procedure Render;
     procedure ShowAbout;
     property FormMain: TFormMain read fFormMain;
@@ -127,6 +128,10 @@ begin
   fFormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
   //Will make the form slightly higher, so do it before ReinitRender so it is reset
   fFormMain.ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
+
+  // Check INI window params, if not valid - set NeedResetToDefaults flag for future update
+  if not fMainSettings.WindowParams.IsValid(Screen) then
+     fMainSettings.WindowParams.NeedResetToDefaults := True;
 
   ReinitRender(False);
 
@@ -295,16 +300,20 @@ end;
 
 procedure TKMMain.ReinitRender(aReturnToOptions: Boolean);
 begin
+
   if fMainSettings.FullScreen then
+  begin
+    // Lock window params while we are in FullScreen mode
+    fMainSettings.WindowParams.LockParams;
     if fResolutions.IsValid(fMainSettings.Resolution) then
       fResolutions.SetResolution(fMainSettings.Resolution)
     else
-      fMainSettings.FullScreen := False
-  else
+      fMainSettings.FullScreen := False;
+  end else
     fResolutions.Restore;
 
   fFormLoading.Position := poScreenCenter;
-  fFormMain.ToggleFullscreen(fMainSettings.FullScreen);
+  fFormMain.ToggleFullscreen(fMainSettings.FullScreen, fMainSettings.WindowParams.NeedResetToDefaults);
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(gGameApp); //Saves all settings into ini file in midst
@@ -326,6 +335,10 @@ begin
   fFormMain.Show;
 
   Resize(fFormMain.RenderArea.Width, fFormMain.RenderArea.Height); //Force everything to resize
+  // Unlock window params if are no longer in FullScreen mode
+  if (not fMainSettings.FullScreen) then
+    fMainSettings.WindowParams.UnlockParams;
+
   ApplyCursorRestriction;
 end;
 
@@ -486,13 +499,6 @@ begin
 end;
 
 
-procedure TKMMain.UpdateWindowParams(aWindowParams: TKMWindowParams);
-begin
-  if gGameApp <> nil then
-    fMainSettings.WindowParams := aWindowParams;
-
-end;
-
 procedure TKMMain.Resize(aWidth, aHeight: Integer);
 begin
   if gGameApp <> nil then
@@ -500,13 +506,27 @@ begin
 end;
 
 
-procedure TKMMain.Resize(aWidth, aHeight: Integer; aWindowParams: TKMWindowParams);
+
+procedure TKMMain.Resize(aWidth, aHeight: Integer; aWindowParams: TKMWindowParamsRecord);
 begin
   if gGameApp <> nil then
   begin
     gGameApp.Resize(aWidth, aHeight);
     UpdateWindowParams(aWindowParams);
   end;
+end;
+
+
+procedure TKMMain.Move(aWindowParams: TKMWindowParamsRecord);
+begin
+  UpdateWindowParams(aWindowParams);
+end;
+
+
+procedure TKMMain.UpdateWindowParams(aWindowParams: TKMWindowParamsRecord);
+begin
+  if gGameApp <> nil then
+    fMainSettings.WindowParams.ApplyWindowParams(aWindowParams);
 end;
 
 

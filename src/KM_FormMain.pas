@@ -3,7 +3,7 @@ unit KM_FormMain;
 interface
 uses
   Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils,
-  KM_RenderControl, KM_Resolutions,
+  KM_RenderControl, KM_Settings,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -124,7 +124,7 @@ type
   private
     fUpdating: Boolean;
     {$IFDEF MSWindows}
-    function GetWindowParams: TKMWindowParams;
+    function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMExitSizeMove(var Msg: TMessage) ; message WM_EXITSIZEMOVE;
     {$ENDIF}
@@ -132,7 +132,7 @@ type
     RenderArea: TKMRenderControl;
     procedure ControlsSetVisibile(aShowCtrls: Boolean);
     procedure ControlsReset;
-    procedure ToggleFullscreen(aFullscreen: Boolean);
+    procedure ToggleFullscreen(aFullscreen, aWindowDefaultParams: Boolean);
   end;
 
 
@@ -183,17 +183,24 @@ begin
   GroupBox1.BringToFront;
 end;
 
-
 procedure TFormMain.FormShow(Sender: TObject);
-var Margin: TPoint;
+var BordersWidth, BordersHeight: Integer;
 begin
   //We do this in OnShow rather than OnCreate as the window borders aren't
   //counted properly in OnCreate
-  Margin.X := Width - ClientWidth;
-  Margin.Y := Height - ClientHeight;
+  BordersWidth := Width - ClientWidth;
+  BordersHeight := Height - ClientHeight;
   //Constraints includes window borders, so we add them on as Margin
-  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + Margin.X;
-  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + Margin.Y;
+  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + BordersWidth;
+  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + BordersHeight;
+
+  // We have to put it here, to proper window positioning for multimonitor systems
+  if not fMain.Settings.FullScreen then
+  begin
+    Left := fMain.Settings.WindowParams.Left;
+    Top := fMain.Settings.WindowParams.Top;
+  end;
+
 end;
 
 
@@ -247,7 +254,7 @@ begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, MousePos.X,
 
 procedure TFormMain.RenderAreaResize(aWidth, aHeight: Integer);
 begin
-  fMain.Resize(aWidth, aHeight {$IFDEF MSWindows}, GetWindowParams {$ENDIF});
+  fMain.Resize(aWidth, aHeight, GetWindowParams);
 end;
 
 
@@ -470,7 +477,7 @@ begin
   RenderArea.Top    := 0;
   RenderArea.Height := ClientHeight;
   RenderArea.Width  := ClientWidth;
-  fMain.Resize(RenderArea.Width, RenderArea.Height {$IFDEF MSWindows}, GetWindowParams {$ENDIF});
+  fMain.Resize(RenderArea.Width, RenderArea.Height, GetWindowParams);
 end;
 
 
@@ -534,7 +541,7 @@ begin
 end;
 
 
-procedure TFormMain.ToggleFullscreen(aFullscreen: Boolean);
+procedure TFormMain.ToggleFullscreen(aFullscreen, aWindowDefaultParams: Boolean);
 begin
   if aFullScreen then begin
     Show; //Make sure the form is shown (e.g. on game creation), otherwise it won't wsMaximize
@@ -545,50 +552,68 @@ begin
   end else begin
     BorderStyle  := bsSizeable;
     WindowState  := wsNormal;
-//    ClientWidth  := MENU_DESIGN_X;
-//    ClientHeight := MENU_DESIGN_Y;
-
-    ClientWidth  := fMain.Settings.WindowParams.Width;
-    ClientHeight := fMain.Settings.WindowParams.Height;
-    Left := fMain.Settings.WindowParams.Left;
-    Top := fMain.Settings.WindowParams.Top;
-    //Position     := poScreenCenter;
-    WindowState  := fMain.Settings.WindowParams.State;
-
+    if (aWindowDefaultParams) then
+    begin
+      Position := poScreenCenter;
+      ClientWidth  := MENU_DESIGN_X;
+      ClientHeight := MENU_DESIGN_Y;
+      // We've set default window params, so update them
+      fMain.UpdateWindowParams(GetWindowParams);
+      // Unset NeedResetToDefaults flag
+      fMain.Settings.WindowParams.NeedResetToDefaults := False;
+    end else begin
+      // Here we set window Width/Height and State
+      // Left and Top will set on FormShow, so omit setting them here
+      Position := poDesigned;
+      ClientWidth  := fMain.Settings.WindowParams.Width;
+      ClientHeight := fMain.Settings.WindowParams.Height;
+      WindowState  := fMain.Settings.WindowParams.State;
+    end;
   end;
 
   //Make sure Panel is properly aligned
   RenderArea.Align := alClient;
 end;
 
-{$IFDEF MSWindows}
-function TFormMain.GetWindowParams: TKMWindowParams;
+
+function TFormMain.GetWindowParams: TKMWindowParamsRecord;
 var
   Wp: TWindowPlacement;
+  BordersWidth, BordersHeight: SmallInt;
 begin
   Result.State := WindowState;
   case WindowState of
     wsMinimized:  ;
     wsNormal:     begin
-                    Result.Width := Width;
-                    Result.Height := Height;
+                    Result.Width := ClientWidth;
+                    Result.Height := ClientHeight;
                     Result.Left := Left;
                     Result.Top := Top;
                   end;
     wsMaximized:  begin
-                    if HandleAllocated then begin
+                    if HandleAllocated then
+                    begin
                       Wp.length := SizeOf(TWindowPlacement);
                       GetWindowPlacement(Handle, @Wp);
+
+                      // Get current border width/height
+                      BordersWidth := Width - ClientWidth;
+                      BordersHeight := Height - ClientHeight;
+
+                      // rcNormalPosition do not have ClientWidth/ClientHeight
+                      // so we have to calc it manually via substracting border width/height
+                      Result.Width := Wp.rcNormalPosition.Right - Wp.rcNormalPosition.Left - BordersWidth;
+                      Result.Height := Wp.rcNormalPosition.Bottom - Wp.rcNormalPosition.Top - BordersHeight;
+
                       Result.Left := Wp.rcNormalPosition.Left;
                       Result.Top := Wp.rcNormalPosition.Top;
-                      Result.Width := Wp.rcNormalPosition.Right - Wp.rcNormalPosition.Left;
-                      Result.Height := Wp.rcNormalPosition.Bottom - Wp.rcNormalPosition.Top;
                     end;
                   end;
   end;
 end;
 
 
+{$IFDEF MSWindows}
 procedure TFormMain.WMSysCommand(var Msg: TWMSysCommand);
 begin
   //If the system message is screensaver or monitor power off then trap the message and set its result to -1
@@ -597,13 +622,14 @@ begin
   else
     inherited;
 end;
+{$ENDIF}
 
 
 procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
 begin
-  fMain.UpdateWindowParams(GetWindowParams);
+  fMain.Move(GetWindowParams);
 end;
-{$ENDIF}
+
 
 
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
