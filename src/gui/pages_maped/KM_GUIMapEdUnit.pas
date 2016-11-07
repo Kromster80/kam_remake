@@ -11,8 +11,8 @@ type
   private
     fUnit: TKMUnit;
     fGroup: TKMUnitGroup;
-
     procedure Unit_ArmyChange1(Sender: TObject); overload;
+    procedure Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
     procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState); overload;
   protected
     Panel_Unit: TKMPanel;
@@ -69,8 +69,8 @@ begin
   Button_Army_ForDown := TKMButton.Create(Panel_Army,     124, 46, 56, 40, 32, rxGui, bsGame);
   Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
   Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
-  Button_Army_ForUp.OnClick   := Unit_ArmyChange1;
-  Button_Army_ForDown.OnClick := Unit_ArmyChange1;
+  Button_Army_ForUp.OnClickShift   := Unit_ArmyChangeShift;
+  Button_Army_ForDown.OnClickShift := Unit_ArmyChangeShift;
 
   Button_ArmyDec  := TKMButton.Create(Panel_Army,  0,92,56,40,'-', bsGame);
   Button_ArmyFood := TKMButton.Create(Panel_Army, 62,92,56,40,29, rxGui, bsGame);
@@ -149,8 +149,16 @@ end;
 
 procedure TKMMapEdUnit.Unit_ArmyChange1(Sender: TObject);
 begin
-  if Sender = Button_Army_ForUp then fGroup.UnitsPerRow := fGroup.UnitsPerRow - 1;
-  if Sender = Button_Army_ForDown then fGroup.UnitsPerRow := fGroup.UnitsPerRow + 1;
+  Unit_ArmyChangeShift(Sender, []);
+end;
+
+
+procedure TKMMapEdUnit.Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
+begin
+  if Sender = Button_Army_ForUp then
+    fGroup.UnitsPerRow := EnsureRange(fGroup.UnitsPerRow - GetMultiplicator(Shift), 1, 200);
+  if Sender = Button_Army_ForDown then
+    fGroup.UnitsPerRow := EnsureRange(fGroup.UnitsPerRow + GetMultiplicator(Shift), 1, 200);
 
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
