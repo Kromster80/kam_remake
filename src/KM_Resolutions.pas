@@ -11,7 +11,6 @@ type
     Width, Height, RefRate: SmallInt;
   end;
 
-
   TKMScreenResIndex = record
     ResId, RefId: Integer;
   end;

@@ -270,7 +270,6 @@ begin
 end;
 
 
-
 procedure TMainSettings.SetVSync(aValue: boolean);
 begin
   fVSync := aValue;
@@ -665,7 +664,7 @@ begin
   // Do not let put window too much left or right. 100px is enought to get it back in that case
   Result := (fLeft > -fWidth + 100)
         and (fLeft < ScreenMaxWidth - 100)
-        and (fTop > 0)
+        and (fTop >= 0)
         and (fTop < ScreenMaxHeight - 100)
         and (fWidth >= MIN_RESOLUTION_WIDTH)
         and (fWidth <= ScreenMaxWidth)

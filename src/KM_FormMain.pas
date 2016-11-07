@@ -575,6 +575,7 @@ begin
   RenderArea.Align := alClient;
 end;
 
+
 // Return current window params
 function TFormMain.GetWindowParams: TKMWindowParamsRecord;
   // FindTaskBar returns the Task Bar's position, and fills in
@@ -659,7 +660,6 @@ procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
 begin
   fMain.Move(GetWindowParams);
 end;
-
 
 
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);

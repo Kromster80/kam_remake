@@ -300,7 +300,6 @@ end;
 
 procedure TKMMain.ReinitRender(aReturnToOptions: Boolean);
 begin
-
   if fMainSettings.FullScreen then
   begin
     // Lock window params while we are in FullScreen mode
