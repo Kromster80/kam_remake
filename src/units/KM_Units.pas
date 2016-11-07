@@ -1227,6 +1227,10 @@ begin
   if IsDeadOrDying then
     Exit;
 
+  //Don't kill immortal unit (with unlmited HP)
+  if HitPointsUnlimited then
+    Exit;
+
   //From this moment onwards the unit is guaranteed to die (no way to avoid it even with KillASAP), so
   //signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
   //This must be called before actually killing the unit because gScriptEvets needs to access it
@@ -1299,8 +1303,7 @@ begin
   if fHitPoints = HitPointsMax then
     fHitPointCounter := 1;
 
-  if not HitPointsUnlimited then
-    fHitPoints := Max(fHitPoints - aAmount, 0);
+  fHitPoints := Max(fHitPoints - aAmount, 0);
 
   gScriptEvents.ProcUnitWounded(Self, aAttacker);
 
@@ -1317,8 +1320,7 @@ procedure TKMUnit.HitPointsChangeFromScript(aAmount: Integer);
 begin
   fHitPoints := EnsureRange(fHitPoints + aAmount, 0, GetHitPointsMax);
   if (fHitPoints = 0)
-  and (not IsDeadOrDying)
-  and (not HitPointsUnlimited) then
+  and (not IsDeadOrDying) then
     KillUnit(PLAYER_NONE, True, False);
 end;
 
