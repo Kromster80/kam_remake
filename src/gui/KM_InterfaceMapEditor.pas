@@ -858,7 +858,7 @@ begin
                       //Save target coordinates
                       MapEdOrder.Pos.Loc.X := gGameCursor.Cell.X;
                       MapEdOrder.Pos.Loc.Y := gGameCursor.Cell.Y;
-                      MapEdOrder.Pos.Dir := TKMUnitGroup(gMySpectator.Selected).Direction;
+                      MapEdOrder.Pos.Dir := G.Direction;
                       //Update group GUI
                       fGuiUnit.Show(G);
                     end
