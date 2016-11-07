@@ -2,7 +2,7 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils,
+  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils, ShellAPI,
   KM_RenderControl, KM_Settings,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
@@ -575,11 +575,31 @@ begin
   RenderArea.Align := alClient;
 end;
 
-
+// Return current window params
 function TFormMain.GetWindowParams: TKMWindowParamsRecord;
+  // FindTaskBar returns the Task Bar's position, and fills in
+  // ARect with the current bounding rectangle.
+  function FindTaskBar(var aRect: TRect): Integer;
+  var	AppData: TAppBarData;
+  begin
+    Result := -1;
+    // 'Shell_TrayWnd' is the name of the task bar's window
+    AppData.Hwnd := FindWindow('Shell_TrayWnd', nil);
+    if AppData.Hwnd <> 0 then
+    begin
+      AppData.cbSize := SizeOf(TAppBarData);
+      // SHAppBarMessage will return False (0) when an error happens.
+      if SHAppBarMessage(ABM_GETTASKBARPOS, AppData) <> 0 then
+      begin
+        Result := AppData.uEdge;
+        aRect := AppData.rc;
+      end;
+    end;
+  end;
 var
   Wp: TWindowPlacement;
   BordersWidth, BordersHeight: SmallInt;
+  Rect: TRect;
 begin
   Result.State := WindowState;
   case WindowState of
@@ -591,22 +611,32 @@ begin
                     Result.Top := Top;
                   end;
     wsMaximized:  begin
-                    if HandleAllocated then
-                    begin
-                      Wp.length := SizeOf(TWindowPlacement);
-                      GetWindowPlacement(Handle, @Wp);
+                    Wp.length := SizeOf(TWindowPlacement);
+                    GetWindowPlacement(Handle, @Wp);
 
-                      // Get current borders width/height
-                      BordersWidth := Width - ClientWidth;
-                      BordersHeight := Height - ClientHeight;
+                    // Get current borders width/height
+                    BordersWidth := Width - ClientWidth;
+                    BordersHeight := Height - ClientHeight;
 
-                      // rcNormalPosition do not have ClientWidth/ClientHeight
-                      // so we have to calc it manually via substracting borders width/height
-                      Result.Width := Wp.rcNormalPosition.Right - Wp.rcNormalPosition.Left - BordersWidth;
-                      Result.Height := Wp.rcNormalPosition.Bottom - Wp.rcNormalPosition.Top - BordersHeight;
+                    // rcNormalPosition do not have ClientWidth/ClientHeight
+                    // so we have to calc it manually via substracting borders width/height
+                    Result.Width := Wp.rcNormalPosition.Right - Wp.rcNormalPosition.Left - BordersWidth;
+                    Result.Height := Wp.rcNormalPosition.Bottom - Wp.rcNormalPosition.Top - BordersHeight;
 
-                      Result.Left := Wp.rcNormalPosition.Left;
-                      Result.Top := Wp.rcNormalPosition.Top;
+                    // Adjustment of window position due to TaskBar position/size
+                    case FindTaskBar(Rect) of
+                      ABE_LEFT: begin
+                                  Result.Left := Wp.rcNormalPosition.Left + Rect.Right;
+                                  Result.Top := Wp.rcNormalPosition.Top;
+                                end;
+                      ABE_TOP:  begin
+                                  Result.Left := Wp.rcNormalPosition.Left;
+                                  Result.Top := Wp.rcNormalPosition.Top + Rect.Bottom;
+                                end
+                      else      begin
+                                  Result.Left := Wp.rcNormalPosition.Left;
+                                  Result.Top := Wp.rcNormalPosition.Top;
+                                end;
                     end;
                   end;
   end;
