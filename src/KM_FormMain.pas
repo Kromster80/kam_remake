@@ -596,12 +596,12 @@ begin
                       Wp.length := SizeOf(TWindowPlacement);
                       GetWindowPlacement(Handle, @Wp);
 
-                      // Get current border width/height
+                      // Get current borders width/height
                       BordersWidth := Width - ClientWidth;
                       BordersHeight := Height - ClientHeight;
 
                       // rcNormalPosition do not have ClientWidth/ClientHeight
-                      // so we have to calc it manually via substracting border width/height
+                      // so we have to calc it manually via substracting borders width/height
                       Result.Width := Wp.rcNormalPosition.Right - Wp.rcNormalPosition.Left - BordersWidth;
                       Result.Height := Wp.rcNormalPosition.Bottom - Wp.rcNormalPosition.Top - BordersHeight;
 

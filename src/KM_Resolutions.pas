@@ -2,7 +2,7 @@ unit KM_Resolutions;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, Forms,
+  Classes, Math, SysUtils,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_Defaults;
 
