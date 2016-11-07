@@ -2,7 +2,7 @@ unit KM_Resolutions;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils,
+  Classes, Math, SysUtils, Forms,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_Defaults;
 
@@ -10,6 +10,26 @@ type
   TKMScreenRes = record
     Width, Height, RefRate: SmallInt;
   end;
+
+  TKMWindowState = (ws_Normal, ws_Maximized);
+
+//  TKMWindowParams = class
+//  private
+//    fWidth, fHeight, fLeft, fTop: SmallInt;
+//    fState: TKMWindowState;
+//  public
+//    property Width: SmallInt read fWidth write fWidth;
+//    property Height: SmallInt read fHeight write fHeight;
+//    property Left: SmallInt read fLeft write fLeft;
+//    property Top: SmallInt read fTop write fTop;
+//    property State:
+//  end;
+
+  TKMWindowParams = record
+    Width, Height, Left, Top: SmallInt;
+    State: TWindowState;
+  end;
+
 
   TKMScreenResIndex = record
     ResId, RefId: Integer;

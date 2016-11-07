@@ -3,7 +3,7 @@ unit KM_FormMain;
 interface
 uses
   Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils,
-  KM_RenderControl,
+  KM_RenderControl, KM_Resolutions,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -124,7 +124,9 @@ type
   private
     fUpdating: Boolean;
     {$IFDEF MSWindows}
+    function GetWindowParams: TKMWindowParams;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
+    procedure WMExitSizeMove(var Msg: TMessage) ; message WM_EXITSIZEMOVE;
     {$ENDIF}
   public
     RenderArea: TKMRenderControl;
@@ -238,13 +240,14 @@ begin if gGameApp <> nil then gGameApp.MouseUp(Button, Shift, X, Y); end;
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y); end;
 
+
 procedure TFormMain.RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
 
 
 procedure TFormMain.RenderAreaResize(aWidth, aHeight: Integer);
 begin
-  fMain.Resize(aWidth, aHeight);
+  fMain.Resize(aWidth, aHeight {$IFDEF MSWindows}, GetWindowParams {$ENDIF});
 end;
 
 
@@ -467,8 +470,7 @@ begin
   RenderArea.Top    := 0;
   RenderArea.Height := ClientHeight;
   RenderArea.Width  := ClientWidth;
-
-  fMain.Resize(RenderArea.Width, RenderArea.Height);
+  fMain.Resize(RenderArea.Width, RenderArea.Height {$IFDEF MSWindows}, GetWindowParams {$ENDIF});
 end;
 
 
@@ -543,9 +545,16 @@ begin
   end else begin
     BorderStyle  := bsSizeable;
     WindowState  := wsNormal;
-    ClientWidth  := MENU_DESIGN_X;
-    ClientHeight := MENU_DESIGN_Y;
-    Position     := poScreenCenter;
+//    ClientWidth  := MENU_DESIGN_X;
+//    ClientHeight := MENU_DESIGN_Y;
+
+    ClientWidth  := fMain.Settings.WindowParams.Width;
+    ClientHeight := fMain.Settings.WindowParams.Height;
+    Left := fMain.Settings.WindowParams.Left;
+    Top := fMain.Settings.WindowParams.Top;
+    //Position     := poScreenCenter;
+    WindowState  := fMain.Settings.WindowParams.State;
+
   end;
 
   //Make sure Panel is properly aligned
@@ -553,6 +562,33 @@ begin
 end;
 
 {$IFDEF MSWindows}
+function TFormMain.GetWindowParams: TKMWindowParams;
+var
+  Wp: TWindowPlacement;
+begin
+  Result.State := WindowState;
+  case WindowState of
+    wsMinimized:  ;
+    wsNormal:     begin
+                    Result.Width := Width;
+                    Result.Height := Height;
+                    Result.Left := Left;
+                    Result.Top := Top;
+                  end;
+    wsMaximized:  begin
+                    if HandleAllocated then begin
+                      Wp.length := SizeOf(TWindowPlacement);
+                      GetWindowPlacement(Handle, @Wp);
+                      Result.Left := Wp.rcNormalPosition.Left;
+                      Result.Top := Wp.rcNormalPosition.Top;
+                      Result.Width := Wp.rcNormalPosition.Right - Wp.rcNormalPosition.Left;
+                      Result.Height := Wp.rcNormalPosition.Bottom - Wp.rcNormalPosition.Top;
+                    end;
+                  end;
+  end;
+end;
+
+
 procedure TFormMain.WMSysCommand(var Msg: TWMSysCommand);
 begin
   //If the system message is screensaver or monitor power off then trap the message and set its result to -1
@@ -560,6 +596,12 @@ begin
     Msg.Result := -1
   else
     inherited;
+end;
+
+
+procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
+begin
+  fMain.UpdateWindowParams(GetWindowParams);
 end;
 {$ENDIF}
 

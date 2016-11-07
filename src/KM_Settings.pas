@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles,
+  Classes, SysUtils, Math, INIfiles, Forms,
   KM_Defaults, KM_Resolutions;
 
 
@@ -15,9 +15,11 @@ type
 
     fFullScreen: Boolean;
     fResolution: TKMScreenRes;
+    fWindowParams: TKMWindowParams;
     fVSync: Boolean;
     procedure SetFullScreen(aValue: Boolean);
     procedure SetResolution(const Value: TKMScreenRes);
+    procedure SetWindowParams(const Value: TKMWindowParams);
     procedure SetVSync(aValue: Boolean);
   protected
     procedure Changed;
@@ -32,6 +34,7 @@ type
 
     property FullScreen: Boolean read fFullScreen write SetFullScreen;
     property Resolution: TKMScreenRes read fResolution write SetResolution;
+    property WindowParams: TKMWindowParams read fWindowParams write SetWindowParams;
     property VSync: Boolean read fVSync write SetVSync;
   end;
 
@@ -180,6 +183,14 @@ begin
   fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', 768);
   fResolution.RefRate := F.ReadInteger('GFX', 'RefreshRate',      60);
 
+  fWindowParams.Width := F.ReadInteger  ('Window', 'WindowWidth',   1024);
+  fWindowParams.Height := F.ReadInteger ('Window', 'WindowHeight',  768);
+  fWindowParams.Left := F.ReadInteger   ('Window', 'WindowLeft',    0);
+  fWindowParams.Top := F.ReadInteger    ('Window', 'WindowTop',     0);
+  fWindowParams.State := TWindowState(F.ReadInteger('Window', 'WindowState',  0));
+
+  //WindowState := TWindowState(GetEnumValue(TypeInfo(TWindowState), wIni.ReadString('FORM', 'WINDOWSTATE', 'wsNormal')));
+
   FreeAndNil(F);
   fNeedsSave := False;
 end;
@@ -198,6 +209,14 @@ begin
   F.WriteInteger('GFX','ResolutionHeight',fResolution.Height);
   F.WriteInteger('GFX','RefreshRate',     fResolution.RefRate);
 
+  F.WriteInteger('Window','WindowWidth', fWindowParams.Width);
+  F.WriteInteger('Window','WindowHeight', fWindowParams.Height);
+  F.WriteInteger('Window','WindowLeft', fWindowParams.Left);
+  F.WriteInteger('Window','WindowTop', fWindowParams.Top);
+  F.WriteInteger('Window','WindowState', Ord(fWindowParams.State));
+
+//  wIni.WriteString('FORM', 'WINDOWSTATE', GetEnumName(TypeInfo(TWindowState), Ord(WindowState)));
+
   F.UpdateFile; //Write changes to file
   FreeAndNil(F);
   fNeedsSave := False;
@@ -213,6 +232,13 @@ end;
 procedure TMainSettings.SetResolution(const Value: TKMScreenRes);
 begin
   fResolution := Value;
+  Changed;
+end;
+
+
+procedure TMainSettings.SetWindowParams(const Value: TKMWindowParams);
+begin
+  fWindowParams := Value;
   Changed;
 end;
 

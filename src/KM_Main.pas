@@ -34,7 +34,9 @@ type
     procedure CloseQuery(var CanClose: Boolean);
     procedure Stop(Sender: TObject);
 
-    procedure Resize(X,Y: Integer);
+    procedure UpdateWindowParams(aWindowParams: TKMWindowParams);
+    procedure Resize(aWidth, aHeight: Integer); overload;
+    procedure Resize(aWidth, aHeight: Integer; aWindowParams: TKMWindowParams); overload;
     procedure Render;
     procedure ShowAbout;
     property FormMain: TFormMain read fFormMain;
@@ -484,10 +486,27 @@ begin
 end;
 
 
-procedure TKMMain.Resize(X, Y: Integer);
+procedure TKMMain.UpdateWindowParams(aWindowParams: TKMWindowParams);
 begin
   if gGameApp <> nil then
-    gGameApp.Resize(X, Y);
+    fMainSettings.WindowParams := aWindowParams;
+
+end;
+
+procedure TKMMain.Resize(aWidth, aHeight: Integer);
+begin
+  if gGameApp <> nil then
+    gGameApp.Resize(aWidth, aHeight);
+end;
+
+
+procedure TKMMain.Resize(aWidth, aHeight: Integer; aWindowParams: TKMWindowParams);
+begin
+  if gGameApp <> nil then
+  begin
+    gGameApp.Resize(aWidth, aHeight);
+    UpdateWindowParams(aWindowParams);
+  end;
 end;
 
 
