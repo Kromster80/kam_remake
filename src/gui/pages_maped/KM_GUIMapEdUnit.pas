@@ -156,9 +156,9 @@ end;
 procedure TKMMapEdUnit.Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
 begin
   if Sender = Button_Army_ForUp then
-    fGroup.UnitsPerRow := EnsureRange(fGroup.UnitsPerRow - GetMultiplicator(Shift), 1, 200);
+    fGroup.UnitsPerRow := max(fGroup.UnitsPerRow - GetMultiplicator(Shift), 1);
   if Sender = Button_Army_ForDown then
-    fGroup.UnitsPerRow := EnsureRange(fGroup.UnitsPerRow + GetMultiplicator(Shift), 1, 200);
+    fGroup.UnitsPerRow := fGroup.UnitsPerRow + GetMultiplicator(Shift);
 
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
