@@ -767,6 +767,7 @@ procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y
 var
   DP: TAIDefencePosition;
   Marker: TKMMapEdMarker;
+  G: TKMUnitGroup;
 begin
   if fDragScrolling then
   begin
@@ -842,20 +843,28 @@ begin
 
                 if gMySpectator.Selected is TKMUnitGroup then
                 begin
+                  G := TKMUnitGroup(gMySpectator.Selected);
+                  //Use Shift to set group order
                   if ssShift in gGameCursor.SState then
-                  begin
-                    if (gTerrain.UnitsHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil)
-                    or (gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil) then
-                      TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Order := ioAttackPosition
-                    else
-                      TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Order := ioSendGroup;
-                    TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Pos.Loc.X := gGameCursor.Cell.X;
-                    TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Pos.Loc.Y := gGameCursor.Cell.Y;
-                    TKMUnitGroup(gMySpectator.Selected).MapEdOrder.Pos.Dir := TKMUnitGroup(gMySpectator.Selected).Direction;
-                    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
-                  end
+                    with G do
+                    begin
+                      //If there's any unit or house on specified tile - set attack target
+                      if (gTerrain.UnitsHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil)
+                      or (gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil) then
+                        MapEdOrder.Order := ioAttackPosition
+                      //Else order group walk to specified location
+                      else
+                        MapEdOrder.Order := ioSendGroup;
+                      //Save target coordinates
+                      MapEdOrder.Pos.Loc.X := gGameCursor.Cell.X;
+                      MapEdOrder.Pos.Loc.Y := gGameCursor.Cell.Y;
+                      MapEdOrder.Pos.Dir := TKMUnitGroup(gMySpectator.Selected).Direction;
+                      //Update group GUI
+                      fGuiUnit.Show(G);
+                    end
                   else
-                    TKMUnitGroup(gMySpectator.Selected).Position := gGameCursor.Cell;
+                    //Just move group to specified location
+                    G.Position := gGameCursor.Cell;
                 end;
 
                 if fGuiMarkerDefence.Visible then
