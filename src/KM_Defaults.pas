@@ -257,7 +257,8 @@ type
     cmMagicWater, //Magic water
     cmSelection, //Selection manipulations
     cmUnits, //Units
-    cmMarkers //CenterScreen, Defence, FOW markers
+    cmMarkers, //CenterScreen, Defence, FOW markers
+    cmEyedropper //Terrain eyedropper
     );
 
 type
