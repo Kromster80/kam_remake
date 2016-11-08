@@ -290,6 +290,11 @@ begin
                 cmElevate, cmEqualize,
                 cmBrush, cmObjects,
                 cmTiles:      fTerrainPainter.MakeCheckpoint;
+                cmPipette:    begin
+                                fTerrainPainter.Pipette(P);
+                                if not (ssShift in gGameCursor.SState) then  //Holding shift allows to choose another tile
+                                  gGameCursor.Mode := cmTiles;
+                              end;
                 cmMagicWater: fTerrainPainter.MagicWater(P);
                 cmUnits:      if gGameCursor.Tag1 = 255 then
                                 gHands.RemAnyUnit(P)

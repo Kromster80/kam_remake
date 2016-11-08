@@ -63,6 +63,7 @@ type
     procedure InitEmpty;
     procedure LoadFromFile(aFileName: UnicodeString);
     procedure SaveToFile(aFileName: UnicodeString);
+    procedure Pipette(aLoc: TKMPoint);
     procedure UpdateStateIdle;
     procedure MagicWater(aLoc: TKMPoint);
 
@@ -926,6 +927,14 @@ begin
   //Update derived fields (lighting)
   gTerrain.UpdateLighting(gTerrain.MapRect);
   gTerrain.UpdatePassability(gTerrain.MapRect);
+end;
+
+
+procedure TKMTerrainPainter.Pipette(aLoc: TKMPoint);
+begin
+  //Save specified loc's terrain info
+  gGameCursor.Tag1 := gTerrain.Land[aLoc.Y, aLoc.X].Terrain;
+  gGameCursor.MapEdDir := gTerrain.Land[aLoc.Y, aLoc.X].Rotation;
 end;
 
 
