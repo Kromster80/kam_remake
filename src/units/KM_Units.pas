@@ -103,7 +103,7 @@ type
     OnUnitDied: TKMUnitFromEvent;
     OnUnitTrained: TKMUnitEvent;
 
-    HitPointsUnlimited: Boolean;
+    HitPointsInvulnerable: Boolean;
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
@@ -1049,7 +1049,7 @@ begin
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
-  HitPointsUnlimited := False;
+  HitPointsInvulnerable := False;
 
   SetActionLockedStay(10, ua_Walk); //Must be locked for this initial pause so animals don't get pushed
   gTerrain.UnitAdd(NextPosition,Self);
@@ -1227,8 +1227,8 @@ begin
   if IsDeadOrDying then
     Exit;
 
-  //Don't kill immortal unit (with unlmited HP)
-  if HitPointsUnlimited then
+  // Don't allow to kill invulnerable units (by any means)
+  if HitPointsInvulnerable then
     Exit;
 
   //From this moment onwards the unit is guaranteed to die (no way to avoid it even with KillASAP), so
@@ -1238,7 +1238,7 @@ begin
   if Assigned(OnUnitDied) then
     OnUnitDied(Self, aFrom);
 
-  //Wait till units exchange (1 tick) and then do the killing
+  // Wait till units exchange (1 tick) and then do the killing
   if aForceDelay
   or ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
@@ -1247,7 +1247,7 @@ begin
     Exit;
   end;
 
-  //If we didn't exit above, we are safe to do the kill now (no delay from KillASAP required)
+  // If we didn't exit above, we are safe to do the kill now (no delay from KillASAP required)
   DoKill(aShowAnimation);
 end;
 

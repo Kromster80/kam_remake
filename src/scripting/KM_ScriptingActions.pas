@@ -130,7 +130,7 @@ type
     procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHPChange(aUnitID, aHP: Integer);
-    procedure UnitHPSetUnlimited(aUnitID: Integer; aUnlimited: Boolean);
+    procedure UnitHPSetInvulnerable(aUnitID: Integer; aInvulnerable: Boolean);
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
@@ -2328,8 +2328,8 @@ end;
 
 
 //* Version: 7000+
-//* Enables/Disables GodMode for specified unit
-procedure TKMScriptActions.UnitHPSetUnlimited(aUnitID: Integer; aUnlimited: Boolean);
+//* Makes the unit invulnerable. Such unit can not be killed or die from hunger.
+procedure TKMScriptActions.UnitHPSetInvulnerable(aUnitID: Integer; aInvulnerable: Boolean);
 var
   U: TKMUnit;
 begin
@@ -2338,10 +2338,10 @@ begin
     begin
       U := fIDCache.GetUnit(aUnitID);
       if U <> nil then
-        U.HitPointsUnlimited := aUnlimited;
+        U.HitPointsInvulnerable := aInvulnerable;
     end
     else
-      LogParamWarning('Actions.UnitHPGodMode', [aUnitID, Byte(aUnlimited)]);
+      LogParamWarning('Actions.UnitHPSetInvulnerable', [aUnitID, Ord(aInvulnerable)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

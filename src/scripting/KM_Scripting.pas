@@ -328,7 +328,7 @@ begin
       RegisterMethod('function UnitHome(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHPCurrent(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHPMax(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitHPUnlimited(aUnitID: Integer): Boolean');
+      RegisterMethod('function UnitHPInvulnerable(aUnitID: Integer): Boolean');
       RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
       RegisterMethod('function UnitIdle(aUnitID: Integer): Boolean');
       RegisterMethod('function UnitLowHunger: Integer');
@@ -462,7 +462,7 @@ begin
       RegisterMethod('procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)');
       RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure UnitHPChange(aUnitID, aHP: Integer)');
-      RegisterMethod('procedure UnitHPSetUnlimited(aUnitID: Integer; aUnlimited: Boolean)');
+      RegisterMethod('procedure UnitHPSetInvulnerable(aUnitID: Integer; aInvulnerable: Boolean)');
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
       RegisterMethod('procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
       RegisterMethod('function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
@@ -724,7 +724,7 @@ begin
       RegisterMethod(@TKMScriptStates.UnitHome,       'UNITHOME');
       RegisterMethod(@TKMScriptStates.UnitHPCurrent,  'UNITHPCURRENT');
       RegisterMethod(@TKMScriptStates.UnitHPMax,      'UNITHPMAX');
-      RegisterMethod(@TKMScriptStates.UnitHPUnlimited,'UNITHPUNLIMITED');
+      RegisterMethod(@TKMScriptStates.UnitHPInvulnerable,'UNITHPINVULNERABLE');
       RegisterMethod(@TKMScriptStates.UnitHunger,     'UNITHUNGER');
       RegisterMethod(@TKMScriptStates.UnitIdle,       'UNITIDLE');
       RegisterMethod(@TKMScriptStates.UnitLowHunger,  'UNITLOWHUNGER');
@@ -858,7 +858,7 @@ begin
       RegisterMethod(@TKMScriptActions.UnitBlock,         'UNITBLOCK');
       RegisterMethod(@TKMScriptActions.UnitDirectionSet,  'UNITDIRECTIONSET');
       RegisterMethod(@TKMScriptActions.UnitHPChange,      'UNITHPCHANGE');
-      RegisterMethod(@TKMScriptActions.UnitHPSetUnlimited,'UNITHPSETUNLIMITED');
+      RegisterMethod(@TKMScriptActions.UnitHPSetInvulnerable,'UNITHPSETINVULNERABLE');
       RegisterMethod(@TKMScriptActions.UnitHungerSet,     'UNITHUNGERSET');
       RegisterMethod(@TKMScriptActions.UnitKill,          'UNITKILL');
       RegisterMethod(@TKMScriptActions.UnitOrderWalk,     'UNITORDERWALK');
