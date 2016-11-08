@@ -2,19 +2,49 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles,
+  Classes, SysUtils, Math, INIfiles, Forms,
   KM_Defaults, KM_Resolutions;
 
 
 type
+
+  TKMWindowParamsRecord = record
+    Width, Height, Left, Top: SmallInt;
+    State: TWindowState;
+  end;
+
+  TKMWindowParams = class
+  private
+    fWidth, fHeight, fLeft, fTop: SmallInt; // Window size/position on the screen
+    fState: TWindowState;                   // Window state (wsNormal/wsMaximized)
+    fLockParams: Boolean;                   // Lock updating window params, used when Fullscreen turned On
+    fIsChanged: Boolean;
+    fNeedResetToDefaults: Boolean;          // Flag, when set params should be updated with defaults
+  public
+    constructor Create;
+    property Width: SmallInt read fWidth;
+    property Height: SmallInt read fHeight;
+    property Left: SmallInt read fLeft;
+    property Top: SmallInt read fTop;
+    property State: TWindowState read fState;
+    property IsChanged: Boolean read fIsChanged;
+    property NeedResetToDefaults: Boolean read fNeedResetToDefaults write fNeedResetToDefaults;
+
+    procedure ApplyWindowParams(aParams: TKMWindowParamsRecord; aDefaults: Boolean = False);
+    procedure LockParams;
+    procedure UnlockParams;
+    function IsValid(Screen: TScreen): Boolean;
+  end;
+
+
   //Settings that are irrelevant to the game (game does not cares about them)
   //Everything gets written through setter to set fNeedsSave flag
   TMainSettings = class
   private
     fNeedsSave: Boolean;
-
     fFullScreen: Boolean;
     fResolution: TKMScreenRes;
+    fWindowParams: TKMWindowParams;
     fVSync: Boolean;
     procedure SetFullScreen(aValue: Boolean);
     procedure SetResolution(const Value: TKMScreenRes);
@@ -32,6 +62,7 @@ type
 
     property FullScreen: Boolean read fFullScreen write SetFullScreen;
     property Resolution: TKMScreenRes read fResolution write SetResolution;
+    property WindowParams: TKMWindowParams read fWindowParams;
     property VSync: Boolean read fVSync write SetVSync;
   end;
 
@@ -52,9 +83,9 @@ type
     fMusicVolume: Single;
     fSoundFXVolume: Single;
     fSpeedPace: Word;
-    fSpeedMedium: Word;
-    fSpeedFast: Word;
-    fSpeedVeryFast: Word;
+    fSpeedMedium: Single;
+    fSpeedFast: Single;
+    fSpeedVeryFast: Single;
     fMultiplayerName: AnsiString;
     fLastIP: string;
     fLastPort: string;
@@ -116,9 +147,9 @@ type
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
     property SoundFXVolume: Single read fSoundFXVolume write SetSoundFXVolume;
     property SpeedPace: Word read fSpeedPace;
-    property SpeedMedium: Word read fSpeedMedium;
-    property SpeedFast: Word read fSpeedFast;
-    property SpeedVeryFast: Word read fSpeedVeryFast;
+    property SpeedMedium: Single read fSpeedMedium;
+    property SpeedFast: Single read fSpeedFast;
+    property SpeedVeryFast: Single read fSpeedVeryFast;
     property MultiplayerName: AnsiString read fMultiplayerName write SetMultiplayerName;
     property LastIP: string read fLastIP write SetLastIP;
     property LastPort: string read fLastPort write SetLastPort;
@@ -146,7 +177,7 @@ uses
 constructor TMainSettings.Create;
 begin
   inherited;
-
+  fWindowParams := TKMWindowParams.Create;
   LoadFromINI(ExeDir + SETTINGS_FILE);
   fNeedsSave := False;
   gLog.AddTime('Global settings loaded from ' + SETTINGS_FILE);
@@ -176,9 +207,25 @@ begin
 
   fFullScreen         := F.ReadBool   ('GFX', 'FullScreen',       False);
   fVSync              := F.ReadBool   ('GFX', 'VSync',            True);
-  fResolution.Width   := F.ReadInteger('GFX', 'ResolutionWidth',  1024);
-  fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', 768);
+  fResolution.Width   := F.ReadInteger('GFX', 'ResolutionWidth',  MENU_DESIGN_X);
+  fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', MENU_DESIGN_Y);
   fResolution.RefRate := F.ReadInteger('GFX', 'RefreshRate',      60);
+
+  // For proper window positioning we need Left and Top records
+  // Otherwise reset all window params to defaults
+  if F.ValueExists('Window', 'WindowLeft') and F.ValueExists('Window', 'WindowTop') then
+  begin
+    fWindowParams.fWidth  := F.ReadInteger('Window', 'WindowWidth',  MENU_DESIGN_X);
+    fWindowParams.fHeight := F.ReadInteger('Window', 'WindowHeight', MENU_DESIGN_Y);
+    fWindowParams.fLeft   := F.ReadInteger('Window', 'WindowLeft',   -1);
+    fWindowParams.fTop    := F.ReadInteger('Window', 'WindowTop',    -1);
+    fWindowParams.fState  := TWindowState(EnsureRange(F.ReadInteger('Window', 'WindowState', 0), 0, 2));
+  end else
+    fWindowParams.fNeedResetToDefaults := True;
+
+  // Reset wsMinimized state to wsNormal
+  if (fWindowParams.fState = wsMinimized) then
+    fWindowParams.fState := wsNormal;
 
   FreeAndNil(F);
   fNeedsSave := False;
@@ -197,6 +244,12 @@ begin
   F.WriteInteger('GFX','ResolutionWidth', fResolution.Width);
   F.WriteInteger('GFX','ResolutionHeight',fResolution.Height);
   F.WriteInteger('GFX','RefreshRate',     fResolution.RefRate);
+
+  F.WriteInteger('Window','WindowWidth',    fWindowParams.Width);
+  F.WriteInteger('Window','WindowHeight',   fWindowParams.Height);
+  F.WriteInteger('Window','WindowLeft',     fWindowParams.Left);
+  F.WriteInteger('Window','WindowTop',      fWindowParams.Top);
+  F.WriteInteger('Window','WindowState',    Ord(fWindowParams.State));
 
   F.UpdateFile; //Write changes to file
   FreeAndNil(F);
@@ -232,7 +285,7 @@ end;
 
 procedure TMainSettings.SaveSettings(aForce: boolean);
 begin
-  if fNeedsSave or aForce then
+  if fNeedsSave or aForce or fWindowParams.IsChanged then
     SaveToINI(ExeDir + SETTINGS_FILE);
 end;
 
@@ -290,9 +343,9 @@ begin
     fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
     fLocale         := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
     fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
-    fSpeedMedium    := F.ReadInteger('Game', 'SpeedMedium',    3);
-    fSpeedFast      := F.ReadInteger('Game', 'SpeedFast',      6);
-    fSpeedVeryFast  := F.ReadInteger('Game', 'SpeedVeryFast',  10);
+    fSpeedMedium    := F.ReadFloat('Game', 'SpeedMedium',    3);
+    fSpeedFast      := F.ReadFloat('Game', 'SpeedFast',      6);
+    fSpeedVeryFast  := F.ReadFloat('Game', 'SpeedVeryFast',  10);
 
     fSoundFXVolume  := F.ReadFloat  ('SFX',  'SFXVolume',      0.5);
     fMusicVolume    := F.ReadFloat  ('SFX',  'MusicVolume',    0.5);
@@ -344,9 +397,9 @@ begin
     F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
     F.WriteString ('Game','Locale',       UnicodeString(fLocale));
     F.WriteInteger('Game','SpeedPace',    fSpeedPace);
-    F.WriteInteger('Game','SpeedMedium',  fSpeedMedium);
-    F.WriteInteger('Game','SpeedFast',    fSpeedFast);
-    F.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
+    F.WriteFloat('Game','SpeedMedium',    fSpeedMedium);
+    F.WriteFloat('Game','SpeedFast',      fSpeedFast);
+    F.WriteFloat('Game','SpeedVeryFast',  fSpeedVeryFast);
 
     F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
     F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
@@ -555,6 +608,69 @@ procedure TGameSettings.SetServerWelcomeMessage(aValue: UnicodeString);
 begin
   fServerWelcomeMessage := aValue;
   Changed;
+end;
+
+
+{TKMWindowParams}
+constructor TKMWindowParams.Create;
+begin
+  inherited;
+  fIsChanged := False;
+  fLockParams := False;
+  fNeedResetToDefaults := False;
+end;
+
+
+procedure TKMWindowParams.ApplyWindowParams(aParams: TKMWindowParamsRecord; aDefaults: Boolean = False);
+begin
+  if not fLockParams then
+  begin
+    fWidth := aParams.Width;
+    fHeight := aParams.Height;
+    fLeft := aParams.Left;
+    fTop := aParams.Top;
+    fState := aParams.State;
+    fIsChanged := True;
+    fNeedResetToDefaults := aDefaults;
+  end;
+end;
+
+
+procedure TKMWindowParams.LockParams;
+begin
+  fLockParams := True;
+end;
+
+
+procedure TKMWindowParams.UnlockParams;
+begin
+  fLockParams := False;
+end;
+
+
+// Check window param, with current Screen object
+function TKMWindowParams.IsValid(Screen: TScreen): Boolean;
+var I, ScreenMaxWidth, ScreenMaxHeight: Integer;
+begin
+  ScreenMaxWidth := 0;
+  ScreenMaxHeight := 0;
+  // Calc Max width/height for multi screen systems
+  // Assume appending monitor screens left to right, so summarise width, get max of height
+  for I := 0 to Screen.MonitorCount - 1 do
+  begin
+    ScreenMaxWidth := ScreenMaxWidth + Screen.Monitors[I].Width;
+    ScreenMaxHeight := max(ScreenMaxHeight, Screen.Monitors[I].Height);
+  end;
+  // Do not let put window too much left or right. 100px is enought to get it back in that case
+  Result := (fLeft > -fWidth + 100)
+        and (fLeft < ScreenMaxWidth - 100)
+        and (fTop >= 0)
+        and (fTop < ScreenMaxHeight - 100)
+        and (fWidth >= MIN_RESOLUTION_WIDTH)
+        and (fWidth <= ScreenMaxWidth)
+        and (fHeight >= MIN_RESOLUTION_HEIGHT)
+        and (fHeight <= ScreenMaxHeight)
+        and (fState in [wsNormal, wsMaximized]);
 end;
 
 
