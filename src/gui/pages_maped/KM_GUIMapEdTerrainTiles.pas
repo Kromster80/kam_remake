@@ -19,7 +19,7 @@ type
     TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
     TilesScroll: TKMScrollBar;
     TilesRandom: TKMCheckBox;
-    TilesMagicWater: TKMButtonFlat;
+    TilesMagicWater, TilesEyedropper: TKMButtonFlat;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -64,20 +64,26 @@ begin
   TilesMagicWater.Hint := gResTexts[TX_MAPED_TERRAIN_MAGIC_WATER_HINT];
   TilesMagicWater.OnClick := TilesChange;
 
-  TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 60, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
+  TilesEyedropper := TKMButtonFlat.Create(Panel_Tiles, 2, 50, TB_WIDTH - 4, 20, 0);
+  TilesEyedropper.Caption := gResTexts[TX_MAPED_TERRAIN_EYEDROPPER];
+  TilesEyedropper.CapOffsetY := -12;
+  TilesEyedropper.Hint := gResTexts[TX_MAPED_TERRAIN_EYEDROPPER_HINT];
+  TilesEyedropper.OnClick := TilesChange;
+
+  TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 86, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
   TilesRandom.Checked := True;
   TilesRandom.OnClick := TilesChange;
   TilesRandom.Hint := gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM_HINT];
 
   //Create scroll first to link to its MouseWheel event
-  TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 80 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
+  TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 106 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
   TilesScroll.MaxValue := 256 div MAPED_TILES_Y - MAPED_TILES_X; // 32 - 6
   TilesScroll.Position := 0;
   TilesScroll.OnChange := TilesRefresh;
   for J := 0 to MAPED_TILES_Y - 1 do
   for K := 0 to MAPED_TILES_X - 1 do
   begin
-    TilesTable[J * MAPED_TILES_X + K] := TKMButtonFlat.Create(Panel_Tiles, K * 32, 80 + J * 32, 32, 32, 1, rxTiles);
+    TilesTable[J * MAPED_TILES_X + K] := TKMButtonFlat.Create(Panel_Tiles, K * 32, 106 + J * 32, 32, 32, 1, rxTiles);
     TilesTable[J * MAPED_TILES_X + K].Tag :=  J * MAPED_TILES_X + K; //Store ID
     TilesTable[J * MAPED_TILES_X + K].OnClick := TilesChange;
     TilesTable[J * MAPED_TILES_X + K].OnMouseWheel := TilesScroll.MouseWheel;
@@ -88,13 +94,20 @@ end;
 procedure TKMMapEdTerrainTiles.TilesChange(Sender: TObject);
 begin
   TilesMagicWater.Down := (Sender = TilesMagicWater);
+  TilesEyedropper.Down := (Sender = TilesEyedropper);
+
   if Sender = TilesMagicWater then
     gGameCursor.Mode := cmMagicWater;
+
+  if Sender = TilesEyedropper then
+    gGameCursor.Mode := cmEyedropper;
 
   if Sender = TilesRandom then
     gGameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
 
-  if (Sender is TKMButtonFlat) and not (Sender = TilesMagicWater) then
+  if (Sender is TKMButtonFlat)
+  and not (Sender = TilesMagicWater)
+  and not (Sender = TilesEyedropper) then
     TilesSet(TKMButtonFlat(Sender).TexID);
 
   TilesRefresh(nil);
@@ -104,6 +117,7 @@ end;
 procedure TKMMapEdTerrainTiles.TilesSet(aIndex: Integer);
 begin
   TilesMagicWater.Down := False;
+  TilesEyedropper.Down := False;
   if aIndex <> 0 then
   begin
     gGameCursor.Mode := cmTiles;
@@ -150,6 +164,7 @@ begin
       TilesTable[L].Hint := IntToStr(TileID - 1);
     //If cursor has a tile then make sure its properly selected in table as well
     TilesTable[L].Down := (gGameCursor.Mode = cmTiles) and (gGameCursor.Tag1 = TileID - 1);
+    TilesEyedropper.Down := gGameCursor.Mode = cmEyedropper;
   end;
 end;
 
@@ -177,6 +192,7 @@ end;
 procedure TKMMapEdTerrainTiles.UpdateState;
 begin
   TilesRandom.Checked := (gGameCursor.MapEdDir = 4);
+  TilesRefresh(nil);
 end;
 
 
