@@ -71,6 +71,7 @@ type
     function MapTileRotation(X, Y: Integer): Integer;
     function MapTileHeight(X, Y: Integer): Integer;
     function MapTileObject(X, Y: Integer): Integer;
+    function MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean;
     function MapWidth: Integer;
     function MapHeight: Integer;
 
@@ -117,7 +118,7 @@ type
     function UnitHome(aUnitID: Integer): Integer;
     function UnitHPCurrent(aUnitID: Integer): Integer;
     function UnitHPMax(aUnitID: Integer): Integer;
-    function UnitHPUnlimited(aUnitID: Integer): Boolean;
+    function UnitHPInvulnerable(aUnitID: Integer): Boolean;
     function UnitHunger(aUnitID: Integer): Integer;
     function UnitIdle(aUnitID: Integer): Boolean;
     function UnitLowHunger: Integer;
@@ -1936,6 +1937,28 @@ begin
 end;
 
 
+//* Version: 7000+
+//* Returns true if specified tile has requested passability.
+//* aPassability: passability index as listed in KM_Defaults (starts from 0)
+//* Result: true or false
+function TKMScriptStates.MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean;
+begin
+  try
+    if (gTerrain.TileInMapCoords(X, Y))
+    and (TKMTerrainPassability(aPassability) in [Low(TKMTerrainPassability)..High(TKMTerrainPassability)]) then
+      Result := TKMTerrainPassability(aPassability) in gTerrain.Land[Y, X].Passability
+    else
+    begin
+      Result := False;
+      LogParamWarning('States.MapTilePassability', [X, Y, aPassability]);
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 6287
 //* Returns type of !FromWare in specified market, or -1 if no ware is selected
 //* Result: Ware type
@@ -2357,9 +2380,9 @@ end;
 
 
 //* Version: 7000+
-//* See if unit is immortal (GodMode enabled)
-//* Result: GodMode
-function TKMScriptStates.UnitHPUnlimited(aUnitID: Integer): Boolean;
+//* See if unit is invulnerable
+//* Result: true or false
+function TKMScriptStates.UnitHPInvulnerable(aUnitID: Integer): Boolean;
 var
   U: TKMUnit;
 begin
@@ -2369,10 +2392,10 @@ begin
     begin
       U := fIDCache.GetUnit(aUnitID);
       if U <> nil then
-        Result := U.HitPointsUnlimited;
+        Result := U.HitPointsInvulnerable;
     end
     else
-      LogParamWarning('States.UnitHPUnlimited', [aUnitID]);
+      LogParamWarning('States.UnitHPInvulnerable', [aUnitID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2382,7 +2405,7 @@ end;
 
 //* Version: 5057
 //* Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid
-//* Result: Hunger
+//* Result: Hunger level
 function TKMScriptStates.UnitHunger(aUnitID: Integer): Integer;
 var
   U: TKMUnit;

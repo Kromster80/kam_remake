@@ -767,6 +767,7 @@ procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y
 var
   DP: TAIDefencePosition;
   Marker: TKMMapEdMarker;
+  G: TKMUnitGroup;
 begin
   if fDragScrolling then
   begin
@@ -841,7 +842,29 @@ begin
                   TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);
 
                 if gMySpectator.Selected is TKMUnitGroup then
-                  TKMUnitGroup(gMySpectator.Selected).Position := gGameCursor.Cell;
+                begin
+                  G := TKMUnitGroup(gMySpectator.Selected);
+                  //Use Shift to set group order
+                  if ssShift in gGameCursor.SState then
+                  begin
+                    //If there's any unit or house on specified tile - set attack target
+                    if (gTerrain.UnitsHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil)
+                    or (gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil) then
+                      G.MapEdOrder.Order := ioAttackPosition
+                    //Else order group walk to specified location
+                    else
+                      G.MapEdOrder.Order := ioSendGroup;
+                    //Save target coordinates
+                    G.MapEdOrder.Pos.Loc.X := gGameCursor.Cell.X;
+                    G.MapEdOrder.Pos.Loc.Y := gGameCursor.Cell.Y;
+                    G.MapEdOrder.Pos.Dir := G.Direction;
+                    //Update group GUI
+                    fGuiUnit.Show(G);
+                  end
+                  else
+                    //Just move group to specified location
+                    G.Position := gGameCursor.Cell;
+                end;
 
                 if fGuiMarkerDefence.Visible then
                 begin

@@ -103,7 +103,7 @@ type
     OnUnitDied: TKMUnitFromEvent;
     OnUnitTrained: TKMUnitEvent;
 
-    HitPointsUnlimited: Boolean;
+    HitPointsInvulnerable: Boolean;
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
@@ -1049,7 +1049,7 @@ begin
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
-  HitPointsUnlimited := False;
+  HitPointsInvulnerable := False;
 
   SetActionLockedStay(10, ua_Walk); //Must be locked for this initial pause so animals don't get pushed
   gTerrain.UnitAdd(NextPosition,Self);
@@ -1227,6 +1227,10 @@ begin
   if IsDeadOrDying then
     Exit;
 
+  // Don't allow to kill invulnerable units (by any means)
+  if HitPointsInvulnerable then
+    Exit;
+
   //From this moment onwards the unit is guaranteed to die (no way to avoid it even with KillASAP), so
   //signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
   //This must be called before actually killing the unit because gScriptEvets needs to access it
@@ -1234,7 +1238,7 @@ begin
   if Assigned(OnUnitDied) then
     OnUnitDied(Self, aFrom);
 
-  //Wait till units exchange (1 tick) and then do the killing
+  // Wait till units exchange (1 tick) and then do the killing
   if aForceDelay
   or ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
@@ -1243,7 +1247,7 @@ begin
     Exit;
   end;
 
-  //If we didn't exit above, we are safe to do the kill now (no delay from KillASAP required)
+  // If we didn't exit above, we are safe to do the kill now (no delay from KillASAP required)
   DoKill(aShowAnimation);
 end;
 
@@ -1299,8 +1303,7 @@ begin
   if fHitPoints = HitPointsMax then
     fHitPointCounter := 1;
 
-  if not HitPointsUnlimited then
-    fHitPoints := Max(fHitPoints - aAmount, 0);
+  fHitPoints := Max(fHitPoints - aAmount, 0);
 
   gScriptEvents.ProcUnitWounded(Self, aAttacker);
 
@@ -1317,8 +1320,7 @@ procedure TKMUnit.HitPointsChangeFromScript(aAmount: Integer);
 begin
   fHitPoints := EnsureRange(fHitPoints + aAmount, 0, GetHitPointsMax);
   if (fHitPoints = 0)
-  and (not IsDeadOrDying)
-  and (not HitPointsUnlimited) then
+  and (not IsDeadOrDying) then
     KillUnit(PLAYER_NONE, True, False);
 end;
 

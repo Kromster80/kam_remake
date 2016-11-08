@@ -516,9 +516,8 @@ begin
 end;
 
 
-//Same as for CanAddFakeFieldPlan, but check can we delete plan
+// Same as for CanAddFakeFieldPlan, but check can we delete plan
 function TKMHand.CanRemFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
-var I: Integer;
 begin
   Result := (fBuildList.FieldworksList.HasFakeField(aLoc) = aFieldType)
             and LocHasNoAllyPlans(aLoc);
