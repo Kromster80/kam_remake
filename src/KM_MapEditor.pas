@@ -290,8 +290,8 @@ begin
                 cmElevate, cmEqualize,
                 cmBrush, cmObjects,
                 cmTiles:      fTerrainPainter.MakeCheckpoint;
-                cmPipette:    begin
-                                fTerrainPainter.Pipette(P);
+                cmEyedropper: begin
+                                fTerrainPainter.Eyedropper(P);
                                 if not (ssShift in gGameCursor.SState) then  //Holding shift allows to choose another tile
                                   gGameCursor.Mode := cmTiles;
                               end;

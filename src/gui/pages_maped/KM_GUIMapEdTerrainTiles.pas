@@ -19,7 +19,7 @@ type
     TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
     TilesScroll: TKMScrollBar;
     TilesRandom: TKMCheckBox;
-    TilesMagicWater, TilesPipette: TKMButtonFlat;
+    TilesMagicWater, TilesEyedropper: TKMButtonFlat;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -64,11 +64,11 @@ begin
   TilesMagicWater.Hint := gResTexts[TX_MAPED_TERRAIN_MAGIC_WATER_HINT];
   TilesMagicWater.OnClick := TilesChange;
 
-  TilesPipette := TKMButtonFlat.Create(Panel_Tiles, 2, 50, TB_WIDTH - 4, 20, 0);
-  TilesPipette.Caption := gResTexts[TX_MAPED_TERRAIN_PIPETTE];
-  TilesPipette.CapOffsetY := -12;
-  TilesPipette.Hint := gResTexts[TX_MAPED_TERRAIN_PIPETTE_HINT];
-  TilesPipette.OnClick := TilesChange;
+  TilesEyedropper := TKMButtonFlat.Create(Panel_Tiles, 2, 50, TB_WIDTH - 4, 20, 0);
+  TilesEyedropper.Caption := gResTexts[TX_MAPED_TERRAIN_EYEDROPPER];
+  TilesEyedropper.CapOffsetY := -12;
+  TilesEyedropper.Hint := gResTexts[TX_MAPED_TERRAIN_EYEDROPPER_HINT];
+  TilesEyedropper.OnClick := TilesChange;
 
   TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 86, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
   TilesRandom.Checked := True;
@@ -94,20 +94,20 @@ end;
 procedure TKMMapEdTerrainTiles.TilesChange(Sender: TObject);
 begin
   TilesMagicWater.Down := (Sender = TilesMagicWater);
-  TilesPipette.Down := (Sender = TilesPipette);
+  TilesEyedropper.Down := (Sender = TilesEyedropper);
 
   if Sender = TilesMagicWater then
     gGameCursor.Mode := cmMagicWater;
 
-  if Sender = TilesPipette then
-    gGameCursor.Mode := cmPipette;
+  if Sender = TilesEyedropper then
+    gGameCursor.Mode := cmEyedropper;
 
   if Sender = TilesRandom then
     gGameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
 
   if (Sender is TKMButtonFlat)
   and not (Sender = TilesMagicWater)
-  and not (Sender = TilesPipette) then
+  and not (Sender = TilesEyedropper) then
     TilesSet(TKMButtonFlat(Sender).TexID);
 
   TilesRefresh(nil);
@@ -117,7 +117,7 @@ end;
 procedure TKMMapEdTerrainTiles.TilesSet(aIndex: Integer);
 begin
   TilesMagicWater.Down := False;
-  TilesPipette.Down := False;
+  TilesEyedropper.Down := False;
   if aIndex <> 0 then
   begin
     gGameCursor.Mode := cmTiles;
@@ -164,7 +164,7 @@ begin
       TilesTable[L].Hint := IntToStr(TileID - 1);
     //If cursor has a tile then make sure its properly selected in table as well
     TilesTable[L].Down := (gGameCursor.Mode = cmTiles) and (gGameCursor.Tag1 = TileID - 1);
-    TilesPipette.Down := gGameCursor.Mode = cmPipette;
+    TilesEyedropper.Down := gGameCursor.Mode = cmEyedropper;
   end;
 end;
 

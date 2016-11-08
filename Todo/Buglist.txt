@@ -5,9 +5,9 @@ Bugs:
  +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +	Disabled controls could have focus and receive keyboard input
+ +	Colored rectangle below cursor
 
 	Server welcome message should support Unicode
-	Campaign progress from r5503 was lost
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
 	Deliveries should use the actual walking route length (opposed to Radius)
 	Archers should step backwards when too close to attack target
@@ -39,7 +39,6 @@ Bugs:
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
-	Colored rectangle below cursor
 
 
 Improvements:
@@ -50,7 +49,9 @@ Improvements:
  +	L	Pressing LMB over placed plans and dragging it - will remove plans
  +	L	Pressing Enter/Esc in multiplayer password entering form will submit/cancel it
  +	L	Way to split single unit from the group (Ctrl+Split)
- +  L  MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
+ +	L	Saving and restoring games window position on restart
+ +	L	MapEd: Allow to set troops order destination with mouse on map
+ +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
 
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -100,7 +101,6 @@ Improvements:
 	L	MapEd: Artistic brushes (those that place random types of trees and/or decorations)
 	L	MapEd: Make houses highlight red when about to erase them as trees/units do
 	L	MapEd: Flat terrain checkbox on Extras popup
-	L	MapEd: Allow to set troops order destination with mouse on map
 	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
@@ -118,6 +118,7 @@ Improvements:
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  -	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
+ -	Campaign progress was lost when upgrading from r5503 to r6720
 
 
 

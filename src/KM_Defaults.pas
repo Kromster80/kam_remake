@@ -258,7 +258,7 @@ type
     cmSelection, //Selection manipulations
     cmUnits, //Units
     cmMarkers, //CenterScreen, Defence, FOW markers
-    cmPipette //Terrain pipette
+    cmEyedropper //Terrain eyedropper
     );
 
 type

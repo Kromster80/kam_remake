@@ -63,7 +63,7 @@ type
     procedure InitEmpty;
     procedure LoadFromFile(aFileName: UnicodeString);
     procedure SaveToFile(aFileName: UnicodeString);
-    procedure Pipette(aLoc: TKMPoint);
+    procedure Eyedropper(aLoc: TKMPoint);
     procedure UpdateStateIdle;
     procedure MagicWater(aLoc: TKMPoint);
 
@@ -930,7 +930,7 @@ begin
 end;
 
 
-procedure TKMTerrainPainter.Pipette(aLoc: TKMPoint);
+procedure TKMTerrainPainter.Eyedropper(aLoc: TKMPoint);
 begin
   //Save specified loc's terrain info
   gGameCursor.Tag1 := gTerrain.Land[aLoc.Y, aLoc.X].Terrain;
