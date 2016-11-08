@@ -1362,6 +1362,7 @@ begin
                     RenderMapElement(gGameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
                   end;
     cmMagicWater: ; //TODO: Render some effect to show magic water is selected
+    cmEyeDropper: RenderWireTile(P, $FFFFFF00); // Cyan quad
     cmElevate,
     cmEqualize:   begin
                     Rad := gGameCursor.MapEdSize;
