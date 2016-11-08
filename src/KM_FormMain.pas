@@ -2,8 +2,8 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils,
-  KM_RenderControl,
+  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils, ShellAPI,
+  KM_RenderControl, KM_Settings,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -124,13 +124,15 @@ type
   private
     fUpdating: Boolean;
     {$IFDEF MSWindows}
+    function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
+    procedure WMExitSizeMove(var Msg: TMessage) ; message WM_EXITSIZEMOVE;
     {$ENDIF}
   public
     RenderArea: TKMRenderControl;
     procedure ControlsSetVisibile(aShowCtrls: Boolean);
     procedure ControlsReset;
-    procedure ToggleFullscreen(aFullscreen: Boolean);
+    procedure ToggleFullscreen(aFullscreen, aWindowDefaultParams: Boolean);
   end;
 
 
@@ -181,17 +183,24 @@ begin
   GroupBox1.BringToFront;
 end;
 
-
 procedure TFormMain.FormShow(Sender: TObject);
-var Margin: TPoint;
+var BordersWidth, BordersHeight: Integer;
 begin
   //We do this in OnShow rather than OnCreate as the window borders aren't
   //counted properly in OnCreate
-  Margin.X := Width - ClientWidth;
-  Margin.Y := Height - ClientHeight;
+  BordersWidth := Width - ClientWidth;
+  BordersHeight := Height - ClientHeight;
   //Constraints includes window borders, so we add them on as Margin
-  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + Margin.X;
-  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + Margin.Y;
+  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + BordersWidth;
+  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + BordersHeight;
+
+  // We have to put it here, to proper window positioning for multimonitor systems
+  if not fMain.Settings.FullScreen then
+  begin
+    Left := fMain.Settings.WindowParams.Left;
+    Top := fMain.Settings.WindowParams.Top;
+  end;
+
 end;
 
 
@@ -238,13 +247,14 @@ begin if gGameApp <> nil then gGameApp.MouseUp(Button, Shift, X, Y); end;
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y); end;
 
+
 procedure TFormMain.RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
 
 
 procedure TFormMain.RenderAreaResize(aWidth, aHeight: Integer);
 begin
-  fMain.Resize(aWidth, aHeight);
+  fMain.Resize(aWidth, aHeight, GetWindowParams);
 end;
 
 
@@ -467,8 +477,7 @@ begin
   RenderArea.Top    := 0;
   RenderArea.Height := ClientHeight;
   RenderArea.Width  := ClientWidth;
-
-  fMain.Resize(RenderArea.Width, RenderArea.Height);
+  fMain.Resize(RenderArea.Width, RenderArea.Height, GetWindowParams);
 end;
 
 
@@ -532,7 +541,7 @@ begin
 end;
 
 
-procedure TFormMain.ToggleFullscreen(aFullscreen: Boolean);
+procedure TFormMain.ToggleFullscreen(aFullscreen, aWindowDefaultParams: Boolean);
 begin
   if aFullScreen then begin
     Show; //Make sure the form is shown (e.g. on game creation), otherwise it won't wsMaximize
@@ -543,14 +552,97 @@ begin
   end else begin
     BorderStyle  := bsSizeable;
     WindowState  := wsNormal;
-    ClientWidth  := MENU_DESIGN_X;
-    ClientHeight := MENU_DESIGN_Y;
-    Position     := poScreenCenter;
+    if (aWindowDefaultParams) then
+    begin
+      Position := poScreenCenter;
+      ClientWidth  := MENU_DESIGN_X;
+      ClientHeight := MENU_DESIGN_Y;
+      // We've set default window params, so update them
+      fMain.UpdateWindowParams(GetWindowParams);
+      // Unset NeedResetToDefaults flag
+      fMain.Settings.WindowParams.NeedResetToDefaults := False;
+    end else begin
+      // Here we set window Width/Height and State
+      // Left and Top will set on FormShow, so omit setting them here
+      Position := poDesigned;
+      ClientWidth  := fMain.Settings.WindowParams.Width;
+      ClientHeight := fMain.Settings.WindowParams.Height;
+      WindowState  := fMain.Settings.WindowParams.State;
+    end;
   end;
 
   //Make sure Panel is properly aligned
   RenderArea.Align := alClient;
 end;
+
+
+// Return current window params
+function TFormMain.GetWindowParams: TKMWindowParamsRecord;
+  // FindTaskBar returns the Task Bar's position, and fills in
+  // ARect with the current bounding rectangle.
+  function FindTaskBar(var aRect: TRect): Integer;
+  var	AppData: TAppBarData;
+  begin
+    Result := -1;
+    // 'Shell_TrayWnd' is the name of the task bar's window
+    AppData.Hwnd := FindWindow('Shell_TrayWnd', nil);
+    if AppData.Hwnd <> 0 then
+    begin
+      AppData.cbSize := SizeOf(TAppBarData);
+      // SHAppBarMessage will return False (0) when an error happens.
+      if SHAppBarMessage(ABM_GETTASKBARPOS, AppData) <> 0 then
+      begin
+        Result := AppData.uEdge;
+        aRect := AppData.rc;
+      end;
+    end;
+  end;
+var
+  Wp: TWindowPlacement;
+  BordersWidth, BordersHeight: SmallInt;
+  Rect: TRect;
+begin
+  Result.State := WindowState;
+  case WindowState of
+    wsMinimized:  ;
+    wsNormal:     begin
+                    Result.Width := ClientWidth;
+                    Result.Height := ClientHeight;
+                    Result.Left := Left;
+                    Result.Top := Top;
+                  end;
+    wsMaximized:  begin
+                    Wp.length := SizeOf(TWindowPlacement);
+                    GetWindowPlacement(Handle, @Wp);
+
+                    // Get current borders width/height
+                    BordersWidth := Width - ClientWidth;
+                    BordersHeight := Height - ClientHeight;
+
+                    // rcNormalPosition do not have ClientWidth/ClientHeight
+                    // so we have to calc it manually via substracting borders width/height
+                    Result.Width := Wp.rcNormalPosition.Right - Wp.rcNormalPosition.Left - BordersWidth;
+                    Result.Height := Wp.rcNormalPosition.Bottom - Wp.rcNormalPosition.Top - BordersHeight;
+
+                    // Adjustment of window position due to TaskBar position/size
+                    case FindTaskBar(Rect) of
+                      ABE_LEFT: begin
+                                  Result.Left := Wp.rcNormalPosition.Left + Rect.Right;
+                                  Result.Top := Wp.rcNormalPosition.Top;
+                                end;
+                      ABE_TOP:  begin
+                                  Result.Left := Wp.rcNormalPosition.Left;
+                                  Result.Top := Wp.rcNormalPosition.Top + Rect.Bottom;
+                                end
+                      else      begin
+                                  Result.Left := Wp.rcNormalPosition.Left;
+                                  Result.Top := Wp.rcNormalPosition.Top;
+                                end;
+                    end;
+                  end;
+  end;
+end;
+
 
 {$IFDEF MSWindows}
 procedure TFormMain.WMSysCommand(var Msg: TWMSysCommand);
@@ -562,6 +654,12 @@ begin
     inherited;
 end;
 {$ENDIF}
+
+
+procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
+begin
+  fMain.Move(GetWindowParams);
+end;
 
 
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
