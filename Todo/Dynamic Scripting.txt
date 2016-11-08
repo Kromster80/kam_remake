@@ -91,6 +91,7 @@ Implemented:
  6722g	States.UnitHPInvulnerable(aUnitID: Integer): Boolean
  6722g	Actions.UnitHPChange(aUnitID, aHP: Integer)
  6722g	Actions.UnitHPSetInvulnerable(aUnitID: Integer; aUnlimited: Boolean)
+ 6729g	States.MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean
 
 Accepted:
 	OnGroupOrderAttackHouse(aGroup, aHouse: integer)
