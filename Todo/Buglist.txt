@@ -48,10 +48,14 @@ Improvements:
  +		Change unit training order in School on Ctrl+click, Shift+click
  +	L	Pressing LMB over placed plans and dragging it - will remove plans
  +	L	Pressing Enter/Esc in multiplayer password entering form will submit/cancel it
+<<<<<<< HEAD
  +	L	Way to split single unit from the group (Ctrl+Split)
  +	L	Saving and restoring games window position on restart
  +	L	MapEd: Allow to set troops order destination with mouse on map
  +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
+=======
+ +	L	When splitting one soldier from the group - select him
+>>>>>>> parent of 9cf3171... Pipette tool in MapEd to select tile type under cursor
 
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -104,6 +108,7 @@ Improvements:
 	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
+	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor (ctrl+click while in tile mode?)
 	L	MapEd: Lasso selection for copy/paste
 	L	Add a button into barracks UI to allow to set a rally point
 	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
