@@ -77,13 +77,14 @@ var
   sx,sy,x,y: Integer;
   bm,bm2: TBitmap;
   IconInfo: TIconInfo;
+  Px: PRGBQuad;
 begin
   if SKIP_RENDER then Exit;
 
   fRXData := @aSprites.RXData;
 
-  bm  := TBitmap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf24bit;
-  bm2 := TBitmap.Create; bm2.HandleType := bmDIB; bm2.PixelFormat := pf24bit;
+  bm  := TBitmap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf32bit;
+  bm2 := TBitmap.Create; bm2.HandleType := bmDIB; bm2.PixelFormat := pf32bit;
 
   for KMC := Low(KMC) to High(KMC) do
   begin
@@ -104,20 +105,21 @@ begin
       bm.Width  := sx; bm.Height  := sy;
       bm2.Width := sx; bm2.Height := sy;
 
-      for y:=0 to sy-1 do for x:=0 to sx-1 do
+      for y:=0 to sy-1 do
       begin
-        //On a PC that does not shows transparency, try to change 4th byte in bm.Canvas.Pixels
-        if fRXData.RGBA[Cursors[KMC],y*sx+x] and $FF000000 = 0 then
+        Px := bm.ScanLine[y];
+        for x:=0 to sx-1 do
         begin
-          bm.Canvas.Pixels[x,y] := 0; //If not reset will invert background color
-          bm2.Canvas.Pixels[x,y] := clWhite;
-        end
-        else
-        begin
-          bm.Canvas.Pixels[x,y] := (fRXData.RGBA[Cursors[KMC],y*sx+x] AND $FFFFFF);
-          bm2.Canvas.Pixels[x,y] := clBlack;
+          if fRXData.RGBA[Cursors[KMC],y*sx+x] and $FF000000 = 0 then
+            Px.rgbReserved := $00
+          else
+            Px.rgbReserved := $FF;
+          // Here we have BGR, not RGB
+          Px.rgbBlue := (fRXData.RGBA[Cursors[KMC],y*sx+x] and $FF0000) shr 16;
+          Px.rgbGreen := (fRXData.RGBA[Cursors[KMC],y*sx+x] and $FF00) shr 8;
+          Px.rgbRed := fRXData.RGBA[Cursors[KMC],y*sx+x] and $FF;
+          inc(Px);
         end;
-        //bm2.Canvas.Pixels[x,y] := byte((RXData[fRX].RGBA[Cursors[i],y*sx+x] shr 24) and $FF)*65793;
       end;
       //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
       IconInfo.xHotspot := Math.max(-fRXData.Pivot[Cursors[KMC]].x+CursorOffsetsX[KMC],0);
