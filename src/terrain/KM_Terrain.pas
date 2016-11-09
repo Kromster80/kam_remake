@@ -580,6 +580,22 @@ begin
   //Apply change
   //UpdatePassability and UpdateWalkConnect are called in SetField so that we only use it in trees and other objects
   case aObject of
+    55..59: // Corn and grapes: Set FieldAge if there's field to let them grow
+              begin
+                Land[Y, X].Obj := aObject;
+                Result := True;
+                if TileIsWineField(KMPoint(X, Y)) then
+                case aObject of
+                  55: Land[Y,X].FieldAge := WINE_AGE_1;
+                  56: Land[Y,X].FieldAge := WINE_AGE_2;
+                  57: Land[Y,X].FieldAge := WINE_AGE_FULL - 1;
+                end;
+                if TileIsCornField(KMPoint(X, Y)) then
+                case aObject of
+                  58: Land[Y,X].FieldAge := CORN_AGE_2;
+                  59: Land[Y,X].FieldAge := CORN_AGE_FULL - 1;
+                end;
+              end;
     88..124,
     126..172: // Trees - 125 is mushroom
               begin
