@@ -550,13 +550,12 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
       end;
   end;
 
-  // Function allows objects in the same manner like in KaM Editor - we do not want falling trees, hidden objects etc.
+  // We do not want falling trees
   function AllowableObject: Boolean;
   begin
-    // Hide invisible wall (61), falling trees
-    Result := (aObject <> 61)
-              and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
-              and (MapElem[aObject].Stump = -1);
+    // Hide falling trees
+    // Invisible objects like 255 can be useful to clear specified tile (since delete object = place object 255)
+    Result := (MapElem[aObject].Stump = -1) or (aObject = 255);
   end;
 
 var
@@ -568,7 +567,7 @@ begin
   or TileIsWineField(KMPoint(X, Y)) or TileIsCornField(KMPoint(X, Y))
   //Is there a house/site near this object?
   or HousesNearObject
-  //Is this object allowed to be placed - like in KaM Editor?
+  //Is this object allowed to be placed?
   or not AllowableObject then
   begin
     Result := False;
@@ -582,23 +581,21 @@ begin
   //UpdatePassability and UpdateWalkConnect are called in SetField so that we only use it in trees and other objects
   case aObject of
     55..58:   // Wine in different stages
-              if CanAddField(X, Y, ft_Wine) and (TileIsCoal(X, Y) <= 0) then // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
+              // Mapmaker still can use grapes as decoration
               begin
                 Land[Y, X].Obj := aObject;
-                SetField(KMPoint(X, Y), -1, ft_Wine);
+                // No need to force adding winefield like this. Mapmaker can use Actions.GiveWinefield instead if needed
+                //SetField(KMPoint(X, Y), -1, ft_Wine);
                 Result := True;
-              end
-              else
-                Result := False;
+              end;
     59..63:   // Corn in different stages
-              if CanAddField(X, Y, ft_Corn) and (TileIsCoal(X, Y) <= 0) then  // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
+              // Mapmaker still can use corn as decoration
               begin
                 Land[Y, X].Obj := aObject;
-                SetField(KMPoint(X, Y), -1, ft_Corn);
+                // No need to force adding field like this. Mapmaker can use Actions.GiveField instead if needed
+                //SetField(KMPoint(X, Y), -1, ft_Corn);
                 Result := True;
-              end
-              else
-                Result := False;
+              end;
     88..124,
     126..172: // Trees - 125 is mushroom
               begin
