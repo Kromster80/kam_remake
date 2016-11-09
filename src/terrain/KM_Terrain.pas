@@ -580,22 +580,6 @@ begin
   //Apply change
   //UpdatePassability and UpdateWalkConnect are called in SetField so that we only use it in trees and other objects
   case aObject of
-    55..58:   // Wine in different stages
-              // Mapmaker still can use grapes as decoration
-              begin
-                Land[Y, X].Obj := aObject;
-                // No need to force adding winefield like this. Mapmaker can use Actions.GiveWinefield instead if needed
-                //SetField(KMPoint(X, Y), -1, ft_Wine);
-                Result := True;
-              end;
-    59..63:   // Corn in different stages
-              // Mapmaker still can use corn as decoration
-              begin
-                Land[Y, X].Obj := aObject;
-                // No need to force adding field like this. Mapmaker can use Actions.GiveField instead if needed
-                //SetField(KMPoint(X, Y), -1, ft_Corn);
-                Result := True;
-              end;
     88..124,
     126..172: // Trees - 125 is mushroom
               begin
