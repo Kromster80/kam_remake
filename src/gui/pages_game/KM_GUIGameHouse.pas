@@ -971,11 +971,11 @@ begin
   begin
     Shape_Market_From.Left := ((Byte(aMarket.ResFrom)-1) mod 6) * 31;
     Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * MARKET_RES_HEIGHT;
-    Label_Market_In.Caption := Format(gResTexts[TX_HOUSES_MARKET_FROM], [aMarket.RatioFrom]) + ':';
+    Label_Market_In.Caption := Format(gResTexts[TX_HOUSES_MARKET_FROM], [aMarket.RatioFrom]);
     Button_Market_In.TexID := gRes.Wares[aMarket.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResFrom));
   end else begin
-    Label_Market_In.Caption := Format(gResTexts[TX_HOUSES_MARKET_FROM],[0]) + ':';
+    Label_Market_In.Caption := Format(gResTexts[TX_HOUSES_MARKET_FROM],[0]);
     Button_Market_In.TexID := gRes.Wares[wt_None].GUIIcon;
     Button_Market_In.Caption := '-';
   end;
@@ -986,11 +986,11 @@ begin
   begin
     Shape_Market_To.Left := ((Byte(aMarket.ResTo)-1) mod 6) * 31;
     Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * MARKET_RES_HEIGHT;
-    Label_Market_Out.Caption := Format(gResTexts[TX_HOUSES_MARKET_TO], [aMarket.RatioTo]) + ':';
+    Label_Market_Out.Caption := Format(gResTexts[TX_HOUSES_MARKET_TO], [aMarket.RatioTo]);
     Button_Market_Out.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResTo));
     Button_Market_Out.TexID := gRes.Wares[aMarket.ResTo].GUIIcon;
   end else begin
-    Label_Market_Out.Caption := Format(gResTexts[TX_HOUSES_MARKET_TO], [0]) + ':';
+    Label_Market_Out.Caption := Format(gResTexts[TX_HOUSES_MARKET_TO], [0]);
     Button_Market_Out.TexID := gRes.Wares[wt_None].GUIIcon;
     Button_Market_Out.Caption := '-';
   end;
