@@ -105,6 +105,8 @@ type
 
     HitPointsInvulnerable: Boolean;
 
+    LastTaskPosition: TKMPoint; //Place where last task assigned (woodcutter wants to plant tree here, farmer decided to harvest grapes from this winefield, etc)
+
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
@@ -1050,6 +1052,7 @@ begin
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
   HitPointsInvulnerable := False;
+  LastTaskPosition := KMPoint(0, 0);
 
   SetActionLockedStay(10, ua_Walk); //Must be locked for this initial pause so animals don't get pushed
   gTerrain.UnitAdd(NextPosition,Self);
@@ -1983,6 +1986,13 @@ begin
   and not ((fUnitTask is TTaskGoEat) and TTaskGoEat(fUnitTask).Eating) then
     //Make unit hungry as long as they are not currently eating in the inn
     Dec(fCondition);
+
+  if (IsIdle or (IsDeadOrDying))
+  and (not KMSamePoint(LastTaskPosition, KMPoint(0, 0))) then
+  begin
+    gTerrain.Land[LastTaskPosition.Y, LastTaskPosition.X].OccupiedByWorker := False;
+    LastTaskPosition := KMPoint(0, 0);
+  end;
 
   //Unit killing could be postponed by few ticks, hence fCondition could be <0
   if fCondition <= 0 then
