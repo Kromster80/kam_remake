@@ -212,7 +212,7 @@ type
           Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
     Panel_Menu: TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_ReturnLobby,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
-      Label_Menu_Track, Label_GameTime: TKMLabel;
+      Label_Menu_Track, Label_GameTime, Label_MapName: TKMLabel;
 
       Panel_Save: TKMPanel;
         ListBox_Save: TKMListBox;
@@ -1160,7 +1160,7 @@ begin
   Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
   Button_Menu_Settings.OnClick := SwitchPage;
   Button_Menu_Settings.Hint := gResTexts[TX_MENU_SETTINGS];
-  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 170, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
+  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 147, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
   Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MISSION];
   Button_Menu_Quit.OnClick := SwitchPage;
   Button_Menu_TrackUp := TKMButton.Create(Panel_Menu, 150, 300, 30, 30, '>', bsGame);
@@ -1169,10 +1169,11 @@ begin
   Button_Menu_TrackDown.Hint := gResTexts[TX_MUSIC_PREV_HINT];
   Button_Menu_TrackUp.OnClick := Menu_NextTrack;
   Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
-  TKMLabel.Create(Panel_Menu, 0, 260, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Metal, taCenter);
-  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 0, 276, TB_WIDTH, 30, '', fnt_Grey, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 265, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Metal, taCenter);
+  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 0, 280, TB_WIDTH, 30, '', fnt_Grey, taCenter);
   Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
-  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 214, TB_WIDTH, 20, '', fnt_Outline, taCenter);
+  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 185, TB_WIDTH, 20, '', fnt_Outline, taCenter);
+  Label_MapName := TKMLabel.Create(Panel_Menu, 0, 222, TB_WIDTH, 20, '', fnt_Outline, taCenter);
 end;
 
 
@@ -1964,6 +1965,7 @@ begin
     Label_Menu_Track.Caption := gGameApp.MusicLib.GetTrackTitle;
 
   Label_GameTime.Caption := Format(gResTexts[TX_GAME_TIME], [TimeToString(gGame.MissionTime)]);
+  Label_MapName.Caption := Format(gResTexts[TX_GAME_MAP], [gGame.GameName]);
 
   Label_Menu_Track.Enabled      := not gGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not gGameApp.GameSettings.MusicOff;

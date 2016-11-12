@@ -773,6 +773,7 @@ TX_MP_BLOCKED_BY_PEACETIME = 618; //You are not allowed to do that during peacet
 TX_MP_PEACETIME_REMAINING = 619; //Peacetime remaining: %s
 TX_MP_PEACETIME_OVER = 620; //Peacetime is over. To thy weapons!
 TX_GAME_TIME = 621; //Game time:|%s
+TX_GAME_MAP = 966; //Map:|%s
 TX_TROOP_HALT_HINT = 622; //Halt troop ('%s')
 TX_TROOP_LINK_HINT = 623; //Link up troop ('%s')
 TX_TROOP_SPLIT_HINT = 624; //Separate troop ('%s')
