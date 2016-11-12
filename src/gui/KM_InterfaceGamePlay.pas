@@ -2661,10 +2661,20 @@ begin
       Selection_Select(SelectId);
 
     // Menu shortcuts
-  if Key = gResKeys[SC_MENU_BUILD].Key then Button_Main[tbBuild].Click;
-  if Key = gResKeys[SC_MENU_RATIO].Key then Button_Main[tbRatio].Click;
-  if Key = gResKeys[SC_MENU_STATS].Key then Button_Main[tbStats].Click;
-  if Key = gResKeys[SC_MENU_MENU].Key  then Button_Main[tbMenu].Click;
+  if Key = gResKeys[SC_MENU_BUILD].Key then
+    if Button_Main[tbBuild].Enabled then
+      SwitchPage(Button_Main[tbBuild]);
+
+  if Key = gResKeys[SC_MENU_RATIO].Key then
+    if Button_Main[tbRatio].Enabled then
+      SwitchPage(Button_Main[tbRatio]);
+
+  if Key = gResKeys[SC_MENU_STATS].Key then
+    if Button_Main[tbStats].Enabled then
+      SwitchPage(Button_Main[tbStats]);
+
+  if Key = gResKeys[SC_MENU_MENU].Key then
+    SwitchPage(Button_Main[tbMenu]);
 
   if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
   begin
