@@ -16,7 +16,7 @@ interface
 {$ENDIF}
 
 uses
-  Classes, SysUtils, KromUtils, Math, Types,
+  Classes, SysUtils, KromUtils, Math, Types, Log4d,
   KM_Defaults
   {$IFDEF USEBASS}     , Bass {$ENDIF}
   {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
@@ -27,6 +27,7 @@ type
 
   TKMMusicLib = class
   private
+    fLogger: TLogLogger;
     fMusicCount: Integer;
     fMusicIndex: Integer; //Points to the index in TrackOrder of the current track
     fMusicTracks: TStringDynArray;
@@ -83,6 +84,7 @@ var
   I: Integer;
 begin
   inherited Create;
+  fLogger := GetLogger(TKMMusicLib);
   IsMusicInitialized := True;
   ScanMusicTracks(ExeDir + 'Music'+PathDelim);
 
@@ -107,7 +109,7 @@ begin
   for I := 0 to fMusicCount - 1 do
     fTrackOrder[I] := I;
 
-  gLog.AddTime('Music init done, ' + IntToStr(fMusicCount) + ' tracks found');
+  fLogger.Info('Music init done, ' + IntToStr(fMusicCount) + ' tracks found');
 end;
 
 

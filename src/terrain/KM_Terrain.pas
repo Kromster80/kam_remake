@@ -2,7 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Graphics,
+  Classes, KromUtils, Math, SysUtils, Graphics, Log4d,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResTileset,
   KM_ResHouses, KM_ResWares, KM_TerrainFinder, KM_ResMapElements;
 
@@ -20,6 +20,7 @@ type
   {Class to store all terrain data, aswell terrain routines}
   TKMTerrain = class
   private
+    fLogger: TLogLogger;
     fAnimStep: Cardinal;
     fMapEditor: Boolean; //In MapEd mode some features behave differently
     fMapX: Word; //Terrain width
@@ -233,6 +234,7 @@ uses
 constructor TKMTerrain.Create;
 begin
   inherited;
+  fLogger := GetLogger(TKMTerrain);
   fAnimStep := 0;
   FallingTrees := TKMPointTagList.Create;
   fTileset := gRes.Tileset; //Local shortcut
@@ -306,7 +308,7 @@ begin
 
   fMapEditor := aMapEditor;
 
-  gLog.AddTime('Loading map file: ' + FileName);
+  fLogger.Info('Loading map file: ' + FileName);
 
   S := TKMemoryStream.Create;
   try
@@ -356,7 +358,7 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], MapRect, True);
-  gLog.AddTime('Map file loaded');
+  fLogger.Info('Map file loaded');
 end;
 
 
@@ -3050,7 +3052,7 @@ begin
 
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], MapRect, True);
 
-  gLog.AddTime('Terrain loaded');
+  fLogger.Info('Terrain loaded');
 end;
 
 

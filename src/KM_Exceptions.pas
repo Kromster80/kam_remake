@@ -1,12 +1,13 @@
 unit KM_Exceptions;
 interface
 uses
-  SysUtils, MadExcept, madNVAssistant;
+  SysUtils, MadExcept, madNVAssistant, Log4d;
 
 
 type
   TKMExceptions = class
   private
+    fLogger: TLogLogger;
     procedure DoException(const ExceptIntf: IMEException; var Handled: boolean);
   public
     constructor Create;
@@ -29,6 +30,7 @@ uses
 constructor TKMExceptions.Create;
 begin
   inherited;
+  fLogger := GetLogger(TKMExceptions);
   OnAssistantCreate := DoCreateAssistant;
   RegisterExceptionHandler(DoException, stTrySyncCallAlways);
   MESettings.HttpServer := 'http://kam.hodgman.id.au/crashupload.php?rev='+GAME_REVISION;
@@ -88,20 +90,20 @@ end;
 procedure TKMExceptions.DoException(const ExceptIntf: IMEException; var Handled: boolean);
 var LogMessage, CrashFile: string;
 begin
-  if gLog = nil then Exit; //Could crash very early before even the log file is created
+  //if gLog = nil then Exit; //Could crash very early before even the log file is created
 
   //It's nice to know when the exception happened in our log if the user decides to play on and sends the report later
   LogMessage := 'Exception occurred: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
   if ExceptIntf.ExceptObject is ELocError then
     LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
-  gLog.AddTime(LogMessage);
-  gLog.AddNoTime('================================================================================');
-  gLog.AddNoTime('                                START BUG REPORT                                ');
-  gLog.AddNoTime('================================================================================');
-  gLog.AddNoTime(ExceptIntf.BugReport);
-  gLog.AddNoTime('================================================================================');
-  gLog.AddNoTime('                                 END BUG REPORT                                 ');
-  gLog.AddNoTime('================================================================================');
+  fLogger.Info(LogMessage);
+  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
+  fLogger.Log(GetNoTimeLogLvl, '                                START BUG REPORT                                ');
+  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
+  fLogger.Log(GetNoTimeLogLvl, ExceptIntf.BugReport);
+  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
+  fLogger.Log(GetNoTimeLogLvl, '                                 END BUG REPORT                                 ');
+  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
 
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
@@ -119,7 +121,8 @@ begin
   if gGame <> nil then gGame.AttachCrashReport(ExceptIntf, CrashFile);
 
   //Do the log after fGame because fGame adds stuff to the log
-  if gLog <> nil then ExceptIntf.AdditionalAttachments.Add(gLog.LogPath, '', CrashFile);
+  //if gLog <> nil then
+    ExceptIntf.AdditionalAttachments.Add(GetLogPath, '', CrashFile);
 
   //Do settings here not in fGame because we could crash before fGame is created
   if FileExists(ExeDir + SETTINGS_FILE) then

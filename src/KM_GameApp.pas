@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
-  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
+  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo, Log4d,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
   KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceDefaults,
   KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
@@ -14,6 +14,7 @@ type
   //Methods relevant to gameplay
   TKMGameApp = class
   private
+    fLogger: TLogLogger;
     fGlobalTickCount: Cardinal;
     fIsExiting: Boolean;
 
@@ -101,7 +102,7 @@ uses
 constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TEvent; aOnLoadingText: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
 begin
   inherited Create;
-
+  fLogger := GetLogger(TKMGameApp);
   fOnCursorUpdate := aOnCursorUpdate;
 
   fGameSettings := TGameSettings.Create;
@@ -408,7 +409,7 @@ begin
   end;
 
   FreeThenNil(gGame);
-  gLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
+  fLogger.Info('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
 end;
 
 
@@ -446,7 +447,7 @@ begin
   //Copy text from in-game chat to lobby
   fMainMenuInterface.SetChatState(ChatState);
 
-  gLog.AddTime('Gameplay ended - Return to lobby');
+  fLogger.Info('Gameplay ended - Return to lobby');
 end;
 
 
@@ -473,7 +474,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError);
+      fLogger.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -506,7 +507,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError);
+      fLogger.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -539,7 +540,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError);
+      fLogger.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;

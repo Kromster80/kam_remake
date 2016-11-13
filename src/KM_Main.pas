@@ -2,14 +2,16 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
+  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs, Log4D,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions
+  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions, KM_Houses
   {$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
 
 type
   TKMMain = class
   private
+    fLogger: TLogLogger;
+
     fFormMain: TFormMain;
     fFormLoading: TFormLoading;
 
@@ -77,12 +79,14 @@ const
 constructor TKMMain.Create;
 begin
   inherited;
+  fLogger := GetLogger(TKMMain);
   //Create exception handler as soon as possible in case it crashes early on
   {$IFDEF USE_MAD_EXCEPT}fExceptions := TKMExceptions.Create;{$ENDIF}
 
   //Form created first will be on taskbar
   Application.CreateForm(TFormMain, fFormMain);
   Application.CreateForm(TFormLoading, fFormLoading);
+
 end;
 
 
@@ -94,22 +98,27 @@ end;
 
 
 procedure TKMMain.Start;
+var Logger,LoggerNet: TLogLogger;
 begin
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
   Randomize;
 
   fFormLoading.Label5.Caption := GAME_VERSION;
-  fFormLoading.Show; //This is our splash screen
+  //fFormLoading.Show; //This is our splash screen
   fFormLoading.Refresh;
 
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
-  ExeDir := ExtractFilePath(Application.ExeName);
+  ExeDir := GetExeDir;
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
-  gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
-  gLog.DeleteOldLogs;
+  DeleteOldLogs;
+  // Register Custom Logger classes
+  RegisterLayout(TKMLogLayout);
+  RegisterAppender(TKMLogFileAppender);
+  //Load Logger configuration
+  TLogPropertyConfigurator.Configure(GetExeDir + 'log4d.props');
 
   //Resolutions are created first so that we could check Settings against them
   fResolutions := TKMResolutions.Create;
@@ -202,7 +211,7 @@ begin
   FreeThenNil(fResolutions);
   FreeThenNil(fMainSettings);
   FreeThenNil(gGameApp);
-  FreeThenNil(gLog);
+  //FreeThenNil(gLog);
 
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
@@ -325,9 +334,9 @@ begin
                                 StatusBarText);
   gGameApp.AfterConstruction(aReturnToOptions);
 
-  gLog.AddTime('ToggleFullscreen');
-  gLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
-  gLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
+  fLogger.Info('ToggleFullscreen');
+  fLogger.Info('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
+  fLogger.Info('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
 
   //Hide'n'show will make form go ontop of taskbar
   fFormMain.Hide;
@@ -554,6 +563,7 @@ begin
     ClipCursor(nil); //Otherwise have no restriction
   {$ENDIF}
 end;
+
 
 
 end.

@@ -2,7 +2,7 @@ unit KM_UnitsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, Types,
+  Classes, Math, Types, Log4d,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain, KM_Units;
 
@@ -14,6 +14,7 @@ uses
 type
   TKMUnitsCollection = class
   private
+    fLogger: TLogLogger;
     fUnits: TKMList;
     function GetUnit(aIndex: Integer): TKMUnit; inline;
     function GetCount: Integer;
@@ -47,6 +48,7 @@ uses
 constructor TKMUnitsCollection.Create;
 begin
   inherited Create;
+  fLogger := GetLogger(TKMUnitsCollection);
 
   fUnits := TKMList.Create;
 end;
@@ -91,7 +93,7 @@ begin
   //Check if Pos is within map coords first, as other checks rely on this
   if not gTerrain.TileInMapCoords(PlaceTo.X, PlaceTo.Y) then
   begin
-    gLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
+    fLogger.Warn('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
     Result := nil;
     Exit;
   end;
@@ -244,7 +246,7 @@ begin
     if U <> nil then
       fUnits.Add(U)
     else
-      gLog.AddAssert('Unknown unit type in Savegame');
+      fLogger.Log(GetAssertLogLvl, 'Unknown unit type in Savegame');
   end;
 end;
 

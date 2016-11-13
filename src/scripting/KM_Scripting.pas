@@ -2,7 +2,7 @@ unit KM_Scripting;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, Log4d,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
   KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates,
@@ -25,6 +25,7 @@ uses
 type
   TKMScripting = class
   private
+    fLogger: TLogLogger;
     fScriptCode: AnsiString;
     fCampaignDataTypeCode: AnsiString;
     fByteCode: AnsiString;
@@ -95,6 +96,7 @@ const
 constructor TKMScripting.Create(aOnScriptError: TUnicodeStringEvent);
 begin
   inherited Create;
+  fLogger := GetLogger(TKMScripting);
 
   // Create an instance of the script executer
   fExec := TPSExec.Create;
@@ -127,7 +129,7 @@ procedure TKMScripting.HandleScriptError(aType: TScriptErrorType; const aMsg: Un
 var
   fl: textfile;
 begin
-  gLog.AddTime('Script: ' + aMsg); //Always log the error to global game log
+  fLogger.Info('Script: ' + aMsg); //Always log the error to global game log
 
   //Log to map specific log file
   if fScriptLogFile <> '' then
@@ -173,7 +175,7 @@ begin
 
   if not FileExists(aFileName) then
   begin
-    gLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
+    fLogger.Log(GetNoTimeLogLvl, aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
     Exit;
   end;
 

@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles, Forms,
+  Classes, SysUtils, Math, INIfiles, Forms, Log4d,
   KM_Defaults, KM_Resolutions;
 
 
@@ -41,6 +41,7 @@ type
   //Everything gets written through setter to set fNeedsSave flag
   TMainSettings = class
   private
+    fLogger: TLogLogger;
     fNeedsSave: Boolean;
     fFullScreen: Boolean;
     fResolution: TKMScreenRes;
@@ -70,6 +71,7 @@ type
   //Everything gets written through setter to set fNeedsSave flag
   TGameSettings = class
   private
+    fLogger: TLogLogger;
     fNeedsSave: Boolean;
 
     fAutosave: Boolean;
@@ -177,10 +179,11 @@ uses
 constructor TMainSettings.Create;
 begin
   inherited;
+  fLogger := GetLogger(TMainSettings);
   fWindowParams := TKMWindowParams.Create;
   LoadFromINI(ExeDir + SETTINGS_FILE);
   fNeedsSave := False;
-  gLog.AddTime('Global settings loaded from ' + SETTINGS_FILE);
+  fLogger.Info('Global settings loaded from ' + SETTINGS_FILE);
 end;
 
 
@@ -300,7 +303,7 @@ end;
 constructor TGameSettings.Create;
 begin
   inherited;
-
+  fLogger := GetLogger(TGameSettings);
   ReloadSettings;
 end;
 
@@ -323,7 +326,7 @@ end;
 procedure TGameSettings.ReloadSettings;
 begin
   LoadFromINI(ExeDir + SETTINGS_FILE);
-  gLog.AddTime('Game settings loaded from ' + SETTINGS_FILE);
+  fLogger.Info('Game settings loaded from ' + SETTINGS_FILE);
 end;
 
 

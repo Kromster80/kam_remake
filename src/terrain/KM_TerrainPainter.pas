@@ -2,7 +2,7 @@ unit KM_TerrainPainter;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
+  Classes, KromUtils, Math, SysUtils, Log4d,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain;
 
@@ -37,6 +37,7 @@ type
   //Terrain helper that is used to paint terrain types in Map Editor
   TKMTerrainPainter = class
   private
+    fLogger: TLogLogger;
     fUndoPos: Byte;
     fUndos: array [0..MAX_UNDO-1] of record
       HasData: Boolean;
@@ -60,6 +61,7 @@ type
   public
     Land2: array of array of TKMPainterTile;
     RandomizeTiling: Boolean;
+    constructor Create;
     procedure InitEmpty;
     procedure LoadFromFile(aFileName: UnicodeString);
     procedure SaveToFile(aFileName: UnicodeString);
@@ -157,6 +159,13 @@ uses
 
 
 { TKMTerrainPainter }
+constructor TKMTerrainPainter.Create;
+begin
+  inherited;
+  fLogger := GetLogger(TKMTerrainPainter);
+end;
+
+
 procedure TKMTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TKMTerrainKind);
 begin
   if not gTerrain.TileInMapCoords(X, Y) then
@@ -780,13 +789,13 @@ begin
           MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
         else
-          gLog.AddNoTime(aFileName + ' has no MapEd.TILE chunk');
+          fLogger.Warn(aFileName + ' has no MapEd.TILE chunk');
       end
       else
-        gLog.AddNoTime(aFileName + ' has no MapEd.ADDN chunk');
+        fLogger.Warn(aFileName + ' has no MapEd.ADDN chunk');
     end
     else
-      gLog.AddNoTime(aFileName + ' has no MapEd chunk');
+      fLogger.Warn(aFileName + ' has no MapEd chunk');
   finally
     S.Free;
   end;
@@ -794,7 +803,7 @@ begin
   //We can regenerate the MapEd data if it's missing (won't be as good as the original)
   if not MapEdChunkFound then
   begin
-    gLog.AddNoTime('Regenerating missing MapEd data as best as we can');
+    fLogger.Warn('Regenerating missing MapEd data as best as we can');
     GenerateAddnData;
   end;
 

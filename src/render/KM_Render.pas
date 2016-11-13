@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF WDC} Windows, Graphics, JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   {$IFDEF Unix} LCLIntf, LCLType, OpenGLContext, {$ENDIF}
-  Math, dglOpenGL, KromOGLUtils, KromUtils, KM_RenderControl;
+  Math, dglOpenGL, Log4d, KromOGLUtils, KromUtils, KM_RenderControl;
 
 
 type
@@ -22,6 +22,7 @@ type
   //General OpenGL handling
   TRender = class
   private
+    fLogger: TLogLogger;
     fRenderControl: TKMRenderControl;
     fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: UnicodeString;
     fScreenX, fScreenY: Word;
@@ -62,6 +63,7 @@ uses
 constructor TRender.Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
 begin
   inherited Create;
+  fLogger := GetLogger(TRender);
 
   fBlind := aRenderControl = nil;
   fRenderControl := aRenderControl;
@@ -85,9 +87,12 @@ begin
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
 
-    fOpenGL_Vendor   := UnicodeString(glGetString(GL_VENDOR));   gLog.AddNoTime('OpenGL Vendor: '   + fOpenGL_Vendor);
-    fOpenGL_Renderer := UnicodeString(glGetString(GL_RENDERER)); gLog.AddNoTime('OpenGL Renderer: ' + fOpenGL_Renderer);
-    fOpenGL_Version  := UnicodeString(glGetString(GL_VERSION));  gLog.AddNoTime('OpenGL Version: '  + fOpenGL_Version);
+    fOpenGL_Vendor   := UnicodeString(glGetString(GL_VENDOR));
+    fLogger.Log(GetNoTimeLogLvl, 'OpenGL Vendor: '   + fOpenGL_Vendor);
+    fOpenGL_Renderer := UnicodeString(glGetString(GL_RENDERER));
+    fLogger.Log(GetNoTimeLogLvl, 'OpenGL Renderer: ' + fOpenGL_Renderer);
+    fOpenGL_Version  := UnicodeString(glGetString(GL_VERSION));
+    fLogger.Log(GetNoTimeLogLvl, 'OpenGL Version: '  + fOpenGL_Version);
 
     SetupVSync(aVSync);
 

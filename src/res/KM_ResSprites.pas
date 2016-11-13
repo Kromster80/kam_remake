@@ -3,7 +3,7 @@ unit KM_ResSprites;
 interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes, Graphics, Math, SysUtils,
+  Classes, Graphics, Math, SysUtils, Log4d,
   KM_CommonTypes, KM_Defaults, KM_Pics, KM_PNG, KM_Render, KM_ResTexts
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
@@ -52,6 +52,7 @@ type
   //Base class for Sprite loading
   TKMSpritePack = class
   private
+    fLogger: TLogLogger;
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
@@ -85,6 +86,7 @@ type
 
   TKMSprites = class
   private
+    fLogger: TLogLogger;
     fAlphaShadows: Boolean; //Remember which state we loaded
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
@@ -136,6 +138,7 @@ var
 constructor TKMSpritePack.Create(aRT: TRXType);
 begin
   inherited Create;
+  fLogger := GetLogger(TKMSpritePack);
 
   fRT := aRT;
 
@@ -304,8 +307,9 @@ begin
 
   try
     DecompressionStream.Read(RXXCount, 4);
-    if gLog <> nil then
-      gLog.AddTime(RXInfo[fRT].FileName + ' -', RXXCount);
+//    if gLog <> nil then
+//      gLog.AddTime(RXInfo[fRT].FileName + ' -', RXXCount);
+    fLogger.Info(RXInfo[fRT].FileName + ' -' + IntToStr(RXXCount));
 
     if RXXCount = 0 then
       Exit;
@@ -534,10 +538,10 @@ begin
     if fRXData.Flag[I] <> 0 then
       Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
-    gLog.AddTime(IntToStr(TexCount) + ' Textures created');
-    gLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+    fLogger.Info(IntToStr(TexCount) + ' Textures created');
+    fLogger.Log(GetNoTimeLogLvl, Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
                   ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-    gLog.AddNoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+    fLogger.Log(GetNoTimeLogLvl, IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
 
@@ -724,6 +728,7 @@ var
   RT: TRXType;
 begin
   inherited Create;
+  fLogger := GetLogger(TKMSprites);
 
   for RT := Low(TRXType) to High(TRXType) do
     fSprites[RT] := TKMSpritePack.Create(RT);
@@ -791,7 +796,7 @@ begin
   if RXInfo[RT].Usage = ruGame then
   begin
     fStepCaption(gResTexts[RXInfo[RT].LoadingTextID]);
-    gLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rx');
+    fLogger.Info('Reading ' + RXInfo[RT].FileName + '.rx');
     LoadSprites(RT, fAlphaShadows);
     fSprites[RT].MakeGFX(fAlphaShadows);
   end;

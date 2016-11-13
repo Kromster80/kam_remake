@@ -2,7 +2,7 @@ unit KM_HandsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Graphics,
+  Classes, KromUtils, Math, SysUtils, Graphics, Log4d,
   KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
   KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
 
@@ -11,6 +11,7 @@ uses
 type
   TKMHandsCollection = class
   private
+    fLogger: TLogLogger;
     fCount: Byte;
     fHandsList: array of TKMHand;
     fPlayerAnimals: TKMHandAnimals;
@@ -79,7 +80,7 @@ uses
 constructor TKMHandsCollection.Create;
 begin
   inherited Create;
-
+  fLogger := GetLogger(TKMHandsCollection);
   fPlayerAnimals := TKMHandAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 end;
 
@@ -551,7 +552,7 @@ begin
   LoadStream.Read(fCount);
 
   if fCount > MAX_HANDS then
-    gLog.AddAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
+    fLogger.Log(GetAssertLogLvl, 'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 
   SetLength(fHandsList, fCount);
 

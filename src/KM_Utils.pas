@@ -2,7 +2,7 @@ unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
+  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, Forms
   {$IFDEF MSWindows}
   ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
@@ -57,11 +57,14 @@ uses
 
   function GetMultiplicator(aShift: TShiftState): Word;
 
+  function GetExeDir: string;
+
 implementation
 
 
 var
   fKaMSeed: Integer;
+  fExeDir: string;
 
 
 //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
@@ -641,6 +644,15 @@ function GetMultiplicator(aShift: TShiftState): Word;
 begin
   Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100
 end;
+
+
+function GetExeDir: string;
+begin
+  if (fExeDir.IsEmpty) then
+    fExeDir := ExtractFilePath(Application.ExeName);
+  Result := fExeDir;
+end;
+
 
 
 end.

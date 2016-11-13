@@ -3,7 +3,7 @@ unit KM_Resource;
 interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes, Graphics, SysUtils,
+  Classes, Graphics, SysUtils, Log4d,
   KM_CommonTypes, KM_Defaults, KM_Pics,
   KM_Render,
   KM_ResCursors,
@@ -24,6 +24,7 @@ type
 
   TKMResource = class
   private
+    fLogger: TLogLogger;
     fDataState: TResourceLoadState;
     fCursors: TKMCursors;
     fFonts: TKMResFonts;
@@ -83,9 +84,10 @@ uses
 constructor TKMResource.Create(aOnLoadingStep: TEvent; aOnLoadingText: TUnicodeStringEvent);
 begin
   inherited Create;
+  fLogger := GetLogger(TKMResource);
 
   fDataState := rlsNone;
-  gLog.AddTime('Resource loading state - None');
+  fLogger.Info('Resource loading state - None');
 
   OnLoadingStep := aOnLoadingStep;
   OnLoadingText := aOnLoadingText;
@@ -138,7 +140,7 @@ begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
-  gLog.AddTime('Reading palettes', True);
+  fLogger.Info('Reading palettes done');
 
   fSprites := TKMSprites.Create(StepRefresh, StepCaption);
 
@@ -158,7 +160,7 @@ begin
     fFonts.LoadFonts(fll_Full)
   else
     fFonts.LoadFonts(fll_Minimal);
-  gLog.AddTime('Read fonts is done');
+  fLogger.Info('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
@@ -173,9 +175,9 @@ begin
   fUnitDat := TKMUnitDatCollection.Create;
 
   StepRefresh;
-  gLog.AddTime('ReadGFX is done');
+  fLogger.Info('ReadGFX is done');
   fDataState := rlsMenu;
-  gLog.AddTime('Resource loading state - Menu');
+  fLogger.Info('Resource loading state - Menu');
 end;
 
 
@@ -212,7 +214,7 @@ begin
   end;
 
   fDataState := rlsAll;
-  gLog.AddTime('Resource loading state - Game');
+  fLogger.Info('Resource loading state - Game');
 end;
 
 

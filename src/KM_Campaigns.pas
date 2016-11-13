@@ -2,7 +2,7 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
+  Classes, KromUtils, Math, SysUtils, Log4d,
   KM_CommonClasses, KM_Pics, KM_Points, KM_ResTexts, KM_ResLocales;
 
 
@@ -64,6 +64,7 @@ type
 
   TKMCampaignsCollection = class
   private
+    fLogger: TLogLogger;
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
     fList: TList;
@@ -108,6 +109,7 @@ const
 constructor TKMCampaignsCollection.Create;
 begin
   inherited Create;
+  fLogger := GetLogger(TKMCampaignsCollection);
 
   fList := TList.Create;
 end;
@@ -264,7 +266,7 @@ begin
     M.Free;
   end;
 
-  gLog.AddTime('Campaigns.dat saved');
+  fLogger.Info('Campaigns.dat saved');
 end;
 
 

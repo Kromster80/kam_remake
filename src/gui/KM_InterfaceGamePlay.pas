@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromUtils, Math, Classes, Controls, Log4d,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
@@ -21,6 +21,7 @@ type
 
   TKMGamePlayInterface = class (TKMUserInterfaceGame)
   private
+    fLogger: TLogLogger;
     fAlerts: TKMAlerts;
 
     fUIMode: TUIMode;
@@ -663,6 +664,7 @@ constructor TKMGamePlayInterface.Create(aRender: TRender; aUIMode: TUIMode);
 var S: TKMShape; I: Integer;
 begin
   inherited Create(aRender);
+  fLogger := GetLogger(TKMGamePlayInterface);
   fUIMode := aUIMode;
 
   fAlerts := TKMAlerts.Create(fViewport);
@@ -3288,7 +3290,7 @@ begin
 
   // Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;
-  gLog.AddTime('Interface loaded');
+  fLogger.Info('Interface loaded');
 end;
 
 
