@@ -1,0 +1,32 @@
+# Log4d-for-Delphi
+
+this Log4d came from https://github.com/landrix/Log4d-for-Delphi
+
+Log4D is a port of the well known log4j logging framework. You can find the original Log4D project at http://sourceforge.net/projects/log4d/
+
+## Other Log4d sources ##
+
+https://github.com/stanleyxu2005/log4d
+
+https://github.com/michaelJustin/log4d
+
+## Additional ##
+
+https://github.com/michaelJustin/slf4p
+
+## Demo ##
+https://github.com/pretorean/log4d
+
+A simple logging facade for Object Pascal (Delphi and FPC)
+
+## What's New ##
+
+### Parameterized Logging ###
+
+It supports now an advanced feature called 'parameterized logging', which can 
+significantly boost logging performance for disabled logging statement. If the 
+current log level is lower than the global log level, log message will not be 
+concatenated.                                                 
+
+ * Using original Log4D: <code>LOG.Debug(Format('Invalid value %s' [Value]));</code>
+ * Now: <code>LOG.Debug('Invalid value %s', [Value]);</code>

@@ -1,0 +1,59 @@
+; Table of contents file for Log4D help
+:title Log4D
+
+1 Log4D - Logging for Delphi
+2 Introduction=Log4D_Intro
+2 Interfaces
+3 ILogAppender Interface=ILogAppender
+3 ILogCategoryFactory Interface=ILogCategoryFactory
+3 ILogDynamicCreate Interface=ILogDynamicCreate
+3 ILogErrorHandler Interface=ILogErrorHandler
+3 ILogFilter Interface=ILogFilter
+3 ILogLayout Interface=ILogLayout
+3 ILogOptionHandler Interface=ILogOptionHandler
+3 ILogRenderer Interface=ILogRenderer
+2 Objects
+3 TLogBasicConfigurator Object=TLogBasicConfigurator
+3 TLogCategory Object=TLogCategory
+3 TLogCustomAppender Object=TLogCustomAppender
+3 TLogCustomErrorHandler Object=TLogCustomErrorHandler
+3 TLogCustomFilter Object=TLogCustomFilter
+3 TLogCustomLayout Object=TLogCustomLayout
+3 TLogCustomRenderer Object=TLogCustomRenderer
+3 TLogDefaultCategoryFactory Object=TLogDefaultCategoryFactory
+3 TLogEvent Object=TLogEvent
+3 TLogFileAppender Object=TLogFileAppender
+3 TLogHierarchy Object=TLogHierarchy
+3 TLogHTMLLayout Object=TLogHTMLLayout
+3 TLogLog Object=TLogLog
+3 TLogNDC Object=TLogNDC
+3 TLogODSAppender Object=TLogODSAppender
+3 TLogOnlyOnceErrorHandler Object=TLogOnlyOnceErrorHandler
+3 TLogOptionHandler Object=TLogOptionHandler
+3 TLogPatternLayout Object=TLogPatternLayout
+3 TLogPriority Object=TLogPriority
+3 TLogPriorityFilter Object=TLogPriorityFilter
+3 TLogPropertyConfigurator Object=TLogPropertyConfigurator
+3 TLogRoot Object=TLogRoot
+3 TLogSimpleLayout Object=TLogSimpleLayout
+3 TLogStreamAppender Object=TLogStreamAppender
+3 TLogStringFilter Object=TLogStringFilter
+3 TLogXMLConfigurator Object=TLogXMLConfigurator
+3 TLogXMLLayout Object=TLogXMLLayout
+2 Routines
+3 FindAppender Function=FindAppender
+3 FindCategoryFactory Function=FindCategoryFactory
+3 FindErrorHandler Function=FindErrorHandler
+3 FindFilter Function=FindFilter
+3 FindLayout Function=FindLayout
+3 FindRendered Function=FindRendered
+3 FindRenderer Function=FindRenderer
+3 GetAllPriorities Function=GetAllPriorities
+3 GetPriority Function=GetPriority
+3 RegisterAppender Procedure=RegisterAppender
+3 RegisterCategoryFactory Procedure=RegisterCategoryFactory
+3 RegisterErrorHandler Procedure=RegisterErrorHandler
+3 RegisterFilter Procedure=RegisterFilter
+3 RegisterLayout Procedure=RegisterLayout
+3 RegisterRendered Procedure=RegisterRendered
+3 RegisterRenderer Procedure=RegisterRenderer

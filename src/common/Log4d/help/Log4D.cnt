@@ -1,0 +1,7 @@
+; Contents file for Log4D help
+:base Log4D.hlp>main
+
+; CNT section
+; ===========
+:include Log4D.toc
+

@@ -1,0 +1,29 @@
+# Set internal debugging
+log4d.configDebug=false
+
+# Global logging level
+log4d.threshold=all
+
+# Set logger factory
+log4d.loggerFactory=TLogDefaultLoggerFactory
+
+# Set root level
+log4d.rootLogger=info,fileLogger
+
+# Establish logger hierarchy
+log4d.logger.net=debug
+log4d.logger.delivery=inherited
+
+#log4d.additive.kamremake.net=false
+
+# kamremake.other logger doesn't log to its parents
+#log4d.additive.kamremake.other=false
+
+# Create a file appender
+log4d.appender.fileLogger=TKMLogFileAppender
+log4d.appender.fileLogger.append=false
+log4d.appender.fileLogger.fileName=C:\Temp\Log4D.log
+log4d.appender.fileLogger.layout=TKMLogLayout
+
+# Nominate renderers
+# log4d.renderer.TComponent=TComponentRenderer
