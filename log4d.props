@@ -12,11 +12,13 @@ log4d.rootLogger=info,fileLogger
 
 # Establish logger hierarchy
 log4d.logger.net=debug
+log4d.logger.TKMGame=debug
 log4d.logger.delivery=inherited
 
 # Create a file appender
 log4d.appender.fileLogger=TKMLogFileAppender
 log4d.appender.fileLogger.append=false
+#fileName option should exist
 log4d.appender.fileLogger.fileName=
 log4d.appender.fileLogger.layout=TKMLogLayout
 

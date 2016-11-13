@@ -97,13 +97,13 @@ begin
   if ExceptIntf.ExceptObject is ELocError then
     LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
   fLogger.Info(LogMessage);
-  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
-  fLogger.Log(GetNoTimeLogLvl, '                                START BUG REPORT                                ');
-  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
-  fLogger.Log(GetNoTimeLogLvl, ExceptIntf.BugReport);
-  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
-  fLogger.Log(GetNoTimeLogLvl, '                                 END BUG REPORT                                 ');
-  fLogger.Log(GetNoTimeLogLvl, '================================================================================');
+  fLogger.Log(NoTimeLogLvl, '================================================================================');
+  fLogger.Log(NoTimeLogLvl, '                                START BUG REPORT                                ');
+  fLogger.Log(NoTimeLogLvl, '================================================================================');
+  fLogger.Log(NoTimeLogLvl, ExceptIntf.BugReport);
+  fLogger.Log(NoTimeLogLvl, '================================================================================');
+  fLogger.Log(NoTimeLogLvl, '                                 END BUG REPORT                                 ');
+  fLogger.Log(NoTimeLogLvl, '================================================================================');
 
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
@@ -122,7 +122,7 @@ begin
 
   //Do the log after fGame because fGame adds stuff to the log
   //if gLog <> nil then
-    ExceptIntf.AdditionalAttachments.Add(GetLogPath, '', CrashFile);
+    ExceptIntf.AdditionalAttachments.Add(TKMLogUtils.GetLogPath, '', CrashFile);
 
   //Do settings here not in fGame because we could crash before fGame is created
   if FileExists(ExeDir + SETTINGS_FILE) then

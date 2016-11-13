@@ -48,8 +48,7 @@ begin
 
   Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.UID) + ': invalid delivery task');
 
-  //if WRITE_DELIVERY_LOG then
-    fLogger.Debug('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
+  fLogger.Debug('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;

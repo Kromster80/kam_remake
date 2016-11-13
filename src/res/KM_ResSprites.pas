@@ -539,9 +539,9 @@ begin
       Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
     fLogger.Info(IntToStr(TexCount) + ' Textures created');
-    fLogger.Log(GetNoTimeLogLvl, Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+    fLogger.Log(NoTimeLogLvl, Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
                   ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-    fLogger.Log(GetNoTimeLogLvl, IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+    fLogger.Log(NoTimeLogLvl, IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
 

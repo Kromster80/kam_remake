@@ -1150,7 +1150,6 @@ procedure TKMNetworking.DoReconnection;
 var
   TempMyIndex: Integer;
 begin
-  //if WRITE_RECONNECT_LOG then
   fLogger.Debug(Format('DoReconnection: %s',[fMyNikname]));
   fReconnectRequested := 0;
   PostLocalMessage(gResTexts[TX_NET_RECONNECTING], csSystem);
@@ -1329,8 +1328,7 @@ begin
                 begin
                   if IsHost then
                   begin
-                    //if WRITE_RECONNECT_LOG then
-                      fLogger.Debug('Hosting reconnection');
+                    fLogger.Debug('Hosting reconnection');
                     //The other players must have been disconnected too, so we will be the host now
                     SetGameState(lgs_Game); //We are now in control of the game, so we are no longer reconnecting
                     //At this point we now know that every other client was dropped, but we probably missed the disconnect messages
@@ -1342,8 +1340,7 @@ begin
                   begin
                     PacketSendA(NET_ADDRESS_HOST, mk_AskToReconnect, fMyNikname);
                     fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
-                    //if WRITE_RECONNECT_LOG then
-                      fLogger.Debug('Asking to reconnect');
+                    fLogger.Debug('Asking to reconnect');
                   end;
                 end
                 else
@@ -1379,8 +1376,7 @@ begin
                 tmpInteger := fNetPlayers.CheckCanReconnect(PlayerIndex);
                 if tmpInteger = -1 then
                 begin
-                  //if WRITE_RECONNECT_LOG then
-                    fLogger.Debug(UnicodeString(tmpStringA) + ' successfully reconnected');
+                  fLogger.Debug(UnicodeString(tmpStringA) + ' successfully reconnected');
                   fNetPlayers[PlayerIndex].SetIndexOnServer := aSenderIndex; //They will have a new index
                   fNetPlayers[PlayerIndex].Connected := True; //This player is now back online
                   SendPlayerListAndRefreshPlayersSetup;
@@ -1391,8 +1387,7 @@ begin
                 end
                 else
                 begin
-                  //if WRITE_RECONNECT_LOG then
-                    fLogger.Debug(UnicodeString(tmpStringA) + ' asked to reconnect: ' + IntToStr(tmpInteger));
+                  fLogger.Debug(UnicodeString(tmpStringA) + ' asked to reconnect: ' + IntToStr(tmpInteger));
                   PacketSend(aSenderIndex, mk_RefuseReconnect, tmpInteger);
                 end;
               end;
@@ -1549,8 +1544,7 @@ begin
                   if not fNetPlayers[PlayerIndex].Dropped then
                   begin
                     PostMessage(TX_NET_LOST_CONNECTION, csLeave, UnicodeString(fNetPlayers[PlayerIndex].Nikname));
-                    //if WRITE_RECONNECT_LOG then
-                      fLogger.Debug(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
+                    fLogger.Debug(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
                   end;
                   if fNetGameState = lgs_Game then
                     fNetPlayers.DisconnectPlayer(tmpInteger)
@@ -1659,8 +1653,7 @@ begin
                     SelectNoMap(''); //In case the previous host had the map and we don't
                   SendPlayerListAndRefreshPlayersSetup;
                   PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, UnicodeString(fMyNikname));
-                  //if WRITE_RECONNECT_LOG then
-                    fLogger.Debug('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
+                  fLogger.Debug('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
                 end;
               end;
 
@@ -1888,13 +1881,11 @@ begin
       mk_ResyncFromTick:
               begin
                 M.Read(tmpInteger);
-                //if WRITE_RECONNECT_LOG then
-                  fLogger.Debug('Asked to resync from tick ' + IntToStr(tmpInteger));
+                fLogger.Debug('Asked to resync from tick ' + IntToStr(tmpInteger));
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if Assigned(fOnResyncFromTick) and (PlayerIndex<>-1) then
                 begin
-                  //if WRITE_RECONNECT_LOG then
-                    fLogger.Debug('Resyncing player ' + UnicodeString(fNetPlayers[PlayerIndex].Nikname));
+                  fLogger.Debug('Resyncing player ' + UnicodeString(fNetPlayers[PlayerIndex].Nikname));
                   fOnResyncFromTick(PlayerIndex, Cardinal(tmpInteger));
                 end;
               end;
@@ -1902,8 +1893,7 @@ begin
       mk_ReconnectionAccepted:
               begin
                 //The host has accepted us back into the game!
-                //if WRITE_RECONNECT_LOG then
-                  fLogger.Debug('Reconnection Accepted');
+                fLogger.Debug('Reconnection Accepted');
                 SetGameState(lgs_Game); //Game is now running once again
                 fReconnectRequested := 0; //Cancel any retry in progress
                 //Request all other clients to resync us
@@ -1915,8 +1905,7 @@ begin
                 M.Read(tmpInteger);
                 //The host has accepted a disconnected client back into the game. Request this client to resync us
                 if tmpInteger = fMyIndexOnServer then exit;
-                //if WRITE_RECONNECT_LOG then
-                  fLogger.Debug('Requesting resync for reconnected client');
+                fLogger.Debug('Requesting resync for reconnected client');
                 PacketSend(tmpInteger, mk_ResyncFromTick, Integer(fLastProcessedTick));
               end;
 

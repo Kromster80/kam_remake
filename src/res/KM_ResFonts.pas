@@ -323,7 +323,7 @@ begin
         fAtlases[I].TexID := 0;
 
   if LOG_EXTRA_FONTS then
-    fLogger.Log(GetNoTimeLogLvl, 'Font RAM usage: ' + IntToStr(TextureRAM));
+    fLogger.Log(NoTimeLogLvl, 'Font RAM usage: ' + IntToStr(TextureRAM));
 end;
 
 

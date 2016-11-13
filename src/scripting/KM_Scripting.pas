@@ -175,7 +175,7 @@ begin
 
   if not FileExists(aFileName) then
   begin
-    fLogger.Log(GetNoTimeLogLvl, aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
+    fLogger.Log(NoTimeLogLvl, aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
     Exit;
   end;
 

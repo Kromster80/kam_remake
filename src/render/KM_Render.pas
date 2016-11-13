@@ -88,11 +88,11 @@ begin
     //glCullFace(GL_FRONT);
 
     fOpenGL_Vendor   := UnicodeString(glGetString(GL_VENDOR));
-    fLogger.Log(GetNoTimeLogLvl, 'OpenGL Vendor: '   + fOpenGL_Vendor);
+    fLogger.Log(NoTimeLogLvl, 'OpenGL Vendor: '   + fOpenGL_Vendor);
     fOpenGL_Renderer := UnicodeString(glGetString(GL_RENDERER));
-    fLogger.Log(GetNoTimeLogLvl, 'OpenGL Renderer: ' + fOpenGL_Renderer);
+    fLogger.Log(NoTimeLogLvl, 'OpenGL Renderer: ' + fOpenGL_Renderer);
     fOpenGL_Version  := UnicodeString(glGetString(GL_VERSION));
-    fLogger.Log(GetNoTimeLogLvl, 'OpenGL Version: '  + fOpenGL_Version);
+    fLogger.Log(NoTimeLogLvl, 'OpenGL Version: '  + fOpenGL_Version);
 
     SetupVSync(aVSync);
 

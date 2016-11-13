@@ -113,10 +113,8 @@ begin
   ExeDir := GetExeDir;
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
-  DeleteOldLogs;
-  // Register Custom Logger classes
-  RegisterLayout(TKMLogLayout);
-  RegisterAppender(TKMLogFileAppender);
+  TKMLogUtils.DeleteOldLogs;
+
   //Load Logger configuration
   TLogPropertyConfigurator.Configure(GetExeDir + 'log4d.props');
 

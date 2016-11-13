@@ -875,8 +875,7 @@ begin
   Inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
   Inc(fDemand[iD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
 
-//  if WRITE_DELIVERY_LOG then
-    fLogger.Debug('Creating delivery ID ' + IntToStr(i));
+  fLogger.Debug('Creating delivery ID ' + IntToStr(i));
 
   //Now we have best job and can perform it
   if fDemand[iD].Loc_House <> nil then
@@ -890,8 +889,7 @@ end;
 procedure TKMDeliveries.TakenOffer(aID: Integer);
 var iO: Integer;
 begin
-  //if WRITE_DELIVERY_LOG then
-    fLogger.Debug('Taken offer from delivery ID' + IntToStr(aID));
+  fLogger.Debug('Taken offer from delivery ID' + IntToStr(aID));
 
   iO := fQueue[aID].OfferID;
   fQueue[aID].OfferID := 0; //We don't need it any more
@@ -911,8 +909,7 @@ end;
 procedure TKMDeliveries.GaveDemand(aID:integer);
 var iD:integer;
 begin
-  //if WRITE_DELIVERY_LOG then
-    fLogger.Debug('Gave demand from delivery ID' + IntToStr(aID));
+  fLogger.Debug('Gave demand from delivery ID' + IntToStr(aID));
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
@@ -927,8 +924,7 @@ end;
 //AbandonDelivery
 procedure TKMDeliveries.AbandonDelivery(aID:integer);
 begin
-  //if WRITE_DELIVERY_LOG then
-    fLogger.Debug('Abandoned delivery ID' + IntToStr(aID));
+  fLogger.Debug('Abandoned delivery ID' + IntToStr(aID));
 
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
@@ -953,8 +949,7 @@ end;
 //Job successfully done and we ommit it
 procedure TKMDeliveries.CloseDelivery(aID:integer);
 begin
-  //if WRITE_DELIVERY_LOG then
-    fLogger.Debug('Closed delivery ID' + IntToStr(aID));
+  fLogger.Debug('Closed delivery ID' + IntToStr(aID));
 
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
