@@ -340,7 +340,7 @@ end;
 constructor TKMDeliveries.Create;
 begin
   inherited;
-  fLogger := GetDeliveryLogger(TKMDeliveries);
+  fLogger := gLog.Delivery(TKMDeliveries);
 end;
 
 

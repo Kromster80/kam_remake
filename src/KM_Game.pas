@@ -27,7 +27,6 @@ type
   //Class that manages single game session
   TKMGame = class
   private //Irrelevant to savegame
-    fLogger: TLogLogger;
     fTimerGame: TTimer;
     fGameOptions: TKMGameOptions;
     fNetworking: TKMNetworking;
@@ -189,7 +188,6 @@ constructor TKMGame.Create(aGameMode: TGameMode; aRender: TRender; aNetworking: 
 const UIMode: array[TGameMode] of TUIMode = (umSP, umMP, umSpectate, umSP, umReplay, umReplay);
 begin
   inherited Create;
-  fLogger := GetLogger(TKMGame);
 
   fGameMode := aGameMode;
   fNetworking := aNetworking;
@@ -228,7 +226,7 @@ begin
   InitUnitStatEvals; //Army
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
-  fLogger.Info('<== Game creation is done ==>');
+  gLog.Info('<== Game creation is done ==>');
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
   fScripting := TKMScripting.Create(ShowScriptError);
@@ -309,7 +307,7 @@ var
   CampaignData: TKMemoryStream;
   CampaignDataTypeFile: UnicodeString;
 begin
-  fLogger.Info('GameStart');
+  gLog.Info('GameStart');
   Assert(fGameMode in [gmMulti, gmMultiSpectate, gmMapEd, gmSingle]);
 
   fGameName := aGameName;
@@ -328,7 +326,7 @@ begin
   fSaveFile := '';
   FreeAndNil(gMySpectator); //In case somebody looks at it while parsing DAT, e.g. destroyed houses
 
-  fLogger.Info('Loading DAT file: ' + aMissionFile);
+  gLog.Info('Loading DAT file: ' + aMissionFile);
 
   //Disable players in MP to skip their assets from loading by MissionParser
   //In SP all players are enabled by default
@@ -440,7 +438,7 @@ begin
     gmMapEd:  ;
   end;
 
-  fLogger.Info('Gameplay recording initialized done');
+  gLog.Info('Gameplay recording initialized done');
 
   if fGameMode in [gmMulti, gmMultiSpectate] then
     MultiplayerRig;
@@ -469,7 +467,7 @@ begin
   else
     fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
 
-  fLogger.Info('Gameplay initialization done');
+  gLog.Info('Gameplay initialization done');
 end;
 
 
@@ -588,7 +586,7 @@ procedure TKMGame.GameMPPlay(Sender: TObject);
 begin
   WaitingPlayersDisplay(False); //Finished waiting for players
   fNetworking.AnnounceGameInfo(MissionTime, GameName);
-  fLogger.Info('Net game began');
+  gLog.Info('Net game began');
 end;
 
 
@@ -603,7 +601,7 @@ procedure TKMGame.GameMPDisconnect(const aData: UnicodeString);
 begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin
-    fLogger.Debug('GameMPDisconnect: ' + aData);
+    gLog.Net(TKMGame).Debug('GameMPDisconnect: ' + aData);
     fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
     fNetworking.OnJoinAssignedHost := nil;
     fNetworking.OnJoinSucc := nil;
@@ -628,7 +626,7 @@ procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile: Un
 
 var I: Integer;
 begin
-  fLogger.Info('Creating crash report...');
+  gLog.Info('Creating crash report...');
 
   //Attempt to save the game, but if the state is too messed up it might fail
   try
@@ -641,7 +639,7 @@ begin
     end;
   except
     on E : Exception do
-      fLogger.Error('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message, E);
+      gLog.Error('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message, E);
   end;
 
   AttachFile(ExeDir + GetMissionFile);
@@ -655,7 +653,7 @@ begin
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav', IsMultiplayer));
   end;
 
-  fLogger.Info('Crash report created');
+  gLog.Info('Crash report created');
 end;
 {$ENDIF}
 
@@ -665,7 +663,7 @@ procedure TKMGame.ReplayInconsistancy;
 begin
   //Stop game from executing while the user views the message
   fIsPaused := True;
-  fLogger.Warn('Replay failed a consistency check at tick ' + IntToStr(fGameTickCount));
+  gLog.Warn('Replay failed a consistency check at tick ' + IntToStr(fGameTickCount));
   if MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
     gGameApp.Stop(gr_Error, '')
   else
@@ -816,7 +814,7 @@ begin
   fActiveInterface.SyncUI;
   fActiveInterface.SyncUIView(KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2));
 
-  fLogger.Info('Gameplay initialization done');
+  gLog.Info('Gameplay initialization done');
 end;
 
 
@@ -856,7 +854,7 @@ begin
   gHands.RemoveEmptyPlayers;
 
   ForceDirectories(ExtractFilePath(aPathName));
-  fLogger.Info('Saving from map editor: ' + aPathName);
+  gLog.Info('Saving from map editor: ' + aPathName);
 
   fMapEditor.SaveAttachements(aPathName);
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
@@ -1157,7 +1155,7 @@ var
   gameInfo: TKMGameInfo;
   I, netIndex: Integer;
 begin
-  fLogger.Info('Saving game: ' + aPathName);
+  gLog.Info('Saving game: ' + aPathName);
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
   begin
@@ -1273,7 +1271,7 @@ begin
     SaveStream.Free;
   end;
 
-  fLogger.Info('Saving game: ' + aPathName);
+  gLog.Info('Saving game: ' + aPathName);
 end;
 
 
@@ -1295,10 +1293,10 @@ begin
   KMCopyFile(SaveName('basesave', 'bas', IsMultiplayer), SaveName(aSaveName, 'bas', IsMultiplayer));
 
   //Save replay queue
-  fLogger.Info('Saving replay info');
+  gLog.Info('Saving replay info');
   fGameInputProcess.SaveToFile(ChangeFileExt(fullPath, '.rpl'));
 
-  fLogger.Info('Saving game done');
+  gLog.Info('Saving game done');
 end;
 
 
@@ -1318,7 +1316,7 @@ var
 begin
   fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');
 
-  fLogger.Info('Loading game from: ' + aPathName);
+  gLog.Info('Loading game from: ' + aPathName);
 
   LoadStream := TKMemoryStream.Create;
   try
@@ -1449,7 +1447,7 @@ begin
         fGamePlayInterface.LoadHotkeysFromHand;
     end;
 
-    fLogger.Info('Loading game done');
+    gLog.Info('Loading game done');
   finally
     FreeAndNil(LoadStream);
   end;

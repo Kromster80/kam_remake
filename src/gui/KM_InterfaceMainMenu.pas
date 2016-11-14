@@ -26,7 +26,6 @@ uses
 type
   TKMMainMenuInterface = class(TKMUserInterfaceCommon)
   private
-    fLogger: TLogLogger;
     fMenuCampaign: TKMMenuCampaign;
     fMenuCampaigns: TKMMenuCampaigns;
     fMenuCredits: TKMMenuCredits;
@@ -83,8 +82,6 @@ begin
   inherited;
   Assert(gResTexts <> nil, 'fTextMain should be initialized before MainMenuInterface');
 
-  fLogger := GetLogger(TKMMainMenuInterface);
-
   //Fixed-size and centered Panel for menu
   Panel_Menu := TKMPanel.Create(Panel_Main, (X - MENU_DESIGN_X) div 2, (Y - MENU_DESIGN_Y) div 2, MENU_DESIGN_X, MENU_DESIGN_Y);
   Panel_Menu.AnchorsCenter;
@@ -134,7 +131,7 @@ begin
   //F.Caption := 'Some Form';
   //F.Show;
 
-  fLogger.Info('Main menu init done');
+  gLog.Info('Main menu init done');
 end;
 
 

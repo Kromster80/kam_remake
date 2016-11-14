@@ -263,7 +263,7 @@ uses
 constructor TKMNetworking.Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
 begin
   inherited Create;
-  fLogger := GetNetLogger(TKMNetworking);
+  fLogger := gLog.Net(TKMNetworking);
 
   SetGameState(lgs_None);
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);

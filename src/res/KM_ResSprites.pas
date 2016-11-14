@@ -52,7 +52,6 @@ type
   //Base class for Sprite loading
   TKMSpritePack = class
   private
-    fLogger: TLogLogger;
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
@@ -86,7 +85,6 @@ type
 
   TKMSprites = class
   private
-    fLogger: TLogLogger;
     fAlphaShadows: Boolean; //Remember which state we loaded
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
@@ -138,7 +136,6 @@ var
 constructor TKMSpritePack.Create(aRT: TRXType);
 begin
   inherited Create;
-  fLogger := GetLogger(TKMSpritePack);
 
   fRT := aRT;
 
@@ -307,8 +304,8 @@ begin
 
   try
     DecompressionStream.Read(RXXCount, 4);
-    if (gLogInitializer <> nil) and gLogInitializer.IsInitialized then
-      fLogger.Info(RXInfo[fRT].FileName + ' -' + IntToStr(RXXCount));
+    if gLog <> nil then
+      gLog.Info(RXInfo[fRT].FileName + ' -' + IntToStr(RXXCount));
 
     if RXXCount = 0 then
       Exit;
@@ -537,10 +534,10 @@ begin
     if fRXData.Flag[I] <> 0 then
       Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
-    fLogger.Info(IntToStr(TexCount) + ' Textures created');
-    fLogger.Log(NoTimeLogLvl, Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+    gLog.Info(IntToStr(TexCount) + ' Textures created');
+    gLog.Log(NoTimeLogLvl, Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
                   ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-    fLogger.Log(NoTimeLogLvl, IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+    gLog.Log(NoTimeLogLvl, IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
 
@@ -727,7 +724,6 @@ var
   RT: TRXType;
 begin
   inherited Create;
-  fLogger := GetLogger(TKMSprites);
 
   for RT := Low(TRXType) to High(TRXType) do
     fSprites[RT] := TKMSpritePack.Create(RT);
@@ -795,7 +791,7 @@ begin
   if RXInfo[RT].Usage = ruGame then
   begin
     fStepCaption(gResTexts[RXInfo[RT].LoadingTextID]);
-    fLogger.Info('Reading ' + RXInfo[RT].FileName + '.rx');
+    gLog.Info('Reading ' + RXInfo[RT].FileName + '.rx');
     LoadSprites(RT, fAlphaShadows);
     fSprites[RT].MakeGFX(fAlphaShadows);
   end;

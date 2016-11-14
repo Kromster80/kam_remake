@@ -43,7 +43,6 @@ type
 
   TKMFontData = class
   private
-    fLogger: TLogLogger;
     function GetTexID(aIndex: Integer): Cardinal;
   protected
     fTexSizeX, fTexSizeY: Word; //All atlases have same dimensions
@@ -63,7 +62,6 @@ type
     Used: array [0..High(Word)] of Byte;
     Letters: array [0..High(Word)] of TKMLetter;
 
-    constructor Create;
     procedure LoadFont(const aFileName: string; aPal: TKMPalData);
     procedure LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fll_Full);
     procedure GenerateTextures(aTexMode: TTexFormat);
@@ -92,7 +90,6 @@ type
   //Collection of fonts
   TKMResFonts = class
   private
-    fLogger: TLogLogger;
     fLoadLevel: TKMFontLoadLevel;
     fFontData: array [TKMFont] of TKMFontData;
     function GetFontData(aIndex: TKMFont): TKMFontData;
@@ -133,12 +130,6 @@ var
 
 
 { TKMFontData }
-constructor TKMFontData.Create;
-begin
-  inherited;
-  fLogger := GetLogger(TKMFontData);
-end;
-
 procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPalData);
 const
   TEX_SIZE = 256; //Static texture size, all KaM fonts fit within 256^2 space
@@ -323,7 +314,7 @@ begin
         fAtlases[I].TexID := 0;
 
   if LOG_EXTRA_FONTS then
-    fLogger.Log(NoTimeLogLvl, 'Font RAM usage: ' + IntToStr(TextureRAM));
+    gLog.Log(NoTimeLogLvl, 'Font RAM usage: ' + IntToStr(TextureRAM));
 end;
 
 
@@ -439,7 +430,6 @@ var
   F: TKMFont;
 begin
   inherited;
-  fLogger := GetLogger(TKMResFonts);
 
   for F := Low(TKMFont) to High(TKMFont) do
     fFontData[F] := TKMFontData.Create;
@@ -500,7 +490,7 @@ begin
   end;
 
   TotalTime := GetTimeSince(StartTime);
-  fLogger.Info('Font load took ' + IntToStr(TotalTime) + 'ms');
+  gLog.Info('Font load took ' + IntToStr(TotalTime) + 'ms');
 end;
 
 

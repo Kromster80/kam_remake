@@ -25,7 +25,6 @@ uses
 type
   TKMScripting = class
   private
-    fLogger: TLogLogger;
     fScriptCode: AnsiString;
     fCampaignDataTypeCode: AnsiString;
     fByteCode: AnsiString;
@@ -96,7 +95,6 @@ const
 constructor TKMScripting.Create(aOnScriptError: TUnicodeStringEvent);
 begin
   inherited Create;
-  fLogger := GetLogger(TKMScripting);
 
   // Create an instance of the script executer
   fExec := TPSExec.Create;
@@ -129,7 +127,7 @@ procedure TKMScripting.HandleScriptError(aType: TScriptErrorType; const aMsg: Un
 var
   fl: textfile;
 begin
-  fLogger.Info('Script: ' + aMsg); //Always log the error to global game log
+  gLog.Info('Script: ' + aMsg); //Always log the error to global game log
 
   //Log to map specific log file
   if fScriptLogFile <> '' then
@@ -175,7 +173,7 @@ begin
 
   if not FileExists(aFileName) then
   begin
-    fLogger.Log(NoTimeLogLvl, aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
+    gLog.Log(NoTimeLogLvl, aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
     Exit;
   end;
 

@@ -21,7 +21,6 @@ type
 
   TKMGamePlayInterface = class (TKMUserInterfaceGame)
   private
-    fLogger: TLogLogger;
     fAlerts: TKMAlerts;
 
     fUIMode: TUIMode;
@@ -664,7 +663,6 @@ constructor TKMGamePlayInterface.Create(aRender: TRender; aUIMode: TUIMode);
 var S: TKMShape; I: Integer;
 begin
   inherited Create(aRender);
-  fLogger := GetLogger(TKMGamePlayInterface);
   fUIMode := aUIMode;
 
   fAlerts := TKMAlerts.Create(fViewport);
@@ -3290,7 +3288,7 @@ begin
 
   // Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;
-  fLogger.Info('Interface loaded');
+  gLog.Info('Interface loaded');
 end;
 
 

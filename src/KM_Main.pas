@@ -10,7 +10,6 @@ uses
 type
   TKMMain = class
   private
-    fLogger: TLogLogger;
     fFormMain: TFormMain;
     fFormLoading: TFormLoading;
 
@@ -78,7 +77,6 @@ const
 constructor TKMMain.Create;
 begin
   inherited;
-  fLogger := GetLogger(TKMMain);
   //Create exception handler as soon as possible in case it crashes early on
   {$IFDEF USE_MAD_EXCEPT}fExceptions := TKMExceptions.Create;{$ENDIF}
 
@@ -112,6 +110,7 @@ begin
   CreateDir(GetExeDir + 'Logs' + PathDelim);
 
   gLogInitializer := TKMLogInitializer.Create;
+  gLog := TKMLog.Create;
 
   //Load Logger configuration
   TLogPropertyConfigurator.Configure(GetExeDir + 'log4d.props');
@@ -210,6 +209,7 @@ begin
   FreeThenNil(fMainSettings);
   FreeThenNil(gGameApp);
   FreeThenNil(gLogInitializer);
+  FreeThenNil(gLog);
 
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
@@ -332,9 +332,9 @@ begin
                                 StatusBarText);
   gGameApp.AfterConstruction(aReturnToOptions);
 
-  fLogger.Info('ToggleFullscreen');
-  fLogger.Info('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
-  fLogger.Info('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
+  gLog.Info('ToggleFullscreen');
+  gLog.Info('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
+  gLog.Info('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
 
   //Hide'n'show will make form go ontop of taskbar
   fFormMain.Hide;
@@ -564,3 +564,4 @@ end;
 
 
 end.
+

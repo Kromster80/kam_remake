@@ -7,7 +7,6 @@ uses
 type
   TKMExceptions = class
   private
-    fLogger: TLogLogger;
     procedure DoException(const ExceptIntf: IMEException; var Handled: boolean);
   public
     constructor Create;
@@ -30,7 +29,6 @@ uses
 constructor TKMExceptions.Create;
 begin
   inherited;
-  fLogger := GetLogger(TKMExceptions);
   OnAssistantCreate := DoCreateAssistant;
   RegisterExceptionHandler(DoException, stTrySyncCallAlways);
   MESettings.HttpServer := 'http://kam.hodgman.id.au/crashupload.php?rev='+GAME_REVISION;
@@ -96,14 +94,14 @@ begin
   LogMessage := 'Exception occurred: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
   if ExceptIntf.ExceptObject is ELocError then
     LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
-  fLogger.Info(LogMessage);
-  fLogger.Log(NoTimeLogLvl, '================================================================================');
-  fLogger.Log(NoTimeLogLvl, '                                START BUG REPORT                                ');
-  fLogger.Log(NoTimeLogLvl, '================================================================================');
-  fLogger.Log(NoTimeLogLvl, ExceptIntf.BugReport);
-  fLogger.Log(NoTimeLogLvl, '================================================================================');
-  fLogger.Log(NoTimeLogLvl, '                                 END BUG REPORT                                 ');
-  fLogger.Log(NoTimeLogLvl, '================================================================================');
+  gLog.Info(LogMessage);
+  gLog.Log(NoTimeLogLvl, '================================================================================');
+  gLog.Log(NoTimeLogLvl, '                                START BUG REPORT                                ');
+  gLog.Log(NoTimeLogLvl, '================================================================================');
+  gLog.Log(NoTimeLogLvl, ExceptIntf.BugReport);
+  gLog.Log(NoTimeLogLvl, '================================================================================');
+  gLog.Log(NoTimeLogLvl, '                                 END BUG REPORT                                 ');
+  gLog.Log(NoTimeLogLvl, '================================================================================');
 
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.

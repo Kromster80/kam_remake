@@ -27,7 +27,6 @@ type
 
   TUnitActionWalkTo = class(TUnitAction)
   private
-    fLogger: TLogLogger;
     fWalkFrom: TKMPoint; //Walking from this spot, used only in Create
     fWalkTo: TKMPoint; //Where are we going to
     fNewWalkTo: TKMPoint; //If we recieve a new TargetLoc it will be stored here
@@ -132,7 +131,6 @@ var
   RouteBuilt: Boolean; //Check if route was built, otherwise return nil
 begin
   inherited Create(aUnit, aActionType, False);
-  fLogger := GetLogger(TUnitActionWalkTo);
 
   if not gTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
     raise ELocError.Create('Invalid Walk To for '+gRes.UnitDat[aUnit.UnitType].GUIName,aLocB);
@@ -184,7 +182,7 @@ begin
 
   //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    fLogger.Log(NoTimeLogLvl, 'Unable to make a route for ' + gRes.UnitDat[aUnit.UnitType].GUIName +
+    gLog.Log(NoTimeLogLvl, 'Unable to make a route for ' + gRes.UnitDat[aUnit.UnitType].GUIName +
                    ' from ' + KM_Points.TypeToString(fWalkFrom) + ' to ' + KM_Points.TypeToString(fWalkTo) +
                    ' with "' + PassabilityGuiText[fPass] + '"');
 end;
@@ -235,7 +233,6 @@ end;
 constructor TUnitActionWalkTo.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
-  fLogger := GetLogger(TUnitActionWalkTo);
   LoadStream.Read(fWalkFrom);
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fNewWalkTo);

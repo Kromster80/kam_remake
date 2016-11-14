@@ -64,7 +64,6 @@ type
 
   TKMCampaignsCollection = class
   private
-    fLogger: TLogLogger;
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
     fList: TList;
@@ -109,7 +108,6 @@ const
 constructor TKMCampaignsCollection.Create;
 begin
   inherited Create;
-  fLogger := GetLogger(TKMCampaignsCollection);
 
   fList := TList.Create;
 end;
@@ -266,7 +264,7 @@ begin
     M.Free;
   end;
 
-  fLogger.Info('Campaigns.dat saved');
+  gLog.Info('Campaigns.dat saved');
 end;
 
 

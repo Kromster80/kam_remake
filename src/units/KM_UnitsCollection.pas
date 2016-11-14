@@ -14,7 +14,6 @@ uses
 type
   TKMUnitsCollection = class
   private
-    fLogger: TLogLogger;
     fUnits: TKMList;
     function GetUnit(aIndex: Integer): TKMUnit; inline;
     function GetCount: Integer;
@@ -48,7 +47,6 @@ uses
 constructor TKMUnitsCollection.Create;
 begin
   inherited Create;
-  fLogger := GetLogger(TKMUnitsCollection);
 
   fUnits := TKMList.Create;
 end;
@@ -93,7 +91,7 @@ begin
   //Check if Pos is within map coords first, as other checks rely on this
   if not gTerrain.TileInMapCoords(PlaceTo.X, PlaceTo.Y) then
   begin
-    fLogger.Warn('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
+    gLog.Warn('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
     Result := nil;
     Exit;
   end;
@@ -246,7 +244,7 @@ begin
     if U <> nil then
       fUnits.Add(U)
     else
-      fLogger.Log(AssertLogLvl, 'Unknown unit type in Savegame');
+      gLog.Log(AssertLogLvl, 'Unknown unit type in Savegame');
   end;
 end;
 

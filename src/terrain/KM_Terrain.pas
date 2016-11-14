@@ -20,7 +20,6 @@ type
   {Class to store all terrain data, aswell terrain routines}
   TKMTerrain = class
   private
-    fLogger: TLogLogger;
     fAnimStep: Cardinal;
     fMapEditor: Boolean; //In MapEd mode some features behave differently
     fMapX: Word; //Terrain width
@@ -234,7 +233,6 @@ uses
 constructor TKMTerrain.Create;
 begin
   inherited;
-  fLogger := GetLogger(TKMTerrain);
   fAnimStep := 0;
   FallingTrees := TKMPointTagList.Create;
   fTileset := gRes.Tileset; //Local shortcut
@@ -308,7 +306,7 @@ begin
 
   fMapEditor := aMapEditor;
 
-  fLogger.Info('Loading map file: ' + FileName);
+  gLog.Info('Loading map file: ' + FileName);
 
   S := TKMemoryStream.Create;
   try
@@ -358,7 +356,7 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], MapRect, True);
-  fLogger.Info('Map file loaded');
+  gLog.Info('Map file loaded');
 end;
 
 
@@ -3052,7 +3050,7 @@ begin
 
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], MapRect, True);
 
-  fLogger.Info('Terrain loaded');
+  gLog.Info('Terrain loaded');
 end;
 
 

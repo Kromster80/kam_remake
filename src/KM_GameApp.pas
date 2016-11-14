@@ -14,7 +14,6 @@ type
   //Methods relevant to gameplay
   TKMGameApp = class
   private
-    fLogger: TLogLogger;
     fGlobalTickCount: Cardinal;
     fIsExiting: Boolean;
 
@@ -102,7 +101,6 @@ uses
 constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TEvent; aOnLoadingText: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
 begin
   inherited Create;
-  fLogger := GetLogger(TKMGameApp);
   fOnCursorUpdate := aOnCursorUpdate;
 
   fGameSettings := TGameSettings.Create;
@@ -409,7 +407,7 @@ begin
   end;
 
   FreeThenNil(gGame);
-  fLogger.Info('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
+  gLog.Info('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
 end;
 
 
@@ -447,7 +445,7 @@ begin
   //Copy text from in-game chat to lobby
   fMainMenuInterface.SetChatState(ChatState);
 
-  fLogger.Info('Gameplay ended - Return to lobby');
+  gLog.Info('Gameplay ended - Return to lobby');
 end;
 
 
@@ -474,7 +472,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      fLogger.Info('Game creation Exception: ' + LoadError);
+      gLog.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -507,7 +505,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      fLogger.Info('Game creation Exception: ' + LoadError);
+      gLog.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -540,7 +538,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      fLogger.Info('Game creation Exception: ' + LoadError);
+      gLog.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;

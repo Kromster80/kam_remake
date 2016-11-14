@@ -11,7 +11,6 @@ uses
 type
   TKMHandsCollection = class
   private
-    fLogger: TLogLogger;
     fCount: Byte;
     fHandsList: array of TKMHand;
     fPlayerAnimals: TKMHandAnimals;
@@ -80,7 +79,6 @@ uses
 constructor TKMHandsCollection.Create;
 begin
   inherited Create;
-  fLogger := GetLogger(TKMHandsCollection);
   fPlayerAnimals := TKMHandAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 end;
 
@@ -552,7 +550,7 @@ begin
   LoadStream.Read(fCount);
 
   if fCount > MAX_HANDS then
-    fLogger.Log(AssertLogLvl, 'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
+    gLog.Log(AssertLogLvl, 'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 
   SetLength(fHandsList, fCount);
 

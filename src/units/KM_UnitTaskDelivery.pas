@@ -12,7 +12,6 @@ type
 
   TTaskDeliver = class(TUnitTask)
   private
-    fLogger: TLogLogger;
     fFrom: TKMHouse;
     fToHouse: TKMHouse;
     fToUnit: TKMUnit;
@@ -42,13 +41,12 @@ uses
 constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer);
 begin
   inherited Create(aSerf);
-  fLogger := GetDeliveryLogger(TTaskDeliver);
 
   fTaskName := utn_Deliver;
 
   Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.UID) + ': invalid delivery task');
 
-  fLogger.Debug('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
+  gLog.Delivery(TTaskDeliver).Debug('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;
@@ -67,11 +65,10 @@ end;
 constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer);
 begin
   inherited Create(aSerf);
-  fLogger := GetDeliveryLogger(TTaskDeliver);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
-  fLogger.Debug('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
+  gLog.Delivery(TTaskDeliver).Debug('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
@@ -84,7 +81,6 @@ end;
 constructor TTaskDeliver.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
-  fLogger := GetDeliveryLogger(TTaskDeliver);
   LoadStream.Read(fFrom, 4);
   LoadStream.Read(fToHouse, 4);
   LoadStream.Read(fToUnit, 4);
@@ -105,7 +101,7 @@ end;
 
 destructor TTaskDeliver.Destroy;
 begin
-  fLogger.Debug('Serf '+inttostr(fUnit.UID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
+  gLog.Delivery(TTaskDeliver).Debug('Serf '+inttostr(fUnit.UID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID <> 0 then
     gHands[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);

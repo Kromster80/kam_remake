@@ -22,7 +22,6 @@ type
   //General OpenGL handling
   TRender = class
   private
-    fLogger: TLogLogger;
     fRenderControl: TKMRenderControl;
     fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: UnicodeString;
     fScreenX, fScreenY: Word;
@@ -63,7 +62,6 @@ uses
 constructor TRender.Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
 begin
   inherited Create;
-  fLogger := GetLogger(TRender);
 
   fBlind := aRenderControl = nil;
   fRenderControl := aRenderControl;
@@ -88,11 +86,11 @@ begin
     //glCullFace(GL_FRONT);
 
     fOpenGL_Vendor   := UnicodeString(glGetString(GL_VENDOR));
-    fLogger.Log(NoTimeLogLvl, 'OpenGL Vendor: '   + fOpenGL_Vendor);
+    gLog.Log(NoTimeLogLvl, 'OpenGL Vendor: '   + fOpenGL_Vendor);
     fOpenGL_Renderer := UnicodeString(glGetString(GL_RENDERER));
-    fLogger.Log(NoTimeLogLvl, 'OpenGL Renderer: ' + fOpenGL_Renderer);
+    gLog.Log(NoTimeLogLvl, 'OpenGL Renderer: ' + fOpenGL_Renderer);
     fOpenGL_Version  := UnicodeString(glGetString(GL_VERSION));
-    fLogger.Log(NoTimeLogLvl, 'OpenGL Version: '  + fOpenGL_Version);
+    gLog.Log(NoTimeLogLvl, 'OpenGL Version: '  + fOpenGL_Version);
 
     SetupVSync(aVSync);
 

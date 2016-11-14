@@ -27,7 +27,6 @@ type
 
   TKMMusicLib = class
   private
-    fLogger: TLogLogger;
     fMusicCount: Integer;
     fMusicIndex: Integer; //Points to the index in TrackOrder of the current track
     fMusicTracks: TStringDynArray;
@@ -84,7 +83,6 @@ var
   I: Integer;
 begin
   inherited Create;
-  fLogger := GetLogger(TKMMusicLib);
   IsMusicInitialized := True;
   ScanMusicTracks(ExeDir + 'Music'+PathDelim);
 
@@ -98,7 +96,7 @@ begin
   // Setup output - default device, 44100hz, stereo, 16 bits
   if not BASS_Init(-1, 44100, 0, 0, nil) then
   begin
-    fLogger.Info('Failed to initialize the music playback device');
+    gLog.Info('Failed to initialize the music playback device');
     IsMusicInitialized := False;
   end;
   {$ENDIF}
@@ -109,7 +107,7 @@ begin
   for I := 0 to fMusicCount - 1 do
     fTrackOrder[I] := I;
 
-  fLogger.Info('Music init done, ' + IntToStr(fMusicCount) + ' tracks found');
+  gLog.Info('Music init done, ' + IntToStr(fMusicCount) + ' tracks found');
 end;
 
 

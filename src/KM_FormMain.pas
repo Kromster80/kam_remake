@@ -491,6 +491,7 @@ procedure TFormMain.ControlsUpdate(Sender: TObject);
 var
   I: Integer;
   AllowDebugChange: Boolean;
+  NetLogger, DeliveryLogger: TLogLogger;
 begin
   if fUpdating then Exit;
 
@@ -548,20 +549,23 @@ begin
   //Debug logs
   if AllowDebugChange then
   begin
+    NetLogger := TKMLogUtils.GetNetLogger;
+    DeliveryLogger := TKMLogUtils.GetDeliveryLogger;
+
     if fLogNetOrigLvl = nil then
-      fLogNetOrigLvl := GetNetLogger.Level;
+      fLogNetOrigLvl := NetLogger.Level;
     if fLogDeliveryOrigLvl = nil then
-      fLogDeliveryOrigLvl := GetDeliveryLogger.Level;
+      fLogDeliveryOrigLvl := DeliveryLogger.Level;
 
     if (chkLogsDelivery.Checked) then
-      GetDeliveryLogger.Level := All
+      DeliveryLogger.Level := All
     else
-      GetDeliveryLogger.Level := fLogDeliveryOrigLvl;
+      DeliveryLogger.Level := fLogDeliveryOrigLvl;
 
     if (chkLogsNetwork.Checked) then
-      GetNetLogger.Level := All
+      NetLogger.Level := All
     else
-      GetNetLogger.Level := fLogNetOrigLvl;
+      NetLogger.Level := fLogNetOrigLvl;
   end;
 end;
 

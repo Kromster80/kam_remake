@@ -37,7 +37,6 @@ type
   //Terrain helper that is used to paint terrain types in Map Editor
   TKMTerrainPainter = class
   private
-    fLogger: TLogLogger;
     fUndoPos: Byte;
     fUndos: array [0..MAX_UNDO-1] of record
       HasData: Boolean;
@@ -61,7 +60,6 @@ type
   public
     Land2: array of array of TKMPainterTile;
     RandomizeTiling: Boolean;
-    constructor Create;
     procedure InitEmpty;
     procedure LoadFromFile(aFileName: UnicodeString);
     procedure SaveToFile(aFileName: UnicodeString);
@@ -159,13 +157,6 @@ uses
 
 
 { TKMTerrainPainter }
-constructor TKMTerrainPainter.Create;
-begin
-  inherited;
-  fLogger := GetLogger(TKMTerrainPainter);
-end;
-
-
 procedure TKMTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TKMTerrainKind);
 begin
   if not gTerrain.TileInMapCoords(X, Y) then
@@ -789,13 +780,13 @@ begin
           MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
         else
-          fLogger.Warn(aFileName + ' has no MapEd.TILE chunk');
+          gLog.Warn(aFileName + ' has no MapEd.TILE chunk');
       end
       else
-        fLogger.Warn(aFileName + ' has no MapEd.ADDN chunk');
+        gLog.Warn(aFileName + ' has no MapEd.ADDN chunk');
     end
     else
-      fLogger.Warn(aFileName + ' has no MapEd chunk');
+      gLog.Warn(aFileName + ' has no MapEd chunk');
   finally
     S.Free;
   end;
@@ -803,7 +794,7 @@ begin
   //We can regenerate the MapEd data if it's missing (won't be as good as the original)
   if not MapEdChunkFound then
   begin
-    fLogger.Warn('Regenerating missing MapEd data as best as we can');
+    gLog.Warn('Regenerating missing MapEd data as best as we can');
     GenerateAddnData;
   end;
 
