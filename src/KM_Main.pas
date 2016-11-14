@@ -11,7 +11,6 @@ type
   TKMMain = class
   private
     fLogger: TLogLogger;
-
     fFormMain: TFormMain;
     fFormLoading: TFormLoading;
 
@@ -86,7 +85,6 @@ begin
   //Form created first will be on taskbar
   Application.CreateForm(TFormMain, fFormMain);
   Application.CreateForm(TFormLoading, fFormLoading);
-
 end;
 
 
@@ -563,7 +561,6 @@ begin
     ClipCursor(nil); //Otherwise have no restriction
   {$ENDIF}
 end;
-
 
 
 end.
