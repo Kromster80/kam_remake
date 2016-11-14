@@ -104,19 +104,21 @@ begin
   Randomize;
 
   fFormLoading.Label5.Caption := GAME_VERSION;
-  //fFormLoading.Show; //This is our splash screen
+  fFormLoading.Show; //This is our splash screen
   fFormLoading.Refresh;
 
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
-  ExeDir := GetExeDir;
 
-  CreateDir(ExeDir + 'Logs' + PathDelim);
-  TKMLogUtils.DeleteOldLogs;
+  CreateDir(GetExeDir + 'Logs' + PathDelim);
+
+  gLogInitializer := TKMLogInitializer.Create;
 
   //Load Logger configuration
   TLogPropertyConfigurator.Configure(GetExeDir + 'log4d.props');
+
+  gLogInitializer.DeleteOldLogs;
 
   //Resolutions are created first so that we could check Settings against them
   fResolutions := TKMResolutions.Create;
@@ -209,7 +211,7 @@ begin
   FreeThenNil(fResolutions);
   FreeThenNil(fMainSettings);
   FreeThenNil(gGameApp);
-  //FreeThenNil(gLog);
+  FreeThenNil(gLogInitializer);
 
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
