@@ -235,6 +235,7 @@ end;
 constructor TUnitActionWalkTo.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  fLogger := GetLogger(TUnitActionWalkTo);
   LoadStream.Read(fWalkFrom);
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fNewWalkTo);

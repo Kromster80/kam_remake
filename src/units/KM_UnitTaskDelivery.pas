@@ -67,6 +67,7 @@ end;
 constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer);
 begin
   inherited Create(aSerf);
+  fLogger := GetDeliveryLogger(TTaskDeliver);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
@@ -83,6 +84,7 @@ end;
 constructor TTaskDeliver.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  fLogger := GetDeliveryLogger(TTaskDeliver);
   LoadStream.Read(fFrom, 4);
   LoadStream.Read(fToHouse, 4);
   LoadStream.Read(fToUnit, 4);
