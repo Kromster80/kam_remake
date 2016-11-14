@@ -17,17 +17,17 @@ log4d.logger.delivery=inherited
 
 # Create a file appender
 #
-# 	possible options: 
-#			pathToLogsDir 	- Path to logs dir. Example: C:\Temp
-#			fileNamePrefix 	- File name prefix for log file. Suffix for file name is date-time in format yyyy-mm-dd_hh-nn-ss-zzz and .log extension
-#			fileName		- File name.
-#			layout			- Layout to format logging messages			
+#   possible options: 
+#     pathToLogsDir   - Path to logs dir. Example: C:\Temp
+#     fileNamePrefix  - File name prefix for log file. Suffix for file name is date-time in format yyyy-mm-dd_hh-nn-ss-zzz and .log extension
+#     fileName        - File name.
+#     layout          - Layout to format logging messages
 #
-#	Option pathToLogsDir should be set BEFORE any of the options fileName or fileNamePrefix. Otherwise it will be ignored.
+#   Option pathToLogsDir should be set BEFORE any of the options fileName or fileNamePrefix. Otherwise it will be ignored.
 #
-#	If pathToLogsDir is not set, then Logs dir will be set to ExeDir\Logs, where ExeDir is the directory of executable file
+#   If pathToLogsDir is not set, then Logs dir will be set to ExeDir\Logs, where ExeDir is the directory of executable file
 #
-#	If both options fileNamePrefix and fileName are setted, then only first will be used.
+#   If both options fileNamePrefix and fileName are setted, then only first will be used.
 #
 log4d.appender.fileLogger=TKMLogFileAppender
 log4d.appender.fileLogger.fileNamePrefix=KaM_
