@@ -2,7 +2,7 @@ unit KM_TerrainPainter;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Log4d,
+  Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain;
 
@@ -153,7 +153,7 @@ const
 
 implementation
 uses
-  KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
+  KM_GameCursor, KM_Resource, KM_Log, KM_Utils, Log4d;
 
 
 { TKMTerrainPainter }

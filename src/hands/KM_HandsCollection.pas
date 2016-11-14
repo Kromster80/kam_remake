@@ -2,7 +2,7 @@ unit KM_HandsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Graphics, Log4d,
+  Classes, KromUtils, Math, SysUtils, Graphics,
   KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
   KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
 
@@ -72,7 +72,7 @@ var
 
 implementation
 uses
-  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields, KM_ResUnits, KM_HouseCollection;
+  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields, KM_ResUnits, KM_HouseCollection, Log4d;
 
 
 { TKMHandsCollection }

@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles, Forms, Log4d,
+  Classes, SysUtils, Math, INIfiles, Forms,
   KM_Defaults, KM_Resolutions;
 
 
@@ -170,7 +170,7 @@ type
 
 implementation
 uses
-  KM_Log;
+  KM_Log, Log4d;
 
 
 { TMainSettings }

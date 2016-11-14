@@ -3,7 +3,7 @@ unit KM_ResSprites;
 interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes, Graphics, Math, SysUtils, Log4d,
+  Classes, Graphics, Math, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Pics, KM_PNG, KM_Render, KM_ResTexts
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
@@ -125,7 +125,7 @@ var
 
 implementation
 uses
-  KromUtils, KM_Log, KM_BinPacking, KM_Utils;
+  KromUtils, KM_Log, KM_BinPacking, KM_Utils, Log4d;
 
 
 var

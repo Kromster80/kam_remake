@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
-  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo, Log4d,
+  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
   KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceDefaults,
   KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
@@ -92,7 +92,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_Main, KM_GameCursor,
+  KM_Log, KM_Main, KM_GameCursor, Log4d,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess;
 

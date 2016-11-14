@@ -2,7 +2,7 @@ unit KM_Scripting;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Log4d,
+  Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
   KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates,
@@ -84,7 +84,7 @@ const
 
 implementation
 uses
-  KromUtils, KM_Game, KM_Log;
+  KromUtils, KM_Game, KM_Log, Log4d;
 
 
 const

@@ -3,7 +3,7 @@ unit KM_Resource;
 interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes, Graphics, SysUtils, Log4d,
+  Classes, Graphics, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Pics,
   KM_Render,
   KM_ResCursors,
@@ -76,7 +76,7 @@ var
 
 implementation
 uses
-  KromUtils, KM_Log, KM_Points, KM_ResTexts, KM_ResKeys;
+  KromUtils, KM_Log, KM_Points, KM_ResTexts, KM_ResKeys, Log4d;
 
 
 { TKMResource }

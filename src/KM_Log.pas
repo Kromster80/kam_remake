@@ -24,7 +24,7 @@ type
   TKMLog = class
   private
   public
-    // Logging to RootLogger
+    // pass-through Logging to RootLogger
     procedure Trace(const aMessage: string; const aErr: Exception = nil);
     procedure Debug(const aMessage: string; const aErr: Exception = nil);
     procedure Info(const aMessage: string; const aErr: Exception = nil);

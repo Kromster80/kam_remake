@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF WDC} Windows, Graphics, JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   {$IFDEF Unix} LCLIntf, LCLType, OpenGLContext, {$ENDIF}
-  Math, dglOpenGL, Log4d, KromOGLUtils, KromUtils, KM_RenderControl;
+  Math, dglOpenGL, KromOGLUtils, KromUtils, KM_RenderControl;
 
 
 type
@@ -55,7 +55,7 @@ type
 
 implementation
 uses
-  KM_Log;
+  KM_Log, Log4d;
 
 
 { TRender }

@@ -2,7 +2,7 @@ unit KM_UnitActionWalkTo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Log4d,
+  Classes, KromUtils, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points,
   KM_Houses, KM_Units;
 
@@ -101,7 +101,7 @@ implementation
 uses
   KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain, KM_ResUnits,
   KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitTaskBuild,
-  KM_Units_Warrior, KM_Log, KM_Resource;
+  KM_Units_Warrior, KM_Log, KM_Resource, Log4d;
 
 //INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
 //TIMEOUT is the time after which each solution things will be checked.

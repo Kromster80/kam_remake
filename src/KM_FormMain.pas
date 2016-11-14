@@ -3,7 +3,7 @@ unit KM_FormMain;
 interface
 uses
   Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math,
-  Menus, StdCtrls, SysUtils, StrUtils, ShellAPI, Log4d,
+  Menus, StdCtrls, SysUtils, StrUtils, Log4d,
   KM_RenderControl, KM_Settings, KM_Log,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
@@ -148,6 +148,7 @@ implementation
 //{$ENDIF}
 
 uses
+  ShellAPI,
   KromUtils,
   KM_Defaults,
   KM_Main,

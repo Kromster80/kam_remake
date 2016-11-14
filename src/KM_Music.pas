@@ -16,7 +16,7 @@ interface
 {$ENDIF}
 
 uses
-  Classes, SysUtils, KromUtils, Math, Types, Log4d,
+  Classes, SysUtils, KromUtils, Math, Types,
   KM_Defaults
   {$IFDEF USEBASS}     , Bass {$ENDIF}
   {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_Log, KM_Utils;
+  KM_Log, KM_Utils, Log4d;
 
 
 const

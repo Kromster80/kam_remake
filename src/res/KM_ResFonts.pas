@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, StrUtils, SysUtils, KromUtils, Log4d, KM_PNG,
+  Classes, Graphics, Math, StrUtils, SysUtils, KromUtils, KM_PNG,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResPalettes
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
@@ -122,7 +122,7 @@ const
 
 implementation
 uses
-  KM_Utils, KM_Log;
+  KM_Utils, KM_Log, Log4d;
 
 
 var

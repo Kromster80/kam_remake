@@ -2,7 +2,7 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Math, SysUtils, KromUtils, Log4d,
+  Classes, Controls, Math, SysUtils, KromUtils,
   KM_Controls, KM_Defaults, KM_Pics, KM_Networking,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts, Log4d;
 
 
 { TKMMainMenuInterface }

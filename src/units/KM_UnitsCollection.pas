@@ -2,7 +2,7 @@ unit KM_UnitsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, Types, Log4d,
+  Classes, Math, Types,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain, KM_Units;
 
@@ -40,7 +40,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_Units_Warrior;
+  KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_Units_Warrior, Log4d;
 
 
 { TKMUnitsCollection }

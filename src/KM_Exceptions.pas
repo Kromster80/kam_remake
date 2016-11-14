@@ -1,7 +1,7 @@
 unit KM_Exceptions;
 interface
 uses
-  SysUtils, MadExcept, madNVAssistant, Log4d;
+  SysUtils, MadExcept, madNVAssistant;
 
 
 type
@@ -22,7 +22,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_Defaults, KM_ResTexts, KM_Points, KM_Game, KM_CommonClasses;
+  KM_Log, KM_Defaults, KM_ResTexts, KM_Points, KM_Game, KM_CommonClasses, Log4d;
 
 
 { TKMExceptions }
@@ -88,7 +88,7 @@ end;
 procedure TKMExceptions.DoException(const ExceptIntf: IMEException; var Handled: boolean);
 var LogMessage, CrashFile: string;
 begin
-  if (gLogInitializer = nil) or (not gLogInitializer.IsInitialized) then Exit; //Could crash very early before even the log file is created
+  if gLog = nil then Exit; //Could crash very early before even the log file is created
 
   //It's nice to know when the exception happened in our log if the user decides to play on and sends the report later
   LogMessage := 'Exception occurred: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
@@ -119,7 +119,7 @@ begin
   if gGame <> nil then gGame.AttachCrashReport(ExceptIntf, CrashFile);
 
   //Do the log after fGame because fGame adds stuff to the log
-  if (gLogInitializer <> nil) and gLogInitializer.IsInitialized then
+  if gLog <> nil then
     ExceptIntf.AdditionalAttachments.Add(gLogInitializer.LogPath, '', CrashFile);
 
   //Do settings here not in fGame because we could crash before fGame is created

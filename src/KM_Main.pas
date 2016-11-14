@@ -2,7 +2,7 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs, Log4D,
+  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions, KM_Houses
   {$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
@@ -67,7 +67,7 @@ var
 
 implementation
 uses
-  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps;
+  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps, Log4d;
 
 const
   //Random GUID generated in Delphi by Ctrl+G
