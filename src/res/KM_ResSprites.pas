@@ -307,9 +307,8 @@ begin
 
   try
     DecompressionStream.Read(RXXCount, 4);
-//    if gLog <> nil then
-//      gLog.AddTime(RXInfo[fRT].FileName + ' -', RXXCount);
-    fLogger.Info(RXInfo[fRT].FileName + ' -' + IntToStr(RXXCount));
+    if (gLogInitializer <> nil) and gLogInitializer.IsInitialized then
+      fLogger.Info(RXInfo[fRT].FileName + ' -' + IntToStr(RXXCount));
 
     if RXXCount = 0 then
       Exit;
