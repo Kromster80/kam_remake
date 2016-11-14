@@ -3,7 +3,7 @@ object FormMain: TFormMain
   Top = 419
   HelpType = htKeyword
   BorderStyle = bsNone
-  ClientHeight = 532
+  ClientHeight = 589
   ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -26,12 +26,12 @@ object FormMain: TFormMain
   OnShow = FormShow
   DesignSize = (
     521
-    532)
+    589)
   PixelsPerInch = 96
   TextHeight = 13
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 512
+    Top = 569
     Width = 521
     Height = 20
     Panels = <
@@ -54,12 +54,13 @@ object FormMain: TFormMain
       item
         Width = 50
       end>
+    ExplicitTop = 512
   end
   object GroupBox1: TGroupBox
     Left = 320
     Top = 8
     Width = 193
-    Height = 489
+    Height = 546
     Anchors = [akTop, akRight]
     Caption = ' Development controls '
     TabOrder = 1
@@ -371,6 +372,32 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Show selection buffer'
         TabOrder = 3
+        OnClick = ControlsUpdate
+      end
+    end
+    object GroupBox6: TGroupBox
+      Left = 8
+      Top = 482
+      Width = 177
+      Height = 57
+      Caption = 'Debug Logs'
+      TabOrder = 7
+      object chkLogsDelivery: TCheckBox
+        Left = 8
+        Top = 16
+        Width = 97
+        Height = 17
+        Caption = 'Delivery'
+        TabOrder = 0
+        OnClick = ControlsUpdate
+      end
+      object chkLogsNetwork: TCheckBox
+        Left = 8
+        Top = 32
+        Width = 97
+        Height = 17
+        Caption = 'Network'
+        TabOrder = 1
         OnClick = ControlsUpdate
       end
     end

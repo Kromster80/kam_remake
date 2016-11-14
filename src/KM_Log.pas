@@ -2,7 +2,7 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Classes, KM_Utils, Log4d, Forms,
+  SysUtils, StrUtils, Classes, KM_Utils, Log4d, Forms,
   {$IFDEF LINUX}
     SyncObjs
   {$ELSE}
@@ -16,12 +16,15 @@ const
   NO_TIME_LOG_LVL_NAME = 'NoTime';
   ASSERT_LOG_LVL_NAME = 'Assert';
 
-  // Get Logger for specified class and optional category
+  // Get Logger for specified class and category
+  // If No Class specified Category logger will returned
+  // If No Category specified Class logger will returnes
+  // If neither Class nor Category is specified return RootLogger
   function GetLogger(aClass: TClass; aCategory: string = ''): TLogLogger;
   // Get NET category Logger for specified class
-  function GetNetLogger(aClass: TClass): TLogLogger;
+  function GetNetLogger(aClass: TClass = nil): TLogLogger;
   // Get DELIVERY category Logger for specified class
-  function GetDeliveryLogger(aClass: TClass): TLogLogger;
+  function GetDeliveryLogger(aClass: TClass = nil): TLogLogger;
 
   // Get executable file directory
   function GetExeDir: string;
@@ -357,21 +360,29 @@ end;
 
 {log static functions}
 function GetLogger(aClass: TClass; aCategory: string = ''): TLogLogger;
+var LoggerName: string;
 begin
-  if (aCategory <> '') then
-    Result := TLogLogger.GetLogger(aCategory + '.' + aClass.ClassName)
-  else
-    Result := TLogLogger.GetLogger(aClass.ClassName);
+  if aClass = nil then
+  begin
+    if aCategory.IsEmpty then
+    begin
+      Result := TLogLogger.GetRootLogger;
+      Exit;
+    end else
+      LoggerName := aCategory;
+  end else
+    LoggerName := IfThen(aCategory.IsEmpty, aClass.ClassName, aCategory + '.' + aClass.ClassName);
+  Result := TLogLogger.GetLogger(LoggerName);
 end;
 
 
-function GetNetLogger(aClass: TClass): TLogLogger;
+function GetNetLogger(aClass: TClass = nil): TLogLogger;
 begin
   Result := GetLogger(aClass, LOG_NET_CATEGORY);
 end;
 
 
-function GetDeliveryLogger(aClass: TClass): TLogLogger;
+function GetDeliveryLogger(aClass: TClass = nil): TLogLogger;
 begin
   Result := GetLogger(aClass, LOG_DELIVERY_CATEGORY);
 end;

@@ -2,8 +2,9 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils, ShellAPI,
-  KM_RenderControl, KM_Settings,
+  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math,
+  Menus, StdCtrls, SysUtils, StrUtils, ShellAPI, Log4d,
+  KM_RenderControl, KM_Settings, KM_Log,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -78,6 +79,9 @@ type
     tbAngleZ: TTrackBar;
     Label7: TLabel;
     chkSelectionBuffer: TCheckBox;
+    GroupBox6: TGroupBox;
+    chkLogsDelivery: TCheckBox;
+    chkLogsNetwork: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -123,6 +127,8 @@ type
     procedure RenderAreaRender(aSender: TObject);
   private
     fUpdating: Boolean;
+    fLogNetOrigLvl: TLogLevel;
+    fLogDeliveryOrigLvl: TLogLevel;
     {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -537,6 +543,25 @@ begin
       fMain.Render;
     end;
     HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
+  end;
+
+  //Debug logs
+  if AllowDebugChange then
+  begin
+    if fLogNetOrigLvl = nil then
+      fLogNetOrigLvl := GetNetLogger.Level;
+    if fLogDeliveryOrigLvl = nil then
+      fLogDeliveryOrigLvl := GetDeliveryLogger.Level;
+
+    if (chkLogsDelivery.Checked) then
+      GetDeliveryLogger.Level := All
+    else
+      GetDeliveryLogger.Level := fLogDeliveryOrigLvl;
+
+    if (chkLogsNetwork.Checked) then
+      GetNetLogger.Level := All
+    else
+      GetNetLogger.Level := fLogNetOrigLvl;
   end;
 end;
 
