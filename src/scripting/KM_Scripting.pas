@@ -373,7 +373,7 @@ begin
       RegisterMethod('procedure FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word)');
 
       RegisterMethod('function  GiveAnimal(aType, X,Y: Word): Integer');
-      RegisterMethod('function  GiveField(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function  GiveField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
       RegisterMethod('function  GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
       RegisterMethod('function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
@@ -381,7 +381,7 @@ begin
       RegisterMethod('function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
-      RegisterMethod('function  GiveWineField(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function  GiveWineField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
 
       RegisterMethod('procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean)');
       RegisterMethod('procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');

@@ -32,7 +32,7 @@ type
     procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
-    function  GiveField(aPlayer, X, Y: Word): Boolean;
+    function  GiveField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
     function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
@@ -40,7 +40,7 @@ type
     function  GiveRoad(aPlayer, X, Y: Word): Boolean;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
-    function  GiveWinefield(aPlayer, X, Y: Word): Boolean;
+    function  GiveWinefield(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 
     procedure FogCoverAll(aPlayer: Byte);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
@@ -142,7 +142,7 @@ uses
   KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior, KM_HandLogistics,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection, KM_PathFindingRoad;
+  KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -1059,22 +1059,25 @@ begin
 end;
 
 
-//* Version: 6311
+//* Version: 7000+
 //* Adds finished field and returns true if field was successfully added
-function TKMScriptActions.GiveField(aPlayer, X, Y: Word): Boolean;
+//* aStage = 0..6, sets the field growth stage. 0 = empty field; 6 = corn has been cut; according to CORN_STAGES_COUNT
+//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+function TKMScriptActions.GiveField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 begin
   try
     Result := False;
     if InRange(aPlayer, 0, gHands.Count - 1)
     and (gHands[aPlayer].Enabled)
+    and (InRange(aStage, 0, CORN_STAGES_COUNT - 1))
     and gTerrain.TileInMapCoords(X, Y) then
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn);
+        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Corn, aStage, aRandomAge);
       end
     else
-      LogParamWarning('Actions.GiveField', [aPlayer, X, Y]);
+      LogParamWarning('Actions.GiveField', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1165,22 +1168,25 @@ begin
 end;
 
 
-//* Version 6311
+//* Version 7000+
 //* Adds finished winefield and returns true if winefield was successfully added
-function TKMScriptActions.GiveWineField(aPlayer, X, Y: Word): Boolean;
+//* aStage = 0..3, sets the field growth stage. 0 = new fruits; 3 = grapes are ready to be harvested; according to WINE_STAGES_COUNT
+//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+function TKMScriptActions.GiveWineField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 begin
   try
     Result := False;
     if InRange(aPlayer, 0, gHands.Count - 1)
     and (gHands[aPlayer].Enabled)
+    and (InRange(aStage, 0, WINE_STAGES_COUNT - 1))
     and gTerrain.TileInMapCoords(X, Y) then
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine);
+        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Wine, aStage, aRandomAge);
       end
     else
-      LogParamWarning('Actions.GiveWineField', [aPlayer, X, Y]);
+      LogParamWarning('Actions.GiveWineField', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
