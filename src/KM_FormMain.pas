@@ -584,6 +584,7 @@ function TFormMain.GetWindowParams: TKMWindowParamsRecord;
   var	AppData: TAppBarData;
   begin
     Result := -1;
+     {$IFDEF WDC}
     // 'Shell_TrayWnd' is the name of the task bar's window
     AppData.Hwnd := FindWindow('Shell_TrayWnd', nil);
     if AppData.Hwnd <> 0 then
@@ -596,6 +597,7 @@ function TFormMain.GetWindowParams: TKMWindowParamsRecord;
         aRect := AppData.rc;
       end;
     end;
+    {$ENDIF}
   end;
 var
   Wp: TWindowPlacement;

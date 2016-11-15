@@ -203,10 +203,12 @@ begin
         //same color?
         if diag1.cd < 0.3 then
         begin
-          c := MergeBGRA(bmp.GetPixel(xb, yb), bmp.GetPixel(xb + 1, yb + 1));
+          // Should explicitly cast parameters to Integer to let Lazarus determine needed GetPixel Method
+          c := MergeBGRA(bmp.GetPixel(xb, yb), bmp.GetPixel(Integer(xb + 1), yb + 1));
           //restore
           Result.SetPixel(xb * 3 + 2, yb * 3 + 2, bmp.GetPixel(xb, yb));
-          Result.SetPixel(xb * 3 + 3, yb * 3 + 3, bmp.GetPixel(xb + 1, yb + 1));
+          // Should explicitly cast parameters to Integer to let Lazarus determine needed GetPixel Method
+          Result.SetPixel(xb * 3 + 3, yb * 3 + 3, bmp.GetPixel(Integer(xb + 1), yb + 1));
 
           if (diag1.sd < h1.sd) and (diag1.sd < v2.sd) then
             Result.SetPixel(xb * 3 + 3, yb * 3 + 2, c);
@@ -276,7 +278,8 @@ begin
         for dx := -1 to 1 do
           if (dx <> 0) or (dy <> 0) then
           begin
-            a_pixels[n] := bmp.GetPixel(xb + dx, yb + dy);
+            // Should explicitly cast parameters to Integer to let Lazarus determine needed GetPixel Method
+            a_pixels[n] := bmp.GetPixel(Integer(xb + dx), yb + dy);
             Inc(n);
           end;
 
@@ -644,10 +647,11 @@ begin
     for xb := bounds.Left to bounds.Right - 1 do
     begin
       c[0] := bmp.getPixel(xb, yb);
-      c[1] := bmp.getPixel(xb + idx1, yb + idy1);
-      c[2] := bmp.getPixel(xb + idx2, yb + idy2);
-      c[3] := bmp.getPixel(xb + idx3, yb + idy3);
-      c[4] := bmp.getPixel(xb + idx4, yb + idy4);
+      // Should explicitly cast parameters to Integer to let Lazarus determine needed GetPixel Method
+      c[1] := bmp.getPixel(Integer(xb + idx1), yb + idy1);
+      c[2] := bmp.getPixel(Integer(xb + idx2), yb + idy2);
+      c[3] := bmp.getPixel(Integer(xb + idx3), yb + idy3);
+      c[4] := bmp.getPixel(Integer(xb + idx4), yb + idy4);
 
       sumR   := 0;
       sumG   := 0;
@@ -1392,7 +1396,8 @@ begin
       for dy := -1 to 1 do
         for dx := -1 to 1 do
         begin
-          a_pixels[n] := bmp.GetPixel(xb + dx, yb + dy);
+          // Should explicitly cast parameters to Integer to let Lazarus determine needed GetPixel Method
+          a_pixels[n] := bmp.GetPixel(Integer(xb + dx), yb + dy);
           if a_pixels[n].alpha = 0 then
             a_pixels[n] := BGRAPixelTransparent;
           Inc(n);
