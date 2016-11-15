@@ -147,49 +147,49 @@ end;
 
 procedure TKMLog.Trace(const aMessage: string; const aErr: Exception = nil);
 begin
-  GetLogger.Trace(aMessage, aErr);
+  Root.Trace(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Debug(const aMessage: string; const aErr: Exception = nil);
 begin
-  GetLogger.Debug(aMessage, aErr);
+  Root.Debug(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Info(const aMessage: string; const aErr: Exception = nil);
 begin
-  GetLogger.Info(aMessage, aErr);
+  Root.Info(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Warn(const aMessage: string; const aErr: Exception = nil);
 begin
-  GetLogger.Warn(aMessage, aErr);
+  Root.Warn(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Error(const aMessage: string; const aErr: Exception = nil);
 begin
-  GetLogger.Error(aMessage, aErr);
+  Root.Error(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Fatal(const aMessage: string; const aErr: Exception = nil);
 begin
-  GetLogger.Fatal(aMessage, aErr);
+  Root.Fatal(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Log(const aLogLevel: TLogLevel; const aMessage: string; const aErr: Exception = nil);
 begin
-  GetLogger.Log(aLogLevel, aMessage, aErr);
+  Root.Log(aLogLevel, aMessage, aErr);
 end;
 
 
 function TKMLog.Root: TLogLogger;
 begin
-  Result := GetLogger;
+  Result := TLogLogger.GetRootLogger;
 end;
 
 
