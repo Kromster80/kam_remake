@@ -94,28 +94,36 @@ end;
 
 
 procedure TKMMain.Start;
-var Logger,LoggerNet: TLogLogger;
+var appender: TKMLogFileAppender;
 begin
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
   Randomize;
 
   fFormLoading.Label5.Caption := GAME_VERSION;
-  fFormLoading.Show; //This is our splash screen
+  //fFormLoading.Show; //This is our splash screen
   fFormLoading.Refresh;
 
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
 
-  CreateDir(GetExeDir + 'Logs' + PathDelim);
+  ExeDir := ExtractFilePath(Application.ExeName);
 
-  gLogInitializer := TKMLogInitializer.Create;
+  CreateDir(ExeDir + 'Logs' + PathDelim);
+
   gLog := TKMLog.Create;
 
   //Load Logger configuration
-  TLogPropertyConfigurator.Configure(GetExeDir + 'log4d.props');
+  TLogPropertyConfigurator.Configure(ExeDir + 'log4d.props');
 
-  gLogInitializer.DeleteOldLogs;
+  // Create Log File Appender
+  appender := TKMLogFileAppender.Create('fileLogger',
+    ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log',
+    TKMLogLayout.Create);
+  // Set it as default appender for root logger
+  TLogLogger.GetRootLogger.AddAppender(appender);
+
+  gLog.DeleteOldLogs;
 
   //Resolutions are created first so that we could check Settings against them
   fResolutions := TKMResolutions.Create;
@@ -208,7 +216,6 @@ begin
   FreeThenNil(fResolutions);
   FreeThenNil(fMainSettings);
   FreeThenNil(gGameApp);
-  FreeThenNil(gLogInitializer);
   FreeThenNil(gLog);
 
   {$IFDEF MSWindows}

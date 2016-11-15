@@ -16,13 +16,20 @@ const
   NO_TIME_LOG_LVL_NAME = 'NoTime';
   ASSERT_LOG_LVL_NAME = 'Assert';
 
-  // Get executable file directory
-  function GetExeDir: string;
-
 type
 
   TKMLog = class
   private
+    class var fLogPath: UnicodeString;
+    // Get Logger for specified class and category
+    // If No Class specified Category logger will returned
+    // If No Category specified Class logger will returnes
+    // If neither Class nor Category is specified return RootLogger
+    function GetLogger(aClass: TClass = nil; aCategory: string = ''): TLogLogger;
+    // Get NET category Logger for specified class
+    function GetNetLogger(aClass: TClass = nil): TLogLogger;
+    // Get DELIVERY category Logger for specified class
+    function GetDeliveryLogger(aClass: TClass = nil): TLogLogger;
   public
     // pass-through Logging to RootLogger
     procedure Trace(const aMessage: string; const aErr: Exception = nil);
@@ -33,6 +40,8 @@ type
     procedure Fatal(const aMessage: string; const aErr: Exception = nil);
     procedure Log(const aLogLevel: TLogLevel; const aMessage: string; const aErr: Exception = nil);
 
+    procedure DeleteOldLogs;
+
     // Custom loggers:
     // RootLogger
     function Logger: TLogLogger;
@@ -40,67 +49,20 @@ type
     function Net(aClass: TClass = nil): TLogLogger;
     // Delivery logger
     function Delivery(aClass: TClass = nil): TLogLogger;
+
+    class property LogPath: UnicodeString read fLogPath;
   end;
 
 
-  TKMLogUtils = class
-  public
-    // Get Logger for specified class and category
-    // If No Class specified Category logger will returned
-    // If No Category specified Class logger will returnes
-    // If neither Class nor Category is specified return RootLogger
-    class function GetLogger(aClass: TClass = nil; aCategory: string = ''): TLogLogger;
-    // Get NET category Logger for specified class
-    class function GetNetLogger(aClass: TClass = nil): TLogLogger;
-    // Get DELIVERY category Logger for specified class
-    class function GetDeliveryLogger(aClass: TClass = nil): TLogLogger;
-  end;
-
-
-  TKMLogInitializer = class
-  private
-    fLogPath: UnicodeString;
-    fFileName: UnicodeString;
-    fFileNamePrefix: UnicodeString;
-    fPathToLogsDir: UnicodeString;
-    fInitialized: Boolean;
-  public
-    constructor Create;
-    procedure InitWPrefix(const aFileNamePrefix: UnicodeString);
-    procedure InitWName(const aFileName: UnicodeString);
-    procedure Init(const aLogPath: UnicodeString);
-    procedure DeleteOldLogs;
-    property LogPath: UnicodeString read fLogPath;
-    property FileNamePrefix: UnicodeString read fFileNamePrefix;
-    property PathToLogsDir: UnicodeString read fPathToLogsDir;
-    property FileName: UnicodeString read fFileName;
-    property IsInitialized: Boolean read fInitialized;
-  end;
-
-{ Log file appender
-   	possible options:
-			pathToLogsDir 	- Path to logs dir. Example: C:\Temp
-			fileNamePrefix 	- File name prefix for log file. Suffix for file name is date-time in format yyyy-mm-dd_hh-nn-ss-zzz and .log extension
-			fileName		- File name.
-			layout			- Layout to format logging messages
-
-	Option pathToLogsDir should be set BEFORE any of the options fileName or fileNamePrefix. Otherwise it will be ignored.
-
-	If pathToLogsDir is not set, then Logs dir will be set to ExeDir\Logs, where ExeDir is the directory of executable file
-
-	If both options fileNamePrefix and fileName are setted, then only first will be used.}
   TKMLogFileAppender = class(TLogCustomAppender)
   private
     fl: textfile;
     fLogPath: UnicodeString;
-    procedure InternalInit;
+    procedure Init(aLogPath: UnicodeString);
   protected
     procedure DoAppend(const Message: string); override;
-    procedure SetOption(const Name, Value: string); override;
   public
-    constructor Create(const aName, aFileName, aFileNamePrefix, aPathToLogsDir: string; const aLayout: ILogLayout = nil); reintroduce; virtual;
-    procedure InitLogFileWPrefix(const aFileNamePrefix: UnicodeString); virtual;
-    procedure InitLogFileWName(const aFileName: UnicodeString); virtual;
+    constructor Create(const aName: string; const aLogPath: UnicodeString; const aLayout: ILogLayout = nil); reintroduce; virtual;
   end;
 
   // Layot to write log messages
@@ -131,7 +93,6 @@ type
 var
   NoTimeLogLvl: TLogLevel;
   AssertLogLvl: TLogLevel;
-  gLogInitializer: TKMLogInitializer;   // log system initializer
   gLog: TKMLog;
 
 
@@ -155,63 +116,92 @@ type
 
 
 {TKMLog}
+function TKMLog.GetLogger(aClass: TClass = nil; aCategory: string = ''): TLogLogger;
+var LoggerName: string;
+begin
+  if aClass = nil then
+  begin
+    if aCategory = '' then
+    begin
+      Result := TLogLogger.GetRootLogger;
+      Exit;
+    end else
+      LoggerName := aCategory;
+  end else
+    LoggerName := IfThen(aCategory = '', aClass.ClassName, aCategory + '.' + aClass.ClassName);
+  Result := TLogLogger.GetLogger(LoggerName);
+end;
+
+
+function TKMLog.GetNetLogger(aClass: TClass = nil): TLogLogger;
+begin
+  Result := GetLogger(aClass, LOG_NET_CATEGORY);
+end;
+
+
+function TKMLog.GetDeliveryLogger(aClass: TClass = nil): TLogLogger;
+begin
+  Result := GetLogger(aClass, LOG_DELIVERY_CATEGORY);
+end;
+
+
 procedure TKMLog.Trace(const aMessage: string; const aErr: Exception = nil);
 begin
-  TKMLogUtils.GetLogger.Trace(aMessage, aErr);
+  GetLogger.Trace(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Debug(const aMessage: string; const aErr: Exception = nil);
 begin
-  TKMLogUtils.GetLogger.Debug(aMessage, aErr);
+  GetLogger.Debug(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Info(const aMessage: string; const aErr: Exception = nil);
 begin
-  TKMLogUtils.GetLogger.Info(aMessage, aErr);
+  GetLogger.Info(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Warn(const aMessage: string; const aErr: Exception = nil);
 begin
-  TKMLogUtils.GetLogger.Warn(aMessage, aErr);
+  GetLogger.Warn(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Error(const aMessage: string; const aErr: Exception = nil);
 begin
-  TKMLogUtils.GetLogger.Error(aMessage, aErr);
+  GetLogger.Error(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Fatal(const aMessage: string; const aErr: Exception = nil);
 begin
-  TKMLogUtils.GetLogger.Fatal(aMessage, aErr);
+  GetLogger.Fatal(aMessage, aErr);
 end;
 
 
 procedure TKMLog.Log(const aLogLevel: TLogLevel; const aMessage: string; const aErr: Exception = nil);
 begin
-  TKMLogUtils.GetLogger.Log(aLogLevel, aMessage, aErr);
+  GetLogger.Log(aLogLevel, aMessage, aErr);
 end;
 
 
 function TKMLog.Logger: TLogLogger;
 begin
-  Result := TKMLogUtils.GetLogger;
+  Result := GetLogger;
 end;
 
 
 function TKMLog.Net(aClass: TClass = nil): TLogLogger;
 begin
-  Result := TKMLogUtils.GetNetLogger(aClass);
+  Result := GetNetLogger(aClass);
 end;
 
 
 function TKMLog.Delivery(aClass: TClass = nil): TLogLogger;
 begin
-  Result := TKMLogUtils.GetDeliveryLogger(aClass);
+  Result := GetDeliveryLogger(aClass);
 end;
 
 
@@ -236,126 +226,36 @@ var
 begin
   if not DirectoryExists(fPathToLogs) then Exit;
 
-  // Do not delete old logs if Log file was specified by direct fileName option
-  if (gLogInitializer.FileNamePrefix <> '') then
-  begin
-    if FindFirst(fPathToLogs + gLogInitializer.FileNamePrefix + '*.log', faAnyFile - faDirectory, SearchRec) = 0 then
-    repeat
-      Assert(FileAge(fPathToLogs + SearchRec.Name, fileDateTime), 'How is that it does not exists any more?');
+  if FindFirst(fPathToLogs + 'KaM*.log', faAnyFile - faDirectory, SearchRec) = 0 then
+  repeat
+    Assert(FileAge(fPathToLogs + SearchRec.Name, fileDateTime), 'How is that it does not exists any more?');
 
-      if (Abs(Now - fileDateTime) > DEL_LOGS_OLDER_THAN) then
-        SysUtils.DeleteFile(fPathToLogs + SearchRec.Name);
-    until (FindNext(SearchRec) <> 0);
-    SysUtils.FindClose(SearchRec);
-  end;
+    if (Abs(Now - fileDateTime) > DEL_LOGS_OLDER_THAN) then
+      SysUtils.DeleteFile(fPathToLogs + SearchRec.Name);
+  until (FindNext(SearchRec) <> 0);
+  SysUtils.FindClose(SearchRec);
 end;
 
 
-{TKMLogInitializer}
-constructor TKMLogInitializer.Create;
+procedure TKMLog.DeleteOldLogs;
 begin
-  inherited Create;
-  fInitialized := False;
-end;
-
-
-// Logs initialization with FileNamePrefix
-procedure TKMLogInitializer.InitWPrefix(const aFileNamePrefix: UnicodeString);
-var PathToLogsDir: string;
-begin
-  if fInitialized then Exit;  // Logs are initialized only once;
-  Assert(aFileNamePrefix <> '', 'Error: empty parameter "' + FileNamePrefixOpt + '" of TKMLogFileAppender');
-  fFileNamePrefix := aFileNamePrefix;
-  InitWName(aFileNamePrefix + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log');
-end;
-
-
-// Logs initialization with FileNamePrefix
-procedure TKMLogInitializer.InitWName(const aFileName: UnicodeString);
-begin
-  if fInitialized then Exit;  // Logs are initialized only once;
-  Assert(aFileName <> '', 'Error: fileName is empty for TKMLogFileAppender');
-  // Check if fPathToLogsDir is Set. If not - use default value
-  if fPathToLogsDir = '' then
-    fPathToLogsDir := GetExeDir + 'Logs';   // Default dir for Logs
-  Init(fPathToLogsDir + PathDelim + aFileName);
-end;
-
-
-//Logs initialization with full path to log file
-procedure TKMLogInitializer.Init(const aLogPath: UnicodeString);
-begin
-  if fInitialized then Exit;  // Logs are initialized only once;
-  fLogPath := aLogPath;
-  fInitialized := True;
-end;
-
-
-procedure TKMLogInitializer.DeleteOldLogs;
-begin
-  if not fInitialized then Exit;
-  TKMOldLogsDeleter.Create(PathToLogsDir);
+  TKMOldLogsDeleter.Create(TKMLog.LogPath);
 end;
 
 
 {TKMLogFileAppender}
-constructor TKMLogFileAppender.Create(const aName, aFileName, aFileNamePrefix, aPathToLogsDir: string; const aLayout: ILogLayout = nil);
+constructor TKMLogFileAppender.Create(const aName: string; const aLogPath: UnicodeString; const aLayout: ILogLayout = nil);
 begin
   inherited Create(aName, aLayout);
-  SetOption(PathToLogsDirOpt, aPathToLogsDir);
-  SetOption(FileNamePrefixOpt, aFileNamePrefix);
-  SetOption(FileNameOpt, aFileName);
-end;
-
-// parse appender options
-procedure TKMLogFileAppender.SetOption(const Name: string; const Value: string);
-begin
-  inherited SetOption(Name, Value);
-  EnterCriticalSection(FCriticalAppender);
-  try
-    if (Value <> '') then
-    begin
-      if (Name = PathToLogsDirOpt) then
-        gLogInitializer.fPathToLogsDir := Value
-      else if (Name = FileNamePrefixOpt) then
-        InitLogFileWPrefix(Value)
-      else if (Name = FileNameOpt) then
-        InitLogFileWName(Value);
-    end;
-  finally
-    LeaveCriticalSection(FCriticalAppender);
-  end;
-end;
-
-//Init appender with filename prefix
-procedure TKMLogFileAppender.InitLogFileWPrefix(const aFileNamePrefix: UnicodeString);
-var
-  strPath: string;
-  f : TextFile;
-begin
-  if gLogInitializer.IsInitialized then Exit;
-
-  gLogInitializer.InitWPrefix(aFileNamePrefix); // Init log system with file name prefix
-  InternalInit;
-end;
-
-//Init appender with filename
-procedure TKMLogFileAppender.InitLogFileWName(const aFileName: UnicodeString);
-var
-  strPath: string;
-  f : TextFile;
-begin
-  if gLogInitializer.IsInitialized then Exit;
-
-  gLogInitializer.InitWName(aFileName);   // Init log system with file name
-  InternalInit;
+  TKMLog.fLogPath := aLogPath;
+  Init(aLogPath);
 end;
 
 
-procedure TKMLogFileAppender.InternalInit;
+procedure TKMLogFileAppender.Init(aLogPath: string);
 begin
-  fLogPath := gLogInitializer.LogPath;
-  ForceDirectories(gLogInitializer.PathToLogsDir);
+  fLogPath := aLogPath;
+  ForceDirectories(ExtractFilePath(fLogPath));
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   Writeln(fl, '                Log is up and running. Game version: ' + GAME_VERSION);
@@ -438,44 +338,6 @@ end;
 constructor TKMWarnAssertLogLevel.Create;
 begin
   inherited Create(ASSERT_LOG_LVL_NAME, WarnValue + 100);
-end;
-
-
-{TKMLogUtils}
-class function TKMLogUtils.GetLogger(aClass: TClass = nil; aCategory: string = ''): TLogLogger;
-var LoggerName: string;
-begin
-  if aClass = nil then
-  begin
-    if aCategory = '' then
-    begin
-      Result := TLogLogger.GetRootLogger;
-      Exit;
-    end else
-      LoggerName := aCategory;
-  end else
-    LoggerName := IfThen(aCategory = '', aClass.ClassName, aCategory + '.' + aClass.ClassName);
-  Result := TLogLogger.GetLogger(LoggerName);
-end;
-
-
-class function TKMLogUtils.GetNetLogger(aClass: TClass = nil): TLogLogger;
-begin
-  Result := GetLogger(aClass, LOG_NET_CATEGORY);
-end;
-
-
-class function TKMLogUtils.GetDeliveryLogger(aClass: TClass = nil): TLogLogger;
-begin
-  Result := GetLogger(aClass, LOG_DELIVERY_CATEGORY);
-end;
-
-
-function GetExeDir: string;
-begin
-  if (ExeDir = '') then
-    ExeDir := ExtractFilePath(Application.ExeName);
-  Result := ExeDir;
 end;
 
 

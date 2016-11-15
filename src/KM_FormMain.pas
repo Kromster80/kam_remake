@@ -550,8 +550,8 @@ begin
   //Debug logs
   if AllowDebugChange then
   begin
-    NetLogger := TKMLogUtils.GetNetLogger;
-    DeliveryLogger := TKMLogUtils.GetDeliveryLogger;
+    NetLogger := gLog.Net;
+    DeliveryLogger := gLog.Delivery;
 
     if fLogNetOrigLvl = nil then
       fLogNetOrigLvl := NetLogger.Level;
