@@ -2268,9 +2268,11 @@ procedure TLogCustomLayout.Init;
 begin
   inherited Init;
   SetOption(DateFormatOpt,
-    {$IF CompilerVersion >= 22}FormatSettings.{$ENDIF}
-    {$IFDEF FPC}FormatSettings.{$ENDIF}
-    ShortDateFormat);
+    {$IF defined(FPC)}FormatSettings.ShortDateFormat
+    {$ElseIf CompilerVersion >= 22}FormatSettings.ShortDateFormat
+    {$ELSE}
+    ShortDateFormat
+    {$IFEND});
 end;
 
 { Set a list of options for this layout. }
@@ -2556,12 +2558,15 @@ constructor TLogFallbackErrorHandler.Create;
 begin
   inherited Create;
   FLoggers             := TObjectList.Create;
+{$IF defined(FPC)}
+{$ELSE}
 {$IFDEF VER130}
   FLoggers.OwnsObjects := False;
 {$ENDIF}
 {$IF CompilerVersion >= 14}
   FLoggers.OwnsObjects := False;
-{$ENDIF}
+{$IFEND}
+{$IFEND}
 end;
 
 destructor TLogFallbackErrorHandler.Destroy;
@@ -4043,12 +4048,15 @@ initialization
   InitializeCriticalSection(CriticalNDC);
   { Standard levels. }
   Levels             := TObjectList.Create;
+{$IF defined(FPC)}
+{$ELSE}
 {$IFDEF VER130}
   Levels.OwnsObjects := True;
 {$ENDIF}
 {$IF CompilerVersion >= 14}
   Levels.OwnsObjects := True;
-{$ENDIF}
+{$IFEND}
+{$IFEND}
   All   := TLogLevel.Create('all',   AllValue);
   Trace := TLogLevel.Create('trace', TraceValue);
   Debug := TLogLevel.Create('debug', DebugValue);

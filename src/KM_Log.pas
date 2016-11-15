@@ -99,8 +99,8 @@ type
     procedure SetOption(const Name, Value: string); override;
   public
     constructor Create(const aName, aFileName, aFileNamePrefix, aPathToLogsDir: string; const aLayout: ILogLayout = nil); reintroduce; virtual;
-    procedure InitLogFileWPrefix(const aFileNamePrefix: string); virtual;
-    procedure InitLogFileWName(const aFileName: string); virtual;
+    procedure InitLogFileWPrefix(const aFileNamePrefix: UnicodeString); virtual;
+    procedure InitLogFileWName(const aFileName: UnicodeString); virtual;
   end;
 
   // Layot to write log messages
@@ -128,11 +128,11 @@ type
     constructor Create;
   end;
 
-var
-  NoTimeLogLvl: TLogLevel;
+var
+  NoTimeLogLvl: TLogLevel;
   AssertLogLvl: TLogLevel;
   gLogInitializer: TKMLogInitializer;   // log system initializer
-  gLog: TKMLog;
+  gLog: TKMLog;
 
 
 implementation
@@ -237,7 +237,7 @@ begin
   if not DirectoryExists(fPathToLogs) then Exit;
 
   // Do not delete old logs if Log file was specified by direct fileName option
-  if not gLogInitializer.FileNamePrefix.IsEmpty then
+  if (gLogInitializer.FileNamePrefix <> '') then
   begin
     if FindFirst(fPathToLogs + gLogInitializer.FileNamePrefix + '*.log', faAnyFile - faDirectory, SearchRec) = 0 then
     repeat
@@ -264,7 +264,7 @@ procedure TKMLogInitializer.InitWPrefix(const aFileNamePrefix: UnicodeString);
 var PathToLogsDir: string;
 begin
   if fInitialized then Exit;  // Logs are initialized only once;
-  Assert(not aFileNamePrefix.IsEmpty(), 'Error: empty parameter "' + FileNamePrefixOpt + '" of TKMLogFileAppender');
+  Assert(aFileNamePrefix <> '', 'Error: empty parameter "' + FileNamePrefixOpt + '" of TKMLogFileAppender');
   fFileNamePrefix := aFileNamePrefix;
   InitWName(aFileNamePrefix + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log');
 end;
@@ -274,9 +274,9 @@ end;
 procedure TKMLogInitializer.InitWName(const aFileName: UnicodeString);
 begin
   if fInitialized then Exit;  // Logs are initialized only once;
-  Assert(not aFileName.IsEmpty(), 'Error: fileName is empty for TKMLogFileAppender');
+  Assert(aFileName <> '', 'Error: fileName is empty for TKMLogFileAppender');
   // Check if fPathToLogsDir is Set. If not - use default value
-  if fPathToLogsDir.IsEmpty then
+  if fPathToLogsDir = '' then
     fPathToLogsDir := GetExeDir + 'Logs';   // Default dir for Logs
   Init(fPathToLogsDir + PathDelim + aFileName);
 end;
@@ -307,10 +307,10 @@ begin
   SetOption(FileNameOpt, aFileName);
 end;
 
-// parse appender options
-procedure TKMLogFileAppender.SetOption(const Name: string; const Value: string);
-begin
-  inherited SetOption(Name, Value);
+// parse appender options
+procedure TKMLogFileAppender.SetOption(const Name: string; const Value: string);
+begin
+  inherited SetOption(Name, Value);
   EnterCriticalSection(FCriticalAppender);
   try
     if (Value <> '') then
@@ -327,9 +327,9 @@ end;
   end;
 end;
 
-//Init appender with filename prefix
-procedure TKMLogFileAppender.InitLogFileWPrefix(const aFileNamePrefix: UnicodeString);
-var
+//Init appender with filename prefix
+procedure TKMLogFileAppender.InitLogFileWPrefix(const aFileNamePrefix: UnicodeString);
+var
   strPath: string;
   f : TextFile;
 begin
@@ -366,7 +366,7 @@ end;
 
 procedure TKMLogFileAppender.DoAppend(const Message: string);
 begin
-  if fLogPath.IsEmpty then Exit;  // Appender has been not initialized yet
+  if fLogPath = '' then Exit;  // Appender has been not initialized yet
   AssignFile(fl, fLogPath);
   System.Append(fl);
   Write(fl, Message);
@@ -447,14 +447,14 @@ var LoggerName: string;
 begin
   if aClass = nil then
   begin
-    if aCategory.IsEmpty then
+    if aCategory = '' then
     begin
       Result := TLogLogger.GetRootLogger;
       Exit;
     end else
       LoggerName := aCategory;
   end else
-    LoggerName := IfThen(aCategory.IsEmpty, aClass.ClassName, aCategory + '.' + aClass.ClassName);
+    LoggerName := IfThen(aCategory = '', aClass.ClassName, aCategory + '.' + aClass.ClassName);
   Result := TLogLogger.GetLogger(LoggerName);
 end;
 
@@ -473,7 +473,7 @@ end;
 
 function GetExeDir: string;
 begin
-  if (ExeDir.IsEmpty) then
+  if (ExeDir = '') then
     ExeDir := ExtractFilePath(Application.ExeName);
   Result := ExeDir;
 end;
