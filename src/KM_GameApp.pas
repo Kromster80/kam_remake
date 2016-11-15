@@ -101,6 +101,7 @@ uses
 constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TEvent; aOnLoadingText: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
 begin
   inherited Create;
+
   fOnCursorUpdate := aOnCursorUpdate;
 
   fGameSettings := TGameSettings.Create;

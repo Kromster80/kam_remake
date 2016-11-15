@@ -43,8 +43,8 @@ type
     procedure DeleteOldLogs;
 
     // Custom loggers:
-    // RootLogger
-    function Logger: TLogLogger;
+    // Root Logger
+    function Root: TLogLogger;
     // Net logger
     function Net(aClass: TClass = nil): TLogLogger;
     // Delivery logger
@@ -187,7 +187,7 @@ begin
 end;
 
 
-function TKMLog.Logger: TLogLogger;
+function TKMLog.Root: TLogLogger;
 begin
   Result := GetLogger;
 end;

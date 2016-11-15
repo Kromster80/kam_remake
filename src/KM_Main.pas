@@ -100,13 +100,12 @@ begin
   Randomize;
 
   fFormLoading.Label5.Caption := GAME_VERSION;
-  //fFormLoading.Show; //This is our splash screen
+  fFormLoading.Show; //This is our splash screen
   fFormLoading.Refresh;
 
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
-
   ExeDir := ExtractFilePath(Application.ExeName);
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
