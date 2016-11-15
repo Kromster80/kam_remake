@@ -252,7 +252,7 @@ begin
 end;
 
 
-procedure TKMLogFileAppender.Init(aLogPath: string);
+procedure TKMLogFileAppender.Init(aLogPath: UnicodeString);
 begin
   fLogPath := aLogPath;
   ForceDirectories(ExtractFilePath(fLogPath));
