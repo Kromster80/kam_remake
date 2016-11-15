@@ -120,7 +120,7 @@ begin
 
   //Do the log after fGame because fGame adds stuff to the log
   if gLog <> nil then
-    ExceptIntf.AdditionalAttachments.Add(gLogInitializer.LogPath, '', CrashFile);
+    ExceptIntf.AdditionalAttachments.Add(TKMLog.LogPath, '', CrashFile);
 
   //Do settings here not in fGame because we could crash before fGame is created
   if FileExists(ExeDir + SETTINGS_FILE) then
