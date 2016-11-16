@@ -82,6 +82,7 @@ type
       Panel_LobbySettings: TKMPanel;
         Edit_LobbyDescription: TKMEdit;
         Edit_LobbyPassword: TKMEdit;
+        Button_LobbySettingsUseLastPassword: TKMButton;
         Button_LobbySettingsResetBans: TKMButton;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
@@ -508,11 +509,11 @@ end;
 
 procedure TKMMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
 begin
-  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 300);
+  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 350);
   Panel_LobbySettings.Anchors := [];
     TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
-    TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 310, 15, rxGuiMain);
-    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 300);
+    TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 350, 15, rxGuiMain);
+    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 310);
     TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, gResTexts[TX_LOBBY_ROOMSETTINGS], fnt_Outline, taCenter);
 
     TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taLeft);
@@ -523,12 +524,14 @@ begin
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
 
-    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 160, 200, 20, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 155, 280, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 193, 280, 30, gResTexts[TX_LOBBY_LAST_PASSWORD], bsMenu);
     Button_LobbySettingsResetBans.OnClick := SettingsClick;
+    Button_LobbySettingsUseLastPassword.OnClick := SettingsClick;
 
-    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 210, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
+    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 231, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
     Button_LobbySettingsSave.OnClick := SettingsClick;
-    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 250, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
+    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 269, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
     Button_LobbySettingsCancel.OnClick := SettingsClick;
 end;
 
@@ -1834,6 +1837,9 @@ begin
     fNetworking.ResetBans;
   end;
 
+  if Sender = Button_LobbySettingsUseLastPassword then
+    Edit_LobbyPassword.Text := gGameApp.GameSettings.LastPassword;
+
   if Sender = Button_LobbySettingsCancel then
   begin
     Panel_LobbySettings.Hide;
@@ -1844,6 +1850,7 @@ begin
     Panel_LobbySettings.Hide;
     fNetworking.Description := Edit_LobbyDescription.Text;
     fNetworking.SetPassword(AnsiString(Edit_LobbyPassword.Text));
+    gGameApp.GameSettings.LastPassword := UnicodeString(fNetworking.Password);
   end;
 end;
 
