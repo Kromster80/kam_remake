@@ -1433,12 +1433,14 @@ begin
 
   SomeoneHungry := False;
   for I := 0 to Count - 1 do
-  begin
-    SomeoneHungry := SomeoneHungry
-                     or ((Members[I].Condition < UNIT_MIN_CONDITION)
-                     and not Members[I].RequestedFood);
-    if SomeoneHungry then Break;
-  end;
+    if (Members[I] <> nil) 
+    and not Members[I].IsDeadOrDying
+    begin
+      SomeoneHungry := SomeoneHungry
+                       or ((Members[I].Condition < UNIT_MIN_CONDITION)
+                       and not Members[I].RequestedFood);
+      if SomeoneHungry then Break;
+    end;
 
   if SomeoneHungry then
   begin
