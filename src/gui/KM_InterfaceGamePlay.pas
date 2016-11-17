@@ -167,6 +167,8 @@ type
     Panel_ReplayFOW: TKMPanel;
       Dropbox_ReplayFOW: TKMDropList;
       Checkbox_ReplayFOW: TKMCheckBox;
+    Panel_ReplayPause: TKMPanel;
+      Checkbox_ReplayPause: TKMCheckBox;
     Panel_Allies: TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
       Image_AlliesHostStar: TKMImage;
@@ -983,6 +985,9 @@ begin
     Dropbox_ReplayFOW.OnChange := ReplayClick;
     Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
+
+  Panel_ReplayPause := TKMPanel.Create(Panel_Main, 320, 78, 160, 60);
+    Checkbox_ReplayPause := TKMCheckBox.Create(Panel_ReplayPause, 0, 25, 220, 20, gResTexts[TX_REPLAY_PAUSE_AT_PEACETIME_END], fnt_Metal);
 end;
 
 
@@ -2037,6 +2042,7 @@ begin
 
   Panel_ReplayCtrl.Visible := fUIMode = umReplay;
   Panel_ReplayFOW.Visible := fUIMode in [umSpectate, umReplay];
+  Panel_ReplayPause.Visible := gGame.GameMode = gmReplayMulti and (gGame.GameOptions.Peacetime > 0); //It is needed in MP replays only
   Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 8, 58);
   if fUIMode in [umSpectate, umReplay] then
   begin
@@ -2591,7 +2597,7 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  if (fUIMode = umReplay) and (Key = Ord(SC_PAUSE)) then
+  if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
     if Button_ReplayPause.Enabled then
       ReplayClick(Button_ReplayPause)
@@ -3328,6 +3334,7 @@ procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var
   I: Integer;
   Rect: TKMRect;
+  PeaceTicksRemaining: Cardinal;
 begin
   // Update minimap every 1000ms
   if aTickCount mod 10 = 0 then
@@ -3372,6 +3379,10 @@ begin
     PercentBar_Replay.Position := Min(gGame.GameTickCount / Max(gGame.GameInputProcess.GetLastTick,1), 1);
     Label_Replay.Caption := TimeToString(gGame.MissionTime) + ' / ' +
                             TimeToString(gGame.GameInputProcess.GetLastTick/24/60/60/10);
+    PeaceTicksRemaining := Max(0, Int64((gGame.GameOptions.Peacetime * 600)) - gGame.GameTickCount);
+    if (PeaceTicksRemaining = 1)
+    and Checkbox_ReplayPause.Checked then
+      ReplayClick(Button_ReplayPause);
   end;
 
   // Update speedup clocks

@@ -410,6 +410,7 @@ TX_REPLAY_RESUME = 360; //Resume paused replay
 TX_REPLAY_QUIT = 361; //Quit replay
 TX_REPLAY_PLAYER_PERSPECTIVE = 362; //Toggle individual player perspective
 TX_REPLAY_SHOW_FOG = 771; //Show fog
+TX_REPLAY_PAUSE_AT_PEACETIME_END = 967; //Pause at peacetime end
 
 TX_HOUSES_MARKET_SELECT_LEFT = 364; //Use the left mouse button to select the ware to trade
 TX_HOUSES_MARKET_SELECT_RIGHT = 365; //Use the right mouse button to select the ware to trade
