@@ -32,7 +32,8 @@ type
     procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
-    function  GiveField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+    function  GiveField(aPlayer, X, Y: Word): Boolean;
+    function  GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
     function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
@@ -40,7 +41,8 @@ type
     function  GiveRoad(aPlayer, X, Y: Word): Boolean;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
-    function  GiveWinefield(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+    function  GiveWinefield(aPlayer, X, Y: Word): Boolean;
+    function  GiveWinefieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 
     procedure FogCoverAll(aPlayer: Byte);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
@@ -1059,11 +1061,34 @@ begin
 end;
 
 
-//* Version: 7000+
+//* Version: 6311
 //* Adds finished field and returns true if field was successfully added
+function TKMScriptActions.GiveField(aPlayer, X, Y: Word): Boolean;
+begin
+  try
+    Result := False;
+    if InRange(aPlayer, 0, gHands.Count - 1)
+    and (gHands[aPlayer].Enabled)
+    and gTerrain.TileInMapCoords(X, Y) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
+      begin
+        Result := True;
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn);
+      end
+    else
+      LogParamWarning('Actions.GiveField', [aPlayer, X, Y]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Sets field age if tile is corn field, or adds finished field and sets its age if tile is empty, and returns true if this was successfully done
 //* aStage = 0..6, sets the field growth stage. 0 = empty field; 6 = corn has been cut; according to CORN_STAGES_COUNT
 //* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
-function TKMScriptActions.GiveField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+function TKMScriptActions.GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 begin
   try
     Result := False;
@@ -1071,13 +1096,14 @@ begin
     and (gHands[aPlayer].Enabled)
     and (InRange(aStage, 0, CORN_STAGES_COUNT - 1))
     and gTerrain.TileInMapCoords(X, Y) then
-      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn)
+      or (gTerrain.TileIsCornField(KMPoint(X, Y))) then
       begin
         Result := True;
         gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Corn, aStage, aRandomAge);
       end
     else
-      LogParamWarning('Actions.GiveField', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
+      LogParamWarning('Actions.GiveFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1168,11 +1194,34 @@ begin
 end;
 
 
-//* Version 7000+
+//* Version 6311
 //* Adds finished winefield and returns true if winefield was successfully added
+function TKMScriptActions.GiveWineField(aPlayer, X, Y: Word): Boolean;
+begin
+  try
+    Result := False;
+    if InRange(aPlayer, 0, gHands.Count - 1)
+    and (gHands[aPlayer].Enabled)
+    and gTerrain.TileInMapCoords(X, Y) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
+      begin
+        Result := True;
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine);
+      end
+    else
+      LogParamWarning('Actions.GiveWineField', [aPlayer, X, Y]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version 7000+
+//* Sets winefield age if tile is winefield, or adds finished winefield and sets its age if tile is empty, and returns true if this was successfully done
 //* aStage = 0..3, sets the field growth stage. 0 = new fruits; 3 = grapes are ready to be harvested; according to WINE_STAGES_COUNT
 //* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
-function TKMScriptActions.GiveWineField(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+function TKMScriptActions.GiveWineFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 begin
   try
     Result := False;
@@ -1180,13 +1229,14 @@ begin
     and (gHands[aPlayer].Enabled)
     and (InRange(aStage, 0, WINE_STAGES_COUNT - 1))
     and gTerrain.TileInMapCoords(X, Y) then
-      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine)
+      or (gTerrain.TileIsWineField(KMPoint(X, Y))) then
       begin
         Result := True;
         gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Wine, aStage, aRandomAge);
       end
     else
-      LogParamWarning('Actions.GiveWineField', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
+      LogParamWarning('Actions.GiveWineFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
