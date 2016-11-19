@@ -2042,7 +2042,8 @@ begin
 
   Panel_ReplayCtrl.Visible := fUIMode = umReplay;
   Panel_ReplayFOW.Visible := fUIMode in [umSpectate, umReplay];
-  Panel_ReplayPause.Visible := gGame.GameMode = gmReplayMulti and (gGame.GameOptions.Peacetime > 0); //It is needed in MP replays only
+  Panel_ReplayPause.Visible := (gGame.GameMode = gmReplayMulti)       //It is needed in MP replays only
+                               and (gGame.GameOptions.Peacetime > 0); //It is needed only for peacetime > 0
   Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 8, 58);
   if fUIMode in [umSpectate, umReplay] then
   begin
