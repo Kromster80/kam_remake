@@ -150,7 +150,7 @@ destructor TKMLog.Destroy;
 begin
   FreeAndNil(NoTimeLogLvl);
   FreeAndNil(AssertLogLvl);
-  TKMLog.fLogPath = '';
+  TKMLog.fLogPath := '';
 end;
 
 
