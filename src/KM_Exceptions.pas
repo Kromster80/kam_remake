@@ -119,7 +119,7 @@ begin
   if gGame <> nil then gGame.AttachCrashReport(ExceptIntf, CrashFile);
 
   //Do the log after fGame because fGame adds stuff to the log
-  if gLog <> nil then
+  if TKMLog.LogPath <> '' then
     ExceptIntf.AdditionalAttachments.Add(TKMLog.LogPath, '', CrashFile);
 
   //Do settings here not in fGame because we could crash before fGame is created

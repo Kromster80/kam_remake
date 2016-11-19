@@ -150,6 +150,7 @@ destructor TKMLog.Destroy;
 begin
   FreeAndNil(NoTimeLogLvl);
   FreeAndNil(AssertLogLvl);
+  TKMLog.fLogPath = '';
 end;
 
 
@@ -305,6 +306,7 @@ end;
 
 procedure TKMLogFileAppender.InternalInit;
 begin
+  // Get previously initialized LogPath
   fLogPath := TKMLog.fLogPath;
   ForceDirectories(ExtractFilePath(fLogPath));
   AssignFile(fl, fLogPath);
