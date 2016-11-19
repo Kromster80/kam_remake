@@ -1434,7 +1434,7 @@ begin
   SomeoneHungry := False;
   for I := 0 to Count - 1 do
     if (Members[I] <> nil) 
-    and not Members[I].IsDeadOrDying
+    and not Members[I].IsDeadOrDying then
     begin
       SomeoneHungry := SomeoneHungry
                        or ((Members[I].Condition < UNIT_MIN_CONDITION)
