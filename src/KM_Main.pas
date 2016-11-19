@@ -94,7 +94,6 @@ end;
 
 
 procedure TKMMain.Start;
-var appender: TKMLogFileAppender;
 begin
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
   Randomize;
@@ -110,17 +109,8 @@ begin
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
 
-  gLog := TKMLog.Create;
-
-  //Load Logger configuration
-  TLogPropertyConfigurator.Configure(ExeDir + 'log4d.props');
-
-  // Create Log File Appender
-  appender := TKMLogFileAppender.Create('fileLogger',
-    ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log',
-    TKMLogLayout.Create);
-  // Set it as default appender for root logger
-  TLogLogger.GetRootLogger.AddAppender(appender);
+  gLog := TKMLog.Create(ExeDir + 'log4d.props',
+      ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log');
 
   gLog.DeleteOldLogs;
 

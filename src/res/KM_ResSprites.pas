@@ -535,9 +535,9 @@ begin
       Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
     gLog.Info(IntToStr(TexCount) + ' Textures created');
-    gLog.Log(NoTimeLogLvl, Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+    gLog.NoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
                   ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-    gLog.Log(NoTimeLogLvl, IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+    gLog.NoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
 

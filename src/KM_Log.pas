@@ -30,7 +30,11 @@ type
     function GetNetLogger(aClass: TClass = nil): TLogLogger;
     // Get DELIVERY category Logger for specified class
     function GetDeliveryLogger(aClass: TClass = nil): TLogLogger;
+    procedure Init(aLogPath: UnicodeString);
   public
+    constructor Create(aLogPath: UnicodeString); overload;
+    constructor Create(aPropsPath, aLogPath: UnicodeString); overload;
+    destructor Destroy;
     // pass-through Logging to RootLogger
     procedure Trace(const aMessage: string; const aErr: Exception = nil);
     procedure Debug(const aMessage: string; const aErr: Exception = nil);
@@ -38,10 +42,10 @@ type
     procedure Warn(const aMessage: string; const aErr: Exception = nil);
     procedure Error(const aMessage: string; const aErr: Exception = nil);
     procedure Fatal(const aMessage: string; const aErr: Exception = nil);
-    procedure Log(const aLogLevel: TLogLevel; const aMessage: string; const aErr: Exception = nil);
+    procedure NoTime(const aMessage: string; const aErr: Exception = nil);
+    procedure LogAndAssert(const aMessage: string; const aErr: Exception = nil);
 
-    procedure DeleteOldLogs;
-
+    class property LogPath: UnicodeString read fLogPath;
     // Custom loggers:
     // Root Logger
     function Root: TLogLogger;
@@ -50,7 +54,7 @@ type
     // Delivery logger
     function Delivery(aClass: TClass = nil): TLogLogger;
 
-    class property LogPath: UnicodeString read fLogPath;
+    procedure DeleteOldLogs;
   end;
 
 
@@ -58,11 +62,10 @@ type
   private
     fl: textfile;
     fLogPath: UnicodeString;
-    procedure Init(aLogPath: UnicodeString);
+    procedure InternalInit;
   protected
     procedure DoAppend(const Message: string); override;
-  public
-    constructor Create(const aName: string; const aLogPath: UnicodeString; const aLayout: ILogLayout = nil); reintroduce; virtual;
+    procedure SetOption(const Name, Value: string); override;
   end;
 
   // Layot to write log messages
@@ -79,20 +82,18 @@ type
   end;
 
   // Special log level to write log without time
-  TKMInfoNoTimeLogLevel = class(TLogLevel)
+  TKMInfoNoTime = class(TLogLevel)
   public
     constructor Create;
   end;
 
   // Special log level to write Assert error messages
-  TKMWarnAssertLogLevel = class(TLogLevel)
+  TKMWarnAssert = class(TLogLevel)
   public
     constructor Create;
   end;
 
 var
-  NoTimeLogLvl: TLogLevel;
-  AssertLogLvl: TLogLevel;
   gLog: TKMLog;
 
 
@@ -101,8 +102,10 @@ uses
   KM_Defaults;
 
 const
-  FileNamePrefixOpt = 'fileNamePrefix';
-  PathToLogsDirOpt = 'pathToLogsDir';
+  InitOpt = 'init';
+var
+  NoTimeLogLvl: TLogLevel;
+  AssertLogLvl: TLogLevel;
 
 //New thread, in which old logs are deleted (used internally)
 type
@@ -116,6 +119,40 @@ type
 
 
 {TKMLog}
+constructor TKMLog.Create(aLogPath: UnicodeString);
+begin
+  Init(aLogPath);
+  //Load Basic Logger configuration
+  TLogBasicConfigurator.Configure;
+end;
+
+
+constructor TKMLog.Create(aPropsPath, aLogPath: UnicodeString);
+begin
+  Init(aLogPath);
+  //Load Logger configuration from file
+  TLogPropertyConfigurator.Configure(aPropsPath);
+end;
+
+procedure TKMLog.Init(aLogPath: UnicodeString);
+begin
+  RegisterLayout(TKMLogLayout);
+  RegisterAppender(TKMLogFileAppender);
+
+  NoTimeLogLvl := TKMInfoNoTime.Create;
+  AssertLogLvl := TKMWarnAssert.Create;
+  //Save Logs Path for use while Configure process
+  TKMLog.fLogPath := aLogPath;
+end;
+
+
+destructor TKMLog.Destroy;
+begin
+  FreeAndNil(NoTimeLogLvl);
+  FreeAndNil(AssertLogLvl);
+end;
+
+
 function TKMLog.GetLogger(aClass: TClass = nil; aCategory: string = ''): TLogLogger;
 var LoggerName: string;
 begin
@@ -130,6 +167,12 @@ begin
   end else
     LoggerName := IfThen(aCategory = '', aClass.ClassName, aCategory + '.' + aClass.ClassName);
   Result := TLogLogger.GetLogger(LoggerName);
+end;
+
+
+function TKMLog.Root: TLogLogger;
+begin
+  Result := TLogLogger.GetRootLogger;
 end;
 
 
@@ -181,15 +224,15 @@ begin
 end;
 
 
-procedure TKMLog.Log(const aLogLevel: TLogLevel; const aMessage: string; const aErr: Exception = nil);
+procedure TKMLog.NoTime(const aMessage: string; const aErr: Exception = nil);
 begin
-  Root.Log(aLogLevel, aMessage, aErr);
+  Root.Log(NoTimeLogLvl, aMessage, aErr);
 end;
 
 
-function TKMLog.Root: TLogLogger;
+procedure TKMLog.LogAndAssert(const aMessage: string; const aErr: Exception = nil);
 begin
-  Result := TLogLogger.GetRootLogger;
+  Root.Log(AssertLogLvl, aMessage, aErr);
 end;
 
 
@@ -202,6 +245,12 @@ end;
 function TKMLog.Delivery(aClass: TClass = nil): TLogLogger;
 begin
   Result := GetDeliveryLogger(aClass);
+end;
+
+
+procedure TKMLog.DeleteOldLogs;
+begin
+  TKMOldLogsDeleter.Create(fLogPath);
 end;
 
 
@@ -237,24 +286,26 @@ begin
 end;
 
 
-procedure TKMLog.DeleteOldLogs;
-begin
-  TKMOldLogsDeleter.Create(TKMLog.LogPath);
-end;
-
-
 {TKMLogFileAppender}
-constructor TKMLogFileAppender.Create(const aName: string; const aLogPath: UnicodeString; const aLayout: ILogLayout = nil);
+// parse appender options
+procedure TKMLogFileAppender.SetOption(const Name: string; const Value: string);
 begin
-  inherited Create(aName, aLayout);
-  TKMLog.fLogPath := aLogPath;
-  Init(aLogPath);
+  inherited SetOption(Name, Value);
+  EnterCriticalSection(FCriticalAppender);
+  try
+    if (Name = InitOpt) then
+    begin
+      InternalInit;
+    end;
+  finally
+    LeaveCriticalSection(FCriticalAppender);
+  end;
 end;
 
 
-procedure TKMLogFileAppender.Init(aLogPath: UnicodeString);
+procedure TKMLogFileAppender.InternalInit;
 begin
-  fLogPath := aLogPath;
+  fLogPath := TKMLog.fLogPath;
   ForceDirectories(ExtractFilePath(fLogPath));
   AssignFile(fl, fLogPath);
   Rewrite(fl);
@@ -327,27 +378,18 @@ begin
 end;
 
 
-{TKMInfoNoTimeLogLevel}
-constructor TKMInfoNoTimeLogLevel.Create;
+{TKMInfoNoTime}
+constructor TKMInfoNoTime.Create;
 begin
   inherited Create(NO_TIME_LOG_LVL_NAME, InfoValue + 100);
 end;
 
 
-{TKMWarnAssertLogLevel}
-constructor TKMWarnAssertLogLevel.Create;
+{TKMWarnAssert}
+constructor TKMWarnAssert.Create;
 begin
   inherited Create(ASSERT_LOG_LVL_NAME, WarnValue + 100);
 end;
 
-
-initialization
-  // Register Custom Logger classes
-  // These objects will be freed after Log4d destroy, so no need for manual FreeAndNil
-  RegisterLayout(TKMLogLayout);
-  RegisterAppender(TKMLogFileAppender);
-
-  NoTimeLogLvl := TKMInfoNoTimeLogLevel.Create;
-  AssertLogLvl := TKMWarnAssertLogLevel.Create;
 
 end.

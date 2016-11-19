@@ -173,7 +173,7 @@ begin
 
   if not FileExists(aFileName) then
   begin
-    gLog.Log(NoTimeLogLvl, aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
+    gLog.NoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
     Exit;
   end;
 

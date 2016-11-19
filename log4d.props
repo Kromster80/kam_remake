@@ -8,9 +8,18 @@ log4d.threshold=debug
 log4d.loggerFactory=TLogDefaultLoggerFactory
 
 # Set root level
-log4d.rootLogger=info
+log4d.rootLogger=info,fileLogger
 
 # Establish logger hierarchy
 log4d.logger.net=debug
 log4d.logger.delivery=inherited
+
+# Create a file appender for logger
+#   options:    
+#       init    mandatory option, marks initialization process for logger
+#       layout  string format layout 
+#
+log4d.appender.fileLogger=TKMLogFileAppender
+log4d.appender.fileLogger.layout=TKMLogLayout
+log4d.appender.fileLogger.init=
 

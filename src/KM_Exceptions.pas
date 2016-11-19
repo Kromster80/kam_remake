@@ -95,13 +95,13 @@ begin
   if ExceptIntf.ExceptObject is ELocError then
     LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
   gLog.Info(LogMessage);
-  gLog.Log(NoTimeLogLvl, '================================================================================');
-  gLog.Log(NoTimeLogLvl, '                                START BUG REPORT                                ');
-  gLog.Log(NoTimeLogLvl, '================================================================================');
-  gLog.Log(NoTimeLogLvl, ExceptIntf.BugReport);
-  gLog.Log(NoTimeLogLvl, '================================================================================');
-  gLog.Log(NoTimeLogLvl, '                                 END BUG REPORT                                 ');
-  gLog.Log(NoTimeLogLvl, '================================================================================');
+  gLog.NoTime('================================================================================');
+  gLog.NoTime('                                START BUG REPORT                                ');
+  gLog.NoTime('================================================================================');
+  gLog.NoTime(ExceptIntf.BugReport);
+  gLog.NoTime('================================================================================');
+  gLog.NoTime('                                 END BUG REPORT                                 ');
+  gLog.NoTime('================================================================================');
 
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.

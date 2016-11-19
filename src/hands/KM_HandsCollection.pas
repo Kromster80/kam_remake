@@ -550,7 +550,7 @@ begin
   LoadStream.Read(fCount);
 
   if fCount > MAX_HANDS then
-    gLog.Log(AssertLogLvl, 'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
+    gLog.LogAndAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 
   SetLength(fHandsList, fCount);
 

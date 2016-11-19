@@ -244,7 +244,7 @@ begin
     if U <> nil then
       fUnits.Add(U)
     else
-      gLog.Log(AssertLogLvl, 'Unknown unit type in Savegame');
+      gLog.LogAndAssert('Unknown unit type in Savegame');
   end;
 end;
 
