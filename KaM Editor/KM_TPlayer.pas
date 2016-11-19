@@ -105,8 +105,8 @@ var
 begin
   Result := '';
   for i := 1 to HouseCount do
-    Result := Result + '!SET_HOUSE ' + inttostr(House[i].Kind - 1) + ' ' + inttostr(House[i].PosX - 1) + ' ' +
-      inttostr(House[i].PosY - 1) + EolA;
+    Result := Result + '!SET_HOUSE ' + IntToStr(House[i].Kind - 1) + ' ' + IntToStr(House[i].PosX - 1) + ' ' +
+      IntToStr(House[i].PosY - 1) + EolA;
 end;
 
 constructor TMission.Create();
@@ -158,11 +158,11 @@ begin
       if (Roads[k, i] <> gpN) and (Owner[k, i] = _Owner) then
       begin
         if Roads[k, i] = gpR then
-          Result := Result + '!SET_STREET ' + inttostr(k - 1) + ' ' + inttostr(i - 1) + ' ';
+          Result := Result + '!SET_STREET ' + IntToStr(k - 1) + ' ' + IntToStr(i - 1) + ' ';
         if Roads[k, i] = gpF then
-          Result := Result + '!SET_FIELD ' + inttostr(k - 1) + ' ' + inttostr(i - 1) + ' ';
+          Result := Result + '!SET_FIELD ' + IntToStr(k - 1) + ' ' + IntToStr(i - 1) + ' ';
         if Roads[k, i] = gpW then
-          Result := Result + '!SET_WINEFIELD ' + inttostr(k - 1) + ' ' + inttostr(i - 1) + ' ';
+          Result := Result + '!SET_WINEFIELD ' + IntToStr(k - 1) + ' ' + IntToStr(i - 1) + ' ';
         inc(Num);
         if Num mod 4 = 0 then
           Result := Result + EolA;
