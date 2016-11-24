@@ -57,7 +57,7 @@ type
     // Saved (in singleplayer only)
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
     fMessageStack: TKMMessageStack;
-    fSelection: array [0..9] of Integer;
+    fSelection: array [0..19] of Integer;
 
     procedure Create_Controls;
     procedure Create_Replay;
@@ -680,7 +680,7 @@ begin
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
   ShownMessage := -1; // 0 is the first message, -1 is invalid
-  for I := 0 to 9 do
+  for I := 0 to length(fSelection) - 1 do
     fSelection[I] := -1; // Not set
 
   fMessageStack := TKMMessageStack.Create;
@@ -1371,7 +1371,7 @@ end;
 procedure TKMGamePlayInterface.LoadHotkeysFromHand;
 var I: Integer;
 begin
-  for I := 0 to 9 do
+  for I := 0 to length(fSelection) - 1 do
     fSelection[I] := gMySpectator.Hand.SelectionHotkeys[I];
 end;
 
@@ -2322,8 +2322,9 @@ end;
 // Assign Object to a Key
 // we use ID to avoid use of pointer counter
 procedure TKMGamePlayInterface.Selection_Assign(aId: Word; aObject: TObject);
+var I: Integer;
 begin
-  if not InRange(aId, 0, 9) then Exit;
+  if not InRange(aId, 0, length(fSelection) - 1) then Exit;
 
   if aObject is TKMUnit then
     fSelection[aId] := TKMUnit(aObject).UID
@@ -2369,7 +2370,7 @@ begin
   if gMySpectator.Hand.InCinematic then
     Exit;
 
-  if not InRange(aId, 0, 9) then Exit;
+  if not InRange(aId, 0, length(fSelection) - 1) then Exit;
 
   if fSelection[aId] <> -1 then
   begin
@@ -2657,6 +2658,16 @@ begin
   if Key = gResKeys[SC_SELECT_8].Key  then SelectId := 7 else
   if Key = gResKeys[SC_SELECT_9].Key  then SelectId := 8 else
   if Key = gResKeys[SC_SELECT_10].Key then SelectId := 9 else
+  if Key = gResKeys[SC_SELECT_11].Key  then SelectId := 10 else
+  if Key = gResKeys[SC_SELECT_12].Key  then SelectId := 11 else
+  if Key = gResKeys[SC_SELECT_13].Key  then SelectId := 12 else
+  if Key = gResKeys[SC_SELECT_14].Key  then SelectId := 13 else
+  if Key = gResKeys[SC_SELECT_15].Key  then SelectId := 14 else
+  if Key = gResKeys[SC_SELECT_16].Key  then SelectId := 15 else
+  if Key = gResKeys[SC_SELECT_17].Key  then SelectId := 16 else
+  if Key = gResKeys[SC_SELECT_18].Key  then SelectId := 17 else
+  if Key = gResKeys[SC_SELECT_19].Key  then SelectId := 18 else
+  if Key = gResKeys[SC_SELECT_20].Key then SelectId := 19 else
     SelectId := -1;
 
   if SelectId <> -1 then

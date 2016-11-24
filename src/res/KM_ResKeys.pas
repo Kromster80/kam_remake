@@ -9,8 +9,8 @@ type
   TKMFuncArea = (faCommon, faGame, faMapEdit);
 
 const
-  // There are total of 57 different functions in the game that can have a shortcut
-  FUNC_COUNT = 57;
+  // There are total of 67 different functions in the game that can have a shortcut
+  FUNC_COUNT = 67;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -52,12 +52,13 @@ implementation
 const
   // Default keys
   DEF_KEYS: array [0..FUNC_COUNT-1] of Byte = (
-    37,  39,  38,  40, 112, 113, 114, 115,  72,  83,
-    76,  70,  88, 187, 189, 190, 188, 116, 117, 118,
-    119, 66,  80,  84,  34,  33,   8,  49,  50,  51,
-    52,  53,  54,  55,  56,  57,  48,  32,  46,  13,
-    27,  77,  86,  68,  67,  13, 112, 113, 114, 115,
-    116, 49,  50,  51,  52,  53,  54
+    37,   39,  38,  40, 112, 113, 114, 115,  72,  83,
+    76,   70,  88, 187, 189, 190, 188, 116, 117, 118,
+    119,  66,  80,  84,  34,  33,   8,  32,  46,  13,
+    49,   50,  51,  52,  53,  54,  55,  56,  57,  48,
+    97,  98,  99,  100, 101, 102, 103, 104, 105,  96,
+    27,   77,  86,  68,  67,  13, 112, 113, 114, 115,
+    116,  49,  50,  51,  52,  53,  54
   );
 
   // Function text values
@@ -67,9 +68,11 @@ const
     TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM, TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE,
     TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW, TX_KEY_FUNC_GAME_SPEED_1, TX_KEY_FUNC_GAME_SPEED_2, TX_KEY_FUNC_GAME_SPEED_3,
     TX_KEY_FUNC_GAME_SPEED_4, TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS, TX_KEY_FUNC_ZOOM_IN,
-    TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET, TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3,
-    TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5, TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8,
-    TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10, TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,
+    TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET, TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,
+    TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3, TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5,
+    TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8, TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10,
+    TX_KEY_FUNC_SELECT_11, TX_KEY_FUNC_SELECT_12, TX_KEY_FUNC_SELECT_13, TX_KEY_FUNC_SELECT_14, TX_KEY_FUNC_SELECT_15,
+    TX_KEY_FUNC_SELECT_16, TX_KEY_FUNC_SELECT_17, TX_KEY_FUNC_SELECT_18, TX_KEY_FUNC_SELECT_19, TX_KEY_FUNC_SELECT_20,
     TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,
     TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN, TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT,
     TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN, TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2,
@@ -92,12 +95,12 @@ begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     case I of
-      0..3, 24..26, 40..44: fFuncs[I].Area := faCommon;
-      4..23, 27..39:        fFuncs[I].Area := faGame;
-      else                  fFuncs[I].Area := faMapEdit;
+      0..3, 24..26, 50..54:   fFuncs[I].Area := faCommon;
+      4..23, 27..49:          fFuncs[I].Area := faGame;
+      else                    fFuncs[I].Area := faMapEdit;
     end;
 
-    fFuncs[I].IsDebug := (I in [41..44]);
+    fFuncs[I].IsDebug := (I in [51..54]);
   end;
 end;
 
