@@ -5013,7 +5013,7 @@ begin
   begin
     ViewPos := LocalToMapCoords(X,Y);
     if Assigned(fOnChange) then
-      fOnChange(Self, ViewPos.X, ViewPos.Y);
+      fOnChange(Self, ViewPos.X - 1, ViewPos.Y - 1);
   end;
 end;
 
@@ -5085,10 +5085,10 @@ begin
   begin
     R := fView.GetMinimapClip;
     if (R.Right - R.Left) * (R.Bottom - R.Top) > 0 then
-      TKMRenderUI.WriteOutline(AbsLeft + fLeftOffset + Round(R.Left*fPaintWidth / fMinimap.MapX),
-                               AbsTop  + fTopOffset  + Round(R.Top*fPaintHeight / fMinimap.MapY),
+      TKMRenderUI.WriteOutline(AbsLeft + fLeftOffset + Round((R.Left - 1)*fPaintWidth / fMinimap.MapX),
+                               AbsTop  + fTopOffset  + Round((R.Top - 1)*fPaintHeight / fMinimap.MapY),
                                Round((R.Right - R.Left)*fPaintWidth / fMinimap.MapX),
-                               Round((R.Bottom - R.Top)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
+                               Round((R.Bottom - R.Top + 1)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
   end;
 
   if fShowLocs then
