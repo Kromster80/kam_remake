@@ -551,26 +551,13 @@ begin
     fPlayersVisibleArmy[I] := True;
   end;
 
-  //Chart_MPArmy.Clear;
   Chart_MPCitizens.Clear;
   Chart_MPHouses.Clear;
 
-  //Chart_MPArmy.MaxLength := 0;
   Chart_MPCitizens.MaxLength := 0;
   Chart_MPHouses.MaxLength := 0;
-  //Chart_MPArmy.MaxTime      := gGame.GameTickCount div 10;
   Chart_MPCitizens.MaxTime  := gGame.GameTickCount div 10;
   Chart_MPHouses.MaxTime    := gGame.GameTickCount div 10;
-
-//  for I := 0 to gHands.Count - 1 do
-//  with gHands[I] do
-//    if Enabled then
-//    begin
-//      Chart_MPArmy.MaxLength := Max(Chart_MPArmy.MaxLength, Stats.ChartCount);
-//      Chart_MPArmy.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
-//    end;
-//
-//  Chart_MPArmy.TrimToFirstVariation;
 
   for I := 0 to gHands.Count - 1 do
   with gHands[I] do

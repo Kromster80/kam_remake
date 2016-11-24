@@ -107,7 +107,6 @@ type
     property ChartCount: Integer read fChartCount;
     property ChartHouses: TKMCardinalArray read fChartHouses;
     property ChartCitizens: TKMCardinalArray read fChartCitizens;
-    //property ChartArmy: TKMCardinalArray read fChartArmy;
     property ChartWares[aWare: TWareType]: TKMCardinalArray read GetChartWares;
     property ChartArmy[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmy;
     property ChartArmyTotal[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmyTotal;
@@ -767,7 +766,7 @@ begin
   begin
     SaveStream.Write(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
     SaveStream.Write(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
-    //SaveStream.Write(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
+
     for R := WARE_MIN to WARE_MAX do
       SaveStream.Write(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
     for W := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
@@ -796,10 +795,8 @@ begin
     fChartCapacity := fChartCount;
     SetLength(fChartHouses, fChartCount);
     SetLength(fChartCitizens, fChartCount);
-    //SetLength(fChartArmy, fChartCount);
     LoadStream.Read(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
     LoadStream.Read(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
-    //LoadStream.Read(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for I := WARE_MIN to WARE_MAX do
     begin
       SetLength(fChartWares[I], fChartCount);
@@ -832,7 +829,6 @@ begin
     fChartCapacity := fChartCount + 32;
     SetLength(fChartHouses, fChartCapacity);
     SetLength(fChartCitizens, fChartCapacity);
-    //SetLength(fChartArmy, fChartCapacity);
     for I := WARE_MIN to WARE_MAX do
       SetLength(fChartWares[I], fChartCapacity);
     for J := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
@@ -842,7 +838,6 @@ begin
     end;
   end;
   fChartHouses[fChartCount] := GetHouseQty(ht_Any);
-//  fChartArmy[fChartCount] := GetArmyCount;
   //We don't want recruits on the citizens Chart on the results screen.
   //If we include recruits the citizens Chart drops by 50-100 at peacetime because all the recruits
   //become soldiers, and continually fluctuates. Recruits dominate the Chart, meaning you can't use

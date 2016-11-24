@@ -183,19 +183,6 @@ begin
     Chart_Houses.MaxTime    := gGame.GameTickCount div 10;
     Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
 
-    //Army
-//    TempGraphCount := 0; //Reset
-//    for I := 0 to gHands.Count - 1 do
-//    with gHands[I] do
-//      if HandType = hndComputer then
-//        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy)
-//      else
-//        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
-//
-//    if ShowAIResults then
-//      for I := 0 to TempGraphCount - 1 do
-//        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
-
     //Citizens
     TempGraphCount := 0; //Reset
     for I := 0 to gHands.Count - 1 do

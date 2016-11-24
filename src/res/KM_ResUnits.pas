@@ -134,7 +134,7 @@ const
   14,15,16,17,18,19,20,21,22,23, //Warriors
   24,25,26,27, {28,29,} //TPR warriors
   30,31,32,33,34,35,36,37, //Animals
-  -1);
+  -1); //ut_ArmyPower
 
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
