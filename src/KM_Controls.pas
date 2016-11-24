@@ -5013,7 +5013,7 @@ begin
   begin
     ViewPos := LocalToMapCoords(X,Y);
     if Assigned(fOnChange) then
-      fOnChange(Self, ViewPos.X - 1, ViewPos.Y - 1);
+      fOnChange(Self, ViewPos.X, ViewPos.Y);
   end;
 end;
 
