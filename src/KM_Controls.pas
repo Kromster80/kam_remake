@@ -14,6 +14,7 @@ type
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
   TNotifyEventKeyDown = procedure(Key: Word; Shift: TShiftState) of object;
+  TNotifyEventKeyUp = procedure(Key: Word; Shift: TShiftState) of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
@@ -802,6 +803,7 @@ type
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
     OnKeyDown: TNotifyEventKeyDown;
+    OnKeyUp: TNotifyEventKeyUp;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -830,6 +832,7 @@ type
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -4069,48 +4072,51 @@ begin
 end;
 
 
-function TKMColumnBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
-var
-  NewIndex: Integer;
+function TKMColumnBox.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   if PassAllKeys then
   begin
     // Assume handler always handles the KeyDown
-    Result := Assigned(OnKeyDown);
+    Result := Assigned(OnKeyUp);
 
-    if Assigned(OnKeyDown) then
-      OnKeyDown(Key, Shift);
-  end else
-  begin
-    Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
-    if inherited KeyDown(Key, Shift) then Exit;
+    if Assigned(OnKeyUp) then
+      OnKeyUp(Key, Shift);
+  end
+end;
 
-    if HideSelection then Exit; //Can't change selection if it's hidden
-    case Key of
-      VK_UP:      NewIndex := fItemIndex - 1;
-      VK_DOWN:    NewIndex := fItemIndex + 1;
-      VK_RETURN:  begin
-                    //Trigger click to hide drop downs
-                    if Assigned(fOnClick) then
-                      fOnClick(Self);
-                    Exit;
-                  end;
-      else        Exit;
-    end;
 
-    if InRange(NewIndex, 0, fRowCount - 1) then
-    begin
-      fItemIndex := NewIndex;
-      if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
-        TopIndex := fItemIndex - GetVisibleRows + 1
-      else
-      if TopIndex > fItemIndex then //Moving up
-        TopIndex := fItemIndex;
-    end;
+function TKMColumnBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+var
+  NewIndex: Integer;
+begin
+  Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
+  if inherited KeyDown(Key, Shift) then Exit;
 
-    if Assigned(fOnChange) then
-      fOnChange(Self);
+  if HideSelection then Exit; //Can't change selection if it's hidden
+  case Key of
+    VK_UP:      NewIndex := fItemIndex - 1;
+    VK_DOWN:    NewIndex := fItemIndex + 1;
+    VK_RETURN:  begin
+                  //Trigger click to hide drop downs
+                  if Assigned(fOnClick) then
+                    fOnClick(Self);
+                  Exit;
+                end;
+    else        Exit;
   end;
+
+  if InRange(NewIndex, 0, fRowCount - 1) then
+  begin
+    fItemIndex := NewIndex;
+    if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
+      TopIndex := fItemIndex - GetVisibleRows + 1
+    else
+    if TopIndex > fItemIndex then //Moving up
+      TopIndex := fItemIndex;
+  end;
+
+  if Assigned(fOnChange) then
+    fOnChange(Self);
 end;
 
 

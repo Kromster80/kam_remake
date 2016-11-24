@@ -217,7 +217,7 @@ begin
       ColumnBox_OptionsKeys.ShowLines := True;
       ColumnBox_OptionsKeys.PassAllKeys := True;
       ColumnBox_OptionsKeys.OnChange := KeysClick;
-      ColumnBox_OptionsKeys.OnKeyDown := KeysUpdate;
+      ColumnBox_OptionsKeys.OnKeyUp := KeysUpdate;
 
       TKMLabel.Create(PopUp_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
 
