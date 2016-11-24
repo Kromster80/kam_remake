@@ -67,7 +67,7 @@ type
       Button_OptionsBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-
+    destructor Destroy;
     procedure Show;
   end;
 
@@ -234,6 +234,13 @@ begin
 
       Button_OptionsKeysCancel := TKMButton.Create(PopUp_OptionsKeys, 470, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
       Button_OptionsKeysCancel.OnClick := KeysClick;
+end;
+
+
+destructor TKMMenuOptions.Destroy;
+begin
+  FreeAndNil(fTempKeys);
+  inherited;
 end;
 
 
