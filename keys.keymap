@@ -25,33 +25,47 @@
 24:34// Zoom In
 25:33// Zoom Out
 26:8// Reset Zoom
-27:49// Select Group 1
-28:50// Select Group 2
-29:51// Select Group 3
-30:52// Select Group 4
-31:53// Select Group 5
-32:54// Select Group 6
-33:55// Select Group 7
-34:56// Select Group 8
-35:57// Select Group 9
-36:48// Select Group 10
-37:32// Center to Alert
-38:46// Delete Message
-39:13// Show Game Chat (MP)
-40:27// Close Menu's
-41:77// Debug Show Map
-42:86// Debug Victory
-43:68// Debug Defeat
-44:67// Debug Add Scout
-45:13// Extra's Menu
-46:112// Terrain Editor
-47:113// Village Planning
-48:114// Visual Scripting
-49:115// Global Scripting
-50:116// Main Menu
-51:49// Sub-menu 1
-52:50// Sub-menu 2
-53:51// Sub-menu 3
-54:52// Sub-menu 4
-55:53// Sub-menu 5
-56:54// Sub-menu 6
+27:32// Center to Alert
+28:46// Delete Message
+29:13// Show Game Chat (MP)
+30:82// Plan road
+31:70// Plan field
+32:87// Plan wine
+33:69// Erase plan
+34:49// Select Group 1
+35:50// Select Group 2
+36:51// Select Group 3
+37:52// Select Group 4
+38:53// Select Group 5
+39:54// Select Group 6
+40:55// Select Group 7
+41:56// Select Group 8
+42:57// Select Group 9
+43:48// Select Group 10
+44:97// Select Group 11
+45:98// Select Group 12
+46:99// Select Group 13
+47:100// Select Group 14
+48:101// Select Group 15
+49:102// Select Group 16
+50:103// Select Group 17
+51:104// Select Group 18
+52:105// Select Group 19
+53:96// Select Group 20
+54:27// Close Menu's
+55:77// Debug Show Map
+56:86// Debug Victory
+57:68// Debug Defeat
+58:67// Debug Add Scout
+59:13// Extra's Menu
+60:112// Terrain Editor
+61:113// Village Planning
+62:114// Visual Scripting
+63:115// Global Scripting
+64:116// Main Menu
+65:49// Sub-menu 1
+66:50// Sub-menu 2
+67:51// Sub-menu 3
+68:52// Sub-menu 4
+69:53// Sub-menu 5
+70:54// Sub-menu 6

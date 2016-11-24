@@ -26,7 +26,10 @@ type
       Button_Build: array [1..GUI_HOUSE_COUNT] of TKMButtonFlat;
   public
     constructor Create(aParent: TKMPanel);
-
+    procedure PlanRoad;
+    procedure PlanField;
+    procedure PlanWine;
+    procedure ErasePlan;
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
@@ -80,6 +83,34 @@ begin
       Button_Build[I].OnClick := Build_ButtonClick;
       Button_Build[I].Hint := gRes.HouseDat[GUIHouseOrder[I]].HouseName;
     end;
+end;
+
+
+procedure TKMGUIGameBuild.PlanRoad;
+begin
+  Button_BuildRoad.Down := True;
+  Build_ButtonClick(Button_BuildRoad);
+end;
+
+
+procedure TKMGUIGameBuild.PlanField;
+begin
+  Button_BuildField.Down := True;
+  Build_ButtonClick(Button_BuildField);
+end;
+
+
+procedure TKMGUIGameBuild.PlanWine;
+begin
+  Button_BuildWine.Down := True;
+  Build_ButtonClick(Button_BuildWine);
+end;
+
+
+procedure TKMGUIGameBuild.ErasePlan;
+begin
+  Button_BuildCancel.Down := True;
+  Build_ButtonClick(Button_BuildCancel);
 end;
 
 

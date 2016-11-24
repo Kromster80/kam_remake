@@ -953,3 +953,7 @@ TX_KEY_ZOOM = 958; //Zoom
 TX_KEY_COMMON = 961; //Common Keys
 TX_KEY_GAME = 962; //Game Keys
 TX_KEY_MAPEDIT = 963; //Map Editor Keys
+TX_KEY_FUNC_PLAN_ROAD = 977; //Plan road
+TX_KEY_FUNC_PLAN_FIELD = 978; //Plan field
+TX_KEY_FUNC_PLAN_WINE = 979; //Plan wine
+TX_KEY_FUNC_ERASE_PLAN = 980; //Erase plan

@@ -2695,6 +2695,38 @@ begin
   if Key = gResKeys[SC_MENU_MENU].Key then
     SwitchPage(Button_Main[tbMenu]);
 
+  // Field plans hotkeys
+  if Button_Main[tbBuild].Enabled then
+  begin
+    if Key = gResKeys[SC_PLAN_ROAD].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.PlanRoad;
+    end;
+
+    if Key = gResKeys[SC_PLAN_FIELD].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.PlanField;
+    end;
+
+    if Key = gResKeys[SC_PLAN_WINE].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.PlanWine;
+    end;
+
+    if Key = gResKeys[SC_ERASE_PLAN].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.ErasePlan;
+    end;
+  end;
+
   if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
   begin
     // Game speed/pause: Not available in multiplayer mode
