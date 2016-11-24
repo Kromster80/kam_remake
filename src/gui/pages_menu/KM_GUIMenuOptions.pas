@@ -3,13 +3,15 @@ unit KM_GUIMenuOptions;
 interface
 uses
   Classes, Controls, KromOGLUtils, Math, SysUtils,
-  KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions,
+  KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions, KM_ResKeys,
   KM_InterfaceDefaults;
 
 
 type
   TKMMenuOptions = class { (TKMGUIPage) }
   private
+    fTempKeys: TKMKeyLibrary;
+
     fOnPageChange: TGUIEventText; // will be in ancestor class
 
     fMainSettings: TMainSettings;
@@ -61,6 +63,7 @@ type
         ColumnBox_OptionsKeys: TKMColumnBox;
         Button_OptionsKeysReset: TKMButton;
         Button_OptionsKeysOK: TKMButton;
+        Button_OptionsKeysCancel: TKMButton;
       Button_OptionsBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
@@ -71,7 +74,7 @@ type
 
 implementation
 uses
-  KM_Main, KM_GameApp, KM_Sound, KM_RenderUI, KM_Resource, KM_ResTexts, KM_ResLocales, KM_ResFonts, KM_ResKeys, KM_ResSound;
+  KM_Main, KM_GameApp, KM_Sound, KM_RenderUI, KM_Resource, KM_ResTexts, KM_ResLocales, KM_ResFonts, KM_ResSound;
 
 
 { TKMGUIMainOptions }
@@ -80,6 +83,8 @@ var
   I: Integer;
 begin
   inherited Create;
+
+  fTempKeys := TKMKeyLibrary.Create;
 
   fOnPageChange := aOnPageChange;
 
@@ -221,11 +226,14 @@ begin
 
       TKMLabel.Create(PopUp_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
 
-      Button_OptionsKeysReset := TKMButton.Create(PopUp_OptionsKeys, 20, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+      Button_OptionsKeysReset := TKMButton.Create(PopUp_OptionsKeys, 30, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
       Button_OptionsKeysReset.OnClick := KeysClick;
 
-      Button_OptionsKeysOK := TKMButton.Create(PopUp_OptionsKeys, 230, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+      Button_OptionsKeysOK := TKMButton.Create(PopUp_OptionsKeys, 250, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
       Button_OptionsKeysOK.OnClick := KeysClick;
+
+      Button_OptionsKeysCancel := TKMButton.Create(PopUp_OptionsKeys, 470, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
+      Button_OptionsKeysCancel.OnClick := KeysClick;
 end;
 
 
@@ -439,11 +447,17 @@ end;
 
 
 procedure TKMMenuOptions.KeysClick(Sender: TObject);
+var I: Integer;
 begin
   if Sender = Button_OptionsKeys then
   begin
     // Reload the keymap in case player changed it and checks his changes in game
     gResKeys.LoadKeymapFile;
+
+    // Update TempKeys from gResKeys
+    for I := 0 to gResKeys.Count - 1 do
+      fTempKeys[I] := gResKeys[I];
+
     KeysRefreshList;
     PopUp_OptionsKeys.Show;
   end;
@@ -451,12 +465,22 @@ begin
   if Sender = Button_OptionsKeysOK then
   begin
     PopUp_OptionsKeys.Hide;
+
+    // Save TempKeys to gResKeys
+    for I := 0 to gResKeys.Count - 1 do
+      gResKeys[I] := fTempKeys[I];
+
     gResKeys.SaveKeymap;
+  end;
+
+  if Sender = Button_OptionsKeysCancel then
+  begin
+    PopUp_OptionsKeys.Hide;
   end;
 
   if Sender = Button_OptionsKeysReset then
   begin
-    gResKeys.ResetKeymap;
+    fTempKeys.ResetKeymap;
     KeysRefreshList;
   end;
 
@@ -482,9 +506,9 @@ begin
     ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[KEY_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
 
     // Do not show the debug keys
-    for I := 0 to gResKeys.Count - 1 do
-      if (gResKeys[I].Area = K) and not gResKeys[I].IsDebug then
-        ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[gResKeys[I].TextId], gResKeys.GetKeyNameById(I)],
+    for I := 0 to fTempKeys.Count - 1 do
+      if (fTempKeys[I].Area = K) and not fTempKeys[I].IsDebug then
+        ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[fTempKeys[I].TextId], fTempKeys.GetKeyNameById(I)],
                                                   [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
   end;
 
@@ -501,16 +525,16 @@ begin
   ColumnBox_OptionsKeys.HighlightError := False;
   id := ColumnBox_OptionsKeys.Rows[ColumnBox_OptionsKeys.ItemIndex].Tag;
 
-  if not InRange(id, 0, gResKeys.Count - 1) then Exit;
+  if not InRange(id, 0, fTempKeys.Count - 1) then Exit;
 
-  if not gResKeys.AllowKeySet(gResKeys[id].Area, Key) then
+  if not fTempKeys.AllowKeySet(fTempKeys[id].Area, Key) then
   begin
     ColumnBox_OptionsKeys.HighlightError := True;
     gSoundPlayer.Play(sfxn_Error);
     Exit;
   end;
 
-  gResKeys.SetKey(id, Key);
+  fTempKeys.SetKey(id, Key);
 
   KeysRefreshList;
 end;

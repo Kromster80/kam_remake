@@ -28,6 +28,7 @@ type
     fFuncs: array [0..FUNC_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
     function GetFunc(aIndex: Word): TKMFuncInfo;
+    procedure SetFunc(aIndex: Word; aFuncInfo: TKMFuncInfo);
   public
     constructor Create;
     function GetKeyName(aKey: Word): string;
@@ -36,7 +37,7 @@ type
     function AllowKeySet(aArea: TKMFuncArea; aKey: Word): Boolean;
     procedure SetKey(aId: Integer; aKey: Word);
     function Count: Integer;
-    property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc; default;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc write SetFunc; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKeymap;
@@ -149,6 +150,12 @@ end;
 function TKMKeyLibrary.GetFunc(aIndex: Word): TKMFuncInfo;
 begin
   Result := fFuncs[aIndex];
+end;
+
+
+procedure TKMKeyLibrary.SetFunc(aIndex: Word; aFuncInfo :TKMFuncInfo);
+begin
+  fFuncs[aIndex] := aFuncInfo;
 end;
 
 
@@ -317,16 +324,16 @@ var
 begin
   // Reset previous key binding if Key areas overlap
   for I := 0 to FUNC_COUNT - 1 do
-  if gResKeys[I].Key = aKey then
-    case gResKeys[I].Area of
+  if fFuncs[I].Key = aKey then
+    case fFuncs[I].Area of
       faCommon:   fFuncs[I].Key := 0;
-      faGame:     if (gResKeys[aId].Area in [faGame, faCommon]) then
+      faGame:     if (fFuncs[aId].Area in [faGame, faCommon]) then
                     fFuncs[I].Key := 0;
-      faMapEdit:  if (gResKeys[aId].Area in [faMapEdit, faCommon]) then
+      faMapEdit:  if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
                     fFuncs[I].Key := 0;
     end;
 
-  gResKeys.fFuncs[aId].Key := aKey;
+  fFuncs[aId].Key := aKey;
 end;
 
 
