@@ -2336,6 +2336,14 @@ begin
   else
     fSelection[aId] := -1;
 
+  // If aObject is assigned to another Key, reset previous assignation
+  for I := 0 to length(fSelection) - 1 do
+    if (I <> aId) and (fSelection[aId] <> -1) and (fSelection[I] = fSelection[aId]) then
+    begin
+      fSelection[I] := -1;
+      gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, I, -1);
+    end;
+
   gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, aId, fSelection[aId]);
 end;
 
