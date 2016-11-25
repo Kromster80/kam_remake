@@ -68,7 +68,7 @@ type
       Button_OptionsBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-    destructor Destroy;
+    destructor Destroy; override;
     procedure Show;
   end;
 

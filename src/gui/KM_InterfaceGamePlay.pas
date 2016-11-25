@@ -57,7 +57,7 @@ type
     // Saved (in singleplayer only)
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
     fMessageStack: TKMMessageStack;
-    fSelection: array [0..19] of Integer;
+    fSelection: array [0..DYNAMIC_HOTKEYS_NUM-1] of Integer;
 
     procedure Create_Controls;
     procedure Create_Replay;
@@ -680,7 +680,7 @@ begin
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
   ShownMessage := -1; // 0 is the first message, -1 is invalid
-  for I := 0 to length(fSelection) - 1 do
+  for I := 0 to High(fSelection) do
     fSelection[I] := -1; // Not set
 
   fMessageStack := TKMMessageStack.Create;
@@ -1371,7 +1371,7 @@ end;
 procedure TKMGamePlayInterface.LoadHotkeysFromHand;
 var I: Integer;
 begin
-  for I := 0 to length(fSelection) - 1 do
+  for I := 0 to High(fSelection) do
     fSelection[I] := gMySpectator.Hand.SelectionHotkeys[I];
 end;
 
@@ -2324,7 +2324,7 @@ end;
 procedure TKMGamePlayInterface.Selection_Assign(aId: Word; aObject: TObject);
 var I: Integer;
 begin
-  if not InRange(aId, 0, length(fSelection) - 1) then Exit;
+  if not InRange(aId, 0, High(fSelection)) then Exit;
 
   if aObject is TKMUnit then
     fSelection[aId] := TKMUnit(aObject).UID
@@ -2370,7 +2370,7 @@ begin
   if gMySpectator.Hand.InCinematic then
     Exit;
 
-  if not InRange(aId, 0, length(fSelection) - 1) then Exit;
+  if not InRange(aId, 0, High(fSelection)) then Exit;
 
   if fSelection[aId] <> -1 then
   begin

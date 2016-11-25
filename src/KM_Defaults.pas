@@ -158,6 +158,8 @@ const
   AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
   CHAT_COOLDOWN        = 500; //Minimum time in milliseconds between chat messages
 
+  DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
+
 var
   HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
 
