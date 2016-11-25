@@ -620,7 +620,7 @@ var
   Loc: TKMPoint;
   Group: TKMUnitGroup;
 begin
-  Loc := MinimapView.LocalToMapCoords(X, Y, -1); // Inset by 1 pixel to catch cases "outside of map"
+  Loc := MinimapView.LocalToMapCoords(X, Y);
   if not gTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; // Must be inside map
 
   // Send move order, if applicable
