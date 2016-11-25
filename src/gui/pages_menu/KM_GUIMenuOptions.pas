@@ -61,6 +61,7 @@ type
       Button_OptionsKeys: TKMButton;
       PopUp_OptionsKeys: TKMPopUpMenu;
         ColumnBox_OptionsKeys: TKMColumnBox;
+        Button_OptionsKeysClear: TKMButton;
         Button_OptionsKeysReset: TKMButton;
         Button_OptionsKeysOK: TKMButton;
         Button_OptionsKeysCancel: TKMButton;
@@ -225,6 +226,9 @@ begin
       ColumnBox_OptionsKeys.OnKeyUp := KeysUpdate;
 
       TKMLabel.Create(PopUp_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
+
+      Button_OptionsKeysClear := TKMButton.Create(PopUp_OptionsKeys, 470, 515, 200, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
+      Button_OptionsKeysClear.OnClick := KeysClick;
 
       Button_OptionsKeysReset := TKMButton.Create(PopUp_OptionsKeys, 30, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
       Button_OptionsKeysReset.OnClick := KeysClick;
@@ -481,9 +485,10 @@ begin
   end;
 
   if Sender = Button_OptionsKeysCancel then
-  begin
     PopUp_OptionsKeys.Hide;
-  end;
+
+  if (Sender = Button_OptionsKeysClear) then
+    KeysUpdate(0, []);
 
   if Sender = Button_OptionsKeysReset then
   begin

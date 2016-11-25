@@ -328,15 +328,16 @@ var
   I: Integer;
 begin
   // Reset previous key binding if Key areas overlap
-  for I := 0 to FUNC_COUNT - 1 do
-  if fFuncs[I].Key = aKey then
-    case fFuncs[I].Area of
-      faCommon:   fFuncs[I].Key := 0;
-      faGame:     if (fFuncs[aId].Area in [faGame, faCommon]) then
-                    fFuncs[I].Key := 0;
-      faMapEdit:  if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
-                    fFuncs[I].Key := 0;
-    end;
+  if aKey <> 0 then
+    for I := 0 to FUNC_COUNT - 1 do
+      if fFuncs[I].Key = aKey then
+        case fFuncs[I].Area of
+          faCommon:   fFuncs[I].Key := 0;
+          faGame:     if (fFuncs[aId].Area in [faGame, faCommon]) then
+                        fFuncs[I].Key := 0;
+          faMapEdit:  if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
+                        fFuncs[I].Key := 0;
+        end;
 
   fFuncs[aId].Key := aKey;
 end;
