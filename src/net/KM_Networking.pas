@@ -634,8 +634,7 @@ begin
   if Assigned(fOnGameOptions) then fOnGameOptions(Self);
 
   fSelectGameKind := ngk_Save;
-  fNetPlayers[fMyIndex].ReadyToStart := True;
-  fNetPlayers[fMyIndex].HasMapOrSave := True;
+
   //Randomise locations within team is disabled for saves
   NetPlayers.RandomizeTeamLocations := False;
   fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
@@ -647,6 +646,10 @@ begin
     fOnMapName(fSaveInfo.FileName);
 
   SendPlayerListAndRefreshPlayersSetup;
+
+  // Set ReadyToStart and HasMapOrSave after updating fMyIndex
+  fNetPlayers[fMyIndex].ReadyToStart := True;
+  fNetPlayers[fMyIndex].HasMapOrSave := True;
 end;
 
 
