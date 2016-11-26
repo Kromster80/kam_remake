@@ -5,7 +5,7 @@ uses
   Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
-  KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates,
+  KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates, KM_ScriptingUtils,
   KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
 
   //Dynamic scripts allow mapmakers to control the mission flow
@@ -39,6 +39,7 @@ type
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
     fIDCache: TKMScriptingIdCache;
+    fUtils: TKMScriptUtils;
 
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
@@ -104,11 +105,13 @@ begin
   gScriptEvents := TKMScriptEvents.Create(fExec, fIDCache);
   fStates := TKMScriptStates.Create(fIDCache);
   fActions := TKMScriptActions.Create(fIDCache);
+  fUtils := TKMScriptUtils.Create(fIDCache);
 
   fOnScriptError := aOnScriptError;
   gScriptEvents.OnScriptError := HandleScriptError;
   fStates.OnScriptError := HandleScriptError;
   fActions.OnScriptError := HandleScriptError;
+  fUtils.OnScriptError := HandleScriptError;
 end;
 
 
@@ -119,6 +122,7 @@ begin
   FreeAndNil(fActions);
   FreeAndNil(fIDCache);
   FreeAndNil(fExec);
+  FreeAndNil(fUtils);
   inherited;
 end;
 
@@ -469,9 +473,60 @@ begin
       RegisterMethod('function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
     end;
 
+    with Sender.AddClassN(nil, AnsiString(fUtils.ClassName)) do
+    begin
+      RegisterMethod('function AbsI(aValue: Integer): Integer');
+      RegisterMethod('function AbsS(aValue: Single): Single');
+
+      RegisterMethod('function ArrayElementCount(aElement: AnsiString; aArray: array of AnsiString): Integer');
+      RegisterMethod('function ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer');
+      RegisterMethod('function ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer');
+      RegisterMethod('function ArrayElementCountS(aElement: Single; aArray: array of Single): Integer');
+
+      RegisterMethod('function ArrayHasElement(aElement: AnsiString; aArray: array of AnsiString): Boolean');
+      RegisterMethod('function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
+      RegisterMethod('function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
+      RegisterMethod('function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
+
+      RegisterMethod('function EnsureRangeS(aValue, aMin, aMax: Single): Single');
+      RegisterMethod('function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
+
+      RegisterMethod('function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString');
+      RegisterMethod('function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer');
+      RegisterMethod('function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single');
+
+      RegisterMethod('function InAreaI(aX, aY, aXMin, aYMin, aXMax, aYMax: Integer): Boolean');
+      RegisterMethod('function InAreaS(aX, aY, aXMin, aYMin, aXMax, aYMax: Single): Boolean');
+
+      RegisterMethod('function InRangeI(aValue, aMin, aMax: Integer): Boolean');
+      RegisterMethod('function InRangeS(aValue, aMin, aMax: Single): Boolean');
+
+      RegisterMethod('function MaxI(A, B: Integer): Integer');
+      RegisterMethod('function MaxS(A, B: Single): Single');
+
+      RegisterMethod('function MaxInArrayI(aArray: array of Integer): Integer');
+      RegisterMethod('function MaxInArrayS(aArray: array of Single): Single');
+
+      RegisterMethod('function MinI(A, B: Integer): Integer');
+      RegisterMethod('function MinS(A, B: Single): Single');
+
+      RegisterMethod('function MinInArrayI(aArray: array of Integer): Integer');
+      RegisterMethod('function MinInArrayS(aArray: array of Single): Single');
+
+      RegisterMethod('function Power(Base, Exponent: Extended): Extended');
+
+      RegisterMethod('function Sqr(A: Extended): Extended');
+
+      RegisterMethod('function SumI(aArray: array of Integer): Integer');
+      RegisterMethod('function SumS(aArray: array of Single): Single');
+
+      RegisterMethod('function TimeToString(aTicks: Integer): AnsiString');
+    end;
+
     //Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
     AddImportedClassVariable(Sender, 'Actions', AnsiString(fActions.ClassName));
+    AddImportedClassVariable(Sender, 'Utils', AnsiString(fUtils.ClassName));
 
     Result := True;
   end
@@ -718,25 +773,25 @@ begin
       RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCount,               'STATUNITMULTIPLETYPESCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitTypeCount,                        'STATUNITTYPECOUNT');
 
-      RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
-      RegisterMethod(@TKMScriptStates.UnitCarrying,   'UNITCARRYING');
-      RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
-      RegisterMethod(@TKMScriptStates.UnitDirection,  'UNITDIRECTION');
-      RegisterMethod(@TKMScriptStates.UnitsGroup,     'UNITSGROUP');
-      RegisterMethod(@TKMScriptStates.UnitHome,       'UNITHOME');
-      RegisterMethod(@TKMScriptStates.UnitHPCurrent,  'UNITHPCURRENT');
-      RegisterMethod(@TKMScriptStates.UnitHPMax,      'UNITHPMAX');
-      RegisterMethod(@TKMScriptStates.UnitHPInvulnerable,'UNITHPINVULNERABLE');
-      RegisterMethod(@TKMScriptStates.UnitHunger,     'UNITHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitIdle,       'UNITIDLE');
-      RegisterMethod(@TKMScriptStates.UnitLowHunger,  'UNITLOWHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitMaxHunger,  'UNITMAXHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitOwner,      'UNITOWNER');
-      RegisterMethod(@TKMScriptStates.UnitPositionX,  'UNITPOSITIONX');
-      RegisterMethod(@TKMScriptStates.UnitPositionY,  'UNITPOSITIONY');
-      RegisterMethod(@TKMScriptStates.UnitType,       'UNITTYPE');
-      RegisterMethod(@TKMScriptStates.UnitTypeName,   'UNITTYPENAME');
-      RegisterMethod(@TKMScriptStates.WareTypeName,   'WARETYPENAME');
+      RegisterMethod(@TKMScriptStates.UnitAt,             'UNITAT');
+      RegisterMethod(@TKMScriptStates.UnitCarrying,       'UNITCARRYING');
+      RegisterMethod(@TKMScriptStates.UnitDead,           'UNITDEAD');
+      RegisterMethod(@TKMScriptStates.UnitDirection,      'UNITDIRECTION');
+      RegisterMethod(@TKMScriptStates.UnitsGroup,         'UNITSGROUP');
+      RegisterMethod(@TKMScriptStates.UnitHome,           'UNITHOME');
+      RegisterMethod(@TKMScriptStates.UnitHPCurrent,      'UNITHPCURRENT');
+      RegisterMethod(@TKMScriptStates.UnitHPMax,          'UNITHPMAX');
+      RegisterMethod(@TKMScriptStates.UnitHPInvulnerable, 'UNITHPINVULNERABLE');
+      RegisterMethod(@TKMScriptStates.UnitHunger,         'UNITHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitIdle,           'UNITIDLE');
+      RegisterMethod(@TKMScriptStates.UnitLowHunger,      'UNITLOWHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitMaxHunger,      'UNITMAXHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitOwner,          'UNITOWNER');
+      RegisterMethod(@TKMScriptStates.UnitPositionX,      'UNITPOSITIONX');
+      RegisterMethod(@TKMScriptStates.UnitPositionY,      'UNITPOSITIONY');
+      RegisterMethod(@TKMScriptStates.UnitType,           'UNITTYPE');
+      RegisterMethod(@TKMScriptStates.UnitTypeName,       'UNITTYPENAME');
+      RegisterMethod(@TKMScriptStates.WareTypeName,       'WARETYPENAME');
     end;
 
     with ClassImp.Add(TKMScriptActions) do
@@ -857,13 +912,63 @@ begin
       RegisterMethod(@TKMScriptActions.ShowMsgGoto,           'SHOWMSGGOTO');
       RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,  'SHOWMSGGOTOFORMATTED');
 
-      RegisterMethod(@TKMScriptActions.UnitBlock,         'UNITBLOCK');
-      RegisterMethod(@TKMScriptActions.UnitDirectionSet,  'UNITDIRECTIONSET');
-      RegisterMethod(@TKMScriptActions.UnitHPChange,      'UNITHPCHANGE');
-      RegisterMethod(@TKMScriptActions.UnitHPSetInvulnerable,'UNITHPSETINVULNERABLE');
-      RegisterMethod(@TKMScriptActions.UnitHungerSet,     'UNITHUNGERSET');
-      RegisterMethod(@TKMScriptActions.UnitKill,          'UNITKILL');
-      RegisterMethod(@TKMScriptActions.UnitOrderWalk,     'UNITORDERWALK');
+      RegisterMethod(@TKMScriptActions.UnitBlock,             'UNITBLOCK');
+      RegisterMethod(@TKMScriptActions.UnitDirectionSet,      'UNITDIRECTIONSET');
+      RegisterMethod(@TKMScriptActions.UnitHPChange,          'UNITHPCHANGE');
+      RegisterMethod(@TKMScriptActions.UnitHPSetInvulnerable, 'UNITHPSETINVULNERABLE');
+      RegisterMethod(@TKMScriptActions.UnitHungerSet,         'UNITHUNGERSET');
+      RegisterMethod(@TKMScriptActions.UnitKill,              'UNITKILL');
+      RegisterMethod(@TKMScriptActions.UnitOrderWalk,         'UNITORDERWALK');
+    end;
+
+    with ClassImp.Add(TKMScriptUtils) do
+    begin
+      RegisterMethod(@TKMScriptUtils.AbsI,                    'ABSI');
+      RegisterMethod(@TKMScriptUtils.AbsS,                    'ABSS');
+
+      RegisterMethod(@TKMScriptUtils.ArrayElementCount,       'ARRAYELEMENTCOUNT');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountB,      'ARRAYELEMENTCOUNTB');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountI,      'ARRAYELEMENTCOUNTI');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountS,      'ARRAYELEMENTCOUNTS');
+
+      RegisterMethod(@TKMScriptUtils.ArrayHasElement,         'ARRAYHASELEMENT');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementB,        'ARRAYHASELEMENTB');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementI,        'ARRAYHASELEMENTI');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementS,        'ARRAYHASELEMENTS');
+
+      RegisterMethod(@TKMScriptUtils.EnsureRangeI,            'ENSURERANGEI');
+      RegisterMethod(@TKMScriptUtils.EnsureRangeS,            'ENSURERANGES');
+
+      RegisterMethod(@TKMScriptUtils.IfThen,                  'IFTHEN');
+      RegisterMethod(@TKMScriptUtils.IfThenI,                 'IFTHENI');
+      RegisterMethod(@TKMScriptUtils.IfThenS,                 'IFTHENS');
+
+      RegisterMethod(@TKMScriptUtils.InAreaI,                 'INAREAI');
+      RegisterMethod(@TKMScriptUtils.InAreaS,                 'INAREAS');
+
+      RegisterMethod(@TKMScriptUtils.InRangeI,                'INRANGEI');
+      RegisterMethod(@TKMScriptUtils.InRangeS,                'INRANGES');
+
+      RegisterMethod(@TKMScriptUtils.MaxI,                    'MAXI');
+      RegisterMethod(@TKMScriptUtils.MaxS,                    'MAXS');
+
+      RegisterMethod(@TKMScriptUtils.MaxInArrayI,             'MAXINARRAYI');
+      RegisterMethod(@TKMScriptUtils.MaxInArrayS,             'MAXINARRAYS');
+
+      RegisterMethod(@TKMScriptUtils.MinI,                    'MINI');
+      RegisterMethod(@TKMScriptUtils.MinS,                    'MINS');
+
+      RegisterMethod(@TKMScriptUtils.MinInArrayI,             'MININARRAYI');
+      RegisterMethod(@TKMScriptUtils.MinInArrayS,             'MININARRAYS');
+
+      RegisterMethod(@TKMScriptUtils.Power,                   'POWER');
+
+      RegisterMethod(@TKMScriptUtils.SumI,                    'SUMI');
+      RegisterMethod(@TKMScriptUtils.SumS,                    'SUMS');
+
+      RegisterMethod(@TKMScriptUtils.Sqr,                     'SQR');
+
+      RegisterMethod(@TKMScriptUtils.TimeToString,            'TIMETOSTRING');
     end;
 
     //Append classes info to Exec
@@ -883,7 +988,8 @@ begin
       V := fExec.GetVarNo(I);
       //Promote to Unicode just to make compiler happy
       if SameText(UnicodeString(V.FType.ExportName), 'TKMScriptStates')
-      or SameText(UnicodeString(V.FType.ExportName), 'TKMScriptActions') then
+      or SameText(UnicodeString(V.FType.ExportName), 'TKMScriptActions')
+      or SameText(UnicodeString(V.FType.ExportName), 'TKMScriptUtils') then
         Continue;
 
       fErrorString := fErrorString + ValidateVarType(V.FType);
@@ -898,6 +1004,7 @@ begin
     //Link script objects with objects
     SetVariantToClass(fExec.GetVarNo(fExec.GetVar('STATES')), fStates);
     SetVariantToClass(fExec.GetVarNo(fExec.GetVar('ACTIONS')), fActions);
+    SetVariantToClass(fExec.GetVarNo(fExec.GetVar('UTILS')), fUtils);
   finally
     ClassImp.Free;
   end;
