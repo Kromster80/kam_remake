@@ -645,12 +645,12 @@ const
   $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
   $FF577B7B, //Grey
+  $FF000000, //Black
+  $FF000000,  //Black
   $FF2383FB, //Orange
   $FFFF0707, //Blue
   $FF0BE73F, //Light green
-  $FF720468, //Purple
-  $FFFFFFFF, //White
-  $FF000000  //Black
+  $FFFFFFFF  //White
   );
 
   //Interface Colors used for coloring status messages
