@@ -52,33 +52,45 @@ implementation
 const
   // Default keys
   DEF_KEYS: array [0..FUNC_COUNT-1] of Byte = (
-    37,   39,  38,  40, 112, 113, 114, 115,  72,  83,
-    76,   70,  88, 187, 189, 190, 188, 116, 117, 118,
-    119,  66,  80,  84,  34,  33,   8,  32,  46,  13,
-    0,    82,  70,  87,  69,  49,  50,  51,  52,  53,
-    54,   55,  56,  57,  48,   0,   0,   0,   0,   0,
-    0,     0,   0,   0,   0,  27,  77,  86,  68,  67,
-    13,  112, 113, 114, 115, 116,  49,  50,  51,  52,
-    53,   54
+    37, 39, 38, 40,                         // Scroll Left, Right, Up, Down
+    34, 33, 8,                              // Zoom In/Out/Reset
+    27,                                     // Close opened menu
+    77, 86, 68, 67,                         // Debug hotkeys
+    112, 113, 114, 115,                     // Game menus (F1-F4)
+    72, 83, 76, 70, 88, 187, 189, 190, 188, // Army commands
+    116, 117, 118, 119,                     // Speed ups
+    66, 80, 84,                             // Beacon/Pause/Show team in MP
+    32, 46, 13,                             // Center to alert/Delete message/Show chat
+    0,                                      // Select next building/unit/group with same type
+    82, 70, 87, 69,                         // Plan road/field/wine/erase plan(building)
+    49, 50, 51, 52, 53, 54, 55, 56, 57, 48, // Dynamic selection groups 1-10
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,           // Dynamic selection groups 11-20
+    13, 112, 113, 114, 115, 116,            // Map Editor menus
+    49, 50, 51, 52, 53, 54                  // Map Editor sub-menus
   );
 
   // Function text values
   KEY_FUNC_TX: array [0..FUNC_COUNT-1] of Word = (
-    TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN, TX_KEY_FUNC_MENU_BUILD,
-    TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN, TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT,
-    TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM, TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE,
-    TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW, TX_KEY_FUNC_GAME_SPEED_1, TX_KEY_FUNC_GAME_SPEED_2, TX_KEY_FUNC_GAME_SPEED_3,
-    TX_KEY_FUNC_GAME_SPEED_4, TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS, TX_KEY_FUNC_ZOOM_IN,
-    TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET, TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,
-    TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE, TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,
-    TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3, TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5,
-    TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8, TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10,
-    TX_KEY_FUNC_SELECT_11, TX_KEY_FUNC_SELECT_12, TX_KEY_FUNC_SELECT_13, TX_KEY_FUNC_SELECT_14, TX_KEY_FUNC_SELECT_15,
-    TX_KEY_FUNC_SELECT_16, TX_KEY_FUNC_SELECT_17, TX_KEY_FUNC_SELECT_18, TX_KEY_FUNC_SELECT_19, TX_KEY_FUNC_SELECT_20,
-    TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,
-    TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN, TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT,
-    TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN, TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2,
-    TX_KEY_FUNC_MAPEDIT_SUBMENU_3, TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6
+    TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN,    // Scroll Left, Right, Up, Down
+    TX_KEY_FUNC_ZOOM_IN, TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET,                                    // Zoom In/Out/Reset
+    TX_KEY_FUNC_CLOSE_MENU,                                                                               // Close opened menu
+    TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,          // Debug
+    TX_KEY_FUNC_MENU_BUILD, TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN,        // Game menus (F1-F4)
+    TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT, TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM,         // Army commands
+    TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE, TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW,      // Army commands
+    TX_KEY_FUNC_GAME_SPEED_1,TX_KEY_FUNC_GAME_SPEED_2,TX_KEY_FUNC_GAME_SPEED_3,TX_KEY_FUNC_GAME_SPEED_4,  // Speed ups
+    TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS,                                        // Beacon/Pause/Show team in MP
+    TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,                         // Center to alert/Delete message/Show chat
+    TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE,                                                               // Select next building/unit/group with same type
+    TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/field/wine/erase plan(building)
+    TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3, TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5,   // Dynamic selection groups 1-5
+    TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8, TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10,  // Dynamic selection groups 6-10
+    TX_KEY_FUNC_SELECT_11,TX_KEY_FUNC_SELECT_12,TX_KEY_FUNC_SELECT_13,TX_KEY_FUNC_SELECT_14,TX_KEY_FUNC_SELECT_15,  // Dynamic selection groups 11-15
+    TX_KEY_FUNC_SELECT_16,TX_KEY_FUNC_SELECT_17,TX_KEY_FUNC_SELECT_18,TX_KEY_FUNC_SELECT_19,TX_KEY_FUNC_SELECT_20,  // Dynamic selection groups 16-20
+    TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN,         // Map Editor menus
+    TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN,  // Map Editor menus
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2, TX_KEY_FUNC_MAPEDIT_SUBMENU_3,          // Map Editor sub-menus
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6           // Map Editor sub-menus
   );
 
 { TKMKeyLibrary }
@@ -97,12 +109,12 @@ begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     case I of
-      0..3, 24..26, 55..59:   fFuncs[I].Area := faCommon;
-      4..23, 27..54:          fFuncs[I].Area := faGame;
-      else                    fFuncs[I].Area := faMapEdit;
+      0..11:  fFuncs[I].Area := faCommon;
+      12..59: fFuncs[I].Area := faGame;
+      else    fFuncs[I].Area := faMapEdit;
     end;
 
-    fFuncs[I].IsDebug := (I in [56..59]);
+    fFuncs[I].IsDebug := (I in [7..11]);
   end;
 end;
 

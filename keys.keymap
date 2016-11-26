@@ -2,62 +2,62 @@
 1:39// Scroll Right
 2:38// Scroll Up
 3:40// Scroll Down
-4:112// Build Menu
-5:113// Ratio Menu
-6:114// Statistics Menu
-7:115// Main Menu
-8:72// Halt Command
-9:83// Splitup Command
-10:76// Linkup Command
-11:70// Food Command
-12:88// Storm Command
-13:187// Increase Formation
-14:189// Decrease Formation
-15:190// Turn Clockwise
-16:188// Turn Counterclockwise
-17:116// Normal Game Speed
-18:117// Game Speed x3
-19:118// Game Speed x6
-20:119// Game Speed x10
-21:66// Beacon
-22:80// Pause
-23:84// Show Teams (MP)
-24:34// Zoom In
-25:33// Zoom Out
-26:8// Reset Zoom
-27:32// Center to Alert
-28:46// Delete Message
-29:13// Show Game Chat (MP)
-30:0// Select building/unit with same type
-31:82// Plan road
-32:70// Plan field
-33:87// Plan wine
-34:69// Erase plan
-35:49// Select Group 1
-36:50// Select Group 2
-37:51// Select Group 3
-38:52// Select Group 4
-39:53// Select Group 5
-40:54// Select Group 6
-41:55// Select Group 7
-42:56// Select Group 8
-43:57// Select Group 9
-44:48// Select Group 10
-45:0// Select Group 11
-46:0// Select Group 12
-47:0// Select Group 13
-48:0// Select Group 14
-49:0// Select Group 15
-50:0// Select Group 16
-51:0// Select Group 17
-52:0// Select Group 18
-53:0// Select Group 19
-54:0// Select Group 20
-55:27// Close Menu's
-56:77// Debug Show Map
-57:86// Debug Victory
-58:68// Debug Defeat
-59:67// Debug Add Scout
+4:34// Zoom In
+5:33// Zoom Out
+6:8// Reset Zoom
+7:27// Close Menu's
+8:77// Debug Show Map
+9:86// Debug Victory
+10:68// Debug Defeat
+11:67// Debug Add Scout
+12:112// Build Menu
+13:113// Ratio Menu
+14:114// Statistics Menu
+15:115// Main Menu
+16:72// Halt Command
+17:83// Splitup Command
+18:76// Linkup Command
+19:70// Food Command
+20:88// Storm Command
+21:187// Increase Formation
+22:189// Decrease Formation
+23:190// Turn Clockwise
+24:188// Turn Counterclockwise
+25:116// Normal Game Speed
+26:117// Game Speed x3
+27:118// Game Speed x6
+28:119// Game Speed x10
+29:66// Beacon
+30:80// Pause
+31:84// Show Teams (MP)
+32:32// Center to Alert
+33:46// Delete Message
+34:13// Show Game Chat (MP)
+35:0// Select building/unit with same type
+36:82// Plan road
+37:70// Plan field
+38:87// Plan wine
+39:69// Erase plan
+40:49// Select Group 1
+41:50// Select Group 2
+42:51// Select Group 3
+43:52// Select Group 4
+44:53// Select Group 5
+45:54// Select Group 6
+46:55// Select Group 7
+47:56// Select Group 8
+48:57// Select Group 9
+49:48// Select Group 10
+50:0// Select Group 11
+51:0// Select Group 12
+52:0// Select Group 13
+53:0// Select Group 14
+54:0// Select Group 15
+55:0// Select Group 16
+56:0// Select Group 17
+57:0// Select Group 18
+58:0// Select Group 19
+59:0// Select Group 20
 60:13// Extra's Menu
 61:112// Terrain Editor
 62:113// Village Planning
