@@ -114,6 +114,7 @@ type
     procedure Selection_Assign(aId: Word; aObject: TObject);
     procedure Selection_Link(aId: Word; aObject: TObject);
     procedure Selection_Select(aId: Word);
+    procedure SelectNextGameObjWSameType;
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender: TObject);
@@ -2440,6 +2441,63 @@ begin
 end;
 
 
+// Select next building/unit/unit group with the same type for same owner
+procedure TKMGamePlayInterface.SelectNextGameObjWSameType;
+var NextHouse: TKMHouse;
+    NextUnit: TKMUnit;
+    NextUnitGroup: TKMUnitGroup;
+begin
+  if gMySpectator.Hand.InCinematic then
+    Exit;
+
+  if gMySpectator.Selected is TKMUnit then
+    begin
+
+      repeat
+        NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
+      until (NextUnit = nil) or not NextUnit.IsDeadOrDying; // Try to find next unit which is not dead or dying
+
+      if NextUnit <> nil then
+      begin
+        gMySpectator.Selected := NextUnit;
+        if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+          gSoundPlayer.PlayCitizen(NextUnit.UnitType, sp_Select); // play unit selection sound
+        fViewport.Position := NextUnit.PositionF; //center viewport on that unit
+      end;
+
+    end else if gMySpectator.Selected is TKMHouse then
+    begin
+
+      repeat
+        NextHouse := gHands.GetNextHouseWSameType(TKMHouse(gMySpectator.Selected));
+      until (NextHouse = nil) or not NextHouse.IsDestroyed; // Try to find next house which is not destroyed
+
+      if NextHouse <> nil then
+      begin
+        gMySpectator.Selected := NextHouse;
+        fViewport.Position := KMPointF(NextHouse.GetEntrance); //center viewport on that house
+      end;
+
+    end else if gMySpectator.Selected is TKMUnitGroup then
+    begin
+
+      repeat
+        NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
+      until (NextUnitGroup = nil) or not NextUnitGroup.IsDead; // Try to find next unit group which is not dead
+
+      if NextUnitGroup <> nil then
+      begin
+        gMySpectator.Selected := NextUnitGroup;
+        NextUnitGroup.SelectFlagBearer;
+        if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+          gSoundPlayer.PlayWarrior(NextUnitGroup.SelectedUnit.UnitType, sp_Select); // play unit group selection sound
+        fViewport.Position := NextUnitGroup.SelectedUnit.PositionF; //center viewport on that unit
+      end;
+
+    end;
+end;
+
+
 procedure TKMGamePlayInterface.ChatMessage(const aData: UnicodeString);
 begin
   fGuiGameChat.ChatMessage(aData);
@@ -2694,6 +2752,13 @@ begin
 
   if Key = gResKeys[SC_MENU_MENU].Key then
     SwitchPage(Button_Main[tbMenu]);
+
+  // Switch between same type buildings/units/groups
+  if (Key = gResKeys[SC_NEXT_BLD_UNIT_SAME_TYPE].Key)
+    and (gMySpectator.Selected <> nil) then
+  begin
+    SelectNextGameObjWSameType;
+  end;
 
   if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
   begin

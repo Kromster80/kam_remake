@@ -897,6 +897,7 @@ TX_KEY_FUNC_PLAN_ROAD = 977; //Plan road
 TX_KEY_FUNC_PLAN_FIELD = 978; //Plan field
 TX_KEY_FUNC_PLAN_WINE = 979; //Plan wine
 TX_KEY_FUNC_ERASE_PLAN = 980; //Erase plan
+TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE = 982; //Select building/unit with same type 
 TX_KEY_FUNC_UNKNOWN = 903; //~~~ Unknown value
 TX_KEY_UNASSIGNABLE = 902; //F10, F11, Ctrl and Shift are unassignable
 TX_KEY_LMB = 904; //Left Mouse Button
