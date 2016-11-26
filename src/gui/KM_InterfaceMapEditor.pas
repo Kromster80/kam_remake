@@ -660,6 +660,32 @@ begin
     if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(5) else
     if fGuiMission.Visible then fGuiMission.ShowIndex(5);
 
+  // Build road/field/wine/cancel build
+  if Key = gResKeys[SC_PLAN_ROAD].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildRoad;
+  end;
+  if Key = gResKeys[SC_PLAN_FIELD].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildField;
+  end;
+  if Key = gResKeys[SC_PLAN_WINE].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildWine;
+  end;
+  if Key = gResKeys[SC_ERASE_PLAN].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildCancel;
+  end;
+
   //For undo/redo shortcuts
   if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);
 end;

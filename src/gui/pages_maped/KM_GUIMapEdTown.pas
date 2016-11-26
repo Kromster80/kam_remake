@@ -37,6 +37,7 @@ type
     function Visible: Boolean; overload;
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
+    property GuiHouses: TKMMapEdTownHouses read fGuiHouses;
   end;
 
 
