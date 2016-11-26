@@ -331,7 +331,8 @@ function TKMKeyLibrary.AllowKeySet(aArea: TKMFuncArea; aKey: Word): Boolean;
 begin
   // False if Key equals F10 or F11 (those are used by Delphi IDE when running an App from debugger)
   // or False if Key equals to Shift or Ctrl, which are used in game for specific bindings
-  Result := not (aKey in [16, 17, 121, 122]);
+  // or False if Key equals to Alt, which is not useful (game window lose focus after Alt was pressed)
+  Result := not (aKey in [16, 17, 18, 121, 122]);
 end;
 
 

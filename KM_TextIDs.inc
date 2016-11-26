@@ -300,7 +300,7 @@ TX_RESOURCES_ALL = 276; //All
 TX_RESOURCES_WARFARE = 277; //Warfare
 TX_RESOURCES_FOOD = 278; //Food
 
-TX_CREDITS_TEXT = 279; //JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+TX_CREDITS_TEXT = 279; //JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andrï¿½ Quaï¿½||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schï¿½fer|Jï¿½rgen Rebhann|Klaus Staendike|Steffen Schï¿½ngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schï¿½fer||MANUAL:|Peter Ohlmann|Uwe Schï¿½fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schï¿½fer|Ingrid Schï¿½fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mï¿½hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schï¿½fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schï¿½fer
 
 TX_MENU_MISSION_CANCELED = 280; //Mission canceled
 TX_MENU_REPLAY_ENDED = 281; //Replay ended
@@ -899,7 +899,7 @@ TX_KEY_FUNC_PLAN_WINE = 979; //Lay out wine field
 TX_KEY_FUNC_ERASE_PLAN = 980; //Remove building/highlights
 TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE = 982; //Select next house/unit with same type 
 TX_KEY_FUNC_UNKNOWN = 903; //~~~ Unknown value
-TX_KEY_UNASSIGNABLE = 902; //F10, F11, Ctrl and Shift are unassignable
+TX_KEY_UNASSIGNABLE = 902; //F10, F11, Alt, Ctrl and Shift are unassignable
 TX_KEY_LMB = 904; //Left Mouse Button
 TX_KEY_MMB = 905; //Middle Mouse Button
 TX_KEY_RMB = 906; //Right Mouse Button
