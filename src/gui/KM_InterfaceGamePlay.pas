@@ -2613,12 +2613,8 @@ begin
     Exit;
   end;
 
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
+  inherited KeyDown(Key, Shift);
+
     // As we don't have names for teams in SP we only allow showing team names in MP or MP replays
   if (Key = gResKeys[SC_SHOW_TEAMS].Key) then
     if (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
@@ -2649,6 +2645,8 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
+  inherited KeyUp(Key, Shift);
+
   if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
     if Button_ReplayPause.Enabled then
@@ -2658,14 +2656,6 @@ begin
   end;
 
   // These keys are allowed during replays
-  // Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
-  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
   if Key = gResKeys[SC_SHOW_TEAMS].Key   then fShowTeamNames := False;
   if Key = gResKeys[SC_BEACON].Key then
     if not SelectingTroopDirection then
@@ -2728,7 +2718,7 @@ begin
     else
       Selection_Select(SelectId);
 
-    // Menu shortcuts
+  // Menu shortcuts
   if Key = gResKeys[SC_MENU_BUILD].Key then
     if Button_Main[tbBuild].Enabled then
       SwitchPage(Button_Main[tbBuild]);

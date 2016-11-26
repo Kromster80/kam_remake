@@ -24,6 +24,8 @@ type
 
     function CursorToMapCoord(X, Y: Integer): TKMPointF;
 
+    procedure KeyDown(Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
 
     procedure SyncUI(aMoveViewport: Boolean = True); virtual;
@@ -137,7 +139,7 @@ const
 
 implementation
 uses
-  KM_Terrain, KM_RenderPool;
+  KM_Terrain, KM_RenderPool, KM_ResKeys;
 
 
 { TKMUserInterfaceGame }
@@ -157,6 +159,31 @@ begin
   FreeAndNil(fViewport);
   FreeAndNil(fRenderPool);
   Inherited;
+end;
+
+
+procedure TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  //Scrolling
+  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
+  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
+  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
+  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
+  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
+  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
+end;
+
+
+procedure TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState);
+begin
+  //Scrolling
+  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
+  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
+  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
+  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
+  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
+  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
+  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
 end;
 
 
