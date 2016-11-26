@@ -2280,8 +2280,8 @@ begin
   TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height - fFontHeight) div 2,
                       Width, fCaption, fFont, taCenter, FontColor);
 
-//  if (csOver in State) and fEnabled then
-//    TKMRenderUI.WriteShape(AbsLeft + 1, AbsTop + 1, Width - 2, Height - 2, $40FFFFFF);
+  if (csOver in State) and fEnabled then
+    TKMRenderUI.WriteShape(AbsLeft + 1, AbsTop + 1, Width - 2, Height - 2, $40FFFFFF);
 
   if (csDown in State) or Down then
     TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
