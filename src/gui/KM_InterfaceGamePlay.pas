@@ -2695,6 +2695,20 @@ begin
   if Key = gResKeys[SC_MENU_MENU].Key then
     SwitchPage(Button_Main[tbMenu]);
 
+  if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
+  begin
+    // Game speed/pause: Not available in multiplayer mode
+    if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, False);
+    if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
+    if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);
+    if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True);
+  end;
+
+  // All the following keys don't work in Replay, because they alter game state
+  // which is nonsense
+  // thus the easy way to make that is to exit now
+  if fUIMode = umReplay then Exit;
+
   // Field plans hotkeys
   if Button_Main[tbBuild].Enabled then
   begin
@@ -2726,20 +2740,6 @@ begin
       fGuiGameBuild.ErasePlan;
     end;
   end;
-
-  if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
-  begin
-    // Game speed/pause: Not available in multiplayer mode
-    if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, False);
-    if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
-    if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);
-    if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True);
-  end;
-
-  // All the following keys don't work in Replay, because they alter game state
-  // which is nonsense
-  // thus the easy way to make that is to exit now
-  if fUIMode = umReplay then Exit;
 
   // Messages
   if Key = gResKeys[SC_CENTER_ALERT].Key then
