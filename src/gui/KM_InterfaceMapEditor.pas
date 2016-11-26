@@ -53,6 +53,8 @@ type
     procedure PageChanged(Sender: TObject);
     procedure Player_ActiveClick(Sender: TObject);
     procedure Message_Click(Sender: TObject);
+    procedure Object_ChangePlayer_Click(Sender: TObject);
+    procedure Object_ChangePlayer(aOwner: TKMHandIndex);
 
     procedure Main_ButtonClick(Sender: TObject);
     procedure HidePages;
@@ -65,6 +67,7 @@ type
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
+    Button_ObjectChangePlayer: TKMFlatButton2TriangesShape;
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
 
@@ -140,11 +143,16 @@ begin
   TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + (I mod 8)*23, 208 + 23*(I div 8), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
+    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 6 + (I mod 6)*23, 208 + 23*(I div 6), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
     Button_PlayerSelect[I].Tag     := I;
     Button_PlayerSelect[I].OnClick := Player_ActiveClick;
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
+
+  Button_ObjectChangePlayer := TKMFlatButton2TriangesShape.Create(Panel_Main, 153, 215, 29, 29, '', fnt_Grey, DefaultTeamColors[0], DefaultTeamColors[1]);
+  Button_ObjectChangePlayer.Down := False;
+  Button_ObjectChangePlayer.OnClick := Object_ChangePlayer_Click;
+  Button_ObjectChangePlayer.Hint := 'Change player for object. Hold Shift for multiple objects'; // Todo - Put this into TX_ consts
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
@@ -420,6 +428,32 @@ begin
 end;
 
 
+// Change player for selected object
+procedure TKMapEdInterface.Object_ChangePlayer(aOwner: TKMHandIndex);
+var House: TKMHouse;
+begin
+  if (gMySpectator.Selected <> nil) then
+    begin
+      if gMySpectator.Selected is TKMHouse then
+      begin
+        House := TKMHouse(gMySpectator.Selected);
+        House.OwnerUpdate(aOwner, True);
+        gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+      end
+      else if gMySpectator.Selected is TKMUnit then
+        TKMUnit(gMySpectator.Selected).OwnerUpdate(aOwner, True)
+      else if gMySpectator.Selected is TKMUnitGroup then
+        TKMUnitGroup(gMySpectator.Selected).OwnerUpdate(aOwner, True);
+    end;
+end;
+
+
+procedure TKMapEdInterface.Object_ChangePlayer_Click(Sender: TObject);
+begin
+  Button_ObjectChangePlayer.Down := not Button_ObjectChangePlayer.Down;
+end;
+
+
 //Active player can be set either from buttons clicked or by selecting a unit or a house
 procedure TKMapEdInterface.Player_SetActive(aIndex: TKMHandIndex);
 var
@@ -494,6 +528,8 @@ begin
   //Reset cursor
   gGameCursor.Mode := cmNone;
   gGameCursor.Tag1 := 0;
+
+  Button_ObjectChangePlayer.Down := False;
 end;
 
 
@@ -812,18 +848,36 @@ begin
                   if gMySpectator.Selected is TKMHouse then
                   begin
                     HidePages;
+                    if Button_ObjectChangePlayer.Down then
+                    begin
+                      Object_ChangePlayer(gMySpectator.HandIndex);
+                      // Reset Change Player mode if Shift was not pressed
+                      Button_ObjectChangePlayer.Down :=  ssShift in gGameCursor.SState;
+                    end;
                     Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
                     fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
                   end;
                   if gMySpectator.Selected is TKMUnit then
                   begin
                     HidePages;
+                    if Button_ObjectChangePlayer.Down then
+                    begin
+                      Object_ChangePlayer(gMySpectator.HandIndex);
+                      // Reset Change Player mode if Shift was not pressed
+                      Button_ObjectChangePlayer.Down :=  ssShift in gGameCursor.SState;
+                    end;
                     Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
                   end;
                   if gMySpectator.Selected is TKMUnitGroup then
                   begin
                     HidePages;
+                    if Button_ObjectChangePlayer.Down then
+                    begin
+                      Object_ChangePlayer(gMySpectator.HandIndex);
+                      // Reset Change Player mode if Shift was not pressed
+                      Button_ObjectChangePlayer.Down :=  ssShift in gGameCursor.SState;
+                    end;
                     Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
                   end;

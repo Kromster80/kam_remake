@@ -102,7 +102,7 @@ type
 
     property GetPosition: TKMPoint read fPosition;
     procedure SetPosition(aPos: TKMPoint); //Used only by map editor
-    procedure OwnerUpdate(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
     function GetEntrance: TKMPoint;
     function GetClosestCell(aPos: TKMPoint): TKMPoint;
     function GetDistance(aPos: TKMPoint): Single;
@@ -675,8 +675,14 @@ begin
 end;
 
 
-procedure TKMHouse.OwnerUpdate(aOwner: TKMHandIndex);
+procedure TKMHouse.OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
 begin
+  if aUpdateOwnerList and (fOwner <> aOwner) then
+  begin
+    Assert(gGame.GameMode = gmMapEd); // Allow to move existing House directly only in MapEd
+    gHands[fOwner].Houses.DeleteHouseFromList(Self);
+    gHands[aOwner].Houses.AddHouseToList(Self);
+  end;
   fOwner := aOwner;
 end;
 

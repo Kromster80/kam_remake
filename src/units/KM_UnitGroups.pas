@@ -138,6 +138,8 @@ type
     property OrderTargetGroup: TKMUnitGroup read GetOrderTargetGroup;
     property OrderTargetHouse: TKMHouse read GetOrderTargetHouse write SetOrderTargetHouse;
 
+    procedure SetOwner(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
     procedure OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
     procedure OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean);
     procedure OrderFood(aClearOffenders: Boolean; aHungryOnly: Boolean = False);
@@ -170,6 +172,8 @@ type
 
     function AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup; overload;
     function AddGroup(aOwner: TKMHandIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup; overload;
+    procedure AddGroupToList(aGroup: TKMUnitGroup);
+    procedure DeleteGroupFromList(aGroup: TKMUnitGroup);
     procedure RemGroup(aGroup: TKMUnitGroup);
 
     property Count: Integer read GetCount;
@@ -961,6 +965,30 @@ begin
 end;
 
 
+procedure TKMUnitGroup.SetOwner(aOwner: TKMHandIndex);
+var I: Integer;
+begin
+  fOwner := aOwner;
+  for I := 0 to fMembers.Count - 1 do
+    TKMUnitWarrior(fMembers[I]).SetOwner(aOwner);
+end;
+
+
+procedure TKMUnitGroup.OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
+var I: Integer;
+begin
+  if aUpdateOwnerList and (fOwner <> aOwner) then
+  begin
+    Assert(gGame.GameMode = gmMapEd); // Allow to move existing Unit directly only in MapEd
+    gHands[fOwner].UnitGroups.DeleteGroupFromList(Self);
+    gHands[aOwner].UnitGroups.AddGroupToList(Self);
+  end;
+  fOwner := aOwner;
+  for I := 0 to fMembers.Count - 1 do
+    TKMUnitWarrior(fMembers[I]).OwnerUpdate(aOwner, aUpdateOwnerList);
+end;
+
+
 //All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
 procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
 var
@@ -1719,6 +1747,23 @@ begin
     fGroups.Add(Result)
   else
     FreeAndNil(Result);
+end;
+
+
+procedure TKMUnitGroups.AddGroupToList(aGroup: TKMUnitGroup);
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to add existing Group directly only in MapEd
+  if aGroup <> nil then
+    fGroups.Add(aGroup);
+end;
+
+
+procedure TKMUnitGroups.DeleteGroupFromList(aGroup: TKMUnitGroup);
+var I: Integer;
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to delete existing Group directly only in MapEd
+  if (aGroup <> nil) then
+    fGroups.Extract(aGroup);  // use Extract instead of Delete, cause Delete nils inner objects somehow
 end;
 
 

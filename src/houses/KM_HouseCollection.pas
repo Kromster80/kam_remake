@@ -18,6 +18,7 @@ type
     destructor Destroy; override;
     function AddHouse(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TKMHandIndex; RelativeEntrance: Boolean):TKMHouse;
     function AddHouseWIP(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TKMHandIndex): TKMHouse;
+    procedure AddHouseToList(aHouse: TKMHouse);
     property Count: Integer read GetCount;
     procedure OwnerUpdate(aOwner: TKMHandIndex);
     property Houses[aIndex: Integer]: TKMHouse read GetHouse; default;
@@ -32,6 +33,7 @@ type
     procedure SyncLoad;
     procedure IncAnimStep;
     procedure UpdateResRequest; //Change resource requested counts for all houses
+    procedure DeleteHouseFromList(aHouse: TKMHouse);
     procedure UpdateState;
     procedure Paint(aRect: TKMRect);
   end;
@@ -105,6 +107,24 @@ end;
 function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex): TKMHouse;
 begin
   Result := AddToCollection(aHouseType, PosX, PosY, aOwner, hbs_NoGlyph);
+end;
+
+
+procedure TKMHousesCollection.AddHouseToList(aHouse: TKMHouse);
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to add existing House directly only in MapEd
+  if (aHouse <> nil) then
+    fHouses.Add(aHouse);
+end;
+
+
+//Delete pointer to House in List
+procedure TKMHousesCollection.DeleteHouseFromList(aHouse: TKMHouse);
+var I: Integer;
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to delete existing House directly only in MapEd
+  if (aHouse <> nil) then
+    fHouses.Extract(aHouse);
 end;
 
 

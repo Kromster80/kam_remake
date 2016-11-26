@@ -153,6 +153,7 @@ type
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
     procedure SetOwner(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
     procedure HitPointsChangeFromScript(aAmount: Integer);
     procedure HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
     property HitPointsMax: Byte read GetHitPointsMax;
@@ -1263,6 +1264,18 @@ end;
 
 procedure TKMUnit.SetOwner(aOwner: TKMHandIndex);
 begin
+  fOwner := aOwner;
+end;
+
+
+procedure TKMUnit.OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
+begin
+  if aUpdateOwnerList and (fOwner <> aOwner) then
+  begin
+    Assert(gGame.GameMode = gmMapEd); // Allow to move existing Unit directly only in MapEd
+    gHands[fOwner].Units.DeleteUnitFromList(Self);
+    gHands[aOwner].Units.AddUnitToList(Self);
+  end;
   fOwner := aOwner;
 end;
 

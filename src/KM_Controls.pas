@@ -367,6 +367,21 @@ type
     procedure Paint; override;
   end;
 
+  {FlatButton with 2 color triangles on it}
+  TKMFlatButton2TriangesShape = class(TKMControl)
+  private
+    fCaption: UnicodeString;
+    fFont: TKMFont;
+    fFontHeight: Byte;
+  public
+    Down: Boolean;
+    FontColor: TColor4;
+    ShapeColor1 ,ShapeColor2: TColor4;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aShapeColor1, aShapeColor2: TColor4);
+    procedure Paint; override;
+  end;
+
+
   TAllowedChars = (
     acDigits, //Only 0..9 digits, for numeric input
     acANSI7, //#33..#126 - only basic latin chars and symbols for user nikname
@@ -2261,6 +2276,40 @@ begin
 
   //Shape within bevel
   TKMRenderUI.WriteShape(AbsLeft + 1, AbsTop + 1, Width - 2, Width - 2, ShapeColor);
+
+  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height - fFontHeight) div 2,
+                      Width, fCaption, fFont, taCenter, FontColor);
+
+//  if (csOver in State) and fEnabled then
+//    TKMRenderUI.WriteShape(AbsLeft + 1, AbsTop + 1, Width - 2, Height - 2, $40FFFFFF);
+
+  if (csDown in State) or Down then
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
+end;
+
+
+{TKMFlatButton2TriangesShape}
+constructor TKMFlatButton2TriangesShape.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aShapeColor1, aShapeColor2: TColor4);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  fCaption    := aCaption;
+  ShapeColor1  := aShapeColor1;
+  ShapeColor2  := aShapeColor2;
+  fFont       := aFont;
+  fFontHeight := gRes.Fonts[fFont].BaseHeight + 2;
+  FontColor   := $FFFFFFFF;
+end;
+
+
+procedure TKMFlatButton2TriangesShape.Paint;
+begin
+  inherited;
+
+  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
+
+  //Shape within bevel
+  TKMRenderUI.WritePolyShape([AbsLeft+1, AbsLeft+Width-2, AbsLeft+1], [AbsTop+1,AbsTop+1,AbsTop+Height-2], ShapeColor1);
+  TKMRenderUI.WritePolyShape([AbsLeft+1, AbsLeft+Width-2, AbsLeft+Width-2], [AbsTop+Height-2,AbsTop+1,AbsTop+Height-2], ShapeColor2);
 
   TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height - fFontHeight) div 2,
                       Width, fCaption, fFont, taCenter, FontColor);
