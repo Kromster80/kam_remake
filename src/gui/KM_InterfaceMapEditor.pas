@@ -152,7 +152,7 @@ begin
   Button_ObjectChangePlayer := TKMFlatButton2TriangesShape.Create(Panel_Main, 153, 215, 29, 29, '', fnt_Grey, DefaultTeamColors[0], DefaultTeamColors[1]);
   Button_ObjectChangePlayer.Down := False;
   Button_ObjectChangePlayer.OnClick := Object_ChangePlayer_Click;
-  Button_ObjectChangePlayer.Hint := 'Change player for object. Hold Shift for multiple objects'; // Todo - Put this into TX_ consts
+  Button_ObjectChangePlayer.Hint := 'Change team(player) for object. Hold Shift for multiple objects'; // Todo Translate
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
