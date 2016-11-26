@@ -6,38 +6,38 @@
 5:33// Zoom Out
 6:8// Reset Zoom
 7:27// Close Menu's
-8:77// Debug Show Map
-9:86// Debug Victory
-10:68// Debug Defeat
-11:67// Debug Add Scout
-12:112// Build Menu
-13:113// Ratio Menu
-14:114// Statistics Menu
-15:115// Main Menu
-16:72// Halt Command
-17:83// Splitup Command
-18:76// Linkup Command
-19:70// Food Command
-20:88// Storm Command
-21:187// Increase Formation
-22:189// Decrease Formation
-23:190// Turn Clockwise
-24:188// Turn Counterclockwise
-25:116// Normal Game Speed
-26:117// Game Speed x3
-27:118// Game Speed x6
-28:119// Game Speed x10
-29:66// Beacon
-30:80// Pause
-31:84// Show Teams (MP)
-32:32// Center to Alert
-33:46// Delete Message
-34:13// Show Game Chat (MP)
-35:0// Select building/unit with same type
-36:82// Plan road
-37:70// Plan field
-38:87// Plan wine
-39:69// Erase plan
+8:82// Construct road
+9:70// Plough field
+10:87// Lay out wine field
+11:68// Remove building/highlights
+12:77// Debug Show Map
+13:86// Debug Victory
+14:69// Debug Defeat
+15:67// Debug Add Scout
+16:112// Build Menu
+17:113// Ratio Menu
+18:114// Statistics Menu
+19:115// Main Menu
+20:72// Halt Command
+21:83// Splitup Command
+22:76// Linkup Command
+23:70// Food Command
+24:88// Storm Command
+25:187// Increase Formation
+26:189// Decrease Formation
+27:190// Turn Clockwise
+28:188// Turn Counterclockwise
+29:116// Normal Game Speed
+30:117// Game Speed x3
+31:118// Game Speed x6
+32:119// Game Speed x10
+33:66// Beacon
+34:80// Pause
+35:84// Show Teams (MP)
+36:32// Center to Alert
+37:46// Delete Message
+38:13// Show Game Chat (MP)
+39:0// Select next house/unit with same type
 40:49// Select Group 1
 41:50// Select Group 2
 42:51// Select Group 3

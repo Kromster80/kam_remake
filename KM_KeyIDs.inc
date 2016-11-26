@@ -9,45 +9,45 @@ SC_ZOOM_RESET = 6; //Reset Zoom
 
 SC_CLOSE_MENU = 7; //Close opened menu
 
-SC_DEBUG_REVEALMAP = 8; //Debug Menu Reveal Map
-SC_DEBUG_VICTORY = 9; //Debug Menu Victory
-SC_DEBUG_DEFEAT = 10; //Debug Menu Defeat
-SC_DEBUG_ADDSCOUT = 11; //Debug Menu Add Scout
+SC_PLAN_ROAD = 8; //Plan road
+SC_PLAN_FIELD = 9; //Plan field
+SC_PLAN_WINE = 10; //Plan wine
+SC_ERASE_PLAN = 11; //Erase plan
 
-SC_MENU_BUILD = 12; //Build Menu
-SC_MENU_RATIO = 13; //Ratio Menu
-SC_MENU_STATS = 14; //Stats Menu
-SC_MENU_MENU = 15; //Main Menu
+SC_DEBUG_REVEALMAP = 12; //Debug Menu Reveal Map
+SC_DEBUG_VICTORY = 13; //Debug Menu Victory
+SC_DEBUG_DEFEAT = 14; //Debug Menu Defeat
+SC_DEBUG_ADDSCOUT = 15; //Debug Menu Add Scout
 
-SC_ARMY_HALT = 16; //Halt Command
-SC_ARMY_SPLIT = 17; //Split up Command
-SC_ARMY_LINK = 18; //Linkup Command
-SC_ARMY_FOOD = 19; //Food Command
-SC_ARMY_STORM = 20; //Storm Command
-SC_ARMY_ADD_LINE = 21; //Formation Increase Line Command
-SC_ARMY_DEL_LINE = 22; //Formation Shrink Line Command
-SC_ARMY_ROTATE_CW = 23; //Turn Right Command
-SC_ARMY_ROTATE_CCW = 24; //Turn Left Command
+SC_MENU_BUILD = 16; //Build Menu
+SC_MENU_RATIO = 17; //Ratio Menu
+SC_MENU_STATS = 18; //Stats Menu
+SC_MENU_MENU = 19; //Main Menu
 
-SC_SPEEDUP_1 = 25; //Speed up 1
-SC_SPEEDUP_2 = 26; //Speed up 2
-SC_SPEEDUP_3 = 27; //Speed up 3
-SC_SPEEDUP_4 = 28; //Speed up 4
+SC_ARMY_HALT = 20; //Halt Command
+SC_ARMY_SPLIT = 21; //Split up Command
+SC_ARMY_LINK = 22; //Linkup Command
+SC_ARMY_FOOD = 23; //Food Command
+SC_ARMY_STORM = 24; //Storm Command
+SC_ARMY_ADD_LINE = 25; //Formation Increase Line Command
+SC_ARMY_DEL_LINE = 26; //Formation Shrink Line Command
+SC_ARMY_ROTATE_CW = 27; //Turn Right Command
+SC_ARMY_ROTATE_CCW = 28; //Turn Left Command
 
-SC_BEACON = 29; //Beacon
-SC_PAUSE = 30; //Pause
-SC_SHOW_TEAMS = 31; //Show teams in MP
+SC_SPEEDUP_1 = 29; //Speed up 1
+SC_SPEEDUP_2 = 30; //Speed up 2
+SC_SPEEDUP_3 = 31; //Speed up 3
+SC_SPEEDUP_4 = 32; //Speed up 4
 
-SC_CENTER_ALERT = 32; //Center to alert
-SC_DELETE_MSG = 33; //Delete message
-SC_CHAT_MP = 34; //Show the chat
+SC_BEACON = 33; //Beacon
+SC_PAUSE = 34; //Pause
+SC_SHOW_TEAMS = 35; //Show teams in MP
 
-SC_NEXT_BLD_UNIT_SAME_TYPE = 35; //Select next building/unit with same type 
+SC_CENTER_ALERT = 36; //Center to alert
+SC_DELETE_MSG = 37; //Delete message
+SC_CHAT_MP = 38; //Show the chat
 
-SC_PLAN_ROAD = 36; //Plan road
-SC_PLAN_FIELD = 37; //Plan field
-SC_PLAN_WINE = 38; //Plan wine
-SC_ERASE_PLAN = 39; //Erase plan
+SC_NEXT_BLD_UNIT_SAME_TYPE = 39; //Select next building/unit with same type 
 
 SC_SELECT_1 = 40; //Select 1
 SC_SELECT_2 = 41; //Select 2

@@ -926,9 +926,9 @@
 974:Select Group 18
 975:Select Group 19
 976:Select Group 20
-977:Plan road
-978:Plan field
-979:Plan wine
-980:Erase plan
+977:Construct road
+978:Plough field
+979:Lay out wine field
+980:Remove building/highlights
 981:Clear key
-982:Select building/unit with same type
+982:Select next house/unit with same type
