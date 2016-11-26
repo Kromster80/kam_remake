@@ -2453,10 +2453,7 @@ begin
   if gMySpectator.Selected is TKMUnit then
     begin
 
-      repeat
-        NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
-      until (NextUnit = nil) or not NextUnit.IsDeadOrDying; // Try to find next unit which is not dead or dying
-
+      NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
       if NextUnit <> nil then
       begin
         gMySpectator.Selected := NextUnit;
@@ -2468,10 +2465,7 @@ begin
     end else if gMySpectator.Selected is TKMHouse then
     begin
 
-      repeat
-        NextHouse := gHands.GetNextHouseWSameType(TKMHouse(gMySpectator.Selected));
-      until (NextHouse = nil) or not NextHouse.IsDestroyed; // Try to find next house which is not destroyed
-
+      NextHouse := gHands.GetNextHouseWSameType(TKMHouse(gMySpectator.Selected));
       if NextHouse <> nil then
       begin
         gMySpectator.Selected := NextHouse;
@@ -2481,10 +2475,7 @@ begin
     end else if gMySpectator.Selected is TKMUnitGroup then
     begin
 
-      repeat
-        NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
-      until (NextUnitGroup = nil) or not NextUnitGroup.IsDead; // Try to find next unit group which is not dead
-
+      NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
       if NextUnitGroup <> nil then
       begin
         gMySpectator.Selected := NextUnitGroup;
