@@ -41,9 +41,9 @@ type
     fChartCapacity: Integer;
     fChartHouses: TKMCardinalArray;
     fChartCitizens: TKMCardinalArray;
-    fChartArmy: array [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] of TKMCardinalArray;
-    fChartArmyTotal: array [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] of TKMCardinalArray;
-    fArmyEmpty: array [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] of Boolean;
+    fChartArmy: array [WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
+    fChartArmyTotal: array [WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
+    fArmyEmpty: array [WARRIOR_MIN..WARRIOR_MAX] of Boolean;
     fChartWares: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
 
     Houses: array [THouseType] of THouseStats;
@@ -135,11 +135,12 @@ const
     (4, 5, 3, 0)
   );
 
-  WARRIORS_POWER_RATES: array [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] of Byte = (
-    2, 5, 9,    // ut_Militia, ut_AxeFighter, ut_Swordsman
-    4, 7,         // ut_Bowman, ut_Arbaletman
-    4, 7,         // ut_Pikeman, ut_Hallebardman
-    6, 10            // ut_HorseScout, ut_Cavalry
+  WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Byte = (
+    2, 5, 9,        // ut_Militia, ut_AxeFighter, ut_Swordsman
+    4, 7,           // ut_Bowman, ut_Arbaletman
+    4, 7,           // ut_Pikeman, ut_Hallebardman
+    6, 10,          // ut_HorseScout, ut_Cavalry
+    10, 3, 3, 10, 5 // ut_Barbarian, ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman
   );
 
 
@@ -154,7 +155,7 @@ begin
   for I := 1 to 4 do for K := 1 to 4 do
     fResourceRatios[I, K] := DistributionDefaults[I, K];
 
-  for WT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+  for WT := WARRIOR_MIN to WARRIOR_MAX do
     fArmyEmpty[WT] := True;
 end;
 
@@ -369,7 +370,7 @@ begin
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
                   if aType = ut_Recruit then
-                    for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                    for UT := WARRIOR_MIN to WARRIOR_MAX do
                       dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
                 end;
   end;
@@ -409,7 +410,7 @@ function TKMHandStats.GetArmyCount: Integer;
 var UT: TUnitType;
 begin
   Result := 0;
-  for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+  for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, GetUnitQty(UT));
 end;
 
@@ -522,7 +523,7 @@ function TKMHandStats.GetWarriorsTrained: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
-  for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+  for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, Units[UT].Trained);
 end;
 
@@ -537,7 +538,7 @@ function TKMHandStats.GetWarriorsLost: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
-  for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+  for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, Units[UT].Lost);
 end;
 
@@ -546,7 +547,7 @@ function TKMHandStats.GetWarriorsKilled: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
-  for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+  for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, Units[UT].Killed);
 end;
 
@@ -634,13 +635,13 @@ var
   I: Integer;
 begin
   case aWarrior of
-    WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX: Result := fChartArmy[aWarrior];
+    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmy[aWarrior];
     ut_Any:                   begin
                                 //Create new array and fill it (otherwise we assign pointers and corrupt data)
                                 SetLength(Result, fChartCount);
                                 for I := 0 to fChartCount - 1 do
                                   Result[I] := 0;
-                                for WT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                                for WT := WARRIOR_MIN to WARRIOR_MAX do
                                   for I := 0 to fChartCount - 1 do
                                     Result[I] := Result[I] + fChartArmy[WT][I];
                               end;
@@ -649,7 +650,7 @@ begin
                                 SetLength(Result, fChartCount);
                                 for I := 0 to fChartCount - 1 do
                                   Result[I] := 0;
-                                for WT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                                for WT := WARRIOR_MIN to WARRIOR_MAX do
                                   for I := 0 to fChartCount - 1 do
                                     Result[I] := Result[I] + fChartArmy[WT][I]*WARRIORS_POWER_RATES[WT];
                               end;
@@ -669,13 +670,13 @@ var
   WT: TUnitType;
 begin
   case aWarrior of
-    WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX: Result := fChartArmyTotal[aWarrior];
+    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmyTotal[aWarrior];
     ut_Any:                   begin
                                 //Create new array and fill it (otherwise we assign pointers and corrupt data)
                                 SetLength(Result, fChartCount);
                                 for I := 0 to fChartCount - 1 do
                                   Result[I] := 0;
-                                for WT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                                for WT := WARRIOR_MIN to WARRIOR_MAX do
                                   for I := 0 to fChartCount - 1 do
                                     Result[I] := Result[I] + fChartArmyTotal[WT][I];
                               end;
@@ -684,7 +685,7 @@ begin
                                 SetLength(Result, fChartCount);
                                 for I := 0 to fChartCount - 1 do
                                   Result[I] := 0;
-                                for WT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                                for WT := WARRIOR_MIN to WARRIOR_MAX do
                                   for I := 0 to fChartCount - 1 do
                                     Result[I] := Result[I] + fChartArmyTotal[WT][I]*WARRIORS_POWER_RATES[WT];
                               end;
@@ -733,12 +734,12 @@ var
   WT: TUnitType;
 begin
   case aWarrior of
-    WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX:
+    WARRIOR_MIN..WARRIOR_MAX:
                         Result := (fChartCount = 0) or (fArmyEmpty[aWarrior]);
     ut_Any,ut_ArmyPower:begin
                           Result := True;
                           if fChartCount > 0 then
-                            for WT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                            for WT := WARRIOR_MIN to WARRIOR_MAX do
                               if not fArmyEmpty[WT] then
                               begin
                                 Result := False;
@@ -769,7 +770,7 @@ begin
 
     for R := WARE_MIN to WARE_MAX do
       SaveStream.Write(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
-    for W := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+    for W := WARRIOR_MIN to WARRIOR_MAX do
     begin
       SaveStream.Write(fChartArmy[W][0], SizeOf(fChartArmy[W][0]) * fChartCount);
       SaveStream.Write(fChartArmyTotal[W][0], SizeOf(fChartArmyTotal[W][0]) * fChartCount);
@@ -802,7 +803,7 @@ begin
       SetLength(fChartWares[I], fChartCount);
       LoadStream.Read(fChartWares[I][0], SizeOf(fChartWares[I][0]) * fChartCount);
     end;
-    for J := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+    for J := WARRIOR_MIN to WARRIOR_MAX do
     begin
       SetLength(fChartArmy[J], fChartCount);
       LoadStream.Read(fChartArmy[J][0], SizeOf(fChartArmy[J][0]) * fChartCount);
@@ -831,7 +832,7 @@ begin
     SetLength(fChartCitizens, fChartCapacity);
     for I := WARE_MIN to WARE_MAX do
       SetLength(fChartWares[I], fChartCapacity);
-    for J := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+    for J := WARRIOR_MIN to WARRIOR_MAX do
     begin
       SetLength(fChartArmy[J], fChartCapacity);
       SetLength(fChartArmyTotal[J], fChartCapacity);
@@ -848,7 +849,7 @@ begin
   for I := WARE_MIN to WARE_MAX do
     fChartWares[I, fChartCount] := Wares[I].Produced;
 
-  for J := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+  for J := WARRIOR_MIN to WARRIOR_MAX do
   begin
     ArmyQty := GetUnitQty(J);
     fChartArmy[J, fChartCount] := ArmyQty;
@@ -856,7 +857,7 @@ begin
       fArmyEmpty[J] := False;
   end;
 
-  for J := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+  for J := WARRIOR_MIN to WARRIOR_MAX do
   begin
     ArmyQty := GetWarriorsTotal(J);
     fChartArmyTotal[J, fChartCount] := ArmyQty;

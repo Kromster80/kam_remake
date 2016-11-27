@@ -80,11 +80,13 @@ const
   PANES_TOP = 185;
   BAR_ROW_HEIGHT = 22;
 
-const WARRIORS_CHARTS: array [0..10] of TUnitType = (
+const WARRIORS_CHARTS: array [0..15] of TUnitType = (
     ut_Any, ut_ArmyPower,
-    ut_Militia,      ut_AxeFighter,   ut_Swordsman,     ut_Bowman,
-    ut_Arbaletman,   ut_Pikeman,      ut_Hallebardman,  ut_HorseScout,
-    ut_Cavalry);
+    ut_Militia, ut_AxeFighter, ut_Swordsman,
+    ut_Bowman, ut_Arbaletman,
+    ut_Pikeman, ut_Hallebardman,
+    ut_HorseScout, ut_Cavalry,
+    ut_Barbarian, ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman);
 
 
 { TKMGUIMenuResultsMP }
@@ -210,10 +212,12 @@ begin
 
     Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 
+    TKMLabel.Create(Panel_ChartsArmy, 755, 355, 'Number of warriors:', fnt_Metal, taLeft); // Todo translate
+
     Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartsArmy,755,375,150,40,fnt_Grey);
     Radio_ChartArmyStyle.ItemIndex := 0;
-    Radio_ChartArmyStyle.Add(gResTexts[TX_RADIO_ARMY_CURRENT]);
-    Radio_ChartArmyStyle.Add(gResTexts[TX_RADIO_ARMY_TOTAL]);
+    Radio_ChartArmyStyle.Add('At the moment');  // Todo translate
+    Radio_ChartArmyStyle.Add('In total');       // Todo translate
     Radio_ChartArmyStyle.OnChange := RadioArmyStyleChange;
 end;
 
@@ -663,12 +667,12 @@ begin
     Chart_MPArmy[WType].Clear;
     Chart_MPArmy[WType].MaxLength := 0;
     Chart_MPArmy[WType].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPArmy[WType].Caption := gResTexts[TX_GRAPH_TITLE_ARMY_CURRENT] + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName;
+    Chart_MPArmy[WType].Caption := 'Army at the moment' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
 
     Chart_MPArmyTotal[WType].Clear;
     Chart_MPArmyTotal[WType].MaxLength := 0;
     Chart_MPArmyTotal[WType].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPArmyTotal[WType].Caption := gResTexts[TX_GRAPH_TITLE_ARMY_TOTAL] + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName;
+    Chart_MPArmyTotal[WType].Caption := 'Army in total' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
 
     for I := 0 to gHands.Count - 1 do
       with gHands[I] do

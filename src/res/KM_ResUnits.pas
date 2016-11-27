@@ -49,6 +49,7 @@ type
     function IsAnimal: Boolean;
     function IsCitizen: Boolean;
     function IsWarrior: Boolean;
+    function IsWarriorEquipable: Boolean;
     function GetDefenceVsProjectiles(aIsBolt: Boolean): Single;
     procedure LoadFromStream(Stream: TMemoryStream);
     //Derived from KaM
@@ -188,6 +189,12 @@ end;
 
 function TKMUnitDatClass.IsWarrior: boolean;
 begin
+  Result := fUnitType in [WARRIOR_MIN..WARRIOR_MAX];
+end;
+
+
+function TKMUnitDatClass.IsWarriorEquipable: boolean;
+begin
   Result := fUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX];
 end;
 
@@ -296,10 +303,13 @@ begin
   case fUnitType of
     ut_None, ut_Any:  Result := 0;
     ut_ArmyPower:     Result := 53;
+    ut_Barbarian:     Result := 70;
     else              if IsCitizen then
                         Result := 141 + UnitTypeToIndex[fUnitType]
-                      else if isWarrior then
-                        Result := 47 + UnitTypeToIndex[fUnitType];
+                      else if IsWarriorEquipable then
+                        Result := 47 + UnitTypeToIndex[fUnitType]
+                      else if IsWarrior then
+                        Result := 55 + UnitTypeToIndex[fUnitType]
   end;
 end;
 
@@ -380,8 +390,8 @@ end;
 function TKMUnitDatClass.GetUnitName: UnicodeString;
 begin
   case fUnitType of
-    ut_Any:             Result := gResTexts[TX_RESOURCES_ALL]; //Resourse_ALL is just 'ALL', so we can reuse it here
-    ut_ArmyPower:       Result := gResTexts[TX_ARMY_POWER];
+    ut_Any:             Result := 'All'; //Resourse_ALL is just 'ALL', so we can reuse it here //Todo translate
+    ut_ArmyPower:       Result := 'Army power'; //Todo translate
     ut_None:            Result := 'N/A';
     else                Result := gResTexts[GetUnitTextID];
   end;
