@@ -1457,6 +1457,7 @@ end;
 procedure TKMGame.UpdateGame(Sender: TObject);
 var
   I: Integer;
+  PeaceTicksRemaining: Cardinal;
 begin
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
@@ -1481,9 +1482,9 @@ begin
                       if (fGameMode in [gmMulti, gmMultiSpectate]) then
                         fNetworking.LastProcessedTick := fGameTickCount;
                       //Tell the master server about our game on the specific tick (host only)
-                      if (fGameMode in [gmMulti, gmMultiSpectate]) and fNetworking.IsHost and (
-                         ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
-                         ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
+                      if (fGameMode in [gmMulti, gmMultiSpectate]) and fNetworking.IsHost
+                      and (((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP))
+                      or ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fGameMapCRC, fNetworking.NetPlayers.GetConnectedCount);
 
                       fScripting.UpdateState;
@@ -1561,7 +1562,23 @@ begin
                     end;
 
                     //Break the for loop (if we are using speed up)
-                    if DoGameHold then break;
+                    if DoGameHold then
+                      Break;
+
+                    PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
+
+                    if (PeaceTicksRemaining = 1)
+                    and (fGameMode = gmReplayMulti)
+                    and (gGameApp.GameSettings.ReplayAutopause) then
+                    begin
+                      fIsPaused := True;
+                      //Set replay UI to paused state, sync replay timer and other UI elements
+                      fGamePlayInterface.SetButtons(False);
+                      fGamePlayInterface.UpdateState(fGameTickCount);
+                      //Break the for loop
+                      Break;
+                    end;
+
                   end;
     gmMapEd:   begin
                   gTerrain.IncAnimStep;
