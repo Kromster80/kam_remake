@@ -226,16 +226,17 @@ begin
     end;
 
     //Army
-    for W := WARRIOR_MIN to WARRIOR_MAX do
-    begin
-      G := gHands[HumanId].Stats.ChartArmy[W];
-      for I := 0 to High(G) do
-        if G[I] <> 0 then
-        begin
-          Chart_Army.AddLine(gRes.UnitDat.UnitsDat[W].GUIName, gRes.UnitDat.UnitsDat[W].MinimapColor or $FF000000, G);
-          Break;
-        end;
-    end;
+    TempGraphCount := 0; //Reset
+    for I := 0 to gHands.Count - 1 do
+    with gHands[I] do
+      if HandType = hndComputer then
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[ut_Any])
+      else
+        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[ut_Any]);
+
+    if ShowAIResults then
+      for I := 0 to TempGraphCount - 1 do
+        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
     Button_ResultsHouses.Enabled := (gGame.MissionMode = mm_Normal);
     Button_ResultsCitizens.Enabled := (gGame.MissionMode = mm_Normal);
