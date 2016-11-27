@@ -1163,18 +1163,17 @@ begin
   Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 160, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
   Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MISSION];
   Button_Menu_Quit.OnClick := SwitchPage;
-  Button_Menu_TrackUp := TKMButton.Create(Panel_Menu, 150, 300, 30, 30, '>', bsGame);
-  Button_Menu_TrackDown := TKMButton.Create(Panel_Menu, 0, 300, 30, 30, '<', bsGame);
+  Button_Menu_TrackUp := TKMButton.Create(Panel_Menu, 160, 300, 20, 30, '>', bsGame);
+  Button_Menu_TrackDown := TKMButton.Create(Panel_Menu, 0, 300, 20, 30, '<', bsGame);
   Button_Menu_TrackUp.Hint := gResTexts[TX_MUSIC_NEXT_HINT];
   Button_Menu_TrackDown.Hint := gResTexts[TX_MUSIC_PREV_HINT];
   Button_Menu_TrackUp.OnClick := Menu_NextTrack;
   Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
   TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Metal, taCenter);
-  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 33, 305, TB_WIDTH - 66, 30, '', fnt_Grey, taCenter);
-  Label_Menu_Track.AutoWrap := True;
+  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 23, 306, TB_WIDTH - 46, 30, '', fnt_Grey, taCenter);
   Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
   Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 20, '', fnt_Outline, taCenter);
-  Label_MapName := TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 20, '', fnt_Outline, taCenter);
+  Label_MapName := TKMLabel.Create(Panel_Menu, -3, 240, TB_WIDTH + 3, 20, '', fnt_Outline, taCenter);
 end;
 
 
@@ -1965,8 +1964,13 @@ begin
   else
     Label_Menu_Track.Caption := gGameApp.MusicLib.GetTrackTitle;
 
+  Label_Menu_Track.AutoWrap := Length(Label_Menu_Track.Caption) > MAX_TRACKNAME_LENGTH;
+  Label_Menu_Track.Top := IfThen(Label_Menu_Track.AutoWrap, 301, 306);
+  Button_Menu_TrackUp.Height := IfThen(Label_Menu_Track.AutoWrap, 38, 30);
+  Button_Menu_TrackDown.Height := IfThen(Label_Menu_Track.AutoWrap, 38, 30);
+
   Label_GameTime.Caption := Format(gResTexts[TX_GAME_TIME], [TimeToString(gGame.MissionTime)]);
-  Label_MapName.Caption := 'Map:|' + gGame.GameName;// TODO Translate, use Format(gResTexts[TX_GAME_MAP], [gGame.GameName]) then
+  Label_MapName.Caption := 'Map:|' + Copy(gGame.GameName, 0, EnsureRange(Length(gGame.GameName), 1, MAX_MAPNAME_LENGTH));// TODO Translate, use Format(gResTexts[TX_GAME_MAP], [gGame.GameName]) then
 
   Label_Menu_Track.Enabled      := not gGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not gGameApp.GameSettings.MusicOff;
