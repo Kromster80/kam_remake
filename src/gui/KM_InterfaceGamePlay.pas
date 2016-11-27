@@ -1965,7 +1965,7 @@ begin
     Label_Menu_Track.Caption := gGameApp.MusicLib.GetTrackTitle;
 
   Label_GameTime.Caption := Format(gResTexts[TX_GAME_TIME], [TimeToString(gGame.MissionTime)]);
-  Label_MapName.Caption := Format(gResTexts[TX_GAME_MAP], [gGame.GameName]);
+  Label_MapName.Caption := 'Map:|' + gGame.GameName;// TODO Translate, use Format(gResTexts[TX_GAME_MAP], [gGame.GameName]) then
 
   Label_Menu_Track.Enabled      := not gGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not gGameApp.GameSettings.MusicOff;
