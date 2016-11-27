@@ -567,23 +567,23 @@ begin
 end;
 
 
-//Everything except weapons and horses
+//Everything except weapons
 function TKMHandStats.GetCivilProduced: Cardinal;
 var RT: TWareType;
 begin
   Result := 0;
   for RT := WARE_MIN to WARE_MAX do
-  if not (RT in [WARFARE_MIN..WARFARE_MAX]) then
+  if not (RT in [WEAPON_MIN..WEAPON_MAX]) then
     Inc(Result, Wares[RT].Produced);
 end;
 
 
-//KaM includes all weapons and armor, and horses
+//KaM includes all weapons and armor, but not horses
 function TKMHandStats.GetWeaponsProduced: Cardinal;
 var RT: TWareType;
 begin
   Result := 0;
-  for RT := WARFARE_MIN to WARFARE_MAX do
+  for RT := WEAPON_MIN to WEAPON_MAX do
     Inc(Result, Wares[RT].Produced);
 end;
 
