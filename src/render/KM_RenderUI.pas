@@ -26,7 +26,7 @@ type
     class procedure WritePlot         (aLeft, aTop, aWidth, aHeight: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; aLineWidth: Byte);
     class procedure WriteOutline      (aLeft, aTop, aWidth, aHeight, aLineWidth: SmallInt; Col: TColor4);
     class procedure WriteShape        (aLeft, aTop, aWidth, aHeight: SmallInt; Col: TColor4; Outline: TColor4 = $00000000);
-    class procedure WritePolyShape    (aX, aY: array of Integer; aColor: TColor4);
+    class procedure WritePolyShape    (aPoints: array of TKMPoint; aColor: TColor4);
     class procedure WriteLine         (aFromX, aFromY, aToX, aToY: Single; aCol: TColor4; aPattern: Word = $FFFF);
     class procedure WriteText         (aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
     class procedure WriteTexture      (aLeft, aTop, aWidth, aHeight: SmallInt; aTexture: TTexture; aCol: TColor4);
@@ -410,15 +410,15 @@ begin
 end;
 
 
-//Renders plane with given color and optional 1px outline
-class procedure TKMRenderUI.WritePolyShape(aX, aY: array of Integer; aColor: TColor4);
+//Renders polygon shape with given color
+class procedure TKMRenderUI.WritePolyShape(aPoints: array of TKMPoint; aColor: TColor4);
 var I: Integer;
 begin
   glColor4ubv(@aColor);
   glBegin(GL_POLYGON);
-    for I := 0 to High(aX) do
+    for I := 0 to High(aPoints) do
     begin
-      glVertex2f(aX[I], aY[I]);
+      glVertex2f(aPoints[I].X, aPoints[I].Y);
     end;
   glEnd;
 end;

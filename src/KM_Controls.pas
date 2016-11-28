@@ -2308,8 +2308,8 @@ begin
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
 
   //Shape within bevel
-  TKMRenderUI.WritePolyShape([AbsLeft+1, AbsLeft+Width-2, AbsLeft+1], [AbsTop+1,AbsTop+1,AbsTop+Height-2], ShapeColor1);
-  TKMRenderUI.WritePolyShape([AbsLeft+1, AbsLeft+Width-2, AbsLeft+Width-2], [AbsTop+Height-2,AbsTop+1,AbsTop+Height-2], ShapeColor2);
+  TKMRenderUI.WritePolyShape([KMPoint(AbsLeft+1, AbsTop+1), KMPoint(AbsLeft+Width-2, AbsTop+1), KMPoint(AbsLeft+1, AbsTop+Height-2)], ShapeColor1);
+  TKMRenderUI.WritePolyShape([KMPoint(AbsLeft+1, AbsTop+Height-2), KMPoint(AbsLeft+Width-2, AbsTop+1), KMPoint(AbsLeft+Width-2, AbsTop+Height-2)], ShapeColor2);
 
   TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height - fFontHeight) div 2,
                       Width, fCaption, fFont, taCenter, FontColor);
