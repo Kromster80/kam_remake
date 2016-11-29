@@ -1003,6 +1003,10 @@ begin
     //Starting location
     if (Sender = DropBox_LobbyLoc[I]) and DropBox_LobbyLoc[I].Enabled then
     begin
+      // We can still have cmSpectate chat mode if we were in specs. Reset to cmAll in this case
+      if (DropBox_LobbyLoc[I].GetSelectedTag <> LOC_SPECTATE) and (fChatMode = cmSpectators) then
+        ChatMenuSelect(-1);
+      
       fNetworking.SelectLoc(DropBox_LobbyLoc[I].GetSelectedTag, NetI);
       //Host with HostDoesSetup could have given us some location we don't know about
       //from a map/save we don't have, so make sure SelectGameKind is valid
