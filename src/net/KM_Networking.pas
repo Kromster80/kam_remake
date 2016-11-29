@@ -634,8 +634,13 @@ begin
   if Assigned(fOnGameOptions) then fOnGameOptions(Self);
 
   fSelectGameKind := ngk_Save;
+
+  fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); // host's index can change when players are removed
+  fHostIndex := fMyIndex;
+  // Set ReadyToStart and HasMapOrSave with updated fMyIndex
   fNetPlayers[fMyIndex].ReadyToStart := True;
   fNetPlayers[fMyIndex].HasMapOrSave := True;
+
   //Randomise locations within team is disabled for saves
   NetPlayers.RandomizeTeamLocations := False;
   fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
