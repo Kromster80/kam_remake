@@ -78,6 +78,7 @@ type
     fAlphaShadows: Boolean;
     fLoadFullFonts: Boolean;
     fLocale: AnsiString;
+    fMute: Boolean;
     fMusicOff: Boolean;
     fShuffleOn: Boolean;
     fMusicVolume: Single;
@@ -107,6 +108,7 @@ type
     procedure SetAlphaShadows(aValue: Boolean);
     procedure SetLoadFullFonts(aValue: Boolean);
     procedure SetLocale(aLocale: AnsiString);
+    procedure SetMute(aValue: Boolean);
     procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
@@ -142,6 +144,7 @@ type
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
     property LoadFullFonts: Boolean read fLoadFullFonts write SetLoadFullFonts;
     property Locale: AnsiString read fLocale write SetLocale;
+    property Mute: Boolean read fMute write SetMute;
     property MusicOff: Boolean read fMusicOff write SetMusicOff;
     property ShuffleOn: Boolean read fShuffleOn write SetShuffleOn;
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
@@ -347,10 +350,11 @@ begin
     fSpeedFast      := F.ReadFloat('Game', 'SpeedFast',      6);
     fSpeedVeryFast  := F.ReadFloat('Game', 'SpeedVeryFast',  10);
 
-    fSoundFXVolume  := F.ReadFloat  ('SFX',  'SFXVolume',      0.5);
-    fMusicVolume    := F.ReadFloat  ('SFX',  'MusicVolume',    0.5);
-    fMusicOff       := F.ReadBool   ('SFX',  'MusicDisabled',  False);
-    fShuffleOn      := F.ReadBool   ('SFX',  'ShuffleEnabled', False);
+    fSoundFXVolume  := F.ReadFloat  ('SFX', 'SFXVolume',      0.5);
+    fMusicVolume    := F.ReadFloat  ('SFX', 'MusicVolume',    0.5);
+    fMute           := F.ReadBool   ('SFX', 'Mute',           False);
+    fMusicOff       := F.ReadBool   ('SFX', 'MusicDisabled',  False);
+    fShuffleOn      := F.ReadBool   ('SFX', 'ShuffleEnabled', False);
 
     if INI_HITPOINT_RESTORE then
       HITPOINT_RESTORE_PACE := F.ReadInteger('Fights', 'HitPointRestorePace', DEFAULT_HITPOINT_RESTORE)
@@ -403,6 +407,7 @@ begin
 
     F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
     F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
+    F.WriteBool   ('SFX','Mute',          fMute);
     F.WriteBool   ('SFX','MusicDisabled', fMusicOff);
     F.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
 
@@ -544,6 +549,13 @@ end;
 procedure TGameSettings.SetMusicVolume(aValue: Single);
 begin
   fMusicVolume := EnsureRange(aValue, 0, 1);
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMute(aValue: Boolean);
+begin
+  fMute := aValue;
   Changed;
 end;
 

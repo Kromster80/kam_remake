@@ -119,8 +119,8 @@ begin
     //pauses here until the user clicks ok.
     MessageDlg(gResTexts[TX_GAME_ERROR_OLD_OPENGL] + EolW + EolW + gResTexts[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
-  gSoundPlayer  := TKMSoundPlayer.Create(fGameSettings.SoundFXVolume);
-  fMusicLib     := TKMMusicLib.Create(fGameSettings.MusicVolume);
+  gSoundPlayer  := TKMSoundPlayer.Create(IfThen(fGameSettings.Mute, 0, fGameSettings.SoundFXVolume));
+  fMusicLib     := TKMMusicLib.Create(IfThen(fGameSettings.Mute, 0, fGameSettings.MusicVolume));
   gSoundPlayer.OnRequestFade   := fMusicLib.FadeMusic;
   gSoundPlayer.OnRequestUnfade := fMusicLib.UnfadeMusic;
 

@@ -46,6 +46,7 @@ type
       Panel_Options_Sound: TKMPanel;
         Label_Options_MusicOff: TKMLabel;
         TrackBar_Options_SFX,TrackBar_Options_Music: TKMTrackBar;
+        CheckBox_Options_Mute: TKMCheckBox;
         CheckBox_Options_MusicOff: TKMCheckBox;
         CheckBox_Options_ShuffleOn: TKMCheckBox;
       Panel_Options_Lang: TKMPanel;
@@ -137,19 +138,21 @@ begin
       CheckBox_Options_FullFonts.OnClick := Change;
 
     // SFX section
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,60,290,280,167);
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,60,290,280,190);
     Panel_Options_Sound.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,270,20,gResTexts[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Sound,0,20,280,147);
+      TKMBevel.Create(Panel_Options_Sound,0,20,280,170);
 
-      TrackBar_Options_SFX       := TKMTrackBar.Create(Panel_Options_Sound, 10, 27, 256, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
-      TrackBar_Options_Music     := TKMTrackBar.Create(Panel_Options_Sound, 10, 77, 256, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
-      CheckBox_Options_MusicOff  := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 256, 20, gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
-      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 256, 20, gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
+      TrackBar_Options_SFX        := TKMTrackBar.Create(Panel_Options_Sound, 10, 27, 256, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
+      TrackBar_Options_Music      := TKMTrackBar.Create(Panel_Options_Sound, 10, 77, 256, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
+      CheckBox_Options_Mute       := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 256, 20, 'Mute', fnt_Metal); //Todo translate
+      CheckBox_Options_MusicOff   := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 256, 20, gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
+      CheckBox_Options_ShuffleOn  := TKMCheckBox.Create(Panel_Options_Sound, 12, 167, 256, 20, gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
       TrackBar_Options_SFX.Caption   := gResTexts[TX_MENU_SFX_VOLUME];
       TrackBar_Options_Music.Caption := gResTexts[TX_MENU_MUSIC_VOLUME];
       TrackBar_Options_SFX.OnChange      := Change;
       TrackBar_Options_Music.OnChange    := Change;
+      CheckBox_Options_Mute.OnClick      := Change;
       CheckBox_Options_MusicOff.OnClick  := Change;
       CheckBox_Options_ShuffleOn.OnClick := Change;
 
@@ -243,10 +246,14 @@ begin
   TrackBar_Options_ScrollSpeed.Position := fGameSettings.ScrollSpeed;
   TrackBar_Options_SFX.Position         := Round(fGameSettings.SoundFXVolume * TrackBar_Options_SFX.MaxValue);
   TrackBar_Options_Music.Position       := Round(fGameSettings.MusicVolume * TrackBar_Options_Music.MaxValue);
+  CheckBox_Options_Mute.Checked         := fGameSettings.Mute;
   CheckBox_Options_MusicOff.Checked     := fGameSettings.MusicOff;
-  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
   CheckBox_Options_ShuffleOn.Checked    := fGameSettings.ShuffleOn;
-  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
+
+  TrackBar_Options_SFX.Enabled       := not CheckBox_Options_Mute.Checked;
+  TrackBar_Options_Music.Enabled     := not CheckBox_Options_MusicOff.Checked and not CheckBox_Options_Mute.Checked;
+  CheckBox_Options_MusicOff.Enabled  := not CheckBox_Options_Mute.Checked;
+  CheckBox_Options_ShuffleOn.Enabled := not CheckBox_Options_MusicOff.Checked and not CheckBox_Options_Mute.Checked;
 
   Radio_Options_Lang.ItemIndex := gResLocales.IndexByCode(fGameSettings.Locale);
 
@@ -271,20 +278,32 @@ begin
   fGameSettings.ScrollSpeed   := TrackBar_Options_ScrollSpeed.Position;
   fGameSettings.SoundFXVolume := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
   fGameSettings.MusicVolume   := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
+  fGameSettings.Mute          := CheckBox_Options_Mute.Checked;
   fGameSettings.MusicOff      := CheckBox_Options_MusicOff.Checked;
   fGameSettings.ShuffleOn     := CheckBox_Options_ShuffleOn.Checked;
-  TrackBar_Options_Music.Enabled      := not CheckBox_Options_MusicOff.Checked;
-  CheckBox_Options_ShuffleOn.Enabled  := not CheckBox_Options_MusicOff.Checked;
 
-  gSoundPlayer.UpdateSoundVolume(fGameSettings.SoundFXVolume);
-  gGameApp.MusicLib.UpdateMusicVolume(fGameSettings.MusicVolume);
+  TrackBar_Options_SFX.Enabled       := not CheckBox_Options_Mute.Checked;
+  TrackBar_Options_Music.Enabled     := not CheckBox_Options_MusicOff.Checked and not CheckBox_Options_Mute.Checked;
+  CheckBox_Options_MusicOff.Enabled  := not CheckBox_Options_Mute.Checked;
+  CheckBox_Options_ShuffleOn.Enabled := not CheckBox_Options_MusicOff.Checked and not CheckBox_Options_Mute.Checked;
+
+  if fGameSettings.Mute then begin
+    gSoundPlayer.UpdateSoundVolume(0);
+    gGameApp.MusicLib.UpdateMusicVolume(0);
+  end else begin
+    gSoundPlayer.UpdateSoundVolume(fGameSettings.SoundFXVolume);
+    gGameApp.MusicLib.UpdateMusicVolume(fGameSettings.MusicVolume);
+  end;
+
   SetupVSync(fMainSettings.VSync);
+
   if MusicToggled then
   begin
     gGameApp.MusicLib.ToggleMusic(not fGameSettings.MusicOff);
     if not fGameSettings.MusicOff then
       ShuffleToggled := True; // Re-shuffle songs if music has been enabled
   end;
+
   if ShuffleToggled then
     gGameApp.MusicLib.ToggleShuffle(fGameSettings.ShuffleOn);
 
