@@ -212,12 +212,12 @@ begin
 
     Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 
-    TKMLabel.Create(Panel_ChartsArmy, 755, 355, 'Number of warriors:', fnt_Metal, taLeft); // Todo translate
+    TKMLabel.Create(Panel_ChartsArmy, 755, 355, '', fnt_Metal, taLeft); // Todo translate
 
     Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartsArmy,755,375,150,40,fnt_Grey);
     Radio_ChartArmyStyle.ItemIndex := 0;
-    Radio_ChartArmyStyle.Add('At the moment');  // Todo translate
-    Radio_ChartArmyStyle.Add('In total');       // Todo translate
+    Radio_ChartArmyStyle.Add('Instantaneous');  // Todo translate
+    Radio_ChartArmyStyle.Add('Total Equipped');       // Todo translate
     Radio_ChartArmyStyle.OnChange := RadioArmyStyleChange;
 end;
 
@@ -667,12 +667,12 @@ begin
     Chart_MPArmy[WType].Clear;
     Chart_MPArmy[WType].MaxLength := 0;
     Chart_MPArmy[WType].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPArmy[WType].Caption := 'Army at the moment' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
+    Chart_MPArmy[WType].Caption := 'Instantaneous' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
 
     Chart_MPArmyTotal[WType].Clear;
     Chart_MPArmyTotal[WType].MaxLength := 0;
     Chart_MPArmyTotal[WType].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPArmyTotal[WType].Caption := 'Army in total' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
+    Chart_MPArmyTotal[WType].Caption := 'Total Equipped' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
 
     for I := 0 to gHands.Count - 1 do
       with gHands[I] do
