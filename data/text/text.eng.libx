@@ -852,7 +852,7 @@
 899:Sub-menu 4
 900:Sub-menu 5
 901:Sub-menu 6
-902:F10, F11, Alt, Ctrl and Shift are unassignable
+902:Ctrl and Shift are unassignable
 903:~~~ Unknown value
 904:Left Mouse Button
 905:Middle Mouse Button
@@ -932,3 +932,4 @@
 980:Remove building/highlights
 981:Clear key
 982:Select next house/unit with same type
+983:Debug window

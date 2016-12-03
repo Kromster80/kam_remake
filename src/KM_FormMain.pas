@@ -153,7 +153,8 @@ uses
   KM_ResSound,
   KM_Pics,
   KM_RenderPool,
-  KM_Hand;
+  KM_Hand,
+  KM_ResKeys;
 
 
 //Remove VCL panel and use flicker-free TMyPanel instead
@@ -223,7 +224,7 @@ procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
 begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
 
-  if Key = VK_F11  then begin
+  if Key = gResKeys[SC_DEBUG_WINDOW].Key then begin
     SHOW_DEBUG_CONTROLS := not SHOW_DEBUG_CONTROLS;
     ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
   end;

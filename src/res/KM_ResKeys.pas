@@ -9,8 +9,8 @@ type
   TKMFuncArea = (faCommon, faGame, faMapEdit);
 
 const
-  // There are total of 72 different functions in the game that can have a shortcut
-  FUNC_COUNT = 72;
+  // There are total of 73 different functions in the game that can have a shortcut
+  FUNC_COUNT = 73;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -20,7 +20,7 @@ type
     Key: Byte;        // Key assigned to this function
     TextId: Word;     // Text description of the function
     Area: TKMFuncArea; // Area of effect for the function (common, game, maped)
-    IsDebug: Boolean; // Hide debug key and its function from UI
+    IsChangable: Boolean; // Hide debug key and its function from UI
   end;
 
   TKMKeyLibrary = class
@@ -56,7 +56,7 @@ const
     34, 33, 8,                              // Zoom In/Out/Reset
     27,                                     // Close opened menu
     82, 70, 87, 68,                         // Plan road/field/wine/erase plan(building)
-    77, 86, 69, 67,                         // Debug hotkeys
+    122, 77, 86, 69, 67,                    // Debug hotkeys (Window, Show Map, Victory, Defeat, Add Scout)
     112, 113, 114, 115,                     // Game menus (F1-F4)
     72, 83, 76, 70, 88, 187, 189, 190, 188, // Army commands
     116, 117, 118, 119,                     // Speed ups
@@ -75,7 +75,8 @@ const
     TX_KEY_FUNC_ZOOM_IN, TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET,                                    // Zoom In/Out/Reset
     TX_KEY_FUNC_CLOSE_MENU,                                                                               // Close opened menu
     TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/field/wine/erase plan(building)
-    TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,          // Debug
+    TX_KEY_FUNC_DBG_WINDOW,                                                                               // Debug window
+    TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,          // Debug (Show Map, Victory, Defeat, Add Scout)
     TX_KEY_FUNC_MENU_BUILD, TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN,        // Game menus (F1-F4)
     TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT, TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM,         // Army commands
     TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE, TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW,      // Army commands
@@ -114,7 +115,7 @@ begin
       else    fFuncs[I].Area := faMapEdit;
     end;
 
-    fFuncs[I].IsDebug := (I in [12..15]);
+    fFuncs[I].IsChangable := (I in [13..16]);
   end;
 end;
 
@@ -329,10 +330,8 @@ end;
 
 function TKMKeyLibrary.AllowKeySet(aArea: TKMFuncArea; aKey: Word): Boolean;
 begin
-  // False if Key equals F10 or F11 (those are used by Delphi IDE when running an App from debugger)
-  // or False if Key equals to Shift or Ctrl, which are used in game for specific bindings
-  // or False if Key equals to Alt, which is not useful (game window lose focus after Alt was pressed)
-  Result := not (aKey in [16, 17, 18, 121, 122]);
+  // False if Key equals to Shift or Ctrl, which are used in game for specific bindings
+  Result := not (aKey in [16, 17]);
 end;
 
 

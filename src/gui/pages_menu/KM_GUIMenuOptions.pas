@@ -519,7 +519,7 @@ begin
 
     // Do not show the debug keys
     for I := 0 to fTempKeys.Count - 1 do
-      if (fTempKeys[I].Area = K) and not fTempKeys[I].IsDebug then
+      if (fTempKeys[I].Area = K) and not fTempKeys[I].IsChangable then
         ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[fTempKeys[I].TextId], fTempKeys.GetKeyNameById(I)],
                                                   [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
   end;
