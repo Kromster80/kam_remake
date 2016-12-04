@@ -366,9 +366,7 @@ type
     //ut_Catapult,   ut_Ballista,
 
     ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
-    ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck,
-
-    ut_ArmyPower);
+    ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
   TUnitTypeSet = set of TUnitType;
 

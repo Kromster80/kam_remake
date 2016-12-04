@@ -112,8 +112,7 @@ const
   0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
   14,15,16,17,18,19,20,21,22,23, //Warriors
   -1,-1,-1,-1, {-1,-1,} //TPR warriors (can't be placed with SET_UNIT)
-  24,25,26,27,28,29,30,31, //Animals
-  -1);
+  24,25,26,27,28,29,30,31); //Animals
 
   //This is a map of the valid values for !SET_GROUP, and the corresponing unit that will be created (matches KaM behavior)
   UnitIndexToType: array[0..40] of TUnitType = (
@@ -134,8 +133,7 @@ const
   0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
   14,15,16,17,18,19,20,21,22,23, //Warriors
   24,25,26,27, {28,29,} //TPR warriors
-  30,31,32,33,34,35,36,37, //Animals
-  -1); //ut_ArmyPower
+  30,31,32,33,34,35,36,37); //Animals
 
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
@@ -171,7 +169,7 @@ end;
 
 function TKMUnitDatClass.IsValid: boolean;
 begin
-  Result := not (fUnitType in [ut_None, ut_Any, ut_ArmyPower]);
+  Result := not (fUnitType in [ut_None, ut_Any]);
 end;
 
 
@@ -250,8 +248,7 @@ const UnitSupportedActions: array [TUnitType] of TUnitActionTypeSet = (
     [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Slingshot
     [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Warrior
     [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], //Animals
-    []);
+    [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk]); //Animals
 begin
   Result := aAct in UnitSupportedActions[fUnitType];
 end;
@@ -302,7 +299,6 @@ function TKMUnitDatClass.GetGUIIcon: word;
 begin
   case fUnitType of
     ut_None, ut_Any:  Result := 0;
-    ut_ArmyPower:     Result := 53;
     ut_Barbarian:     Result := 70;
     else              if IsCitizen then
                         Result := 141 + UnitTypeToIndex[fUnitType]
@@ -331,8 +327,7 @@ const
     0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,
-    $B0B0B0,$B08000,$B08000,$80B0B0,$00B0B0,$B080B0,$00B000,$80B0B0, //Exact colors can be tweaked
-    0);
+    $B0B0B0,$B08000,$B08000,$80B0B0,$00B0B0,$B080B0,$00B000,$80B0B0); //Exact colors can be tweaked
 begin
   Result := MMColor[fUnitType] or $FF000000;
 end;
@@ -390,8 +385,7 @@ end;
 function TKMUnitDatClass.GetUnitName: UnicodeString;
 begin
   case fUnitType of
-    ut_Any:             Result := 'All'; //Resourse_ALL is just 'ALL', so we can reuse it here //Todo translate
-    ut_ArmyPower:       Result := 'Army power'; //Todo translate
+    ut_Any:             Result := 'All'; //Todo translate
     ut_None:            Result := 'N/A';
     else                Result := gResTexts[GetUnitTextID];
   end;

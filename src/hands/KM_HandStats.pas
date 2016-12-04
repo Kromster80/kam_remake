@@ -135,14 +135,6 @@ const
     (4, 5, 3, 0)
   );
 
-  WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Byte = (
-    2, 5, 9,        // ut_Militia, ut_AxeFighter, ut_Swordsman
-    4, 7,           // ut_Bowman, ut_Arbaletman
-    4, 7,           // ut_Pikeman, ut_Hallebardman
-    6, 10,          // ut_HorseScout, ut_Cavalry
-    10, 3, 3, 10, 5 // ut_Barbarian, ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman
-  );
-
 
 { TKMHandStats }
 constructor TKMHandStats.Create;
@@ -364,7 +356,7 @@ var
 begin
   Result := 0;
   case aType of
-    ut_None, ut_ArmyPower: ;
+    ut_None: ;
     ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
                   Inc(Result, Units[UT].Initial + Units[UT].Trained - Units[UT].Lost);
     else        begin
@@ -645,15 +637,6 @@ begin
                                   for I := 0 to fChartCount - 1 do
                                     Result[I] := Result[I] + fChartArmy[WT][I];
                               end;
-    ut_ArmyPower:             begin
-                                //Create new array and fill it (otherwise we assign pointers and corrupt data)
-                                SetLength(Result, fChartCount);
-                                for I := 0 to fChartCount - 1 do
-                                  Result[I] := 0;
-                                for WT := WARRIOR_MIN to WARRIOR_MAX do
-                                  for I := 0 to fChartCount - 1 do
-                                    Result[I] := Result[I] + fChartArmy[WT][I]*WARRIORS_POWER_RATES[WT];
-                              end;
     else                      begin
                                 //Return empty array
                                 SetLength(Result, fChartCount);
@@ -679,15 +662,6 @@ begin
                                 for WT := WARRIOR_MIN to WARRIOR_MAX do
                                   for I := 0 to fChartCount - 1 do
                                     Result[I] := Result[I] + fChartArmyTotal[WT][I];
-                              end;
-    ut_ArmyPower:             begin
-                                //Create new array and fill it (otherwise we assign pointers and corrupt data)
-                                SetLength(Result, fChartCount);
-                                for I := 0 to fChartCount - 1 do
-                                  Result[I] := 0;
-                                for WT := WARRIOR_MIN to WARRIOR_MAX do
-                                  for I := 0 to fChartCount - 1 do
-                                    Result[I] := Result[I] + fChartArmyTotal[WT][I]*WARRIORS_POWER_RATES[WT];
                               end;
     else                      begin
                                 //Return empty array
@@ -736,7 +710,7 @@ begin
   case aWarrior of
     WARRIOR_MIN..WARRIOR_MAX:
                         Result := (fChartCount = 0) or (fArmyEmpty[aWarrior]);
-    ut_Any,ut_ArmyPower:begin
+    ut_Any:             begin
                           Result := True;
                           if fChartCount > 0 then
                             for WT := WARRIOR_MIN to WARRIOR_MAX do

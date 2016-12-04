@@ -8,6 +8,48 @@ uses
 
 
 type
+
+  // Army chart types (enum)
+  TChartArmyType = (cat_All, cat_ArmyPower,
+    cat_Militia,      cat_AxeFighter,   cat_Swordsman,     cat_Bowman,
+    cat_Arbaletman,   cat_Pikeman,      cat_Hallebardman,  cat_HorseScout,
+    cat_Cavalry,      cat_Barbarian,
+    cat_Peasant,      cat_Slingshot,    cat_MetalBarbarian, cat_Horseman);
+
+  // Army chart kind (Instantaneous or Total)
+  TChartArmyKind = (cak_Instantaneous, cak_Total);
+
+  // Chart army type class
+  TKMChartArmyType = class
+  private
+    fType: TChartArmyType;
+    fUnitType: TUnitType;
+    function GetUnitType: TUnitType;
+    function GetGUIName: UnicodeString;
+    function GetGUIIcon: Word;
+  public
+    constructor Create(aType: TChartArmyType);
+    property UnitType: TUnitType read GetUnitType;
+    property GUIName: UnicodeString read GetGUIName;
+    property GUIIcon: Word read GetGUIIcon;
+    function HasUnitType: Boolean;
+  end;
+
+  TKMChartArmyMP = class
+  private
+    fType: TKMChartArmyType;
+    fKind: TChartArmyKind;
+    fChart: TKMChart;
+    function GetArmyPowerChartData(aPlayer: TKMHandIndex): TKMCardinalArray;
+  public
+    constructor Create(aType: TChartArmyType; aKind: TChartArmyKind; aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+    destructor Destroy; override;
+    procedure AddLine(aPlayer: TKMHandIndex; aTitle: UnicodeString; aColor: Cardinal);
+    function IsEmpty(aPlayer: TKMHandIndex): Boolean;
+    property Chart: TKMChart read fChart;
+    property ChartType: TKMChartArmyType read fType;
+  end;
+
   TKMMenuResultsMP = class
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
@@ -27,8 +69,6 @@ type
     procedure WareChange(Sender: TObject);
     procedure ArmyChange(Sender: TObject);
     function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType): TKMCardinalArray;
-    function GetChartArmy(aPlayer: TKMHandIndex; aWarrior: TUnitType): TKMCardinalArray;
-    function GetChartArmyTotal(aPlayer: TKMHandIndex; aWarrior: TUnitType): TKMCardinalArray;
     procedure Refresh;
     procedure RefreshBars;
     procedure RefreshCharts;
@@ -57,9 +97,9 @@ type
       Panel_ChartsArmy: TKMPanel;
         Columnbox_Army: TKMColumnBox;
         // Charts of in game warriors quantities
-        Chart_MPArmy: array [TUnitType] of TKMChart;      //One for each warrior type;
+        Chart_MPArmy: array [TChartArmyType] of TKMChartArmyMP;      //One for each warrior type;
         // Charts of total army trained (includes initial army)
-        Chart_MPArmyTotal: array [TUnitType] of TKMChart; //One for each warrior type;
+        Chart_MPArmyTotal: array [TChartArmyType] of TKMChartArmyMP; //One for each warrior type;
         Label_NoArmyData: TKMLabel;
         Radio_ChartArmyStyle: TKMRadioGroup;
       Button_ResultsMPBack: TKMButton;
@@ -80,13 +120,113 @@ const
   PANES_TOP = 185;
   BAR_ROW_HEIGHT = 22;
 
-const WARRIORS_CHARTS: array [0..15] of TUnitType = (
-    ut_Any, ut_ArmyPower,
-    ut_Militia, ut_AxeFighter, ut_Swordsman,
-    ut_Bowman, ut_Arbaletman,
-    ut_Pikeman, ut_Hallebardman,
-    ut_HorseScout, ut_Cavalry,
-    ut_Barbarian, ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman);
+  WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Byte = (
+    2, 5, 9,        // ut_Militia, ut_AxeFighter, ut_Swordsman
+    4, 7,           // ut_Bowman, ut_Arbaletman
+    4, 7,           // ut_Pikeman, ut_Hallebardman
+    6, 10,          // ut_HorseScout, ut_Cavalry
+    10, 3, 3, 10, 5 // ut_Barbarian, ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman
+  );
+
+
+{TKMChartArmyType}
+constructor TKMChartArmyType.Create(aType: TChartArmyType);
+begin
+  fType := aType;
+  case aType of
+    cat_All:                    fUnitType := ut_Any;
+    cat_Militia..cat_Horseman:  fUnitType := TUnitType(Ord(ut_Militia) + Ord(aType) - Ord(cat_Militia));
+  end;
+end;
+
+
+function TKMChartArmyType.GetUnitType: TUnitType;
+begin
+  Assert(HasUnitType, 'ArmyPower has no UnitType match');
+  Result := fUnitType;
+end;
+
+
+function TKMChartArmyType.HasUnitType: Boolean;
+begin
+  Result := fType <> cat_ArmyPower;
+end;
+
+
+function TKMChartArmyType.GetGUIName: UnicodeString;
+begin
+  if (HasUnitType) then
+    Result := gRes.UnitDat.UnitsDat[UnitType].GUIName
+  else
+    Result := 'Army power'; //Todo translate
+end;
+
+
+function TKMChartArmyType.GetGUIIcon: Word;
+begin
+  if (HasUnitType) then
+    Result := gRes.UnitDat.UnitsDat[UnitType].GUIIcon
+  else
+    Result := 53;
+end;
+
+
+{TKMChartArmy}
+constructor TKMChartArmyMP.Create(aType: TChartArmyType; aKind: TChartArmyKind; aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+begin
+  fType := TKMChartArmyType.Create(aType);
+  fKind := aKind;
+  fChart := TKMChart.Create(aParent, aLeft, aTop, aWidth, aHeight);
+end;
+
+
+destructor TKMChartArmyMP.Destroy;
+begin
+  FreeAndNil(fType);
+  FreeAndNil(fChart);
+  inherited;
+end;
+
+
+procedure TKMChartArmyMP.AddLine(aPlayer: TKMHandIndex; aTitle: UnicodeString; aColor: Cardinal);
+var ChartData: TKMCardinalArray;
+begin
+  if (fType.HasUnitType) then begin
+    if (fKind = cak_Instantaneous) then
+      ChartData := gHands[aPlayer].Stats.ChartArmy[fType.UnitType]
+    else
+      ChartData := gHands[aPlayer].Stats.ChartArmyTotal[fType.UnitType];
+  end else
+    ChartData := GetArmyPowerChartData(aPlayer);
+  Chart.AddLine(aTitle, aColor, ChartData, aPlayer);
+end;
+
+
+function TKMChartArmyMP.GetArmyPowerChartData(aPlayer: TKMHandIndex): TKMCardinalArray;
+var WT: TUnitType;
+    I, ChartCnt: Integer;
+begin
+  ChartCnt := gHands[aPlayer].Stats.ChartCount;
+  //Create new array and fill it (otherwise we assign pointers and corrupt data)
+  SetLength(Result, ChartCnt);
+  for I := 0 to ChartCnt - 1 do
+    Result[I] := 0;
+  for WT := WARRIOR_MIN to WARRIOR_MAX do
+    for I := 0 to ChartCnt - 1 do
+      if (fKind = cak_Instantaneous) then
+        Result[I] := Result[I] + gHands[aPlayer].Stats.ChartArmy[WT][I]*WARRIORS_POWER_RATES[WT]
+      else
+        Result[I] := Result[I] + gHands[aPlayer].Stats.ChartArmyTotal[WT][I]*WARRIORS_POWER_RATES[WT];
+end;
+
+
+function TKMChartArmyMP.IsEmpty(aPlayer: TKMHandIndex): Boolean;
+begin
+  if (fType.HasUnitType) then
+    Result := gHands[aPlayer].Stats.ChartArmyEmpty(fType.UnitType)
+  else
+    Result := gHands[aPlayer].Stats.ChartArmyEmpty(ut_Any);
+end;
 
 
 { TKMGUIMenuResultsMP }
@@ -184,8 +324,7 @@ end;
 
 procedure TKMMenuResultsMP.CreateChartArmy(aParent: TKMPanel);
 var
-  I: Integer;
-  WType: TUnitType;
+  WType: TChartArmyType;
 begin
   Panel_ChartsArmy := TKMPanel.Create(aParent, 62, PANES_TOP, 900, 435);
   Panel_ChartsArmy.Anchors := [];
@@ -196,18 +335,17 @@ begin
     Columnbox_Army.ShowLines := False;
     Columnbox_Army.OnChange := ArmyChange;
 
-    for I := Low(WARRIORS_CHARTS) to High(WARRIORS_CHARTS) do
+    for WType := Low(TChartArmyType) to High(TChartArmyType) do
     begin
-      WType := WARRIORS_CHARTS[I];
-      Chart_MPArmy[WType] := TKMChart.Create(Panel_ChartsArmy, 140, 0, 900-140, 435);
-      Chart_MPArmy[WType].Caption := gResTexts[TX_GRAPH_ARMY];// + ' - ' + gResTexts[TX_ARMY_CURRENT];
-      Chart_MPArmy[WType].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
-      Chart_MPArmy[WType].Hide;
+      Chart_MPArmy[WType] := TKMChartArmyMP.Create(WType, cak_Instantaneous, Panel_ChartsArmy, 140, 0, 760, 435);
+      Chart_MPArmy[WType].Chart.Caption := gResTexts[TX_GRAPH_ARMY];
+      Chart_MPArmy[WType].Chart.Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
+      Chart_MPArmy[WType].Chart.Hide;
 
-      Chart_MPArmyTotal[WType] := TKMChart.Create(Panel_ChartsArmy, 140, 0, 900-140, 435);
-      Chart_MPArmyTotal[WType].Caption := gResTexts[TX_GRAPH_ARMY];// + ' - ' + gResTexts[TX_ARMY_TOTAL];
-      Chart_MPArmyTotal[WType].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
-      Chart_MPArmyTotal[WType].Hide;
+      Chart_MPArmyTotal[WType] := TKMChartArmyMP.Create(WType, cak_Total, Panel_ChartsArmy, 140, 0, 760, 435);
+      Chart_MPArmyTotal[WType].Chart.Caption := gResTexts[TX_GRAPH_ARMY];
+      Chart_MPArmyTotal[WType].Chart.Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
+      Chart_MPArmyTotal[WType].Chart.Hide;
     end;
 
     Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
@@ -216,8 +354,8 @@ begin
 
     Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartsArmy,755,375,150,40,fnt_Grey);
     Radio_ChartArmyStyle.ItemIndex := 0;
-    Radio_ChartArmyStyle.Add('Instantaneous');  // Todo translate
-    Radio_ChartArmyStyle.Add('Total Equipped');       // Todo translate
+    Radio_ChartArmyStyle.Add('Instantaneous'); // Todo translate
+    Radio_ChartArmyStyle.Add('Total Equipped'); // Todo translate
     Radio_ChartArmyStyle.OnChange := RadioArmyStyleChange;
 end;
 
@@ -292,17 +430,17 @@ end;
 
 procedure TKMMenuResultsMP.ArmyChange(Sender: TObject);
 var
-  J, K: Integer;
-  W, WType: TUnitType;
+  K: Integer;
+  W, WType: TChartArmyType;
 begin
   if Columnbox_Army.ItemIndex = -1 then
   begin
     Label_NoArmyData.Show;
     Columnbox_Army.Hide;
-    for J := Low(WARRIORS_CHARTS) to High(WARRIORS_CHARTS) do
+    for WType := Low(TChartArmyType) to High(TChartArmyType) do
     begin
-      Chart_MPArmy[WARRIORS_CHARTS[J]].Hide;
-      Chart_MPArmyTotal[WARRIORS_CHARTS[J]].Hide;
+      Chart_MPArmy[WType].Chart.Hide;
+      Chart_MPArmyTotal[WType].Chart.Hide;
     end;
     Exit;
   end;
@@ -310,36 +448,35 @@ begin
   Label_NoArmyData.Hide;
   Columnbox_Army.Show;
 
-  W := TUnitType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
+  W := TChartArmyType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 
   //Find and hide old chart
-  for J := Low(WARRIORS_CHARTS) to High(WARRIORS_CHARTS) do
+  for WType := Low(TChartArmyType) to High(TChartArmyType) do
   begin
-    WType := WARRIORS_CHARTS[J];
     //Remember which lines were visible
-    if Chart_MPArmy[WType].Visible then
-      for K := 0 to Chart_MPArmy[WType].LineCount - 1 do
-        fPlayersVisibleArmy[Chart_MPArmy[WType].Lines[K].Tag] := Chart_MPArmy[WType].Lines[K].Visible
-    else if Chart_MPArmyTotal[WType].Visible then
-      for K := 0 to Chart_MPArmyTotal[WType].LineCount - 1 do
-        fPlayersVisibleArmy[Chart_MPArmyTotal[WType].Lines[K].Tag] := Chart_MPArmyTotal[WType].Lines[K].Visible;
+    if Chart_MPArmy[WType].Chart.Visible then
+      for K := 0 to Chart_MPArmy[WType].Chart.LineCount - 1 do
+        fPlayersVisibleArmy[Chart_MPArmy[WType].Chart.Lines[K].Tag] := Chart_MPArmy[WType].Chart.Lines[K].Visible
+    else if Chart_MPArmyTotal[WType].Chart.Visible then
+      for K := 0 to Chart_MPArmyTotal[WType].Chart.LineCount - 1 do
+        fPlayersVisibleArmy[Chart_MPArmyTotal[WType].Chart.Lines[K].Tag] := Chart_MPArmyTotal[WType].Chart.Lines[K].Visible;
 
-    Chart_MPArmy[WType].Visible := False;
-    Chart_MPArmyTotal[WType].Visible := False;
+    Chart_MPArmy[WType].Chart.Visible := False;
+    Chart_MPArmyTotal[WType].Chart.Visible := False;
   end;
 
   case Radio_ChartArmyStyle.ItemIndex of
     0:  begin
-          Chart_MPArmy[W].Visible := True;
+          Chart_MPArmy[W].Chart.Visible := True;
           //Restore previously visible lines
-          for K := 0 to Chart_MPArmy[W].LineCount - 1 do
-            Chart_MPArmy[W].SetLineVisible(K, fPlayersVisibleArmy[Chart_MPArmy[W].Lines[K].Tag]);
+          for K := 0 to Chart_MPArmy[W].Chart.LineCount - 1 do
+            Chart_MPArmy[W].Chart.SetLineVisible(K, fPlayersVisibleArmy[Chart_MPArmy[W].Chart.Lines[K].Tag]);
         end;
     1:  begin
-          Chart_MPArmyTotal[W].Visible := True;
+          Chart_MPArmyTotal[W].Chart.Visible := True;
           //Restore previously visible lines
-          for K := 0 to Chart_MPArmyTotal[W].LineCount - 1 do
-            Chart_MPArmyTotal[W].SetLineVisible(K, fPlayersVisibleArmy[Chart_MPArmyTotal[W].Lines[K].Tag]);
+          for K := 0 to Chart_MPArmyTotal[W].Chart.LineCount - 1 do
+            Chart_MPArmyTotal[W].Chart.SetLineVisible(K, fPlayersVisibleArmy[Chart_MPArmyTotal[W].Chart.Lines[K].Tag]);
         end;
   end;
 
@@ -640,20 +777,19 @@ end;
 procedure TKMMenuResultsMP.RefreshChartArmy;
 var
   I,K,J: Integer;
-  WType: TUnitType;
+  WType: TChartArmyType;
 begin
   //Fill columnbox
   Columnbox_Army.Clear;
-  for I := Low(WARRIORS_CHARTS) to High(WARRIORS_CHARTS) do
+  for WType := Low(TChartArmyType) to High(TChartArmyType) do
   begin
-    WType := WARRIORS_CHARTS[I];
     for K := 0 to gHands.Count - 1 do
       if gHands[K].Enabled
-        and not gHands[K].Stats.ChartArmyEmpty(WType) then
+        and not Chart_MPArmy[WType].IsEmpty(K) then
       begin
-        Columnbox_Army.AddItem(MakeListRow(['', gRes.UnitDat.UnitsDat[WType].GUIName],
+        Columnbox_Army.AddItem(MakeListRow(['', Chart_MPArmy[WType].ChartType.GUIName],
                                             [gMySpectator.Hand.FlagColor, $FFFFFFFF],
-                                            [MakePic(rxGui, gRes.UnitDat.UnitsDat[WType].GUIIcon), MakePic(rxGui, 0)],
+                                            [MakePic(rxGui, Chart_MPArmy[WType].ChartType.GUIIcon), MakePic(rxGui, 0)],
                                             Byte(WType)));
         Break;
       end;
@@ -662,26 +798,26 @@ begin
   //Fill in chart values
   for J := 0 to Columnbox_Army.RowCount - 1 do
   begin
-    WType := TUnitType(Columnbox_Army.Rows[J].Tag);
+    WType := TChartArmyType(Columnbox_Army.Rows[J].Tag);
 
-    Chart_MPArmy[WType].Clear;
-    Chart_MPArmy[WType].MaxLength := 0;
-    Chart_MPArmy[WType].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPArmy[WType].Caption := 'Instantaneous' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
+    Chart_MPArmy[WType].Chart.Clear;
+    Chart_MPArmy[WType].Chart.MaxLength := 0;
+    Chart_MPArmy[WType].Chart.MaxTime := gGame.GameTickCount div 10;
+    Chart_MPArmy[WType].Chart.Caption := 'Instantaneous' + ' - ' + Chart_MPArmy[WType].ChartType.GUIName; // Todo translate
 
-    Chart_MPArmyTotal[WType].Clear;
-    Chart_MPArmyTotal[WType].MaxLength := 0;
-    Chart_MPArmyTotal[WType].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPArmyTotal[WType].Caption := 'Total Equipped' + ' - ' + gRes.UnitDat.UnitsDat[WType].GUIName; // Todo translate
+    Chart_MPArmyTotal[WType].Chart.Clear;
+    Chart_MPArmyTotal[WType].Chart.MaxLength := 0;
+    Chart_MPArmyTotal[WType].Chart.MaxTime := gGame.GameTickCount div 10;
+    Chart_MPArmyTotal[WType].Chart.Caption := 'Total Equipped' + ' - ' + Chart_MPArmyTotal[WType].ChartType.GUIName; // Todo translate
 
     for I := 0 to gHands.Count - 1 do
       with gHands[I] do
         if Enabled then
         begin
-          Chart_MPArmy[WType].MaxLength := Max(Chart_MPArmy[WType].MaxLength, Stats.ChartCount);
-          Chart_MPArmy[WType].AddLine(OwnerName, FlagColor, GetChartArmy(I, WType), I);
-          Chart_MPArmyTotal[WType].MaxLength := Max(Chart_MPArmy[WType].MaxLength, Stats.ChartCount);
-          Chart_MPArmyTotal[WType].AddLine(OwnerName, FlagColor, GetChartArmyTotal(I, WType), I);
+          Chart_MPArmy[WType].Chart.MaxLength := Max(Chart_MPArmy[WType].Chart.MaxLength, Stats.ChartCount);
+          Chart_MPArmy[WType].AddLine(I, OwnerName, FlagColor);
+          Chart_MPArmyTotal[WType].Chart.MaxLength := Max(Chart_MPArmy[WType].Chart.MaxLength, Stats.ChartCount);
+          Chart_MPArmyTotal[WType].AddLine(I, OwnerName, FlagColor);
         end;
   end;
 
@@ -801,18 +937,6 @@ begin
                                          Round(ChartWares[wt_Fish][I] * FISH_RESTORE);
                         end;
   end;
-end;
-
-
-function TKMMenuResultsMP.GetChartArmy(aPlayer: TKMHandIndex; aWarrior: TUnitType): TKMCardinalArray;
-begin
-  Result := gHands[aPlayer].Stats.ChartArmy[aWarrior];
-end;
-
-
-function TKMMenuResultsMP.GetChartArmyTotal(aPlayer: TKMHandIndex; aWarrior: TUnitType): TKMCardinalArray;
-begin
-  Result := gHands[aPlayer].Stats.ChartArmyTotal[aWarrior];
 end;
 
 
