@@ -349,7 +349,7 @@ begin
     ct_BlockTrade:      if fLastHand <> PLAYER_NONE then
                         begin
                           if WareIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
-                            gHands[fLastHand].Locks.AllowToTrade[WareIndexToType[P[0]]] := false;
+                            gHands[fLastHand].Locks.WareTradeState[WareIndexToType[P[0]]] := TWareTradeState(P[1]);
                         end;
     ct_BlockUnit:       if fLastHand <> PLAYER_NONE then
                         begin
@@ -805,8 +805,8 @@ begin
 
     //Block trades
     for Res := WARE_MIN to WARE_MAX do
-      if not gHands[I].Locks.AllowToTrade[Res] then
-        AddCommand(ct_BlockTrade, [WareTypeToIndex[Res]]);
+      if gHands[I].Locks.WareTradeState[Res] <> wts_Default then
+        AddCommand(ct_BlockTrade, [WareTypeToIndex[Res], Ord(gHands[I].Locks.WareTradeState[Res])]);
 
     //Houses
     StoreCount := 0;

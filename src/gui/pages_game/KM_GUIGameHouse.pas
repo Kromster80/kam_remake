@@ -947,18 +947,24 @@ begin
   for I := 0 to STORE_RES_COUNT - 1 do
   begin
     R := TWareType(Button_Market[I].Tag);
-    if aMarket.AllowedToTrade(R) then
+    if aMarket.GetWareTradeState(R) = wts_Block then
+    begin
+      Button_Market[I].TexID := 41; // todo change to other tex (for lock, for example)
+      Button_Market[I].TexOffsetY := 0;
+      Button_Market[I].Hint := gResTexts[TX_HOUSES_MARKET_HINT_BLOCKED];
+      Button_Market[I].Caption := '';
+    end else if aMarket.AllowedToTrade(R) then
     begin
       Button_Market[I].TexID := gRes.Wares[R].GUIIcon;
+      Button_Market[I].TexOffsetY := 1;
       Button_Market[I].Hint := gRes.Wares[R].Title;
       Tmp := aMarket.GetResTotal(R);
       Button_Market[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
-    end
-    else
-    begin
+    end else begin
       Button_Market[I].TexID := 41;
-      Button_Market[I].Hint := gResTexts[TX_HOUSES_MARKET_HINT_BLOCKED];
-      Button_Market[I].Caption := '-';
+      Button_Market[I].TexOffsetY := 0;
+      Button_Market[I].Hint := 'Trading ' + gRes.Wares[R].Title + ' will be available after building ' + gRes.HouseDat[HouseByWareProducing[R]].HouseName; // todo translate
+      Button_Market[I].Caption := '';
     end;
 
     //Disabling buttons will let player know that he cant select new trade without canceling current one

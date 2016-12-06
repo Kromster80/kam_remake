@@ -1434,7 +1434,8 @@ begin
     //Verify all input parameters
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and (aResType in [Low(WareIndexToType)..High(WareIndexToType)]) then
-      gHands[aPlayer].Locks.AllowToTrade[WareIndexToType[aResType]] := aAllowed
+      // Allow or block ware trade
+      gHands[aPlayer].Locks.WareTradeState[WareIndexToType[aResType]] := TWareTradeState(IfThen(aAllowed, Ord(wts_Allow), Ord(wts_Block)))
     else
       LogParamWarning('Actions.SetTradeAllowed', [aPlayer, aResType, Byte(aAllowed)]);
   except

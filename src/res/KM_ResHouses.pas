@@ -203,6 +203,14 @@ const
     5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
     17, 26, 19, 18, 3, 20, 29, 10);
 
+  // House by ware it can produce
+  HouseByWareProducing: array [WARE_MIN..WARE_MAX] of THouseType = (
+    ht_Woodcutters, ht_Quary, ht_Sawmill, ht_IronMine, ht_GoldMine,
+    ht_CoalMine, ht_IronSmithy, ht_Metallurgists, ht_Wineyard, ht_Farm,
+    ht_Bakery, ht_Mill, ht_Tannery, ht_Butchers, ht_Swine,
+    ht_Swine, ht_ArmorWorkshop, ht_ArmorSmithy, ht_ArmorWorkshop, ht_ArmorSmithy,
+    ht_WeaponWorkshop, ht_WeaponSmithy, ht_WeaponWorkshop, ht_WeaponSmithy, ht_WeaponWorkshop,
+    ht_WeaponSmithy, ht_Stables, ht_FisherHut);
 
 implementation
 uses

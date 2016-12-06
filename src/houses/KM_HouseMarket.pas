@@ -32,6 +32,7 @@ type
     function RatioTo: Byte;
 
     function AllowedToTrade(aRes: TWareType): Boolean;
+    function GetWareTradeState(aRes: TWareType): TWareTradeState;
     function TradeInProgress: Boolean;
     function GetResTotal(aWare: TWareType): Word; overload;
     function CheckResIn(aWare: TWareType): Word; override;
@@ -216,7 +217,13 @@ end;
 
 function TKMHouseMarket.AllowedToTrade(aRes: TWareType): Boolean;
 begin
-  Result := gHands[fOwner].Locks.AllowToTrade[aRes];
+  Result := gHands[fOwner].Locks.WareUnlockedForTrade[aRes];
+end;
+
+
+function TKMHouseMarket.GetWareTradeState(aRes: TWareType): TWareTradeState;
+begin
+  Result := gHands[fOwner].Locks.WareTradeState[aRes];
 end;
 
 

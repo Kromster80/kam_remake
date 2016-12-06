@@ -25,7 +25,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Hand,
+  KM_HandsCollection, KM_ResTexts, KM_Hand, KM_Defaults,
   KM_Resource, KM_RenderUI, KM_ResFonts, KM_ResWares;
 
 
@@ -60,7 +60,7 @@ begin
   I := TKMButtonFlat(Sender).Tag;
   R := StoreResType[I];
 
-  gMySpectator.Hand.Locks.AllowToTrade[R] := not gMySpectator.Hand.Locks.AllowToTrade[R];
+  gMySpectator.Hand.Locks.WareTradeState[R] := TWareTradeState((Ord(gMySpectator.Hand.Locks.WareTradeState[R]) + 1) mod 3);
 
   Player_BlockTradeRefresh;
 end;
@@ -74,10 +74,11 @@ begin
   for I := 1 to STORE_RES_COUNT do
   begin
     R := StoreResType[I];
-    if gMySpectator.Hand.Locks.AllowToTrade[R] then
-      Image_BlockTrade[I].TexID := 0
-    else
-      Image_BlockTrade[I].TexID := 32; //Red cross
+    case gMySpectator.Hand.Locks.WareTradeState[R] of
+      wts_Default:  Image_BlockTrade[I].TexID := 0;
+      wts_Allow:    Image_BlockTrade[I].TexID := 33; //Green v
+      wts_Block:    Image_BlockTrade[I].TexID := 32; //Red cross
+    end;
   end;
 end;
 
