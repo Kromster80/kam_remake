@@ -455,6 +455,7 @@ begin
       RegisterMethod('procedure RemoveRoad(X, Y: Word)');
 
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
+      RegisterMethod('procedure SetWareTradeState(aPlayer, aResType: Word; aWareTradeState: Byte)');
       RegisterMethod('procedure ShowMsg(aPlayer: ShortInt; aText: AnsiString)');
       RegisterMethod('procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
       RegisterMethod('procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString)');
@@ -852,6 +853,7 @@ begin
       RegisterMethod(@TKMScriptActions.RemoveRoad,            'REMOVEROAD');
 
       RegisterMethod(@TKMScriptActions.SetTradeAllowed,       'SETTRADEALLOWED');
+      RegisterMethod(@TKMScriptActions.SetWareTradeState,     'SETWARETRADESTATE');
       RegisterMethod(@TKMScriptActions.ShowMsg,               'SHOWMSG');
       RegisterMethod(@TKMScriptActions.ShowMsgFormatted,      'SHOWMSGFORMATTED');
       RegisterMethod(@TKMScriptActions.ShowMsgGoto,           'SHOWMSGGOTO');
