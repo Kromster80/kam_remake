@@ -122,6 +122,7 @@ type
     procedure RemoveRoad(X, Y: Word);
 
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
+    procedure SetWareTradeState(aPlayer, aResType: Word; aWareTradeState: Byte);
     procedure ShowMsg(aPlayer: Shortint; aText: AnsiString);
     procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
     procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString);
@@ -1438,6 +1439,25 @@ begin
       gHands[aPlayer].Locks.WareTradeState[WareIndexToType[aResType]] := TWareTradeState(IfThen(aAllowed, Ord(wts_Allow), Ord(wts_Block)))
     else
       LogParamWarning('Actions.SetTradeAllowed', [aPlayer, aResType, Byte(aAllowed)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Sets ware trade state for the specified resource for the specified player.
+procedure TKMScriptActions.SetWareTradeState(aPlayer, aResType: Word; aWareTradeState: Byte);
+begin
+  try
+    //Verify all input parameters
+    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
+    and (aResType in [Low(WareIndexToType)..High(WareIndexToType)])
+    and (aWareTradeState in [Low(TWareTradeState)..High(TWareTradeState)]) then
+      gHands[aPlayer].Locks.WareTradeState[WareIndexToType[aResType]] := TWareTradeState(aWareTradeState)
+    else
+      LogParamWarning('Actions.SetWareTradeState', [aPlayer, aResType, Byte(aWareTradeState)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
