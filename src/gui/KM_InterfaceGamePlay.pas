@@ -175,6 +175,8 @@ type
       DropBox_AlliesTeam:array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
       Label_AlliesTeam:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+      Label_AlliesPingFpsSlash:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+      Label_AlliesFPS:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       Image_AlliesClose: TKMImage;
     Panel_Message: TKMPanel;
       Label_MessageText: TKMLabel;
@@ -1130,7 +1132,9 @@ begin
       for K := 1 to 4 do DropBox_AlliesTeam[I].Add(IntToStr(K));
       DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[I].DropUp := True; // Doesn't fit if it drops down
-      Label_AlliesPing[I] := TKMLabel.Create(Panel_Allies,   350+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taCenter);
+      Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 347+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taRight);
+      Label_AlliesPingFpsSlash[I] :=  TKMLabel.Create(Panel_Allies, 354+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taCenter);
+      Label_AlliesFPS[I] :=           TKMLabel.Create(Panel_Allies, 361+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taLeft);
     end;
 
     Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97,24,32,32,52,rxGui);
@@ -2505,6 +2509,7 @@ begin
       Label_AlliesPlayer[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
       Label_AlliesTeam[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
       Label_AlliesPing[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
+      Label_AlliesFPS[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
       DropBox_AlliesTeam[I].Enabled := (NetI = gGame.Networking.MyIndex); // Our index
       DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
     end;
@@ -2526,11 +2531,14 @@ begin
     begin
       ping := gGame.Networking.NetPlayers[NetI].GetInstantPing;
       fps := gGame.Networking.NetPlayers[NetI].FPS;
-      Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping)) + ' / ' +
-                                     WrapColor(IntToStr(fps), GetFPSColor(fps));
-    end
-    else
+      Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping));
+      Label_AlliesPingFpsSlash[I].Caption := '/';
+      Label_AlliesFPS[I].Caption := WrapColor(IntToStr(fps), GetFPSColor(fps));
+    end else begin
       Label_AlliesPing[I].Caption := '';
+      Label_AlliesPingFpsSlash[I].Caption := '';
+      Label_AlliesFPS[I].Caption := '';
+    end;
   end;
 end;
 
