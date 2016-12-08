@@ -304,6 +304,7 @@ begin
   RandomizeTeamLocations := False;
   SpectatorsAllowed := False;
   SpectatorSlotsOpen := MAX_LOBBY_SPECTATORS;
+  ResetVote;
   fCount := 0;
 end;
 
