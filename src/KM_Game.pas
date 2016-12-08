@@ -800,7 +800,10 @@ begin
   gHands.AddPlayers(MAX_HANDS); //Create MAX players
   gHands[0].HandType := hndHuman; //Make Player1 human by default
   for I := 0 to gHands.Count - 1 do
+  begin
     gHands[I].FogOfWar.RevealEverything;
+    gHands[I].CenterScreen := KMPoint(aSizeX div 2, aSizeY div 2);
+  end;
 
   gMySpectator := TKMSpectator.Create(0);
   gMySpectator.FOWIndex := PLAYER_NONE;
