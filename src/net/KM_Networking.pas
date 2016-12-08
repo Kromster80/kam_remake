@@ -82,6 +82,7 @@ type
     fMyIndexOnServer: integer;
     fMyIndex: integer; // In NetPlayers list
     fHostIndex: Integer; //In NetPlayers list
+    fMutedPlayers: array [0..MAX_LOBBY_SLOTS-1] of Boolean;  // Muted Players (indexes same as in fNetPlayers)
     fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
     fJoinTimeout, fLastVoteTime: Cardinal;
     fReturnedToLobby: Boolean; //Did we get to the lobby by return to lobby feature?
@@ -149,6 +150,9 @@ type
     procedure PacketSendA(aRecipient: Integer; aKind: TKMessageKind; const aText: AnsiString);
     procedure PacketSendW(aRecipient: Integer; aKind: TKMessageKind; const aText: UnicodeString);
     procedure SetDescription(const Value: UnicodeString);
+    procedure ResetMutedPlayers;
+    procedure SetMutedPlayer(aIndex: Integer; aMuted: Boolean);
+    function GetMutedPlayer(aIndex: Integer): Boolean;
   public
     constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
     destructor Destroy; override;
@@ -216,6 +220,7 @@ type
     property LastProcessedTick:cardinal write fLastProcessedTick;
     property MissingFileType: TNetGameKind read fMissingFileType;
     property MissingFileName: UnicodeString read fMissingFileName;
+    property MutedPlayers[aIndex: Integer]: Boolean read GetMutedPlayer write SetMutedPlayer;
     procedure GameCreated;
     procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
     procedure AttemptReconnection;
@@ -419,6 +424,7 @@ begin
 
   fNetPlayers.Clear;
   fNetGameOptions.Reset;
+  ResetMutedPlayers;
   fNetClient.Disconnect;
   fNetServer.Stop;
 
@@ -1572,32 +1578,37 @@ begin
               end;
 
       mk_Disconnect:
-              case fNetPlayerKind of
-                lpk_Host:
-                    begin
-                      fFileSenderManager.ClientDisconnected(aSenderIndex);
-                      if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostMessage(TX_NET_HAS_QUIT, csLeave, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
-                      if fNetGameState in [lgs_Loading, lgs_Game] then
-                        fNetPlayers.DropPlayer(aSenderIndex)
-                      else
-                        fNetPlayers.RemServerPlayer(aSenderIndex);
-                      SendPlayerListAndRefreshPlayersSetup;
-                      //Player leaving may cause vote to end
-                      if (fNetGameState in [lgs_Loading, lgs_Game])
-                      and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
-                        ReturnToLobbyVoteSucceeded;
-                    end;
-                lpk_Joiner:
-                    begin
-                      PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                      if PlayerIndex = -1 then exit; //Has already disconnected
-                      PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]), csLeave);
-                      if fNetGameState in [lgs_Loading, lgs_Game] then
-                        fNetPlayers.DropPlayer(aSenderIndex)
-                      else
-                        fNetPlayers.RemServerPlayer(aSenderIndex);
-                    end;
+              begin
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                case fNetPlayerKind of
+                  lpk_Host:
+                      begin
+                        fFileSenderManager.ClientDisconnected(aSenderIndex);
+                        if PlayerIndex = -1 then exit; //Has already disconnected
+                        fMutedPlayers[PlayerIndex-1] := False; // Reset Muted status of the disconnected player
+                        PostMessage(TX_NET_HAS_QUIT, csLeave, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
+                        if fNetGameState in [lgs_Loading, lgs_Game] then
+                          fNetPlayers.DropPlayer(aSenderIndex)
+                        else
+                          fNetPlayers.RemServerPlayer(aSenderIndex);
+                        SendPlayerListAndRefreshPlayersSetup;
+                        //Player leaving may cause vote to end
+                        if (fNetGameState in [lgs_Loading, lgs_Game])
+                        and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
+                          ReturnToLobbyVoteSucceeded;
+                      end;
+                  lpk_Joiner:
+                      begin
+                        if PlayerIndex = -1 then exit; //Has already disconnected
+                        fMutedPlayers[PlayerIndex-1] := False; // Reset Muted status of the disconnected player
+                        PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]), csLeave);
+                        if fNetGameState in [lgs_Loading, lgs_Game] then
+                          fNetPlayers.DropPlayer(aSenderIndex)
+                        else
+                          fNetPlayers.RemServerPlayer(aSenderIndex);
+                      end;
+                end;
+
               end;
 
       mk_ReassignHost:
@@ -1981,7 +1992,7 @@ begin
                 end;
 
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if PlayerIndex <> -1 then
+                if (PlayerIndex <> -1) and not fMutedPlayers[PlayerIndex-1] then
                 begin
                   if NetPlayers[PlayerIndex].FlagColorID <> 0 then
                     tmpStringW := UnicodeString(WrapColorA(NetPlayers[PlayerIndex].Nikname, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor))) + tmpStringW
@@ -2118,6 +2129,25 @@ begin
   fOnMPGameInfoChanged(Self); //Send the description to the server so it is shown in room info
 end;
 
+
+procedure TKMNetworking.ResetMutedPlayers;
+var I: Integer;
+begin
+  for I := Low(fMutedPlayers) to High(fMutedPlayers) do
+    fMutedPlayers[I] := False;
+end;
+
+
+procedure TKMNetworking.SetMutedPlayer(aIndex: Integer; aMuted: Boolean);
+begin
+  fMutedPlayers[aIndex] := aMuted;
+end;
+
+
+function TKMNetworking.GetMutedPlayer(aIndex: Integer): Boolean;
+begin
+  Result := fMutedPlayers[aIndex];
+end;
 
 procedure TKMNetworking.SetGameState(aState: TNetGameState);
 begin
