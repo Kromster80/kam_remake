@@ -2503,8 +2503,8 @@ begin
       // Strikethrough for disconnected players
       Image_AlliesFlag[I].Enabled := not gGame.Networking.NetPlayers[NetI].Dropped;
       Label_AlliesPlayer[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
-      // Do not strike throught '-' symbol, when player has no team
-      Label_AlliesTeam[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped and (Label_AlliesTeam[I].Caption <> '-');
+      Label_AlliesTeam[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped
+        and (gGame.Networking.NetPlayers[NetI].Team <> 0); // Do not strike throught '-' symbol, when player has no team
       Label_AlliesPing[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
       DropBox_AlliesTeam[I].Enabled := (NetI = gGame.Networking.MyIndex); // Our index
       DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
