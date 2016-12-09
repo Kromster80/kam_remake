@@ -37,6 +37,7 @@ type
     fShowTeamNames: Boolean; // True while the SC_SHOW_TEAM key is pressed
     LastDragPoint: TKMPoint; // Last mouse point that we drag placed/removed a road/field
     PrevHint: TObject;
+    PrevHintMessage: UnicodeString;
     ShownMessage: Integer;
     PlayMoreMsg: TGameResultMsg; // Remember which message we are showing
     fJoiningGroups, fPlacingBeacon: Boolean;
@@ -565,17 +566,23 @@ end;
 
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
-  if (PrevHint = Sender) then Exit; // Hint didn't change
+  if (PrevHint = nil) and (Sender = nil) then Exit; //in this case there is nothing to do
+  if (PrevHint <> nil) and (Sender = PrevHint)
+    and (TKMControl(PrevHint).Hint = PrevHintMessage) then Exit; // Hint didn't change (not only Hint object, but also Hint message didn't change)
+  if (Sender = Label_Hint) or (Sender = Bevel_HintBG) then Exit; // When previous Hint obj is covered by Label_Hint or Bevel_HintBG ignore it.
+
   if (Sender = nil) or (TKMControl(Sender).Hint = '') then
   begin
     Label_Hint.Caption := '';
     Bevel_HintBG.Hide;
+    PrevHintMessage := '';
   end
   else
   begin
     Label_Hint.Caption := TKMControl(Sender).Hint;
     Bevel_HintBG.Show;
     Bevel_HintBG.Width := 10 + gRes.Fonts[Label_Hint.Font].GetTextSize(Label_Hint.Caption).X;
+    PrevHintMessage := TKMControl(Sender).Hint;
   end;
   PrevHint := Sender;
 end;
