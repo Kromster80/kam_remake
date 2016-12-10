@@ -142,10 +142,18 @@ begin
     Assert((OldDir <> WorkPlan.WorkDir) or not KMSamePoint(OldLoc, WorkPlan.Loc));
     fPhase := 0; //Set the walk again (Will become 1 after this loop)
     fUnit.SetActionLockedStay(0, WorkPlan.ActionWalkTo);
-  end else
+    gTerrain.Land[fUnit.LastTaskPosition.Y, fUnit.LastTaskPosition.X].OccupiedByWorker := False;
+    if WorkPlan.GatheringScript = gs_WoodcutterCut then
+      fUnit.LastTaskPosition := KMPoint(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).X, KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).Y)
+    else
+      fUnit.LastTaskPosition := KMPoint(WorkPlan.Loc.X, WorkPlan.Loc.Y);
+    gTerrain.Land[fUnit.LastTaskPosition.Y, fUnit.LastTaskPosition.X].OccupiedByWorker := True;
+  end
+  else
   begin
     fPhase := 99; //Abandon as there is no other work plan available (Exit the task on next update)
     fUnit.SetActionLockedStay(0, WorkPlan.ActionWalkTo);
+    gTerrain.Land[fUnit.LastTaskPosition.Y, fUnit.LastTaskPosition.X].OccupiedByWorker := False;
   end;
 end;
 
@@ -231,7 +239,11 @@ begin
 
           //Woodcutter takes his axe with him when going to chop trees
           if (WorkPlan.GatheringScript = gs_WoodCutterCut) then
+          begin
             GetHome.fCurrentAction.SubActionRem([ha_Flagpole]);
+            fUnit.LastTaskPosition := KMPoint(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).X, KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).Y);
+            gTerrain.Land[fUnit.LastTaskPosition.Y, fUnit.LastTaskPosition.X].OccupiedByWorker := True;
+          end;
         end
         else
         begin
@@ -284,19 +296,32 @@ begin
          StillFrame := 0;
          case WorkPlan.GatheringScript of //Perform special tasks if required
            gs_StoneCutter:      gTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
-           gs_FarmerSow:        gTerrain.SowCorn(WorkPlan.Loc);
-           gs_FarmerCorn:       gTerrain.CutCorn(WorkPlan.Loc);
-           gs_FarmerWine:       gTerrain.CutGrapes(WorkPlan.Loc);
+           gs_FarmerSow:        begin
+                                  gTerrain.SowCorn(WorkPlan.Loc);
+                                  gTerrain.Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].OccupiedByWorker := False;
+                                end;
+           gs_FarmerCorn:       begin
+                                  gTerrain.CutCorn(WorkPlan.Loc);
+                                  gTerrain.Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].OccupiedByWorker := False;
+                                end;
+           gs_FarmerWine:       begin
+                                  gTerrain.CutGrapes(WorkPlan.Loc);
+                                  gTerrain.Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].OccupiedByWorker := False;
+                                end;
            gs_FisherCatch:      begin
                                   gTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir));
                                   WorkPlan.ActionWorkType := ua_WalkTool;
                                 end;
            gs_WoodCutterPlant:  //If the player placed a house plan here while we were digging don't place the
                                 //tree so the house plan isn't canceled. This is actually the same as TSK/TPR IIRC
-                                if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
-                                  gTerrain.SetTree(WorkPlan.Loc, gTerrain.ChooseTreeToPlant(WorkPlan.Loc));
+                                begin
+                                  if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
+                                    gTerrain.SetTree(WorkPlan.Loc, gTerrain.ChooseTreeToPlant(WorkPlan.Loc));
+                                  gTerrain.Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].OccupiedByWorker := False;
+                                end;
            gs_WoodCutterCut:    begin
                                   gTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir));
+                                  gTerrain.Land[KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).Y, KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).X].OccupiedByWorker := False;
                                   StillFrame := 5;
                                 end;
          end;
@@ -390,7 +415,8 @@ begin
             GetHome.SetState(hst_Idle);
             SetActionLockedStay(WorkPlan.AfterWorkIdle-1, ua_Walk);
           end;
-    else  Result := TaskDone;
+    else
+      Result := TaskDone;
   end;
   inc(fPhase);
 end;

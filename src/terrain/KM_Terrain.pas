@@ -76,6 +76,9 @@ type
 
       Fence: TFenceType; //Fences (ropes, planks, stones)
       FenceSide: Byte; //Bitfield whether the fences are enabled
+
+      OccupiedByWorker: Boolean;  //Becomes true when worker gets a task (woodcutter wants to plant tree, farmer decided to harvest grapes, etc) and false when task is done/cancelled, or worker died
+
     end;
 
     FallingTrees: TKMPointTagList;
@@ -281,6 +284,7 @@ begin
     TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K, I), caAgeFull), TREE_AGE_FULL, 0);
     Fence        := fncNone;
     FenceSide    := 0;
+    OccupiedByWorker := False;
   end;
 
   fFinder := TKMTerrainFinder.Create;
@@ -550,13 +554,12 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
       end;
   end;
 
-  // Function allows objects in the same manner like in KaM Editor - we do not want falling trees, hidden objects etc.
+  // We do not want falling trees
   function AllowableObject: Boolean;
   begin
-    // Hide invisible wall (61), falling trees
-    Result := (aObject <> 61)
-              and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
-              and (MapElem[aObject].Stump = -1);
+    // Hide falling trees
+    // Invisible objects like 255 can be useful to clear specified tile (since delete object = place object 255)
+    Result := (MapElem[aObject].Stump = -1) or (aObject = 255);
   end;
 
 var
@@ -564,11 +567,11 @@ var
 begin
   //Will this change make a unit stuck?
   if ((Land[Y, X].IsUnit <> nil) and MapElem[aObject].AllBlocked)
-  //Is this object part of a wine/corn field?
-  or TileIsWineField(KMPoint(X, Y)) or TileIsCornField(KMPoint(X, Y))
+  //Is this tile occupied by any worker (woodcutter wants to plant tree here, farmer decided to harvest grapes, etc)?
+  or Land[Y, X].OccupiedByWorker
   //Is there a house/site near this object?
   or HousesNearObject
-  //Is this object allowed to be placed - like in KaM Editor?
+  //Is this object allowed to be placed?
   or not AllowableObject then
   begin
     Result := False;
@@ -581,24 +584,22 @@ begin
   //Apply change
   //UpdatePassability and UpdateWalkConnect are called in SetField so that we only use it in trees and other objects
   case aObject of
-    55..58:   // Wine in different stages
-              if CanAddField(X, Y, ft_Wine) and (TileIsCoal(X, Y) <= 0) then // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
+    55..59: // Corn and grapes: Set FieldAge if there's field to let them grow
               begin
                 Land[Y, X].Obj := aObject;
-                SetField(KMPoint(X, Y), -1, ft_Wine);
                 Result := True;
-              end
-              else
-                Result := False;
-    59..63:   // Corn in different stages
-              if CanAddField(X, Y, ft_Corn) and (TileIsCoal(X, Y) <= 0) then  // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
-              begin
-                Land[Y, X].Obj := aObject;
-                SetField(KMPoint(X, Y), -1, ft_Corn);
-                Result := True;
-              end
-              else
-                Result := False;
+                if TileIsWineField(KMPoint(X, Y)) then
+                case aObject of
+                  55: Land[Y,X].FieldAge := WINE_AGE_1;
+                  56: Land[Y,X].FieldAge := WINE_AGE_2;
+                  57: Land[Y,X].FieldAge := WINE_AGE_FULL - 1;
+                end;
+                if TileIsCornField(KMPoint(X, Y)) then
+                case aObject of
+                  58: Land[Y,X].FieldAge := CORN_AGE_2;
+                  59: Land[Y,X].FieldAge := CORN_AGE_FULL - 1;
+                end;
+              end;
     88..124,
     126..172: // Trees - 125 is mushroom
               begin

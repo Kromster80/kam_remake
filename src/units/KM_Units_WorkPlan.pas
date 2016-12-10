@@ -185,9 +185,8 @@ begin
   //Convert taAny to either a Tree or a Spot
   if (aPlantAct in [taCut, taAny])
   and ((TreeList.Count > 8) //Always chop the tree if there are many
-       or (BestToPlant.Count + SecondBestToPlant.Count = 0)
-       or ((TreeList.Count > 0) and (KaMRandom < TreeList.Count / (TreeList.Count + (BestToPlant.Count + SecondBestToPlant.Count)/15)))
-      ) then
+  or (BestToPlant.Count + SecondBestToPlant.Count = 0)
+  or ((TreeList.Count > 0) and (KaMRandom < TreeList.Count / (TreeList.Count + (BestToPlant.Count + SecondBestToPlant.Count)/15)))) then
   begin
     PlantAct := taCut;
     Result := TreeList.GetRandom(Tree);
@@ -249,6 +248,8 @@ begin
                                       end;
                             taPlant:  begin //Planting uses DirN (0) of ua_Work
                                         WalkStyle(Tmp, ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant);
+                                        aUnit.LastTaskPosition := KMPoint(Tmp.Loc.X, Tmp.Loc.Y);
+                                        gTerrain.Land[aUnit.LastTaskPosition.Y, aUnit.LastTaskPosition.X].OccupiedByWorker := True;
                                       end;
                             else      fIssued := False;
                           end;
@@ -332,8 +333,14 @@ begin
                             taCut:    begin
                                         ResourcePlan(wt_None,0,wt_None,0,wt_Corn);
                                         WalkStyle(Tmp, ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
+                                        aUnit.LastTaskPosition := KMPoint(Tmp.Loc.X, Tmp.Loc.Y);
+                                        gTerrain.Land[aUnit.LastTaskPosition.Y, aUnit.LastTaskPosition.X].OccupiedByWorker := True;
                                       end;
-                            taPlant:  WalkStyle(Tmp, ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow);
+                            taPlant:  begin
+                                        WalkStyle(Tmp, ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow);
+                                        aUnit.LastTaskPosition := KMPoint(Tmp.Loc.X, Tmp.Loc.Y);
+                                        gTerrain.Land[aUnit.LastTaskPosition.Y, aUnit.LastTaskPosition.X].OccupiedByWorker := True;
+                                      end
                             else      fIssued := False;
                           end;
                       end else
@@ -345,6 +352,8 @@ begin
                         begin
                           ResourcePlan(wt_None,0,wt_None,0,wt_Wine);
                           WalkStyle(KMPointDir(Tmp.Loc,dir_N), ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine); //The animation for picking grapes is only defined for facing north
+                          aUnit.LastTaskPosition := KMPoint(Tmp.Loc.X, Tmp.Loc.Y);
+                          gTerrain.Land[aUnit.LastTaskPosition.Y, aUnit.LastTaskPosition.X].OccupiedByWorker := True;
                           SubActAdd(ha_Work1,1);
                           SubActAdd(ha_Work2,11);
                           SubActAdd(ha_Work5,1);
