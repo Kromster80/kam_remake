@@ -110,10 +110,19 @@ var
 var
   I: Integer;
   R: TWareType;
+  W: TUnitType;
   G: TKMCardinalArray;
   HumanId: TKMHandIndex;
   ShowAIResults: Boolean;
 begin
+  // When exit mission update stats to build actual charts
+  // without CHARTS_SAMPLING_FOR_TACTICS or CHARTS_SAMPLING_FOR_ECONOMY delays
+  // so measurements for warriors/goods produces will not differ from charts
+  for I := 0 to gHands.Count - 1 do
+  begin
+    gHands[I].Stats.UpdateState;
+  end;
+
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
   //That info should only be visible if the mission was won or a replay
   ShowAIResults := (fGameResultMsg in [gr_Win, gr_ReplayEnd]);
@@ -174,19 +183,6 @@ begin
     Chart_Houses.MaxTime    := gGame.GameTickCount div 10;
     Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
 
-    //Army
-    TempGraphCount := 0; //Reset
-    for I := 0 to gHands.Count - 1 do
-    with gHands[I] do
-      if HandType = hndComputer then
-        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy)
-      else
-        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
-
-    if ShowAIResults then
-      for I := 0 to TempGraphCount - 1 do
-        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
-
     //Citizens
     TempGraphCount := 0; //Reset
     for I := 0 to gHands.Count - 1 do
@@ -228,6 +224,19 @@ begin
           Break;
         end;
     end;
+
+    //Army
+    TempGraphCount := 0; //Reset
+    for I := 0 to gHands.Count - 1 do
+    with gHands[I] do
+      if HandType = hndComputer then
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[ut_Any])
+      else
+        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[ut_Any]);
+
+    if ShowAIResults then
+      for I := 0 to TempGraphCount - 1 do
+        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
     Button_ResultsHouses.Enabled := (gGame.MissionMode = mm_Normal);
     Button_ResultsCitizens.Enabled := (gGame.MissionMode = mm_Normal);

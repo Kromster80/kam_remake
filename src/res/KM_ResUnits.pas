@@ -47,6 +47,9 @@ type
     constructor Create(aType: TUnitType);
     function IsValid: Boolean;
     function IsAnimal: Boolean;
+    function IsCitizen: Boolean;
+    function IsWarrior: Boolean;
+    function IsWarriorEquipable: Boolean;
     function GetDefenceVsProjectiles(aIsBolt: Boolean): Single;
     procedure LoadFromStream(Stream: TMemoryStream);
     //Derived from KaM
@@ -176,6 +179,24 @@ begin
 end;
 
 
+function TKMUnitDatClass.IsCitizen: boolean;
+begin
+  Result := fUnitType in [CITIZEN_MIN..CITIZEN_MAX];
+end;
+
+
+function TKMUnitDatClass.IsWarrior: boolean;
+begin
+  Result := fUnitType in [WARRIOR_MIN..WARRIOR_MAX];
+end;
+
+
+function TKMUnitDatClass.IsWarriorEquipable: boolean;
+begin
+  Result := fUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX];
+end;
+
+
 function TKMUnitDatClass.GetDefenceVsProjectiles(aIsBolt: Boolean): Single;
 begin
   Result := Defence;
@@ -227,8 +248,7 @@ const UnitSupportedActions: array [TUnitType] of TUnitActionTypeSet = (
     [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Slingshot
     [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Warrior
     [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk] //Animals
-    );
+    [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk]); //Animals
 begin
   Result := aAct in UnitSupportedActions[fUnitType];
 end;
@@ -277,10 +297,16 @@ end;
 
 function TKMUnitDatClass.GetGUIIcon: word;
 begin
-  if IsValid then
-    Result := 141 + UnitTypeToIndex[fUnitType]
-  else
-    Result := 0;
+  case fUnitType of
+    ut_None, ut_Any:  Result := 0;
+    ut_Barbarian:     Result := 70;
+    else              if IsCitizen then
+                        Result := 141 + UnitTypeToIndex[fUnitType]
+                      else if IsWarriorEquipable then
+                        Result := 47 + UnitTypeToIndex[fUnitType]
+                      else if IsWarrior then
+                        Result := 55 + UnitTypeToIndex[fUnitType]
+  end;
 end;
 
 
@@ -358,10 +384,11 @@ end;
 
 function TKMUnitDatClass.GetUnitName: UnicodeString;
 begin
-  if IsValid then
-    Result := gResTexts[GetUnitTextID]
-  else
-    Result := 'N/A';
+  case fUnitType of
+    ut_Any:             Result := 'All'; //Todo translate
+    ut_None:            Result := 'N/A';
+    else                Result := gResTexts[GetUnitTextID];
+  end;
 end;
 
 
