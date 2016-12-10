@@ -48,6 +48,7 @@ type
     procedure ChatMenuShow(Sender: TObject);
 
     procedure PlayerMenuClick(Sender: TObject);
+    function CanShowPlayerMenu(Sender: TObject): Boolean;
     procedure PlayerMenuShow(Sender: TObject);
 
     procedure PlayersSetupChange(Sender: TObject);
@@ -791,6 +792,7 @@ begin
     Label_LobbyPlayer[I].Caption := '.';
     Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
     Image_LobbyFlag[I].TexID := 0;
+    Image_LobbyFlag[I].HighlightOnMouseOver := False;
     Label_LobbyPlayer[I].Hide;
     DropBox_LobbyPlayerSlot[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     DropBox_LobbyPlayerSlot[I].Disable;
@@ -939,19 +941,37 @@ begin
 end;
 
 
-procedure TKMMenuLobby.PlayerMenuShow(Sender: TObject);
+function TKMMenuLobby.CanShowPlayerMenu(Sender: TObject): Boolean;
 var
   ctrl: TKMControl;
 begin
+  Result := True;
   ctrl := TKMControl(Sender);
-  if fLocalToNetPlayers[ctrl.Tag] = -1 then Exit;
+  if fLocalToNetPlayers[ctrl.Tag] = -1 then
+  begin
+    Result := False;
+    Exit;
+  end;
 
   //Only human players (excluding ourselves) have the player menu
   if not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IsHuman //No menu for AI players
   or (fNetworking.MyIndex = fLocalToNetPlayers[ctrl.Tag]) //No menu for ourselves
   or not fNetworking.IsHost //Only host gets to use the menu (for now)
   or not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].Connected then //Don't show menu for empty slots
+  begin
+    Result := False;
     Exit;
+  end;
+end;
+
+
+procedure TKMMenuLobby.PlayerMenuShow(Sender: TObject);
+var
+  ctrl: TKMControl;
+begin
+  ctrl := TKMControl(Sender);
+
+  if not CanShowPlayerMenu(Sender) then Exit;
 
   //Remember which player it is by his server index
   //since order of players can change. If someone above leaves we still have the proper Id
@@ -1270,6 +1290,9 @@ begin
         Button_LobbyStart.Caption := gResTexts[TX_LOBBY_READY];
     end;
   end;
+
+  for I := 1 to MAX_LOBBY_SLOTS do
+    Image_LobbyFlag[I].HighlightOnMouseOver := CanShowPlayerMenu(Image_LobbyFlag[I]);
 
   //Update the minimap preivew with player colors
   for I := 0 to MAX_HANDS - 1 do
