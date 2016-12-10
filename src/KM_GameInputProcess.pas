@@ -430,10 +430,10 @@ begin
     gScriptEvents.ProcBeacon(Params[3], 1 + (Params[1] div 10), 1 + (Params[2] div 10));
     // Check if player, who send beacon, is muted
     IsPlayerMuted := False;
-    for I := 0 to MAX_LOBBY_SLOTS-1 do
-      if Params[3] = gGame.Networking.NetPlayers[I+1].StartLocation-1 then
+    for I := 1 to MAX_LOBBY_SLOTS do
+      if Params[3] = gGame.Networking.NetPlayers[I].StartLocation-1 then
       begin
-        IsPlayerMuted := gGame.Networking.MutedPlayers[I];
+        IsPlayerMuted := gGame.Networking.MutedPlayers[I].Muted;
         Break;
       end;
     //However, beacons don't show in replays

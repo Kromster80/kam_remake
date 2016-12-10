@@ -28,6 +28,13 @@ type
     function ConnectedPlayerCount: Byte;
   end;
 
+  TKMMutedPlayer = class
+  public
+    Muted: Boolean;
+    IndexOnServer: Integer;
+    constructor Create;
+  end;
+
 
 implementation
 uses
@@ -115,6 +122,13 @@ begin
   for I := 1 to PlayerCount do
     if Players[I].Connected and (Players[I].PlayerType = nptHuman) then
       Inc(Result);
+end;
+
+
+{TKMMutedPlayer}
+constructor TKMMutedPlayer.Create;
+begin
+  IndexOnServer := -1;
 end;
 
 

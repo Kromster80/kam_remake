@@ -1105,13 +1105,13 @@ end;
 procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
 const ROWS = 5;
-      MUTE_W = 15;
+      PANEL_ALLIES_WIDTH = 810;
 begin
-  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 800 + MUTE_W*2, MESSAGE_AREA_HEIGHT);
+  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 
-    with TKMImage.Create(Panel_Allies,0,0,800 + MUTE_W*2,190,409) do ImageAnchors := [anLeft, anRight, anTop];
+    with TKMImage.Create(Panel_Allies,0,0,PANEL_ALLIES_WIDTH,190,409) do ImageAnchors := [anLeft, anRight, anTop];
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,'',fnt_Outline,taCenter);
     Image_AlliesHostStar := TKMImage.Create(Panel_Allies, 50, 82, 20, 20, 77, rxGuiMain);
@@ -1121,29 +1121,29 @@ begin
     begin
       if (I mod ROWS) = 0 then // Header for each column
       begin
-        TKMLabel.Create(Panel_Allies, MUTE_W+ 70+(I div ROWS)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, MUTE_W+220+(I div ROWS)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, MUTE_W+350+(I div ROWS)*380, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
+        TKMLabel.Create(Panel_Allies, 80+(I div ROWS)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 230+(I div ROWS)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 360+(I div ROWS)*380, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
       end;
-      Image_AlliesMute[I] := TKMImage.Create(Panel_Allies,       50+(I div ROWS)*380, 82+(I mod ROWS)*20 - 5, 12,  16,  0, rxGuiMain);
+      Image_AlliesMute[I] := TKMImage.Create(Panel_Allies, 40+(I div ROWS)*380, 77+(I mod ROWS)*20, 16, 16, 0, rxGuiMain);
       Image_AlliesMute[I].OnClick := Allies_Mute;
       Image_AlliesMute[I].Tag := I;
       Image_AlliesMute[I].HighlightOnMouseOver := True;
       Image_AlliesMute[I].Hide;
 
-      Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,     MUTE_W+  50+(I div ROWS)*380, 82+(I mod ROWS)*20, 16,  11,  0, rxGuiMain);
-      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,   MUTE_W+  70+(I div ROWS)*380, 80+(I mod ROWS)*20, 140, 20, '', fnt_Grey, taLeft);
-      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,   MUTE_W+ 220+(I div ROWS)*380, 80+(I mod ROWS)*20, 120, 20, '', fnt_Grey, taLeft);
-      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,MUTE_W+ 220+(I div ROWS)*380, 80+(I mod ROWS)*20, 120, 20, fnt_Grey, '', bsGame);
+      Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,     60+(I div ROWS)*380, 82+(I mod ROWS)*20, 16,  11,  0, rxGuiMain);
+      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,   80+(I div ROWS)*380, 80+(I mod ROWS)*20, 140, 20, '', fnt_Grey, taLeft);
+      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,   230+(I div ROWS)*380, 80+(I mod ROWS)*20, 120, 20, '', fnt_Grey, taLeft);
+      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,230+(I div ROWS)*380, 80+(I mod ROWS)*20, 120, 20, fnt_Grey, '', bsGame);
       DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
       DropBox_AlliesTeam[I].Add('-');
       for K := 1 to 4 do DropBox_AlliesTeam[I].Add(IntToStr(K));
       DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[I].DropUp := True; // Doesn't fit if it drops down
-      Label_AlliesPing[I] := TKMLabel.Create(Panel_Allies,   MUTE_W+350+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taCenter);
+      Label_AlliesPing[I] := TKMLabel.Create(Panel_Allies,   360+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taCenter);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97 + MUTE_W*2,24,32,32,52,rxGui);
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,PANEL_ALLIES_WIDTH-98,24,32,32,52,rxGui);
     Image_AlliesClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := True;
@@ -1711,7 +1711,7 @@ begin
   if (Sender is TKMImage) then
   begin
     Image := TKMImage(Sender);
-    gGame.Networking.MutedPlayers[fAlliesToNetPlayers[Image.Tag]-1] := not gGame.Networking.MutedPlayers[fAlliesToNetPlayers[Image.Tag]-1];
+    gGame.Networking.MutedPlayers[fAlliesToNetPlayers[Image.Tag]].Muted := not gGame.Networking.MutedPlayers[fAlliesToNetPlayers[Image.Tag]].Muted;
     Update_Image_AlliesMute(Image);
   end;
 end;
@@ -1719,13 +1719,13 @@ end;
 
 procedure TKMGamePlayInterface.Update_Image_AlliesMute(aImage: TKMImage);
 begin
-  if gGame.Networking.MutedPlayers[fAlliesToNetPlayers[aImage.Tag]-1] then
+  if gGame.Networking.MutedPlayers[fAlliesToNetPlayers[aImage.Tag]].Muted then
   begin
     aImage.Hint := 'Unmute player'; //todo translate
-    aImage.TexId := 75;
+    aImage.TexId := 84;
   end else begin
     aImage.Hint := 'Mute player'; //todo translate
-    aImage.TexId := 73;
+    aImage.TexId := 83;
   end;
 end;
 
@@ -2520,8 +2520,8 @@ begin
       else
         Label_AlliesPlayer[I].Caption := gHands[gGame.Networking.NetPlayers[NetI].StartLocation-1].OwnerName;
 
-      if (gGame.Networking.NetPlayers[gGame.Networking.MyIndex].Nikname <> Label_AlliesPlayer[I].Caption) // If not my player
-        and gGame.Networking.NetPlayers[NetI].IsHuman then                                                // and is not Computer
+      if (gGame.Networking.MyIndex <> NetI)                // If not my player
+        and gGame.Networking.NetPlayers[NetI].IsHuman then // and is not Computer
       begin
         Update_Image_AlliesMute(Image_AlliesMute[I]);
         Image_AlliesMute[I].Show;
