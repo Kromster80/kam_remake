@@ -1169,11 +1169,13 @@ begin
   Button_Menu_TrackDown.Hint := gResTexts[TX_MUSIC_PREV_HINT];
   Button_Menu_TrackUp.OnClick := Menu_NextTrack;
   Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
-  TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Metal, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Outline, taCenter);
   Label_Menu_Track := TKMLabel.Create(Panel_Menu, 23, 306, TB_WIDTH - 46, 30, '', fnt_Grey, taCenter);
   Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
-  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 20, '', fnt_Outline, taCenter);
-  Label_MapName := TKMLabel.Create(Panel_Menu, -3, 240, TB_WIDTH + 3, 20, '', fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 30, 'Game time:', fnt_Outline, taCenter); //Todo: translate
+  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 218, TB_WIDTH, 20, '', fnt_Grey, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, 'Map:', fnt_Outline, taCenter); //Todo: translate
+  Label_MapName := TKMLabel.Create(Panel_Menu, -3, 260, TB_WIDTH + 3, 20, '', fnt_Grey, taCenter);
 end;
 
 
@@ -1969,8 +1971,8 @@ begin
   Button_Menu_TrackUp.Height := IfThen(Label_Menu_Track.AutoWrap, 38, 30);
   Button_Menu_TrackDown.Height := IfThen(Label_Menu_Track.AutoWrap, 38, 30);
 
-  Label_GameTime.Caption := Format(gResTexts[TX_GAME_TIME], [TimeToString(gGame.MissionTime)]);
-  Label_MapName.Caption := 'Map:|' + Copy(gGame.GameName, 0, EnsureRange(Length(gGame.GameName), 1, MAX_MAPNAME_LENGTH));// TODO Translate, use Format(gResTexts[TX_GAME_MAP], [gGame.GameName]) then
+  Label_GameTime.Caption := TimeToString(gGame.MissionTime);
+  Label_MapName.Caption := Copy(gGame.GameName, 0, EnsureRange(Length(gGame.GameName), 1, MAX_MAPNAME_LENGTH));
 
   Label_Menu_Track.Enabled      := not gGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not gGameApp.GameSettings.MusicOff;
