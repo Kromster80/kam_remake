@@ -53,6 +53,7 @@ type
 
     procedure ToggleMutePlayer(aPlayerIndex: Integer);
     procedure UpdateMuteMenuItem(aMenu: TKMPopUpMenu; aItemIndex: Integer; aIsMuted: Boolean);
+    procedure UpdateImageLobbyFlag(aIndex: Integer);
 
     procedure PlayersSetupChange(Sender: TObject);
     procedure MapColumnClick(aValue: Integer);
@@ -343,6 +344,7 @@ begin
         Image_LobbyFlag[I].ImageCenter;
         Image_LobbyFlag[I].Tag := I; //Required for PlayerMenuShow
         Image_LobbyFlag[I].OnClick := PlayerMenuShow;
+        Image_LobbyFlag[I].HighlightOnMouseOver := True;
 
         Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
         Label_LobbyPlayer[I].Hide;
@@ -992,7 +994,6 @@ begin
     //since order of players can change. If someone above leaves we still have the proper Id
     Menu_Host.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-
     UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.MutedPlayers[fLocalToNetPlayers[ctrl.Tag]]);
 
     //Position the menu next to the icon, but do not overlap players name
@@ -1013,6 +1014,7 @@ end;
 procedure TKMMenuLobby.ToggleMutePlayer(aPlayerIndex: Integer);
 begin
   gGameApp.Networking.MutedPlayers[aPlayerIndex] := not gGameApp.Networking.MutedPlayers[aPlayerIndex];
+  UpdateImageLobbyFlag(fNetPlayersToLocal[aPlayerIndex]);
 end;
 
 
@@ -1022,6 +1024,16 @@ begin
     aMenu.UpdateItem(aItemIndex, 'Unmute player') //todo translate
   else
     aMenu.UpdateItem(aItemIndex, 'Mute player'); //todo translate
+end;
+
+
+procedure TKMMenuLobby.UpdateImageLobbyFlag(aIndex: Integer);
+begin
+  // Darken player flag when muted
+  if (fLocalToNetPlayers[aIndex] <> -1) and fNetworking.MutedPlayers[fLocalToNetPlayers[aIndex]] then
+    Image_LobbyFlag[aIndex].Lightness := -0.66
+  else
+    Image_LobbyFlag[aIndex].Lightness := 0;
 end;
 
 
@@ -1334,6 +1346,12 @@ begin
     end;
   end;
 
+  // Darken player flag when muted
+  for I := 1 to MAX_LOBBY_SLOTS do
+  begin
+    UpdateImageLobbyFlag(I);
+  end;
+
   //If PopUp menu was opened, check if player still connected, otherwise - close PopUp menu
   if Menu_Host.Visible and (fNetworking.NetPlayers.ServerToLocal(Menu_Host.Tag) = -1) then
     Menu_Host.Hide;
@@ -1341,7 +1359,7 @@ begin
   if Menu_Joiner.Visible and (fNetworking.NetPlayers.ServerToLocal(Menu_Joiner.Tag) = -1) then
     Menu_Joiner.Hide;
 
-  //Update the minimap preivew with player colors
+  //Update the minimap preview with player colors
   for I := 0 to MAX_HANDS - 1 do
   begin
     ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
