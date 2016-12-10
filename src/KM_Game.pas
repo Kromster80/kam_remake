@@ -1457,7 +1457,7 @@ end;
 procedure TKMGame.UpdateGame(Sender: TObject);
 var
   I: Integer;
-  PeaceTicksRemaining: Cardinal;
+  PeaceTimeLeft: Cardinal;
 begin
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
@@ -1565,9 +1565,9 @@ begin
                     if DoGameHold then
                       Break;
 
-                    PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
+                    PeaceTimeLeft := Max(0, fGameOptions.Peacetime * 600 - fGameTickCount);
 
-                    if (PeaceTicksRemaining = 1)
+                    if (PeaceTimeLeft = 1)
                     and (fGameMode = gmReplayMulti)
                     and (gGameApp.GameSettings.ReplayAutopause) then
                     begin

@@ -46,8 +46,8 @@ begin
   Panel_Settings := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,15,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ReplayAutoPause := TKMCheckBox.Create(Panel_Settings,PAD,40,WID,20,'Replay autopause',fnt_Metal); //TODO translate
-    CheckBox_Settings_ReplayAutoPause.Hint := 'Automatically pause replay when peacetime ends'; //TODO translate
+    CheckBox_Settings_ReplayAutoPause := TKMCheckBox.Create(Panel_Settings,PAD,40,WID,20,'Replay autopause',fnt_Metal); //Todo: translate
+    CheckBox_Settings_ReplayAutoPause.Hint := 'Automatically pause replay when peacetime ends'; //Todo: translate
     CheckBox_Settings_ReplayAutoPause.OnClick := Menu_Settings_Change;
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,65,WID,0,20);
     TrackBar_Settings_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];

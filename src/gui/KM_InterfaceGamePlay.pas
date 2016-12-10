@@ -984,7 +984,6 @@ begin
     Dropbox_ReplayFOW.OnChange := ReplayClick;
     Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
-
  end;
 
 
