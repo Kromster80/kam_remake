@@ -205,6 +205,7 @@ uses
   KM_ResTileset in 'src\res\KM_ResTileset.pas',
   KM_ResUnits in 'src\res\KM_ResUnits.pas',
   KM_ResWares in 'src\res\KM_ResWares.pas',
+  KM_ResUtils in 'src\res\KM_ResUtils.pas',
 
   KM_Saves in 'src\KM_Saves.pas',
 
