@@ -48,7 +48,7 @@ type
     procedure ChatMenuShow(Sender: TObject);
 
     procedure PlayerMenuClick(Sender: TObject);
-    function DoShowPlayerMenu(Sender: TObject): Boolean;
+    function CanShowPlayerMenu(Sender: TObject): Boolean;
     procedure PlayerMenuShow(Sender: TObject);
 
     procedure PlayersSetupChange(Sender: TObject);
@@ -941,7 +941,7 @@ begin
 end;
 
 
-function TKMMenuLobby.DoShowPlayerMenu(Sender: TObject): Boolean;
+function TKMMenuLobby.CanShowPlayerMenu(Sender: TObject): Boolean;
 var
   ctrl: TKMControl;
 begin
@@ -971,7 +971,7 @@ var
 begin
   ctrl := TKMControl(Sender);
 
-  if not DoShowPlayerMenu(Sender) then Exit;
+  if not CanShowPlayerMenu(Sender) then Exit;
 
   //Remember which player it is by his server index
   //since order of players can change. If someone above leaves we still have the proper Id
@@ -1292,7 +1292,7 @@ begin
   end;
 
   for I := 1 to MAX_LOBBY_SLOTS do
-    Image_LobbyFlag[I].HighlightOnMouseOver := DoShowPlayerMenu(Image_LobbyFlag[I]);
+    Image_LobbyFlag[I].HighlightOnMouseOver := CanShowPlayerMenu(Image_LobbyFlag[I]);
 
   //Update the minimap preivew with player colors
   for I := 0 to MAX_HANDS - 1 do
