@@ -83,7 +83,7 @@ type
         Edit_LobbyDescription: TKMEdit;
         Edit_LobbyPassword: TKMEdit;
         Button_LobbySettingsUseLastPassword: TKMButton;
-        Checkbox_LobbySaveLastPassword: TKMCheckbox;
+        Checkbox_LobbyRememberPassword: TKMCheckbox;
         Button_LobbySettingsResetBans: TKMButton;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
@@ -524,7 +524,7 @@ begin
     TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
-    Checkbox_LobbySaveLastPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, 'Save this password for further use', fnt_Grey); //TODO translate
+    Checkbox_LobbyRememberPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, 'Remember this password', fnt_Grey); //Todo: translate
 
     Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 180, 280, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
     Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, gResTexts[TX_LOBBY_LAST_PASSWORD], bsMenu);
@@ -1852,7 +1852,7 @@ begin
     Panel_LobbySettings.Hide;
     fNetworking.Description := Edit_LobbyDescription.Text;
     fNetworking.SetPassword(AnsiString(Edit_LobbyPassword.Text));
-    if Checkbox_LobbySaveLastPassword.Checked then
+    if Checkbox_LobbyRememberPassword.Checked then
       gGameApp.GameSettings.LastPassword := UnicodeString(fNetworking.Password);
   end;
 end;
