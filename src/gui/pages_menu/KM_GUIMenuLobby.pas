@@ -993,7 +993,7 @@ begin
     Menu_Host.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
 
-    UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.MutedPlayers[fLocalToNetPlayers[ctrl.Tag]].Muted);
+    UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.MutedPlayers[fLocalToNetPlayers[ctrl.Tag]]);
 
     //Position the menu next to the icon, but do not overlap players name
     Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
@@ -1002,7 +1002,7 @@ begin
     //since order of players can change. If someone above leaves we still have the proper Id
     Menu_Joiner.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-    UpdateMuteMenuItem(Menu_Joiner, 0, gGameApp.Networking.MutedPlayers[fLocalToNetPlayers[ctrl.Tag]].Muted);
+    UpdateMuteMenuItem(Menu_Joiner, 0, gGameApp.Networking.MutedPlayers[fLocalToNetPlayers[ctrl.Tag]]);
     
     //Position the menu next to the icon, but do not overlap players name
     Menu_Joiner.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
@@ -1012,7 +1012,7 @@ end;
 
 procedure TKMMenuLobby.ToggleMutePlayer(aPlayerIndex: Integer);
 begin
-  gGameApp.Networking.MutedPlayers[aPlayerIndex].Muted := not gGameApp.Networking.MutedPlayers[aPlayerIndex].Muted;
+  gGameApp.Networking.MutedPlayers[aPlayerIndex] := not gGameApp.Networking.MutedPlayers[aPlayerIndex];
 end;
 
 

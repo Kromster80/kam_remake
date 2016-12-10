@@ -151,7 +151,8 @@ type
     procedure PacketSendW(aRecipient: Integer; aKind: TKMessageKind; const aText: UnicodeString);
     procedure SetDescription(const Value: UnicodeString);
     procedure ResetMutedPlayers;
-    function GetMutedPlayer(aIndex: Integer): TKMMutedPlayer;
+    function GetMutedPlayer(aIndex: Integer): Boolean;
+    procedure SetMutedPlayer(aIndex: Integer; aMuted: Boolean);
     procedure UpdateMutedPlayers;
   public
     constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
@@ -220,7 +221,7 @@ type
     property LastProcessedTick:cardinal write fLastProcessedTick;
     property MissingFileType: TNetGameKind read fMissingFileType;
     property MissingFileName: UnicodeString read fMissingFileName;
-    property MutedPlayers[aIndex: Integer]: TKMMutedPlayer read GetMutedPlayer;
+    property MutedPlayers[aIndex: Integer]: Boolean read GetMutedPlayer write SetMutedPlayer;
     procedure GameCreated;
     procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
     procedure AttemptReconnection;
@@ -281,9 +282,6 @@ begin
   fFileSenderManager.OnTransferCompleted := TransferOnCompleted;
   fFileSenderManager.OnTransferPacket := TransferOnPacket;
   fVoteReturnToLobbySucceeded := False;
-
-  for I := Low(fMutedPlayers) to High(fMutedPlayers) do
-    fMutedPlayers[I] := TKMMutedPlayer.Create;
 end;
 
 
@@ -298,9 +296,6 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fNetGameOptions);
-
-  for I := Low(fMutedPlayers) to High(fMutedPlayers) do
-    FreeAndNil(fMutedPlayers[I]);
 
   inherited;
 end;
@@ -2152,34 +2147,34 @@ begin
 end;
 
 
-function TKMNetworking.GetMutedPlayer(aIndex: Integer): TKMMutedPlayer;
+function TKMNetworking.GetMutedPlayer(aIndex: Integer): Boolean;
 begin
-  Result := fMutedPlayers[aIndex];
+  Result := fMutedPlayers[aIndex].Muted;
+end;
+
+
+procedure TKMNetworking.SetMutedPlayer(aIndex: Integer; aMuted: Boolean);
+begin
+  fMutedPlayers[aIndex].Muted := aMuted;
 end;
 
 
 procedure TKMNetworking.UpdateMutedPlayers;
 var I, J: Integer;
-    tempMuted: array[1..MAX_LOBBY_SLOTS] of Boolean;
-    tempMutedServerIndex: array[1..MAX_LOBBY_SLOTS] of Integer;
+    tempMutedPlayers: array[1..MAX_LOBBY_SLOTS] of TKMMutedPlayer;
 begin
-  // first copy and clear fMutedPlayers
+  // first copy fMutedPlayers to temp
   for I := 1 to MAX_LOBBY_SLOTS do
-  begin
-    tempMuted[I] := fMutedPlayers[I].Muted;
-    tempMutedServerIndex[I] := fMutedPlayers[I].IndexOnServer;
-    fMutedPlayers[I].Muted := False;
-    fMutedPlayers[I].IndexOnServer := -1;
-  end;
+    tempMutedPlayers[I] := fMutedPlayers[I];
+
+  // then reset it to defaults
+  ResetMutedPlayers;
 
   // find same player by IndexOnServer and copy its Muted status
   for I := 1 to MAX_LOBBY_SLOTS do
     for J := 1 to MAX_LOBBY_SLOTS do
-      if (tempMutedServerIndex[I] <> -1) and (tempMutedServerIndex[I] = fNetPlayers[J].IndexOnServer) then
-      begin
-        fMutedPlayers[J].Muted := tempMuted[I];
-        fMutedPlayers[J].IndexOnServer := tempMutedServerIndex[I];
-      end;
+      if (tempMutedPlayers[I].IndexOnServer <> -1) and (tempMutedPlayers[I].IndexOnServer = fNetPlayers[J].IndexOnServer) then
+        fMutedPlayers[J] := tempMutedPlayers[I];
 
   // save IndexOnServer for new players
   for I := 1 to MAX_LOBBY_SLOTS do

@@ -170,6 +170,11 @@ type
   TKMServerType = (mstClient, mstDedicated, mstLocal);
   TNetPlayerType = (nptHuman, nptComputer, nptClosed);
 
+  TKMMutedPlayer = record
+    Muted: Boolean;
+    IndexOnServer: Integer;
+  end;
+
 const
   //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
   GameStateText: array [TMPGameState] of UnicodeString = ('None', 'Lobby', 'Loading', 'Game');
