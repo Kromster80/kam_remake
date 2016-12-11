@@ -170,10 +170,12 @@ type
   TKMServerType = (mstClient, mstDedicated, mstLocal);
   TNetPlayerType = (nptHuman, nptComputer, nptClosed);
 
-  TKMMutedPlayer = record
-    Muted: Boolean;
-    IndexOnServer: Integer;
+  // info about net player, stored only locally and not published to other players by net
+  TKMNetPlayerLocalInfo = record
+    Muted: Boolean;         // Is player muted (locally)
+    IndexOnServer: Integer; // Player index on server for sync with TKMNetPlayerInfo
   end;
+
 
 const
   //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
