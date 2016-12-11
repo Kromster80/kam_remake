@@ -344,7 +344,7 @@ begin
           glBlendFunc(GL_SRC_ALPHA, GL_ONE)
         else begin
           glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
-          aLightness := aLightness + 1;
+          aLightness := 1-Abs(aLightness);
         end;
         glColor3f(aLightness, aLightness, aLightness);
         glBegin(GL_QUADS);
