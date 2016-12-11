@@ -433,7 +433,7 @@ begin
     for I := 1 to MAX_LOBBY_SLOTS do
       if Params[3] = gGame.Networking.NetPlayers[I].StartLocation-1 then
       begin
-        IsPlayerMuted := gGame.Networking.MutedPlayers[I];
+        IsPlayerMuted := gGame.Networking.NetPlayers.LocalInfo[I].Muted;
         Break;
       end;
     //However, beacons don't show in replays

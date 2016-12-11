@@ -86,7 +86,6 @@ type
     fJoinTimeout, fLastVoteTime: Cardinal;
     fReturnedToLobby: Boolean; //Did we get to the lobby by return to lobby feature?
     fNetPlayers: TKMNetPlayersList;
-    fNetPlayersLocalInfo: array [1..MAX_LOBBY_SLOTS] of TKMNetPlayerLocalInfo; // net players info, stored only locally and not published to other players by net
 
     fMapInfo: TKMapInfo; // Everything related to selected map
     fSaveInfo: TKMSaveInfo;
@@ -150,11 +149,6 @@ type
     procedure PacketSendA(aRecipient: Integer; aKind: TKMessageKind; const aText: AnsiString);
     procedure PacketSendW(aRecipient: Integer; aKind: TKMessageKind; const aText: UnicodeString);
     procedure SetDescription(const Value: UnicodeString);
-
-    function GetMutedPlayer(aIndex: Integer): Boolean;
-    procedure SetMutedPlayer(aIndex: Integer; aMuted: Boolean);
-    procedure SyncNetPlayersLocalInfo;
-    procedure ResetNetPlayersLocalInfo;
   public
     constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
     destructor Destroy; override;
@@ -222,7 +216,6 @@ type
     property LastProcessedTick:cardinal write fLastProcessedTick;
     property MissingFileType: TNetGameKind read fMissingFileType;
     property MissingFileName: UnicodeString read fMissingFileName;
-    property MutedPlayers[aIndex: Integer]: Boolean read GetMutedPlayer write SetMutedPlayer;
     procedure GameCreated;
     procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
     procedure AttemptReconnection;
@@ -425,8 +418,6 @@ begin
   fOnReassignedHost := nil;
   fOnReassignedJoiner := nil;
   fWelcomeMessage := '';
-
-  ResetNetPlayersLocalInfo;
 
   fNetPlayers.Clear;
   fNetGameOptions.Reset;
@@ -964,7 +955,7 @@ begin
   PacketSend(aPlayerIndex, mk_PlayersList, M);
   M.Free;
 
-  SyncNetPlayersLocalInfo;
+  fNetPlayers.SyncNetPlayersLocalInfo;
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;
 
@@ -1628,7 +1619,7 @@ begin
                   //We are no longer the host
                   fFileSenderManager.AbortAllTransfers;
                   fNetPlayerKind := lpk_Joiner;
-                  SyncNetPlayersLocalInfo;
+                  fNetPlayers.SyncNetPlayersLocalInfo;
                   if Assigned(fOnReassignedJoiner) then fOnReassignedJoiner(Self); //Lobby/game might need to know
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
@@ -1696,7 +1687,6 @@ begin
               begin
                 M.Read(fHostIndex);
                 fNetPlayers.LoadFromStream(M); //Our index could have changed on players add/removal
-                SyncNetPlayersLocalInfo;
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               end;
@@ -1864,7 +1854,6 @@ begin
               begin
                 M.Read(fHostIndex);
                 fNetPlayers.LoadFromStream(M);
-                SyncNetPlayersLocalInfo;
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 StartGame;
               end;
@@ -1999,7 +1988,7 @@ begin
                 end;
 
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if (PlayerIndex <> -1) and not fNetPlayersLocalInfo[PlayerIndex].Muted then
+                if (PlayerIndex <> -1) and not fNetPlayers.LocalInfo[PlayerIndex].Muted then
                 begin
                   if NetPlayers[PlayerIndex].FlagColorID <> 0 then
                     tmpStringW := UnicodeString(WrapColorA(NetPlayers[PlayerIndex].Nikname, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor))) + tmpStringW
@@ -2134,55 +2123,6 @@ begin
   Assert(IsHost, 'Only host can set description');
   fDescription := Value;
   fOnMPGameInfoChanged(Self); //Send the description to the server so it is shown in room info
-end;
-
-
-procedure TKMNetworking.ResetNetPlayersLocalInfo;
-var I: Integer;
-begin
-  for I := Low(fNetPlayersLocalInfo) to High(fNetPlayersLocalInfo) do
-  begin
-    fNetPlayersLocalInfo[I].Muted := False;
-    fNetPlayersLocalInfo[I].IndexOnServer := -1;
-  end;
-end;
-
-
-function TKMNetworking.GetMutedPlayer(aIndex: Integer): Boolean;
-begin
-  Result := fNetPlayersLocalInfo[aIndex].Muted;
-end;
-
-
-procedure TKMNetworking.SetMutedPlayer(aIndex: Integer; aMuted: Boolean);
-begin
-  fNetPlayersLocalInfo[aIndex].Muted := aMuted;
-end;
-
-
-// Synchronise NetPlayerLocalInfo array to current NetPlayer by IndexOnServer
-procedure TKMNetworking.SyncNetPlayersLocalInfo;
-var I, J: Integer;
-    tempPlayersLocalInfo: array[1..MAX_LOBBY_SLOTS] of TKMNetPlayerLocalInfo;
-begin
-  // first copy fNetPlayersLocalInfo to temp
-  for I := 1 to MAX_LOBBY_SLOTS do
-    tempPlayersLocalInfo[I] := fNetPlayersLocalInfo[I];
-
-  // then reset it to defaults
-  ResetNetPlayersLocalInfo;
-
-  // find same player by IndexOnServer and sync it
-  for I := 1 to MAX_LOBBY_SLOTS do
-    for J := 1 to MAX_LOBBY_SLOTS do
-      if (tempPlayersLocalInfo[I].IndexOnServer <> -1)
-        and (tempPlayersLocalInfo[I].IndexOnServer = fNetPlayers[J].IndexOnServer) then
-        fNetPlayersLocalInfo[J] := tempPlayersLocalInfo[I];
-
-  // save IndexOnServer for other (not found) players
-  for I := 1 to MAX_LOBBY_SLOTS do
-    if (fNetPlayersLocalInfo[I].IndexOnServer = -1) and (fNetPlayers[I].IndexOnServer > 0) then
-      fNetPlayersLocalInfo[I].IndexOnServer := fNetPlayers[I].IndexOnServer;
 end;
 
 
