@@ -337,7 +337,7 @@ var I, J: Integer;
     oldPlayersLocalInfo: array[1..MAX_LOBBY_SLOTS] of TKMNetPlayerLocalInfo;
     newLocalInfoOrder: array[1..MAX_LOBBY_SLOTS] of Integer;
 begin
-  // first copy fNetPlayersLocalInfo to temp
+  // first save pointers to fNetPlayersLocalInfo
   for I := 1 to MAX_LOBBY_SLOTS do begin
     oldPlayersLocalInfo[I] := fNetPlayersLocalInfo[I];
     newLocalInfoOrder[I] := -1;
