@@ -278,6 +278,7 @@ type
     procedure AlliesTeamChange(Sender: TObject);
     procedure CinematicUpdate;
     procedure LoadHotkeysFromHand;
+    procedure SetButtons(aPaused: Boolean);
 
     property Alerts: TKMAlerts read fAlerts;
 
@@ -985,7 +986,7 @@ begin
     Dropbox_ReplayFOW.OnChange := ReplayClick;
     Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
-end;
+ end;
 
 
 // Individual message page
@@ -1727,13 +1728,15 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.SetButtons(aPaused: Boolean);
+begin
+  Button_ReplayPause.Enabled := aPaused;
+  Button_ReplayStep.Enabled := not aPaused;
+  Button_ReplayResume.Enabled := not aPaused;
+end;
+
+
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
-  procedure SetButtons(aPaused: Boolean);
-  begin
-    Button_ReplayPause.Enabled := aPaused;
-    Button_ReplayStep.Enabled := not aPaused;
-    Button_ReplayResume.Enabled := not aPaused;
-  end;
 var
   oldCenter: TKMPointF;
   oldZoom: Single;
@@ -2600,7 +2603,7 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  if (fUIMode = umReplay) and (Key = Ord(SC_PAUSE)) then
+  if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
     if Button_ReplayPause.Enabled then
       ReplayClick(Button_ReplayPause)
