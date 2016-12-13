@@ -136,7 +136,7 @@ type
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     procedure ReturnToLobbyVoteSucceeded;
     procedure ResetReturnToLobbyVote;
-    
+
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
 
@@ -1575,35 +1575,32 @@ begin
               end;
 
       mk_Disconnect:
-              begin
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                case fNetPlayerKind of
-                  lpk_Host:
-                      begin
-                        fFileSenderManager.ClientDisconnected(aSenderIndex);
-                        if PlayerIndex = -1 then exit; //Has already disconnected
-                        PostMessage(TX_NET_HAS_QUIT, csLeave, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
-                        if fNetGameState in [lgs_Loading, lgs_Game] then
-                          fNetPlayers.DropPlayer(aSenderIndex)
-                        else
-                          fNetPlayers.RemServerPlayer(aSenderIndex);
-                        SendPlayerListAndRefreshPlayersSetup;
-                        //Player leaving may cause vote to end
-                        if (fNetGameState in [lgs_Loading, lgs_Game])
-                        and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
-                          ReturnToLobbyVoteSucceeded;
-                      end;
-                  lpk_Joiner:
-                      begin
-                        if PlayerIndex = -1 then exit; //Has already disconnected
-                        PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]), csLeave);
-                        if fNetGameState in [lgs_Loading, lgs_Game] then
-                          fNetPlayers.DropPlayer(aSenderIndex)
-                        else
-                          fNetPlayers.RemServerPlayer(aSenderIndex);
-                      end;
-                end;
-
+              case fNetPlayerKind of
+                lpk_Host:
+                    begin
+                      fFileSenderManager.ClientDisconnected(aSenderIndex);
+                      if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
+                      PostMessage(TX_NET_HAS_QUIT, csLeave, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
+                      if fNetGameState in [lgs_Loading, lgs_Game] then
+                        fNetPlayers.DropPlayer(aSenderIndex)
+                      else
+                        fNetPlayers.RemServerPlayer(aSenderIndex);
+                      SendPlayerListAndRefreshPlayersSetup;
+                      //Player leaving may cause vote to end
+                      if (fNetGameState in [lgs_Loading, lgs_Game])
+                      and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
+                        ReturnToLobbyVoteSucceeded;
+                    end;
+                lpk_Joiner:
+                    begin
+                      PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                      if PlayerIndex = -1 then exit; //Has already disconnected
+                      PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]), csLeave);
+                      if fNetGameState in [lgs_Loading, lgs_Game] then
+                        fNetPlayers.DropPlayer(aSenderIndex)
+                      else
+                        fNetPlayers.RemServerPlayer(aSenderIndex);
+                    end;
               end;
 
       mk_ReassignHost:
