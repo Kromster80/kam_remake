@@ -315,6 +315,7 @@ type
     fTextAlign: TKMTextAlign;
     fStyle: TKMButtonStyle;
     fRX: TRXType;
+    fImageEnabled: Boolean;
   public
     Caption: UnicodeString;
     FlagColor: TColor4; //When using an image
@@ -326,6 +327,7 @@ type
     function Click: Boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
+    property ImageEnabled: Boolean read fImageEnabled write fImageEnabled;
   end;
 
 
@@ -2121,6 +2123,7 @@ begin
   FlagColor   := $FFFF00FF;
   fStyle      := aStyle;
   MakesSound  := true;
+  fImageEnabled := True;
 end;
 
 
@@ -2181,7 +2184,7 @@ begin
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
 
-  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle);
+  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle, fImageEnabled);
 
   if TexID <> 0 then Exit;
 
