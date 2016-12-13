@@ -389,6 +389,11 @@ end;
 procedure TKMHand.WarriorWalkedOut(aUnit: TKMUnitWarrior);
 var G: TKMUnitGroup; H: TKMHouse;
 begin
+  //Warrior could be killed before he walked out, f.e. by script OnTick ---> Actions.UnitKill
+  //Then group will be assigned to invalid warrior and never gets removed from game
+  if (aUnit = nil)
+  or aUnit.IsDeadOrDying then
+    Exit;
   G := fUnitGroups.WarriorTrained(aUnit);
   Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
   G.OnGroupDied := GroupDied;

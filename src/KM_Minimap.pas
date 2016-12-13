@@ -235,7 +235,12 @@ begin
         else
         begin
           ID := fMyTerrain.Land[I+1,K+1].Terrain;
-          Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
+          // Do not use fMyTerrain.Land[].Light for borders of the map, because it is set to -1 for fading effect
+          // So assume fMyTerrain.Land[].Light as 0 in this case
+          if (I = 0) or (I = fMapY - 1) or (K = 0) or (K = fMapX - 1) then
+            Light := 255-FOW
+          else
+            Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
           fBase[I*fMapX + K] := Byte(EnsureRange(gRes.Tileset.TileColor[ID].R+Light,0,255)) +
                                 Byte(EnsureRange(gRes.Tileset.TileColor[ID].G+Light,0,255)) shl 8 +
                                 Byte(EnsureRange(gRes.Tileset.TileColor[ID].B+Light,0,255)) shl 16 or $FF000000;

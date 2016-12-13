@@ -98,6 +98,8 @@ type
     fMissingFileName: UnicodeString;
     fMissingFileCRC: Cardinal;
 
+    fVoteReturnToLobbySucceeded: Boolean;
+
     fOnJoinSucc: TNotifyEvent;
     fOnJoinFail: TUnicodeStringEvent;
     fOnJoinPassword: TNotifyEvent;
@@ -133,7 +135,8 @@ type
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     procedure ReturnToLobbyVoteSucceeded;
-
+    procedure ResetReturnToLobbyVote;
+    
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
 
@@ -271,6 +274,7 @@ begin
   fFileSenderManager := TKMFileSenderManager.Create;
   fFileSenderManager.OnTransferCompleted := TransferOnCompleted;
   fFileSenderManager.OnTransferPacket := TransferOnPacket;
+  fVoteReturnToLobbySucceeded := False;
 end;
 
 
@@ -630,8 +634,13 @@ begin
   if Assigned(fOnGameOptions) then fOnGameOptions(Self);
 
   fSelectGameKind := ngk_Save;
+
+  fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); // host's index can change when players are removed
+  fHostIndex := fMyIndex;
+  // Set ReadyToStart and HasMapOrSave with updated fMyIndex
   fNetPlayers[fMyIndex].ReadyToStart := True;
   fNetPlayers[fMyIndex].HasMapOrSave := True;
+
   //Randomise locations within team is disabled for saves
   NetPlayers.RandomizeTeamLocations := False;
   fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
@@ -1847,7 +1856,7 @@ begin
                 fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToReturnToLobby := True;
                 if fNetPlayers.AllReadyToReturnToLobby then
                 begin
-                  fNetPlayers.ResetReadyToReturnToLobby; //So it's reset for next time
+                  ResetReturnToLobbyVote;   //So it's reset for next time
                   fOnDoReturnToLobby(Self);
                 end;
               end;
@@ -1903,9 +1912,11 @@ begin
       mk_Vote:
               begin
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                //No need to vote more than once, and spectators don't get to vote unless there's only spectators left
-                if not fNetPlayers[PlayerIndex].VotedYes
-                and (fNetPlayers.HasOnlySpectators or not fNetPlayers[PlayerIndex].IsSpectator) then
+
+                if not fVoteReturnToLobbySucceeded  // Do not allow late mk_Vote after we received enought votes (if it comes while still in game and receiveing mk_readyToReturnToLobby)
+                  and not fNetPlayers[PlayerIndex].VotedYes //No need to vote more than once
+                  and (fNetPlayers.HasOnlySpectators or not fNetPlayers[PlayerIndex].IsSpectator) //spectators don't get to vote unless there's only spectators left
+                  then
                 begin
                   fLastVoteTime := TimeGet;
                   fNetPlayers[PlayerIndex].VotedYes := True;
@@ -2236,8 +2247,16 @@ procedure TKMNetworking.ReturnToLobbyVoteSucceeded;
 begin
   //Don't run NetPlayers.ResetVote here, wait until we actually return to the lobby so the vote can't start again
   NetPlayers.ResetReadyToReturnToLobby;
+  fVoteReturnToLobbySucceeded := True;
   SendPlayerListAndRefreshPlayersSetup;
   fOnAnnounceReturnToLobby(Self); //Sends GIC command to create synchronised save file
+end;
+
+
+procedure TKMNetworking.ResetReturnToLobbyVote;
+begin
+  fVoteReturnToLobbySucceeded := False;
+  fNetPlayers.ResetReadyToReturnToLobby;
 end;
 
 

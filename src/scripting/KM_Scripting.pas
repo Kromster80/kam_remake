@@ -374,6 +374,7 @@ begin
 
       RegisterMethod('function  GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function  GiveField(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function  GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
       RegisterMethod('function  GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
       RegisterMethod('function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
@@ -382,6 +383,7 @@ begin
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
       RegisterMethod('function  GiveWineField(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function  GiveWineFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
 
       RegisterMethod('procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean)');
       RegisterMethod('procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');
@@ -769,16 +771,18 @@ begin
       RegisterMethod(@TKMScriptActions.FogRevealCircle,   'FOGREVEALCIRCLE');
       RegisterMethod(@TKMScriptActions.FogRevealRect,     'FOGREVEALRECT');
 
-      RegisterMethod(@TKMScriptActions.GiveAnimal,    'GIVEANIMAL');
-      RegisterMethod(@TKMScriptActions.GiveField,     'GIVEFIELD');
-      RegisterMethod(@TKMScriptActions.GiveGroup,     'GIVEGROUP');
-      RegisterMethod(@TKMScriptActions.GiveUnit,      'GIVEUNIT');
-      RegisterMethod(@TKMScriptActions.GiveHouse,     'GIVEHOUSE');
-      RegisterMethod(@TKMScriptActions.GiveHouseSite, 'GIVEHOUSESITE');
-      RegisterMethod(@TKMScriptActions.GiveRoad,      'GIVEROAD');
-      RegisterMethod(@TKMScriptActions.GiveWares,     'GIVEWARES');
-      RegisterMethod(@TKMScriptActions.GiveWeapons,   'GIVEWEAPONS');
-      RegisterMethod(@TKMScriptActions.GiveWineField, 'GIVEWINEFIELD');
+      RegisterMethod(@TKMScriptActions.GiveAnimal,        'GIVEANIMAL');
+      RegisterMethod(@TKMScriptActions.GiveField,         'GIVEFIELD');
+      RegisterMethod(@TKMScriptActions.GiveFieldAged,     'GIVEFIELDAGED');
+      RegisterMethod(@TKMScriptActions.GiveGroup,         'GIVEGROUP');
+      RegisterMethod(@TKMScriptActions.GiveUnit,          'GIVEUNIT');
+      RegisterMethod(@TKMScriptActions.GiveHouse,         'GIVEHOUSE');
+      RegisterMethod(@TKMScriptActions.GiveHouseSite,     'GIVEHOUSESITE');
+      RegisterMethod(@TKMScriptActions.GiveRoad,          'GIVEROAD');
+      RegisterMethod(@TKMScriptActions.GiveWares,         'GIVEWARES');
+      RegisterMethod(@TKMScriptActions.GiveWeapons,       'GIVEWEAPONS');
+      RegisterMethod(@TKMScriptActions.GiveWineField,     'GIVEWINEFIELD');
+      RegisterMethod(@TKMScriptActions.GiveWineFieldAged, 'GIVEWINEFIELDAGED');
 
       RegisterMethod(@TKMScriptActions.GroupBlockOrders,          'GROUPBLOCKORDERS');
       RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage, 'GROUPDISABLEHUNGRYMESSAGE');

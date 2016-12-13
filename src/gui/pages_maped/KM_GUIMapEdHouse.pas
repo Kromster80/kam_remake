@@ -305,8 +305,8 @@ var
   NewCount: Integer;
   HouseDat: TKMHouseDatClass;
 begin
-  if Sender = Button_HouseHealthDec then fHouse.AddDamage(GetMultiplicator(Shift) * 5, nil, True);
-  if Sender = Button_HouseHealthInc then fHouse.AddRepair(GetMultiplicator(Shift) * 5);
+  if Sender = Button_HouseHealthDec then fHouse.AddDamage(GetMultiplicator(Shift), nil, True);
+  if Sender = Button_HouseHealthInc then fHouse.AddRepair(GetMultiplicator(Shift));
 
   HouseDat := gRes.HouseDat[fHouse.HouseType];
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);

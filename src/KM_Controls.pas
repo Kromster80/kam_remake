@@ -1126,7 +1126,7 @@ type
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 
-    function LocalToMapCoords(X,Y: Integer; const Inset: ShortInt = 0): TKMPoint;
+    function LocalToMapCoords(X,Y: Integer): TKMPoint;
     function MapCoordsToLocal(X,Y: Single; const Inset: ShortInt = 0): TKMPoint;
     procedure SetMinimap(aMinimap: TKMMinimap);
     procedure SetViewport(aViewport: TKMViewport);
@@ -4980,11 +4980,10 @@ begin
 end;
 
 
-function TKMMinimapView.LocalToMapCoords(X,Y: Integer; const Inset: ShortInt = 0): TKMPoint;
+function TKMMinimapView.LocalToMapCoords(X,Y: Integer): TKMPoint;
 begin
-  Assert(Inset >= -1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
-  Result.X := EnsureRange(Round((X - AbsLeft - fLeftOffset) * fMinimap.MapX / fPaintWidth),  1+Inset, fMinimap.MapX-Inset);
-  Result.Y := EnsureRange(Round((Y - AbsTop  - fTopOffset ) * fMinimap.MapY / fPaintHeight), 1+Inset, fMinimap.MapY-Inset);
+  Result.X := EnsureRange(Trunc((X - AbsLeft - fLeftOffset) * (fMinimap.MapX + 1) / fPaintWidth),  1, fMinimap.MapX);
+  Result.Y := EnsureRange(Trunc((Y - AbsTop  - fTopOffset ) * (fMinimap.MapY + 1) / fPaintHeight), 1, fMinimap.MapY);
 end;
 
 
@@ -5085,10 +5084,10 @@ begin
   begin
     R := fView.GetMinimapClip;
     if (R.Right - R.Left) * (R.Bottom - R.Top) > 0 then
-      TKMRenderUI.WriteOutline(AbsLeft + fLeftOffset + Round(R.Left*fPaintWidth / fMinimap.MapX),
-                               AbsTop  + fTopOffset  + Round(R.Top*fPaintHeight / fMinimap.MapY),
+      TKMRenderUI.WriteOutline(AbsLeft + fLeftOffset + Round((R.Left - 1)*fPaintWidth / fMinimap.MapX),
+                               AbsTop  + fTopOffset  + Round((R.Top - 1)*fPaintHeight / fMinimap.MapY),
                                Round((R.Right - R.Left)*fPaintWidth / fMinimap.MapX),
-                               Round((R.Bottom - R.Top)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
+                               Round((R.Bottom - R.Top + 1)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
   end;
 
   if fShowLocs then

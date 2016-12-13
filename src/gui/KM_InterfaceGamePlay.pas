@@ -175,6 +175,8 @@ type
       DropBox_AlliesTeam:array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
       Label_AlliesTeam:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+      Label_AlliesPingFpsSlash:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+      Label_AlliesFPS:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       Image_AlliesClose: TKMImage;
     Panel_Message: TKMPanel;
       Label_MessageText: TKMLabel;
@@ -276,6 +278,7 @@ type
     procedure AlliesTeamChange(Sender: TObject);
     procedure CinematicUpdate;
     procedure LoadHotkeysFromHand;
+    procedure SetButtons(aPaused: Boolean);
 
     property Alerts: TKMAlerts read fAlerts;
 
@@ -620,7 +623,7 @@ var
   Loc: TKMPoint;
   Group: TKMUnitGroup;
 begin
-  Loc := MinimapView.LocalToMapCoords(X, Y, -1); // Inset by 1 pixel to catch cases "outside of map"
+  Loc := MinimapView.LocalToMapCoords(X, Y);
   if not gTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; // Must be inside map
 
   // Send move order, if applicable
@@ -983,7 +986,7 @@ begin
     Dropbox_ReplayFOW.OnChange := ReplayClick;
     Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
-end;
+ end;
 
 
 // Individual message page
@@ -1130,7 +1133,9 @@ begin
       for K := 1 to 4 do DropBox_AlliesTeam[I].Add(IntToStr(K));
       DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[I].DropUp := True; // Doesn't fit if it drops down
-      Label_AlliesPing[I] := TKMLabel.Create(Panel_Allies,   350+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taCenter);
+      Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 347+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taRight);
+      Label_AlliesPingFpsSlash[I] :=  TKMLabel.Create(Panel_Allies, 354+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taCenter);
+      Label_AlliesFPS[I] :=           TKMLabel.Create(Panel_Allies, 361+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taLeft);
     end;
 
     Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97,24,32,32,52,rxGui);
@@ -1723,13 +1728,15 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.SetButtons(aPaused: Boolean);
+begin
+  Button_ReplayPause.Enabled := aPaused;
+  Button_ReplayStep.Enabled := not aPaused;
+  Button_ReplayResume.Enabled := not aPaused;
+end;
+
+
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
-  procedure SetButtons(aPaused: Boolean);
-  begin
-    Button_ReplayPause.Enabled := aPaused;
-    Button_ReplayStep.Enabled := not aPaused;
-    Button_ReplayResume.Enabled := not aPaused;
-  end;
 var
   oldCenter: TKMPointF;
   oldZoom: Single;
@@ -2503,8 +2510,10 @@ begin
       // Strikethrough for disconnected players
       Image_AlliesFlag[I].Enabled := not gGame.Networking.NetPlayers[NetI].Dropped;
       Label_AlliesPlayer[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
-      Label_AlliesTeam[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
+      Label_AlliesTeam[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped
+        and (gGame.Networking.NetPlayers[NetI].Team <> 0); // Do not strike throught '-' symbol, when player has no team
       Label_AlliesPing[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
+      Label_AlliesFPS[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
       DropBox_AlliesTeam[I].Enabled := (NetI = gGame.Networking.MyIndex); // Our index
       DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
     end;
@@ -2526,11 +2535,14 @@ begin
     begin
       ping := gGame.Networking.NetPlayers[NetI].GetInstantPing;
       fps := gGame.Networking.NetPlayers[NetI].FPS;
-      Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping)) + ' / ' +
-                                     WrapColor(IntToStr(fps), GetFPSColor(fps));
-    end
-    else
+      Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping));
+      Label_AlliesPingFpsSlash[I].Caption := '/';
+      Label_AlliesFPS[I].Caption := WrapColor(IntToStr(fps), GetFPSColor(fps));
+    end else begin
       Label_AlliesPing[I].Caption := '';
+      Label_AlliesPingFpsSlash[I].Caption := '';
+      Label_AlliesFPS[I].Caption := '';
+    end;
   end;
 end;
 
@@ -2591,7 +2603,7 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  if (fUIMode = umReplay) and (Key = Ord(SC_PAUSE)) then
+  if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
     if Button_ReplayPause.Enabled then
       ReplayClick(Button_ReplayPause)

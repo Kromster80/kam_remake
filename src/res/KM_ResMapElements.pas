@@ -71,6 +71,10 @@ const
   TREE_AGE_2 = 5000 div TERRAIN_PACE;
   TREE_AGE_FULL = 8000 div TERRAIN_PACE; //Tree is old enough to be chopped
 
+  CORN_STAGES_COUNT = 7; //0..6
+  //0 = empty field, 1 = sown corn, 2 = young seedings, 3 = seedings,
+  //4 = greenish corn , 5 = ready to be cut, 6 = corn has been cut
+
   CORN_AGE_1 = 1400 div TERRAIN_PACE;    //Measured from KaM ~150sec
   CORN_AGE_2 = 2200 div TERRAIN_PACE;   //Number measured from KaM ~195sec
   CORN_AGE_3 = 4400 div TERRAIN_PACE;
@@ -78,6 +82,9 @@ const
   CORN_AGE_MAX = 255; //todo: Remove. We set it to this once it's fully grown
 
   //Wine values have been tweaked for balance. In KaM they matched corn.
+  WINE_STAGES_COUNT = 4; //0..3
+  //0 = new fruits, 1 = starts to grow, 2 = continues to grow, 3 = ready to be harvested
+
   WINE_AGE_1 = 1600 div TERRAIN_PACE;
   WINE_AGE_2 = 3400 div TERRAIN_PACE;
   WINE_AGE_FULL = 5000 div TERRAIN_PACE; //Wine ready to be harvested

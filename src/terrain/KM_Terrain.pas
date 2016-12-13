@@ -133,6 +133,7 @@ type
 
     procedure SowCorn(Loc: TKMPoint);
     procedure CutCorn(Loc: TKMPoint);
+    procedure SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean);
     procedure CutGrapes(Loc: TKMPoint);
 
     procedure DecStoneDeposit(Loc: TKMPoint);
@@ -550,13 +551,12 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
       end;
   end;
 
-  // Function allows objects in the same manner like in KaM Editor - we do not want falling trees, hidden objects etc.
+  // We do not want falling trees
   function AllowableObject: Boolean;
   begin
-    // Hide invisible wall (61), falling trees
-    Result := (aObject <> 61)
-              and (MapElem[aObject].Anim.Count > 0) and (MapElem[aObject].Anim.Step[1] > 0)
-              and (MapElem[aObject].Stump = -1);
+    // Hide falling trees
+    // Invisible objects like 255 can be useful to clear specified tile (since delete object = place object 255)
+    Result := (MapElem[aObject].Stump = -1) or (aObject = 255);
   end;
 
 var
@@ -568,7 +568,7 @@ begin
   or TileIsWineField(KMPoint(X, Y)) or TileIsCornField(KMPoint(X, Y))
   //Is there a house/site near this object?
   or HousesNearObject
-  //Is this object allowed to be placed - like in KaM Editor?
+  //Is this object allowed to be placed?
   or not AllowableObject then
   begin
     Result := False;
@@ -581,24 +581,6 @@ begin
   //Apply change
   //UpdatePassability and UpdateWalkConnect are called in SetField so that we only use it in trees and other objects
   case aObject of
-    55..58:   // Wine in different stages
-              if CanAddField(X, Y, ft_Wine) and (TileIsCoal(X, Y) <= 0) then // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
-              begin
-                Land[Y, X].Obj := aObject;
-                SetField(KMPoint(X, Y), -1, ft_Wine);
-                Result := True;
-              end
-              else
-                Result := False;
-    59..63:   // Corn in different stages
-              if CanAddField(X, Y, ft_Corn) and (TileIsCoal(X, Y) <= 0) then  // TileGoodForField does not check for coal deposit and puts a field there, we do not want this
-              begin
-                Land[Y, X].Obj := aObject;
-                SetField(KMPoint(X, Y), -1, ft_Corn);
-                Result := True;
-              end
-              else
-                Result := False;
     88..124,
     126..172: // Trees - 125 is mushroom
               begin
@@ -1842,6 +1824,78 @@ begin
   Land[Loc.Y,Loc.X].FieldAge := 0;
   Land[Loc.Y,Loc.X].Terrain  := 63;
   Land[Loc.Y,Loc.X].Obj := 255;
+end;
+
+
+procedure TKMTerrain.SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean);
+begin
+  SetField(Loc, aOwner, aFieldType);
+
+  if (aFieldType = ft_Corn)
+  and (InRange(aStage, 0, CORN_STAGES_COUNT - 1)) then
+    case aStage of
+      //0 - empty field, already set
+      1: begin //Sow corn
+           SowCorn(Loc);
+           Land[Loc.Y,Loc.X].FieldAge := 1 + Ord(aRandomAge) * KaMRandom((CORN_AGE_1 - 1) div 2);
+         end;
+
+      2: begin //Young seedings
+           Land[Loc.Y,Loc.X].Terrain := 59;
+           Land[Loc.Y,Loc.X].Obj := 255; //Clear previous objects as corn does
+           Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_1 + Ord(aRandomAge) * KaMRandom((CORN_AGE_2 - CORN_AGE_1) div 2);
+         end;
+
+      3: begin //Seedings
+           Land[Loc.Y,Loc.X].Terrain := 60;
+           Land[Loc.Y,Loc.X].Obj := 255; //Clear previous objects as corn does
+           Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_2 + Ord(aRandomAge) * KaMRandom((CORN_AGE_3 - CORN_AGE_2) div 2);
+         end;
+
+      4: begin //Smaller greenish Corn
+           Land[Loc.Y,Loc.X].Terrain := 60;
+           Land[Loc.Y,Loc.X].Obj := 58;
+           Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_3 + Ord(aRandomAge) * KaMRandom((CORN_AGE_FULL - CORN_AGE_3) div 2);
+         end;
+
+      5: begin //Full-grown Corn
+           Land[Loc.Y,Loc.X].Terrain := 60;
+           Land[Loc.Y,Loc.X].Obj := 59;
+           Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_FULL - 1;
+         end;
+
+      6: CutCorn(Loc); //Corn has been cut
+
+    end;
+
+  if (aFieldType = ft_Wine)
+  and (InRange(aStage, 0, WINE_STAGES_COUNT - 1)) then
+    case aStage of
+      0: begin //Set new fruits
+           Land[Loc.Y,Loc.X].Obj := 54;
+           Land[Loc.Y,Loc.X].FieldAge := 1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - 1) div 2);
+         end;
+
+      1: begin //Fruits start to grow
+           Land[Loc.Y,Loc.X].Obj := 55;
+           Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - WINE_AGE_1) div 2);
+         end;
+
+      2: begin //Fruits continue to grow
+           Land[Loc.Y,Loc.X].Obj := 56;
+           Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_2 + Ord(aRandomAge) * KaMRandom((WINE_AGE_FULL - WINE_AGE_2) div 2);
+         end;
+
+      3: begin //Ready to be harvested
+           Land[Loc.Y,Loc.X].Obj := 57;
+           Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL - 1;
+         end;
+    end;
+
+  UpdateFences(Loc);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc)), (aFieldType = ft_Wine));
+
 end;
 
 
