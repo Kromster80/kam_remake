@@ -56,10 +56,6 @@ const
   OPT_SLIDER_MIN = 0;
   OPT_SLIDER_MAX = 20;
   MAX_SAVENAME_LENGTH = 50;
-  //Limit names length to fit interface width
-  MAX_MAPNAME_LENGTH = 22;
-  MAX_TRACKNAME_LENGTH = 18;
-
 
 implementation
 

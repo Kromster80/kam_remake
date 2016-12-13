@@ -14,6 +14,9 @@ uses
 const
   MAX_VISIBLE_MSGS = 32;
   MAX_LOG_MSGS = 8;
+  //Limit names length to fit interface width
+  MAX_MAPNAME_LENGTH = 22;
+  MAX_TRACKNAME_LENGTH = 18;
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
