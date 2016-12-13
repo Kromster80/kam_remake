@@ -110,7 +110,6 @@ var
 var
   I: Integer;
   R: TWareType;
-  W: TUnitType;
   G: TKMCardinalArray;
   HumanId: TKMHandIndex;
   ShowAIResults: Boolean;

@@ -25,7 +25,7 @@ type
   TKMResource = class
   private
     fDataState: TResourceLoadState;
-    fCursors: TKMCursors;
+    fCursors: TKMResCursors;
     fFonts: TKMResFonts;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
@@ -53,7 +53,7 @@ type
     procedure LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
 
     property DataState: TResourceLoadState read fDataState;
-    property Cursors: TKMCursors read fCursors;
+    property Cursors: TKMResCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property MapElements: TKMMapElements read fMapElements;
     property Palettes: TKMPalettes read fPalettes;
@@ -142,7 +142,7 @@ begin
 
   fSprites := TKMSprites.Create(StepRefresh, StepCaption);
 
-  fCursors := TKMCursors.Create;
+  fCursors := TKMResCursors.Create;
   fSprites.LoadMenuResources;
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmc_Default;
