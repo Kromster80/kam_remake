@@ -480,7 +480,6 @@ begin
   end;
 
   Image_House_Worker.Hide;
-//  Button_House_Worker.ImageEnabled := aHouse.GetHasOwner or aHouse.IsClosedForWorker;
   Button_House_Worker.Visible := gRes.HouseDat[aHouse.HouseType].OwnerType <> ut_None;
 
   Button_HouseWaresBlock.Enabled := gRes.HouseDat[aHouse.HouseType].AcceptsWares;
