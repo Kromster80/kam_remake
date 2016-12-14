@@ -345,36 +345,35 @@ begin
       wThrowingRock := (fUnitTask is TTaskThrowRock) and (fHome.GetState in [hst_Work]);
       // do not cancel eating task
       wGoingForEating := (fUnitTask is TTaskGoEat);
-      // cancel GoOutShowHungry task if we outside of the house
-      wWentOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and fVisible;
-      // cancel GoOutShowHungry task and go out of the house, if we inside of it
-      wWantToGoOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and not fVisible;
-      // We are on the way to somewhere. AbandonWalk 'n cancel task.
-      wWalkingOutside := (fCurrentAction is TUnitActionWalkTo) and not TUnitActionWalkTo(fCurrentAction).DoingExchange;
       // Assume worker is inside the house if not Visible.
       wIsInsideHouse := not Visible;
+      // cancel GoOutShowHungry task if we outside of the house
+      wWentOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and not wIsInsideHouse;
+      // cancel GoOutShowHungry task and go out of the house, if we inside of it
+      wWantToGoOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and wIsInsideHouse;
+      // We are on the way to somewhere. AbandonWalk 'n cancel task.
+      wWalkingOutside := (fCurrentAction is TUnitActionWalkTo) and not TUnitActionWalkTo(fCurrentAction).DoingExchange;
       // Working inside house
       wWorkingInsideHouse := (fUnitTask is TTaskMining) and wIsInsideHouse;
       // Working outside
       wWorkingOutsideHouse := (fUnitTask is TTaskMining) and not wIsInsideHouse;
       // Somehow no task
       wHasNoTask := (fUnitTask = nil);
-      if (not wThrowingRock) then
+      if (not wThrowingRock) then       // Let recruit finish rock throwing
         if (wGoingForEating) then
         begin
-          // do not cancel eating task
-          CleanHousePointer;
-        end else
-        begin
+          CleanHousePointer;            // Clean house pointer, do not cancel eating task
+        end else begin
           if (wWalkingOutside) then begin
-            AbandonWalk;
-            CleanHousePointer(True);
+            AbandonWalk;                // Stop walking
+            CleanHousePointer(True);    // Clean house pointer and free task
           end else
-          if (wWentOutShowHungry
-            or (wWorkingOutsideHouse and not wGoingInsideHouse)
-            or (wHasNoTask and not (wIsInsideHouse or wGoingInsideHouse))) then
+          if not wGoingInsideHouse and  // Let worker get into the house
+            ((wWentOutShowHungry or wWorkingOutsideHouse) // When already outside the house
+            // Not sure we need this
+            or (wHasNoTask and not wIsInsideHouse)) then  // Or has no task outside the house.
           begin
-            CleanHousePointer(True);
+            CleanHousePointer(True);    // Clean house pointer and free task
           end else
           if (wIsInsideHouse or wWantToGoOutShowHungry) then
           begin
@@ -382,7 +381,7 @@ begin
             // If working inside - first we need to set house state to Idle, then to Empty
             fHome.SetState(hst_Idle);
             fHome.SetState(hst_Empty);
-            CleanHousePointer(True)
+            CleanHousePointer(True)     // Clean house pointer and free task
           end;
         end;
     end;
