@@ -123,10 +123,12 @@ type
     procedure RenderAreaRender(aSender: TObject);
   private
     fUpdating: Boolean;
+    procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
     {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMExitSizeMove(var Msg: TMessage) ; message WM_EXITSIZEMOVE;
+    procedure WMAppCommand(var Msg: TMessage); message WM_APPCOMMAND;
     {$ENDIF}
   public
     RenderArea: TKMRenderControl;
@@ -220,16 +222,22 @@ begin
 end;
 
 
-procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TFormMain.FormKeyUpProc(aKey: Word; aShift: TShiftState);
 begin
-  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-
-  if Key = gResKeys[SC_DEBUG_WINDOW].Key then begin
+  if aKey = gResKeys[SC_DEBUG_WINDOW].Key then begin
     SHOW_DEBUG_CONTROLS := not SHOW_DEBUG_CONTROLS;
     ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
   end;
 
-  if gGameApp <> nil then gGameApp.KeyUp(Key, Shift);
+  if gGameApp <> nil then gGameApp.KeyUp(aKey, aShift);
+end;
+
+
+procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+
+  FormKeyUpProc(Key, Shift);
 end;
 
 
@@ -654,13 +662,51 @@ begin
   else
     inherited;
 end;
-{$ENDIF}
+
+
+// Handle extra mouse buttons (forward/backward)
+procedure TFormMain.WMAppCommand(var Msg: TMessage);
+  // Parse DwKeys flags to get ShiftState
+  function GetShiftState(aDwKeys: Word): TShiftState;
+  begin
+    Result := [];
+    if (aDwKeys and MK_LBUTTON) <> 0 then
+      Include(Result, ssLeft)
+    else if (aDwKeys and MK_RBUTTON) <> 0 then
+      Include(Result, ssRight)
+    else if (aDwKeys and MK_MBUTTON) <> 0 then
+      Include(Result, ssMiddle)
+    else if (aDwKeys and MK_CONTROL) <> 0 then
+      Include(Result, ssCtrl)
+    else if (aDwKeys and MK_SHIFT) <> 0 then
+      Include(Result, ssShift);
+  end;
+
+var dwKeys,uDevice,cmd: Word;
+  ShiftState: TShiftState;
+begin
+  ShiftState := [];
+  uDevice := GET_DEVICE_LPARAM(Msg.lParam);
+  if uDevice = FAPPCOMMAND_MOUSE then
+  begin
+    dwKeys := GET_KEYSTATE_LPARAM(Msg.lParam);
+    ShiftState := GetShiftState(dwKeys);
+    cmd := GET_APPCOMMAND_LPARAM(Msg.lParam);
+    case cmd of
+       APPCOMMAND_BROWSER_FORWARD:  FormKeyUpProc(VK_XBUTTON1, ShiftState);
+       APPCOMMAND_BROWSER_BACKWARD: FormKeyUpProc(VK_XBUTTON2, ShiftState);
+       else
+         inherited;
+     end;
+  end;
+end;
 
 
 procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
 begin
   fMain.Move(GetWindowParams);
 end;
+{$ENDIF}
 
 
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
