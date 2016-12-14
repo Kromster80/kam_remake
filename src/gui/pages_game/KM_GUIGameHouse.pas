@@ -803,9 +803,6 @@ begin
   //Update graphics owner color
   Button_House_Worker.Hide; //In the barrack the recruit icon is always enabled
   Image_House_Worker.Show;
-  //Image_House_Worker.Fade := False;
-  //Image_House_Worker.HighlightOnMouseOver := False;
-//  Image_House_WorkerLock.Hide;
   Image_Barracks_Left.FlagColor := gHands[Barracks.Owner].FlagColor;
   Image_Barracks_Right.FlagColor := gHands[Barracks.Owner].FlagColor;
   Image_Barracks_Train.FlagColor := gHands[Barracks.Owner].FlagColor;
