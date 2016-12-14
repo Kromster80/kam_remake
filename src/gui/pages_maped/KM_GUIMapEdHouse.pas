@@ -341,7 +341,7 @@ begin
 
     if Sender = ResRow_Resource_Output[I].OrderAdd then
     begin
-      NewCount := Math.Min(GetMultiplicator(Shift), MAX_WARES_IN_HOUSE + HouseDat.ResProductionX - 1 - fHouse.CheckResOut(Res) );
+      NewCount := Math.Min(GetMultiplicator(Shift), MAX_WARES_IN_HOUSE - fHouse.CheckResOut(Res) );
       fHouse.ResAddToOut(Res, NewCount);
     end;
 
