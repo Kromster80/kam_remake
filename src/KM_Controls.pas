@@ -321,7 +321,7 @@ type
     Font: TKMFont;
     MakesSound: Boolean;
     TexID: Word;
-    ImageEnabled: Boolean;
+    ShowImageEnabled: Boolean; // show picture as enabled or not (normal or darkened)
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle); overload;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TKMButtonStyle); overload;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
@@ -2122,7 +2122,7 @@ begin
   FlagColor    := $FFFF00FF;
   fStyle       := aStyle;
   MakesSound   := True;
-  ImageEnabled := True;
+  ShowImageEnabled := True;
 end;
 
 
@@ -2137,7 +2137,7 @@ begin
   fTextAlign   := taCenter; //Thats default everywhere in KaM
   fStyle       := aStyle;
   MakesSound   := True;
-  ImageEnabled := True;
+  ShowImageEnabled := True;
 end;
 
 
@@ -2184,7 +2184,7 @@ begin
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
 
-  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle, ImageEnabled);
+  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle, ShowImageEnabled);
 
   if TexID <> 0 then Exit;
 

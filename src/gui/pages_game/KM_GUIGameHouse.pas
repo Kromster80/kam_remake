@@ -430,10 +430,10 @@ begin
 
   Button_House_Worker.TexID  := gRes.UnitDat[gRes.HouseDat[aHouse.HouseType].OwnerType].GUIIcon;
   if (aHouse.IsClosedForWorker) then begin
-    Button_House_Worker.ImageEnabled := False;
+    Button_House_Worker.ShowImageEnabled := False;
     Image_House_Worker_Closed.Show;
   end else begin
-    Button_House_Worker.ImageEnabled := aHouse.GetHasOwner;
+    Button_House_Worker.ShowImageEnabled := aHouse.GetHasOwner;
     Image_House_Worker_Closed.Hide;
   end;
 
@@ -710,10 +710,10 @@ begin
   gGame.GameInputProcess.CmdHouse(gic_HouseClosedForWorkerToggle, House);
 
   if (House.IsClosedForWorker) then begin
-    Button_House_Worker.ImageEnabled := False;
+    Button_House_Worker.ShowImageEnabled := False;
     Image_House_Worker_Closed.Show;
   end else begin
-    Button_House_Worker.ImageEnabled := House.GetHasOwner;
+    Button_House_Worker.ShowImageEnabled := House.GetHasOwner;
     Image_House_Worker_Closed.Hide;
   end;
 end;
