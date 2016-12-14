@@ -193,7 +193,7 @@ type
 
   TKMSettledUnit = class(TKMUnit)
   private
-    procedure FreeAndNilHomeNTask(CleanTask: Boolean = False);
+    procedure CleanHousePointer(aFreeAndNilTask: Boolean = False);
   protected
     function FindHome: Boolean;
     procedure ProceedHouseClosedForWorker;
@@ -313,9 +313,9 @@ begin
 end;
 
 
-procedure TKMSettledUnit.FreeAndNilHomeNTask(CleanTask: Boolean = False);
+procedure TKMSettledUnit.CleanHousePointer(aFreeAndNilTask: Boolean = False);
 begin
-  if CleanTask then
+  if aFreeAndNilTask then
     FreeAndNil(fUnitTask);
   fHome.GetHasOwner := False;
   gHands.CleanUpHousePointer(fHome);
@@ -324,69 +324,65 @@ end;
 // Manage house is closed for worker process
 procedure TKMSettledUnit.ProceedHouseClosedForWorker;
 var
-  workerGoingInsideHouse: Boolean;
-  workerThrowingRock: Boolean;
-  workerGoingForEating: Boolean;
-  workerWentOutShowHungry: Boolean;
-  workerWantToGoOutShowHungry: Boolean;
-  workerWalkingOutside: Boolean;
-  workerWorkingInsideHome: Boolean;
-  workerWorkingOutsideHome: Boolean;
-  workerHasNoTask: Boolean;
-  workerIsInsideHouse: Boolean;
-  workerWorking: Boolean;
+  wGoingInsideHouse: Boolean;
+  wThrowingRock: Boolean;
+  wGoingForEating: Boolean;
+  wWentOutShowHungry: Boolean;
+  wWantToGoOutShowHungry: Boolean;
+  wWalkingOutside: Boolean;
+  wWorkingInsideHouse: Boolean;
+  wWorkingOutsideHouse: Boolean;
+  wHasNoTask: Boolean;
+  wIsInsideHouse: Boolean;
 begin
   if (fHome <> nil)
     and not fHome.IsDestroyed
     and fHome.IsClosedForWorker
     and not(fUnitTask is TTaskDie)then
     begin
-      workerGoingInsideHouse := (fCurrentAction is TUnitActionGoInOut) and ((TUnitActionGoInOut(fCurrentAction)).Direction = gd_GoInside);
+      wGoingInsideHouse := (fCurrentAction is TUnitActionGoInOut) and ((TUnitActionGoInOut(fCurrentAction)).Direction = gd_GoInside);
       // let recruits finish throwing animation
-      workerThrowingRock := (fUnitTask is TTaskThrowRock) and (fHome.GetState in [hst_Work]);
+      wThrowingRock := (fUnitTask is TTaskThrowRock) and (fHome.GetState in [hst_Work]);
       // do not cancel eating task
-      workerGoingForEating := (fUnitTask is TTaskGoEat);
+      wGoingForEating := (fUnitTask is TTaskGoEat);
       // cancel GoOutShowHungry task if we outside of the house
-      workerWentOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and fVisible;
+      wWentOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and fVisible;
       // cancel GoOutShowHungry task and go out of the house, if we inside of it
-      workerWantToGoOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and not fVisible;
+      wWantToGoOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and not fVisible;
       // We are on the way to somewhere. AbandonWalk 'n cancel task.
-      workerWalkingOutside := (fCurrentAction is TUnitActionWalkTo) and not TUnitActionWalkTo(fCurrentAction).DoingExchange;
-      // Assume worker is inside the house if not Visible or if almost get in it.
-      // Otherwise house state will be set to Idle or Work in the task,
-      // worker will blink inside, dissapear and then go out, what looks unpleasant
-      workerIsInsideHouse := not Visible or KMSamePoint(KMPointRound(fPosition), fHome.GetEntrance);
+      wWalkingOutside := (fCurrentAction is TUnitActionWalkTo) and not TUnitActionWalkTo(fCurrentAction).DoingExchange;
+      // Assume worker is inside the house if not Visible.
+      wIsInsideHouse := not Visible;
       // Working inside house
-      workerWorkingInsideHome := (fUnitTask is TTaskMining) and workerIsInsideHouse;
-      // Wocking outside
-      workerWorkingOutsideHome := (fUnitTask is TTaskMining) and not workerIsInsideHouse;
+      wWorkingInsideHouse := (fUnitTask is TTaskMining) and wIsInsideHouse;
+      // Working outside
+      wWorkingOutsideHouse := (fUnitTask is TTaskMining) and not wIsInsideHouse;
       // Somehow no task
-      workerHasNoTask := (fUnitTask = nil);
-      //workerWorking := (fUnitTask is TTaskMining) and (fHome.GetState in [hst_Work]);
-      if (not workerThrowingRock) then
-        if (workerGoingForEating) then
+      wHasNoTask := (fUnitTask = nil);
+      if (not wThrowingRock) then
+        if (wGoingForEating) then
         begin
           // do not cancel eating task
-          FreeAndNilHomeNTask;
+          CleanHousePointer;
         end else
         begin
-          if (workerWalkingOutside) then begin
+          if (wWalkingOutside) then begin
             AbandonWalk;
-            FreeAndNilHomeNTask(True);
+            CleanHousePointer(True);
           end else
-          if (workerWentOutShowHungry
-            or (workerWorkingOutsideHome and not workerGoingInsideHouse)
-            or (workerHasNoTask and not (workerIsInsideHouse or workerGoingInsideHouse))) then
+          if (wWentOutShowHungry
+            or (wWorkingOutsideHouse and not wGoingInsideHouse)
+            or (wHasNoTask and not (wIsInsideHouse or wGoingInsideHouse))) then
           begin
-            FreeAndNilHomeNTask(True);
+            CleanHousePointer(True);
           end else
-          if (workerIsInsideHouse or workerWantToGoOutShowHungry) then
+          if (wIsInsideHouse or wWantToGoOutShowHungry) then
           begin
             SetActionGoIn(ua_Walk, gd_GoOutside, fHome); //Walk outside the house
             // If working inside - first we need to set house state to Idle, then to Empty
             fHome.SetState(hst_Idle);
             fHome.SetState(hst_Empty);
-            FreeAndNilHomeNTask(True)
+            CleanHousePointer(True)
           end;
         end;
     end;
