@@ -315,19 +315,18 @@ type
     fTextAlign: TKMTextAlign;
     fStyle: TKMButtonStyle;
     fRX: TRXType;
-    fImageEnabled: Boolean;
   public
     Caption: UnicodeString;
     FlagColor: TColor4; //When using an image
     Font: TKMFont;
     MakesSound: Boolean;
     TexID: Word;
+    ImageEnabled: Boolean;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle); overload;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TKMButtonStyle); overload;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
-    property ImageEnabled: Boolean read fImageEnabled write fImageEnabled;
   end;
 
 
@@ -2117,13 +2116,13 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fRX         := aRX;
-  TexID       := aTexID;
-  Caption     := '';
-  FlagColor   := $FFFF00FF;
-  fStyle      := aStyle;
-  MakesSound  := true;
-  fImageEnabled := True;
+  fRX          := aRX;
+  TexID        := aTexID;
+  Caption      := '';
+  FlagColor    := $FFFF00FF;
+  fStyle       := aStyle;
+  MakesSound   := True;
+  ImageEnabled := True;
 end;
 
 
@@ -2131,13 +2130,14 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  TexID       := 0;
-  Caption     := aCaption;
-  FlagColor   := $FFFF00FF;
-  Font        := fnt_Metal;
-  fTextAlign  := taCenter; //Thats default everywhere in KaM
-  fStyle      := aStyle;
-  MakesSound  := True;
+  TexID        := 0;
+  Caption      := aCaption;
+  FlagColor    := $FFFF00FF;
+  Font         := fnt_Metal;
+  fTextAlign   := taCenter; //Thats default everywhere in KaM
+  fStyle       := aStyle;
+  MakesSound   := True;
+  ImageEnabled := True;
 end;
 
 
@@ -2184,7 +2184,7 @@ begin
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
 
-  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle, fImageEnabled);
+  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle, ImageEnabled);
 
   if TexID <> 0 then Exit;
 
