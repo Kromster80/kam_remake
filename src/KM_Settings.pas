@@ -3,7 +3,7 @@
 interface
 uses
   Classes, SysUtils, Math, INIfiles, Forms,
-  KM_Defaults, KM_Resolutions, KM_CommonTypes, KM_WareDistribution;
+  KM_Defaults, KM_Resolutions, KM_WareDistribution;
 
 
 type
