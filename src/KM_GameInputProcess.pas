@@ -71,8 +71,8 @@ type
     gic_HouseWoodcuttersCutting,  //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
-    gic_RatioChange,              //Change of 1 ratio for 1 ware
-    gic_Ratios,                   //Update all ratios
+    gic_WareDistributionChange,   //Change of distribution for 1 ware
+    gic_WareDistributions,        //Update distributions for all wares at ones
 
     //V.      Game changes
     gic_GameAlertBeacon,            //Signal alert (beacon)
@@ -160,8 +160,8 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint); overload;
 
-    procedure CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer); overload;
-    procedure CmdRatio(aCommandType: TGameInputCommandType; aTextParam: UnicodeString); overload;
+    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer); overload;
+    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString); overload;
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
@@ -376,11 +376,11 @@ begin
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
       gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
-      gic_RatioChange:            begin
+      gic_WareDistributionChange:            begin
                                     P.Stats.WareDistribution[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
                                     P.Houses.UpdateResRequest
                                   end;
-      gic_Ratios:                 begin
+      gic_WareDistributions:                 begin
                                     P.Stats.WareDistribution.LoadFromStr(TextParam);
                                     P.Houses.UpdateResRequest
                                   end;
@@ -563,16 +563,16 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
+procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
 begin
-  Assert(aCommandType = gic_RatioChange);
+  Assert(aCommandType = gic_WareDistributionChange);
   TakeCommand(MakeCommand(aCommandType, [byte(aWare), byte(aHouseType), aValue]));
 end;
 
 
-procedure TGameInputProcess.CmdRatio(aCommandType: TGameInputCommandType; aTextParam: UnicodeString);
+procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString);
 begin
-  Assert(aCommandType = gic_Ratios);
+  Assert(aCommandType = gic_WareDistributions);
   TakeCommand(MakeCommand(aCommandType, aTextParam));
 end;
 

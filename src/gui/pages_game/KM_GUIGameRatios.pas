@@ -144,7 +144,7 @@ begin
   house := ResRatioHouse[fActiveTab, TKMTrackBar(Sender).Tag];
   value := TKMTrackBar(Sender).Position;
   gGameApp.GameSettings.WareDistribution[ware, house] := value;
-  gGame.GameInputProcess.CmdRatio(gic_RatioChange, ware, house, value);
+  gGame.GameInputProcess.CmdWareDistribution(gic_WareDistributionChange, ware, house, value);
 end;
 
 

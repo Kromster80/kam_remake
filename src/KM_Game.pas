@@ -445,7 +445,7 @@ begin
 
   // Update our ware distributions from settings
   if fGameMode in [gmSingle, gmMulti] then
-    GameInputProcess.CmdRatio(gic_Ratios, gGameApp.GameSettings.WareDistribution.PackToStr);
+    GameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
 
   gHands.AfterMissionInit(fGameMode <> gmMapEd); //Don't flatten roads in MapEd
 

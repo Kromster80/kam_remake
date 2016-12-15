@@ -20,15 +20,12 @@ type
   TKMWareDistribution = class
   private
     fWareDistribution: array [1..4, 1..4] of Byte;
-    procedure SetWareDistribution(aWare: TWareType; aHouse: THouseType; aValue: Byte); overload;
-    procedure SetWareDistribution(aIndex, aIndex2: Integer; aValue: Byte); overload;
-    function GetWareDistribution(aWare: TWareType; aHouse: THouseType): Byte; overload;
-    function GetWareDistribution(aIndex, aIndex2: Integer): Byte; overload;
+    procedure SetWareDistribution(aWare: TWareType; aHouse: THouseType; aValue: Byte);
+    function GetWareDistribution(aWare: TWareType; aHouse: THouseType): Byte;
   public
     Changed: Boolean;
     constructor Create;
     property WareDistribution[aWare: TWareType; aHouse: THouseType]: Byte read GetWareDistribution write SetWareDistribution; default;
-    property Ratio[aIndex, aIndex2: Integer]: Byte read GetWareDistribution write SetWareDistribution;
     procedure LoadFromStr(aString: String);
     function PackToStr: String;
 
@@ -86,19 +83,6 @@ begin
               if aHouse = ht_Stables        then Result := fWareDistribution[4,3];
     else      //Handled in 1st row to avoid repeating in if .. else lines
   end;
-end;
-
-
-procedure TKMWareDistribution.SetWareDistribution(aIndex, aIndex2: Integer; aValue: Byte);
-begin
-  fWareDistribution[aIndex, aIndex2] := aValue;
-  Changed := True;
-end;
-
-
-function TKMWareDistribution.GetWareDistribution(aIndex, aIndex2: Integer): Byte;
-begin
-  Result := fWareDistribution[aIndex, aIndex2];
 end;
 
 
