@@ -443,6 +443,10 @@ begin
   if fGameMode in [gmMulti, gmMultiSpectate] then
     MultiplayerRig;
 
+  // Update our ware distributions from settings
+  if fGameMode in [gmSingle, gmMulti] then
+    GameInputProcess.CmdRatio(gic_Ratios, gGameApp.GameSettings.WareDistribution.PackToStr);
+
   gHands.AfterMissionInit(fGameMode <> gmMapEd); //Don't flatten roads in MapEd
 
   //Random after StartGame and ViewReplay should match
@@ -524,10 +528,6 @@ begin
   end
   else
     gMySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
-
-  // Update our ware distributions from settings
-  if fGameMode in [gmSingle, gmMulti] then
-    GameInputProcess.CmdRatio(gic_Ratios, gGameApp.GameSettings.WareDistribution.PackToStr);
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
