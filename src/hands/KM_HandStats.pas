@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults,
-  KM_ResHouses, KM_ResWares;
+  KM_ResHouses, KM_ResWares, KM_WareDistribution;
 
 
 //These are stats for each player
@@ -49,14 +49,13 @@ type
     Houses: array [THouseType] of THouseStats;
     Units: array [HUMANS_MIN..HUMANS_MAX] of TUnitStats;
     Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
-    fResourceRatios: array [1..4, 1..4] of Byte;
+    fWareDistribution: TKMWareDistribution;
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
     function GetChartArmy(aWarrior: TUnitType): TKMCardinalArray;
     function GetChartArmyTotal(aWarrior: TUnitType): TKMCardinalArray;
-    function GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
-    procedure SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
   public
     constructor Create;
+    destructor Destroy; override;
 
     //Input reported by Player
     procedure WareInitial(aRes: TWareType; aCount: Cardinal);
@@ -74,7 +73,7 @@ type
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
-    property Ratio[aRes: TWareType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
+    property WareDistribution: TKMWareDistribution read fWareDistribution;
 
     //Output
     function GetHouseQty(aType: THouseType): Integer; overload;
@@ -122,33 +121,27 @@ type
 
 implementation
 uses
-  KM_Resource;
-
-
-const
-  //These have been adjusted slightly from the old KaM defaults.
-  //The number means how many items should be in houses input max, and also affects delivery priority.
-  DistributionDefaults: array [1..4, 1..4] of Byte = (
-    (5, 5, 0, 0),
-    (5, 3, 4, 4),
-    (3, 4, 0, 0),
-    (4, 5, 3, 0)
-  );
+  KM_Resource, KM_GameApp;
 
 
 { TKMHandStats }
 constructor TKMHandStats.Create;
 var
-  I, K: Integer;
   WT: TUnitType;
 begin
   inherited;
 
-  for I := 1 to 4 do for K := 1 to 4 do
-    fResourceRatios[I, K] := DistributionDefaults[I, K];
+  fWareDistribution := TKMWareDistribution.Create;
 
   for WT := WARRIOR_MIN to WARRIOR_MAX do
     fArmyEmpty[WT] := True;
+end;
+
+
+destructor TKMHandStats.Destroy;
+begin
+  FreeAndNil(fWareDistribution);
+  inherited;
 end;
 
 
@@ -413,45 +406,6 @@ begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
     Inc(Result, GetUnitQty(UT));
-end;
-
-
-function TKMHandStats.GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
-begin  
-  Result := 5; //Default should be 5, for house/resource combinations that don't have a setting (on a side note this should be the only place the resourse limit is defined)
-  case aRes of
-    wt_Steel: if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[1,1] else
-              if aHouse = ht_ArmorSmithy    then Result := fResourceRatios[1,2];
-    wt_Coal:  if aHouse = ht_IronSmithy     then Result := fResourceRatios[2,1] else
-              if aHouse = ht_Metallurgists  then Result := fResourceRatios[2,2] else
-              if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[2,3] else
-              if aHouse = ht_ArmorSmithy    then Result := fResourceRatios[2,4];
-    wt_Wood:  if aHouse = ht_ArmorWorkshop  then Result := fResourceRatios[3,1] else
-              if aHouse = ht_WeaponWorkshop then Result := fResourceRatios[3,2];
-    wt_Corn:  if aHouse = ht_Mill           then Result := fResourceRatios[4,1] else
-              if aHouse = ht_Swine          then Result := fResourceRatios[4,2] else
-              if aHouse = ht_Stables        then Result := fResourceRatios[4,3];
-    else      //Handled in 1st row to avoid repeating in if .. else lines
-  end;
-end;
-
-
-procedure TKMHandStats.SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
-begin
-  case aRes of
-    wt_Steel: if aHouse = ht_WeaponSmithy   then fResourceRatios[1,1] := aValue else
-              if aHouse = ht_ArmorSmithy    then fResourceRatios[1,2] := aValue;
-    wt_Coal:  if aHouse = ht_IronSmithy     then fResourceRatios[2,1] := aValue else
-              if aHouse = ht_Metallurgists  then fResourceRatios[2,2] := aValue else
-              if aHouse = ht_WeaponSmithy   then fResourceRatios[2,3] := aValue else
-              if aHouse = ht_ArmorSmithy    then fResourceRatios[2,4] := aValue;
-    wt_Wood:  if aHouse = ht_ArmorWorkshop  then fResourceRatios[3,1] := aValue else
-              if aHouse = ht_WeaponWorkshop then fResourceRatios[3,2] := aValue;
-    wt_Corn:  if aHouse = ht_Mill           then fResourceRatios[4,1] := aValue else
-              if aHouse = ht_Swine          then fResourceRatios[4,2] := aValue else
-              if aHouse = ht_Stables        then fResourceRatios[4,3] := aValue;
-    else      Assert(False, 'Unexpected resource at SetRatio');
-  end;
 end;
 
 
@@ -734,7 +688,7 @@ begin
   SaveStream.Write(Houses, SizeOf(Houses));
   SaveStream.Write(Units, SizeOf(Units));
   SaveStream.Write(Wares, SizeOf(Wares));
-  SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
+  fWareDistribution.Save(SaveStream);
 
   SaveStream.Write(fChartCount);
   if fChartCount <> 0 then
@@ -762,7 +716,7 @@ begin
   LoadStream.Read(Houses, SizeOf(Houses));
   LoadStream.Read(Units, SizeOf(Units));
   LoadStream.Read(Wares, SizeOf(Wares));
-  LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
+  fWareDistribution.Load(LoadStream);
 
   LoadStream.Read(fChartCount);
   if fChartCount <> 0 then

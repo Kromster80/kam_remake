@@ -525,6 +525,10 @@ begin
   else
     gMySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
 
+  // Update our ware distributions from settings
+  if fGameMode in [gmSingle, gmMulti] then
+    GameInputProcess.CmdRatio(gic_Ratios, gGameApp.GameSettings.WareDistribution.PackToStr);
+
   //We cannot remove a player from a save (as they might be interacting with other players)
 
   //FOW should never be synced for saves, it should be left like it was when the save was

@@ -377,11 +377,7 @@ begin
       gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
       gic_RatioChange:            begin
-                                    P.Stats.WareDistribution[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
-                                    P.Houses.UpdateResRequest
-                                  end;
-      gic_Ratios:                 begin
-                                    P.Stats.WareDistribution.LoadFromStr(TextParam);
+                                    P.Stats.Ratio[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
                                     P.Houses.UpdateResRequest
                                   end;
 

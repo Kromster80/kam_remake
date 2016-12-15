@@ -1122,7 +1122,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID: Byte): Byte;
 begin
-  Result := gHands[fOwner].Stats.Ratio[gRes.HouseDat[fHouseType].ResInput[aID],fHouseType];
+  Result := gHands[fOwner].Stats.WareDistribution[gRes.HouseDat[fHouseType].ResInput[aID],fHouseType];
 end;
 
 
