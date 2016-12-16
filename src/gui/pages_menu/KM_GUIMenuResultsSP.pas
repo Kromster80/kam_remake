@@ -53,7 +53,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 
-    procedure Show(aMsg: TGameResultMsg; aGameMode: TGameMode);
+    procedure Show(aMsg: TGameResultMsg);
   end;
 
 
@@ -260,10 +260,10 @@ begin
 end;
 
 
-procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg; aGameMode: TGameMode);
+procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg);
 begin
   fGameResultMsg := aMsg;
-  fGameMode := aGameMode;
+  fGameMode := gGame.GameMode;
 
   //Remember which map we played so we could restart it
   fRepeatGameName := gGame.GameName;
@@ -419,7 +419,7 @@ end;
 procedure TKMMenuResultsSP.RepeatClick(Sender: TObject);
 begin
   //Means replay last map
-  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
+  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fGameMode, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
 end;
 
 

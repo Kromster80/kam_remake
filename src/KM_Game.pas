@@ -1317,7 +1317,7 @@ var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
   LoadedSeed: LongInt;
-  SaveIsMultiplayer: Boolean;
+  SaveIsMultiplayer, IsCampaign: Boolean;
   I: Integer;
 begin
   fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');
@@ -1367,6 +1367,15 @@ begin
     //We need to know which campaign to display after victory
     LoadStream.Read(fCampaignName, SizeOf(TKMCampaignId));
     LoadStream.Read(fCampaignMap);
+
+    //Check if this save is Campaign game save
+    IsCampaign := False;
+    for I := Low(TKMCampaignId) to High(TKMCampaignId) do
+      if fCampaignName[I] <> NO_CAMPAIGN[I] then
+        IsCampaign := True;
+    //If there is Campaign Name in save then change GameMode to gmCampaign, because GameMode is not stored in Save
+    if IsCampaign then
+      fGameMode := gmCampaign;
 
     //We need to know which mission/savegame to try to restart. This is unused in MP.
     if not SaveIsMultiplayer then

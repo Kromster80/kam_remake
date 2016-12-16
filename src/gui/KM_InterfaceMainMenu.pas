@@ -3,7 +3,7 @@ unit KM_InterfaceMainMenu;
 interface
 uses
   Classes, Controls, Math, SysUtils, KromUtils,
-  KM_Controls, KM_Defaults, KM_Pics, KM_Networking, KM_Game,
+  KM_Controls, KM_Defaults, KM_Pics, KM_Networking,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
@@ -51,7 +51,7 @@ type
     procedure PageChange(Dest: TKMMenuPage; aText: UnicodeString = '');
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
-    procedure ShowResultsSP(aMsg: TGameResultMsg; aGameMode: TGameMode);
+    procedure ShowResultsSP(aMsg: TGameResultMsg);
     function GetChatState: TChatState;
     procedure SetChatState(const aChatState: TChatState);
     procedure ExportPages(aPath: string); override;
@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
@@ -198,7 +198,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ShowResultsSP(aMsg: TGameResultMsg; aGameMode: TGameMode);
+procedure TKMMainMenuInterface.ShowResultsSP(aMsg: TGameResultMsg);
 begin
   fMenuResultsSP.Show(aMsg);
 end;
