@@ -404,7 +404,7 @@ begin
     gr_Error, gr_Disconnect:
                     fMainMenuInterface.PageChange(gpError, aTextMsg);
     gr_Silent:      ;//Used when loading new savegame from gameplay UI
-    gr_MapEdEnd:    fMainMenuInterface.PageChange(gpMainMenu);
+    gr_MapEdEnd:    fMainMenuInterface.PageChange(gpMapEditor);
   end;
 
   FreeThenNil(gGame);

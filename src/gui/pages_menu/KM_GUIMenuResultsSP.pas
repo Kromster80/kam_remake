@@ -399,7 +399,7 @@ begin
   //Replay end -> ResultsSP -> Replays
 
   if fGameResultMsg <> gr_ReplayEnd then
-    fOnPageChange(gpMainMenu)
+    fOnPageChange(gpSinglePlayer)
   else
     fOnPageChange(gpReplays);
 end;
