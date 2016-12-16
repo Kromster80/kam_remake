@@ -416,6 +416,7 @@ begin
       SetSelectedSaveInfo(NewSelection);
     end else
       SetSelectedSaveInfo;
+
     Replays_RefreshList(True);
   end;
 end;

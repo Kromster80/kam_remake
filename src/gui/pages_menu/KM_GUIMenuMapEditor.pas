@@ -564,9 +564,8 @@ begin
     begin
       NewSelection := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 2);
       SetSelectedMapInfo(NewSelection);
-    end else begin
+    end else
       SetSelectedMapInfo;
-    end;
 
     RefreshList(True);
   end;
