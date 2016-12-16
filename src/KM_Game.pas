@@ -17,6 +17,7 @@ uses
 type
   TGameMode = (
     gmSingle,
+    gmCampaign,
     gmMulti,        //Different GIP, networking,
     gmMultiSpectate,
     gmMapEd,        //Army handling, lite updates,
@@ -185,7 +186,7 @@ uses
 //aRender - who will be rendering the Game session
 //aNetworking - access to MP stuff
 constructor TKMGame.Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
-const UIMode: array[TGameMode] of TUIMode = (umSP, umMP, umSpectate, umSP, umReplay, umReplay);
+const UIMode: array[TGameMode] of TUIMode = (umSP, umSP, umMP, umSpectate, umSP, umReplay, umReplay);
 begin
   inherited Create;
 
@@ -298,7 +299,7 @@ end;
 procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
-    mpm_Single, mpm_Multi, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
+    mpm_Single, mpm_Single, mpm_Multi, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
@@ -308,7 +309,7 @@ var
   CampaignDataTypeFile: UnicodeString;
 begin
   gLog.AddTime('GameStart');
-  Assert(fGameMode in [gmMulti, gmMultiSpectate, gmMapEd, gmSingle]);
+  Assert(fGameMode in [gmMulti, gmMultiSpectate, gmMapEd, gmSingle, gmCampaign]);
 
   fGameName := aGameName;
   fGameMapCRC := aCRC;
@@ -344,7 +345,7 @@ begin
                   if fNetworking.MapInfo.CanBeAI[I] and not fNetworking.MapInfo.CanBeHuman[I] then
                     PlayerEnabled[I] := True;
               end;
-    gmSingle: //Setup should tell us which player is AI and which not
+    gmSingle, gmCampaign: //Setup should tell us which player is AI and which not
               for I := 0 to MAX_HANDS - 1 do
                 PlayerEnabled[I] := True;
     else      FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #255);
@@ -377,7 +378,7 @@ begin
       gMySpectator.FOWIndex := PLAYER_NONE;
     end
     else
-    if fGameMode = gmSingle then
+    if fGameMode in [gmSingle, gmCampaign] then
     begin
       for I := 0 to gHands.Count - 1 do
         gHands[I].HandType := hndComputer;
@@ -430,7 +431,8 @@ begin
                 fTextMission := TKMTextLibraryMulti.Create;
                 fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
               end;
-    gmSingle: begin
+    gmSingle, gmCampaign:
+              begin
                 fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
                 fTextMission := TKMTextLibraryMulti.Create;
                 fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
@@ -454,7 +456,7 @@ begin
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
-  if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
+  if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer), UTCNow);
 
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
@@ -630,7 +632,7 @@ begin
 
   //Attempt to save the game, but if the state is too messed up it might fail
   try
-    if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
+    if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     begin
       Save('crashreport', UTCNow);
       AttachFile(SaveName('crashreport', 'sav', IsMultiplayer));
@@ -725,7 +727,8 @@ end;
 procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex);
 begin
   case GameMode of
-    gmSingle: if aPlayerIndex = gMySpectator.HandIndex then
+    gmSingle, gmCampaign:
+              if aPlayerIndex = gMySpectator.HandIndex then
               begin
                 gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
                 RequestGameHold(gr_Defeat);
@@ -810,7 +813,7 @@ begin
 
   gHands.AfterMissionInit(false);
 
-  if fGameMode = gmSingle then
+  if fGameMode in [gmSingle, gmCampaign] then
     fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
 
   //When everything is ready we can update UI
@@ -963,7 +966,7 @@ begin
   gHands[aHandIndex].MessageLog.Add(aKind, aTextID, aLoc);
 
   //Don't play sound in replays or spectator
-  if (aHandIndex = gMySpectator.HandIndex) and (fGameMode in [gmSingle, gmMulti]) then
+  if (aHandIndex = gMySpectator.HandIndex) and (fGameMode in [gmSingle, gmCampaign, gmMulti]) then
     gSoundPlayer.Play(sfx_MessageNotice, 2);
 end;
 
@@ -1350,7 +1353,7 @@ begin
     //If the player loads a multiplayer save in singleplayer or replay mode, we require a mutex lock to prevent cheating
     //If we're loading in multiplayer mode we have already locked the mutex when entering multiplayer menu,
     //which is better than aborting loading in a multiplayer game (spoils it for everyone else too)
-    if SaveIsMultiplayer and (fGameMode in [gmSingle, gmReplaySingle, gmReplayMulti]) then
+    if SaveIsMultiplayer and (fGameMode in [gmSingle, gmCampaign, gmReplaySingle, gmReplayMulti]) then
       if fMain.LockMutex then
         fGameLockedMutex := True //Remember so we unlock it in Destroy
       else
@@ -1428,7 +1431,7 @@ begin
     if fGameMode in [gmMulti, gmMultiSpectate] then
       MultiplayerRig;
 
-    if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
+    if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     begin
       DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
       KMCopyFile(ChangeFileExt(aPathName, '.bas'), SaveName('basesave', 'bas', IsMultiplayer));
@@ -1446,7 +1449,7 @@ begin
       //MP does not saves view position cos of save identity for all players
       fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
       //In MP saves hotkeys can't be saved by UI, they must be network synced
-      if fGameMode in [gmSingle, gmMulti] then
+      if fGameMode in [gmSingle, gmCampaign, gmMulti] then
         fGamePlayInterface.LoadHotkeysFromHand;
     end;
 
@@ -1469,7 +1472,7 @@ begin
   if fIsPaused then Exit;
 
   case fGameMode of
-    gmSingle, gmMulti, gmMultiSpectate:
+    gmSingle, gmCampaign, gmMulti, gmMultiSpectate:
                   if not (fGameMode in [gmMulti, gmMultiSpectate]) or (fNetworking.NetGameState <> lgs_Loading) then
                   for I := 1 to fGameSpeedMultiplier do
                   begin

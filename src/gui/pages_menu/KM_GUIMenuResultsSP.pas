@@ -4,7 +4,7 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_Campaigns;
+  KM_InterfaceDefaults, KM_Campaigns, KM_Game;
 
 
 type
@@ -12,6 +12,7 @@ type
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
+    fGameMode: TGameMode;
 
     //Story behind these seemingly superflous elements that
     //we need to carry on from previous Game:
@@ -52,13 +53,13 @@ type
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 
-    procedure Show(aMsg: TGameResultMsg);
+    procedure Show(aMsg: TGameResultMsg; aGameMode: TGameMode);
   end;
 
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_HandsCollection,
+  KM_ResTexts, KM_GameApp, KM_HandsCollection,
   KM_Utils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
   KM_ResWares;
 
@@ -259,9 +260,10 @@ begin
 end;
 
 
-procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg);
+procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg; aGameMode: TGameMode);
 begin
   fGameResultMsg := aMsg;
+  fGameMode := aGameMode;
 
   //Remember which map we played so we could restart it
   fRepeatGameName := gGame.GameName;
@@ -392,16 +394,17 @@ end;
 
 procedure TKMMenuResultsSP.BackClick(Sender: TObject);
 begin
-  //todo:
   //Depending on where we were created we need to return to a different place
   //Campaign game end -> ResultsSP -> Main menu
   //Singleplayer game end -> ResultsSP -> Singleplayer
   //Replay end -> ResultsSP -> Replays
 
-  if fGameResultMsg <> gr_ReplayEnd then
+  if fGameResultMsg = gr_ReplayEnd then
+    fOnPageChange(gpReplays)
+  else if fGameMode = gmSingle then
     fOnPageChange(gpSinglePlayer)
   else
-    fOnPageChange(gpReplays);
+    fOnPageChange(gpMainMenu);
 end;
 
 
