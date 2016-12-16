@@ -1568,7 +1568,10 @@ begin
                     if DoGameHold then
                       Break;
 
-                    PeaceTimeLeft := Max(0, fGameOptions.Peacetime * 600 - fGameTickCount);
+                    if fGameOptions.Peacetime * 600 < fGameTickCount then
+                      PeaceTimeLeft := 0
+                    else
+                      PeaceTimeLeft := fGameOptions.Peacetime * 600 - fGameTickCount;
 
                     if (PeaceTimeLeft = 1)
                     and (fGameMode = gmReplayMulti)
