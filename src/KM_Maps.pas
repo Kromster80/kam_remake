@@ -664,6 +664,7 @@ var
   I: Integer;
 begin
    Lock;
+   try
      Assert(InRange(aIndex, 0, fCount - 1));
      {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
      {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
@@ -672,7 +673,9 @@ begin
        fMaps[I] := fMaps[I + 1];
      Dec(fCount);
      SetLength(fMaps, fCount);
-   Unlock;
+   finally
+     Unlock;
+   end;
 end;
 
 
@@ -683,6 +686,7 @@ var
   SearchRec: TSearchRec;
 begin
    Lock;
+   try
      Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
      Assert(fMaps[aIndex].Path <> Dest);
      Assert(InRange(aIndex, 0, fCount - 1));
@@ -718,7 +722,9 @@ begin
        fMaps[I] := fMaps[I + 1];
      Dec(fCount);
      SetLength(fMaps, fCount);
-   Unlock;
+   finally
+     Unlock;
+   end;
 end;
 
 
