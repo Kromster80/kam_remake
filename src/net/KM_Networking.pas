@@ -75,7 +75,7 @@ type
     fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
     fMyNikname: AnsiString;
     fWelcomeMessage: UnicodeString;
-    fServerName: AnsiString; // Name of the server we are currently in (shown in the lobby)
+    fServerName: UnicodeString; // Name of the server we are currently in (shown in the lobby)
     fPassword: AnsiString;
     fDescription: UnicodeString;
     fEnteringPassword: Boolean;
@@ -158,7 +158,7 @@ type
     property HostIndex: Integer read fHostIndex;
     property NetGameState: TNetGameState read fNetGameState;
     function MyIPString:string;
-    property ServerName: AnsiString read fServerName;
+    property ServerName: UnicodeString read fServerName;
     property ServerAddress: string read fServerAddress;
     property ServerPort: string read fServerPort;
     property ServerRoom: Integer read fRoomToJoin;
@@ -1295,8 +1295,8 @@ begin
 
       mk_ServerName:
               begin
-                M.ReadA(tmpStringA);
-                fServerName := tmpStringA;
+                M.ReadW(tmpStringW);
+                fServerName := tmpStringW;
               end;
 
       mk_IndexOnServer:
