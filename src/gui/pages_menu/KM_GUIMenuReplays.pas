@@ -3,7 +3,7 @@ unit KM_GUIMenuReplays;
 interface
 uses
   SysUtils, Controls, Math,
-  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics;
+  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics, KM_Defaults;
 
 
 type
@@ -83,9 +83,9 @@ begin
   Radio_Replays_Type.OnChange := Replay_TypeChange;
 
   ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 22, 150, 770, 425, fnt_Metal, bsMenu);
-  ColumnBox_Replays.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 250, 430]);
+  ColumnBox_Replays.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 22, 250, 430]);
   ColumnBox_Replays.Anchors := [anLeft,anTop,anBottom];
-  ColumnBox_Replays.SearchColumn := 0;
+  ColumnBox_Replays.SearchColumn := 1;
   ColumnBox_Replays.OnChange := Replays_ListClick;
   ColumnBox_Replays.OnColumnClick := Replays_Sort;
   ColumnBox_Replays.OnDoubleClick := Replays_Play;
@@ -236,8 +236,8 @@ end;
 
 
 procedure TKMMenuReplays.Replays_RefreshList(aJumpToSelected: Boolean);
-var
-  I, PrevTop: Integer;
+var I, PrevTop: Integer;
+    Row: TKMListRow;
 begin
   PrevTop := ColumnBox_Replays.TopIndex;
   ColumnBox_Replays.Clear;
@@ -245,9 +245,12 @@ begin
   fSaves.Lock;
   try
     for I := 0 to fSaves.Count - 1 do
-      ColumnBox_Replays.AddItem(MakeListRow(
-                           [fSaves[I].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
-                           [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF]));
+    begin
+      Row := MakeListRow(['', fSaves[i].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
+                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF]);
+      Row.Cells[0].Pic := MakePic(rxGui, 657 + Byte(fSaves[I].Info.MissionMode = mm_Tactic));
+      ColumnBox_Replays.AddItem(Row);
+    end;
 
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fLastSaveCRC) then
@@ -275,16 +278,20 @@ begin
   case ColumnBox_Replays.SortIndex of
     //Sorting by filename goes A..Z by default
     0:  if ColumnBox_Replays.SortDirection = sdDown then
+          fSaves.Sort(smByModeDesc, Replays_SortUpdate)
+        else
+          fSaves.Sort(smByModeAsc, Replays_SortUpdate);
+    1:  if ColumnBox_Replays.SortDirection = sdDown then
           fSaves.Sort(smByFileNameDesc, Replays_SortUpdate)
         else
           fSaves.Sort(smByFileNameAsc, Replays_SortUpdate);
     //Sorting by description goes Old..New by default
-    1:  if ColumnBox_Replays.SortDirection = sdDown then
+    2:  if ColumnBox_Replays.SortDirection = sdDown then
           fSaves.Sort(smByDateDesc, Replays_SortUpdate)
         else
           fSaves.Sort(smByDateAsc, Replays_SortUpdate);
     //Sorting by description goes A..Z by default
-    2:  if ColumnBox_Replays.SortDirection = sdDown then
+    3:  if ColumnBox_Replays.SortDirection = sdDown then
           fSaves.Sort(smByDescriptionDesc, Replays_SortUpdate)
         else
           fSaves.Sort(smByDescriptionAsc, Replays_SortUpdate);
