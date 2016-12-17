@@ -26,6 +26,11 @@ type
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPage) of object;
   TGUIEventText = procedure (Dest: TKMMenuPage; aText: UnicodeString = '') of object;
 
+  TKMFileIdentInfo = record // File identification info (for maps/saves)
+    CRC: Cardinal;
+    Name: UnicodeString;
+  end;
+
   TKMUserInterfaceCommon = class
   protected
     fMyControls: TKMMasterControl;
