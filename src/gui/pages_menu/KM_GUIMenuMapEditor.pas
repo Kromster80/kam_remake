@@ -646,6 +646,7 @@ begin
   ListUpdate;
 
   Panel_MapEd.Show;
+  gGameApp.MainMenuInterface.MyControls.CtrlFocus := ColumnBox_MapEd; // Set focus to List
 end;
 
 
