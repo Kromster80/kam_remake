@@ -1692,7 +1692,6 @@ begin
                 S := fNetworking.SaveInfo;
                 Label_LobbyMapName.Caption := aData; //Show save name on host (local is always "downloaded")
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime + '|' + S.Info.GetSaveTimestamp;
-                MinimapView_Lobby.Hide;
                 if S.IsValid and S.LoadMinimap(fMinimap) then
                 begin
                   MinimapView_Lobby.SetMinimap(fMinimap);
