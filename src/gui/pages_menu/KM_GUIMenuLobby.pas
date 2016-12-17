@@ -53,7 +53,8 @@ type
 
     procedure PlayersSetupChange(Sender: TObject);
     procedure MapColumnClick(aValue: Integer);
-    procedure MapTypeChange(Sender: TObject);
+    procedure MapTypeChange(Sender: TObject); overload;
+    procedure MapTypeChange; overload;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
     procedure RefreshMapList(aJumpToSelected: Boolean);
@@ -716,6 +717,8 @@ begin
 
   ChatMenuSelect(-1); //All
 
+  Radio_LobbyMapType.ItemIndex := gGameApp.GameSettings.MenuLobbyMapType;
+
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);
 end;
@@ -836,7 +839,7 @@ begin
   begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
-    if not aPreserveMaps then MapTypeChange(nil);
+    if not aPreserveMaps then MapTypeChange;
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
     Button_LobbyStart.Caption := gResTexts[TX_LOBBY_START]; //Start
@@ -1361,7 +1364,7 @@ begin
 end;
 
 
-procedure TKMMenuLobby.MapTypeChange(Sender: TObject);
+procedure TKMMenuLobby.MapTypeChange;
 begin
   //Terminate any running scans otherwise they will continue to fill the drop box in the background
   fMapsMP.TerminateScan;
@@ -1391,10 +1394,14 @@ begin
         end;
   end;
   DropCol_LobbyMaps.ItemIndex := -1; //Clear previously selected item
+end;
 
-  //The Sender is nil in Reset_Lobby when we are not connected
-  if Sender <> nil then
-    fNetworking.SelectNoMap('');
+
+procedure TKMMenuLobby.MapTypeChange(Sender: TObject);
+begin
+  MapTypeChange;
+  gGameApp.GameSettings.MenuLobbyMapType := Radio_LobbyMapType.ItemIndex;
+  fNetworking.SelectNoMap('');
 end;
 
 
@@ -1754,7 +1761,7 @@ begin
   //Pick correct position of map type selector
   Radio_LobbyMapType.ItemIndex := DetectMapType;
 
-  MapTypeChange(nil);
+  MapTypeChange;
   Lobby_OnGameOptions(nil);
 
   case fNetworking.SelectGameKind of
@@ -1878,7 +1885,7 @@ end;
 procedure TKMMenuLobby.ReturnToLobby(const aSaveName: UnicodeString);
 begin
   Radio_LobbyMapType.ItemIndex := 4; //Save
-  MapTypeChange(nil);
+  MapTypeChange;
   Lobby_OnGameOptions(nil);
   if fNetworking.IsHost then
   begin

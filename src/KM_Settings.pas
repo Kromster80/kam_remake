@@ -116,6 +116,7 @@ type
     fMenu_ReplayMPSaveName: UnicodeString;
     fMenu_SPMapCRC: Cardinal;
     fMenu_SPSaveCRC: Cardinal;
+    fMenu_LobbyMapType: Byte;
 
     procedure SetAutosave(aValue: Boolean);
     procedure SetReplayAutopause(aValue: Boolean);
@@ -157,6 +158,7 @@ type
     procedure SetMenuReplayMPSaveName(aValue: UnicodeString);
     procedure SetMenuSPMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveCRC(aValue: Cardinal);
+    procedure SetMenuLobbyMapType(aValue: Byte);
   protected
     function LoadFromINI(FileName: UnicodeString): Boolean;
     procedure SaveToINI(FileName: UnicodeString);
@@ -211,6 +213,7 @@ type
     property MenuReplayMPSaveName: UnicodeString read fMenu_ReplayMPSaveName write SetMenuReplayMPSaveName;
     property MenuSPMapCRC: Cardinal read fMenu_SPMapCRC write SetMenuSPMapCRC;
     property MenuSPSaveCRC: Cardinal read fMenu_SPSaveCRC write SetMenuSPSaveCRC;
+    property MenuLobbyMapType: Byte read fMenu_LobbyMapType write SetMenuLobbyMapType;
   end;
 
 
@@ -435,6 +438,7 @@ begin
     fMenu_ReplayMPSaveName  := F.ReadString('Menu', 'ReplayMPSaveName', '');
     fMenu_SPMapCRC          := StrToInt64(F.ReadString('Menu', 'SPMapCRC', '0'));
     fMenu_SPSaveCRC         := StrToInt64(F.ReadString('Menu', 'SPSaveCRC', '0'));
+    fMenu_LobbyMapType      := F.ReadInteger('Menu', 'LobbyMapType', 0);
   finally
     F.Free;
   end;
@@ -501,6 +505,7 @@ begin
     F.WriteString ('Menu',  'ReplayMPSaveName',   fMenu_ReplayMPSaveName);
     F.WriteString ('Menu',  'SPMapCRC',           IntToStr(fMenu_SPMapCRC));
     F.WriteString ('Menu',  'SPSaveCRC',          IntToStr(fMenu_SPSaveCRC));
+    F.WriteInteger('Menu',  'LobbyMapType',       fMenu_LobbyMapType);
 
     F.UpdateFile; //Write changes to file
   finally
@@ -624,6 +629,14 @@ begin
   fMenu_SPSaveCRC := aValue;
   Changed;
 end;
+
+
+procedure TGameSettings.SetMenuLobbyMapType(aValue: Byte);
+begin
+  fMenu_LobbyMapType := aValue;
+  Changed;
+end;
+
 
 
 procedure TGameSettings.SetAutosave(aValue: Boolean);
