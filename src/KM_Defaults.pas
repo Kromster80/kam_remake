@@ -306,6 +306,9 @@ type
   TMapFolder = (mfSP, mfMP, mfDL);
   TMapFolderSet = set of TMapFolder;
 
+const
+  MAP_SIZES: array [0..6] of String = ('XS', 'S', 'M', 'L', 'XL', 'XXL', '???');
+
 { Terrain }
 type
   TKMTerrainPassability = (

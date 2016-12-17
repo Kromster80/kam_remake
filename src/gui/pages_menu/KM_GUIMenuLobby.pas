@@ -1579,52 +1579,85 @@ end;
 
 procedure TKMMenuLobby.MapColumnClick(aValue: Integer);
 var
-  SM: TMapsSortMethod;
-  SSM: TSavesSortMethod;
+  SM: TMapsSortMethods;
+  SSM: TSavesSortMethods;
 begin
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
+    ResetMapSortMethods(SM);
     //Determine Sort method depending on which column user clicked
     with DropCol_LobbyMaps.List do
     case SortIndex of
       0:  if SortDirection = sdDown then
-            SM := smByNameDesc
+            SM[0] := smByNameDesc  // Name is unique, so no need for extra sort parameters
           else
-            SM := smByNameAsc;
-      1:  if SortDirection = sdDown then
-            SM := smByHumanPlayersMPDesc
-          else
-            SM := smByHumanPlayersMPAsc;
-      2:  if SortDirection = sdDown then
-            SM := smBySizeDesc
-          else
-            SM := smBySizeAsc;
-      else SM := smByNameAsc;
+            SM[0] := smByNameAsc;  // Name is unique, so no need for extra sort parameters
+      1:  if SortDirection = sdDown then begin
+            SM[0] := smByHumanPlayersMPDesc;
+            SM[1] := smByNameDesc;
+            SM[2] := smBySizeDesc;
+          end else begin
+            SM[0] := smByHumanPlayersMPAsc;
+            SM[1] := smByNameAsc;
+            SM[2] := smBySizeAsc;
+          end;
+      2:  if SortDirection = sdDown then begin
+            SM[0] := smBySizeDesc;
+            SM[1] := smByHumanPlayersMPDesc; //Second sort parameter is players number on map, because usually its related to map size
+            SM[2] := smByNameDesc;
+          end else begin
+            SM[0] := smBySizeAsc;
+            SM[1] := smByHumanPlayersMPAsc; //Second sort parameter is players number on map, because usually its related to map size
+            SM[2] := smByNameAsc;
+          end;
+      else SM[0] := smByNameAsc;
     end;
     fMapsMP.Sort(SM, MapList_SortUpdate);
   end
   else
   begin
+    ResetSaveSortMethods(SSM);
     //Determine Sort method depending on which column user clicked
     with DropCol_LobbyMaps.List do
     case SortIndex of
       0:  if SortDirection = sdDown then
-            SSM := smByFileNameDesc
+            SSM[0] := smByFileNameDesc  // Filename is unique, so no need for extra sort parameters
           else
-            SSM := smByFileNameAsc;
-      1:  if SortDirection = sdDown then
-            SSM := smByPlayerCountDesc
-          else
-            SSM := smByPlayerCountAsc;
-      2:  if SortDirection = sdDown then
-            SSM := smByTimeDesc
-          else
-            SSM := smByTimeAsc;
-      3:  if SortDirection = sdDown then
-            SSM := smByDateDesc
-          else
-            SSM := smByDateAsc;
-      else SSM := smByFileNameAsc;
+            SSM[0] := smByFileNameAsc;  // Filename is unique, so no need for extra sort parameters
+      1:  if SortDirection = sdDown then begin
+            SSM[0] := smByPlayerCountDesc;
+            SSM[1] := smByFileNameDesc;
+            SSM[2] := smByTimeDesc;
+            SSM[3] := smByDateDesc;
+          end else begin
+            SSM[0] := smByPlayerCountAsc;
+            SSM[1] := smByFileNameAsc;
+            SSM[2] := smByTimeAsc;
+            SSM[3] := smByDateAsc;
+          end;
+      2:  if SortDirection = sdDown then begin
+            SSM[0] := smByTimeDesc;
+            SSM[1] := smByFileNameDesc;
+            SSM[2] := smByPlayerCountDesc;
+            SSM[3] := smByDateDesc;
+          end else begin
+            SSM[0] := smByTimeAsc;
+            SSM[1] := smByFileNameAsc;
+            SSM[2] := smByPlayerCountAsc;
+            SSM[3] := smByDateAsc;
+          end;
+      3:  if SortDirection = sdDown then begin
+            SSM[0] := smByDateDesc;
+            SSM[1] := smByFileNameDesc;
+            SSM[2] := smByPlayerCountDesc;
+            SSM[3] := smByTimeDesc;
+          end else begin
+            SSM[0] := smByDateAsc;
+            SSM[1] := smByFileNameAsc;
+            SSM[2] := smByPlayerCountAsc;
+            SSM[3] := smByTimeAsc;
+          end;
+      else SSM[0] := smByFileNameAsc;
     end;
     fSavesMP.Sort(SSM, MapList_SortUpdate);
   end;

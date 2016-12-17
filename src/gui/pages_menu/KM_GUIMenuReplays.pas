@@ -271,24 +271,36 @@ end;
 
 
 procedure TKMMenuReplays.Replays_Sort(aIndex: Integer);
+var SSM: TSavesSortMethods;
 begin
-  case ColumnBox_Replays.SortIndex of
-    //Sorting by filename goes A..Z by default
-    0:  if ColumnBox_Replays.SortDirection = sdDown then
-          fSaves.Sort(smByFileNameDesc, Replays_SortUpdate)
-        else
-          fSaves.Sort(smByFileNameAsc, Replays_SortUpdate);
-    //Sorting by description goes Old..New by default
-    1:  if ColumnBox_Replays.SortDirection = sdDown then
-          fSaves.Sort(smByDateDesc, Replays_SortUpdate)
-        else
-          fSaves.Sort(smByDateAsc, Replays_SortUpdate);
-    //Sorting by description goes A..Z by default
-    2:  if ColumnBox_Replays.SortDirection = sdDown then
-          fSaves.Sort(smByDescriptionDesc, Replays_SortUpdate)
-        else
-          fSaves.Sort(smByDescriptionAsc, Replays_SortUpdate);
-  end;
+  ResetSaveSortMethods(SSM);
+  with ColumnBox_Replays do
+    case SortIndex of
+      0:  if SortDirection = sdDown then
+            SSM[0] := smByFileNameDesc // FileName is unique, so no need for extra sort parameters
+          else
+            SSM[0] := smByFileNameAsc;
+      1:  if SortDirection = sdDown then begin
+            SSM[0] := smByDateDesc;
+            SSM[1] := smByFileNameDesc;
+            SSM[2] := smByDescriptionDesc;
+          end else begin
+            SSM[0] := smByDateAsc;
+            SSM[1] := smByFileNameAsc;
+            SSM[2] := smByDescriptionAsc;
+          end;
+      2:  if SortDirection = sdDown then begin
+            SSM[0] := smByDescriptionDesc;
+            SSM[1] := smByFileNameDesc;
+            SSM[2] := smByDateDesc;
+          end else begin
+            SSM[0] := smByDescriptionAsc;
+            SSM[1] := smByFileNameAsc;
+            SSM[2] := smByDateAsc;
+          end;
+    end;
+
+  fSaves.Sort(SSM, Replays_SortUpdate);
 end;
 
 
