@@ -132,9 +132,7 @@ var
   ALLOW_TAKE_AI_PLAYERS :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
-  WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
-  WRITE_RECONNECT_LOG   :Boolean = True;
   WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
   EXPORT_SPRITE_ATLASES :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   EXPORT_INFLUENCE      :Boolean = False;

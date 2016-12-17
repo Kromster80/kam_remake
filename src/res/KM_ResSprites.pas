@@ -125,7 +125,7 @@ var
 
 implementation
 uses
-  KromUtils, KM_Log, KM_BinPacking, KM_Utils;
+  KromUtils, KM_Log, KM_BinPacking, KM_Utils, Log4d;
 
 
 var
@@ -305,7 +305,7 @@ begin
   try
     DecompressionStream.Read(RXXCount, 4);
     if gLog <> nil then
-      gLog.AddTime(RXInfo[fRT].FileName + ' -', RXXCount);
+      gLog.Info(RXInfo[fRT].FileName + ' -' + IntToStr(RXXCount));
 
     if RXXCount = 0 then
       Exit;
@@ -534,10 +534,10 @@ begin
     if fRXData.Flag[I] <> 0 then
       Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
-    gLog.AddTime(IntToStr(TexCount) + ' Textures created');
-    gLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+    gLog.Info(IntToStr(TexCount) + ' Textures created');
+    gLog.NoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
                   ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-    gLog.AddNoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+    gLog.NoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
 
@@ -791,7 +791,7 @@ begin
   if RXInfo[RT].Usage = ruGame then
   begin
     fStepCaption(gResTexts[RXInfo[RT].LoadingTextID]);
-    gLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rx');
+    gLog.Info('Reading ' + RXInfo[RT].FileName + '.rx');
     LoadSprites(RT, fAlphaShadows);
     fSprites[RT].MakeGFX(fAlphaShadows);
   end;

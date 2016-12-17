@@ -122,7 +122,7 @@ const
 
 implementation
 uses
-  KM_Utils, KM_Log;
+  KM_Utils, KM_Log, Log4d;
 
 
 var
@@ -314,7 +314,7 @@ begin
         fAtlases[I].TexID := 0;
 
   if LOG_EXTRA_FONTS then
-    gLog.AddNoTime( 'Font RAM usage: '+IntToStr(TextureRAM));
+    gLog.NoTime('Font RAM usage: ' + IntToStr(TextureRAM));
 end;
 
 
@@ -490,7 +490,7 @@ begin
   end;
 
   TotalTime := GetTimeSince(StartTime);
-  gLog.AddTime('Font load took ' + IntToStr(TotalTime) + 'ms');
+  gLog.Info('Font load took ' + IntToStr(TotalTime) + 'ms');
 end;
 
 

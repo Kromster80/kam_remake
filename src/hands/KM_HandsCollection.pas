@@ -72,14 +72,13 @@ var
 
 implementation
 uses
-  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields, KM_ResUnits, KM_HouseCollection;
+  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields, KM_ResUnits, KM_HouseCollection, Log4d;
 
 
 { TKMHandsCollection }
 constructor TKMHandsCollection.Create;
 begin
   inherited Create;
-
   fPlayerAnimals := TKMHandAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 end;
 
@@ -551,7 +550,7 @@ begin
   LoadStream.Read(fCount);
 
   if fCount > MAX_HANDS then
-    gLog.AddAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
+    gLog.LogAndAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 
   SetLength(fHandsList, fCount);
 

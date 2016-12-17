@@ -92,7 +92,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_Main, KM_GameCursor,
+  KM_Log, KM_Main, KM_GameCursor, Log4d,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess;
 
@@ -408,7 +408,7 @@ begin
   end;
 
   FreeThenNil(gGame);
-  gLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
+  gLog.Info('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
 end;
 
 
@@ -446,7 +446,7 @@ begin
   //Copy text from in-game chat to lobby
   fMainMenuInterface.SetChatState(ChatState);
 
-  gLog.AddTime('Gameplay ended - Return to lobby');
+  gLog.Info('Gameplay ended - Return to lobby');
 end;
 
 
@@ -473,7 +473,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError);
+      gLog.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -506,7 +506,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError);
+      gLog.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -539,7 +539,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError);
+      gLog.Info('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;

@@ -34,19 +34,19 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
+  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand, Log4d;
 
 
 { TTaskDeliver }
 constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer);
 begin
   inherited Create(aSerf);
+
   fTaskName := utn_Deliver;
 
   Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.UID) + ': invalid delivery task');
 
-  if WRITE_DELIVERY_LOG then
-    gLog.AddTime('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
+  gLog.Delivery(TTaskDeliver).Debug('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;
@@ -68,7 +68,7 @@ begin
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
+  gLog.Delivery(TTaskDeliver).Debug('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
@@ -101,7 +101,7 @@ end;
 
 destructor TTaskDeliver.Destroy;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.UID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
+  gLog.Delivery(TTaskDeliver).Debug('Serf '+inttostr(fUnit.UID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID <> 0 then
     gHands[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);

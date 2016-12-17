@@ -1,0 +1,36 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{E7B08A88-7189-4FAF-B3C2-E07F8FA1EB5E}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="ODSAppender\ODSAppender.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="ODSAppender">
+        <MSBuild Projects="ODSAppender\ODSAppender.dproj"/>
+    </Target>
+    <Target Name="ODSAppender:Clean">
+        <MSBuild Projects="ODSAppender\ODSAppender.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ODSAppender:Make">
+        <MSBuild Projects="ODSAppender\ODSAppender.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="ODSAppender"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="ODSAppender:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="ODSAppender:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

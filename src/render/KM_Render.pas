@@ -55,7 +55,7 @@ type
 
 implementation
 uses
-  KM_Log;
+  KM_Log, Log4d;
 
 
 { TRender }
@@ -85,9 +85,12 @@ begin
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
 
-    fOpenGL_Vendor   := UnicodeString(glGetString(GL_VENDOR));   gLog.AddNoTime('OpenGL Vendor: '   + fOpenGL_Vendor);
-    fOpenGL_Renderer := UnicodeString(glGetString(GL_RENDERER)); gLog.AddNoTime('OpenGL Renderer: ' + fOpenGL_Renderer);
-    fOpenGL_Version  := UnicodeString(glGetString(GL_VERSION));  gLog.AddNoTime('OpenGL Version: '  + fOpenGL_Version);
+    fOpenGL_Vendor   := UnicodeString(glGetString(GL_VENDOR));
+    gLog.NoTime('OpenGL Vendor: '   + fOpenGL_Vendor);
+    fOpenGL_Renderer := UnicodeString(glGetString(GL_RENDERER));
+    gLog.NoTime('OpenGL Renderer: ' + fOpenGL_Renderer);
+    fOpenGL_Version  := UnicodeString(glGetString(GL_VERSION));
+    gLog.NoTime('OpenGL Version: '  + fOpenGL_Version);
 
     SetupVSync(aVSync);
 

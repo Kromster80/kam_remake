@@ -153,7 +153,7 @@ const
 
 implementation
 uses
-  KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
+  KM_GameCursor, KM_Resource, KM_Log, KM_Utils, Log4d;
 
 
 { TKMTerrainPainter }
@@ -780,13 +780,13 @@ begin
           MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
         else
-          gLog.AddNoTime(aFileName + ' has no MapEd.TILE chunk');
+          gLog.Warn(aFileName + ' has no MapEd.TILE chunk');
       end
       else
-        gLog.AddNoTime(aFileName + ' has no MapEd.ADDN chunk');
+        gLog.Warn(aFileName + ' has no MapEd.ADDN chunk');
     end
     else
-      gLog.AddNoTime(aFileName + ' has no MapEd chunk');
+      gLog.Warn(aFileName + ' has no MapEd chunk');
   finally
     S.Free;
   end;
@@ -794,7 +794,7 @@ begin
   //We can regenerate the MapEd data if it's missing (won't be as good as the original)
   if not MapEdChunkFound then
   begin
-    gLog.AddNoTime('Regenerating missing MapEd data as best as we can');
+    gLog.Warn('Regenerating missing MapEd data as best as we can');
     GenerateAddnData;
   end;
 

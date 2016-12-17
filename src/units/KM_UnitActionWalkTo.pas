@@ -101,7 +101,7 @@ implementation
 uses
   KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain, KM_ResUnits,
   KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitTaskBuild,
-  KM_Units_Warrior, KM_Log, KM_Resource;
+  KM_Units_Warrior, KM_Log, KM_Resource, Log4d;
 
 //INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
 //TIMEOUT is the time after which each solution things will be checked.
@@ -182,7 +182,7 @@ begin
 
   //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    gLog.AddNoTime('Unable to make a route for ' + gRes.UnitDat[aUnit.UnitType].GUIName +
+    gLog.NoTime('Unable to make a route for ' + gRes.UnitDat[aUnit.UnitType].GUIName +
                    ' from ' + KM_Points.TypeToString(fWalkFrom) + ' to ' + KM_Points.TypeToString(fWalkTo) +
                    ' with "' + PassabilityGuiText[fPass] + '"');
 end;

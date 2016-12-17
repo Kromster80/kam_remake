@@ -84,7 +84,7 @@ const
 
 implementation
 uses
-  KromUtils, KM_Game, KM_Log;
+  KromUtils, KM_Game, KM_Log, Log4d;
 
 
 const
@@ -127,7 +127,7 @@ procedure TKMScripting.HandleScriptError(aType: TScriptErrorType; const aMsg: Un
 var
   fl: textfile;
 begin
-  gLog.AddTime('Script: ' + aMsg); //Always log the error to global game log
+  gLog.Info('Script: ' + aMsg); //Always log the error to global game log
 
   //Log to map specific log file
   if fScriptLogFile <> '' then
@@ -173,7 +173,7 @@ begin
 
   if not FileExists(aFileName) then
   begin
-    gLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
+    gLog.NoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
     Exit;
   end;
 

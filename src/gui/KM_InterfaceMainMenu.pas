@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts, Log4d;
 
 
 { TKMMainMenuInterface }
@@ -131,7 +131,7 @@ begin
   //F.Caption := 'Some Form';
   //F.Show;
 
-  gLog.AddTime('Main menu init done');
+  gLog.Info('Main menu init done');
 end;
 
 

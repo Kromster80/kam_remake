@@ -76,7 +76,7 @@ var
 
 implementation
 uses
-  KromUtils, KM_Log, KM_Points, KM_ResTexts, KM_ResKeys;
+  KromUtils, KM_Log, KM_Points, KM_ResTexts, KM_ResKeys, Log4d;
 
 
 { TKMResource }
@@ -85,7 +85,7 @@ begin
   inherited Create;
 
   fDataState := rlsNone;
-  gLog.AddTime('Resource loading state - None');
+  gLog.Info('Resource loading state - None');
 
   OnLoadingStep := aOnLoadingStep;
   OnLoadingText := aOnLoadingText;
@@ -138,7 +138,7 @@ begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
-  gLog.AddTime('Reading palettes', True);
+  gLog.Info('Reading palettes done');
 
   fSprites := TKMSprites.Create(StepRefresh, StepCaption);
 
@@ -158,7 +158,7 @@ begin
     fFonts.LoadFonts(fll_Full)
   else
     fFonts.LoadFonts(fll_Minimal);
-  gLog.AddTime('Read fonts is done');
+  gLog.Info('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
@@ -173,9 +173,9 @@ begin
   fUnitDat := TKMUnitDatCollection.Create;
 
   StepRefresh;
-  gLog.AddTime('ReadGFX is done');
+  gLog.Info('ReadGFX is done');
   fDataState := rlsMenu;
-  gLog.AddTime('Resource loading state - Menu');
+  gLog.Info('Resource loading state - Menu');
 end;
 
 
@@ -212,7 +212,7 @@ begin
   end;
 
   fDataState := rlsAll;
-  gLog.AddTime('Resource loading state - Game');
+  gLog.Info('Resource loading state - Game');
 end;
 
 

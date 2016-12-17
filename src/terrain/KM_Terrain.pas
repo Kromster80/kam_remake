@@ -227,7 +227,7 @@ implementation
 uses
   KM_Log, KM_HandsCollection, KM_TerrainWalkConnect, KM_Resource, KM_Units,
   KM_ResSound, KM_Sound, KM_UnitActionStay, KM_Units_Warrior, KM_TerrainPainter,
-  KM_ResUnits, KM_Hand;
+  KM_ResUnits, KM_Hand, Log4d;
 
 
 { TKMTerrain }
@@ -307,7 +307,7 @@ begin
 
   fMapEditor := aMapEditor;
 
-  gLog.AddTime('Loading map file: ' + FileName);
+  gLog.Info('Loading map file: ' + FileName);
 
   S := TKMemoryStream.Create;
   try
@@ -357,7 +357,7 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], MapRect, True);
-  gLog.AddTime('Map file loaded');
+  gLog.Info('Map file loaded');
 end;
 
 
@@ -3104,7 +3104,7 @@ begin
 
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], MapRect, True);
 
-  gLog.AddTime('Terrain loaded');
+  gLog.Info('Terrain loaded');
 end;
 
 

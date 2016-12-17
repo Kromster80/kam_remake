@@ -40,7 +40,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_Units_Warrior;
+  KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_Units_Warrior, Log4d;
 
 
 { TKMUnitsCollection }
@@ -91,7 +91,7 @@ begin
   //Check if Pos is within map coords first, as other checks rely on this
   if not gTerrain.TileInMapCoords(PlaceTo.X, PlaceTo.Y) then
   begin
-    gLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
+    gLog.Warn('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
     Result := nil;
     Exit;
   end;
@@ -244,7 +244,7 @@ begin
     if U <> nil then
       fUnits.Add(U)
     else
-      gLog.AddAssert('Unknown unit type in Savegame');
+      gLog.LogAndAssert('Unknown unit type in Savegame');
   end;
 end;
 

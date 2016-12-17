@@ -173,7 +173,7 @@ type
 
 implementation
 uses
-  KM_Log;
+  KM_Log, Log4d;
 
 
 { TMainSettings }
@@ -183,7 +183,7 @@ begin
   fWindowParams := TKMWindowParams.Create;
   LoadFromINI(ExeDir + SETTINGS_FILE);
   fNeedsSave := False;
-  gLog.AddTime('Global settings loaded from ' + SETTINGS_FILE);
+  gLog.Info('Global settings loaded from ' + SETTINGS_FILE);
 end;
 
 
@@ -303,7 +303,6 @@ end;
 constructor TGameSettings.Create;
 begin
   inherited;
-
   ReloadSettings;
 end;
 
@@ -326,7 +325,7 @@ end;
 procedure TGameSettings.ReloadSettings;
 begin
   LoadFromINI(ExeDir + SETTINGS_FILE);
-  gLog.AddTime('Game settings loaded from ' + SETTINGS_FILE);
+  gLog.Info('Game settings loaded from ' + SETTINGS_FILE);
 end;
 
 

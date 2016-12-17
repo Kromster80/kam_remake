@@ -124,7 +124,7 @@ var
 
 implementation
 uses
-  KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection, KM_Game;
+  KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection, KM_Game, Log4d;
 
 
 const
@@ -154,7 +154,7 @@ begin
   fIsSoundInitialized := InitOpenAL;
   Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if not fIsSoundInitialized then begin
-    gLog.AddNoTime('OpenAL warning. OpenAL could not be initialized.');
+    gLog.Warn('OpenAL warning. OpenAL could not be initialized.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL could not be initialized. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -165,7 +165,7 @@ begin
   fALDevice := alcOpenDevice(nil); // this is supposed to select the "preferred device"
   Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if fALDevice = nil then begin
-    gLog.AddNoTime('OpenAL warning. Device could not be opened.');
+    gLog.Warn('OpenAL warning. Device could not be opened.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL device could not be opened. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -176,7 +176,7 @@ begin
   Context := alcCreateContext(fALDevice, nil);
   Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if Context = nil then begin
-    gLog.AddNoTime('OpenAL warning. Context could not be created.');
+    gLog.Warn('OpenAL warning. Context could not be created.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL context could not be created. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -187,7 +187,7 @@ begin
   I := alcMakeContextCurrent(Context);
   Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if I > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
-    gLog.AddNoTime('OpenAL warning. Context could not be made current.');
+    gLog.Warn('OpenAL warning. Context could not be made current.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL context could not be made current. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -199,13 +199,13 @@ begin
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
-  gLog.AddTime('Pre-LoadSFX init', True);
+  gLog.Info('Pre-LoadSFX init done');
 
   alcGetIntegerv(fALDevice, ALC_MONO_SOURCES, 4, @NumMono);
   alcGetIntegerv(fALDevice, ALC_STEREO_SOURCES, 4, @NumStereo);
 
-  gLog.AddTime('ALC_MONO_SOURCES',NumMono);
-  gLog.AddTime('ALC_STEREO_SOURCES',NumStereo);
+  gLog.Info('ALC_MONO_SOURCES' + IntToStr(NumMono));
+  gLog.Info('ALC_STEREO_SOURCES' + IntToStr(NumStereo));
 
   for I:=1 to MAX_SOUNDS do begin
     AlGenBuffers(1, @fSound[i].ALBuffer);
@@ -221,7 +221,7 @@ begin
   AlListenerfv(AL_ORIENTATION, @fListener.Ori);
   fSoundGain := aVolume;
 
-  gLog.AddTime('OpenAL init done');
+  gLog.Info('OpenAL init done');
 end;
 
 
@@ -247,7 +247,7 @@ var ErrCode: Integer;
 begin
   ErrCode := alcGetError(fALDevice);
   if ErrCode <> ALC_NO_ERROR then begin
-    gLog.AddNoTime('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
+    gLog.Warn('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('There is OpenAL error '+IntToStr(ErrCode)+' raised. Sound will be disabled.', mtWarning, [mbOk], 0);
     fIsSoundInitialized := False;
@@ -443,7 +443,7 @@ begin
       //continual clashes over sound files.
       on E: EFOpenError do
       begin
-        gLog.AddTime('Error loading sound file: '+E.Message);
+        gLog.Error('Error loading sound file: ' + E.Message, E);
         Exit;
       end;
     end;

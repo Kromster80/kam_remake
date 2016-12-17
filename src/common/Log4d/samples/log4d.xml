@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE log4d:configuration SYSTEM "log4d.dtd">
+<!-- Sample Log4D configuration file as an XML document. -->
+<log4d:configuration xmlns:log4d="http://log4d.sourceforge.net"
+  loggerFactory="TLogDefaultLoggerFactory" configDebug="true"
+  threshold="info">
+
+  <!-- Associate object renderers with objects. -->
+  <renderer renderedClass="TComponent" renderingClass="TComponentRenderer"/>
+
+  <!-- Define appenders, with layouts and optional parameters. -->
+
+  <!-- Appender to normal debug output, using simple layout -->
+  <appender name="ODS" class="TLogODSAppender">
+    <layout class="TLogSimpleLayout"/>
+  </appender>
+
+  <!-- Appender to a named memo, using pattern layout and filter -->
+  <appender name="Mem1" class="TMemoAppender">
+    <layout class="TLogPatternLayout">
+      <param name="pattern" value="%7r [%-8t] %p %c %x - %m%n"/>
+    </layout>
+    <param name="memo" value="memMyapp"/>
+    <filter class="TLogStringFilter">
+      <param name="match" value="x"/>
+      <param name="acceptOnMatch" value="false"/>
+    </filter>
+  </appender>
+
+  <!-- Appender to a named memo, using simple layout -->
+  <appender name="Mem2" class="TMemoAppender">
+    <layout class="TLogSimpleLayout"/>
+    <param name="memo" value="memMyappMore"/>
+  </appender>
+
+  <!-- Appender to a named memo, using HTML layout -->
+  <appender name="Mem3" class="TMemoAppender">
+    <layout class="TLogHTMLLayout"/>
+    <param name="memo" value="memMyappOther"/>
+  </appender>
+
+  <!-- Appender to a named memo, using (XML) simple layout -->
+  <appender name="Mem4" class="TMemoAppender">
+    <!--layout class="TLogXMLLayout"/-->
+    <layout class="TLogSimpleLayout"/>
+    <param name="memo" value="memAlt"/>
+  </appender>
+
+  <!-- Appender to a file, using pattern layout -->
+  <appender name="Fil1" class="TLogFileAppender">
+    <param name="fileName" value="C:\Temp\Log4D.log"/>
+    <layout class="TLogPatternLayout">
+      <param name="pattern" value="%r [%t] %p %c %x - %m%n"/>
+    </layout>
+  </appender>
+
+  <!-- Appender to an e-mail address, using pattern layout -->
+  <appender name="Email" class="TLogIndySMTPAppender">
+    <param name="bufferSize" value="10"/>
+    <param name="from" value="Log4D &lt;log4d@log4d.com&gt;"/>
+    <param name="host" value="mail.log4d.com"/>
+    <param name="subject" value="Log4D Demonstration"/>
+    <param name="to" value="Administrator &lt;admin@log4d.com&gt;"/>
+    <layout class="TLogPatternLayout">
+      <param name="pattern" value="%r [%t] %p %c %x - %m%n"/>
+    </layout>
+  </appender>
+
+  <!-- Appender to a socket -->
+  <appender name="Sckt" class="TLogIndySocketAppender">
+    <param name="host" value="localhost"/>
+    <param name="port" value="9009"/>
+  </appender>
+
+  <!-- Define loggers and their levels and appenders. -->
+  <logger name="myapp">
+    <level value="inherited"/>
+    <appender-ref ref="Mem1"/>
+  </logger>
+  <logger name="myapp.more">
+    <level value="debug"/>
+    <appender-ref ref="Mem2"/>
+  </logger>
+  <logger name="myapp.other" additive="false">
+    <level value="info"/>
+    <appender-ref ref="Mem3"/>
+    <!--appender-ref ref="Email"/-->
+  </logger>
+  <logger name="alt">
+    <level value="error"/>
+    <appender-ref ref="Mem4"/>
+    <appender-ref ref="Fil1"/>
+    <appender-ref ref="Sckt"/>
+  </logger>
+
+  <!-- Establish the root logger's properties. -->
+  <root>
+    <level value="warn"/>
+    <appender-ref ref="ODS"/>
+  </root>
+</log4d:configuration>
+

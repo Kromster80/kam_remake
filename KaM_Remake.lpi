@@ -1134,9 +1134,9 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="src;src\common;src\common\pngimage;src\common\BGRABitmap;src\common\LNet;src\common\pascalscript\Source;src\common\LazarusOpenGL;$(ProjOutDir)"/>
+      <IncludeFiles Value="src;src\common;src\common\pngimage;src\common\BGRABitmap;src\common\LNet;src\common\pascalscript\Source;src\common\LazarusOpenGL;src\common\Log4d;$(ProjOutDir)"/>
       <Libraries Value="src;src\common"/>
-      <OtherUnitFiles Value="src;src\common;src\common\pngimage;src\common\BGRABitmap;src\common\LNet;src\common\pascalscript\Source;src\common\LazarusOpenGL"/>
+      <OtherUnitFiles Value="src;src\common;src\common\pngimage;src\common\BGRABitmap;src\common\LNet;src\common\pascalscript\Source;src\common\LazarusOpenGL;src\common\LazarusOpenGL;src\common\Log4d"/>
       <ObjectPath Value="Common"/>
     </SearchPaths>
     <Parsing>

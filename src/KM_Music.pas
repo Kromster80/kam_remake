@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_Log, KM_Utils;
+  KM_Log, KM_Utils, Log4d;
 
 
 const
@@ -96,7 +96,7 @@ begin
   // Setup output - default device, 44100hz, stereo, 16 bits
   if not BASS_Init(-1, 44100, 0, 0, nil) then
   begin
-    gLog.AddTime('Failed to initialize the music playback device');
+    gLog.Info('Failed to initialize the music playback device');
     IsMusicInitialized := False;
   end;
   {$ENDIF}
@@ -107,7 +107,7 @@ begin
   for I := 0 to fMusicCount - 1 do
     fTrackOrder[I] := I;
 
-  gLog.AddTime('Music init done, ' + IntToStr(fMusicCount) + ' tracks found');
+  gLog.Info('Music init done, ' + IntToStr(fMusicCount) + ' tracks found');
 end;
 
 

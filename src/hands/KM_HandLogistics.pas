@@ -2,7 +2,7 @@ unit KM_HandLogistics;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KromUtils, Math,
+  Classes, SysUtils, KromUtils, Math, Log4d,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Units, KM_ResWares;
 
@@ -61,6 +61,7 @@ type
 
   TKMDeliveries = class
   private
+    fLogger: TLogLogger;
     fOfferCount: Integer;
     fOffer: array of TKMDeliveryOffer;
     fDemandCount: Integer;
@@ -80,6 +81,7 @@ type
     function PermitDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
     function CalculateBid(iO, iD: Integer; aSerf: TKMUnitSerf): Single;
   public
+    constructor Create;
     procedure AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
     procedure RemAllOffers(aHouse: TKMHouse);
     procedure RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Cardinal);
@@ -335,6 +337,13 @@ end;
 
 
 { TKMDeliveries }
+constructor TKMDeliveries.Create;
+begin
+  inherited;
+  fLogger := gLog.Delivery(TKMDeliveries);
+end;
+
+
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
@@ -866,7 +875,7 @@ begin
   Inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
   Inc(fDemand[iD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
 
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Creating delivery ID', i);
+  fLogger.Debug('Creating delivery ID ' + IntToStr(i));
 
   //Now we have best job and can perform it
   if fDemand[iD].Loc_House <> nil then
@@ -880,7 +889,7 @@ end;
 procedure TKMDeliveries.TakenOffer(aID: Integer);
 var iO: Integer;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Taken offer from delivery ID', aID);
+  fLogger.Debug('Taken offer from delivery ID' + IntToStr(aID));
 
   iO := fQueue[aID].OfferID;
   fQueue[aID].OfferID := 0; //We don't need it any more
@@ -900,7 +909,7 @@ end;
 procedure TKMDeliveries.GaveDemand(aID:integer);
 var iD:integer;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Gave demand from delivery ID', aID);
+  fLogger.Debug('Gave demand from delivery ID' + IntToStr(aID));
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
@@ -915,7 +924,7 @@ end;
 //AbandonDelivery
 procedure TKMDeliveries.AbandonDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Abandoned delivery ID', aID);
+  fLogger.Debug('Abandoned delivery ID' + IntToStr(aID));
 
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
@@ -940,7 +949,7 @@ end;
 //Job successfully done and we ommit it
 procedure TKMDeliveries.CloseDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Closed delivery ID', aID);
+  fLogger.Debug('Closed delivery ID' + IntToStr(aID));
 
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;

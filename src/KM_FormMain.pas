@@ -2,8 +2,9 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils, ShellAPI,
-  KM_RenderControl, KM_Settings,
+  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math,
+  Menus, StdCtrls, SysUtils, StrUtils, Log4d,
+  KM_RenderControl, KM_Settings, KM_Log,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -78,6 +79,9 @@ type
     tbAngleZ: TTrackBar;
     Label7: TLabel;
     chkSelectionBuffer: TCheckBox;
+    GroupBox6: TGroupBox;
+    chkLogsDelivery: TCheckBox;
+    chkLogsNetwork: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -123,6 +127,8 @@ type
     procedure RenderAreaRender(aSender: TObject);
   private
     fUpdating: Boolean;
+    fLogNetOrigLvl: TLogLevel;
+    fLogDeliveryOrigLvl: TLogLevel;
     {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -142,6 +148,7 @@ implementation
 //{$ENDIF}
 
 uses
+  ShellAPI,
   KromUtils,
   KM_Defaults,
   KM_Main,
@@ -485,6 +492,7 @@ procedure TFormMain.ControlsUpdate(Sender: TObject);
 var
   I: Integer;
   AllowDebugChange: Boolean;
+  NetLogger, DeliveryLogger: TLogLogger;
 begin
   if fUpdating then Exit;
 
@@ -537,6 +545,28 @@ begin
       fMain.Render;
     end;
     HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
+  end;
+
+  //Debug logs
+  if AllowDebugChange then
+  begin
+    NetLogger := gLog.Net;
+    DeliveryLogger := gLog.Delivery;
+
+    if fLogNetOrigLvl = nil then
+      fLogNetOrigLvl := NetLogger.Level;
+    if fLogDeliveryOrigLvl = nil then
+      fLogDeliveryOrigLvl := DeliveryLogger.Level;
+
+    if (chkLogsDelivery.Checked) then
+      DeliveryLogger.Level := All
+    else
+      DeliveryLogger.Level := fLogDeliveryOrigLvl;
+
+    if (chkLogsNetwork.Checked) then
+      NetLogger.Level := All
+    else
+      NetLogger.Level := fLogNetOrigLvl;
   end;
 end;
 

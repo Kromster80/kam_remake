@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions
+  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions, KM_Houses
   {$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
 
 type
@@ -67,7 +67,7 @@ var
 
 implementation
 uses
-  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps;
+  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps, Log4d;
 
 const
   //Random GUID generated in Delphi by Ctrl+G
@@ -108,7 +108,10 @@ begin
   ExeDir := ExtractFilePath(Application.ExeName);
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
-  gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
+
+  gLog := TKMLog.Create(ExeDir + 'log4d.props',
+      ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log');
+
   gLog.DeleteOldLogs;
 
   //Resolutions are created first so that we could check Settings against them
@@ -325,9 +328,9 @@ begin
                                 StatusBarText);
   gGameApp.AfterConstruction(aReturnToOptions);
 
-  gLog.AddTime('ToggleFullscreen');
-  gLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
-  gLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
+  gLog.Info('ToggleFullscreen');
+  gLog.Info('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
+  gLog.Info('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
 
   //Hide'n'show will make form go ontop of taskbar
   fFormMain.Hide;
@@ -557,3 +560,4 @@ end;
 
 
 end.
+

@@ -96,7 +96,7 @@ const
 
 implementation
 uses
-  KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
+  KM_Defaults, KM_Resource, KM_ResSprites, KM_Log, Log4d;
 
 
 const
@@ -264,7 +264,7 @@ begin
     M.Free;
   end;
 
-  gLog.AddTime('Campaigns.dat saved');
+  gLog.Info('Campaigns.dat saved');
 end;
 
 
