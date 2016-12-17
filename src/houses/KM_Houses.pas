@@ -1305,7 +1305,7 @@ end;
 
 
 procedure TKMHouse.UpdateState;
-//var HouseName: string;
+var HouseNotOccupMsgId: Integer;
 begin
   if not IsComplete then Exit; //Don't update unbuilt houses
 
@@ -1316,8 +1316,9 @@ begin
     Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
-      gGame.ShowMessage(mkHouse, TX_MSG_HOUSE_UNOCCUPIED, GetEntrance, fOwner);
+      HouseNotOccupMsgId := gRes.GetHouseNotOccupiedMsgId(fHouseType);
+      if HouseNotOccupMsgId <> -1 then // HouseNotOccupMsgId should never be -1
+        gGame.ShowMessage(mkHouse, HouseNotOccupMsgId, GetEntrance, fOwner);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end

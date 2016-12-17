@@ -64,6 +64,8 @@ type
     property Tileset: TKMTileset read fTileset;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
 
+    function GetHouseNotOccupiedMsgId(aHouseType: THouseType): Integer;
+
     procedure ExportTreeAnim;
     procedure ExportHouseAnim;
     procedure ExportUnitAnim;
@@ -213,6 +215,37 @@ begin
 
   fDataState := rlsAll;
   gLog.AddTime('Resource loading state - Game');
+end;
+
+
+function TKMResource.GetHouseNotOccupiedMsgId(aHouseType: THouseType): Integer;
+begin
+  case aHouseType of
+    ht_ArmorSmithy:     Result := TX_MSG_HOUSE_UNOCCUPIED; // Todo translate
+    ht_ArmorWorkshop:   Result := TX_MSG_HOUSE_UNOCCUPIED; // We need to add all these texts for each house to KM_TextIDs.inc
+    ht_Bakery:          Result := TX_MSG_HOUSE_UNOCCUPIED; // and then fix all these lines with appropriate TX_ values
+    ht_Butchers:        Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_CoalMine:        Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Farm:            Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_FisherHut:       Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_GoldMine:        Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_IronMine:        Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_IronSmithy:      Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Metallurgists:   Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Mill:            Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Quary:           Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Sawmill:         Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_School:          Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Stables:         Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Swine:           Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Tannery:         Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_WatchTower:      Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_WeaponSmithy:    Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_WeaponWorkshop:  Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Wineyard:        Result := TX_MSG_HOUSE_UNOCCUPIED;
+    ht_Woodcutters:     Result := TX_MSG_HOUSE_UNOCCUPIED;
+    else                Result := -1;   // other houses can not be "not occupied"
+  end;
 end;
 
 
