@@ -150,10 +150,11 @@ end;
 
 function TKMSaveInfo.LoadMinimap(aMinimap: TKMMinimap): Boolean;
 var
-  LoadStream: TKMemoryStream;
+  LoadStream, LoadMnmStream: TKMemoryStream;
   DummyInfo: TKMGameInfo;
   DummyOptions: TKMGameOptions;
   IsMultiplayer: Boolean;
+  MinimapFilePath: String;
 begin
   Result := False;
   if not FileExists(fPath + fFileName + '.sav') then Exit;
@@ -171,6 +172,24 @@ begin
     begin
       aMinimap.LoadFromStream(LoadStream);
       Result := True;
+    end else begin
+      // Lets try to load Minimap for MP save
+      LoadMnmStream := TKMemoryStream.Create;
+      try
+        try
+          MinimapFilePath := fPath + fFileName + '.' + MP_MINIMAP_SAVE_EXT;
+          if FileExists(MinimapFilePath) then
+          begin
+            LoadMnmStream.LoadFromFile(MinimapFilePath); // try to load minimap from file
+            aMinimap.LoadFromStream(LoadMnmStream);
+            Result := True;
+          end;
+        except
+          // Ignore any errors, because MP minimap is optional
+        end;
+      finally
+        LoadMnmStream.Free;
+      end;
     end;
 
   finally

@@ -64,7 +64,7 @@ type
     function ParseTextMarkup(aText: UnicodeString): UnicodeString;
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
-    procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime);
+    procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
     procedure UpdatePeaceTime;
     function WaitingPlayersList: TKMByteArray;
   public
@@ -636,6 +636,7 @@ begin
       AttachFile(SaveName('crashreport', 'sav', IsMultiplayer));
       AttachFile(SaveName('crashreport', 'bas', IsMultiplayer));
       AttachFile(SaveName('crashreport', 'rpl', IsMultiplayer));
+      AttachFile(SaveName('crashreport', MP_MINIMAP_SAVE_EXT, IsMultiplayer));
     end;
   except
     on E : Exception do
@@ -831,17 +832,20 @@ begin
   DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'sav', IsMultiplayer));
   DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'rpl', IsMultiplayer));
   DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'bas', IsMultiplayer));
+  DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer));
   for I := AUTOSAVE_COUNT downto 2 do // 03 to 01
   begin
     RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'sav', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'sav', IsMultiplayer));
     RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'rpl', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'rpl', IsMultiplayer));
     RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'bas', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'bas', IsMultiplayer));
+    RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer));
   end;
 
   //Rename temp to be first in list
   RenameFile(SaveName('autosave', 'sav', IsMultiplayer), SaveName('autosave01', 'sav', IsMultiplayer));
   RenameFile(SaveName('autosave', 'rpl', IsMultiplayer), SaveName('autosave01', 'rpl', IsMultiplayer));
   RenameFile(SaveName('autosave', 'bas', IsMultiplayer), SaveName('autosave01', 'bas', IsMultiplayer));
+  RenameFile(SaveName('autosave', MP_MINIMAP_SAVE_EXT, IsMultiplayer), SaveName('autosave01', MP_MINIMAP_SAVE_EXT, IsMultiplayer));
 end;
 
 
@@ -1152,9 +1156,9 @@ end;
 
 
 //Saves the game in all its glory
-procedure TKMGame.SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime);
+procedure TKMGame.SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
 var
-  SaveStream: TKMemoryStream;
+  SaveStream, MnmSaveStream: TKMemoryStream;
   gameInfo: TKMGameInfo;
   I, netIndex: Integer;
 begin
@@ -1226,9 +1230,25 @@ begin
 
     //In SinglePlayer we want to show player a preview of what the game looked like when he saved
     //Save Minimap is near the start so it can be accessed quickly
-    //In MP each player has his own perspective, hence we dont save minimaps to avoid cheating
+    //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
+    //but save minimap in separate file with smm extension
     if not IsMultiplayer then
-      fGamePlayInterface.SaveMinimap(SaveStream);
+      fGamePlayInterface.SaveMinimap(SaveStream)
+    else
+      if aMinimapPathName <> '' then
+      begin
+        MnmSaveStream := TKMemoryStream.Create;
+        try
+          try
+            fGamePlayInterface.SaveMinimap(MnmSaveStream);
+            MnmSaveStream.SaveToFile(aMinimapPathName);
+          except
+            //Ignore any errors while saving minimap, because its optional for MP games
+          end;
+        finally
+          MnmSaveStream.Free;
+        end;
+      end;
 
     //We need to know which campaign to display after victory
     SaveStream.Write(fCampaignName, SizeOf(TKMCampaignId));
@@ -1281,12 +1301,13 @@ end;
 //Saves game by provided name
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
-  fullPath: UnicodeString;
+  fullPath, minimapPath: UnicodeString;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
+  minimapPath := SaveName(aSaveName, MP_MINIMAP_SAVE_EXT, IsMultiplayer);
 
-  SaveGame(fullPath, aTimestamp);
+  SaveGame(fullPath, aTimestamp, minimapPath);
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
