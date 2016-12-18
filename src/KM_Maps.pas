@@ -10,7 +10,6 @@ uses
 
 type
   TMapsSortMethod = (
-    smNoSort,
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
@@ -18,8 +17,6 @@ type
     smByHumanPlayersMPAsc, smByHumanPlayersMPDesc,
     smByModeAsc, smByModeDesc);
 
-  TMapsSortMethods = array [0..3] of TMapsSortMethod;
-    
   TKMapInfo = class;
   TMapEvent = procedure (aMap: TKMapInfo) of object;
   TKMMapInfoAmount = (iaBase, iaExtra);
@@ -122,7 +119,7 @@ type
     fCount: Integer;
     fMaps: array of TKMapInfo;
     fMapFolders: TMapFolderSet;
-    fSortMethods: TMapsSortMethods;
+    fSortMethod: TMapsSortMethod;
     CS: TCriticalSection;
     fScanner: TTMapsScanner;
     fScanning: Boolean; //Flag if scan is in progress
@@ -134,12 +131,9 @@ type
     procedure ScanComplete(Sender: TObject);
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
-    procedure SetSortMethods(aSortMethods: TMapsSortMethods);
   public
-    constructor Create(aMapFolders: TMapFolderSet; aSortMethods: TMapsSortMethods); overload;
-    constructor Create(aMapFolders: TMapFolderSet); overload;
-    constructor Create(aMapFolder: TMapFolder; aSortMethods: TMapsSortMethods); overload;
-    constructor Create(aMapFolder: TMapFolder); overload;
+    constructor Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
+    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
     destructor Destroy; override;
 
     property Count: Integer read fCount;
@@ -155,15 +149,14 @@ type
 
     procedure Refresh(aOnRefresh: TNotifyEvent);
     procedure TerminateScan;
-    procedure Sort(aSortMethods: TMapsSortMethods; aOnSortComplete: TNotifyEvent); overload;
+    procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
+    property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
     procedure DeleteMap(aIndex: Integer);
     procedure MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 
     procedure UpdateState;
   end;
-
-  procedure ResetMapSortMethods(aSortMethods: TMapsSortMethods);
 
 
 implementation
@@ -175,7 +168,6 @@ const
   //Folder name containing single maps for SP/MP/DL mode
   MAP_FOLDER: array [TMapFolder] of string = ('Maps', 'MapsMP', 'MapsDL');
   MAP_FOLDER_TYPE_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
-  DEFAULT_SORT_METHODS: TMapsSortMethods = (smByNameDesc, smNoSort, smNoSort, smNoSort);
 
 
 { TKMapInfo }
@@ -587,11 +579,11 @@ end;
 
 
 { TKMapsCollection }
-constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet; aSortMethods: TMapsSortMethods);
+constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc);
 begin
   inherited Create;
   fMapFolders := aMapFolders;
-  SetSortMethods(aSortMethods);
+  fSortMethod := aSortMethod;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
@@ -600,21 +592,9 @@ begin
 end;
 
 
-constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet);
+constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
 begin
-  Create(aMapFolders, DEFAULT_SORT_METHODS);
-end;
-
-
-constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethods: TMapsSortMethods);
-begin
-  Create([aMapFolder], aSortMethods);
-end;
-
-
-constructor TKMapsCollection.Create(aMapFolder: TMapFolder);
-begin
-  Create([aMapFolder]);
+  Create([aMapFolder], aSortMethod);
 end;
 
 
@@ -628,14 +608,6 @@ begin
 
   CS.Free;
   inherited;
-end;
-
-
-procedure TKMapsCollection.SetSortMethods(aSortMethods: TMapsSortMethods);
-var I: Integer;
-begin
-  for I := Low(TMapsSortMethods) to High(TMapsSortMethods) do
-    fSortMethods[I] := aSortMethods[I];
 end;
 
 
@@ -770,63 +742,54 @@ procedure TKMapsCollection.DoSort;
       end;
     Assert(Result <> -1, 'MapSize ' + Str + ' has not been determined.');
   end;
-
   //Return True if items should be exchanged
-  function Compare(A, B: TKMapInfo; aSortMethodIndex: Byte): Boolean;
-  var CValue: Integer;
-      IsEqual: Boolean;
+  function Compare(A, B: TKMapInfo; aMethod: TMapsSortMethod): Boolean;
   begin
     Result := False; //By default everything remains in place
-
-    if aSortMethodIndex > High(TMapsSortMethods) then Exit;
-
-    case fSortMethods[aSortMethodIndex] of
-      smByNameAsc:      CValue := CompareText(A.FileName, B.FileName);
-      smByNameDesc:     CValue := CompareText(B.FileName, A.FileName);
-      smBySizeAsc:      CValue := IndexOf(MAP_SIZES, A.SizeText) - IndexOf(MAP_SIZES, B.SizeText); //Sort by size label, not by actual size
-      smBySizeDesc:     CValue := IndexOf(MAP_SIZES, B.SizeText) - IndexOf(MAP_SIZES, A.SizeText); //Sort by size label, not by actual size
-      smByPlayersAsc:   CValue := A.LocCount - B.LocCount;
-      smByPlayersDesc:  CValue := B.LocCount - A.LocCount;
-      smByHumanPlayersAsc:   CValue := A.HumanPlayerCount - B.HumanPlayerCount;
-      smByHumanPlayersDesc:  CValue := B.HumanPlayerCount - A.HumanPlayerCount;
-      smByHumanPlayersMPAsc:   CValue := A.HumanPlayerCountMP - B.HumanPlayerCountMP;
-      smByHumanPlayersMPDesc:  CValue := B.HumanPlayerCountMP - A.HumanPlayerCountMP;
-      smByModeAsc:      CValue := Ord(A.MissionMode) - Ord(B.MissionMode);
-      smByModeDesc:     CValue := Ord(B.MissionMode) - Ord(A.MissionMode);
-      smNoSort:         Exit;
+    case aMethod of
+      smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
+      smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
+      smBySizeAsc:      Result := (A.MapSizeX * A.MapSizeY) < (B.MapSizeX * B.MapSizeY);
+      smBySizeDesc:     Result := (A.MapSizeX * A.MapSizeY) > (B.MapSizeX * B.MapSizeY);
+      smByPlayersAsc:   Result := A.LocCount < B.LocCount;
+      smByPlayersDesc:  Result := A.LocCount > B.LocCount;
+      smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
+      smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
+      smByHumanPlayersMPAsc:   Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
+      smByHumanPlayersMPDesc:  Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
+      smByModeAsc:      Result := A.MissionMode < B.MissionMode;
+      smByModeDesc:     Result := A.MissionMode > B.MissionMode;
     end;
-    if CValue = 0 then
-      Result := Compare(A, B, aSortMethodIndex + 1)
-    else
-      Result := CValue < 0;
   end;
 var
   I, K: Integer;
 begin
-  for I := 0 to fCount-1 do
-    for K := I+1 to fCount-1 do
-      if Compare(fMaps[I], fMaps[K], 0) then
-        SwapInt(NativeUInt(fMaps[I]), NativeUInt(fMaps[K])); //Exchange only pointers to MapInfo objects
+  for I := 0 to fCount - 1 do
+  for K := I to fCount - 1 do
+  if Compare(fMaps[I], fMaps[K], fSortMethod) then
+    SwapInt(NativeUInt(fMaps[I]), NativeUInt(fMaps[K])); //Exchange only pointers to MapInfo objects
 end;
 
 
 //For public access
 //Apply new Sort within Critical Section, as we could be in the Refresh phase
 //note that we need to preserve fScanning flag
-procedure TKMapsCollection.Sort(aSortMethods: TMapsSortMethods; aOnSortComplete: TNotifyEvent);
+procedure TKMapsCollection.Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
 begin
   Lock;
   try
     if fScanning then
     begin
       fScanning := False;
-      SetSortMethods(aSortMethods);
+      fSortMethod := aSortMethod;
       DoSort;
       if Assigned(aOnSortComplete) then
         aOnSortComplete(Self);
       fScanning := True;
-    end else begin
-      SetSortMethods(aSortMethods);
+    end
+    else
+    begin
+      fSortMethod := aSortMethod;
       DoSort;
       if Assigned(aOnSortComplete) then
         aOnSortComplete(Self);
@@ -1059,16 +1022,6 @@ begin
   //Simply creating the TKMapInfo updates the .mi cache file
   Map := TKMapInfo.Create(aPath, False, aFolder);
   Map.Free;
-end;
-
-
-{Map utility functions}
-//Reset sort methods array. Fill it with smNoSort
-procedure ResetMapSortMethods(aSortMethods: TMapsSortMethods);
-var I: Integer;
-begin
-  for I := Low(TMapsSortMethods) to High(TMapsSortMethods) do
-    aSortMethods[I] := smNoSort;
 end;
 
 

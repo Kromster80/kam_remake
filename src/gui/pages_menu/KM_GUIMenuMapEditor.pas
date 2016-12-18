@@ -374,35 +374,24 @@ end;
 
 procedure TKMMenuMapEditor.ColumnClick(aValue: Integer);
 var
-  SM: TMapsSortMethods;
+  SM: TMapsSortMethod;
 begin
-  ResetMapSortMethods(SM);
   //Determine Sort method depending on which column user clicked
   with ColumnBox_MapEd do
   case SortIndex of
     0:  if SortDirection = sdDown then
-          SM[0] := smByNameDesc // Name is unique, so no need for extra sort parameters
+          SM := smByNameDesc
         else
-          SM[0] := smByNameAsc; // Name is unique, so no need for extra sort parameters
-    1:  if SortDirection = sdDown then begin
-          SM[0] := smByPlayersDesc;
-          SM[1] := smByNameDesc;
-          SM[2] := smBySizeDesc;
-        end else begin
-          SM[0] := smByPlayersAsc;
-          SM[1] := smByNameAsc;
-          SM[2] := smBySizeAsc;
-        end;
-    2:  if SortDirection = sdDown then begin
-          SM[0] := smBySizeDesc;
-          SM[1] := smByPlayersDesc; //Second sort parameter is players number on map, because usually its related to map size
-          SM[2] := smByNameDesc;
-        end else begin
-          SM[0] := smBySizeAsc;
-          SM[1] := smByPlayersAsc;  //Second sort parameter is players number on map, because usually its related to map size
-          SM[2] := smByNameAsc;
-        end
-    else SM[0] := smByNameAsc;
+          SM := smByNameAsc;
+    1:  if SortDirection = sdDown then
+          SM := smByPlayersDesc
+        else
+          SM := smByPlayersAsc;
+    2:  if SortDirection = sdDown then
+          SM := smBySizeDesc
+        else
+          SM := smBySizeAsc;
+    else SM := smByNameAsc;
   end;
 
   //Keep all lists in sync incase user switches between them

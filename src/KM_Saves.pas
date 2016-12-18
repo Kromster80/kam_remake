@@ -8,14 +8,11 @@ uses
 
 type
   TSavesSortMethod = (
-    smNoSort,
     smByFileNameAsc, smByFileNameDesc,
     smByDescriptionAsc, smByDescriptionDesc,
     smByTimeAsc, smByTimeDesc,
     smByDateAsc, smByDateDesc,
     smByPlayerCountAsc, smByPlayerCountDesc);
-
-  TSavesSortMethods = array [0..3] of TSavesSortMethod;
 
   TKMSaveInfo = class;
   TSaveEvent = procedure (aSave: TKMSaveInfo) of object;
@@ -59,7 +56,7 @@ type
   private
     fCount: Word;
     fSaves: array of TKMSaveInfo;
-    fSortMethods: TSavesSortMethods;
+    fSortMethod: TSavesSortMethod;
     CS: TCriticalSection;
     fScanner: TTSavesScanner;
     fScanning: Boolean;
@@ -72,10 +69,8 @@ type
     procedure ScanComplete(Sender: TObject);
     procedure DoSort;
     function GetSave(aIndex: Integer): TKMSaveInfo;
-    procedure SetSortMethods(aSortMethods: TSavesSortMethods);
   public
-    constructor Create(aSortMethods: TSavesSortMethods); overload;
-    constructor Create; overload;
+    constructor Create(aSortMethod: TSavesSortMethod = smByFileNameDesc);
     destructor Destroy; override;
 
     property Count: Word read fCount;
@@ -85,7 +80,8 @@ type
 
     procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean);
     procedure TerminateScan;
-    procedure Sort(aSortMethods: TSavesSortMethods; aOnSortComplete: TNotifyEvent);
+    procedure Sort(aSortMethod: TSavesSortMethod; aOnSortComplete: TNotifyEvent);
+    property SortMethod: TSavesSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
     property ScanFinished: Boolean read fScanFinished;
 
     function Contains(aNewName: UnicodeString): Boolean;
@@ -97,13 +93,7 @@ type
   end;
 
 
-  procedure ResetSaveSortMethods(aSortMethods: TSavesSortMethods);
-
-
 implementation
-
-const
-  DEFAULT_SORT_METHODS: TSavesSortMethods = (smByFileNameDesc, smNoSort, smNoSort, smNoSort);
 
 
 { TKMSaveInfo }
@@ -206,22 +196,16 @@ end;
 
 
 { TKMSavesCollection }
-constructor TKMSavesCollection.Create(aSortMethods: TSavesSortMethods);
+constructor TKMSavesCollection.Create(aSortMethod: TSavesSortMethod = smByFileNameDesc);
 begin
   inherited Create;
-  ResetSaveSortMethods(fSortMethods);
-  SetSortMethods(aSortMethods);
+  fSortMethod := aSortMethod;
+  fScanFInished := True;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
   //it acts as a safenet mostly
   CS := TCriticalSection.Create;
-end;
-
-
-constructor TKMSavesCollection.Create;
-begin
-  Create(DEFAULT_SORT_METHODS);
 end;
 
 
@@ -267,14 +251,6 @@ begin
   //by another thread before the caller uses it.
   Assert(InRange(aIndex, 0, fCount-1));
   Result := fSaves[aIndex];
-end;
-
-
-procedure TKMSavesCollection.SetSortMethods(aSortMethods: TSavesSortMethods);
-var I: Integer;
-begin
-  for I := Low(TSavesSortMethods) to High(TSavesSortMethods) do
-    fSortMethods[I] := aSortMethods[I];
 end;
 
 
@@ -328,37 +304,28 @@ end;
 //For private acces, where CS is managed by the caller
 procedure TKMSavesCollection.DoSort;
   //Return True if items should be exchanged
-  function Compare(A, B: TKMSaveInfo; aSortMethodIndex: Byte): Boolean;
-  var CValue: Double;
+  function Compare(A, B: TKMSaveInfo; aMethod: TSavesSortMethod): Boolean;
   begin
     Result := False; //By default everything remains in place
-
-    if aSortMethodIndex > High(TSavesSortMethods) then Exit;
-
-    case fSortMethods[aSortMethodIndex] of
-      smByFileNameAsc:     CValue := CompareText(A.FileName, B.FileName);
-      smByFileNameDesc:    CValue := CompareText(B.FileName, A.FileName);
-      smByDescriptionAsc:  CValue := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime);
-      smByDescriptionDesc: CValue := CompareText(B.Info.GetTitleWithTime, A.Info.GetTitleWithTime);
-      smByTimeAsc:         CValue := A.Info.TickCount - B.Info.TickCount;
-      smByTimeDesc:        CValue := B.Info.TickCount - A.Info.TickCount;
-      smByDateAsc:         CValue := A.Info.SaveTimestamp - B.Info.SaveTimestamp;
-      smByDateDesc:        CValue := B.Info.SaveTimestamp - A.Info.SaveTimestamp;
-      smByPlayerCountAsc:  CValue := A.Info.PlayerCount - B.Info.PlayerCount;
-      smByPlayerCountDesc: CValue := B.Info.PlayerCount - A.Info.PlayerCount;
-      smNoSort:            Exit;
+    case aMethod of
+      smByFileNameAsc:     Result := CompareText(A.FileName, B.FileName) < 0;
+      smByFileNameDesc:    Result := CompareText(A.FileName, B.FileName) > 0;
+      smByDescriptionAsc:  Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) < 0;
+      smByDescriptionDesc: Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) > 0;
+      smByTimeAsc:         Result := A.Info.TickCount < B.Info.TickCount;
+      smByTimeDesc:        Result := A.Info.TickCount > B.Info.TickCount;
+      smByDateAsc:         Result := A.Info.SaveTimestamp > B.Info.SaveTimestamp;
+      smByDateDesc:        Result := A.Info.SaveTimestamp < B.Info.SaveTimestamp;
+      smByPlayerCountAsc:  Result := A.Info.PlayerCount < B.Info.PlayerCount;
+      smByPlayerCountDesc: Result := A.Info.PlayerCount > B.Info.PlayerCount;
     end;
-    if CValue = 0 then
-      Result := Compare(A, B, aSortMethodIndex + 1)
-    else
-      Result := CValue < 0;
   end;
 var
   I, K: Integer;
 begin
   for I := 0 to fCount - 1 do
   for K := I to fCount - 1 do
-  if Compare(fSaves[I], fSaves[K], 0) then
+  if Compare(fSaves[I], fSaves[K], fSortMethod) then
     SwapInt(NativeUInt(fSaves[I]), NativeUInt(fSaves[K])); //Exchange only pointers to MapInfo objects
 end;
 
@@ -390,20 +357,22 @@ end;
 //For public access
 //Apply new Sort within Critical Section, as we could be in the Refresh phase
 //note that we need to preserve fScanning flag
-procedure TKMSavesCollection.Sort(aSortMethods: TSavesSortMethods; aOnSortComplete: TNotifyEvent);
+procedure TKMSavesCollection.Sort(aSortMethod: TSavesSortMethod; aOnSortComplete: TNotifyEvent);
 begin
   Lock;
   try
     if fScanning then
     begin
       fScanning := False;
-      SetSortMethods(aSortMethods);
+      fSortMethod := aSortMethod;
       DoSort;
       if Assigned(aOnSortComplete) then
         aOnSortComplete(Self);
       fScanning := True;
-    end else begin
-      SetSortMethods(aSortMethods);
+    end
+    else
+    begin
+      fSortMethod := aSortMethod;
       DoSort;
       if Assigned(aOnSortComplete) then
         aOnSortComplete(Self);
@@ -533,16 +502,6 @@ begin
     end;
   until (FindNext(SearchRec) <> 0) or Terminated;
   FindClose(SearchRec);
-end;
-
-
-{Save utility functions}
-//Reset sort methods array. Fill it with smNoSort
-procedure ResetSaveSortMethods(aSortMethods: TSavesSortMethods);
-var I: Integer;
-begin
-  for I := Low(TSavesSortMethods) to High(TSavesSortMethods) do
-    aSortMethods[I] := smNoSort;
 end;
 
 

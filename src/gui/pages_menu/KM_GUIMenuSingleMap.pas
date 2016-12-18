@@ -476,38 +476,33 @@ end;
 
 procedure TKMMenuSingleMap.ListSort(aColumn: Integer);
 var
-  SM: TMapsSortMethods;
+  Method: TMapsSortMethod;
 begin
-  //Determine Sort method depending on which column user clicked
-  with ColumnBox_SingleMaps do
-  case SortIndex of
-    0:  if SortDirection = sdDown then
-          SM[0] := smByNameDesc // Name is unique, so no need for extra sort parameters
+  //Set Descending order by default and invert it if same column selected again
+  case aColumn of
+    0:  if fMaps.SortMethod = smByModeDesc then
+          Method := smByModeAsc
         else
-          SM[0] := smByNameAsc; // Name is unique, so no need for extra sort parameters
-    1:  if SortDirection = sdDown then begin
-          SM[0] := smByPlayersDesc;
-          SM[1] := smByNameDesc;
-          SM[2] := smBySizeDesc;
-        end else begin
-          SM[0] := smByPlayersAsc;
-          SM[1] := smByNameAsc;
-          SM[2] := smBySizeAsc;
-        end;
-    2:  if SortDirection = sdDown then begin
-          SM[0] := smBySizeDesc;
-          SM[1] := smByPlayersDesc; //Second sort parameter is players number on map, because usually its related to map size
-          SM[2] := smByNameDesc;
-        end else begin
-          SM[0] := smBySizeAsc;
-          SM[1] := smByPlayersAsc; //Second sort parameter is players number on map, because usually its related to map size
-          SM[2] := smByNameAsc;
-        end;
-    else SM[0] := smByNameAsc;
+          Method := smByModeDesc;
+    1:
+        if fMaps.SortMethod = smByPlayersDesc then
+          Method := smByPlayersAsc
+        else
+          Method := smByPlayersDesc;
+    2:  if fMaps.SortMethod = smByNameDesc then
+          Method := smByNameAsc
+        else
+          Method := smByNameDesc;
+    3:  if fMaps.SortMethod = smBySizeDesc then
+          Method := smBySizeAsc
+        else
+          Method := smBySizeDesc;
+    else
+        Method := smByNameAsc; //Default
   end;
 
   //Start sorting and wait for SortComplete event
-  fMaps.Sort(SM, SortUpdate);
+  fMaps.Sort(Method, SortUpdate);
 end;
 
 

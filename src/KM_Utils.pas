@@ -203,13 +203,13 @@ function MapSizeText(X,Y: Word): UnicodeString;
 begin
   //Pretend these are understandable in any language
   case X * Y of
-            1.. 48* 48: Result := MAP_SIZES[0]; // 'XS'
-     48* 48+1.. 80* 80: Result := MAP_SIZES[1]; // 'S'
-     80* 80+1..128*128: Result := MAP_SIZES[2]; // 'M'
-    128*128+1..176*176: Result := MAP_SIZES[3]; // 'L'
-    176*176+1..224*224: Result := MAP_SIZES[4]; // 'XL'
-    224*224+1..320*320: Result := MAP_SIZES[5]; // 'XXL'
-    else                Result := MAP_SIZES[6]; // '???';
+            1.. 48* 48: Result := 'XS';
+     48* 48+1.. 80* 80: Result := 'S';
+     80* 80+1..128*128: Result := 'M';
+    128*128+1..176*176: Result := 'L';
+    176*176+1..224*224: Result := 'XL';
+    224*224+1..320*320: Result := 'XXL';
+    else                Result := '???';
   end;
 end;
 
