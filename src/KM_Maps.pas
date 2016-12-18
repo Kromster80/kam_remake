@@ -728,8 +728,9 @@ begin
 end;
 
 
-//For private acces, where CS is managed by the caller
+//For private access, where CS is managed by the caller
 procedure TKMapsCollection.DoSort;
+var TempMaps: array of TKMapInfo;
   function IndexOf(ArrayOfStr: array of String; Str: String): Integer;
   var I: Integer;
   begin
@@ -743,14 +744,14 @@ procedure TKMapsCollection.DoSort;
     Assert(Result <> -1, 'MapSize ' + Str + ' has not been determined.');
   end;
   //Return True if items should be exchanged
-  function Compare(A, B: TKMapInfo; aMethod: TMapsSortMethod): Boolean;
+  function Compare(A, B: TKMapInfo): Boolean;
   begin
     Result := False; //By default everything remains in place
-    case aMethod of
+    case fSortMethod of
       smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
       smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
-      smBySizeAsc:      Result := (A.MapSizeX * A.MapSizeY) < (B.MapSizeX * B.MapSizeY);
-      smBySizeDesc:     Result := (A.MapSizeX * A.MapSizeY) > (B.MapSizeX * B.MapSizeY);
+      smBySizeAsc:      Result := IndexOf(MAP_SIZES, A.SizeText) < IndexOf(MAP_SIZES, B.SizeText);
+      smBySizeDesc:     Result := IndexOf(MAP_SIZES, A.SizeText) > IndexOf(MAP_SIZES, B.SizeText);
       smByPlayersAsc:   Result := A.LocCount < B.LocCount;
       smByPlayersDesc:  Result := A.LocCount > B.LocCount;
       smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
@@ -761,13 +762,38 @@ procedure TKMapsCollection.DoSort;
       smByModeDesc:     Result := A.MissionMode > B.MissionMode;
     end;
   end;
-var
-  I, K: Integer;
+
+  procedure MergeSort(left, right: integer);
+  var middle, i, j, ind1, ind2: integer;
+  begin
+    if right <= left then
+      exit;
+
+    middle := (left+right) div 2;
+    MergeSort(left, middle);
+    Inc(middle);
+    MergeSort(middle, right);
+    ind1 := left;
+    ind2 := middle;
+    for i := left to right do
+    begin
+      if (ind1 < middle) and ((ind2 > right) or not Compare(fMaps[ind1], fMaps[ind2])) then
+      begin
+        TempMaps[i] := fMaps[ind1];
+        Inc(ind1);
+      end
+      else
+      begin
+        TempMaps[i] := fMaps[ind2];
+        Inc(ind2);
+      end;
+    end;
+    for j := left to right do
+      fMaps[j] := TempMaps[j];
+  end;
 begin
-  for I := 0 to fCount - 1 do
-  for K := I to fCount - 1 do
-  if Compare(fMaps[I], fMaps[K], fSortMethod) then
-    SwapInt(NativeUInt(fMaps[I]), NativeUInt(fMaps[K])); //Exchange only pointers to MapInfo objects
+  SetLength(TempMaps, Length(fMaps));
+  MergeSort(Low(fMaps), High(fMaps));
 end;
 
 
