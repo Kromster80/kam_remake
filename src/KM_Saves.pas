@@ -12,7 +12,8 @@ type
     smByDescriptionAsc, smByDescriptionDesc,
     smByTimeAsc, smByTimeDesc,
     smByDateAsc, smByDateDesc,
-    smByPlayerCountAsc, smByPlayerCountDesc);
+    smByPlayerCountAsc, smByPlayerCountDesc,
+    smByModeAsc, smByModeDesc);
 
   TKMSaveInfo = class;
   TSaveEvent = procedure (aSave: TKMSaveInfo) of object;
@@ -319,6 +320,8 @@ var TempSaves: array of TKMSaveInfo;
       smByDateDesc:        Result := A.Info.SaveTimestamp < B.Info.SaveTimestamp;
       smByPlayerCountAsc:  Result := A.Info.PlayerCount < B.Info.PlayerCount;
       smByPlayerCountDesc: Result := A.Info.PlayerCount > B.Info.PlayerCount;
+      smByModeAsc:         Result := A.Info.MissionMode < B.Info.MissionMode;
+      smByModeDesc:        Result := A.Info.MissionMode > B.Info.MissionMode;
     end;
   end;
 

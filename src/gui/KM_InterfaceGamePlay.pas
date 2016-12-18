@@ -232,6 +232,7 @@ type
         Button_Load: TKMButton;
 
       Panel_Quit: TKMPanel;
+        Label_QuitQuestion: TKMLabel;
         Button_Quit_Yes, Button_Quit_No: TKMButton;
 
     Panel_Unit: TKMPanel;
@@ -1232,8 +1233,8 @@ end;
 procedure TKMGamePlayInterface.Create_Quit;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    with TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, gResTexts[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
-      AutoWrap := True;
+    Label_QuitQuestion := TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, gResTexts[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
+    Label_QuitQuestion.AutoWrap := True;
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
     Button_Quit_No := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
     Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
@@ -2038,10 +2039,24 @@ begin
   Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gMySpectator.Hand.InCinematic));
   Button_Main[tbStats].Enabled := not aTactic;
 
-  // No loading during multiplayer games
-  Button_Menu_Load.Enabled := fUIMode = umSP;
+  Button_Menu_Load.Enabled := fUIMode = umSP; // No loading during multiplayer games
   Button_Menu_Save.Enabled := fUIMode in [umSP, umMP, umSpectate];
-  Button_Menu_Quit.Enabled := fUIMode in [umSP, umMP, umSpectate];
+
+  if (fUIMode = umReplay) then
+  begin
+    Button_Menu_Quit.Caption := gResTexts[TX_REPLAY_QUIT];
+    Button_Menu_Quit.Hint := gResTexts[TX_REPLAY_QUIT];
+    Label_QuitQuestion.Caption := 'Are you sure you|want to quit|this replay?'; //Todo translate
+    Button_Quit_Yes.Caption := gResTexts[TX_REPLAY_QUIT];
+    Button_Quit_Yes.Hint := gResTexts[TX_REPLAY_QUIT];
+    gGame.PlayOnState := gr_ReplayEnd;
+  end else begin
+    Button_Menu_Quit.Caption := gResTexts[TX_MENU_QUIT_MISSION];
+    Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MISSION];
+    Label_QuitQuestion.Caption := gResTexts[TX_MENU_QUIT_QUESTION];
+    Button_Quit_Yes.Caption := gResTexts[TX_MENU_QUIT_MISSION];
+    Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
+  end;
 
   // Toggle gameplay options
   fGuiMenuSettings.SetAutosaveEnabled(fUIMode in [umSP, umMP, umSpectate]);
