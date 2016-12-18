@@ -72,6 +72,7 @@ type
     function GetReleasedBy: THouseType;
     function GetTabletIcon: Word;
     function GetSnowPic: SmallInt;
+    function GetUnoccupiedMsgId: SmallInt;
   public
     constructor Create(aHouseType: THouseType);
     procedure LoadFromStream(Stream: TMemoryStream);
@@ -106,6 +107,7 @@ type
     property ResInput: THouseRes read GetResInput;
     property ResOutput: THouseRes read GetResOutput;
     property TabletIcon:word read GetTabletIcon;
+    property UnoccupiedMsgId:SmallInt read GetUnoccupiedMsgId;
     property SnowPic: SmallInt read GetSnowPic;
     //Functions
     function AcceptsWares: Boolean;
@@ -526,6 +528,24 @@ const
                                              (MoveX: -7; MoveY:-4), (MoveX:-16; MoveY:-4), (MoveX:-16; MoveY:-4)));//Stone 4-6
 
 
+  //'This house is unoccupied' msg index
+  HouseTypeToUnoccupiedMsgIndex: array[THouseType] of ShortInt = (
+    -1, -1,     //ut_None, ut_Any
+    0,1,2,
+    -1,         //ht_Barracks
+    3,4,5,6,7,
+    -1,         //ht_Inn
+    8,9,
+    -1,         //ht_Marketplace
+    10,11,12,13,
+    -1,         //ht_School
+    14,15,
+    -1,         //ht_Store
+    16,17,
+    -1,         //ht_TownHall
+    18,19,20,21,22);
+
+
 { TKMHouseDatClass }
 constructor TKMHouseDatClass.Create(aHouseType: THouseType);
 begin
@@ -638,6 +658,16 @@ end;
 function TKMHouseDatClass.GetTabletIcon: Word;
 begin
   Result := HouseDatX[fHouseType].TabletSpriteId;
+end;
+
+
+function TKMHouseDatClass.GetUnoccupiedMsgId: SmallInt;
+var HouseUnnocupiedMsgIndex: ShortInt;
+begin
+  Result := -1;
+  HouseUnnocupiedMsgIndex := HouseTypeToUnoccupiedMsgIndex[fHouseType];
+  if HouseUnnocupiedMsgIndex <> -1 then
+    Result := TX_MSG_HOUSE_UNOCCUPIED__22 + HouseUnnocupiedMsgIndex;
 end;
 
 
