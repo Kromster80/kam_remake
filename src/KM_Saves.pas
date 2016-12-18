@@ -359,7 +359,6 @@ begin
 end;
 
 
-
 function TKMSavesCollection.SavesList: UnicodeString;
 var
   I: Integer;
