@@ -276,9 +276,9 @@ TX_RESULTS_STATISTICS = 254; //Statistics
 TX_RESULTS_ECONOMY = 255; //Economy
 
 TX_RESULTS_MP_CITIZENS_TRAINED = 256; //Citizens|trained
-TX_RESULTS_MP_CITIZENS_LOST = 257; //Citizens|lost
+TX_RESULTS_MP_CITIZENS_LOST = 257; //Citizens lost|total/from|starvation
 TX_RESULTS_MP_SOLDIERS_EQUIPPED = 258; //Soldiers|equipped
-TX_RESULTS_MP_SOLDIERS_LOST = 259; //Soldiers|lost
+TX_RESULTS_MP_SOLDIERS_LOST = 259; //Soldiers lost|total/from|starvation
 TX_RESULTS_MP_SOLDIERS_DEFEATED = 260; //Soldiers|defeated
 TX_RESULTS_MP_BUILDINGS_CONSTRUCTED = 261; //Buildings|constructed
 TX_RESULTS_MP_BUILDINGS_LOST = 262; //Buildings|lost

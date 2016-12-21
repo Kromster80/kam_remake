@@ -263,17 +263,17 @@ begin
     Panel_BarsUpper.Anchors := [];
 
       for I := 0 to MAX_LOBBY_PLAYERS - 1 do
-        Label_ResultsPlayerName1[I] := TKMLabel.Create(Panel_BarsUpper, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
+        Label_ResultsPlayerName1[I] := TKMLabel.Create(Panel_BarsUpper, 0, 58+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
 
       for K := 0 to 4 do
       begin
-        with TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns1[K]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 60, gResTexts[Columns1[K]], fnt_Metal, taCenter) do
           AutoWrap := True;
         for I:=0 to MAX_LOBBY_PLAYERS - 1 do
         begin
-          Bar_Results[I,K] := TKMPercentBar.Create(Panel_BarsUpper, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fnt_Grey);
+          Bar_Results[I,K] := TKMPercentBar.Create(Panel_BarsUpper, 160 + K*BarStep, 55+I*BAR_ROW_HEIGHT, BarWidth, 20, fnt_Grey);
           Bar_Results[I,K].TextYOffset := -3;
-          Image_ResultsRosette[I,K] := TKMImage.Create(Panel_BarsUpper, 164 + K*BarStep, 38+I*BAR_ROW_HEIGHT, 16, 16, 8, rxGuiMain);
+          Image_ResultsRosette[I,K] := TKMImage.Create(Panel_BarsUpper, 164 + K*BarStep, 58+I*BAR_ROW_HEIGHT, 16, 16, 8, rxGuiMain);
         end;
       end;
 
@@ -549,6 +549,7 @@ var
   UnitsMax, HousesMax, WaresMax, WeaponsMax, MaxValue: Integer;
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
+  ValueStr: String;
 begin
   //Update visibility depending on players count (note, players may be sparsed)
   for I := 0 to MAX_LOBBY_PLAYERS - 1 do
@@ -566,12 +567,12 @@ begin
     end;
 
   //Update positioning
-  Panel_BarsUpper.Height := 40 + fEnabledPlayers * BAR_ROW_HEIGHT;
+  Panel_BarsUpper.Height := 60 + fEnabledPlayers * BAR_ROW_HEIGHT;
   Panel_BarsLower.Height := 40 + fEnabledPlayers * BAR_ROW_HEIGHT;
 
   //Second panel does not move from the middle of the screen: results always go above and below the middle
-  Panel_BarsUpper.Top := Panel_Bars.Height div 2 - Panel_BarsUpper.Height - 5;
-  Panel_BarsLower.Top := Panel_Bars.Height div 2 + 5;
+  Panel_BarsUpper.Top := Max(0, Panel_Bars.Height div 2 - Panel_BarsUpper.Height - 5);
+  Panel_BarsLower.Top := Panel_BarsUpper.Top + Panel_BarsUpper.Height + 5;
 
   //Calculate best scores
   FillChar(Bests, SizeOf(Bests), #0);
@@ -621,8 +622,10 @@ begin
         //Living things
         Bar_Results[Index,0].Tag := GetCitizensTrained;
         Bar_Results[Index,1].Tag := GetCitizensLost;
+        Bar_Results[Index,1].Caption := IntToStr(GetCitizensDiedOfHunger);
         Bar_Results[Index,2].Tag := GetWarriorsTrained;
         Bar_Results[Index,3].Tag := GetWarriorsLost;
+        Bar_Results[Index,3].Caption := IntToStr(GetWarriorsDiedOfHunger);
         Bar_Results[Index,4].Tag := GetWarriorsKilled;
         Image_ResultsRosette[Index,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
         Image_ResultsRosette[Index,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
@@ -676,7 +679,12 @@ begin
         Bar_Results[I,K].Position := Bar_Results[I,K].Tag / MaxValue
       else
         Bar_Results[I,K].Position := 0;
-      Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');
+
+      ValueStr := IntToStr(Bar_Results[I,K].Tag);
+      if (K = 1) or (K = 3) then // Citizens or Warriors Lost
+        ValueStr := ValueStr + ' / ' + IfThen(Bar_Results[I,K].Caption <> '0', Bar_Results[I,K].Caption, '-'); // add died of starvation info
+
+      Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, ValueStr, '-');
     end;
   end;
 end;
@@ -894,7 +902,7 @@ begin
     CreateChartWares(Panel_ResultsMP);
     CreateChartArmy(Panel_ResultsMP);
 
-    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, 630, 280, 30, NO_TEXT, bsMenu);
+    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, 650, 280, 30, NO_TEXT, bsMenu);
     Button_ResultsMPBack.Anchors := [anLeft];
     Button_ResultsMPBack.OnClick := BackClick;
 end;
