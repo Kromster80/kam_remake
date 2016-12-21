@@ -348,7 +348,7 @@ begin
       R := MakeListRow(['', Maps[I].FileName, IntToStr(Maps[I].LocCount), Maps[I].SizeText],  //Texts
                        [Maps[I].GetLobbyColor, Maps[I].GetLobbyColor, Maps[I].GetLobbyColor, Maps[I].GetLobbyColor], //Colors
                        I);
-      R.Cells[0].Pic := MakePic(rxGui, 657 + Byte(fMaps[I].MissionMode = mm_Tactic));
+      R.Cells[0].Pic := MakePic(rxGui, 657 + Byte(Maps[I].MissionMode = mm_Tactic));
       ColumnBox_MapEd.AddItem(R);
 
       if (Maps[I].CRC = fLastMapCRC) then
