@@ -136,7 +136,6 @@ type
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     procedure ReturnToLobbyVoteSucceeded;
     procedure ResetReturnToLobbyVote;
-
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
 
@@ -262,7 +261,6 @@ uses
 
 { TKMNetworking }
 constructor TKMNetworking.Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
-var I: Integer;
 begin
   inherited Create;
 
@@ -280,7 +278,6 @@ end;
 
 
 destructor TKMNetworking.Destroy;
-var I: Integer;
 begin
   fNetPlayers.Free;
   fNetServer.Free;
