@@ -34,7 +34,7 @@ type
     property Mayor: TKMayor read fMayor;
     property Setup: TKMHandAISetup read fSetup;
 
-    procedure Defeat; //Defeat the player, this is not reversible
+    procedure Defeat(aNotifyOtherPlayers: Boolean = False); //Defeat the player, this is not reversible
     procedure Victory; //Set this player as victorious, this is not reversible
     procedure AddDefaultGoals(aBuildings: Boolean);
     property WonOrLost: TWonOrLost read fWonOrLost;
@@ -82,14 +82,14 @@ end;
 
 //Defeat Player (from scripting?), this is not reversible.
 //Defeated player remains in place, but does no actions
-procedure TKMHandAI.Defeat;
+procedure TKMHandAI.Defeat(aNotifyOtherPlayers: Boolean = False);
 begin
   if fWonOrLost = wol_None then
   begin
     fWonOrLost := wol_Lost;
 
     //Let the game know
-    gGame.PlayerDefeat(fOwner);
+    gGame.PlayerDefeat(fOwner, aNotifyOtherPlayers);
 
     //Script may have additional event processors
     gScriptEvents.ProcPlayerDefeated(fOwner);
@@ -124,7 +124,7 @@ var
 begin
   SetLength(Enemies, 0);
   for I := 0 to gHands.Count - 1 do
-    if gHands[fOwner].Alliances[I] = at_Enemy then
+    if gHands[I].Enabled and (gHands[fOwner].Alliances[I] = at_Enemy) then
     begin
       SetLength(Enemies, Length(Enemies)+1);
       Enemies[High(Enemies)] := I;
@@ -140,6 +140,12 @@ procedure TKMHandAI.CheckGoals;
     Stat: TKMHandStats;
   begin
     Assert((aGoal.GoalCondition = gc_Time) or (aGoal.HandIndex <> PLAYER_NONE), 'Only gc_Time can have nil Player');
+
+    if aGoal.Completed then
+    begin
+      Result := True;
+      Exit;
+    end;
 
     Result := False;
     if aGoal.HandIndex <> PLAYER_NONE then

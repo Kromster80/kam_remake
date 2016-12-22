@@ -86,6 +86,7 @@ type
     procedure Chat_Click(Sender: TObject);
     procedure House_Demolish;
     procedure Unit_Dismiss(Sender: TObject);
+    procedure CheckGameResult;
     procedure Menu_QuitMission(Sender: TObject);
     procedure Menu_NextTrack(Sender: TObject);
     procedure Menu_PreviousTrack(Sender: TObject);
@@ -1578,9 +1579,24 @@ begin
 end;
 
 
+// Check win/defeat game result
+// If there are other undefeated teams in game, then this player counts as defeated,
+// because he intentionally quit from the game, which not ended yet.
+procedure TKMGamePlayInterface.CheckGameResult;
+begin
+  if (gGame.GameMode = gmMulti)         // only for multiplayer game
+    and (gGame.PlayOnState = gr_Cancel) // if no other game result was set
+    and (gGame.Networking.NetPlayers.GetUndefeatedTeamsCount > 1) then
+    gHands[gMySpectator.HandIndex].AI.Defeat(True);
+
+end;
+
+
 // Quit the mission and return to main menu
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
+  CheckGameResult;
+
   // Show outcome depending on actual situation.
   // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
   gGameApp.Stop(gGame.PlayOnState);

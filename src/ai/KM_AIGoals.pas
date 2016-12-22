@@ -15,6 +15,7 @@ type
     MessageToShow: Integer; //Message to be shown when the goal is completed
     MessageHasShown: Boolean; //Whether we have shown this message yet
     HandIndex: TKMHandIndex; //Player whose buildings or troops must be destroyed
+    Completed: Boolean;
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
@@ -66,6 +67,7 @@ type
     procedure AddGoal(aGoal: TKMGoal); overload;
     procedure Delete(aIndex: Integer);
     procedure RemoveReference(aHandIndex: TKMHandIndex);
+    procedure CompleteGoalsForHand(aHandIndex: TKMHandIndex);
     procedure SetMessageHasShown(aIndex: Integer);
     procedure AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: TKMHandIndex; const aEnemyIndexes: array of TKMHandIndex);
 
@@ -130,6 +132,15 @@ begin
     Move(fGoals[aIndex + 1], fGoals[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMGoal));
 
   Dec(fCount);
+end;
+
+
+procedure TKMGoals.CompleteGoalsForHand(aHandIndex: TKMHandIndex);
+var I: Integer;
+begin
+  for I := 0 to fCount - 1 do
+    if fGoals[I].HandIndex = aHandIndex then
+      fGoals[I].Completed := True;
 end;
 
 

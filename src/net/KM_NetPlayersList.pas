@@ -21,7 +21,9 @@ type
     fPings: array[0 .. PING_COUNT-1] of Word; //Ring buffer
     fPingPos: Byte;
     procedure SetLangCode(const aCode: AnsiString);
-    function GetNiknameColored: AnsiString;
+    function GetNiknameColored: UnicodeString;
+    function GetNikname: UnicodeString;
+    function GetHandIndex: Integer;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random, -1 means spectate
@@ -32,6 +34,7 @@ type
     HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
+    Defeated: Boolean;       //If player was defeated
     FPS: Cardinal;
     VotedYes: Boolean;
     procedure AddPing(aPing: Word);
@@ -44,13 +47,14 @@ type
     function IsSpectator: Boolean;
     function GetPlayerType: THandType;
     function SlotName: UnicodeString; //Player name if it's human or computer or closed
-    property Nikname: AnsiString read fNikname; //Human player nikname (ANSI-Latin)
-    property NiknameColored: AnsiString read GetNiknameColored;
+    property Nikname: UnicodeString read GetNikname; //Human player nikname (ANSI-Latin)
+    property NiknameColored: UnicodeString read GetNiknameColored;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
     function FlagColor(aDefault: Cardinal = $FF000000): Cardinal;
     property FlagColorID: Integer read fFlagColorID write fFlagColorID;
+    property HandIndex: Integer read GetHandIndex;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -105,6 +109,7 @@ type
     function GetClosedCount: Integer;
     function GetSpectatorCount: Integer;
     function GetConnectedCount: Integer;
+    function GetUndefeatedTeamsCount: Integer;
     function FurtherVotesNeededForMajority: Integer;
     function HasOnlySpectators: Boolean;
 
@@ -128,7 +133,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Utils;
+  KM_ResTexts, KM_Utils, KM_HandsCollection;
 
 
 { TKMNetPlayerInfo }
@@ -231,12 +236,30 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetNiknameColored: AnsiString;
+function TKMNetPlayerInfo.GetNikname: UnicodeString;
+begin
+  if IsHuman or (gHands = nil) or (HandIndex = -1) then
+    Result := fNikname
+  else
+    Result := gHands[HandIndex].OwnerName;
+end;
+
+
+function TKMNetPlayerInfo.GetNiknameColored: UnicodeString;
 begin
   if FlagColorID <> 0 then
     Result := WrapColorA(Nikname, FlagColorToTextColor(FlagColor))
   else
     Result := Nikname;
+end;
+
+
+function TKMNetPlayerInfo.GetHandIndex: Integer;
+begin
+  if StartLocation > 0 then
+    Result := StartLocation - 1
+  else
+    Result := -1;
 end;
 
 
@@ -254,6 +277,7 @@ begin
   LoadStream.Read(ReadyToReturnToLobby);
   LoadStream.Read(HasMapOrSave);
   LoadStream.Read(Connected);
+  LoadStream.Read(Defeated);
   LoadStream.Read(Dropped);
   LoadStream.Read(VotedYes);
 end;
@@ -273,6 +297,7 @@ begin
   SaveStream.Write(ReadyToReturnToLobby);
   SaveStream.Write(HasMapOrSave);
   SaveStream.Write(Connected);
+  SaveStream.Write(Defeated);
   SaveStream.Write(Dropped);
   SaveStream.Write(VotedYes);
 end;
@@ -391,6 +416,7 @@ begin
   fNetPlayers[fCount].ReadyToReturnToLobby := false;
   fNetPlayers[fCount].Connected := true;
   fNetPlayers[fCount].Dropped := false;
+  fNetPlayers[fCount].Defeated := false;
   fNetPlayers[fCount].ResetPingRecord;
   //Check if this player must go in a spectator slot
   if fCount-GetSpectatorCount > MAX_LOBBY_PLAYERS then
@@ -420,6 +446,7 @@ begin
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
+  fNetPlayers[fCount].Defeated := false;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -444,6 +471,7 @@ begin
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
+  fNetPlayers[fCount].Defeated := False;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -717,6 +745,26 @@ begin
   for i:=1 to fCount do
     if fNetPlayers[i].IsHuman and fNetPlayers[i].Connected then
       inc(Result);
+end;
+
+
+function TKMNetPlayersList.GetUndefeatedTeamsCount: Integer;
+var I: Integer;
+    TeamsCounted: array [0..4] of Boolean;
+begin
+  Result := 0;
+  for I := 0 to 4 do
+    TeamsCounted[I] := False;
+
+  for I := 1 to fCount do
+    if not fNetPlayers[I].IsSpectator
+      and (not fNetPlayers[I].IsHuman or fNetPlayers[I].Connected)
+      and not fNetPlayers[I].Defeated then
+    begin
+      if not TeamsCounted[fNetPlayers[I].Team]
+        or (fNetPlayers[I].Team = 0) then // 0 team means 'no team', so lets count all of them, and count real teams only once
+        Inc(Result);
+    end;
 end;
 
 

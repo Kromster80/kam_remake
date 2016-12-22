@@ -45,10 +45,10 @@ const
      mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated,mk_HasMapOrSave],
     //lgs_Loading
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
+     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote,mk_Defeated],
     //lgs_Game
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReadyToReturnToLobby,
-     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote],
+     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote,mk_Defeated],
     //lgs_Reconnecting
     [mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
@@ -134,6 +134,8 @@ type
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
+
+    procedure PlayerDefeated(aPlayerIndex: Integer);
     procedure ReturnToLobbyVoteSucceeded;
     procedure ResetReturnToLobbyVote;
     
@@ -165,6 +167,7 @@ type
     function IsHost: Boolean;
     function IsReconnecting: Boolean;
     function CalculateGameCRC: Cardinal;
+    procedure PostWinMessageIfWinAcquired;
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
@@ -194,6 +197,7 @@ type
     function CanTakeLocation(aPlayer, aLoc: Integer; AllowSwapping: Boolean): Boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
+    procedure SendPlayerDefeated;
     procedure UpdateGameOptions(aPeacetime: Word; aSpeedPT, aSpeedAfterPT: Single);
     procedure SendGameOptions;
     procedure RequestFileTransfer;
@@ -252,12 +256,15 @@ type
     procedure UpdateState(aTick: cardinal);
     procedure UpdateStateIdle;
     procedure FPSMeasurement(aFPS: Cardinal);
+
+    function GetNetPlayerByHandIndex(aHandIndex: Integer): TKMNetPlayerInfo;
+    function GetNetPlayerIndex(aHandIndex: Integer): Integer;
   end;
 
 
 implementation
 uses
-  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
+  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource, KM_HandsCollection;
 
 
 { TKMNetworking }
@@ -918,6 +925,12 @@ begin
 end;
 
 
+procedure TKMNetworking.SendPlayerDefeated;
+begin
+  PacketSend(NET_ADDRESS_OTHERS, mk_Defeated);
+end;
+
+
 procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex: Integer = NET_ADDRESS_OTHERS);
 var
   I: Integer;
@@ -1171,6 +1184,57 @@ begin
   SendPlayerListAndRefreshPlayersSetup;
   SendGameOptions;
   PostMessage(TX_NET_HAS_JOINED, csJoin, UnicodeString(aPlayerName));
+end;
+
+
+procedure TKMNetworking.PostWinMessageIfWinAcquired;
+var I: Integer;
+    WinMsg: UnicodeString;
+begin
+  WinMsg := '';
+  // Win acquired if there is only 1 undefeated team
+  if fNetPlayers.GetUndefeatedTeamsCount = 1 then
+    for I := 1 to fNetPlayers.Count do
+      if not fNetPlayers[I].Defeated then //All undefeated players are winners
+      begin
+        if fNetPlayers[I].Team = 0 then
+        begin
+          WinMsg := Format('%s wins!', [fNetPlayers[I].NiknameColored]); //Todo translate //Only one player is winning
+          Break;
+        end else begin
+          if WinMsg = '' then
+            WinMsg := Format('Team %d wins! Winners: ', [fNetPlayers[I].Team]) //Todo translate //Team wins
+          else
+            WinMsg := WinMsg + ', ';
+          WinMsg := WinMsg + fNetPlayers[I].NiknameColored;
+        end;
+      end;
+
+  if WinMsg <> '' then
+    PostLocalMessage(WinMsg, csSystem);
+end;
+
+
+procedure TKMNetworking.PlayerDefeated(aPlayerIndex: Integer);
+var I, HandIndex: Integer;
+begin
+
+  fNetPlayers[aPlayerIndex].Defeated := True;
+
+  HandIndex := fNetPlayers[aPlayerIndex].HandIndex;
+  if HandIndex <> -1 then
+  begin
+    PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED], [fNetPlayers[aPlayerIndex].NiknameColored]), csSystem);
+    gHands.CompleteGoalsForDefeatedHand(HandIndex);
+  end;
+
+  PostWinMessageIfWinAcquired;
+
+  // Player wins if defeated player was the last enemy, so there is only 1 undefeated team now (ours)
+  if (fNetPlayers.GetUndefeatedTeamsCount = 1)
+    and not fNetPlayers[fMyIndex].IsSpectator then // Show win window only for players, not for spec
+    gHands[gMySpectator.HandIndex].AI.Victory;
+
 end;
 
 
@@ -1868,6 +1932,9 @@ begin
                 if IsHost then TryPlayGame;
               end;
 
+      mk_Defeated:
+                PlayerDefeated(fNetPlayers.ServerToLocal(aSenderIndex));
+
       mk_Play:
               if fNetPlayerKind = lpk_Joiner then PlayGame;
 
@@ -2005,6 +2072,9 @@ var
   M: TKMemoryStream;
 begin
   Assert(NetPacketType[aKind] = pfNoData);
+
+  if not (aKind in [mk_Pong]) then
+    gLog.AddTime(Format('PacketSend:  %s', [GetEnumName(TypeInfo(TKMessageKind), Integer(aKind))]));
 
   M := TKMemoryStream.Create;
   M.Write(aKind, SizeOf(TKMessageKind));
@@ -2280,5 +2350,29 @@ begin
   end;
 end;
 
+
+function TKMNetworking.GetNetPlayerByHandIndex(aHandIndex: Integer): TKMNetPlayerInfo;
+var Index: Integer;
+begin
+  Index := GetNetPlayerIndex(aHandIndex);
+  if Index <> -1 then
+    Result := fNetPlayers[Index]
+  else
+    Result := nil;
+end;
+
+
+//Get NetPlayer index by hand index. If no NetPlayer found for specified aHandIndex, then -1 returned
+function TKMNetworking.GetNetPlayerIndex(aHandIndex: Integer): Integer;
+var I: Integer;
+begin
+  Result := -1;
+  for I := 1 to MAX_LOBBY_SLOTS do
+    if aHandIndex = fNetPlayers[I].StartLocation-1 then
+    begin
+     Result := I;
+     Exit;
+    end;
+end;
 
 end.

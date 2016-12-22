@@ -94,7 +94,7 @@ type
     procedure GameHold(DoHold: Boolean; Msg: TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg: TGameResultMsg);
     procedure PlayerVictory(aPlayerIndex: TKMHandIndex);
-    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex);
+    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex; aNotifyOtherPlayers: Boolean = False);
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
     procedure ShowScriptError(const aMsg: UnicodeString);
@@ -722,7 +722,8 @@ begin
 end;
 
 
-procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex);
+procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex; aNotifyOtherPlayers: Boolean = False);
+var NetPlayerIndex: Integer;
 begin
   case GameMode of
     gmSingle: if aPlayerIndex = gMySpectator.HandIndex then
@@ -732,17 +733,28 @@ begin
               end;
     gmMulti:  begin
                 fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                                    [gHands[aPlayerIndex].OwnerName]), csSystem);
+                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColored]), csSystem);
+
+                fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).Defeated := True;
+                fNetworking.PostWinMessageIfWinAcquired;
+                  
                 if aPlayerIndex = gMySpectator.HandIndex then
                 begin
+                  if aNotifyOtherPlayers then 
+                    fNetworking.SendPlayerDefeated;
+                  
                   gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
                   PlayOnState := gr_Defeat;
                   fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
                 end;
               end;
-    gmMultiSpectate: fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+    gmMultiSpectate: 
+              begin
+                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
                                                   [gHands[aPlayerIndex].OwnerName]), csSystem);
-    //We have not thought of anything to display on players defeat in Replay
+                fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).Defeated := True;                                                  
+                fNetworking.PostWinMessageIfWinAcquired;
+              end;
   end;
 end;
 
