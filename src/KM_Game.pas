@@ -751,7 +751,7 @@ begin
     gmMultiSpectate: 
               begin
                 fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                                  [gHands[aPlayerIndex].OwnerName]), csSystem);
+                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColored]), csSystem);
                 fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).Defeated := True;                                                  
                 fNetworking.PostWinMessageIfWinAcquired;
               end;

@@ -2073,9 +2073,6 @@ var
 begin
   Assert(NetPacketType[aKind] = pfNoData);
 
-  if not (aKind in [mk_Pong]) then
-    gLog.AddTime(Format('PacketSend:  %s', [GetEnumName(TypeInfo(TKMessageKind), Integer(aKind))]));
-
   M := TKMemoryStream.Create;
   M.Write(aKind, SizeOf(TKMessageKind));
 
@@ -2351,6 +2348,7 @@ begin
 end;
 
 
+//Get NetPlayer by hand index. If no NetPlayer found for specified aHandIndex, then nil returned
 function TKMNetworking.GetNetPlayerByHandIndex(aHandIndex: Integer): TKMNetPlayerInfo;
 var Index: Integer;
 begin
