@@ -22,6 +22,7 @@ type
     fPingPos: Byte;
     procedure SetLangCode(const aCode: AnsiString);
     function GetNiknameColored: AnsiString;
+    function GetHandIndex: Integer;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random, -1 means spectate
@@ -51,6 +52,7 @@ type
     property SetIndexOnServer: Integer write fIndexOnServer;
     function FlagColor(aDefault: Cardinal = $FF000000): Cardinal;
     property FlagColorID: Integer read fFlagColorID write fFlagColorID;
+    property HandIndex: Integer read GetHandIndex;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -252,6 +254,15 @@ begin
     Result := WrapColorA(Nikname, FlagColorToTextColor(FlagColor))
   else
     Result := Nikname;
+end;
+
+
+function TKMNetPlayerInfo.GetHandIndex: Integer;
+begin
+  if StartLocation > 0 then
+    Result := StartLocation - 1
+  else
+    Result := -1;
 end;
 
 

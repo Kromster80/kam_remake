@@ -251,6 +251,9 @@ type
     procedure UpdateState(aTick: cardinal);
     procedure UpdateStateIdle;
     procedure FPSMeasurement(aFPS: Cardinal);
+
+    function GetNetPlayerByHandIndex(aHandIndex: Integer): TKMNetPlayerInfo;
+    function GetNetPlayerIndex(aHandIndex: Integer): Integer;
   end;
 
 
@@ -2279,6 +2282,31 @@ begin
     NetPlayers.ResetVote; //Only reset the vote now that the game has exited
     //Don't refresh player setup here since events aren't attached to lobby yet
   end;
+end;
+
+
+function TKMNetworking.GetNetPlayerByHandIndex(aHandIndex: Integer): TKMNetPlayerInfo;
+var Index: Integer;
+begin
+  Index := GetNetPlayerIndex(aHandIndex);
+  if Index <> -1 then
+    Result := fNetPlayers[Index]
+  else
+    Result := nil;
+end;
+
+
+//Get NetPlayer index by hand index. If no NetPlayer found for specified aHandIndex, then -1 returned
+function TKMNetworking.GetNetPlayerIndex(aHandIndex: Integer): Integer;
+var I: Integer;
+begin
+  Result := -1;
+  for I := 1 to MAX_LOBBY_SLOTS do
+    if aHandIndex = fNetPlayers[I].HandIndex then
+    begin
+     Result := I;
+     Exit;
+    end;
 end;
 
 

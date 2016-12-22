@@ -429,13 +429,8 @@ begin
     //Beacon script event must always be run by all players for consistency
     gScriptEvents.ProcBeacon(Params[3], 1 + (Params[1] div 10), 1 + (Params[2] div 10));
     // Check if player, who send beacon, is muted
-    IsPlayerMuted := False;
-    for I := 1 to MAX_LOBBY_SLOTS do
-      if Params[3] = gGame.Networking.NetPlayers[I].StartLocation-1 then
-      begin
-        IsPlayerMuted := gGame.Networking.NetPlayers.LocalInfo[I].Muted;
-        Break;
-      end;
+    IsPlayerMuted := gGame.Networking.NetPlayers.LocalInfo[gGame.Networking.GetNetPlayerIndex(Params[3])].Muted;
+
     //However, beacons don't show in replays
     if fReplayState = gipRecording then
       if ((Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
