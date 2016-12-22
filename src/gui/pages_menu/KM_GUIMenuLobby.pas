@@ -155,7 +155,7 @@ type
 implementation
 uses
   KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, 
-  KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp, KM_ResUtils;
+  KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
 
 
 { TKMGUIMenuLobby }
@@ -507,7 +507,7 @@ end;
 
 procedure TKMMenuLobby.CreatePlayerMenus(aParent: TKMPanel);
 begin
-  Menu_Host := TKMPopUpMenu.Create(aParent, GetMaxPrintWidthOfStrings(  // Calc max width for popup which depends of texts translation
+  Menu_Host := TKMPopUpMenu.Create(aParent, gRes.GetMaxPrintWidthOfStrings(  // Calc max width for popup which depends of texts translation
     [gResTexts[TX_LOBBY_PLAYER_KICK], 
     gResTexts[TX_LOBBY_PLAYER_BAN], 
     gResTexts[TX_LOBBY_PLAYER_SET_HOST], 
@@ -520,7 +520,7 @@ begin
   Menu_Host.AddItem('');
   Menu_Host.OnClick := HostMenuClick;
 
-  Menu_Joiner := TKMPopUpMenu.Create(aParent, GetMaxPrintWidthOfStrings(  // Calc max width for popup which depends of texts translation
+  Menu_Joiner := TKMPopUpMenu.Create(aParent, gRes.GetMaxPrintWidthOfStrings(  // Calc max width for popup which depends of texts translation
     ['Mute player',   //todo translate
     'Unmute player'], //todo translate 
     fnt_Grey) + 10);

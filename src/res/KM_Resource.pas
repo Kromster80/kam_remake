@@ -67,6 +67,8 @@ type
     procedure ExportTreeAnim;
     procedure ExportHouseAnim;
     procedure ExportUnitAnim;
+
+    function GetMaxPrintWidthOfStrings(aStrings: array of string; aFont: TKMFont): Integer;
   end;
 
 
@@ -434,6 +436,20 @@ begin
 
   fSprites.ClearTemp;
   Bmp.Free;
+end;
+
+
+// Return maximum of the width of specified strings when printed on screen with specified font.
+function TKMResource.GetMaxPrintWidthOfStrings(aStrings: array of string; aFont: TKMFont): Integer;
+var I, Width: Integer;
+begin
+  Result := 0;
+  for I := Low(aStrings) to High(aStrings) do
+  begin
+    Width := gRes.Fonts[aFont].GetTextSize(aStrings[I]).X;
+    if (Width > Result) then
+      Result := Width;
+  end;
 end;
 
 
