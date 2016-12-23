@@ -21,8 +21,8 @@ type
     fPings: array[0 .. PING_COUNT-1] of Word; //Ring buffer
     fPingPos: Byte;
     procedure SetLangCode(const aCode: AnsiString);
-    function GetNiknameColored: UnicodeString;
-    function GetNikname: UnicodeString;
+    function GetNiknameColored: AnsiString;
+    function GetNikname: AnsiString;
     function GetHandIndex: Integer;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
@@ -47,8 +47,8 @@ type
     function IsSpectator: Boolean;
     function GetPlayerType: THandType;
     function SlotName: UnicodeString; //Player name if it's human or computer or closed
-    property Nikname: UnicodeString read GetNikname; //Human player nikname (ANSI-Latin)
-    property NiknameColored: UnicodeString read GetNiknameColored;
+    property Nikname: AnsiString read GetNikname; //Human player nikname (ANSI-Latin)
+    property NiknameColored: AnsiString read GetNiknameColored;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
@@ -236,7 +236,7 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetNikname: UnicodeString;
+function TKMNetPlayerInfo.GetNikname: AnsiString;
 begin
   if IsHuman or (gHands = nil) or (HandIndex = -1) then
     Result := fNikname
@@ -245,7 +245,7 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetNiknameColored: UnicodeString;
+function TKMNetPlayerInfo.GetNiknameColored: AnsiString;
 begin
   if FlagColorID <> 0 then
     Result := WrapColorA(Nikname, FlagColorToTextColor(FlagColor))
