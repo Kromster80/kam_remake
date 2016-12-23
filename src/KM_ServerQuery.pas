@@ -535,16 +535,6 @@ end;
 procedure TKMServerQuery.Sort;
 var TempRooms: array of TKMRoomInfo;
 
-  function GetPlayerCount(aGameInfo: TMPGameInfo): Integer;
-  var I: Integer;
-  begin
-    Result := 0;
-    for I := Low(aGameInfo.Players) to High(aGameInfo.Players) do
-      if (aGameInfo.Players[I].PlayerType = nptHuman)
-        and aGameInfo.Players[I].Connected then
-        Inc(Result);
-  end;
-
   function Compare(A, B: TKMRoomInfo): Boolean;
   var AServerInfo, BServerInfo: TKMServerInfo;
   const StateSortOrder: array[TMPGameState] of byte = (4,1,2,3);
@@ -563,8 +553,8 @@ var TempRooms: array of TKMRoomInfo;
       ssmByPingDesc:    Result := AServerInfo.Ping < BServerInfo.Ping;
       ssmByStateAsc:    Result := StateSortOrder[A.GameInfo.GameState] > StateSortOrder[B.GameInfo.GameState];
       ssmByStateDesc:   Result := StateSortOrder[A.GameInfo.GameState] < StateSortOrder[B.GameInfo.GameState];
-      ssmByPlayersAsc:  Result := GetPlayerCount(A.GameInfo) > GetPlayerCount(B.GameInfo);
-      ssmByPlayersDesc: Result := GetPlayerCount(A.GameInfo) < GetPlayerCount(B.GameInfo);
+      ssmByPlayersAsc:  Result := A.GameInfo.ConnectedPlayerCount > B.GameInfo.ConnectedPlayerCount;
+      ssmByPlayersDesc: Result := A.GameInfo.ConnectedPlayerCount < B.GameInfo.ConnectedPlayerCount;
     end;
     //Always put local servers at the top
     if (AServerInfo.ServerType = mstLocal) and (BServerInfo.ServerType <> mstLocal) then
