@@ -351,7 +351,7 @@ begin
   fHTMLStatusFile := aHTMLStatusFile;
   fWelcomeMessage := aWelcomeMessage;
   if fServerName <> aServerName then
-    SendMessageW(NET_ADDRESS_ALL, mk_ServerName, UnicodeString(aServerName));
+    SendMessageA(NET_ADDRESS_ALL, mk_ServerName, aServerName);
   fServerName := aServerName;
 end;
 
@@ -372,7 +372,7 @@ begin
   fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they choose a room later
   SendMessageA(aHandle, mk_GameVersion, NET_PROTOCOL_REVISON); //First make sure they are using the right version
   if fWelcomeMessage <> '' then SendMessageW(aHandle, mk_WelcomeMessage, fWelcomeMessage); //Welcome them to the server
-  SendMessageW(aHandle, mk_ServerName, UnicodeString(fServerName));
+  SendMessageA(aHandle, mk_ServerName, fServerName);
   SendMessage(aHandle, mk_IndexOnServer, aHandle); //This is the signal that the client may now start sending
 end;
 
