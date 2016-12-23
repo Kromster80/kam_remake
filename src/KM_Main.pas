@@ -94,6 +94,17 @@ end;
 
 
 procedure TKMMain.Start;
+  function GetScreenMonitors: TKMScreenMonitorList;
+  var I: Integer;
+  begin
+    SetLength(Result, Screen.MonitorCount);
+    for I := 0 to Screen.MonitorCount-1 do
+    begin
+      Result[I].Width := Screen.Monitors[I].Width;
+      Result[I].Height := Screen.Monitors[I].Height;
+    end;
+  end;
+
 begin
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
   Randomize;
@@ -130,7 +141,7 @@ begin
   fFormMain.ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
 
   // Check INI window params, if not valid - set NeedResetToDefaults flag for future update
-  if not fMainSettings.WindowParams.IsValid(Screen) then
+  if not fMainSettings.WindowParams.IsValid(GetScreenMonitors) then
      fMainSettings.WindowParams.NeedResetToDefaults := True;
 
   ReinitRender(False);
