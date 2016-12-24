@@ -13,6 +13,7 @@ Bugs:
  +	Voting 'return to lobby' goes wrong if 2 or more last votes comes simultaneously
  +	Minimap small visual bugs
  +	AI does not repair houses after Save/Load
+ +	Game crashed on exit if log file was deleted. Recreate it instead
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  
 
@@ -70,6 +71,7 @@ Improvements:
  +		Label for group members count on group panel (same as in MapEd)
  +		Map name label on F4 menu
  +		New option: replay autopause on PT end
+ +	L	House not occupied message mentions which house it is ("This farm is not occupied").
  +
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
@@ -99,7 +101,6 @@ Improvements:
 	L	Changing teams in multiplayer
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
-	L	House not occupied message should mention which house it is ("This farm is not occupied"). Hard to work around plurals and fem/masc forms
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
