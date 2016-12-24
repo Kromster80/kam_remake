@@ -1888,7 +1888,7 @@ begin
   // NOTE: It will highlight next house built on the 'ruins' which is unoccupied to be precise
   //       even the NEW message has not been issued yet
   if (H <> nil) then
-    if ((Msg.fTextID = TX_MSG_HOUSE_UNOCCUPIED) and not H.GetHasOwner
+    if (gRes.IsMsgHouseUnnocupied(Msg.fTextID) and not H.GetHasOwner
         and (gRes.HouseDat[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
     or H.ResourceDepletedMsgIssued then
       gMySpectator.Highlight := H;
