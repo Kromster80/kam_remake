@@ -3,15 +3,10 @@
 interface
 uses
   Classes, SysUtils, Math, INIfiles, System.UITypes,
-  KM_Defaults, KM_Resolutions;
+  KM_Defaults, KM_Resolutions, KM_Points;
 
 
 type
-
-  TKMScreenMonitorList = array of record
-    Width: Integer;
-    Height: Integer
-  end;
 
   TKMWindowParamsRecord = record
     Width, Height, Left, Top: SmallInt;
@@ -38,7 +33,7 @@ type
     procedure ApplyWindowParams(aParams: TKMWindowParamsRecord; aDefaults: Boolean = False);
     procedure LockParams;
     procedure UnlockParams;
-    function IsValid(aMonitorsInfo: TKMScreenMonitorList): Boolean;
+    function IsValid(aMonitorsInfo: TKMPointArray): Boolean;
   end;
 
 
@@ -666,7 +661,7 @@ end;
 
 
 // Check window param, with current Screen object
-function TKMWindowParams.IsValid(aMonitorsInfo: TKMScreenMonitorList): Boolean;
+function TKMWindowParams.IsValid(aMonitorsInfo: TKMPointArray): Boolean;
 var I, ScreenMaxWidth, ScreenMaxHeight: Integer;
 begin
   ScreenMaxWidth := 0;
@@ -675,8 +670,8 @@ begin
   // Assume appending monitor screens left to right, so summarise width, get max of height
   for I := Low(aMonitorsInfo) to High(aMonitorsInfo) do
   begin
-    ScreenMaxWidth := ScreenMaxWidth + aMonitorsInfo[I].Width;
-    ScreenMaxHeight := max(ScreenMaxHeight, aMonitorsInfo[I].Height);
+    ScreenMaxWidth := ScreenMaxWidth + aMonitorsInfo[I].X;
+    ScreenMaxHeight := max(ScreenMaxHeight, aMonitorsInfo[I].Y);
   end;
   // Do not let put window too much left or right. 100px is enought to get it back in that case
   Result := (fLeft > -fWidth + 100)

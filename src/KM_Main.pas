@@ -67,7 +67,7 @@ var
 
 implementation
 uses
-  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps;
+  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps, KM_Points;
 
 const
   //Random GUID generated in Delphi by Ctrl+G
@@ -94,17 +94,16 @@ end;
 
 
 procedure TKMMain.Start;
-  function GetScreenMonitors: TKMScreenMonitorList;
+  function GetScreenMonitorsInfo: TKMPointArray;
   var I: Integer;
   begin
     SetLength(Result, Screen.MonitorCount);
     for I := 0 to Screen.MonitorCount-1 do
     begin
-      Result[I].Width := Screen.Monitors[I].Width;
-      Result[I].Height := Screen.Monitors[I].Height;
+      Result[I].X := Screen.Monitors[I].Width;
+      Result[I].Y := Screen.Monitors[I].Height;
     end;
   end;
-
 begin
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
   Randomize;
@@ -141,7 +140,7 @@ begin
   fFormMain.ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
 
   // Check INI window params, if not valid - set NeedResetToDefaults flag for future update
-  if not fMainSettings.WindowParams.IsValid(GetScreenMonitors) then
+  if not fMainSettings.WindowParams.IsValid(GetScreenMonitorsInfo) then
      fMainSettings.WindowParams.NeedResetToDefaults := True;
 
   ReinitRender(False);
