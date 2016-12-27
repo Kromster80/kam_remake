@@ -915,21 +915,21 @@
 963:Map Editor Keys
 964:Eyedropper
 965:Use this tool to select the type of tile under the cursor
-966:Cancel
-967:Select Group 11
-968:Select Group 12
-969:Select Group 13
-970:Select Group 14
-971:Select Group 15
-972:Select Group 16
-973:Select Group 17
-974:Select Group 18
-975:Select Group 19
-976:Select Group 20
-977:Construct road
-978:Plough field
-979:Lay out wine field
-980:Remove building/highlights
-981:Clear key
-982:Select next house/unit with same type
-983:Debug window
+989:Cancel
+990:Select Group 11
+991:Select Group 12
+992:Select Group 13
+993:Select Group 14
+994:Select Group 15
+995:Select Group 16
+996:Select Group 17
+997:Select Group 18
+998:Select Group 19
+999:Select Group 20
+1000:Construct road
+1001:Plough field
+1002:Lay out wine field
+1003:Remove building/highlights
+1004:Clear key
+1005:Select next house/unit with same type
+1006:Debug window
