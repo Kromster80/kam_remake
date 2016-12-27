@@ -6,7 +6,7 @@ uses
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResTexts;
 
 type
-  TKMFuncArea = (faCommon, faGame, faMapEdit);
+  TKMFuncArea = (faCommon, faGame, faMapEdit, faSpecReplay);
 
 const
   // There are total of 73 different functions in the game that can have a shortcut
@@ -74,8 +74,8 @@ const
     TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN,    // Scroll Left, Right, Up, Down
     TX_KEY_FUNC_ZOOM_IN, TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET,                                    // Zoom In/Out/Reset
     TX_KEY_FUNC_CLOSE_MENU,                                                                               // Close opened menu
-    TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/field/wine/erase plan(building)
-    TX_KEY_FUNC_DBG_WINDOW,                                                                               // Debug window
+    'Construct road', 'Plough field', 'Lay out wine field', 'Remove building/highlights', //Todo translate (mb reuse TX_BUILD_ROAD etc) // Plan road/field/wine/erase plan(building)
+    'Debug window',                                                   //Todo translate (means F11 window) // Debug window
     TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,          // Debug (Show Map, Victory, Defeat, Add Scout)
     TX_KEY_FUNC_MENU_BUILD, TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN,        // Game menus (F1-F4)
     TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT, TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM,         // Army commands
@@ -83,11 +83,11 @@ const
     TX_KEY_FUNC_GAME_SPEED_1,TX_KEY_FUNC_GAME_SPEED_2,TX_KEY_FUNC_GAME_SPEED_3,TX_KEY_FUNC_GAME_SPEED_4,  // Speed ups
     TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS,                                        // Beacon/Pause/Show team in MP
     TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,                         // Center to alert/Delete message/Show chat
-    TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE,                                                               // Select next building/unit/group with same type
+    'Select next house/unit with same type ',                                           //Todo translate  // Select next building/unit/group with same type
     TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3, TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5,   // Dynamic selection groups 1-5
     TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8, TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10,  // Dynamic selection groups 6-10
-    TX_KEY_FUNC_SELECT_11,TX_KEY_FUNC_SELECT_12,TX_KEY_FUNC_SELECT_13,TX_KEY_FUNC_SELECT_14,TX_KEY_FUNC_SELECT_15,  // Dynamic selection groups 11-15
-    TX_KEY_FUNC_SELECT_16,TX_KEY_FUNC_SELECT_17,TX_KEY_FUNC_SELECT_18,TX_KEY_FUNC_SELECT_19,TX_KEY_FUNC_SELECT_20,  // Dynamic selection groups 16-20
+    'Select group 11', 'Select group 12', 'Select group 13', 'Select group 14', 'Select group 15', //Todo translate // Dynamic selection groups 11-15
+    'Select group 16', 'Select group 17', 'Select group 18', 'Select group 19', 'Select group 20', //Todo translate // Dynamic selection groups 16-20
     TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN,         // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN,  // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2, TX_KEY_FUNC_MAPEDIT_SUBMENU_3,          // Map Editor sub-menus
