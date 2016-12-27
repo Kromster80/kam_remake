@@ -284,7 +284,7 @@ TX_RESULTS_MP_BUILDINGS_CONSTRUCTED = 261; //Buildings|constructed
 TX_RESULTS_MP_BUILDINGS_LOST = 262; //Buildings|lost
 TX_RESULTS_MP_BUILDINGS_DESTROYED = 263; //Buildings|destroyed
 TX_RESULTS_MP_WARES_PRODUCED = 264; //Wares|produced
-TX_RESULTS_MP_WEAPONS_PRODUCED = 265; //Weapons|produced
+TX_RESULTS_MP_WEAPONS_PRODUCED = 265; //Warfare /|weapons|produced
 
 TX_GRAPH_ARMY = 266; //Army
 TX_GRAPH_CITIZENS = 267; //Citizens
