@@ -227,7 +227,7 @@ begin
 
       TKMLabel.Create(PopUp_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
 
-      Button_OptionsKeysClear := TKMButton.Create(PopUp_OptionsKeys, 470, 515, 200, 30, 'Clear key', bsMenu); //Todo translate
+      Button_OptionsKeysClear := TKMButton.Create(PopUp_OptionsKeys, 470, 515, 200, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
       Button_OptionsKeysClear.OnClick := KeysClick;
 
       Button_OptionsKeysReset := TKMButton.Create(PopUp_OptionsKeys, 30, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
@@ -236,7 +236,7 @@ begin
       Button_OptionsKeysOK := TKMButton.Create(PopUp_OptionsKeys, 250, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
       Button_OptionsKeysOK.OnClick := KeysClick;
 
-      Button_OptionsKeysCancel := TKMButton.Create(PopUp_OptionsKeys, 470, 550, 200, 30, 'Cancel', bsMenu); //Todo translate
+      Button_OptionsKeysCancel := TKMButton.Create(PopUp_OptionsKeys, 470, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
       Button_OptionsKeysCancel.OnClick := KeysClick;
 end;
 
