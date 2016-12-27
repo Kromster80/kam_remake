@@ -59,15 +59,23 @@
 58:0// Select Group 18
 59:0// Select Group 19
 60:0// Select Group 20
-61:13// Extra's Menu
-62:112// Terrain Editor
-63:113// Village Planning
-64:114// Visual Scripting
-65:115// Global Scripting
-66:116// Main Menu
-67:49// Sub-menu 1
-68:50// Sub-menu 2
-69:51// Sub-menu 3
-70:52// Sub-menu 4
-71:53// Sub-menu 5
-72:54// Sub-menu 6
+61:0// Spectate player 1
+62:0// Spectate player 2
+63:0// Spectate player 3
+64:0// Spectate player 4
+65:0// Spectate player 5
+66:0// Spectate player 6
+67:0// Spectate player 7
+68:0// Spectate player 8
+69:13// Extra's Menu
+70:112// Terrain Editor
+71:113// Village Planning
+72:114// Visual Scripting
+73:115// Global Scripting
+74:116// Main Menu
+75:49// Sub-menu 1
+76:50// Sub-menu 2
+77:51// Sub-menu 3
+78:52// Sub-menu 4
+79:53// Sub-menu 5
+80:54// Sub-menu 6

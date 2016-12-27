@@ -2635,6 +2635,7 @@ procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 var
   LastAlert: TKMAlert;
   SelectId: Integer;
+  SpecPlayerIndex: ShortInt;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2653,6 +2654,37 @@ begin
       ReplayClick(Button_ReplayPause)
     else if Button_ReplayResume.Enabled then
       ReplayClick(Button_ReplayResume);
+  end;
+
+  // First check if this key was associated with some Spectate/Replay key
+  if (fUIMode in [umReplay, umSpectate]) then
+  begin
+    if Key = gResKeys[SC_SPECTATE_PLAYER_1].Key then
+      SpecPlayerIndex := 1
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_2].Key then
+      SpecPlayerIndex := 2
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_3].Key then
+      SpecPlayerIndex := 3
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_4].Key then
+      SpecPlayerIndex := 4
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_5].Key then
+      SpecPlayerIndex := 5
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_6].Key then
+      SpecPlayerIndex := 6
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_7].Key then
+      SpecPlayerIndex := 7
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_8].Key then
+      SpecPlayerIndex := 8
+    else
+      SpecPlayerIndex := -1;
+
+    if (SpecPlayerIndex <> -1) and (Dropbox_ReplayFOW.Count >= SpecPlayerIndex) then
+    begin
+      Dropbox_ReplayFOW.ItemIndex := SpecPlayerIndex - 1;
+      ReplayClick(Dropbox_ReplayFOW);
+      // 'Spec/replay' type button was clicked, so we have to Exit here, because it could override 'Game' type button
+      Exit;
+    end;
   end;
 
   // These keys are allowed during replays

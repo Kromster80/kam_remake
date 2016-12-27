@@ -503,7 +503,7 @@ end;
 
 procedure TKMMenuOptions.KeysRefreshList;
 const
-  KEY_TX: array [TKMFuncArea] of Word = (TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_MAPEDIT);
+  KEY_TX: array [TKMFuncArea] of Word = (TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_SPECTATE_REPLAY, TX_KEY_MAPEDIT);
 var
   I, prevI: Integer;
   K: TKMFuncArea;

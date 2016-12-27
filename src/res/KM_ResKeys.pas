@@ -6,11 +6,11 @@ uses
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResTexts;
 
 type
-  TKMFuncArea = (faCommon, faGame, faMapEdit);
+  TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);
 
 const
-  // There are total of 73 different functions in the game that can have a shortcut
-  FUNC_COUNT = 73;
+  // There are total of 81 different functions in the game that can have a shortcut
+  FUNC_COUNT = 81;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -65,6 +65,7 @@ const
     0,                                      // Select next building/unit/group with same type
     49, 50, 51, 52, 53, 54, 55, 56, 57, 48, // Dynamic selection groups 1-10
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,           // Dynamic selection groups 11-20
+    0, 0, 0, 0, 0, 0, 0, 0,                 // Spectator/Replay player switch
     13, 112, 113, 114, 115, 116,            // Map Editor menus
     49, 50, 51, 52, 53, 54                  // Map Editor sub-menus
   );
@@ -88,6 +89,8 @@ const
     TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8, TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10,  // Dynamic selection groups 6-10
     TX_KEY_FUNC_SELECT_11,TX_KEY_FUNC_SELECT_12,TX_KEY_FUNC_SELECT_13,TX_KEY_FUNC_SELECT_14,TX_KEY_FUNC_SELECT_15,  // Dynamic selection groups 11-15
     TX_KEY_FUNC_SELECT_16,TX_KEY_FUNC_SELECT_17,TX_KEY_FUNC_SELECT_18,TX_KEY_FUNC_SELECT_19,TX_KEY_FUNC_SELECT_20,  // Dynamic selection groups 16-20
+    TX_KEY_FUNC_SPECTATE_PLAYER_1, TX_KEY_FUNC_SPECTATE_PLAYER_2, TX_KEY_FUNC_SPECTATE_PLAYER_3, TX_KEY_FUNC_SPECTATE_PLAYER_4, // Spectator/Replay player switch
+    TX_KEY_FUNC_SPECTATE_PLAYER_5, TX_KEY_FUNC_SPECTATE_PLAYER_6, TX_KEY_FUNC_SPECTATE_PLAYER_7, TX_KEY_FUNC_SPECTATE_PLAYER_8, // Spectator/Replay player switch
     TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN,         // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN,  // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2, TX_KEY_FUNC_MAPEDIT_SUBMENU_3,          // Map Editor sub-menus
@@ -110,8 +113,9 @@ begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     case I of
-      0..15:  fFuncs[I].Area := faCommon;
-      16..59: fFuncs[I].Area := faGame;
+      0..16:  fFuncs[I].Area := faCommon;
+      17..60: fFuncs[I].Area := faGame;
+      61..68: fFuncs[I].Area := faSpecReplay;
       else    fFuncs[I].Area := faMapEdit;
     end;
 
@@ -346,11 +350,13 @@ begin
     for I := 0 to FUNC_COUNT - 1 do
       if fFuncs[I].Key = aKey then
         case fFuncs[I].Area of
-          faCommon:   fFuncs[I].Key := 0;
-          faGame:     if (fFuncs[aId].Area in [faGame, faCommon]) then
-                        fFuncs[I].Key := 0;
-          faMapEdit:  if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
-                        fFuncs[I].Key := 0;
+          faCommon:     fFuncs[I].Key := 0;
+          faGame:       if (fFuncs[aId].Area in [faGame, faCommon]) then
+                          fFuncs[I].Key := 0;
+          faSpecReplay: if (fFuncs[aId].Area in [faSpecReplay, faCommon]) then
+                          fFuncs[I].Key := 0;
+          faMapEdit:    if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
+                          fFuncs[I].Key := 0;
         end;
 
   fFuncs[aId].Key := aKey;
