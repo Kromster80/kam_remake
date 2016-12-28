@@ -109,6 +109,7 @@ type
     procedure SetAbsTop(aValue: Integer);
     procedure SetTopF(aValue: Single);
     procedure SetLeftF(aValue: Single);
+    function GetControlRect: TKMRect;
   protected
     procedure SetLeft(aValue: Integer); virtual;
     procedure SetTop(aValue: Integer); virtual;
@@ -135,6 +136,7 @@ type
     property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+    property Rect: TKMRect read GetControlRect;
     property Anchors: TKMAnchorsSet read fAnchors write SetAnchors;
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
@@ -1451,6 +1453,13 @@ begin
   //Assign actual FP value
   fLeft := aValue;
 end;
+
+
+function TKMControl.GetControlRect: TKMRect;
+begin
+  Result := KMRect(Left, Top, Left + Width, Top + Height);
+end;
+
 
 //Overriden in child classes
 procedure TKMControl.SetHeight(aValue: Integer);
