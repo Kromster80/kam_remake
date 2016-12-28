@@ -849,6 +849,7 @@ type
     fButton: TKMButton;
     fShape: TKMShape;
     fOnChange: TNotifyEvent;
+    fAutoClose: Boolean;
     procedure UpdateDropPosition; virtual; abstract;
     procedure ButtonClick(Sender: TObject);
     procedure ListShow(Sender: TObject); virtual;
@@ -864,7 +865,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
 
     procedure Clear; virtual; abstract;
     function Count: Integer; virtual; abstract;
@@ -898,7 +899,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85);
     procedure Clear; override;
     function Count: Integer; override;
     procedure Add(aItem: UnicodeString; aTag: Integer=0);
@@ -4390,7 +4391,7 @@ end;
 
 
 { TKMDropCommon }
-constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
+constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
 var
   P: TKMPanel;
 begin
@@ -4408,6 +4409,8 @@ begin
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
   fShape.AnchorsStretch;
   fShape.fOnClick := ListHide;
+
+  fAutoClose := aAutoClose;
 end;
 
 
@@ -4426,7 +4429,7 @@ begin
     Exit;
   end;
 
-  if Count > 0 then
+  if fAutoClose and (Count > 0) then
     fShape.Show;
 end;
 
@@ -4434,7 +4437,13 @@ end;
 procedure TKMDropCommon.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   //It's common behavior when click on dropbox will show the list
-  ListShow(Self);
+  if fAutoClose then
+    ListShow(Self)
+  else
+    if not ListVisible then
+      ListShow(Self)
+    else
+      ListHide(Self);
 
   inherited;
 end;
@@ -4443,7 +4452,7 @@ end;
 procedure TKMDropCommon.ListClick(Sender: TObject);
 begin
   //No need to call fOnChange here since ListChange was already called
-  ListHide(nil);
+  if fAutoClose then ListHide(nil);
 end;
 
 
@@ -4497,10 +4506,10 @@ end;
 
 
 { TKMDropList }
-constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
+constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85);
 var P: TKMPanel;
 begin
-  inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle, aAutoClose);
 
   fDefaultCaption := aDefaultCaption;
 
@@ -4510,7 +4519,7 @@ begin
   fList := TKMListBox.Create(P, AbsLeft-P.AbsLeft, AbsTop+aHeight-P.AbsTop, aWidth, 0, fFont, aStyle);
   fList.Height := fList.ItemHeight * fDropCount;
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
-  fList.BackAlpha := 0.85;
+  fList.BackAlpha := aBackAlpha;
   fList.fOnClick := ListClick;
   fList.fOnChange := ListChange;
 
