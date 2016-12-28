@@ -80,6 +80,7 @@ type
       Button_Barracks: array [1..BARRACKS_RES_COUNT] of TKMButtonFlat;
       Image_Barracks_Accept: array [1..BARRACKS_RES_COUNT] of TKMImage;
       Button_BarracksRecruit: TKMButtonFlat;
+      Image_Barracks_AcceptRecruit: TKMImage;
       Label_Barracks_Unit: TKMLabel;
       Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left: TKMImage;
       Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left: TKMButton;
@@ -357,10 +358,11 @@ begin
     Button_BarracksRecruit.TexOffsetX := 1;
     Button_BarracksRecruit.TexOffsetY := 1;
     Button_BarracksRecruit.CapOffsetY := 2;
-    Button_BarracksRecruit.HideHighlight := True;
-    Button_BarracksRecruit.Clickable := False;
     Button_BarracksRecruit.TexID := gRes.UnitDat[ut_Recruit].GUIIcon;
     Button_BarracksRecruit.Hint := gRes.UnitDat[ut_Recruit].GUIName;
+    Button_BarracksRecruit.OnClick := House_BarracksAcceptFlag;
+    Image_Barracks_AcceptRecruit := TKMImage.Create(Panel_HouseBarracks, dX+16, dY, 12, 12, 49);
+    Image_Barracks_AcceptRecruit.Hitable := False;
 
     Label_Barracks_Unit := TKMLabel.Create(Panel_HouseBarracks, 0, 96, TB_WIDTH, 0, '', fnt_Outline, taCenter);
 
@@ -825,6 +827,7 @@ begin
   Tmp := Barracks.RecruitsCount;
   Button_BarracksRecruit.Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
   Button_BarracksRecruit.Down := True; //Recruit is always enabled, all troops require one
+  Image_Barracks_AcceptRecruit.Visible := Barracks.NotAcceptRecruitFlag;
 
 
   if (Sender=Button_Barracks_Left) and (ssRight in Shift) then fLastBarracksUnit := 0;
@@ -971,7 +974,10 @@ procedure TKMGUIGameHouse.House_BarracksAcceptFlag(Sender: TObject);
 begin
   if gMySpectator.Selected = nil then Exit;
   if not (gMySpectator.Selected is TKMHouseBarracks) then Exit;
-  gGame.GameInputProcess.CmdHouse(gic_HouseBarracksAcceptFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
+  if Sender <> Button_BarracksRecruit then
+    gGame.GameInputProcess.CmdHouse(gic_HouseBarracksAcceptFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag])
+  else
+    gGame.GameInputProcess.CmdHouse(gic_HouseBarracksAcceptRecruitsToggle, TKMHouse(gMySpectator.Selected));
 end;
 
 
