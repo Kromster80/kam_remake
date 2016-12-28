@@ -72,6 +72,7 @@ type
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck: Boolean;
+    ReplayRealGameSpeed: Boolean;
 
     ///	<param name="aRender">
     ///	  Pointer to Render class, that will execute our rendering requests
@@ -98,6 +99,7 @@ type
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
     procedure ShowScriptError(const aMsg: UnicodeString);
+    procedure UpdateGameSpeed(aToggle: Boolean = False);
 
     procedure AutoSave(aTimestamp: TDateTime);
     procedure SaveMapEditor(const aPathName: UnicodeString);
@@ -230,6 +232,8 @@ begin
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
   fScripting := TKMScripting.Create(ShowScriptError);
+
+  ReplayRealGameSpeed := False;
 
   case PathFinderToUse of
     0:    fPathfinding := TPathfindingAStarOld.Create;
@@ -471,6 +475,15 @@ begin
 end;
 
 
+procedure TKMGame.UpdateGameSpeed(aToggle: Boolean = False);
+begin
+  if IsPeaceTime then
+    SetGameSpeed(fGameOptions.SpeedPT, aToggle)
+  else
+    SetGameSpeed(fGameOptions.SpeedAfterPT, aToggle);
+end;
+
+
 //All setup data gets taken from fNetworking class
 procedure TKMGame.MultiplayerRig;
 var
@@ -482,10 +495,7 @@ begin
   fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
-  if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT, False)
-  else
-    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+  UpdateGameSpeed;
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -1077,6 +1087,8 @@ begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
       fNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], csNone);
     end;
+    if (fGameMode = gmReplayMulti) and ReplayRealGameSpeed then
+      SetGameSpeed(fGameOptions.SpeedAfterPT, False);
   end;
 end;
 

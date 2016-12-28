@@ -970,3 +970,4 @@ TX_KEY_FUNC_SPECTATE_PLAYER_6 = 1012; //Spectate player 6
 TX_KEY_FUNC_SPECTATE_PLAYER_7 = 1013; //Spectate player 7
 TX_KEY_FUNC_SPECTATE_PLAYER_8 = 1014; //Spectate player 8
 TX_KEY_SPECTATE_REPLAY = 1015; //Spectate/Replay Keys
+TX_KEY_FUNC_REAL_GAME_SPEED = 1016; //Game speed as it was in game

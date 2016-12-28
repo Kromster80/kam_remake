@@ -2636,6 +2636,7 @@ var
   LastAlert: TKMAlert;
   SelectId: Integer;
   SpecPlayerIndex: ShortInt;
+  ReplayKeyPressed: Boolean;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2659,6 +2660,7 @@ begin
   // First check if this key was associated with some Spectate/Replay key
   if (fUIMode in [umReplay, umSpectate]) then
   begin
+    ReplayKeyPressed := False;
     if Key = gResKeys[SC_SPECTATE_PLAYER_1].Key then
       SpecPlayerIndex := 1
     else if Key = gResKeys[SC_SPECTATE_PLAYER_2].Key then
@@ -2682,9 +2684,19 @@ begin
     begin
       Dropbox_ReplayFOW.ItemIndex := SpecPlayerIndex - 1;
       ReplayClick(Dropbox_ReplayFOW);
+      ReplayKeyPressed := True;
+    end;
+
+    if (gGame.GameMode = gmReplayMulti) and (Key = gResKeys[SC_REAL_GAME_SPEED].Key) then
+    begin
+      gGame.UpdateGameSpeed(True);
+      gGame.ReplayRealGameSpeed := not gGame.ReplayRealGameSpeed;
+      ReplayKeyPressed := True;
+    end;
+
+    if ReplayKeyPressed then
       // 'Spec/replay' type button was clicked, so we have to Exit here, because it could override 'Game' type button
       Exit;
-    end;
   end;
 
   // These keys are allowed during replays
