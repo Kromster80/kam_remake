@@ -406,13 +406,25 @@ type
   private
     fFont: TKMFont;
     fText: UnicodeString;
+    fSelectionStart: Integer;
+    fSelectionEnd: Integer;
+    fSelectionInitialCursorPos: Integer;
     fAllowedChars: TAllowedChars;
     fCursorPos: Integer;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
+    fSelectable: Boolean;
     procedure SetCursorPos(aPos: Integer);
     procedure SetText(aText: UnicodeString);
+    function IsCharValid(aChar: WideChar): Boolean;
     procedure ValidateText;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
+    function GetCursorPosAt(X: Integer): Integer;
+    procedure ResetSelection;
+    function HasSelection: Boolean;
+    function GetSelectedText: UnicodeString;
+    procedure SetSelectionStart(aValue: Integer);
+    procedure SetSelectionEnd(aValue: Integer);
+    procedure DeleteSelectedText;
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
@@ -422,16 +434,21 @@ type
     OutlineColor: Cardinal;
     OnChange: TNotifyEvent;
     OnKeyDown: TNotifyEventKey;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
 
     property AllowedChars: TAllowedChars read fAllowedChars write fAllowedChars;
     property CursorPos: Integer read fCursorPos write SetCursorPos;
+    property SelectionStart: Integer read fSelectionStart write SetSelectionStart;
+    property SelectionEnd: Integer read fSelectionEnd write SetSelectionEnd;
     property Text: UnicodeString read fText write SetText;
+    property Selectable: Boolean read fSelectable write fSelectable;
 
     function HitTest(X,Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
     function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
@@ -2274,7 +2291,7 @@ end;
 
 
 { TKMEdit }
-constructor TKMEdit.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
+constructor TKMEdit.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fFont := aFont;
@@ -2284,6 +2301,7 @@ begin
 
   //Text input fields are focusable by concept
   Focusable := True;
+  fSelectable := aSelectable;
 end;
 
 
@@ -2316,6 +2334,20 @@ begin
 end;
 
 
+procedure TKMEdit.SetSelectionStart(aValue: Integer);
+begin
+  if fSelectable then
+    fSelectionStart := EnsureRange(aValue, 0, Length(fText));
+end;
+
+
+procedure TKMEdit.SetSelectionEnd(aValue: Integer);
+begin
+  if fSelectable then
+    fSelectionEnd := EnsureRange(aValue, 0, Length(fText));
+end;
+
+
 procedure TKMEdit.SetText(aText: UnicodeString);
 begin
   fText := aText;
@@ -2327,23 +2359,27 @@ begin
 end;
 
 
-//Validates fText basing on predefined sets of allowed or disallowed chars
-//It iterates from end to start of a string - deletes chars and moves cursor appropriately
-procedure TKMEdit.ValidateText;
-var
-  I: Integer;
+function TKMEdit.IsCharValid(aChar: WideChar): Boolean;
 const
   NonFileChars: TSetOfAnsiChar = [#0 .. #31, '<', '>', #176, '|', '"', '\', '/', ':', '*', '?'];
   NonTextChars: TSetOfAnsiChar = [#0 .. #31, #176, '|']; //° has negative width so acts like a backspace in KaM fonts
 begin
-  //Parse whole text incase user placed it from clipboard
+  Result := not ((fAllowedChars = acDigits) and not InRange(Ord(aChar), 48, 57)
+    or (fAllowedChars = acANSI7) and not InRange(Ord(aChar), 32, 126)
+    or (fAllowedChars = acFileName) and CharInSet(aChar, NonFileChars)
+    or (fAllowedChars = acText) and CharInSet(aChar, NonTextChars));
+end;
 
+
+//Validates fText basing on predefined sets of allowed or disallowed chars
+//It iterates from end to start of a string - deletes chars and moves cursor appropriately
+procedure TKMEdit.ValidateText;
+var I: Integer;
+begin
+  //Parse whole text incase user placed it from clipboard
   //Validate contents
   for I := Length(fText) downto 1 do
-  if (fAllowedChars = acDigits) and not InRange(Ord(fText[I]), 48, 57)
-  or (fAllowedChars = acANSI7) and not InRange(Ord(fText[I]), 32, 126)
-  or (fAllowedChars = acFileName) and CharInSet(fText[I], NonFileChars)
-  or (fAllowedChars = acText) and CharInSet(fText[I], NonTextChars) then
+  if not IsCharValid(fText[I]) then
   begin
     Delete(fText, I, 1);
     if CursorPos >= I then //Keep cursor in place
@@ -2381,6 +2417,15 @@ begin
 end;
 
 
+procedure TKMEdit.DeleteSelectedText;
+begin
+  Delete(fText, fSelectionStart+1, fSelectionEnd-fSelectionStart);
+  if CursorPos = fSelectionEnd then
+    CursorPos := CursorPos - (fSelectionEnd-fSelectionStart);
+  ResetSelection;
+end;
+
+
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
@@ -2388,29 +2433,103 @@ begin
 
   //Clipboard operations
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
-  begin
     case Key of
-      Ord('C'): Clipboard.AsText := fText;
-      Ord('X'): begin
-                  Clipboard.AsText := fText;
-                  Text := '';
+      Ord('C'): if HasSelection then
+                  Clipboard.AsText := GetSelectedText;
+      Ord('X'): if HasSelection then
+                begin
+                  Clipboard.AsText := GetSelectedText;
+                  DeleteSelectedText;
                 end;
       Ord('V'): begin
-                  Insert(Clipboard.AsText, fText, CursorPos + 1);
-                  ValidateText;
-                  CursorPos := CursorPos + Length(Clipboard.AsText);
+                  if HasSelection then
+                  begin
+                    Delete(fText, fSelectionStart+1, fSelectionEnd-fSelectionStart);
+                    Insert(Clipboard.AsText, fText, fSelectionStart + 1);
+                    ValidateText;
+                    if CursorPos = fSelectionStart then
+                      CursorPos := CursorPos + Length(Clipboard.AsText)
+                    else if CursorPos = fSelectionEnd then
+                      CursorPos := CursorPos + Length(Clipboard.AsText) - (fSelectionEnd-fSelectionStart);
+                    ResetSelection;
+                  end else begin
+                    Insert(Clipboard.AsText, fText, CursorPos + 1);
+                    ValidateText;
+                    CursorPos := CursorPos + Length(Clipboard.AsText);
+                  end;
                 end;
     end;
-  end;
 
   case Key of
-    VK_BACK:    begin Delete(fText, CursorPos, 1); CursorPos := CursorPos-1; end;
-    VK_DELETE:  Delete(fText, CursorPos+1, 1);
-    VK_LEFT:    CursorPos := CursorPos-1;
-    VK_RIGHT:   CursorPos := CursorPos+1;
-    VK_HOME:    CursorPos := 0;
-    VK_END:     CursorPos := Length(fText);
+    VK_BACK:    if HasSelection then
+                  DeleteSelectedText
+                else begin
+                  Delete(fText, CursorPos, 1);
+                  CursorPos := CursorPos-1;
+                end;
+    VK_DELETE:  if HasSelection then
+                  DeleteSelectedText
+                else
+                  Delete(fText, CursorPos+1, 1);
   end;
+
+  if (Shift = [ssShift]) and (Key <> VK_SHIFT) then
+    case Key of
+      VK_LEFT:    begin
+                    if HasSelection then
+                    begin
+                      if CursorPos = SelectionStart then
+                        SelectionStart := SelectionStart-1
+                      else if CursorPos = SelectionEnd then
+                        SelectionEnd := SelectionEnd-1;
+                    end else begin
+                      SelectionStart := CursorPos-1;
+                      SelectionEnd := CursorPos;
+                    end;
+                    CursorPos := CursorPos-1;
+                  end;
+      VK_RIGHT:   begin
+                    if HasSelection then
+                    begin
+                      if CursorPos = SelectionStart then
+                        SelectionStart := SelectionStart+1
+                      else if CursorPos = SelectionEnd then
+                        SelectionEnd := SelectionEnd+1;
+                    end else begin
+                      SelectionStart := CursorPos;
+                      SelectionEnd := CursorPos+1;
+                    end;
+                    CursorPos := CursorPos+1;
+                  end;
+      VK_HOME:    begin
+                    if HasSelection then
+                    begin
+                      if SelectionEnd = CursorPos then
+                        SelectionEnd := SelectionStart;
+                    end else
+                      SelectionEnd := CursorPos;
+                    SelectionStart := 0;
+                    CursorPos := 0;
+                  end;
+      VK_END:     begin
+                    if HasSelection then
+                    begin
+                      if SelectionStart = CursorPos then
+                        SelectionStart := SelectionEnd;
+                    end else
+                      SelectionStart := CursorPos;
+                    SelectionEnd := Length(fText);
+                    CursorPos := Length(fText);
+                  end;
+    end
+  else
+    case Key of
+      VK_LEFT:    begin CursorPos := CursorPos-1; ResetSelection; end;
+      VK_RIGHT:   begin CursorPos := CursorPos+1; ResetSelection; end;
+      VK_HOME:    begin CursorPos := 0; ResetSelection; end;
+      VK_END:     begin CursorPos := Length(fText); ResetSelection; end;
+    end;
+
 
   if Assigned(OnKeyDown) then OnKeyDown(Self, Key);
 end;
@@ -2419,7 +2538,12 @@ end;
 procedure TKMEdit.KeyPress(Key: Char);
 begin
   if ReadOnly then Exit;
-  if Length(fText) >= MaxLen then Exit;
+
+  if HasSelection and IsCharValid(Key) then
+  begin
+    DeleteSelectedText;
+  end
+  else if Length(fText) >= MaxLen then Exit;
 
   Insert(Key, fText, CursorPos + 1);
   CursorPos := CursorPos + 1; //Before ValidateText so it moves the cursor back if the new char was invalid
@@ -2436,19 +2560,84 @@ begin
 end;
 
 
+function TKMEdit.GetSelectedText: UnicodeString;
+begin
+  Result := '';
+  if HasSelection then
+    Result := Copy(fText, fSelectionStart+1, fSelectionEnd - fSelectionStart);
+end;
+
+
+function TKMEdit.HasSelection: Boolean;
+begin
+  Result := (fSelectionStart <> -1) and (fSelectionEnd <> -1) and (fSelectionStart <> fSelectionEnd);
+end;
+
+
+procedure TKMEdit.ResetSelection;
+begin
+  fSelectionStart := -1;
+  fSelectionEnd := -1;
+  fSelectionInitialCursorPos := -1;
+end;
+
+
+function TKMEdit.GetCursorPosAt(X: Integer): Integer;
+var RText: UnicodeString;
+begin
+  RText := Copy(fText, fLeftIndex+1, Length(fText) - fLeftIndex);
+  if gRes.Fonts[fFont].GetTextSize(RText).X < X-AbsLeft-4 then
+    Result := Length(RText) + fLeftIndex
+  else
+    Result := gRes.Fonts[fFont].CharsThatFit(RText, X-AbsLeft-4) + fLeftIndex;
+end;
+
+
+procedure TKMEdit.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  if ReadOnly then Exit;
+  inherited;
+  CursorPos := GetCursorPosAt(X);
+  ResetSelection;
+  fSelectionInitialCursorPos := CursorPos;
+end;
+
+
+procedure TKMEdit.MouseMove(X,Y: Integer; Shift: TShiftState);
+var CurCursorPos: Integer;
+begin
+  if ReadOnly then Exit;
+  inherited;
+  if ssLeft in Shift then
+  begin
+    CurCursorPos := GetCursorPosAt(X);
+    // To rotate line to left while selecting
+    if (X-AbsLeft-4 < 0) and (fLeftIndex > 0) then
+      CurCursorPos := CurCursorPos - 1;
+
+    if fSelectionInitialCursorPos <> -1 then
+    begin
+      SelectionStart := min(CurCursorPos, fSelectionInitialCursorPos);
+      SelectionEnd := max(CurCursorPos, fSelectionInitialCursorPos);
+    end;
+    CursorPos := CurCursorPos;
+  end;
+end;
+
+
 procedure TKMEdit.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if ReadOnly then Exit;
   inherited;
-  CursorPos := Length(fText);
+  fSelectionInitialCursorPos := -1;
 end;
 
 
 procedure TKMEdit.Paint;
 var
   Col: TColor4;
-  RText: UnicodeString;
-  OffX: Integer;
+  RText, BeforeSelectionText, SelectionText: UnicodeString;
+  OffX, BeforeSelectionW, SelectionW: Integer;
 begin
   inherited;
 
@@ -2467,6 +2656,17 @@ begin
     RText := fText;
 
   RText := Copy(RText, fLeftIndex+1, Length(RText)); //Remove characters to the left of fLeftIndex
+
+  if HasSelection then
+  begin
+    BeforeSelectionText := Copy(fText, fLeftIndex+1, max(fSelectionStart, fLeftIndex) - fLeftIndex);
+    SelectionText := Copy(fText, max(fSelectionStart, fLeftIndex)+1, fSelectionEnd - max(fSelectionStart, fLeftIndex));
+
+    BeforeSelectionW := gRes.Fonts[fFont].GetTextSize(BeforeSelectionText).X;
+    SelectionW := gRes.Fonts[fFont].GetTextSize(SelectionText).X;
+
+    TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, AbsTop+3, min(SelectionW, Width-8), Height-6, icSteelBlue);
+  end;
 
   TKMRenderUI.WriteText(AbsLeft+4, AbsTop+3, Width-8, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
 
