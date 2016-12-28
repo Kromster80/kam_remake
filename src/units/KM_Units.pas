@@ -190,10 +190,18 @@ type
     procedure Paint; virtual;
   end;
 
-  //This is a common class for units going out of their homes for resources
-  TKMUnitCitizen = class(TKMUnit)
+
+  TKMSettledUnit = class(TKMUnit)
   private
+    procedure CleanHousePointer(aFreeAndNilTask: Boolean = False);
+  protected
     function FindHome: Boolean;
+    procedure ProceedHouseClosedForWorker;
+  end;
+
+  //This is a common class for all units, who can work in house
+  TKMUnitCitizen = class(TKMSettledUnit)
+  private
     function InitiateMining: TUnitTask;
     procedure IssueResourceDepletedMessage;
   public
@@ -204,9 +212,8 @@ type
   end;
 
 
-  TKMUnitRecruit = class(TKMUnit)
+  TKMUnitRecruit = class(TKMSettledUnit)
   private
-    function FindHome: Boolean;
     function InitiateActivity: TUnitTask;
   public
     function UpdateState: Boolean; override;
@@ -291,9 +298,9 @@ uses
   KM_UnitTaskThrowRock;
 
 
-{ TKMUnitCitizen }
-//Find home for unit
-function TKMUnitCitizen.FindHome: Boolean;
+{ TKMSettledUnit }
+//Find home for settled unit
+function TKMSettledUnit.FindHome: Boolean;
 var H: TKMHouse;
 begin
   Result:=false;
@@ -306,6 +313,82 @@ begin
 end;
 
 
+procedure TKMSettledUnit.CleanHousePointer(aFreeAndNilTask: Boolean = False);
+begin
+  if aFreeAndNilTask then
+    FreeAndNil(fUnitTask);
+  fHome.GetHasOwner := False;
+  gHands.CleanUpHousePointer(fHome);
+end;
+
+// Manage house is closed for worker process
+procedure TKMSettledUnit.ProceedHouseClosedForWorker;
+var
+  wGoingInsideHouse: Boolean;
+  wThrowingRock: Boolean;
+  wGoingForEating: Boolean;
+  wWentOutShowHungry: Boolean;
+  wWantToGoOutShowHungry: Boolean;
+  wWalkingOutside: Boolean;
+  wWorkingInsideHouse: Boolean;
+  wWorkingOutsideHouse: Boolean;
+  wHasNoTask: Boolean;
+  wIsInsideHouse: Boolean;
+begin
+  if (fHome <> nil)
+    and not fHome.IsDestroyed
+    and fHome.IsClosedForWorker
+    and not(fUnitTask is TTaskDie)then
+    begin
+      wGoingInsideHouse := (fCurrentAction is TUnitActionGoInOut) and ((TUnitActionGoInOut(fCurrentAction)).Direction = gd_GoInside);
+      // let recruits finish throwing animation
+      wThrowingRock := (fUnitTask is TTaskThrowRock) and (fHome.GetState in [hst_Work]);
+      // do not cancel eating task
+      wGoingForEating := (fUnitTask is TTaskGoEat);
+      // Assume worker is inside the house if not Visible.
+      wIsInsideHouse := not Visible;
+      // cancel GoOutShowHungry task if we outside of the house
+      wWentOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and not wIsInsideHouse;
+      // cancel GoOutShowHungry task and go out of the house, if we inside of it
+      wWantToGoOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and wIsInsideHouse;
+      // We are on the way to somewhere. AbandonWalk 'n cancel task.
+      wWalkingOutside := (fCurrentAction is TUnitActionWalkTo) and not TUnitActionWalkTo(fCurrentAction).DoingExchange;
+      // Working inside house
+      wWorkingInsideHouse := (fUnitTask is TTaskMining) and wIsInsideHouse;
+      // Working outside
+      wWorkingOutsideHouse := (fUnitTask is TTaskMining) and not wIsInsideHouse;
+      // Somehow no task
+      wHasNoTask := (fUnitTask = nil);
+      if (not wThrowingRock) then       // Let recruit finish rock throwing
+        if (wGoingForEating) then
+        begin
+          CleanHousePointer;            // Clean house pointer, do not cancel eating task
+        end else begin
+          if (wWalkingOutside) then begin
+            AbandonWalk;                // Stop walking
+            CleanHousePointer(True);    // Clean house pointer and free task
+          end else
+          if not wGoingInsideHouse and  // Let worker get into the house
+            ((wWentOutShowHungry or wWorkingOutsideHouse) // When already outside the house
+            // Not sure we need this
+            or (wHasNoTask and not wIsInsideHouse)) then  // Or has no task outside the house.
+          begin
+            CleanHousePointer(True);    // Clean house pointer and free task
+          end else
+          if (wIsInsideHouse or wWantToGoOutShowHungry) then
+          begin
+            SetActionGoIn(ua_Walk, gd_GoOutside, fHome); //Walk outside the house
+            // If working inside - first we need to set house state to Idle, then to Empty
+            fHome.SetState(hst_Idle);
+            fHome.SetState(hst_Empty);
+            CleanHousePointer(True)     // Clean house pointer and free task
+          end;
+        end;
+    end;
+end;
+
+
+{ TKMUnitCitizen }
 procedure TKMUnitCitizen.Paint;
 var
   Act: TUnitActionType;
@@ -391,6 +474,8 @@ begin
     FreeAndNil(fUnitTask);
     gHands.CleanUpHousePointer(fHome);
   end;
+
+  ProceedHouseClosedForWorker;
 
   if inherited UpdateState then exit;
   if IsDead then exit; //Caused by SelfTrain.Abandoned
@@ -518,19 +603,6 @@ end;
 
 
 { TKMUnitRecruit }
-function TKMUnitRecruit.FindHome: Boolean;
-var H: TKMHouse;
-begin
-  Result  := false;
-  H := gHands[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
-  if H <> nil then
-  begin
-    fHome  := H.GetHousePointer;
-    Result := true;
-  end;
-end;
-
-
 procedure TKMUnitRecruit.Paint;
 var
   Act: TUnitActionType;
@@ -598,6 +670,8 @@ begin
     gHands.CleanUpHousePointer(fHome);
   end;
 
+  ProceedHouseClosedForWorker;
+
   if inherited UpdateState then exit;
   if IsDead then exit; //Caused by SelfTrain.Abandoned
 
@@ -619,7 +693,7 @@ begin
         fUnitTask := TTaskGoHome.Create(Self) //Home found - go there
       else begin
         fThought := th_Quest; //Always show quest when idle, unlike serfs who randomly show it
-        SetActionStay(120, ua_Walk) //There's no home
+        SetActionStay(20, ua_Walk) //There's no home
       end
     else
       if fVisible then //Unit is not at home, but it has one

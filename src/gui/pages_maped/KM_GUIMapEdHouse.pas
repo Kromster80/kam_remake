@@ -258,6 +258,7 @@ begin
                     Panel_HouseBarracks.Show;
                     BarracksRefresh(nil);
                     //In the barrack the recruit icon is always enabled
+                    Image_House_Worker.Show;
                     Image_House_Worker.Enable;
                     Button_Barracks_Recruit.FlagColor := gHands[fHouse.Owner].FlagColor;
                     //Reselect the ware so the display is updated

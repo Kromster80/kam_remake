@@ -39,6 +39,7 @@ type
     function GetExplanation: UnicodeString; override;
     property GetHasStarted: boolean read fHasStarted;
     property GetWaitingForPush: boolean read fWaitingForPush;
+    property Direction: TGoInDirection read fDirection;
     function GetDoorwaySlide(aCheck: TCheckAxis): Single;
     function Execute: TActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;

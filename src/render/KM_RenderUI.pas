@@ -19,7 +19,7 @@ type
     class procedure SetupClipY        (Y1,Y2: SmallInt);
     class procedure ReleaseClipX;
     class procedure ReleaseClipY;
-    class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TKMButtonStateSet; aStyle: TKMButtonStyle);
+    class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TKMButtonStateSet; aStyle: TKMButtonStyle; aImageEnabled: Boolean = True);
     class procedure WriteBevel        (aLeft, aTop, aWidth, aHeight: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
     class procedure WritePercentBar   (aLeft, aTop, aWidth, aHeight: SmallInt; aPos: Single; aSeam: Single);
     class procedure WritePicture      (aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TKMAnchorsSet; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
@@ -83,7 +83,7 @@ begin
 end;
 
 
-class procedure TKMRenderUI.Write3DButton(aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TKMButtonStateSet; aStyle: TKMButtonStyle);
+class procedure TKMRenderUI.Write3DButton(aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TKMButtonStateSet; aStyle: TKMButtonStyle; aImageEnabled: Boolean = True);
 var
   Down: Byte;
   Chamfer: Byte;
@@ -160,7 +160,7 @@ begin
     if aID <> 0 then
     begin
       glColor4f(1, 1, 1, 1);
-      WritePicture(Down, Down, aWidth, aHeight, [], aRX, aID, True, aFlagColor);
+      WritePicture(Down, Down, aWidth, aHeight, [], aRX, aID, aImageEnabled, aFlagColor);
     end;
 
     //Render MouseOver highlight
