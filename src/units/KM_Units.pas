@@ -330,7 +330,6 @@ var
   wWentOutShowHungry: Boolean;
   wWantToGoOutShowHungry: Boolean;
   wWalkingOutside: Boolean;
-  wWorkingInsideHouse: Boolean;
   wWorkingOutsideHouse: Boolean;
   wHasNoTask: Boolean;
   wIsInsideHouse: Boolean;
@@ -353,8 +352,6 @@ begin
       wWantToGoOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and wIsInsideHouse;
       // We are on the way to somewhere. AbandonWalk 'n cancel task.
       wWalkingOutside := (fCurrentAction is TUnitActionWalkTo) and not TUnitActionWalkTo(fCurrentAction).DoingExchange;
-      // Working inside house
-      wWorkingInsideHouse := (fUnitTask is TTaskMining) and wIsInsideHouse;
       // Working outside
       wWorkingOutsideHouse := (fUnitTask is TTaskMining) and not wIsInsideHouse;
       // Somehow no task
