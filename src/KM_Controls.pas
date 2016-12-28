@@ -2384,9 +2384,6 @@ begin
 
   //We want these keys to be ignored by chat, so game shortcuts still work
   if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
-
-  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
-  if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
 
 
@@ -2739,10 +2736,6 @@ begin
 
   //We want these keys to be ignored by chat, so game shortcuts still work
   if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
-
-  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
-  if ssCtrl in Shift then
-    Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
 
 
