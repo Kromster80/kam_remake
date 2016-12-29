@@ -3874,16 +3874,8 @@ begin
       SetSelections(CursorPos, SelectionEnd)
     else if aPrevCursorPos = SelectionEnd then
       SetSelections(SelectionStart, CursorPos);
-  end else begin
-    if CursorPos > aPrevCursorPos then
-    begin
-      SelectionStart := aPrevCursorPos;
-      SelectionEnd := CursorPos;
-    end else begin
-      SelectionStart := CursorPos;
-      SelectionEnd := aPrevCursorPos;
-    end;
-  end;
+  end else
+    SetSelections(aPrevCursorPos, CursorPos);
 end;
 
 
@@ -6360,11 +6352,9 @@ end;
 procedure TKMMasterControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   CtrlDown := HitControl(X,Y);
+  fCtrl.ControlMouseDown(CtrlDown, Shift);
   if CtrlDown <> nil then
-  begin
-    fCtrl.ControlMouseDown(CtrlDown, Shift);
     CtrlDown.MouseDown(X, Y, Shift, Button);
-  end;
 end;
 
 
@@ -6411,11 +6401,9 @@ begin
   else
     fCtrlDown := nil;
 
+  fCtrl.ControlMouseUp(CtrlUp, Shift); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
   if CtrlUp <> nil then
-  begin
-    fCtrl.ControlMouseUp(CtrlUp, Shift); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
     CtrlUp.MouseUp(X, Y, Shift, Button);
-  end;
 
   //Do not place any code here, we could have Exited in OnClick event
 end;
