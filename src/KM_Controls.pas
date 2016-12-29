@@ -94,7 +94,8 @@ type
     fOnDoubleClick: TNotifyEvent;
     fOnMouseWheel: TNotifyEventMW;
     fOnFocus: TNotifyEventFocus;
-    //fOnMouseOver: TNotifyEvent;
+    fOnControlMouseDown: TNotifyEventShift;
+    fOnControlMouseUp: TNotifyEventShift;
 
     function GetAbsLeft: Integer;
     function GetAbsTop: Integer;
@@ -161,8 +162,9 @@ type
     property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
-    //property OnMouseOver: TNotifyEvent write fOnMouseOver;
     property OnFocus: TNotifyEventFocus read fOnFocus write fOnFocus;
+    property OnControlMouseDown: TNotifyEventShift read fOnControlMouseDown write fOnControlMouseDown;
+    property OnControlMouseUp: TNotifyEventShift read fOnControlMouseUp write fOnControlMouseUp;
 
     procedure Paint; virtual;
   end;
@@ -177,6 +179,8 @@ type
     //e.g. scrollbar on a listbox
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
+    procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
   public
     ChildCount: Word;
     Childs: array of TKMControl;
@@ -454,6 +458,7 @@ type
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
     procedure Focus(aFocused: Boolean);
     procedure Paint; override;
   end;
@@ -1005,6 +1010,7 @@ type
     fScrollDown: Boolean;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
+    fCursorPos: Integer;
     fSelectable: Boolean;
     fSelectionStart: Integer;
     fSelectionEnd: Integer;
@@ -1020,15 +1026,23 @@ type
 
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 
-    function GetCharsCntAt(aColumn, aRow: Integer): Integer;
+    procedure SetCursorPos(aPos: Integer);
+    function LinearToPointPos(aPos: Integer): TKMPoint;
+    function PointToLinearPos(aColumn, aRow: Integer): Integer;
     function GetCharPosAt(X,Y: Integer): TKMPoint;
     function GetCursorPosAt(X,Y: Integer): Integer;
     procedure ResetSelection;
     function HasSelection: Boolean;
     function GetSelectedText: UnicodeString;
-    function GetMaxSelectionEnd: Integer;
+    function GetMaxCursorPos: Integer;
+    function GetMaxPosInRow(aRow: Integer): Integer;
+    function GetMinPosInRow(aRow: Integer): Integer;
+    function GetMaxCursorPosInRow: Integer;
+    function GetMinCursorPosInRow: Integer;
     procedure SetSelectionStart(aValue: Integer);
     procedure SetSelectionEnd(aValue: Integer);
+    procedure SetSelections(aValue1, aValue2: Integer);
+    procedure UpdateSelection(aPrevCursorPos: Integer);
   protected
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
@@ -1048,6 +1062,7 @@ type
     property ItemHeight: Byte read fItemHeight write fItemHeight;
     property TopIndex: Smallint read GetTopIndex write SetTopIndex;
     property ScrollDown: Boolean read fScrollDown write fScrollDown;
+    property CursorPos: Integer read fCursorPos write SetCursorPos;
     property SelectionStart: Integer read fSelectionStart write SetSelectionStart;
     property SelectionEnd: Integer read fSelectionEnd write SetSelectionEnd;
 
@@ -1057,6 +1072,8 @@ type
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Focus(aFocused: Boolean);
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
+
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -1624,6 +1641,8 @@ begin
   inherited Create(nil, aLeft, aTop, aWidth, aHeight);
   fCollection := aParent;
   aParent.fCtrl := Self;
+  OnControlMouseDown := ControlMouseDown;
+  OnControlMouseUp := ControlMouseUp;
 end;
 
 
@@ -1631,6 +1650,8 @@ constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Int
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fCollection := aParent.fCollection;
+  OnControlMouseDown := ControlMouseDown;
+  OnControlMouseUp := ControlMouseUp;
 end;
 
 
@@ -1691,6 +1712,24 @@ begin
       Childs[I].SetLeftF(Childs[I].fLeft + (aValue - fWidth) / 2);
 
   inherited;
+end;
+
+
+procedure TKMPanel.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+var I: Integer;
+begin
+  for I := 0 to ChildCount - 1 do
+    if Assigned(Childs[I].fOnControlMouseDown) then
+      Childs[I].fOnControlMouseDown(Sender, Shift);
+end;
+
+
+procedure TKMPanel.ControlMouseUp(Sender: TObject; Shift: TShiftState);
+var I: Integer;
+begin
+  for I := 0 to ChildCount - 1 do
+    if Assigned(Childs[I].fOnControlMouseUp) then
+      Childs[I].fOnControlMouseUp(Sender, Shift);
 end;
 
 
@@ -2332,6 +2371,7 @@ begin
   fSelectable := aSelectable;
 
   fOnFocus := Focus;
+  fOnControlMouseDown := ControlMouseDown;
 end;
 
 
@@ -2664,6 +2704,13 @@ begin
   if ReadOnly then Exit;
   inherited;
   fSelectionInitialCursorPos := -1;
+end;
+
+
+procedure TKMEdit.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+begin
+  if (Sender <> Self) then
+    ResetSelection;
 end;
 
 
@@ -3521,6 +3568,7 @@ begin
   fSelectable := aSelectable;
 
   fOnFocus := Focus;
+  fOnControlMouseDown := ControlMouseDown;
 end;
 
 
@@ -3644,12 +3692,22 @@ begin
 end;
 
 
+procedure TKMMemo.SetCursorPos(aPos: Integer);
+begin
+  fCursorPos := EnsureRange(aPos, 0, GetMaxCursorPos);
+end;
+
+
 function TKMMemo.GetSelectedText: UnicodeString;
 begin
   Result := '';
   if HasSelection then
   begin
-    Result := Copy(GetNoColorMarkupText(StringReplace(fItems.Text, EolW, '|', [rfReplaceAll])), fSelectionStart+1, fSelectionEnd - fSelectionStart);
+    // First remove EOL's to get correct positions in text
+    Result := StringReplace(fItems.Text, EolW, '|', [rfReplaceAll]);
+    // Get text with selected positions, cleaned of color markup
+    Result := Copy(GetNoColorMarkupText(Result), fSelectionStart+1, fSelectionEnd - fSelectionStart);
+    // Return EOL's back
     Result := StringReplace(Result, '|', EolW, [rfReplaceAll]);
   end;
 end;
@@ -3669,51 +3727,163 @@ begin
 end;
 
 
-function TKMMemo.GetCharsCntAt(aColumn, aRow: Integer): Integer;
-var I: Integer;
+//We are using 2 systems for position: Linear (cumulative) and 'Point' (2D with column and row)
+//Every system have Length(RowText)+1 positions in every line
+//Convert Linear position into 2D position
+function TKMMemo.LinearToPointPos(aPos: Integer): TKMPoint;
+var I, Row, Column: Integer;
+    RowText: UnicodeString;
+    RowStartPos, RowEndPos: Integer;
 begin
-  Result := aColumn;
-  aRow := EnsureRange(aRow, 0, fItems.Count-1);
-  for I := 0 to aRow-1 do
-    Inc(Result, Length(GetNoColorMarkupText(fItems[I])) + 1); //+1 for special KaM new line symbol ('|')
-end;
-
-
-function TKMMemo.GetCharPosAt(X,Y: Integer): TKMPoint;
-var Row, Column: Integer;
-begin
-  Row := (EnsureRange(Y-AbsTop-3, 0, fHeight-6) div fItemHeight) + TopIndex;
-  Row := EnsureRange(Row, 0, fItems.Count-1);
-  Column := gRes.Fonts[fFont].CharsThatFit(GetNoColorMarkupText(fItems[Row]), X-AbsLeft-4);
+  Row := 0;
+  Column := 0;
+  for I := 0 to fItems.Count - 1 do
+  begin
+    RowText := GetNoColorMarkupText(fItems[I]);
+    RowStartPos := PointToLinearPos(0, I);
+    RowEndPos := RowStartPos + Length(RowText);
+    if InRange(aPos, RowStartPos, RowEndPos) then
+    begin
+      Row := I;
+      Column := aPos - RowStartPos;
+      Break;
+    end;
+  end;
   Result := KMPoint(Column, Row);
 end;
 
 
+//We are using 2 systems for position: Linear (cumulative) and 'Point' (2D with column and row)
+//Every system have Length(RowText)+1 positions in every line
+//Convert 2D position into Linear position
+function TKMMemo.PointToLinearPos(aColumn, aRow: Integer): Integer;
+var I: Integer;
+begin
+  Result := 0;
+  aRow := EnsureRange(aRow, 0, fItems.Count-1);
+  for I := 0 to aRow-1 do
+    Inc(Result, Length(GetNoColorMarkupText(fItems[I])) + 1); //+1 for special KaM new line symbol ('|')
+  Inc(Result, EnsureRange(aColumn, 0, GetMaxPosInRow(aRow)));
+end;
+
+
+//Return position of Cursor in 2D of point X,Y on the screen
+function TKMMemo.GetCharPosAt(X,Y: Integer): TKMPoint;
+var Row, Column: Integer;
+begin
+  Row := 0;
+  Column := 0;
+
+  if fItems.Count > 0 then
+  begin
+    Row := (EnsureRange(Y-AbsTop-3, 0, fHeight-6) div fItemHeight) + TopIndex;
+    Row := EnsureRange(Row, 0, fItems.Count-1);
+    Column := gRes.Fonts[fFont].CharsThatFit(GetNoColorMarkupText(fItems[Row]), X-AbsLeft-4);
+  end;
+  Result := KMPoint(Column, Row);
+end;
+
+
+//Return position of Cursor in linear system of point X,Y on the screen
 function TKMMemo.GetCursorPosAt(X,Y: Integer): Integer;
 var CharPos: TKMPoint;
 begin
   CharPos := GetCharPosAt(X, Y);
-  Result := GetCharsCntAt(CharPos.X, CharPos.Y);
+  Result := PointToLinearPos(CharPos.X, CharPos.Y);
 end;
 
 
-function TKMMemo.GetMaxSelectionEnd: Integer;
+// Maximum possible position of Cursor
+function TKMMemo.GetMaxCursorPos: Integer;
 begin
-  Result := Length(StringReplace(fItems.Text, EolW, '', [rfReplaceAll])) + fItems.Count;
+  Result := Length(StringReplace(fItems.Text, EolW, '', [rfReplaceAll])) + EnsureRange(fItems.Count-1, 0, fItems.Count);
+end;
+
+
+// Minimum possible position of Cursor in its current Row
+function TKMMemo.GetMinCursorPosInRow: Integer;
+begin
+  Result := GetMinPosInRow(LinearToPointPos(CursorPos).Y)
+end;
+
+
+// Maximum possible position of Cursor in its current Row
+function TKMMemo.GetMaxCursorPosInRow: Integer;
+begin
+  Result := GetMaxPosInRow(LinearToPointPos(CursorPos).Y)
+end;
+
+
+// Minimum possible position of Cursor in the specified aRow
+function TKMMemo.GetMinPosInRow(aRow: Integer): Integer;
+begin
+  if aRow = 0 then
+    Result := 0
+  else
+    Result := GetMaxPosInRow(aRow - 1) + 1;
+end;
+
+
+// Maximum possible position of Cursor in the specified aRow
+function TKMMemo.GetMaxPosInRow(aRow: Integer): Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to min(aRow, fItems.Count - 1) do
+    Inc(Result, Length(GetNoColorMarkupText(fItems[I])) + 1);
+  Result := EnsureRange(Result - 1, 0, Result);
 end;
 
 
 procedure TKMMemo.SetSelectionStart(aValue: Integer);
+var MaxPos: Integer;
 begin
   if fSelectable then
-    fSelectionStart := EnsureRange(aValue, 0, Length(fText));
+  begin
+    MaxPos := GetMaxCursorPos;
+    fSelectionStart := EnsureRange(aValue, 0, MaxPos);
+  end;
 end;
 
 
 procedure TKMMemo.SetSelectionEnd(aValue: Integer);
+var MaxPos: Integer;
 begin
   if fSelectable then
-    fSelectionEnd := EnsureRange(aValue, 0, GetMaxSelectionEnd);
+  begin
+    MaxPos := GetMaxCursorPos;
+    fSelectionEnd := EnsureRange(aValue, 0, MaxPos);
+  end;
+end;
+
+
+//Set selections with pair of value, using he fact, that fSelectionStart <= fSelectionEnd
+procedure TKMMemo.SetSelections(aValue1, aValue2: Integer);
+begin
+  fSelectionStart := min(aValue1, aValue2);
+  fSelectionEnd := max(aValue1, aValue2);
+end;
+
+
+//Update selection start/end due to change cursor position
+procedure TKMMemo.UpdateSelection(aPrevCursorPos: Integer);
+begin
+  if HasSelection then
+  begin
+    if aPrevCursorPos = SelectionStart then
+      SetSelections(CursorPos, SelectionEnd)
+    else if aPrevCursorPos = SelectionEnd then
+      SetSelections(SelectionStart, CursorPos);
+  end else begin
+    if CursorPos > aPrevCursorPos then
+    begin
+      SelectionStart := aPrevCursorPos;
+      SelectionEnd := CursorPos;
+    end else begin
+      SelectionStart := CursorPos;
+      SelectionEnd := aPrevCursorPos;
+    end;
+  end;
 end;
 
 
@@ -3749,12 +3919,62 @@ function TKMMemo.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True;
 
+  //Don't include backspace/delete because edits should always handle those. Otherwise when you
+  //press backspace repeatedly to remove all characters it will apply other shortcuts like
+  //resetting the zoom if you press it once too many times.
+  case Key of
+    VK_UP,
+    VK_DOWN,
+    VK_LEFT,
+    VK_RIGHT,
+    VK_HOME,
+    VK_END,
+    VK_PRIOR,
+    VK_NEXT: Result := (fText <> ''); //These keys have no effect when text is blank
+  end;
+
+  //We want these keys to be ignored by chat, so game shortcuts still work
+  if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
   if ssCtrl in Shift then Result := (Key in [Ord('A'), Ord('C'), Ord('X')]);
 end;
 
 
 function TKMMemo.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+  //Move cursor vertically (change cursor row)
+  procedure MoveCursorVertically(aRowIncrement: Integer);
+  var CursorPointPos: TKMPoint;
+      NewCursorPosY: Integer;
+      SrcLineText, DestLineText: UnicodeString;
+  begin
+    CursorPointPos := LinearToPointPos(CursorPos);
+    NewCursorPosY := EnsureRange(CursorPointPos.Y + aRowIncrement, 0, fItems.Count-1);
+    if NewCursorPosY <> CursorPointPos.Y then
+    begin
+      // Because we don't use monospaces fonts, then its better to find proper column, which depends of text width in px
+      SrcLineText := GetNoColorMarkupText(Copy(fItems[CursorPointPos.Y], 1, CursorPointPos.X));
+      DestLineText := GetNoColorMarkupText(fItems[NewCursorPosY]);
+      //Use 'rounding' version of CharsThatFit to get more precise position
+      CursorPointPos.X := gRes.Fonts[fFont].CharsThatFit(DestLineText, gRes.Fonts[fFont].GetTextSize(SrcLineText).X, True);
+      CursorPos := PointToLinearPos(CursorPointPos.X, NewCursorPosY);
+      // Update scroll position, if needed
+      if TopIndex > NewCursorPosY then
+        TopIndex := NewCursorPosY
+      else if TopIndex < NewCursorPosY - (fHeight div fItemHeight) + 1 then
+        TopIndex := NewCursorPosY - (fHeight div fItemHeight) + 1;
+    end;
+  end;
+
+  procedure MoveCursorVerticallyNUpdateSelections(aRowIncrement: Integer);
+  var OldCursorPos: Integer;
+  begin
+    OldCursorPos := CursorPos;
+    MoveCursorVertically(aRowIncrement);
+    UpdateSelection(OldCursorPos);
+  end;
+
+var OldCursorPos: Integer;
 begin
   Result := KeyEventHandled(Key, Shift);
   if inherited KeyDown(Key, Shift) then Exit;
@@ -3762,16 +3982,51 @@ begin
   //Clipboard operations
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
     case Key of
-      Ord('A'): begin
-                  SelectionStart := 0;
-                  SelectionEnd := GetMaxSelectionEnd;
-                end;
+      Ord('A'): SetSelections(0, GetMaxCursorPos);
       Ord('C'): if HasSelection then
                   Clipboard.AsText := GetSelectedText;
       Ord('X'): if HasSelection then
                   Clipboard.AsText := GetSelectedText;
     end;
 
+  if (Shift = [ssShift]) and (Key <> VK_SHIFT) then
+    case Key of
+      VK_UP:    MoveCursorVerticallyNUpdateSelections(-1);
+      VK_DOWN:  MoveCursorVerticallyNUpdateSelections(1);
+      VK_PRIOR: MoveCursorVerticallyNUpdateSelections(-(fHeight div fItemHeight));
+      VK_NEXT:  MoveCursorVerticallyNUpdateSelections(fHeight div fItemHeight);
+      VK_LEFT:  begin
+                  OldCursorPos := CursorPos;
+                  CursorPos := CursorPos - 1;
+                  UpdateSelection(OldCursorPos);
+                end;
+      VK_RIGHT: begin
+                  OldCursorPos := CursorPos;
+                  CursorPos := CursorPos + 1;
+                  UpdateSelection(OldCursorPos);
+                end;
+      VK_HOME:  begin
+                  OldCursorPos := CursorPos;
+                  CursorPos := GetMinCursorPosInRow;
+                  UpdateSelection(OldCursorPos);
+                end;
+      VK_END:   begin
+                  OldCursorPos := CursorPos;
+                  CursorPos := GetMaxCursorPosInRow;
+                  UpdateSelection(OldCursorPos);
+                end;
+    end
+  else
+    case Key of
+      VK_UP:    begin MoveCursorVertically(-1); ResetSelection; end;
+      VK_DOWN:  begin MoveCursorVertically(1); ResetSelection; end;
+      VK_PRIOR: begin MoveCursorVertically(-(fHeight div fItemHeight)); ResetSelection; end;
+      VK_NEXT:  begin MoveCursorVertically(fHeight div fItemHeight); ResetSelection; end;
+      VK_LEFT:  begin CursorPos := CursorPos-1; ResetSelection; end;
+      VK_RIGHT: begin CursorPos := CursorPos+1; ResetSelection; end;
+      VK_HOME:  begin CursorPos := GetMinCursorPosInRow; ResetSelection; end;
+      VK_END:   begin CursorPos := GetMaxCursorPosInRow; ResetSelection; end;
+    end;
 end;
 
 
@@ -3783,16 +4038,26 @@ end;
 
 
 procedure TKMMemo.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var OldCursorPos: Integer;
 begin
-  Focusable := fSelectable;
+  Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
   inherited;
-  ResetSelection;
-  fSelectionInitialPos := GetCursorPosAt(X, Y);
+  OldCursorPos := CursorPos;
+  CursorPos := GetCursorPosAt(X, Y);
+
+  if Focusable then
+    //Try select on Shift + LMB click
+    if (OldCursorPos <> -1) and (Shift = [ssLeft, ssShift]) then
+      UpdateSelection(OldCursorPos)
+    else begin
+      ResetSelection;
+    end;
+    fSelectionInitialPos := CursorPos;
 end;
 
 
 procedure TKMMemo.MouseMove(X,Y: Integer; Shift: TShiftState);
-var CurCursorPos: Integer;
+var OldCursorPos: Integer;
     CharPos: TKMPoint;
 begin
   inherited;
@@ -3814,9 +4079,9 @@ begin
       SetTopIndex(TopIndex+1);
     end;
 
-    CurCursorPos := GetCharsCntAt(CharPos.X, CharPos.Y);
-    SelectionStart := min(CurCursorPos, fSelectionInitialPos);
-    SelectionEnd := max(CurCursorPos, fSelectionInitialPos);
+    OldCursorPos := CursorPos;
+    CursorPos := PointToLinearPos(CharPos.X, CharPos.Y);;
+    UpdateSelection(OldCursorPos);
   end;
 end;
 
@@ -3825,21 +4090,38 @@ procedure TKMMemo.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton
 begin
   inherited;
   fSelectionInitialPos := -1;
-  Focusable := False;
+end;
+
+
+procedure TKMMemo.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+begin
+  // Reset all, if other control was clicked
+  if Sender <> Self then
+  begin
+    ResetSelection;
+    Focusable := False;
+    CursorPos := -1;
+    MasterParent.fCollection.UpdateFocus(Self);
+  end;
 end;
 
 
 procedure TKMMemo.Focus(aFocused: Boolean);
 begin
   if not aFocused then
+  begin
     ResetSelection;
+    CursorPos := -1;
+    Focusable := False;
+  end;
 end;
 
 
 procedure TKMMemo.Paint;
-var I, PaintWidth: Integer;
+var I, PaintWidth, SelPaintTop, SelPaintHeight: Integer;
     BeforeSelectionText, SelectionText, RowText: UnicodeString;
     BeforeSelectionW, SelectionW, SelStartPosInRow, SelEndPosInRow, RowStartPos, RowEndPos: Integer;
+    OffX, OffY: Integer;
 begin
   inherited;
   if fScrollBar.Visible then
@@ -3851,11 +4133,11 @@ begin
 
   for I := 0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
   begin
+    RowText := GetNoColorMarkupText(fItems[TopIndex+I]);
+    RowStartPos := PointToLinearPos(0, TopIndex+I);
+    RowEndPos := RowStartPos + Length(RowText);
     if HasSelection then
     begin
-      RowText := GetNoColorMarkupText(fItems[TopIndex+I]);
-      RowStartPos := GetCharsCntAt(0, TopIndex+I);
-      RowEndPos := RowStartPos + Length(RowText);
       SelStartPosInRow := fSelectionStart - RowStartPos;
       SelEndPosInRow := fSelectionEnd - RowStartPos;
 
@@ -3870,11 +4152,29 @@ begin
         BeforeSelectionW := gRes.Fonts[fFont].GetTextSize(BeforeSelectionText).X;
         SelectionW := gRes.Fonts[fFont].GetTextSize(SelectionText).X;
 
-        TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, AbsTop+I*fItemHeight+3, min(SelectionW, Width-8), fItemHeight, icSteelBlue);
+        SelPaintHeight := fItemHeight;
+        SelPaintTop := AbsTop+I*fItemHeight;
+        if I = 0 then
+        begin
+          Dec(SelPaintHeight, 3);
+          Inc(SelPaintTop, 3);
+        end;
+
+        TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, SelPaintTop, min(SelectionW, Width-8), SelPaintHeight, icSteelBlue);
       end;
+    end;
+
+    //Render text cursor
+    if fSelectable and (csFocus in State) and ((TimeGet div 500) mod 2 = 0)
+      and InRange(CursorPos, RowStartPos, RowEndPos) then
+    begin
+      OffX := AbsLeft + 2 + gRes.Fonts[fFont].GetTextSize(Copy(RowText, 1, CursorPos-RowStartPos)).X;
+      OffY := AbsTop + 2 + I*fItemHeight;
+      TKMRenderUI.WriteShape(OffX, OffY, 3, fItemHeight-4, $FFFFFFFF, $FF000000);
     end;
     TKMRenderUI.WriteText(AbsLeft+4, AbsTop+I*fItemHeight+3, Width-8, fItems.Strings[TopIndex+I] , fFont, taLeft);
   end;
+
 end;
 
 
@@ -5977,7 +6277,8 @@ procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
     end;
   end;
 begin
-  if aSender.Visible and aSender.Enabled then
+  if aSender.Visible and aSender.Enabled
+    and ((not (aSender is TKMPanel) and aSender.Focusable) or (aSender is TKMPanel)) then
   begin
     // Something showed up or became enabled
 
@@ -5990,8 +6291,7 @@ begin
   end else
   begin
     // Something went hidden or disabled
-
-    if (CtrlFocus = nil) or not CtrlFocus.Visible or not CtrlFocus.Enabled then
+    if (CtrlFocus = nil) or not CtrlFocus.Visible or not CtrlFocus.Enabled or not CtrlFocus.Focusable then
     begin
       // If there was no focus, or it is our Focus control that went hidden or disabled
       CtrlFocus := nil;
@@ -6061,7 +6361,10 @@ procedure TKMMasterControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: T
 begin
   CtrlDown := HitControl(X,Y);
   if CtrlDown <> nil then
+  begin
+    fCtrl.ControlMouseDown(CtrlDown, Shift);
     CtrlDown.MouseDown(X, Y, Shift, Button);
+  end;
 end;
 
 
@@ -6109,7 +6412,10 @@ begin
     fCtrlDown := nil;
 
   if CtrlUp <> nil then
+  begin
+    fCtrl.ControlMouseUp(CtrlUp, Shift); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
     CtrlUp.MouseUp(X, Y, Shift, Button);
+  end;
 
   //Do not place any code here, we could have Exited in OnClick event
 end;
