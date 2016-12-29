@@ -14,6 +14,9 @@ uses
 const
   MAX_VISIBLE_MSGS = 32;
   MAX_LOG_MSGS = 8;
+  //Limit names length to fit interface width
+  MAX_MAPNAME_LENGTH = 22;
+  MAX_TRACKNAME_LENGTH = 18;
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
@@ -214,7 +217,7 @@ type
           Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
     Panel_Menu: TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_ReturnLobby,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
-      Label_Menu_Track, Label_GameTime: TKMLabel;
+      Label_Menu_Track, Label_GameTime, Label_MapName: TKMLabel;
 
       Panel_Save: TKMPanel;
         ListBox_Save: TKMListBox;
@@ -229,6 +232,7 @@ type
         Button_Load: TKMButton;
 
       Panel_Quit: TKMPanel;
+        Label_QuitQuestion: TKMLabel;
         Button_Quit_Yes, Button_Quit_No: TKMButton;
 
     Panel_Unit: TKMPanel;
@@ -278,6 +282,7 @@ type
     procedure AlliesTeamChange(Sender: TObject);
     procedure CinematicUpdate;
     procedure LoadHotkeysFromHand;
+    procedure SetButtons(aPaused: Boolean);
 
     property Alerts: TKMAlerts read fAlerts;
 
@@ -985,7 +990,7 @@ begin
     Dropbox_ReplayFOW.OnChange := ReplayClick;
     Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
-end;
+ end;
 
 
 // Individual message page
@@ -1164,19 +1169,22 @@ begin
   Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
   Button_Menu_Settings.OnClick := SwitchPage;
   Button_Menu_Settings.Hint := gResTexts[TX_MENU_SETTINGS];
-  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 170, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
+  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 160, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
   Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MISSION];
   Button_Menu_Quit.OnClick := SwitchPage;
-  Button_Menu_TrackUp := TKMButton.Create(Panel_Menu, 150, 300, 30, 30, '>', bsGame);
-  Button_Menu_TrackDown := TKMButton.Create(Panel_Menu, 0, 300, 30, 30, '<', bsGame);
+  Button_Menu_TrackUp := TKMButton.Create(Panel_Menu, 160, 300, 20, 30, '>', bsGame);
+  Button_Menu_TrackDown := TKMButton.Create(Panel_Menu, 0, 300, 20, 30, '<', bsGame);
   Button_Menu_TrackUp.Hint := gResTexts[TX_MUSIC_NEXT_HINT];
   Button_Menu_TrackDown.Hint := gResTexts[TX_MUSIC_PREV_HINT];
   Button_Menu_TrackUp.OnClick := Menu_NextTrack;
   Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
-  TKMLabel.Create(Panel_Menu, 0, 260, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Metal, taCenter);
-  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 0, 276, TB_WIDTH, 30, '', fnt_Grey, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Outline, taCenter);
+  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 23, 306, TB_WIDTH - 46, 30, '', fnt_Grey, taCenter);
   Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
-  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 214, TB_WIDTH, 20, '', fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 30, 'Game time:', fnt_Outline, taCenter); //Todo: translate
+  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 218, TB_WIDTH, 20, '', fnt_Grey, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, 'Map:', fnt_Outline, taCenter); //Todo: translate
+  Label_MapName := TKMLabel.Create(Panel_Menu, -3, 260, TB_WIDTH + 3, 20, '', fnt_Grey, taCenter);
 end;
 
 
@@ -1225,8 +1233,8 @@ end;
 procedure TKMGamePlayInterface.Create_Quit;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    with TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, gResTexts[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
-      AutoWrap := True;
+    Label_QuitQuestion := TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, gResTexts[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
+    Label_QuitQuestion.AutoWrap := True;
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
     Button_Quit_No := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
     Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
@@ -1727,13 +1735,15 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.SetButtons(aPaused: Boolean);
+begin
+  Button_ReplayPause.Enabled := aPaused;
+  Button_ReplayStep.Enabled := not aPaused;
+  Button_ReplayResume.Enabled := not aPaused;
+end;
+
+
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
-  procedure SetButtons(aPaused: Boolean);
-  begin
-    Button_ReplayPause.Enabled := aPaused;
-    Button_ReplayStep.Enabled := not aPaused;
-    Button_ReplayResume.Enabled := not aPaused;
-  end;
 var
   oldCenter: TKMPointF;
   oldZoom: Single;
@@ -1878,7 +1888,7 @@ begin
   // NOTE: It will highlight next house built on the 'ruins' which is unoccupied to be precise
   //       even the NEW message has not been issued yet
   if (H <> nil) then
-    if ((Msg.fTextID = TX_MSG_HOUSE_UNOCCUPIED) and not H.GetHasOwner
+    if (gRes.IsMsgHouseUnnocupied(Msg.fTextID) and not H.GetHasOwner
         and (gRes.HouseDat[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
     or H.ResourceDepletedMsgIssued then
       gMySpectator.Highlight := H;
@@ -1967,7 +1977,13 @@ begin
   else
     Label_Menu_Track.Caption := gGameApp.MusicLib.GetTrackTitle;
 
-  Label_GameTime.Caption := Format(gResTexts[TX_GAME_TIME], [TimeToString(gGame.MissionTime)]);
+  Label_Menu_Track.AutoWrap := Length(Label_Menu_Track.Caption) > MAX_TRACKNAME_LENGTH;
+  Label_Menu_Track.Top := IfThen(Label_Menu_Track.AutoWrap, 301, 306);
+  Button_Menu_TrackUp.Height := IfThen(Label_Menu_Track.AutoWrap, 38, 30);
+  Button_Menu_TrackDown.Height := IfThen(Label_Menu_Track.AutoWrap, 38, 30);
+
+  Label_GameTime.Caption := TimeToString(gGame.MissionTime);
+  Label_MapName.Caption := Copy(gGame.GameName, 0, EnsureRange(Length(gGame.GameName), 1, MAX_MAPNAME_LENGTH));
 
   Label_Menu_Track.Enabled      := not gGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not gGameApp.GameSettings.MusicOff;
@@ -2023,10 +2039,24 @@ begin
   Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gMySpectator.Hand.InCinematic));
   Button_Main[tbStats].Enabled := not aTactic;
 
-  // No loading during multiplayer games
-  Button_Menu_Load.Enabled := fUIMode = umSP;
+  Button_Menu_Load.Enabled := fUIMode = umSP; // No loading during multiplayer games
   Button_Menu_Save.Enabled := fUIMode in [umSP, umMP, umSpectate];
-  Button_Menu_Quit.Enabled := fUIMode in [umSP, umMP, umSpectate];
+
+  if (fUIMode = umReplay) then
+  begin
+    Button_Menu_Quit.Caption := gResTexts[TX_REPLAY_QUIT];
+    Button_Menu_Quit.Hint := gResTexts[TX_REPLAY_QUIT];
+    Label_QuitQuestion.Caption := 'Are you sure you|want to quit|this replay?'; //Todo translate
+    Button_Quit_Yes.Caption := gResTexts[TX_REPLAY_QUIT];
+    Button_Quit_Yes.Hint := gResTexts[TX_REPLAY_QUIT];
+    gGame.PlayOnState := gr_ReplayEnd;
+  end else begin
+    Button_Menu_Quit.Caption := gResTexts[TX_MENU_QUIT_MISSION];
+    Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MISSION];
+    Label_QuitQuestion.Caption := gResTexts[TX_MENU_QUIT_QUESTION];
+    Button_Quit_Yes.Caption := gResTexts[TX_MENU_QUIT_MISSION];
+    Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
+  end;
 
   // Toggle gameplay options
   fGuiMenuSettings.SetAutosaveEnabled(fUIMode in [umSP, umMP, umSpectate]);
@@ -2600,7 +2630,7 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  if (fUIMode = umReplay) and (Key = Ord(SC_PAUSE)) then
+  if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
     if Button_ReplayPause.Enabled then
       ReplayClick(Button_ReplayPause)

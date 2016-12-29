@@ -437,6 +437,7 @@ begin
   begin
     Label_NoArmyData.Show;
     Columnbox_Army.Hide;
+    Radio_ChartArmyStyle.Hide;
     for WType := Low(TChartArmyType) to High(TChartArmyType) do
     begin
       Chart_MPArmy[WType].Chart.Hide;
@@ -447,6 +448,7 @@ begin
 
   Label_NoArmyData.Hide;
   Columnbox_Army.Show;
+  Radio_ChartArmyStyle.Show;
 
   W := TChartArmyType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 

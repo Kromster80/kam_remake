@@ -295,22 +295,25 @@ begin
 end;
 
 
-function TKMUnitDatClass.GetGUIIcon: word;
+function TKMUnitDatClass.GetGUIIcon: Word;
 begin
   case fUnitType of
     ut_None, ut_Any:  Result := 0;
     ut_Barbarian:     Result := 70;
-    else              if IsCitizen then
-                        Result := 141 + UnitTypeToIndex[fUnitType]
-                      else if IsWarriorEquipable then
-                        Result := 47 + UnitTypeToIndex[fUnitType]
-                      else if IsWarrior then
-                        Result := 55 + UnitTypeToIndex[fUnitType]
+  else
+    if IsCitizen then
+      Result := 141 + UnitTypeToIndex[fUnitType]
+    else if IsWarriorEquipable then
+      Result := 47 + UnitTypeToIndex[fUnitType]
+    else if IsWarrior then
+      Result := 55 + UnitTypeToIndex[fUnitType]
+    else
+      Result := 0;
   end;
 end;
 
 
-function TKMUnitDatClass.GetGUIScroll: word;
+function TKMUnitDatClass.GetGUIScroll: Word;
 begin
   if IsValid then
     Result := 521 + UnitTypeToIndex[fUnitType]

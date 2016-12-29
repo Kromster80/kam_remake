@@ -222,7 +222,7 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
-  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand;
+  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log;
 
 
 { TKMHouse }
@@ -1309,7 +1309,7 @@ end;
 
 
 procedure TKMHouse.UpdateState;
-//var HouseName: string;
+var HouseUnoccupiedMsgId: Integer;
 begin
   if not IsComplete then Exit; //Don't update unbuilt houses
 
@@ -1321,8 +1321,11 @@ begin
     Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
-      gGame.ShowMessage(mkHouse, TX_MSG_HOUSE_UNOCCUPIED, GetEntrance, fOwner);
+      HouseUnoccupiedMsgId := gRes.HouseDat[fHouseType].UnoccupiedMsgId;
+      if HouseUnoccupiedMsgId <> -1 then // HouseNotOccupMsgId should never be -1
+        gGame.ShowMessage(mkHouse, HouseUnoccupiedMsgId, GetEntrance, fOwner)
+      else
+        gLog.AddTime('Warning: HouseUnoccupiedMsgId for house type ord=' + IntToStr(Ord(fHouseType)) + ' could not be determined.');
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end
