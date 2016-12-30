@@ -4441,9 +4441,13 @@ begin
     ListShow(Self)
   else
     if not ListVisible then
+    begin
+      fButton.TexId := 591;
       ListShow(Self)
-    else
+    end else begin
+      fButton.TexId := 590;
       ListHide(Self);
+    end;
 
   inherited;
 end;
