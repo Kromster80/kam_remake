@@ -1715,7 +1715,7 @@ begin
   if (Sender is TKMImage) then
   begin
     Image := TKMImage(Sender);
-    gGame.Networking.NetPlayers.LocalInfo[fAlliesToNetPlayers[Image.Tag]].ToggleMuted;
+    gGame.Networking.ToggleMutePlayer(fAlliesToNetPlayers[Image.Tag]);
     Update_Image_AlliesMute(Image);
   end;
 end;
@@ -1723,7 +1723,7 @@ end;
 
 procedure TKMGamePlayInterface.Update_Image_AlliesMute(aImage: TKMImage);
 begin
-  if gGame.Networking.NetPlayers.LocalInfo[fAlliesToNetPlayers[aImage.Tag]].Muted then
+  if gGame.Networking.MyNetPlayer.Muted[fAlliesToNetPlayers[aImage.Tag]] then
   begin
     aImage.Hint := 'Unmute player'; //todo translate
     aImage.TexId := 84;
@@ -2024,7 +2024,7 @@ begin
   // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
   case fUIMode of
     umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.NetPlayers[gGame.Networking.MyIndex].FlagColor);
+    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.MyNetPlayer.FlagColor);
     else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor);
   end;
   Beacon_Cancel;
@@ -2485,9 +2485,9 @@ var
 begin
   Image_AlliesHostStar.Hide;
   // Can't vote if we already have, and spectators don't get to vote unless there's only spectators left
-  Button_Menu_ReturnLobby.Enabled := not gGame.Networking.NetPlayers[gGame.Networking.MyIndex].VotedYes
+  Button_Menu_ReturnLobby.Enabled := not gGame.Networking.MyNetPlayer.VotedYes
                                      and (gGame.Networking.NetPlayers.HasOnlySpectators
-                                          or not gGame.Networking.NetPlayers[gGame.Networking.MyIndex].IsSpectator);
+                                          or not gGame.Networking.MyNetPlayer.IsSpectator);
 
   AlliesUpdateMapping;
   for I := 0 to MAX_LOBBY_SLOTS-1 do
@@ -2528,7 +2528,7 @@ begin
         and gGame.Networking.NetPlayers[NetI].IsHuman then // and is not Computer
       begin
         Update_Image_AlliesMute(Image_AlliesMute[I]);
-        Image_AlliesMute[I].Show;
+        Image_AlliesMute[I].Visible := True;
       end;
 
       if gGame.Networking.NetPlayers[NetI].IsSpectator then
@@ -2547,8 +2547,7 @@ begin
           Label_AlliesTeam[I].Caption := IntToStr(gGame.Networking.NetPlayers[NetI].Team);
       end;
       // Strikethrough for disconnected players
-      Image_AlliesMute[I].Enabled := not gGame.Networking.NetPlayers[NetI].Dropped;
-      if gGame.Networking.NetPlayers[NetI].Dropped then Image_AlliesMute[I].Hint := '';
+      Image_AlliesMute[I].Visible := not gGame.Networking.NetPlayers[NetI].Dropped;
       Image_AlliesFlag[I].Enabled := not gGame.Networking.NetPlayers[NetI].Dropped;
       Label_AlliesPlayer[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped;
       Label_AlliesTeam[I].Strikethrough := gGame.Networking.NetPlayers[NetI].Dropped

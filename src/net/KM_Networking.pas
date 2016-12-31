@@ -40,15 +40,15 @@ const
     [mk_AllowToJoin,mk_RefuseToJoin,mk_AuthChallenge,mk_Ping,mk_PingInfo,mk_Kicked],
     //lgs_Lobby
     [mk_AskForAuth,mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_SaveSelect,
+     mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_MutePlayer,mk_ResetMap,mk_MapSelect,mk_SaveSelect,
      mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
      mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated,mk_HasMapOrSave],
     //lgs_Loading
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
+     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote,mk_MutePlayer],
     //lgs_Game
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReadyToReturnToLobby,
-     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote],
+     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote,mk_MutePlayer],
     //lgs_Reconnecting
     [mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
@@ -138,6 +138,7 @@ type
     procedure ResetReturnToLobbyVote;
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
+    function GetMyNetPlayer: TKMNetPlayerInfo;
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -180,6 +181,8 @@ type
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
+    procedure ToggleMutePlayer(aPlayerIndex: Integer);
+    procedure SendPlayerMuted(aPlayerIndex: Integer);
     procedure KickPlayer(aPlayerIndex:integer);
     procedure BanPlayer(aPlayerIndex:integer);
     procedure SetToHost(aPlayerIndex:integer);
@@ -201,18 +204,19 @@ type
 
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
-    procedure PostMessage(aTextID: Integer; aSound: TChatSound; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
-    procedure PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: Integer=-1); overload;
+    procedure PostMessage(aTextID: Integer; aSound: TChatSound; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient: Integer = NET_ADDRESS_ALL);
+    procedure PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: Integer = NET_ADDRESS_OTHERS); overload;
     procedure PostLocalMessage(aText: UnicodeString; aSound: TChatSound);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
     //Gameplay
-    property MapInfo:TKMapInfo read fMapInfo;
-    property SaveInfo:TKMSaveInfo read fSaveInfo;
-    property NetGameOptions:TKMGameOptions read fNetGameOptions;
+    property MapInfo: TKMapInfo read fMapInfo;
+    property SaveInfo: TKMSaveInfo read fSaveInfo;
+    property NetGameOptions: TKMGameOptions read fNetGameOptions;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
-    property NetPlayers:TKMNetPlayersList read fNetPlayers;
-    property LastProcessedTick:cardinal write fLastProcessedTick;
+    property NetPlayers: TKMNetPlayersList read fNetPlayers;
+    property MyNetPlayer: TKMNetPlayerInfo read GetMyNetPlayer;
+    property LastProcessedTick: Cardinal write fLastProcessedTick;
     property MissingFileType: TNetGameKind read fMissingFileType;
     property MissingFileName: UnicodeString read fMissingFileName;
     procedure GameCreated;
@@ -744,6 +748,30 @@ begin
 end;
 
 
+//Tell other players when we mute or unmute some player
+procedure TKMNetworking.ToggleMutePlayer(aPlayerIndex: Integer);
+begin
+  MyNetPlayer.ToggleMuted(aPlayerIndex);
+  SendPlayerMuted(aPlayerIndex);
+end;
+
+
+//Send player muted info to others
+procedure TKMNetworking.SendPlayerMuted(aPlayerIndex: Integer);
+var M: TKMemoryStream;
+begin
+  case fNetPlayerKind of
+    lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
+    lpk_Joiner: begin
+                  M := TKMemoryStream.Create;
+                  M.Write(aPlayerIndex);
+                  M.Write(MyNetPlayer.Muted[aPlayerIndex]);
+                  PacketSend(NET_ADDRESS_HOST, mk_MutePlayer, M);
+                end;
+  end;
+end;
+
+
 procedure TKMNetworking.KickPlayer(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to kick players out');
@@ -955,7 +983,6 @@ begin
   PacketSend(aPlayerIndex, mk_PlayersList, M);
   M.Free;
 
-  fNetPlayers.SyncNetPlayersLocalInfo;
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;
 
@@ -1058,7 +1085,7 @@ end;
 
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: Integer=-1);
+procedure TKMNetworking.PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: Integer = NET_ADDRESS_OTHERS);
 var
   I: Integer;
   M: TKMemoryStream;
@@ -1241,6 +1268,7 @@ var
   M, M2: TKMemoryStream;
   Kind: TKMessageKind;
   err: UnicodeString;
+  tmpBoolean: Boolean;
   tmpInteger: Integer;
   tmpCRC: Cardinal;
   tmpStringA: AnsiString;
@@ -1616,7 +1644,6 @@ begin
                   //We are no longer the host
                   fFileSenderManager.AbortAllTransfers;
                   fNetPlayerKind := lpk_Joiner;
-                  fNetPlayers.SyncNetPlayersLocalInfo;
                   if Assigned(fOnReassignedJoiner) then fOnReassignedJoiner(Self); //Lobby/game might need to know
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
@@ -1830,6 +1857,16 @@ begin
                   SendPlayerListAndRefreshPlayersSetup(aSenderIndex);
               end;
 
+      mk_MutePlayer:
+              if IsHost then
+              begin
+                M.Read(tmpInteger);
+                M.Read(tmpBoolean);
+                //Update Players setup
+                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Muted[tmpInteger] := tmpBoolean;
+                SendPlayerListAndRefreshPlayersSetup;
+              end;
+
       mk_ReadyToStart:
               if IsHost then
               begin
@@ -1971,9 +2008,14 @@ begin
                       ChatSound := csChatWhisper;
                       I := NetPlayers.ServerToLocal(PlayerIndex);
                       if I <> -1 then
-                        tmpStringA := NetPlayers[I].Nikname
-                      else
+                      begin
+                        tmpStringA := NetPlayers[I].NiknameColored;
+                        tmpInteger := gResTexts[TX_CHAT_WHISPER_TO].IndexOf('%s');
+                        //we want to show colored nikname, so prepare nikname string
+                        tmpStringA := '[]' + tmpStringA + '[$00B9FF]';
+                      end else
                         tmpStringA := '';
+
                       tmpStringW := ' [$00B9FF](' + Format(gResTexts[TX_CHAT_WHISPER_TO], [UnicodeString(tmpStringA)]) + ')[]: ' + tmpStringW;
                     end;
 
@@ -1985,7 +2027,7 @@ begin
                 end;
 
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if (PlayerIndex <> -1) and not fNetPlayers.LocalInfo[PlayerIndex].Muted then
+                if (PlayerIndex <> -1) and not MyNetPlayer.Muted[PlayerIndex] then
                 begin
                   if NetPlayers[PlayerIndex].FlagColorID <> 0 then
                     tmpStringW := UnicodeString(WrapColorA(NetPlayers[PlayerIndex].Nikname, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor))) + tmpStringW
@@ -2200,6 +2242,12 @@ procedure TKMNetworking.TransferOnPacket(aClientIndex: Integer; aStream: TKMemor
 begin
   PacketSend(aClientIndex, mk_FileChunk, aStream);
   SendBufferEmpty := fNetClient.SendBufferEmpty;
+end;
+
+
+function TKMNetworking.GetMyNetPlayer: TKMNetPlayerInfo;
+begin
+  Result := fNetPlayers[fMyIndex];
 end;
 
 

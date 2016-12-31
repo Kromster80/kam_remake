@@ -577,7 +577,7 @@ procedure TKMMenuLobby.ChatMenuSelect(aItem: Integer);
 var I: Integer;
 begin
   //All
-  if aItem = -1 then
+  if aItem = CHAT_MENU_ALL then
   begin
     fChatMode := cmAll;
     UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
@@ -585,7 +585,7 @@ begin
   end
   else
     //Team
-    if aItem = -2 then
+    if aItem = CHAT_MENU_TEAM then
     begin
       fChatMode := cmTeam;
       UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
@@ -594,7 +594,7 @@ begin
     end
     else
       //Spectators
-      if aItem = -3 then
+      if aItem = CHAT_MENU_SPECTATORS then
       begin
         fChatMode := cmSpectators;
         UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
@@ -636,22 +636,22 @@ begin
   //Populate menu with right options
   Menu_Chat.Clear;
 
-  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
+  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], CHAT_MENU_ALL);
 
   //Only show "Team" if the player is on a team
   if fNetworking.NetPlayers[fNetworking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], CHAT_MENU_TEAM);
 
   //Only show "Spectators" if the player is a spectator
   if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], -3);
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], CHAT_MENU_SPECTATORS);
 
   for I := 1 to fNetworking.NetPlayers.Count do
   if I <> fNetworking.MyIndex then //Can't whisper to yourself
   begin
     n := fNetworking.NetPlayers[I];
 
-    if n.IsHuman and n.Connected and not n.Dropped then
+    if n.IsHuman and n.Connected and not n.Dropped and not n.Muted[fNetworking.MyIndex] then
       Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
   end;
 
@@ -736,7 +736,7 @@ begin
   fNetworking.OnReassignedJoiner := Lobby_OnReassignedToJoiner;
   fNetworking.OnFileTransferProgress := Lobby_OnFileTransferProgress;
 
-  ChatMenuSelect(-1); //All
+  ChatMenuSelect(CHAT_MENU_ALL); //All
 
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);
@@ -836,7 +836,7 @@ begin
   begin
     Memo_LobbyPosts.Clear;
     Edit_LobbyPost.Text := '';
-    ChatMenuSelect(-1); //All
+    ChatMenuSelect(CHAT_MENU_ALL); //All
   end;
 
   Label_LobbyMapName.Caption := '';
@@ -1015,7 +1015,7 @@ begin
     //since order of players can change. If someone above leaves we still have the proper Id
     Menu_Host.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-    UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.NetPlayers.LocalInfo[fLocalToNetPlayers[ctrl.Tag]].Muted);
+    UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.MyNetPlayer.Muted[fLocalToNetPlayers[ctrl.Tag]]);
 
     //Position the menu next to the icon, but do not overlap players name
     Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
@@ -1024,7 +1024,7 @@ begin
     //since order of players can change. If someone above leaves we still have the proper Id
     Menu_Joiner.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-    UpdateMuteMenuItem(Menu_Joiner, 0, gGameApp.Networking.NetPlayers.LocalInfo[fLocalToNetPlayers[ctrl.Tag]].Muted);
+    UpdateMuteMenuItem(Menu_Joiner, 0, gGameApp.Networking.MyNetPlayer.Muted[fLocalToNetPlayers[ctrl.Tag]]);
     
     //Position the menu next to the icon, but do not overlap players name
     Menu_Joiner.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
@@ -1034,7 +1034,7 @@ end;
 
 procedure TKMMenuLobby.ToggleMutePlayer(aPlayerIndex: Integer);
 begin
-  gGameApp.Networking.NetPlayers.LocalInfo[aPlayerIndex].ToggleMuted;
+  fNetworking.ToggleMutePlayer(aPlayerIndex);
   UpdateImageLobbyFlag(fNetPlayersToLocal[aPlayerIndex]);
 end;
 
@@ -1051,7 +1051,7 @@ end;
 procedure TKMMenuLobby.UpdateImageLobbyFlag(aIndex: Integer);
 begin
   // Darken player flag when muted
-  if (fLocalToNetPlayers[aIndex] <> -1) and fNetworking.NetPlayers.LocalInfo[fLocalToNetPlayers[aIndex]].Muted then
+  if (fLocalToNetPlayers[aIndex] <> -1) and fNetworking.MyNetPlayer.Muted[fLocalToNetPlayers[aIndex]] then
     Image_LobbyFlag[aIndex].Lightness := -0.66
   else
     Image_LobbyFlag[aIndex].Lightness := 0;
@@ -1101,7 +1101,7 @@ begin
     begin
       // We can still have cmSpectate chat mode if we were in specs. Reset to cmAll in this case
       if (DropBox_LobbyLoc[I].GetSelectedTag <> LOC_SPECTATE) and (fChatMode = cmSpectators) then
-        ChatMenuSelect(-1);
+        ChatMenuSelect(CHAT_MENU_ALL);
       
       fNetworking.SelectLoc(DropBox_LobbyLoc[I].GetSelectedTag, NetI);
       //Host with HostDoesSetup could have given us some location we don't know about
@@ -1411,13 +1411,13 @@ begin
 
   //If we are in team chat mode and find ourselves not on a team (player went back to no team), switch back to all
   if (fChatMode = cmTeam) and (fNetworking.NetPlayers[fNetworking.MyIndex].Team = 0) then
-    ChatMenuSelect(-1);
+    ChatMenuSelect(CHAT_MENU_ALL);
 
   //If we are in whisper chat mode and find the player has left, switch back to all
   if fChatMode = cmWhisper then
   begin
     if fNetworking.NetPlayers.ServerToLocal(fChatWhisperRecipient) = -1 then
-      ChatMenuSelect(-1)
+      ChatMenuSelect(CHAT_MENU_ALL)
     else
       ChatMenuSelect(fChatWhisperRecipient); //In case that player changed his color
   end;
@@ -1865,8 +1865,8 @@ end;
 
 //Post what user has typed
 procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
-var
-  ChatMessage: UnicodeString;
+var ChatMessage: UnicodeString;
+    RecipientNetIndex: Integer;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '')
   or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
@@ -1886,7 +1886,26 @@ begin
       Delete(ChatMessage, 1, 1); //Remove one of the /'s
   end;}
 
-  fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
+  if fChatMode = cmWhisper then
+  begin
+    RecipientNetIndex := fNetworking.NetPlayers.ServerToLocal(fChatWhisperRecipient);
+    if fNetworking.NetPlayers[RecipientNetIndex].Muted[fNetworking.MyIndex] then
+    begin
+      fNetworking.PostLocalMessage(fNetworking.NetPlayers[RecipientNetIndex].NiknameColored
+                                    + ' has muted you. You can''t send messages to him anymore.', // Todo translate
+                                    csSystem);
+      ChatMenuSelect(CHAT_MENU_ALL);
+    end else if not fNetworking.NetPlayers[RecipientNetIndex].Connected
+      or fNetworking.NetPlayers[RecipientNetIndex].Dropped then
+    begin
+      fNetworking.PostLocalMessage(fNetworking.NetPlayers[RecipientNetIndex].NiknameColored
+                                    + ' is not connected to game anymore.', // Todo translate
+                                    csSystem);
+      ChatMenuSelect(CHAT_MENU_ALL);
+    end else
+      fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
+  end else
+    fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
   Edit_LobbyPost.Text := '';
 end;
 
