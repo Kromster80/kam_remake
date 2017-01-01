@@ -2040,7 +2040,7 @@ end;
 
 procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 var
-  I: Integer;
+  I, DropBoxIndex, HumanIndexInList: Integer;
 begin
   Button_Main[tbBuild].Enabled := not aTactic and (fUIMode in [umSP, umMP]) and not HasLostMPGame and not gMySpectator.Hand.InCinematic;
   Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gMySpectator.Hand.InCinematic));
@@ -2083,10 +2083,21 @@ begin
   begin
     Checkbox_ReplayFOW.Checked := False;
     Dropbox_ReplayFOW.Clear;
+    HumanIndexInList := -1;
+    DropBoxIndex := 0;
     for I := 0 to gHands.Count - 1 do
-    if gHands[I].Enabled then
+    begin
+      if (HumanIndexInList = -1)        // Set HumanIndexInList only once
+        and gHands[I].IsHuman then
+        HumanIndexInList := DropBoxIndex;
+      if gHands[I].Enabled then
+      begin
         Dropbox_ReplayFOW.Add(WrapColor(gHands[I].OwnerName, FlagColorToTextColor(gHands[I].FlagColor)), I);
-    Dropbox_ReplayFOW.ItemIndex := 0;
+        Inc(DropBoxIndex);
+      end;
+    end;
+    if HumanIndexInList = -1 then HumanIndexInList := 0; // In case there is no Humans in game
+    Dropbox_ReplayFOW.ItemIndex := HumanIndexInList;
   end;
 end;
 

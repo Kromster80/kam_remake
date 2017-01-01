@@ -108,6 +108,9 @@ type
     property ShareBeacons[aIndex: Integer]: Boolean read GetShareBeacons write SetShareBeacons;
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
 
+    function IsHuman: Boolean;
+    function IsComputer: Boolean;
+
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
     function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit; reintroduce;
@@ -447,6 +450,18 @@ begin
   //(on 80x80 map Loc range is 1..79, which is not obvious when placing roads manually in script)
   if gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     fRoadsList.Add(aLoc);
+end;
+
+
+function TKMHand.IsHuman: Boolean;
+begin
+  Result := fHandType = hndHuman;
+end;
+
+
+function TKMHand.IsComputer: Boolean;
+begin
+  Result := fHandType = hndComputer;
 end;
 
 

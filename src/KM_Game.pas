@@ -67,6 +67,7 @@ type
     procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
     procedure UpdatePeaceTime;
     function WaitingPlayersList: TKMByteArray;
+    function FindHandToSpec: Integer;
   public
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -474,6 +475,33 @@ begin
 end;
 
 
+function TKMGame.FindHandToSpec: Integer;
+var I: Integer;
+    handIndex, humanPlayerHandIndex: TKMHandIndex;
+begin
+  //Find the 1st enabled human hand to be spectating initially.
+  //If there is no enabled human hands, then find the 1st enabled hand
+  handIndex := -1;
+  humanPlayerHandIndex := -1;
+  for I := 0 to gHands.Count - 1 do
+    if gHands[I].Enabled then
+    begin
+      if handIndex = -1 then  // save only first index
+        handIndex := I;
+      if gHands[I].IsHuman then
+      begin
+        humanPlayerHandIndex := I;
+        Break;
+      end;
+    end;
+  if humanPlayerHandIndex <> -1 then
+    handIndex := humanPlayerHandIndex
+  else if handIndex = -1 then // Should never happen, cause there should be at least 1 enabled hand.
+    handIndex := 0;
+  Result := handIndex;
+end;
+
+
 //All setup data gets taken from fNetworking class
 procedure TKMGame.MultiplayerRig;
 var
@@ -514,15 +542,7 @@ begin
   FreeAndNil(gMySpectator); //May have been created earlier
   if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
   begin
-    //Find the first enabled hand to be spectating initially
-    handIndex := 0;
-    for I := 0 to gHands.Count - 1 do
-      if gHands[I].Enabled then
-      begin
-        handIndex := I;
-        Break;
-      end;
-    gMySpectator := TKMSpectator.Create(handIndex);
+    gMySpectator := TKMSpectator.Create(FindHandToSpec);
     gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
   end
   else
@@ -1419,12 +1439,7 @@ begin
     begin
       gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
       //HandIndex is the first enabled player
-      for I := 0 to gHands.Count - 1 do
-        if gHands[I].Enabled then
-        begin
-          gMySpectator.HandIndex := I;
-          Break;
-        end;
+      gMySpectator.HandIndex := FindHandToSpec;
     end;
 
     //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
