@@ -65,9 +65,10 @@ type
     function ParseTextMarkup(aText: UnicodeString): UnicodeString;
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
-    procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime);
+    procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
     procedure UpdatePeaceTime;
     function WaitingPlayersList: TKMByteArray;
+    function FindHandToSpec: Integer;
   public
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -401,49 +402,52 @@ begin
         fMapEditorInterface.ShowMessage('Warnings in mission script:|' + Parser.MinorErrors)
       else
         fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors);
+
+    if fGameMode <> gmMapEd then
+    begin
+      if aCampaign <> nil then
+      begin
+        CampaignData := aCampaign.ScriptData;
+        CampaignData.Seek(0, soBeginning); //Seek to the beginning before we read it
+        CampaignDataTypeFile := aCampaign.ScriptDataTypeFile;
+      end
+      else
+      begin
+        CampaignData := nil;
+        CampaignDataTypeFile := '';
+      end;
+
+      fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
+      //fScripting reports compile errors itself now
+    end;
+
+
+    case fGameMode of
+      gmMulti, gmMultiSpectate:
+                begin
+                  fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
+                  fTextMission := TKMTextLibraryMulti.Create;
+                  fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
+                end;
+      gmSingle, gmCampaign:
+                begin
+                  fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+                  fTextMission := TKMTextLibraryMulti.Create;
+                  fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
+                end;
+      gmMapEd:  ;
+    end;
+
+    gLog.AddTime('Gameplay recording initialized', True);
+
+    if fGameMode in [gmMulti, gmMultiSpectate] then
+      MultiplayerRig;
+
+    //some late operations for parser (f.e. ProcessAttackPositions, which should be done after MultiplayerRig)
+    Parser.PostLoadMission;
   finally
     Parser.Free;
   end;
-
-  if fGameMode <> gmMapEd then
-  begin
-    if aCampaign <> nil then
-    begin
-      CampaignData := aCampaign.ScriptData;
-      CampaignData.Seek(0, soBeginning); //Seek to the beginning before we read it
-      CampaignDataTypeFile := aCampaign.ScriptDataTypeFile;
-    end
-    else
-    begin
-      CampaignData := nil;
-      CampaignDataTypeFile := '';
-    end;
-
-    fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
-    //fScripting reports compile errors itself now
-  end;
-
-
-  case fGameMode of
-    gmMulti, gmMultiSpectate:
-              begin
-                fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
-                fTextMission := TKMTextLibraryMulti.Create;
-                fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
-              end;
-    gmSingle, gmCampaign:
-              begin
-                fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-                fTextMission := TKMTextLibraryMulti.Create;
-                fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
-              end;
-    gmMapEd:  ;
-  end;
-
-  gLog.AddTime('Gameplay recording initialized', True);
-
-  if fGameMode in [gmMulti, gmMultiSpectate] then
-    MultiplayerRig;
 
   gHands.AfterMissionInit(fGameMode <> gmMapEd); //Don't flatten roads in MapEd
 
@@ -470,6 +474,33 @@ begin
     fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
 
   gLog.AddTime('Gameplay initialized', True);
+end;
+
+
+function TKMGame.FindHandToSpec: Integer;
+var I: Integer;
+    handIndex, humanPlayerHandIndex: TKMHandIndex;
+begin
+  //Find the 1st enabled human hand to be spectating initially.
+  //If there is no enabled human hands, then find the 1st enabled hand
+  handIndex := -1;
+  humanPlayerHandIndex := -1;
+  for I := 0 to gHands.Count - 1 do
+    if gHands[I].Enabled then
+    begin
+      if handIndex = -1 then  // save only first index
+        handIndex := I;
+      if gHands[I].IsHuman then
+      begin
+        humanPlayerHandIndex := I;
+        Break;
+      end;
+    end;
+  if humanPlayerHandIndex <> -1 then
+    handIndex := humanPlayerHandIndex
+  else if handIndex = -1 then // Should never happen, cause there should be at least 1 enabled hand.
+    handIndex := 0;
+  Result := handIndex;
 end;
 
 
@@ -513,15 +544,7 @@ begin
   FreeAndNil(gMySpectator); //May have been created earlier
   if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
   begin
-    //Find the first enabled hand to be spectating initially
-    handIndex := 0;
-    for I := 0 to gHands.Count - 1 do
-      if gHands[I].Enabled then
-      begin
-        handIndex := I;
-        Break;
-      end;
-    gMySpectator := TKMSpectator.Create(handIndex);
+    gMySpectator := TKMSpectator.Create(FindHandToSpec);
     gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
   end
   else
@@ -638,6 +661,7 @@ begin
       AttachFile(SaveName('crashreport', 'sav', IsMultiplayer));
       AttachFile(SaveName('crashreport', 'bas', IsMultiplayer));
       AttachFile(SaveName('crashreport', 'rpl', IsMultiplayer));
+      AttachFile(SaveName('crashreport', MP_MINIMAP_SAVE_EXT, IsMultiplayer));
     end;
   except
     on E : Exception do
@@ -735,7 +759,7 @@ begin
               end;
     gmMulti:  begin
                 fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                                    [gHands[aPlayerIndex].OwnerName]), csSystem);
+                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
                 if aPlayerIndex = gMySpectator.HandIndex then
                 begin
                   gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
@@ -744,7 +768,7 @@ begin
                 end;
               end;
     gmMultiSpectate: fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                                  [gHands[aPlayerIndex].OwnerName]), csSystem);
+                       [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
   end;
 end;
@@ -834,17 +858,20 @@ begin
   DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'sav', IsMultiplayer));
   DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'rpl', IsMultiplayer));
   DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'bas', IsMultiplayer));
+  DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer));
   for I := AUTOSAVE_COUNT downto 2 do // 03 to 01
   begin
     RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'sav', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'sav', IsMultiplayer));
     RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'rpl', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'rpl', IsMultiplayer));
     RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'bas', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'bas', IsMultiplayer));
+    RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer));
   end;
 
   //Rename temp to be first in list
   RenameFile(SaveName('autosave', 'sav', IsMultiplayer), SaveName('autosave01', 'sav', IsMultiplayer));
   RenameFile(SaveName('autosave', 'rpl', IsMultiplayer), SaveName('autosave01', 'rpl', IsMultiplayer));
   RenameFile(SaveName('autosave', 'bas', IsMultiplayer), SaveName('autosave01', 'bas', IsMultiplayer));
+  RenameFile(SaveName('autosave', MP_MINIMAP_SAVE_EXT, IsMultiplayer), SaveName('autosave01', MP_MINIMAP_SAVE_EXT, IsMultiplayer));
 end;
 
 
@@ -1155,9 +1182,9 @@ end;
 
 
 //Saves the game in all its glory
-procedure TKMGame.SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime);
+procedure TKMGame.SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
 var
-  SaveStream: TKMemoryStream;
+  SaveStream, MnmSaveStream: TKMemoryStream;
   gameInfo: TKMGameInfo;
   I, netIndex: Integer;
 begin
@@ -1229,9 +1256,25 @@ begin
 
     //In SinglePlayer we want to show player a preview of what the game looked like when he saved
     //Save Minimap is near the start so it can be accessed quickly
-    //In MP each player has his own perspective, hence we dont save minimaps to avoid cheating
+    //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
+    //but save minimap in separate file with smm extension
     if not IsMultiplayer then
-      fGamePlayInterface.SaveMinimap(SaveStream);
+      fGamePlayInterface.SaveMinimap(SaveStream)
+    else
+      if aMinimapPathName <> '' then
+      begin
+        MnmSaveStream := TKMemoryStream.Create;
+        try
+          try
+            fGamePlayInterface.SaveMinimap(MnmSaveStream);
+            MnmSaveStream.SaveToFile(aMinimapPathName);
+          except
+            //Ignore any errors while saving minimap, because its optional for MP games
+          end;
+        finally
+          MnmSaveStream.Free;
+        end;
+      end;
 
     //We need to know which campaign to display after victory
     SaveStream.Write(fCampaignName, SizeOf(TKMCampaignId));
@@ -1284,12 +1327,13 @@ end;
 //Saves game by provided name
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
-  fullPath: UnicodeString;
+  fullPath, minimapPath: UnicodeString;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
+  minimapPath := SaveName(aSaveName, MP_MINIMAP_SAVE_EXT, IsMultiplayer);
 
-  SaveGame(fullPath, aTimestamp);
+  SaveGame(fullPath, aTimestamp, minimapPath);
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
@@ -1407,12 +1451,7 @@ begin
     begin
       gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
       //HandIndex is the first enabled player
-      for I := 0 to gHands.Count - 1 do
-        if gHands[I].Enabled then
-        begin
-          gMySpectator.HandIndex := I;
-          Break;
-        end;
+      gMySpectator.HandIndex := FindHandToSpec;
     end;
 
     //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
@@ -1580,7 +1619,10 @@ begin
                     if DoGameHold then
                       Break;
 
-                    PeaceTimeLeft := Max(0, fGameOptions.Peacetime * 600 - fGameTickCount);
+                    if fGameOptions.Peacetime * 600 < fGameTickCount then
+                      PeaceTimeLeft := 0
+                    else
+                      PeaceTimeLeft := fGameOptions.Peacetime * 600 - fGameTickCount;
 
                     if (PeaceTimeLeft = 1)
                     and (fGameMode = gmReplayMulti)

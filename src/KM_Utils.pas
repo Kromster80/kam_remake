@@ -55,6 +55,8 @@ uses
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
 
+  function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+
   function GetMultiplicator(aShift: TShiftState): Word;
 
 implementation
@@ -634,6 +636,33 @@ end;
 function KaMRandomS(Range_Both_Directions:single):single; overload;
 begin
   Result := KaMRandom(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
+end;
+
+
+// Returnes text ignoring color markup [$FFFFFF][]
+function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+var I, TmpColor: Integer;
+begin
+  Result := '';
+
+  if aText = '' then Exit;
+
+  I := 1;
+  while I <= Length(aText) do
+  begin
+    //Ignore color markups [$FFFFFF][]
+    if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
+      Inc(I) //Skip past this markup
+    else
+      if (aText[I]='[') and (I+8 <= Length(aText))
+      and (aText[I+1] = '$') and (aText[I+8]=']')
+      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+        Inc(I,8) //Skip past this markup
+      else
+        //Not markup so count width normally
+        Result := Result + aText[I];
+    Inc(I);
+  end;
 end;
 
 

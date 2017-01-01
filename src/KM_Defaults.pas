@@ -218,6 +218,8 @@ const
   RETURN_TO_LOBBY_SAVE = 'paused';
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
+  MP_MINIMAP_SAVE_EXT = 'smm';
+
 type
   TKMHandIndex = {type} ShortInt;
   TKMHandIndexArray = array of TKMHandIndex;
@@ -659,6 +661,8 @@ const
   icYellow = $FF07FFFF;
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
+
+  icSteelBlue = $FFA56D53; // Selection color
 
 
 var
