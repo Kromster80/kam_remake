@@ -2,8 +2,8 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles, Forms,
-  KM_Defaults, KM_Resolutions;
+  Classes, SysUtils, Math, INIfiles, System.UITypes,
+  KM_Defaults, KM_Resolutions, KM_Points;
 
 
 type
@@ -33,7 +33,7 @@ type
     procedure ApplyWindowParams(aParams: TKMWindowParamsRecord; aDefaults: Boolean = False);
     procedure LockParams;
     procedure UnlockParams;
-    function IsValid(Screen: TScreen): Boolean;
+    function IsValid(aMonitorsInfo: TKMPointArray): Boolean;
   end;
 
 
@@ -227,8 +227,8 @@ begin
     fWindowParams.fNeedResetToDefaults := True;
 
   // Reset wsMinimized state to wsNormal
-  if (fWindowParams.fState = wsMinimized) then
-    fWindowParams.fState := wsNormal;
+  if (fWindowParams.fState = TWindowState.wsMinimized) then
+    fWindowParams.fState := TWindowState.wsNormal;
 
   FreeAndNil(F);
   fNeedsSave := False;
@@ -661,17 +661,17 @@ end;
 
 
 // Check window param, with current Screen object
-function TKMWindowParams.IsValid(Screen: TScreen): Boolean;
+function TKMWindowParams.IsValid(aMonitorsInfo: TKMPointArray): Boolean;
 var I, ScreenMaxWidth, ScreenMaxHeight: Integer;
 begin
   ScreenMaxWidth := 0;
   ScreenMaxHeight := 0;
   // Calc Max width/height for multi screen systems
   // Assume appending monitor screens left to right, so summarise width, get max of height
-  for I := 0 to Screen.MonitorCount - 1 do
+  for I := Low(aMonitorsInfo) to High(aMonitorsInfo) do
   begin
-    ScreenMaxWidth := ScreenMaxWidth + Screen.Monitors[I].Width;
-    ScreenMaxHeight := max(ScreenMaxHeight, Screen.Monitors[I].Height);
+    ScreenMaxWidth := ScreenMaxWidth + aMonitorsInfo[I].X;
+    ScreenMaxHeight := max(ScreenMaxHeight, aMonitorsInfo[I].Y);
   end;
   // Do not let put window too much left or right. 100px is enought to get it back in that case
   Result := (fLeft > -fWidth + 100)
@@ -682,7 +682,7 @@ begin
         and (fWidth <= ScreenMaxWidth)
         and (fHeight >= MIN_RESOLUTION_HEIGHT)
         and (fHeight <= ScreenMaxHeight)
-        and (fState in [wsNormal, wsMaximized]);
+        and (fState in [TWindowState.wsNormal, TWindowState.wsMaximized]);
 end;
 
 
