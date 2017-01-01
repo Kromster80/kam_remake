@@ -591,7 +591,7 @@ begin
           with fNetworking.NetPlayers[I] do
           begin
             fChatWhisperRecipient := IndexOnServer;
-            UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+            UpdateButtonCaption(NiknameU, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
           end;
         end;
       end;
@@ -630,7 +630,7 @@ begin
     n := fNetworking.NetPlayers[I];
 
     if n.IsHuman and n.Connected and not n.Dropped then
-      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
+      Menu_Chat.AddItem(n.NiknameColoredU, n.IndexOnServer);
   end;
 
   C := TKMControl(Sender);
