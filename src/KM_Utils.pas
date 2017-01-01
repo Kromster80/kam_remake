@@ -202,7 +202,6 @@ end;
 
 function MapSizeIndex(X, Y: Word): Byte;
 begin
-  //Pretend these are understandable in any language
   case X * Y of
             1.. 48* 48: Result := 0;
      48* 48+1.. 80* 80: Result := 1;
@@ -216,6 +215,7 @@ end;
 
 
 function MapSizeText(X, Y: Word): UnicodeString;
+//Pretend these are understandable in any language
 const MAP_SIZES: array [0..6] of String = ('XS', 'S', 'M', 'L', 'XL', 'XXL', '???');
 begin
   Result := MAP_SIZES[MapSizeIndex(X, Y)];
