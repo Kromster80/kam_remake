@@ -731,18 +731,7 @@ end;
 //For private access, where CS is managed by the caller
 procedure TKMapsCollection.DoSort;
 var TempMaps: array of TKMapInfo;
-  function IndexOf(ArrayOfStr: array of String; Str: String): Integer;
-  var I: Integer;
-  begin
-    Result := -1;
-    for I := Low(ArrayOfStr) to High(ArrayOfStr) do
-      if ArrayOfStr[I] = Str then
-      begin
-        Result := I;
-        Break;
-      end;
-    Assert(Result <> -1, 'MapSize ' + Str + ' has not been determined.');
-  end;
+
   //Return True if items should be exchanged
   function Compare(A, B: TKMapInfo): Boolean;
   begin
@@ -750,8 +739,8 @@ var TempMaps: array of TKMapInfo;
     case fSortMethod of
       smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
       smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
-      smBySizeAsc:      Result := IndexOf(MAP_SIZES, A.SizeText) < IndexOf(MAP_SIZES, B.SizeText);
-      smBySizeDesc:     Result := IndexOf(MAP_SIZES, A.SizeText) > IndexOf(MAP_SIZES, B.SizeText);
+      smBySizeAsc:      Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smBySizeDesc:     Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
       smByPlayersAsc:   Result := A.LocCount < B.LocCount;
       smByPlayersDesc:  Result := A.LocCount > B.LocCount;
       smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;

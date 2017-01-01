@@ -45,6 +45,7 @@ uses
   function UTCNow: TDateTime;
   function UTCToLocal(Input: TDateTime): TDateTime;
 
+  function MapSizeIndex(X, Y: Word): Byte;
   function MapSizeText(X,Y: Word): UnicodeString;
 
   //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
@@ -199,18 +200,25 @@ end;
 {$ENDIF}
 
 
-function MapSizeText(X,Y: Word): UnicodeString;
+function MapSizeIndex(X, Y: Word): Byte;
 begin
   //Pretend these are understandable in any language
   case X * Y of
-            1.. 48* 48: Result := 'XS';
-     48* 48+1.. 80* 80: Result := 'S';
-     80* 80+1..128*128: Result := 'M';
-    128*128+1..176*176: Result := 'L';
-    176*176+1..224*224: Result := 'XL';
-    224*224+1..320*320: Result := 'XXL';
-    else                Result := '???';
+            1.. 48* 48: Result := 0;
+     48* 48+1.. 80* 80: Result := 1;
+     80* 80+1..128*128: Result := 2;
+    128*128+1..176*176: Result := 3;
+    176*176+1..224*224: Result := 4;
+    224*224+1..320*320: Result := 5;
+    else                Result := 6;
   end;
+end;
+
+
+function MapSizeText(X, Y: Word): UnicodeString;
+const MAP_SIZES: array [0..6] of String = ('XS', 'S', 'M', 'L', 'XL', 'XXL', '???');
+begin
+  Result := MAP_SIZES[MapSizeIndex(X, Y)];
 end;
 
 
