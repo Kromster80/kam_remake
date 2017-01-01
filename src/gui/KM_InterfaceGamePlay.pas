@@ -2748,13 +2748,17 @@ begin
   end;
   if Key = gResKeys[SC_DELETE_MSG].Key then Button_MessageDelete.Click;
   if Key = gResKeys[SC_CHAT_MP].Key then            // Enter is the shortcut to bring up chat in multiplayer
-    if (fUIMode in [umMP, umSpectate]) and not fGuiGameChat.Visible then
+    if (fUIMode in [umMP, umSpectate]) then
     begin
-      Allies_Close(nil);
-      Message_Close(nil);
-      MessageLog_Close(nil);
-      Label_MPChatUnread.Caption := ''; // No unread messages
-      fGuiGameChat.Show;
+      if not fGuiGameChat.Visible then
+      begin
+        Allies_Close(nil);
+        Message_Close(nil);
+        MessageLog_Close(nil);
+        Label_MPChatUnread.Caption := ''; // No unread messages
+        fGuiGameChat.Show;
+      end else
+        fGuiGameChat.Focus;
     end;
 
     // Standard army shortcuts from KaM
@@ -3089,6 +3093,15 @@ begin
     end;
     Exit;
   end;
+
+  // Check if mouse was clicked insede MP chat panel
+  if not KMInRect(KMPoint(X,Y), fGuiGameChat.PanelChatRect) then
+  begin
+    // Unset chat focus, when mouse clicked outside MP chat panel
+    fMyControls.CtrlFocus := nil;
+    fGuiGameChat.Unfocus;
+  end else
+    fGuiGameChat.Focus; // Set focus to MP chat
 
   if fPlacingBeacon and (Button = mbRight) then
   begin
