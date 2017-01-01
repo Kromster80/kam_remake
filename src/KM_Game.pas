@@ -400,48 +400,51 @@ begin
         fMapEditorInterface.ShowMessage('Warnings in mission script:|' + Parser.MinorErrors)
       else
         fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors);
+
+    if fGameMode <> gmMapEd then
+    begin
+      if aCampaign <> nil then
+      begin
+        CampaignData := aCampaign.ScriptData;
+        CampaignData.Seek(0, soBeginning); //Seek to the beginning before we read it
+        CampaignDataTypeFile := aCampaign.ScriptDataTypeFile;
+      end
+      else
+      begin
+        CampaignData := nil;
+        CampaignDataTypeFile := '';
+      end;
+
+      fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
+      //fScripting reports compile errors itself now
+    end;
+
+
+    case fGameMode of
+      gmMulti, gmMultiSpectate:
+                begin
+                  fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
+                  fTextMission := TKMTextLibraryMulti.Create;
+                  fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
+                end;
+      gmSingle: begin
+                  fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+                  fTextMission := TKMTextLibraryMulti.Create;
+                  fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
+                end;
+      gmMapEd:  ;
+    end;
+
+    gLog.AddTime('Gameplay recording initialized', True);
+
+    if fGameMode in [gmMulti, gmMultiSpectate] then
+      MultiplayerRig;
+
+    //some late operations for parser (f.e. ProcessAttackPositions, which should be done after MultiplayerRig)
+    Parser.PostLoadMission;
   finally
     Parser.Free;
   end;
-
-  if fGameMode <> gmMapEd then
-  begin
-    if aCampaign <> nil then
-    begin
-      CampaignData := aCampaign.ScriptData;
-      CampaignData.Seek(0, soBeginning); //Seek to the beginning before we read it
-      CampaignDataTypeFile := aCampaign.ScriptDataTypeFile;
-    end
-    else
-    begin
-      CampaignData := nil;
-      CampaignDataTypeFile := '';
-    end;
-
-    fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
-    //fScripting reports compile errors itself now
-  end;
-
-
-  case fGameMode of
-    gmMulti, gmMultiSpectate:
-              begin
-                fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
-                fTextMission := TKMTextLibraryMulti.Create;
-                fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
-              end;
-    gmSingle: begin
-                fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-                fTextMission := TKMTextLibraryMulti.Create;
-                fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
-              end;
-    gmMapEd:  ;
-  end;
-
-  gLog.AddTime('Gameplay recording initialized', True);
-
-  if fGameMode in [gmMulti, gmMultiSpectate] then
-    MultiplayerRig;
 
   gHands.AfterMissionInit(fGameMode <> gmMapEd); //Don't flatten roads in MapEd
 
