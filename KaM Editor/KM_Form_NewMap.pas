@@ -141,8 +141,8 @@ var i:integer;
 begin
   RGX.Clear;
   RGY.Clear;
-  for i:= 1 to length(MapSizes) do RGX.Items.Add(inttostr(MapSizes[i]));
-  for i:= 1 to length(MapSizes) do RGY.Items.Add(inttostr(MapSizes[i]));
+  for i:= 1 to length(MapSizes) do RGX.Items.Add(IntToStr(MapSizes[i]));
+  for i:= 1 to length(MapSizes) do RGY.Items.Add(IntToStr(MapSizes[i]));
   RGX.ItemIndex:=6;
   RGY.ItemIndex:=6;
 end;

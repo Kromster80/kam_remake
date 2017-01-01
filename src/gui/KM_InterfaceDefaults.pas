@@ -61,7 +61,6 @@ const
   CHAT_MENU_TEAM = -2;
   CHAT_MENU_SPECTATORS = -3;
 
-
 implementation
 
 
