@@ -984,12 +984,12 @@ begin
     Button_ReplayStep.Disable; // Initial state
     Button_ReplayResume.Disable; // Initial state
 
-  Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 58, 160, 60);
-    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 0, 160, 20, fnt_Metal, '', bsGame);
+  Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 61, 220, 60);
+    Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 0, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
+    Checkbox_ReplayFOW.OnClick := ReplayClick;
+    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 19, 160, 20, fnt_Metal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
-    Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
-    Checkbox_ReplayFOW.OnClick := ReplayClick;
  end;
 
 
@@ -2071,7 +2071,7 @@ begin
 
   Panel_ReplayCtrl.Visible := fUIMode = umReplay;
   Panel_ReplayFOW.Visible := fUIMode in [umSpectate, umReplay];
-  Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 8, 58);
+  Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 8, 61);
   if fUIMode in [umSpectate, umReplay] then
   begin
     Checkbox_ReplayFOW.Checked := False;
