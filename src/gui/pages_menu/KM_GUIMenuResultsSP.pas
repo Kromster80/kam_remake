@@ -160,7 +160,7 @@ begin
     Label_Stat[4].Caption := IntToStr(GetHousesDestroyed);
     Label_Stat[5].Caption := IntToStr(GetHousesBuilt);
     Label_Stat[6].Caption := IntToStr(GetCitizensTrained);
-    Label_Stat[7].Caption := IntToStr(GetWeaponsProduced);
+    Label_Stat[7].Caption := IntToStr(GetWarfareProduced);
     Label_Stat[8].Caption := IntToStr(GetWarriorsTrained);
     Label_Stat[9].Caption := TimeToString(gGame.MissionTime);
   end;
