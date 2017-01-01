@@ -297,15 +297,6 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetHandIndex: Integer;
-begin
-  if StartLocation > 0 then
-    Result := StartLocation - 1
-  else
-    Result := -1;
-end;
-
-
 procedure TKMNetPlayerInfo.ToggleMuted(aNetIndex: Integer);
 begin
   Muted[aNetIndex] := not Muted[aNetIndex];
