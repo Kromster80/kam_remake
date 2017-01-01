@@ -1356,7 +1356,7 @@ begin
     else
       Label_LobbyPing[I].Caption := '';
 
-  Label_LobbyServerName.Caption := fNetworking.ServerName + ' #' + IntToStr(fNetworking.ServerRoom+1) +
+  Label_LobbyServerName.Caption := UnicodeString(fNetworking.ServerName) + ' #' + IntToStr(fNetworking.ServerRoom+1) +
                                    '  ' + fNetworking.ServerAddress + ' : ' + fNetworking.ServerPort;
 end;
 
