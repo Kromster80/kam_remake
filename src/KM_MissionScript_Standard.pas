@@ -30,6 +30,7 @@ type
     constructor Create(aMode: TMissionParsingMode); overload;
     constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray); overload;
     function LoadMission(const aFileName: string): Boolean; overload; override;
+    procedure PostLoadMission;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
     procedure SaveDATFile(const aFileName: string);
@@ -115,11 +116,15 @@ begin
   if not TokenizeScript(FileText, 6, []) then
     Exit;
 
-  //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
-  ProcessAttackPositions;
-
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');
+end;
+
+
+procedure TMissionParserStandard.PostLoadMission;
+begin
+  //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
+  ProcessAttackPositions;
 end;
 
 

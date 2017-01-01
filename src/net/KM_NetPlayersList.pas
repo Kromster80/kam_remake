@@ -23,6 +23,8 @@ type
     procedure SetLangCode(const aCode: AnsiString);
     function GetNiknameColored: AnsiString;
     function GetNikname: AnsiString;
+    function GetNiknameColoredU: UnicodeString;
+    function GetNiknameU: UnicodeString;
     function GetHandIndex: Integer;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
@@ -49,6 +51,8 @@ type
     function SlotName: UnicodeString; //Player name if it's human or computer or closed
     property Nikname: AnsiString read GetNikname; //Human player nikname (ANSI-Latin)
     property NiknameColored: AnsiString read GetNiknameColored;
+    property NiknameU: UnicodeString read GetNiknameU;
+    property NiknameColoredU: UnicodeString read GetNiknameColoredU;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
@@ -227,7 +231,7 @@ end;
 function TKMNetPlayerInfo.SlotName: UnicodeString;
 begin
   case PlayerNetType of
-    nptHuman:     Result := UnicodeString(Nikname);
+    nptHuman:     Result := NiknameU;
     nptComputer:  //In lobby AI players don't have numbers yet (they are added on mission start)
                   Result := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
     nptClosed:    Result := gResTexts[TX_LOBBY_SLOT_CLOSED];
@@ -251,6 +255,18 @@ begin
     Result := WrapColorA(Nikname, FlagColorToTextColor(FlagColor))
   else
     Result := Nikname;
+end;
+
+
+function TKMNetPlayerInfo.GetNiknameU: UnicodeString;
+begin
+  Result := UnicodeString(GetNikname);
+end;
+
+
+function TKMNetPlayerInfo.GetNiknameColoredU: UnicodeString;
+begin
+  Result := UnicodeString(GetNiknameColored);
 end;
 
 
@@ -1104,7 +1120,7 @@ begin
   Result := '';
   for I := 1 to fCount do
   begin
-    Result := Result + '   ' + IntToStr(I) + ': ' + UnicodeString(fNetPlayers[I].Nikname);
+    Result := Result + '   ' + IntToStr(I) + ': ' + fNetPlayers[I].NiknameU;
     if I < fCount then
       Result := Result + '|';
   end;

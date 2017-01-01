@@ -151,10 +151,11 @@ end;
 
 function TKMSaveInfo.LoadMinimap(aMinimap: TKMMinimap): Boolean;
 var
-  LoadStream: TKMemoryStream;
+  LoadStream, LoadMnmStream: TKMemoryStream;
   DummyInfo: TKMGameInfo;
   DummyOptions: TKMGameOptions;
   IsMultiplayer: Boolean;
+  MinimapFilePath: String;
 begin
   Result := False;
   if not FileExists(fPath + fFileName + '.sav') then Exit;
@@ -172,6 +173,24 @@ begin
     begin
       aMinimap.LoadFromStream(LoadStream);
       Result := True;
+    end else begin
+      // Lets try to load Minimap for MP save
+      LoadMnmStream := TKMemoryStream.Create;
+      try
+        try
+          MinimapFilePath := fPath + fFileName + '.' + MP_MINIMAP_SAVE_EXT;
+          if FileExists(MinimapFilePath) then
+          begin
+            LoadMnmStream.LoadFromFile(MinimapFilePath); // try to load minimap from file
+            aMinimap.LoadFromStream(LoadMnmStream);
+            Result := True;
+          end;
+        except
+          // Ignore any errors, because MP minimap is optional
+        end;
+      finally
+        LoadMnmStream.Free;
+      end;
     end;
 
   finally
@@ -304,11 +323,12 @@ end;
 
 //For private acces, where CS is managed by the caller
 procedure TKMSavesCollection.DoSort;
+var TempSaves: array of TKMSaveInfo;
   //Return True if items should be exchanged
-  function Compare(A, B: TKMSaveInfo; aMethod: TSavesSortMethod): Boolean;
+  function Compare(A, B: TKMSaveInfo): Boolean;
   begin
     Result := False; //By default everything remains in place
-    case aMethod of
+    case fSortMethod of
       smByFileNameAsc:     Result := CompareText(A.FileName, B.FileName) < 0;
       smByFileNameDesc:    Result := CompareText(A.FileName, B.FileName) > 0;
       smByDescriptionAsc:  Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) < 0;
@@ -323,13 +343,38 @@ procedure TKMSavesCollection.DoSort;
       smByModeDesc:        Result := A.Info.MissionMode > B.Info.MissionMode;
     end;
   end;
-var
-  I, K: Integer;
+
+  procedure MergeSort(left, right: integer);
+  var middle, i, j, ind1, ind2: integer;
+  begin
+    if right <= left then
+      exit;
+
+    middle := (left+right) div 2;
+    MergeSort(left, middle);
+    Inc(middle);
+    MergeSort(middle, right);
+    ind1 := left;
+    ind2 := middle;
+    for i := left to right do
+    begin
+      if (ind1 < middle) and ((ind2 > right) or not Compare(fSaves[ind1], fSaves[ind2])) then
+      begin
+        TempSaves[i] := fSaves[ind1];
+        Inc(ind1);
+      end
+      else
+      begin
+        TempSaves[i] := fSaves[ind2];
+        Inc(ind2);
+      end;
+    end;
+    for j := left to right do
+      fSaves[j] := TempSaves[j];
+  end;
 begin
-  for I := 0 to fCount - 1 do
-  for K := I to fCount - 1 do
-  if Compare(fSaves[I], fSaves[K], fSortMethod) then
-    SwapInt(NativeUInt(fSaves[I]), NativeUInt(fSaves[K])); //Exchange only pointers to MapInfo objects
+  SetLength(TempSaves, Length(fSaves));
+  MergeSort(Low(fSaves), High(fSaves));
 end;
 
 

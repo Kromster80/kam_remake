@@ -437,6 +437,7 @@ begin
   begin
     Label_NoArmyData.Show;
     Columnbox_Army.Hide;
+    Radio_ChartArmyStyle.Hide;
     for WType := Low(TChartArmyType) to High(TChartArmyType) do
     begin
       Chart_MPArmy[WType].Chart.Hide;
@@ -447,6 +448,7 @@ begin
 
   Label_NoArmyData.Hide;
   Columnbox_Army.Show;
+  Radio_ChartArmyStyle.Show;
 
   W := TChartArmyType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 
@@ -595,7 +597,7 @@ begin
         if Bests[6] > GetHousesLost      then Bests[6] := GetHousesLost;
         if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
         if Bests[8] < GetCivilProduced   then Bests[8] := GetCivilProduced;
-        if Bests[9] < GetWeaponsProduced then Bests[9] := GetWeaponsProduced;
+        if Bests[9] < GetWarfareProduced then Bests[9] := GetWarfareProduced;
 
         //If Totals is 0 the category skipped and does not have "Best" icon on it
         Inc(Totals[0], GetCitizensTrained);
@@ -607,7 +609,7 @@ begin
         Inc(Totals[6], GetHousesLost);
         Inc(Totals[7], GetHousesDestroyed);
         Inc(Totals[8], GetCivilProduced);
-        Inc(Totals[9], GetWeaponsProduced);
+        Inc(Totals[9], GetWarfareProduced);
       end;
 
   //Fill in raw values
@@ -634,12 +636,12 @@ begin
         Bar_Results[Index,6].Tag := GetHousesLost;
         Bar_Results[Index,7].Tag := GetHousesDestroyed;
         Bar_Results[Index,8].Tag := GetCivilProduced;
-        Bar_Results[Index,9].Tag := GetWeaponsProduced;
+        Bar_Results[Index,9].Tag := GetWarfareProduced;
         Image_ResultsRosette[Index,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
         Image_ResultsRosette[Index,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
         Image_ResultsRosette[Index,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
         Image_ResultsRosette[Index,8].Visible := (GetCivilProduced   >= Bests[8]) and (Totals[8] > 0);
-        Image_ResultsRosette[Index,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
+        Image_ResultsRosette[Index,9].Visible := (GetWarfareProduced >= Bests[9]) and (Totals[9] > 0);
       end;
       inc(Index);
     end;

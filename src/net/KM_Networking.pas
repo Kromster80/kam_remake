@@ -75,7 +75,7 @@ type
     fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
     fMyNikname: AnsiString;
     fWelcomeMessage: UnicodeString;
-    fServerName: UnicodeString; // Name of the server we are currently in (shown in the lobby)
+    fServerName: AnsiString; // Name of the server we are currently in (shown in the lobby)
     fPassword: AnsiString;
     fDescription: UnicodeString;
     fEnteringPassword: Boolean;
@@ -160,7 +160,7 @@ type
     property HostIndex: Integer read fHostIndex;
     property NetGameState: TNetGameState read fNetGameState;
     function MyIPString:string;
-    property ServerName: UnicodeString read fServerName;
+    property ServerName: AnsiString read fServerName;
     property ServerAddress: string read fServerAddress;
     property ServerPort: string read fServerPort;
     property ServerRoom: Integer read fRoomToJoin;
@@ -449,7 +449,7 @@ begin
     //Make sure this player is properly disconnected from the server
     PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, ServerIndex);
     NetPlayers.DropPlayer(ServerIndex);
-    PostMessage(TX_NET_DROPPED, csLeave, UnicodeString(NetPlayers[aPlayers[I]].Nikname));
+    PostMessage(TX_NET_DROPPED, csLeave, NetPlayers[aPlayers[I]].NiknameColoredU);
   end;
   SendPlayerListAndRefreshPlayersSetup;
 
@@ -753,7 +753,7 @@ procedure TKMNetworking.KickPlayer(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to kick players out');
   //No need to play a sound, server will do that when it announces that player disconnected
-  PostMessage(TX_NET_KICKED, csNone, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
+  PostMessage(TX_NET_KICKED, csNone, fNetPlayers[aPlayerIndex].NiknameColoredU);
   PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
 end;
 
@@ -762,7 +762,7 @@ procedure TKMNetworking.BanPlayer(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to ban players');
   //No need to play a sound, server will do that when it announces that player disconnected
-  PostMessage(TX_NET_BANNED, csNone, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
+  PostMessage(TX_NET_BANNED, csNone, fNetPlayers[aPlayerIndex].NiknameColoredU);
   PacketSend(NET_ADDRESS_SERVER, mk_BanPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
 end;
 
@@ -1359,8 +1359,8 @@ begin
 
       mk_ServerName:
               begin
-                M.ReadW(tmpStringW);
-                fServerName := tmpStringW;
+                M.ReadA(tmpStringA);
+                fServerName := tmpStringA;
               end;
 
       mk_IndexOnServer:
@@ -1447,7 +1447,7 @@ begin
                   PacketSend(aSenderIndex, mk_ReconnectionAccepted); //Tell this client they are back in the game
                   PacketSend(NET_ADDRESS_OTHERS, mk_ClientReconnected, aSenderIndex); //Tell everyone to ask him to resync
                   PacketSend(aSenderIndex, mk_ResyncFromTick, Integer(fLastProcessedTick)); //Ask him to resync us
-                  PostMessage(TX_NET_HAS_RECONNECTED, csJoin, UnicodeString(tmpStringA));
+                  PostMessage(TX_NET_HAS_RECONNECTED, csJoin, fNetPlayers[PlayerIndex].NiknameColoredU);
                 end
                 else
                 begin
@@ -1607,8 +1607,8 @@ begin
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
                   if not fNetPlayers[PlayerIndex].Dropped then
                   begin
-                    PostMessage(TX_NET_LOST_CONNECTION, csLeave, UnicodeString(fNetPlayers[PlayerIndex].Nikname));
-                    if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
+                    PostMessage(TX_NET_LOST_CONNECTION, csLeave, fNetPlayers[PlayerIndex].NiknameColoredU);
+                    if WRITE_RECONNECT_LOG then gLog.AddTime(fNetPlayers[PlayerIndex].NiknameU+' lost connection');
                   end;
                   if fNetGameState = lgs_Game then
                     fNetPlayers.DisconnectPlayer(tmpInteger)
@@ -1641,7 +1641,7 @@ begin
                     begin
                       fFileSenderManager.ClientDisconnected(aSenderIndex);
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostMessage(TX_NET_HAS_QUIT, csLeave, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
+                      PostMessage(TX_NET_HAS_QUIT, csLeave, fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].NiknameColoredU);
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
@@ -1656,7 +1656,7 @@ begin
                     begin
                       PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                       if PlayerIndex = -1 then exit; //Has already disconnected
-                      PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]), csLeave);
+                      PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].NiknameColoredU]), csLeave);
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
@@ -1716,7 +1716,7 @@ begin
                   or ((fSelectGameKind = ngk_Save) and not SaveInfo.IsValid) then
                     SelectNoMap(''); //In case the previous host had the map and we don't
                   SendPlayerListAndRefreshPlayersSetup;
-                  PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, UnicodeString(fMyNikname));
+                  PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, fNetPlayers[fMyIndex].NiknameColoredU);
                   if WRITE_RECONNECT_LOG then gLog.AddTime('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
                 end;
               end;
@@ -1952,7 +1952,7 @@ begin
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if Assigned(fOnResyncFromTick) and (PlayerIndex<>-1) then
                 begin
-                  if WRITE_RECONNECT_LOG then gLog.AddTime('Resyncing player ' + UnicodeString(fNetPlayers[PlayerIndex].Nikname));
+                  if WRITE_RECONNECT_LOG then gLog.AddTime('Resyncing player ' + fNetPlayers[PlayerIndex].NiknameU);
                   fOnResyncFromTick(PlayerIndex, Cardinal(tmpInteger));
                 end;
               end;
@@ -1990,12 +1990,12 @@ begin
                   fNetPlayers.VoteActive := True;
                   if fNetPlayers.FurtherVotesNeededForMajority <= 0 then
                   begin
-                    PostMessage(TX_NET_VOTE_PASSED, csSystem, UnicodeString(fNetPlayers[PlayerIndex].NiknameColored));
+                    PostMessage(TX_NET_VOTE_PASSED, csSystem, fNetPlayers[PlayerIndex].NiknameColoredU);
                     ReturnToLobbyVoteSucceeded;
                   end
                   else
                   begin
-                    PostMessage(TX_NET_VOTED, csSystem, UnicodeString(fNetPlayers[PlayerIndex].NiknameColored), IntToStr(fNetPlayers.FurtherVotesNeededForMajority));
+                    PostMessage(TX_NET_VOTED, csSystem, fNetPlayers[PlayerIndex].NiknameColoredU, IntToStr(fNetPlayers.FurtherVotesNeededForMajority));
                     SendPlayerListAndRefreshPlayersSetup;
                   end;
                 end;
@@ -2051,9 +2051,9 @@ begin
                 if PlayerIndex <> -1 then
                 begin
                   if NetPlayers[PlayerIndex].FlagColorID <> 0 then
-                    tmpStringW := UnicodeString(WrapColorA(NetPlayers[PlayerIndex].Nikname, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor))) + tmpStringW
+                    tmpStringW := WrapColor(NetPlayers[PlayerIndex].NiknameU, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor)) + tmpStringW
                   else
-                    tmpStringW := UnicodeString(NetPlayers[PlayerIndex].Nikname) + tmpStringW;
+                    tmpStringW := NetPlayers[PlayerIndex].NiknameU + tmpStringW;
 
                   PostLocalMessage(tmpStringW, ChatSound);
                 end;
@@ -2373,4 +2373,6 @@ begin
     end;
 end;
 
+
 end.
+
