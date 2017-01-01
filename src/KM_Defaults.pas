@@ -218,6 +218,8 @@ const
   RETURN_TO_LOBBY_SAVE = 'paused';
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
+  MP_MINIMAP_SAVE_EXT = 'smm';
+
 type
   TKMHandIndex = {type} ShortInt;
   TKMHandIndexArray = array of TKMHandIndex;

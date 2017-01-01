@@ -1692,6 +1692,11 @@ begin
                 S := fNetworking.SaveInfo;
                 Label_LobbyMapName.Caption := aData; //Show save name on host (local is always "downloaded")
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime + '|' + S.Info.GetSaveTimestamp;
+                if S.IsValid and S.LoadMinimap(fMinimap) then
+                begin
+                  MinimapView_Lobby.SetMinimap(fMinimap);
+                  MinimapView_Lobby.Show;
+                end;
               end;
     ngk_Map:  begin
                 M := fNetworking.MapInfo;
