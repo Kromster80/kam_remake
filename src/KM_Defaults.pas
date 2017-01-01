@@ -660,6 +660,8 @@ const
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
 
+  icSteelBlue = $FFA56D53; // Selection color
+
 
 var
   ExeDir: UnicodeString;
