@@ -1,0 +1,29 @@
+This doc contains list of special shortcuts, which are using Ctrl, Shift or other modifiers to alter default behaviour
+
+1)	School training orders. 
+	When clicked on train button: 
+		-	Left click - add Unit to queue (default behaviour)
+		-	Right click fills empty positions of queue with selected unit
+		-	Shift+Left click change last unit order to 0. If there was other unit already training, then cancel it and and train selected unit instead. All units in training queue go down to next position in queue (if unit had 2nd position in queue then it become 3rd)
+		-	Ctrl+Left click, then change last unit order to 1. Similar to previous option, the only difference, that you do not cancel current training process.
+	When clicked on units icons in queue
+		-	Left click removes clicked unit from queue
+		-	Right click removes clicked unit and all units to the right from him
+		- 	Shift or Ctrl + Left click applies same logic as when clicked on train button
+
+2)	Hotkeys for selected objects
+	-	Ctrl + selecting group hotkey (1-9,0 by default) assign selected object to that selecting group hotkey
+	-	Shift + selecting group hotkey (1-9,0 by default) tries to link selected object to object, that was binded to that hotkey (both objects should be unit groups of the same type)
+	
+3)	MapEd, terrain
+	-	Undo/Redo for Ctrl+Z/Ctrl+Y are shurtcuts to buttons on the terrain panel
+
+4)	Producing order add or remove (+/-)
+	-	Left click adds/removes 1 item
+	-	Right click adds/removes 10 items
+	-	Shift + Left click adds/removes 100 items
+	-	Shift + Right click adds/removes 1000 items
+
+5)	Split command
+	-	default behaviour: split group
+	-	when Ctrl was also pressed, then split only one unit from group
