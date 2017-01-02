@@ -124,6 +124,7 @@ type
     procedure MPPlayMoreClick(Sender: TObject);
     procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
+    procedure ReplayClickShift(Sender: TObject; Shift: TShiftState);
     procedure ReturnToLobbyClick(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure AlliesUpdateMapping;
@@ -988,9 +989,9 @@ begin
     Button_ReplayResume.Disable; // Initial state
 
   Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 58, 160, 60);
-    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 0, 160, 20, fnt_Metal, '', bsGame);
+    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 0, 160, 20, fnt_Metal, '', bsGame, True);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
-    Dropbox_ReplayFOW.OnChange := ReplayClick;
+    Dropbox_ReplayFOW.OnChangeShift := ReplayClickShift;
     Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
  end;
@@ -1746,11 +1747,47 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ReplayClickShift(Sender: TObject; Shift: TShiftState);
+var LastSelectedObj: TObject;
+begin
+  if (Sender = Dropbox_ReplayFOW) then
+  begin
+    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+
+    // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
+    // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
+    if (ssCtrl in Shift) then
+    begin
+      LastSelectedObj := fLastSpecHandSelectedObj[gMySpectator.HandIndex];
+      if LastSelectedObj <> nil then
+      begin
+        if LastSelectedObj is TKMUnit then begin
+          fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
+        end else if LastSelectedObj is TKMHouse then
+          fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
+        else if LastSelectedObj is TKMUnitGroup then
+          fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF;
+        gMySpectator.Selected := fLastSpecHandSelectedObj[gMySpectator.HandIndex];  // Change selected object to last one for this hand
+      end else begin
+        fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen);
+        gMySpectator.Selected := nil; // Reset selection, because there was no last selected object for this hand
+      end;
+    end;
+
+    if Checkbox_ReplayFOW.Checked then
+      gMySpectator.FOWIndex := gMySpectator.HandIndex
+    else
+      gMySpectator.FOWIndex := -1;
+    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+    gGame.OverlayUpdate; // Display the overlay seen by the selected player
+  end;
+end;
+
+
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
 var
   oldCenter: TKMPointF;
   oldZoom: Single;
-  LastSelectedObj: TObject;
 begin
   if (Sender = Button_ReplayRestart) then
   begin
@@ -1789,34 +1826,6 @@ begin
   begin
     gGame.GameHold(True, gr_ReplayEnd);
     SetButtons(True);
-  end;
-
-  if (Sender = Dropbox_ReplayFOW) then
-  begin
-    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
-
-    // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
-    LastSelectedObj := fLastSpecHandSelectedObj[gMySpectator.HandIndex];
-    if LastSelectedObj <> nil then
-    begin
-      if LastSelectedObj is TKMUnit then begin
-        fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
-      end else if LastSelectedObj is TKMHouse then
-        fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
-      else if LastSelectedObj is TKMUnitGroup then
-        fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF;
-      gMySpectator.Selected := fLastSpecHandSelectedObj[gMySpectator.HandIndex];  // Change selected object to last one for this hand
-    end else begin
-      fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen);
-      gMySpectator.Selected := nil; // Reset selection, because there was no last selected object for this hand
-    end;
-
-    if Checkbox_ReplayFOW.Checked then
-      gMySpectator.FOWIndex := gMySpectator.HandIndex
-    else
-      gMySpectator.FOWIndex := -1;
-    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
-    gGame.OverlayUpdate; // Display the overlay seen by the selected player
   end;
 
   if (Sender = Checkbox_ReplayFOW) then
