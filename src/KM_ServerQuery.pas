@@ -66,10 +66,11 @@ type
     fRooms:array of TKMRoomInfo;
     procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStream);
     function GetRoom(aIndex: Integer): TKMRoomInfo;
+    procedure SetRoom(aIndex: Integer; aValue: TKMRoomInfo);
     procedure Clear;
   public
     destructor Destroy; override;
-    property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom; default;
+    property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom write SetRoom; default;
     property Count: Integer read fCount;
     procedure LoadData(aServerID:integer; aStream: TKMemoryStream);
     procedure SwapRooms(A,B:Integer);
@@ -163,6 +164,12 @@ end;
 function TKMRoomList.GetRoom(aIndex:integer):TKMRoomInfo;
 begin
   Result := fRooms[aIndex];
+end;
+
+
+procedure TKMRoomList.SetRoom(aIndex: Integer; aValue: TKMRoomInfo);
+begin
+  fRooms[aIndex] := aValue;
 end;
 
 
@@ -526,15 +533,16 @@ end;
 
 
 procedure TKMServerQuery.Sort;
+var TempRooms: array of TKMRoomInfo;
 
-  function Compare(A, B: TKMRoomInfo; aMethod: TServerSortMethod):Boolean;
+  function Compare(A, B: TKMRoomInfo): Boolean;
   var AServerInfo, BServerInfo: TKMServerInfo;
   const StateSortOrder: array[TMPGameState] of byte = (4,1,2,3);
   begin
     Result := False; //By default everything remains in place
     AServerInfo := Servers[A.ServerIndex];
     BServerInfo := Servers[B.ServerIndex];
-    case aMethod of
+    case fSortMethod of
       ssmByPasswordAsc: Result := A.GameInfo.PasswordLocked and not B.GameInfo.PasswordLocked;
       ssmByPasswordDesc:Result := not A.GameInfo.PasswordLocked and B.GameInfo.PasswordLocked;
       ssmByTypeAsc:     Result := AServerInfo.ServerType > BServerInfo.ServerType;
@@ -545,8 +553,8 @@ procedure TKMServerQuery.Sort;
       ssmByPingDesc:    Result := AServerInfo.Ping < BServerInfo.Ping;
       ssmByStateAsc:    Result := StateSortOrder[A.GameInfo.GameState] > StateSortOrder[B.GameInfo.GameState];
       ssmByStateDesc:   Result := StateSortOrder[A.GameInfo.GameState] < StateSortOrder[B.GameInfo.GameState];
-      ssmByPlayersAsc:  Result := A.GameInfo.PlayerCount > B.GameInfo.PlayerCount;
-      ssmByPlayersDesc: Result := A.GameInfo.PlayerCount < B.GameInfo.PlayerCount;
+      ssmByPlayersAsc:  Result := A.GameInfo.ConnectedPlayerCount > B.GameInfo.ConnectedPlayerCount;
+      ssmByPlayersDesc: Result := A.GameInfo.ConnectedPlayerCount < B.GameInfo.ConnectedPlayerCount;
     end;
     //Always put local servers at the top
     if (AServerInfo.ServerType = mstLocal) and (BServerInfo.ServerType <> mstLocal) then
@@ -556,13 +564,38 @@ procedure TKMServerQuery.Sort;
         Result := True;
   end;
 
-var
-  i, k: Integer;
+  procedure MergeSort(left, right: integer);
+  var middle, i, j, ind1, ind2: integer;
+  begin
+    if right <= left then
+      exit;
+
+    middle := (left+right) div 2;
+    MergeSort(left, middle);
+    Inc(middle);
+    MergeSort(middle, right);
+    ind1 := left;
+    ind2 := middle;
+    for i := left to right do
+    begin
+      if (ind1 < middle) and ((ind2 > right) or not Compare(fRoomList[ind1], fRoomList[ind2])) then
+      begin
+        TempRooms[i] := fRoomList[ind1];
+        Inc(ind1);
+      end
+      else
+      begin
+        TempRooms[i] := fRoomList[ind2];
+        Inc(ind2);
+      end;
+    end;
+    for j := left to right do
+      fRoomList[j] := TempRooms[j];
+  end;
+
 begin
-  for i:=0 to fRoomList.Count-1 do
-  for k:=i to fRoomList.Count-1 do
-  if Compare(Rooms[i], Rooms[k], fSortMethod) then
-    fRoomList.SwapRooms(i,k);
+  SetLength(TempRooms, fRoomList.Count);
+  MergeSort(0, fRoomList.Count - 1);
 end;
 
 

@@ -102,6 +102,7 @@ type
     function GetWaresProduced(aRT: TWareType): Cardinal;
     function GetCivilProduced: Cardinal;
     function GetWeaponsProduced: Cardinal;
+    function GetWarfareProduced: Cardinal;
 
     property ChartCount: Integer read fChartCount;
     property ChartHouses: TKMCardinalArray read fChartHouses;
@@ -530,6 +531,15 @@ var RT: TWareType;
 begin
   Result := 0;
   for RT := WEAPON_MIN to WEAPON_MAX do
+    Inc(Result, Wares[RT].Produced);
+end;
+
+
+function TKMHandStats.GetWarfareProduced: Cardinal;
+var RT: TWareType;
+begin
+  Result := 0;
+  for RT := WARFARE_MIN to WARFARE_MAX do
     Inc(Result, Wares[RT].Produced);
 end;
 
