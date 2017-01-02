@@ -36,7 +36,7 @@ type
 
 implementation
 uses
-  KM_GameInputProcess, KM_RenderUI, KM_HandsCollection, KM_ResTexts, KM_Game,
+  KM_GameInputProcess, KM_RenderUI, KM_HandsCollection, KM_ResTexts, KM_Game, KM_GameApp,
   KM_Resource, KM_ResFonts, KM_ResWares, KM_Hand;
 
 
@@ -119,7 +119,7 @@ begin
     begin
       Image_RatioPic[I].TexID := gRes.HouseDat[HT].GUIIcon;
       TrackBar_RatioValue[I].Caption := gRes.HouseDat[HT].HouseName;
-      TrackBar_RatioValue[I].Position := gMySpectator.Hand.Stats.Ratio[ResRatioType[fActiveTab], HT];
+      TrackBar_RatioValue[I].Position := gMySpectator.Hand.Stats.WareDistribution[ResRatioType[fActiveTab], HT];
       TrackBar_RatioValue[I].Enabled := fAllowEditing;
     end else begin
       Image_RatioPic[I].TexID := 41; //Question mark
@@ -138,11 +138,13 @@ procedure TKMGUIGameRatios.RatiosChange(Sender: TObject);
 var
   ware: TWareType;
   house: THouseType;
+  value: Byte;
 begin
   ware := ResRatioType[fActiveTab];
   house := ResRatioHouse[fActiveTab, TKMTrackBar(Sender).Tag];
-
-  gGame.GameInputProcess.CmdRatio(gic_RatioChange, ware, house, TKMTrackBar(Sender).Position);
+  value := TKMTrackBar(Sender).Position;
+  gGameApp.GameSettings.WareDistribution[ware, house] := value;
+  gGame.GameInputProcess.CmdWareDistribution(gic_WareDistributionChange, ware, house, value);
 end;
 
 

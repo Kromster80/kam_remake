@@ -3,7 +3,7 @@
 interface
 uses
   Classes, SysUtils, Math, INIfiles, System.UITypes,
-  KM_Defaults, KM_Resolutions, KM_Points;
+  KM_Defaults, KM_Resolutions, KM_WareDistribution;
 
 
 type
@@ -102,6 +102,8 @@ type
     fAnnounceServer: Boolean;
     fHTMLStatusFile: UnicodeString;
     fServerWelcomeMessage: UnicodeString;
+    fWareDistribution: TKMWareDistribution;
+
     procedure SetAutosave(aValue: Boolean);
     procedure SetReplayAutopause(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
@@ -168,6 +170,7 @@ type
     property PingInterval: Integer read fPingInterval write SetPingInterval;
     property HTMLStatusFile: UnicodeString read fHTMLStatusFile write SetHTMLStatusFile;
     property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
+    property WareDistribution: TKMWareDistribution read fWareDistribution;
   end;
 
 
@@ -190,6 +193,7 @@ end;
 destructor TMainSettings.Destroy;
 begin
   SaveToINI(ExeDir+SETTINGS_FILE);
+  FreeAndNil(fWindowParams);
   inherited;
 end;
 
@@ -304,6 +308,7 @@ constructor TGameSettings.Create;
 begin
   inherited;
 
+  fWareDistribution := TKMWareDistribution.Create;
   ReloadSettings;
 end;
 
@@ -311,6 +316,8 @@ end;
 destructor TGameSettings.Destroy;
 begin
   SaveToINI(ExeDir + SETTINGS_FILE);
+  FreeAndNil(fWareDistribution);
+
   inherited;
 end;
 
@@ -318,7 +325,7 @@ end;
 //Save only when needed
 procedure TGameSettings.SaveSettings(aForce: Boolean=False);
 begin
-  if fNeedsSave or aForce then
+  if fNeedsSave or fWareDistribution.Changed or aForce then
     SaveToINI(ExeDir + SETTINGS_FILE);
 end;
 
@@ -350,6 +357,8 @@ begin
     fSpeedMedium    := F.ReadFloat('Game', 'SpeedMedium',    3);
     fSpeedFast      := F.ReadFloat('Game', 'SpeedFast',      6);
     fSpeedVeryFast  := F.ReadFloat('Game', 'SpeedVeryFast',  10);
+
+    fWareDistribution.LoadFromStr(F.ReadString ('Game','WareDistribution',''));
 
     fSoundFXVolume  := F.ReadFloat  ('SFX',  'SFXVolume',      0.5);
     fMusicVolume    := F.ReadFloat  ('SFX',  'MusicVolume',    0.5);
@@ -405,6 +414,8 @@ begin
     F.WriteFloat('Game','SpeedMedium',       fSpeedMedium);
     F.WriteFloat('Game','SpeedFast',         fSpeedFast);
     F.WriteFloat('Game','SpeedVeryFast',     fSpeedVeryFast);
+
+    F.WriteString('Game','WareDistribution', fWareDistribution.PackToStr);
 
     F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
     F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
