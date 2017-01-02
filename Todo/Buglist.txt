@@ -14,7 +14,7 @@ Bugs:
  +	Minimap small visual bugs
  +	AI does not repair houses after Save/Load
  +	Game crashed on exit if log file was deleted. Recreate it instead
- +	When in mission attack position set to house/unit, then if in MP game this house unit is an ally it is still could be attacked.	
+ +	When group attack position is set to a house/unit, in MP this house/unit would be attacked even if it is an ally	
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  
 
