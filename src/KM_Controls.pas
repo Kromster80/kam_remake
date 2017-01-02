@@ -684,7 +684,6 @@ type
     fItems: TStringList;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
-    fOnChangeShift: TNotifyEventShift;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue: single);
@@ -720,7 +719,6 @@ type
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
-    property OnChangeShift: TNotifyEventShift read fOnChangeShift write fOnChangeShift;
 
     procedure Paint; override;
   end;
@@ -917,12 +915,10 @@ type
     fCaption: UnicodeString; //Current caption (Default or from list)
     fDefaultCaption: UnicodeString;
     fList: TKMListBox;
-    fOnChangeShift: TNotifyEventShift;
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
     procedure ListChange(Sender: TObject); override;
-    procedure ListChangeShift(Sender: TObject; Shift: TShiftState);
     procedure ListHide(Sender: TObject); override;
     function ListVisible: Boolean; override;
     function GetItem(aIndex: Integer): UnicodeString;
@@ -932,7 +928,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85; aUseOnChangeShift: Boolean = False);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
     procedure Clear; override;
     function Count: Integer; override;
     procedure Add(aItem: UnicodeString; aTag: Integer=0);
@@ -942,7 +938,6 @@ type
     function GetSelectedTag: Integer;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property Item[aIndex: Integer]: UnicodeString read GetItem;
-    property OnChangeShift: TNotifyEventShift read fOnChangeShift write fOnChangeShift;
 
     procedure Paint; override;
   end;
@@ -4342,8 +4337,6 @@ begin
 
   if Assigned(fOnChange) then
     fOnChange(Self);
-  if Assigned(fOnChangeShift) then
-    fOnChangeShift(Self, Shift);
 end;
 
 
@@ -4379,8 +4372,6 @@ begin
       fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
       if Assigned(fOnChange) then
         fOnChange(Self);
-      if Assigned(fOnChangeShift) then
-        fOnChangeShift(Self, Shift);
     end;
   end;
 end;
@@ -5249,7 +5240,7 @@ end;
 
 
 { TKMDropList }
-constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85; aUseOnChangeShift: Boolean = False);
+constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle, aAutoClose);
@@ -5264,10 +5255,7 @@ begin
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := aBackAlpha;
   fList.fOnClick := ListClick;
-  if not aUseOnChangeShift then
-    fList.fOnChange := ListChange
-  else
-    fList.fOnChangeShift := ListChangeShift;
+  fList.fOnChange := ListChange;
 
   ListHide(nil);
 end;
@@ -5296,14 +5284,6 @@ begin
   fCaption := fList.Item[ItemIndex];
 
   inherited;
-end;
-
-
-procedure TKMDropList.ListChangeShift(Sender: TObject; Shift: TShiftState);
-begin
-  fCaption := fList.Item[ItemIndex];
-  if (ItemIndex <> -1) then
-    if Assigned(fOnChangeShift) then fOnChangeShift(Self, Shift);
 end;
 
 
