@@ -72,6 +72,7 @@ Improvements:
  +		Map name label on F4 menu
  +		New option: replay autopause on PT end
  +	L	House not occupied message mentions which house it is ("This farm is not occupied").
+ +		While spectating/watching replay change screen position when switch between players with dropbox with pressed Ctrl button
  +
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
