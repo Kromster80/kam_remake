@@ -449,10 +449,6 @@ begin
     Parser.Free;
   end;
 
-  // Update our ware distributions from settings
-  if fGameMode in [gmSingle, gmMulti] then
-    GameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
-
   gHands.AfterMissionInit(fGameMode <> gmMapEd); //Don't flatten roads in MapEd
 
   //Random after StartGame and ViewReplay should match
@@ -466,6 +462,10 @@ begin
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
   if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer), UTCNow);
+
+  // Update our ware distributions from settings
+  if fGameMode in [gmSingle, gmMulti] then
+    GameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
 
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
   gScriptEvents.ProcMissionStart;
