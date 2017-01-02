@@ -18,6 +18,7 @@ type
     procedure AddLineNoTime(const aText: UnicodeString);
   public
     constructor Create(const aPath: UnicodeString);
+    procedure InitLog;
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AddTime(const aText: UnicodeString); overload;
     procedure AddTime(const aText: UnicodeString; num: Integer); overload;
@@ -91,7 +92,13 @@ begin
   fLogPath := aPath;
   fFirstTick := TimeGet;
   fPreviousTick := TimeGet;
-  ForceDirectories(ExtractFilePath((aPath)));
+  InitLog;
+end;
+
+
+procedure TKMLog.InitLog;
+begin
+  ForceDirectories(ExtractFilePath((fLogPath)));
 
   AssignFile(fl, fLogPath);
   Rewrite(fl);
@@ -117,6 +124,8 @@ end;
 //meaning that no lines will be lost if Remake crashes
 procedure TKMLog.AddLineTime(const aText: UnicodeString);
 begin
+  if not FileExists(fLogPath) then
+    InitLog;  // Recreate log file, if it was deleted
   AssignFile(fl, fLogPath);
   Append(fl);
   //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
@@ -140,6 +149,8 @@ end;
 {Same line but without timestamp}
 procedure TKMLog.AddLineNoTime(const aText: UnicodeString);
 begin
+  if not FileExists(fLogPath) then
+    InitLog;  // Recreate log file, if it was deleted
   AssignFile(fl, fLogPath);
   Append(fl);
   WriteLn(fl, '                                      ' + aText);

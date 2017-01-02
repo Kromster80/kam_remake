@@ -778,7 +778,7 @@ begin
     //Build 2 schools if we need to equip a lot of warriors per minute
     SchoolBalance   := HouseCount(ht_School)      - 1 - Byte((gHands[fOwner].Stats.GetHouseQty(ht_Barracks) > 0) and (gHands[fOwner].AI.Setup.WarriorsPerMinute > 2));
     InnBalance      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
-    BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
+    BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWarfareProduced > 0);
     TowerBalance    := HouseCount(ht_WatchTower)  - 1 * gHands[fOwner].Stats.GetHouseQty(ht_Barracks);
 
     Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance]);

@@ -64,6 +64,8 @@ type
     property Tileset: TKMTileset read fTileset;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
 
+    function IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
+
     procedure ExportTreeAnim;
     procedure ExportHouseAnim;
     procedure ExportUnitAnim;
@@ -213,6 +215,12 @@ begin
 
   fDataState := rlsAll;
   gLog.AddTime('Resource loading state - Game');
+end;
+
+
+function TKMResource.IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
+begin
+  Result := (aMsgId >= TX_MSG_HOUSE_UNOCCUPIED__22) and (aMsgId <= TX_MSG_HOUSE_UNOCCUPIED__22 + 22);
 end;
 
 
