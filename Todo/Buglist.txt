@@ -14,6 +14,7 @@ Bugs:
  +	Minimap small visual bugs
  +	AI does not repair houses after Save/Load
  +	Game crashed on exit if log file was deleted. Recreate it instead
+ +	When group attack position is set to a house/unit, in MP this house/unit would be attacked even if it is an ally	
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  
 
@@ -64,15 +65,26 @@ Improvements:
  +		New hotkey for orders: Shift+RMB add/remove 1000 orders to orders lists
  +		New column in maps/saves lists: build or fight
  +		Separate statistics for different warrior types
- +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay.
+ +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
  +		Highlight players flags in lobby, when they are clickable
  +		Ping string in game visual improvement (removed 'shaking' effect)
  +		Market small GUI visual improvement (removed unnecessary colon sign's)
  +		Label for group members count on group panel (same as in MapEd)
  +		Map name label on F4 menu
  +		New option: replay autopause on PT end
- +	L	House not occupied message mentions which house it is ("This farm is not occupied").
- +
+ +	L	House not occupied message mentions which house it is ("This farm is not occupied")
+ +		Selectable text in Edit and Memo
+ +		Colored niknames in chat system messages
+ +	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
+ +	L	Save wares distribution ratios between games
+ +		Minimap for MP games: show in replays menu and lobby, if possible
+ +		MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
+ +		While watching replay players dropbox not closing automatically anymore
+ +		While spectating or watching replay show 1st human player initially, not just 1st player
+ +		After quit from SP game/Campaign/MapEd should return to appropriate menu page
+ +		Game stats 'Weapons produced' now contains horses as well
+ +		Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
+ 
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
  +		MapEd: House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
@@ -110,10 +122,8 @@ Improvements:
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 	L	Allow fish to swim under the ice (as well render it between sand and water terrain layers)
 	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
-	L	Save wares distribution ratios between games
 	M	Make projectiles play hit sounds on every Paint and UpdateState, so we dont get just 3 hit sounds for 20 archers shooting at once
 	M	Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
-	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
 	M	Self-sustained AI should help allied players in game
 	L	Do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
 	L	Serfs should take wares back or to suitable house if destination is destroyed
