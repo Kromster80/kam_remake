@@ -14,7 +14,7 @@ Bugs:
  +	Minimap small visual bugs
  +	AI does not repair houses after Save/Load
  +	Game crashed on exit if log file was deleted. Recreate it instead
- +  When in mission attack position set to house/unit, then if in MP game this house unit is an ally it is still could be attacked.	
+ +	When in mission attack position set to house/unit, then if in MP game this house unit is an ally it is still could be attacked.	
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  
 
@@ -73,17 +73,17 @@ Improvements:
  +		Map name label on F4 menu
  +		New option: replay autopause on PT end
  +	L	House not occupied message mentions which house it is ("This farm is not occupied")
- +      Selectable text in Edit and Memo
- +      Colored niknames in chat system messages
- +  L   Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
- +  L	Save wares distribution ratios between games
- +      Minimap for MP games: show in replays menu and lobby, if possible
- +      MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
- +      While watching replay players dropbox not closing automatically anymore
- +      While spectating or watching replay show 1st human player initially, not just 1st player
- +      After quit from SP game/Campaign/MapEd should return to appropriate menu page
- +      Game stats 'Weapons produced' now contains horses as well
- +      Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
+ +		Selectable text in Edit and Memo
+ +		Colored niknames in chat system messages
+ +	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
+ +	L	Save wares distribution ratios between games
+ +		Minimap for MP games: show in replays menu and lobby, if possible
+ +		MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
+ +		While watching replay players dropbox not closing automatically anymore
+ +		While spectating or watching replay show 1st human player initially, not just 1st player
+ +		After quit from SP game/Campaign/MapEd should return to appropriate menu page
+ +		Game stats 'Weapons produced' now contains horses as well
+ +		Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
  
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
