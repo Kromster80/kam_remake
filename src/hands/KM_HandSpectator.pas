@@ -113,7 +113,7 @@ begin
   Result := (aObject <> nil)
     and not ((aObject is TKMUnit) and TKMUnit(aObject).IsDeadOrDying)         //Don't allow the player to select dead units
     and not (aObject is TKMUnitAnimal)                                        //...or animals
-    and not ((aObject is TKMUnitGroup) and (TKMUnitGroup(aObject).Count = 0)) //We can select only group with more then 1 warrior
+    and not ((aObject is TKMUnitGroup) and (TKMUnitGroup(aObject).Count = 0)) //We can not select groups with no warriors
     and not ((aObject is TKMHouse) and TKMHouse(aObject).IsDestroyed);        //Don't allow the player to select destroyed houses
 end;
 
