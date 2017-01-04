@@ -57,7 +57,6 @@ type
     Label_TeamName: TKMLabel;
     fLastSyncedMessage: Word; // Last message that we synced with MessageLog
     fAlliesToNetPlayers: array [0..MAX_LOBBY_SLOTS-1] of Integer;
-    fLastSpecHandSelectedObj: array [0..MAX_HANDS-1] of TObject;
 
     // Saved (in singleplayer only)
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
@@ -781,9 +780,6 @@ begin
     S.LineWidth := 1;
     S.Hitable := False;
   end;
-
-  for I := Low(fLastSpecHandSelectedObj) to High(fLastSpecHandSelectedObj) do
-    fLastSpecHandSelectedObj[I] := nil;
 
   SwitchPage(nil); // Update
   Resize(aRender.ScreenX, aRender.ScreenY); // Hide/show swords according to player's resolution when game starts
@@ -1807,20 +1803,22 @@ begin
     // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
     if GetKeyState(VK_CONTROL) < 0 then
     begin
-      LastSelectedObj := fLastSpecHandSelectedObj[gMySpectator.HandIndex];
+      LastSelectedObj := gMySpectator.LastSpecSelectedObj;
       if LastSelectedObj <> nil then
       begin
+        // Center screen on last selected object for chosen hand
         if LastSelectedObj is TKMUnit then begin
           fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
         end else if LastSelectedObj is TKMHouse then
           fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
         else if LastSelectedObj is TKMUnitGroup then
-          fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF;
-        gMySpectator.Selected := fLastSpecHandSelectedObj[gMySpectator.HandIndex];  // Change selected object to last one for this hand
-      end else begin
-        fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen);
-        gMySpectator.Selected := nil; // Reset selection, because there was no last selected object for this hand
-      end;
+          fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
+        else
+          Assert(False, 'Could not determine last selected object type');
+      end else
+        fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
+
+      gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
     end;
 
     if Checkbox_ReplayFOW.Checked then
@@ -3216,19 +3214,12 @@ begin
                 // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fUIMode in [umReplay, umSpectate] then
                 begin
-                  if gMySpectator.Selected is TKMHouse      then gMySpectator.HandIndex := TKMHouse    (gMySpectator.Selected).Owner;
-                  if gMySpectator.Selected is TKMUnit       then gMySpectator.HandIndex := TKMUnit     (gMySpectator.Selected).Owner;
-                  if gMySpectator.Selected is TKMUnitGroup  then gMySpectator.HandIndex := TKMUnitGroup(gMySpectator.Selected).Owner;
                   Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandIndex);
                   if Checkbox_ReplayFOW.Checked then
                     gMySpectator.FOWIndex := gMySpectator.HandIndex
                   else
                     gMySpectator.FOWIndex := -1;
                   fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
-                  //Save last selected object of this hand,
-                  //so next time switching to this hand by Dropbox_ReplayFOW we will set screen position to this object
-                  if gMySpectator.Selected <> nil then
-                    fLastSpecHandSelectedObj[gMySpectator.HandIndex] := gMySpectator.Selected;
                 end;
 
                 if (gMySpectator.Selected is TKMHouse) then
