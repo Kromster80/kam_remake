@@ -24,7 +24,9 @@ type
 
     fWonOrLost: TWonOrLost; //Has this player won/lost? If so, do not check goals
 
-    procedure CheckGoals;
+    function GetHasWon: Boolean;
+    function GetHasLost: Boolean;
+    function GetIsNotWinnerNotLoser: Boolean;
   public
     constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
@@ -34,10 +36,14 @@ type
     property Mayor: TKMayor read fMayor;
     property Setup: TKMHandAISetup read fSetup;
 
-    procedure Defeat(aNotifyOtherPlayers: Boolean = False); //Defeat the player, this is not reversible
+    procedure CheckGoals;
+    procedure Defeat(aShowDefeatMessage: Boolean = True); //Defeat the player, this is not reversible
     procedure Victory; //Set this player as victorious, this is not reversible
     procedure AddDefaultGoals(aBuildings: Boolean);
     property WonOrLost: TWonOrLost read fWonOrLost;
+    property HasWon: Boolean read GetHasWon;
+    property HasLost: Boolean read GetHasLost;
+    property IsNotWinnerNotLoser: Boolean read GetIsNotWinnerNotLoser;
     procedure OwnerUpdate(aPlayer: TKMHandIndex);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
     procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnit);
@@ -82,14 +88,14 @@ end;
 
 //Defeat Player (from scripting?), this is not reversible.
 //Defeated player remains in place, but does no actions
-procedure TKMHandAI.Defeat(aNotifyOtherPlayers: Boolean = False);
+procedure TKMHandAI.Defeat(aShowDefeatMessage: Boolean = True);
 begin
   if fWonOrLost = wol_None then
   begin
     fWonOrLost := wol_Lost;
 
     //Let the game know
-    gGame.PlayerDefeat(fOwner, aNotifyOtherPlayers);
+    gGame.PlayerDefeat(fOwner, aShowDefeatMessage);
 
     //Script may have additional event processors
     gScriptEvents.ProcPlayerDefeated(fOwner);
@@ -141,7 +147,7 @@ procedure TKMHandAI.CheckGoals;
   begin
     Assert((aGoal.GoalCondition = gc_Time) or (aGoal.HandIndex <> PLAYER_NONE), 'Only gc_Time can have nil Player');
 
-    if aGoal.Completed then
+    if aGoal.Disabled then
     begin
       Result := True;
       Exit;
@@ -221,6 +227,24 @@ begin
   else
     if HasVictoryGoal and VictorySatisfied then
       Victory;
+end;
+
+
+function TKMHandAI.GetHasWon: Boolean;
+begin
+  Result := fWonOrLost = wol_Won;
+end;
+
+
+function TKMHandAI.GetHasLost: Boolean;
+begin
+  Result := fWonOrLost = wol_Lost;
+end;
+
+
+function TKMHandAI.GetIsNotWinnerNotLoser: Boolean;
+begin
+  Result := fWonOrLost = wol_None;
 end;
 
 

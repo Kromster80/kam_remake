@@ -45,10 +45,10 @@ const
      mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated,mk_HasMapOrSave],
     //lgs_Loading
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote,mk_Defeated],
+     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
     //lgs_Game
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReadyToReturnToLobby,
-     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote,mk_Defeated],
+     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote],
     //lgs_Reconnecting
     [mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
@@ -135,10 +135,10 @@ type
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
 
-    procedure PlayerDefeated(aPlayerIndex: Integer);
+    procedure PlayerDisconnected(aSenderIndex: Integer);
     procedure ReturnToLobbyVoteSucceeded;
     procedure ResetReturnToLobbyVote;
-    
+
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
 
@@ -167,7 +167,7 @@ type
     function IsHost: Boolean;
     function IsReconnecting: Boolean;
     function CalculateGameCRC: Cardinal;
-    procedure PostWinMessageIfWinAcquired;
+    procedure PostWinMessage;
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
@@ -197,7 +197,6 @@ type
     function CanTakeLocation(aPlayer, aLoc: Integer; AllowSwapping: Boolean): Boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
-    procedure SendPlayerDefeated;
     procedure UpdateGameOptions(aPeacetime: Word; aSpeedPT, aSpeedAfterPT: Single);
     procedure SendGameOptions;
     procedure RequestFileTransfer;
@@ -394,10 +393,7 @@ end;
 //Send message that we have deliberately disconnected
 procedure TKMNetworking.AnnounceDisconnect;
 begin
-  if IsHost then
-    PacketSend(NET_ADDRESS_OTHERS, mk_Disconnect) //Host tells everyone when they quit
-  else
-    PacketSend(NET_ADDRESS_HOST, mk_Disconnect); //Joiners should only tell host when they quit
+  PacketSend(NET_ADDRESS_OTHERS, mk_Disconnect); // Tell everyone when we quit
 end;
 
 
@@ -925,12 +921,6 @@ begin
 end;
 
 
-procedure TKMNetworking.SendPlayerDefeated;
-begin
-  PacketSend(NET_ADDRESS_OTHERS, mk_Defeated);
-end;
-
-
 procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex: Integer = NET_ADDRESS_OTHERS);
 var
   I: Integer;
@@ -1187,54 +1177,102 @@ begin
 end;
 
 
-procedure TKMNetworking.PostWinMessageIfWinAcquired;
+procedure TKMNetworking.PostWinMessage;
 var I: Integer;
     WinMsg: UnicodeString;
 begin
   WinMsg := '';
   // Win acquired if there is only 1 undefeated team
-  if fNetPlayers.GetUndefeatedTeamsCount = 1 then
-    for I := 1 to fNetPlayers.Count do
-      if not fNetPlayers[I].Defeated then //All undefeated players are winners
+  for I := 1 to fNetPlayers.Count do
+    if (fNetPlayers[I].HandIndex <> -1)
+      and gHands[fNetPlayers[I].HandIndex].AI.HasWon
+      and not fNetPlayers[I].IsSpectator then
+    begin
+      if fNetPlayers[I].Team = 0 then
       begin
-        if fNetPlayers[I].Team = 0 then
-        begin
-          WinMsg := Format('%s wins!', [fNetPlayers[I].NiknameColored]); //Todo translate //Only one player is winning
-          Break;
-        end else begin
-          if WinMsg = '' then
-            WinMsg := Format('Team %d wins! Winners: ', [fNetPlayers[I].Team]) //Todo translate //Team wins
-          else
-            WinMsg := WinMsg + ', ';
-          WinMsg := WinMsg + fNetPlayers[I].NiknameColored;
-        end;
+        WinMsg := Format('%s wins!', [fNetPlayers[I].NiknameColoredU]); //Todo translate //Only one player is winning
+        Break;
+      end else begin
+        if WinMsg = '' then
+          WinMsg := Format('Team %d wins! Winners: ', [fNetPlayers[I].Team]) //Todo translate //Team wins
+        else
+          WinMsg := WinMsg + ', ';
+        WinMsg := WinMsg + fNetPlayers[I].NiknameColoredU;
       end;
+    end;
 
   if WinMsg <> '' then
     PostLocalMessage(WinMsg, csSystem);
 end;
 
 
-procedure TKMNetworking.PlayerDefeated(aPlayerIndex: Integer);
-var I, HandIndex: Integer;
-begin
-
-  fNetPlayers[aPlayerIndex].Defeated := True;
-
-  HandIndex := fNetPlayers[aPlayerIndex].HandIndex;
-  if HandIndex <> -1 then
+// Handle mk_Disconnect message
+procedure TKMNetworking.PlayerDisconnected(aSenderIndex: Integer);
+  // Check if player (not spectator) is not defeated and not win
+  function IsPlayerStillInGame(aPlayerIndex: Integer): Boolean;
   begin
-    PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED], [fNetPlayers[aPlayerIndex].NiknameColored]), csSystem);
-    gHands.CompleteGoalsForDefeatedHand(HandIndex);
+    Result := (fNetPlayers[aPlayerIndex].HandIndex <> -1)
+              and (gHands[fNetPlayers[aPlayerIndex].HandIndex].AI.IsNotWinnerNotLoser) // This means player is not defeated and not win
+              and not fNetPlayers[aPlayerIndex].IsSpectator
   end;
 
-  PostWinMessageIfWinAcquired;
+  procedure DefeatDisconnectedPlayerHand(aPlayerIndex: Integer);
+  var HandIndex: Integer;
+  begin
+    HandIndex := fNetPlayers[aPlayerIndex].HandIndex;
+    if HandIndex <> -1 then
+    begin
+      gHands.DisableGoalsForDefeatedHand(HandIndex);
+      gHands[HandIndex].AI.Defeat(False);
+    end;
+  end;
 
-  // Player wins if defeated player was the last enemy, so there is only 1 undefeated team now (ours)
-  if (fNetPlayers.GetUndefeatedTeamsCount = 1)
-    and not fNetPlayers[fMyIndex].IsSpectator then // Show win window only for players, not for spec
-    gHands[gMySpectator.HandIndex].AI.Victory;
+  //Post local message about player disconnection
+  procedure TryDefeatPlayerAndPostMsg(aPlayerIndex: Integer);
+  var QuitMsgId: Integer;
+  begin
+    if IsPlayerStillInGame(aPlayerIndex) then
+    begin
+      QuitMsgId := IfThen(fHostIndex = aPlayerIndex, TX_MULTIPLAYER_HOST_DISCONNECTED_DEFEATED, TX_NET_HAS_QUIT_AND_DEFEATED);
+      DefeatDisconnectedPlayerHand(aPlayerIndex);
+    end else
+      QuitMsgId := IfThen(fHostIndex = aPlayerIndex, TX_MULTIPLAYER_HOST_DISCONNECTED, TX_NET_HAS_QUIT);
+    PostLocalMessage(Format(gResTexts[QuitMsgId], [fNetPlayers[aPlayerIndex].NiknameColoredU]), csLeave);
+  end;
 
+var PlayerIndex: Integer;
+begin
+  PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+  case fNetPlayerKind of
+    lpk_Host:   begin
+                  fFileSenderManager.ClientDisconnected(aSenderIndex);
+                  if PlayerIndex = -1 then exit; //Has already disconnected
+
+                  TryDefeatPlayerAndPostMsg(PlayerIndex);
+
+                  if fNetGameState in [lgs_Loading, lgs_Game] then
+                    fNetPlayers.DropPlayer(aSenderIndex)
+                  else
+                    fNetPlayers.RemServerPlayer(aSenderIndex);
+                  SendPlayerListAndRefreshPlayersSetup;
+                  //Player leaving may cause vote to end
+                  if (fNetGameState in [lgs_Loading, lgs_Game])
+                  and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
+                    ReturnToLobbyVoteSucceeded;
+                end;
+    lpk_Joiner: begin
+                  if PlayerIndex = -1 then exit; //Has already disconnected
+                  TryDefeatPlayerAndPostMsg(PlayerIndex);
+                  if fHostIndex = PlayerIndex then
+                  begin
+                    // Host notify joiners about disconnection
+                    if fNetGameState in [lgs_Loading, lgs_Game] then
+                      fNetPlayers.DropPlayer(aSenderIndex)
+                    else
+                      fNetPlayers.RemServerPlayer(aSenderIndex);
+                  end;
+                end;
+  end;
 end;
 
 
@@ -1635,34 +1673,7 @@ begin
                   end;
               end;
 
-      mk_Disconnect:
-              case fNetPlayerKind of
-                lpk_Host:
-                    begin
-                      fFileSenderManager.ClientDisconnected(aSenderIndex);
-                      if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostMessage(TX_NET_HAS_QUIT, csLeave, fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].NiknameColoredU);
-                      if fNetGameState in [lgs_Loading, lgs_Game] then
-                        fNetPlayers.DropPlayer(aSenderIndex)
-                      else
-                        fNetPlayers.RemServerPlayer(aSenderIndex);
-                      SendPlayerListAndRefreshPlayersSetup;
-                      //Player leaving may cause vote to end
-                      if (fNetGameState in [lgs_Loading, lgs_Game])
-                      and (fNetPlayers.FurtherVotesNeededForMajority <= 0) then
-                        ReturnToLobbyVoteSucceeded;
-                    end;
-                lpk_Joiner:
-                    begin
-                      PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                      if PlayerIndex = -1 then exit; //Has already disconnected
-                      PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].NiknameColoredU]), csLeave);
-                      if fNetGameState in [lgs_Loading, lgs_Game] then
-                        fNetPlayers.DropPlayer(aSenderIndex)
-                      else
-                        fNetPlayers.RemServerPlayer(aSenderIndex);
-                    end;
-              end;
+      mk_Disconnect:  PlayerDisconnected(aSenderIndex);
 
       mk_ReassignHost:
               begin
@@ -1931,9 +1942,6 @@ begin
                 if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
                 if IsHost then TryPlayGame;
               end;
-
-      mk_Defeated:
-                PlayerDefeated(fNetPlayers.ServerToLocal(aSenderIndex));
 
       mk_Play:
               if fNetPlayerKind = lpk_Joiner then PlayGame;

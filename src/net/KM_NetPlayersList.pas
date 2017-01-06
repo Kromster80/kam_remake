@@ -36,7 +36,7 @@ type
     HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
-    Defeated: Boolean;       //If player was defeated
+
     FPS: Cardinal;
     VotedYes: Boolean;
     procedure AddPing(aPing: Word);
@@ -113,7 +113,6 @@ type
     function GetClosedCount: Integer;
     function GetSpectatorCount: Integer;
     function GetConnectedCount: Integer;
-    function GetUndefeatedTeamsCount: Integer;
     function FurtherVotesNeededForMajority: Integer;
     function HasOnlySpectators: Boolean;
 
@@ -272,10 +271,9 @@ end;
 
 function TKMNetPlayerInfo.GetHandIndex: Integer;
 begin
+  Result := -1;
   if StartLocation > 0 then
-    Result := StartLocation - 1
-  else
-    Result := -1;
+    Result := StartLocation - 1;
 end;
 
 
@@ -293,7 +291,6 @@ begin
   LoadStream.Read(ReadyToReturnToLobby);
   LoadStream.Read(HasMapOrSave);
   LoadStream.Read(Connected);
-  LoadStream.Read(Defeated);
   LoadStream.Read(Dropped);
   LoadStream.Read(VotedYes);
 end;
@@ -313,7 +310,6 @@ begin
   SaveStream.Write(ReadyToReturnToLobby);
   SaveStream.Write(HasMapOrSave);
   SaveStream.Write(Connected);
-  SaveStream.Write(Defeated);
   SaveStream.Write(Dropped);
   SaveStream.Write(VotedYes);
 end;
@@ -432,7 +428,6 @@ begin
   fNetPlayers[fCount].ReadyToReturnToLobby := false;
   fNetPlayers[fCount].Connected := true;
   fNetPlayers[fCount].Dropped := false;
-  fNetPlayers[fCount].Defeated := false;
   fNetPlayers[fCount].ResetPingRecord;
   //Check if this player must go in a spectator slot
   if fCount-GetSpectatorCount > MAX_LOBBY_PLAYERS then
@@ -462,7 +457,6 @@ begin
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
-  fNetPlayers[fCount].Defeated := false;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -487,7 +481,6 @@ begin
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
-  fNetPlayers[fCount].Defeated := False;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -761,26 +754,6 @@ begin
   for i:=1 to fCount do
     if fNetPlayers[i].IsHuman and fNetPlayers[i].Connected then
       inc(Result);
-end;
-
-
-function TKMNetPlayersList.GetUndefeatedTeamsCount: Integer;
-var I: Integer;
-    TeamsCounted: array [0..4] of Boolean;
-begin
-  Result := 0;
-  for I := 0 to 4 do
-    TeamsCounted[I] := False;
-
-  for I := 1 to fCount do
-    if not fNetPlayers[I].IsSpectator
-      and (not fNetPlayers[I].IsHuman or fNetPlayers[I].Connected)
-      and not fNetPlayers[I].Defeated then
-    begin
-      if not TeamsCounted[fNetPlayers[I].Team]
-        or (fNetPlayers[I].Team = 0) then // 0 team means 'no team', so lets count all of them, and count real teams only once
-        Inc(Result);
-    end;
 end;
 
 

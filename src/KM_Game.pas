@@ -43,6 +43,7 @@ type
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsPaused: Boolean;
+    fIsWinMessagePosted: Boolean;
     fGameSpeed: Single; //Actual speedup value
     fGameSpeedMultiplier: Word; //How many ticks are compressed into one
     fGameMode: TGameMode;
@@ -96,7 +97,7 @@ type
     procedure GameHold(DoHold: Boolean; Msg: TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg: TGameResultMsg);
     procedure PlayerVictory(aPlayerIndex: TKMHandIndex);
-    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex; aNotifyOtherPlayers: Boolean = False);
+    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex; aShowDefeatMessage: Boolean = True);
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
     procedure ShowScriptError(const aMsg: UnicodeString);
@@ -127,6 +128,7 @@ type
     property GameSpeed: Single read fGameSpeed;
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
+    procedure PostWinMessage;
 
     property GameMode: TGameMode read fGameMode;
     property SaveFile: UnicodeString read fSaveFile;
@@ -748,8 +750,7 @@ begin
 end;
 
 
-procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex; aNotifyOtherPlayers: Boolean = False);
-var NetPlayerIndex: Integer;
+procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex; aShowDefeatMessage: Boolean = True);
 begin
   case GameMode of
     gmSingle, gmCampaign:
@@ -759,16 +760,12 @@ begin
                 RequestGameHold(gr_Defeat);
               end;
     gmMulti:  begin
-                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+                if aShowDefeatMessage then
+                  fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
                 
-                fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).Defeated := True;
-                fNetworking.PostWinMessageIfWinAcquired;
                 if aPlayerIndex = gMySpectator.HandIndex then
                 begin
-                  if aNotifyOtherPlayers then 
-                    fNetworking.SendPlayerDefeated;
-                  
                   gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
                   PlayOnState := gr_Defeat;
                   fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
@@ -776,10 +773,9 @@ begin
               end;
     gmMultiSpectate: 
               begin
-                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
-                fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).Defeated := True;                                                  
-                fNetworking.PostWinMessageIfWinAcquired;
+                if aShowDefeatMessage then
+                  fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
               end;
   end;
 end;
@@ -998,7 +994,7 @@ end;
 procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
 begin
   //Once you have lost no messages can be received
-  if gHands[aHandIndex].AI.WonOrLost = wol_Lost then Exit;
+  if gHands[aHandIndex].AI.HasLost then Exit;
 
   //Store it in hand so it can be included in MP save file
   gHands[aHandIndex].MessageLog.Add(aKind, aTextID, aLoc);
@@ -1688,6 +1684,16 @@ begin
     Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
   else
     Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
+end;
+
+
+procedure TKMGame.PostWinMessage;
+begin
+  if not fIsWinMessagePosted then
+  begin
+    fNetworking.PostWinMessage;
+    fIsWinMessagePosted := True;
+  end;
 end;
 
 

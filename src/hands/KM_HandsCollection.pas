@@ -55,7 +55,7 @@ type
     procedure RevealForTeam(aPlayer: TKMHandIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
     procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
-    procedure CompleteGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
+    procedure DisableGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
 
     procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
     procedure Load(LoadStream: TKMemoryStream);
@@ -531,12 +531,12 @@ begin
 end;
 
 
-procedure TKMHandsCollection.CompleteGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
+procedure TKMHandsCollection.DisableGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
     if I <> aHandIndex then
-      fHandsList[I].AI.Goals.CompleteGoalsForHand(aHandIndex);
+      fHandsList[I].AI.Goals.DisableGoalsForHand(aHandIndex);
 end;
 
 
@@ -595,6 +595,22 @@ end;
 
 
 procedure TKMHandsCollection.UpdateState(aTick: Cardinal);
+
+  function IsGameWinnersAcquired: Boolean;
+  var I: Integer;
+  begin
+    Result := False;
+    for I := 0 to Count - 1 do
+      if fHandsList[I].Enabled then
+        if fHandsList[I].AI.HasWon then
+          Result := True
+        else if fHandsList[I].AI.IsNotWinnerNotLoser then
+        begin
+          Result := False;
+          Exit;
+        end;
+  end;
+
 var
   I: Integer;
 begin
@@ -604,6 +620,13 @@ begin
   else
     //PlayerAI can stop the game and clear everything
     Exit;
+
+  // Post win message if game winner acquired
+  if (gGame <> nil) and (gGame.GameMode in [gmMulti, gmMultiSpectate])
+    and IsGameWinnersAcquired then
+  begin
+    gGame.PostWinMessage;
+  end;
 
   PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
 end;

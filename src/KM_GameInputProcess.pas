@@ -332,7 +332,7 @@ begin
        Exit;
 
     //No commands allowed after a player has lost (this is a fall back in case players try to cheat)
-    if not (aCommand.CommandType in AllowedAfterDefeat) and gGame.IsMultiplayer and (P.AI.WonOrLost = wol_Lost) then
+    if not (aCommand.CommandType in AllowedAfterDefeat) and gGame.IsMultiplayer and P.AI.HasLost then
       Exit;
 
     //Most commands blocked during cinematic (this is a fall back in case players try to cheat)

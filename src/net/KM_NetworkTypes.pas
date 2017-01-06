@@ -78,8 +78,6 @@ type
     mk_ReconnectionAccepted, //Host tells dropped player they are accepted back into the game
     mk_ClientReconnected, //Host tells other players the index of a reconnected client
 
-    mk_Defeated,        //Player sends info, when he defeated (f.e. quits the game)
-
     mk_Commands,        //Clients exchange commands for next ticks
     mk_TextTranslated,  //Clients exchange translated text (system messages)
     mk_TextChat,        //Clients exchange chat messages
@@ -153,7 +151,6 @@ const
     pfNumber,   //mk_ResyncFromTick
     pfNoData,   //mk_ReconnectionAccepted
     pfNumber,   //mk_ClientReconnected
-    pfNoData,   //mk_Defeated
     pfBinary,   //mk_Commands
     pfBinary,   //mk_TextTranslated
     pfBinary,   //mk_TextChat
