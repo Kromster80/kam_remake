@@ -24,6 +24,7 @@ type
 
     fWonOrLost: TWonOrLost; //Has this player won/lost? If so, do not check goals
 
+    procedure CheckGoals;
     function GetHasWon: Boolean;
     function GetHasLost: Boolean;
     function GetIsNotWinnerNotLoser: Boolean;
@@ -36,7 +37,6 @@ type
     property Mayor: TKMayor read fMayor;
     property Setup: TKMHandAISetup read fSetup;
 
-    procedure CheckGoals;
     procedure Defeat(aShowDefeatMessage: Boolean = True); //Defeat the player, this is not reversible
     procedure Victory; //Set this player as victorious, this is not reversible
     procedure AddDefaultGoals(aBuildings: Boolean);

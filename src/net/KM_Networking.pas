@@ -134,11 +134,9 @@ type
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
-
     procedure PlayerDisconnected(aSenderIndex: Integer);
     procedure ReturnToLobbyVoteSucceeded;
     procedure ResetReturnToLobbyVote;
-
     procedure TransferOnCompleted(aClientIndex: Integer);
     procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean);
 

@@ -36,7 +36,6 @@ type
     HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
-
     FPS: Cardinal;
     VotedYes: Boolean;
     procedure AddPing(aPing: Word);

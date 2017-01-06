@@ -621,12 +621,10 @@ begin
     //PlayerAI can stop the game and clear everything
     Exit;
 
-  // Post win message if game winner acquired
+  // Post win message if game winners acquired
   if (gGame <> nil) and (gGame.GameMode in [gmMulti, gmMultiSpectate])
     and IsGameWinnersAcquired then
-  begin
     gGame.PostWinMessage;
-  end;
 
   PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
 end;

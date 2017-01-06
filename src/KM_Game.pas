@@ -772,11 +772,9 @@ begin
                 end;
               end;
     gmMultiSpectate: 
-              begin
-                if aShowDefeatMessage then
-                  fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
-              end;
+              if aShowDefeatMessage then
+                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
   end;
 end;
 
@@ -1687,8 +1685,10 @@ begin
 end;
 
 
+// Post win message
 procedure TKMGame.PostWinMessage;
 begin
+  //Post not more then one win message for every game
   if not fIsWinMessagePosted then
   begin
     fNetworking.PostWinMessage;
