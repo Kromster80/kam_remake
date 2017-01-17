@@ -111,10 +111,10 @@ end;
 function TKMSpectator.IsLastSelectObjectValid(aObject: TObject): Boolean;
 begin
   Result := (aObject <> nil)
-    and not ((aObject is TKMUnit) and TKMUnit(aObject).IsDeadOrDying)         //Don't allow the player to select dead units
-    and not (aObject is TKMUnitAnimal)                                        //...or animals
-    and not ((aObject is TKMUnitGroup) and (TKMUnitGroup(aObject).Count = 0)) //We can not select groups with no warriors
-    and not ((aObject is TKMHouse) and TKMHouse(aObject).IsDestroyed);        //Don't allow the player to select destroyed houses
+    and not ((aObject is TKMUnit) and TKMUnit(aObject).IsDeadOrDying)    //Don't allow the player to select dead units
+    and not (aObject is TKMUnitAnimal)                                   //...or animals
+    and not ((aObject is TKMUnitGroup) and TKMUnitGroup(aObject).IsDead) //We can not select dead groups (with no warriors)
+    and not ((aObject is TKMHouse) and TKMHouse(aObject).IsDestroyed);   //Don't allow the player to select destroyed houses
 end;
 
 
@@ -214,9 +214,21 @@ begin
   if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
   begin
     UID := UID_NONE;
-    if Selected is TKMHouse      then begin HandIndex := TKMHouse    (Selected).Owner; UID := TKMHouse(Selected).UID; end;
-    if Selected is TKMUnit       then begin HandIndex := TKMUnit     (Selected).Owner; UID := TKMHouse(Selected).UID; end;
-    if Selected is TKMUnitGroup  then begin HandIndex := TKMUnitGroup(Selected).Owner; UID := TKMHouse(Selected).UID; end;
+    if Selected is TKMHouse then
+    begin
+      HandIndex := TKMHouse(Selected).Owner;
+      UID := TKMHouse(Selected).UID;
+    end;
+    if Selected is TKMUnit then
+    begin
+      HandIndex := TKMUnit(Selected).Owner;
+      UID := TKMUnit(Selected).UID;
+    end;
+    if Selected is TKMUnitGroup then
+    begin
+      HandIndex := TKMUnitGroup(Selected).Owner;
+      UID := TKMUnitGroup(Selected).UID;
+    end;
     if (Selected <> nil) and (UID <> UID_NONE) then
       fLastSpecSelectedObjUID[fHandIndex] := UID;
   end;
