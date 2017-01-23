@@ -576,6 +576,8 @@ begin
       Position := poDesigned;
       ClientWidth  := fMain.Settings.WindowParams.Width;
       ClientHeight := fMain.Settings.WindowParams.Height;
+      Left := fMain.Settings.WindowParams.Left;
+      Top := fMain.Settings.WindowParams.Top;
       WindowState  := fMain.Settings.WindowParams.State;
     end;
   end;
@@ -599,7 +601,10 @@ function TFormMain.GetWindowParams: TKMWindowParamsRecord;
     begin
       AppData.cbSize := SizeOf(TAppBarData);
       // SHAppBarMessage will return False (0) when an error happens.
-      if SHAppBarMessage(ABM_GETTASKBARPOS, AppData) <> 0 then
+      if SHAppBarMessage(ABM_GETTASKBARPOS,
+        {$IFDEF FPC}@AppData{$ENDIF}
+        {$IFDEF WDC}AppData{$ENDIF}
+        ) <> 0 then
       begin
         Result := AppData.uEdge;
         aRect := AppData.rc;

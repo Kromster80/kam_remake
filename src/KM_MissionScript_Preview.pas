@@ -52,7 +52,7 @@ uses
 { TMissionParserPreview }
 function TMissionParserPreview.GetTileInfo(X,Y: Integer): TKMTilePreview;
 begin
-  Result := fMapPreview[(Y-1)*fMapX + X];
+  Result := fMapPreview[(Y-1)*fMapX + X-1];
 end;
 
 
@@ -83,8 +83,8 @@ begin
     fMapX := NewX;
     fMapY := NewY;
 
-    SetLength(fMapPreview, fMapX * fMapY + 1);
-    for I := 1 to fMapX * fMapY do
+    SetLength(fMapPreview, fMapX * fMapY);
+    for I := 0 to fMapX * fMapY - 1 do
     begin
       S.Read(fMapPreview[I].TileID);
       S.Seek(1, soFromCurrent);
@@ -107,7 +107,7 @@ function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: ar
 
   procedure SetOwner(X,Y: Word);
   begin
-    fMapPreview[X + Y*fMapX].TileOwner := fLastHand;
+    fMapPreview[X-1 + (Y-1)*fMapX].TileOwner := fLastHand;
   end;
 
   function RevealForPlayer(aPlayerIndex: TKMHandIndex): Boolean;
@@ -133,7 +133,7 @@ function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: ar
     for I := Max(Y-Radius,1) to Min(Y+Radius,fMapY) do
     for K := Max(X-Radius,1) to Min(X+Radius,fMapX) do
     if (Sqr(X-K) + Sqr(Y-I)) <= Sqr(Radius) then
-      fMapPreview[(I-1)*fMapX + K].Revealed := True;
+      fMapPreview[(I-1)*fMapX + K-1].Revealed := True;
   end;
 
 var
@@ -197,7 +197,7 @@ begin
                           if (P[0] = 255) then
                           begin
                             if RevealForPlayer(fLastHand) then
-                              for I := 1 to fMapX * fMapY do
+                              for I := 0 to fMapX * fMapY - 1 do
                                 fMapPreview[I].Revealed := True;
                           end
                           else

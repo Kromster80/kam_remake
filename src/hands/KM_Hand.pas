@@ -108,6 +108,9 @@ type
     property ShareBeacons[aIndex: Integer]: Boolean read GetShareBeacons write SetShareBeacons;
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
 
+    function IsHuman: Boolean;
+    function IsComputer: Boolean;
+
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
     function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit; reintroduce;
@@ -389,6 +392,11 @@ end;
 procedure TKMHand.WarriorWalkedOut(aUnit: TKMUnitWarrior);
 var G: TKMUnitGroup; H: TKMHouse;
 begin
+  //Warrior could be killed before he walked out, f.e. by script OnTick ---> Actions.UnitKill
+  //Then group will be assigned to invalid warrior and never gets removed from game
+  if (aUnit = nil)
+  or aUnit.IsDeadOrDying then
+    Exit;
   G := fUnitGroups.WarriorTrained(aUnit);
   Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
   G.OnGroupDied := GroupDied;
@@ -442,6 +450,18 @@ begin
   //(on 80x80 map Loc range is 1..79, which is not obvious when placing roads manually in script)
   if gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     fRoadsList.Add(aLoc);
+end;
+
+
+function TKMHand.IsHuman: Boolean;
+begin
+  Result := fHandType = hndHuman;
+end;
+
+
+function TKMHand.IsComputer: Boolean;
+begin
+  Result := fHandType = hndComputer;
 end;
 
 
@@ -1001,7 +1021,7 @@ begin
 
   //Try to take player name from mission text if we are in SP
   //Do not use names in MP ot avoid confusion of AI players with real player niknames
-  if gGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle] then
+  if gGame.GameMode in [gmSingle, gmCampaign, gmMapEd, gmReplaySingle] then
     if gGame.TextMission.HasText(HANDS_NAMES_OFFSET + fHandIndex) then
       if HandType = hndHuman then
         Result := gResTexts[TX_PLAYER_YOU] + ' (' + gGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex] + ')'

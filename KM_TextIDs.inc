@@ -300,7 +300,7 @@ TX_RESOURCES_ALL = 276; //All
 TX_RESOURCES_WARFARE = 277; //Warfare
 TX_RESOURCES_FOOD = 278; //Food
 
-TX_CREDITS_TEXT = 279; //JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+TX_CREDITS_TEXT = 279; //JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andrï¿½ Quaï¿½||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schï¿½fer|Jï¿½rgen Rebhann|Klaus Staendike|Steffen Schï¿½ngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schï¿½fer||MANUAL:|Peter Ohlmann|Uwe Schï¿½fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schï¿½fer|Ingrid Schï¿½fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mï¿½hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schï¿½fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schï¿½fer
 
 TX_MENU_MISSION_CANCELED = 280; //Mission canceled
 TX_MENU_REPLAY_ENDED = 281; //Replay ended
@@ -943,6 +943,28 @@ TX_KEY_COMMON = 961; //Common Keys
 TX_KEY_GAME = 962; //Game Keys
 TX_KEY_MAPEDIT = 963; //Map Editor Keys
 
+TX_MSG_HOUSE_UNOCCUPIED__22 = 966; //This armor smithy is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_ARMORYWORKSHOP = 967; //This armory workshop is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_BAKERY = 968; //This bakery is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_BUTCHERS = 969; //This butcher's is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_COALMINE = 970; //This coal mine is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_FARM = 971; //This farm is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_FISHERMANS = 972; //This fisherman's is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_GOLDMINE = 973; //This gold mine is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_IRONMINE = 974; //This iron mine is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_IRONSMITHY = 975; //This iron smithy is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_METALLURGISTS = 976; //This metallurgist's is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_MILL = 977; //This mill is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_QUARRY = 978; //This quarry is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_SAWMILL = 979; //This sawmill is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_SIEGEWORKSHOP = 980; //This siege workshop is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_STABLES = 981; //This stables is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_SWINEFARM = 982; //This swine farm is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_TANNERY = 983; //This tannery is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_WATCHTOWER = 984; //This watchtower is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_WEAPONSMITHY = 985; //This weapon smithy is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_WEAPONSWORKSHOP = 986; //This weapons workshop is not occupied
+
 TX_MENU_OPTIONS_CANCEL = 989; //Cancel
 TX_KEY_FUNC_SELECT_11 = 990; //Select Group 11
 TX_KEY_FUNC_SELECT_12 = 991; //Select Group 12
@@ -971,3 +993,4 @@ TX_KEY_FUNC_SPECTATE_PLAYER_7 = 1013; //Spectate player 7
 TX_KEY_FUNC_SPECTATE_PLAYER_8 = 1014; //Spectate player 8
 TX_KEY_SPECTATE_REPLAY = 1015; //Spectate/Replay Keys
 TX_KEY_FUNC_REAL_GAME_SPEED = 1016; //Game speed as it was in game
+

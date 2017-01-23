@@ -31,7 +31,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure StartListening(aPort:string);
+    procedure StartListening(aPort: Word);
     procedure StopListening;
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure Kick(aHandle:integer);
@@ -64,14 +64,14 @@ begin
 end;
 
 
-procedure TKMNetServerOverbyte.StartListening(aPort:string);
+procedure TKMNetServerOverbyte.StartListening(aPort: Word);
 begin
   FreeAndNil(fSocketServer);
   fSocketServer := TWSocketServer.Create(nil);
   fSocketServer.ComponentOptions := [wsoTcpNoDelay]; //Send packets ASAP (disables Nagle's algorithm)
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range
-  fSocketServer.Port   := aPort; //todo: Somewhere along the hierarchy we might want to set aPort to be Word
+  fSocketServer.Port   := IntToStr(aPort); //DONE: Somewhere along the hierarchy we might want to set aPort to be Word
   fSocketServer.Banner := '';
   fSocketServer.OnClientConnect := ClientConnect;
   fSocketServer.OnClientDisconnect := ClientDisconnect;

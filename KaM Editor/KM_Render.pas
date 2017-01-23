@@ -145,9 +145,9 @@ if Land[i,k].Obj<>255 then
     glvertex2f(k-1, i-1-Land2[i,k].Height/xh);
     glend; glPointSize(1);
     glRasterPos2f(k-1+0.05,i-1-0.05-Land2[i,k].Height/xh);
-    glPrint(inttostr(Land[i,k].Obj));
+    glPrint(IntToStr(Land[i,k].Obj));
     glRasterPos2f(k-1+0.05,i-1+0.4-0.05-Land2[i,k].Height/xh);
-    glPrint('#'+inttostr(ObjIndexGFX[ObjIndexInv[Land[i,k].Obj]]));
+    glPrint('#'+IntToStr(ObjIndexGFX[ObjIndexInv[Land[i,k].Obj]]));
     end;
   end;
 end;
@@ -352,11 +352,11 @@ glRasterPos2f(k-1+0.1,i-1-0.1-Land[i,k].Height1/xh);
 glColor4f(0.6,1,0.45,0.75);
 
 T:=Pointer(Integer(@Land[i,k].Terrain)+Form1.SpinEdit1.Value-1);
-glPrint(inttostr(T^));
+glPrint(IntToStr(T^));
 
 //if Land[i,k].Rot and 4=4 then glPrint('X');
 //if Land[i,k].Rot and 8=8 then glPrint('Y');
-//glPrint(inttostr(Land[i,k].Border));
+//glPrint(IntToStr(Land[i,k].Border));
 end;  }
 glLineWidth(Zoom/4);
 end;

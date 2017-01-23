@@ -117,7 +117,7 @@ type
   public
     constructor Create(aMaxRooms:word; aKickTimeout: Word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
     destructor Destroy; override;
-    procedure StartListening(aPort: string; aServerName: AnsiString);
+    procedure StartListening(aPort: Word; aServerName: AnsiString);
     procedure StopListening;
     procedure ClearClients;
     procedure MeasurePings;
@@ -253,7 +253,7 @@ begin
 end;
 
 
-procedure TKMNetServer.StartListening(aPort: string; aServerName: AnsiString);
+procedure TKMNetServer.StartListening(aPort: Word; aServerName: AnsiString);
 begin
   fRoomCount := 0;
   Assert(AddNewRoom); //Must succeed
@@ -264,7 +264,7 @@ begin
   fServer.OnClientDisconnect := ClientDisconnect;
   fServer.OnDataAvailable := DataAvailable;
   fServer.StartListening(aPort);
-  Status('Listening on port ' + aPort);
+  Status('Listening on port ' + IntToStr(aPort));
   fListening := true;
   SaveHTMLStatus;
 end;
