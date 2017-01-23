@@ -67,7 +67,7 @@ type
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
-    Button_ObjectChangePlayer: TKMFlatButton2TriangesShape;
+    Button_ObjectChangePlayer: TKMButtonFlat;
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
 
@@ -149,7 +149,7 @@ begin
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
 
-  Button_ObjectChangePlayer := TKMFlatButton2TriangesShape.Create(Panel_Main, 153, 215, 29, 29, '', fnt_Grey, DefaultTeamColors[0], DefaultTeamColors[1]);
+  Button_ObjectChangePlayer := TKMButtonFlat.Create(Panel_Main, 153, 215, 29, 29, 378);
   Button_ObjectChangePlayer.Down := False;
   Button_ObjectChangePlayer.OnClick := Object_ChangePlayer_Click;
   Button_ObjectChangePlayer.Hint := 'Change team(player) for object. Hold Shift for multiple objects'; // Todo Translate

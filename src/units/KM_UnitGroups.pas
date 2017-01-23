@@ -139,7 +139,7 @@ type
     property OrderTargetHouse: TKMHouse read GetOrderTargetHouse write SetOrderTargetHouse;
 
     procedure SetOwner(aOwner: TKMHandIndex);
-    procedure OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     procedure OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
     procedure OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean);
     procedure OrderFood(aClearOffenders: Boolean; aHungryOnly: Boolean = False);
@@ -974,10 +974,10 @@ begin
 end;
 
 
-procedure TKMUnitGroup.OwnerUpdate(aOwner: TKMHandIndex; aUpdateOwnerList: Boolean = False);
+procedure TKMUnitGroup.OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
 var I: Integer;
 begin
-  if aUpdateOwnerList and (fOwner <> aOwner) then
+  if aMoveToNewOwner and (fOwner <> aOwner) then
   begin
     Assert(gGame.GameMode = gmMapEd); // Allow to move existing Unit directly only in MapEd
     gHands[fOwner].UnitGroups.DeleteGroupFromList(Self);
@@ -985,7 +985,7 @@ begin
   end;
   fOwner := aOwner;
   for I := 0 to fMembers.Count - 1 do
-    TKMUnitWarrior(fMembers[I]).OwnerUpdate(aOwner, aUpdateOwnerList);
+    TKMUnitWarrior(fMembers[I]).OwnerUpdate(aOwner, aMoveToNewOwner);
 end;
 
 
