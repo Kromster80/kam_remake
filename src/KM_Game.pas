@@ -694,16 +694,15 @@ end;
 //Occasional replay inconsistencies are a known bug, we don't need reports of it
 procedure TKMGame.ReplayInconsistancy;
 begin
-  //Stop game from executing while the user views the message
-
   gLog.AddTime('Replay failed a consistency check at tick ' + IntToStr(fGameTickCount));
   if not fIgnoreConsistencyCheckErrors then
   begin
+    //Stop game from executing while the user views the message
     fIsPaused := True;
     case MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbYesToAll, mbNo], 0) of
       mrYes:      fIsPaused := False;
       mrYesToAll: begin
-                    fIgnoreConsistencyCheckErrors := True;
+                    fIgnoreConsistencyCheckErrors := True;  // Ignore these errors in future while watching this replay
                     fIsPaused := False;
                   end
       else        gGameApp.Stop(gr_Error, '');
