@@ -84,6 +84,7 @@ type
     function WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
     function CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False): Integer;
     function GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False): TKMPoint;
+    function GetMaxPrintWidthOfStrings(aStrings: array of string): Integer;
   end;
 
 
@@ -682,6 +683,20 @@ begin
   Result.Y := (BaseHeight + LineSpacing) * LineCount;
   for I := 1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
+end;
+
+
+// Return maximum of the width of specified strings when printed on screen with specified font.
+function TKMFontData.GetMaxPrintWidthOfStrings(aStrings: array of string): Integer;
+var I, Width: Integer;
+begin
+  Result := 0;
+  for I := Low(aStrings) to High(aStrings) do
+  begin
+    Width := GetTextSize(aStrings[I]).X;
+    if (Width > Result) then
+      Result := Width;
+  end;
 end;
 
 

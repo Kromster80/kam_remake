@@ -63,6 +63,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
   end;
 
+
   //Handles everything related to players list,
   //but knows nothing about networking nor game setup. Only players.
   TKMNetPlayersList = class
@@ -243,7 +244,7 @@ begin
   if IsHuman or (gHands = nil) or (HandIndex = -1) then
     Result := fNikname
   else
-    Result := gHands[HandIndex].OwnerName;
+    Result := AnsiString(gHands[HandIndex].OwnerName);
 end;
 
 
@@ -331,6 +332,7 @@ var I: Integer;
 begin
   for I := 1 to MAX_LOBBY_SLOTS do
     fNetPlayers[I].Free;
+
   inherited;
 end;
 
@@ -419,7 +421,6 @@ begin
   fNetPlayers[fCount].fLangCode := aLang;
   fNetPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fNetPlayers[fCount].PlayerNetType := nptHuman;
-  //fPlayers[fCount].PlayerIndex := nil;
   fNetPlayers[fCount].Team := 0;
   fNetPlayers[fCount].FlagColorID := 0;
   fNetPlayers[fCount].ReadyToStart := false;

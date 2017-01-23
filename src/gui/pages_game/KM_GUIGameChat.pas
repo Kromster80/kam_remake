@@ -12,7 +12,7 @@ type
   TKMGUIGameChat = class
   private
     fChatMode: TChatMode;
-    fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
+    fChatWhisperRecipient: Integer; //NetPlayer index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
     procedure Chat_Close(Sender: TObject);
     procedure Chat_Post(Sender: TObject; Key:word);
@@ -99,7 +99,7 @@ begin
     //Menu gets populated right before show
     Menu_Chat.AddItem(NO_TEXT);
     Menu_Chat.OnClick := Chat_MenuClick;
-    Chat_MenuSelect(-1); //Initialise it
+    Chat_MenuSelect(CHAT_MENU_ALL); //Initialise it
 end;
 
 
@@ -119,8 +119,17 @@ begin
   begin
     fLastChatTime := TimeGet;
     if fChatMode = cmWhisper then
+    begin
+      if not gGame.Networking.NetPlayers[fChatWhisperRecipient].Connected
+        or gGame.Networking.NetPlayers[fChatWhisperRecipient].Dropped then
+      begin
+        gGame.Networking.PostLocalMessage(Format('%s is not connected to game anymore.',
+                                                [gGame.Networking.NetPlayers[fChatWhisperRecipient].NiknameColored]), // Todo translate
+                                          csSystem);
+        Chat_MenuSelect(CHAT_MENU_ALL);
+      end else
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer)
-    else
+    end else
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode);
     Edit_ChatMsg.Text := '';
   end;
@@ -162,23 +171,23 @@ var
   I: Integer;
 begin
   case aItem of
-    -1:   begin //All
-            fChatMode := cmAll;
-            UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
-            Edit_ChatMsg.DrawOutline := False; //No outline for All
-          end;
-    -2:   begin //Team
-            fChatMode := cmTeam;
-            UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
-            Edit_ChatMsg.DrawOutline := True;
-            Edit_ChatMsg.OutlineColor := $FF66FF66;
-          end;
-    -3:   begin //Spectators
-            fChatMode := cmSpectators;
-            UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
-            Edit_ChatMsg.DrawOutline := True;
-            Edit_ChatMsg.OutlineColor := $FF66FF66;
-          end;
+    CHAT_MENU_ALL:        begin //All
+                            fChatMode := cmAll;
+                            UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
+                            Edit_ChatMsg.DrawOutline := False; //No outline for All
+                          end;
+    CHAT_MENU_TEAM:         begin //Team
+                            fChatMode := cmTeam;
+                            UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
+                            Edit_ChatMsg.DrawOutline := True;
+                            Edit_ChatMsg.OutlineColor := $FF66FF66;
+                          end;
+    CHAT_MENU_SPECTATORS: begin //Spectators
+                            fChatMode := cmSpectators;
+                            UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
+                            Edit_ChatMsg.DrawOutline := True;
+                            Edit_ChatMsg.OutlineColor := $FF66FF66;
+                          end;
     else  begin //Whisper to player
             I := gGame.Networking.NetPlayers.ServerToLocal(aItem);
             if I <> -1 then
@@ -219,15 +228,15 @@ begin
   Menu_Chat.Clear;
 
   //Fill lists with options to whom player can whisper
-  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
+  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], CHAT_MENU_ALL);
 
   //Only show "Team" if the player is on a team
-  if gGame.Networking.NetPlayers[gGame.Networking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
+  if gGame.Networking.MyNetPlayer.Team <> 0 then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], CHAT_MENU_TEAM);
 
   //Only show "Spectator" if the player is a spectator
-  if gGame.Networking.NetPlayers[gGame.Networking.MyIndex].IsSpectator then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], -3);
+  if gGame.Networking.MyNetPlayer.IsSpectator then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], CHAT_MENU_SPECTATORS);
 
   //Fill
   for I := 1 to gGame.Networking.NetPlayers.Count do
