@@ -2138,16 +2138,20 @@ begin
 end;
 
 
+// Return if specified NetPlayer is muted locally
 function TKMNetworking.IsMuted(aNetPlayerIndex: Integer): Boolean;
 begin
+  //Use cast to Pointer to be able to store Integer value in TList
   Result := fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1;
 end;
 
 
+// Toggle mute status of specified NetPlayer
 procedure TKMNetworking.ToggleMuted(aNetPlayerIndex: Integer);
 var ListIndex: Integer;
 begin
-  ListIndex := fMutedPlayersList.Indexof(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer));
+  //Use cast to Pointer to be able to store Integer value in TList
+  ListIndex := fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer));
   if ListIndex <> -1 then
     fMutedPlayersList.Delete(ListIndex)
   else
