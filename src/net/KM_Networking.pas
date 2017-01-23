@@ -86,6 +86,7 @@ type
     fJoinTimeout, fLastVoteTime: Cardinal;
     fReturnedToLobby: Boolean; //Did we get to the lobby by return to lobby feature?
     fNetPlayers: TKMNetPlayersList;
+    fMutedPlayersList: TList; // List of ServerIndexes of muted players.
 
     fMapInfo: TKMapInfo; // Everything related to selected map
     fSaveInfo: TKMSaveInfo;
@@ -165,6 +166,9 @@ type
     function IsHost: Boolean;
     function IsReconnecting: Boolean;
     function CalculateGameCRC: Cardinal;
+
+    function IsMuted(aNetPlayerIndex: Integer): Boolean;
+    procedure ToggleMuted(aNetPlayerIndex: Integer);
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
@@ -276,6 +280,7 @@ begin
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
   fNetGameOptions := TKMGameOptions.Create;
   fFileSenderManager := TKMFileSenderManager.Create;
+  fMutedPlayersList := TList.Create;
   fFileSenderManager.OnTransferCompleted := TransferOnCompleted;
   fFileSenderManager.OnTransferPacket := TransferOnPacket;
   fVoteReturnToLobbySucceeded := False;
@@ -422,6 +427,7 @@ begin
   fWelcomeMessage := '';
 
   fNetPlayers.Clear;
+  fMutedPlayersList.Clear;
   fNetGameOptions.Reset;
   fNetClient.Disconnect;
   fNetServer.Stop;
@@ -957,7 +963,6 @@ begin
   PacketSend(aPlayerIndex, mk_PlayersList, M);
   M.Free;
 
-  fNetPlayers.SyncNetPlayersLocalInfo;
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;
 
@@ -1618,7 +1623,6 @@ begin
                   //We are no longer the host
                   fFileSenderManager.AbortAllTransfers;
                   fNetPlayerKind := lpk_Joiner;
-                  fNetPlayers.SyncNetPlayersLocalInfo;
                   if Assigned(fOnReassignedJoiner) then fOnReassignedJoiner(Self); //Lobby/game might need to know
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
@@ -1993,16 +1997,17 @@ begin
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if (PlayerIndex <> -1) then
                 begin
-                  if not fNetPlayers.LocalInfo[PlayerIndex].Muted then
+                  if not IsMuted(PlayerIndex) then
                   begin
                     if NetPlayers[PlayerIndex].FlagColorID <> 0 then
-                    tmpStringW := WrapColor(NetPlayers[PlayerIndex].NiknameU, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor)) + tmpStringW
+                      tmpStringW := WrapColor(NetPlayers[PlayerIndex].NiknameU, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor)) + tmpStringW
                     else
-                    tmpStringW := NetPlayers[PlayerIndex].NiknameU + tmpStringW;
-
+                      tmpStringW := NetPlayers[PlayerIndex].NiknameU + tmpStringW;
                     PostLocalMessage(tmpStringW, ChatSound);
                   end else
-                    PostMessage(TX_NET_DROPPED, csSystem, MyNetPlayer.NiknameColoredU, '', aSenderIndex);
+                  if tmpChatMode = cmWhisper then
+                    // Notify sender, when he is muted
+                    PostMessage(TX_NET_MUTED, csSystem, MyNetPlayer.NiknameColoredU, '', aSenderIndex);
                 end;
               end;
     end;
@@ -2130,6 +2135,23 @@ begin
   Assert(IsHost, 'Only host can set description');
   fDescription := Value;
   fOnMPGameInfoChanged(Self); //Send the description to the server so it is shown in room info
+end;
+
+
+function TKMNetworking.IsMuted(aNetPlayerIndex: Integer): Boolean;
+begin
+  Result := fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1;
+end;
+
+
+procedure TKMNetworking.ToggleMuted(aNetPlayerIndex: Integer);
+var ListIndex: Integer;
+begin
+  ListIndex := fMutedPlayersList.Indexof(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer));
+  if ListIndex <> -1 then
+    fMutedPlayersList.Delete(ListIndex)
+  else
+    fMutedPlayersList.Add(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer));
 end;
 
 

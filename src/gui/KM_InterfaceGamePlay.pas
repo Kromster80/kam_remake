@@ -1730,7 +1730,7 @@ begin
   if (Sender is TKMImage) then
   begin
     Image := TKMImage(Sender);
-    gGame.Networking.NetPlayers.LocalInfo[fAlliesToNetPlayers[Image.Tag]].ToggleMuted;
+    gGame.Networking.ToggleMuted(fAlliesToNetPlayers[Image.Tag]);
     Update_Image_AlliesMute(Image);
   end;
 end;
@@ -1738,7 +1738,7 @@ end;
 
 procedure TKMGamePlayInterface.Update_Image_AlliesMute(aImage: TKMImage);
 begin
-  if gGame.Networking.NetPlayers.LocalInfo[fAlliesToNetPlayers[aImage.Tag]].Muted then
+  if gGame.Networking.IsMuted(fAlliesToNetPlayers[aImage.Tag]) then
   begin
     aImage.Hint := 'Unmute player'; //todo translate
     aImage.TexId := 84;

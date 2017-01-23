@@ -1015,7 +1015,7 @@ begin
     //since order of players can change. If someone above leaves we still have the proper Id
     Menu_Host.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-    UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.NetPlayers.LocalInfo[fLocalToNetPlayers[ctrl.Tag]].Muted);
+    UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
 
     //Position the menu next to the icon, but do not overlap players name
     Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
@@ -1024,7 +1024,7 @@ begin
     //since order of players can change. If someone above leaves we still have the proper Id
     Menu_Joiner.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-    UpdateMuteMenuItem(Menu_Joiner, 0, gGameApp.Networking.NetPlayers.LocalInfo[fLocalToNetPlayers[ctrl.Tag]].Muted);
+    UpdateMuteMenuItem(Menu_Joiner, 0, gGameApp.Networking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
     
     //Position the menu next to the icon, but do not overlap players name
     Menu_Joiner.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
@@ -1034,7 +1034,7 @@ end;
 
 procedure TKMMenuLobby.ToggleMutePlayer(aPlayerIndex: Integer);
 begin
-  gGameApp.Networking.NetPlayers.LocalInfo[aPlayerIndex].ToggleMuted;
+  gGameApp.Networking.ToggleMuted(aPlayerIndex);
   UpdateImageLobbyFlag(fNetPlayersToLocal[aPlayerIndex]);
 end;
 
@@ -1051,7 +1051,7 @@ end;
 procedure TKMMenuLobby.UpdateImageLobbyFlag(aIndex: Integer);
 begin
   // Darken player flag when muted
-  if (fLocalToNetPlayers[aIndex] <> -1) and fNetworking.NetPlayers.LocalInfo[fLocalToNetPlayers[aIndex]].Muted then
+  if (fLocalToNetPlayers[aIndex] <> -1) and fNetworking.IsMuted(fLocalToNetPlayers[aIndex]) then
     Image_LobbyFlag[aIndex].Lightness := -0.66
   else
     Image_LobbyFlag[aIndex].Lightness := 0;

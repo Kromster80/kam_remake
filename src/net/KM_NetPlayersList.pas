@@ -63,14 +63,6 @@ type
     procedure Load(LoadStream: TKMemoryStream);
   end;
 
-  // Info about net player, stored only locally and not published to other players by net
-  TKMNetPlayerLocalInfo = class
-  public
-    Muted: Boolean;         // Is player muted (locally)
-    IndexOnServer: Integer; // Player index on server for sync with TKMNetPlayerInfo
-    constructor Create;
-    procedure ToggleMuted;
-  end;
 
   //Handles everything related to players list,
   //but knows nothing about networking nor game setup. Only players.
@@ -78,12 +70,9 @@ type
   private
     fCount: Integer;
     fNetPlayers: array [1..MAX_LOBBY_SLOTS] of TKMNetPlayerInfo;
-    fNetPlayersLocalInfo: array [1..MAX_LOBBY_SLOTS] of TKMNetPlayerLocalInfo; // net players info, stored only locally and not published to other players by net
     function GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
-    function GetPlayerLocalInfo(aIndex: Integer): TKMNetPlayerLocalInfo;
     procedure ValidateColors;
     procedure RemAllClosedPlayers;
-    procedure ResetNetPlayersLocalInfo;
   public
     HostDoesSetup: Boolean; //Gives host absolute control over locations/teams (not colors)
     RandomizeTeamLocations: Boolean; //When the game starts locations are shuffled within each team
@@ -104,7 +93,6 @@ type
     procedure RemPlayer(aIndex: Integer);
     procedure RemServerPlayer(aIndexOnServer: Integer);
     property Player[aIndex: Integer]: TKMNetPlayerInfo read GetPlayer; default;
-    property LocalInfo[aIndex: Integer]: TKMNetPlayerLocalInfo read GetPlayerLocalInfo;
 
     //Getters
     function ServerToLocal(aIndexOnServer: Integer): Integer;
@@ -137,8 +125,6 @@ type
     procedure RemAllAIs;
     procedure RemDisconnectedPlayers;
     function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TKMHandIndexArray; out ErrorMsg: UnicodeString): Boolean;
-
-    procedure SyncNetPlayersLocalInfo;
 
     //Import/Export
     procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
@@ -258,7 +244,7 @@ begin
   if IsHuman or (gHands = nil) or (HandIndex = -1) then
     Result := fNikname
   else
-    Result := gHands[HandIndex].OwnerName;
+    Result := AnsiString(gHands[HandIndex].OwnerName);
 end;
 
 
@@ -280,15 +266,6 @@ end;
 function TKMNetPlayerInfo.GetNiknameColoredU: UnicodeString;
 begin
   Result := UnicodeString(GetNiknameColored);
-end;
-
-
-function TKMNetPlayerInfo.GetHandIndex: Integer;
-begin
-  if StartLocation > 0 then
-    Result := StartLocation - 1
-  else
-    Result := -1;
 end;
 
 
@@ -346,10 +323,7 @@ begin
   inherited;
   SpectatorSlotsOpen := MAX_LOBBY_SPECTATORS;
   for I := 1 to MAX_LOBBY_SLOTS do
-  begin
     fNetPlayers[I] := TKMNetPlayerInfo.Create;
-    fNetPlayersLocalInfo[I] := TKMNetPlayerLocalInfo.Create;
-  end;
 end;
 
 
@@ -357,10 +331,8 @@ destructor TKMNetPlayersList.Destroy;
 var I: Integer;
 begin
   for I := 1 to MAX_LOBBY_SLOTS do
-  begin
     fNetPlayers[I].Free;
-    fNetPlayersLocalInfo[I].Free;
-  end;
+
   inherited;
 end;
 
@@ -372,66 +344,13 @@ begin
   SpectatorsAllowed := False;
   SpectatorSlotsOpen := MAX_LOBBY_SPECTATORS;
   ResetVote;
-  ResetNetPlayersLocalInfo;
   fCount := 0;
-end;
-
-
-// Synchronise NetPlayerLocalInfo array to current NetPlayer by IndexOnServer
-procedure TKMNetPlayersList.SyncNetPlayersLocalInfo;
-var I, J: Integer;
-    oldPlayersLocalInfo: array[1..MAX_LOBBY_SLOTS] of TKMNetPlayerLocalInfo;
-    newLocalInfoOrder: array[1..MAX_LOBBY_SLOTS] of Integer;
-begin
-  // first save pointers to fNetPlayersLocalInfo
-  for I := 1 to MAX_LOBBY_SLOTS do begin
-    oldPlayersLocalInfo[I] := fNetPlayersLocalInfo[I];
-    newLocalInfoOrder[I] := -1;
-  end;
-
-  // find same player by IndexOnServer and save its position in list
-  for I := 1 to MAX_LOBBY_SLOTS do
-    for J := 1 to MAX_LOBBY_SLOTS do
-      if (oldPlayersLocalInfo[I].IndexOnServer <> -1)
-        and (oldPlayersLocalInfo[I].IndexOnServer = fNetPlayers[J].IndexOnServer) then
-          newLocalInfoOrder[J] := I;
-
-  for I := 1 to MAX_LOBBY_SLOTS do
-  begin
-    if newLocalInfoOrder[I] <> -1 then
-      // update index
-      fNetPlayersLocalInfo[I] := oldPlayersLocalInfo[newLocalInfoOrder[I]]
-    else begin
-      fNetPlayersLocalInfo[I].Muted := False;
-      if (fNetPlayers[I].IndexOnServer > 0) then
-        fNetPlayersLocalInfo[I].IndexOnServer := fNetPlayers[I].IndexOnServer // Save IndexOnServer for other players
-      else
-        fNetPlayersLocalInfo[I].IndexOnServer := -1;  // Unset IndexOnServer, if its not a player
-    end;
-  end;
-end;
-
-
-procedure TKMNetPlayersList.ResetNetPlayersLocalInfo;
-var I: Integer;
-begin
-  for I := Low(fNetPlayersLocalInfo) to High(fNetPlayersLocalInfo) do
-  begin
-    fNetPlayersLocalInfo[I].Muted := False;
-    fNetPlayersLocalInfo[I].IndexOnServer := -1;
-  end;
 end;
 
 
 function TKMNetPlayersList.GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
 begin
   Result := fNetPlayers[aIndex];
-end;
-
-
-function TKMNetPlayersList.GetPlayerLocalInfo(aIndex: Integer): TKMNetPlayerLocalInfo;
-begin
-  Result := fNetPlayersLocalInfo[aIndex];
 end;
 
 
@@ -502,7 +421,6 @@ begin
   fNetPlayers[fCount].fLangCode := aLang;
   fNetPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fNetPlayers[fCount].PlayerNetType := nptHuman;
-  //fPlayers[fCount].PlayerIndex := nil;
   fNetPlayers[fCount].Team := 0;
   fNetPlayers[fCount].FlagColorID := 0;
   fNetPlayers[fCount].ReadyToStart := false;
@@ -1152,7 +1070,6 @@ begin
   aStream.Read(fCount);
   for I := 1 to fCount do
     fNetPlayers[I].Load(aStream);
-  SyncNetPlayersLocalInfo;
 end;
 
 
@@ -1181,20 +1098,6 @@ begin
     if I < fCount then
       Result := Result + '|';
   end;
-end;
-
-
-{TKMNetPlayerLocalInfo}
-constructor TKMNetPlayerLocalInfo.Create;
-begin
-  Muted := False;
-  IndexOnServer := -1;
-end;
-
-
-procedure TKMNetPlayerLocalInfo.ToggleMuted;
-begin
-  Muted := not Muted;
 end;
 
 
