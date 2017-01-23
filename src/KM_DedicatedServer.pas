@@ -17,7 +17,7 @@ type
     fPublishServer: boolean;
     fAnnounceInterval: word;
     fPingInterval: word;
-    fPort: string;
+    fPort: Word;
     fServerName: AnsiString;
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
@@ -27,7 +27,7 @@ type
                        const aWelcomeMessage:UnicodeString; aDedicated:Boolean);
     destructor Destroy; override;
 
-    procedure Start(const aServerName: AnsiString; const aPort:string; aPublishServer:boolean);
+    procedure Start(const aServerName: AnsiString; const aPort: Word; aPublishServer:boolean);
     procedure Stop;
     procedure UpdateState;
     procedure UpdateSettings(const aServerName: AnsiString; aPublishServer: Boolean; aKickTimeout, aPingInterval, aAnnounceInterval: Word;
@@ -77,14 +77,14 @@ begin
 end;
 
 
-procedure TKMDedicatedServer.Start(const aServerName: AnsiString; const aPort:string; aPublishServer:boolean);
+procedure TKMDedicatedServer.Start(const aServerName: AnsiString; const aPort: Word; aPublishServer:boolean);
 begin
   fPort := aPort;
   fServerName := aServerName;
   fPublishServer := aPublishServer;
   fNetServer.OnStatusMessage := StatusMessage;
   fNetServer.StartListening(fPort, fServerName);
-  fUDPAnnounce.StartAnnouncing(AnsiString(fPort), fServerName);
+  fUDPAnnounce.StartAnnouncing(fPort, fServerName);
 end;
 
 
@@ -115,7 +115,7 @@ begin
 
   if fPublishServer and (GetTimeSince(fLastAnnounce) >= fAnnounceInterval*1000) then
   begin
-    fMasterServer.AnnounceServer(UnicodeString(fServerName),fPort,fNetServer.GetPlayerCount,fAnnounceInterval+20);
+    fMasterServer.AnnounceServer(UnicodeString(fServerName), fPort, fNetServer.GetPlayerCount, fAnnounceInterval + 20);
     fLastAnnounce := TickCount;
   end;
 end;

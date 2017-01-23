@@ -82,7 +82,7 @@ type
 
     function GetCharWidth(aChar: WideChar): Integer;
     function WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
-    function CharsThatFit(const aText: UnicodeString; aMaxPxWidth: integer): integer;
+    function CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False): Integer;
     function GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False): TKMPoint;
   end;
 
@@ -607,20 +607,25 @@ begin
 end;
 
 
-function TKMFontData.CharsThatFit(const aText: UnicodeString; aMaxPxWidth:integer):integer;
+function TKMFontData.CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False): Integer;
 var
-  I, dx: Integer;
+  I, dx, LastCharW: Integer;
 begin
   dx := 0;
   Result := Length(aText);
 
   for I := 1 to Length(aText) do
   begin
-    Inc(dx, GetCharWidth(aText[I]));
+    LastCharW := GetCharWidth(aText[I]);
+    Inc(dx, LastCharW);
 
     if (dx > aMaxPxWidth) then
     begin
-      Result := I - 1; //Previous character fits, this one does not
+      // If we want to get approximate result, then check if total width is closer to prev width or to current
+      if aRound and (dx - aMaxPxWidth < aMaxPxWidth - (dx-LastCharW)) then
+        Result := I
+      else
+        Result := I - 1; //Previous character fits, this one does not
       Exit;
     end;
   end;

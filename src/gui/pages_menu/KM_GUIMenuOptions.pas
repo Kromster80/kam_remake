@@ -43,6 +43,8 @@ type
         TrackBar_Options_ScrollSpeed: TKMTrackBar;
       Panel_Options_Game: TKMPanel;
         CheckBox_Options_Autosave: TKMCheckBox;
+      Panel_Options_Replays: TKMPanel;
+        CheckBox_Options_ReplayAutopause: TKMCheckBox;
       Panel_Options_Sound: TKMPanel;
         Label_Options_MusicOff: TKMLabel;
         TrackBar_Options_SFX,TrackBar_Options_Music: TKMTrackBar;
@@ -113,6 +115,15 @@ begin
       CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,256,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Change;
 
+    //Replays section
+    Panel_Options_Replays := TKMPanel.Create(Panel_Options,60,290,280,50);
+    Panel_Options_Replays.Anchors := [anLeft];
+      TKMLabel.Create(Panel_Options_Replays,6,0,270,20,'Replays:',fnt_Outline,taLeft);   //TODO translate
+      TKMBevel.Create(Panel_Options_Replays,0,20,280,30);
+
+      CheckBox_Options_ReplayAutopause := TKMCheckBox.Create(Panel_Options_Replays,12,27,256,20,'Pause at peacetime end', fnt_Metal);   //TODO translate
+      CheckBox_Options_ReplayAutopause.OnClick := Change;
+
     // Graphics section
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,280,178);
     Panel_Options_GFX.Anchors := [anLeft];
@@ -138,7 +149,7 @@ begin
       CheckBox_Options_FullFonts.OnClick := Change;
 
     // SFX section
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,60,290,280,190);
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,60,360,280,190);
     Panel_Options_Sound.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,270,20,gResTexts[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,280,170);
@@ -192,7 +203,7 @@ begin
       Radio_Options_Lang.OnChange := Change;
 
     // Keybindings button
-    Button_OptionsKeys := TKMButton.Create(Panel_Options, 60, 520, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
+    Button_OptionsKeys := TKMButton.Create(Panel_Options, 60, 580, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
     Button_OptionsKeys.Anchors := [anLeft];
     Button_OptionsKeys.OnClick := KeysClick;
 
@@ -238,6 +249,7 @@ end;
 procedure TKMMenuOptions.Refresh;
 begin
   CheckBox_Options_Autosave.Checked     := fGameSettings.Autosave;
+  CheckBox_Options_ReplayAutopause.Checked := fGameSettings.ReplayAutopause;
   TrackBar_Options_Brightness.Position  := fGameSettings.Brightness;
   CheckBox_Options_VSync.Checked        := fMainSettings.VSync;
   CheckBox_Options_FullFonts.Enabled    := not gResLocales.LocaleByCode(fGameSettings.Locale).NeedsFullFonts;
@@ -272,6 +284,7 @@ begin
   ShuffleToggled := (fGameSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
 
   fGameSettings.Autosave      := CheckBox_Options_Autosave.Checked;
+  fGameSettings.ReplayAutopause := CheckBox_Options_ReplayAutopause.Checked;
   fGameSettings.Brightness    := TrackBar_Options_Brightness.Position;
   fMainSettings.VSync         := CheckBox_Options_VSync.Checked;
   fGameSettings.AlphaShadows  := RadioGroup_Options_Shadows.ItemIndex = 1;

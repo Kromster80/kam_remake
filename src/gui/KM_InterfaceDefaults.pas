@@ -57,7 +57,6 @@ const
   OPT_SLIDER_MAX = 20;
   MAX_SAVENAME_LENGTH = 50;
 
-
 implementation
 
 

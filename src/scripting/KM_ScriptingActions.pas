@@ -33,6 +33,7 @@ type
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveField(aPlayer, X, Y: Word): Boolean;
+    function  GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
     function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
@@ -41,6 +42,7 @@ type
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
     function  GiveWinefield(aPlayer, X, Y: Word): Boolean;
+    function  GiveWinefieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 
     procedure FogCoverAll(aPlayer: Byte);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
@@ -142,7 +144,7 @@ uses
   KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior, KM_HandLogistics,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection, KM_PathFindingRoad;
+  KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -339,7 +341,7 @@ begin
     and InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and InRange(aAmount, 0, 5) then
     begin
-      gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
+      gHands[aPlayer].Stats.WareDistribution[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
       gHands[aPlayer].Houses.UpdateResRequest;
     end
     else
@@ -1082,6 +1084,33 @@ begin
 end;
 
 
+//* Version: 7000+
+//* Sets field age if tile is corn field, or adds finished field and sets its age if tile is empty, and returns true if this was successfully done
+//* aStage = 0..6, sets the field growth stage. 0 = empty field; 6 = corn has been cut; according to CORN_STAGES_COUNT
+//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+function TKMScriptActions.GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+begin
+  try
+    Result := False;
+    if InRange(aPlayer, 0, gHands.Count - 1)
+    and (gHands[aPlayer].Enabled)
+    and (InRange(aStage, 0, CORN_STAGES_COUNT - 1))
+    and gTerrain.TileInMapCoords(X, Y) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn)
+      or (gTerrain.TileIsCornField(KMPoint(X, Y))) then
+      begin
+        Result := True;
+        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Corn, aStage, aRandomAge);
+      end
+    else
+      LogParamWarning('Actions.GiveFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 6311
 //* Adds finished road and returns true if road was successfully added
 function TKMScriptActions.GiveRoad(aPlayer, X, Y: Word): Boolean;
@@ -1097,6 +1126,8 @@ begin
         gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
         //Terrain under roads is flattened (fields are not)
         gTerrain.FlattenTerrain(KMPoint(X, Y));
+        if MapElem[gTerrain.Land[Y,X].Obj].WineOrCorn then
+          gTerrain.RemoveObject(KMPoint(X,Y)); //Remove corn/wine like normally built road does
       end
     else
       LogParamWarning('Actions.GiveRoad', [aPlayer, X, Y]);
@@ -1181,6 +1212,33 @@ begin
       end
     else
       LogParamWarning('Actions.GiveWineField', [aPlayer, X, Y]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version 7000+
+//* Sets winefield age if tile is winefield, or adds finished winefield and sets its age if tile is empty, and returns true if this was successfully done
+//* aStage = 0..3, sets the field growth stage. 0 = new fruits; 3 = grapes are ready to be harvested; according to WINE_STAGES_COUNT
+//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+function TKMScriptActions.GiveWineFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+begin
+  try
+    Result := False;
+    if InRange(aPlayer, 0, gHands.Count - 1)
+    and (gHands[aPlayer].Enabled)
+    and (InRange(aStage, 0, WINE_STAGES_COUNT - 1))
+    and gTerrain.TileInMapCoords(X, Y) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine)
+      or (gTerrain.TileIsWineField(KMPoint(X, Y))) then
+      begin
+        Result := True;
+        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Wine, aStage, aRandomAge);
+      end
+    else
+      LogParamWarning('Actions.GiveWineFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2210,6 +2268,8 @@ begin
             begin
               gTerrain.SetField(Points[I], aPlayer, ft_Road);
               gTerrain.FlattenTerrain(Points[I]);
+              if MapElem[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
+                gTerrain.RemoveObject(Points[I]); //Remove corn/wine like normally built road does
             end;
         Result := True;
       finally

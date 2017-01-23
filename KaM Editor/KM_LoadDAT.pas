@@ -167,7 +167,7 @@ begin
       for i := 1 to 6 do
         if Cmd[Row].Numer[i] <> -1 then
           Form1.Memo2.Lines[Form1.Memo2.Lines.Count - 1] := Form1.Memo2.Lines[Form1.Memo2.Lines.Count - 1] + ' ' +
-            inttostr(Cmd[Row].Numer[i]);
+            IntToStr(Cmd[Row].Numer[i]);
     end;
     //if Cmd[Row].Comment<>'' then Form1.Memo2.Lines.Add(Cmd[Row].Comment);
   end;
@@ -187,12 +187,12 @@ begin
   writeln(ft);
   for i := 1 to 8 do
   begin
-    writeln(ft, 'Player #' + inttostr(i));
+    writeln(ft, 'Player #' + IntToStr(i));
     writeln(ft, Mission.Player[i].GetAllHouseStrings);
     writeln(ft, Mission.GetAllRoadStrings(i));
     //for k:=1 to Map.Y do for j:=1 to Map.X do
     //if (Roads[j,k].Built)and(Roads[j,k].Owner=i) then
-    //writeln(ft,'!SET_STREET '+inttostr(j-1)+' '+inttostr(k-1));
+    //writeln(ft,'!SET_STREET '+IntToStr(j-1)+' '+IntToStr(k-1));
     writeln(ft);
     writeln(ft);
   end;

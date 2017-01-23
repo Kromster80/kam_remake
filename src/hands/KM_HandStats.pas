@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults,
-  KM_ResHouses, KM_ResWares;
+  KM_ResHouses, KM_ResWares, KM_WareDistribution;
 
 
 //These are stats for each player
@@ -41,18 +41,21 @@ type
     fChartCapacity: Integer;
     fChartHouses: TKMCardinalArray;
     fChartCitizens: TKMCardinalArray;
-    fChartArmy: TKMCardinalArray;
+    fChartArmy: array [WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
+    fChartArmyTotal: array [WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
+    fArmyEmpty: array [WARRIOR_MIN..WARRIOR_MAX] of Boolean;
     fChartWares: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
 
     Houses: array [THouseType] of THouseStats;
     Units: array [HUMANS_MIN..HUMANS_MAX] of TUnitStats;
     Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
-    fResourceRatios: array [1..4, 1..4] of Byte;
+    fWareDistribution: TKMWareDistribution;
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
-    function GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
-    procedure SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
+    function GetChartArmy(aWarrior: TUnitType): TKMCardinalArray;
+    function GetChartArmyTotal(aWarrior: TUnitType): TKMCardinalArray;
   public
     constructor Create;
+    destructor Destroy; override;
 
     //Input reported by Player
     procedure WareInitial(aRes: TWareType; aCount: Cardinal);
@@ -70,7 +73,7 @@ type
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
-    property Ratio[aRes: TWareType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
+    property WareDistribution: TKMWareDistribution read fWareDistribution;
 
     //Output
     function GetHouseQty(aType: THouseType): Integer; overload;
@@ -93,18 +96,22 @@ type
     function GetHousesLost: Cardinal;
     function GetHousesDestroyed: Cardinal;
     function GetWarriorsTrained: Cardinal;
+    function GetWarriorsTotal(aWarriorType: TUnitType): Cardinal;
     function GetWarriorsKilled: Cardinal;
     function GetWarriorsLost: Cardinal;
     function GetWaresProduced(aRT: TWareType): Cardinal;
     function GetCivilProduced: Cardinal;
     function GetWeaponsProduced: Cardinal;
+    function GetWarfareProduced: Cardinal;
 
     property ChartCount: Integer read fChartCount;
     property ChartHouses: TKMCardinalArray read fChartHouses;
     property ChartCitizens: TKMCardinalArray read fChartCitizens;
-    property ChartArmy: TKMCardinalArray read fChartArmy;
     property ChartWares[aWare: TWareType]: TKMCardinalArray read GetChartWares;
+    property ChartArmy[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmy;
+    property ChartArmyTotal[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmyTotal;
     function ChartWaresEmpty(aWare: TWareType): Boolean;
+    function ChartArmyEmpty(aWarrior: TUnitType): Boolean;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -115,29 +122,27 @@ type
 
 implementation
 uses
-  KM_Resource;
-
-
-const
-  //These have been adjusted slightly from the old KaM defaults.
-  //The number means how many items should be in houses input max, and also affects delivery priority.
-  DistributionDefaults: array [1..4, 1..4] of Byte = (
-    (5, 5, 0, 0),
-    (5, 3, 4, 4),
-    (3, 4, 0, 0),
-    (4, 5, 3, 0)
-  );
+  KM_Resource, KM_GameApp;
 
 
 { TKMHandStats }
 constructor TKMHandStats.Create;
 var
-  I, K: Integer;
+  WT: TUnitType;
 begin
   inherited;
 
-  for I := 1 to 4 do for K := 1 to 4 do
-    fResourceRatios[I, K] := DistributionDefaults[I, K];
+  fWareDistribution := TKMWareDistribution.Create;
+
+  for WT := WARRIOR_MIN to WARRIOR_MAX do
+    fArmyEmpty[WT] := True;
+end;
+
+
+destructor TKMHandStats.Destroy;
+begin
+  FreeAndNil(fWareDistribution);
+  inherited;
 end;
 
 
@@ -345,13 +350,13 @@ var
 begin
   Result := 0;
   case aType of
-    ut_None:    ;
+    ut_None: ;
     ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
                   Inc(Result, Units[UT].Initial + Units[UT].Trained - Units[UT].Lost);
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
                   if aType = ut_Recruit then
-                    for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                    for UT := WARRIOR_MIN to WARRIOR_MAX do
                       dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
                 end;
   end;
@@ -402,45 +407,6 @@ begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
     Inc(Result, GetUnitQty(UT));
-end;
-
-
-function TKMHandStats.GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
-begin  
-  Result := 5; //Default should be 5, for house/resource combinations that don't have a setting (on a side note this should be the only place the resourse limit is defined)
-  case aRes of
-    wt_Steel: if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[1,1] else
-              if aHouse = ht_ArmorSmithy    then Result := fResourceRatios[1,2];
-    wt_Coal:  if aHouse = ht_IronSmithy     then Result := fResourceRatios[2,1] else
-              if aHouse = ht_Metallurgists  then Result := fResourceRatios[2,2] else
-              if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[2,3] else
-              if aHouse = ht_ArmorSmithy    then Result := fResourceRatios[2,4];
-    wt_Wood:  if aHouse = ht_ArmorWorkshop  then Result := fResourceRatios[3,1] else
-              if aHouse = ht_WeaponWorkshop then Result := fResourceRatios[3,2];
-    wt_Corn:  if aHouse = ht_Mill           then Result := fResourceRatios[4,1] else
-              if aHouse = ht_Swine          then Result := fResourceRatios[4,2] else
-              if aHouse = ht_Stables        then Result := fResourceRatios[4,3];
-    else      //Handled in 1st row to avoid repeating in if .. else lines
-  end;
-end;
-
-
-procedure TKMHandStats.SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
-begin
-  case aRes of
-    wt_Steel: if aHouse = ht_WeaponSmithy   then fResourceRatios[1,1] := aValue else
-              if aHouse = ht_ArmorSmithy    then fResourceRatios[1,2] := aValue;
-    wt_Coal:  if aHouse = ht_IronSmithy     then fResourceRatios[2,1] := aValue else
-              if aHouse = ht_Metallurgists  then fResourceRatios[2,2] := aValue else
-              if aHouse = ht_WeaponSmithy   then fResourceRatios[2,3] := aValue else
-              if aHouse = ht_ArmorSmithy    then fResourceRatios[2,4] := aValue;
-    wt_Wood:  if aHouse = ht_ArmorWorkshop  then fResourceRatios[3,1] := aValue else
-              if aHouse = ht_WeaponWorkshop then fResourceRatios[3,2] := aValue;
-    wt_Corn:  if aHouse = ht_Mill           then fResourceRatios[4,1] := aValue else
-              if aHouse = ht_Swine          then fResourceRatios[4,2] := aValue else
-              if aHouse = ht_Stables        then fResourceRatios[4,3] := aValue;
-    else      Assert(False, 'Unexpected resource at SetRatio');
-  end;
 end;
 
 
@@ -509,6 +475,12 @@ begin
 end;
 
 
+function TKMHandStats.GetWarriorsTotal(aWarriorType: TUnitType): Cardinal;
+begin
+  Result := Units[aWarriorType].Initial + Units[aWarriorType].Trained;
+end;
+
+
 function TKMHandStats.GetWarriorsLost: Cardinal;
 var UT: TUnitType;
 begin
@@ -563,6 +535,15 @@ begin
 end;
 
 
+function TKMHandStats.GetWarfareProduced: Cardinal;
+var RT: TWareType;
+begin
+  Result := 0;
+  for RT := WARFARE_MIN to WARFARE_MAX do
+    Inc(Result, Wares[RT].Produced);
+end;
+
+
 function TKMHandStats.GetChartWares(aWare: TWareType): TKMCardinalArray;
 var
   RT: TWareType;
@@ -604,6 +585,58 @@ begin
 end;
 
 
+function TKMHandStats.GetChartArmy(aWarrior: TUnitType): TKMCardinalArray;
+var
+  WT: TUnitType;
+  I: Integer;
+begin
+  case aWarrior of
+    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmy[aWarrior];
+    ut_Any:                   begin
+                                //Create new array and fill it (otherwise we assign pointers and corrupt data)
+                                SetLength(Result, fChartCount);
+                                for I := 0 to fChartCount - 1 do
+                                  Result[I] := 0;
+                                for WT := WARRIOR_MIN to WARRIOR_MAX do
+                                  for I := 0 to fChartCount - 1 do
+                                    Result[I] := Result[I] + fChartArmy[WT][I];
+                              end;
+    else                      begin
+                                //Return empty array
+                                SetLength(Result, fChartCount);
+                                for I := 0 to fChartCount - 1 do
+                                  Result[I] := 0;
+                              end;
+  end;
+end;
+
+
+function TKMHandStats.GetChartArmyTotal(aWarrior: TUnitType): TKMCardinalArray;
+var
+  I: Integer;
+  WT: TUnitType;
+begin
+  case aWarrior of
+    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmyTotal[aWarrior];
+    ut_Any:                   begin
+                                //Create new array and fill it (otherwise we assign pointers and corrupt data)
+                                SetLength(Result, fChartCount);
+                                for I := 0 to fChartCount - 1 do
+                                  Result[I] := 0;
+                                for WT := WARRIOR_MIN to WARRIOR_MAX do
+                                  for I := 0 to fChartCount - 1 do
+                                    Result[I] := Result[I] + fChartArmyTotal[WT][I];
+                              end;
+    else                      begin
+                                //Return empty array
+                                SetLength(Result, fChartCount);
+                                for I := 0 to fChartCount - 1 do
+                                  Result[I] := 0;
+                              end;
+  end;
+end;
+
+
 function TKMHandStats.ChartWaresEmpty(aWare: TWareType): Boolean;
 var
   RT: TWareType;
@@ -634,24 +667,52 @@ begin
 end;
 
 
+function TKMHandStats.ChartArmyEmpty(aWarrior: TUnitType): Boolean;
+var
+  WT: TUnitType;
+begin
+  case aWarrior of
+    WARRIOR_MIN..WARRIOR_MAX:
+                        Result := (fChartCount = 0) or (fArmyEmpty[aWarrior]);
+    ut_Any:             begin
+                          Result := True;
+                          if fChartCount > 0 then
+                            for WT := WARRIOR_MIN to WARRIOR_MAX do
+                              if not fArmyEmpty[WT] then
+                              begin
+                                Result := False;
+                                Break;
+                              end;
+                        end;
+    else                Result := True;
+  end;
+end;
+
+
 procedure TKMHandStats.Save(SaveStream: TKMemoryStream);
 var
   R: TWareType;
+  W: TUnitType;
 begin
   SaveStream.WriteA('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));
   SaveStream.Write(Units, SizeOf(Units));
   SaveStream.Write(Wares, SizeOf(Wares));
-  SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
+  fWareDistribution.Save(SaveStream);
 
   SaveStream.Write(fChartCount);
   if fChartCount <> 0 then
   begin
     SaveStream.Write(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
     SaveStream.Write(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
-    SaveStream.Write(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
+
     for R := WARE_MIN to WARE_MAX do
       SaveStream.Write(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
+    for W := WARRIOR_MIN to WARRIOR_MAX do
+    begin
+      SaveStream.Write(fChartArmy[W][0], SizeOf(fChartArmy[W][0]) * fChartCount);
+      SaveStream.Write(fChartArmyTotal[W][0], SizeOf(fChartArmyTotal[W][0]) * fChartCount);
+    end;
   end;
 end;
 
@@ -659,12 +720,13 @@ end;
 procedure TKMHandStats.Load(LoadStream: TKMemoryStream);
 var
   I: TWareType;
+  J: TUnitType;
 begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));
   LoadStream.Read(Units, SizeOf(Units));
   LoadStream.Read(Wares, SizeOf(Wares));
-  LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
+  fWareDistribution.Load(LoadStream);
 
   LoadStream.Read(fChartCount);
   if fChartCount <> 0 then
@@ -672,14 +734,19 @@ begin
     fChartCapacity := fChartCount;
     SetLength(fChartHouses, fChartCount);
     SetLength(fChartCitizens, fChartCount);
-    SetLength(fChartArmy, fChartCount);
     LoadStream.Read(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
     LoadStream.Read(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
-    LoadStream.Read(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for I := WARE_MIN to WARE_MAX do
     begin
       SetLength(fChartWares[I], fChartCount);
       LoadStream.Read(fChartWares[I][0], SizeOf(fChartWares[I][0]) * fChartCount);
+    end;
+    for J := WARRIOR_MIN to WARRIOR_MAX do
+    begin
+      SetLength(fChartArmy[J], fChartCount);
+      LoadStream.Read(fChartArmy[J][0], SizeOf(fChartArmy[J][0]) * fChartCount);
+      SetLength(fChartArmyTotal[J], fChartCount);
+      LoadStream.Read(fChartArmyTotal[J][0], SizeOf(fChartArmyTotal[J][0]) * fChartCount);
     end;
   end;
 end;
@@ -688,6 +755,8 @@ end;
 procedure TKMHandStats.UpdateState;
 var
   I: TWareType;
+  J: TUnitType;
+  ArmyQty: Integer;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
 
@@ -699,13 +768,15 @@ begin
     fChartCapacity := fChartCount + 32;
     SetLength(fChartHouses, fChartCapacity);
     SetLength(fChartCitizens, fChartCapacity);
-    SetLength(fChartArmy, fChartCapacity);
     for I := WARE_MIN to WARE_MAX do
       SetLength(fChartWares[I], fChartCapacity);
+    for J := WARRIOR_MIN to WARRIOR_MAX do
+    begin
+      SetLength(fChartArmy[J], fChartCapacity);
+      SetLength(fChartArmyTotal[J], fChartCapacity);
+    end;
   end;
-
   fChartHouses[fChartCount] := GetHouseQty(ht_Any);
-  fChartArmy[fChartCount] := GetArmyCount;
   //We don't want recruits on the citizens Chart on the results screen.
   //If we include recruits the citizens Chart drops by 50-100 at peacetime because all the recruits
   //become soldiers, and continually fluctuates. Recruits dominate the Chart, meaning you can't use
@@ -715,6 +786,22 @@ begin
 
   for I := WARE_MIN to WARE_MAX do
     fChartWares[I, fChartCount] := Wares[I].Produced;
+
+  for J := WARRIOR_MIN to WARRIOR_MAX do
+  begin
+    ArmyQty := GetUnitQty(J);
+    fChartArmy[J, fChartCount] := ArmyQty;
+    if (fArmyEmpty[J] and (ArmyQty > 0)) then
+      fArmyEmpty[J] := False;
+  end;
+
+  for J := WARRIOR_MIN to WARRIOR_MAX do
+  begin
+    ArmyQty := GetWarriorsTotal(J);
+    fChartArmyTotal[J, fChartCount] := ArmyQty;
+    if (fArmyEmpty[J] and (ArmyQty > 0)) then
+      fArmyEmpty[J] := False;
+  end;
 
   Inc(fChartCount);
 end;

@@ -48,6 +48,7 @@ type
     procedure ChatMenuShow(Sender: TObject);
 
     procedure PlayerMenuClick(Sender: TObject);
+    function CanShowPlayerMenu(Sender: TObject): Boolean;
     procedure PlayerMenuShow(Sender: TObject);
 
     procedure PlayersSetupChange(Sender: TObject);
@@ -590,7 +591,7 @@ begin
           with fNetworking.NetPlayers[I] do
           begin
             fChatWhisperRecipient := IndexOnServer;
-            UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+            UpdateButtonCaption(NiknameU, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
           end;
         end;
       end;
@@ -629,7 +630,7 @@ begin
     n := fNetworking.NetPlayers[I];
 
     if n.IsHuman and n.Connected and not n.Dropped then
-      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
+      Menu_Chat.AddItem(n.NiknameColoredU, n.IndexOnServer);
   end;
 
   C := TKMControl(Sender);
@@ -791,6 +792,7 @@ begin
     Label_LobbyPlayer[I].Caption := '.';
     Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
     Image_LobbyFlag[I].TexID := 0;
+    Image_LobbyFlag[I].HighlightOnMouseOver := False;
     Label_LobbyPlayer[I].Hide;
     DropBox_LobbyPlayerSlot[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     DropBox_LobbyPlayerSlot[I].Disable;
@@ -939,19 +941,37 @@ begin
 end;
 
 
-procedure TKMMenuLobby.PlayerMenuShow(Sender: TObject);
+function TKMMenuLobby.CanShowPlayerMenu(Sender: TObject): Boolean;
 var
   ctrl: TKMControl;
 begin
+  Result := True;
   ctrl := TKMControl(Sender);
-  if fLocalToNetPlayers[ctrl.Tag] = -1 then Exit;
+  if fLocalToNetPlayers[ctrl.Tag] = -1 then
+  begin
+    Result := False;
+    Exit;
+  end;
 
   //Only human players (excluding ourselves) have the player menu
   if not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IsHuman //No menu for AI players
   or (fNetworking.MyIndex = fLocalToNetPlayers[ctrl.Tag]) //No menu for ourselves
   or not fNetworking.IsHost //Only host gets to use the menu (for now)
   or not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].Connected then //Don't show menu for empty slots
+  begin
+    Result := False;
     Exit;
+  end;
+end;
+
+
+procedure TKMMenuLobby.PlayerMenuShow(Sender: TObject);
+var
+  ctrl: TKMControl;
+begin
+  ctrl := TKMControl(Sender);
+
+  if not CanShowPlayerMenu(Sender) then Exit;
 
   //Remember which player it is by his server index
   //since order of players can change. If someone above leaves we still have the proper Id
@@ -1271,6 +1291,9 @@ begin
     end;
   end;
 
+  for I := 1 to MAX_LOBBY_SLOTS do
+    Image_LobbyFlag[I].HighlightOnMouseOver := CanShowPlayerMenu(Image_LobbyFlag[I]);
+
   //Update the minimap preivew with player colors
   for I := 0 to MAX_HANDS - 1 do
   begin
@@ -1334,7 +1357,7 @@ begin
       Label_LobbyPing[I].Caption := '';
 
   Label_LobbyServerName.Caption := UnicodeString(fNetworking.ServerName) + ' #' + IntToStr(fNetworking.ServerRoom+1) +
-                                   '  ' + fNetworking.ServerAddress + ' : ' + fNetworking.ServerPort;
+                                   '  ' + fNetworking.ServerAddress + ' : ' + IntToStr(fNetworking.ServerPort);
 end;
 
 
@@ -1669,6 +1692,11 @@ begin
                 S := fNetworking.SaveInfo;
                 Label_LobbyMapName.Caption := aData; //Show save name on host (local is always "downloaded")
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime + '|' + S.Info.GetSaveTimestamp;
+                if S.IsValid and S.LoadMinimap(fMinimap) then
+                begin
+                  MinimapView_Lobby.SetMinimap(fMinimap);
+                  MinimapView_Lobby.Show;
+                end;
               end;
     ngk_Map:  begin
                 M := fNetworking.MapInfo;

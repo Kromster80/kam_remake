@@ -22,6 +22,10 @@ type
     fPingPos: Byte;
     procedure SetLangCode(const aCode: AnsiString);
     function GetNiknameColored: AnsiString;
+    function GetNikname: AnsiString;
+    function GetNiknameColoredU: UnicodeString;
+    function GetNiknameU: UnicodeString;
+    function GetHandIndex: Integer;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random, -1 means spectate
@@ -44,13 +48,16 @@ type
     function IsSpectator: Boolean;
     function GetPlayerType: THandType;
     function SlotName: UnicodeString; //Player name if it's human or computer or closed
-    property Nikname: AnsiString read fNikname; //Human player nikname (ANSI-Latin)
+    property Nikname: AnsiString read GetNikname; //Human player nikname (ANSI-Latin)
     property NiknameColored: AnsiString read GetNiknameColored;
+    property NiknameU: UnicodeString read GetNiknameU;
+    property NiknameColoredU: UnicodeString read GetNiknameColoredU;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
     function FlagColor(aDefault: Cardinal = $FF000000): Cardinal;
     property FlagColorID: Integer read fFlagColorID write fFlagColorID;
+    property HandIndex: Integer read GetHandIndex;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -128,7 +135,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Utils;
+  KM_ResTexts, KM_Utils, KM_HandsCollection;
 
 
 { TKMNetPlayerInfo }
@@ -222,12 +229,21 @@ end;
 function TKMNetPlayerInfo.SlotName: UnicodeString;
 begin
   case PlayerNetType of
-    nptHuman:     Result := UnicodeString(Nikname);
+    nptHuman:     Result := NiknameU;
     nptComputer:  //In lobby AI players don't have numbers yet (they are added on mission start)
                   Result := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
     nptClosed:    Result := gResTexts[TX_LOBBY_SLOT_CLOSED];
     else          Result := NO_TEXT;
   end;
+end;
+
+
+function TKMNetPlayerInfo.GetNikname: AnsiString;
+begin
+  if IsHuman or (gHands = nil) or (HandIndex = -1) then
+    Result := fNikname
+  else
+    Result := gHands[HandIndex].OwnerName;
 end;
 
 
@@ -237,6 +253,27 @@ begin
     Result := WrapColorA(Nikname, FlagColorToTextColor(FlagColor))
   else
     Result := Nikname;
+end;
+
+
+function TKMNetPlayerInfo.GetNiknameU: UnicodeString;
+begin
+  Result := UnicodeString(GetNikname);
+end;
+
+
+function TKMNetPlayerInfo.GetNiknameColoredU: UnicodeString;
+begin
+  Result := UnicodeString(GetNiknameColored);
+end;
+
+
+function TKMNetPlayerInfo.GetHandIndex: Integer;
+begin
+  if StartLocation > 0 then
+    Result := StartLocation - 1
+  else
+    Result := -1;
 end;
 
 
@@ -304,6 +341,7 @@ begin
   RandomizeTeamLocations := False;
   SpectatorsAllowed := False;
   SpectatorSlotsOpen := MAX_LOBBY_SPECTATORS;
+  ResetVote;
   fCount := 0;
 end;
 
@@ -1055,7 +1093,7 @@ begin
   Result := '';
   for I := 1 to fCount do
   begin
-    Result := Result + '   ' + IntToStr(I) + ': ' + UnicodeString(fNetPlayers[I].Nikname);
+    Result := Result + '   ' + IntToStr(I) + ': ' + fNetPlayers[I].NiknameU;
     if I < fCount then
       Result := Result + '|';
   end;
