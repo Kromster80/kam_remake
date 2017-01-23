@@ -1977,12 +1977,9 @@ begin
                       ChatSound := csChatWhisper;
                       I := NetPlayers.ServerToLocal(PlayerIndex);
                       if I <> -1 then
-                      begin
-                        tmpStringA := NetPlayers[I].NiknameColored;
-                        tmpInteger := gResTexts[TX_CHAT_WHISPER_TO].IndexOf('%s');
                         //we want to show colored nikname, so prepare nikname string
-                        tmpStringA := '[]' + tmpStringA + '[$00B9FF]';
-                      end else
+                        tmpStringA := '[]' + NetPlayers[I].NiknameColored + '[$00B9FF]'
+                      else
                         tmpStringA := '';
                       tmpStringW := ' [$00B9FF](' + Format(gResTexts[TX_CHAT_WHISPER_TO], [UnicodeString(tmpStringA)]) + ')[]: ' + tmpStringW;
                     end;
@@ -2004,7 +2001,8 @@ begin
                     else
                       tmpStringW := NetPlayers[PlayerIndex].NiknameU + tmpStringW;
                     PostLocalMessage(tmpStringW, ChatSound);
-                  end else
+                  end
+                  else
                   if tmpChatMode = cmWhisper then
                     // Notify sender, when he is muted
                     PostMessage(TX_NET_MUTED, csSystem, MyNetPlayer.NiknameColoredU, '', aSenderIndex);
