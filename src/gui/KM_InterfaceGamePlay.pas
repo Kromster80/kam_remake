@@ -65,6 +65,7 @@ type
 
     procedure Create_Controls;
     procedure Create_Replay;
+    procedure Create_ScriptingOverlay;
     procedure Create_Allies;
     procedure Create_Message;
     procedure Create_MessageLog;
@@ -150,9 +151,11 @@ type
     Image_Clock: TKMImage; // Clock displayed when game speed is increased
     Label_Clock: TKMLabel;
     Label_ClockSpeedup: TKMLabel;
+
     Label_ScriptedOverlay: TKMLabel; // Label that can be set from script
     Button_ScriptedOverlay: TKMButton;
     Label_OverlayShow, Label_OverlayHide: TKMLabel;
+
     Label_MenuTitle: TKMLabel; // Displays the title of the current menu to the right of return
     Image_DirectionCursor: TKMImage;
 
@@ -719,19 +722,7 @@ begin
   Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,'x1',fnt_Metal,taCenter);
   Label_ClockSpeedup.Hide;
 
-  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
-
-  Button_ScriptedOverlay := TKMButton.Create(Panel_Main, 260, 92, 15, 15, '', bsGame);
-  Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
-  Button_ScriptedOverlay.Hide;
-  Button_ScriptedOverlay.OnClick := HideOverlay;
-
-  Label_OverlayHide := TKMLabel.Create(Panel_Main,263,91,'-',fnt_Metal,taLeft);
-  Label_OverlayShow := TKMLabel.Create(Panel_Main,263,93,'+',fnt_Metal,taLeft);
-  Label_OverlayHide.Hitable := False;
-  Label_OverlayShow.Hitable := False;
-  Label_OverlayHide.Hide;
-  Label_OverlayShow.Hide;
+  Create_ScriptingOverlay; // Scripting Overlay controls
 
   Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
   Image_DirectionCursor.Hide;
@@ -991,13 +982,31 @@ begin
     Button_ReplayStep.Disable; // Initial state
     Button_ReplayResume.Disable; // Initial state
 
-  Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 61, 220, 60);
+  Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 61, 220, 39);
     Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 0, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
     Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 19, 160, 20, fnt_Metal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
  end;
+
+
+procedure TKMGamePlayInterface.Create_ScriptingOverlay;
+begin
+  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
+
+  Button_ScriptedOverlay := TKMButton.Create(Panel_Main, 260, 92, 15, 15, '', bsGame);
+  Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
+  Button_ScriptedOverlay.Hide;
+  Button_ScriptedOverlay.OnClick := HideOverlay;
+
+  Label_OverlayHide := TKMLabel.Create(Panel_Main,263,91,'-',fnt_Metal,taLeft);
+  Label_OverlayShow := TKMLabel.Create(Panel_Main,263,93,'+',fnt_Metal,taLeft);
+  Label_OverlayHide.Hitable := False;
+  Label_OverlayShow.Hitable := False;
+  Label_OverlayHide.Hide;
+  Label_OverlayShow.Hide;
+end;
 
 
 // Individual message page
@@ -2280,7 +2289,18 @@ end;
 
 
 procedure TKMGamePlayInterface.UpdateOverlayControls;
+var OverlayTop: Integer;
 begin
+  OverlayTop := 8;
+
+  if Panel_ReplayFOW.Visible then
+    OverlayTop := Panel_ReplayFOW.Top + Panel_ReplayFOW.Height - 9;
+
+  Label_ScriptedOverlay.Top := OverlayTop + 19;
+  Button_ScriptedOverlay.Top := OverlayTop + 1;
+  Label_OverlayShow.Top := OverlayTop + 2;
+  Label_OverlayHide.Top := OverlayTop;
+
   Button_ScriptedOverlay.Visible := Label_ScriptedOverlay.Caption <> '';
   Label_OverlayShow.Visible := (Label_ScriptedOverlay.Caption <> '') and not (Label_ScriptedOverlay.Visible);
   Label_OverlayHide.Visible := (Label_ScriptedOverlay.Caption <> '') and (Label_ScriptedOverlay.Visible);
