@@ -53,8 +53,8 @@ type
 
     procedure PlayersSetupChange(Sender: TObject);
     procedure MapColumnClick(aValue: Integer);
-    procedure MapTypeChange(Sender: TObject); overload;
-    procedure MapTypeChange; overload;
+    procedure MapTypeChanged(Sender: TObject);
+    procedure UpdateMapList;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
     procedure RefreshMapList(aJumpToSelected: Boolean);
@@ -409,7 +409,7 @@ begin
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_SPECIAL]);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
-      Radio_LobbyMapType.OnChange := MapTypeChange;
+      Radio_LobbyMapType.OnChange := MapTypeChanged;
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
@@ -839,7 +839,7 @@ begin
   begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
-    if not aPreserveMaps then MapTypeChange;
+    if not aPreserveMaps then UpdateMapList;
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
     Button_LobbyStart.Caption := gResTexts[TX_LOBBY_START]; //Start
@@ -1364,7 +1364,7 @@ begin
 end;
 
 
-procedure TKMMenuLobby.MapTypeChange;
+procedure TKMMenuLobby.UpdateMapList;
 begin
   //Terminate any running scans otherwise they will continue to fill the drop box in the background
   fMapsMP.TerminateScan;
@@ -1397,9 +1397,9 @@ begin
 end;
 
 
-procedure TKMMenuLobby.MapTypeChange(Sender: TObject);
+procedure TKMMenuLobby.MapTypeChanged(Sender: TObject);
 begin
-  MapTypeChange;
+  UpdateMapList;
   gGameApp.GameSettings.MenuLobbyMapType := Radio_LobbyMapType.ItemIndex;
   fNetworking.SelectNoMap('');
 end;
@@ -1766,7 +1766,7 @@ begin
   //Pick correct position of map type selector
   Radio_LobbyMapType.ItemIndex := DetectMapType;
 
-  MapTypeChange;
+  UpdateMapList;
   Lobby_OnGameOptions(nil);
 
   case fNetworking.SelectGameKind of
@@ -1890,7 +1890,7 @@ end;
 procedure TKMMenuLobby.ReturnToLobby(const aSaveName: UnicodeString);
 begin
   Radio_LobbyMapType.ItemIndex := 4; //Save
-  MapTypeChange;
+  UpdateMapList;
   Lobby_OnGameOptions(nil);
   if fNetworking.IsHost then
   begin

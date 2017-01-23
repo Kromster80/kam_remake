@@ -24,6 +24,7 @@ type
     procedure Load_Delete_Click(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
     procedure Load_ScanUpdate(Sender: TObject);
+    procedure Load_ScanComplite(Sender: TObject);
     procedure Load_SortUpdate(Sender: TObject);
     procedure Load_RefreshList(aJumpToSelected:Boolean);
     procedure Load_Sort(aIndex: Integer);
@@ -206,7 +207,13 @@ end;
 
 procedure TKMMenuLoad.Load_ScanUpdate(Sender: TObject);
 begin
-  Load_RefreshList(True); //Jump to selected with each scan update
+  Load_RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMenuLoad.Load_ScanComplite(Sender: TObject);
+begin
+  Load_RefreshList(True); //After scan complite jump to selected item
 end;
 
 
@@ -316,7 +323,7 @@ begin
   fLastSaveCRC := gGameApp.GameSettings.MenuSPSaveCRC;
 
   //Initiate refresh and process each new save added
-  fSaves.Refresh(Load_ScanUpdate, False);
+  fSaves.Refresh(Load_ScanUpdate, False, Load_ScanComplite);
 
   //Apply sorting from last time we were on this page
   Load_Sort(ColumnBox_Load.SortIndex);

@@ -28,6 +28,7 @@ type
     procedure SetSelectedMapInfo(aID: Integer = -1); overload;
     procedure SetSelectedMapInfo(aCRC: Cardinal; aName: UnicodeString); overload;
     procedure ScanUpdate(Sender: TObject);
+    procedure ScanComplite(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure RefreshList(aJumpToSelected:Boolean);
     procedure ColumnClick(aValue: Integer);
@@ -324,12 +325,12 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0:  begin
           fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdSPMapCRC;
-          fMaps.Refresh(ScanUpdate);
+          fMaps.Refresh(ScanUpdate, ScanComplite);
         end;
     1:  begin
           fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdMPMapCRC;
           fSelectedMapInfo.Name := gGameApp.GameSettings.MenuMapEdMPMapName;
-          fMapsMP.Refresh(ScanUpdate);
+          fMapsMP.Refresh(ScanUpdate, ScanComplite);
         end
   end;
 end;
@@ -337,7 +338,13 @@ end;
 
 procedure TKMMenuMapEditor.ScanUpdate(Sender: TObject);
 begin
-  RefreshList(True); //Jump to selected with each scan update
+  RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMenuMapEditor.ScanComplite(Sender: TObject);
+begin
+  RefreshList(True); //After scan complite jump to selected item
 end;
 
 
@@ -382,7 +389,7 @@ begin
   ColumnBox_MapEd.TopIndex := PrevTop;
 
   if aJumpToSelected and (ColumnBox_MapEd.ItemIndex <> -1)
-  and not InRange(ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.TopIndex, 0, ColumnBox_MapEd.GetVisibleRows-1)
+    and not InRange(ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.TopIndex, 0, ColumnBox_MapEd.GetVisibleRows-1)
   then
     if ColumnBox_MapEd.ItemIndex < ColumnBox_MapEd.TopIndex then
       ColumnBox_MapEd.TopIndex := ColumnBox_MapEd.ItemIndex
