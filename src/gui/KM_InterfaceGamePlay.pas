@@ -138,6 +138,8 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
+    procedure UpdateScreenPosition;
+    procedure ListClick(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -991,6 +993,7 @@ begin
     Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 19, 160, 20, fnt_Metal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
+    Dropbox_ReplayFOW.List.OnClick := ListClick;
  end;
 
 
@@ -1794,11 +1797,45 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ListClick(Sender: TObject);
+begin
+  UpdateScreenPosition;
+end;
+
+
+procedure TKMGamePlayInterface.UpdateScreenPosition;
+var LastSelectedObj: TObject;
+begin
+  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+
+  // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
+  // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
+  if GetKeyState(VK_CONTROL) < 0 then
+  begin
+    LastSelectedObj := gMySpectator.LastSpecSelectedObj;
+    if LastSelectedObj <> nil then
+    begin
+      // Center screen on last selected object for chosen hand
+      if LastSelectedObj is TKMUnit then begin
+        fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
+      end else if LastSelectedObj is TKMHouse then
+        fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
+      else if LastSelectedObj is TKMUnitGroup then
+        fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
+      else
+        Assert(False, 'Could not determine last selected object type');
+    end else
+      fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
+
+    gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+  end;
+end;
+
+
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
 var
   oldCenter: TKMPointF;
   oldZoom: Single;
-  LastSelectedObj: TObject;
 begin
   if (Sender = Button_ReplayRestart) then
   begin
@@ -1843,27 +1880,7 @@ begin
   begin
     gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
 
-    // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
-    // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
-    if GetKeyState(VK_CONTROL) < 0 then
-    begin
-      LastSelectedObj := gMySpectator.LastSpecSelectedObj;
-      if LastSelectedObj <> nil then
-      begin
-        // Center screen on last selected object for chosen hand
-        if LastSelectedObj is TKMUnit then begin
-          fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
-        end else if LastSelectedObj is TKMHouse then
-          fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
-        else if LastSelectedObj is TKMUnitGroup then
-          fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
-        else
-          Assert(False, 'Could not determine last selected object type');
-      end else
-        fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
-
-      gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
-    end;
+    UpdateScreenPosition;
 
     if Checkbox_ReplayFOW.Checked then
       gMySpectator.FOWIndex := gMySpectator.HandIndex
