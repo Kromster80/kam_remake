@@ -44,7 +44,7 @@ const
 begin
   inherited Create;
 
-  Panel_Settings := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 357);
+  Panel_Settings := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 382);
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,15,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
     CheckBox_Settings_ReplayAutoPause := TKMCheckBox.Create(Panel_Settings,PAD,40,WID,20,'Replay autopause',fnt_Metal); //Todo: translate
