@@ -421,8 +421,7 @@ end;
 
 
 procedure TGameInputProcess.ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
-var I: Integer;
-    IsPlayerMuted: Boolean;
+var IsPlayerMuted: Boolean;
 begin
   with aCommand do
   begin

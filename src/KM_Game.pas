@@ -509,7 +509,7 @@ begin
     UpdateMultiplayerTeams;
 
   FreeAndNil(gMySpectator); //May have been created earlier
-  if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
+  if fNetworking.MyNetPlayer.IsSpectator then
   begin
     //Find the first enabled hand to be spectating initially
     handIndex := 0;
@@ -523,7 +523,7 @@ begin
     gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
   end
   else
-    gMySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
+    gMySpectator := TKMSpectator.Create(fNetworking.MyNetPlayer.StartLocation - 1);
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
