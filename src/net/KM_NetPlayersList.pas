@@ -26,6 +26,7 @@ type
     function GetNiknameColoredU: UnicodeString;
     function GetNiknameU: UnicodeString;
     function GetHandIndex: Integer;
+    procedure ResetMuted;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random, -1 means spectate
@@ -38,6 +39,8 @@ type
     Dropped: Boolean;        //Host elected to continue play without this player
     FPS: Cardinal;
     VotedYes: Boolean;
+    Muted: array [1..MAX_LOBBY_SLOTS] of Boolean;
+    constructor Create;
     procedure AddPing(aPing: Word);
     procedure ResetPingRecord;
     function GetInstantPing: Word;
@@ -58,6 +61,8 @@ type
     function FlagColor(aDefault: Cardinal = $FF000000): Cardinal;
     property FlagColorID: Integer read fFlagColorID write fFlagColorID;
     property HandIndex: Integer read GetHandIndex;
+
+    procedure ToggleMuted(aNetIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -139,6 +144,13 @@ uses
 
 
 { TKMNetPlayerInfo }
+constructor TKMNetPlayerInfo.Create;
+begin
+  inherited;
+  ResetMuted;
+end;
+
+
 procedure TKMNetPlayerInfo.AddPing(aPing: Word);
 begin
   fPingPos := (fPingPos + 1) mod PING_COUNT;
@@ -218,6 +230,14 @@ begin
 end;
 
 
+procedure TKMNetPlayerInfo.ResetMuted;
+var I: Integer;
+begin
+  for I := Low(Muted) to High(Muted) do
+    Muted[I] := False;
+end;
+
+
 function TKMNetPlayerInfo.GetPlayerType: THandType;
 const
   PlayerTypes: array [TNetPlayerType] of THandType = (hndHuman, hndComputer, hndComputer);
@@ -277,7 +297,14 @@ begin
 end;
 
 
+procedure TKMNetPlayerInfo.ToggleMuted(aNetIndex: Integer);
+begin
+  Muted[aNetIndex] := not Muted[aNetIndex];
+end;
+
+
 procedure TKMNetPlayerInfo.Load(LoadStream: TKMemoryStream);
+var I: Integer;
 begin
   LoadStream.ReadA(fNikname);
   LoadStream.ReadA(fLangCode);
@@ -293,10 +320,13 @@ begin
   LoadStream.Read(Connected);
   LoadStream.Read(Dropped);
   LoadStream.Read(VotedYes);
+  for I := Low(Muted) to High(Muted) do
+    LoadStream.Read(Muted[I]);
 end;
 
 
 procedure TKMNetPlayerInfo.Save(SaveStream: TKMemoryStream);
+var I: Integer;
 begin
   SaveStream.WriteA(fNikname);
   SaveStream.WriteA(fLangCode);
@@ -312,6 +342,8 @@ begin
   SaveStream.Write(Connected);
   SaveStream.Write(Dropped);
   SaveStream.Write(VotedYes);
+  for I := Low(Muted) to High(Muted) do
+    SaveStream.Write(Muted[I]);
 end;
 
 
@@ -429,6 +461,7 @@ begin
   fNetPlayers[fCount].Connected := true;
   fNetPlayers[fCount].Dropped := false;
   fNetPlayers[fCount].ResetPingRecord;
+  fNetPlayers[fCount].ResetMuted;
   //Check if this player must go in a spectator slot
   if fCount-GetSpectatorCount > MAX_LOBBY_PLAYERS then
     fNetPlayers[fCount].StartLocation := LOC_SPECTATE
@@ -458,6 +491,7 @@ begin
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
   fNetPlayers[aSlot].ResetPingRecord;
+  fNetPlayers[aSlot].ResetMuted;
 end;
 
 
@@ -482,6 +516,7 @@ begin
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
   fNetPlayers[aSlot].ResetPingRecord;
+  fNetPlayers[aSlot].ResetMuted;
 end;
 
 
@@ -519,10 +554,14 @@ end;
 
 
 procedure TKMNetPlayersList.RemPlayer(aIndex: Integer);
-var
-  I: Integer;
+var I, J: Integer;
 begin
   fNetPlayers[aIndex].Free;
+
+  for I := Low(fNetPlayers) to High(fNetPlayers) do
+    for J := aIndex to fCount - 1 do
+      fNetPlayers[I].Muted[J] :=  fNetPlayers[I].Muted[J + 1];
+
   for I := aIndex to fCount - 1 do
     fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
 

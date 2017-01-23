@@ -137,6 +137,7 @@ type
     procedure TakeCommand(aCommand: TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
+    procedure ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
   public
     constructor Create(aReplayState: TGIPReplayState);
     destructor Destroy; override;
@@ -412,17 +413,7 @@ begin
                                     if fGame.Networking.IsHost then
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;}
                                   end;
-      gic_GameAlertBeacon:        begin
-                                    //Beacon script event must always be run by all players for consistency
-                                    gScriptEvents.ProcBeacon(Params[3], 1 + (Params[1] div 10), 1 + (Params[2] div 10));
-                                    //However, beacons don't show in replays
-                                    if fReplayState = gipRecording then
-                                      if ((Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
-                                      or ((Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
-                                      and (gHands.CheckAlliance(Params[3], gMySpectator.HandIndex) = at_Ally)
-                                      and (gHands[Params[3]].ShareBeacons[gMySpectator.HandIndex])) then
-                                        gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-                                  end;
+      gic_GameAlertBeacon:        ExecGameAlertBeaconCmd(aCommand);
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
       gic_GameMessageLogRead:     P.MessageLog[Params[1]].IsReadGIP := True;
       gic_GamePlayerTypeChange:   begin
@@ -431,6 +422,29 @@ begin
                                   end;
       else                        Assert(false);
     end;
+  end;
+end;
+
+
+procedure TGameInputProcess.ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
+var I: Integer;
+    IsPlayerMuted: Boolean;
+begin
+  with aCommand do
+  begin
+    //Beacon script event must always be run by all players for consistency
+    gScriptEvents.ProcBeacon(Params[3], 1 + (Params[1] div 10), 1 + (Params[2] div 10));
+    // Check if player, who send beacon, is muted
+    IsPlayerMuted := gGame.Networking.MyNetPlayer.Muted[gGame.Networking.GetNetPlayerIndex(Params[3])];
+
+    //However, beacons don't show in replays
+    if fReplayState = gipRecording then
+      if ((Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
+      or ((Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
+      and (gHands.CheckAlliance(Params[3], gMySpectator.HandIndex) = at_Ally)
+      and (gHands[Params[3]].ShareBeacons[gMySpectator.HandIndex])
+      and not IsPlayerMuted) then                                            // do not show beacons sended by muted players
+        gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
   end;
 end;
 

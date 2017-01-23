@@ -61,6 +61,7 @@ type
     mk_StartingLocQuery,//Joiner asks Host if he can take that starting location
     mk_SetTeam,         //Joiner tells Host which team he is on
     mk_FlagColorQuery,  //Joiner asks Host if he can take specific color
+    mk_MutePlayer,      //Joiner tells Host when he muted/unmuted other player
 
     mk_ResetMap,        //Reset the map selection to blank
     mk_MapSelect,       //Host selects the map to play
@@ -137,6 +138,7 @@ const
     pfNumber,   //mk_StartingLocQuery
     pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery
+    pfBinary,   //mk_MutePlayer
     pfNoData,   //mk_ResetMap
     pfBinary,   //mk_MapSelect
     pfBinary,   //mk_SaveSelect

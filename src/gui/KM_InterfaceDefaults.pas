@@ -57,6 +57,10 @@ const
   OPT_SLIDER_MAX = 20;
   MAX_SAVENAME_LENGTH = 50;
 
+  CHAT_MENU_ALL = -1;
+  CHAT_MENU_TEAM = -2;
+  CHAT_MENU_SPECTATORS = -3;
+
 implementation
 
 

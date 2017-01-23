@@ -1095,6 +1095,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aWidth: Integer);
     procedure AddItem(aCaption: UnicodeString; aTag: Integer = 0);
+    procedure UpdateItem(aIndex: Integer; aCaption: UnicodeString);
     procedure Clear;
     property ItemIndex: Integer read GetItemIndex write SetItemIndex;
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
@@ -5080,6 +5081,12 @@ procedure TKMPopUpMenu.AddItem(aCaption: UnicodeString; aTag: Integer = 0);
 begin
   fList.AddItem(MakeListRow([aCaption], aTag));
   Height := fList.ItemHeight * fList.RowCount;
+end;
+
+
+procedure TKMPopUpMenu.UpdateItem(aIndex: Integer; aCaption: UnicodeString);
+begin
+  fList.Rows[aIndex].Cells[0].Caption := aCaption;
 end;
 
 
