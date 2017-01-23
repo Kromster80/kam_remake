@@ -248,19 +248,19 @@ end;
 // hence we need to pass either gGameApp.Settings or a direct Settings link
 procedure TKMMenuOptions.Refresh;
 begin
-  CheckBox_Options_Autosave.Checked     := fGameSettings.Autosave;
+  CheckBox_Options_Autosave.Checked        := fGameSettings.Autosave;
   CheckBox_Options_ReplayAutopause.Checked := fGameSettings.ReplayAutopause;
-  TrackBar_Options_Brightness.Position  := fGameSettings.Brightness;
-  CheckBox_Options_VSync.Checked        := fMainSettings.VSync;
-  CheckBox_Options_FullFonts.Enabled    := not gResLocales.LocaleByCode(fGameSettings.Locale).NeedsFullFonts;
-  CheckBox_Options_FullFonts.Checked    := fGameSettings.LoadFullFonts or not CheckBox_Options_FullFonts.Enabled;
-  RadioGroup_Options_Shadows.ItemIndex  := Byte(fGameSettings.AlphaShadows);
-  TrackBar_Options_ScrollSpeed.Position := fGameSettings.ScrollSpeed;
-  TrackBar_Options_SFX.Position         := Round(fGameSettings.SoundFXVolume * TrackBar_Options_SFX.MaxValue);
-  TrackBar_Options_Music.Position       := Round(fGameSettings.MusicVolume * TrackBar_Options_Music.MaxValue);
+  TrackBar_Options_Brightness.Position     := fGameSettings.Brightness;
+  CheckBox_Options_VSync.Checked           := fMainSettings.VSync;
+  CheckBox_Options_FullFonts.Enabled       := not gResLocales.LocaleByCode(fGameSettings.Locale).NeedsFullFonts;
+  CheckBox_Options_FullFonts.Checked       := fGameSettings.LoadFullFonts or not CheckBox_Options_FullFonts.Enabled;
+  RadioGroup_Options_Shadows.ItemIndex     := Byte(fGameSettings.AlphaShadows);
+  TrackBar_Options_ScrollSpeed.Position    := fGameSettings.ScrollSpeed;
+  TrackBar_Options_SFX.Position            := Round(fGameSettings.SoundFXVolume * TrackBar_Options_SFX.MaxValue);
+  TrackBar_Options_Music.Position          := Round(fGameSettings.MusicVolume * TrackBar_Options_Music.MaxValue);
   CheckBox_Options_Mute.Checked         := fGameSettings.Mute;
-  CheckBox_Options_MusicOff.Checked     := fGameSettings.MusicOff;
-  CheckBox_Options_ShuffleOn.Checked    := fGameSettings.ShuffleOn;
+  CheckBox_Options_MusicOff.Checked        := fGameSettings.MusicOff;
+  CheckBox_Options_ShuffleOn.Checked       := fGameSettings.ShuffleOn;
 
   TrackBar_Options_SFX.Enabled       := not CheckBox_Options_Mute.Checked;
   TrackBar_Options_Music.Enabled     := not CheckBox_Options_MusicOff.Checked and not CheckBox_Options_Mute.Checked;
@@ -283,17 +283,17 @@ begin
   MusicToggled := (fGameSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
   ShuffleToggled := (fGameSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
 
-  fGameSettings.Autosave      := CheckBox_Options_Autosave.Checked;
+  fGameSettings.Autosave        := CheckBox_Options_Autosave.Checked;
   fGameSettings.ReplayAutopause := CheckBox_Options_ReplayAutopause.Checked;
-  fGameSettings.Brightness    := TrackBar_Options_Brightness.Position;
-  fMainSettings.VSync         := CheckBox_Options_VSync.Checked;
-  fGameSettings.AlphaShadows  := RadioGroup_Options_Shadows.ItemIndex = 1;
-  fGameSettings.ScrollSpeed   := TrackBar_Options_ScrollSpeed.Position;
-  fGameSettings.SoundFXVolume := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
-  fGameSettings.MusicVolume   := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
+  fGameSettings.Brightness      := TrackBar_Options_Brightness.Position;
+  fMainSettings.VSync           := CheckBox_Options_VSync.Checked;
+  fGameSettings.AlphaShadows    := RadioGroup_Options_Shadows.ItemIndex = 1;
+  fGameSettings.ScrollSpeed     := TrackBar_Options_ScrollSpeed.Position;
+  fGameSettings.SoundFXVolume   := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
+  fGameSettings.MusicVolume     := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
   fGameSettings.Mute          := CheckBox_Options_Mute.Checked;
-  fGameSettings.MusicOff      := CheckBox_Options_MusicOff.Checked;
-  fGameSettings.ShuffleOn     := CheckBox_Options_ShuffleOn.Checked;
+  fGameSettings.MusicOff        := CheckBox_Options_MusicOff.Checked;
+  fGameSettings.ShuffleOn       := CheckBox_Options_ShuffleOn.Checked;
 
   TrackBar_Options_SFX.Enabled       := not CheckBox_Options_Mute.Checked;
   TrackBar_Options_Music.Enabled     := not CheckBox_Options_MusicOff.Checked and not CheckBox_Options_Mute.Checked;

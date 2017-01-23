@@ -77,15 +77,15 @@ end;
 
 procedure TKMGameMenuSettings.Menu_Settings_Fill;
 begin
-  TrackBar_Settings_Brightness.Position   := gGameApp.GameSettings.Brightness;
-  CheckBox_Settings_Autosave.Checked      := gGameApp.GameSettings.Autosave;
+  TrackBar_Settings_Brightness.Position     := gGameApp.GameSettings.Brightness;
+  CheckBox_Settings_Autosave.Checked        := gGameApp.GameSettings.Autosave;
   CheckBox_Settings_ReplayAutoPause.Checked := gGameApp.GameSettings.ReplayAutopause;
-  TrackBar_Settings_ScrollSpeed.Position  := gGameApp.GameSettings.ScrollSpeed;
-  TrackBar_Settings_SFX.Position          := Round(gGameApp.GameSettings.SoundFXVolume * TrackBar_Settings_SFX.MaxValue);
-  TrackBar_Settings_Music.Position        := Round(gGameApp.GameSettings.MusicVolume * TrackBar_Settings_Music.MaxValue);
+  TrackBar_Settings_ScrollSpeed.Position    := gGameApp.GameSettings.ScrollSpeed;
+  TrackBar_Settings_SFX.Position            := Round(gGameApp.GameSettings.SoundFXVolume * TrackBar_Settings_SFX.MaxValue);
+  TrackBar_Settings_Music.Position          := Round(gGameApp.GameSettings.MusicVolume * TrackBar_Settings_Music.MaxValue);
   CheckBox_Settings_Mute.Checked          := gGameApp.GameSettings.Mute;
-  CheckBox_Settings_MusicOff.Checked      := gGameApp.GameSettings.MusicOff;
-  CheckBox_Settings_ShuffleOn.Checked     := gGameApp.GameSettings.ShuffleOn;
+  CheckBox_Settings_MusicOff.Checked        := gGameApp.GameSettings.MusicOff;
+  CheckBox_Settings_ShuffleOn.Checked       := gGameApp.GameSettings.ShuffleOn;
 
   TrackBar_Settings_SFX.Enabled := not CheckBox_Settings_Mute.Checked;
   TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOff.Checked and not CheckBox_Settings_Mute.Checked;
@@ -103,15 +103,15 @@ begin
   MusicToggled   := (gGameApp.GameSettings.MusicOff <> CheckBox_Settings_MusicOff.Checked);
   ShuffleToggled := (gGameApp.GameSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
 
-  gGameApp.GameSettings.Brightness    := TrackBar_Settings_Brightness.Position;
-  gGameApp.GameSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
+  gGameApp.GameSettings.Brightness      := TrackBar_Settings_Brightness.Position;
+  gGameApp.GameSettings.Autosave        := CheckBox_Settings_ReplayAutopause.Checked;
   gGameApp.GameSettings.ReplayAutopause := CheckBox_Settings_Autosave.Checked;
-  gGameApp.GameSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
-  gGameApp.GameSettings.SoundFXVolume := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
-  gGameApp.GameSettings.MusicVolume   := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;
+  gGameApp.GameSettings.ScrollSpeed     := TrackBar_Settings_ScrollSpeed.Position;
+  gGameApp.GameSettings.SoundFXVolume   := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
+  gGameApp.GameSettings.MusicVolume     := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;
   gGameApp.GameSettings.Mute          := CheckBox_Settings_Mute.Checked;
-  gGameApp.GameSettings.MusicOff      := CheckBox_Settings_MusicOff.Checked;
-  gGameApp.GameSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
+  gGameApp.GameSettings.MusicOff        := CheckBox_Settings_MusicOff.Checked;
+  gGameApp.GameSettings.ShuffleOn       := CheckBox_Settings_ShuffleOn.Checked;
 
   if gGameApp.GameSettings.Mute then begin
     gSoundPlayer.UpdateSoundVolume(0);
