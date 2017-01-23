@@ -1098,6 +1098,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aWidth: Integer);
     procedure AddItem(aCaption: UnicodeString; aTag: Integer = 0);
+    procedure UpdateItem(aIndex: Integer; aCaption: UnicodeString);
     procedure Clear;
     property ItemIndex: Integer read GetItemIndex write SetItemIndex;
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
@@ -4045,8 +4046,12 @@ end;
 procedure TKMMemo.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var OldCursorPos: Integer;
 begin
-  Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
   inherited;
+
+  Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
+  // Update Focus now, because we need to focus on MouseDown, not on MouseUp as by default for all controls
+  MasterParent.fCollection.UpdateFocus(Self);
+
   OldCursorPos := CursorPos;
   CursorPos := GetCursorPosAt(X, Y);
 
@@ -5086,6 +5091,12 @@ procedure TKMPopUpMenu.AddItem(aCaption: UnicodeString; aTag: Integer = 0);
 begin
   fList.AddItem(MakeListRow([aCaption], aTag));
   Height := fList.ItemHeight * fList.RowCount;
+end;
+
+
+procedure TKMPopUpMenu.UpdateItem(aIndex: Integer; aCaption: UnicodeString);
+begin
+  fList.Rows[aIndex].Cells[0].Caption := aCaption;
 end;
 
 

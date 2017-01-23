@@ -15,7 +15,8 @@ type
     wt_Skin,    wt_Shield,  wt_MetalShield, wt_Armor,     wt_MetalArmor,
     wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
     wt_Arbalet, wt_Horse,   wt_Fish,
-    wt_All,     wt_Warfare, wt_Food); //Special ware types
+    wt_All,     wt_Warfare, wt_Food //Special ware types
+  );
 
   TKMWare = class
   private
@@ -35,7 +36,7 @@ type
     property TextID: Integer read GetTextID;
   end;
 
-  TKMWaresList = class
+  TKMResWares = class
   private
     fList: array [TWareType] of TKMWare;
     procedure CalculateCostsTable;
@@ -124,22 +125,90 @@ uses
   KM_ResTexts;
 
 
-{ TKMWaresList }
-constructor TKMWaresList.Create;
-var I: TWareType;
+{ TKMWare }
+constructor TKMWare.Create(aType: TWareType);
+begin
+  inherited Create;
+
+  fType := aType;
+end;
+
+
+function TKMWare.GetGUIColor: Cardinal;
+const
+  //Resources colors for Results charts
+  //Made by naospor from kamclub.ru
+  WareColor: array [WARE_MIN..WARE_MAX] of Cardinal = (
+    $004080, $BFBFBF, $0080BF, $BF4040, $00FFFF,
+    $606060, $BF0000, $00BFFF, $000080, $80FFFF,
+    $80BFFF, $FFFFFF, $4040BF, $0000FF, $0040BF,
+    $008080, $00BF00, $00FF7F, $FFBF00, $BF0080,
+    $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
+    $101080, $0080FF, $FFBF00);
+begin
+  Result := WareColor[fType];
+end;
+
+
+function TKMWare.GetGUIIcon: Word;
+begin
+  case fType of
+    WARE_MIN..WARE_MAX: Result := 351 + WareTypeToIndex[fType];
+    wt_All:             Result := 657;
+    wt_Warfare:         Result := 658;
+    wt_Food:            Result := 659;
+  else
+    Result := 41; // "Question mark"
+  end;
+end;
+
+
+function TKMWare.GetTextID: Integer;
+begin
+  case fType of
+    WARE_MIN..WARE_MAX: Result := TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType];
+    wt_All:             Result := TX_RESOURCES_ALL;
+    wt_Warfare:         Result := TX_RESOURCES_WARFARE;
+    wt_Food:            Result := TX_RESOURCES_FOOD;
+  else
+    Result := -1;
+  end;
+end;
+
+
+function TKMWare.GetTitle: UnicodeString;
+begin
+  if GetTextID <> -1 then
+    Result := gResTexts[GetTextID]
+  else
+    Result := 'N/A';
+end;
+
+
+function TKMWare.IsValid: Boolean;
+begin
+  Result := fType in [WARE_MIN..WARE_MAX];
+end;
+
+
+{ TKMResWares }
+constructor TKMResWares.Create;
+var
+  I: TWareType;
 begin
   inherited;
 
   for I := Low(TWareType) to High(TWareType) do
     fList[I] := TKMWare.Create(I);
 
-  //Calcuate the trade costs for marketplace once
+  // Calcuate the trade costs for marketplace once
   CalculateCostsTable;
 end;
 
 
-destructor TKMWaresList.Destroy;
-var I: TWareType;
+destructor TKMResWares.Destroy;
+var
+  I: TWareType;
 begin
   for I := Low(TWareType) to High(TWareType) do
     fList[I].Free;
@@ -148,8 +217,14 @@ begin
 end;
 
 
-//Export costs table for analysis in human-friendly form
-procedure TKMWaresList.ExportCostsTable(const aFilename: string);
+function TKMResWares.GetWare(aIndex: TWareType): TKMWare;
+begin
+  Result := fList[aIndex];
+end;
+
+
+// Export costs table for analysis in human-friendly form
+procedure TKMResWares.ExportCostsTable(const aFilename: string);
 var
   SL: TStringList;
   I: TWareType;
@@ -166,7 +241,7 @@ begin
 end;
 
 
-procedure TKMWaresList.CalculateCostsTable;
+procedure TKMResWares.CalculateCostsTable;
 const
   NON_RENEW = 1.25; //Non-renewable resources are more valuable than renewable ones
   TREE_ADDN = 0.15; //Trees require a large area (e.g. compared to corn)
@@ -203,76 +278,6 @@ begin
   Wares[wt_Arbalet    ].fMarketPrice := (1/ProductionRate[wt_Arbalet]) + Wares[wt_Steel].MarketPrice + Wares[wt_Coal].MarketPrice;
   Wares[wt_Horse      ].fMarketPrice := (1/ProductionRate[wt_Horse]) + 4*Wares[wt_Corn].MarketPrice;
   Wares[wt_Fish       ].fMarketPrice := NON_RENEW*(1/ProductionRate[wt_Fish]);
-end;
-
-
-function TKMWaresList.GetWare(aIndex: TWareType): TKMWare;
-begin
-  Result := fList[aIndex];
-end;
-
-
-{ TKMWare }
-constructor TKMWare.Create(aType: TWareType);
-begin
-  inherited Create;
-
-  fType := aType;
-end;
-
-
-function TKMWare.GetGUIColor: Cardinal;
-const
-  //Resources colors for Results charts
-  //Made by naospor from kamclub.ru
-  WareColor: array [WARE_MIN..WARE_MAX] of Cardinal = (
-    $004080, $BFBFBF, $0080BF, $BF4040, $00FFFF,
-    $606060, $BF0000, $00BFFF, $000080, $80FFFF,
-    $80BFFF, $FFFFFF, $4040BF, $0000FF, $0040BF,
-    $008080, $00BF00, $00FF7F, $FFBF00, $BF0080,
-    $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
-    $101080, $0080FF, $FFBF00);
-begin
-  Result := WareColor[fType];
-end;
-
-
-function TKMWare.GetGUIIcon: Word;
-begin
-  case fType of
-    WARE_MIN..WARE_MAX: Result := 351 + WareTypeToIndex[fType];
-    wt_All:             Result := 657;
-    wt_Warfare:         Result := 658;
-    wt_Food:            Result := 659;
-    else                Result := 41; //Show "Question mark"
-  end;
-end;
-
-
-function TKMWare.GetTextID: Integer;
-begin
-  case fType of
-    WARE_MIN..WARE_MAX: Result := TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType];
-    wt_All:             Result := TX_RESOURCES_ALL;
-    wt_Warfare:         Result := TX_RESOURCES_WARFARE;
-    wt_Food:            Result := TX_RESOURCES_FOOD;
-    else                Result := -1;
-  end;
-end;
-
-
-function TKMWare.GetTitle: UnicodeString;
-begin
-  if GetTextID <> -1 then
-    Result := gResTexts[GetTextID]
-  else
-    Result := 'N/A';
-end;
-
-
-function TKMWare.IsValid: Boolean;
-begin
-  Result := fType in [WARE_MIN..WARE_MAX];
 end;
 
 

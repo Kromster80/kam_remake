@@ -154,7 +154,7 @@ begin
                                 SetOwner(P[1]+1+k-3, P[2]+1+i-4);
                         end;
     ct_SetMapColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
-                          fHandPreview[fLastHand].Color := gRes.Palettes.DefDal.Color32(P[0]);
+                          fHandPreview[fLastHand].Color := gRes.Palettes.DefaultPalette.Color32(P[0]);
     ct_SetRGBColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
                           fHandPreview[fLastHand].Color := P[0] or $FF000000;
     ct_CenterScreen:    fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
