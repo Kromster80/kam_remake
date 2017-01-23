@@ -24,7 +24,7 @@ type
     procedure Replays_ListClick(Sender: TObject);
     procedure Replay_TypeChange(Sender: TObject);
     procedure Replays_ScanUpdate(Sender: TObject);
-    procedure Replays_ScanComplite(Sender: TObject);
+    procedure Replays_ScanComplete(Sender: TObject);
     procedure Replays_SortUpdate(Sender: TObject);
     procedure Replays_RefreshList(aJumpToSelected:Boolean);
     procedure Replays_Sort(aIndex: Integer);
@@ -278,7 +278,7 @@ begin
 
   ColumnBox_Replays.Clear;
   UpdateUI;
-  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1), Replays_ScanComplite);
+  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1), Replays_ScanComplete);
 end;
 
 
@@ -297,9 +297,9 @@ begin
 end;
 
 
-procedure TKMMenuReplays.Replays_ScanComplite(Sender: TObject);
+procedure TKMMenuReplays.Replays_ScanComplete(Sender: TObject);
 begin
-  Replays_RefreshList(True); //After scan complite jump to the selected item
+  Replays_RefreshList(True); //After scan complete jump to the selected item
 end;
 
 

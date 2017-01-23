@@ -125,7 +125,7 @@ type
     fScanning: Boolean; //Flag if scan is in progress
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
-    fOnComplite: TNotifyEvent;
+    fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
@@ -148,7 +148,7 @@ type
     class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
 
-    procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplite: TNotifyEvent = nil);
+    procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -837,14 +837,14 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnComplite: TNotifyEvent = nil);
+procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
   Clear;
 
   fOnRefresh := aOnRefresh;
-  fOnComplite := aOnComplite;
+  fOnComplete := aOnComplete;
 
   //Scan will launch upon create automatcally
   fScanning := True;
@@ -887,8 +887,8 @@ begin
   Lock;
   try
     fScanning := False;
-    if Assigned(fOnComplite) then
-      fOnComplite(Self);
+    if Assigned(fOnComplete) then
+      fOnComplete(Self);
   finally
     Unlock;
   end;

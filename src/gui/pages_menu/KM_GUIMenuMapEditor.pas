@@ -28,7 +28,7 @@ type
     procedure SetSelectedMapInfo(aID: Integer = -1); overload;
     procedure SetSelectedMapInfo(aCRC: Cardinal; aName: UnicodeString); overload;
     procedure ScanUpdate(Sender: TObject);
-    procedure ScanComplite(Sender: TObject);
+    procedure ScanComplete(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure RefreshList(aJumpToSelected:Boolean);
     procedure ColumnClick(aValue: Integer);
@@ -325,12 +325,12 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0:  begin
           fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdSPMapCRC;
-          fMaps.Refresh(ScanUpdate, ScanComplite);
+          fMaps.Refresh(ScanUpdate, ScanComplete);
         end;
     1:  begin
           fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdMPMapCRC;
           fSelectedMapInfo.Name := gGameApp.GameSettings.MenuMapEdMPMapName;
-          fMapsMP.Refresh(ScanUpdate, ScanComplite);
+          fMapsMP.Refresh(ScanUpdate, ScanComplete);
         end
   end;
 end;
@@ -342,9 +342,9 @@ begin
 end;
 
 
-procedure TKMMenuMapEditor.ScanComplite(Sender: TObject);
+procedure TKMMenuMapEditor.ScanComplete(Sender: TObject);
 begin
-  RefreshList(True); //After scan complite jump to selected item
+  RefreshList(True); //After scan complete jump to selected item
 end;
 
 

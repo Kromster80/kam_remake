@@ -28,7 +28,7 @@ type
 
     procedure ListClear;
     procedure ScanUpdate(Sender: TObject);
-    procedure ScanComplite(Sender: TObject);
+    procedure ScanComplete(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure ListRefresh(aJumpToSelected:Boolean);
     procedure ListClick(Sender: TObject);
@@ -233,9 +233,9 @@ begin
 end;
 
 
-procedure TKMMenuSingleMap.ScanComplite(Sender: TObject);
+procedure TKMMenuSingleMap.ScanComplete(Sender: TObject);
 begin
-  ListRefresh(True); //After scan complite jump to selected item
+  ListRefresh(True); //After scan complete jump to selected item
 end;
 
 
@@ -537,7 +537,7 @@ begin
   fLastMapCRC := gGameApp.GameSettings.MenuSPMapCRC;
 
   //Initiate refresh and process each new map added
-  fMaps.Refresh(ScanUpdate, ScanComplite);
+  fMaps.Refresh(ScanUpdate, ScanComplete);
   Panel_Single.Show;
 end;
 
