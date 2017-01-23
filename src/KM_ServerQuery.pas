@@ -15,7 +15,7 @@ type
   TKMServerInfo = record
     Name: string;
     IP: string;
-    Port: string;
+    Port: Word;
     ServerType: TKMServerType;
     Ping: Word;
   end;
@@ -53,7 +53,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure PerformQuery(aAddress, aPort:string; aServerID:integer);
+    procedure PerformQuery(aAddress: string; aPort: Word; aServerID: Integer);
     procedure Disconnect;
     property OnServerData:TServerDataEvent read fOnServerData write fOnServerData;
     property OnQueryDone:TNotifyEvent read fOnQueryDone write fOnQueryDone;
@@ -81,7 +81,7 @@ type
     fCount:integer;
     fLastQueried:integer;
     fServers:array of TKMServerInfo;
-    procedure AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: word);
+    procedure AddServer(aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: word);
     function GetServer(aIndex: Integer): TKMServerInfo;
     procedure Clear;
     procedure AddFromText(const aText: UnicodeString);
@@ -108,7 +108,7 @@ type
     fOnListUpdated: TNotifyEvent;
     fOnAnnouncements: TUnicodeStringEvent;
 
-    procedure DetectUDPServer(const aAddress: string; const aPort: string; const aName: string);
+    procedure DetectUDPServer(const aAddress: string; const aPort: Word; const aName: string);
     procedure ReceiveServerList(const S: string);
     procedure ReceiveAnnouncements(const S: string);
 
@@ -208,7 +208,7 @@ end;
 
 
 { TKMServerList }
-procedure TKMServerList.AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: Word);
+procedure TKMServerList.AddServer(aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: Word);
 begin
   if Length(fServers) <= fCount then SetLength(fServers, fCount+16);
   fServers[fCount].Name := aName;
@@ -255,7 +255,7 @@ begin
   begin
     ParseDelimited(srvList[I], ',', srvInfo); //Automatically clears srvInfo and loads each value
     if srvInfo.Count = 5 then //Must have 5 parameters
-      AddServer(srvInfo[1], srvInfo[2], srvInfo[0], GetServerType(srvInfo[3], srvInfo[4]), 0);
+      AddServer(srvInfo[1], srvInfo[0], StrToInt(srvInfo[2]), GetServerType(srvInfo[3], srvInfo[4]), 0);
   end;
 
   srvInfo.Free;
@@ -263,7 +263,7 @@ begin
 end;
 
 
-procedure TKMServerList.TakeNewQuery(aQuery:TKMQuery);
+procedure TKMServerList.TakeNewQuery(aQuery: TKMQuery);
 begin
   if fLastQueried < fCount-1 then
   begin
@@ -298,14 +298,14 @@ begin
 end;
 
 
-procedure TKMQuery.PerformQuery(aAddress, aPort:string; aServerID:integer);
+procedure TKMQuery.PerformQuery(aAddress: string; aPort: Word; aServerID: Integer);
 begin
   fQueryActive := true;
   fServerID := aServerID;
   fQueryStarted := TimeGet;
   fNetClient.Disconnect;
   fNetClient.OnRecieveData := NetClientReceive;
-  fNetClient.ConnectTo(aAddress,aPort);
+  fNetClient.ConnectTo(aAddress, aPort);
 end;
 
 
@@ -446,7 +446,7 @@ begin
 end;
 
 
-procedure TKMServerQuery.DetectUDPServer(const aAddress: string; const aPort: string; const aName: string);
+procedure TKMServerQuery.DetectUDPServer(const aAddress: string; const aPort: Word; const aName: string);
 var
   I: Integer;
 begin
@@ -455,7 +455,7 @@ begin
     if (fServerList[I].IP = aAddress) and (fServerList[I].Port = aPort) then
       Exit;
 
-  fServerList.AddServer(aAddress, aPort, aName, mstLocal, 0);
+  fServerList.AddServer(aAddress, aName, aPort, mstLocal, 0);
   for I := 0 to MAX_QUERIES - 1 do
     if not fQuery[I].fQueryActive then
       fServerList.TakeNewQuery(fQuery[I]);

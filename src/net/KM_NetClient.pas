@@ -58,7 +58,7 @@ type
     function MyIPString: string;
     function SendBufferEmpty: Boolean;
 
-    procedure ConnectTo(const aAddress: string; const aPort: string); //Try to connect to server
+    procedure ConnectTo(const aAddress: string; const aPort: Word); //Try to connect to server
     property OnConnectSucceed: TNotifyEvent write fOnConnectSucceed; //Signal success
     property OnConnectFailed: TGetStrProc write fOnConnectFailed; //Signal fail and text description
 
@@ -113,9 +113,9 @@ begin
 end;
 
 
-procedure TKMNetClient.ConnectTo(const aAddress:string; const aPort:string);
+procedure TKMNetClient.ConnectTo(const aAddress: string; const aPort: Word);
 begin
-  SetLength(fBuffer,0);
+  SetLength(fBuffer, 0);
   fBufferSize := 0;
   fClient.OnError := Error;
   fClient.OnConnectSucceed := ConnectSucceed;
