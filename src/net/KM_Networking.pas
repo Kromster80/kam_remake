@@ -294,6 +294,7 @@ begin
   fNetClient.Free;
   fServerQuery.Free;
   fFileSenderManager.Free;
+  fMutedPlayersList.Free;
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fNetGameOptions);

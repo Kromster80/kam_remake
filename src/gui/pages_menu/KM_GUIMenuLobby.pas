@@ -507,23 +507,23 @@ end;
 
 procedure TKMMenuLobby.CreatePlayerMenus(aParent: TKMPanel);
 begin
-  Menu_Host := TKMPopUpMenu.Create(aParent, gRes.GetMaxPrintWidthOfStrings(  // Calc max width for popup which depends of texts translation
+  Menu_Host := TKMPopUpMenu.Create(aParent, gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings( // Calc max width for popup which depends of texts translation
     [gResTexts[TX_LOBBY_PLAYER_KICK], 
     gResTexts[TX_LOBBY_PLAYER_BAN], 
     gResTexts[TX_LOBBY_PLAYER_SET_HOST], 
     'Mute player',    //todo translate
-    'Unmute player'], //todo translate 
-    fnt_Grey) + 10);
+    'Unmute player']) //todo translate
+    + 10);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_BAN]);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_SET_HOST]);
   Menu_Host.AddItem('');
   Menu_Host.OnClick := HostMenuClick;
 
-  Menu_Joiner := TKMPopUpMenu.Create(aParent, gRes.GetMaxPrintWidthOfStrings(  // Calc max width for popup which depends of texts translation
+  Menu_Joiner := TKMPopUpMenu.Create(aParent, gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings( // Calc max width for popup which depends of texts translation
     ['Mute player',   //todo translate
-    'Unmute player'], //todo translate 
-    fnt_Grey) + 10);
+    'Unmute player']) //todo translate
+    + 10);
   Menu_Joiner.AddItem('');
   Menu_Joiner.OnClick := JoinerMenuClick;
 end;
@@ -1373,9 +1373,7 @@ begin
 
   // Darken player flag when muted
   for I := 1 to MAX_LOBBY_SLOTS do
-  begin
     UpdateImageLobbyFlag(I);
-  end;
 
   //If PopUp menu was opened, check if player still connected, otherwise - close PopUp menu
   if Menu_Host.Visible and (fNetworking.NetPlayers.ServerToLocal(Menu_Host.Tag) = -1) then
