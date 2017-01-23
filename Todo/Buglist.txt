@@ -72,6 +72,7 @@ Improvements:
  +		Label for group members count on group panel (same as in MapEd)
  +		Map name label on F4 menu
  +		New option: replay autopause on PT end
+ +		While spectating/watching replay change screen position when switch between players with dropbox with pressed Ctrl button
  +	L	House not occupied message mentions which house it is ("This farm is not occupied")
  +		Selectable text in Edit and Memo
  +		Colored niknames in chat system messages

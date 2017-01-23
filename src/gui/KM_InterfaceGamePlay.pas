@@ -1754,6 +1754,7 @@ procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
 var
   oldCenter: TKMPointF;
   oldZoom: Single;
+  LastSelectedObj: TObject;
 begin
   if (Sender = Button_ReplayRestart) then
   begin
@@ -1797,6 +1798,29 @@ begin
   if (Sender = Dropbox_ReplayFOW) then
   begin
     gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+
+    // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
+    // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
+    if GetKeyState(VK_CONTROL) < 0 then
+    begin
+      LastSelectedObj := gMySpectator.LastSpecSelectedObj;
+      if LastSelectedObj <> nil then
+      begin
+        // Center screen on last selected object for chosen hand
+        if LastSelectedObj is TKMUnit then begin
+          fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
+        end else if LastSelectedObj is TKMHouse then
+          fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
+        else if LastSelectedObj is TKMUnitGroup then
+          fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
+        else
+          Assert(False, 'Could not determine last selected object type');
+      end else
+        fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
+
+      gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+    end;
+
     if Checkbox_ReplayFOW.Checked then
       gMySpectator.FOWIndex := gMySpectator.HandIndex
     else
@@ -3190,9 +3214,6 @@ begin
                 // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fUIMode in [umReplay, umSpectate] then
                 begin
-                  if gMySpectator.Selected is TKMHouse      then gMySpectator.HandIndex := TKMHouse    (gMySpectator.Selected).Owner;
-                  if gMySpectator.Selected is TKMUnit       then gMySpectator.HandIndex := TKMUnit     (gMySpectator.Selected).Owner;
-                  if gMySpectator.Selected is TKMUnitGroup  then gMySpectator.HandIndex := TKMUnitGroup(gMySpectator.Selected).Owner;
                   Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandIndex);
                   if Checkbox_ReplayFOW.Checked then
                     gMySpectator.FOWIndex := gMySpectator.HandIndex
