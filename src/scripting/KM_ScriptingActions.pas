@@ -341,7 +341,7 @@ begin
     and InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and InRange(aAmount, 0, 5) then
     begin
-      gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
+      gHands[aPlayer].Stats.WareDistribution[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
       gHands[aPlayer].Houses.UpdateResRequest;
     end
     else

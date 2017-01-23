@@ -72,7 +72,8 @@ type
     gic_HouseWoodcuttersCutting,  //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
-    gic_RatioChange,
+    gic_WareDistributionChange,   //Change of distribution for 1 ware
+    gic_WareDistributions,        //Update distributions for all wares at ones
 
     //V.      Game changes
     gic_GameAlertBeacon,            //Signal alert (beacon)
@@ -133,7 +134,7 @@ type
     end;
 
     function MakeCommand(aGIC: TGameInputCommandType; const aParam: array of integer): TGameInputCommand; overload;
-    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime = 0): TGameInputCommand; overload;
     procedure TakeCommand(aCommand: TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
@@ -160,7 +161,8 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint); overload;
 
-    procedure CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
+    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer); overload;
+    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString); overload;
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
@@ -253,7 +255,7 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime): TGameInputCommand;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime = 0): TGameInputCommand;
 var
   I: Integer;
 begin
@@ -376,8 +378,12 @@ begin
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
       gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
-      gic_RatioChange:            begin
-                                    P.Stats.Ratio[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
+      gic_WareDistributionChange:            begin
+                                    P.Stats.WareDistribution[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
+                                    P.Houses.UpdateResRequest
+                                  end;
+      gic_WareDistributions:                 begin
+                                    P.Stats.WareDistribution.LoadFromStr(TextParam);
                                     P.Houses.UpdateResRequest
                                   end;
 
@@ -559,10 +565,17 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
+procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
 begin
-  Assert(aCommandType = gic_RatioChange);
+  Assert(aCommandType = gic_WareDistributionChange);
   TakeCommand(MakeCommand(aCommandType, [byte(aWare), byte(aHouseType), aValue]));
+end;
+
+
+procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString);
+begin
+  Assert(aCommandType = gic_WareDistributions);
+  TakeCommand(MakeCommand(aCommandType, aTextParam));
 end;
 
 

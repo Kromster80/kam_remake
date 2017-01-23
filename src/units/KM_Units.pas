@@ -237,7 +237,6 @@ type
     property Carry: TWareType read fCarry;
     procedure CarryGive(Res: TWareType);
     procedure CarryTake;
-    procedure SetNewDelivery(aDelivery:TUnitTask);
 
     function UpdateState: Boolean; override;
     procedure Paint; override;
@@ -649,7 +648,8 @@ end;
 
 
 function TKMUnitRecruit.UpdateState: Boolean;
-var H: TKMHouseInn;
+var
+  H: TKMHouseInn;
 begin
   Result := True; //Required for override compatibility
   if fCurrentAction=nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitRecruit.UpdateState',fCurrPosition);
@@ -851,21 +851,15 @@ end;
 
 procedure TKMUnitSerf.CarryGive(Res:TWareType);
 begin
-  Assert(fCarry=wt_None, 'Giving Serf another Carry');
+  Assert(fCarry = wt_None, 'Giving Serf another Carry');
   fCarry := Res;
 end;
 
 
 procedure TKMUnitSerf.CarryTake;
 begin
-  Assert(Carry <> wt_None, 'Taking wrong resource from Serf');
+  Assert(Carry <> wt_None, 'Taking wrong ware from Serf');
   fCarry := wt_None;
-end;
-
-
-procedure TKMUnitSerf.SetNewDelivery(aDelivery:TUnitTask);
-begin
-  fUnitTask := aDelivery;
 end;
 
 
@@ -882,11 +876,8 @@ begin
     ft_Road: fUnitTask := TTaskBuildRoad.Create(Self, aLoc, aIndex);
     ft_Corn: fUnitTask := TTaskBuildField.Create(Self, aLoc, aIndex);
     ft_Wine: fUnitTask := TTaskBuildWine.Create(Self, aLoc, aIndex);
-    else     begin
-              Assert(false, 'Unexpected Field Type');
-              fUnitTask := nil;
-              Exit;
-             end;
+  else
+    raise Exception.Create('Unexpected TFieldType');
   end;
 end;
 
@@ -1016,11 +1007,11 @@ end;
 
 function TKMUnitAnimal.UpdateState: Boolean;
 begin
-  Result:=true; //Required for override compatibility
+  Result := True; //Required for override compatibility
 
   fCurrPosition := KMPointRound(fPosition);
 
-  if fCurrentAction=nil then
+  if fCurrentAction = nil then
     raise ELocError.Create(gRes.UnitDat[UnitType].GUIName + ' has no action at start of TKMUnitAnimal.UpdateState', fCurrPosition);
 
   if fKillASAP then
@@ -1044,7 +1035,6 @@ begin
     TaskContinues:  exit;
     TaskDone:       Assert(false); //TTaskDie never returns TaskDone yet
   end;
-
 
   //First make sure the animal isn't stuck (check passibility of our position)
   if (not gTerrain.CheckPassability(fCurrPosition, DesiredPassability))
@@ -1094,7 +1084,7 @@ constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; 
 begin
   inherited Create;
 
-  fUID           := aID;
+  fUID          := aID;
   fTicker       := fUID; //Units update states will be spread more evenly that way
   fPointerCount := 0;
   fIsDead       := false;
@@ -1142,7 +1132,10 @@ end;
 
 
 constructor TKMUnit.Load(LoadStream: TKMemoryStream);
-var HasTask,HasAct: Boolean; TaskName:TUnitTaskName; ActName: TUnitActionName;
+var
+  HasTask, HasAct: Boolean;
+  TaskName: TUnitTaskName;
+  ActName: TUnitActionName;
 begin
   inherited Create;
   LoadStream.Read(fUnitType, SizeOf(fUnitType));
@@ -1167,7 +1160,8 @@ begin
       utn_Mining:          fUnitTask := TTaskMining.Load(LoadStream);
       utn_Die:             fUnitTask := TTaskDie.Load(LoadStream);
       utn_GoOutShowHungry: fUnitTask := TTaskGoOutShowHungry.Load(LoadStream);
-      else                 Assert(false, 'TaskName can''t be handled');
+    else
+      raise Exception.Create('TaskName can''t be handled');
     end;
   end
   else
@@ -1185,8 +1179,9 @@ begin
       uan_Fight:       fCurrentAction := TUnitActionFight.Load(LoadStream);
       uan_StormAttack: fCurrentAction := TUnitActionStormAttack.Load(LoadStream);
       uan_Steer:       fCurrentAction := TUnitActionSteer.Load(LoadStream);
-      else             Assert(false, 'ActName can''t be handled');
-  end;
+    else
+      raise Exception.Create('ActName can''t be handled');
+    end;
   end
   else
     fCurrentAction := nil;
@@ -1234,7 +1229,7 @@ begin
 end;
 
 
-{Returns self and adds on to the pointer counter}
+// Returns self and adds on to the pointer counter
 function TKMUnit.GetUnitPointer: TKMUnit;
 begin
   inc(fPointerCount);
@@ -1252,7 +1247,7 @@ begin
 end;
 
 
-{Erase everything related to unit status to exclude it from being accessed by anything but the old pointers}
+// Erase everything related to unit status to exclude it from being accessed by anything but the old pointers
 procedure TKMUnit.CloseUnit(aRemoveTileUsage: Boolean = True);
 begin
   //if not KMSamePoint(fCurrPosition,NextPosition) then
@@ -1365,7 +1360,6 @@ begin
 end;
 
 
-//Return TRUE if unit was killed
 procedure TKMUnit.HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
 begin
   Assert(aAmount > 0, '0 damage should be handled outside so not to reset HPCounter');
@@ -1477,7 +1471,8 @@ end;
 
 
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
-var Cycle, Step: Byte;
+var
+  Cycle, Step: Byte;
 begin
   //Archers should start in the reloading if they shot recently phase to avoid rate of fire exploit
   Step := 0; //Default
@@ -1630,7 +1625,8 @@ end;
 
 
 procedure TKMUnit.SetActionAbandonWalk(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
-var TempVertexOccupied: TKMPoint;
+var
+  TempVertexOccupied: TKMPoint;
 begin
   if GetUnitAction is TUnitActionWalkTo then
   begin
@@ -1905,7 +1901,8 @@ const
   SlideLookup: array[1..2, 0..Round(CELL_SIZE_PX * 1.42)] of byte = ( //1.42 instead of 1.41 because we want to round up just in case (it was causing a crash because Round(40*sqrt(2)) = 57 but Round(40*1.41) = 56)
     (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
-var DY,DX, PixelPos, LookupDiagonal: shortint;
+var
+  DY,DX, PixelPos, LookupDiagonal: shortint;
 begin
   Result := 0;
 
@@ -1943,7 +1940,8 @@ end;
 
 
 function TKMUnit.GetMovementVector: TKMPointF;
-var MovementSpeed:single;
+var
+  MovementSpeed: Single;
 begin
   if (GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).DoesWalking then
     MovementSpeed := gRes.UnitDat[fUnitType].Speed
