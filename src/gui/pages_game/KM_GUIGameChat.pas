@@ -287,13 +287,14 @@ end;
 procedure TKMGUIGameChat.Unfocus;
 begin
   Edit_ChatMsg.Focusable := False;
+  gGame.GamePlayInterface.MyControls.UpdateFocus(Edit_ChatMsg); // Update only Edit focus, Memo will lose focus automatically
 end;
 
 
 procedure TKMGUIGameChat.Focus;
 begin
   Edit_ChatMsg.Focusable := True;
-  gGame.GamePlayInterface.MyControls.CtrlFocus := Edit_ChatMsg;
+  gGame.GamePlayInterface.MyControls.UpdateFocus(Panel_Chat); // Update focus on chat panel (both Edit and Memo could be focused)
 end;
 
 

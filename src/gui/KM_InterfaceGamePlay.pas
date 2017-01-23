@@ -3151,11 +3151,9 @@ begin
 
   // Check if mouse was clicked insede MP chat panel
   if not KMInRect(KMPoint(X,Y), fGuiGameChat.PanelChatRect) then
-  begin
     // Unset chat focus, when mouse clicked outside MP chat panel
-    fMyControls.CtrlFocus := nil;
-    fGuiGameChat.Unfocus;
-  end else
+    fGuiGameChat.Unfocus
+  else
     fGuiGameChat.Focus; // Set focus to MP chat
 
   if fPlacingBeacon and (Button = mbRight) then
