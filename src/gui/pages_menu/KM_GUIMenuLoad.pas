@@ -3,7 +3,7 @@ unit KM_GUIMenuLoad;
 interface
 uses
   Controls, Math, SysUtils,
-  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap;
+  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Defaults;
 
 
 type
@@ -49,7 +49,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_Pics;
 
 
 { TKMGUIMenuLoad }
@@ -69,8 +69,8 @@ begin
 
     ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 22, 86, 770, 485, fnt_Metal, bsMenu);
     ColumnBox_Load.Anchors := [anLeft,anTop,anBottom];
-    ColumnBox_Load.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 250, 430]);
-    ColumnBox_Load.SearchColumn := 0;
+    ColumnBox_Load.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 22, 250, 430]);
+    ColumnBox_Load.SearchColumn := 1;
     ColumnBox_Load.OnColumnClick := Load_Sort;
     ColumnBox_Load.OnChange := Load_ListClick;
     ColumnBox_Load.OnDoubleClick := LoadClick;
@@ -218,6 +218,7 @@ end;
 
 procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected:Boolean);
 var I, PrevTop: Integer;
+    Row: TKMListRow;
 begin
   PrevTop := ColumnBox_Load.TopIndex;
   ColumnBox_Load.Clear;
@@ -225,9 +226,12 @@ begin
   fSaves.Lock;
   try
     for I := 0 to fSaves.Count - 1 do
-      ColumnBox_Load.AddItem(MakeListRow(
-                        [fSaves[i].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
-                        [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF]));
+    begin
+      Row := MakeListRow(['', fSaves[i].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
+                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF]);
+      Row.Cells[0].Pic := MakePic(rxGui, 657 + Byte(fSaves[I].Info.MissionMode = mm_Tactic));
+      ColumnBox_Load.AddItem(Row);
+    end;
 
     //IDs of saves could changed, so use CRC to check which one was selected
     for I := 0 to fSaves.Count - 1 do
@@ -260,18 +264,22 @@ end;
 procedure TKMMenuLoad.Load_Sort(aIndex: Integer);
 begin
   case ColumnBox_Load.SortIndex of
-    //Sorting by filename goes A..Z by default
     0:  if ColumnBox_Load.SortDirection = sdDown then
+          fSaves.Sort(smByModeDesc, Load_SortUpdate)
+        else
+          fSaves.Sort(smByModeAsc, Load_SortUpdate);
+    //Sorting by filename goes A..Z by default
+    1:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByFileNameDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByFileNameAsc, Load_SortUpdate);
     //Sorting by description goes Old..New by default
-    1:  if ColumnBox_Load.SortDirection = sdDown then
+    2:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByDateDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByDateAsc, Load_SortUpdate);
     //Sorting by description goes A..Z by default
-    2:  if ColumnBox_Load.SortDirection = sdDown then
+    3:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByDescriptionDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByDescriptionAsc, Load_SortUpdate);

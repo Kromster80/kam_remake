@@ -68,7 +68,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults;
+  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults, KM_Pics;
 
 
 const
@@ -134,8 +134,8 @@ begin
       Radio_MapEd_MapType.OnChange := MapTypeChange;
       ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 506, fnt_Metal,  bsMenu);
       ColumnBox_MapEd.Anchors := [anLeft, anTop, anBottom];
-      ColumnBox_MapEd.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 310, 340]);
-      ColumnBox_MapEd.SearchColumn := 0;
+      ColumnBox_MapEd.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 22, 310, 340]);
+      ColumnBox_MapEd.SearchColumn := 1;
       ColumnBox_MapEd.OnColumnClick := ColumnClick;
       ColumnBox_MapEd.OnChange := SelectMap;
       ColumnBox_MapEd.OnDoubleClick := StartClick;
@@ -351,6 +351,7 @@ procedure TKMMenuMapEditor.RefreshList(aJumpToSelected:Boolean);
 var
   I, PrevTop: Integer;
   Maps: TKMapsCollection;
+  R: TKMListRow;
 begin
   PrevTop := ColumnBox_MapEd.TopIndex;
   ColumnBox_MapEd.Clear;
@@ -361,13 +362,11 @@ begin
   try
     for I := 0 to Maps.Count - 1 do
     begin
-      ColumnBox_MapEd.AddItem(MakeListRow( [Maps[I].FileName,
-                                           IntToStr(Maps[I].LocCount),
-                                           Maps[I].SizeText],
-                                           //Colors
-                                           [Maps[I].GetLobbyColor,
-                                           Maps[I].GetLobbyColor,
-                                           Maps[I].GetLobbyColor], I));
+      R := MakeListRow(['', Maps[I].FileName, IntToStr(Maps[I].LocCount), Maps[I].SizeText],  //Texts
+                       [Maps[I].GetLobbyColor, Maps[I].GetLobbyColor, Maps[I].GetLobbyColor, Maps[I].GetLobbyColor], //Colors
+                       I);
+      R.Cells[0].Pic := MakePic(rxGui, 657 + Byte(Maps[I].MissionMode = mm_Tactic));
+      ColumnBox_MapEd.AddItem(R);
 
       if (Maps[I].CRC = fSelectedMapInfo.CRC)
         and ((Radio_MapEd_MapType.ItemIndex = 0) or (Maps[I].FileName = fSelectedMapInfo.Name)) then  //Check name only for MP maps
@@ -403,14 +402,18 @@ begin
   with ColumnBox_MapEd do
   case SortIndex of
     0:  if SortDirection = sdDown then
+          SM := smByModeDesc
+        else
+          SM := smByModeAsc;
+    1:  if SortDirection = sdDown then
           SM := smByNameDesc
         else
           SM := smByNameAsc;
-    1:  if SortDirection = sdDown then
+    2:  if SortDirection = sdDown then
           SM := smByPlayersDesc
         else
           SM := smByPlayersAsc;
-    2:  if SortDirection = sdDown then
+    3:  if SortDirection = sdDown then
           SM := smBySizeDesc
         else
           SM := smBySizeAsc;
