@@ -24,12 +24,13 @@ type
 
   TKMResource = class
   private
+    //todo: Rename all the child classes into TKMRes****** pattern
     fDataState: TResourceLoadState;
     fCursors: TKMResCursors;
     fFonts: TKMResFonts;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
-    fPalettes: TKMPalettes;
+    fPalettes: TKMResPalettes;
     fWares: TKMWaresList;
     fSounds: TKMResSounds;
     fSprites: TKMSprites;
@@ -56,7 +57,7 @@ type
     property Cursors: TKMResCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property MapElements: TKMMapElements read fMapElements;
-    property Palettes: TKMPalettes read fPalettes;
+    property Palettes: TKMResPalettes read fPalettes;
     property Fonts: TKMResFonts read fFonts;
     property Wares: TKMWaresList read fWares;
     property Sounds: TKMResSounds read fSounds;
@@ -138,7 +139,7 @@ end;
 procedure TKMResource.LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
 begin
   StepCaption('Reading palettes ...');
-  fPalettes := TKMPalettes.Create;
+  fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 

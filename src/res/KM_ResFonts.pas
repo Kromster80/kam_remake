@@ -62,7 +62,7 @@ type
     Used: array [0..High(Word)] of Byte;
     Letters: array [0..High(Word)] of TKMLetter;
 
-    procedure LoadFont(const aFileName: string; aPal: TKMPalData);
+    procedure LoadFont(const aFileName: string; aPalette: TKMPaletteInfo);
     procedure LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fll_Full);
     procedure GenerateTextures(aTexMode: TTexFormat);
     procedure Compact;
@@ -130,7 +130,7 @@ var
 
 
 { TKMFontData }
-procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPalData);
+procedure TKMFontData.LoadFont(const aFileName: string; aPalette: TKMPaletteInfo);
 const
   TEX_SIZE = 256; //Static texture size, all KaM fonts fit within 256^2 space
   FONT_INTERLINE = 5; //Spacing between lines of text
@@ -213,7 +213,7 @@ begin
     for L := 0 to Letters[I].Height - 1 do
     for M := 0 to Letters[I].Width - 1 do
       fAtlases[fAtlasCount - 1].TexData[(pY + L) * fTexSizeX + pX + M] :=
-        aPal.Color32(rawData[I, L * Letters[I].Width + M]);
+        aPalette.Color32(rawData[I, L * Letters[I].Width + M]);
 
     Letters[I].u1 := pX / fTexSizeX;
     Letters[I].v1 := pY / fTexSizeY;

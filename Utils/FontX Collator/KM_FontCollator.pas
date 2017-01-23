@@ -53,7 +53,7 @@ procedure TKMFontCollator.Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: T
 var
   I: Integer;
   srcFonts: array of TKMFontDataEdit;
-  pals: TKMPalettes;
+  pals: TKMResPalettes;
   fntPal: TKMPal;
   srcFontFile: string;
 begin
@@ -65,7 +65,7 @@ begin
     srcFontFile := ExeDir + '..\..\data\gfx\fonts\' + aFiles[I];
 
     //Guess font palette from filename
-    pals := TKMPalettes.Create;
+    pals := TKMResPalettes.Create;
     pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
 
     fntPal := TKMResFonts.GuessPalette(srcFontFile);

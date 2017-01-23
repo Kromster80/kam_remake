@@ -1003,7 +1003,7 @@ var
 begin
   Result := 3; //3 = Black which can be the default when a non-palette 32 bit color value is used
   for I := 0 to 255 do
-    if gRes.Palettes.DefDal.Color32(I) = fFlagColor then
+    if gRes.Palettes.DefaultPalette.Color32(I) = fFlagColor then
       Result := I;
 end;
 

@@ -18,7 +18,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
-    fPalettes: TKMPalettes;
+    fPalettes: TKMResPalettes;
   end;
 
 
@@ -42,7 +42,7 @@ begin
   //Although we don't need them in this tool, these are required to load sprites
   gLog := TKMLog.Create(ExeDir + 'RXXPacker.log');
 
-  fPalettes := TKMPalettes.Create;
+  fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
   for RT := Low(TRXType) to High(TRXType) do
