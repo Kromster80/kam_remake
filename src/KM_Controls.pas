@@ -4042,8 +4042,12 @@ end;
 procedure TKMMemo.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var OldCursorPos: Integer;
 begin
-  Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
   inherited;
+
+  Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
+  // Update Focus now, because we need to focus on MouseDown, not on MouseUp as by default for all controls
+  MasterParent.fCollection.UpdateFocus(Self);
+
   OldCursorPos := CursorPos;
   CursorPos := GetCursorPosAt(X, Y);
 
