@@ -38,7 +38,7 @@
 37:32// Center to Alert
 38:46// Delete Message
 39:13// Show Game Chat (MP)
-40:0// Select next house/unit with same type
+40:9// Select next house/unit with same type 
 41:49// Select Group 1
 42:50// Select Group 2
 43:51// Select Group 3
@@ -59,15 +59,15 @@
 58:0// Select Group 18
 59:0// Select Group 19
 60:0// Select Group 20
-61:0// Spectate player 1
-62:0// Spectate player 2
-63:0// Spectate player 3
-64:0// Spectate player 4
-65:0// Spectate player 5
-66:0// Spectate player 6
-67:0// Spectate player 7
-68:0// Spectate player 8
-69:0// Game speed as it was in game
+61:49// Spectate player 1
+62:50// Spectate player 2
+63:51// Spectate player 3
+64:52// Spectate player 4
+65:53// Spectate player 5
+66:54// Spectate player 6
+67:55// Spectate player 7
+68:56// Spectate player 8
+69:120// Game speed as it was in MP game
 70:13// Extra's Menu
 71:112// Terrain Editor
 72:113// Village Planning
