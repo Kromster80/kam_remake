@@ -4,7 +4,7 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_Campaigns;
+  KM_InterfaceDefaults, KM_Campaigns, KM_Game;
 
 
 type
@@ -12,6 +12,7 @@ type
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
+    fGameMode: TGameMode;
 
     //Story behind these seemingly superflous elements that
     //we need to carry on from previous Game:
@@ -58,7 +59,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_HandsCollection,
+  KM_ResTexts, KM_GameApp, KM_HandsCollection,
   KM_Utils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
   KM_ResWares;
 
@@ -110,7 +111,6 @@ var
 var
   I: Integer;
   R: TWareType;
-  W: TUnitType;
   G: TKMCardinalArray;
   HumanId: TKMHandIndex;
   ShowAIResults: Boolean;
@@ -161,7 +161,7 @@ begin
     Label_Stat[4].Caption := IntToStr(GetHousesDestroyed);
     Label_Stat[5].Caption := IntToStr(GetHousesBuilt);
     Label_Stat[6].Caption := IntToStr(GetCitizensTrained);
-    Label_Stat[7].Caption := IntToStr(GetWeaponsProduced);
+    Label_Stat[7].Caption := IntToStr(GetWarfareProduced);
     Label_Stat[8].Caption := IntToStr(GetWarriorsTrained);
     Label_Stat[9].Caption := TimeToString(gGame.MissionTime);
   end;
@@ -263,6 +263,7 @@ end;
 procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg);
 begin
   fGameResultMsg := aMsg;
+  fGameMode := gGame.GameMode;
 
   //Remember which map we played so we could restart it
   fRepeatGameName := gGame.GameName;
@@ -393,16 +394,17 @@ end;
 
 procedure TKMMenuResultsSP.BackClick(Sender: TObject);
 begin
-  //todo:
   //Depending on where we were created we need to return to a different place
   //Campaign game end -> ResultsSP -> Main menu
   //Singleplayer game end -> ResultsSP -> Singleplayer
   //Replay end -> ResultsSP -> Replays
 
-  if fGameResultMsg <> gr_ReplayEnd then
-    fOnPageChange(gpMainMenu)
+  if fGameResultMsg = gr_ReplayEnd then
+    fOnPageChange(gpReplays)
+  else if fGameMode = gmSingle then
+    fOnPageChange(gpSinglePlayer)
   else
-    fOnPageChange(gpReplays);
+    fOnPageChange(gpMainMenu);
 end;
 
 
@@ -417,7 +419,7 @@ end;
 procedure TKMMenuResultsSP.RepeatClick(Sender: TObject);
 begin
   //Means replay last map
-  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
+  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fGameMode, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
 end;
 
 

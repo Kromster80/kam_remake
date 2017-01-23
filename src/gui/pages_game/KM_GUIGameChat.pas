@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Math, StrUtils, SysUtils,
-  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking;
+  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking, KM_Points;
 
 
 type
@@ -20,6 +20,7 @@ type
     procedure Chat_MenuClick(Sender: TObject);
     procedure Chat_MenuSelect(aItem: Integer);
     procedure Chat_MenuShow(Sender: TObject);
+    function GetPanelChatRect: TKMRect;
   protected
     Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
@@ -35,6 +36,9 @@ type
     procedure SetChatState(const aChatState: TChatState);
     function GetChatState: TChatState;
     procedure ChatMessage(const aData: UnicodeString);
+    procedure Unfocus;
+    procedure Focus;
+    property PanelChatRect: TKMRect read GetPanelChatRect;
 
     procedure Show;
     procedure Hide;
@@ -194,7 +198,7 @@ begin
               with gGame.Networking.NetPlayers[I] do
               begin
                 fChatWhisperRecipient := I;
-                UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+                UpdateButtonCaption(NiknameU, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
               end;
             end;
           end;
@@ -206,6 +210,12 @@ procedure TKMGUIGameChat.Chat_MenuClick(Sender: TObject);
 begin
   if Menu_Chat.ItemIndex <> -1 then
     Chat_MenuSelect(Menu_Chat.ItemTags[Menu_Chat.ItemIndex]);
+end;
+
+
+function TKMGUIGameChat.GetPanelChatRect: TKMRect;
+begin
+  Result := Panel_Chat.Rect;
 end;
 
 
@@ -235,7 +245,7 @@ begin
     n := gGame.Networking.NetPlayers[I];
 
     if n.IsHuman and n.Connected and not n.Dropped then
-      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
+      Menu_Chat.AddItem(n.NiknameColoredU, n.IndexOnServer);
   end;
 
   C := TKMControl(Sender);
@@ -283,11 +293,25 @@ begin
 end;
 
 
+procedure TKMGUIGameChat.Unfocus;
+begin
+  Edit_ChatMsg.Focusable := False;
+end;
+
+
+procedure TKMGUIGameChat.Focus;
+begin
+  Edit_ChatMsg.Focusable := True;
+  gGame.GamePlayInterface.MyControls.CtrlFocus := Edit_ChatMsg;
+end;
+
+
 procedure TKMGUIGameChat.Show;
 begin
   if not Panel_Chat.Visible then
     gSoundPlayer.Play(sfxn_MPChatOpen);
 
+  Focus;
   Panel_Chat.Show;
 end;
 

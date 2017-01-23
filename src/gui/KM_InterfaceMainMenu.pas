@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
