@@ -85,6 +85,7 @@ Improvements:
  +		After quit from SP game/Campaign/MapEd should return to appropriate menu page
  +		Game stats 'Weapons produced' now contains horses as well
  +		Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
+ +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
  
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
