@@ -31,7 +31,7 @@ type
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMResPalettes;
-    fWares: TKMWaresList;
+    fWares: TKMResWares;
     fSounds: TKMResSounds;
     fSprites: TKMSprites;
     fTileset: TKMTileset;
@@ -59,7 +59,7 @@ type
     property MapElements: TKMMapElements read fMapElements;
     property Palettes: TKMResPalettes read fPalettes;
     property Fonts: TKMResFonts read fFonts;
-    property Wares: TKMWaresList read fWares;
+    property Wares: TKMResWares read fWares;
     property Sounds: TKMResSounds read fSounds;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
@@ -171,7 +171,7 @@ begin
 
   fSprites.ClearTemp;
 
-  fWares := TKMWaresList.Create;
+  fWares := TKMResWares.Create;
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
 
