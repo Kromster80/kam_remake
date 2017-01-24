@@ -24,7 +24,7 @@ type
     property IsLoaded: Boolean read GetLoaded;
     procedure AdjoinHouseMasks(aHouseDat: TKMResHouses);
     procedure GrowHouseMasks(aHouseDat: TKMResHouses);
-    procedure SoftWater(aTileset: TKMTileset);
+    procedure SoftWater(aTileset: TKMResTileset);
     procedure Delete(aIndex: Integer);
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromFolder(const aFolder: string);
@@ -248,7 +248,7 @@ begin
 end;
 
 
-procedure TKMSpritePackEdit.SoftWater(aTileset: TKMTileset);
+procedure TKMSpritePackEdit.SoftWater(aTileset: TKMResTileset);
 var
   I, J, K, T: Integer;
   AR, AG, AB: Cardinal;

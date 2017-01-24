@@ -24,8 +24,8 @@ type
 
   TKMResource = class
   private
-    //todo: Rename all the child classes into TKMRes****** pattern
     fDataState: TResourceLoadState;
+
     fCursors: TKMResCursors;
     fFonts: TKMResFonts;
     fHouses: TKMResHouses;
@@ -33,9 +33,9 @@ type
     fPalettes: TKMResPalettes;
     fWares: TKMResWares;
     fSounds: TKMResSounds;
-    fSprites: TKMSprites;
-    fTileset: TKMTileset;
-    fMapElements: TKMMapElements;
+    fSprites: TKMResSprites;
+    fTileset: TKMResTileset;
+    fMapElements: TKMResMapElements;
 
     procedure StepRefresh;
     procedure StepCaption(const aCaption: UnicodeString);
@@ -56,13 +56,13 @@ type
     property DataState: TResourceLoadState read fDataState;
     property Cursors: TKMResCursors read fCursors;
     property Houses: TKMResHouses read fHouses;
-    property MapElements: TKMMapElements read fMapElements;
+    property MapElements: TKMResMapElements read fMapElements;
     property Palettes: TKMResPalettes read fPalettes;
     property Fonts: TKMResFonts read fFonts;
     property Wares: TKMResWares read fWares;
     property Sounds: TKMResSounds read fSounds;
-    property Sprites: TKMSprites read fSprites;
-    property Tileset: TKMTileset read fTileset;
+    property Sprites: TKMResSprites read fSprites;
+    property Tileset: TKMResTileset read fTileset;
     property Units: TKMResUnits read fUnits;
 
     function IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
@@ -131,8 +131,8 @@ function TKMResource.GetDATCRC: Cardinal;
 begin
   Result := fHouses.CRC xor
             fUnits.CRC xor
-            MapElements.CRC xor
-            Tileset.CRC;
+            fMapElements.CRC xor
+            fTileset.CRC;
 end;
 
 
@@ -143,7 +143,7 @@ begin
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 
-  fSprites := TKMSprites.Create(StepRefresh, StepCaption);
+  fSprites := TKMResSprites.Create(StepRefresh, StepCaption);
 
   fCursors := TKMResCursors.Create;
   fSprites.LoadMenuResources;
@@ -163,10 +163,10 @@ begin
     fFonts.LoadFonts(fll_Minimal);
   gLog.AddTime('Read fonts is done');
 
-  fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
+  fTileset := TKMResTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
 
-  fMapElements := TKMMapElements.Create;
+  fMapElements := TKMResMapElements.Create;
   fMapElements.LoadFromFile(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'mapelem.dat');
 
   fSprites.ClearTemp;
@@ -418,12 +418,12 @@ begin
   Bmp.PixelFormat := pf24bit;
 
   for I := 0 to fMapElements.Count - 1 do
-  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
+  if (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0) then
   begin
-    for K := 1 to MapElem[I].Anim.Count do
-    if MapElem[I].Anim.Step[K]+1 <> 0 then
+    for K := 1 to gMapElements[I].Anim.Count do
+    if gMapElements[I].Anim.Step[K]+1 <> 0 then
     begin
-      SpriteID := MapElem[I].Anim.Step[K]+1;
+      SpriteID := gMapElements[I].Anim.Step[K]+1;
 
       SizeX := RXData.Size[SpriteID].X;
       SizeY := RXData.Size[SpriteID].Y;

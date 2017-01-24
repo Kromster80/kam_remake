@@ -1126,7 +1126,7 @@ begin
         gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
         //Terrain under roads is flattened (fields are not)
         gTerrain.FlattenTerrain(KMPoint(X, Y));
-        if MapElem[gTerrain.Land[Y,X].Obj].WineOrCorn then
+        if gMapElements[gTerrain.Land[Y,X].Obj].WineOrCorn then
           gTerrain.RemoveObject(KMPoint(X,Y)); //Remove corn/wine like normally built road does
       end
     else
@@ -2268,7 +2268,7 @@ begin
             begin
               gTerrain.SetField(Points[I], aPlayer, ft_Road);
               gTerrain.FlattenTerrain(Points[I]);
-              if MapElem[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
+              if gMapElements[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
                 gTerrain.RemoveObject(Points[I]); //Remove corn/wine like normally built road does
             end;
         Result := True;

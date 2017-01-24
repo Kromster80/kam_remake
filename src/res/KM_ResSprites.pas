@@ -83,7 +83,7 @@ type
   //Overrides for:
   //GUI: Cursors
 
-  TKMSprites = class
+  TKMResSprites = class
   private
     fAlphaShadows: Boolean; //Remember which state we loaded
     fSprites: array[TRXType] of TKMSpritePack;
@@ -718,8 +718,8 @@ begin
 end;
 
 
-{ TKMSprites }
-constructor TKMSprites.Create(aStepProgress: TEvent; aStepCaption: TUnicodeStringEvent);
+{ TKMResSprites }
+constructor TKMResSprites.Create(aStepProgress: TEvent; aStepCaption: TUnicodeStringEvent);
 var
   RT: TRXType;
 begin
@@ -733,7 +733,7 @@ begin
 end;
 
 
-destructor TKMSprites.Destroy;
+destructor TKMResSprites.Destroy;
 var
   RT: TRXType;
 begin
@@ -745,7 +745,7 @@ end;
 
 
 //Clear unused RAM
-procedure TKMSprites.ClearTemp;
+procedure TKMResSprites.ClearTemp;
 var RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
@@ -753,19 +753,19 @@ begin
 end;
 
 
-function TKMSprites.GetRXFileName(aRX: TRXType): string;
+function TKMResSprites.GetRXFileName(aRX: TRXType): string;
 begin
   Result := RXInfo[aRX].FileName;
 end;
 
 
-function TKMSprites.GetSprites(aRT: TRXType): TKMSpritePack;
+function TKMResSprites.GetSprites(aRT: TRXType): TKMSpritePack;
 begin
   Result := fSprites[aRT];
 end;
 
 
-procedure TKMSprites.LoadMenuResources;
+procedure TKMResSprites.LoadMenuResources;
 var
   RT: TRXType;
 begin
@@ -780,7 +780,7 @@ begin
 end;
 
 
-procedure TKMSprites.LoadGameResources(aAlphaShadows: Boolean);
+procedure TKMResSprites.LoadGameResources(aAlphaShadows: Boolean);
 var
   RT: TRXType;
 begin
@@ -799,7 +799,7 @@ end;
 
 
 //Try to load RXX first, then RX, then use Folder
-procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+procedure TKMResSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
 begin
   if aAlphaShadows and FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx') then
     fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx')
@@ -813,7 +813,7 @@ begin
 end;
 
 
-procedure TKMSprites.ExportToPNG(aRT: TRXType);
+procedure TKMResSprites.ExportToPNG(aRT: TRXType);
 begin
   LoadSprites(aRT, False);
   fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);

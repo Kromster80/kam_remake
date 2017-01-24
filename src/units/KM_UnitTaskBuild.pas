@@ -236,7 +236,7 @@ begin
     7: begin
          gTerrain.IncDigState(fLoc);
          gTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-         if MapElem[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+         if gMapElements[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
            gTerrain.RemoveObject(fLoc); //Remove corn/wine/grass as they won't fit with road
          SetActionLockedStay(11,ua_Work2,false);
        end;
@@ -467,7 +467,7 @@ begin
         SetActionLockedStay(11,ua_Work1,false);
         inc(fPhase2);
         if fPhase2 = 2 then gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        if (fPhase2 = 6) and MapElem[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+        if (fPhase2 = 6) and gMapElements[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
           gTerrain.RemoveObject(fLoc); //Remove grass/corn/wine as they take up most of the tile
         if fPhase2 in [6,8] then gTerrain.IncDigState(fLoc);
        end;

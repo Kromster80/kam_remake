@@ -420,7 +420,7 @@ end;
 procedure TRenderPool.RenderMapElement(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 begin
   // Render either normal object or quad depending on what it is
-  if MapElem[aIndex].WineOrCorn then
+  if gMapElements[aIndex].WineOrCorn then
     RenderMapElement4(aIndex,AnimStep,pX,pY,(aIndex in [54..57]),DoImmediateRender,Deleting) // 54..57 are grapes, all others are doubles
   else
     RenderMapElement1(aIndex,AnimStep,pX,pY,DoImmediateRender,Deleting);
@@ -449,14 +449,14 @@ begin
   end
   else
   begin
-    if MapElem[aIndex].Anim.Count = 0 then Exit;
+    if gMapElements[aIndex].Anim.Count = 0 then Exit;
 
     if DYNAMIC_FOG_OF_WAR then
     begin
       FOW := gMySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
       if FOW <= 128 then AnimStep := 0; // Stop animation
     end;
-    A := MapElem[aIndex].Anim;
+    A := gMapElements[aIndex].Anim;
     Id := A.Step[AnimStep mod Byte(A.Count) +1]+1;
     Id0 := A.Step[1] + 1;
     if Id <= 0 then exit;
@@ -487,7 +487,7 @@ var
     CornerX, CornerY, gX, gY: Single;
     A: TKMAnimLoop;
   begin
-    A := MapElem[aIndex].Anim;
+    A := gMapElements[aIndex].Anim;
     Id := A.Step[aAnimStep mod Byte(A.Count) + 1] + 1;
     Id0 := A.Step[1] + 1;
 
