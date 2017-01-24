@@ -24,13 +24,14 @@ type
 
   TKMResource = class
   private
+    //todo: Rename all the child classes into TKMRes****** pattern
     fDataState: TResourceLoadState;
     fCursors: TKMResCursors;
     fFonts: TKMResFonts;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
-    fPalettes: TKMPalettes;
-    fWares: TKMWaresList;
+    fPalettes: TKMResPalettes;
+    fWares: TKMResWares;
     fSounds: TKMResSounds;
     fSprites: TKMSprites;
     fTileset: TKMTileset;
@@ -56,9 +57,9 @@ type
     property Cursors: TKMResCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property MapElements: TKMMapElements read fMapElements;
-    property Palettes: TKMPalettes read fPalettes;
+    property Palettes: TKMResPalettes read fPalettes;
     property Fonts: TKMResFonts read fFonts;
-    property Wares: TKMWaresList read fWares;
+    property Wares: TKMResWares read fWares;
     property Sounds: TKMResSounds read fSounds;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
@@ -138,7 +139,7 @@ end;
 procedure TKMResource.LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
 begin
   StepCaption('Reading palettes ...');
-  fPalettes := TKMPalettes.Create;
+  fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 
@@ -170,7 +171,7 @@ begin
 
   fSprites.ClearTemp;
 
-  fWares := TKMWaresList.Create;
+  fWares := TKMResWares.Create;
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
 

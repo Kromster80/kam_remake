@@ -47,7 +47,7 @@ type
     procedure chkHasMaskClick(Sender: TObject);
     procedure PivotChange(Sender: TObject);
   private
-    fPalettes: TKMPalettes;
+    fPalettes: TKMResPalettes;
     fSprites: TKMSpritePackEdit;
     procedure UpdateList;
   end;
@@ -72,7 +72,7 @@ begin
   //Although we don't need them in this tool, these are required to load sprites
   gLog := TKMLog.Create(ExeDir + 'RXXEditor.log');
 
-  fPalettes := TKMPalettes.Create;
+  fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 end;
 

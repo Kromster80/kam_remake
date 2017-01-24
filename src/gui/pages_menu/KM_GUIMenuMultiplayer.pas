@@ -6,7 +6,8 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_ServerQuery;
+  KM_InterfaceDefaults, KM_ServerQuery,
+  OverbyteIcsUtils;
 
 
 type
@@ -36,7 +37,7 @@ type
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_GetInClick(Sender: TObject);
     function MP_GetInEnabled: Boolean;
-    procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
+    procedure MP_Join(aServerAddress: string; aPort: Word; aRoom: Integer);
     procedure MP_JoinPassword(Sender: TObject);
     procedure MP_JoinSuccess(Sender: TObject);
     procedure MP_JoinFail(const aData: UnicodeString);
@@ -314,8 +315,13 @@ end;
 
 
 procedure TKMMenuMultiplayer.MP_FindServerIPClick(Sender: TObject);
+var
+  serverPortStr: string;
+  serverPort: Word;
 begin
-  MP_Join(Edit_MP_FindIP.Text, Edit_MP_FindPort.Text, StrToIntDef(Edit_MP_FindRoom.Text, -1));
+  serverPortStr := IcsTrim(Edit_MP_FindPort.Text);
+  serverPort    := atoi(serverPortStr);
+  MP_Join(Edit_MP_FindIP.Text, serverPort, StrToIntDef(Edit_MP_FindRoom.Text, -1));
 end;
 
 
@@ -560,9 +566,14 @@ end;
 
 
 procedure TKMMenuMultiplayer.MP_HostClick(Sender: TObject);
+var
+  serverPortStr: string;
+  serverPort: Word;
 begin
   //Save the player and IP name so it is not lost if something fails
   MP_SaveSettings;
+  serverPortStr := IcsTrim(Edit_MP_ServerPort.Text);
+  serverPort    := atoi(serverPortStr);
 
   //Hide the panel so if it fails the error message will be easy to see (e.g. name too long)
   Panel_MPCreateServer.Hide;
@@ -573,7 +584,8 @@ begin
   fOnPageChange(gpLobby, 'HOST');
 
   gGameApp.Networking.OnHostFail := MP_HostFail;
-  gGameApp.Networking.Host(AnsiString(Edit_MP_ServerName.Text), Edit_MP_ServerPort.Text, AnsiString(Edit_MP_PlayerName.Text), (Sender = Button_MP_CreateWAN));
+  gGameApp.Networking.Host(AnsiString(Edit_MP_ServerName.Text), serverPort,
+                           AnsiString(Edit_MP_PlayerName.Text), (Sender = Button_MP_CreateWAN));
 end;
 
 
@@ -623,7 +635,7 @@ begin
 end;
 
 
-procedure TKMMenuMultiplayer.MP_Join(aServerAddress, aPort: string; aRoom: Integer);
+procedure TKMMenuMultiplayer.MP_Join(aServerAddress: string; aPort: Word; aRoom: Integer);
 begin
   //Save the player and IP name so it is not lost if the connection fails
   MP_SaveSettings;

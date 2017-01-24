@@ -52,8 +52,9 @@ type
     fSaveFile: UnicodeString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fGameLockedMutex: Boolean;
     fOverlayText: array[0..MAX_HANDS] of UnicodeString; //Needed for replays. Not saved since it's translated
+    fIgnoreConsistencyCheckErrors: Boolean; // User can ignore all consistency check errors while watching SP replay
 
-  //Should be saved
+    //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
@@ -113,6 +114,7 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
+    function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
@@ -139,6 +141,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
+    procedure SetDefaultMPGameSpeed;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
@@ -234,6 +237,8 @@ begin
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
   fScripting := TKMScripting.Create(ShowScriptError);
+
+  fIgnoreConsistencyCheckErrors := False;
 
   case PathFinderToUse of
     0:    fPathfinding := TPathfindingAStarOld.Create;
@@ -465,6 +470,10 @@ begin
   if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer), UTCNow);
 
+  // Update our ware distributions from settings
+  if fGameMode in [gmSingle, gmMulti] then
+    GameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
+
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
   gScriptEvents.ProcMissionStart;
 
@@ -517,10 +526,7 @@ begin
   fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
-  if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT, False)
-  else
-    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+  SetDefaultMPGameSpeed;
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -544,13 +550,13 @@ begin
     UpdateMultiplayerTeams;
 
   FreeAndNil(gMySpectator); //May have been created earlier
-  if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
+  if fNetworking.MyNetPlayer.IsSpectator then
   begin
     gMySpectator := TKMSpectator.Create(FindHandToSpec);
     gMySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
   end
   else
-    gMySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
+    gMySpectator := TKMSpectator.Create(fNetworking.MyNetPlayer.StartLocation - 1);
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
@@ -689,13 +695,20 @@ end;
 //Occasional replay inconsistencies are a known bug, we don't need reports of it
 procedure TKMGame.ReplayInconsistancy;
 begin
-  //Stop game from executing while the user views the message
-  fIsPaused := True;
   gLog.AddTime('Replay failed a consistency check at tick ' + IntToStr(fGameTickCount));
-  if MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
-    gGameApp.Stop(gr_Error, '')
-  else
-    fIsPaused := False;
+  if not fIgnoreConsistencyCheckErrors then
+  begin
+    //Stop game from executing while the user views the message
+    fIsPaused := True;
+    case MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbYesToAll, mbNo], 0) of
+      mrYes:      fIsPaused := False;
+      mrYesToAll: begin
+                    fIgnoreConsistencyCheckErrors := True;  // Ignore these errors in future while watching this replay
+                    fIsPaused := False;
+                  end
+      else        gGameApp.Stop(gr_Error, '');
+    end;
+  end;
 end;
 
 
@@ -969,6 +982,13 @@ begin
 end;
 
 
+function TKMGame.IsMPGameSpeedUpAllowed: Boolean;
+begin
+  Result := (fGameMode in [gmMulti, gmMultiSpectate])
+        and (fNetworking.NetPlayers.GetNotDroppedCount = 1);
+end;
+
+
 //We often need to see if game is MP
 function TKMGame.IsMultiplayer: Boolean;
 begin
@@ -1135,6 +1155,15 @@ begin
 end;
 
 
+procedure TKMGame.SetDefaultMPGameSpeed;
+begin
+  if IsPeaceTime then
+    SetGameSpeed(fGameOptions.SpeedPT, False)
+  else
+    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+end;
+
+
 procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean);
 begin
   Assert(aSpeed > 0);
@@ -1168,7 +1197,7 @@ begin
   end;
 
   //don't show speed clock in MP since you can't turn it on/off
-  if (fGamePlayInterface <> nil) and not IsMultiplayer then
+  if (fGamePlayInterface <> nil) and (not IsMultiplayer or IsMPGameSpeedUpAllowed) then
     fGamePlayInterface.ShowClock(fGameSpeed);
 
   //Need to adjust the delay immediately in MP

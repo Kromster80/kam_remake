@@ -62,7 +62,7 @@ type
     Used: array [0..High(Word)] of Byte;
     Letters: array [0..High(Word)] of TKMLetter;
 
-    procedure LoadFont(const aFileName: string; aPal: TKMPalData);
+    procedure LoadFont(const aFileName: string; aPalette: TKMPaletteInfo);
     procedure LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fll_Full);
     procedure GenerateTextures(aTexMode: TTexFormat);
     procedure Compact;
@@ -84,6 +84,7 @@ type
     function WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
     function CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False): Integer;
     function GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False): TKMPoint;
+    function GetMaxPrintWidthOfStrings(aStrings: array of string): Integer;
   end;
 
 
@@ -130,7 +131,7 @@ var
 
 
 { TKMFontData }
-procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPalData);
+procedure TKMFontData.LoadFont(const aFileName: string; aPalette: TKMPaletteInfo);
 const
   TEX_SIZE = 256; //Static texture size, all KaM fonts fit within 256^2 space
   FONT_INTERLINE = 5; //Spacing between lines of text
@@ -213,7 +214,7 @@ begin
     for L := 0 to Letters[I].Height - 1 do
     for M := 0 to Letters[I].Width - 1 do
       fAtlases[fAtlasCount - 1].TexData[(pY + L) * fTexSizeX + pX + M] :=
-        aPal.Color32(rawData[I, L * Letters[I].Width + M]);
+        aPalette.Color32(rawData[I, L * Letters[I].Width + M]);
 
     Letters[I].u1 := pX / fTexSizeX;
     Letters[I].v1 := pY / fTexSizeY;
@@ -682,6 +683,20 @@ begin
   Result.Y := (BaseHeight + LineSpacing) * LineCount;
   for I := 1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
+end;
+
+
+// Return maximum of the width of specified strings when printed on screen with specified font.
+function TKMFontData.GetMaxPrintWidthOfStrings(aStrings: array of string): Integer;
+var I, Width: Integer;
+begin
+  Result := 0;
+  for I := Low(aStrings) to High(aStrings) do
+  begin
+    Width := GetTextSize(aStrings[I]).X;
+    if (Width > Result) then
+      Result := Width;
+  end;
 end;
 
 

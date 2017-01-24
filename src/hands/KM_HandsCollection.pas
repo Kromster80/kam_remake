@@ -38,6 +38,7 @@ type
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
+    function GetObjectByUID(aUID: Integer): TObject;
     function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
     function UnitCount: Integer;
@@ -340,6 +341,18 @@ begin
   begin
     Result := fHandsList[I].UnitGroups.GetGroupByUID(aUID);
     if Result <> nil then Exit; //else keep on testing
+  end;
+end;
+
+
+function TKMHandsCollection.GetObjectByUID(aUID: Integer): TObject;
+begin
+  Result := GetHouseByUID(aUID);
+  if Result = nil then
+  begin
+    Result := GetUnitByUID(aUID);
+    if Result = nil then
+      Result := GetGroupByUID(aUID);
   end;
 end;
 

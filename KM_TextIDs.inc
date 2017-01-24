@@ -728,6 +728,7 @@ TX_NET_VOTED = 796; //%s voted to return to the lobby (need %s more votes)
 TX_NET_VOTE_PASSED = 799; //%s voted to return to the lobby (vote passed)
 TX_NET_VOTE_FAILED = 800; //The vote to return to the lobby failed
 TX_NET_PROMOTE_LOCAL_SERVER = 809; //You cannot change host when the server is running in your client
+TX_NET_MUTED = 1019; //%s has muted you. You can't send messages to him anymore
 
 TX_CREDITS = 580; //KaM Remake Credits
 TX_CREDITS_ORIGINAL = 581; //Original Knights & Merchants Credits
@@ -798,7 +799,7 @@ TX_SAVE_DOESNT_EXIST = 639; //Save not found: %s
 TX_MAP_WRONG_VERSION = 640; //Map files do not match the host for the map: %s
 TX_SAVE_WRONG_VERSION = 641; //Save file does not match the host for the save: %s
 
-TX_REPLAY_FAILED = 642; //The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
+TX_REPLAY_FAILED = 642; //The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching? \nChoose 'Yes to all' to ignore these kind of errors (Todo translate)
 TX_PAUSED_FILE_MISMATCH = 828; //Error: Host's paused file does not match local paused file. An error has occurred or the host might be attempting to cheat.
 TX_MULTIPLE_INSTANCES = 643; //You may only have one instance of the game in multiplayer mode at once
 TX_ERROR_MODS = 644; //Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.

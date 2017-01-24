@@ -682,7 +682,7 @@ begin
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and(aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
     and HouseTypeValid(aHouseType) then
-      Result := gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]]
+      Result := gHands[aPlayer].Stats.WareDistribution[WareIndexToType[aWareType], HouseIndexToType[aHouseType]]
     else
     begin
       Result := 0;

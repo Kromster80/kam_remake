@@ -27,7 +27,7 @@ type
     destructor Destroy; override;
     function MyIPString:string;
     function SendBufferEmpty: Boolean;
-    procedure ConnectTo(const aAddress:string; const aPort:string);
+    procedure ConnectTo(const aAddress: string; const aPort: Word);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
     property OnError:TGetStrProc write fOnError;
@@ -65,14 +65,14 @@ begin
 end;
 
 
-procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:string);
+procedure TKMNetClientOverbyte.ConnectTo(const aAddress: string; const aPort:Word);
 begin
   FreeAndNil(fSocket);
   fSocket := TWSocket.Create(nil);
   fSocket.ComponentOptions := [wsoTcpNoDelay]; //Send packets ASAP (disables Nagle's algorithm)
   fSocket.Proto     := 'tcp';
   fSocket.Addr      := aAddress;
-  fSocket.Port      := aPort;
+  fSocket.Port      := IntToStr(aPort);
   fSocket.OnSessionClosed := Disconnected;
   fSocket.OnSessionConnected := Connected;
   fSocket.OnDataAvailable := DataAvailable;
