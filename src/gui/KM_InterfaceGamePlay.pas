@@ -2822,10 +2822,10 @@ begin
     SwitchPage(Button_Main[tbMenu]);
 
   if (fUIMode in [umSP, umReplay])
-    or ((fUIMode in [umMP, umSpectate]) and (gGame.Networking.NetPlayers.GetConnectedCount = 1))
+    or gGame.IsMPGameSpeedUpAllowed
     or MULTIPLAYER_SPEEDUP then
   begin
-    // Game speed/pause: Not available in multiplayer mode
+    // Game speed/pause: available in multiplayer mode if the only player left in the game
     if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, False);
     if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
     if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);

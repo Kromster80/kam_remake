@@ -112,6 +112,7 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
+    function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
@@ -137,6 +138,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
+    procedure SetDefaultMPGameSpeed;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
@@ -519,10 +521,7 @@ begin
   fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
-  if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT, False)
-  else
-    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+  SetDefaultMPGameSpeed;
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -968,6 +967,14 @@ begin
 end;
 
 
+function TKMGame.IsMPGameSpeedUpAllowed: Boolean;
+begin
+  Result := (fGameMode in [gmMulti, gmMultiSpectate])
+        and (fNetworking.NetPlayers.GetConnectedCount = 1)
+        and not fWaitingForNetwork;
+end;
+
+
 //We often need to see if game is MP
 function TKMGame.IsMultiplayer: Boolean;
 begin
@@ -1134,6 +1141,15 @@ begin
 end;
 
 
+procedure TKMGame.SetDefaultMPGameSpeed;
+begin
+  if IsPeaceTime then
+    SetGameSpeed(fGameOptions.SpeedPT, False)
+  else
+    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+end;
+
+
 procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean);
 begin
   Assert(aSpeed > 0);
@@ -1167,7 +1183,7 @@ begin
   end;
 
   //don't show speed clock in MP since you can't turn it on/off
-  if (fGamePlayInterface <> nil) and not IsMultiplayer then
+  if (fGamePlayInterface <> nil) and (not IsMultiplayer or IsMPGameSpeedUpAllowed) then
     fGamePlayInterface.ShowClock(fGameSpeed);
 
   //Need to adjust the delay immediately in MP
