@@ -507,7 +507,7 @@ begin
   HouseNeedsWorker  := False; //House needs this worker to complete
   HouseReadyToBuild := False; //House is ready to be built
 
-  HA := gRes.HouseDat[fHouseType].BuildArea;
+  HA := gRes.Houses[fHouseType].BuildArea;
 
   //Fill Cells left->right, top->bottom. Worker will start flattening from the end (reversed)
   LastToDig := -1;
@@ -571,8 +571,8 @@ begin
   begin
     fHouse.BuildingState := hbs_Wood;
     gHands[fUnit.Owner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
-    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, gRes.HouseDat[fHouse.HouseType].WoodCost, dtOnce, diHigh4);
-    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, gRes.HouseDat[fHouse.HouseType].StoneCost, dtOnce, diHigh4);
+    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, gRes.Houses[fHouse.HouseType].WoodCost, dtOnce, diHigh4);
+    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, gRes.Houses[fHouse.HouseType].StoneCost, dtOnce, diHigh4);
   end;
 
   gHands.CleanUpHousePointer(fHouse);
@@ -589,7 +589,7 @@ end;
 
 function TTaskBuildHouseArea.GetHouseEntranceLoc: TKMPoint;
 begin
-  Result.X := fHouseLoc.X + gRes.HouseDat[fHouseType].EntranceOffsetX;
+  Result.X := fHouseLoc.X + gRes.Houses[fHouseType].EntranceOffsetX;
   Result.Y := fHouseLoc.Y;
 end;
 

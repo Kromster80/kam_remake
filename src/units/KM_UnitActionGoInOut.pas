@@ -253,9 +253,9 @@ function TUnitActionGoInOut.GetDoorwaySlide(aCheck: TCheckAxis): Single;
 var Offset: Integer;
 begin
   if aCheck = ax_X then
-    Offset := gRes.HouseDat[fHouse.HouseType].EntranceOffsetXpx - CELL_SIZE_PX div 2
+    Offset := gRes.Houses[fHouse.HouseType].EntranceOffsetXpx - CELL_SIZE_PX div 2
   else
-    Offset := gRes.HouseDat[fHouse.HouseType].EntranceOffsetYpx;
+    Offset := gRes.Houses[fHouse.HouseType].EntranceOffsetYpx;
 
   if (fHouse = nil) or not fHasStarted then
     Result := 0

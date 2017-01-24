@@ -192,14 +192,14 @@ end;
 
 procedure TKMMapEdHouse.Show(aHouse: TKMHouse);
 var
-  HouseDat: TKMHouseDatClass;
+  HouseDat: TKMHouseSpec;
   I: Integer;
   Res: TWareType;
 begin
   fHouse := aHouse;
   if fHouse = nil then Exit;
 
-  HouseDat := gRes.HouseDat[fHouse.HouseType];
+  HouseDat := gRes.Houses[fHouse.HouseType];
 
   {Common data}
   Label_House.Caption := HouseDat.HouseName;
@@ -303,12 +303,12 @@ var
   I: Integer;
   Res: TWareType;
   NewCount: Integer;
-  HouseDat: TKMHouseDatClass;
+  HouseDat: TKMHouseSpec;
 begin
   if Sender = Button_HouseHealthDec then fHouse.AddDamage(GetMultiplicator(Shift), nil, True);
   if Sender = Button_HouseHealthInc then fHouse.AddRepair(GetMultiplicator(Shift));
 
-  HouseDat := gRes.HouseDat[fHouse.HouseType];
+  HouseDat := gRes.Houses[fHouse.HouseType];
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
   KMHealthBar_House.Position := fHouse.GetHealth / HouseDat.MaxHealth;
 

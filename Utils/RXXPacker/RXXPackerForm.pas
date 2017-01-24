@@ -82,7 +82,7 @@ var
   I, Step, SpriteID: Integer;
   Tick: Cardinal;
   RXName: string;
-  HouseDat: TKMHouseDatCollection;
+  HouseDat: TKMResHouses;
   fUnitDat: TKMUnitDatCollection;
   UT: TUnitType;
   Dir: TKMDirection;
@@ -125,7 +125,7 @@ begin
         //Houses need some special treatment to adapt to GL_ALPHA_TEST that we use for construction steps
         if RT = rxHouses then
         begin
-          HouseDat := TKMHouseDatCollection.Create;
+          HouseDat := TKMResHouses.Create;
           SpritePack.AdjoinHouseMasks(HouseDat);
           SpritePack.GrowHouseMasks(HouseDat);
           HouseDat.Free;

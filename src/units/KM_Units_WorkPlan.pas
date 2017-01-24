@@ -111,7 +111,7 @@ end;
 procedure TUnitWorkPlan.SubActAdd(aAct: THouseActionType; aCycles: Single);
 begin
   HouseAct[ActCount].Act := aAct;
-  HouseAct[ActCount].TimeToWork := Round(gRes.HouseDat[fHome].Anim[aAct].Count * aCycles);
+  HouseAct[ActCount].TimeToWork := Round(gRes.Houses[fHome].Anim[aAct].Count * aCycles);
   Inc(ActCount);
 end;
 
@@ -120,9 +120,9 @@ procedure TUnitWorkPlan.ResourcePlan(Res1:TWareType; Qty1:byte; Res2:TWareType; 
 begin
   Resource1:=Res1; Count1:=Qty1;
   Resource2:=Res2; Count2:=Qty2;
-  Product1:=Prod1; ProdCount1:=gRes.HouseDat[fHome].ResProductionX;
+  Product1:=Prod1; ProdCount1:=gRes.Houses[fHome].ResProductionX;
   if Prod2=wt_None then exit;
-  Product2:=Prod2; ProdCount2:=gRes.HouseDat[fHome].ResProductionX;
+  Product2:=Prod2; ProdCount2:=gRes.Houses[fHome].ResProductionX;
 end;
 
 
@@ -231,7 +231,7 @@ begin
   Clear;
 
   fHome := aHome;
-  AfterWorkIdle := gRes.HouseDat[aHome].WorkerRest * 10;
+  AfterWorkIdle := gRes.Houses[aHome].WorkerRest * 10;
 
   //Now we need to fill only specific properties
   case aUnit.UnitType of
@@ -585,7 +585,7 @@ begin
   else
     Assert(false, 'No work plan for ' +
                   gRes.UnitDat[aUnit.UnitType].GUIName + ' in ' +
-                  gRes.HouseDat[aHome].HouseName);
+                  gRes.Houses[aHome].HouseName);
   end;
 end;
 

@@ -146,8 +146,8 @@ begin
     ct_SetCurrPlayer:   fLastHand := P[0];
     ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                         begin
-                          RevealCircle(P[1]+1, P[2]+1, gRes.HouseDat[HouseIndexToType[P[0]]].Sight);
-                          HA := gRes.HouseDat[HouseIndexToType[P[0]]].BuildArea;
+                          RevealCircle(P[1]+1, P[2]+1, gRes.Houses[HouseIndexToType[P[0]]].Sight);
+                          HA := gRes.Houses[HouseIndexToType[P[0]]].BuildArea;
                           for i:=1 to 4 do for k:=1 to 4 do
                             if HA[i,k]<>0 then
                               if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then

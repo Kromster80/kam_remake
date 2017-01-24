@@ -435,7 +435,7 @@ begin
       end else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
         if fUnitTask = nil then //We didn't find any job to do - rest at home
-          SetActionStay(gRes.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
+          SetActionStay(gRes.Houses[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction = nil then
@@ -460,7 +460,7 @@ begin
     else            Msg := 0;
   end;
 
-  Assert(Msg <> 0, gRes.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
+  Assert(Msg <> 0, gRes.Houses[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
   gGame.ShowMessage(mkHouse, Msg, fHome.GetEntrance, fOwner);
   fHome.ResourceDepletedMsgIssued := True;
@@ -480,7 +480,7 @@ begin
   Res := 1;
   //Check if House has production orders
   //Ask the house what order we should make
-  if gRes.HouseDat[fHome.HouseType].DoesOrders then
+  if gRes.Houses[fHome.HouseType].DoesOrders then
   begin
     Res := fHome.PickOrder;
     if Res = 0 then Exit;
@@ -490,10 +490,10 @@ begin
   // Saves us time on Fishers/Stonecutters/Woodcutters when they calculate routes to nearby deposits
   // Other houses where workers walk out can choose between cut/plant
   if (fHome.HouseType in [ht_FisherHut, ht_Quary, ht_Wineyard])
-  and (fHome.CheckResOut(gRes.HouseDat[fHome.HouseType].ResOutput[Res]) >= MAX_WARES_IN_HOUSE) then
+  and (fHome.CheckResOut(gRes.Houses[fHome.HouseType].ResOutput[Res]) >= MAX_WARES_IN_HOUSE) then
     Exit;
 
-  TM := TTaskMining.Create(Self, gRes.HouseDat[fHome.HouseType].ResOutput[Res]);
+  TM := TTaskMining.Create(Self, gRes.Houses[fHome.HouseType].ResOutput[Res]);
 
   if TM.WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
     IssueResourceDepletedMessage;
@@ -633,7 +633,7 @@ begin
       end else begin
         fUnitTask := InitiateActivity; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(Max(gRes.HouseDat[fHome.HouseType].WorkerRest,1)*10, ua_Walk); //By default it's 0, don't scan that often
+          SetActionStay(Max(gRes.Houses[fHome.HouseType].WorkerRest,1)*10, ua_Walk); //By default it's 0, don't scan that often
       end;
 
   if fCurrentAction=nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitRecruit.UpdateState',fCurrPosition);

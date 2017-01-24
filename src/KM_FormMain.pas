@@ -372,7 +372,7 @@ end;
 
 procedure TFormMain.HousesDat1Click(Sender: TObject);
 begin
-  gRes.HouseDat.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
+  gRes.Houses.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
 end;
 
 

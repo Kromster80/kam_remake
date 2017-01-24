@@ -1559,7 +1559,7 @@ begin
   try
     Result := 0;
     if HouseTypeValid(aHouseType) then
-      Result := gRes.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
+      Result := gRes.Houses[HouseIndexToType[aHouseType]].MaxHealth
     else
       LogParamWarning('States.HouseTypeMaxHealth', [aHouseType]);
   except
@@ -1579,7 +1579,7 @@ function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
 begin
   try
     if HouseTypeValid(aHouseType) then
-      Result := '<%' + AnsiString(IntToStr(gRes.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
+      Result := '<%' + AnsiString(IntToStr(gRes.Houses[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
     else
     begin
       Result := '';
@@ -1601,7 +1601,7 @@ begin
     Result := -1;
     if HouseTypeValid(aHouseType) then
     begin
-      Result := UnitTypeToIndex[gRes.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
+      Result := UnitTypeToIndex[gRes.Houses[HouseIndexToType[aHouseType]].OwnerType];
     end
     else
       LogParamWarning('States.HouseTypeToOccupantType', [aHouseType]);
@@ -1678,7 +1678,7 @@ begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) then
         for I := 1 to 4 do
-          if gRes.HouseDat[H.HouseType].ResOutput[I] = Res then
+          if gRes.Houses[H.HouseType].ResOutput[I] = Res then
           begin
             Result := H.ResOrder[I];
             Exit;

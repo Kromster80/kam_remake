@@ -1647,17 +1647,17 @@ var
   HA: THouseArea;
 begin
   Assert(aList.Count = 0);
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
 
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
 
-    if TileInMapCoords(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4,1) then
+    if TileInMapCoords(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX,aLoc.Y+I-4,1) then
     begin
       //This can't be done earlier since values can be off-map
-      P2 := KMPoint(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4);
+      P2 := KMPoint(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX,aLoc.Y+I-4);
 
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of
@@ -1696,8 +1696,8 @@ begin
       end;
     end
     else
-      if TileInMapCoords(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4, 0) then
-        MarkPoint(KMPoint(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4), TC_BLOCK);
+      if TileInMapCoords(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX,aLoc.Y+I-4, 0) then
+        MarkPoint(KMPoint(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX,aLoc.Y+I-4), TC_BLOCK);
   end;
 end;
 
@@ -2636,7 +2636,7 @@ begin
   else
     SetHouseAreaOwner(Loc, aHouseType, aOwner);
 
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
 
   for i:=1 to 4 do
   for k:=1 to 4 do
@@ -2690,7 +2690,7 @@ end;
 procedure TKMTerrain.SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TKMHandIndex);
 var i,k:integer; HA: THouseArea;
 begin
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
   case aHouseType of
     ht_None:    Land[Loc.Y,Loc.X].TileOwner := aOwner;
     ht_Any:     ; //Do nothing
@@ -2739,8 +2739,8 @@ var
   HA: THouseArea;
 begin
   Result := True;
-  HA := gRes.HouseDat[aHouseType].BuildArea;
-  Loc.X := Loc.X - gRes.HouseDat[aHouseType].EntranceOffsetX; //update offset
+  HA := gRes.Houses[aHouseType].BuildArea;
+  Loc.X := Loc.X - gRes.Houses[aHouseType].EntranceOffsetX; //update offset
   for I := 1 to 4 do
   for K := 1 to 4 do
     if Result and (HA[I,K] <> 0) then
@@ -2767,7 +2767,7 @@ var
   TX, TY: Integer;
 begin
   Result := True;
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
 
   for I := 1 to 4 do
   for K := 1 to 4 do
@@ -2864,7 +2864,7 @@ end;
 procedure TKMTerrain.AddHouseRemainder(Loc: TKMPoint; aHouseType: THouseType; aBuildState: THouseBuildState);
 var I, K: Integer; HA: THouseArea;
 begin
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
 
   if aBuildState in [hbs_Stone, hbs_Done] then //only leave rubble if the construction was well underway (stone and above)
   begin

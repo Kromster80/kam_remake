@@ -550,7 +550,7 @@ var
   R: TRXData;
 begin
   R := fRXData[rxGui];
-  Id := gRes.HouseDat[aHouse].TabletIcon;
+  Id := gRes.Houses[aHouse].TabletIcon;
 
   gX := Loc.X + (R.Pivot[Id].X + R.Size[Id].X / 2) / CELL_SIZE_PX - 0.5;
   gY := Loc.Y + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 0.45;
@@ -569,7 +569,7 @@ var
   cornerX, cornerY: Single;
 begin
   rx := fRXData[rxHouses];
-  supply := gRes.HouseDat[aHouse].BuildSupply;
+  supply := gRes.Houses[aHouse].BuildSupply;
 
   if Wood <> 0 then
   begin
@@ -615,9 +615,9 @@ begin
 
   R := fRXData[rxHouses];
 
-  PicWood := gRes.HouseDat[aHouse].WoodPic + 1;
-  PicStone := gRes.HouseDat[aHouse].StonePic + 1;
-  PicSnow := gRes.HouseDat[aHouse].SnowPic + 1;
+  PicWood := gRes.Houses[aHouse].WoodPic + 1;
+  PicStone := gRes.Houses[aHouse].StonePic + 1;
+  PicSnow := gRes.Houses[aHouse].SnowPic + 1;
 
   GroundWood := R.Pivot[PicWood].Y + R.Size[PicWood].Y;
   GroundStone := R.Pivot[PicStone].Y + R.Size[PicStone].Y;
@@ -673,7 +673,7 @@ begin
   for AT := Low(THouseActionType) to High(THouseActionType) do
   if AT in aActSet then
   begin
-    A := gRes.HouseDat[aHouse].Anim[AT];
+    A := gRes.Houses[aHouse].Anim[AT];
     if A.Count > 0 then
     begin
       Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
@@ -710,12 +710,12 @@ begin
   for I := 1 to 4 do
   if (R1[I - 1]) > 0 then
   begin
-    Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+    Id := gRes.Houses[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
 
     // Need to swap Coal and Steel for the ArmorSmithy
     // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
     if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
-      Id := gRes.HouseDat[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
+      Id := gRes.Houses[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
 
     AddHouseSupplySprite(Id);
   end;
@@ -731,14 +731,14 @@ begin
     begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
-        Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
+        Id := gRes.Houses[aHouse].SupplyOut[I, K] + 1;
         // Need to swap Shields and Armor for the ArmorSmithy
         // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
         if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
-          Id := gRes.HouseDat[aHouse].SupplyOut[3-I, K] + 1;
+          Id := gRes.Houses[aHouse].SupplyOut[3-I, K] + 1;
       end;
     end else
-      Id := gRes.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
+      Id := gRes.Houses[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
 
     AddHouseSupplySprite(Id);
   end;
@@ -778,7 +778,7 @@ var
 begin
   R := fRXData[aRX];
 
-  A := gRes.HouseDat.BeastAnim[aHouse,BeastId,BeastAge];
+  A := gRes.Houses.BeastAnim[aHouse,BeastId,BeastAge];
 
   Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
   CornerX := Loc.X + (A.MoveX + R.Pivot[Id].X) / CELL_SIZE_PX - 1;
@@ -1218,7 +1218,7 @@ begin
   fHouseOutline.Clear;
 
   Loc := aHouse.GetPosition;
-  gRes.HouseDat[aHouse.HouseType].Outline(fHouseOutline);
+  gRes.Houses[aHouse.HouseType].Outline(fHouseOutline);
 
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);

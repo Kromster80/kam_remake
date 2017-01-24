@@ -28,7 +28,7 @@ type
     fDataState: TResourceLoadState;
     fCursors: TKMResCursors;
     fFonts: TKMResFonts;
-    fHouseDat: TKMHouseDatCollection;
+    fHouses: TKMResHouses;
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMResPalettes;
     fWares: TKMResWares;
@@ -55,7 +55,7 @@ type
 
     property DataState: TResourceLoadState read fDataState;
     property Cursors: TKMResCursors read fCursors;
-    property HouseDat: TKMHouseDatCollection read fHouseDat;
+    property Houses: TKMResHouses read fHouses;
     property MapElements: TKMMapElements read fMapElements;
     property Palettes: TKMResPalettes read fPalettes;
     property Fonts: TKMResFonts read fFonts;
@@ -98,7 +98,7 @@ end;
 destructor TKMResource.Destroy;
 begin
   FreeAndNil(fCursors);
-  FreeAndNil(fHouseDat);
+  FreeAndNil(fHouses);
   FreeAndNil(gResLocales);
   FreeAndNil(fMapElements);
   FreeAndNil(fPalettes);
@@ -129,7 +129,7 @@ end;
 //CRC of data files that can cause inconsitencies
 function TKMResource.GetDATCRC: Cardinal;
 begin
-  Result := HouseDat.CRC xor
+  Result := fHouses.CRC xor
             UnitDat.CRC xor
             MapElements.CRC xor
             Tileset.CRC;
@@ -172,7 +172,7 @@ begin
   fSprites.ClearTemp;
 
   fWares := TKMResWares.Create;
-  fHouseDat := TKMHouseDatCollection.Create;
+  fHouses := TKMResHouses.Create;
   fUnitDat := TKMUnitDatCollection.Create;
 
   StepRefresh;
@@ -327,7 +327,7 @@ procedure TKMResource.ExportHouseAnim;
 var
   Folder: string;
   Bmp: TBitmap;
-  HD: TKMHouseDatCollection;
+  HD: TKMResHouses;
   ID: THouseType;
   Ac: THouseActionType;
   Q, Beast, i, k, ci: Integer;
@@ -343,7 +343,7 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  HD := TKMHouseDatCollection.Create;
+  HD := TKMResHouses.Create;
 
   ci:=0;
   for ID := HOUSE_MIN to HOUSE_MAX do

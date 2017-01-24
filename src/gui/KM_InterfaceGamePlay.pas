@@ -1980,7 +1980,7 @@ begin
   //       even the NEW message has not been issued yet
   if (H <> nil) then
     if (gRes.IsMsgHouseUnnocupied(Msg.fTextID) and not H.GetHasOwner
-        and (gRes.HouseDat[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
+        and (gRes.Houses[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
     or H.ResourceDepletedMsgIssued then
       gMySpectator.Highlight := H;
 

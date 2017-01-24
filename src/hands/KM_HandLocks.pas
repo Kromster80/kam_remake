@@ -54,7 +54,7 @@ var
   H: THouseType;
 begin
   for H := HOUSE_MIN to HOUSE_MAX do
-    if gRes.HouseDat[H].ReleasedBy = aType then
+    if gRes.Houses[H].ReleasedBy = aType then
       fHouseUnlocked[H] := True;
 end;
 
