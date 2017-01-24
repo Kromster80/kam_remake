@@ -90,6 +90,7 @@ Improvements:
  +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
  +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
  +	L	Ability to ignore repeated consistency check errors while watching SP replay
+ +	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 
  
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
@@ -123,7 +124,6 @@ Improvements:
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
-	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	M	Archers should not change formations when group members get killed while under attack
 	L	Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors)
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
