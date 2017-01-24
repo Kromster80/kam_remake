@@ -15,6 +15,7 @@ Bugs:
  +	AI does not repair houses after Save/Load
  +	Game crashed on exit if log file was deleted. Recreate it instead
  +	When group attack position is set to a house/unit, in MP this house/unit would be attacked even if it is an ally	
+ +	Rare game crash when map moved out of downloads. Happens when there was another local MP map this same name, previously opened in MapEd, then deleted.
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  
 
@@ -82,9 +83,13 @@ Improvements:
  +		MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
  +		While watching replay players dropbox not closing automatically anymore
  +		While spectating or watching replay show 1st human player initially, not just 1st player
+ +		While spectating/watching replay change screen position when switch between players with dropbox if Ctrl was pressed. Screen position changed to last selected object of this player if possible. Otherwise change screen position to player's starting location
  +		After quit from SP game/Campaign/MapEd should return to appropriate menu page
  +		Game stats 'Weapons produced' now contains horses as well
  +		Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
+ +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
+ +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
+
  
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
