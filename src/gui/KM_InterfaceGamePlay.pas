@@ -139,6 +139,8 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
+    procedure Replay_UpdateSpectatingPlayerView(aUpdateScreenPosOnly: Boolean = False);
+    procedure ListClick(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -992,6 +994,7 @@ begin
     Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 19, 160, 20, fnt_Metal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
+    Dropbox_ReplayFOW.List.OnClick := ListClick;
  end;
 
 
@@ -1795,11 +1798,55 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ListClick(Sender: TObject);
+begin
+  Replay_UpdateSpectatingPlayerView(True);
+end;
+
+
+procedure TKMGamePlayInterface.Replay_UpdateSpectatingPlayerView(aUpdateScreenPosOnly: Boolean = False);
+var LastSelectedObj: TObject;
+begin
+  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+
+  // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
+  // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
+  if GetKeyState(VK_CONTROL) < 0 then
+  begin
+    LastSelectedObj := gMySpectator.LastSpecSelectedObj;
+    if LastSelectedObj <> nil then
+    begin
+      // Center screen on last selected object for chosen hand
+      if LastSelectedObj is TKMUnit then begin
+        fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
+      end else if LastSelectedObj is TKMHouse then
+        fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
+      else if LastSelectedObj is TKMUnitGroup then
+        fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
+      else
+        Assert(False, 'Could not determine last selected object type');
+    end else
+      fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
+
+    gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+  end;
+
+  if not aUpdateScreenPosOnly then
+  begin
+    if Checkbox_ReplayFOW.Checked then
+      gMySpectator.FOWIndex := gMySpectator.HandIndex
+    else
+      gMySpectator.FOWIndex := -1;
+    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+    gGame.OverlayUpdate; // Display the overlay seen by the selected player
+  end;
+end;
+
+
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
 var
   oldCenter: TKMPointF;
   oldZoom: Single;
-  LastSelectedObj: TObject;
 begin
   if (Sender = Button_ReplayRestart) then
   begin
@@ -1841,38 +1888,7 @@ begin
   end;
 
   if (Sender = Dropbox_ReplayFOW) then
-  begin
-    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
-
-    // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
-    // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
-    if GetKeyState(VK_CONTROL) < 0 then
-    begin
-      LastSelectedObj := gMySpectator.LastSpecSelectedObj;
-      if LastSelectedObj <> nil then
-      begin
-        // Center screen on last selected object for chosen hand
-        if LastSelectedObj is TKMUnit then begin
-          fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
-        end else if LastSelectedObj is TKMHouse then
-          fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
-        else if LastSelectedObj is TKMUnitGroup then
-          fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
-        else
-          Assert(False, 'Could not determine last selected object type');
-      end else
-        fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
-
-      gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
-    end;
-
-    if Checkbox_ReplayFOW.Checked then
-      gMySpectator.FOWIndex := gMySpectator.HandIndex
-    else
-      gMySpectator.FOWIndex := -1;
-    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
-    gGame.OverlayUpdate; // Display the overlay seen by the selected player
-  end;
+    Replay_UpdateSpectatingPlayerView;
 
   if (Sender = Checkbox_ReplayFOW) then
   begin
@@ -2832,16 +2848,20 @@ begin
       ReplayKeyPressed := True;
     end;
 
-    if (gGame.GameMode = gmReplayMulti) and (Key = gResKeys[SC_REAL_GAME_SPEED].Key) then
-    begin
-      gGame.UpdateGameSpeed(True);
-      gGame.ReplayRealGameSpeed := not gGame.ReplayRealGameSpeed;
-      ReplayKeyPressed := True;
-    end;
-
     if ReplayKeyPressed then
-      // 'Spec/replay' type button was clicked, so we have to Exit here, because it could override 'Game' type button
+      // 'Spec/replay' type button was clicked, so we have to Exit here, because it we could invoke 'Game' type button as well
       Exit;
+  end;
+
+  if Key = gResKeys[SC_REAL_GAME_SPEED].Key then
+  begin
+    if gGame.GameMode = gmReplayMulti then
+    begin
+      gGame.SetDefaultMPGameSpeed(True);
+      gGame.ReplayRealGameSpeed := not gGame.ReplayRealGameSpeed;
+    end else
+    if gGame.IsMPGameSpeedUpAllowed then
+      gGame.SetDefaultMPGameSpeed(True);
   end;
 
   // These keys are allowed during replays
@@ -2931,10 +2951,10 @@ begin
   end;
 
   if (fUIMode in [umSP, umReplay])
-    or ((fUIMode in [umMP, umSpectate]) and (gGame.Networking.NetPlayers.GetConnectedCount = 1))
+    or gGame.IsMPGameSpeedUpAllowed
     or MULTIPLAYER_SPEEDUP then
   begin
-    // Game speed/pause: Not available in multiplayer mode
+    // Game speed/pause: available in multiplayer mode if the only player left in the game
     if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, False);
     if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
     if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);
@@ -3336,11 +3356,9 @@ begin
 
   // Check if mouse was clicked insede MP chat panel
   if not KMInRect(KMPoint(X,Y), fGuiGameChat.PanelChatRect) then
-  begin
     // Unset chat focus, when mouse clicked outside MP chat panel
-    fMyControls.CtrlFocus := nil;
-    fGuiGameChat.Unfocus;
-  end else
+    fGuiGameChat.Unfocus
+  else
     fGuiGameChat.Focus; // Set focus to MP chat
 
   if fPlacingBeacon and (Button = mbRight) then
@@ -3727,6 +3745,8 @@ begin
       gHands.GetUnitsInRect(Rect, fTeamNames);
     end;
   end;
+
+  fGuiMenuSettings.UpdateView;
 
   UpdateDebugInfo;
   if fSaves <> nil then fSaves.UpdateState;

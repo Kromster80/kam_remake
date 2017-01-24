@@ -9,6 +9,7 @@ type
   TKMGameMenuSettings = class
   private
     procedure Menu_Settings_Change(Sender: TObject);
+    procedure UpdateControlsPosition;
   protected
     Panel_Settings: TKMPanel;
       CheckBox_Settings_Autosave: TKMCheckBox;
@@ -26,6 +27,7 @@ type
     procedure SetAutosaveEnabled(aEnabled: Boolean);
     procedure Show;
     procedure Hide;
+    procedure UpdateView;
     function Visible: Boolean;
   end;
 
@@ -43,33 +45,73 @@ const
 begin
   inherited Create;
 
-  Panel_Settings := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
+  Panel_Settings := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 362);
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,15,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ReplayAutoPause := TKMCheckBox.Create(Panel_Settings,PAD,40,WID,20,'Replay autopause',fnt_Metal); //Todo: translate
+    CheckBox_Settings_ReplayAutoPause := TKMCheckBox.Create(Panel_Settings,PAD,40,WID,20,'Replay|autopause',fnt_Metal); //Todo: translate
     CheckBox_Settings_ReplayAutoPause.Hint := 'Automatically pause replay when peacetime ends'; //Todo: translate
     CheckBox_Settings_ReplayAutoPause.OnClick := Menu_Settings_Change;
-    TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,65,WID,0,20);
+    TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,90,WID,0,20);
     TrackBar_Settings_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,PAD,120,WID,0,20);
+    TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,PAD,145,WID,0,20);
     TrackBar_Settings_ScrollSpeed.Caption := gResTexts[TX_MENU_OPTIONS_SCROLL_SPEED];
     TrackBar_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,PAD,175,WID,0,20);
+    TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,PAD,200,WID,0,20);
     TrackBar_Settings_SFX.Caption := gResTexts[TX_MENU_SFX_VOLUME];
     TrackBar_Settings_SFX.Hint := gResTexts[TX_MENU_SFX_VOLUME_HINT];
     TrackBar_Settings_SFX.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,PAD,230,WID,0,20);
+    TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,PAD,255,WID,0,20);
     TrackBar_Settings_Music.Caption := gResTexts[TX_MENU_MUSIC_VOLUME];
     TrackBar_Settings_Music.Hint := gResTexts[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,310,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
     CheckBox_Settings_MusicOff.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,310,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
+    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,335,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
 
+
+procedure TKMGameMenuSettings.UpdateView;
+begin
+  CheckBox_Settings_ReplayAutoPause.Enabled := (gGame.GameMode = gmReplayMulti) and gGame.IsPeaceTime;
+end;
+
+
+procedure TKMGameMenuSettings.UpdateControlsPosition;
+var Top: Integer;
+begin
+  Top := 15;
+  if gGame.GameMode in [gmReplaySingle, gmReplayMulti] then
+    CheckBox_Settings_Autosave.Hide
+  else begin
+    CheckBox_Settings_Autosave.Show;
+    Inc(Top, 25);
+  end;
+
+  if gGame.GameMode = gmReplayMulti then
+  begin
+    CheckBox_Settings_ReplayAutoPause.Top := Top;
+    CheckBox_Settings_ReplayAutoPause.Show;
+    Inc(Top, 50);
+  end else
+    CheckBox_Settings_ReplayAutoPause.Hide;
+
+  TrackBar_Settings_Brightness.Top := Top;
+  Inc(Top, 55);
+  TrackBar_Settings_ScrollSpeed.Top := Top;
+  Inc(Top, 55);
+  TrackBar_Settings_SFX.Top := Top;
+  Inc(Top, 55);
+  TrackBar_Settings_Music.Top := Top;
+  Inc(Top, 55);
+  CheckBox_Settings_MusicOff.Top := Top;
+  Inc(Top, 25);
+  CheckBox_Settings_ShuffleOn.Top := Top;
+
+  Panel_Settings.Height := CheckBox_Settings_ShuffleOn.Top + CheckBox_Settings_ShuffleOn.Height + 2;
+end;
 
 procedure TKMGameMenuSettings.Menu_Settings_Fill;
 begin
@@ -84,8 +126,8 @@ begin
 
   TrackBar_Settings_Music.Enabled           := not CheckBox_Settings_MusicOff.Checked;
   CheckBox_Settings_ShuffleOn.Enabled       := not CheckBox_Settings_MusicOff.Checked;
-  CheckBox_Settings_ReplayAutoPause.Enabled := gGame.GameMode = gmReplayMulti;
-
+  CheckBox_Settings_ReplayAutoPause.Enabled := (gGame.GameMode = gmReplayMulti) and gGame.IsPeaceTime;
+  UpdateControlsPosition;
 end;
 
 

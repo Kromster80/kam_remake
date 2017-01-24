@@ -941,6 +941,7 @@ type
     function GetSelectedTag: Integer;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property Item[aIndex: Integer]: UnicodeString read GetItem;
+    property List: TKMListBox read fList;
 
     procedure Paint; override;
   end;
@@ -2685,6 +2686,9 @@ procedure TKMEdit.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButt
 begin
   if ReadOnly then Exit;
   inherited;
+  // Update Focus now, because we need to focus on MouseDown, not on MouseUp as by default for all controls
+  MasterParent.fCollection.UpdateFocus(Self);
+
   CursorPos := GetCursorPosAt(X);
   ResetSelection;
   fSelectionInitialCursorPos := CursorPos;
@@ -6233,9 +6237,13 @@ end;
 
 procedure TKMMasterControl.SetCtrlDown(aCtrl: TKMControl);
 begin
-  if fCtrlDown <> nil then fCtrlDown.State := fCtrlDown.State - [csDown]; //Release previous
-  if aCtrl <> nil then aCtrl.State := aCtrl.State + [csDown];             //Press new
-  fCtrlDown := aCtrl;                                                     //Update info
+  if fCtrlDown <> nil then
+    fCtrlDown.State := fCtrlDown.State - [csDown]; //Release previous
+
+  if aCtrl <> nil then
+    aCtrl.State := aCtrl.State + [csDown];         //Press new
+
+  fCtrlDown := aCtrl;                              //Update info
 end;
 
 
