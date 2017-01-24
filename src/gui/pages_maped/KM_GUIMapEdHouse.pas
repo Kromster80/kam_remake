@@ -158,8 +158,8 @@ begin
     Button_Barracks_Recruit.TexOffsetX := 1;
     Button_Barracks_Recruit.TexOffsetY := 1;
     Button_Barracks_Recruit.CapOffsetY := 2;
-    Button_Barracks_Recruit.TexID := gRes.UnitDat[ut_Recruit].GUIIcon;
-    Button_Barracks_Recruit.Hint := gRes.UnitDat[ut_Recruit].GUIName;
+    Button_Barracks_Recruit.TexID := gRes.Units[ut_Recruit].GUIIcon;
+    Button_Barracks_Recruit.Hint := gRes.Units[ut_Recruit].GUIName;
     Button_Barracks_Recruit.OnClick := BarracksSelectWare;
 
     Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
@@ -204,9 +204,9 @@ begin
   {Common data}
   Label_House.Caption := HouseDat.HouseName;
   Image_House_Logo.TexID := HouseDat.GUIIcon;
-  Image_House_Worker.TexID := gRes.UnitDat[HouseDat.OwnerType].GUIIcon;
+  Image_House_Worker.TexID := gRes.Units[HouseDat.OwnerType].GUIIcon;
   Image_House_Worker.FlagColor := gHands[fHouse.Owner].FlagColor;
-  Image_House_Worker.Hint := gRes.UnitDat[HouseDat.OwnerType].GUIName;
+  Image_House_Worker.Hint := gRes.Units[HouseDat.OwnerType].GUIName;
   Image_House_Worker.Visible := HouseDat.OwnerType <> ut_None;
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
   KMHealthBar_House.Position := fHouse.GetHealth / HouseDat.MaxHealth;

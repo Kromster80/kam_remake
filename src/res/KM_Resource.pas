@@ -29,7 +29,7 @@ type
     fCursors: TKMResCursors;
     fFonts: TKMResFonts;
     fHouses: TKMResHouses;
-    fUnitDat: TKMUnitDatCollection;
+    fUnits: TKMResUnits;
     fPalettes: TKMResPalettes;
     fWares: TKMResWares;
     fSounds: TKMResSounds;
@@ -63,7 +63,7 @@ type
     property Sounds: TKMResSounds read fSounds;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
-    property UnitDat: TKMUnitDatCollection read fUnitDat;
+    property Units: TKMResUnits read fUnits;
 
     function IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
 
@@ -108,7 +108,7 @@ begin
   FreeAndNil(fSounds);
   FreeAndNil(gResTexts);
   FreeAndNil(fTileset);
-  FreeAndNil(fUnitDat);
+  FreeAndNil(fUnits);
   FreeAndNil(gResKeys);
   inherited;
 end;
@@ -130,7 +130,7 @@ end;
 function TKMResource.GetDATCRC: Cardinal;
 begin
   Result := fHouses.CRC xor
-            UnitDat.CRC xor
+            fUnits.CRC xor
             MapElements.CRC xor
             Tileset.CRC;
 end;
@@ -173,7 +173,7 @@ begin
 
   fWares := TKMResWares.Create;
   fHouses := TKMResHouses.Create;
-  fUnitDat := TKMUnitDatCollection.Create;
+  fUnits := TKMResUnits.Create;
 
   StepRefresh;
   gLog.AddTime('ReadGFX is done');
@@ -249,20 +249,20 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  if fUnitDat = nil then
-    fUnitDat := TKMUnitDatCollection.Create;
+  if fUnits = nil then
+    fUnits := TKMResUnits.Create;
 
   for U := WARRIOR_MIN to WARRIOR_MAX do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
   for D := dir_N to dir_NW do
-  if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
-  for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
+  if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
+  for i := 1 to fUnits[U].UnitAnim[A, D].Count do
   begin
-    ForceDirectories(Folder + fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim);
+    ForceDirectories(Folder + fUnits[U].GUIName + PathDelim + UnitAct[A] + PathDelim);
 
-    if fUnitDat[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
+    if fUnits[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
     begin
-      ci := fUnitDat[U].UnitAnim[A,D].Step[i] + 1;
+      ci := fUnits[U].UnitAnim[A,D].Step[i] + 1;
 
       sx := RXData.Size[ci].X;
       sy := RXData.Size[ci].Y;
@@ -275,7 +275,7 @@ begin
 
       if sy > 0 then
         Bmp.SaveToFile(Folder +
-          fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim +
+          fUnits[U].GUIName + PathDelim + UnitAct[A] + PathDelim +
           'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
   end;
@@ -287,17 +287,17 @@ begin
   for U := Low(TUnitType) to High(TUnitType) do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
   for D := dir_N to dir_NW do
-  if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
-  for i := 1 to fUnitDat[U].UnitAnim[A,D].Count do
-    Used[fUnitDat[U].UnitAnim[A,D].Step[i]+1] := fUnitDat[U].UnitAnim[A,D].Step[i]+1 <> 0;
+  if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
+  for i := 1 to fUnits[U].UnitAnim[A,D].Count do
+    Used[fUnits[U].UnitAnim[A,D].Step[i]+1] := fUnits[U].UnitAnim[A,D].Step[i]+1 <> 0;
 
   //Exclude serfs carrying stuff
   for R := Low(TWareType) to High(TWareType) do
   if R in [WARE_MIN..WARE_MAX] then
   for D := dir_N to dir_NW do
-  if fUnitDat.SerfCarry[R,D].Step[1] <> -1 then
-  for i := 1 to fUnitDat.SerfCarry[R,D].Count do
-    Used[fUnitDat.SerfCarry[R,D].Step[i]+1] := fUnitDat.SerfCarry[R,D].Step[i]+1 <> 0;
+  if fUnits.SerfCarry[R,D].Step[1] <> -1 then
+  for i := 1 to fUnits.SerfCarry[R,D].Count do
+    Used[fUnits.SerfCarry[R,D].Step[i]+1] := fUnits.SerfCarry[R,D].Step[i]+1 <> 0;
 
   for T := Low(TKMUnitThought) to High(TKMUnitThought) do
   for i := ThoughtBounds[T,1] to  ThoughtBounds[T,2] do

@@ -2295,7 +2295,7 @@ function TKMScriptStates.UnitTypeName(aUnitType: Byte): AnsiString;
 begin
   try
     if (aUnitType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
-      Result := '<%' + AnsiString(IntToStr(gRes.UnitDat[UnitIndexToType[aUnitType]].GUITextID)) + '>'
+      Result := '<%' + AnsiString(IntToStr(gRes.Units[UnitIndexToType[aUnitType]].GUITextID)) + '>'
     else
     begin
       Result := '';
@@ -2368,7 +2368,7 @@ begin
     begin
       U := fIDCache.GetUnit(aUnitID);
       if U <> nil then
-        Result := gRes.UnitDat[U.UnitType].HitPoints;
+        Result := gRes.Units[U.UnitType].HitPoints;
     end
     else
       LogParamWarning('States.UnitHPMax', [aUnitID]);

@@ -348,8 +348,8 @@ begin
     Button_BarracksRecruit.CapOffsetY := 2;
     Button_BarracksRecruit.HideHighlight := True;
     Button_BarracksRecruit.Clickable := False;
-    Button_BarracksRecruit.TexID := gRes.UnitDat[ut_Recruit].GUIIcon;
-    Button_BarracksRecruit.Hint := gRes.UnitDat[ut_Recruit].GUIName;
+    Button_BarracksRecruit.TexID := gRes.Units[ut_Recruit].GUIIcon;
+    Button_BarracksRecruit.Hint := gRes.Units[ut_Recruit].GUIName;
 
     Label_Barracks_Unit := TKMLabel.Create(Panel_HouseBarracks, 0, 96, TB_WIDTH, 0, '', fnt_Outline, taCenter);
 
@@ -413,8 +413,8 @@ begin
   {Common data}
   Label_House.Caption       := gRes.Houses[aHouse.HouseType].HouseName;
   Image_House_Logo.TexID    := gRes.Houses[aHouse.HouseType].GUIIcon;
-  Image_House_Worker.TexID  := gRes.UnitDat[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
-  Image_House_Worker.Hint   := gRes.UnitDat[gRes.Houses[aHouse.HouseType].OwnerType].GUIName;
+  Image_House_Worker.TexID  := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
+  Image_House_Worker.Hint   := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName;
   Image_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
   HealthBar_House.Caption   := inttostr(round(aHouse.GetHealth))+'/'+inttostr(gRes.Houses[aHouse.HouseType].MaxHealth);
   HealthBar_House.Position  := aHouse.GetHealth / gRes.Houses[aHouse.HouseType].MaxHealth;
@@ -797,10 +797,10 @@ begin
   Image_Barracks_Right.Visible:= Button_Barracks_Right.Enabled;
 
   if fLastBarracksUnit > 0 then
-    Image_Barracks_Left.TexID := gRes.UnitDat[Barracks_Order[fLastBarracksUnit-1]].GUIScroll;
+    Image_Barracks_Left.TexID := gRes.Units[Barracks_Order[fLastBarracksUnit-1]].GUIScroll;
 
-  Image_Barracks_Train.TexID := gRes.UnitDat[Barracks_Order[fLastBarracksUnit]].GUIScroll;
-  Label_Barracks_Unit.Caption := gRes.UnitDat[Barracks_Order[fLastBarracksUnit]].GUIName;
+  Image_Barracks_Train.TexID := gRes.Units[Barracks_Order[fLastBarracksUnit]].GUIScroll;
+  Label_Barracks_Unit.Caption := gRes.Units[Barracks_Order[fLastBarracksUnit]].GUIName;
 
   Image_Barracks_Train.Enabled := (not gMySpectator.Hand.Locks.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]]);
 
@@ -810,7 +810,7 @@ begin
     Button_Barracks_Train.Hint := gResTexts[TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT];
 
   if fLastBarracksUnit < High(Barracks_Order) then
-    Image_Barracks_Right.TexID := gRes.UnitDat[Barracks_Order[fLastBarracksUnit+1]].GUIScroll;
+    Image_Barracks_Right.TexID := gRes.Units[Barracks_Order[fLastBarracksUnit+1]].GUIScroll;
 end;
 
 
@@ -849,7 +849,7 @@ begin
   end;
 
   if School.Queue[0] <> ut_None then
-    Button_School_UnitWIP.TexID := gRes.UnitDat[School.Queue[0]].GUIIcon
+    Button_School_UnitWIP.TexID := gRes.Units[School.Queue[0]].GUIIcon
   else
     Button_School_UnitWIP.TexID := 41; //Question mark
 
@@ -858,8 +858,8 @@ begin
   for I := 1 to 5 do
     if School.Queue[I] <> ut_None then
     begin
-      Button_School_UnitPlan[I].TexID := gRes.UnitDat[School.Queue[I]].GUIIcon;
-      Button_School_UnitPlan[I].Hint := gRes.UnitDat[School.Queue[I]].GUIName;
+      Button_School_UnitPlan[I].TexID := gRes.Units[School.Queue[I]].GUIIcon;
+      Button_School_UnitPlan[I].Hint := gRes.Units[School.Queue[I]].GUIName;
     end
     else
     begin
@@ -874,10 +874,10 @@ begin
   Image_School_Right.Visible := Button_School_Right.Enabled;
 
   if fLastSchoolUnit > 0 then
-    Image_School_Left.TexID := gRes.UnitDat[School_Order[fLastSchoolUnit-1]].GUIScroll;
+    Image_School_Left.TexID := gRes.Units[School_Order[fLastSchoolUnit-1]].GUIScroll;
 
-  Label_School_Unit.Caption := gRes.UnitDat[School_Order[fLastSchoolUnit]].GUIName;
-  Image_School_Train.TexID := gRes.UnitDat[School_Order[fLastSchoolUnit]].GUIScroll;
+  Label_School_Unit.Caption := gRes.Units[School_Order[fLastSchoolUnit]].GUIName;
+  Image_School_Train.TexID := gRes.Units[School_Order[fLastSchoolUnit]].GUIScroll;
 
   Image_School_Train.Enabled := (not gMySpectator.Hand.Locks.UnitBlocked[School_Order[fLastSchoolUnit]]);
 
@@ -887,7 +887,7 @@ begin
     Button_School_Train.Hint := gResTexts[TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT];
 
   if fLastSchoolUnit < High(School_Order) then
-    Image_School_Right.TexID := gRes.UnitDat[School_Order[fLastSchoolUnit+1]].GUIScroll;
+    Image_School_Right.TexID := gRes.Units[School_Order[fLastSchoolUnit+1]].GUIScroll;
 end;
 
 

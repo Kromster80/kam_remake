@@ -1546,8 +1546,8 @@ begin
   SwitchPage(Panel_Unit);
 
   // Common properties
-  Label_UnitName.Caption      := gRes.UnitDat[Sender.UnitType].GUIName;
-  Image_UnitPic.TexID         := gRes.UnitDat[Sender.UnitType].GUIScroll;
+  Label_UnitName.Caption      := gRes.Units[Sender.UnitType].GUIName;
+  Image_UnitPic.TexID         := gRes.Units[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := gHands[Sender.Owner].FlagColor;
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
   Label_UnitTask.Caption      := Sender.GetActivityText;
@@ -1558,7 +1558,7 @@ begin
   Panel_Army_JoinGroups.Hide;
   Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss;
 
-  Label_UnitDescription.Caption := gRes.UnitDat[Sender.UnitType].Description;
+  Label_UnitDescription.Caption := gRes.Units[Sender.UnitType].Description;
 end;
 
 
@@ -1578,8 +1578,8 @@ begin
   SwitchPage(Panel_Unit);
 
   // Common properties
-  Label_UnitName.Caption      := gRes.UnitDat[W.UnitType].GUIName;
-  Image_UnitPic.TexID         := gRes.UnitDat[W.UnitType].GUIScroll;
+  Label_UnitName.Caption      := gRes.Units[W.UnitType].GUIName;
+  Image_UnitPic.TexID         := gRes.Units[W.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := gHands[W.Owner].FlagColor;
   ConditionBar_Unit.Position  := W.Condition / UNIT_MAX_CONDITION;
   // We show what this individual is doing, not the whole group.

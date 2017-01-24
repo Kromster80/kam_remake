@@ -807,11 +807,11 @@ begin
   end;
 
   case aProj of
-    pt_Arrow:     with gRes.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
+    pt_Arrow:     with gRes.Units[ut_Bowman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
-    pt_Bolt:      with gRes.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
+    pt_Bolt:      with gRes.Units[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
-    pt_SlingRock: with gRes.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
+    pt_SlingRock: with gRes.Units[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
     pt_TowerRock: Id := ProjectileBounds[aProj, 1] + 1;
     else          Id := 1; // Nothing?
@@ -839,7 +839,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
@@ -873,7 +873,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
   R := fRXData[rxUnits];
@@ -894,7 +894,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gRes.UnitDat.SerfCarry[aCarry, aDir];
+  A := gRes.Units.SerfCarry[aCarry, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then Exit;
   R := fRXData[rxUnits];
@@ -919,7 +919,7 @@ begin
   R := fRXData[rxUnits];
 
   // Unit position
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   // Units feet
@@ -961,14 +961,14 @@ begin
   R := fRXData[rxUnits];
 
   // Unit position
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   // Units feet
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
 
   // Flag position
-  A := gRes.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
+  A := gRes.Units[aUnit].UnitAnim[ua_WalkArm, aDir];
   IdFlag := A.Step[FlagAnim mod Byte(A.Count) + 1] + 1;
   if IdFlag <= 0 then Exit;
 
@@ -983,7 +983,7 @@ procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAc
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; // In map editor always render 5 fish
   AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
-  if gRes.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
+  if gRes.Units[aUnit].SupportsAction(ua_WalkArm) then
     AddUnit(aUnit, aUID, ua_WalkArm, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
 end;
 

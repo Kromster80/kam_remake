@@ -455,7 +455,7 @@ function TKMTerrain.ScriptTryTileSet(X, Y: Integer; aType, aRot: Byte): Boolean;
     if (U = nil) or U.IsDead then
       Result := False
     else
-      if gRes.UnitDat[U.UnitType].DesiredPassability = tpFish then
+      if gRes.Units[U.UnitType].DesiredPassability = tpFish then
         Result := not gRes.Tileset.TileIsWater(aType) //Fish need water
       else
         Result := not gRes.Tileset.TileIsWalkable(aType); //All other animals need Walkable
@@ -491,7 +491,7 @@ function TKMTerrain.ScriptTryHeightSet(X, Y: Integer; aHeight: Byte): Boolean;
   begin
     U := Land[CheckY, CheckX].IsUnit;
     if (U = nil) or U.IsDead
-    or (gRes.UnitDat[U.UnitType].DesiredPassability = tpFish) then //Fish don't care about elevation
+    or (gRes.Units[U.UnitType].DesiredPassability = tpFish) then //Fish don't care about elevation
       Result := False
     else
       Result := not CheckHeightPass(KMPoint(CheckX, CheckY), hpWalking); //All other units/animals need Walkable
@@ -2708,7 +2708,7 @@ function TKMTerrain.CanPlaceUnit(Loc: TKMPoint; aUnitType: TUnitType): Boolean;
 begin
   Result := TileInMapCoords(Loc.X, Loc.Y)
             and (Land[Loc.Y, Loc.X].IsUnit = nil) //Check for no unit below
-            and (gRes.UnitDat[aUnitType].AllowedPassability in Land[Loc.Y, Loc.X].Passability);
+            and (gRes.Units[aUnitType].AllowedPassability in Land[Loc.Y, Loc.X].Passability);
 end;
 
 

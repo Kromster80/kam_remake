@@ -74,8 +74,8 @@ begin
     if StatPlan[I].UnitType[K] <> ut_None then
     begin
       UT := StatPlan[I].UnitType[K];
-      Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, Unit_Width, 30, gRes.UnitDat[UT].GUIIcon);
-      Stat_UnitPic[UT].Hint := gRes.UnitDat[UT].GUIName;
+      Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, Unit_Width, 30, gRes.Units[UT].GUIIcon);
+      Stat_UnitPic[UT].Hint := gRes.Units[UT].GUIName;
       Stat_UnitPic[UT].ImageCenter;
       Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + Unit_Width  ,  0,  '', fnt_Grey, taRight);
       Stat_UnitWip[UT].Hitable := False;
@@ -163,7 +163,7 @@ begin
     Tmp2 := 0;//fPlayers[gMySpectator.PlayerIndex].Stats.GetUnitWip(UT);
     Stat_UnitQty[UT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_UnitWip[UT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    Stat_UnitPic[UT].Hint := gRes.UnitDat[UT].GUIName;
+    Stat_UnitPic[UT].Hint := gRes.Units[UT].GUIName;
     Stat_UnitPic[UT].FlagColor := gMySpectator.Hand.FlagColor;
   end;
 end;

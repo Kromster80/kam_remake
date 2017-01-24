@@ -1081,7 +1081,7 @@ begin
   begin
     tmpS := #9;
     if fDemand[I].Loc_House <> nil then tmpS := tmpS + gRes.Houses[fDemand[I].Loc_House.HouseType].HouseName + #9 + #9;
-    if fDemand[I].Loc_Unit  <> nil then tmpS := tmpS + gRes.UnitDat[fDemand[I].Loc_Unit.UnitType].GUIName + #9 + #9;
+    if fDemand[I].Loc_Unit  <> nil then tmpS := tmpS + gRes.Units[fDemand[I].Loc_Unit.UnitType].GUIName + #9 + #9;
     tmpS := tmpS + gRes.Wares[fDemand[I].Ware].Title;
     if fDemand[I].Importance <> diNorm then
       tmpS := tmpS + '^';

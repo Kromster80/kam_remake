@@ -174,7 +174,7 @@ begin
     ct_SetUnit:         if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
                         begin
                           SetOwner(P[1]+1, P[2]+1);
-                          RevealCircle(P[1]+1, P[2]+1, gRes.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                          RevealCircle(P[1]+1, P[2]+1, gRes.Units[UnitOldIndexToType[P[0]]].Sight);
                         end;
     ct_SetStock:        begin
                           //Set Store and roads below
@@ -190,7 +190,7 @@ begin
                             if Valid then
                             begin
                               SetOwner(Loc.X,Loc.Y);
-                              RevealCircle(P[1]+1, P[2]+1, gRes.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                              RevealCircle(P[1]+1, P[2]+1, gRes.Units[UnitOldIndexToType[P[0]]].Sight);
                             end;
                           end;
     ct_ClearUp:         begin
