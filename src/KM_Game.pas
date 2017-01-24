@@ -51,8 +51,9 @@ type
     fSaveFile: UnicodeString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fGameLockedMutex: Boolean;
     fOverlayText: array[0..MAX_HANDS] of UnicodeString; //Needed for replays. Not saved since it's translated
+    fIgnoreConsistencyCheckErrors: Boolean; // User can ignore all consistency check errors while watching SP replay
 
-  //Should be saved
+    //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
@@ -232,6 +233,8 @@ begin
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
   fScripting := TKMScripting.Create(ShowScriptError);
+
+  fIgnoreConsistencyCheckErrors := False;
 
   case PathFinderToUse of
     0:    fPathfinding := TPathfindingAStarOld.Create;
@@ -691,13 +694,20 @@ end;
 //Occasional replay inconsistencies are a known bug, we don't need reports of it
 procedure TKMGame.ReplayInconsistancy;
 begin
-  //Stop game from executing while the user views the message
-  fIsPaused := True;
   gLog.AddTime('Replay failed a consistency check at tick ' + IntToStr(fGameTickCount));
-  if MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
-    gGameApp.Stop(gr_Error, '')
-  else
-    fIsPaused := False;
+  if not fIgnoreConsistencyCheckErrors then
+  begin
+    //Stop game from executing while the user views the message
+    fIsPaused := True;
+    case MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbYesToAll, mbNo], 0) of
+      mrYes:      fIsPaused := False;
+      mrYesToAll: begin
+                    fIgnoreConsistencyCheckErrors := True;  // Ignore these errors in future while watching this replay
+                    fIsPaused := False;
+                  end
+      else        gGameApp.Stop(gr_Error, '');
+    end;
+  end;
 end;
 
 
