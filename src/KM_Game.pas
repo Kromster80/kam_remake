@@ -970,8 +970,7 @@ end;
 function TKMGame.IsMPGameSpeedUpAllowed: Boolean;
 begin
   Result := (fGameMode in [gmMulti, gmMultiSpectate])
-        and (fNetworking.NetPlayers.GetConnectedCount = 1)
-        and not fWaitingForNetwork;
+        and (fNetworking.NetPlayers.GetNotDroppedCount = 1);
 end;
 
 

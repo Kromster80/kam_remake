@@ -113,6 +113,7 @@ type
     function GetClosedCount: Integer;
     function GetSpectatorCount: Integer;
     function GetConnectedCount: Integer;
+    function GetNotDroppedCount: Integer;
     function FurtherVotesNeededForMajority: Integer;
     function HasOnlySpectators: Boolean;
 
@@ -655,9 +656,9 @@ function TKMNetPlayersList.AllReady: Boolean;
 var I: Integer;
 begin
   Result := true;
-  for i:=1 to fCount do
-    if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
-      Result := Result and fNetPlayers[i].ReadyToStart and fNetPlayers[i].HasMapOrSave;
+  for I := 1 to fCount do
+    if fNetPlayers[I].Connected and fNetPlayers[I].IsHuman then
+      Result := Result and fNetPlayers[I].ReadyToStart and fNetPlayers[I].HasMapOrSave;
 end;
 
 
@@ -665,9 +666,9 @@ function TKMNetPlayersList.AllReadyToPlay:boolean;
 var I: Integer;
 begin
   Result := true;
-  for i:=1 to fCount do
-    if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
-      Result := Result and fNetPlayers[i].ReadyToPlay;
+  for I := 1 to fCount do
+    if fNetPlayers[I].Connected and fNetPlayers[I].IsHuman then
+      Result := Result and fNetPlayers[I].ReadyToPlay;
 end;
 
 
@@ -686,10 +687,10 @@ var I: Integer; Highest, Highest2, PlayerPing: word;
 begin
   Highest := 0;
   Highest2 := 0;
-  for i:=1 to fCount do
-    if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
+  for I := 1 to fCount do
+    if fNetPlayers[I].Connected and fNetPlayers[I].IsHuman then
     begin
-      PlayerPing := fNetPlayers[i].GetMaxPing;
+      PlayerPing := fNetPlayers[I].GetMaxPing;
       if PlayerPing > Highest then
         Highest := PlayerPing
       else
@@ -722,8 +723,8 @@ function TKMNetPlayersList.GetAICount: Integer;
 var I: Integer;
 begin
   Result := 0;
-  for i:=1 to fCount do
-    if fNetPlayers[i].PlayerNetType = nptComputer then
+  for I := 1 to fCount do
+    if fNetPlayers[I].PlayerNetType = nptComputer then
       inc(Result);
 end;
 
@@ -732,8 +733,8 @@ function TKMNetPlayersList.GetClosedCount: Integer;
 var I: Integer;
 begin
   Result := 0;
-  for i:=1 to fCount do
-    if fNetPlayers[i].PlayerNetType = nptClosed then
+  for I := 1 to fCount do
+    if fNetPlayers[I].PlayerNetType = nptClosed then
       inc(Result);
 end;
 
@@ -742,8 +743,8 @@ function TKMNetPlayersList.GetSpectatorCount: Integer;
 var I: Integer;
 begin
   Result := 0;
-  for i:=1 to fCount do
-    if fNetPlayers[i].IsSpectator then
+  for I := 1 to fCount do
+    if fNetPlayers[I].IsSpectator then
       inc(Result);
 end;
 
@@ -752,9 +753,21 @@ function TKMNetPlayersList.GetConnectedCount: Integer;
 var I: Integer;
 begin
   Result := 0;
-  for i:=1 to fCount do
-    if fNetPlayers[i].IsHuman and fNetPlayers[i].Connected then
-      inc(Result);
+  for I := 1 to fCount do
+    if fNetPlayers[I].IsHuman and fNetPlayers[I].Connected then
+      Inc(Result);
+end;
+
+
+//Number of not Dropped players
+//Player could be disconnected already, but not dropped yet.
+function TKMNetPlayersList.GetNotDroppedCount: Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 1 to fCount do
+    if fNetPlayers[I].IsHuman and not fNetPlayers[I].Dropped then
+      Inc(Result);
 end;
 
 
@@ -766,7 +779,7 @@ begin
   Total := 0;
   VotedYes := 0;
   OnlySpecsLeft := HasOnlySpectators; //Store value locally
-  for I:=1 to fCount do
+  for I := 1 to fCount do
     if (fNetPlayers[I].PlayerNetType = nptHuman)
     and (OnlySpecsLeft or (fNetPlayers[I].StartLocation <> LOC_SPECTATE))
     and not fNetPlayers[I].Dropped then
@@ -783,7 +796,7 @@ end;
 function TKMNetPlayersList.HasOnlySpectators: Boolean;
 var I: Integer;
 begin
-  for I:=1 to fCount do
+  for I := 1 to fCount do
     if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE)
     and not fNetPlayers[I].Dropped then
     begin
@@ -797,17 +810,17 @@ end;
 procedure TKMNetPlayersList.ResetLocAndReady;
 var I: Integer;
 begin
-  for i:=1 to fCount do
+  for I := 1 to fCount do
   begin
-    if fNetPlayers[i].PlayerNetType = nptHuman then
-      fNetPlayers[i].HasMapOrSave := False;
+    if fNetPlayers[I].PlayerNetType = nptHuman then
+      fNetPlayers[I].HasMapOrSave := False;
 
-    if fNetPlayers[i].StartLocation <> LOC_SPECTATE then
-      fNetPlayers[i].StartLocation := LOC_RANDOM;
+    if fNetPlayers[I].StartLocation <> LOC_SPECTATE then
+      fNetPlayers[I].StartLocation := LOC_RANDOM;
 
     //AI/closed players are always ready, spectator ready status is not reset by map change
-    if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
-      fNetPlayers[i].ReadyToStart := false;
+    if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE) then
+      fNetPlayers[I].ReadyToStart := false;
   end;
 end;
 
@@ -815,17 +828,17 @@ end;
 procedure TKMNetPlayersList.ResetReady;
 var I: Integer;
 begin
-  for i:=1 to fCount do
+  for I := 1 to fCount do
     //AI/closed players are always ready, spectator ready status is not reset by options change
-    if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
-      fNetPlayers[i].ReadyToStart := False;
+    if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE) then
+      fNetPlayers[I].ReadyToStart := False;
 end;
 
 
 procedure TKMNetPlayersList.ResetReadyToPlay;
 var I: Integer;
 begin
-  for I:=1 to fCount do
+  for I := 1 to fCount do
     fNetPlayers[I].ReadyToPlay := False;
 end;
 
@@ -833,7 +846,7 @@ end;
 procedure TKMNetPlayersList.ResetReadyToReturnToLobby;
 var I: Integer;
 begin
-  for I:=1 to fCount do
+  for I := 1 to fCount do
     fNetPlayers[I].ReadyToReturnToLobby := False;
 end;
 
@@ -842,19 +855,19 @@ procedure TKMNetPlayersList.ResetVote;
 var I: Integer;
 begin
   VoteActive := False;
-  for i:=1 to fCount do
-    fNetPlayers[i].VotedYes := False;
+  for I := 1 to fCount do
+    fNetPlayers[I].VotedYes := False;
 end;
 
 
 procedure TKMNetPlayersList.SetAIReady;
 var I: Integer;
 begin
-  for i:=1 to fCount do
-    if fNetPlayers[i].PlayerNetType in [nptComputer,nptClosed] then
+  for I := 1 to fCount do
+    if fNetPlayers[I].PlayerNetType in [nptComputer,nptClosed] then
     begin
-      fNetPlayers[i].ReadyToStart := true;
-      fNetPlayers[i].ReadyToPlay := true;
+      fNetPlayers[I].ReadyToStart := true;
+      fNetPlayers[I].ReadyToPlay := true;
     end;
 end;
 
@@ -885,7 +898,7 @@ function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TKMHan
   var I: Integer;
   begin
     Result := False;
-    for I:=0 to Length(aHumanUsableLocs)-1 do
+    for I := 0 to Length(aHumanUsableLocs)-1 do
       if aLoc = aHumanUsableLocs[I]+1 then
       begin
         Result := True;
@@ -897,7 +910,7 @@ function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TKMHan
   var I: Integer;
   begin
     Result := False;
-    for I:=0 to Length(aAIUsableLocs)-1 do
+    for I := 0 to Length(aAIUsableLocs)-1 do
       if aLoc = aAIUsableLocs[I]+1 then
       begin
         Result := True;
