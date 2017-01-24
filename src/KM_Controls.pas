@@ -938,6 +938,7 @@ type
     function GetSelectedTag: Integer;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property Item[aIndex: Integer]: UnicodeString read GetItem;
+    property List: TKMListBox read fList;
 
     procedure Paint; override;
   end;
