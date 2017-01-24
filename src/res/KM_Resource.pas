@@ -24,13 +24,14 @@ type
 
   TKMResource = class
   private
+    //todo: Rename all the child classes into TKMRes****** pattern
     fDataState: TResourceLoadState;
-    fCursors: TKMCursors;
+    fCursors: TKMResCursors;
     fFonts: TKMResFonts;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
-    fPalettes: TKMPalettes;
-    fWares: TKMWaresList;
+    fPalettes: TKMResPalettes;
+    fWares: TKMResWares;
     fSounds: TKMResSounds;
     fSprites: TKMSprites;
     fTileset: TKMTileset;
@@ -53,16 +54,18 @@ type
     procedure LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
 
     property DataState: TResourceLoadState read fDataState;
-    property Cursors: TKMCursors read fCursors;
+    property Cursors: TKMResCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property MapElements: TKMMapElements read fMapElements;
-    property Palettes: TKMPalettes read fPalettes;
+    property Palettes: TKMResPalettes read fPalettes;
     property Fonts: TKMResFonts read fFonts;
-    property Wares: TKMWaresList read fWares;
+    property Wares: TKMResWares read fWares;
     property Sounds: TKMResSounds read fSounds;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
+
+    function IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
 
     procedure ExportTreeAnim;
     procedure ExportHouseAnim;
@@ -136,13 +139,13 @@ end;
 procedure TKMResource.LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
 begin
   StepCaption('Reading palettes ...');
-  fPalettes := TKMPalettes.Create;
+  fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 
   fSprites := TKMSprites.Create(StepRefresh, StepCaption);
 
-  fCursors := TKMCursors.Create;
+  fCursors := TKMResCursors.Create;
   fSprites.LoadMenuResources;
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmc_Default;
@@ -168,7 +171,7 @@ begin
 
   fSprites.ClearTemp;
 
-  fWares := TKMWaresList.Create;
+  fWares := TKMResWares.Create;
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
 
@@ -213,6 +216,12 @@ begin
 
   fDataState := rlsAll;
   gLog.AddTime('Resource loading state - Game');
+end;
+
+
+function TKMResource.IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
+begin
+  Result := (aMsgId >= TX_MSG_HOUSE_UNOCCUPIED__22) and (aMsgId <= TX_MSG_HOUSE_UNOCCUPIED__22 + 22);
 end;
 
 

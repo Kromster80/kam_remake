@@ -48,7 +48,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure StartListening(aPort:string);
+    procedure StartListening(aPort: Word);
     procedure StopListening;
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure Kick(aHandle:integer);
@@ -124,7 +124,7 @@ begin
 end;
 
 
-procedure TKMNetServerLNet.StartListening(aPort:string);
+procedure TKMNetServerLNet.StartListening(aPort: Word);
 begin
   FreeAndNil(fSocketServer);
   fSocketServer := TLTCP.Create(nil);
@@ -137,7 +137,7 @@ begin
   //This value could be higher, it won't cause delays since it's just a timeout on waiting for network events
   fSocketServer.Timeout := 100;
   fSocketServer.ReuseAddress := True; //Allows us to overwrite an old connection in the wait state rather than saying the port is still in use
-  if not fSocketServer.Listen(StrToInt(aPort)) then
+  if not fSocketServer.Listen(aPort) then
     raise Exception.Create('Server failed to start');
   fListening := True;
 end;

@@ -2,8 +2,8 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles, Forms,
-  KM_Defaults, KM_Resolutions;
+  Classes, SysUtils, Math, INIfiles, System.UITypes,
+  KM_Defaults, KM_Resolutions, KM_Points, KM_WareDistribution;
 
 
 type
@@ -33,7 +33,7 @@ type
     procedure ApplyWindowParams(aParams: TKMWindowParamsRecord; aDefaults: Boolean = False);
     procedure LockParams;
     procedure UnlockParams;
-    function IsValid(Screen: TScreen): Boolean;
+    function IsValid(aMonitorsInfo: TKMPointArray): Boolean;
   end;
 
 
@@ -73,6 +73,7 @@ type
     fNeedsSave: Boolean;
 
     fAutosave: Boolean;
+    fReplayAutopause: Boolean;
     fBrightness: Byte;
     fScrollSpeed: Byte;
     fAlphaShadows: Boolean;
@@ -101,7 +102,10 @@ type
     fAnnounceServer: Boolean;
     fHTMLStatusFile: UnicodeString;
     fServerWelcomeMessage: UnicodeString;
+    fWareDistribution: TKMWareDistribution;
+
     procedure SetAutosave(aValue: Boolean);
+    procedure SetReplayAutopause(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
@@ -137,6 +141,7 @@ type
     procedure ReloadSettings;
 
     property Autosave: Boolean read fAutosave write SetAutosave;
+    property ReplayAutopause: Boolean read fReplayAutopause write SetReplayAutopause;
     property Brightness: Byte read fBrightness write SetBrightness;
     property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
@@ -165,6 +170,7 @@ type
     property PingInterval: Integer read fPingInterval write SetPingInterval;
     property HTMLStatusFile: UnicodeString read fHTMLStatusFile write SetHTMLStatusFile;
     property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
+    property WareDistribution: TKMWareDistribution read fWareDistribution;
   end;
 
 
@@ -187,6 +193,7 @@ end;
 destructor TMainSettings.Destroy;
 begin
   SaveToINI(ExeDir+SETTINGS_FILE);
+  FreeAndNil(fWindowParams);
   inherited;
 end;
 
@@ -224,8 +231,8 @@ begin
     fWindowParams.fNeedResetToDefaults := True;
 
   // Reset wsMinimized state to wsNormal
-  if (fWindowParams.fState = wsMinimized) then
-    fWindowParams.fState := wsNormal;
+  if (fWindowParams.fState = TWindowState.wsMinimized) then
+    fWindowParams.fState := TWindowState.wsNormal;
 
   FreeAndNil(F);
   fNeedsSave := False;
@@ -301,6 +308,7 @@ constructor TGameSettings.Create;
 begin
   inherited;
 
+  fWareDistribution := TKMWareDistribution.Create;
   ReloadSettings;
 end;
 
@@ -308,6 +316,8 @@ end;
 destructor TGameSettings.Destroy;
 begin
   SaveToINI(ExeDir + SETTINGS_FILE);
+  FreeAndNil(fWareDistribution);
+
   inherited;
 end;
 
@@ -315,7 +325,7 @@ end;
 //Save only when needed
 procedure TGameSettings.SaveSettings(aForce: Boolean=False);
 begin
-  if fNeedsSave or aForce then
+  if fNeedsSave or fWareDistribution.Changed or aForce then
     SaveToINI(ExeDir + SETTINGS_FILE);
 end;
 
@@ -340,12 +350,15 @@ begin
     fLoadFullFonts    := F.ReadBool   ('GFX', 'LoadFullFonts',    False);
 
     fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
+    fReplayAutopause:= F.ReadBool   ('Game', 'ReplayAutopause', False); //Disabled by default
     fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
     fLocale         := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
     fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
     fSpeedMedium    := F.ReadFloat('Game', 'SpeedMedium',    3);
     fSpeedFast      := F.ReadFloat('Game', 'SpeedFast',      6);
     fSpeedVeryFast  := F.ReadFloat('Game', 'SpeedVeryFast',  10);
+
+    fWareDistribution.LoadFromStr(F.ReadString ('Game','WareDistribution',''));
 
     fSoundFXVolume  := F.ReadFloat  ('SFX',  'SFXVolume',      0.5);
     fMusicVolume    := F.ReadFloat  ('SFX',  'MusicVolume',    0.5);
@@ -393,13 +406,16 @@ begin
     F.WriteBool   ('GFX','AlphaShadows',  fAlphaShadows);
     F.WriteBool   ('GFX','LoadFullFonts', fLoadFullFonts);
 
-    F.WriteBool   ('Game','Autosave',     fAutosave);
-    F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
-    F.WriteString ('Game','Locale',       UnicodeString(fLocale));
-    F.WriteInteger('Game','SpeedPace',    fSpeedPace);
-    F.WriteFloat('Game','SpeedMedium',    fSpeedMedium);
-    F.WriteFloat('Game','SpeedFast',      fSpeedFast);
-    F.WriteFloat('Game','SpeedVeryFast',  fSpeedVeryFast);
+    F.WriteBool   ('Game','Autosave',        fAutosave);
+    F.WriteBool   ('Game','ReplayAutopause', fReplayAutopause);
+    F.WriteInteger('Game','ScrollSpeed',     fScrollSpeed);
+    F.WriteString ('Game','Locale',          UnicodeString(fLocale));
+    F.WriteInteger('Game','SpeedPace',       fSpeedPace);
+    F.WriteFloat('Game','SpeedMedium',       fSpeedMedium);
+    F.WriteFloat('Game','SpeedFast',         fSpeedFast);
+    F.WriteFloat('Game','SpeedVeryFast',     fSpeedVeryFast);
+
+    F.WriteString('Game','WareDistribution', fWareDistribution.PackToStr);
 
     F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
     F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
@@ -460,6 +476,13 @@ end;
 procedure TGameSettings.SetAutosave(aValue: Boolean);
 begin
   fAutosave := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetReplayAutopause(aValue: Boolean);
+begin
+  fReplayAutopause := aValue;
   Changed;
 end;
 
@@ -649,17 +672,17 @@ end;
 
 
 // Check window param, with current Screen object
-function TKMWindowParams.IsValid(Screen: TScreen): Boolean;
+function TKMWindowParams.IsValid(aMonitorsInfo: TKMPointArray): Boolean;
 var I, ScreenMaxWidth, ScreenMaxHeight: Integer;
 begin
   ScreenMaxWidth := 0;
   ScreenMaxHeight := 0;
   // Calc Max width/height for multi screen systems
   // Assume appending monitor screens left to right, so summarise width, get max of height
-  for I := 0 to Screen.MonitorCount - 1 do
+  for I := Low(aMonitorsInfo) to High(aMonitorsInfo) do
   begin
-    ScreenMaxWidth := ScreenMaxWidth + Screen.Monitors[I].Width;
-    ScreenMaxHeight := max(ScreenMaxHeight, Screen.Monitors[I].Height);
+    ScreenMaxWidth := ScreenMaxWidth + aMonitorsInfo[I].X;
+    ScreenMaxHeight := max(ScreenMaxHeight, aMonitorsInfo[I].Y);
   end;
   // Do not let put window too much left or right. 100px is enought to get it back in that case
   Result := (fLeft > -fWidth + 100)
@@ -670,7 +693,7 @@ begin
         and (fWidth <= ScreenMaxWidth)
         and (fHeight >= MIN_RESOLUTION_HEIGHT)
         and (fHeight <= ScreenMaxHeight)
-        and (fState in [wsNormal, wsMaximized]);
+        and (fState in [TWindowState.wsNormal, TWindowState.wsMaximized]);
 end;
 
 

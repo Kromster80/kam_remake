@@ -218,6 +218,8 @@ const
   RETURN_TO_LOBBY_SAVE = 'paused';
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
+  MP_MINIMAP_SAVE_EXT = 'smm';
+
 type
   TKMHandIndex = {type} ShortInt;
   TKMHandIndexArray = array of TKMHandIndex;
@@ -626,7 +628,7 @@ const
   $FF1B1B1B  // Black
   );
 
-  //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.
+  //Players colors, as they appear in KaM when the color is not specified in the script, copied from palette values.
   //Using these as the defaults when loading the script means the colors will be the same as KaM when not defined.
   //Default IDs from KaM:
   {229, //Red
@@ -659,6 +661,8 @@ const
   icYellow = $FF07FFFF;
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
+
+  icSteelBlue = $FFA56D53; // Selection color
 
 
 var

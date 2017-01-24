@@ -30,6 +30,7 @@ type
     constructor Create(aMode: TMissionParsingMode); overload;
     constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray); overload;
     function LoadMission(const aFileName: string): Boolean; overload; override;
+    procedure PostLoadMission;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
     procedure SaveDATFile(const aFileName: string);
@@ -115,11 +116,15 @@ begin
   if not TokenizeScript(FileText, 6, []) then
     Exit;
 
-  //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
-  ProcessAttackPositions;
-
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');
+end;
+
+
+procedure TMissionParserStandard.PostLoadMission;
+begin
+  //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
+  ProcessAttackPositions;
 end;
 
 
@@ -506,7 +511,7 @@ begin
                           gHands[fLastHand].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastHand <> PLAYER_NONE then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                          gHands[fLastHand].FlagColor := gRes.Palettes.DefDal.Color32(P[0]);
+                          gHands[fLastHand].FlagColor := gRes.Palettes.DefaultPalette.Color32(P[0]);
     ct_SetRGBColor:     if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].FlagColor := P[0] or $FF000000;
     ct_AIAttack:        if fLastHand <> PLAYER_NONE then
