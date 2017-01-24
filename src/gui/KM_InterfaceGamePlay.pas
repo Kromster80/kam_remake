@@ -1878,8 +1878,6 @@ begin
 
   if (Sender = Dropbox_ReplayFOW) then
   begin
-    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
-
     UpdateScreenPosition;
 
     if Checkbox_ReplayFOW.Checked then
