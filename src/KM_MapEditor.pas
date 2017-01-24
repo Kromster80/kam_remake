@@ -136,6 +136,7 @@ begin
       end;
     end;
   until (FindNext(SearchRec) <> 0);
+  FindClose(SearchRec);
 end;
 
 
