@@ -42,33 +42,34 @@ type
     gic_ArmyAttackUnit,
     gic_ArmyAttackHouse,
     gic_ArmyHalt,
-    gic_ArmyFormation,         //Formation commands
+    gic_ArmyFormation,    //Formation commands
     gic_ArmyWalk,         //Walking
     gic_ArmyStorm,        //StormAttack
 
     //II.     Building/road plans (what to build and where)
     gic_BuildAddFieldPlan,
-    gic_BuildRemoveFieldPlan,  //Removal of a plan
-    gic_BuildRemoveHouse,     //Removal of house
+    gic_BuildRemoveFieldPlan,   //Removal of a plan
+    gic_BuildRemoveHouse,       //Removal of house
     gic_BuildRemoveHousePlan,
-    gic_BuildHousePlan,   //Build HouseType
+    gic_BuildHousePlan,         //Build HouseType
 
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
     gic_HouseRepairToggle,
-    gic_HouseDeliveryToggle,      //Including storehouse. (On/Off, ResourceType)
-    gic_HouseOrderProduct,        //Place an order to manufacture warfare
-    gic_HouseMarketFrom,          //Select wares to trade in marketplace
-    gic_HouseMarketTo,            //Select wares to trade in marketplace
-    gic_HouseWoodcutterMode,      //Switch the woodcutter mode
-    gic_HouseStoreAcceptFlag,     //Control wares delivery to store
-    gic_HouseSchoolTrain,         //Place an order to train citizen
-    gic_HouseSchoolTrainChOrder,  //Change school training order
-    gic_HouseSchoolTrainChLastUOrder,  //Change school training order for last unit in queue
-    gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
-    gic_HouseBarracksEquip,       //Place an order to train warrior
-    gic_HouseBarracksRally,       //Set the rally point for the barracks
-    gic_HouseRemoveTrain,         //Remove unit being trained from School    
-    gic_HouseWoodcuttersCutting,  //Set the cutting point for the Woodcutters
+    gic_HouseDeliveryToggle,          //Including storehouse. (On/Off, ResourceType)
+    gic_HouseOrderProduct,            //Place an order to manufacture warfare
+    gic_HouseMarketFrom,              //Select wares to trade in marketplace
+    gic_HouseMarketTo,                //Select wares to trade in marketplace
+    gic_HouseWoodcutterMode,          //Switch the woodcutter mode
+    gic_HouseArmorWSDeliveryToggle,   //Toggle resourse delivery to armor workshop
+    gic_HouseStoreAcceptFlag,         //Control wares delivery to store
+    gic_HouseSchoolTrain,             //Place an order to train citizen
+    gic_HouseSchoolTrainChOrder,      //Change school training order
+    gic_HouseSchoolTrainChLastUOrder, //Change school training order for last unit in queue
+    gic_HouseBarracksAcceptFlag,      //Control wares delivery to barracks
+    gic_HouseBarracksEquip,           //Place an order to train warrior
+    gic_HouseBarracksRally,           //Set the rally point for the barracks
+    gic_HouseRemoveTrain,             //Remove unit being trained from School
+    gic_HouseWoodcuttersCutting,      //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
     gic_WareDistributionChange,   //Change of distribution for 1 ware
@@ -80,8 +81,8 @@ type
     gic_GameAutoSave,
     gic_GameSaveReturnLobby,
     gic_GameTeamChange,
-    gic_GameHotkeySet,      //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
-    gic_GameMessageLogRead, //Player marks a message in their log as read
+    gic_GameHotkeySet,        //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
+    gic_GameMessageLogRead,   //Player marks a message in their log as read
     gic_GamePlayerTypeChange, //Players can be changed to AI when loading a save
 
     //VI.      Cheatcodes affecting gameplay (props)
@@ -317,7 +318,7 @@ begin
       gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseBarracksRally,
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
       gic_HouseSchoolTrain, gic_HouseSchoolTrainChOrder, gic_HouseSchoolTrainChLastUOrder, gic_HouseRemoveTrain,
-      gic_HouseWoodcutterMode] then
+      gic_HouseWoodcutterMode, gic_HouseArmorWSDeliveryToggle] then
     begin
       SrcHouse := gHands.GetHouseByUID(Params[1]);
       if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
@@ -361,21 +362,22 @@ begin
       gic_BuildHousePlan:         if P.CanAddHousePlan(KMPoint(Params[2],Params[3]), THouseType(Params[1])) then
                                     P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
-      gic_HouseRepairToggle:      SrcHouse.BuildingRepair := not SrcHouse.BuildingRepair;
-      gic_HouseDeliveryToggle:    SrcHouse.WareDelivery := not SrcHouse.WareDelivery;
-      gic_HouseOrderProduct:      SrcHouse.ResOrder[Params[2]] := SrcHouse.ResOrder[Params[2]] + Params[3];
-      gic_HouseMarketFrom:        TKMHouseMarket(SrcHouse).ResFrom := TWareType(Params[2]);
-      gic_HouseMarketTo:          TKMHouseMarket(SrcHouse).ResTo := TWareType(Params[2]);
-      gic_HouseStoreAcceptFlag:   TKMHouseStore(SrcHouse).ToggleAcceptFlag(TWareType(Params[2]));
-      gic_HouseWoodcutterMode:    TKMHouseWoodcutters(SrcHouse).WoodcutterMode := TWoodcutterMode(Params[2]);
-      gic_HouseBarracksAcceptFlag:TKMHouseBarracks(SrcHouse).ToggleAcceptFlag(TWareType(Params[2]));
-      gic_HouseBarracksEquip:     TKMHouseBarracks(SrcHouse).Equip(TUnitType(Params[2]), Params[3]);
-      gic_HouseBarracksRally:     TKMHouseBarracks(SrcHouse).RallyPoint := KMPoint(Params[2], Params[3]);
-      gic_HouseSchoolTrain:       TKMHouseSchool(SrcHouse).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
-      gic_HouseSchoolTrainChOrder:TKMHouseSchool(SrcHouse).ChangeUnitTrainOrder(Params[2], Params[3]);
+      gic_HouseRepairToggle:            SrcHouse.BuildingRepair := not SrcHouse.BuildingRepair;
+      gic_HouseDeliveryToggle:          SrcHouse.WareDelivery := not SrcHouse.WareDelivery;
+      gic_HouseOrderProduct:            SrcHouse.ResOrder[Params[2]] := SrcHouse.ResOrder[Params[2]] + Params[3];
+      gic_HouseMarketFrom:              TKMHouseMarket(SrcHouse).ResFrom := TWareType(Params[2]);
+      gic_HouseMarketTo:                TKMHouseMarket(SrcHouse).ResTo := TWareType(Params[2]);
+      gic_HouseStoreAcceptFlag:         TKMHouseStore(SrcHouse).ToggleAcceptFlag(TWareType(Params[2]));
+      gic_HouseWoodcutterMode:          TKMHouseWoodcutters(SrcHouse).WoodcutterMode := TWoodcutterMode(Params[2]);
+      gic_HouseBarracksAcceptFlag:      TKMHouseBarracks(SrcHouse).ToggleAcceptFlag(TWareType(Params[2]));
+      gic_HouseBarracksEquip:           TKMHouseBarracks(SrcHouse).Equip(TUnitType(Params[2]), Params[3]);
+      gic_HouseBarracksRally:           TKMHouseBarracks(SrcHouse).RallyPoint := KMPoint(Params[2], Params[3]);
+      gic_HouseSchoolTrain:             TKMHouseSchool(SrcHouse).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
+      gic_HouseSchoolTrainChOrder:      TKMHouseSchool(SrcHouse).ChangeUnitTrainOrder(Params[2], Params[3]);
       gic_HouseSchoolTrainChLastUOrder: TKMHouseSchool(SrcHouse).ChangeUnitTrainOrder(Params[2]);
-      gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
-      gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
+      gic_HouseRemoveTrain:             TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
+      gic_HouseWoodcuttersCutting:      TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
+      gic_HouseArmorWSDeliveryToggle:   TKMHouseArmorWorkshop(SrcHouse).ToggleResDelivery(TWareType(Params[2]));
 
       gic_WareDistributionChange:            begin
                                     P.Stats.WareDistribution[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
@@ -542,7 +544,8 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: TWareType);
 begin
-  Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
+  Assert(aCommandType in
+    [gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseArmorWSDeliveryToggle]);
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aItem)]));
 end;
 
