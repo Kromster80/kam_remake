@@ -138,7 +138,7 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
-    procedure UpdateScreenPosition;
+    procedure Replay_UpdateSpectatingPlayerView(aUpdateScreenPosOnly: Boolean = False);
     procedure ListClick(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
@@ -1799,11 +1799,11 @@ end;
 
 procedure TKMGamePlayInterface.ListClick(Sender: TObject);
 begin
-  UpdateScreenPosition;
+  Replay_UpdateSpectatingPlayerView(True);
 end;
 
 
-procedure TKMGamePlayInterface.UpdateScreenPosition;
+procedure TKMGamePlayInterface.Replay_UpdateSpectatingPlayerView(aUpdateScreenPosOnly: Boolean = False);
 var LastSelectedObj: TObject;
 begin
   gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
@@ -1828,6 +1828,16 @@ begin
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
     gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+  end;
+
+  if not aUpdateScreenPosOnly then
+  begin
+    if Checkbox_ReplayFOW.Checked then
+      gMySpectator.FOWIndex := gMySpectator.HandIndex
+    else
+      gMySpectator.FOWIndex := -1;
+    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+    gGame.OverlayUpdate; // Display the overlay seen by the selected player
   end;
 end;
 
@@ -1877,16 +1887,7 @@ begin
   end;
 
   if (Sender = Dropbox_ReplayFOW) then
-  begin
-    UpdateScreenPosition;
-
-    if Checkbox_ReplayFOW.Checked then
-      gMySpectator.FOWIndex := gMySpectator.HandIndex
-    else
-      gMySpectator.FOWIndex := -1;
-    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
-    gGame.OverlayUpdate; // Display the overlay seen by the selected player
-  end;
+    Replay_UpdateSpectatingPlayerView;
 
   if (Sender = Checkbox_ReplayFOW) then
   begin
