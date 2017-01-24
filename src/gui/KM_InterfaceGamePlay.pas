@@ -3587,6 +3587,8 @@ begin
     end;
   end;
 
+  fGuiMenuSettings.UpdateView;
+
   UpdateDebugInfo;
   if fSaves <> nil then fSaves.UpdateState;
 end;
