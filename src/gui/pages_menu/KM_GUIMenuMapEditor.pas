@@ -461,9 +461,12 @@ begin
     MoveConfirm(False);
 
     Maps.Lock;
+    try
       SetSelectedMapInfo(ID);
       LoadMinimap(ID);
-    Maps.Unlock;
+    finally
+       Maps.Unlock;
+    end;
 
     Button_MapMove.Visible := Maps[ID].MapFolder = mfDL;
     
