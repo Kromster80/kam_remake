@@ -438,15 +438,11 @@ end;
 
 function TKMMenuMapEditor.GetMaps: TKMapsCollection;
 begin
-  Result := nil;
   case Radio_MapEd_MapType.ItemIndex of
     0: Result := fMaps;
     1: Result := fMapsMP;
     else
-    begin
-      Assert(False);
-      Exit;
-    end;
+      raise Exception.Create('Unknown map type ' + IntToStr(Radio_MapEd_MapType.ItemIndex));
   end;
 end;
 
