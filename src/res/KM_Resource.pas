@@ -24,18 +24,18 @@ type
 
   TKMResource = class
   private
-    //todo: Rename all the child classes into TKMRes****** pattern
     fDataState: TResourceLoadState;
+
     fCursors: TKMResCursors;
     fFonts: TKMResFonts;
-    fHouseDat: TKMHouseDatCollection;
-    fUnitDat: TKMUnitDatCollection;
+    fHouses: TKMResHouses;
+    fUnits: TKMResUnits;
     fPalettes: TKMResPalettes;
     fWares: TKMResWares;
     fSounds: TKMResSounds;
-    fSprites: TKMSprites;
-    fTileset: TKMTileset;
-    fMapElements: TKMMapElements;
+    fSprites: TKMResSprites;
+    fTileset: TKMResTileset;
+    fMapElements: TKMResMapElements;
 
     procedure StepRefresh;
     procedure StepCaption(const aCaption: UnicodeString);
@@ -55,15 +55,15 @@ type
 
     property DataState: TResourceLoadState read fDataState;
     property Cursors: TKMResCursors read fCursors;
-    property HouseDat: TKMHouseDatCollection read fHouseDat;
-    property MapElements: TKMMapElements read fMapElements;
+    property Houses: TKMResHouses read fHouses;
+    property MapElements: TKMResMapElements read fMapElements;
     property Palettes: TKMResPalettes read fPalettes;
     property Fonts: TKMResFonts read fFonts;
     property Wares: TKMResWares read fWares;
     property Sounds: TKMResSounds read fSounds;
-    property Sprites: TKMSprites read fSprites;
-    property Tileset: TKMTileset read fTileset;
-    property UnitDat: TKMUnitDatCollection read fUnitDat;
+    property Sprites: TKMResSprites read fSprites;
+    property Tileset: TKMResTileset read fTileset;
+    property Units: TKMResUnits read fUnits;
 
     function IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
 
@@ -98,7 +98,7 @@ end;
 destructor TKMResource.Destroy;
 begin
   FreeAndNil(fCursors);
-  FreeAndNil(fHouseDat);
+  FreeAndNil(fHouses);
   FreeAndNil(gResLocales);
   FreeAndNil(fMapElements);
   FreeAndNil(fPalettes);
@@ -108,7 +108,7 @@ begin
   FreeAndNil(fSounds);
   FreeAndNil(gResTexts);
   FreeAndNil(fTileset);
-  FreeAndNil(fUnitDat);
+  FreeAndNil(fUnits);
   FreeAndNil(gResKeys);
   inherited;
 end;
@@ -129,10 +129,10 @@ end;
 //CRC of data files that can cause inconsitencies
 function TKMResource.GetDATCRC: Cardinal;
 begin
-  Result := HouseDat.CRC xor
-            UnitDat.CRC xor
-            MapElements.CRC xor
-            Tileset.CRC;
+  Result := fHouses.CRC xor
+            fUnits.CRC xor
+            fMapElements.CRC xor
+            fTileset.CRC;
 end;
 
 
@@ -143,7 +143,7 @@ begin
   fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 
-  fSprites := TKMSprites.Create(StepRefresh, StepCaption);
+  fSprites := TKMResSprites.Create(StepRefresh, StepCaption);
 
   fCursors := TKMResCursors.Create;
   fSprites.LoadMenuResources;
@@ -163,17 +163,17 @@ begin
     fFonts.LoadFonts(fll_Minimal);
   gLog.AddTime('Read fonts is done');
 
-  fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
+  fTileset := TKMResTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
 
-  fMapElements := TKMMapElements.Create;
+  fMapElements := TKMResMapElements.Create;
   fMapElements.LoadFromFile(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'mapelem.dat');
 
   fSprites.ClearTemp;
 
   fWares := TKMResWares.Create;
-  fHouseDat := TKMHouseDatCollection.Create;
-  fUnitDat := TKMUnitDatCollection.Create;
+  fHouses := TKMResHouses.Create;
+  fUnits := TKMResUnits.Create;
 
   StepRefresh;
   gLog.AddTime('ReadGFX is done');
@@ -249,20 +249,20 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  if fUnitDat = nil then
-    fUnitDat := TKMUnitDatCollection.Create;
+  if fUnits = nil then
+    fUnits := TKMResUnits.Create;
 
   for U := WARRIOR_MIN to WARRIOR_MAX do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
   for D := dir_N to dir_NW do
-  if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
-  for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
+  if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
+  for i := 1 to fUnits[U].UnitAnim[A, D].Count do
   begin
-    ForceDirectories(Folder + fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim);
+    ForceDirectories(Folder + fUnits[U].GUIName + PathDelim + UnitAct[A] + PathDelim);
 
-    if fUnitDat[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
+    if fUnits[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
     begin
-      ci := fUnitDat[U].UnitAnim[A,D].Step[i] + 1;
+      ci := fUnits[U].UnitAnim[A,D].Step[i] + 1;
 
       sx := RXData.Size[ci].X;
       sy := RXData.Size[ci].Y;
@@ -275,7 +275,7 @@ begin
 
       if sy > 0 then
         Bmp.SaveToFile(Folder +
-          fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim +
+          fUnits[U].GUIName + PathDelim + UnitAct[A] + PathDelim +
           'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
   end;
@@ -287,17 +287,17 @@ begin
   for U := Low(TUnitType) to High(TUnitType) do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
   for D := dir_N to dir_NW do
-  if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
-  for i := 1 to fUnitDat[U].UnitAnim[A,D].Count do
-    Used[fUnitDat[U].UnitAnim[A,D].Step[i]+1] := fUnitDat[U].UnitAnim[A,D].Step[i]+1 <> 0;
+  if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
+  for i := 1 to fUnits[U].UnitAnim[A,D].Count do
+    Used[fUnits[U].UnitAnim[A,D].Step[i]+1] := fUnits[U].UnitAnim[A,D].Step[i]+1 <> 0;
 
   //Exclude serfs carrying stuff
   for R := Low(TWareType) to High(TWareType) do
   if R in [WARE_MIN..WARE_MAX] then
   for D := dir_N to dir_NW do
-  if fUnitDat.SerfCarry[R,D].Step[1] <> -1 then
-  for i := 1 to fUnitDat.SerfCarry[R,D].Count do
-    Used[fUnitDat.SerfCarry[R,D].Step[i]+1] := fUnitDat.SerfCarry[R,D].Step[i]+1 <> 0;
+  if fUnits.SerfCarry[R,D].Step[1] <> -1 then
+  for i := 1 to fUnits.SerfCarry[R,D].Count do
+    Used[fUnits.SerfCarry[R,D].Step[i]+1] := fUnits.SerfCarry[R,D].Step[i]+1 <> 0;
 
   for T := Low(TKMUnitThought) to High(TKMUnitThought) do
   for i := ThoughtBounds[T,1] to  ThoughtBounds[T,2] do
@@ -327,7 +327,7 @@ procedure TKMResource.ExportHouseAnim;
 var
   Folder: string;
   Bmp: TBitmap;
-  HD: TKMHouseDatCollection;
+  HD: TKMResHouses;
   ID: THouseType;
   Ac: THouseActionType;
   Q, Beast, i, k, ci: Integer;
@@ -343,7 +343,7 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  HD := TKMHouseDatCollection.Create;
+  HD := TKMResHouses.Create;
 
   ci:=0;
   for ID := HOUSE_MIN to HOUSE_MAX do
@@ -418,12 +418,12 @@ begin
   Bmp.PixelFormat := pf24bit;
 
   for I := 0 to fMapElements.Count - 1 do
-  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
+  if (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0) then
   begin
-    for K := 1 to MapElem[I].Anim.Count do
-    if MapElem[I].Anim.Step[K]+1 <> 0 then
+    for K := 1 to gMapElements[I].Anim.Count do
+    if gMapElements[I].Anim.Step[K]+1 <> 0 then
     begin
-      SpriteID := MapElem[I].Anim.Step[K]+1;
+      SpriteID := gMapElements[I].Anim.Step[K]+1;
 
       SizeX := RXData.Size[SpriteID].X;
       SizeY := RXData.Size[SpriteID].Y;

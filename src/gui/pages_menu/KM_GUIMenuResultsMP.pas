@@ -156,7 +156,7 @@ end;
 function TKMChartArmyType.GetGUIName: UnicodeString;
 begin
   if (HasUnitType) then
-    Result := gRes.UnitDat.UnitsDat[UnitType].GUIName
+    Result := gRes.Units[UnitType].GUIName
   else
     Result := 'Army power'; //Todo translate
 end;
@@ -165,7 +165,7 @@ end;
 function TKMChartArmyType.GetGUIIcon: Word;
 begin
   if (HasUnitType) then
-    Result := gRes.UnitDat.UnitsDat[UnitType].GUIIcon
+    Result := gRes.Units[UnitType].GUIIcon
   else
     Result := 53;
 end;

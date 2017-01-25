@@ -75,7 +75,7 @@ type
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck: Boolean;
-    ReplayRealGameSpeed: Boolean;
+    IsDefaultGameSpeedInReplayMP: Boolean;  // While watching MP replay we can set to default game speed as it was in MP game
 
     ///	<param name="aRender">
     ///	  Pointer to Render class, that will execute our rendering requests
@@ -237,7 +237,7 @@ begin
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
   fScripting := TKMScripting.Create(ShowScriptError);
 
-  ReplayRealGameSpeed := False;
+  IsDefaultGameSpeedInReplayMP := False;
   fIgnoreConsistencyCheckErrors := False;
 
   case PathFinderToUse of
@@ -1132,7 +1132,7 @@ begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
       fNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], csNone);
     end;
-    if (fGameMode = gmReplayMulti) and ReplayRealGameSpeed then
+    if (fGameMode = gmReplayMulti) and IsDefaultGameSpeedInReplayMP then
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
   end;
 end;

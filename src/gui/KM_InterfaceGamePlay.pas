@@ -1547,8 +1547,8 @@ begin
   SwitchPage(Panel_Unit);
 
   // Common properties
-  Label_UnitName.Caption      := gRes.UnitDat[Sender.UnitType].GUIName;
-  Image_UnitPic.TexID         := gRes.UnitDat[Sender.UnitType].GUIScroll;
+  Label_UnitName.Caption      := gRes.Units[Sender.UnitType].GUIName;
+  Image_UnitPic.TexID         := gRes.Units[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := gHands[Sender.Owner].FlagColor;
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
   Label_UnitTask.Caption      := Sender.GetActivityText;
@@ -1559,7 +1559,7 @@ begin
   Panel_Army_JoinGroups.Hide;
   Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss;
 
-  Label_UnitDescription.Caption := gRes.UnitDat[Sender.UnitType].Description;
+  Label_UnitDescription.Caption := gRes.Units[Sender.UnitType].Description;
 end;
 
 
@@ -1579,8 +1579,8 @@ begin
   SwitchPage(Panel_Unit);
 
   // Common properties
-  Label_UnitName.Caption      := gRes.UnitDat[W.UnitType].GUIName;
-  Image_UnitPic.TexID         := gRes.UnitDat[W.UnitType].GUIScroll;
+  Label_UnitName.Caption      := gRes.Units[W.UnitType].GUIName;
+  Image_UnitPic.TexID         := gRes.Units[W.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := gHands[W.Owner].FlagColor;
   ConditionBar_Unit.Position  := W.Condition / UNIT_MAX_CONDITION;
   // We show what this individual is doing, not the whole group.
@@ -1981,7 +1981,7 @@ begin
   //       even the NEW message has not been issued yet
   if (H <> nil) then
     if (gRes.IsMsgHouseUnnocupied(Msg.fTextID) and not H.GetHasOwner
-        and (gRes.HouseDat[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
+        and (gRes.Houses[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
     or H.ResourceDepletedMsgIssued then
       gMySpectator.Highlight := H;
 
@@ -2855,12 +2855,12 @@ begin
 
   if Key = gResKeys[SC_REAL_GAME_SPEED].Key then
   begin
-    if gGame.GameMode = gmReplayMulti then
+    if gGame.GameMode = gmReplayMulti then // In MP replay we can set initial game speed as it was during MP game
     begin
       gGame.SetDefaultMPGameSpeed(True);
-      gGame.ReplayRealGameSpeed := not gGame.ReplayRealGameSpeed;
+      gGame.IsDefaultGameSpeedInReplayMP := not gGame.IsDefaultGameSpeedInReplayMP; //
     end else
-    if gGame.IsMPGameSpeedUpAllowed then
+    if gGame.IsMPGameSpeedUpAllowed then  // We can set initial game speed, if we are the last player in the MP game
       gGame.SetDefaultMPGameSpeed(True);
   end;
 

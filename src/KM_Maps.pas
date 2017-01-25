@@ -125,6 +125,7 @@ type
     fScanning: Boolean; //Flag if scan is in progress
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
+    fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
@@ -147,7 +148,7 @@ type
     class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
 
-    procedure Refresh(aOnRefresh: TNotifyEvent);
+    procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -670,6 +671,7 @@ var
   I: Integer;
 begin
    Lock;
+   try
      Assert(InRange(aIndex, 0, fCount - 1));
      {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
      {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
@@ -678,7 +680,9 @@ begin
        fMaps[I] := fMaps[I + 1];
      Dec(fCount);
      SetLength(fMaps, fCount);
-   Unlock;
+   finally
+     Unlock;
+   end;
 end;
 
 
@@ -689,6 +693,7 @@ var
   SearchRec: TSearchRec;
 begin
    Lock;
+   try
      Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
      Assert(fMaps[aIndex].Path <> Dest);
      Assert(InRange(aIndex, 0, fCount - 1));
@@ -724,7 +729,9 @@ begin
        fMaps[I] := fMaps[I + 1];
      Dec(fCount);
      SetLength(fMaps, fCount);
-   Unlock;
+   finally
+     Unlock;
+   end;
 end;
 
 
@@ -830,13 +837,14 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent);
+procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
   Clear;
 
   fOnRefresh := aOnRefresh;
+  fOnComplete := aOnComplete;
 
   //Scan will launch upon create automatcally
   fScanning := True;
@@ -879,6 +887,8 @@ begin
   Lock;
   try
     fScanning := False;
+    if Assigned(fOnComplete) then
+      fOnComplete(Self);
   finally
     Unlock;
   end;
