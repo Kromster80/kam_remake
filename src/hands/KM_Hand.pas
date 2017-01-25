@@ -679,7 +679,7 @@ begin
          ft_Corn: gScriptEvents.ProcPlanFieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
          ft_Wine: gScriptEvents.ProcPlanWinefieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
       else
-        Assert(False);
+        raise Exception.Create('Unknown aFieldType');
       end;
     end
     else
@@ -818,7 +818,7 @@ begin
     ft_Corn: gScriptEvents.ProcPlanFieldRemoved(fHandIndex, Position.X, Position.Y);
     ft_Wine: gScriptEvents.ProcPlanWinefieldRemoved(fHandIndex, Position.X, Position.Y);
   else
-    Assert(False);
+    raise Exception.Create('Unknown fieldType');
   end;
 
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])

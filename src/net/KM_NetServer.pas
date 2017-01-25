@@ -920,8 +920,7 @@ begin
       Result := fClientList[i].fHandle;
       exit;
     end;
-  Result := -1;
-  Assert(false);
+  raise Exception.Create('');
 end;
 
 

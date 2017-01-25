@@ -964,7 +964,7 @@ begin
   if fUnitTask is TTaskDie then
   case fUnitTask.Execute of
     TaskContinues:  exit;
-    TaskDone:       Assert(false); //TTaskDie never returns TaskDone yet
+    TaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = TaskDone'); //TTaskDie never returns TaskDone yet
   end;
 
   //First make sure the animal isn't stuck (check passibility of our position)
@@ -1075,7 +1075,7 @@ begin
   begin
     LoadStream.Read(TaskName, SizeOf(TaskName));
     case TaskName of
-      utn_Unknown:         Assert(false, 'TaskName can''t be handled');
+      utn_Unknown:         raise Exception.Create('TaskName can''t be handled');
       utn_SelfTrain:       fUnitTask := TTaskSelfTrain.Load(LoadStream);
       utn_Deliver:         fUnitTask := TTaskDeliver.Load(LoadStream);
       utn_BuildRoad:       fUnitTask := TTaskBuildRoad.Load(LoadStream);
@@ -1389,9 +1389,8 @@ begin
   end;
   if not gRes.Units[fUnitType].SupportsAction(aAction.ActionType) then
   begin
-    Assert(false, 'Unit '+gRes.Units[UnitType].GUIName+' was asked to do unsupported action');
     FreeAndNil(aAction);
-    exit;
+    raise Exception.Create('Unit ' + gRes.Units[UnitType].GUIName + ' was asked to do unsupported action');
   end;
   if fCurrentAction <> aAction then
   begin
@@ -1470,7 +1469,8 @@ end;
 //WalkTo action with exact options (retranslated from WalkTo if Obstcale met)
 procedure TKMUnit.SetActionWalk(aLocB: TKMPoint; aActionType:TUnitActionType; aDistance:single; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+    raise Exception.Create('');
   SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, false, aTargetUnit, aTargetHouse));
 end;
 
@@ -1479,7 +1479,7 @@ end;
 procedure TKMUnit.SetActionWalkToHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False);
+    raise Exception.Create('');
 
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
                                       //Target position is the closest cell to our current position (only used for estimating in path finding)
@@ -1496,7 +1496,7 @@ end;
 procedure TKMUnit.SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False);
+    raise Exception.Create('');
 
   //todo: Make unit walk away from House
   SetActionStay(20, aActionType);
@@ -1507,7 +1507,7 @@ end;
 procedure TKMUnit.SetActionWalkToUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-   Assert(False);
+   raise Exception.Create('');
 
   Assert(aDistance >= 1, 'Should not walk to units place');
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
@@ -1524,7 +1524,7 @@ end;
 procedure TKMUnit.SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False);
+    raise Exception.Create('');
 
   //todo: Make unit walk away from Unit
   SetActionStay(20, aActionType);
@@ -1535,7 +1535,7 @@ end;
 procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False, 'Interrupting unabandonable Walk action');
+    raise Exception.Create('Interrupting unabandonable Walk action');
 
   SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil));
 end;

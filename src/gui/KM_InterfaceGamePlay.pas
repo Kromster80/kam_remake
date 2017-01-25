@@ -1835,7 +1835,7 @@ begin
       else if LastSelectedObj is TKMUnitGroup then
         fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
       else
-        Assert(False, 'Could not determine last selected object type');
+        raise Exception.Create('Could not determine last selected object type');
     end else
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
@@ -2241,7 +2241,8 @@ begin
                     Button_PlayMore.Caption := gResTexts[TX_GAMEPLAY_REPLAY_CONTINUEWATCHING];
                     Button_PlayQuit.Caption := gResTexts[TX_GAMEPLAY_QUIT_TO_MENU];
                   end;
-    else if DoShow then Assert(false,'Wrong message in ShowPlayMore'); // Can become hidden with any message
+    else if DoShow then
+      raise Exception.Create('Wrong message in ShowPlayMore'); // Can become hidden with any message
   end;
   Panel_PlayMore.Visible := DoShow;
 end;
@@ -2267,7 +2268,7 @@ begin
                     Button_MPPlayMore.Caption := gResTexts[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
                     Button_MPPlayQuit.Caption := gResTexts[TX_GAMEPLAY_DEFEAT];
                   end;
-    else Assert(false,'Wrong message in ShowMPPlayMore');
+    else raise Exception.Create('Wrong message in ShowMPPlayMore');
   end;
   Panel_MPPlayMore.Visible := true;
 end;
@@ -2423,7 +2424,7 @@ begin
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_QUIT_TO_MENU] then
       gGameApp.Stop(gr_Cancel);
   end
-  else Assert(false, 'Wrong Sender in NetWaitClick');
+  else raise Exception.Create('Wrong Sender in NetWaitClick');
 end;
 
 
