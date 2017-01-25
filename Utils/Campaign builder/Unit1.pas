@@ -4,7 +4,7 @@ interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
-  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
+  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils;
 
 
 type
@@ -31,6 +31,7 @@ type
     rgBriefingPos: TRadioGroup;
     edtShortName: TMaskEdit;
     shpBriefing: TShape;
+    chCreateLibxTemplate: TCheckBox;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -42,6 +43,7 @@ type
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure edtShortNameClick(Sender: TObject);
   private
     imgFlags: array of TImage;
     imgNodes: array of TImage;
@@ -56,6 +58,8 @@ type
     procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
+    procedure CreateDefaultLocaleLibxTemplate(aPathCampaign:string; aFileName: string);
+
     procedure SelectMap;
     procedure RefreshBackground;
     procedure RefreshFlags;
@@ -68,8 +72,7 @@ type
 var
   Form1: TForm1;
   C: TKMCampaign;
-
-
+  //PathNewCampaign:string;
 implementation
 {$R *.dfm}
 
@@ -201,6 +204,32 @@ begin
   end;
 end;
 
+Procedure TForm1.CreateDefaultLocaleLibxTemplate(aPathCampaign:string; aFileName: string);
+var
+  LibxCFile : TextFile;
+  i:Integer;
+  s:String;
+begin
+  if aPathCampaign[Length(aPathCampaign)] <> PathDelim then
+    aPathCampaign := aPathCampaign + PathDelim;
+  if FileExists(aPathCampaign + aFileName) then
+    Exit;
+  if seMapCount.Value <= 0  then
+    Exit;
+
+  AssignFile(LibxCFile, aPathCampaign + aFileName);
+  ReWrite(LibxCFile);
+
+  Writeln(LibxCFile, '');
+  Writeln(LibxCFile, 'MaxID:'+IntToStr(seMapCount.Value+9)+EolW);
+  Writeln(LibxCFile, '0:Campaign name!');
+  Writeln(LibxCFile, '1:' + edtShortName.Text + ' %d');
+  Writeln(LibxCFile, '2:Campaign description!');
+  for i := 10 to seMapCount.Value+9 do
+    Writeln(LibxCFile, IntToStr(i) + ':Mission description '+IntToStr(i-9));
+  CloseFile(LibxCFile);
+end;
+
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
@@ -216,12 +245,18 @@ begin
     Exit;
   end;
 
+
+
   dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
+  dlgSaveCampaign.FileName := 'info';
+
   if not dlgSaveCampaign.Execute then Exit;
 
   C.SaveToFile(dlgSaveCampaign.FileName);
-
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
+  if chCreateLibxTemplate.Checked then
+    CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName), 'text.eng.libx');
 end;
 
 
@@ -263,6 +298,7 @@ end;
 procedure TForm1.btnLoadPictureClick(Sender: TObject);
 begin
   dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
   if not dlgOpenPicture.Execute then Exit;
 
   fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
@@ -276,17 +312,25 @@ procedure TForm1.edtShortNameChange(Sender: TObject);
 var
   cmp: TKMCampaignId;
 begin
-  if fUpdating then Exit;
+  if Length(edtShortName.Text) = 3 then
+  begin
+    if fUpdating then Exit;
 
-  cmp[0] := Ord(edtShortName.Text[1]);
-  cmp[1] := Ord(edtShortName.Text[2]);
-  cmp[2] := Ord(edtShortName.Text[3]);
-  C.CampaignId := cmp;
+    cmp[0] := Ord(edtShortName.Text[1]);
+    cmp[1] := Ord(edtShortName.Text[2]);
+    cmp[2] := Ord(edtShortName.Text[3]);
+    C.CampaignId := cmp;
 
-  //Shortname may be used as mapname in List
-  UpdateList;
+    //Shortname may be used as mapname in List
+    UpdateList;
+  end;
 end;
 
+
+procedure TForm1.edtShortNameClick(Sender: TObject);
+begin
+  edtShortName.Text := edtShortName.Text;
+end;
 
 procedure TForm1.seMapCountChange(Sender: TObject);
 begin
@@ -361,8 +405,8 @@ begin
   for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
-    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
-    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
+    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2 + 5;
+    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2 + 5;
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;
