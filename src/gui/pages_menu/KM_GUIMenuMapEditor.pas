@@ -438,6 +438,7 @@ end;
 
 function TKMMenuMapEditor.GetMaps: TKMapsCollection;
 begin
+  Result := nil;
   case Radio_MapEd_MapType.ItemIndex of
     0: Result := fMaps;
     1: Result := fMapsMP;
@@ -622,7 +623,7 @@ end;
 
 procedure TKMMenuMapEditor.MoveClick(Sender: TObject);
 var
-  OldSelection, NewSelection, ID: Integer;
+  ID: Integer;
 begin
   Assert(Radio_MapEd_MapType.ItemIndex = 1);
 
