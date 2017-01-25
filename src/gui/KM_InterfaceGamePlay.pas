@@ -326,6 +326,7 @@ uses
 procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
 begin
   fSaves.Lock;
+  try
     if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
     begin
       fSave_Selected := TKMListBox(Sender).ItemIndex;
@@ -336,7 +337,9 @@ begin
       Label_SaveExists.Visible := True;
       Button_Save.Enabled := False;
     end;
-  fSaves.Unlock;
+  finally
+    fSaves.Unlock;
+  end;
 end;
 
 
@@ -378,9 +381,12 @@ begin
   if (Sender = fSaves) then
   begin
     fSaves.Lock;
+    try
       for I := 0 to fSaves.Count - 1 do
         ListBox_Save.Add(fSaves[i].FileName);
-    fSaves.Unlock;
+    finally
+      fSaves.Unlock;
+    end;
   end;
 
   ListBox_Save.ItemIndex := fSave_Selected;
@@ -409,6 +415,7 @@ end;
 procedure TKMGamePlayInterface.Menu_Load_ListClick(Sender: TObject);
 begin
   fSaves.Lock;
+  try
     Button_Load.Enabled := InRange(ListBox_Load.ItemIndex, 0, fSaves.Count - 1)
                            and fSaves[ListBox_Load.ItemIndex].IsValid;
     if InRange(ListBox_Load.ItemIndex,0,fSaves.Count-1) then
@@ -416,7 +423,9 @@ begin
       Label_LoadDescription.Caption := fSaves[ListBox_Load.ItemIndex].Info.GetTitleWithTime;
       fSave_Selected := ListBox_Load.ItemIndex;
     end;
-  fSaves.Unlock;
+  finally
+    fSaves.Unlock;
+  end;
 end;
 
 
@@ -437,9 +446,12 @@ begin
   if (Sender = fSaves) then
   begin
     fSaves.Lock;
-    for I := 0 to fSaves.Count - 1 do
-      ListBox_Load.Add(fSaves[I].FileName);
-    fSaves.Unlock;
+    try
+      for I := 0 to fSaves.Count - 1 do
+        ListBox_Load.Add(fSaves[I].FileName);
+    finally
+      fSaves.Unlock;
+    end;
   end;
 
   ListBox_Load.TopIndex := PrevTop;
@@ -3695,3 +3707,4 @@ end;
 
 
 end.
+

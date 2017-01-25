@@ -242,8 +242,11 @@ begin
     fMapsMP.TerminateScan;
 
     Maps.Lock;
+    try
       gGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
-    Maps.Unlock;
+    finally
+      Maps.Unlock;
+    end;
 
     //Keep MP/SP selected in the map editor interface
     //(if mission failed to load we would have fGame = nil)
@@ -461,9 +464,12 @@ begin
     MoveConfirm(False);
 
     Maps.Lock;
+    try
       SetSelectedMapInfo(ID);
       LoadMinimap(ID);
-    Maps.Unlock;
+    finally
+      Maps.Unlock;
+    end;
 
     Button_MapMove.Visible := Maps[ID].MapFolder = mfDL;
     

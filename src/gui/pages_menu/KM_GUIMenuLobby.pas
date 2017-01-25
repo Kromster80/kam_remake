@@ -1734,14 +1734,20 @@ begin
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
     fMapsMP.Lock;
+    try
       fNetworking.SelectMap(fMapsMP[I].FileName, fMapsMP[I].MapFolder);
-    fMapsMP.Unlock;
+    finally
+      fMapsMP.Unlock;
+    end;
   end
   else
   begin
     fSavesMP.Lock;
+    try
       fNetworking.SelectSave(fSavesMP[I].FileName);
-    fSavesMP.Unlock;
+    finally
+      fSavesMP.Unlock;
+    end;
   end;
 end;
 
