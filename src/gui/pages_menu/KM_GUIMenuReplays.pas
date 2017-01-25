@@ -14,11 +14,17 @@ type
     fSaves: TKMSavesCollection;
     fMinimap: TKMMinimap;
 
-    fLastSaveCRC: Cardinal; //CRC of selected save
+    fSelectedSaveInfo: TKMFileIdentInfo; // Identification info about selected save
+
+    procedure UpdateUI;
+    procedure ListUpdate;
+    procedure SetSelectedSaveInfo(aID: Integer = -1); overload;
+    procedure SetSelectedSaveInfo(aCRC: Cardinal; aName: UnicodeString); overload;
 
     procedure Replays_ListClick(Sender: TObject);
     procedure Replay_TypeChange(Sender: TObject);
     procedure Replays_ScanUpdate(Sender: TObject);
+    procedure Replays_ScanComplete(Sender: TObject);
     procedure Replays_SortUpdate(Sender: TObject);
     procedure Replays_RefreshList(aJumpToSelected:Boolean);
     procedure Replays_Sort(aIndex: Integer);
@@ -179,27 +185,69 @@ begin
 end;
 
 
+procedure TKMMenuReplays.UpdateUI;
+var ID: Integer;
+begin
+  ID := ColumnBox_Replays.ItemIndex;
+
+  Button_ReplaysPlay.Enabled := InRange(ID, 0, fSaves.Count-1)
+                                and fSaves[ID].IsValid
+                                and fSaves[ID].IsReplayValid;
+  Button_Delete.Enabled := InRange(ID, 0, fSaves.Count-1);
+  Button_Rename.Enabled := InRange(ID, 0, fSaves.Count-1);
+end;
+
+
+procedure TKMMenuReplays.SetSelectedSaveInfo(aID: Integer = -1);
+var CRC: Cardinal;
+    Name: UnicodeString;
+begin
+  if (aID <> -1) then
+  begin
+    CRC := fSaves[aID].CRC;
+    Name := fSaves[aID].FileName;
+  end else begin
+    CRC := 0;
+    Name := '';
+  end;
+  SetSelectedSaveInfo(CRC, Name);
+end;
+
+
+procedure TKMMenuReplays.SetSelectedSaveInfo(aCRC: Cardinal; aName: UnicodeString);
+begin
+  fSelectedSaveInfo.CRC := aCRC;
+  fSelectedSaveInfo.Name := aName;
+  case Radio_Replays_Type.ItemIndex of
+    0:  begin
+          gGameApp.GameSettings.MenuReplaySPSaveCRC := aCRC;
+          gGameApp.GameSettings.MenuReplaySPSaveName := aName;
+        end;
+    1:  begin
+          gGameApp.GameSettings.MenuReplayMPSaveCRC := aCRC;
+          gGameApp.GameSettings.MenuReplayMPSaveName := aName;
+        end;
+  end;
+end;
+
+
 procedure TKMMenuReplays.Replays_ListClick(Sender: TObject);
 var
   ID: Integer;
 begin
   fSaves.Lock;
+  try
     ID := ColumnBox_Replays.ItemIndex;
 
-    Button_ReplaysPlay.Enabled := InRange(ID, 0, fSaves.Count-1)
-                                  and fSaves[ID].IsValid
-                                  and fSaves[ID].IsReplayValid;
-
-    Button_Delete.Enabled := InRange(ID, 0, fSaves.Count-1);
-    Button_Rename.Enabled := InRange(ID, 0, fSaves.Count-1);
+    UpdateUI;
 
     if Sender = ColumnBox_Replays then
       DeleteConfirm(False);
 
     if InRange(ID, 0, fSaves.Count-1) then
-      fLastSaveCRC := fSaves[ID].CRC
+      SetSelectedSaveInfo(ID)
     else
-      fLastSaveCRC := 0;
+      SetSelectedSaveInfo;
 
     MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
     if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMinimap) then
@@ -207,25 +255,51 @@ begin
       MinimapView_Replay.SetMinimap(fMinimap);
       MinimapView_Replay.Show;
     end;
-  fSaves.Unlock;
+  finally
+    fSaves.Unlock;
+  end;
+end;
+
+
+procedure TKMMenuReplays.ListUpdate;
+begin
+  fSaves.TerminateScan;
+
+  case Radio_Replays_Type.ItemIndex of
+    0:  begin
+          fSelectedSaveInfo.CRC := gGameApp.GameSettings.MenuReplaySPSaveCRC;
+          fSelectedSaveInfo.Name := gGameApp.GameSettings.MenuReplaySPSaveName;
+        end;
+    1:  begin
+          fSelectedSaveInfo.CRC := gGameApp.GameSettings.MenuReplayMPSaveCRC;
+          fSelectedSaveInfo.Name := gGameApp.GameSettings.MenuReplayMPSaveName;
+        end;
+  end;
+
+  ColumnBox_Replays.Clear;
+  UpdateUI;
+  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1), Replays_ScanComplete);
 end;
 
 
 procedure TKMMenuReplays.Replay_TypeChange(Sender: TObject);
 begin
-  fSaves.TerminateScan;
-  fLastSaveCRC := 0;
-  ColumnBox_Replays.Clear;
-  Replays_ListClick(nil);
-  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1));
+  ListUpdate;
   DeleteConfirm(False);
   RenameConfirm(False);
+  gGameApp.GameSettings.MenuReplaysType := Radio_Replays_Type.ItemIndex;
 end;
 
 
 procedure TKMMenuReplays.Replays_ScanUpdate(Sender: TObject);
 begin
   Replays_RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMenuReplays.Replays_ScanComplete(Sender: TObject);
+begin
+  Replays_RefreshList(True); //After scan complete jump to the selected item
 end;
 
 
@@ -253,7 +327,7 @@ begin
     end;
 
     for I := 0 to fSaves.Count - 1 do
-      if (fSaves[I].CRC = fLastSaveCRC) then
+      if (fSaves[I].CRC = fSelectedSaveInfo.CRC) and (fSaves[I].FileName = fSelectedSaveInfo.Name) then
         ColumnBox_Replays.ItemIndex := I;
 
   finally
@@ -270,6 +344,8 @@ begin
     else
     if ColumnBox_Replays.ItemIndex > ColumnBox_Replays.TopIndex + ColumnBox_Replays.GetVisibleRows - 1 then
       ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex - ColumnBox_Replays.GetVisibleRows + 1;
+
+  UpdateUI;
 end;
 
 
@@ -332,7 +408,7 @@ end;
 
 procedure TKMMenuReplays.DeleteClick(Sender: TObject);
 var
-  OldSelection: Integer;
+  OldSelection, NewSelection: Integer;
 begin
   if ColumnBox_Replays.ItemIndex = -1 then Exit;
 
@@ -347,12 +423,15 @@ begin
   begin
     OldSelection := ColumnBox_Replays.ItemIndex;
     fSaves.DeleteSave(ColumnBox_Replays.ItemIndex);
-    Replays_RefreshList(False);
-    if ColumnBox_Replays.RowCount > 0 then
-      ColumnBox_Replays.ItemIndex := EnsureRange(OldSelection, 0, ColumnBox_Replays.RowCount - 1)
-    else
-      ColumnBox_Replays.ItemIndex := -1;
-    Replays_ListClick(ColumnBox_Replays);
+
+    if ColumnBox_Replays.RowCount > 1 then
+    begin
+      NewSelection := EnsureRange(OldSelection, 0, ColumnBox_Replays.RowCount - 2);
+      SetSelectedSaveInfo(NewSelection);
+    end else
+      SetSelectedSaveInfo;
+
+    Replays_RefreshList(True);
   end;
 end;
 
@@ -372,7 +451,7 @@ end;
 // Check if new name is allowed
 procedure TKMMenuReplays.Edit_Rename_Change(Sender: TObject);
 begin
-  Button_RenameConfirm.Enabled := (Trim(Edit_Rename.Text) <> '') and not fSaves.Contains(Edit_Rename.Text);
+  Button_RenameConfirm.Enabled := (Trim(Edit_Rename.Text) <> '') and not fSaves.Contains(Trim(Edit_Rename.Text));
 end;
 
 
@@ -389,13 +468,10 @@ begin
   // Change name of the save
   if Sender = Button_RenameConfirm then
   begin
+    Edit_Rename.Text := Trim(Edit_Rename.Text);
     fSaves.RenameSave(ColumnBox_Replays.ItemIndex, Edit_Rename.Text);
-    // If any scan is active, terminate it and reload the list
-    fSaves.TerminateScan;
-    fLastSaveCRC := 0;
-    ColumnBox_Replays.Clear;
-    Replays_ListClick(nil);
-    fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1));
+    SetSelectedSaveInfo(fSelectedSaveInfo.CRC, Edit_Rename.Text);
+    ListUpdate;
   end;
 end;
 
@@ -403,8 +479,7 @@ procedure TKMMenuReplays.Show;
 begin
   //Copy/Pasted from SwitchPage for now (needed that for ResultsMP BackClick)
   //Probably needs some cleanup when we have GUIMenuReplays
-  fLastSaveCRC := 0;
-  Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
+  Radio_Replays_Type.ItemIndex := gGameApp.GameSettings.MenuReplaysType;
   Replay_TypeChange(nil); //Select SP as this will refresh everything
   Replays_Sort(ColumnBox_Replays.SortIndex); //Apply sorting from last time we were on this page
   Panel_Replays.Show;

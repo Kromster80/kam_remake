@@ -110,9 +110,9 @@ end;
 function TUnitActionStormAttack.GetSpeed: Single;
 begin
   if (fTileSteps <= 0) or (fTileSteps >= fStamina-1) then
-    Result := gRes.UnitDat[fUnit.UnitType].Speed
+    Result := gRes.Units[fUnit.UnitType].Speed
   else
-    Result := gRes.UnitDat[fUnit.UnitType].Speed * STORM_SPEEDUP;
+    Result := gRes.Units[fUnit.UnitType].Speed * STORM_SPEEDUP;
 end;
 
 
@@ -137,10 +137,10 @@ begin
   //In KaM the first step was also walking, but this makes it less useful/surprising
   if (fTileSteps >= fStamina - 1) then
   begin
-    Distance := gRes.UnitDat[fUnit.UnitType].Speed;
+    Distance := gRes.Units[fUnit.UnitType].Speed;
     fActionType := ua_Walk;
   end else begin
-    Distance := gRes.UnitDat[fUnit.UnitType].Speed * STORM_SPEEDUP;
+    Distance := gRes.Units[fUnit.UnitType].Speed * STORM_SPEEDUP;
     fActionType := ua_Spec;
   end;
 

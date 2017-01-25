@@ -38,6 +38,7 @@ type
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
+    function GetObjectByUID(aUID: Integer): TObject;
     function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
     function UnitCount: Integer;
@@ -343,6 +344,18 @@ begin
 end;
 
 
+function TKMHandsCollection.GetObjectByUID(aUID: Integer): TObject;
+begin
+  Result := GetHouseByUID(aUID);
+  if Result = nil then
+  begin
+    Result := GetUnitByUID(aUID);
+    if Result = nil then
+      Result := GetGroupByUID(aUID);
+  end;
+end;
+
+
 function TKMHandsCollection.GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
 var
   I: Integer;
@@ -415,7 +428,7 @@ var
   Pass: TKMTerrainPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
-  Pass := gRes.UnitDat[aUnitType].AllowedPassability;
+  Pass := gRes.Units[aUnitType].AllowedPassability;
 
   for I := 0 to 255 do
   begin

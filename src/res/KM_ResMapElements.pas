@@ -8,6 +8,7 @@ uses
 
 type
   TKMKillByRoad = (kbrNever, kbrNWCorner, kbrWest);
+
   TKMMapElement = packed record
     Anim: TKMAnimLoop;          //Animation loop info
     CuttableTree: LongBool;     //This tree can be cut by a woodcutter
@@ -21,33 +22,33 @@ type
     KillByRoad: TKMKillByRoad;  //Object will be removed if these neighboring tiles are roads
   end;
 
-  TKMMapElements = class
+  TKMResMapElements = class
   private
     fCount: Integer;
     fCRC: Cardinal;
   public
     property Count: Integer read fCount;
+    property CRC: Cardinal read fCRC;
 
     procedure LoadFromFile(const FileName: string);
     procedure SaveToFile(const FileName: string);
     procedure ExportToText(const FileName: string);
-    property CRC: Cardinal read fCRC;
   end;
 
 
 var
   //MapElem is in global access because of the recursive FloodFill algorithm
-  //when it uses TKMMapElements.MapElem each call takes 8 times more memory
+  //when it uses TKMResMapElements.MapElem each call takes 8 times more memory
   //on the stack (View>Debug>CPU>Stack) for reasons unknown to me.
-  MapElem: array [Byte] of TKMMapElement;
+  gMapElements: array [Byte] of TKMMapElement;
 
 type
-  TChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
+  TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
 
 const
   //Chopable tree, Chopdown animation,
   //Age1, Age2, Age3, Age4, Falling, Stump
-  ChopableTrees: array [1..13, TChopableAge] of byte = (
+  ChopableTrees: array [1..13, TKMChopableAge] of byte = (
   //For grass
   (  88,  89,  90,  90,  91,  37), //These two are very look alike
   (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction
@@ -110,9 +111,9 @@ const
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-{ TKMMapElements }
+{ TKMResMapElements }
 //Reading map elements properties and animation data
-procedure TKMMapElements.LoadFromFile(const FileName: string);
+procedure TKMResMapElements.LoadFromFile(const FileName: string);
 const
   ELEMENT_SIZE = 99; // Old size of TKMMapElement (before we have added our fields to it)
 var
@@ -123,43 +124,43 @@ begin
 
   S := TMemoryStream.Create;
   S.LoadFromFile(FileName);
-  for I := Low(MapElem) to High(MapElem) do
+  for I := Low(gMapElements) to High(gMapElements) do
   begin
-    S.Read(MapElem[I], ELEMENT_SIZE);
-    MapElem[I].KillByRoad := TKMKillByRoad(ObjKillByRoads[I]);
+    S.Read(gMapElements[I], ELEMENT_SIZE);
+    gMapElements[I].KillByRoad := TKMKillByRoad(ObjKillByRoads[I]);
   end;
   fCount := S.Size div ELEMENT_SIZE; //254 by default
   fCRC := Adler32CRC(S);
   S.Free;
 
-  MapElem[63].Anim.Count := 1;
-  MapElem[63].Anim.Step[1] := 16;
-  MapElem[63].CuttableTree := False;
-  MapElem[63].DiagonalBlocked := False;
-  MapElem[63].AllBlocked := False;
-  MapElem[63].WineOrCorn := False;
-  MapElem[63].CanGrow := False;
-  MapElem[63].DontPlantNear := False;
-  MapElem[63].Stump := -1;
-  MapElem[63].CanBeRemoved := True;
+  gMapElements[63].Anim.Count := 1;
+  gMapElements[63].Anim.Step[1] := 16;
+  gMapElements[63].CuttableTree := False;
+  gMapElements[63].DiagonalBlocked := False;
+  gMapElements[63].AllBlocked := False;
+  gMapElements[63].WineOrCorn := False;
+  gMapElements[63].CanGrow := False;
+  gMapElements[63].DontPlantNear := False;
+  gMapElements[63].Stump := -1;
+  gMapElements[63].CanBeRemoved := True;
 
   //Save ti file if we want to have it there. For now hardcoded is ok
   //SaveToFile(FileName);
 end;
 
 
-procedure TKMMapElements.SaveToFile(const FileName: string);
+procedure TKMResMapElements.SaveToFile(const FileName: string);
 var
   S: TMemoryStream;
 begin
   S := TMemoryStream.Create;
-  S.Write(MapElem[0], fCount * SizeOf(TKMMapElement));
+  S.Write(gMapElements[0], fCount * SizeOf(TKMMapElement));
   S.SaveToFile(FileName);
   S.Free;
 end;
 
 
-procedure TKMMapElements.ExportToText(const FileName: string);
+procedure TKMResMapElements.ExportToText(const FileName: string);
 var I,K: Integer; ft: TextFile;
 begin
   AssignFile(ft, ExeDir + 'Trees.txt');
@@ -167,10 +168,10 @@ begin
   for I := 1 to fCount do
   begin
     Writeln(ft);
-    Writeln(ft, inttostr(I) + ' :' + inttostr(MapElem[I].Anim.Count));
+    Writeln(ft, inttostr(I) + ' :' + inttostr(gMapElements[I].Anim.Count));
     for K := 1 to 30 do
-      if MapElem[I].Anim.Step[K] > 0 then
-        Write(ft, MapElem[I].Anim.Step[K], '.')
+      if gMapElements[I].Anim.Step[K] > 0 then
+        Write(ft, gMapElements[I].Anim.Step[K], '.')
       else
         Write(ft, '_.');
 
@@ -178,7 +179,7 @@ begin
     // for K:=1 to 16 do
     // write(ft,MapElem[I].CuttableTree,''); //Those are 1/0 so we can ommit space between them
 
-    Write(ft, ' =', MapElem[I].CanBeRemoved);
+    Write(ft, ' =', gMapElements[I].CanBeRemoved);
     Writeln(ft);
   end;
   CloseFile(ft);

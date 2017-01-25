@@ -939,6 +939,7 @@ type
     function GetSelectedTag: Integer;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property Item[aIndex: Integer]: UnicodeString read GetItem;
+    property List: TKMListBox read fList;
 
     procedure Paint; override;
   end;
@@ -1096,6 +1097,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aWidth: Integer);
     procedure AddItem(aCaption: UnicodeString; aTag: Integer = 0);
+    procedure UpdateItem(aIndex: Integer; aCaption: UnicodeString);
     procedure Clear;
     property ItemIndex: Integer read GetItemIndex write SetItemIndex;
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
@@ -2684,6 +2686,9 @@ procedure TKMEdit.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButt
 begin
   if ReadOnly then Exit;
   inherited;
+  // Update Focus now, because we need to focus on MouseDown, not on MouseUp as by default for all controls
+  MasterParent.fCollection.UpdateFocus(Self);
+
   CursorPos := GetCursorPosAt(X);
   ResetSelection;
   fSelectionInitialCursorPos := CursorPos;
@@ -4045,8 +4050,12 @@ end;
 procedure TKMMemo.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var OldCursorPos: Integer;
 begin
-  Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
   inherited;
+
+  Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
+  // Update Focus now, because we need to focus on MouseDown, not on MouseUp as by default for all controls
+  MasterParent.fCollection.UpdateFocus(Self);
+
   OldCursorPos := CursorPos;
   CursorPos := GetCursorPosAt(X, Y);
 
@@ -5083,6 +5092,12 @@ procedure TKMPopUpMenu.AddItem(aCaption: UnicodeString; aTag: Integer = 0);
 begin
   fList.AddItem(MakeListRow([aCaption], aTag));
   Height := fList.ItemHeight * fList.RowCount;
+end;
+
+
+procedure TKMPopUpMenu.UpdateItem(aIndex: Integer; aCaption: UnicodeString);
+begin
+  fList.Rows[aIndex].Cells[0].Caption := aCaption;
 end;
 
 
@@ -6219,9 +6234,13 @@ end;
 
 procedure TKMMasterControl.SetCtrlDown(aCtrl: TKMControl);
 begin
-  if fCtrlDown <> nil then fCtrlDown.State := fCtrlDown.State - [csDown]; //Release previous
-  if aCtrl <> nil then aCtrl.State := aCtrl.State + [csDown];             //Press new
-  fCtrlDown := aCtrl;                                                     //Update info
+  if fCtrlDown <> nil then
+    fCtrlDown.State := fCtrlDown.State - [csDown]; //Release previous
+
+  if aCtrl <> nil then
+    aCtrl.State := aCtrl.State + [csDown];         //Press new
+
+  fCtrlDown := aCtrl;                              //Update info
 end;
 
 
