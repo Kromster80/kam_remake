@@ -105,6 +105,21 @@ type
     fServerWelcomeMessage: UnicodeString;
     fWareDistribution: TKMWareDistribution;
 
+    fMenu_ReplaysType: Byte;
+    fMenu_MapEdMapType: Byte;
+    fMenu_MapEdNewMapX: Word;
+    fMenu_MapEdNewMapY: Word;
+    fMenu_MapEdSPMapCRC: Cardinal;
+    fMenu_MapEdMPMapCRC: Cardinal;
+    fMenu_MapEdMPMapName: UnicodeString;
+    fMenu_ReplaySPSaveCRC: Cardinal;
+    fMenu_ReplayMPSaveCRC: Cardinal;
+    fMenu_ReplaySPSaveName: UnicodeString;
+    fMenu_ReplayMPSaveName: UnicodeString;
+    fMenu_SPMapCRC: Cardinal;
+    fMenu_SPSaveCRC: Cardinal;
+    fMenu_LobbyMapType: Byte;
+
     procedure SetAutosave(aValue: Boolean);
     procedure SetReplayAutopause(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
@@ -132,6 +147,21 @@ type
     procedure SetHTMLStatusFile(eValue: UnicodeString);
     procedure SetMaxRooms(eValue: Integer);
     procedure SetFlashOnMessage(aValue: Boolean);
+
+    procedure SetMenuReplaysType(aValue: Byte);
+    procedure SetMenuMapEdMapType(aValue: Byte);
+    procedure SetMenuMapEdNewMapX(aValue: Word);
+    procedure SetMenuMapEdNewMapY(aValue: Word);
+    procedure SetMenuMapEdSPMapCRC(aValue: Cardinal);
+    procedure SetMenuMapEdMPMapCRC(aValue: Cardinal);
+    procedure SetMenuMapEdMPMapName(aValue: UnicodeString);
+    procedure SetMenuReplaySPSaveCRC(aValue: Cardinal);
+    procedure SetMenuReplayMPSaveCRC(aValue: Cardinal);
+    procedure SetMenuReplaySPSaveName(aValue: UnicodeString);
+    procedure SetMenuReplayMPSaveName(aValue: UnicodeString);
+    procedure SetMenuSPMapCRC(aValue: Cardinal);
+    procedure SetMenuSPSaveCRC(aValue: Cardinal);
+    procedure SetMenuLobbyMapType(aValue: Byte);
   protected
     function LoadFromINI(FileName: UnicodeString): Boolean;
     procedure SaveToINI(FileName: UnicodeString);
@@ -174,6 +204,21 @@ type
     property HTMLStatusFile: UnicodeString read fHTMLStatusFile write SetHTMLStatusFile;
     property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
+
+    property MenuReplaysType: Byte read fMenu_ReplaysType write SetMenuReplaysType;
+    property MenuMapEdMapType: Byte read fMenu_MapEdMapType write SetMenuMapEdMapType;
+    property MenuMapEdNewMapX: Word read fMenu_MapEdNewMapX write SetMenuMapEdNewMapX;
+    property MenuMapEdNewMapY: Word read fMenu_MapEdNewMapY write SetMenuMapEdNewMapY;
+    property MenuMapEdSPMapCRC: Cardinal read fMenu_MapEdSPMapCRC write SetMenuMapEdSPMapCRC;
+    property MenuMapEdMPMapCRC: Cardinal read fMenu_MapEdMPMapCRC write SetMenuMapEdMPMapCRC;
+    property MenuMapEdMPMapName: UnicodeString read fMenu_MapEdMPMapName write SetMenuMapEdMPMapName;
+    property MenuReplaySPSaveCRC: Cardinal read fMenu_ReplaySPSaveCRC write SetMenuReplaySPSaveCRC;
+    property MenuReplayMPSaveCRC: Cardinal read fMenu_ReplayMPSaveCRC write SetMenuReplayMPSaveCRC;
+    property MenuReplaySPSaveName: UnicodeString read fMenu_ReplaySPSaveName write SetMenuReplaySPSaveName;
+    property MenuReplayMPSaveName: UnicodeString read fMenu_ReplayMPSaveName write SetMenuReplayMPSaveName;
+    property MenuSPMapCRC: Cardinal read fMenu_SPMapCRC write SetMenuSPMapCRC;
+    property MenuSPSaveCRC: Cardinal read fMenu_SPSaveCRC write SetMenuSPSaveCRC;
+    property MenuLobbyMapType: Byte read fMenu_LobbyMapType write SetMenuLobbyMapType;
   end;
 
 
@@ -391,6 +436,21 @@ begin
     fPingInterval           := F.ReadInteger('Server','PingMeasurementInterval',1000);
     fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
     fServerWelcomeMessage   := {$IFDEF FPC} UTF8Decode {$ENDIF} (F.ReadString ('Server','WelcomeMessage',''));
+
+    fMenu_ReplaysType       := F.ReadInteger('Menu', 'ReplaysType',  0);
+    fMenu_MapEdMapType      := F.ReadInteger('Menu', 'MapEdMapType', 0);
+    fMenu_MapEdNewMapX      := F.ReadInteger('Menu', 'MapEdNewMapX', 64);
+    fMenu_MapEdNewMapY      := F.ReadInteger('Menu', 'MapEdNewMapY', 64);
+    fMenu_MapEdSPMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdSPMapCRC', '0'));
+    fMenu_MapEdMPMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdMPMapCRC', '0'));
+    fMenu_MapEdMPMapName    := F.ReadString('Menu', 'MapEdMPMapName', '');
+    fMenu_ReplaySPSaveCRC   := StrToInt64(F.ReadString('Menu', 'ReplaySPSaveCRC', '0'));
+    fMenu_ReplayMPSaveCRC   := StrToInt64(F.ReadString('Menu', 'ReplayMPSaveCRC', '0'));
+    fMenu_ReplaySPSaveName  := F.ReadString('Menu', 'ReplaySPSaveName', '');
+    fMenu_ReplayMPSaveName  := F.ReadString('Menu', 'ReplayMPSaveName', '');
+    fMenu_SPMapCRC          := StrToInt64(F.ReadString('Menu', 'SPMapCRC', '0'));
+    fMenu_SPSaveCRC         := StrToInt64(F.ReadString('Menu', 'SPSaveCRC', '0'));
+    fMenu_LobbyMapType      := F.ReadInteger('Menu', 'LobbyMapType', 0);
   finally
     F.Free;
   end;
@@ -447,6 +507,21 @@ begin
     F.WriteInteger('Server','AutoKickTimeout',              fAutoKickTimeout);
     F.WriteInteger('Server','PingMeasurementInterval',      fPingInterval);
 
+    F.WriteInteger('Menu',  'ReplaysType',        fMenu_ReplaysType);
+    F.WriteInteger('Menu',  'MapEdMapType',       fMenu_MapEdMapType);
+    F.WriteInteger('Menu',  'MapEdNewMapX',       fMenu_MapEdNewMapX);
+    F.WriteInteger('Menu',  'MapEdNewMapY',       fMenu_MapEdNewMapY);
+    F.WriteString ('Menu',  'MapEdSPMapCRC',      IntToStr(fMenu_MapEdSPMapCRC));
+    F.WriteString ('Menu',  'MapEdMPMapCRC',      IntToStr(fMenu_MapEdMPMapCRC));
+    F.WriteString ('Menu',  'MapEdMPMapName',     fMenu_MapEdMPMapName);
+    F.WriteString ('Menu',  'ReplaySPSaveCRC',    IntToStr(fMenu_ReplaySPSaveCRC));
+    F.WriteString ('Menu',  'ReplayMPSaveCRC',    IntToStr(fMenu_ReplayMPSaveCRC));
+    F.WriteString ('Menu',  'ReplaySPSaveName',   fMenu_ReplaySPSaveName);
+    F.WriteString ('Menu',  'ReplayMPSaveName',   fMenu_ReplayMPSaveName);
+    F.WriteString ('Menu',  'SPMapCRC',           IntToStr(fMenu_SPMapCRC));
+    F.WriteString ('Menu',  'SPSaveCRC',          IntToStr(fMenu_SPSaveCRC));
+    F.WriteInteger('Menu',  'LobbyMapType',       fMenu_LobbyMapType);
+
     F.UpdateFile; //Write changes to file
   finally
     F.Free;
@@ -476,6 +551,107 @@ begin
   fFlashOnMessage := aValue;
   Changed;
 end;
+
+
+procedure TGameSettings.SetMenuReplaysType(aValue: Byte);
+begin
+  fMenu_ReplaysType := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuMapEdMapType(aValue: Byte);
+begin
+  fMenu_MapEdMapType := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuMapEdNewMapX(aValue: Word);
+begin
+  fMenu_MapEdNewMapX := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuMapEdNewMapY(aValue: Word);
+begin
+  fMenu_MapEdNewMapY := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuMapEdSPMapCRC(aValue: Cardinal);
+begin
+  fMenu_MapEdSPMapCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuMapEdMPMapCRC(aValue: Cardinal);
+begin
+  fMenu_MapEdMPMapCRC := aValue;
+  Changed;
+end;
+
+
+
+procedure TGameSettings.SetMenuMapEdMPMapName(aValue: UnicodeString);
+begin
+  fMenu_MapEdMPMapName := aValue;
+  Changed;
+end;
+
+
+
+procedure TGameSettings.SetMenuReplaySPSaveCRC(aValue: Cardinal);
+begin
+  fMenu_ReplaySPSaveCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuReplayMPSaveCRC(aValue: Cardinal);
+begin
+  fMenu_ReplayMPSaveCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuReplaySPSaveName(aValue: UnicodeString);
+begin
+  fMenu_ReplaySPSaveName := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuReplayMPSaveName(aValue: UnicodeString);
+begin
+  fMenu_ReplayMPSaveName := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuSPMapCRC(aValue: Cardinal);
+begin
+  fMenu_SPMapCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuSPSaveCRC(aValue: Cardinal);
+begin
+  fMenu_SPSaveCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuLobbyMapType(aValue: Byte);
+begin
+  fMenu_LobbyMapType := aValue;
+  Changed;
+end;
+
 
 
 procedure TGameSettings.SetAutosave(aValue: Boolean);

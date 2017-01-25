@@ -95,7 +95,7 @@ end;
 function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TKMHandIndex; RelativeEntrance: Boolean):TKMHouse;
 begin
   if RelativeEntrance then
-    Result := AddToCollection(aHouseType, PosX - gRes.HouseDat[aHouseType].EntranceOffsetX, PosY, aOwner, hbs_Done)
+    Result := AddToCollection(aHouseType, PosX - gRes.Houses[aHouseType].EntranceOffsetX, PosY, aOwner, hbs_Done)
   else
     Result := AddToCollection(aHouseType, PosX, PosY, aOwner, hbs_Done);
 end;
@@ -152,7 +152,7 @@ begin
   BestBid := MaxSingle;
 
   for I := 0 to Count - 1 do
-    if (gRes.HouseDat[Houses[I].HouseType].OwnerType = aUnitType) and //If Unit can work in here
+    if (gRes.Houses[Houses[I].HouseType].OwnerType = aUnitType) and //If Unit can work in here
        (not Houses[I].GetHasOwner) and                              //If there's yet no owner
        (not Houses[I].IsDestroyed) and
        (Houses[I].IsComplete) then                               //If house is built

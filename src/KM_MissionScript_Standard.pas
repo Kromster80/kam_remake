@@ -511,7 +511,7 @@ begin
                           gHands[fLastHand].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastHand <> PLAYER_NONE then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                          gHands[fLastHand].FlagColor := gRes.Palettes.DefDal.Color32(P[0]);
+                          gHands[fLastHand].FlagColor := gRes.Palettes.DefaultPalette.Color32(P[0]);
     ct_SetRGBColor:     if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].FlagColor := P[0] or $FF000000;
     ct_AIAttack:        if fLastHand <> PLAYER_NONE then

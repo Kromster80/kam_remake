@@ -64,6 +64,7 @@ type
     fScanFinished: Boolean;
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
+    fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure SaveAdd(aSave: TKMSaveInfo);
     procedure SaveAddDone(Sender: TObject);
@@ -79,7 +80,7 @@ type
     procedure Lock;
     procedure Unlock;
 
-    procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean);
+    procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TSavesSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TSavesSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -446,7 +447,7 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMSavesCollection.Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean);
+procedure TKMSavesCollection.Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
@@ -454,6 +455,7 @@ begin
 
   fScanFinished := False;
   fOnRefresh := aOnRefresh;
+  fOnComplete := aOnComplete;
 
   //Scan will launch upon create automatcally
   fScanning := True;
@@ -497,6 +499,8 @@ begin
   try
     fScanning := False;
     fScanFinished := True;
+    if Assigned(fOnComplete) then
+      fOnComplete(Self);
   finally
     Unlock;
   end;

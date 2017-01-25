@@ -628,7 +628,7 @@
 639:Save not found: %s
 640:Map files do not match the host for the map: %s
 641:Save file does not match the host for the save: %s
-642:The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
+642:The replay failed a consistency check. This is a known bug which affects playback of some replays.\nIf you continue watching the replay will no longer be accurate and the game may crash.\nDo you want to continue watching? Choose 'Yes to All' to ignore future consistency check failures.
 643:You may only have one instance of the game in multiplayer mode at once
 644:Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.
 645:An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
@@ -938,4 +938,4 @@
 986:This weapons workshop is not occupied
 987:This vineyard is not occupied
 988:This woodcutter's is not occupied
-
+1019:%s has muted you. You can no longer send messages or beacons to them
