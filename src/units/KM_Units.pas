@@ -1181,9 +1181,6 @@ end;
 // Erase everything related to unit status to exclude it from being accessed by anything but the old pointers
 procedure TKMUnit.CloseUnit(aRemoveTileUsage: Boolean = True);
 begin
-  //if not KMSamePoint(fCurrPosition,NextPosition) then
-  //  Assert(false, 'Not sure where to die?');
-
   if fHome <> nil then
   begin
     fHome.GetHasOwner := False;
