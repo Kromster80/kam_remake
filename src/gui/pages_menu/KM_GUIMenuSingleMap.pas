@@ -28,6 +28,7 @@ type
 
     procedure ListClear;
     procedure ScanUpdate(Sender: TObject);
+    procedure ScanComplete(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure ListRefresh(aJumpToSelected:Boolean);
     procedure ListClick(Sender: TObject);
@@ -223,13 +224,18 @@ procedure TKMMenuSingleMap.ListClear;
 begin
   ColumnBox_SingleMaps.Clear;
   ListClick(nil);
-  fLastMapCRC := 0;
 end;
 
 
 procedure TKMMenuSingleMap.ScanUpdate(Sender: TObject);
 begin
   ListRefresh(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMenuSingleMap.ScanComplete(Sender: TObject);
+begin
+  ListRefresh(True); //After scan complete jump to selected item
 end;
 
 
@@ -257,7 +263,10 @@ begin
       ColumnBox_SingleMaps.AddItem(R);
 
       if (fMaps[I].CRC = fLastMapCRC) then
+      begin
         ColumnBox_SingleMaps.ItemIndex := I;
+        ListClick(nil);
+      end;
     end;
   finally
     fMaps.Unlock;
@@ -304,6 +313,8 @@ begin
       fMaps[MapId].LoadExtra;
 
       fLastMapCRC := fMaps[MapId].CRC;
+      gGameApp.GameSettings.MenuSPMapCRC := fLastMapCRC;
+
       Label_SingleTitle.Caption   := fMaps[MapId].FileName;
       Memo_SingleDesc.Text        := fMaps[MapId].BigDesc;
 
@@ -523,9 +534,10 @@ begin
 
   //Remove any old entries from UI
   ListClear;
+  fLastMapCRC := gGameApp.GameSettings.MenuSPMapCRC;
 
   //Initiate refresh and process each new map added
-  fMaps.Refresh(ScanUpdate);
+  fMaps.Refresh(ScanUpdate, ScanComplete);
   Panel_Single.Show;
 end;
 

@@ -141,7 +141,7 @@ begin
   else
     FirstStep := False;
       
-  Distance := gRes.UnitDat[fUnit.UnitType].Speed;
+  Distance := gRes.Units[fUnit.UnitType].Speed;
   if KMSamePointF(fUnit.PositionF, KMPointF(fNextPos), Distance/2) then
   begin
     //Set precise position to avoid rounding errors

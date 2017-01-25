@@ -405,7 +405,7 @@ begin
     ua_Walk:
       begin
         fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
-        if gRes.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
+        if gRes.Units[fUnitType].SupportsAction(ua_WalkArm) then
           fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
@@ -454,7 +454,7 @@ var
 begin
   Result := True; //Required for override compatibility
   if fCurrentAction = nil then
-    raise ELocError.Create(gRes.UnitDat[UnitType].GUIName + ' has no action at start of TKMUnitCitizen.UpdateState', fCurrPosition);
+    raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action at start of TKMUnitCitizen.UpdateState', fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome <> nil)
@@ -516,11 +516,11 @@ begin
       end else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
         if fUnitTask = nil then //We didn't find any job to do - rest at home
-          SetActionStay(gRes.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
+          SetActionStay(gRes.Houses[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction = nil then
-    raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitCitizen.UpdateState', fCurrPosition);
+    raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at end of TKMUnitCitizen.UpdateState', fCurrPosition);
 end;
 
 
@@ -534,14 +534,14 @@ begin
     ht_IronMine:    Msg := TX_MSG_IRON_DEPLETED;
     ht_GoldMine:    Msg := TX_MSG_GOLD_DEPLETED;
     ht_Woodcutters: Msg := TX_MSG_WOODCUTTER_DEPLETED;
-    ht_FisherHut:   if not gTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), gRes.UnitDat[fUnitType].MiningRange) then
+    ht_FisherHut:   if not gTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), gRes.Units[fUnitType].MiningRange) then
                       Msg := TX_MSG_FISHERMAN_TOO_FAR
                     else
                       Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
     else            Msg := 0;
   end;
 
-  Assert(Msg <> 0, gRes.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
+  Assert(Msg <> 0, gRes.Houses[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
   gGame.ShowMessage(mkHouse, Msg, fHome.GetEntrance, fOwner);
   fHome.ResourceDepletedMsgIssued := True;
@@ -561,7 +561,7 @@ begin
   Res := 1;
   //Check if House has production orders
   //Ask the house what order we should make
-  if gRes.HouseDat[fHome.HouseType].DoesOrders then
+  if gRes.Houses[fHome.HouseType].DoesOrders then
   begin
     Res := fHome.PickOrder;
     if Res = 0 then Exit;
@@ -571,10 +571,10 @@ begin
   // Saves us time on Fishers/Stonecutters/Woodcutters when they calculate routes to nearby deposits
   // Other houses where workers walk out can choose between cut/plant
   if (fHome.HouseType in [ht_FisherHut, ht_Quary, ht_Wineyard])
-  and (fHome.CheckResOut(gRes.HouseDat[fHome.HouseType].ResOutput[Res]) >= MAX_WARES_IN_HOUSE) then
+  and (fHome.CheckResOut(gRes.Houses[fHome.HouseType].ResOutput[Res]) >= MAX_WARES_IN_HOUSE) then
     Exit;
 
-  TM := TTaskMining.Create(Self, gRes.HouseDat[fHome.HouseType].ResOutput[Res]);
+  TM := TTaskMining.Create(Self, gRes.Houses[fHome.HouseType].ResOutput[Res]);
 
   if TM.WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
     IssueResourceDepletedMessage;
@@ -619,7 +619,7 @@ begin
     ua_Walk:
       begin
         fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
-        if gRes.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
+        if gRes.Units[fUnitType].SupportsAction(ua_WalkArm) then
           fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
@@ -652,7 +652,7 @@ var
   H: TKMHouseInn;
 begin
   Result := True; //Required for override compatibility
-  if fCurrentAction=nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitRecruit.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at start of TKMUnitRecruit.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome <> nil)
@@ -702,10 +702,10 @@ begin
       end else begin
         fUnitTask := InitiateActivity; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(Max(gRes.HouseDat[fHome.HouseType].WorkerRest,1)*10, ua_Walk); //By default it's 0, don't scan that often
+          SetActionStay(Max(gRes.Houses[fHome.HouseType].WorkerRest,1)*10, ua_Walk); //By default it's 0, don't scan that often
       end;
 
-  if fCurrentAction=nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitRecruit.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at end of TKMUnitRecruit.UpdateState',fCurrPosition);
 end;
 
 
@@ -822,7 +822,7 @@ var
 begin
   Result := True; //Required for override compatibility
   WasIdle := IsIdle;
-  if fCurrentAction = nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
   if inherited UpdateState then exit;
 
   OldThought := fThought;
@@ -845,7 +845,7 @@ begin
   end;
 
   if fCurrentAction = nil then
-    raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitSerf.UpdateState', fCurrPosition);
+    raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at end of TKMUnitSerf.UpdateState', fCurrPosition);
 end;
 
 
@@ -946,7 +946,7 @@ var
   H: TKMHouseInn;
 begin
   Result := True; //Required for override compatibility
-  if fCurrentAction=nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
   if inherited UpdateState then exit;
 
   if fCondition < UNIT_MIN_CONDITION then
@@ -964,7 +964,7 @@ begin
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
-  if fCurrentAction=nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitWorker.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at end of TKMUnitWorker.UpdateState',fCurrPosition);
 end;
 
 
@@ -1012,7 +1012,7 @@ begin
   fCurrPosition := KMPointRound(fPosition);
 
   if fCurrentAction = nil then
-    raise ELocError.Create(gRes.UnitDat[UnitType].GUIName + ' has no action at start of TKMUnitAnimal.UpdateState', fCurrPosition);
+    raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action at start of TKMUnitAnimal.UpdateState', fCurrPosition);
 
   if fKillASAP then
   begin
@@ -1047,7 +1047,7 @@ begin
   SetActionSteer;
 
   if fCurrentAction = nil then
-    raise ELocError.Create(gRes.UnitDat[UnitType].GUIName + ' has no action at end of TKMUnitAnimal.UpdateState', fCurrPosition);
+    raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action at end of TKMUnitAnimal.UpdateState', fCurrPosition);
 end;
 
 
@@ -1117,7 +1117,7 @@ begin
 
   //The area around the unit should be visible at the start of the mission
   if InRange(fOwner, 0, MAX_HANDS - 1) then //Not animals
-    gHands.RevealForTeam(fOwner, fCurrPosition, gRes.UnitDat[fUnitType].Sight, FOG_OF_WAR_MAX);
+    gHands.RevealForTeam(fOwner, fCurrPosition, gRes.Units[fUnitType].Sight, FOG_OF_WAR_MAX);
 end;
 
 
@@ -1392,7 +1392,7 @@ end;
 
 function TKMUnit.GetHitPointsMax: Byte;
 begin
-  Result := gRes.UnitDat[fUnitType].HitPoints;
+  Result := gRes.Units[fUnitType].HitPoints;
 end;
 
 
@@ -1432,7 +1432,7 @@ begin
   fNextPosition := aLoc;
   //If we're not using dynamic fog of war we only need to update it when the unit steps on a new tile
   if not DYNAMIC_FOG_OF_WAR and (fOwner <> PLAYER_ANIMAL) then
-    gHands.RevealForTeam(fOwner, fCurrPosition, gRes.UnitDat[fUnitType].Sight, FOG_OF_WAR_MAX);
+    gHands.RevealForTeam(fOwner, fCurrPosition, gRes.Units[fUnitType].Sight, FOG_OF_WAR_MAX);
 end;
 
 
@@ -1456,9 +1456,9 @@ begin
     FreeAndNil(fCurrentAction);
     exit;
   end;
-  if not gRes.UnitDat[fUnitType].SupportsAction(aAction.ActionType) then
+  if not gRes.Units[fUnitType].SupportsAction(aAction.ActionType) then
   begin
-    Assert(false, 'Unit '+gRes.UnitDat[UnitType].GUIName+' was asked to do unsupported action');
+    Assert(false, 'Unit '+gRes.Units[UnitType].GUIName+' was asked to do unsupported action');
     FreeAndNil(aAction);
     exit;
   end;
@@ -1476,7 +1476,7 @@ var
 begin
   //Archers should start in the reloading if they shot recently phase to avoid rate of fire exploit
   Step := 0; //Default
-  Cycle := max(gRes.UnitDat[UnitType].UnitAnim[aAction, Direction].Count, 1);
+  Cycle := max(gRes.Units[UnitType].UnitAnim[aAction, Direction].Count, 1);
   if (TKMUnitWarrior(Self).IsRanged) and TKMUnitWarrior(Self).NeedsToReload(Cycle) then
   begin
     //Skip the unit's animation forward to 1 step AFTER firing
@@ -1660,7 +1660,7 @@ end;
 //Specific unit desired passability may depend on several factors
 function TKMUnit.GetDesiredPassability: TKMTerrainPassability;
 begin
-  Result := gRes.UnitDat[fUnitType].DesiredPassability;
+  Result := gRes.Units[fUnitType].DesiredPassability;
 
   //Delivery to unit
   if (fUnitType = ut_Serf)
@@ -1944,7 +1944,7 @@ var
   MovementSpeed: Single;
 begin
   if (GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).DoesWalking then
-    MovementSpeed := gRes.UnitDat[fUnitType].Speed
+    MovementSpeed := gRes.Units[fUnitType].Speed
   else
   if (GetUnitAction is TUnitActionStormAttack) then
     MovementSpeed := TUnitActionStormAttack(GetUnitAction).GetSpeed
@@ -2033,7 +2033,7 @@ begin
 
   Result := True;
 
-  if fCurrentAction=nil then raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action at start of TKMUnit.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at start of TKMUnit.UpdateState',fCurrPosition);
 
   //UpdateState can happen right after unit gets killed (Exchange still in progress)
   if fKillASAP
@@ -2059,7 +2059,7 @@ begin
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
   if DYNAMIC_FOG_OF_WAR and (fTicker mod 10 = 0) then
-    gHands.RevealForTeam(fOwner, fCurrPosition, gRes.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
+    gHands.RevealForTeam(fOwner, fCurrPosition, gRes.Units[fUnitType].Sight, FOG_OF_WAR_INC);
 
   UpdateThoughts;
   UpdateHitPoints;
@@ -2071,17 +2071,17 @@ begin
     if DesiredPassability = tpWalkRoad then
     begin
       if not gTerrain.CheckPassability(fNextPosition, tpWalk) then
-        raise ELocError.Create( gRes.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk', fNextPosition);
+        raise ELocError.Create( gRes.Units[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk', fNextPosition);
     end else
     if not gTerrain.CheckPassability(fNextPosition, DesiredPassability) then
-      raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' "'+PassabilityGuiText[DesiredPassability] + '"', fNextPosition);
+      raise ELocError.Create(gRes.Units[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' "'+PassabilityGuiText[DesiredPassability] + '"', fNextPosition);
 
 
   //
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
   if fCurrentAction = nil then
-    raise ELocError.Create(gRes.UnitDat[UnitType].GUIName+' has no action in TKMUnit.UpdateState',fCurrPosition);
+    raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action in TKMUnit.UpdateState',fCurrPosition);
 
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute of

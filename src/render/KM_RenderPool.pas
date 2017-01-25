@@ -420,7 +420,7 @@ end;
 procedure TRenderPool.RenderMapElement(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 begin
   // Render either normal object or quad depending on what it is
-  if MapElem[aIndex].WineOrCorn then
+  if gMapElements[aIndex].WineOrCorn then
     RenderMapElement4(aIndex,AnimStep,pX,pY,(aIndex in [54..57]),DoImmediateRender,Deleting) // 54..57 are grapes, all others are doubles
   else
     RenderMapElement1(aIndex,AnimStep,pX,pY,DoImmediateRender,Deleting);
@@ -449,14 +449,14 @@ begin
   end
   else
   begin
-    if MapElem[aIndex].Anim.Count = 0 then Exit;
+    if gMapElements[aIndex].Anim.Count = 0 then Exit;
 
     if DYNAMIC_FOG_OF_WAR then
     begin
       FOW := gMySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
       if FOW <= 128 then AnimStep := 0; // Stop animation
     end;
-    A := MapElem[aIndex].Anim;
+    A := gMapElements[aIndex].Anim;
     Id := A.Step[AnimStep mod Byte(A.Count) +1]+1;
     Id0 := A.Step[1] + 1;
     if Id <= 0 then exit;
@@ -487,7 +487,7 @@ var
     CornerX, CornerY, gX, gY: Single;
     A: TKMAnimLoop;
   begin
-    A := MapElem[aIndex].Anim;
+    A := gMapElements[aIndex].Anim;
     Id := A.Step[aAnimStep mod Byte(A.Count) + 1] + 1;
     Id0 := A.Step[1] + 1;
 
@@ -550,7 +550,7 @@ var
   R: TRXData;
 begin
   R := fRXData[rxGui];
-  Id := gRes.HouseDat[aHouse].TabletIcon;
+  Id := gRes.Houses[aHouse].TabletIcon;
 
   gX := Loc.X + (R.Pivot[Id].X + R.Size[Id].X / 2) / CELL_SIZE_PX - 0.5;
   gY := Loc.Y + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 0.45;
@@ -569,7 +569,7 @@ var
   cornerX, cornerY: Single;
 begin
   rx := fRXData[rxHouses];
-  supply := gRes.HouseDat[aHouse].BuildSupply;
+  supply := gRes.Houses[aHouse].BuildSupply;
 
   if Wood <> 0 then
   begin
@@ -615,9 +615,9 @@ begin
 
   R := fRXData[rxHouses];
 
-  PicWood := gRes.HouseDat[aHouse].WoodPic + 1;
-  PicStone := gRes.HouseDat[aHouse].StonePic + 1;
-  PicSnow := gRes.HouseDat[aHouse].SnowPic + 1;
+  PicWood := gRes.Houses[aHouse].WoodPic + 1;
+  PicStone := gRes.Houses[aHouse].StonePic + 1;
+  PicSnow := gRes.Houses[aHouse].SnowPic + 1;
 
   GroundWood := R.Pivot[PicWood].Y + R.Size[PicWood].Y;
   GroundStone := R.Pivot[PicStone].Y + R.Size[PicStone].Y;
@@ -673,7 +673,7 @@ begin
   for AT := Low(THouseActionType) to High(THouseActionType) do
   if AT in aActSet then
   begin
-    A := gRes.HouseDat[aHouse].Anim[AT];
+    A := gRes.Houses[aHouse].Anim[AT];
     if A.Count > 0 then
     begin
       Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
@@ -710,12 +710,12 @@ begin
   for I := 1 to 4 do
   if (R1[I - 1]) > 0 then
   begin
-    Id := gRes.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
+    Id := gRes.Houses[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
 
     // Need to swap Coal and Steel for the ArmorSmithy
     // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
     if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
-      Id := gRes.HouseDat[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
+      Id := gRes.Houses[aHouse].SupplyIn[3-I, Min(R1[I - 1], 5)] + 1;
 
     AddHouseSupplySprite(Id);
   end;
@@ -731,14 +731,14 @@ begin
     begin
       for K := 1 to Min(R2[I - 1], 5) do
       begin
-        Id := gRes.HouseDat[aHouse].SupplyOut[I, K] + 1;
+        Id := gRes.Houses[aHouse].SupplyOut[I, K] + 1;
         // Need to swap Shields and Armor for the ArmorSmithy
         // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
         if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
-          Id := gRes.HouseDat[aHouse].SupplyOut[3-I, K] + 1;
+          Id := gRes.Houses[aHouse].SupplyOut[3-I, K] + 1;
       end;
     end else
-      Id := gRes.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
+      Id := gRes.Houses[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
 
     AddHouseSupplySprite(Id);
   end;
@@ -778,7 +778,7 @@ var
 begin
   R := fRXData[aRX];
 
-  A := gRes.HouseDat.BeastAnim[aHouse,BeastId,BeastAge];
+  A := gRes.Houses.BeastAnim[aHouse,BeastId,BeastAge];
 
   Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
   CornerX := Loc.X + (A.MoveX + R.Pivot[Id].X) / CELL_SIZE_PX - 1;
@@ -807,11 +807,11 @@ begin
   end;
 
   case aProj of
-    pt_Arrow:     with gRes.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
+    pt_Arrow:     with gRes.Units[ut_Bowman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
-    pt_Bolt:      with gRes.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
+    pt_Bolt:      with gRes.Units[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
-    pt_SlingRock: with gRes.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
+    pt_SlingRock: with gRes.Units[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * (Count-1)) + 1] + 1;
     pt_TowerRock: Id := ProjectileBounds[aProj, 1] + 1;
     else          Id := 1; // Nothing?
@@ -839,7 +839,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
@@ -873,7 +873,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
   R := fRXData[rxUnits];
@@ -894,7 +894,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := gRes.UnitDat.SerfCarry[aCarry, aDir];
+  A := gRes.Units.SerfCarry[aCarry, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then Exit;
   R := fRXData[rxUnits];
@@ -919,7 +919,7 @@ begin
   R := fRXData[rxUnits];
 
   // Unit position
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   // Units feet
@@ -961,14 +961,14 @@ begin
   R := fRXData[rxUnits];
 
   // Unit position
-  A := gRes.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gRes.Units[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   // Units feet
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
 
   // Flag position
-  A := gRes.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
+  A := gRes.Units[aUnit].UnitAnim[ua_WalkArm, aDir];
   IdFlag := A.Step[FlagAnim mod Byte(A.Count) + 1] + 1;
   if IdFlag <= 0 then Exit;
 
@@ -983,7 +983,7 @@ procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAc
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; // In map editor always render 5 fish
   AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
-  if gRes.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
+  if gRes.Units[aUnit].SupportsAction(ua_WalkArm) then
     AddUnit(aUnit, aUID, ua_WalkArm, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
 end;
 
@@ -1218,7 +1218,7 @@ begin
   fHouseOutline.Clear;
 
   Loc := aHouse.GetPosition;
-  gRes.HouseDat[aHouse.HouseType].Outline(fHouseOutline);
+  gRes.Houses[aHouse.HouseType].Outline(fHouseOutline);
 
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);

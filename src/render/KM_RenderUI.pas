@@ -342,8 +342,10 @@ begin
         glBindTexture(GL_TEXTURE_2D, Tex.ID); //Replace AltID if it was used
         if aLightness > 0 then
           glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-        else
+        else begin
           glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+          aLightness := 1-Abs(aLightness);
+        end;
         glColor3f(aLightness, aLightness, aLightness);
         glBegin(GL_QUADS);
           glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0            , 0             );
