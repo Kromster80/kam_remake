@@ -1743,8 +1743,11 @@ begin
   else
   begin
     fSavesMP.Lock;
+    try
       fNetworking.SelectSave(fSavesMP[I].FileName);
-    fSavesMP.Unlock;
+    finally
+      fSavesMP.Unlock;
+    end;
   end;
 end;
 
