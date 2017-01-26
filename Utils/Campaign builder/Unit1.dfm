@@ -365,10 +365,10 @@ object Form1: TForm1
   object chCreateLibxTemplate: TCheckBox
     Left = 8
     Top = 439
-    Width = 97
+    Width = 154
     Height = 17
     Cursor = crHandPoint
-    Caption = 'Create libx template'
+    Caption = 'Create eng libx template'
     TabOrder = 10
   end
   object dlgOpenPicture: TOpenDialog

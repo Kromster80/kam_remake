@@ -72,7 +72,6 @@ type
 var
   Form1: TForm1;
   C: TKMCampaign;
-  //PathNewCampaign:string;
 implementation
 {$R *.dfm}
 
@@ -204,7 +203,7 @@ begin
   end;
 end;
 
-Procedure TForm1.CreateDefaultLocaleLibxTemplate(aPathCampaign:string; aFileName: string);
+procedure TForm1.CreateDefaultLocaleLibxTemplate(aPathCampaign:string; aFileName: string);
 var
   LibxCFile : TextFile;
   i:Integer;
@@ -225,8 +224,8 @@ begin
   Writeln(LibxCFile, '0:Campaign name!');
   Writeln(LibxCFile, '1:' + edtShortName.Text + ' %d');
   Writeln(LibxCFile, '2:Campaign description!');
-  for i := 10 to seMapCount.Value+9 do
-    Writeln(LibxCFile, IntToStr(i) + ':Mission description '+IntToStr(i-9));
+  for i := 0 to seMapCount.Value-1 do
+    Writeln(LibxCFile, IntToStr(10 + i) + ':Mission description '+IntToStr(i + 1));
   CloseFile(LibxCFile);
 end;
 
@@ -244,8 +243,6 @@ begin
     ShowMessage('Campaign short title must be 3 characters');
     Exit;
   end;
-
-
 
   dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
 
@@ -326,7 +323,8 @@ begin
   end;
 end;
 
-
+//This method corrects the issue so that the first character has to be
+//administered twice when entering the reduced campaign name
 procedure TForm1.edtShortNameClick(Sender: TObject);
 begin
   edtShortName.Text := edtShortName.Text;
@@ -405,8 +403,8 @@ begin
   for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
-    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2 + 5;
-    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2 + 5;
+    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
+    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;
