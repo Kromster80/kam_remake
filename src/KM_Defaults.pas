@@ -308,6 +308,17 @@ type
   TMapFolder = (mfSP, mfMP, mfDL);
   TMapFolderSet = set of TMapFolder;
 
+
+const
+  MAPS_FOLDER_NAME = 'Maps';
+  MAPS_MP_FOLDER_NAME = 'MapsMP';
+  MAPS_DL_FOLDER_NAME = 'MapsDL';
+  TUTORIALS_FOLDER_NAME = 'Tutorials';
+  CAMPAIGNS_FOLDER_NAME = 'Campaigns';
+  SAVES_FOLDER_NAME = 'Saves';
+  SAVES_MP_FOLDER_NAME = 'SavesMP';
+
+
 { Terrain }
 type
   TKMTerrainPassability = (

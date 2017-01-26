@@ -627,7 +627,7 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
 
-  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, aName);
+  fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, aName);
 
   if not fSaveInfo.IsValid then
   begin
@@ -1757,7 +1757,7 @@ begin
 
                 //See if we already have the save file the host selected
                 FreeAndNil(fSaveInfo);
-                fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, tmpStringW);
+                fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, tmpStringW);
 
                 if not fSaveInfo.IsValid or (fSaveInfo.CRC <> tmpCRC) then
                 begin
@@ -1772,7 +1772,7 @@ begin
                   end;
                   //See if the host selected the same save we already downloaded
                   FreeAndNil(fSaveInfo);
-                  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, DOWNLOADED_LOBBY_SAVE);
+                  fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, DOWNLOADED_LOBBY_SAVE);
                 end;
 
                 if fSaveInfo.IsValid and (fSaveInfo.CRC = tmpCRC) then

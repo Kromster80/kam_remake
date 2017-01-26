@@ -658,8 +658,8 @@ begin
   NumEdit_MapSizeY.Value := gGameApp.GameSettings.MenuMapEdNewMapY;
   UpdateRadioMapEdSizes;
 
-  UpdateUI;
   ListUpdate;
+  UpdateUI;
 
   Panel_MapEd.Show;
   gGameApp.MainMenuInterface.MyControls.CtrlFocus := ColumnBox_MapEd; // Set focus to List
