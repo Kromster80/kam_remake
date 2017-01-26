@@ -58,7 +58,7 @@ type
     procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
-    procedure CreateDefaultLocaleLibxTemplate(aPathCampaign:string; aFileName: string);
+    procedure CreateDefaultLocaleLibxTemplate(aFileName: string);
 
     procedure SelectMap;
     procedure RefreshBackground;
@@ -203,20 +203,18 @@ begin
   end;
 end;
 
-procedure TForm1.CreateDefaultLocaleLibxTemplate(aPathCampaign:string; aFileName: string);
+procedure TForm1.CreateDefaultLocaleLibxTemplate(aFileName: string);
 var
   LibxCFile : TextFile;
   i:Integer;
   s:String;
 begin
-  if aPathCampaign[Length(aPathCampaign)] <> PathDelim then
-    aPathCampaign := aPathCampaign + PathDelim;
-  if FileExists(aPathCampaign + aFileName) then
+  if FileExists(aFileName) then
     Exit;
   if seMapCount.Value <= 0  then
     Exit;
 
-  AssignFile(LibxCFile, aPathCampaign + aFileName);
+  AssignFile(LibxCFile, aFileName);
   ReWrite(LibxCFile);
 
   Writeln(LibxCFile, '');
@@ -253,7 +251,7 @@ begin
   C.SaveToFile(dlgSaveCampaign.FileName);
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
   if chCreateLibxTemplate.Checked then
-    CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName), 'text.eng.libx');
+    CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
 end;
 
 
