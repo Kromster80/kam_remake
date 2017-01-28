@@ -584,10 +584,12 @@ end;
 function TKMHouse.GetRandomCellWithin: TKMPoint;
 var
   Cells: TKMPointList;
+  Success: Boolean;
 begin
   Cells := TKMPointList.Create;
   GetListOfCellsWithin(Cells);
-  Assert(Cells.GetRandom(Result));
+  Success := Cells.GetRandom(Result);
+  Assert(Success);
   Cells.Free;
 end;
 
