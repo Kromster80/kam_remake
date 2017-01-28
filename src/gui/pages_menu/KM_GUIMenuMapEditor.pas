@@ -442,10 +442,7 @@ begin
     0: Result := fMaps;
     1: Result := fMapsMP;
     else
-    begin
-      Assert(False);
-      Exit;
-    end;
+      raise Exception.Create('Unknown map type ' + IntToStr(Radio_MapEd_MapType.ItemIndex));
   end;
 end;
 
@@ -622,7 +619,7 @@ end;
 
 procedure TKMMenuMapEditor.MoveClick(Sender: TObject);
 var
-  OldSelection, NewSelection, ID: Integer;
+  ID: Integer;
 begin
   Assert(Radio_MapEd_MapType.ItemIndex = 1);
 

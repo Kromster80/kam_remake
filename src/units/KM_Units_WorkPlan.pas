@@ -53,7 +53,7 @@ type
 
 implementation
 uses
-  KM_Resource, KM_Utils, KM_Hand, KM_ResUnits, KM_Houses;
+  SysUtils, KM_Resource, KM_Utils, KM_Hand, KM_ResUnits, KM_Houses;
 
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
@@ -583,7 +583,7 @@ begin
                         fIssued := True;
                       end;
   else
-    Assert(false, 'No work plan for ' +
+    raise Exception.Create('No work plan for ' +
                   gRes.Units[aUnit.UnitType].GUIName + ' in ' +
                   gRes.Houses[aHome].HouseName);
   end;

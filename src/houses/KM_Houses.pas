@@ -493,7 +493,7 @@ begin
   try
     GetListOfCellsWithin(C);
     if not C.GetClosest(aPos, Result) then
-      Assert(false, 'Could not find closest house cell');
+      raise Exception.Create('Could not find closest house cell');
   finally
     C.Free;
   end;
@@ -1510,10 +1510,7 @@ begin
   if aWare in [WARE_MIN..WARE_MAX] then
     Result := WaresCount[aWare]
   else
-  begin
-    Result := 0;
-    Assert(False);
-  end;
+    raise Exception.Create('Unexpected aWareType');
 end;
 
 

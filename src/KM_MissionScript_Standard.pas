@@ -907,7 +907,7 @@ begin
         ioAttackPosition:
           AddCommand(ct_AttackPosition, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1]);
         else
-          Assert(False, 'Unexpected group order in MapEd');
+          raise Exception.Create('Unexpected group order in MapEd');
       end;
     end;
 

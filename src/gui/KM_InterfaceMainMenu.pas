@@ -229,7 +229,7 @@ begin
                       if aText = 'JOIN' then
                         fMenuLobby.Show(lpk_Joiner, gGameApp.Networking, Panel_Menu.Height)
                       else
-                        Assert(False);
+                        raise Exception.Create('');
                     end;
     gpCampaign:     begin
                       cmp[0] := Ord(aText[1]);
