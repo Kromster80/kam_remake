@@ -420,7 +420,7 @@ begin
                                     Assert(fReplayState <> gipRecording); //Should only occur in replays
                                     gHands[Params[1]].HandType := THandType(Params[2]);
                                   end;
-      else                        Assert(false);
+      else                        raise Exception.Create('Unexpected gic command');
     end;
   end;
 end;

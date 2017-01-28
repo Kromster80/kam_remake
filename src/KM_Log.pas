@@ -217,7 +217,7 @@ begin
   if Self = nil then Exit;
 
   AddLineNoTime('ASSERTION FAILED! Msg: ' + aMessageText);
-  Assert(False, 'ASSERTION FAILED! Msg: ' + aMessageText);
+  raise Exception.Create('ASSERTION FAILED! Msg: ' + aMessageText);
 end;
 
 

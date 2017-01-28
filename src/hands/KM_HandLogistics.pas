@@ -428,7 +428,7 @@ begin
       end;
       Exit; //Count decreased, that's all
     end;
-  Assert(False, 'Failed to remove offer');
+  raise Exception.Create('Failed to remove offer');
 end;
 
 

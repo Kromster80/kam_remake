@@ -361,6 +361,7 @@ object Form1: TForm1
     Text = '   '
     OnChange = edtShortNameChange
     OnClick = edtShortNameClick
+    OnKeyPress = edtShortNameKeyPress
   end
   object chCreateLibxTemplate: TCheckBox
     Left = 8
