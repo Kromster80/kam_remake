@@ -159,8 +159,8 @@ begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
     C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
@@ -191,8 +191,8 @@ begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left + Img.Width div 2  - Image1.Left;
     C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  + Img.Height div 2 - Image1.Top;
