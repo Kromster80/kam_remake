@@ -2,12 +2,14 @@ unit KM_GUIMenuReplays;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   SysUtils, Controls, Math,
   KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics, KM_Defaults;
 
 
 type
-  TKMMenuReplays = class
+  TKMMenuReplays = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -36,6 +38,7 @@ type
     procedure RenameClick(Sender: TObject);
     procedure Edit_Rename_Change(Sender: TObject);
     procedure RenameConfirm(aVisible: Boolean);
+    procedure KeyDown(Sender: TObject; aKey: Word);
 
   protected
     Panel_Replays:TKMPanel;
@@ -73,6 +76,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   fSaves := TKMSavesCollection.Create;
   fMinimap := TKMMinimap.Create(False, True);
@@ -166,6 +170,7 @@ begin
   Edit_Rename.Anchors := [anLeft,anBottom];
   Edit_Rename.AllowedChars := acFileName;
   Edit_Rename.OnChange := Edit_Rename_Change;
+  Edit_Rename.OnKeyDown := KeyDown;
 
   Button_RenameConfirm := TKMButton.Create(PopUp_Rename, 20, 155, 170, 30, gResTexts[TX_MENU_REPLAY_RENAME_CONFIRM], bsMenu);
   Button_RenameConfirm.Anchors := [anLeft,anBottom];
@@ -403,19 +408,31 @@ end;
 
 procedure TKMMenuReplays.BackClick(Sender: TObject);
 begin
-  //Scan should be terminated, it is no longer needed
-  fSaves.TerminateScan;
+  if PopUp_Rename.Visible then
+    RenameConfirm(False)
+  else if PopUp_Delete.Visible then
+    DeleteConfirm(False)
+  else begin
+    //Scan should be terminated, it is no longer needed
+    fSaves.TerminateScan;
 
-  fOnPageChange(gpMainMenu);
+    fOnPageChange(gpMainMenu);
+  end;
 end;
 
 
 procedure TKMMenuReplays.DeleteConfirm(aVisible: Boolean);
 begin
   if aVisible then
-    PopUp_Delete.Show
-  else
+  begin
+    PopUp_Delete.Show;
+    ColumnBox_Replays.Focusable := False;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_Replays);
+  end else begin
     PopUp_Delete.Hide;
+    ColumnBox_Replays.Focusable := True;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_Replays);
+  end;
 end;
 
 
@@ -465,6 +482,16 @@ end;
 procedure TKMMenuReplays.Edit_Rename_Change(Sender: TObject);
 begin
   Button_RenameConfirm.Enabled := (Trim(Edit_Rename.Text) <> '') and not fSaves.Contains(Trim(Edit_Rename.Text));
+end;
+
+
+procedure TKMMenuReplays.KeyDown(Sender: TObject; aKey: Word);
+begin
+  if PopUp_Rename.Visible then
+    case aKey of
+      VK_RETURN:  if Button_RenameConfirm.Enabled then
+                    RenameClick(Button_RenameConfirm);
+    end;
 end;
 
 

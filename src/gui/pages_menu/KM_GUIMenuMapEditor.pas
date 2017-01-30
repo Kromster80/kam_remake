@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMMenuMapEditor = class {(TKMGUIPage)}
+  TKMMenuMapEditor = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -85,6 +85,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   fMaps := TKMapsCollection.Create(mfSP);
   fMapsMP := TKMapsCollection.Create([mfMP, mfDL]);
@@ -482,10 +483,16 @@ end;
 
 procedure TKMMenuMapEditor.BackClick(Sender: TObject);
 begin
-  fMaps.TerminateScan;
-  fMapsMP.TerminateScan;
+  if Button_MapDeleteCancel.Visible then
+    DeleteClick(Button_MapDeleteCancel)
+  else if Button_MapMoveCancel.Visible then
+    MoveClick(Button_MapMoveCancel)
+  else begin
+    fMaps.TerminateScan;
+    fMapsMP.TerminateScan;
 
-  fOnPageChange(gpMainMenu);
+    fOnPageChange(gpMainMenu);
+  end;
 end;
 
 

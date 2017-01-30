@@ -11,7 +11,7 @@ uses
 
 
 type
-  TKMMenuCredits = class {(TKMGUIPage)}
+  TKMMenuCredits = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -44,6 +44,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   Panel_Credits := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Credits.AnchorsStretch;

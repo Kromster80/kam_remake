@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMMenuCampaigns = class {(TKMGUIPage)}
+  TKMMenuCampaigns = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -40,6 +40,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   Panel_CampSelect := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_CampSelect.AnchorsStretch;

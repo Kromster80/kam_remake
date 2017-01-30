@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMMenuOptions = class { (TKMGUIPage) }
+  TKMMenuOptions = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; // will be in ancestor class
 
@@ -30,7 +30,7 @@ type
     procedure RefreshResolutions;
     procedure KeysClick(Sender: TObject);
     procedure KeysRefreshList;
-    procedure KeysUpdate(Key: Word; Shift: TShiftState);
+    function KeysUpdate(Key: Word; Shift: TShiftState): Boolean;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -84,6 +84,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   // We cant pass pointers to Settings in here cos on GUI creation fMain/gGameApp are not initialized yet
 
@@ -505,10 +506,11 @@ begin
 end;
 
 
-procedure TKMMenuOptions.KeysUpdate(Key: Word; Shift: TShiftState);
+function TKMMenuOptions.KeysUpdate(Key: Word; Shift: TShiftState): Boolean;
 var
   id: Integer;
 begin
+  Result := True;
   if ColumnBox_OptionsKeys.ItemIndex = -1 then Exit;
 
   ColumnBox_OptionsKeys.HighlightError := False;

@@ -9,27 +9,34 @@ uses
 
 
 type
-  TKMMenuPage = (gpMainMenu,
-                    gpSinglePlayer,
-                      gpCampaign,
-                      gpCampSelect,
-                      gpSingleMap,
-                      gpLoad,
-                    gpMultiplayer,
-                      gpLobby,
-                    gpReplays,
-                    gpMapEditor,
-                    gpOptions,
-                    gpCredits,
-                  gpLoading,
-                  gpError );
-  TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPage) of object;
-  TGUIEventText = procedure (Dest: TKMMenuPage; aText: UnicodeString = '') of object;
+  TKMMenuPageType =  (gpMainMenu,
+                        gpSinglePlayer,
+                          gpCampaign,
+                          gpCampSelect,
+                          gpSingleMap,
+                          gpLoad,
+                        gpMultiplayer,
+                          gpLobby,
+                        gpReplays,
+                        gpMapEditor,
+                        gpOptions,
+                        gpCredits,
+                      gpLoading,
+                      gpError);
+  TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
+  TGUIEventText = procedure (Dest: TKMMenuPageType; aText: UnicodeString = '') of object;
 
   TKMFileIdentInfo = record // File identification info (for maps/saves)
     CRC: Cardinal;
     Name: UnicodeString;
   end;
+
+
+  TKMMenuPageCommon = class
+  public
+    OnGoMenuBack: TNotifyEvent;
+  end;
+
 
   TKMUserInterfaceCommon = class
   protected

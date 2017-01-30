@@ -15,6 +15,7 @@ type
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
   TNotifyEventKeyDown = procedure(Key: Word; Shift: TShiftState) of object;
+  TNotifyEventKeyDownFunc = function(Key: Word; Shift: TShiftState): Boolean of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
@@ -699,6 +700,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     ItemTags: array of Integer;
+    OnKeyDown: TNotifyEventKeyDownFunc;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
 
@@ -830,7 +832,7 @@ type
     HighlightError: Boolean;
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
-    OnKeyDown: TNotifyEventKeyDown;
+    OnKeyDown: TNotifyEventKeyDownFunc;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -893,6 +895,7 @@ type
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
 
@@ -4331,7 +4334,11 @@ begin
                     fOnClick(Self);
                   Exit;
                 end;
-    else        Exit;
+    else        begin
+                  if Assigned(OnKeyDown) then
+                    Result := OnKeyDown(Key, Shift);
+                  Exit;
+                end;
   end;
 
   if InRange(NewIndex, 0, Count - 1) then
@@ -4817,12 +4824,11 @@ begin
   begin
     // Assume handler always handles the KeyDown
     Result := Assigned(OnKeyDown);
-
     if Assigned(OnKeyDown) then
       OnKeyDown(Key, Shift);
   end else
   begin
-    Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
+    Result := (Key in [VK_UP, VK_DOWN]) and not HideSelection;
     if inherited KeyDown(Key, Shift) then Exit;
 
     if HideSelection then Exit; //Can't change selection if it's hidden
@@ -4833,9 +4839,19 @@ begin
                     //Trigger click to hide drop downs
                     if Assigned(fOnClick) then
                       fOnClick(Self);
+                    //Double click on Enter
+                    if Assigned(fOnDoubleClick) then
+                    begin
+                      fOnDoubleClick(Self);
+                      Result := True;
+                    end;
                     Exit;
                   end;
-      else        Exit;
+      else        begin
+                    if Assigned(OnKeyDown) then
+                      Result := OnKeyDown(Key, Shift);
+                    Exit;
+                  end;
     end;
 
     if InRange(NewIndex, 0, fRowCount - 1) then
@@ -5198,6 +5214,17 @@ begin
 end;
 
 
+function TKMDropCommon.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+begin
+  if Key = VK_ESCAPE then
+  begin
+    ListHide(nil);
+    Result := True;
+  end else
+    Result := False;
+end;
+
+
 procedure TKMDropCommon.ListClick(Sender: TObject);
 begin
   //No need to call fOnChange here since ListChange was already called
@@ -5273,6 +5300,7 @@ begin
   fList.fOnChange := ListChange;
 
   ListHide(nil);
+  fList.OnKeyDown := KeyDown;
 end;
 
 
@@ -5452,6 +5480,7 @@ begin
   DropWidth := aWidth;
 
   ListHide(nil);
+  fList.OnKeyDown := KeyDown;
 end;
 
 

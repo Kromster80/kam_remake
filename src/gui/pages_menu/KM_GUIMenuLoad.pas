@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMMenuLoad = class
+  TKMMenuLoad = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -59,6 +59,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   fMinimap := TKMMinimap.Create(True, True);
   fSaves := TKMSavesCollection.Create;

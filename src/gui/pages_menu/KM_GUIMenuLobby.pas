@@ -12,7 +12,7 @@ uses
 type
   TLobbyTab = (ltDesc, ltOptions);
 
-  TKMMenuLobby = class
+  TKMMenuLobby = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -165,6 +165,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   fMinimap := TKMMinimap.Create(True, True);
 
@@ -796,13 +797,17 @@ end;
 
 procedure TKMMenuLobby.BackClick(Sender: TObject);
 begin
-  //Scan should be terminated, it is no longer needed
-  fMapsMP.TerminateScan;
+  if Panel_LobbySettings.Visible then
+    SettingsClick(Button_LobbySettingsCancel)
+  else begin
+    //Scan should be terminated, it is no longer needed
+    fMapsMP.TerminateScan;
 
-  fNetworking.AnnounceDisconnect;
-  fNetworking.Disconnect;
+    fNetworking.AnnounceDisconnect;
+    fNetworking.Disconnect;
 
-  fOnPageChange(gpMultiplayer, gResTexts[TX_GAME_ERROR_DISCONNECT]);
+    fOnPageChange(gpMultiplayer, gResTexts[TX_GAME_ERROR_DISCONNECT]);
+  end;
 end;
 
 

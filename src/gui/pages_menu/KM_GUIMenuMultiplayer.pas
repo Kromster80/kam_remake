@@ -11,7 +11,7 @@ uses
 
 
 type
-  TKMMenuMultiplayer = class {(TKMGUIPage)}
+  TKMMenuMultiplayer = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -60,25 +60,29 @@ type
       Panel_MPPlayerName: TKMPanel;
         Edit_MP_PlayerName: TKMEdit;
         Label_MP_Status: TKMLabel;
+
       Button_MP_CreateServer: TKMButton;
       Button_MP_FindServer: TKMButton;
+
       Panel_MPServerDetails: TKMPanel;
         Label_MP_Desc: TKMLabel;
         Label_MP_Players: array[1..MAX_LOBBY_SLOTS] of TKMLabel;
 
       //PopUps
       Panel_MPCreateServer: TKMPanel;
-      Edit_MP_ServerName: TKMEdit;
+        Edit_MP_ServerName: TKMEdit;
         Edit_MP_ServerPort: TKMEdit;
-      Button_MP_CreateLAN: TKMButton;
+        Button_MP_CreateLAN: TKMButton;
         Button_MP_CreateWAN: TKMButton;
         Button_MP_CreateServerCancel: TKMButton;
+
       Panel_MPFindServer: TKMPanel;
         Button_MP_FindServerIP: TKMButton;
         Button_MP_FindCancel: TKMButton;
-      Edit_MP_FindIP: TKMEdit;
-      Edit_MP_FindPort: TKMEdit;
+        Edit_MP_FindIP: TKMEdit;
+        Edit_MP_FindPort: TKMEdit;
         Edit_MP_FindRoom: TKMEdit;
+
       Panel_MPPassword: TKMPanel;
         Edit_MP_Password: TKMEdit;
         Button_MP_PasswordOk: TKMButton;
@@ -170,6 +174,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnGoMenuBack := BackClick;
 
   Panel_MultiPlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MultiPlayer.AnchorsStretch;
@@ -245,7 +250,6 @@ begin
   if Panel_MPPassword.Visible then
     case aKey of
       VK_RETURN: MP_PasswordClick(Button_MP_PasswordOk);
-      VK_ESCAPE: MP_PasswordClick(Button_MP_PasswordCancel);
     end;
 end;
 
@@ -696,12 +700,20 @@ end;
 
 procedure TKMMenuMultiplayer.BackClick(Sender: TObject);
 begin
-  gGameApp.Networking.Disconnect;
-  MP_SaveSettings;
+  if Panel_MPCreateServer.Visible then
+    MP_CreateServerCancelClick(nil)
+  else if Panel_MPFindServer.Visible then
+    MP_FindServerCancelClick(nil)
+  else if Panel_MPPassword.Visible then
+    MP_PasswordClick(Button_MP_PasswordCancel)
+  else begin
+    gGameApp.Networking.Disconnect;
+    MP_SaveSettings;
 
-  fMain.UnlockMutex; //Leaving MP areas
+    fMain.UnlockMutex; //Leaving MP areas
 
-  fOnPageChange(gpMainMenu);
+    fOnPageChange(gpMainMenu);
+  end;
 end;
 
 
