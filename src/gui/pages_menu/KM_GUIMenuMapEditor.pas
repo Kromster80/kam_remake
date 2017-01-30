@@ -589,6 +589,15 @@ procedure TKMMenuMapEditor.MoveEditChange(Sender: TObject);
 var
   SaveName: string;
 begin
+  // Do not allow empty file name
+  if Trim(Edit_MapMove.Text) = '' then
+  begin
+    CheckBox_MoveExists.Visible := False;
+    Label_MoveExists.Visible := False;
+    Button_MapMoveConfirm.Enabled := False;
+    Exit;
+  end;
+
   SaveName := TKMapsCollection.FullPath(Trim(Edit_MapMove.Text), '.dat', mfMP);
 
   if (Sender = Edit_MapMove) or (Sender = Button_MapMove) then
