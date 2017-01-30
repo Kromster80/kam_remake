@@ -31,7 +31,6 @@ type
     rgBriefingPos: TRadioGroup;
     edtShortName: TMaskEdit;
     shpBriefing: TShape;
-    chCreateLibxTemplate: TCheckBox;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -252,8 +251,7 @@ begin
 
   C.SaveToFile(dlgSaveCampaign.FileName);
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
-  if chCreateLibxTemplate.Checked then
-    CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
+  CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
 end;
 
 

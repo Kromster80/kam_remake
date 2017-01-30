@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Campaign Builder'
-  ClientHeight = 488
+  ClientHeight = 466
   ClientWidth = 689
   Color = clBtnFace
   Constraints.MinHeight = 492
@@ -20,7 +20,7 @@ object Form1: TForm1
   OnKeyDown = FormKeyDown
   DesignSize = (
     689
-    488)
+    466)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -112,7 +112,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 469
+    Top = 447
     Width = 689
     Height = 19
     Panels = <
@@ -122,14 +122,16 @@ object Form1: TForm1
       item
         Width = 50
       end>
+    ExplicitTop = 469
   end
   object ScrollBox1: TScrollBox
     Left = 168
     Top = 8
     Width = 513
-    Height = 448
+    Height = 426
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
+    ExplicitHeight = 448
     object Image1: TImage
       Left = 0
       Top = 0
@@ -361,15 +363,6 @@ object Form1: TForm1
     Text = '   '
     OnChange = edtShortNameChange
     OnKeyPress = edtShortNameKeyPress
-  end
-  object chCreateLibxTemplate: TCheckBox
-    Left = 8
-    Top = 439
-    Width = 154
-    Height = 17
-    Cursor = crHandPoint
-    Caption = 'Create eng libx template'
-    TabOrder = 10
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Supported images (*.png)|*.png'
