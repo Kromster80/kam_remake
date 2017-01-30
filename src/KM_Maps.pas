@@ -692,46 +692,48 @@ var
   Dest, RenamedFile: UnicodeString;
   SearchRec: TSearchRec;
 begin
-   Lock;
-   try
-     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
-     Assert(fMaps[aIndex].Path <> Dest);
-     Assert(InRange(aIndex, 0, fCount - 1));
+  if Trim(aName) = '' then Exit;
+  
+  Lock;
+  try
+    Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
+    Assert(fMaps[aIndex].Path <> Dest);
+    Assert(InRange(aIndex, 0, fCount - 1));
 
-     //Remove existing dest directory
-     if DirectoryExists(Dest) then
+    //Remove existing dest directory
+    if DirectoryExists(Dest) then
+    begin
+     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
+     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+    end;
+
+    //Move directory to dest
+    {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
+
+    //Rename all the files in dest
+    FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
+    repeat
+     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+     and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
      begin
-       {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
-       {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+       RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
+       if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
+         {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
+         {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
      end;
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
 
-     //Move directory to dest
-     {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
-
-     //Rename all the files in dest
-     FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
-     repeat
-       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-       and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-       begin
-         RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-         if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
-           {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-           {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-       end;
-     until (FindNext(SearchRec) <> 0);
-     FindClose(SearchRec);
-
-     //Remove the map from our list
-     fMaps[aIndex].Free;
-     for I  := aIndex to fCount - 2 do
-       fMaps[I] := fMaps[I + 1];
-     Dec(fCount);
-     SetLength(fMaps, fCount);
-   finally
-     Unlock;
-   end;
+    //Remove the map from our list
+    fMaps[aIndex].Free;
+    for I  := aIndex to fCount - 2 do
+     fMaps[I] := fMaps[I + 1];
+    Dec(fCount);
+    SetLength(fMaps, fCount);
+  finally
+    Unlock;
+  end;
 end;
 
 
