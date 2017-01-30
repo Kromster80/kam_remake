@@ -248,7 +248,7 @@ begin
                       if aText = 'JOIN' then
                         fMenuLobby.Show(lpk_Joiner, gGameApp.Networking, Panel_Menu.Height)
                       else
-                        Assert(False);
+                        raise Exception.Create('');
                       fMenuPage := fMenuLobby;
                     end;
     gpCampaign:     begin

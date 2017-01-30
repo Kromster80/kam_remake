@@ -42,6 +42,7 @@ type
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
   private
     imgFlags: array of TImage;
     imgNodes: array of TImage;
@@ -287,6 +288,15 @@ begin
   UpdateList;
 end;
 
+//The ban entry of any characters other than English
+procedure TForm1.edtShortNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['A'..'Z', 'a'..'z', #8]) then
+  begin
+    Beep;
+    Key:=#0;
+  end;
+end;
 
 procedure TForm1.seMapCountChange(Sender: TObject);
 begin

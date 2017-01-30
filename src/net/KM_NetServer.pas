@@ -99,7 +99,6 @@ type
     procedure SendMessageA(aRecipient: Integer; aKind: TKMessageKind; aText: AnsiString);
     procedure SendMessageW(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString);
     procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
-    procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer); overload;
     procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream); overload;
     procedure SendMessageAct(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream);
     procedure DoSendData(aRecipient: Integer; aData: Pointer; aLength: Cardinal);
@@ -550,16 +549,6 @@ begin
 end;
 
 
-procedure TKMNetServer.SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer);
-var I: Integer;
-begin
-  //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
-  for I := fClientList.Count-1 downto 0 do
-    if fClientList[i].Room = aRoom then
-      SendMessage(fClientList[i].Handle, aKind, aParam);
-end;
-
-
 procedure TKMNetServer.SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream);
 var I: Integer;
 begin
@@ -920,8 +909,7 @@ begin
       Result := fClientList[i].fHandle;
       exit;
     end;
-  Result := -1;
-  Assert(false);
+  raise Exception.Create('');
 end;
 
 
