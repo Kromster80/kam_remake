@@ -307,10 +307,14 @@ end;
 
 procedure TKMMenuLoad.BackClick(Sender: TObject);
 begin
-  //Scan should be terminated, it is no longer needed
-  fSaves.TerminateScan;
+  if Button_DeleteNo.Visible then
+    Load_Delete_Click(Button_DeleteNo)
+  else begin
+    //Scan should be terminated, it is no longer needed
+    fSaves.TerminateScan;
 
-  fOnPageChange(gpSingleplayer);
+    fOnPageChange(gpSingleplayer);
+  end;
 end;
 
 
