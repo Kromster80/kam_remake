@@ -155,6 +155,7 @@ end;
 procedure TKMMenuCampaign.Campaign_SelectMap(Sender: TObject);
 var
   I: Integer;
+  sCampaignTitleMission : UnicodeString;
 begin
   if TKMControl(Sender).Tag > fCampaign.UnlockedMap then exit; //Skip closed maps
 
@@ -172,7 +173,11 @@ begin
     Image_CampaignSubNode[I].Top  := fCampaign.Maps[fMapIndex].Nodes[I].Y;
   end;
 
-  Label_CampaignTitle.Caption := Format(gResTexts[TX_GAME_MISSION], [fMapIndex+1]);
+  sCampaignTitleMission := fCampaign.CampaignMissionTitle;
+  if (Length(sCampaignTitleMission) > 3)and(Pos('%d', sCampaignTitleMission) > 0) then
+    Label_CampaignTitle.Caption := Format(sCampaignTitleMission, [fMapIndex+1])
+  else
+    Label_CampaignTitle.Caption := Format(gResTexts[TX_GAME_MISSION], [fMapIndex+1]);
   Label_CampaignText.Caption := fCampaign.MissionBriefing(fMapIndex);
 
   Panel_CampScroll.Left := IfThen(fCampaign.Maps[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
