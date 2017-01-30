@@ -360,7 +360,6 @@ object Form1: TForm1
     TabOrder = 9
     Text = '   '
     OnChange = edtShortNameChange
-    OnClick = edtShortNameClick
     OnKeyPress = edtShortNameKeyPress
   end
   object chCreateLibxTemplate: TCheckBox

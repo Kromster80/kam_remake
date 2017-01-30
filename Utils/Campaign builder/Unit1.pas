@@ -323,13 +323,6 @@ begin
   end;
 end;
 
-//This method corrects the issue so that the first character has to be
-//administered twice when entering the reduced campaign name
-procedure TForm1.edtShortNameClick(Sender: TObject);
-begin
-  edtShortName.Text := edtShortName.Text;
-end;
-
 //The ban entry of any characters other than English
 procedure TForm1.edtShortNameKeyPress(Sender: TObject; var Key: Char);
 begin
