@@ -740,6 +740,7 @@ begin
   ChatMenuSelect(CHAT_MENU_ALL); //All
 
   Radio_LobbyMapType.ItemIndex := gGameApp.GameSettings.MenuLobbyMapType;
+  UpdateMapList;
 
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);
