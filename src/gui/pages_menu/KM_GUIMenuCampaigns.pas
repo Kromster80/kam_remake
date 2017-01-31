@@ -2,6 +2,8 @@ unit KM_GUIMenuCampaigns;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, SysUtils, Math,
   KM_Controls, KM_Pics,
   KM_Campaigns, KM_InterfaceDefaults;
@@ -40,7 +42,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := BackClick;
 
   Panel_CampSelect := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_CampSelect.AnchorsStretch;

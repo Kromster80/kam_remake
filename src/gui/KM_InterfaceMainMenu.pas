@@ -330,15 +330,18 @@ end;
 procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
-  // Go back in menu on Esc
-  if (Key = VK_ESCAPE) and (fMenuPage <> nil) and Assigned(fMenuPage.OnGoMenuBack) then
-    fMenuPage.OnGoMenuBack(nil);
+
+  if (fMenuPage <> nil) then
+    fMenuPage.MenuKeyDown(Key, Shift);
 end;
 
 
 procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
+
+  if (fMenuPage <> nil) then
+    fMenuPage.MenuKeyUp(Key, Shift);
 end;
 
 

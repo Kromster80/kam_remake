@@ -41,7 +41,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := BackClick;
 
   //Without anchors this page is centered on resize
   Panel_SinglePlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);

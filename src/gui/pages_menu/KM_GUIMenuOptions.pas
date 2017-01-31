@@ -84,7 +84,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := BackClick;
 
   // We cant pass pointers to Settings in here cos on GUI creation fMain/gGameApp are not initialized yet
 

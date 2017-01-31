@@ -34,7 +34,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := BackClick;
 
   Panel_Error := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Error.AnchorsStretch;

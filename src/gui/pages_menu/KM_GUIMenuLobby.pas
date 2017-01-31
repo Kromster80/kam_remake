@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  Controls, Math, SysUtils,
+  Classes, Controls, Math, SysUtils,
   KM_Defaults,
   KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_Networking;
 
@@ -81,9 +81,12 @@ type
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
 
     function DetectMapType: Integer;
-    procedure BackClick(Sender: TObject);
     procedure SettingsClick(Sender: TObject);
     procedure StartClick(Sender: TObject);
+    procedure BackClick(Sender: TObject);
+    procedure EscKeyDown(Sender: TObject);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
+    procedure KeyUp(Key: Word; Shift: TShiftState);
   protected
     Panel_Lobby: TKMPanel;
       Panel_LobbySettings: TKMPanel;
@@ -165,7 +168,9 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
+  OnKeyUp := KeyUp;
 
   fMinimap := TKMMinimap.Create(True, True);
 
@@ -795,19 +800,42 @@ begin
 end;
 
 
-procedure TKMMenuLobby.BackClick(Sender: TObject);
+procedure TKMMenuLobby.EscKeyDown(Sender: TObject);
 begin
   if Panel_LobbySettings.Visible then
     SettingsClick(Button_LobbySettingsCancel)
-  else begin
-    //Scan should be terminated, it is no longer needed
-    fMapsMP.TerminateScan;
+  else
+    BackClick(nil);
+end;
 
-    fNetworking.AnnounceDisconnect;
-    fNetworking.Disconnect;
 
-    fOnPageChange(gpMultiplayer, gResTexts[TX_GAME_ERROR_DISCONNECT]);
+procedure TKMMenuLobby.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN:  if Panel_LobbySettings.Visible then
+                  SettingsClick(Button_LobbySettingsSave);
   end;
+end;
+
+
+procedure TKMMenuLobby.KeyUp(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_TAB: if Panel_LobbySettings.Visible then
+              Panel_LobbySettings.FocusNext;
+  end;
+end;
+
+
+procedure TKMMenuLobby.BackClick(Sender: TObject);
+begin
+  //Scan should be terminated, it is no longer needed
+  fMapsMP.TerminateScan;
+
+  fNetworking.AnnounceDisconnect;
+  fNetworking.Disconnect;
+
+  fOnPageChange(gpMultiplayer, gResTexts[TX_GAME_ERROR_DISCONNECT]);
 end;
 
 

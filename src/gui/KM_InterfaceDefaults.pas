@@ -33,8 +33,13 @@ type
 
 
   TKMMenuPageCommon = class
+  protected
+    OnKeyDown: TNotifyEventKeyShift;
+    OnKeyUp: TNotifyEventKeyShift;
+    OnEscKeyDown: TNotifyEvent;
   public
-    OnGoMenuBack: TNotifyEvent;
+    procedure MenuKeyDown(Key: Word; Shift: TShiftState);
+    procedure MenuKeyUp(Key: Word; Shift: TShiftState);
   end;
 
 
@@ -118,6 +123,24 @@ end;
 procedure TKMUserInterfaceCommon.Paint;
 begin
   fMyControls.Paint;
+end;
+
+
+procedure TKMMenuPageCommon.MenuKeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_ESCAPE:  if Assigned(OnEscKeyDown) then
+                  OnEscKeyDown(Self);
+    else        if Assigned(OnKeyDown) then
+                  OnKeyDown(Key, Shift);
+  end;
+end;
+
+
+procedure TKMMenuPageCommon.MenuKeyUp(Key: Word; Shift: TShiftState);
+begin
+  if Assigned(OnKeyUp) then
+    OnKeyUp(Key, Shift);
 end;
 
 

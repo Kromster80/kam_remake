@@ -60,7 +60,7 @@ begin
 
   fMapIndex := 1;
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := BackClick;
 
   Panel_Campaign := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Campaign.AnchorsStretch;

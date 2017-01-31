@@ -46,7 +46,9 @@ type
     procedure MP_HostFail(const aData: UnicodeString);
     procedure BackClick(Sender: TObject);
     function ValidatePlayerName(const aName: UnicodeString): Boolean;
-    procedure KeyDown(Sender: TObject; aKey: Word);
+    procedure EscKeyDown(Sender: TObject);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
+    procedure KeyUp(Key: Word; Shift: TShiftState);
   protected
     Panel_MultiPlayer: TKMPanel;
       Panel_MPAnnouncement: TKMPanel;
@@ -167,14 +169,13 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
       Button_MP_PasswordOk.OnClick := MP_PasswordClick;
       Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, gResTexts[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
       Button_MP_PasswordCancel.OnClick := MP_PasswordClick;
-      Edit_MP_Password.OnKeyDown := KeyDown;
   end;
 var I: Integer;
 begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := BackClick;
 
   Panel_MultiPlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MultiPlayer.AnchorsStretch;
@@ -242,15 +243,36 @@ begin
   CreateServerPopUp;
   FindServerPopUp;
   PasswordPopUp;
+
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
+  OnKeyUp := KeyUp;
 end;
 
 
-procedure TKMMenuMultiplayer.KeyDown(Sender: TObject; aKey: Word);
+procedure TKMMenuMultiplayer.KeyUp(Key: Word; Shift: TShiftState);
 begin
-  if Panel_MPPassword.Visible then
-    case aKey of
-      VK_RETURN: MP_PasswordClick(Button_MP_PasswordOk);
-    end;
+  case Key of
+    VK_TAB: if Panel_MPFindServer.Visible then
+              Panel_MPFindServer.FocusNext
+            else if Panel_MPCreateServer.Visible then
+              Panel_MPCreateServer.FocusNext;
+  end;
+end;
+
+
+procedure TKMMenuMultiplayer.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN:  if Panel_MPPassword.Visible then
+                  MP_PasswordClick(Button_MP_PasswordOk)
+                else if Panel_MPFindServer.Visible then
+                  MP_FindServerIPClick(Button_MP_FindServerIP);
+    VK_F5:      if not Panel_MPPassword.Visible
+                  and not Panel_MPCreateServer.Visible
+                  and not Panel_MPFindServer.Visible then
+                  MP_ServersRefresh(Button_MP_Refresh);
+  end;
 end;
 
 
@@ -698,7 +720,7 @@ begin
 end;
 
 
-procedure TKMMenuMultiplayer.BackClick(Sender: TObject);
+procedure TKMMenuMultiplayer.EscKeyDown(Sender: TObject);
 begin
   if Panel_MPCreateServer.Visible then
     MP_CreateServerCancelClick(nil)
@@ -707,13 +729,19 @@ begin
   else if Panel_MPPassword.Visible then
     MP_PasswordClick(Button_MP_PasswordCancel)
   else begin
-    gGameApp.Networking.Disconnect;
-    MP_SaveSettings;
-
-    fMain.UnlockMutex; //Leaving MP areas
-
-    fOnPageChange(gpMainMenu);
+    BackClick(nil);
   end;
+end;
+
+
+procedure TKMMenuMultiplayer.BackClick(Sender: TObject);
+begin
+  gGameApp.Networking.Disconnect;
+  MP_SaveSettings;
+
+  fMain.UnlockMutex; //Leaving MP areas
+
+  fOnPageChange(gpMainMenu);
 end;
 
 

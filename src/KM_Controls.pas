@@ -14,8 +14,8 @@ type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
-  TNotifyEventKeyDown = procedure(Key: Word; Shift: TShiftState) of object;
-  TNotifyEventKeyDownFunc = function(Key: Word; Shift: TShiftState): Boolean of object;
+  TNotifyEventKeyShift = procedure(Key: Word; Shift: TShiftState) of object;
+  TNotifyEventKeyShiftFunc = function(Key: Word; Shift: TShiftState): Boolean of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
@@ -35,6 +35,7 @@ type
 
     fOnHint: TNotifyEvent; //Comes along with OnMouseOver
 
+    function IsCtrlCovered(aCtrl: TKMControl): Boolean;
     function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
     procedure SetCtrlDown(aCtrl: TKMControl);
     procedure SetCtrlFocus(aCtrl: TKMControl);
@@ -86,6 +87,7 @@ type
 
     fEnabled: Boolean;
     fVisible: Boolean;
+    fFocusOrder: Integer;
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
@@ -114,6 +116,8 @@ type
     procedure SetTopF(aValue: Single);
     procedure SetLeftF(aValue: Single);
     function GetControlRect: TKMRect;
+    function GetIsFocused: Boolean;
+    function GetIsClickable: Boolean;
   protected
     procedure SetLeft(aValue: Integer); virtual;
     procedure SetTop(aValue: Integer); virtual;
@@ -125,6 +129,8 @@ type
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
+
+    IsMarkedToUnfocus: Boolean;
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
 
@@ -144,6 +150,9 @@ type
     property Anchors: TKMAnchorsSet read fAnchors write SetAnchors;
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
+    property IsFocused: Boolean read GetIsFocused;
+    property IsClickable: Boolean read GetIsClickable;
+    property FocusOrder: Integer read fFocusOrder;
     procedure Enable;
     procedure Disable;
     procedure Show;
@@ -151,6 +160,7 @@ type
     procedure AnchorsCenter;
     procedure AnchorsStretch;
     function MasterParent: TKMPanel;
+    procedure Focus;
 
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; virtual;
     procedure KeyPress(Key: Char); virtual;
@@ -177,6 +187,7 @@ type
   TKMPanel = class(TKMControl)
   private
     fCollection: TKMMasterControl;
+    procedure Init;
   protected
     //Do not propogate SetEnabled and SetVisible because that would show/enable ALL childs childs
     //e.g. scrollbar on a listbox
@@ -185,12 +196,15 @@ type
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
   public
+    FocusedControl: Integer;
+//    LastFocusedControl: Integer;
     ChildCount: Word;
     Childs: array of TKMControl;
     constructor Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer); overload;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer); overload;
     destructor Destroy; override;
-    procedure AddChild(aChild: TKMControl);
+    function AddChild(aChild: TKMControl): Integer;
+    procedure FocusNext;
     procedure Paint; override;
   end;
 
@@ -383,6 +397,12 @@ type
     acFileName, //Exclude symbols that can't be used in filenames
     acText  //Anything is allowed except for eol symbol
   );
+
+
+  function IsCharAllowed(aChar: WideChar; aAllowedChars: TAllowedChars): Boolean;
+
+
+type
 
   //Form that can be dragged around (and resized?)
   TKMForm = class(TKMPanel)
@@ -700,7 +720,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     ItemTags: array of Integer;
-    OnKeyDown: TNotifyEventKeyDownFunc;
+    OnKeyDown: TNotifyEventKeyShiftFunc;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
 
@@ -832,7 +852,7 @@ type
     HighlightError: Boolean;
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
-    OnKeyDown: TNotifyEventKeyDownFunc;
+    OnKeyDown: TNotifyEventKeyShiftFunc;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -895,7 +915,7 @@ type
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
-    function KeyDown(Key: Word; Shift: TShiftState): Boolean;
+    function DropCommonKeyDown(Key: Word; Shift: TShiftState): Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
 
@@ -1299,23 +1319,25 @@ end;
 constructor TKMControl.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create;
-  Scale     := 1;
-  Hitable   := True; //All controls can be clicked by default
-  fLeft     := aLeft;
-  fTop      := aTop;
-  fWidth    := aWidth;
-  fHeight   := aHeight;
-  Anchors   := [anLeft, anTop];
-  State     := [];
-  fEnabled  := True;
-  fVisible  := True;
-  Tag       := 0;
-  Hint      := '';
+  Scale       := 1;
+  Hitable     := True; //All controls can be clicked by default
+  fLeft       := aLeft;
+  fTop        := aTop;
+  fWidth      := aWidth;
+  fHeight     := aHeight;
+  Anchors     := [anLeft, anTop];
+  State       := [];
+  fEnabled    := True;
+  fVisible    := True;
+  Tag         := 0;
+  Hint        := '';
+  fFocusOrder  := -1;
+  IsMarkedToUnfocus := False;
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
   if aParent <> nil then
-    aParent.AddChild(Self);
+    fFocusOrder := aParent.AddChild(Self);
 end;
 
 
@@ -1529,6 +1551,25 @@ begin
 end;
 
 
+procedure TKMControl.Focus;
+begin
+  if not Focusable then Exit;
+//  Parent
+end;
+
+
+function TKMControl.GetIsFocused: Boolean;
+begin
+  Result := csFocus in State;
+end;
+
+
+function TKMControl.GetIsClickable: Boolean;
+begin
+  Result := Visible and Enabled;
+end;
+
+
 //Overriden in child classes
 procedure TKMControl.SetHeight(aValue: Integer);
 begin
@@ -1656,8 +1697,7 @@ begin
   inherited Create(nil, aLeft, aTop, aWidth, aHeight);
   fCollection := aParent;
   aParent.fCtrl := Self;
-  OnControlMouseDown := ControlMouseDown;
-  OnControlMouseUp := ControlMouseUp;
+  Init;
 end;
 
 
@@ -1665,6 +1705,13 @@ constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Int
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fCollection := aParent.fCollection;
+  Init;
+end;
+
+
+procedure TKMPanel.Init;
+begin
+  FocusedControl := -1;
   OnControlMouseDown := ControlMouseDown;
   OnControlMouseUp := ControlMouseUp;
 end;
@@ -1680,12 +1727,23 @@ begin
 end;
 
 
-procedure TKMPanel.AddChild(aChild: TKMControl);
+procedure TKMPanel.FocusNext;
+begin
+  if (FocusedControl >= 0) and (FocusedControl < ChildCount) then
+  begin
+    Childs[FocusedControl].IsMarkedToUnfocus := True;
+    fCollection.UpdateFocus(Self);
+  end;
+end;
+
+
+function TKMPanel.AddChild(aChild: TKMControl): Integer;
 begin
   if ChildCount >= Length(Childs) then
     SetLength(Childs, ChildCount + 16);
 
   Childs[ChildCount] := aChild;
+  Result := ChildCount;
   Inc(ChildCount);
 end;
 
@@ -1757,6 +1815,19 @@ begin
   for I := 0 to ChildCount - 1 do
     if Childs[I].fVisible then
       Childs[I].Paint;
+end;
+
+
+// Check if specified aChar is allowed for specified aAllowedChars type
+function IsCharAllowed(aChar: WideChar; aAllowedChars: TAllowedChars): Boolean;
+const
+  NonFileChars: TSetOfAnsiChar = [#0 .. #31, '<', '>', #176, '|', '"', '\', '/', ':', '*', '?'];
+  NonTextChars: TSetOfAnsiChar = [#0 .. #31, #176, '|']; //° has negative width so acts like a backspace in KaM fonts
+begin
+  Result := not ((aAllowedChars = acDigits) and not InRange(Ord(aChar), 48, 57)
+    or (aAllowedChars = acANSI7) and not InRange(Ord(aChar), 32, 126)
+    or (aAllowedChars = acFileName) and CharInSet(aChar, NonFileChars)
+    or (aAllowedChars = acText) and CharInSet(aChar, NonTextChars));
 end;
 
 
@@ -2445,14 +2516,8 @@ end;
 
 
 function TKMEdit.IsCharValid(aChar: WideChar): Boolean;
-const
-  NonFileChars: TSetOfAnsiChar = [#0 .. #31, '<', '>', #176, '|', '"', '\', '/', ':', '*', '?'];
-  NonTextChars: TSetOfAnsiChar = [#0 .. #31, #176, '|']; //° has negative width so acts like a backspace in KaM fonts
 begin
-  Result := not ((fAllowedChars = acDigits) and not InRange(Ord(aChar), 48, 57)
-    or (fAllowedChars = acANSI7) and not InRange(Ord(aChar), 32, 126)
-    or (fAllowedChars = acFileName) and CharInSet(aChar, NonFileChars)
-    or (fAllowedChars = acText) and CharInSet(aChar, NonTextChars));
+  Result := IsCharAllowed(aChar, fAllowedChars);
 end;
 
 
@@ -2495,7 +2560,7 @@ begin
   end;
 
   //We want these keys to be ignored by chat, so game shortcuts still work
-  if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+  if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_RETURN, VK_TAB] then Result := False;
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
   if ssCtrl in Shift then Result := (Key in [Ord('A'), Ord('C'), Ord('X'), Ord('V')]);
@@ -4878,6 +4943,8 @@ begin
     Exit
   else
   begin
+    if not IsCharAllowed(Key, acFileName) then Exit;
+
     if SearchColumn = -1 then
       Exit;
 
@@ -5214,9 +5281,9 @@ begin
 end;
 
 
-function TKMDropCommon.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMDropCommon.DropCommonKeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
-  if Key = VK_ESCAPE then
+  if fAutoClose and (Key = VK_ESCAPE) then
   begin
     ListHide(nil);
     Result := True;
@@ -5300,7 +5367,7 @@ begin
   fList.fOnChange := ListChange;
 
   ListHide(nil);
-  fList.OnKeyDown := KeyDown;
+  fList.OnKeyDown := DropCommonKeyDown;
 end;
 
 
@@ -5480,7 +5547,7 @@ begin
   DropWidth := aWidth;
 
   ListHide(nil);
-  fList.OnKeyDown := KeyDown;
+  fList.OnKeyDown := DropCommonKeyDown;
 end;
 
 
@@ -6281,7 +6348,10 @@ begin
   if (aCtrl <> fCtrlFocus) then
   begin
     if (aCtrl <> nil) and Assigned(aCtrl.fOnFocus) then
+    begin
       aCtrl.fOnFocus(True);
+      aCtrl.Parent.FocusedControl := aCtrl.FocusOrder;
+    end;
 
     if (fCtrlFocus <> nil) and Assigned(fCtrlFocus.fOnFocus) then
       fCtrlFocus.fOnFocus(False);
@@ -6314,29 +6384,63 @@ end;
 //Update focused control
 procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
   function FindFocusable(C: TKMPanel): Boolean;
-  var I: Integer;
+    //Check If Control if it is allowed to be focused on
+    function IsFocusAllowed(aCtrl: TKMControl): Boolean;
+    begin
+      Result := aCtrl.fVisible
+            and aCtrl.Enabled
+            and aCtrl.Focusable
+            and not IsCtrlCovered(aCtrl); // Do not allow to focus on covered Controls
+    end;
+
+    procedure SetCtrlFocus(aI: Integer);
+    begin
+      CtrlFocus := C.Childs[aI];
+      Result := True;
+    end;
+
+  var I, CtrlToFocusI: Integer;
   begin
     Result := False;
-
+    CtrlToFocusI := -1;
     //Check for focusable controls
     for I := 0 to C.ChildCount - 1 do
-    if C.Childs[I].fVisible
-    and C.Childs[I].Enabled
-    and C.Childs[I].Focusable then
+      if IsFocusAllowed(C.Childs[I]) and (
+        (C.FocusedControl = -1)                         // In case FocusControl was not set (usually should never happen)
+        or (C.FocusedControl = C.Childs[I].FocusOrder)  // We've found last focused Control
+        or (CtrlToFocusI <> -1)) then                   // We find last docused Control on previos iterations
+      begin
+        if C.Childs[I].IsMarkedToUnfocus then
+        begin
+          CtrlToFocusI := I;
+          C.Childs[I].IsMarkedToUnfocus := False;
+          Continue;
+        end else begin
+          SetCtrlFocus(I); // We find next possible Control to focus on, then exit
+          Exit;
+        end;
+      end;
+
+    // If we did not find next possible Control to focus on, try to find in the first controls of Panel (let's cycle the search)
+    if CtrlToFocusI <> -1 then
     begin
-      CtrlFocus := C.Childs[I];
-      Result := True;
-      Exit;
+      // We will try to find it until the same Control, that we find before in previous For cycle
+      for I := 0 to CtrlToFocusI do // So if there will be no proper controls, then set focus again to same control with I = CtrlToFocusI
+        if IsFocusAllowed(C.Childs[I]) then // Do not allow to focus on covered Control
+        begin
+          SetCtrlFocus(I);
+          Exit;
+        end;
     end;
 
     for I := 0 to C.ChildCount - 1 do
-    if C.Childs[I].fVisible
-    and C.Childs[I].Enabled
-    and (C.Childs[I] is TKMPanel) then
-    begin
-      Result := FindFocusable(TKMPanel(C.Childs[I]));
-      if Result then Exit;
-    end;
+      if C.Childs[I].fVisible
+        and C.Childs[I].Enabled
+        and (C.Childs[I] is TKMPanel) then
+      begin
+        Result := FindFocusable(TKMPanel(C.Childs[I]));
+        if Result then Exit;
+      end;
   end;
 begin
   if aSender.Visible and aSender.Enabled
@@ -6363,8 +6467,20 @@ begin
 end;
 
 
+//Check if control is covered by other controls or not
+//We assume that control is covered if any of his 4 angles are covered
+function TKMMasterControl.IsCtrlCovered(aCtrl: TKMControl): Boolean;
+begin
+  Result := (HitControl(aCtrl.AbsLeft, aCtrl.AbsTop) = aCtrl)
+        and (HitControl(aCtrl.AbsLeft + aCtrl.Width - 1, aCtrl.AbsTop) = aCtrl)
+        and (HitControl(aCtrl.AbsLeft, aCtrl.AbsTop + aCtrl.Height - 1) = aCtrl)
+        and (HitControl(aCtrl.AbsLeft + aCtrl.Width - 1, aCtrl.AbsTop + aCtrl.Height - 1) = aCtrl);
+  Result := not Result;
+end;
+
+
 { Recursing function to find topmost control (excl. Panels)}
-function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
+function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = False): TKMControl;
   function ScanChild(P: TKMPanel; aX,aY: Integer): TKMControl;
   var I: Integer;
   begin

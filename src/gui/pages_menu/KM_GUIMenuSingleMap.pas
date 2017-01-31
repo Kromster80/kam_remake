@@ -77,7 +77,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnGoMenuBack := BackClick;
+  OnEscKeyDown := BackClick;
 
   fMaps := TKMapsCollection.Create(mfSP);
   fMinimap := TKMMinimap.Create(True, True);
