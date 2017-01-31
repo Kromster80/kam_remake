@@ -203,6 +203,7 @@ type
     destructor Destroy; override;
     function AddChild(aChild: TKMControl): Integer;
     procedure FocusNext;
+    procedure ResetFocusedControlIndex;
     procedure Paint; override;
   end;
 
@@ -1705,9 +1706,15 @@ end;
 
 procedure TKMPanel.Init;
 begin
-  FocusedControlIndex:= -1;
+  ResetFocusedControlIndex;
   OnControlMouseDown := ControlMouseDown;
   OnControlMouseUp := ControlMouseUp;
+end;
+
+
+procedure TKMPanel.ResetFocusedControlIndex;
+begin
+  FocusedControlIndex := -1;
 end;
 
 
@@ -1724,7 +1731,7 @@ end;
 //Focus next focusable control on this Panel
 procedure TKMPanel.FocusNext;
 begin
-  if (FocusedControlIndex >= 0) and (FocusedControlIndex < ChildCount) then
+  if InRange(FocusedControlIndex, 0, ChildCount - 1) then
   begin
     Childs[FocusedControlIndex].IsMarkedToUnfocus := True;
     fCollection.UpdateFocus(Self);
@@ -6392,7 +6399,10 @@ begin
     end;
 
     if (fCtrlFocus <> nil) and Assigned(fCtrlFocus.fOnFocus) then
+    begin
       fCtrlFocus.fOnFocus(False);
+      fCtrlFocus.Parent.ResetFocusedControlIndex; // Reset Parent Panel FocusedControlIndex
+    end;
   end;
 
   fCtrlFocus := aCtrl;
@@ -6444,9 +6454,9 @@ procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
     //Check for focusable controls
     for I := 0 to C.ChildCount - 1 do
       if IsFocusAllowed(C.Childs[I]) and (
-        (C.FocusedControlIndex = -1)                         // In case FocusControl was not set (usually should never happen)
-        or (C.FocusedControlIndex = C.Childs[I].ControlIndex)  // We've found last focused Control
-        or (CtrlToFocusI <> -1)) then                   // We find last docused Control on previos iterations
+        (C.FocusedControlIndex = -1)                          // If FocusControl was not set (no focused element on panel)
+        or (C.FocusedControlIndex = C.Childs[I].ControlIndex) // We've found last focused Control
+        or (CtrlToFocusI <> -1)) then                         // We did find last focused Control on previos iterations
       begin
         if C.Childs[I].IsMarkedToUnfocus then
         begin
