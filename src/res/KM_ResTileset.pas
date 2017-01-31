@@ -9,7 +9,7 @@ uses
 type
   //TKMTileProperty = set of (tpWalkable, tpRoadable);
 
-  TKMTileset = class
+  TKMResTileset = class
   private
     fCRC: Cardinal;
     TileTable: array [1 .. 30, 1 .. 30] of packed record
@@ -57,8 +57,8 @@ type
 implementation
 
 
-{ TKMTileset }
-constructor TKMTileset.Create(const aPatternPath: string);
+{ TKMResTileset }
+constructor TKMResTileset.Create(const aPatternPath: string);
 begin
   inherited Create;
 
@@ -67,7 +67,7 @@ end;
 
 
 //Reading pattern data (tile info)
-function TKMTileset.LoadPatternDAT(const FileName: string): Boolean;
+function TKMResTileset.LoadPatternDAT(const FileName: string): Boolean;
 var
   I: Integer;
   f: file;
@@ -96,7 +96,7 @@ begin
 end;
 
 
-procedure TKMTileset.ExportPatternDat(const aFileName: string);
+procedure TKMResTileset.ExportPatternDat(const aFileName: string);
 var
   I, K: Integer;
   ft: TextFile;
@@ -134,35 +134,35 @@ end;
 
 
 {Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed}
-function TKMTileset.TileIsWater(aTile: Byte): Boolean;
+function TKMResTileset.TileIsWater(aTile: Byte): Boolean;
 begin
   Result := aTile in [48,114,115,119,192,193,194,196, 200, 208..211, 235,236, 240,244];
 end;
 
 
 //Check if requested tile has ice
-function TKMTileSet.TileIsIce(aTile: Byte): Boolean;
+function TKMResTileset.TileIsIce(aTile: Byte): Boolean;
 begin
   Result := aTile in [4, 10, 12, 22, 23, 44];
 end;
 
 
 {//Check if requested tile has any water, including ground-water transitions
-function TKMTileset.TileHasWater(aTile: Byte): Boolean;
+function TKMResTileset.TileHasWater(aTile: Byte): Boolean;
 begin
   Result := aTile in [4,10,12,22,23,44,48,105..107,114..127,142,143,192..194,196,198..200,208..211,230,232..244];
 end;}
 
 
 {Check if requested tile is sand suitable for crabs}
-function TKMTileset.TileIsSand(aTile: Byte): Boolean;
+function TKMResTileset.TileIsSand(aTile: Byte): Boolean;
 begin
   Result := aTile in [31..33, 70,71, 99,100,102,103, 108,109, 112,113, 116,117, 169, 173, 181, 189];
 end;
 
 
 {Check if requested tile is Stone and returns Stone deposit}
-function TKMTileset.TileIsStone(aTile: Byte): Byte;
+function TKMResTileset.TileIsStone(aTile: Byte): Byte;
 begin
   case aTile of
     132,137: Result := 5;
@@ -176,13 +176,13 @@ end;
 
 
 {Check if requested tile is sand suitable for crabs}
-function TKMTileset.TileIsSnow(aTile: Byte): Boolean;
+function TKMResTileset.TileIsSnow(aTile: Byte): Boolean;
 begin
   Result := aTile in [45, 46, 47, 49, 52, 64, 65, 166, 171, 203, 204, 205, 212, 213, 220];
 end;
 
 
-function TKMTileset.TileIsCoal(aTile: Byte): Byte;
+function TKMResTileset.TileIsCoal(aTile: Byte): Byte;
 begin
   Result := 0;
   if aTile > 151 then
@@ -191,7 +191,7 @@ begin
 end;
 
 
-function TKMTileset.TileIsIron(aTile: Byte): Byte;
+function TKMResTileset.TileIsIron(aTile: Byte): Byte;
 begin
   Result := 0;
   if aTile > 147 then
@@ -200,7 +200,7 @@ begin
 end;
 
 
-function TKMTileset.TileIsGold(aTile: Byte): Byte;
+function TKMResTileset.TileIsGold(aTile: Byte): Byte;
 begin
   Result := 0;
   if aTile > 143 then
@@ -210,14 +210,14 @@ end;
 
 
 {Check if requested tile is soil suitable for fields and trees}
-function TKMTileset.TileIsSoil(aTile: Byte): Boolean;
+function TKMResTileset.TileIsSoil(aTile: Byte): Boolean;
 begin
   Result := aTile in [0..3,5,6, 8,9,11,13,14, 16..21, 26..28, 34..39, 47, 49, 55..58, 64..69, 72..80, 84..87, 88,89, 93..98,180,182..183,188,190..191,220,247];
 end;
 
 
 {Check if requested tile is generally walkable}
-function TKMTileset.TileIsWalkable(aTile: Byte): Boolean;
+function TKMResTileset.TileIsWalkable(aTile: Byte): Boolean;
 begin
   //Includes 1/2 and 3/4 walkable as walkable
   //Result := Land[Loc.Y,Loc.X].Terrain in [0..6, 8..11,13,14, 16..22, 25..31, 32..39, 44..47, 49,52,55, 56..63,
@@ -230,7 +230,7 @@ end;
 
 
 {Check if requested tile is generally suitable for road building}
-function TKMTileset.TileIsRoadable(aTile: Byte): Boolean;
+function TKMResTileset.TileIsRoadable(aTile: Byte): Boolean;
 begin
   //Do not include 1/2 and 1/4 walkable as roadable
   //Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..31, 32..39, 45..47, 49, 52, 55, 56..63,
@@ -241,19 +241,19 @@ begin
 end;
 
 
-function TKMTileset.TileIsCornField(aTile: Byte): Boolean;
+function TKMResTileset.TileIsCornField(aTile: Byte): Boolean;
 begin
   Result := aTile in [59..63];
 end;
 
 
-function TKMTileset.TileIsWineField(aTile: Byte): Boolean;
+function TKMResTileset.TileIsWineField(aTile: Byte): Boolean;
 begin
   Result := aTile = 55;
 end;
 
 
-function TKMTileset.TileIsFactorable(aTile: Byte): Boolean;
+function TKMResTileset.TileIsFactorable(aTile: Byte): Boolean;
 begin
   //List of tiles that cannot be factored (coordinates outside the map return true)
   Result := not (aTile in [7,15,24,50,53,144..151,156..165,198,199,202,206]);

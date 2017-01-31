@@ -182,10 +182,10 @@ var
         //Using custom CanWalkDiagonally is also much faster
         if X-1 >= 1 then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X].Obj].DiagonalBlocked then
             LocalFillArea(X-1, Y-1);
           LocalFillArea(X-1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X].Obj].DiagonalBlocked then
             LocalFillArea(X-1,Y+1);
         end;
 
@@ -194,10 +194,10 @@ var
 
         if X+1 <= MapX then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X+1].Obj].DiagonalBlocked then
             LocalFillArea(X+1, Y-1);
           LocalFillArea(X+1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X+1].Obj].DiagonalBlocked then
             LocalFillArea(X+1, Y+1);
         end;
       end;
@@ -248,10 +248,10 @@ var
         //Using custom CanWalkDiagonally is also much faster
         if X-1 >= 1 then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X].Obj].DiagonalBlocked then
             FillArea(X-1, Y-1);
           FillArea(X-1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X].Obj].DiagonalBlocked then
             FillArea(X-1,Y+1);
         end;
 
@@ -260,10 +260,10 @@ var
 
         if X+1 <= MapX then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X+1].Obj].DiagonalBlocked then
             FillArea(X+1, Y-1);
           FillArea(X+1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X+1].Obj].DiagonalBlocked then
             FillArea(X+1, Y+1);
         end;
       end;
@@ -346,8 +346,8 @@ begin
 
         if (Y >= 1) and InRange(X, 1, MapX) and (aPass in Land[Y,X].Passability) then
         if (H = 1) or (H = 3) or (aAllowDiag and (
-                                   ((H = 0) and not MapElem[Land[I,K].Obj].DiagonalBlocked) or
-                                   ((H = 2) and not MapElem[Land[I,K+1].Obj].DiagonalBlocked)))
+                                   ((H = 0) and not gMapElements[Land[I,K].Obj].DiagonalBlocked) or
+                                   ((H = 2) and not gMapElements[Land[I,K+1].Obj].DiagonalBlocked)))
         then
         begin
           if (NCount = 0) then

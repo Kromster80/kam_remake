@@ -183,7 +183,7 @@ begin
     MaxHeight := Math.max(MaxHeight, Letters[I].Height);
 
     if Letters[I].Width * Letters[I].Height = 0 then
-      Assert(False, 'Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
+      raise Exception.Create('Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
 
     SetLength(rawData[I], Letters[I].Width*Letters[I].Height);
     S.Read(rawData[I,0], Letters[I].Width*Letters[I].Height);

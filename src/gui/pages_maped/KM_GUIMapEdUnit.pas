@@ -112,12 +112,12 @@ begin
 
   if fUnit = nil then Exit;
 
-  Label_UnitName.Caption := gRes.UnitDat[fUnit.UnitType].GUIName;
-  Image_UnitPic.TexID := gRes.UnitDat[fUnit.UnitType].GUIScroll;
+  Label_UnitName.Caption := gRes.Units[fUnit.UnitType].GUIName;
+  Image_UnitPic.TexID := gRes.Units[fUnit.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fUnit.Owner].FlagColor;
   KMConditionBar_Unit.Position := fUnit.Condition / UNIT_MAX_CONDITION;
 
-  Label_UnitDescription.Caption := gRes.UnitDat[fUnit.UnitType].Description;
+  Label_UnitDescription.Caption := gRes.Units[fUnit.UnitType].Description;
 end;
 
 
@@ -132,8 +132,8 @@ begin
 
   if fGroup = nil then Exit;
 
-  Label_UnitName.Caption := gRes.UnitDat[fGroup.UnitType].GUIName;
-  Image_UnitPic.TexID := gRes.UnitDat[fGroup.UnitType].GUIScroll;
+  Label_UnitName.Caption := gRes.Units[fGroup.UnitType].GUIName;
+  Image_UnitPic.TexID := gRes.Units[fGroup.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fGroup.Owner].FlagColor;
   KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
 

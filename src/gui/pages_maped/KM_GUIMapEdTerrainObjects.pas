@@ -81,8 +81,8 @@ var
 begin
   fCountCompact := 0;
   for I := 0 to gRes.MapElements.Count - 1 do
-  if (I <> 61) and (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
-  and (MapElem[I].Stump = -1) then //Hide falling trees and invisible wall (61)
+  if (I <> 61) and (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0)
+  and (gMapElements[I].Stump = -1) then //Hide falling trees and invisible wall (61)
   begin
     fCompactToMapElem[fCountCompact] := I; //pointer
     fMapElemToCompact[I] := fCountCompact; //Reverse lookup
@@ -132,7 +132,7 @@ begin
     ObjID := ObjectsScroll.Position * 3 + I;
     if ObjID < fCountCompact then
     begin
-      ObjectsTable[I].TexID := MapElem[fCompactToMapElem[ObjID]].Anim.Step[1] + 1;
+      ObjectsTable[I].TexID := gMapElements[fCompactToMapElem[ObjID]].Anim.Step[1] + 1;
       ObjectsTable[I].Caption := IntToStr(fCompactToMapElem[ObjID]);
       ObjectsTable[I].Enable;
     end

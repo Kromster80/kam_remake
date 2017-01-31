@@ -663,7 +663,7 @@ begin
     and HouseTypeValid(aHouseType)
     and gTerrain.TileInMapCoords(X, Y) then
     begin
-      if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gRes.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
+      if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gRes.Houses[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
       begin
         H := gHands[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
         if H = nil then Exit;
@@ -696,7 +696,7 @@ begin
     and HouseTypeValid(aHouseType)
     and gTerrain.TileInMapCoords(X,Y) then
     begin
-      NonEntranceX := X - gRes.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX;
+      NonEntranceX := X - gRes.Houses[HouseIndexToType[aHouseType]].EntranceOffsetX;
       if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y)) then
       begin
         H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y));
@@ -704,7 +704,7 @@ begin
           Exit;
 
         Result := H.UID;
-        HA := gRes.HouseDat[H.HouseType].BuildArea;
+        HA := gRes.Houses[H.HouseType].BuildArea;
         for I := 1 to 4 do
         for K := 1 to 4 do
           if HA[I, K] <> 0 then
@@ -718,15 +718,15 @@ begin
         H.BuildingState := hbs_Wood;
         if aAddMaterials then
         begin
-          for I := 0 to gRes.HouseDat[H.HouseType].WoodCost - 1 do
+          for I := 0 to gRes.Houses[H.HouseType].WoodCost - 1 do
             H.ResAddToBuild(wt_Wood);
-          for K := 0 to gRes.HouseDat[H.HouseType].StoneCost - 1 do
+          for K := 0 to gRes.Houses[H.HouseType].StoneCost - 1 do
             H.ResAddToBuild(wt_Stone);
         end
         else
         begin
-          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Wood, gRes.HouseDat[H.HouseType].WoodCost, dtOnce, diHigh4);
-          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Stone, gRes.HouseDat[H.HouseType].StoneCost, dtOnce, diHigh4);
+          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Wood, gRes.Houses[H.HouseType].WoodCost, dtOnce, diHigh4);
+          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Stone, gRes.Houses[H.HouseType].StoneCost, dtOnce, diHigh4);
         end;
         gHands[aPlayer].BuildList.HouseList.AddHouse(H);
       end;
@@ -1126,7 +1126,7 @@ begin
         gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
         //Terrain under roads is flattened (fields are not)
         gTerrain.FlattenTerrain(KMPoint(X, Y));
-        if MapElem[gTerrain.Land[Y,X].Obj].WineOrCorn then
+        if gMapElements[gTerrain.Land[Y,X].Obj].WineOrCorn then
           gTerrain.RemoveObject(KMPoint(X,Y)); //Remove corn/wine like normally built road does
       end
     else
@@ -1516,8 +1516,8 @@ begin
       if H <> nil then
         if not H.IsComplete then
         begin
-          StoneNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Stone, gRes.HouseDat[H.HouseType].StoneCost - H.GetBuildStoneDelivered);
-          WoodNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Wood, gRes.HouseDat[H.HouseType].WoodCost - H.GetBuildWoodDelivered);
+          StoneNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Stone, gRes.Houses[H.HouseType].StoneCost - H.GetBuildStoneDelivered);
+          WoodNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Wood, gRes.Houses[H.HouseType].WoodCost - H.GetBuildWoodDelivered);
           for I := 0 to WoodNeeded - 1 do
             H.ResAddToBuild(wt_Wood);
           for I := 0 to StoneNeeded - 1 do
@@ -1731,7 +1731,7 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and gRes.HouseDat[H.HouseType].AcceptsWares then
+      if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
         H.WareDelivery := not aDeliveryBlocked;
     end
     else
@@ -1832,7 +1832,7 @@ begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) then
         for I := 1 to 4 do
-          if gRes.HouseDat[H.HouseType].ResOutput[I] = Res then
+          if gRes.Houses[H.HouseType].ResOutput[I] = Res then
           begin
             H.ResOrder[I] := aAmount;
             Exit;
@@ -2268,7 +2268,7 @@ begin
             begin
               gTerrain.SetField(Points[I], aPlayer, ft_Road);
               gTerrain.FlattenTerrain(Points[I]);
-              if MapElem[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
+              if gMapElements[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
                 gTerrain.RemoveObject(Points[I]); //Remove corn/wine like normally built road does
             end;
         Result := True;

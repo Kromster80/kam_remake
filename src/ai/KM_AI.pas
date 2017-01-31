@@ -153,7 +153,6 @@ procedure TKMHandAI.CheckGoals;
       Exit;
     end;
 
-    Result := False;
     if aGoal.HandIndex <> PLAYER_NONE then
       Stat := gHands[aGoal.HandIndex].Stats
     else
@@ -172,7 +171,7 @@ procedure TKMHandAI.CheckGoals;
                                                          ht_SiegeWorkshop]) > 0);
       gc_SerfsAndSchools:   Result := (Stat.GetHouseQty([ht_School]) > 0) or (Stat.GetUnitQty(ut_Serf) > 0);
       gc_EconomyBuildings:  Result := (Stat.GetHouseQty([ht_Store, ht_School, ht_Inn]) > 0);
-      else                  Assert(False, 'Unknown goal');
+      else                  raise Exception.Create('Unknown goal');
     end;
     if aGoal.GoalStatus = gs_False then
       Result := not Result; //Reverse condition

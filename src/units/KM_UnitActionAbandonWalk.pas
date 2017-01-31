@@ -78,7 +78,7 @@ begin
   Result := ActContinues;
 
   //Execute the route in series of moves
-  Distance := gRes.UnitDat[fUnit.UnitType].Speed;
+  Distance := gRes.Units[fUnit.UnitType].Speed;
 
   //Check if unit has arrived on tile
   if KMSamePointF(fUnit.PositionF, KMPointF(fWalkTo), Distance/2) then

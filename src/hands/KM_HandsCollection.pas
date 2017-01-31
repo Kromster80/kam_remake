@@ -429,7 +429,7 @@ var
   Pass: TKMTerrainPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
-  Pass := gRes.UnitDat[aUnitType].AllowedPassability;
+  Pass := gRes.Units[aUnitType].AllowedPassability;
 
   for I := 0 to 255 do
   begin

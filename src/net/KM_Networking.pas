@@ -2177,7 +2177,7 @@ begin
   case fSelectGameKind of
     ngk_Map:  fOnStartMap(fMapInfo.FileNameWithoutHash, fMapInfo.MapFolder, fMapInfo.CRC, MyNetPlayer.IsSpectator);
     ngk_Save: fOnStartSave(fSaveInfo.FileName, MyNetPlayer.IsSpectator);
-    else      Assert(False);
+    else      raise Exception.Create('Unexpacted fSelectGameKind');
   end;
 end;
 

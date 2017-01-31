@@ -809,7 +809,7 @@ begin
         //We are waiting during inital loading
         Result := fNetworking.NetPlayers.GetNotReadyToPlayPlayers;
     else
-        Assert(False, 'WaitingPlayersList from wrong state');
+        raise Exception.Create('WaitingPlayersList from wrong state');
   end;
 end;
 
@@ -1225,10 +1225,7 @@ begin
   gLog.AddTime('Saving game: ' + aPathName);
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
-  begin
-    Assert(false, 'Saving from wrong state');
-    Exit;
-  end;
+    raise Exception.Create('Saving from wrong state');
 
   SaveStream := TKMemoryStream.Create;
   try
