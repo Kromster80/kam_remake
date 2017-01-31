@@ -14,6 +14,7 @@ type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
+  TNotifyEventKeyFunc = function(Sender: TObject; Key: Word): Boolean of object;
   TNotifyEventKeyShift = procedure(Key: Word; Shift: TShiftState) of object;
   TNotifyEventKeyShiftFunc = function(Key: Word; Shift: TShiftState): Boolean of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
@@ -479,6 +480,7 @@ type
     OutlineColor: Cardinal;
     OnChange: TNotifyEvent;
     OnKeyDown: TNotifyEventKey;
+    OnIsKeyEventHandled: TNotifyEventKeyFunc; //Invoked to check is key overrides default handle policy or not
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
 
     property AllowedChars: TAllowedChars read fAllowedChars write fAllowedChars;
@@ -2617,6 +2619,11 @@ begin
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
   if ssCtrl in Shift then Result := (Key in [Ord('A'), Ord('C'), Ord('X'), Ord('V')]);
+
+  // If key is ignored, then check if can still handle it (check via OnIsKeyEventHandled)
+  if not Result and Assigned(OnIsKeyEventHandled) then
+    Result := OnIsKeyEventHandled(Self, Key);
+
 end;
 
 
@@ -3153,7 +3160,7 @@ begin
     VK_END: Result := (fText <> ''); //These keys have no effect when text is blank
   end;
 
-  //We want these keys to be ignored by chat, so game shortcuts still work
+  //We want these keys to be ignored by TKMNumericEdit
   if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_RETURN, VK_TAB] then Result := False;
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open

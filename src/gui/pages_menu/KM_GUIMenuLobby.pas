@@ -66,6 +66,7 @@ type
     procedure RefreshSaveList(aJumpToSelected: Boolean);
     procedure MapChange(Sender: TObject);
     procedure PostKeyDown(Sender: TObject; Key: Word);
+    function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 
     procedure MinimapLocClick(aValue: Integer);
 
@@ -407,6 +408,7 @@ begin
 
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 696, CW, 22, fnt_Arial);
     Edit_LobbyPost.OnKeyDown := PostKeyDown;
+    Edit_LobbyPost.OnIsKeyEventHandled := IsKeyEvent_Return_Handled;
     Edit_LobbyPost.Anchors := [anLeft, anBottom];
     Edit_LobbyPost.ShowColors := True;
 
@@ -1901,14 +1903,21 @@ begin
 end;
 
 
+function TKMMenuLobby.IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
+begin
+  Result := Key = VK_RETURN;
+end;
+
+
 //Post what user has typed
 procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
 var
   ChatMessage: UnicodeString;
   RecipientNetIndex: Integer;
 begin
-  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '')
-  or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
+  if not IsKeyEvent_Return_Handled(Self, Key)
+    or (Trim(Edit_LobbyPost.Text) = '')
+    or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
     Exit;
   
   fLastChatTime := TimeGet;
