@@ -3154,7 +3154,7 @@ begin
   end;
 
   //We want these keys to be ignored by chat, so game shortcuts still work
-  if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_TAB] then Result := False;
+  if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_RETURN, VK_TAB] then Result := False;
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
   if ssCtrl in Shift then
