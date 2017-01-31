@@ -157,6 +157,7 @@ type
     Label_ClockSpeedup: TKMLabel;
 
     Label_ScriptedOverlay: TKMLabel; // Label that can be set from script
+    OverlayBackground: TKMBevel;
     Button_ScriptedOverlay: TKMButton;
     Label_OverlayShow, Label_OverlayHide: TKMLabel;
 
@@ -1011,7 +1012,11 @@ begin
 
 procedure TKMGamePlayInterface.Create_ScriptingOverlay;
 begin
-  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
+  OverlayBackground := TKMBevel.Create(Panel_Main, 255, 115, 1, 1);
+  OverlayBackground.Hitable := False;
+  OverlayBackground.Hide;
+
+  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main, 260, 110, '', fnt_Metal, taLeft);
 
   Button_ScriptedOverlay := TKMButton.Create(Panel_Main, 260, 92, 15, 15, '', bsGame);
   Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
@@ -2373,25 +2378,46 @@ begin
     Label_OverlayShow.Hide;
     Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
   end;
+  UpdateOverlayControls;
 end;
 
 
 procedure TKMGamePlayInterface.UpdateOverlayControls;
-var OverlayTop: Integer;
+var OverlayTop, OverlayLeft: Integer;
 begin
-  OverlayTop := 8;
+  OverlayTop := 12;
+  OverlayLeft := 258;
 
   if Panel_ReplayFOW.Visible then
-    OverlayTop := Panel_ReplayFOW.Top + Panel_ReplayFOW.Height - 9;
+    OverlayTop := Panel_ReplayFOW.Top + Panel_ReplayFOW.Height - 5;
 
+  if gGame.IsSpeedUpAllowed then
+  begin
+    if not Panel_ReplayFOW.Visible then
+      OverlayLeft := Max(OverlayLeft, Image_Clock.Left + Image_Clock.Width + 10)
+    else
+      OverlayTop := Max(OverlayTop, Image_Clock.Top + Image_Clock.Height + 25);
+  end;
+
+  OverlayBackground.Top := OverlayTop + 17;
   Label_ScriptedOverlay.Top := OverlayTop + 19;
   Button_ScriptedOverlay.Top := OverlayTop + 1;
   Label_OverlayShow.Top := OverlayTop + 2;
   Label_OverlayHide.Top := OverlayTop;
 
+  OverlayBackground.Left := OverlayLeft;
+  Label_ScriptedOverlay.Left := OverlayLeft + 5;
+  Button_ScriptedOverlay.Left := OverlayLeft;
+  Label_OverlayShow.Left := OverlayLeft + 3;
+  Label_OverlayHide.Left := OverlayLeft + 3;
+
   Button_ScriptedOverlay.Visible := Label_ScriptedOverlay.Caption <> '';
-  Label_OverlayShow.Visible := (Label_ScriptedOverlay.Caption <> '') and not (Label_ScriptedOverlay.Visible);
-  Label_OverlayHide.Visible := (Label_ScriptedOverlay.Caption <> '') and (Label_ScriptedOverlay.Visible);
+  Label_OverlayShow.Visible := (Label_ScriptedOverlay.Caption <> '') and not Label_ScriptedOverlay.Visible;
+  Label_OverlayHide.Visible := (Label_ScriptedOverlay.Caption <> '') and Label_ScriptedOverlay.Visible;
+
+  OverlayBackground.Width := Label_ScriptedOverlay.TextSize.X + 10;
+  OverlayBackground.Height := Label_ScriptedOverlay.TextSize.Y + 3;
+  OverlayBackground.Visible := (Label_ScriptedOverlay.Caption <> '') and Label_ScriptedOverlay.Visible;
 end;
 
 
