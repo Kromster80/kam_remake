@@ -563,7 +563,6 @@ end;
 
 procedure TKMMenuMapEditor.MoveConfirm(aVisible: Boolean);
 begin
-  //Button_MapDelete.Visible := not aVisible;
   if aVisible then
   begin
     PopUp_Move.Show;

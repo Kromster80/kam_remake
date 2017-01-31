@@ -253,6 +253,7 @@ end;
 procedure TKMMenuMultiplayer.KeyUp(Key: Word; Shift: TShiftState);
 begin
   case Key of
+    // TAB can be handled only in KeyUp event handler
     VK_TAB: if Panel_MPFindServer.Visible then
               Panel_MPFindServer.FocusNext
             else if Panel_MPCreateServer.Visible then
@@ -268,6 +269,7 @@ begin
                   MP_PasswordClick(Button_MP_PasswordOk)
                 else if Panel_MPFindServer.Visible then
                   MP_FindServerIPClick(Button_MP_FindServerIP);
+    // Refresh server list on F5
     VK_F5:      if not Panel_MPPassword.Visible
                   and not Panel_MPCreateServer.Visible
                   and not Panel_MPFindServer.Visible then
@@ -722,11 +724,11 @@ end;
 
 procedure TKMMenuMultiplayer.EscKeyDown(Sender: TObject);
 begin
-  if Panel_MPCreateServer.Visible then
+  if Button_MP_CreateServerCancel.IsClickable then
     MP_CreateServerCancelClick(nil)
-  else if Panel_MPFindServer.Visible then
+  else if Button_MP_FindCancel.IsClickable then
     MP_FindServerCancelClick(nil)
-  else if Panel_MPPassword.Visible then
+  else if Button_MP_PasswordCancel.IsClickable then
     MP_PasswordClick(Button_MP_PasswordCancel)
   else begin
     BackClick(nil);

@@ -87,7 +87,7 @@ type
 
     fEnabled: Boolean;
     fVisible: Boolean;
-    fFocusOrder: Integer;
+    fControlIndex: Integer; //Index number of this control in his Parent's (TKMPanel) collection
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
@@ -130,7 +130,7 @@ type
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
 
-    IsMarkedToUnfocus: Boolean;
+    IsMarkedToUnfocus: Boolean; //Used for cycle focusing on one TKMPanel
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
 
@@ -151,8 +151,8 @@ type
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
     property IsFocused: Boolean read GetIsFocused;
-    property IsClickable: Boolean read GetIsClickable;
-    property FocusOrder: Integer read fFocusOrder;
+    property IsClickable: Boolean read GetIsClickable;  // Control considered 'Clickabale' if it is Visible and Enabled
+    property ControlIndex: Integer read fControlIndex;
     procedure Enable;
     procedure Disable;
     procedure Show;
@@ -160,7 +160,6 @@ type
     procedure AnchorsCenter;
     procedure AnchorsStretch;
     function MasterParent: TKMPanel;
-    procedure Focus;
 
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; virtual;
     procedure KeyPress(Key: Char); virtual;
@@ -196,8 +195,7 @@ type
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
   public
-    FocusedControl: Integer;
-//    LastFocusedControl: Integer;
+    FocusedControlIndex: Integer; //Index of currently focused control on this Panel
     ChildCount: Word;
     Childs: array of TKMControl;
     constructor Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer); overload;
@@ -399,6 +397,7 @@ type
   );
 
 
+  // Check if specified aChar is allowed for specified aAllowedChars type
   function IsCharAllowed(aChar: WideChar; aAllowedChars: TAllowedChars): Boolean;
 
 
@@ -730,6 +729,7 @@ type
     procedure Add(aItem: UnicodeString; aTag: Integer=0);
     procedure Clear;
     function Count: Integer;
+    function GetVisibleRows: Integer;
 
     property Item[aIndex: Integer]: UnicodeString read GetItem; default;
     property ItemHeight: Byte read fItemHeight write SetItemHeight; //Accessed by DropBox
@@ -915,7 +915,7 @@ type
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
-    function DropCommonKeyDown(Key: Word; Shift: TShiftState): Boolean;
+    function ListKeyDown(Key: Word; Shift: TShiftState): Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
 
@@ -1093,6 +1093,7 @@ type
     property SelectionStart: Integer read fSelectionStart write SetSelectionStart;
     property SelectionEnd: Integer read fSelectionEnd write SetSelectionEnd;
 
+    function GetVisibleRows: Integer;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -1331,13 +1332,13 @@ begin
   fVisible    := True;
   Tag         := 0;
   Hint        := '';
-  fFocusOrder  := -1;
+  fControlIndex := -1;
   IsMarkedToUnfocus := False;
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
   if aParent <> nil then
-    fFocusOrder := aParent.AddChild(Self);
+    fControlIndex := aParent.AddChild(Self);
 end;
 
 
@@ -1551,13 +1552,6 @@ begin
 end;
 
 
-procedure TKMControl.Focus;
-begin
-  if not Focusable then Exit;
-//  Parent
-end;
-
-
 function TKMControl.GetIsFocused: Boolean;
 begin
   Result := csFocus in State;
@@ -1711,7 +1705,7 @@ end;
 
 procedure TKMPanel.Init;
 begin
-  FocusedControl := -1;
+  FocusedControlIndex:= -1;
   OnControlMouseDown := ControlMouseDown;
   OnControlMouseUp := ControlMouseUp;
 end;
@@ -1727,11 +1721,12 @@ begin
 end;
 
 
+//Focus next focusable control on this Panel
 procedure TKMPanel.FocusNext;
 begin
-  if (FocusedControl >= 0) and (FocusedControl < ChildCount) then
+  if (FocusedControlIndex >= 0) and (FocusedControlIndex < ChildCount) then
   begin
-    Childs[FocusedControl].IsMarkedToUnfocus := True;
+    Childs[FocusedControlIndex].IsMarkedToUnfocus := True;
     fCollection.UpdateFocus(Self);
   end;
 end;
@@ -2559,7 +2554,7 @@ begin
     VK_END: Result := (fText <> ''); //These keys have no effect when text is blank
   end;
 
-  //We want these keys to be ignored by chat, so game shortcuts still work
+  //We want these keys to be ignored by TKMEdit
   if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_RETURN, VK_TAB] then Result := False;
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
@@ -2685,7 +2680,8 @@ begin
     end;
 
 
-  if Assigned(OnKeyDown) then OnKeyDown(Self, Key);
+  if Assigned(OnKeyDown) then
+    OnKeyDown(Self, Key);
 end;
 
 
@@ -3756,13 +3752,19 @@ begin
 end;
 
 
+function TKMMemo.GetVisibleRows: Integer;
+begin
+  Result := fHeight div fItemHeight;
+end;
+
+
 //fItems.Count or Height has changed
 procedure TKMMemo.UpdateScrollBar;
 var
   OldMax: Integer;
 begin
   OldMax := fScrollBar.MaxValue;
-  fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
+  fScrollBar.MaxValue := fItems.Count - GetVisibleRows;
   fScrollBar.Visible := fVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
 
   if fScrollDown then
@@ -4036,8 +4038,8 @@ function TKMMemo.KeyDown(Key: Word; Shift: TShiftState): Boolean;
       // Update scroll position, if needed
       if TopIndex > NewCursorPosY then
         TopIndex := NewCursorPosY
-      else if TopIndex < NewCursorPosY - (fHeight div fItemHeight) + 1 then
-        TopIndex := NewCursorPosY - (fHeight div fItemHeight) + 1;
+      else if TopIndex < NewCursorPosY - GetVisibleRows + 1 then
+        TopIndex := NewCursorPosY - GetVisibleRows + 1;
     end;
   end;
 
@@ -4068,8 +4070,8 @@ begin
     case Key of
       VK_UP:    MoveCursorVerticallyNUpdateSelections(-1);
       VK_DOWN:  MoveCursorVerticallyNUpdateSelections(1);
-      VK_PRIOR: MoveCursorVerticallyNUpdateSelections(-(fHeight div fItemHeight));
-      VK_NEXT:  MoveCursorVerticallyNUpdateSelections(fHeight div fItemHeight);
+      VK_PRIOR: MoveCursorVerticallyNUpdateSelections(-GetVisibleRows);
+      VK_NEXT:  MoveCursorVerticallyNUpdateSelections(GetVisibleRows);
       VK_LEFT:  begin
                   OldCursorPos := CursorPos;
                   CursorPos := CursorPos - 1;
@@ -4095,8 +4097,8 @@ begin
     case Key of
       VK_UP:    begin MoveCursorVertically(-1); ResetSelection; end;
       VK_DOWN:  begin MoveCursorVertically(1); ResetSelection; end;
-      VK_PRIOR: begin MoveCursorVertically(-(fHeight div fItemHeight)); ResetSelection; end;
-      VK_NEXT:  begin MoveCursorVertically(fHeight div fItemHeight); ResetSelection; end;
+      VK_PRIOR: begin MoveCursorVertically(-GetVisibleRows); ResetSelection; end;
+      VK_NEXT:  begin MoveCursorVertically(GetVisibleRows); ResetSelection; end;
       VK_LEFT:  begin CursorPos := CursorPos-1; ResetSelection; end;
       VK_RIGHT: begin CursorPos := CursorPos+1; ResetSelection; end;
       VK_HOME:  begin CursorPos := GetMinCursorPosInRow; ResetSelection; end;
@@ -4210,7 +4212,7 @@ begin
 
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, PaintWidth, Height, 1, 0.5);
 
-  for I := 0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
+  for I := 0 to Math.min(fItems.Count-1, GetVisibleRows - 1) do
   begin
     RowText := GetNoColorMarkupText(fItems[TopIndex+I]);
     RowStartPos := PointToLinearPos(0, TopIndex+I);
@@ -4340,7 +4342,7 @@ end;
 //fItems.Count has changed
 procedure TKMListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
+  fScrollBar.MaxValue := fItems.Count - GetVisibleRows;
   fScrollBar.Visible := fVisible and (not fAutoHideScrollBar or fScrollBar.Enabled);
 end;
 
@@ -4377,6 +4379,12 @@ begin
 end;
 
 
+function TKMListBox.GetVisibleRows: Integer;
+begin
+  Result := fHeight div fItemHeight;
+end;
+
+
 function TKMListBox.GetItem(aIndex: Integer): UnicodeString;
 begin
   Result := fItems[aIndex];
@@ -4385,14 +4393,25 @@ end;
 
 function TKMListBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var
-  NewIndex: Integer;
+  OldIndex, NewIndex: Integer;
+  PageScrolling: Boolean;
 begin
-  Result := (Key = VK_UP) or (Key = VK_DOWN);
+  Result := Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT];
   if inherited KeyDown(Key, Shift) then Exit;
 
   case Key of
     VK_UP:      NewIndex := fItemIndex - 1;
     VK_DOWN:    NewIndex := fItemIndex + 1;
+    VK_HOME:    NewIndex := 0;
+    VK_END:     NewIndex := Count - 1;
+    VK_PRIOR:   begin
+                    NewIndex := EnsureRange(fItemIndex - GetVisibleRows, 0, Count - 1);
+                    PageScrolling := True;
+                  end;
+    VK_NEXT:    begin
+                    NewIndex := EnsureRange(fItemIndex + GetVisibleRows, 0, Count - 1);
+                    PageScrolling := True;
+                  end;
     VK_RETURN:  begin
                   //Trigger click to hide drop downs
                   if Assigned(fOnClick) then
@@ -4409,14 +4428,15 @@ begin
   if InRange(NewIndex, 0, Count - 1) then
   begin
     fItemIndex := NewIndex;
-    if TopIndex < fItemIndex - (Height div fItemHeight) + 1 then //Moving down
+    if PageScrolling then
+      TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
+    else if TopIndex < fItemIndex - (Height div fItemHeight) + 1 then //Moving down
       TopIndex := fItemIndex - (Height div fItemHeight) + 1
-    else
-    if TopIndex > fItemIndex then //Moving up
+    else if TopIndex > fItemIndex then //Moving up
       TopIndex := fItemIndex;
   end;
 
-  if Assigned(fOnChange) then
+  if Assigned(fOnChange) and (NewIndex <> OldIndex) then
     fOnChange(Self);
 end;
 
@@ -4479,10 +4499,10 @@ begin
 
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, PaintWidth, Height, 1, fBackAlpha);
 
-  if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, (fHeight div fItemHeight)-1) then
+  if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, GetVisibleRows - 1) then
     TKMRenderUI.WriteShape(AbsLeft, AbsTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
-  for I := 0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
+  for I := 0 to Math.min(fItems.Count-1, GetVisibleRows - 1) do
     TKMRenderUI.WriteText(AbsLeft+4, AbsTop+I*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+I] , fFont, taLeft);
 end;
 
@@ -4883,7 +4903,8 @@ end;
 
 function TKMColumnBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var
-  NewIndex: Integer;
+  OldIndex, NewIndex: Integer;
+  PageScrolling: Boolean;
 begin
   if PassAllKeys then
   begin
@@ -4893,13 +4914,26 @@ begin
       OnKeyDown(Key, Shift);
   end else
   begin
-    Result := (Key in [VK_UP, VK_DOWN]) and not HideSelection;
+    Result := (Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT]) and not HideSelection;
     if inherited KeyDown(Key, Shift) then Exit;
 
     if HideSelection then Exit; //Can't change selection if it's hidden
+
+    PageScrolling := False;
+    OldIndex := fItemIndex;
     case Key of
       VK_UP:      NewIndex := fItemIndex - 1;
       VK_DOWN:    NewIndex := fItemIndex + 1;
+      VK_HOME:    NewIndex := 0;
+      VK_END:     NewIndex := fRowCount - 1;
+      VK_PRIOR:   begin
+                    NewIndex := EnsureRange(fItemIndex - GetVisibleRows, 0, fRowCount - 1);
+                    PageScrolling := True;
+                  end;
+      VK_NEXT:    begin
+                    NewIndex := EnsureRange(fItemIndex + GetVisibleRows, 0, fRowCount - 1);
+                    PageScrolling := True;
+                  end;
       VK_RETURN:  begin
                     //Trigger click to hide drop downs
                     if Assigned(fOnClick) then
@@ -4922,14 +4956,15 @@ begin
     if InRange(NewIndex, 0, fRowCount - 1) then
     begin
       fItemIndex := NewIndex;
-      if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
+      if PageScrolling then
+        TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
+      else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
         TopIndex := fItemIndex - GetVisibleRows + 1
-      else
-      if TopIndex > fItemIndex then //Moving up
+      else if TopIndex > fItemIndex then //Moving up
         TopIndex := fItemIndex;
     end;
 
-    if Assigned(fOnChange) then
+    if Assigned(fOnChange) and (OldIndex <> NewIndex) then
       fOnChange(Self);
   end;
 end;
@@ -4943,6 +4978,8 @@ begin
     Exit
   else
   begin
+    //KeyPress used only for key input search, do not allow unsupported Keys.
+    //Otherwise fOnChange will be invoked on any key pressed
     if not IsCharAllowed(Key, acFileName) then Exit;
 
     if SearchColumn = -1 then
@@ -5281,9 +5318,10 @@ begin
 end;
 
 
-function TKMDropCommon.DropCommonKeyDown(Key: Word; Shift: TShiftState): Boolean;
+//Handle KeyDown on List
+function TKMDropCommon.ListKeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
-  if fAutoClose and (Key = VK_ESCAPE) then
+  if fAutoClose and (Key = VK_ESCAPE) then // Close List on ESC, if autoclosable
   begin
     ListHide(nil);
     Result := True;
@@ -5367,7 +5405,7 @@ begin
   fList.fOnChange := ListChange;
 
   ListHide(nil);
-  fList.OnKeyDown := DropCommonKeyDown;
+  fList.OnKeyDown := ListKeyDown;
 end;
 
 
@@ -5547,7 +5585,7 @@ begin
   DropWidth := aWidth;
 
   ListHide(nil);
-  fList.OnKeyDown := DropCommonKeyDown;
+  fList.OnKeyDown := ListKeyDown;
 end;
 
 
@@ -6350,7 +6388,7 @@ begin
     if (aCtrl <> nil) and Assigned(aCtrl.fOnFocus) then
     begin
       aCtrl.fOnFocus(True);
-      aCtrl.Parent.FocusedControl := aCtrl.FocusOrder;
+      aCtrl.Parent.FocusedControlIndex := aCtrl.ControlIndex; //Set Parent Panel FocusedControlIndex to new focused control
     end;
 
     if (fCtrlFocus <> nil) and Assigned(fCtrlFocus.fOnFocus) then
@@ -6406,8 +6444,8 @@ procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
     //Check for focusable controls
     for I := 0 to C.ChildCount - 1 do
       if IsFocusAllowed(C.Childs[I]) and (
-        (C.FocusedControl = -1)                         // In case FocusControl was not set (usually should never happen)
-        or (C.FocusedControl = C.Childs[I].FocusOrder)  // We've found last focused Control
+        (C.FocusedControlIndex = -1)                         // In case FocusControl was not set (usually should never happen)
+        or (C.FocusedControlIndex = C.Childs[I].ControlIndex)  // We've found last focused Control
         or (CtrlToFocusI <> -1)) then                   // We find last docused Control on previos iterations
       begin
         if C.Childs[I].IsMarkedToUnfocus then
@@ -6426,7 +6464,7 @@ procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
     begin
       // We will try to find it until the same Control, that we find before in previous For cycle
       for I := 0 to CtrlToFocusI do // So if there will be no proper controls, then set focus again to same control with I = CtrlToFocusI
-        if IsFocusAllowed(C.Childs[I]) then // Do not allow to focus on covered Control
+        if IsFocusAllowed(C.Childs[I]) then
         begin
           SetCtrlFocus(I);
           Exit;

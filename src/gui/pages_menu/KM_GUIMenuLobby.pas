@@ -802,7 +802,7 @@ end;
 
 procedure TKMMenuLobby.EscKeyDown(Sender: TObject);
 begin
-  if Panel_LobbySettings.Visible then
+  if Button_LobbySettingsCancel.IsClickable then
     SettingsClick(Button_LobbySettingsCancel)
   else
     BackClick(nil);

@@ -353,7 +353,7 @@ end;
 
 procedure TKMMenuLoad.EscKeyDown(Sender: TObject);
 begin
-  if Button_DeleteNo.Visible then
+  if Button_DeleteNo.IsClickable then
     Load_Delete_Click(Button_DeleteNo)
   else
     BackClick(nil);

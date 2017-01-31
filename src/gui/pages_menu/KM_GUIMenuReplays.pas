@@ -91,7 +91,7 @@ begin
   TKMLabel.Create(Panel_Replays, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
   TKMBevel.Create(Panel_Replays, 22, 86, 770, 50);
-  Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,30,94,300,40,fnt_Grey);
+  Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays, 30, 94, 300, 40, fnt_Grey);
   Radio_Replays_Type.ItemIndex := 0;
   Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
@@ -161,7 +161,7 @@ begin
 
   TKMBevel.Create(PopUp_Rename, -1000,  -1000, 4000, 4000);
 
-  Image_Rename := TKMImage.Create(PopUp_Rename,0,0, PopUp_Rename.Width, PopUp_Rename.Height, 15, rxGuiMain);
+  Image_Rename := TKMImage.Create(PopUp_Rename, 0, 0, PopUp_Rename.Width, PopUp_Rename.Height, 15, rxGuiMain);
   Image_Rename.ImageStretch;
 
   Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_RENAME_TITLE], fnt_Outline, taCenter);
@@ -411,10 +411,10 @@ end;
 
 procedure TKMMenuReplays.EscKeyDown(Sender: TObject);
 begin
-  if PopUp_Rename.Visible then
-    RenameConfirm(False)
-  else if PopUp_Delete.Visible then
-    DeleteConfirm(False)
+  if Button_RenameCancel.IsClickable then
+    RenameClick(Button_RenameCancel)
+  else if Button_DeleteCancel.IsClickable then
+    DeleteClick(Button_DeleteCancel)
   else
     BackClick(nil);
 end;
