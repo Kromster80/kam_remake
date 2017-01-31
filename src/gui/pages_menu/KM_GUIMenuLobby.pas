@@ -86,7 +86,6 @@ type
     procedure BackClick(Sender: TObject);
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Key: Word; Shift: TShiftState);
-    procedure KeyUp(Key: Word; Shift: TShiftState);
   protected
     Panel_Lobby: TKMPanel;
       Panel_LobbySettings: TKMPanel;
@@ -170,7 +169,6 @@ begin
   fOnPageChange := aOnPageChange;
   OnEscKeyDown := EscKeyDown;
   OnKeyDown := KeyDown;
-  OnKeyUp := KeyUp;
 
   fMinimap := TKMMinimap.Create(True, True);
 
@@ -814,15 +812,6 @@ begin
   case Key of
     VK_RETURN:  if Panel_LobbySettings.Visible then
                   SettingsClick(Button_LobbySettingsSave);
-  end;
-end;
-
-
-procedure TKMMenuLobby.KeyUp(Key: Word; Shift: TShiftState);
-begin
-  case Key of
-    VK_TAB: if Panel_LobbySettings.Visible then
-              Panel_LobbySettings.FocusNext;
   end;
 end;
 

@@ -339,22 +339,19 @@ end;
 procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
-
-  if (fMenuPage <> nil) then
-    fMenuPage.MenuKeyUp(Key, Shift);
 end;
 
 
 procedure TKMMainMenuInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  fMyControls.MouseDown(X,Y,Shift,Button);
+  fMyControls.MouseDown(X, Y, Shift, Button);
 end;
 
 
 //Do something related to mouse movement in menu
 procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
-  fMyControls.MouseMove(X,Y,Shift);
+  fMyControls.MouseMove(X, Y, Shift);
 
   fMenuCampaign.MouseMove(Shift, X, Y);
 end;
@@ -362,7 +359,7 @@ end;
 
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  fMyControls.MouseUp(X,Y,Shift,Button);
+  fMyControls.MouseUp(X, Y, Shift, Button);
   Exit; //We could have caused gGameApp reinit (i.e. resolution change), so exit at once
 end;
 

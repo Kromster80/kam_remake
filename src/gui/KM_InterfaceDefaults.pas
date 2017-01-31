@@ -35,11 +35,9 @@ type
   TKMMenuPageCommon = class
   protected
     OnKeyDown: TNotifyEventKeyShift;
-    OnKeyUp: TNotifyEventKeyShift;
     OnEscKeyDown: TNotifyEvent;
   public
     procedure MenuKeyDown(Key: Word; Shift: TShiftState);
-    procedure MenuKeyUp(Key: Word; Shift: TShiftState);
   end;
 
 
@@ -134,13 +132,6 @@ begin
     else        if Assigned(OnKeyDown) then
                   OnKeyDown(Key, Shift);
   end;
-end;
-
-
-procedure TKMMenuPageCommon.MenuKeyUp(Key: Word; Shift: TShiftState);
-begin
-  if Assigned(OnKeyUp) then
-    OnKeyUp(Key, Shift);
 end;
 
 

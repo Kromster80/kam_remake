@@ -126,6 +126,10 @@ type
     procedure SetVisible(aValue: Boolean); virtual;
     procedure SetEnabled(aValue: Boolean); virtual;
     procedure SetAnchors(aValue: TKMAnchorsSet); virtual;
+    function GetSelfAbsLeft: Integer; virtual;
+    function GetSelfAbsTop: Integer; virtual;
+    function GetSelfHeight: Integer; virtual;
+    function GetSelfWidth: Integer; virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -146,6 +150,16 @@ type
     property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+
+    // "Self" coordinates - this is the coordinates of control itself.
+    // For simple controls they are equal to normal coordinates
+    // but for composite controls this is coord. for control itself, without any other controls inside composite
+    // (f.e. for TKMNumericEdit this is his internal edit coord without Inc/Dec buttons)
+    property SelfAbsLeft: Integer read GetSelfAbsLeft;
+    property SelfAbsTop: Integer read GetSelfAbsTop;
+    property SelfWidth: Integer read GetSelfWidth;
+    property SelfHeight: Integer read GetSelfHeight;
+
     property Rect: TKMRect read GetControlRect;
     property Anchors: TKMAnchorsSet read fAnchors write SetAnchors;
     property Enabled: Boolean read fEnabled write SetEnabled;
@@ -579,6 +593,8 @@ type
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
+    function GetSelfAbsLeft: Integer; override;
+    function GetSelfWidth: Integer; override;
   public
     ValueMin: Integer;
     ValueMax: Integer;
@@ -718,6 +734,7 @@ type
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
+    function GetSelfWidth: Integer; override;
   public
     ItemTags: array of Integer;
     OnKeyDown: TNotifyEventKeyShiftFunc;
@@ -847,6 +864,9 @@ type
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
+    function GetSelfAbsTop: Integer; override;
+    function GetSelfHeight: Integer; override;
+    function GetSelfWidth: Integer; override;
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
     HideSelection: Boolean;
@@ -1371,6 +1391,12 @@ end;
 function TKMControl.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := false;
+  if (Key = VK_TAB) and IsFocused then
+  begin
+    Parent.FocusNext;
+    Result := True;
+    Exit;
+  end;
   if not MODE_DESIGN_CONTORLS then exit;
   //nothing yet
 end;
@@ -1527,6 +1553,31 @@ function TKMControl.GetWidth: Integer;
 begin
   Result := fWidth;
 end;
+
+
+function TKMControl.GetSelfAbsLeft: Integer;
+begin
+  Result := AbsLeft;
+end;
+
+
+function TKMControl.GetSelfAbsTop: Integer;
+begin
+  Result := AbsTop;
+end;
+
+
+function TKMControl.GetSelfHeight: Integer;
+begin
+  Result := fHeight;
+end;
+
+
+function TKMControl.GetSelfWidth: Integer;
+begin
+  Result := fWidth;
+end;
+
 
 procedure TKMControl.SetTopF(aValue: Single);
 begin
@@ -3103,7 +3154,7 @@ begin
   end;
 
   //We want these keys to be ignored by chat, so game shortcuts still work
-  if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+  if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_TAB] then Result := False;
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
   if ssCtrl in Shift then
@@ -3219,6 +3270,18 @@ begin
   inherited;
   fButtonDec.Visible := fVisible;
   fButtonInc.Visible := fVisible;
+end;
+
+
+function TKMNumericEdit.GetSelfAbsLeft: Integer;
+begin
+  Result := AbsLeft + 21; // Need to add extra +1 because of left button border
+end;
+
+
+function TKMNumericEdit.GetSelfWidth: Integer;
+begin
+  Result := fWidth - 42; // Need to substruct extra -2 because of 2 buttons borders
 end;
 
 
@@ -4320,6 +4383,15 @@ begin
 end;
 
 
+function TKMListBox.GetSelfWidth: Integer;
+begin
+  if fScrollBar.Visible then
+    Result := Width - fScrollBar.Width //Leave space for scrollbar
+  else
+    Result := Width; //List takes up the entire width
+end;
+
+
 function TKMListBox.GetTopIndex: Integer;
 begin
   Result := fScrollBar.Position;
@@ -4770,6 +4842,27 @@ begin
   inherited;
   fHeader.Visible := fVisible and fShowHeader;
   fScrollBar.Visible := fVisible and fScrollBar.Enabled; //Hide scrollbar and its buttons
+end;
+
+
+function TKMColumnBox.GetSelfAbsTop: Integer;
+begin
+  Result := AbsTop + (fHeader.Height + 1) * Byte(fShowHeader);
+end;
+
+
+function TKMColumnBox.GetSelfHeight: Integer;
+begin
+  Result := Height - (fHeader.Height + 1) * Byte(fShowHeader);
+end;
+
+
+function TKMColumnBox.GetSelfWidth: Integer;
+begin
+  if fScrollBar.Visible then
+    Result := Width - fScrollBar.Width //Leave space for scrollbar
+  else
+    Result := Width; //List takes up the entire width
 end;
 
 
@@ -6390,18 +6483,22 @@ begin
   if aCtrl <> nil then
     aCtrl.State := aCtrl.State + [csFocus];
 
-  if (aCtrl <> fCtrlFocus) then
+  if aCtrl <> fCtrlFocus then
   begin
-    if (aCtrl <> nil) and Assigned(aCtrl.fOnFocus) then
+    if fCtrlFocus <> nil then
     begin
-      aCtrl.fOnFocus(True);
-      aCtrl.Parent.FocusedControlIndex := aCtrl.ControlIndex; //Set Parent Panel FocusedControlIndex to new focused control
+      if  Assigned(fCtrlFocus.fOnFocus) then
+        fCtrlFocus.fOnFocus(False);
+      // Reset Parent Panel FocusedControlIndex only for different parents
+      if (aCtrl = nil) or (aCtrl.Parent <> fCtrlFocus.Parent) then
+        fCtrlFocus.Parent.ResetFocusedControlIndex;
     end;
 
-    if (fCtrlFocus <> nil) and Assigned(fCtrlFocus.fOnFocus) then
+    if aCtrl <> nil then
     begin
-      fCtrlFocus.fOnFocus(False);
-      fCtrlFocus.Parent.ResetFocusedControlIndex; // Reset Parent Panel FocusedControlIndex
+      if Assigned(aCtrl.fOnFocus) then
+        aCtrl.fOnFocus(True);
+      aCtrl.Parent.FocusedControlIndex := aCtrl.ControlIndex; //Set Parent Panel FocusedControlIndex to new focused control
     end;
   end;
 
@@ -6517,12 +6614,13 @@ end;
 
 //Check if control is covered by other controls or not
 //We assume that control is covered if any of his 4 angles are covered
+//Use Self coordinates to check, because some controls can contain other controls (f.e. TKMNumericEdit)
 function TKMMasterControl.IsCtrlCovered(aCtrl: TKMControl): Boolean;
 begin
-  Result := (HitControl(aCtrl.AbsLeft, aCtrl.AbsTop) = aCtrl)
-        and (HitControl(aCtrl.AbsLeft + aCtrl.Width - 1, aCtrl.AbsTop) = aCtrl)
-        and (HitControl(aCtrl.AbsLeft, aCtrl.AbsTop + aCtrl.Height - 1) = aCtrl)
-        and (HitControl(aCtrl.AbsLeft + aCtrl.Width - 1, aCtrl.AbsTop + aCtrl.Height - 1) = aCtrl);
+  Result := (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop) = aCtrl)
+        and (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop) = aCtrl)
+        and (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) = aCtrl)
+        and (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) = aCtrl);
   Result := not Result;
 end;
 

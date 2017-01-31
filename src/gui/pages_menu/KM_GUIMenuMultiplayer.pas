@@ -48,7 +48,6 @@ type
     function ValidatePlayerName(const aName: UnicodeString): Boolean;
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Key: Word; Shift: TShiftState);
-    procedure KeyUp(Key: Word; Shift: TShiftState);
   protected
     Panel_MultiPlayer: TKMPanel;
       Panel_MPAnnouncement: TKMPanel;
@@ -175,7 +174,8 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  OnEscKeyDown := BackClick;
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
 
   Panel_MultiPlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MultiPlayer.AnchorsStretch;
@@ -243,22 +243,6 @@ begin
   CreateServerPopUp;
   FindServerPopUp;
   PasswordPopUp;
-
-  OnEscKeyDown := EscKeyDown;
-  OnKeyDown := KeyDown;
-  OnKeyUp := KeyUp;
-end;
-
-
-procedure TKMMenuMultiplayer.KeyUp(Key: Word; Shift: TShiftState);
-begin
-  case Key of
-    // TAB can be handled only in KeyUp event handler
-    VK_TAB: if Panel_MPFindServer.Visible then
-              Panel_MPFindServer.FocusNext
-            else if Panel_MPCreateServer.Visible then
-              Panel_MPCreateServer.FocusNext;
-  end;
 end;
 
 
@@ -272,7 +256,8 @@ begin
     // Refresh server list on F5
     VK_F5:      if not Panel_MPPassword.Visible
                   and not Panel_MPCreateServer.Visible
-                  and not Panel_MPFindServer.Visible then
+                  and not Panel_MPFindServer.Visible
+                  and Button_MP_Refresh.IsClickable then
                   MP_ServersRefresh(Button_MP_Refresh);
   end;
 end;
