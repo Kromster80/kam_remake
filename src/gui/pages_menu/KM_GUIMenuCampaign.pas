@@ -174,7 +174,7 @@ begin
   end;
 
   sCampaignTitleMission := fCampaign.CampaignMissionTitle;
-  if (Length(sCampaignTitleMission) > 3)and(Pos('%d', sCampaignTitleMission) > 0) then
+  if Pos('%d', AnsiLowerCase(sCampaignTitleMission)) > 0 then
     Label_CampaignTitle.Caption := Format(sCampaignTitleMission, [fMapIndex+1])
   else
     Label_CampaignTitle.Caption := Format(gResTexts[TX_GAME_MISSION], [fMapIndex+1]);
