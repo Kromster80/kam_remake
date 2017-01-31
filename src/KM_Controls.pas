@@ -5040,10 +5040,7 @@ begin
                       fOnClick(Self);
                     //Double click on Enter
                     if Assigned(fOnDoubleClick) then
-                    begin
                       fOnDoubleClick(Self);
-                      Result := True;
-                    end;
                     Exit;
                   end;
       else        begin

@@ -601,9 +601,7 @@ begin
   //if Key in [49..53] then
   //  Button_Main[Key-48].DoPress;
 
-  //For now enter can open up Extra panel
-  if Key = gResKeys[SC_MAPEDIT_EXTRA].Key then
-    Message_Click(Image_Extra);
+
 
   KeyPassedToModal := False;
   //Pass Key to Modal pages first
@@ -611,6 +609,10 @@ begin
     or (fGuiFormations.Visible and fGuiFormations.KeyDown(Key, Shift))
     or (fGuiGoal.Visible and fGuiGoal.KeyDown(Key, Shift)) then
     KeyPassedToModal := True;
+
+  //For now enter can open up Extra panel
+  if not KeyPassedToModal and (Key = gResKeys[SC_MAPEDIT_EXTRA].Key) then
+    Message_Click(Image_Extra);
 
   // If modals are closed or they did not handle key
   if not KeyPassedToModal and (Key = gResKeys[SC_CLOSE_MENU].Key) then
