@@ -36,26 +36,27 @@ object FormMain: TFormMain
     Height = 20
     Panels = <
       item
-        Text = 'Map size: 256x256'
+        Text = 'Map size: -'
         Width = 110
       end
       item
-        Text = 'Cursor: 1755:1020'
+        Text = 'Cursor: '
         Width = 120
       end
       item
-        Text = 'Tile: 226.1:227.2 [226:227]'
+        Text = 'Tile:'
         Width = 150
       end
       item
-        Text = 'Time: 02:15'
+        Text = 'Time:'
         Width = 90
       end
       item
-        Text = '50.0 fps (50)'
+        Text = 'fps'
         Width = 80
       end
       item
+        Text = 'Object'
         Width = 90
       end>
   end
