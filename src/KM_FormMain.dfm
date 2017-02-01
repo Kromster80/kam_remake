@@ -36,12 +36,16 @@ object FormMain: TFormMain
     Height = 20
     Panels = <
       item
-        Text = 'Map size: -'
+        Text = 'Map size: 256x256'
         Width = 110
       end
       item
-        Text = 'Cursor: 46.1 47.2'
-        Width = 160
+        Text = 'Cursor: 1755:1020'
+        Width = 120
+      end
+      item
+        Text = 'Tile: 226.1:227.2 [226:227]'
+        Width = 150
       end
       item
         Text = 'Time: 02:15'
@@ -52,7 +56,7 @@ object FormMain: TFormMain
         Width = 80
       end
       item
-        Width = 50
+        Width = 90
       end>
   end
   object GroupBox1: TGroupBox
