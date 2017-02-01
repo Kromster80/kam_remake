@@ -47,6 +47,8 @@ type
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
+    fPaintBucketMode: Boolean;
+
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
     procedure Minimap_OnUpdate(Sender: TObject; const X,Y: Integer);
@@ -63,6 +65,7 @@ type
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure Player_SetActive(aIndex: TKMHandIndex);
     procedure Player_UpdatePages;
+    procedure SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
   protected
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
@@ -149,7 +152,7 @@ begin
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
 
-  Button_ObjectChangePlayer := TKMButtonFlat.Create(Panel_Main, 153, 215, 29, 29, 378);
+  Button_ObjectChangePlayer := TKMButtonFlat.Create(Panel_Main, 153, 215, 29, 29, 662);
   Button_ObjectChangePlayer.Down := False;
   Button_ObjectChangePlayer.OnClick := Object_ChangePlayer_Click;
   Button_ObjectChangePlayer.Hint := 'Change team(player) for object. Hold Shift for multiple objects'; // Todo Translate
@@ -428,6 +431,17 @@ begin
 end;
 
 
+procedure TKMapEdInterface.SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
+begin
+  Button_ObjectChangePlayer.Down := aDoSetPaintBucketMode;
+  fPaintBucketMode := aDoSetPaintBucketMode;
+  if aDoSetPaintBucketMode then
+    gRes.Cursors.Cursor := kmc_PaintBucket
+  else
+    gRes.Cursors.Cursor := kmc_Default;
+end;
+
+
 // Change player for selected object
 procedure TKMapEdInterface.Object_ChangePlayer(aOwner: TKMHandIndex);
 var House: TKMHouse;
@@ -450,7 +464,7 @@ end;
 
 procedure TKMapEdInterface.Object_ChangePlayer_Click(Sender: TObject);
 begin
-  Button_ObjectChangePlayer.Down := not Button_ObjectChangePlayer.Down;
+  SetPaintBucketMode(not Button_ObjectChangePlayer.Down);
 end;
 
 
@@ -529,7 +543,7 @@ begin
   gGameCursor.Mode := cmNone;
   gGameCursor.Tag1 := 0;
 
-  Button_ObjectChangePlayer.Down := False;
+  SetPaintBucketMode(False);
 end;
 
 
@@ -765,6 +779,15 @@ begin
 
   fMyControls.MouseMove(X,Y,Shift);
 
+  if fPaintBucketMode then
+  begin
+    // Beacons are a special case, the cursor should be shown over controls to (you can place it on the minimap)
+    if fMyControls.CtrlOver = nil then
+      UpdateGameCursor(X,Y,Shift); // Keep the game cursor up to date
+    gRes.Cursors.Cursor := kmc_PaintBucket;
+    Exit;
+  end;
+
   if fMyControls.CtrlOver <> nil then
   begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
@@ -852,7 +875,7 @@ begin
                     begin
                       Object_ChangePlayer(gMySpectator.HandIndex);
                       // Reset Change Player mode if Shift was not pressed
-                      Button_ObjectChangePlayer.Down :=  ssShift in gGameCursor.SState;
+                      SetPaintBucketMode(ssShift in gGameCursor.SState);
                     end;
                     Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
                     fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
@@ -864,7 +887,7 @@ begin
                     begin
                       Object_ChangePlayer(gMySpectator.HandIndex);
                       // Reset Change Player mode if Shift was not pressed
-                      Button_ObjectChangePlayer.Down :=  ssShift in gGameCursor.SState;
+                      SetPaintBucketMode(ssShift in gGameCursor.SState);
                     end;
                     Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
@@ -876,7 +899,7 @@ begin
                     begin
                       Object_ChangePlayer(gMySpectator.HandIndex);
                       // Reset Change Player mode if Shift was not pressed
-                      Button_ObjectChangePlayer.Down :=  ssShift in gGameCursor.SState;
+                      SetPaintBucketMode(ssShift in gGameCursor.SState);
                     end;
                     Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
