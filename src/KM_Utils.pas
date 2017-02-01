@@ -58,6 +58,8 @@ uses
 
   function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
 
+  function DeleteDoubleSpaces(aString: string): string;
+
   function GetMultiplicator(aShift: TShiftState): Word;
 
 implementation
@@ -670,6 +672,23 @@ begin
         //Not markup so count width normally
         Result := Result + aText[I];
     Inc(I);
+  end;
+end;
+
+
+//Replace continious spaces with single space
+function DeleteDoubleSpaces(aString: string): string;
+var I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(aString) do
+  begin
+    if aString[I] = ' ' then
+    begin
+      if not (aString[I-1] = ' ') then
+        Result := Result + ' ';
+    end else
+      Result := Result + aString[I];
   end;
 end;
 
