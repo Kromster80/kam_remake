@@ -300,10 +300,12 @@ begin
       fMainMenuInterface.MouseMove(Shift, X,Y);
 
   if Assigned(fOnCursorUpdate) then
+  begin
     fOnCursorUpdate(1, Format('Cursor: %d:%d', [X, Y]));
     fOnCursorUpdate(2, Format('Tile: %.1f:%.1f [%d:%d]',
                               [gGameCursor.Float.X, gGameCursor.Float.Y,
                               gGameCursor.Cell.X, gGameCursor.Cell.Y]));
+  end;
 end;
 
 
