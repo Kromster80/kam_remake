@@ -40,11 +40,11 @@ object FormMain: TFormMain
         Width = 110
       end
       item
-        Text = 'Cursor: '
+        Text = 'Cursor: 1999:1999'
         Width = 120
       end
       item
-        Text = 'Tile:'
+        Text = 'Tile: 999.9:999.9 [999:999]'
         Width = 150
       end
       item
