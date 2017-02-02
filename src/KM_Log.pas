@@ -7,7 +7,15 @@ uses
 
 type
 
-  TKMLogMessageType = (lmt_Default, lmt_Delivery, lmt_NetConnection, lmt_NetPacketOther, lmt_NetPacketCommand, lmt_NetPacketPingFps);
+  // Log message type
+  TKMLogMessageType = (
+    lmt_Default,            //default type
+    lmt_Delivery,           //delivery messages
+    lmt_NetConnection,      //messages about net connection/disconnection/reconnection
+    lmt_NetPacketOther,     //log messages about net packets (all packets, except GIP commands/ping/fps)
+    lmt_NetPacketCommand,   //log messages about GIP commands net packets
+    lmt_NetPacketPingFps);  //log messages about ping/fps net packets
+
   TKMLogMessageTypeSet = set of TKMLogMessageType;
   TNotifyEventLog = procedure(aLogMessage: UnicodeString) of object;
 
@@ -138,6 +146,8 @@ begin
 end;
 
 
+//Lines are timestamped, each line invokes file open/close for writing,
+//meaning that no lines will be lost if Remake crashes
 procedure TKMLog.AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType);
 begin
   if not (aLogType in MessageTypes) then // write into log only for allowed types
@@ -168,15 +178,14 @@ begin
 end;
 
 
-//Lines are timestamped, each line invokes file open/close for writing,
-//meaning that no lines will be lost if Remake crashes
+//Add line with timestamp
 procedure TKMLog.AddLineTime(const aText: UnicodeString);
 begin
   AddLineTime(aText, lmt_Default);
 end;
 
 
-{Same line but without timestamp}
+//Same line but without timestamp
 procedure TKMLog.AddLineNoTime(const aText: UnicodeString);
 begin
   if not FileExists(fLogPath) then
