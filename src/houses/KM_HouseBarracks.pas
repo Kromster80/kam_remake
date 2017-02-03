@@ -201,7 +201,7 @@ end;
 
 function TKMHouseBarracks.IsRallyPointSet: Boolean;
 begin
-   Result := not KMSamePoint(fRallyPoint, PointBelowEntrance);
+   Result := not KMSamePoint(RallyPoint, PointBelowEntrance); //Use RallyPoint, not fRallyPoint to be sure its Valid
 end;
 
 
