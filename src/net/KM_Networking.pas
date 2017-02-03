@@ -145,7 +145,7 @@ type
     procedure ConnectFailed(const S: string);
     function GetNetAddressPrintDescr(aNetworkAddress: Integer): String;
     procedure LogPacket(aIsSending: Boolean; aKind: TKMessageKind; aNetworkAddress: Integer);
-    procedure PostLogMessageToChat(aLogMessage: UnicodeString);
+    procedure PostLogMessageToChat(const aLogMessage: UnicodeString);
     procedure PacketRecieve(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind); overload;
     procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
@@ -1290,7 +1290,7 @@ begin
 end;
 
 
-procedure TKMNetworking.PostLogMessageToChat(aLogMessage: UnicodeString);
+procedure TKMNetworking.PostLogMessageToChat(const aLogMessage: UnicodeString);
 begin
   if SHOW_LOGS_IN_CHAT then
     PostLocalMessage(DeleteDoubleSpaces(aLogMessage), csNone);

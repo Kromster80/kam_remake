@@ -2,7 +2,7 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Classes, KM_Utils;
+  SysUtils, Classes, KM_Utils, KM_CommonTypes;
 
 
 type
@@ -17,7 +17,6 @@ type
     lmt_NetPacketPingFps);  //log messages about ping/fps net packets
 
   TKMLogMessageTypeSet = set of TKMLogMessageType;
-  TNotifyEventLog = procedure(aLogMessage: UnicodeString) of object;
 
   //Logging system
   TKMLog = class
@@ -27,7 +26,7 @@ type
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
-    fOnLogMessage: TNotifyEventLog;
+    fOnLogMessage: TUnicodeStringEvent;
     procedure AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType); overload;
     procedure AddLineTime(const aText: UnicodeString); overload;
     procedure AddLineNoTime(const aText: UnicodeString);
@@ -53,7 +52,7 @@ type
     procedure AddNoTime(const aText: UnicodeString);
     procedure DeleteOldLogs;
     property LogPath: UnicodeString read fLogPath; //Used by dedicated server
-    property OnLogMessage: TNotifyEventLog read fOnLogMessage write fOnLogMessage;
+    property OnLogMessage: TUnicodeStringEvent read fOnLogMessage write fOnLogMessage;
   end;
 
 var
