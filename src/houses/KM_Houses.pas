@@ -209,13 +209,14 @@ type
     fCuttingPoint: TKMPoint;
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
     procedure SetCuttingPoint(Value: TKMPoint);
+    function GetCuttingPoint: TKMPoint;
   public
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     function IsCuttingPointSet: Boolean;
-    property CuttingPoint: TKMPoint read fCuttingPoint write SetCuttingPoint;
+    property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
   end;
 
 implementation
@@ -1639,21 +1640,22 @@ end;
 
 function TKMHouseWoodcutters.IsCuttingPointSet: Boolean;
 begin
-  Result := not KMSamePoint(CuttingPoint, KMPointBelow(GetEntrance));
+  Result := not KMSamePoint(fCuttingPoint, PointBelowEntrance);
 end;
 
-procedure TKMHouseWoodcutters.SetCuttingPoint(Value: TKMPoint);
-var
-  EntrancePoint: TKMPoint;
+
+function TKMHouseWoodcutters.GetCuttingPoint: TKMPoint;
 begin
-  EntrancePoint := GetEntrance;
-  if KMDistanceSqr(EntrancePoint, Value) > Sqr(MAX_WOODCUTTER_CUT_PNT_DISTANCE) then
-  begin
-    Value := KMNormVector(KMPoint(Value.X - EntrancePoint.X, Value.Y - EntrancePoint.Y), MAX_WOODCUTTER_CUT_PNT_DISTANCE);
-    fCuttingPoint := KMPoint(EntrancePoint.X + Value.X, EntrancePoint.Y + Value.Y);
-  end
-  else
-    fCuttingPoint := Value;
+  if not gTerrain.CheckPassability(fCuttingPoint, tpWalk) then
+    //Automatically update point to valid value (walkable, not more far then MAX_WOODCUTTER_CUT_PNT_DISTANCE)
+    SetCuttingPoint(fCuttingPoint);
+  Result := fCuttingPoint;
+end;
+
+
+procedure TKMHouseWoodcutters.SetCuttingPoint(Value: TKMPoint);
+begin
+  fCuttingPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, Value, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
 end;
 
 procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
