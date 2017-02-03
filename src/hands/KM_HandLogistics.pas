@@ -600,12 +600,12 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House <> nil) and
-            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), tpWalkRoad, 0))
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_House.PointBelowEntrance, tpWalkRoad, 0))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit <> nil) and
-            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, tpWalk, 1))
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_Unit.GetPosition, tpWalk, 1))
             ));
 end;
 
@@ -616,7 +616,7 @@ var
   LocA, LocB: TKMPoint;
 begin
   LocA := aSerf.GetPosition;
-  LocB := KMPointBelow(fOffer[iO].Loc_House.GetEntrance);
+  LocB := fOffer[iO].Loc_House.PointBelowEntrance;
 
   //If the serf is inside the house (invisible) test from point below
   if not aSerf.Visible then

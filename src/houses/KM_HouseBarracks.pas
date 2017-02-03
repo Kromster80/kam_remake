@@ -53,7 +53,7 @@ begin
   inherited;
 
   fRecruitsList := TList.Create;
-  RallyPoint := KMPointBelow(GetEntrance);
+  RallyPoint := PointBelowEntrance;
 end;
 
 
