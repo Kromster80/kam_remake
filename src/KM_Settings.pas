@@ -104,6 +104,7 @@ type
     fServerWelcomeMessage: UnicodeString;
     fWareDistribution: TKMWareDistribution;
 
+    fMenu_FavouriteMPMaps: TStringList;
     fMenu_ReplaysType: Byte;
     fMenu_MapEdMapType: Byte;
     fMenu_MapEdNewMapX: Word;
@@ -160,6 +161,9 @@ type
     procedure SetMenuSPMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveCRC(aValue: Cardinal);
     procedure SetMenuLobbyMapType(aValue: Byte);
+
+    procedure LoadFavouriteMapsFromString(aString: UnicodeString);
+    function GetFavouriteMapsString: UnicodeString;
   protected
     function LoadFromINI(FileName: UnicodeString): Boolean;
     procedure SaveToINI(FileName: UnicodeString);
@@ -202,6 +206,10 @@ type
     property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
 
+    function IsMapInFavourites(aMapCRC: Cardinal): Boolean;
+    procedure AddFavouriteMap(aMapCRC: Cardinal);
+    procedure RemoveFavouriteMap(aMapCRC: Cardinal);
+
     property MenuReplaysType: Byte read fMenu_ReplaysType write SetMenuReplaysType;
     property MenuMapEdMapType: Byte read fMenu_MapEdMapType write SetMenuMapEdMapType;
     property MenuMapEdNewMapX: Word read fMenu_MapEdNewMapX write SetMenuMapEdNewMapX;
@@ -222,6 +230,9 @@ type
 implementation
 uses
   KM_Log;
+
+const
+  FAVOURITE_MAPS_DELIMITER = ':';
 
 
 { TMainSettings }
@@ -354,6 +365,11 @@ begin
   inherited;
 
   fWareDistribution := TKMWareDistribution.Create;
+
+  fMenu_FavouriteMPMaps := TStringList.Create;
+  fMenu_FavouriteMPMaps.Delimiter       := FAVOURITE_MAPS_DELIMITER;
+  fMenu_FavouriteMPMaps.StrictDelimiter := True; // Requires D2006 or newer.
+
   ReloadSettings;
 end;
 
@@ -362,6 +378,7 @@ destructor TGameSettings.Destroy;
 begin
   SaveToINI(ExeDir + SETTINGS_FILE);
   FreeAndNil(fWareDistribution);
+  FreeAndNil(fMenu_FavouriteMPMaps);
 
   inherited;
 end;
@@ -379,6 +396,60 @@ procedure TGameSettings.ReloadSettings;
 begin
   LoadFromINI(ExeDir + SETTINGS_FILE);
   gLog.AddTime('Game settings loaded from ' + SETTINGS_FILE);
+end;
+
+
+procedure TGameSettings.LoadFavouriteMapsFromString(aString: UnicodeString);
+var I: Integer;
+    MapCRC : Int64;
+    StringList: TStringList;
+begin
+  fMenu_FavouriteMPMaps.Clear;
+  StringList := TStringList.Create;
+  StringList.Delimiter := FAVOURITE_MAPS_DELIMITER;
+  StringList.DelimitedText   := Trim(aString);
+
+  for I := 0 to StringList.Count - 1 do
+  begin
+    if TryStrToInt64(Trim(StringList[I]), MapCRC)
+      and (MapCRC > 0)
+      and not IsMapInFavourites(Cardinal(MapCRC)) then
+      fMenu_FavouriteMPMaps.Add(Trim(StringList[I]));
+  end;
+
+  StringList.Free;
+end;
+
+
+function TGameSettings.GetFavouriteMapsString: UnicodeString;
+begin
+  Result := fMenu_FavouriteMPMaps.DelimitedText;
+end;
+
+
+function TGameSettings.IsMapInFavourites(aMapCRC: Cardinal): Boolean;
+begin
+  Result := fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC)) <> -1;
+end;
+
+
+procedure TGameSettings.AddFavouriteMap(aMapCRC: Cardinal);
+begin
+  if not IsMapInFavourites(aMapCRC) then
+  begin
+    fMenu_FavouriteMPMaps.Add(IntToStr(aMapCRC));
+    Changed;
+  end;
+end;
+
+
+procedure TGameSettings.RemoveFavouriteMap(aMapCRC: Cardinal);
+var Index: Integer;
+begin
+  Index := fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC));
+  if Index <> -1 then
+    fMenu_FavouriteMPMaps.Delete(Index);
+  Changed;
 end;
 
 
@@ -433,6 +504,7 @@ begin
     fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
     fServerWelcomeMessage   := {$IFDEF FPC} UTF8Decode {$ENDIF} (F.ReadString ('Server','WelcomeMessage',''));
 
+    LoadFavouriteMapsFromString(F.ReadString('Menu', 'FavouriteMaps', ''));
     fMenu_ReplaysType       := F.ReadInteger('Menu', 'ReplaysType',  0);
     fMenu_MapEdMapType      := F.ReadInteger('Menu', 'MapEdMapType', 0);
     fMenu_MapEdNewMapX      := F.ReadInteger('Menu', 'MapEdNewMapX', 64);
@@ -502,6 +574,7 @@ begin
     F.WriteInteger('Server','AutoKickTimeout',              fAutoKickTimeout);
     F.WriteInteger('Server','PingMeasurementInterval',      fPingInterval);
 
+    F.WriteString ('Menu',  'FavouriteMaps',      GetFavouriteMapsString);
     F.WriteInteger('Menu',  'ReplaysType',        fMenu_ReplaysType);
     F.WriteInteger('Menu',  'MapEdMapType',       fMenu_MapEdMapType);
     F.WriteInteger('Menu',  'MapEdNewMapX',       fMenu_MapEdNewMapX);
