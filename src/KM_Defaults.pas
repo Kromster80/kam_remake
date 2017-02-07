@@ -83,7 +83,7 @@ var
   MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST     :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
-  NET_SHOW_EACH_MSG     :Boolean = False; //Show each message kind arrived in chat (except ping/fps)
+  SHOW_LOGS_IN_CHAT     :Boolean = False; //Show log messages in MP game chat
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
   SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
@@ -132,9 +132,7 @@ var
   ALLOW_TAKE_AI_PLAYERS :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
-  WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
-  WRITE_RECONNECT_LOG   :Boolean = True;
   WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
   EXPORT_SPRITE_ATLASES :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   EXPORT_INFLUENCE      :Boolean = False;

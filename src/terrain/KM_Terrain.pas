@@ -105,7 +105,7 @@ type
 
     function CanPlaceUnit(Loc: TKMPoint; aUnitType: TUnitType): Boolean;
     function CanPlaceGoldmine(X,Y: Word): Boolean;
-    function CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
+    function CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType; aConsiderEntranceOffset: Boolean = True): Boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc: TKMPoint): Boolean;
     function CanAddField(aX, aY: Word; aFieldType: TFieldType): Boolean;
     function CheckHeightPass(aLoc: TKMPoint; aPass: THeightPass): Boolean;
@@ -139,6 +139,7 @@ type
     procedure DecStoneDeposit(Loc: TKMPoint);
     function DecOreDeposit(Loc: TKMPoint; rt: TWareType): Boolean;
 
+    function GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPassability: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
     function CheckPassability(Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
     function HasUnit(Loc: TKMPoint): Boolean;
     function HasVertexUnit(Loc: TKMPoint): Boolean;
@@ -2091,6 +2092,34 @@ begin
 end;
 
 
+//Find closest passable point to TargetPoint within line segment OriginPoint <-> TargetPoint
+//MaxDistance - maximum distance between finded point and origin point. MaxDistance = -1 means there is no distance restriction
+function TKMTerrain.GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPassability: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
+  function IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint: TKMPoint): Boolean;
+  begin
+    Result := (MaxDistance = -1) or (KMDistanceSqr(OriginPoint, TargetPoint) <= Sqr(MaxDistance));
+  end;
+var
+  NormVector: TKMPoint;
+  NormDistance: Integer;
+begin
+  if MaxDistance = -1 then
+    NormDistance := Floor(KMLength(OriginPoint, TargetPoint))
+  else
+    NormDistance := Min(MaxDistance, Floor(KMLength(OriginPoint, TargetPoint)));
+
+  while (NormDistance >= 0)
+    and (not IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint)
+         or not CheckPassability(TargetPoint, aPassability)) do
+  begin
+    NormVector := KMNormVector(KMPoint(TargetPoint.X - OriginPoint.X, TargetPoint.Y - OriginPoint.Y), NormDistance);
+    TargetPoint := KMPoint(OriginPoint.X + NormVector.X, OriginPoint.Y + NormVector.Y);
+    Dec(NormDistance);
+  end;
+  Result := TargetPoint;
+end;
+
+
 function TKMTerrain.CheckPassability(Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y) and (aPass in Land[Loc.Y,Loc.X].Passability);
@@ -2733,14 +2762,14 @@ end;
 
 //Check that house can be placed on Terrain
 //Other checks are performed on Hands level. Of course Terrain is not aware of that
-function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
+function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType; aConsiderEntranceOffset: Boolean = True): Boolean;
 var
   I,K,X,Y: Integer;
   HA: THouseArea;
 begin
   Result := True;
   HA := gRes.Houses[aHouseType].BuildArea;
-  Loc.X := Loc.X - gRes.Houses[aHouseType].EntranceOffsetX; //update offset
+  Loc.X := Loc.X - gRes.Houses[aHouseType].EntranceOffsetX*Byte(aConsiderEntranceOffset); //update offset
   for I := 1 to 4 do
   for K := 1 to 4 do
     if Result and (HA[I,K] <> 0) then

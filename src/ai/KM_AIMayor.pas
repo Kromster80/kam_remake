@@ -395,12 +395,12 @@ begin
     //See if the road required is too long (tower might be across unwalkable terrain)
     H := P.Houses.FindHouse(ht_Any, BestLoc.X, BestLoc.Y, 1, False);
     if H = nil then Exit; //We are screwed, no houses left
-    LocTo := KMPointBelow(H.GetEntrance);
+    LocTo := H.PointBelowEntrance;
 
     //Find nearest complete house to get the road connect ID
     H := P.Houses.FindHouse(ht_Any, BestLoc.X, BestLoc.Y, 1, True);
     if H = nil then Exit; //We are screwed, no houses left
-    RoadConnectID := gTerrain.GetRoadConnectID(KMPointBelow(H.GetEntrance));
+    RoadConnectID := gTerrain.GetRoadConnectID(H.PointBelowEntrance);
 
     NodeList := TKMPointList.Create;
     RoadExists := fPathFindingRoad.Route_ReturnToWalkable(BestLoc, LocTo, RoadConnectID, NodeList);
@@ -438,12 +438,12 @@ begin
   //Find nearest wip or ready house
   H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
   if H = nil then Exit; //We are screwed, no houses left
-  LocTo := KMPointBelow(H.GetEntrance);
+  LocTo := H.PointBelowEntrance;
 
   //Find nearest complete house to get the road connect ID
   H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, True);
   if H = nil then Exit; //We are screwed, no houses left
-  RoadConnectID := gTerrain.GetRoadConnectID(KMPointBelow(H.GetEntrance));
+  RoadConnectID := gTerrain.GetRoadConnectID(H.PointBelowEntrance);
 
   NodeList := TKMPointList.Create;
   try

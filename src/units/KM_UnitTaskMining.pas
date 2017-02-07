@@ -48,7 +48,7 @@ begin
   fWorkPlan.FindPlan( fUnit,
                       fUnit.GetHome.HouseType,
                       aWare,
-                      KMPointBelow(aUnit.GetHome.GetEntrance),
+                      aUnit.GetHome.PointBelowEntrance,
                       ChooseToCutOrPlant
                       );
 end;
@@ -136,7 +136,7 @@ begin
   OldDir := WorkPlan.WorkDir;
 
   //Tell the work plan to find a new resource of the same gathering script
-  if WorkPlan.FindDifferentResource(fUnit, KMPointBelow(fUnit.GetHome.GetEntrance), OldLoc) then
+  if WorkPlan.FindDifferentResource(fUnit, fUnit.GetHome.PointBelowEntrance, OldLoc) then
   begin
     //Must always give us a new location (or same location but different direction)
     Assert((OldDir <> WorkPlan.WorkDir) or not KMSamePoint(OldLoc, WorkPlan.Loc));
@@ -304,7 +304,7 @@ begin
        end;
     7: begin
          //Removing the tree and putting a stump is handled in gTerrain.UpdateState from FallingTrees list
-         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), WorkPlan.ActionWalkFrom); //Go home
+         SetActionWalkToSpot(GetHome.PointBelowEntrance, WorkPlan.ActionWalkFrom); //Go home
          Thought := th_Home;
        end;
     8: SetActionGoIn(WorkPlan.ActionWalkFrom, gd_GoInside, GetHome); //Go inside

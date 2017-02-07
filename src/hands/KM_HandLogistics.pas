@@ -600,12 +600,12 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House <> nil) and
-            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), tpWalkRoad, 0))
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_House.PointBelowEntrance, tpWalkRoad, 0))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit <> nil) and
-            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, tpWalk, 1))
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_Unit.GetPosition, tpWalk, 1))
             ));
 end;
 
@@ -616,7 +616,7 @@ var
   LocA, LocB: TKMPoint;
 begin
   LocA := aSerf.GetPosition;
-  LocB := KMPointBelow(fOffer[iO].Loc_House.GetEntrance);
+  LocB := fOffer[iO].Loc_House.PointBelowEntrance;
 
   //If the serf is inside the house (invisible) test from point below
   if not aSerf.Visible then
@@ -866,7 +866,7 @@ begin
   Inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
   Inc(fDemand[iD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
 
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Creating delivery ID', i);
+  gLog.LogDelivery('Creating delivery ID '+ IntToStr(i));
 
   //Now we have best job and can perform it
   if fDemand[iD].Loc_House <> nil then
@@ -880,7 +880,7 @@ end;
 procedure TKMDeliveries.TakenOffer(aID: Integer);
 var iO: Integer;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Taken offer from delivery ID', aID);
+  gLog.LogDelivery('Taken offer from delivery ID ' + IntToStr(aID));
 
   iO := fQueue[aID].OfferID;
   fQueue[aID].OfferID := 0; //We don't need it any more
@@ -900,7 +900,7 @@ end;
 procedure TKMDeliveries.GaveDemand(aID:integer);
 var iD:integer;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Gave demand from delivery ID', aID);
+  gLog.LogDelivery('Gave demand from delivery ID ' + IntToStr(aID));
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
@@ -915,7 +915,7 @@ end;
 //AbandonDelivery
 procedure TKMDeliveries.AbandonDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Abandoned delivery ID', aID);
+  gLog.LogDelivery('Abandoned delivery ID ' + IntToStr(aID));
 
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
@@ -940,7 +940,7 @@ end;
 //Job successfully done and we ommit it
 procedure TKMDeliveries.CloseDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Closed delivery ID', aID);
+  gLog.LogDelivery('Closed delivery ID ' + IntToStr(aID));
 
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;

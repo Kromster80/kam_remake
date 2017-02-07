@@ -121,7 +121,7 @@ type
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanRemFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
-    function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
+    function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType; aConsiderEntranceOffset: Boolean = True): Boolean;
     function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aCheckInfluence: Boolean): Boolean;
 
     procedure AddRoadToList(aLoc: TKMPoint);
@@ -544,10 +544,10 @@ begin
 end;
 
 
-function TKMHand.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
+function TKMHand.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType; aConsiderEntranceOffset: Boolean = True): Boolean;
 var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
-  Result := gTerrain.CanPlaceHouse(aLoc, aHouseType);
+  Result := gTerrain.CanPlaceHouse(aLoc, aHouseType, aConsiderEntranceOffset);
   if not Result then Exit;
 
   HA := gRes.Houses[aHouseType].BuildArea;
@@ -555,7 +555,7 @@ begin
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aLoc.X - gRes.Houses[aHouseType].EntranceOffsetX + K - 3;
+    Tx := aLoc.X - gRes.Houses[aHouseType].EntranceOffsetX*Byte(aConsiderEntranceOffset) + K - 3;
     Ty := aLoc.Y + I - 4;
     //AI ignores FOW (this function is used from scripting)
     Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
@@ -878,7 +878,7 @@ begin
   repeat
     //First make sure that it is valid
     if (H <> nil) and H.HasFood and H.HasSpace
-    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), tpWalk, 0) then
+    and aUnit.CanWalkTo(Loc, H.PointBelowEntrance, tpWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
       Dist := KMLengthSqr(H.GetPosition, Loc);

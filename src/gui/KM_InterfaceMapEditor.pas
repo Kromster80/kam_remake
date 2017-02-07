@@ -32,6 +32,12 @@ type
     fDragScrollingViewportPos: TKMPointF;
     fMouseDownOnMap: Boolean;
 
+    //Drag object feature fields
+    fIsDraggingObject: Boolean;           //Flag when drag object is happening
+    fDragObject: TObject;                 //Object to drag
+    fDragPointHouseAdjustment: TKMPoint;  //Adjustment for house position, to let grtab house with any of its points
+    fDragHouseEntranceTileOverlay: TTileOverlay; //Store tile overlay under house entrance, to avoid "road eraser" behaviour while dragging house
+
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;
     fGuiTerrain: TKMMapEdTerrain;
@@ -61,6 +67,9 @@ type
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure Player_SetActive(aIndex: TKMHandIndex);
     procedure Player_UpdatePages;
+    procedure MoveObjectToCursorCell(aObjectToMove: TObject);
+    procedure UpdateSelection;
+    procedure ResetObjectDrag;
   protected
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
@@ -101,7 +110,7 @@ implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
-  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses;
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_Units_Warrior;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -118,6 +127,8 @@ begin
   inherited;
 
   fMinimap.PaintVirtualGroups := True;
+
+  ResetObjectDrag;
 
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
@@ -494,6 +505,7 @@ begin
   //Reset cursor
   gGameCursor.Mode := cmNone;
   gGameCursor.Tag1 := 0;
+  fIsDraggingObject := False;
 end;
 
 
@@ -681,11 +693,25 @@ end;
 
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var MyRect: TRect;
+    Obj: TObject;
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
   if fMyControls.CtrlOver <> nil then
     Exit;
+
+  if (Button = mbLeft) and (gGameCursor.Mode = cmNone) then
+  begin
+    Obj := gMySpectator.HitTestCursor;
+    if gMySpectator.HitTestCursor <> nil then
+    begin
+      fDragObject := Obj;
+      if Obj is TKMHouse then
+        fDragPointHouseAdjustment := KMVectorDiff(TKMHouse(Obj).GetPosition, gGameCursor.Cell);
+      fIsDraggingObject := True;
+      gRes.Cursors.Cursor := kmc_Drag;
+    end;
+  end;
 
   if (Button = mbMiddle) and (fMyControls.CtrlOver = nil) then
   begin
@@ -719,6 +745,7 @@ var
   Marker: TKMMapEdMarker;
   VP: TKMPointF;
 begin
+
   if fDragScrolling then
   begin
     VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
@@ -744,11 +771,15 @@ begin
     fMouseDownOnMap := True;
 
   UpdateGameCursor(X,Y,Shift);
+  Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
     if Marker.MarkerType <> mtNone then
       gRes.Cursors.Cursor := kmc_Info
+    else
+    if (ssLeft in Shift) and fIsDraggingObject then
+      MoveObjectToCursorCell(fDragObject)
     else
     if gMySpectator.HitTestCursor <> nil then
       gRes.Cursors.Cursor := kmc_Info
@@ -763,6 +794,97 @@ begin
 end;
 
 
+procedure TKMapEdInterface.MoveObjectToCursorCell(aObjectToMove: TObject);
+var H: TKMHouse;
+    HouseNewPos, HouseOldPos, HouseNewEntrance, HouseOldEntrance: TKMPoint;
+    TileOverlayToSave: TTileOverlay;
+begin
+  if aObjectToMove = nil then Exit;
+  
+  //Move the selected object to the cursor location
+  if aObjectToMove is TKMHouse then
+  begin
+    H := TKMHouse(aObjectToMove);
+
+    HouseOldPos := H.GetPosition;
+    HouseOldEntrance := KMPoint(HouseOldPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseOldPos.Y);
+
+    HouseNewPos := KMVectorSumm(gGameCursor.Cell, fDragPointHouseAdjustment);
+    HouseNewEntrance := KMPoint(HouseNewPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseNewPos.Y);
+
+    if fIsDraggingObject and not KMSamePoint(HouseNewPos, HouseOldPos) then
+      //Save tile overlay under new house entrance
+      TileOverlayToSave := gTerrain.Land[HouseNewEntrance.Y, HouseNewEntrance.X].TileOverlay;
+
+    //Can place is checked in SetPosition
+    if H.SetPosition(HouseNewPos, not fIsDraggingObject)
+      and fIsDraggingObject
+      and not KMSamePoint(HouseNewPos, HouseOldPos) then
+    begin
+      //If we actually moved house to new pos, then restore tile overlay at old house entrance position
+      gTerrain.Land[HouseOldEntrance.Y, HouseOldEntrance.X].TileOverlay := fDragHouseEntranceTileOverlay;
+      //and store old tile overlay under house entrance
+      fDragHouseEntranceTileOverlay := TileOverlayToSave;
+    end;
+  end;
+
+  if aObjectToMove is TKMUnit then
+    if aObjectToMove is TKMUnitWarrior then
+      aObjectToMove := gHands.GetGroupByMember(TKMUnitWarrior(aObjectToMove))
+    else
+      TKMUnit(aObjectToMove).SetPosition(gGameCursor.Cell);
+
+  if aObjectToMove is TKMUnitGroup then
+  begin
+    //Just move group to specified location
+    TKMUnitGroup(aObjectToMove).Position := gGameCursor.Cell;
+  end;
+
+  //    Label_Coordinates.Caption := Format('X: %d, Y: %d|H.GetPosition.X = %d, Y = %d|fDragObjectFrom.X = %d, Y = %d|fDragPointAdjustment.X = %d, Y = %d',
+//      [gGameCursor.Cell.X, gGameCursor.Cell.Y,
+//      H.GetPosition.X, H.GetPosition.Y,
+//      fDragObjectFrom.X, fDragObjectFrom.Y,
+//      fDragPointAdjustment.X, fDragPointAdjustment.Y]);
+end;
+
+
+procedure TKMapEdInterface.UpdateSelection;
+begin
+  gMySpectator.UpdateSelect;
+
+  if gMySpectator.Selected is TKMHouse then
+  begin
+    HidePages;
+    Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
+    fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
+  end;
+  if gMySpectator.Selected is TKMUnit then
+  begin
+    HidePages;
+    Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
+    fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
+  end;
+  if gMySpectator.Selected is TKMUnitGroup then
+  begin
+    HidePages;
+    Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
+    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
+  end;
+end;
+
+
+procedure TKMapEdInterface.ResetObjectDrag;
+begin
+  fIsDraggingObject := False;
+  fDragPointHouseAdjustment := ZERO_POINT;
+  fDragObject := nil;
+  fDragHouseEntranceTileOverlay := to_None;
+  if gRes.Cursors.Cursor = kmc_Drag then
+    gRes.Cursors.Cursor := kmc_Default;
+
+end;
+
+
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
   DP: TAIDefencePosition;
@@ -771,6 +893,9 @@ var
   U: TKMUnit;
   H: TKMHouse;
 begin
+  if fIsDraggingObject then
+    ResetObjectDrag;
+
   if fDragScrolling then
   begin
     if Button = mbMiddle then
@@ -809,39 +934,13 @@ begin
                 end
                 else
                 begin
-                  gMySpectator.UpdateSelect;
-
-                  if gMySpectator.Selected is TKMHouse then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
-                    fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
-                  end;
-                  if gMySpectator.Selected is TKMUnit then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
-                  end;
-                  if gMySpectator.Selected is TKMUnitGroup then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
-                  end;
+                  UpdateSelection;
                 end;
               end;
     mbRight:  begin
                 //Right click performs some special functions and shortcuts
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
-
-                //Move the selected object to the cursor location
-                if gMySpectator.Selected is TKMHouse then
-                  TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
-
-                if gMySpectator.Selected is TKMUnit then
-                  TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);
 
                 if gMySpectator.Selected is TKMUnitGroup then
                 begin
@@ -868,11 +967,10 @@ begin
                     G.MapEdOrder.Pos.Dir := G.Direction;
                     //Update group GUI
                     fGuiUnit.Show(G);
-                  end
-                  else
-                    //Just move group to specified location
-                    G.Position := gGameCursor.Cell;
-                end;
+                  end else
+                    MoveObjectToCursorCell(gMySpectator.Selected);
+                end else
+                  MoveObjectToCursorCell(gMySpectator.Selected);
 
                 if fGuiMarkerDefence.Visible then
                 begin
