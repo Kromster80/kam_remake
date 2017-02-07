@@ -93,7 +93,7 @@ begin
         else
           SetActionLockedStay(0, ua_Walk); //Skip this step
       end;
-   1: SetActionWalkToSpot(KMPointBelow(fInn.GetEntrance));
+   1: SetActionWalkToSpot(fInn.PointBelowEntrance);
    2: begin
         SetActionGoIn(ua_Walk, gd_GoInside, fInn); //Enter Inn
         fPlace := fInn.EaterGetsInside(UnitType);

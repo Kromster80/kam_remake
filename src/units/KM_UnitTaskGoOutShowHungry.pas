@@ -45,7 +45,7 @@ begin
          GetHome.SetState(hst_Empty);
        end;
     2: SetActionLockedStay(4,ua_Walk);
-    3: SetActionWalkToSpot(KMPointBelow(fUnit.GetHome.GetEntrance));
+    3: SetActionWalkToSpot(fUnit.GetHome.PointBelowEntrance);
     4: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.GetHome);
     5: begin
          SetActionStay(20+KaMRandom(10),ua_Walk);

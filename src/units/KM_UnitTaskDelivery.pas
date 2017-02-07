@@ -177,7 +177,7 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0:  begin
-          SetActionWalkToSpot(KMPointBelow(fFrom.GetEntrance));
+          SetActionWalkToSpot(fFrom.PointBelowEntrance);
         end;
     1:  begin
           SetActionGoIn(ua_Walk, gd_GoInside, fFrom);
@@ -209,7 +209,7 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;
-    5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
+    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance);
     6:  SetActionGoIn(ua_Walk, gd_GoInside, fToHouse);
     7:  SetActionLockedStay(5, ua_Walk); //wait a bit inside
     8:  begin
@@ -244,7 +244,7 @@ begin
     //from any side, or something alike. Removing of Distance=1 from here simplifies our WalkToSpot method.
     //Since this change some people have complained because it's hard for serfs to get wares to the site
     //when workers block the enterance. But it is much simpler this way so we don't have a problem really.
-    5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
+    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance);
     6:  begin
           Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
           fToHouse.ResAddToBuild(Carry);
