@@ -112,6 +112,7 @@ type
     fMenu_MapEdSPMapCRC: Cardinal;
     fMenu_MapEdMPMapCRC: Cardinal;
     fMenu_MapEdMPMapName: UnicodeString;
+    fMenu_CampaignName: UnicodeString;
     fMenu_ReplaySPSaveCRC: Cardinal;
     fMenu_ReplayMPSaveCRC: Cardinal;
     fMenu_ReplaySPSaveName: UnicodeString;
@@ -154,6 +155,7 @@ type
     procedure SetMenuMapEdSPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapName(aValue: UnicodeString);
+    procedure SetMenuCampaignName(aValue: UnicodeString);
     procedure SetMenuReplaySPSaveCRC(aValue: Cardinal);
     procedure SetMenuReplayMPSaveCRC(aValue: Cardinal);
     procedure SetMenuReplaySPSaveName(aValue: UnicodeString);
@@ -217,6 +219,7 @@ type
     property MenuMapEdSPMapCRC: Cardinal read fMenu_MapEdSPMapCRC write SetMenuMapEdSPMapCRC;
     property MenuMapEdMPMapCRC: Cardinal read fMenu_MapEdMPMapCRC write SetMenuMapEdMPMapCRC;
     property MenuMapEdMPMapName: UnicodeString read fMenu_MapEdMPMapName write SetMenuMapEdMPMapName;
+    property MenuCampaignName: UnicodeString read fMenu_CampaignName write SetMenuCampaignName;
     property MenuReplaySPSaveCRC: Cardinal read fMenu_ReplaySPSaveCRC write SetMenuReplaySPSaveCRC;
     property MenuReplayMPSaveCRC: Cardinal read fMenu_ReplayMPSaveCRC write SetMenuReplayMPSaveCRC;
     property MenuReplaySPSaveName: UnicodeString read fMenu_ReplaySPSaveName write SetMenuReplaySPSaveName;
@@ -512,6 +515,7 @@ begin
     fMenu_MapEdSPMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdSPMapCRC', '0'));
     fMenu_MapEdMPMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdMPMapCRC', '0'));
     fMenu_MapEdMPMapName    := F.ReadString('Menu', 'MapEdMPMapName', '');
+    fMenu_CampaignName      := F.ReadString('Menu', 'CampaignName', '');
     fMenu_ReplaySPSaveCRC   := StrToInt64(F.ReadString('Menu', 'ReplaySPSaveCRC', '0'));
     fMenu_ReplayMPSaveCRC   := StrToInt64(F.ReadString('Menu', 'ReplayMPSaveCRC', '0'));
     fMenu_ReplaySPSaveName  := F.ReadString('Menu', 'ReplaySPSaveName', '');
@@ -582,6 +586,7 @@ begin
     F.WriteString ('Menu',  'MapEdSPMapCRC',      IntToStr(fMenu_MapEdSPMapCRC));
     F.WriteString ('Menu',  'MapEdMPMapCRC',      IntToStr(fMenu_MapEdMPMapCRC));
     F.WriteString ('Menu',  'MapEdMPMapName',     fMenu_MapEdMPMapName);
+    F.WriteString ('Menu',  'CampaignName',       fMenu_CampaignName);
     F.WriteString ('Menu',  'ReplaySPSaveCRC',    IntToStr(fMenu_ReplaySPSaveCRC));
     F.WriteString ('Menu',  'ReplayMPSaveCRC',    IntToStr(fMenu_ReplayMPSaveCRC));
     F.WriteString ('Menu',  'ReplaySPSaveName',   fMenu_ReplaySPSaveName);
@@ -670,6 +675,12 @@ begin
   Changed;
 end;
 
+
+procedure TGameSettings.SetMenuCampaignName(aValue: UnicodeString);
+begin
+  fMenu_CampaignName := aValue;
+  Changed;
+end;
 
 
 procedure TGameSettings.SetMenuReplaySPSaveCRC(aValue: Cardinal);
