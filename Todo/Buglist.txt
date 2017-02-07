@@ -16,7 +16,8 @@ Bugs:
  +	Game crashed on exit if log file was deleted. Recreate it instead
  +	When group attack position is set to a house/unit, in MP this house/unit would be attacked even if it is an ally	
  +	Rare game crash when map moved out of downloads. Happens when there was another local MP map this same name, previously opened in MapEd, then deleted.
- +	Move out of downloads on MapEd menu page mechanism. Its possible to click on the button with empty filename. This will cause silent delete of MapsMP folder.
+ +	Move out of downloads on MapEd menu page mechanism. It was possible to click on the button with empty filename. This caused silent delete of MapsMP folder.
+ +	Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  
 
@@ -90,8 +91,9 @@ Improvements:
  +		Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
  +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
  +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
+ +	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
  +	L	Ability to ignore repeated consistency check errors while watching SP replay
- +	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
+ +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns)
 
  
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
@@ -121,7 +123,6 @@ Improvements:
 	LM	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
 	L	Changing teams in multiplayer
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
-	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
