@@ -681,7 +681,10 @@ function DeleteDoubleSpaces(aString: string): string;
 var I: Integer;
 begin
   Result := '';
-  for I := 1 to Length(aString) do
+  if aString = '' then Exit;
+  Result := aString[1];
+
+  for I := 2 to Length(aString) do
   begin
     if aString[I] = ' ' then
     begin
