@@ -365,8 +365,6 @@ begin
     imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
     imgNodes[I].Left := EnsureRange(imgNodes[I].Left, Image1.Left, Image1.Left + 1024-imgNodes[I].Width);
     imgNodes[I].Top  := EnsureRange(imgNodes[I].Top, Image1.Top, Image1.Top + 768-imgNodes[I].Height);
-    //Nodes If the position is less than zero
-    //We are making it equal to zero
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;
