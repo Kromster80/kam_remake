@@ -809,7 +809,7 @@ begin
     HouseOldPos := H.GetPosition;
     HouseOldEntrance := KMPoint(HouseOldPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseOldPos.Y);
 
-    HouseNewPos := KMVectorSumm(gGameCursor.Cell, fDragPointHouseAdjustment);
+    HouseNewPos := KMVectorSum(gGameCursor.Cell, fDragPointHouseAdjustment);
     HouseNewEntrance := KMPoint(HouseNewPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseNewPos.Y);
 
     if fIsDraggingObject and not KMSamePoint(HouseNewPos, HouseOldPos) then
