@@ -873,7 +873,6 @@ type
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure UpdateMouseOverPosition(X,Y: Integer);
-    procedure ProceedMouseDown(X,Y: Integer; Shift: TShiftState);
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -4908,6 +4907,7 @@ begin
 end;
 
 
+//Update mouse over row/cell positions (fMouseOver* variables)
 procedure TKMColumnBox.UpdateMouseOverPosition(X,Y: Integer);
 var I, CellLeftOffset, CellRightOffset: Integer;
 begin
@@ -4927,14 +4927,39 @@ begin
     end;
   end else begin
     fMouseOverRow := -1;
-    fMouseOverCell := INVALID_POINT;
+    fMouseOverCell := INVALID_MAP_POINT;
   end;
 end;
 
 
-procedure TKMColumnBox.ProceedMouseDown(X,Y: Integer; Shift: TShiftState);
+procedure TKMColumnBox.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var IsClickHandled: Boolean;
+begin
+  IsClickHandled := False;
+
+  if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) then
+    IsClickHandled := fOnCellClick(Self, fMouseOverCell.X, fMouseOverCell.Y);
+
+  //Let propagate click event only when OnClickCell did not handle it
+  if not IsClickHandled then
+    inherited DoClick(X, Y, Shift, Button);
+end;
+
+
+procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var IsMouseDownHandled: Boolean;
+begin
+  inherited;
+  MouseMove(X, Y, Shift);
+end;
+
+
+procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
 var NewIndex: Integer;
 begin
+  inherited;
+  UpdateMouseOverPosition(X, Y);
+
   if (ssLeft in Shift) and (fMouseOverRow <> -1) then
   begin
     NewIndex := fMouseOverRow;
@@ -4954,36 +4979,6 @@ begin
         fOnChange(Self);
     end;
   end;
-end;
-
-
-procedure TKMColumnBox.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var IsClickHandled: Boolean;
-begin
-  IsClickHandled := False;
-
-  if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, INVALID_POINT) then
-    IsClickHandled := fOnCellClick(Self, fMouseOverCell.X, fMouseOverCell.Y);
-
-  //Let propagate click event only when OnClickCell did not handle it
-  if not IsClickHandled then
-    inherited DoClick(X, Y, Shift, Button);
-end;
-
-
-procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var IsMouseDownHandled: Boolean;
-begin
-  inherited;
-  MouseMove(X, Y, Shift);
-end;
-
-
-procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
-begin
-  inherited;
-  UpdateMouseOverPosition(X, Y);
-  ProceedMouseDown(X, Y, Shift);
 end;
 
 
