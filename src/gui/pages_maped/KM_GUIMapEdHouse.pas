@@ -10,6 +10,8 @@ type
   private
     fHouse: TKMHouse;
 
+    fRallyPointMode: Boolean;
+
     fStorehouseItem: Byte; //Selected ware in storehouse
     fBarracksItem: ShortInt; //Selected ware in barracks, or -1 for recruit
 
@@ -56,6 +58,7 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
+    property RallyPointMode: Boolean read fRallyPointMode write fRallyPointMode;
     procedure Show(aHouse: TKMHouse);
     procedure Hide;
     function Visible: Boolean;
@@ -75,6 +78,8 @@ var
   I: Integer;
 begin
   inherited Create;
+
+  fRallyPointMode := False;
 
   fBarracksItem   := 1; //First ware selected by default
   fStorehouseItem := 1; //First ware selected by default
@@ -222,8 +227,8 @@ procedure TKMMapEdHouse.UpdateState;
 begin
   if Visible then
     case fHouse.HouseType of
-      ht_Barracks:    Button_Barracks_RallyPoint.Down := gGameCursor.Mode = cmRallyPoint;
-      ht_Woodcutters: Button_Woodcutters_CuttingPoint.Down := gGameCursor.Mode = cmRallyPoint;
+      ht_Barracks:    Button_Barracks_RallyPoint.Down := fRallyPointMode;
+      ht_Woodcutters: Button_Woodcutters_CuttingPoint.Down := fRallyPointMode;
     end;
 end;
 
@@ -340,13 +345,13 @@ begin
   end;
   Tmp := TKMHouseBarracks(fHouse).MapEdRecruitCount;
   Button_Barracks_Recruit.Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
-  Button_Barracks_RallyPoint.Down := gGameCursor.Mode = cmRallyPoint;
+  Button_Barracks_RallyPoint.Down := fRallyPointMode;
 end;
 
 
 procedure TKMMapEdHouse.WoodcuttersRefresh;
 begin
-  Button_Woodcutters_CuttingPoint.Down := gGameCursor.Mode = cmRallyPoint;
+  Button_Woodcutters_CuttingPoint.Down := fRallyPointMode;
 end;
 
 
@@ -410,23 +415,15 @@ end;
 
 procedure TKMMapEdHouse.BarracksSetRallyPoint(Sender: TObject);
 begin
-  Button_Barracks_RallyPoint.Down := not Button_Barracks_RallyPoint.Down;
-  if Button_Barracks_RallyPoint.Down then
-  begin
-    gGameCursor.Mode := cmRallyPoint;
-  end else
-    gGameCursor.Mode := cmNone;
+  fRallyPointMode := not Button_Barracks_RallyPoint.Down;
+  Button_Barracks_RallyPoint.Down := fRallyPointMode;
 end;
 
 
 procedure TKMMapEdHouse.WoodcuttersSetRallyPoint(Sender: TObject);
 begin
-  Button_Woodcutters_CuttingPoint.Down := not Button_Woodcutters_CuttingPoint.Down;
-  if Button_Woodcutters_CuttingPoint.Down then
-  begin
-    gGameCursor.Mode := cmRallyPoint;
-  end else
-    gGameCursor.Mode := cmNone;
+  fRallyPointMode := not Button_Woodcutters_CuttingPoint.Down;
+  Button_Woodcutters_CuttingPoint.Down := fRallyPointMode;
 end;
 
 

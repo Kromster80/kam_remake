@@ -258,8 +258,7 @@ type
     cmSelection, //Selection manipulations
     cmUnits, //Units
     cmMarkers, //CenterScreen, Defence, FOW markers
-    cmEyedropper, //Terrain eyedropper
-    cmRallyPoint
+    cmEyedropper //Terrain eyedropper
     );
 
 type

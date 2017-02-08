@@ -466,10 +466,8 @@ procedure TKMHouse.SetPosition(aPos: TKMPoint);
     end
     else if (Self is TKMHouseWoodcutters) then
     begin
-      if not aIsRallyPointSet then
-        TKMHouseWoodcutters(Self).CuttingPoint := PointBelowEntrance
-      else
-        TKMHouseWoodcutters(Self).ValidateNUpdateCuttingPoint;
+      //reset cutting point, because it has max distance limit
+      TKMHouseWoodcutters(Self).CuttingPoint := PointBelowEntrance
     end;
   end;
 var
