@@ -22,6 +22,7 @@ uses
   KM_GUIMenuSingleMap,
   KM_GUIMenuSinglePlayer;
 
+
 type
   TKMMainMenuInterface = class(TKMUserInterfaceCommon)
   private
