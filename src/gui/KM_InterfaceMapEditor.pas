@@ -61,7 +61,6 @@ type
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure Player_SetActive(aIndex: TKMHandIndex);
     procedure Player_UpdatePages;
-    procedure UpdatePlayerSelectButtons;
   protected
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
@@ -314,19 +313,12 @@ begin
 end;
 
 
-procedure TKMapEdInterface.UpdatePlayerSelectButtons;
+//Should update any items changed by game (resource counts, hp, etc..)
+procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 const
   CAP_COLOR: array [Boolean] of Cardinal = ($80808080, $FFFFFFFF);
 var
   I: Integer;
-begin
-  for I := 0 to MAX_HANDS - 1 do
-    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
-end;
-
-
-//Should update any items changed by game (resource counts, hp, etc..)
-procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
   //Update minimap every 1000ms
   if aTickCount mod 10 = 0 then
@@ -334,8 +326,9 @@ begin
 
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
-    UpdatePlayerSelectButtons;
-                 
+  for I := 0 to MAX_HANDS - 1 do
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
+
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
 end;
@@ -365,8 +358,6 @@ begin
     Button_PlayerSelect[I].ShapeColor := gHands[I].FlagColor;
 
   Player_UpdatePages;
-
-  UpdatePlayerSelectButtons;
 
   Label_MissionName.Caption := gGame.GameName;
 end;
