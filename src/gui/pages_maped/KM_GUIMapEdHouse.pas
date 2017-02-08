@@ -19,45 +19,48 @@ type
     procedure HouseChange(Sender: TObject; Shift: TShiftState);
     procedure BarracksRefresh(Sender: TObject);
     procedure BarracksSelectWare(Sender: TObject);
+    procedure BarracksSetRallyPoint(Sender: TObject);
     procedure BarracksChange(Sender: TObject; Shift: TShiftState);
     procedure StoreRefresh(Sender: TObject);
     procedure StoreSelectWare(Sender: TObject);
     procedure StoreChange(Sender: TObject; Shift: TShiftState);
   protected
     Panel_House: TKMPanel;
-    Label_House: TKMLabel;
-    Image_House_Logo, Image_House_Worker: TKMImage;
-    KMHealthBar_House: TKMPercentBar;
-    Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
-    Label_House_Input, Label_House_Output: TKMLabel;
-    ResRow_Resource_Input: array [0..3] of TKMWareOrderRow;
-    ResRow_Resource_Output: array [0..3] of TKMWareOrderRow;
+      Label_House: TKMLabel;
+      Image_House_Logo, Image_House_Worker: TKMImage;
+      KMHealthBar_House: TKMPercentBar;
+      Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
+      Label_House_Input, Label_House_Output: TKMLabel;
+      ResRow_Resource_Input: array [0..3] of TKMWareOrderRow;
+      ResRow_Resource_Output: array [0..3] of TKMWareOrderRow;
 
     Panel_HouseStore: TKMPanel;
-    Button_Store: array [1..STORE_RES_COUNT] of TKMButtonFlat;
-    Label_Store_WareCount: TKMLabel;
-    Button_StoreDec100, Button_StoreDec: TKMButton;
-    Button_StoreInc100, Button_StoreInc: TKMButton;
+      Button_Store: array [1..STORE_RES_COUNT] of TKMButtonFlat;
+      Label_Store_WareCount: TKMLabel;
+      Button_StoreDec100, Button_StoreDec: TKMButton;
+      Button_StoreInc100, Button_StoreInc: TKMButton;
 
     Panel_HouseBarracks: TKMPanel;
-    Button_Barracks: array [1..BARRACKS_RES_COUNT] of TKMButtonFlat;
-    Button_Barracks_Recruit: TKMButtonFlat;
-    Label_Barracks_WareCount: TKMLabel;
-    Button_BarracksDec100, Button_BarracksDec: TKMButton;
-    Button_BarracksInc100, Button_BarracksInc: TKMButton;
+      Button_Barracks: array [1..BARRACKS_RES_COUNT] of TKMButtonFlat;
+      Button_Barracks_Recruit: TKMButtonFlat;
+      Label_Barracks_WareCount: TKMLabel;
+      Button_Barracks_RallyPoint: TKMButtonFlat;
+      Button_BarracksDec100, Button_BarracksDec: TKMButton;
+      Button_BarracksInc100, Button_BarracksInc: TKMButton;
   public
     constructor Create(aParent: TKMPanel);
 
     procedure Show(aHouse: TKMHouse);
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
   end;
 
 
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI, KM_Hand, KM_ResUnits,
-  KM_ResWares, KM_HouseBarracks, KM_ResFonts, KM_Utils;
+  KM_ResWares, KM_ResCursors, KM_HouseBarracks, KM_ResFonts, KM_Utils, KM_GameCursor;
 
 
 { TKMMapEdHouse }
@@ -162,6 +165,13 @@ begin
     Button_Barracks_Recruit.Hint := gRes.Units[ut_Recruit].GUIName;
     Button_Barracks_Recruit.OnClick := BarracksSelectWare;
 
+    Button_Barracks_RallyPoint := TKMButtonFlat.Create(Panel_HouseBarracks, 0, 8+42+38+10,30,30,322);
+    Button_Barracks_RallyPoint.TexOffsetX := 1;
+    Button_Barracks_RallyPoint.TexOffsetY := 1;
+    Button_Barracks_RallyPoint.CapOffsetY := 2;
+    Button_Barracks_RallyPoint.Hint := 'Set barracks rally point'; //Todo translate
+    Button_Barracks_RallyPoint.OnClick := BarracksSetRallyPoint;
+
     Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
     Button_BarracksDec100.Tag := 100;
     Button_BarracksDec        := TKMButton.Create(Panel_HouseBarracks,108,238,20,20,'-', bsGame);
@@ -187,6 +197,15 @@ end;
 function TKMMapEdHouse.Visible: Boolean;
 begin
   Result := Panel_House.Visible;
+end;
+
+
+procedure TKMMapEdHouse.UpdateState;
+begin
+  if Visible then
+    case fHouse.HouseType of
+      ht_Barracks: Button_Barracks_RallyPoint.Down := gGameCursor.Mode = cmRallyPoint;
+    end;
 end;
 
 
@@ -260,6 +279,7 @@ begin
                     //In the barrack the recruit icon is always enabled
                     Image_House_Worker.Enable;
                     Button_Barracks_Recruit.FlagColor := gHands[fHouse.Owner].FlagColor;
+                    Button_Barracks_RallyPoint.FlagColor := gHands[fHouse.Owner].FlagColor;;
                     //Reselect the ware so the display is updated
                     if fBarracksItem = -1 then
                       BarracksSelectWare(Button_Barracks_Recruit)
@@ -295,6 +315,7 @@ begin
   end;
   Tmp := TKMHouseBarracks(fHouse).MapEdRecruitCount;
   Button_Barracks_Recruit.Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
+  Button_Barracks_RallyPoint.Down := gGameCursor.Mode = cmRallyPoint;
 end;
 
 
@@ -353,6 +374,17 @@ begin
     ResRow_Resource_Output[I].OrderCount := fHouse.CheckResOut(Res);
     ResRow_Resource_Output[I].WareCount := fHouse.CheckResOut(Res);
   end;
+end;
+
+
+procedure TKMMapEdHouse.BarracksSetRallyPoint(Sender: TObject);
+begin
+  Button_Barracks_RallyPoint.Down := not Button_Barracks_RallyPoint.Down;
+  if Button_Barracks_RallyPoint.Down then
+  begin
+    gGameCursor.Mode := cmRallyPoint;
+  end else
+    gGameCursor.Mode := cmNone;
 end;
 
 

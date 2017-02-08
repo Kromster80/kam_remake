@@ -101,7 +101,7 @@ implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
-  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses;
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_HouseBarracks;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -329,6 +329,7 @@ begin
   for I := 0 to MAX_HANDS - 1 do
     Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
 
+  fGuiHouse.UpdateState;
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
 end;
@@ -744,6 +745,9 @@ begin
     fMouseDownOnMap := True;
 
   UpdateGameCursor(X,Y,Shift);
+  if gGameCursor.Mode = cmRallyPoint then
+    gRes.Cursors.Cursor := kmc_Beacon
+  else
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
@@ -797,44 +801,57 @@ begin
   fMouseDownOnMap := False;
 
   case Button of
-    mbLeft:   if gGameCursor.Mode = cmNone then
-              begin
-                //If there are some additional layers we first HitTest them
-                //since they are rendered ontop of Houses/Objects
-                Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
-                if Marker.MarkerType <> mtNone then
-                begin
-                  ShowMarkerInfo(Marker);
-                  gMySpectator.Selected := nil; //We might have had a unit/group/house selected
-                end
-                else
-                begin
-                  gMySpectator.UpdateSelect;
+    mbLeft:   case gGameCursor.Mode of
+                cmNone:       begin
+                                //If there are some additional layers we first HitTest them
+                                //since they are rendered ontop of Houses/Objects
+                                Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+                                if Marker.MarkerType <> mtNone then
+                                begin
+                                  ShowMarkerInfo(Marker);
+                                  gMySpectator.Selected := nil; //We might have had a unit/group/house selected
+                                end
+                                else
+                                begin
+                                  gMySpectator.UpdateSelect;
 
-                  if gMySpectator.Selected is TKMHouse then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
-                    fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
-                  end;
-                  if gMySpectator.Selected is TKMUnit then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
-                  end;
-                  if gMySpectator.Selected is TKMUnitGroup then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
-                  end;
-                end;
+                                  if gMySpectator.Selected is TKMHouse then
+                                  begin
+                                    HidePages;
+                                    Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
+                                    fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
+                                  end;
+                                  if gMySpectator.Selected is TKMUnit then
+                                  begin
+                                    HidePages;
+                                    Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
+                                    fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
+                                  end;
+                                  if gMySpectator.Selected is TKMUnitGroup then
+                                  begin
+                                    HidePages;
+                                    Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
+                                    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
+                                  end;
+                                end;
+                              end;
+                cmRallyPoint: begin
+                                gMySpectator.UpdateSelect;
+                                if gMySpectator.Selected is TKMHouseBarracks then
+                                  TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell;
+                              end;
               end;
     mbRight:  begin
                 //Right click performs some special functions and shortcuts
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
+
+                if gGameCursor.Mode = cmRallyPoint then
+                begin
+                  gGameCursor.Mode := cmNone;
+                  gRes.Cursors.Cursor := kmc_Default;
+                  Exit;
+                end;
 
                 //Move the selected object to the cursor location
                 if gMySpectator.Selected is TKMHouse then

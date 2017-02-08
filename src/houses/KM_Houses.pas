@@ -223,7 +223,7 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
-  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log;
+  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
 
 
 { TKMHouse }
@@ -455,7 +455,7 @@ end;
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
 var
-  WasOnSnow: Boolean;
+  WasOnSnow, IsRallyPointSet: Boolean;
 begin
   Assert(gGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
@@ -463,8 +463,16 @@ begin
   gTerrain.RemRoad(GetEntrance);
   if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
+    //Save was rally point set for previous position or not
+    if (Self is TKMHouseBarracks) then
+      IsRallyPointSet := TKMHouseBarracks(Self).IsRallyPointSet;
+
     fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
+
+    //Update Rally point position for barracks after change fPosition
+    if (Self is TKMHouseBarracks) and not IsRallyPointSet then
+      TKMHouseBarracks(Self).RallyPoint := PointBelowEntrance;
   end;
   gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
   gTerrain.SetField(GetEntrance, fOwner, ft_Road);
@@ -1658,6 +1666,7 @@ begin
   fCuttingPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, Value, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
 end;
 
+
 procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
 begin
   fWoodcutterMode := aWoodcutterMode;
@@ -1665,6 +1674,7 @@ begin
   if fWoodcutterMode = wcm_ChopAndPlant then
     ResourceDepletedMsgIssued := False;
 end;
+
 
 { THouseAction }
 constructor THouseAction.Create(aHouse: TKMHouse; aHouseState: THouseState);
