@@ -553,19 +553,16 @@ begin
                         end;
     ct_SetRallyPoint:   begin
                           if fLastHand <> PLAYER_NONE then
-                            if (fLastHouse <> nil) and (fLastHouse is TKMHouseBarracks) then
+                            if (fLastHouse <> nil) then
                             begin
                               if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
-                                TKMHouseBarracks(fLastHouse).RallyPoint := KMPoint(P[0], P[1]);
+                                if (fLastHouse is TKMHouseBarracks) then
+                                  TKMHouseBarracks(fLastHouse).RallyPoint := KMPoint(P[0], P[1])
+                                else if (fLastHouse is TKMHouseWoodcutters) then
+                                  TKMHouseWoodcutters(fLastHouse).CuttingPoint := KMPoint(P[0], P[1]);
                             end
                             else
                               AddError('ct_SetRallyPoint without prior declaration of House');
-                            if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                              if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
-                                fLastHouse := gHands[fLastHand].AddHouse(
-                                  HouseIndexToType[P[0]], P[1]+1, P[2]+1, false)
-                              else
-                                AddError('ct_SetHouse failed, can not place house at ' + TypeToString(KMPoint(P[1]+1, P[2]+1)));
                         end;
 
     ct_EnablePlayer:    begin
@@ -847,6 +844,12 @@ begin
             AddCommand(ct_UnitAddToLast, [UnitTypeToOldIndex[ut_Recruit]]);
           if TKMHouseBarracks(H).IsRallyPointSet then
             AddCommand(ct_SetRallyPoint, [TKMHouseBarracks(H).RallyPoint.X, TKMHouseBarracks(H).RallyPoint.Y]);
+        end;
+
+        if H is TKMHouseWoodcutters then
+        begin
+          if TKMHouseWoodcutters(H).IsCuttingPointSet then
+            AddCommand(ct_SetRallyPoint, [TKMHouseWoodcutters(H).CuttingPoint.X, TKMHouseWoodcutters(H).CuttingPoint.Y]);
         end;
 
         //Process any wares in this house

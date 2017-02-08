@@ -838,7 +838,9 @@ begin
                 cmRallyPoint: begin
                                 gMySpectator.UpdateSelect;
                                 if gMySpectator.Selected is TKMHouseBarracks then
-                                  TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell;
+                                  TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell
+                                else if gMySpectator.Selected is TKMHouseWoodcutters then
+                                  TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
                               end;
               end;
     mbRight:  begin
@@ -855,7 +857,16 @@ begin
 
                 //Move the selected object to the cursor location
                 if gMySpectator.Selected is TKMHouse then
-                  TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                begin
+                  if ssShift in Shift then
+                  begin
+                    if gMySpectator.Selected is TKMHouseBarracks then
+                      TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell
+                    else if gMySpectator.Selected is TKMHouseWoodcutters then
+                      TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
+                  end else
+                    TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                end;
 
                 if gMySpectator.Selected is TKMUnit then
                   TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);

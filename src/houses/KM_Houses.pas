@@ -216,6 +216,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     function IsCuttingPointSet: Boolean;
+    procedure ValidateNUpdateCuttingPoint;
     property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
   end;
 
@@ -454,6 +455,23 @@ end;
 
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
+  procedure UpdateCuttingPoint(aIsRallyPointSet: Boolean);
+  begin
+    if (Self is TKMHouseBarracks) then
+    begin
+      if not aIsRallyPointSet then
+        TKMHouseBarracks(Self).RallyPoint := PointBelowEntrance
+      else
+        TKMHouseBarracks(Self).ValidateNUpdateRallyPoint;
+    end
+    else if (Self is TKMHouseWoodcutters) then
+    begin
+      if not aIsRallyPointSet then
+        TKMHouseWoodcutters(Self).CuttingPoint := PointBelowEntrance
+      else
+        TKMHouseWoodcutters(Self).ValidateNUpdateCuttingPoint;
+    end;
+  end;
 var
   WasOnSnow, IsRallyPointSet: Boolean;
 begin
@@ -463,16 +481,17 @@ begin
   gTerrain.RemRoad(GetEntrance);
   if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
-    //Save was rally point set for previous position or not
+    //Save if rally/cutting point was set for previous position
     if (Self is TKMHouseBarracks) then
-      IsRallyPointSet := TKMHouseBarracks(Self).IsRallyPointSet;
+      IsRallyPointSet := TKMHouseBarracks(Self).IsRallyPointSet
+    else if (Self is TKMHouseWoodcutters) then
+      IsRallyPointSet := TKMHouseWoodcutters(Self).IsCuttingPointSet;
 
     fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
 
-    //Update Rally point position for barracks after change fPosition
-    if (Self is TKMHouseBarracks) and not IsRallyPointSet then
-      TKMHouseBarracks(Self).RallyPoint := PointBelowEntrance;
+    //Update rally/cutting point position for barracks/woodcutters after change fPosition
+    UpdateCuttingPoint(IsRallyPointSet);
   end;
   gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
   gTerrain.SetField(GetEntrance, fOwner, ft_Road);
@@ -1649,6 +1668,13 @@ end;
 function TKMHouseWoodcutters.IsCuttingPointSet: Boolean;
 begin
   Result := not KMSamePoint(CuttingPoint, PointBelowEntrance); //Use CuttingPoint, not fCuttingPoint to be sure its Valid
+end;
+
+
+procedure TKMHouseWoodcutters.ValidateNUpdateCuttingPoint;
+begin
+  //this will automatically update cutting point to valid value
+  SetCuttingPoint(fCuttingPoint);
 end;
 
 
