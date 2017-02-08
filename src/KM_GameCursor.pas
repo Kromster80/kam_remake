@@ -12,6 +12,7 @@ var
     SState: TShiftState;  //Thats actually used to see if Left or Right mouse button is pressed
     Mode: TKMCursorMode;  //Modes used in game (building, unit, road, etc..)
     Tag1: Byte;           //Tag to know building type, unit type etc.
+    CellAdjustment: TKMPoint; //used to adjust actual Cursor Cell
     ObjectUID: Integer;   //Object found below cursor
 
     MapEdDir: Byte;

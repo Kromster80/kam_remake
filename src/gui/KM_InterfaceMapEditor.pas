@@ -35,8 +35,10 @@ type
     //Drag object feature fields
     fIsDraggingObject: Boolean;           //Flag when drag object is happening
     fDragObject: TObject;                 //Object to drag
-    fDragPointHouseAdjustment: TKMPoint;  //Adjustment for house position, to let grtab house with any of its points
+    fDragHouseGrabPntAdjustment: TKMPoint;  //Adjustment for house position, to let grab house with any of its points
     fDragHouseEntranceTileOverlay: TTileOverlay; //Store tile overlay under house entrance, to avoid "road eraser" behaviour while dragging house
+
+    fStopMinimapUpdate: Boolean;  //Stop minimap from autoupdating, used in Drag House mechanism
 
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;
@@ -69,7 +71,11 @@ type
     procedure Player_UpdatePages;
     procedure MoveObjectToCursorCell(aObjectToMove: TObject);
     procedure UpdateSelection;
+    procedure DragHouseMoveModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
+    procedure DragHouseMoveModeEnd;
     procedure ResetObjectDrag;
+    procedure ResetCursorMode;
+    procedure UpdatePlayerSelectButtons;
   protected
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
@@ -110,7 +116,8 @@ implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
-  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_Units_Warrior;
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_Units_Warrior,
+  KM_ResHouses;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -127,6 +134,7 @@ begin
   inherited;
 
   fMinimap.PaintVirtualGroups := True;
+  fStopMinimapUpdate := False;
 
   ResetObjectDrag;
 
@@ -323,22 +331,28 @@ begin
 end;
 
 
-
-//Should update any items changed by game (resource counts, hp, etc..)
-procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
+procedure TKMapEdInterface.UpdatePlayerSelectButtons;
 const
   CAP_COLOR: array [Boolean] of Cardinal = ($80808080, $FFFFFFFF);
 var
   I: Integer;
 begin
+  for I := 0 to MAX_HANDS - 1 do
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
+end;
+
+
+
+//Should update any items changed by game (resource counts, hp, etc..)
+procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
+begin
   //Update minimap every 1000ms
-  if aTickCount mod 10 = 0 then
+  if (aTickCount mod 10 = 0) and not fStopMinimapUpdate then
     fMinimap.Update(False);
 
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
-  for I := 0 to MAX_HANDS - 1 do
-    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
+    UpdatePlayerSelectButtons;
 
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
@@ -369,6 +383,8 @@ begin
     Button_PlayerSelect[I].ShapeColor := gHands[I].FlagColor;
 
   Player_UpdatePages;
+
+  UpdatePlayerSelectButtons;
 
   Label_MissionName.Caption := gGame.GameName;
 end;
@@ -503,9 +519,9 @@ begin
   if fGuiHouse.Visible then Exit;
 
   //Reset cursor
-  gGameCursor.Mode := cmNone;
-  gGameCursor.Tag1 := 0;
-  fIsDraggingObject := False;
+  ResetCursorMode;
+  //Reset drag object fields
+  ResetObjectDrag;
 end;
 
 
@@ -705,9 +721,10 @@ begin
     Obj := gMySpectator.HitTestCursor;
     if gMySpectator.HitTestCursor <> nil then
     begin
+      UpdateSelection;
       fDragObject := Obj;
       if Obj is TKMHouse then
-        fDragPointHouseAdjustment := KMVectorDiff(TKMHouse(Obj).GetPosition, gGameCursor.Cell);
+        fDragHouseGrabPntAdjustment := KMVectorDiff(TKMHouse(Obj).GetPosition, gGameCursor.Cell); //Save drag point adjustement to house position
       fIsDraggingObject := True;
       gRes.Cursors.Cursor := kmc_Drag;
     end;
@@ -772,14 +789,18 @@ begin
 
   UpdateGameCursor(X,Y,Shift);
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
+
+  if fIsDraggingObject and (ssLeft in Shift) then
+  begin
+    //Cursor can be reset to default, when moved to menu panel while dragging, so set it to drag cursor again
+    gRes.Cursors.Cursor := kmc_Drag;
+    MoveObjectToCursorCell(fDragObject);
+  end else
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
     if Marker.MarkerType <> mtNone then
       gRes.Cursors.Cursor := kmc_Info
-    else
-    if (ssLeft in Shift) and fIsDraggingObject then
-      MoveObjectToCursorCell(fDragObject)
     else
     if gMySpectator.HitTestCursor <> nil then
       gRes.Cursors.Cursor := kmc_Info
@@ -794,14 +815,65 @@ begin
 end;
 
 
+procedure TKMapEdInterface.ResetCursorMode;
+begin
+  gGameCursor.Mode := cmNone;
+  gGameCursor.Tag1 := 0;
+  gGameCursor.CellAdjustment := ZERO_POINT;
+end;
+
+
+//Start drag house move mode (with cursor mode cmHouse)
+procedure TKMapEdInterface.DragHouseMoveModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
+  procedure SetCursorModeHouse(aHouseType: THouseType);
+  begin
+    gGameCursor.Mode := cmHouses;
+    gGameCursor.Tag1 := Byte(aHouseType);
+    //Update cursor CellAdjustment to render house markups at proper positions
+    gGameCursor.CellAdjustment := KMPoint(fDragHouseGrabPntAdjustment.X + gRes.Houses[aHouseType].EntranceOffsetX, fDragHouseGrabPntAdjustment.Y);
+  end;
+var H: TKMHouse;
+begin
+  if fDragObject is TKMHouse then
+  begin
+    H := TKMHouse(fDragObject);
+    //Temporarily remove house from terrain to render house markups as there is no current house (we want to move it)
+    gTerrain.SetHouse(H.GetPosition, H.HouseType, hsNone, H.Owner);
+    //Stop minimap from updatting, because moving house will dissapear on it, while moving in cmHouse cursor mode
+    fStopMinimapUpdate := True;
+    SetCursorModeHouse(H.HouseType); //Update cursor mode to cmHouse
+  end;
+end;
+
+
+//Drag house move mode end (with cursor mode cmHouse)
+procedure TKMapEdInterface.DragHouseMoveModeEnd;
+var H: TKMHouse;
+begin
+  //Restore minimap update
+  fStopMinimapUpdate := False;
+
+  if (fDragObject is TKMHouse) then
+  begin
+    H := TKMHouse(fDragObject);
+    //Restore house on terrain, just in case we were in house move mode (with cursor mode cmHouse)
+    gTerrain.SetHouse(H.GetPosition, H.HouseType, hsBuilt, H.Owner);
+    ResetCursorMode;
+  end;
+end;
+
+
 procedure TKMapEdInterface.MoveObjectToCursorCell(aObjectToMove: TObject);
 var H: TKMHouse;
     HouseNewPos, HouseOldPos, HouseNewEntrance, HouseOldEntrance: TKMPoint;
     TileOverlayToSave: TTileOverlay;
+    IsHouseMovedToNewPos: Boolean;
 begin
   if aObjectToMove = nil then Exit;
-  
-  //Move the selected object to the cursor location
+
+  TileOverlayToSave := to_None; //Lets make compiler happy, even if this initialization is not necessary
+
+  //House move
   if aObjectToMove is TKMHouse then
   begin
     H := TKMHouse(aObjectToMove);
@@ -809,42 +881,45 @@ begin
     HouseOldPos := H.GetPosition;
     HouseOldEntrance := KMPoint(HouseOldPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseOldPos.Y);
 
-    HouseNewPos := KMVectorSum(gGameCursor.Cell, fDragPointHouseAdjustment);
+    HouseNewPos := KMVectorSum(gGameCursor.Cell, fDragHouseGrabPntAdjustment);
     HouseNewEntrance := KMPoint(HouseNewPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseNewPos.Y);
 
-    if fIsDraggingObject and not KMSamePoint(HouseNewPos, HouseOldPos) then
-      //Save tile overlay under new house entrance
-      TileOverlayToSave := gTerrain.Land[HouseNewEntrance.Y, HouseNewEntrance.X].TileOverlay;
+    if not fIsDraggingObject then
+      H.SetPosition(HouseNewPos)  //handles Right click, when house is selected
+    else begin
+      IsHouseMovedToNewPos := not KMSamePoint(HouseNewPos, HouseOldPos);
+      if IsHouseMovedToNewPos then
+        //Save tile overlay under new house entrance
+        TileOverlayToSave := gTerrain.Land[HouseNewEntrance.Y, HouseNewEntrance.X].TileOverlay;
 
-    //Can place is checked in SetPosition
-    if H.SetPosition(HouseNewPos, not fIsDraggingObject)
-      and fIsDraggingObject
-      and not KMSamePoint(HouseNewPos, HouseOldPos) then
-    begin
-      //If we actually moved house to new pos, then restore tile overlay at old house entrance position
-      gTerrain.Land[HouseOldEntrance.Y, HouseOldEntrance.X].TileOverlay := fDragHouseEntranceTileOverlay;
-      //and store old tile overlay under house entrance
-      fDragHouseEntranceTileOverlay := TileOverlayToSave;
+      if H.SetPosition(HouseNewPos, False) then
+      begin
+        DragHouseMoveModeEnd;
+        if IsHouseMovedToNewPos then
+        begin
+          //If we actually moved house to new pos, then restore tile overlay at old house entrance position
+          gTerrain.Land[HouseOldEntrance.Y, HouseOldEntrance.X].TileOverlay := fDragHouseEntranceTileOverlay;
+          //and store old tile overlay under house entrance
+          fDragHouseEntranceTileOverlay := TileOverlayToSave;
+        end
+      end else
+        DragHouseMoveModeStart(HouseNewPos, HouseOldPos);
     end;
   end;
 
+  //Unit move
   if aObjectToMove is TKMUnit then
     if aObjectToMove is TKMUnitWarrior then
       aObjectToMove := gHands.GetGroupByMember(TKMUnitWarrior(aObjectToMove))
     else
       TKMUnit(aObjectToMove).SetPosition(gGameCursor.Cell);
 
+  //Unit group move
   if aObjectToMove is TKMUnitGroup then
   begin
     //Just move group to specified location
     TKMUnitGroup(aObjectToMove).Position := gGameCursor.Cell;
   end;
-
-  //    Label_Coordinates.Caption := Format('X: %d, Y: %d|H.GetPosition.X = %d, Y = %d|fDragObjectFrom.X = %d, Y = %d|fDragPointAdjustment.X = %d, Y = %d',
-//      [gGameCursor.Cell.X, gGameCursor.Cell.Y,
-//      H.GetPosition.X, H.GetPosition.Y,
-//      fDragObjectFrom.X, fDragObjectFrom.Y,
-//      fDragPointAdjustment.X, fDragPointAdjustment.Y]);
 end;
 
 
@@ -876,12 +951,15 @@ end;
 procedure TKMapEdInterface.ResetObjectDrag;
 begin
   fIsDraggingObject := False;
-  fDragPointHouseAdjustment := ZERO_POINT;
+  fDragHouseGrabPntAdjustment := ZERO_POINT;
   fDragObject := nil;
   fDragHouseEntranceTileOverlay := to_None;
+
   if gRes.Cursors.Cursor = kmc_Drag then
     gRes.Cursors.Cursor := kmc_Default;
 
+  if gGameCursor.Mode = cmHouses then
+    ResetCursorMode;
 end;
 
 
@@ -894,7 +972,10 @@ var
   H: TKMHouse;
 begin
   if fIsDraggingObject then
+  begin
+    DragHouseMoveModeEnd; //In case we started house move mode (with cursor mode cmHouse) have to end it on Mouse move
     ResetObjectDrag;
+  end;
 
   if fDragScrolling then
   begin

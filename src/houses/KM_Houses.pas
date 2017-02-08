@@ -102,7 +102,7 @@ type
     property BuildingProgress: Word read fBuildingProgress;
 
     property GetPosition: TKMPoint read fPosition;
-    function SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean): Boolean; //Used only by map editor
+    function SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean; //Used only by map editor
     procedure OwnerUpdate(aOwner: TKMHandIndex);
     property PointBelowEntrance: TKMPoint read GetPointBelowEntrance;
     function GetEntrance: TKMPoint;
@@ -454,7 +454,8 @@ end;
 
 //Used by MapEditor
 //Return True, if house was set to new position successfully
-function TKMHouse.SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean): Boolean;
+//aConsiderEntranceOffset - do consider house entrance offset while checking CanAddHousePlan and while set house to new position
+function TKMHouse.SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean;
 var
   WasOnSnow: Boolean;
 begin
@@ -463,7 +464,7 @@ begin
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, PLAYER_NONE);
 
-  if gMySpectator.Hand.CanAddHousePlan(KMPoint(aPos.X, aPos.Y), HouseType, False) then
+  if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType, aConsiderEntranceOffset) then
   begin
     gTerrain.RemRoad(GetEntrance);
     fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX*Byte(aConsiderEntranceOffset);
@@ -471,7 +472,7 @@ begin
     Result := True;
   end;
 
-  gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
+  gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner); // Update terrain tiles for house
 
   //Do not remove all snow if house is moved from snow to snow
   WasOnSnow := fIsOnSnow;
