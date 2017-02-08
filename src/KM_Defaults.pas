@@ -276,10 +276,6 @@ const
   MARKER_CENTERSCREEN = 3;
   MARKER_AISTART = 4;
 
-const
-  MAPED_TILES_X = 6;
-  MAPED_TILES_Y = 8;
-
 
 const
   DirCursorCircleRadius  = 32; //Radius of the direction selector cursor restriction area

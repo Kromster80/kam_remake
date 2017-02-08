@@ -6,6 +6,12 @@ uses
    KM_Controls, KM_Defaults, KM_Pics;
 
 
+const
+  //Tile table sizes
+  MAPED_TILES_X = 6;
+  MAPED_TILES_Y = 8;
+
+
 type
   TKMMapEdTerrainTiles = class
   private
@@ -14,6 +20,7 @@ type
     procedure TilesChange(Sender: TObject);
     procedure TilesSet(aIndex: Integer);
     procedure TilesRefresh(Sender: TObject);
+    function GetTileTexIDFromTag(aTag: Byte; aScrollPosition: Integer = -1): Byte;
   protected
     Panel_Tiles: TKMPanel;
     TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
@@ -23,6 +30,7 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
+    procedure TilesTableScrollToTileTexId(aTexId: Integer);
     procedure Show;
     procedure Hide;
     procedure UpdateState;
@@ -108,9 +116,30 @@ begin
   if (Sender is TKMButtonFlat)
   and not (Sender = TilesMagicWater)
   and not (Sender = TilesEyedropper) then
-    TilesSet(TKMButtonFlat(Sender).TexID);
+    TilesSet(TKMButtonFlat(Sender).TexID)
+  else
+    TilesRefresh(nil);
+end;
 
-  TilesRefresh(nil);
+
+procedure TKMMapEdTerrainTiles.TilesTableScrollToTileTexId(aTexId: Integer);
+var
+  I,K,L,SP: Integer;
+begin
+  for SP := 0 to TilesScroll.MaxValue do
+    for I := 0 to MAPED_TILES_Y - 1 do
+      for K := 0 to MAPED_TILES_X - 1 do
+      begin
+        L := I * MAPED_TILES_X + K;
+        if aTexId = GetTileTexIDFromTag(L, SP) - 1 then
+        begin
+          if TilesScroll.Position = SP then
+            Exit;
+          TilesScroll.Position := SP;
+          TilesRefresh(nil);
+          Exit;
+        end;
+      end;
 end;
 
 
@@ -133,18 +162,23 @@ begin
 end;
 
 
-procedure TKMMapEdTerrainTiles.TilesRefresh;
-  function GetTileIDFromTag(aTag: Byte): Byte;
-  var X,Y,Tile: Byte;
-  begin
-    X := aTag mod MAPED_TILES_X + TilesScroll.Position;
-    Y := (aTag div MAPED_TILES_X);
-    Tile := (256 div MAPED_TILES_Y) * Y + X;
-    Result := MapEdTileRemap[Tile + 1];
-  end;
+function TKMMapEdTerrainTiles.GetTileTexIDFromTag(aTag: Byte; aScrollPosition: Integer = -1): Byte;
+var X,Y,Tile: Byte;
+  ScrollPosition: Integer;
+begin
+  ScrollPosition := IfThen(aScrollPosition = -1, TilesScroll.Position, aScrollPosition);
+
+  X := aTag mod MAPED_TILES_X + ScrollPosition;
+  Y := (aTag div MAPED_TILES_X);
+  Tile := (256 div MAPED_TILES_Y) * Y + X;
+  Result := MapEdTileRemap[Tile + 1];
+end;
+
+
+procedure TKMMapEdTerrainTiles.TilesRefresh(Sender: TObject);
 var
   I,K,L: Integer;
-  TileID: Integer;
+  TileTexID: Integer;
 begin
   TilesRandom.Checked := (gGameCursor.MapEdDir = 4);
 
@@ -152,18 +186,18 @@ begin
   for K := 0 to MAPED_TILES_X - 1 do
   begin
     L := I * MAPED_TILES_X + K;
-    TileID := GetTileIDFromTag(L);
-    TilesTable[L].TexID := TileID;
+    TileTexID := GetTileTexIDFromTag(L);
+    TilesTable[L].TexID := TileTexID;
     //Don't disable it because then scrollwheel doesn't work
-    TilesTable[L].HideHighlight := TileID = 0;
-    TilesTable[L].Clickable := TileID <> 0;
-    if TileID = 0 then
+    TilesTable[L].HideHighlight := TileTexID = 0;
+    TilesTable[L].Clickable := TileTexID <> 0;
+    if TileTexID = 0 then
       TilesTable[L].Hint := ''
     else
       //Show 0..N-1 to be consistent with objects and script commands like States.MapTileObject
-      TilesTable[L].Hint := IntToStr(TileID - 1);
+      TilesTable[L].Hint := IntToStr(TileTexID - 1);
     //If cursor has a tile then make sure its properly selected in table as well
-    TilesTable[L].Down := (gGameCursor.Mode = cmTiles) and (gGameCursor.Tag1 = TileID - 1);
+    TilesTable[L].Down := (gGameCursor.Mode in [cmTiles, cmEyedropper]) and (gGameCursor.Tag1 = TileTexID - 1);
     TilesEyedropper.Down := gGameCursor.Mode = cmEyedropper;
   end;
 end;

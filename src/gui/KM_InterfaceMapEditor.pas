@@ -81,6 +81,7 @@ type
     procedure ExportPages(aPath: string); override;
     property Minimap: TKMMinimap read fMinimap;
     property Viewport: TKMViewport read fViewport;
+    property GuiTerrain: TKMMapEdTerrain read fGuiTerrain;
 
     procedure KeyDown(Key: Word; Shift: TShiftState); override;
     procedure KeyUp(Key: Word; Shift: TShiftState); override;
@@ -310,7 +311,6 @@ begin
 
   fPrevHint := Sender;
 end;
-
 
 
 //Should update any items changed by game (resource counts, hp, etc..)
