@@ -22,7 +22,6 @@ uses
   KM_GUIMenuSingleMap,
   KM_GUIMenuSinglePlayer;
 
-
 type
   TKMMainMenuInterface = class(TKMUserInterfaceCommon)
   private
@@ -327,6 +326,7 @@ begin
   fMenuLoad.UpdateState;
   fMenuReplays.UpdateState;
   fMenuSingleMap.UpdateState;
+  fMenuCampaign.UpdateState(aTickCount);
 end;
 
 
