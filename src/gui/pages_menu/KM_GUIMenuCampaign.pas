@@ -6,6 +6,7 @@ uses
   KM_Controls, KM_Pics,
   KM_Campaigns, KM_InterfaceDefaults;
 
+
 type
   TKMMenuCampaign = class {(TKMGUIPage)}
   private
