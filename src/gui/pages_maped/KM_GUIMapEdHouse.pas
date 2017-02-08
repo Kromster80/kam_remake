@@ -69,7 +69,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI, KM_Hand, KM_ResUnits,
-  KM_ResWares, KM_ResCursors, KM_HouseBarracks, KM_ResFonts, KM_Utils, KM_GameCursor;
+  KM_ResWares, KM_HouseBarracks, KM_ResFonts, KM_Utils;
 
 
 { TKMMapEdHouse }
@@ -157,7 +157,7 @@ begin
     Button_Woodcutters_CuttingPoint := TKMButtonFlat.Create(Panel_HouseWoodcutters, 0, 0, TB_WIDTH, 22, 0);
     Button_Woodcutters_CuttingPoint.CapOffsetY := -11;
     Button_Woodcutters_CuttingPoint.Caption := 'Cutting point'; //Todo translate
-    Button_Woodcutters_CuttingPoint.Hint := 'Set Woodcutters cutting point'; //Todo translate
+    Button_Woodcutters_CuttingPoint.Hint := 'Set woodcutters cutting point. Alternatively you can set it via Shift + Right mouse button'; //Todo translate
     Button_Woodcutters_CuttingPoint.OnClick := WoodcuttersSetRallyPoint;
 end;
 
@@ -172,7 +172,7 @@ begin
     Button_Barracks_RallyPoint := TKMButtonFlat.Create(Panel_HouseBarracks, 0, 8, TB_WIDTH, 22, 0);
     Button_Barracks_RallyPoint.CapOffsetY := -11;
     Button_Barracks_RallyPoint.Caption := 'Rally point'; //Todo translate
-    Button_Barracks_RallyPoint.Hint := 'Set Barracks rally point'; //Todo translate
+    Button_Barracks_RallyPoint.Hint := 'Set barracks rally point. Alternatively you can set it via Shift + Right mouse button'; //Todo translate
     Button_Barracks_RallyPoint.OnClick := BarracksSetRallyPoint;
 
     for I := 1 to BARRACKS_RES_COUNT do
