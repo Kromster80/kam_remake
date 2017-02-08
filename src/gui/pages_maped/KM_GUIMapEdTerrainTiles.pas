@@ -58,38 +58,38 @@ begin
   Panel_Tiles := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
   TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES], fnt_Outline, taCenter);
 
-  TilesMagicWater := TKMButtonFlat.Create(Panel_Tiles, 2, 24, TB_WIDTH - 4, 20, 0);
+  TilesMagicWater := TKMButtonFlat.Create(Panel_Tiles, 2, 24, TB_WIDTH - 4, 21, 0);
   TilesMagicWater.Caption := gResTexts[TX_MAPED_TERRAIN_MAGIC_WATER];
-  TilesMagicWater.CapOffsetY := -12;
+  TilesMagicWater.CapOffsetY := -11;
   TilesMagicWater.Hint := gResTexts[TX_MAPED_TERRAIN_MAGIC_WATER_HINT];
   TilesMagicWater.OnClick := TilesChange;
 
-  TilesEyedropper := TKMButtonFlat.Create(Panel_Tiles, 2, 50, TB_WIDTH - 4, 20, 0);
+  TilesEyedropper := TKMButtonFlat.Create(Panel_Tiles, 2, 51, TB_WIDTH - 4, 21, 0);
   TilesEyedropper.Caption := gResTexts[TX_MAPED_TERRAIN_EYEDROPPER];
-  TilesEyedropper.CapOffsetY := -12;
+  TilesEyedropper.CapOffsetY := -11;
   TilesEyedropper.Hint := gResTexts[TX_MAPED_TERRAIN_EYEDROPPER_HINT];
   TilesEyedropper.OnClick := TilesChange;
 
-  TilesRotate := TKMButtonFlat.Create(Panel_Tiles, 2, 76, TB_WIDTH - 4, 20, 0);
+  TilesRotate := TKMButtonFlat.Create(Panel_Tiles, 2, 78, TB_WIDTH - 4, 21, 0);
   TilesRotate.Caption := 'Rotate tile'; //Todo translate;
-  TilesRotate.CapOffsetY := -12;
+  TilesRotate.CapOffsetY := -11;
   TilesRotate.Hint := 'Rotate tile'; //Todo translate;
   TilesRotate.OnClick := TilesChange;
 
-  TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 112, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
+  TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 115, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
   TilesRandom.Checked := True;
   TilesRandom.OnClick := TilesChange;
   TilesRandom.Hint := gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM_HINT];
 
   //Create scroll first to link to its MouseWheel event
-  TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 142 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
+  TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 145 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
   TilesScroll.MaxValue := 256 div MAPED_TILES_Y - MAPED_TILES_X; // 32 - 6
   TilesScroll.Position := 0;
   TilesScroll.OnChange := TilesRefresh;
   for J := 0 to MAPED_TILES_Y - 1 do
   for K := 0 to MAPED_TILES_X - 1 do
   begin
-    TilesTable[J * MAPED_TILES_X + K] := TKMButtonFlat.Create(Panel_Tiles, K * 32, 142 + J * 32, 32, 32, 1, rxTiles);
+    TilesTable[J * MAPED_TILES_X + K] := TKMButtonFlat.Create(Panel_Tiles, K * 32, 145 + J * 32, 32, 32, 1, rxTiles);
     TilesTable[J * MAPED_TILES_X + K].Tag :=  J * MAPED_TILES_X + K; //Store ID
     TilesTable[J * MAPED_TILES_X + K].OnClick := TilesChange;
     TilesTable[J * MAPED_TILES_X + K].OnMouseWheel := TilesScroll.MouseWheel;
