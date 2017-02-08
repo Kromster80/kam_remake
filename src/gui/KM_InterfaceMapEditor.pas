@@ -316,9 +316,9 @@ end;
 
 procedure TKMapEdInterface.UpdatePlayerSelectButtons;
 const
-    CAP_COLOR: array [Boolean] of Cardinal = ($80808080, $FFFFFFFF);
+  CAP_COLOR: array [Boolean] of Cardinal = ($80808080, $FFFFFFFF);
 var
-    I: Integer;
+  I: Integer;
 begin
   for I := 0 to MAX_HANDS - 1 do
     Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
