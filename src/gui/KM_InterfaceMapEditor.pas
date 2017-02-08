@@ -855,6 +855,7 @@ begin
                   end;
                 end;
               end;
+
     mbRight:  begin
                 //Right click performs some special functions and shortcuts
                 if gGameCursor.Mode = cmTiles then
