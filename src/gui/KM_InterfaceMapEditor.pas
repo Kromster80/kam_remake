@@ -61,7 +61,6 @@ type
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure Player_SetActive(aIndex: TKMHandIndex);
     procedure Player_UpdatePages;
-    procedure UpdatePlayerSelectButtons;
   protected
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
@@ -102,7 +101,7 @@ implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
-  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses;
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_HouseBarracks;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -313,19 +312,13 @@ begin
 end;
 
 
-procedure TKMapEdInterface.UpdatePlayerSelectButtons;
+
+//Should update any items changed by game (resource counts, hp, etc..)
+procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 const
   CAP_COLOR: array [Boolean] of Cardinal = ($80808080, $FFFFFFFF);
 var
   I: Integer;
-begin
-  for I := 0 to MAX_HANDS - 1 do
-    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
-end;
-
-
-//Should update any items changed by game (resource counts, hp, etc..)
-procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
   //Update minimap every 1000ms
   if aTickCount mod 10 = 0 then
@@ -333,8 +326,10 @@ begin
 
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
-    UpdatePlayerSelectButtons;
-                 
+  for I := 0 to MAX_HANDS - 1 do
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
+
+  fGuiHouse.UpdateState;
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
 end;
@@ -364,8 +359,6 @@ begin
     Button_PlayerSelect[I].ShapeColor := gHands[I].FlagColor;
 
   Player_UpdatePages;
-
-  UpdatePlayerSelectButtons;
 
   Label_MissionName.Caption := gGame.GameName;
 end;
@@ -752,6 +745,11 @@ begin
     fMouseDownOnMap := True;
 
   UpdateGameCursor(X,Y,Shift);
+
+  //Check if we are in RallyPointMode
+  if fGuiHouse.RallyPointMode then
+    gRes.Cursors.Cursor := kmc_Beacon
+  else
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
@@ -810,6 +808,16 @@ begin
                 //If there are some additional layers we first HitTest them
                 //since they are rendered ontop of Houses/Objects
                 Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+
+                if fGuiHouse.RallyPointMode then
+                begin
+                  if gMySpectator.Selected is TKMHouseBarracks then
+                    TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell
+                  else if gMySpectator.Selected is TKMHouseWoodcutters then
+                    TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
+                  Exit;
+                end;
+
                 if Marker.MarkerType <> mtNone then
                 begin
                   ShowMarkerInfo(Marker);
@@ -839,14 +847,31 @@ begin
                   end;
                 end;
               end;
+
     mbRight:  begin
                 //Right click performs some special functions and shortcuts
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
 
+                if fGuiHouse.RallyPointMode then
+                begin
+                  fGuiHouse.RallyPointMode := False;
+                  gRes.Cursors.Cursor := kmc_Default;
+                  Exit;
+                end;
+
                 //Move the selected object to the cursor location
                 if gMySpectator.Selected is TKMHouse then
-                  TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                begin
+                  if ssShift in Shift then
+                  begin
+                    if gMySpectator.Selected is TKMHouseBarracks then
+                      TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell
+                    else if gMySpectator.Selected is TKMHouseWoodcutters then
+                      TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
+                  end else
+                    TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                end;
 
                 if gMySpectator.Selected is TKMUnit then
                   TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);

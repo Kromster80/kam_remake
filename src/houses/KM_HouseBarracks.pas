@@ -15,6 +15,7 @@ type
     fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
     fRallyPoint: TKMPoint;
     function GetRallyPoint: TKMPoint;
+    procedure SetRallyPoint(aRallyPoint: TKMPoint);
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
@@ -31,7 +32,8 @@ type
     function CheckResIn(aWare: TWareType): Word; override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
 
-    property RallyPoint: TKMPoint read GetRallyPoint write fRallyPoint;
+    property RallyPoint: TKMPoint read GetRallyPoint write SetRallyPoint;
+    procedure ValidateNUpdateRallyPoint;
 
     function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
@@ -277,11 +279,24 @@ begin
 end;
 
 
+procedure TKMHouseBarracks.ValidateNUpdateRallyPoint;
+begin
+  //this will automatically update rally point to valid value
+  SetRallyPoint(fRallyPoint);
+end;
+
+
+procedure TKMHouseBarracks.SetRallyPoint(aRallyPoint: TKMPoint);
+begin
+  fRallyPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, aRallyPoint, tpWalk);
+end;
+
+
 function TKMHouseBarracks.GetRallyPoint: TKMPoint;
 begin
   if not gTerrain.CheckPassability(fRallyPoint, tpWalk) then
     //update rally point if its not valid (not walkable). Set it closer to barracks entrance (PointBelowEntrance)
-    fRallyPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, fRallyPoint, tpWalk);
+    SetRallyPoint(fRallyPoint);
   Result := fRallyPoint;
 end;
 

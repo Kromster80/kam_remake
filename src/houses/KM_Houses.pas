@@ -216,6 +216,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     function IsCuttingPointSet: Boolean;
+    procedure ValidateNUpdateCuttingPoint;
     property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
   end;
 
@@ -223,7 +224,7 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
-  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log;
+  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
 
 
 { TKMHouse }
@@ -454,8 +455,23 @@ end;
 
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
+  procedure UpdateCuttingPoint(aIsRallyPointSet: Boolean);
+  begin
+    if (Self is TKMHouseBarracks) then
+    begin
+      if not aIsRallyPointSet then
+        TKMHouseBarracks(Self).RallyPoint := PointBelowEntrance
+      else
+        TKMHouseBarracks(Self).ValidateNUpdateRallyPoint;
+    end
+    else if (Self is TKMHouseWoodcutters) then
+    begin
+      //reset cutting point, because it has max distance limit
+      TKMHouseWoodcutters(Self).CuttingPoint := PointBelowEntrance
+    end;
+  end;
 var
-  WasOnSnow: Boolean;
+  WasOnSnow, IsRallyPointSet: Boolean;
 begin
   Assert(gGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
@@ -463,8 +479,17 @@ begin
   gTerrain.RemRoad(GetEntrance);
   if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
+    //Save if rally/cutting point was set for previous position
+    if (Self is TKMHouseBarracks) then
+      IsRallyPointSet := TKMHouseBarracks(Self).IsRallyPointSet
+    else if (Self is TKMHouseWoodcutters) then
+      IsRallyPointSet := TKMHouseWoodcutters(Self).IsCuttingPointSet;
+
     fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
+
+    //Update rally/cutting point position for barracks/woodcutters after change fPosition
+    UpdateCuttingPoint(IsRallyPointSet);
   end;
   gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
   gTerrain.SetField(GetEntrance, fOwner, ft_Road);
@@ -1644,6 +1669,13 @@ begin
 end;
 
 
+procedure TKMHouseWoodcutters.ValidateNUpdateCuttingPoint;
+begin
+  //this will automatically update cutting point to valid value
+  SetCuttingPoint(fCuttingPoint);
+end;
+
+
 function TKMHouseWoodcutters.GetCuttingPoint: TKMPoint;
 begin
   if not gTerrain.CheckPassability(fCuttingPoint, tpWalk) then
@@ -1658,6 +1690,7 @@ begin
   fCuttingPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, Value, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
 end;
 
+
 procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
 begin
   fWoodcutterMode := aWoodcutterMode;
@@ -1665,6 +1698,7 @@ begin
   if fWoodcutterMode = wcm_ChopAndPlant then
     ResourceDepletedMsgIssued := False;
 end;
+
 
 { THouseAction }
 constructor THouseAction.Create(aHouse: TKMHouse; aHouseState: THouseState);

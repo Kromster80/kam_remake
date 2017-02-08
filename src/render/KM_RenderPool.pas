@@ -371,7 +371,6 @@ var
   C: TKMHouseWoodcutters;
   P: TKMPointF;
 begin
-  if gGame.IsMapEditor then Exit; // Don't render rally point in map editor
   if not (gMySpectator.Selected is TKMHouseBarracks) and not (gMySpectator.Selected is TKMHouseWoodcutters) then
     Exit;
 
