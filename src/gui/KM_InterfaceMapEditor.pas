@@ -754,10 +754,6 @@ begin
 
   UpdateGameCursor(X,Y,Shift);
 
-  //Check if we are in RallyPointMode
-  if fGuiHouse.RallyPointMode then
-    gRes.Cursors.Cursor := kmc_Beacon
-  else
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
@@ -817,15 +813,6 @@ begin
                 //since they are rendered ontop of Houses/Objects
                 Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
 
-                if fGuiHouse.RallyPointMode then
-                begin
-                  if gMySpectator.Selected is TKMHouseBarracks then
-                    TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell
-                  else if gMySpectator.Selected is TKMHouseWoodcutters then
-                    TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
-                  Exit;
-                end;
-
                 if Marker.MarkerType <> mtNone then
                 begin
                   ShowMarkerInfo(Marker);
@@ -860,10 +847,11 @@ begin
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
 
-                if fGuiHouse.RallyPointMode then
+                if (gGameCursor.Mode = cmMarkers)
+                  and ((gGameCursor.Tag1 = MARKER_RALLY_POINT) or (gGameCursor.Tag1 = MARKER_CUTTING_POINT)) then
                 begin
-                  fGuiHouse.RallyPointMode := False;
-                  gRes.Cursors.Cursor := kmc_Default;
+                  gGameCursor.Mode := cmNone;
+                  gGameCursor.Tag1 := 0;
                   Exit;
                 end;
 

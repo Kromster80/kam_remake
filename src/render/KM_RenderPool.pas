@@ -1405,6 +1405,8 @@ begin
                     MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, gMySpectator.Hand.FlagColor);
                     MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, gMySpectator.Hand.FlagColor);
                     MARKER_AISTART:       RenderSpriteOnTile(P, 390, gMySpectator.Hand.FlagColor);
+                    MARKER_RALLY_POINT:   RenderSpriteOnTile(P, 249, gMySpectator.Hand.FlagColor);
+                    MARKER_CUTTING_POINT: RenderSpriteOnTile(P, 660, gMySpectator.Hand.FlagColor);
                   end;
   end;
 
