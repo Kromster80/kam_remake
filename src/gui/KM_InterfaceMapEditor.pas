@@ -812,13 +812,14 @@ end;
 procedure TKMapEdInterface.UpdateCursor(X, Y: Integer; Shift: TShiftState);
 var Marker: TKMMapEdMarker;
 begin
+  UpdateGameCursor(X,Y,Shift);
+
   if gGameCursor.Mode = cmPaintBucket then
   begin
     gRes.Cursors.Cursor := kmc_PaintBucket;
     Exit;
   end;
-
-  UpdateGameCursor(X,Y,Shift);
+    
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
