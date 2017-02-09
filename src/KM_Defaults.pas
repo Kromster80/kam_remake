@@ -258,7 +258,8 @@ type
     cmSelection, //Selection manipulations
     cmUnits, //Units
     cmMarkers, //CenterScreen, Defence, FOW markers
-    cmEyedropper //Terrain eyedropper
+    cmEyedropper, //Terrain eyedropper
+    cmPaintBucket //PaintBucket - change color(team) for map objects
     );
 
 type

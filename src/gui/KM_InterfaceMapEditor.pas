@@ -47,8 +47,6 @@ type
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
-    fPaintBucketMode: Boolean;
-
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
     procedure Minimap_OnUpdate(Sender: TObject; const X,Y: Integer);
@@ -56,8 +54,9 @@ type
     procedure Player_ActiveClick(Sender: TObject);
     procedure Message_Click(Sender: TObject);
     procedure Object_ChangePlayer_Click(Sender: TObject);
-    procedure Object_ChangePlayer(aOwner: TKMHandIndex);
+    procedure Object_ChangePlayer(aObject: TObject; aOwner: TKMHandIndex);
 
+    procedure UpdateCursor(X, Y: Integer; Shift: TShiftState);
     procedure Main_ButtonClick(Sender: TObject);
     procedure HidePages;
     procedure DisplayHint(Sender: TObject);
@@ -342,6 +341,8 @@ begin
 
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
+
+  Button_ObjectChangePlayer.Down := gGameCursor.Mode = cmPaintBucket;
 end;
 
 
@@ -434,30 +435,29 @@ end;
 procedure TKMapEdInterface.SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
 begin
   Button_ObjectChangePlayer.Down := aDoSetPaintBucketMode;
-  fPaintBucketMode := aDoSetPaintBucketMode;
   if aDoSetPaintBucketMode then
-    gRes.Cursors.Cursor := kmc_PaintBucket
+    gGameCursor.Mode := cmPaintBucket
   else
-    gRes.Cursors.Cursor := kmc_Default;
+    gGameCursor.Mode := cmNone;
 end;
 
 
 // Change player for selected object
-procedure TKMapEdInterface.Object_ChangePlayer(aOwner: TKMHandIndex);
+procedure TKMapEdInterface.Object_ChangePlayer(aObject: TObject; aOwner: TKMHandIndex);
 var House: TKMHouse;
 begin
-  if (gMySpectator.Selected <> nil) then
+  if (aObject <> nil) then
     begin
-      if gMySpectator.Selected is TKMHouse then
+      if aObject is TKMHouse then
       begin
-        House := TKMHouse(gMySpectator.Selected);
+        House := TKMHouse(aObject);
         House.OwnerUpdate(aOwner, True);
         gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
       end
-      else if gMySpectator.Selected is TKMUnit then
-        TKMUnit(gMySpectator.Selected).OwnerUpdate(aOwner, True)
-      else if gMySpectator.Selected is TKMUnitGroup then
-        TKMUnitGroup(gMySpectator.Selected).OwnerUpdate(aOwner, True);
+      else if aObject is TKMUnit then
+        TKMUnit(aObject).OwnerUpdate(aOwner, True)
+      else if aObject is TKMUnitGroup then
+        TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
     end;
 end;
 
@@ -542,8 +542,6 @@ begin
   //Reset cursor
   gGameCursor.Mode := cmNone;
   gGameCursor.Tag1 := 0;
-
-  SetPaintBucketMode(False);
 end;
 
 
@@ -766,7 +764,6 @@ end;
 
 procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 var
-  Marker: TKMMapEdMarker;
   VP: TKMPointF;
 begin
   if fDragScrolling then
@@ -778,15 +775,6 @@ begin
   end;
 
   fMyControls.MouseMove(X,Y,Shift);
-
-  if fPaintBucketMode then
-  begin
-    // Beacons are a special case, the cursor should be shown over controls to (you can place it on the minimap)
-    if fMyControls.CtrlOver = nil then
-      UpdateGameCursor(X,Y,Shift); // Keep the game cursor up to date
-    gRes.Cursors.Cursor := kmc_PaintBucket;
-    Exit;
-  end;
 
   if fMyControls.CtrlOver <> nil then
   begin
@@ -802,6 +790,23 @@ begin
   if (ssLeft in Shift) or (ssRight in Shift) then
     fMouseDownOnMap := True;
 
+  UpdateCursor(X, Y, Shift);
+
+  Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
+
+  gGame.MapEditor.MouseMove;
+end;
+
+
+procedure TKMapEdInterface.UpdateCursor(X, Y: Integer; Shift: TShiftState);
+var Marker: TKMMapEdMarker;
+begin
+  if gGameCursor.Mode = cmPaintBucket then
+  begin
+    gRes.Cursors.Cursor := kmc_PaintBucket;
+    Exit;
+  end;
+
   UpdateGameCursor(X,Y,Shift);
   if gGameCursor.Mode = cmNone then
   begin
@@ -815,10 +820,6 @@ begin
     if not fViewport.Scrolling then
       gRes.Cursors.Cursor := kmc_Default;
   end;
-
-  Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
-
-  gGame.MapEditor.MouseMove;
 end;
 
 
@@ -871,42 +872,32 @@ begin
                   if gMySpectator.Selected is TKMHouse then
                   begin
                     HidePages;
-                    if Button_ObjectChangePlayer.Down then
-                    begin
-                      Object_ChangePlayer(gMySpectator.HandIndex);
-                      // Reset Change Player mode if Shift was not pressed
-                      SetPaintBucketMode(ssShift in gGameCursor.SState);
-                    end;
                     Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
                     fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
                   end;
                   if gMySpectator.Selected is TKMUnit then
                   begin
                     HidePages;
-                    if Button_ObjectChangePlayer.Down then
-                    begin
-                      Object_ChangePlayer(gMySpectator.HandIndex);
-                      // Reset Change Player mode if Shift was not pressed
-                      SetPaintBucketMode(ssShift in gGameCursor.SState);
-                    end;
                     Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
                   end;
                   if gMySpectator.Selected is TKMUnitGroup then
                   begin
                     HidePages;
-                    if Button_ObjectChangePlayer.Down then
-                    begin
-                      Object_ChangePlayer(gMySpectator.HandIndex);
-                      // Reset Change Player mode if Shift was not pressed
-                      SetPaintBucketMode(ssShift in gGameCursor.SState);
-                    end;
                     Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
                   end;
                 end;
-              end;
+              end else if gGameCursor.Mode = cmPaintBucket then
+                Object_ChangePlayer(gMySpectator.HitTestCursorWGroup, gMySpectator.HandIndex);
     mbRight:  begin
+                if gGameCursor.Mode = cmPaintBucket then
+                begin
+                  SetPaintBucketMode(False);
+                  UpdateCursor(X, Y, Shift);
+                  Exit;
+                end;
+
                 //Right click performs some special functions and shortcuts
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
