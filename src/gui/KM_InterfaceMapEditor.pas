@@ -847,6 +847,7 @@ begin
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
 
+                //Check if we are in rally/cutting marker mode
                 if (gGameCursor.Mode = cmMarkers)
                   and ((gGameCursor.Tag1 = MARKER_RALLY_POINT) or (gGameCursor.Tag1 = MARKER_CUTTING_POINT)) then
                 begin
