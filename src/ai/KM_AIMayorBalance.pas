@@ -202,9 +202,9 @@ begin
   //ArmorWorkshop is needed to produce Shields before Tannery is made
   //Handle in generic way since in custom missions it might apply to other houses
   if not gHands[fOwner].Locks.HouseCanBuild(aHouse)
-  and (gRes.HouseDat[aHouse].ReleasedBy <> ht_None) //Storehouse might be blocked
-  and (gHands[fOwner].Stats.GetHouseTotal(gRes.HouseDat[aHouse].ReleasedBy) = 0) then
-    Append(gRes.HouseDat[aHouse].ReleasedBy);
+  and (gRes.Houses[aHouse].ReleasedBy <> ht_None) //Storehouse might be blocked
+  and (gHands[fOwner].Stats.GetHouseTotal(gRes.Houses[aHouse].ReleasedBy) = 0) then
+    Append(gRes.Houses[aHouse].ReleasedBy);
 
   //If the same house is asked for independently then don't add it again, since f.e. gold and iron
   //might both ask for a coal mine, when only 1 extra is needed.
@@ -778,7 +778,7 @@ begin
     //Build 2 schools if we need to equip a lot of warriors per minute
     SchoolBalance   := HouseCount(ht_School)      - 1 - Byte((gHands[fOwner].Stats.GetHouseQty(ht_Barracks) > 0) and (gHands[fOwner].AI.Setup.WarriorsPerMinute > 2));
     InnBalance      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
-    BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
+    BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWarfareProduced > 0);
     TowerBalance    := HouseCount(ht_WatchTower)  - 1 * gHands[fOwner].Stats.GetHouseQty(ht_Barracks);
 
     Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance]);
@@ -995,7 +995,7 @@ begin
   finally
     fAdviceText := 'Advice: ';
     for I := 0 to High(fAdvice) do
-      fAdviceText := fAdviceText + gRes.HouseDat[fAdvice[I]].HouseName + IfThen(I < High(fAdvice), ', ', '.');
+      fAdviceText := fAdviceText + gRes.Houses[fAdvice[I]].HouseName + IfThen(I < High(fAdvice), ', ', '.');
   end;
 end;
 

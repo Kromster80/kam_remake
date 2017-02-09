@@ -628,7 +628,7 @@
 639:Save not found: %s
 640:Map files do not match the host for the map: %s
 641:Save file does not match the host for the save: %s
-642:The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
+642:The replay failed a consistency check. This is a known bug which affects playback of some replays.\nIf you continue watching the replay will no longer be accurate and the game may crash.\nDo you want to continue watching? Choose 'Yes to All' to ignore future consistency check failures.
 643:You may only have one instance of the game in multiplayer mode at once
 644:Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.
 645:An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
@@ -915,3 +915,27 @@
 963:Map Editor Keys
 964:Eyedropper
 965:Use this tool to select the type of tile under the cursor
+966:This armor smithy is not occupied
+967:This armory workshop is not occupied
+968:This bakery is not occupied
+969:This butcher's is not occupied
+970:This coal mine is not occupied
+971:This farm is not occupied
+972:This fisherman's is not occupied
+973:This gold mine is not occupied
+974:This iron mine is not occupied
+975:This iron smithy is not occupied
+976:This metallurgist's is not occupied
+977:This mill is not occupied
+978:This quarry is not occupied
+979:This sawmill is not occupied
+980:This siege workshop is not occupied
+981:This stables is not occupied
+982:This swine farm is not occupied
+983:This tannery is not occupied
+984:This watchtower is not occupied
+985:This weapon smithy is not occupied
+986:This weapons workshop is not occupied
+987:This vineyard is not occupied
+988:This woodcutter's is not occupied
+1019:%s has muted you. You can no longer send messages or beacons to them

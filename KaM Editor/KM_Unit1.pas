@@ -372,7 +372,7 @@ begin
 
   if OldFrameTimes >= FPS_INTERVAL then
   begin
-    StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPSLag)+')';
+    StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+IntToStr(1000 div FPSLag)+')';
     OldFrameTimes := 0;
     FrameCount := 0;
   end;
@@ -604,7 +604,7 @@ procedure TForm1.ZoomChange(Sender: TObject);
 var RatioX,RatioY:single;
 begin
   Zoom:=sqr(TBZoomControl.Position/20)*10;
-  Label1.Caption:=inttostr(round(Zoom*10))+'%';
+  Label1.Caption:=IntToStr(round(Zoom*10))+'%';
   RatioX:=Form1.MiniMap.Width  / max(Map.X,1);
   RatioY:=Form1.MiniMap.Height / max(Map.Y,1);
   Shape1.Width :=round((Panel1.Width /CellSize/Zoom*10)*RatioX);
@@ -716,7 +716,7 @@ begin
     LandBrush := strtoint(s[3] + s[4]); // Get brush ID
     BrushMode := bmRelief;
   end;
-  StatusBar1.Panels[3].Text := 'Brush: ' + inttostr(LandBrush);
+  StatusBar1.Panels[3].Text := 'Brush: ' + IntToStr(LandBrush);
 end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -911,8 +911,8 @@ begin
   ObjErase.Down := false;
   LandBrush := ObjPalleteTable[ObjPallete.Row + 1, ObjPallete.Col + 1];
   BrushMode := bmObjects;
-  StatusBar1.Panels[3].Text := 'Object: ' + inttostr(LandBrush) + ' ' + inttostr(ObjIndexGFX[LandBrush]) + ' (' +
-    inttostr(ObjIndex[LandBrush]) + ')';
+  StatusBar1.Panels[3].Text := 'Object: ' + IntToStr(LandBrush) + ' ' + IntToStr(ObjIndexGFX[LandBrush]) + ' (' +
+    IntToStr(ObjIndex[LandBrush]) + ')';
 end;
 
 
@@ -1092,7 +1092,7 @@ begin
   Shape2.Top := TImage(Sender).Top + Y div 32 * 32;
   LandBrush := TileRemap[(Y div 32) * 32 + (X div 32) + 1];
   BrushMode := bmTiles;
-  StatusBar1.Panels[3].Text := 'Brush: ' + inttostr(LandBrush);
+  StatusBar1.Panels[3].Text := 'Brush: ' + IntToStr(LandBrush);
 end;
 
 
@@ -1324,7 +1324,7 @@ begin
     if ObjIndexInv[Land[i,k].Obj]=0 then begin
       if not RemWrong then
       begin
-        ErrS := 'Wrong object used at '+inttostr(k)+':'+inttostr(i)+' it will be removed'+EolW+'Remove all wrong objects silently?';
+        ErrS := 'Wrong object used at '+IntToStr(k)+':'+IntToStr(i)+' it will be removed'+EolW+'Remove all wrong objects silently?';
         if MessageBox(Form1.Handle,@(ErrS[1]),'Warning', mb_yesno)=IDYES then RemWrong:=true;
       end;
       Land[i,k].Obj:=255
@@ -1337,7 +1337,7 @@ begin
   ScrollBar2.Max:=Map.Y;
   ScrollBar1.Position:=Map.X div 2; //Set view to center of map
   ScrollBar2.Position:=Map.Y div 2; //Set view to center of map
-  StatusBar1.Panels.Items[0].Text:='Map size: '+inttostr(Map.X)+' x '+inttostr(Map.Y);
+  StatusBar1.Panels.Items[0].Text:='Map size: '+IntToStr(Map.X)+' x '+IntToStr(Map.Y);
 
   BuildMiniMap;
   ZoomChange(nil);
@@ -1453,7 +1453,7 @@ end;
 procedure TForm1.HousePalleteScrollChange(Sender: TObject);
 begin
   HousePallete.TopRow:=HousePalleteScroll.Position;
-  Form1.Caption:=inttostr(HouseID[HousePalleteScroll.Position+1]);
+  Form1.Caption:=IntToStr(HouseID[HousePalleteScroll.Position+1]);
 end;
 
 procedure TForm1.HousePalleteDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);

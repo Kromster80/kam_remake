@@ -4,7 +4,7 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_Campaigns;
+  KM_InterfaceDefaults, KM_Campaigns, KM_Game;
 
 
 type
@@ -12,6 +12,7 @@ type
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
+    fGameMode: TGameMode;
 
     //Story behind these seemingly superflous elements that
     //we need to carry on from previous Game:
@@ -58,7 +59,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_HandsCollection,
+  KM_ResTexts, KM_GameApp, KM_HandsCollection,
   KM_Utils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
   KM_ResWares;
 
@@ -114,6 +115,14 @@ var
   HumanId: TKMHandIndex;
   ShowAIResults: Boolean;
 begin
+  // When exit mission update stats to build actual charts
+  // without CHARTS_SAMPLING_FOR_TACTICS or CHARTS_SAMPLING_FOR_ECONOMY delays
+  // so measurements for warriors/goods produces will not differ from charts
+  for I := 0 to gHands.Count - 1 do
+  begin
+    gHands[I].Stats.UpdateState;
+  end;
+
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
   //That info should only be visible if the mission was won or a replay
   ShowAIResults := (fGameResultMsg in [gr_Win, gr_ReplayEnd]);
@@ -152,7 +161,7 @@ begin
     Label_Stat[4].Caption := IntToStr(GetHousesDestroyed);
     Label_Stat[5].Caption := IntToStr(GetHousesBuilt);
     Label_Stat[6].Caption := IntToStr(GetCitizensTrained);
-    Label_Stat[7].Caption := IntToStr(GetWeaponsProduced);
+    Label_Stat[7].Caption := IntToStr(GetWarfareProduced);
     Label_Stat[8].Caption := IntToStr(GetWarriorsTrained);
     Label_Stat[9].Caption := TimeToString(gGame.MissionTime);
   end;
@@ -173,19 +182,6 @@ begin
     Chart_Citizens.MaxTime  := gGame.GameTickCount div 10;
     Chart_Houses.MaxTime    := gGame.GameTickCount div 10;
     Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
-
-    //Army
-    TempGraphCount := 0; //Reset
-    for I := 0 to gHands.Count - 1 do
-    with gHands[I] do
-      if HandType = hndComputer then
-        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy)
-      else
-        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
-
-    if ShowAIResults then
-      for I := 0 to TempGraphCount - 1 do
-        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
     //Citizens
     TempGraphCount := 0; //Reset
@@ -229,6 +225,19 @@ begin
         end;
     end;
 
+    //Army
+    TempGraphCount := 0; //Reset
+    for I := 0 to gHands.Count - 1 do
+    with gHands[I] do
+      if HandType = hndComputer then
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[ut_Any])
+      else
+        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[ut_Any]);
+
+    if ShowAIResults then
+      for I := 0 to TempGraphCount - 1 do
+        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+
     Button_ResultsHouses.Enabled := (gGame.MissionMode = mm_Normal);
     Button_ResultsCitizens.Enabled := (gGame.MissionMode = mm_Normal);
     Button_ResultsWares.Enabled := (gGame.MissionMode = mm_Normal);
@@ -254,6 +263,7 @@ end;
 procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg);
 begin
   fGameResultMsg := aMsg;
+  fGameMode := gGame.GameMode;
 
   //Remember which map we played so we could restart it
   fRepeatGameName := gGame.GameName;
@@ -384,16 +394,17 @@ end;
 
 procedure TKMMenuResultsSP.BackClick(Sender: TObject);
 begin
-  //todo:
   //Depending on where we were created we need to return to a different place
   //Campaign game end -> ResultsSP -> Main menu
   //Singleplayer game end -> ResultsSP -> Singleplayer
   //Replay end -> ResultsSP -> Replays
 
-  if fGameResultMsg <> gr_ReplayEnd then
-    fOnPageChange(gpMainMenu)
+  if fGameResultMsg = gr_ReplayEnd then
+    fOnPageChange(gpReplays)
+  else if fGameMode = gmSingle then
+    fOnPageChange(gpSinglePlayer)
   else
-    fOnPageChange(gpReplays);
+    fOnPageChange(gpMainMenu);
 end;
 
 
@@ -408,7 +419,7 @@ end;
 procedure TKMMenuResultsSP.RepeatClick(Sender: TObject);
 begin
   //Means replay last map
-  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
+  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fGameMode, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);
 end;
 
 

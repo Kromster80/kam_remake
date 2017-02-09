@@ -71,7 +71,8 @@ type
     gic_HouseWoodcuttersCutting,  //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
-    gic_RatioChange,
+    gic_WareDistributionChange,   //Change of distribution for 1 ware
+    gic_WareDistributions,        //Update distributions for all wares at ones
 
     //V.      Game changes
     gic_GameAlertBeacon,            //Signal alert (beacon)
@@ -132,10 +133,11 @@ type
     end;
 
     function MakeCommand(aGIC: TGameInputCommandType; const aParam: array of integer): TGameInputCommand; overload;
-    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime = 0): TGameInputCommand; overload;
     procedure TakeCommand(aCommand: TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
+    procedure ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
   public
     constructor Create(aReplayState: TGIPReplayState);
     destructor Destroy; override;
@@ -159,7 +161,8 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint); overload;
 
-    procedure CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
+    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer); overload;
+    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString); overload;
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
@@ -252,7 +255,7 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime): TGameInputCommand;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime = 0): TGameInputCommand;
 var
   I: Integer;
 begin
@@ -374,8 +377,12 @@ begin
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
       gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
-      gic_RatioChange:            begin
-                                    P.Stats.Ratio[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
+      gic_WareDistributionChange:            begin
+                                    P.Stats.WareDistribution[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
+                                    P.Houses.UpdateResRequest
+                                  end;
+      gic_WareDistributions:                 begin
+                                    P.Stats.WareDistribution.LoadFromStr(TextParam);
                                     P.Houses.UpdateResRequest
                                   end;
 
@@ -406,26 +413,39 @@ begin
                                     if fGame.Networking.IsHost then
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;}
                                   end;
-      gic_GameAlertBeacon:        begin
-                                    //Beacon script event must always be run by all players for consistency
-                                    gScriptEvents.ProcBeacon(Params[3], 1 + (Params[1] div 10), 1 + (Params[2] div 10));
-                                    //However, beacons don't show in replays
-                                    if fReplayState = gipRecording then
-                                      if ((Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
-                                      or ((Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
-                                      and (gHands.CheckAlliance(Params[3], gMySpectator.HandIndex) = at_Ally)
-                                      and (gHands[Params[3]].ShareBeacons[gMySpectator.HandIndex])) then
-                                        gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-                                  end;
+      gic_GameAlertBeacon:        ExecGameAlertBeaconCmd(aCommand);
       gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
       gic_GameMessageLogRead:     P.MessageLog[Params[1]].IsReadGIP := True;
       gic_GamePlayerTypeChange:   begin
                                     Assert(fReplayState <> gipRecording); //Should only occur in replays
                                     gHands[Params[1]].HandType := THandType(Params[2]);
                                   end;
-      else                        Assert(false);
+      else                        raise Exception.Create('Unexpected gic command');
     end;
   end;
+end;
+
+
+procedure TGameInputProcess.ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
+var IsPlayerMuted: Boolean;
+begin
+  //Beacon script event must always be run by all players for consistency
+  gScriptEvents.ProcBeacon(aCommand.Params[3], 1 + (aCommand.Params[1] div 10), 1 + (aCommand.Params[2] div 10));
+  // Check if player, who send beacon, is muted
+  IsPlayerMuted := gGame.Networking.IsMuted(gGame.Networking.GetNetPlayerIndex(aCommand.Params[3]));
+
+  //However, beacons don't show in replays
+  if fReplayState = gipRecording then
+    if ((aCommand.Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
+    or ((aCommand.Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
+    and (gHands.CheckAlliance(aCommand.Params[3], gMySpectator.HandIndex) = at_Ally)
+    and (gHands[aCommand.Params[3]].ShareBeacons[gMySpectator.HandIndex])
+    and not IsPlayerMuted) then                                            // do not show beacons sended by muted players
+      gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(aCommand.Params[1]/10,
+                                                        aCommand.Params[2]/10),
+                                                        aCommand.Params[3],
+                                                        (aCommand.Params[4] or $FF000000),
+                                                        gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
 end;
 
 
@@ -557,10 +577,17 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdRatio(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
+procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
 begin
-  Assert(aCommandType = gic_RatioChange);
+  Assert(aCommandType = gic_WareDistributionChange);
   TakeCommand(MakeCommand(aCommandType, [byte(aWare), byte(aHouseType), aValue]));
+end;
+
+
+procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString);
+begin
+  Assert(aCommandType = gic_WareDistributions);
+  TakeCommand(MakeCommand(aCommandType, aTextParam));
 end;
 
 

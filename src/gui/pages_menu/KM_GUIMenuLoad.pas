@@ -3,7 +3,7 @@ unit KM_GUIMenuLoad;
 interface
 uses
   Controls, Math, SysUtils,
-  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap;
+  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Defaults;
 
 
 type
@@ -16,10 +16,15 @@ type
 
     fLastSaveCRC: Cardinal; //CRC of selected save
 
+    function CanLoadSave: Boolean;
+    procedure UpdateUI;
+    procedure LoadMinimap;
+    procedure SetLastSaveCRC(aCRC: Cardinal = 0);
     procedure LoadClick(Sender: TObject);
     procedure Load_Delete_Click(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
     procedure Load_ScanUpdate(Sender: TObject);
+    procedure Load_ScanComplete(Sender: TObject);
     procedure Load_SortUpdate(Sender: TObject);
     procedure Load_RefreshList(aJumpToSelected:Boolean);
     procedure Load_Sort(aIndex: Integer);
@@ -45,7 +50,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_Pics;
 
 
 { TKMGUIMenuLoad }
@@ -65,8 +70,8 @@ begin
 
     ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 22, 86, 770, 485, fnt_Metal, bsMenu);
     ColumnBox_Load.Anchors := [anLeft,anTop,anBottom];
-    ColumnBox_Load.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 250, 430]);
-    ColumnBox_Load.SearchColumn := 0;
+    ColumnBox_Load.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 22, 250, 430]);
+    ColumnBox_Load.SearchColumn := 1;
     ColumnBox_Load.OnColumnClick := Load_Sort;
     ColumnBox_Load.OnChange := Load_ListClick;
     ColumnBox_Load.OnDoubleClick := LoadClick;
@@ -107,29 +112,50 @@ begin
 end;
 
 
+function TKMMenuLoad.CanLoadSave: Boolean;
+begin
+  Result := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1)
+             and fSaves[ColumnBox_Load.ItemIndex].IsValid
+end;
+
+
+procedure TKMMenuLoad.UpdateUI;
+begin
+  Button_Delete.Enabled := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1);
+  Button_Load.Enabled := CanLoadSave;
+end;
+
+
+procedure TKMMenuLoad.LoadMinimap;
+begin
+  MinimapView_Load.Hide; //Hide by default, then show it if we load the map successfully
+  if CanLoadSave and fSaves[ColumnBox_Load.ItemIndex].LoadMinimap(fMinimap) then
+  begin
+    MinimapView_Load.SetMinimap(fMinimap);
+    MinimapView_Load.Show;
+  end;
+end;
+
+
 procedure TKMMenuLoad.Load_ListClick(Sender: TObject);
 begin
   fSaves.Lock;
+  try
     //Hide delete confirmation if player has selected a different savegame item
     if Sender = ColumnBox_Load then
       Load_DeleteConfirmation(False);
 
-    Button_Delete.Enabled := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1);
-    Button_Load.Enabled := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1)
-                           and fSaves[ColumnBox_Load.ItemIndex].IsValid;
+    UpdateUI;
 
     if InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1) then
-      fLastSaveCRC := fSaves[ColumnBox_Load.ItemIndex].CRC
+      SetLastSaveCRC(fSaves[ColumnBox_Load.ItemIndex].CRC)
     else
-      fLastSaveCRC := 0;
+      SetLastSaveCRC;
 
-    MinimapView_Load.Hide; //Hide by default, then show it if we load the map successfully
-    if Button_Load.Enabled and fSaves[ColumnBox_Load.ItemIndex].LoadMinimap(fMinimap) then
-    begin
-      MinimapView_Load.SetMinimap(fMinimap);
-      MinimapView_Load.Show;
-    end;
-  fSaves.Unlock;
+    LoadMinimap;
+  finally
+    fSaves.Unlock;
+  end;
 end;
 
 
@@ -142,9 +168,16 @@ begin
 end;
 
 
+procedure TKMMenuLoad.SetLastSaveCRC(aCRC: Cardinal = 0);
+begin
+  fLastSaveCRC := aCRC;
+  gGameApp.GameSettings.MenuSPSaveCRC := aCRC;
+end;
+
+
 procedure TKMMenuLoad.Load_Delete_Click(Sender: TObject);
 var
-  PreviouslySelected: Integer;
+  PreviouslySelected, NewSelected: Integer;
 begin
   if ColumnBox_Load.ItemIndex = -1 then Exit;
 
@@ -159,12 +192,15 @@ begin
   begin
     PreviouslySelected := ColumnBox_Load.ItemIndex;
     fSaves.DeleteSave(ColumnBox_Load.ItemIndex);
-    Load_RefreshList(False);
-    if ColumnBox_Load.RowCount > 0 then
-      ColumnBox_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, ColumnBox_Load.RowCount - 1)
-    else
-      ColumnBox_Load.ItemIndex := -1; //there are no saves, nothing to select
-    Load_ListClick(ColumnBox_Load);
+
+    if ColumnBox_Load.RowCount > 1 then
+    begin
+      NewSelected := EnsureRange(PreviouslySelected, 0, ColumnBox_Load.RowCount - 2);
+      SetLastSaveCRC(fSaves[NewSelected].CRC);
+    end else
+      SetLastSaveCRC; //there are no saves, nothing to select
+
+    Load_RefreshList(True);
   end;
 end;
 
@@ -172,6 +208,12 @@ end;
 procedure TKMMenuLoad.Load_ScanUpdate(Sender: TObject);
 begin
   Load_RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMenuLoad.Load_ScanComplete(Sender: TObject);
+begin
+  Load_RefreshList(True); //After scan complete jump to selected item
 end;
 
 
@@ -183,6 +225,7 @@ end;
 
 procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected:Boolean);
 var I, PrevTop: Integer;
+    Row: TKMListRow;
 begin
   PrevTop := ColumnBox_Load.TopIndex;
   ColumnBox_Load.Clear;
@@ -190,14 +233,20 @@ begin
   fSaves.Lock;
   try
     for I := 0 to fSaves.Count - 1 do
-      ColumnBox_Load.AddItem(MakeListRow(
-                        [fSaves[i].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
-                        [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF]));
+    begin
+      Row := MakeListRow(['', fSaves[i].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
+                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF]);
+      Row.Cells[0].Pic := MakePic(rxGui, 657 + Byte(fSaves[I].Info.MissionMode = mm_Tactic));
+      ColumnBox_Load.AddItem(Row);
+    end;
 
     //IDs of saves could changed, so use CRC to check which one was selected
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fLastSaveCRC) then
+      begin
         ColumnBox_Load.ItemIndex := I;
+        LoadMinimap;
+      end;
   finally
     fSaves.Unlock;
   end;
@@ -215,25 +264,29 @@ begin
         ColumnBox_Load.TopIndex := ColumnBox_Load.ItemIndex - ColumnBox_Load.GetVisibleRows + 1;
   end;
 
-  Load_ListClick(nil);
+  UpdateUI;
 end;
 
 
 procedure TKMMenuLoad.Load_Sort(aIndex: Integer);
 begin
   case ColumnBox_Load.SortIndex of
-    //Sorting by filename goes A..Z by default
     0:  if ColumnBox_Load.SortDirection = sdDown then
+          fSaves.Sort(smByModeDesc, Load_SortUpdate)
+        else
+          fSaves.Sort(smByModeAsc, Load_SortUpdate);
+    //Sorting by filename goes A..Z by default
+    1:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByFileNameDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByFileNameAsc, Load_SortUpdate);
     //Sorting by description goes Old..New by default
-    1:  if ColumnBox_Load.SortDirection = sdDown then
+    2:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByDateDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByDateAsc, Load_SortUpdate);
     //Sorting by description goes A..Z by default
-    2:  if ColumnBox_Load.SortDirection = sdDown then
+    3:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByDescriptionDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByDescriptionAsc, Load_SortUpdate);
@@ -264,13 +317,13 @@ procedure TKMMenuLoad.Show;
 begin
   //Stop current scan so it can't add a save after we clear the list
   fSaves.TerminateScan;
-  fLastSaveCRC := 0;
   ColumnBox_Load.Clear; //clear the list
   Load_DeleteConfirmation(False);
-  Load_ListClick(nil);
+  UpdateUI;
+  fLastSaveCRC := gGameApp.GameSettings.MenuSPSaveCRC;
 
   //Initiate refresh and process each new save added
-  fSaves.Refresh(Load_ScanUpdate, False);
+  fSaves.Refresh(Load_ScanUpdate, False, Load_ScanComplete);
 
   //Apply sorting from last time we were on this page
   Load_Sort(ColumnBox_Load.SortIndex);

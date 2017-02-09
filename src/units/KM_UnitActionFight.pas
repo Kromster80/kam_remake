@@ -243,7 +243,7 @@ begin
       ut_Arbaletman:  gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
       ut_Bowman:      gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:   ;
-      else            Assert(False, 'Unknown shooter');
+      else            raise Exception.Create('Unknown shooter');
     end;
 
     fFightDelay := -1; //Reset
@@ -281,13 +281,13 @@ begin
   if Step = STRIKE_STEP then
   begin
     //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
-    Damage := gRes.UnitDat[fUnit.UnitType].Attack;
+    Damage := gRes.Units[fUnit.UnitType].Attack;
     if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) then
-      Damage := Damage + gRes.UnitDat[fUnit.UnitType].AttackHorse;
+      Damage := Damage + gRes.Units[fUnit.UnitType].AttackHorse;
 
     Damage := Damage * (GetDirModifier(fUnit.Direction,fOpponent.Direction)+1); //Direction modifier
     //Defence modifier
-    Damage := Damage div Math.max(gRes.UnitDat[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
+    Damage := Damage div Math.max(gRes.Units[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
 
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
@@ -319,7 +319,7 @@ function TUnitActionFight.Execute: TActionResult;
 var
   Cycle, Step: Byte;
 begin
-  Cycle := max(gRes.UnitDat[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
+  Cycle := max(gRes.Units[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
   Step  := fUnit.AnimStep mod Cycle;
 
   Result := ExecuteValidateOpponent(Step);

@@ -231,7 +231,7 @@ begin
           if U.Owner <> PLAYER_ANIMAL then
             fBase[I*fMapX + K] := gHands[U.Owner].FlagColor
           else
-            fBase[I*fMapX + K] := gRes.UnitDat[U.UnitType].MinimapColor
+            fBase[I*fMapX + K] := gRes.Units[U.UnitType].MinimapColor
         else
         begin
           ID := fMyTerrain.Land[I+1,K+1].Terrain;

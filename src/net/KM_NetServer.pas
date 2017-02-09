@@ -99,7 +99,6 @@ type
     procedure SendMessageA(aRecipient: Integer; aKind: TKMessageKind; aText: AnsiString);
     procedure SendMessageW(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString);
     procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
-    procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer); overload;
     procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream); overload;
     procedure SendMessageAct(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream);
     procedure DoSendData(aRecipient: Integer; aData: Pointer; aLength: Cardinal);
@@ -117,7 +116,7 @@ type
   public
     constructor Create(aMaxRooms:word; aKickTimeout: Word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
     destructor Destroy; override;
-    procedure StartListening(aPort: string; aServerName: AnsiString);
+    procedure StartListening(aPort: Word; aServerName: AnsiString);
     procedure StopListening;
     procedure ClearClients;
     procedure MeasurePings;
@@ -253,7 +252,7 @@ begin
 end;
 
 
-procedure TKMNetServer.StartListening(aPort: string; aServerName: AnsiString);
+procedure TKMNetServer.StartListening(aPort: Word; aServerName: AnsiString);
 begin
   fRoomCount := 0;
   Assert(AddNewRoom); //Must succeed
@@ -264,7 +263,7 @@ begin
   fServer.OnClientDisconnect := ClientDisconnect;
   fServer.OnDataAvailable := DataAvailable;
   fServer.StartListening(aPort);
-  Status('Listening on port ' + aPort);
+  Status('Listening on port ' + IntToStr(aPort));
   fListening := true;
   SaveHTMLStatus;
 end;
@@ -547,16 +546,6 @@ procedure TKMNetServer.SendMessage(aRecipient: Integer; aKind: TKMessageKind; aS
 begin
   //Send stream without changes
   SendMessageAct(aRecipient, aKind, aStream);
-end;
-
-
-procedure TKMNetServer.SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer);
-var I: Integer;
-begin
-  //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
-  for I := fClientList.Count-1 downto 0 do
-    if fClientList[i].Room = aRoom then
-      SendMessage(fClientList[i].Handle, aKind, aParam);
 end;
 
 
@@ -920,8 +909,7 @@ begin
       Result := fClientList[i].fHandle;
       exit;
     end;
-  Result := -1;
-  Assert(false);
+  raise Exception.Create('');
 end;
 
 

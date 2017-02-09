@@ -26,6 +26,11 @@ type
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPage) of object;
   TGUIEventText = procedure (Dest: TKMMenuPage; aText: UnicodeString = '') of object;
 
+  TKMFileIdentInfo = record // File identification info (for maps/saves)
+    CRC: Cardinal;
+    Name: UnicodeString;
+  end;
+
   TKMUserInterfaceCommon = class
   protected
     fMyControls: TKMMasterControl;
@@ -56,6 +61,10 @@ const
   OPT_SLIDER_MIN = 0;
   OPT_SLIDER_MAX = 20;
   MAX_SAVENAME_LENGTH = 50;
+
+  CHAT_MENU_ALL = -1;
+  CHAT_MENU_TEAM = -2;
+  CHAT_MENU_SPECTATORS = -3;
 
 
 implementation

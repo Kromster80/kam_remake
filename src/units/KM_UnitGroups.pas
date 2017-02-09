@@ -55,6 +55,7 @@ type
 
     function GetCount: Integer;
     function GetMember(aIndex: Integer): TKMUnitWarrior;
+    function GetFlagBearer: TKMUnitWarrior;
     function GetNearestMember(aUnit: TKMUnitWarrior): Integer; overload;
     function GetNearestMember(aLoc: TKMPoint): TKMUnitWarrior; overload;
     function GetMemberLoc(aIndex: Integer): TKMPointExact;
@@ -124,6 +125,7 @@ type
     property Count: Integer read GetCount;
     property MapEdCount: Word read fMapEdCount write SetMapEdCount;
     property Members[aIndex: Integer]: TKMUnitWarrior read GetMember;
+    property FlagBearer: TKMUnitWarrior read GetFlagBearer;
     property Owner: TKMHandIndex read fOwner;
     property Position: TKMPoint read GetPosition write SetPosition;
     property Direction: TKMDirection read GetDirection write SetDirection;
@@ -440,6 +442,12 @@ end;
 function TKMUnitGroup.GetMember(aIndex: Integer): TKMUnitWarrior;
 begin
   Result := fMembers.Items[aIndex];
+end;
+
+
+function TKMUnitGroup.GetFlagBearer: TKMUnitWarrior;
+begin
+  Result := fMembers.Items[0];
 end;
 
 

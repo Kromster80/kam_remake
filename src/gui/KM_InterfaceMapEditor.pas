@@ -64,6 +64,7 @@ type
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure Player_SetActive(aIndex: TKMHandIndex);
     procedure Player_UpdatePages;
+    procedure UpdatePlayerSelectButtons;
     procedure SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
   protected
     MinimapView: TKMMinimapView;
@@ -322,13 +323,19 @@ begin
 end;
 
 
-
-//Should update any items changed by game (resource counts, hp, etc..)
-procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
+procedure TKMapEdInterface.UpdatePlayerSelectButtons;
 const
   CAP_COLOR: array [Boolean] of Cardinal = ($80808080, $FFFFFFFF);
 var
   I: Integer;
+begin
+  for I := 0 to MAX_HANDS - 1 do
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
+end;
+
+
+//Should update any items changed by game (resource counts, hp, etc..)
+procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
   //Update minimap every 1000ms
   if aTickCount mod 10 = 0 then
@@ -336,9 +343,8 @@ begin
 
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
-  for I := 0 to MAX_HANDS - 1 do
-    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
-
+    UpdatePlayerSelectButtons;
+                 
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
 
@@ -370,6 +376,8 @@ begin
     Button_PlayerSelect[I].ShapeColor := gHands[I].FlagColor;
 
   Player_UpdatePages;
+
+  UpdatePlayerSelectButtons;
 
   Label_MissionName.Caption := gGame.GameName;
 end;
@@ -828,6 +836,8 @@ var
   DP: TAIDefencePosition;
   Marker: TKMMapEdMarker;
   G: TKMUnitGroup;
+  U: TKMUnit;
+  H: TKMHouse;
 begin
   if fDragScrolling then
   begin
@@ -915,13 +925,19 @@ begin
                   //Use Shift to set group order
                   if ssShift in gGameCursor.SState then
                   begin
-                    //If there's any unit or house on specified tile - set attack target
-                    if (gTerrain.UnitsHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil)
-                    or (gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y) <> nil) then
+                    U := gTerrain.UnitsHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+                    H := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+                    //If there's any enemy unit or house on specified tile - set attack target
+                    if ((U <> nil) and (gHands[U.Owner].Alliances[G.Owner] = at_Enemy))
+                    or ((H <> nil) and (gHands[H.Owner].Alliances[G.Owner] = at_Enemy)) then
                       G.MapEdOrder.Order := ioAttackPosition
                     //Else order group walk to specified location
                     else
-                      G.MapEdOrder.Order := ioSendGroup;
+                    if G.CanWalkTo(KMPoint(gGameCursor.Cell.X, gGameCursor.Cell.Y), 0) then
+                      G.MapEdOrder.Order := ioSendGroup
+                    else
+                    //Can't take any orders: f.e. can't walk to unwalkable tile (water, mountain) or attack allied houses
+                      G.MapEdOrder.Order := ioNoOrder;
                     //Save target coordinates
                     G.MapEdOrder.Pos.Loc.X := gGameCursor.Cell.X;
                     G.MapEdOrder.Pos.Loc.Y := gGameCursor.Cell.Y;

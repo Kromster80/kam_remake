@@ -5,14 +5,14 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Math, StrUtils, SysUtils,
-  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking;
+  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking, KM_Points;
 
 
 type
   TKMGUIGameChat = class
   private
     fChatMode: TChatMode;
-    fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
+    fChatWhisperRecipient: Integer; //NetPlayer index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
     procedure Chat_Close(Sender: TObject);
     procedure Chat_Post(Sender: TObject; Key:word);
@@ -20,6 +20,7 @@ type
     procedure Chat_MenuClick(Sender: TObject);
     procedure Chat_MenuSelect(aItem: Integer);
     procedure Chat_MenuShow(Sender: TObject);
+    function GetPanelChatRect: TKMRect;
   protected
     Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
@@ -35,6 +36,9 @@ type
     procedure SetChatState(const aChatState: TChatState);
     function GetChatState: TChatState;
     procedure ChatMessage(const aData: UnicodeString);
+    procedure Unfocus;
+    procedure Focus;
+    property PanelChatRect: TKMRect read GetPanelChatRect;
 
     procedure Show;
     procedure Hide;
@@ -95,7 +99,7 @@ begin
     //Menu gets populated right before show
     Menu_Chat.AddItem(NO_TEXT);
     Menu_Chat.OnClick := Chat_MenuClick;
-    Chat_MenuSelect(-1); //Initialise it
+    Chat_MenuSelect(CHAT_MENU_ALL); //Initialise it
 end;
 
 
@@ -115,8 +119,17 @@ begin
   begin
     fLastChatTime := TimeGet;
     if fChatMode = cmWhisper then
+    begin
+      if not gGame.Networking.NetPlayers[fChatWhisperRecipient].Connected
+        or gGame.Networking.NetPlayers[fChatWhisperRecipient].Dropped then
+      begin
+        gGame.Networking.PostLocalMessage(Format('%s is not connected to game anymore.',
+                                                [gGame.Networking.NetPlayers[fChatWhisperRecipient].NiknameColored]), // Todo translate
+                                          csSystem);
+        Chat_MenuSelect(CHAT_MENU_ALL);
+      end else
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer)
-    else
+    end else
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode);
     Edit_ChatMsg.Text := '';
   end;
@@ -158,23 +171,23 @@ var
   I: Integer;
 begin
   case aItem of
-    -1:   begin //All
-            fChatMode := cmAll;
-            UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
-            Edit_ChatMsg.DrawOutline := False; //No outline for All
-          end;
-    -2:   begin //Team
-            fChatMode := cmTeam;
-            UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
-            Edit_ChatMsg.DrawOutline := True;
-            Edit_ChatMsg.OutlineColor := $FF66FF66;
-          end;
-    -3:   begin //Spectators
-            fChatMode := cmSpectators;
-            UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
-            Edit_ChatMsg.DrawOutline := True;
-            Edit_ChatMsg.OutlineColor := $FF66FF66;
-          end;
+    CHAT_MENU_ALL:        begin //All
+                            fChatMode := cmAll;
+                            UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
+                            Edit_ChatMsg.DrawOutline := False; //No outline for All
+                          end;
+    CHAT_MENU_TEAM:         begin //Team
+                            fChatMode := cmTeam;
+                            UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
+                            Edit_ChatMsg.DrawOutline := True;
+                            Edit_ChatMsg.OutlineColor := $FF66FF66;
+                          end;
+    CHAT_MENU_SPECTATORS: begin //Spectators
+                            fChatMode := cmSpectators;
+                            UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
+                            Edit_ChatMsg.DrawOutline := True;
+                            Edit_ChatMsg.OutlineColor := $FF66FF66;
+                          end;
     else  begin //Whisper to player
             I := gGame.Networking.NetPlayers.ServerToLocal(aItem);
             if I <> -1 then
@@ -185,7 +198,7 @@ begin
               with gGame.Networking.NetPlayers[I] do
               begin
                 fChatWhisperRecipient := I;
-                UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+                UpdateButtonCaption(NiknameU, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
               end;
             end;
           end;
@@ -200,6 +213,12 @@ begin
 end;
 
 
+function TKMGUIGameChat.GetPanelChatRect: TKMRect;
+begin
+  Result := Panel_Chat.Rect;
+end;
+
+
 procedure TKMGUIGameChat.Chat_MenuShow(Sender: TObject);
 var
   C: TKMControl;
@@ -209,15 +228,15 @@ begin
   Menu_Chat.Clear;
 
   //Fill lists with options to whom player can whisper
-  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
+  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], CHAT_MENU_ALL);
 
   //Only show "Team" if the player is on a team
-  if gGame.Networking.NetPlayers[gGame.Networking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
+  if gGame.Networking.MyNetPlayer.Team <> 0 then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], CHAT_MENU_TEAM);
 
   //Only show "Spectator" if the player is a spectator
-  if gGame.Networking.NetPlayers[gGame.Networking.MyIndex].IsSpectator then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], -3);
+  if gGame.Networking.MyNetPlayer.IsSpectator then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], CHAT_MENU_SPECTATORS);
 
   //Fill
   for I := 1 to gGame.Networking.NetPlayers.Count do
@@ -226,7 +245,7 @@ begin
     n := gGame.Networking.NetPlayers[I];
 
     if n.IsHuman and n.Connected and not n.Dropped then
-      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
+      Menu_Chat.AddItem(n.NiknameColoredU, n.IndexOnServer);
   end;
 
   C := TKMControl(Sender);
@@ -274,11 +293,26 @@ begin
 end;
 
 
+procedure TKMGUIGameChat.Unfocus;
+begin
+  Edit_ChatMsg.Focusable := False;
+  gGame.GamePlayInterface.MyControls.UpdateFocus(Edit_ChatMsg); // Update only Edit focus, Memo will lose focus automatically
+end;
+
+
+procedure TKMGUIGameChat.Focus;
+begin
+  Edit_ChatMsg.Focusable := True;
+  gGame.GamePlayInterface.MyControls.UpdateFocus(Panel_Chat); // Update focus on chat panel (both Edit and Memo could be focused)
+end;
+
+
 procedure TKMGUIGameChat.Show;
 begin
   if not Panel_Chat.Visible then
     gSoundPlayer.Play(sfxn_MPChatOpen);
 
+  Focus;
   Panel_Chat.Show;
 end;
 

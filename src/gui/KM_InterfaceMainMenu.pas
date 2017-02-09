@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
@@ -229,7 +229,7 @@ begin
                       if aText = 'JOIN' then
                         fMenuLobby.Show(lpk_Joiner, gGameApp.Networking, Panel_Menu.Height)
                       else
-                        Assert(False);
+                        raise Exception.Create('');
                     end;
     gpCampaign:     begin
                       cmp[0] := Ord(aText[1]);

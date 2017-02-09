@@ -13,10 +13,11 @@ type
   private
     fRecruitsList: TList;
     fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
+    fRallyPoint: TKMPoint;
+    function GetRallyPoint: TKMPoint;
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
-    RallyPoint: TKMPoint;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -29,6 +30,8 @@ type
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
+
+    property RallyPoint: TKMPoint read GetRallyPoint write fRallyPoint;
 
     function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
@@ -44,7 +47,7 @@ type
 
 implementation
 uses
-  KM_Units, KM_Units_Warrior, KM_HandsCollection, KM_ResUnits, KM_Hand;
+  KM_Units, KM_Units_Warrior, KM_HandsCollection, KM_ResUnits, KM_Hand, KM_Terrain;
 
 
 { TKMHouseBarracks }
@@ -53,7 +56,7 @@ begin
   inherited;
 
   fRecruitsList := TList.Create;
-  RallyPoint := KMPointBelow(GetEntrance);
+  fRallyPoint := PointBelowEntrance;
 end;
 
 
@@ -73,7 +76,7 @@ begin
     fRecruitsList.Add(U);
   end;
   LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
-  LoadStream.Read(RallyPoint);
+  LoadStream.Read(fRallyPoint);
 end;
 
 
@@ -198,7 +201,7 @@ end;
 
 function TKMHouseBarracks.IsRallyPointSet: Boolean;
 begin
-   Result := not KMSamePoint(RallyPoint, KMPointBelow(GetEntrance));
+   Result := not KMSamePoint(RallyPoint, PointBelowEntrance); //Use RallyPoint, not fRallyPoint to be sure its Valid
 end;
 
 
@@ -274,6 +277,15 @@ begin
 end;
 
 
+function TKMHouseBarracks.GetRallyPoint: TKMPoint;
+begin
+  if not gTerrain.CheckPassability(fRallyPoint, tpWalk) then
+    //update rally point if its not valid (not walkable). Set it closer to barracks entrance (PointBelowEntrance)
+    fRallyPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, fRallyPoint, tpWalk);
+  Result := fRallyPoint;
+end;
+
+
 procedure TKMHouseBarracks.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
@@ -285,7 +297,7 @@ begin
   for I := 0 to RecruitsCount - 1 do
     SaveStream.Write(TKMUnit(fRecruitsList.Items[I]).UID); //Store ID
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
-  SaveStream.Write(RallyPoint);
+  SaveStream.Write(fRallyPoint);
 end;
 
 

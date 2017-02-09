@@ -119,7 +119,7 @@ begin
              Delay := BOWMEN_AIMING_DELAY_MIN+KaMRandom(BOWMEN_AIMING_DELAY_ADD);
 
            //Prevent rate of fire exploit by making archers pause for longer if they shot recently
-           Cycle := max(gRes.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
+           Cycle := max(gRes.Units[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
            if NeedsToReload(Cycle) then
              Delay := Delay + Cycle-(gGame.GameTickCount-LastShootTime);
 
@@ -131,7 +131,7 @@ begin
                ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, PositionF); //Aiming
                ut_Bowman:     gSoundPlayer.Play(sfx_BowDraw,      PositionF); //Aiming
                ut_Slingshot:  gSoundPlayer.Play(sfx_SlingerShoot, PositionF); //Aiming
-               else           Assert(false, 'Unknown shooter');
+               else           raise Exception.Create('Unknown shooter');
              end;
          end
          else
@@ -165,10 +165,10 @@ begin
              ut_Arbaletman: gProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, fUnit, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
              ut_Bowman:     gProjectiles.AimTarget(PositionF, fHouse, pt_Arrow, fUnit, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
              ut_Slingshot:  gProjectiles.AimTarget(PositionF, fHouse, pt_SlingRock, fUnit, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
-             else           Assert(false, 'Unknown shooter');
+             else           raise Exception.Create('Unknown shooter');
            end;
            SetLastShootTime; //Record last time the warrior shot
-           AnimLength := gRes.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
+           AnimLength := gRes.Units[UnitType].UnitAnim[ua_Work, Direction].Count;
            SetActionLockedStay(AnimLength - FIRING_DELAY, ua_Work, False, 0, FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
          end

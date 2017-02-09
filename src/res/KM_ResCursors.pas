@@ -16,7 +16,7 @@ type
     kmc_Beacon, kmc_Drag, kmc_PaintBucket, kmc_Invisible);
 
 
-  TKMCursors = class
+  TKMResCursors = class
   private
     fRXData: PRXData; //Store pointer to record instead of duplicating it
     function GetCursor: TKMCursor;
@@ -49,8 +49,8 @@ const
     kmc_DirNA, kmc_Dir0, kmc_Dir1, kmc_Dir2, kmc_Dir3, kmc_Dir4, kmc_Dir5, kmc_Dir6, kmc_Dir7);
 
 
-{ TKMCursors }
-function TKMCursors.GetCursor: TKMCursor;
+{ TKMResCursors }
+function TKMResCursors.GetCursor: TKMCursor;
 begin
   if InRange(Screen.Cursor - COUNT_OFFSET, Byte(Low(TKMCursor)), Byte(High(TKMCursor))) then
     Result := TKMCursor(Screen.Cursor - COUNT_OFFSET)
@@ -59,13 +59,13 @@ begin
 end;
 
 
-procedure TKMCursors.SetCursor(Value: TKMCursor);
+procedure TKMResCursors.SetCursor(Value: TKMCursor);
 begin
   Screen.Cursor := Byte(Value) + COUNT_OFFSET;
 end;
 
 
-procedure TKMCursors.MakeCursors(aSprites: TKMSpritePack);
+procedure TKMResCursors.MakeCursors(aSprites: TKMSpritePack);
 const
   SF = 17; //Full width/height of a scroll cursor
   SH = 8; //Half width/height of a scroll cursor
@@ -151,16 +151,16 @@ begin
 end;
 
 
-//Return cursor offset for given direction, which is a signed(!) value
-function TKMCursors.CursorOffset(aDir: TKMDirection): TKMPoint;
+// Return cursor offset for given direction, which is a signed(!) value
+function TKMResCursors.CursorOffset(aDir: TKMDirection): TKMPoint;
 begin
   Result.X := fRXData.Pivot[Cursors[TKMCursorDirections[aDir]]].X;
   Result.Y := fRXData.Pivot[Cursors[TKMCursorDirections[aDir]]].Y;
 end;
 
 
-//Sprite index of the cursor
-function TKMCursors.CursorTexID(aDir: TKMDirection): Integer;
+// Sprite index of the cursor
+function TKMResCursors.CursorTexID(aDir: TKMDirection): Integer;
 begin
   Result := Cursors[TKMCursorDirections[aDir]];
 end;

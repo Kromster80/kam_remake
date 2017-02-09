@@ -45,6 +45,7 @@ uses
   function UTCNow: TDateTime;
   function UTCToLocal(Input: TDateTime): TDateTime;
 
+  function MapSizeIndex(X, Y: Word): Byte;
   function MapSizeText(X,Y: Word): UnicodeString;
 
   //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
@@ -54,6 +55,10 @@ uses
   procedure KMSwapInt(var A,B:word); overload;
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
+
+  function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+
+  function DeleteDoubleSpaces(aString: string): string;
 
   function GetMultiplicator(aShift: TShiftState): Word;
 
@@ -199,18 +204,25 @@ end;
 {$ENDIF}
 
 
-function MapSizeText(X,Y: Word): UnicodeString;
+function MapSizeIndex(X, Y: Word): Byte;
 begin
-  //Pretend these are understandable in any language
   case X * Y of
-            1.. 48* 48: Result := 'XS';
-     48* 48+1.. 80* 80: Result := 'S';
-     80* 80+1..128*128: Result := 'M';
-    128*128+1..176*176: Result := 'L';
-    176*176+1..224*224: Result := 'XL';
-    224*224+1..320*320: Result := 'XXL';
-    else                Result := '???';
+            1.. 48* 48: Result := 0;
+     48* 48+1.. 80* 80: Result := 1;
+     80* 80+1..128*128: Result := 2;
+    128*128+1..176*176: Result := 3;
+    176*176+1..224*224: Result := 4;
+    224*224+1..320*320: Result := 5;
+    else                Result := 6;
   end;
+end;
+
+
+function MapSizeText(X, Y: Word): UnicodeString;
+//Pretend these are understandable in any language
+const MAP_SIZES: array [0..6] of String = ('XS', 'S', 'M', 'L', 'XL', 'XXL', '???');
+begin
+  Result := MAP_SIZES[MapSizeIndex(X, Y)];
 end;
 
 
@@ -637,9 +649,56 @@ begin
 end;
 
 
+// Returnes text ignoring color markup [$FFFFFF][]
+function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+var I, TmpColor: Integer;
+begin
+  Result := '';
+
+  if aText = '' then Exit;
+
+  I := 1;
+  while I <= Length(aText) do
+  begin
+    //Ignore color markups [$FFFFFF][]
+    if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
+      Inc(I) //Skip past this markup
+    else
+      if (aText[I]='[') and (I+8 <= Length(aText))
+      and (aText[I+1] = '$') and (aText[I+8]=']')
+      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+        Inc(I,8) //Skip past this markup
+      else
+        //Not markup so count width normally
+        Result := Result + aText[I];
+    Inc(I);
+  end;
+end;
+
+
+//Replace continious spaces with single space
+function DeleteDoubleSpaces(aString: string): string;
+var I: Integer;
+begin
+  Result := '';
+  if aString = '' then Exit;
+  Result := aString[1];
+
+  for I := 2 to Length(aString) do
+  begin
+    if aString[I] = ' ' then
+    begin
+      if not (aString[I-1] = ' ') then
+        Result := Result + ' ';
+    end else
+      Result := Result + aString[I];
+  end;
+end;
+
+
 function GetMultiplicator(aShift: TShiftState): Word;
 begin
-  Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100
+  Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100 + Byte(aShift = [ssShift, ssRight]) * 1000;
 end;
 
 

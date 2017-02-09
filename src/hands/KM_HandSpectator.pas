@@ -16,6 +16,7 @@ type
     fHighlight: TObject; //Unit/House/Group that is shown highlighted to draw players attention
     fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject;
+    fLastSpecSelectedObjUID: array [0..MAX_HANDS-1] of Integer; //UIDs of last selected objects for each hand while spectating/watching replay
     fFOWIndex: TKMHandIndex; //Unit/House/Group selected by player and shown in UI
     fFogOfWarOpen: TKMFogOfWarOpen; //Stub for MapEd
     fFogOfWar: TKMFogOfWarCommon; //Pointer to current FOW view, updated by UpdateFogOfWarIndex
@@ -24,6 +25,8 @@ type
     procedure SeTKMHandIndex(const Value: TKMHandIndex);
     procedure SetFOWIndex(const Value: TKMHandIndex);
     procedure UpdateFogOfWarIndex;
+    function GetLastSpecSelectedObj: TObject;
+    function IsLastSelectObjectValid(aObject: TObject): Boolean;
   public
     constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
@@ -33,6 +36,7 @@ type
     property HandIndex: TKMHandIndex read fHandIndex write SeTKMHandIndex;
     property FOWIndex: TKMHandIndex read fFOWIndex write SetFOWIndex;
     property FogOfWar: TKMFogOfWarCommon read fFogOfWar;
+    property LastSpecSelectedObj: TObject read GetLastSpecSelectedObj;
     function HitTestCursor: TObject;
     function HitTestCursorWGroup: TObject;
     procedure UpdateSelect;
@@ -50,6 +54,7 @@ uses
 
 { TKMSpectator }
 constructor TKMSpectator.Create(aHandIndex: TKMHandIndex);
+var I: Integer;
 begin
   inherited Create;
 
@@ -58,6 +63,9 @@ begin
   //Stub that always returns REVEALED
   fFogOfWarOpen := TKMFogOfWarOpen.Create;
   UpdateFogOfWarIndex;
+
+  for I := Low(fLastSpecSelectedObjUID) to High(fLastSpecSelectedObjUID) do
+    fLastSpecSelectedObjUID[I] := UID_NONE;
 end;
 
 
@@ -80,6 +88,34 @@ begin
       fFogOfWar := gHands[FOWIndex].FogOfWar
   else
     fFogOfWar := gHands[HandIndex].FogOfWar;
+end;
+
+
+//Return last seleted object for current chosen hand
+function TKMSpectator.GetLastSpecSelectedObj: TObject;
+var Obj: TObject;
+    UID: Integer;
+begin
+  Result := nil;
+  UID := fLastSpecSelectedObjUID[fHandIndex];
+  if UID <> UID_NONE then
+  begin
+    Obj := gHands.GetObjectByUID(UID);
+    if IsLastSelectObjectValid(Obj) then
+      Result := Obj
+    else
+      fLastSpecSelectedObjUID[fHandIndex] := UID_NONE;  // Last selected object is not valid anymore, so reset UID
+  end;
+end;
+
+
+function TKMSpectator.IsLastSelectObjectValid(aObject: TObject): Boolean;
+begin
+  Result := (aObject <> nil)
+    and not ((aObject is TKMUnit) and TKMUnit(aObject).IsDeadOrDying)    //Don't allow the player to select dead units
+    and not (aObject is TKMUnitAnimal)                                   //...or animals
+    and not ((aObject is TKMUnitGroup) and TKMUnitGroup(aObject).IsDead) //We can not select dead groups (with no warriors)
+    and not ((aObject is TKMHouse) and TKMHouse(aObject).IsDestroyed);   //Don't allow the player to select destroyed houses
 end;
 
 
@@ -148,6 +184,7 @@ procedure TKMSpectator.UpdateSelect;
 var
   G: TKMUnitGroup;
   NewSelected: TObject;
+  UID: Integer;
 begin
   //In-game player can select only own Units
   if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti] then
@@ -195,6 +232,30 @@ begin
   //Don't clear the old selection unless we found something new
   if NewSelected <> nil then
     Selected := NewSelected;
+
+  // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
+  if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
+  begin
+    UID := UID_NONE;
+    if Selected is TKMHouse then
+    begin
+      HandIndex := TKMHouse(Selected).Owner;
+      UID := TKMHouse(Selected).UID;
+    end;
+    if Selected is TKMUnit then
+    begin
+      HandIndex := TKMUnit(Selected).Owner;
+      UID := TKMUnit(Selected).UID;
+    end;
+    if Selected is TKMUnitGroup then
+    begin
+      HandIndex := TKMUnitGroup(Selected).Owner;
+      UID := TKMUnitGroup(Selected).UID;
+    end;
+    if (Selected <> nil) and (UID <> UID_NONE) then
+      fLastSpecSelectedObjUID[fHandIndex] := UID;
+  end;
+
 end;
 
 

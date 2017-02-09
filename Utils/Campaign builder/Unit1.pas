@@ -42,6 +42,7 @@ type
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
   private
     imgFlags: array of TImage;
     imgNodes: array of TImage;
@@ -159,8 +160,8 @@ begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
     C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
@@ -191,8 +192,8 @@ begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left + Img.Width div 2  - Image1.Left;
     C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  + Img.Height div 2 - Image1.Top;
@@ -287,6 +288,15 @@ begin
   UpdateList;
 end;
 
+//The ban entry of any characters other than English
+procedure TForm1.edtShortNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['A'..'Z', 'a'..'z', #8]) then
+  begin
+    Beep;
+    Key:=#0;
+  end;
+end;
 
 procedure TForm1.seMapCountChange(Sender: TObject);
 begin
@@ -363,6 +373,8 @@ begin
     //Position node centers, so that if someone changes the nodes they still look correct
     imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
     imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
+    imgNodes[I].Left := EnsureRange(imgNodes[I].Left, Image1.Left, Image1.Left + 1024-imgNodes[I].Width);
+    imgNodes[I].Top  := EnsureRange(imgNodes[I].Top, Image1.Top, Image1.Top + 768-imgNodes[I].Height);
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;
