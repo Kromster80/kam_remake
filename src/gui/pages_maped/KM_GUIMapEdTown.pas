@@ -37,6 +37,7 @@ type
     function Visible: Boolean; overload;
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
+    procedure UpdateState;
   end;
 
 
@@ -196,6 +197,13 @@ begin
   //Update colors
   Button_Town[ttUnits].FlagColor := gMySpectator.Hand.FlagColor;
   fGuiUnits.UpdatePlayerColor;
+end;
+
+
+procedure TKMMapEdTown.UpdateState;
+begin
+  fGuiScript.UpdateState;
+  fGuiDefence.UpdateState;
 end;
 
 
