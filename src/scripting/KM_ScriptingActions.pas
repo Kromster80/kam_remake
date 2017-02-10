@@ -64,6 +64,7 @@ type
     function  GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer;
     procedure GroupOrderStorm(aGroupID: Integer);
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
+    procedure GroupOwnerChange(aGroupID: Integer; aNewOwnerID: Shortint);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
 
     procedure HouseAddBuildingMaterials(aHouseID: Integer);
@@ -77,6 +78,7 @@ type
     procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
     procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
+    procedure HouseOwnerChange(aHouseID: Integer; aNewOwnerID: Shortint);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
@@ -136,6 +138,7 @@ type
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
+    procedure UnitOwnerChange(aUnitID: Integer; aNewOwnerID: Shortint);
   end;
 
 
@@ -1942,6 +1945,50 @@ begin
 end;
 
 
+//* Version: ????
+//* Changes the owner of the specified house
+procedure TKMScriptActions.HouseOwnerChange(aHouseID: Integer; aNewOwnerID: Shortint);
+var
+  housePtr: TKMHouse;
+  houseDmg: Word;
+  housePos: TKMPoint;
+  houseType: THouseType;
+  houseState: THouseState;
+  // Add something to store wares?
+begin
+  try
+    if aHouseID > 0 then
+    begin
+      housePtr := fIDCache.GetHouse(aHouseID);
+      if not (housePtr.BuildingState = hbs_Done) then Exit;
+
+      if housePtr <> nil then
+        if housePtr.Owner = aNewOwnerID then
+          Log('Defined new owner ID is equal to the curent one in Actions.HouseOwnerChange(' +
+              AnsiString(IntToStr(aHouseID) + ', ' + IntToStr(aNewOwnerID)) + ')')
+        else
+        begin
+          houseDmg   := housePtr.GetDamage;
+          housePos   := housePtr.GetPosition;
+          houseType  := housePtr.HouseType;
+          houseState := housePtr.GetState;
+          housePtr.DemolishHouse(PLAYER_NONE, True);
+          housePtr := gHands.Hands[aNewOwnerID].Houses.AddHouse(houseType, housePos.X,
+                                                                housePos.Y, aNewOwnerID,
+                                                                False);
+          housePtr.SetState(houseState);
+          housePtr.AddDamage(houseDmg, nil);
+          fIDCache.CacheHouse(housePtr, housePtr.UID);
+        end;
+    end else
+      LogParamWarning('Actions.HouseOwnerChange', [aHouseID, aNewOwnerID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 6067
 //* Writes a line of text to the game log file. Useful for debugging.
 //* Note that many calls to this procedure will have a noticeable performance impact,
@@ -2522,6 +2569,47 @@ begin
 end;
 
 
+//* Version: ????
+//* Changes the owner of the specified unit
+procedure TKMScriptActions.UnitOwnerChange(aUnitID: Integer; aNewOwnerID: Shortint);
+{ var
+  aUnit:      TKMUnit;
+  aUnitGroup: TKMUnitGroup; }
+begin
+  try
+    if aUnitID > 0 then
+    begin
+      { aUnit := fIDCache.GetUnit(aUnitID);
+
+      if aUnit <> nil then
+        if aUnit.Owner = aNewOwnerID then
+          Log('Defined new owner ID is equal to the curent one in Actions.UnitOwnerChange(' +
+              AnsiString(IntToStr(aUnitID) + ', ' + IntToStr(aNewOwnerID)) + ')')
+        else
+        begin
+          if aUnit is TKMUnitWarrior then
+          begin
+            aUnitGroup := gHands.Hands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+            if aUnitGroup <> nil then
+            begin
+              aUnitGroup.SetOwner(aNewOwnerID);
+              fIDCache.CacheGroup(aUnitGroup, aUnitGroup.UID);
+            end;
+          end;
+
+          aUnit.SetOwner(aNewOwnerID);
+          fIDCache.CacheUnit(aUnit, aUnit.UID);
+        end; }
+        Exit;
+    end else
+      LogParamWarning('Actions.UnitOwnerChange', [aUnitID, aNewOwnerID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 6277
 //* Disables (Disable = True) or enables (Disable = False) control over specifed warriors group
 procedure TKMScriptActions.GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
@@ -2857,6 +2945,45 @@ begin
     end
     else
       LogParamWarning('Actions.GroupSetFormation', [aGroupID, aNumColumns]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: ????
+//* Changes the owner of the specified group
+procedure TKMScriptActions.GroupOwnerChange(aGroupID: Integer; aNewOwnerID: Shortint);
+{ var
+  aUnit: TKMUnit;
+  aGroup: TKMUnitGroup;
+  I: Integer; }
+begin
+  try
+    if aGroupID > 0 then
+    begin
+      { aGroup := fIDCache.GetGroup(aGroupID);
+
+      if aGroup <> nil then
+        if aGroup.Owner = aNewOwnerID then
+          Log('Defined new owner ID is equal to the curent one in Actions.GroupOwnerChange(' +
+              AnsiString(IntToStr(aGroupID) + ', ' + IntToStr(aNewOwnerID)) + ')')
+        else
+        begin
+          for I := 0 to aGroup.Count - 1 do
+          begin
+            aUnit := aGroup.Members[I];
+            aUnit.SetOwner(aNewOwnerID);
+            fIDCache.CacheUnit(aUnit, aUnit.UID);
+          end;
+
+          aGroup.SetOwner(aNewOwnerID);
+          fIDCache.CacheGroup(aGroup, aGroup.UID);
+        end; }
+        Exit;
+    end else
+      LogParamWarning('Actions.GroupOwnerChange', [aGroupID, aNewOwnerID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

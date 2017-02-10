@@ -398,6 +398,7 @@ begin
       RegisterMethod('function  GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer');
       RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
+      RegisterMethod('procedure GroupOwnerChange(aGroupID: Integer; aNewOwnerID: Shortint)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
 
       RegisterMethod('procedure HouseAddBuildingMaterials(aHouseID: Integer)');
@@ -411,6 +412,7 @@ begin
       RegisterMethod('procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
       RegisterMethod('procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
       RegisterMethod('procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean)');
+      RegisterMethod('procedure HouseOwnerChange(aHouseID: Integer; aNewOwnerID: Shortint)');
       RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
@@ -469,6 +471,7 @@ begin
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
       RegisterMethod('procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
       RegisterMethod('function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
+      RegisterMethod('procedure UnitOwnerChange(aUnitID: Integer; aNewOwnerID: Shortint)');
     end;
 
     //Register objects
@@ -797,6 +800,7 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderSplitUnit,       'GROUPORDERSPLITUNIT');
       RegisterMethod(@TKMScriptActions.GroupOrderStorm,           'GROUPORDERSTORM');
       RegisterMethod(@TKMScriptActions.GroupOrderWalk,            'GROUPORDERWALK');
+      RegisterMethod(@TKMScriptActions.GroupOwnerChange,          'GROUPOWNERCHANGE');
       RegisterMethod(@TKMScriptActions.GroupSetFormation,         'GROUPSETFORMATION');
 
       RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterials,     'HOUSEADDBUILDINGMATERIALS');
@@ -810,6 +814,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,            'HOUSEDELIVERYBLOCK');
       RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HOUSEDISABLEUNOCCUPIEDMESSAGE');
       RegisterMethod(@TKMScriptActions.HouseDestroy,                  'HOUSEDESTROY');
+      RegisterMethod(@TKMScriptActions.HouseOwnerChange,              'HOUSEOWNERCHANGE');
       RegisterMethod(@TKMScriptActions.HouseRepairEnable,             'HOUSEREPAIRENABLE');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,           'HOUSESCHOOLQUEUEADD');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,        'HOUSESCHOOLQUEUEREMOVE');
@@ -868,6 +873,7 @@ begin
       RegisterMethod(@TKMScriptActions.UnitHungerSet,     'UNITHUNGERSET');
       RegisterMethod(@TKMScriptActions.UnitKill,          'UNITKILL');
       RegisterMethod(@TKMScriptActions.UnitOrderWalk,     'UNITORDERWALK');
+      RegisterMethod(@TKMScriptActions.UnitOwnerChange,   'UNITOWNERCHANGE');
     end;
 
     //Append classes info to Exec

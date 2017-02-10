@@ -1,0 +1,31 @@
+var
+  fUnit, fHouse, fGroup: Integer;
+
+procedure OnMissionStart;
+begin
+   fUnit  := States.UnitAt(20, 24);
+   fHouse := States.HouseAt(9, 24);
+   fGroup := States.GroupAt(15, 24);
+end;
+
+
+procedure OnTick;
+begin
+  if States.GameTime = 120 then
+  begin
+    Actions.UnitOwnerChange(fUnit, 1);
+    Actions.ShowMsg(0, 'Unit owner changed');
+  end;
+  
+  if States.GameTime = 240 then
+  begin
+    Actions.HouseOwnerChange(fHouse, 1);
+    Actions.ShowMsg(0, 'House owner changed');
+  end;
+  
+  if States.GameTime = 360 then
+  begin
+    Actions.GroupOwnerChange(fGroup, 1);
+    Actions.ShowMsg(0, 'Group owner changed');
+  end;
+end;
