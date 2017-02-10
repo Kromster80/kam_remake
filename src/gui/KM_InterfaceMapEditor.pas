@@ -832,6 +832,9 @@ begin
 
   UpdateCursor(X, Y, Shift);
 
+  if (ssLeft in Shift) and (gGameCursor.Mode = cmPaintBucket) then
+    ChangeOwner;
+
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
 
   gGame.MapEditor.MouseMove;
