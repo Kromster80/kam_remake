@@ -137,7 +137,6 @@ end;
 
 
 procedure TKMUnitsCollection.DeleteUnitFromList(aUnit: TKMUnit);
-var I: Integer;
 begin
   Assert(gGame.GameMode = gmMapEd); // Allow to delete existing Unit directly only in MapEd
   if (aUnit <> nil) then

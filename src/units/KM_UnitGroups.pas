@@ -68,6 +68,9 @@ type
     procedure ClearOffenders;
     procedure HungarianReorderMembers;
 
+    function GetFlagPositionF: TKMPointF;
+    function GetFlagColor: Cardinal;
+
     function GetOrderTargetUnit: TKMUnit;
     function GetOrderTargetGroup: TKMUnitGroup;
     function GetOrderTargetHouse: TKMHouse;
@@ -135,6 +138,9 @@ type
     property Order: TKMGroupOrder read fOrder;
     property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
     property BlockOrders: Boolean read fBlockOrders write fBlockOrders;
+    property FlagPositionF: TKMPointF read GetFlagPositionF;
+    property FlagColor: Cardinal read GetFlagColor;
+    function IsFlagRenderBeforeUnit: Boolean;
 
     property OrderTargetUnit: TKMUnit read GetOrderTargetUnit write SetOrderTargetUnit;
     property OrderTargetGroup: TKMUnitGroup read GetOrderTargetGroup;
@@ -157,6 +163,7 @@ type
     procedure OrderWalk(aLoc: TKMPoint; aClearOffenders: Boolean; aDir: TKMDirection = dir_NA);
 
     procedure UpdateState;
+    procedure PaintHighlighted(aHandColor: Cardinal; aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
     procedure Paint;
   end;
 
@@ -1515,6 +1522,37 @@ begin
 end;
 
 
+function TKMUnitGroup.IsFlagRenderBeforeUnit: Boolean;
+begin
+  Result := FlagBearer.Direction in [dir_SE, dir_S, dir_SW, dir_W];
+end;
+
+
+function TKMUnitGroup.GetFlagPositionF: TKMPointF;
+begin
+  Result.X := FlagBearer.PositionF.X + UNIT_OFF_X + FlagBearer.GetSlide(ax_X);
+  Result.Y := FlagBearer.PositionF.Y + UNIT_OFF_Y + FlagBearer.GetSlide(ax_Y);
+  //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
+  if IsFlagRenderBeforeUnit then
+    Result.Y := Result.Y - FLAG_X_OFFSET
+  else
+    Result.Y := Result.Y + FLAG_X_OFFSET;
+end;
+
+
+function TKMUnitGroup.GetFlagColor: Cardinal;
+begin
+  //Highlight selected group
+  Result := gHands[FlagBearer.Owner].FlagColor;
+  if gMySpectator.Selected = Self then
+    //If base color is brighter than $FFFF40 then use black highlight
+    if (Result and $FF) + (Result shr 8 and $FF) + (Result shr 16 and $FF) > $240 then
+      Result := $FF404040
+    else
+      Result := $FFFFFFFF;
+end;
+
+
 procedure TKMUnitGroup.HungarianReorderMembers;
 var
   Agents, Tasks: TKMPointList;
@@ -1652,10 +1690,14 @@ end;
 
 
 procedure TKMUnitGroup.Paint;
+begin
+  PaintHighlighted(gHands[FlagBearer.Owner].FlagColor, FlagColor);
+end;
+
+
+procedure TKMUnitGroup.PaintHighlighted(aHandColor: Cardinal; aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
 var
-  FlagCarrier: TKMUnitWarrior;
   UnitPos: TKMPointF;
-  FlagColor: Cardinal;
   FlagStep: Cardinal;
   I: Integer;
   NewPos: TKMPoint;
@@ -1663,35 +1705,11 @@ var
 begin
   if IsDead then Exit;
 
-  FlagCarrier := Members[0]; //
-
-  if not FlagCarrier.Visible then Exit;
-  if FlagCarrier.IsDeadOrDying then Exit;
-
-  UnitPos.X := FlagCarrier.PositionF.X + UNIT_OFF_X + FlagCarrier.GetSlide(ax_X);
-  UnitPos.Y := FlagCarrier.PositionF.Y + UNIT_OFF_Y + FlagCarrier.GetSlide(ax_Y);
-
-  //Highlight selected group
-  FlagColor := gHands[FlagCarrier.Owner].FlagColor;
-  if gMySpectator.Selected = Self then
-    //If base color is brighter than $FFFF40 then use black highlight
-    if (FlagColor and $FF) + (FlagColor shr 8 and $FF) + (FlagColor shr 16 and $FF) > $240 then
-      FlagColor := $FF404040
-    else
-      FlagColor := $FFFFFFFF;
+  if not FlagBearer.Visible then Exit;
+  if FlagBearer.IsDeadOrDying then Exit;
 
   //In MapEd units fTicker always the same, use Terrain instead
   FlagStep := IfThen(gGame.GameMode = gmMapEd, gTerrain.AnimStep, fTicker);
-
-  //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
-
-  if FlagCarrier.Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    UnitPos.Y := UnitPos.Y - FLAG_X_OFFSET
-  else
-    UnitPos.Y := UnitPos.Y + FLAG_X_OFFSET;
-
-  fRenderPool.AddUnitFlag(FlagCarrier.UnitType, FlagCarrier.GetUnitAction.ActionType,
-    FlagCarrier.Direction, FlagStep, UnitPos.X, UnitPos.Y, FlagColor);
 
   //Paint virtual members in MapEd mode
   for I := 1 to fMapEdCount - 1 do
@@ -1700,8 +1718,13 @@ begin
     if not DoesFit then Continue; //Don't render units that are off the map in the map editor
     UnitPos.X := NewPos.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := NewPos.Y + UNIT_OFF_Y;
-    fRenderPool.AddUnit(FlagCarrier.UnitType, 0, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, gHands[FlagCarrier.Owner].FlagColor, True);
+    fRenderPool.AddUnit(FlagBearer.UnitType, 0, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, aHandColor, True, aDoImmediateRender, aDoHighlight, aHighlightColor);
   end;
+
+  // We need to render Flag after MapEd virtual members
+  fRenderPool.AddUnitFlag(FlagBearer.UnitType, FlagBearer.GetUnitAction.ActionType,
+    FlagBearer.Direction, FlagStep, FlagPositionF.X, FlagPositionF.Y, aFlagColor, aDoImmediateRender);
+
 end;
 
 
@@ -1767,7 +1790,6 @@ end;
 
 
 procedure TKMUnitGroups.DeleteGroupFromList(aGroup: TKMUnitGroup);
-var I: Integer;
 begin
   Assert(gGame.GameMode = gmMapEd); // Allow to delete existing Group directly only in MapEd
   if (aGroup <> nil) then

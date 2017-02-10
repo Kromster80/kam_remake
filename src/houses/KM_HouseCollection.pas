@@ -41,7 +41,7 @@ type
 
 implementation
 uses
-  KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_HouseSchool, KM_Game, KM_Resource;
+  System.Types, KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_HouseSchool, KM_Game, KM_Resource;
 
 
 { TKMHousesCollection }
@@ -120,7 +120,6 @@ end;
 
 //Delete pointer to House in List
 procedure TKMHousesCollection.DeleteHouseFromList(aHouse: TKMHouse);
-var I: Integer;
 begin
   Assert(gGame.GameMode = gmMapEd); // Allow to delete existing House directly only in MapEd
   if (aHouse <> nil) then

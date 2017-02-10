@@ -53,8 +53,9 @@ type
     procedure PageChanged(Sender: TObject);
     procedure Player_ActiveClick(Sender: TObject);
     procedure Message_Click(Sender: TObject);
-    procedure Object_ChangePlayer_Click(Sender: TObject);
-    procedure Object_ChangePlayer(aObject: TObject; aOwner: TKMHandIndex);
+    procedure ChangeOwner_Click(Sender: TObject);
+    function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
+    procedure ChangeOwner;
 
     procedure UpdateCursor(X, Y: Integer; Shift: TShiftState);
     procedure Main_ButtonClick(Sender: TObject);
@@ -70,7 +71,7 @@ type
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
-    Button_ObjectChangePlayer: TKMButtonFlat;
+    Button_ChangeOwner: TKMButtonFlat;
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
 
@@ -152,10 +153,10 @@ begin
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
 
-  Button_ObjectChangePlayer := TKMButtonFlat.Create(Panel_Main, 153, 215, 29, 29, 662);
-  Button_ObjectChangePlayer.Down := False;
-  Button_ObjectChangePlayer.OnClick := Object_ChangePlayer_Click;
-  Button_ObjectChangePlayer.Hint := 'Change team(player) for object. Hold Shift for multiple objects'; // Todo Translate
+  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, 153, 215, 29, 29, 662);
+  Button_ChangeOwner.Down := False;
+  Button_ChangeOwner.OnClick := ChangeOwner_Click;
+  Button_ChangeOwner.Hint := 'Change owner for object'; // Todo Translate
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
@@ -348,7 +349,7 @@ begin
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
 
-  Button_ObjectChangePlayer.Down := gGameCursor.Mode = cmPaintBucket;
+  Button_ChangeOwner.Down := gGameCursor.Mode = cmPaintBucket;
 end;
 
 
@@ -442,7 +443,7 @@ end;
 
 procedure TKMapEdInterface.SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
 begin
-  Button_ObjectChangePlayer.Down := aDoSetPaintBucketMode;
+  Button_ChangeOwner.Down := aDoSetPaintBucketMode;
   if aDoSetPaintBucketMode then
     gGameCursor.Mode := cmPaintBucket
   else
@@ -450,29 +451,57 @@ begin
 end;
 
 
-// Change player for selected object
-procedure TKMapEdInterface.Object_ChangePlayer(aObject: TObject; aOwner: TKMHandIndex);
+procedure TKMapEdInterface.ChangeOwner;
+var P: TKMPoint;
+begin
+  P := gGameCursor.Cell;
+  //Fisrt try to change owner of object on tile
+  if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandIndex) then
+    //then try to change
+    if ((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road) or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
+      and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandIndex) then
+      gTerrain.Land[P.Y, P.X].TileOwner := gMySpectator.HandIndex;
+end;
+
+
+//Change owner for specified object
+//returns True if owner was changed successfully
+function TKMapEdInterface.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
 var House: TKMHouse;
 begin
+  Result := False;
   if (aObject <> nil) then
     begin
       if aObject is TKMHouse then
       begin
         House := TKMHouse(aObject);
-        House.OwnerUpdate(aOwner, True);
-        gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+        if House.Owner <> aOwner then
+        begin
+          House.OwnerUpdate(aOwner, True);
+          gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+          Result := True;
+        end;
       end
       else if aObject is TKMUnit then
-        TKMUnit(aObject).OwnerUpdate(aOwner, True)
-      else if aObject is TKMUnitGroup then
-        TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
+      begin
+        if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
+        begin
+          TKMUnit(aObject).OwnerUpdate(aOwner, True);
+          Result := True;
+        end;
+      end else if aObject is TKMUnitGroup then
+        if TKMUnitGroup(aObject).Owner <> aOwner then
+        begin
+          TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
+          Result := True;
+        end
     end;
 end;
 
 
-procedure TKMapEdInterface.Object_ChangePlayer_Click(Sender: TObject);
+procedure TKMapEdInterface.ChangeOwner_Click(Sender: TObject);
 begin
-  SetPaintBucketMode(not Button_ObjectChangePlayer.Down);
+  SetPaintBucketMode(not Button_ChangeOwner.Down);
 end;
 
 
@@ -903,7 +932,7 @@ begin
                   end;
                 end;
               end else if gGameCursor.Mode = cmPaintBucket then
-                Object_ChangePlayer(gMySpectator.HitTestCursorWGroup, gMySpectator.HandIndex);
+                ChangeOwner;
     mbRight:  begin
                 if gGameCursor.Mode = cmPaintBucket then
                 begin
