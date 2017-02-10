@@ -20,16 +20,19 @@ type
     fGuiHouses: TKMMapEdTownHouses;
     fGuiUnits: TKMMapEdTownUnits;
     fGuiScript: TKMMapEdTownScript;
+    fGuiDefence: TKMMapEdTownDefence;
+    fGuiOffence: TKMMapEdTownOffence;
 
     procedure PageChange(Sender: TObject);
   protected
     Panel_Town: TKMPanel;
     Button_Town: array [TKMTownTab] of TKMButton;
   public
-    fGuiDefence: TKMMapEdTownDefence;
-    fGuiOffence: TKMMapEdTownOffence;
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
+
+    property GuiDefence: TKMMapEdTownDefence read fGuiDefence;
+    property GuiOffence: TKMMapEdTownOffence read fGuiOffence;
 
     procedure Show(aPage: TKMTownTab);
     procedure ShowIndex(aIndex: Byte);

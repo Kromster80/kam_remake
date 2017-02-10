@@ -198,8 +198,8 @@ begin
   fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
 
   //Pass pop-ups to their dispatchers
-  fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
-  fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
+  fGuiTown.GuiDefence.FormationsPopUp := fGuiFormations;
+  fGuiTown.GuiOffence.AttackPopUp := fGuiAttack;
   fGuiPlayer.fGuiPlayerGoals.GoalPopUp := fGuiGoal;
 
   //Hints go above everything

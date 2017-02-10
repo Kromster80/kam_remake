@@ -4947,7 +4947,6 @@ end;
 
 
 procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var IsMouseDownHandled: Boolean;
 begin
   inherited;
   MouseMove(X, Y, Shift);
