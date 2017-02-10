@@ -205,6 +205,8 @@ end;
 
 procedure TKMMapEdTown.UpdateState;
 begin
+  fGuiHouses.UpdateState;
+  fGuiUnits.UpdateState;
   fGuiScript.UpdateState;
   fGuiDefence.UpdateState;
 end;
