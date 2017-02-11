@@ -111,7 +111,7 @@ implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
-  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses;
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_HouseBarracks;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -356,6 +356,7 @@ end;
 procedure TKMapEdInterface.UpdateStateInternal;
 begin
   fGuiTerrain.UpdateState;
+  fGuiHouse.UpdateState;
   fGuiMenu.UpdateState;
   fGuiTown.UpdateState;
   fGuiPlayer.UpdateState;
@@ -924,6 +925,7 @@ begin
                 //If there are some additional layers we first HitTest them
                 //since they are rendered ontop of Houses/Objects
                 Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+
                 if Marker.MarkerType <> mtNone then
                 begin
                   ShowMarkerInfo(Marker);
@@ -966,9 +968,27 @@ begin
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
 
+                //Check if we are in rally/cutting marker mode
+                if (gGameCursor.Mode = cmMarkers)
+                  and ((gGameCursor.Tag1 = MARKER_RALLY_POINT) or (gGameCursor.Tag1 = MARKER_CUTTING_POINT)) then
+                begin
+                  gGameCursor.Mode := cmNone;
+                  gGameCursor.Tag1 := 0;
+                  Exit;
+                end;
+
                 //Move the selected object to the cursor location
                 if gMySpectator.Selected is TKMHouse then
-                  TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                begin
+                  if ssShift in Shift then
+                  begin
+                    if gMySpectator.Selected is TKMHouseBarracks then
+                      TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell
+                    else if gMySpectator.Selected is TKMHouseWoodcutters then
+                      TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
+                  end else
+                    TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                end;
 
                 if gMySpectator.Selected is TKMUnit then
                   TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);

@@ -62,7 +62,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses,
-  KM_Hand, KM_Game, KM_InterfaceMapEditor;
+  KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
 
 
 { TKMMapEditor }
@@ -322,6 +322,10 @@ begin
                                                         //Updating XY display is done in InterfaceMapEd
                                                       end;
                                 MARKER_AISTART:       gMySpectator.Hand.AI.Setup.StartPosition := P;
+                                MARKER_RALLY_POINT:   if gMySpectator.Selected is TKMHouseBarracks then
+                                                        TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell;
+                                MARKER_CUTTING_POINT: if gMySpectator.Selected is TKMHouseWoodcutters then
+                                                        TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
                               end;
                 cmErase:      begin
                                 gHands.RemAnyHouse(P);

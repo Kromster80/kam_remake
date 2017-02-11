@@ -15,6 +15,8 @@ type
     fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
     fRallyPoint: TKMPoint;
     function GetRallyPoint: TKMPoint;
+    procedure SetRallyPoint(aRallyPoint: TKMPoint);
+    function GetRallyPointTexId: Word;
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
@@ -31,7 +33,8 @@ type
     function CheckResIn(aWare: TWareType): Word; override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
 
-    property RallyPoint: TKMPoint read GetRallyPoint write fRallyPoint;
+    property RallyPoint: TKMPoint read GetRallyPoint write SetRallyPoint;
+    procedure ValidateRallyPoint;
 
     function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
@@ -42,6 +45,8 @@ type
     function IsRallyPointSet: Boolean;
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
     procedure CreateRecruitInside(aIsMapEd: Boolean);
+
+    property RallyPointTexId: Word read GetRallyPointTexId;
   end;
 
 
@@ -199,6 +204,12 @@ begin
 end;
 
 
+function TKMHouseBarracks.GetRallyPointTexId: Word;
+begin
+  Result := 249;
+end;
+
+
 function TKMHouseBarracks.IsRallyPointSet: Boolean;
 begin
    Result := not KMSamePoint(RallyPoint, PointBelowEntrance); //Use RallyPoint, not fRallyPoint to be sure its Valid
@@ -277,11 +288,24 @@ begin
 end;
 
 
+procedure TKMHouseBarracks.ValidateRallyPoint;
+begin
+  //this will automatically update rally point to valid value
+  SetRallyPoint(fRallyPoint);
+end;
+
+
+procedure TKMHouseBarracks.SetRallyPoint(aRallyPoint: TKMPoint);
+begin
+  fRallyPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, aRallyPoint, tpWalk);
+end;
+
+
 function TKMHouseBarracks.GetRallyPoint: TKMPoint;
 begin
   if not gTerrain.CheckPassability(fRallyPoint, tpWalk) then
     //update rally point if its not valid (not walkable). Set it closer to barracks entrance (PointBelowEntrance)
-    fRallyPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, fRallyPoint, tpWalk);
+    SetRallyPoint(fRallyPoint);
   Result := fRallyPoint;
 end;
 

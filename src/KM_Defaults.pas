@@ -257,7 +257,7 @@ type
     cmMagicWater, //Magic water
     cmSelection, //Selection manipulations
     cmUnits, //Units
-    cmMarkers, //CenterScreen, Defence, FOW markers
+    cmMarkers, //CenterScreen, FOW, Defence, AIStart, Rally/Cutting Point markers
     cmEyedropper, //Terrain eyedropper
     cmPaintBucket, //PaintBucket - change color(team) for map objects
     cmRotateTile  //Rotate terrain tile
@@ -277,6 +277,8 @@ const
   MARKER_DEFENCE = 2;
   MARKER_CENTERSCREEN = 3;
   MARKER_AISTART = 4;
+  MARKER_RALLY_POINT = 5;
+  MARKER_CUTTING_POINT = 6;
 
 
 const
