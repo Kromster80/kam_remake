@@ -19,6 +19,7 @@ Bugs:
  +	Move out of downloads on MapEd menu page mechanism. It was possible to click on the button with empty filename. This caused silent delete of MapsMP folder.
  +	Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
+ +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
  
 
 	Server welcome message should support Unicode
@@ -94,6 +95,7 @@ Improvements:
  +	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
  +	L	Ability to ignore repeated consistency check errors while watching SP replay
  +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns)
+ +		Ability to specify the title of the mission separately for each company rather than globally for all
 
  
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
@@ -101,6 +103,8 @@ Improvements:
  +		MapEd: House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
  +		MapEd: Shortcut to change row count in group (same as for numbers, orders etc)
  +		MapEd: Set default 'center screen' position of all players in the center of screen for new map
+ +		MapEd: Ability to change owner for objects
+ +	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
  
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -148,7 +152,6 @@ Improvements:
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
 	L	MapEd: Lasso selection for copy/paste
 	L	MapEd: Add a button into barracks UI to allow to set a rally point
-	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
 	L	MapEd: allow to grab an object with a MouseDown and drag it around until MouseUp 
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
