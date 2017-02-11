@@ -246,7 +246,7 @@ begin
     //when workers block the enterance. But it is much simpler this way so we don't have a problem really.
     5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance);
     6:  begin
-          Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
+          Direction := KMGetDirection(GetPosition, fToHouse.Entrance);
           fToHouse.ResAddToBuild(Carry);
           gHands[Owner].Stats.WareConsumed(Carry);
           CarryTake;

@@ -675,8 +675,8 @@ begin
           gTerrain.FlattenTerrain(CellsToDig[LastToDig]);
           gTerrain.FlattenTerrain(CellsToDig[LastToDig]); //Flatten the terrain twice now to ensure it really is flat
           gTerrain.SetTileLock(CellsToDig[LastToDig], tlDigged); //Block passability on tile
-          if KMSamePoint(fHouse.GetEntrance, CellsToDig[LastToDig]) then
-            gTerrain.SetField(fHouse.GetEntrance, Owner, ft_Road);
+          if KMSamePoint(fHouse.Entrance, CellsToDig[LastToDig]) then
+            gTerrain.SetField(fHouse.Entrance, Owner, ft_Road);
           gTerrain.RemoveObject(CellsToDig[LastToDig]); //All objects are removed
           Dec(LastToDig);
         end;

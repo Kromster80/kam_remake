@@ -396,7 +396,7 @@ begin
   begin
     H := gHands[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
     if H <> nil then
-      fSetup.StartPosition := H.GetEntrance;
+      fSetup.StartPosition := H.Entrance;
   end;
 
   //See how many soldiers we need to launch an attack
