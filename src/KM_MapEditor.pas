@@ -62,7 +62,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses,
-  KM_Hand;
+  KM_Hand, KM_Game, KM_InterfaceMapEditor;
 
 
 { TKMMapEditor }
@@ -294,6 +294,8 @@ begin
                 cmMagicWater: fTerrainPainter.MagicWater(P);
                 cmEyedropper: begin
                                 fTerrainPainter.Eyedropper(P);
+                                if (gGame.ActiveInterface is TKMapEdInterface) then
+                                  TKMapEdInterface(gGame.ActiveInterface).GuiTerrain.GuiTiles.TilesTableScrollToTileTexId(gGameCursor.Tag1);
                                 if not (ssShift in gGameCursor.SState) then  //Holding shift allows to choose another tile
                                   gGameCursor.Mode := cmTiles;
                               end;

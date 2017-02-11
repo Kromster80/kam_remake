@@ -37,6 +37,8 @@ type
     destructor Destroy; override;
     procedure KeyUp(Key: Word; Shift: TShiftState);
 
+    property GuiTiles: TKMMapEdTerrainTiles read fGuiTiles;
+
     procedure Show(aTab: TKMTerrainTab);
     procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMTerrainTab): Boolean; overload;
