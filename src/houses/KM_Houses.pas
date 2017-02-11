@@ -214,8 +214,9 @@ type
     fWoodcutterMode: TWoodcutterMode;
     fCuttingPoint: TKMPoint;
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
-    procedure SetCuttingPoint(Value: TKMPoint);
+    procedure SetCuttingPoint(aValue: TKMPoint);
     function GetCuttingPoint: TKMPoint;
+    function GetCuttingPointTexId: Word;
   public
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
@@ -224,6 +225,9 @@ type
     function IsCuttingPointSet: Boolean;
     procedure ValidateCuttingPoint;
     property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
+    function GetValidCuttingPoint(aPoint: TKMPoint): TKMPoint;
+
+    property CuttingPointTexId: Word read GetCuttingPointTexId;
   end;
 
 implementation
@@ -1718,9 +1722,24 @@ begin
 end;
 
 
-procedure TKMHouseWoodcutters.SetCuttingPoint(Value: TKMPoint);
+function TKMHouseWoodcutters.GetCuttingPointTexId: Word;
 begin
-  fCuttingPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, Value, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
+  Result := 660;
+end;
+
+
+//Check if specified point is valid
+//if it is valid - return it
+//if it is not valid - return appropriate valid point, within segment between PointBelowEntrance and specified aPoint
+function TKMHouseWoodcutters.GetValidCuttingPoint(aPoint: TKMPoint): TKMPoint;
+begin
+  Result := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, aPoint, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
+end;
+
+
+procedure TKMHouseWoodcutters.SetCuttingPoint(aValue: TKMPoint);
+begin
+  fCuttingPoint := GetValidCuttingPoint(aValue);
 end;
 
 

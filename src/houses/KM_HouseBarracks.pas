@@ -16,6 +16,7 @@ type
     fRallyPoint: TKMPoint;
     function GetRallyPoint: TKMPoint;
     procedure SetRallyPoint(aRallyPoint: TKMPoint);
+    function GetRallyPointTexId: Word;
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
@@ -44,6 +45,8 @@ type
     function IsRallyPointSet: Boolean;
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
     procedure CreateRecruitInside(aIsMapEd: Boolean);
+
+    property RallyPointTexId: Word read GetRallyPointTexId;
   end;
 
 
@@ -198,6 +201,12 @@ begin
   Assert(aRes in [WARFARE_MIN .. WARFARE_MAX]);
 
   NotAcceptFlag[aRes] := not NotAcceptFlag[aRes];
+end;
+
+
+function TKMHouseBarracks.GetRallyPointTexId: Word;
+begin
+  Result := 249;
 end;
 
 
