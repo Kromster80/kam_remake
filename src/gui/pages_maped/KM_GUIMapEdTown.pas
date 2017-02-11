@@ -20,16 +20,19 @@ type
     fGuiHouses: TKMMapEdTownHouses;
     fGuiUnits: TKMMapEdTownUnits;
     fGuiScript: TKMMapEdTownScript;
+    fGuiDefence: TKMMapEdTownDefence;
+    fGuiOffence: TKMMapEdTownOffence;
 
     procedure PageChange(Sender: TObject);
   protected
     Panel_Town: TKMPanel;
     Button_Town: array [TKMTownTab] of TKMButton;
   public
-    fGuiDefence: TKMMapEdTownDefence;
-    fGuiOffence: TKMMapEdTownOffence;
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
+
+    property GuiDefence: TKMMapEdTownDefence read fGuiDefence;
+    property GuiOffence: TKMMapEdTownOffence read fGuiOffence;
 
     procedure Show(aPage: TKMTownTab);
     procedure ShowIndex(aIndex: Byte);
@@ -37,6 +40,7 @@ type
     function Visible: Boolean; overload;
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
+    procedure UpdateState;
   end;
 
 
@@ -196,6 +200,15 @@ begin
   //Update colors
   Button_Town[ttUnits].FlagColor := gMySpectator.Hand.FlagColor;
   fGuiUnits.UpdatePlayerColor;
+end;
+
+
+procedure TKMMapEdTown.UpdateState;
+begin
+  fGuiHouses.UpdateState;
+  fGuiUnits.UpdateState;
+  fGuiScript.UpdateState;
+  fGuiDefence.UpdateState;
 end;
 
 
