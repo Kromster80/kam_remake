@@ -1155,6 +1155,7 @@ begin
                 end;
 
                 //Move the selected object to the cursor location
+                if gMySpectator.Selected is TKMHouse then
                 begin
                   if ssShift in Shift then
                   begin
