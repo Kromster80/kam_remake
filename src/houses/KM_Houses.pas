@@ -3,7 +3,7 @@ unit KM_Houses;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain, KM_ResHouses, KM_ResWares;
 
   //Houses are ruled by units, hence they don't know about TKMUnits
@@ -70,13 +70,15 @@ type
 
     procedure CheckOnSnow;
 
+    function GetResourceInArray: TKMByteArray;
+    function GetResourceOutArray: TKMByteArray;
+
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
     function GetPointBelowEntrance: TKMPoint;
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
-    WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     fOwner: TKMHandIndex; //House owner player, determines flag color as well
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     procedure Activate(aWasBuilt: Boolean); virtual;
@@ -85,6 +87,7 @@ type
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
   public
     CurrentAction: THouseAction; //Current action, withing HouseTask or idle
+    WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     ResourceDepletedMsgIssued: Boolean;
     DoorwayUse: Byte; //number of units using our door way. Used for sliding.
     OnDestroyed: TKMHouseFromEvent;
@@ -103,7 +106,7 @@ type
 
     property GetPosition: TKMPoint read fPosition;
     procedure SetPosition(aPos: TKMPoint); //Used only by map editor
-    procedure OwnerUpdate(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     property PointBelowEntrance: TKMPoint read GetPointBelowEntrance;
     function GetEntrance: TKMPoint;
     function GetClosestCell(aPos: TKMPoint): TKMPoint;
@@ -122,6 +125,9 @@ type
     function GetHealth: Word;
     function GetBuildWoodDelivered: Byte;
     function GetBuildStoneDelivered: Byte;
+
+    property ResourceInArray: TKMByteArray read GetResourceInArray;
+    property ResourceOutArray: TKMByteArray read GetResourceOutArray;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -222,7 +228,7 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
+  KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
   KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
 
@@ -706,8 +712,14 @@ begin
 end;
 
 
-procedure TKMHouse.OwnerUpdate(aOwner: TKMHandIndex);
+procedure TKMHouse.OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
 begin
+  if aMoveToNewOwner and (fOwner <> aOwner) then
+  begin
+    Assert(gGame.GameMode = gmMapEd); // Allow to move existing House directly only in MapEd
+    gHands[fOwner].Houses.DeleteHouseFromList(Self);
+    gHands[aOwner].Houses.AddHouseToList(Self);
+  end;
   fOwner := aOwner;
 end;
 
@@ -821,6 +833,26 @@ end;
 function TKMHouse.GetState: THouseState;
 begin
   Result := CurrentAction.State;
+end;
+
+
+function TKMHouse.GetResourceInArray: TKMByteArray;
+var I, IAdjustment: Integer;
+begin
+  SetLength(Result, Length(fResourceIn));
+  IAdjustment := Low(fResourceIn) - Low(Result);
+  for I := Low(Result) to High(Result) do
+    Result[I] := fResourceIn[I + IAdjustment];
+end;
+
+
+function TKMHouse.GetResourceOutArray: TKMByteArray;
+var I, IAdjustment: Integer;
+begin
+  SetLength(Result, Length(fResourceOut));
+  IAdjustment := Low(fResourceOut) - Low(Result);
+  for I := Low(Result) to High(Result) do
+    Result[I] := fResourceOut[I + IAdjustment];
 end;
 
 
