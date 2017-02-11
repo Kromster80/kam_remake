@@ -21,9 +21,11 @@ type
     constructor Create;
     destructor Destroy; override;
     function AddUnit(aOwner: TKMHandIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    procedure AddUnitToList(aUnit: TKMUnit);
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
+    procedure DeleteUnitFromList(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TKMHandIndex);
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
     function GetUnitByUID(aUID: Integer): TKMUnit;
@@ -119,11 +121,26 @@ begin
     fUnits.Add(Result);
 end;
 
+procedure TKMUnitsCollection.AddUnitToList(aUnit: TKMUnit);
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to add existing Unit directly only in MapEd
+  if aUnit <> nil then
+    fUnits.Add(aUnit);
+end;
+
 
 procedure TKMUnitsCollection.RemoveUnit(aUnit: TKMUnit);
 begin
   aUnit.CloseUnit; //Should free up the unit properly (freeing terrain usage and memory)
   fUnits.Remove(aUnit); //Will free the unit
+end;
+
+
+procedure TKMUnitsCollection.DeleteUnitFromList(aUnit: TKMUnit);
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to delete existing Unit directly only in MapEd
+  if (aUnit <> nil) then
+    fUnits.Extract(aUnit);  // use Extract instead of Delete, cause Delete nils inner objects somehow
 end;
 
 

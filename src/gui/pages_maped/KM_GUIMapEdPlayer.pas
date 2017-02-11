@@ -39,6 +39,7 @@ type
     function Visible: Boolean; overload;
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
+    procedure UpdateState;
   end;
 
 
@@ -201,6 +202,12 @@ begin
 
   fGuiPlayerView.UpdatePlayerColor;
   fGuiPlayerBlockUnit.UpdatePlayerColor;
+end;
+
+
+procedure TKMMapEdPlayer.UpdateState;
+begin
+  fGuiPlayerView.UpdateState;
 end;
 
 

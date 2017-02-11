@@ -3,7 +3,7 @@ object FormMain: TFormMain
   Top = 419
   HelpType = htKeyword
   BorderStyle = bsNone
-  ClientHeight = 532
+  ClientHeight = 656
   ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -26,12 +26,12 @@ object FormMain: TFormMain
   OnShow = FormShow
   DesignSize = (
     521
-    532)
+    656)
   PixelsPerInch = 96
   TextHeight = 13
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 512
+    Top = 636
     Width = 521
     Height = 20
     Panels = <
@@ -40,26 +40,32 @@ object FormMain: TFormMain
         Width = 110
       end
       item
-        Text = 'Cursor: 46.1 47.2'
-        Width = 160
+        Text = 'Cursor: 1999:1999'
+        Width = 120
       end
       item
-        Text = 'Time: 02:15'
+        Text = 'Tile: 999.9:999.9 [999:999]'
+        Width = 150
+      end
+      item
+        Text = 'Time:'
         Width = 90
       end
       item
-        Text = '50.0 fps (50)'
+        Text = 'fps'
         Width = 80
       end
       item
-        Width = 50
+        Text = 'Object'
+        Width = 90
       end>
+    ExplicitTop = 680
   end
   object GroupBox1: TGroupBox
     Left = 320
     Top = 8
     Width = 193
-    Height = 489
+    Height = 624
     Anchors = [akTop, akRight]
     Caption = ' Development controls '
     TabOrder = 1
@@ -69,7 +75,7 @@ object FormMain: TFormMain
       Width = 177
       Height = 89
       Caption = ' Graphics tweaks '
-      TabOrder = 5
+      TabOrder = 4
       object Label3: TLabel
         Left = 100
         Top = 16
@@ -162,7 +168,7 @@ object FormMain: TFormMain
       Width = 177
       Height = 57
       Caption = ' User Interface '
-      TabOrder = 4
+      TabOrder = 3
       object chkUIControlsBounds: TCheckBox
         Left = 8
         Top = 16
@@ -208,7 +214,7 @@ object FormMain: TFormMain
         '6'
         '7'
         '8')
-      TabOrder = 1
+      TabOrder = 7
       OnClick = RGPlayerClick
     end
     object Button_Stop: TButton
@@ -217,7 +223,7 @@ object FormMain: TFormMain
       Width = 89
       Height = 17
       Caption = 'Stop the game'
-      TabOrder = 2
+      TabOrder = 1
       OnClick = Button_StopClick
     end
     object GroupBox2: TGroupBox
@@ -226,7 +232,7 @@ object FormMain: TFormMain
       Width = 177
       Height = 137
       Caption = ' AI '
-      TabOrder = 3
+      TabOrder = 2
       object Label5: TLabel
         Left = 108
         Top = 100
@@ -325,7 +331,7 @@ object FormMain: TFormMain
       Width = 177
       Height = 97
       Caption = ' Debug render '
-      TabOrder = 6
+      TabOrder = 5
       object Label2: TLabel
         Left = 100
         Top = 16
@@ -370,6 +376,58 @@ object FormMain: TFormMain
         Width = 121
         Height = 17
         Caption = 'Show selection buffer'
+        TabOrder = 3
+        OnClick = ControlsUpdate
+      end
+    end
+    object GroupBoxLogs: TGroupBox
+      Left = 8
+      Top = 481
+      Width = 177
+      Height = 138
+      Caption = 'Logs'
+      TabOrder = 6
+      object chkLogDelivery: TCheckBox
+        Left = 8
+        Top = 16
+        Width = 65
+        Height = 17
+        Caption = 'Delivery'
+        TabOrder = 0
+        OnClick = ControlsUpdate
+      end
+      object chkLogNetConnection: TCheckBox
+        Left = 79
+        Top = 16
+        Width = 95
+        Height = 17
+        Caption = 'Net connection'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+        OnClick = ControlsUpdate
+      end
+      object RGLogNetPackets: TRadioGroup
+        Left = 8
+        Top = 36
+        Width = 161
+        Height = 78
+        Caption = 'Net packets log level'
+        ItemIndex = 0
+        Items.Strings = (
+          'None '
+          'All but commands/ping/fps'
+          'All but ping/fps'
+          'All packets')
+        TabOrder = 2
+        OnClick = ControlsUpdate
+      end
+      object chkLogsShowInChat: TCheckBox
+        Left = 8
+        Top = 116
+        Width = 137
+        Height = 17
+        Caption = 'Show logs in MP chat'
         TabOrder = 3
         OnClick = ControlsUpdate
       end

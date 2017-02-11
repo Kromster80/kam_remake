@@ -27,6 +27,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
   end;
 
 
@@ -135,6 +136,12 @@ begin
     gGameCursor.Mode := cmNone;
     gGameCursor.Tag1 := 0;
   end;
+end;
+
+
+procedure TKMMapEdTownScript.UpdateState;
+begin
+  Button_AIStart.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_AISTART);
 end;
 
 

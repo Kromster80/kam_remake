@@ -243,7 +243,7 @@ begin
       ut_Arbaletman:  gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
       ut_Bowman:      gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:   ;
-      else            Assert(False, 'Unknown shooter');
+      else            raise Exception.Create('Unknown shooter');
     end;
 
     fFightDelay := -1; //Reset

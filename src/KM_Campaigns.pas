@@ -54,6 +54,7 @@ type
 
     function CampaignTitle: UnicodeString;
     function CampaignDescription: UnicodeString;
+    function CampaignMissionTitle : UnicodeString;
     function MissionFile(aIndex: Byte): UnicodeString;
     function MissionTitle(aIndex: Byte): UnicodeString;
     function MissionBriefing(aIndex: Byte): UnicodeString;
@@ -483,6 +484,12 @@ end;
 function TKMCampaign.CampaignDescription: UnicodeString;
 begin
   Result := fTextLib[2];
+end;
+
+
+function TKMCampaign.CampaignMissionTitle: UnicodeString;
+begin
+    Result := fTextLib[3];
 end;
 
 

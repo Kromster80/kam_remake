@@ -13,6 +13,8 @@ uses
 
 implementation
 
+uses SysUtils;
+
 
 procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: UnicodeString);
 var
@@ -95,7 +97,7 @@ begin
           aPixelData[K * Png.Width + I] := cardinal(Png.Pixels[I,K]) or (T shl 24);
         end;
       else
-        Assert(false, 'Unknown PNG transparency mode')
+        raise Exception.Create('Unknown PNG transparency mode');
     end;
 
     Png.Free;

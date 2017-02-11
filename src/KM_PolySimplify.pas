@@ -59,7 +59,7 @@ procedure CheckForDegenerates(var aTriMesh: TKMTriMesh);
 
 implementation
 uses
-  KromUtils, PolyTriangulate;
+  KromUtils, PolyTriangulate, SysUtils;
 
 
 const
@@ -247,7 +247,7 @@ begin
     end;
 
     if FirstCorner = -1 then
-      Assert(False, 'Could not find corners?');
+      raise Exception.Create('Could not find corners?');
 
     //Shift start to Corner node
     if FirstCorner > 0 then
@@ -921,7 +921,7 @@ begin
     or (Polygons[I,2] = Polygons[I,0]) then
     //Cut the triangle
     begin
-      Assert(False, 'Degenerate poly left');
+      raise Exception.Create('Degenerate poly left');
       {//Move last triangle to I
       Polygons[I,0] := Polygons[High(Polygons),0];
       Polygons[I,1] := Polygons[High(Polygons),1];

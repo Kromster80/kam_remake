@@ -48,7 +48,7 @@ begin
   fWorkPlan.FindPlan( fUnit,
                       fUnit.GetHome.HouseType,
                       aWare,
-                      KMPointBelow(aUnit.GetHome.GetEntrance),
+                      aUnit.GetHome.PointBelowEntrance,
                       ChooseToCutOrPlant
                       );
 end;
@@ -136,7 +136,7 @@ begin
   OldDir := WorkPlan.WorkDir;
 
   //Tell the work plan to find a new resource of the same gathering script
-  if WorkPlan.FindDifferentResource(fUnit, KMPointBelow(fUnit.GetHome.GetEntrance), OldLoc) then
+  if WorkPlan.FindDifferentResource(fUnit, fUnit.GetHome.PointBelowEntrance, OldLoc) then
   begin
     //Must always give us a new location (or same location but different direction)
     Assert((OldDir <> WorkPlan.WorkDir) or not KMSamePoint(OldLoc, WorkPlan.Loc));
@@ -231,7 +231,7 @@ begin
 
           //Woodcutter takes his axe with him when going to chop trees
           if (WorkPlan.GatheringScript = gs_WoodCutterCut) then
-            GetHome.fCurrentAction.SubActionRem([ha_Flagpole]);
+            GetHome.CurrentAction.SubActionRem([ha_Flagpole]);
         end
         else
         begin
@@ -304,7 +304,7 @@ begin
        end;
     7: begin
          //Removing the tree and putting a stump is handled in gTerrain.UpdateState from FallingTrees list
-         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), WorkPlan.ActionWalkFrom); //Go home
+         SetActionWalkToSpot(GetHome.PointBelowEntrance, WorkPlan.ActionWalkFrom); //Go home
          Thought := th_Home;
        end;
     8: SetActionGoIn(WorkPlan.ActionWalkFrom, gd_GoInside, GetHome); //Go inside
@@ -321,7 +321,7 @@ begin
             gHands[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
             gHands[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
 
-            GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
+            GetHome.CurrentAction.SubActionAdd([ha_Smoke]);
             if WorkPlan.GatheringScript = gs_SwineBreeder then
             begin //Swines get feed and taken immediately
               fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
@@ -330,7 +330,7 @@ begin
 
             if WorkPlan.ActCount >= fPhase2 then
             begin
-              GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
+              GetHome.CurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
               //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
               SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1, ua_Walk);
             end
@@ -352,7 +352,7 @@ begin
             //Keep on working
             if fPhase2 <= WorkPlan.ActCount then
             begin
-              GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
+              GetHome.CurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
               if fPhase < WorkPlan.ActCount then
                 SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1, ua_Walk) //-1 to compensate units UpdateState run
               else
