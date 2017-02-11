@@ -362,7 +362,7 @@ begin
   Button_ChangeOwner.Down := gGameCursor.Mode = cmPaintBucket;
 end;
 
-
+  
 procedure TKMapEdInterface.UpdateStateImmidiately;
 begin
   fMinimap.Update(False);
@@ -810,7 +810,6 @@ begin
   if Button = mbRight then
   begin
     RightClick_Cancel;
-    UpdateStateImmidiately;
   end;
 
   //So terrain brushes start on mouse down not mouse move
