@@ -912,6 +912,7 @@ begin
     gRes.Cursors.Cursor := kmc_Drag;
     MoveObjectToCursorCell(fDragObject);
   end else
+    
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
@@ -1153,6 +1154,7 @@ begin
                   Exit;
                 end;
 
+                //Move the selected object to the cursor location
                 begin
                   if ssShift in Shift then
                   begin
@@ -1161,6 +1163,7 @@ begin
                     else if gMySpectator.Selected is TKMHouseWoodcutters then
                       TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
                   end else
+                    TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
                 end;
 
                 if gMySpectator.Selected is TKMUnitGroup then

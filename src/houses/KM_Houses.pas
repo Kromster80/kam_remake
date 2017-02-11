@@ -503,6 +503,7 @@ begin
     fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX*Byte(aConsiderEntranceOffset);
     fPosition.Y := aPos.Y;
     Result := True;
+
     //Update rally/cutting point position for barracks/woodcutters after change fPosition
     UpdateCuttingPoint(IsRallyPointSet);
   end;
