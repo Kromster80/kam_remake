@@ -25,6 +25,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
   end;
 
 
@@ -127,6 +128,12 @@ end;
 function TKMMapEdTerrainBrushes.Visible: Boolean;
 begin
   Result := Panel_Brushes.Visible;
+end;
+
+
+procedure TKMMapEdTerrainBrushes.UpdateState;
+begin
+  BrushRefresh;
 end;
 
 

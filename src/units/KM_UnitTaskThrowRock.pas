@@ -75,7 +75,7 @@ begin
   case fPhase of
     0:  begin
           GetHome.SetState(hst_Work); //Set house to Work state
-          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
+          GetHome.CurrentAction.SubActionWork(ha_Work2); //show Recruits back
           SetActionStay(2, ua_Walk); //pretend to be taking the stone
         end;
     1:  begin
