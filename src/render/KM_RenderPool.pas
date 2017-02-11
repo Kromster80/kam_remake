@@ -1397,7 +1397,7 @@ begin
     cmMarkers:    case gGameCursor.Tag1 of
                     MARKER_REVEAL:        begin
                                             RenderSpriteOnTile(P, 394, gMySpectator.Hand.FlagColor);
-                                            gRenderAux.CircleOnTerrain(P.X, P.Y,
+                                            gRenderAux.CircleOnTerrain(P.X-0.5, P.Y-0.5,
                                              gGameCursor.MapEdSize,
                                              gMySpectator.Hand.FlagColor AND $10FFFFFF,
                                              gMySpectator.Hand.FlagColor);

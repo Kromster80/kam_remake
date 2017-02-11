@@ -79,23 +79,23 @@ begin
     case fPhase of
       0: begin
           fSchool.SetState(hst_Work);
-          fSchool.fCurrentAction.SubActionWork(ha_Work1);
+          fSchool.CurrentAction.SubActionWork(ha_Work1);
           SetActionLockedStay(29, ua_Walk);
         end;
       1: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work2);
+          fSchool.CurrentAction.SubActionWork(ha_Work2);
           SetActionLockedStay(29, ua_Walk);
         end;
       2: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work3);
+          fSchool.CurrentAction.SubActionWork(ha_Work3);
           SetActionLockedStay(29, ua_Walk);
         end;
       3: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work4);
+          fSchool.CurrentAction.SubActionWork(ha_Work4);
           SetActionLockedStay(29, ua_Walk);
         end;
       4: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work5);
+          fSchool.CurrentAction.SubActionWork(ha_Work5);
           SetActionLockedStay(29, ua_Walk);
         end;
       5: begin
