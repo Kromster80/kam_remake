@@ -463,7 +463,7 @@ begin
 
   Assert(Msg <> 0, gRes.Houses[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
-  gGame.ShowMessage(mkHouse, Msg, fHome.GetEntrance, fOwner);
+  gGame.ShowMessage(mkHouse, Msg, fHome.Entrance, fOwner);
   fHome.ResourceDepletedMsgIssued := True;
 end;
 
@@ -475,7 +475,7 @@ var
 begin
   Result := nil;
 
-  if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
+  if not KMSamePoint(fCurrPosition, fHome.Entrance) then
     raise ELocError.Create('Mining from wrong spot', fCurrPosition);
 
   Res := 1;
@@ -1724,7 +1724,7 @@ begin
     or (TUnitActionGoInOut(GetUnitAction).GetWaitingForPush) then
     begin
       //Position in a spiral nearest to entrance of house, updating IsUnit.
-      if not gHands.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
+      if not gHands.FindPlaceForUnit(fInHouse.Entrance.X, fInHouse.Entrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.Entrance)) then
       begin
         //There is no space for this unit so it must be destroyed
         //todo: re-route to KillUnit and let it sort out that unit is invisible and cant be placed

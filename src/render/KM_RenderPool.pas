@@ -390,7 +390,7 @@ begin
       case aPass of
         0: begin
              AddAlert(P, 249, gHands[B.Owner].FlagColor);
-             gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
+             gRenderAux.LineOnTerrain(B.Entrance.X-0.5, B.Entrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
            end;
         1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
              gRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
@@ -407,7 +407,7 @@ begin
         case aPass of
           0: begin
                AddAlert(P, 660, gHands[C.Owner].FlagColor);
-               gRenderAux.LineOnTerrain(C.GetEntrance.X - 0.5, C.GetEntrance.Y - 0.5, P.X, P.Y, gHands[C.Owner].FlagColor, $F0F0, False);
+               gRenderAux.LineOnTerrain(C.Entrance.X - 0.5, C.Entrance.Y - 0.5, P.X, P.Y, gHands[C.Owner].FlagColor, $F0F0, False);
              end;
           1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
              gRenderPool.RenderSpriteOnTerrain(P, 660, gHands[C.Owner].FlagColor);

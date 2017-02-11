@@ -642,7 +642,7 @@ begin
     //Set it so we can build over coal that was removed
     if Houses[I].HouseType = ht_CoalMine then
     begin
-      Loc := Houses[I].GetEntrance;
+      Loc := Houses[I].Entrance;
       gAIFields.Influences.RemAvoidBuilding(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+1));
     end;
     Houses[I].DemolishHouse(fOwner);
@@ -733,7 +733,7 @@ begin
 
     Store := P.Houses.FindHouse(ht_Store, 0, 0, 1);
     if Store = nil then Exit;
-    StoreLoc := Store.GetEntrance;
+    StoreLoc := Store.Entrance;
 
     for I := Max(StoreLoc.Y - 3, 1) to Min(StoreLoc.Y + 2, gTerrain.MapY - 1) do
     for K := StoreLoc.X - 2 to StoreLoc.X + 2 do

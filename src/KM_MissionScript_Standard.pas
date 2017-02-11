@@ -246,7 +246,7 @@ begin
                           begin
                             H := gHands[fLastHand].FindHouse(ht_Store, 1);
                             if H <> nil then
-                              gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
+                              gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.Entrance.X, H.Entrance.Y+1));
                           end;
     ct_UnitAddToLast:   if fLastHand <> PLAYER_NONE then
                           if fLastHouse <> nil then
@@ -872,7 +872,7 @@ begin
           begin
             H := gHands.HousesHitTest(iX, iY);
             //Don't place road under the entrance of houses (it will be placed there if the house is destroyed on mission start)
-            if (H = nil) or not KMSamePoint(H.GetEntrance, KMPoint(iX, iY)) then
+            if (H = nil) or not KMSamePoint(H.Entrance, KMPoint(iX, iY)) then
               AddCommand(ct_SetRoad, [iX-1,iY-1]);
           end;
           if gTerrain.TileIsCornField(KMPoint(iX,iY)) then

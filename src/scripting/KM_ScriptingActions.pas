@@ -714,7 +714,7 @@ begin
             gTerrain.SetTileLock(KMPoint(NonEntranceX + K - 3, Y + I - 4), tlDigged);
           end;
 
-        gTerrain.SetField(H.GetEntrance, aPlayer, ft_Road);
+        gTerrain.SetField(H.Entrance, aPlayer, ft_Road);
         H.BuildingState := hbs_Wood;
         if aAddMaterials then
         begin

@@ -1831,7 +1831,7 @@ begin
       if LastSelectedObj is TKMUnit then begin
         fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
       end else if LastSelectedObj is TKMHouse then
-        fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
+        fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).Entrance)
       else if LastSelectedObj is TKMUnitGroup then
         fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
       else
@@ -2552,7 +2552,7 @@ begin
         end;
         // Selecting a house twice is the shortcut to center on that house
         if OldSelected = gMySpectator.Selected then
-          fViewport.Position := KMPointF(TKMHouse(gMySpectator.Selected).GetEntrance);
+          fViewport.Position := KMPointF(TKMHouse(gMySpectator.Selected).Entrance);
       end
       else
       begin
