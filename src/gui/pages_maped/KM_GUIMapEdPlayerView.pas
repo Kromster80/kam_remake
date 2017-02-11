@@ -23,6 +23,7 @@ type
     procedure Show;
     function Visible: Boolean;
     procedure Hide;
+    procedure UpdateState;
     procedure UpdatePlayerColor;
   end;
 
@@ -105,6 +106,13 @@ begin
     gGame.ActiveInterface.Viewport.Position := KMPointF(gMySpectator.Hand.CenterScreen); //Jump to location
 
   Button_PlayerCenterScreen.Caption := TypeToString(gMySpectator.Hand.CenterScreen);
+end;
+
+
+procedure TKMMapEdPlayerView.UpdateState;
+begin
+  Button_CenterScreen.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_CENTERSCREEN);
+  Button_Reveal.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_REVEAL);
 end;
 
 

@@ -368,7 +368,7 @@ begin
       and (fUnit.GetHome <> nil)
       and (fUnit.GetHome.HouseType = ht_Woodcutters)
       and (fUnit.GetHome = fHouse) then //And is the house we are walking from
-        fHouse.fCurrentAction.SubActionAdd([ha_Flagpole]);
+        fHouse.CurrentAction.SubActionAdd([ha_Flagpole]);
 
       if Assigned(OnWalkedIn) then
         OnWalkedIn;

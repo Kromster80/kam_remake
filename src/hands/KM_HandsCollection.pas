@@ -286,7 +286,7 @@ begin
       H := fHandsList[I].Houses[K];
       if (H is TKMHouseTower) and H.IsComplete
       and not H.IsDestroyed and H.GetHasOwner
-      and (H.fCurrentAction.State <> hst_Empty) then
+      and (H.CurrentAction.State <> hst_Empty) then
         //Don't use H.GetDistance (dist to any tile within house) as that's not how tower range works
         Result := Min(Result, KMLength(H.GetPosition, aLoc));
     end;

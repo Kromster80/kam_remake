@@ -181,6 +181,7 @@ var
   TileTexID: Integer;
 begin
   TilesRandom.Checked := (gGameCursor.MapEdDir = 4);
+  TilesEyedropper.Down := gGameCursor.Mode = cmEyedropper;
 
   for I := 0 to MAPED_TILES_Y - 1 do
   for K := 0 to MAPED_TILES_X - 1 do
@@ -198,7 +199,6 @@ begin
       TilesTable[L].Hint := IntToStr(TileTexID - 1);
     //If cursor has a tile then make sure its properly selected in table as well
     TilesTable[L].Down := (gGameCursor.Mode in [cmTiles, cmEyedropper]) and (gGameCursor.Tag1 = TileTexID - 1);
-    TilesEyedropper.Down := gGameCursor.Mode = cmEyedropper;
   end;
 end;
 
@@ -225,7 +225,6 @@ end;
 
 procedure TKMMapEdTerrainTiles.UpdateState;
 begin
-  TilesRandom.Checked := (gGameCursor.MapEdDir = 4);
   TilesRefresh(nil);
 end;
 
