@@ -2629,7 +2629,7 @@ begin
       if NextHouse <> nil then
       begin
         gMySpectator.Selected := NextHouse;
-        fViewport.Position := KMPointF(NextHouse.GetEntrance); //center viewport on that house
+        fViewport.Position := KMPointF(NextHouse.Entrance); //center viewport on that house
       end;
 
     end else if gMySpectator.Selected is TKMUnitGroup then
