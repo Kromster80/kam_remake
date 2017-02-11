@@ -65,6 +65,7 @@ type
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure Player_SetActive(aIndex: TKMHandIndex);
     procedure Player_UpdatePages;
+    procedure UpdateStateInternal;
     procedure UpdatePlayerSelectButtons;
     procedure SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
   protected
@@ -99,6 +100,7 @@ type
 
     procedure SyncUI(aMoveViewport: Boolean = True); override;
     procedure UpdateState(aTickCount: Cardinal); override;
+    procedure UpdateStateImmidiately;
     procedure UpdateStateIdle(aFrameTime: Cardinal); override;
     procedure Paint; override;
   end;
@@ -207,8 +209,8 @@ begin
   fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
 
   //Pass pop-ups to their dispatchers
-  fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
-  fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
+  fGuiTown.GuiDefence.FormationsPopUp := fGuiFormations;
+  fGuiTown.GuiOffence.AttackPopUp := fGuiAttack;
   fGuiPlayer.fGuiPlayerGoals.GoalPopUp := fGuiGoal;
 
   //Hints go above everything
@@ -345,11 +347,27 @@ begin
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
     UpdatePlayerSelectButtons;
-                 
+
+  UpdateStateInternal;
+end;
+
+
+procedure TKMapEdInterface.UpdateStateInternal;
+begin
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
+  fGuiTown.UpdateState;
+  fGuiPlayer.UpdateState;
 
   Button_ChangeOwner.Down := gGameCursor.Mode = cmPaintBucket;
+end;
+
+  
+procedure TKMapEdInterface.UpdateStateImmidiately;
+begin
+  fMinimap.Update(False);
+  UpdatePlayerSelectButtons;
+  UpdateStateInternal;
 end;
 
 
@@ -792,7 +810,6 @@ begin
   if Button = mbRight then
   begin
     RightClick_Cancel;
-    UpdateCursor(X, Y, Shift);
   end;
 
   //So terrain brushes start on mouse down not mouse move

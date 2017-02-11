@@ -86,7 +86,7 @@ type
     procedure SetBuildingRepair(aValue: Boolean);
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
   public
-    fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
+    CurrentAction: THouseAction; //Current action, withing HouseTask or idle
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     ResourceDepletedMsgIssued: Boolean;
     DoorwayUse: Byte; //number of units using our door way. Used for sliding.
@@ -328,8 +328,8 @@ begin
   LoadStream.Read(HasAct);
   if HasAct then
   begin
-    fCurrentAction := THouseAction.Create(nil, hst_Empty); //Create action object
-    fCurrentAction.Load(LoadStream); //Load actual data into object
+    CurrentAction := THouseAction.Create(nil, hst_Empty); //Create action object
+    CurrentAction.Load(LoadStream); //Load actual data into object
   end;
   LoadStream.Read(ResourceDepletedMsgIssued);
   LoadStream.Read(DoorwayUse);
@@ -338,14 +338,14 @@ end;
 
 procedure TKMHouse.SyncLoad;
 begin
-  if fCurrentAction <> nil then
-    fCurrentAction.fHouse := gHands.GetHouseByUID(Cardinal(fCurrentAction.fHouse));
+  if CurrentAction <> nil then
+    CurrentAction.fHouse := gHands.GetHouseByUID(Cardinal(CurrentAction.fHouse));
 end;
 
 
 destructor TKMHouse.Destroy;
 begin
-  FreeAndNil(fCurrentAction);
+  FreeAndNil(CurrentAction);
   inherited;
 end;
 
@@ -376,8 +376,8 @@ begin
 
   gHands.RevealForTeam(fOwner, fPosition, gRes.Houses[fHouseType].Sight, FOG_OF_WAR_MAX);
 
-  fCurrentAction := THouseAction.Create(Self, hst_Empty);
-  fCurrentAction.SubActionAdd([ha_Flagpole, ha_Flag1..ha_Flag3]);
+  CurrentAction := THouseAction.Create(Self, hst_Empty);
+  CurrentAction.SubActionAdd([ha_Flagpole, ha_Flag1..ha_Flag3]);
 
   UpdateDamage; //House might have been damaged during construction, so show flames when it is built
 
@@ -449,7 +449,7 @@ begin
     end;
   end;
 
-  FreeAndNil(fCurrentAction);
+  FreeAndNil(CurrentAction);
 
   //Leave disposing of units inside the house to themselves
 
@@ -750,15 +750,15 @@ var
   dmgLevel: Word;
 begin
   dmgLevel := MaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
-  fCurrentAction.SubActionRem([ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8]);
-  if fDamage > 0 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire1]);
-  if fDamage > 1 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire2]);
-  if fDamage > 2 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire3]);
-  if fDamage > 3 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire4]);
-  if fDamage > 4 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire5]);
-  if fDamage > 5 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire6]);
-  if fDamage > 6 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire7]);
-  if fDamage > 7 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire8]);
+  CurrentAction.SubActionRem([ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8]);
+  if fDamage > 0 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire1]);
+  if fDamage > 1 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire2]);
+  if fDamage > 2 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire3]);
+  if fDamage > 3 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire4]);
+  if fDamage > 4 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire5]);
+  if fDamage > 5 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire6]);
+  if fDamage > 6 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire7]);
+  if fDamage > 7 * dmgLevel then CurrentAction.SubActionAdd([ha_Fire8]);
   //House gets destroyed in UpdateState loop
 end;
 
@@ -800,13 +800,13 @@ end;
 
 procedure TKMHouse.SetState(aState: THouseState);
 begin
-  fCurrentAction.State := aState;
+  CurrentAction.State := aState;
 end;
 
 
 function TKMHouse.GetState: THouseState;
 begin
-  Result := fCurrentAction.State;
+  Result := CurrentAction.State;
 end;
 
 
@@ -1176,13 +1176,13 @@ var
 begin
   if SKIP_SOUND then Exit;
 
-  if fCurrentAction = nil then exit; //no action means no sound ;)
+  if CurrentAction = nil then exit; //no action means no sound ;)
 
-  if ha_Work1 in fCurrentAction.SubAction then Work := ha_Work1 else
-  if ha_Work2 in fCurrentAction.SubAction then Work := ha_Work2 else
-  if ha_Work3 in fCurrentAction.SubAction then Work := ha_Work3 else
-  if ha_Work4 in fCurrentAction.SubAction then Work := ha_Work4 else
-  if ha_Work5 in fCurrentAction.SubAction then Work := ha_Work5 else
+  if ha_Work1 in CurrentAction.SubAction then Work := ha_Work1 else
+  if ha_Work2 in CurrentAction.SubAction then Work := ha_Work2 else
+  if ha_Work3 in CurrentAction.SubAction then Work := ha_Work3 else
+  if ha_Work4 in CurrentAction.SubAction then Work := ha_Work4 else
+  if ha_Work5 in CurrentAction.SubAction then Work := ha_Work5 else
     Exit; //No work is going on
 
   Step := gRes.Houses[fHouseType].Anim[Work].Count;
@@ -1273,9 +1273,9 @@ begin
   SaveStream.Write(fDisableUnoccupiedMessage);
   SaveStream.Write(fIssueOrderCompletedMsg);
   SaveStream.Write(fUID);
-  HasAct := fCurrentAction <> nil;
+  HasAct := CurrentAction <> nil;
   SaveStream.Write(HasAct);
-  if HasAct then fCurrentAction.Save(SaveStream);
+  if HasAct then CurrentAction.Save(SaveStream);
   SaveStream.Write(ResourceDepletedMsgIssued);
   SaveStream.Write(DoorwayUse);
 end;
@@ -1403,8 +1403,8 @@ begin
                     else
                       fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
-                    if fCurrentAction <> nil then
-                      fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, gHands[fOwner].FlagColor);
+                    if CurrentAction <> nil then
+                      fRenderPool.AddHouseWork(fHouseType, fPosition, CurrentAction.SubAction, WorkAnimStep, gHands[fOwner].FlagColor);
                   end
                   else
                     fRenderPool.AddHouse(fHouseType, fPosition,
@@ -1486,9 +1486,9 @@ begin
         fRenderPool.AddHouseStableBeasts(fHouseType, fPosition, I, Min(BeastAge[I],3), WorkAnimStep);
 
   //But Animal Breeders should be on top of beasts
-  if fCurrentAction <> nil then
+  if CurrentAction <> nil then
     fRenderPool.AddHouseWork(fHouseType, fPosition,
-                            fCurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
+                            CurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
                             WorkAnimStep, gHands[fOwner].FlagColor);
 end;
 

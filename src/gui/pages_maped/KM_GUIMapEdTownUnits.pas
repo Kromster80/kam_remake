@@ -23,6 +23,7 @@ type
     procedure Hide;
     function Visible: Boolean;
     procedure UpdatePlayerColor;
+    procedure UpdateState;
   end;
 
 
@@ -118,6 +119,12 @@ end;
 function TKMMapEdTownUnits.Visible: Boolean;
 begin
   Result := Panel_Units.Visible;
+end;
+
+
+procedure TKMMapEdTownUnits.UpdateState;
+begin
+  Town_UnitRefresh;
 end;
 
 

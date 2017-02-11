@@ -603,8 +603,8 @@ begin
   begin
     AddHouse(H.HouseType, H.GetPosition, 1, 1, 0, DoImmediateRender, DoHighlight, HighlightColor);
     AddHouseSupply(H.HouseType, H.GetPosition, H.ResourceInArray, H.ResourceOutArray, DoImmediateRender, DoHighlight, HighlightColor);
-    if H.fCurrentAction <> nil then
-      fRenderPool.AddHouseWork(H.HouseType, H.GetPosition, H.fCurrentAction.SubAction, H.WorkAnimStep, FlagColor, DoImmediateRender, DoHighlight, HighlightColor);
+    if H.CurrentAction <> nil then
+      fRenderPool.AddHouseWork(H.HouseType, H.GetPosition, H.CurrentAction.SubAction, H.WorkAnimStep, FlagColor, DoImmediateRender, DoHighlight, HighlightColor);
   end;
 end;
 
@@ -1427,7 +1427,7 @@ begin
     cmMarkers:    case gGameCursor.Tag1 of
                     MARKER_REVEAL:        begin
                                             RenderSpriteOnTile(P, 394, gMySpectator.Hand.FlagColor);
-                                            gRenderAux.CircleOnTerrain(P.X, P.Y,
+                                            gRenderAux.CircleOnTerrain(P.X-0.5, P.Y-0.5,
                                              gGameCursor.MapEdSize,
                                              gMySpectator.Hand.FlagColor AND $10FFFFFF,
                                              gMySpectator.Hand.FlagColor);

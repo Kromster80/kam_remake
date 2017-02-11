@@ -195,7 +195,9 @@ end;
 
 procedure TKMMapEdTerrain.UpdateState;
 begin
+  fGuiBrushes.UpdateState;
   fGuiTiles.UpdateState;
+  fGuiObjects.UpdateState;
   fGuiSelection.UpdateState;
 
   Button_TerrainUndo.Enabled := gGame.MapEditor.TerrainPainter.CanUndo;

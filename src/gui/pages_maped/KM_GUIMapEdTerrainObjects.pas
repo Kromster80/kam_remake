@@ -30,6 +30,7 @@ type
     procedure Show;
     function Visible: Boolean;
     procedure Hide;
+    procedure UpdateState;
   end;
 
 
@@ -143,7 +144,7 @@ begin
       ObjectsTable[I].Disable;
     end;
     //Mark the selected one using reverse lookup
-    ObjectsTable[I].Down := (gGameCursor.Mode = cmObjects) and (ObjID = fMapElemToCompact[gGameCursor.Tag1]);
+    ObjectsTable[I].Down := (gGameCursor.Mode = cmObjects) and not (gGameCursor.Tag1 in [255, 61]) and (ObjID = fMapElemToCompact[gGameCursor.Tag1]);
   end;
 
   ObjectErase.Down := (gGameCursor.Mode = cmObjects) and (gGameCursor.Tag1 = 255); //or delete button
@@ -171,6 +172,12 @@ end;
 procedure TKMMapEdTerrainObjects.Hide;
 begin
   Panel_Objects.Hide;
+end;
+
+
+procedure TKMMapEdTerrainObjects.UpdateState;
+begin
+  ObjectsRefresh(nil);
 end;
 
 
