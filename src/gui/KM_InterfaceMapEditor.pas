@@ -53,7 +53,11 @@ type
     procedure PageChanged(Sender: TObject);
     procedure Player_ActiveClick(Sender: TObject);
     procedure Message_Click(Sender: TObject);
+    procedure ChangeOwner_Click(Sender: TObject);
+    function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
+    procedure ChangeOwner;
 
+    procedure UpdateCursor(X, Y: Integer; Shift: TShiftState);
     procedure Main_ButtonClick(Sender: TObject);
     procedure HidePages;
     procedure DisplayHint(Sender: TObject);
@@ -63,10 +67,12 @@ type
     procedure Player_UpdatePages;
     procedure UpdateStateInternal;
     procedure UpdatePlayerSelectButtons;
+    procedure SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
   protected
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
+    Button_ChangeOwner: TKMButtonFlat;
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
 
@@ -144,11 +150,16 @@ begin
   TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + (I mod 8)*23, 208 + 23*(I div 8), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
+    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 6 + (I mod 6)*23, 208 + 23*(I div 6), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
     Button_PlayerSelect[I].Tag     := I;
     Button_PlayerSelect[I].OnClick := Player_ActiveClick;
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
+
+  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, 153, 215, 29, 29, 662);
+  Button_ChangeOwner.Down := False;
+  Button_ChangeOwner.OnClick := ChangeOwner_Click;
+  Button_ChangeOwner.Hint := 'Change owner for object'; // Todo Translate
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
@@ -348,9 +359,11 @@ begin
   fGuiMenu.UpdateState;
   fGuiTown.UpdateState;
   fGuiPlayer.UpdateState;
+
+  Button_ChangeOwner.Down := gGameCursor.Mode = cmPaintBucket;
 end;
 
-
+  
 procedure TKMapEdInterface.UpdateStateImmidiately;
 begin
   fMinimap.Update(False);
@@ -444,6 +457,70 @@ begin
     gMySpectator.Selected := nil;
 
   Player_SetActive(TKMControl(Sender).Tag);
+end;
+
+
+procedure TKMapEdInterface.SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
+begin
+  Button_ChangeOwner.Down := aDoSetPaintBucketMode;
+  if aDoSetPaintBucketMode then
+    gGameCursor.Mode := cmPaintBucket
+  else
+    gGameCursor.Mode := cmNone;
+end;
+
+
+procedure TKMapEdInterface.ChangeOwner;
+var P: TKMPoint;
+begin
+  P := gGameCursor.Cell;
+  //Fisrt try to change owner of object on tile
+  if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandIndex) then
+    //then try to change
+    if ((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road) or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
+      and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandIndex) then
+      gTerrain.Land[P.Y, P.X].TileOwner := gMySpectator.HandIndex;
+end;
+
+
+//Change owner for specified object
+//returns True if owner was changed successfully
+function TKMapEdInterface.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
+var House: TKMHouse;
+begin
+  Result := False;
+  if (aObject <> nil) then
+    begin
+      if aObject is TKMHouse then
+      begin
+        House := TKMHouse(aObject);
+        if House.Owner <> aOwner then
+        begin
+          House.OwnerUpdate(aOwner, True);
+          gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+          Result := True;
+        end;
+      end
+      else if aObject is TKMUnit then
+      begin
+        if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
+        begin
+          TKMUnit(aObject).OwnerUpdate(aOwner, True);
+          Result := True;
+        end;
+      end else if aObject is TKMUnitGroup then
+        if TKMUnitGroup(aObject).Owner <> aOwner then
+        begin
+          TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
+          Result := True;
+        end
+    end;
+end;
+
+
+procedure TKMapEdInterface.ChangeOwner_Click(Sender: TObject);
+begin
+  SetPaintBucketMode(not Button_ChangeOwner.Down);
 end;
 
 
@@ -734,7 +811,6 @@ begin
   if Button = mbRight then
   begin
     RightClick_Cancel;
-    UpdateStateImmidiately;
   end;
 
   //So terrain brushes start on mouse down not mouse move
@@ -746,7 +822,6 @@ end;
 
 procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 var
-  Marker: TKMMapEdMarker;
   VP: TKMPointF;
 begin
   if fDragScrolling then
@@ -773,7 +848,28 @@ begin
   if (ssLeft in Shift) or (ssRight in Shift) then
     fMouseDownOnMap := True;
 
+  UpdateCursor(X, Y, Shift);
+
+  if (ssLeft in Shift) and (gGameCursor.Mode = cmPaintBucket) then
+    ChangeOwner;
+
+  Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
+
+  gGame.MapEditor.MouseMove;
+end;
+
+
+procedure TKMapEdInterface.UpdateCursor(X, Y: Integer; Shift: TShiftState);
+var Marker: TKMMapEdMarker;
+begin
   UpdateGameCursor(X,Y,Shift);
+
+  if gGameCursor.Mode = cmPaintBucket then
+  begin
+    gRes.Cursors.Cursor := kmc_PaintBucket;
+    Exit;
+  end;
+    
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
@@ -786,10 +882,6 @@ begin
     if not fViewport.Scrolling then
       gRes.Cursors.Cursor := kmc_Default;
   end;
-
-  Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
-
-  gGame.MapEditor.MouseMove;
 end;
 
 
@@ -860,8 +952,16 @@ begin
                     fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
                   end;
                 end;
-              end;
+              end else if gGameCursor.Mode = cmPaintBucket then
+                ChangeOwner;
     mbRight:  begin
+                if gGameCursor.Mode = cmPaintBucket then
+                begin
+                  SetPaintBucketMode(False);
+                  UpdateCursor(X, Y, Shift);
+                  Exit;
+                end;
+
                 //Right click performs some special functions and shortcuts
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction

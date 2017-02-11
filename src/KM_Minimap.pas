@@ -207,7 +207,7 @@ begin
     begin
       Owner := gAIFields.Influences.GetBestOwner(K,I);
       if Owner <> PLAYER_NONE then
-        fBase[I*fMapX + K] := ApplyBrightness(gHands[Owner].FlagColor, Byte(Max(gAIFields.Influences.Ownership[Owner,I,K],0)))
+        fBase[I*fMapX + K] := ReduceBrightness(gHands[Owner].FlagColor, Byte(Max(gAIFields.Influences.Ownership[Owner,I,K],0)))
       else
         fBase[I*fMapX + K] := $FF000000;
     end;

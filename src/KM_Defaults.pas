@@ -259,6 +259,7 @@ type
     cmUnits, //Units
     cmMarkers, //CenterScreen, Defence, FOW markers
     cmEyedropper, //Terrain eyedropper
+    cmPaintBucket, //PaintBucket - change color(team) for map objects
     cmRotateTile  //Rotate terrain tile
     );
 
