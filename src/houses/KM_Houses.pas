@@ -479,6 +479,7 @@ begin
   gTerrain.RemRoad(GetEntrance);
   if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
+    IsRallyPointSet := False;
     //Save if rally/cutting point was set for previous position
     if (Self is TKMHouseBarracks) then
       IsRallyPointSet := TKMHouseBarracks(Self).IsRallyPointSet
