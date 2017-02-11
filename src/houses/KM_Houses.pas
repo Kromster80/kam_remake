@@ -216,7 +216,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     function IsCuttingPointSet: Boolean;
-    procedure ValidateNUpdateCuttingPoint;
+    procedure ValidateCuttingPoint;
     property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
   end;
 
@@ -462,7 +462,7 @@ procedure TKMHouse.SetPosition(aPos: TKMPoint);
       if not aIsRallyPointSet then
         TKMHouseBarracks(Self).RallyPoint := PointBelowEntrance
       else
-        TKMHouseBarracks(Self).ValidateNUpdateRallyPoint;
+        TKMHouseBarracks(Self).ValidateRallyPoint;
     end
     else if (Self is TKMHouseWoodcutters) then
     begin
@@ -1669,7 +1669,7 @@ begin
 end;
 
 
-procedure TKMHouseWoodcutters.ValidateNUpdateCuttingPoint;
+procedure TKMHouseWoodcutters.ValidateCuttingPoint;
 begin
   //this will automatically update cutting point to valid value
   SetCuttingPoint(fCuttingPoint);

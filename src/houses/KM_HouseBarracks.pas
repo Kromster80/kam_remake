@@ -33,7 +33,7 @@ type
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
 
     property RallyPoint: TKMPoint read GetRallyPoint write SetRallyPoint;
-    procedure ValidateNUpdateRallyPoint;
+    procedure ValidateRallyPoint;
 
     function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
@@ -279,7 +279,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ValidateNUpdateRallyPoint;
+procedure TKMHouseBarracks.ValidateRallyPoint;
 begin
   //this will automatically update rally point to valid value
   SetRallyPoint(fRallyPoint);
