@@ -1492,7 +1492,6 @@ var Obj: TObject;
     IsRendered: Boolean;
 begin
   P := gGameCursor.Cell;
-  IsRendered := False;
   HighlightColor := MultiplyBrightnessByFactor(gMySpectator.Hand.FlagColor, 2, 0.3, 0.9);
   Obj := gMySpectator.HitTestCursorWGroup;
 
