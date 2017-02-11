@@ -91,6 +91,7 @@ type
     fLastIP: string;
     fLastPort: string;
     fLastRoom: string;
+    fLastPassword: string;
     fServerPort: string;
     fMasterServerAddress: string;
     fServerName: AnsiString;
@@ -138,6 +139,7 @@ type
     procedure SetServerName(aValue: AnsiString);
     procedure SetLastPort(aValue: string);
     procedure SetLastRoom(aValue: string);
+    procedure SetLastPassword(aValue: string);
     procedure SetServerPort(aValue: string);
     procedure SetServerWelcomeMessage(aValue: UnicodeString);
     procedure SetAnnounceServer(aValue: Boolean);
@@ -195,6 +197,7 @@ type
     property LastIP: string read fLastIP write SetLastIP;
     property LastPort: string read fLastPort write SetLastPort;
     property LastRoom: string read fLastRoom write SetLastRoom;
+    property LastPassword: string read fLastPassword write fLastPassword;
     property ServerPort: string read fServerPort write SetServerPort;
     property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
     property ServerName: AnsiString read fServerName write SetServerName;
@@ -493,6 +496,7 @@ begin
     fLastIP                 := F.ReadString ('Multiplayer','LastIP','127.0.0.1');
     fLastPort               := F.ReadString ('Multiplayer','LastPort','56789');
     fLastRoom               := F.ReadString ('Multiplayer','LastRoom','0');
+    fLastPassword           := F.ReadString('Multiplayer','LastPassword','');
     fFlashOnMessage         := F.ReadBool   ('Multiplayer','FlashOnMessage',True);
     fServerPort             := F.ReadString ('Server','ServerPort','56789');
     //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
@@ -565,6 +569,7 @@ begin
     F.WriteString ('Multiplayer','LastIP',          fLastIP);
     F.WriteString ('Multiplayer','LastPort',        fLastPort);
     F.WriteString ('Multiplayer','LastRoom',        fLastRoom);
+    F.WriteString ('Multiplayer','LastPassword',    fLastPassword);
     F.WriteBool   ('Multiplayer','FlashOnMessage',  fFlashOnMessage);
 
     F.WriteString ('Server','ServerName',                   UnicodeString(fServerName));
@@ -813,6 +818,13 @@ end;
 procedure TGameSettings.SetLastRoom(aValue: string);
 begin
   fLastRoom := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetLastPassword(aValue: string);
+begin
+  fLastPassword := aValue;
   Changed;
 end;
 
