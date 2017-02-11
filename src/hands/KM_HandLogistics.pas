@@ -320,7 +320,7 @@ begin
           if fSerfs[K].Serf.IsIdle then
             if fQueue.SerfCanDoDelivery(FoundO,FoundD,fSerfs[K].Serf) then
             begin
-              Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
+              Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.Entrance);
               if (Bid < BestBid) then
               begin
                 BestBid := Bid;
@@ -674,12 +674,12 @@ begin
   //Basic Bid is length of route
   if fDemand[iD].Loc_House <> nil then
   begin
-    Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_House.GetEntrance)
+    Result := KMLength(fOffer[iO].Loc_House.Entrance, fDemand[iD].Loc_House.Entrance)
     //Resource ratios are also considered
     + KaMRandom(15 - 3 * gHands[fOffer[iO].Loc_House.Owner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
   end
   else
-    Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_Unit.GetPosition);
+    Result := KMLength(fOffer[iO].Loc_House.Entrance, fDemand[iD].Loc_Unit.GetPosition);
 
   //For weapons production in cases with little resources available, they should be distributed
   //evenly between places rather than caring about route length.
@@ -693,7 +693,7 @@ begin
 
   //Also prefer deliveries near to the serf
   if aSerf <> nil then
-    Result := Result + KMLength(aSerf.GetPosition,fOffer[iO].Loc_House.GetEntrance);
+    Result := Result + KMLength(aSerf.GetPosition,fOffer[iO].Loc_House.Entrance);
 
   //Deliver wood first to equal distance construction sites
   if (fDemand[iD].Loc_House <> nil)

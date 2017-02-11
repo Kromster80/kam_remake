@@ -147,7 +147,7 @@ begin
 
   fMinimap := TKMMinimap.Create(False, False);
   fViewport := TKMViewport.Create(aRender.ScreenX, aRender.ScreenY);
-  fRenderPool := TRenderPool.Create(fViewport, aRender);
+  gRenderPool := TRenderPool.Create(fViewport, aRender);
 end;
 
 
@@ -155,7 +155,7 @@ destructor TKMUserInterfaceGame.Destroy;
 begin
   FreeAndNil(fMinimap);
   FreeAndNil(fViewport);
-  FreeAndNil(fRenderPool);
+  FreeAndNil(gRenderPool);
   Inherited;
 end;
 
@@ -224,7 +224,7 @@ begin
     Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); // Cell below cursor in map bounds
     Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
 
-    ObjectUID := fRenderPool.RenderList.GetSelectionUID(Float);
+    ObjectUID := gRenderPool.RenderList.GetSelectionUID(Float);
     SState := Shift;
   end;
 end;

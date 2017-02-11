@@ -198,7 +198,7 @@ begin
   fHideOneGold := true;
 
   //Create the Unit
-  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], GetEntrance);
+  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], Entrance);
   TKMUnit(fUnitWip).TrainInHouse(Self); //Let the unit start the training task
 
   WorkAnimStep := 0;

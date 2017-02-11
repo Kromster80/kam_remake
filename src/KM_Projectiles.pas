@@ -350,7 +350,7 @@ begin
             //Looks better moved up, launches from the bow not feet and lands in target's body
             P.Y := P.Y - fItems[I].fArc * MixArc - 0.4;
             Dir := KMGetDirection(fItems[I].fScreenStart, fItems[I].fScreenEnd);
-            fRenderPool.AddProjectile(fItems[I].fType, P, PTileBased, Dir, MixValueMax);
+            gRenderPool.AddProjectile(fItems[I].fType, P, PTileBased, Dir, MixValueMax);
           end;
 
         pt_TowerRock:
@@ -358,7 +358,7 @@ begin
             MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
             //Looks better moved up, lands on the target's body not at his feet
             P.Y := P.Y - fItems[I].fArc * MixArc - 0.4;
-            fRenderPool.AddProjectile(fItems[I].fType, P, PTileBased, dir_N, MixValue); //Direction will be ignored
+            gRenderPool.AddProjectile(fItems[I].fType, P, PTileBased, dir_N, MixValue); //Direction will be ignored
           end;
       end;
 

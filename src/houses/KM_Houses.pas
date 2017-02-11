@@ -76,6 +76,7 @@ type
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
     function GetPointBelowEntrance: TKMPoint;
+    function GetEntrance: TKMPoint;
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
@@ -107,8 +108,9 @@ type
     property GetPosition: TKMPoint read fPosition;
     function SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean; //Used only by map editor
     procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
+    property Entrance: TKMPoint read GetEntrance;
     property PointBelowEntrance: TKMPoint read GetPointBelowEntrance;
-    function GetEntrance: TKMPoint;
+
     function GetClosestCell(aPos: TKMPoint): TKMPoint;
     function GetDistance(aPos: TKMPoint): Single;
     function InReach(aPos: TKMPoint; aDistance: Single): Boolean;
@@ -272,7 +274,7 @@ begin
   end;
 
   fIsDestroyed := False;
-  RemoveRoadWhenDemolish := gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay <> to_Road;
+  RemoveRoadWhenDemolish := gTerrain.Land[Entrance.Y, Entrance.X].TileOverlay <> to_Road;
   fPointerCount := 0;
   fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES;
 
@@ -446,11 +448,11 @@ begin
   BuildingRepair := False; //Otherwise labourers will take task to repair when the house is destroyed
   if RemoveRoadWhenDemolish and ((BuildingState in [hbs_NoGlyph, hbs_Wood]) or IsSilent) then
   begin
-    if gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay = to_Road then
+    if gTerrain.Land[Entrance.Y, Entrance.X].TileOverlay = to_Road then
     begin
-      gTerrain.RemRoad(GetEntrance);
+      gTerrain.RemRoad(Entrance);
       if not IsSilent then
-        gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
+        gTerrain.Land[Entrance.Y, Entrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
     end;
   end;
 
@@ -459,7 +461,7 @@ begin
   //Leave disposing of units inside the house to themselves
 
   //Notify the script that the house is now completely gone
-  gScriptEvents.ProcHouseAfterDestroyed(HouseType, Owner, GetEntrance.X, GetEntrance.Y);
+  gScriptEvents.ProcHouseAfterDestroyed(HouseType, Owner, Entrance.X, Entrance.Y);
 end;
 
 
@@ -1008,7 +1010,7 @@ begin
       if fIssueOrderCompletedMsg then
       begin
         fIssueOrderCompletedMsg := False;
-        gGame.ShowMessage(mkHouse, TX_MSG_ORDER_COMPLETED, GetEntrance, fOwner);
+        gGame.ShowMessage(mkHouse, TX_MSG_ORDER_COMPLETED, Entrance, fOwner);
       end;
 end;
 
@@ -1194,7 +1196,7 @@ end;
 
 function TKMHouse.GetPointBelowEntrance: TKMPoint;
 begin
-  Result := KMPointBelow(GetEntrance);
+  Result := KMPointBelow(Entrance);
 end;
 
 
@@ -1396,7 +1398,7 @@ begin
     begin
       HouseUnoccupiedMsgId := gRes.Houses[fHouseType].UnoccupiedMsgId;
       if HouseUnoccupiedMsgId <> -1 then // HouseNotOccupMsgId should never be -1
-        gGame.ShowMessage(mkHouse, HouseUnoccupiedMsgId, GetEntrance, fOwner)
+        gGame.ShowMessage(mkHouse, HouseUnoccupiedMsgId, Entrance, fOwner)
       else
         gLog.AddTime('Warning: HouseUnoccupiedMsgId for house type ord=' + IntToStr(Ord(fHouseType)) + ' could not be determined.');
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
@@ -1421,28 +1423,28 @@ begin
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
                   progress := fBuildingProgress / 50 / H.WoodCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, progress, 0, 0);
-                  fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
+                  gRenderPool.AddHouse(fHouseType, fPosition, progress, 0, 0);
+                  gRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
                   progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, 1, progress, 0);
-                  fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
+                  gRenderPool.AddHouse(fHouseType, fPosition, 1, progress, 0);
+                  gRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin
                   //Incase we need to render house at desired step in debug mode
                   if HOUSE_BUILDING_STEP = 0 then
                   begin
                     if fIsOnSnow then
-                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, fSnowStep)
+                      gRenderPool.AddHouse(fHouseType, fPosition, 1, 1, fSnowStep)
                     else
-                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
-                    fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
+                      gRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
+                    gRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if CurrentAction <> nil then
-                      fRenderPool.AddHouseWork(fHouseType, fPosition, CurrentAction.SubAction, WorkAnimStep, gHands[fOwner].FlagColor);
+                      gRenderPool.AddHouseWork(fHouseType, fPosition, CurrentAction.SubAction, WorkAnimStep, gHands[fOwner].FlagColor);
                   end
                   else
-                    fRenderPool.AddHouse(fHouseType, fPosition,
+                    gRenderPool.AddHouse(fHouseType, fPosition,
                       Min(HOUSE_BUILDING_STEP * 3, 1),
                       EnsureRange(HOUSE_BUILDING_STEP * 3 - 1, 0, 1),
                       Max(HOUSE_BUILDING_STEP * 3 - 2, 0));
@@ -1518,11 +1520,11 @@ begin
   if fBuildState = hbs_Done then
     for I := 1 to 5 do
       if BeastAge[I] > 0 then
-        fRenderPool.AddHouseStableBeasts(fHouseType, fPosition, I, Min(BeastAge[I],3), WorkAnimStep);
+        gRenderPool.AddHouseStableBeasts(fHouseType, fPosition, I, Min(BeastAge[I],3), WorkAnimStep);
 
   //But Animal Breeders should be on top of beasts
   if CurrentAction <> nil then
-    fRenderPool.AddHouseWork(fHouseType, fPosition,
+    gRenderPool.AddHouseWork(fHouseType, fPosition,
                             CurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
                             WorkAnimStep, gHands[fOwner].FlagColor);
 end;
