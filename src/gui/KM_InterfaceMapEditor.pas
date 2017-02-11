@@ -859,7 +859,6 @@ procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 var
   VP: TKMPointF;
 begin
-
   if fDragScrolling then
   begin
     VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
@@ -912,7 +911,6 @@ begin
     gRes.Cursors.Cursor := kmc_Drag;
     MoveObjectToCursorCell(fDragObject);
   end else
-    
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
@@ -1128,9 +1126,7 @@ begin
                   gMySpectator.Selected := nil; //We might have had a unit/group/house selected
                 end
                 else
-                begin
                   UpdateSelection;
-                end;
               end else if gGameCursor.Mode = cmPaintBucket then
                 ChangeOwner;
     mbRight:  begin

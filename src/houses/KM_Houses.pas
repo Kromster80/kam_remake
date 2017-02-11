@@ -6,7 +6,7 @@ uses
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain, KM_ResHouses, KM_ResWares;
 
-  //Houses are ruled by units, hence they don't know about  TKMUnits
+//Houses are ruled by units, hence they don't know about  TKMUnits
 
 //Everything related to houses is here
 type
