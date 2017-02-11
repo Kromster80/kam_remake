@@ -551,6 +551,19 @@ begin
                         begin
                           FillChar(fAIAttack, SizeOf(fAIAttack), #0);
                         end;
+    ct_SetRallyPoint:   begin
+                          if fLastHand <> PLAYER_NONE then
+                            if (fLastHouse <> nil) then
+                            begin
+                              if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
+                                if (fLastHouse is TKMHouseBarracks) then
+                                  TKMHouseBarracks(fLastHouse).RallyPoint := KMPoint(P[0], P[1])
+                                else if (fLastHouse is TKMHouseWoodcutters) then
+                                  TKMHouseWoodcutters(fLastHouse).CuttingPoint := KMPoint(P[0], P[1]);
+                            end
+                            else
+                              AddError('ct_SetRallyPoint without prior declaration of House');
+                        end;
 
     ct_EnablePlayer:    begin
                           //Serves no real purpose, all players have this command anyway
@@ -826,8 +839,18 @@ begin
           AddCommand(ct_SetHouseDamage, [H.GetDamage]);
 
         if H is TKMHouseBarracks then
+        begin
           for J := 1 to TKMHouseBarracks(H).MapEdRecruitCount do
             AddCommand(ct_UnitAddToLast, [UnitTypeToOldIndex[ut_Recruit]]);
+          if TKMHouseBarracks(H).IsRallyPointSet then
+            AddCommand(ct_SetRallyPoint, [TKMHouseBarracks(H).RallyPoint.X, TKMHouseBarracks(H).RallyPoint.Y]);
+        end;
+
+        if H is TKMHouseWoodcutters then
+        begin
+          if TKMHouseWoodcutters(H).IsCuttingPointSet then
+            AddCommand(ct_SetRallyPoint, [TKMHouseWoodcutters(H).CuttingPoint.X, TKMHouseWoodcutters(H).CuttingPoint.Y]);
+        end;
 
         //Process any wares in this house
         //First two Stores use special KaM commands
@@ -945,3 +968,4 @@ end;
 
 
 end.
+
