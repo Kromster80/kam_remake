@@ -410,14 +410,14 @@ begin
   begin
     B := TKMHouseBarracks(gMySpectator.Selected);
     if B.IsRallyPointSet then
-      PaintRallyPoint(B.GetEntrance, B.RallyPoint, gHands[B.Owner].FlagColor, B.RallyPointTexId, aPass);
+      PaintRallyPoint(B.Entrance, B.RallyPoint, gHands[B.Owner].FlagColor, B.RallyPointTexId, aPass);
   end
   else
   if gMySpectator.Selected is TKMHouseWoodcutters then
   begin
     WH := TKMHouseWoodcutters(gMySpectator.Selected);
     if WH.IsCuttingPointSet then
-      PaintRallyPoint(WH.GetEntrance, WH.CuttingPoint, gHands[WH.Owner].FlagColor, WH.CuttingPointTexId, aPass);
+      PaintRallyPoint(WH.Entrance, WH.CuttingPoint, gHands[WH.Owner].FlagColor, WH.CuttingPointTexId, aPass);
   end;
 end;
 
@@ -1446,12 +1446,12 @@ begin
                     MARKER_RALLY_POINT:   if gMySpectator.Selected is TKMHouseBarracks then
                                           begin
                                             B := TKMHouseBarracks(gMySpectator.Selected);
-                                            PaintRallyPoint(B.GetEntrance, P, gMySpectator.Hand.FlagColor, B.RallyPointTexId, 0, True);
+                                            PaintRallyPoint(B.Entrance, P, gMySpectator.Hand.FlagColor, B.RallyPointTexId, 0, True);
                                           end;
                     MARKER_CUTTING_POINT: if gMySpectator.Selected is TKMHouseWoodcutters then
                                           begin
                                             WH := TKMHouseWoodcutters(gMySpectator.Selected);
-                                            PaintRallyPoint(WH.GetEntrance, WH.GetValidCuttingPoint(P), gMySpectator.Hand.FlagColor, WH.CuttingPointTexId, 0, True);
+                                            PaintRallyPoint(WH.Entrance, WH.GetValidCuttingPoint(P), gMySpectator.Hand.FlagColor, WH.CuttingPointTexId, 0, True);
                                           end;
                   end;
     cmPaintBucket:  RenderForegroundUI_PaintBucket;
