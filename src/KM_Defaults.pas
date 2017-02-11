@@ -258,7 +258,8 @@ type
     cmSelection, //Selection manipulations
     cmUnits, //Units
     cmMarkers, //CenterScreen, FOW, Defence, AIStart, Rally/Cutting Point markers
-    cmEyedropper //Terrain eyedropper
+    cmEyedropper, //Terrain eyedropper
+    cmRotateTile  //Rotate terrain tile
     );
 
 type
@@ -277,10 +278,6 @@ const
   MARKER_AISTART = 4;
   MARKER_RALLY_POINT = 5;
   MARKER_CUTTING_POINT = 6;
-
-const
-  MAPED_TILES_X = 6;
-  MAPED_TILES_Y = 8;
 
 
 const

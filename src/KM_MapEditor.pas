@@ -62,7 +62,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses,
-  KM_Hand, KM_Houses, KM_HouseBarracks;
+  KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
 
 
 { TKMMapEditor }
@@ -294,9 +294,12 @@ begin
                 cmMagicWater: fTerrainPainter.MagicWater(P);
                 cmEyedropper: begin
                                 fTerrainPainter.Eyedropper(P);
+                                if (gGame.ActiveInterface is TKMapEdInterface) then
+                                  TKMapEdInterface(gGame.ActiveInterface).GuiTerrain.GuiTiles.TilesTableScrollToTileTexId(gGameCursor.Tag1);
                                 if not (ssShift in gGameCursor.SState) then  //Holding shift allows to choose another tile
                                   gGameCursor.Mode := cmTiles;
                               end;
+                cmRotateTile: fTerrainPainter.RotateTile(P);
                 cmUnits:      if gGameCursor.Tag1 = 255 then
                                 gHands.RemAnyUnit(P)
                               else
@@ -334,14 +337,16 @@ begin
               end;
     mbRight:  case gGameCursor.Mode of
                 cmElevate,
-                cmEqualize: begin
-                              //Actual change was made in UpdateStateIdle, we just register it is done here
-                              fTerrainPainter.MakeCheckpoint;
-                            end;
-                cmObjects:  begin
-                              gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
-                              fTerrainPainter.MakeCheckpoint;
-                            end;
+                cmEqualize:   begin
+                                //Actual change was made in UpdateStateIdle, we just register it is done here
+                                fTerrainPainter.MakeCheckpoint;
+                              end;
+                cmObjects:    begin
+                                gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+                                fTerrainPainter.MakeCheckpoint;
+                              end;
+                cmEyedropper,
+                cmRotateTile: gGameCursor.Mode := cmNone;
               end;
   end;
 end;
