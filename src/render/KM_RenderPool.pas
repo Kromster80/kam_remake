@@ -124,7 +124,7 @@ type
 
 
 var
-  fRenderPool: TRenderPool;
+  gRenderPool: TRenderPool;
 
 
 implementation
@@ -393,7 +393,7 @@ begin
              gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
            end;
         1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-             fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
+             gRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
       end;
     end;
   end
@@ -410,7 +410,7 @@ begin
                gRenderAux.LineOnTerrain(C.GetEntrance.X - 0.5, C.GetEntrance.Y - 0.5, P.X, P.Y, gHands[C.Owner].FlagColor, $F0F0, False);
              end;
           1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-             fRenderPool.RenderSpriteOnTerrain(P, 660, gHands[C.Owner].FlagColor);
+             gRenderPool.RenderSpriteOnTerrain(P, 660, gHands[C.Owner].FlagColor);
         end;
       end;
     end;
@@ -604,7 +604,7 @@ begin
     AddHouse(H.HouseType, H.GetPosition, 1, 1, 0, DoImmediateRender, DoHighlight, HighlightColor);
     AddHouseSupply(H.HouseType, H.GetPosition, H.ResourceInArray, H.ResourceOutArray, DoImmediateRender, DoHighlight, HighlightColor);
     if H.CurrentAction <> nil then
-      fRenderPool.AddHouseWork(H.HouseType, H.GetPosition, H.CurrentAction.SubAction, H.WorkAnimStep, FlagColor, DoImmediateRender, DoHighlight, HighlightColor);
+      gRenderPool.AddHouseWork(H.HouseType, H.GetPosition, H.CurrentAction.SubAction, H.WorkAnimStep, FlagColor, DoImmediateRender, DoHighlight, HighlightColor);
   end;
 end;
 
@@ -1723,7 +1723,7 @@ begin
     Sp2 := RenderList[aId + 1];
 
   if Sp1.AlphaStep = -1 then
-    fRenderPool.RenderSprite(Sp1.RX, Sp1.Id, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor)
+    gRenderPool.RenderSprite(Sp1.RX, Sp1.Id, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor)
   else
   begin
     // Houses are rendered as Wood+Stone part. For Stone we want to skip
@@ -1731,10 +1731,10 @@ begin
 
     // Check if next comes our child, Stone layer
     if Sp2Exists and not Sp2.NewInst and (Sp2.AlphaStep > 0) then
-      fRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y,
+      gRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y,
                                                 Sp2.Id, Sp2.AlphaStep, Sp2.Loc.X, Sp2.Loc.Y)
     else
-      fRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y);
+      gRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y);
   end;
 
   if SHOW_GROUND_LINES and Sp1.NewInst then
@@ -1767,7 +1767,7 @@ begin
       if RENDER_3D then
       begin
         glTranslatef(RenderList[K].Loc.X, RenderList[K].Loc.Y, 0);
-        glRotatef(fRenderPool.rHeading, -1, 0, 0);
+        glRotatef(gRenderPool.rHeading, -1, 0, 0);
         glTranslatef(-RenderList[K].Loc.X, -RenderList[K].Loc.Y, 0);
       end;
 

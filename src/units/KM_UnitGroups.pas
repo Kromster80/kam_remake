@@ -1718,11 +1718,11 @@ begin
     if not DoesFit then Continue; //Don't render units that are off the map in the map editor
     UnitPos.X := NewPos.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := NewPos.Y + UNIT_OFF_Y;
-    fRenderPool.AddUnit(FlagBearer.UnitType, 0, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, aHandColor, True, aDoImmediateRender, aDoHighlight, aHighlightColor);
+    gRenderPool.AddUnit(FlagBearer.UnitType, 0, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, aHandColor, True, aDoImmediateRender, aDoHighlight, aHighlightColor);
   end;
 
   // We need to render Flag after MapEd virtual members
-  fRenderPool.AddUnitFlag(FlagBearer.UnitType, FlagBearer.GetUnitAction.ActionType,
+  gRenderPool.AddUnitFlag(FlagBearer.UnitType, FlagBearer.GetUnitAction.ActionType,
     FlagBearer.Direction, FlagStep, FlagPositionF.X, FlagPositionF.Y, aFlagColor, aDoImmediateRender);
 
 end;

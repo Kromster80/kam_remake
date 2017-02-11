@@ -1386,28 +1386,28 @@ begin
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
                   progress := fBuildingProgress / 50 / H.WoodCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, progress, 0, 0);
-                  fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
+                  gRenderPool.AddHouse(fHouseType, fPosition, progress, 0, 0);
+                  gRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
                   progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, 1, progress, 0);
-                  fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
+                  gRenderPool.AddHouse(fHouseType, fPosition, 1, progress, 0);
+                  gRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin
                   //Incase we need to render house at desired step in debug mode
                   if HOUSE_BUILDING_STEP = 0 then
                   begin
                     if fIsOnSnow then
-                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, fSnowStep)
+                      gRenderPool.AddHouse(fHouseType, fPosition, 1, 1, fSnowStep)
                     else
-                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
-                    fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
+                      gRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
+                    gRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if CurrentAction <> nil then
-                      fRenderPool.AddHouseWork(fHouseType, fPosition, CurrentAction.SubAction, WorkAnimStep, gHands[fOwner].FlagColor);
+                      gRenderPool.AddHouseWork(fHouseType, fPosition, CurrentAction.SubAction, WorkAnimStep, gHands[fOwner].FlagColor);
                   end
                   else
-                    fRenderPool.AddHouse(fHouseType, fPosition,
+                    gRenderPool.AddHouse(fHouseType, fPosition,
                       Min(HOUSE_BUILDING_STEP * 3, 1),
                       EnsureRange(HOUSE_BUILDING_STEP * 3 - 1, 0, 1),
                       Max(HOUSE_BUILDING_STEP * 3 - 2, 0));
@@ -1483,11 +1483,11 @@ begin
   if fBuildState = hbs_Done then
     for I := 1 to 5 do
       if BeastAge[I] > 0 then
-        fRenderPool.AddHouseStableBeasts(fHouseType, fPosition, I, Min(BeastAge[I],3), WorkAnimStep);
+        gRenderPool.AddHouseStableBeasts(fHouseType, fPosition, I, Min(BeastAge[I],3), WorkAnimStep);
 
   //But Animal Breeders should be on top of beasts
   if CurrentAction <> nil then
-    fRenderPool.AddHouseWork(fHouseType, fPosition,
+    gRenderPool.AddHouseWork(fHouseType, fPosition,
                             CurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
                             WorkAnimStep, gHands[fOwner].FlagColor);
 end;

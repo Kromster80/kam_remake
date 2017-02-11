@@ -374,9 +374,9 @@ begin
       or gTerrain.TileIsWineField(P)
       or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)
       or (gHands.HousesHitTest(P.X, P.Y) <> nil) then
-        fRenderPool.RenderWireTile(P, $FFFFFF00) //Cyan quad
+        gRenderPool.RenderWireTile(P, $FFFFFF00) //Cyan quad
       else
-        fRenderPool.RenderSpriteOnTile(P, TC_BLOCK); //Red X
+        gRenderPool.RenderSpriteOnTile(P, TC_BLOCK); //Red X
 
 
   if mlDefences in fVisibleLayers then
@@ -386,7 +386,7 @@ begin
                   for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do
                   begin
                     DP := gHands[I].AI.General.DefencePositions[K];
-                    fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gHands[I].FlagColor);
+                    gRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gHands[I].FlagColor);
                   end;
       plTerrain:  if ActiveMarker.MarkerType = mtDefence then
                     //Render the radius only for the selected defence position, otherwise it's too much overlap
@@ -410,7 +410,7 @@ begin
                                            fRevealers[I].Tag[K],
                                            gHands[I].FlagColor and $20FFFFFF,
                                            gHands[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
+      plCursors:  gRenderPool.RenderSpriteOnTile(Loc,
                       394, gHands[I].FlagColor);
     end;
   end;
@@ -424,7 +424,7 @@ begin
       plTerrain:  gRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              gHands[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(Loc, 391, gHands[I].FlagColor);
+      plCursors:  gRenderPool.RenderSpriteOnTile(Loc, 391, gHands[I].FlagColor);
     end;
   end;
 
@@ -437,7 +437,7 @@ begin
       plTerrain:  gRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              gHands[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(Loc, 390, gHands[I].FlagColor);
+      plCursors:  gRenderPool.RenderSpriteOnTile(Loc, 390, gHands[I].FlagColor);
     end;
   end;
 
@@ -451,7 +451,7 @@ begin
     if gTerrain.TileIsWater(K,I) then
     begin
       //TODO: Waterflow indication here
-      //fRenderPool.RenderSpriteOnTile(KMPoint(K,I), )
+      //gRenderPool.RenderSpriteOnTile(KMPoint(K,I), )
     end;
   end;
 

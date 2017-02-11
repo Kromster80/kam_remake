@@ -3638,8 +3638,8 @@ begin
   // Debug info
   if SHOW_SPRITE_COUNT then
     S := IntToStr(gHands.UnitCount) + ' units on map|' +
-         IntToStr(fRenderPool.RenderList.Stat_Sprites) + '/' +
-         IntToStr(fRenderPool.RenderList.Stat_Sprites2) + ' sprites/rendered|' +
+         IntToStr(gRenderPool.RenderList.Stat_Sprites) + '/' +
+         IntToStr(gRenderPool.RenderList.Stat_Sprites2) + ' sprites/rendered|' +
          IntToStr(CtrlPaintCount) + ' controls rendered|';
 
   if SHOW_POINTER_COUNT then

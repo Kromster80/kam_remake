@@ -920,7 +920,7 @@ end;
 
 procedure TKMGame.Render(aRender: TRender);
 begin
-  fRenderPool.Render;
+  gRenderPool.Render;
 
   aRender.SetRenderMode(rm2D);
   fActiveInterface.Paint;
