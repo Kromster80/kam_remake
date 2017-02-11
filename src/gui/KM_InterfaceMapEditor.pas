@@ -808,7 +808,6 @@ begin
     fMouseDownOnMap := True;
 
   UpdateGameCursor(X,Y,Shift);
-  Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
 
   if fIsDraggingObject and (ssLeft in Shift) then
   begin
