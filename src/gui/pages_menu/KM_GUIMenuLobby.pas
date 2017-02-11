@@ -59,12 +59,15 @@ type
     procedure PlayersSetupChange(Sender: TObject);
     procedure MapColumnClick(aValue: Integer);
     procedure MapTypeChanged(Sender: TObject);
+    procedure InitDropColMapsList;
     procedure UpdateMapList;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
     procedure RefreshMapList(aJumpToSelected: Boolean);
     procedure RefreshSaveList(aJumpToSelected: Boolean);
+    function GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
     procedure MapChange(Sender: TObject);
+    function DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
     procedure PostKeyDown(Sender: TObject; Key: Word);
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 
@@ -427,11 +430,12 @@ begin
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
-      DropCol_LobbyMaps.DropWidth := 440; //Wider to fit mapnames well
-      DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
+      InitDropColMapsList;
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
-      DropCol_LobbyMaps.List.SearchColumn := 0;
+      DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;
+      DropCol_LobbyMaps.List.OnCellClick := DropColMapsCellClick;
+
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
       Panel_LobbySetupMinimap := TKMPanel.Create(Panel_LobbySetup, 0, 120, 270, 200);
@@ -746,6 +750,7 @@ begin
   ChatMenuSelect(CHAT_MENU_ALL); //All
 
   Radio_LobbyMapType.ItemIndex := gGameApp.GameSettings.MenuLobbyMapType;
+  UpdateMapList;
 
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);
@@ -1476,6 +1481,13 @@ begin
 end;
 
 
+procedure TKMMenuLobby.InitDropColMapsList;
+begin
+  DropCol_LobbyMaps.DropWidth := 460;
+  DropCol_LobbyMaps.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 20, 320, 350], [False, True, True, True]);
+end;
+
+
 procedure TKMMenuLobby.UpdateMapList;
 begin
   //Terminate any running scans otherwise they will continue to fill the drop box in the background
@@ -1489,9 +1501,8 @@ begin
     3:  //Special map Map
         begin
           fMapsMP.Refresh(MapList_ScanUpdate);
-          DropCol_LobbyMaps.DropWidth := 440;
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
+          InitDropColMapsList;
         end;
     4:  //Saved Game
         begin
@@ -1558,12 +1569,18 @@ begin
 end;
 
 
+function TKMMenuLobby.GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
+begin
+  Result := MakePic(rxGuiMain, IfThen(aIsFavourite, 77, 85), True);
+end;
+
+
 procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
   procedure SelectByName(aName: UnicodeString);
   var I: Integer;
   begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
-      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
+      if DropCol_LobbyMaps.Item[I].Cells[1].Caption = aName then
       begin
         DropCol_LobbyMaps.ItemIndex := I;
         Break;
@@ -1573,10 +1590,11 @@ var
   I, PrevTop: Integer;
   PrevMap: string;
   AddMap: Boolean;
+  Row: TKMListRow;
 begin
   //Remember previous map selected
   if DropCol_LobbyMaps.ItemIndex <> -1 then
-    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[1].Caption
   else
     PrevMap := '';
 
@@ -1597,13 +1615,14 @@ begin
       end;
 
       if AddMap then
-        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
-                                           IntToStr(fMapsMP[I].HumanPlayerCountMP),
-                                           fMapsMP[I].SizeText],
-                                           //Colors
-                                           [fMapsMP[I].GetLobbyColor,
-                                           fMapsMP[I].GetLobbyColor,
-                                           fMapsMP[I].GetLobbyColor], I));
+      begin
+        Row := MakeListRow(['', fMapsMP[I].FileName, IntToStr(fMapsMP[I].HumanPlayerCountMP), fMapsMP[I].SizeText], //Texts
+                           [fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor], //Colors
+                           I);
+        Row.Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+        Row.Cells[0].HighlightOnMouseOver := True;
+        DropCol_LobbyMaps.Add(Row);
+      end;
     end;
   finally
     fMapsMP.Unlock;
@@ -1612,7 +1631,7 @@ begin
   //Restore previously selected map
   if PrevMap <> '' then
   for I := 0 to DropCol_LobbyMaps.Count - 1 do
-  if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
+  if DropCol_LobbyMaps.Item[I].Cells[1].Caption = PrevMap then
     DropCol_LobbyMaps.ItemIndex := I;
 
   //Restore the top index
@@ -1707,14 +1726,18 @@ begin
     with DropCol_LobbyMaps.List do
     case SortIndex of
       0:  if SortDirection = sdDown then
+            SM := smByFavouriteDesc
+          else
+            SM := smByFavouriteAsc;
+      1:  if SortDirection = sdDown then
             SM := smByNameDesc
           else
             SM := smByNameAsc;
-      1:  if SortDirection = sdDown then
+      2:  if SortDirection = sdDown then
             SM := smByHumanPlayersMPDesc
           else
             SM := smByHumanPlayersMPAsc;
-      2:  if SortDirection = sdDown then
+      3:  if SortDirection = sdDown then
             SM := smBySizeDesc
           else
             SM := smBySizeAsc;
@@ -1746,6 +1769,31 @@ begin
       else SSM := smByFileNameAsc;
     end;
     fSavesMP.Sort(SSM, MapList_SortUpdate);
+  end;
+end;
+
+
+function TKMMenuLobby.DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  if (Radio_LobbyMapType.ItemIndex < 4) and (X = 0) then
+  begin
+    I := DropCol_LobbyMaps.Item[Y].Tag;
+    fMapsMP.Lock;
+    try
+      fMapsMP[I].IsFavourite := not fMapsMP[I].IsFavourite;
+      if fMapsMP[I].IsFavourite then
+        gGameApp.GameSettings.AddFavouriteMap(fMapsMP[I].CRC)
+      else
+        gGameApp.GameSettings.RemoveFavouriteMap(fMapsMP[I].CRC);
+
+      //Update pic
+      DropCol_LobbyMaps.Item[Y].Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+    finally
+      fMapsMP.Unlock;
+    end;
+    Result := True; //we handle mouse click here, and do want to propagate it further
   end;
 end;
 

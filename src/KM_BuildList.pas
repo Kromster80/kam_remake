@@ -254,7 +254,7 @@ begin
   for I := fHousesCount - 1 downto 0 do
   if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
   and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType])
-  and aWorker.CanWalkTo(KMPointBelow(fHouses[i].House.GetEntrance), 0)
+  and aWorker.CanWalkTo(fHouses[i].House.PointBelowEntrance, 0)
   then
   begin
     NewBid := KMLengthDiag(aWorker.GetPosition, fHouses[I].House.GetPosition);
@@ -1295,7 +1295,7 @@ begin
       if (fHouseList.fHouses[i].House <> nil) and fHouseList.fHouses[i].House.CheckResToBuild
       and(fHouseList.fHouses[I].Assigned < MAX_WORKERS[fHouseList.fHouses[i].House.HouseType]) then
       begin
-        BestWorker := GetBestWorker(KMPointBelow(fHouseList.fHouses[I].House.GetEntrance));
+        BestWorker := GetBestWorker(fHouseList.fHouses[I].House.PointBelowEntrance);
         if BestWorker <> nil then fHouseList.GiveTask(I, BestWorker);
       end;
 end;
@@ -1325,7 +1325,7 @@ begin
       if (fRepairList.fHouses[i].House <> nil)
       and(fRepairList.fHouses[I].Assigned < MAX_WORKERS[fRepairList.fHouses[i].House.HouseType]) then
       begin
-        BestWorker := GetBestWorker(KMPointBelow(fRepairList.fHouses[I].House.GetEntrance));
+        BestWorker := GetBestWorker(fRepairList.fHouses[I].House.PointBelowEntrance);
         if BestWorker <> nil then fRepairList.GiveTask(I, BestWorker);
       end;
 end;

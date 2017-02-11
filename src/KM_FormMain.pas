@@ -78,6 +78,11 @@ type
     tbAngleZ: TTrackBar;
     Label7: TLabel;
     chkSelectionBuffer: TCheckBox;
+    GroupBoxLogs: TGroupBox;
+    chkLogDelivery: TCheckBox;
+    chkLogNetConnection: TCheckBox;
+    RGLogNetPackets: TRadioGroup;
+    chkLogsShowInChat: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -153,7 +158,8 @@ uses
   KM_ResSound,
   KM_Pics,
   KM_RenderPool,
-  KM_Hand;
+  KM_Hand,
+  KM_Log;
 
 
 //Remove VCL panel and use flicker-free TMyPanel instead
@@ -433,14 +439,17 @@ procedure TFormMain.ControlsReset;
     I: Integer;
   begin
     for I := 0 to aBox.ControlCount - 1 do
-    if aBox.Controls[I] is TCheckBox then
-      TCheckBox(aBox.Controls[I]).Checked := False
-    else
-    if aBox.Controls[I] is TTrackBar then
-      TTrackBar(aBox.Controls[I]).Position := 0
-    else
-    if aBox.Controls[I] is TGroupBox then
-      ResetGroupBox(TGroupBox(aBox.Controls[I]));
+      if aBox.Controls[I] is TCheckBox then
+        TCheckBox(aBox.Controls[I]).Checked := aBox.Controls[I] = chkLogNetConnection
+      else
+      if aBox.Controls[I] is TTrackBar then
+        TTrackBar(aBox.Controls[I]).Position := 0
+      else
+      if aBox.Controls[I] is TRadioGroup then
+        TRadioGroup(aBox.Controls[I]).ItemIndex := 0
+      else
+      if (aBox.Controls[I] is TGroupBox) then
+        ResetGroupBox(TGroupBox(aBox.Controls[I]));
   end;
 begin
   fUpdating := True;
@@ -538,6 +547,47 @@ begin
     end;
     HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
   end;
+
+  //Logs
+  SHOW_LOGS_IN_CHAT := chkLogsShowInChat.Checked;
+
+  if AllowDebugChange then
+  begin
+    if chkLogDelivery.Checked then
+      Include(gLog.MessageTypes, lmt_Delivery)
+    else
+      Exclude(gLog.MessageTypes, lmt_Delivery);
+
+    if chkLogNetConnection.Checked then
+      Include(gLog.MessageTypes, lmt_NetConnection)
+    else
+      Exclude(gLog.MessageTypes, lmt_NetConnection);
+
+    case RGLogNetPackets.ItemIndex of
+      0:    begin
+              Exclude(gLog.MessageTypes, lmt_NetPacketOther);
+              Exclude(gLog.MessageTypes, lmt_NetPacketCommand);
+              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+            end;
+      1:    begin
+              Include(gLog.MessageTypes, lmt_NetPacketOther);
+              Exclude(gLog.MessageTypes, lmt_NetPacketCommand);
+              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+            end;
+      2:    begin
+              Include(gLog.MessageTypes, lmt_NetPacketOther);
+              Include(gLog.MessageTypes, lmt_NetPacketCommand);
+              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+            end;
+      3:    begin
+              Include(gLog.MessageTypes, lmt_NetPacketOther);
+              Include(gLog.MessageTypes, lmt_NetPacketCommand);
+              Include(gLog.MessageTypes, lmt_NetPacketPingFps);
+            end;
+      else  raise Exception.Create('Unexpected RGLogNetPackets.ItemIndex = ' + IntToStr(RGLogNetPackets.ItemIndex));
+    end;
+  end;
+
 end;
 
 

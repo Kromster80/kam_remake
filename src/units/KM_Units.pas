@@ -153,6 +153,7 @@ type
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
     procedure SetOwner(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     procedure HitPointsChangeFromScript(aAmount: Integer);
     procedure HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
     property HitPointsMax: Byte read GetHitPointsMax;
@@ -453,7 +454,7 @@ begin
     ht_IronMine:    Msg := TX_MSG_IRON_DEPLETED;
     ht_GoldMine:    Msg := TX_MSG_GOLD_DEPLETED;
     ht_Woodcutters: Msg := TX_MSG_WOODCUTTER_DEPLETED;
-    ht_FisherHut:   if not gTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), gRes.Units[fUnitType].MiningRange) then
+    ht_FisherHut:   if not gTerrain.CanFindFishingWater(fHome.PointBelowEntrance, gRes.Units[fUnitType].MiningRange) then
                       Msg := TX_MSG_FISHERMAN_TOO_FAR
                     else
                       Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
@@ -1261,6 +1262,18 @@ begin
 end;
 
 
+procedure TKMUnit.OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
+begin
+  if aMoveToNewOwner and (fOwner <> aOwner) then
+  begin
+    Assert(gGame.GameMode = gmMapEd); // Allow to move existing Unit directly only in MapEd
+    gHands[fOwner].Units.DeleteUnitFromList(Self);
+    gHands[aOwner].Units.AddUnitToList(Self);
+  end;
+  fOwner := aOwner;
+end;
+
+
 procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
   //This is only used by the map editor, set all positions to aPos
@@ -1278,7 +1291,7 @@ end;
 
 function TKMUnit.CanAccessHome: Boolean;
 begin
-  Result := (fHome = nil) or CanWalkTo(KMPointBelow(fHome.GetEntrance), tpWalk, 0);
+  Result := (fHome = nil) or CanWalkTo(fHome.PointBelowEntrance, tpWalk, 0);
 end;
 
 
