@@ -297,6 +297,7 @@ begin
                                 if not (ssShift in gGameCursor.SState) then  //Holding shift allows to choose another tile
                                   gGameCursor.Mode := cmTiles;
                               end;
+                cmRotateTile: fTerrainPainter.RotateTile(P);
                 cmUnits:      if gGameCursor.Tag1 = 255 then
                                 gHands.RemAnyUnit(P)
                               else
@@ -330,14 +331,16 @@ begin
               end;
     mbRight:  case gGameCursor.Mode of
                 cmElevate,
-                cmEqualize: begin
-                              //Actual change was made in UpdateStateIdle, we just register it is done here
-                              fTerrainPainter.MakeCheckpoint;
-                            end;
-                cmObjects:  begin
-                              gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
-                              fTerrainPainter.MakeCheckpoint;
-                            end;
+                cmEqualize:   begin
+                                //Actual change was made in UpdateStateIdle, we just register it is done here
+                                fTerrainPainter.MakeCheckpoint;
+                              end;
+                cmObjects:    begin
+                                gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+                                fTerrainPainter.MakeCheckpoint;
+                              end;
+                cmEyedropper,
+                cmRotateTile: gGameCursor.Mode := cmNone;
               end;
   end;
 end;
