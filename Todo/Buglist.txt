@@ -96,6 +96,7 @@ Improvements:
  +	L	Ability to ignore repeated consistency check errors while watching SP replay
  +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns)
  +		Ability to specify the title of the mission separately for each company rather than globally for all
+ +		Added logs customization on F11 debug menu
 
  
  +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
