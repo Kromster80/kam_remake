@@ -527,7 +527,7 @@ begin
     Checkbox_LobbyRememberPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, 'Remember this password', fnt_Grey); //Todo: translate
 
     Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 180, 280, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
-    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, gResTexts[TX_LOBBY_LAST_PASSWORD], bsMenu);
+    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, 'Use last known password', bsMenu); //Todo: translate
     Button_LobbySettingsResetBans.OnClick := SettingsClick;
     Button_LobbySettingsUseLastPassword.OnClick := SettingsClick;
 
