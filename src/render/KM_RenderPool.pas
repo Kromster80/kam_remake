@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render, KM_Viewport,
+  KM_Defaults, KM_CommonTypes, KM_CommonClasses, KM_Pics, KM_Points, KM_Render, KM_Viewport,
   KM_RenderTerrain, KM_ResHouses, KM_ResSprites, KM_ResWares,
   KM_Houses, KM_Terrain, KM_Projectiles, OBJLoader;
 
@@ -73,8 +73,9 @@ type
     procedure RenderBackgroundUI(aRect: TKMRect);
     // Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderForegroundUI;
+    procedure RenderForegroundUI_PaintBucket;
 
-    procedure RenderSprite(aRX: TRXType; aId: Word; pX, pY: Single; Col: TColor4; HighlightRed: Boolean = False);
+    procedure RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderMapElement1(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderMapElement4(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -83,6 +84,7 @@ type
     // Terrain rendering sub-class
     procedure CollectPlans(aRect: TKMRect);
     procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
+    procedure PaintRallyPoint(aHouseEntrance, aRallyPoint: TKMPoint; aColor: Cardinal; aTexId: Word; aPass: Byte; aDoImmediateRender: Boolean = False);
     procedure PaintRallyPoints(aPass: Byte);
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
@@ -92,20 +94,21 @@ type
 
     procedure AddAlert(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4);
     procedure AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
-    procedure AddHouse(aHouse: THouseType; aLoc: TKMPoint; aWoodStep, aStoneStep, aSnowStep: Single);
+    procedure AddHouse(aHouse: THouseType; aLoc: TKMPoint; aWoodStep, aStoneStep, aSnowStep: Single; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+    procedure AddWholeHouse(H: TKMHouse; FlagColor: Cardinal; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 
     procedure AddHouseTablet(aHouse: THouseType; Loc: TKMPoint);
     procedure AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
-    procedure AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
-    procedure AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1,R2:array of byte);
+    procedure AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+    procedure AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1,R2: array of Byte; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
     procedure AddHouseStableBeasts(aHouse: THouseType; Loc: TKMPoint; BeastId,BeastAge,AnimStep: Integer; aRX: TRXType = rxHouses);
     procedure AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
-    procedure AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure AddUnitCarry(aCarry: TWareType; aUID: Integer; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
     procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TKMUnitThought; pX,pY: Single);
-    procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
-    procedure AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False);
+    procedure AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
 
     procedure RenderMapElement(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
@@ -127,9 +130,13 @@ var
 
 implementation
 uses
-  KM_CommonTypes, KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
+  KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
   KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks,
-  KM_FogOfWar, KM_Hand;
+  KM_FogOfWar, KM_Hand, KM_UnitGroups, KM_Units_Warrior, KM_Utils;
+
+
+const
+  HIGHLIGHT_COLOR_DELETE = $FF;
 
 
 constructor TRenderPool.Create(aViewport: TKMViewport; aRender: TRender);
@@ -365,49 +372,53 @@ begin
 end;
 
 
+procedure TRenderPool.PaintRallyPoint(aHouseEntrance, aRallyPoint: TKMPoint; aColor: Cardinal; aTexId: Word; aPass: Byte; aDoImmediateRender: Boolean = False);
+
+  procedure RenderLineToPoint(aP: TKMPointF);
+  begin
+    gRenderAux.LineOnTerrain(aHouseEntrance.X - 0.5, aHouseEntrance.Y - 0.5, aP.X, aP.Y, aColor, $F0F0, False);
+  end;
+
+var P: TKMPointF;
+begin
+  P := KMPointF(aRallyPoint.X - 0.5, aRallyPoint.Y - 0.5);
+  if not aDoImmediateRender then
+    case aPass of
+      0: begin
+           AddAlert(P, aTexId, aColor);
+           RenderLineToPoint(P);
+         end;
+      1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
+         RenderSpriteOnTerrain(P, aTexId, aColor);
+    end
+  else begin
+    RenderSpriteOnTile(aRallyPoint, aTexId, aColor);
+    RenderLineToPoint(P);
+  end;
+end;
+
+
 procedure TRenderPool.PaintRallyPoints(aPass: Byte);
 var
   B: TKMHouseBarracks;
-  C: TKMHouseWoodcutters;
-  P: TKMPointF;
+  WH: TKMHouseWoodcutters;
 begin
-  if gGame.IsMapEditor then Exit; // Don't render rally point in map editor
   if not (gMySpectator.Selected is TKMHouseBarracks) and not (gMySpectator.Selected is TKMHouseWoodcutters) then
     Exit;
 
   if gMySpectator.Selected is TKMHouseBarracks then
   begin
     B := TKMHouseBarracks(gMySpectator.Selected);
-    P := KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5);
     if B.IsRallyPointSet then
-    begin
-      case aPass of
-        0: begin
-             AddAlert(P, 249, gHands[B.Owner].FlagColor);
-             gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[B.Owner].FlagColor, $F0F0, False);
-           end;
-        1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-             fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[B.Owner].FlagColor);
-      end;
-    end;
+      PaintRallyPoint(B.GetEntrance, B.RallyPoint, gHands[B.Owner].FlagColor, B.RallyPointTexId, aPass);
   end
   else
-    if gMySpectator.Selected is TKMHouseWoodcutters then
-    begin
-      C := TKMHouseWoodcutters(gMySpectator.Selected);
-      if C.IsCuttingPointSet then
-      begin
-        P := KMPointF(C.CuttingPoint.X - 0.5, C.CuttingPoint.Y - 0.5);
-        case aPass of
-          0: begin
-               AddAlert(P, 660, gHands[C.Owner].FlagColor);
-               gRenderAux.LineOnTerrain(C.GetEntrance.X - 0.5, C.GetEntrance.Y - 0.5, P.X, P.Y, gHands[C.Owner].FlagColor, $F0F0, False);
-             end;
-          1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-             fRenderPool.RenderSpriteOnTerrain(P, 660, gHands[C.Owner].FlagColor);
-        end;
-      end;
-    end;
+  if gMySpectator.Selected is TKMHouseWoodcutters then
+  begin
+    WH := TKMHouseWoodcutters(gMySpectator.Selected);
+    if WH.IsCuttingPointSet then
+      PaintRallyPoint(WH.GetEntrance, WH.CuttingPoint, gHands[WH.Owner].FlagColor, WH.CuttingPointTexId, aPass);
+  end;
 end;
 
 
@@ -471,7 +482,7 @@ begin
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting);
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, HIGHLIGHT_COLOR_DELETE);
   end;
 end;
 
@@ -499,7 +510,7 @@ var
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting);
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, HIGHLIGHT_COLOR_DELETE);
   end;
 
 var
@@ -591,8 +602,20 @@ begin
 end;
 
 
+procedure TRenderPool.AddWholeHouse(H: TKMHouse; FlagColor: Cardinal; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+begin
+  if H <> nil then
+  begin
+    AddHouse(H.HouseType, H.GetPosition, 1, 1, 0, DoImmediateRender, DoHighlight, HighlightColor);
+    AddHouseSupply(H.HouseType, H.GetPosition, H.ResourceInArray, H.ResourceOutArray, DoImmediateRender, DoHighlight, HighlightColor);
+    if H.CurrentAction <> nil then
+      fRenderPool.AddHouseWork(H.HouseType, H.GetPosition, H.CurrentAction.SubAction, H.WorkAnimStep, FlagColor, DoImmediateRender, DoHighlight, HighlightColor);
+  end;
+end;
+
+
 // Render house in wood
-procedure TRenderPool.AddHouse(aHouse: THouseType; aLoc: TKMPoint; aWoodStep, aStoneStep, aSnowStep: Single);
+procedure TRenderPool.AddHouse(aHouse: THouseType; aLoc: TKMPoint; aWoodStep, aStoneStep, aSnowStep: Single; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 var
   R: TRXData;
   PicWood, PicStone, PicSnow: Integer;
@@ -644,6 +667,8 @@ begin
         fRenderList.AddSpriteG(rxHouses, PicSnow, 0, CornerX(PicSnow), CornerY(PicSnow), gX, gY, $0, aSnowStep);
       end;
     end
+    else if DoImmediateRender then
+      RenderSprite(rxHouses, PicStone, CornerX(PicStone), CornerY(PicStone), $0, DoHighlight, HighlightColor)
     else
       fRenderList.AddSpriteG(rxHouses, PicStone, 0, CornerX(PicStone), CornerY(PicStone), gX, gY, $0);
   end
@@ -657,7 +682,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
+procedure TRenderPool.AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 var
   Id: Cardinal;
   AT: THouseActionType;
@@ -681,13 +706,16 @@ begin
       CornerY := Loc.Y + (R.Pivot[Id].Y + A.MoveY + R.Size[Id].Y) / CELL_SIZE_PX - 1
                        - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
 
-      fRenderList.AddSprite(rxHouses, Id, CornerX, CornerY, FlagColor);
+      if DoImmediateRender then
+        RenderSprite(rxHouses, Id, CornerX, CornerY, FlagColor, DoHighlight, HighlightColor)
+      else
+        fRenderList.AddSprite(rxHouses, Id, CornerX, CornerY, FlagColor);
     end;
   end;
 end;
 
 
-procedure TRenderPool.AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1, R2: array of Byte);
+procedure TRenderPool.AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1, R2: array of Byte; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 var
   Id, I, K: Integer;
   R: TRXData;
@@ -701,7 +729,11 @@ var
     CornerX := Loc.X + R.Pivot[aId].X / CELL_SIZE_PX - 1;
     CornerY := Loc.Y + (R.Pivot[aId].Y + R.Size[aId].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, aId, CornerX, CornerY);
+    if DoImmediateRender then
+    begin
+      RenderSprite(rxHouses, aId, CornerX, CornerY, $0, DoHighlight, HighlightColor)
+    end else
+      fRenderList.AddSprite(rxHouses, aId, CornerX, CornerY);
   end;
 
 begin
@@ -832,7 +864,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+procedure TRenderPool.AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 var
   CornerX, CornerY, Ground: Single;
   Id, Id0: Integer;
@@ -850,7 +882,7 @@ begin
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
 
   if DoImmediateRender then
-    RenderSprite(rxUnits, Id, CornerX, CornerY, FlagColor, Deleting)
+    RenderSprite(rxUnits, Id, CornerX, CornerY, FlagColor, DoHighlight, HighlightColor)
   else
     if NewInst then
       fRenderList.AddSpriteG(rxUnits, Id, aUID, CornerX, CornerY, pX, Ground, FlagColor)
@@ -938,7 +970,7 @@ end;
 
 
 procedure TRenderPool.AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection;
-                                  FlagAnim: Integer; pX, pY: Single; FlagColor: TColor4);
+                                  FlagAnim: Integer; pX, pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False);
 const
   // Offsets for flags rendering in pixels
   FlagXOffset: array [TGroupType, TKMDirection] of shortint = (
@@ -975,16 +1007,19 @@ begin
   FlagX := pX + (R.Pivot[IdFlag].X + FlagXOffset[UnitGroups[aUnit], aDir]) / CELL_SIZE_PX - 0.5;
   FlagY := gTerrain.FlatToHeight(pX, pY) + (R.Pivot[IdFlag].Y + FlagYOffset[UnitGroups[aUnit], aDir] + R.Size[IdFlag].Y) / CELL_SIZE_PX - 2.25;
 
-  fRenderList.AddSpriteG(rxUnits, IdFlag, 0, FlagX, FlagY, pX, Ground, FlagColor);
+  if DoImmediateRender then
+    RenderSprite(rxUnits, IdFlag, FlagX, FlagY, FlagColor)
+  else
+    fRenderList.AddSpriteG(rxUnits, IdFlag, 0, FlagX, FlagY, pX, Ground, FlagColor);
 end;
 
 
-procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; // In map editor always render 5 fish
-  AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
+  AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, DoHignlight, HighlightColor);
   if gRes.Units[aUnit].SupportsAction(ua_WalkArm) then
-    AddUnit(aUnit, aUID, ua_WalkArm, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
+    AddUnit(aUnit, aUID, ua_WalkArm, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, DoHignlight, HighlightColor);
 end;
 
 
@@ -1021,9 +1056,7 @@ begin
   glPopMatrix;
 end;}
 
-
-procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single;
-  Col: TColor4; HighlightRed: Boolean = False);
+procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 begin
   with GFXData[aRX, aId] do
   begin
@@ -1031,7 +1064,8 @@ begin
     glColor4ub(255, 255, 255, 255);
 
     glBindTexture(GL_TEXTURE_2D, Tex.Id);
-    if HighlightRed then glColor3f(1,0,0);
+    if DoHighlight then
+      glColor3ub(HighlightColor AND $FF, HighlightColor SHR 8 AND $FF, HighlightColor SHR 16 AND $FF);
     glBegin(GL_QUADS);
       glTexCoord2f(Tex.u1, Tex.v2); glVertex2f(pX                     , pY                      );
       glTexCoord2f(Tex.u2, Tex.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY                      );
@@ -1278,6 +1312,8 @@ var
   P: TKMPoint;
   F: TKMPointF;
   U: TKMUnit;
+  WH: TKMHouseWoodcutters;
+  B: TKMHouseBarracks;
   I, K: Integer;
   Tmp: Single;
   Rad, Slope: Byte;
@@ -1363,6 +1399,7 @@ begin
                   end;
     cmMagicWater: ; //TODO: Render some effect to show magic water is selected
     cmEyeDropper: RenderWireTile(P, $FFFFFF00); // Cyan quad
+    cmRotateTile: RenderWireTile(P, $FFFFFF00); // Cyan quad
     cmElevate,
     cmEqualize:   begin
                     Rad := gGameCursor.MapEdSize;
@@ -1384,11 +1421,11 @@ begin
                       hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
                     end;
                   end;
-    cmUnits:      if (gGameCursor.Mode = cmUnits) and (gGameCursor.Tag1 = 255) then
+    cmUnits:      if gGameCursor.Tag1 = 255 then
                   begin
                     U := gTerrain.UnitsHitTest(P.X, P.Y);
                     if U <> nil then
-                      AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,gMySpectator.Hand.FlagColor,true,true);
+                      AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk, U.Direction, U.AnimStep, P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gHands[U.Owner].FlagColor, True, True, HIGHLIGHT_COLOR_DELETE);
                   end
                   else
                     if CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
@@ -1406,10 +1443,89 @@ begin
                     MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, gMySpectator.Hand.FlagColor);
                     MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, gMySpectator.Hand.FlagColor);
                     MARKER_AISTART:       RenderSpriteOnTile(P, 390, gMySpectator.Hand.FlagColor);
+                    MARKER_RALLY_POINT:   if gMySpectator.Selected is TKMHouseBarracks then
+                                          begin
+                                            B := TKMHouseBarracks(gMySpectator.Selected);
+                                            PaintRallyPoint(B.GetEntrance, P, gMySpectator.Hand.FlagColor, B.RallyPointTexId, 0, True);
+                                          end;
+                    MARKER_CUTTING_POINT: if gMySpectator.Selected is TKMHouseWoodcutters then
+                                          begin
+                                            WH := TKMHouseWoodcutters(gMySpectator.Selected);
+                                            PaintRallyPoint(WH.GetEntrance, WH.GetValidCuttingPoint(P), gMySpectator.Hand.FlagColor, WH.CuttingPointTexId, 0, True);
+                                          end;
                   end;
+    cmPaintBucket:  RenderForegroundUI_PaintBucket;
   end;
 
   if DISPLAY_SOUNDS then gSoundPlayer.Paint;
+end;
+
+
+procedure TRenderPool.RenderForegroundUI_PaintBucket;
+
+  procedure RenderUnit(U: TKMUnit; P: TKMPoint; DoHighlight: Boolean; HighlightColor: Cardinal);
+  begin
+    AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk, U.Direction, U.AnimStep, P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
+  end;
+
+  //Try to render Unit.
+  //Return True, if succeeded
+  function TryRenderUnit(aObject: TObject; RenderSameOwnerUnit: Boolean; DoHighlight: Boolean; HighlightColor: Cardinal = 0): Boolean;
+  var U: TKMUnit;
+      G: TKMUnitGroup;
+  begin
+    Result := False;
+    if (aObject is TKMUnit) then
+    begin
+      U := TKMUnit(aObject);
+      if not (U is TKMUnitAnimal) and
+        ((U.Owner <> gMySpectator.HandIndex) or RenderSameOwnerUnit) then
+      begin
+        RenderUnit(U, U.GetPosition, DoHighlight, HighlightColor);
+        Result := True;
+      end;
+    end else if (aObject is TKMUnitGroup) then
+    begin
+      G := TKMUnitGroup(aObject);
+      if ((G.Owner <> gMySpectator.HandIndex) or RenderSameOwnerUnit) then
+      begin
+        U := G.FlagBearer;
+        if G.IsFlagRenderBeforeUnit then
+        begin
+          G.PaintHighlighted(gMySpectator.Hand.FlagColor, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
+          RenderUnit(U, U.GetPosition, DoHighlight, HighlightColor);
+        end else begin
+          RenderUnit(U, U.GetPosition, DoHighlight, HighlightColor);
+          G.PaintHighlighted(gMySpectator.Hand.FlagColor, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
+        end;
+        Result := True;
+      end;
+    end;
+  end;
+
+var Obj: TObject;
+    HighlightColor: Cardinal;
+    P: TKMPoint;
+    IsRendered: Boolean;
+begin
+  P := gGameCursor.Cell;
+  HighlightColor := MultiplyBrightnessByFactor(gMySpectator.Hand.FlagColor, 2, 0.3, 0.9);
+  Obj := gMySpectator.HitTestCursorWGroup;
+
+  IsRendered := TryRenderUnit(Obj, False, True, HighlightColor);
+
+  if (Obj is TKMHouse) and (TKMHouse(Obj).Owner <> gMySpectator.HandIndex) then
+  begin
+    AddWholeHouse(TKMHouse(Obj), gMySpectator.Hand.FlagColor, True, True, HighlightColor);
+    IsRendered := True;
+  end;
+
+  if not IsRendered and
+    (((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road)
+        and (gTerrain.Land[P.Y, P.X].TileLock = tlNone)) //Sometimes we can point road tile under the house, do not show Cyan quad then
+      or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0)) //In future we are planning not to show color for corn/wine on minimap, but let it be for now
+    and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandIndex) then //Only if tile has other owner
+    RenderWireTile(P, $FFFFFF00); // Cyan quad
 end;
 
 
@@ -1624,9 +1740,7 @@ begin
     Sp2 := RenderList[aId + 1];
 
   if Sp1.AlphaStep = -1 then
-  begin
-    fRenderPool.RenderSprite(Sp1.RX, Sp1.Id, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor);
-  end
+    fRenderPool.RenderSprite(Sp1.RX, Sp1.Id, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor)
   else
   begin
     // Houses are rendered as Wood+Stone part. For Stone we want to skip

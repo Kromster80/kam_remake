@@ -3,10 +3,10 @@ unit KM_Houses;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain, KM_ResHouses, KM_ResWares;
 
-  //Houses are ruled by units, hence they don't know about TKMUnits
+  //Houses are ruled by units, hence they don't know about  TKMUnits
 
 //Everything related to houses is here
 type
@@ -30,7 +30,7 @@ type
     property State: THouseState read fHouseState write SetHouseState;
     property SubAction: THouseActionSet read fSubAction;
     procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream); 
   end;
 
 
@@ -70,13 +70,15 @@ type
 
     procedure CheckOnSnow;
 
+    function GetResourceInArray: TKMByteArray;
+    function GetResourceOutArray: TKMByteArray;
+
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
     function GetPointBelowEntrance: TKMPoint;
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
-    WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     fOwner: TKMHandIndex; //House owner player, determines flag color as well
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     procedure Activate(aWasBuilt: Boolean); virtual;
@@ -85,6 +87,7 @@ type
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
   public
     CurrentAction: THouseAction; //Current action, withing HouseTask or idle
+    WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     ResourceDepletedMsgIssued: Boolean;
     DoorwayUse: Byte; //number of units using our door way. Used for sliding.
     OnDestroyed: TKMHouseFromEvent;
@@ -103,7 +106,7 @@ type
 
     property GetPosition: TKMPoint read fPosition;
     function SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean; //Used only by map editor
-    procedure OwnerUpdate(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     property PointBelowEntrance: TKMPoint read GetPointBelowEntrance;
     function GetEntrance: TKMPoint;
     function GetClosestCell(aPos: TKMPoint): TKMPoint;
@@ -122,6 +125,9 @@ type
     function GetHealth: Word;
     function GetBuildWoodDelivered: Byte;
     function GetBuildStoneDelivered: Byte;
+
+    property ResourceInArray: TKMByteArray read GetResourceInArray;
+    property ResourceOutArray: TKMByteArray read GetResourceOutArray;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -208,22 +214,27 @@ type
     fWoodcutterMode: TWoodcutterMode;
     fCuttingPoint: TKMPoint;
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
-    procedure SetCuttingPoint(Value: TKMPoint);
+    procedure SetCuttingPoint(aValue: TKMPoint);
     function GetCuttingPoint: TKMPoint;
+    function GetCuttingPointTexId: Word;
   public
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     function IsCuttingPointSet: Boolean;
+    procedure ValidateCuttingPoint;
     property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
+    function GetValidCuttingPoint(aPoint: TKMPoint): TKMPoint;
+
+    property CuttingPointTexId: Word read GetCuttingPointTexId;
   end;
 
 implementation
 uses
-  KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
+  KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
-  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log;
+  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
 
 
 { TKMHouse }
@@ -456,8 +467,23 @@ end;
 //Return True, if house was set to new position successfully
 //aConsiderEntranceOffset - do consider house entrance offset while checking CanAddHousePlan and while set house to new position
 function TKMHouse.SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean;
+  procedure UpdateCuttingPoint(aIsRallyPointSet: Boolean);
+  begin
+    if (Self is TKMHouseBarracks) then
+    begin
+      if not aIsRallyPointSet then
+        TKMHouseBarracks(Self).RallyPoint := PointBelowEntrance
+      else
+        TKMHouseBarracks(Self).ValidateRallyPoint;
+    end
+    else if (Self is TKMHouseWoodcutters) then
+    begin
+      //reset cutting point, because it has max distance limit
+      TKMHouseWoodcutters(Self).CuttingPoint := PointBelowEntrance
+    end;
+  end;
 var
-  WasOnSnow: Boolean;
+  WasOnSnow, IsRallyPointSet: Boolean;
 begin
   Assert(gGame.GameMode = gmMapEd);
   Result := False;
@@ -466,10 +492,19 @@ begin
 
   if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType, aConsiderEntranceOffset) then
   begin
+    IsRallyPointSet := False;
+    //Save if rally/cutting point was set for previous position
+    if (Self is TKMHouseBarracks) then
+      IsRallyPointSet := TKMHouseBarracks(Self).IsRallyPointSet
+    else if (Self is TKMHouseWoodcutters) then
+      IsRallyPointSet := TKMHouseWoodcutters(Self).IsCuttingPointSet;
+
     gTerrain.RemRoad(GetEntrance);
     fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX*Byte(aConsiderEntranceOffset);
     fPosition.Y := aPos.Y;
     Result := True;
+    //Update rally/cutting point position for barracks/woodcutters after change fPosition
+    UpdateCuttingPoint(IsRallyPointSet);
   end;
 
   gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner); // Update terrain tiles for house
@@ -685,8 +720,14 @@ begin
 end;
 
 
-procedure TKMHouse.OwnerUpdate(aOwner: TKMHandIndex);
+procedure TKMHouse.OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
 begin
+  if aMoveToNewOwner and (fOwner <> aOwner) then
+  begin
+    Assert(gGame.GameMode = gmMapEd); // Allow to move existing House directly only in MapEd
+    gHands[fOwner].Houses.DeleteHouseFromList(Self);
+    gHands[aOwner].Houses.AddHouseToList(Self);
+  end;
   fOwner := aOwner;
 end;
 
@@ -800,6 +841,26 @@ end;
 function TKMHouse.GetState: THouseState;
 begin
   Result := CurrentAction.State;
+end;
+
+
+function TKMHouse.GetResourceInArray: TKMByteArray;
+var I, IAdjustment: Integer;
+begin
+  SetLength(Result, Length(fResourceIn));
+  IAdjustment := Low(fResourceIn) - Low(Result);
+  for I := Low(Result) to High(Result) do
+    Result[I] := fResourceIn[I + IAdjustment];
+end;
+
+
+function TKMHouse.GetResourceOutArray: TKMByteArray;
+var I, IAdjustment: Integer;
+begin
+  SetLength(Result, Length(fResourceOut));
+  IAdjustment := Low(fResourceOut) - Low(Result);
+  for I := Low(Result) to High(Result) do
+    Result[I] := fResourceOut[I + IAdjustment];
 end;
 
 
@@ -1649,6 +1710,13 @@ begin
 end;
 
 
+procedure TKMHouseWoodcutters.ValidateCuttingPoint;
+begin
+  //this will automatically update cutting point to valid value
+  SetCuttingPoint(fCuttingPoint);
+end;
+
+
 function TKMHouseWoodcutters.GetCuttingPoint: TKMPoint;
 begin
   if not gTerrain.CheckPassability(fCuttingPoint, tpWalk) then
@@ -1658,10 +1726,26 @@ begin
 end;
 
 
-procedure TKMHouseWoodcutters.SetCuttingPoint(Value: TKMPoint);
+function TKMHouseWoodcutters.GetCuttingPointTexId: Word;
 begin
-  fCuttingPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, Value, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
+  Result := 660;
 end;
+
+
+//Check if specified point is valid
+//if it is valid - return it
+//if it is not valid - return appropriate valid point, within segment between PointBelowEntrance and specified aPoint
+function TKMHouseWoodcutters.GetValidCuttingPoint(aPoint: TKMPoint): TKMPoint;
+begin
+  Result := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, aPoint, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
+end;
+
+
+procedure TKMHouseWoodcutters.SetCuttingPoint(aValue: TKMPoint);
+begin
+  fCuttingPoint := GetValidCuttingPoint(aValue);
+end;
+
 
 procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
 begin
@@ -1670,6 +1754,7 @@ begin
   if fWoodcutterMode = wcm_ChopAndPlant then
     ResourceDepletedMsgIssued := False;
 end;
+
 
 { THouseAction }
 constructor THouseAction.Create(aHouse: TKMHouse; aHouseState: THouseState);
