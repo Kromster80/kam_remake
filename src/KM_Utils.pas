@@ -758,9 +758,9 @@ end;
 
 function StrSplitToStrArray(aStr, aDelimiters: String): TStringArray;
 var StrArray: TStringDynArray;
-    I: Integer;
-begin
-  StrArray := SplitString(aStr, aDelimiters);
+    I: Integer;
+begin
+  StrArray := SplitString(aStr, aDelimiters);
   SetLength(Result, Length(StrArray));
   for I := Low(StrArray) to High(StrArray) do
     Result[I] := StrArray[I];
