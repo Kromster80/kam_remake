@@ -201,7 +201,6 @@ end;
 
 procedure TKMMenuCampaign.AnimNodes(aTickCount: Cardinal);
 begin
-  if fCampaign = nil then Exit;
   if Image_CampaignSubNode[fAnimNodeIndex].Visible then Exit;
   if (aTickCount mod CAMP_NODE_ANIMATION_PERIOD) <> 0 then Exit;
   if InRange(fAnimNodeIndex, 0, fCampaign.Maps[fMapIndex].NodeCount-1) then
@@ -213,7 +212,9 @@ end;
 
 procedure TKMMenuCampaign.UpdateState(aTickCount: Cardinal);
 begin
-  AnimNodes(aTickCount);
+  if fCampaign <> nil then
+    if fCampaign.Maps[fMapIndex].NodeCount > 0 then
+      AnimNodes(aTickCount);
 end;
 
 procedure TKMMenuCampaign.Resize(X, Y: Word);
