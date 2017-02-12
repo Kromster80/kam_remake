@@ -2,7 +2,7 @@ unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
+  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes
   {$IFDEF MSWindows}
   ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
@@ -62,8 +62,20 @@ uses
 
   function GetMultiplicator(aShift: TShiftState): Word;
 
-implementation
+  //String functions
+  function StrIndexOf(aStr, aSubStr: String): Integer;
+  function StrLastIndexOf(aStr, aSubStr: String): Integer;
+  function StrSubstring(aStr: String; aFrom, aLength: Integer): String; overload;
+  function StrSubstring(aStr: String; aFrom: Integer): String; overload;
+  function StrStartsWith(aStr, aSubStr: String): Boolean;
+  function StrContains(aStr, aSubStr: String): Boolean;
+  function StrSplitToStrArray(aStr, aDelimiters: String): TStringArray;
+  function StrSplit(aStr, aDelimiters: String): TStrings;
 
+
+implementation
+uses
+  StrUtils, Types;
 
 var
   fKaMSeed: Integer;
@@ -655,14 +667,14 @@ function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
 var DirPath: UnicodeString;
 begin
   Result := '';
-  if aFilePath.Trim = '' then Exit;
+  if Trim(aFilePath) = '' then Exit;
 
   DirPath := ExtractFileDir(aFilePath);
 
   if DirPath = '' then Exit;
 
-  if DirPath.IndexOf(PathDelim) <> -1 then
-    Result := copy(DirPath, DirPath.LastIndexOf(PathDelim) + 2);
+  if StrIndexOf(DirPath, PathDelim) <> -1 then
+    Result := copy(DirPath, StrLastIndexOf(DirPath, PathDelim) + 2);
 end;
 
 
@@ -696,6 +708,73 @@ end;
 function GetMultiplicator(aShift: TShiftState): Word;
 begin
   Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100 + Byte(aShift = [ssShift, ssRight]) * 1000;
+end;
+
+
+{
+String functions
+These function are replacements for String functions introduced after XE2 (XE5 probably)
+Names are the same as in new Delphi versions, but with 'Str' prefix
+}
+function StrIndexOf(aStr, aSubStr: String): Integer;
+begin
+  Result := AnsiPos(aSubStr, aStr) - 1;
+end;
+
+
+function StrLastIndexOf(aStr, aSubStr: String): Integer;
+var I: Integer;
+begin
+  Result := -1;
+  for I := 1 to Length(aStr) do
+    if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
+      Result := I - 1;
+end;
+
+
+function StrStartsWith(aStr, aSubStr: String): Boolean;
+begin
+  Result := StartsStr(aSubStr, aStr);
+end;
+
+
+function StrSubstring(aStr: String; aFrom: Integer): String;
+begin
+  Result := Copy(aStr, aFrom + 1, Length(aStr));
+end;
+
+
+function StrSubstring(aStr: String; aFrom, aLength: Integer): String;
+begin
+  Result := Copy(aStr, aFrom + 1, aLength);
+end;
+
+
+function StrContains(aStr, aSubStr: String): Boolean;
+begin
+  Result := StrIndexOf(aStr, aSubStr) <> -1;
+end;
+
+
+function StrSplitToStrArray(aStr, aDelimiters: String): TStringArray;
+var StrArray: TStringDynArray;
+    I: Integer;
+begin
+  StrArray := SplitString(aStr, aDelimiters);
+  SetLength(Result, Length(StrArray));
+  for I := Low(StrArray) to High(StrArray) do
+    Result[I] := StrArray[I];
+end;
+
+
+function StrSplit(aStr, aDelimiters: String): TStrings;
+var StrArray: TStringDynArray;
+    I: Integer;
+begin
+  StrArray := SplitString(aStr, aDelimiters);
+  Result := TStrings.Create;
+  for I := Low(StrArray) to High(StrArray) do
+    Result.Add(StrArray[I]);
 end;
 
 

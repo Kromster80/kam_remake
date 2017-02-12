@@ -893,7 +893,6 @@ procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
 var
   I: Integer;
   fMissionParser: TMissionParserStandard;
-  Path: String;
   MapInfo: TKMapInfo;
 begin
   if aPathName = '' then exit;
@@ -901,9 +900,7 @@ begin
   //Prepare and save
   gHands.RemoveEmptyPlayers;
 
-  Path := ExtractFilePath(aPathName);
-
-  ForceDirectories(Path);
+  ForceDirectories(ExtractFilePath(aPathName));
   gLog.AddTime('Saving from map editor: ' + aPathName);
 
   fMapEditor.SaveAttachements(aPathName);
@@ -1385,17 +1382,9 @@ begin
 
   // Update GameSettings for saved positions in lists of saves and replays
   SaveInfo := TKMSaveInfo.Create(ExtractFilePath(fullPath), aSaveName);
+
   if not IsMultiplayer then
-  begin
-    gGameApp.GameSettings.MenuSPSaveCRC := SaveInfo.CRC;
-    gGameApp.GameSettings.MenuReplaySPSaveCRC := SaveInfo.CRC;
-    gGameApp.GameSettings.MenuReplaySPSaveName := SaveInfo.FileName;
-    gGameApp.GameSettings.MenuReplaysType := 0;
-  end else begin
-    gGameApp.GameSettings.MenuReplayMPSaveCRC := SaveInfo.CRC;
-    gGameApp.GameSettings.MenuReplayMPSaveName := SaveInfo.FileName;
-    gGameApp.GameSettings.MenuReplaysType := 1;
-  end;
+    gGameApp.GameSettings.MenuSPSaveCRC := SaveInfo.CRC; // Update save position for SP game
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
