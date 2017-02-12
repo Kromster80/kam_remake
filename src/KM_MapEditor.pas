@@ -323,9 +323,9 @@ begin
                                                       end;
                                 MARKER_AISTART:       gMySpectator.Hand.AI.Setup.StartPosition := P;
                                 MARKER_RALLY_POINT:   if gMySpectator.Selected is TKMHouseBarracks then
-                                                        TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell;
+                                                        TKMHouseBarracks(gMySpectator.Selected).RallyPoint := P;
                                 MARKER_CUTTING_POINT: if gMySpectator.Selected is TKMHouseWoodcutters then
-                                                        TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
+                                                        TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := P;
                               end;
                 cmErase:      begin
                                 gHands.RemAnyHouse(P);
