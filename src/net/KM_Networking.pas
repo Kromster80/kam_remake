@@ -106,7 +106,7 @@ type
     fOnJoinPassword: TNotifyEvent;
     fOnJoinAssignedHost: TNotifyEvent;
     fOnHostFail: TUnicodeStringEvent;
-    fOnReassignedHost: TNotifyEvent;
+    fOnReassignedHost: TIntegerEvent;
     fOnReassignedJoiner: TNotifyEvent;
     fOnFileTransferProgress: TTransferProgressEvent;
     fOnTextMessage: TUnicodeStringEvent;
@@ -121,6 +121,7 @@ type
     fOnPlay: TNotifyEvent;
     fOnReadyToPlay: TNotifyEvent;
     fOnDisconnect: TUnicodeStringEvent;
+    fOnOtherPlayerDisconnected: TIntegerEvent;
     fOnPingInfo: TNotifyEvent;
     fOnMPGameInfoChanged: TNotifyEvent;
     fOnCommands: TStreamIntEvent;
@@ -134,6 +135,7 @@ type
     procedure SetGameState(aState: TNetGameState);
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
+    function IsPlayerHandStillInGame(aPlayerIndex: Integer): Boolean;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     procedure PlayerDisconnected(aSenderIndex: Integer);
     procedure ReturnToLobbyVoteSucceeded;
@@ -170,7 +172,6 @@ type
     function IsHost: Boolean;
     function IsReconnecting: Boolean;
     function CalculateGameCRC: Cardinal;
-    procedure PostWinMessage;
 
     function IsMuted(aNetPlayerIndex: Integer): Boolean;
     procedure ToggleMuted(aNetPlayerIndex: Integer);
@@ -231,14 +232,14 @@ type
     procedure AttemptReconnection;
     procedure ReturnToLobby;
 
-    property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
+    property OnJoinSucc: TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail: TUnicodeStringEvent write fOnJoinFail;         //We were refused to join
-    property OnJoinPassword:TNotifyEvent write fOnJoinPassword; //Lobby requires password
+    property OnJoinPassword: TNotifyEvent write fOnJoinPassword; //Lobby requires password
     property OnHostFail: TUnicodeStringEvent write fOnHostFail;         //Server failed to start (already running a server?)
-    property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
-    property OnReassignedHost:TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
-    property OnReassignedJoiner:TNotifyEvent write fOnReassignedJoiner; //We were reassigned to a joiner from host
-    property OnFileTransferProgress:TTransferProgressEvent write fOnFileTransferProgress;
+    property OnJoinAssignedHost: TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
+    property OnReassignedHost: TIntegerEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
+    property OnReassignedJoiner: TNotifyEvent write fOnReassignedJoiner; //We were reassigned to a joiner from host
+    property OnFileTransferProgress: TTransferProgressEvent write fOnFileTransferProgress;
 
     property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
@@ -249,11 +250,12 @@ type
     property OnDoReturnToLobby: TNotifyEvent write fOnDoReturnToLobby;
     property OnAnnounceReturnToLobby: TNotifyEvent write fOnAnnounceReturnToLobby;
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
-    property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
-    property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
-    property OnMPGameInfoChanged:TNotifyEvent write fOnMPGameInfoChanged;
+    property OnReadyToPlay: TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
+    property OnPingInfo: TNotifyEvent write fOnPingInfo;         //Ping info updated
+    property OnMPGameInfoChanged: TNotifyEvent write fOnMPGameInfoChanged;
 
     property OnDisconnect: TUnicodeStringEvent write fOnDisconnect;     //Lost connection, was kicked
+    property OnOtherPlayerDisconnected: TIntegerEvent write fOnOtherPlayerDisconnected; //Other player disconnected
     property OnCommands: TStreamIntEvent write fOnCommands;        //Recieved GIP commands
     property OnResyncFromTick:TResyncEvent write fOnResyncFromTick;
 
@@ -1188,65 +1190,25 @@ begin
 end;
 
 
-procedure TKMNetworking.PostWinMessage;
-var I: Integer;
-    WinMsg: UnicodeString;
+// Check if player (not spectator) is not defeated and not win
+function TKMNetworking.IsPlayerHandStillInGame(aPlayerIndex: Integer): Boolean;
 begin
-  WinMsg := '';
-  // Win acquired if there is only 1 undefeated team
-  for I := 1 to fNetPlayers.Count do
-    if (fNetPlayers[I].HandIndex <> -1)
-      and gHands[fNetPlayers[I].HandIndex].AI.HasWon
-      and not fNetPlayers[I].IsSpectator then
-    begin
-      if fNetPlayers[I].Team = 0 then
-      begin
-        WinMsg := Format('%s wins!', [fNetPlayers[I].NiknameColoredU]); //Todo translate //Only one player is winning
-        Break;
-      end else begin
-        if WinMsg = '' then
-          WinMsg := Format('Team %d wins! Winners: ', [fNetPlayers[I].Team]) //Todo translate //Team wins
-        else
-          WinMsg := WinMsg + ', ';
-        WinMsg := WinMsg + fNetPlayers[I].NiknameColoredU;
-      end;
-    end;
-
-  if WinMsg <> '' then
-    PostLocalMessage(WinMsg, csSystem);
+  Result := (fNetPlayers[aPlayerIndex].HandIndex <> -1)
+            and (gHands[fNetPlayers[aPlayerIndex].HandIndex].AI.IsNotWinnerNotLoser) // This means player is not defeated and not win
+            and not fNetPlayers[aPlayerIndex].IsSpectator
 end;
 
 
 // Handle mk_Disconnect message
 procedure TKMNetworking.PlayerDisconnected(aSenderIndex: Integer);
-  // Check if player (not spectator) is not defeated and not win
-  function IsPlayerStillInGame(aPlayerIndex: Integer): Boolean;
-  begin
-    Result := (fNetPlayers[aPlayerIndex].HandIndex <> -1)
-              and (gHands[fNetPlayers[aPlayerIndex].HandIndex].AI.IsNotWinnerNotLoser) // This means player is not defeated and not win
-              and not fNetPlayers[aPlayerIndex].IsSpectator
-  end;
-
-  procedure DefeatDisconnectedPlayerHand(aPlayerIndex: Integer);
-  var HandIndex: Integer;
-  begin
-    HandIndex := fNetPlayers[aPlayerIndex].HandIndex;
-    if HandIndex <> -1 then
-    begin
-      gHands.DisableGoalsForDefeatedHand(HandIndex);
-      gHands[HandIndex].AI.Defeat(False);
-    end;
-  end;
 
   //Post local message about player disconnection
-  procedure TryDefeatPlayerAndPostMsg(aPlayerIndex: Integer);
+  procedure PostPlayerDefeatedMsg(aPlayerIndex: Integer);
   var QuitMsgId: Integer;
   begin
-    if IsPlayerStillInGame(aPlayerIndex) then
-    begin
-      QuitMsgId := IfThen(fHostIndex = aPlayerIndex, TX_MULTIPLAYER_HOST_DISCONNECTED_DEFEATED, TX_NET_HAS_QUIT_AND_DEFEATED);
-      DefeatDisconnectedPlayerHand(aPlayerIndex);
-    end else
+    if IsPlayerHandStillInGame(aPlayerIndex) then
+      QuitMsgId := IfThen(fHostIndex = aPlayerIndex, TX_MULTIPLAYER_HOST_DISCONNECTED_DEFEATED, TX_NET_HAS_QUIT_AND_DEFEATED)
+    else
       QuitMsgId := IfThen(fHostIndex = aPlayerIndex, TX_MULTIPLAYER_HOST_DISCONNECTED, TX_NET_HAS_QUIT);
     PostLocalMessage(Format(gResTexts[QuitMsgId], [fNetPlayers[aPlayerIndex].NiknameColoredU]), csLeave);
   end;
@@ -1259,7 +1221,10 @@ begin
                   fFileSenderManager.ClientDisconnected(aSenderIndex);
                   if PlayerIndex = -1 then exit; //Has already disconnected
 
-                  TryDefeatPlayerAndPostMsg(PlayerIndex);
+                  PostPlayerDefeatedMsg(PlayerIndex);
+
+                  if IsPlayerHandStillInGame(PlayerIndex) and Assigned(fOnOtherPlayerDisconnected) then
+                    fOnOtherPlayerDisconnected(fNetPlayers[PlayerIndex].HandIndex);
 
                   if fNetGameState in [lgs_Loading, lgs_Game] then
                     fNetPlayers.DropPlayer(aSenderIndex)
@@ -1273,7 +1238,7 @@ begin
                 end;
     lpk_Joiner: begin
                   if PlayerIndex = -1 then exit; //Has already disconnected
-                  TryDefeatPlayerAndPostMsg(PlayerIndex);
+                  PostPlayerDefeatedMsg(PlayerIndex);
                   if fHostIndex = PlayerIndex then
                   begin
                     // Host notify joiners about disconnection
@@ -1755,7 +1720,8 @@ begin
                   //We are now the host
                   fNetPlayerKind := lpk_Host;
                   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
-                  if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
+                  if Assigned(fOnReassignedHost) then
+                    fOnReassignedHost(fNetPlayers[fHostIndex].HandIndex); //Lobby/game might need to know that we are now hosting
 
                   case fNetGameState of
                     lgs_Lobby:   begin

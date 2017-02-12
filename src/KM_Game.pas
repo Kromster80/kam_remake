@@ -43,7 +43,6 @@ type
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsPaused: Boolean;
-    fIsWinMessagePosted: Boolean;
     fGameSpeed: Single; //Actual speedup value
     fGameSpeedMultiplier: Word; //How many ticks are compressed into one
     fGameMode: TGameMode;
@@ -66,6 +65,8 @@ type
 
     function ParseTextMarkup(aText: UnicodeString): UnicodeString;
     procedure GameMPDisconnect(const aData: UnicodeString);
+    procedure Game_OnReassignedHost(aDefeatedPlayerHandId: Integer);
+    procedure OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
     procedure UpdatePeaceTime;
@@ -130,7 +131,6 @@ type
     property GameSpeed: Single read fGameSpeed;
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
-    procedure PostWinMessage;
 
     property GameMode: TGameMode read fGameMode;
     property SaveFile: UnicodeString read fSaveFile;
@@ -577,7 +577,8 @@ begin
   fNetworking.OnPlayersSetup   := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo       := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.OnDisconnect     := GameMPDisconnect; //For auto reconnecting
-  fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
+  fNetworking.OnOtherPlayerDisconnected := OtherPlayerDisconnected;
+  fNetworking.OnReassignedHost := Game_OnReassignedHost;
   fNetworking.OnReassignedJoiner := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
@@ -627,6 +628,18 @@ procedure TKMGame.GameMPReadyToPlay(Sender: TObject);
 begin
   //Update the list of players that are ready to play
   WaitingPlayersDisplay(True);
+end;
+
+
+procedure TKMGame.Game_OnReassignedHost(aDefeatedPlayerHandId: Integer);
+begin
+  OtherPlayerDisconnected(aDefeatedPlayerHandId);
+end;
+
+
+procedure TKMGame.OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
+begin
+  gGame.GameInputProcess.CmdGame(gic_GamePlayerDefeat, aDefeatedPlayerHandId);
 end;
 
 
@@ -740,6 +753,12 @@ end;
 
 procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
+  fNetworking.PostLocalMessage(Format('%s has won!', //Todo translate
+    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+
+  if fGameMode = gmMultiSpectate then
+    Exit;
+
   if aPlayerIndex = gMySpectator.HandIndex then
     gSoundPlayer.Play(sfxn_Victory, 1, True); //Fade music
 
@@ -1708,18 +1727,6 @@ begin
     Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
   else
     Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
-end;
-
-
-// Post win message
-procedure TKMGame.PostWinMessage;
-begin
-  //Post not more then one win message for every game
-  if not fIsWinMessagePosted then
-  begin
-    fNetworking.PostWinMessage;
-    fIsWinMessagePosted := True;
-  end;
 end;
 
 

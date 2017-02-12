@@ -113,7 +113,7 @@ begin
     fWonOrLost := wol_Won;
 
     //Replays/spectators don't see victory screen
-    if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
+    if not (gGame.GameMode in [gmReplaySingle, gmReplayMulti])
     and (gGame.IsMultiplayer or (gMySpectator.HandIndex = fOwner)) then  //Let everyone know in MP mode
       gGame.PlayerVictory(fOwner);
 

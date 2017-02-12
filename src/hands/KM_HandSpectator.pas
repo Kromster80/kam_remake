@@ -22,7 +22,7 @@ type
     fFogOfWar: TKMFogOfWarCommon; //Pointer to current FOW view, updated by UpdateFogOfWarIndex
     procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
-    procedure SeTKMHandIndex(const Value: TKMHandIndex);
+    procedure SetHandIndex(const Value: TKMHandIndex);
     procedure SetFOWIndex(const Value: TKMHandIndex);
     procedure UpdateFogOfWarIndex;
     function GetLastSpecSelectedObj: TObject;
@@ -33,7 +33,7 @@ type
     property Highlight: TObject read fHighlight write SetHighlight;
     property Selected: TObject read fSelected write SetSelected;
     function Hand: TKMHand;
-    property HandIndex: TKMHandIndex read fHandIndex write SeTKMHandIndex;
+    property HandIndex: TKMHandIndex read fHandIndex write SetHandIndex;
     property FOWIndex: TKMHandIndex read fFOWIndex write SetFOWIndex;
     property FogOfWar: TKMFogOfWarCommon read fFogOfWar;
     property LastSpecSelectedObj: TObject read GetLastSpecSelectedObj;
@@ -275,7 +275,7 @@ begin
 end;
 
 
-procedure TKMSpectator.SeTKMHandIndex(const Value: TKMHandIndex);
+procedure TKMSpectator.SetHandIndex(const Value: TKMHandIndex);
 begin
   Assert(MULTIPLAYER_CHEATS or (gGame.GameMode <> gmMulti));
   fHandIndex := Value;
