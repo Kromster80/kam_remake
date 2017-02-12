@@ -99,7 +99,7 @@ Improvements:
  +		Added logs customization on F11 debug menu
 
  
- +	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor
+ +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
  +		MapEd: House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
  +		MapEd: Shortcut to change row count in group (same as for numbers, orders etc)
