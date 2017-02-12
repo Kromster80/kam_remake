@@ -739,7 +739,8 @@ Names are the same as in new Delphi versions, but with 'Str' prefix
 }
 function StrIndexOf(aStr, aSubStr: String): Integer;
 begin
-  Result := AnsiPos(aSubStr, aStr) - 1;end;
+  Result := AnsiPos(aSubStr, aStr) - 1;
+end;
 
 
 function StrLastIndexOf(aStr, aSubStr: String): Integer;
@@ -754,22 +755,26 @@ end;
 
 function StrStartsWith(aStr, aSubStr: String): Boolean;
 begin
-  Result := StartsStr(aSubStr, aStr);end;
+  Result := StartsStr(aSubStr, aStr);
+end;
 
 
 function StrSubstring(aStr: String; aFrom: Integer): String;
 begin
-  Result := Copy(aStr, aFrom + 1, Length(aStr));end;
+  Result := Copy(aStr, aFrom + 1, Length(aStr));
+end;
 
 
 function StrSubstring(aStr: String; aFrom, aLength: Integer): String;
 begin
-  Result := Copy(aStr, aFrom + 1, aLength);end;
+  Result := Copy(aStr, aFrom + 1, aLength);
+end;
 
 
 function StrContains(aStr, aSubStr: String): Boolean;
 begin
-  Result := StrIndexOf(aStr, aSubStr) <> -1;end;
+  Result := StrIndexOf(aStr, aSubStr) <> -1;
+end;
 
 
 function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
@@ -796,7 +801,10 @@ end;
 
 function StrSplitToStrArray(aStr, aDelimiters: String): TStringArray;
 var StrArray: TStringDynArray;
-    I: Integer;begin  StrArray := SplitString(aStr, aDelimiters);  SetLength(Result, Length(StrArray));
+    I: Integer;
+begin
+  StrArray := SplitString(aStr, aDelimiters);
+  SetLength(Result, Length(StrArray));
   for I := Low(StrArray) to High(StrArray) do
     Result[I] := StrArray[I];
 end;
@@ -806,7 +814,8 @@ function StrSplit(aStr, aDelimiters: String): TStrings;
 var StrArray: TStringDynArray;
     I: Integer;
 begin
-  StrArray := SplitString(aStr, aDelimiters);  Result := TStringList.Create;
+  StrArray := SplitString(aStr, aDelimiters);
+  Result := TStringList.Create;
   for I := Low(StrArray) to High(StrArray) do
     Result.Add(StrArray[I]);
 end;
