@@ -101,7 +101,7 @@ begin
     if Length(aArray) > 0 then
     begin
       for I := 0 to High(aArray) do
-        if aArray[I] = aElement then
+        if aArray[I] = String(aElement) then
           Inc(Result);
     end
     else
@@ -193,7 +193,7 @@ begin
     if Length(aArray) > 0 then
     begin
       for I := 0 to High(aArray) do
-        if aArray[I] = aElement then
+        if aArray[I] = String(aElement) then
           Exit(True);
     end
     else
@@ -615,7 +615,7 @@ begin
       H := aTicks div 36000;
       M := (aTicks div 600) mod 60;
       S := (aTicks div 10) mod 60;
-      Result := Format('%.2d:%.2d:%.2d', [H, M, S])
+      Result := AnsiString(Format('%.2d:%.2d:%.2d', [H, M, S]));
     end
     else
       Result := '';
