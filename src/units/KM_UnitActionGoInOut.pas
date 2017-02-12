@@ -336,7 +336,7 @@ begin
   and (fHouse <> nil) then
     fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
-  Assert((fHouse = nil) or KMSamePoint(fDoor, fHouse.GetEntrance)); //Must always go in/out the entrance of the house
+  Assert((fHouse = nil) or KMSamePoint(fDoor, fHouse.Entrance)); //Must always go in/out the entrance of the house
   Distance := gRes.Units[fUnit.UnitType].Speed;
 
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
@@ -368,7 +368,7 @@ begin
       and (fUnit.GetHome <> nil)
       and (fUnit.GetHome.HouseType = ht_Woodcutters)
       and (fUnit.GetHome = fHouse) then //And is the house we are walking from
-        fHouse.fCurrentAction.SubActionAdd([ha_Flagpole]);
+        fHouse.CurrentAction.SubActionAdd([ha_Flagpole]);
 
       if Assigned(OnWalkedIn) then
         OnWalkedIn;

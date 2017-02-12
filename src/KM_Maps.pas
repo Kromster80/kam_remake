@@ -10,6 +10,7 @@ uses
 
 type
   TMapsSortMethod = (
+    smByFavouriteAsc, smByFavouriteDesc,
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
@@ -57,6 +58,7 @@ type
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    IsFavourite: Boolean;
     BlockTeamSelection: Boolean;
     BlockPeacetime: Boolean;
     BlockFullMapPreview: Boolean;
@@ -162,7 +164,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
 
 
 const
@@ -247,6 +249,8 @@ begin
 
     //Load additional text info
     LoadTXTInfo;
+
+    IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
@@ -472,6 +476,8 @@ begin
   S.Read(BlockTeamSelection);
   S.Read(BlockPeacetime);
   S.Read(BlockFullMapPreview);
+
+  IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
 
   //Other properties are not saved, they are fast to reload
   S.Free;
@@ -746,19 +752,29 @@ var TempMaps: array of TKMapInfo;
   begin
     Result := False; //By default everything remains in place
     case fSortMethod of
-      smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
-      smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
-      smBySizeAsc:      Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
-      smBySizeDesc:     Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
-      smByPlayersAsc:   Result := A.LocCount < B.LocCount;
-      smByPlayersDesc:  Result := A.LocCount > B.LocCount;
-      smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
-      smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
-      smByHumanPlayersMPAsc:   Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
-      smByHumanPlayersMPDesc:  Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
-      smByModeAsc:      Result := A.MissionMode < B.MissionMode;
-      smByModeDesc:     Result := A.MissionMode > B.MissionMode;
+      smByFavouriteAsc:       Result := A.IsFavourite and not B.IsFavourite;
+      smByFavouriteDesc:      Result := not A.IsFavourite and B.IsFavourite;
+      smByNameAsc:            Result := CompareText(A.FileName, B.FileName) < 0;
+      smByNameDesc:           Result := CompareText(A.FileName, B.FileName) > 0;
+      smBySizeAsc:            Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smBySizeDesc:           Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smByPlayersAsc:         Result := A.LocCount < B.LocCount;
+      smByPlayersDesc:        Result := A.LocCount > B.LocCount;
+      smByHumanPlayersAsc:    Result := A.HumanPlayerCount < B.HumanPlayerCount;
+      smByHumanPlayersDesc:   Result := A.HumanPlayerCount > B.HumanPlayerCount;
+      smByHumanPlayersMPAsc:  Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
+      smByHumanPlayersMPDesc: Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
+      smByModeAsc:            Result := A.MissionMode < B.MissionMode;
+      smByModeDesc:           Result := A.MissionMode > B.MissionMode;
     end;
+    if not (fSortMethod in [smByFavouriteAsc, smByFavouriteDesc]) then
+    begin
+      if A.IsFavourite and not B.IsFavourite then
+        Result := False
+      else if not A.IsFavourite and B.IsFavourite then
+        Result := True
+    end;
+
   end;
 
   procedure MergeSort(left, right: integer);

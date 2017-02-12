@@ -125,7 +125,7 @@ begin
 
            SetActionLockedStay(Delay,ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
-             Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
+             Direction := KMGetDirection(GetPosition, fHouse.Entrance); //Look at house
            if gMySpectator.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y)) >= 255 then
              case UnitType of
                ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, PositionF); //Aiming

@@ -44,7 +44,8 @@ type
     procedure RenderFences;
     procedure RenderPlayerPlans(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
     procedure RenderFOW(aFOW: TKMFogOfWarCommon; aUseContrast: Boolean);
-    procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
+    procedure RenderTile(Index: Byte; pX,pY,Rot: Integer; DoHighlight: Boolean = False; HighlightColor: Cardinal = 0);
+    procedure RenderTileOverlay(pX, pY: Integer; DoHighlight: Boolean = False; HighlightColor: Cardinal = 0);
   end;
 
 
@@ -314,7 +315,8 @@ begin
 end;
 
 
-procedure TRenderTerrain.DoOverlays;
+//Render single tile overlay
+procedure TRenderTerrain.RenderTileOverlay(pX, pY: Integer; DoHighlight: Boolean = False; HighlightColor: Cardinal = 0);
 //   1      //Select road tile and rotation
 //  8*2     //depending on surrounding tiles
 //   4      //Bitfield
@@ -324,42 +326,44 @@ const
     (248,0), (248,0), (250,0), (252,0),
     (248,1), (250,2), (248,1), (252,3),
     (250,1), (252,2), (252,1), (254,0));
+var Road, ID, Rot: Byte;
+begin
+  case gTerrain.Land[pY, pX].TileOverlay of
+    to_Dig1:  RenderTile(249, pX, pY, 0, DoHighlight, HighlightColor);
+    to_Dig2:  RenderTile(251, pX, pY, 0, DoHighlight, HighlightColor);
+    to_Dig3:  RenderTile(253, pX, pY, 0, DoHighlight, HighlightColor);
+    to_Dig4:  RenderTile(255, pX, pY, 0, DoHighlight, HighlightColor);
+    to_Road:  begin
+                Road := 0;
+                if (pY - 1 >= 1) then
+                  Road := Road + byte(gTerrain.Land[pY - 1, pX].TileOverlay = to_Road) shl 0;
+                if (pX + 1 <= gTerrain.MapX - 1) then
+                  Road := Road + byte(gTerrain.Land[pY, pX + 1].TileOverlay = to_Road) shl 1;
+                if (pY + 1 <= gTerrain.MapY - 1) then
+                  Road := Road + byte(gTerrain.Land[pY + 1, pX].TileOverlay = to_Road) shl 2;
+                if (pX - 1 >= 1) then
+                  Road := Road + byte(gTerrain.Land[pY, pX - 1].TileOverlay = to_Road) shl 3;
+                ID := RoadsConnectivity[Road, 1];
+                Rot := RoadsConnectivity[Road, 2];
+                RenderTile(ID, pX, pY, Rot, DoHighlight, HighlightColor);
+              end;
+   end;
+
+   //Fake tiles for MapEd fields
+   case gTerrain.Land[pY, pX].CornOrWine of
+     1: RenderTile(62, pX, pY, 0, DoHighlight, HighlightColor);
+     2: RenderTile(55, pX, pY, 0, DoHighlight, HighlightColor);
+   end;
+end;
+
+
+procedure TRenderTerrain.DoOverlays;
 var
   I, K: Integer;
-  Road, ID, Rot: Byte;
 begin
-  glColor4f(1, 1, 1, 1);
-
   for I := fClipRect.Top to fClipRect.Bottom do
-  for K := fClipRect.Left to fClipRect.Right do
-  begin
-    case gTerrain.Land[I, K].TileOverlay of
-      to_Dig1:  RenderTile(249, K, I, 0);
-      to_Dig2:  RenderTile(251, K, I, 0);
-      to_Dig3:  RenderTile(253, K, I, 0);
-      to_Dig4:  RenderTile(255, K, I, 0);
-      to_Road:  begin
-                  Road := 0;
-                  if (I - 1 >= 1) then
-                    Road := Road + byte(gTerrain.Land[I - 1, K].TileOverlay = to_Road) shl 0;
-                  if (K + 1 <= gTerrain.MapX - 1) then
-                    Road := Road + byte(gTerrain.Land[I, K + 1].TileOverlay = to_Road) shl 1;
-                  if (I + 1 <= gTerrain.MapY - 1) then
-                    Road := Road + byte(gTerrain.Land[I + 1, K].TileOverlay = to_Road) shl 2;
-                  if (K - 1 >= 1) then
-                    Road := Road + byte(gTerrain.Land[I, K - 1].TileOverlay = to_Road) shl 3;
-                  ID := RoadsConnectivity[Road, 1];
-                  Rot := RoadsConnectivity[Road, 2];
-                  RenderTile(ID, K, I, Rot);
-                end;
-     end;
-
-     //Fake tiles for MapEd fields
-     case gTerrain.Land[I, K].CornOrWine of
-       1: RenderTile(62, K, I, 0);
-       2: RenderTile(55, K, I, 0);
-     end;
-  end;
+    for K := fClipRect.Left to fClipRect.Right do
+      RenderTileOverlay(K, I);
 end;
 
 
@@ -659,8 +663,8 @@ begin
 end;
 
 
-//Render single terrian cell
-procedure TRenderTerrain.RenderTile(Index: Byte; pX,pY,Rot: Integer);
+//Render single terrain cell
+procedure TRenderTerrain.RenderTile(Index: Byte; pX,pY,Rot: Integer; DoHighlight: Boolean = False; HighlightColor: Cardinal = 0);
 var
   K, I: Integer;
   TexC: TUVRect; // Texture UV coordinates
@@ -669,7 +673,10 @@ begin
 
   K := pX;
   I := pY;
-  glColor4f(1, 1, 1, 1);
+  if DoHighlight then
+    glColor4ub(HighlightColor AND $FF, HighlightColor SHR 8 AND $FF, HighlightColor SHR 16 AND $FF, $FF)
+  else
+    glColor4f(1, 1, 1, 1);
 
   glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Index + 1].Tex.ID);
   TexC := fTileUVLookup[Index, Rot mod 4];

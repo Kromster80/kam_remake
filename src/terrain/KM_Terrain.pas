@@ -139,6 +139,7 @@ type
     procedure DecStoneDeposit(Loc: TKMPoint);
     function DecOreDeposit(Loc: TKMPoint; rt: TWareType): Boolean;
 
+    function GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPassability: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
     function CheckPassability(Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
     function HasUnit(Loc: TKMPoint): Boolean;
     function HasVertexUnit(Loc: TKMPoint): Boolean;
@@ -2088,6 +2089,34 @@ begin
   if VerticeInMapCoords(Loc.X,Loc.Y)
   and not HousesNearVertex then
     AddPassability(tpElevate);
+end;
+
+
+//Find closest passable point to TargetPoint within line segment OriginPoint <-> TargetPoint
+//MaxDistance - maximum distance between finded point and origin point. MaxDistance = -1 means there is no distance restriction
+function TKMTerrain.GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPassability: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
+  function IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint: TKMPoint): Boolean;
+  begin
+    Result := (MaxDistance = -1) or (KMDistanceSqr(OriginPoint, TargetPoint) <= Sqr(MaxDistance));
+  end;
+var
+  NormVector: TKMPoint;
+  NormDistance: Integer;
+begin
+  if MaxDistance = -1 then
+    NormDistance := Floor(KMLength(OriginPoint, TargetPoint))
+  else
+    NormDistance := Min(MaxDistance, Floor(KMLength(OriginPoint, TargetPoint)));
+
+  while (NormDistance >= 0)
+    and (not IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint)
+         or not CheckPassability(TargetPoint, aPassability)) do
+  begin
+    NormVector := KMNormVector(KMPoint(TargetPoint.X - OriginPoint.X, TargetPoint.Y - OriginPoint.Y), NormDistance);
+    TargetPoint := KMPoint(OriginPoint.X + NormVector.X, OriginPoint.Y + NormVector.Y);
+    Dec(NormDistance);
+  end;
+  Result := TargetPoint;
 end;
 
 

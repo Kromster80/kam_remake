@@ -65,6 +65,8 @@ type
     procedure SaveToFile(aFileName: UnicodeString);
     procedure UpdateStateIdle;
     procedure Eyedropper(aLoc: TKMPoint);
+    procedure RotateTile(aLoc: TKMPoint);
+
     procedure MagicWater(aLoc: TKMPoint);
 
     function CanUndo: Boolean;
@@ -935,6 +937,14 @@ begin
   //Save specified loc's terrain info
   gGameCursor.Tag1 := gTerrain.Land[aLoc.Y, aLoc.X].Terrain;
   gGameCursor.MapEdDir := gTerrain.Land[aLoc.Y, aLoc.X].Rotation;
+end;
+
+
+procedure TKMTerrainPainter.RotateTile(aLoc: TKMPoint);
+begin
+  EditTile(gGameCursor.Cell,
+           gTerrain.Land[aLoc.Y, aLoc.X].Terrain,
+           (gTerrain.Land[aLoc.Y, aLoc.X].Rotation + 1) mod 4);
 end;
 
 

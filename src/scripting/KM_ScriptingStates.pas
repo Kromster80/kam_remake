@@ -1366,7 +1366,7 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if H <> nil then
-        Result := H.GetEntrance.X;
+        Result := H.Entrance.X;
     end
     else
       LogParamWarning('States.HousePositionX', [aHouseID]);
@@ -1390,7 +1390,7 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if H <> nil then
-        Result := H.GetEntrance.Y;
+        Result := H.Entrance.Y;
     end
     else
       LogParamWarning('States.HousePositionY', [aHouseID]);

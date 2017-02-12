@@ -675,8 +675,8 @@ begin
           gTerrain.FlattenTerrain(CellsToDig[LastToDig]);
           gTerrain.FlattenTerrain(CellsToDig[LastToDig]); //Flatten the terrain twice now to ensure it really is flat
           gTerrain.SetTileLock(CellsToDig[LastToDig], tlDigged); //Block passability on tile
-          if KMSamePoint(fHouse.GetEntrance, CellsToDig[LastToDig]) then
-            gTerrain.SetField(fHouse.GetEntrance, Owner, ft_Road);
+          if KMSamePoint(fHouse.Entrance, CellsToDig[LastToDig]) then
+            gTerrain.SetField(fHouse.Entrance, Owner, ft_Road);
           gTerrain.RemoveObject(CellsToDig[LastToDig]); //All objects are removed
           Dec(LastToDig);
         end;
@@ -685,7 +685,7 @@ begin
           OutOfWay := gTerrain.GetOutOfTheWay(fUnit, KMPoint(0,0), tpWalk);
           //GetOutOfTheWay can return the input position (GetPosition in this case) if no others are possible
           if KMSamePoint(OutOfWay, KMPoint(0,0)) or KMSamePoint(OutOfWay, GetPosition) then
-            OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
+            OutOfWay := fHouse.PointBelowEntrance; //Don't get stuck in corners
           SetActionWalkToSpot(OutOfWay);
           HouseNeedsWorker := False; //House construction no longer needs the worker to continue
           HouseReadyToBuild := True; //If worker gets killed while walking house will be finished without him
