@@ -97,6 +97,7 @@ Improvements:
  +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns)
  +		Ability to specify the title of the mission separately for each campaign rather than globally for all
  +		Added logs customization on F11 debug menu
+ +		Allow to save and use last entered password for MP lobby
 
  
  +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
@@ -106,6 +107,8 @@ Improvements:
  +		MapEd: Set default 'center screen' position of all players in the center of screen for new map
  +		MapEd: Ability to change owner for objects
  +	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
+ 
+ +		Dynamic scripts: added 32 utility functions. Check wiki for details
  
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
