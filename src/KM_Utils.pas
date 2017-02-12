@@ -772,7 +772,7 @@ var StrArray: TStringDynArray;
     I: Integer;
 begin
   StrArray := SplitString(aStr, aDelimiters);
-  Result := TStrings.Create;
+  Result := TStringList.Create;
   for I := Low(StrArray) to High(StrArray) do
     Result.Add(StrArray[I]);
 end;
