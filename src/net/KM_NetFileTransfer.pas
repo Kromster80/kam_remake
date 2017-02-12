@@ -330,7 +330,7 @@ begin
   Assert(ReadType = fType, 'Unexpected transfer type received');
   ReadStream.ReadW(ReadName);
   if (ReadName <> fName) and (ReadName + '_' + IntToHex(fMapCRC, 8) <> fName) then
-    Assert(False, 'Unexpected transfer name received');
+    raise Exception.Create('Unexpected transfer name received');
 
   ClearExistingFiles;
 

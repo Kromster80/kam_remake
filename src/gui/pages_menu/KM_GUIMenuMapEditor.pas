@@ -442,10 +442,7 @@ begin
     0: Result := fMaps;
     1: Result := fMapsMP;
     else
-    begin
-      Assert(False);
-      Exit;
-    end;
+      raise Exception.Create('Unknown map type ' + IntToStr(Radio_MapEd_MapType.ItemIndex));
   end;
 end;
 
@@ -592,6 +589,15 @@ procedure TKMMenuMapEditor.MoveEditChange(Sender: TObject);
 var
   SaveName: string;
 begin
+  // Do not allow empty file name
+  if Trim(Edit_MapMove.Text) = '' then
+  begin
+    CheckBox_MoveExists.Visible := False;
+    Label_MoveExists.Visible := False;
+    Button_MapMoveConfirm.Enabled := False;
+    Exit;
+  end;
+
   SaveName := TKMapsCollection.FullPath(Trim(Edit_MapMove.Text), '.dat', mfMP);
 
   if (Sender = Edit_MapMove) or (Sender = Button_MapMove) then
@@ -622,7 +628,7 @@ end;
 
 procedure TKMMenuMapEditor.MoveClick(Sender: TObject);
 var
-  OldSelection, NewSelection, ID: Integer;
+  ID: Integer;
 begin
   Assert(Radio_MapEd_MapType.ItemIndex = 1);
 

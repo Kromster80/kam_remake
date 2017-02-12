@@ -488,7 +488,7 @@ begin
     fMaps.Unlock; // Even if Exit; happens Unlock will be called anyway
   end;
 
-  Assert(False); //We should NOT reach here, since we checked that the start button was enabled
+  raise Exception.Create('We should NOT reach here, since we checked that the start button was enabled'); //We should NOT reach here, since we checked that the start button was enabled
 end;
 
 

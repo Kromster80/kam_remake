@@ -23,6 +23,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
   end;
 
 
@@ -127,6 +128,12 @@ end;
 function TKMMapEdTownHouses.Visible: Boolean;
 begin
   Result := Panel_Build.Visible;
+end;
+
+
+procedure TKMMapEdTownHouses.UpdateState;
+begin
+  Town_BuildRefresh;
 end;
 
 

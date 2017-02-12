@@ -153,6 +153,7 @@ type
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
     procedure SetOwner(aOwner: TKMHandIndex);
+    procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     procedure HitPointsChangeFromScript(aAmount: Integer);
     procedure HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
     property HitPointsMax: Byte read GetHitPointsMax;
@@ -325,21 +326,21 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        gRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
         if gRes.Units[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
+          gRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        gRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
+        gRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        gRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
   end;
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
+    gRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -453,7 +454,7 @@ begin
     ht_IronMine:    Msg := TX_MSG_IRON_DEPLETED;
     ht_GoldMine:    Msg := TX_MSG_GOLD_DEPLETED;
     ht_Woodcutters: Msg := TX_MSG_WOODCUTTER_DEPLETED;
-    ht_FisherHut:   if not gTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), gRes.Units[fUnitType].MiningRange) then
+    ht_FisherHut:   if not gTerrain.CanFindFishingWater(fHome.PointBelowEntrance, gRes.Units[fUnitType].MiningRange) then
                       Msg := TX_MSG_FISHERMAN_TOO_FAR
                     else
                       Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
@@ -462,7 +463,7 @@ begin
 
   Assert(Msg <> 0, gRes.Houses[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
-  gGame.ShowMessage(mkHouse, Msg, fHome.GetEntrance, fOwner);
+  gGame.ShowMessage(mkHouse, Msg, fHome.Entrance, fOwner);
   fHome.ResourceDepletedMsgIssued := True;
 end;
 
@@ -474,7 +475,7 @@ var
 begin
   Result := nil;
 
-  if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
+  if not KMSamePoint(fCurrPosition, fHome.Entrance) then
     raise ELocError.Create('Mining from wrong spot', fCurrPosition);
 
   Res := 1;
@@ -551,21 +552,21 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        gRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
         if gRes.Units[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
+          gRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        gRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
+        gRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        gRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
   end;
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
+    gRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -724,17 +725,17 @@ begin
 
   ID := fUID * Byte(not (fCurrentAction.fActionType in [ua_Die, ua_Eat]));
 
-  fRenderPool.AddUnit(UnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+  gRenderPool.AddUnit(UnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then Exit; //Do not show unnecessary arms
 
   if Carry <> wt_None then
-    fRenderPool.AddUnitCarry(Carry, ID, Direction, AnimStep, XPaintPos, YPaintPos)
+    gRenderPool.AddUnitCarry(Carry, ID, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRenderPool.AddUnit(UnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
+    gRenderPool.AddUnit(UnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
+    gRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -865,10 +866,10 @@ begin
 
   ID := fUID * Byte(not (fCurrentAction.fActionType in [ua_Die, ua_Eat]));
 
-  fRenderPool.AddUnit(UnitType, ID, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+  gRenderPool.AddUnit(UnitType, ID, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fUnitType, fCurrentAction.ActionType, Direction, fThought, XPaintPos, YPaintPos);
+    gRenderPool.AddUnitThought(fUnitType, fCurrentAction.ActionType, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -964,7 +965,7 @@ begin
   if fUnitTask is TTaskDie then
   case fUnitTask.Execute of
     TaskContinues:  exit;
-    TaskDone:       Assert(false); //TTaskDie never returns TaskDone yet
+    TaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = TaskDone'); //TTaskDie never returns TaskDone yet
   end;
 
   //First make sure the animal isn't stuck (check passibility of our position)
@@ -1006,7 +1007,7 @@ begin
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
   //Animals can be picked only in MapEd
-  fRenderPool.AddUnit(fUnitType, fUID * Byte(gGame.IsMapEditor), Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
+  gRenderPool.AddUnit(fUnitType, fUID * Byte(gGame.IsMapEditor), Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
 end;
 
 
@@ -1075,7 +1076,7 @@ begin
   begin
     LoadStream.Read(TaskName, SizeOf(TaskName));
     case TaskName of
-      utn_Unknown:         Assert(false, 'TaskName can''t be handled');
+      utn_Unknown:         raise Exception.Create('TaskName can''t be handled');
       utn_SelfTrain:       fUnitTask := TTaskSelfTrain.Load(LoadStream);
       utn_Deliver:         fUnitTask := TTaskDeliver.Load(LoadStream);
       utn_BuildRoad:       fUnitTask := TTaskBuildRoad.Load(LoadStream);
@@ -1181,9 +1182,6 @@ end;
 // Erase everything related to unit status to exclude it from being accessed by anything but the old pointers
 procedure TKMUnit.CloseUnit(aRemoveTileUsage: Boolean = True);
 begin
-  //if not KMSamePoint(fCurrPosition,NextPosition) then
-  //  Assert(false, 'Not sure where to die?');
-
   if fHome <> nil then
   begin
     fHome.GetHasOwner := False;
@@ -1264,6 +1262,18 @@ begin
 end;
 
 
+procedure TKMUnit.OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
+begin
+  if aMoveToNewOwner and (fOwner <> aOwner) then
+  begin
+    Assert(gGame.GameMode = gmMapEd); // Allow to move existing Unit directly only in MapEd
+    gHands[fOwner].Units.DeleteUnitFromList(Self);
+    gHands[aOwner].Units.AddUnitToList(Self);
+  end;
+  fOwner := aOwner;
+end;
+
+
 procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
   //This is only used by the map editor, set all positions to aPos
@@ -1281,7 +1291,7 @@ end;
 
 function TKMUnit.CanAccessHome: Boolean;
 begin
-  Result := (fHome = nil) or CanWalkTo(KMPointBelow(fHome.GetEntrance), tpWalk, 0);
+  Result := (fHome = nil) or CanWalkTo(fHome.PointBelowEntrance, tpWalk, 0);
 end;
 
 
@@ -1389,9 +1399,8 @@ begin
   end;
   if not gRes.Units[fUnitType].SupportsAction(aAction.ActionType) then
   begin
-    Assert(false, 'Unit '+gRes.Units[UnitType].GUIName+' was asked to do unsupported action');
     FreeAndNil(aAction);
-    exit;
+    raise Exception.Create('Unit ' + gRes.Units[UnitType].GUIName + ' was asked to do unsupported action');
   end;
   if fCurrentAction <> aAction then
   begin
@@ -1470,7 +1479,8 @@ end;
 //WalkTo action with exact options (retranslated from WalkTo if Obstcale met)
 procedure TKMUnit.SetActionWalk(aLocB: TKMPoint; aActionType:TUnitActionType; aDistance:single; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+    raise Exception.Create('');
   SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, false, aTargetUnit, aTargetHouse));
 end;
 
@@ -1479,7 +1489,7 @@ end;
 procedure TKMUnit.SetActionWalkToHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False);
+    raise Exception.Create('');
 
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
                                       //Target position is the closest cell to our current position (only used for estimating in path finding)
@@ -1496,7 +1506,7 @@ end;
 procedure TKMUnit.SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False);
+    raise Exception.Create('');
 
   //todo: Make unit walk away from House
   SetActionStay(20, aActionType);
@@ -1507,7 +1517,7 @@ end;
 procedure TKMUnit.SetActionWalkToUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-   Assert(False);
+   raise Exception.Create('');
 
   Assert(aDistance >= 1, 'Should not walk to units place');
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
@@ -1524,7 +1534,7 @@ end;
 procedure TKMUnit.SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False);
+    raise Exception.Create('');
 
   //todo: Make unit walk away from Unit
   SetActionStay(20, aActionType);
@@ -1535,7 +1545,7 @@ end;
 procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(False, 'Interrupting unabandonable Walk action');
+    raise Exception.Create('Interrupting unabandonable Walk action');
 
   SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil));
 end;
@@ -1714,7 +1724,7 @@ begin
     or (TUnitActionGoInOut(GetUnitAction).GetWaitingForPush) then
     begin
       //Position in a spiral nearest to entrance of house, updating IsUnit.
-      if not gHands.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
+      if not gHands.FindPlaceForUnit(fInHouse.Entrance.X, fInHouse.Entrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.Entrance)) then
       begin
         //There is no space for this unit so it must be destroyed
         //todo: re-route to KillUnit and let it sort out that unit is invisible and cant be placed

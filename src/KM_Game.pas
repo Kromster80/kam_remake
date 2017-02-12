@@ -632,7 +632,7 @@ procedure TKMGame.GameMPDisconnect(const aData: UnicodeString);
 begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin
-    if WRITE_RECONNECT_LOG then gLog.AddTime('GameMPDisconnect: '+aData);
+    gLog.LogNetConnection('GameMPDisconnect: ' + aData);
     fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
     fNetworking.OnJoinAssignedHost := nil;
     fNetworking.OnJoinSucc := nil;
@@ -804,7 +804,7 @@ begin
         //We are waiting during inital loading
         Result := fNetworking.NetPlayers.GetNotReadyToPlayPlayers;
     else
-        Assert(False, 'WaitingPlayersList from wrong state');
+        raise Exception.Create('WaitingPlayersList from wrong state');
   end;
 end;
 
@@ -935,7 +935,7 @@ end;
 
 procedure TKMGame.Render(aRender: TRender);
 begin
-  fRenderPool.Render;
+  gRenderPool.Render;
 
   aRender.SetRenderMode(rm2D);
   fActiveInterface.Paint;
@@ -1235,10 +1235,7 @@ begin
   gLog.AddTime('Saving game: ' + aPathName);
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
-  begin
-    Assert(false, 'Saving from wrong state');
-    Exit;
-  end;
+    raise Exception.Create('Saving from wrong state');
 
   SaveStream := TKMemoryStream.Create;
   try

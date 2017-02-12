@@ -360,6 +360,7 @@ object Form1: TForm1
     TabOrder = 9
     Text = '   '
     OnChange = edtShortNameChange
+    OnKeyPress = edtShortNameKeyPress
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Supported images (*.png)|*.png'

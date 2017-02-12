@@ -241,7 +241,7 @@ begin
                     Inc(Wares[R].Produced, aCount);
       WARE_MIN..
       WARE_MAX:   Inc(Wares[aRes].Produced, aCount);
-      else        Assert(False, 'Cant''t add produced ware ' + gRes.Wares[aRes].Title);
+      else        raise Exception.Create('Cant''t add produced ware ' + gRes.Wares[aRes].Title);
     end;
 end;
 
@@ -276,7 +276,7 @@ var
 begin
   Result := 0;
   if (Length(aType) = 0) then
-    Assert(False, 'Quering wrong house type')
+    raise Exception.Create('Quering wrong house type')
   else
   if (Length(aType) = 1) and (aType[0] = ht_Any) then
   begin
@@ -288,7 +288,7 @@ begin
   if aType[I] in [HOUSE_MIN..HOUSE_MAX] then
     Inc(Result, Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost)
   else
-    Assert(False, 'Quering wrong house type');
+    raise Exception.Create('Quering wrong house type');
 end;
 
 
@@ -328,7 +328,7 @@ var
 begin
   Result := 0;
   if (Length(aType) = 0) then
-    Assert(False, 'Quering wrong house type')
+    raise Exception.Create('Quering wrong house type')
   else
   if (Length(aType) = 1) and (aType[0] = ht_Any) then
   begin
@@ -340,7 +340,7 @@ begin
   if aType[I] in [HOUSE_MIN..HOUSE_MAX] then
     Inc(Result, Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved)
   else
-    Assert(False, 'Quering wrong house type');
+    raise Exception.Create('Quering wrong house type');
 end;
 
 

@@ -21,7 +21,8 @@ uses
 
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
-  function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
+  function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
+  function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
   function GetPingColor(aPing: Word): Cardinal;
   function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
@@ -59,6 +60,8 @@ uses
   function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
 
   function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+
+  function DeleteDoubleSpaces(aString: string): string;
 
   function GetMultiplicator(aShift: TShiftState): Word;
 
@@ -475,7 +478,7 @@ begin
 end;
 
 
-function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
+function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
 begin
   Result := Round((aColor and $FF) / 255 * aBrightness)
             or
@@ -484,6 +487,20 @@ begin
             Round((aColor shr 16 and $FF) / 255 * aBrightness) shl 16
             or
             (aColor and $FF000000);
+end;
+
+
+function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
+var
+  R, G, B: Byte;
+  Hue, Sat, Bri: Single;
+begin
+  ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
+  Bri := Math.Max(aMinBrightness, Math.Min(Bri*aBrightnessFactor, aMaxBrightness));
+  ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
+
+  //Preserve transparency value
+  Result := (R + G shl 8 + B shl 16) or (aColor and $FF000000);
 end;
 
 
@@ -701,6 +718,26 @@ begin
         //Not markup so count width normally
         Result := Result + aText[I];
     Inc(I);
+  end;
+end;
+
+
+//Replace continious spaces with single space
+function DeleteDoubleSpaces(aString: string): string;
+var I: Integer;
+begin
+  Result := '';
+  if aString = '' then Exit;
+  Result := aString[1];
+
+  for I := 2 to Length(aString) do
+  begin
+    if aString[I] = ' ' then
+    begin
+      if not (aString[I-1] = ' ') then
+        Result := Result + ' ';
+    end else
+      Result := Result + aString[I];
   end;
 end;
 
