@@ -65,7 +65,6 @@ type
 
     function ParseTextMarkup(aText: UnicodeString): UnicodeString;
     procedure GameMPDisconnect(const aData: UnicodeString);
-    procedure Game_OnReassignedHost(aDefeatedPlayerHandId: Integer);
     procedure OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
@@ -577,8 +576,8 @@ begin
   fNetworking.OnPlayersSetup   := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo       := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.OnDisconnect     := GameMPDisconnect; //For auto reconnecting
-  fNetworking.OnOtherPlayerDisconnected := OtherPlayerDisconnected;
-  fNetworking.OnReassignedHost := Game_OnReassignedHost;
+  fNetworking.OnJoinerDropped := OtherPlayerDisconnected;
+  fNetworking.OnReassignedHost := nil; //Reset Lobby OnReassignedHost
   fNetworking.OnReassignedJoiner := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
@@ -628,12 +627,6 @@ procedure TKMGame.GameMPReadyToPlay(Sender: TObject);
 begin
   //Update the list of players that are ready to play
   WaitingPlayersDisplay(True);
-end;
-
-
-procedure TKMGame.Game_OnReassignedHost(aDefeatedPlayerHandId: Integer);
-begin
-  OtherPlayerDisconnected(aDefeatedPlayerHandId);
 end;
 
 

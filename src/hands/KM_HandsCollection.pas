@@ -608,22 +608,6 @@ end;
 
 
 procedure TKMHandsCollection.UpdateState(aTick: Cardinal);
-
-  function IsGameWinnersAcquired: Boolean;
-  var I: Integer;
-  begin
-    Result := False;
-    for I := 0 to Count - 1 do
-      if fHandsList[I].Enabled then
-        if fHandsList[I].AI.HasWon then
-          Result := True
-        else if fHandsList[I].AI.IsNotWinnerNotLoser then
-        begin
-          Result := False;
-          Exit;
-        end;
-  end;
-
 var
   I: Integer;
 begin

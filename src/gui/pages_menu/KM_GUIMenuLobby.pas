@@ -79,7 +79,7 @@ type
     procedure Lobby_OnMessage(const aText: UnicodeString);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
-    procedure Lobby_OnReassignedToHost(aOldHostHandId: Integer);
+    procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_OnReassignedToJoiner(Sender: TObject);
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
 
@@ -1906,7 +1906,7 @@ end;
 
 
 //We have been assigned to be the host of the game because the host disconnected. Reopen lobby page in correct mode.
-procedure TKMMenuLobby.Lobby_OnReassignedToHost(aOldHostHandId: Integer);
+procedure TKMMenuLobby.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Reset(lpk_Host, True, True); //Will reset the lobby page into host mode, preserving messages/maps
 

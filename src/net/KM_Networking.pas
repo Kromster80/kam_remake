@@ -106,7 +106,7 @@ type
     fOnJoinPassword: TNotifyEvent;
     fOnJoinAssignedHost: TNotifyEvent;
     fOnHostFail: TUnicodeStringEvent;
-    fOnReassignedHost: TIntegerEvent;
+    fOnReassignedHost: TNotifyEvent;
     fOnReassignedJoiner: TNotifyEvent;
     fOnFileTransferProgress: TTransferProgressEvent;
     fOnTextMessage: TUnicodeStringEvent;
@@ -121,7 +121,7 @@ type
     fOnPlay: TNotifyEvent;
     fOnReadyToPlay: TNotifyEvent;
     fOnDisconnect: TUnicodeStringEvent;
-    fOnOtherPlayerDisconnected: TIntegerEvent;
+    fOnJoinerDropped: TIntegerEvent;
     fOnPingInfo: TNotifyEvent;
     fOnMPGameInfoChanged: TNotifyEvent;
     fOnCommands: TStreamIntEvent;
@@ -136,6 +136,7 @@ type
     procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     function IsPlayerHandStillInGame(aPlayerIndex: Integer): Boolean;
+    procedure ReassignHost(aSenderIndex: Integer; M: TKMemoryStream);
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     procedure PlayerDisconnected(aSenderIndex: Integer);
     procedure ReturnToLobbyVoteSucceeded;
@@ -237,7 +238,7 @@ type
     property OnJoinPassword: TNotifyEvent write fOnJoinPassword; //Lobby requires password
     property OnHostFail: TUnicodeStringEvent write fOnHostFail;         //Server failed to start (already running a server?)
     property OnJoinAssignedHost: TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
-    property OnReassignedHost: TIntegerEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
+    property OnReassignedHost: TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
     property OnReassignedJoiner: TNotifyEvent write fOnReassignedJoiner; //We were reassigned to a joiner from host
     property OnFileTransferProgress: TTransferProgressEvent write fOnFileTransferProgress;
 
@@ -255,7 +256,7 @@ type
     property OnMPGameInfoChanged: TNotifyEvent write fOnMPGameInfoChanged;
 
     property OnDisconnect: TUnicodeStringEvent write fOnDisconnect;     //Lost connection, was kicked
-    property OnOtherPlayerDisconnected: TIntegerEvent write fOnOtherPlayerDisconnected; //Other player disconnected
+    property OnJoinerDropped: TIntegerEvent write fOnJoinerDropped; //Other player disconnected
     property OnCommands: TStreamIntEvent write fOnCommands;        //Recieved GIP commands
     property OnResyncFromTick:TResyncEvent write fOnResyncFromTick;
 
@@ -1199,6 +1200,82 @@ begin
 end;
 
 
+// Handle mk_ReassignHost message
+procedure TKMNetworking.ReassignHost(aSenderIndex: Integer; M: TKMemoryStream);
+var NewHostIndex, OldHostIndex: Integer;
+    PasswordA: AnsiString;
+    DescriptionW: UnicodeString;
+begin
+  M.Read(NewHostIndex);
+  if fFileReceiver <> nil then
+  begin
+    FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects/changes
+    //Reset, otherwise it will freeze in "downloading" state
+    if Assigned(fOnMapMissing) then fOnMapMissing('', False); //Set empty str as error msg for now
+  end;
+  if IsHost then
+  begin
+    //We are no longer the host
+    fFileSenderManager.AbortAllTransfers;
+    fNetPlayerKind := lpk_Joiner;
+    if Assigned(fOnReassignedJoiner) then fOnReassignedJoiner(Self); //Lobby/game might need to know
+    if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+  end;
+  if NewHostIndex = fMyIndexOnServer then
+  begin
+    //We are now the host
+    fNetPlayerKind := lpk_Host;
+    fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
+
+    OldHostIndex := fHostIndex;
+
+    if Assigned(fOnReassignedHost) then
+      fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
+
+    case fNetGameState of
+      lgs_Lobby:   begin
+                     if InRange(fHostIndex, 1, fNetPlayers.Count) then
+                       fNetPlayers[fHostIndex].ReadyToStart := False; //Old host is not ready anymore
+                     MyNetPlayer.ReadyToStart := True; //The host is always ready
+                     fNetPlayers.SetAIReady; //Set all AI players to ready
+                     SendGameOptions; //Only needs to be sent when in the lobby. Our version becomes standard.
+                   end;
+      lgs_Loading: begin
+                     if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
+                     TryPlayGame;
+                   end;
+    end;
+
+    fHostIndex := MyIndex; //Set it down here as it is used above
+
+    //Server tells us the password and description in this packet,
+    //so they aren't reset when the host is changed
+    M.ReadA(PasswordA);
+    M.ReadW(DescriptionW);
+    fPassword := PasswordA;
+    fDescription := DescriptionW;
+
+    fOnMPGameInfoChanged(Self);
+    if (fSelectGameKind = ngk_None)
+      or ((fSelectGameKind = ngk_Map)  and not MapInfo.IsValid)
+      or ((fSelectGameKind = ngk_Save) and not SaveInfo.IsValid) then
+      SelectNoMap(''); //In case the previous host had the map and we don't
+    SendPlayerListAndRefreshPlayersSetup;
+
+    //If host was dropped already, that mean we have to defeat him, because he intentionally quits the game
+    //(dropped was set on his mk_Disconnect message)
+    if fNetPlayers[OldHostIndex].Dropped
+      and IsPlayerHandStillInGame(OldHostIndex)
+      and (fNetPlayers[OldHostIndex].HandIndex <> -1)
+      and Assigned(fOnJoinerDropped) then
+      fOnJoinerDropped(fNetPlayers[OldHostIndex].HandIndex);
+
+    PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, fNetPlayers[fMyIndex].NiknameColoredU);
+    gLog.LogNetConnection('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
+  end;
+end;
+
+
 // Handle mk_Disconnect message
 procedure TKMNetworking.PlayerDisconnected(aSenderIndex: Integer);
 
@@ -1221,10 +1298,13 @@ begin
                   fFileSenderManager.ClientDisconnected(aSenderIndex);
                   if PlayerIndex = -1 then exit; //Has already disconnected
 
-                  PostPlayerDefeatedMsg(PlayerIndex);
+                  if fNetGameState in [lgs_Game] then
+                  begin
+                    PostPlayerDefeatedMsg(PlayerIndex);
 
-                  if IsPlayerHandStillInGame(PlayerIndex) and Assigned(fOnOtherPlayerDisconnected) then
-                    fOnOtherPlayerDisconnected(fNetPlayers[PlayerIndex].HandIndex);
+                    if IsPlayerHandStillInGame(PlayerIndex) and Assigned(fOnJoinerDropped) then
+                      fOnJoinerDropped(fNetPlayers[PlayerIndex].HandIndex);
+                  end;
 
                   if fNetGameState in [lgs_Loading, lgs_Game] then
                     fNetPlayers.DropPlayer(aSenderIndex)
@@ -1238,10 +1318,12 @@ begin
                 end;
     lpk_Joiner: begin
                   if PlayerIndex = -1 then exit; //Has already disconnected
-                  PostPlayerDefeatedMsg(PlayerIndex);
+
+                  if fNetGameState in [lgs_Game] then
+                    PostPlayerDefeatedMsg(PlayerIndex);
                   if fHostIndex = PlayerIndex then
                   begin
-                    // Host notify joiners about disconnection
+                    //Host has quit so drop them from the game
                     if fNetGameState in [lgs_Loading, lgs_Game] then
                       fNetPlayers.DropPlayer(aSenderIndex)
                     else
@@ -1699,63 +1781,7 @@ begin
 
       mk_Disconnect:  PlayerDisconnected(aSenderIndex);
 
-      mk_ReassignHost:
-              begin
-                M.Read(tmpInteger);
-                if fFileReceiver <> nil then
-                begin
-                  FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects/changes
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False); //Reset, otherwise it will freeze in "downloading" state
-                end;
-                if IsHost then
-                begin
-                  //We are no longer the host
-                  fFileSenderManager.AbortAllTransfers;
-                  fNetPlayerKind := lpk_Joiner;
-                  if Assigned(fOnReassignedJoiner) then fOnReassignedJoiner(Self); //Lobby/game might need to know
-                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                end;
-                if tmpInteger = fMyIndexOnServer then
-                begin
-                  //We are now the host
-                  fNetPlayerKind := lpk_Host;
-                  fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
-                  if Assigned(fOnReassignedHost) then
-                    fOnReassignedHost(fNetPlayers[fHostIndex].HandIndex); //Lobby/game might need to know that we are now hosting
-
-                  case fNetGameState of
-                    lgs_Lobby:   begin
-                                   if InRange(fHostIndex, 1, fNetPlayers.Count) then
-                                     fNetPlayers[fHostIndex].ReadyToStart := False; //Old host is not ready anymore
-                                   MyNetPlayer.ReadyToStart := True; //The host is always ready
-                                   fNetPlayers.SetAIReady; //Set all AI players to ready
-                                   SendGameOptions; //Only needs to be sent when in the lobby. Our version becomes standard.
-                                 end;
-                    lgs_Loading: begin
-                                   if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
-                                   TryPlayGame;
-                                 end;
-                  end;
-
-                  fHostIndex := MyIndex; //Set it down here as it is used above
-
-                  //Server tells us the password and description in this packet,
-                  //so they aren't reset when the host is changed
-                  M.ReadA(tmpStringA);
-                  M.ReadW(tmpStringW);
-                  fPassword := tmpStringA;
-                  fDescription := tmpStringW;
-
-                  fOnMPGameInfoChanged(Self);
-                  if (fSelectGameKind = ngk_None)
-                  or ((fSelectGameKind = ngk_Map)  and not MapInfo.IsValid)
-                  or ((fSelectGameKind = ngk_Save) and not SaveInfo.IsValid) then
-                    SelectNoMap(''); //In case the previous host had the map and we don't
-                  SendPlayerListAndRefreshPlayersSetup;
-                  PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, fNetPlayers[fMyIndex].NiknameColoredU);
-                  gLog.LogNetConnection('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
-                end;
-              end;
+      mk_ReassignHost: ReassignHost(aSenderIndex, M);
 
       mk_Ping:
               PacketSend(aSenderIndex, mk_Pong); //Server will intercept this message

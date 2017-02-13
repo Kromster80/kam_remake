@@ -111,7 +111,6 @@ begin
     else
       G.GoalStatus := gs_False;
     G.HandIndex := NumEdit_GoalPlayer.Value - 1;
-    G.Disabled := True;
 
     gHands[fOwner].AI.Goals[fIndex] := G;
   end;
