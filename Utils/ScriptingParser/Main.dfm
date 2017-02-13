@@ -84,8 +84,8 @@ object Form1: TForm1
       Caption = 'Output file States:'
     end
     object Label7: TLabel
-      Left = 11
-      Top = 215
+      Left = 12
+      Top = 218
       Width = 78
       Height = 13
       Caption = 'Output file Utils:'
@@ -151,7 +151,7 @@ object Form1: TForm1
       TabOrder = 6
       OnChange = edtOnTextChange
     end
-    object edtUtilsFile: TEdit
+    object edtOutputFileUtils: TEdit
       Left = 112
       Top = 215
       Width = 546
@@ -160,7 +160,7 @@ object Form1: TForm1
       TabOrder = 7
       OnChange = edtOnTextChange
     end
-    object edtOutputFileUtils: TEdit
+    object edtUtilsFile: TEdit
       Left = 72
       Top = 97
       Width = 586

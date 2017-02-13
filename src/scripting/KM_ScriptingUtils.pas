@@ -540,8 +540,8 @@ end;
 
 
 //* Version: 7000+
-//* Exponentation, returns base "Base" raised to power "Exponent": f.e. Power(3, 2) = 3^2 = 9
-function TKMScriptUtils.Power(Base, Exponent: Extended): Extended;
+//* Exponentation, returns base "Base" raised to power "Exponent". F.e. Power(3, 2) = 3^2 = 9
+function TKMScriptUtils.Power(Base, Exp: Extended): Extended;
 begin
   try
     Result := Math.Power(Base, Exponent);

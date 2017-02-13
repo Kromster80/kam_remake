@@ -23,8 +23,8 @@ type
     Button1: TButton;
     Button2: TButton;
     Label7: TLabel;
-    edtUtilsFile: TEdit;
     edtOutputFileUtils: TEdit;
+    edtUtilsFile: TEdit;
     Label8: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure btnGenerateClick(Sender: TObject);
@@ -54,9 +54,9 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..29] of string = (
-    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
-    'array of const', 'array of Integer',
+  VAR_TYPE_NAME: array[0..34] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Extended', 'Boolean', 'AnsiString', 'String',
+    'array of const', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
@@ -65,9 +65,9 @@ const
     'TByteSet', 'TIntegerArray' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..29] of string = (
-    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
-    'array of const', 'array of Integer',
+  VAR_TYPE_ALIAS: array[0..34] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Extended', 'Boolean', 'AnsiString', 'String',
+    'array of const', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
