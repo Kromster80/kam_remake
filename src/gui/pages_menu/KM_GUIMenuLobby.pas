@@ -60,6 +60,7 @@ type
     procedure MapColumnClick(aValue: Integer);
     procedure MapTypeChanged(Sender: TObject);
     procedure InitDropColMapsList;
+    procedure MapList_OnShow(Sender: TObject);
     procedure UpdateMapList;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
@@ -427,6 +428,7 @@ begin
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
       InitDropColMapsList;
+      DropCol_LobbyMaps.OnShow := MapList_OnShow;
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;
@@ -1693,6 +1695,13 @@ begin
   //After being reassigned to host we may need to reselect the save
   if (DropCol_LobbyMaps.ItemIndex = -1) and (fNetworking.SelectGameKind = ngk_Save) then
     SelectByName(fNetworking.SaveInfo.FileName);
+end;
+
+
+procedure TKMMenuLobby.MapList_OnShow(Sender: TObject);
+begin
+  //Update sort
+  MapColumnClick(0);
 end;
 
 
