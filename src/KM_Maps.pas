@@ -250,7 +250,7 @@ begin
     //Load additional text info
     LoadTXTInfo;
 
-    IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
+    IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
@@ -477,7 +477,7 @@ begin
   S.Read(BlockPeacetime);
   S.Read(BlockFullMapPreview);
 
-  IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
+  IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
 
   //Other properties are not saved, they are fast to reload
   S.Free;

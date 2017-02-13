@@ -29,6 +29,8 @@ type
     fLocalToNetPlayers: array[1..MAX_LOBBY_SLOTS] of Integer;
     fNetPlayersToLocal: array[1..MAX_LOBBY_SLOTS] of Integer;
 
+    fMapsSortUpdateNeeded: Boolean;
+
     procedure UpdateMappings;
     procedure UpdateSpectatorDivide;
 
@@ -64,6 +66,7 @@ type
     procedure UpdateMapList;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
+    procedure MapList_ScanComplete(Sender: TObject);
     procedure RefreshMapList(aJumpToSelected: Boolean);
     procedure RefreshSaveList(aJumpToSelected: Boolean);
     function GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
@@ -161,7 +164,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, 
+  KM_CommonTypes, KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
 
 
@@ -171,6 +174,8 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+
+  fMapsSortUpdateNeeded := False;
 
   fMinimap := TKMMinimap.Create(True, True);
 
@@ -1483,7 +1488,7 @@ begin
     2,  //Co-op Map
     3:  //Special map Map
         begin
-          fMapsMP.Refresh(MapList_ScanUpdate);
+          fMapsMP.Refresh(MapList_ScanUpdate, MapList_ScanComplete);
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
           InitDropColMapsList;
         end;
@@ -1549,6 +1554,20 @@ begin
     RefreshSaveList(False);
   if Sender = fMapsMP then
     RefreshMapList(False);
+end;
+
+
+procedure TKMMenuLobby.MapList_ScanComplete(Sender: TObject);
+var MapsCRCArray: TKMCardinalArray;
+    I: Integer;
+begin
+  if (Sender = fMapsMP) and (fMapsMP.Count > 0) then
+  begin
+    SetLength(MapsCRCArray, fMapsMP.Count);
+    for I := 0 to fMapsMP.Count - 1 do
+      MapsCRCArray[I] := fMapsMP[I].CRC;
+    gGameApp.GameSettings.FavouriteMaps.SyncWithMaps(MapsCRCArray);
+  end;
 end;
 
 
@@ -1700,8 +1719,12 @@ end;
 
 procedure TKMMenuLobby.MapList_OnShow(Sender: TObject);
 begin
-  //Update sort
-  MapColumnClick(0);
+  if fMapsSortUpdateNeeded then
+  begin
+    //Update sort
+    MapColumnClick(0);
+    fMapsSortUpdateNeeded := False;
+  end;
 end;
 
 
@@ -1731,7 +1754,7 @@ begin
             SM := smBySizeDesc
           else
             SM := smBySizeAsc;
-      else SM := smByNameAsc;
+      else SM := smByNameDesc;
     end;
     fMapsMP.Sort(SM, MapList_SortUpdate);
   end
@@ -1774,12 +1797,13 @@ begin
     try
       fMapsMP[I].IsFavourite := not fMapsMP[I].IsFavourite;
       if fMapsMP[I].IsFavourite then
-        gGameApp.GameSettings.AddFavouriteMap(fMapsMP[I].CRC)
+        gGameApp.GameSettings.FavouriteMaps.Add(fMapsMP[I].CRC)
       else
-        gGameApp.GameSettings.RemoveFavouriteMap(fMapsMP[I].CRC);
+        gGameApp.GameSettings.FavouriteMaps.Remove(fMapsMP[I].CRC);
 
       //Update pic
       DropCol_LobbyMaps.Item[Y].Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+      fMapsSortUpdateNeeded := True; //Ask for resort on next list show
     finally
       fMapsMP.Unlock;
     end;
