@@ -22,6 +22,10 @@ type
     btnGenerate: TButton;
     Button1: TButton;
     Button2: TButton;
+    Label7: TLabel;
+    edtUtilsFile: TEdit;
+    edtOutputFileUtils: TEdit;
+    Label8: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure btnGenerateClick(Sender: TObject);
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
@@ -96,17 +100,21 @@ begin
     Settings.WriteString('INPUT',  'Actions', '..\..\src\scripting\KM_ScriptingActions.pas');
     Settings.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
     Settings.WriteString('INPUT',  'States',  '..\..\src\scripting\KM_ScriptingStates.pas');
+    Settings.WriteString('INPUT',  'Utils',  '..\..\src\scripting\KM_ScriptingUtils.pas');
     Settings.WriteString('OUTPUT', 'Actions', 'Actions.wiki');
     Settings.WriteString('OUTPUT', 'Events',  'Events.wiki');
     Settings.WriteString('OUTPUT', 'States',  'States.wiki');
+    Settings.WriteString('OUTPUT', 'Utils',   'Utils.wiki');
   end;
 
   edtActionsFile.Text       := Settings.ReadString('INPUT',  'Actions', '');
   edtEventsFile.Text        := Settings.ReadString('INPUT',  'Events',  '');
   edtStatesFile.Text        := Settings.ReadString('INPUT',  'States',  '');
+  edtUtilsFile.Text         := Settings.ReadString('INPUT',  'Utils',   '');
   edtOutputFileActions.Text := Settings.ReadString('OUTPUT', 'Actions', '');
   edtOutputFileEvents.Text  := Settings.ReadString('OUTPUT', 'Events',  '');
   edtOutputFileStates.Text  := Settings.ReadString('OUTPUT', 'States',  '');
+  edtOutputFileUtils.Text   := Settings.ReadString('OUTPUT', 'Utils',   '');
   FreeAndNil(Settings);
 
   fSafeToWrite := True;
@@ -388,6 +396,23 @@ begin
       listStates.SaveToFile(edtOutputFileStates.Text);
     FreeAndNil(listStates);
   end;
+
+  if FileExists(edtUtilsFile.Text) then
+  begin
+    listStates := TStringList.Create;
+    ParseText(edtUtilsFile.Text, listStates, True);
+    listStates.CustomSort(DoSort);
+
+    listStates.Insert(0, '####Utils' + sLineBreak);
+    listStates.Insert(1, '| Ver<br>sion | Utility function<br>Description | Parameters<br>and types | Returns |');
+    listStates.Insert(2, '| ------- | --------------- | -------------------- | ------- |');
+
+    txtParserOutput.Lines.AddStrings(listStates);
+
+    if edtOutputFileUtils.Text <> '' then
+      listStates.SaveToFile(edtOutputFileUtils.Text);
+    FreeAndNil(listStates);
+  end;
 end;
 
 
@@ -432,14 +457,20 @@ begin
   if Sender = edtStatesFile then
     Settings.WriteString('INPUT',  'States',  edtStatesFile.Text);
 
+  if Sender = edtUtilsFile then
+    Settings.WriteString('INPUT',  'Utils',   edtUtilsFile.Text);
+
   if Sender = edtOutputFileActions then
-    Settings.WriteString('OUTPUT', 'Actions',  edtOutputFileActions.Text);
+    Settings.WriteString('OUTPUT', 'Actions', edtOutputFileActions.Text);
 
   if Sender = edtOutputFileEvents then
     Settings.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
 
   if Sender = edtOutputFileStates then
     Settings.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
+
+  if Sender = edtOutputFileUtils then
+    Settings.WriteString('OUTPUT', 'Utils',   edtOutputFileUtils.Text);
 
   FreeAndNil(Settings);
 end;
