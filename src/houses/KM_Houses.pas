@@ -217,18 +217,17 @@ type
     fCuttingPoint: TKMPoint;
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
     procedure SetCuttingPoint(aValue: TKMPoint);
-    function GetCuttingPoint: TKMPoint;
     function GetCuttingPointTexId: Word;
   public
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
+
     function IsCuttingPointSet: Boolean;
     procedure ValidateCuttingPoint;
-    property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
+    property CuttingPoint: TKMPoint read fCuttingPoint write SetCuttingPoint;
     function GetValidCuttingPoint(aPoint: TKMPoint): TKMPoint;
-
     property CuttingPointTexId: Word read GetCuttingPointTexId;
   end;
 
@@ -469,7 +468,7 @@ end;
 //Return True, if house was set to new position successfully
 //aConsiderEntranceOffset - do consider house entrance offset while checking CanAddHousePlan and while set house to new position
 function TKMHouse.SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean;
-  procedure UpdateCuttingPoint(aIsRallyPointSet: Boolean);
+  procedure UpdateRallyPoint(aIsRallyPointSet: Boolean);
   begin
     if (Self is TKMHouseBarracks) then
     begin
@@ -507,7 +506,7 @@ begin
     Result := True;
 
     //Update rally/cutting point position for barracks/woodcutters after change fPosition
-    UpdateCuttingPoint(IsRallyPointSet);
+    UpdateRallyPoint(IsRallyPointSet);
   end;
 
   gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner); // Update terrain tiles for house
@@ -1709,7 +1708,7 @@ end;
 
 function TKMHouseWoodcutters.IsCuttingPointSet: Boolean;
 begin
-  Result := not KMSamePoint(CuttingPoint, PointBelowEntrance); //Use CuttingPoint, not fCuttingPoint to be sure its Valid
+  Result := not KMSamePoint(fCuttingPoint, PointBelowEntrance);
 end;
 
 
@@ -1717,15 +1716,6 @@ procedure TKMHouseWoodcutters.ValidateCuttingPoint;
 begin
   //this will automatically update cutting point to valid value
   SetCuttingPoint(fCuttingPoint);
-end;
-
-
-function TKMHouseWoodcutters.GetCuttingPoint: TKMPoint;
-begin
-  if not gTerrain.CheckPassability(fCuttingPoint, tpWalk) then
-    //Automatically update point to valid value (walkable, not more far then MAX_WOODCUTTER_CUT_PNT_DISTANCE)
-    SetCuttingPoint(fCuttingPoint);
-  Result := fCuttingPoint;
 end;
 
 

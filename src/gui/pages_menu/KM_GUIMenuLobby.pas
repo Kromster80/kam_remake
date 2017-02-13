@@ -92,6 +92,8 @@ type
       Panel_LobbySettings: TKMPanel;
         Edit_LobbyDescription: TKMEdit;
         Edit_LobbyPassword: TKMEdit;
+        Button_LobbySettingsUseLastPassword: TKMButton;
+        Checkbox_LobbyRememberPassword: TKMCheckbox;
         Button_LobbySettingsResetBans: TKMButton;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
@@ -536,27 +538,30 @@ end;
 
 procedure TKMMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
 begin
-  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 300);
+  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 350);
   Panel_LobbySettings.Anchors := [];
     TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
-    TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 310, 15, rxGuiMain);
-    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 300);
+    with TKMImage.Create(Panel_LobbySettings, -20, -75, 360, 440, 15, rxGuiMain) do ImageStretch;
+    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 343);
     TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, gResTexts[TX_LOBBY_ROOMSETTINGS], fnt_Outline, taCenter);
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taLeft);
-    Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 152, 20, fnt_Grey);
+    TKMLabel.Create(Panel_LobbySettings, 20, 50, 280, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taCenter);
+    Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 280, 20, fnt_Grey);
     Edit_LobbyDescription.AllowedChars := acText;
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taLeft);
-    Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
+    TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
+    Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
+    Checkbox_LobbyRememberPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, 'Remember this password', fnt_Grey); //Todo: translate
 
-    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 160, 200, 20, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 180, 280, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, 'Use last known password', bsMenu); //Todo: translate
     Button_LobbySettingsResetBans.OnClick := SettingsClick;
+    Button_LobbySettingsUseLastPassword.OnClick := SettingsClick;
 
-    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 210, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
+    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 260, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
     Button_LobbySettingsSave.OnClick := SettingsClick;
-    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 250, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
+    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 300, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
     Button_LobbySettingsCancel.OnClick := SettingsClick;
 end;
 
@@ -2029,6 +2034,9 @@ begin
     fNetworking.ResetBans;
   end;
 
+  if Sender = Button_LobbySettingsUseLastPassword then
+    Edit_LobbyPassword.Text := gGameApp.GameSettings.LastPassword;
+
   if Sender = Button_LobbySettingsCancel then
   begin
     Panel_LobbySettings.Hide;
@@ -2039,6 +2047,8 @@ begin
     Panel_LobbySettings.Hide;
     fNetworking.Description := Edit_LobbyDescription.Text;
     fNetworking.SetPassword(AnsiString(Edit_LobbyPassword.Text));
+    if Checkbox_LobbyRememberPassword.Checked then
+      gGameApp.GameSettings.LastPassword := UnicodeString(fNetworking.Password);
   end;
 end;
 
