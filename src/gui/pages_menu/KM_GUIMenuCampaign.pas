@@ -201,9 +201,9 @@ end;
 
 procedure TKMMenuCampaign.AnimNodes(aTickCount: Cardinal);
 begin
+  if InRange(fAnimNodeIndex, 0, fCampaign.Maps[fMapIndex].NodeCount-1) then
   if Image_CampaignSubNode[fAnimNodeIndex].Visible then Exit;
   if (aTickCount mod CAMP_NODE_ANIMATION_PERIOD) <> 0 then Exit;
-  if InRange(fAnimNodeIndex, 0, fCampaign.Maps[fMapIndex].NodeCount-1) then
   begin
     Image_CampaignSubNode[fAnimNodeIndex].Visible := true;
     inc(fAnimNodeIndex);
