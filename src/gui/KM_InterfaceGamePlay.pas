@@ -157,7 +157,6 @@ type
     Label_ClockSpeedup: TKMLabel;
 
     Label_ScriptedOverlay: TKMLabel; // Label that can be set from script
-    OverlayBackground: TKMBevel;
     Button_ScriptedOverlay: TKMButton;
     Label_OverlayShow, Label_OverlayHide: TKMLabel;
 
@@ -1012,10 +1011,6 @@ begin
 
 procedure TKMGamePlayInterface.Create_ScriptingOverlay;
 begin
-  OverlayBackground := TKMBevel.Create(Panel_Main, 255, 115, 1, 1);
-  OverlayBackground.Hitable := False;
-  OverlayBackground.Hide;
-
   Label_ScriptedOverlay := TKMLabel.Create(Panel_Main, 260, 110, '', fnt_Metal, taLeft);
 
   Button_ScriptedOverlay := TKMButton.Create(Panel_Main, 260, 92, 15, 15, '', bsGame);
@@ -2399,13 +2394,11 @@ begin
       OverlayTop := Max(OverlayTop, Image_Clock.Top + Image_Clock.Height + 25);
   end;
 
-  OverlayBackground.Top := OverlayTop + 17;
   Label_ScriptedOverlay.Top := OverlayTop + 19;
   Button_ScriptedOverlay.Top := OverlayTop + 1;
   Label_OverlayShow.Top := OverlayTop + 2;
   Label_OverlayHide.Top := OverlayTop;
 
-  OverlayBackground.Left := OverlayLeft;
   Label_ScriptedOverlay.Left := OverlayLeft + 5;
   Button_ScriptedOverlay.Left := OverlayLeft;
   Label_OverlayShow.Left := OverlayLeft + 3;
@@ -2414,10 +2407,6 @@ begin
   Button_ScriptedOverlay.Visible := Label_ScriptedOverlay.Caption <> '';
   Label_OverlayShow.Visible := (Label_ScriptedOverlay.Caption <> '') and not Label_ScriptedOverlay.Visible;
   Label_OverlayHide.Visible := (Label_ScriptedOverlay.Caption <> '') and Label_ScriptedOverlay.Visible;
-
-  OverlayBackground.Width := Label_ScriptedOverlay.TextSize.X + 10;
-  OverlayBackground.Height := Label_ScriptedOverlay.TextSize.Y + 3;
-  OverlayBackground.Visible := (Label_ScriptedOverlay.Caption <> '') and Label_ScriptedOverlay.Visible;
 end;
 
 
