@@ -56,6 +56,7 @@ type
     function Contains(aMapCRC: Cardinal): Boolean;
     procedure Add(aMapCRC: Cardinal);
     procedure Remove(aMapCRC: Cardinal);
+    procedure Replace(aOldCRC, aNewCRC: Cardinal);
   end;
 
 
@@ -1049,6 +1050,16 @@ begin
   if Index <> -1 then
     fFavouriteMPMaps.Delete(Index);
   UpdateSettings;
+end;
+
+
+procedure TKMFavouriteMaps.Replace(aOldCRC, aNewCRC: Cardinal);
+begin
+  if Contains(aOldCRC) then
+  begin
+    Remove(aOldCRC);
+    Add(aNewCRC);
+  end;
 end;
 
 

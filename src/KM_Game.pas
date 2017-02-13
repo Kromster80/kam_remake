@@ -57,7 +57,7 @@ type
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
-    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server
+    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server. Also used in MapEd
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFileSP: UnicodeString; //Relative pathname to mission we are playing, so it gets saved to crashreport. SP only, see GetMissionFile.
@@ -893,6 +893,7 @@ procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
 var
   I: Integer;
   fMissionParser: TMissionParserStandard;
+  MapInfo: TKMapInfo;
 begin
   if aPathName = '' then exit;
 
@@ -910,6 +911,14 @@ begin
   FreeAndNil(fMissionParser);
 
   fGameName := TruncateExt(ExtractFileName(aPathName));
+
+  // Update GameSettings for saved maps positions in list on MapEd menu
+  MapInfo := TKMapInfo.Create(aPathName, True); //Force recreate map CRC
+  case MapInfo.MapFolder of
+    mfMP,mfDL:  begin
+                  gGameApp.GameSettings.FavouriteMaps.Replace(fGameMapCRC, MapInfo.CRC);
+                end;
+  end;
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
