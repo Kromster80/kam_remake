@@ -157,7 +157,7 @@ begin
       Result := fLocaleList[I];
       Exit;
     end;
-  Assert(False, aCode + ' is not a valid Locale');
+  raise Exception.Create(String(aCode) + ' is not a valid Locale');
 end;
 
 

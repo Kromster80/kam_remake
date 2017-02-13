@@ -64,6 +64,7 @@ type
     fScanFinished: Boolean;
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
+    fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure SaveAdd(aSave: TKMSaveInfo);
     procedure SaveAddDone(Sender: TObject);
@@ -79,7 +80,7 @@ type
     procedure Lock;
     procedure Unlock;
 
-    procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean);
+    procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TSavesSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TSavesSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -294,6 +295,7 @@ var
   I: Integer;
 begin
   Lock;
+  try
     Assert(InRange(aIndex, 0, fCount-1));
     DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
     DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
@@ -303,7 +305,9 @@ begin
       fSaves[I] := fSaves[I+1]; //Move them down
     dec(fCount);
     SetLength(fSaves, fCount);
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -312,12 +316,15 @@ var
   fileOld, fileNew: UnicodeString;
 begin
   Lock;
+  try
     fileOld := fSaves[aIndex].Path + fSaves[aIndex].fFileName;
     fileNew := fSaves[aIndex].Path + aName;
     RenameFile(fileOld + '.sav', fileNew + '.sav');
     RenameFile(fileOld + '.rpl', fileNew + '.rpl');
     RenameFile(fileOld + '.bas', fileNew + '.bas');
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -383,10 +390,13 @@ var
   I: Integer;
 begin
   Lock;
+  try
     Result := '';
     for I := 0 to fCount - 1 do
       Result := Result + fSaves[I].FileName + EolW;
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -446,7 +456,7 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMSavesCollection.Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean);
+procedure TKMSavesCollection.Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
@@ -454,6 +464,7 @@ begin
 
   fScanFinished := False;
   fOnRefresh := aOnRefresh;
+  fOnComplete := aOnComplete;
 
   //Scan will launch upon create automatcally
   fScanning := True;
@@ -497,6 +508,8 @@ begin
   try
     fScanning := False;
     fScanFinished := True;
+    if Assigned(fOnComplete) then
+      fOnComplete(Self);
   finally
     Unlock;
   end;

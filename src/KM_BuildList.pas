@@ -254,7 +254,7 @@ begin
   for I := fHousesCount - 1 downto 0 do
   if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
   and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType])
-  and aWorker.CanWalkTo(KMPointBelow(fHouses[i].House.GetEntrance), 0)
+  and aWorker.CanWalkTo(fHouses[i].House.PointBelowEntrance, 0)
   then
   begin
     NewBid := KMLengthDiag(aWorker.GetPosition, fHouses[I].House.GetPosition);
@@ -714,11 +714,11 @@ var
   I: Integer;
   Entrance: TKMPoint;
   Dist, Best: Single;
-  HD: TKMHouseDatCollection;
+  HD: TKMResHouses;
 begin
   Result := False;
   Best := MaxSingle;
-  HD := gRes.HouseDat;
+  HD := gRes.Houses;
 
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
@@ -754,7 +754,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (gRes.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gRes.Houses[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     Result := True;
@@ -771,7 +771,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (gRes.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gRes.Houses[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     if fPlans[I].Worker <> nil then
@@ -791,7 +791,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (gRes.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gRes.Houses[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     Result := fPlans[I].HouseType;
@@ -823,7 +823,7 @@ begin
     and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
     and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
     begin
-      HA := gRes.HouseDat[fPlans[I].HouseType].BuildArea;
+      HA := gRes.Houses[fPlans[I].HouseType].BuildArea;
 
       for J := 1 to 4 do for K := 1 to 4 do
       if HA[J,K] <> 0 then
@@ -856,7 +856,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
   and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
-    aList.Add(KMPoint(fPlans[I].Loc.X + gRes.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
+    aList.Add(KMPoint(fPlans[I].Loc.X + gRes.Houses[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
 end;
 
 
@@ -1295,7 +1295,7 @@ begin
       if (fHouseList.fHouses[i].House <> nil) and fHouseList.fHouses[i].House.CheckResToBuild
       and(fHouseList.fHouses[I].Assigned < MAX_WORKERS[fHouseList.fHouses[i].House.HouseType]) then
       begin
-        BestWorker := GetBestWorker(KMPointBelow(fHouseList.fHouses[I].House.GetEntrance));
+        BestWorker := GetBestWorker(fHouseList.fHouses[I].House.PointBelowEntrance);
         if BestWorker <> nil then fHouseList.GiveTask(I, BestWorker);
       end;
 end;
@@ -1325,7 +1325,7 @@ begin
       if (fRepairList.fHouses[i].House <> nil)
       and(fRepairList.fHouses[I].Assigned < MAX_WORKERS[fRepairList.fHouses[i].House.HouseType]) then
       begin
-        BestWorker := GetBestWorker(KMPointBelow(fRepairList.fHouses[I].House.GetEntrance));
+        BestWorker := GetBestWorker(fRepairList.fHouses[I].House.PointBelowEntrance);
         if BestWorker <> nil then fRepairList.GiveTask(I, BestWorker);
       end;
 end;

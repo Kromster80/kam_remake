@@ -58,12 +58,16 @@ type
 
     procedure PlayersSetupChange(Sender: TObject);
     procedure MapColumnClick(aValue: Integer);
-    procedure MapTypeChange(Sender: TObject);
+    procedure MapTypeChanged(Sender: TObject);
+    procedure InitDropColMapsList;
+    procedure UpdateMapList;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
     procedure RefreshMapList(aJumpToSelected: Boolean);
     procedure RefreshSaveList(aJumpToSelected: Boolean);
+    function GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
     procedure MapChange(Sender: TObject);
+    function DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
     procedure PostKeyDown(Sender: TObject; Key: Word);
 
     procedure MinimapLocClick(aValue: Integer);
@@ -88,6 +92,8 @@ type
       Panel_LobbySettings: TKMPanel;
         Edit_LobbyDescription: TKMEdit;
         Edit_LobbyPassword: TKMEdit;
+        Button_LobbySettingsUseLastPassword: TKMButton;
+        Checkbox_LobbyRememberPassword: TKMCheckbox;
         Button_LobbySettingsResetBans: TKMButton;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
@@ -416,15 +422,16 @@ begin
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_SPECIAL]);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
-      Radio_LobbyMapType.OnChange := MapTypeChange;
+      Radio_LobbyMapType.OnChange := MapTypeChanged;
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
-      DropCol_LobbyMaps.DropWidth := 440; //Wider to fit mapnames well
-      DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
+      InitDropColMapsList;
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
-      DropCol_LobbyMaps.List.SearchColumn := 0;
+      DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;
+      DropCol_LobbyMaps.List.OnCellClick := DropColMapsCellClick;
+
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
       Panel_LobbySetupMinimap := TKMPanel.Create(Panel_LobbySetup, 0, 120, 270, 200);
@@ -531,27 +538,30 @@ end;
 
 procedure TKMMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
 begin
-  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 300);
+  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 350);
   Panel_LobbySettings.Anchors := [];
     TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
-    TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 310, 15, rxGuiMain);
-    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 300);
+    with TKMImage.Create(Panel_LobbySettings, -20, -75, 360, 440, 15, rxGuiMain) do ImageStretch;
+    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 343);
     TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, gResTexts[TX_LOBBY_ROOMSETTINGS], fnt_Outline, taCenter);
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taLeft);
-    Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 152, 20, fnt_Grey);
+    TKMLabel.Create(Panel_LobbySettings, 20, 50, 280, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taCenter);
+    Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 280, 20, fnt_Grey);
     Edit_LobbyDescription.AllowedChars := acText;
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taLeft);
-    Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
+    TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
+    Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
+    Checkbox_LobbyRememberPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, 'Remember this password', fnt_Grey); //Todo: translate
 
-    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 160, 200, 20, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 180, 280, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, 'Use last known password', bsMenu); //Todo: translate
     Button_LobbySettingsResetBans.OnClick := SettingsClick;
+    Button_LobbySettingsUseLastPassword.OnClick := SettingsClick;
 
-    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 210, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
+    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 260, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
     Button_LobbySettingsSave.OnClick := SettingsClick;
-    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 250, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
+    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 300, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
     Button_LobbySettingsCancel.OnClick := SettingsClick;
 end;
 
@@ -738,6 +748,9 @@ begin
 
   ChatMenuSelect(CHAT_MENU_ALL); //All
 
+  Radio_LobbyMapType.ItemIndex := gGameApp.GameSettings.MenuLobbyMapType;
+  UpdateMapList;
+
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);
 end;
@@ -858,7 +871,7 @@ begin
   begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
-    if not aPreserveMaps then MapTypeChange(nil);
+    if not aPreserveMaps then UpdateMapList;
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
     Button_LobbyStart.Caption := gResTexts[TX_LOBBY_START]; //Start
@@ -1449,7 +1462,14 @@ begin
 end;
 
 
-procedure TKMMenuLobby.MapTypeChange(Sender: TObject);
+procedure TKMMenuLobby.InitDropColMapsList;
+begin
+  DropCol_LobbyMaps.DropWidth := 460;
+  DropCol_LobbyMaps.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 20, 320, 350], [False, True, True, True]);
+end;
+
+
+procedure TKMMenuLobby.UpdateMapList;
 begin
   //Terminate any running scans otherwise they will continue to fill the drop box in the background
   fMapsMP.TerminateScan;
@@ -1462,9 +1482,8 @@ begin
     3:  //Special map Map
         begin
           fMapsMP.Refresh(MapList_ScanUpdate);
-          DropCol_LobbyMaps.DropWidth := 440;
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
+          InitDropColMapsList;
         end;
     4:  //Saved Game
         begin
@@ -1479,10 +1498,14 @@ begin
         end;
   end;
   DropCol_LobbyMaps.ItemIndex := -1; //Clear previously selected item
+end;
 
-  //The Sender is nil in Reset_Lobby when we are not connected
-  if Sender <> nil then
-    fNetworking.SelectNoMap('');
+
+procedure TKMMenuLobby.MapTypeChanged(Sender: TObject);
+begin
+  UpdateMapList;
+  gGameApp.GameSettings.MenuLobbyMapType := Radio_LobbyMapType.ItemIndex;
+  fNetworking.SelectNoMap('');
 end;
 
 
@@ -1527,12 +1550,18 @@ begin
 end;
 
 
+function TKMMenuLobby.GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
+begin
+  Result := MakePic(rxGuiMain, IfThen(aIsFavourite, 77, 85), True);
+end;
+
+
 procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
   procedure SelectByName(aName: UnicodeString);
   var I: Integer;
   begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
-      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
+      if DropCol_LobbyMaps.Item[I].Cells[1].Caption = aName then
       begin
         DropCol_LobbyMaps.ItemIndex := I;
         Break;
@@ -1542,10 +1571,11 @@ var
   I, PrevTop: Integer;
   PrevMap: string;
   AddMap: Boolean;
+  Row: TKMListRow;
 begin
   //Remember previous map selected
   if DropCol_LobbyMaps.ItemIndex <> -1 then
-    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[1].Caption
   else
     PrevMap := '';
 
@@ -1566,13 +1596,14 @@ begin
       end;
 
       if AddMap then
-        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
-                                           IntToStr(fMapsMP[I].HumanPlayerCountMP),
-                                           fMapsMP[I].SizeText],
-                                           //Colors
-                                           [fMapsMP[I].GetLobbyColor,
-                                           fMapsMP[I].GetLobbyColor,
-                                           fMapsMP[I].GetLobbyColor], I));
+      begin
+        Row := MakeListRow(['', fMapsMP[I].FileName, IntToStr(fMapsMP[I].HumanPlayerCountMP), fMapsMP[I].SizeText], //Texts
+                           [fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor], //Colors
+                           I);
+        Row.Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+        Row.Cells[0].HighlightOnMouseOver := True;
+        DropCol_LobbyMaps.Add(Row);
+      end;
     end;
   finally
     fMapsMP.Unlock;
@@ -1581,7 +1612,7 @@ begin
   //Restore previously selected map
   if PrevMap <> '' then
   for I := 0 to DropCol_LobbyMaps.Count - 1 do
-  if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
+  if DropCol_LobbyMaps.Item[I].Cells[1].Caption = PrevMap then
     DropCol_LobbyMaps.ItemIndex := I;
 
   //Restore the top index
@@ -1676,14 +1707,18 @@ begin
     with DropCol_LobbyMaps.List do
     case SortIndex of
       0:  if SortDirection = sdDown then
+            SM := smByFavouriteDesc
+          else
+            SM := smByFavouriteAsc;
+      1:  if SortDirection = sdDown then
             SM := smByNameDesc
           else
             SM := smByNameAsc;
-      1:  if SortDirection = sdDown then
+      2:  if SortDirection = sdDown then
             SM := smByHumanPlayersMPDesc
           else
             SM := smByHumanPlayersMPAsc;
-      2:  if SortDirection = sdDown then
+      3:  if SortDirection = sdDown then
             SM := smBySizeDesc
           else
             SM := smBySizeAsc;
@@ -1719,6 +1754,31 @@ begin
 end;
 
 
+function TKMMenuLobby.DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  if (Radio_LobbyMapType.ItemIndex < 4) and (X = 0) then
+  begin
+    I := DropCol_LobbyMaps.Item[Y].Tag;
+    fMapsMP.Lock;
+    try
+      fMapsMP[I].IsFavourite := not fMapsMP[I].IsFavourite;
+      if fMapsMP[I].IsFavourite then
+        gGameApp.GameSettings.AddFavouriteMap(fMapsMP[I].CRC)
+      else
+        gGameApp.GameSettings.RemoveFavouriteMap(fMapsMP[I].CRC);
+
+      //Update pic
+      DropCol_LobbyMaps.Item[Y].Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+    finally
+      fMapsMP.Unlock;
+    end;
+    Result := True; //we handle mouse click here, and do want to propagate it further
+  end;
+end;
+
+
 //Just pass FileName to Networking, it will check validity itself
 procedure TKMMenuLobby.MapChange(Sender: TObject);
 var I: Integer;
@@ -1727,14 +1787,20 @@ begin
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
     fMapsMP.Lock;
+    try
       fNetworking.SelectMap(fMapsMP[I].FileName, fMapsMP[I].MapFolder);
-    fMapsMP.Unlock;
+    finally
+      fMapsMP.Unlock;
+    end;
   end
   else
   begin
     fSavesMP.Lock;
+    try
       fNetworking.SelectSave(fSavesMP[I].FileName);
-    fSavesMP.Unlock;
+    finally
+      fSavesMP.Unlock;
+    end;
   end;
 end;
 
@@ -1847,7 +1913,7 @@ begin
   //Pick correct position of map type selector
   Radio_LobbyMapType.ItemIndex := DetectMapType;
 
-  MapTypeChange(nil);
+  UpdateMapList;
   Lobby_OnGameOptions(nil);
 
   case fNetworking.SelectGameKind of
@@ -1968,6 +2034,9 @@ begin
     fNetworking.ResetBans;
   end;
 
+  if Sender = Button_LobbySettingsUseLastPassword then
+    Edit_LobbyPassword.Text := gGameApp.GameSettings.LastPassword;
+
   if Sender = Button_LobbySettingsCancel then
   begin
     Panel_LobbySettings.Hide;
@@ -1978,6 +2047,8 @@ begin
     Panel_LobbySettings.Hide;
     fNetworking.Description := Edit_LobbyDescription.Text;
     fNetworking.SetPassword(AnsiString(Edit_LobbyPassword.Text));
+    if Checkbox_LobbyRememberPassword.Checked then
+      gGameApp.GameSettings.LastPassword := UnicodeString(fNetworking.Password);
   end;
 end;
 
@@ -1985,7 +2056,7 @@ end;
 procedure TKMMenuLobby.ReturnToLobby(const aSaveName: UnicodeString);
 begin
   Radio_LobbyMapType.ItemIndex := 4; //Save
-  MapTypeChange(nil);
+  UpdateMapList;
   Lobby_OnGameOptions(nil);
   if fNetworking.IsHost then
   begin

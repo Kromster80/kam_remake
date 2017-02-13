@@ -10,6 +10,7 @@ uses
 
 type
   TMapsSortMethod = (
+    smByFavouriteAsc, smByFavouriteDesc,
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
@@ -57,6 +58,7 @@ type
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    IsFavourite: Boolean;
     BlockTeamSelection: Boolean;
     BlockPeacetime: Boolean;
     BlockFullMapPreview: Boolean;
@@ -125,6 +127,7 @@ type
     fScanning: Boolean; //Flag if scan is in progress
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
+    fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
@@ -147,7 +150,7 @@ type
     class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
 
-    procedure Refresh(aOnRefresh: TNotifyEvent);
+    procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -161,7 +164,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
 
 
 const
@@ -246,6 +249,8 @@ begin
 
     //Load additional text info
     LoadTXTInfo;
+
+    IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
@@ -472,6 +477,8 @@ begin
   S.Read(BlockPeacetime);
   S.Read(BlockFullMapPreview);
 
+  IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
+
   //Other properties are not saved, they are fast to reload
   S.Free;
 end;
@@ -670,6 +677,7 @@ var
   I: Integer;
 begin
    Lock;
+   try
      Assert(InRange(aIndex, 0, fCount - 1));
      {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
      {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
@@ -678,7 +686,9 @@ begin
        fMaps[I] := fMaps[I + 1];
      Dec(fCount);
      SetLength(fMaps, fCount);
-   Unlock;
+   finally
+     Unlock;
+   end;
 end;
 
 
@@ -688,43 +698,48 @@ var
   Dest, RenamedFile: UnicodeString;
   SearchRec: TSearchRec;
 begin
-   Lock;
-     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
-     Assert(fMaps[aIndex].Path <> Dest);
-     Assert(InRange(aIndex, 0, fCount - 1));
+  if Trim(aName) = '' then Exit;
+  
+  Lock;
+  try
+    Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
+    Assert(fMaps[aIndex].Path <> Dest);
+    Assert(InRange(aIndex, 0, fCount - 1));
 
-     //Remove existing dest directory
-     if DirectoryExists(Dest) then
+    //Remove existing dest directory
+    if DirectoryExists(Dest) then
+    begin
+     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
+     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+    end;
+
+    //Move directory to dest
+    {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
+
+    //Rename all the files in dest
+    FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
+    repeat
+     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+     and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
      begin
-       {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
-       {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+       RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
+       if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
+         {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
+         {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
      end;
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
 
-     //Move directory to dest
-     {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
-
-     //Rename all the files in dest
-     FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
-     repeat
-       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-       and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-       begin
-         RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-         if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
-           {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-           {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-       end;
-     until (FindNext(SearchRec) <> 0);
-     FindClose(SearchRec);
-
-     //Remove the map from our list
-     fMaps[aIndex].Free;
-     for I  := aIndex to fCount - 2 do
-       fMaps[I] := fMaps[I + 1];
-     Dec(fCount);
-     SetLength(fMaps, fCount);
-   Unlock;
+    //Remove the map from our list
+    fMaps[aIndex].Free;
+    for I  := aIndex to fCount - 2 do
+     fMaps[I] := fMaps[I + 1];
+    Dec(fCount);
+    SetLength(fMaps, fCount);
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -737,19 +752,29 @@ var TempMaps: array of TKMapInfo;
   begin
     Result := False; //By default everything remains in place
     case fSortMethod of
-      smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
-      smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
-      smBySizeAsc:      Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
-      smBySizeDesc:     Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
-      smByPlayersAsc:   Result := A.LocCount < B.LocCount;
-      smByPlayersDesc:  Result := A.LocCount > B.LocCount;
-      smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
-      smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
-      smByHumanPlayersMPAsc:   Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
-      smByHumanPlayersMPDesc:  Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
-      smByModeAsc:      Result := A.MissionMode < B.MissionMode;
-      smByModeDesc:     Result := A.MissionMode > B.MissionMode;
+      smByFavouriteAsc:       Result := A.IsFavourite and not B.IsFavourite;
+      smByFavouriteDesc:      Result := not A.IsFavourite and B.IsFavourite;
+      smByNameAsc:            Result := CompareText(A.FileName, B.FileName) < 0;
+      smByNameDesc:           Result := CompareText(A.FileName, B.FileName) > 0;
+      smBySizeAsc:            Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smBySizeDesc:           Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smByPlayersAsc:         Result := A.LocCount < B.LocCount;
+      smByPlayersDesc:        Result := A.LocCount > B.LocCount;
+      smByHumanPlayersAsc:    Result := A.HumanPlayerCount < B.HumanPlayerCount;
+      smByHumanPlayersDesc:   Result := A.HumanPlayerCount > B.HumanPlayerCount;
+      smByHumanPlayersMPAsc:  Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
+      smByHumanPlayersMPDesc: Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
+      smByModeAsc:            Result := A.MissionMode < B.MissionMode;
+      smByModeDesc:           Result := A.MissionMode > B.MissionMode;
     end;
+    if not (fSortMethod in [smByFavouriteAsc, smByFavouriteDesc]) then
+    begin
+      if A.IsFavourite and not B.IsFavourite then
+        Result := False
+      else if not A.IsFavourite and B.IsFavourite then
+        Result := True
+    end;
+
   end;
 
   procedure MergeSort(left, right: integer);
@@ -830,13 +855,14 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent);
+procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
   Clear;
 
   fOnRefresh := aOnRefresh;
+  fOnComplete := aOnComplete;
 
   //Scan will launch upon create automatcally
   fScanning := True;
@@ -879,6 +905,8 @@ begin
   Lock;
   try
     fScanning := False;
+    if Assigned(fOnComplete) then
+      fOnComplete(Self);
   finally
     Unlock;
   end;

@@ -60,7 +60,7 @@ begin
     wt_Corn:  if aHouse = ht_Mill           then fWareDistribution[4,1] := aValue else
               if aHouse = ht_Swine          then fWareDistribution[4,2] := aValue else
               if aHouse = ht_Stables        then fWareDistribution[4,3] := aValue;
-    else      Assert(False, 'Unexpected resource at SetRatio');
+    else      raise Exception.Create('Unexpected resource at SetWareDistribution');
   end;
   Changed := True;
 end;

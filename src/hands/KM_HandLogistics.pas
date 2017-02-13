@@ -320,7 +320,7 @@ begin
           if fSerfs[K].Serf.IsIdle then
             if fQueue.SerfCanDoDelivery(FoundO,FoundD,fSerfs[K].Serf) then
             begin
-              Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
+              Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.Entrance);
               if (Bid < BestBid) then
               begin
                 BestBid := Bid;
@@ -428,7 +428,7 @@ begin
       end;
       Exit; //Count decreased, that's all
     end;
-  Assert(False, 'Failed to remove offer');
+  raise Exception.Create('Failed to remove offer');
 end;
 
 
@@ -600,12 +600,12 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House <> nil) and
-            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), tpWalkRoad, 0))
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_House.PointBelowEntrance, tpWalkRoad, 0))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit <> nil) and
-            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, tpWalk, 1))
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_Unit.GetPosition, tpWalk, 1))
             ));
 end;
 
@@ -616,7 +616,7 @@ var
   LocA, LocB: TKMPoint;
 begin
   LocA := aSerf.GetPosition;
-  LocB := KMPointBelow(fOffer[iO].Loc_House.GetEntrance);
+  LocB := fOffer[iO].Loc_House.PointBelowEntrance;
 
   //If the serf is inside the house (invisible) test from point below
   if not aSerf.Visible then
@@ -674,17 +674,17 @@ begin
   //Basic Bid is length of route
   if fDemand[iD].Loc_House <> nil then
   begin
-    Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_House.GetEntrance)
+    Result := KMLength(fOffer[iO].Loc_House.Entrance, fDemand[iD].Loc_House.Entrance)
     //Resource ratios are also considered
     + KaMRandom(15 - 3 * gHands[fOffer[iO].Loc_House.Owner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
   end
   else
-    Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_Unit.GetPosition);
+    Result := KMLength(fOffer[iO].Loc_House.Entrance, fDemand[iD].Loc_Unit.GetPosition);
 
   //For weapons production in cases with little resources available, they should be distributed
   //evenly between places rather than caring about route length.
   //This means weapon and armour smiths should get same amount of iron, even if one is closer to the smelter.
-  if (fDemand[iD].Loc_House<>nil) and gRes.HouseDat[fDemand[iD].Loc_House.HouseType].DoesOrders
+  if (fDemand[iD].Loc_House<>nil) and gRes.Houses[fDemand[iD].Loc_House.HouseType].DoesOrders
   and (fOffer[iO].Count < 3) //Little resources to share around
   and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware) < 2) then //Few resources already delivered
     Result := 10
@@ -693,7 +693,7 @@ begin
 
   //Also prefer deliveries near to the serf
   if aSerf <> nil then
-    Result := Result + KMLength(aSerf.GetPosition,fOffer[iO].Loc_House.GetEntrance);
+    Result := Result + KMLength(aSerf.GetPosition,fOffer[iO].Loc_House.Entrance);
 
   //Deliver wood first to equal distance construction sites
   if (fDemand[iD].Loc_House <> nil)
@@ -866,7 +866,7 @@ begin
   Inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
   Inc(fDemand[iD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
 
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Creating delivery ID', i);
+  gLog.LogDelivery('Creating delivery ID '+ IntToStr(i));
 
   //Now we have best job and can perform it
   if fDemand[iD].Loc_House <> nil then
@@ -880,7 +880,7 @@ end;
 procedure TKMDeliveries.TakenOffer(aID: Integer);
 var iO: Integer;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Taken offer from delivery ID', aID);
+  gLog.LogDelivery('Taken offer from delivery ID ' + IntToStr(aID));
 
   iO := fQueue[aID].OfferID;
   fQueue[aID].OfferID := 0; //We don't need it any more
@@ -900,7 +900,7 @@ end;
 procedure TKMDeliveries.GaveDemand(aID:integer);
 var iD:integer;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Gave demand from delivery ID', aID);
+  gLog.LogDelivery('Gave demand from delivery ID ' + IntToStr(aID));
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
@@ -915,7 +915,7 @@ end;
 //AbandonDelivery
 procedure TKMDeliveries.AbandonDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Abandoned delivery ID', aID);
+  gLog.LogDelivery('Abandoned delivery ID ' + IntToStr(aID));
 
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
@@ -940,7 +940,7 @@ end;
 //Job successfully done and we ommit it
 procedure TKMDeliveries.CloseDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Closed delivery ID', aID);
+  gLog.LogDelivery('Closed delivery ID ' + IntToStr(aID));
 
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
@@ -1080,8 +1080,8 @@ begin
   if fDemand[I].Ware <> wt_None then
   begin
     tmpS := #9;
-    if fDemand[I].Loc_House <> nil then tmpS := tmpS + gRes.HouseDat[fDemand[I].Loc_House.HouseType].HouseName + #9 + #9;
-    if fDemand[I].Loc_Unit  <> nil then tmpS := tmpS + gRes.UnitDat[fDemand[I].Loc_Unit.UnitType].GUIName + #9 + #9;
+    if fDemand[I].Loc_House <> nil then tmpS := tmpS + gRes.Houses[fDemand[I].Loc_House.HouseType].HouseName + #9 + #9;
+    if fDemand[I].Loc_Unit  <> nil then tmpS := tmpS + gRes.Units[fDemand[I].Loc_Unit.UnitType].GUIName + #9 + #9;
     tmpS := tmpS + gRes.Wares[fDemand[I].Ware].Title;
     if fDemand[I].Importance <> diNorm then
       tmpS := tmpS + '^';
@@ -1095,7 +1095,7 @@ begin
   if fOffer[I].Ware <> wt_None then
   begin
     tmpS := #9;
-    if fOffer[I].Loc_House <> nil then tmpS := tmpS + gRes.HouseDat[fOffer[I].Loc_House.HouseType].HouseName + #9 + #9;
+    if fOffer[I].Loc_House <> nil then tmpS := tmpS + gRes.Houses[fOffer[I].Loc_House.HouseType].HouseName + #9 + #9;
     tmpS := tmpS + gRes.Wares[fOffer[I].Ware].Title + #9;
     tmpS := tmpS + IntToStr(fOffer[I].Count);
 
@@ -1113,12 +1113,12 @@ begin
     if fOffer[fQueue[I].OfferID].Loc_House = nil then
       tmpS := tmpS + 'Destroyed' + ' >>> '
     else
-      tmpS := tmpS + gRes.HouseDat[fOffer[fQueue[I].OfferID].Loc_House.HouseType].HouseName + ' >>> ';
+      tmpS := tmpS + gRes.Houses[fOffer[fQueue[I].OfferID].Loc_House.HouseType].HouseName + ' >>> ';
 
     if fDemand[fQueue[I].DemandID].Loc_House = nil then
       tmpS := tmpS + 'Destroyed'
     else
-      tmpS := tmpS + gRes.HouseDat[fDemand[fQueue[I].DemandID].Loc_House.HouseType].HouseName;
+      tmpS := tmpS + gRes.Houses[fDemand[fQueue[I].DemandID].Loc_House.HouseType].HouseName;
 
     SL.Append(tmpS);
   end;

@@ -390,7 +390,9 @@ end;
 
 
 procedure TKMHand.WarriorWalkedOut(aUnit: TKMUnitWarrior);
-var G: TKMUnitGroup; H: TKMHouse;
+var G: TKMUnitGroup;
+    H: TKMHouse;
+    B: TKMHouseBarracks;
 begin
   //Warrior could be killed before he walked out, f.e. by script OnTick ---> Actions.UnitKill
   //Then group will be assigned to invalid warrior and never gets removed from game
@@ -410,9 +412,14 @@ begin
     begin
       //If player is human and this is the first warrior in the group, send it to the rally point
       H := HousesHitTest(aUnit.GetPosition.X, aUnit.GetPosition.Y-1);
-      if (H is TKMHouseBarracks) and TKMHouseBarracks(H).IsRallyPointSet
-      and G.CanWalkTo(TKMHouseBarracks(H).RallyPoint, 0) then
-        G.OrderWalk(TKMHouseBarracks(H).RallyPoint, True);
+      if (H is TKMHouseBarracks) then
+      begin
+        B := TKMHouseBarracks(H);
+        B.ValidateRallyPoint; // Validate Rally point first. It will set it to a proper walkable position
+        if B.IsRallyPointSet
+          and G.CanWalkTo(B.RallyPoint, 0) then
+          G.OrderWalk(B.RallyPoint, True);
+      end;
     end;
   gScriptEvents.ProcWarriorEquipped(aUnit, G);
 end;
@@ -550,12 +557,12 @@ begin
   Result := gTerrain.CanPlaceHouse(aLoc, aHouseType);
   if not Result then Exit;
 
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aLoc.X - gRes.HouseDat[aHouseType].EntranceOffsetX + K - 3;
+    Tx := aLoc.X - gRes.Houses[aHouseType].EntranceOffsetX + K - 3;
     Ty := aLoc.Y + I - 4;
     //AI ignores FOW (this function is used from scripting)
     Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
@@ -592,8 +599,8 @@ begin
     Exit;
 
   //Perform additional cheks for AI
-  HA := gRes.HouseDat[aHouseType].BuildArea;
-  EnterOff := gRes.HouseDat[aHouseType].EntranceOffsetX;
+  HA := gRes.Houses[aHouseType].BuildArea;
+  EnterOff := gRes.Houses[aHouseType].EntranceOffsetX;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
@@ -679,7 +686,7 @@ begin
          ft_Corn: gScriptEvents.ProcPlanFieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
          ft_Wine: gScriptEvents.ProcPlanWinefieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
       else
-        Assert(False);
+        raise Exception.Create('Unknown aFieldType');
       end;
     end
     else
@@ -756,7 +763,7 @@ procedure TKMHand.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var
   Loc: TKMPoint;
 begin
-  Loc.X := aLoc.X - gRes.HouseDat[aHouseType].EntranceOffsetX;
+  Loc.X := aLoc.X - gRes.Houses[aHouseType].EntranceOffsetX;
   Loc.Y := aLoc.Y;
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
@@ -818,7 +825,7 @@ begin
     ft_Corn: gScriptEvents.ProcPlanFieldRemoved(fHandIndex, Position.X, Position.Y);
     ft_Wine: gScriptEvents.ProcPlanWinefieldRemoved(fHandIndex, Position.X, Position.Y);
   else
-    Assert(False);
+    raise Exception.Create('Unknown fieldType');
   end;
 
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
@@ -878,7 +885,7 @@ begin
   repeat
     //First make sure that it is valid
     if (H <> nil) and H.HasFood and H.HasSpace
-    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), tpWalk, 0) then
+    and aUnit.CanWalkTo(Loc, H.PointBelowEntrance, tpWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
       Dist := KMLengthSqr(H.GetPosition, Loc);
@@ -1142,14 +1149,14 @@ begin
   gTerrain.GetHouseMarks(aLoc, aHouseType, aList);
 
   //Override marks if there are House/FieldPlans (only we know about our plans) and or FogOfWar
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
 
   for I := 1 to 4 do for K := 1 to 4 do
   if (HA[I,K] <> 0)
-  and gTerrain.TileInMapCoords(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
+  and gTerrain.TileInMapCoords(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
   begin
     //This can't be done earlier since values can be off-map
-    P2 := KMPoint(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
+    P2 := KMPoint(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
 
     //Forbid planning on unrevealed areas and fieldplans
     AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y) > 0);

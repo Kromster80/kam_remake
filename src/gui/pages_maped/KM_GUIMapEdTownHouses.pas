@@ -23,6 +23,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
   end;
 
 
@@ -57,9 +58,9 @@ begin
   TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,gResTexts[TX_MAPED_HOUSES_TITLE],fnt_Outline,taCenter);
   for I:=1 to GUI_HOUSE_COUNT do
     if GUIHouseOrder[I] <> ht_None then begin
-      Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,gRes.HouseDat[GUIHouseOrder[I]].GUIIcon);
+      Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,gRes.Houses[GUIHouseOrder[I]].GUIIcon);
       Button_Build[I].OnClick := Town_BuildChange;
-      Button_Build[I].Hint := gRes.HouseDat[GUIHouseOrder[I]].HouseName;
+      Button_Build[I].Hint := gRes.Houses[GUIHouseOrder[I]].HouseName;
     end;
 end;
 
@@ -127,6 +128,12 @@ end;
 function TKMMapEdTownHouses.Visible: Boolean;
 begin
   Result := Panel_Build.Visible;
+end;
+
+
+procedure TKMMapEdTownHouses.UpdateState;
+begin
+  Town_BuildRefresh;
 end;
 
 

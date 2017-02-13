@@ -30,6 +30,7 @@ type
     procedure Show;
     function Visible: Boolean;
     procedure Hide;
+    procedure UpdateState;
   end;
 
 
@@ -81,8 +82,8 @@ var
 begin
   fCountCompact := 0;
   for I := 0 to gRes.MapElements.Count - 1 do
-  if (I <> 61) and (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
-  and (MapElem[I].Stump = -1) then //Hide falling trees and invisible wall (61)
+  if (I <> 61) and (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0)
+  and (gMapElements[I].Stump = -1) then //Hide falling trees and invisible wall (61)
   begin
     fCompactToMapElem[fCountCompact] := I; //pointer
     fMapElemToCompact[I] := fCountCompact; //Reverse lookup
@@ -132,7 +133,7 @@ begin
     ObjID := ObjectsScroll.Position * 3 + I;
     if ObjID < fCountCompact then
     begin
-      ObjectsTable[I].TexID := MapElem[fCompactToMapElem[ObjID]].Anim.Step[1] + 1;
+      ObjectsTable[I].TexID := gMapElements[fCompactToMapElem[ObjID]].Anim.Step[1] + 1;
       ObjectsTable[I].Caption := IntToStr(fCompactToMapElem[ObjID]);
       ObjectsTable[I].Enable;
     end
@@ -143,7 +144,7 @@ begin
       ObjectsTable[I].Disable;
     end;
     //Mark the selected one using reverse lookup
-    ObjectsTable[I].Down := (gGameCursor.Mode = cmObjects) and (ObjID = fMapElemToCompact[gGameCursor.Tag1]);
+    ObjectsTable[I].Down := (gGameCursor.Mode = cmObjects) and not (gGameCursor.Tag1 in [255, 61]) and (ObjID = fMapElemToCompact[gGameCursor.Tag1]);
   end;
 
   ObjectErase.Down := (gGameCursor.Mode = cmObjects) and (gGameCursor.Tag1 = 255); //or delete button
@@ -171,6 +172,12 @@ end;
 procedure TKMMapEdTerrainObjects.Hide;
 begin
   Panel_Objects.Hide;
+end;
+
+
+procedure TKMMapEdTerrainObjects.UpdateState;
+begin
+  ObjectsRefresh(nil);
 end;
 
 

@@ -31,7 +31,7 @@ var
   Form1: TForm1;
   Bits:array[0..255]of TShape;
   Tiles:array[0..255]of TPropertySet;
-  fTileset: TKMTileset;
+  fTileset: TKMResTileset;
 
 implementation
 
@@ -56,7 +56,7 @@ begin
     Bits[i].OnMouseUp   := ImageMouseUp;
   end;
 
-  fTileset := TKMTileset.Create('..\..\data\defines\pattern.dat');
+  fTileset := TKMResTileset.Create('..\..\data\defines\pattern.dat');
 end;
 
 

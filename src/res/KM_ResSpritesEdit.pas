@@ -22,9 +22,9 @@ type
     constructor Create(aRT: TRXType; aPalettes: TKMResPalettes);
 
     property IsLoaded: Boolean read GetLoaded;
-    procedure AdjoinHouseMasks(aHouseDat: TKMHouseDatCollection);
-    procedure GrowHouseMasks(aHouseDat: TKMHouseDatCollection);
-    procedure SoftWater(aTileset: TKMTileset);
+    procedure AdjoinHouseMasks(aHouseDat: TKMResHouses);
+    procedure GrowHouseMasks(aHouseDat: TKMResHouses);
+    procedure SoftWater(aTileset: TKMResTileset);
     procedure Delete(aIndex: Integer);
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromFolder(const aFolder: string);
@@ -172,7 +172,7 @@ end;
 
 
 //
-procedure TKMSpritePackEdit.AdjoinHouseMasks(aHouseDat: TKMHouseDatCollection);
+procedure TKMSpritePackEdit.AdjoinHouseMasks(aHouseDat: TKMResHouses);
 var
   HT: THouseType;
   ID1, ID2: Integer; //RGB and A index
@@ -214,7 +214,7 @@ end;
 
 
 //Grow house building masks to account for blurred shadows edges being visible
-procedure TKMSpritePackEdit.GrowHouseMasks(aHouseDat: TKMHouseDatCollection);
+procedure TKMSpritePackEdit.GrowHouseMasks(aHouseDat: TKMResHouses);
 var
   HT: THouseType;
   ID: Integer; //RGB and A index
@@ -248,7 +248,7 @@ begin
 end;
 
 
-procedure TKMSpritePackEdit.SoftWater(aTileset: TKMTileset);
+procedure TKMSpritePackEdit.SoftWater(aTileset: TKMResTileset);
 var
   I, J, K, T: Integer;
   AR, AG, AB: Cardinal;

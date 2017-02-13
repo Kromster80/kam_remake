@@ -133,7 +133,7 @@ begin
   inherited Create(aUnit, aActionType, False);
 
   if not gTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
-    raise ELocError.Create('Invalid Walk To for '+gRes.UnitDat[aUnit.UnitType].GUIName,aLocB);
+    raise ELocError.Create('Invalid Walk To for '+gRes.Units[aUnit.UnitType].GUIName,aLocB);
 
   Assert(not (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])); //Animals should using TUnitActionSteer instead
 
@@ -182,7 +182,7 @@ begin
 
   //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    gLog.AddNoTime('Unable to make a route for ' + gRes.UnitDat[aUnit.UnitType].GUIName +
+    gLog.AddNoTime('Unable to make a route for ' + gRes.Units[aUnit.UnitType].GUIName +
                    ' from ' + KM_Points.TypeToString(fWalkFrom) + ' to ' + KM_Points.TypeToString(fWalkTo) +
                    ' with "' + PassabilityGuiText[fPass] + '"');
 end;
@@ -915,7 +915,7 @@ end;
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc: TKMPoint; aDistance: Single);
 begin
   if not gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    raise ELocError.Create('Invalid Change Walk To for '+gRes.UnitDat[fUnit.UnitType].GUIName, aLoc);
+    raise ELocError.Create('Invalid Change Walk To for '+gRes.Units[fUnit.UnitType].GUIName, aLoc);
 
   //We are no longer being pushed
   if fInteractionStatus = kis_Pushed then
@@ -991,7 +991,7 @@ begin
   end;
 
   //Execute the route in series of moves
-  Distance := gRes.UnitDat[fUnit.UnitType].Speed;
+  Distance := gRes.Units[fUnit.UnitType].Speed;
 
   //Check if unit has arrived on tile
   if KMSamePointF(fUnit.PositionF, KMPointF(NodeList[NodePos]), Distance/2) then

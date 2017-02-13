@@ -113,7 +113,7 @@ type
 implementation
 uses
   KM_ResTexts, KM_Game, KM_HandsCollection, KM_Utils, KM_Resource, KM_ResFonts,
-  KM_RenderUI, KM_Hand;
+  KM_RenderUI, KM_Hand, KM_ResUnits;
 
 
 const
@@ -156,7 +156,7 @@ end;
 function TKMChartArmyType.GetGUIName: UnicodeString;
 begin
   if (HasUnitType) then
-    Result := gRes.UnitDat.UnitsDat[UnitType].GUIName
+    Result := gRes.Units[UnitType].GUIName
   else
     Result := 'Army power'; //Todo translate
 end;
@@ -165,7 +165,7 @@ end;
 function TKMChartArmyType.GetGUIIcon: Word;
 begin
   if (HasUnitType) then
-    Result := gRes.UnitDat.UnitsDat[UnitType].GUIIcon
+    Result := gRes.Units[UnitType].GUIIcon
   else
     Result := 53;
 end;

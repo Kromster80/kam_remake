@@ -198,7 +198,7 @@ begin
   fHideOneGold := true;
 
   //Create the Unit
-  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], GetEntrance);
+  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], Entrance);
   TKMUnit(fUnitWip).TrainInHouse(Self); //Let the unit start the training task
 
   WorkAnimStep := 0;
@@ -254,11 +254,11 @@ begin
     Result := 0
   else
     Result := (
-              Byte(ha_Work2 in fCurrentAction.SubAction) * 30 +
-              Byte(ha_Work3 in fCurrentAction.SubAction) * 60 +
-              Byte(ha_Work4 in fCurrentAction.SubAction) * 90 +
-              Byte(ha_Work5 in fCurrentAction.SubAction) * 120 +
-              Byte(fCurrentAction.State = hst_Work) * WorkAnimStep
+              Byte(ha_Work2 in CurrentAction.SubAction) * 30 +
+              Byte(ha_Work3 in CurrentAction.SubAction) * 60 +
+              Byte(ha_Work4 in CurrentAction.SubAction) * 90 +
+              Byte(ha_Work5 in CurrentAction.SubAction) * 120 +
+              Byte(CurrentAction.State = hst_Work) * WorkAnimStep
               ) / 150;
 end;
 
