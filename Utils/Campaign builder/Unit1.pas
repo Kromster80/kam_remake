@@ -408,7 +408,6 @@ procedure TForm1.UpdateList;
 var
   I, K: Integer;
   N, SN: TTreeNode;
-  s: UnicodeString;
 begin
   fUpdating := True;
 
@@ -416,7 +415,6 @@ begin
 
   for I := 0 to C.MapCount - 1 do
   begin
-    s := C.CampName;
     N := tvList.Items.AddChild(nil, C.CampName + ' mission ' + IntToStr(I + 1));
     if fSelectedMap = I then
       N.Selected := True;
