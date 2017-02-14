@@ -326,6 +326,7 @@ uses
 procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
 begin
   fSaves.Lock;
+  try
     if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
     begin
       fSave_Selected := TKMListBox(Sender).ItemIndex;
@@ -336,7 +337,9 @@ begin
       Label_SaveExists.Visible := True;
       Button_Save.Enabled := False;
     end;
-  fSaves.Unlock;
+  finally
+    fSaves.Unlock;
+  end;
 end;
 
 
@@ -378,9 +381,12 @@ begin
   if (Sender = fSaves) then
   begin
     fSaves.Lock;
+    try
       for I := 0 to fSaves.Count - 1 do
         ListBox_Save.Add(fSaves[i].FileName);
-    fSaves.Unlock;
+    finally
+      fSaves.Unlock;
+    end;
   end;
 
   ListBox_Save.ItemIndex := fSave_Selected;
@@ -409,6 +415,7 @@ end;
 procedure TKMGamePlayInterface.Menu_Load_ListClick(Sender: TObject);
 begin
   fSaves.Lock;
+  try
     Button_Load.Enabled := InRange(ListBox_Load.ItemIndex, 0, fSaves.Count - 1)
                            and fSaves[ListBox_Load.ItemIndex].IsValid;
     if InRange(ListBox_Load.ItemIndex,0,fSaves.Count-1) then
@@ -416,7 +423,9 @@ begin
       Label_LoadDescription.Caption := fSaves[ListBox_Load.ItemIndex].Info.GetTitleWithTime;
       fSave_Selected := ListBox_Load.ItemIndex;
     end;
-  fSaves.Unlock;
+  finally
+    fSaves.Unlock;
+  end;
 end;
 
 
@@ -437,9 +446,12 @@ begin
   if (Sender = fSaves) then
   begin
     fSaves.Lock;
-    for I := 0 to fSaves.Count - 1 do
-      ListBox_Load.Add(fSaves[I].FileName);
-    fSaves.Unlock;
+    try
+      for I := 0 to fSaves.Count - 1 do
+        ListBox_Load.Add(fSaves[I].FileName);
+    finally
+      fSaves.Unlock;
+    end;
   end;
 
   ListBox_Load.TopIndex := PrevTop;
@@ -660,7 +672,7 @@ begin
   if ((gMySpectator.Selected is TKMHouseBarracks) or (gMySpectator.Selected is TKMHouseWoodcutters)) and not fPlacingBeacon
   and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
-    if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(gMySpectator.Selected).GetEntrance), Loc, tpWalk, 0) then
+    if gTerrain.Route_CanBeMade(TKMHouse(gMySpectator.Selected).PointBelowEntrance, Loc, tpWalk, 0) then
     begin
       if gMySpectator.Selected is TKMHouseBarracks then
         gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), Loc)
@@ -1819,11 +1831,11 @@ begin
       if LastSelectedObj is TKMUnit then begin
         fViewport.Position := TKMUnit(LastSelectedObj).PositionF;
       end else if LastSelectedObj is TKMHouse then
-        fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).GetEntrance)
+        fViewport.Position := KMPointF(TKMHouse(LastSelectedObj).Entrance)
       else if LastSelectedObj is TKMUnitGroup then
         fViewport.Position := TKMUnitGroup(LastSelectedObj).FlagBearer.PositionF
       else
-        Assert(False, 'Could not determine last selected object type');
+        raise Exception.Create('Could not determine last selected object type');
     end else
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
@@ -2229,7 +2241,8 @@ begin
                     Button_PlayMore.Caption := gResTexts[TX_GAMEPLAY_REPLAY_CONTINUEWATCHING];
                     Button_PlayQuit.Caption := gResTexts[TX_GAMEPLAY_QUIT_TO_MENU];
                   end;
-    else if DoShow then Assert(false,'Wrong message in ShowPlayMore'); // Can become hidden with any message
+    else if DoShow then
+      raise Exception.Create('Wrong message in ShowPlayMore'); // Can become hidden with any message
   end;
   Panel_PlayMore.Visible := DoShow;
 end;
@@ -2255,7 +2268,7 @@ begin
                     Button_MPPlayMore.Caption := gResTexts[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
                     Button_MPPlayQuit.Caption := gResTexts[TX_GAMEPLAY_DEFEAT];
                   end;
-    else Assert(false,'Wrong message in ShowMPPlayMore');
+    else raise Exception.Create('Wrong message in ShowMPPlayMore');
   end;
   Panel_MPPlayMore.Visible := true;
 end;
@@ -2411,7 +2424,7 @@ begin
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_QUIT_TO_MENU] then
       gGameApp.Stop(gr_Cancel);
   end
-  else Assert(false, 'Wrong Sender in NetWaitClick');
+  else raise Exception.Create('Wrong Sender in NetWaitClick');
 end;
 
 
@@ -2539,7 +2552,7 @@ begin
         end;
         // Selecting a house twice is the shortcut to center on that house
         if OldSelected = gMySpectator.Selected then
-          fViewport.Position := KMPointF(TKMHouse(gMySpectator.Selected).GetEntrance);
+          fViewport.Position := KMPointF(TKMHouse(gMySpectator.Selected).Entrance);
       end
       else
       begin
@@ -3382,7 +3395,7 @@ begin
         if ((gMySpectator.Selected is TKMHouseBarracks) or (gMySpectator.Selected is TKMHouseWoodcutters)) and not fPlacingBeacon
         and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
         begin
-          if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(gMySpectator.Selected).GetEntrance), P, tpWalk, 0) then
+          if gTerrain.Route_CanBeMade(TKMHouse(gMySpectator.Selected).PointBelowEntrance, P, tpWalk, 0) then
           begin
             if gMySpectator.Selected is TKMHouseBarracks then
               gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), P)
@@ -3625,8 +3638,8 @@ begin
   // Debug info
   if SHOW_SPRITE_COUNT then
     S := IntToStr(gHands.UnitCount) + ' units on map|' +
-         IntToStr(fRenderPool.RenderList.Stat_Sprites) + '/' +
-         IntToStr(fRenderPool.RenderList.Stat_Sprites2) + ' sprites/rendered|' +
+         IntToStr(gRenderPool.RenderList.Stat_Sprites) + '/' +
+         IntToStr(gRenderPool.RenderList.Stat_Sprites2) + ' sprites/rendered|' +
          IntToStr(CtrlPaintCount) + ' controls rendered|';
 
   if SHOW_POINTER_COUNT then
@@ -3695,3 +3708,4 @@ end;
 
 
 end.
+

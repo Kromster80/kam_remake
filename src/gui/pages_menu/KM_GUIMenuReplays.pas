@@ -18,6 +18,7 @@ type
 
     procedure UpdateUI;
     procedure ListUpdate;
+    procedure LoadMinimap(aID: Integer = -1);
     procedure SetSelectedSaveInfo(aID: Integer = -1); overload;
     procedure SetSelectedSaveInfo(aCRC: Cardinal; aName: UnicodeString); overload;
 
@@ -195,6 +196,9 @@ begin
                                 and fSaves[ID].IsReplayValid;
   Button_Delete.Enabled := InRange(ID, 0, fSaves.Count-1);
   Button_Rename.Enabled := InRange(ID, 0, fSaves.Count-1);
+
+  if (ColumnBox_Replays.ItemIndex = -1) then
+    MinimapView_Replay.Hide;
 end;
 
 
@@ -231,6 +235,17 @@ begin
 end;
 
 
+procedure TKMMenuReplays.LoadMinimap(aID: Integer = -1);
+begin
+  MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
+  if (aID <> -1) and Button_ReplaysPlay.Enabled and fSaves[aID].LoadMinimap(fMinimap) then
+  begin
+    MinimapView_Replay.SetMinimap(fMinimap);
+    MinimapView_Replay.Show;
+  end;
+end;
+
+
 procedure TKMMenuReplays.Replays_ListClick(Sender: TObject);
 var
   ID: Integer;
@@ -249,12 +264,7 @@ begin
     else
       SetSelectedSaveInfo;
 
-    MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
-    if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMinimap) then
-    begin
-      MinimapView_Replay.SetMinimap(fMinimap);
-      MinimapView_Replay.Show;
-    end;
+    LoadMinimap(ID);
   finally
     fSaves.Unlock;
   end;
@@ -284,6 +294,7 @@ end;
 
 procedure TKMMenuReplays.Replay_TypeChange(Sender: TObject);
 begin
+  gGameApp.GameSettings.MenuReplaysType := Radio_Replays_Type.ItemIndex;
   ListUpdate;
   DeleteConfirm(False);
   RenameConfirm(False);
@@ -328,7 +339,10 @@ begin
 
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fSelectedSaveInfo.CRC) and (fSaves[I].FileName = fSelectedSaveInfo.Name) then
+      begin
         ColumnBox_Replays.ItemIndex := I;
+        LoadMinimap(I);
+      end;
 
   finally
     fSaves.Unlock;

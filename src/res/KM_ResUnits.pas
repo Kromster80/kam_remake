@@ -344,10 +344,7 @@ begin
     ut_Farmer:      Result := 10;
     ut_Stonecutter: Result := 16;
     ut_Fisher:      Result := 14;
-    else            begin
-                      Result := 0;
-                      Assert(false, GUIName + ' has no mining range');
-                    end;
+    else            raise Exception.Create(GUIName + ' has no mining range');
   end;
 end;
 

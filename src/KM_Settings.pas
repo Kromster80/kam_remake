@@ -91,6 +91,7 @@ type
     fLastIP: string;
     fLastPort: string;
     fLastRoom: string;
+    fLastPassword: string;
     fServerPort: string;
     fMasterServerAddress: string;
     fServerName: AnsiString;
@@ -103,6 +104,23 @@ type
     fHTMLStatusFile: UnicodeString;
     fServerWelcomeMessage: UnicodeString;
     fWareDistribution: TKMWareDistribution;
+
+    fMenu_FavouriteMPMaps: TStringList;
+    fMenu_ReplaysType: Byte;
+    fMenu_MapEdMapType: Byte;
+    fMenu_MapEdNewMapX: Word;
+    fMenu_MapEdNewMapY: Word;
+    fMenu_MapEdSPMapCRC: Cardinal;
+    fMenu_MapEdMPMapCRC: Cardinal;
+    fMenu_MapEdMPMapName: UnicodeString;
+    fMenu_CampaignName: UnicodeString;
+    fMenu_ReplaySPSaveCRC: Cardinal;
+    fMenu_ReplayMPSaveCRC: Cardinal;
+    fMenu_ReplaySPSaveName: UnicodeString;
+    fMenu_ReplayMPSaveName: UnicodeString;
+    fMenu_SPMapCRC: Cardinal;
+    fMenu_SPSaveCRC: Cardinal;
+    fMenu_LobbyMapType: Byte;
 
     fMenu_ReplaysType: Byte;
     fMenu_MapEdMapType: Byte;
@@ -136,6 +154,7 @@ type
     procedure SetServerName(aValue: AnsiString);
     procedure SetLastPort(aValue: string);
     procedure SetLastRoom(aValue: string);
+    procedure SetLastPassword(aValue: string);
     procedure SetServerPort(aValue: string);
     procedure SetServerWelcomeMessage(aValue: UnicodeString);
     procedure SetAnnounceServer(aValue: Boolean);
@@ -153,6 +172,7 @@ type
     procedure SetMenuMapEdSPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapName(aValue: UnicodeString);
+    procedure SetMenuCampaignName(aValue: UnicodeString);
     procedure SetMenuReplaySPSaveCRC(aValue: Cardinal);
     procedure SetMenuReplayMPSaveCRC(aValue: Cardinal);
     procedure SetMenuReplaySPSaveName(aValue: UnicodeString);
@@ -160,6 +180,9 @@ type
     procedure SetMenuSPMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveCRC(aValue: Cardinal);
     procedure SetMenuLobbyMapType(aValue: Byte);
+
+    procedure LoadFavouriteMapsFromString(aString: UnicodeString);
+    function GetFavouriteMapsString: UnicodeString;
   protected
     function LoadFromINI(FileName: UnicodeString): Boolean;
     procedure SaveToINI(FileName: UnicodeString);
@@ -189,6 +212,7 @@ type
     property LastIP: string read fLastIP write SetLastIP;
     property LastPort: string read fLastPort write SetLastPort;
     property LastRoom: string read fLastRoom write SetLastRoom;
+    property LastPassword: string read fLastPassword write SetLastPassword;
     property ServerPort: string read fServerPort write SetServerPort;
     property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
     property ServerName: AnsiString read fServerName write SetServerName;
@@ -202,6 +226,10 @@ type
     property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
 
+    function IsMapInFavourites(aMapCRC: Cardinal): Boolean;
+    procedure AddFavouriteMap(aMapCRC: Cardinal);
+    procedure RemoveFavouriteMap(aMapCRC: Cardinal);
+
     property MenuReplaysType: Byte read fMenu_ReplaysType write SetMenuReplaysType;
     property MenuMapEdMapType: Byte read fMenu_MapEdMapType write SetMenuMapEdMapType;
     property MenuMapEdNewMapX: Word read fMenu_MapEdNewMapX write SetMenuMapEdNewMapX;
@@ -209,6 +237,7 @@ type
     property MenuMapEdSPMapCRC: Cardinal read fMenu_MapEdSPMapCRC write SetMenuMapEdSPMapCRC;
     property MenuMapEdMPMapCRC: Cardinal read fMenu_MapEdMPMapCRC write SetMenuMapEdMPMapCRC;
     property MenuMapEdMPMapName: UnicodeString read fMenu_MapEdMPMapName write SetMenuMapEdMPMapName;
+    property MenuCampaignName: UnicodeString read fMenu_CampaignName write SetMenuCampaignName;
     property MenuReplaySPSaveCRC: Cardinal read fMenu_ReplaySPSaveCRC write SetMenuReplaySPSaveCRC;
     property MenuReplayMPSaveCRC: Cardinal read fMenu_ReplayMPSaveCRC write SetMenuReplayMPSaveCRC;
     property MenuReplaySPSaveName: UnicodeString read fMenu_ReplaySPSaveName write SetMenuReplaySPSaveName;
@@ -222,6 +251,9 @@ type
 implementation
 uses
   KM_Log;
+
+const
+  FAVOURITE_MAPS_DELIMITER = ':';
 
 
 { TMainSettings }
@@ -354,6 +386,11 @@ begin
   inherited;
 
   fWareDistribution := TKMWareDistribution.Create;
+
+  fMenu_FavouriteMPMaps := TStringList.Create;
+  fMenu_FavouriteMPMaps.Delimiter       := FAVOURITE_MAPS_DELIMITER;
+  fMenu_FavouriteMPMaps.StrictDelimiter := True; // Requires D2006 or newer.
+
   ReloadSettings;
 end;
 
@@ -362,6 +399,7 @@ destructor TGameSettings.Destroy;
 begin
   SaveToINI(ExeDir + SETTINGS_FILE);
   FreeAndNil(fWareDistribution);
+  FreeAndNil(fMenu_FavouriteMPMaps);
 
   inherited;
 end;
@@ -379,6 +417,60 @@ procedure TGameSettings.ReloadSettings;
 begin
   LoadFromINI(ExeDir + SETTINGS_FILE);
   gLog.AddTime('Game settings loaded from ' + SETTINGS_FILE);
+end;
+
+
+procedure TGameSettings.LoadFavouriteMapsFromString(aString: UnicodeString);
+var I: Integer;
+    MapCRC : Int64;
+    StringList: TStringList;
+begin
+  fMenu_FavouriteMPMaps.Clear;
+  StringList := TStringList.Create;
+  StringList.Delimiter := FAVOURITE_MAPS_DELIMITER;
+  StringList.DelimitedText   := Trim(aString);
+
+  for I := 0 to StringList.Count - 1 do
+  begin
+    if TryStrToInt64(Trim(StringList[I]), MapCRC)
+      and (MapCRC > 0)
+      and not IsMapInFavourites(Cardinal(MapCRC)) then
+      fMenu_FavouriteMPMaps.Add(Trim(StringList[I]));
+  end;
+
+  StringList.Free;
+end;
+
+
+function TGameSettings.GetFavouriteMapsString: UnicodeString;
+begin
+  Result := fMenu_FavouriteMPMaps.DelimitedText;
+end;
+
+
+function TGameSettings.IsMapInFavourites(aMapCRC: Cardinal): Boolean;
+begin
+  Result := fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC)) <> -1;
+end;
+
+
+procedure TGameSettings.AddFavouriteMap(aMapCRC: Cardinal);
+begin
+  if not IsMapInFavourites(aMapCRC) then
+  begin
+    fMenu_FavouriteMPMaps.Add(IntToStr(aMapCRC));
+    Changed;
+  end;
+end;
+
+
+procedure TGameSettings.RemoveFavouriteMap(aMapCRC: Cardinal);
+var Index: Integer;
+begin
+  Index := fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC));
+  if Index <> -1 then
+    fMenu_FavouriteMPMaps.Delete(Index);
+  Changed;
 end;
 
 
@@ -419,6 +511,7 @@ begin
     fLastIP                 := F.ReadString ('Multiplayer','LastIP','127.0.0.1');
     fLastPort               := F.ReadString ('Multiplayer','LastPort','56789');
     fLastRoom               := F.ReadString ('Multiplayer','LastRoom','0');
+    fLastPassword           := F.ReadString('Multiplayer','LastPassword','');
     fFlashOnMessage         := F.ReadBool   ('Multiplayer','FlashOnMessage',True);
     fServerPort             := F.ReadString ('Server','ServerPort','56789');
     //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
@@ -433,6 +526,7 @@ begin
     fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
     fServerWelcomeMessage   := {$IFDEF FPC} UTF8Decode {$ENDIF} (F.ReadString ('Server','WelcomeMessage',''));
 
+    LoadFavouriteMapsFromString(F.ReadString('Menu', 'FavouriteMaps', ''));
     fMenu_ReplaysType       := F.ReadInteger('Menu', 'ReplaysType',  0);
     fMenu_MapEdMapType      := F.ReadInteger('Menu', 'MapEdMapType', 0);
     fMenu_MapEdNewMapX      := F.ReadInteger('Menu', 'MapEdNewMapX', 64);
@@ -440,6 +534,7 @@ begin
     fMenu_MapEdSPMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdSPMapCRC', '0'));
     fMenu_MapEdMPMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdMPMapCRC', '0'));
     fMenu_MapEdMPMapName    := F.ReadString('Menu', 'MapEdMPMapName', '');
+    fMenu_CampaignName      := F.ReadString('Menu', 'CampaignName', '');
     fMenu_ReplaySPSaveCRC   := StrToInt64(F.ReadString('Menu', 'ReplaySPSaveCRC', '0'));
     fMenu_ReplayMPSaveCRC   := StrToInt64(F.ReadString('Menu', 'ReplayMPSaveCRC', '0'));
     fMenu_ReplaySPSaveName  := F.ReadString('Menu', 'ReplaySPSaveName', '');
@@ -489,6 +584,7 @@ begin
     F.WriteString ('Multiplayer','LastIP',          fLastIP);
     F.WriteString ('Multiplayer','LastPort',        fLastPort);
     F.WriteString ('Multiplayer','LastRoom',        fLastRoom);
+    F.WriteString ('Multiplayer','LastPassword',    fLastPassword);
     F.WriteBool   ('Multiplayer','FlashOnMessage',  fFlashOnMessage);
 
     F.WriteString ('Server','ServerName',                   UnicodeString(fServerName));
@@ -502,6 +598,7 @@ begin
     F.WriteInteger('Server','AutoKickTimeout',              fAutoKickTimeout);
     F.WriteInteger('Server','PingMeasurementInterval',      fPingInterval);
 
+    F.WriteString ('Menu',  'FavouriteMaps',      GetFavouriteMapsString);
     F.WriteInteger('Menu',  'ReplaysType',        fMenu_ReplaysType);
     F.WriteInteger('Menu',  'MapEdMapType',       fMenu_MapEdMapType);
     F.WriteInteger('Menu',  'MapEdNewMapX',       fMenu_MapEdNewMapX);
@@ -509,6 +606,7 @@ begin
     F.WriteString ('Menu',  'MapEdSPMapCRC',      IntToStr(fMenu_MapEdSPMapCRC));
     F.WriteString ('Menu',  'MapEdMPMapCRC',      IntToStr(fMenu_MapEdMPMapCRC));
     F.WriteString ('Menu',  'MapEdMPMapName',     fMenu_MapEdMPMapName);
+    F.WriteString ('Menu',  'CampaignName',       fMenu_CampaignName);
     F.WriteString ('Menu',  'ReplaySPSaveCRC',    IntToStr(fMenu_ReplaySPSaveCRC));
     F.WriteString ('Menu',  'ReplayMPSaveCRC',    IntToStr(fMenu_ReplayMPSaveCRC));
     F.WriteString ('Menu',  'ReplaySPSaveName',   fMenu_ReplaySPSaveName);
@@ -597,6 +695,12 @@ begin
   Changed;
 end;
 
+
+procedure TGameSettings.SetMenuCampaignName(aValue: UnicodeString);
+begin
+  fMenu_CampaignName := aValue;
+  Changed;
+end;
 
 
 procedure TGameSettings.SetMenuReplaySPSaveCRC(aValue: Cardinal);
@@ -729,6 +833,13 @@ end;
 procedure TGameSettings.SetLastRoom(aValue: string);
 begin
   fLastRoom := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetLastPassword(aValue: string);
+begin
+  fLastPassword := aValue;
   Changed;
 end;
 

@@ -390,7 +390,9 @@ end;
 
 
 procedure TKMHand.WarriorWalkedOut(aUnit: TKMUnitWarrior);
-var G: TKMUnitGroup; H: TKMHouse;
+var G: TKMUnitGroup;
+    H: TKMHouse;
+    B: TKMHouseBarracks;
 begin
   //Warrior could be killed before he walked out, f.e. by script OnTick ---> Actions.UnitKill
   //Then group will be assigned to invalid warrior and never gets removed from game
@@ -410,9 +412,14 @@ begin
     begin
       //If player is human and this is the first warrior in the group, send it to the rally point
       H := HousesHitTest(aUnit.GetPosition.X, aUnit.GetPosition.Y-1);
-      if (H is TKMHouseBarracks) and TKMHouseBarracks(H).IsRallyPointSet
-      and G.CanWalkTo(TKMHouseBarracks(H).RallyPoint, 0) then
-        G.OrderWalk(TKMHouseBarracks(H).RallyPoint, True);
+      if (H is TKMHouseBarracks) then
+      begin
+        B := TKMHouseBarracks(H);
+        B.ValidateRallyPoint; // Validate Rally point first. It will set it to a proper walkable position
+        if B.IsRallyPointSet
+          and G.CanWalkTo(B.RallyPoint, 0) then
+          G.OrderWalk(B.RallyPoint, True);
+      end;
     end;
   gScriptEvents.ProcWarriorEquipped(aUnit, G);
 end;
@@ -679,7 +686,7 @@ begin
          ft_Corn: gScriptEvents.ProcPlanFieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
          ft_Wine: gScriptEvents.ProcPlanWinefieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
       else
-        Assert(False);
+        raise Exception.Create('Unknown aFieldType');
       end;
     end
     else
@@ -818,7 +825,7 @@ begin
     ft_Corn: gScriptEvents.ProcPlanFieldRemoved(fHandIndex, Position.X, Position.Y);
     ft_Wine: gScriptEvents.ProcPlanWinefieldRemoved(fHandIndex, Position.X, Position.Y);
   else
-    Assert(False);
+    raise Exception.Create('Unknown fieldType');
   end;
 
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
@@ -878,7 +885,7 @@ begin
   repeat
     //First make sure that it is valid
     if (H <> nil) and H.HasFood and H.HasSpace
-    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), tpWalk, 0) then
+    and aUnit.CanWalkTo(Loc, H.PointBelowEntrance, tpWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
       Dist := KMLengthSqr(H.GetPosition, Loc);

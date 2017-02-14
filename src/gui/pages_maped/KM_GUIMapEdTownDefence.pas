@@ -32,6 +32,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
   end;
 
 
@@ -163,6 +164,12 @@ end;
 function TKMMapEdTownDefence.Visible: Boolean;
 begin
   Result := Panel_Defence.Visible;
+end;
+
+
+procedure TKMMapEdTownDefence.UpdateState;
+begin
+  Button_DefencePosAdd.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_DEFENCE);
 end;
 
 

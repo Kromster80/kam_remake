@@ -72,33 +72,30 @@ begin
   //If the school has been destroyed then this task should not be running (school frees it on CloseHouse)
   //However, if we are past phase 6 (task ends on phase 7) then the school does not know about us (we have stepped outside)
   if fSchool.IsDestroyed and (fPhase <= 6) then
-  begin //School will cancel the training on own destruction
-    Assert(False, 'Unexpected error. Destoyed school erases the task');
-    Result := TaskDone;
-    Exit;
-  end;
+    //School will cancel the training on own destruction
+    raise Exception.Create('Unexpected error. Destoyed school erases the task');
 
   with fUnit do
     case fPhase of
       0: begin
           fSchool.SetState(hst_Work);
-          fSchool.fCurrentAction.SubActionWork(ha_Work1);
+          fSchool.CurrentAction.SubActionWork(ha_Work1);
           SetActionLockedStay(29, ua_Walk);
         end;
       1: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work2);
+          fSchool.CurrentAction.SubActionWork(ha_Work2);
           SetActionLockedStay(29, ua_Walk);
         end;
       2: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work3);
+          fSchool.CurrentAction.SubActionWork(ha_Work3);
           SetActionLockedStay(29, ua_Walk);
         end;
       3: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work4);
+          fSchool.CurrentAction.SubActionWork(ha_Work4);
           SetActionLockedStay(29, ua_Walk);
         end;
       4: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work5);
+          fSchool.CurrentAction.SubActionWork(ha_Work5);
           SetActionLockedStay(29, ua_Walk);
         end;
       5: begin

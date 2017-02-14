@@ -140,8 +140,8 @@ begin
   ShuffleToggled := (gGameApp.GameSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
 
   gGameApp.GameSettings.Brightness      := TrackBar_Settings_Brightness.Position;
-  gGameApp.GameSettings.Autosave        := CheckBox_Settings_ReplayAutopause.Checked;
-  gGameApp.GameSettings.ReplayAutopause := CheckBox_Settings_Autosave.Checked;
+  gGameApp.GameSettings.Autosave        := CheckBox_Settings_Autosave.Checked;
+  gGameApp.GameSettings.ReplayAutopause := CheckBox_Settings_ReplayAutopause.Checked;
   gGameApp.GameSettings.ScrollSpeed     := TrackBar_Settings_ScrollSpeed.Position;
   gGameApp.GameSettings.SoundFXVolume   := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
   gGameApp.GameSettings.MusicVolume     := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;

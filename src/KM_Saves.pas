@@ -295,6 +295,7 @@ var
   I: Integer;
 begin
   Lock;
+  try
     Assert(InRange(aIndex, 0, fCount-1));
     DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
     DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
@@ -304,7 +305,9 @@ begin
       fSaves[I] := fSaves[I+1]; //Move them down
     dec(fCount);
     SetLength(fSaves, fCount);
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -313,12 +316,15 @@ var
   fileOld, fileNew: UnicodeString;
 begin
   Lock;
+  try
     fileOld := fSaves[aIndex].Path + fSaves[aIndex].fFileName;
     fileNew := fSaves[aIndex].Path + aName;
     RenameFile(fileOld + '.sav', fileNew + '.sav');
     RenameFile(fileOld + '.rpl', fileNew + '.rpl');
     RenameFile(fileOld + '.bas', fileNew + '.bas');
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -384,10 +390,13 @@ var
   I: Integer;
 begin
   Lock;
+  try
     Result := '';
     for I := 0 to fCount - 1 do
       Result := Result + fSaves[I].FileName + EolW;
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 

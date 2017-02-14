@@ -137,7 +137,7 @@ begin
 
     AnimStep := FlagAnimStep - Eater[I].EatStep; //Delta is our AnimStep
 
-    fRenderPool.AddHouseEater(fPosition, Eater[I].UnitType, ua_Eat,
+    gRenderPool.AddHouseEater(fPosition, Eater[I].UnitType, ua_Eat,
                               AnimDir(I), AnimStep,
                               offX[I mod 3], offY[I mod 3],
                               gHands[fOwner].FlagColor);

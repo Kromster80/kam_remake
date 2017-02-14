@@ -110,6 +110,10 @@ type
   function TypeToString(T: TKMDirection): string; overload;
 
 
+const
+  INVALID_MAP_POINT: TKMPoint = (X: -1; Y: -1);
+
+
 implementation
 
 
