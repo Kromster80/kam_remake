@@ -85,6 +85,9 @@ begin
   C := TKMCampaign.Create;
   fSelectedMap := -1;
 
+  //This line corrects a bug in UpdateList namely C.CampName line that returns at the start of the program #0#0#0
+  edtShortNameChange(nil);
+
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
 
@@ -119,7 +122,8 @@ begin
     Ord('W'): Img.Top  := Img.Top  - 1;
     Ord('S'): Img.Top  := Img.Top  + 1;
   end;
-
+  Img.Left := EnsureRange(Img.Left, Image1.Left, Image1.Left + 1024-Img.Width);
+  Img.Top  := EnsureRange(Img.Top, Image1.Top, Image1.Top + 768-Img.Height);
   if (fSelectedNode <> -1) then
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
@@ -251,6 +255,12 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
+  //From UpdateList ruled here since caused a bug with entering
+  //More details about the bug:
+  {http://gifok.net/images/2017/02/14/2017-02-14_16-01-27.gif}
+  edtShortName.Text := C.CampName;
+  seMapCount.Value := C.MapCount;
+
   UpdateList;
   UpdateFlagCount;
   RefreshBackground;
@@ -302,6 +312,12 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
+  //Bug fixes flaws SpinEdit component which makes checking the entered number after the OnChange event
+  //If you remove the "if (seMapCount.Value > MAX_CAMP_MAPS)or(seMapCount.Value < seMapCount.MinValue) then" there is a problem shown here:
+  //http://gifok.net/images/2017/02/14/2017-02-14_16-01-27.gif
+  if (seMapCount.Value > MAX_CAMP_MAPS)or(seMapCount.Value < seMapCount.MinValue) then
+    seMapCount.Value := EnsureRange(seMapCount.Value, seMapCount.MinValue, MAX_CAMP_MAPS);
+
   C.MapCount := seMapCount.Value;
 
   if fSelectedMap > C.MapCount - 1 then
@@ -316,6 +332,12 @@ end;
 procedure TForm1.MapChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
+
+  //Bug fixes flaws SpinEdit component which makes checking the entered number after the OnChange event
+  //If you remove the "if (seNodeCount.Value > MAX_CAMP_NODES)or(seNodeCount.Value < seNodeCount.MinValue) then" there is a problem shown here:
+  //http://gifok.net/images/2017/02/14/2017-02-14_16-01-27.gif
+  if (seNodeCount.Value > MAX_CAMP_NODES)or(seNodeCount.Value < seNodeCount.MinValue) then
+    seNodeCount.Value := EnsureRange(seNodeCount.Value, seNodeCount.MinValue, MAX_CAMP_NODES);
 
   C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
 
@@ -386,23 +408,22 @@ procedure TForm1.UpdateList;
 var
   I, K: Integer;
   N, SN: TTreeNode;
+  s: UnicodeString;
 begin
   fUpdating := True;
-
-  edtShortName.Text := C.CampName;
-  seMapCount.Value := C.MapCount;
 
   tvList.Items.Clear;
 
   for I := 0 to C.MapCount - 1 do
   begin
+    s := C.CampName;
     N := tvList.Items.AddChild(nil, C.CampName + ' mission ' + IntToStr(I + 1));
     if fSelectedMap = I then
       N.Selected := True;
 
     for K := 0 to C.Maps[I].NodeCount - 1 do
     begin
-      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K));
+      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K + 1));
       if fSelectedNode = K then
         SN.Selected := True;
     end;
