@@ -122,21 +122,6 @@ type
     fMenu_SPSaveCRC: Cardinal;
     fMenu_LobbyMapType: Byte;
 
-    fMenu_ReplaysType: Byte;
-    fMenu_MapEdMapType: Byte;
-    fMenu_MapEdNewMapX: Word;
-    fMenu_MapEdNewMapY: Word;
-    fMenu_MapEdSPMapCRC: Cardinal;
-    fMenu_MapEdMPMapCRC: Cardinal;
-    fMenu_MapEdMPMapName: UnicodeString;
-    fMenu_ReplaySPSaveCRC: Cardinal;
-    fMenu_ReplayMPSaveCRC: Cardinal;
-    fMenu_ReplaySPSaveName: UnicodeString;
-    fMenu_ReplayMPSaveName: UnicodeString;
-    fMenu_SPMapCRC: Cardinal;
-    fMenu_SPSaveCRC: Cardinal;
-    fMenu_LobbyMapType: Byte;
-
     procedure SetAutosave(aValue: Boolean);
     procedure SetReplayAutopause(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
