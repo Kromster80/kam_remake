@@ -71,7 +71,6 @@ uses
   function StrStartsWith(aStr, aSubStr: String): Boolean;
   function StrContains(aStr, aSubStr: String): Boolean;
   function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
-  function StrSplitToStrArray(aStr, aDelimiters: String): TStringArray;
   function StrSplit(aStr, aDelimiters: String): TStrings;
 
 
@@ -739,6 +738,8 @@ Names are the same as in new Delphi versions, but with 'Str' prefix
 }
 function StrIndexOf(aStr, aSubStr: String): Integer;
 begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrIndexOf with Pos everywhere in code?
   Result := AnsiPos(aSubStr, aStr) - 1;
 end;
 
@@ -755,24 +756,32 @@ end;
 
 function StrStartsWith(aStr, aSubStr: String): Boolean;
 begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrStartsWith with StartsStr everywhere in code?
   Result := StartsStr(aSubStr, aStr);
 end;
 
 
 function StrSubstring(aStr: String; aFrom: Integer): String;
 begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrSubstring with RightStr everywhere in code?
   Result := Copy(aStr, aFrom + 1, Length(aStr));
 end;
 
 
 function StrSubstring(aStr: String; aFrom, aLength: Integer): String;
 begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrSubstring with Copy everywhere in code?
   Result := Copy(aStr, aFrom + 1, aLength);
 end;
 
 
 function StrContains(aStr, aSubStr: String): Boolean;
 begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrContains with Pos() <> 0 everywhere in code?
   Result := StrIndexOf(aStr, aSubStr) <> -1;
 end;
 
@@ -799,21 +808,14 @@ begin
 end;
 
 
-function StrSplitToStrArray(aStr, aDelimiters: String): TStringArray;
-var StrArray: TStringDynArray;
-    I: Integer;
-begin
-  StrArray := SplitString(aStr, aDelimiters);
-  SetLength(Result, Length(StrArray));
-  for I := Low(StrArray) to High(StrArray) do
-    Result[I] := StrArray[I];
-end;
-
-
 function StrSplit(aStr, aDelimiters: String): TStrings;
 var StrArray: TStringDynArray;
     I: Integer;
 begin
+  //Todo refactor:
+  //@Krom: It's bad practice to create object (TStringList) inside and return it as parent class (TStrings).
+  //Do we really need it this way? Better to pass TStringList from outside in a parameter.
+
   StrArray := SplitString(aStr, aDelimiters);
   Result := TStringList.Create;
   for I := Low(StrArray) to High(StrArray) do
