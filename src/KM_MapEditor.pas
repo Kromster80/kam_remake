@@ -241,7 +241,7 @@ begin
                       gMySpectator.Hand.AddField(P, ft_Corn);
       cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
                       gMySpectator.Hand.AddField(P, ft_Wine);
-      cmUnits:      ProcessUnitsCursorMode;//if gGameCursor.Tag1 = 255 then gHands.RemAnyUnit(P);
+      cmUnits:      ProcessUnitsCursorMode;
       cmErase:      begin
                       gHands.RemAnyHouse(P);
                       if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
