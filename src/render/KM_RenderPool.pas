@@ -6,7 +6,7 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   KM_Defaults, KM_CommonTypes, KM_CommonClasses, KM_Pics, KM_Points, KM_Render, KM_Viewport,
-  KM_RenderTerrain, KM_ResHouses, KM_ResSprites, KM_ResWares,
+  KM_RenderTerrain, KM_ResHouses, KM_ResSprites, KM_ResWares, KM_Units,
   KM_Houses, KM_Terrain, KM_Projectiles, OBJLoader;
 
 type
@@ -73,7 +73,9 @@ type
     procedure RenderBackgroundUI(aRect: TKMRect);
     // Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderForegroundUI;
+    procedure RenderForegroundUI_Units;
     procedure RenderForegroundUI_PaintBucket;
+    procedure RenderUnit(U: TKMUnit; P: TKMPoint; FlagColor: Cardinal; DoHighlight: Boolean; HighlightColor: Cardinal);
 
     procedure RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
@@ -131,12 +133,12 @@ var
 implementation
 uses
   KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
-  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks,
+  KM_ResMapElements, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks,
   KM_FogOfWar, KM_Hand, KM_UnitGroups, KM_Units_Warrior, KM_Utils;
 
 
 const
-  HIGHLIGHT_COLOR_DELETE = $FF;
+  DELETE_COLOR = $1616FF;
 
 
 constructor TRenderPool.Create(aViewport: TKMViewport; aRender: TRender);
@@ -482,7 +484,7 @@ begin
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, HIGHLIGHT_COLOR_DELETE);
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, DELETE_COLOR);
   end;
 end;
 
@@ -510,7 +512,7 @@ var
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, HIGHLIGHT_COLOR_DELETE);
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, DELETE_COLOR);
   end;
 
 var
@@ -1311,7 +1313,6 @@ procedure TRenderPool.RenderForegroundUI;
 var
   P: TKMPoint;
   F: TKMPointF;
-  U: TKMUnit;
   WH: TKMHouseWoodcutters;
   B: TKMHouseBarracks;
   I, K: Integer;
@@ -1421,17 +1422,7 @@ begin
                       hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
                     end;
                   end;
-    cmUnits:      if gGameCursor.Tag1 = 255 then
-                  begin
-                    U := gTerrain.UnitsHitTest(P.X, P.Y);
-                    if U <> nil then
-                      AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk, U.Direction, U.AnimStep, P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gHands[U.Owner].FlagColor, True, True, HIGHLIGHT_COLOR_DELETE);
-                  end
-                  else
-                    if CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
-                      AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
-                    else
-                      RenderSpriteOnTile(P, TC_BLOCK); // Red X
+    cmUnits:      RenderForegroundUI_Units;
     cmMarkers:    case gGameCursor.Tag1 of
                     MARKER_REVEAL:        begin
                                             RenderSpriteOnTile(P, 394, gMySpectator.Hand.FlagColor);
@@ -1461,12 +1452,50 @@ begin
 end;
 
 
-procedure TRenderPool.RenderForegroundUI_PaintBucket;
+procedure TRenderPool.RenderUnit(U: TKMUnit; P: TKMPoint; FlagColor: Cardinal; DoHighlight: Boolean; HighlightColor: Cardinal);
+begin
+  AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk, U.Direction, U.AnimStep, P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, FlagColor, True, DoHighlight, HighlightColor);
+end;
 
-  procedure RenderUnit(U: TKMUnit; P: TKMPoint; DoHighlight: Boolean; HighlightColor: Cardinal);
+
+procedure TRenderPool.RenderForegroundUI_Units;
+var Obj: TObject;
+    U: TKMUnit;
+    G: TKMUnitGroup;
+    P: TKMPoint;
+begin
+  if gGameCursor.Tag1 = 255 then
   begin
-    AddUnitWithDefaultArm(U.UnitType, 0, ua_Walk, U.Direction, U.AnimStep, P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
+    Obj := gMySpectator.HitTestCursorWGroup;
+    if Obj is TKMUnit then
+    begin
+      U := TKMUnit(Obj);
+      RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
+    end else if (Obj is TKMUnitGroup) then
+    begin
+      G := TKMUnitGroup(Obj);
+      U := G.FlagBearer;
+      if G.IsFlagRenderBeforeUnit then
+      begin
+        G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
+        RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
+      end else begin
+        RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
+        G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
+      end;
+    end;
+  end
+  else begin
+    P := gGameCursor.Cell;
+    if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
+      AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
+    else
+      RenderSpriteOnTile(P, TC_BLOCK); // Red X
   end;
+end;
+
+
+procedure TRenderPool.RenderForegroundUI_PaintBucket;
 
   //Try to render Unit.
   //Return True, if succeeded
@@ -1481,7 +1510,7 @@ procedure TRenderPool.RenderForegroundUI_PaintBucket;
       if not (U is TKMUnitAnimal) and
         ((U.Owner <> gMySpectator.HandIndex) or RenderSameOwnerUnit) then
       begin
-        RenderUnit(U, U.GetPosition, DoHighlight, HighlightColor);
+        RenderUnit(U, U.GetPosition, gMySpectator.Hand.FlagColor, DoHighlight, HighlightColor);
         Result := True;
       end;
     end else if (aObject is TKMUnitGroup) then
@@ -1493,9 +1522,9 @@ procedure TRenderPool.RenderForegroundUI_PaintBucket;
         if G.IsFlagRenderBeforeUnit then
         begin
           G.PaintHighlighted(gMySpectator.Hand.FlagColor, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
-          RenderUnit(U, U.GetPosition, DoHighlight, HighlightColor);
+          RenderUnit(U, U.GetPosition, gMySpectator.Hand.FlagColor, DoHighlight, HighlightColor);
         end else begin
-          RenderUnit(U, U.GetPosition, DoHighlight, HighlightColor);
+          RenderUnit(U, U.GetPosition, gMySpectator.Hand.FlagColor, DoHighlight, HighlightColor);
           G.PaintHighlighted(gMySpectator.Hand.FlagColor, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
         end;
         Result := True;
