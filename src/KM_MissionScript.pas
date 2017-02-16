@@ -3,7 +3,7 @@ unit KM_MissionScript;
 interface
 uses
   Classes, SysUtils,
-  KM_Defaults, KM_CommonTypes;
+  KM_Defaults;
 
 
 type
@@ -21,8 +21,6 @@ type
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareTo,ct_AddWareToLast,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
                     ct_AINoBuild,ct_AIAutoRepair,ct_AIAutoAttack,ct_AIAutoDefend,ct_AIDefendAllies,ct_AIUnlimitedEquip,ct_AIArmyType,
                     ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack,ct_ClearAIAttack, ct_SetRallyPoint);
-
-  TKMCommandTextEvent = procedure(aCommand: TKMCommandType; aCommandText: UnicodeString; aCommandStartPos, aCommandEndPos: Integer) of object;
 
 const
   COMMANDVALUES: array [TKMCommandType] of AnsiString = (
@@ -53,7 +51,6 @@ const
 type
   TMissionParserCommon = class
   protected
-    fOnProcessCommandText: TKMCommandTextEvent;
     fMissionFileName: string;
     fLastHand: TKMHandIndex; //Current Player
     fFatalErrors: string; //Fatal errors descriptions accumulate here
@@ -63,7 +60,6 @@ type
     function TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; virtual; abstract;
     procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
-    property OnProcessCommandText: TKMCommandTextEvent read fOnProcessCommandText write fOnProcessCommandText;
   public
     property FatalErrors: string read fFatalErrors;
     property MinorErrors: string read fMinorErrors;
@@ -176,7 +172,7 @@ var
   ParamList: array of Integer;
   I, K, intParam: Integer;
   CommandType: TKMCommandType;
-  J, CommandStartPos: Integer;
+  J: Integer;
   DoProcess: Boolean;
 begin
   Result := False;
@@ -186,7 +182,6 @@ begin
   repeat
     if aText[I] = '!' then
     begin
-      CommandStartPos := I;
 
       //Default uninitialized values
       TextParam := '';
@@ -233,9 +228,6 @@ begin
               Inc(I);
           end;
         //We now have command text and parameters, so process them
-
-        if Assigned(fOnProcessCommandText) then
-          fOnProcessCommandText(CommandType, CommandText, CommandStartPos, I);  //Pass command end position in text;
 
         if not ProcessCommand(CommandType, ParamList, TextParam) then
         //A returned value of false indicates an error has occoured and we should exit
