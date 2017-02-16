@@ -1557,7 +1557,7 @@ begin
   if not IsRendered and
     (((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road)
         and (gTerrain.Land[P.Y, P.X].TileLock = tlNone)) //Sometimes we can point road tile under the house, do not show Cyan quad then
-      or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0)) //In future we are planning not to show color for corn/wine on minimap, but let it be for now
+      or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
     and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandIndex) then //Only if tile has other owner
     RenderWireTile(P, $FFFFFF00); // Cyan quad
 end;
