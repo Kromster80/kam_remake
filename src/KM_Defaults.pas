@@ -595,7 +595,8 @@ type
     mlCenterScreen,
     mlAIStart,
     mlSelection,
-    mlWaterFlow);  //Enum representing mapEditor visible layers
+    mlWaterFlow,
+    mlTileOwner);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
 const

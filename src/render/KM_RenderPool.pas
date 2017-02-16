@@ -88,6 +88,7 @@ type
     procedure PaintRallyPoints(aPass: Byte);
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
+    procedure RenderTileOwnerLayer(aRect: TKMRect);
   public
     constructor Create(aViewport: TKMViewport; aRender: TRender);
     destructor Destroy; override;
@@ -114,7 +115,8 @@ type
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
-    procedure RenderWireTile(P: TKMPoint; Col: TColor4);
+    procedure RenderWireTile(P: TKMPoint; Col: TColor4); overload;
+    procedure RenderWireTile(P: TKMPoint; Col: TColor4; PIntAdj: TKMPointF); overload;
 
     property RenderList: TRenderList read fRenderList;
     property RenderTerrain: TRenderTerrain read fRenderTerrain;
@@ -253,6 +255,8 @@ begin
     fRenderTerrain.RenderFences;
 
     fRenderTerrain.RenderPlayerPlans(fFieldsList, fHousePlansList);
+
+    RenderTileOwnerLayer(ClipRect);
 
     // House highlight, debug display
     RenderBackgroundUI(ClipRect);
@@ -1224,14 +1228,24 @@ end;
 
 procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4);
 begin
+  RenderWireTile(P, Col, KMPointF(0, 0));
+end;
+
+
+//Render wire on tile
+//P - tile coords
+//Col - Color
+//PIntAdj - Internal adjustment, to render wire "inside" tile
+procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; PIntAdj: TKMPointF);
+begin
   if not gTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     with gTerrain do begin
-      glVertex2f(P.X-1,P.Y-1-Land[P.Y  ,P.X  ].Height/CELL_HEIGHT_DIV);
-      glVertex2f(P.X  ,P.Y-1-Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
-      glVertex2f(P.X  ,P.Y-  Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
-      glVertex2f(P.X-1,P.Y-  Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1 + PIntAdj.X, P.Y-1 + PIntAdj.X - Land[P.Y  ,P.X  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X   - PIntAdj.X, P.Y-1 + PIntAdj.X - Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X   - PIntAdj.X, P.Y   - PIntAdj.X - Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1 + PIntAdj.X, P.Y   - PIntAdj.X - Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;
@@ -1304,6 +1318,26 @@ begin
     RenderWireTile(fMarksList[I], $FFFFFF00) // Cyan rect
   else
     RenderSpriteOnTile(fMarksList[I], fMarksList.Tag[I]); // Icon
+end;
+
+
+//Render tile owner layer
+procedure TRenderPool.RenderTileOwnerLayer(aRect: TKMRect);
+var I, K: Integer;
+    P: TKMPoint;
+begin
+  for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      P := KMPoint(K, I);
+      if gGame.IsMapEditor // Only for editor
+        and (mlTileOwner in gGame.MapEditor.VisibleLayers) //If 'tile owner' is in visible layers
+        and (gTerrain.Land[I, K].TileOwner <> PLAYER_NONE) //owner is set for tile
+        and (gTerrain.TileIsCornField(P)                   // show only for corn + wine + roads
+          or gTerrain.TileIsWineField(P)
+          or (gTerrain.Land[I, K].TileOverlay = to_Road)) then
+        RenderWireTile(P, gHands[gTerrain.Land[I, K].TileOwner].FlagColor, KMPointF(0.05, 0.05));
+    end;
 end;
 
 
