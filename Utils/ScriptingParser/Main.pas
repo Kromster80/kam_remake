@@ -77,6 +77,8 @@ var
 
 implementation
 {$R *.dfm}
+uses
+  KM_Utils, KM_CommonTypes;
 
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -126,6 +128,7 @@ var
   listTokens, paramList, typeList: TStringList;
   paramHolder: array of TParamHolder;
   lastType: string;
+  charArr: TKMCharArray;
 begin
   if aString = 'aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single' then
     Sleep(0);
@@ -139,18 +142,22 @@ begin
     // If not set to -1 it skips the first variable
     nextType := -1;
 
-    listTokens.AddStrings(aString.Split([' ']));
+    listTokens.AddStrings(StrSplit(aString, ' '));
 
     // Re-combine type arrays
     for i := 0 to listTokens.Count - 1 do
     begin
-      listTokens[i] := listTokens[i].TrimRight([',', ':', ';']);
+      SetLength(charArr, 3);
+      charArr[0] := ',';
+      charArr[1] := ':';
+      charArr[2] := ';';
+      listTokens[i] := StrTrimRight(listTokens[i], charArr);
 
       if SameText(listTokens[i], 'array') then
       begin
         nextType := i + 2;
         // For some reason this kept giving 'array of Integer;' hence the trim
-        paramList.Add((listTokens[i] + ' ' + listTokens[nextType - 1] + ' ' + listTokens[nextType]).TrimRight([',', ':', ';']));
+        paramList.Add(StrTrimRight(listTokens[i] + ' ' + listTokens[nextType - 1] + ' ' + listTokens[nextType], charArr));
       end else
         // Skip unused stuff
         if not ((SameText(listTokens[i], 'of')) or (SameText(listTokens[i], 'const')) or (i = nextType)) then
@@ -187,9 +194,9 @@ begin
 
       // Add micro descriptions to the parameters and remove them from the stringlist.
       for j := aDescriptions.Count - 1 downto 0 do
-        if aDescriptions[j].StartsWith(paramHolder[i].Name) then
+        if StrStartsWith(aDescriptions[j], paramHolder[i].Name) then
         begin
-          Result := Result + ' // ' + aDescriptions[j].Substring(aDescriptions[j].IndexOf(':') + 2);
+          Result := Result + ' // ' + StrSubstring(aDescriptions[j], StrIndexOf(aDescriptions[j], ':') + 2);
           aDescriptions.Delete(j);
           Break;
         end;
@@ -212,6 +219,7 @@ var
   restStr: string;
   sourceTxt, descrTxt: TStringList;
   res: TCommandInfo;
+  charArr: TKMCharArray;
 begin
   sourceTxt := TStringList.Create;
   descrTxt  := TStringList.Create;
@@ -237,67 +245,69 @@ begin
       //* Result: Small optional description of returned value
 
       // Before anything it should start with "//* Version:"
-      if sourceTxt[i].StartsWith('//* Version:') then
+      if StrStartsWith(sourceTxt[i], '//* Version:') then
       begin
-        restStr := Trim(sourceTxt[i].Substring(sourceTxt[i].IndexOf(':') + 2));
+        restStr := Trim(StrSubstring(sourceTxt[i], StrIndexOf(sourceTxt[i], ':') + 2));
         res.Version := IfThen(restStr = '', '-', restStr);
         Inc(iPlus);
 
         // Descriptions are only added by lines starting with "//* "
-        if sourceTxt[i+iPlus].StartsWith('//* ') then
+        if StrStartsWith(sourceTxt[i+iPlus], '//* ') then
           // Repeat until no description tags are found
-          while sourceTxt[i+iPlus].StartsWith('//* ') do
+          while StrStartsWith(sourceTxt[i+iPlus], '//* ') do
           begin
             // Handle Result description separately to keep the output clean.
-            if sourceTxt[i+iPlus].StartsWith('//* Result:') then
-              res.ReturnDesc := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf(':') + 2)
+            if StrStartsWith(sourceTxt[i+iPlus], '//* Result:') then
+              res.ReturnDesc := StrSubstring(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], ':') + 2)
             else
-              descrTxt.Add(sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf('*') + 2));
+              descrTxt.Add(StrSubstring(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '*') + 2));
             Inc(iPlus);
           end;
 
         // Skip empty or "faulty" lines
-        while not (sourceTxt[i+iPlus].StartsWith('procedure') or sourceTxt[i+iPlus].StartsWith('function')) do
+        while not (StrStartsWith(sourceTxt[i+iPlus], 'procedure') or StrStartsWith(sourceTxt[i+iPlus], 'function')) do
           Inc(iPlus);
 
         // Format procedures
-        if sourceTxt[i+iPlus].StartsWith('procedure') then
+        if StrStartsWith(sourceTxt[i+iPlus], 'procedure') then
         begin
-          if sourceTxt[i+iPlus].Contains('(') then
+          if StrContains(sourceTxt[i+iPlus], '(') then
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf('(') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], '(') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Proc', 'On');
-            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                   sourceTxt[i+iPlus].IndexOf(')') - (
-                                                                   sourceTxt[i+iPlus].IndexOf('(') + 1)), descrTxt);
+            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '(') + 2,
+                                                                   StrIndexOf(sourceTxt[i+iPlus], ')') - (
+                                                                   StrIndexOf(sourceTxt[i+iPlus], '(') + 1)), descrTxt);
           end else
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf(';') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], ';') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Proc', 'On');
           end;
         end;
 
         // Format functions
-        if sourceTxt[i+iPlus].StartsWith('function') then
+        if StrStartsWith(sourceTxt[i+iPlus], 'function') then
         begin
-          if sourceTxt[i+iPlus].Contains('(') then
+          if StrContains(sourceTxt[i+iPlus], '(') then
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf('(') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], '(') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Func', 'On');
-            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                   sourceTxt[i+iPlus].IndexOf(')') - (
-                                                                   sourceTxt[i+iPlus].IndexOf('(') + 1)), descrTxt);
+            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '(') + 2,
+                                                                   StrIndexOf(sourceTxt[i+iPlus], ')') - (
+                                                                   StrIndexOf(sourceTxt[i+iPlus], '(') + 1)), descrTxt);
           end else
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf(':') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], ':') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Func', 'On');
           end;
 
-          restStr  := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].LastIndexOf(':') + 2).TrimRight([';']);;
+          SetLength(charArr, 1);
+          charArr[0] := ';';
+          restStr  := StrTrimRight(StrSubstring(sourceTxt[i+iPlus], StrLastIndexOf(sourceTxt[i+iPlus], ':') + 2), charArr);
           res.Return  := IfThen(SameText(restStr, 'TIntegerArray'), 'array of Integer', restStr);
         end;
 
