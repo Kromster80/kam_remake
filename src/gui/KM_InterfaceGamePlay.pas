@@ -2387,12 +2387,7 @@ begin
     OverlayTop := Panel_ReplayFOW.Top + Panel_ReplayFOW.Height - 5;
 
   if gGame.IsSpeedUpAllowed then
-  begin
-    if not Panel_ReplayFOW.Visible then
-      OverlayLeft := Max(OverlayLeft, Image_Clock.Left + Image_Clock.Width + 10)
-    else
-      OverlayTop := Max(OverlayTop, Image_Clock.Top + Image_Clock.Height + 25);
-  end;
+    OverlayTop := Max(OverlayTop, Image_Clock.Top + Image_Clock.Height + 25);
 
   Label_ScriptedOverlay.Top := OverlayTop + 19;
   Button_ScriptedOverlay.Top := OverlayTop + 1;
