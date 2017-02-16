@@ -82,6 +82,7 @@ function BrowseURL(const URL: string) : Boolean;
 function OpenPDF(const URL: string): Boolean;
 procedure MailTo(Address,Subject,Body:string);
 procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
+function CountMatches(const aString, aSubString: string): Integer;
 
 const
   EolA: AnsiString = #13#10; //EndOfLine
@@ -685,5 +686,16 @@ begin
   BrowseURL(Address+'/index_r.php?t='+ToolName); //Maybe add tool version later..
 end;
 
+
+// Case sensitive
+function CountMatches(const aString, aSubString: string): Integer;
+var
+  offset: Integer;
+begin
+  if (aString = '') or (aSubString = '') or (Pos(aSubString, aString) = 0) then
+    Result := 0
+  else
+    Result := (Length(aString) - Length(StringReplace(aString, aSubString, '', [rfReplaceAll]))) div Length(aSubString);
+end;
 
 end.
