@@ -4,10 +4,6 @@ uses
   Windows, Messages, Classes, Controls, Dialogs, Forms, StdCtrls, SysUtils,
   KM_Defaults, KM_Scripting, shellapi;
 
-type TEdit = class(StdCtrls.TEdit)
-  procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
-end;
-
 type
   TForm1 = class(TForm)
     Edit1: TEdit;
@@ -28,6 +24,7 @@ type
 
     procedure Validate(aPath: string; aReportGood: Boolean);
 
+    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
   end;
 
 
@@ -49,14 +46,14 @@ begin
 
   fScripting := TKMScripting.Create(nil);
 
-  DragAcceptFiles(Form1.Edit1.Handle, True);
+  DragAcceptFiles(Form1.Handle, True);
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   fScripting.Free;
-  DragAcceptFiles(Form1.Edit1.Handle, False);
+  DragAcceptFiles(Form1.Handle, False);
 end;
 
 procedure TForm1.btnBrowseClick(Sender: TObject);
@@ -126,16 +123,12 @@ begin
     Memo1.Lines.Append(aPath + ' - No errors :)');
 end;
 
-{ TDDEdit }
-
-procedure TEdit.WMDropFiles(var Msg: TWMDropFiles);
+procedure TForm1.WMDropFiles(var Msg: TWMDropFiles);
 var
   Filename: array[0 .. MAX_PATH] of Char;
-  FileStr: string;
 begin
   DragQueryFile(Msg.Drop, 0, Filename, MAX_PATH);
-  FileStr:=LowerCase(StrPas(FileName));
-  Form1.Edit1.Text := FileStr;
+  Edit1.Text := Filename;
   DragFinish(Msg.Drop);
 end;
 
