@@ -271,6 +271,13 @@ type
     cfmErase // Erasing plans
   );
 
+type
+  // Ware trade state
+  TWareTradeState = (
+    wts_Allow,    // Allow trade
+    wts_Default,  // Allow trade only if house, producing the resource was build
+    wts_Block);   // Block trade
+
 
 const
   MARKER_REVEAL = 1;
