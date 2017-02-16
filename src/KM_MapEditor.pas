@@ -265,9 +265,7 @@ begin
   begin
     Obj := gMySpectator.HitTestCursor;
     if Obj is TKMUnit then
-      gHands.RemAnyUnit(TKMUnit(Obj).GetPosition)
-    else
-      gHands.RemAnyUnit(P);
+      gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
   end else
   if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
   begin
