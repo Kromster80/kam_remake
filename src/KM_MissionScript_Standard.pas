@@ -700,7 +700,6 @@ begin
     if gGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
 
     //Write RGB command second so it will be used if color is not from KaM palette
-    AddCommand(ct_SetMapColor, [gHands[I].FlagColorIndex]);
     AddCommand(ct_SetRGBColor, [gHands[I].FlagColor and $00FFFFFF]);
 
     if not KMSamePoint(gHands[I].CenterScreen, KMPoint(0,0)) then
