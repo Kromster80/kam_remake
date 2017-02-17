@@ -20,7 +20,7 @@ type
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_UnitAddToLast,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareTo,ct_AddWareToLast,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
                     ct_AINoBuild,ct_AIAutoRepair,ct_AIAutoAttack,ct_AIAutoDefend,ct_AIDefendAllies,ct_AIUnlimitedEquip,ct_AIArmyType,
-                    ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack,ct_ClearAIAttack);
+                    ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack,ct_ClearAIAttack, ct_SetRallyPoint);
 
 const
   COMMANDVALUES: array [TKMCommandType] of AnsiString = (
@@ -45,7 +45,8 @@ const
     'SET_AI_NO_BUILD','SET_AI_AUTO_REPAIR','SET_AI_AUTO_ATTACK','SET_AI_AUTO_DEFEND',
     'SET_AI_DEFEND_ALLIES','SET_AI_UNLIMITED_EQUIP','SET_AI_ARMY_TYPE','SET_AI_START_POSITION',
     'SET_AI_DEFENSE','SET_AI_ATTACK',
-    'COPY_AI_ATTACK','CLEAR_AI_ATTACK');
+    'COPY_AI_ATTACK','CLEAR_AI_ATTACK',
+    'SET_RALLY_POINT');
 
 type
   TMissionParserCommon = class

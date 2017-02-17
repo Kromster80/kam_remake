@@ -113,6 +113,7 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
+    function IsSpeedUpAllowed: Boolean;
     function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
@@ -920,7 +921,7 @@ end;
 
 procedure TKMGame.Render(aRender: TRender);
 begin
-  fRenderPool.Render;
+  gRenderPool.Render;
 
   aRender.SetRenderMode(rm2D);
   fActiveInterface.Paint;
@@ -974,6 +975,12 @@ end;
 function TKMGame.IsMapEditor: Boolean;
 begin
   Result := fGameMode = gmMapEd;
+end;
+
+
+function TKMGame.IsSpeedUpAllowed: Boolean;
+begin
+  Result := not IsMultiplayer or IsMPGameSpeedUpAllowed;
 end;
 
 
@@ -1192,7 +1199,7 @@ begin
   end;
 
   //don't show speed clock in MP since you can't turn it on/off
-  if (fGamePlayInterface <> nil) and (not IsMultiplayer or IsMPGameSpeedUpAllowed) then
+  if (fGamePlayInterface <> nil) and IsSpeedUpAllowed then
     fGamePlayInterface.ShowClock(fGameSpeed);
 
   //Need to adjust the delay immediately in MP

@@ -177,8 +177,8 @@ begin
   begin
     S := gHands[J].FindHouse(ht_Store);
     if S <> nil then
-    for I := Max(S.GetEntrance.Y - 3, 1) to Min(S.GetEntrance.Y + 2, fMapY - 1) do
-    for K := Max(S.GetEntrance.X - 2, 1) to Min(S.GetEntrance.X + 2, fMapX - 1) do
+    for I := Max(S.Entrance.Y - 3, 1) to Min(S.Entrance.Y + 2, fMapY - 1) do
+    for K := Max(S.Entrance.X - 2, 1) to Min(S.Entrance.X + 2, fMapX - 1) do
       AvoidBuilding[I,K] := AvoidBuilding[I,K] or $FF;
   end;
 end;

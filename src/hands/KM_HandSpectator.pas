@@ -38,6 +38,7 @@ type
     property FogOfWar: TKMFogOfWarCommon read fFogOfWar;
     property LastSpecSelectedObj: TObject read GetLastSpecSelectedObj;
     function HitTestCursor: TObject;
+    function HitTestCursorWGroup: TObject;
     procedure UpdateSelect;
     procedure Load(LoadStream: TKMemoryStream);
     procedure Save(SaveStream: TKMemoryStream);
@@ -152,6 +153,28 @@ begin
     Result := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
     if (Result is TKMHouse) and TKMHouse(Result).IsDestroyed then
       Result := nil;
+  end;
+end;
+
+
+//Test if there's object below that player can interact with
+//Units and Houses and Groups
+function TKMSpectator.HitTestCursorWGroup: TObject;
+var G: TKMUnitGroup;
+begin
+  Result := HitTestCursor;
+  if Result is TKMUnitWarrior then
+  begin
+    if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]  then
+      G := gHands.GetGroupByMember(TKMUnitWarrior(Result))
+    else
+      G := gHands[fHandIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Result));
+
+    //Warrior might not be assigned to a group while walking out of the Barracks
+    if G <> nil then
+      Result := G
+    else
+      Result := nil; //Can't select warriors until they have been assigned a group
   end;
 end;
 

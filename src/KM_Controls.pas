@@ -376,6 +376,7 @@ type
     procedure Paint; override;
   end;
 
+
   TAllowedChars = (
     acDigits, //Only 0..9 digits, for numeric input
     acANSI7, //#33..#126 - only basic latin chars and symbols for user nikname
@@ -4947,7 +4948,6 @@ end;
 
 
 procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var IsMouseDownHandled: Boolean;
 begin
   inherited;
   MouseMove(X, Y, Shift);
