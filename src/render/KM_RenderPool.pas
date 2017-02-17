@@ -115,8 +115,7 @@ type
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
-    procedure RenderWireTile(P: TKMPoint; Col: TColor4); overload;
-    procedure RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single); overload;
+    procedure RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0.0);
 
     property RenderList: TRenderList read fRenderList;
     property RenderTerrain: TRenderTerrain read fRenderTerrain;
@@ -1226,17 +1225,11 @@ begin
 end;
 
 
-procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4);
-begin
-  RenderWireTile(P, Col, 0);
-end;
-
-
 //Render wire on tile
 //P - tile coords
 //Col - Color
 //aInset - Internal adjustment, to render wire "inside" tile
-procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single);
+procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0);
 begin
   if not gTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
