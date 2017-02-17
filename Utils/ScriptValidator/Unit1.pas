@@ -46,14 +46,14 @@ begin
 
   fScripting := TKMScripting.Create(nil);
 
-  DragAcceptFiles(Form1.Handle, True);
+  DragAcceptFiles(Handle, True);
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   fScripting.Free;
-  DragAcceptFiles(Form1.Handle, False);
+  DragAcceptFiles(Handle, False);
 end;
 
 procedure TForm1.btnBrowseClick(Sender: TObject);
