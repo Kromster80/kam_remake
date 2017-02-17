@@ -62,7 +62,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses,
-  KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
+  KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor, KM_ResMapElements;
 
 
 { TKMMapEditor }
@@ -277,8 +277,13 @@ begin
                                   gTerrain.RemField(P);
                                 gMySpectator.Hand.AddField(P, ft_Road);
                               end;
-                cmField:      if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
-                                gMySpectator.Hand.AddField(P, ft_Corn);
+                cmField:      begin
+                                if gTerrain.TileIsCornField(P) then
+                                  gTerrain.SetFieldStaged(P, gMySpectator.HandIndex, ft_Corn,
+                                    (gTerrain.GetCornStage(P) + 1) mod CORN_STAGES_COUNT, True)
+                                else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
+                                  gMySpectator.Hand.AddField(P, ft_Corn);
+                              end;
                 cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
                                 gMySpectator.Hand.AddField(P, ft_Wine);
                 cmHouses:     if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then

@@ -857,6 +857,8 @@ begin
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
 
   gGame.MapEditor.MouseMove;
+
+  fGuiTown.MouseMove(Shift, X, Y);
 end;
 
 

@@ -1348,7 +1348,8 @@ begin
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmField:      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn)) and (gGameCursor.Tag1 <> Ord(cfmErase)) then
+    cmField:      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn) or (gGame.IsMapEditor and gTerrain.TileIsCornField(P)))
+                    and (gGameCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X

@@ -195,6 +195,9 @@ type
     function ObjectIsChopableTree(Loc: TKMPoint; aStage: TKMChopableAge): Boolean; overload;
     function CanWalkDiagonaly(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 
+    function GetCornStage(aFieldAge: Byte): Byte; overload;
+    function GetCornStage(Loc: TKMPoint): Byte; overload;
+
     function TopHill: Byte;
     procedure FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean = True; aIgnoreCanElevate: Boolean = False); overload;
     procedure FlattenTerrain(LocList: TKMPointList); overload;
@@ -3145,6 +3148,29 @@ begin
   for I := 1 to fMapY do
     for K := 1 to fMapX do
       Land[I,K].IsUnit := gHands.GetUnitByUID(Cardinal(Land[I,K].IsUnit));
+end;
+
+
+function TKMTerrain.GetCornStage(aFieldAge: Byte): Byte;
+begin
+  if aFieldAge = 0 then
+    Result := 0
+  else if InRange(aFieldAge, 1, CORN_AGE_1 - 1) then
+    Result := 1
+  else if InRange(aFieldAge, CORN_AGE_1, CORN_AGE_2 - 1) then
+    Result := 2
+  else if InRange(aFieldAge, CORN_AGE_2, CORN_AGE_3 - 1) then
+    Result := 3
+  else if InRange(aFieldAge, CORN_AGE_3, CORN_AGE_FULL - 2) then
+    Result := 4
+  else
+    Result := 5;
+end;
+
+
+function TKMTerrain.GetCornStage(Loc: TKMPoint): Byte;
+begin
+  Result := GetCornStage(Land[Loc.Y,Loc.X].FieldAge);
 end;
 
 

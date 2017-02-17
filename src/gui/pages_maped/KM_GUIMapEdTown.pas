@@ -41,6 +41,7 @@ type
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
     procedure UpdateState;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
   end;
 
 
@@ -209,6 +210,12 @@ begin
   fGuiUnits.UpdateState;
   fGuiScript.UpdateState;
   fGuiDefence.UpdateState;
+end;
+
+
+procedure TKMMapEdTown.MouseMove(Shift: TShiftState; X,Y: Integer);
+begin
+  fGuiHouses.MouseMove(Shift, X, Y);
 end;
 
 

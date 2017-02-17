@@ -24,12 +24,14 @@ type
     procedure Hide;
     function Visible: Boolean;
     procedure UpdateState;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
   end;
 
 
 implementation
 uses
-  KM_ResTexts, KM_GameCursor, KM_Resource, KM_ResHouses, KM_ResFonts, KM_RenderUI;
+  KM_ResTexts, KM_GameCursor, KM_Resource, KM_ResHouses, KM_ResFonts, KM_RenderUI,
+  KM_Terrain, KM_Points;
 
 
 { TKMMapEdTownHouses }
@@ -134,6 +136,18 @@ end;
 procedure TKMMapEdTownHouses.UpdateState;
 begin
   Town_BuildRefresh;
+end;
+
+
+procedure TKMMapEdTownHouses.MouseMove(Shift: TShiftState; X,Y: Integer);
+var P: TKMPoint;
+begin
+  P := gGameCursor.Cell;
+  if (gGameCursor.Mode = cmField)
+    and gTerrain.TileIsCornField(P) then
+    Button_BuildField.Caption := IntToStr(gTerrain.GetCornStage(P))
+  else
+    Button_BuildField.Caption := '';
 end;
 
 

@@ -127,6 +127,7 @@ type
     procedure AddRoadToList(aLoc: TKMPoint);
     //procedure AddRoadConnect(LocA,LocB: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure AddFieldStaged(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound: Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
@@ -505,6 +506,12 @@ end;
 procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
 begin
   gTerrain.SetField(aLoc, fHandIndex, aFieldType);
+end;
+
+
+procedure TKMHand.AddFieldStaged(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte);
+begin
+  gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, aStage, False);
 end;
 
 
