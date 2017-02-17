@@ -250,7 +250,9 @@ uses
   KM_UnitTaskThrowRock in 'src\units\KM_UnitTaskThrowRock.pas',
   KM_Utils in 'src\KM_Utils.pas',
   KM_Viewport in 'src\KM_Viewport.pas',
-  KM_WareDistribution in 'src\KM_WareDistribution.pas';
+  KM_WareDistribution in 'src\KM_WareDistribution.pas',
+  
+  KromUtils in 'src\common\KromUtils.pas';
 
 {$IFDEF WDC}
   {$R KaM_Remake_Icon.res KaM_Remake_Icon.rc} //Keeps the Icon
