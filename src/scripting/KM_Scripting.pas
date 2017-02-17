@@ -154,14 +154,14 @@ begin
   end;
 
   //Display compile errors in-game
-  if aType = se_CompileError then
+  if (aType = se_CompileError) and Assigned(fOnScriptError) then
     fOnScriptError(StringReplace(aMsg, EolW, '|', [rfReplaceAll]));
 
   //Serious runtime errors should be shown to the player
   if aType in [se_Exception] then
   begin
     //Only show the first message in-game to avoid spamming the player
-    if not fHasErrorOccured then
+    if not fHasErrorOccured and Assigned(fOnScriptError) then
       fOnScriptError('Error(s) have occured in the mission script. ' +
                          'Please check the log file for further details. First error:||' + aMsg);
     fHasErrorOccured := True;

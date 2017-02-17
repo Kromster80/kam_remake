@@ -1011,7 +1011,7 @@ begin
 
 procedure TKMGamePlayInterface.Create_ScriptingOverlay;
 begin
-  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
+  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main, 260, 110, '', fnt_Metal, taLeft);
 
   Button_ScriptedOverlay := TKMButton.Create(Panel_Main, 260, 92, 15, 15, '', bsGame);
   Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
@@ -2373,25 +2373,35 @@ begin
     Label_OverlayShow.Hide;
     Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
   end;
+  UpdateOverlayControls;
 end;
 
 
 procedure TKMGamePlayInterface.UpdateOverlayControls;
-var OverlayTop: Integer;
+var OverlayTop, OverlayLeft: Integer;
 begin
-  OverlayTop := 8;
+  OverlayTop := 12;
+  OverlayLeft := 258;
 
   if Panel_ReplayFOW.Visible then
-    OverlayTop := Panel_ReplayFOW.Top + Panel_ReplayFOW.Height - 9;
+    OverlayTop := Panel_ReplayFOW.Top + Panel_ReplayFOW.Height - 5;
+
+  if gGame.IsSpeedUpAllowed then
+    OverlayTop := Max(OverlayTop, Image_Clock.Top + Image_Clock.Height + 25);
 
   Label_ScriptedOverlay.Top := OverlayTop + 19;
   Button_ScriptedOverlay.Top := OverlayTop + 1;
   Label_OverlayShow.Top := OverlayTop + 2;
   Label_OverlayHide.Top := OverlayTop;
 
+  Label_ScriptedOverlay.Left := OverlayLeft + 5;
+  Button_ScriptedOverlay.Left := OverlayLeft;
+  Label_OverlayShow.Left := OverlayLeft + 3;
+  Label_OverlayHide.Left := OverlayLeft + 3;
+
   Button_ScriptedOverlay.Visible := Label_ScriptedOverlay.Caption <> '';
-  Label_OverlayShow.Visible := (Label_ScriptedOverlay.Caption <> '') and not (Label_ScriptedOverlay.Visible);
-  Label_OverlayHide.Visible := (Label_ScriptedOverlay.Caption <> '') and (Label_ScriptedOverlay.Visible);
+  Label_OverlayShow.Visible := (Label_ScriptedOverlay.Caption <> '') and not Label_ScriptedOverlay.Visible;
+  Label_OverlayHide.Visible := (Label_ScriptedOverlay.Caption <> '') and Label_ScriptedOverlay.Visible;
 end;
 
 

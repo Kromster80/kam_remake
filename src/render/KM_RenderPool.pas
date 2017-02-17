@@ -1470,7 +1470,7 @@ procedure TRenderPool.RenderForegroundUI_PaintBucket;
 
   //Try to render Unit.
   //Return True, if succeeded
-  function TryRenderUnit(aObject: TObject; RenderSameOwnerUnit: Boolean; DoHighlight: Boolean; HighlightColor: Cardinal = 0): Boolean;
+  function TryRenderUnit(aObject: TObject; DoHighlight: Boolean; HighlightColor: Cardinal = 0): Boolean;
   var U: TKMUnit;
       G: TKMUnitGroup;
   begin
@@ -1479,7 +1479,7 @@ procedure TRenderPool.RenderForegroundUI_PaintBucket;
     begin
       U := TKMUnit(aObject);
       if not (U is TKMUnitAnimal) and
-        ((U.Owner <> gMySpectator.HandIndex) or RenderSameOwnerUnit) then
+        (U.Owner <> gMySpectator.HandIndex) then
       begin
         RenderUnit(U, U.GetPosition, DoHighlight, HighlightColor);
         Result := True;
@@ -1487,7 +1487,7 @@ procedure TRenderPool.RenderForegroundUI_PaintBucket;
     end else if (aObject is TKMUnitGroup) then
     begin
       G := TKMUnitGroup(aObject);
-      if ((G.Owner <> gMySpectator.HandIndex) or RenderSameOwnerUnit) then
+      if G.Owner <> gMySpectator.HandIndex then
       begin
         U := G.FlagBearer;
         if G.IsFlagRenderBeforeUnit then
@@ -1512,7 +1512,7 @@ begin
   HighlightColor := MultiplyBrightnessByFactor(gMySpectator.Hand.FlagColor, 2, 0.3, 0.9);
   Obj := gMySpectator.HitTestCursorWGroup;
 
-  IsRendered := TryRenderUnit(Obj, False, True, HighlightColor);
+  IsRendered := TryRenderUnit(Obj, True, HighlightColor);
 
   if (Obj is TKMHouse) and (TKMHouse(Obj).Owner <> gMySpectator.HandIndex) then
   begin
