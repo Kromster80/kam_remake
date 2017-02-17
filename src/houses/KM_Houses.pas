@@ -72,6 +72,7 @@ type
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
+    function GetPointBelowEntrance: TKMPoint;
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
@@ -103,6 +104,7 @@ type
     property GetPosition: TKMPoint read fPosition;
     procedure SetPosition(aPos: TKMPoint); //Used only by map editor
     procedure OwnerUpdate(aOwner: TKMHandIndex);
+    property PointBelowEntrance: TKMPoint read GetPointBelowEntrance;
     function GetEntrance: TKMPoint;
     function GetClosestCell(aPos: TKMPoint): TKMPoint;
     function GetDistance(aPos: TKMPoint): Single;
@@ -207,13 +209,14 @@ type
     fCuttingPoint: TKMPoint;
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
     procedure SetCuttingPoint(Value: TKMPoint);
+    function GetCuttingPoint: TKMPoint;
   public
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     function IsCuttingPointSet: Boolean;
-    property CuttingPoint: TKMPoint read fCuttingPoint write SetCuttingPoint;
+    property CuttingPoint: TKMPoint read GetCuttingPoint write SetCuttingPoint;
   end;
 
 implementation
@@ -1122,6 +1125,12 @@ begin
 end;
 
 
+function TKMHouse.GetPointBelowEntrance: TKMPoint;
+begin
+  Result := KMPointBelow(GetEntrance);
+end;
+
+
 function TKMHouse.GetResDistribution(aID: Byte): Byte;
 begin
   Result := gHands[fOwner].Stats.WareDistribution[gRes.Houses[fHouseType].ResInput[aID],fHouseType];
@@ -1610,7 +1619,7 @@ constructor TKMHouseWoodcutters.Create(aUID: Integer; aHouseType: THouseType; Po
 begin
   inherited;
   WoodcutterMode := wcm_ChopAndPlant;
-  CuttingPoint := KMPointBelow(GetEntrance);
+  CuttingPoint := PointBelowEntrance;
 end;
 
 
@@ -1631,21 +1640,22 @@ end;
 
 function TKMHouseWoodcutters.IsCuttingPointSet: Boolean;
 begin
-  Result := not KMSamePoint(CuttingPoint, KMPointBelow(GetEntrance));
+  Result := not KMSamePoint(CuttingPoint, PointBelowEntrance); //Use CuttingPoint, not fCuttingPoint to be sure its Valid
 end;
 
-procedure TKMHouseWoodcutters.SetCuttingPoint(Value: TKMPoint);
-var
-  EntrancePoint: TKMPoint;
+
+function TKMHouseWoodcutters.GetCuttingPoint: TKMPoint;
 begin
-  EntrancePoint := GetEntrance;
-  if KMDistanceSqr(EntrancePoint, Value) > Sqr(MAX_WOODCUTTER_CUT_PNT_DISTANCE) then
-  begin
-    Value := KMNormVector(KMPoint(Value.X - EntrancePoint.X, Value.Y - EntrancePoint.Y), MAX_WOODCUTTER_CUT_PNT_DISTANCE);
-    fCuttingPoint := KMPoint(EntrancePoint.X + Value.X, EntrancePoint.Y + Value.Y);
-  end
-  else
-    fCuttingPoint := Value;
+  if not gTerrain.CheckPassability(fCuttingPoint, tpWalk) then
+    //Automatically update point to valid value (walkable, not more far then MAX_WOODCUTTER_CUT_PNT_DISTANCE)
+    SetCuttingPoint(fCuttingPoint);
+  Result := fCuttingPoint;
+end;
+
+
+procedure TKMHouseWoodcutters.SetCuttingPoint(Value: TKMPoint);
+begin
+  fCuttingPoint := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, Value, tpWalk, MAX_WOODCUTTER_CUT_PNT_DISTANCE);
 end;
 
 procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);

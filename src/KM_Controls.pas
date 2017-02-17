@@ -744,6 +744,7 @@ type
     function GetColumn(aIndex: Integer): TKMListHeaderColumn;
     procedure ClearColumns;
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    function GetColumnWidth(aIndex: Integer): Integer;
   public
     BackAlpha: Single; //Alpha of background
     EdgeAlpha: Single; //Alpha of background outline
@@ -760,6 +761,7 @@ type
     property SortIndex: Integer read fSortIndex write fSortIndex;
     property SortDirection: TSortDirection read fSortDirection write fSortDirection;
     property TextAlign: TKMTextAlign read fTextAlign write fTextAlign;
+    property ColumnWidth[aIndex: Integer]: Integer read GetColumnWidth;
 
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
@@ -771,6 +773,7 @@ type
       Hint: UnicodeString;
       Color: TColor4;
       HighlightColor: TColor4;
+      HighlightOnMouseOver: Boolean;
       Enabled: Boolean;
       Pic: TKMPic;
     end;
@@ -799,8 +802,10 @@ type
     fShowHeader: Boolean;
     fShowLines: Boolean;
     fMouseOverRow: Smallint;
+    fMouseOverCell: TKMPoint;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
+    fOnCellClick: TPointEventFunc;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue: single);
@@ -824,7 +829,8 @@ type
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
-    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
+    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer); overload;
+    procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean); overload;
   public
     HideSelection: Boolean;
     HighlightError: Boolean;
@@ -856,6 +862,7 @@ type
 
     //Sort properties are just hints to render Up/Down arrows. Actual sorting is done by client
     property OnColumnClick: TIntegerEvent read GetOnColumnClick write SetOnColumnClick;
+    property OnCellClick: TPointEventFunc read fOnCellClick write fOnCellClick;
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
@@ -864,6 +871,8 @@ type
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure UpdateMouseOverPosition(X,Y: Integer);
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -950,6 +959,7 @@ type
     fDefaultCaption: UnicodeString;
     fDropWidth: Integer;
     fList: TKMColumnBox;
+    fColumnsToShowWhenListHidden: array of Boolean; //which columns to show, when list is hidden
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
@@ -971,7 +981,8 @@ type
     function Count: Integer; override;
     property List: TKMColumnBox read fList;
     property Item[aIndex: Integer]: TKMListRow read GetItem;
-    procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+    procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word); overload;
+    procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word; aColumnsToShowWhenListHidden: array of Boolean); overload;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property DropWidth: Integer read fDropWidth write SetDropWidth;
 
@@ -4461,6 +4472,15 @@ begin
 end;
 
 
+function TKMListHeader.GetColumnWidth(aIndex: Integer): Integer;
+begin
+  if aIndex = fCount - 1 then
+    Result := Width - fColumns[aIndex].Offset
+  else
+    Result := fColumns[aIndex+1].Offset - fColumns[aIndex].Offset;
+end;
+
+
 //We know we were clicked and now we can decide what to do
 procedure TKMListHeader.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var ColumnID: Integer;
@@ -4887,23 +4907,58 @@ begin
 end;
 
 
+//Update mouse over row/cell positions (fMouseOver* variables)
+procedure TKMColumnBox.UpdateMouseOverPosition(X,Y: Integer);
+var I, CellLeftOffset, CellRightOffset: Integer;
+begin
+  if  InRange(X, AbsLeft, AbsLeft + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
+  and InRange(Y, AbsTop + fHeader.Height*Byte(fHeader.Visible), AbsTop + fHeader.Height*Byte(fHeader.Visible) + Floor(GetVisibleRowsExact * fItemHeight) - 1) then
+  begin
+    fMouseOverRow := TopIndex + (Y - AbsTop - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
+    for I := 0 to fHeader.ColumnCount - 1 do
+    begin
+      CellLeftOffset := AbsLeft + fHeader.Columns[I].Offset;
+      if I = fHeader.ColumnCount - 1 then
+        CellRightOffset := AbsLeft + Width - fScrollBar.Width * Byte(fScrollBar.Visible)
+      else
+        CellRightOffset := AbsLeft + fHeader.Columns[I+1].Offset - 1;
+      if InRange(X, CellLeftOffset, CellRightOffset) then
+        fMouseOverCell := KMPoint(I, fMouseOverRow);
+    end;
+  end else begin
+    fMouseOverRow := -1;
+    fMouseOverCell := INVALID_MAP_POINT;
+  end;
+end;
+
+
+procedure TKMColumnBox.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var IsClickHandled: Boolean;
+begin
+  IsClickHandled := False;
+
+  if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) then
+    IsClickHandled := fOnCellClick(Self, fMouseOverCell.X, fMouseOverCell.Y);
+
+  //Let propagate click event only when OnClickCell did not handle it
+  if not IsClickHandled then
+    inherited DoClick(X, Y, Shift, Button);
+end;
+
+
 procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var IsMouseDownHandled: Boolean;
 begin
   inherited;
-  MouseMove(X,Y,Shift); //Will change Position and call OnChange event
+  MouseMove(X, Y, Shift);
 end;
 
 
 procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
-var
-  NewIndex: Integer;
+var NewIndex: Integer;
 begin
   inherited;
-  if  InRange(X, AbsLeft, AbsLeft + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
-  and InRange(Y, AbsTop + fHeader.Height*Byte(fHeader.Visible), AbsTop + fHeader.Height*Byte(fHeader.Visible) + Floor(GetVisibleRowsExact * fItemHeight) - 1) then
-    fMouseOverRow := TopIndex + (Y - AbsTop - fHeader.Height * Byte(fShowHeader)) div fItemHeight
-  else
-    fMouseOverRow := -1;
+  UpdateMouseOverPosition(X, Y);
 
   if (ssLeft in Shift) and (fMouseOverRow <> -1) then
   begin
@@ -4936,14 +4991,32 @@ end;
 
 
 procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
+var ColumnsToShow: array of Boolean;
+    I: Integer;
+begin
+  SetLength(ColumnsToShow, Length(fColumns));
+  for I := Low(ColumnsToShow) to High(ColumnsToShow) do
+    ColumnsToShow[I] := True; // show all columns by default
+  DoPaintLine(aIndex, X, Y, PaintWidth, ColumnsToShow); 
+end;
+
+
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean);
 var
   I: Integer;
-  AvailWidth: Integer;
+  AvailWidth, HiddenColumnsTotalWidth: Integer;
   TextSize: TKMPoint;
   Color: Cardinal;
 begin
+  Assert(Length(fColumns) = Length(aColumnsToShow));
+  HiddenColumnsTotalWidth := 0;
   for I := 0 to fHeader.ColumnCount - 1 do
   begin
+    if not aColumnsToShow[I] then
+    begin
+      Inc(HiddenColumnsTotalWidth, fHeader.ColumnWidth[I]);
+      Continue;
+    end;
     //Determine available width
     if I = fHeader.ColumnCount - 1 then
       AvailWidth := PaintWidth - 4 - fHeader.Columns[I].Offset - 4
@@ -4954,24 +5027,28 @@ begin
 
     if AvailWidth <= 0 then Continue; //If the item overflows our allowed PaintWidth do not paint it
 
+    //Paint column
     if Rows[aIndex].Cells[I].Pic.ID <> 0 then
-      TKMRenderUI.WritePicture(X + 4 + fHeader.Columns[I].Offset, Y + 1,
+      TKMRenderUI.WritePicture(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth, Y + 1,
                              AvailWidth, fItemHeight, [],
                              Rows[aIndex].Cells[I].Pic.RX,
                              Rows[aIndex].Cells[I].Pic.ID,
                              Rows[aIndex].Cells[I].Enabled,
-                             Rows[aIndex].Cells[I].Color);
+                             Rows[aIndex].Cells[I].Color,
+                             0.4*Byte(Rows[aIndex].Cells[I].HighlightOnMouseOver 
+                                 and (fMouseOverCell.X = I) and (fMouseOverCell.Y = aIndex)
+                                 and (csOver in State)));
 
     if Rows[aIndex].Cells[I].Caption <> '' then
       if Rows[aIndex].Cells[I].Hint <> '' then
       begin
         TextSize := gRes.Fonts[fFont].GetTextSize(Rows[aIndex].Cells[I].Caption);
-        TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
+        TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth,
                             Y + 4,
                             AvailWidth,
                             Rows[aIndex].Cells[I].Caption,
                             fColumns[I].Font, fColumns[I].TextAlign, Rows[aIndex].Cells[I].Color);
-        TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
+        TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth,
                             Y + fItemHeight div 2 + 1,
                             AvailWidth,
                             Rows[aIndex].Cells[I].Hint,
@@ -4986,7 +5063,7 @@ begin
           Color := Rows[aIndex].Cells[I].HighlightColor
         else
           Color := Rows[aIndex].Cells[I].Color;
-        TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
+        TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth,
                             Y + (fItemHeight - TextSize.Y) div 2 + 2,
                             AvailWidth,
                             Rows[aIndex].Cells[I].Caption,
@@ -5516,8 +5593,24 @@ end;
 
 
 procedure TKMDropColumns.SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+var ColumnsToShowWhenListHidden: array of Boolean;
+    I: Integer;
 begin
+  SetLength(ColumnsToShowWhenListHidden, Length(aColumns));
+  for I := Low(ColumnsToShowWhenListHidden) to High(ColumnsToShowWhenListHidden) do
+    ColumnsToShowWhenListHidden[I] := True; // by default show all columns
+  SetColumns(aFont, aColumns, aColumnOffsets, ColumnsToShowWhenListHidden);
+end;
+
+
+procedure TKMDropColumns.SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word; aColumnsToShowWhenListHidden: array of Boolean);
+var I: Integer;
+begin
+  Assert(Length(aColumns) = Length(aColumnsToShowWhenListHidden));
   fList.SetColumns(aFont, aColumns, aColumnOffsets);
+  SetLength(fColumnsToShowWhenListHidden, Length(aColumnsToShowWhenListHidden));
+  for I := Low(aColumnsToShowWhenListHidden) to High(aColumnsToShowWhenListHidden) do
+    fColumnsToShowWhenListHidden[I] := aColumnsToShowWhenListHidden[I];
 end;
 
 
@@ -5588,7 +5681,7 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width)
+    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width, fColumnsToShowWhenListHidden)
 
     {TKMRenderUI.WritePicture(Left + 4, Top + 1,
                             fList.Rows[ItemIndex].Cells[0].Pic.RX,
