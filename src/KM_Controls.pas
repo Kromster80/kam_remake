@@ -47,6 +47,7 @@ type
     destructor Destroy; override;
 
     property MainPanel: TKMPanel read fCtrl;
+    function IsFocusAllowed(aCtrl: TKMControl): Boolean;
     procedure UpdateFocus(aSender: TKMControl);
 
     property CtrlDown: TKMControl read fCtrlDown write SetCtrlDown;
@@ -135,7 +136,6 @@ type
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
 
-    IsMarkedToUnfocus: Boolean; //Used for cycle focusing on one TKMPanel
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
 
@@ -200,7 +200,7 @@ type
   { Panel which keeps child items in it, it's virtual and invisible }
   TKMPanel = class(TKMControl)
   private
-    fCollection: TKMMasterControl;
+    fMasterControl: TKMMasterControl;
     procedure Init;
   protected
     //Do not propogate SetEnabled and SetVisible because that would show/enable ALL childs childs
@@ -217,6 +217,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer); overload;
     destructor Destroy; override;
     function AddChild(aChild: TKMControl): Integer;
+    function FindFocusableControl(aFindNext: Boolean): TKMControl;
     procedure FocusNext;
     procedure ResetFocusedControlIndex;
     procedure Paint; override;
@@ -1368,7 +1369,6 @@ begin
   Tag         := 0;
   Hint        := '';
   fControlIndex := -1;
-  IsMarkedToUnfocus := False;
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
@@ -1697,7 +1697,7 @@ begin
 
   // Only swap focus if enability changed
   if (OldEnabled <> Enabled) and (Focusable or (Self is TKMPanel)) then
-    MasterParent.fCollection.UpdateFocus(Self);
+    MasterParent.fMasterControl.UpdateFocus(Self);
 end;
 
 
@@ -1716,7 +1716,7 @@ begin
 
   //Only swap focus if visibility changed
   if (OldVisible <> fVisible) and (Focusable or (Self is TKMPanel)) then
-    MasterParent.fCollection.UpdateFocus(Self);
+    MasterParent.fMasterControl.UpdateFocus(Self);
 end;
 
 
@@ -1755,7 +1755,7 @@ end;
 constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(nil, aLeft, aTop, aWidth, aHeight);
-  fCollection := aParent;
+  fMasterControl := aParent;
   aParent.fCtrl := Self;
   Init;
 end;
@@ -1764,7 +1764,7 @@ end;
 constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fCollection := aParent.fCollection;
+  fMasterControl := aParent.fMasterControl;
   Init;
 end;
 
@@ -1793,13 +1793,55 @@ begin
 end;
 
 
+function TKMPanel.FindFocusableControl(aFindNext: Boolean): TKMControl;
+var I, CtrlToFocusI: Integer;
+begin
+  Result := nil;
+  CtrlToFocusI := -1;
+  for I := 0 to ChildCount - 1 do
+    if fMasterControl.IsFocusAllowed(Childs[I]) and (
+      (FocusedControlIndex = -1)                          // If FocusControl was not set (no focused element on panel)
+      or (FocusedControlIndex = Childs[I].ControlIndex) // We've found last focused Control
+      or (CtrlToFocusI <> -1)) then                         // We did find last focused Control on previos iterations
+    begin
+      //Do we need to find next focusable control ?
+      if aFindNext and (CtrlToFocusI = -1) 
+        //FocusedControlIndex = -1 means there is no focus on this panel. Then we need to focus on first good control
+        and (FocusedControlIndex <> -1) then 
+      begin
+        CtrlToFocusI := I;
+        Continue;
+      end else begin
+        Result := Childs[I]; // We find Control to focus on, then exit
+        Exit;
+      end;
+    end;
+
+  // If we did not find Control to focus on, try to find in the first controls of Panel (let's cycle the search)
+  if CtrlToFocusI <> -1 then
+  begin
+    // We will try to find it until the same Control, that we find before in previous For cycle
+    for I := 0 to CtrlToFocusI do // So if there will be no proper controls, then set focus again to same control with I = CtrlToFocusI
+      if fMasterControl.IsFocusAllowed(Childs[I]) then
+      begin
+        Result := Childs[I];
+        Exit;
+      end;
+  end;
+end;
+
+
 //Focus next focusable control on this Panel
 procedure TKMPanel.FocusNext;
+var Ctrl: TKMControl;
 begin
   if InRange(FocusedControlIndex, 0, ChildCount - 1) then
   begin
-    Childs[FocusedControlIndex].IsMarkedToUnfocus := True;
-    fCollection.UpdateFocus(Self);
+    Ctrl := FindFocusableControl(True);
+    if Ctrl <> nil then
+      FocusedControlIndex := Ctrl.ControlIndex; // update FocusedControlIndex to let fCollection.UpdateFocus focus on it
+    //Need to update Focus only through UpdateFocus
+    fMasterControl.UpdateFocus(Self);
   end;
 end;
 
@@ -2151,8 +2193,8 @@ begin
   if Visible and fEnabled then
   begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
-    Parent.fCollection.CtrlOver := Self;
-    Parent.fCollection.CtrlUp := Self;
+    Parent.fMasterControl.CtrlOver := Self;
+    Parent.fMasterControl.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
   end
@@ -2385,8 +2427,8 @@ begin
   if Visible and fEnabled then
   begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
-    Parent.fCollection.CtrlOver := Self;
-    Parent.fCollection.CtrlUp := Self;
+    Parent.fMasterControl.CtrlOver := Self;
+    Parent.fMasterControl.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
   end
@@ -2825,7 +2867,7 @@ begin
   if ReadOnly then Exit;
   inherited;
   // Update Focus now, because we need to focus on MouseDown, not on MouseUp as by default for all controls
-  MasterParent.fCollection.UpdateFocus(Self);
+  MasterParent.fMasterControl.UpdateFocus(Self);
 
   CursorPos := GetCursorPosAt(X);
   ResetSelection;
@@ -4210,7 +4252,7 @@ begin
 
   Focusable := fSelectable and (fText <> ''); // Do not focus on empty Memo's
   // Update Focus now, because we need to focus on MouseDown, not on MouseUp as by default for all controls
-  MasterParent.fCollection.UpdateFocus(Self);
+  MasterParent.fMasterControl.UpdateFocus(Self);
 
   OldCursorPos := CursorPos;
   CursorPos := GetCursorPosAt(X, Y);
@@ -4271,7 +4313,7 @@ begin
     ResetSelection;
     Focusable := False;
     CursorPos := -1;
-    MasterParent.fCollection.UpdateFocus(Self);
+    MasterParent.fMasterControl.UpdateFocus(Self);
   end;
 end;
 
@@ -6623,56 +6665,29 @@ begin
 end;
 
 
+//Check If Control if it is allowed to be focused on
+function TKMMasterControl.IsFocusAllowed(aCtrl: TKMControl): Boolean;
+begin
+  Result := aCtrl.fVisible
+        and aCtrl.Enabled
+        and aCtrl.Focusable
+        and not IsCtrlCovered(aCtrl); // Do not allow to focus on covered Controls
+end;
+
+
 //Update focused control
 procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
   function FindFocusable(C: TKMPanel): Boolean;
-    //Check If Control if it is allowed to be focused on
-    function IsFocusAllowed(aCtrl: TKMControl): Boolean;
-    begin
-      Result := aCtrl.fVisible
-            and aCtrl.Enabled
-            and aCtrl.Focusable
-            and not IsCtrlCovered(aCtrl); // Do not allow to focus on covered Controls
-    end;
-
-    procedure SetCtrlFocus(aI: Integer);
-    begin
-      CtrlFocus := C.Childs[aI];
-      Result := True;
-    end;
-
-  var I, CtrlToFocusI: Integer;
+  var I: Integer;
+      Ctrl: TKMControl;
   begin
     Result := False;
-    CtrlToFocusI := -1;
-    //Check for focusable controls
-    for I := 0 to C.ChildCount - 1 do
-      if IsFocusAllowed(C.Childs[I]) and (
-        (C.FocusedControlIndex = -1)                          // If FocusControl was not set (no focused element on panel)
-        or (C.FocusedControlIndex = C.Childs[I].ControlIndex) // We've found last focused Control
-        or (CtrlToFocusI <> -1)) then                         // We did find last focused Control on previos iterations
-      begin
-        if C.Childs[I].IsMarkedToUnfocus then
-        begin
-          CtrlToFocusI := I;
-          C.Childs[I].IsMarkedToUnfocus := False;
-          Continue;
-        end else begin
-          SetCtrlFocus(I); // We find next possible Control to focus on, then exit
-          Exit;
-        end;
-      end;
-
-    // If we did not find next possible Control to focus on, try to find in the first controls of Panel (let's cycle the search)
-    if CtrlToFocusI <> -1 then
+    Ctrl := C.FindFocusableControl(False);
+    if Ctrl <> nil then
     begin
-      // We will try to find it until the same Control, that we find before in previous For cycle
-      for I := 0 to CtrlToFocusI do // So if there will be no proper controls, then set focus again to same control with I = CtrlToFocusI
-        if IsFocusAllowed(C.Childs[I]) then
-        begin
-          SetCtrlFocus(I);
-          Exit;
-        end;
+      CtrlFocus := Ctrl;
+      Result := True;
+      Exit;
     end;
 
     for I := 0 to C.ChildCount - 1 do
@@ -6710,15 +6725,14 @@ end;
 
 
 //Check if control is covered by other controls or not
-//We assume that control is covered if any of his 4 angles are covered
-//Use Self coordinates to check, because some controls can contain other controls (f.e. TKMNumericEdit)
+//We assume that control is covered if any of his 4 angles is covered
+//Use Self coordinates to check, because some controls can contain other sub-controls (f.e. TKMNumericEdit)
 function TKMMasterControl.IsCtrlCovered(aCtrl: TKMControl): Boolean;
 begin
-  Result := (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop) = aCtrl)
-        and (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop) = aCtrl)
-        and (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) = aCtrl)
-        and (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) = aCtrl);
-  Result := not Result;
+  Result := (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop) <> aCtrl)
+        or (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop) <> aCtrl)
+        or (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) <> aCtrl)
+        or (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) <> aCtrl);
 end;
 
 
