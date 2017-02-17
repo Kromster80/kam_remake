@@ -116,7 +116,7 @@ type
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
     procedure RenderWireTile(P: TKMPoint; Col: TColor4); overload;
-    procedure RenderWireTile(P: TKMPoint; Col: TColor4; PIntAdj: TKMPointF); overload;
+    procedure RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single); overload;
 
     property RenderList: TRenderList read fRenderList;
     property RenderTerrain: TRenderTerrain read fRenderTerrain;
@@ -1228,7 +1228,7 @@ end;
 
 procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4);
 begin
-  RenderWireTile(P, Col, KMPointF(0, 0));
+  RenderWireTile(P, Col, 0);
 end;
 
 
@@ -1236,16 +1236,16 @@ end;
 //P - tile coords
 //Col - Color
 //PIntAdj - Internal adjustment, to render wire "inside" tile
-procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; PIntAdj: TKMPointF);
+procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single);
 begin
   if not gTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     with gTerrain do begin
-      glVertex2f(P.X-1 + PIntAdj.X, P.Y-1 + PIntAdj.X - Land[P.Y  ,P.X  ].Height/CELL_HEIGHT_DIV);
-      glVertex2f(P.X   - PIntAdj.X, P.Y-1 + PIntAdj.X - Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
-      glVertex2f(P.X   - PIntAdj.X, P.Y   - PIntAdj.X - Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
-      glVertex2f(P.X-1 + PIntAdj.X, P.Y   - PIntAdj.X - Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1 + aInset, P.Y-1 + aInset - Land[P.Y  ,P.X  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X   - aInset, P.Y-1 + aInset - Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X   - aInset, P.Y   - aInset - Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1 + aInset, P.Y   - aInset - Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;
@@ -1336,7 +1336,7 @@ begin
         and (gTerrain.TileIsCornField(P)                   // show only for corn + wine + roads
           or gTerrain.TileIsWineField(P)
           or (gTerrain.Land[I, K].TileOverlay = to_Road)) then
-        RenderWireTile(P, gHands[gTerrain.Land[I, K].TileOwner].FlagColor, KMPointF(0.05, 0.05));
+        RenderWireTile(P, gHands[gTerrain.Land[I, K].TileOwner].FlagColor, 0.05);
     end;
 end;
 
