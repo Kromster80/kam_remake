@@ -327,6 +327,7 @@ begin
   fMenuLoad.UpdateState;
   fMenuReplays.UpdateState;
   fMenuSingleMap.UpdateState;
+  fMenuCampaign.UpdateState(aTickCount);
 end;
 
 
