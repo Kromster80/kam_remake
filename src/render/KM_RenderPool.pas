@@ -1229,7 +1229,7 @@ end;
 //P - tile coords
 //Col - Color
 //aInset - Internal adjustment, to render wire "inside" tile
-procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0);
+procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0.0);
 begin
   if not gTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
