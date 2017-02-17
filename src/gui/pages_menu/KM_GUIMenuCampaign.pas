@@ -155,17 +155,16 @@ end;
 procedure TKMMenuCampaign.Campaign_SelectMap(Sender: TObject);
 var
   I: Integer;
-  sCampaignTitleMission : UnicodeString;
 begin
   if TKMControl(Sender).Tag > fCampaign.UnlockedMap then exit; //Skip closed maps
 
   fMapIndex := TKMControl(Sender).Tag;
 
-  //Place highlight
+  // Place highlight
   for I := 0 to High(Image_CampaignFlags) do
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
 
-  //Connect by sub-nodes
+  // Connect by sub-nodes
   for I := 0 to High(Image_CampaignSubNode) do
   begin
     Image_CampaignSubNode[I].Visible := InRange(I, 0, fCampaign.Maps[fMapIndex].NodeCount-1);
@@ -173,11 +172,7 @@ begin
     Image_CampaignSubNode[I].Top  := fCampaign.Maps[fMapIndex].Nodes[I].Y;
   end;
 
-  sCampaignTitleMission := fCampaign.CampaignMissionTitle;
-  if Pos('%d', AnsiLowerCase(sCampaignTitleMission)) > 0 then
-    Label_CampaignTitle.Caption := Format(sCampaignTitleMission, [fMapIndex+1])
-  else
-    Label_CampaignTitle.Caption := Format(gResTexts[TX_GAME_MISSION], [fMapIndex+1]);
+  Label_CampaignTitle.Caption := fCampaign.CampaignMissionTitle(fMapIndex);
   Label_CampaignText.Caption := fCampaign.MissionBriefing(fMapIndex);
 
   Panel_CampScroll.Left := IfThen(fCampaign.Maps[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
