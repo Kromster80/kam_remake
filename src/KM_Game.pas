@@ -774,8 +774,9 @@ begin
                 RequestGameHold(gr_Defeat);
               end;
     gmMulti:  begin
-                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+                if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+                  fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
                 if aPlayerIndex = gMySpectator.HandIndex then
                 begin
                   gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
@@ -783,8 +784,9 @@ begin
                   fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
                 end;
               end;
-    gmMultiSpectate: fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                       [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+    gmMultiSpectate:  if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+                        fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                          [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
   end;
 end;
