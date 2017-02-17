@@ -903,7 +903,7 @@ begin
               AddCommand(ct_SetRoad, [iX-1,iY-1]);
           end;
           if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetFieldStaged, [iX-1,iY-1,gTerrain.Land[iY,iX].FieldAge]);
+            AddCommand(ct_SetFieldStaged, [iX-1,iY-1,gTerrain.GetCornStage(gTerrain.Land[iY,iX].FieldAge)]);
           if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
             AddCommand(ct_SetWinefieldStaged, [iX-1,iY-1,gTerrain.Land[iY,iX].FieldAge]);
         end;
