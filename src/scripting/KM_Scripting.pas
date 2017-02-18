@@ -226,28 +226,18 @@ begin
       Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
 
       RegisterMethod('function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer');
-      RegisterMethod('function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
-      RegisterMethod('function ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer');
-
       RegisterMethod('function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer');
+      RegisterMethod('function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
       RegisterMethod('function ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer');
+      RegisterMethod('function ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer');
       RegisterMethod('function ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer');
 
       RegisterMethod('function ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean');
       RegisterMethod('function ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean');
 
-      RegisterMethod('function GameTime: Cardinal');
-      RegisterMethod('function KaMRandom: Single');
-      RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
-      RegisterMethod('function LocationCount: Integer');
-      RegisterMethod('function MarketFromWare(aMarketID: Integer): Integer');
-      RegisterMethod('function MarketLossFactor: Single');
-      RegisterMethod('function MarketOrderAmount(aMarketID: Integer): Integer');
-      RegisterMethod('function MarketToWare(aMarketID: Integer): Integer');
-      RegisterMethod('function MarketValue(aRes: Integer): Single');
-      RegisterMethod('function PeaceTime: Cardinal');
-
       RegisterMethod('function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
+
+      RegisterMethod('function GameTime: Cardinal');
 
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
@@ -268,9 +258,7 @@ begin
       RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseTypeMaxHealth(aHouseType: Integer): Word');
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
-      RegisterMethod('function HouseTypeToOccupantType(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
       RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
@@ -278,31 +266,46 @@ begin
       RegisterMethod('function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
       RegisterMethod('function HouseSiteIsDigged(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseTypeMaxHealth(aHouseType: Integer): Word');
       RegisterMethod('function HouseTypeName(aHouseType: Byte): AnsiString');
+      RegisterMethod('function HouseTypeToOccupantType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseUnlocked(aPlayer, aHouseType: Word): Boolean');
       RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
       RegisterMethod('function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
 
       RegisterMethod('function IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
-      RegisterMethod('function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
       RegisterMethod('function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
+      RegisterMethod('function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
 
-      RegisterMethod('function MapTileType(X, Y: Integer): Integer');
-      RegisterMethod('function MapTileRotation(X, Y: Integer): Integer');
+      RegisterMethod('function KaMRandom: Single');
+      RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
+
+      RegisterMethod('function LocationCount: Integer');
+
+      RegisterMethod('function MapHeight: Integer');
       RegisterMethod('function MapTileHeight(X, Y: Integer): Integer');
       RegisterMethod('function MapTileObject(X, Y: Integer): Integer');
       RegisterMethod('function MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean');
+      RegisterMethod('function MapTileRotation(X, Y: Integer): Integer');
+      RegisterMethod('function MapTileType(X, Y: Integer): Integer');
       RegisterMethod('function MapWidth: Integer');
-      RegisterMethod('function MapHeight: Integer');
+
+      RegisterMethod('function MarketFromWare(aMarketID: Integer): Integer');
+      RegisterMethod('function MarketLossFactor: Single');
+      RegisterMethod('function MarketOrderAmount(aMarketID: Integer): Integer');
+      RegisterMethod('function MarketToWare(aMarketID: Integer): Integer');
+      RegisterMethod('function MarketValue(aRes: Integer): Single');
+
+      RegisterMethod('function PeaceTime: Cardinal');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
-      RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
-      RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
+      RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
+      RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerIsAI(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
@@ -329,7 +332,6 @@ begin
       RegisterMethod('function UnitCarrying(aUnitID: Integer): Integer');
       RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
       RegisterMethod('function UnitDirection(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHome(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHPCurrent(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHPMax(aUnitID: Integer): Integer');
@@ -341,8 +343,10 @@ begin
       RegisterMethod('function UnitOwner(aUnitID: Integer): Integer');
       RegisterMethod('function UnitPositionX(aHouseID: Integer): Integer');
       RegisterMethod('function UnitPositionY(aHouseID: Integer): Integer');
+      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
       RegisterMethod('function UnitType(aUnitID: Integer): Integer');
       RegisterMethod('function UnitTypeName(aUnitType: Byte): AnsiString');
+
       RegisterMethod('function WareTypeName(aWareType: Byte): AnsiString');
     end;
 
@@ -365,9 +369,9 @@ begin
       RegisterMethod('procedure AIStartPosition(aPlayer: Byte; X, Y: Word)');
       RegisterMethod('procedure AIWorkerLimit(aPlayer, aLimit: Byte)');
 
-      RegisterMethod('procedure CinematicStart(aPlayer: Byte)');
       RegisterMethod('procedure CinematicEnd(aPlayer: Byte)');
       RegisterMethod('procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word)');
+      RegisterMethod('procedure CinematicStart(aPlayer: Byte)');
 
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
@@ -425,16 +429,17 @@ begin
       RegisterMethod('procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
 
       RegisterMethod('procedure Log(aText: AnsiString)');
+
       RegisterMethod('procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer)');
 
-      RegisterMethod('function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
       RegisterMethod('function MapTileHeightSet(X, Y, Height: Integer): Boolean');
       RegisterMethod('function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
+      RegisterMethod('function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
 
-      RegisterMethod('procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
-      RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
       RegisterMethod('procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
       RegisterMethod('procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+      RegisterMethod('procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
+      RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
 
       RegisterMethod('function  PlanAddField(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
@@ -452,15 +457,16 @@ begin
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
       RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
-      RegisterMethod('procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
       RegisterMethod('procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word)');
-      RegisterMethod('function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
       RegisterMethod('function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
+      RegisterMethod('procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
+      RegisterMethod('function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
       RegisterMethod('procedure StopLoopedWAV(aLoopIndex: Integer)');
 
       RegisterMethod('procedure RemoveRoad(X, Y: Word)');
 
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
+
       RegisterMethod('procedure ShowMsg(aPlayer: ShortInt; aText: AnsiString)');
       RegisterMethod('procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
       RegisterMethod('procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString)');
@@ -560,30 +566,38 @@ const
     Dir: array [0..3] of TPSParameterMode;
   end =
   (
-  (Names: 'ONHOUSEBUILT';           ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEDAMAGED';         ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEDESTROYED';       ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEAFTERDESTROYED';  ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEPLANPLACED';      ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEPLANREMOVED';     ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONGROUPHUNGRY';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONMARKETTRADE';          ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONMISSIONSTART';         ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLANROADPLACED';       ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLANFIELDPLACED';      ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLANWINEFIELDPLACED';  ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLANROADREMOVED';      ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLANFIELDREMOVED';     ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLANWINEFIELDREMOVED'; ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLAYERDEFEATED';       ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONPLAYERVICTORY';        ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONTICK';                 ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITDIED';             ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITAFTERDIED';        ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITATTACKED';         ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITTRAINED';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITWOUNDED';          ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
-  (Names: 'ONWARRIOREQUIPPED';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn))
+  (Names: 'OnGroupHungry';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnHouseAfterDestroyed';  ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnHouseBuilt';           ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnHouseDamaged';         ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnHouseDestroyed';       ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnHousePlanPlaced';      ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnHousePlanRemoved';     ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnMarketTrade';          ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnMissionStart';         ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnPlanFieldPlaced';      ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnPlanFieldRemoved';     ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnPlanRoadPlaced';       ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnPlanRoadRemoved';      ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnPlanWinefieldPlaced';  ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnPlanWinefieldRemoved'; ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnPlayerDefeated';       ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnPlayerVictory';        ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnTick';                 ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnUnitAfterDied';        ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnUnitAttacked';         ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnUnitDied';             ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnUnitTrained';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnUnitWounded';          ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnWarriorEquipped';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn))
   );
 var
   I: Integer;
@@ -671,308 +685,315 @@ begin
   //Create an instance of the runtime class importer
   ClassImp := TPSRuntimeClassImporter.Create;
   try
-    //Register classes and their exposed methods to Runtime (must be uppercase)
+    //Register classes and their exposed methods to Runtime
+    //(uppercase is not needed, FastUpperCase does this well. See uPSRuntime.pas, line 11387)
     with ClassImp.Add(TKMScriptStates) do
     begin
 
-      RegisterMethod(@TKMScriptStates.ClosestGroup,   'CLOSESTGROUP');
-      RegisterMethod(@TKMScriptStates.ClosestHouse,   'CLOSESTHOUSE');
-      RegisterMethod(@TKMScriptStates.ClosestUnit,    'CLOSESTUNIT');
+      RegisterMethod(@TKMScriptStates.ClosestGroup,                             'ClosestGroup');
+      RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,                'ClosestGroupMultipleTypes');
+      RegisterMethod(@TKMScriptStates.ClosestHouse,                             'ClosestHouse');
+      RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypes,                'ClosestHouseMultipleTypes');
+      RegisterMethod(@TKMScriptStates.ClosestUnit,                              'ClosestUnit');
+      RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypes,                 'ClosestUnitMultipleTypes');
 
-      RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,   'CLOSESTGROUPMULTIPLETYPES');
-      RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypes,   'CLOSESTHOUSEMULTIPLETYPES');
-      RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypes,    'CLOSESTUNITMULTIPLETYPES');
+      RegisterMethod(@TKMScriptStates.ConnectedByRoad,                          'ConnectedByRoad');
+      RegisterMethod(@TKMScriptStates.ConnectedByWalking,                       'ConnectedByWalking');
 
-      RegisterMethod(@TKMScriptStates.ConnectedByRoad,    'CONNECTEDBYROAD');
-      RegisterMethod(@TKMScriptStates.ConnectedByWalking, 'CONNECTEDBYWALKING');
+      RegisterMethod(@TKMScriptStates.FogRevealed,                              'FogRevealed');
 
-      RegisterMethod(@TKMScriptStates.GameTime,          'GAMETIME');
-      RegisterMethod(@TKMScriptStates.KaMRandom,         'KAMRANDOM');
-      RegisterMethod(@TKMScriptStates.KaMRandomI,        'KAMRANDOMI');
-      RegisterMethod(@TKMScriptStates.LocationCount,     'LOCATIONCOUNT');
-      RegisterMethod(@TKMScriptStates.MarketFromWare,    'MARKETFROMWARE');
-      RegisterMethod(@TKMScriptStates.MarketLossFactor,  'MARKETLOSSFACTOR');
-      RegisterMethod(@TKMScriptStates.MarketOrderAmount, 'MARKETORDERAMOUNT');
-      RegisterMethod(@TKMScriptStates.MarketToWare,      'MARKETTOWARE');
-      RegisterMethod(@TKMScriptStates.MarketValue,       'MARKETVALUE');
-      RegisterMethod(@TKMScriptStates.PeaceTime,         'PEACETIME');
+      RegisterMethod(@TKMScriptStates.GameTime,                                 'GameTime');
 
-      RegisterMethod(@TKMScriptStates.FogRevealed,      'FOGREVEALED');
+      RegisterMethod(@TKMScriptStates.GroupAt,                                  'GroupAt');
+      RegisterMethod(@TKMScriptStates.GroupColumnCount,                         'GroupColumnCount');
+      RegisterMethod(@TKMScriptStates.GroupDead,                                'GroupDead');
+      RegisterMethod(@TKMScriptStates.GroupIdle,                                'GroupIdle');
+      RegisterMethod(@TKMScriptStates.GroupMember,                              'GroupMember');
+      RegisterMethod(@TKMScriptStates.GroupMemberCount,                         'GroupMemberCount');
+      RegisterMethod(@TKMScriptStates.GroupOwner,                               'GroupOwner');
+      RegisterMethod(@TKMScriptStates.GroupType,                                'GroupType');
 
-      RegisterMethod(@TKMScriptStates.GroupAt,          'GROUPAT');
-      RegisterMethod(@TKMScriptStates.GroupDead,        'GROUPDEAD');
-      RegisterMethod(@TKMScriptStates.GroupIdle,        'GROUPIDLE');
-      RegisterMethod(@TKMScriptStates.GroupMember,      'GROUPMEMBER');
-      RegisterMethod(@TKMScriptStates.GroupColumnCount, 'GROUPCOLUMNCOUNT');
-      RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
-      RegisterMethod(@TKMScriptStates.GroupOwner,       'GROUPOWNER');
-      RegisterMethod(@TKMScriptStates.GroupType,        'GROUPTYPE');
+      RegisterMethod(@TKMScriptStates.HouseAt,                                  'HouseAt');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointX,                 'HouseBarracksRallyPointX');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointY,                 'HouseBarracksRallyPointY');
+      RegisterMethod(@TKMScriptStates.HouseBuildingProgress,                    'HouseBuildingProgress');
+      RegisterMethod(@TKMScriptStates.HouseCanReachResources,                   'HouseCanReachResources');
+      RegisterMethod(@TKMScriptStates.HouseDamage,                              'HouseDamage');
+      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,                     'HouseDeliveryBlocked');
+      RegisterMethod(@TKMScriptStates.HouseDestroyed,                           'HouseDestroyed');
+      RegisterMethod(@TKMScriptStates.HouseHasOccupant,                         'HouseHasOccupant');
+      RegisterMethod(@TKMScriptStates.HouseIsComplete,                          'HouseIsComplete');
+      RegisterMethod(@TKMScriptStates.HouseOwner,                               'HouseOwner');
+      RegisterMethod(@TKMScriptStates.HousePositionX,                           'HousePositionX');
+      RegisterMethod(@TKMScriptStates.HousePositionY,                           'HousePositionY');
+      RegisterMethod(@TKMScriptStates.HouseRepair,                              'HouseRepair');
+      RegisterMethod(@TKMScriptStates.HouseResourceAmount,                      'HouseResourceAmount');
+      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,                         'HouseSchoolQueue');
+      RegisterMethod(@TKMScriptStates.HouseSiteIsDigged,                        'HouseSiteIsDigged');
+      RegisterMethod(@TKMScriptStates.HouseType,                                'HouseType');
+      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,                       'HouseTypeMaxHealth');
+      RegisterMethod(@TKMScriptStates.HouseTypeName,                            'HouseTypeName');
+      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType,                  'HouseTypeToOccupantType');
+      RegisterMethod(@TKMScriptStates.HouseUnlocked,                            'HouseUnlocked');
+      RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly,                  'HouseWoodcutterChopOnly');
+      RegisterMethod(@TKMScriptStates.HouseWareBlocked,                         'HouseWareBlocked');
+      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,                      'HouseWeaponsOrdered');
 
-      RegisterMethod(@TKMScriptStates.HouseAt,                  'HOUSEAT');
-      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointX, 'HOUSEBARRACKSRALLYPOINTX');
-      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointY, 'HOUSEBARRACKSRALLYPOINTY');
-      RegisterMethod(@TKMScriptStates.HouseBuildingProgress,    'HOUSEBUILDINGPROGRESS');
-      RegisterMethod(@TKMScriptStates.HouseCanReachResources,   'HOUSECANREACHRESOURCES');
-      RegisterMethod(@TKMScriptStates.HouseDamage,              'HOUSEDAMAGE');
-      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,     'HOUSEDELIVERYBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseDestroyed,           'HOUSEDESTROYED');
-      RegisterMethod(@TKMScriptStates.HouseHasOccupant,         'HOUSEHASOCCUPANT');
-      RegisterMethod(@TKMScriptStates.HouseIsComplete,          'HOUSEISCOMPLETE');
-      RegisterMethod(@TKMScriptStates.HouseOwner,               'HOUSEOWNER');
-      RegisterMethod(@TKMScriptStates.HousePositionX,           'HOUSEPOSITIONX');
-      RegisterMethod(@TKMScriptStates.HousePositionY,           'HOUSEPOSITIONY');
-      RegisterMethod(@TKMScriptStates.HouseRepair,              'HOUSEREPAIR');
-      RegisterMethod(@TKMScriptStates.HouseResourceAmount,      'HOUSERESOURCEAMOUNT');
-      RegisterMethod(@TKMScriptStates.HouseType,                'HOUSETYPE');
-      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,       'HOUSETYPEMAXHEALTH');
-      RegisterMethod(@TKMScriptStates.HouseTypeName,            'HOUSETYPENAME');
-      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType,  'HOUSETYPETOOCCUPANTTYPE');
-      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,         'HOUSESCHOOLQUEUE');
-      RegisterMethod(@TKMScriptStates.HouseSiteIsDigged,        'HOUSESITEISDIGGED');
-      RegisterMethod(@TKMScriptStates.HouseUnlocked,            'HOUSEUNLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly,  'HOUSEWOODCUTTERCHOPONLY');
-      RegisterMethod(@TKMScriptStates.HouseWareBlocked,         'HOUSEWAREBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,      'HOUSEWEAPONSORDERED');
+      RegisterMethod(@TKMScriptStates.IsFieldAt,                                'IsFieldAt');
+      RegisterMethod(@TKMScriptStates.IsRoadAt,                                 'IsRoadAt');
+      RegisterMethod(@TKMScriptStates.IsWinefieldAt,                            'IsWinefieldAt');
 
-      RegisterMethod(@TKMScriptStates.IsFieldAt,            'ISFIELDAT');
-      RegisterMethod(@TKMScriptStates.IsWinefieldAt,        'ISWINEFIELDAT');
-      RegisterMethod(@TKMScriptStates.IsRoadAt,             'ISROADAT');
+      RegisterMethod(@TKMScriptStates.KaMRandom,                                'KaMRandom');
+      RegisterMethod(@TKMScriptStates.KaMRandomI,                               'KaMRandomI');
 
-      RegisterMethod(@TKMScriptStates.MapTileType,             'MAPTILETYPE');
-      RegisterMethod(@TKMScriptStates.MapTileRotation,         'MAPTILEROTATION');
-      RegisterMethod(@TKMScriptStates.MapTileHeight,           'MAPTILEHEIGHT');
-      RegisterMethod(@TKMScriptStates.MapTileObject,           'MAPTILEOBJECT');
-      RegisterMethod(@TKMScriptStates.MapTilePassability,      'MAPTILEPASSABILITY');
-      RegisterMethod(@TKMScriptStates.MapWidth,                'MAPWIDTH');
-      RegisterMethod(@TKMScriptStates.MapHeight,               'MAPHEIGHT');
+      RegisterMethod(@TKMScriptStates.LocationCount,                            'LocationCount');
 
-      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,    'PLAYERALLIANCECHECK');
-      RegisterMethod(@TKMScriptStates.PlayerColorText,        'PLAYERCOLORTEXT');
-      RegisterMethod(@TKMScriptStates.PlayerDefeated,         'PLAYERDEFEATED');
-      RegisterMethod(@TKMScriptStates.PlayerEnabled,          'PLAYERENABLED');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,      'PLAYERGETALLUNITS');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,     'PLAYERGETALLHOUSES');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,     'PLAYERGETALLGROUPS');
-      RegisterMethod(@TKMScriptStates.PlayerIsAI,             'PLAYERISAI');
-      RegisterMethod(@TKMScriptStates.PlayerName,             'PLAYERNAME');
-      RegisterMethod(@TKMScriptStates.PlayerVictorious,       'PLAYERVICTORIOUS');
-      RegisterMethod(@TKMScriptStates.PlayerWareDistribution, 'PLAYERWAREDISTRIBUTION');
+      RegisterMethod(@TKMScriptStates.MapHeight,                                'MapHeight');
+      RegisterMethod(@TKMScriptStates.MapTileHeight,                            'MapTileHeight');
+      RegisterMethod(@TKMScriptStates.MapTileObject,                            'MapTileObject');
+      RegisterMethod(@TKMScriptStates.MapTilePassability,                       'MapTilePassability');
+      RegisterMethod(@TKMScriptStates.MapTileRotation,                          'MapTileRotation');
+      RegisterMethod(@TKMScriptStates.MapTileType,                              'MapTileType');
+      RegisterMethod(@TKMScriptStates.MapWidth,                                 'MapWidth');
 
-      RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount,              'STATAIDEFENCEPOSITIONSCOUNT');
-      RegisterMethod(@TKMScriptStates.StatArmyCount,                            'STATARMYCOUNT');
-      RegisterMethod(@TKMScriptStates.StatCitizenCount,                         'STATCITIZENCOUNT');
-      RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCount,              'STATHOUSEMULTIPLETYPESCOUNT');
-      RegisterMethod(@TKMScriptStates.StatHouseTypeCount,                       'STATHOUSETYPECOUNT');
-      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount,                  'STATHOUSETYPEPLANSCOUNT');
-      RegisterMethod(@TKMScriptStates.StatPlayerCount,                          'STATPLAYERCOUNT');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedCount,                'STATRESOURCEPRODUCEDCOUNT');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedMultipleTypesCount,   'STATRESOURCEPRODUCEDMULTIPLETYPESCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitCount,                            'STATUNITCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledCount,                      'STATUNITKILLEDCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledMultipleTypesCount,         'STATUNITKILLEDMULTIPLETYPESCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitLostCount,                        'STATUNITLOSTCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitLostMultipleTypesCount,           'STATUNITLOSTMULTIPLETYPESCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCount,               'STATUNITMULTIPLETYPESCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitTypeCount,                        'STATUNITTYPECOUNT');
+      RegisterMethod(@TKMScriptStates.MarketFromWare,                           'MarketFromWare');
+      RegisterMethod(@TKMScriptStates.MarketLossFactor,                         'MarketLossFactor');
+      RegisterMethod(@TKMScriptStates.MarketOrderAmount,                        'MarketOrderAmount');
+      RegisterMethod(@TKMScriptStates.MarketToWare,                             'MarketToWare');
+      RegisterMethod(@TKMScriptStates.MarketValue,                              'MarketValue');
 
-      RegisterMethod(@TKMScriptStates.UnitAt,             'UNITAT');
-      RegisterMethod(@TKMScriptStates.UnitCarrying,       'UNITCARRYING');
-      RegisterMethod(@TKMScriptStates.UnitDead,           'UNITDEAD');
-      RegisterMethod(@TKMScriptStates.UnitDirection,      'UNITDIRECTION');
-      RegisterMethod(@TKMScriptStates.UnitsGroup,         'UNITSGROUP');
-      RegisterMethod(@TKMScriptStates.UnitHome,           'UNITHOME');
-      RegisterMethod(@TKMScriptStates.UnitHPCurrent,      'UNITHPCURRENT');
-      RegisterMethod(@TKMScriptStates.UnitHPMax,          'UNITHPMAX');
-      RegisterMethod(@TKMScriptStates.UnitHPInvulnerable, 'UNITHPINVULNERABLE');
-      RegisterMethod(@TKMScriptStates.UnitHunger,         'UNITHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitIdle,           'UNITIDLE');
-      RegisterMethod(@TKMScriptStates.UnitLowHunger,      'UNITLOWHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitMaxHunger,      'UNITMAXHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitOwner,          'UNITOWNER');
-      RegisterMethod(@TKMScriptStates.UnitPositionX,      'UNITPOSITIONX');
-      RegisterMethod(@TKMScriptStates.UnitPositionY,      'UNITPOSITIONY');
-      RegisterMethod(@TKMScriptStates.UnitType,           'UNITTYPE');
-      RegisterMethod(@TKMScriptStates.UnitTypeName,       'UNITTYPENAME');
-      RegisterMethod(@TKMScriptStates.WareTypeName,       'WARETYPENAME');
+      RegisterMethod(@TKMScriptStates.PeaceTime,                                'PeaceTime');
+
+      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,                      'PlayerAllianceCheck');
+      RegisterMethod(@TKMScriptStates.PlayerColorText,                          'PlayerColorText');
+      RegisterMethod(@TKMScriptStates.PlayerDefeated,                           'PlayerDefeated');
+      RegisterMethod(@TKMScriptStates.PlayerEnabled,                            'PlayerEnabled');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,                       'PlayerGetAllGroups');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,                       'PlayerGetAllHouses');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,                        'PlayerGetAllUnits');
+      RegisterMethod(@TKMScriptStates.PlayerIsAI,                               'PlayerIsAI');
+      RegisterMethod(@TKMScriptStates.PlayerName,                               'PlayerName');
+      RegisterMethod(@TKMScriptStates.PlayerVictorious,                         'PlayerVictorious');
+      RegisterMethod(@TKMScriptStates.PlayerWareDistribution,                   'PlayerWareDistribution');
+
+      RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount,              'StatAIDefencePositionsCount');
+      RegisterMethod(@TKMScriptStates.StatArmyCount,                            'StatArmyCount');
+      RegisterMethod(@TKMScriptStates.StatCitizenCount,                         'StatCitizenCount');
+      RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCount,              'StatHouseMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatHouseTypeCount,                       'StatHouseTypeCount');
+      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount,                  'StatHouseTypePlansCount');
+      RegisterMethod(@TKMScriptStates.StatPlayerCount,                          'StatPlayerCount');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedCount,                'StatResourceProducedCount');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedMultipleTypesCount,   'StatResourceProducedMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatUnitCount,                            'StatUnitCount');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledCount,                      'StatUnitKilledCount');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledMultipleTypesCount,         'StatUnitKilledMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatUnitLostCount,                        'StatUnitLostCount');
+      RegisterMethod(@TKMScriptStates.StatUnitLostMultipleTypesCount,           'StatUnitLostMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCount,               'StatUnitMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatUnitTypeCount,                        'StatUnitTypeCount');
+
+      RegisterMethod(@TKMScriptStates.UnitAt,                                   'UnitAt');
+      RegisterMethod(@TKMScriptStates.UnitCarrying,                             'UnitCarrying');
+      RegisterMethod(@TKMScriptStates.UnitDead,                                 'UnitDead');
+      RegisterMethod(@TKMScriptStates.UnitDirection,                            'UnitDirection');
+      RegisterMethod(@TKMScriptStates.UnitHome,                                 'UnitHome');
+      RegisterMethod(@TKMScriptStates.UnitHPCurrent,                            'UnitHPCurrent');
+      RegisterMethod(@TKMScriptStates.UnitHPMax,                                'UnitHPMax');
+      RegisterMethod(@TKMScriptStates.UnitHPInvulnerable,                       'UnitHPInvulnerable');
+      RegisterMethod(@TKMScriptStates.UnitHunger,                               'UnitHunger');
+      RegisterMethod(@TKMScriptStates.UnitIdle,                                 'UnitIdle');
+      RegisterMethod(@TKMScriptStates.UnitLowHunger,                            'UnitLowHunger');
+      RegisterMethod(@TKMScriptStates.UnitMaxHunger,                            'UnitMaxHunger');
+      RegisterMethod(@TKMScriptStates.UnitOwner,                                'UnitOwner');
+      RegisterMethod(@TKMScriptStates.UnitPositionX,                            'UnitPositionX');
+      RegisterMethod(@TKMScriptStates.UnitPositionY,                            'UnitPositionY');
+      RegisterMethod(@TKMScriptStates.UnitsGroup,                               'UnitsGroup');
+      RegisterMethod(@TKMScriptStates.UnitType,                                 'UnitType');
+      RegisterMethod(@TKMScriptStates.UnitTypeName,                             'UnitTypeName');
+
+      RegisterMethod(@TKMScriptStates.WareTypeName,                             'WareTypeName');
     end;
 
     with ClassImp.Add(TKMScriptActions) do
     begin
-      RegisterMethod(@TKMScriptActions.AIAutoAttackRange,          'AIAUTOATTACKRANGE');
-      RegisterMethod(@TKMScriptActions.AIAutoBuild,                'AIAUTOBUILD');
-      RegisterMethod(@TKMScriptActions.AIAutoDefence,              'AIAUTODEFENCE');
-      RegisterMethod(@TKMScriptActions.AIAutoRepair,               'AIAUTOREPAIR');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,       'AIDEFENCEPOSITIONADD');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionRemove,    'AIDEFENCEPOSITIONREMOVE');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveAll, 'AIDEFENCEPOSITIONREMOVEALL');
-      RegisterMethod(@TKMScriptActions.AIDefendAllies,             'AIDEFENDALLIES');
-      RegisterMethod(@TKMScriptActions.AIEquipRate,                'AIEQUIPRATE');
-      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet,       'AIGROUPSFORMATIONSET');
-      RegisterMethod(@TKMScriptActions.AIRecruitDelay,             'AIRECRUITDELAY');
-      RegisterMethod(@TKMScriptActions.AIRecruitLimit,             'AIRECRUITLIMIT');
-      RegisterMethod(@TKMScriptActions.AISerfsPerHouse,            'AISERFSPERHOUSE');
-      RegisterMethod(@TKMScriptActions.AISoldiersLimit,            'AISOLDIERSLIMIT');
-      RegisterMethod(@TKMScriptActions.AIStartPosition,            'AISTARTPOSITION');
-      RegisterMethod(@TKMScriptActions.AIWorkerLimit,              'AIWORKERLIMIT');
+      RegisterMethod(@TKMScriptActions.AIAutoAttackRange,                       'AIAutoAttackRange');
+      RegisterMethod(@TKMScriptActions.AIAutoBuild,                             'AIAutoBuild');
+      RegisterMethod(@TKMScriptActions.AIAutoDefence,                           'AIAutoDefence');
+      RegisterMethod(@TKMScriptActions.AIAutoRepair,                            'AIAutoRepair');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,                    'AIDefencePositionAdd');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionRemove,                 'AIDefencePositionRemove');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveAll,              'AIDefencePositionRemoveAll');
+      RegisterMethod(@TKMScriptActions.AIDefendAllies,                          'AIDefendAllies');
+      RegisterMethod(@TKMScriptActions.AIEquipRate,                             'AIEquipRate');
+      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet,                    'AIGroupsFormationSet');
+      RegisterMethod(@TKMScriptActions.AIRecruitDelay,                          'AIRecruitDelay');
+      RegisterMethod(@TKMScriptActions.AIRecruitLimit,                          'AIRecruitLimit');
+      RegisterMethod(@TKMScriptActions.AISerfsPerHouse,                         'AISerfsPerHouse');
+      RegisterMethod(@TKMScriptActions.AISoldiersLimit,                         'AISoldiersLimit');
+      RegisterMethod(@TKMScriptActions.AIStartPosition,                         'AIStartPosition');
+      RegisterMethod(@TKMScriptActions.AIWorkerLimit,                           'AIWorkerLimit');
 
-      RegisterMethod(@TKMScriptActions.CinematicStart,    'CINEMATICSTART');
-      RegisterMethod(@TKMScriptActions.CinematicEnd,      'CINEMATICEND');
-      RegisterMethod(@TKMScriptActions.CinematicPanTo,    'CINEMATICPANTO');
+      RegisterMethod(@TKMScriptActions.CinematicEnd,                            'CinematicEnd');
+      RegisterMethod(@TKMScriptActions.CinematicPanTo,                          'CinematicPanTo');
+      RegisterMethod(@TKMScriptActions.CinematicStart,                          'CinematicStart');
 
-      RegisterMethod(@TKMScriptActions.FogCoverAll,       'FOGCOVERALL');
-      RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
-      RegisterMethod(@TKMScriptActions.FogCoverRect,      'FOGCOVERRECT');
-      RegisterMethod(@TKMScriptActions.FogRevealAll,      'FOGREVEALALL');
-      RegisterMethod(@TKMScriptActions.FogRevealCircle,   'FOGREVEALCIRCLE');
-      RegisterMethod(@TKMScriptActions.FogRevealRect,     'FOGREVEALRECT');
+      RegisterMethod(@TKMScriptActions.FogCoverAll,                             'FogCoverAll');
+      RegisterMethod(@TKMScriptActions.FogCoverCircle,                          'FogCoverCircle');
+      RegisterMethod(@TKMScriptActions.FogCoverRect,                            'FogCoverRect');
+      RegisterMethod(@TKMScriptActions.FogRevealAll,                            'FogRevealAll');
+      RegisterMethod(@TKMScriptActions.FogRevealCircle,                         'FogRevealCircle');
+      RegisterMethod(@TKMScriptActions.FogRevealRect,                           'FogRevealRect');
 
-      RegisterMethod(@TKMScriptActions.GiveAnimal,        'GIVEANIMAL');
-      RegisterMethod(@TKMScriptActions.GiveField,         'GIVEFIELD');
-      RegisterMethod(@TKMScriptActions.GiveFieldAged,     'GIVEFIELDAGED');
-      RegisterMethod(@TKMScriptActions.GiveGroup,         'GIVEGROUP');
-      RegisterMethod(@TKMScriptActions.GiveUnit,          'GIVEUNIT');
-      RegisterMethod(@TKMScriptActions.GiveHouse,         'GIVEHOUSE');
-      RegisterMethod(@TKMScriptActions.GiveHouseSite,     'GIVEHOUSESITE');
-      RegisterMethod(@TKMScriptActions.GiveRoad,          'GIVEROAD');
-      RegisterMethod(@TKMScriptActions.GiveWares,         'GIVEWARES');
-      RegisterMethod(@TKMScriptActions.GiveWeapons,       'GIVEWEAPONS');
-      RegisterMethod(@TKMScriptActions.GiveWineField,     'GIVEWINEFIELD');
-      RegisterMethod(@TKMScriptActions.GiveWineFieldAged, 'GIVEWINEFIELDAGED');
+      RegisterMethod(@TKMScriptActions.GiveAnimal,                              'GiveAnimal');
+      RegisterMethod(@TKMScriptActions.GiveField,                               'GiveField');
+      RegisterMethod(@TKMScriptActions.GiveFieldAged,                           'GiveFieldAged');
+      RegisterMethod(@TKMScriptActions.GiveGroup,                               'GiveGroup');
+      RegisterMethod(@TKMScriptActions.GiveUnit,                                'GiveUnit');
+      RegisterMethod(@TKMScriptActions.GiveHouse,                               'GiveHouse');
+      RegisterMethod(@TKMScriptActions.GiveHouseSite,                           'GiveHouseSite');
+      RegisterMethod(@TKMScriptActions.GiveRoad,                                'GiveRoad');
+      RegisterMethod(@TKMScriptActions.GiveWares,                               'GiveWares');
+      RegisterMethod(@TKMScriptActions.GiveWeapons,                             'GiveWeapons');
+      RegisterMethod(@TKMScriptActions.GiveWineField,                           'GiveWineField');
+      RegisterMethod(@TKMScriptActions.GiveWineFieldAged,                       'GiveWineFieldAged');
 
-      RegisterMethod(@TKMScriptActions.GroupBlockOrders,          'GROUPBLOCKORDERS');
-      RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage, 'GROUPDISABLEHUNGRYMESSAGE');
-      RegisterMethod(@TKMScriptActions.GroupHungerSet,            'GROUPHUNGERSET');
-      RegisterMethod(@TKMScriptActions.GroupKillAll,              'GROUPKILLALL');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse,     'GROUPORDERATTACKHOUSE');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit,      'GROUPORDERATTACKUNIT');
-      RegisterMethod(@TKMScriptActions.GroupOrderFood,            'GROUPORDERFOOD');
-      RegisterMethod(@TKMScriptActions.GroupOrderHalt,            'GROUPORDERHALT');
-      RegisterMethod(@TKMScriptActions.GroupOrderLink,            'GROUPORDERLINK');
-      RegisterMethod(@TKMScriptActions.GroupOrderSplit,           'GROUPORDERSPLIT');
-      RegisterMethod(@TKMScriptActions.GroupOrderSplitUnit,       'GROUPORDERSPLITUNIT');
-      RegisterMethod(@TKMScriptActions.GroupOrderStorm,           'GROUPORDERSTORM');
-      RegisterMethod(@TKMScriptActions.GroupOrderWalk,            'GROUPORDERWALK');
-      RegisterMethod(@TKMScriptActions.GroupSetFormation,         'GROUPSETFORMATION');
+      RegisterMethod(@TKMScriptActions.GroupBlockOrders,                        'GroupBlockOrders');
+      RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage,               'GroupDisableHungryMessage');
+      RegisterMethod(@TKMScriptActions.GroupHungerSet,                          'GroupHungerSet');
+      RegisterMethod(@TKMScriptActions.GroupKillAll,                            'GroupKillAll');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse,                   'GroupOrderAttackHouse');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit,                    'GroupOrderAttackUnit');
+      RegisterMethod(@TKMScriptActions.GroupOrderFood,                          'GroupOrderFood');
+      RegisterMethod(@TKMScriptActions.GroupOrderHalt,                          'GroupOrderHalt');
+      RegisterMethod(@TKMScriptActions.GroupOrderLink,                          'GroupOrderLink');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplit,                         'GroupOrderSplit');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplitUnit,                     'GroupOrderSplitUnit');
+      RegisterMethod(@TKMScriptActions.GroupOrderStorm,                         'GroupOrderStorm');
+      RegisterMethod(@TKMScriptActions.GroupOrderWalk,                          'GroupOrderWalk');
+      RegisterMethod(@TKMScriptActions.GroupSetFormation,                       'GroupSetFormation');
 
-      RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterials,     'HOUSEADDBUILDINGMATERIALS');
-      RegisterMethod(@TKMScriptActions.HouseAddBuildingProgress,      'HOUSEADDBUILDINGPROGRESS');
-      RegisterMethod(@TKMScriptActions.HouseAddDamage,                'HOUSEADDDAMAGE');
-      RegisterMethod(@TKMScriptActions.HouseAddRepair,                'HOUSEADDREPAIR');
-      RegisterMethod(@TKMScriptActions.HouseAddWaresTo,               'HOUSEADDWARESTO');
-      RegisterMethod(@TKMScriptActions.HouseAllow,                    'HOUSEALLOW');
-      RegisterMethod(@TKMScriptActions.HouseBarracksEquip,            'HOUSEBARRACKSEQUIP');
-      RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,      'HOUSEBARRACKSGIVERECRUIT');
-      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,            'HOUSEDELIVERYBLOCK');
-      RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HOUSEDISABLEUNOCCUPIEDMESSAGE');
-      RegisterMethod(@TKMScriptActions.HouseDestroy,                  'HOUSEDESTROY');
-      RegisterMethod(@TKMScriptActions.HouseRepairEnable,             'HOUSEREPAIRENABLE');
-      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,           'HOUSESCHOOLQUEUEADD');
-      RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,        'HOUSESCHOOLQUEUEREMOVE');
-      RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom,            'HOUSETAKEWARESFROM');
-      RegisterMethod(@TKMScriptActions.HouseUnlock,                   'HOUSEUNLOCK');
-      RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly,       'HOUSEWOODCUTTERCHOPONLY');
-      RegisterMethod(@TKMScriptActions.HouseWareBlock,                'HOUSEWAREBLOCK');
-      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,          'HOUSEWEAPONSORDERSET');
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterials,               'HouseAddBuildingMaterials');
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingProgress,                'HouseAddBuildingProgress');
+      RegisterMethod(@TKMScriptActions.HouseAddDamage,                          'HouseAddDamage');
+      RegisterMethod(@TKMScriptActions.HouseAddRepair,                          'HouseAddRepair');
+      RegisterMethod(@TKMScriptActions.HouseAddWaresTo,                         'HouseAddWaresTo');
+      RegisterMethod(@TKMScriptActions.HouseAllow,                              'HouseAllow');
+      RegisterMethod(@TKMScriptActions.HouseBarracksEquip,                      'HouseBarracksEquip');
+      RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,                'HouseBarracksGiveRecruit');
+      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,                      'HouseDeliveryBlock');
+      RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage,           'HouseDisableUnoccupiedMessage');
+      RegisterMethod(@TKMScriptActions.HouseDestroy,                            'HouseDestroy');
+      RegisterMethod(@TKMScriptActions.HouseRepairEnable,                       'HouseRepairEnable');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,                     'HouseSchoolQueueAdd');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,                  'HouseSchoolQueueRemove');
+      RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom,                      'HouseTakeWaresFrom');
+      RegisterMethod(@TKMScriptActions.HouseUnlock,                             'HouseUnlock');
+      RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly,                 'HouseWoodcutterChopOnly');
+      RegisterMethod(@TKMScriptActions.HouseWareBlock,                          'HouseWareBlock');
+      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,                    'HouseWeaponsOrderSet');
 
-      RegisterMethod(@TKMScriptActions.Log,                        'LOG');
-      RegisterMethod(@TKMScriptActions.MarketSetTrade,             'MARKETSETTRADE');
+      RegisterMethod(@TKMScriptActions.Log,                                     'Log');
 
-      RegisterMethod(@TKMScriptActions.MapTileSet,                 'MAPTILESET');
-      RegisterMethod(@TKMScriptActions.MapTileHeightSet,           'MAPTILEHEIGHTSET');
-      RegisterMethod(@TKMScriptActions.MapTileObjectSet,           'MAPTILEOBJECTSET');
+      RegisterMethod(@TKMScriptActions.MarketSetTrade,                          'MarketSetTrade');
 
-      RegisterMethod(@TKMScriptActions.OverlayTextSet,             'OVERLAYTEXTSET');
-      RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,    'OVERLAYTEXTSETFORMATTED');
-      RegisterMethod(@TKMScriptActions.OverlayTextAppend,          'OVERLAYTEXTAPPEND');
-      RegisterMethod(@TKMScriptActions.OverlayTextAppendFormatted, 'OVERLAYTEXTAPPENDFORMATTED');
+      RegisterMethod(@TKMScriptActions.MapTileSet,                              'MapTileSet');
+      RegisterMethod(@TKMScriptActions.MapTileHeightSet,                        'MapTileHeightSet');
+      RegisterMethod(@TKMScriptActions.MapTileObjectSet,                        'MapTileObjectSet');
 
-      RegisterMethod(@TKMScriptActions.PlanAddField,      'PLANADDFIELD');
-      RegisterMethod(@TKMScriptActions.PlanAddHouse,      'PLANADDHOUSE');
-      RegisterMethod(@TKMScriptActions.PlanAddRoad,       'PLANADDROAD');
-      RegisterMethod(@TKMScriptActions.PlanAddWinefield,  'PLANADDWINEFIELD');
-      RegisterMethod(@TKMScriptActions.PlanConnectRoad,   'PLANCONNECTROAD');
-      RegisterMethod(@TKMScriptActions.PlanRemove,        'PLANREMOVE');
+      RegisterMethod(@TKMScriptActions.OverlayTextAppend,                       'OverlayTextAppend');
+      RegisterMethod(@TKMScriptActions.OverlayTextAppendFormatted,              'OverlayTextAppendFormatted');
+      RegisterMethod(@TKMScriptActions.OverlayTextSet,                          'OverlayTextSet');
+      RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,                 'OverlayTextSetFormatted');
 
-      RegisterMethod(@TKMScriptActions.PlayerAllianceChange,  'PLAYERALLIANCECHANGE');
-      RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PLAYERADDDEFAULTGOALS');
-      RegisterMethod(@TKMScriptActions.PlayerDefeat,          'PLAYERDEFEAT');
-      RegisterMethod(@TKMScriptActions.PlayerShareBeacons,    'PLAYERSHAREBEACONS');
-      RegisterMethod(@TKMScriptActions.PlayerShareFog,        'PLAYERSHAREFOG');
-      RegisterMethod(@TKMScriptActions.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
-      RegisterMethod(@TKMScriptActions.PlayerWin,             'PLAYERWIN');
+      RegisterMethod(@TKMScriptActions.PlanAddField,                            'PlanAddField');
+      RegisterMethod(@TKMScriptActions.PlanAddHouse,                            'PlanAddHouse');
+      RegisterMethod(@TKMScriptActions.PlanAddRoad,                             'PlanAddRoad');
+      RegisterMethod(@TKMScriptActions.PlanAddWinefield,                        'PlanAddWinefield');
+      RegisterMethod(@TKMScriptActions.PlanConnectRoad,                         'PlanConnectRoad');
+      RegisterMethod(@TKMScriptActions.PlanRemove,                              'PlanRemove');
 
-      RegisterMethod(@TKMScriptActions.PlayWAV,                 'PLAYWAV');
-      RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,        'PLAYWAVFADEMUSIC');
-      RegisterMethod(@TKMScriptActions.PlayWAVAtLocation,       'PLAYWAVATLOCATION');
-      RegisterMethod(@TKMScriptActions.PlayWAVLooped,           'PLAYWAVLOOPED');
-      RegisterMethod(@TKMScriptActions.PlayWAVAtLocationLooped, 'PLAYWAVATLOCATIONLOOPED');
-      RegisterMethod(@TKMScriptActions.StopLoopedWAV,           'STOPLOOPEDWAV');
+      RegisterMethod(@TKMScriptActions.PlayerAllianceChange,                    'PlayerAllianceChange');
+      RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals,                   'PlayerAddDefaultGoals');
+      RegisterMethod(@TKMScriptActions.PlayerDefeat,                            'PlayerDefeat');
+      RegisterMethod(@TKMScriptActions.PlayerShareBeacons,                      'PlayerShareBeacons');
+      RegisterMethod(@TKMScriptActions.PlayerShareFog,                          'PlayerShareFog');
+      RegisterMethod(@TKMScriptActions.PlayerWareDistribution,                  'PlayerWareDistribution');
+      RegisterMethod(@TKMScriptActions.PlayerWin,                               'PlayerWin');
 
-      RegisterMethod(@TKMScriptActions.RemoveRoad,            'REMOVEROAD');
+      RegisterMethod(@TKMScriptActions.PlayWAV,                                 'PlayWAV');
+      RegisterMethod(@TKMScriptActions.PlayWAVAtLocation,                       'PlayWAVAtLocation');
+      RegisterMethod(@TKMScriptActions.PlayWAVAtLocationLooped,                 'PlayWAVAtLocationLooped');
+      RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,                        'PlayWAVFadeMusic');
+      RegisterMethod(@TKMScriptActions.PlayWAVLooped,                           'PlayWAVLooped');
+      RegisterMethod(@TKMScriptActions.StopLoopedWAV,                           'StopLoopedWAV');
 
-      RegisterMethod(@TKMScriptActions.SetTradeAllowed,       'SETTRADEALLOWED');
-      RegisterMethod(@TKMScriptActions.ShowMsg,               'SHOWMSG');
-      RegisterMethod(@TKMScriptActions.ShowMsgFormatted,      'SHOWMSGFORMATTED');
-      RegisterMethod(@TKMScriptActions.ShowMsgGoto,           'SHOWMSGGOTO');
-      RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,  'SHOWMSGGOTOFORMATTED');
+      RegisterMethod(@TKMScriptActions.RemoveRoad,                              'RemoveRoad');
 
-      RegisterMethod(@TKMScriptActions.UnitBlock,             'UNITBLOCK');
-      RegisterMethod(@TKMScriptActions.UnitDirectionSet,      'UNITDIRECTIONSET');
-      RegisterMethod(@TKMScriptActions.UnitHPChange,          'UNITHPCHANGE');
-      RegisterMethod(@TKMScriptActions.UnitHPSetInvulnerable, 'UNITHPSETINVULNERABLE');
-      RegisterMethod(@TKMScriptActions.UnitHungerSet,         'UNITHUNGERSET');
-      RegisterMethod(@TKMScriptActions.UnitKill,              'UNITKILL');
-      RegisterMethod(@TKMScriptActions.UnitOrderWalk,         'UNITORDERWALK');
+      RegisterMethod(@TKMScriptActions.SetTradeAllowed,                         'SetTradeAllowed');
+
+      RegisterMethod(@TKMScriptActions.ShowMsg,                                 'ShowMsg');
+      RegisterMethod(@TKMScriptActions.ShowMsgFormatted,                        'ShowMsgFormatted');
+      RegisterMethod(@TKMScriptActions.ShowMsgGoto,                             'ShowMsgGoto');
+      RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,                    'ShowMsgGotoFormatted');
+
+      RegisterMethod(@TKMScriptActions.UnitBlock,                               'UnitBlock');
+      RegisterMethod(@TKMScriptActions.UnitDirectionSet,                        'UnitDirectionSet');
+      RegisterMethod(@TKMScriptActions.UnitHPChange,                            'UnitHPChange');
+      RegisterMethod(@TKMScriptActions.UnitHPSetInvulnerable,                   'UnitHPSetInvulnerable');
+      RegisterMethod(@TKMScriptActions.UnitHungerSet,                           'UnitHungerSet');
+      RegisterMethod(@TKMScriptActions.UnitKill,                                'UnitKill');
+      RegisterMethod(@TKMScriptActions.UnitOrderWalk,                           'UnitOrderWalk');
     end;
 
     with ClassImp.Add(TKMScriptUtils) do
     begin
-      RegisterMethod(@TKMScriptUtils.AbsI,                    'ABSI');
-      RegisterMethod(@TKMScriptUtils.AbsS,                    'ABSS');
+      RegisterMethod(@TKMScriptUtils.AbsI,                                      'AbsI');
+      RegisterMethod(@TKMScriptUtils.AbsS,                                      'AbsS');
 
-      RegisterMethod(@TKMScriptUtils.ArrayElementCount,       'ARRAYELEMENTCOUNT');
-      RegisterMethod(@TKMScriptUtils.ArrayElementCountB,      'ARRAYELEMENTCOUNTB');
-      RegisterMethod(@TKMScriptUtils.ArrayElementCountI,      'ARRAYELEMENTCOUNTI');
-      RegisterMethod(@TKMScriptUtils.ArrayElementCountS,      'ARRAYELEMENTCOUNTS');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCount,                         'ArrayElementCount');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountB,                        'ArrayElementCountB');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountI,                        'ArrayElementCountI');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountS,                        'ArrayElementCountS');
 
-      RegisterMethod(@TKMScriptUtils.ArrayHasElement,         'ARRAYHASELEMENT');
-      RegisterMethod(@TKMScriptUtils.ArrayHasElementB,        'ARRAYHASELEMENTB');
-      RegisterMethod(@TKMScriptUtils.ArrayHasElementI,        'ARRAYHASELEMENTI');
-      RegisterMethod(@TKMScriptUtils.ArrayHasElementS,        'ARRAYHASELEMENTS');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElement,                           'ArrayHasElement');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementB,                          'ArrayHasElementB');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementI,                          'ArrayHasElementI');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementS,                          'ArrayHasElementS');
 
-      RegisterMethod(@TKMScriptUtils.EnsureRangeI,            'ENSURERANGEI');
-      RegisterMethod(@TKMScriptUtils.EnsureRangeS,            'ENSURERANGES');
+      RegisterMethod(@TKMScriptUtils.EnsureRangeI,                              'EnsureRangeI');
+      RegisterMethod(@TKMScriptUtils.EnsureRangeS,                              'EnsureRangeS');
 
-      RegisterMethod(@TKMScriptUtils.IfThen,                  'IFTHEN');
-      RegisterMethod(@TKMScriptUtils.IfThenI,                 'IFTHENI');
-      RegisterMethod(@TKMScriptUtils.IfThenS,                 'IFTHENS');
+      RegisterMethod(@TKMScriptUtils.IfThen,                                    'IfThen');
+      RegisterMethod(@TKMScriptUtils.IfThenI,                                   'IfThenI');
+      RegisterMethod(@TKMScriptUtils.IfThenS,                                   'IfThenS');
 
-      RegisterMethod(@TKMScriptUtils.InAreaI,                 'INAREAI');
-      RegisterMethod(@TKMScriptUtils.InAreaS,                 'INAREAS');
+      RegisterMethod(@TKMScriptUtils.InAreaI,                                   'InAreaI');
+      RegisterMethod(@TKMScriptUtils.InAreaS,                                   'InAreaS');
 
-      RegisterMethod(@TKMScriptUtils.InRangeI,                'INRANGEI');
-      RegisterMethod(@TKMScriptUtils.InRangeS,                'INRANGES');
+      RegisterMethod(@TKMScriptUtils.InRangeI,                                  'InRangeI');
+      RegisterMethod(@TKMScriptUtils.InRangeS,                                  'InRangeS');
 
-      RegisterMethod(@TKMScriptUtils.MaxI,                    'MAXI');
-      RegisterMethod(@TKMScriptUtils.MaxS,                    'MAXS');
+      RegisterMethod(@TKMScriptUtils.MaxI,                                      'MaxI');
+      RegisterMethod(@TKMScriptUtils.MaxS,                                      'MaxS');
 
-      RegisterMethod(@TKMScriptUtils.MaxInArrayI,             'MAXINARRAYI');
-      RegisterMethod(@TKMScriptUtils.MaxInArrayS,             'MAXINARRAYS');
+      RegisterMethod(@TKMScriptUtils.MaxInArrayI,                               'MaxInArrayI');
+      RegisterMethod(@TKMScriptUtils.MaxInArrayS,                               'MaxInArrayS');
 
-      RegisterMethod(@TKMScriptUtils.MinI,                    'MINI');
-      RegisterMethod(@TKMScriptUtils.MinS,                    'MINS');
+      RegisterMethod(@TKMScriptUtils.MinI,                                      'MinI');
+      RegisterMethod(@TKMScriptUtils.MinS,                                      'MinS');
 
-      RegisterMethod(@TKMScriptUtils.MinInArrayI,             'MININARRAYI');
-      RegisterMethod(@TKMScriptUtils.MinInArrayS,             'MININARRAYS');
+      RegisterMethod(@TKMScriptUtils.MinInArrayI,                               'MinInArrayI');
+      RegisterMethod(@TKMScriptUtils.MinInArrayS,                               'MinInArrayS');
 
-      RegisterMethod(@TKMScriptUtils.Power,                   'POWER');
+      RegisterMethod(@TKMScriptUtils.Power,                                     'POWER');
 
-      RegisterMethod(@TKMScriptUtils.SumI,                    'SUMI');
-      RegisterMethod(@TKMScriptUtils.SumS,                    'SUMS');
+      RegisterMethod(@TKMScriptUtils.SumI,                                      'SumI');
+      RegisterMethod(@TKMScriptUtils.SumS,                                      'SumS');
 
-      RegisterMethod(@TKMScriptUtils.Sqr,                     'SQR');
+      RegisterMethod(@TKMScriptUtils.Sqr,                                       'Sqr');
 
-      RegisterMethod(@TKMScriptUtils.TimeToString,            'TIMETOSTRING');
+      RegisterMethod(@TKMScriptUtils.TimeToString,                              'TimeToString');
     end;
 
     //Append classes info to Exec
