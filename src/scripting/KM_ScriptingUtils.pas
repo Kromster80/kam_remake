@@ -46,7 +46,7 @@ type
     function MinInArrayI(aArray: array of Integer): Integer;
     function MinInArrayS(aArray: array of Single): Single;
 
-    function Power(Base, Exponent: Extended): Extended;
+    function Power(Base, Exp: Extended): Extended;
 
     function Sqr(A: Extended): Extended;
 
@@ -540,11 +540,11 @@ end;
 
 
 //* Version: 7000+
-//* Exponentation, returns base "Base" raised to power "Exponent". F.e. Power(3, 2) = 3^2 = 9
+//* Exponentation, returns base "Base" raised to power "Exp". F.e. Power(3, 2) = 3^2 = 9
 function TKMScriptUtils.Power(Base, Exp: Extended): Extended;
 begin
   try
-    Result := Math.Power(Base, Exponent);
+    Result := Math.Power(Base, Exp);
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
