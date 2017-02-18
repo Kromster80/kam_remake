@@ -562,8 +562,8 @@ end;
 
 //* Version: 5057
 //* Returns the unit ID of the specified group member.
-//* Member 0 will be the flag holder, 1...!GroupMemberCount-1 will be the other members
-//* (0 <= !MemberIndex <= !GroupMemberCount-1)
+//* Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members
+//* (0 <= MemberIndex <= GroupMemberCount-1)
 //* Result: Unit ID
 function TKMScriptStates.GroupMember(aGroupID, aMemberIndex: Integer): Integer;
 var
@@ -1136,7 +1136,7 @@ end;
 //* Returns the the translated name of the specified house type.
 //* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is
 //* decoded on output, not the actual translated text.
-//* Therefore string operations like !LowerCase will not work.
+//* Therefore string operations like LowerCase will not work.
 //* Result: House type name
 function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
 begin
@@ -1374,7 +1374,7 @@ end;
 
 //* Version: 6611
 //* Returns the number of player locations available on the map (including AIs),
-//* regardless of whether the location was taken in multiplayer (use !PlayerEnabled to check if a location is being used)
+//* regardless of whether the location was taken in multiplayer (use PlayerEnabled to check if a location is being used)
 //* Result: Number of locations
 function TKMScriptStates.LocationCount: Integer;
 begin
@@ -1523,7 +1523,7 @@ end;
 
 
 //* Version: 6287
-//* Returns type of !FromWare in specified market, or -1 if no ware is selected
+//* Returns type of FromWare in specified market, or -1 if no ware is selected
 //* Result: Ware type
 function TKMScriptStates.MarketFromWare(aMarketID: Integer): Integer;
 var
@@ -1556,7 +1556,7 @@ end;
 
 //* Version: 6217
 //* Returns the factor of resources lost during market trading,
-//* used to calculate the !TradeRatio (see explanation in MarketValue).
+//* used to calculate the TradeRatio (see explanation in MarketValue).
 //* This value is constant within one KaM Remake release, but may change in future KaM Remake releases
 //* Result: Loss factor
 function TKMScriptStates.MarketLossFactor: Single;
@@ -1599,7 +1599,7 @@ end;
 
 
 //* Version: 6287
-//* Returns type of !ToWare in specified market, or -1 if no ware is selected
+//* Returns type of ToWare in specified market, or -1 if no ware is selected
 //* Result: Ware type
 function TKMScriptStates.MarketToWare(aMarketID: Integer): Integer;
 var
@@ -1634,8 +1634,8 @@ end;
 //* Returns the relative market value of the specified resource type,
 //* which is a rough indication of the cost to produce that resource.
 //* These values are constant within one KaM Remake release, but may change in future KaM Remake releases.
-//* The !TradeRatio is calculated as: MarketLossFactor * MarketValue(To) / (MarketValue(From).
-//* If the !TradeRatio is >= 1, then the number of From resources required to receive 1 To resource is: Round(TradeRatio).
+//* The TradeRatio is calculated as: MarketLossFactor * MarketValue(To) / (MarketValue(From).
+//* If the TradeRatio is >= 1, then the number of From resources required to receive 1 To resource is: Round(TradeRatio).
 //* If the trade ratio is < 1 then the number of To resources received for trading 1 From resource is: Round(1 / TradeRatio)
 //* Result: Value
 function TKMScriptStates.MarketValue(aRes: Integer): Single;
@@ -2728,7 +2728,7 @@ end;
 //* Returns the the translated name of the specified unit type.
 //* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup
 //* which is decoded on output, not the actual translated text.
-//* Therefore string operations like !LowerCase will not work.
+//* Therefore string operations like LowerCase will not work.
 //* Result: Unit type name
 function TKMScriptStates.UnitTypeName(aUnitType: Byte): AnsiString;
 begin
@@ -2751,7 +2751,7 @@ end;
 //* Returns the the translated name of the specified ware type.
 //* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup
 //* which is decoded on output, not the actual translated text.
-//* Therefore string operations like !LowerCase will not work.
+//* Therefore string operations like LowerCase will not work.
 //* Result: Ware type name
 function TKMScriptStates.WareTypeName(aWareType: Byte): AnsiString;
 begin
