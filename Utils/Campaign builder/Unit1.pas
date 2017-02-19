@@ -6,6 +6,11 @@ uses
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
   KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
 
+type
+  TSpinEdit = class(Spin.TSpinEdit)
+  private
+    function GetValue: Integer;
+  end;
 
 type
   TForm1 = class(TForm)
@@ -36,7 +41,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure tvListChange(Sender: TObject; Node: TTreeNode);
     procedure seMapCountChange(Sender: TObject);
-    procedure MapChange(Sender: TObject);
+    procedure seNodeCountChange(Sender: TObject);
     procedure btnSaveCMPClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure rgBriefingPosClick(Sender: TObject);
@@ -70,7 +75,6 @@ var
   Form1: TForm1;
   C: TKMCampaign;
 
-
 implementation
 {$R *.dfm}
 
@@ -88,6 +92,7 @@ begin
   //This line corrects a bug in UpdateList namely C.CampName line that returns at the start of the program #0#0#0
   edtShortNameChange(nil);
 
+  seMapCount.MinValue := 1;
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
 
@@ -312,13 +317,7 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  //Bug fixes flaws SpinEdit component which makes checking the entered number after the OnChange event
-  //If you remove the "if (seMapCount.Value > MAX_CAMP_MAPS)or(seMapCount.Value < seMapCount.MinValue) then" there is a problem shown here:
-  //http://gifok.net/images/2017/02/14/2017-02-14_16-01-27.gif
-  if (seMapCount.Value > MAX_CAMP_MAPS)or(seMapCount.Value < seMapCount.MinValue) then
-    seMapCount.Value := EnsureRange(seMapCount.Value, seMapCount.MinValue, MAX_CAMP_MAPS);
-
-  C.MapCount := seMapCount.Value;
+  C.MapCount := seMapCount.GetValue;
 
   if fSelectedMap > C.MapCount - 1 then
     fSelectedMap := -1;
@@ -329,17 +328,11 @@ begin
 end;
 
 
-procedure TForm1.MapChange(Sender: TObject);
+procedure TForm1.seNodeCountChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  //Bug fixes flaws SpinEdit component which makes checking the entered number after the OnChange event
-  //If you remove the "if (seNodeCount.Value > MAX_CAMP_NODES)or(seNodeCount.Value < seNodeCount.MinValue) then" there is a problem shown here:
-  //http://gifok.net/images/2017/02/14/2017-02-14_16-01-27.gif
-  if (seNodeCount.Value > MAX_CAMP_NODES)or(seNodeCount.Value < seNodeCount.MinValue) then
-    seNodeCount.Value := EnsureRange(seNodeCount.Value, seNodeCount.MinValue, MAX_CAMP_NODES);
-
-  C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
+  C.Maps[fSelectedMap].NodeCount := seNodeCount.GetValue;
 
   if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
     fSelectedNode := -1;
@@ -547,5 +540,12 @@ begin
   RefreshFlags;
 end;
 
+
+{ TSpinEdit }
+
+function TSpinEdit.GetValue: Integer;
+begin
+  Result := EnsureRange(Value, MinValue, MaxValue);
+end;
 
 end.
