@@ -1,1 +1,37 @@
-ΞΌª»°Ά®ΏΟΝ‹›³‚††€³‚³¬›‡»‡Ό„Α‚ΝβεΞΌª»°Ά®·°Ώ£®¶ª½ΟήβεΞΌª»°§ΊΆ®΅°Ώ£®¶ª½ΟίβεβεΞΌª»°¬Ί½½°Ώ£®¶ª½ΟίβεΞª΅®­£ª°Ώ£®¶ª½ΟίβεΞΌª»°ΊΌª½°Ώ£®¶ª½βεΞΌª»°Ά®Ώ°¬ £ ½ΟέέΦβεβεβεΞΌª»°®¦°Ό»®½»°Ώ Ό¦»¦ ΅ΟίΟίβεΞΌª»°®¦°¬§®½®¬»ª½Ο½ª¬½Ί»ΌΟΪβεΞΌª»°®¦°¬§®½®¬»ª½ΟΈ ½¤ª½°©®¬» ½ΟήίβεΞΌª»°®¦°¬§®½®¬»ª½Ο¬ ΅Ό»½Ί¬» ½ΌΟΩβεΞΌª»°®¦°¬§®½®¬»ª½Ο» Έ΅°«ª©ª΅ΌªΟήίίβεΞΌª»°®¦°¬§®½®¬»ª½ΟªΎΊ¦Ώ°½®»ª°£ª®»§ª½ΟήίίίβεΞΌª»°®¦°¬§®½®¬»ª½ΟªΎΊ¦Ώ°½®»ª°¦½ ΅ΟΪίίβεΞΌª»°®¦°¬§®½®¬»ª½Ο®»»®¬¤°©®¬» ½ΟήίίβεΞΌª»°®¦°¬§®½®¬»ª½Ο½ª¬½Ί»°¬ Ί΅»ΟίβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟίΟΦΟάβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟήΟΦΟάβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟέΟΦΟάβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟάΟΦΟάβεβεβεβεβεβεβεβεβεΞΌª»°¨½ ΊΏΟέέΟΦΟΦΟΫΟήΟήβεβεβεΐΐ®†‚ƒβεβεΐΐ»‡†Ο‚††€ΟΟ‚‹Ο†›‡Ο¤ΆΟ½‚„ΟΆΟª‹†›€Ο™†€ΟΌ†›†Ο«‚€ΟΪΪίάΟ›ΟΧΐέέΐέίήάΟΫΥΪΨΥήίΟΏΆβε
+!SET_MAP "data\mission\smaps\CatchTheSnake.map"
+!SET_MAX_PLAYER 1
+!SET_HUMAN_PLAYER 0
+
+!SET_CURR_PLAYER 0
+!ENABLE_PLAYER 0
+!SET_USER_PLAYER
+!SET_MAP_COLOR 229
+
+
+!SET_AI_START_POSITION 0 0
+!SET_AI_CHARACTER RECRUTS 5
+!SET_AI_CHARACTER WORKER_FACTOR 10
+!SET_AI_CHARACTER CONSTRUCTORS 6
+!SET_AI_CHARACTER TOWN_DEFENSE 100
+!SET_AI_CHARACTER EQUIP_RATE_LEATHER 1000
+!SET_AI_CHARACTER EQUIP_RATE_IRON 500
+!SET_AI_CHARACTER ATTACK_FACTOR 100
+!SET_AI_CHARACTER RECRUT_COUNT 0
+!SET_AI_CHARACTER TROUP_PARAM 0 9 3
+!SET_AI_CHARACTER TROUP_PARAM 1 9 3
+!SET_AI_CHARACTER TROUP_PARAM 2 9 3
+!SET_AI_CHARACTER TROUP_PARAM 3 9 3
+
+
+
+
+
+
+
+
+!SET_GROUP 22 9 9 4 1 1
+
+
+//Animals
+
+//This mission was made with KaM Remake Map Editor version Scripting Demo r5503 at 8/22/2013 4:57:10 PM

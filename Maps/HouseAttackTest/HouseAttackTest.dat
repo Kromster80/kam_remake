@@ -1,1 +1,57 @@
-ΞΌª»°Ά®ΏΟΝ‹›³‚††€³‚³§€®››„»›Α‚ΝβεΞΌª»°Ά®·°Ώ£®¶ª½ΟέβεβεΞΌª»°¬Ί½½°Ώ£®¶ª½ΟίβεΞΌª»°§ΊΆ®΅°Ώ£®¶ª½ΟίβεΞª΅®­£ª°Ώ£®¶ª½ΟίβεΞΌª»°Ά®Ώ°¬ £ ½ΟέέΦβεβεβεΞΌª»°®££¦®΅¬ªΟήΟίβεβεΞ½ª£ª®Όª°§ ΊΌªΟήήβεβεβεβεβεΞΌª»°¨½ ΊΏΟήΨΟίΟΦΟέΟήΟήβεΞΌª»°¨½ ΊΏΟέήΟήΨΟΧΟέΟΪΟήΪβεΞΌª»°¨½ ΊΏΟήΧΟήΟΧΟΫΟήΟήβεβεβεΞΌª»°¬Ί½½°Ώ£®¶ª½ΟήβεΞª΅®­£ª°Ώ£®¶ª½ΟήβεΞΌª»°®¦°Ώ£®¶ª½βεΞΌª»°Ά®Ώ°¬ £ ½ΟέάάβεβεβεΞΌª»°®¦°Ό»®½»°Ώ Ό¦»¦ ΅ΟήΨΟήΨβεΞΌª»°®¦°¬§®½®¬»ª½Ο½ª¬½Ί»ΌΟΪβεΞΌª»°®¦°¬§®½®¬»ª½ΟΈ ½¤ª½°©®¬» ½ΟήίβεΞΌª»°®¦°¬§®½®¬»ª½Ο¬ ΅Ό»½Ί¬» ½ΌΟάβεΞΌª»°®¦°¬§®½®¬»ª½Ο» Έ΅°«ª©ª΅ΌªΟήίίβεΞΌª»°®¦°¬§®½®¬»ª½ΟªΎΊ¦Ώ°½®»ªΟήίίίβεΞΌª»°®¦°¬§®½®¬»ª½Ο®»»®¬¤°©®¬» ½ΟήίίβεΞΌª»°®¦°¬§®½®¬»ª½Ο½ª¬½Ί»°¬ Ί΅»ΟίβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟίΟήέΟΫβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟήΟήέΟΫβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟέΟήέΟΫβεΞΌª»°®¦°¬§®½®¬»ª½Ο»½ ΊΏ°Ώ®½®ΆΟάΟήέΟΫβεβεβεβεβεΞΌª»°®££¦®΅¬ªΟίΟίβεβεΞ½ª£ª®Όª°§ ΊΌªΟήήβεΞΌª»°§ ΊΌªΟέήΟΦΟήίβεβεβεβεΞΌª»°Ό»½ªª»ΟΧΟήίβεβεβεβεΐΐ®†‚ƒβεβεΐΐ»‡†Ο‚††€ΟΟ‚‹Ο†›‡Ο¤ΆΟ½‚„ΟΆΟª‹†›€Ο™†€ΟΫ›‡ΟΆƒ›†ƒ–Ο«‚€ΟάΪΪΦΟ›ΟάήΑίΨΑέίήέΟήΫΥΪήΥέΨβε
+!SET_MAP "data\mission\smaps\HouseAttackTest.map"
+!SET_MAX_PLAYER 2
+
+!SET_CURR_PLAYER 0
+!SET_HUMAN_PLAYER 0
+!ENABLE_PLAYER 0
+!SET_MAP_COLOR 229
+
+
+!SET_ALLIANCE 1 0
+
+!RELEASE_HOUSE 11
+
+
+
+
+!SET_GROUP 17 0 9 2 1 1
+!SET_GROUP 21 17 8 2 5 15
+!SET_GROUP 18 1 8 4 1 1
+
+
+!SET_CURR_PLAYER 1
+!ENABLE_PLAYER 1
+!SET_AI_PLAYER
+!SET_MAP_COLOR 233
+
+
+!SET_AI_START_POSITION 17 17
+!SET_AI_CHARACTER RECRUTS 5
+!SET_AI_CHARACTER WORKER_FACTOR 10
+!SET_AI_CHARACTER CONSTRUCTORS 3
+!SET_AI_CHARACTER TOWN_DEFENSE 100
+!SET_AI_CHARACTER EQUIP_RATE 1000
+!SET_AI_CHARACTER ATTACK_FACTOR 100
+!SET_AI_CHARACTER RECRUT_COUNT 0
+!SET_AI_CHARACTER TROUP_PARAM 0 12 4
+!SET_AI_CHARACTER TROUP_PARAM 1 12 4
+!SET_AI_CHARACTER TROUP_PARAM 2 12 4
+!SET_AI_CHARACTER TROUP_PARAM 3 12 4
+
+
+
+
+!SET_ALLIANCE 0 0
+
+!RELEASE_HOUSE 11
+!SET_HOUSE 21 9 10
+
+
+
+!SET_STREET 8 10
+
+
+
+//Animals
+
+//This mission was made with KaM Remake Map Editor version 4th Multiplayer Demo r3559 at 31.07.2012 14:51:27
