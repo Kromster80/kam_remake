@@ -4540,6 +4540,7 @@ begin
   if inherited KeyDown(Key, Shift) then Exit;
 
   PageScrolling := False;
+  OldIndex := fItemIndex;
   case Key of
     VK_UP:      NewIndex := fItemIndex - 1;
     VK_DOWN:    NewIndex := fItemIndex + 1;
