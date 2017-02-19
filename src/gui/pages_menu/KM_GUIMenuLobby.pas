@@ -184,7 +184,7 @@ begin
 
   fMinimap := TKMMinimap.Create(True, True);
 
-  fMapsMP := TKMapsCollection.Create([mfMP, mfDL]);
+  fMapsMP := TKMapsCollection.Create([mfMP, mfDL], smByNameDesc, True);
   fSavesMP := TKMSavesCollection.Create;
 
   CreateControls(aParent);
