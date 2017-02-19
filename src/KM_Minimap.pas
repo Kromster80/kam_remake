@@ -222,7 +222,9 @@ begin
     if FOW = 0 then
       fBase[I*fMapX + K] := $FF000000
     else
-      if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
+      if (fMyTerrain.Land[I+1,K+1].TileOwner <> -1)
+        and not fMyTerrain.TileIsCornField(KMPoint(K+1, I+1)) //Do not show corn and wine on minimap
+        and not fMyTerrain.TileIsWineField(KMPoint(K+1, I+1)) then
         fBase[I*fMapX + K] := gHands[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
       else
       begin
