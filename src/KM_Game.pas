@@ -914,8 +914,6 @@ begin
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
   FreeAndNil(fMissionParser);
 
-  fGameName := TruncateExt(ExtractFileName(aPathName));
-
   // Update GameSettings for saved maps positions in list on MapEd menu
   if DetermineMapFolder(GetFileDirName(ExtractFileDir(aPathName)), MapFolder) then
   begin
@@ -927,14 +925,18 @@ begin
                     gGameApp.GameSettings.MenuMapEdMapType := 0;
                   end;
       mfMP,mfDL:  begin
-                    gGameApp.GameSettings.FavouriteMaps.Replace(fGameMapCRC, MapInfo.CRC); // Update favorite map CRC
                     gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
                     gGameApp.GameSettings.MenuMapEdMapType := 1;
+                    // Update favorite map CRC if we resave favourite map with the same name
+                    if fGameName = MapInfo.FileName then
+                      gGameApp.GameSettings.FavouriteMaps.Replace(fGameMapCRC, MapInfo.CRC);
                   end;
     end;
     MapInfo.Free;
   end;
+
+  fGameName := TruncateExt(ExtractFileName(aPathName));
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
