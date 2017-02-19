@@ -66,7 +66,7 @@ var
 
 implementation
 uses
-  KM_Campaigns, KM_Game, KM_MissionScript_Standard;
+  KM_Campaigns, KM_Game, KM_Hand, KM_MissionScript_Standard;
 
 const  
   DefaultKaMOriginalTeamColors: array [0..MAX_HANDS-1] of Cardinal = (
@@ -90,6 +90,8 @@ const
 type
 
   TMissionParserPatcher = class(TMissionParserCommon)
+  protected
+    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
   public
     function ReadMissionFileWOChanges(const aFileName: string): AnsiString;
     procedure SaveToFile(aTxt: AnsiString; const aFileName: string; aDoXor: Boolean = True);
@@ -105,6 +107,12 @@ type
 
 
 { TMissionParserPatcher }
+function TMissionParserPatcher.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
+begin
+  //do nothing here and make compiler happy
+  Result := True;
+end;
+
 //Read mission file as it is, without any changes 
 //(in TMissionParserCommon.ReadMissionFile some spaces are cutted and other refactoring has been done)
 function TMissionParserPatcher.ReadMissionFileWOChanges(const aFileName: string): AnsiString;
