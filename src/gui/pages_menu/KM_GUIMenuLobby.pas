@@ -813,9 +813,7 @@ end;
 procedure TKMMenuLobby.EscKeyDown(Sender: TObject);
 begin
   if Button_LobbySettingsCancel.IsClickable then
-    SettingsClick(Button_LobbySettingsCancel)
-  else
-    BackClick(nil);
+    SettingsClick(Button_LobbySettingsCancel);
 end;
 
 
