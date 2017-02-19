@@ -239,12 +239,15 @@ begin
 
       RegisterMethod('function GameTime: Cardinal');
 
+      RegisterMethod('function GetAllTeams: TIntegerArray');
+
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
       RegisterMethod('function GroupIdle(aGroupID: Integer): Boolean');
       RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
       RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
+      RegisterMethod('function GroupOrdersBlocked(aGroupID: Integer): Boolean');
       RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
       RegisterMethod('function GroupType(aGroupID: Integer): Integer');
 
@@ -308,6 +311,7 @@ begin
       RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerIsAI(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
+      RegisterMethod('function PlayerTeam(aPlayer: Byte): Integer');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
 
@@ -703,6 +707,7 @@ begin
       RegisterMethod(@TKMScriptStates.FogRevealed,                              'FogRevealed');
 
       RegisterMethod(@TKMScriptStates.GameTime,                                 'GameTime');
+      RegisterMethod(@TKMScriptStates.GetAllTeams,                              'GetAllTeams');
 
       RegisterMethod(@TKMScriptStates.GroupAt,                                  'GroupAt');
       RegisterMethod(@TKMScriptStates.GroupColumnCount,                         'GroupColumnCount');
@@ -710,6 +715,7 @@ begin
       RegisterMethod(@TKMScriptStates.GroupIdle,                                'GroupIdle');
       RegisterMethod(@TKMScriptStates.GroupMember,                              'GroupMember');
       RegisterMethod(@TKMScriptStates.GroupMemberCount,                         'GroupMemberCount');
+      RegisterMethod(@TKMScriptStates.GroupOrdersBlocked,                       'GroupOrdersBlocked');
       RegisterMethod(@TKMScriptStates.GroupOwner,                               'GroupOwner');
       RegisterMethod(@TKMScriptStates.GroupType,                                'GroupType');
 
@@ -773,6 +779,7 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,                        'PlayerGetAllUnits');
       RegisterMethod(@TKMScriptStates.PlayerIsAI,                               'PlayerIsAI');
       RegisterMethod(@TKMScriptStates.PlayerName,                               'PlayerName');
+      RegisterMethod(@TKMScriptStates.PlayerTeam,                               'PlayerTeam');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,                         'PlayerVictorious');
       RegisterMethod(@TKMScriptStates.PlayerWareDistribution,                   'PlayerWareDistribution');
 

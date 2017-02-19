@@ -24,12 +24,15 @@ type
 
     function GameTime: Cardinal;
 
+    function GetAllTeams: TIntegerArray;
+
     function GroupAt(aX, aY: Word): Integer;
     function GroupColumnCount(aGroupID: Integer): Integer;
     function GroupDead(aGroupID: Integer): Boolean;
     function GroupIdle(aGroupID: Integer): Boolean;
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
     function GroupMemberCount(aGroupID: Integer): Integer;
+    function GroupOrdersBlocked(aGroupID: Integer): Boolean;
     function GroupOwner(aGroupID: Integer): Integer;
     function GroupType(aGroupID: Integer): Integer;
 
@@ -91,6 +94,7 @@ type
     function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
     function PlayerIsAI(aPlayer: Byte): Boolean;
     function PlayerName(aPlayer: Byte): AnsiString;
+    function PlayerTeam(aPlayer: Byte): Integer;
     function PlayerVictorious(aPlayer: Byte): Boolean;
     function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
 
@@ -500,6 +504,31 @@ function TKMScriptStates.GameTime: Cardinal;
 begin
   try
     Result := gGame.GameTickCount;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Returns an array with IDs of teams for all players
+//* Result: Array of team IDs
+function TKMScriptStates.GetAllTeams: TIntegerArray;
+var
+  I, NetIndex: Integer;
+begin
+  try
+    SetLength(Result, 0);
+    for I := 1 to gGame.Networking.NetPlayers.Count do
+    begin
+      NetIndex := gGame.Networking.NetPlayers.PlayerIndexToLocal(I);
+      SetLength(Result, Length(Result) + 1);
+      if NetIndex <> -1 then
+        Result[Length(Result) - 1] := gGame.Networking.NetPlayers[NetIndex].Team
+      else
+        Result[Length(Result) - 1] := -1;
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1097,6 +1126,30 @@ begin
       Result := '';
       LogParamWarning('States.PlayerName', [aPlayer]);
     end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Get players team (usually for multiplayer)
+//* Result: Player team
+function TKMScriptStates.PlayerTeam(aPlayer: Byte): Integer;
+var
+  NetIndex: Integer;
+begin
+  try
+    Result := -1;
+    if InRange(aPlayer, 0, gHands.Count - 1) then
+    begin
+      NetIndex := gGame.Networking.NetPlayers.PlayerIndexToLocal(aPlayer);
+      if NetIndex <> -1 then
+        Result := gGame.Networking.NetPlayers[NetIndex].Team;
+    end
+    else
+      LogParamWarning('States.PlayerTeam', [aPlayer]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2631,6 +2684,30 @@ begin
     end
     else
       LogParamWarning('States.GroupIdle', [aGroupID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* See whether orders for specified group are blocked
+//* Result: Orders block state
+function TKMScriptStates.GroupOrdersBlocked(aGroupID: Integer): Boolean;
+var
+  G: TKMUnitGroup;
+begin
+  try
+    Result := False;
+    if aGroupID > 0 then
+    begin
+      G := fIDCache.GetGroup(aGroupID);
+      if G <> nil then
+        Result := G.BlockOrders;
+    end
+    else
+      LogParamWarning('States.GroupOrdersBlocked', [aGroupID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
