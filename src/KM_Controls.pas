@@ -884,7 +884,7 @@ type
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
     OnKeyDown: TNotifyEventKeyShiftFunc;
-    OnKeyUp: TNotifyEventKeyFunc;
+    OnKeyUp: TNotifyEventKeyShiftFunc;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -5077,9 +5077,10 @@ end;
 
 function TKMColumnBox.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
+  Result := False;
   if PassAllKeys then
   begin
-    // Assume handler always handles the KeyDown
+    // Assume handler always handles the KeyUp
     Result := Assigned(OnKeyUp);
 
     if Assigned(OnKeyUp) then

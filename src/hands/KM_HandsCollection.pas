@@ -371,10 +371,10 @@ var Houses: TKMHousesCollection;
     Found: Boolean;
     I: Integer;
 begin
+  Result := nil;
   if (aHouse = nil) or aHouse.IsDestroyed then Exit;
 
   Found := False;
-  Result := nil;
   FirstH := nil;
 
   Houses := fHandsList[aHouse.Owner].Houses;
@@ -412,10 +412,10 @@ var Units: TKMUnitsCollection;
     Found: Boolean;
     I: Integer;
 begin
-  if (aUnit = nil) or U.IsDeadOrDying then Exit;
+  Result := nil;
+  if (aUnit = nil) or aUnit.IsDeadOrDying then Exit;
 
   Found := False;
-  Result := nil;
   FirstU := nil;
 
   Units := fHandsList[aUnit.Owner].Units;
@@ -454,10 +454,10 @@ var UnitGroups: TKMUnitGroups;
     Found: Boolean;
     I: Integer;
 begin
+  Result := nil;
   if (aUnitGroup = nil) or aUnitGroup.IsDead then Exit;
 
   Found := False;
-  Result := nil;
   FirstG := nil;
 
   UnitGroups := fHandsList[aUnitGroup.Owner].UnitGroups;
