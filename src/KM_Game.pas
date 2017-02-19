@@ -897,6 +897,7 @@ var
   I: Integer;
   fMissionParser: TMissionParserStandard;
   MapInfo: TKMapInfo;
+  MapFolder: TMapFolder;
 begin
   if aPathName = '' then exit;
 
@@ -915,20 +916,23 @@ begin
 
   fGameName := TruncateExt(ExtractFileName(aPathName));
 
-  // Update GameSettings for saved maps positions in list on MapEd menu
-  MapInfo := TKMapInfo.Create(aPathName, True); //Force recreate map CRC
-  case MapInfo.MapFolder of
-    mfSP:       begin
-                  gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
-                  gGameApp.GameSettings.MenuMapEdMapType := 0;
-                end;
-    mfMP,mfDL:  begin
-                  gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
-                  gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
-                  gGameApp.GameSettings.MenuMapEdMapType := 1;
-                end;
+  if DetermineMapFolder(GetFileDirName(ExtractFileDir(aPathName)), MapFolder) then
+  begin
+    // Update GameSettings for saved maps positions in list on MapEd menu
+    MapInfo := TKMapInfo.Create(GetFileDirName(aPathName), True, MapFolder); //Force recreate map CRC
+    case MapInfo.MapFolder of
+      mfSP:       begin
+                    gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
+                    gGameApp.GameSettings.MenuMapEdMapType := 0;
+                  end;
+      mfMP,mfDL:  begin
+                    gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
+                    gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
+                    gGameApp.GameSettings.MenuMapEdMapType := 1;
+                  end;
+    end;
+    MapInfo.Free;
   end;
-  MapInfo.Free;
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);

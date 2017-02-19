@@ -63,7 +63,6 @@ type
     BlockPeacetime: Boolean;
     BlockFullMapPreview: Boolean;
 
-    constructor Create(const aMapFilePath: string; aStrictParsing: Boolean); overload;
     constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder); overload;
     destructor Destroy; override;
 
@@ -163,7 +162,7 @@ type
   end;
 
 
-  function GetMapFolder(aFolderName: UnicodeString): TMapFolder;
+  function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
 
 
 implementation
@@ -178,14 +177,6 @@ const
 
 
 { TKMapInfo }
-constructor TKMapInfo.Create(const aMapFilePath: string; aStrictParsing: Boolean);
-var FolderName: string;
-begin
-  FolderName := GetFileDirName(ExtractFileDir(aMapFilePath));
-  Create(GetFileDirName(aMapFilePath), aStrictParsing, GetMapFolder(FolderName));
-end;
-
-
 constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
 
   function GetLIBXCRC(aSearchFile: UnicodeString): Cardinal;
@@ -1081,17 +1072,19 @@ end;
 
 
 {Utility methods}
-//Return TMapFolder for specified aFolderName
-function GetMapFolder(aFolderName: UnicodeString): TMapFolder;
+//Try to determine TMapFolder for specified aFolderName
+//Returns true when succeeded
+function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
 var F: TMapFolder;
 begin
   for F := Low(TMapFolder) to High(TMapFolder) do
     if aFolderName = MAP_FOLDER[F] then
     begin
-      Result := F;
+      oMapFolder := F;
+      Result := True;
       Exit;
     end;
-  raise Exception.Create('Unexpected map folder: ' + aFolderName);
+  Result := False;
 end;
 
 
