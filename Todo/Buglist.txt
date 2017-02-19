@@ -22,6 +22,7 @@ Bugs:
  +	Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
+ +  MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
  
 
 	Server welcome message should support Unicode
@@ -63,8 +64,7 @@ Improvements:
  +		Select area to work in for woodcutters
  +		Change unit training order in School on Ctrl+click, Shift+click
  +	L	Pressing LMB over placed plans and dragging it - will remove plans
- +	L	Pressing Enter/Esc in multiplayer password entering form will submit/cancel it
- +	L	Splitting one soldier from the group by pressing Ctrl+Separate warrior order
+  +	L	Splitting one soldier from the group by pressing Ctrl+Separate warrior order
  +	L	Saving and restoring games window position on restart
  +	L	Load saved games with double click
  +	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
@@ -96,10 +96,16 @@ Improvements:
  +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
  +	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
  +	L	Ability to ignore repeated consistency check errors while watching SP replay
- +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns)
+ +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns). Update MapEd menu list position on map save
  +		Ability to specify the title of the mission separately for each campaign rather than globally for all
  +		Added logs customization on F11 debug menu
  +		Allow to save and use last entered password for MP lobby
+ +    Added animation for mission nodes on Campaign page
+ +    Added different shortcuts in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm
+ +    Added hotkey on multiplayer game page: F5 refreshes server list
+ +    In menu is possible to focus next edit controls with Tab shortcut
+ +    Added popup windows in menu on MapEd page and Load save page when Delete map/save game
+ +    Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
 
  
  +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
@@ -109,6 +115,8 @@ Improvements:
  +		MapEd: Set default 'center screen' position of all players in the center of screen for new map
  +		MapEd: Ability to change owner for objects
  +	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
+ +  L	MapEd: Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
+ +    MapEd: Its possible to add many units at once by hold LMB and mouse move (mouse drag)
  
  +		Dynamic scripts: added 32 utility functions. Check wiki for details
  
@@ -157,7 +165,6 @@ Improvements:
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
 	L	MapEd: Lasso selection for copy/paste
-	L	MapEd: Add a button into barracks UI to allow to set a rally point
 	L	MapEd: allow to grab an object with a MouseDown and drag it around until MouseUp 
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
