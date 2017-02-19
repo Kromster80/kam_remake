@@ -7,12 +7,6 @@ uses
   KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
 
 type
-  TSpinEdit = class(Spin.TSpinEdit)
-  private
-    function GetValue: Integer;
-  end;
-
-type
   TForm1 = class(TForm)
     tvList: TTreeView;
     btnSaveCMP: TButton;
@@ -314,7 +308,7 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := seMapCount.GetValue;
+  C.MapCount := EnsureRange(seMapCount.Value, seMapCount.MinValue, seMapCount.MaxValue);
 
   if fSelectedMap > C.MapCount - 1 then
     fSelectedMap := -1;
@@ -329,7 +323,7 @@ procedure TForm1.seNodeCountChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].NodeCount := seNodeCount.GetValue;
+  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, seNodeCount.MinValue, seNodeCount.MaxValue);
 
   if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
     fSelectedNode := -1;
@@ -535,14 +529,6 @@ begin
 
   UpdateNodeCount;
   RefreshFlags;
-end;
-
-
-{ TSpinEdit }
-
-function TSpinEdit.GetValue: Integer;
-begin
-  Result := EnsureRange(Value, MinValue, MaxValue);
 end;
 
 end.
