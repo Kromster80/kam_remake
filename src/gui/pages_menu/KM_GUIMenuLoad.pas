@@ -345,8 +345,6 @@ begin
   case Key of
     VK_RETURN:  if Button_DeleteYes.IsClickable then
                   Load_Delete_Click(Button_DeleteYes);
-    VK_DELETE:  if Button_Delete.IsClickable then
-                  Load_Delete_Click(Button_Delete);
   end;
 end;
 

@@ -520,8 +520,6 @@ begin
                   DeleteClick(Button_MapDeleteConfirm)
                 else if Button_MapMoveConfirm.IsClickable then
                   MoveClick(Button_MapMoveConfirm);
-    VK_DELETE:  if Button_MapDelete.IsClickable then
-                  DeleteClick(Button_MapDelete);
   end;
 end;
 
