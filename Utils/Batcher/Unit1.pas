@@ -69,7 +69,7 @@ uses
   KM_Campaigns, KM_Game, KM_Hand, KM_MissionScript_Standard;
 
 const  
-  DefaultKaMOriginalTeamColors: array [0..MAX_HANDS-1] of Cardinal = (
+  KAM_ORIGINAL_TEAM_COLORS: array [0..MAX_HANDS-1] of Cardinal = (
     $FF0707FF, //Red
     $FFE3BB5B, //Cyan
     $FF27A700, //Green
@@ -1181,7 +1181,7 @@ begin
 
   for I := Low(IntArr) to High(IntArr) do
   begin
-    InsertStr := EolA + '!SET_RGB_COLOR ' + IntToStr(DefaultKaMOriginalTeamColors[IntArr[I]]);
+    InsertStr := EolA + '!SET_RGB_COLOR ' + IntToStr(KAM_ORIGINAL_TEAM_COLORS[IntArr[I]]);
     Insert(InsertStr, aTxt, aCommands[IntArr[I]].CurrPlayer.EndPos + TotalOffset);
     Inc(TotalOffset, Length(InsertStr));
   end;
