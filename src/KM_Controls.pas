@@ -974,6 +974,7 @@ type
     fCaption: UnicodeString; //Current caption (Default or from list)
     fDefaultCaption: UnicodeString;
     fList: TKMListBox;
+    fListTopIndex: Integer;
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
@@ -5645,6 +5646,16 @@ begin
   if ListVisible or (Count < 1) then Exit;
 
   UpdateDropPosition;
+
+  //Make sure the selected item is visible when list is opened
+  if (ItemIndex <> -1) then
+  begin
+    if InRange(ItemIndex, fListTopIndex, fListTopIndex + fList.GetVisibleRows) then //Try to open list at previously saved scroll position
+      fList.TopIndex := fListTopIndex
+    else
+      fList.TopIndex := ItemIndex;
+  end;
+
   fList.Show;
 end;
 
