@@ -211,18 +211,16 @@ var
 begin
   if FileExists(aFileName) then
     Exit;
-  if seMapCount.Value <= 0  then
-    Exit;
 
   AssignFile(LibxCFile, aFileName);
   ReWrite(LibxCFile);
 
   Writeln(LibxCFile, '');
-  Writeln(LibxCFile, 'MaxID:'+IntToStr(seMapCount.Value+9)+EolW);
+  Writeln(LibxCFile, 'MaxID:'+IntToStr(C.MapCount+9)+EolW);
   Writeln(LibxCFile, '0:Campaign name!');
-  Writeln(LibxCFile, '1:' + edtShortName.Text + ' %d');
+  Writeln(LibxCFile, '1:' + C.CampName + ' %d');
   Writeln(LibxCFile, '2:Campaign description!');
-  for i := 0 to seMapCount.Value-1 do
+  for i := 0 to C.MapCount-1 do
     Writeln(LibxCFile, IntToStr(10 + i) + ':Mission description '+IntToStr(i + 1));
   CloseFile(LibxCFile);
 end;
