@@ -32,6 +32,7 @@ type
                              end;
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
+    procedure ProcessUnitsCursorMode;
   public
     ActiveMarker: TKMMapEdMarker;
 
@@ -61,8 +62,8 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses,
-  KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
+  KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_Units, KM_UnitGroups, KM_GameCursor,
+  KM_ResHouses, KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
 
 
 { TKMMapEditor }
@@ -240,7 +241,7 @@ begin
                       gMySpectator.Hand.AddField(P, ft_Corn);
       cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
                       gMySpectator.Hand.AddField(P, ft_Wine);
-      cmUnits:      if gGameCursor.Tag1 = 255 then gHands.RemAnyUnit(P);
+      cmUnits:      ProcessUnitsCursorMode;
       cmErase:      begin
                       gHands.RemAnyHouse(P);
                       if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
@@ -250,6 +251,32 @@ begin
                     end;
       cmSelection:  fSelection.Selection_Resize;
     end;
+  end;
+end;
+
+
+procedure TKMMapEditor.ProcessUnitsCursorMode;
+var P: TKMPoint;
+    Obj: TObject;
+begin
+  P := gGameCursor.Cell;
+
+  if gGameCursor.Tag1 = 255 then
+  begin
+    Obj := gMySpectator.HitTestCursor;
+    if Obj is TKMUnit then
+      gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
+  end else
+  if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
+  begin
+    //Check if we can really add a unit
+    if TUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
+      gMySpectator.Hand.AddUnit(TUnitType(gGameCursor.Tag1), P, False)
+    else
+    if TUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
+      gMySpectator.Hand.AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
+    else
+      gHands.PlayerAnimals.AddUnit(TUnitType(gGameCursor.Tag1), P);
   end;
 end;
 
@@ -300,20 +327,7 @@ begin
                                   gGameCursor.Mode := cmTiles;
                               end;
                 cmRotateTile: fTerrainPainter.RotateTile(P);
-                cmUnits:      if gGameCursor.Tag1 = 255 then
-                                gHands.RemAnyUnit(P)
-                              else
-                              if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
-                              begin
-                                //Check if we can really add a unit
-                                if TUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                                  gMySpectator.Hand.AddUnit(TUnitType(gGameCursor.Tag1), P, False)
-                                else
-                                if TUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                                  gMySpectator.Hand.AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
-                                else
-                                  gHands.PlayerAnimals.AddUnit(TUnitType(gGameCursor.Tag1), P);
-                              end;
+                cmUnits:      ProcessUnitsCursorMode;
                 cmMarkers:    case gGameCursor.Tag1 of
                                 MARKER_REVEAL:        fRevealers[gMySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
                                 MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
@@ -323,9 +337,9 @@ begin
                                                       end;
                                 MARKER_AISTART:       gMySpectator.Hand.AI.Setup.StartPosition := P;
                                 MARKER_RALLY_POINT:   if gMySpectator.Selected is TKMHouseBarracks then
-                                                        TKMHouseBarracks(gMySpectator.Selected).RallyPoint := gGameCursor.Cell;
+                                                        TKMHouseBarracks(gMySpectator.Selected).RallyPoint := P;
                                 MARKER_CUTTING_POINT: if gMySpectator.Selected is TKMHouseWoodcutters then
-                                                        TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
+                                                        TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := P;
                               end;
                 cmErase:      begin
                                 gHands.RemAnyHouse(P);

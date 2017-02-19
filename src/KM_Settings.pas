@@ -197,7 +197,7 @@ type
     property LastIP: string read fLastIP write SetLastIP;
     property LastPort: string read fLastPort write SetLastPort;
     property LastRoom: string read fLastRoom write SetLastRoom;
-    property LastPassword: string read fLastPassword write fLastPassword;
+    property LastPassword: string read fLastPassword write SetLastPassword;
     property ServerPort: string read fServerPort write SetServerPort;
     property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
     property ServerName: AnsiString read fServerName write SetServerName;
