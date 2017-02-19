@@ -86,7 +86,6 @@ begin
   //This line corrects a bug in UpdateList namely C.CampName line that returns at the start of the program #0#0#0
   edtShortNameChange(nil);
 
-  seMapCount.MinValue := 1;
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
 
