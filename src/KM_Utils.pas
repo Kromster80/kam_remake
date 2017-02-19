@@ -57,6 +57,8 @@ uses
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
 
+  function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+
   function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
 
   function DeleteDoubleSpaces(aString: string): string;
@@ -74,11 +76,9 @@ uses
   function StrSplit(aStr, aDelimiters: String): TStrings;
 
 
-
 implementation
 uses
   StrUtils, Types;
-
 
 var
   fKaMSeed: Integer;
@@ -675,6 +675,23 @@ end;
 function KaMRandomS(Range_Both_Directions:single):single; overload;
 begin
   Result := KaMRandom(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
+end;
+
+
+// Returns file directory name
+// F.e. for aFilePath = 'c:/kam/remake/fore.ver' returns 'remake'
+function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+var DirPath: UnicodeString;
+begin
+  Result := '';
+  if Trim(aFilePath) = '' then Exit;
+
+  DirPath := ExtractFileDir(aFilePath);
+
+  if DirPath = '' then Exit;
+
+  if StrIndexOf(DirPath, PathDelim) <> -1 then
+    Result := copy(DirPath, StrLastIndexOf(DirPath, PathDelim) + 2);
 end;
 
 
