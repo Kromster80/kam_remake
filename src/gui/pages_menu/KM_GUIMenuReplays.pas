@@ -500,8 +500,6 @@ begin
                   RenameClick(Button_RenameConfirm)
                 else if PopUp_Delete.Visible and Button_DeleteConfirm.IsClickable then
                   DeleteClick(Button_DeleteConfirm);
-    VK_DELETE:  if not PopUp_Delete.Visible and not PopUp_Rename.Visible and Button_Delete.IsClickable then
-                  DeleteClick(Button_Delete);
   end;
 end;
 
