@@ -257,8 +257,10 @@ type
     cmMagicWater, //Magic water
     cmSelection, //Selection manipulations
     cmUnits, //Units
-    cmMarkers, //CenterScreen, Defence, FOW markers
-    cmEyedropper //Terrain eyedropper
+    cmMarkers, //CenterScreen, FOW, Defence, AIStart, Rally/Cutting Point markers
+    cmEyedropper, //Terrain eyedropper
+    cmPaintBucket, //PaintBucket - change color(team) for map objects
+    cmRotateTile  //Rotate terrain tile
     );
 
 type
@@ -275,10 +277,8 @@ const
   MARKER_DEFENCE = 2;
   MARKER_CENTERSCREEN = 3;
   MARKER_AISTART = 4;
-
-const
-  MAPED_TILES_X = 6;
-  MAPED_TILES_Y = 8;
+  MARKER_RALLY_POINT = 5;
+  MARKER_CUTTING_POINT = 6;
 
 
 const
@@ -305,6 +305,17 @@ type
 
   TMapFolder = (mfSP, mfMP, mfDL);
   TMapFolderSet = set of TMapFolder;
+
+
+const
+  MAPS_FOLDER_NAME = 'Maps';
+  MAPS_MP_FOLDER_NAME = 'MapsMP';
+  MAPS_DL_FOLDER_NAME = 'MapsDL';
+  TUTORIALS_FOLDER_NAME = 'Tutorials';
+  CAMPAIGNS_FOLDER_NAME = 'Campaigns';
+  SAVES_FOLDER_NAME = 'Saves';
+  SAVES_MP_FOLDER_NAME = 'SavesMP';
+
 
 { Terrain }
 type
@@ -595,7 +606,8 @@ type
     mlCenterScreen,
     mlAIStart,
     mlSelection,
-    mlWaterFlow);  //Enum representing mapEditor visible layers
+    mlWaterFlow,
+    mlTileOwner);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
 const

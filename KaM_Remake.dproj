@@ -284,6 +284,7 @@
 			<DCCReference Include="src\scripting\KM_ScriptingEvents.pas"/>
 			<DCCReference Include="src\scripting\KM_ScriptingIdCache.pas"/>
 			<DCCReference Include="src\scripting\KM_ScriptingStates.pas"/>
+			<DCCReference Include="src\scripting\KM_ScriptingUtils.pas"/>
 			<DCCReference Include="src\KM_ServerQuery.pas"/>
 			<DCCReference Include="src\KM_Settings.pas"/>
 			<DCCReference Include="src\KM_Sound.pas"/>

@@ -40,19 +40,24 @@ object FormMain: TFormMain
         Width = 110
       end
       item
-        Text = 'Cursor: 46.1 47.2'
-        Width = 160
+        Text = 'Cursor: 1999:1999'
+        Width = 120
       end
       item
-        Text = 'Time: 02:15'
+        Text = 'Tile: 999.9:999.9 [999:999]'
+        Width = 150
+      end
+      item
+        Text = 'Time:'
         Width = 90
       end
       item
-        Text = '50.0 fps (50)'
+        Text = 'fps'
         Width = 80
       end
       item
-        Width = 50
+        Text = 'Object'
+        Width = 90
       end>
     ExplicitTop = 680
   end

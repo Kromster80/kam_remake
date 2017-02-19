@@ -14,6 +14,7 @@ type
   TKMCardinalArray = array of Cardinal;
   TIntegerArray = array of Integer;
   TStringArray = array of string;
+  TKMCharArray = array of Char;
   TRGBArray = array of record R,G,B: Byte end;
 
   TEvent = procedure of object;

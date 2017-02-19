@@ -4,7 +4,7 @@ interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
-  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
+  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils;
 
 type
   TForm1 = class(TForm)
@@ -41,6 +41,7 @@ type
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+
     procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
   private
     imgFlags: array of TImage;
@@ -55,6 +56,8 @@ type
     procedure FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+
+    procedure CreateDefaultLocaleLibxTemplate(aFileName: string);
 
     procedure SelectMap;
     procedure RefreshBackground;
@@ -204,6 +207,28 @@ begin
   end;
 end;
 
+procedure TForm1.CreateDefaultLocaleLibxTemplate(aFileName: string);
+var
+  LibxCFile : TextFile;
+  i:Integer;
+  s:String;
+begin
+  if FileExists(aFileName) then
+    Exit;
+
+  AssignFile(LibxCFile, aFileName);
+  ReWrite(LibxCFile);
+
+  Writeln(LibxCFile, '');
+  Writeln(LibxCFile, 'MaxID:'+IntToStr(C.MapCount+9)+EolW);
+  Writeln(LibxCFile, '0:Campaign name!');
+  Writeln(LibxCFile, '1:' + C.CampName + ' %d');
+  Writeln(LibxCFile, '2:Campaign description!');
+  for i := 0 to C.MapCount-1 do
+    Writeln(LibxCFile, IntToStr(10 + i) + ':Mission description '+IntToStr(i + 1));
+  CloseFile(LibxCFile);
+end;
+
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
@@ -220,11 +245,14 @@ begin
   end;
 
   dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
+  dlgSaveCampaign.FileName := 'info';
+
   if not dlgSaveCampaign.Execute then Exit;
 
   C.SaveToFile(dlgSaveCampaign.FileName);
-
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
+  CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
 end;
 
 
@@ -269,6 +297,7 @@ end;
 procedure TForm1.btnLoadPictureClick(Sender: TObject);
 begin
   dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
   if not dlgOpenPicture.Execute then Exit;
 
   fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
@@ -282,15 +311,18 @@ procedure TForm1.edtShortNameChange(Sender: TObject);
 var
   cmp: TKMCampaignId;
 begin
-  if fUpdating then Exit;
+  if Length(edtShortName.Text) = 3 then
+  begin
+    if fUpdating then Exit;
 
-  cmp[0] := Ord(edtShortName.Text[1]);
-  cmp[1] := Ord(edtShortName.Text[2]);
-  cmp[2] := Ord(edtShortName.Text[3]);
-  C.CampaignId := cmp;
+    cmp[0] := Ord(edtShortName.Text[1]);
+    cmp[1] := Ord(edtShortName.Text[2]);
+    cmp[2] := Ord(edtShortName.Text[3]);
+    C.CampaignId := cmp;
 
-  //Shortname may be used as mapname in List
-  UpdateList;
+    //Shortname may be used as mapname in List
+    UpdateList;
+  end;
 end;
 
 //The ban entry of any characters other than English
@@ -307,7 +339,7 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := EnsureRange(seMapCount.Value, seMapCount.MinValue, seMapCount.MaxValue);
+  C.MapCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
   if fSelectedMap > C.MapCount - 1 then
     fSelectedMap := -1;
@@ -322,7 +354,7 @@ procedure TForm1.seNodeCountChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, seNodeCount.MinValue, seNodeCount.MaxValue);
+  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
   if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
     fSelectedNode := -1;

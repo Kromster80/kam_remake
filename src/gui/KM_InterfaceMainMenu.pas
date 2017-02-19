@@ -2,6 +2,8 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Math, SysUtils, KromUtils,
   KM_Controls, KM_Defaults, KM_Pics, KM_Networking,
   KM_InterfaceDefaults,
@@ -42,13 +44,15 @@ type
     fMenuResultsSP: TKMMenuResultsSP;
     fMenuSingleMap: TKMMenuSingleMap;
     fMenuSinglePlayer: TKMMenuSinglePlayer;
+
+    fMenuPage: TKMMenuPageCommon;
   protected
     Panel_Menu: TKMPanel;
     Label_Version: TKMLabel;
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure PageChange(Dest: TKMMenuPage; aText: UnicodeString = '');
+    procedure PageChange(Dest: TKMMenuPageType; aText: UnicodeString = '');
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
@@ -204,7 +208,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPage; aText: UnicodeString = '');
+procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; aText: UnicodeString = '');
 var
   I: Integer;
   cmp: TKMCampaignId;
@@ -217,11 +221,26 @@ begin
       Panel_Menu.Childs[I].Hide;
 
   case Dest of
-    gpMainMenu:     fMenuMain.Show;
-    gpSingleplayer: fMenuSinglePlayer.Show;
-    gpLoad:         fMenuLoad.Show;
-    gpSingleMap:    fMenuSingleMap.Show;
-    gpMultiplayer:  fMenuMultiplayer.Show(aText);
+    gpMainMenu:     begin
+                      fMenuMain.Show;
+                      fMenuPage := fMenuMain;
+                    end;
+    gpSingleplayer: begin
+                      fMenuSinglePlayer.Show;
+                      fMenuPage := fMenuSinglePlayer;
+                    end;
+    gpLoad:         begin
+                      fMenuLoad.Show;
+                      fMenuPage := fMenuLoad;
+                    end;
+    gpSingleMap:    begin
+                      fMenuSingleMap.Show;
+                      fMenuPage := fMenuSingleMap;
+                    end;
+    gpMultiplayer:  begin
+                      fMenuMultiplayer.Show(aText);
+                      fMenuPage := fMenuMultiplayer;
+                    end;
     gpLobby:        begin
                       if aText = 'HOST' then
                         fMenuLobby.Show(lpk_Host, gGameApp.Networking, Panel_Menu.Height)
@@ -230,20 +249,43 @@ begin
                         fMenuLobby.Show(lpk_Joiner, gGameApp.Networking, Panel_Menu.Height)
                       else
                         raise Exception.Create('');
+                      fMenuPage := fMenuLobby;
                     end;
     gpCampaign:     begin
                       cmp[0] := Ord(aText[1]);
                       cmp[1] := Ord(aText[2]);
                       cmp[2] := Ord(aText[3]);
                       fMenuCampaign.Show(cmp);
+                      fMenuPage := fMenuCampaign;
                     end;
-    gpCampSelect:   fMenuCampaigns.Show;
-    gpCredits:      fMenuCredits.Show;
-    gpOptions:      fMenuOptions.Show;
-    gpMapEditor:    fMenuMapEditor.Show;
-    gpReplays:      fMenuReplays.Show;
-    gpError:        fMenuError.Show(aText);
-    gpLoading:      fMenuLoading.Show(aText);
+    gpCampSelect:   begin
+                      fMenuCampaigns.Show;
+                      fMenuPage := fMenuCampaigns;
+                    end;
+    gpCredits:      begin
+                      fMenuCredits.Show;
+                      fMenuPage := fMenuCredits;
+                    end;
+    gpOptions:      begin
+                      fMenuOptions.Show;
+                      fMenuPage := fMenuOptions;
+                    end;
+    gpMapEditor:    begin
+                      fMenuMapEditor.Show;
+                      fMenuPage := fMenuMapEditor;
+                    end;
+    gpReplays:      begin
+                      fMenuReplays.Show;
+                      fMenuPage := fMenuReplays;
+                    end;
+    gpError:        begin
+                      fMenuError.Show(aText);
+                      fMenuPage := fMenuError;
+                    end;
+    gpLoading:      begin
+                      fMenuLoading.Show(aText);
+                      fMenuPage := fMenuLoading;
+                    end;
   end;
 end;
 
@@ -285,9 +327,12 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.KeyDown(Key:Word; Shift: TShiftState);
+procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
+
+  if (fMenuPage <> nil) then
+    fMenuPage.MenuKeyDown(Key, Shift);
 end;
 
 
@@ -299,14 +344,14 @@ end;
 
 procedure TKMMainMenuInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  fMyControls.MouseDown(X,Y,Shift,Button);
+  fMyControls.MouseDown(X, Y, Shift, Button);
 end;
 
 
 //Do something related to mouse movement in menu
 procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
-  fMyControls.MouseMove(X,Y,Shift);
+  fMyControls.MouseMove(X, Y, Shift);
 
   fMenuCampaign.MouseMove(Shift, X, Y);
 end;
@@ -314,7 +359,7 @@ end;
 
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  fMyControls.MouseUp(X,Y,Shift,Button);
+  fMyControls.MouseUp(X, Y, Shift, Button);
   Exit; //We could have caused gGameApp reinit (i.e. resolution change), so exit at once
 end;
 
@@ -327,6 +372,7 @@ begin
   fMenuLoad.UpdateState;
   fMenuReplays.UpdateState;
   fMenuSingleMap.UpdateState;
+  fMenuCampaign.UpdateState(aTickCount);
 end;
 
 

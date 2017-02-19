@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMMenuLoading = class
+  TKMMenuLoading = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
   protected

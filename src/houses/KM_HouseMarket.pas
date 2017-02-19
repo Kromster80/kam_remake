@@ -346,7 +346,7 @@ begin
 
   if MaxCount > 0 then
     //FlagAnimStep is required for horses animation
-    fRenderPool.AddHouseMarketSupply(fPosition, MaxRes, MaxCount, FlagAnimStep);
+    gRenderPool.AddHouseMarketSupply(fPosition, MaxRes, MaxCount, FlagAnimStep);
 end;
 
 

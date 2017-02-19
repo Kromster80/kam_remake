@@ -290,7 +290,7 @@ end;
 
 
 //* Version: 5057
-//* Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true.
+//* Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true.
 //* All players who were not set to victorious are set to defeated.
 //* aVictors: Array of player IDs
 //Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
@@ -681,7 +681,7 @@ end;
 
 //* Version: 6288
 //* Give player a digged house area and returns House ID or -1 if house site was not able to be added.
-//* If !AddMaterials = True, wood and stone will be added
+//* If AddMaterials = True, wood and stone will be added
 function TKMScriptActions.GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
 var
   H: TKMHouse;
@@ -714,7 +714,7 @@ begin
             gTerrain.SetTileLock(KMPoint(NonEntranceX + K - 3, Y + I - 4), tlDigged);
           end;
 
-        gTerrain.SetField(H.GetEntrance, aPlayer, ft_Road);
+        gTerrain.SetField(H.Entrance, aPlayer, ft_Road);
         H.BuildingState := hbs_Wood;
         if aAddMaterials then
         begin
@@ -1448,7 +1448,7 @@ end;
 //* Version: 5057
 //* Allows player to build the specified house even if they don't have the house built that normally unlocks it
 //* (e.g. sawmill for farm).
-//* Note: Does not override blocked houses, use !HouseAllow for that.
+//* Note: Does not override blocked houses, use HouseAllow for that.
 procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   try
@@ -1467,7 +1467,7 @@ end;
 
 //* Version: 5057
 //* Sets whether the player is allowed to build the specified house.
-//* Note: The house must still be unlocked normally (e.g. sawmill for farm), use !HouseUnlock to override that.
+//* Note: The house must still be unlocked normally (e.g. sawmill for farm), use HouseUnlock to override that.
 procedure TKMScriptActions.HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
 begin
   try
