@@ -201,8 +201,8 @@ object Form1: TForm1
     Width = 258
     Height = 25
     Hint = 
-      'Check if there is color specified in *.dat file for every player' +
-      ' by either SET_MAP_COLOR or SET_RGB_COLOR command'
+      'Add SET_RGB_COLOR command for players without color commands in ' +
+      '*.dat for all maps'
     Margins.Left = 2
     Margins.Top = 2
     Margins.Right = 2
