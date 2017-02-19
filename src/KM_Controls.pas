@@ -4539,6 +4539,7 @@ begin
   Result := Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT];
   if inherited KeyDown(Key, Shift) then Exit;
 
+  PageScrolling := False;
   OldIndex := fItemIndex;
   case Key of
     VK_UP:      NewIndex := fItemIndex - 1;
