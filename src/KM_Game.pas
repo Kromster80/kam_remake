@@ -928,6 +928,7 @@ begin
                   gGameApp.GameSettings.MenuMapEdMapType := 1;
                 end;
   end;
+  MapInfo.Free;
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
@@ -1386,11 +1387,13 @@ begin
 
   SaveGame(fullPath, aTimestamp, minimapPath);
 
-  // Update GameSettings for saved positions in lists of saves and replays
-  SaveInfo := TKMSaveInfo.Create(ExtractFilePath(fullPath), aSaveName);
-
   if not IsMultiplayer then
+  begin
+    // Update GameSettings for saved positions in lists of saves and replays
+    SaveInfo := TKMSaveInfo.Create(ExtractFilePath(fullPath), aSaveName);
     gGameApp.GameSettings.MenuSPSaveCRC := SaveInfo.CRC; // Update save position for SP game
+    SaveInfo.Free;
+  end;
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
