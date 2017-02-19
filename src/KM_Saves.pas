@@ -39,6 +39,7 @@ type
     property CRC: Cardinal read fCRC;
 
     function IsValid: Boolean;
+    function IsMultiplayer: Boolean;
     function IsReplayValid: Boolean;
     function LoadMinimap(aMinimap: TKMMinimap): Boolean;
   end;
@@ -96,6 +97,9 @@ type
 
 
 implementation
+
+uses
+  KM_Utils;
 
 
 { TKMSaveInfo }
@@ -205,6 +209,12 @@ end;
 function TKMSaveInfo.IsValid: Boolean;
 begin
   Result := FileExists(fPath + fFileName + '.sav') and (fSaveError = '') and fInfo.IsValid(True);
+end;
+
+
+function TKMSaveInfo.IsMultiplayer: Boolean;
+begin
+  Result := GetFileDirName(fPath + fFileName) = SAVES_MP_FOLDER_NAME;
 end;
 
 
@@ -543,9 +553,9 @@ var
   Save: TKMSaveInfo;
 begin
   if fMultiplayerPath then
-    pathToSaves := ExeDir + 'SavesMP' + PathDelim
+    pathToSaves := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim
   else
-    pathToSaves := ExeDir + 'Saves' + PathDelim;
+    pathToSaves := ExeDir + SAVES_FOLDER_NAME + PathDelim;
 
   if not DirectoryExists(pathToSaves) then Exit;
 

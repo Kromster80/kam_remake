@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  Controls, Math, SysUtils,
+  Classes, Controls, Math, SysUtils,
   KM_Defaults,
   KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_Networking;
 
@@ -12,7 +12,7 @@ uses
 type
   TLobbyTab = (ltDesc, ltOptions);
 
-  TKMMenuLobby = class
+  TKMMenuLobby = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -73,6 +73,7 @@ type
     procedure MapChange(Sender: TObject);
     function DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
     procedure PostKeyDown(Sender: TObject; Key: Word);
+    function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 
     procedure MinimapLocClick(aValue: Integer);
 
@@ -88,9 +89,11 @@ type
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
 
     function DetectMapType: Integer;
-    procedure BackClick(Sender: TObject);
     procedure SettingsClick(Sender: TObject);
     procedure StartClick(Sender: TObject);
+    procedure BackClick(Sender: TObject);
+    procedure EscKeyDown(Sender: TObject);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
   protected
     Panel_Lobby: TKMPanel;
       Panel_LobbySettings: TKMPanel;
@@ -174,6 +177,8 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
 
   fMapsSortUpdateNeeded := False;
 
@@ -414,6 +419,7 @@ begin
 
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 696, CW, 22, fnt_Arial);
     Edit_LobbyPost.OnKeyDown := PostKeyDown;
+    Edit_LobbyPost.OnIsKeyEventHandled := IsKeyEvent_Return_Handled;
     Edit_LobbyPost.Anchors := [anLeft, anBottom];
     Edit_LobbyPost.ShowColors := True;
 
@@ -807,6 +813,22 @@ begin
                  Panel_LobbySetupDesc.Hide;
                  Panel_LobbySetupOptions.Show;
                end;
+  end;
+end;
+
+
+procedure TKMMenuLobby.EscKeyDown(Sender: TObject);
+begin
+  if Button_LobbySettingsCancel.IsClickable then
+    SettingsClick(Button_LobbySettingsCancel);
+end;
+
+
+procedure TKMMenuLobby.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN:  if Panel_LobbySettings.Visible then
+                  SettingsClick(Button_LobbySettingsSave);
   end;
 end;
 
@@ -1965,14 +1987,21 @@ begin
 end;
 
 
+function TKMMenuLobby.IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
+begin
+  Result := Key = VK_RETURN;
+end;
+
+
 //Post what user has typed
 procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
 var
   ChatMessage: UnicodeString;
   RecipientNetIndex: Integer;
 begin
-  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '')
-  or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
+  if not IsKeyEvent_Return_Handled(Self, Key)
+    or (Trim(Edit_LobbyPost.Text) = '')
+    or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
     Exit;
   
   fLastChatTime := TimeGet;

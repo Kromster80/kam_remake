@@ -63,7 +63,7 @@ type
     BlockPeacetime: Boolean;
     BlockFullMapPreview: Boolean;
 
-    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
+    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder); overload;
     destructor Destroy; override;
 
     procedure AddGoal(aType: TGoalType; aPlayer: TKMHandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TKMHandIndex);
@@ -162,6 +162,9 @@ type
   end;
 
 
+  function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+
+
 implementation
 uses
   KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
@@ -169,7 +172,7 @@ uses
 
 const
   //Folder name containing single maps for SP/MP/DL mode
-  MAP_FOLDER: array [TMapFolder] of string = ('Maps', 'MapsMP', 'MapsDL');
+  MAP_FOLDER: array [TMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
   MAP_FOLDER_TYPE_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
 
 
@@ -945,15 +948,15 @@ begin
 
   PathToMaps := TStringList.Create;
   try
-    PathToMaps.Add(aExeDir + 'Maps' + PathDelim);
-    PathToMaps.Add(aExeDir + 'MapsMP' + PathDelim);
-    PathToMaps.Add(aExeDir + 'Tutorials' + PathDelim);
+    PathToMaps.Add(aExeDir + MAPS_FOLDER_NAME + PathDelim);
+    PathToMaps.Add(aExeDir + MAPS_MP_FOLDER_NAME + PathDelim);
+    PathToMaps.Add(aExeDir + TUTORIALS_FOLDER_NAME + PathDelim);
 
     //Include all campaigns maps
-    FindFirst(aExeDir + 'Campaigns'+PathDelim+'*', faDirectory, SearchRec);
+    FindFirst(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + '*', faDirectory, SearchRec);
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(aExeDir + 'Campaigns'+PathDelim + SearchRec.Name + PathDelim);
+        PathToMaps.Add(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + SearchRec.Name + PathDelim);
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
 
@@ -1065,6 +1068,23 @@ begin
   //Simply creating the TKMapInfo updates the .mi cache file
   Map := TKMapInfo.Create(aPath, False, aFolder);
   Map.Free;
+end;
+
+
+{Utility methods}
+//Try to determine TMapFolder for specified aFolderName
+//Returns true when succeeded
+function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+var F: TMapFolder;
+begin
+  for F := Low(TMapFolder) to High(TMapFolder) do
+    if aFolderName = MAP_FOLDER[F] then
+    begin
+      oMapFolder := F;
+      Result := True;
+      Exit;
+    end;
+  Result := False;
 end;
 
 
