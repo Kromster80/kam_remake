@@ -43,7 +43,6 @@ type
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
 
-    procedure edtShortNameClick(Sender: TObject);
     procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
   private
     imgFlags: array of TImage;
