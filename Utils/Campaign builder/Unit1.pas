@@ -260,9 +260,6 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
-  //From UpdateList ruled here since caused a bug with entering
-  //More details about the bug:
-  {http://gifok.net/images/2017/02/14/2017-02-14_16-01-27.gif}
   edtShortName.Text := C.CampName;
   seMapCount.Value := C.MapCount;
 
