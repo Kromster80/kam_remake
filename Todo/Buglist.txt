@@ -106,6 +106,8 @@ Improvements:
  +    In menu is possible to focus next edit controls with Tab shortcut
  +    Added popup windows in menu on MapEd page and Load save page when Delete map/save game
  +    Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
+ +    Do not show owner of corn/wine tile on minimap
+ +    
 
  
  +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
@@ -117,6 +119,7 @@ Improvements:
  +	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
  +  L	MapEd: Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
  +    MapEd: Its possible to add many units at once by hold LMB and mouse move (mouse drag)
+ +    MapEd: Added new layer - show tile owner (for corn/wine/roads)
  
  +		Dynamic scripts: added 32 utility functions. Check wiki for details
  
@@ -145,7 +148,6 @@ Improvements:
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
 	M	Archers should not change formations when group members get killed while under attack
-	L	Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors)
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 	L	Allow fish to swim under the ice (as well render it between sand and water terrain layers)
 	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
@@ -176,6 +178,7 @@ Improvements:
  -	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
  -	Campaign progress was lost when upgrading from r5503 to r6720
+ -  Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors) (see github #105 for details)
 
 
 
