@@ -696,6 +696,7 @@ end;
 
 
 procedure TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState);
+var KeyPassedToModal: Boolean;
 begin
   if fMyControls.KeyDown(Key, Shift) then
   begin
@@ -708,11 +709,21 @@ begin
   //if Key in [49..53] then
   //  Button_Main[Key-48].DoPress;
 
+
+
+  KeyPassedToModal := False;
+  //Pass Key to Modal pages first
+  if (fGuiAttack.Visible and fGuiAttack.KeyDown(Key, Shift))
+    or (fGuiFormations.Visible and fGuiFormations.KeyDown(Key, Shift))
+    or (fGuiGoal.Visible and fGuiGoal.KeyDown(Key, Shift)) then
+    KeyPassedToModal := True;
+
   //For now enter can open up Extra panel
-  if Key = gResKeys[SC_MAPEDIT_EXTRA].Key then
+  if not KeyPassedToModal and (Key = gResKeys[SC_MAPEDIT_EXTRA].Key) then
     Message_Click(Image_Extra);
 
-  if Key = gResKeys[SC_CLOSE_MENU].Key then
+  // If modals are closed or they did not handle key
+  if not KeyPassedToModal and (Key = gResKeys[SC_CLOSE_MENU].Key) then
   begin
     if fGuiMessage.Visible then fGuiMessage.Hide;
     if fGuiExtras.Visible then fGuiExtras.Hide;

@@ -12,7 +12,7 @@ const
 
 
 type
-  TKMMenuSingleMap = class
+  TKMMenuSingleMap = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -77,6 +77,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   fMaps := TKMapsCollection.Create(mfSP);
   fMinimap := TKMMinimap.Create(True, True);
