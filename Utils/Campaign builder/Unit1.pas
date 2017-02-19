@@ -332,7 +332,7 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := seMapCount.Value;
+  C.MapCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
   if fSelectedMap > C.MapCount - 1 then
     fSelectedMap := -1;
@@ -347,7 +347,7 @@ procedure TForm1.MapChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
+  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
   if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
     fSelectedNode := -1;
