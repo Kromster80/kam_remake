@@ -113,6 +113,7 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
+    function IsSpeedUpAllowed: Boolean;
     function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
@@ -182,7 +183,7 @@ uses
   KM_Log, KM_Utils,
   KM_AIArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound, KM_ScriptingEvents,
+  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Saves, KM_Sound, KM_ScriptingEvents,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI;
 
 
@@ -632,7 +633,7 @@ procedure TKMGame.GameMPDisconnect(const aData: UnicodeString);
 begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin
-    if WRITE_RECONNECT_LOG then gLog.AddTime('GameMPDisconnect: '+aData);
+    gLog.LogNetConnection('GameMPDisconnect: ' + aData);
     fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
     fNetworking.OnJoinAssignedHost := nil;
     fNetworking.OnJoinSucc := nil;
@@ -771,8 +772,9 @@ begin
                 RequestGameHold(gr_Defeat);
               end;
     gmMulti:  begin
-                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                  [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+                if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+                  fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
                 if aPlayerIndex = gMySpectator.HandIndex then
                 begin
                   gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
@@ -780,8 +782,9 @@ begin
                   fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
                 end;
               end;
-    gmMultiSpectate: fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                       [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+    gmMultiSpectate:  if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+                        fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                          [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
   end;
 end;
@@ -804,7 +807,7 @@ begin
         //We are waiting during inital loading
         Result := fNetworking.NetPlayers.GetNotReadyToPlayPlayers;
     else
-        Assert(False, 'WaitingPlayersList from wrong state');
+        raise Exception.Create('WaitingPlayersList from wrong state');
   end;
 end;
 
@@ -893,6 +896,8 @@ procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
 var
   I: Integer;
   fMissionParser: TMissionParserStandard;
+  MapInfo: TKMapInfo;
+  MapFolder: TMapFolder;
 begin
   if aPathName = '' then exit;
 
@@ -911,6 +916,24 @@ begin
 
   fGameName := TruncateExt(ExtractFileName(aPathName));
 
+  if DetermineMapFolder(GetFileDirName(ExtractFileDir(aPathName)), MapFolder) then
+  begin
+    // Update GameSettings for saved maps positions in list on MapEd menu
+    MapInfo := TKMapInfo.Create(GetFileDirName(aPathName), True, MapFolder); //Force recreate map CRC
+    case MapInfo.MapFolder of
+      mfSP:       begin
+                    gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
+                    gGameApp.GameSettings.MenuMapEdMapType := 0;
+                  end;
+      mfMP,mfDL:  begin
+                    gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
+                    gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
+                    gGameApp.GameSettings.MenuMapEdMapType := 1;
+                  end;
+    end;
+    MapInfo.Free;
+  end;
+
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
   for I := 0 to gHands.Count - 1 do
@@ -920,7 +943,7 @@ end;
 
 procedure TKMGame.Render(aRender: TRender);
 begin
-  fRenderPool.Render;
+  gRenderPool.Render;
 
   aRender.SetRenderMode(rm2D);
   fActiveInterface.Paint;
@@ -974,6 +997,12 @@ end;
 function TKMGame.IsMapEditor: Boolean;
 begin
   Result := fGameMode = gmMapEd;
+end;
+
+
+function TKMGame.IsSpeedUpAllowed: Boolean;
+begin
+  Result := not IsMultiplayer or IsMPGameSpeedUpAllowed;
 end;
 
 
@@ -1192,7 +1221,7 @@ begin
   end;
 
   //don't show speed clock in MP since you can't turn it on/off
-  if (fGamePlayInterface <> nil) and (not IsMultiplayer or IsMPGameSpeedUpAllowed) then
+  if (fGamePlayInterface <> nil) and IsSpeedUpAllowed then
     fGamePlayInterface.ShowClock(fGameSpeed);
 
   //Need to adjust the delay immediately in MP
@@ -1220,10 +1249,7 @@ begin
   gLog.AddTime('Saving game: ' + aPathName);
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
-  begin
-    Assert(false, 'Saving from wrong state');
-    Exit;
-  end;
+    raise Exception.Create('Saving from wrong state');
 
   SaveStream := TKMemoryStream.Create;
   try
@@ -1357,12 +1383,21 @@ end;
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
   fullPath, minimapPath: UnicodeString;
+  SaveInfo: TKMSaveInfo;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
   minimapPath := SaveName(aSaveName, MP_MINIMAP_SAVE_EXT, IsMultiplayer);
 
   SaveGame(fullPath, aTimestamp, minimapPath);
+
+  if not IsMultiplayer then
+  begin
+    // Update GameSettings for saved positions in lists of saves and replays
+    SaveInfo := TKMSaveInfo.Create(ExtractFilePath(fullPath), aSaveName);
+    gGameApp.GameSettings.MenuSPSaveCRC := SaveInfo.CRC; // Update save position for SP game
+    SaveInfo.Free;
+  end;
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
@@ -1703,9 +1738,9 @@ end;
 function TKMGame.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
 begin
   if aMultiPlayer then
-    Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
+    Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt
   else
-    Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
+    Result := ExeDir + SAVES_FOLDER_NAME + PathDelim + aName + '.' + aExt;
 end;
 
 

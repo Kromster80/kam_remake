@@ -2,12 +2,14 @@ unit KM_GUIMenuReplays;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Controls, Math,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  Classes, SysUtils, Controls, Math,
   KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics, KM_Defaults;
 
 
 type
-  TKMMenuReplays = class
+  TKMMenuReplays = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -18,6 +20,7 @@ type
 
     procedure UpdateUI;
     procedure ListUpdate;
+    procedure LoadMinimap(aID: Integer = -1);
     procedure SetSelectedSaveInfo(aID: Integer = -1); overload;
     procedure SetSelectedSaveInfo(aCRC: Cardinal; aName: UnicodeString); overload;
 
@@ -35,23 +38,27 @@ type
     procedure RenameClick(Sender: TObject);
     procedure Edit_Rename_Change(Sender: TObject);
     procedure RenameConfirm(aVisible: Boolean);
+    procedure EscKeyDown(Sender: TObject);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
 
   protected
     Panel_Replays:TKMPanel;
-      Radio_Replays_Type:TKMRadioGroup;
+      Radio_Replays_Type: TKMRadioGroup;
       ColumnBox_Replays: TKMColumnBox;
       Button_ReplaysPlay: TKMButton;
-      Button_ReplaysBack:TKMButton;
+      Button_ReplaysBack: TKMButton;
       MinimapView_Replay: TKMMinimapView;
       Button_Delete, Button_DeleteConfirm, Button_DeleteCancel: TKMButton;
+
+      // PopUp Menus
       PopUp_Delete: TKMPopUpMenu;
-      Image_Delete: TKMImage;
-      Label_DeleteTitle, Label_DeleteConfirm: TKMLabel;
-      Button_Rename, Button_RenameConfirm, Button_RenameCancel: TKMButton;
+        Image_Delete: TKMImage;
+        Label_DeleteTitle, Label_DeleteConfirm: TKMLabel;
+        Button_Rename, Button_RenameConfirm, Button_RenameCancel: TKMButton;
       PopUp_Rename: TKMPopUpMenu;
-      Image_Rename: TKMImage;
-      Label_RenameTitle, Label_RenameName: TKMLabel;
-      Edit_Rename: TKMEdit;
+        Image_Rename: TKMImage;
+        Label_RenameTitle, Label_RenameName: TKMLabel;
+        Edit_Rename: TKMEdit;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -72,6 +79,8 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
 
   fSaves := TKMSavesCollection.Create;
   fMinimap := TKMMinimap.Create(False, True);
@@ -82,7 +91,7 @@ begin
   TKMLabel.Create(Panel_Replays, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
   TKMBevel.Create(Panel_Replays, 22, 86, 770, 50);
-  Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,30,94,300,40,fnt_Grey);
+  Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays, 30, 94, 300, 40, fnt_Grey);
   Radio_Replays_Type.ItemIndex := 0;
   Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
@@ -120,12 +129,12 @@ begin
   PopUp_Delete.Height := 200;
   // Keep the pop-up centered
   PopUp_Delete.Anchors := [];
-  PopUp_Delete.Left := (Panel_Replays.Width Div 2) - 200;
-  PopUp_Delete.Top := (Panel_Replays.Height Div 2) - 90;
+  PopUp_Delete.Left := (Panel_Replays.Width div 2) - (PopUp_Delete.Width div 2);
+  PopUp_Delete.Top := (Panel_Replays.Height div 2) - 90;
 
   TKMBevel.Create(PopUp_Delete, -1000,  -1000, 4000, 4000);
 
-  Image_Delete := TKMImage.Create(PopUp_Delete, 0, 0, 400, 200, 15, rxGuiMain);
+  Image_Delete := TKMImage.Create(PopUp_Delete, 0, 0, PopUp_Delete.Width, PopUp_Delete.Height, 15, rxGuiMain);
   Image_Delete.ImageStretch;
 
   Label_DeleteTitle := TKMLabel.Create(PopUp_Delete, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_DELETE_TITLE], fnt_Outline, taCenter);
@@ -133,7 +142,7 @@ begin
 
   Label_DeleteConfirm := TKMLabel.Create(PopUp_Delete, 25, 75, 350, 75, gResTexts[TX_MENU_REPLAY_DELETE_CONFIRM], fnt_Metal, taCenter);
   Label_DeleteConfirm.Anchors := [anLeft,anBottom];
-  Label_DeleteConfirm.AutoWrap := true;
+  Label_DeleteConfirm.AutoWrap := True;
 
   Button_DeleteConfirm := TKMButton.Create(PopUp_Delete, 20, 155, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
   Button_DeleteConfirm.Anchors := [anLeft,anBottom];
@@ -147,12 +156,12 @@ begin
   PopUp_Rename.Height := 200;
   // Keep the pop-up centered
   PopUp_Rename.Anchors := [];
-  PopUp_Rename.Left := (Panel_Replays.Width Div 2) - 200;
-  PopUp_Rename.Top := (Panel_Replays.Height Div 2) - 90;
+  PopUp_Rename.Left := (Panel_Replays.Width div 2) - (PopUp_Rename.Width div 2);
+  PopUp_Rename.Top := (Panel_Replays.Height div 2) - 90;
 
   TKMBevel.Create(PopUp_Rename, -1000,  -1000, 4000, 4000);
 
-  Image_Rename := TKMImage.Create(PopUp_Rename,0,0, 400, 200, 15, rxGuiMain);
+  Image_Rename := TKMImage.Create(PopUp_Rename, 0, 0, PopUp_Rename.Width, PopUp_Rename.Height, 15, rxGuiMain);
   Image_Rename.ImageStretch;
 
   Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_RENAME_TITLE], fnt_Outline, taCenter);
@@ -195,6 +204,9 @@ begin
                                 and fSaves[ID].IsReplayValid;
   Button_Delete.Enabled := InRange(ID, 0, fSaves.Count-1);
   Button_Rename.Enabled := InRange(ID, 0, fSaves.Count-1);
+
+  if (ColumnBox_Replays.ItemIndex = -1) then
+    MinimapView_Replay.Hide;
 end;
 
 
@@ -231,6 +243,17 @@ begin
 end;
 
 
+procedure TKMMenuReplays.LoadMinimap(aID: Integer = -1);
+begin
+  MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
+  if (aID <> -1) and Button_ReplaysPlay.Enabled and fSaves[aID].LoadMinimap(fMinimap) then
+  begin
+    MinimapView_Replay.SetMinimap(fMinimap);
+    MinimapView_Replay.Show;
+  end;
+end;
+
+
 procedure TKMMenuReplays.Replays_ListClick(Sender: TObject);
 var
   ID: Integer;
@@ -249,12 +272,7 @@ begin
     else
       SetSelectedSaveInfo;
 
-    MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
-    if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMinimap) then
-    begin
-      MinimapView_Replay.SetMinimap(fMinimap);
-      MinimapView_Replay.Show;
-    end;
+    LoadMinimap(ID);
   finally
     fSaves.Unlock;
   end;
@@ -284,10 +302,10 @@ end;
 
 procedure TKMMenuReplays.Replay_TypeChange(Sender: TObject);
 begin
+  gGameApp.GameSettings.MenuReplaysType := Radio_Replays_Type.ItemIndex;
   ListUpdate;
   DeleteConfirm(False);
   RenameConfirm(False);
-  gGameApp.GameSettings.MenuReplaysType := Radio_Replays_Type.ItemIndex;
 end;
 
 
@@ -328,7 +346,10 @@ begin
 
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fSelectedSaveInfo.CRC) and (fSaves[I].FileName = fSelectedSaveInfo.Name) then
+      begin
         ColumnBox_Replays.ItemIndex := I;
+        LoadMinimap(I);
+      end;
 
   finally
     fSaves.Unlock;
@@ -388,6 +409,17 @@ begin
 end;
 
 
+procedure TKMMenuReplays.EscKeyDown(Sender: TObject);
+begin
+  if Button_RenameCancel.IsClickable then
+    RenameClick(Button_RenameCancel)
+  else if Button_DeleteCancel.IsClickable then
+    DeleteClick(Button_DeleteCancel)
+  else
+    BackClick(nil);
+end;
+
+
 procedure TKMMenuReplays.BackClick(Sender: TObject);
 begin
   //Scan should be terminated, it is no longer needed
@@ -400,9 +432,15 @@ end;
 procedure TKMMenuReplays.DeleteConfirm(aVisible: Boolean);
 begin
   if aVisible then
-    PopUp_Delete.Show
-  else
+  begin
+    PopUp_Delete.Show;
+    ColumnBox_Replays.Focusable := False;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_Replays);
+  end else begin
     PopUp_Delete.Hide;
+    ColumnBox_Replays.Focusable := True;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_Replays);
+  end;
 end;
 
 
@@ -452,6 +490,17 @@ end;
 procedure TKMMenuReplays.Edit_Rename_Change(Sender: TObject);
 begin
   Button_RenameConfirm.Enabled := (Trim(Edit_Rename.Text) <> '') and not fSaves.Contains(Trim(Edit_Rename.Text));
+end;
+
+
+procedure TKMMenuReplays.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN:  if PopUp_Rename.Visible and Button_RenameConfirm.IsClickable then
+                  RenameClick(Button_RenameConfirm)
+                else if PopUp_Delete.Visible and Button_DeleteConfirm.IsClickable then
+                  DeleteClick(Button_DeleteConfirm);
+  end;
 end;
 
 

@@ -213,6 +213,7 @@ uses
   KM_ScriptingEvents in 'src\scripting\KM_ScriptingEvents.pas',
   KM_ScriptingIdCache in 'src\scripting\KM_ScriptingIdCache.pas',
   KM_ScriptingStates in 'src\scripting\KM_ScriptingStates.pas',
+  KM_ScriptingUtils in 'src\scripting\KM_ScriptingUtils.pas',
 
   KM_ServerQuery in 'src\KM_ServerQuery.pas',
   KM_Settings in 'src\KM_Settings.pas',
@@ -249,7 +250,9 @@ uses
   KM_UnitTaskThrowRock in 'src\units\KM_UnitTaskThrowRock.pas',
   KM_Utils in 'src\KM_Utils.pas',
   KM_Viewport in 'src\KM_Viewport.pas',
-  KM_WareDistribution in 'src\KM_WareDistribution.pas';
+  KM_WareDistribution in 'src\KM_WareDistribution.pas',
+  
+  KromUtils in 'src\common\KromUtils.pas';
 
 {$IFDEF WDC}
   {$R KaM_Remake_Icon.res KaM_Remake_Icon.rc} //Keeps the Icon

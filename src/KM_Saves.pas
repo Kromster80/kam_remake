@@ -39,6 +39,7 @@ type
     property CRC: Cardinal read fCRC;
 
     function IsValid: Boolean;
+    function IsMultiplayer: Boolean;
     function IsReplayValid: Boolean;
     function LoadMinimap(aMinimap: TKMMinimap): Boolean;
   end;
@@ -96,6 +97,9 @@ type
 
 
 implementation
+
+uses
+  KM_Utils;
 
 
 { TKMSaveInfo }
@@ -208,6 +212,12 @@ begin
 end;
 
 
+function TKMSaveInfo.IsMultiplayer: Boolean;
+begin
+  Result := GetFileDirName(fPath + fFileName) = SAVES_MP_FOLDER_NAME;
+end;
+
+
 //Check if replay files exist at location
 function TKMSaveInfo.IsReplayValid: Boolean;
 begin
@@ -295,6 +305,7 @@ var
   I: Integer;
 begin
   Lock;
+  try
     Assert(InRange(aIndex, 0, fCount-1));
     DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
     DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
@@ -304,7 +315,9 @@ begin
       fSaves[I] := fSaves[I+1]; //Move them down
     dec(fCount);
     SetLength(fSaves, fCount);
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -313,12 +326,15 @@ var
   fileOld, fileNew: UnicodeString;
 begin
   Lock;
+  try
     fileOld := fSaves[aIndex].Path + fSaves[aIndex].fFileName;
     fileNew := fSaves[aIndex].Path + aName;
     RenameFile(fileOld + '.sav', fileNew + '.sav');
     RenameFile(fileOld + '.rpl', fileNew + '.rpl');
     RenameFile(fileOld + '.bas', fileNew + '.bas');
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -384,10 +400,13 @@ var
   I: Integer;
 begin
   Lock;
+  try
     Result := '';
     for I := 0 to fCount - 1 do
       Result := Result + fSaves[I].FileName + EolW;
-  Unlock;
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -534,9 +553,9 @@ var
   Save: TKMSaveInfo;
 begin
   if fMultiplayerPath then
-    pathToSaves := ExeDir + 'SavesMP' + PathDelim
+    pathToSaves := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim
   else
-    pathToSaves := ExeDir + 'Saves' + PathDelim;
+    pathToSaves := ExeDir + SAVES_FOLDER_NAME + PathDelim;
 
   if not DirectoryExists(pathToSaves) then Exit;
 

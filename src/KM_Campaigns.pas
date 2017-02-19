@@ -54,6 +54,7 @@ type
 
     function CampaignTitle: UnicodeString;
     function CampaignDescription: UnicodeString;
+    function CampaignMissionTitle(aIndex: Byte): UnicodeString;
     function MissionFile(aIndex: Byte): UnicodeString;
     function MissionTitle(aIndex: Byte): UnicodeString;
     function MissionBriefing(aIndex: Byte): UnicodeString;
@@ -483,6 +484,18 @@ end;
 function TKMCampaign.CampaignDescription: UnicodeString;
 begin
   Result := fTextLib[2];
+end;
+
+
+function TKMCampaign.CampaignMissionTitle(aIndex: Byte): UnicodeString;
+begin
+  if fTextLib[3] <> '' then
+  begin
+    Assert(CountMatches(fTextLib[3], '%d') = 1, 'Custom campaign mission template must have a single "%d" in it.');
+    Result := Format(fTextLib[3], [aIndex+1]);
+  end
+  else
+    Result := Format(gResTexts[TX_GAME_MISSION], [aIndex+1]);
 end;
 
 

@@ -2,8 +2,10 @@ unit KM_GUIMapEdFormations;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  Classes, Math, StrUtils, SysUtils,
+  KM_Controls, KM_Defaults, KM_Pics;
 
 
 type
@@ -11,6 +13,7 @@ type
   private
     fOwner: TKMHandIndex;
     procedure Formations_Close(Sender: TObject);
+    function GetVisible: Boolean;
   protected
     Panel_Formations: TKMPanel;
     Image_FormationsFlag: TKMImage;
@@ -22,7 +25,9 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
+    property Visible: Boolean read GetVisible;
     procedure Show(aPlayer: TKMHandIndex);
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean;
   end;
 
 
@@ -71,6 +76,24 @@ begin
 end;
 
 
+function TKMMapEdFormations.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False;
+  case Key of
+    VK_ESCAPE:  if Button_Formations_Cancel.IsClickable then
+                begin
+                  Formations_Close(Button_Formations_Cancel);
+                  Result := True;
+                end;
+    VK_RETURN:  if Button_Formations_Ok.IsClickable then
+                begin
+                  Formations_Close(Button_Formations_Ok);
+                  Result := True;
+                end;
+  end;
+end;
+
+
 procedure TKMMapEdFormations.Show(aPlayer: TKMHandIndex);
 var
   GT: TGroupType;
@@ -87,6 +110,12 @@ begin
   end;
 
   Panel_Formations.Show;
+end;
+
+
+function TKMMapEdFormations.GetVisible: Boolean;
+begin
+  Result := Panel_Formations.Visible;
 end;
 
 

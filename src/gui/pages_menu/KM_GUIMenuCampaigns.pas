@@ -2,13 +2,15 @@ unit KM_GUIMenuCampaigns;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, SysUtils, Math,
   KM_Controls, KM_Pics,
   KM_Campaigns, KM_InterfaceDefaults;
 
 
 type
-  TKMMenuCampaigns = class {(TKMGUIPage)}
+  TKMMenuCampaigns = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -40,6 +42,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   Panel_CampSelect := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_CampSelect.AnchorsStretch;
@@ -91,12 +94,22 @@ begin
   ColumnBox_Camps.Clear;
   Memo_CampDesc.Clear;
   for I := 0 to Camps.Count - 1 do
-  with Camps[I] do
+  begin
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1)],
+                        [Camps[I].CampaignTitle, IntToStr(Camps[I].MapCount), IntToStr(Camps[I].UnlockedMap + 1)],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], I));
+    if Camps[I].CampName = gGameApp.GameSettings.MenuCampaignName then
+    begin
+      ColumnBox_Camps.ItemIndex := I;
+      ListChange(nil);
+    end;
 
-  Button_Camp_Start.Disable;
+  end;
+
+  if ColumnBox_Camps.ItemIndex = -1 then
+    Button_Camp_Start.Disable
+  else
+    Button_Camp_Start.Enable;
 end;
 
 
@@ -122,6 +135,7 @@ begin
     Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
 
     Memo_CampDesc.Text := Camp.CampaignDescription;
+    gGameApp.GameSettings.MenuCampaignName := Camp.CampName;
   end;
 end;
 

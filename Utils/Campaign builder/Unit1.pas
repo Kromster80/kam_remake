@@ -4,7 +4,7 @@ interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
-  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
+  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils;
 
 
 type
@@ -42,6 +42,8 @@ type
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+
+    procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
   private
     imgFlags: array of TImage;
     imgNodes: array of TImage;
@@ -56,6 +58,8 @@ type
     procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
+    procedure CreateDefaultLocaleLibxTemplate(aFileName: string);
+
     procedure SelectMap;
     procedure RefreshBackground;
     procedure RefreshFlags;
@@ -68,8 +72,6 @@ type
 var
   Form1: TForm1;
   C: TKMCampaign;
-
-
 implementation
 {$R *.dfm}
 
@@ -159,8 +161,8 @@ begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
     C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
@@ -191,14 +193,36 @@ begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left + Img.Width div 2  - Image1.Left;
     C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  + Img.Height div 2 - Image1.Top;
 
     StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
   end;
+end;
+
+procedure TForm1.CreateDefaultLocaleLibxTemplate(aFileName: string);
+var
+  LibxCFile : TextFile;
+  i:Integer;
+  s:String;
+begin
+  if FileExists(aFileName) then
+    Exit;
+
+  AssignFile(LibxCFile, aFileName);
+  ReWrite(LibxCFile);
+
+  Writeln(LibxCFile, '');
+  Writeln(LibxCFile, 'MaxID:'+IntToStr(C.MapCount+9)+EolW);
+  Writeln(LibxCFile, '0:Campaign name!');
+  Writeln(LibxCFile, '1:' + C.CampName + ' %d');
+  Writeln(LibxCFile, '2:Campaign description!');
+  for i := 0 to C.MapCount-1 do
+    Writeln(LibxCFile, IntToStr(10 + i) + ':Mission description '+IntToStr(i + 1));
+  CloseFile(LibxCFile);
 end;
 
 
@@ -217,11 +241,14 @@ begin
   end;
 
   dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
+  dlgSaveCampaign.FileName := 'info';
+
   if not dlgSaveCampaign.Execute then Exit;
 
   C.SaveToFile(dlgSaveCampaign.FileName);
-
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
+  CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
 end;
 
 
@@ -263,6 +290,7 @@ end;
 procedure TForm1.btnLoadPictureClick(Sender: TObject);
 begin
   dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
   if not dlgOpenPicture.Execute then Exit;
 
   fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
@@ -276,23 +304,35 @@ procedure TForm1.edtShortNameChange(Sender: TObject);
 var
   cmp: TKMCampaignId;
 begin
-  if fUpdating then Exit;
+  if Length(edtShortName.Text) = 3 then
+  begin
+    if fUpdating then Exit;
 
-  cmp[0] := Ord(edtShortName.Text[1]);
-  cmp[1] := Ord(edtShortName.Text[2]);
-  cmp[2] := Ord(edtShortName.Text[3]);
-  C.CampaignId := cmp;
+    cmp[0] := Ord(edtShortName.Text[1]);
+    cmp[1] := Ord(edtShortName.Text[2]);
+    cmp[2] := Ord(edtShortName.Text[3]);
+    C.CampaignId := cmp;
 
-  //Shortname may be used as mapname in List
-  UpdateList;
+    //Shortname may be used as mapname in List
+    UpdateList;
+  end;
 end;
 
+//The ban entry of any characters other than English
+procedure TForm1.edtShortNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['A'..'Z', 'a'..'z', #8]) then
+  begin
+    Beep;
+    Key:=#0;
+  end;
+end;
 
 procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := seMapCount.Value;
+  C.MapCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
   if fSelectedMap > C.MapCount - 1 then
     fSelectedMap := -1;
@@ -307,7 +347,7 @@ procedure TForm1.MapChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
+  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
   if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
     fSelectedNode := -1;
@@ -363,6 +403,8 @@ begin
     //Position node centers, so that if someone changes the nodes they still look correct
     imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
     imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
+    imgNodes[I].Left := EnsureRange(imgNodes[I].Left, Image1.Left, Image1.Left + 1024-imgNodes[I].Width);
+    imgNodes[I].Top  := EnsureRange(imgNodes[I].Top, Image1.Top, Image1.Top + 768-imgNodes[I].Height);
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;

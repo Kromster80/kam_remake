@@ -9,22 +9,37 @@ uses
 
 
 type
-  TKMMenuPage = (gpMainMenu,
-                    gpSinglePlayer,
-                      gpCampaign,
-                      gpCampSelect,
-                      gpSingleMap,
-                      gpLoad,
-                    gpMultiplayer,
-                      gpLobby,
-                    gpReplays,
-                    gpMapEditor,
-                    gpOptions,
-                    gpCredits,
-                  gpLoading,
-                  gpError );
-  TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPage) of object;
-  TGUIEventText = procedure (Dest: TKMMenuPage; aText: UnicodeString = '') of object;
+  TKMMenuPageType =  (gpMainMenu,
+                        gpSinglePlayer,
+                          gpCampaign,
+                          gpCampSelect,
+                          gpSingleMap,
+                          gpLoad,
+                        gpMultiplayer,
+                          gpLobby,
+                        gpReplays,
+                        gpMapEditor,
+                        gpOptions,
+                        gpCredits,
+                      gpLoading,
+                      gpError);
+  TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
+  TGUIEventText = procedure (Dest: TKMMenuPageType; aText: UnicodeString = '') of object;
+
+  TKMFileIdentInfo = record // File identification info (for maps/saves)
+    CRC: Cardinal;
+    Name: UnicodeString;
+  end;
+
+
+  TKMMenuPageCommon = class
+  protected
+    OnKeyDown: TNotifyEventKeyShift;
+    OnEscKeyDown: TNotifyEvent;
+  public
+    procedure MenuKeyDown(Key: Word; Shift: TShiftState);
+  end;
+
 
   TKMFileIdentInfo = record // File identification info (for maps/saves)
     CRC: Cardinal;
@@ -111,6 +126,17 @@ end;
 procedure TKMUserInterfaceCommon.Paint;
 begin
   fMyControls.Paint;
+end;
+
+
+procedure TKMMenuPageCommon.MenuKeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_ESCAPE:  if Assigned(OnEscKeyDown) then
+                  OnEscKeyDown(Self);
+    else        if Assigned(OnKeyDown) then
+                  OnKeyDown(Key, Shift);
+  end;
 end;
 
 

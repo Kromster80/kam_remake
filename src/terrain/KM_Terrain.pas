@@ -16,6 +16,40 @@ type
                     vu_NESW);   //Vertex is used NE-SW like this: /
   TFenceType = (fncNone, fncCorn, fncWine, fncHousePlan, fncHouseFence);
 
+  TKMTerrainTile = record
+    Terrain: Byte;
+    Height: Byte;
+    Rotation: Byte;
+    Obj: Byte;
+
+    //Age of tree, another independent variable since trees can grow on fields
+    TreeAge: Byte; //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
+
+    //Age of field/wine, another independent variable
+    FieldAge: Byte; //Empty=0, 1, 2, 3, 4, Full=CORN_AGE_MAX  Depending on this special object maybe rendered (straw, grapes)
+
+    //Tells us the stage of house construction or workers making a road
+    TileLock: TTileLock;
+
+    //Used to display half-dug road
+    TileOverlay: TTileOverlay; //to_None to_Dig1, to_Dig2, to_Dig3, to_Dig4 + to_Road
+
+    TileOwner: TKMHandIndex; //Who owns the tile by having a house/road/field on it
+    IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+    IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
+
+    //MAPEDITOR
+    CornOrWine: Byte; //Indicate Corn or Wine field placed on the tile (without altering terrain)
+
+    //DEDUCTED
+    Light: Single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
+    Passability: TKMTerrainPassabilitySet; //Meant to be set of allowed actions on the tile
+
+    WalkConnect: array [TWalkConnect] of Word; //Whole map is painted into interconnected areas
+
+    Fence: TFenceType; //Fences (ropes, planks, stones)
+    FenceSide: Byte; //Bitfield whether the fences are enabled
+  end;
 
   {Class to store all terrain data, aswell terrain routines}
   TKMTerrain = class
@@ -41,42 +75,9 @@ type
 
     procedure UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
 
-    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
+    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected: Boolean);
   public
-    Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of record
-      Terrain: Byte;
-      Height: Byte;
-      Rotation: Byte;
-      Obj: Byte;
-
-      //Age of tree, another independent variable since trees can grow on fields
-      TreeAge: Byte; //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
-
-      //Age of field/wine, another independent variable
-      FieldAge: Byte; //Empty=0, 1, 2, 3, 4, Full=CORN_AGE_MAX  Depending on this special object maybe rendered (straw, grapes)
-
-      //Tells us the stage of house construction or workers making a road
-      TileLock: TTileLock;
-
-      //Used to display half-dug road
-      TileOverlay: TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
-
-      TileOwner: TKMHandIndex; //Who owns the tile by having a house/road/field on it
-      IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
-      IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
-
-      //MAPEDITOR
-      CornOrWine: Byte; //Indicate Corn or Wine field placed on the tile (without altering terrain)
-
-      //DEDUCTED
-      Light: Single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
-      Passability: TKMTerrainPassabilitySet; //Meant to be set of allowed actions on the tile
-
-      WalkConnect: array [TWalkConnect] of Word; //Whole map is painted into interconnected areas
-
-      Fence: TFenceType; //Fences (ropes, planks, stones)
-      FenceSide: Byte; //Bitfield whether the fences are enabled
-    end;
+    Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of TKMTerrainTile;
 
     FallingTrees: TKMPointTagList;
 
@@ -139,6 +140,7 @@ type
     procedure DecStoneDeposit(Loc: TKMPoint);
     function DecOreDeposit(Loc: TKMPoint; rt: TWareType): Boolean;
 
+    function GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPassability: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
     function CheckPassability(Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
     function HasUnit(Loc: TKMPoint): Boolean;
     function HasVertexUnit(Loc: TKMPoint): Boolean;
@@ -2088,6 +2090,34 @@ begin
   if VerticeInMapCoords(Loc.X,Loc.Y)
   and not HousesNearVertex then
     AddPassability(tpElevate);
+end;
+
+
+//Find closest passable point to TargetPoint within line segment OriginPoint <-> TargetPoint
+//MaxDistance - maximum distance between finded point and origin point. MaxDistance = -1 means there is no distance restriction
+function TKMTerrain.GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPassability: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
+  function IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint: TKMPoint): Boolean;
+  begin
+    Result := (MaxDistance = -1) or (KMDistanceSqr(OriginPoint, TargetPoint) <= Sqr(MaxDistance));
+  end;
+var
+  NormVector: TKMPoint;
+  NormDistance: Integer;
+begin
+  if MaxDistance = -1 then
+    NormDistance := Floor(KMLength(OriginPoint, TargetPoint))
+  else
+    NormDistance := Min(MaxDistance, Floor(KMLength(OriginPoint, TargetPoint)));
+
+  while (NormDistance >= 0)
+    and (not IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint)
+         or not CheckPassability(TargetPoint, aPassability)) do
+  begin
+    NormVector := KMNormVector(KMPoint(TargetPoint.X - OriginPoint.X, TargetPoint.Y - OriginPoint.Y), NormDistance);
+    TargetPoint := KMPoint(OriginPoint.X + NormVector.X, OriginPoint.Y + NormVector.Y);
+    Dec(NormDistance);
+  end;
+  Result := TargetPoint;
 end;
 
 

@@ -125,8 +125,8 @@ begin
   gSoundPlayer.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
   fCampaigns    := TKMCampaignsCollection.Create;
-  fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
-  fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
+  fCampaigns.ScanFolder(ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim);
+  fCampaigns.LoadProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(aScreenX, aScreenY);
@@ -170,7 +170,7 @@ begin
   Stop(gr_Silent);
 
   FreeAndNil(fTimerUI);
-  if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
+  if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
   FreeThenNil(fMainMenuInterface);
@@ -218,8 +218,8 @@ begin
 
   //Campaigns use single locale
   fCampaigns := TKMCampaignsCollection.Create;
-  fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
-  fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
+  fCampaigns.ScanFolder(ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim);
+  fCampaigns.LoadProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);
   fMainMenuInterface.PageChange(gpOptions);
   Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
@@ -300,8 +300,12 @@ begin
       fMainMenuInterface.MouseMove(Shift, X,Y);
 
   if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [gGameCursor.Float.X, gGameCursor.Float.Y,
-                                                            gGameCursor.Cell.X, gGameCursor.Cell.Y]));
+  begin
+    fOnCursorUpdate(1, Format('Cursor: %d:%d', [X, Y]));
+    fOnCursorUpdate(2, Format('Tile: %.1f:%.1f [%d:%d]',
+                              [gGameCursor.Float.X, gGameCursor.Float.Y,
+                              gGameCursor.Cell.X, gGameCursor.Cell.Y]));
+  end;
 end;
 
 
@@ -639,9 +643,9 @@ end;
 function TKMGameApp.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
 begin
   if aMultiPlayer then
-    Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
+    Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt
   else
-    Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
+    Result := ExeDir + SAVES_FOLDER_NAME + PathDelim + aName + '.' + aExt;
 end;
 
 
@@ -691,7 +695,7 @@ begin
 
   if not aForPrintScreen and (gGame <> nil) then
     if Assigned(fOnCursorUpdate) then
-      fOnCursorUpdate(4, 'Objects: ' + IntToStr(gGameCursor.ObjectUID));
+      fOnCursorUpdate(5, 'Object: ' + IntToStr(gGameCursor.ObjectUID));
 end;
 
 
@@ -760,7 +764,7 @@ begin
 
     //StatusBar
     if (gGame <> nil) and not gGame.IsPaused and Assigned(fOnCursorUpdate) then
-        fOnCursorUpdate(2, 'Time: ' + TimeToString(gGame.MissionTime));
+        fOnCursorUpdate(3, 'Time: ' + TimeToString(gGame.MissionTime));
   end;
 end;
 

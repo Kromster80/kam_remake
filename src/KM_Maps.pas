@@ -10,6 +10,7 @@ uses
 
 type
   TMapsSortMethod = (
+    smByFavouriteAsc, smByFavouriteDesc,
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
@@ -57,11 +58,12 @@ type
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    IsFavourite: Boolean;
     BlockTeamSelection: Boolean;
     BlockPeacetime: Boolean;
     BlockFullMapPreview: Boolean;
 
-    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
+    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder); overload;
     destructor Destroy; override;
 
     procedure AddGoal(aType: TGoalType; aPlayer: TKMHandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TKMHandIndex);
@@ -160,14 +162,17 @@ type
   end;
 
 
+  function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+
+
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
 
 
 const
   //Folder name containing single maps for SP/MP/DL mode
-  MAP_FOLDER: array [TMapFolder] of string = ('Maps', 'MapsMP', 'MapsDL');
+  MAP_FOLDER: array [TMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
   MAP_FOLDER_TYPE_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
 
 
@@ -247,6 +252,8 @@ begin
 
     //Load additional text info
     LoadTXTInfo;
+
+    IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
@@ -473,6 +480,8 @@ begin
   S.Read(BlockPeacetime);
   S.Read(BlockFullMapPreview);
 
+  IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
+
   //Other properties are not saved, they are fast to reload
   S.Free;
 end;
@@ -692,45 +701,47 @@ var
   Dest, RenamedFile: UnicodeString;
   SearchRec: TSearchRec;
 begin
-   Lock;
+  if Trim(aName) = '' then Exit;
+  
+  Lock;
    try
-     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
-     Assert(fMaps[aIndex].Path <> Dest);
-     Assert(InRange(aIndex, 0, fCount - 1));
+    Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
+    Assert(fMaps[aIndex].Path <> Dest);
+    Assert(InRange(aIndex, 0, fCount - 1));
 
-     //Remove existing dest directory
-     if DirectoryExists(Dest) then
+    //Remove existing dest directory
+    if DirectoryExists(Dest) then
+    begin
+     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
+     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+    end;
+
+    //Move directory to dest
+    {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
+
+    //Rename all the files in dest
+    FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
+    repeat
+     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+     and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
      begin
-       {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
-       {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+       RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
+       if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
+         {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
+         {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
      end;
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
 
-     //Move directory to dest
-     {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
-
-     //Rename all the files in dest
-     FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
-     repeat
-       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-       and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-       begin
-         RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-         if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
-           {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-           {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-       end;
-     until (FindNext(SearchRec) <> 0);
-     FindClose(SearchRec);
-
-     //Remove the map from our list
-     fMaps[aIndex].Free;
-     for I  := aIndex to fCount - 2 do
-       fMaps[I] := fMaps[I + 1];
-     Dec(fCount);
-     SetLength(fMaps, fCount);
+    //Remove the map from our list
+    fMaps[aIndex].Free;
+    for I  := aIndex to fCount - 2 do
+     fMaps[I] := fMaps[I + 1];
+    Dec(fCount);
+    SetLength(fMaps, fCount);
    finally
-     Unlock;
+   Unlock;
    end;
 end;
 
@@ -744,19 +755,29 @@ var TempMaps: array of TKMapInfo;
   begin
     Result := False; //By default everything remains in place
     case fSortMethod of
-      smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
-      smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
-      smBySizeAsc:      Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
-      smBySizeDesc:     Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
-      smByPlayersAsc:   Result := A.LocCount < B.LocCount;
-      smByPlayersDesc:  Result := A.LocCount > B.LocCount;
-      smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
-      smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
-      smByHumanPlayersMPAsc:   Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
-      smByHumanPlayersMPDesc:  Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
-      smByModeAsc:      Result := A.MissionMode < B.MissionMode;
-      smByModeDesc:     Result := A.MissionMode > B.MissionMode;
+      smByFavouriteAsc:       Result := A.IsFavourite and not B.IsFavourite;
+      smByFavouriteDesc:      Result := not A.IsFavourite and B.IsFavourite;
+      smByNameAsc:            Result := CompareText(A.FileName, B.FileName) < 0;
+      smByNameDesc:           Result := CompareText(A.FileName, B.FileName) > 0;
+      smBySizeAsc:            Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smBySizeDesc:           Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smByPlayersAsc:         Result := A.LocCount < B.LocCount;
+      smByPlayersDesc:        Result := A.LocCount > B.LocCount;
+      smByHumanPlayersAsc:    Result := A.HumanPlayerCount < B.HumanPlayerCount;
+      smByHumanPlayersDesc:   Result := A.HumanPlayerCount > B.HumanPlayerCount;
+      smByHumanPlayersMPAsc:  Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
+      smByHumanPlayersMPDesc: Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
+      smByModeAsc:            Result := A.MissionMode < B.MissionMode;
+      smByModeDesc:           Result := A.MissionMode > B.MissionMode;
     end;
+    if not (fSortMethod in [smByFavouriteAsc, smByFavouriteDesc]) then
+    begin
+      if A.IsFavourite and not B.IsFavourite then
+        Result := False
+      else if not A.IsFavourite and B.IsFavourite then
+        Result := True
+    end;
+
   end;
 
   procedure MergeSort(left, right: integer);
@@ -927,15 +948,15 @@ begin
 
   PathToMaps := TStringList.Create;
   try
-    PathToMaps.Add(aExeDir + 'Maps' + PathDelim);
-    PathToMaps.Add(aExeDir + 'MapsMP' + PathDelim);
-    PathToMaps.Add(aExeDir + 'Tutorials' + PathDelim);
+    PathToMaps.Add(aExeDir + MAPS_FOLDER_NAME + PathDelim);
+    PathToMaps.Add(aExeDir + MAPS_MP_FOLDER_NAME + PathDelim);
+    PathToMaps.Add(aExeDir + TUTORIALS_FOLDER_NAME + PathDelim);
 
     //Include all campaigns maps
-    FindFirst(aExeDir + 'Campaigns'+PathDelim+'*', faDirectory, SearchRec);
+    FindFirst(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + '*', faDirectory, SearchRec);
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(aExeDir + 'Campaigns'+PathDelim + SearchRec.Name + PathDelim);
+        PathToMaps.Add(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + SearchRec.Name + PathDelim);
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
 
@@ -1047,6 +1068,23 @@ begin
   //Simply creating the TKMapInfo updates the .mi cache file
   Map := TKMapInfo.Create(aPath, False, aFolder);
   Map.Free;
+end;
+
+
+{Utility methods}
+//Try to determine TMapFolder for specified aFolderName
+//Returns true when succeeded
+function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+var F: TMapFolder;
+begin
+  for F := Low(TMapFolder) to High(TMapFolder) do
+    if aFolderName = MAP_FOLDER[F] then
+    begin
+      oMapFolder := F;
+      Result := True;
+      Exit;
+    end;
+  Result := False;
 end;
 
 

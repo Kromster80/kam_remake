@@ -14,10 +14,12 @@ type
   TKMCardinalArray = array of Cardinal;
   TIntegerArray = array of Integer;
   TStringArray = array of string;
+  TKMCharArray = array of Char;
   TRGBArray = array of record R,G,B: Byte end;
 
   TEvent = procedure of object;
   TPointEvent = procedure (Sender: TObject; const X,Y: Integer) of object;
+  TPointEventFunc = function (Sender: TObject; const X,Y: Integer): Boolean of object;
   TBooleanEvent = procedure (aValue: Boolean) of object;
   TIntegerEvent = procedure (aValue: Integer) of object;
   TUnicodeStringEvent = procedure (const aData: UnicodeString) of object;

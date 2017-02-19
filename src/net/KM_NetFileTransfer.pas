@@ -80,7 +80,7 @@ function GetFullSourceFileName(aType: TKMTransferType; aName: UnicodeString; aMa
 begin
   case aType of
     kttMap:  Result := TKMapsCollection.FullPath(aName, Postfix + '.' + aExt, aMapFolder);
-    kttSave: Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt;
+    kttSave: Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt;
   end;
 end;
 
@@ -89,7 +89,7 @@ function GetFullDestFileName(aType: TKMTransferType; aName, Postfix, aExt: Unico
 begin
   case aType of
     kttMap:  Result := TKMapsCollection.FullPath(aName, Postfix + '.' + aExt, mfDL);
-    kttSave: Result := ExeDir + 'SavesMP' + PathDelim + DOWNLOADED_LOBBY_SAVE + '.' + aExt;
+    kttSave: Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + DOWNLOADED_LOBBY_SAVE + '.' + aExt;
   end;
 end;
 
@@ -240,7 +240,7 @@ begin
   case fType of
     kttMap:  begin
                //Create downloads folder if it's missing
-               FileName := ExeDir + 'MapsDL';
+               FileName := ExeDir + MAPS_DL_FOLDER_NAME;
                if not DirectoryExists(FileName) then
                  CreateDir(FileName);
                //Create map folder if it is missing
@@ -259,11 +259,11 @@ begin
                  end;
              end;
     kttSave: begin
-               if not DirectoryExists(ExeDir + 'SavesMP') then
-                 CreateDir(ExeDir + 'SavesMP')
+               if not DirectoryExists(ExeDir + SAVES_MP_FOLDER_NAME) then
+                 CreateDir(ExeDir + SAVES_MP_FOLDER_NAME)
                else
                begin
-                 FileName := ExeDir + 'SavesMP' + PathDelim + DOWNLOADED_LOBBY_SAVE;
+                 FileName := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + DOWNLOADED_LOBBY_SAVE;
                  for I := Low(VALID_SAVE_EXTENSIONS) to High(VALID_SAVE_EXTENSIONS) do
                    if FileExists(FileName + '.' + VALID_SAVE_EXTENSIONS[I]) then
                      DeleteFile(FileName + '.' + VALID_SAVE_EXTENSIONS[I]);
@@ -330,7 +330,7 @@ begin
   Assert(ReadType = fType, 'Unexpected transfer type received');
   ReadStream.ReadW(ReadName);
   if (ReadName <> fName) and (ReadName + '_' + IntToHex(fMapCRC, 8) <> fName) then
-    Assert(False, 'Unexpected transfer name received');
+    raise Exception.Create('Unexpected transfer name received');
 
   ClearExistingFiles;
 
