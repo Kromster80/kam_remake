@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMMenuMain = class
+  TKMMenuMain = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 

@@ -2,8 +2,10 @@ unit KM_GUIMapEdGoal;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes,
-   KM_Controls, KM_Defaults, KM_Pics, KM_AIGoals;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  Classes,
+  KM_Controls, KM_Defaults, KM_Pics, KM_AIGoals;
 
 type
   TKMMapEdGoal = class
@@ -14,6 +16,7 @@ type
     procedure Goal_Change(Sender: TObject);
     procedure Goal_Close(Sender: TObject);
     procedure Goal_Refresh(aGoal: TKMGoal);
+    function GetVisible: Boolean;
   protected
     Panel_Goal: TKMPanel;
     Image_GoalFlag: TKMImage;
@@ -26,6 +29,8 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
+    property Visible: Boolean read GetVisible;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean;
     procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
   end;
 
@@ -96,6 +101,12 @@ begin
 end;
 
 
+function TKMMapEdGoal.GetVisible: Boolean;
+begin
+  Result := Panel_Goal.Visible;
+end;
+
+
 procedure TKMMapEdGoal.Goal_Close(Sender: TObject);
 var
   G: TKMGoal;
@@ -130,6 +141,24 @@ begin
 
   //Certain values disable certain controls
   Goal_Change(nil);
+end;
+
+
+function TKMMapEdGoal.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False;
+  case Key of
+    VK_ESCAPE:  if Button_GoalCancel.IsClickable then
+                begin
+                  Goal_Close(Button_GoalCancel);
+                  Result := True;
+                end;
+    VK_RETURN:  if Button_GoalOk.IsClickable then
+                begin
+                  Goal_Close(Button_GoalOk);
+                  Result := True;
+                end;
+  end;
 end;
 
 
