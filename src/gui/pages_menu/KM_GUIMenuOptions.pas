@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMMenuOptions = class { (TKMGUIPage) }
+  TKMMenuOptions = class (TKMMenuPageCommon)
   private
     fTempKeys: TKMKeyLibrary;
 
@@ -32,7 +32,7 @@ type
     procedure RefreshResolutions;
     procedure KeysClick(Sender: TObject);
     procedure KeysRefreshList;
-    procedure KeysUpdate(Key: Word; Shift: TShiftState);
+    function KeysUpdate(Key: Word; Shift: TShiftState): Boolean;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -90,6 +90,7 @@ begin
   fTempKeys := TKMKeyLibrary.Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   // We cant pass pointers to Settings in here cos on GUI creation fMain/gGameApp are not initialized yet
 
@@ -541,10 +542,11 @@ begin
 end;
 
 
-procedure TKMMenuOptions.KeysUpdate(Key: Word; Shift: TShiftState);
+function TKMMenuOptions.KeysUpdate(Key: Word; Shift: TShiftState): Boolean;
 var
   id: Integer;
 begin
+  Result := True; // This Result is not used outside, so we do not care about its value
   if ColumnBox_OptionsKeys.ItemIndex = -1 then Exit;
 
   ColumnBox_OptionsKeys.HighlightError := False;

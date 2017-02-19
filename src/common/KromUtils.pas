@@ -689,8 +689,6 @@ end;
 
 // Case sensitive
 function CountMatches(const aString, aSubString: string): Integer;
-var
-  offset: Integer;
 begin
   if (aString = '') or (aSubString = '') or (Pos(aSubString, aString) = 0) then
     Result := 0

@@ -184,7 +184,7 @@ uses
   KM_Log, KM_Utils,
   KM_AIArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound, KM_ScriptingEvents,
+  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Saves, KM_Sound, KM_ScriptingEvents,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI;
 
 
@@ -898,6 +898,8 @@ procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
 var
   I: Integer;
   fMissionParser: TMissionParserStandard;
+  MapInfo: TKMapInfo;
+  MapFolder: TMapFolder;
 begin
   if aPathName = '' then exit;
 
@@ -915,6 +917,24 @@ begin
   FreeAndNil(fMissionParser);
 
   fGameName := TruncateExt(ExtractFileName(aPathName));
+
+  if DetermineMapFolder(GetFileDirName(ExtractFileDir(aPathName)), MapFolder) then
+  begin
+    // Update GameSettings for saved maps positions in list on MapEd menu
+    MapInfo := TKMapInfo.Create(GetFileDirName(aPathName), True, MapFolder); //Force recreate map CRC
+    case MapInfo.MapFolder of
+      mfSP:       begin
+                    gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
+                    gGameApp.GameSettings.MenuMapEdMapType := 0;
+                  end;
+      mfMP,mfDL:  begin
+                    gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
+                    gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
+                    gGameApp.GameSettings.MenuMapEdMapType := 1;
+                  end;
+    end;
+    MapInfo.Free;
+  end;
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
@@ -1367,12 +1387,21 @@ end;
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
   fullPath, minimapPath: UnicodeString;
+  SaveInfo: TKMSaveInfo;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
   minimapPath := SaveName(aSaveName, MP_MINIMAP_SAVE_EXT, IsMultiplayer);
 
   SaveGame(fullPath, aTimestamp, minimapPath);
+
+  if not IsMultiplayer then
+  begin
+    // Update GameSettings for saved positions in lists of saves and replays
+    SaveInfo := TKMSaveInfo.Create(ExtractFilePath(fullPath), aSaveName);
+    gGameApp.GameSettings.MenuSPSaveCRC := SaveInfo.CRC; // Update save position for SP game
+    SaveInfo.Free;
+  end;
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
@@ -1713,9 +1742,9 @@ end;
 function TKMGame.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
 begin
   if aMultiPlayer then
-    Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
+    Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt
   else
-    Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
+    Result := ExeDir + SAVES_FOLDER_NAME + PathDelim + aName + '.' + aExt;
 end;
 
 
