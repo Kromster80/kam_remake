@@ -784,7 +784,6 @@ begin
 end;
 
 
-
 procedure TForm1.btnRemoveTrailingEmptyCommClick(Sender: TObject);
 var Parser: TMissionParserColorCheck;
     PathToMaps: TStringList;
@@ -833,6 +832,7 @@ begin
   TearDown;
   ControlsEnable(True);
 end;
+
 
 procedure TForm1.ResetCommands(var aCommands: TKMMissionColorInfoArray);
 var I: Integer;
