@@ -68,7 +68,6 @@ uses
   function StrLastIndexOf(aStr, aSubStr: String): Integer;
   function StrSubstring(aStr: String; aFrom, aLength: Integer): String; overload;
   function StrSubstring(aStr: String; aFrom: Integer): String; overload;
-  function StrStartsWith(aStr, aSubStr: String): Boolean;
   function StrContains(aStr, aSubStr: String): Boolean;
   function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
   function StrSplit(aStr, aDelimiters: String): TStrings;
@@ -751,14 +750,6 @@ begin
   for I := 1 to Length(aStr) do
     if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
       Result := I - 1;
-end;
-
-
-function StrStartsWith(aStr, aSubStr: String): Boolean;
-begin
-  //Todo refactor:
-  //@Krom: Why not just replace StrStartsWith with StartsStr everywhere in code?
-  Result := StartsStr(aSubStr, aStr);
 end;
 
 

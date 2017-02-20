@@ -202,7 +202,7 @@ begin
 
       // Add micro descriptions to the parameters and remove them from the stringlist.
       for j := aDescriptions.Count - 1 downto 0 do
-        if StrStartsWith(aDescriptions[j], paramHolder[i].Name) then
+        if StartsStr(paramHolder[i].Name, aDescriptions[j]) then
         begin
           Result := Result + ' // ' + StrSubstring(aDescriptions[j], StrIndexOf(aDescriptions[j], ':') + 2);
           aDescriptions.Delete(j);
@@ -253,19 +253,19 @@ begin
       //* Result: Small optional description of returned value
 
       // Before anything it should start with "//* Version:"
-      if StrStartsWith(sourceTxt[i], '//* Version:') then
+      if StartsStr('//* Version:', sourceTxt[i]) then
       begin
         restStr := Trim(StrSubstring(sourceTxt[i], StrIndexOf(sourceTxt[i], ':') + 2));
         res.Version := IfThen(restStr = '', '-', restStr);
         Inc(iPlus);
 
         // Descriptions are only added by lines starting with "//* "
-        if StrStartsWith(sourceTxt[i+iPlus], '//* ') then
+        if StartsStr('//* ', sourceTxt[i+iPlus]) then
           // Repeat until no description tags are found
-          while StrStartsWith(sourceTxt[i+iPlus], '//* ') do
+          while StartsStr('//* ', sourceTxt[i+iPlus]) do
           begin
             // Handle Result description separately to keep the output clean.
-            if StrStartsWith(sourceTxt[i+iPlus], '//* Result:') then
+            if StartsStr('//* Result:', sourceTxt[i+iPlus]) then
               res.ReturnDesc := StrSubstring(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], ':') + 2)
             else
               descrTxt.Add(StrSubstring(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '*') + 2));
@@ -273,11 +273,11 @@ begin
           end;
 
         // Skip empty or "faulty" lines
-        while not (StrStartsWith(sourceTxt[i+iPlus], 'procedure') or StrStartsWith(sourceTxt[i+iPlus], 'function')) do
+        while not (StartsStr('procedure', sourceTxt[i+iPlus]) or StartsStr('function', sourceTxt[i+iPlus])) do
           Inc(iPlus);
 
         // Format procedures
-        if StrStartsWith(sourceTxt[i+iPlus], 'procedure') then
+        if StartsStr('procedure', sourceTxt[i+iPlus]) then
         begin
           if StrContains(sourceTxt[i+iPlus], '(') then
           begin
@@ -296,7 +296,7 @@ begin
         end;
 
         // Format functions
-        if StrStartsWith(sourceTxt[i+iPlus], 'function') then
+        if StartsStr('function', sourceTxt[i+iPlus]) then
         begin
           if StrContains(sourceTxt[i+iPlus], '(') then
           begin
