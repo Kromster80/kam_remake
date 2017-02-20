@@ -1,1 +1,33 @@
-־¼×»°¢®¿ֽֿ‹›³‚††€³‚³¡€¼ֱ‚ֽגו־¼×»°¢®·°¿£®¶×½ֿÞגוגו־¼×»°¬÷½½°¿£®¶×½ֿßגו־¼×»°§÷¢®¡°¿£®¶×½ֿßגו־×¡®­£×°¿£®¶×½ֿßגו־¼×»°¢®¿°¬ £ ½ֿÝÝײגוגוגוגו־½×£×®¼×°§ ÷¼×ֿÞÛגו־½×£×®¼×°§ ÷¼×ֿÞÜגו־½×£×®¼×°§ ÷¼×ֿÞÞגו־¼×»°§ ÷¼×ֿÝÞֿÞÞֿÞÜגו־¼×»°§ ÷¼×ֿÞÞֿÞײֿÞÜגו־¼×»°§ ÷¼×ֿÝ״ֿÝÜֿÞÜגוגו־®««°¸®½×ֿ׳ֿÞßÞßגו־®««°¸®½×ֿÞßֿÞßßßגו־®««°¸®½×ֿÞÜֿÞßÞßגו־®««°¸®½×ֿÝ״ֿÞßßßגוגוגו־¼×»°¼»½××»ֿײֿÞÜֿ־¼×»°¼»½××»ֿÞßֿÞÜֿ־¼×»°¼»½××»ֿÞÞֿÞÜֿ־¼×»°¼»½××»ֿÞ׳ֿÞÜגו־¼×»°¼»½××»ֿÝÝֿÞÜֿ־¼×»°¼»½××»ֿײֿÞÛֿ־¼×»°¼»½××»ֿÞßֿÞÛֿ־¼×»°¼»½××»ֿÞÞֿÞÛגו־¼×»°¼»½××»ֿÞ׳ֿÞÛֿ־¼×»°¼»½××»ֿÞײֿÞÛֿ־¼×»°¼»½××»ֿÝßֿÞÛֿ־¼×»°¼»½××»ֿÝÞֿÞÛגו־¼×»°¼»½××»ֿÝÝֿÞÛגוגוגוגוְְ®†‚ƒגוגוְְ»‡†ֿ‚††€ֿ˜ֿ‚‹ֿ˜†›‡ֿ₪¢ֿ½‚„ֿ¢ֿ×‹†›€ֿ™†€ֿÛ›‡ֿ¢ƒ›†ƒ–ֿ«‚€ֿÜÚÚײֿ›ֿÜÞֱß״ֱÝßÞÝֿÞÛױÚÞױÛÚגו
+!SET_MAP "data\mission\smaps\NoSpace.map"
+!SET_MAX_PLAYER 1
+
+!SET_CURR_PLAYER 0
+!SET_HUMAN_PLAYER 0
+!ENABLE_PLAYER 0
+!SET_MAP_COLOR 229
+
+
+
+!RELEASE_HOUSE 14
+!RELEASE_HOUSE 13
+!RELEASE_HOUSE 11
+!SET_HOUSE 21 11 13
+!SET_HOUSE 11 19 13
+!SET_HOUSE 27 23 13
+
+!ADD_WARE 8 1010
+!ADD_WARE 10 1000
+!ADD_WARE 13 1010
+!ADD_WARE 27 1000
+
+
+!SET_STREET 9 13 !SET_STREET 10 13 !SET_STREET 11 13 !SET_STREET 18 13
+!SET_STREET 22 13 !SET_STREET 9 14 !SET_STREET 10 14 !SET_STREET 11 14
+!SET_STREET 18 14 !SET_STREET 19 14 !SET_STREET 20 14 !SET_STREET 21 14
+!SET_STREET 22 14
+
+
+
+//Animals
+
+//This mission was made with KaM Remake Map Editor version 4th Multiplayer Demo r3559 at 31.07.2012 14:51:45
