@@ -38,6 +38,7 @@ type
     btnSetDefColor: TButton;
     btnRemoveNewRemap: TButton;
     btnDeleteUnusedSetMapColor: TButton;
+    btnRemoveTrailingEmptyComm: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -51,6 +52,7 @@ type
     procedure btnCheckColorClick(Sender: TObject);
     procedure btnRemoveNewRemapClick(Sender: TObject);
     procedure btnDeleteUnusedSetMapColorClick(Sender: TObject);
+    procedure btnRemoveTrailingEmptyCommClick(Sender: TObject);
   private
     procedure ResetCommands(var aCommands: TKMMissionColorInfoArray);
     procedure GetColorCommandsInfo(aTxt: AnsiString; var aColorInfoArray: TKMMissionColorInfoArray);
@@ -113,7 +115,8 @@ begin
   Result := True;
 end;
 
-//Read mission file as it is, without any changes 
+
+//Read mission file as it is, without any changes
 //(in TMissionParserCommon.ReadMissionFile some spaces are cutted and other refactoring has been done)
 function TMissionParserPatcher.ReadMissionFileWOChanges(const aFileName: string): AnsiString;
 var
@@ -781,6 +784,55 @@ begin
 end;
 
 
+
+procedure TForm1.btnRemoveTrailingEmptyCommClick(Sender: TObject);
+var Parser: TMissionParserColorCheck;
+    PathToMaps: TStringList;
+    I: Integer;
+    Txt, RegExpStr: AnsiString;
+begin
+  Memo1.Clear;
+  ControlsEnable(False);
+  SetUp;
+
+  PathToMaps := TStringList.Create;
+  Parser := TMissionParserColorCheck.Create;
+  try
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
+    for I := 0 to PathToMaps.Count - 1 do
+    begin
+      Txt := Parser.ReadMissionFileWOChanges(PathToMaps[I]);
+
+      //Next RegExp deletes all trailing empty comments
+      //
+      //example (| means start and end line):
+      //  |!MY_COMMAND 1 2 3    !MY_COMMAND 1 2  3    //    |
+      //after replace will become:
+      //  |!MY_COMMAND 1 2 3    !MY_COMMAND 1 2  3|
+      //
+      //RegExp expression explanation:
+      // EolA - we use them instead of regexp ^ and $, because of xor/unxor read
+      // ([a-zA-Z\d \t_!]+?) - all commands and parameters with spaces and tabs between them.
+      // Lazy quantifier '?' to not include spaces before double backslashes into matching group
+      // [ \t]+   - spaces and tabs before double backslashes
+      // \/\/     - double backslashes
+      // [ \t]*$  - only spaces and tabs till the end of line after double backslashes
+      // \1 replace with matching group 1 (without spaces + backslashes + spaces)
+      RegExpStr := '([a-zA-Z\d \t_!]+?)[ \t]+\/\/[ \t]*';
+      Txt := TRegEx.Replace(Txt, EolA + RegExpStr + EolA, EolA + '\1' + EolA);
+      // Do second pass, because we use EolA as begin and end of string
+      Txt := TRegEx.Replace(Txt, EolA + RegExpStr + EolA, EolA + '\1' + EolA);
+
+      Parser.SaveToFile(Txt, PathToMaps[I], False);
+    end;
+    Memo1.Lines.Append('Checked ' + IntToStr(PathToMaps.Count) + ' maps');
+  finally
+    PathToMaps.Free;
+    Parser.Free;
+  end;
+  TearDown;
+  ControlsEnable(True);
+end;
 
 procedure TForm1.ResetCommands(var aCommands: TKMMissionColorInfoArray);
 var I: Integer;
