@@ -5,13 +5,13 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} ShellAPI, Windows, {$ENDIF} //Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
-  Forms, Controls, KromUtils,
+  Classes, Forms, Controls, KromUtils,
   KM_Controls, KM_Defaults,
   KM_InterfaceDefaults;
 
 
 type
-  TKMMenuCredits = class {(TKMGUIPage)}
+  TKMMenuCredits = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -44,6 +44,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   Panel_Credits := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Credits.AnchorsStretch;

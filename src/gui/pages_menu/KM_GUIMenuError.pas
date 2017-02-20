@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMMenuError = class
+  TKMMenuError = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -34,6 +34,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   Panel_Error := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Error.AnchorsStretch;

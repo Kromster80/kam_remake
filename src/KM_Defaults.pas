@@ -306,6 +306,17 @@ type
   TMapFolder = (mfSP, mfMP, mfDL);
   TMapFolderSet = set of TMapFolder;
 
+
+const
+  MAPS_FOLDER_NAME = 'Maps';
+  MAPS_MP_FOLDER_NAME = 'MapsMP';
+  MAPS_DL_FOLDER_NAME = 'MapsDL';
+  TUTORIALS_FOLDER_NAME = 'Tutorials';
+  CAMPAIGNS_FOLDER_NAME = 'Campaigns';
+  SAVES_FOLDER_NAME = 'Saves';
+  SAVES_MP_FOLDER_NAME = 'SavesMP';
+
+
 { Terrain }
 type
   TKMTerrainPassability = (
@@ -595,7 +606,8 @@ type
     mlCenterScreen,
     mlAIStart,
     mlSelection,
-    mlWaterFlow);  //Enum representing mapEditor visible layers
+    mlWaterFlow,
+    mlTileOwner);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
 const
@@ -645,12 +657,12 @@ const
   $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
   $FF577B7B, //Grey
-  $FF000000, //Black
-  $FF000000,  //Black
   $FF2383FB, //Orange
   $FFFF0707, //Blue
   $FF0BE73F, //Light green
-  $FFFFFFFF  //White
+  $FF720468, //Purple
+  $FFFFFFFF, //White
+  $FF000000  //Black
   );
 
   //Interface Colors used for coloring status messages

@@ -11,7 +11,7 @@ uses
 
 
 type
-  TKMMenuMultiplayer = class {(TKMGUIPage)}
+  TKMMenuMultiplayer = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -46,7 +46,8 @@ type
     procedure MP_HostFail(const aData: UnicodeString);
     procedure BackClick(Sender: TObject);
     function ValidatePlayerName(const aName: UnicodeString): Boolean;
-    procedure KeyDown(Sender: TObject; aKey: Word);
+    procedure EscKeyDown(Sender: TObject);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
   protected
     Panel_MultiPlayer: TKMPanel;
       Panel_MPAnnouncement: TKMPanel;
@@ -60,25 +61,29 @@ type
       Panel_MPPlayerName: TKMPanel;
         Edit_MP_PlayerName: TKMEdit;
         Label_MP_Status: TKMLabel;
+
       Button_MP_CreateServer: TKMButton;
       Button_MP_FindServer: TKMButton;
+
       Panel_MPServerDetails: TKMPanel;
         Label_MP_Desc: TKMLabel;
         Label_MP_Players: array[1..MAX_LOBBY_SLOTS] of TKMLabel;
 
       //PopUps
       Panel_MPCreateServer: TKMPanel;
-      Edit_MP_ServerName: TKMEdit;
+        Edit_MP_ServerName: TKMEdit;
         Edit_MP_ServerPort: TKMEdit;
-      Button_MP_CreateLAN: TKMButton;
+        Button_MP_CreateLAN: TKMButton;
         Button_MP_CreateWAN: TKMButton;
         Button_MP_CreateServerCancel: TKMButton;
+
       Panel_MPFindServer: TKMPanel;
         Button_MP_FindServerIP: TKMButton;
         Button_MP_FindCancel: TKMButton;
-      Edit_MP_FindIP: TKMEdit;
-      Edit_MP_FindPort: TKMEdit;
+        Edit_MP_FindIP: TKMEdit;
+        Edit_MP_FindPort: TKMEdit;
         Edit_MP_FindRoom: TKMEdit;
+
       Panel_MPPassword: TKMPanel;
         Edit_MP_Password: TKMEdit;
         Button_MP_PasswordOk: TKMButton;
@@ -163,13 +168,14 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
       Button_MP_PasswordOk.OnClick := MP_PasswordClick;
       Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, gResTexts[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
       Button_MP_PasswordCancel.OnClick := MP_PasswordClick;
-      Edit_MP_Password.OnKeyDown := KeyDown;
   end;
 var I: Integer;
 begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
 
   Panel_MultiPlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MultiPlayer.AnchorsStretch;
@@ -240,13 +246,20 @@ begin
 end;
 
 
-procedure TKMMenuMultiplayer.KeyDown(Sender: TObject; aKey: Word);
+procedure TKMMenuMultiplayer.KeyDown(Key: Word; Shift: TShiftState);
 begin
-  if Panel_MPPassword.Visible then
-    case aKey of
-      VK_RETURN: MP_PasswordClick(Button_MP_PasswordOk);
-      VK_ESCAPE: MP_PasswordClick(Button_MP_PasswordCancel);
-    end;
+  case Key of
+    VK_RETURN:  if Panel_MPPassword.Visible then
+                  MP_PasswordClick(Button_MP_PasswordOk)
+                else if Panel_MPFindServer.Visible then
+                  MP_FindServerIPClick(Button_MP_FindServerIP);
+    // Refresh server list on F5
+    VK_F5:      if not Panel_MPPassword.Visible
+                  and not Panel_MPCreateServer.Visible
+                  and not Panel_MPFindServer.Visible
+                  and Button_MP_Refresh.IsClickable then
+                  MP_ServersRefresh(Button_MP_Refresh);
+  end;
 end;
 
 
@@ -691,6 +704,20 @@ begin
 
   //We were joining a game and the server assigned hosting rights to us
   fOnPageChange(gpLobby, 'HOST'); //Open lobby page in host mode
+end;
+
+
+procedure TKMMenuMultiplayer.EscKeyDown(Sender: TObject);
+begin
+  if Button_MP_CreateServerCancel.IsClickable then
+    MP_CreateServerCancelClick(nil)
+  else if Button_MP_FindCancel.IsClickable then
+    MP_FindServerCancelClick(nil)
+  else if Button_MP_PasswordCancel.IsClickable then
+    MP_PasswordClick(Button_MP_PasswordCancel)
+  else begin
+    BackClick(nil);
+  end;
 end;
 
 

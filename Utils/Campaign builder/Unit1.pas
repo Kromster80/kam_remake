@@ -4,8 +4,7 @@ interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
-  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
-
+  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils;
 
 type
   TForm1 = class(TForm)
@@ -36,12 +35,13 @@ type
     procedure FormCreate(Sender: TObject);
     procedure tvListChange(Sender: TObject; Node: TTreeNode);
     procedure seMapCountChange(Sender: TObject);
-    procedure MapChange(Sender: TObject);
+    procedure seNodeCountChange(Sender: TObject);
     procedure btnSaveCMPClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+
     procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
   private
     imgFlags: array of TImage;
@@ -57,6 +57,8 @@ type
     procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
+    procedure CreateDefaultLocaleLibxTemplate(aFileName: string);
+
     procedure SelectMap;
     procedure RefreshBackground;
     procedure RefreshFlags;
@@ -69,7 +71,6 @@ type
 var
   Form1: TForm1;
   C: TKMCampaign;
-
 
 implementation
 {$R *.dfm}
@@ -84,6 +85,9 @@ begin
 
   C := TKMCampaign.Create;
   fSelectedMap := -1;
+
+  //This line corrects a bug in UpdateList namely C.CampName line that returns at the start of the program #0#0#0
+  edtShortNameChange(nil);
 
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
@@ -119,7 +123,8 @@ begin
     Ord('W'): Img.Top  := Img.Top  - 1;
     Ord('S'): Img.Top  := Img.Top  + 1;
   end;
-
+  Img.Left := EnsureRange(Img.Left, Image1.Left, Image1.Left + 1024-Img.Width);
+  Img.Top  := EnsureRange(Img.Top, Image1.Top, Image1.Top + 768-Img.Height);
   if (fSelectedNode <> -1) then
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
@@ -202,6 +207,28 @@ begin
   end;
 end;
 
+procedure TForm1.CreateDefaultLocaleLibxTemplate(aFileName: string);
+var
+  LibxCFile : TextFile;
+  i:Integer;
+  s:String;
+begin
+  if FileExists(aFileName) then
+    Exit;
+
+  AssignFile(LibxCFile, aFileName);
+  ReWrite(LibxCFile);
+
+  Writeln(LibxCFile, '');
+  Writeln(LibxCFile, 'MaxID:'+IntToStr(C.MapCount+9)+EolW);
+  Writeln(LibxCFile, '0:Campaign name!');
+  Writeln(LibxCFile, '1:' + C.CampName + ' %d');
+  Writeln(LibxCFile, '2:Campaign description!');
+  for i := 0 to C.MapCount-1 do
+    Writeln(LibxCFile, IntToStr(10 + i) + ':Mission description '+IntToStr(i + 1));
+  CloseFile(LibxCFile);
+end;
+
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
@@ -218,11 +245,14 @@ begin
   end;
 
   dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
+  dlgSaveCampaign.FileName := 'info';
+
   if not dlgSaveCampaign.Execute then Exit;
 
   C.SaveToFile(dlgSaveCampaign.FileName);
-
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
+  CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
 end;
 
 
@@ -251,6 +281,9 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
+  edtShortName.Text := C.CampName;
+  seMapCount.Value := C.MapCount;
+
   UpdateList;
   UpdateFlagCount;
   RefreshBackground;
@@ -264,6 +297,7 @@ end;
 procedure TForm1.btnLoadPictureClick(Sender: TObject);
 begin
   dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
   if not dlgOpenPicture.Execute then Exit;
 
   fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
@@ -277,15 +311,18 @@ procedure TForm1.edtShortNameChange(Sender: TObject);
 var
   cmp: TKMCampaignId;
 begin
-  if fUpdating then Exit;
+  if Length(edtShortName.Text) = 3 then
+  begin
+    if fUpdating then Exit;
 
-  cmp[0] := Ord(edtShortName.Text[1]);
-  cmp[1] := Ord(edtShortName.Text[2]);
-  cmp[2] := Ord(edtShortName.Text[3]);
-  C.CampaignId := cmp;
+    cmp[0] := Ord(edtShortName.Text[1]);
+    cmp[1] := Ord(edtShortName.Text[2]);
+    cmp[2] := Ord(edtShortName.Text[3]);
+    C.CampaignId := cmp;
 
-  //Shortname may be used as mapname in List
-  UpdateList;
+    //Shortname may be used as mapname in List
+    UpdateList;
+  end;
 end;
 
 //The ban entry of any characters other than English
@@ -302,7 +339,7 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := seMapCount.Value;
+  C.MapCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
   if fSelectedMap > C.MapCount - 1 then
     fSelectedMap := -1;
@@ -313,11 +350,11 @@ begin
 end;
 
 
-procedure TForm1.MapChange(Sender: TObject);
+procedure TForm1.seNodeCountChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
+  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
   if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
     fSelectedNode := -1;
@@ -389,9 +426,6 @@ var
 begin
   fUpdating := True;
 
-  edtShortName.Text := C.CampName;
-  seMapCount.Value := C.MapCount;
-
   tvList.Items.Clear;
 
   for I := 0 to C.MapCount - 1 do
@@ -402,7 +436,7 @@ begin
 
     for K := 0 to C.Maps[I].NodeCount - 1 do
     begin
-      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K));
+      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K + 1));
       if fSelectedNode = K then
         SN.Selected := True;
     end;
@@ -527,6 +561,5 @@ begin
   UpdateNodeCount;
   RefreshFlags;
 end;
-
 
 end.
