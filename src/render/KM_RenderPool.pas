@@ -1493,7 +1493,7 @@ var Obj: TObject;
 begin
   if gGameCursor.Tag1 = 255 then
   begin
-    Obj := gMySpectator.HitTestCursorWGroup;
+    Obj := gMySpectator.HitTestCursorWGroup(True);
     if Obj is TKMUnit then
     begin
       U := TKMUnit(Obj);
