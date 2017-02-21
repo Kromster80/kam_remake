@@ -140,7 +140,8 @@ procedure TKMResource.LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts
 begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMResPalettes.Create;
-  fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
+  //We are using only default palette in the game for now, so no need to load all palettes
+  fPalettes.LoadDefaultPalette(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 
   fSprites := TKMResSprites.Create(StepRefresh, StepCaption);

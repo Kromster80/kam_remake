@@ -32,7 +32,7 @@ type
                              end;
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
-    procedure ProcessUnitsCursorMode;
+    procedure ProceedUnitsCursorMode;
   public
     ActiveMarker: TKMMapEdMarker;
 
@@ -241,7 +241,7 @@ begin
                       gMySpectator.Hand.AddField(P, ft_Corn);
       cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
                       gMySpectator.Hand.AddField(P, ft_Wine);
-      cmUnits:      ProcessUnitsCursorMode;
+      cmUnits:      ProceedUnitsCursorMode;
       cmErase:      begin
                       gHands.RemAnyHouse(P);
                       if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
@@ -255,7 +255,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.ProcessUnitsCursorMode;
+procedure TKMMapEditor.ProceedUnitsCursorMode;
 var P: TKMPoint;
     Obj: TObject;
 begin
@@ -263,7 +263,7 @@ begin
 
   if gGameCursor.Tag1 = 255 then
   begin
-    Obj := gMySpectator.HitTestCursor;
+    Obj := gMySpectator.HitTestCursor(True);
     if Obj is TKMUnit then
       gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
   end else
@@ -327,7 +327,7 @@ begin
                                   gGameCursor.Mode := cmTiles;
                               end;
                 cmRotateTile: fTerrainPainter.RotateTile(P);
-                cmUnits:      ProcessUnitsCursorMode;
+                cmUnits:      ProceedUnitsCursorMode;
                 cmMarkers:    case gGameCursor.Tag1 of
                                 MARKER_REVEAL:        fRevealers[gMySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
                                 MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);

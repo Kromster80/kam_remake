@@ -108,7 +108,7 @@ object Form1: TForm1
     MinValue = 0
     TabOrder = 5
     Value = 0
-    OnChange = MapChange
+    OnChange = seNodeCountChange
   end
   object StatusBar1: TStatusBar
     Left = 0

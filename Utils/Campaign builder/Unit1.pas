@@ -6,7 +6,6 @@ uses
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
   KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils;
 
-
 type
   TForm1 = class(TForm)
     tvList: TTreeView;
@@ -36,7 +35,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure tvListChange(Sender: TObject; Node: TTreeNode);
     procedure seMapCountChange(Sender: TObject);
-    procedure MapChange(Sender: TObject);
+    procedure seNodeCountChange(Sender: TObject);
     procedure btnSaveCMPClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure rgBriefingPosClick(Sender: TObject);
@@ -72,6 +71,7 @@ type
 var
   Form1: TForm1;
   C: TKMCampaign;
+
 implementation
 {$R *.dfm}
 
@@ -85,6 +85,9 @@ begin
 
   C := TKMCampaign.Create;
   fSelectedMap := -1;
+
+  //This line corrects a bug in UpdateList namely C.CampName line that returns at the start of the program #0#0#0
+  edtShortNameChange(nil);
 
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
@@ -120,7 +123,8 @@ begin
     Ord('W'): Img.Top  := Img.Top  - 1;
     Ord('S'): Img.Top  := Img.Top  + 1;
   end;
-
+  Img.Left := EnsureRange(Img.Left, Image1.Left, Image1.Left + 1024-Img.Width);
+  Img.Top  := EnsureRange(Img.Top, Image1.Top, Image1.Top + 768-Img.Height);
   if (fSelectedNode <> -1) then
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
@@ -277,6 +281,9 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
+  edtShortName.Text := C.CampName;
+  seMapCount.Value := C.MapCount;
+
   UpdateList;
   UpdateFlagCount;
   RefreshBackground;
@@ -343,7 +350,7 @@ begin
 end;
 
 
-procedure TForm1.MapChange(Sender: TObject);
+procedure TForm1.seNodeCountChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
@@ -419,9 +426,6 @@ var
 begin
   fUpdating := True;
 
-  edtShortName.Text := C.CampName;
-  seMapCount.Value := C.MapCount;
-
   tvList.Items.Clear;
 
   for I := 0 to C.MapCount - 1 do
@@ -432,7 +436,7 @@ begin
 
     for K := 0 to C.Maps[I].NodeCount - 1 do
     begin
-      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K));
+      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K + 1));
       if fSelectedNode = K then
         SN.Selected := True;
     end;
@@ -557,6 +561,5 @@ begin
   UpdateNodeCount;
   RefreshFlags;
 end;
-
 
 end.
