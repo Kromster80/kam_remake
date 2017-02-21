@@ -93,7 +93,6 @@ type
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
-    fOnChangeVisibility: TEvent;
     fOnClick: TNotifyEvent;
     fOnClickShift: TNotifyEventShift;
     fOnClickRight: TPointEvent;
@@ -133,6 +132,7 @@ type
     function GetSelfAbsTop: Integer; virtual;
     function GetSelfHeight: Integer; virtual;
     function GetSelfWidth: Integer; virtual;
+    procedure UpdateVisibility; virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -193,7 +193,6 @@ type
     property OnFocus: TNotifyEventFocus read fOnFocus write fOnFocus;
     property OnControlMouseDown: TNotifyEventShift read fOnControlMouseDown write fOnControlMouseDown;
     property OnControlMouseUp: TNotifyEventShift read fOnControlMouseUp write fOnControlMouseUp;
-    property OnChangeVisibility: TEvent read fOnChangeVisibility write fOnChangeVisibility;
 
     procedure Paint; virtual;
   end;
@@ -204,7 +203,6 @@ type
   private
     fMasterControl: TKMMasterControl;
     procedure Init;
-    procedure UpdateVisibility;
   protected
     //Do not propogate SetEnabled and SetVisible because that would show/enable ALL childs childs
     //e.g. scrollbar on a listbox
@@ -212,7 +210,7 @@ type
     procedure SetWidth(aValue: Integer); override;
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
-    procedure Hide; override;
+    procedure UpdateVisibility; override;
   public
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
     ChildCount: Word;
@@ -948,13 +946,13 @@ type
     function ListVisible: Boolean; virtual; abstract;
     function GetItemIndex: SmallInt; virtual; abstract;
     procedure SetItemIndex(aIndex: SmallInt); virtual; abstract;
-    procedure UpdateVisibility;
   protected
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
     function ListKeyDown(Key: Word; Shift: TShiftState): Boolean;
+    procedure UpdateVisibility; override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
 
@@ -1723,8 +1721,13 @@ begin
   if (OldVisible <> fVisible) and (Focusable or (Self is TKMPanel)) then
     MasterParent.fMasterControl.UpdateFocus(Self);
 
-  if Assigned(fOnChangeVisibility) then
-    fOnChangeVisibility;
+  UpdateVisibility;
+end;
+
+
+procedure TKMControl.UpdateVisibility;
+begin
+  //Let descendants override this method
 end;
 
 
@@ -1782,7 +1785,6 @@ begin
   ResetFocusedControlIndex;
   OnControlMouseDown := ControlMouseDown;
   OnControlMouseUp := ControlMouseUp;
-  OnChangeVisibility := UpdateVisibility;
 end;
 
 
@@ -1924,21 +1926,11 @@ begin
 end;
 
 
-procedure TKMPanel.Hide;
-
-begin
-  inherited Hide;
-  if Assigned(OnChangeVisibility) then
-    OnChangeVisibility;
-end;
-
-
 procedure TKMPanel.UpdateVisibility;
 var I: Integer;
 begin
   for I := 0 to ChildCount - 1 do
-    if Assigned(Childs[I].OnChangeVisibility) then
-      Childs[I].OnChangeVisibility;
+    Childs[I].UpdateVisibility;
 end;
 
 
@@ -5526,8 +5518,6 @@ begin
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
   fShape.AnchorsStretch;
   fShape.fOnClick := ListHide;
-
-  OnChangeVisibility := UpdateVisibility;
 
   fAutoClose := aAutoClose;
 end;
