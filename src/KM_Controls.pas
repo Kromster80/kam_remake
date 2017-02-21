@@ -93,6 +93,7 @@ type
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
+    fOnChangeVisibility: TEvent;
     fOnClick: TNotifyEvent;
     fOnClickShift: TNotifyEventShift;
     fOnClickRight: TPointEvent;
@@ -171,7 +172,7 @@ type
     procedure Enable;
     procedure Disable;
     procedure Show;
-    procedure Hide;
+    procedure Hide; virtual;
     procedure AnchorsCenter;
     procedure AnchorsStretch;
     function MasterParent: TKMPanel;
@@ -192,6 +193,7 @@ type
     property OnFocus: TNotifyEventFocus read fOnFocus write fOnFocus;
     property OnControlMouseDown: TNotifyEventShift read fOnControlMouseDown write fOnControlMouseDown;
     property OnControlMouseUp: TNotifyEventShift read fOnControlMouseUp write fOnControlMouseUp;
+    property OnChangeVisibility: TEvent read fOnChangeVisibility write fOnChangeVisibility;
 
     procedure Paint; virtual;
   end;
@@ -202,6 +204,7 @@ type
   private
     fMasterControl: TKMMasterControl;
     procedure Init;
+    procedure UpdateVisibility;
   protected
     //Do not propogate SetEnabled and SetVisible because that would show/enable ALL childs childs
     //e.g. scrollbar on a listbox
@@ -209,6 +212,7 @@ type
     procedure SetWidth(aValue: Integer); override;
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
+    procedure Hide; override;
   public
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
     ChildCount: Word;
@@ -944,6 +948,7 @@ type
     function ListVisible: Boolean; virtual; abstract;
     function GetItemIndex: SmallInt; virtual; abstract;
     procedure SetItemIndex(aIndex: SmallInt); virtual; abstract;
+    procedure UpdateVisibility;
   protected
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure SetTop(aValue: Integer); override;
@@ -1717,6 +1722,9 @@ begin
   //Only swap focus if visibility changed
   if (OldVisible <> fVisible) and (Focusable or (Self is TKMPanel)) then
     MasterParent.fMasterControl.UpdateFocus(Self);
+
+  if Assigned(fOnChangeVisibility) then
+    fOnChangeVisibility;
 end;
 
 
@@ -1774,6 +1782,7 @@ begin
   ResetFocusedControlIndex;
   OnControlMouseDown := ControlMouseDown;
   OnControlMouseUp := ControlMouseUp;
+  OnChangeVisibility := UpdateVisibility;
 end;
 
 
@@ -1912,6 +1921,24 @@ begin
   for I := 0 to ChildCount - 1 do
     if Assigned(Childs[I].fOnControlMouseUp) then
       Childs[I].fOnControlMouseUp(Sender, Shift);
+end;
+
+
+procedure TKMPanel.Hide;
+
+begin
+  inherited Hide;
+  if Assigned(OnChangeVisibility) then
+    OnChangeVisibility;
+end;
+
+
+procedure TKMPanel.UpdateVisibility;
+var I: Integer;
+begin
+  for I := 0 to ChildCount - 1 do
+    if Assigned(Childs[I].OnChangeVisibility) then
+      Childs[I].OnChangeVisibility;
 end;
 
 
@@ -5500,7 +5527,16 @@ begin
   fShape.AnchorsStretch;
   fShape.fOnClick := ListHide;
 
+  OnChangeVisibility := UpdateVisibility;
+
   fAutoClose := aAutoClose;
+end;
+
+
+procedure TKMDropCommon.UpdateVisibility;
+begin
+  if not Visible then
+    ListHide(nil);
 end;
 
 
