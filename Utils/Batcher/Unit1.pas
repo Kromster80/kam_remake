@@ -55,7 +55,7 @@ type
     procedure GetColorCommandsInfo(aTxt: AnsiString; var aColorInfoArray: TKMMissionColorInfoArray);
     function XorUnXor(UnXor: Boolean; F: TMemoryStream): Boolean;
     function CheckNoColorCommandsForAllMaps(var NoColorsMaps: TStringList; aSetMissingColor: Boolean): Integer;
-    procedure SetUp;
+    procedure SetUp(aNeedGame: Boolean);
     procedure TearDown;
     procedure ControlsEnable(aFlag: Boolean);
   end;
@@ -177,8 +177,11 @@ begin
 end;
 
 
-procedure TForm1.SetUp;
+procedure TForm1.SetUp(aNeedGame: Boolean);
 begin
+  ControlsEnable(False);
+  Memo1.Clear;
+
   SKIP_RENDER := True;
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
@@ -190,9 +193,10 @@ end;
 
 procedure TForm1.TearDown;
 begin
-  gGameApp.Stop(gr_Silent);
-  FreeAndNil(gGameApp);
+  FreeThenNil(gGameApp);
   FreeAndNil(gLog);
+
+  ControlsEnable(True);
 end;
 
 
@@ -203,36 +207,33 @@ var
   NewName: string;
   B: Boolean;
 begin
-  begin
-    FindFirst('..\..\SpriteResource\9\9*.png', faAnyFile, SearchRec);
-    repeat
-      NewName := SearchRec.Name;
-      NewName := StringReplace(NewName, '9_00', '2_17', [rfReplaceAll, rfIgnoreCase]);
-      NewName := StringReplace(NewName, '9_01', '2_18', [rfReplaceAll, rfIgnoreCase]);
-      NewName := StringReplace(NewName, '9_02', '2_19', [rfReplaceAll, rfIgnoreCase]);
-      NewName := StringReplace(NewName, '9_03', '2_20', [rfReplaceAll, rfIgnoreCase]);
-      B := RenameFile(ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + SearchRec.Name,
-                      ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + NewName);
-      Assert(B);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
-  end;
+  FindFirst('..\..\SpriteResource\9\9*.png', faAnyFile, SearchRec);
+  repeat
+    NewName := SearchRec.Name;
+    NewName := StringReplace(NewName, '9_00', '2_17', [rfReplaceAll, rfIgnoreCase]);
+    NewName := StringReplace(NewName, '9_01', '2_18', [rfReplaceAll, rfIgnoreCase]);
+    NewName := StringReplace(NewName, '9_02', '2_19', [rfReplaceAll, rfIgnoreCase]);
+    NewName := StringReplace(NewName, '9_03', '2_20', [rfReplaceAll, rfIgnoreCase]);
+    B := RenameFile(ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + SearchRec.Name,
+                    ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + NewName);
+    Assert(B);
+  until (FindNext(SearchRec) <> 0);
+  FindClose(SearchRec);
 end;
 
 
-//Export message goals into EVT files to allow to rig them easily
+// Export message goals into EVT files to allow to rig them easily
 procedure TForm1.Button3Click(Sender: TObject);
 const
-  cmp: TKMCampaignId = (Byte('T'), Byte('P'), Byte('R'));
+  TPR_CAMPAIGN: TKMCampaignId = (Byte('T'), Byte('P'), Byte('R'));
 var
   I: Integer;
 begin
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
-  for I := 0 to gGameApp.Campaigns.CampaignById(cmp).MapCount - 1 do
+  for I := 0 to gGameApp.Campaigns.CampaignById(TPR_CAMPAIGN).MapCount - 1 do
   begin
-    gGameApp.NewCampaignMap(gGameApp.Campaigns.CampaignById(cmp), I);
+    gGameApp.NewCampaignMap(gGameApp.Campaigns.CampaignById(TPR_CAMPAIGN), I);
 
     gHands[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 
@@ -240,7 +241,6 @@ begin
   end;
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -253,8 +253,7 @@ var
   GC: TGoalCondition;
   MapFolderType: TMapFolder;
 begin
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   FillChar(WinCond, SizeOf(WinCond), #0);
   FillChar(DefeatCond, SizeOf(WinCond), #0);
@@ -282,7 +281,6 @@ begin
     end;
 
     //Report results
-    Memo1.Clear;
     Memo1.Lines.Append(IntToStr(PathToMaps.Count) + ' maps');
     Memo1.Lines.Append('Win / Def');
     for GC := Low(TGoalCondition) to High(TGoalCondition) do
@@ -292,7 +290,6 @@ begin
   end;
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -307,9 +304,7 @@ var
   Args: TStringList;
   GoalLog: TStringList;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   Args := TStringList.Create;
   //@Krom: StrictDelimiter doesn't exist in D7
@@ -384,7 +379,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -399,9 +393,7 @@ var
   PlayersSet: array [0 .. MAX_HANDS - 1] of Boolean;
   s: string;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   //Intent of this design is to rip the specified lines with least impact
   MP := TMissionParserPatcher.Create;
@@ -478,7 +470,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -502,9 +493,7 @@ var
   Txt: AnsiString;
   MP: TMissionParserPatcher;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   //Intent of this design is to rip the specified lines with least impact
   MP := TMissionParserPatcher.Create;
@@ -586,7 +575,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -599,9 +587,7 @@ var
   MP: TMissionParserPatcher;
   Args: TStringList;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   Args := TStringList.Create;
   //@Krom: StrictDelimiter doesn't exist in D7
@@ -659,7 +645,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -674,9 +659,7 @@ var
   PlayersSet: array [0 .. MAX_HANDS - 1] of Boolean;
   s: string;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   //Intent of this design is to rip the specified lines with least impact
   MP := TMissionParserPatcher.Create;
@@ -740,7 +723,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -752,9 +734,7 @@ var
   I, Deleted: Integer;
   Txt: AnsiString;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   Deleted := 0;
   PathToMaps := TStringList.Create;
@@ -776,7 +756,6 @@ begin
     Parser.Free;
   end;
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -808,9 +787,7 @@ var
   DeleteColorFromPlayerArr: TIntegerArray;
   IsMapColorFirst: Boolean;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   SetLength(DeleteColorFromPlayerArr, MAX_HANDS);
   
@@ -876,8 +853,8 @@ begin
     PathToMaps.Free;
     FreeAndNil(Parser);
   end;
+
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -989,9 +966,7 @@ var
   CheckedCnt: Integer;
   DoSetDefaultColors: Boolean;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   DoSetDefaultColors := Sender = btnSetDefColor;
 
@@ -1024,7 +999,6 @@ begin
   end;
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -1064,9 +1038,7 @@ var
   UnXOR: Boolean;
   MapCount: Integer;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   UnXOR := (Sender = btnUnXorAll);
 
@@ -1099,7 +1071,6 @@ begin
   Memo1.Lines.Append(IntToStr(MapCount) + ' maps changed');
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -1111,9 +1082,7 @@ var
   ScriptFile, Txt: AnsiString;
   F: TMemoryStream;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   PathToMaps := TStringList.Create;
   try
@@ -1157,7 +1126,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
