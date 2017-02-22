@@ -71,18 +71,18 @@ uses
 
 const
   KAM_ORIGINAL_TEAM_COLORS: array [0..MAX_HANDS-1] of Cardinal = (
-    $FF0707FF, //Red
-    $FFE3BB5B, //Cyan
-    $FF27A700, //Green
-    $FFFF67FF, //Magenta
-    $FF07FFFF, //Yellow
-    $FF577B7B, //Grey
-    $FF000000, //Black
-    $FF000000, //Black
-    $FF2383FB, //Orange
-    $FFFF0707, //Blue
-    $FF0BE73F, //Light green
-    $FFFFFFFF  //White
+    $0707FF, //Red
+    $E3BB5B, //Cyan
+    $27A700, //Green
+    $FF67FF, //Magenta
+    $07FFFF, //Yellow
+    $577B7B, //Grey
+    $000000, //Black
+    $000000, //Black
+    $2383FB, //Orange
+    $FF0707, //Blue
+    $0BE73F, //Light green
+    $FFFFFF  //White
   );
 
 type
