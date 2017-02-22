@@ -873,6 +873,7 @@ type
     procedure ClearColumns;
     procedure SetSearchColumn(aValue: ShortInt);
     procedure SetItemIndex(const Value: Smallint);
+//    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -928,6 +929,7 @@ type
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure UpdateMouseOverPosition(X,Y: Integer);
+    procedure UpdateOnChange;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -4907,6 +4909,14 @@ begin
 end;
 
 
+//procedure TKMColumnBox.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+//begin
+//  inherited;
+//  if Assigned(fOnChange) then
+//    fOnChange(Self);
+//end;
+
+
 procedure TKMColumnBox.SetOnColumnClick(const Value: TIntegerEvent);
 begin
   fHeader.OnColumnClick := Value;
@@ -5228,66 +5238,63 @@ begin
 
   //Let propagate click event only when OnClickCell did not handle it
   if not IsClickHandled then
+  begin
     inherited DoClick(X, Y, Shift, Button);
+    if Assigned(fOnChange) then
+      fOnChange(Self);
+  end;
+end;
+
+
+procedure TKMColumnBox.UpdateOnChange;//(Shift: TShiftState);
+var NewIndex: Integer;
+begin
+//  if not (ssLeft in Shift) or (fMouseOverRow = -1) then
+//    Exit;
+
+  NewIndex := fMouseOverRow;
+
+  if NewIndex >= fRowCount then
+  begin
+    //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
+    fTimeOfLastClick := 0;
+    NewIndex := -1;
+  end;
+
+  if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
+  begin
+    fItemIndex := NewIndex;
+    fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
+//    if Assigned(fOnChange) then
+//      fOnChange(Self);
+  end;
 end;
 
 
 procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
-  MouseMove(X, Y, Shift);
+  UpdateMouseOverPosition(X, Y);
+  if (ssLeft in Shift) and (fMouseOverRow <> -1) then
+    UpdateOnChange;
 end;
 
 
 procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
-var NewIndex: Integer;
 begin
   inherited;
   UpdateMouseOverPosition(X, Y);
-
   if (ssLeft in Shift) and (fMouseOverRow <> -1) then
-  begin
-    NewIndex := fMouseOverRow;
-
-    if NewIndex >= fRowCount then
-    begin
-      //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
-      fTimeOfLastClick := 0;
-      NewIndex := -1;
-    end;
-
-//    if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
-//    begin
-//      fItemIndex := NewIndex;
-//      fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
-//      if Assigned(fOnChange) then
-//        fOnChange(Self);
-//    end;
-  end;
+    UpdateOnChange;
 end;
 
 
 procedure TKMColumnBox.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var NewIndex: Integer;
 begin
   inherited;
-  if (ssLeft in Shift) and (fMouseOverRow <> -1) then
-    NewIndex := fMouseOverRow;
-
-    if NewIndex >= fRowCount then
-    begin
-      //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
-      fTimeOfLastClick := 0;
-      NewIndex := -1;
-    end;
-
-    if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
-    begin
-      fItemIndex := NewIndex;
-      fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
-      if Assigned(fOnChange) then
-        fOnChange(Self);
-    end;
+  UpdateMouseOverPosition(X, Y);
+  if (Button = mbLeft) and (fMouseOverRow <> -1) then
+    UpdateOnChange;
 end;
 
 
@@ -6814,7 +6821,8 @@ function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = F
         if (Child is TKMPanel) then
         begin
           Result := ScanChild(TKMPanel(Child),aX,aY);
-          if Result <> nil then exit;
+          if Result <> nil then
+            Exit;
         end;
         if Child.HitTest(aX, aY, aIncludeDisabled) then
         begin

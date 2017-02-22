@@ -1112,14 +1112,31 @@ function TKMMenuLobby.DropColPlayersCellClick(Sender: TObject; const X, Y: Integ
 var I, NetI: Integer;
 begin
   Result := False;
-  for I := 1 to MAX_LOBBY_SLOTS do
+  //Result := X = 1;
+  if X = 1 then
   begin
-    NetI := fLocalToNetPlayers[I];
-    if Sender = DropBox_LobbyPlayerSlot[I].List then
+    for I := MAX_LOBBY_SLOTS downto 1 do  //Open
     begin
-//      DropBox_LobbyPlayerSlot[I].CloseList;
-      Result := True;
-    end;
+      NetI := fLocalToNetPlayers[I];
+      if NetI <> fNetworking.MyIndex then // Do not alter our DropBox
+        case Y of
+          0:  begin //Open
+                if (DropBox_LobbyPlayerSlot[I].ItemIndex = 1) //Open only closed slots (not AI)
+                  or (Sender = DropBox_LobbyPlayerSlot[I].List) then  //Also update current slot, because we do not let OnChangeEvent to happen
+                begin
+                  DropBox_LobbyPlayerSlot[I].ItemIndex := 0;
+                  PlayersSetupChange(DropBox_LobbyPlayerSlot[I]);
+                end;
+              end;
+          1: ; //Close
+          2: ; //AI
+        end;
+      if Sender = DropBox_LobbyPlayerSlot[I].List then
+        DropBox_LobbyPlayerSlot[I].CloseList;
+    end; 
+    // Do not propagate click event further, because
+    // we do not want provoke OnChange event handler invokation, we have handled everything here
+    Result := True; 
   end;
 end;
 
@@ -1226,7 +1243,7 @@ begin
           end;
         end;
       end;
-      DropBox_LobbyPlayerSlot[I].CloseList; //We may have cause player list to rearrange
+      //DropBox_LobbyPlayerSlot[I].CloseList; //We may have cause player list to rearrange
       fNetworking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;
@@ -1827,6 +1844,7 @@ begin
     finally
       fMapsMP.Unlock;
     end;
+    MapChange(nil); //Update Map
     Result := True; //we handle mouse click here, and do want to propagate it further
   end;
 end;

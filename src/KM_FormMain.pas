@@ -248,7 +248,20 @@ begin if gGameApp <> nil then gGameApp.MouseMove(Shift, X, Y); end;
 
 
 procedure TFormMain.RenderAreaMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if gGameApp <> nil then gGameApp.MouseUp(Button, Shift, X, Y); end;
+begin
+  if gGameApp <> nil then
+  begin
+    //Somehow Shift state does not contain mouse buttons ssLeft/ssRight/ssMiddle
+//    if Button = mbLeft then
+//      Include(Shift, ssLeft)
+//    else if Button = mbRight then
+//      Include(Shift, ssRight)
+//    else if Button = mbMiddle then
+//      Include(Shift, ssMiddle);
+
+    gGameApp.MouseUp(Button, Shift, X, Y);
+  end;
+end;
 
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
