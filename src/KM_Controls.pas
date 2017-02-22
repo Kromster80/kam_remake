@@ -34,18 +34,17 @@ type
     fCtrlOver: TKMControl; //Control which has cursor Over it
     fCtrlUp: TKMControl; //Control above which cursor was released
 
-    fControlGlobalCounter: Cardinal;
+    fControlIDCounter: Integer;
 
     fOnHint: TNotifyEvent; //Comes along with OnMouseOver
 
     function IsCtrlCovered(aCtrl: TKMControl): Boolean;
-    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
     procedure SetCtrlDown(aCtrl: TKMControl);
     procedure SetCtrlFocus(aCtrl: TKMControl);
     procedure SetCtrlOver(aCtrl: TKMControl);
     procedure SetCtrlUp(aCtrl: TKMControl);
     
-    function GetNextCtrlGlobalIndex: Cardinal;
+    function GetNextCtrlID: Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -61,7 +60,7 @@ type
 
     property OnHint: TNotifyEvent write fOnHint;
 
-    property NextCtrlGlobalIndex: Cardinal read GetNextCtrlGlobalIndex;
+    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
 
     function KeyDown    (Key: Word; Shift: TShiftState): Boolean;
     procedure KeyPress  (Key: Char);
@@ -96,7 +95,7 @@ type
     fEnabled: Boolean;
     fVisible: Boolean;
     fControlIndex: Integer; //Index number of this control in his Parent's (TKMPanel) collection
-    fControlGlobalIndex: Cardinal;
+    fID: Integer; //Control global ID
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
@@ -158,6 +157,7 @@ type
     property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+    property ID: Integer read fID;
 
     // "Self" coordinates - this is the coordinates of control itself.
     // For simple controls they are equal to normal coordinates
@@ -1377,9 +1377,9 @@ begin
   Hint        := '';
   fControlIndex := -1;
   if aParent <> nil then
-    fControlGlobalIndex := aParent.fMasterControl.NextCtrlGlobalIndex
+    fID := aParent.fMasterControl.GetNextCtrlID
   else if Self is TKMPanel then
-    fControlGlobalIndex := 0;
+    fID := 0;
     
 
   //Parent will be Nil only for master Panel which contains all the controls in it
@@ -1480,7 +1480,7 @@ begin
   end;
 
   if SHOW_CONTROLS_ID then
-    TKMRenderUI.WriteText(AbsLeft, AbsTop, fWidth, IntToStr(fControlGlobalIndex), fnt_Arial, taCenter);
+    TKMRenderUI.WriteText(AbsLeft+1, AbsTop, fWidth, IntToStr(fID), fnt_Mini, taLeft);
 
   if not SHOW_CONTROLS_OVERLAY then exit;
 
@@ -6612,7 +6612,7 @@ begin
   fCtrlOver  := nil;
   fCtrlUp    := nil;
 
-  fControlGlobalCounter := 0;
+  fControlIDCounter := 0;
 end;
 
 
@@ -6697,12 +6697,10 @@ begin
 end;
 
 
-function TKMMasterControl.GetNextCtrlGlobalIndex: Cardinal;
+function TKMMasterControl.GetNextCtrlID: Integer;
 begin
-  if fControlGlobalCounter = Cardinal.MaxValue then
-    fControlGlobalCounter := 1;
-  Inc(fControlGlobalCounter);
-  Result := fControlGlobalCounter;
+  Inc(fControlIDCounter);
+  Result := fControlIDCounter;
 end;
 
 

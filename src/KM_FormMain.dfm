@@ -56,8 +56,12 @@ object FormMain: TFormMain
         Width = 80
       end
       item
-        Text = 'Object'
-        Width = 90
+        Text = 'Object '
+        Width = 100
+      end
+      item
+        Text = 'Control ID: '
+        Width = 80
       end>
   end
   object GroupBox1: TGroupBox

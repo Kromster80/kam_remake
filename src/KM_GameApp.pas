@@ -94,7 +94,7 @@ implementation
 uses
   KM_Log, KM_Main, KM_GameCursor,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess;
+  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess, KM_Controls;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -287,6 +287,8 @@ end;
 
 
 procedure TKMGameApp.MouseMove(Shift: TShiftState; X,Y: Integer);
+var Ctrl: TKMControl;
+    CtrlID: Integer;
 begin
   if not InRange(X, 1, fRender.ScreenX - 1)
   or not InRange(Y, 1, fRender.ScreenY - 1) then
@@ -305,6 +307,17 @@ begin
     fOnCursorUpdate(2, Format('Tile: %.1f:%.1f [%d:%d]',
                               [gGameCursor.Float.X, gGameCursor.Float.Y,
                               gGameCursor.Cell.X, gGameCursor.Cell.Y]));
+    if SHOW_CONTROLS_ID then
+    begin
+      if gGame <> nil then
+        Ctrl := gGame.ActiveInterface.MyControls.HitControl(X,Y, True)
+      else
+        Ctrl := fMainMenuInterface.MyControls.HitControl(X,Y, True);
+      CtrlID := -1;
+      if Ctrl <> nil then
+        CtrlID := Ctrl.ID;
+      fOnCursorUpdate(6, Format('Control ID: %d', [CtrlID]));
+    end;
   end;
 end;
 

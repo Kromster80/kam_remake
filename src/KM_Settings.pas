@@ -435,7 +435,8 @@ end;
 
 function TGameSettings.IsMapInFavourites(aMapCRC: Cardinal): Boolean;
 begin
-  Result := fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC)) <> -1;
+  Result := (fMenu_FavouriteMPMaps <> nil)
+              and (fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC)) <> -1);
 end;
 
 
