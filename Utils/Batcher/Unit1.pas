@@ -1129,7 +1129,7 @@ begin
 end;
 
 
-{ TMissionParserBatcher }
+{ TMissionParserColorCheck }
 procedure TMissionParserColorCheck.SetDefaultColorsForMission(var aTxt: AnsiString; aCommands: TKMMissionColorInfoArray);
 var
   IntArr: TIntegerArray;
