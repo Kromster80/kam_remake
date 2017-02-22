@@ -73,7 +73,6 @@ object Form1: TForm1
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 3
-    ExplicitHeight = 262
   end
   object Button4: TButton
     Left = 24

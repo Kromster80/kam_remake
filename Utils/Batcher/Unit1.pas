@@ -8,7 +8,6 @@ uses
   KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
 
 type
-
   TKMCommandInfo = record
     Parsed: Boolean;
     StartPos: Integer;
@@ -68,7 +67,9 @@ implementation
 uses
   KM_Campaigns, KM_Game, KM_Hand, KM_MissionScript_Standard;
 
-const  
+{$R *.dfm}
+
+const
   KAM_ORIGINAL_TEAM_COLORS: array [0..MAX_HANDS-1] of Cardinal = (
     $FF0707FF, //Red
     $FFE3BB5B, //Cyan
@@ -77,18 +78,14 @@ const
     $FF07FFFF, //Yellow
     $FF577B7B, //Grey
     $FF000000, //Black
-    $FF000000,  //Black
+    $FF000000, //Black
     $FF2383FB, //Orange
     $FFFF0707, //Blue
     $FF0BE73F, //Light green
     $FFFFFFFF  //White
   );
 
-
-{$R *.dfm}
-
 type
-
   TMissionParserPatcher = class(TMissionParserCommon)
   protected
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
@@ -171,7 +168,8 @@ end;
 
 
 procedure TForm1.ControlsEnable(aFlag: Boolean);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to ControlCount - 1 do
     if Controls[I] is TButton then
@@ -748,10 +746,11 @@ end;
 
 //Delete command SET_NEW_REMAP from all maps (this command is unused) 
 procedure TForm1.btnRemoveNewRemapClick(Sender: TObject);
-var Parser: TMissionParserColorCheck;
-    PathToMaps: TStringList;
-    I, Deleted: Integer;
-    Txt: AnsiString;
+var
+  Parser: TMissionParserColorCheck;
+  PathToMaps: TStringList;
+  I, Deleted: Integer;
+  Txt: AnsiString;
 begin
   Memo1.Clear;
   ControlsEnable(False);
@@ -781,9 +780,9 @@ begin
 end;
 
 
-
 procedure TForm1.ResetCommands(var aCommands: TKMMissionColorInfoArray);
-var I: Integer;
+var
+  I: Integer;
 begin
   SetLength(aCommands, MAX_HANDS);
   for I := 0 to MAX_HANDS - 1 do
@@ -796,17 +795,18 @@ begin
 end;
 
 
-//Some maps have both SET_MAP_COLOR and SET_RGB_COLOR, 
-//SET_MAP_COLOR is always coming first, means SET_RGB_COLOR is always overriding color previously set by SET_MAP_COLOR. 
+//Some maps have both SET_MAP_COLOR and SET_RGB_COLOR,
+//SET_MAP_COLOR is always coming first, means SET_RGB_COLOR is always overriding color previously set by SET_MAP_COLOR.
 //This method finds all such maps and deletes SET_MAP_COLOR command.
 procedure TForm1.btnDeleteUnusedSetMapColorClick(Sender: TObject);
-var I, J, K, TmpValue, ChangedCnt: Integer;
-    Txt: AnsiString;
-    PathToMaps: TStringList;
-    Parser: TMissionParserColorCheck;
-    Commands: TKMMissionColorInfoArray;
-    DeleteColorFromPlayerArr: TIntegerArray;
-    IsMapColorFirst: Boolean;
+var
+  I, J, K, TmpValue, ChangedCnt: Integer;
+  Txt: AnsiString;
+  PathToMaps: TStringList;
+  Parser: TMissionParserColorCheck;
+  Commands: TKMMissionColorInfoArray;
+  DeleteColorFromPlayerArr: TIntegerArray;
+  IsMapColorFirst: Boolean;
 begin
   Memo1.Clear;
   ControlsEnable(False);
@@ -882,10 +882,11 @@ end;
 
 
 procedure TForm1.GetColorCommandsInfo(aTxt: AnsiString; var aColorInfoArray: TKMMissionColorInfoArray);
-var CurrLoc, CurrEnd, NextCurrLoc: Integer;
-    SetColorLoc, SetColorEnd: Integer;
-    PlayerId: Integer;
-    s: String;
+var
+  CurrLoc, CurrEnd, NextCurrLoc: Integer;
+  SetColorLoc, SetColorEnd: Integer;
+  PlayerId: Integer;
+  s: String;
 begin
   CurrLoc := 1;
   repeat
@@ -941,17 +942,17 @@ end;
 
 
 function TForm1.CheckNoColorCommandsForAllMaps(var NoColorsMaps: TStringList; aSetMissingColor: Boolean): Integer;
-var I: Integer;
-    PathToMaps: TStringList;
-    Parser: TMissionParserColorCheck;
-    Txt: AnsiString;
-    Commands: TKMMissionColorInfoArray;
+var
+  I: Integer;
+  PathToMaps: TStringList;
+  Parser: TMissionParserColorCheck;
+  Txt: AnsiString;
+  Commands: TKMMissionColorInfoArray;
 begin
   PathToMaps := TStringList.Create;
   Parser := TMissionParserColorCheck.Create;
 
   NoColorsMaps.Clear;
-
   try
     TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
     for I := 0 to PathToMaps.Count - 1 do
@@ -976,17 +977,17 @@ begin
     PathToMaps.Free;
     FreeAndNil(Parser);
   end;
-
 end;
 
 
 //Check all players in all maps have at least one of commands SET_MAP_COLOR or SET_RGB_COLOR
 //if Sender = btnSetDefColor, then For every player, who do have any of these commands add SET_RGB_COLOR command
 procedure TForm1.btnCheckColorClick(Sender: TObject);
-var I: Integer;
-    NoColorMaps: TStringList;
-    CheckedCnt: Integer;
-    DoSetDefaultColors: Boolean;
+var
+  I: Integer;
+  NoColorMaps: TStringList;
+  CheckedCnt: Integer;
+  DoSetDefaultColors: Boolean;
 begin
   Memo1.Clear;
   ControlsEnable(False);
@@ -1028,7 +1029,8 @@ end;
 
 
 function TForm1.XorUnXor(UnXor: Boolean; F: TMemoryStream): Boolean;
-var K, Num: Integer;
+var
+  K, Num: Integer;
 begin
   Result := False;
   if F.Size > 0 then
@@ -1161,9 +1163,10 @@ end;
 
 { TMissionParserBatcher }
 procedure TMissionParserColorCheck.SetDefaultColorsForMission(var aTxt: AnsiString; aCommands: TKMMissionColorInfoArray);
-var IntArr: TIntegerArray;
-    I, J, TmpValue, TotalOffset: Integer;
-    InsertStr: AnsiString;
+var
+  IntArr: TIntegerArray;
+  I, J, TmpValue, TotalOffset: Integer;
+  InsertStr: AnsiString;
 begin
   IntArr := GetPlayersWithoutColorArr(aCommands);
 
@@ -1188,9 +1191,10 @@ begin
 end;
 
 
-function TMissionParserColorCheck.GetPlayersWithoutColorStr(aCommands: TKMMissionColorInfoArray): String;
-var I: Integer;
-    IntArr: TIntegerArray;
+function TMissionParserColorCheck.GetPlayersWithoutColorStr(aCommands: TKMMissionColorInfoArray): string;
+var
+  I: Integer;
+  IntArr: TIntegerArray;
 begin
   Result := '';
   IntArr := GetPlayersWithoutColorArr(aCommands);
@@ -1204,13 +1208,15 @@ end;
 
 
 function TMissionParserColorCheck.GetPlayersWithoutColorArr(aCommands: TKMMissionColorInfoArray): TIntegerArray;
-var I, J: Integer;
+var
+  I, J: Integer;
 begin
   SetLength(Result, MAX_HANDS);
+
   J := 0;
   for I := 0 to MAX_HANDS - 1 do
     if aCommands[I].CurrPlayer.Parsed 
-      and not (aCommands[I].SetMapColor.Parsed or aCommands[I].SetRgbColor.Parsed) then
+    and not (aCommands[I].SetMapColor.Parsed or aCommands[I].SetRgbColor.Parsed) then
     begin
       Result[J] := I;
       Inc(J);
@@ -1221,16 +1227,14 @@ end;
 
 
 function TMissionParserColorCheck.IsValid(aCommands: TKMMissionColorInfoArray): Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := True;
   for I := 0 to MAX_HANDS - 1 do
-  begin
     if aCommands[I].CurrPlayer.Parsed then
       Result := Result and (aCommands[I].SetMapColor.Parsed or aCommands[I].SetRgbColor.Parsed);
-  end;
 end;
 
 
 end.
-
