@@ -8,7 +8,6 @@ uses
   KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
 
 type
-
   TKMCommandInfo = record
     Parsed: Boolean;
     StartPos: Integer;
@@ -56,7 +55,7 @@ type
     procedure GetColorCommandsInfo(aTxt: AnsiString; var aColorInfoArray: TKMMissionColorInfoArray);
     function XorUnXor(UnXor: Boolean; F: TMemoryStream): Boolean;
     function CheckNoColorCommandsForAllMaps(var NoColorsMaps: TStringList; aSetMissingColor: Boolean): Integer;
-    procedure SetUp;
+    procedure SetUp(aNeedGame: Boolean);
     procedure TearDown;
     procedure ControlsEnable(aFlag: Boolean);
   end;
@@ -68,27 +67,25 @@ implementation
 uses
   KM_Campaigns, KM_Game, KM_Hand, KM_MissionScript_Standard;
 
-const  
-  KAM_ORIGINAL_TEAM_COLORS: array [0..MAX_HANDS-1] of Cardinal = (
-    $FF0707FF, //Red
-    $FFE3BB5B, //Cyan
-    $FF27A700, //Green
-    $FFFF67FF, //Magenta
-    $FF07FFFF, //Yellow
-    $FF577B7B, //Grey
-    $FF000000, //Black
-    $FF000000,  //Black
-    $FF2383FB, //Orange
-    $FFFF0707, //Blue
-    $FF0BE73F, //Light green
-    $FFFFFFFF  //White
-  );
-
-
 {$R *.dfm}
 
-type
+const
+  KAM_ORIGINAL_TEAM_COLORS: array [0..MAX_HANDS-1] of Cardinal = (
+    $0707FF, //Red
+    $E3BB5B, //Cyan
+    $27A700, //Green
+    $FF67FF, //Magenta
+    $07FFFF, //Yellow
+    $577B7B, //Grey
+    $000000, //Black
+    $000000, //Black
+    $2383FB, //Orange
+    $FF0707, //Blue
+    $0BE73F, //Light green
+    $FFFFFF  //White
+  );
 
+type
   TMissionParserPatcher = class(TMissionParserCommon)
   protected
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
@@ -109,15 +106,15 @@ type
 { TMissionParserPatcher }
 function TMissionParserPatcher.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 begin
-  //do nothing here and make compiler happy
+  // Do nothing here and make compiler happy
   Result := True;
 end;
 
-//Read mission file as it is, without any changes 
-//(in TMissionParserCommon.ReadMissionFile some spaces are cutted and other refactoring has been done)
+// Read mission file as it is, without any changes
+// We don't use TMissionParserCommon.ReadMissionFile, becasue it cuts spaces and does other things
 function TMissionParserPatcher.ReadMissionFileWOChanges(const aFileName: string): AnsiString;
 var
-  I,Num: Cardinal;
+  I, Num: Cardinal;
   F: TMemoryStream;
 begin
   Result := '';
@@ -131,14 +128,14 @@ begin
 
     if F.Size = 0 then Exit;
 
-    //Detect whether mission is encoded so we can support decoded/encoded .DAT files
-    //We can't test 1st char, it can be any. Instead see how often common chracters meet
+    // Detect whether mission is encoded so we can support decoded/encoded .DAT files
+    // We can't test 1st char, it can be any. Instead see how often common chracters meet
     Num := 0;
     for I := 0 to F.Size - 1 do               //tab, eol, 0..9, space, !
       if PByte(Cardinal(F.Memory)+I)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
         Inc(Num);
 
-    //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
+    // Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
     if (Num / F.Size < 0.20) then
     for I := 0 to F.Size - 1 do
       PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
@@ -171,7 +168,8 @@ end;
 
 
 procedure TForm1.ControlsEnable(aFlag: Boolean);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to ControlCount - 1 do
     if Controls[I] is TButton then
@@ -179,8 +177,11 @@ begin
 end;
 
 
-procedure TForm1.SetUp;
+procedure TForm1.SetUp(aNeedGame: Boolean);
 begin
+  ControlsEnable(False);
+  Memo1.Clear;
+
   SKIP_RENDER := True;
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
@@ -192,9 +193,10 @@ end;
 
 procedure TForm1.TearDown;
 begin
-  gGameApp.Stop(gr_Silent);
-  FreeAndNil(gGameApp);
+  FreeThenNil(gGameApp);
   FreeAndNil(gLog);
+
+  ControlsEnable(True);
 end;
 
 
@@ -205,36 +207,33 @@ var
   NewName: string;
   B: Boolean;
 begin
-  begin
-    FindFirst('..\..\SpriteResource\9\9*.png', faAnyFile, SearchRec);
-    repeat
-      NewName := SearchRec.Name;
-      NewName := StringReplace(NewName, '9_00', '2_17', [rfReplaceAll, rfIgnoreCase]);
-      NewName := StringReplace(NewName, '9_01', '2_18', [rfReplaceAll, rfIgnoreCase]);
-      NewName := StringReplace(NewName, '9_02', '2_19', [rfReplaceAll, rfIgnoreCase]);
-      NewName := StringReplace(NewName, '9_03', '2_20', [rfReplaceAll, rfIgnoreCase]);
-      B := RenameFile(ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + SearchRec.Name,
-                      ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + NewName);
-      Assert(B);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
-  end;
+  FindFirst('..\..\SpriteResource\9\9*.png', faAnyFile, SearchRec);
+  repeat
+    NewName := SearchRec.Name;
+    NewName := StringReplace(NewName, '9_00', '2_17', [rfReplaceAll, rfIgnoreCase]);
+    NewName := StringReplace(NewName, '9_01', '2_18', [rfReplaceAll, rfIgnoreCase]);
+    NewName := StringReplace(NewName, '9_02', '2_19', [rfReplaceAll, rfIgnoreCase]);
+    NewName := StringReplace(NewName, '9_03', '2_20', [rfReplaceAll, rfIgnoreCase]);
+    B := RenameFile(ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + SearchRec.Name,
+                    ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + NewName);
+    Assert(B);
+  until (FindNext(SearchRec) <> 0);
+  FindClose(SearchRec);
 end;
 
 
-//Export message goals into EVT files to allow to rig them easily
+// Export message goals into EVT files to allow to rig them easily
 procedure TForm1.Button3Click(Sender: TObject);
 const
-  cmp: TKMCampaignId = (Byte('T'), Byte('P'), Byte('R'));
+  TPR_CAMPAIGN: TKMCampaignId = (Byte('T'), Byte('P'), Byte('R'));
 var
   I: Integer;
 begin
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
-  for I := 0 to gGameApp.Campaigns.CampaignById(cmp).MapCount - 1 do
+  for I := 0 to gGameApp.Campaigns.CampaignById(TPR_CAMPAIGN).MapCount - 1 do
   begin
-    gGameApp.NewCampaignMap(gGameApp.Campaigns.CampaignById(cmp), I);
+    gGameApp.NewCampaignMap(gGameApp.Campaigns.CampaignById(TPR_CAMPAIGN), I);
 
     gHands[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 
@@ -242,7 +241,6 @@ begin
   end;
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -255,8 +253,7 @@ var
   GC: TGoalCondition;
   MapFolderType: TMapFolder;
 begin
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   FillChar(WinCond, SizeOf(WinCond), #0);
   FillChar(DefeatCond, SizeOf(WinCond), #0);
@@ -284,7 +281,6 @@ begin
     end;
 
     //Report results
-    Memo1.Clear;
     Memo1.Lines.Append(IntToStr(PathToMaps.Count) + ' maps');
     Memo1.Lines.Append('Win / Def');
     for GC := Low(TGoalCondition) to High(TGoalCondition) do
@@ -294,7 +290,6 @@ begin
   end;
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -309,9 +304,7 @@ var
   Args: TStringList;
   GoalLog: TStringList;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   Args := TStringList.Create;
   //@Krom: StrictDelimiter doesn't exist in D7
@@ -386,7 +379,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -401,9 +393,7 @@ var
   PlayersSet: array [0 .. MAX_HANDS - 1] of Boolean;
   s: string;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   //Intent of this design is to rip the specified lines with least impact
   MP := TMissionParserPatcher.Create;
@@ -480,7 +470,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -504,9 +493,7 @@ var
   Txt: AnsiString;
   MP: TMissionParserPatcher;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   //Intent of this design is to rip the specified lines with least impact
   MP := TMissionParserPatcher.Create;
@@ -588,7 +575,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -601,9 +587,7 @@ var
   MP: TMissionParserPatcher;
   Args: TStringList;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   Args := TStringList.Create;
   //@Krom: StrictDelimiter doesn't exist in D7
@@ -661,7 +645,6 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -676,9 +659,7 @@ var
   PlayersSet: array [0 .. MAX_HANDS - 1] of Boolean;
   s: string;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   //Intent of this design is to rip the specified lines with least impact
   MP := TMissionParserPatcher.Create;
@@ -742,20 +723,18 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
 //Delete command SET_NEW_REMAP from all maps (this command is unused) 
 procedure TForm1.btnRemoveNewRemapClick(Sender: TObject);
-var Parser: TMissionParserColorCheck;
-    PathToMaps: TStringList;
-    I, Deleted: Integer;
-    Txt: AnsiString;
+var
+  Parser: TMissionParserColorCheck;
+  PathToMaps: TStringList;
+  I, Deleted: Integer;
+  Txt: AnsiString;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   Deleted := 0;
   PathToMaps := TStringList.Create;
@@ -777,13 +756,12 @@ begin
     Parser.Free;
   end;
   TearDown;
-  ControlsEnable(True);
 end;
 
 
-
 procedure TForm1.ResetCommands(var aCommands: TKMMissionColorInfoArray);
-var I: Integer;
+var
+  I: Integer;
 begin
   SetLength(aCommands, MAX_HANDS);
   for I := 0 to MAX_HANDS - 1 do
@@ -796,21 +774,20 @@ begin
 end;
 
 
-//Some maps have both SET_MAP_COLOR and SET_RGB_COLOR, 
-//SET_MAP_COLOR is always coming first, means SET_RGB_COLOR is always overriding color previously set by SET_MAP_COLOR. 
+//Some maps have both SET_MAP_COLOR and SET_RGB_COLOR,
+//SET_MAP_COLOR is always coming first, means SET_RGB_COLOR is always overriding color previously set by SET_MAP_COLOR.
 //This method finds all such maps and deletes SET_MAP_COLOR command.
 procedure TForm1.btnDeleteUnusedSetMapColorClick(Sender: TObject);
-var I, J, K, TmpValue, ChangedCnt: Integer;
-    Txt: AnsiString;
-    PathToMaps: TStringList;
-    Parser: TMissionParserColorCheck;
-    Commands: TKMMissionColorInfoArray;
-    DeleteColorFromPlayerArr: TIntegerArray;
-    IsMapColorFirst: Boolean;
+var
+  I, J, K, TmpValue, ChangedCnt: Integer;
+  Txt: AnsiString;
+  PathToMaps: TStringList;
+  Parser: TMissionParserColorCheck;
+  Commands: TKMMissionColorInfoArray;
+  DeleteColorFromPlayerArr: TIntegerArray;
+  IsMapColorFirst: Boolean;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   SetLength(DeleteColorFromPlayerArr, MAX_HANDS);
   
@@ -865,8 +842,8 @@ begin
        Inc(ChangedCnt);   
       //Delete extra command from file    
       for J := Low(DeleteColorFromPlayerArr) to High(DeleteColorFromPlayerArr) do
-        Delete(Txt, Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos - 1,
-               Commands[DeleteColorFromPlayerArr[J]].SetMapColor.EndPos - Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos + 1);  
+        Delete(Txt, Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos - Length(EolA),
+               Commands[DeleteColorFromPlayerArr[J]].SetMapColor.EndPos - Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos + Length(EolA));
         
       Parser.SaveToFile(Txt, PathToMaps[I], False);
     end;
@@ -876,16 +853,17 @@ begin
     PathToMaps.Free;
     FreeAndNil(Parser);
   end;
+
   TearDown;
-  ControlsEnable(True);
 end;
 
 
 procedure TForm1.GetColorCommandsInfo(aTxt: AnsiString; var aColorInfoArray: TKMMissionColorInfoArray);
-var CurrLoc, CurrEnd, NextCurrLoc: Integer;
-    SetColorLoc, SetColorEnd: Integer;
-    PlayerId: Integer;
-    s: String;
+var
+  CurrLoc, CurrEnd, NextCurrLoc: Integer;
+  SetColorLoc, SetColorEnd: Integer;
+  PlayerId: Integer;
+  s: String;
 begin
   CurrLoc := 1;
   repeat
@@ -941,17 +919,17 @@ end;
 
 
 function TForm1.CheckNoColorCommandsForAllMaps(var NoColorsMaps: TStringList; aSetMissingColor: Boolean): Integer;
-var I: Integer;
-    PathToMaps: TStringList;
-    Parser: TMissionParserColorCheck;
-    Txt: AnsiString;
-    Commands: TKMMissionColorInfoArray;
+var
+  I: Integer;
+  PathToMaps: TStringList;
+  Parser: TMissionParserColorCheck;
+  Txt: AnsiString;
+  Commands: TKMMissionColorInfoArray;
 begin
   PathToMaps := TStringList.Create;
   Parser := TMissionParserColorCheck.Create;
 
   NoColorsMaps.Clear;
-
   try
     TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
     for I := 0 to PathToMaps.Count - 1 do
@@ -974,23 +952,21 @@ begin
     Result := PathToMaps.Count;
   finally
     PathToMaps.Free;
-    FreeAndNil(Parser);
+    Parser.Free;
   end;
-
 end;
 
 
 //Check all players in all maps have at least one of commands SET_MAP_COLOR or SET_RGB_COLOR
 //if Sender = btnSetDefColor, then For every player, who do have any of these commands add SET_RGB_COLOR command
 procedure TForm1.btnCheckColorClick(Sender: TObject);
-var I: Integer;
-    NoColorMaps: TStringList;
-    CheckedCnt: Integer;
-    DoSetDefaultColors: Boolean;
+var
+  I: Integer;
+  NoColorMaps: TStringList;
+  CheckedCnt: Integer;
+  DoSetDefaultColors: Boolean;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   DoSetDefaultColors := Sender = btnSetDefColor;
 
@@ -1000,16 +976,15 @@ begin
 
     if NoColorMaps.Count = 0 then
       Memo1.Lines.Append('All maps have color commands SET_MAP_COLOR or SET_RGB_COLOR for every player')
-    else begin
+    else
+    begin
       if DoSetDefaultColors then
         Memo1.Lines.Append('Set default Colors for Maps:' + EolA)
       else
         Memo1.Lines.Append('Maps without SET_MAP_COLOR or SET_RGB_COLOR:' + EolA);
 
       for I := 0 to NoColorMaps.Count - 1 do
-      begin
         Memo1.Lines.Append(TruncateExt(ExtractFileName(NoColorMaps[I])));
-      end;
 
       if DoSetDefaultColors then
         Memo1.Lines.Append('Fixed maps total: ' + IntToStr(NoColorMaps.Count))
@@ -1023,12 +998,12 @@ begin
   end;
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
 function TForm1.XorUnXor(UnXor: Boolean; F: TMemoryStream): Boolean;
-var K, Num: Integer;
+var
+  K, Num: Integer;
 begin
   Result := False;
   if F.Size > 0 then
@@ -1062,9 +1037,7 @@ var
   UnXOR: Boolean;
   MapCount: Integer;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   UnXOR := (Sender = btnUnXorAll);
 
@@ -1097,7 +1070,6 @@ begin
   Memo1.Lines.Append(IntToStr(MapCount) + ' maps changed');
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
@@ -1109,9 +1081,7 @@ var
   ScriptFile, Txt: AnsiString;
   F: TMemoryStream;
 begin
-  Memo1.Clear;
-  ControlsEnable(False);
-  SetUp;
+  SetUp(True);
 
   PathToMaps := TStringList.Create;
   try
@@ -1155,15 +1125,15 @@ begin
   Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
 
   TearDown;
-  ControlsEnable(True);
 end;
 
 
-{ TMissionParserBatcher }
+{ TMissionParserColorCheck }
 procedure TMissionParserColorCheck.SetDefaultColorsForMission(var aTxt: AnsiString; aCommands: TKMMissionColorInfoArray);
-var IntArr: TIntegerArray;
-    I, J, TmpValue, TotalOffset: Integer;
-    InsertStr: AnsiString;
+var
+  IntArr: TIntegerArray;
+  I, J, TmpValue, TotalOffset: Integer;
+  InsertStr: AnsiString;
 begin
   IntArr := GetPlayersWithoutColorArr(aCommands);
 
@@ -1188,9 +1158,10 @@ begin
 end;
 
 
-function TMissionParserColorCheck.GetPlayersWithoutColorStr(aCommands: TKMMissionColorInfoArray): String;
-var I: Integer;
-    IntArr: TIntegerArray;
+function TMissionParserColorCheck.GetPlayersWithoutColorStr(aCommands: TKMMissionColorInfoArray): string;
+var
+  I: Integer;
+  IntArr: TIntegerArray;
 begin
   Result := '';
   IntArr := GetPlayersWithoutColorArr(aCommands);
@@ -1204,13 +1175,15 @@ end;
 
 
 function TMissionParserColorCheck.GetPlayersWithoutColorArr(aCommands: TKMMissionColorInfoArray): TIntegerArray;
-var I, J: Integer;
+var
+  I, J: Integer;
 begin
   SetLength(Result, MAX_HANDS);
+
   J := 0;
   for I := 0 to MAX_HANDS - 1 do
     if aCommands[I].CurrPlayer.Parsed 
-      and not (aCommands[I].SetMapColor.Parsed or aCommands[I].SetRgbColor.Parsed) then
+    and not (aCommands[I].SetMapColor.Parsed or aCommands[I].SetRgbColor.Parsed) then
     begin
       Result[J] := I;
       Inc(J);
@@ -1221,16 +1194,14 @@ end;
 
 
 function TMissionParserColorCheck.IsValid(aCommands: TKMMissionColorInfoArray): Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := True;
   for I := 0 to MAX_HANDS - 1 do
-  begin
     if aCommands[I].CurrPlayer.Parsed then
       Result := Result and (aCommands[I].SetMapColor.Parsed or aCommands[I].SetRgbColor.Parsed);
-  end;
 end;
 
 
 end.
-
