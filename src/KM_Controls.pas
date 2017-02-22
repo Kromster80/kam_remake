@@ -5526,7 +5526,7 @@ end;
 procedure TKMDropCommon.UpdateVisibility;
 begin
   if not Visible then
-    ListHide(nil);
+    CloseList;
 end;
 
 
