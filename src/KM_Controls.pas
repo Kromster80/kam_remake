@@ -34,6 +34,8 @@ type
     fCtrlOver: TKMControl; //Control which has cursor Over it
     fCtrlUp: TKMControl; //Control above which cursor was released
 
+    fControlGlobalCounter: Cardinal;
+
     fOnHint: TNotifyEvent; //Comes along with OnMouseOver
 
     function IsCtrlCovered(aCtrl: TKMControl): Boolean;
@@ -42,6 +44,8 @@ type
     procedure SetCtrlFocus(aCtrl: TKMControl);
     procedure SetCtrlOver(aCtrl: TKMControl);
     procedure SetCtrlUp(aCtrl: TKMControl);
+    
+    function GetNextCtrlGlobalIndex: Cardinal;
   public
     constructor Create;
     destructor Destroy; override;
@@ -56,6 +60,8 @@ type
     property CtrlUp: TKMControl read fCtrlUp write SetCtrlUp;
 
     property OnHint: TNotifyEvent write fOnHint;
+
+    property NextCtrlGlobalIndex: Cardinal read GetNextCtrlGlobalIndex;
 
     function KeyDown    (Key: Word; Shift: TShiftState): Boolean;
     procedure KeyPress  (Key: Char);
@@ -90,6 +96,7 @@ type
     fEnabled: Boolean;
     fVisible: Boolean;
     fControlIndex: Integer; //Index number of this control in his Parent's (TKMPanel) collection
+    fControlGlobalIndex: Cardinal;
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
@@ -876,8 +883,8 @@ type
     function GetSelfAbsTop: Integer; override;
     function GetSelfHeight: Integer; override;
     function GetSelfWidth: Integer; override;
-    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer); overload;
-    procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean); overload;
+    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer; aDoNotHighlight: Boolean = False); overload;
+    procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aDoNotHighlight: Boolean = False); overload;
   public
     HideSelection: Boolean;
     HighlightError: Boolean;
@@ -1023,7 +1030,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aBackAlpha: Single = 0.85; aShowHeader: Boolean = True);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
@@ -1369,6 +1376,11 @@ begin
   Tag         := 0;
   Hint        := '';
   fControlIndex := -1;
+  if aParent <> nil then
+    fControlGlobalIndex := aParent.fMasterControl.NextCtrlGlobalIndex
+  else if Self is TKMPanel then
+    fControlGlobalIndex := 0;
+    
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
@@ -1466,6 +1478,9 @@ begin
     TKMRenderUI.WriteShape(AbsLeft-1, AbsTop-1, Width+2, Height+2, $00000000, $FF00D0FF);
     TKMRenderUI.WriteShape(AbsLeft-2, AbsTop-2, Width+4, Height+4, $00000000, $FF00D0FF);
   end;
+
+  if SHOW_CONTROLS_ID then
+    TKMRenderUI.WriteText(AbsLeft, AbsTop, fWidth, IntToStr(fControlGlobalIndex), fnt_Arial, taCenter);
 
   if not SHOW_CONTROLS_OVERLAY then exit;
 
@@ -5258,18 +5273,26 @@ begin
 end;
 
 
-procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aDoNotHighlight: Boolean = False);
 var ColumnsToShow: array of Boolean;
     I: Integer;
 begin
   SetLength(ColumnsToShow, Length(fColumns));
   for I := Low(ColumnsToShow) to High(ColumnsToShow) do
     ColumnsToShow[I] := True; // show all columns by default
-  DoPaintLine(aIndex, X, Y, PaintWidth, ColumnsToShow); 
+  DoPaintLine(aIndex, X, Y, PaintWidth, ColumnsToShow, aDoNotHighlight);
 end;
 
 
-procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean);
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aDoNotHighlight: Boolean = False);
+  function IsHighlightOverCell(aCellIndex: Integer): Boolean;
+  begin
+    Result := not aDoNotHighlight
+                and Rows[aIndex].Cells[aCellIndex].HighlightOnMouseOver 
+                and (fMouseOverCell.X = aCellIndex) and (fMouseOverCell.Y = aIndex)
+                and (csOver in State);
+  end;
+  
 var
   I: Integer;
   AvailWidth, HiddenColumnsTotalWidth: Integer;
@@ -5303,9 +5326,7 @@ begin
                              Rows[aIndex].Cells[I].Pic.ID,
                              Rows[aIndex].Cells[I].Enabled,
                              Rows[aIndex].Cells[I].Color,
-                             0.4*Byte(Rows[aIndex].Cells[I].HighlightOnMouseOver 
-                                 and (fMouseOverCell.X = I) and (fMouseOverCell.Y = aIndex)
-                                 and (csOver in State)));
+                             0.4*Byte(IsHighlightOverCell(I)));
 
     if Rows[aIndex].Cells[I].Caption <> '' then
       if Rows[aIndex].Cells[I].Hint <> '' then
@@ -5324,13 +5345,16 @@ begin
       end else
       begin
         TextSize := gRes.Fonts[fFont].GetTextSize(Rows[aIndex].Cells[I].Caption);
-        if HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex) then
-          Color := Rows[aIndex].Cells[I].HighlightColor //Brighten(Rows[aIndex].Cells[I].Color)
-        else
-        if HighlightError and (aIndex = ItemIndex) then
+        if not aDoNotHighlight
+          and ((HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex))
+          or (HighlightError and (aIndex = ItemIndex))
+          or IsHighlightOverCell(I)) then
           Color := Rows[aIndex].Cells[I].HighlightColor
         else
           Color := Rows[aIndex].Cells[I].Color;
+          
+        if not fEnabled then
+          Color := ReduceBrightness(Color, 136);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth,
                             Y + (fItemHeight - TextSize.Y) div 2 + 2,
                             AvailWidth,
@@ -5792,7 +5816,7 @@ end;
 
 
 { TKMDropColumns }
-constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aBackAlpha: Single = 0.85; aShowHeader: Boolean = True);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle);
@@ -5803,9 +5827,10 @@ begin
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
   fList := TKMColumnBox.Create(P, AbsLeft-P.AbsLeft, AbsTop+aHeight-P.AbsTop, aWidth, 0, fFont, aStyle);
-  fList.BackAlpha := 0.85;
+  fList.BackAlpha := aBackAlpha;
   fList.OnClick := ListClick;
   fList.OnChange := ListChange;
+  fList.ShowHeader := aShowHeader;
 
   DropWidth := aWidth;
 
@@ -5959,17 +5984,10 @@ begin
   fList.Left := AbsLeft + Width - DropWidth - P.AbsLeft;
   fList.Top := AbsTop+Height-P.AbsTop;
 
-  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width, fColumnsToShowWhenListHidden)
-
-    {TKMRenderUI.WritePicture(Left + 4, Top + 1,
-                            fList.Rows[ItemIndex].Cells[0].Pic.RX,
-                            fList.Rows[ItemIndex].Cells[0].Pic.ID,
-                            fList.Rows[ItemIndex].Cells[0].Color,
-                            fEnabled or not FadeImageWhenDisabled)}
+    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width, fColumnsToShowWhenListHidden, True)
   else
     TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 4, Width - 8 - fButton.Width, fDefaultCaption, fFont, taLeft, Col);
 end;
@@ -6593,6 +6611,8 @@ begin
   fCtrlFocus := nil;
   fCtrlOver  := nil;
   fCtrlUp    := nil;
+
+  fControlGlobalCounter := 0;
 end;
 
 
@@ -6677,6 +6697,15 @@ begin
 end;
 
 
+function TKMMasterControl.GetNextCtrlGlobalIndex: Cardinal;
+begin
+  if fControlGlobalCounter = Cardinal.MaxValue then
+    fControlGlobalCounter := 1;
+  Inc(fControlGlobalCounter);
+  Result := fControlGlobalCounter;
+end;
+
+
 //Update focused control
 procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
   function FindFocusable(C: TKMPanel): Boolean;
@@ -6756,6 +6785,7 @@ function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = F
       end;
       if P.Childs[I].HitTest(aX, aY, aIncludeDisabled) then
       begin
+        P.Childs[I].HitTest(aX, aY, aIncludeDisabled);
         Result := P.Childs[I];
         Exit;
       end;
