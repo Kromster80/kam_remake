@@ -106,15 +106,15 @@ type
 { TMissionParserPatcher }
 function TMissionParserPatcher.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 begin
-  //do nothing here and make compiler happy
+  // Do nothing here and make compiler happy
   Result := True;
 end;
 
-//Read mission file as it is, without any changes 
-//(in TMissionParserCommon.ReadMissionFile some spaces are cutted and other refactoring has been done)
+// Read mission file as it is, without any changes
+// We don't use TMissionParserCommon.ReadMissionFile, becasue it cuts spaces and does other things
 function TMissionParserPatcher.ReadMissionFileWOChanges(const aFileName: string): AnsiString;
 var
-  I,Num: Cardinal;
+  I, Num: Cardinal;
   F: TMemoryStream;
 begin
   Result := '';
@@ -128,14 +128,14 @@ begin
 
     if F.Size = 0 then Exit;
 
-    //Detect whether mission is encoded so we can support decoded/encoded .DAT files
-    //We can't test 1st char, it can be any. Instead see how often common chracters meet
+    // Detect whether mission is encoded so we can support decoded/encoded .DAT files
+    // We can't test 1st char, it can be any. Instead see how often common chracters meet
     Num := 0;
     for I := 0 to F.Size - 1 do               //tab, eol, 0..9, space, !
       if PByte(Cardinal(F.Memory)+I)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
         Inc(Num);
 
-    //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
+    // Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
     if (Num / F.Size < 0.20) then
     for I := 0 to F.Size - 1 do
       PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
@@ -952,7 +952,7 @@ begin
     Result := PathToMaps.Count;
   finally
     PathToMaps.Free;
-    FreeAndNil(Parser);
+    Parser.Free;
   end;
 end;
 
@@ -976,16 +976,15 @@ begin
 
     if NoColorMaps.Count = 0 then
       Memo1.Lines.Append('All maps have color commands SET_MAP_COLOR or SET_RGB_COLOR for every player')
-    else begin
+    else
+    begin
       if DoSetDefaultColors then
         Memo1.Lines.Append('Set default Colors for Maps:' + EolA)
       else
         Memo1.Lines.Append('Maps without SET_MAP_COLOR or SET_RGB_COLOR:' + EolA);
 
       for I := 0 to NoColorMaps.Count - 1 do
-      begin
         Memo1.Lines.Append(TruncateExt(ExtractFileName(NoColorMaps[I])));
-      end;
 
       if DoSetDefaultColors then
         Memo1.Lines.Append('Fixed maps total: ' + IntToStr(NoColorMaps.Count))
