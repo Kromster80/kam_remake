@@ -76,7 +76,8 @@ var
   //These are debug things, should be False
   {User interface options}
   SHOW_DEBUG_CONTROLS   :Boolean = False; //Show debug panel / Form1 menu (F11)
-  SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
+  SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls! always Off here
+  SHOW_CONTROLS_ID      :Boolean = False; //Draw controls ID
   SHOW_CONTROLS_FOCUS   :Boolean = False; //Outline focused control
   SHOW_TEXT_OUTLINES    :Boolean = False; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:Boolean = False; //Enable special mode to allow to move/edit controls

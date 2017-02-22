@@ -34,14 +34,17 @@ type
     fCtrlOver: TKMControl; //Control which has cursor Over it
     fCtrlUp: TKMControl; //Control above which cursor was released
 
+    fControlIDCounter: Integer;
+
     fOnHint: TNotifyEvent; //Comes along with OnMouseOver
 
     function IsCtrlCovered(aCtrl: TKMControl): Boolean;
-    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
     procedure SetCtrlDown(aCtrl: TKMControl);
     procedure SetCtrlFocus(aCtrl: TKMControl);
     procedure SetCtrlOver(aCtrl: TKMControl);
     procedure SetCtrlUp(aCtrl: TKMControl);
+    
+    function GetNextCtrlID: Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -56,6 +59,8 @@ type
     property CtrlUp: TKMControl read fCtrlUp write SetCtrlUp;
 
     property OnHint: TNotifyEvent write fOnHint;
+
+    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
 
     function KeyDown    (Key: Word; Shift: TShiftState): Boolean;
     procedure KeyPress  (Key: Char);
@@ -90,6 +95,7 @@ type
     fEnabled: Boolean;
     fVisible: Boolean;
     fControlIndex: Integer; //Index number of this control in his Parent's (TKMPanel) collection
+    fID: Integer; //Control global ID
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
@@ -151,6 +157,7 @@ type
     property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+    property ID: Integer read fID;
 
     // "Self" coordinates - this is the coordinates of control itself.
     // For simple controls they are equal to normal coordinates
@@ -1369,6 +1376,11 @@ begin
   Tag         := 0;
   Hint        := '';
   fControlIndex := -1;
+  if aParent <> nil then
+    fID := aParent.fMasterControl.GetNextCtrlID
+  else if Self is TKMPanel then
+    fID := 0;
+    
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
@@ -1466,6 +1478,9 @@ begin
     TKMRenderUI.WriteShape(AbsLeft-1, AbsTop-1, Width+2, Height+2, $00000000, $FF00D0FF);
     TKMRenderUI.WriteShape(AbsLeft-2, AbsTop-2, Width+4, Height+4, $00000000, $FF00D0FF);
   end;
+
+  if SHOW_CONTROLS_ID then
+    TKMRenderUI.WriteText(AbsLeft+1, AbsTop, fWidth, IntToStr(fID), fnt_Mini, taLeft);
 
   if not SHOW_CONTROLS_OVERLAY then exit;
 
@@ -6593,6 +6608,8 @@ begin
   fCtrlFocus := nil;
   fCtrlOver  := nil;
   fCtrlUp    := nil;
+
+  fControlIDCounter := 0;
 end;
 
 
@@ -6674,6 +6691,13 @@ begin
         and aCtrl.Enabled
         and aCtrl.Focusable
         and not IsCtrlCovered(aCtrl); // Do not allow to focus on covered Controls
+end;
+
+
+function TKMMasterControl.GetNextCtrlID: Integer;
+begin
+  Inc(fControlIDCounter);
+  Result := fControlIDCounter;
 end;
 
 
