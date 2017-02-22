@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 414
-  ClientWidth = 872
+  ClientHeight = 459
+  ClientWidth = 814
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,13 +12,13 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    872
-    414)
+    814
+    459)
   PixelsPerInch = 96
   TextHeight = 13
   object Button3: TButton
-    Left = 24
-    Top = 24
+    Left = 16
+    Top = 23
     Width = 185
     Height = 25
     Margins.Left = 2
@@ -30,8 +30,8 @@ object Form1: TForm1
     OnClick = Button3Click
   end
   object Button1: TButton
-    Left = 24
-    Top = 64
+    Left = 16
+    Top = 63
     Width = 185
     Height = 25
     Margins.Left = 2
@@ -43,8 +43,8 @@ object Form1: TForm1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 24
-    Top = 104
+    Left = 16
+    Top = 103
     Width = 121
     Height = 25
     Margins.Left = 2
@@ -56,10 +56,10 @@ object Form1: TForm1
     OnClick = Button2Click
   end
   object Memo1: TMemo
-    Left = 288
+    Left = 296
     Top = 24
-    Width = 465
-    Height = 256
+    Width = 473
+    Height = 301
     Margins.Left = 2
     Margins.Top = 2
     Margins.Right = 2
@@ -73,11 +73,10 @@ object Form1: TForm1
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 3
-    ExplicitHeight = 262
   end
   object Button4: TButton
-    Left = 24
-    Top = 128
+    Left = 16
+    Top = 127
     Width = 121
     Height = 25
     Margins.Left = 2
@@ -89,8 +88,8 @@ object Form1: TForm1
     OnClick = Button4Click
   end
   object btnUnXorAll: TButton
-    Left = 288
-    Top = 336
+    Left = 296
+    Top = 339
     Width = 121
     Height = 25
     Margins.Left = 2
@@ -102,8 +101,8 @@ object Form1: TForm1
     OnClick = btnXorAllClick
   end
   object btnXorAll: TButton
-    Left = 288
-    Top = 365
+    Left = 296
+    Top = 368
     Width = 121
     Height = 25
     Margins.Left = 2
@@ -115,8 +114,8 @@ object Form1: TForm1
     OnClick = btnXorAllClick
   end
   object Button7: TButton
-    Left = 24
-    Top = 152
+    Left = 16
+    Top = 151
     Width = 121
     Height = 25
     Margins.Left = 2
@@ -128,8 +127,8 @@ object Form1: TForm1
     OnClick = Button7Click
   end
   object Button8: TButton
-    Left = 24
-    Top = 176
+    Left = 16
+    Top = 175
     Width = 185
     Height = 25
     Margins.Left = 2
@@ -141,8 +140,8 @@ object Form1: TForm1
     OnClick = Button8Click
   end
   object Button5: TButton
-    Left = 24
-    Top = 200
+    Left = 16
+    Top = 199
     Width = 185
     Height = 25
     Margins.Left = 2
@@ -154,8 +153,8 @@ object Form1: TForm1
     OnClick = Button5Click
   end
   object Button6: TButton
-    Left = 24
-    Top = 224
+    Left = 16
+    Top = 223
     Width = 185
     Height = 25
     Margins.Left = 2
@@ -167,9 +166,9 @@ object Form1: TForm1
     OnClick = Button6Click
   end
   object Button9: TButton
-    Left = 423
-    Top = 336
-    Width = 154
+    Left = 296
+    Top = 413
+    Width = 121
     Height = 25
     Margins.Left = 2
     Margins.Top = 2
@@ -180,7 +179,7 @@ object Form1: TForm1
     OnClick = Button9Click
   end
   object btnCheckColor: TButton
-    Left = 7
+    Left = 16
     Top = 281
     Width = 258
     Height = 25
@@ -196,7 +195,7 @@ object Form1: TForm1
     OnClick = btnCheckColorClick
   end
   object btnSetDefColor: TButton
-    Left = 7
+    Left = 16
     Top = 310
     Width = 258
     Height = 25
@@ -212,7 +211,7 @@ object Form1: TForm1
     OnClick = btnCheckColorClick
   end
   object btnRemoveNewRemap: TButton
-    Left = 7
+    Left = 16
     Top = 339
     Width = 258
     Height = 25
@@ -225,7 +224,7 @@ object Form1: TForm1
     OnClick = btnRemoveNewRemapClick
   end
   object btnDeleteUnusedSetMapColor: TButton
-    Left = 7
+    Left = 16
     Top = 368
     Width = 258
     Height = 25
@@ -241,5 +240,18 @@ object Form1: TForm1
     Caption = 'Delete unused SET_MAP_COLOR for all maps'
     TabOrder = 15
     OnClick = btnDeleteUnusedSetMapColorClick
+  end
+  object btnRemoveTrailingEmptyComm: TButton
+    Left = 16
+    Top = 412
+    Width = 178
+    Height = 25
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
+    Caption = 'Remove trailing empty comments'
+    TabOrder = 16
+    OnClick = btnRemoveTrailingEmptyCommClick
   end
 end
