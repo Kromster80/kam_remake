@@ -1,25 +1,25 @@
 !SET_MAP "data\mission\sMaps\save01.map"
 !SET_MAX_PLAYER 2
 
-!SET_CURR_PLAYER 0 //
+!SET_CURR_PLAYER 0
 !SET_HUMAN_PLAYER 0
 !ENABLE_PLAYER 0
 
 !CENTER_SCREEN 53 70
 
 // Reveal Maps
-!CLEAR_UP 54 71 15 //
-!CLEAR_UP 53 64 15 //
+!CLEAR_UP 54 71 15
+!CLEAR_UP 53 64 15
 
 // Goals
-!ADD_GOAL 3 1 0 1 //
+!ADD_GOAL 3 1 0 1
 
 // Lost Goals
-!ADD_LOST_GOAL 4 0 0 0 //
-!ADD_LOST_GOAL 4 0 0 1 //
+!ADD_LOST_GOAL 4 0 0 0
+!ADD_LOST_GOAL 4 0 0 1
 
 // Messages
-!ADD_GOAL 2 0 530 0 //
+!ADD_GOAL 2 0 530 0
 
 // Animals
 
@@ -31,7 +31,6 @@
 
 
 // Colour
-!SET_NEW_REMAP 24 25 26 27 28 29 30 31 // Red
 !SET_MAP_COLOR 229 // Red
 
 
@@ -66,10 +65,10 @@
 
 
 // Troops
-!SET_GROUP 16 52 71 2 4 12 //
+!SET_GROUP 16 52 71 2 4 12
 
 
-!SET_CURR_PLAYER 1 //
+!SET_CURR_PLAYER 1
 !ENABLE_PLAYER 1
 !SET_AI_PLAYER
 
@@ -83,7 +82,6 @@
 !SET_AI_CHARACTER TOWN_DEFENSE 100
 
 // Colour
-!SET_NEW_REMAP 32 33 34 35 36 37 38 39 // Light Blue
 !SET_MAP_COLOR 36 // Light Blue
 
 
@@ -91,7 +89,7 @@
 
 
 // Buildings
-!SET_HOUSE 11 58 71 //
+!SET_HOUSE 11 58 71
 
 
 // Roads
@@ -120,7 +118,7 @@
 
 
 // Troops
-!SET_GROUP 14 52 64 4 1 1 //
+!SET_GROUP 14 52 64 4 1 1
 
 
 

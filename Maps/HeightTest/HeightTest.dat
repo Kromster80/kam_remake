@@ -8,7 +8,7 @@
 !CENTER_SCREEN 1 1
 
 // Reveal Maps
-!CLEAR_UP 3 10 8 //
+!CLEAR_UP 3 10 8
 
 // Goals
 !ADD_GOAL 3 1 0 1 //Destroy important buildings of player 1
@@ -28,7 +28,6 @@
 
 
 // Colour
-!SET_NEW_REMAP 24 25 26 27 28 29 30 31 // Red
 !SET_MAP_COLOR 229 // Red
 
 
@@ -36,8 +35,8 @@
 
 
 // Buildings
-!SET_HOUSE 11 3 10 //
-!SET_HOUSE 21 3 15 //
+!SET_HOUSE 11 3 10
+!SET_HOUSE 21 3 15
 
 
 // Roads
@@ -52,24 +51,24 @@
 
 
 // Units
-!SET_UNIT 13 5 17 //
-!SET_UNIT 13 4 17 //
-!SET_UNIT 13 3 17 //
-!SET_UNIT 13 2 17 //
-!SET_UNIT 13 1 17 //
-!SET_UNIT 13 0 17 //
-!SET_UNIT 13 0 18 //
-!SET_UNIT 13 1 18 //
-!SET_UNIT 13 2 18 //
-!SET_UNIT 13 3 18 //
-!SET_UNIT 13 4 18 //
-!SET_UNIT 13 5 18 //
-!SET_UNIT 13 5 19 //
-!SET_UNIT 13 4 19 //
-!SET_UNIT 13 3 19 //
-!SET_UNIT 13 2 19 //
-!SET_UNIT 13 1 19 //
-!SET_UNIT 13 0 19 //
+!SET_UNIT 13 5 17
+!SET_UNIT 13 4 17
+!SET_UNIT 13 3 17
+!SET_UNIT 13 2 17
+!SET_UNIT 13 1 17
+!SET_UNIT 13 0 17
+!SET_UNIT 13 0 18
+!SET_UNIT 13 1 18
+!SET_UNIT 13 2 18
+!SET_UNIT 13 3 18
+!SET_UNIT 13 4 18
+!SET_UNIT 13 5 18
+!SET_UNIT 13 5 19
+!SET_UNIT 13 4 19
+!SET_UNIT 13 3 19
+!SET_UNIT 13 2 19
+!SET_UNIT 13 1 19
+!SET_UNIT 13 0 19
 
 
 // Units at storehouse
@@ -99,7 +98,7 @@
 !SET_GROUP 21 3 3 3 1 1 //Scout
 
 
-!SET_CURR_PLAYER 1 //
+!SET_CURR_PLAYER 1
 !ENABLE_PLAYER 1
 !SET_AI_PLAYER
 
@@ -113,7 +112,6 @@
 !SET_AI_CHARACTER TOWN_DEFENSE 100
 
 // Colour
-!SET_NEW_REMAP 32 33 34 35 36 37 38 39 // Light Blue
 !SET_MAP_COLOR 36 // Light Blue
 
 
@@ -121,7 +119,7 @@
 
 
 // Buildings
-!SET_HOUSE 11 20 22 //
+!SET_HOUSE 11 20 22
 
 
 // Roads
