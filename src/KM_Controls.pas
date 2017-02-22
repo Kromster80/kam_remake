@@ -60,7 +60,7 @@ type
 
     property OnHint: TNotifyEvent write fOnHint;
 
-    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
+    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false; aMouseUp: Boolean = False): TKMControl;
 
     function KeyDown    (Key: Word; Shift: TShiftState): Boolean;
     procedure KeyPress  (Key: Char);
@@ -924,6 +924,7 @@ type
     procedure KeyPress(Key: Char); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure UpdateMouseOverPosition(X,Y: Integer);
@@ -948,6 +949,7 @@ type
     procedure ListClick(Sender: TObject); virtual;
     procedure ListChange(Sender: TObject); virtual;
     procedure ListHide(Sender: TObject); virtual;
+    procedure ListHide2(Sender: TObject);
     function ListVisible: Boolean; virtual; abstract;
     function GetItemIndex: SmallInt; virtual; abstract;
     procedure SetItemIndex(aIndex: SmallInt); virtual; abstract;
@@ -5254,6 +5256,31 @@ begin
       NewIndex := -1;
     end;
 
+//    if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
+//    begin
+//      fItemIndex := NewIndex;
+//      fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
+//      if Assigned(fOnChange) then
+//        fOnChange(Self);
+//    end;
+  end;
+end;
+
+
+procedure TKMColumnBox.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var NewIndex: Integer;
+begin
+  inherited;
+  if (ssLeft in Shift) and (fMouseOverRow <> -1) then
+    NewIndex := fMouseOverRow;
+
+    if NewIndex >= fRowCount then
+    begin
+      //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
+      fTimeOfLastClick := 0;
+      NewIndex := -1;
+    end;
+
     if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
     begin
       fItemIndex := NewIndex;
@@ -5261,7 +5288,6 @@ begin
       if Assigned(fOnChange) then
         fOnChange(Self);
     end;
-  end;
 end;
 
 
@@ -5522,7 +5548,7 @@ begin
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
   fShape.AnchorsStretch;
-  fShape.fOnClick := ListHide;
+  fShape.fOnClick := ListHide2;
 
   fAutoClose := aAutoClose;
 end;
@@ -5545,6 +5571,12 @@ begin
 
   if fAutoClose and (Count > 0) then
     fShape.Show;
+end;
+
+
+procedure TKMDropCommon.ListHide2(Sender: TObject);
+begin
+  ListHide(Sender);
 end;
 
 
@@ -6766,27 +6798,31 @@ end;
 
 
 { Recursing function to find topmost control (excl. Panels)}
-function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = False): TKMControl;
+function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = False; aMouseUp: Boolean = False): TKMControl;
   function ScanChild(P: TKMPanel; aX,aY: Integer): TKMControl;
   var I: Integer;
+      Child: TKMControl;
   begin
     Result := nil;
     //Process controls in reverse order since last created are on top
     for I := P.ChildCount - 1 downto 0 do
-    if P.Childs[I].fVisible then //If we can't see it, we can't touch it
     begin
-      //Scan Panels childs first, if none is hit - hittest the panel
-      if (P.Childs[I] is TKMPanel) then
+      Child := P.Childs[I];
+      if Child.fVisible then //If we can't see it, we can't touch it
       begin
-        Result := ScanChild(TKMPanel(P.Childs[I]),aX,aY);
-        if Result <> nil then exit;
+        //Scan Panels childs first, if none is hit - hittest the panel
+        if (Child is TKMPanel) then
+        begin
+          Result := ScanChild(TKMPanel(Child),aX,aY);
+          if Result <> nil then exit;
+        end;
+        if Child.HitTest(aX, aY, aIncludeDisabled) then
+        begin
+          Result := Child;
+          Exit;
+        end;
       end;
-      if P.Childs[I].HitTest(aX, aY, aIncludeDisabled) then
-      begin
-        P.Childs[I].HitTest(aX, aY, aIncludeDisabled);
-        Result := P.Childs[I];
-        Exit;
-      end;
+
     end;
   end;
 begin
@@ -6862,7 +6898,7 @@ end;
 
 procedure TKMMasterControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  CtrlUp := HitControl(X,Y);
+  CtrlUp := HitControl(X,Y, False, True);
 
   //Here comes tricky part, we can't do anything after calling an event (it might Destroy everything,
   //e.g. Exit button, or Resolution change). We need to release CtrlDown (otherwise it remains
