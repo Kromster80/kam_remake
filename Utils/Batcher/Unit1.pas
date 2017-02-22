@@ -842,8 +842,8 @@ begin
        Inc(ChangedCnt);   
       //Delete extra command from file    
       for J := Low(DeleteColorFromPlayerArr) to High(DeleteColorFromPlayerArr) do
-        Delete(Txt, Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos - 1,
-               Commands[DeleteColorFromPlayerArr[J]].SetMapColor.EndPos - Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos + 1);  
+        Delete(Txt, Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos - Length(EolA),
+               Commands[DeleteColorFromPlayerArr[J]].SetMapColor.EndPos - Commands[DeleteColorFromPlayerArr[J]].SetMapColor.StartPos + Length(EolA));
         
       Parser.SaveToFile(Txt, PathToMaps[I], False);
     end;
