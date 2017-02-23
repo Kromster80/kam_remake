@@ -172,7 +172,7 @@ type
     procedure Enable;
     procedure Disable;
     procedure Show;
-    procedure Hide; virtual;
+    procedure Hide;
     procedure AnchorsCenter;
     procedure AnchorsStretch;
     function MasterParent: TKMPanel;
