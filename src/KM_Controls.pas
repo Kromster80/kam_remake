@@ -60,7 +60,7 @@ type
 
     property OnHint: TNotifyEvent write fOnHint;
 
-    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false; aMouseUp: Boolean = False): TKMControl;
+    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
 
     function KeyDown    (Key: Word; Shift: TShiftState): Boolean;
     procedure KeyPress  (Key: Char);
@@ -6790,7 +6790,7 @@ end;
 
 
 { Recursing function to find topmost control (excl. Panels)}
-function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = False; aMouseUp: Boolean = False): TKMControl;
+function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = False): TKMControl;
   function ScanChild(P: TKMPanel; aX,aY: Integer): TKMControl;
   var I: Integer;
       Child: TKMControl;
@@ -6890,7 +6890,7 @@ end;
 
 procedure TKMMasterControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  CtrlUp := HitControl(X,Y, False, True);
+  CtrlUp := HitControl(X,Y);
 
   //Here comes tricky part, we can't do anything after calling an event (it might Destroy everything,
   //e.g. Exit button, or Resolution change). We need to release CtrlDown (otherwise it remains

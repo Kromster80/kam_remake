@@ -1129,6 +1129,7 @@ begin
       case Y of
         0:    J := MAX_LOBBY_SLOTS + 1 - I; // we must Open slots in reverse order
         1, 2: J := I;                       // Closed and AI slots - in straight order
+        else  J := I;
       end;
       
       NetI := fLocalToNetPlayers[J];

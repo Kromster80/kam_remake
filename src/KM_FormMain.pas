@@ -252,12 +252,12 @@ begin
   if gGameApp <> nil then
   begin
     //Somehow Shift state does not contain mouse buttons ssLeft/ssRight/ssMiddle
-//    if Button = mbLeft then
-//      Include(Shift, ssLeft)
-//    else if Button = mbRight then
-//      Include(Shift, ssRight)
-//    else if Button = mbMiddle then
-//      Include(Shift, ssMiddle);
+    if Button = mbLeft then
+      Include(Shift, ssLeft)
+    else if Button = mbRight then
+      Include(Shift, ssRight)
+    else if Button = mbMiddle then
+      Include(Shift, ssMiddle);
 
     gGameApp.MouseUp(Button, Shift, X, Y);
   end;
