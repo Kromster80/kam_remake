@@ -319,13 +319,19 @@ procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
     for I := Low(aCaption) to High(aCaption) do
     begin
       Result.Cells[I].HighlightOnMouseOver := True;
-      Result.Cells[I].HighlightColor := $FFC7C7C7;
+      if I = 1 then
+      begin
+        Result.Cells[I].Color := icRoyalYellow;
+        Result.Cells[I].HighlightColor := icAmberBrown;
+      end
+      else
+        Result.Cells[I].HighlightColor := icGray;
     end;
   end;
 const
   CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
 var
-  I, K, OffY: Integer;
+  I, K, OffY, DropWidth, TxtWidth: Integer;
 begin
   Panel_Lobby := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Lobby.AnchorsStretch;
@@ -372,21 +378,22 @@ begin
         Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
         Label_LobbyPlayer[I].Hide;
 
-        DropBox_LobbyPlayerSlot[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu, 0.85, False);
-        DropBox_LobbyPlayerSlot[I].SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, 100], [True, False]);
+        TxtWidth := gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings(['All', 'All', 'All']); //Todo translate
+        DropWidth := Max(150, 110 + TxtWidth);
+        DropBox_LobbyPlayerSlot[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu, False);
+        DropBox_LobbyPlayerSlot[I].DropWidth := DropWidth;
+        DropBox_LobbyPlayerSlot[I].SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, 100 + Max(0, 40 - TxtWidth)], [True, False]);
         if I <= MAX_LOBBY_PLAYERS then
         begin
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'For all'], I)); //Todo translate //Player can join into this slot
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'For all'], I)); //Todo translate  //Closed, nobody can join it
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_AI_PLAYER], 'For all'], I)); //Todo translate  //This slot is an AI player
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate //Player can join into this slot
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate  //Closed, nobody can join it
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_AI_PLAYER], 'All'], I)); //Todo translate  //This slot is an AI player
         end
         else
         begin
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'For all'], I)); //Todo translate
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'For all'], I)); //Todo translate
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate
         end;
-        DropBox_LobbyPlayerSlot[I].Tag := I;
-        DropBox_LobbyPlayerSlot[I].DropWidth := 170;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
         DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropColPlayersCellClick;
@@ -1109,31 +1116,28 @@ end;
 
 
 function TKMMenuLobby.DropColPlayersCellClick(Sender: TObject; const X, Y: Integer): Boolean;
-var I, NetI: Integer;
+var I, J, NetI: Integer;
 begin
   Result := False;
-  //Result := X = 1;
   if X = 1 then
   begin
-    for I := MAX_LOBBY_SLOTS downto 1 do  //Open
+    for I := 1 to MAX_LOBBY_SLOTS do
     begin
-      NetI := fLocalToNetPlayers[I];
-      if NetI <> fNetworking.MyIndex then // Do not alter our DropBox
-        case Y of
-          0:  begin //Open
-                if (DropBox_LobbyPlayerSlot[I].ItemIndex = 1) //Open only closed slots (not AI)
-                  or (Sender = DropBox_LobbyPlayerSlot[I].List) then  //Also update current slot, because we do not let OnChangeEvent to happen
-                begin
-                  DropBox_LobbyPlayerSlot[I].ItemIndex := 0;
-                  PlayersSetupChange(DropBox_LobbyPlayerSlot[I]);
-                end;
-              end;
-          1: ; //Close
-          2: ; //AI
-        end;
       if Sender = DropBox_LobbyPlayerSlot[I].List then
-        DropBox_LobbyPlayerSlot[I].CloseList;
-    end; 
+        DropBox_LobbyPlayerSlot[I].CloseList; //Close opened dropbox manually
+
+      case Y of
+        0:    J := MAX_LOBBY_SLOTS + 1 - I; // we must Open slots in reverse order
+        1, 2: J := I;                       // Closed and AI slots - in straight order
+      end;
+      
+      NetI := fLocalToNetPlayers[J];
+      if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
+      begin
+        DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
+        PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+      end;
+    end;
     // Do not propagate click event further, because
     // we do not want provoke OnChange event handler invokation, we have handled everything here
     Result := True; 
@@ -1243,7 +1247,7 @@ begin
           end;
         end;
       end;
-      //DropBox_LobbyPlayerSlot[I].CloseList; //We may have cause player list to rearrange
+      DropBox_LobbyPlayerSlot[I].CloseList; //We may have cause player list to rearrange
       fNetworking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;

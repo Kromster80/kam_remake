@@ -873,7 +873,8 @@ type
     procedure ClearColumns;
     procedure SetSearchColumn(aValue: ShortInt);
     procedure SetItemIndex(const Value: Smallint);
-//    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure UpdateMouseOverPosition(X,Y: Integer);
+    procedure UpdateItemIndex(Shift: TShiftState);
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -928,8 +929,6 @@ type
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure UpdateMouseOverPosition(X,Y: Integer);
-    procedure UpdateOnChange;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -951,7 +950,6 @@ type
     procedure ListClick(Sender: TObject); virtual;
     procedure ListChange(Sender: TObject); virtual;
     procedure ListHide(Sender: TObject); virtual;
-    procedure ListHide2(Sender: TObject);
     function ListVisible: Boolean; virtual; abstract;
     function GetItemIndex: SmallInt; virtual; abstract;
     procedure SetItemIndex(aIndex: SmallInt); virtual; abstract;
@@ -1034,7 +1032,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aBackAlpha: Single = 0.85; aShowHeader: Boolean = True);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aShowHeader: Boolean = True);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
@@ -2484,7 +2482,7 @@ begin
   if TexID <> 0 then Exit;
 
   //If disabled then text should be faded
-  Col := IfThen(fEnabled, $FFFFFFFF, $FF808080);
+  Col := IfThen(fEnabled, icWhite, icGray);
 
   TKMRenderUI.WriteText(AbsLeft + Byte(csDown in State),
                       (AbsTop + Height div 2) - 7 + Byte(csDown in State), Width, Caption, Font, fTextAlign, Col);
@@ -2515,7 +2513,7 @@ end;
 
 procedure TKMButtonFlat.Paint;
 const
-  TextCol: array [Boolean] of TColor4 = ($FF808080, $FFFFFFFF);
+  TextCol: array [Boolean] of TColor4 = (icGray, icWhite);
 begin
   inherited;
 
@@ -2535,7 +2533,7 @@ begin
     TKMRenderUI.WriteShape(Left, Top, Width, Height, $80000000);}
 
   if Down then
-    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, icWhite);
 end;
 
 
@@ -2547,7 +2545,7 @@ begin
   ShapeColor  := aShapeColor;
   fFont       := aFont;
   fFontHeight := gRes.Fonts[fFont].BaseHeight + 2;
-  FontColor   := $FFFFFFFF;
+  FontColor   := icWhite;
 end;
 
 
@@ -2567,7 +2565,7 @@ begin
     TKMRenderUI.WriteShape(AbsLeft + 1, AbsTop + 1, Width - 2, Height - 2, $40FFFFFF);
 
   if (csDown in State) or Down then
-    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, icWhite);
 end;
 
 
@@ -4909,14 +4907,6 @@ begin
 end;
 
 
-//procedure TKMColumnBox.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-//begin
-//  inherited;
-//  if Assigned(fOnChange) then
-//    fOnChange(Self);
-//end;
-
-
 procedure TKMColumnBox.SetOnColumnClick(const Value: TIntegerEvent);
 begin
   fHeader.OnColumnClick := Value;
@@ -5246,11 +5236,11 @@ begin
 end;
 
 
-procedure TKMColumnBox.UpdateOnChange;//(Shift: TShiftState);
+procedure TKMColumnBox.UpdateItemIndex(Shift: TShiftState);
 var NewIndex: Integer;
 begin
-//  if not (ssLeft in Shift) or (fMouseOverRow = -1) then
-//    Exit;
+  if not (ssLeft in Shift) or (fMouseOverRow = -1) then
+    Exit;
 
   NewIndex := fMouseOverRow;
 
@@ -5265,8 +5255,6 @@ begin
   begin
     fItemIndex := NewIndex;
     fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
-//    if Assigned(fOnChange) then
-//      fOnChange(Self);
   end;
 end;
 
@@ -5275,8 +5263,15 @@ procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMous
 begin
   inherited;
   UpdateMouseOverPosition(X, Y);
-  if (ssLeft in Shift) and (fMouseOverRow <> -1) then
-    UpdateOnChange;
+  UpdateItemIndex(Shift);
+  //Lets do DoClick here instead of MouseUp event handler, because of some TKMColumnBox specific logic
+  if (csDown in State) then
+  begin
+    State := State - [csDown];
+
+    //Send Click events
+    DoClick(X, Y, Shift, Button);
+  end;
 end;
 
 
@@ -5284,17 +5279,13 @@ procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
 begin
   inherited;
   UpdateMouseOverPosition(X, Y);
-  if (ssLeft in Shift) and (fMouseOverRow <> -1) then
-    UpdateOnChange;
+  UpdateItemIndex(Shift);
 end;
 
 
 procedure TKMColumnBox.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  inherited;
-  UpdateMouseOverPosition(X, Y);
-  if (Button = mbLeft) and (fMouseOverRow <> -1) then
-    UpdateOnChange;
+  //We handle normal MouseUp event in MouseDown, so just hide ancestor MouseUp here
 end;
 
 
@@ -5555,7 +5546,7 @@ begin
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
   fShape.AnchorsStretch;
-  fShape.fOnClick := ListHide2;
+  fShape.fOnClick := ListHide;
 
   fAutoClose := aAutoClose;
 end;
@@ -5578,12 +5569,6 @@ begin
 
   if fAutoClose and (Count > 0) then
     fShape.Show;
-end;
-
-
-procedure TKMDropCommon.ListHide2(Sender: TObject);
-begin
-  ListHide(Sender);
 end;
 
 
@@ -5855,7 +5840,7 @@ end;
 
 
 { TKMDropColumns }
-constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aBackAlpha: Single = 0.85; aShowHeader: Boolean = True);
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aShowHeader: Boolean = True);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle);
@@ -5866,7 +5851,7 @@ begin
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
   fList := TKMColumnBox.Create(P, AbsLeft-P.AbsLeft, AbsTop+aHeight-P.AbsTop, aWidth, 0, fFont, aStyle);
-  fList.BackAlpha := aBackAlpha;
+  fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
   fList.OnChange := ListChange;
   fList.ShowHeader := aShowHeader;
@@ -6830,7 +6815,6 @@ function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = F
           Exit;
         end;
       end;
-
     end;
   end;
 begin

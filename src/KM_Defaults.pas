@@ -674,6 +674,11 @@ const
   icRed    = $FF0707FF;
 
   icSteelBlue = $FFA56D53; // Selection color
+  icRoyalYellow = $FF4AC7FF;
+  icAmberBrown = $FF006797;
+
+  icGray = $FF808080;
+  icWhite = $FFFFFFFF;
 
 
 var

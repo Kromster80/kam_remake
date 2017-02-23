@@ -2029,12 +2029,12 @@ begin
       if gMySpectator.Hand.MessageLog[I].IsRead then
       begin
         R.Cells[1].Color := $FF0080B0;
-        R.Cells[1].HighlightColor := $FF006797;
+        R.Cells[1].HighlightColor := icAmberBrown;
       end
       else
       begin
         R.Cells[1].Color := $FF00B0FF;
-        R.Cells[1].HighlightColor := $FF4AC7FF;
+        R.Cells[1].HighlightColor := icRoyalYellow;
       end;
     end
     else
@@ -2043,7 +2043,7 @@ begin
       if gMySpectator.Hand.MessageLog[I].IsRead then
       begin
         R.Cells[1].Color := $FFA0A0A0;
-        R.Cells[1].HighlightColor := $FF808080;
+        R.Cells[1].HighlightColor := icGray;
       end
       else
       begin
