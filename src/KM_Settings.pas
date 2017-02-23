@@ -42,7 +42,7 @@ type
     fFavouriteMPMaps: TStringList;
     fOnMapsUpdate: TUnicodeStringEvent;
 
-    procedure UpdateSettings;
+    procedure FavoriteMapsUpdated;
   public
     constructor Create;
     destructor Destroy; override;
@@ -947,6 +947,7 @@ end;
 {TKMFavouriteMaps}
 constructor TKMFavouriteMaps.Create;
 begin
+  inherited;
   fFavouriteMPMaps := TStringList.Create;
   fFavouriteMPMaps.Delimiter       := FAVOURITE_MAPS_DELIMITER;
   fFavouriteMPMaps.StrictDelimiter := True; // Requires D2006 or newer.
@@ -956,17 +957,15 @@ end;
 destructor TKMFavouriteMaps.Destroy;
 begin
   FreeAndNil(fFavouriteMPMaps);
+  inherited;
 end;
 
 
-procedure TKMFavouriteMaps.UpdateSettings;
+procedure TKMFavouriteMaps.FavoriteMapsUpdated;
 begin
   if Assigned(fOnMapsUpdate) then
     fOnMapsUpdate(PackToString);
 end;
-
-
-
 
 
 procedure TKMFavouriteMaps.LoadFromString(aString: UnicodeString);
@@ -1019,7 +1018,7 @@ begin
     if not ArrayContains(StrToInt64(fFavouriteMPMaps[I])) then
     begin
       fFavouriteMPMaps.Delete(I);
-      UpdateSettings;
+      FavoriteMapsUpdated;
     end;
 
     Dec(I);
@@ -1038,7 +1037,7 @@ begin
   if not Contains(aMapCRC) then
   begin
     fFavouriteMPMaps.Add(IntToStr(aMapCRC));
-    UpdateSettings;
+    FavoriteMapsUpdated;
   end;
 end;
 
@@ -1049,7 +1048,7 @@ begin
   Index := fFavouriteMPMaps.IndexOf(IntToStr(aMapCRC));
   if Index <> -1 then
     fFavouriteMPMaps.Delete(Index);
-  UpdateSettings;
+  FavoriteMapsUpdated;
 end;
 
 
