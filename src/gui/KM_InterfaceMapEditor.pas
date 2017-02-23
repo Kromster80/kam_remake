@@ -1093,7 +1093,7 @@ var
 begin
   if fDraggingObject then
   begin
-    DragHouseModeEnd; //In case we started house move mode (with cursor mode cmHouse) have to end it on Mouse move
+    DragHouseModeEnd;
     ResetDragObject;
   end;
 
