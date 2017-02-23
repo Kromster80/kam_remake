@@ -33,12 +33,10 @@ type
     fMouseDownOnMap: Boolean;
 
     //Drag object feature fields
-    fIsDraggingObject: Boolean;           //Flag when drag object is happening
-    fDragObject: TObject;                 //Object to drag
+    fDraggingObject: Boolean;               //Flag when drag object is happening
+    fDragObject: TObject;                   //Object to drag
     fDragHouseGrabPntAdjustment: TKMPoint;  //Adjustment for house position, to let grab house with any of its points
     fDragHouseEntranceTileOverlay: TTileOverlay; //Store tile overlay under house entrance, to avoid "road eraser" behaviour while dragging house
-
-    fStopMinimapUpdate: Boolean;  //Stop minimap from autoupdating, used in Drag House mechanism
 
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;
@@ -78,9 +76,11 @@ type
     procedure SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
     procedure MoveObjectToCursorCell(aObjectToMove: TObject);
     procedure UpdateSelection;
-    procedure DragHouseMoveModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
-    procedure DragHouseMoveModeEnd;
-    procedure ResetObjectDrag;
+    procedure DragHouseModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
+    procedure DragHouseModeEnd;
+    function IsDragHouseModeOn: Boolean;
+    procedure ResetDragObject;
+    procedure ResetDragScrolling;
     procedure ResetCursorMode;
   protected
     MinimapView: TKMMinimapView;
@@ -143,9 +143,8 @@ begin
   inherited;
 
   fMinimap.PaintVirtualGroups := True;
-  fStopMinimapUpdate := False;
 
-  ResetObjectDrag;
+  ResetDragObject;
 
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
@@ -360,7 +359,7 @@ end;
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
   //Update minimap every 1000ms
-  if (aTickCount mod 10 = 0) and not fStopMinimapUpdate then
+  if aTickCount mod 10 = 0 then
     fMinimap.Update(False);
 
   //Show players without assets in grey
@@ -620,7 +619,7 @@ begin
   //Reset cursor
   ResetCursorMode;
   //Reset drag object fields
-  ResetObjectDrag;
+  ResetDragObject;
 end;
 
 
@@ -834,8 +833,8 @@ begin
       UpdateSelection;
       fDragObject := Obj;
       if Obj is TKMHouse then
-        fDragHouseGrabPntAdjustment := KMVectorDiff(TKMHouse(Obj).GetPosition, gGameCursor.Cell); //Save drag point adjustement to house position
-      fIsDraggingObject := True;
+        fDragHouseGrabPntAdjustment := KMVectorDiff(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
+      fDraggingObject := True;
       gRes.Cursors.Cursor := kmc_Drag;
     end;
   end;
@@ -875,9 +874,19 @@ var
 begin
   if fDragScrolling then
   begin
-    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
-    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
-    fViewport.Position := VP;
+    if ssMiddle in Shift then
+    begin
+      VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
+      VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
+      fViewport.Position := VP;
+    end else
+      ResetDragScrolling;
+    Exit;
+  end;
+
+  if fDraggingObject and not (ssLeft in Shift) then
+  begin
+    ResetDragObject;
     Exit;
   end;
 
@@ -919,7 +928,7 @@ begin
     Exit;
   end;
 
-  if fIsDraggingObject and (ssLeft in Shift) then
+  if fDraggingObject and (ssLeft in Shift) then
   begin
     //Cursor can be reset to default, when moved to menu panel while dragging, so set it to drag cursor again
     gRes.Cursors.Cursor := kmc_Drag;
@@ -949,13 +958,13 @@ end;
 
 
 //Start drag house move mode (with cursor mode cmHouse)
-procedure TKMapEdInterface.DragHouseMoveModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
+procedure TKMapEdInterface.DragHouseModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
   procedure SetCursorModeHouse(aHouseType: THouseType);
   begin
     gGameCursor.Mode := cmHouses;
     gGameCursor.Tag1 := Byte(aHouseType);
     //Update cursor CellAdjustment to render house markups at proper positions
-    gGameCursor.CellAdjustment := KMPoint(fDragHouseGrabPntAdjustment.X + gRes.Houses[aHouseType].EntranceOffsetX, fDragHouseGrabPntAdjustment.Y);
+    gGameCursor.CellAdjustment := fDragHouseGrabPntAdjustment;
   end;
 var H: TKMHouse;
 begin
@@ -964,39 +973,35 @@ begin
     H := TKMHouse(fDragObject);
     //Temporarily remove house from terrain to render house markups as there is no current house (we want to move it)
     gTerrain.SetHouse(H.GetPosition, H.HouseType, hsNone, H.Owner);
-    //Stop minimap from updatting, because moving house will dissapear on it, while moving in cmHouse cursor mode
-    fStopMinimapUpdate := True;
     SetCursorModeHouse(H.HouseType); //Update cursor mode to cmHouse
   end;
 end;
 
 
 //Drag house move mode end (with cursor mode cmHouse)
-procedure TKMapEdInterface.DragHouseMoveModeEnd;
+procedure TKMapEdInterface.DragHouseModeEnd;
 var H: TKMHouse;
 begin
-  //Restore minimap update
-  fStopMinimapUpdate := False;
-
   if (fDragObject is TKMHouse) then
   begin
     H := TKMHouse(fDragObject);
-    //Restore house on terrain, just in case we were in house move mode (with cursor mode cmHouse)
-    gTerrain.SetHouse(H.GetPosition, H.HouseType, hsBuilt, H.Owner);
+    H.SetPosition(KMVectorSum(gGameCursor.Cell, fDragHouseGrabPntAdjustment));
     ResetCursorMode;
   end;
 end;
 
 
+function TKMapEdInterface.IsDragHouseModeOn: Boolean;
+begin
+  Result := fDraggingObject and (fDragObject is TKMHouse) and (gGameCursor.Mode = cmHouses);
+end;
+
+
 procedure TKMapEdInterface.MoveObjectToCursorCell(aObjectToMove: TObject);
 var H: TKMHouse;
-    HouseNewPos, HouseOldPos, HouseNewEntrance, HouseOldEntrance: TKMPoint;
-    TileOverlayToSave: TTileOverlay;
-    IsHouseMovedToNewPos: Boolean;
+    HouseNewPos, HouseOldPos: TKMPoint;
 begin
   if aObjectToMove = nil then Exit;
-
-  TileOverlayToSave := to_None; //Lets make compiler happy, even if this initialization is not necessary
 
   //House move
   if aObjectToMove is TKMHouse then
@@ -1004,32 +1009,14 @@ begin
     H := TKMHouse(aObjectToMove);
 
     HouseOldPos := H.GetPosition;
-    HouseOldEntrance := KMPoint(HouseOldPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseOldPos.Y);
 
     HouseNewPos := KMVectorSum(gGameCursor.Cell, fDragHouseGrabPntAdjustment);
-    HouseNewEntrance := KMPoint(HouseNewPos.X + gRes.Houses[H.HouseType].EntranceOffsetX, HouseNewPos.Y);
 
-    if not fIsDraggingObject then
+    if not fDraggingObject then
       H.SetPosition(HouseNewPos)  //handles Right click, when house is selected
-    else begin
-      IsHouseMovedToNewPos := not KMSamePoint(HouseNewPos, HouseOldPos);
-      if IsHouseMovedToNewPos then
-        //Save tile overlay under new house entrance
-        TileOverlayToSave := gTerrain.Land[HouseNewEntrance.Y, HouseNewEntrance.X].TileOverlay;
-
-      if H.SetPosition(HouseNewPos, False) then
-      begin
-        DragHouseMoveModeEnd;
-        if IsHouseMovedToNewPos then
-        begin
-          //If we actually moved house to new pos, then restore tile overlay at old house entrance position
-          gTerrain.Land[HouseOldEntrance.Y, HouseOldEntrance.X].TileOverlay := fDragHouseEntranceTileOverlay;
-          //and store old tile overlay under house entrance
-          fDragHouseEntranceTileOverlay := TileOverlayToSave;
-        end
-      end else
-        DragHouseMoveModeStart(HouseNewPos, HouseOldPos);
-    end;
+    else
+      if not IsDragHouseModeOn then
+        DragHouseModeStart(HouseNewPos, HouseOldPos);
   end;
 
   //Unit move
@@ -1073,9 +1060,9 @@ begin
 end;
 
 
-procedure TKMapEdInterface.ResetObjectDrag;
+procedure TKMapEdInterface.ResetDragObject;
 begin
-  fIsDraggingObject := False;
+  fDraggingObject := False;
   fDragHouseGrabPntAdjustment := ZERO_POINT;
   fDragObject := nil;
   fDragHouseEntranceTileOverlay := to_None;
@@ -1088,6 +1075,14 @@ begin
 end;
 
 
+procedure TKMapEdInterface.ResetDragScrolling;
+begin
+  fDragScrolling := False;
+  gRes.Cursors.Cursor := kmc_Default; //Reset cursor
+  fMain.ApplyCursorRestriction;
+end;
+
+
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
   DP: TAIDefencePosition;
@@ -1096,20 +1091,16 @@ var
   U: TKMUnit;
   H: TKMHouse;
 begin
-  if fIsDraggingObject then
+  if fDraggingObject then
   begin
-    DragHouseMoveModeEnd; //In case we started house move mode (with cursor mode cmHouse) have to end it on Mouse move
-    ResetObjectDrag;
+    DragHouseModeEnd; //In case we started house move mode (with cursor mode cmHouse) have to end it on Mouse move
+    ResetDragObject;
   end;
 
   if fDragScrolling then
   begin
     if Button = mbMiddle then
-    begin
-      fDragScrolling := False;
-      gRes.Cursors.Cursor := kmc_Default; //Reset cursor
-      fMain.ApplyCursorRestriction;
-    end;
+      ResetDragScrolling;
     Exit;
   end;
 

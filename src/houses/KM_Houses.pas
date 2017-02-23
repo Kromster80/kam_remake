@@ -106,7 +106,7 @@ type
     property BuildingProgress: Word read fBuildingProgress;
 
     property GetPosition: TKMPoint read fPosition;
-    function SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean; //Used only by map editor
+    procedure SetPosition(aPos: TKMPoint); //Used only by map editor
     procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     property Entrance: TKMPoint read GetEntrance;
     property PointBelowEntrance: TKMPoint read GetPointBelowEntrance;
@@ -467,7 +467,7 @@ end;
 //Used by MapEditor
 //Return True, if house was set to new position successfully
 //aConsiderEntranceOffset - do consider house entrance offset while checking CanAddHousePlan and while set house to new position
-function TKMHouse.SetPosition(aPos: TKMPoint; aConsiderEntranceOffset: Boolean = True): Boolean;
+procedure TKMHouse.SetPosition(aPos: TKMPoint);
   procedure UpdateRallyPoint(aIsRallyPointSet: Boolean);
   begin
     if (Self is TKMHouseBarracks) then
@@ -487,11 +487,10 @@ var
   WasOnSnow, IsRallyPointSet: Boolean;
 begin
   Assert(gGame.GameMode = gmMapEd);
-  Result := False;
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, PLAYER_NONE);
 
-  if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType, aConsiderEntranceOffset) then
+  if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
     IsRallyPointSet := False;
     //Save if rally/cutting point was set for previous position
@@ -501,9 +500,8 @@ begin
       IsRallyPointSet := TKMHouseWoodcutters(Self).IsCuttingPointSet;
 
     gTerrain.RemRoad(GetEntrance);
-    fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX*Byte(aConsiderEntranceOffset);
+    fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
-    Result := True;
 
     //Update rally/cutting point position for barracks/woodcutters after change fPosition
     UpdateRallyPoint(IsRallyPointSet);

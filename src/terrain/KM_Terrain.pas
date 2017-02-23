@@ -106,7 +106,7 @@ type
 
     function CanPlaceUnit(Loc: TKMPoint; aUnitType: TUnitType): Boolean;
     function CanPlaceGoldmine(X,Y: Word): Boolean;
-    function CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType; aConsiderEntranceOffset: Boolean = True): Boolean;
+    function CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc: TKMPoint): Boolean;
     function CanAddField(aX, aY: Word; aFieldType: TFieldType): Boolean;
     function CheckHeightPass(aLoc: TKMPoint; aPass: THeightPass): Boolean;
@@ -2763,14 +2763,14 @@ end;
 
 //Check that house can be placed on Terrain
 //Other checks are performed on Hands level. Of course Terrain is not aware of that
-function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType; aConsiderEntranceOffset: Boolean = True): Boolean;
+function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
 var
   I,K,X,Y: Integer;
   HA: THouseArea;
 begin
   Result := True;
   HA := gRes.Houses[aHouseType].BuildArea;
-  Loc.X := Loc.X - gRes.Houses[aHouseType].EntranceOffsetX*Byte(aConsiderEntranceOffset); //update offset
+  Loc.X := Loc.X - gRes.Houses[aHouseType].EntranceOffsetX; //update offset
   for I := 1 to 4 do
   for K := 1 to 4 do
     if Result and (HA[I,K] <> 0) then
