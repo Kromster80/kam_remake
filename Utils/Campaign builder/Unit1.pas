@@ -65,6 +65,7 @@ type
     procedure UpdateList;
     procedure UpdateFlagCount;
     procedure UpdateNodeCount;
+    procedure DrawRedFlagNumber(aIndexMap : Integer);
   end;
 
 
@@ -229,6 +230,21 @@ begin
   CloseFile(LibxCFile);
 end;
 
+
+procedure TForm1.DrawRedFlagNumber(aIndexMap: Integer);
+var aW, aH, aX, aY : Integer;
+begin
+  imgFlags[aIndexMap].Canvas.Font.Name := 'Verdana';
+  imgFlags[aIndexMap].Canvas.Font.Style := [fsBold];
+  imgFlags[aIndexMap].Canvas.Font.Size := 5;
+  imgFlags[aIndexMap].Canvas.Font.Color := clWhite;
+  aW := imgFlags[aIndexMap].Canvas.TextWidth(IntToStr(aIndexMap +1));
+  aH := imgFlags[aIndexMap].Canvas.TextHeight(IntToStr(aIndexMap +1));
+  aX := (imgFlags[aIndexMap].Width div 2) - (aW div 2) - 1;//1 - Fix Position Text
+  aY := (imgFlags[aIndexMap].Height div 2) - (aH div 2) - 3;//3 - Fix Position Text
+  SetBkMode(imgFlags[aIndexMap].Canvas.Handle, TRANSPARENT);
+  imgFlags[aIndexMap].Canvas.TextOut(aX, aY, IntToStr(aIndexMap +1));
+end;
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
@@ -400,7 +416,10 @@ begin
     if I > fSelectedMap then
       imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap
     else
-      imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap
+    begin
+      imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap;
+      DrawRedFlagNumber(I);
+    end;
   end;
 
   if fSelectedMap = -1 then Exit;
