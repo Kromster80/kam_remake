@@ -50,7 +50,7 @@ type
     gic_BuildAddFieldPlan,
     gic_BuildRemoveFieldPlan, //Removal of a plan
     gic_BuildRemoveHouse,     //Removal of house
-    gic_BuildRemoveHousePlan, //Remove of house plan
+    gic_BuildRemoveHousePlan, //Removal of house plan
     gic_BuildHousePlan,       //Build HouseType
 
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
