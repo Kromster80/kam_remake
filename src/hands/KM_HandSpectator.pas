@@ -37,8 +37,8 @@ type
     property FOWIndex: TKMHandIndex read fFOWIndex write SetFOWIndex;
     property FogOfWar: TKMFogOfWarCommon read fFogOfWar;
     property LastSpecSelectedObj: TObject read GetLastSpecSelectedObj;
-    function HitTestCursor: TObject;
-    function HitTestCursorWGroup: TObject;
+    function HitTestCursor(aIncludeAnimals: Boolean = False): TObject;
+    function HitTestCursorWGroup(aIncludeAnimals: Boolean = False): TObject;
     procedure UpdateSelect;
     procedure Load(LoadStream: TKMemoryStream);
     procedure Save(SaveStream: TKMemoryStream);
@@ -140,11 +140,11 @@ end;
 
 //Test if there's object below that player can interact with
 //Units and Houses, not Groups
-function TKMSpectator.HitTestCursor: TObject;
+function TKMSpectator.HitTestCursor(aIncludeAnimals: Boolean = False): TObject;
 begin
   Result := gHands.GetUnitByUID(gGameCursor.ObjectUID);
   if ((Result is TKMUnit) and TKMUnit(Result).IsDeadOrDying)
-  or (Result is TKMUnitAnimal) then
+  or ((Result is TKMUnitAnimal) and not aIncludeAnimals) then
     Result := nil;
 
   //If there's no unit try pick a house on the Cell below
@@ -159,10 +159,10 @@ end;
 
 //Test if there's object below that player can interact with
 //Units and Houses and Groups
-function TKMSpectator.HitTestCursorWGroup: TObject;
+function TKMSpectator.HitTestCursorWGroup(aIncludeAnimals: Boolean = False): TObject;
 var G: TKMUnitGroup;
 begin
-  Result := HitTestCursor;
+  Result := HitTestCursor(aIncludeAnimals);
   if Result is TKMUnitWarrior then
   begin
     if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]  then

@@ -2,7 +2,7 @@ unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
+  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes
   {$IFDEF MSWindows}
   ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
@@ -57,14 +57,27 @@ uses
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
 
+  function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+
   function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
 
   function DeleteDoubleSpaces(aString: string): string;
 
   function GetMultiplicator(aShift: TShiftState): Word;
 
-implementation
+  //String functions
+  function StrIndexOf(aStr, aSubStr: String): Integer;
+  function StrLastIndexOf(aStr, aSubStr: String): Integer;
+  function StrSubstring(aStr: String; aFrom, aLength: Integer): String; overload;
+  function StrSubstring(aStr: String; aFrom: Integer): String; overload;
+  function StrContains(aStr, aSubStr: String): Boolean;
+  function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
+  function StrSplit(aStr, aDelimiters: String): TStrings;
 
+
+implementation
+uses
+  StrUtils, Types;
 
 var
   fKaMSeed: Integer;
@@ -664,6 +677,23 @@ begin
 end;
 
 
+// Returns file directory name
+// F.e. for aFilePath = 'c:/kam/remake/fore.ver' returns 'remake'
+function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+var DirPath: UnicodeString;
+begin
+  Result := '';
+  if Trim(aFilePath) = '' then Exit;
+
+  DirPath := ExtractFileDir(aFilePath);
+
+  if DirPath = '' then Exit;
+
+  if StrIndexOf(DirPath, PathDelim) <> -1 then
+    Result := copy(DirPath, StrLastIndexOf(DirPath, PathDelim) + 2);
+end;
+
+
 // Returnes text ignoring color markup [$FFFFFF][]
 function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
 var I, TmpColor: Integer;
@@ -714,6 +744,90 @@ end;
 function GetMultiplicator(aShift: TShiftState): Word;
 begin
   Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100 + Byte(aShift = [ssShift, ssRight]) * 1000;
+end;
+
+
+{
+String functions
+These function are replacements for String functions introduced after XE2 (XE5 probably)
+Names are the same as in new Delphi versions, but with 'Str' prefix
+}
+function StrIndexOf(aStr, aSubStr: String): Integer;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrIndexOf with Pos everywhere in code?
+  Result := AnsiPos(aSubStr, aStr) - 1;
+end;
+
+
+function StrLastIndexOf(aStr, aSubStr: String): Integer;
+var I: Integer;
+begin
+  Result := -1;
+  for I := 1 to Length(aStr) do
+    if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
+      Result := I - 1;
+end;
+
+
+function StrSubstring(aStr: String; aFrom: Integer): String;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrSubstring with RightStr everywhere in code?
+  Result := Copy(aStr, aFrom + 1, Length(aStr));
+end;
+
+
+function StrSubstring(aStr: String; aFrom, aLength: Integer): String;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrSubstring with Copy everywhere in code?
+  Result := Copy(aStr, aFrom + 1, aLength);
+end;
+
+
+function StrContains(aStr, aSubStr: String): Boolean;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrContains with Pos() <> 0 everywhere in code?
+  Result := StrIndexOf(aStr, aSubStr) <> -1;
+end;
+
+
+function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
+var Found: Boolean;
+    I, J: Integer;
+begin
+  for I := Length(aStr) downto 1 do
+  begin
+    Found := False;
+    for J := Low(aCharsToTrim) to High(aCharsToTrim) do
+    begin
+      if aStr[I] = aCharsToTrim[J] then
+      begin
+        Found := True;
+        Break;
+      end;
+    end;
+    if not Found then
+      Break;
+  end;
+  Result := Copy(aStr, 1, I);
+end;
+
+
+function StrSplit(aStr, aDelimiters: String): TStrings;
+var StrArray: TStringDynArray;
+    I: Integer;
+begin
+  //Todo refactor:
+  //@Krom: It's bad practice to create object (TStringList) inside and return it as parent class (TStrings).
+  //Do we really need it this way? Better to pass TStringList from outside in a parameter.
+
+  StrArray := SplitString(aStr, aDelimiters);
+  Result := TStringList.Create;
+  for I := Low(StrArray) to High(StrArray) do
+    Result.Add(StrArray[I]);
 end;
 
 

@@ -15,12 +15,13 @@ type
     fChatWhisperRecipient: Integer; //NetPlayer index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
     procedure Chat_Close(Sender: TObject);
-    procedure Chat_Post(Sender: TObject; Key:word);
+    procedure Chat_Post(Sender: TObject; Key: Word);
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Chat_MenuClick(Sender: TObject);
     procedure Chat_MenuSelect(aItem: Integer);
     procedure Chat_MenuShow(Sender: TObject);
     function GetPanelChatRect: TKMRect;
+    function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
   protected
     Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
@@ -79,6 +80,7 @@ begin
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Arial);
     Edit_ChatMsg.Anchors := [anLeft, anRight, anBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
+    Edit_ChatMsg.OnIsKeyEventHandled := IsKeyEvent_Return_Handled;
     Edit_ChatMsg.Text := '';
     Edit_ChatMsg.ShowColors := True;
 
@@ -109,13 +111,20 @@ begin
 end;
 
 
-procedure TKMGUIGameChat.Chat_Post(Sender: TObject; Key: Word);
+function TKMGUIGameChat.IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 begin
   //Sending chat during reconnections at best causes messages to be lost and at worst causes
   //crashes due to intermediate connecting states. Therefore we block sending completely.
-  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '')
-  and (gGame.Networking <> nil) and not gGame.Networking.IsReconnecting
-  and (GetTimeSince(fLastChatTime) >= CHAT_COOLDOWN) then
+  Result := (Key = VK_RETURN)
+    and (gGame.Networking <> nil) and not gGame.Networking.IsReconnecting;
+end;
+
+
+procedure TKMGUIGameChat.Chat_Post(Sender: TObject; Key: Word);
+begin
+  if IsKeyEvent_Return_Handled(Self, Key)
+    and (Trim(Edit_ChatMsg.Text) <> '')
+    and (GetTimeSince(fLastChatTime) >= CHAT_COOLDOWN) then
   begin
     fLastChatTime := TimeGet;
     if fChatMode = cmWhisper then

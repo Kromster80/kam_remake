@@ -22,6 +22,10 @@ type
     btnGenerate: TButton;
     Button1: TButton;
     Button2: TButton;
+    Label7: TLabel;
+    edtOutputFileUtils: TEdit;
+    edtUtilsFile: TEdit;
+    Label8: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure btnGenerateClick(Sender: TObject);
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
@@ -50,9 +54,9 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..29] of string = (
-    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
-    'array of const', 'array of Integer',
+  VAR_TYPE_NAME: array[0..34] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Extended', 'Boolean', 'AnsiString', 'String',
+    'array of const', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
@@ -61,9 +65,9 @@ const
     'TByteSet', 'TIntegerArray' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..29] of string = (
-    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Boolean', 'AnsiString', 'String',
-    'array of const', 'array of Integer',
+  VAR_TYPE_ALIAS: array[0..34] of string = (
+    'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Extended', 'Boolean', 'AnsiString', 'String',
+    'array of const', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
@@ -77,6 +81,8 @@ var
 
 implementation
 {$R *.dfm}
+uses
+  KM_Utils, KM_CommonTypes;
 
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -96,17 +102,21 @@ begin
     Settings.WriteString('INPUT',  'Actions', '..\..\src\scripting\KM_ScriptingActions.pas');
     Settings.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
     Settings.WriteString('INPUT',  'States',  '..\..\src\scripting\KM_ScriptingStates.pas');
+    Settings.WriteString('INPUT',  'Utils',  '..\..\src\scripting\KM_ScriptingUtils.pas');
     Settings.WriteString('OUTPUT', 'Actions', 'Actions.wiki');
     Settings.WriteString('OUTPUT', 'Events',  'Events.wiki');
     Settings.WriteString('OUTPUT', 'States',  'States.wiki');
+    Settings.WriteString('OUTPUT', 'Utils',   'Utils.wiki');
   end;
 
   edtActionsFile.Text       := Settings.ReadString('INPUT',  'Actions', '');
   edtEventsFile.Text        := Settings.ReadString('INPUT',  'Events',  '');
   edtStatesFile.Text        := Settings.ReadString('INPUT',  'States',  '');
+  edtUtilsFile.Text         := Settings.ReadString('INPUT',  'Utils',   '');
   edtOutputFileActions.Text := Settings.ReadString('OUTPUT', 'Actions', '');
   edtOutputFileEvents.Text  := Settings.ReadString('OUTPUT', 'Events',  '');
   edtOutputFileStates.Text  := Settings.ReadString('OUTPUT', 'States',  '');
+  edtOutputFileUtils.Text   := Settings.ReadString('OUTPUT', 'Utils',   '');
   FreeAndNil(Settings);
 
   fSafeToWrite := True;
@@ -126,6 +136,7 @@ var
   listTokens, paramList, typeList: TStringList;
   paramHolder: array of TParamHolder;
   lastType: string;
+  charArr: TKMCharArray;
 begin
   if aString = 'aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single' then
     Sleep(0);
@@ -139,18 +150,22 @@ begin
     // If not set to -1 it skips the first variable
     nextType := -1;
 
-    listTokens.AddStrings(aString.Split([' ']));
+    listTokens.AddStrings(StrSplit(aString, ' '));
 
     // Re-combine type arrays
     for i := 0 to listTokens.Count - 1 do
     begin
-      listTokens[i] := listTokens[i].TrimRight([',', ':', ';']);
+      SetLength(charArr, 3);
+      charArr[0] := ',';
+      charArr[1] := ':';
+      charArr[2] := ';';
+      listTokens[i] := StrTrimRight(listTokens[i], charArr);
 
       if SameText(listTokens[i], 'array') then
       begin
         nextType := i + 2;
         // For some reason this kept giving 'array of Integer;' hence the trim
-        paramList.Add((listTokens[i] + ' ' + listTokens[nextType - 1] + ' ' + listTokens[nextType]).TrimRight([',', ':', ';']));
+        paramList.Add(StrTrimRight(listTokens[i] + ' ' + listTokens[nextType - 1] + ' ' + listTokens[nextType], charArr));
       end else
         // Skip unused stuff
         if not ((SameText(listTokens[i], 'of')) or (SameText(listTokens[i], 'const')) or (i = nextType)) then
@@ -187,9 +202,9 @@ begin
 
       // Add micro descriptions to the parameters and remove them from the stringlist.
       for j := aDescriptions.Count - 1 downto 0 do
-        if aDescriptions[j].StartsWith(paramHolder[i].Name) then
+        if StartsStr(paramHolder[i].Name, aDescriptions[j]) then
         begin
-          Result := Result + ' // ' + aDescriptions[j].Substring(aDescriptions[j].IndexOf(':') + 2);
+          Result := Result + ' // ' + StrSubstring(aDescriptions[j], StrIndexOf(aDescriptions[j], ':') + 2);
           aDescriptions.Delete(j);
           Break;
         end;
@@ -212,6 +227,7 @@ var
   restStr: string;
   sourceTxt, descrTxt: TStringList;
   res: TCommandInfo;
+  charArr: TKMCharArray;
 begin
   sourceTxt := TStringList.Create;
   descrTxt  := TStringList.Create;
@@ -237,67 +253,69 @@ begin
       //* Result: Small optional description of returned value
 
       // Before anything it should start with "//* Version:"
-      if sourceTxt[i].StartsWith('//* Version:') then
+      if StartsStr('//* Version:', sourceTxt[i]) then
       begin
-        restStr := Trim(sourceTxt[i].Substring(sourceTxt[i].IndexOf(':') + 2));
+        restStr := Trim(StrSubstring(sourceTxt[i], StrIndexOf(sourceTxt[i], ':') + 2));
         res.Version := IfThen(restStr = '', '-', restStr);
         Inc(iPlus);
 
         // Descriptions are only added by lines starting with "//* "
-        if sourceTxt[i+iPlus].StartsWith('//* ') then
+        if StartsStr('//* ', sourceTxt[i+iPlus]) then
           // Repeat until no description tags are found
-          while sourceTxt[i+iPlus].StartsWith('//* ') do
+          while StartsStr('//* ', sourceTxt[i+iPlus]) do
           begin
             // Handle Result description separately to keep the output clean.
-            if sourceTxt[i+iPlus].StartsWith('//* Result:') then
-              res.ReturnDesc := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf(':') + 2)
+            if StartsStr('//* Result:', sourceTxt[i+iPlus]) then
+              res.ReturnDesc := StrSubstring(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], ':') + 2)
             else
-              descrTxt.Add(sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].IndexOf('*') + 2));
+              descrTxt.Add(StrSubstring(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '*') + 2));
             Inc(iPlus);
           end;
 
         // Skip empty or "faulty" lines
-        while not (sourceTxt[i+iPlus].StartsWith('procedure') or sourceTxt[i+iPlus].StartsWith('function')) do
+        while not (StartsStr('procedure', sourceTxt[i+iPlus]) or StartsStr('function', sourceTxt[i+iPlus])) do
           Inc(iPlus);
 
         // Format procedures
-        if sourceTxt[i+iPlus].StartsWith('procedure') then
+        if StartsStr('procedure', sourceTxt[i+iPlus]) then
         begin
-          if sourceTxt[i+iPlus].Contains('(') then
+          if StrContains(sourceTxt[i+iPlus], '(') then
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf('(') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], '(') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Proc', 'On');
-            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                   sourceTxt[i+iPlus].IndexOf(')') - (
-                                                                   sourceTxt[i+iPlus].IndexOf('(') + 1)), descrTxt);
+            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '(') + 2,
+                                                                   StrIndexOf(sourceTxt[i+iPlus], ')') - (
+                                                                   StrIndexOf(sourceTxt[i+iPlus], '(') + 1)), descrTxt);
           end else
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf(';') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], ';') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Proc', 'On');
           end;
         end;
 
         // Format functions
-        if sourceTxt[i+iPlus].StartsWith('function') then
+        if StartsStr('function', sourceTxt[i+iPlus]) then
         begin
-          if sourceTxt[i+iPlus].Contains('(') then
+          if StrContains(sourceTxt[i+iPlus], '(') then
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf('(') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], '(') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Func', 'On');
-            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('(') + 2,
-                                                                   sourceTxt[i+iPlus].IndexOf(')') - (
-                                                                   sourceTxt[i+iPlus].IndexOf('(') + 1)), descrTxt);
+            res.Parameters := ParseParams(Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '(') + 2,
+                                                                   StrIndexOf(sourceTxt[i+iPlus], ')') - (
+                                                                   StrIndexOf(sourceTxt[i+iPlus], '(') + 1)), descrTxt);
           end else
           begin
-            restStr := Copy(sourceTxt[i+iPlus], sourceTxt[i+iPlus].IndexOf('.') + 2,
-                            sourceTxt[i+iPlus].IndexOf(':') - (sourceTxt[i+iPlus].IndexOf('.') + 1));
+            restStr := Copy(sourceTxt[i+iPlus], StrIndexOf(sourceTxt[i+iPlus], '.') + 2,
+                            StrIndexOf(sourceTxt[i+iPlus], ':') - (StrIndexOf(sourceTxt[i+iPlus], '.') + 1));
             res.Name := ReplaceStr(restStr, 'Func', 'On');
           end;
 
-          restStr  := sourceTxt[i+iPlus].Substring(sourceTxt[i+iPlus].LastIndexOf(':') + 2).TrimRight([';']);;
+          SetLength(charArr, 1);
+          charArr[0] := ';';
+          restStr  := StrTrimRight(StrSubstring(sourceTxt[i+iPlus], StrLastIndexOf(sourceTxt[i+iPlus], ':') + 2), charArr);
           res.Return  := IfThen(SameText(restStr, 'TIntegerArray'), 'array of Integer', restStr);
         end;
 
@@ -388,6 +406,23 @@ begin
       listStates.SaveToFile(edtOutputFileStates.Text);
     FreeAndNil(listStates);
   end;
+
+  if FileExists(edtUtilsFile.Text) then
+  begin
+    listStates := TStringList.Create;
+    ParseText(edtUtilsFile.Text, listStates, True);
+    listStates.CustomSort(DoSort);
+
+    listStates.Insert(0, '####Utils' + sLineBreak);
+    listStates.Insert(1, '| Ver<br>sion | Utility function<br>Description | Parameters<br>and types | Returns |');
+    listStates.Insert(2, '| ------- | --------------- | -------------------- | ------- |');
+
+    txtParserOutput.Lines.AddStrings(listStates);
+
+    if edtOutputFileUtils.Text <> '' then
+      listStates.SaveToFile(edtOutputFileUtils.Text);
+    FreeAndNil(listStates);
+  end;
 end;
 
 
@@ -432,14 +467,20 @@ begin
   if Sender = edtStatesFile then
     Settings.WriteString('INPUT',  'States',  edtStatesFile.Text);
 
+  if Sender = edtUtilsFile then
+    Settings.WriteString('INPUT',  'Utils',   edtUtilsFile.Text);
+
   if Sender = edtOutputFileActions then
-    Settings.WriteString('OUTPUT', 'Actions',  edtOutputFileActions.Text);
+    Settings.WriteString('OUTPUT', 'Actions', edtOutputFileActions.Text);
 
   if Sender = edtOutputFileEvents then
     Settings.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
 
   if Sender = edtOutputFileStates then
     Settings.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
+
+  if Sender = edtOutputFileUtils then
+    Settings.WriteString('OUTPUT', 'Utils',   edtOutputFileUtils.Text);
 
   FreeAndNil(Settings);
 end;
