@@ -138,6 +138,7 @@ type
     function GetSelfAbsTop: Integer; virtual;
     function GetSelfHeight: Integer; virtual;
     function GetSelfWidth: Integer; virtual;
+    procedure UpdateVisibility; virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -216,6 +217,7 @@ type
     procedure SetWidth(aValue: Integer); override;
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
+    procedure UpdateVisibility; override;
   public
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
     ChildCount: Word;
@@ -957,6 +959,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
     function ListKeyDown(Key: Word; Shift: TShiftState): Boolean;
+    procedure UpdateVisibility; override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
 
@@ -1732,6 +1735,14 @@ begin
   //Only swap focus if visibility changed
   if (OldVisible <> fVisible) and (Focusable or (Self is TKMPanel)) then
     MasterParent.fMasterControl.UpdateFocus(Self);
+
+  UpdateVisibility;
+end;
+
+
+procedure TKMControl.UpdateVisibility;
+begin
+  //Let descendants override this method
 end;
 
 
@@ -1927,6 +1938,14 @@ begin
   for I := 0 to ChildCount - 1 do
     if Assigned(Childs[I].fOnControlMouseUp) then
       Childs[I].fOnControlMouseUp(Sender, Shift);
+end;
+
+
+procedure TKMPanel.UpdateVisibility;
+var I: Integer;
+begin
+  for I := 0 to ChildCount - 1 do
+    Childs[I].UpdateVisibility;
 end;
 
 
@@ -5516,6 +5535,13 @@ begin
   fShape.fOnClick := ListHide;
 
   fAutoClose := aAutoClose;
+end;
+
+
+procedure TKMDropCommon.UpdateVisibility;
+begin
+  if not Visible then
+    CloseList;
 end;
 
 
