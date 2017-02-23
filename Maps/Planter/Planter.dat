@@ -1,21 +1,21 @@
 !SET_MAP "data\mission\sMaps\planter.map"
 !SET_MAX_PLAYER 2
 
-!SET_CURR_PLAYER 0 //
+!SET_CURR_PLAYER 0
 !SET_HUMAN_PLAYER 0
 !ENABLE_PLAYER 0
 
 !CENTER_SCREEN 1 1
 
 // Reveal Maps
-!CLEAR_UP 7 6 16 //
-!CLEAR_UP 15 6 16 //
+!CLEAR_UP 7 6 16
+!CLEAR_UP 15 6 16
 
 // Goals
-!ADD_GOAL 3 1 0 1 //
+!ADD_GOAL 3 1 0 1
 
 // Lost Goals
-!ADD_LOST_GOAL 3 0 0 0 //
+!ADD_LOST_GOAL 3 0 0 0
 
 // Messages
 
@@ -29,7 +29,6 @@
 
 
 // Colour
-!SET_NEW_REMAP 24 25 26 27 28 29 30 31 // Red
 !SET_MAP_COLOR 229 // Red
 
 
@@ -37,8 +36,8 @@
 
 
 // Buildings
-!SET_HOUSE 9 7 6 //
-!SET_HOUSE 11 15 6 //
+!SET_HOUSE 9 7 6
+!SET_HOUSE 11 15 6
 
 
 // Roads
@@ -53,8 +52,8 @@
 
 
 // Units
-!SET_UNIT 1 7 7 //
-!SET_UNIT 0 14 7 //
+!SET_UNIT 1 7 7
+!SET_UNIT 0 14 7
 
 
 // Units at storehouse
@@ -72,7 +71,7 @@
 // Troops
 
 
-!SET_CURR_PLAYER 1 //
+!SET_CURR_PLAYER 1
 !ENABLE_PLAYER 1
 !SET_AI_PLAYER
 
@@ -86,7 +85,6 @@
 !SET_AI_CHARACTER TOWN_DEFENSE 100
 
 // Colour
-!SET_NEW_REMAP 32 33 34 35 36 37 38 39 // Light Blue
 !SET_MAP_COLOR 36 // Light Blue
 
 
@@ -94,7 +92,7 @@
 
 
 // Buildings
-!SET_HOUSE 11 6 23 //
+!SET_HOUSE 11 6 23
 
 
 // Roads

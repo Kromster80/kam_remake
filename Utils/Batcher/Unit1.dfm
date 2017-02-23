@@ -25,7 +25,7 @@ object Form1: TForm1
     Margins.Top = 2
     Margins.Right = 2
     Margins.Bottom = 2
-    Caption = 'Export Campaign Texts to EVT'
+    Caption = 'Export campaign texts to EVT'
     TabOrder = 0
     OnClick = Button3Click
   end
@@ -38,7 +38,7 @@ object Form1: TForm1
     Margins.Top = 2
     Margins.Right = 2
     Margins.Bottom = 2
-    Caption = 'Mass rename'
+    Caption = 'Mass rename sprites'
     TabOrder = 1
     OnClick = Button1Click
   end
@@ -73,7 +73,6 @@ object Form1: TForm1
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 3
-    ExplicitHeight = 262
   end
   object Button4: TButton
     Left = 24

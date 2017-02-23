@@ -1,7 +1,7 @@
 !SET_MAP "data\mission\sMaps\save01.map"
 !SET_MAX_PLAYER 2
 
-!SET_CURR_PLAYER 0 //
+!SET_CURR_PLAYER 0
 !SET_HUMAN_PLAYER 0
 !ENABLE_PLAYER 0
 
@@ -26,7 +26,6 @@
 
 
 // Colour
-!SET_NEW_REMAP 24 25 26 27 28 29 30 31 // Red
 !SET_MAP_COLOR 229 // Red
 
 
@@ -34,7 +33,7 @@
 
 
 // Buildings
-!SET_HOUSE 11 7 117 //
+!SET_HOUSE 11 7 117
 
 
 // Roads
@@ -51,12 +50,12 @@
 
 
 // Units
-!SET_UNIT 9 9 113 //
-!SET_UNIT 9 11 114 //
-!SET_UNIT 9 10 116 //
-!SET_UNIT 0 7 112 //
-!SET_UNIT 0 5 113 //
-!SET_UNIT 0 2 115 //
+!SET_UNIT 9 9 113
+!SET_UNIT 9 11 114
+!SET_UNIT 9 10 116
+!SET_UNIT 0 7 112
+!SET_UNIT 0 5 113
+!SET_UNIT 0 2 115
 
 
 // Units at storehouse
@@ -74,7 +73,7 @@
 // Troops
 
 
-!SET_CURR_PLAYER 1 //
+!SET_CURR_PLAYER 1
 !ENABLE_PLAYER 1
 !SET_AI_PLAYER
 
@@ -88,7 +87,6 @@
 !SET_AI_CHARACTER TOWN_DEFENSE 100
 
 // Colour
-!SET_NEW_REMAP 32 33 34 35 36 37 38 39 // Light Blue
 !SET_MAP_COLOR 36 // Light Blue
 
 
@@ -96,7 +94,7 @@
 
 
 // Buildings
-!SET_HOUSE 11 14 122 //
+!SET_HOUSE 11 14 122
 
 
 // Roads

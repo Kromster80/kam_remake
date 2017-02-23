@@ -56,10 +56,13 @@ object FormMain: TFormMain
         Width = 80
       end
       item
-        Text = 'Object'
-        Width = 90
+        Text = 'Object '
+        Width = 100
+      end
+      item
+        Text = 'Control ID: '
+        Width = 80
       end>
-    ExplicitTop = 680
   end
   object GroupBox1: TGroupBox
     Left = 320
@@ -185,6 +188,15 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Text bounds'
         TabOrder = 1
+        OnClick = ControlsUpdate
+      end
+      object chkUIControlsID: TCheckBox
+        Left = 111
+        Top = 16
+        Width = 58
+        Height = 17
+        Caption = 'Ctrls ID'
+        TabOrder = 2
         OnClick = ControlsUpdate
       end
     end
