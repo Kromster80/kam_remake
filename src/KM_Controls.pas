@@ -5640,6 +5640,8 @@ begin
 
   fDefaultCaption := aDefaultCaption;
 
+  fListTopIndex := 0;
+
   P := MasterParent;
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
@@ -5693,6 +5695,7 @@ end;
 
 procedure TKMDropList.ListHide(Sender: TObject);
 begin
+  fListTopIndex := fList.TopIndex; //Save list scroll position
   inherited;
   fList.Hide;
 end;

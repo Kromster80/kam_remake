@@ -52,7 +52,7 @@ type
 
     property OnMapsUpdate: TUnicodeStringEvent read fOnMapsUpdate write fOnMapsUpdate;
 
-    procedure SyncWithMaps(aMapsCRCArray: TKMCardinalArray);
+    procedure RemoveNonExistent(aMapsCRCArray: TKMCardinalArray);
     function Contains(aMapCRC: Cardinal): Boolean;
     procedure Add(aMapCRC: Cardinal);
     procedure Remove(aMapCRC: Cardinal);
@@ -997,7 +997,7 @@ end;
 
 
 //Sync current Favourites Maps list with maps CRC array.
-procedure TKMFavouriteMaps.SyncWithMaps(aMapsCRCArray: TKMCardinalArray);
+procedure TKMFavouriteMaps.RemoveNonExistent(aMapsCRCArray: TKMCardinalArray);
   function ArrayContains(aValue: Cardinal): Boolean;
   var I: Integer;
   begin

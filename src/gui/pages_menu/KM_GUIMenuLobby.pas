@@ -1588,7 +1588,7 @@ begin
     SetLength(MapsCRCArray, fMapsMP.Count);
     for I := 0 to fMapsMP.Count - 1 do
       MapsCRCArray[I] := fMapsMP[I].CRC;
-    gGameApp.GameSettings.FavouriteMaps.SyncWithMaps(MapsCRCArray);
+    gGameApp.GameSettings.FavouriteMaps.RemoveNonExistent(MapsCRCArray);
   end;
 end;
 
@@ -1744,7 +1744,10 @@ begin
   if fMapsSortUpdateNeeded then
   begin
     //Update sort
-    MapColumnClick(0);
+    if Radio_LobbyMapType.ItemIndex < 4 then
+      fMapsMP.Sort(fMapsMP.SortMethod, MapList_SortUpdate)
+    else
+      fSavesMP.Sort(fSavesMP.SortMethod, MapList_SortUpdate);
     fMapsSortUpdateNeeded := False;
   end;
 end;
@@ -1776,7 +1779,7 @@ begin
             SM := smBySizeDesc
           else
             SM := smBySizeAsc;
-      else SM := smByNameDesc;
+      else SM := smByNameAsc;
     end;
     fMapsMP.Sort(SM, MapList_SortUpdate);
   end
