@@ -885,8 +885,8 @@ type
     function GetSelfAbsTop: Integer; override;
     function GetSelfHeight: Integer; override;
     function GetSelfWidth: Integer; override;
-    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer; aDoNotHighlight: Boolean = False); overload;
-    procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aDoNotHighlight: Boolean = False); overload;
+    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer; aAllowHighlight: Boolean = True); overload;
+    procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aAllowHighlight: Boolean = True); overload;
   public
     HideSelection: Boolean;
     HighlightError: Boolean;
@@ -5297,21 +5297,21 @@ begin
 end;
 
 
-procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aDoNotHighlight: Boolean = False);
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aAllowHighlight: Boolean = True);
 var ColumnsToShow: array of Boolean;
     I: Integer;
 begin
   SetLength(ColumnsToShow, Length(fColumns));
   for I := Low(ColumnsToShow) to High(ColumnsToShow) do
     ColumnsToShow[I] := True; // show all columns by default
-  DoPaintLine(aIndex, X, Y, PaintWidth, ColumnsToShow, aDoNotHighlight);
+  DoPaintLine(aIndex, X, Y, PaintWidth, ColumnsToShow, aAllowHighlight);
 end;
 
 
-procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aDoNotHighlight: Boolean = False);
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aAllowHighlight: Boolean = True);
   function IsHighlightOverCell(aCellIndex: Integer): Boolean;
   begin
-    Result := not aDoNotHighlight
+    Result := aAllowHighlight
                 and Rows[aIndex].Cells[aCellIndex].HighlightOnMouseOver 
                 and (fMouseOverCell.X = aCellIndex) and (fMouseOverCell.Y = aIndex)
                 and (csOver in State);
@@ -5369,7 +5369,7 @@ begin
       end else
       begin
         TextSize := gRes.Fonts[fFont].GetTextSize(Rows[aIndex].Cells[I].Caption);
-        if not aDoNotHighlight
+        if aAllowHighlight
           and ((HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex))
           or (HighlightError and (aIndex = ItemIndex))
           or IsHighlightOverCell(I)) then
@@ -6011,7 +6011,7 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width, fColumnsToShowWhenListHidden, True)
+    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width, fColumnsToShowWhenListHidden, False)
   else
     TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 4, Width - 8 - fButton.Width, fDefaultCaption, fFont, taLeft, Col);
 end;
