@@ -52,7 +52,7 @@ type
 
     property OnMapsUpdate: TUnicodeStringEvent read fOnMapsUpdate write fOnMapsUpdate;
 
-    procedure RemoveNonExistent(aMapsCRCArray: TKMCardinalArray);
+    procedure RemoveMissing(aMapsCRCArray: TKMCardinalArray);
     function Contains(aMapCRC: Cardinal): Boolean;
     procedure Add(aMapCRC: Cardinal);
     procedure Remove(aMapCRC: Cardinal);
@@ -996,8 +996,8 @@ begin
 end;
 
 
-//Sync current Favourites Maps list with maps CRC array.
-procedure TKMFavouriteMaps.RemoveNonExistent(aMapsCRCArray: TKMCardinalArray);
+//Remove missing Favourites Maps from list, check if are of them are presented in the given maps CRC array.
+procedure TKMFavouriteMaps.RemoveMissing(aMapsCRCArray: TKMCardinalArray);
   function ArrayContains(aValue: Cardinal): Boolean;
   var I: Integer;
   begin

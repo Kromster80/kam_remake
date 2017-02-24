@@ -1588,7 +1588,7 @@ begin
     SetLength(MapsCRCArray, fMapsMP.Count);
     for I := 0 to fMapsMP.Count - 1 do
       MapsCRCArray[I] := fMapsMP[I].CRC;
-    gGameApp.GameSettings.FavouriteMaps.RemoveNonExistent(MapsCRCArray);
+    gGameApp.GameSettings.FavouriteMaps.RemoveMissing(MapsCRCArray);
   end;
 end;
 
