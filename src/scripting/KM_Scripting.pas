@@ -239,7 +239,7 @@ begin
 
       RegisterMethod('function GameTime: Cardinal');
 
-      RegisterMethod('function GetAllTeams: TIntegerArray');
+      RegisterMethod('function GetAllMPTeams: TIntegerArray');
 
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
@@ -310,8 +310,8 @@ begin
       RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerIsAI(aPlayer: Byte): Boolean');
+      RegisterMethod('function PlayerMPTeam(aPlayer: Byte): Integer');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
-      RegisterMethod('function PlayerTeam(aPlayer: Byte): Integer');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
 
@@ -707,7 +707,7 @@ begin
       RegisterMethod(@TKMScriptStates.FogRevealed,                              'FogRevealed');
 
       RegisterMethod(@TKMScriptStates.GameTime,                                 'GameTime');
-      RegisterMethod(@TKMScriptStates.GetAllTeams,                              'GetAllTeams');
+      RegisterMethod(@TKMScriptStates.GetAllMPTeams,                            'GetAllMPTeams');
 
       RegisterMethod(@TKMScriptStates.GroupAt,                                  'GroupAt');
       RegisterMethod(@TKMScriptStates.GroupColumnCount,                         'GroupColumnCount');
@@ -778,8 +778,8 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,                       'PlayerGetAllHouses');
       RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,                        'PlayerGetAllUnits');
       RegisterMethod(@TKMScriptStates.PlayerIsAI,                               'PlayerIsAI');
+      RegisterMethod(@TKMScriptStates.PlayerMPTeam,                             'PlayerMPTeam');
       RegisterMethod(@TKMScriptStates.PlayerName,                               'PlayerName');
-      RegisterMethod(@TKMScriptStates.PlayerTeam,                               'PlayerTeam');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,                         'PlayerVictorious');
       RegisterMethod(@TKMScriptStates.PlayerWareDistribution,                   'PlayerWareDistribution');
 
