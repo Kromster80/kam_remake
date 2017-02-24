@@ -2968,7 +2968,7 @@ begin
     BeforeSelectionW := gRes.Fonts[fFont].GetTextSize(BeforeSelectionText).X;
     SelectionW := gRes.Fonts[fFont].GetTextSize(SelectionText).X;
 
-    TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, AbsTop+3, min(SelectionW, Width-8), Height-6, icSteelBlue);
+    TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, AbsTop+3, min(SelectionW, Width-8), Height-6, clTextSelection);
   end;
 
   TKMRenderUI.WriteText(AbsLeft+4, AbsTop+3, Width-8, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
@@ -4389,7 +4389,7 @@ begin
           Inc(SelPaintTop, 3);
         end;
 
-        TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, SelPaintTop, min(SelectionW, Width-8), SelPaintHeight, icSteelBlue);
+        TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, SelPaintTop, min(SelectionW, Width-8), SelPaintHeight, clTextSelection);
       end;
     end;
 

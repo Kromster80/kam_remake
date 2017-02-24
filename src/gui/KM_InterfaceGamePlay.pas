@@ -2028,13 +2028,13 @@ begin
       R.Cells[0].Pic := MakePic(rxGui, 588);
       if gMySpectator.Hand.MessageLog[I].IsRead then
       begin
-        R.Cells[1].Color := $FF0080B0;
-        R.Cells[1].HighlightColor := icAmberBrown;
+        R.Cells[1].Color := clMessageUnitRead;
+        R.Cells[1].HighlightColor := clMessageUnitReadHL;
       end
       else
       begin
-        R.Cells[1].Color := $FF00B0FF;
-        R.Cells[1].HighlightColor := icRoyalYellow;
+        R.Cells[1].Color := clMessageUnitUnread;
+        R.Cells[1].HighlightColor := clMessageUnitUnreadHL;
       end;
     end
     else

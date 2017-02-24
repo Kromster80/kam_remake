@@ -321,8 +321,8 @@ procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
       Result.Cells[I].HighlightOnMouseOver := True;
       if I = 1 then
       begin
-        Result.Cells[I].Color := icRoyalYellow;
-        Result.Cells[I].HighlightColor := icAmberBrown;
+        Result.Cells[I].Color := clLobbyOpponentAll;
+        Result.Cells[I].HighlightColor := clLobbyOpponentAllHL;
       end
       else
         Result.Cells[I].HighlightColor := icGray;
