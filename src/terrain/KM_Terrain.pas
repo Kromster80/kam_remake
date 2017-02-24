@@ -3163,8 +3163,10 @@ begin
     Result := 3
   else if InRange(aFieldAge, CORN_AGE_3, CORN_AGE_FULL - 2) then
     Result := 4
+  else if aFieldAge = CORN_AGE_FULL - 1 then
+    Result := 5
   else
-    Result := 5;
+    Result := 6;
 end;
 
 
