@@ -377,6 +377,7 @@ procedure TKMapEdInterface.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   //Check to see if we need to scroll
   fViewport.UpdateStateIdle(aFrameTime, False);
+  fGuiTown.UpdateStateIdle;
 end;
 
 
@@ -871,15 +872,13 @@ begin
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
 
   gGame.MapEditor.MouseMove;
-
-  fGuiTown.MouseMove(Shift, X, Y);
 end;
 
 
 procedure TKMapEdInterface.UpdateCursor(X, Y: Integer; Shift: TShiftState);
 var Marker: TKMMapEdMarker;
 begin
-  UpdateGameCursor(X,Y,Shift);
+  UpdateGameCursor(X, Y, Shift);
 
   if gGameCursor.Mode = cmPaintBucket then
   begin

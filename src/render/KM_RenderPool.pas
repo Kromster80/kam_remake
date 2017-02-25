@@ -337,29 +337,23 @@ begin
     gGame.MapEditor.Paint(plObjects, aRect);
 
   with gTerrain do
-  for I := aRect.Top to aRect.Bottom do
-  for K := aRect.Left to aRect.Right do
-  begin
-    if (Land[I, K].Obj <> 255)
-    // In the map editor we shouldn't render terrain objects within the paste preview
-    and (not gGame.IsMapEditor or not (mlSelection in gGame.MapEditor.VisibleLayers)
-         or not gGame.MapEditor.Selection.TileWithinPastePreview(K, I)) then
-      RenderMapElement(Land[I, K].Obj, AnimStep, K, I);
-
-    // Fake wine objects for MapEd
-    case Land[I,K].CornOrWine of
-      1: ;
-      2: RenderMapElement(54, AnimStep, K, I);
-    end;
-  end;
+    for I := aRect.Top to aRect.Bottom do
+      for K := aRect.Left to aRect.Right do
+      begin
+        if (Land[I, K].Obj <> 255)
+        // In the map editor we shouldn't render terrain objects within the paste preview
+        and (not gGame.IsMapEditor or not (mlSelection in gGame.MapEditor.VisibleLayers)
+             or not gGame.MapEditor.Selection.TileWithinPastePreview(K, I)) then
+          RenderMapElement(Land[I, K].Obj, AnimStep, K, I);
+      end;
 
   // Falling trees are in a separate list
   with gTerrain do
-  for I := 0 to FallingTrees.Count - 1 do
-  begin
-    RenderMapElement1(FallingTrees.Tag[I], aAnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
-    Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
-  end;
+    for I := 0 to FallingTrees.Count - 1 do
+    begin
+      RenderMapElement1(FallingTrees.Tag[I], aAnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
+      Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
+    end;
 
   // Tablets on house plans, for self and allies
   fTabletsList.Clear;
@@ -1381,7 +1375,8 @@ begin
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmWine:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine)) and (gGameCursor.Tag1 <> Ord(cfmErase)) then
+    cmWine:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine) or (gGame.IsMapEditor and gTerrain.TileIsWineField(P)))
+                    and (gGameCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X

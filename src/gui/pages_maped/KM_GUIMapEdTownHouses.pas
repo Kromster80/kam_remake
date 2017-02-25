@@ -24,7 +24,7 @@ type
     procedure Hide;
     function Visible: Boolean;
     procedure UpdateState;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
+    procedure UpdateStateIdle;
   end;
 
 
@@ -139,15 +139,33 @@ begin
 end;
 
 
-procedure TKMMapEdTownHouses.MouseMove(Shift: TShiftState; X,Y: Integer);
+procedure TKMMapEdTownHouses.UpdateStateIdle;
 var P: TKMPoint;
 begin
   P := gGameCursor.Cell;
   if (gGameCursor.Mode = cmField)
     and gTerrain.TileIsCornField(P) then
-    Button_BuildField.Caption := IntToStr(gTerrain.GetCornStage(P))
-  else
+  begin
+    Button_BuildField.Caption := IntToStr(gTerrain.GetCornStage(P) + 1);
+    Button_BuildField.CapOffsetY := -10;
+    Button_BuildField.TexOffsetY := 6;
+  end else begin
     Button_BuildField.Caption := '';
+    Button_BuildField.CapOffsetY := 0;
+    Button_BuildField.TexOffsetY := 0;
+  end;
+
+  if (gGameCursor.Mode = cmWine)
+    and gTerrain.TileIsWineField(P) then
+  begin
+    Button_BuildWine.Caption := IntToStr(gTerrain.GetWineStage(P) + 1);
+    Button_BuildWine.CapOffsetY := -10;
+    Button_BuildWine.TexOffsetY := 6;
+  end else begin
+    Button_BuildWine.Caption := '';
+    Button_BuildWine.CapOffsetY := 0;
+    Button_BuildWine.TexOffsetY := 0;
+  end;
 end;
 
 

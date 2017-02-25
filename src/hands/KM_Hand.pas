@@ -511,7 +511,7 @@ end;
 
 procedure TKMHand.AddFieldStaged(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte);
 begin
-  gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, aStage, False);
+  gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, aStage, True);
 end;
 
 

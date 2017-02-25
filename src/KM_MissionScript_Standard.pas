@@ -902,9 +902,9 @@ begin
               AddCommand(ct_SetRoad, [iX-1,iY-1]);
           end;
           if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetFieldStaged, [iX-1,iY-1,gTerrain.GetCornStage(gTerrain.Land[iY,iX].FieldAge)]);
+            AddCommand(ct_SetFieldStaged, [iX-1,iY-1,gTerrain.GetCornStage(KMPoint(iX, iY))]);
           if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetWinefieldStaged, [iX-1,iY-1,gTerrain.Land[iY,iX].FieldAge]);
+            AddCommand(ct_SetWinefieldStaged, [iX-1,iY-1,gTerrain.GetWineStage(KMPoint(iX, iY))]);
         end;
     CommandLayerCount := -1; //Disable command layering
     AddData(''); //Extra NL because command layering doesn't put one

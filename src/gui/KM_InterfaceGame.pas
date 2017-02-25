@@ -220,6 +220,8 @@ begin
     Pixel.Y := Y;
     Float := CursorToMapCoord(X, Y);
 
+    PrevCell := Cell;
+
     // Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
     Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); // Cell below cursor in map bounds
     Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
