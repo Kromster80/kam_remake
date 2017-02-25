@@ -1940,20 +1940,20 @@ begin
             Land[Loc.Y,Loc.X].FieldAge := 1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - 1) div 2);
           end;
 
-      1: begin //Fruits start to grow
-           Land[Loc.Y,Loc.X].Obj := 55;
-           Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - WINE_AGE_1) div 2);
-         end;
+      1:  begin //Fruits start to grow
+            Land[Loc.Y,Loc.X].Obj := 55;
+            Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - WINE_AGE_1) div 2);
+          end;
 
-      2: begin //Fruits continue to grow
-           Land[Loc.Y,Loc.X].Obj := 56;
-           Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_2 + Ord(aRandomAge) * KaMRandom((WINE_AGE_FULL - WINE_AGE_2) div 2);
-         end;
+      2:  begin //Fruits continue to grow
+            Land[Loc.Y,Loc.X].Obj := 56;
+            Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_2 + Ord(aRandomAge) * KaMRandom((WINE_AGE_FULL - WINE_AGE_2) div 2);
+          end;
 
-      3: begin //Ready to be harvested
-           Land[Loc.Y,Loc.X].Obj := 57;
-           Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL - 1;
-         end;
+      3:  begin //Ready to be harvested
+            Land[Loc.Y,Loc.X].Obj := 57;
+            Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL - 1;
+          end;
     end;
 
   SetField_Complete(Loc, aFieldType);
