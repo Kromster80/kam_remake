@@ -333,8 +333,6 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
-  rgBriefingPos.Enabled := False;
-
   edtShortName.Text := C.CampName;
   seMapCount.Value := C.MapCount;
 
