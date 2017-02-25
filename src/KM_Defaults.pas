@@ -666,15 +666,32 @@ const
   $FF000000  //Black
   );
 
-  //Interface Colors used for coloring status messages
-  //icWhite  = $FFFFFFFF;
+  //Interface colors
   icGreen  = $FF00C000;
   icYellow = $FF07FFFF;
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
 
-  icSteelBlue = $FFA56D53; // Selection color
+  icGray = $FF808080;
+  icWhite = $FFFFFFFF;
 
+  icSteelBlue = $FFA56D53;
+
+  icRoyalYellow = $FF4AC7FF;
+  icGoldenYellow = $FF00B0FF;
+  icAmberBrown = $FF006797;
+  icDarkGoldenRod = $FF0080B0; // brown shade color
+
+  // Interface colors (by usage)
+  clTextSelection = icSteelBlue;
+
+  clMessageUnitUnread = icGoldenYellow;
+  clMessageUnitUnreadHL = icRoyalYellow;
+  clMessageUnitRead = icDarkGoldenRod;
+  clMessageUnitReadHL = icAmberBrown;
+
+  clLobbyOpponentAll = icRoyalYellow;
+  clLobbyOpponentAllHL = icAmberBrown;
 
 var
   ExeDir: UnicodeString;
