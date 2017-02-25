@@ -2,9 +2,11 @@ unit KM_GUIMapEdAttack;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
-   KM_Points, KM_AIAttacks;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  Classes, SysUtils,
+  KM_Controls, KM_Defaults, KM_Pics,
+  KM_Points, KM_AIAttacks;
 
 type
   TKMMapEdAttack = class
@@ -16,6 +18,7 @@ type
     procedure Attack_Refresh(aAttack: TAIAttack);
     procedure Attack_Save;
     procedure Attack_Switch(Sender: TObject);
+    function GetVisible: Boolean;
   protected
     Panel_Attack: TKMPanel;
     Label_AttackHeader: TKMLabel;
@@ -36,6 +39,8 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
+    property Visible: Boolean read GetVisible;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean;
     procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
   end;
 
@@ -216,6 +221,30 @@ begin
     fIndex := (fIndex + 1) mod atCount;
 
   Attack_Refresh(gHands[fOwner].AI.General.Attacks[fIndex]);
+end;
+
+
+function TKMMapEdAttack.GetVisible: Boolean;
+begin
+  Result := Panel_Attack.Visible;
+end;
+
+
+function TKMMapEdAttack.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False;
+  case Key of
+    VK_ESCAPE:  if Button_AttackCancel.IsClickable then
+                begin
+                  Attack_Close(Button_AttackCancel);
+                  Result := True;
+                end;
+    VK_RETURN:  if Button_AttackOk.IsClickable then
+                begin
+                  Attack_Close(Button_AttackOk);
+                  Result := True;
+                end;
+  end;
 end;
 
 

@@ -94,7 +94,7 @@ implementation
 uses
   KM_Log, KM_Main, KM_GameCursor,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess;
+  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess, KM_Controls;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -125,8 +125,8 @@ begin
   gSoundPlayer.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
   fCampaigns    := TKMCampaignsCollection.Create;
-  fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
-  fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
+  fCampaigns.ScanFolder(ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim);
+  fCampaigns.LoadProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(aScreenX, aScreenY);
@@ -170,7 +170,7 @@ begin
   Stop(gr_Silent);
 
   FreeAndNil(fTimerUI);
-  if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
+  if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
   FreeThenNil(fMainMenuInterface);
@@ -218,8 +218,8 @@ begin
 
   //Campaigns use single locale
   fCampaigns := TKMCampaignsCollection.Create;
-  fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
-  fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
+  fCampaigns.ScanFolder(ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim);
+  fCampaigns.LoadProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);
   fMainMenuInterface.PageChange(gpOptions);
   Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
@@ -287,6 +287,8 @@ end;
 
 
 procedure TKMGameApp.MouseMove(Shift: TShiftState; X,Y: Integer);
+var Ctrl: TKMControl;
+    CtrlID: Integer;
 begin
   if not InRange(X, 1, fRender.ScreenX - 1)
   or not InRange(Y, 1, fRender.ScreenY - 1) then
@@ -305,6 +307,17 @@ begin
     fOnCursorUpdate(2, Format('Tile: %.1f:%.1f [%d:%d]',
                               [gGameCursor.Float.X, gGameCursor.Float.Y,
                               gGameCursor.Cell.X, gGameCursor.Cell.Y]));
+    if SHOW_CONTROLS_ID then
+    begin
+      if gGame <> nil then
+        Ctrl := gGame.ActiveInterface.MyControls.HitControl(X,Y, True)
+      else
+        Ctrl := fMainMenuInterface.MyControls.HitControl(X,Y, True);
+      CtrlID := -1;
+      if Ctrl <> nil then
+        CtrlID := Ctrl.ID;
+      fOnCursorUpdate(6, Format('Control ID: %d', [CtrlID]));
+    end;
   end;
 end;
 
@@ -643,9 +656,9 @@ end;
 function TKMGameApp.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
 begin
   if aMultiPlayer then
-    Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
+    Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt
   else
-    Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
+    Result := ExeDir + SAVES_FOLDER_NAME + PathDelim + aName + '.' + aExt;
 end;
 
 

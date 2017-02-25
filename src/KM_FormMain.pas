@@ -83,6 +83,7 @@ type
     chkLogNetConnection: TCheckBox;
     RGLogNetPackets: TRadioGroup;
     chkLogsShowInChat: TCheckBox;
+    chkUIControlsID: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -531,6 +532,7 @@ begin
   //UI
   SHOW_CONTROLS_OVERLAY := chkUIControlsBounds.Checked;
   SHOW_TEXT_OUTLINES := chkUITextBounds.Checked;
+  SHOW_CONTROLS_ID := chkUIControlsID.Checked;
 
   //Graphics
   if AllowDebugChange then

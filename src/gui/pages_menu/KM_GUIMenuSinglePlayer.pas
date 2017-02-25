@@ -8,11 +8,12 @@ uses
 
 
 type
-  TKMMenuSinglePlayer = class
+  TKMMenuSinglePlayer = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
     procedure ButtonClick(Sender: TObject);
+    procedure BackClick(Sender: TObject);
   protected
     Panel_SinglePlayer: TKMPanel;
     Panel_SPButtons: TKMPanel;
@@ -40,6 +41,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   //Without anchors this page is centered on resize
   Panel_SinglePlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
@@ -62,17 +64,23 @@ begin
       Button_SP_Camp.OnClick   := ButtonClick;
       Button_SP_Single.OnClick := ButtonClick;
       Button_SP_Load.OnClick   := ButtonClick;
-      Button_SP_Back.OnClick   := ButtonClick;
+      Button_SP_Back.OnClick   := BackClick;
+end;
+
+
+procedure TKMMenuSinglePlayer.BackClick(Sender: TObject);
+begin
+  fOnPageChange(gpMainMenu);
 end;
 
 
 procedure TKMMenuSinglePlayer.ButtonClick(Sender: TObject);
 begin
   if Sender = Button_SP_Tutor then
-    gGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Town Tutorial'+PathDelim+'Town Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_TOWN]);
+    gGameApp.NewSingleMap(ExeDir + TUTORIALS_FOLDER_NAME + PathDelim + 'Town Tutorial' + PathDelim + 'Town Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_TOWN]);
 
   if Sender = Button_SP_Fight then
-    gGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Battle Tutorial'+PathDelim+'Battle Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_BATTLE]);
+    gGameApp.NewSingleMap(ExeDir + TUTORIALS_FOLDER_NAME + PathDelim + 'Battle Tutorial' + PathDelim + 'Battle Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_BATTLE]);
 
   if Sender = Button_SP_Camp then
     fOnPageChange(gpCampSelect);
@@ -82,9 +90,6 @@ begin
 
   if Sender = Button_SP_Load then
     fOnPageChange(gpLoad);
-
-  if Sender = Button_SP_Back then
-    fOnPageChange(gpMainMenu);
 end;
 
 

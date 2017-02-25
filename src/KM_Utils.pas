@@ -57,6 +57,8 @@ uses
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
 
+  function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+
   function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
 
   function DeleteDoubleSpaces(aString: string): string;
@@ -68,17 +70,14 @@ uses
   function StrLastIndexOf(aStr, aSubStr: String): Integer;
   function StrSubstring(aStr: String; aFrom, aLength: Integer): String; overload;
   function StrSubstring(aStr: String; aFrom: Integer): String; overload;
-  function StrStartsWith(aStr, aSubStr: String): Boolean;
   function StrContains(aStr, aSubStr: String): Boolean;
   function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
   function StrSplit(aStr, aDelimiters: String): TStrings;
 
 
-
 implementation
 uses
   StrUtils, Types;
-
 
 var
   fKaMSeed: Integer;
@@ -678,6 +677,23 @@ begin
 end;
 
 
+// Returns file directory name
+// F.e. for aFilePath = 'c:/kam/remake/fore.ver' returns 'remake'
+function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+var DirPath: UnicodeString;
+begin
+  Result := '';
+  if Trim(aFilePath) = '' then Exit;
+
+  DirPath := ExtractFileDir(aFilePath);
+
+  if DirPath = '' then Exit;
+
+  if StrIndexOf(DirPath, PathDelim) <> -1 then
+    Result := copy(DirPath, StrLastIndexOf(DirPath, PathDelim) + 2);
+end;
+
+
 // Returnes text ignoring color markup [$FFFFFF][]
 function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
 var I, TmpColor: Integer;
@@ -751,14 +767,6 @@ begin
   for I := 1 to Length(aStr) do
     if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
       Result := I - 1;
-end;
-
-
-function StrStartsWith(aStr, aSubStr: String): Boolean;
-begin
-  //Todo refactor:
-  //@Krom: Why not just replace StrStartsWith with StartsStr everywhere in code?
-  Result := StartsStr(aSubStr, aStr);
 end;
 
 

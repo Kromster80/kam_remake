@@ -33,7 +33,7 @@ type
     procedure PostLoadMission;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
-    procedure SaveDATFile(const aFileName: string);
+    procedure SaveDATFile(const aFileName: string; aDoXorEncoding: Boolean = False);
   end;
 
 
@@ -608,7 +608,7 @@ end;
 
 
 //Write out a KaM format mission file to aFileName
-procedure TMissionParserStandard.SaveDATFile(const aFileName: string);
+procedure TMissionParserStandard.SaveDATFile(const aFileName: string; aDoXorEncoding: Boolean = False);
 const
   COMMANDLAYERS = 4;
 var
@@ -704,7 +704,6 @@ begin
     if gGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
 
     //Write RGB command second so it will be used if color is not from KaM palette
-    AddCommand(ct_SetMapColor, [gHands[I].FlagColorIndex]);
     AddCommand(ct_SetRGBColor, [gHands[I].FlagColor and $00FFFFFF]);
 
     if not KMSamePoint(gHands[I].CenterScreen, KMPoint(0,0)) then
@@ -956,14 +955,18 @@ begin
   //Similar footer to one in Lewin's Editor, useful so ppl know what mission was made with.
   AddData('//This mission was made with KaM Remake Map Editor version ' + GAME_VERSION + ' at ' + AnsiString(DateTimeToStr(Now)));
 
-  //Write uncoded file for debug
-  SaveStream := TFileStream.Create(aFileName+'.txt', fmCreate);
-  SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
-  SaveStream.Free;
 
-  //Encode it
-  for I := 1 to Length(SaveString) do
-    SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
+  if aDoXorEncoding then
+  begin
+    //Write uncoded file for debug
+    SaveStream := TFileStream.Create(aFileName+'.txt', fmCreate);
+    SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
+    SaveStream.Free;
+
+    //Encode file
+    for I := 1 to Length(SaveString) do
+      SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
+  end;
 
   SaveStream := TFileStream.Create(aFileName, fmCreate);
   SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
