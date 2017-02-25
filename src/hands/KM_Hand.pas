@@ -510,8 +510,28 @@ end;
 
 
 procedure TKMHand.AddFieldStaged(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte);
+var IsFieldSet: Boolean;
 begin
-  gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, aStage, True);
+  IsFieldSet := False;
+  //If we have corn/wine object on that tile, set appropriate field/wine stage
+  if (aFieldType = ft_Corn) and not gTerrain.TileIsCornField(aLoc) then
+  begin
+    if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 58, 59) then
+    begin
+      gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      IsFieldSet := True;
+    end;
+  end else if (aFieldType = ft_Wine) and not gTerrain.TileIsWineField(aLoc) then
+  begin
+    if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 54, 57) then
+    begin
+      gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      IsFieldSet := True;
+    end;
+  end;
+
+  if not IsFieldSet then
+    gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, aStage, True);
 end;
 
 

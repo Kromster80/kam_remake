@@ -97,6 +97,7 @@ type
     procedure UnlockTile(aLoc: TKMPoint);
     procedure SetRoads(aList: TKMPointList; aOwner: TKMHandIndex; aUpdateWalkConnects: Boolean = True);
     procedure SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aDoLocUpdates: Boolean = True);
+    procedure SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TKMHandIndex; const aFlattenTerrain: Boolean = False);
     procedure SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TKMHandIndex);
 
@@ -136,7 +137,6 @@ type
 
     procedure SowCorn(Loc: TKMPoint);
     procedure CutCorn(Loc: TKMPoint);
-    procedure SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean);
     procedure CutGrapes(Loc: TKMPoint);
 
     procedure DecStoneDeposit(Loc: TKMPoint);
@@ -1889,8 +1889,7 @@ procedure TKMTerrain.SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldT
     Result := -1;
     if aFieldType = ft_Corn then
     begin
-      if (Land[Loc.Y,Loc.X].Obj = 58)
-        or (Land[Loc.Y,Loc.X].Obj = 59) then
+      if (Land[Loc.Y,Loc.X].Obj = 58) or (Land[Loc.Y,Loc.X].Obj = 59) then
         Result := 255;
     end;
   end;
