@@ -675,6 +675,9 @@ const
 
   icSteelBlue = $FFA56D53; // Selection color
 
+  clMapEdBtnField = icYellow;
+  clMapEdBtnWine = icYellow;
+
 
 var
   ExeDir: UnicodeString;

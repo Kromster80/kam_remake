@@ -48,6 +48,10 @@ begin
   Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
   Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 74,28,33,33,336);
   Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,148,28,33,33,340);
+
+  Button_BuildField.CapColor := clMapEdBtnField;
+  Button_BuildWine.CapColor := clMapEdBtnWine;
+
   Button_BuildRoad.OnClick  := Town_BuildChange;
   Button_BuildField.OnClick := Town_BuildChange;
   Button_BuildWine.OnClick  := Town_BuildChange;
