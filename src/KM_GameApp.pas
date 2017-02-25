@@ -60,7 +60,7 @@ type
     procedure NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
     procedure NewRestartLast(aGameName, aMission, aSave: UnicodeString; aGameMode: TGameMode; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
-    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
+    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
     procedure NewReplay(const aFilePath: UnicodeString);
 
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -637,10 +637,10 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
+procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
 begin
   if aFileName <> '' then
-    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), 0, nil, 0, gmMapEd, 0, 0)
+    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapCRC, nil, 0, gmMapEd, 0, 0)
   else
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
 end;

@@ -123,6 +123,7 @@ type
     fMaps: array of TKMapInfo;
     fMapFolders: TMapFolderSet;
     fSortMethod: TMapsSortMethod;
+    fDoSortWithFavourites: Boolean;
     CS: TCriticalSection;
     fScanner: TTMapsScanner;
     fScanning: Boolean; //Flag if scan is in progress
@@ -136,8 +137,8 @@ type
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
   public
-    constructor Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
-    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
+    constructor Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False); overload;
+    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False); overload;
     destructor Destroy; override;
 
     property Count: Integer read fCount;
@@ -254,7 +255,7 @@ begin
     //Load additional text info
     LoadTXTInfo;
 
-    IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
+    IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
@@ -481,7 +482,7 @@ begin
   S.Read(BlockPeacetime);
   S.Read(BlockFullMapPreview);
 
-  IsFavourite := gGameApp.GameSettings.IsMapInFavourites(fCRC);
+  IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
 
   //Other properties are not saved, they are fast to reload
   S.Free;
@@ -613,11 +614,12 @@ end;
 
 
 { TKMapsCollection }
-constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc);
+constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False);
 begin
   inherited Create;
   fMapFolders := aMapFolders;
   fSortMethod := aSortMethod;
+  fDoSortWithFavourites := aDoSortWithFavourites;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
@@ -626,9 +628,9 @@ begin
 end;
 
 
-constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
+constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False);
 begin
-  Create([aMapFolder], aSortMethod);
+  Create([aMapFolder], aSortMethod, aDoSortWithFavourites);
 end;
 
 
@@ -794,7 +796,7 @@ var TempMaps: array of TKMapInfo;
       smByModeAsc:            Result := A.MissionMode < B.MissionMode;
       smByModeDesc:           Result := A.MissionMode > B.MissionMode;
     end;
-    if not (fSortMethod in [smByFavouriteAsc, smByFavouriteDesc]) then
+    if fDoSortWithFavourites and not (fSortMethod in [smByFavouriteAsc, smByFavouriteDesc]) then
     begin
       if A.IsFavourite and not B.IsFavourite then
         Result := False
@@ -804,33 +806,33 @@ var TempMaps: array of TKMapInfo;
 
   end;
 
-  procedure MergeSort(left, right: integer);
-  var middle, i, j, ind1, ind2: integer;
+  procedure MergeSort(aLeft, aRight: Integer);
+  var Middle, I, J, Ind1, Ind2: integer;
   begin
-    if right <= left then
+    if aRight <= aLeft then
       exit;
 
-    middle := (left+right) div 2;
-    MergeSort(left, middle);
-    Inc(middle);
-    MergeSort(middle, right);
-    ind1 := left;
-    ind2 := middle;
-    for i := left to right do
+    Middle := (aLeft+aRight) div 2;
+    MergeSort(aLeft, Middle);
+    Inc(Middle);
+    MergeSort(Middle, aRight);
+    Ind1 := aLeft;
+    Ind2 := Middle;
+    for I := aLeft to aRight do
     begin
-      if (ind1 < middle) and ((ind2 > right) or not Compare(fMaps[ind1], fMaps[ind2])) then
+      if (Ind1 < Middle) and ((Ind2 > aRight) or not Compare(fMaps[Ind1], fMaps[Ind2])) then
       begin
-        TempMaps[i] := fMaps[ind1];
-        Inc(ind1);
+        TempMaps[I] := fMaps[Ind1];
+        Inc(Ind1);
       end
       else
       begin
-        TempMaps[i] := fMaps[ind2];
-        Inc(ind2);
+        TempMaps[I] := fMaps[Ind2];
+        Inc(Ind2);
       end;
     end;
-    for j := left to right do
-      fMaps[j] := TempMaps[j];
+    for J := aLeft to aRight do
+      fMaps[J] := TempMaps[J];
   end;
 begin
   SetLength(TempMaps, Length(fMaps));

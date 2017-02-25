@@ -477,6 +477,8 @@ begin
 end;
 
 
+//Reduce brightness
+//aBrightness - from 0 to 255, where 255 is current Brightness
 function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
 begin
   Result := Round((aColor and $FF) / 255 * aBrightness)
