@@ -943,6 +943,7 @@ type
     fButton: TKMButton;
     fShape: TKMShape;
     fOnChange: TNotifyEvent;
+    fOnShow: TNotifyEvent;
     fAutoClose: Boolean;
     procedure UpdateDropPosition; virtual; abstract;
     procedure ButtonClick(Sender: TObject);
@@ -971,6 +972,7 @@ type
     property DropUp: Boolean read fDropUp write fDropUp;
     property ItemIndex: SmallInt read GetItemIndex write SetItemIndex;
 
+    property OnShow: TNotifyEvent read fOnShow write fOnShow;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure Paint; override;
   end;
@@ -982,6 +984,7 @@ type
     fCaption: UnicodeString; //Current caption (Default or from list)
     fDefaultCaption: UnicodeString;
     fList: TKMListBox;
+    fListTopIndex: Integer;
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
@@ -1017,6 +1020,7 @@ type
     fDefaultCaption: UnicodeString;
     fDropWidth: Integer;
     fList: TKMColumnBox;
+    fListTopIndex: Integer;
     fColumnsToShowWhenListHidden: array of Boolean; //which columns to show, when list is hidden
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
@@ -5562,6 +5566,8 @@ begin
 
   if fAutoClose and (Count > 0) then
     fShape.Show;
+
+  if Assigned(fOnShow) then fOnShow(Self);
 end;
 
 
@@ -5660,6 +5666,8 @@ begin
 
   fDefaultCaption := aDefaultCaption;
 
+  fListTopIndex := 0;
+
   P := MasterParent;
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
@@ -5681,6 +5689,16 @@ begin
   if ListVisible or (Count < 1) then Exit;
 
   UpdateDropPosition;
+
+  //Make sure the selected item is visible when list is opened
+  if (ItemIndex <> -1) then
+  begin
+    if InRange(ItemIndex, fListTopIndex, fListTopIndex + fList.GetVisibleRows) then //Try to open list at previously saved scroll position
+      fList.TopIndex := fListTopIndex
+    else
+      fList.TopIndex := ItemIndex;
+  end;
+
   fList.Show;
 end;
 
@@ -5703,6 +5721,7 @@ end;
 
 procedure TKMDropList.ListHide(Sender: TObject);
 begin
+  fListTopIndex := fList.TopIndex; //Save list scroll position
   inherited;
   fList.Hide;
 end;
@@ -5838,6 +5857,8 @@ var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle);
 
+  fListTopIndex := 0;
+
   fDefaultCaption := aDefaultCaption;
 
   P := MasterParent;
@@ -5862,9 +5883,14 @@ begin
 
   UpdateDropPosition;
 
-  //Make sure the selected item is on top of the list when it's opened
-  if ItemIndex <> -1 then
-    fList.TopIndex := ItemIndex;
+  //Make sure the selected item is visible when list is opened
+  if (ItemIndex <> -1) then
+  begin
+    if InRange(ItemIndex, fListTopIndex, fListTopIndex + fList.GetVisibleRows) then //Try to open list at previously saved scroll position
+      fList.TopIndex := fListTopIndex
+    else
+      fList.TopIndex := ItemIndex;
+  end;
 
   fList.Show;
 end;
@@ -5884,6 +5910,7 @@ end;
 
 procedure TKMDropColumns.ListHide(Sender: TObject);
 begin
+  fListTopIndex := fList.TopIndex; //Save list scroll position
   inherited;
   fList.Hide;
 end;
