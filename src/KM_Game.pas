@@ -57,7 +57,7 @@ type
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
-    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server
+    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server. Also used in MapEd
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFileSP: UnicodeString; //Relative pathname to mission we are playing, so it gets saved to crashreport. SP only, see GetMissionFile.
@@ -914,8 +914,7 @@ begin
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
   FreeAndNil(fMissionParser);
 
-  fGameName := TruncateExt(ExtractFileName(aPathName));
-
+  // Update GameSettings for saved maps positions in list on MapEd menu
   if DetermineMapFolder(GetFileDirName(ExtractFileDir(aPathName)), MapFolder) then
   begin
     // Update GameSettings for saved maps positions in list on MapEd menu
@@ -929,10 +928,15 @@ begin
                     gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
                     gGameApp.GameSettings.MenuMapEdMapType := 1;
+                    // Update favorite map CRC if we resave favourite map with the same name
+                    if fGameName = MapInfo.FileName then
+                      gGameApp.GameSettings.FavouriteMaps.Replace(fGameMapCRC, MapInfo.CRC);
                   end;
     end;
     MapInfo.Free;
   end;
+
+  fGameName := TruncateExt(ExtractFileName(aPathName));
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
