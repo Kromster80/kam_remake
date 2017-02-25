@@ -43,7 +43,7 @@ type
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
     function GetSizeText: string;
-    function DetermineReadmeFilePath: AnsiString;
+    function DetermineReadmeFilePath: String;
   public
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
@@ -569,17 +569,18 @@ begin
 end;
 
 
-function TKMapInfo.DetermineReadmeFilePath: AnsiString;
-var Path, Locale: AnsiString;
+function TKMapInfo.DetermineReadmeFilePath: String;
+var Path: String;
+    Locale: AnsiString;
 begin
   Result := '';
   Locale := gGameApp.GameSettings.Locale;
-  Path := fPath + fFileName + '.' + Locale + '.pdf'; // Try to file with our locale first
+  Path := fPath + fFileName + '.' + String(Locale) + '.pdf'; // Try to file with our locale first
   if FileExists(Path) then
     Result := Path
   else
   begin
-    Path := fPath + fFileName + '.' + DEFAULT_LOCALE + '.pdf'; // then with default locale
+    Path := fPath + fFileName + '.' + String(DEFAULT_LOCALE) + '.pdf'; // then with default locale
     if FileExists(Path) then
       Result := Path
     else
