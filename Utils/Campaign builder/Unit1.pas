@@ -333,6 +333,8 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
+  rgBriefingPos.Enabled := False;
+
   edtShortName.Text := C.CampName;
   seMapCount.Value := C.MapCount;
 
@@ -458,12 +460,17 @@ begin
     end;
   end;
 
-  if fSelectedMap = -1 then Exit;
+  shpBriefing.Top := Image1.Height - shpBriefing.Height - ScrollBox1.VertScrollBar.Position;
+
+  if fSelectedMap = -1 then
+  begin
+    rgBriefingPos.Enabled := False;
+    Exit;
+  end;
 
   RefreshNodes;
 
-  shpBriefing.Top := Image1.Height - shpBriefing.Height;
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0);
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) - ScrollBox1.HorzScrollBar.Position;
 end;
 
 
@@ -616,6 +623,8 @@ begin
     if (M = fSelectedMap) and (N = fSelectedNode) then
       tvList.Items[I].Selected := True;
   end;
+
+  rgBriefingPos.Enabled := True;
 
   seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
   rgBriefingPos.ItemIndex := Byte(C.Maps[fSelectedMap].TextPos);
