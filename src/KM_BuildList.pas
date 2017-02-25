@@ -40,22 +40,26 @@ type
   end;
 
 
+  TKMHousePlan = record
+    HouseType: THouseType;
+    Loc: TKMPoint;
+    JobStatus: TJobStatus;
+    Worker: TKMUnit; //So we can tell Worker if plan is cancelled
+  end;
+
+
   //List of house plans and workers assigned to them
   TKMHousePlanList = class
   private
     fPlansCount: Integer;
-    fPlans: array of record
-      HouseType: THouseType;
-      Loc: TKMPoint;
-      JobStatus: TJobStatus;
-      Worker: TKMUnit; //So we can tell Worker if plan is cancelled
-    end;
+    fPlans: array of TKMHousePlan;
+    function GetEmptyPlan: TKMHousePlan;
   public
     //Player orders
     procedure AddPlan(aHouseType: THouseType; aLoc: TKMPoint);
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
-    function GetPlan(aLoc: TKMPoint): THouseType;
+    function GetPlan(aLoc: TKMPoint): TKMHousePlan;
     function FindHousePlan(aLoc: TKMPoint; aSkip: TKMPoint; out aOut: TKMPoint): Boolean;
 
     //Game events
@@ -782,11 +786,20 @@ begin
 end;
 
 
-function TKMHousePlanList.GetPlan(aLoc: TKMPoint): THouseType;
+function TKMHousePlanList.GetEmptyPlan: TKMHousePlan;
+begin
+  Result.HouseType := ht_None;
+  Result.Loc := ZERO_POINT;
+  Result.JobStatus := js_Empty;
+  Result.Worker := nil;
+end;
+
+
+function TKMHousePlanList.GetPlan(aLoc: TKMPoint): TKMHousePlan;
 var
   I: Integer;
 begin
-  Result := ht_None;
+  Result := GetEmptyPlan;
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
@@ -794,7 +807,7 @@ begin
        (gRes.Houses[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
-    Result := fPlans[I].HouseType;
+    Result := fPlans[I];
     Exit;
   end;
 end;

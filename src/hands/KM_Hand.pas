@@ -798,14 +798,14 @@ end;
 
 procedure TKMHand.RemHousePlan(Position: TKMPoint);
 var
-  HT: THouseType;
+  HPlan: TKMHousePlan;
 begin
-  HT := fBuildList.HousePlanList.GetPlan(Position);
-  if HT = ht_None then Exit; //Due to network delays house might not exist now
+  HPlan := fBuildList.HousePlanList.GetPlan(Position);
+  if HPlan.HouseType = ht_None then Exit; //Due to network delays house might not exist now
 
   fBuildList.HousePlanList.RemPlan(Position);
-  fStats.HousePlanRemoved(HT);
-  gScriptEvents.ProcHousePlanRemoved(fHandIndex, Position.X, Position.Y, HT);
+  fStats.HousePlanRemoved(HPlan.HouseType);
+  gScriptEvents.ProcHousePlanRemoved(fHandIndex, HPlan.Loc.X, HPlan.Loc.Y, HPlan.HouseType);
   if (HandIndex = gMySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_Click);
 end;
