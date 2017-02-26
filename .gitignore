@@ -10,6 +10,7 @@
 *.or
 *.a
 *.rsj
+/build
 /KaM_Remake.drc
 /KaM_Remake.map
 /KaM_Remake.res
