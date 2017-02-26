@@ -27,6 +27,7 @@ type
     procedure Change(Sender: TObject);
     procedure ChangeResolution(Sender: TObject);
     procedure BackClick(Sender: TObject);
+    procedure EscKeyDown(Sender: TObject);
     procedure FlagClick(Sender: TObject);
     procedure Refresh;
     procedure RefreshResolutions;
@@ -90,7 +91,7 @@ begin
   fTempKeys := TKMKeyLibrary.Create;
 
   fOnPageChange := aOnPageChange;
-  OnEscKeyDown := BackClick;
+  OnEscKeyDown := EscKeyDown;
 
   // We cant pass pointers to Settings in here cos on GUI creation fMain/gGameApp are not initialized yet
 
@@ -572,6 +573,13 @@ begin
   // Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
   fOnPageChange(gpMainMenu);
+end;
+
+
+procedure TKMMenuOptions.EscKeyDown(Sender: TObject);
+begin
+  if not PopUp_OptionsKeys.Visible then
+    BackClick(nil);
 end;
 
 
