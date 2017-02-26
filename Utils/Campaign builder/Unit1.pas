@@ -497,7 +497,11 @@ begin
     DrawFlagNumber(I);
   end;
 
-  shpBriefing.Top := Image1.Height - shpBriefing.Height - ScrollBox1.VertScrollBar.Position;
+  //In some versions of Delphi there is a bug with the Component's position on ScrollBox
+  //This is for the Fix this bug. Where this is not a bug, it will not hurt and there where there is isapravit
+  //Personally, I have Top components ScrollBox = - ScrollBox1.VertScrollBar.Position
+  //Left and also
+  shpBriefing.Top := Image1.Height - shpBriefing.Height + Image1.Top;
 
   if fSelectedMap = -1 then
   begin
@@ -507,7 +511,7 @@ begin
 
   RefreshNodes;
 
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) - ScrollBox1.HorzScrollBar.Position;
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) + Image1.Left;
 end;
 
 
