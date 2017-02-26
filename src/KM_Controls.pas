@@ -5140,26 +5140,26 @@ var
   OldIndex, NewIndex: Integer;
   PageScrolling: Boolean;
 begin
-    Result := (Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT]) and not HideSelection;
+  Result := (Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT]) and not HideSelection;
   if inherited KeyDown(Key, Shift) then Exit;
 
   if HideSelection then Exit; //Can't change selection if it's hidden
 
-    PageScrolling := False;
-    OldIndex := fItemIndex;
+  PageScrolling := False;
+  OldIndex := fItemIndex;
   case Key of
     VK_UP:      NewIndex := fItemIndex - 1;
     VK_DOWN:    NewIndex := fItemIndex + 1;
-      VK_HOME:    NewIndex := 0;
-      VK_END:     NewIndex := fRowCount - 1;
-      VK_PRIOR:   begin
-                    NewIndex := EnsureRange(fItemIndex - GetVisibleRows, 0, fRowCount - 1);
-                    PageScrolling := True;
-                  end;
-      VK_NEXT:    begin
-                    NewIndex := EnsureRange(fItemIndex + GetVisibleRows, 0, fRowCount - 1);
-                    PageScrolling := True;
-                  end;
+    VK_HOME:    NewIndex := 0;
+    VK_END:     NewIndex := fRowCount - 1;
+    VK_PRIOR:   begin
+                  NewIndex := EnsureRange(fItemIndex - GetVisibleRows, 0, fRowCount - 1);
+                  PageScrolling := True;
+                end;
+    VK_NEXT:    begin
+                  NewIndex := EnsureRange(fItemIndex + GetVisibleRows, 0, fRowCount - 1);
+                  PageScrolling := True;
+                end;
     VK_RETURN:  begin
                   //Trigger click to hide drop downs
                   if Assigned(fOnClick) then
@@ -5169,25 +5169,25 @@ begin
                       fOnDoubleClick(Self);
                   Exit;
                 end;
-      else        begin
-                    if Assigned(OnKeyDown) then
-                      Result := OnKeyDown(Key, Shift);
-                    Exit;
-                  end;
+    else        begin
+                  if Assigned(OnKeyDown) then
+                    Result := OnKeyDown(Key, Shift);
+                  Exit;
+                end;
   end;
 
   if InRange(NewIndex, 0, fRowCount - 1) then
   begin
     fItemIndex := NewIndex;
-      if PageScrolling then
-        TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
-      else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
-      TopIndex := fItemIndex - GetVisibleRows + 1
-      else if TopIndex > fItemIndex then //Moving up
-      TopIndex := fItemIndex;
+    if PageScrolling then
+      TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
+    else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
+    TopIndex := fItemIndex - GetVisibleRows + 1
+    else if TopIndex > fItemIndex then //Moving up
+    TopIndex := fItemIndex;
   end;
 
-    if Assigned(fOnChange) and (OldIndex <> NewIndex) then
+  if Assigned(fOnChange) and (OldIndex <> NewIndex) then
     fOnChange(Self);
 end;
 
