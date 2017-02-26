@@ -108,6 +108,8 @@ begin
 
   fRender := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
+  gGameCursor := TKMGameCursor.Create;
+
   gRes := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
   gRes.LoadMainResources(fGameSettings.Locale, fGameSettings.LoadFullFonts);
 
@@ -178,6 +180,7 @@ begin
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
   FreeAndNil(fNetworking);
+  FreeAndNil(gGameCursor);
 
   FreeThenNil(fRender);
 
@@ -793,3 +796,4 @@ end;
 
 
 end.
+

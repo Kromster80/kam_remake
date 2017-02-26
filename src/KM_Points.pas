@@ -82,6 +82,7 @@ type
   function KMStepIsDiag(const P1,P2:TKMPoint): Boolean;
 
   function KMVectorDiff(const A, B: TKMPoint): TKMPoint;
+  function KMVectorSum(const A, B: TKMPoint): TKMPoint;
   function KMDotProduct(const A, B: TKMPoint): Single;
   function KMDistanceSqr(const A, B: TKMPoint): Single; overload;
   function KMDistanceSqr(const A, B: TKMPointF): Single; overload;
@@ -498,6 +499,13 @@ function KMVectorDiff(const A, B: TKMPoint): TKMPoint;
 begin
   Result.X := A.X - B.X;
   Result.Y := A.Y - B.Y;
+end;
+
+
+function KMVectorSum(const A, B: TKMPoint): TKMPoint;
+begin
+  Result.X := A.X + B.X;
+  Result.Y := A.Y + B.Y;
 end;
 
 
