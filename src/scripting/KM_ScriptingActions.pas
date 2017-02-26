@@ -144,7 +144,7 @@ uses
   KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior, KM_HandLogistics,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements;
+  KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements, KM_BuildList;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -2291,7 +2291,7 @@ end;
 //* Returns true if the plan was successfully removed or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanRemove(aPlayer, X, Y: Word): Boolean;
 var
-  HT: THouseType;
+  HPlan: TKMHousePlan;
 begin
   try
     Result := False;
@@ -2299,11 +2299,10 @@ begin
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and gTerrain.TileInMapCoords(X,Y) then
     begin
-      HT := gHands[aPlayer].BuildList.HousePlanList.GetPlan(KMPoint(X, Y));
-      if HT <> ht_None then
+      if gHands[aPlayer].BuildList.HousePlanList.TryGetPlan(KMPoint(X, Y), HPlan) then
       begin
         gHands[aPlayer].BuildList.HousePlanList.RemPlan(KMPoint(X, Y));
-        gHands[aPlayer].Stats.HousePlanRemoved(HT);
+        gHands[aPlayer].Stats.HousePlanRemoved(HPlan.HouseType);
         Result := True;
       end;
       if gHands[aPlayer].BuildList.FieldworksList.HasField(KMPoint(X, Y)) <> ft_None then

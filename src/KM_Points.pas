@@ -111,6 +111,7 @@ type
 
 
 const
+  ZERO_POINT: TKMPoint = (X: 0; Y: 0);
   INVALID_MAP_POINT: TKMPoint = (X: -1; Y: -1);
 
 
