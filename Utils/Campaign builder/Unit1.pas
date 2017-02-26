@@ -44,13 +44,16 @@ type
 
     procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
   private
+    fExePath: string;
+    fCampaignsPath: string;
+    fSprites: TKMSpritePackEdit;
     imgFlags: array of TImage;
     imgNodes: array of TImage;
+
     fUpdating: Boolean;
     fSelectedMap: Integer;
     fSelectedNode: Integer;
     PrevX, PrevY: Integer;
-    fSprites: TKMSpritePackEdit;
   public
     procedure FlagDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
@@ -82,6 +85,9 @@ begin
   ScrollBox1.DoubleBuffered := True;
 
   Caption := 'Campaign Builder (' + GAME_REVISION + ')';
+
+  fExePath := ExtractFilePath(Application.ExeName);
+  fCampaignsPath := ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\Campaigns\');
 
   C := TKMCampaign.Create;
   fSelectedMap := -1;
@@ -156,10 +162,9 @@ end;
 
 
 procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-var Img: TImage;
+var
+  Img: TImage;
 begin
-
-
   if (ssLeft in Shift) and (TImage(Sender).Tag = fSelectedMap) then
   begin
     Img := TImage(Sender);
@@ -190,7 +195,8 @@ end;
 
 
 procedure TForm1.NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-var Img: TImage;
+var
+  Img: TImage;
 begin
   if (ssLeft in Shift) and (fSelectedMap <> -1) and (fSelectedNode <> -1) then
   begin
@@ -207,26 +213,26 @@ begin
   end;
 end;
 
+
 procedure TForm1.CreateDefaultLocaleLibxTemplate(aFileName: string);
 var
-  LibxCFile : TextFile;
-  i:Integer;
-  s:String;
+  LibxFile: TextFile;
+  I: Integer;
 begin
   if FileExists(aFileName) then
     Exit;
 
-  AssignFile(LibxCFile, aFileName);
-  ReWrite(LibxCFile);
+  AssignFile(LibxFile, aFileName);
+  ReWrite(LibxFile);
 
-  Writeln(LibxCFile, '');
-  Writeln(LibxCFile, 'MaxID:'+IntToStr(C.MapCount+9)+EolW);
-  Writeln(LibxCFile, '0:Campaign name!');
-  Writeln(LibxCFile, '1:' + C.CampName + ' %d');
-  Writeln(LibxCFile, '2:Campaign description!');
-  for i := 0 to C.MapCount-1 do
-    Writeln(LibxCFile, IntToStr(10 + i) + ':Mission description '+IntToStr(i + 1));
-  CloseFile(LibxCFile);
+  Writeln(LibxFile, '');
+  Writeln(LibxFile, 'MaxID:' + IntToStr(C.MapCount + 9) + EolW);
+  Writeln(LibxFile, '0:Campaign title');
+  Writeln(LibxFile, '1:Mission %d');
+  Writeln(LibxFile, '2:Campaign description');
+  for I := 0 to C.MapCount-1 do
+    Writeln(LibxFile, IntToStr(10 + I) + ':Mission description ' + IntToStr(I + 1));
+  CloseFile(LibxFile);
 end;
 
 
@@ -257,15 +263,13 @@ end;
 
 
 procedure TForm1.btnLoadCMPClick(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
-  if DirectoryExists(ExtractFilePath(Application.ExeName) + '..\..\Campaigns\') then
-    dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\'
+  if DirectoryExists(fCampaignsPath) then
+    dlgOpenCampaign.InitialDir := fCampaignsPath
   else
-    dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName);
-
-  //Win7 workaround ?
-  //dlgOpenCampaign.FileName := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\';
+    dlgOpenCampaign.InitialDir := fExePath;
 
   if not dlgOpenCampaign.Execute then Exit;
 
@@ -325,13 +329,13 @@ begin
   end;
 end;
 
-//The ban entry of any characters other than English
+// Allow only Eng characters
 procedure TForm1.edtShortNameKeyPress(Sender: TObject; var Key: Char);
 begin
-  if not (Key in ['A'..'Z', 'a'..'z', #8]) then
+  if not (Key in ['A'..'Z', 'a'..'z', #8 {Backspace}]) then
   begin
     Beep;
-    Key:=#0;
+    Key := #0;
   end;
 end;
 
@@ -527,7 +531,8 @@ end;
 
 
 procedure TForm1.SelectMap;
-var I, M, N: Integer;
+var
+  I, M, N: Integer;
 begin
   if fUpdating then Exit;
 
