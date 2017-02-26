@@ -2299,8 +2299,7 @@ begin
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and gTerrain.TileInMapCoords(X,Y) then
     begin
-      HPlan := gHands[aPlayer].BuildList.HousePlanList.GetPlan(KMPoint(X, Y));
-      if HPlan.HouseType <> ht_None then
+      if gHands[aPlayer].BuildList.HousePlanList.TryGetPlan(KMPoint(X, Y), HPlan) then
       begin
         gHands[aPlayer].BuildList.HousePlanList.RemPlan(KMPoint(X, Y));
         gHands[aPlayer].Stats.HousePlanRemoved(HPlan.HouseType);

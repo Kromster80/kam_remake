@@ -53,13 +53,12 @@ type
   private
     fPlansCount: Integer;
     fPlans: array of TKMHousePlan;
-    function GetEmptyPlan: TKMHousePlan;
   public
     //Player orders
     procedure AddPlan(aHouseType: THouseType; aLoc: TKMPoint);
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
-    function GetPlan(aLoc: TKMPoint): TKMHousePlan;
+    function TryGetPlan(aLoc: TKMPoint; out oHousePlan: TKMHousePlan): Boolean;
     function FindHousePlan(aLoc: TKMPoint; aSkip: TKMPoint; out aOut: TKMPoint): Boolean;
 
     //Game events
@@ -786,20 +785,11 @@ begin
 end;
 
 
-function TKMHousePlanList.GetEmptyPlan: TKMHousePlan;
-begin
-  Result.HouseType := ht_None;
-  Result.Loc := ZERO_POINT;
-  Result.JobStatus := js_Empty;
-  Result.Worker := nil;
-end;
-
-
-function TKMHousePlanList.GetPlan(aLoc: TKMPoint): TKMHousePlan;
+function TKMHousePlanList.TryGetPlan(aLoc: TKMPoint; out oHousePlan: TKMHousePlan): Boolean;
 var
   I: Integer;
 begin
-  Result := GetEmptyPlan;
+  Result := False;
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
@@ -807,7 +797,8 @@ begin
        (gRes.Houses[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
-    Result := fPlans[I];
+    oHousePlan := fPlans[I];
+    Result := True;
     Exit;
   end;
 end;

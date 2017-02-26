@@ -800,8 +800,8 @@ procedure TKMHand.RemHousePlan(Position: TKMPoint);
 var
   HPlan: TKMHousePlan;
 begin
-  HPlan := fBuildList.HousePlanList.GetPlan(Position);
-  if HPlan.HouseType = ht_None then Exit; //Due to network delays house might not exist now
+  if not fBuildList.HousePlanList.TryGetPlan(Position, HPlan) then //Due to network delays house might not exist now
+    Exit;
 
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HPlan.HouseType);
