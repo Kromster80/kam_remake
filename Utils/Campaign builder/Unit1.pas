@@ -3,7 +3,7 @@ unit Unit1;
 interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
-  Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
+  Graphics, Mask, Math, Spin, StdCtrls, SysUtils, FileCtrl,
   KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils;
 
 type
@@ -18,7 +18,6 @@ type
     Label2: TLabel;
     dlgOpenPicture: TOpenDialog;
     dlgOpenCampaign: TOpenDialog;
-    dlgSaveCampaign: TSaveDialog;
     Bevel1: TBevel;
     Label6: TLabel;
     StatusBar1: TStatusBar;
@@ -224,6 +223,7 @@ begin
   Writeln(LibxCFile, '0:Campaign name!');
   Writeln(LibxCFile, '1:' + C.CampName + ' %d');
   Writeln(LibxCFile, '2:Campaign description!');
+  Writeln(LibxCFile, '\3:Campaign title mission %d!');
   for i := 0 to C.MapCount-1 do
     Writeln(LibxCFile, IntToStr(10 + i) + ':Mission description '+IntToStr(i + 1));
   CloseFile(LibxCFile);
@@ -231,6 +231,7 @@ end;
 
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
+var DirSave : String;
 begin
   if C.MapCount < 2 then
   begin
@@ -244,15 +245,14 @@ begin
     Exit;
   end;
 
-  dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+  DirSave := ExtractFilePath(dlgOpenCampaign.FileName);
+  if not SelectDirectory('Select a folder saving campaign', '', DirSave, [sdNewFolder, sdNewUI]) then Exit;
 
-  dlgSaveCampaign.FileName := 'info';
+  if DirSave[Length(DirSave)] <> '\' then DirSave := DirSave + '\';
 
-  if not dlgSaveCampaign.Execute then Exit;
-
-  C.SaveToFile(dlgSaveCampaign.FileName);
-  fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
-  CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
+  C.SaveToFile(DirSave + 'info.cmp');
+  fSprites.SaveToRXXFile(DirSave + 'images.rxx');
+  CreateDefaultLocaleLibxTemplate(DirSave + 'text.eng.libx');
 end;
 
 

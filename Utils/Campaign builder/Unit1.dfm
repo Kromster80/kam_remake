@@ -122,7 +122,6 @@ object Form1: TForm1
       item
         Width = 50
       end>
-    ExplicitTop = 469
   end
   object ScrollBox1: TScrollBox
     Left = 168
@@ -131,7 +130,6 @@ object Form1: TForm1
     Height = 426
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
-    ExplicitHeight = 448
     object Image1: TImage
       Left = 0
       Top = 0
@@ -375,11 +373,5 @@ object Form1: TForm1
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
     Left = 320
     Top = 64
-  end
-  object dlgSaveCampaign: TSaveDialog
-    DefaultExt = 'cmp'
-    Filter = 'KaM Remake campaigns (*.cmp)|*.cmp'
-    Left = 320
-    Top = 112
   end
 end
