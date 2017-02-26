@@ -20,13 +20,13 @@ Bugs:
  +	Rare game crash when map moved out of downloads. Happens when there was another local MP map this same name, previously opened in MapEd, then deleted.
  +	Move out of downloads on MapEd menu page mechanism. It was possible to click on the button with empty filename. This caused silent delete of MapsMP folder.
  +	Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
- +  "Unit is hungry" message could be shown for invalid/dead groups
- +  If warrior dies before he walked out, he creates an invalid group
- +  Hide drop column/list when control become invisible (dropbox in lobby could stuck if f.e. server disconnects when it was opened)
- +  Scripting action OnHousePlanRemove was invoked with wrong coordinates
+ +	"Unit is hungry" message could be shown for invalid/dead groups
+ +	If warrior dies before he walked out, he creates an invalid group
+ +	Hide drop column/list when control become invisible (dropbox in lobby could stuck if f.e. server disconnects when it was opened)
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
- +  MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
+ +	MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
+ +	Dynamic scripts: Scripting action OnHousePlanRemove was invoked with wrong coordinates
 
  
 
@@ -66,10 +66,14 @@ Bugs:
 Improvements:
  +	M	Renaming replays in replay menu
  +	L	Allow to customize and save hotkeys settings
+ +		Added new hotkeys for road/field/wine/erase plans
+ +		Added new hotkey to switch selection between same type buildings/units/groups
+ +		Added support of extra mouse buttons (forward/backward) as hotkeys
+ +		Added hotkeys to switch between players while watching replay
  +		Select area to work in for woodcutters
  +		Change unit training order in School on Ctrl+click, Shift+click
  +	L	Pressing LMB over placed plans and dragging it - will remove plans
-  +	L	Splitting one soldier from the group by pressing Ctrl+Separate warrior order
+ +	L	Splitting one soldier from the group by pressing Ctrl+Separate warrior order
  +	L	Saving and restoring games window position on restart
  +	L	Load saved games with double click
  +	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
@@ -104,19 +108,19 @@ Improvements:
  +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns). Update MapEd menu list position on map save
  +		Ability to specify the title of the mission separately for each campaign rather than globally for all
  +		Added logs customization on F11 debug menu
- +    Show controls IDs option in F11 debug menu
+ +		Show controls IDs option in F11 debug menu
  +		Allow to save and use last entered password for MP lobby
- +    Added animation for mission nodes on Campaign page
- +    Added different shortcuts in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm
- +    Added hotkey on multiplayer game page: F5 refreshes server list
- +    In menu is possible to focus next edit controls with Tab shortcut
- +    Added popup windows in menu on MapEd page and Load save page when Delete map/save game
- +    Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
- +    Do not show owner of corn/wine tile on minimap
- +    Added ability to add map pdf readme with different translations (locales)
- +    New ability to set all slots as open/closed/ai in Lobby
- +    All maps dat files were unxored
- +    All maps dat file slight optimisations
+ +		Added animation for mission nodes on Campaign page
+ +Added different shortcuts in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm
+ +		Added hotkey on multiplayer game page: F5 refreshes server list
+ +		In menu is possible to focus next edit controls with Tab shortcut
+ +		Added popup windows in menu on MapEd page and Load save page when Delete map/save game
+ +		Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
+ +		Do not show owner of corn/wine tile on minimap
+ +		Added ability to add map pdf readme with different translations (locales)
+ +		New ability to set all slots as open/closed/ai in Lobby
+ +		All maps dat files were unxored
+ +		All maps dat files slight optimisations
  
  +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
  +	L	MapEd: Allow to set troops order destination with mouse on map
@@ -125,10 +129,13 @@ Improvements:
  +		MapEd: Set default 'center screen' position of all players in the center of screen for new map
  +		MapEd: Ability to change owner for objects
  +	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
- +  L	MapEd: Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
- +    MapEd: Its possible to add many units at once by hold LMB and mouse move (mouse drag)
- +    MapEd: Added new layer - show tile owner (for corn/wine/roads)
- +    MapEd: Default colors for map were changed a little bit. Second black color was replaced with purple
+ +	L	MapEd: Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
+ +		MapEd: Its possible to add many units at once by hold LMB and mouse move (mouse drag)
+ +		MapEd: Added new layer - show tile owner (for corn/wine/roads)
+ +		MapEd: Default colors for map were changed a little bit. Second black color was replaced with purple
+ +		MapEd: New ability to set corn/wine stage
+ +	L	MapEd: Allow to grab an object with a MouseDown and drag it around until MouseUp
+ +		MapEd: Added new hotkeys for road/field/wine/erase plans
  
  +		Dynamic scripts: added 32 utility functions. Check wiki for details
  
@@ -176,7 +183,6 @@ Improvements:
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
 	L	MapEd: Lasso selection for copy/paste
-	L	MapEd: allow to grab an object with a MouseDown and drag it around until MouseUp 
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
  -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
