@@ -675,6 +675,7 @@ const
   icRed    = $FF0707FF;
 
   icGray = $FF808080;
+  icLightGray = $FFA0A0A0;
   icWhite = $FFFFFFFF;
 
   icSteelBlue = $FFA56D53;
@@ -704,6 +705,11 @@ const
 
   clLobbyOpponentAll = icRoyalYellow;
   clLobbyOpponentAllHL = icAmberBrown;
+
+  clListSelShape = $88888888;
+  clListSelOutline = icWhite;
+  clListSelShapeUnfocused = $66666666;
+  clListSelOutlineUnfocused = icLightGray;
 
   clMapEdBtnField = icYellow;
   clMapEdBtnWine = icYellow;
