@@ -1813,7 +1813,7 @@ end;
 
 procedure TKMGamePlayInterface.Replay_ListClick(Sender: TObject);
 begin
-  Replay_UpdateSpectatingPlayerView(GetKeyState(VK_CONTROL) < 0, True);
+  Replay_UpdateSpectatingPlayerView(False, True);
 end;
 
 
@@ -1907,7 +1907,7 @@ begin
   end;
 
   if (Sender = Dropbox_ReplayFOW) then
-    Replay_UpdateSpectatingPlayerView(GetKeyState(VK_CONTROL) < 0);
+    Replay_UpdateSpectatingPlayerView(False);
 
   if (Sender = Checkbox_ReplayFOW) then
   begin
