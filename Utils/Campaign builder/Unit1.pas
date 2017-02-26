@@ -57,17 +57,24 @@ type
   public
     procedure FlagDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure FlagEnter(Sender: TObject);
     procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure NodeEnter(Sender: TObject);
+
+    procedure FlagNodeLeave(Sender: TObject);
 
     procedure CreateDefaultLocaleLibxTemplate(aFileName: string);
 
     procedure SelectMap;
     procedure RefreshBackground;
     procedure RefreshFlags;
+    procedure RefreshNodes;
     procedure UpdateList;
     procedure UpdateFlagCount;
     procedure UpdateNodeCount;
+    procedure DrawRedFlagNumber(aIndexMap : Integer);
+    procedure DrawNodeNumber(aIndexNode : Integer);
   end;
 
 
@@ -161,6 +168,11 @@ begin
 end;
 
 
+procedure TForm1.FlagEnter(Sender: TObject);
+begin
+  StatusBar1.Panels[2].Text := 'Map #' + IntToStr(TImage(Sender).Tag + 1);
+end;
+
 procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var
   Img: TImage;
@@ -193,6 +205,16 @@ begin
   end;
 end;
 
+
+procedure TForm1.NodeEnter(Sender: TObject);
+begin
+  StatusBar1.Panels[2].Text := 'Node #' + IntToStr(TImage(Sender).Tag + 1);
+end;
+
+procedure TForm1.FlagNodeLeave(Sender: TObject);
+begin
+  StatusBar1.Panels[2].Text := '';
+end;
 
 procedure TForm1.NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var
@@ -235,6 +257,36 @@ begin
   CloseFile(LibxFile);
 end;
 
+
+procedure TForm1.DrawNodeNumber(aIndexNode: Integer);
+var aW, aH, aX, aY : Integer;
+begin
+  imgNodes[aIndexNode].Canvas.Font.Name := 'Verdana';
+  imgNodes[aIndexNode].Canvas.Font.Style := [fsBold];
+  imgNodes[aIndexNode].Canvas.Font.Size := 5;
+  imgNodes[aIndexNode].Canvas.Font.Color := clWhite;
+  aW := imgNodes[aIndexNode].Canvas.TextWidth(IntToStr(aIndexNode +1));
+  aH := imgNodes[aIndexNode].Canvas.TextHeight(IntToStr(aIndexNode +1));
+  aX := (imgNodes[aIndexNode].Width div 2) - (aW div 2);
+  aY := (imgNodes[aIndexNode].Height div 2) - (aH div 2);
+  SetBkMode(imgNodes[aIndexNode].Canvas.Handle, TRANSPARENT);
+  imgNodes[aIndexNode].Canvas.TextOut(aX, aY, IntToStr(aIndexNode +1));
+end;
+
+procedure TForm1.DrawRedFlagNumber(aIndexMap: Integer);
+var aW, aH, aX, aY : Integer;
+begin
+  imgFlags[aIndexMap].Canvas.Font.Name := 'Verdana';
+  imgFlags[aIndexMap].Canvas.Font.Style := [fsBold];
+  imgFlags[aIndexMap].Canvas.Font.Size := 5;
+  imgFlags[aIndexMap].Canvas.Font.Color := clWhite;
+  aW := imgFlags[aIndexMap].Canvas.TextWidth(IntToStr(aIndexMap +1));
+  aH := imgFlags[aIndexMap].Canvas.TextHeight(IntToStr(aIndexMap +1));
+  aX := (imgFlags[aIndexMap].Width div 2) - (aW div 2) - 1;//1 - Fix Position Text
+  aY := (imgFlags[aIndexMap].Height div 2) - (aH div 2) - 3;//3 - Fix Position Text
+  SetBkMode(imgFlags[aIndexMap].Canvas.Handle, TRANSPARENT);
+  imgFlags[aIndexMap].Canvas.TextOut(aX, aY, IntToStr(aIndexMap +1));
+end;
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
@@ -404,11 +456,30 @@ begin
     if I > fSelectedMap then
       imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap
     else
-      imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap
+    begin
+      imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap;
+      DrawRedFlagNumber(I);
+    end;
   end;
 
-  if fSelectedMap = -1 then Exit;
+  shpBriefing.Top := Image1.Height - shpBriefing.Height - ScrollBox1.VertScrollBar.Position;
 
+  if fSelectedMap = -1 then
+  begin
+    rgBriefingPos.Enabled := False;
+    Exit;
+  end;
+
+  RefreshNodes;
+
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) - ScrollBox1.HorzScrollBar.Position;
+end;
+
+
+procedure TForm1.RefreshNodes;
+var
+  I: Integer;
+begin
   for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
@@ -416,12 +487,9 @@ begin
     imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
     imgNodes[I].Left := EnsureRange(imgNodes[I].Left, Image1.Left, Image1.Left + 1024-imgNodes[I].Width);
     imgNodes[I].Top  := EnsureRange(imgNodes[I].Top, Image1.Top, Image1.Top + 768-imgNodes[I].Height);
+    DrawNodeNumber(I);
   end;
-
-  shpBriefing.Top := Image1.Height - shpBriefing.Height;
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0);
 end;
-
 
 procedure TForm1.UpdateList;
 var
@@ -489,6 +557,8 @@ begin
       //imgFlags[I].OnClick := FlagClick; //Select
       imgFlags[I].OnMouseDown := FlagDown; //Start drag
       imgFlags[I].OnMouseMove := FlagMove; //Drag
+      imgFlags[I].OnMouseEnter := FlagEnter; //Hint
+      imgFlags[I].OnMouseLeave := FlagNodeLeave; //Clear Hint
     end;
   end;
 
@@ -521,6 +591,8 @@ begin
       //imgFlags[I].OnClick := NodeClick; //Select
       imgNodes[I].OnMouseDown := NodeDown; //Start drag
       imgNodes[I].OnMouseMove := NodeMove; //Drag
+      imgNodes[I].OnMouseEnter := NodeEnter; //Hint
+      imgNodes[I].OnMouseLeave := FlagNodeLeave; //Clear Hint
     end;
   end;
 
@@ -555,11 +627,13 @@ begin
       tvList.Items[I].Selected := True;
   end;
 
+  rgBriefingPos.Enabled := True;
+
   seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
   rgBriefingPos.ItemIndex := Byte(C.Maps[fSelectedMap].TextPos);
 
   //Update map info
-  StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap) + '/' + IntToStr(fSelectedNode);
+  StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap +1) + '/' + IntToStr(fSelectedNode +1);
 
   fUpdating := False;
 

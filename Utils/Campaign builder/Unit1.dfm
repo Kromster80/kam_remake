@@ -120,28 +120,30 @@ object Form1: TForm1
         Width = 200
       end
       item
-        Width = 50
+        Width = 100
+      end
+      item
+        Width = 200
       end>
-    ExplicitTop = 469
   end
   object ScrollBox1: TScrollBox
     Left = 168
     Top = 8
     Width = 513
     Height = 426
+    VertScrollBar.Position = 363
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
-    ExplicitHeight = 448
     object Image1: TImage
       Left = 0
-      Top = 0
+      Top = -363
       Width = 1024
       Height = 768
       Stretch = True
     end
     object imgBlackFlag: TImage
       Left = 0
-      Top = 0
+      Top = -363
       Width = 27
       Height = 29
       AutoSize = True
@@ -230,7 +232,7 @@ object Form1: TForm1
     end
     object imgRedFlag: TImage
       Left = 0
-      Top = 0
+      Top = -363
       Width = 23
       Height = 29
       AutoSize = True
@@ -308,7 +310,7 @@ object Form1: TForm1
     end
     object imgNode: TImage
       Left = 0
-      Top = 0
+      Top = -363
       Width = 11
       Height = 11
       AutoSize = True
@@ -333,7 +335,7 @@ object Form1: TForm1
     end
     object shpBriefing: TShape
       Left = 0
-      Top = 338
+      Top = -25
       Width = 360
       Height = 430
       Brush.Style = bsDiagCross
