@@ -344,10 +344,10 @@ end;
 function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
-    0..299  : Result := icGreen;
-    300..599: Result := icYellow;
-    600..999: Result := icOrange;
-    else      Result := icRed;
+    0..299  : Result := clPingLow;
+    300..599: Result := clPingNormal;
+    600..999: Result := clPingHigh;
+    else      Result := clPingCritical;
   end;
 end;
 
@@ -355,10 +355,10 @@ end;
 function GetFPSColor(aFPS: Word): Cardinal;
 begin
   case aFPS of
-    0..9  : Result := icRed;
-    10..12: Result := icOrange;
-    13..15: Result := icYellow;
-    else    Result := icGreen;
+    0..9  : Result := clFpsCritical;
+    10..12: Result := clFpsLow;
+    13..15: Result := clFpsNormal;
+    else    Result := clFpsHigh;
   end;
 end;
 

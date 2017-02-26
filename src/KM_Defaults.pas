@@ -683,6 +683,16 @@ const
   icDarkGoldenRod = $FF0080B0; // brown shade color
 
   // Interface colors (by usage)
+  clPingLow = icGreen;
+  clPingNormal = icYellow;
+  clPingHigh = icOrange;
+  clPingCritical = icRed;
+
+  clFpsCritical = icRed;
+  clFpsLow = icOrange;
+  clFpsNormal = icYellow;
+  clFpsHigh = icGreen;
+
   clTextSelection = icSteelBlue;
 
   clMessageUnitUnread = icGoldenYellow;
