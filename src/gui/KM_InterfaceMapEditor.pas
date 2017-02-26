@@ -36,7 +36,6 @@ type
     fDraggingObject: Boolean;               //Flag when drag object is happening
     fDragObject: TObject;                   //Object to drag
     fDragHouseGrabPntAdjustment: TKMPoint;  //Adjustment for house position, to let grab house with any of its points
-    fDragHouseEntranceTileOverlay: TTileOverlay; //Store tile overlay under house entrance, to avoid "road eraser" behaviour while dragging house
 
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;

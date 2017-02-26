@@ -465,8 +465,7 @@ end;
 
 
 //Used by MapEditor
-//Return True, if house was set to new position successfully
-//aConsiderEntranceOffset - do consider house entrance offset while checking CanAddHousePlan and while set house to new position
+//Set house to new position
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
   procedure UpdateRallyPoint(aIsRallyPointSet: Boolean);
   begin
