@@ -476,7 +476,7 @@ begin
 
   RefreshNodes;
 
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) + Image1.Top;
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) + Image1.Left;
 end;
 
 
