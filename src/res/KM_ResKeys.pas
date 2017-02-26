@@ -9,8 +9,8 @@ type
   TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);
 
 const
-  // There are total of 82 different functions in the game that can have a shortcut
-  FUNC_COUNT = 82;
+  // There are total of 81 different functions in the game that can have a shortcut
+  FUNC_COUNT = 81;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -64,9 +64,9 @@ const
 
     // Game Keys
     112, 113, 114, 115,                     // Game menus (F1-F4)
-    72, 83, 76, 70, 88, 187, 189, 190, 188, // Army commands (Halt/Split/Link/Food/Storm/Increase form./Decrease form./Turn clockwise/Turn counterclockwise) (H/S/L/F/X/=/-/./,)
+    72, 83, 76, 70, 88,                     // Army commands (Halt/Split/Link/Food/Storm) (H/S/L/F/X)
+    187, 189, 190, 188,                     // Army commands (Increase form./Decrease form./Turn clockwise/Turn counterclockwise) (=/-/./,)
     116, 117, 118, 119,                     // Speed ups (x1/x3/x6/x10) (F5-F8)
-    120,                                    // Default MP game speed, as it was initially set (F9)
     66, 80, 84,                             // Beacon/Pause/Show team in MP (B, P, T)
     32, 46, 13,                             // Center to alert/Delete message/Show chat (Space, Delete, Return)
     9,                                      // Select next building/unit/group with same type (Tab)
@@ -99,7 +99,6 @@ const
     TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT, TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM,         // Army commands
     TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE, TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW,      // Army commands
     TX_KEY_FUNC_GAME_SPEED_1,TX_KEY_FUNC_GAME_SPEED_2,TX_KEY_FUNC_GAME_SPEED_3,TX_KEY_FUNC_GAME_SPEED_4,  // Speed ups
-    TX_KEY_FUNC_REAL_GAME_SPEED,                                                                          // Default MP game speed, as it was initially set (F9)
     TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS,                                        // Beacon/Pause/Show team in MP
     TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,                         // Center to alert/Delete message/Show chat
     TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE,                                                               // Select next building/unit/group with same type
@@ -137,8 +136,8 @@ begin
 
     case I of
       0..16:  fFuncs[I].Area := faCommon;
-      17..61: fFuncs[I].Area := faGame;
-      62..69: fFuncs[I].Area := faSpecReplay;
+      17..60: fFuncs[I].Area := faGame;
+      61..68: fFuncs[I].Area := faSpecReplay;
       else    fFuncs[I].Area := faMapEdit;
     end;
 

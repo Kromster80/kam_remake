@@ -2870,17 +2870,6 @@ begin
     end;
   end;
 
-  if Key = gResKeys[SC_REAL_GAME_SPEED].Key then
-  begin
-    if gGame.GameMode = gmReplayMulti then // In MP replay we can set initial game speed as it was during MP game
-    begin
-      gGame.SetDefaultMPGameSpeed(True);
-      gGame.IsDefaultGameSpeedInReplayMP := not gGame.IsDefaultGameSpeedInReplayMP; //
-    end else
-    if gGame.IsMPGameSpeedUpAllowed then  // We can set initial game speed, if we are the last player in the MP game
-      gGame.SetDefaultMPGameSpeed(True);
-  end;
-
   // These keys are allowed during replays
   if Key = gResKeys[SC_SHOW_TEAMS].Key   then fShowTeamNames := False;
   if Key = gResKeys[SC_BEACON].Key then
