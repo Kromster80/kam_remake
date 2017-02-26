@@ -2203,7 +2203,7 @@ end;
 function TKMNetworking.IsMuted(aNetPlayerIndex: Integer): Boolean;
 begin
   //Use cast to Pointer to be able to store Integer value in TList
-  Result := fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1;
+  Result := (aNetPlayerIndex <> -1) and (fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1);
 end;
 
 
