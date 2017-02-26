@@ -138,8 +138,9 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
-    procedure Replay_UpdateSpectatingPlayerView(aUpdateScreenPosOnly: Boolean = False);
-    procedure ListClick(Sender: TObject);
+    procedure Replay_UpdateSpectatingPlayerView(aDoUpdateScreenPosition: Boolean; aUpdateScreenPosOnly: Boolean = False);
+    procedure Replay_ListClick(Sender: TObject);
+    procedure Replay_ListDoubleClick(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -1005,7 +1006,8 @@ begin
     Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 19, 160, 20, fnt_Metal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
-    Dropbox_ReplayFOW.List.OnClick := ListClick;
+    Dropbox_ReplayFOW.List.OnClick := Replay_ListClick;
+    Dropbox_ReplayFOW.List.OnDoubleClick := Replay_ListDoubleClick;
  end;
 
 
@@ -1809,20 +1811,26 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ListClick(Sender: TObject);
+procedure TKMGamePlayInterface.Replay_ListClick(Sender: TObject);
 begin
-  Replay_UpdateSpectatingPlayerView(True);
+  Replay_UpdateSpectatingPlayerView(GetKeyState(VK_CONTROL) < 0, True);
 end;
 
 
-procedure TKMGamePlayInterface.Replay_UpdateSpectatingPlayerView(aUpdateScreenPosOnly: Boolean = False);
+procedure TKMGamePlayInterface.Replay_ListDoubleClick(Sender: TObject);
+begin
+  Replay_UpdateSpectatingPlayerView(True, True);
+end;
+
+
+procedure TKMGamePlayInterface.Replay_UpdateSpectatingPlayerView(aDoUpdateScreenPosition: Boolean; aUpdateScreenPosOnly: Boolean = False);
 var LastSelectedObj: TObject;
 begin
   gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
 
   // Set position of the screen to last selected object if there was one, otherwise set position to starting center screen
   // Only if Ctrl was pressed while changing Dropbox_ReplayFOW selection
-  if GetKeyState(VK_CONTROL) < 0 then
+  if aDoUpdateScreenPosition then
   begin
     LastSelectedObj := gMySpectator.LastSpecSelectedObj;
     if LastSelectedObj <> nil then
@@ -1899,7 +1907,7 @@ begin
   end;
 
   if (Sender = Dropbox_ReplayFOW) then
-    Replay_UpdateSpectatingPlayerView;
+    Replay_UpdateSpectatingPlayerView(GetKeyState(VK_CONTROL) < 0);
 
   if (Sender = Checkbox_ReplayFOW) then
   begin
