@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Campaign Builder'
-  ClientHeight = 466
-  ClientWidth = 689
+  ClientHeight = 817
+  ClientWidth = 1209
   Color = clBtnFace
   Constraints.MinHeight = 492
   Constraints.MinWidth = 689
@@ -19,8 +19,8 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   DesignSize = (
-    689
-    466)
+    1209
+    817)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -49,6 +49,12 @@ object Form1: TForm1
     Width = 55
     Height = 13
     Caption = 'Short name'
+  end
+  object Bevel2: TBevel
+    Left = 8
+    Top = 448
+    Width = 154
+    Height = 2
   end
   object tvList: TTreeView
     Left = 8
@@ -112,8 +118,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 447
-    Width = 689
+    Top = 798
+    Width = 1209
     Height = 19
     Panels = <
       item
@@ -125,25 +131,28 @@ object Form1: TForm1
       item
         Width = 200
       end>
+    ExplicitTop = 447
+    ExplicitWidth = 689
   end
   object ScrollBox1: TScrollBox
     Left = 168
     Top = 8
-    Width = 513
-    Height = 426
-    VertScrollBar.Position = 363
+    Width = 1033
+    Height = 777
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
+    ExplicitWidth = 513
+    ExplicitHeight = 426
     object Image1: TImage
       Left = 0
-      Top = -363
+      Top = 0
       Width = 1024
       Height = 768
       Stretch = True
     end
     object imgBlackFlag: TImage
       Left = 0
-      Top = -363
+      Top = 0
       Width = 27
       Height = 29
       AutoSize = True
@@ -232,7 +241,7 @@ object Form1: TForm1
     end
     object imgRedFlag: TImage
       Left = 0
-      Top = -363
+      Top = 0
       Width = 23
       Height = 29
       AutoSize = True
@@ -310,7 +319,7 @@ object Form1: TForm1
     end
     object imgNode: TImage
       Left = 0
-      Top = -363
+      Top = 0
       Width = 11
       Height = 11
       AutoSize = True
@@ -335,7 +344,7 @@ object Form1: TForm1
     end
     object shpBriefing: TShape
       Left = 0
-      Top = -25
+      Top = 338
       Width = 360
       Height = 430
       Brush.Style = bsDiagCross
@@ -365,6 +374,17 @@ object Form1: TForm1
     Text = '   '
     OnChange = edtShortNameChange
     OnKeyPress = edtShortNameKeyPress
+  end
+  object cbShowNodeNumbers: TCheckBox
+    Left = 8
+    Top = 464
+    Width = 113
+    Height = 17
+    Caption = 'Show node numbers'
+    Checked = True
+    State = cbChecked
+    TabOrder = 10
+    OnClick = cbShowNodeNumbersClick
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Supported images (*.png)|*.png'

@@ -30,6 +30,8 @@ type
     rgBriefingPos: TRadioGroup;
     edtShortName: TMaskEdit;
     shpBriefing: TShape;
+    Bevel2: TBevel;
+    cbShowNodeNumbers: TCheckBox;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -43,6 +45,7 @@ type
     procedure FormDestroy(Sender: TObject);
 
     procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
+    procedure cbShowNodeNumbersClick(Sender: TObject);
   private
     fExePath: string;
     fCampaignsPath: string;
@@ -73,8 +76,8 @@ type
     procedure UpdateList;
     procedure UpdateFlagCount;
     procedure UpdateNodeCount;
-    procedure DrawRedFlagNumber(aIndexMap : Integer);
-    procedure DrawNodeNumber(aIndexNode : Integer);
+    procedure DrawFlagNumber(aIndexMap: Integer);
+    procedure DrawNodeNumber(aIndexNode: Integer);
   end;
 
 
@@ -98,6 +101,21 @@ begin
 
   C := TKMCampaign.Create;
   fSelectedMap := -1;
+
+  imgNode.Canvas.Font.Name := 'Verdana';
+  imgNode.Canvas.Font.Style := [fsBold];
+  imgNode.Canvas.Font.Size := 5;
+  imgNode.Canvas.Font.Color := clWhite;
+
+  imgBlackFlag.Canvas.Font.Name := 'Verdana';
+  imgBlackFlag.Canvas.Font.Style := [fsBold];
+  imgBlackFlag.Canvas.Font.Size := 8;
+  imgBlackFlag.Canvas.Font.Color := clWhite;
+
+  imgRedFlag.Canvas.Font.Name := 'Verdana';
+  imgRedFlag.Canvas.Font.Style := [fsBold];
+  imgRedFlag.Canvas.Font.Size := 8;
+  imgRedFlag.Canvas.Font.Color := clWhite;
 
   //This line corrects a bug in UpdateList namely C.CampName line that returns at the start of the program #0#0#0
   edtShortNameChange(nil);
@@ -245,47 +263,55 @@ begin
     Exit;
 
   AssignFile(LibxFile, aFileName);
-  ReWrite(LibxFile);
+  try
+    ReWrite(LibxFile);
 
-  Writeln(LibxFile, '');
-  Writeln(LibxFile, 'MaxID:' + IntToStr(C.MapCount + 9) + EolW);
-  Writeln(LibxFile, '0:Campaign title');
-  Writeln(LibxFile, '1:Mission %d');
-  Writeln(LibxFile, '2:Campaign description');
-  for I := 0 to C.MapCount-1 do
-    Writeln(LibxFile, IntToStr(10 + I) + ':Mission description ' + IntToStr(I + 1));
-  CloseFile(LibxFile);
+    Writeln(LibxFile, '');
+    Writeln(LibxFile, 'MaxID:' + IntToStr(C.MapCount + 9) + EolW);
+    Writeln(LibxFile, '0:Campaign title');
+    Writeln(LibxFile, '1:Mission %d');
+    Writeln(LibxFile, '2:Campaign description');
+    for I := 0 to C.MapCount-1 do
+      Writeln(LibxFile, IntToStr(10 + I) + ':Mission description ' + IntToStr(I + 1));
+  finally
+    CloseFile(LibxFile);
+  end;
 end;
 
 
 procedure TForm1.DrawNodeNumber(aIndexNode: Integer);
-var aW, aH, aX, aY : Integer;
+var
+  txtWidth, txtHeight, txtLeft, txtTop: Integer;
 begin
-  imgNodes[aIndexNode].Canvas.Font.Name := 'Verdana';
-  imgNodes[aIndexNode].Canvas.Font.Style := [fsBold];
-  imgNodes[aIndexNode].Canvas.Font.Size := 5;
-  imgNodes[aIndexNode].Canvas.Font.Color := clWhite;
-  aW := imgNodes[aIndexNode].Canvas.TextWidth(IntToStr(aIndexNode +1));
-  aH := imgNodes[aIndexNode].Canvas.TextHeight(IntToStr(aIndexNode +1));
-  aX := (imgNodes[aIndexNode].Width div 2) - (aW div 2);
-  aY := (imgNodes[aIndexNode].Height div 2) - (aH div 2);
+  if not cbShowNodeNumbers.Checked then Exit;
+
+  txtWidth := imgNodes[aIndexNode].Canvas.TextWidth(IntToStr(aIndexNode +1));
+  txtHeight := imgNodes[aIndexNode].Canvas.TextHeight(IntToStr(aIndexNode +1));
+  txtLeft := (imgNodes[aIndexNode].Width - txtWidth) div 2;
+  txtTop := (imgNodes[aIndexNode].Height - txtHeight) div 2;
+
   SetBkMode(imgNodes[aIndexNode].Canvas.Handle, TRANSPARENT);
-  imgNodes[aIndexNode].Canvas.TextOut(aX, aY, IntToStr(aIndexNode +1));
+  imgNodes[aIndexNode].Canvas.TextOut(txtLeft, txtTop, IntToStr(aIndexNode +1));
 end;
 
-procedure TForm1.DrawRedFlagNumber(aIndexMap: Integer);
-var aW, aH, aX, aY : Integer;
+procedure TForm1.DrawFlagNumber(aIndexMap: Integer);
+const
+  OFF: array [Boolean] of TPoint = ((X:1; Y:3), (X:-1; Y:-2));
+var
+  txtWidth, txtHeight, txtLeft, txtTop: Integer;
+  isRedFlag: Boolean;
 begin
-  imgFlags[aIndexMap].Canvas.Font.Name := 'Verdana';
-  imgFlags[aIndexMap].Canvas.Font.Style := [fsBold];
-  imgFlags[aIndexMap].Canvas.Font.Size := 5;
-  imgFlags[aIndexMap].Canvas.Font.Color := clWhite;
-  aW := imgFlags[aIndexMap].Canvas.TextWidth(IntToStr(aIndexMap +1));
-  aH := imgFlags[aIndexMap].Canvas.TextHeight(IntToStr(aIndexMap +1));
-  aX := (imgFlags[aIndexMap].Width div 2) - (aW div 2) - 1;//1 - Fix Position Text
-  aY := (imgFlags[aIndexMap].Height div 2) - (aH div 2) - 3;//3 - Fix Position Text
+  if not cbShowNodeNumbers.Checked then Exit;
+
+  isRedFlag := aIndexMap <= fSelectedMap;
+
+  txtWidth := imgFlags[aIndexMap].Canvas.TextWidth(IntToStr(aIndexMap +1));
+  txtHeight := imgFlags[aIndexMap].Canvas.TextHeight(IntToStr(aIndexMap +1));
+  txtLeft := (imgFlags[aIndexMap].Width - txtWidth) div 2 + OFF[isRedFlag].X;
+  txtTop := (imgFlags[aIndexMap].Height - txtHeight) div 2 + OFF[isRedFlag].Y;
+
   SetBkMode(imgFlags[aIndexMap].Canvas.Handle, TRANSPARENT);
-  imgFlags[aIndexMap].Canvas.TextOut(aX, aY, IntToStr(aIndexMap +1));
+  imgFlags[aIndexMap].Canvas.TextOut(txtLeft, txtTop, IntToStr(aIndexMap + 1));
 end;
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
@@ -311,6 +337,12 @@ begin
   C.SaveToFile(dlgSaveCampaign.FileName);
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
   CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
+end;
+
+
+procedure TForm1.cbShowNodeNumbersClick(Sender: TObject);
+begin
+  RefreshFlags;
 end;
 
 
@@ -454,12 +486,15 @@ begin
     imgFlags[I].Left := C.Maps[I].Flag.X + Image1.Left;
     imgFlags[I].Top := C.Maps[I].Flag.Y + Image1.Top;
     if I > fSelectedMap then
-      imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap
-    else
+    begin
+      imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap;
+      imgFlags[I].Canvas.Font := imgBlackFlag.Canvas.Font;
+    end else
     begin
       imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap;
-      DrawRedFlagNumber(I);
+      imgFlags[I].Canvas.Font := imgRedFlag.Canvas.Font;
     end;
+    DrawFlagNumber(I);
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height - ScrollBox1.VertScrollBar.Position;
@@ -482,7 +517,11 @@ var
 begin
   for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
   begin
-    //Position node centers, so that if someone changes the nodes they still look correct
+    // Refresh canvas in case we have spoiled it with node number
+    imgNodes[I].Picture.Bitmap := imgNode.Picture.Bitmap;
+    imgNodes[I].Canvas.Font := imgNode.Canvas.Font;
+
+    // Position node centers, so that if someone changes the nodes they still look correct
     imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
     imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
     imgNodes[I].Left := EnsureRange(imgNodes[I].Left, Image1.Left, Image1.Left + 1024-imgNodes[I].Width);
@@ -554,7 +593,6 @@ begin
       imgFlags[I].AutoSize := True;
       imgFlags[I].Transparent := True;
       imgFlags[I].Tag := I;
-      //imgFlags[I].OnClick := FlagClick; //Select
       imgFlags[I].OnMouseDown := FlagDown; //Start drag
       imgFlags[I].OnMouseMove := FlagMove; //Drag
       imgFlags[I].OnMouseEnter := FlagEnter; //Hint
@@ -562,7 +600,7 @@ begin
     end;
   end;
 
-  //Hide unused flags
+  // Hide unused flags
   for I := 0 to Length(imgFlags) - 1 do
     imgFlags[I].Visible := (I <= C.MapCount - 1);
 end;
@@ -587,8 +625,8 @@ begin
       imgNodes[I].AutoSize := True;
       imgNodes[I].Transparent := True;
       imgNodes[I].Picture.Bitmap := imgNode.Picture.Bitmap;
+      imgNodes[I].Canvas.Font := imgNode.Canvas.Font;
       imgNodes[I].Tag := I;
-      //imgFlags[I].OnClick := NodeClick; //Select
       imgNodes[I].OnMouseDown := NodeDown; //Start drag
       imgNodes[I].OnMouseMove := NodeMove; //Drag
       imgNodes[I].OnMouseEnter := NodeEnter; //Hint
@@ -596,7 +634,7 @@ begin
     end;
   end;
 
-  //Hide unused nodes
+  // Hide unused nodes
   for I := 0 to Length(imgNodes) - 1 do
     imgNodes[I].Visible := (I <= C.Maps[fSelectedMap].NodeCount - 1);
 end;
