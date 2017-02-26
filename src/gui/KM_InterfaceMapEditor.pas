@@ -96,6 +96,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
     procedure SetLoadMode(aMultiplayer:boolean);
 
@@ -377,6 +378,7 @@ procedure TKMapEdInterface.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   //Check to see if we need to scroll
   fViewport.UpdateStateIdle(aFrameTime, False);
+  fGuiTown.UpdateStateIdle;
 end;
 
 
@@ -877,7 +879,7 @@ end;
 procedure TKMapEdInterface.UpdateCursor(X, Y: Integer; Shift: TShiftState);
 var Marker: TKMMapEdMarker;
 begin
-  UpdateGameCursor(X,Y,Shift);
+  UpdateGameCursor(X, Y, Shift);
 
   if gGameCursor.Mode = cmPaintBucket then
   begin
@@ -1056,6 +1058,20 @@ begin
   //Update the XY coordinates of the Center Screen button
   if (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_CENTERSCREEN) then
     fGuiPlayer.ChangePlayer; //Forces an update
+end;
+
+
+procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+begin
+  if gGameCursor.Mode in [cmField, cmWine] then
+  begin
+    if (X < 0) or (Y < 0) then Exit; // This happens when you use the mouse wheel on the window frame
+
+    // Allow to zoom only when cursor is over map. Controls handle zoom on their own
+    if (fMyControls.CtrlOver = nil) then
+      gGame.MapEditor.MouseWheel(Shift, WheelDelta, X, Y);
+  end else
+    inherited;
 end;
 
 

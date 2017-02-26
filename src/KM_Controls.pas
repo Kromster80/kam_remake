@@ -388,6 +388,7 @@ type
     CapOffsetY: Shortint;
     Caption: UnicodeString;
     Down: Boolean;
+    CapColor: TColor4;
     FlagColor: TColor4;
     Font: TKMFont;
     HideHighlight: Boolean;
@@ -2519,6 +2520,7 @@ begin
   RX        := aRX;
   TexID     := aTexID;
   FlagColor := $FFFF00FF;
+  CapColor  := $FFFFFFFF;
   Font      := fnt_Game;
   Clickable := True;
 end;
@@ -2535,8 +2537,7 @@ end;
 
 
 procedure TKMButtonFlat.Paint;
-const
-  TextCol: array [Boolean] of TColor4 = (icGray, icWhite);
+var TxtColor: TColor4;
 begin
   inherited;
 
@@ -2550,7 +2551,12 @@ begin
   if (csOver in State) and fEnabled and not HideHighlight then
     TKMRenderUI.WriteShape(AbsLeft+1, AbsTop+1, Width-2, Height-2, $40FFFFFF);
 
-  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
+  if fEnabled then
+    TxtColor := CapColor
+  else
+    TxtColor := ReduceBrightness(CapColor, 128);
+
+  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TxtColor);
 
   {if not fEnabled then
     TKMRenderUI.WriteShape(Left, Top, Width, Height, $80000000);}

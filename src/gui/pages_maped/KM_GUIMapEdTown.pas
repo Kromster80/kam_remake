@@ -41,6 +41,7 @@ type
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
     procedure UpdateState;
+    procedure UpdateStateIdle;
   end;
 
 
@@ -209,6 +210,13 @@ begin
   fGuiUnits.UpdateState;
   fGuiScript.UpdateState;
   fGuiDefence.UpdateState;
+end;
+
+
+
+procedure TKMMapEdTown.UpdateStateIdle;
+begin
+  fGuiHouses.UpdateStateIdle;
 end;
 
 

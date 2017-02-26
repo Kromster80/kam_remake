@@ -265,8 +265,12 @@ begin
                           gHands[fLastHand].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
     ct_SetField:        if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
+    ct_SetFieldStaged:  if fLastHand <> PLAYER_NONE then
+                          gHands[fLastHand].AddFieldStaged(KMPoint(P[0]+1,P[1]+1),ft_Corn,P[2]);
     ct_SetWinefield:    if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
+    ct_SetWinefieldStaged:  if fLastHand <> PLAYER_NONE then
+                              gHands[fLastHand].AddFieldStaged(KMPoint(P[0]+1,P[1]+1),ft_Wine,P[2]);
     ct_SetStock:        if fLastHand <> PLAYER_NONE then
                         begin //This command basically means: Put a SH here with road bellow it
                           fLastHouse := gHands[fLastHand].AddHouse(ht_Store, P[0]+1,P[1]+1, false);
@@ -898,9 +902,9 @@ begin
               AddCommand(ct_SetRoad, [iX-1,iY-1]);
           end;
           if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetField, [iX-1,iY-1]);
+            AddCommand(ct_SetFieldStaged, [iX-1,iY-1,gTerrain.GetCornStage(KMPoint(iX, iY))]);
           if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetWinefield, [iX-1,iY-1]);
+            AddCommand(ct_SetWinefieldStaged, [iX-1,iY-1,gTerrain.GetWineStage(KMPoint(iX, iY))]);
         end;
     CommandLayerCount := -1; //Disable command layering
     AddData(''); //Extra NL because command layering doesn't put one

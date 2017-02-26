@@ -168,7 +168,7 @@ begin
 
   if (X < 0) or (Y < 0) then Exit; // This happens when you use the mouse wheel on the window frame
 
-  // Allow to zoom only when curor is over map. Controls handle zoom on their own
+  // Allow to zoom only when cursor is over map. Controls handle zoom on their own
   if (fMyControls.CtrlOver = nil) then
   begin
     UpdateGameCursor(X, Y, Shift); // Make sure we have the correct cursor position to begin with
@@ -219,6 +219,8 @@ begin
     Pixel.X := X;
     Pixel.Y := Y;
     Float := CursorToMapCoord(X, Y);
+
+    PrevCell := Cell; //Save previous cell
 
     // Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
     Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); // Cell below cursor in map bounds

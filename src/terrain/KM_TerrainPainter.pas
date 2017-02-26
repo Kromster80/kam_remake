@@ -962,7 +962,7 @@ begin
                     else //Random direction
                       EditTile(gGameCursor.Cell, gGameCursor.Tag1, KaMRandom(4));
     cmObjects:    if (ssLeft in gGameCursor.SState) then
-                    gTerrain.SetTree(gGameCursor.Cell, gGameCursor.Tag1);
+                    gTerrain.SetObject(gGameCursor.Cell, gGameCursor.Tag1);
   end;
 end;
 

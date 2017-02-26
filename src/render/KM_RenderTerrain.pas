@@ -351,7 +351,7 @@ begin
 
    //Fake tiles for MapEd fields
    case gTerrain.Land[pY, pX].CornOrWine of
-     1: RenderTile(62, pX, pY, 0, DoHighlight, HighlightColor);
+     1: RenderTile(gTerrain.Land[pY, pX].CornOrWineTerrain, pX, pY, 0, DoHighlight, HighlightColor);
      2: RenderTile(55, pX, pY, 0, DoHighlight, HighlightColor);
    end;
 end;

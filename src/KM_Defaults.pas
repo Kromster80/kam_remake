@@ -703,6 +703,9 @@ const
   clLobbyOpponentAll = icRoyalYellow;
   clLobbyOpponentAllHL = icAmberBrown;
 
+  clMapEdBtnField = icYellow;
+  clMapEdBtnWine = icYellow;
+
 var
   ExeDir: UnicodeString;
 
