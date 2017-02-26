@@ -20,6 +20,11 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
+    procedure BuildRoad;
+    procedure BuildField;
+    procedure BuildWine;
+    procedure BuildCancel;
+
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
@@ -68,6 +73,34 @@ begin
       Button_Build[I].OnClick := Town_BuildChange;
       Button_Build[I].Hint := gRes.Houses[GUIHouseOrder[I]].HouseName;
     end;
+end;
+
+
+procedure TKMMapEdTownHouses.BuildRoad;
+begin
+  Button_BuildRoad.Down := True;
+  Town_BuildChange(Button_BuildRoad);
+end;
+
+
+procedure TKMMapEdTownHouses.BuildField;
+begin
+  Button_BuildField.Down := True;
+  Town_BuildChange(Button_BuildField);
+end;
+
+
+procedure TKMMapEdTownHouses.BuildWine;
+begin
+  Button_BuildWine.Down := True;
+  Town_BuildChange(Button_BuildWine);
+end;
+
+
+procedure TKMMapEdTownHouses.BuildCancel;
+begin
+  Button_BuildCancel.Down := True;
+  Town_BuildChange(Button_BuildCancel);
 end;
 
 

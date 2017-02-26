@@ -140,7 +140,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
-    procedure SetDefaultMPGameSpeed;
+    procedure SetDefaultMPGameSpeed(aToggle: Boolean = False);
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
@@ -1183,12 +1183,12 @@ begin
 end;
 
 
-procedure TKMGame.SetDefaultMPGameSpeed;
+procedure TKMGame.SetDefaultMPGameSpeed(aToggle: Boolean = False);
 begin
   if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT, False)
+    SetGameSpeed(fGameOptions.SpeedPT, aToggle)
   else
-    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+    SetGameSpeed(fGameOptions.SpeedAfterPT, aToggle);
 end;
 
 

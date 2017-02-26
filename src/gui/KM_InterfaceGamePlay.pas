@@ -61,7 +61,7 @@ type
     // Saved (in singleplayer only)
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
     fMessageStack: TKMMessageStack;
-    fSelection: array [0..9] of Integer;
+    fSelection: array [0..DYNAMIC_HOTKEYS_NUM-1] of Integer;
 
     procedure Create_Controls;
     procedure Create_Replay;
@@ -119,6 +119,7 @@ type
     procedure Selection_Assign(aId: Word; aObject: TObject);
     procedure Selection_Link(aId: Word; aObject: TObject);
     procedure Selection_Select(aId: Word);
+    procedure SelectNextGameObjWSameType;
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender: TObject);
@@ -713,7 +714,7 @@ begin
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
   ShownMessage := -1; // 0 is the first message, -1 is invalid
-  for I := 0 to 9 do
+  for I := Low(fSelection) to High(fSelection) do
     fSelection[I] := -1; // Not set
 
   fMessageStack := TKMMessageStack.Create;
@@ -1423,7 +1424,7 @@ end;
 procedure TKMGamePlayInterface.LoadHotkeysFromHand;
 var I: Integer;
 begin
-  for I := 0 to 9 do
+  for I := Low(fSelection) to High(fSelection) do
     fSelection[I] := gMySpectator.Hand.SelectionHotkeys[I];
 end;
 
@@ -2482,8 +2483,9 @@ end;
 // Assign Object to a Key
 // we use ID to avoid use of pointer counter
 procedure TKMGamePlayInterface.Selection_Assign(aId: Word; aObject: TObject);
+var I: Integer;
 begin
-  if not InRange(aId, 0, 9) then Exit;
+  if not InRange(aId, Low(fSelection), High(fSelection)) then Exit;
 
   if aObject is TKMUnit then
     fSelection[aId] := TKMUnit(aObject).UID
@@ -2495,6 +2497,14 @@ begin
     fSelection[aId] := TKMUnitGroup(aObject).UID
   else
     fSelection[aId] := -1;
+
+  // If aObject is assigned to another Key, reset previous assignation
+  for I := 0 to length(fSelection) - 1 do
+    if (I <> aId) and (fSelection[aId] <> -1) and (fSelection[I] = fSelection[aId]) then
+    begin
+      fSelection[I] := -1;
+      gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, I, -1);
+    end;
 
   gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, aId, fSelection[aId]);
 end;
@@ -2521,7 +2531,7 @@ begin
   if gMySpectator.Hand.InCinematic then
     Exit;
 
-  if not InRange(aId, 0, 9) then Exit;
+  if not InRange(aId, Low(fSelection), High(fSelection)) then Exit;
 
   if fSelection[aId] <> -1 then
   begin
@@ -2588,6 +2598,54 @@ begin
       gMySpectator.FOWIndex := -1;
     fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
   end;
+end;
+
+
+// Select next building/unit/unit group with the same type for same owner
+procedure TKMGamePlayInterface.SelectNextGameObjWSameType;
+var NextHouse: TKMHouse;
+    NextUnit: TKMUnit;
+    NextUnitGroup: TKMUnitGroup;
+begin
+  if gMySpectator.Hand.InCinematic then
+    Exit;
+
+  if gMySpectator.Selected is TKMUnit then
+    begin
+
+      NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
+      if NextUnit <> nil then
+      begin
+        gMySpectator.Selected := NextUnit;
+        if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+          gSoundPlayer.PlayCitizen(NextUnit.UnitType, sp_Select); // play unit selection sound
+        fViewport.Position := NextUnit.PositionF; //center viewport on that unit
+      end;
+
+    end else if gMySpectator.Selected is TKMHouse then
+    begin
+
+      NextHouse := gHands.GetNextHouseWSameType(TKMHouse(gMySpectator.Selected));
+      if NextHouse <> nil then
+      begin
+        gMySpectator.Selected := NextHouse;
+        fViewport.Position := KMPointF(NextHouse.Entrance); //center viewport on that house
+      end;
+
+    end else if gMySpectator.Selected is TKMUnitGroup then
+    begin
+
+      NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
+      if NextUnitGroup <> nil then
+      begin
+        gMySpectator.Selected := NextUnitGroup;
+        NextUnitGroup.SelectFlagBearer;
+        if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+          gSoundPlayer.PlayWarrior(NextUnitGroup.SelectedUnit.UnitType, sp_Select); // play unit group selection sound
+        fViewport.Position := NextUnitGroup.SelectedUnit.PositionF; //center viewport on that unit
+      end;
+
+    end;
 end;
 
 
@@ -2729,12 +2787,8 @@ begin
     Exit;
   end;
 
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
+  inherited KeyDown(Key, Shift);
+
     // As we don't have names for teams in SP we only allow showing team names in MP or MP replays
   if (Key = gResKeys[SC_SHOW_TEAMS].Key) then
     if (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
@@ -2755,6 +2809,7 @@ procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 var
   LastAlert: TKMAlert;
   SelectId: Integer;
+  SpecPlayerIndex: ShortInt;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2765,6 +2820,8 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
+  inherited KeyUp(Key, Shift);
+
   if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
     if Button_ReplayPause.Enabled then
@@ -2773,15 +2830,37 @@ begin
       ReplayClick(Button_ReplayResume);
   end;
 
+  // First check if this key was associated with some Spectate/Replay key
+  if (fUIMode in [umReplay, umSpectate]) then
+  begin
+    if Key = gResKeys[SC_SPECTATE_PLAYER_1].Key then
+      SpecPlayerIndex := 1
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_2].Key then
+      SpecPlayerIndex := 2
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_3].Key then
+      SpecPlayerIndex := 3
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_4].Key then
+      SpecPlayerIndex := 4
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_5].Key then
+      SpecPlayerIndex := 5
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_6].Key then
+      SpecPlayerIndex := 6
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_7].Key then
+      SpecPlayerIndex := 7
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_8].Key then
+      SpecPlayerIndex := 8
+    else
+      SpecPlayerIndex := -1;
+
+    if (SpecPlayerIndex <> -1) and (Dropbox_ReplayFOW.Count >= SpecPlayerIndex) then
+    begin
+      Dropbox_ReplayFOW.ItemIndex := SpecPlayerIndex - 1;
+      ReplayClick(Dropbox_ReplayFOW);
+      Exit;
+    end;
+  end;
+
   // These keys are allowed during replays
-  // Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
-  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
   if Key = gResKeys[SC_SHOW_TEAMS].Key   then fShowTeamNames := False;
   if Key = gResKeys[SC_BEACON].Key then
     if not SelectingTroopDirection then
@@ -2823,6 +2902,16 @@ begin
   if Key = gResKeys[SC_SELECT_8].Key  then SelectId := 7 else
   if Key = gResKeys[SC_SELECT_9].Key  then SelectId := 8 else
   if Key = gResKeys[SC_SELECT_10].Key then SelectId := 9 else
+  if Key = gResKeys[SC_SELECT_11].Key  then SelectId := 10 else
+  if Key = gResKeys[SC_SELECT_12].Key  then SelectId := 11 else
+  if Key = gResKeys[SC_SELECT_13].Key  then SelectId := 12 else
+  if Key = gResKeys[SC_SELECT_14].Key  then SelectId := 13 else
+  if Key = gResKeys[SC_SELECT_15].Key  then SelectId := 14 else
+  if Key = gResKeys[SC_SELECT_16].Key  then SelectId := 15 else
+  if Key = gResKeys[SC_SELECT_17].Key  then SelectId := 16 else
+  if Key = gResKeys[SC_SELECT_18].Key  then SelectId := 17 else
+  if Key = gResKeys[SC_SELECT_19].Key  then SelectId := 18 else
+  if Key = gResKeys[SC_SELECT_20].Key then SelectId := 19 else
     SelectId := -1;
 
   if SelectId <> -1 then
@@ -2834,7 +2923,7 @@ begin
     else
       Selection_Select(SelectId);
 
-    // Menu shortcuts
+  // Menu shortcuts
   if Key = gResKeys[SC_MENU_BUILD].Key then
     if Button_Main[tbBuild].Enabled then
       SwitchPage(Button_Main[tbBuild]);
@@ -2849,6 +2938,13 @@ begin
 
   if Key = gResKeys[SC_MENU_MENU].Key then
     SwitchPage(Button_Main[tbMenu]);
+
+  // Switch between same type buildings/units/groups
+  if (Key = gResKeys[SC_NEXT_BLD_UNIT_SAME_TYPE].Key)
+    and (gMySpectator.Selected <> nil) then
+  begin
+    SelectNextGameObjWSameType;
+  end;
 
   if (fUIMode in [umSP, umReplay])
     or gGame.IsMPGameSpeedUpAllowed
@@ -2865,6 +2961,38 @@ begin
   // which is nonsense
   // thus the easy way to make that is to exit now
   if fUIMode = umReplay then Exit;
+
+  // Field plans hotkeys
+  if Button_Main[tbBuild].Enabled then
+  begin
+    if Key = gResKeys[SC_PLAN_ROAD].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.PlanRoad;
+    end;
+
+    if Key = gResKeys[SC_PLAN_FIELD].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.PlanField;
+    end;
+
+    if Key = gResKeys[SC_PLAN_WINE].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.PlanWine;
+    end;
+
+    if Key = gResKeys[SC_ERASE_PLAN].Key then
+    begin
+      if not fGuiGameBuild.Visible then
+        SwitchPage(Button_Main[tbBuild]);
+      fGuiGameBuild.ErasePlan;
+    end;
+  end;
 
   // Messages
   if Key = gResKeys[SC_CENTER_ALERT].Key then

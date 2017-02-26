@@ -31,6 +31,7 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
+    property GuiHouses: TKMMapEdTownHouses read fGuiHouses;
     property GuiDefence: TKMMapEdTownDefence read fGuiDefence;
     property GuiOffence: TKMMapEdTownOffence read fGuiOffence;
 

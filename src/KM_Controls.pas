@@ -896,6 +896,7 @@ type
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
     OnKeyDown: TNotifyEventKeyShiftFunc;
+    OnKeyUp: TNotifyEventKeyShiftFunc;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -925,6 +926,7 @@ type
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -5119,29 +5121,35 @@ begin
 end;
 
 
+function TKMColumnBox.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False;
+  if PassAllKeys then
+  begin
+    // Assume handler always handles the KeyUp
+    Result := Assigned(OnKeyUp);
+
+    if Assigned(OnKeyUp) then
+      OnKeyUp(Key, Shift);
+  end
+end;
+
+
 function TKMColumnBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var
   OldIndex, NewIndex: Integer;
   PageScrolling: Boolean;
 begin
-  if PassAllKeys then
-  begin
-    // Assume handler always handles the KeyDown
-    Result := Assigned(OnKeyDown);
-    if Assigned(OnKeyDown) then
-      OnKeyDown(Key, Shift);
-  end else
-  begin
     Result := (Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT]) and not HideSelection;
-    if inherited KeyDown(Key, Shift) then Exit;
+  if inherited KeyDown(Key, Shift) then Exit;
 
-    if HideSelection then Exit; //Can't change selection if it's hidden
+  if HideSelection then Exit; //Can't change selection if it's hidden
 
     PageScrolling := False;
     OldIndex := fItemIndex;
-    case Key of
-      VK_UP:      NewIndex := fItemIndex - 1;
-      VK_DOWN:    NewIndex := fItemIndex + 1;
+  case Key of
+    VK_UP:      NewIndex := fItemIndex - 1;
+    VK_DOWN:    NewIndex := fItemIndex + 1;
       VK_HOME:    NewIndex := 0;
       VK_END:     NewIndex := fRowCount - 1;
       VK_PRIOR:   begin
@@ -5152,36 +5160,35 @@ begin
                     NewIndex := EnsureRange(fItemIndex + GetVisibleRows, 0, fRowCount - 1);
                     PageScrolling := True;
                   end;
-      VK_RETURN:  begin
-                    //Trigger click to hide drop downs
-                    if Assigned(fOnClick) then
-                      fOnClick(Self);
+    VK_RETURN:  begin
+                  //Trigger click to hide drop downs
+                  if Assigned(fOnClick) then
+                    fOnClick(Self);
                     //Double click on Enter
                     if Assigned(fOnDoubleClick) then
                       fOnDoubleClick(Self);
-                    Exit;
-                  end;
+                  Exit;
+                end;
       else        begin
                     if Assigned(OnKeyDown) then
                       Result := OnKeyDown(Key, Shift);
                     Exit;
                   end;
-    end;
+  end;
 
-    if InRange(NewIndex, 0, fRowCount - 1) then
-    begin
-      fItemIndex := NewIndex;
+  if InRange(NewIndex, 0, fRowCount - 1) then
+  begin
+    fItemIndex := NewIndex;
       if PageScrolling then
         TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
       else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
-        TopIndex := fItemIndex - GetVisibleRows + 1
+      TopIndex := fItemIndex - GetVisibleRows + 1
       else if TopIndex > fItemIndex then //Moving up
-        TopIndex := fItemIndex;
-    end;
+      TopIndex := fItemIndex;
+  end;
 
     if Assigned(fOnChange) and (OldIndex <> NewIndex) then
-      fOnChange(Self);
-  end;
+    fOnChange(Self);
 end;
 
 

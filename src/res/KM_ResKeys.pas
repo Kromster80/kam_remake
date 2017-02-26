@@ -6,11 +6,11 @@ uses
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResTexts;
 
 type
-  TKMFuncArea = (faCommon, faGame, faMapEdit);
+  TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);
 
 const
-  // There are total of 57 different functions in the game that can have a shortcut
-  FUNC_COUNT = 57;
+  // There are total of 81 different functions in the game that can have a shortcut
+  FUNC_COUNT = 81;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -20,7 +20,7 @@ type
     Key: Byte;        // Key assigned to this function
     TextId: Word;     // Text description of the function
     Area: TKMFuncArea; // Area of effect for the function (common, game, maped)
-    IsDebug: Boolean; // Hide debug key and its function from UI
+    IsChangableByPlayer: Boolean; // Hide debug key and its function from UI
   end;
 
   TKMKeyLibrary = class
@@ -28,6 +28,7 @@ type
     fFuncs: array [0..FUNC_COUNT-1] of TKMFuncInfo;
     fKeymapPath: string;
     function GetFunc(aIndex: Word): TKMFuncInfo;
+    procedure SetFunc(aIndex: Word; aFuncInfo: TKMFuncInfo);
   public
     constructor Create;
     function GetKeyName(aKey: Word): string;
@@ -36,7 +37,7 @@ type
     function AllowKeySet(aArea: TKMFuncArea; aKey: Word): Boolean;
     procedure SetKey(aId: Integer; aKey: Word);
     function Count: Integer;
-    property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc; default;
+    property Funcs[aIndex: Word]: TKMFuncInfo read GetFunc write SetFunc; default;
     procedure LoadKeymapFile;
     procedure ResetKeymap;
     procedure SaveKeymap;
@@ -51,28 +52,71 @@ implementation
 const
   // Default keys
   DEF_KEYS: array [0..FUNC_COUNT-1] of Byte = (
-    37,  39,  38,  40, 112, 113, 114, 115,  72,  83,
-    76,  70,  88, 187, 189, 190, 188, 116, 117, 118,
-    119, 66,  80,  84,  34,  33,   8,  49,  50,  51,
-    52,  53,  54,  55,  56,  57,  48,  32,  46,  13,
-    27,  77,  86,  68,  67,  13, 112, 113, 114, 115,
-    116, 49,  50,  51,  52,  53,  54
+    //Common Keys
+    37, 39, 38, 40,                         // Scroll Left, Right, Up, Down (Arrow keys)
+    34, 33, 8,                              // Zoom In/Out/Reset (Page Down, Page Up, Backspace)
+    27,                                     // Close opened menu (Esc)
+    82, 70, 87, 68,                         // Plan road/field/wine/erase plan(building) (R, F, W, D)
+    122,                                    // Debug Window hotkey (F11)
+
+    // These keys are not changable by Player in Options menu
+    77, 86, 69, 67,                         // Debug hotkeys (Show Map/Victory/Defeat/Add Scout) (M, V, E, C)
+
+    // Game Keys
+    112, 113, 114, 115,                     // Game menus (F1-F4)
+    72, 83, 76, 70, 88,                     // Army commands (Halt/Split/Link/Food/Storm) (H/S/L/F/X)
+    187, 189, 190, 188,                     // Army commands (Increase form./Decrease form./Turn clockwise/Turn counterclockwise) (=/-/./,)
+    116, 117, 118, 119,                     // Speed ups (x1/x3/x6/x10) (F5-F8)
+    66, 80, 84,                             // Beacon/Pause/Show team in MP (B, P, T)
+    32, 46, 13,                             // Center to alert/Delete message/Show chat (Space, Delete, Return)
+    9,                                      // Select next building/unit/group with same type (Tab)
+    49, 50, 51, 52, 53, 54, 55, 56, 57, 48, // Dynamic selection groups 1-10 (1-9, 0)
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,           // Dynamic selection groups 11-20 (no defaults)
+
+    // Spectate/Replay view Keys
+    49, 50, 51, 52, 53, 54, 55, 56,         // Switch between players while spectating/viewing replay (1-8)
+
+    // Map Editor Keys
+    13,                                     // Map Editor Extra's menu (Return)
+    112, 113, 114, 115, 116,                // Map Editor menus (F1-F5)
+    49, 50, 51, 52, 53, 54                  // Map Editor sub-menus (1-6)
   );
 
   // Function text values
   KEY_FUNC_TX: array [0..FUNC_COUNT-1] of Word = (
-    TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN, TX_KEY_FUNC_MENU_BUILD,
-    TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN, TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT,
-    TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM, TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE,
-    TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW, TX_KEY_FUNC_GAME_SPEED_1, TX_KEY_FUNC_GAME_SPEED_2, TX_KEY_FUNC_GAME_SPEED_3,
-    TX_KEY_FUNC_GAME_SPEED_4, TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS, TX_KEY_FUNC_ZOOM_IN,
-    TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET, TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3,
-    TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5, TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8,
-    TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10, TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,
-    TX_KEY_FUNC_CLOSE_MENU, TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,
-    TX_KEY_FUNC_MAPEDIT_EXTRA, TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN, TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT,
-    TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN, TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2,
-    TX_KEY_FUNC_MAPEDIT_SUBMENU_3, TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6
+    //Common Keys
+    TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN,    // Scroll Left, Right, Up, Down
+    TX_KEY_FUNC_ZOOM_IN, TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET,                                    // Zoom In/Out/Reset
+    TX_KEY_FUNC_CLOSE_MENU,                                                                               // Close opened menu
+    TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/field/wine/erase plan(building)
+    TX_KEY_FUNC_DBG_WINDOW,                                                                               // Debug window
+
+    // These keys are not changable by Player in Options menu
+    TX_KEY_FUNC_DBG_MAP, TX_KEY_FUNC_DBG_VICTORY, TX_KEY_FUNC_DBG_DEFEAT, TX_KEY_FUNC_DBG_SCOUT,          // Debug (Show Map, Victory, Defeat, Add Scout)
+
+    // Game Keys
+    TX_KEY_FUNC_MENU_BUILD, TX_KEY_FUNC_MENU_RATIO, TX_KEY_FUNC_MENU_STATS, TX_KEY_FUNC_MENU_MAIN,        // Game menus
+    TX_KEY_FUNC_HALT, TX_KEY_FUNC_SPLIT, TX_KEY_FUNC_LINKUP, TX_KEY_FUNC_FOOD, TX_KEY_FUNC_STORM,         // Army commands
+    TX_KEY_FUNC_FORM_INCREASE, TX_KEY_FUNC_FORM_DECREASE, TX_KEY_FUNC_TURN_CW, TX_KEY_FUNC_TURN_CCW,      // Army commands
+    TX_KEY_FUNC_GAME_SPEED_1,TX_KEY_FUNC_GAME_SPEED_2,TX_KEY_FUNC_GAME_SPEED_3,TX_KEY_FUNC_GAME_SPEED_4,  // Speed ups
+    TX_KEY_FUNC_BEACON, TX_KEY_FUNC_PAUSE, TX_KEY_FUNC_SHOW_TEAMS,                                        // Beacon/Pause/Show team in MP
+    TX_KEY_FUNC_CENTER_ALERT, TX_KEY_FUNC_DELETE_MSG, TX_KEY_FUNC_SHOW_GAME_CHAT,                         // Center to alert/Delete message/Show chat
+    TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE,                                                               // Select next building/unit/group with same type
+    TX_KEY_FUNC_SELECT_1, TX_KEY_FUNC_SELECT_2, TX_KEY_FUNC_SELECT_3, TX_KEY_FUNC_SELECT_4, TX_KEY_FUNC_SELECT_5,   // Dynamic selection groups 1-5
+    TX_KEY_FUNC_SELECT_6, TX_KEY_FUNC_SELECT_7, TX_KEY_FUNC_SELECT_8, TX_KEY_FUNC_SELECT_9, TX_KEY_FUNC_SELECT_10,  // Dynamic selection groups 6-10
+    TX_KEY_FUNC_SELECT_11,TX_KEY_FUNC_SELECT_12,TX_KEY_FUNC_SELECT_13,TX_KEY_FUNC_SELECT_14,TX_KEY_FUNC_SELECT_15,  // Dynamic selection groups 11-15
+    TX_KEY_FUNC_SELECT_16,TX_KEY_FUNC_SELECT_17,TX_KEY_FUNC_SELECT_18,TX_KEY_FUNC_SELECT_19,TX_KEY_FUNC_SELECT_20,  // Dynamic selection groups 16-20
+
+    // Spectate MP game/Replay view Keys
+    TX_KEY_FUNC_SPECTATE_PLAYER_1, TX_KEY_FUNC_SPECTATE_PLAYER_2, TX_KEY_FUNC_SPECTATE_PLAYER_3, TX_KEY_FUNC_SPECTATE_PLAYER_4, // Spectator/Replay player switch
+    TX_KEY_FUNC_SPECTATE_PLAYER_5, TX_KEY_FUNC_SPECTATE_PLAYER_6, TX_KEY_FUNC_SPECTATE_PLAYER_7, TX_KEY_FUNC_SPECTATE_PLAYER_8, // Spectator/Replay player switch
+
+    // Map Editor Keys
+    TX_KEY_FUNC_MAPEDIT_EXTRA,                                                                            // Map Editor Extra's menu
+    TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN,                                    // Map Editor menus
+    TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN,  // Map Editor menus
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2, TX_KEY_FUNC_MAPEDIT_SUBMENU_3,          // Map Editor sub-menus
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6           // Map Editor sub-menus
   );
 
 { TKMKeyLibrary }
@@ -91,12 +135,13 @@ begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     case I of
-      0..3, 24..26, 40..44: fFuncs[I].Area := faCommon;
-      4..23, 27..39:        fFuncs[I].Area := faGame;
-      else                  fFuncs[I].Area := faMapEdit;
+      0..16:  fFuncs[I].Area := faCommon;
+      17..60: fFuncs[I].Area := faGame;
+      61..68: fFuncs[I].Area := faSpecReplay;
+      else    fFuncs[I].Area := faMapEdit;
     end;
 
-    fFuncs[I].IsDebug := (I in [41..44]);
+    fFuncs[I].IsChangableByPlayer := (I in [13..16]);
   end;
 end;
 
@@ -152,6 +197,12 @@ begin
 end;
 
 
+procedure TKMKeyLibrary.SetFunc(aIndex: Word; aFuncInfo :TKMFuncInfo);
+begin
+  fFuncs[aIndex] := aFuncInfo;
+end;
+
+
 procedure TKMKeyLibrary.SaveKeymap;
 var
   Keystring: string;
@@ -199,6 +250,8 @@ begin
     2:  Result :=  gResTexts[TX_KEY_RMB];
     3:  Result :=  gResTexts[TX_KEY_BREAK];
     4:  Result :=  gResTexts[TX_KEY_MMB];
+    5:  Result :=  'Forward mouse button'; // Todo translate
+    6:  Result :=  'Backward mouse button'; // Todo translate
     8:  Result :=  gResTexts[TX_KEY_BACKSPACE];
     9:  Result :=  gResTexts[TX_KEY_TAB];
     12: Result :=  gResTexts[TX_KEY_CLEAR];
@@ -305,8 +358,8 @@ end;
 
 function TKMKeyLibrary.AllowKeySet(aArea: TKMFuncArea; aKey: Word): Boolean;
 begin
-  // False if Key equals F10 or F11 (those are used by Delphi IDE when running an App from debugger)
-  Result := not (aKey in [121, 122]);
+  // False if Key equals to Shift or Ctrl, which are used in game for specific bindings
+  Result := not (aKey in [16, 17]);
 end;
 
 
@@ -315,17 +368,20 @@ var
   I: Integer;
 begin
   // Reset previous key binding if Key areas overlap
-  for I := 0 to FUNC_COUNT - 1 do
-  if gResKeys[I].Key = aKey then
-    case gResKeys[I].Area of
-      faCommon:   fFuncs[I].Key := 0;
-      faGame:     if (gResKeys[aId].Area in [faGame, faCommon]) then
-                    fFuncs[I].Key := 0;
-      faMapEdit:  if (gResKeys[aId].Area in [faMapEdit, faCommon]) then
-                    fFuncs[I].Key := 0;
-    end;
+  if aKey <> 0 then
+    for I := 0 to FUNC_COUNT - 1 do
+      if fFuncs[I].Key = aKey then
+        case fFuncs[I].Area of
+          faCommon:     fFuncs[I].Key := 0;
+          faGame:       if (fFuncs[aId].Area in [faGame, faCommon]) then
+                          fFuncs[I].Key := 0;
+          faSpecReplay: if (fFuncs[aId].Area in [faSpecReplay, faCommon]) then
+                          fFuncs[I].Key := 0;
+          faMapEdit:    if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
+                          fFuncs[I].Key := 0;
+        end;
 
-  gResKeys.fFuncs[aId].Key := aKey;
+  fFuncs[aId].Key := aKey;
 end;
 
 

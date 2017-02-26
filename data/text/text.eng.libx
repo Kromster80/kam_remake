@@ -852,7 +852,7 @@
 899:Sub-menu 4
 900:Sub-menu 5
 901:Sub-menu 6
-902:F10 and F11 are unassignable
+902:Ctrl and Shift are unassignable
 903:~~~ Unknown value
 904:Left Mouse Button
 905:Middle Mouse Button
@@ -938,4 +938,32 @@
 986:This weapons workshop is not occupied
 987:This vineyard is not occupied
 988:This woodcutter's is not occupied
+991:Cancel
+992:Clear key
+993:Select Group 11
+994:Select Group 12
+995:Select Group 13
+996:Select Group 14
+997:Select Group 15
+998:Select Group 16
+999:Select Group 17
+1000:Select Group 18
+1001:Select Group 19
+1002:Select Group 20
+1003:Construct road
+1004:Plough field
+1005:Lay out wine field
+1006:Remove building/highlights
+1007:Select next house/unit with same type 
+1008:Debug window
+1009:Spectate player 1
+1010:Spectate player 2
+1011:Spectate player 3
+1012:Spectate player 4
+1013:Spectate player 5
+1014:Spectate player 6
+1015:Spectate player 7
+1016:Spectate player 8
+1017:Initial MP Game Speed
+1018:Spectate/Replay view Keys
 1019:%s has muted you. You can no longer send messages or beacons to them

@@ -706,6 +706,8 @@ begin
     Exit; //Handled by Controls
   end;
 
+  inherited KeyDown(Key, Shift);
+
   //DoPress is not working properly yet. GamePlay only uses DoClick so MapEd can be the same for now.
   //1-5 game menu shortcuts
   //if Key in [49..53] then
@@ -731,19 +733,14 @@ begin
     if fGuiExtras.Visible then fGuiExtras.Hide;
   end;
 
-  //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
 end;
 
 
 procedure TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
+
+  inherited KeyUp(Key, Shift);
 
   //F1-F5 menu shortcuts
   if Key = gResKeys[SC_MAPEDIT_TERRAIN].Key   then Button_Main[1].Click;
@@ -784,16 +781,31 @@ begin
     if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(5) else
     if fGuiMission.Visible then fGuiMission.ShowIndex(5);
 
-  //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
-  //Resets the zoom and view, similar to other RTS games like Dawn of War.
-  //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
+  // Build road/field/wine/cancel build
+  if Key = gResKeys[SC_PLAN_ROAD].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildRoad;
+  end;
+  if Key = gResKeys[SC_PLAN_FIELD].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildField;
+  end;
+  if Key = gResKeys[SC_PLAN_WINE].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildWine;
+  end;
+  if Key = gResKeys[SC_ERASE_PLAN].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildCancel;
+  end;
 
   //For undo/redo shortcuts
   if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);
