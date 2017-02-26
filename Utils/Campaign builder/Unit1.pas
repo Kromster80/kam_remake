@@ -164,7 +164,7 @@ end;
 
 procedure TForm1.FlagEnter(Sender: TObject);
 begin
-  StatusBar1.Panels[2].Text := 'Map ¹' + IntToStr(TImage(Sender).Tag + 1);
+  StatusBar1.Panels[2].Text := 'Map #' + IntToStr(TImage(Sender).Tag + 1);
 end;
 
 procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
@@ -203,7 +203,7 @@ end;
 
 procedure TForm1.NodeEnter(Sender: TObject);
 begin
-  StatusBar1.Panels[2].Text := 'Node ¹' + IntToStr(TImage(Sender).Tag + 1);
+  StatusBar1.Panels[2].Text := 'Node #' + IntToStr(TImage(Sender).Tag + 1);
 end;
 
 procedure TForm1.FlagNodeLeave(Sender: TObject);
