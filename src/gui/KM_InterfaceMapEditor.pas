@@ -1078,7 +1078,6 @@ begin
   fDraggingObject := False;
   fDragHouseGrabPntAdjustment := ZERO_POINT;
   fDragObject := nil;
-  fDragHouseEntranceTileOverlay := to_None;
 
   if gRes.Cursors.Cursor = kmc_Drag then
     gRes.Cursors.Cursor := kmc_Default;
