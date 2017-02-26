@@ -23,6 +23,7 @@ Bugs:
  +  "Unit is hungry" message could be shown for invalid/dead groups
  +  If warrior dies before he walked out, he creates an invalid group
  +  Hide drop column/list when control become invisible (dropbox in lobby could stuck if f.e. server disconnects when it was opened)
+ +  Scripting action OnHousePlanRemove was invoked with wrong coordinates
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
  +  MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
@@ -113,6 +114,7 @@ Improvements:
  +    Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
  +    Do not show owner of corn/wine tile on minimap
  +    Added ability to add map pdf readme with different translations (locales)
+ +    New ability to set all slots as open/closed/ai in Lobby
  +    All maps dat files were unxored
  +    All maps dat file slight optimisations
  
