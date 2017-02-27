@@ -1209,7 +1209,7 @@ begin
     Exit;
   end;
 
-  //Make the speed toggle between aNormalSpeed (1 by default) and desired value
+  //Make the speed toggle between normal speed and desired value
   if (aSpeed = fGameSpeed) and aToggle then
     fGameSpeed := GetNormalGameSpeed
   else
