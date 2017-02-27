@@ -1850,7 +1850,7 @@ begin
 
   if (gMySpectator.Selected <> nil)
     and (OldHandIndex <> gMySpectator.HandIndex) then
-    gMySpectator.Selected := nil;
+    gMySpectator.Selected := nil;   // Reset selection when start viewing another player
 
   if Checkbox_ReplayFOW.Checked then
     gMySpectator.FOWIndex := gMySpectator.HandIndex
