@@ -2236,7 +2236,7 @@ begin
   Image_Clock.Visible := aSpeed <> 1;
   Label_Clock.Visible := aSpeed <> 1;
   Label_ClockSpeedup.Visible := aSpeed <> 1;
-  Label_ClockSpeedup.Caption := 'x' + FloatToStr(aSpeed);
+  Label_ClockSpeedup.Caption := 'x' + FormatFloat('##0.##', aSpeed);
 
   // With slow GPUs it will keep old values till next frame, that can take some seconds
   // Thats why we refresh Clock.Caption here
