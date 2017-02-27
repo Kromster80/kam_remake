@@ -28,31 +28,32 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 8
-    Top = 72
+    Top = 80
     Width = 44
     Height = 18
     Caption = 'Result:'
   end
   object Edit1: TEdit
     Left = 8
-    Top = 32
-    Width = 401
+    Top = 39
+    Width = 387
     Height = 26
     TabOrder = 0
+    OnChange = Edit1Change
   end
-  object btnBrowse: TButton
-    Left = 416
-    Top = 32
+  object btnBrowseFile: TButton
+    Left = 496
+    Top = 8
     Width = 89
     Height = 25
-    Caption = 'Browse ...'
+    Caption = 'Browse File'
     TabOrder = 1
-    OnClick = btnBrowseClick
+    OnClick = btnBrowseFileClick
   end
   object btnValidate: TButton
-    Left = 512
-    Top = 32
-    Width = 73
+    Left = 401
+    Top = 40
+    Width = 184
     Height = 25
     Caption = 'Validate'
     TabOrder = 2
@@ -60,25 +61,34 @@ object Form1: TForm1
   end
   object Memo1: TMemo
     Left = 8
-    Top = 96
+    Top = 104
     Width = 577
-    Height = 241
+    Height = 233
     Anchors = [akLeft, akTop, akRight, akBottom]
     ScrollBars = ssVertical
     TabOrder = 3
   end
   object Button1: TButton
-    Left = 416
-    Top = 64
-    Width = 169
+    Left = 401
+    Top = 71
+    Width = 184
     Height = 25
     Caption = 'Validate all'
     TabOrder = 4
     OnClick = Button1Click
   end
+  object btnBrowsePath: TButton
+    Left = 401
+    Top = 8
+    Width = 89
+    Height = 25
+    Caption = 'Browse Path'
+    TabOrder = 5
+    OnClick = btnBrowseFileClick
+  end
   object OpenDialog1: TOpenDialog
     Filter = 'KaM Remake script files (*.script)|*.script'
-    Left = 32
-    Top = 104
+    Left = 40
+    Top = 120
   end
 end
