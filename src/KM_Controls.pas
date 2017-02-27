@@ -900,8 +900,6 @@ type
     HighlightError: Boolean;
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
-//    OnKeyDown: TNotifyEventKeyShiftFunc;
-//    OnKeyUp: TNotifyEventKeyShiftFunc;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -2863,10 +2861,6 @@ begin
       VK_HOME:    begin CursorPos := 0; ResetSelection; end;
       VK_END:     begin CursorPos := Length(fText); ResetSelection; end;
     end;
-
-
-  if Assigned(OnKeyDown) then
-    OnKeyDown(Self, Key, Shift);
 end;
 
 
@@ -4626,11 +4620,7 @@ begin
                     fOnClick(Self);
                   Exit;
                 end;
-    else        begin
-                  if Assigned(OnKeyDown) then
-                    Result := OnKeyDown(Self, Key, Shift);
-                  Exit;
-                end;
+    else        Exit;
   end;
 
   if InRange(NewIndex, 0, Count - 1) then
