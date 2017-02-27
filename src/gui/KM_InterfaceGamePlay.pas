@@ -138,6 +138,7 @@ type
     procedure DirectionCursorHide;
     function HasLostMPGame:Boolean;
     procedure UpdateDebugInfo;
+    procedure UpdateSelectedObject;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
     procedure Replay_JumpToPlayer(aPlayerIndex: Integer);
@@ -1395,6 +1396,7 @@ begin
   if gMySpectator.Hand.InCinematic then
   begin
     gMySpectator.Selected := nil;
+    UpdateSelectedObject;
     // Close panels unless it is an allowed menu
     if not Panel_Menu.Visible and not Panel_Load.Visible and not Panel_Save.Visible
     and not fGuiMenuSettings.Visible and not Panel_Quit.Visible and not fGuiGameStats.Visible then
@@ -1837,6 +1839,7 @@ begin
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+  UpdateSelectedObject;
 end;
 
 
@@ -1850,7 +1853,10 @@ begin
 
   if (gMySpectator.Selected <> nil)
     and (OldHandIndex <> gMySpectator.HandIndex) then
+  begin
     gMySpectator.Selected := nil;   // Reset selection when start viewing another player
+    UpdateSelectedObject;
+  end;
 
   if Checkbox_ReplayFOW.Checked then
     gMySpectator.FOWIndex := gMySpectator.HandIndex
@@ -2634,6 +2640,8 @@ begin
       gMySpectator.FOWIndex := -1;
     fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
   end;
+
+  UpdateSelectedObject;
 end;
 
 
@@ -2647,41 +2655,43 @@ begin
     Exit;
 
   if gMySpectator.Selected is TKMUnit then
+  begin
+
+    NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
+    if NextUnit <> nil then
     begin
-
-      NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
-      if NextUnit <> nil then
-      begin
-        gMySpectator.Selected := NextUnit;
-        if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-          gSoundPlayer.PlayCitizen(NextUnit.UnitType, sp_Select); // play unit selection sound
-        fViewport.Position := NextUnit.PositionF; //center viewport on that unit
-      end;
-
-    end else if gMySpectator.Selected is TKMHouse then
-    begin
-
-      NextHouse := gHands.GetNextHouseWSameType(TKMHouse(gMySpectator.Selected));
-      if NextHouse <> nil then
-      begin
-        gMySpectator.Selected := NextHouse;
-        fViewport.Position := KMPointF(NextHouse.Entrance); //center viewport on that house
-      end;
-
-    end else if gMySpectator.Selected is TKMUnitGroup then
-    begin
-
-      NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
-      if NextUnitGroup <> nil then
-      begin
-        gMySpectator.Selected := NextUnitGroup;
-        NextUnitGroup.SelectFlagBearer;
-        if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-          gSoundPlayer.PlayWarrior(NextUnitGroup.SelectedUnit.UnitType, sp_Select); // play unit group selection sound
-        fViewport.Position := NextUnitGroup.SelectedUnit.PositionF; //center viewport on that unit
-      end;
-
+      gMySpectator.Selected := NextUnit;
+      if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+        gSoundPlayer.PlayCitizen(NextUnit.UnitType, sp_Select); // play unit selection sound
+      fViewport.Position := NextUnit.PositionF; //center viewport on that unit
     end;
+
+  end else if gMySpectator.Selected is TKMHouse then
+  begin
+
+    NextHouse := gHands.GetNextHouseWSameType(TKMHouse(gMySpectator.Selected));
+    if NextHouse <> nil then
+    begin
+      gMySpectator.Selected := NextHouse;
+      fViewport.Position := KMPointF(NextHouse.Entrance); //center viewport on that house
+    end;
+
+  end else if gMySpectator.Selected is TKMUnitGroup then
+  begin
+
+    NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
+    if NextUnitGroup <> nil then
+    begin
+      gMySpectator.Selected := NextUnitGroup;
+      NextUnitGroup.SelectFlagBearer;
+      if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+        gSoundPlayer.PlayWarrior(NextUnitGroup.SelectedUnit.UnitType, sp_Select); // play unit group selection sound
+      fViewport.Position := NextUnitGroup.SelectedUnit.PositionF; //center viewport on that unit
+    end;
+
+  end;
+
+  UpdateSelectedObject;
 end;
 
 
@@ -3672,19 +3682,8 @@ begin
 end;
 
 
-{ Should update any items changed by game (resource counts, hp, etc..) }
-{ If it ever gets a bottleneck then some static Controls may be excluded from update }
-procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
-var
-  I: Integer;
-  Rect: TKMRect;
+procedure TKMGamePlayInterface.UpdateSelectedObject;
 begin
-  // Update minimap every 1000ms
-  if aTickCount mod 10 = 0 then
-    fMinimap.Update(False);
-
-  fAlerts.UpdateState(aTickCount);
-
   // Update unit/house information
   if gMySpectator.Selected is TKMUnitGroup then
     ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected))
@@ -3706,6 +3705,23 @@ begin
       if Panel_Unit.Visible then
         SwitchPage(nil);
   end;
+end;
+
+
+{ Should update any items changed by game (resource counts, hp, etc..) }
+{ If it ever gets a bottleneck then some static Controls may be excluded from update }
+procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
+var
+  I: Integer;
+  Rect: TKMRect;
+begin
+  // Update minimap every 1000ms
+  if aTickCount mod 10 = 0 then
+    fMinimap.Update(False);
+
+  UpdateSelectedObject;
+
+  fAlerts.UpdateState(aTickCount);
 
   // Update peacetime counter
   if gGame.GameOptions.Peacetime <> 0 then
