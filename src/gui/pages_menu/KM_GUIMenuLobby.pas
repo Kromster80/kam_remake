@@ -76,6 +76,7 @@ type
     procedure PostKeyDown(Sender: TObject; Key: Word);
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 
+    function SlotsAvailable: Byte;
     procedure MinimapLocClick(aValue: Integer);
 
     procedure Lobby_OnDisconnect(const aData: UnicodeString);
@@ -1122,33 +1123,65 @@ begin
 end;
 
 
+function TKMMenuLobby.SlotsAvailable: Byte;
+begin
+  Result := 0;
+  if (fNetworking.MapInfo <> nil) and fNetworking.MapInfo.IsValid then
+    Result := Max(0, fNetworking.MapInfo.LocCount - fNetworking.NetPlayers.GetConnectedPlayersCount - fNetworking.NetPlayers.GetAICount)
+  else if (fNetworking.SaveInfo <> nil) and fNetworking.SaveInfo.IsValid then
+    Result := Max(0, fNetworking.SaveInfo.Info.HumanCount - fNetworking.NetPlayers.GetConnectedPlayersCount - fNetworking.NetPlayers.GetAICount);
+end;
+
+
 function TKMMenuLobby.DropColPlayersCellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I, J, NetI: Integer;
+    SlotsToChange, SlotsChanged: Byte;
 begin
   Result := False;
+
   if X = 1 then
   begin
+    SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
+    SlotsToChange := SlotsAvailable;
+
     for I := 1 to MAX_LOBBY_SLOTS do
     begin
       if Sender = DropBox_LobbyPlayerSlot[I].List then
+      begin
         DropBox_LobbyPlayerSlot[I].CloseList; //Close opened dropbox manually
+
+        //We have to revert ItemIndex to its previous value, because its value was already switched to AI on MouseDown
+        //but we are not sure yet about what value should be there, we will set it properly later on
+        if (Y = 2) and (DropBox_LobbyPlayerSlot[I].ItemIndex = 2) then
+          DropBox_LobbyPlayerSlot[I].RevertLastIndexChange;
+      end;
+    end;
+
+    for I := 1 to MAX_LOBBY_SLOTS do
+    begin
+      if (Y = 2) and (SlotsChanged >= SlotsToChange) then //Do not add more AI, then we have slots available
+        Break;
 
       case Y of
         0:    J := MAX_LOBBY_SLOTS + 1 - I; // we must Open slots in reverse order
         1, 2: J := I;                       // Closed and AI slots - in straight order
         else  J := I;
       end;
-      
+
       NetI := fLocalToNetPlayers[J];
       if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
       begin
+        //Do not count this slot as changed, if it already has AI value
+        if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
+          Inc(SlotsChanged);
         DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
         PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
       end;
     end;
+
     // Do not propagate click event further, because
     // we do not want provoke OnChange event handler invokation, we have handled everything here
-    Result := True; 
+    Result := True;
   end;
 end;
 

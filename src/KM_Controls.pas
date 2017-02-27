@@ -846,7 +846,8 @@ type
     fBackAlpha: Single; //Alpha of background
     fEdgeAlpha: Single; //Alpha of outline
     fItemHeight: Byte;
-    fItemIndex: Smallint;
+    fItemIndex: SmallInt;
+    fPrevItemIndex: SmallInt;
     fSearchColumn: ShortInt; //which columns text we should search, -1 for disabled
     fSearch: UnicodeString; //Contains user input characters we should search for
     fLastKeyTime: Cardinal;
@@ -905,6 +906,7 @@ type
     procedure SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
+    procedure RevertLastIndexChange;
     function GetVisibleRows: Integer;
     function GetVisibleRowsExact: Single;
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
@@ -1052,6 +1054,7 @@ type
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word; aColumnsToShowWhenListHidden: array of Boolean); overload;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property DropWidth: Integer read fDropWidth write SetDropWidth;
+    procedure RevertLastIndexChange;
 
     procedure Paint; override;
   end;
@@ -4858,6 +4861,7 @@ begin
   fFont       := aFont;
   fItemHeight := 20;
   fItemIndex  := -1;
+  fPrevItemIndex  := -1;
   fShowHeader := True;
   SearchColumn := -1; //Disabled by default
   Focusable := True; //For up/down keys
@@ -4931,6 +4935,7 @@ end;
 
 procedure TKMColumnBox.SetItemIndex(const Value: Smallint);
 begin
+  fPrevItemIndex := fItemIndex;
   if InRange(Value, 0, RowCount - 1) then
     fItemIndex := Value
   else
@@ -5108,7 +5113,14 @@ procedure TKMColumnBox.Clear;
 begin
   fRowCount := 0;
   fItemIndex := -1;
+  fPrevItemIndex := -1;
   UpdateScrollBar;
+end;
+
+
+procedure TKMColumnBox.RevertLastIndexChange;
+begin
+  fItemIndex := fPrevItemIndex;
 end;
 
 
@@ -5178,7 +5190,7 @@ begin
 
   if InRange(NewIndex, 0, fRowCount - 1) then
   begin
-    fItemIndex := NewIndex;
+    ItemIndex := NewIndex;
     if PageScrolling then
       TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
     else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
@@ -5218,7 +5230,7 @@ begin
     for I := 0 to fRowCount - 1 do
     if AnsiStartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
     begin
-      fItemIndex := I;
+      ItemIndex := I;
       TopIndex := fItemIndex - GetVisibleRows div 2;
       Break;
     end;
@@ -5262,7 +5274,7 @@ begin
   if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) then
     IsClickHandled := fOnCellClick(Self, fMouseOverCell.X, fMouseOverCell.Y);
 
-  //Let propagate click event only when OnClickCell did not handle it
+  //Let propagate click event only when OnCellClick did not handle it
   if not IsClickHandled then
   begin
     inherited DoClick(X, Y, Shift, Button);
@@ -5287,10 +5299,11 @@ begin
     NewIndex := -1;
   end;
 
-  if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
+  if InRange(NewIndex, 0, fRowCount - 1) then
   begin
-    fItemIndex := NewIndex;
-    fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
+    if (NewIndex <> fItemIndex) then
+      fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
+    ItemIndex := NewIndex;
   end;
 end;
 
@@ -6061,6 +6074,12 @@ end;
 procedure TKMDropColumns.Clear;
 begin
   fList.Clear;
+end;
+
+
+procedure TKMDropColumns.RevertLastIndexChange;
+begin
+  fList.RevertLastIndexChange;
 end;
 
 
