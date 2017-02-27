@@ -370,7 +370,7 @@ begin
         Thought := th_None;
       end;
    7: begin
-        gTerrain.SetField(fLoc, Owner, ft_Wine);
+        gTerrain.SetFieldStaged(fLoc, Owner, ft_Wine, 0);
         SetActionStay(5, ua_Walk);
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
@@ -473,7 +473,7 @@ begin
        end;
     3: begin
         Thought := th_None; //Keep thinking build until it's done
-        gTerrain.SetField(fLoc,Owner,ft_Corn);
+        gTerrain.SetFieldStaged(fLoc, Owner, ft_Corn, 0);
         SetActionStay(5,ua_Walk);
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;

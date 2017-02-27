@@ -1073,7 +1073,7 @@ begin
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn);
+        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Corn, 0);
       end
     else
       LogParamWarning('Actions.GiveField', [aPlayer, X, Y]);
@@ -1123,7 +1123,7 @@ begin
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
+        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Road, 0);
         //Terrain under roads is flattened (fields are not)
         gTerrain.FlattenTerrain(KMPoint(X, Y));
         if gMapElements[gTerrain.Land[Y,X].Obj].WineOrCorn then
@@ -1208,7 +1208,7 @@ begin
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine);
+        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Wine, 0);
       end
     else
       LogParamWarning('Actions.GiveWineField', [aPlayer, X, Y]);
@@ -2266,7 +2266,7 @@ begin
               gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road)
             else
             begin
-              gTerrain.SetField(Points[I], aPlayer, ft_Road);
+              gTerrain.SetFieldStaged(Points[I], aPlayer, ft_Road, 0);
               gTerrain.FlattenTerrain(Points[I]);
               if gMapElements[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
                 gTerrain.RemoveObject(Points[I]); //Remove corn/wine like normally built road does

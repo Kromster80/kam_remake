@@ -97,7 +97,7 @@ type
     procedure UnlockTile(aLoc: TKMPoint);
     procedure SetRoads(aList: TKMPointList; aOwner: TKMHandIndex; aUpdateWalkConnects: Boolean = True);
     procedure SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aDoLocUpdates: Boolean = True);
-    procedure SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean);
+    procedure SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean = False);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TKMHandIndex; const aFlattenTerrain: Boolean = False);
     procedure SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TKMHandIndex);
 
@@ -1869,7 +1869,7 @@ begin
 end;
 
 
-procedure TKMTerrain.SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean);
+procedure TKMTerrain.SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean = False);
   procedure SetCorn(aFieldAge, aTerrain: Byte; aObj: Integer = -1);
   begin
     Land[Loc.Y, Loc.X].FieldAge := aFieldAge;
