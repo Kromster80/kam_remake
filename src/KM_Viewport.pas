@@ -202,8 +202,12 @@ var
   ScrollAdv, ZoomAdv: Single;
   CursorPoint: TKMPoint;
   ScreenBounds: TRect;
-  I: Byte;
+  MonitorsBounds: TRectArray;
+  BitField: Byte;
+  I: Integer;
   MousePos: TPoint;
+  MonScrollAreaWidth: Integer;
+  DoScrollOnOtherMonitor: Boolean;
 begin
   //Cinematics do not allow normal scrolling. The camera will be set and panned with script commands
   if aInCinematic then
@@ -234,6 +238,26 @@ begin
   {$ENDIF}
   if not fMain.GetScreenBounds(ScreenBounds) then Exit;
 
+  fMain.GetMonitorsBounds(MonitorsBounds);
+
+  MonScrollAreaWidth := gGameApp.GameSettings.SecondMonitorScrollAreaWidth;
+  DoScrollOnOtherMonitor := True;
+  // For multi monitor system:
+  // Check if game window (ScreenBounds) is on one monitor and cursor is on 2nd monitor, far from border between monitors (out of "scroll area")
+  // Scroll area width is set by MonScrollAreaWidth
+  for I := Low(MonitorsBounds) to High(MonitorsBounds) do
+  begin
+    if (ScreenBounds.Left >= MonitorsBounds[I].Left)
+      and (ScreenBounds.Right <= MonitorsBounds[I].Right)
+      and (ScreenBounds.Top >= MonitorsBounds[I].Top)
+      and (ScreenBounds.Bottom <= MonitorsBounds[I].Bottom)
+      and not InRange(MousePos.X, MonitorsBounds[I].Left - MonScrollAreaWidth, MonitorsBounds[I].Right + MonScrollAreaWidth - 1) then
+    begin
+      DoScrollOnOtherMonitor := False; //Means cursor is on 2nd monitor, out of "scroll area".
+      Break;
+    end;
+  end;
+
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
   CursorPoint.X := EnsureRange(MousePos.X, ScreenBounds.Left, ScreenBounds.Right );
   CursorPoint.Y := EnsureRange(MousePos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
@@ -246,10 +270,11 @@ begin
      not ScrollKeyDown  and
      not ZoomKeyIn      and
      not ZoomKeyOut     and
-     not (CursorPoint.X <= ScreenBounds.Left + SCROLL_FLEX) and
+     (not DoScrollOnOtherMonitor or // Cancel Scroll if cursor is on the 2nd monitor, out of "scroll area"
+     (not (CursorPoint.X <= ScreenBounds.Left + SCROLL_FLEX) and
      not (CursorPoint.Y <= ScreenBounds.Top + SCROLL_FLEX) and
      not (CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX) and
-     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX)) then
+     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX)))) then
   begin
     //Stop the scrolling (e.g. if the form loses focus due to other application popping up)
     ReleaseScrollKeys;
@@ -275,7 +300,7 @@ begin
       ScrollAdv := Mix(ScrollAdv, 0, TimeSinceStarted / SCROLL_ACCEL_TIME);
   end;
 
-  I := 0; //That is our bitfield variable for directions, 0..12 range
+  BitField := 0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
@@ -288,15 +313,15 @@ begin
   if ZoomKeyIn      then fZoom := fZoom + ZoomAdv;
   if ZoomKeyOut     then fZoom := fZoom - ZoomAdv;
   //Mouse
-  if CursorPoint.X <= ScreenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLL_FLEX); end;
-  if CursorPoint.Y <= ScreenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLL_FLEX); end;
-  if CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX then begin inc(I,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLL_FLEX); end;
-  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX then begin inc(I,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLL_FLEX); end;
+  if CursorPoint.X <= ScreenBounds.Left   + SCROLL_FLEX then begin inc(BitField,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLL_FLEX); end;
+  if CursorPoint.Y <= ScreenBounds.Top    + SCROLL_FLEX then begin inc(BitField,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLL_FLEX); end;
+  if CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX then begin inc(BitField,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLL_FLEX); end;
+  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX then begin inc(BitField,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLL_FLEX); end;
 
   //Now do actual the scrolling, if needed
-  fScrolling := I <> 0;
+  fScrolling := BitField <> 0;
   if fScrolling then
-    gRes.Cursors.Cursor := DirectionsBitfield[I] //Sample cursor type from bitfield value
+    gRes.Cursors.Cursor := DirectionsBitfield[BitField] //Sample cursor type from bitfield value
   else
     if (gRes.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
       gRes.Cursors.Cursor := kmc_Default;
