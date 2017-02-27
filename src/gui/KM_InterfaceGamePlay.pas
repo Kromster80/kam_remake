@@ -140,8 +140,8 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
-    procedure Replay_JumpToPlayer;
-    procedure Replay_ViewPlayer;
+    procedure Replay_JumpToPlayer(aPlayerIndex: Integer);
+    procedure Replay_ViewPlayer(aPlayerIndex: Integer);
     procedure Replay_ListDoubleClick(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
@@ -1813,10 +1813,11 @@ begin
   Button_ReplayResume.Enabled := not aPaused;
 end;
 
-procedure TKMGamePlayInterface.Replay_JumpToPlayer;
+procedure TKMGamePlayInterface.Replay_JumpToPlayer(aPlayerIndex: Integer);
 var LastSelectedObj: TObject;
 begin
-  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+  Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
+  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
 
   LastSelectedObj := gMySpectator.LastSpecSelectedObj;
   if LastSelectedObj <> nil then
@@ -1839,9 +1840,17 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Replay_ViewPlayer;
+procedure TKMGamePlayInterface.Replay_ViewPlayer(aPlayerIndex: Integer);
+var OldHandIndex: Integer;
 begin
-  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+  Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
+
+  OldHandIndex := gMySpectator.HandIndex;
+  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
+
+  if (gMySpectator.Selected <> nil)
+    and (OldHandIndex <> gMySpectator.HandIndex) then
+    gMySpectator.Selected := nil;
 
   if Checkbox_ReplayFOW.Checked then
     gMySpectator.FOWIndex := gMySpectator.HandIndex
@@ -1855,7 +1864,7 @@ end;
 procedure TKMGamePlayInterface.Replay_ListDoubleClick(Sender: TObject);
 begin
   //Double clicking on an item in the list jumps to the previously selected object of that player
-  Replay_JumpToPlayer;
+  Replay_JumpToPlayer(Dropbox_ReplayFOW.ItemIndex);
 end;
 
 
@@ -1917,7 +1926,7 @@ begin
   end;
 
   if (Sender = Dropbox_ReplayFOW) then
-    Replay_ViewPlayer;
+    Replay_ViewPlayer(Dropbox_ReplayFOW.ItemIndex);
 
   if (Sender = Checkbox_ReplayFOW) then
   begin
@@ -2881,11 +2890,10 @@ begin
 
     if (SpecPlayerIndex <> -1) and (Dropbox_ReplayFOW.Count >= SpecPlayerIndex) then
     begin
-      Dropbox_ReplayFOW.ItemIndex := SpecPlayerIndex - 1;
       if ssCtrl in Shift then
-        Replay_JumpToPlayer
+        Replay_JumpToPlayer(SpecPlayerIndex - 1)
       else
-        Replay_ViewPlayer;
+        Replay_ViewPlayer(SpecPlayerIndex - 1);
       Exit;
     end;
   end;
