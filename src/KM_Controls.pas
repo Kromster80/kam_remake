@@ -900,8 +900,6 @@ type
     HighlightError: Boolean;
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
-//    OnKeyDown: TNotifyEventKeyShiftFunc;
-//    OnKeyUp: TNotifyEventKeyShiftFunc;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -931,7 +929,6 @@ type
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
-    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -2863,10 +2860,6 @@ begin
       VK_HOME:    begin CursorPos := 0; ResetSelection; end;
       VK_END:     begin CursorPos := Length(fText); ResetSelection; end;
     end;
-
-
-  if Assigned(OnKeyDown) then
-    OnKeyDown(Self, Key, Shift);
 end;
 
 
@@ -4626,11 +4619,7 @@ begin
                     fOnClick(Self);
                   Exit;
                 end;
-    else        begin
-                  if Assigned(OnKeyDown) then
-                    Result := OnKeyDown(Self, Key, Shift);
-                  Exit;
-                end;
+    else        Exit;
   end;
 
   if InRange(NewIndex, 0, Count - 1) then
@@ -5147,23 +5136,6 @@ var
 begin
   for I := 0 to fHeader.ColumnCount - 1 do
     FreeAndNil(fColumns[I]);
-end;
-
-
-function TKMColumnBox.KeyUp(Key: Word; Shift: TShiftState): Boolean;
-begin
-  Result := inherited KeyUp(Key, Shift);
-
-  if Result then Exit;
-
-  if PassAllKeys then
-  begin
-    // Assume handler always handles the KeyUp
-    Result := Assigned(OnKeyUp);
-
-    if Assigned(OnKeyUp) then
-      OnKeyUp(Self, Key, Shift);
-  end
 end;
 
 

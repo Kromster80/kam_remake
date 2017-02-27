@@ -547,7 +547,7 @@ function TKMMenuOptions.KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftStat
 var
   id: Integer;
 begin
-  Result := True; // This Result is not used outside, so we do not care about its value
+  Result := True; // We handle all keys here
   if ColumnBox_OptionsKeys.ItemIndex = -1 then Exit;
 
   ColumnBox_OptionsKeys.HighlightError := False;
