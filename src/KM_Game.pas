@@ -140,9 +140,10 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
-    function GetDefaultMPGameSpeed: Single;
-    procedure SetDefaultMPGameSpeed(aToggle: Boolean = False);
-    procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean; aToggleSpeed: Single = 1);
+    function GetNormalGameSpeed: Single;
+    function GetNormalMPGameSpeed: Single;
+    procedure SetNormalMPGameSpeed(aToggle: Boolean = False);
+    procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean; aNormalSpeed: Single = 1);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
     procedure UpdateMultiplayerTeams;
@@ -526,7 +527,7 @@ begin
   fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
-  SetDefaultMPGameSpeed;
+  SetNormalMPGameSpeed;
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -1184,7 +1185,16 @@ begin
 end;
 
 
-function TKMGame.GetDefaultMPGameSpeed: Single;
+function TKMGame.GetNormalGameSpeed: Single;
+begin
+  if IsMultiplayer then
+    Result := GetNormalMPGameSpeed
+  else
+    Result := 1;
+end;
+
+
+function TKMGame.GetNormalMPGameSpeed: Single;
 begin
   if IsPeaceTime then
     Result := fGameOptions.SpeedPT
@@ -1193,7 +1203,7 @@ begin
 end;
 
 
-procedure TKMGame.SetDefaultMPGameSpeed(aToggle: Boolean = False);
+procedure TKMGame.SetNormalMPGameSpeed(aToggle: Boolean = False);
 begin
   if IsPeaceTime then
     SetGameSpeed(fGameOptions.SpeedPT, aToggle)
@@ -1202,7 +1212,7 @@ begin
 end;
 
 
-procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean; aToggleSpeed: Single = 1);
+procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean; aNormalSpeed: Single = 1);
 begin
   Assert(aSpeed > 0);
 
@@ -1217,7 +1227,7 @@ begin
 
   //Make the speed toggle between aToggleSpeed (1 by default) and desired value
   if (aSpeed = fGameSpeed) and aToggle then
-    fGameSpeed := aToggleSpeed
+    fGameSpeed := aNormalSpeed
   else
     fGameSpeed := aSpeed;
 
