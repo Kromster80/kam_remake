@@ -77,6 +77,7 @@ type
     procedure UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
     procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected: Boolean);
 
+    procedure SetField_Init(Loc: TKMPoint; aOwner: TKMHandIndex);
     procedure SetField_Complete(Loc: TKMPoint; aFieldType: TFieldType);
   public
     Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of TKMTerrainTile;
@@ -96,8 +97,9 @@ type
     procedure SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
     procedure UnlockTile(aLoc: TKMPoint);
     procedure SetRoads(aList: TKMPointList; aOwner: TKMHandIndex; aUpdateWalkConnects: Boolean = True);
-    procedure SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aDoLocUpdates: Boolean = True);
-    procedure SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean = False);
+    procedure SetRoad(Loc: TKMPoint; aOwner: TKMHandIndex);
+    procedure SetInitWine(Loc: TKMPoint; aOwner: TKMHandIndex);
+    procedure SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte = 0; aRandomAge: Boolean = False);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TKMHandIndex; const aFlattenTerrain: Boolean = False);
     procedure SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TKMHandIndex);
 
@@ -1224,6 +1226,14 @@ begin
 end;
 
 
+procedure TKMTerrain.SetField_Init(Loc: TKMPoint; aOwner: TKMHandIndex);
+begin
+  Land[Loc.Y,Loc.X].TileOwner   := aOwner;
+  Land[Loc.Y,Loc.X].TileOverlay := to_None;
+  Land[Loc.Y,Loc.X].FieldAge    := 0;
+end;
+
+
 procedure TKMTerrain.SetField_Complete(Loc: TKMPoint; aFieldType: TFieldType);
 begin
   UpdateFences(Loc);
@@ -1233,57 +1243,24 @@ begin
 end;
 
 
-{Set field on tile - corn/wine}
-procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aDoLocUpdates: Boolean = True);
+procedure TKMTerrain.SetRoad(Loc: TKMPoint; aOwner: TKMHandIndex);
 begin
-  Land[Loc.Y,Loc.X].TileOwner   := aOwner;
-  Land[Loc.Y,Loc.X].TileOverlay := to_None;
-  Land[Loc.Y,Loc.X].FieldAge    := 0;
+  SetField_Init(Loc, aOwner);
 
-  case aFieldType of
-    ft_Road:      Land[Loc.Y,Loc.X].TileOverlay := to_Road;
-    ft_Corn:      if fMapEditor then
-                    Land[Loc.Y,Loc.X].CornOrWine := 1 //This and nothing else
-                  else
-                  begin
-                    Land[Loc.Y,Loc.X].Terrain  := 62;
-                    Land[Loc.Y,Loc.X].Rotation := 0;
-                    //If object is already corn then set the field age (some maps start with corn placed)
-                    case Land[Loc.Y,Loc.X].Obj of
-                      58: begin  //Smaller greeninsh Corn
-                            Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_2;
-                            Land[Loc.Y,Loc.X].Terrain  := 60;
-                          end;
-                      59: begin  //Full-grown Corn 1
-                            //-1 because it is increased in update state, otherwise it wouldn't be noticed
-                            Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_FULL-1;
-                            Land[Loc.Y,Loc.X].Terrain  := 60;
-                          end;
-                    end;
-                  end;
-    ft_Wine:      if fMapEditor then
-                    Land[Loc.Y,Loc.X].CornOrWine := 2 //This and nothing else
-                  else
-                  begin
-                    Land[Loc.Y,Loc.X].Terrain  := 55;
-                    Land[Loc.Y,Loc.X].Rotation := 0;
-                    //If object is already wine then set the field age (some maps start with wine placed)
-                    case Land[Loc.Y,Loc.X].Obj of
-                      55: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_1;
-                      56: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_2;
-                          //-1 because it is increased in update state, otherwise it wouldn't be noticed
-                      57: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL-1;
-                      else CutGrapes(Loc); //Set object and age
-                    end;
-                  end;
-    ft_InitWine:  begin
-                    Land[Loc.Y,Loc.X].Terrain  := 55;
-                    Land[Loc.Y,Loc.X].Rotation := 0;
-                  end;
-  end;
+  Land[Loc.Y,Loc.X].TileOverlay := to_Road;
 
-  if aDoLocUpdates then
-    SetField_Complete(Loc, aFieldType);
+  SetField_Complete(Loc, ft_Road);
+end;
+
+
+procedure TKMTerrain.SetInitWine(Loc: TKMPoint; aOwner: TKMHandIndex);
+begin
+  SetField_Init(Loc, aOwner);
+
+  Land[Loc.Y,Loc.X].Terrain  := 55;
+  Land[Loc.Y,Loc.X].Rotation := 0;
+
+  SetField_Complete(Loc, ft_InitWine);
 end;
 
 
@@ -1750,12 +1727,12 @@ begin
     // Special cases for corn fields 
     58: if TileIsCornField(Loc) and (GetCornStage(Loc) <> 4) then
         begin
-          SetFieldStaged(Loc, Land[Loc.Y,Loc.X].TileOwner, ft_Corn, 4, False);
+          SetField(Loc, Land[Loc.Y,Loc.X].TileOwner, ft_Corn, 4, False);
           IsObjectSet := True;
         end;
     59: if TileIsCornField(Loc) and (GetCornStage(Loc) <> 4) then
         begin
-          SetFieldStaged(Loc, Land[Loc.Y,Loc.X].TileOwner, ft_Corn, 5, False);
+          SetField(Loc, Land[Loc.Y,Loc.X].TileOwner, ft_Corn, 5, False);
           IsObjectSet := True;
         end
   end;
@@ -1869,7 +1846,14 @@ begin
 end;
 
 
-procedure TKMTerrain.SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte; aRandomAge: Boolean = False);
+procedure TKMTerrain.CutGrapes(Loc: TKMPoint);
+begin
+  Land[Loc.Y,Loc.X].FieldAge := 1;
+  Land[Loc.Y,Loc.X].Obj := 54; //Reset the grapes
+end;
+
+
+procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte = 0; aRandomAge: Boolean = False);
   procedure SetCorn(aFieldAge, aTerrain: Byte; aObj: Integer = -1);
   begin
     Land[Loc.Y, Loc.X].FieldAge := aFieldAge;
@@ -1896,10 +1880,16 @@ procedure TKMTerrain.SetFieldStaged(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldT
 
 var FieldAge: Byte;
 begin
-  SetField(Loc, aOwner, aFieldType, False);
+  Assert(aFieldType in [ft_Corn, ft_Wine], 'SetField is allowed to use only for corn or wine.');
+
+  SetField_Init(Loc, aOwner);
 
   if (aFieldType = ft_Corn)
     and (InRange(aStage, 0, CORN_STAGES_COUNT - 1)) then
+  begin
+    if fMapEditor then
+      Land[Loc.Y,Loc.X].CornOrWine := 1;
+
     case aStage of
       0:  SetCorn(0, 62, GetObj); //empty field
 
@@ -1924,15 +1914,23 @@ begin
           end;
 
       5:  begin //Full-grown Corn
-            FieldAge := CORN_AGE_FULL - 1;
+            FieldAge := CORN_AGE_FULL - 1; //-1 because it is increased in update state, otherwise it wouldn't be noticed
             SetCorn(FieldAge, 60, 59);
           end;
 
       6:  SetCorn(0, 63, 255); //Corn has been cut
     end;
+  end;
 
   if (aFieldType = ft_Wine)
     and (InRange(aStage, 0, WINE_STAGES_COUNT - 1)) then
+  begin
+    if fMapEditor then
+      Land[Loc.Y,Loc.X].CornOrWine := 2;
+
+    Land[Loc.Y,Loc.X].Terrain  := 55;
+    Land[Loc.Y,Loc.X].Rotation := 0;
+
     case aStage of
       0:  begin //Set new fruits
             Land[Loc.Y,Loc.X].Obj := 54;
@@ -1954,15 +1952,9 @@ begin
             Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL - 1;
           end;
     end;
+  end;
 
   SetField_Complete(Loc, aFieldType);
-end;
-
-
-procedure TKMTerrain.CutGrapes(Loc: TKMPoint);
-begin
-  Land[Loc.Y,Loc.X].FieldAge := 1;
-  Land[Loc.Y,Loc.X].Obj := 54; //Reset the grapes
 end;
 
 
