@@ -139,6 +139,8 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
+    procedure Replay_JumpToPlayer;
+    procedure Replay_ViewPlayer;
     procedure Replay_ListDoubleClick(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
@@ -1808,11 +1810,9 @@ begin
   Button_ReplayResume.Enabled := not aPaused;
 end;
 
-
-procedure TKMGamePlayInterface.Replay_ListDoubleClick(Sender: TObject);
+procedure TKMGamePlayInterface.Replay_JumpToPlayer;
 var LastSelectedObj: TObject;
 begin
-  //Double clicking on an item in the list jumps to the previously selected object of that player
   gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
 
   LastSelectedObj := gMySpectator.LastSpecSelectedObj;
@@ -1833,6 +1833,26 @@ begin
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+end;
+
+
+procedure TKMGamePlayInterface.Replay_ViewPlayer;
+begin
+  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+
+  if Checkbox_ReplayFOW.Checked then
+    gMySpectator.FOWIndex := gMySpectator.HandIndex
+  else
+    gMySpectator.FOWIndex := -1;
+  fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+  gGame.OverlayUpdate; // Display the overlay seen by the selected player
+end;
+
+
+procedure TKMGamePlayInterface.Replay_ListDoubleClick(Sender: TObject);
+begin
+  //Double clicking on an item in the list jumps to the previously selected object of that player
+  Replay_JumpToPlayer;
 end;
 
 
@@ -1881,16 +1901,7 @@ begin
   end;
 
   if (Sender = Dropbox_ReplayFOW) then
-  begin
-    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
-
-    if Checkbox_ReplayFOW.Checked then
-      gMySpectator.FOWIndex := gMySpectator.HandIndex
-    else
-      gMySpectator.FOWIndex := -1;
-    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
-    gGame.OverlayUpdate; // Display the overlay seen by the selected player
-  end;
+    Replay_ViewPlayer;
 
   if (Sender = Checkbox_ReplayFOW) then
   begin
@@ -2855,7 +2866,10 @@ begin
     if (SpecPlayerIndex <> -1) and (Dropbox_ReplayFOW.Count >= SpecPlayerIndex) then
     begin
       Dropbox_ReplayFOW.ItemIndex := SpecPlayerIndex - 1;
-      ReplayClick(Dropbox_ReplayFOW);
+      if ssCtrl in Shift then
+        Replay_JumpToPlayer
+      else
+        Replay_ViewPlayer;
       Exit;
     end;
   end;
