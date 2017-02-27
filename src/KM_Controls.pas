@@ -4679,6 +4679,7 @@ end;
 procedure TKMListBox.Paint;
 var
   I, PaintWidth: Integer;
+  ShapeColor, OutlineColor: TColor4;
 begin
   inherited;
 
@@ -4690,7 +4691,17 @@ begin
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, PaintWidth, Height, 1, fBackAlpha);
 
   if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, GetVisibleRows - 1) then
-    TKMRenderUI.WriteShape(AbsLeft, AbsTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
+  begin
+    if IsFocused then
+    begin
+      ShapeColor := clListSelShape;
+      OutlineColor := clListSelOutline;
+    end else begin
+      ShapeColor := clListSelShapeUnfocused;
+      OutlineColor := clListSelOutlineUnfocused;
+    end;
+    TKMRenderUI.WriteShape(AbsLeft, AbsTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, ShapeColor, OutlineColor);
+  end;
 
   for I := 0 to Math.min(fItems.Count-1, GetVisibleRows - 1) do
     TKMRenderUI.WriteText(AbsLeft+4, AbsTop+I*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+I] , fFont, taLeft);
@@ -5428,6 +5439,7 @@ end;
 procedure TKMColumnBox.Paint;
 var
   I, PaintWidth, MaxItem, Y: Integer;
+  OutlineColor, ShapeColor: TColor4;
 begin
   inherited;
 
@@ -5455,8 +5467,17 @@ begin
   and (fItemIndex <> -1)
   and InRange(ItemIndex - TopIndex, 0, MaxItem) then
   begin
-    TKMRenderUI.WriteShape(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
-    TKMRenderUI.WriteOutline(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, 1 + Byte(fShowLines), $FFFFFFFF);
+
+    if IsFocused then
+    begin
+      ShapeColor := clListSelShape;//$88888888;
+      OutlineColor := clListSelOutline;//$FFFFFFFF;
+    end else begin
+      ShapeColor := clListSelShapeUnfocused;//$66666666;
+      OutlineColor := clListSelOutlineUnfocused;//$FFA0A0A0;
+    end;
+    TKMRenderUI.WriteShape(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, ShapeColor);
+    TKMRenderUI.WriteOutline(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, 1 + Byte(fShowLines), OutlineColor);
   end;
 
   //Paint rows text and icons above selection for clear visibility
