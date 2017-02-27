@@ -5299,10 +5299,9 @@ begin
     NewIndex := -1;
   end;
 
-  if InRange(NewIndex, 0, fRowCount - 1) then
+  if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex)  then
   begin
-    if (NewIndex <> fItemIndex) then
-      fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
+    fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
     ItemIndex := NewIndex;
   end;
 end;
