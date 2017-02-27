@@ -282,7 +282,7 @@ begin
 
     Maps.Lock;
     try
-      gGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
+      gGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0, Maps[ID].CRC);
     finally
       Maps.Unlock;
     end;

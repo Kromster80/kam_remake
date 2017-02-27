@@ -103,7 +103,7 @@ type
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
     //Used externally to access raw RGBA data (e.g. by ExportAnim)
-    procedure LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+    function LoadSprites(aRT: TRXType; aAlphaShadows: Boolean): Boolean;
     procedure ExportToPNG(aRT: TRXType);
 
     property AlphaShadows: Boolean read fAlphaShadows;
@@ -799,13 +799,20 @@ end;
 
 
 //Try to load RXX first, then RX, then use Folder
-procedure TKMResSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+function TKMResSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean): Boolean;
 begin
+  Result := False;
   if aAlphaShadows and FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx')
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx');
+    Result := True;
+  end
   else
   if FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx')
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx');
+    Result := True;
+  end
   else
     Exit;
 
@@ -815,9 +822,11 @@ end;
 
 procedure TKMResSprites.ExportToPNG(aRT: TRXType);
 begin
-  LoadSprites(aRT, False);
-  fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
-  ClearTemp;
+  if LoadSprites(aRT, False) then
+  begin
+    fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
+    ClearTemp;
+  end;
 end;
 
 

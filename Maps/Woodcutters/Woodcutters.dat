@@ -1,1 +1,48 @@
-־¼×»°¢®¿ֽֿ‹›³‚††€³‚³¸€€‹››ֱ‚ֽגו־¼×»°¢®·°¿£®¶×½ֿÞגוגו־¼×»°¬÷½½°¿£®¶×½ֿßגו־¼×»°§÷¢®¡°¿£®¶×½ֿßגו־×¡®­£×°¿£®¶×½ֿßגו־¼×»°¢®¿°¬ £ ½ֿÝÝײגוגוגוגו־½×£×®¼×°§ ÷¼×ֿÝײגו־½×£×®¼×°§ ÷¼×ֿßגו־½×£×®¼×°§ ÷¼×ֿÞÜגו־½×£×®¼×°§ ÷¼×ֿÞÞגו־¼×»°§ ÷¼×ֿÞÞֿÚֿÚגו־¼×»°§ ÷¼×ֿײֿÞÛֿÚגו־¼×»°§ ÷¼×ֿײֿÞßֿÚגו־¼×»°§ ÷¼×ֿײֿÞÛֿ׳גו־¼×»°§ ÷¼×ֿײֿÞßֿ׳גו־¼×»°§ ÷¼×ֿÞÜֿÜֿײגוגו־®««°¸®½×ֿÞֿÞßßßגו־®««°¸®½×ֿÝֿÞßßßגו־®««°¸®½×ֿ״ֿÞßÞßגוגוגו־¼×»°¼»½××»ֿÛֿÚֿ־¼×»°¼»½××»ֿÞßֿÚֿ־¼×»°¼»½××»ֿÞÛֿÚֿ־¼×»°¼»½××»ֿÜֿÙגו־¼×»°¼»½××»ֿÛֿÙֿ־¼×»°¼»½××»ֿÚֿÙֿ־¼×»°¼»½××»ֿÙֿÙֿ־¼×»°¼»½××»ֿ״ֿÙגו־¼×»°¼»½××»ֿ׳ֿÙֿ־¼×»°¼»½××»ֿײֿÙֿ־¼×»°¼»½××»ֿÞßֿÙֿ־¼×»°¼»½××»ֿÞÞֿÙגו־¼×»°¼»½××»ֿÞÝֿÙֿ־¼×»°¼»½××»ֿÞÜֿÙֿ־¼×»°¼»½××»ֿÞÛֿÙֿ־¼×»°¼»½××»ֿÜֿ״גו־¼×»°¼»½××»ֿÛֿ״ֿ־¼×»°¼»½××»ֿÚֿ״ֿ־¼×»°¼»½××»ֿÛֿ׳ֿ־¼×»°¼»½××»ֿÞßֿ׳גו־¼×»°¼»½××»ֿÞÛֿ׳ֿ־¼×»°¼»½××»ֿÝֿײֿ־¼×»°¼»½××»ֿÛֿײֿ־¼×»°¼»½××»ֿÚֿײגו־¼×»°¼»½××»ֿÙֿײֿ־¼×»°¼»½××»ֿ״ֿײֿ־¼×»°¼»½××»ֿ׳ֿײֿ־¼×»°¼»½××»ֿײֿײגו־¼×»°¼»½××»ֿÞßֿײֿ־¼×»°¼»½××»ֿÞÞֿײֿ־¼×»°¼»½××»ֿÞÝֿײֿ־¼×»°¼»½××»ֿÞÜֿײגו־¼×»°¼»½××»ֿÞÛֿײֿ־¼×»°¼»½××»ֿÝֿÞßֿ־¼×»°¼»½××»ֿÜֿÞßֿ־¼×»°¼»½××»ֿÛֿÞßגוגו־¼×»°÷¡¦»ֿßֿÜֿÙגו־¼×»°÷¡¦»ֿßֿÛֿÙגו־¼×»°÷¡¦»ֿßֿÚֿÙגו־¼×»°÷¡¦»ֿÞֿÞßֿÙגו־¼×»°÷¡¦»ֿÞֿÞÛֿÙגו־¼×»°÷¡¦»ֿÞֿÞßֿײגו־¼×»°÷¡¦»ֿÞֿÞÛֿײגוגוגוְְ®†‚ƒגוגוְְ»‡†ֿ‚††€ֿ˜ֿ‚‹ֿ˜†›‡ֿ₪¢ֿ½‚„ֿ¢ֿ×‹†›€ֿ™†€ֿÛ›‡ֿ¢ƒ›†ƒ–ֿ«‚€ֿÜÚÚײֿ›ֿÞÝֱß״ֱÝßÞÝֿÞÙױÜײױÝÛגו
+!SET_MAP "data\mission\smaps\Woodcutters.map"
+!SET_MAX_PLAYER 1
+
+!SET_CURR_PLAYER 0
+!SET_HUMAN_PLAYER 0
+!ENABLE_PLAYER 0
+!SET_MAP_COLOR 229
+
+
+
+!RELEASE_HOUSE 29
+!RELEASE_HOUSE 0
+!RELEASE_HOUSE 13
+!RELEASE_HOUSE 11
+!SET_HOUSE 11 5 5
+!SET_HOUSE 9 14 5
+!SET_HOUSE 9 10 5
+!SET_HOUSE 9 14 8
+!SET_HOUSE 9 10 8
+!SET_HOUSE 13 3 9
+
+!ADD_WARE 1 1000
+!ADD_WARE 2 1000
+!ADD_WARE 7 1010
+
+
+!SET_STREET 4 5 !SET_STREET 10 5 !SET_STREET 14 5 !SET_STREET 3 6
+!SET_STREET 4 6 !SET_STREET 5 6 !SET_STREET 6 6 !SET_STREET 7 6
+!SET_STREET 8 6 !SET_STREET 9 6 !SET_STREET 10 6 !SET_STREET 11 6
+!SET_STREET 12 6 !SET_STREET 13 6 !SET_STREET 14 6 !SET_STREET 3 7
+!SET_STREET 4 7 !SET_STREET 5 7 !SET_STREET 4 8 !SET_STREET 10 8
+!SET_STREET 14 8 !SET_STREET 2 9 !SET_STREET 4 9 !SET_STREET 5 9
+!SET_STREET 6 9 !SET_STREET 7 9 !SET_STREET 8 9 !SET_STREET 9 9
+!SET_STREET 10 9 !SET_STREET 11 9 !SET_STREET 12 9 !SET_STREET 13 9
+!SET_STREET 14 9 !SET_STREET 2 10 !SET_STREET 3 10 !SET_STREET 4 10
+
+!SET_UNIT 0 3 6
+!SET_UNIT 0 4 6
+!SET_UNIT 0 5 6
+!SET_UNIT 1 10 6
+!SET_UNIT 1 14 6
+!SET_UNIT 1 10 9
+!SET_UNIT 1 14 9
+
+
+//Animals
+
+//This mission was made with KaM Remake Map Editor version 4th Multiplayer Demo r3559 at 12.07.2012 16:39:24

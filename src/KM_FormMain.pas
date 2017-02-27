@@ -83,6 +83,7 @@ type
     chkLogNetConnection: TCheckBox;
     RGLogNetPackets: TRadioGroup;
     chkLogsShowInChat: TCheckBox;
+    chkUIControlsID: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -128,10 +129,12 @@ type
     procedure RenderAreaRender(aSender: TObject);
   private
     fUpdating: Boolean;
+    procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
     {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMExitSizeMove(var Msg: TMessage) ; message WM_EXITSIZEMOVE;
+    procedure WMAppCommand(var Msg: TMessage); message WM_APPCOMMAND;
     {$ENDIF}
   public
     RenderArea: TKMRenderControl;
@@ -159,6 +162,7 @@ uses
   KM_Pics,
   KM_RenderPool,
   KM_Hand,
+  KM_ResKeys,
   KM_Log;
 
 
@@ -225,16 +229,22 @@ begin
 end;
 
 
-procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TFormMain.FormKeyUpProc(aKey: Word; aShift: TShiftState);
 begin
-  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-
-  if Key = VK_F11  then begin
+  if aKey = gResKeys[SC_DEBUG_WINDOW].Key then begin
     SHOW_DEBUG_CONTROLS := not SHOW_DEBUG_CONTROLS;
     ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
   end;
 
-  if gGameApp <> nil then gGameApp.KeyUp(Key, Shift);
+  if gGameApp <> nil then gGameApp.KeyUp(aKey, aShift);
+end;
+
+
+procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+
+  FormKeyUpProc(Key, Shift);
 end;
 
 
@@ -247,7 +257,20 @@ begin if gGameApp <> nil then gGameApp.MouseMove(Shift, X, Y); end;
 
 
 procedure TFormMain.RenderAreaMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if gGameApp <> nil then gGameApp.MouseUp(Button, Shift, X, Y); end;
+begin
+  if gGameApp <> nil then
+  begin
+    //Somehow Shift state does not contain mouse buttons ssLeft/ssRight/ssMiddle
+    if Button = mbLeft then
+      Include(Shift, ssLeft)
+    else if Button = mbRight then
+      Include(Shift, ssRight)
+    else if Button = mbMiddle then
+      Include(Shift, ssMiddle);
+
+    gGameApp.MouseUp(Button, Shift, X, Y);
+  end;
+end;
 
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
@@ -415,10 +438,13 @@ end;
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-  or (gGameApp.Game.IsMultiplayer and not MULTIPLAYER_SPEEDUP and not gGameApp.Game.IsReplay) then
+  or (gGameApp.Game.IsMultiplayer
+    and not gGameApp.Game.IsMPGameSpeedUpAllowed
+    and not MULTIPLAYER_SPEEDUP
+    and not gGameApp.Game.IsReplay) then
     Exit;
 
-  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, 1), False);
+  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, gGameApp.Game.GetNormalGameSpeed), False);
 end;
 
 
@@ -531,6 +557,7 @@ begin
   //UI
   SHOW_CONTROLS_OVERLAY := chkUIControlsBounds.Checked;
   SHOW_TEXT_OUTLINES := chkUITextBounds.Checked;
+  SHOW_CONTROLS_ID := chkUIControlsID.Checked;
 
   //Graphics
   if AllowDebugChange then
@@ -708,13 +735,51 @@ begin
   else
     inherited;
 end;
-{$ENDIF}
+
+
+// Handle extra mouse buttons (forward/backward)
+procedure TFormMain.WMAppCommand(var Msg: TMessage);
+  // Parse DwKeys flags to get ShiftState
+  function GetShiftState(aDwKeys: Word): TShiftState;
+  begin
+    Result := [];
+    if (aDwKeys and MK_LBUTTON) <> 0 then
+      Include(Result, ssLeft)
+    else if (aDwKeys and MK_RBUTTON) <> 0 then
+      Include(Result, ssRight)
+    else if (aDwKeys and MK_MBUTTON) <> 0 then
+      Include(Result, ssMiddle)
+    else if (aDwKeys and MK_CONTROL) <> 0 then
+      Include(Result, ssCtrl)
+    else if (aDwKeys and MK_SHIFT) <> 0 then
+      Include(Result, ssShift);
+  end;
+
+var dwKeys,uDevice,cmd: Word;
+  ShiftState: TShiftState;
+begin
+  ShiftState := [];
+  uDevice := GET_DEVICE_LPARAM(Msg.lParam);
+  if uDevice = FAPPCOMMAND_MOUSE then
+  begin
+    dwKeys := GET_KEYSTATE_LPARAM(Msg.lParam);
+    ShiftState := GetShiftState(dwKeys);
+    cmd := GET_APPCOMMAND_LPARAM(Msg.lParam);
+    case cmd of
+       APPCOMMAND_BROWSER_FORWARD:  FormKeyUpProc(VK_XBUTTON1, ShiftState);
+       APPCOMMAND_BROWSER_BACKWARD: FormKeyUpProc(VK_XBUTTON2, ShiftState);
+       else
+         inherited;
+     end;
+  end;
+end;
 
 
 procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
 begin
   fMain.Move(GetWindowParams);
 end;
+{$ENDIF}
 
 
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);

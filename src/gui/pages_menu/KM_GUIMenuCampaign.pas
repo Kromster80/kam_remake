@@ -102,7 +102,7 @@ begin
     Image_ScrollClose.OnClick := Scroll_Toggle;
     Image_ScrollClose.HighlightOnMouseOver := True;
 
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 46, 100, 20, NO_TEXT, fnt_Outline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 20, 46, 325, 20, NO_TEXT, fnt_Outline, taCenter);
 
     Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 325, 310, NO_TEXT, fnt_Antiqua, taLeft);
     Label_CampaignText.AutoWrap := true;

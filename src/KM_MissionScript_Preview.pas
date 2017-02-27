@@ -170,7 +170,9 @@ begin
                           fHandPreview[P[0]].CanAI := True;
     ct_SetRoad,
     ct_SetField,
-    ct_SetWinefield:    SetOwner(P[0]+1, P[1]+1);
+    ct_SetWinefield,
+    ct_SetFieldStaged,
+    ct_SetWinefieldStaged: SetOwner(P[0]+1, P[1]+1);
     ct_SetUnit:         if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
                         begin
                           SetOwner(P[1]+1, P[2]+1);

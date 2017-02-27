@@ -57,7 +57,7 @@ type
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
-    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server
+    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server. Also used in MapEd
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFileSP: UnicodeString; //Relative pathname to mission we are playing, so it gets saved to crashreport. SP only, see GetMissionFile.
@@ -140,7 +140,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
-    procedure SetDefaultMPGameSpeed;
+    function GetNormalGameSpeed: Single;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
@@ -525,7 +525,7 @@ begin
   fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
-  SetDefaultMPGameSpeed;
+  SetGameSpeed(GetNormalGameSpeed, False);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -914,8 +914,7 @@ begin
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
   FreeAndNil(fMissionParser);
 
-  fGameName := TruncateExt(ExtractFileName(aPathName));
-
+  // Update GameSettings for saved maps positions in list on MapEd menu
   if DetermineMapFolder(GetFileDirName(ExtractFileDir(aPathName)), MapFolder) then
   begin
     // Update GameSettings for saved maps positions in list on MapEd menu
@@ -929,10 +928,15 @@ begin
                     gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
                     gGameApp.GameSettings.MenuMapEdMapType := 1;
+                    // Update favorite map CRC if we resave favourite map with the same name
+                    if fGameName = MapInfo.FileName then
+                      gGameApp.GameSettings.FavouriteMaps.Replace(fGameMapCRC, MapInfo.CRC);
                   end;
     end;
     MapInfo.Free;
   end;
+
+  fGameName := TruncateExt(ExtractFileName(aPathName));
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
@@ -1179,12 +1183,16 @@ begin
 end;
 
 
-procedure TKMGame.SetDefaultMPGameSpeed;
+function TKMGame.GetNormalGameSpeed: Single;
 begin
-  if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT, False)
-  else
-    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+  if IsMultiplayer then
+  begin
+    if IsPeaceTime then
+      Result := fGameOptions.SpeedPT
+    else
+      Result := fGameOptions.SpeedAfterPT;
+  end else
+    Result := 1;
 end;
 
 
@@ -1201,9 +1209,9 @@ begin
     Exit;
   end;
 
-  //Make the speed toggle between 1 and desired value
+  //Make the speed toggle between normal speed and desired value
   if (aSpeed = fGameSpeed) and aToggle then
-    fGameSpeed := 1
+    fGameSpeed := GetNormalGameSpeed
   else
     fGameSpeed := aSpeed;
 
@@ -1227,6 +1235,9 @@ begin
   //Need to adjust the delay immediately in MP
   if IsMultiplayer and (fGameInputProcess <> nil) then
     TGameInputProcess_Multi(fGameInputProcess).AdjustDelay(fGameSpeed);
+
+  if Assigned(gGameApp.OnGameSpeedChange) then
+    gGameApp.OnGameSpeedChange(fGameSpeed);
 end;
 
 

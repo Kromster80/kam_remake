@@ -1,1 +1,40 @@
-־¼×»°¢®¿ֽֿ‹›³‚††€³‚³¼›€¼›„ֱ‚ֽגו־¼×»°¢®·°¿£®¶×½ֿÞגוגו־¼×»°¬÷½½°¿£®¶×½ֿßגו־¼×»°§÷¢®¡°¿£®¶×½ֿßגו־×¡®­£×°¿£®¶×½ֿßגו־¼×»°¢®¿°¬ £ ½ֿÝÝײגוגוגוגו־½×£×®¼×°§ ÷¼×ֿÞßגו־½×£×®¼×°§ ÷¼×ֿÞÚגו־½×£×®¼×°§ ÷¼×ֿÞÛגו־½×£×®¼×°§ ÷¼×ֿÞÜגו־½×£×®¼×°§ ÷¼×ֿÞÝגו־½×£×®¼×°§ ÷¼×ֿÞÞגו־½×£×®¼×°§ ÷¼×ֿÞ׳גו־½×£×®¼×°§ ÷¼×ֿÞ״גו־½×£×®¼×°§ ÷¼×ֿÞײגו־½×£×®¼×°§ ÷¼×ֿײגו־¼×»°§ ÷¼×ֿÞÞֿÞײֿÞÛגו־¼×»°§ ÷¼×ֿÞÛֿÞÛֿÞÛגוגוגוגו־¼×»°¼»½××»ֿÞÛֿÞÛֿ־¼×»°¼»½××»ֿÞ׳ֿÞÛֿ־¼×»°¼»½××»ֿÞÛֿÞÚֿ־¼×»°¼»½××»ֿÞÚֿÞÚגו־¼×»°¼»½××»ֿÞÙֿÞÚֿ־¼×»°¼»½××»ֿÞ״ֿÞÚֿ־¼×»°¼»½××»ֿÞ׳ֿÞÚגוגו־¼×»°÷¡¦»ֿÞßֿÞÛֿÞÚגו־¼×»°÷¡¦»ֿßֿÞ׳ֿÞÚגו־¼×»°÷¡¦»ֿßֿÞ״ֿÞÚגו־¼×»°÷¡¦»ֿßֿÞײֿÞÚגו־¼×»°÷¡¦»ֿßֿÞײֿÞÙגו־¼×»°÷¡¦»ֿßֿÞ׳ֿÞÙגו־¼×»°÷¡¦»ֿßֿÞ״ֿÞÙגוגוגוְְ®†‚ƒגוגוְְ»‡†ֿ‚††€ֿ˜ֿ‚‹ֿ˜†›‡ֿ₪¢ֿ½‚„ֿ¢ֿ×‹†›€ֿ™†€ֿÛ›‡ֿ¢ƒ›†ƒ–ֿ«‚€ֿÜÚÚײֿ›ֿÜÞֱß״ֱÝßÞÝֿÞÛױÚßױÛßגו
+!SET_MAP "data\mission\smaps\StoneStuck.map"
+!SET_MAX_PLAYER 1
+
+!SET_CURR_PLAYER 0
+!SET_HUMAN_PLAYER 0
+!ENABLE_PLAYER 0
+!SET_MAP_COLOR 229
+
+
+
+!RELEASE_HOUSE 10
+!RELEASE_HOUSE 15
+!RELEASE_HOUSE 14
+!RELEASE_HOUSE 13
+!RELEASE_HOUSE 12
+!RELEASE_HOUSE 11
+!RELEASE_HOUSE 18
+!RELEASE_HOUSE 17
+!RELEASE_HOUSE 19
+!RELEASE_HOUSE 9
+!SET_HOUSE 11 19 14
+!SET_HOUSE 14 14 14
+
+
+
+!SET_STREET 14 14 !SET_STREET 18 14 !SET_STREET 14 15 !SET_STREET 15 15
+!SET_STREET 16 15 !SET_STREET 17 15 !SET_STREET 18 15
+
+!SET_UNIT 10 14 15
+!SET_UNIT 0 18 15
+!SET_UNIT 0 17 15
+!SET_UNIT 0 19 15
+!SET_UNIT 0 19 16
+!SET_UNIT 0 18 16
+!SET_UNIT 0 17 16
+
+
+//Animals
+
+//This mission was made with KaM Remake Map Editor version 4th Multiplayer Demo r3559 at 31.07.2012 14:50:40

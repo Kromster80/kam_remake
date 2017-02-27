@@ -31,6 +31,7 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
+    property GuiHouses: TKMMapEdTownHouses read fGuiHouses;
     property GuiDefence: TKMMapEdTownDefence read fGuiDefence;
     property GuiOffence: TKMMapEdTownOffence read fGuiOffence;
 
@@ -41,6 +42,7 @@ type
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
     procedure UpdateState;
+    procedure UpdateStateIdle;
   end;
 
 
@@ -209,6 +211,13 @@ begin
   fGuiUnits.UpdateState;
   fGuiScript.UpdateState;
   fGuiDefence.UpdateState;
+end;
+
+
+
+procedure TKMMapEdTown.UpdateStateIdle;
+begin
+  fGuiHouses.UpdateStateIdle;
 end;
 
 

@@ -26,8 +26,12 @@ type
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
 
-    fLocalToNetPlayers: array[1..MAX_LOBBY_SLOTS] of Integer;
-    fNetPlayersToLocal: array[1..MAX_LOBBY_SLOTS] of Integer;
+    fLocalToNetPlayers: array [1..MAX_LOBBY_SLOTS] of Integer;
+    fNetPlayersToLocal: array [1..MAX_LOBBY_SLOTS] of Integer;
+
+    fDropBoxPlayers_LastItemIndex: Integer;
+
+    fMapsSortUpdateNeeded: Boolean;
 
     procedure UpdateMappings;
     procedure UpdateSpectatorDivide;
@@ -60,17 +64,23 @@ type
     procedure MapColumnClick(aValue: Integer);
     procedure MapTypeChanged(Sender: TObject);
     procedure InitDropColMapsList;
+    procedure MapList_OnShow(Sender: TObject);
     procedure UpdateMapList;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
+    procedure MapList_ScanComplete(Sender: TObject);
     procedure RefreshMapList(aJumpToSelected: Boolean);
     procedure RefreshSaveList(aJumpToSelected: Boolean);
     function GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
     procedure MapChange(Sender: TObject);
-    function DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
-    procedure PostKeyDown(Sender: TObject; Key: Word);
+    function DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+    function DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+    procedure DropBoxPlayers_Show(Sender: TObject);
+
+    function PostKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 
+    function SlotsAvailable: Byte;
     procedure MinimapLocClick(aValue: Integer);
 
     procedure Lobby_OnDisconnect(const aData: UnicodeString);
@@ -116,7 +126,7 @@ type
         Label_Spectators: TKMLabel;
         Image_HostStar: TKMImage;
         Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
-        DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
+        DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropColumns;
         Label_LobbyPlayer: array [1..MAX_LOBBY_SLOTS] of TKMLabel;
         DropBox_LobbyLoc: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
         DropBox_LobbyTeam: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
@@ -163,7 +173,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, 
+  KM_CommonTypes, KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
 
 
@@ -176,10 +186,14 @@ begin
   OnEscKeyDown := EscKeyDown;
   OnKeyDown := KeyDown;
 
+  fMapsSortUpdateNeeded := False;
+
   fMinimap := TKMMinimap.Create(True, True);
 
-  fMapsMP := TKMapsCollection.Create([mfMP, mfDL]);
+  fMapsMP := TKMapsCollection.Create([mfMP, mfDL], smByNameDesc, True);
   fSavesMP := TKMSavesCollection.Create;
+
+  fDropBoxPlayers_LastItemIndex := -1;
 
   CreateControls(aParent);
   CreateChatMenu(aParent);
@@ -311,10 +325,26 @@ end;
 
 
 procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
+  function MakeRow(const aCaption: array of string; aIndex: Integer): TKMListRow;
+  var I: Integer;
+  begin
+    Result := MakeListRow(aCaption, aIndex);
+    for I := Low(aCaption) to High(aCaption) do
+    begin
+      Result.Cells[I].HighlightOnMouseOver := True;
+      if I = 1 then
+      begin
+        Result.Cells[I].Color := clLobbyOpponentAll;
+        Result.Cells[I].HighlightColor := clLobbyOpponentAllHL;
+      end
+      else
+        Result.Cells[I].HighlightColor := icGray;
+    end;
+  end;
 const
   CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
 var
-  I, K, OffY: Integer;
+  I, K, OffY, DropWidth, TxtWidth: Integer;
 begin
   Panel_Lobby := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Lobby.AnchorsStretch;
@@ -361,20 +391,26 @@ begin
         Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
         Label_LobbyPlayer[I].Hide;
 
-        DropBox_LobbyPlayerSlot[I] := TKMDropList.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu);
+        TxtWidth := gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings(['All', 'All', 'All']); //Todo translate
+        DropWidth := Max(150, 110 + TxtWidth);
+        DropBox_LobbyPlayerSlot[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu, False);
+        DropBox_LobbyPlayerSlot[I].DropWidth := DropWidth;
+        DropBox_LobbyPlayerSlot[I].SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, 100 + Max(0, 40 - TxtWidth)], [True, False]);
         if I <= MAX_LOBBY_PLAYERS then
         begin
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate //Player can join into this slot
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate  //Closed, nobody can join it
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_AI_PLAYER], 'All'], I)); //Todo translate  //This slot is an AI player
         end
         else
         begin
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_OPEN]);
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]);
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate
         end;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
+        DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropBoxPlayers_CellClick;
+        DropBox_LobbyPlayerSlot[I].OnShow := DropBoxPlayers_Show;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
@@ -433,10 +469,11 @@ begin
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
       InitDropColMapsList;
+      DropCol_LobbyMaps.OnShow := MapList_OnShow;
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;
-      DropCol_LobbyMaps.List.OnCellClick := DropColMapsCellClick;
+      DropCol_LobbyMaps.List.OnCellClick := DropBoxMaps_CellClick;
 
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
@@ -1093,6 +1130,79 @@ begin
 end;
 
 
+function TKMMenuLobby.SlotsAvailable: Byte;
+begin
+  Result := 0;
+  if (fNetworking.MapInfo <> nil) and fNetworking.MapInfo.IsValid then
+    Result := Max(0, fNetworking.MapInfo.LocCount - fNetworking.NetPlayers.GetConnectedPlayersCount - fNetworking.NetPlayers.GetAICount)
+  else if (fNetworking.SaveInfo <> nil) and fNetworking.SaveInfo.IsValid then
+    Result := Max(0, fNetworking.SaveInfo.Info.HumanCount - fNetworking.NetPlayers.GetConnectedPlayersCount - fNetworking.NetPlayers.GetAICount);
+end;
+
+
+procedure TKMMenuLobby.DropBoxPlayers_Show(Sender: TObject);
+begin
+  if Sender is TKMDropColumns then
+  begin
+    fDropBoxPlayers_LastItemIndex := TKMDropColumns(Sender).ItemIndex;
+  end;
+end;
+
+
+function TKMMenuLobby.DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+var I, J, NetI: Integer;
+    SlotsToChange, SlotsChanged: Byte;
+begin
+  Result := False;
+
+  if X = 1 then
+  begin
+    SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
+    SlotsToChange := SlotsAvailable;
+
+    for I := 1 to MAX_LOBBY_SLOTS do
+    begin
+      if Sender = DropBox_LobbyPlayerSlot[I].List then
+      begin
+        DropBox_LobbyPlayerSlot[I].CloseList; //Close opened dropbox manually
+
+        //We have to revert ItemIndex to its previous value, because its value was already switched to AI on MouseDown
+        //but we are not sure yet about what value should be there, we will set it properly later on
+        if (Y = 2) and (DropBox_LobbyPlayerSlot[I].ItemIndex = 2)
+          and (fDropBoxPlayers_LastItemIndex <> -1) then
+          DropBox_LobbyPlayerSlot[I].ItemIndex := fDropBoxPlayers_LastItemIndex;
+      end;
+    end;
+
+    for I := 1 to MAX_LOBBY_SLOTS do
+    begin
+      if (Y = 2) and (SlotsChanged >= SlotsToChange) then //Do not add more AI, then we have slots available
+        Break;
+
+      case Y of
+        0:    J := MAX_LOBBY_SLOTS + 1 - I; // we must Open slots in reverse order
+        1, 2: J := I;                       // Closed and AI slots - in straight order
+        else  J := I;
+      end;
+
+      NetI := fLocalToNetPlayers[J];
+      if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
+      begin
+        //Do not count this slot as changed, if it already has AI value
+        if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
+          Inc(SlotsChanged);
+        DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
+        PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+      end;
+    end;
+
+    // Do not propagate click event further, because
+    // we do not want provoke OnChange event handler invokation, we have handled everything here
+    Result := True;
+  end;
+end;
+
+
 //Try to change players setup, Networking will check if it can be done under current
 //conditions immediately and reverts the change without disturbing Host.
 //If the change is possible Networking will send query to the Host.
@@ -1503,7 +1613,7 @@ begin
     2,  //Co-op Map
     3:  //Special map Map
         begin
-          fMapsMP.Refresh(MapList_ScanUpdate);
+          fMapsMP.Refresh(MapList_ScanUpdate, MapList_ScanComplete);
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
           InitDropColMapsList;
         end;
@@ -1569,6 +1679,20 @@ begin
     RefreshSaveList(False);
   if Sender = fMapsMP then
     RefreshMapList(False);
+end;
+
+
+procedure TKMMenuLobby.MapList_ScanComplete(Sender: TObject);
+var MapsCRCArray: TKMCardinalArray;
+    I: Integer;
+begin
+  if (Sender = fMapsMP) and (fMapsMP.Count > 0) then
+  begin
+    SetLength(MapsCRCArray, fMapsMP.Count);
+    for I := 0 to fMapsMP.Count - 1 do
+      MapsCRCArray[I] := fMapsMP[I].CRC;
+    gGameApp.GameSettings.FavouriteMaps.RemoveMissing(MapsCRCArray);
+  end;
 end;
 
 
@@ -1718,6 +1842,20 @@ begin
 end;
 
 
+procedure TKMMenuLobby.MapList_OnShow(Sender: TObject);
+begin
+  if fMapsSortUpdateNeeded then
+  begin
+    //Update sort
+    if Radio_LobbyMapType.ItemIndex < 4 then
+      fMapsMP.Sort(fMapsMP.SortMethod, MapList_SortUpdate)
+    else
+      fSavesMP.Sort(fSavesMP.SortMethod, MapList_SortUpdate);
+    fMapsSortUpdateNeeded := False;
+  end;
+end;
+
+
 procedure TKMMenuLobby.MapColumnClick(aValue: Integer);
 var
   SM: TMapsSortMethod;
@@ -1776,7 +1914,7 @@ begin
 end;
 
 
-function TKMMenuLobby.DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
+function TKMMenuLobby.DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I: Integer;
 begin
   Result := False;
@@ -1787,15 +1925,17 @@ begin
     try
       fMapsMP[I].IsFavourite := not fMapsMP[I].IsFavourite;
       if fMapsMP[I].IsFavourite then
-        gGameApp.GameSettings.AddFavouriteMap(fMapsMP[I].CRC)
+        gGameApp.GameSettings.FavouriteMaps.Add(fMapsMP[I].CRC)
       else
-        gGameApp.GameSettings.RemoveFavouriteMap(fMapsMP[I].CRC);
+        gGameApp.GameSettings.FavouriteMaps.Remove(fMapsMP[I].CRC);
 
       //Update pic
       DropCol_LobbyMaps.Item[Y].Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+      fMapsSortUpdateNeeded := True; //Ask for resort on next list show
     finally
       fMapsMP.Unlock;
     end;
+    MapChange(nil); //Update Map
     Result := True; //we handle mouse click here, and do want to propagate it further
   end;
 end;
@@ -1961,11 +2101,12 @@ end;
 
 
 //Post what user has typed
-procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
+function TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 var
   ChatMessage: UnicodeString;
   RecipientNetIndex: Integer;
 begin
+  Result := False;
   if not IsKeyEvent_Return_Handled(Self, Key)
     or (Trim(Edit_LobbyPost.Text) = '')
     or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
@@ -1999,6 +2140,7 @@ begin
       fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
   end else
     fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
+  Result := True;
   Edit_LobbyPost.Text := '';
 end;
 

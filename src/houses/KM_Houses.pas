@@ -6,7 +6,7 @@ uses
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain, KM_ResHouses, KM_ResWares;
 
-  //Houses are ruled by units, hence they don't know about TKMUnits
+//Houses are ruled by units, hence they don't know about  TKMUnits
 
 //Everything related to houses is here
 type
@@ -30,7 +30,7 @@ type
     property State: THouseState read fHouseState write SetHouseState;
     property SubAction: THouseActionSet read fSubAction;
     procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream); 
   end;
 
 
@@ -468,6 +468,7 @@ end;
 
 
 //Used by MapEditor
+//Set house to new position
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
   procedure UpdateRallyPoint(aIsRallyPointSet: Boolean);
   begin
@@ -490,7 +491,7 @@ begin
   Assert(gGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, PLAYER_NONE);
-  gTerrain.RemRoad(Entrance);
+
   if gMySpectator.Hand.CanAddHousePlan(aPos, HouseType) then
   begin
     IsRallyPointSet := False;
@@ -500,14 +501,15 @@ begin
     else if (Self is TKMHouseWoodcutters) then
       IsRallyPointSet := TKMHouseWoodcutters(Self).IsCuttingPointSet;
 
+    gTerrain.RemRoad(GetEntrance);
     fPosition.X := aPos.X - gRes.Houses[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
 
     //Update rally/cutting point position for barracks/woodcutters after change fPosition
     UpdateRallyPoint(IsRallyPointSet);
   end;
-  gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
-  gTerrain.SetField(Entrance, fOwner, ft_Road);
+
+  gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner); // Update terrain tiles for house
 
   //Do not remove all snow if house is moved from snow to snow
   WasOnSnow := fIsOnSnow;
