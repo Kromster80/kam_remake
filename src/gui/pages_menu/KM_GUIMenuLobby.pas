@@ -1153,7 +1153,7 @@ begin
         //We have to revert ItemIndex to its previous value, because its value was already switched to AI on MouseDown
         //but we are not sure yet about what value should be there, we will set it properly later on
         if (Y = 2) and (DropBox_LobbyPlayerSlot[I].ItemIndex = 2) then
-          DropBox_LobbyPlayerSlot[I].RevertLastIndexChange;
+          DropBox_LobbyPlayerSlot[I].RevertLastItemIndexChange;
       end;
     end;
 

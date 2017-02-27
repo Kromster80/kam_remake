@@ -906,7 +906,7 @@ type
     procedure SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
-    procedure RevertLastIndexChange;
+    procedure RevertLastItemIndexChange;
     function GetVisibleRows: Integer;
     function GetVisibleRowsExact: Single;
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
@@ -1054,7 +1054,7 @@ type
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word; aColumnsToShowWhenListHidden: array of Boolean); overload;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property DropWidth: Integer read fDropWidth write SetDropWidth;
-    procedure RevertLastIndexChange;
+    procedure RevertLastItemIndexChange;
 
     procedure Paint; override;
   end;
@@ -5118,7 +5118,7 @@ begin
 end;
 
 
-procedure TKMColumnBox.RevertLastIndexChange;
+procedure TKMColumnBox.RevertLastItemIndexChange;
 begin
   fItemIndex := fPrevItemIndex;
 end;
@@ -6077,9 +6077,9 @@ begin
 end;
 
 
-procedure TKMDropColumns.RevertLastIndexChange;
+procedure TKMDropColumns.RevertLastItemIndexChange;
 begin
-  fList.RevertLastIndexChange;
+  fList.RevertLastItemIndexChange;
 end;
 
 
