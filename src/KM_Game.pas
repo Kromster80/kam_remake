@@ -140,8 +140,9 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
+    function GetDefaultMPGameSpeed: Single;
     procedure SetDefaultMPGameSpeed(aToggle: Boolean = False);
-    procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
+    procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean; aToggleSpeed: Single = 1);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
     procedure UpdateMultiplayerTeams;
@@ -1183,6 +1184,15 @@ begin
 end;
 
 
+function TKMGame.GetDefaultMPGameSpeed: Single;
+begin
+  if IsPeaceTime then
+    Result := fGameOptions.SpeedPT
+  else
+    Result := fGameOptions.SpeedAfterPT;
+end;
+
+
 procedure TKMGame.SetDefaultMPGameSpeed(aToggle: Boolean = False);
 begin
   if IsPeaceTime then
@@ -1192,7 +1202,7 @@ begin
 end;
 
 
-procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean);
+procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean; aToggleSpeed: Single = 1);
 begin
   Assert(aSpeed > 0);
 
@@ -1205,9 +1215,9 @@ begin
     Exit;
   end;
 
-  //Make the speed toggle between 1 and desired value
+  //Make the speed toggle between aToggleSpeed (1 by default) and desired value
   if (aSpeed = fGameSpeed) and aToggle then
-    fGameSpeed := 1
+    fGameSpeed := aToggleSpeed
   else
     fGameSpeed := aSpeed;
 
@@ -1231,6 +1241,9 @@ begin
   //Need to adjust the delay immediately in MP
   if IsMultiplayer and (fGameInputProcess <> nil) then
     TGameInputProcess_Multi(fGameInputProcess).AdjustDelay(fGameSpeed);
+
+  if Assigned(gGameApp.OnGameSpeedChange) then
+    gGameApp.OnGameSpeedChange(fGameSpeed);
 end;
 
 
