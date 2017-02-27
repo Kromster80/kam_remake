@@ -22,7 +22,7 @@ Bugs:
  +	Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
- +  MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
+ +	MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
  
 
 	Server welcome message should support Unicode
@@ -100,14 +100,13 @@ Improvements:
  +		Ability to specify the title of the mission separately for each campaign rather than globally for all
  +		Added logs customization on F11 debug menu
  +		Allow to save and use last entered password for MP lobby
- +    Added animation for mission nodes on Campaign page
- +    Added different shortcuts in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm
- +    Added hotkey on multiplayer game page: F5 refreshes server list
- +    In menu is possible to focus next edit controls with Tab shortcut
- +    Added popup windows in menu on MapEd page and Load save page when Delete map/save game
- +    Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
- +    Do not show owner of corn/wine tile on minimap
- +    
+ +		Added animation for mission nodes on Campaign page
+ +		Added different shortcuts in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm
+ +		Added hotkey on multiplayer game page: F5 refreshes server list
+ +		In menu is possible to focus next edit controls with Tab shortcut
+ +		Added popup windows in menu on MapEd page and Load save page when Delete map/save game
+ +		Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
+ +		Do not show owner of corn/wine tile on minimap
 
  
  +	L	MapEd: Eyedropper tool like in Photoshop to select the type of tile under the cursor
@@ -117,9 +116,10 @@ Improvements:
  +		MapEd: Set default 'center screen' position of all players in the center of screen for new map
  +		MapEd: Ability to change owner for objects
  +	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
- +  L	MapEd: Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
- +    MapEd: Its possible to add many units at once by hold LMB and mouse move (mouse drag)
- +    MapEd: Added new layer - show tile owner (for corn/wine/roads)
+ +	L	MapEd: Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
+ +		MapEd: Its possible to add many units at once by hold LMB and mouse move (mouse drag)
+ +		MapEd: Added new layer - show tile owner (for corn/wine/roads)
+ +	L	CampEd: Allow to show/hide flags/nodes numbers
  
  +		Dynamic scripts: added 32 utility functions. Check wiki for details
  
