@@ -303,7 +303,7 @@ uses
 function TKMSettledUnit.FindHome: Boolean;
 var H: TKMHouse;
 begin
-  Result:=false;
+  Result := False;
   H := gHands[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
   if H <> nil then
   begin
