@@ -1854,7 +1854,7 @@ end;
 
 
 procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: TKMHandIndex; aFieldType: TFieldType; aStage: Byte = 0; aRandomAge: Boolean = False);
-  procedure SetCorn(aFieldAge, aTerrain: Byte; aObj: Integer = -1);
+  procedure SetLand(aFieldAge, aTerrain: Byte; aObj: Integer = -1);
   begin
     Land[Loc.Y, Loc.X].FieldAge := aFieldAge;
 
@@ -1891,34 +1891,34 @@ begin
       Land[Loc.Y,Loc.X].CornOrWine := 1;
 
     case aStage of
-      0:  SetCorn(0, 62, GetObj); //empty field
+      0:  SetLand(0, 62, GetObj); //empty field
 
       1:  begin //Sow corn
             FieldAge := 1 + Ord(aRandomAge) * KaMRandom((CORN_AGE_1 - 1) div 2);
-            SetCorn(FieldAge, 61, GetObj);
+            SetLand(FieldAge, 61, GetObj);
           end;
 
       2:  begin //Young seedings
             FieldAge := CORN_AGE_1 + Ord(aRandomAge) * KaMRandom((CORN_AGE_2 - CORN_AGE_1) div 2);
-            SetCorn(FieldAge, 59, 255);
+            SetLand(FieldAge, 59, 255);
           end;
 
       3:  begin //Seedings
             FieldAge := CORN_AGE_2 + Ord(aRandomAge) * KaMRandom((CORN_AGE_3 - CORN_AGE_2) div 2);
-            SetCorn(FieldAge, 60, 255);
+            SetLand(FieldAge, 60, 255);
           end;
 
       4:  begin //Smaller greenish Corn
             FieldAge := CORN_AGE_3 + Ord(aRandomAge) * KaMRandom((CORN_AGE_FULL - CORN_AGE_3) div 2);
-            SetCorn(FieldAge, 60, 58);
+            SetLand(FieldAge, 60, 58);
           end;
 
       5:  begin //Full-grown Corn
             FieldAge := CORN_AGE_FULL - 1; //-1 because it is increased in update state, otherwise it wouldn't be noticed
-            SetCorn(FieldAge, 60, 59);
+            SetLand(FieldAge, 60, 59);
           end;
 
-      6:  SetCorn(0, 63, 255); //Corn has been cut
+      6:  SetLand(0, 63, 255); //Corn has been cut
     end;
   end;
 
@@ -1928,28 +1928,25 @@ begin
     if fMapEditor then
       Land[Loc.Y,Loc.X].CornOrWine := 2;
 
-    Land[Loc.Y,Loc.X].Terrain  := 55;
-    Land[Loc.Y,Loc.X].Rotation := 0;
-
     case aStage of
       0:  begin //Set new fruits
-            Land[Loc.Y,Loc.X].Obj := 54;
-            Land[Loc.Y,Loc.X].FieldAge := 1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - 1) div 2);
+            FieldAge := 1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - 1) div 2);
+            SetLand(FieldAge, 55, 54);
           end;
 
       1:  begin //Fruits start to grow
-            Land[Loc.Y,Loc.X].Obj := 55;
-            Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - WINE_AGE_1) div 2);
+            FieldAge := WINE_AGE_1 + Ord(aRandomAge) * KaMRandom((WINE_AGE_1 - WINE_AGE_1) div 2);
+            SetLand(FieldAge, 55, 55);
           end;
 
       2:  begin //Fruits continue to grow
-            Land[Loc.Y,Loc.X].Obj := 56;
-            Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_2 + Ord(aRandomAge) * KaMRandom((WINE_AGE_FULL - WINE_AGE_2) div 2);
+            FieldAge := WINE_AGE_2 + Ord(aRandomAge) * KaMRandom((WINE_AGE_FULL - WINE_AGE_2) div 2);
+            SetLand(FieldAge, 55, 56);
           end;
 
       3:  begin //Ready to be harvested
-            Land[Loc.Y,Loc.X].Obj := 57;
-            Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL - 1;
+            FieldAge := WINE_AGE_FULL - 1; //-1 because it is increased in update state, otherwise it wouldn't be noticed
+            SetLand(FieldAge, 55, 57);
           end;
     end;
   end;
