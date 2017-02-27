@@ -126,6 +126,7 @@ type
     procedure MPPlayMoreClick(Sender: TObject);
     procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
+    function Replay_KeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     procedure ReturnToLobbyClick(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure Allies_Mute(Sender: TObject);
@@ -1005,6 +1006,8 @@ begin
     Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 19, 160, 20, fnt_Metal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
+    Dropbox_ReplayFOW.List.AutoFocusable := False;
+    Dropbox_ReplayFOW.List.OnKeyUp := Replay_KeyDown;
     Dropbox_ReplayFOW.List.OnDoubleClick := Replay_ListDoubleClick;
  end;
 
@@ -1833,6 +1836,19 @@ begin
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+end;
+
+
+function TKMGamePlayInterface.Replay_KeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False;
+  case Key of
+    VK_ESCAPE:  if Sender = Dropbox_ReplayFOW.List then
+                begin
+                  TKMListBox(Sender).Unfocus;
+                  Result := True;
+                end;
+  end;
 end;
 
 

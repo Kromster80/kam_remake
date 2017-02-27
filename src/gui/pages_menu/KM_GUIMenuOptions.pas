@@ -33,7 +33,7 @@ type
     procedure RefreshResolutions;
     procedure KeysClick(Sender: TObject);
     procedure KeysRefreshList;
-    function KeysUpdate(Key: Word; Shift: TShiftState): Boolean;
+    function KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
   protected
     Panel_Options: TKMPanel;
       Panel_Options_GFX: TKMPanel;
@@ -503,7 +503,7 @@ begin
     PopUp_OptionsKeys.Hide;
 
   if (Sender = Button_OptionsKeysClear) then
-    KeysUpdate(0, []);
+    KeysUpdate(Button_OptionsKeysClear, 0, []);
 
   if Sender = Button_OptionsKeysReset then
   begin
@@ -543,7 +543,7 @@ begin
 end;
 
 
-function TKMMenuOptions.KeysUpdate(Key: Word; Shift: TShiftState): Boolean;
+function TKMMenuOptions.KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 var
   id: Integer;
 begin
