@@ -848,7 +848,6 @@ begin
       if Obj is TKMHouse then
         fDragHouseGrabPntAdjustment := KMVectorDiff(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
       fDraggingObject := True;
-      gRes.Cursors.Cursor := kmc_Drag;
     end;
   end;
 
@@ -897,11 +896,13 @@ begin
     Exit;
   end;
 
-  if fDraggingObject and not (ssLeft in Shift) then
-  begin
-    ResetDragObject;
-    Exit;
-  end;
+  if fDraggingObject then
+    if not (ssLeft in Shift) then
+    begin
+      ResetDragObject;
+      Exit;
+    end else
+      gRes.Cursors.Cursor := kmc_Drag;
 
   fMyControls.MouseMove(X,Y,Shift);
 
