@@ -261,7 +261,8 @@ begin
   if Application.Active then Exit;
 
   //Prevent the game window from being in the way by minimizing when alt-tabbing
-  if (fMainSettings <> nil) and fMainSettings.FullScreen then
+  if (fMainSettings <> nil) and fMainSettings.FullScreen
+    and ((Screen.MonitorCount = 1) or (gGameApp = nil) or gGameApp.GameSettings.SecondMonitorApplyRestrFullScr) then
   begin
     {$IFDEF MSWindows}
       ClipCursor(nil); //Remove all cursor clipping just in case Windows doesn't automatically
