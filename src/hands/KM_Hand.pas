@@ -125,9 +125,8 @@ type
     function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aCheckInfluence: Boolean): Boolean;
 
     procedure AddRoadToList(aLoc: TKMPoint);
-    //procedure AddRoadConnect(LocA,LocB: TKMPoint);
-    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
-    procedure AddFieldStaged(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte);
+    procedure AddRoad(aLoc: TKMPoint);
+    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound: Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
@@ -503,13 +502,13 @@ begin
 end;
 
 
-procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+procedure TKMHand.AddRoad(aLoc: TKMPoint);
 begin
-  gTerrain.SetField(aLoc, fHandIndex, aFieldType);
+  gTerrain.SetRoad(aLoc, fHandIndex);
 end;
 
 
-procedure TKMHand.AddFieldStaged(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte);
+procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
 var IsFieldSet: Boolean;
 begin
   IsFieldSet := False;
@@ -518,20 +517,20 @@ begin
   begin
     if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 58, 59) then
     begin
-      gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
       IsFieldSet := True;
     end;
   end else if (aFieldType = ft_Wine) and not gTerrain.TileIsWineField(aLoc) then
   begin
     if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 54, 57) then
     begin
-      gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
       IsFieldSet := True;
     end;
   end;
 
   if not IsFieldSet then
-    gTerrain.SetFieldStaged(aLoc, fHandIndex, aFieldType, aStage, True);
+    gTerrain.SetField(aLoc, fHandIndex, aFieldType, aStage, True);
 end;
 
 

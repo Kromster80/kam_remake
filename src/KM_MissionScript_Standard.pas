@@ -266,11 +266,11 @@ begin
     ct_SetField:        if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
     ct_SetFieldStaged:  if fLastHand <> PLAYER_NONE then
-                          gHands[fLastHand].AddFieldStaged(KMPoint(P[0]+1,P[1]+1),ft_Corn,P[2]);
+                          gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn,P[2]);
     ct_SetWinefield:    if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
     ct_SetWinefieldStaged:  if fLastHand <> PLAYER_NONE then
-                              gHands[fLastHand].AddFieldStaged(KMPoint(P[0]+1,P[1]+1),ft_Wine,P[2]);
+                              gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine,P[2]);
     ct_SetStock:        if fLastHand <> PLAYER_NONE then
                         begin //This command basically means: Put a SH here with road bellow it
                           fLastHouse := gHands[fLastHand].AddHouse(ht_Store, P[0]+1,P[1]+1, false);

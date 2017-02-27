@@ -126,6 +126,7 @@ type
     procedure MPPlayMoreClick(Sender: TObject);
     procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
+    function Replay_ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     procedure ReturnToLobbyClick(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure Allies_Mute(Sender: TObject);
@@ -139,6 +140,8 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
+    procedure Replay_JumpToPlayer(aPlayerIndex: Integer);
+    procedure Replay_ViewPlayer(aPlayerIndex: Integer);
     procedure Replay_ListDoubleClick(Sender: TObject);
   protected
     Sidebar_Top: TKMImage;
@@ -1005,6 +1008,8 @@ begin
     Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 19, 160, 20, fnt_Metal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
+    Dropbox_ReplayFOW.List.AutoFocusable := False;
+    Dropbox_ReplayFOW.List.OnKeyUp := Replay_ListKeyUp;
     Dropbox_ReplayFOW.List.OnDoubleClick := Replay_ListDoubleClick;
  end;
 
@@ -1808,12 +1813,11 @@ begin
   Button_ReplayResume.Enabled := not aPaused;
 end;
 
-
-procedure TKMGamePlayInterface.Replay_ListDoubleClick(Sender: TObject);
+procedure TKMGamePlayInterface.Replay_JumpToPlayer(aPlayerIndex: Integer);
 var LastSelectedObj: TObject;
 begin
-  //Double clicking on an item in the list jumps to the previously selected object of that player
-  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+  Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
+  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
 
   LastSelectedObj := gMySpectator.LastSpecSelectedObj;
   if LastSelectedObj <> nil then
@@ -1833,6 +1837,47 @@ begin
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+end;
+
+
+procedure TKMGamePlayInterface.Replay_ViewPlayer(aPlayerIndex: Integer);
+var OldHandIndex: Integer;
+begin
+  Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
+
+  OldHandIndex := gMySpectator.HandIndex;
+  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
+
+  if (gMySpectator.Selected <> nil)
+    and (OldHandIndex <> gMySpectator.HandIndex) then
+    gMySpectator.Selected := nil;   // Reset selection when start viewing another player
+
+  if Checkbox_ReplayFOW.Checked then
+    gMySpectator.FOWIndex := gMySpectator.HandIndex
+  else
+    gMySpectator.FOWIndex := -1;
+  fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+  gGame.OverlayUpdate; // Display the overlay seen by the selected player
+end;
+
+
+procedure TKMGamePlayInterface.Replay_ListDoubleClick(Sender: TObject);
+begin
+  //Double clicking on an item in the list jumps to the previously selected object of that player
+  Replay_JumpToPlayer(Dropbox_ReplayFOW.ItemIndex);
+end;
+
+
+function TKMGamePlayInterface.Replay_ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False;
+  case Key of
+    VK_ESCAPE:  if Sender = Dropbox_ReplayFOW.List then
+                begin
+                  TKMListBox(Sender).Unfocus;
+                  Result := True;
+                end;
+  end;
 end;
 
 
@@ -1881,16 +1926,7 @@ begin
   end;
 
   if (Sender = Dropbox_ReplayFOW) then
-  begin
-    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
-
-    if Checkbox_ReplayFOW.Checked then
-      gMySpectator.FOWIndex := gMySpectator.HandIndex
-    else
-      gMySpectator.FOWIndex := -1;
-    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
-    gGame.OverlayUpdate; // Display the overlay seen by the selected player
-  end;
+    Replay_ViewPlayer(Dropbox_ReplayFOW.ItemIndex);
 
   if (Sender = Checkbox_ReplayFOW) then
   begin
@@ -2854,8 +2890,10 @@ begin
 
     if (SpecPlayerIndex <> -1) and (Dropbox_ReplayFOW.Count >= SpecPlayerIndex) then
     begin
-      Dropbox_ReplayFOW.ItemIndex := SpecPlayerIndex - 1;
-      ReplayClick(Dropbox_ReplayFOW);
+      if ssCtrl in Shift then
+        Replay_JumpToPlayer(SpecPlayerIndex - 1)
+      else
+        Replay_ViewPlayer(SpecPlayerIndex - 1);
       Exit;
     end;
   end;
