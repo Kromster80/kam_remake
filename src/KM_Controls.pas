@@ -929,7 +929,6 @@ type
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
-    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -5137,23 +5136,6 @@ var
 begin
   for I := 0 to fHeader.ColumnCount - 1 do
     FreeAndNil(fColumns[I]);
-end;
-
-
-function TKMColumnBox.KeyUp(Key: Word; Shift: TShiftState): Boolean;
-begin
-  Result := inherited KeyUp(Key, Shift);
-
-  if Result then Exit;
-
-  if PassAllKeys then
-  begin
-    // Assume handler always handles the KeyUp
-    Result := Assigned(OnKeyUp);
-
-    if Assigned(OnKeyUp) then
-      OnKeyUp(Self, Key, Shift);
-  end
 end;
 
 
