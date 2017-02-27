@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Math, StrUtils, SysUtils,
+  Classes, Math, StrUtils, SysUtils,
   KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking, KM_Points;
 
 
@@ -15,7 +15,7 @@ type
     fChatWhisperRecipient: Integer; //NetPlayer index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
     procedure Chat_Close(Sender: TObject);
-    procedure Chat_Post(Sender: TObject; Key: Word);
+    function Chat_Post(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Chat_MenuClick(Sender: TObject);
     procedure Chat_MenuSelect(aItem: Integer);
@@ -120,8 +120,9 @@ begin
 end;
 
 
-procedure TKMGUIGameChat.Chat_Post(Sender: TObject; Key: Word);
+function TKMGUIGameChat.Chat_Post(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 begin
+  Result := False;
   if IsKeyEvent_Return_Handled(Self, Key)
     and (Trim(Edit_ChatMsg.Text) <> '')
     and (GetTimeSince(fLastChatTime) >= CHAT_COOLDOWN) then
@@ -137,9 +138,10 @@ begin
                                           csSystem);
         Chat_MenuSelect(CHAT_MENU_ALL);
       end else
-      gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer)
+        gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer)
     end else
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode);
+    Result := True;
     Edit_ChatMsg.Text := '';
   end;
 end;

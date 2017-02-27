@@ -73,7 +73,7 @@ type
     procedure MapChange(Sender: TObject);
     function DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
     function DropColPlayersCellClick(Sender: TObject; const X, Y: Integer): Boolean;
-    procedure PostKeyDown(Sender: TObject; Key: Word);
+    function PostKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 
     procedure MinimapLocClick(aValue: Integer);
@@ -2051,11 +2051,12 @@ end;
 
 
 //Post what user has typed
-procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
+function TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 var
   ChatMessage: UnicodeString;
   RecipientNetIndex: Integer;
 begin
+  Result := False;
   if not IsKeyEvent_Return_Handled(Self, Key)
     or (Trim(Edit_LobbyPost.Text) = '')
     or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
@@ -2089,6 +2090,7 @@ begin
       fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
   end else
     fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
+  Result := True;
   Edit_LobbyPost.Text := '';
 end;
 
