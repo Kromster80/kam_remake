@@ -582,7 +582,8 @@ var Rect: TRect;
 begin
   //This restriction is removed when alt-tabbing out, and added again when alt-tabbing back
   {$IFDEF MSWindows}
-  if fMainSettings.FullScreen then
+  if fMainSettings.FullScreen
+    and ((Screen.MonitorCount = 1) or gGameApp.GameSettings.SecondMonitorApplyRestrFullScr) then // For multi monitor systems check ini setting
   begin
     Rect := fFormMain.BoundsRect;
     ClipCursor(@Rect);
