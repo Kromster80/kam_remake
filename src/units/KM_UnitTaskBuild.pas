@@ -241,7 +241,7 @@ begin
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
-         gTerrain.SetField(fLoc, Owner, ft_Road);
+         gTerrain.SetRoad(fLoc, Owner);
          gTerrain.RemoveObjectsKilledByRoad(fLoc);
          SetActionStay(5, ua_Walk);
          gTerrain.UnlockTile(fLoc);
@@ -356,7 +356,7 @@ begin
       end;
    4: begin
         gTerrain.ResetDigState(fLoc);
-        gTerrain.SetField(fLoc, Owner, ft_InitWine); //Replace the terrain, but don't seed grapes yet
+        gTerrain.SetInitWine(fLoc, Owner); //Replace the terrain, but don't seed grapes yet
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
       end;
@@ -473,7 +473,7 @@ begin
        end;
     3: begin
         Thought := th_None; //Keep thinking build until it's done
-        gTerrain.SetField(fLoc,Owner,ft_Corn);
+        gTerrain.SetField(fLoc, Owner, ft_Corn);
         SetActionStay(5,ua_Walk);
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
@@ -676,7 +676,7 @@ begin
           gTerrain.FlattenTerrain(CellsToDig[LastToDig]); //Flatten the terrain twice now to ensure it really is flat
           gTerrain.SetTileLock(CellsToDig[LastToDig], tlDigged); //Block passability on tile
           if KMSamePoint(fHouse.Entrance, CellsToDig[LastToDig]) then
-            gTerrain.SetField(fHouse.Entrance, Owner, ft_Road);
+            gTerrain.SetRoad(fHouse.Entrance, Owner);
           gTerrain.RemoveObject(CellsToDig[LastToDig]); //All objects are removed
           Dec(LastToDig);
         end;

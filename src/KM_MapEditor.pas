@@ -233,7 +233,7 @@ begin
                 end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
                   FieldStage := 0;
                 if FieldStage >= 0 then
-                  gMySpectator.Hand.AddFieldStaged(P, ft_Corn, FieldStage);
+                  gMySpectator.Hand.AddField(P, ft_Corn, FieldStage);
               end;
     cmWine:   begin
                 if gTerrain.TileIsWineField(P) then
@@ -243,7 +243,7 @@ begin
                 end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
                   FieldStage := 0;
                 if FieldStage >= 0 then
-                  gMySpectator.Hand.AddFieldStaged(P, ft_Wine, FieldStage);
+                  gMySpectator.Hand.AddField(P, ft_Wine, FieldStage);
               end;
   end;
 end;
@@ -282,7 +282,7 @@ begin
                       //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                       if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                         gTerrain.RemField(P);
-                      gMySpectator.Hand.AddField(P, ft_Road);
+                      gMySpectator.Hand.AddRoad(P);
                     end;
       cmField,
       cmWine:       UpdateField(1, True);
@@ -347,7 +347,7 @@ begin
                                 //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
-                                gMySpectator.Hand.AddField(P, ft_Road);
+                                gMySpectator.Hand.AddRoad(P);
                               end;
                 cmHouses:     if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
                               begin
