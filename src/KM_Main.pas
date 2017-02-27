@@ -26,6 +26,9 @@ type
     procedure DoIdle(Sender: TObject; var Done: Boolean);
 
     procedure MapCacheUpdate;
+
+    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
+    procedure GameSpeedChange(aSpeed: Single);
   public
     constructor Create;
     destructor Destroy; override;
@@ -53,8 +56,6 @@ type
 
     function LockMutex: Boolean;
     procedure UnlockMutex;
-
-    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString); overload;
 
     property Resolutions: TKMResolutions read fResolutions;
     property Settings: TMainSettings read fMainSettings;
@@ -162,6 +163,12 @@ end;
 procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
 begin
   fFormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
+end;
+
+
+procedure TKMMain.GameSpeedChange(aSpeed: Single);
+begin
+  fFormMain.chkSuperSpeed.Checked := aSpeed = 300;
 end;
 
 
@@ -333,6 +340,7 @@ begin
                                 fFormLoading.LoadingStep,
                                 fFormLoading.LoadingText,
                                 StatusBarText);
+  gGameApp.OnGameSpeedChange := GameSpeedChange;
   gGameApp.AfterConstruction(aReturnToOptions);
 
   gLog.AddTime('ToggleFullscreen');
