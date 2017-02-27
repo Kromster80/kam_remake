@@ -851,7 +851,7 @@ type
     fBackAlpha: Single; //Alpha of background
     fEdgeAlpha: Single; //Alpha of outline
     fItemHeight: Byte;
-    fItemIndex: Smallint;
+    fItemIndex: SmallInt;
     fSearchColumn: ShortInt; //which columns text we should search, -1 for disabled
     fSearch: UnicodeString; //Contains user input characters we should search for
     fLastKeyTime: Cardinal;
@@ -949,9 +949,11 @@ type
     fFont: TKMFont;
     fButton: TKMButton;
     fShape: TKMShape;
+    fAutoClose: Boolean;
+
     fOnChange: TNotifyEvent;
     fOnShow: TNotifyEvent;
-    fAutoClose: Boolean;
+
     procedure UpdateDropPosition; virtual; abstract;
     procedure ButtonClick(Sender: TObject);
     procedure ListShow(Sender: TObject); virtual;
@@ -5178,7 +5180,7 @@ begin
 
   if InRange(NewIndex, 0, fRowCount - 1) then
   begin
-    fItemIndex := NewIndex;
+    ItemIndex := NewIndex;
     if PageScrolling then
       TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
     else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
@@ -5218,7 +5220,7 @@ begin
     for I := 0 to fRowCount - 1 do
     if AnsiStartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
     begin
-      fItemIndex := I;
+      ItemIndex := I;
       TopIndex := fItemIndex - GetVisibleRows div 2;
       Break;
     end;
@@ -5262,7 +5264,7 @@ begin
   if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) then
     IsClickHandled := fOnCellClick(Self, fMouseOverCell.X, fMouseOverCell.Y);
 
-  //Let propagate click event only when OnClickCell did not handle it
+  //Let propagate click event only when OnCellClick did not handle it
   if not IsClickHandled then
   begin
     inherited DoClick(X, Y, Shift, Button);
@@ -5287,10 +5289,10 @@ begin
     NewIndex := -1;
   end;
 
-  if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
+  if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex)  then
   begin
-    fItemIndex := NewIndex;
     fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
+    ItemIndex := NewIndex;
   end;
 end;
 

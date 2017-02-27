@@ -113,6 +113,7 @@ type
     function GetClosedCount: Integer;
     function GetSpectatorCount: Integer;
     function GetConnectedCount: Integer;
+    function GetConnectedPlayersCount: Integer;
     function GetNotDroppedCount: Integer;
     function FurtherVotesNeededForMajority: Integer;
     function HasOnlySpectators: Boolean;
@@ -745,7 +746,7 @@ begin
   Result := 0;
   for I := 1 to fCount do
     if fNetPlayers[I].IsSpectator then
-      inc(Result);
+      Inc(Result);
 end;
 
 
@@ -755,6 +756,18 @@ begin
   Result := 0;
   for I := 1 to fCount do
     if fNetPlayers[I].IsHuman and fNetPlayers[I].Connected then
+      Inc(Result);
+end;
+
+
+function TKMNetPlayersList.GetConnectedPlayersCount: Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 1 to fCount do
+    if fNetPlayers[I].IsHuman
+      and fNetPlayers[I].Connected
+      and not fNetPlayers[I].IsSpectator then
       Inc(Result);
 end;
 
