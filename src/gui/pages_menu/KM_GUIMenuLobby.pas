@@ -26,8 +26,10 @@ type
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
 
-    fLocalToNetPlayers: array[1..MAX_LOBBY_SLOTS] of Integer;
-    fNetPlayersToLocal: array[1..MAX_LOBBY_SLOTS] of Integer;
+    fLocalToNetPlayers: array [1..MAX_LOBBY_SLOTS] of Integer;
+    fNetPlayersToLocal: array [1..MAX_LOBBY_SLOTS] of Integer;
+
+    fDropBoxPlayerSlot_ItemIndexes: array [1..MAX_LOBBY_SLOTS] of Integer;
 
     fMapsSortUpdateNeeded: Boolean;
 
@@ -71,8 +73,10 @@ type
     procedure RefreshSaveList(aJumpToSelected: Boolean);
     function GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
     procedure MapChange(Sender: TObject);
-    function DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
-    function DropColPlayersCellClick(Sender: TObject; const X, Y: Integer): Boolean;
+    function DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+    function DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+    procedure DropBoxPlayers_Show(Sender: TObject);
+
     procedure PostKeyDown(Sender: TObject; Key: Word);
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
 
@@ -175,6 +179,7 @@ uses
 
 { TKMGUIMenuLobby }
 constructor TKMMenuLobby.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+var I: Integer;
 begin
   inherited Create;
 
@@ -188,6 +193,9 @@ begin
 
   fMapsMP := TKMapsCollection.Create([mfMP, mfDL], smByNameDesc, True);
   fSavesMP := TKMSavesCollection.Create;
+
+  for I := 1 to MAX_LOBBY_SLOTS do
+    fDropBoxPlayerSlot_ItemIndexes[I] := -1;
 
   CreateControls(aParent);
   CreateChatMenu(aParent);
@@ -401,9 +409,11 @@ begin
           DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate
           DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate
         end;
+        DropBox_LobbyPlayerSlot[I].Tag := I;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
-        DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropColPlayersCellClick;
+        DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropBoxPlayers_CellClick;
+        DropBox_LobbyPlayerSlot[I].OnShow := DropBoxPlayers_Show;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
@@ -466,7 +476,7 @@ begin
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;
-      DropCol_LobbyMaps.List.OnCellClick := DropColMapsCellClick;
+      DropCol_LobbyMaps.List.OnCellClick := DropBoxMaps_CellClick;
 
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
@@ -1133,7 +1143,18 @@ begin
 end;
 
 
-function TKMMenuLobby.DropColPlayersCellClick(Sender: TObject; const X, Y: Integer): Boolean;
+procedure TKMMenuLobby.DropBoxPlayers_Show(Sender: TObject);
+var DropBox: TKMDropColumns;
+begin
+  if Sender is TKMDropColumns then
+  begin
+    DropBox := TKMDropColumns(Sender);
+    fDropBoxPlayerSlot_ItemIndexes[DropBox.Tag] := DropBox.ItemIndex;
+  end;
+end;
+
+
+function TKMMenuLobby.DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I, J, NetI: Integer;
     SlotsToChange, SlotsChanged: Byte;
 begin
@@ -1152,8 +1173,9 @@ begin
 
         //We have to revert ItemIndex to its previous value, because its value was already switched to AI on MouseDown
         //but we are not sure yet about what value should be there, we will set it properly later on
-        if (Y = 2) and (DropBox_LobbyPlayerSlot[I].ItemIndex = 2) then
-          DropBox_LobbyPlayerSlot[I].RevertLastItemIndexChange;
+        if (Y = 2) and (DropBox_LobbyPlayerSlot[I].ItemIndex = 2)
+          and (fDropBoxPlayerSlot_ItemIndexes[I] <> -1) then
+          DropBox_LobbyPlayerSlot[I].ItemIndex := fDropBoxPlayerSlot_ItemIndexes[I];
       end;
     end;
 
@@ -1897,7 +1919,7 @@ begin
 end;
 
 
-function TKMMenuLobby.DropColMapsCellClick(Sender: TObject; const X, Y: Integer): Boolean;
+function TKMMenuLobby.DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I: Integer;
 begin
   Result := False;

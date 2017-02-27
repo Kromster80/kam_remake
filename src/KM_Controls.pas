@@ -847,7 +847,6 @@ type
     fEdgeAlpha: Single; //Alpha of outline
     fItemHeight: Byte;
     fItemIndex: SmallInt;
-    fPrevItemIndex: SmallInt;
     fSearchColumn: ShortInt; //which columns text we should search, -1 for disabled
     fSearch: UnicodeString; //Contains user input characters we should search for
     fLastKeyTime: Cardinal;
@@ -906,7 +905,6 @@ type
     procedure SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
-    procedure RevertLastItemIndexChange;
     function GetVisibleRows: Integer;
     function GetVisibleRowsExact: Single;
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
@@ -949,9 +947,11 @@ type
     fFont: TKMFont;
     fButton: TKMButton;
     fShape: TKMShape;
+    fAutoClose: Boolean;
+
     fOnChange: TNotifyEvent;
     fOnShow: TNotifyEvent;
-    fAutoClose: Boolean;
+
     procedure UpdateDropPosition; virtual; abstract;
     procedure ButtonClick(Sender: TObject);
     procedure ListShow(Sender: TObject); virtual;
@@ -1054,7 +1054,6 @@ type
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word; aColumnsToShowWhenListHidden: array of Boolean); overload;
     property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property DropWidth: Integer read fDropWidth write SetDropWidth;
-    procedure RevertLastItemIndexChange;
 
     procedure Paint; override;
   end;
@@ -4861,7 +4860,6 @@ begin
   fFont       := aFont;
   fItemHeight := 20;
   fItemIndex  := -1;
-  fPrevItemIndex  := -1;
   fShowHeader := True;
   SearchColumn := -1; //Disabled by default
   Focusable := True; //For up/down keys
@@ -4935,7 +4933,6 @@ end;
 
 procedure TKMColumnBox.SetItemIndex(const Value: Smallint);
 begin
-  fPrevItemIndex := fItemIndex;
   if InRange(Value, 0, RowCount - 1) then
     fItemIndex := Value
   else
@@ -5113,14 +5110,7 @@ procedure TKMColumnBox.Clear;
 begin
   fRowCount := 0;
   fItemIndex := -1;
-  fPrevItemIndex := -1;
   UpdateScrollBar;
-end;
-
-
-procedure TKMColumnBox.RevertLastItemIndexChange;
-begin
-  fItemIndex := fPrevItemIndex;
 end;
 
 
@@ -6073,12 +6063,6 @@ end;
 procedure TKMDropColumns.Clear;
 begin
   fList.Clear;
-end;
-
-
-procedure TKMDropColumns.RevertLastItemIndexChange;
-begin
-  fList.RevertLastItemIndexChange;
 end;
 
 
