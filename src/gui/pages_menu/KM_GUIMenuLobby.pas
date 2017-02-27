@@ -29,7 +29,7 @@ type
     fLocalToNetPlayers: array [1..MAX_LOBBY_SLOTS] of Integer;
     fNetPlayersToLocal: array [1..MAX_LOBBY_SLOTS] of Integer;
 
-    fDropBoxPlayerSlot_ItemIndexes: array [1..MAX_LOBBY_SLOTS] of Integer;
+    fDropBoxPlayers_LastItemIndex: Integer;
 
     fMapsSortUpdateNeeded: Boolean;
 
@@ -179,7 +179,6 @@ uses
 
 { TKMGUIMenuLobby }
 constructor TKMMenuLobby.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-var I: Integer;
 begin
   inherited Create;
 
@@ -194,8 +193,7 @@ begin
   fMapsMP := TKMapsCollection.Create([mfMP, mfDL], smByNameDesc, True);
   fSavesMP := TKMSavesCollection.Create;
 
-  for I := 1 to MAX_LOBBY_SLOTS do
-    fDropBoxPlayerSlot_ItemIndexes[I] := -1;
+  fDropBoxPlayers_LastItemIndex := -1;
 
   CreateControls(aParent);
   CreateChatMenu(aParent);
@@ -409,7 +407,6 @@ begin
           DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate
           DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate
         end;
-        DropBox_LobbyPlayerSlot[I].Tag := I;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
         DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropBoxPlayers_CellClick;
@@ -1144,12 +1141,10 @@ end;
 
 
 procedure TKMMenuLobby.DropBoxPlayers_Show(Sender: TObject);
-var DropBox: TKMDropColumns;
 begin
   if Sender is TKMDropColumns then
   begin
-    DropBox := TKMDropColumns(Sender);
-    fDropBoxPlayerSlot_ItemIndexes[DropBox.Tag] := DropBox.ItemIndex;
+    fDropBoxPlayers_LastItemIndex := TKMDropColumns(Sender).ItemIndex;
   end;
 end;
 
@@ -1174,8 +1169,8 @@ begin
         //We have to revert ItemIndex to its previous value, because its value was already switched to AI on MouseDown
         //but we are not sure yet about what value should be there, we will set it properly later on
         if (Y = 2) and (DropBox_LobbyPlayerSlot[I].ItemIndex = 2)
-          and (fDropBoxPlayerSlot_ItemIndexes[I] <> -1) then
-          DropBox_LobbyPlayerSlot[I].ItemIndex := fDropBoxPlayerSlot_ItemIndexes[I];
+          and (fDropBoxPlayers_LastItemIndex <> -1) then
+          DropBox_LobbyPlayerSlot[I].ItemIndex := fDropBoxPlayers_LastItemIndex;
       end;
     end;
 
