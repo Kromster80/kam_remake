@@ -2821,6 +2821,7 @@ var
   LastAlert: TKMAlert;
   SelectId: Integer;
   SpecPlayerIndex: ShortInt;
+  ToggleSpeed: Single;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2964,11 +2965,16 @@ begin
     or gGame.IsMPGameSpeedUpAllowed
     or MULTIPLAYER_SPEEDUP then
   begin
+
     // Game speed/pause: available in multiplayer mode if the only player left in the game
-    if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, False);
-    if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
-    if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);
-    if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True);
+    if gGame.IsMPGameSpeedUpAllowed then
+      ToggleSpeed := gGame.GetDefaultMPGameSpeed
+    else 
+      ToggleSpeed := 1;
+    if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, True, ToggleSpeed);
+    if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True, ToggleSpeed);
+    if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True, ToggleSpeed);
+    if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True, ToggleSpeed);
   end;
 
   // All the following keys don't work in Replay, because they alter game state
