@@ -24,35 +24,38 @@ type
     procedure btnBrowsePathClick(Sender: TObject);
   private
     fScripting: TKMScripting;
+    IsValidatePath : Boolean;
+    sListFileInFolder : TStringList;
 
-    procedure FindFiles(Path: String; out aList: TStringList);
+    procedure FindFiles(aPath: String; out aList: TStringList);
     procedure Validate(aPath: string; aReportGood: Boolean);
-
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
+    procedure ComponentReEnabled(aEnabled : Boolean);
   end;
 
 
 var
   Form1: TForm1;
-  IsValidatePath : Boolean;
-  sListFileInFolder : TStringList;
 implementation
 uses
   KM_Maps;
+const
+  EXT_FILE_SCRIPT = '.script';
 
 {$R *.dfm}
 
-procedure TForm1.FindFiles(Path: String; out aList: TStringList);
-var SearchRec:TSearchRec;
+procedure TForm1.FindFiles(aPath: String; out aList: TStringList);
+var
+  SearchRec:TSearchRec;
 begin
-  FindFirst(Path+PathDelim+'*', faAnyFile, SearchRec);
+  FindFirst(aPath+PathDelim+'*', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
       if (SearchRec.Attr and faDirectory = faDirectory) then
-        FindFiles(Path + PathDelim + SearchRec.Name, aList)
+        FindFiles(aPath + PathDelim + SearchRec.Name, aList)
       else
-        if SameText(RightStr(SearchRec.Name, Length(EXT_FILE_SCRIPT)+1), ('.'+EXT_FILE_SCRIPT)) then
-          aList.Add(Path + PathDelim + SearchRec.Name);
+        if SameText(ExtractFileExt(SearchRec.Name), EXT_FILE_SCRIPT) then
+          aList.Add(aPath + PathDelim + SearchRec.Name);
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
 end;
@@ -85,7 +88,8 @@ end;
 
 
 procedure TForm1.btnBrowsePathClick(Sender: TObject);
-var DirValidate : String;
+var
+  DirValidate : String;
 begin
   if not SelectDirectory('Select the folder to Validate scripts', '', DirValidate) then Exit;
   Edit1.Text := DirValidate;
@@ -101,24 +105,29 @@ begin
   else
   begin
     IsValidatePath := false;
-    Memo1.Text := 'Select Files!';
+    Memo1.Text := 'Selected Files!';
   end;
 end;
 
-procedure TForm1.btnValidateClick(Sender: TObject);
-var I : Integer;
+procedure TForm1.ComponentReEnabled(aEnabled: Boolean);
 begin
-  btnBrowsePath.Enabled := false;
-  btnBrowseFile.Enabled := false;
-  btnValidate.Enabled := false;
-  btnValidateAll.Enabled := false;
-  Edit1.Enabled := false;
+  btnBrowsePath.Enabled := aEnabled;
+  btnBrowseFile.Enabled := aEnabled;
+  btnValidate.Enabled := aEnabled;
+  btnValidateAll.Enabled := aEnabled;
+  Edit1.Enabled := aEnabled;
+end;
+
+procedure TForm1.btnValidateClick(Sender: TObject);
+var
+  I : Integer;
+begin
+  ComponentReEnabled(false);
 
   Memo1.Lines.Clear;
   if IsValidatePath then
   begin
-    if SameText(RightStr(Edit1.Text, 1), PathDelim) then Edit1.Text := LeftStr(Edit1.Text, (Length(Edit1.Text) -1));
-
+    ExcludeTrailingPathDelimiter(Edit1.Text);
     if not DirectoryExists(Edit1.Text) then
       Memo1.Lines.Append('Directory not found ' + Edit1.Text)
     else
@@ -134,31 +143,20 @@ begin
         Memo1.Lines.Append('Files in the folder: '+IntToStr(sListFileInFolder.Count));
         for I := 0 to sListFileInFolder.Count-1 do
           Validate(sListFileInFolder.Strings[I], True);
-        Memo1.Lines.Append('Checked ' + IntToStr(sListFileInFolder.Count) + ' in ..\..\');
+        Memo1.Lines.Append('Checked ' + IntToStr(sListFileInFolder.Count));
       end;
-
     end;
-
   end else
     Validate(Edit1.Text, True);
 
-  btnBrowsePath.Enabled := true;
-  btnBrowseFile.Enabled := true;
-  btnValidate.Enabled := true;
-  btnValidateAll.Enabled := true;
-  Edit1.Enabled := true;
+  ComponentReEnabled(true);
 end;
-
 
 procedure TForm1.btnValidateAllClick(Sender: TObject);
 var
   I: Integer;
 begin
-  btnBrowsePath.Enabled := false;
-  btnBrowseFile.Enabled := false;
-  btnValidate.Enabled := false;
-  btnValidateAll.Enabled := false;
-  Edit1.Enabled := false;
+  ComponentReEnabled(false);
 
   Memo1.Lines.Clear;
 
@@ -171,7 +169,7 @@ begin
   begin
     Memo1.Lines.Append('Files in the folder: '+IntToStr(sListFileInFolder.Count));
     for I := 0 to sListFileInFolder.Count - 1 do
-      Validate(ChangeFileExt(sListFileInFolder[I], '.' + EXT_FILE_SCRIPT), False);
+      Validate(ChangeFileExt(sListFileInFolder[I], EXT_FILE_SCRIPT), False);
 
     Memo1.Lines.Append('Checked ' + IntToStr(sListFileInFolder.Count) + ' in .\');
   end;
@@ -184,15 +182,11 @@ begin
   begin
     Memo1.Lines.Append('Files in the folder: '+IntToStr(sListFileInFolder.Count));
     for I := 0 to sListFileInFolder.Count - 1 do
-      Validate(ChangeFileExt(sListFileInFolder[I], '.' + EXT_FILE_SCRIPT), False);
+      Validate(ChangeFileExt(sListFileInFolder[I], EXT_FILE_SCRIPT), False);
 
-    Memo1.Lines.Append('Checked ' + IntToStr(sListFileInFolder.Count) + ' in ..\..\');
+    Memo1.Lines.Append('Checked ' + IntToStr(sListFileInFolder.Count));
   end;
-  btnBrowsePath.Enabled := true;
-  btnBrowseFile.Enabled := true;
-  btnValidate.Enabled := true;
-  btnValidateAll.Enabled := true;
-  Edit1.Enabled := true;
+  ComponentReEnabled(true);
 end;
 
 procedure TForm1.Validate(aPath: string; aReportGood: Boolean);

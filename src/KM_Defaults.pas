@@ -220,7 +220,6 @@ const
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
   MP_MINIMAP_SAVE_EXT = 'smm';
-  EXT_FILE_SCRIPT = 'script';
 
 type
   TKMHandIndex = {type} ShortInt;
