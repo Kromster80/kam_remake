@@ -42,7 +42,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
 
-  OpenDialog1.InitialDir := ExtractFilePath(Application.ExeName);
+  OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
 
   fScripting := TKMScripting.Create(nil);
 
@@ -77,14 +77,14 @@ begin
   maps := TStringList.Create;
 
   // Exe path
-  TKMapsCollection.GetAllMapPaths(ExtractFilePath(Application.ExeName), maps);
+  TKMapsCollection.GetAllMapPaths(ExtractFilePath(ParamStr(0)), maps);
   for I := 0 to maps.Count - 1 do
     Validate(ChangeFileExt(maps[I], '.script'), False);
 
   Memo1.Lines.Append('Checked ' + IntToStr(maps.Count) + ' in .\');
 
   // Utils path
-  TKMapsCollection.GetAllMapPaths(ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\'), maps);
+  TKMapsCollection.GetAllMapPaths(ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\'), maps);
   for I := 0 to maps.Count - 1 do
     Validate(ChangeFileExt(maps[I], '.script'), False);
 
