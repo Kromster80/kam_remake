@@ -38,6 +38,7 @@ object Form1: TForm1
     Top = 39
     Width = 387
     Height = 26
+    Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     OnChange = Edit1Change
   end
@@ -46,6 +47,7 @@ object Form1: TForm1
     Top = 8
     Width = 89
     Height = 25
+    Anchors = [akTop, akRight]
     Caption = 'Browse File'
     TabOrder = 1
     OnClick = btnBrowseFileClick
@@ -55,6 +57,7 @@ object Form1: TForm1
     Top = 39
     Width = 184
     Height = 26
+    Anchors = [akTop, akRight]
     Caption = 'Validate'
     TabOrder = 2
     OnClick = btnValidateClick
@@ -68,20 +71,22 @@ object Form1: TForm1
     ScrollBars = ssVertical
     TabOrder = 3
   end
-  object Button1: TButton
+  object btnValidateAll: TButton
     Left = 401
     Top = 71
     Width = 184
     Height = 25
+    Anchors = [akTop, akRight]
     Caption = 'Validate all'
     TabOrder = 4
-    OnClick = Button1Click
+    OnClick = btnValidateAllClick
   end
   object btnBrowsePath: TButton
     Left = 401
     Top = 8
     Width = 89
     Height = 25
+    Anchors = [akTop, akRight]
     Caption = 'Browse Path'
     TabOrder = 5
     OnClick = btnBrowsePathClick
