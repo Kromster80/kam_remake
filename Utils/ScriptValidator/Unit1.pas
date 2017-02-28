@@ -21,6 +21,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
+    procedure btnBrowsePathClick(Sender: TObject);
   private
     fScripting: TKMScripting;
 
@@ -75,12 +76,18 @@ begin
 end;
 
 procedure TForm1.btnBrowseFileClick(Sender: TObject);
+begin
+  if OpenDialog1.Execute then
+  Edit1.Text := OpenDialog1.FileName;
+end;
+
+
+procedure TForm1.btnBrowsePathClick(Sender: TObject);
 var DirValidate : String;
 begin
   if not SelectDirectory('Select the folder to Validate scripts', '', DirValidate) then Exit;
   Edit1.Text := DirValidate;
 end;
-
 
 procedure TForm1.btnValidateClick(Sender: TObject);
 begin
@@ -116,8 +123,15 @@ end;
 procedure TForm1.Edit1Change(Sender: TObject);
 begin
   If (GetFileAttributes(PWideCHar(TEdit(Sender).Text)) and FILE_ATTRIBUTE_DIRECTORY) = FILE_ATTRIBUTE_DIRECTORY then
-    IsValidatePath := true
-  else IsValidatePath := false;
+  begin
+    IsValidatePath := true;
+    Memo1.Text := 'Selected folders!';
+  end
+  else
+  begin
+    IsValidatePath := false;
+    Memo1.Text := 'Select Files!';
+  end;
 end;
 
 procedure TForm1.Validate(aPath: string; aReportGood: Boolean; aValidatePath: Boolean);
@@ -145,7 +159,7 @@ begin
       Memo1.Lines.Append('No files in a directory ' + aPath);
       Exit;
     end;
-
+    Memo1.Lines.Append('Files in the folder: '+IntToStr(SL.Count));
     for I := 0 to SL.Count-1 do
     begin
       CampaignFile := ExtractFilePath(SL.Strings[I]) + '..\campaigndata.' + EXT_FILE_SCRIPT;

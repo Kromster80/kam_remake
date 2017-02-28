@@ -21,14 +21,14 @@ object Form1: TForm1
   TextHeight = 18
   object Label1: TLabel
     Left = 8
-    Top = 8
+    Top = 15
     Width = 62
     Height = 18
     Caption = 'Script file:'
   end
   object Label2: TLabel
     Left = 8
-    Top = 80
+    Top = 78
     Width = 44
     Height = 18
     Caption = 'Result:'
@@ -52,9 +52,9 @@ object Form1: TForm1
   end
   object btnValidate: TButton
     Left = 401
-    Top = 40
+    Top = 39
     Width = 184
-    Height = 25
+    Height = 26
     Caption = 'Validate'
     TabOrder = 2
     OnClick = btnValidateClick
@@ -84,7 +84,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Browse Path'
     TabOrder = 5
-    OnClick = btnBrowseFileClick
+    OnClick = btnBrowsePathClick
   end
   object OpenDialog1: TOpenDialog
     Filter = 'KaM Remake script files (*.script)|*.script'
