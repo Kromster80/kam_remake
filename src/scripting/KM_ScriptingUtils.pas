@@ -24,6 +24,8 @@ type
     function EnsureRangeI(aValue, aMin, aMax: Integer): Integer;
     function EnsureRangeS(aValue, aMin, aMax: Single): Single;
 
+    function Format(aFormatting: string; aData: array of const): string;
+
     function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString;
     function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer;
     function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single;
@@ -53,6 +55,7 @@ type
     function SumI(aArray: array of Integer): Integer;
     function SumS(aArray: array of Single): Single;
 
+    function TimeGet: Cardinal;
     function TimeToString(aTicks: Integer): AnsiString;
 
   end;
@@ -293,6 +296,20 @@ function TKMScriptUtils.EnsureRangeS(aValue, aMin, aMax: Single): Single;
 begin
   try
     Result := Math.EnsureRange(aValue, aMin, aMax);
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Wrapper for pascal Format function
+//* Formats aFormatting string with specified aData array of parameters
+function TKMScriptUtils.Format(aFormatting: string; aData: array of const): string;
+begin
+  try
+    Result := SysUtils.Format(aFormatting, aData);
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -595,6 +612,19 @@ begin
       Result := Math.Sum(aArray)
     else
       LogParamWarning('Utils.SumS: Requested array is empty',[]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Returns current time in milliseconds from 01.01.1970 00:00:00.000
+function TKMScriptUtils.TimeGet: Cardinal;
+begin
+  try
+    Result := KM_Utils.TimeGet;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
