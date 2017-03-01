@@ -530,7 +530,6 @@ begin
       RegisterMethod('function SumI(aArray: array of Integer): Integer');
       RegisterMethod('function SumS(aArray: array of Single): Single');
 
-      RegisterMethod('function TimeGet: Cardinal;');
       RegisterMethod('function TimeToString(aTicks: Integer): AnsiString');
     end;
 
@@ -998,7 +997,6 @@ begin
 
       RegisterMethod(@TKMScriptUtils.Sqr,                                       'Sqr');
 
-      RegisterMethod(@TKMScriptUtils.TimeGet,                                   'TimeGet');
       RegisterMethod(@TKMScriptUtils.TimeToString,                              'TimeToString');
     end;
 
