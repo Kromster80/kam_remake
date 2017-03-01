@@ -26,6 +26,7 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
 
     fOnCursorUpdate: TIntegerStringEvent;
+    fOnGameSpeedChange: TSingleEvent;
 
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
@@ -79,6 +80,8 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure FPSMeasurement(aFPS: Cardinal);
+
+    property OnGameSpeedChange: TSingleEvent read fOnGameSpeedChange write fOnGameSpeedChange;
 
     procedure Render(aForPrintScreen: Boolean);
     procedure UpdateState(Sender: TObject);

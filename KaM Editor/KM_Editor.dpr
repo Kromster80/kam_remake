@@ -25,8 +25,8 @@ begin
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
   Application.CreateForm(TFormNewMap, FormNewMap);
-  Form1.HelpFile:=ExtractFilePath(Application.ExeName)+'KM_EDITOR.HLP';
-  FormNewMap.HelpFile:=ExtractFilePath(Application.ExeName)+'KM_EDITOR.HLP';
+  Form1.HelpFile:=ExtractFilePath(ParamStr(0)) + 'KM_EDITOR.HLP';
+  FormNewMap.HelpFile:=ExtractFilePath(ParamStr(0)) + 'KM_EDITOR.HLP';
 
   Application.Run;
 end.

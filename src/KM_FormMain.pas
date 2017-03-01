@@ -438,10 +438,13 @@ end;
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-  or (gGameApp.Game.IsMultiplayer and not MULTIPLAYER_SPEEDUP and not gGameApp.Game.IsReplay) then
+  or (gGameApp.Game.IsMultiplayer
+    and not gGameApp.Game.IsMPGameSpeedUpAllowed
+    and not MULTIPLAYER_SPEEDUP
+    and not gGameApp.Game.IsReplay) then
     Exit;
 
-  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, 1), False);
+  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, gGameApp.Game.GetNormalGameSpeed), False);
 end;
 
 

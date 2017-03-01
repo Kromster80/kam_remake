@@ -69,7 +69,7 @@ uses CharsCollector;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
-  ExeDir := ExtractFilePath(Application.ExeName);
+  ExeDir := ExtractFilePath(ParamStr(0));
 
   cbFontName.Items.AddStrings(Screen.Fonts);
 end;

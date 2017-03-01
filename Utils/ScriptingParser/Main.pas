@@ -438,14 +438,16 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  fSettingsPath := ExtractFilePath(Application.ExeName) + 'ScriptingParser.ini';
+  // KaM
+  fSettingsPath := ExtractFilePath(ParamStr(0)) + 'ScriptingParser.ini';
   Reinit;
 end;
 
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
-  fSettingsPath := ExtractFilePath(Application.ExeName) + 'ScriptingParser2.ini';
+  // KP
+  fSettingsPath := ExtractFilePath(ParamStr(0)) + 'ScriptingParser2.ini';
   Reinit;
 end;
 

@@ -44,7 +44,7 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Application.OnIdle := DoIdle;
-  ExeDir := ExtractFilePath(Application.ExeName) + '..\..\';
+  ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
   fGameSettings := TGameSettings.Create;
 
