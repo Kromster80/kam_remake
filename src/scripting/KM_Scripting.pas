@@ -225,6 +225,12 @@ begin
       Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
       Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
 
+      // Types needed for MapTilesArraySet function
+      Sender.AddTypeS('TKMTileChangeType', '(tctTerrain, tctHeight, tctObject)');
+      Sender.AddTypeS('TKMTileChangeTypeSet', 'set of TKMTileChangeType');
+      Sender.AddTypeS('TKMTerrainTileBrief', 'record Terrain, Rotation, Height, Obj: Byte; Contains: TKMTileChangeTypeSet; end');
+      Sender.AddTypeS('TKMTerrainTileBrief2Array', 'array of array of TKMTerrainTileBrief');
+
       RegisterMethod('function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer');
       RegisterMethod('function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer');
       RegisterMethod('function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
@@ -435,6 +441,7 @@ begin
       RegisterMethod('function MapTileHeightSet(X, Y, Height: Integer): Boolean');
       RegisterMethod('function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
       RegisterMethod('function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
+      RegisterMethod('function MapTilesArraySet(aTiles: TKMTerrainTileBrief2Array; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean');
 
       RegisterMethod('procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
       RegisterMethod('procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
@@ -898,6 +905,7 @@ begin
       RegisterMethod(@TKMScriptActions.MarketSetTrade,                          'MarketSetTrade');
 
       RegisterMethod(@TKMScriptActions.MapTileSet,                              'MapTileSet');
+      RegisterMethod(@TKMScriptActions.MapTilesArraySet,                        'MapTilesArraySet');
       RegisterMethod(@TKMScriptActions.MapTileHeightSet,                        'MapTileHeightSet');
       RegisterMethod(@TKMScriptActions.MapTileObjectSet,                        'MapTileObjectSet');
 

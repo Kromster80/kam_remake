@@ -62,6 +62,8 @@ type
   function KMInRect(aPoint: TKMPointF; aRect: TKMRectF): Boolean; overload;
   function KMRectArea(aRect: TKMRect): Integer;
   function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
+  procedure KMRectAddPnt(var aRect: TKMRect; X,Y: Integer); overload;
+  procedure KMRectAddPnt(var aRect: TKMRect; aPoint: TKMPoint); overload;
 
   function KMGetDirection(X,Y: Integer): TKMDirection; overload;
   function KMGetDirection(X,Y: Single): TKMDirection; overload;
@@ -352,6 +354,22 @@ begin
   Result.Right  := aRect.Right + X;
   Result.Top    := aRect.Top + Y;
   Result.Bottom := aRect.Bottom + Y;
+end;
+
+
+procedure KMRectAddPnt(var aRect: TKMRect; X,Y: Integer);
+begin
+  KMRectAddPnt(aRect, KMPoint(X,Y));
+end;
+
+
+procedure KMRectAddPnt(var aRect: TKMRect; aPoint: TKMPoint);
+begin
+  if KMInRect(aPoint, aRect) then Exit;
+  aRect.Left    := Min(aPoint.X, aRect.Left);
+  aRect.Right   := Max(aPoint.X, aRect.Right);
+  aRect.Top     := Min(aPoint.Y, aRect.Top);
+  aRect.Bottom  := Max(aPoint.Y, aRect.Bottom);
 end;
 
 

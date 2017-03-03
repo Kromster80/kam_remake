@@ -4,7 +4,8 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units,
-  KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents;
+  KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents,
+  KM_Terrain;
 
 
 type
@@ -89,6 +90,7 @@ type
     procedure Log(aText: AnsiString);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
+    function MapTilesArraySet(aTiles: TKMTerrainTileBrief2Array; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
 
@@ -141,7 +143,7 @@ type
 
 implementation
 uses
-  KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior, KM_HandLogistics,
+  TypInfo, KM_AI, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior, KM_HandLogistics,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
   KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements, KM_BuildList;
@@ -1968,11 +1970,78 @@ function TKMScriptActions.MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
 begin
   try
     if gTerrain.TileInMapCoords(X, Y) and InRange(aType, 0, 255) and InRange(aRotation, 0, 3) then
-      Result := gTerrain.ScriptTryTileSet(X, Y, aType, aRotation)
+      Result := gTerrain.ScriptTrySetTile(X, Y, aType, aRotation)
     else
     begin
       LogParamWarning('Actions.MapTileSet', [X, Y, aType, aRotation]);
       Result := False;
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Sets array of tiles info, with possible change of 
+//* 1. terrain (tile type), rotation (same as for MapTileSet), 
+//* 2. tile height (same as for MapTileHeightSet)
+//* 3. tile object (same as for MapTileObjectSet)
+//* Works much faster, then applying all changes successively for every tile, because pathfinding compute is executed only once after all changes have been done
+//* aTiles: TKMTerrainTileBrief2Array. Check detailed info on this type further
+//* aRevertOnFail - do we need to revert all changes on any error while applying changes. If True, then no changes will be applied on error. If False - we will continue apply changes where possible
+//* aShowDetailedErrors - show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown 
+//* Returns true, if there was no errors on any tile. False if there was at least 1 error.
+//*
+//* TKMTerrainTileBrief2Array: array of array of TKMTerrainTileBrief, where
+//* TKMTerrainTileBrief = record
+//*    Terrain: Byte;  // Terrain tile type (0..255)
+//*    Rotation: Byte; // Tile rotation (0..3)
+//*    Height: Byte;   // Heigth (0..100)
+//*    Obj: Byte;      // Object (0..255)
+//*    ChangeSet: TKMTileChangeTypeSet; // Set of changes. F.e. if we want to change terrain type and height, than ChangeSet should contain tctTerrain and tctHeight
+//*  end
+//* where TKMTileChangeTypeSet = set of TKMTileChangeType
+//* where TKMTileChangeType = (tctTerrain, tctHeight, tctObject) // Determines what should be changed on tile
+//* Note: aTiles elements should start from 0, as for dynamic array. So f.e. to change map tile 1,1 we should set aTiles[0][0].
+//* Note: Errors are shown as map tiles (f.e. for error while applying aTiles[0][0] tile there will be a message with for map tile 1,1)
+
+function TKMScriptActions.MapTilesArraySet(aTiles: TKMTerrainTileBrief2Array; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
+  var TileChangeType: TKMTileChangeType;
+  begin
+    Result := '';
+    for TileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if TileChangeType in aErrorsIn then
+      begin
+        if Result <> '' then
+          Result := Result + ', ';
+        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(TileChangeType));
+      end;
+  end;
+
+var I: Integer;
+    Errors: TKMTerrainTileChangeErrorArray;
+begin
+  try
+    Result := True;
+    SetLength(Errors, 16);
+    if not gTerrain.ScriptTrySetTilesArray(aTiles, aRevertOnFail, Errors) then
+    begin
+      Result := False;
+
+      // Log errors
+      if Length(Errors) > 0 then
+      begin
+        if not aShowDetailedErrors then
+          Log(AnsiString(Format('Actions.MapTilesArraySet: there were %d errors while setting tiles' , [Length(Errors)])))
+        else
+          Log('Actions.MapTilesArraySet list of tiles errors:');
+      end;
+      if aShowDetailedErrors then
+        for I := Low(Errors) to High(Errors) do
+          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [Errors[I].X, Errors[I].Y, GetTileErrorsStr(Errors[I].ErrorsIn)])));
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -1991,7 +2060,7 @@ begin
   try
     //Height is vertex based not tile based
     if gTerrain.VerticeInMapCoords(X, Y) and InRange(Height, 0, 100) then
-      Result := gTerrain.ScriptTryHeightSet(X, Y, Height)
+      Result := gTerrain.ScriptTrySetTileHeight(X, Y, Height)
     else
     begin
       LogParamWarning('Actions.MapTileHeightSet', [X, Y, Height]);
@@ -2016,7 +2085,7 @@ begin
   try
     //Objects are vertex based not tile based
     if gTerrain.VerticeInMapCoords(X, Y) and InRange(Obj, 0, 255) then
-      Result := gTerrain.ScriptTryObjectSet(X, Y, Obj)
+      Result := gTerrain.ScriptTrySetTileObject(X, Y, Obj)
     else
     begin
       LogParamWarning('Actions.MapTileObjectSet', [X, Y, Obj]);
