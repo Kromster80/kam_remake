@@ -263,6 +263,7 @@ type
     cmMarkers, //CenterScreen, FOW, Defence, AIStart, Rally/Cutting Point markers
     cmEyedropper, //Terrain eyedropper
     cmPaintBucket, //PaintBucket - change color(team) for map objects
+    cmUniversalEraser, //Universal eraser for units/groups/houses/terrain objects/roads and fields (corn/wine)
     cmRotateTile  //Rotate terrain tile
     );
 

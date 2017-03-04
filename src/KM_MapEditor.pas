@@ -33,7 +33,8 @@ type
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
     procedure ProceedUnitsCursorMode;
-    procedure UpdateField(aInc: Integer; aCheckPrevCell: Boolean);
+    procedure UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
+    procedure EraseObject(aEraseAll: Boolean);
   public
     ActiveMarker: TKMMapEdMarker;
 
@@ -215,12 +216,14 @@ begin
 end;
 
 
-procedure TKMMapEditor.UpdateField(aInc: Integer; aCheckPrevCell: Boolean);
+//aStageIncrement - stage increment, can be negative
+//aCheckPrevCell - do we check prev cell uner the cursor to differ from current cell under the cursor
+procedure TKMMapEditor.UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
 var
   P: TKMPoint;
   FieldStage: Integer;
 begin
-  if aInc = 0 then Exit;
+  if aStageIncrement = 0 then Exit;
 
   FieldStage := -1;
   P := gGameCursor.Cell;
@@ -229,7 +232,7 @@ begin
                 if gTerrain.TileIsCornField(P) then
                 begin
                   if not KMSamePoint(P, gGameCursor.PrevCell) or not aCheckPrevCell then
-                    FieldStage := (gTerrain.GetCornStage(P) + aInc + CORN_STAGES_COUNT) mod CORN_STAGES_COUNT;
+                    FieldStage := (gTerrain.GetCornStage(P) + aStageIncrement + CORN_STAGES_COUNT) mod CORN_STAGES_COUNT;
                 end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
                   FieldStage := 0;
                 if FieldStage >= 0 then
@@ -239,12 +242,55 @@ begin
                 if gTerrain.TileIsWineField(P) then
                 begin
                   if not KMSamePoint(P, gGameCursor.PrevCell) or not aCheckPrevCell then
-                    FieldStage := (gTerrain.GetWineStage(P) + aInc + WINE_STAGES_COUNT) mod WINE_STAGES_COUNT;
+                    FieldStage := (gTerrain.GetWineStage(P) + aStageIncrement + WINE_STAGES_COUNT) mod WINE_STAGES_COUNT;
                 end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
                   FieldStage := 0;
                 if FieldStage >= 0 then
                   gMySpectator.Hand.AddField(P, ft_Wine, FieldStage);
               end;
+  end;
+end;
+
+
+procedure TKMMapEditor.EraseObject(aEraseAll: Boolean);
+var Obj: TObject;
+    P: TKMPoint;
+    IsDeleted: Boolean;
+begin
+  IsDeleted := False;
+  P := gGameCursor.Cell;
+  Obj := gMySpectator.HitTestCursor(True);
+
+  if Obj is TKMUnit then
+  begin
+    gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
+    IsDeleted := True;
+  end
+  else
+  if Obj is TKMHouse then
+  begin
+    gHands.RemAnyHouse(P);
+    IsDeleted := True;
+  end;
+
+  if (aEraseAll or not IsDeleted) and (gTerrain.Land[P.Y,P.X].Obj <> 255) then
+  begin
+    fTerrainPainter.MakeCheckpoint;
+    if gTerrain.TileIsCornField(P) and (gTerrain.GetCornStage(P) in [4,5]) then
+      gTerrain.SetField(P, gTerrain.Land[P.Y,P.X].TileOwner, ft_Corn, 3)  // For corn, when delete corn object reduce field stage to 3
+    else if gTerrain.TileIsWineField(P) then
+      gTerrain.RemField(P)
+    else
+      gTerrain.SetObject(P, 255);
+    IsDeleted := True;
+  end;
+
+  if aEraseAll or not IsDeleted then
+  begin
+    if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+      gTerrain.RemRoad(P);
+    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+      gTerrain.RemField(P);
   end;
 end;
 
@@ -295,6 +341,7 @@ begin
                         gTerrain.RemField(P);
                     end;
       cmSelection:  fSelection.Selection_Resize;
+      cmUniversalEraser: EraseObject(ssShift in gGameCursor.SState);
     end;
   end;
 end;
@@ -389,6 +436,7 @@ begin
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
                               end;
+                cmUniversalEraser:  EraseObject(ssShift in gGameCursor.SState);
               end;
     mbRight:  case gGameCursor.Mode of
                 cmElevate,

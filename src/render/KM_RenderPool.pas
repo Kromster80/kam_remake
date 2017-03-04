@@ -75,7 +75,11 @@ type
     procedure RenderForegroundUI;
     procedure RenderForegroundUI_Units;
     procedure RenderForegroundUI_PaintBucket;
+    procedure RenderForegroundUI_UniversalEraser(aHighlightAll: Boolean);
+    function TryRenderUnitOrGroup(aObject: TObject; aUnitFilterFunc, aGroupFilterFunc: TBooleanFunc; aUseGroupFlagColor, aDoHighlight: Boolean; aHandColor, aFlagColor: Cardinal; aHighlightColor: Cardinal = 0): Boolean;
     procedure RenderUnit(U: TKMUnit; P: TKMPoint; FlagColor: Cardinal; DoHighlight: Boolean; HighlightColor: Cardinal);
+    function PaintBucket_UnitToRender(aUnit: TObject): Boolean;
+    function PaintBucket_GroupToRender(aGroup: TObject): Boolean;
 
     procedure RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
@@ -478,10 +482,10 @@ begin
     gY := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
     CornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
     CornerY := pY - gTerrain.HeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
-    if not DoImmediateRender then
-      fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
+    if DoImmediateRender then
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, DELETE_COLOR)
     else
-      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, DELETE_COLOR);
+      fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY);
   end;
 end;
 
@@ -506,10 +510,10 @@ var
     CornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
     CornerY := pY - gTerrain.HeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
 
-    if not DoImmediateRender then
-      fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
+    if DoImmediateRender then
+      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, DELETE_COLOR)
     else
-      RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, Deleting, DELETE_COLOR);
+      fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY);
   end;
 
 var
@@ -1418,8 +1422,8 @@ begin
                     fRenderTerrain.RenderTile(gGameCursor.Tag1, P.X, P.Y, (gTerrain.AnimStep div 5) mod 4); // Spin it slowly so player remembers it is on randomized
     cmObjects:    begin
                     // If there's object below - paint it in Red
-                    RenderMapElement(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, true, true);
-                    RenderMapElement(gGameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
+                    RenderMapElement(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, True, True);
+                    RenderMapElement(gGameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, True);
                   end;
     cmMagicWater: ; //TODO: Render some effect to show magic water is selected
     cmEyeDropper: RenderWireTile(P, $FFFFFF00); // Cyan quad
@@ -1468,7 +1472,8 @@ begin
                                             PaintRallyPoint(WH.Entrance, WH.GetValidCuttingPoint(P), gMySpectator.Hand.FlagColor, WH.CuttingPointTexId, 0, True);
                                           end;
                   end;
-    cmPaintBucket:  RenderForegroundUI_PaintBucket;
+    cmPaintBucket:      RenderForegroundUI_PaintBucket;
+    cmUniversalEraser:  RenderForegroundUI_UniversalEraser(ssShift in gGameCursor.SState);
   end;
 
   if DISPLAY_SOUNDS then gSoundPlayer.Paint;
@@ -1481,32 +1486,56 @@ begin
 end;
 
 
+//Try to render Unit or Unit group.
+//Return True, if succeeded
+function TRenderPool.TryRenderUnitOrGroup(aObject: TObject; aUnitFilterFunc, aGroupFilterFunc: TBooleanFunc;
+                                          aUseGroupFlagColor, aDoHighlight: Boolean;
+                                          aHandColor, aFlagColor: Cardinal; aHighlightColor: Cardinal = 0): Boolean;
+var U: TKMUnit;
+    G: TKMUnitGroup;
+    GroupFlagColor: Cardinal;
+begin
+  Result := False;
+  if (aObject is TKMUnit) then
+  begin
+    U := TKMUnit(aObject);
+    if not Assigned(aUnitFilterFunc) or aUnitFilterFunc(aObject) then
+    begin
+      RenderUnit(U, U.GetPosition, aHandColor, aDoHighlight, aHighlightColor);
+      Result := True;
+    end;
+  end else if (aObject is TKMUnitGroup) then
+  begin
+    G := TKMUnitGroup(aObject);
+    if not Assigned(aGroupFilterFunc) or aGroupFilterFunc(aObject) then
+    begin
+      U := G.FlagBearer;
+      if aUseGroupFlagColor then
+        GroupFlagColor := G.FlagColor
+      else
+        GroupFlagColor := aFlagColor;
+      if G.IsFlagRenderBeforeUnit then
+      begin
+        G.PaintHighlighted(aHandColor, GroupFlagColor, True, aDoHighlight, aHighlightColor);
+        RenderUnit(U, U.GetPosition, aHandColor, aDoHighlight, aHighlightColor);
+      end else begin
+        RenderUnit(U, U.GetPosition, aHandColor, aDoHighlight, aHighlightColor);
+        G.PaintHighlighted(aHandColor, GroupFlagColor, True, aDoHighlight, aHighlightColor);
+      end;
+      Result := True;
+    end;
+  end;
+end;
+
+
 procedure TRenderPool.RenderForegroundUI_Units;
 var Obj: TObject;
-    U: TKMUnit;
-    G: TKMUnitGroup;
     P: TKMPoint;
 begin
   if gGameCursor.Tag1 = 255 then
   begin
     Obj := gMySpectator.HitTestCursorWGroup(True);
-    if Obj is TKMUnit then
-    begin
-      U := TKMUnit(Obj);
-      RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
-    end else if (Obj is TKMUnitGroup) then
-    begin
-      G := TKMUnitGroup(Obj);
-      U := G.FlagBearer;
-      if G.IsFlagRenderBeforeUnit then
-      begin
-        G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
-        RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
-      end else begin
-        RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
-        G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
-      end;
-    end;
+    TryRenderUnitOrGroup(Obj, nil, nil, True, True, DELETE_COLOR, 0, DELETE_COLOR);
   end
   else begin
     P := gGameCursor.Cell;
@@ -1518,43 +1547,51 @@ begin
 end;
 
 
-procedure TRenderPool.RenderForegroundUI_PaintBucket;
+procedure TRenderPool.RenderForegroundUI_UniversalEraser(aHighlightAll: Boolean);
+var Obj: TObject;
+    P: TKMPoint;
+    IsRendered: Boolean;
+begin
+  P := gGameCursor.Cell;
+  Obj := gMySpectator.HitTestCursorWGroup(True);
 
-  //Try to render Unit.
-  //Return True, if succeeded
-  function TryRenderUnit(aObject: TObject; DoHighlight: Boolean; HighlightColor: Cardinal = 0): Boolean;
-  var U: TKMUnit;
-      G: TKMUnitGroup;
+  IsRendered := TryRenderUnitOrGroup(Obj, nil, nil, True, True, DELETE_COLOR, 0, DELETE_COLOR);
+
+  if (Obj is TKMHouse) then
   begin
-    Result := False;
-    if (aObject is TKMUnit) then
-    begin
-      U := TKMUnit(aObject);
-      if not (U is TKMUnitAnimal) and
-        (U.Owner <> gMySpectator.HandIndex) then
-      begin
-        RenderUnit(U, U.GetPosition, gMySpectator.Hand.FlagColor, DoHighlight, HighlightColor);
-        Result := True;
-      end;
-    end else if (aObject is TKMUnitGroup) then
-    begin
-      G := TKMUnitGroup(aObject);
-      if G.Owner <> gMySpectator.HandIndex then
-      begin
-        U := G.FlagBearer;
-        if G.IsFlagRenderBeforeUnit then
-        begin
-          G.PaintHighlighted(gMySpectator.Hand.FlagColor, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
-          RenderUnit(U, U.GetPosition, gMySpectator.Hand.FlagColor, DoHighlight, HighlightColor);
-        end else begin
-          RenderUnit(U, U.GetPosition, gMySpectator.Hand.FlagColor, DoHighlight, HighlightColor);
-          G.PaintHighlighted(gMySpectator.Hand.FlagColor, gMySpectator.Hand.FlagColor, True, DoHighlight, HighlightColor);
-        end;
-        Result := True;
-      end;
-    end;
+    AddWholeHouse(TKMHouse(Obj), gHands[TKMHouse(Obj).Owner].FlagColor, True, True, DELETE_COLOR);
+    IsRendered := True;
   end;
 
+  // Terrain object found on the cell
+  if (aHighlightAll or not IsRendered) and (gTerrain.Land[P.Y,P.X].Obj <> 255) then
+  begin
+    RenderMapElement(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, True, True);
+    IsRendered := True;
+  end;
+
+  if (aHighlightAll or not IsRendered) and
+    (((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road)
+        and (gTerrain.Land[P.Y, P.X].TileLock = tlNone)) //Sometimes we can point road tile under the house, do not show Cyan quad then
+      or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0)) then
+    RenderWireTile(P, $FFFFFF00); // Cyan quad
+end;
+
+
+function TRenderPool.PaintBucket_GroupToRender(aGroup: TObject): Boolean;
+begin
+   Result := (aGroup is TKMUnitGroup) and (TKMUnitGroup(aGroup).Owner <> gMySpectator.HandIndex);
+end;
+
+
+function TRenderPool.PaintBucket_UnitToRender(aUnit: TObject): Boolean;
+begin
+   Result := (aUnit is TKMUnit) and not (aUnit is TKMUnitAnimal) and
+    (TKMUnit(aUnit).Owner <> gMySpectator.HandIndex);
+end;
+
+
+procedure TRenderPool.RenderForegroundUI_PaintBucket;
 var Obj: TObject;
     HighlightColor: Cardinal;
     P: TKMPoint;
@@ -1564,7 +1601,9 @@ begin
   HighlightColor := MultiplyBrightnessByFactor(gMySpectator.Hand.FlagColor, 2, 0.3, 0.9);
   Obj := gMySpectator.HitTestCursorWGroup;
 
-  IsRendered := TryRenderUnit(Obj, True, HighlightColor);
+  IsRendered := TryRenderUnitOrGroup(Obj, PaintBucket_UnitToRender, PaintBucket_GroupToRender,
+                                     False, True,
+                                     gMySpectator.Hand.FlagColor, gMySpectator.Hand.FlagColor, HighlightColor);
 
   if (Obj is TKMHouse) and (TKMHouse(Obj).Owner <> gMySpectator.HandIndex) then
   begin

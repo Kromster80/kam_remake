@@ -59,6 +59,7 @@ type
     procedure Player_ActiveClick(Sender: TObject);
     procedure Message_Click(Sender: TObject);
     procedure ChangeOwner_Click(Sender: TObject);
+    procedure UniversalEraser_Click(Sender: TObject);
     function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
     procedure ChangeOwner;
 
@@ -72,7 +73,8 @@ type
     procedure Player_UpdatePages;
     procedure UpdateStateInternal;
     procedure UpdatePlayerSelectButtons;
-    procedure SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
+    procedure SetPaintBucketMode(aSetPaintBucketMode: Boolean);
+    procedure SetUniversalEraserMode(aSetUniversalEraserMode: Boolean);
     procedure MoveObjectToCursorCell(aObjectToMove: TObject);
     procedure UpdateSelection;
     procedure DragHouseModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
@@ -86,6 +88,7 @@ type
     Label_Coordinates: TKMLabel;
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
     Button_ChangeOwner: TKMButtonFlat;
+    Button_UniversalEraser: TKMButtonFlat;
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
 
@@ -173,10 +176,15 @@ begin
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
 
-  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, 153, 215, 29, 29, 662);
+  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, 151, 203, 26, 26, 662);
   Button_ChangeOwner.Down := False;
   Button_ChangeOwner.OnClick := ChangeOwner_Click;
   Button_ChangeOwner.Hint := 'Change owner for object'; // Todo Translate
+
+  Button_UniversalEraser := TKMButtonFlat.Create(Panel_Main, 151, 231, 26, 26, 340);
+  Button_UniversalEraser.Down := False;
+  Button_UniversalEraser.OnClick := UniversalEraser_Click;
+  Button_UniversalEraser.Hint := 'Universal eraser'; // Todo Translate
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
@@ -192,7 +200,7 @@ begin
   fGuiExtras := TKMMapEdExtras.Create(Panel_Main, PageChanged);
   fGuiMessage := TKMMapEdMessage.Create(Panel_Main);
 
-  Panel_Common := TKMPanel.Create(Panel_Main,TB_PAD,255,TB_WIDTH,768);
+  Panel_Common := TKMPanel.Create(Panel_Main,TB_PAD,262,TB_WIDTH,768);
 
   {5 big tabs}
   Button_Main[1] := TKMButton.Create(Panel_Common, BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
@@ -379,6 +387,7 @@ begin
   fGuiPlayer.UpdateState;
 
   Button_ChangeOwner.Down := gGameCursor.Mode = cmPaintBucket;
+  Button_UniversalEraser.Down := gGameCursor.Mode = cmUniversalEraser;
 end;
 
   
@@ -482,11 +491,21 @@ begin
 end;
 
 
-procedure TKMapEdInterface.SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
+procedure TKMapEdInterface.SetPaintBucketMode(aSetPaintBucketMode: Boolean);
 begin
-  Button_ChangeOwner.Down := aDoSetPaintBucketMode;
-  if aDoSetPaintBucketMode then
+  Button_ChangeOwner.Down := aSetPaintBucketMode;
+  if aSetPaintBucketMode then
     gGameCursor.Mode := cmPaintBucket
+  else
+    gGameCursor.Mode := cmNone;
+end;
+
+
+procedure TKMapEdInterface.SetUniversalEraserMode(aSetUniversalEraserMode: Boolean);
+begin
+  Button_UniversalEraser.Down := aSetUniversalEraserMode;
+  if aSetUniversalEraserMode then
+    gGameCursor.Mode := cmUniversalEraser
   else
     gGameCursor.Mode := cmNone;
 end;
@@ -512,37 +531,43 @@ var House: TKMHouse;
 begin
   Result := False;
   if (aObject <> nil) then
+  begin
+    if aObject is TKMHouse then
     begin
-      if aObject is TKMHouse then
+      House := TKMHouse(aObject);
+      if House.Owner <> aOwner then
       begin
-        House := TKMHouse(aObject);
-        if House.Owner <> aOwner then
-        begin
-          House.OwnerUpdate(aOwner, True);
-          gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
-          Result := True;
-        end;
+        House.OwnerUpdate(aOwner, True);
+        gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+        Result := True;
+      end;
+    end
+    else if aObject is TKMUnit then
+    begin
+      if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
+      begin
+        TKMUnit(aObject).OwnerUpdate(aOwner, True);
+        Result := True;
+      end;
+    end else if aObject is TKMUnitGroup then
+      if TKMUnitGroup(aObject).Owner <> aOwner then
+      begin
+        TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
+        Result := True;
       end
-      else if aObject is TKMUnit then
-      begin
-        if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
-        begin
-          TKMUnit(aObject).OwnerUpdate(aOwner, True);
-          Result := True;
-        end;
-      end else if aObject is TKMUnitGroup then
-        if TKMUnitGroup(aObject).Owner <> aOwner then
-        begin
-          TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
-          Result := True;
-        end
-    end;
+  end;
 end;
 
 
 procedure TKMapEdInterface.ChangeOwner_Click(Sender: TObject);
 begin
   SetPaintBucketMode(not Button_ChangeOwner.Down);
+end;
+
+
+procedure TKMapEdInterface.UniversalEraser_Click(Sender: TObject);
+begin
+  SetUniversalEraserMode(not Button_UniversalEraser.Down);
 end;
 
 
@@ -725,12 +750,7 @@ begin
 
   inherited KeyDown(Key, Shift);
 
-  //DoPress is not working properly yet. GamePlay only uses DoClick so MapEd can be the same for now.
-  //1-5 game menu shortcuts
-  //if Key in [49..53] then
-  //  Button_Main[Key-48].DoPress;
-
-
+  gGameCursor.SState := Shift; // Update Shift state on KeyDown
 
   KeyPassedToModal := False;
   //Pass Key to Modal pages first
@@ -826,6 +846,8 @@ begin
 
   //For undo/redo shortcuts
   if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);
+
+  gGameCursor.SState := Shift; // Update Shift state on KeyUp
 end;
 
 
@@ -874,7 +896,7 @@ begin
   end;
 
   //So terrain brushes start on mouse down not mouse move
-  UpdateGameCursor(X, Y, Shift);
+  UpdateCursor(X, Y, Shift);
 
   gGame.MapEditor.MouseDown(Button);
 end;
