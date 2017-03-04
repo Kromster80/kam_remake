@@ -157,7 +157,8 @@ type
     procedure OrderHalt(aClearOffenders: Boolean);
     procedure OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
     procedure OrderNone;
-    procedure OrderRepeat;
+    procedure OrderRepeat; overload;
+    procedure OrderRepeat(aGroup: TKMUnitGroup); overload;
     function OrderSplit(aClearOffenders: Boolean; aSplitSingle: Boolean = False): TKMUnitGroup;
     function OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): TKMUnitGroup;
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
@@ -1131,8 +1132,6 @@ begin
   for I := 0 to Count - 1 do
     if not aHungryOnly or (Members[I].Condition <= UNIT_MIN_CONDITION) then
       Members[I].OrderFood;
-
-  OrderHalt(False);
 end;
 
 
@@ -1232,16 +1231,34 @@ begin
 end;
 
 
+//Repeat order after specified aGroup or repeat self order if no aGroup is specified
+procedure TKMUnitGroup.OrderRepeat(aGroup: TKMUnitGroup);
+var Group: TKMUnitGroup;
+begin
+  if aGroup = nil then
+    Group := Self
+  else
+  begin
+    Group := aGroup;
+    fOrder := Group.fOrder;
+    if fOrder <> goNone then        //when there is no order, then use own fOrderLoc
+      fOrderLoc := Group.fOrderLoc; //otherwise - copy from target group
+  end;
+
+  case fOrder of
+    goNone:         OrderHalt(False);
+    goWalkTo:       OrderWalk(Group.fOrderLoc.Loc, False);
+    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(Group.OrderTargetHouse, False);
+    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(Group.OrderTargetUnit, False);
+    goStorm:        ;
+  end;
+end;
+
+
 //Repeat last order e.g. if new members have joined
 procedure TKMUnitGroup.OrderRepeat;
 begin
-  case fOrder of
-    goNone:         OrderHalt(False);
-    goWalkTo:       OrderWalk(fOrderLoc.Loc, False);
-    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(OrderTargetHouse, False);
-    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(OrderTargetUnit, False);
-    goStorm:        ;
-  end;
+  OrderRepeat(nil);
 end;
 
 
@@ -1318,8 +1335,8 @@ begin
   NewGroup.fOrderLoc := KMPointDir(NewLeader.GetPosition, fOrderLoc.Dir);
 
   //Tell both groups to reposition
-  OrderHalt(False);
-  NewGroup.OrderHalt(False);
+  OrderRepeat;
+  NewGroup.OrderRepeat(Self);
 
   Result := NewGroup; //Return the new group in case somebody is interested in it
 end;
