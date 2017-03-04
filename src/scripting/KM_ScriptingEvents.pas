@@ -37,6 +37,8 @@ type
     fProcGroupHungry: TMethod;
     fProcGroupOrderAttackHouse: TMethod;
     fProcGroupOrderAttackUnit: TMethod;
+    fProcGroupOrderLink: TMethod;
+    fProcGroupOrderSplit: TMethod;
     fProcMarketTrade: TMethod;
     fProcMissionStart: TMethod;
     fProcPlanRoadPlaced: TMethod;
@@ -73,6 +75,8 @@ type
     procedure ProcGroupHungry(aGroup: TKMUnitGroup);
     procedure ProcGroupOrderAttackHouse(aGroup: TKMUnitGroup; aHouse: TKMHouse);
     procedure ProcGroupOrderAttackUnit(aGroup: TKMUnitGroup; aUnit: TKMUnit);
+    procedure ProcGroupOrderLink(aGroup1, aGroup2: TKMUnitGroup);
+    procedure ProcGroupOrderSplit(aGroup, aNewGroup: TKMUnitGroup);
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
     procedure ProcPlanRoadPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
@@ -147,6 +151,8 @@ begin
   fProcGroupHungry           := fExec.GetProcAsMethodN('OnGroupHungry');
   fProcGroupOrderAttackHouse := fExec.GetProcAsMethodN('OnGroupOrderAttackHouse');
   fProcGroupOrderAttackUnit  := fExec.GetProcAsMethodN('OnGroupOrderAttackUnit');
+  fProcGroupOrderLink        := fExec.GetProcAsMethodN('OnGroupOrderLink');
+  fProcGroupOrderSplit       := fExec.GetProcAsMethodN('OnGroupOrderSplit');
   fProcMarketTrade           := fExec.GetProcAsMethodN('OnMarketTrade');
   fProcMissionStart          := fExec.GetProcAsMethodN('OnMissionStart');
   fProcPlanRoadPlaced        := fExec.GetProcAsMethodN('OnPlanRoadPlaced');
@@ -364,6 +370,36 @@ begin
     fIDCache.CacheGroup(aGroup, aGroup.UID); //Improves cache efficiency since aGroup will probably be accessed soon
     fIDCache.CacheUnit(aUnit, aUnit.UID);    //Improves cache efficiency since aUnit will probably be accessed soon
     DoProc(fProcGroupOrderAttackUnit, [aGroup.UID, aUnit.UID]);
+  end;
+end;
+
+
+//* Version: 7000+
+//* Occurs when the group1 gets order to link to group2
+//* aGroup1: link group ID
+//* aGroup2: link target group ID
+procedure TKMScriptEvents.ProcGroupOrderLink(aGroup1, aGroup2: TKMUnitGroup);
+begin
+  if MethodAssigned(fProcGroupOrderLink) then
+  begin
+    fIDCache.CacheGroup(aGroup1, aGroup1.UID); //Improves cache efficiency since aGroup1 will probably be accessed soon
+    fIDCache.CacheGroup(aGroup2, aGroup2.UID); //Improves cache efficiency since aGroup2 will probably be accessed soon
+    DoProc(fProcGroupOrderLink, [aGroup1.UID, aGroup2.UID]);
+  end;
+end;
+
+
+//* Version: 7000+
+//* Occurs when the group gets order to split
+//* aGroup: group ID
+//* aNewGroup: splitted group ID
+procedure TKMScriptEvents.ProcGroupOrderSplit(aGroup, aNewGroup: TKMUnitGroup);
+begin
+  if MethodAssigned(fProcGroupOrderLink) then
+  begin
+    fIDCache.CacheGroup(aGroup, aGroup.UID);       //Improves cache efficiency since aGroup will probably be accessed soon
+    fIDCache.CacheGroup(aNewGroup, aNewGroup.UID); //Improves cache efficiency since aNewGroup will probably be accessed soon
+    DoProc(fProcGroupOrderSplit, [aGroup.UID, aNewGroup.UID]);
   end;
 end;
 
