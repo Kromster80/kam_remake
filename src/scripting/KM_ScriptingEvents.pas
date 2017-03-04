@@ -35,6 +35,8 @@ type
     fProcHouseDamaged: TMethod;
     fProcHouseDestroyed: TMethod;
     fProcGroupHungry: TMethod;
+    fProcGroupOrderAttackHouse: TMethod;
+    fProcGroupOrderAttackUnit: TMethod;
     fProcMarketTrade: TMethod;
     fProcMissionStart: TMethod;
     fProcPlanRoadPlaced: TMethod;
@@ -69,6 +71,8 @@ type
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandIndex);
     procedure ProcGroupHungry(aGroup: TKMUnitGroup);
+    procedure ProcGroupOrderAttackHouse(aGroup: TKMUnitGroup; aHouse: TKMHouse);
+    procedure ProcGroupOrderAttackUnit(aGroup: TKMUnitGroup; aUnit: TKMUnit);
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
     procedure ProcPlanRoadPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
@@ -133,31 +137,33 @@ end;
 
 procedure TKMScriptEvents.LinkEvents;
 begin
-  fProcBeacon               := fExec.GetProcAsMethodN('ONBEACON');
-  fProcHouseAfterDestroyed  := fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED');
-  fProcHouseBuilt           := fExec.GetProcAsMethodN('ONHOUSEBUILT');
-  fProcHousePlanPlaced      := fExec.GetProcAsMethodN('ONHOUSEPLANPLACED');
-  fProcHousePlanRemoved     := fExec.GetProcAsMethodN('ONHOUSEPLANREMOVED');
-  fProcHouseDamaged         := fExec.GetProcAsMethodN('ONHOUSEDAMAGED');
-  fProcHouseDestroyed       := fExec.GetProcAsMethodN('ONHOUSEDESTROYED');
-  fProcGroupHungry          := fExec.GetProcAsMethodN('ONGROUPHUNGRY');
-  fProcMarketTrade          := fExec.GetProcAsMethodN('ONMARKETTRADE');
-  fProcMissionStart         := fExec.GetProcAsMethodN('ONMISSIONSTART');
-  fProcPlanRoadPlaced       := fExec.GetProcAsMethodN('ONPLANROADPLACED');
-  fProcPlanRoadRemoved      := fExec.GetProcAsMethodN('ONPLANROADREMOVED');
-  fProcPlanFieldPlaced      := fExec.GetProcAsMethodN('ONPLANFIELDPLACED');
-  fProcPlanFieldRemoved     := fExec.GetProcAsMethodN('ONPLANFIELDREMOVED');
-  fProcPlanWinefieldPlaced  := fExec.GetProcAsMethodN('ONPLANWINEFIELDPLACED');
-  fProcPlanWinefieldRemoved := fExec.GetProcAsMethodN('ONPLANWINEFIELDREMOVED');
-  fProcPlayerDefeated       := fExec.GetProcAsMethodN('ONPLAYERDEFEATED');
-  fProcPlayerVictory        := fExec.GetProcAsMethodN('ONPLAYERVICTORY');
-  fProcTick                 := fExec.GetProcAsMethodN('ONTICK');
-  fProcUnitAfterDied        := fExec.GetProcAsMethodN('ONUNITAFTERDIED');
-  fProcUnitDied             := fExec.GetProcAsMethodN('ONUNITDIED');
-  fProcUnitTrained          := fExec.GetProcAsMethodN('ONUNITTRAINED');
-  fProcUnitWounded          := fExec.GetProcAsMethodN('ONUNITWOUNDED');
-  fProcUnitAttacked         := fExec.GetProcAsMethodN('ONUNITATTACKED');
-  fProcWarriorEquipped      := fExec.GetProcAsMethodN('ONWARRIOREQUIPPED');
+  fProcBeacon                := fExec.GetProcAsMethodN('OnBeacon');
+  fProcHouseAfterDestroyed   := fExec.GetProcAsMethodN('OnHouseAfterDestroyed');
+  fProcHouseBuilt            := fExec.GetProcAsMethodN('OnHouseBuilt');
+  fProcHousePlanPlaced       := fExec.GetProcAsMethodN('OnHousePlanPlaced');
+  fProcHousePlanRemoved      := fExec.GetProcAsMethodN('OnHousePlanRemoved');
+  fProcHouseDamaged          := fExec.GetProcAsMethodN('OnHouseDamaged');
+  fProcHouseDestroyed        := fExec.GetProcAsMethodN('OnHouseDestroyed');
+  fProcGroupHungry           := fExec.GetProcAsMethodN('OnGroupHungry');
+  fProcGroupOrderAttackHouse := fExec.GetProcAsMethodN('OnGroupOrderAttackHouse');
+  fProcGroupOrderAttackUnit  := fExec.GetProcAsMethodN('OnGroupOrderAttackUnit');
+  fProcMarketTrade           := fExec.GetProcAsMethodN('OnMarketTrade');
+  fProcMissionStart          := fExec.GetProcAsMethodN('OnMissionStart');
+  fProcPlanRoadPlaced        := fExec.GetProcAsMethodN('OnPlanRoadPlaced');
+  fProcPlanRoadRemoved       := fExec.GetProcAsMethodN('OnPlanRoadRemoved');
+  fProcPlanFieldPlaced       := fExec.GetProcAsMethodN('OnPlanFieldPlaced');
+  fProcPlanFieldRemoved      := fExec.GetProcAsMethodN('OnPlanFieldRemoved');
+  fProcPlanWinefieldPlaced   := fExec.GetProcAsMethodN('OnPlanWinefieldPlaced');
+  fProcPlanWinefieldRemoved  := fExec.GetProcAsMethodN('OnPlanWinefieldRemoved');
+  fProcPlayerDefeated        := fExec.GetProcAsMethodN('OnPlayerDefeated');
+  fProcPlayerVictory         := fExec.GetProcAsMethodN('OnPlayerVictory');
+  fProcTick                  := fExec.GetProcAsMethodN('OnTick');
+  fProcUnitAfterDied         := fExec.GetProcAsMethodN('OnUnitAfterDied');
+  fProcUnitDied              := fExec.GetProcAsMethodN('OnUnitDied');
+  fProcUnitTrained           := fExec.GetProcAsMethodN('OnUnitTrained');
+  fProcUnitWounded           := fExec.GetProcAsMethodN('OnUnitWounded');
+  fProcUnitAttacked          := fExec.GetProcAsMethodN('OnUnitAttacked');
+  fProcWarriorEquipped       := fExec.GetProcAsMethodN('OnWarriorEquipped');
 end;
 
 
@@ -254,7 +260,7 @@ end;
 
 //* Version: 5882
 //* Occurs when a house is damaged by the enemy soldier.
-//* !Attacker is -1 the house was damaged some other way, such as from Actions.!HouseAddDamage.
+//* Attacker is -1 the house was damaged some other way, such as from Actions.HouseAddDamage.
 procedure TKMScriptEvents.ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
 begin
   if MethodAssigned(fProcHouseDamaged) then
@@ -274,8 +280,8 @@ end;
 
 //* Version: 5407
 //* Occurs when a house is destroyed.
-//* If !DestroyerIndex is -1 the house was destroyed some other way, such as from Actions.!HouseDestroy.
-//* If !DestroyerIndex is the same as the house owner (States.!HouseOwner), the house was demolished by the player who owns it.
+//* If DestroyerIndex is -1 the house was destroyed some other way, such as from Actions.HouseDestroy.
+//* If DestroyerIndex is the same as the house owner (States.HouseOwner), the house was demolished by the player who owns it.
 //* Otherwise it was destroyed by an enemy.
 //* Called just before the house is destroyed so HouseID is usable only during this event, and the area occupied by the house is still unusable.
 //* aDestroyerIndex: Index of player who destroyed it
@@ -292,7 +298,7 @@ end;
 //* Version: 6114
 //* Occurs after a house is destroyed and has been completely removed from the game,
 //* meaning the area it previously occupied can be used.
-//* If you need more information about the house use the !OnHouseDestroyed event.
+//* If you need more information about the house use the OnHouseDestroyed event.
 procedure TKMScriptEvents.ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcHouseAfterDestroyed) then
@@ -332,8 +338,38 @@ begin
 end;
 
 
+//* Version: 7000+
+//* Occurs when the group gets order to attack house
+//* aGroup: attackers group ID
+//* aHouse: target house ID
+procedure TKMScriptEvents.ProcGroupOrderAttackHouse(aGroup: TKMUnitGroup; aHouse: TKMHouse);
+begin
+  if MethodAssigned(fProcGroupOrderAttackHouse) then
+  begin
+    fIDCache.CacheGroup(aGroup, aGroup.UID); //Improves cache efficiency since aGroup will probably be accessed soon
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    DoProc(fProcGroupOrderAttackHouse, [aGroup.UID, aHouse.UID]);
+  end;
+end;
+
+
+//* Version: 7000+
+//* Occurs when the group gets order to attack unit
+//* aGroup: attackers group ID
+//* aUnit: target unit ID
+procedure TKMScriptEvents.ProcGroupOrderAttackUnit(aGroup: TKMUnitGroup; aUnit: TKMUnit);
+begin
+  if MethodAssigned(fProcGroupOrderAttackUnit) then
+  begin
+    fIDCache.CacheGroup(aGroup, aGroup.UID); //Improves cache efficiency since aGroup will probably be accessed soon
+    fIDCache.CacheUnit(aUnit, aUnit.UID);    //Improves cache efficiency since aUnit will probably be accessed soon
+    DoProc(fProcGroupOrderAttackUnit, [aGroup.UID, aUnit.UID]);
+  end;
+end;
+
+
 //* Version: 5407
-//* Occurs when a unit dies. If !KillerIndex is -1 the unit died from another cause such as hunger or Actions.!UnitKill.
+//* Occurs when a unit dies. If KillerIndex is -1 the unit died from another cause such as hunger or Actions.UnitKill.
 //* Called just before the unit is killed so UnitID is usable only during this event,
 //* and the tile occupied by the unit is still taken.
 //* aKillerOwner: Index of player who killed it
@@ -349,8 +385,8 @@ end;
 
 //* Version: 6114
 //* Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used.
-//* If you need more information about the unit use the !OnUnitDied event.
-//* Note: Because units have a death animation there is a delay of several ticks between !OnUnitDied and !OnUnitAfterDied.
+//* If you need more information about the unit use the OnUnitDied event.
+//* Note: Because units have a death animation there is a delay of several ticks between OnUnitDied and OnUnitAfterDied.
 procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcUnitAfterDied) then

@@ -1022,6 +1022,9 @@ begin
 
   for I := 0 to Count - 1 do
     Members[I].OrderAttackHouse(aHouse);
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackHouse(Self, aHouse);
 end;
 
 
@@ -1115,6 +1118,9 @@ begin
     fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
     OrderTargetUnit := aUnit;
   end;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackUnit(Self, aUnit);
 end;
 
 
