@@ -163,7 +163,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
 
       TKMLabel.Create(Panel_MPPassword, 20, 50, 156, 20, gResTexts[TX_MP_MENU_PASSWORD], fnt_Outline, taLeft);
       Edit_MP_Password := TKMEdit.Create(Panel_MPPassword, 20, 70, 152, 20, fnt_Grey);
-      Edit_MP_Password.AllowedChars := acText;
+      Edit_MP_Password.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
       Button_MP_PasswordOk := TKMButton.Create(Panel_MPPassword, 20, 110, 280, 30, gResTexts[TX_MP_MENU_SERVER_JOIN], bsMenu);
       Button_MP_PasswordOk.OnClick := MP_PasswordClick;
       Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, gResTexts[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
