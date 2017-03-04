@@ -60,8 +60,6 @@ type
     procedure Message_Click(Sender: TObject);
     procedure ChangeOwner_Click(Sender: TObject);
     procedure UniversalEraser_Click(Sender: TObject);
-    function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
-    procedure ChangeOwner;
 
     procedure UpdateCursor(X, Y: Integer; Shift: TShiftState);
     procedure Main_ButtonClick(Sender: TObject);
@@ -511,54 +509,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.ChangeOwner;
-var P: TKMPoint;
-begin
-  P := gGameCursor.Cell;
-  //Fisrt try to change owner of object on tile
-  if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandIndex) then
-    //then try to change
-    if ((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road) or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
-      and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandIndex) then
-      gTerrain.Land[P.Y, P.X].TileOwner := gMySpectator.HandIndex;
-end;
-
-
-//Change owner for specified object
-//returns True if owner was changed successfully
-function TKMapEdInterface.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
-var House: TKMHouse;
-begin
-  Result := False;
-  if (aObject <> nil) then
-  begin
-    if aObject is TKMHouse then
-    begin
-      House := TKMHouse(aObject);
-      if House.Owner <> aOwner then
-      begin
-        House.OwnerUpdate(aOwner, True);
-        gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
-        Result := True;
-      end;
-    end
-    else if aObject is TKMUnit then
-    begin
-      if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
-      begin
-        TKMUnit(aObject).OwnerUpdate(aOwner, True);
-        Result := True;
-      end;
-    end else if aObject is TKMUnitGroup then
-      if TKMUnitGroup(aObject).Owner <> aOwner then
-      begin
-        TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
-        Result := True;
-      end
-  end;
-end;
-
-
 procedure TKMapEdInterface.ChangeOwner_Click(Sender: TObject);
 begin
   SetPaintBucketMode(not Button_ChangeOwner.Down);
@@ -944,9 +894,6 @@ begin
 
   UpdateCursor(X, Y, Shift);
 
-  if (ssLeft in Shift) and (gGameCursor.Mode = cmPaintBucket) then
-    ChangeOwner;
-
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [gGameCursor.Cell.X, gGameCursor.Cell.Y]);
 
   gGame.MapEditor.MouseMove;
@@ -1167,16 +1114,8 @@ begin
                 end
                 else
                   UpdateSelection;
-              end else if gGameCursor.Mode = cmPaintBucket then
-                ChangeOwner;
+              end;
     mbRight:  begin
-                if gGameCursor.Mode = cmPaintBucket then
-                begin
-                  SetPaintBucketMode(False);
-                  UpdateCursor(X, Y, Shift);
-                  Exit;
-                end;
-
                 //Right click performs some special functions and shortcuts
                 if gGameCursor.Mode = cmTiles then
                   gGameCursor.MapEdDir := (gGameCursor.MapEdDir + 1) mod 4; //Rotate tile direction

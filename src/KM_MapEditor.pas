@@ -35,6 +35,8 @@ type
     procedure ProceedUnitsCursorMode;
     procedure UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
     procedure EraseObject(aEraseAll: Boolean);
+    function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
+    procedure ChangeOwner(aChangeOwnerForAll: Boolean);
   public
     ActiveMarker: TKMMapEdMarker;
 
@@ -295,6 +297,54 @@ begin
 end;
 
 
+procedure TKMMapEditor.ChangeOwner(aChangeOwnerForAll: Boolean);
+var P: TKMPoint;
+begin
+  P := gGameCursor.Cell;
+  //Fisrt try to change owner of object on tile
+  if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandIndex) or aChangeOwnerForAll then
+    //then try to change owner tile (road/field/wine)
+    if ((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road) or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
+      and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandIndex) then
+      gTerrain.Land[P.Y, P.X].TileOwner := gMySpectator.HandIndex;
+end;
+
+
+//Change owner for specified object
+//returns True if owner was changed successfully
+function TKMMapEditor.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
+var House: TKMHouse;
+begin
+  Result := False;
+  if (aObject <> nil) then
+  begin
+    if aObject is TKMHouse then
+    begin
+      House := TKMHouse(aObject);
+      if House.Owner <> aOwner then
+      begin
+        House.OwnerUpdate(aOwner, True);
+        gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+        Result := True;
+      end;
+    end
+    else if aObject is TKMUnit then
+    begin
+      if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
+      begin
+        TKMUnit(aObject).OwnerUpdate(aOwner, True);
+        Result := True;
+      end;
+    end else if aObject is TKMUnitGroup then
+      if TKMUnitGroup(aObject).Owner <> aOwner then
+      begin
+        TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
+        Result := True;
+      end
+  end;
+end;
+
+
 procedure TKMMapEditor.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 begin
   UpdateField(Sign(WheelDelta), False);
@@ -341,7 +391,8 @@ begin
                         gTerrain.RemField(P);
                     end;
       cmSelection:  fSelection.Selection_Resize;
-      cmUniversalEraser: EraseObject(ssShift in gGameCursor.SState);
+      cmPaintBucket:      ChangeOwner(ssShift in gGameCursor.SState);
+      cmUniversalEraser:  EraseObject(ssShift in gGameCursor.SState);
     end;
   end;
 end;
@@ -436,6 +487,7 @@ begin
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
                               end;
+                cmPaintBucket:      ChangeOwner(ssShift in gGameCursor.SState);
                 cmUniversalEraser:  EraseObject(ssShift in gGameCursor.SState);
               end;
     mbRight:  case gGameCursor.Mode of

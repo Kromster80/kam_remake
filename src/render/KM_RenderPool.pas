@@ -74,7 +74,7 @@ type
     // Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderForegroundUI;
     procedure RenderForegroundUI_Units;
-    procedure RenderForegroundUI_PaintBucket;
+    procedure RenderForegroundUI_PaintBucket(aHighlightAll: Boolean);
     procedure RenderForegroundUI_UniversalEraser(aHighlightAll: Boolean);
     function TryRenderUnitOrGroup(aObject: TObject; aUnitFilterFunc, aGroupFilterFunc: TBooleanFunc; aUseGroupFlagColor, aDoHighlight: Boolean; aHandColor, aFlagColor: Cardinal; aHighlightColor: Cardinal = 0): Boolean;
     procedure RenderUnit(U: TKMUnit; P: TKMPoint; FlagColor: Cardinal; DoHighlight: Boolean; HighlightColor: Cardinal);
@@ -1472,7 +1472,7 @@ begin
                                             PaintRallyPoint(WH.Entrance, WH.GetValidCuttingPoint(P), gMySpectator.Hand.FlagColor, WH.CuttingPointTexId, 0, True);
                                           end;
                   end;
-    cmPaintBucket:      RenderForegroundUI_PaintBucket;
+    cmPaintBucket:      RenderForegroundUI_PaintBucket(ssShift in gGameCursor.SState);
     cmUniversalEraser:  RenderForegroundUI_UniversalEraser(ssShift in gGameCursor.SState);
   end;
 
@@ -1591,7 +1591,7 @@ begin
 end;
 
 
-procedure TRenderPool.RenderForegroundUI_PaintBucket;
+procedure TRenderPool.RenderForegroundUI_PaintBucket(aHighlightAll: Boolean);
 var Obj: TObject;
     HighlightColor: Cardinal;
     P: TKMPoint;
@@ -1611,7 +1611,7 @@ begin
     IsRendered := True;
   end;
 
-  if not IsRendered and
+  if (aHighlightAll or not IsRendered) and
     (((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road)
         and (gTerrain.Land[P.Y, P.X].TileLock = tlNone)) //Sometimes we can point road tile under the house, do not show Cyan quad then
       or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
