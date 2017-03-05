@@ -42,10 +42,12 @@ type
     fTexts: array of TUnicodeStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
     procedure InitLocaleIds;
+    function DoParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
   public
     constructor Create;
     procedure LoadLocale(aPathTemplate: string); // All locales for Mission strings
-    function ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
+    function ParseTextMarkup(const aText: UnicodeString): UnicodeString; overload;
+    function ParseTextMarkup(const aText: UnicodeString; aParams: array of const): UnicodeString; overload;
     function HasText(aIndex: Word): Boolean;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
     procedure Save(aStream: TKMemoryStream);
@@ -229,7 +231,7 @@ end;
 // Dynamic Scripts should not have access to the actual strings (script variables should be identical for all MP players)
 // Take the string and replace every occurence of <$tag> with corresponding text from LibX
 // - aTagSym says which tags should be replaced ($ for missions, % for game texts)
-function TKMTextLibraryMulti.ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
+function TKMTextLibraryMulti.DoParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
 var
   I, ID, Last: Integer;
 begin
@@ -253,6 +255,21 @@ begin
     Result := Result + aText[I];
     Inc(I);
   end;
+end;
+
+
+function TKMTextLibraryMulti.ParseTextMarkup(const aText: UnicodeString): UnicodeString;
+begin
+  Assert(Self <> gResTexts, 'Only missions so far can do text parsing');
+
+  Result := DoParseTextMarkup(aText, '$');
+  Result := gResTexts.DoParseTextMarkup(Result, '%');
+end;
+
+
+function TKMTextLibraryMulti.ParseTextMarkup(const aText: UnicodeString; aParams: array of const): UnicodeString;
+begin
+  Result := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
 end;
 
 

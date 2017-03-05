@@ -63,8 +63,6 @@ type
     fMissionFileSP: UnicodeString; //Relative pathname to mission we are playing, so it gets saved to crashreport. SP only, see GetMissionFile.
     fMissionMode: TKMissionMode;
 
-    function ParseTextMarkup(aText: UnicodeString): UnicodeString; overload;
-    function ParseTextMarkup(aText: UnicodeString; aParams: array of const): UnicodeString; overload;
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
@@ -1031,24 +1029,6 @@ begin
 end;
 
 
-function TKMGame.ParseTextMarkup(aText: UnicodeString): UnicodeString;
-begin
-  // Replace <$123> tags with text from mission libx
-  Result := fTextMission.ParseTextMarkup(aText, '$');
-
-  // Replace <%123> tags with text from text library (e.g. localized house names)
-  Result := gResTexts.ParseTextMarkup(Result, '%');
-end;
-
-
-function TKMGame.ParseTextMarkup(aText: UnicodeString; aParams: array of const): UnicodeString;
-begin
-  // We must parse for text markup before AND after running Format, since individual format
-  // parameters can contain strings that need parsing (see Annie's Garden for an example)
-  Result := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
-end;
-
-
 procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
 begin
   //Once you have lost no messages can be received
@@ -1065,13 +1045,13 @@ end;
 
 procedure TKMGame.ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
-  fGamePlayInterface.MessageIssue(aKind, ParseTextMarkup(aText), aLoc);
+  fGamePlayInterface.MessageIssue(aKind, fTextMission.ParseTextMarkup(aText), aLoc);
 end;
 
 
 procedure TKMGame.ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
 begin
-  fGamePlayInterface.MessageIssue(aKind, ParseTextMarkup(aText, aParams), aLoc);
+  fGamePlayInterface.MessageIssue(aKind, fTextMission.ParseTextMarkup(aText, aParams), aLoc);
 end;
 
 
@@ -1093,7 +1073,7 @@ var
   S: UnicodeString;
   I: Integer;
 begin
-  S := ParseTextMarkup(aText);
+  S := fTextMission.ParseTextMarkup(aText);
 
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
@@ -1110,7 +1090,7 @@ var
   S: UnicodeString;
   I: Integer;
 begin
-  S := ParseTextMarkup(aText, aParams);
+  S := fTextMission.ParseTextMarkup(aText, aParams);
 
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
@@ -1127,7 +1107,7 @@ var
   S: UnicodeString;
   I: Integer;
 begin
-  S := ParseTextMarkup(aText);
+  S := fTextMission.ParseTextMarkup(aText);
 
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
@@ -1144,7 +1124,7 @@ var
   S: UnicodeString;
   I: Integer;
 begin
-  S := ParseTextMarkup(aText, aParams);
+  S := fTextMission.ParseTextMarkup(aText, aParams);
 
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
