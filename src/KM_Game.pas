@@ -116,12 +116,9 @@ type
     function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
-    procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
-    procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
     procedure OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
-    procedure OverlayAppendFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: UnicodeString read fGameName;
     property CampaignName: TKMCampaignId read fCampaignName;
@@ -171,7 +168,7 @@ type
 
 
 const
-  UID_NONE: Integer = -1;
+  UID_NONE: Integer = -1; //Would be better to have it 0. But now it's -1 for backwards compatibility
 
 var
   gGame: TKMGame;
@@ -1016,7 +1013,7 @@ begin
 end;
 
 
-//We often need to see if game is MP
+// We often need to see if game is MP
 function TKMGame.IsMultiplayer: Boolean;
 begin
   Result := fGameMode in [gmMulti, gmMultiSpectate];
@@ -1045,13 +1042,7 @@ end;
 
 procedure TKMGame.ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
-  fGamePlayInterface.MessageIssue(aKind, fTextMission.ParseTextMarkup(aText), aLoc);
-end;
-
-
-procedure TKMGame.ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
-begin
-  fGamePlayInterface.MessageIssue(aKind, fTextMission.ParseTextMarkup(aText, aParams), aLoc);
+  fGamePlayInterface.MessageIssue(aKind, aText, aLoc);
 end;
 
 
@@ -1070,33 +1061,13 @@ end;
 
 procedure TKMGame.OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
 var
-  S: UnicodeString;
   I: Integer;
 begin
-  S := fTextMission.ParseTextMarkup(aText);
-
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
-      fOverlayText[I] := S
+      fOverlayText[I] := aText
   else
-    fOverlayText[aPlayer] := S;
-
-  OverlayUpdate;
-end;
-
-
-procedure TKMGame.OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
-var
-  S: UnicodeString;
-  I: Integer;
-begin
-  S := fTextMission.ParseTextMarkup(aText, aParams);
-
-  if aPlayer = PLAYER_NONE then
-    for I := 0 to MAX_HANDS do
-      fOverlayText[I] := S
-  else
-    fOverlayText[aPlayer] := S;
+    fOverlayText[aPlayer] := aText;
 
   OverlayUpdate;
 end;
@@ -1104,33 +1075,13 @@ end;
 
 procedure TKMGame.OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
 var
-  S: UnicodeString;
   I: Integer;
 begin
-  S := fTextMission.ParseTextMarkup(aText);
-
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
-      fOverlayText[I] := fOverlayText[I] + S
+      fOverlayText[I] := fOverlayText[I] + aText
   else
-    fOverlayText[aPlayer] := fOverlayText[aPlayer] + S;
-
-  OverlayUpdate;
-end;
-
-
-procedure TKMGame.OverlayAppendFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
-var
-  S: UnicodeString;
-  I: Integer;
-begin
-  S := fTextMission.ParseTextMarkup(aText, aParams);
-
-  if aPlayer = PLAYER_NONE then
-    for I := 0 to MAX_HANDS do
-      fOverlayText[I] := fOverlayText[I] + S
-  else
-    fOverlayText[aPlayer] := fOverlayText[aPlayer] + S;
+    fOverlayText[aPlayer] := fOverlayText[aPlayer] + aText;
 
   OverlayUpdate;
 end;
@@ -1166,7 +1117,7 @@ const
   step = 8765423;
 begin
   //UIDs have the following properties:
-  // - allow -1 to indicate no UID (const UID_NONE = 0)
+  // - allow -1 to indicate no UID (const UID_NONE = -1)
   // - fit within 24bit (we can use that much for RGB colorcoding in unit picking)
   // - Start from 1, so that black colorcode can be detected in render and then re-mapped to -1
 

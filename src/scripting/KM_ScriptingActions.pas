@@ -1366,7 +1366,7 @@ procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   try
     if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(0,0));
+      gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPoint(0,0));
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1384,7 +1384,7 @@ begin
   try
     try
       if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
+        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPoint(0,0));
     except
       //Format may throw an exception
       on E: EConvertError do LogParamWarning('Actions.ShowMsgFormatted: '+E.Message, []);
@@ -1406,7 +1406,7 @@ begin
     if gTerrain.TileInMapCoords(aX, aY) then
     begin
       if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(aX,aY));
+        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPoint(aX,aY));
     end
     else
       LogParamWarning('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
@@ -1430,7 +1430,7 @@ begin
       if gTerrain.TileInMapCoords(aX, aY) then
       begin
         if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-          gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
+          gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPoint(aX,aY));
       end
       else
         LogParamWarning('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
@@ -2037,7 +2037,7 @@ begin
   try
     //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
     if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
-      gGame.OverlaySet(UnicodeString(aText), aPlayer)
+      gGame.OverlaySet(gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), aPlayer)
     else
       LogParamWarning('Actions.OverlayTextSet: '+UnicodeString(aText), [aPlayer]);
   except
@@ -2058,7 +2058,7 @@ begin
     begin
       try
         //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-        gGame.OverlaySetFormatted(UnicodeString(aText), Params, aPlayer);
+        gGame.OverlaySet(gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), aPlayer);
       except
         //Format may throw an exception
         on E: EConvertError do LogParamWarning('Actions.OverlayTextSetFormatted: EConvertError: '+E.Message, []);
@@ -2081,7 +2081,7 @@ begin
   try
     //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
     if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
-      gGame.OverlayAppend(UnicodeString(aText), aPlayer)
+      gGame.OverlayAppend(gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), aPlayer)
     else
       LogParamWarning('Actions.OverlayTextAppend: '+UnicodeString(aText), [aPlayer]);
   except
@@ -2102,7 +2102,7 @@ begin
     begin
       try
         //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-        gGame.OverlayAppendFormatted(UnicodeString(aText), Params, aPlayer);
+        gGame.OverlayAppend(gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), aPlayer);
       except
         //Format may throw an exception
         on E: EConvertError do LogParamWarning('Actions.OverlayTextAppendFormatted: EConvertError: '+E.Message, []);
