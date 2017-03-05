@@ -12,7 +12,7 @@ uses
   KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_MapEditor, KM_Networking, KM_Scripting, KM_Campaigns,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
-  KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts, KM_CommonClasses;
+  KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts, KM_CommonClasses, KM_Sound;
 
 type
   TGameMode = (
@@ -130,7 +130,7 @@ type
     property GameMode: TGameMode read fGameMode;
     property SaveFile: UnicodeString read fSaveFile;
     function GetMissionFile: UnicodeString;
-    function GetScriptSoundFile(const aSound: AnsiString): UnicodeString;
+    function GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 
     property IsExiting: Boolean read fIsExiting;
     property IsPaused: Boolean read fIsPaused write fIsPaused;
@@ -179,7 +179,7 @@ uses
   KM_Log, KM_Utils,
   KM_AIArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Saves, KM_Sound, KM_ScriptingEvents,
+  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Saves, KM_ScriptingEvents,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI;
 
 
@@ -966,9 +966,14 @@ begin
 end;
 
 
-function TKMGame.GetScriptSoundFile(const aSound: AnsiString): UnicodeString;
+function TKMGame.GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+var Ext: UnicodeString;
 begin
-  Result := ChangeFileExt(GetMissionFile, '.' + UnicodeString(aSound) + '.wav')
+  case aAudioFormat of
+    af_Wav: Ext := WAV_FILE_EXT;
+    af_Ogg: Ext := OGG_FILE_EXT;
+  end;
+  Result := ChangeFileExt(GetMissionFile, '.' + UnicodeString(aSound) + Ext)
 end;
 
 
