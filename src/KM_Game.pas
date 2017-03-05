@@ -1061,7 +1061,8 @@ end;
 
 
 procedure TKMGame.ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
-var S: UnicodeString;
+var
+  S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
@@ -1084,7 +1085,9 @@ end;
 
 
 procedure TKMGame.OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
+var
+  S: UnicodeString;
+  I: Integer;
 begin
   S := ParseTextMarkup(aText);
 
@@ -1099,7 +1102,9 @@ end;
 
 
 procedure TKMGame.OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
+var
+  S: UnicodeString;
+  I: Integer;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
@@ -1116,7 +1121,9 @@ end;
 
 
 procedure TKMGame.OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
+var
+  S: UnicodeString;
+  I: Integer;
 begin
   S := ParseTextMarkup(aText);
 
@@ -1131,7 +1138,9 @@ end;
 
 
 procedure TKMGame.OverlayAppendFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
+var
+  S: UnicodeString;
+  I: Integer;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
