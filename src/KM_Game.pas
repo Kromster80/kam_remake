@@ -1032,7 +1032,10 @@ end;
 
 function TKMGame.ParseTextMarkup(aText: UnicodeString): UnicodeString;
 begin
+  // Replace <$123> tags with text from mission libx
   Result := fTextMission.ParseTextMarkup(aText, '$');
+
+  // Replace <%123> tags with text from text library (e.g. localized house names)
   Result := gResTexts.ParseTextMarkup(Result, '%');
 end;
 
