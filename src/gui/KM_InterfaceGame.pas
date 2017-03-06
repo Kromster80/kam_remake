@@ -199,7 +199,7 @@ begin
    // Restrict the cursor to the window, for now.
    //TODO: Allow one to drag out of the window, and still capture.
    {$IFDEF MSWindows}
-     WindowRect := fMain.ClientRect;
+     WindowRect := gMain.ClientRect;
      ClipCursor(@WindowRect);
    {$ENDIF}
    fDragScrollingCursorPos.X := gGameCursor.Pixel.X;
@@ -237,7 +237,7 @@ procedure TKMUserInterfaceGame.ResetDragScrolling;
 begin
   fDragScrolling := False;
   gRes.Cursors.Cursor := kmc_Default; //Reset cursor
-  fMain.ApplyCursorRestriction;
+  gMain.ApplyCursorRestriction;
 end;
 
 
