@@ -11,9 +11,13 @@ type
   TKMMapEdPlayerColors = class
   private
     procedure Player_ColorClick(Sender: TObject);
+    function GetCodeBGRColor(aColor: Cardinal): String;
   protected
     Panel_Color: TKMPanel;
     ColorSwatch_Color: TKMColorSwatch;
+    //Components for Show Code BGR Color
+    BGRColorShape: TKMShape;
+    BGRCodeEdit: TKMEdit;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -44,6 +48,12 @@ begin
   TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 202);
   ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 2, 32, 16, 18, 11);
 
+  //Show Code BGR Color
+  TKMBevel.Create(Panel_Color, 0, 235, 20, 20);
+  BGRColorShape := TKMShape.Create(Panel_Color, 2, 237, 17, 17);
+  BGRCodeEdit := TKMEdit.Create(Panel_Color, 20, 235, TB_WIDTH - 20, 20, fnt_Metal, true);
+  BGRCodeEdit.ReadOnly := true;
+
   //Generate a palette using HSB so the layout is more intuitive
   I := 0;
   for Hue := 0 to 16 do //Less than 17 hues doesn't give a good solid yellow hue
@@ -65,14 +75,18 @@ begin
   ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
 
+function TKMMapEdPlayerColors.GetCodeBGRColor(aColor: Cardinal): String;
+begin
+  Result := IntToHex(aColor and $00FFFFFF, 6);
+end;
 
 procedure TKMMapEdPlayerColors.Player_ColorClick(Sender: TObject);
 begin
   gMySpectator.Hand.FlagColor := ColorSwatch_Color.GetColor;
-
+  BGRColorShape.FillColor := ColorSwatch_Color.GetColor;
+  BGRCodeEdit.Text := GetCodeBGRColor(ColorSwatch_Color.GetColor);
   gGame.ActiveInterface.SyncUI(False);
 end;
-
 
 procedure TKMMapEdPlayerColors.Hide;
 begin
@@ -84,6 +98,8 @@ procedure TKMMapEdPlayerColors.Show;
 begin
   Panel_Color.Show;
   ColorSwatch_Color.SelectByColor(gMySpectator.Hand.FlagColor);
+  BGRColorShape.FillColor := gMySpectator.Hand.FlagColor;
+  BGRCodeEdit.Text := GetCodeBGRColor(gMySpectator.Hand.FlagColor);
 end;
 
 
