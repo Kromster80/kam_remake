@@ -113,6 +113,7 @@ type
 
 const
   ZERO_POINT: TKMPoint = (X: 0; Y: 0);
+  ZERO_POINT_F: TKMPointF = (X: 0.0; Y: 0.0);
   INVALID_MAP_POINT: TKMPoint = (X: -1; Y: -1);
 
 

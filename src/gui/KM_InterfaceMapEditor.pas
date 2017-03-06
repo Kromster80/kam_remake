@@ -27,9 +27,6 @@ type
   TKMapEdInterface = class (TKMUserInterfaceGame)
   private
     fPrevHint: TObject;
-    fDragScrolling: Boolean;
-    fDragScrollingCursorPos: TPoint;
-    fDragScrollingViewportPos: TKMPointF;
     fMouseDownOnMap: Boolean;
 
     //Drag object feature fields
@@ -79,7 +76,6 @@ type
     procedure DragHouseModeEnd;
     function IsDragHouseModeOn: Boolean;
     procedure ResetDragObject;
-    procedure ResetDragScrolling;
     procedure ResetCursorMode;
   protected
     MinimapView: TKMMinimapView;
@@ -104,10 +100,10 @@ type
     property Viewport: TKMViewport read fViewport;
     property GuiTerrain: TKMMapEdTerrain read fGuiTerrain;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState); override;
-    procedure KeyUp(Key: Word; Shift: TShiftState); override;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
+    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
@@ -145,12 +141,6 @@ begin
   fMinimap.PaintVirtualGroups := True;
 
   ResetDragObject;
-
-  fDragScrolling := False;
-  fDragScrollingCursorPos.X := 0;
-  fDragScrollingCursorPos.Y := 0;
-  fDragScrollingViewportPos.X := 0;
-  fDragScrollingViewportPos.Y := 0;
 
   TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407); //Minimap place
   TKMImage.Create(Panel_Main, 0,  200, 224, 400, 404);
@@ -714,16 +704,19 @@ begin
 end;
 
 
-procedure TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState);
+function TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var KeyPassedToModal: Boolean;
 begin
+  Result := True; // assume we handle all keys here
+
   if fMyControls.KeyDown(Key, Shift) then
   begin
     fViewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     Exit; //Handled by Controls
   end;
 
-  inherited KeyDown(Key, Shift);
+  if inherited KeyDown(Key, Shift) then Exit;
+  
 
   //DoPress is not working properly yet. GamePlay only uses DoClick so MapEd can be the same for now.
   //1-5 game menu shortcuts
@@ -749,12 +742,13 @@ begin
     if fGuiMessage.Visible then fGuiMessage.Hide;
     if fGuiExtras.Visible then fGuiExtras.Hide;
   end;
-
 end;
 
 
-procedure TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState);
+function TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
+  Result := True; // assume we handle all keys here
+
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
   inherited KeyUp(Key, Shift);
@@ -830,8 +824,7 @@ end;
 
 
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var MyRect: TRect;
-    Obj: TObject;
+var Obj: TObject;
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
@@ -851,23 +844,6 @@ begin
     end;
   end;
 
-  if (Button = mbMiddle) and (fMyControls.CtrlOver = nil) then
-  begin
-     fDragScrolling := True;
-     //Restrict the cursor to the window, for now.
-     //TODO: Allow one to drag out of the window, and still capture.
-     {$IFDEF MSWindows}
-       MyRect := fMain.ClientRect;
-       ClipCursor(@MyRect);
-     {$ENDIF}
-     fDragScrollingCursorPos.X := X;
-     fDragScrollingCursorPos.Y := Y;
-     fDragScrollingViewportPos.X := fViewport.Position.X;
-     fDragScrollingViewportPos.Y := fViewport.Position.Y;
-     gRes.Cursors.Cursor := kmc_Drag;
-     Exit;
-  end;
-
   if Button = mbRight then
   begin
     RightClick_Cancel;
@@ -880,21 +856,12 @@ begin
 end;
 
 
-procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
-var
-  VP: TKMPointF;
+function TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer): Boolean;
 begin
-  if fDragScrolling then
-  begin
-    if ssMiddle in Shift then
-    begin
-      VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
-      VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
-      fViewport.Position := VP;
-    end else
-      ResetDragScrolling;
-    Exit;
-  end;
+  Result := True; // assume we handle all keys here
+
+  if inherited MouseMove(Shift, X, Y) then Exit;
+
 
   if fDraggingObject then
     if not (ssLeft in Shift) then
@@ -1088,15 +1055,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.ResetDragScrolling;
-begin
-  fDragScrolling := False;
-  gRes.Cursors.Cursor := kmc_Default; //Reset cursor
-  fMain.ApplyCursorRestriction;
-end;
-
-
-procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   DP: TAIDefencePosition;
   Marker: TKMMapEdMarker;
@@ -1108,13 +1067,6 @@ begin
   begin
     DragHouseModeEnd;
     ResetDragObject;
-  end;
-
-  if fDragScrolling then
-  begin
-    if Button = mbMiddle then
-      ResetDragScrolling;
-    Exit;
   end;
 
   if fMyControls.CtrlOver <> nil then

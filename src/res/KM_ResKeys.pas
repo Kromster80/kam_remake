@@ -9,8 +9,8 @@ type
   TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);
 
 const
-  // There are total of 81 different functions in the game that can have a shortcut
-  FUNC_COUNT = 81;
+  // There are total of 82 different functions in the game that can have a shortcut
+  FUNC_COUNT = 82;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -54,6 +54,7 @@ const
   DEF_KEYS: array [0..FUNC_COUNT-1] of Byte = (
     //Common Keys
     37, 39, 38, 40,                         // Scroll Left, Right, Up, Down (Arrow keys)
+    4,                                      // Map drag scroll (Middle mouse btn)
     34, 33, 8,                              // Zoom In/Out/Reset (Page Down, Page Up, Backspace)
     27,                                     // Close opened menu (Esc)
     82, 70, 87, 68,                         // Plan road/field/wine/erase plan(building) (R, F, W, D)
@@ -86,6 +87,7 @@ const
   KEY_FUNC_TX: array [0..FUNC_COUNT-1] of Word = (
     //Common Keys
     TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN,    // Scroll Left, Right, Up, Down
+    TX_KEY_FUNC_MAP_DRAG_SCROLL,                                                                          // Map drag scroll
     TX_KEY_FUNC_ZOOM_IN, TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET,                                    // Zoom In/Out/Reset
     TX_KEY_FUNC_CLOSE_MENU,                                                                               // Close opened menu
     TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/field/wine/erase plan(building)
@@ -135,13 +137,13 @@ begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     case I of
-      0..16:  fFuncs[I].Area := faCommon;
-      17..60: fFuncs[I].Area := faGame;
-      61..68: fFuncs[I].Area := faSpecReplay;
+      0..17:  fFuncs[I].Area := faCommon;
+      18..61: fFuncs[I].Area := faGame;
+      62..68: fFuncs[I].Area := faSpecReplay;
       else    fFuncs[I].Area := faMapEdit;
     end;
 
-    fFuncs[I].IsChangableByPlayer := (I in [13..16]);
+    fFuncs[I].IsChangableByPlayer := (I in [14..17]);
   end;
 end;
 

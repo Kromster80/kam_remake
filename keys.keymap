@@ -2,80 +2,81 @@
 1:39// Scroll Right
 2:38// Scroll Up
 3:40// Scroll Down
-4:34// Zoom In
-5:33// Zoom Out
-6:8// Reset Zoom
-7:27// Close Menu's
-8:82// Construct road
-9:70// Plough field
-10:87// Lay out wine field
-11:68// Remove building/highlights
-12:122// Debug window
-13:77// Debug Show Map
-14:86// Debug Victory
-15:69// Debug Defeat
-16:67// Debug Add Scout
-17:112// Build Menu
-18:113// Ratio Menu
-19:114// Statistics Menu
-20:115// Main Menu
-21:72// Halt Command
-22:83// Splitup Command
-23:76// Linkup Command
-24:70// Food Command
-25:88// Storm Command
-26:187// Increase Formation
-27:189// Decrease Formation
-28:190// Turn Clockwise
-29:188// Turn Counterclockwise
-30:116// Normal Game Speed
-31:117// Game Speed x3
-32:118// Game Speed x6
-33:119// Game Speed x10
-34:66// Beacon
-35:80// Pause
-36:84// Show Teams (MP)
-37:32// Center to Alert
-38:46// Delete Message
-39:13// Show Game Chat (MP)
-40:9// Select next house/unit with same type 
-41:49// Select Group 1
-42:50// Select Group 2
-43:51// Select Group 3
-44:52// Select Group 4
-45:53// Select Group 5
-46:54// Select Group 6
-47:55// Select Group 7
-48:56// Select Group 8
-49:57// Select Group 9
-50:48// Select Group 10
-51:0// Select Group 11
-52:0// Select Group 12
-53:0// Select Group 13
-54:0// Select Group 14
-55:0// Select Group 15
-56:0// Select Group 16
-57:0// Select Group 17
-58:0// Select Group 18
-59:0// Select Group 19
-60:0// Select Group 20
-61:49// Spectate player 1
-62:50// Spectate player 2
-63:51// Spectate player 3
-64:52// Spectate player 4
-65:53// Spectate player 5
-66:54// Spectate player 6
-67:55// Spectate player 7
-68:56// Spectate player 8
-69:13// Extra's Menu
-70:112// Terrain Editor
-71:113// Village Planning
-72:114// Visual Scripting
-73:115// Global Scripting
-74:116// Main Menu
-75:49// Sub-menu 1
-76:50// Sub-menu 2
-77:51// Sub-menu 3
-78:52// Sub-menu 4
-79:53// Sub-menu 5
-80:54// Sub-menu 6
+4:4// Map drag scroll
+5:34// Zoom In
+6:33// Zoom Out
+7:8// Reset Zoom
+8:27// Close Menu's
+9:82// Construct road
+10:70// Plough field
+11:87// Lay out wine field
+12:68// Remove building/highlights
+13:122// Debug window
+14:77// Debug Show Map
+15:86// Debug Victory
+16:69// Debug Defeat
+17:67// Debug Add Scout
+18:112// Build Menu
+19:113// Ratio Menu
+20:114// Statistics Menu
+21:115// Main Menu
+22:72// Halt Command
+23:83// Splitup Command
+24:76// Linkup Command
+25:70// Food Command
+26:88// Storm Command
+27:187// Increase Formation
+28:189// Decrease Formation
+29:190// Turn Clockwise
+30:188// Turn Counterclockwise
+31:116// Normal Game Speed
+32:117// Game Speed x3
+33:118// Game Speed x6
+34:119// Game Speed x10
+35:66// Beacon
+36:80// Pause
+37:84// Show Teams (MP)
+38:32// Center to Alert
+39:46// Delete Message
+40:13// Show Game Chat (MP)
+41:9// Select next house/unit with same type 
+42:49// Select Group 1
+43:50// Select Group 2
+44:51// Select Group 3
+45:52// Select Group 4
+46:53// Select Group 5
+47:54// Select Group 6
+48:55// Select Group 7
+49:56// Select Group 8
+50:57// Select Group 9
+51:48// Select Group 10
+52:0// Select Group 11
+53:0// Select Group 12
+54:0// Select Group 13
+55:0// Select Group 14
+56:0// Select Group 15
+57:0// Select Group 16
+58:0// Select Group 17
+59:0// Select Group 18
+60:0// Select Group 19
+61:0// Select Group 20
+62:49// Spectate player 1
+63:50// Spectate player 2
+64:51// Spectate player 3
+65:52// Spectate player 4
+66:53// Spectate player 5
+67:54// Spectate player 6
+68:55// Spectate player 7
+69:56// Spectate player 8
+70:13// Extra's Menu
+71:112// Terrain Editor
+72:113// Village Planning
+73:114// Visual Scripting
+74:115// Global Scripting
+75:116// Main Menu
+76:49// Sub-menu 1
+77:50// Sub-menu 2
+78:51// Sub-menu 3
+79:52// Sub-menu 4
+80:53// Sub-menu 5
+81:54// Sub-menu 6
