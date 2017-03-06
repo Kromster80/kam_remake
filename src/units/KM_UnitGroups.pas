@@ -1026,6 +1026,9 @@ begin
 
   for I := 0 to Count - 1 do
     Members[I].OrderAttackHouse(aHouse);
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackHouse(Self, aHouse);
 end;
 
 
@@ -1119,6 +1122,9 @@ begin
     fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
     OrderTargetUnit := aUnit;
   end;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackUnit(Self, aUnit);
 end;
 
 
@@ -1216,6 +1222,9 @@ begin
 
   //Repeat targets group order to newly linked members
   aTargetGroup.OrderRepeat;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderLink(Self, aTargetGroup);
 end;
 
 
@@ -1322,6 +1331,9 @@ begin
   NewGroup.OrderHalt(False);
 
   Result := NewGroup; //Return the new group in case somebody is interested in it
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderSplit(Self, NewGroup);
 end;
 
 
@@ -1368,6 +1380,9 @@ begin
 
   //Return NewGroup as result
   Result := NewGroup;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderSplit(Self, NewGroup);
 end;
 
 
