@@ -32,6 +32,11 @@ type
     fDragScrollingViewportPos: TKMPointF;
     fMouseDownOnMap: Boolean;
 
+    //Drag object feature fields
+    fDraggingObject: Boolean;               //Flag when drag object is happening
+    fDragObject: TObject;                   //Object to drag
+    fDragHouseGrabPntAdjustment: TKMPoint;  //Adjustment for house position, to let grab house with any of its points
+
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;
     fGuiTerrain: TKMMapEdTerrain;
@@ -68,6 +73,14 @@ type
     procedure UpdateStateInternal;
     procedure UpdatePlayerSelectButtons;
     procedure SetPaintBucketMode(aDoSetPaintBucketMode: Boolean);
+    procedure MoveObjectToCursorCell(aObjectToMove: TObject);
+    procedure UpdateSelection;
+    procedure DragHouseModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
+    procedure DragHouseModeEnd;
+    function IsDragHouseModeOn: Boolean;
+    procedure ResetDragObject;
+    procedure ResetDragScrolling;
+    procedure ResetCursorMode;
   protected
     MinimapView: TKMMinimapView;
     Label_Coordinates: TKMLabel;
@@ -96,6 +109,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
     procedure SetLoadMode(aMultiplayer:boolean);
 
@@ -111,7 +125,8 @@ implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
-  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_HouseBarracks;
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_Units_Warrior,
+  KM_HouseBarracks, KM_ResHouses;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -128,6 +143,8 @@ begin
   inherited;
 
   fMinimap.PaintVirtualGroups := True;
+
+  ResetDragObject;
 
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
@@ -377,6 +394,7 @@ procedure TKMapEdInterface.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   //Check to see if we need to scroll
   fViewport.UpdateStateIdle(aFrameTime, False);
+  fGuiTown.UpdateStateIdle;
 end;
 
 
@@ -600,8 +618,9 @@ begin
   if fGuiHouse.Visible then Exit;
 
   //Reset cursor
-  gGameCursor.Mode := cmNone;
-  gGameCursor.Tag1 := 0;
+  ResetCursorMode;
+  //Reset drag object fields
+  ResetDragObject;
 end;
 
 
@@ -704,6 +723,8 @@ begin
     Exit; //Handled by Controls
   end;
 
+  inherited KeyDown(Key, Shift);
+
   //DoPress is not working properly yet. GamePlay only uses DoClick so MapEd can be the same for now.
   //1-5 game menu shortcuts
   //if Key in [49..53] then
@@ -729,19 +750,14 @@ begin
     if fGuiExtras.Visible then fGuiExtras.Hide;
   end;
 
-  //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
 end;
 
 
 procedure TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
+
+  inherited KeyUp(Key, Shift);
 
   //F1-F5 menu shortcuts
   if Key = gResKeys[SC_MAPEDIT_TERRAIN].Key   then Button_Main[1].Click;
@@ -782,16 +798,31 @@ begin
     if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(5) else
     if fGuiMission.Visible then fGuiMission.ShowIndex(5);
 
-  //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
-  //Resets the zoom and view, similar to other RTS games like Dawn of War.
-  //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
+  // Build road/field/wine/cancel build
+  if Key = gResKeys[SC_PLAN_ROAD].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildRoad;
+  end;
+  if Key = gResKeys[SC_PLAN_FIELD].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildField;
+  end;
+  if Key = gResKeys[SC_PLAN_WINE].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildWine;
+  end;
+  if Key = gResKeys[SC_ERASE_PLAN].Key then
+  begin
+    if not fGuiTown.Visible then
+      Button_Main[2].Click;
+    fGuiTown.GuiHouses.BuildCancel;
+  end;
 
   //For undo/redo shortcuts
   if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);
@@ -800,11 +831,25 @@ end;
 
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var MyRect: TRect;
+    Obj: TObject;
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
   if fMyControls.CtrlOver <> nil then
     Exit;
+
+  if (Button = mbLeft) and (gGameCursor.Mode = cmNone) then
+  begin
+    Obj := gMySpectator.HitTestCursor;
+    if gMySpectator.HitTestCursor <> nil then
+    begin
+      UpdateSelection;
+      fDragObject := Obj;
+      if Obj is TKMHouse then
+        fDragHouseGrabPntAdjustment := KMVectorDiff(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
+      fDraggingObject := True;
+    end;
+  end;
 
   if (Button = mbMiddle) and (fMyControls.CtrlOver = nil) then
   begin
@@ -812,7 +857,7 @@ begin
      //Restrict the cursor to the window, for now.
      //TODO: Allow one to drag out of the window, and still capture.
      {$IFDEF MSWindows}
-       MyRect := fMain.ClientRect;
+       MyRect := gMain.ClientRect;
        ClipCursor(@MyRect);
      {$ENDIF}
      fDragScrollingCursorPos.X := X;
@@ -841,11 +886,23 @@ var
 begin
   if fDragScrolling then
   begin
-    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
-    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
-    fViewport.Position := VP;
+    if ssMiddle in Shift then
+    begin
+      VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
+      VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
+      fViewport.Position := VP;
+    end else
+      ResetDragScrolling;
     Exit;
   end;
+
+  if fDraggingObject then
+    if not (ssLeft in Shift) then
+    begin
+      ResetDragObject;
+      Exit;
+    end else
+      gRes.Cursors.Cursor := kmc_Drag;
 
   fMyControls.MouseMove(X,Y,Shift);
 
@@ -877,14 +934,20 @@ end;
 procedure TKMapEdInterface.UpdateCursor(X, Y: Integer; Shift: TShiftState);
 var Marker: TKMMapEdMarker;
 begin
-  UpdateGameCursor(X,Y,Shift);
+  UpdateGameCursor(X, Y, Shift);
 
   if gGameCursor.Mode = cmPaintBucket then
   begin
     gRes.Cursors.Cursor := kmc_PaintBucket;
     Exit;
   end;
-    
+
+  if fDraggingObject and (ssLeft in Shift) then
+  begin
+    //Cursor can be reset to default, when moved to menu panel while dragging, so set it to drag cursor again
+    gRes.Cursors.Cursor := kmc_Drag;
+    MoveObjectToCursorCell(fDragObject);
+  end else
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
@@ -900,6 +963,139 @@ begin
 end;
 
 
+procedure TKMapEdInterface.ResetCursorMode;
+begin
+  gGameCursor.Mode := cmNone;
+  gGameCursor.Tag1 := 0;
+  gGameCursor.CellAdjustment := ZERO_POINT;
+end;
+
+
+//Start drag house move mode (with cursor mode cmHouse)
+procedure TKMapEdInterface.DragHouseModeStart(aHouseNewPos: TKMPoint; aHouseOldPos: TKMPoint);
+  procedure SetCursorModeHouse(aHouseType: THouseType);
+  begin
+    gGameCursor.Mode := cmHouses;
+    gGameCursor.Tag1 := Byte(aHouseType);
+    //Update cursor CellAdjustment to render house markups at proper positions
+    gGameCursor.CellAdjustment := fDragHouseGrabPntAdjustment;
+  end;
+var H: TKMHouse;
+begin
+  if fDragObject is TKMHouse then
+  begin
+    H := TKMHouse(fDragObject);
+    //Temporarily remove house from terrain to render house markups as there is no current house (we want to move it)
+    gTerrain.SetHouse(H.GetPosition, H.HouseType, hsNone, H.Owner);
+    SetCursorModeHouse(H.HouseType); //Update cursor mode to cmHouse
+  end;
+end;
+
+
+//Drag house move mode end (with cursor mode cmHouse)
+procedure TKMapEdInterface.DragHouseModeEnd;
+var H: TKMHouse;
+begin
+  if (fDragObject is TKMHouse) then
+  begin
+    H := TKMHouse(fDragObject);
+    H.SetPosition(KMVectorSum(gGameCursor.Cell, fDragHouseGrabPntAdjustment));
+    ResetCursorMode;
+  end;
+end;
+
+
+function TKMapEdInterface.IsDragHouseModeOn: Boolean;
+begin
+  Result := fDraggingObject and (fDragObject is TKMHouse) and (gGameCursor.Mode = cmHouses);
+end;
+
+
+procedure TKMapEdInterface.MoveObjectToCursorCell(aObjectToMove: TObject);
+var H: TKMHouse;
+    HouseNewPos, HouseOldPos: TKMPoint;
+begin
+  if aObjectToMove = nil then Exit;
+
+  //House move
+  if aObjectToMove is TKMHouse then
+  begin
+    H := TKMHouse(aObjectToMove);
+
+    HouseOldPos := H.GetPosition;
+
+    HouseNewPos := KMVectorSum(gGameCursor.Cell, fDragHouseGrabPntAdjustment);
+
+    if not fDraggingObject then
+      H.SetPosition(HouseNewPos)  //handles Right click, when house is selected
+    else
+      if not IsDragHouseModeOn then
+        DragHouseModeStart(HouseNewPos, HouseOldPos);
+  end;
+
+  //Unit move
+  if aObjectToMove is TKMUnit then
+    if aObjectToMove is TKMUnitWarrior then
+      aObjectToMove := gHands.GetGroupByMember(TKMUnitWarrior(aObjectToMove))
+    else
+      TKMUnit(aObjectToMove).SetPosition(gGameCursor.Cell);
+
+  //Unit group move
+  if aObjectToMove is TKMUnitGroup then
+  begin
+    //Just move group to specified location
+    TKMUnitGroup(aObjectToMove).Position := gGameCursor.Cell;
+  end;
+end;
+
+
+procedure TKMapEdInterface.UpdateSelection;
+begin
+  gMySpectator.UpdateSelect;
+
+  if gMySpectator.Selected is TKMHouse then
+  begin
+    HidePages;
+    Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
+    fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
+  end;
+  if gMySpectator.Selected is TKMUnit then
+  begin
+    HidePages;
+    Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
+    fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
+  end;
+  if gMySpectator.Selected is TKMUnitGroup then
+  begin
+    HidePages;
+    Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
+    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
+  end;
+end;
+
+
+procedure TKMapEdInterface.ResetDragObject;
+begin
+  fDraggingObject := False;
+  fDragHouseGrabPntAdjustment := ZERO_POINT;
+  fDragObject := nil;
+
+  if gRes.Cursors.Cursor = kmc_Drag then
+    gRes.Cursors.Cursor := kmc_Default;
+
+  if gGameCursor.Mode = cmHouses then
+    ResetCursorMode;
+end;
+
+
+procedure TKMapEdInterface.ResetDragScrolling;
+begin
+  fDragScrolling := False;
+  gRes.Cursors.Cursor := kmc_Default; //Reset cursor
+  gMain.ApplyCursorRestriction;
+end;
+
+
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
   DP: TAIDefencePosition;
@@ -908,14 +1104,16 @@ var
   U: TKMUnit;
   H: TKMHouse;
 begin
+  if fDraggingObject then
+  begin
+    DragHouseModeEnd;
+    ResetDragObject;
+  end;
+
   if fDragScrolling then
   begin
     if Button = mbMiddle then
-    begin
-      fDragScrolling := False;
-      gRes.Cursors.Cursor := kmc_Default; //Reset cursor
-      fMain.ApplyCursorRestriction;
-    end;
+      ResetDragScrolling;
     Exit;
   end;
 
@@ -946,28 +1144,7 @@ begin
                   gMySpectator.Selected := nil; //We might have had a unit/group/house selected
                 end
                 else
-                begin
-                  gMySpectator.UpdateSelect;
-
-                  if gMySpectator.Selected is TKMHouse then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMHouse(gMySpectator.Selected).Owner);
-                    fGuiHouse.Show(TKMHouse(gMySpectator.Selected));
-                  end;
-                  if gMySpectator.Selected is TKMUnit then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMUnit(gMySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnit(gMySpectator.Selected));
-                  end;
-                  if gMySpectator.Selected is TKMUnitGroup then
-                  begin
-                    HidePages;
-                    Player_SetActive(TKMUnitGroup(gMySpectator.Selected).Owner);
-                    fGuiUnit.Show(TKMUnitGroup(gMySpectator.Selected));
-                  end;
-                end;
+                  UpdateSelection;
               end else if gGameCursor.Mode = cmPaintBucket then
                 ChangeOwner;
     mbRight:  begin
@@ -1004,9 +1181,6 @@ begin
                     TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
                 end;
 
-                if gMySpectator.Selected is TKMUnit then
-                  TKMUnit(gMySpectator.Selected).SetPosition(gGameCursor.Cell);
-
                 if gMySpectator.Selected is TKMUnitGroup then
                 begin
                   G := TKMUnitGroup(gMySpectator.Selected);
@@ -1032,11 +1206,10 @@ begin
                     G.MapEdOrder.Pos.Dir := G.Direction;
                     //Update group GUI
                     fGuiUnit.Show(G);
-                  end
-                  else
-                    //Just move group to specified location
-                    G.Position := gGameCursor.Cell;
-                end;
+                  end else
+                    MoveObjectToCursorCell(gMySpectator.Selected);
+                end else
+                  MoveObjectToCursorCell(gMySpectator.Selected);
 
                 if fGuiMarkerDefence.Visible then
                 begin
@@ -1056,6 +1229,20 @@ begin
   //Update the XY coordinates of the Center Screen button
   if (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_CENTERSCREEN) then
     fGuiPlayer.ChangePlayer; //Forces an update
+end;
+
+
+procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+begin
+  if gGameCursor.Mode in [cmField, cmWine] then
+  begin
+    if (X < 0) or (Y < 0) then Exit; // This happens when you use the mouse wheel on the window frame
+
+    // Allow to zoom only when cursor is over map. Controls handle zoom on their own
+    if (fMyControls.CtrlOver = nil) then
+      gGame.MapEditor.MouseWheel(Shift, WheelDelta, X, Y);
+  end else
+    inherited;
 end;
 
 

@@ -79,7 +79,7 @@ type
     InCinematic: Boolean;
 
     //Used for syncing hotkeys in multiplayer saves only. UI keeps local value to avoid GIP delays
-    SelectionHotkeys: array[0..9] of Integer;
+    SelectionHotkeys: array[0..DYNAMIC_HOTKEYS_NUM-1] of Integer;
 
     constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
@@ -125,8 +125,8 @@ type
     function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aCheckInfluence: Boolean): Boolean;
 
     procedure AddRoadToList(aLoc: TKMPoint);
-    //procedure AddRoadConnect(LocA,LocB: TKMPoint);
-    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure AddRoad(aLoc: TKMPoint);
+    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound: Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
@@ -502,9 +502,35 @@ begin
 end;
 
 
-procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+procedure TKMHand.AddRoad(aLoc: TKMPoint);
 begin
-  gTerrain.SetField(aLoc, fHandIndex, aFieldType);
+  gTerrain.SetRoad(aLoc, fHandIndex);
+end;
+
+
+procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
+var IsFieldSet: Boolean;
+begin
+  IsFieldSet := False;
+  //If we have corn/wine object on that tile, set appropriate field/wine stage
+  if (aFieldType = ft_Corn) and not gTerrain.TileIsCornField(aLoc) then
+  begin
+    if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 58, 59) then
+    begin
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      IsFieldSet := True;
+    end;
+  end else if (aFieldType = ft_Wine) and not gTerrain.TileIsWineField(aLoc) then
+  begin
+    if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 54, 57) then
+    begin
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      IsFieldSet := True;
+    end;
+  end;
+
+  if not IsFieldSet then
+    gTerrain.SetField(aLoc, fHandIndex, aFieldType, aStage, True);
 end;
 
 
@@ -798,14 +824,14 @@ end;
 
 procedure TKMHand.RemHousePlan(Position: TKMPoint);
 var
-  HT: THouseType;
+  HPlan: TKMHousePlan;
 begin
-  HT := fBuildList.HousePlanList.GetPlan(Position);
-  if HT = ht_None then Exit; //Due to network delays house might not exist now
+  if not fBuildList.HousePlanList.TryGetPlan(Position, HPlan) then //Due to network delays house might not exist now
+    Exit;
 
   fBuildList.HousePlanList.RemPlan(Position);
-  fStats.HousePlanRemoved(HT);
-  gScriptEvents.ProcHousePlanRemoved(fHandIndex, Position.X, Position.Y, HT);
+  fStats.HousePlanRemoved(HPlan.HouseType);
+  gScriptEvents.ProcHousePlanRemoved(fHandIndex, HPlan.Loc.X, HPlan.Loc.Y, HPlan.HouseType);
   if (HandIndex = gMySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_Click);
 end;

@@ -26,6 +26,7 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
 
     fOnCursorUpdate: TIntegerStringEvent;
+    fOnGameSpeedChange: TSingleEvent;
 
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
@@ -60,7 +61,7 @@ type
     procedure NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
     procedure NewRestartLast(aGameName, aMission, aSave: UnicodeString; aGameMode: TGameMode; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
-    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
+    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
     procedure NewReplay(const aFilePath: UnicodeString);
 
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -80,6 +81,8 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure FPSMeasurement(aFPS: Cardinal);
 
+    property OnGameSpeedChange: TSingleEvent read fOnGameSpeedChange write fOnGameSpeedChange;
+
     procedure Render(aForPrintScreen: Boolean);
     procedure UpdateState(Sender: TObject);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
@@ -94,7 +97,7 @@ implementation
 uses
   KM_Log, KM_Main, KM_GameCursor,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess;
+  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess, KM_Controls;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -107,6 +110,8 @@ begin
   fGameSettings := TGameSettings.Create;
 
   fRender := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
+
+  gGameCursor := TKMGameCursor.Create;
 
   gRes := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
   gRes.LoadMainResources(fGameSettings.Locale, fGameSettings.LoadFullFonts);
@@ -178,6 +183,7 @@ begin
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
   FreeAndNil(fNetworking);
+  FreeAndNil(gGameCursor);
 
   FreeThenNil(fRender);
 
@@ -287,6 +293,8 @@ end;
 
 
 procedure TKMGameApp.MouseMove(Shift: TShiftState; X,Y: Integer);
+var Ctrl: TKMControl;
+    CtrlID: Integer;
 begin
   if not InRange(X, 1, fRender.ScreenX - 1)
   or not InRange(Y, 1, fRender.ScreenY - 1) then
@@ -305,6 +313,17 @@ begin
     fOnCursorUpdate(2, Format('Tile: %.1f:%.1f [%d:%d]',
                               [gGameCursor.Float.X, gGameCursor.Float.Y,
                               gGameCursor.Cell.X, gGameCursor.Cell.Y]));
+    if SHOW_CONTROLS_ID then
+    begin
+      if gGame <> nil then
+        Ctrl := gGame.ActiveInterface.MyControls.HitControl(X,Y, True)
+      else
+        Ctrl := fMainMenuInterface.MyControls.HitControl(X,Y, True);
+      CtrlID := -1;
+      if Ctrl <> nil then
+        CtrlID := Ctrl.ID;
+      fOnCursorUpdate(6, Format('Control ID: %d', [CtrlID]));
+    end;
   end;
 end;
 
@@ -462,8 +481,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -495,8 +514,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -528,8 +547,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, nil);
   try
@@ -624,10 +643,10 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
+procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
 begin
   if aFileName <> '' then
-    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), 0, nil, 0, gmMapEd, 0, 0)
+    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapCRC, nil, 0, gmMapEd, 0, 0)
   else
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
 end;
@@ -780,3 +799,4 @@ end;
 
 
 end.
+

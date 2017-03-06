@@ -1341,7 +1341,7 @@ begin
 
   //For debugging/testing it's useful to skip this check sometimes (but defines .dat files should always be checked)
   if not SKIP_EXE_CRC then
-    Result := Result xor Adler32CRC(Application.ExeName);
+    Result := Result xor Adler32CRC(ParamStr(0));
 end;
 
 
@@ -2266,7 +2266,7 @@ end;
 function TKMNetworking.IsMuted(aNetPlayerIndex: Integer): Boolean;
 begin
   //Use cast to Pointer to be able to store Integer value in TList
-  Result := fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1;
+  Result := (aNetPlayerIndex <> -1) and (fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1);
 end;
 
 

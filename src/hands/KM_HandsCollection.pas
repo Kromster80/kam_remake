@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
   KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
-  KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
+  KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior, KM_ResHouses;
 
 
 //Hands are identified by their starting location
@@ -39,6 +39,9 @@ type
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
     function GetObjectByUID(aUID: Integer): TObject;
+    function GetNextHouseWSameType(aHouse: TKMHouse): TKMHouse;
+    function GetNextUnitWSameType(aUnit: TKMUnit): TKMUnit;
+    function GetNextGroupWSameType(aUnitGroup: TKMUnitGroup): TKMUnitGroup;
     function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
     function UnitCount: Integer;
@@ -74,7 +77,7 @@ var
 
 implementation
 uses
-  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields, KM_ResUnits, KM_HouseCollection;
+  KM_Game, KM_Log, KM_Resource, KM_AIFields, KM_ResUnits, KM_HouseCollection, KM_UnitsCollection;
 
 
 { TKMHandsCollection }
@@ -354,6 +357,130 @@ begin
     if Result = nil then
       Result := GetGroupByUID(aUID);
   end;
+end;
+
+
+{
+Get next house in house list with the same type for the same owner
+Result
+    house: next house in unit list
+    nil: if NO other house found
+}
+function TKMHandsCollection.GetNextHouseWSameType(aHouse: TKMHouse): TKMHouse;
+var Houses: TKMHousesCollection;
+    House, FirstH: TKMHouse;
+    Found: Boolean;
+    I: Integer;
+begin
+  Result := nil;
+  if (aHouse = nil) or aHouse.IsDestroyed then Exit;
+
+  Found := False;
+  FirstH := nil;
+
+  Houses := fHandsList[aHouse.Owner].Houses;
+
+  for I := 0 to Houses.Count - 1 do
+  begin
+    House := Houses[I];
+    if (House.HouseType = aHouse.HouseType) // we are interested in houses with the same type
+      and not House.IsDestroyed then        // not destroyed
+    begin
+      if House = aHouse then
+        Found := True               // Mark that we found our house
+      else if Found then
+      begin
+        Result := House;            // Save the next house after Found to Result and Break
+        Break;
+      end else if FirstH = nil then
+        FirstH := House;            // Save 1st house in list in case our house is the last one
+    end;
+  end;
+  if (Result = nil) and Found then // Found should be always True here
+    Result := FirstH;
+end;
+
+
+{
+Get next unit in unit list with the same type for the same owner
+Result
+    unit: next unit in unit list
+    nil: if NO other unit found
+}
+function TKMHandsCollection.GetNextUnitWSameType(aUnit: TKMUnit): TKMUnit;
+var Units: TKMUnitsCollection;
+    U, FirstU: TKMUnit;
+    Found: Boolean;
+    I: Integer;
+begin
+  Result := nil;
+  if (aUnit = nil) or aUnit.IsDeadOrDying then Exit;
+
+  Found := False;
+  FirstU := nil;
+
+  Units := fHandsList[aUnit.Owner].Units;
+
+  for I := 0 to Units.Count - 1 do
+  begin
+    U := Units[I];
+    if (U.UnitType = aUnit.UnitType) // we are interested in units with the same type only
+      and not U.IsDeadOrDying        // not dead or dying
+      and U.Visible then             // visible
+    begin
+      if U = aUnit then
+        Found := True                // Mark that we found our unit
+      else if Found then
+      begin
+        Result := U;                 // Save the next unit after Found to Result and Break
+        Break;
+      end else if FirstU = nil then
+        FirstU := U;                 // Save 1st unit in list in case our unit is the last one
+    end;
+  end;
+  if (Result = nil) and Found then   // Found should be always True here
+    Result := FirstU;
+end;
+
+
+{
+Get next unit group in group list with the same type for the same owner
+Result
+    unit group: next unit group in group list
+    nil: if NO other group found
+}
+function TKMHandsCollection.GetNextGroupWSameType(aUnitGroup: TKMUnitGroup): TKMUnitGroup;
+var UnitGroups: TKMUnitGroups;
+    Group, FirstG: TKMUnitGroup;
+    Found: Boolean;
+    I: Integer;
+begin
+  Result := nil;
+  if (aUnitGroup = nil) or aUnitGroup.IsDead then Exit;
+
+  Found := False;
+  FirstG := nil;
+
+  UnitGroups := fHandsList[aUnitGroup.Owner].UnitGroups;
+
+  for I := 0 to UnitGroups.Count - 1 do
+  begin
+    Group := UnitGroups[I];
+    if (Group.UnitType = aUnitGroup.UnitType) // we are interested in groups with the same type only
+      and not Group.IsDead then               // not dead
+    begin
+      if Group = aUnitGroup then
+        Found := True               // Mark that we found our group
+      else if Found then
+      begin
+        Result := Group;            // Save the next group after Found to Result and Break
+        Break;
+      end else if FirstG = nil then
+        FirstG := Group;            // Save 1st group in list in case our group is the last one
+    end;
+  end;
+  if (Result = nil) and Found then // Found should be always True here
+    Result := FirstG;
 end;
 
 

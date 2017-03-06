@@ -499,6 +499,8 @@ begin
       RegisterMethod('function EnsureRangeS(aValue, aMin, aMax: Single): Single');
       RegisterMethod('function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
 
+      RegisterMethod('function Format(aFormatting: string; aData: array of const): string;');
+
       RegisterMethod('function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString');
       RegisterMethod('function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer');
       RegisterMethod('function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single');
@@ -559,7 +561,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..23] of record
+  Procs: array [0..27] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -567,6 +569,11 @@ const
   end =
   (
   (Names: 'OnGroupHungry';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnGroupOrderAttackHouse';ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderAttackUnit'; ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderLink';       ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderSplit';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
 
   (Names: 'OnHouseAfterDestroyed';  ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'OnHouseBuilt';           ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
@@ -963,6 +970,8 @@ begin
 
       RegisterMethod(@TKMScriptUtils.EnsureRangeI,                              'EnsureRangeI');
       RegisterMethod(@TKMScriptUtils.EnsureRangeS,                              'EnsureRangeS');
+
+      RegisterMethod(@TKMScriptUtils.Format,                                    'Format');
 
       RegisterMethod(@TKMScriptUtils.IfThen,                                    'IfThen');
       RegisterMethod(@TKMScriptUtils.IfThenI,                                   'IfThenI');

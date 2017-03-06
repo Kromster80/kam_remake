@@ -1,1 +1,557 @@
-Î¼ª»°¢®¿ÏÍ‹Ž›Ž³‚†œœ†€³œ‚ŽŸœ³½Ž™Š°„€‚Á‚ŽŸÍâåÎ¼ª»°»®¬»¦¬âåÎ¼ª»°¢®·°¿£®¶ª½ÏÙâåâåÎ¼ª»°¬º½½°¿£®¶ª½ÏßÏÀÀâåÎ¼ª»°§º¢®¡°¿£®¶ª½ÏßâåÎª¡®­£ª°¿£®¶ª½ÏßâåâåÎ¬ª¡»ª½°¼¬½ªª¡ÏÞ×ØÏ×âåâåÀÀÏ¤Ž›ŠÏŽš‰‹ŠŒ„ŠâåâåÀÀÏµ†ŠƒŠâåÎ®««°¨ ®£ÏÛÏÞÏßÏÞÏÀÀâåÎ®««°¨ ®£ÏÜÏÞÏßÏÞÏÀÀâåÎ®««°¨ ®£ÏÛÏÞÏßÏÝÏÀÀâåÎ®««°¨ ®£ÏÛÏÞÏßÏÜÏÀÀâåÎ®««°¨ ®£ÏÛÏÞÏßÏÛÏÀÀâåâåÀÀÏ¡†Š‹ŠƒŽˆŠŠ‹†ˆšˆŠâåâåÀÀÏ¡ŽŒ‡†Œ‡›ŠâåâåÀÀÏ»†ŠŠâåÎ¼ª»°º¡¦»ÏÜÞÏÞØØÏÛÏÀÀâåÎ¼ª»°º¡¦»ÏÜÞÏÞØÝÏÞØÏÀÀâåÎ¼ª»°º¡¦»ÏÝÖÏÞØÛÏÞÙÏÀÀâåÎ¼ª»°º¡¦»ÏÜßÏÞØÚÏÞÚÏÀÀâåÎ¼ª»°º¡¦»ÏÜßÏÞØÙÏÜÏÀÀâåÎ¼ª»°º¡¦»ÏÝÚÏÞØÙÏÙÏÀÀâåÎ¼ª»°º¡¦»ÏÝÙÏÞØÜÏÞÙÏÀÀâåÎ¼ª»°º¡¦»ÏÝØÏÞØÛÏÖÏÀÀâåÎ¼ª»°º¡¦»ÏÝÛÏÞ×ÙÏÞ×ÏÀÀâåÎ¼ª»°º¡¦»ÏÝÛÏÖÝÏØÏÀÀâåÎ¼ª»°º¡¦»ÏÝÛÏÜÝÏÜÏÀÀâåÎ¼ª»°º¡¦»ÏÝÛÏÛÚÏÛÏÀÀâåÎ¼ª»°º¡¦»ÏÜÞÏÞÜÞÏÚÏÀÀâåÎ¼ª»°º¡¦»ÏÜÞÏÞÜÙÏØÏÀÀâåÎ¼ª»°º¡¦»ÏÜÞÏÞÜÚÏÜÏÀÀâåÎ¼ª»°º¡¦»ÏÝÙÏÞÜÚÏÙÏÀÀâåÎ¼ª»°º¡¦»ÏÜßÏÞÜÞÏÛÏÀÀâåÎ¼ª»°º¡¦»ÏÝÖÏÞÜØÏÙÏÀÀâåÎ¼ª»°º¡¦»ÏÝÛÏÞÙÚÏÝÜÏÀÀâåÎ¼ª»°º¡¦»ÏÝÛÏÞÛÝÏÝÚÏÀÀâåÎ¼ª»°º¡¦»ÏÝÛÏÞÜÞÏÝÖÏÀÀâåâåÀÀÏ¡†Œ‡›Ï™Š‰ˆŽŠÏ¨Šš‹ŠâåâåâåÀÀÏ®‰ŽˆœÏŽšŽŠÏ¨Šš‹ŠâåâåâåâåÀÀÏ©ŽŠâåÎ¼ª»°¡ª¸°½ª¢®¿ÏÝÛÏÝÚÏÝÙÏÝØÏÝ×ÏÝÖÏÜßÏÜÞÏÀÀÏ½€›âåÎ¼ª»°¢®¿°¬ £ ½ÏÞßÚÏÀÀÏ¿††ŠˆâåâåâåÀÀÏ¹Š‹Š›ŠâåÎ¼ª»°®££¦®¡¬ªÏÚÏÞâåâåâåÀÀÏ¨Šš‹ŠâåâåâåÀÀÏ¼›Ž0ŠâåâåâåÀÀÏ©Šƒ‹ŠâåâåâåÀÀÏ¸Š†‰Šƒ‹âåâåâåÀÀÏª†‡Š†›ŠâåâåâåÀÀÏ®Š†›ŠÏ‹†Š„›ÏŽ‚Ï£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸ŽŠâåâåâåÀÀÏ¸ŽŠÏ•š‚ÏÝÁÏ£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸Ž‰‰ŠâåâåâåÀÀÏ»šŸŸŠâåÎ¼ª»°¨½ º¿ÏÝÝÏÞ×ÚÏÞÝÏÙÏÞßÏÚßÏÀÀâåÎ¼ª¡«°¨½ º¿ÏÞ×ÜÏÞÝÏÙâåÎ¼ª»°¨½ º¿°©  «âåâåâåÎ¼ª»°¬º½½°¿£®¶ª½ÏÞÏÀÀâåÎª¡®­£ª°¿£®¶ª½ÏÞâåÎ¼ª»°®¦°¿£®¶ª½âåâåÎ¼ª»°®¦°¼»®½»°¿ ¼¦»¦ ¡ÏÖÏÖâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¸ ½¤ª½°©®¬» ½ÏÞßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¬ ¡¼»½º¬» ½¼ÏßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»°¬ º¡»ÏßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»¼ÏßâåÀÀÏ®¦ÂÏ¹Š›Š†‹†ˆšˆœ‰€‚Ž›†€ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏßÏÞÚÏÚÏÀÀÏ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÞÏÞÚÏÚÏÀÀÏ®›†Â¿‰Š‹âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÝÏÞÝÏÛÏÀÀÏ¼Œ‡›•ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÜÏÞÚÏÚÏÀÀÏ½Š†›ŠâåâåÀÀÏ®¦ÂÏ™Š›Š†‹†ˆšˆœŸ€œ†›†€ŠâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÝÚÏÞ×ÏÝÏÝÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÝÞÏÞØÏÝÏßÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞØÏÞÙÏÝÏÜÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞÜÏÞÙÏÝÏÞÏÞßÏßÏÀÀâåâåÀÀÏ®¦ÂÏ®ˆ†‰‰ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï» ¸¡°«ª©ª¡¼ªÏÞßßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï®»»®¬¤°©®¬» ½ÏÝßßâåÎ¼ª»°®¦°¡ °­º¦£«ÏâåâåÀÀÏ©ŽŠâåÎ¼ª»°¡ª¸°½ª¢®¿ÏÜÝÏÜÜÏÜÛÏÜÚÏÜÙÏÜØÏÜ×ÏÜÖÏÀÀÏ£Š†Œ‡›Ï­ƒŽšâåÎ¼ª»°¢®¿°¬ £ ½ÏÝÞßÏÀÀÏ­Šš›•Š‹Š‰††Š›âåâåâåÀÀÏ¹Š‹Š›ŠâåÎ¼ª»°®££¦®¡¬ªÏÝÏÞâåÎ¼ª»°®££¦®¡¬ªÏÜÏÞâåÎ¼ª»°®££¦®¡¬ªÏÛÏÞâåâåâåÀÀÏ¨Šš‹ŠâåÎ¼ª»°§ º¼ªÏÞ×ÏÞÞÏ×ÏÀÀâåÎ¼ª»°§ º¼ªÏÞÞÏØÏ×ÏÀÀâåÎ¼ª»°§ º¼ªÏÝØÏÞÛÏÞÝÏÀÀâåâåâåÀÀÏ¼›Ž0ŠâåÎ¼ª»°¼»½ªª»ÏÚÏ×ÏÎ¼ª»°¼»½ªª»ÏÙÏ×ÏÎ¼ª»°¼»½ªª»ÏØÏ×ÏÎ¼ª»°¼»½ªª»Ï×Ï×âåÎ¼ª»°¼»½ªª»ÏÖÏ×ÏÎ¼ª»°¼»½ªª»ÏÞßÏ×ÏÎ¼ª»°¼»½ªª»ÏÞÞÏ×ÏÎ¼ª»°¼»½ªª»ÏÞÝÏ×âåÎ¼ª»°¼»½ªª»ÏÚÏÖÏÎ¼ª»°¼»½ªª»ÏÙÏÖÏÎ¼ª»°¼»½ªª»ÏØÏÖÏÎ¼ª»°¼»½ªª»Ï×ÏÖâåÎ¼ª»°¼»½ªª»ÏÖÏÖÏÎ¼ª»°¼»½ªª»ÏÞßÏÖÏÎ¼ª»°¼»½ªª»ÏÞÞÏÖÏÎ¼ª»°¼»½ªª»ÏÞÝÏÖâåÎ¼ª»°¼»½ªª»ÏÙÏÞßÏÎ¼ª»°¼»½ªª»ÏØÏÞßÏÎ¼ª»°¼»½ªª»Ï×ÏÞßÏÎ¼ª»°¼»½ªª»ÏÖÏÞßâåÎ¼ª»°¼»½ªª»ÏÞßÏÞßÏÎ¼ª»°¼»½ªª»ÏÞÞÏÞßÏÎ¼ª»°¼»½ªª»ÏÞÝÏÞßÏÎ¼ª»°¼»½ªª»ÏØÏÞÞâåÎ¼ª»°¼»½ªª»Ï×ÏÞÞÏÎ¼ª»°¼»½ªª»ÏÖÏÞÞÏÎ¼ª»°¼»½ªª»ÏÞßÏÞÞÏÎ¼ª»°¼»½ªª»ÏÞÞÏÞÞâåÎ¼ª»°¼»½ªª»ÏÞÝÏÞÞÏÎ¼ª»°¼»½ªª»ÏÞÜÏÞÞÏÎ¼ª»°¼»½ªª»ÏÞÛÏÞÞÏÎ¼ª»°¼»½ªª»Ï×ÏÞÝâåÎ¼ª»°¼»½ªª»ÏÖÏÞÝÏÎ¼ª»°¼»½ªª»ÏÞßÏÞÝÏÎ¼ª»°¼»½ªª»ÏÞÞÏÞÝÏÎ¼ª»°¼»½ªª»ÏÞÝÏÞÝâåÎ¼ª»°¼»½ªª»ÏÞÜÏÞÝÏÎ¼ª»°¼»½ªª»ÏÞÛÏÞÝÏÎ¼ª»°¼»½ªª»ÏÖÏÞÜÏÎ¼ª»°¼»½ªª»ÏÞßÏÞÜâåÎ¼ª»°¼»½ªª»ÏÞÞÏÞÜÏÎ¼ª»°¼»½ªª»ÏÞÝÏÞÜÏÎ¼ª»°¼»½ªª»ÏÞÜÏÞÜÏÎ¼ª»°¼»½ªª»ÏÞÛÏÞÜâåâåâåÀÀÏ©Šƒ‹ŠâåâåâåÀÀÏ¸Š†‰Šƒ‹âåâåâåÀÀÏª†‡Š†›ŠâåÎ¼ª»°º¡¦»ÏßÏ×ÏÖÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÞßÏÖÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÖÏÖÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÞÞÏÖÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÞÞÏÞßÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÞßÏÞßÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÖÏÞßÏÀÀâåÎ¼ª»°º¡¦»ÏßÏ×ÏÞßÏÀÀâåÎ¼ª»°º¡¦»ÏßÏ×ÏÞÞÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÖÏÞÞÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÞßÏÞÞÏÀÀâåÎ¼ª»°º¡¦»ÏßÏÞÞÏÞÞÏÀÀâåâåâåÀÀÏ®Š†›ŠÏ‹†Š„›ÏŽ‚Ï£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸ŽŠâåÎ®««°¸®½ªÏØÏÚÏÀÀÏ¨€ƒ‹âåÎ®««°¸®½ªÏÞÜÏÚßßÏÀÀÏ¸œ›ŠâåÎ®««°¸®½ªÏÝØÏÚßßÏÀÀÏ©†œŒ‡âåâåâåÀÀÏ¸ŽŠÏ•š‚ÏÝÁÏ£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸Ž‰‰ŠâåâåâåÀÀÏ»šŸŸŠâåÎ¼ª»°¨½ º¿ÏÝÜÏÝÞÏÞØÏÝÏÚÏÞÚÏÀÀâåÎ¼ª»°¨½ º¿ÏÝÚÏÝÚÏÞ×ÏÝÏÛÏÞÝÏÀÀâåÎ¼ª»°¨½ º¿ÏÝØÏÞØÏÞÙÏÝÏÚÏÞÚÏÀÀâåÎ¼ª»°¨½ º¿ÏÝßÏÞÜÏÞÙÏÝÏÚÏÞßÏÀÀâåâåâåÎ¼ª»°¬º½½°¿£®¶ª½ÏÝÏÀÀâåÎª¡®­£ª°¿£®¶ª½ÏÝâåÎ¼ª»°®¦°¿£®¶ª½âåâåÎ¼ª»°®¦°¼»®½»°¿ ¼¦»¦ ¡ÏÞÏÞâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¸ ½¤ª½°©®¬» ½ÏÞßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¬ ¡¼»½º¬» ½¼ÏÙâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»°¬ º¡»ÏßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»¼ÏÚâåÀÀÏ®¦ÂÏ¹Š›Š†‹†ˆšˆœ‰€‚Ž›†€ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏßÏÝßÏÚÏÀÀÏ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÞÏÜßÏÚÏÀÀÏ®›†Â¿‰Š‹âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÝÏÖÏÜÏÀÀÏ¼Œ‡›•ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÜÏÖÏÜÏÀÀÏ½Š†›ŠâåâåÀÀÏ®¦ÂÏ™Š›Š†‹†ˆšˆœŸ€œ†›†€ŠâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞÙÜÏØÏÝÏßÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞÙÜÏÞÜÏÝÏßÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞÚÝÏØÏÝÏÞÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÜØÏÛÏÜÏßÏÝßÏßÏÀÀâåâåÀÀÏ®¦ÂÏ®ˆ†‰‰ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï» ¸¡°«ª©ª¡¼ªÏÞßßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï®»»®¬¤°©®¬» ½ÏÝßßâåÎ¼ª»°®¦°¡ °­º¦£«ÏâåâåÀÀÏ©ŽŠâåÎ¼ª»°¡ª¸°½ª¢®¿ÏÞßÛÏÞßÛÏÞßÚÏÞßÚÏÞßÙÏÞßÙÏÞßØÏÞßØÏÀÀÏ£†‹ŠÏ¨âåÎ¼ª»°¢®¿°¬ £ ½ÏÝÞÝÏÀÀÏ«š„ŠƒÏ¨ŽšÏ­ŽšâåâåâåÀÀÏ¹Š‹Š›ŠâåÎ¼ª»°®££¦®¡¬ªÏÞÏÞâåÎ¼ª»°®££¦®¡¬ªÏÜÏÞâåÎ¼ª»°®££¦®¡¬ªÏÛÏÞâåâåâåÀÀÏ¨Šš‹ŠâåâåâåÀÀÏ¼›Ž0ŠâåâåâåÀÀÏ©Šƒ‹ŠâåâåâåÀÀÏ¸Š†‰Šƒ‹âåâåâåÀÀÏª†‡Š†›ŠâåâåâåÀÀÏ®Š†›ŠÏ‹†Š„›ÏŽ‚Ï£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸ŽŠâåâåâåÀÀÏ¸ŽŠÏ•š‚ÏÝÁÏ£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸Ž‰‰ŠâåâåâåÀÀÏ»šŸŸŠâåÎ¼ª»°¨½ º¿ÏÞÖÏÞÚÝÏØÏÝÏÚÏÞÚÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞÚÏÞÙÜÏØÏÝÏÚÏÝßÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞÚÏÞÙÜÏÞÜÏÝÏÚÏÝßÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÝÜÏÜØÏÛÏÜÏÜÏÖÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåâåâåÎ¼ª»°¬º½½°¿£®¶ª½ÏÜÏÀÀâåÎª¡®­£ª°¿£®¶ª½ÏÜâåÎ¼ª»°®¦°¿£®¶ª½âåâåÎ¼ª»°®¦°¼»®½»°¿ ¼¦»¦ ¡ÏÞÏÞâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¸ ½¤ª½°©®¬» ½ÏÞßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¬ ¡¼»½º¬» ½¼ÏÙâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»°¬ º¡»ÏßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»¼ÏÚâåÀÀÏ®¦ÂÏ¹Š›Š†‹†ˆšˆœ‰€‚Ž›†€ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏßÏÖÏÜÏÀÀÏ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÞÏÞÙÏÛÏÀÀÏ®›†Â¿‰Š‹âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÝÏÞÙÏÛÏÀÀÏ¼Œ‡›•ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÜÏÚßÏÚÏÀÀÏ½Š†›ŠâåâåÀÀÏ®¦ÂÏ™Š›Š†‹†ˆšˆœŸ€œ†›†€ŠâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞÞØÏØÏÝÏÝÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞÞØÏÞÚÏÝÏÝÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÞÞÝÏÞÞÏÝÏÜÏÞßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÚÜÏÖÏÝÏÞÏÝÚÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÚÚÏÞÛÏÝÏÞÏÝÚÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÛØÏ×ÏÝÏÞÏÜßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÛ×ÏÞÜÏÝÏÞÏÜßÏßÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏÛÝÏÞÛÏÝÏÝÏÛßÏßÏÀÀâåâåÀÀÏ®¦ÂÏ®ˆ†‰‰ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï» ¸¡°«ª©ª¡¼ªÏÞßßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï®»»®¬¤°©®¬» ½ÏÝßßâåÎ¼ª»°®¦°¡ °­º¦£«ÏâåâåÀÀÏ©ŽŠâåÎ¼ª»°¡ª¸°½ª¢®¿ÏÞÙÏÞØÏÞ×ÏÞÖÏÝßÏÝÞÏÝÝÏÝÜÏÀÀÏ£†ƒŽâåÎ¼ª»°¢®¿°¬ £ ½ÏÞ×ßÏÀÀÏ½Š†ŠœÏ­ŽšâåâåâåÀÀÏ¹Š‹Š›ŠâåÎ¼ª»°®££¦®¡¬ªÏÞÏÞâåÎ¼ª»°®££¦®¡¬ªÏÝÏÞâåÎ¼ª»°®££¦®¡¬ªÏÛÏÞâåâåâåÀÀÏ¨Šš‹ŠâåâåâåÀÀÏ¼›Ž0ŠâåâåâåÀÀÏ©Šƒ‹ŠâåâåâåÀÀÏ¸Š†‰Šƒ‹âåâåâåÀÀÏª†‡Š†›ŠâåâåâåÀÀÏ®Š†›ŠÏ‹†Š„›ÏŽ‚Ï£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸ŽŠâåâåâåÀÀÏ¸ŽŠÏ•š‚ÏÝÁÏ£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸Ž‰‰ŠâåâåâåÀÀÏ»šŸŸŠâåÎ¼ª»°¨½ º¿ÏÝÚÏÞÞØÏØÏÝÏÛÏÞÝÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÝÚÏÞÞØÏÞÚÏÝÏÚÏÞÚÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÝØÏÞÞÝÏÞÞÏÝÏÚÏÚßÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞÖÏÚÜÏÖÏÝÏÛÏ×ÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞÖÏÚÚÏÞÛÏÝÏÛÏ×ÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞØÏÛÝÏÞÛÏÝÏÛÏÞÙÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞÖÏÛØÏ×ÏÝÏÛÏ×ÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞÖÏÛ×ÏÞÜÏÝÏÛÏ×ÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåâåâåÎ¼ª»°¬º½½°¿£®¶ª½ÏÛÏÀÀâåÎª¡®­£ª°¿£®¶ª½ÏÛâåÎ¼ª»°®¦°¿£®¶ª½âåâåÎ¼ª»°®¦°¼»®½»°¿ ¼¦»¦ ¡ÏÞÏÞâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¸ ½¤ª½°©®¬» ½ÏÞßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¬ ¡¼»½º¬» ½¼ÏÙâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»°¬ º¡»ÏßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»¼ÏÚâåÀÀÏ®¦ÂÏ¹Š›Š†‹†ˆšˆœ‰€‚Ž›†€ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏßÏÙÏÜÏÀÀÏ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÞÏÙÏÜÏÀÀÏ®›†Â¿‰Š‹âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÝÏÙÏÜÏÀÀÏ¼Œ‡›•ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÜÏÙÏÜÏÀÀÏ½Š†›ŠâåâåÀÀÏ®¦ÂÏ™Š›Š†‹†ˆšˆœŸ€œ†›†€ŠâåÎ¼ª»°®¦°«ª©ª¡¼ªÏ×ÞÏÞÜÏÝÏÝÏÞÏÞÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏØØÏÞÙÏÝÏÞÏÞÏÞÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏØØÏÞÜÏÝÏßÏÞÏÞÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏ×ÞÏÞÙÏÝÏÜÏÞÏÞÏÀÀâåâåÀÀÏ®¦ÂÏ®ˆ†‰‰ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»¶¿ªÏßÏÀÀ¸†Š‹Š‡€ƒ›âåÎ¼ª»°®¦°®»»®¬¤Ï» »®£°®¢ º¡»ÏÞâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏßÏÞÏÀÀ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÞÏßÏÀÀ®›†Â¿‰Š‹âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÝÏßÏÀÀ¼Œ‡›•ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÜÏßÏÀÀ½Š†›ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»®½¨ª»ÏßÏÀÀ«†ŠÏŒ‡œ›ŠÏª†‡Š†›âåÎ¬ ¿¶°®¦°®»»®¬¤ÏßÏÀÀâåâåÎ¼ª»°®¦°®»»®¬¤Ï»¶¿ªÏßÏÀÀ¸†Š‹Š‡€ƒ›âåÎ¼ª»°®¦°®»»®¬¤Ï» »®£°®¢ º¡»ÏÞâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏßÏßÏÀÀ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÞÏßÏÀÀ®›†Â¿‰Š‹âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÝÏÞÏÀÀ¼Œ‡›•ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÜÏßÏÀÀ½Š†›ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»®½¨ª»ÏßÏÀÀ«†ŠÏŒ‡œ›ŠÏª†‡Š†›âåÎ¬ ¿¶°®¦°®»»®¬¤ÏÞÏÀÀâåâåÎ¼ª»°®¦°®»»®¬¤Ï»¶¿ªÏßÏÀÀ¸†Š‹Š‡€ƒ›âåÎ¼ª»°®¦°®»»®¬¤Ï» »®£°®¢ º¡»ÏÞâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏßÏßÏÀÀ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÞÏßÏÀÀ®›†Â¿‰Š‹âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÝÏßÏÀÀ¼Œ‡›•ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÜÏÞÏÀÀ½Š†›ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»®½¨ª»ÏßÏÀÀ«†ŠÏŒ‡œ›ŠÏª†‡Š†›âåÎ¬ ¿¶°®¦°®»»®¬¤ÏÝÏÀÀâåâåÎ¼ª»°®¦°®»»®¬¤Ï»¶¿ªÏßÏÀÀ¸†Š‹Š‡€ƒ›âåÎ¼ª»°®¦°®»»®¬¤Ï» »®£°®¢ º¡»ÏÞâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏßÏßÏÀÀ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÞÏÞÏÀÀ®›†Â¿‰Š‹âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÝÏßÏÀÀ¼Œ‡›•ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÜÏßÏÀÀ½Š†›ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»®½¨ª»ÏßÏÀÀ«†ŠÏŒ‡œ›ŠÏª†‡Š†›âåÎ¬ ¿¶°®¦°®»»®¬¤ÏÜÏÀÀâåâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï» ¸¡°«ª©ª¡¼ªÏÞßßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï®»»®¬¤°©®¬» ½ÏÝßßâåÎ¼ª»°®¦°¡ °­º¦£«ÏâåâåÀÀÏ©ŽŠâåÎ¼ª»°¡ª¸°½ª¢®¿ÏÖÙÏÖØÏÖ×ÏÖÖÏÞßßÏÞßÞÏÞßÝÏÞßÜÏÀÀÏ¨ŠƒâåÎ¼ª»°¢®¿°¬ £ ½ÏÝÞÝÏÀÀÏ«š„ŠƒÏ¨ŽšÏ­ŽšâåâåâåÀÀÏ¹Š‹Š›ŠâåÎ¼ª»°®££¦®¡¬ªÏÞÏÞâåÎ¼ª»°®££¦®¡¬ªÏÝÏÞâåÎ¼ª»°®££¦®¡¬ªÏÜÏÞâåâåâåÀÀÏ¨Šš‹ŠâåâåâåÀÀÏ¼›Ž0ŠâåâåâåÀÀÏ©Šƒ‹ŠâåâåâåÀÀÏ¸Š†‰Šƒ‹âåâåâåÀÀÏª†‡Š†›ŠâåâåâåÀÀÏ®Š†›ŠÏ‹†Š„›ÏŽ‚Ï£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸ŽŠâåâåâåÀÀÏ¸ŽŠÏ•š‚ÏÝÁÏ£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸Ž‰‰ŠâåâåâåÀÀÏ»šŸŸŠâåÎ¼ª»°¨½ º¿ÏÝÜÏØØÏÞÜÏÝÏÜÏÙÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞÖÏØØÏÞÙÏÝÏÜÏÙÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÝØÏ×ÞÏÞÙÏÝÏÜÏÙÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÞØÏ×ÞÏÞÜÏÝÏÜÏÙÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåâåâåÎ¼ª»°¬º½½°¿£®¶ª½ÏÚÏÀÀâåÎª¡®­£ª°¿£®¶ª½ÏÚâåÎ¼ª»°®¦°¿£®¶ª½âåâåÎ¼ª»°®¦°¼»®½»°¿ ¼¦»¦ ¡ÏÞÙÏÞÜâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¸ ½¤ª½°©®¬» ½ÏÞßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï¬ ¡¼»½º¬» ½¼ÏÙâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»°¬ º¡»ÏßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï½ª¬½º»¼ÏÚâåÀÀÏ®¦ÂÏ¹Š›Š†‹†ˆšˆœ‰€‚Ž›†€ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏßÏÖÏÜÏÀÀÏ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÞÏÞÚÏÚÏÀÀÏ®›†Â¿‰Š‹âåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÝÏÙÏÜÏÀÀÏ¼Œ‡›•ŠâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï»½ º¿°¿®½®¢ÏÜÏÖÏÜÏÀÀÏ½Š†›ŠâåâåÀÀÏ®¦ÂÏ™Š›Š†‹†ˆšˆœŸ€œ†›†€ŠâåÎ¼ª»°®¦°«ª©ª¡¼ªÏ×ÏÞÞÏÞÏÞÏÞÏÞÏÀÀâåÎ¼ª»°®¦°«ª©ª¡¼ªÏØÏÞßÏÞÏÞÏÞÏÞÏÀÀâåâåÀÀÏ®¦ÂÏ®ˆ†‰‰ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»¶¿ªÏßÏÀÀ¸†Š‹Š‡€ƒ›âåÎ¼ª»°®¦°®»»®¬¤Ï» »®£°®¢ º¡»ÏÞâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏßÏßÏÀÀ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÞÏÞÏÀÀ®›†Â¿‰Š‹âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÝÏßÏÀÀ¼Œ‡›•ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÜÏßÏÀÀ½Š†›ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»®½¨ª»ÏÜÏÀÀ¬šœ›€‚Ï·Ï¶âåÎ¼ª»°®¦°®»»®¬¤Ï¿ ¼¦»¦ ¡ÏÙÏ×âåÎ¬ ¿¶°®¦°®»»®¬¤ÏßÏÀÀâåâåÎ¼ª»°®¦°®»»®¬¤Ï»¶¿ªÏßÏÀÀ¸†Š‹Š‡€ƒ›âåÎ¼ª»°®¦°®»»®¬¤Ï» »®£°®¢ º¡»ÏÞâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏßÏÞÏÀÀ¡Ž‡„Ž‚Ÿ‰âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÞÏßÏÀÀ®›†Â¿‰Š‹âåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÝÏÞÏÀÀ¼Œ‡›•ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»½ º¿°®¢ º¡»ÏÜÏßÏÀÀ½Š†›ŠâåÎ¼ª»°®¦°®»»®¬¤Ï»®½¨ª»ÏÝÏÀÀ«ŽœÏŒ‡œ›ŠÏ¨Šš‹ŠÏ™€Ï‹ŠÏ¼›Ž›Ï¿€œ†›†€âåÎ¬ ¿¶°®¦°®»»®¬¤ÏÞÏÀÀâåâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï» ¸¡°«ª©ª¡¼ªÏÞßßâåÎ¼ª»°®¦°¬§®½®¬»ª½Ï®»»®¬¤°©®¬» ½ÏÞßßâåÎ¼ª»°®¦°¡ °­º¦£«ÏâåâåÀÀÏ©ŽŠâåÎ¼ª»°¡ª¸°½ª¢®¿ÏÝßÖÏÝÞßÏÝÞÞÏÝÞÝÏÝÞÜÏÝÞÛÏÝÞÚÏÝÞÙÏÀÀÏ¨ŽšÏ­ŽšâåÎ¼ª»°¢®¿°¬ £ ½ÏÝßÝÏÀÀÏ¨ŠƒÏ ŽˆŠâåâåâåÀÀÏ¹Š‹Š›ŠâåÎ¼ª»°®££¦®¡¬ªÏßÏÞâåâåâåÀÀÏ¨Šš‹ŠâåâåâåÀÀÏ¼›Ž0ŠâåâåâåÀÀÏ©Šƒ‹ŠâåâåâåÀÀÏ¸Š†‰Šƒ‹âåâåâåÀÀÏª†‡Š†›ŠâåâåâåÀÀÏ®Š†›ŠÏ‹†Š„›ÏŽ‚Ï£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸ŽŠâåâåâåÀÀÏ¸ŽŠÏ•š‚ÏÝÁÏ£ŽˆŠ‡ŽšœâåâåâåÀÀÏ¸Ž‰‰ŠâåâåâåÀÀÏ»šŸŸŠâåÎ¼ª»°¨½ º¿ÏÞÖÏÞ×ÜÏÚÏÛÏÚÏÞÚÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåÎ¼ª»°¨½ º¿ÏÝßÏÞ××ÏÚÏÛÏÚÏÖÏÀÀâåÎ¼ª»°¨½ º¿°©  «âåâåâåâåÀÀÏ¸ŽŠÏŽÏŽƒƒŠÏ£ŽˆŠ‡šœŠâåâåâåâåâåâåÀÀÏ»‡†œÏ¢†œœ†€Ï¸ŽœÏ¬ŠŽ›Š‹Ï˜†›‡Ï£Š˜†ÈœÏ¤†ˆ‡›œÏŽ‹Ï¢ŠŒ‡Ž›œÏ¢†œœ†€Ïª‹†›€Ï¹Šœ†€ÏßÁÖÏŽ›ÏÞÚÕÚÚÏ€ÏÝÝÁßÛÁÝßÞÜâåÀÀÏ©€Ï¢€ŠÏ¦‰€‚Ž›†€Ï¨€Ï»€Ï‡››ŸÕÀÀƒŠ˜†ÁŽ‚œ–œÁŒ€‚ÁŽšÀ„Ž‚ÀÏ€ÏŠ‚Ž†ƒÏƒŠ˜†…‡¯ˆ‚Ž†ƒÁŒ€‚
+!SET_MAP "data\mission\smaps\Raven_krom.map"
+!SET_TACTIC
+!SET_MAX_PLAYER 6
+
+!SET_CURR_PLAYER 0
+!SET_HUMAN_PLAYER 0
+!ENABLE_PLAYER 0
+
+!CENTER_SCREEN 187 8
+
+// Karte aufdecken
+
+// Ziele
+!ADD_GOAL 4 1 0 1
+!ADD_GOAL 3 1 0 1
+!ADD_GOAL 4 1 0 2
+!ADD_GOAL 4 1 0 3
+!ADD_GOAL 4 1 0 4
+
+// Niederlagebedingungen
+
+// Nachrichten
+
+// Tiere
+!SET_UNIT 31 177 4
+!SET_UNIT 31 172 17
+!SET_UNIT 29 174 16
+!SET_UNIT 30 175 15
+!SET_UNIT 30 176 3
+!SET_UNIT 25 176 6
+!SET_UNIT 26 173 16
+!SET_UNIT 27 174 9
+!SET_UNIT 24 186 18
+!SET_UNIT 24 92 7
+!SET_UNIT 24 32 3
+!SET_UNIT 24 45 4
+!SET_UNIT 31 131 5
+!SET_UNIT 31 136 7
+!SET_UNIT 31 135 3
+!SET_UNIT 26 135 6
+!SET_UNIT 30 131 4
+!SET_UNIT 29 137 6
+!SET_UNIT 24 165 23
+!SET_UNIT 24 142 25
+!SET_UNIT 24 131 29
+
+// Nicht verfügbare Gebäude
+
+
+// Anfangs baubare Gebäude
+
+
+
+// Farbe
+!SET_MAP_COLOR 105 // Piniengrün
+
+
+// Verbündete
+!SET_ALLIANCE 5 1
+
+
+// Gebäude
+
+
+// Straßen
+
+
+// Felder
+
+
+// Weinfeld
+
+
+// Einheiten
+
+
+// Arbeiter direkt am Lagerhaus
+
+
+// Waren
+
+
+// Waren zum 2. Lagerhaus
+
+
+// Waffen
+
+
+// Truppen
+!SET_GROUP 22 185 12 6 10 50
+!SEND_GROUP 183 12 6
+!SET_GROUP_FOOD
+
+
+!SET_CURR_PLAYER 1
+!ENABLE_PLAYER 1
+!SET_AI_PLAYER
+
+!SET_AI_START_POSITION 9 9
+!SET_AI_CHARACTER WORKER_FACTOR 10
+!SET_AI_CHARACTER CONSTRUCTORS 0
+!SET_AI_CHARACTER RECRUT_COUNT 0
+!SET_AI_CHARACTER RECRUTS 0
+// AI- Verteidigungsformationen
+!SET_AI_CHARACTER TROUP_PARAM 0 15 5 // Nahkampf
+!SET_AI_CHARACTER TROUP_PARAM 1 15 5 // Anti-Pferd
+!SET_AI_CHARACTER TROUP_PARAM 2 12 4 // Schützen
+!SET_AI_CHARACTER TROUP_PARAM 3 15 5 // Reiter
+
+// AI- verteidigungspositionen
+!SET_AI_DEFENSE 25 18 2 2 10 0
+!SET_AI_DEFENSE 21 17 2 0 10 0
+!SET_AI_DEFENSE 17 16 2 3 10 0
+!SET_AI_DEFENSE 13 16 2 1 10 0
+
+// AI- Angriffe
+!SET_AI_CHARACTER TOWN_DEFENSE 100
+!SET_AI_CHARACTER ATTACK_FACTOR 200
+!SET_AI_NO_BUILD 
+
+// Farbe
+!SET_MAP_COLOR 210 // Benutzerdefiniert
+
+
+// Verbündete
+!SET_ALLIANCE 2 1
+!SET_ALLIANCE 3 1
+!SET_ALLIANCE 4 1
+
+
+// Gebäude
+!SET_HOUSE 18 11 8
+!SET_HOUSE 11 7 8
+!SET_HOUSE 27 14 12
+
+
+// Straßen
+!SET_STREET 5 8 !SET_STREET 6 8 !SET_STREET 7 8 !SET_STREET 8 8
+!SET_STREET 9 8 !SET_STREET 10 8 !SET_STREET 11 8 !SET_STREET 12 8
+!SET_STREET 5 9 !SET_STREET 6 9 !SET_STREET 7 9 !SET_STREET 8 9
+!SET_STREET 9 9 !SET_STREET 10 9 !SET_STREET 11 9 !SET_STREET 12 9
+!SET_STREET 6 10 !SET_STREET 7 10 !SET_STREET 8 10 !SET_STREET 9 10
+!SET_STREET 10 10 !SET_STREET 11 10 !SET_STREET 12 10 !SET_STREET 7 11
+!SET_STREET 8 11 !SET_STREET 9 11 !SET_STREET 10 11 !SET_STREET 11 11
+!SET_STREET 12 11 !SET_STREET 13 11 !SET_STREET 14 11 !SET_STREET 8 12
+!SET_STREET 9 12 !SET_STREET 10 12 !SET_STREET 11 12 !SET_STREET 12 12
+!SET_STREET 13 12 !SET_STREET 14 12 !SET_STREET 9 13 !SET_STREET 10 13
+!SET_STREET 11 13 !SET_STREET 12 13 !SET_STREET 13 13 !SET_STREET 14 13
+
+
+// Felder
+
+
+// Weinfeld
+
+
+// Einheiten
+!SET_UNIT 0 8 9
+!SET_UNIT 0 10 9
+!SET_UNIT 0 9 9
+!SET_UNIT 0 11 9
+!SET_UNIT 0 11 10
+!SET_UNIT 0 10 10
+!SET_UNIT 0 9 10
+!SET_UNIT 0 8 10
+!SET_UNIT 0 8 11
+!SET_UNIT 0 9 11
+!SET_UNIT 0 10 11
+!SET_UNIT 0 11 11
+
+
+// Arbeiter direkt am Lagerhaus
+
+
+// Waren
+!ADD_WARE 7 5 // Gold
+!ADD_WARE 13 500 // Würste
+!ADD_WARE 27 500 // Fisch
+
+
+// Waren zum 2. Lagerhaus
+
+
+// Waffen
+
+
+// Truppen
+!SET_GROUP 23 21 17 2 5 15
+!SET_GROUP 25 25 18 2 4 12
+!SET_GROUP 27 17 16 2 5 15
+!SET_GROUP 20 13 16 2 5 10
+
+
+!SET_CURR_PLAYER 2
+!ENABLE_PLAYER 2
+!SET_AI_PLAYER
+
+!SET_AI_START_POSITION 1 1
+!SET_AI_CHARACTER WORKER_FACTOR 10
+!SET_AI_CHARACTER CONSTRUCTORS 6
+!SET_AI_CHARACTER RECRUT_COUNT 0
+!SET_AI_CHARACTER RECRUTS 5
+// AI- Verteidigungsformationen
+!SET_AI_CHARACTER TROUP_PARAM 0 20 5 // Nahkampf
+!SET_AI_CHARACTER TROUP_PARAM 1 30 5 // Anti-Pferd
+!SET_AI_CHARACTER TROUP_PARAM 2 9 3 // Schützen
+!SET_AI_CHARACTER TROUP_PARAM 3 9 3 // Reiter
+
+// AI- verteidigungspositionen
+!SET_AI_DEFENSE 163 7 2 0 10 0
+!SET_AI_DEFENSE 163 13 2 0 10 0
+!SET_AI_DEFENSE 152 7 2 1 10 0
+!SET_AI_DEFENSE 37 4 3 0 20 0
+
+// AI- Angriffe
+!SET_AI_CHARACTER TOWN_DEFENSE 100
+!SET_AI_CHARACTER ATTACK_FACTOR 200
+!SET_AI_NO_BUILD 
+
+// Farbe
+!SET_MAP_COLOR 212 // Dunkel Grau Braun
+
+
+// Verbündete
+!SET_ALLIANCE 1 1
+!SET_ALLIANCE 3 1
+!SET_ALLIANCE 4 1
+
+
+// Gebäude
+
+
+// Straßen
+
+
+// Felder
+
+
+// Weinfeld
+
+
+// Einheiten
+
+
+// Arbeiter direkt am Lagerhaus
+
+
+// Waren
+
+
+// Waren zum 2. Lagerhaus
+
+
+// Waffen
+
+
+// Truppen
+!SET_GROUP 19 152 7 2 5 15
+!SET_GROUP_FOOD
+!SET_GROUP 15 163 7 2 5 20
+!SET_GROUP_FOOD
+!SET_GROUP 15 163 13 2 5 20
+!SET_GROUP_FOOD
+!SET_GROUP 23 37 4 3 3 9
+!SET_GROUP_FOOD
+
+
+!SET_CURR_PLAYER 3
+!ENABLE_PLAYER 3
+!SET_AI_PLAYER
+
+!SET_AI_START_POSITION 1 1
+!SET_AI_CHARACTER WORKER_FACTOR 10
+!SET_AI_CHARACTER CONSTRUCTORS 6
+!SET_AI_CHARACTER RECRUT_COUNT 0
+!SET_AI_CHARACTER RECRUTS 5
+// AI- Verteidigungsformationen
+!SET_AI_CHARACTER TROUP_PARAM 0 9 3 // Nahkampf
+!SET_AI_CHARACTER TROUP_PARAM 1 16 4 // Anti-Pferd
+!SET_AI_CHARACTER TROUP_PARAM 2 16 4 // Schützen
+!SET_AI_CHARACTER TROUP_PARAM 3 50 5 // Reiter
+
+// AI- verteidigungspositionen
+!SET_AI_DEFENSE 117 7 2 2 10 0
+!SET_AI_DEFENSE 117 15 2 2 10 0
+!SET_AI_DEFENSE 112 11 2 3 10 0
+!SET_AI_DEFENSE 53 9 2 1 25 0
+!SET_AI_DEFENSE 55 14 2 1 25 0
+!SET_AI_DEFENSE 47 8 2 1 30 0
+!SET_AI_DEFENSE 48 13 2 1 30 0
+!SET_AI_DEFENSE 42 14 2 2 40 0
+
+// AI- Angriffe
+!SET_AI_CHARACTER TOWN_DEFENSE 100
+!SET_AI_CHARACTER ATTACK_FACTOR 200
+!SET_AI_NO_BUILD 
+
+// Farbe
+!SET_MAP_COLOR 180 // Reines Braun
+
+
+// Verbündete
+!SET_ALLIANCE 1 1
+!SET_ALLIANCE 2 1
+!SET_ALLIANCE 4 1
+
+
+// Gebäude
+
+
+// Straßen
+
+
+// Felder
+
+
+// Weinfeld
+
+
+// Einheiten
+
+
+// Arbeiter direkt am Lagerhaus
+
+
+// Waren
+
+
+// Waren zum 2. Lagerhaus
+
+
+// Waffen
+
+
+// Truppen
+!SET_GROUP 25 117 7 2 4 12
+!SET_GROUP_FOOD
+!SET_GROUP 25 117 15 2 5 15
+!SET_GROUP_FOOD
+!SET_GROUP 27 112 11 2 5 50
+!SET_GROUP_FOOD
+!SET_GROUP 19 53 9 2 4 8
+!SET_GROUP_FOOD
+!SET_GROUP 19 55 14 2 4 8
+!SET_GROUP_FOOD
+!SET_GROUP 17 42 14 2 4 16
+!SET_GROUP_FOOD
+!SET_GROUP 19 47 8 2 4 8
+!SET_GROUP_FOOD
+!SET_GROUP 19 48 13 2 4 8
+!SET_GROUP_FOOD
+
+
+!SET_CURR_PLAYER 4
+!ENABLE_PLAYER 4
+!SET_AI_PLAYER
+
+!SET_AI_START_POSITION 1 1
+!SET_AI_CHARACTER WORKER_FACTOR 10
+!SET_AI_CHARACTER CONSTRUCTORS 6
+!SET_AI_CHARACTER RECRUT_COUNT 0
+!SET_AI_CHARACTER RECRUTS 5
+// AI- Verteidigungsformationen
+!SET_AI_CHARACTER TROUP_PARAM 0 6 3 // Nahkampf
+!SET_AI_CHARACTER TROUP_PARAM 1 6 3 // Anti-Pferd
+!SET_AI_CHARACTER TROUP_PARAM 2 6 3 // Schützen
+!SET_AI_CHARACTER TROUP_PARAM 3 6 3 // Reiter
+
+// AI- verteidigungspositionen
+!SET_AI_DEFENSE 81 13 2 2 1 1
+!SET_AI_DEFENSE 77 16 2 1 1 1
+!SET_AI_DEFENSE 77 13 2 0 1 1
+!SET_AI_DEFENSE 81 16 2 3 1 1
+
+// AI- Angriffe
+!SET_AI_ATTACK TYPE 0 //Wiederholt
+!SET_AI_ATTACK TOTAL_AMOUNT 1
+!SET_AI_ATTACK TROUP_AMOUNT 0 1 //Nahkampf
+!SET_AI_ATTACK TROUP_AMOUNT 1 0 //Anti-Pferd
+!SET_AI_ATTACK TROUP_AMOUNT 2 0 //Schützen
+!SET_AI_ATTACK TROUP_AMOUNT 3 0 //Reiter
+!SET_AI_ATTACK TARGET 0 //Die nächste Einheit
+!COPY_AI_ATTACK 0
+
+!SET_AI_ATTACK TYPE 0 //Wiederholt
+!SET_AI_ATTACK TOTAL_AMOUNT 1
+!SET_AI_ATTACK TROUP_AMOUNT 0 0 //Nahkampf
+!SET_AI_ATTACK TROUP_AMOUNT 1 0 //Anti-Pferd
+!SET_AI_ATTACK TROUP_AMOUNT 2 1 //Schützen
+!SET_AI_ATTACK TROUP_AMOUNT 3 0 //Reiter
+!SET_AI_ATTACK TARGET 0 //Die nächste Einheit
+!COPY_AI_ATTACK 1
+
+!SET_AI_ATTACK TYPE 0 //Wiederholt
+!SET_AI_ATTACK TOTAL_AMOUNT 1
+!SET_AI_ATTACK TROUP_AMOUNT 0 0 //Nahkampf
+!SET_AI_ATTACK TROUP_AMOUNT 1 0 //Anti-Pferd
+!SET_AI_ATTACK TROUP_AMOUNT 2 0 //Schützen
+!SET_AI_ATTACK TROUP_AMOUNT 3 1 //Reiter
+!SET_AI_ATTACK TARGET 0 //Die nächste Einheit
+!COPY_AI_ATTACK 2
+
+!SET_AI_ATTACK TYPE 0 //Wiederholt
+!SET_AI_ATTACK TOTAL_AMOUNT 1
+!SET_AI_ATTACK TROUP_AMOUNT 0 0 //Nahkampf
+!SET_AI_ATTACK TROUP_AMOUNT 1 1 //Anti-Pferd
+!SET_AI_ATTACK TROUP_AMOUNT 2 0 //Schützen
+!SET_AI_ATTACK TROUP_AMOUNT 3 0 //Reiter
+!SET_AI_ATTACK TARGET 0 //Die nächste Einheit
+!COPY_AI_ATTACK 3
+
+!SET_AI_CHARACTER TOWN_DEFENSE 100
+!SET_AI_CHARACTER ATTACK_FACTOR 200
+!SET_AI_NO_BUILD 
+
+// Farbe
+!SET_MAP_COLOR 212 // Dunkel Grau Braun
+
+
+// Verbündete
+!SET_ALLIANCE 1 1
+!SET_ALLIANCE 2 1
+!SET_ALLIANCE 3 1
+
+
+// Gebäude
+
+
+// Straßen
+
+
+// Felder
+
+
+// Weinfeld
+
+
+// Einheiten
+
+
+// Arbeiter direkt am Lagerhaus
+
+
+// Waren
+
+
+// Waren zum 2. Lagerhaus
+
+
+// Waffen
+
+
+// Truppen
+!SET_GROUP 23 77 13 2 3 6
+!SET_GROUP_FOOD
+!SET_GROUP 19 77 16 2 3 6
+!SET_GROUP_FOOD
+!SET_GROUP 27 81 16 2 3 6
+!SET_GROUP_FOOD
+!SET_GROUP 17 81 13 2 3 6
+!SET_GROUP_FOOD
+
+
+!SET_CURR_PLAYER 5
+!ENABLE_PLAYER 5
+!SET_AI_PLAYER
+
+!SET_AI_START_POSITION 16 13
+!SET_AI_CHARACTER WORKER_FACTOR 10
+!SET_AI_CHARACTER CONSTRUCTORS 6
+!SET_AI_CHARACTER RECRUT_COUNT 0
+!SET_AI_CHARACTER RECRUTS 5
+// AI- Verteidigungsformationen
+!SET_AI_CHARACTER TROUP_PARAM 0 9 3 // Nahkampf
+!SET_AI_CHARACTER TROUP_PARAM 1 15 5 // Anti-Pferd
+!SET_AI_CHARACTER TROUP_PARAM 2 6 3 // Schützen
+!SET_AI_CHARACTER TROUP_PARAM 3 9 3 // Reiter
+
+// AI- verteidigungspositionen
+!SET_AI_DEFENSE 8 11 1 1 1 1
+!SET_AI_DEFENSE 7 10 1 1 1 1
+
+// AI- Angriffe
+!SET_AI_ATTACK TYPE 0 //Wiederholt
+!SET_AI_ATTACK TOTAL_AMOUNT 1
+!SET_AI_ATTACK TROUP_AMOUNT 0 0 //Nahkampf
+!SET_AI_ATTACK TROUP_AMOUNT 1 1 //Anti-Pferd
+!SET_AI_ATTACK TROUP_AMOUNT 2 0 //Schützen
+!SET_AI_ATTACK TROUP_AMOUNT 3 0 //Reiter
+!SET_AI_ATTACK TARGET 3 //Custom X Y
+!SET_AI_ATTACK POSITION 6 8
+!COPY_AI_ATTACK 0
+
+!SET_AI_ATTACK TYPE 0 //Wiederholt
+!SET_AI_ATTACK TOTAL_AMOUNT 1
+!SET_AI_ATTACK TROUP_AMOUNT 0 1 //Nahkampf
+!SET_AI_ATTACK TROUP_AMOUNT 1 0 //Anti-Pferd
+!SET_AI_ATTACK TROUP_AMOUNT 2 1 //Schützen
+!SET_AI_ATTACK TROUP_AMOUNT 3 0 //Reiter
+!SET_AI_ATTACK TARGET 2 //Das nächste Gebäude von der Start Position
+!COPY_AI_ATTACK 1
+
+!SET_AI_CHARACTER TOWN_DEFENSE 100
+!SET_AI_CHARACTER ATTACK_FACTOR 100
+!SET_AI_NO_BUILD 
+
+// Farbe
+!SET_MAP_COLOR 202 // Gelb Orange
+
+
+// Verbündete
+!SET_ALLIANCE 0 1
+
+
+// Gebäude
+
+
+// Straßen
+
+
+// Felder
+
+
+// Weinfeld
+
+
+// Einheiten
+
+
+// Arbeiter direkt am Lagerhaus
+
+
+// Waren
+
+
+// Waren zum 2. Lagerhaus
+
+
+// Waffen
+
+
+// Truppen
+!SET_GROUP 19 183 5 4 5 15
+!SET_GROUP_FOOD
+!SET_GROUP 20 188 5 4 5 9
+!SET_GROUP_FOOD
+
+
+
+// Waren an alle Lagerhäuser
+
+
+
+
+
+// This Mission Was Created with Lewin's Knights and Merchants Mission Editor Version 0.9 at 15:55 on 22.04.2013
+// For More Information Go To http://lewin.namsys.com.au/kam/ or email lewinjh@gmail.com

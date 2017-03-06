@@ -42,6 +42,7 @@ type
     fGroupType: TGroupType;
     fDisableHungerMessage: Boolean;
     fBlockOrders: Boolean;
+    fManualFormation: Boolean;
 
     fOrder: TKMGroupOrder; //Remember last order incase we need to repeat it (e.g. to joined members)
     fOrderLoc: TKMPointDir; //Dir is the direction to face after order
@@ -138,6 +139,7 @@ type
     property Order: TKMGroupOrder read fOrder;
     property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
     property BlockOrders: Boolean read fBlockOrders write fBlockOrders;
+    property ManualFormation: Boolean read fManualFormation write fManualFormation;
     property FlagPositionF: TKMPointF read GetFlagPositionF;
     property FlagColor: Cardinal read GetFlagColor;
     function IsFlagRenderBeforeUnit: Boolean;
@@ -333,7 +335,8 @@ begin
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(fDisableHungerMessage);
-  Loadstream.Read(fBlockOrders);
+  LoadStream.Read(fBlockOrders);
+  LoadStream.Read(fManualFormation);
 end;
 
 
@@ -420,6 +423,7 @@ begin
   SaveStream.Write(fUnitsPerRow);
   SaveStream.Write(fDisableHungerMessage);
   SaveStream.Write(fBlockOrders);
+  SaveStream.Write(fManualFormation);
 end;
 
 
@@ -1022,6 +1026,9 @@ begin
 
   for I := 0 to Count - 1 do
     Members[I].OrderAttackHouse(aHouse);
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackHouse(Self, aHouse);
 end;
 
 
@@ -1115,6 +1122,9 @@ begin
     fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
     OrderTargetUnit := aUnit;
   end;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackUnit(Self, aUnit);
 end;
 
 
@@ -1147,6 +1157,8 @@ begin
   end;
 
   SetUnitsPerRow(Max(fUnitsPerRow + aColumnsChange, 0));
+
+  ManualFormation := True;
 
   OrderRepeat;
 end;
@@ -1210,6 +1222,9 @@ begin
 
   //Repeat targets group order to newly linked members
   aTargetGroup.OrderRepeat;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderLink(Self, aTargetGroup);
 end;
 
 
@@ -1316,6 +1331,9 @@ begin
   NewGroup.OrderHalt(False);
 
   Result := NewGroup; //Return the new group in case somebody is interested in it
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderSplit(Self, NewGroup);
 end;
 
 
@@ -1362,6 +1380,9 @@ begin
 
   //Return NewGroup as result
   Result := NewGroup;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderSplit(Self, NewGroup);
 end;
 
 
@@ -1842,7 +1863,9 @@ begin
                      Result := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
                      Result.AddMember(aUnit);
                      //Form a square (rather than a long snake like in TSK/TPR)
-                     Result.UnitsPerRow := Ceil(Sqrt(Result.Count));
+                     //but don't change formation if player decided to set it manually
+                     if not Result.ManualFormation then
+                       Result.UnitsPerRow := Ceil(Sqrt(Result.Count));
                      Result.OrderRepeat;
                    end
                    else
