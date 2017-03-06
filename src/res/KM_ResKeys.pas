@@ -57,7 +57,7 @@ const
     4,                                      // Map drag scroll (Middle mouse btn)
     34, 33, 8,                              // Zoom In/Out/Reset (Page Down, Page Up, Backspace)
     27,                                     // Close opened menu (Esc)
-    82, 70, 87, 68,                         // Plan road/field/wine/erase plan(building) (R, F, W, D)
+    82, 67, 87, 68,                         // Plan road/corn/wine/erase plan(building) (R, C, W, D)
     122,                                    // Debug Window hotkey (F11)
 
     // These keys are not changable by Player in Options menu
@@ -90,7 +90,7 @@ const
     TX_KEY_FUNC_MAP_DRAG_SCROLL,                                                                          // Map drag scroll
     TX_KEY_FUNC_ZOOM_IN, TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET,                                    // Zoom In/Out/Reset
     TX_KEY_FUNC_CLOSE_MENU,                                                                               // Close opened menu
-    TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/field/wine/erase plan(building)
+    TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/corn/wine/erase plan(building)
     TX_KEY_FUNC_DBG_WINDOW,                                                                               // Debug window
 
     // These keys are not changable by Player in Options menu

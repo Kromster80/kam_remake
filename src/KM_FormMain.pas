@@ -206,10 +206,10 @@ begin
   Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + BordersHeight;
 
   // We have to put it here, to proper window positioning for multimonitor systems
-  if not fMain.Settings.FullScreen then
+  if not gMain.Settings.FullScreen then
   begin
-    Left := fMain.Settings.WindowParams.Left;
-    Top := fMain.Settings.WindowParams.Top;
+    Left := gMain.Settings.WindowParams.Left;
+    Top := gMain.Settings.WindowParams.Top;
   end;
 
 end;
@@ -301,13 +301,13 @@ begin if gGameApp <> nil then gGameApp.MouseWheel(Shift, WheelDelta, MousePos.X,
 
 procedure TFormMain.RenderAreaResize(aWidth, aHeight: Integer);
 begin
-  fMain.Resize(aWidth, aHeight, GetWindowParams);
+  gMain.Resize(aWidth, aHeight, GetWindowParams);
 end;
 
 
 procedure TFormMain.RenderAreaRender(aSender: TObject);
 begin
-  fMain.Render;
+  gMain.Render;
 end;
 
 
@@ -336,7 +336,7 @@ end;
 //About
 procedure TFormMain.AboutClick(Sender: TObject);
 begin
-  fMain.ShowAbout;
+  gMain.ShowAbout;
 end;
 
 
@@ -530,7 +530,7 @@ begin
   RenderArea.Top    := 0;
   RenderArea.Height := ClientHeight;
   RenderArea.Width  := ClientWidth;
-  fMain.Resize(RenderArea.Width, RenderArea.Height, GetWindowParams);
+  gMain.Resize(RenderArea.Width, RenderArea.Height, GetWindowParams);
 end;
 
 
@@ -588,7 +588,7 @@ begin
       Label4.Caption := 'AngleY ' + IntToStr(tbAngleY.Position);
       Label7.Caption := 'AngleZ ' + IntToStr(tbAngleZ.Position);
       gRenderPool.SetRotation(-tbAngleX.Position, -tbAngleZ.Position, -tbAngleY.Position);
-      fMain.Render;
+      gMain.Render;
     end;
     HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
   end;
@@ -653,18 +653,18 @@ begin
       ClientWidth  := MENU_DESIGN_X;
       ClientHeight := MENU_DESIGN_Y;
       // We've set default window params, so update them
-      fMain.UpdateWindowParams(GetWindowParams);
+      gMain.UpdateWindowParams(GetWindowParams);
       // Unset NeedResetToDefaults flag
-      fMain.Settings.WindowParams.NeedResetToDefaults := False;
+      gMain.Settings.WindowParams.NeedResetToDefaults := False;
     end else begin
       // Here we set window Width/Height and State
       // Left and Top will set on FormShow, so omit setting them here
       Position := poDesigned;
-      ClientWidth  := fMain.Settings.WindowParams.Width;
-      ClientHeight := fMain.Settings.WindowParams.Height;
-      Left := fMain.Settings.WindowParams.Left;
-      Top := fMain.Settings.WindowParams.Top;
-      WindowState  := fMain.Settings.WindowParams.State;
+      ClientWidth  := gMain.Settings.WindowParams.Width;
+      ClientHeight := gMain.Settings.WindowParams.Height;
+      Left := gMain.Settings.WindowParams.Left;
+      Top := gMain.Settings.WindowParams.Top;
+      WindowState  := gMain.Settings.WindowParams.State;
     end;
   end;
 
@@ -795,7 +795,7 @@ end;
 
 procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
 begin
-  fMain.Move(GetWindowParams);
+  gMain.Move(GetWindowParams);
 end;
 {$ENDIF}
 
@@ -825,14 +825,14 @@ begin
   //the menu while displaying a MessageBox otherwise it goes under the main form on some systems
   MenuHidden := (BorderStyle = bsNone) and (Menu = nil);
   if MenuHidden then Menu := MainMenu1;
-  fMain.CloseQuery(CanClose);
+  gMain.CloseQuery(CanClose);
   if MenuHidden then Menu := nil;
 end;
 
 
 procedure TFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  fMain.Stop(Self);
+  gMain.Stop(Self);
 end;
 
 

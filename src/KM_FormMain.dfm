@@ -202,7 +202,7 @@ object FormMain: TFormMain
     end
     object chkSuperSpeed: TCheckBox
       Left = 8
-      Top = 80
+      Top = 85
       Width = 75
       Height = 17
       Caption = 'Speed x300'
@@ -213,7 +213,7 @@ object FormMain: TFormMain
       Left = 8
       Top = 16
       Width = 177
-      Height = 57
+      Height = 65
       Caption = ' Select player '
       Columns = 4
       ItemIndex = 0
@@ -225,13 +225,17 @@ object FormMain: TFormMain
         '5'
         '6'
         '7'
-        '8')
+        '8'
+        '9'
+        '10'
+        '11'
+        '12')
       TabOrder = 7
       OnClick = RGPlayerClick
     end
     object Button_Stop: TButton
       Left = 96
-      Top = 80
+      Top = 85
       Width = 89
       Height = 17
       Caption = 'Stop the game'

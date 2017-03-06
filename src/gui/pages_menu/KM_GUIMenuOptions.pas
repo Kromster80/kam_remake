@@ -396,7 +396,7 @@ begin
   NewResolution.RefRate := fResolutions.Items[ResID].RefRate[RefID];
 
   fMainSettings.Resolution := NewResolution;
-  fMain.ReinitRender(True);
+  gMain.ReinitRender(True);
 end;
 
 
@@ -463,9 +463,9 @@ begin
   // Remember what we are working with
   // (we do that on Show because Create gets called from Main/Game constructor and fMain/gGameApp are not yet assigned)
   // Ideally we could pass them as parameters here
-  fMainSettings := fMain.Settings;
+  fMainSettings := gMain.Settings;
   fGameSettings := gGameApp.GameSettings;
-  fResolutions := fMain.Resolutions;
+  fResolutions := gMain.Resolutions;
 
   Refresh;
   Panel_Options.Show;

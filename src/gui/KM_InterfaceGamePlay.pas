@@ -2485,8 +2485,8 @@ begin
   if SelectingTroopDirection then
   begin
     // Reset the cursor position as it will have moved during direction selection
-    SetCursorPos(fMain.ClientToScreen(SelectingDirPosition).X, fMain.ClientToScreen(SelectingDirPosition).Y);
-    fMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
+    SetCursorPos(gMain.ClientToScreen(SelectingDirPosition).X, gMain.ClientToScreen(SelectingDirPosition).Y);
+    gMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := False;
     gRes.Cursors.Cursor := kmc_Default; // Reset direction selection cursor when mouse released
     DirectionCursorHide;
@@ -3136,7 +3136,7 @@ begin
 
   if SelectingTroopDirection then
   begin
-    fMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
+    gMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false;
     DirectionCursorHide;
   end;
@@ -3182,7 +3182,7 @@ begin
         // Restrict the cursor to inside the main panel so it does not get jammed when used near
         // the edge of the window in windowed mode
         {$IFDEF MSWindows}
-        WindowRect := fMain.ClientRect;
+        WindowRect := gMain.ClientRect;
         ClipCursor(@WindowRect);
         {$ENDIF}
         // Now record it as Client XY
@@ -3263,7 +3263,7 @@ begin
     begin
       DeltaX := Round(DeltaX / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
       DeltaY := Round(DeltaY / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
-      NewPoint := fMain.ClientToScreen(SelectingDirPosition);
+      NewPoint := gMain.ClientToScreen(SelectingDirPosition);
       NewPoint.X := NewPoint.X - DeltaX;
       NewPoint.Y := NewPoint.Y - DeltaY;
       SetCursorPos(NewPoint.X, NewPoint.Y);
