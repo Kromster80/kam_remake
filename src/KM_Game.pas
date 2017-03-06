@@ -253,7 +253,7 @@ begin
   //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.
   //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Frees, TObject.Free does that already.
 
-  if fGameLockedMutex then fMain.UnlockMutex;
+  if fGameLockedMutex then gMain.UnlockMutex;
   if fTimerGame <> nil then fTimerGame.Enabled := False;
   fIsExiting := True;
 
@@ -1416,7 +1416,7 @@ begin
     //If we're loading in multiplayer mode we have already locked the mutex when entering multiplayer menu,
     //which is better than aborting loading in a multiplayer game (spoils it for everyone else too)
     if SaveIsMultiplayer and (fGameMode in [gmSingle, gmCampaign, gmReplaySingle, gmReplayMulti]) then
-      if fMain.LockMutex then
+      if gMain.LockMutex then
         fGameLockedMutex := True //Remember so we unlock it in Destroy
       else
         //Abort loading (exception will be caught in gGameApp and shown to the user)
