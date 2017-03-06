@@ -857,7 +857,7 @@ begin
      //Restrict the cursor to the window, for now.
      //TODO: Allow one to drag out of the window, and still capture.
      {$IFDEF MSWindows}
-       MyRect := fMain.ClientRect;
+       MyRect := gMain.ClientRect;
        ClipCursor(@MyRect);
      {$ENDIF}
      fDragScrollingCursorPos.X := X;
@@ -1092,7 +1092,7 @@ procedure TKMapEdInterface.ResetDragScrolling;
 begin
   fDragScrolling := False;
   gRes.Cursors.Cursor := kmc_Default; //Reset cursor
-  fMain.ApplyCursorRestriction;
+  gMain.ApplyCursorRestriction;
 end;
 
 

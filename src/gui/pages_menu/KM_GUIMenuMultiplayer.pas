@@ -726,7 +726,7 @@ begin
   gGameApp.Networking.Disconnect;
   MP_SaveSettings;
 
-  fMain.UnlockMutex; //Leaving MP areas
+  gMain.UnlockMutex; //Leaving MP areas
 
   fOnPageChange(gpMainMenu);
 end;

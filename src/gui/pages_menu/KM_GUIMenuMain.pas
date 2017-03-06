@@ -77,7 +77,7 @@ begin
 
   if Sender = Button_MM_MultiPlayer then
   begin
-    if fMain.LockMutex then
+    if gMain.LockMutex then
     begin
       if not gGameApp.CheckDATConsistency then
         fOnPageChange(gpError, gResTexts[TX_ERROR_MODS])
@@ -101,7 +101,7 @@ begin
     fOnPageChange(gpCredits);
 
   if Sender = Button_MM_Quit then
-    fMain.Stop(Self);
+    gMain.Stop(Self);
 end;
 
 

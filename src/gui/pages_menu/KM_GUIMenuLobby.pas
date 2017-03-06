@@ -2148,7 +2148,7 @@ end;
 procedure TKMMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
   if gGameApp.GameSettings.FlashOnMessage then
-    fMain.FlashingStart;
+    gMain.FlashingStart;
 
   Memo_LobbyPosts.Add(aText);
 end;
