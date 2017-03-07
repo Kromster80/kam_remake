@@ -52,7 +52,7 @@ begin
   TKMBevel.Create(Panel_Color, 0, 235, 20, 20);
   Shape_BGRColor := TKMShape.Create(Panel_Color, 2, 237, 17, 17);
   Edit_BGRCode := TKMEdit.Create(Panel_Color, 20, 235, TB_WIDTH - 20, 20, fnt_Metal, true);
-  Edit_BGRCode.BlockInput := true;
+  Edit_BGRCode.BlockInput := True;
 
 
   //Generate a palette using HSB so the layout is more intuitive
