@@ -799,4 +799,4 @@ begin
   else Result := TPSDefineState(FItems[FItems.Count -2]).DoWrite;
 end;
 
-end.
+end.

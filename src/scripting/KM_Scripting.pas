@@ -1,5 +1,6 @@
 unit KM_Scripting;
 {$I KaM_Remake.inc}
+{$WARN IMPLICIT_STRING_CAST OFF}
 interface
 uses
   Classes, SysUtils,
@@ -23,15 +24,16 @@ uses
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
 
 type
+
+  // Scripts can be included one into another with PreProcessor directives {$I filename.script} or {$INCLUDE filename.script}
+  // This structure collects included files info
   TKMScriptFileIncludeInfo = class
   private
     fFileName: UnicodeString;
-    fRowsCnt: Integer;
-    fEffectiveRowFrom: Integer;
-    fEffectiveRowTo: Integer;
-    fIncludedAtRow: Integer;
+    fFileText: AnsiString;
     fIncludedCnt: Byte;
     fIncluded: array of TKMScriptFileIncludeInfo;
+
     procedure CutIncludedArray;
     function GetIncluded(aIndex: Integer): TKMScriptFileIncludeInfo;
   public
@@ -42,7 +44,7 @@ type
     procedure AddIncludeInfo(aIncludeInfo: TKMScriptFileIncludeInfo);
 
     procedure FinalizeIncludedInfo;
-    function GetRowInIncluded(aInitialRow: Integer; out aFileName: UnicodeString; out aRowInIncluded: Integer): Boolean;
+    function GetRowInIncluded(aLine: AnsiString; out aFileName: UnicodeString; out aRowInIncluded: Integer): Boolean;
   end;
 
   TKMScripting = class
@@ -66,13 +68,14 @@ type
     fIDCache: TKMScriptingIdCache;
     fUtils: TKMScriptUtils;
 
-    procedure BeforePreProcess(aMainFileName: UnicodeString; aScriptCode: AnsiString);
+    procedure BeforePreProcess(aMainFileName: UnicodeString);
     procedure AfterPreProcess;
 
-    function ScriptOnNeedFile(Sender: TPSPreProcessor; const CallingFileName: AnsiString; var FileName, Output: AnsiString): Boolean;
+    function ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: AnsiString; var aFileName, aOutput: AnsiString): Boolean;
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
     function ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
+
     procedure CompileScript;
     procedure LinkRuntime;
 
@@ -84,6 +87,7 @@ type
     constructor Create(aOnScriptError: TUnicodeStringEvent);
     destructor Destroy; override;
 
+    property ScriptCode: AnsiString read fScriptCode;
     property ScriptIncludeInfo: TKMScriptFileIncludeInfo read fScriptIncludeInfo;
     property ErrorString: UnicodeString read fErrorString;
     property WarningsString: UnicodeString read fWarningsString;
@@ -207,16 +211,13 @@ begin
 end;
 
 
-procedure TKMScripting.BeforePreProcess(aMainFileName: UnicodeString; aScriptCode: AnsiString);
+procedure TKMScripting.BeforePreProcess(aMainFileName: UnicodeString);
 begin
   fScriptIncludeInfo.fFileName := ExtractFileName(aMainFileName);
-  fScriptIncludeInfo.fRowsCnt := CountOccurrences(EolA, aScriptCode) + 1; // count lines
 end;
 
 
 procedure TKMScripting.AfterPreProcess;
-var I, RowInIncluded: Integer;
-    FileName: UnicodeString;
 begin
   fScriptIncludeInfo.FinalizeIncludedInfo;
 end;
@@ -247,9 +248,9 @@ begin
   PreProcessor := TPSPreProcessor.Create;
   try
     PreProcessor.OnNeedFile := ScriptOnNeedFileFunc;
-    PreProcessor.MainFileName := aFileName;
+    PreProcessor.MainFileName := AnsiString(aFileName);
     PreProcessor.MainFile := ScriptCode;
-    BeforePreProcess(aFileName, ScriptCode);
+    BeforePreProcess(aFileName);
     try
       PreProcessor.PreProcess(PreProcessor.MainFileName, fScriptCode);
     except
@@ -276,35 +277,33 @@ begin
 end;
 
 
-function TKMScripting.ScriptOnNeedFile(Sender: TPSPreProcessor; const CallingFileName: AnsiString; var FileName, Output: AnsiString): Boolean;
+function TKMScripting.ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: AnsiString; var aFileName, aOutput: AnsiString): Boolean;
 var
-  S: string;
-  LineInfo: TPSLineInfoList;
+  S: String;
   ParentIncludeInfo, IncludeInfo: TKMScriptFileIncludeInfo;
 begin
   Result := False;
 
-  ParentIncludeInfo := fScriptIncludeInfo.FindIncludeInfo(ExtractFileName(CallingFileName));
+  ParentIncludeInfo := fScriptIncludeInfo.FindIncludeInfo(ExtractFileName(aCallingFileName));
   if ParentIncludeInfo = nil then
   begin
     ParentIncludeInfo := fScriptIncludeInfo;
   end;
 
-  if ExtractFileExt(FileName) <> '.script' then Exit;
+  if ExtractFileExt(aFileName) <> '.script' then
+    raise Exception.Create(Format('Wrong extension for including script file ''%s'' used from ''%s''',
+                                  [ExtractFileName(aFileName), ExtractFileName(aCallingFileName)]));
 
-  S := ExtractFilePath(CallingFileName);
+  S := ExtractFilePath(aCallingFileName);
   if S = '' then S := ExtractFilePath(ParamStr(0));
-  Filename := S + Filename;
-  if FileExists(Filename) then
+  aFileName := AnsiString(S) + aFileName;
+  if FileExists(aFileName) then
   begin
-    Output := ReadTextA(Filename);
-
-    LineInfo := Sender.CurrentLineInfo;
+    aOutput := ReadTextA(aFileName);
 
     IncludeInfo := TKMScriptFileIncludeInfo.Create;
-    IncludeInfo.fFileName := ExtractFileName(FileName);
-    IncludeInfo.fIncludedAtRow := LineInfo.Items[LineInfo.Current].LineOffsetCount; // row number, where include occure in parent file
-    IncludeInfo.fRowsCnt := CountOccurrences(EolA, Output) + 1; // count lines
+    IncludeInfo.fFileName := ExtractFileName(aFileName);
+    IncludeInfo.fFileText := aOutput;
 
     ParentIncludeInfo.AddIncludeInfo(IncludeInfo);
 
@@ -1367,7 +1366,6 @@ begin
 end;
 
 
-
 procedure TKMScripting.UpdateState;
 begin
   gScriptEvents.ProcTick;
@@ -1379,10 +1377,7 @@ end;
 constructor TKMScriptFileIncludeInfo.Create;
 begin
   fFileName := '';
-  fEffectiveRowFrom := 0;
-  fEffectiveRowTo := 0;
-  fRowsCnt := -1;
-  fIncludedAtRow := -1;
+  fFileText := '';
   fIncludedCnt := 0;
   SetLength(fIncluded, 8);
 end;
@@ -1442,80 +1437,46 @@ end;
 
 
 procedure TKMScriptFileIncludeInfo.FinalizeIncludedInfo;
-  // Preprocessor allow include declaration in script files.
-  // After preprocess finishes all code become one big script "file"
-  // So we want to know what is "real" (effective) row numbers in all files
-  // Then we will be able to get filename and line number (f.e. of error) by its "real" (effective, raw) number, which comes from debugger
-  procedure SetEffectiveRowsInfo(aIncludeInfo: TKMScriptFileIncludeInfo; var aEffectiveRow: Integer);
-  var I, FileRow: Integer;
-  begin
-    FileRow := 1;
-    if aIncludeInfo = nil then Exit;
-    if aIncludeInfo.fIncludedAtRow <> -1 then
-      aIncludeInfo.fEffectiveRowFrom := aEffectiveRow
-    else
-      aIncludeInfo.fEffectiveRowFrom := 1;
-
-    for I := 0 to aIncludeInfo.fIncludedCnt - 1 do
-    begin
-      Inc(aEffectiveRow, aIncludeInfo[I].fIncludedAtRow - FileRow);
-      FileRow := aIncludeInfo[I].fIncludedAtRow;
-      SetEffectiveRowsInfo(aIncludeInfo[I], aEffectiveRow);
-    end;
-    Inc(aEffectiveRow, aIncludeInfo.fRowsCnt - FileRow);
-    aIncludeInfo.fEffectiveRowTo := aEffectiveRow;
-  end;
-var EffectiveRow: Integer;
 begin
   CutIncludedArray;
-  EffectiveRow := 1;
-  SetEffectiveRowsInfo(Self, EffectiveRow);
 end;
 
 
-function TKMScriptFileIncludeInfo.GetRowInIncluded(aInitialRow: Integer; out aFileName: UnicodeString; out aRowInIncluded: Integer): Boolean;
+function TKMScriptFileIncludeInfo.GetRowInIncluded(aLine: AnsiString; out aFileName: UnicodeString; out aRowInIncluded: Integer): Boolean;
 
-  procedure SetSuccessfulResult(aIncludeInfo: TKMScriptFileIncludeInfo; aIncludeEffectiveRowSum, aFilesIncludedBefore: Integer);
-  begin
-    aFileName := aIncludeInfo.fFileName;
-    aRowInIncluded := aInitialRow - aIncludeInfo.fEffectiveRowFrom + 1 - aIncludeEffectiveRowSum + aFilesIncludedBefore;
-  end;
+  function FindLine(aIncludeInfo: TKMScriptFileIncludeInfo; var aStrings: TStringList): Boolean;
+  var I, LineIndex: Integer;
 
-  function FindIncludeInfo(aIncludeInfo: TKMScriptFileIncludeInfo): Boolean;
-  var I, FileEffectiveRow, IncludeEffectiveRowSum: Integer;
   begin
     Result := False;
-    if not InRange(aInitialRow, aIncludeInfo.fEffectiveRowFrom, aIncludeInfo.fEffectiveRowTo) then
-      Exit;
+    if aIncludeInfo = nil then Exit;
 
-    FileEffectiveRow := aIncludeInfo.fEffectiveRowFrom;
-    IncludeEffectiveRowSum := 0;
+    aStrings.Clear;
+    aStrings.Text := aIncludeInfo.fFileText;
+
+    LineIndex := aStrings.IndexOf(aLine);
+    if LineIndex <> -1 then
+    begin
+      Result := True;
+      aFileName := aIncludeInfo.fFileName;
+      aRowInIncluded := LineIndex + 1;
+      Exit;
+    end;
 
     for I := 0 to aIncludeInfo.fIncludedCnt - 1 do
     begin
-      if InRange(aInitialRow, FileEffectiveRow, aIncludeInfo[I].fEffectiveRowFrom - 1) then
+      if FindLine(aIncludeInfo[I], aStrings) then
       begin
         Result := True;
-        SetSuccessfulResult(aIncludeInfo, IncludeEffectiveRowSum, I);
         Exit;
       end;
-
-      if FindIncludeInfo(aIncludeInfo[I]) then
-        Exit;
-
-      Inc(IncludeEffectiveRowSum, aIncludeInfo[I].fEffectiveRowTo - aIncludeInfo[I].fEffectiveRowFrom + 1);
-      FileEffectiveRow := aIncludeInfo[I].fEffectiveRowTo + 1;
-    end;
-
-    if InRange(aInitialRow, FileEffectiveRow, aIncludeInfo.fEffectiveRowTo) then
-    begin
-      Result := True;
-      SetSuccessfulResult(aIncludeInfo, IncludeEffectiveRowSum, aIncludeInfo.fIncludedCnt);
     end;
   end;
-
+var Strings: TStringList;
 begin
-  Result := FindIncludeInfo(Self);
+  Strings := TStringList.Create; // Create TStringList only once for all files
+  Result := FindLine(Self, Strings);
+  Strings.Free;
 end;
 
 

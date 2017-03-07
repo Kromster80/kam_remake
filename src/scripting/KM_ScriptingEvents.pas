@@ -1,5 +1,6 @@
 unit KM_ScriptingEvents;
 {$I KaM_Remake.inc}
+{$WARN IMPLICIT_STRING_CAST OFF}
 interface
 uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger,
@@ -170,6 +171,16 @@ end;
 
 //This procedure allows us to keep the exception handling code in one place
 procedure TKMScriptEvents.DoProc(const aProc: TMethod; const aParams: array of Integer);
+
+  function GetCodeLine(aRowNum: Cardinal): AnsiString;
+  var Strings: TStringList;
+  begin
+    Strings := TStringList.Create;
+    Strings.Text := gScripting.ScriptCode;
+    Result := AnsiString(Strings[aRowNum - 1]);
+    Strings.Free;
+  end;
+
 var
   ExceptionProc: TPSProcRec;
   InternalProc: TPSInternalProcRec;
@@ -203,11 +214,9 @@ begin
         begin
           InternalProc := TPSInternalProcRec(ExceptionProc);
           S := S + ' in procedure ''' + UnicodeString(InternalProc.ExportName) + '''';
-          if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName) then
-          begin
-            gScripting.ScriptIncludeInfo.GetRowInIncluded(Row, FileName, RowInIncluded);
-            S := S + Format(' in ''%s'' at [%d:%d]' + EolW + '', [FileName, RowInIncluded, Col]);
-          end;
+          if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName)
+            and gScripting.ScriptIncludeInfo.GetRowInIncluded(GetCodeLine(Row), FileName, RowInIncluded) then
+            S := S + Format(' in ''%s'' at [%d:%d]', [FileName, RowInIncluded, Col]);
         end;
         fOnScriptError(se_Exception, S);
       end;
