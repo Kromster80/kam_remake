@@ -3,7 +3,7 @@ unit KM_Scripting;
 interface
 uses
   Classes, SysUtils,
-  uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
+  uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly, uPSDebugger, uPSPreProcessor,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
   KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates, KM_ScriptingUtils,
   KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
@@ -23,14 +23,39 @@ uses
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
 
 type
+  TKMScriptFileIncludeInfo = class
+  private
+    fFileName: UnicodeString;
+    fRowsCnt: Integer;
+    fEffectiveRowFrom: Integer;
+    fEffectiveRowTo: Integer;
+    fIncludedAtRow: Integer;
+    fIncludedCnt: Byte;
+    fIncluded: array of TKMScriptFileIncludeInfo;
+    procedure CutIncludedArray;
+    function GetIncluded(aIndex: Integer): TKMScriptFileIncludeInfo;
+  public
+    constructor Create;
+
+    property Included[I: Integer]: TKMScriptFileIncludeInfo read GetIncluded; default;
+    function FindIncludeInfo(aFileName: UnicodeString): TKMScriptFileIncludeInfo;
+    procedure AddIncludeInfo(aIncludeInfo: TKMScriptFileIncludeInfo);
+
+    procedure FinalizeIncludedInfo;
+    function GetRowInIncluded(aInitialRow: Integer; out aFileName: UnicodeString; out aRowInIncluded: Integer): Boolean;
+  end;
+
   TKMScripting = class
   private
     fScriptCode: AnsiString;
     fCampaignDataTypeCode: AnsiString;
     fByteCode: AnsiString;
-    fExec: TPSExec;
+    fDebugByteCode: AnsiString;
+    fExec: TPSDebugExec;
     fErrorString: UnicodeString; //Info about found mistakes (Unicode, can be localized later on)
     fWarningsString: UnicodeString;
+
+    fScriptIncludeInfo: TKMScriptFileIncludeInfo;
 
     fHasErrorOccured: Boolean; //Has runtime error occurred? (only display first error)
     fScriptLogFile: UnicodeString;
@@ -41,6 +66,10 @@ type
     fIDCache: TKMScriptingIdCache;
     fUtils: TKMScriptUtils;
 
+    procedure BeforePreProcess(aMainFileName: UnicodeString; aScriptCode: AnsiString);
+    procedure AfterPreProcess;
+
+    function ScriptOnNeedFile(Sender: TPSPreProcessor; const CallingFileName: AnsiString; var FileName, Output: AnsiString): Boolean;
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
     function ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
@@ -55,6 +84,7 @@ type
     constructor Create(aOnScriptError: TUnicodeStringEvent);
     destructor Destroy; override;
 
+    property ScriptIncludeInfo: TKMScriptFileIncludeInfo read fScriptIncludeInfo;
     property ErrorString: UnicodeString read fErrorString;
     property WarningsString: UnicodeString read fWarningsString;
     procedure LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
@@ -69,6 +99,11 @@ type
     procedure UpdateState;
   end;
 
+  function ScriptOnUsesFunc(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
+  procedure ScriptOnUseVariableProc(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Integer; ProcNo, Position: Cardinal; const PropData: tbtString);
+  function ScriptOnExportCheckFunc(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
+  function ScriptOnNeedFileFunc(Sender: TPSPreProcessor; const CallingFileName: AnsiString; var FileName, Output: AnsiString): Boolean;
+
 
 const
   MAX_LOG_SIZE = 1024 * 1024; //1 MB
@@ -82,11 +117,13 @@ const
     btStaticArray, btArray, //Static and Dynamic Arrays
     btRecord, btSet];
 
+var
+  gScripting: TKMScripting;
+
 
 implementation
 uses
-  KromUtils, KM_Game, KM_Log;
-
+  Math, KromUtils, KM_Game, KM_Log, KM_Utils;
 
 const
   SCRIPT_LOG_EXT = '.LOG.txt';
@@ -98,8 +135,9 @@ begin
   inherited Create;
 
   // Create an instance of the script executer
-  fExec := TPSExec.Create;
+  fExec := TPSDebugExec.Create;
   fIDCache := TKMScriptingIdCache.Create;
+  fScriptIncludeInfo := TKMScriptFileIncludeInfo.Create;
 
   // Global object to get events
   gScriptEvents := TKMScriptEvents.Create(fExec, fIDCache);
@@ -154,7 +192,7 @@ begin
   end;
 
   //Display compile errors in-game
-  if (aType = se_CompileError) and Assigned(fOnScriptError) then
+  if (aType in [se_CompileError, se_PreprocessorError]) and Assigned(fOnScriptError) then
     fOnScriptError(StringReplace(aMsg, EolW, '|', [rfReplaceAll]));
 
   //Serious runtime errors should be shown to the player
@@ -169,7 +207,25 @@ begin
 end;
 
 
+procedure TKMScripting.BeforePreProcess(aMainFileName: UnicodeString; aScriptCode: AnsiString);
+begin
+  fScriptIncludeInfo.fFileName := ExtractFileName(aMainFileName);
+  fScriptIncludeInfo.fRowsCnt := CountOccurrences(EolA, aScriptCode) + 1; // count lines
+end;
+
+
+procedure TKMScripting.AfterPreProcess;
+var I, RowInIncluded: Integer;
+    FileName: UnicodeString;
+begin
+  fScriptIncludeInfo.FinalizeIncludedInfo;
+end;
+
+
 procedure TKMScripting.LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
+var
+  PreProcessor: TPSPreProcessor;
+  ScriptCode: AnsiString;
 begin
   fScriptLogFile := ChangeFileExt(aFileName, SCRIPT_LOG_EXT);
   fErrorString := '';
@@ -186,7 +242,27 @@ begin
   else
     fCampaignDataTypeCode := '';
 
-  fScriptCode := ReadTextA(aFileName);
+  ScriptCode := ReadTextA(aFileName);
+
+  PreProcessor := TPSPreProcessor.Create;
+  try
+    PreProcessor.OnNeedFile := ScriptOnNeedFileFunc;
+    PreProcessor.MainFileName := aFileName;
+    PreProcessor.MainFile := ScriptCode;
+    BeforePreProcess(aFileName, ScriptCode);
+    try
+      PreProcessor.PreProcess(PreProcessor.MainFileName, fScriptCode);
+    except
+      on E: Exception do
+      begin
+        HandleScriptError(se_PreprocessorError, 'Script preprocessing errors:' + EolW + E.Message);
+        Exit;
+      end;
+    end;
+    AfterPreProcess;
+  finally
+    PreProcessor.Free;
+  end;
 
   CompileScript;
 
@@ -197,6 +273,43 @@ begin
 
   if aCampaignData <> nil then
     LoadCampaignData(aCampaignData);
+end;
+
+
+function TKMScripting.ScriptOnNeedFile(Sender: TPSPreProcessor; const CallingFileName: AnsiString; var FileName, Output: AnsiString): Boolean;
+var
+  S: string;
+  LineInfo: TPSLineInfoList;
+  ParentIncludeInfo, IncludeInfo: TKMScriptFileIncludeInfo;
+begin
+  Result := False;
+
+  ParentIncludeInfo := fScriptIncludeInfo.FindIncludeInfo(ExtractFileName(CallingFileName));
+  if ParentIncludeInfo = nil then
+  begin
+    ParentIncludeInfo := fScriptIncludeInfo;
+  end;
+
+  if ExtractFileExt(FileName) <> '.script' then Exit;
+
+  S := ExtractFilePath(CallingFileName);
+  if S = '' then S := ExtractFilePath(ParamStr(0));
+  Filename := S + Filename;
+  if FileExists(Filename) then
+  begin
+    Output := ReadTextA(Filename);
+
+    LineInfo := Sender.CurrentLineInfo;
+
+    IncludeInfo := TKMScriptFileIncludeInfo.Create;
+    IncludeInfo.fFileName := ExtractFileName(FileName);
+    IncludeInfo.fIncludedAtRow := LineInfo.Items[LineInfo.Current].LineOffsetCount; // row number, where include occure in parent file
+    IncludeInfo.fRowsCnt := CountOccurrences(EolA, Output) + 1; // count lines
+
+    ParentIncludeInfo.AddIncludeInfo(IncludeInfo);
+
+    Result := True;
+  end;
 end;
 
 
@@ -625,9 +738,9 @@ var
 begin
   Compiler := TPSPascalCompiler.Create; // create an instance of the compiler
   try
-    Compiler.OnUses := ScriptOnUses; // assign the OnUses event
-    Compiler.OnUseVariable := ScriptOnUseVariable;
-    Compiler.OnExportCheck := ScriptOnExportCheck; // Assign the onExportCheck event
+    Compiler.OnUses := ScriptOnUsesFunc; // assign the OnUses event
+    Compiler.OnUseVariable := ScriptOnUseVariableProc;
+    Compiler.OnExportCheck := ScriptOnExportCheckFunc; // Assign the onExportCheck event
 
     Compiler.AllowNoEnd := True; //Scripts only use event handlers now, main section is unused
     Compiler.BooleanShortCircuit := True; //Like unchecking "Complete booolean evaluation" in Delphi compiler options
@@ -642,7 +755,8 @@ begin
         for I := 0 to Compiler.MsgCount - 1 do
           fWarningsString := fWarningsString + UnicodeString(Compiler.Msg[I].MessageToString) + EolW;
 
-    Compiler.GetOutput(fByteCode); // Save the output of the compiler in the string Data.
+    Compiler.GetOutput(fByteCode);            // Save the output of the compiler in the string Data.
+    Compiler.GetDebugOutput(fDebugByteCode);  // Save the debug output of the compiler
   finally
     Compiler.Free;
   end;
@@ -1011,6 +1125,9 @@ begin
       Exit;
     end;
 
+    if fExec.DebugEnabled then
+      fExec.LoadDebugData(fDebugByteCode);
+
     //Check global variables in script to be only of supported type
     for I := 0 to fExec.GetVarCount - 1 do
     begin
@@ -1250,10 +1367,187 @@ begin
 end;
 
 
+
 procedure TKMScripting.UpdateState;
 begin
   gScriptEvents.ProcTick;
   fIDCache.UpdateState;
+end;
+
+
+{TKMScriptFileIncludeInfo}
+constructor TKMScriptFileIncludeInfo.Create;
+begin
+  fFileName := '';
+  fEffectiveRowFrom := 0;
+  fEffectiveRowTo := 0;
+  fRowsCnt := -1;
+  fIncludedAtRow := -1;
+  fIncludedCnt := 0;
+  SetLength(fIncluded, 8);
+end;
+
+
+function TKMScriptFileIncludeInfo.FindIncludeInfo(aFileName: UnicodeString): TKMScriptFileIncludeInfo;
+  function FindByName(aFileName: UnicodeString; aIncludeInfo: TKMScriptFileIncludeInfo): TKMScriptFileIncludeInfo;
+  var I: Integer;
+  begin
+    Result := nil;
+    if aIncludeInfo = nil then Exit;
+    
+    if aIncludeInfo.fFileName = aFileName then
+      Result := aIncludeInfo
+    else
+      for I := 0 to fIncludedCnt - 1 do
+      begin
+        Result := FindByName(aFileName, aIncludeInfo[I]);
+        if Result <> nil then
+          Exit;
+      end;
+  end;
+
+begin
+  Result := FindByName(aFileName, Self);
+end;
+
+
+procedure TKMScriptFileIncludeInfo.AddIncludeInfo(aIncludeInfo: TKMScriptFileIncludeInfo);
+begin
+  if Length(fIncluded) >= fIncludedCnt then
+    SetLength(fIncluded, fIncludedCnt + 8);
+
+  fIncluded[fIncludedCnt] := aIncludeInfo;
+  Inc(fIncludedCnt);
+end;
+
+
+procedure TKMScriptFileIncludeInfo.CutIncludedArray;
+  procedure CutArray(ScriptInclude: TKMScriptFileIncludeInfo);
+  var I: Integer;
+  begin
+    SetLength(ScriptInclude.fIncluded, ScriptInclude.fIncludedCnt);
+    for I := Low(ScriptInclude.fIncluded) to High(ScriptInclude.fIncluded) do
+      CutArray(ScriptInclude[I]);
+  end;
+
+begin
+  CutArray(Self);
+end;
+
+
+function TKMScriptFileIncludeInfo.GetIncluded(aIndex: Integer): TKMScriptFileIncludeInfo;
+begin
+  Result := fIncluded[aIndex];
+end;
+
+
+procedure TKMScriptFileIncludeInfo.FinalizeIncludedInfo;
+  // Preprocessor allow include declaration in script files.
+  // After preprocess finishes all code become one big script "file"
+  // So we want to know what is "real" (effective) row numbers in all files
+  // Then we will be able to get filename and line number (f.e. of error) by its "real" (effective, raw) number, which comes from debugger
+  procedure SetEffectiveRowsInfo(aIncludeInfo: TKMScriptFileIncludeInfo; var aEffectiveRow: Integer);
+  var I, FileRow: Integer;
+  begin
+    FileRow := 1;
+    if aIncludeInfo = nil then Exit;
+    if aIncludeInfo.fIncludedAtRow <> -1 then
+      aIncludeInfo.fEffectiveRowFrom := aEffectiveRow
+    else
+      aIncludeInfo.fEffectiveRowFrom := 1;
+
+    for I := 0 to aIncludeInfo.fIncludedCnt - 1 do
+    begin
+      Inc(aEffectiveRow, aIncludeInfo[I].fIncludedAtRow - FileRow);
+      FileRow := aIncludeInfo[I].fIncludedAtRow;
+      SetEffectiveRowsInfo(aIncludeInfo[I], aEffectiveRow);
+    end;
+    Inc(aEffectiveRow, aIncludeInfo.fRowsCnt - FileRow);
+    aIncludeInfo.fEffectiveRowTo := aEffectiveRow;
+  end;
+var EffectiveRow: Integer;
+begin
+  CutIncludedArray;
+  EffectiveRow := 1;
+  SetEffectiveRowsInfo(Self, EffectiveRow);
+end;
+
+
+function TKMScriptFileIncludeInfo.GetRowInIncluded(aInitialRow: Integer; out aFileName: UnicodeString; out aRowInIncluded: Integer): Boolean;
+
+  procedure SetSuccessfulResult(aIncludeInfo: TKMScriptFileIncludeInfo; aIncludeEffectiveRowSum, aFilesIncludedBefore: Integer);
+  begin
+    aFileName := aIncludeInfo.fFileName;
+    aRowInIncluded := aInitialRow - aIncludeInfo.fEffectiveRowFrom + 1 - aIncludeEffectiveRowSum + aFilesIncludedBefore;
+  end;
+
+  function FindIncludeInfo(aIncludeInfo: TKMScriptFileIncludeInfo): Boolean;
+  var I, FileEffectiveRow, IncludeEffectiveRowSum: Integer;
+  begin
+    Result := False;
+    if not InRange(aInitialRow, aIncludeInfo.fEffectiveRowFrom, aIncludeInfo.fEffectiveRowTo) then
+      Exit;
+
+    FileEffectiveRow := aIncludeInfo.fEffectiveRowFrom;
+    IncludeEffectiveRowSum := 0;
+
+    for I := 0 to aIncludeInfo.fIncludedCnt - 1 do
+    begin
+      if InRange(aInitialRow, FileEffectiveRow, aIncludeInfo[I].fEffectiveRowFrom - 1) then
+      begin
+        Result := True;
+        SetSuccessfulResult(aIncludeInfo, IncludeEffectiveRowSum, I);
+        Exit;
+      end;
+
+      if FindIncludeInfo(aIncludeInfo[I]) then
+        Exit;
+
+      Inc(IncludeEffectiveRowSum, aIncludeInfo[I].fEffectiveRowTo - aIncludeInfo[I].fEffectiveRowFrom + 1);
+      FileEffectiveRow := aIncludeInfo[I].fEffectiveRowTo + 1;
+    end;
+
+    if InRange(aInitialRow, FileEffectiveRow, aIncludeInfo.fEffectiveRowTo) then
+    begin
+      Result := True;
+      SetSuccessfulResult(aIncludeInfo, IncludeEffectiveRowSum, aIncludeInfo.fIncludedCnt);
+    end;
+  end;
+
+begin
+  Result := FindIncludeInfo(Self);
+end;
+
+
+{Regular procedures and functions to wrap TKMScripting procedures and functions}
+function ScriptOnUsesFunc(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
+begin
+  Result := False;
+  if gScripting <> nil then
+    Result := gScripting.ScriptOnUses(Sender, Name);
+end;
+
+
+procedure ScriptOnUseVariableProc(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Integer; ProcNo, Position: Cardinal; const PropData: tbtString);
+begin
+  if gScripting <> nil then
+    gScripting.ScriptOnUseVariable(Sender, VarType, VarNo, ProcNo, Position, PropData);
+end;
+
+
+function ScriptOnExportCheckFunc(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
+begin
+  Result := False;
+  if gScripting <> nil then
+    Result := gScripting.ScriptOnExportCheck(Sender, Proc, ProcDecl);
+end;
+
+
+function ScriptOnNeedFileFunc(Sender: TPSPreProcessor; const CallingFileName: AnsiString; var FileName, Output: AnsiString): Boolean;
+begin
+  Result := False;
+  if gScripting <> nil then
+    Result := gScripting.ScriptOnNeedFile(Sender, CallingFileName, FileName, Output);
 end;
 
 

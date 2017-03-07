@@ -39,7 +39,6 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
     fMapEditor: TKMMapEditor;
-    fScripting: TKMScripting;
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsPaused: Boolean;
@@ -231,7 +230,7 @@ begin
   gLog.AddTime('<== Game creation is done ==>');
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
-  fScripting := TKMScripting.Create(ShowScriptError);
+  gScripting := TKMScripting.Create(ShowScriptError);
 
   fIgnoreConsistencyCheckErrors := False;
 
@@ -271,7 +270,7 @@ begin
   FreeAndNil(gAIFields);
   FreeAndNil(gProjectiles);
   FreeAndNil(fPathfinding);
-  FreeAndNil(fScripting);
+  FreeAndNil(gScripting);
   FreeAndNil(gLoopSounds);
 
   FreeThenNil(fGamePlayInterface);
@@ -419,7 +418,7 @@ begin
         CampaignDataTypeFile := '';
       end;
 
-      fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
+      gScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
       //fScripting reports compile errors itself now
     end;
 
@@ -1306,7 +1305,7 @@ begin
     gAIFields.Save(SaveStream);
     fPathfinding.Save(SaveStream);
     gProjectiles.Save(SaveStream);
-    fScripting.Save(SaveStream);
+    gScripting.Save(SaveStream);
     gLoopSounds.Save(SaveStream);
 
     fTextMission.Save(SaveStream);
@@ -1370,7 +1369,7 @@ end;
 
 procedure TKMGame.SaveCampaignScriptData(SaveStream: TKMemoryStream);
 begin
-  fScripting.SaveCampaignData(SaveStream);
+  gScripting.SaveCampaignData(SaveStream);
 end;
 
 
@@ -1459,7 +1458,7 @@ begin
     gAIFields.Load(LoadStream);
     fPathfinding.Load(LoadStream);
     gProjectiles.Load(LoadStream);
-    fScripting.Load(LoadStream);
+    gScripting.Load(LoadStream);
     gLoopSounds.Load(LoadStream);
 
     fTextMission := TKMTextLibraryMulti.Create;
@@ -1559,7 +1558,7 @@ begin
                       or ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fGameMapCRC, fNetworking.NetPlayers.GetConnectedCount);
 
-                      fScripting.UpdateState;
+                      gScripting.UpdateState;
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       gTerrain.UpdateState;
                       gAIFields.UpdateState(fGameTickCount);
@@ -1611,7 +1610,7 @@ begin
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
-                    fScripting.UpdateState;
+                    gScripting.UpdateState;
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     gTerrain.UpdateState;
                     gAIFields.UpdateState(fGameTickCount);

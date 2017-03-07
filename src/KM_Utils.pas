@@ -65,6 +65,8 @@ uses
 
   function GetMultiplicator(aShift: TShiftState): Word;
 
+  function CountOccurrences(const aSubstring, aText: String): Integer;
+
   //String functions
   function StrIndexOf(aStr, aSubStr: String): Integer;
   function StrLastIndexOf(aStr, aSubStr: String): Integer;
@@ -746,6 +748,20 @@ end;
 function GetMultiplicator(aShift: TShiftState): Word;
 begin
   Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100 + Byte(aShift = [ssShift, ssRight]) * 1000;
+end;
+
+
+function CountOccurrences(const aSubstring, aText: String): Integer;
+var
+  Offset: integer;
+begin
+  Result := 0;
+  Offset := PosEx(aSubstring, aText, 1);
+  while Offset <> 0 do
+  begin
+    Inc(Result);
+    Offset := PosEx(aSubstring, aText, Offset + length(aSubstring));
+  end;
 end;
 
 
