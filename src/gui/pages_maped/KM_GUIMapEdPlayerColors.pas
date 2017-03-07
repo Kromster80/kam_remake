@@ -73,8 +73,10 @@ begin
   end;
 
   ColorSwatch_Color.SetColors(Col);
+
   ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
+
 
 function TKMMapEdPlayerColors.GetCodeBGRColor(aColor: Cardinal): String;
 begin
@@ -93,7 +95,6 @@ procedure TKMMapEdPlayerColors.Hide;
 begin
   Panel_Color.Hide;
 end;
-
 
 procedure TKMMapEdPlayerColors.Show;
 begin

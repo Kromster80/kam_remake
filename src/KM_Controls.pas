@@ -493,7 +493,7 @@ type
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
-    BlockInput: Boolean;//Lock input
+    BlockInput: Boolean;// Blocks all input into the field, but allow focus, selection and copy selected text
     ShowColors: Boolean;
     MaxLen: Word;
     DrawOutline: Boolean;
@@ -2765,7 +2765,7 @@ begin
   if inherited KeyDown(Key, Shift) or ReadOnly then Exit;
 
   //Allow some keys while blocking input
-  if BLockInput and not ((Key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END]) or ((ssCtrl in Shift) and (Key in [Ord('A'), Ord('C')]))) then Exit;
+  if BlockInput and not ((Key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END]) or ((ssCtrl in Shift) and (Key in [Ord('A'), Ord('C')]))) then Exit;
 
   //Clipboard operations
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
