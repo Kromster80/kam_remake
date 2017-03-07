@@ -16,8 +16,8 @@ type
     Panel_Color: TKMPanel;
     ColorSwatch_Color: TKMColorSwatch;
     //Components for Show Code BGR Color
-    BGRColorShape: TKMShape;
-    BGRCodeEdit: TKMEdit;
+    Shape_BGRColor: TKMShape;
+    Edit_BGRCode: TKMEdit;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -50,9 +50,10 @@ begin
 
   //Show Code BGR Color
   TKMBevel.Create(Panel_Color, 0, 235, 20, 20);
-  BGRColorShape := TKMShape.Create(Panel_Color, 2, 237, 17, 17);
-  BGRCodeEdit := TKMEdit.Create(Panel_Color, 20, 235, TB_WIDTH - 20, 20, fnt_Metal, true);
-  BGRCodeEdit.ReadOnly := true;
+  Shape_BGRColor := TKMShape.Create(Panel_Color, 2, 237, 17, 17);
+  Edit_BGRCode := TKMEdit.Create(Panel_Color, 20, 235, TB_WIDTH - 20, 20, fnt_Metal, true);
+  Edit_BGRCode.BlockInput := true;
+
 
   //Generate a palette using HSB so the layout is more intuitive
   I := 0;
@@ -83,8 +84,8 @@ end;
 procedure TKMMapEdPlayerColors.Player_ColorClick(Sender: TObject);
 begin
   gMySpectator.Hand.FlagColor := ColorSwatch_Color.GetColor;
-  BGRColorShape.FillColor := ColorSwatch_Color.GetColor;
-  BGRCodeEdit.Text := GetCodeBGRColor(ColorSwatch_Color.GetColor);
+  Shape_BGRColor.FillColor := ColorSwatch_Color.GetColor;
+  Edit_BGRCode.Text := GetCodeBGRColor(ColorSwatch_Color.GetColor);
   gGame.ActiveInterface.SyncUI(False);
 end;
 
@@ -98,8 +99,8 @@ procedure TKMMapEdPlayerColors.Show;
 begin
   Panel_Color.Show;
   ColorSwatch_Color.SelectByColor(gMySpectator.Hand.FlagColor);
-  BGRColorShape.FillColor := gMySpectator.Hand.FlagColor;
-  BGRCodeEdit.Text := GetCodeBGRColor(gMySpectator.Hand.FlagColor);
+  Shape_BGRColor.FillColor := gMySpectator.Hand.FlagColor;
+  Edit_BGRCode.Text := GetCodeBGRColor(gMySpectator.Hand.FlagColor);
 end;
 
 
