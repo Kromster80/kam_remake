@@ -78,7 +78,7 @@ end;
 
 function TKMMapEdPlayerColors.GetCodeBGRColor(aColor: Cardinal): String;
 begin
-  Result := IntToHex(aColor and $00FFFFFF, 6);
+  Result := IntToHex(aColor and $FFFFFF, 6);
 end;
 
 procedure TKMMapEdPlayerColors.Player_ColorClick(Sender: TObject);
