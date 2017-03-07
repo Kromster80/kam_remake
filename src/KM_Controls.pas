@@ -2764,7 +2764,7 @@ begin
   Result := KeyEventHandled(Key, Shift);
   if inherited KeyDown(Key, Shift) or ReadOnly then Exit;
 
-  //Allow some keys while blocking input
+  // Blocks all input into the field, but allow focus, selection and copy selected text"
   if BLockInput and not ((Key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END]) or ((ssCtrl in Shift) and (Key in [Ord('A'), Ord('C')]))) then Exit;
 
   //Clipboard operations
