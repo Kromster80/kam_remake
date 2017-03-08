@@ -100,8 +100,8 @@ type
     property Viewport: TKMViewport read fViewport;
     property GuiTerrain: TKMMapEdTerrain read fGuiTerrain;
 
-    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
-    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
@@ -704,10 +704,11 @@ begin
 end;
 
 
-function TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState): Boolean;
-var KeyPassedToModal: Boolean;
+procedure TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+var
+  KeyHandled, KeyPassedToModal: Boolean;
 begin
-  Result := True; // assume we handle all keys here
+  aHandled := True; // assume we handle all keys here
 
   if fMyControls.KeyDown(Key, Shift) then
   begin
@@ -715,8 +716,8 @@ begin
     Exit; //Handled by Controls
   end;
 
-  if inherited KeyDown(Key, Shift) then Exit;
-  
+  inherited KeyDown(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
 
   //DoPress is not working properly yet. GamePlay only uses DoClick so MapEd can be the same for now.
   //1-5 game menu shortcuts
@@ -745,13 +746,17 @@ begin
 end;
 
 
-function TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+procedure TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+var
+  KeyHandled: Boolean;
 begin
-  Result := True; // assume we handle all keys here
+  aHandled := True; // assume we handle all keys here
 
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
-  inherited KeyUp(Key, Shift);
+  inherited KeyUp(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
+  
 
   //F1-F5 menu shortcuts
   if Key = gResKeys[SC_MAPEDIT_TERRAIN].Key   then Button_Main[1].Click;

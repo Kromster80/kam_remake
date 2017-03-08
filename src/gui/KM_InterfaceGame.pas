@@ -32,8 +32,8 @@ type
 
     function CursorToMapCoord(X, Y: Integer): TKMPointF;
 
-    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
-    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
     function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
 
@@ -177,13 +177,13 @@ begin
 end;
 
 
-function TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+procedure TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
   {$IFDEF MSWindows}
 var
   WindowRect: TRect;
   {$ENDIF}
 begin
-  Result := True;
+  aHandled := True;
   //Scrolling
   if Key = gResKeys[SC_SCROLL_LEFT].Key       then fViewport.ScrollKeyLeft  := True
   else if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True
@@ -192,7 +192,7 @@ begin
   else if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True
   else if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True
   else if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom
-  else if (Key = gResKeys[SC_MAP_DRAG_DCROLL].Key)
+  else if (Key = gResKeys[SC_MAP_DRAG_SCROLL].Key)
       and IsDragScrollingAllowed then
   begin
     fDragScrolling := True;
@@ -209,13 +209,13 @@ begin
    gRes.Cursors.Cursor := kmc_Drag;
   end
   else
-    Result := False;
+    aHandled := False;
 end;
 
 
-function TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+procedure TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
-  Result := True;
+  aHandled := True;
   //Scrolling
   if Key = gResKeys[SC_SCROLL_LEFT].Key       then fViewport.ScrollKeyLeft  := False
   else if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False
@@ -224,12 +224,12 @@ begin
   else if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False
   else if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False
   else if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom
-  else if Key = gResKeys[SC_MAP_DRAG_DCROLL].Key then
+  else if Key = gResKeys[SC_MAP_DRAG_SCROLL].Key then
   begin
     if fDragScrolling then
       ResetDragScrolling;
   end
-  else Result := False;
+  else aHandled := False;
 end;
 
 
@@ -254,7 +254,7 @@ begin
   Result := False;
   if fDragScrolling then
   begin
-    if GetKeyState(gResKeys[SC_MAP_DRAG_DCROLL].Key) < 0 then
+    if GetKeyState(gResKeys[SC_MAP_DRAG_SCROLL].Key) < 0 then
     begin
       UpdateGameCursor(X, Y, Shift);
       VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);

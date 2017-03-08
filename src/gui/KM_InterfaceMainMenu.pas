@@ -61,8 +61,8 @@ type
     procedure ExportPages(aPath: string); override;
     procedure ReturnToLobby(const aSaveName: UnicodeString);
 
-    function KeyDown(Key:Word; Shift: TShiftState): Boolean; override;
-    function KeyUp(Key:Word; Shift: TShiftState): Boolean; override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
@@ -327,9 +327,9 @@ begin
 end;
 
 
-function TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
-  Result := True; // assume we handle all keys here
+  aHandled := True; // assume we handle all keys here
 
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
 
@@ -338,9 +338,9 @@ begin
 end;
 
 
-function TKMMainMenuInterface.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+procedure TKMMainMenuInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
-  Result := True; // assume we handle all keys here
+  aHandled := True; // assume we handle all keys here
 
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 end;

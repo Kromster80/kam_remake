@@ -305,8 +305,8 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure LoadMinimap(LoadStream: TKMemoryStream);
 
-    function KeyDown(Key:Word; Shift: TShiftState): Boolean; override;
-    function KeyUp(Key:Word; Shift: TShiftState): Boolean; override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
@@ -2816,11 +2816,12 @@ begin
 end;
 
 
-function TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 var
   Rect: TKMRect;
+  KeyHandled: Boolean;
 begin
-  Result := True; // assume we handle all keys here
+  aHandled := True; // assume we handle all keys here
 
   if gGame.IsPaused and (fUIMode in [umSP, umMP]) then Exit;
 
@@ -2830,7 +2831,8 @@ begin
     Exit;
   end;
 
-  if inherited KeyDown(Key, Shift) then Exit;
+  inherited KeyDown(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
 
     // As we don't have names for teams in SP we only allow showing team names in MP or MP replays
   if (Key = gResKeys[SC_SHOW_TEAMS].Key) then
@@ -2848,13 +2850,14 @@ end;
 // Note: we deliberately don't pass any Keys to MyControls when game is not running
 // thats why MyControls.KeyUp is only in gsRunning clause
 // Ignore all keys if game is on 'Pause'
-function TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 var
   LastAlert: TKMAlert;
   SelectId: Integer;
   SpecPlayerIndex: ShortInt;
+  KeyHandled: Boolean;
 begin
-  Result := True; // assume we handle all keys here
+  aHandled := True; // assume we handle all keys here
 
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2865,7 +2868,8 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  if inherited KeyUp(Key, Shift) then Exit;
+  inherited KeyUp(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
 
   if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
@@ -3779,6 +3783,7 @@ end;
 
 function TKMGamePlayInterface.IsDragScrollingAllowed: Boolean;
 begin
+  inherited;
   Result := not (gGame.IsPaused and (fUIMode in [umSP, umMP]))
             and (fMyControls.CtrlOver = nil)
             and not gMySpectator.Hand.InCinematic;

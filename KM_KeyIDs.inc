@@ -3,7 +3,7 @@ SC_SCROLL_RIGHT = 1; //Scroll Right
 SC_SCROLL_UP = 2; //Scroll Up
 SC_SCROLL_DOWN = 3; //Scroll Down
 
-SC_MAP_DRAG_DCROLL = 4; //Map drag scroll
+SC_MAP_DRAG_SCROLL = 4; //Map drag scroll
 
 SC_ZOOM_IN = 5; //Zoom In
 SC_ZOOM_OUT = 6; //Zoom Out
