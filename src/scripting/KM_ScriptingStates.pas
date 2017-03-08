@@ -1045,7 +1045,7 @@ begin
 end;
 
 
-//* Version: 4758
+//* Version: 4758 Update 7000+
 //* Get players color as text in hex format
 //* Result: Player color
 function TKMScriptStates.PlayerColorText(aPlayer: Byte;
@@ -1059,7 +1059,7 @@ begin
       if bLight then
         Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
       else
-        Result := IntToHex(gHands[aPlayer].FlagColor and $FFFFFF, 6)
+        Result := AnsiString(IntToHex(gHands[aPlayer].FlagColor and $FFFFFF, 6))
     end
     else
     begin
