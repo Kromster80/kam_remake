@@ -1766,11 +1766,11 @@ begin
 end;
 
 
-procedure TKMControl.Enable;  begin SetEnabled(true);  end; //Overrides will be set too
-procedure TKMControl.Disable; begin SetEnabled(false); end;
+procedure TKMControl.Enable;  begin SetEnabled(True);  end; //Overrides will be set too
+procedure TKMControl.Disable; begin SetEnabled(False); end;
 
 
-{Will show up entire branch in which control resides}
+// Show up entire branch in which control resides
 procedure TKMControl.Show;
 begin
   if Parent <> nil then Parent.Show;
@@ -1778,9 +1778,22 @@ begin
 end;
 
 
-procedure TKMControl.Hide;    begin Visible := False; end;
-procedure TKMControl.AnchorsCenter;  begin Anchors := []; end;
-procedure TKMControl.AnchorsStretch; begin Anchors := [anLeft, anTop, anRight, anBottom]; end;
+procedure TKMControl.Hide;
+begin
+  Visible := False;
+end;
+
+
+procedure TKMControl.AnchorsCenter;
+begin
+  Anchors := [];
+end;
+
+
+procedure TKMControl.AnchorsStretch;
+begin
+  Anchors := [anLeft, anTop, anRight, anBottom];
+end;
 
 
 procedure TKMControl.Unfocus;
@@ -1790,7 +1803,8 @@ end;
 
 
 function TKMControl.MasterParent: TKMPanel;
-var P: TKMPanel;
+var
+  P: TKMPanel;
 begin
   if not (Self is TKMPanel) then
     P := Parent
@@ -1807,6 +1821,7 @@ end;
 constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(nil, aLeft, aTop, aWidth, aHeight);
+
   fMasterControl := aParent;
   aParent.fCtrl := Self;
   Init;
@@ -1816,6 +1831,7 @@ end;
 constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+
   fMasterControl := aParent.fMasterControl;
   Init;
 end;
@@ -1836,7 +1852,8 @@ end;
 
 
 destructor TKMPanel.Destroy;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to ChildCount - 1 do
     Childs[I].Free;
@@ -1846,7 +1863,8 @@ end;
 
 
 function TKMPanel.FindFocusableControl(aFindNext: Boolean): TKMControl;
-var I, CtrlToFocusI: Integer;
+var
+  I, CtrlToFocusI: Integer;
 begin
   Result := nil;
   CtrlToFocusI := -1;
@@ -2259,7 +2277,7 @@ begin
     Result := true; //Click has happened
   end
   else
-    Result := false; //No, we couldn't click for Control is unreachable
+    Result := False; //No, we couldn't click for Control is unreachable
 end;
 
 
@@ -2326,7 +2344,7 @@ begin
 end;
 
 
-{If image area is bigger than image - do center image in it}
+// If image area is bigger than image - do center image in it
 procedure TKMImageStack.Paint;
 var
   I: Integer;

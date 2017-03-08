@@ -111,7 +111,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
   procedure CreateServerPopUp;
   begin
     Panel_MPCreateServer := TKMPanel.Create(aParent, 362, 250, 320, 300);
-    Panel_MPCreateServer.Anchors := [];
+    Panel_MPCreateServer.AnchorsCenter;
       TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPCreateServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPCreateServer,   0,  0, 320, 300);
@@ -132,7 +132,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
   procedure FindServerPopUp;
   begin
     Panel_MPFindServer := TKMPanel.Create(aParent, 362, 250, 320, 300);
-    Panel_MPFindServer.Anchors := [];
+    Panel_MPFindServer.AnchorsCenter;
       TKMBevel.Create(Panel_MPFindServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPFindServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPFindServer,   0,  0, 320, 300);
@@ -155,7 +155,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
   procedure PasswordPopUp;
   begin
     Panel_MPPassword := TKMPanel.Create(aParent, 362, 250, 320, 300);
-    Panel_MPPassword.Anchors := [];
+    Panel_MPPassword.AnchorsCenter;
       TKMBevel.Create(Panel_MPPassword, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPPassword, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPPassword,   0,  0, 320, 300);

@@ -582,7 +582,7 @@ end;
 procedure TKMMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
 begin
   Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 350);
-  Panel_LobbySettings.Anchors := [];
+  Panel_LobbySettings.AnchorsCenter;
     TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
     with TKMImage.Create(Panel_LobbySettings, -20, -75, 360, 440, 15, rxGuiMain) do ImageStretch;
     TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 343);

@@ -1086,7 +1086,7 @@ begin
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
     ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fnt_Grey, bsGame);
-    ColumnBox_MessageLog.Anchors := [anLeft, anTop, anRight, anBottom];
+    ColumnBox_MessageLog.AnchorsStretch;
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.HideSelection := True;
@@ -1102,8 +1102,11 @@ end;
 
 procedure TKMGamePlayInterface.Create_Controls;
 const
-  MainHint: array [TKMTabButtons] of Word = (TX_MENU_TAB_HINT_BUILD, TX_MENU_TAB_HINT_DISTRIBUTE,
-                                             TX_MENU_TAB_HINT_STATISTICS, TX_MENU_TAB_HINT_OPTIONS);
+  MAIN_BTN_HINT: array [TKMTabButtons] of Word = (
+    TX_MENU_TAB_HINT_BUILD,
+    TX_MENU_TAB_HINT_DISTRIBUTE,
+    TX_MENU_TAB_HINT_STATISTICS,
+    TX_MENU_TAB_HINT_OPTIONS);
 var
   T: TKMTabButtons;
   I: Integer;
@@ -1119,7 +1122,7 @@ begin
     // Main 4 buttons
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do begin
       Button_Main[T] := TKMButton.Create(Panel_Controls,  TB_PAD + 46 * Byte(T), 4, 42, 36, 439 + Byte(T), rxGui, bsGame);
-      Button_Main[T].Hint := gResTexts[MainHint[T]];
+      Button_Main[T].Hint := gResTexts[MAIN_BTN_HINT[T]];
       Button_Main[T].OnClick := SwitchPage;
     end;
     Button_Back := TKMButton.Create(Panel_Controls, TB_PAD, 4, 42, 36, 443, rxGui, bsGame);

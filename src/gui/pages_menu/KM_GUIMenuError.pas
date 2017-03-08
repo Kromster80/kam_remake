@@ -10,7 +10,6 @@ type
   TKMMenuError = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
-
     procedure BackClick(Sender: TObject);
   protected
     Panel_Error: TKMPanel;
@@ -18,7 +17,6 @@ type
     Button_ErrorBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-
     procedure Show(aText: UnicodeString);
   end;
 
@@ -38,8 +36,7 @@ begin
 
   Panel_Error := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Error.AnchorsStretch;
-    with TKMLabel.Create(Panel_Error, aParent.Width div 2, aParent.Height div 2 - 20, gResTexts[TX_MENU_ERROR], fnt_Antiqua, taCenter) do
-      AnchorsCenter;
+    TKMLabel.Create(Panel_Error, aParent.Width div 2, aParent.Height div 2 - 20, gResTexts[TX_MENU_ERROR], fnt_Antiqua, taCenter).AnchorsCenter;
     Label_Error := TKMLabel.Create(Panel_Error, 8, aParent.Height div 2+10, aParent.Width-16, 200, '...', fnt_Grey, taCenter);
     Label_Error.AnchorsCenter;
     Label_Error.AutoWrap := True;
