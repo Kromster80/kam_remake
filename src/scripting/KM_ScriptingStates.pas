@@ -83,7 +83,7 @@ type
     function PeaceTime: Cardinal;
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
-    function PlayerColorText(aPlayer: Byte): AnsiString;
+    function PlayerColorText(aPlayer: Byte; bLight: Boolean = True): AnsiString;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
@@ -543,6 +543,7 @@ begin
     raise;
   end;
 end;
+
 
 
 //* Version: 6328
@@ -1047,14 +1048,18 @@ end;
 //* Version: 4758
 //* Get players color as text in hex format
 //* Result: Player color
-function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
+function TKMScriptStates.PlayerColorText(aPlayer: Byte;
+  bLight: Boolean): AnsiString;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     begin
       //Use FlagColorToTextColor to desaturate and lighten the text so all player colours are
       //readable on a variety of backgrounds
-      Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
+      if bLight then
+        Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
+      else
+        Result := IntToHex(gHands[aPlayer].FlagColor and $FFFFFF, 6)
     end
     else
     begin
@@ -1066,7 +1071,6 @@ begin
     raise;
   end;
 end;
-
 
 //* Version: 5057
 //* Will be false if nobody selected that location in multiplayer

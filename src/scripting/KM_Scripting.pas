@@ -300,7 +300,7 @@ begin
       RegisterMethod('function PeaceTime: Cardinal');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
-      RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
+      RegisterMethod('function PlayerColorText(aPlayer: Byte; bLight: Boolean): AnsiString');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
