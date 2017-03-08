@@ -266,7 +266,7 @@ end;
 
 
 //* Version: 5345
-//* Sets whether player A shares his vision with player B.
+//* Sets whether player A shares his vision with player B (one way, for both ways use PlayerShareFogCompliment).
 //* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
 procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
 begin
