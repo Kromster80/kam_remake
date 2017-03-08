@@ -1051,7 +1051,7 @@ function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
+      Result := IntToHex(gHands[aPlayer].FlagColor and $FFFFFF, 6)
     else
     begin
       Result := '';
