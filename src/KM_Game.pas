@@ -919,6 +919,9 @@ begin
       mfSP:       begin
                     gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMapType := 0;
+                    // Update saved SP game list saved selected map position CRC if we resave this map
+                    if fGameMapCRC = gGameApp.GameSettings.MenuSPMapCRC then
+                      gGameApp.GameSettings.MenuSPMapCRC := MapInfo.CRC;
                   end;
       mfMP,mfDL:  begin
                     gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
