@@ -843,6 +843,7 @@ type
     Font: TKMFont;
     HintFont: TKMFont;
     TextAlign: TKMTextAlign;
+    TriggerOnChange: Boolean;
   end;
 
   TKMColumnBox = class(TKMControl)
@@ -5123,6 +5124,7 @@ begin
     fColumns[I] := TKMListColumn.Create;
     fColumns[I].Font := fFont; //Reset to default font
     fColumns[I].TextAlign := taLeft; //Default alignment
+    fColumns[I].TriggerOnChange := True; //by default all columns trigger OnChange
   end;
 end;
 
@@ -5311,6 +5313,9 @@ begin
   begin
     fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
     ItemIndex := NewIndex;
+    if Assigned(fOnChange)
+      and not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) and Columns[fMouseOverCell.X].TriggerOnChange then
+      fOnChange(Self);
   end;
 end;
 

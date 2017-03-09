@@ -396,6 +396,7 @@ begin
         DropBox_LobbyPlayerSlot[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu, False);
         DropBox_LobbyPlayerSlot[I].DropWidth := DropWidth;
         DropBox_LobbyPlayerSlot[I].SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, 100 + Max(0, 40 - TxtWidth)], [True, False]);
+        DropBox_LobbyPlayerSlot[I].List.Columns[1].TriggerOnChange := False; //1st column should not trigger OnChange event
         if I <= MAX_LOBBY_PLAYERS then
         begin
           DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate //Player can join into this slot
@@ -1935,7 +1936,6 @@ begin
     finally
       fMapsMP.Unlock;
     end;
-    MapChange(nil); //Update Map
     Result := True; //we handle mouse click here, and do want to propagate it further
   end;
 end;
