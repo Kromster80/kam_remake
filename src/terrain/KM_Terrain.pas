@@ -20,15 +20,14 @@ type
 
   TKMTileChangeTypeSet = set of TKMTileChangeType;
 
-  TKMTerrainTileBrief = packed record
+  TKMTerrainTileBrief = record
+    X,Y: Byte;
     Terrain: Byte;
     Rotation: Byte;
     Height: Byte;
     Obj: Byte;
     ChangeSet: TKMTileChangeTypeSet;
   end;
-
-  TKMTerrainTileBrief2Array = array of array of TKMTerrainTileBrief;
 
   TKMTerrainTileChangeError = packed record
     X, Y: Byte;
@@ -97,6 +96,7 @@ type
     function ChooseCuttingDirection(aLoc, aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
 
     procedure UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
+    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected: Boolean);
 
     procedure SetField_Init(Loc: TKMPoint; aOwner: TKMHandIndex);
     procedure SetField_Complete(Loc: TKMPoint; aFieldType: TFieldType);
@@ -220,7 +220,7 @@ type
     function ScriptTrySetTile(X, Y: Integer; aType, aRot: Byte): Boolean;
     function ScriptTrySetTileHeight(X, Y: Integer; aHeight: Byte): Boolean;
     function ScriptTrySetTileObject(X, Y: Integer; aObject: Byte): Boolean;
-    function ScriptTrySetTilesArray(var aTiles: TKMTerrainTileBrief2Array; aRevertOnFail: Boolean; var aErrors: TKMTerrainTileChangeErrorArray): Boolean;
+    function ScriptTrySetTilesArray(var aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; var aErrors: TKMTerrainTileChangeErrorArray): Boolean;
 
     function ObjectIsChopableTree(X,Y: Word): Boolean; overload;
     function ObjectIsChopableTree(Loc: TKMPoint; aStage: TKMChopableAge): Boolean; overload;
@@ -241,8 +241,6 @@ type
     procedure UpdateLighting(aRect: TKMRect);
     procedure UpdatePassability(aRect: TKMRect); overload;
     procedure UpdatePassability(Loc: TKMPoint); overload;
-
-    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected: Boolean);
 
     procedure IncAnimStep; //Lite-weight UpdateState for MapEd
     property AnimStep: Cardinal read fAnimStep;
@@ -654,7 +652,7 @@ end;
 //
 // Returns True if succeeded
 // use var for aTiles. aTiles can be huge so we do want to make its local copy. Saves a lot of memory
-function TKMTerrain.ScriptTrySetTilesArray(var aTiles: TKMTerrainTileBrief2Array; aRevertOnFail: Boolean; var aErrors: TKMTerrainTileChangeErrorArray): Boolean;
+function TKMTerrain.ScriptTrySetTilesArray(var aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; var aErrors: TKMTerrainTileChangeErrorArray): Boolean;
 
   function IsRectInit(aRect: TKMRect): Boolean;
   begin
@@ -677,7 +675,7 @@ function TKMTerrain.ScriptTrySetTilesArray(var aTiles: TKMTerrainTileBrief2Array
     aResult := False;
   end;
 
-var I, J, X, Y: Integer;
+var I, J: Integer;
     T: TKMTerrainTileBrief;
     Rect, HeightRect: TKMRect;
     DiagonalChangedTotal, DiagChanged: Boolean;
@@ -685,7 +683,6 @@ var I, J, X, Y: Integer;
     ErrCnt: Integer;
     HasErrorOnTile: Boolean;
     ErrorTypesOnTile: TKMTileChangeTypeSet;
-    Error: TKMTerrainTileChangeError;
 begin
   Result := True;
   if Length(aTiles) = 0 then Exit;
@@ -707,22 +704,22 @@ begin
   end;
 
   for I := 0 to High(aTiles) do
-    for J := 0 to High(aTiles[I]) do
+  begin
+    T := aTiles[I];
+
+    HasErrorOnTile := False;
+    ErrorTypesOnTile := [];
+
+    if TileInMapCoords(T.X, T.Y) then
+    //if InRange(T.X, 2, fMapX - 2) and InRange(T.Y, 2, fMapY - 2) then
     begin
-      T := aTiles[I][J];
-      X := I + 1;
-      Y := J + 1;
-
-      HasErrorOnTile := False;
-      ErrorTypesOnTile := [];
-
       // Update terrain and rotation if needed
       if tctTerrain in T.ChangeSet then
       begin
-        if TileInMapCoords(X, Y) and InRange(T.Terrain, 0, 255) and InRange(T.Rotation, 0, 3) then
+        if InRange(T.Rotation, 0, 3) then
         begin
-          if TrySetTile(X, Y, T.Terrain, T.Rotation, False) then
-            UpdateRect(Rect, X, Y)
+          if TrySetTile(T.X, T.Y, T.Terrain, T.Rotation, False) then
+            UpdateRect(Rect, T.X, T.Y)
           else
             SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
         end else
@@ -734,8 +731,8 @@ begin
       begin
         if InRange(T.Height, 0, 100) then
         begin
-          if TrySetTileHeight(X, Y, T.Height, False) then
-            UpdateRect(HeightRect, X, Y)
+          if TrySetTileHeight(T.X, T.Y, T.Height, False) then
+            UpdateRect(HeightRect, T.X, T.Y)
           else
             SetErrorNSetResult(tctHeight, HasErrorOnTile, ErrorTypesOnTile, Result);
         end else
@@ -745,28 +742,39 @@ begin
       //Update object if needed
       if tctObject in T.ChangeSet then
       begin
-        if TrySetTileObject(X, Y, T.Obj, DiagChanged, False) then
+        if TrySetTileObject(T.X, T.Y, T.Obj, DiagChanged, False) then
         begin
-          UpdateRect(Rect, X, Y);
+          UpdateRect(Rect, T.X, T.Y);
           DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
         end else
           SetErrorNSetResult(tctObject, HasErrorOnTile, ErrorTypesOnTile, Result);
       end;
-
-      // Save error info, if there was some error
-      if HasErrorOnTile then
-      begin
-        if Length(aErrors) = ErrCnt then
-          SetLength(aErrors, ErrCnt + 16);
-        aErrors[ErrCnt].X := X;
-        aErrors[ErrCnt].Y := Y;
-        aErrors[ErrCnt].ErrorsIn := ErrorTypesOnTile;
-        Inc(ErrCnt);
-      end;
-
-      if not Result and aRevertOnFail then
-        Break;
+    end else
+    begin
+      HasErrorOnTile := True;
+      //When tile is out of map coordinates we treat it as all operations failure
+      if tctTerrain in T.ChangeSet then
+        Include(ErrorTypesOnTile, tctTerrain);
+      if tctHeight in T.ChangeSet then
+        Include(ErrorTypesOnTile, tctHeight);
+      if tctObject in T.ChangeSet then
+        Include(ErrorTypesOnTile, tctObject);
     end;
+
+    // Save error info, if there was some error
+    if HasErrorOnTile then
+    begin
+      if Length(aErrors) = ErrCnt then
+        SetLength(aErrors, ErrCnt + 16);
+      aErrors[ErrCnt].X := T.X;
+      aErrors[ErrCnt].Y := T.Y;
+      aErrors[ErrCnt].ErrorsIn := ErrorTypesOnTile;
+      Inc(ErrCnt);
+    end;
+
+    if not Result and aRevertOnFail then
+      Break;
+  end;
 
   if not Result and aRevertOnFail then
   begin
@@ -791,14 +799,22 @@ begin
 end;
 
 
+// Try to set an tile (Terrain and Rotation) from the script. Failure is an option
 function TKMTerrain.ScriptTrySetTile(X, Y: Integer; aType, aRot: Byte): Boolean;
 begin
+  Result := False;
+  if not TileInMapCoords(X, Y) then
+    Exit;
   Result := TrySetTile(X, Y, aType, aRot);
 end;
 
 
+// Try to set an tile Height from the script. Failure is an option
 function TKMTerrain.ScriptTrySetTileHeight(X, Y: Integer; aHeight: Byte): Boolean;
 begin
+  Result := False;
+  if not TileInMapCoords(X, Y) then
+    Exit;
   Result := TrySetTileHeight(X, Y, aHeight);
 end;
 
@@ -806,6 +822,9 @@ end;
 // Try to set an object from the script. Failure is an option
 function TKMTerrain.ScriptTrySetTileObject(X, Y: Integer; aObject: Byte): Boolean;
 begin
+  Result := False;
+  if not TileInMapCoords(X, Y) then
+    Exit;
   Result := TrySetTileObject(X, Y, aObject);
 end;
 

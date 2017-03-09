@@ -90,7 +90,7 @@ type
     procedure Log(aText: AnsiString);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
-    function MapTilesArraySet(aTiles: TKMTerrainTileBrief2Array; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
 
@@ -1989,13 +1989,13 @@ end;
 //* 2. tile height (same as for MapTileHeightSet)
 //* 3. tile object (same as for MapTileObjectSet)
 //* Works much faster, then applying all changes successively for every tile, because pathfinding compute is executed only once after all changes have been done
-//* aTiles: TKMTerrainTileBrief2Array. Check detailed info on this type further
+//* aTiles: array of TKMTerrainTileBrief. Check detailed info on this type further
 //* aRevertOnFail - do we need to revert all changes on any error while applying changes. If True, then no changes will be applied on error. If False - we will continue apply changes where possible
-//* aShowDetailedErrors - show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown 
+//* aShowDetailedErrors - show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown
 //* Returns true, if there was no errors on any tile. False if there was at least 1 error.
 //*
-//* TKMTerrainTileBrief2Array: array of array of TKMTerrainTileBrief, where
 //* TKMTerrainTileBrief = record
+//*    X, Y: Byte;     // Tile map coordinates
 //*    Terrain: Byte;  // Terrain tile type (0..255)
 //*    Rotation: Byte; // Tile rotation (0..3)
 //*    Height: Byte;   // Heigth (0..100)
@@ -2007,7 +2007,7 @@ end;
 //* Note: aTiles elements should start from 0, as for dynamic array. So f.e. to change map tile 1,1 we should set aTiles[0][0].
 //* Note: Errors are shown as map tiles (f.e. for error while applying aTiles[0][0] tile there will be a message with for map tile 1,1)
 
-function TKMScriptActions.MapTilesArraySet(aTiles: TKMTerrainTileBrief2Array; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
   function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
   var TileChangeType: TKMTileChangeType;
   begin
