@@ -52,6 +52,7 @@ type
   function KMRectF(aPoint: TKMPointF): TKMRectF; overload;
   function KMRectF(aLeft, aTop, aRight, aBottom: SmallInt): TKMRectF; overload;
   function KMRectRound(aRect: TKMRectF): TKMRect;
+  function KMSameRect(aRect1, aRect2: TKMRect): Boolean;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMRectGrowTopLeft(aRect: TKMRect): TKMRect;
   function KMRectShinkTopLeft(aRect: TKMRect): TKMRect;
@@ -62,8 +63,8 @@ type
   function KMInRect(aPoint: TKMPointF; aRect: TKMRectF): Boolean; overload;
   function KMRectArea(aRect: TKMRect): Integer;
   function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
-  procedure KMRectAddPnt(var aRect: TKMRect; X,Y: Integer); overload;
-  procedure KMRectAddPnt(var aRect: TKMRect; aPoint: TKMPoint); overload;
+  procedure KMRectIncludePoint(var aRect: TKMRect; X,Y: Integer); overload;
+  procedure KMRectIncludePoint(var aRect: TKMRect; aPoint: TKMPoint); overload;
 
   function KMGetDirection(X,Y: Integer): TKMDirection; overload;
   function KMGetDirection(X,Y: Single): TKMDirection; overload;
@@ -116,6 +117,8 @@ type
 const
   ZERO_POINT: TKMPoint = (X: 0; Y: 0);
   INVALID_MAP_POINT: TKMPoint = (X: -1; Y: -1);
+
+  KMRECT_INVALID_TILES: TKMRect = (Left: -1; Top: -1; Right: -1; Bottom: -1);
 
 
 implementation
@@ -279,6 +282,15 @@ begin
 end;
 
 
+function KMSameRect(aRect1, aRect2: TKMRect): Boolean;
+begin
+  Result := (aRect1.Left = aRect2.Left)
+        and (aRect1.Top = aRect2.Top)
+        and (aRect1.Right = aRect2.Right)
+        and (aRect1.Bottom = aRect2.Bottom);
+end;
+
+
 function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
 begin
   Result.Left   := Math.Max(aRect.Left   - aInset, 0);
@@ -357,13 +369,13 @@ begin
 end;
 
 
-procedure KMRectAddPnt(var aRect: TKMRect; X,Y: Integer);
+procedure KMRectIncludePoint(var aRect: TKMRect; X,Y: Integer);
 begin
-  KMRectAddPnt(aRect, KMPoint(X,Y));
+  KMRectIncludePoint(aRect, KMPoint(X,Y));
 end;
 
 
-procedure KMRectAddPnt(var aRect: TKMRect; aPoint: TKMPoint);
+procedure KMRectIncludePoint(var aRect: TKMRect; aPoint: TKMPoint);
 begin
   if KMInRect(aPoint, aRect) then Exit;
   aRect.Left    := Min(aPoint.X, aRect.Left);

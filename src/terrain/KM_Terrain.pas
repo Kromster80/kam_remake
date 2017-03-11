@@ -75,7 +75,6 @@ type
   {Class to store all terrain data, aswell terrain routines}
   TKMTerrain = class
   private
-    fCnt: Cardinal;
     fAnimStep: Cardinal;
     fMapEditor: Boolean; //In MapEd mode some features behave differently
     fMapX: Word; //Terrain width
@@ -270,7 +269,6 @@ uses
 constructor TKMTerrain.Create;
 begin
   inherited;
-  fCnt := 0;
   fAnimStep := 0;
   FallingTrees := TKMPointTagList.Create;
   fTileset := gRes.Tileset; //Local shortcut
@@ -654,18 +652,12 @@ end;
 // use var for aTiles. aTiles can be huge so we do want to make its local copy. Saves a lot of memory
 function TKMTerrain.ScriptTrySetTilesArray(var aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; var aErrors: TKMTerrainTileChangeErrorArray): Boolean;
 
-  function IsRectInit(aRect: TKMRect): Boolean;
-  begin
-    Result := (aRect.Left <> -1) and (aRect.Right <> -1)
-          and (aRect.Top <> -1) and (aRect.Bottom <> -1);
-  end;
-
   procedure UpdateRect(var aRect: TKMRect; X, Y: Integer);
   begin
-    if not IsRectInit(aRect) then
+    if KMSameRect(aRect, KMRECT_INVALID_TILES) then
       aRect := KMRect(X, Y, X, Y)
     else
-      KMRectAddPnt(aRect, X, Y);
+      KMRectIncludePoint(aRect, X, Y);
   end;
 
   procedure SetErrorNSetResult(aType: TKMTileChangeType; var aHasErrorOnTile: Boolean; var aErrorType: TKMTileChangeTypeSet; var aResult: Boolean);
@@ -689,9 +681,9 @@ begin
 
   //Initialization
   DiagonalChangedTotal := False;
-  Rect := KMRect(-1, -1, -1, -1);
+  Rect := KMRECT_INVALID_TILES;
   // Use separate HeightRect, because UpdateLight invoked only when Height is changed
-  HeightRect := KMRect(-1, -1, -1, -1);
+  HeightRect := KMRECT_INVALID_TILES;
   ErrCnt := 0;
 
   // make backup copy of Land only if we may need revert changes
@@ -786,7 +778,7 @@ begin
   end
   else
   begin
-    if IsRectInit(HeightRect) then
+    if not KMSameRect(HeightRect, KMRECT_INVALID_TILES) then
       gTerrain.UpdateLighting(KMRectGrow(HeightRect, 2)); // Update Light only when height was changed
 
     gTerrain.UpdatePassability(KMRectGrowTopLeft(Rect));
@@ -802,30 +794,21 @@ end;
 // Try to set an tile (Terrain and Rotation) from the script. Failure is an option
 function TKMTerrain.ScriptTrySetTile(X, Y: Integer; aType, aRot: Byte): Boolean;
 begin
-  Result := False;
-  if not TileInMapCoords(X, Y) then
-    Exit;
-  Result := TrySetTile(X, Y, aType, aRot);
+  Result := TileInMapCoords(X, Y) and TrySetTile(X, Y, aType, aRot);
 end;
 
 
 // Try to set an tile Height from the script. Failure is an option
 function TKMTerrain.ScriptTrySetTileHeight(X, Y: Integer; aHeight: Byte): Boolean;
 begin
-  Result := False;
-  if not TileInMapCoords(X, Y) then
-    Exit;
-  Result := TrySetTileHeight(X, Y, aHeight);
+  Result := TileInMapCoords(X, Y) and TrySetTileHeight(X, Y, aHeight);
 end;
 
 
 // Try to set an object from the script. Failure is an option
 function TKMTerrain.ScriptTrySetTileObject(X, Y: Integer; aObject: Byte): Boolean;
 begin
-  Result := False;
-  if not TileInMapCoords(X, Y) then
-    Exit;
-  Result := TrySetTileObject(X, Y, aObject);
+  Result := TileInMapCoords(X, Y) and TrySetTileObject(X, Y, aObject);
 end;
 
 
