@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
+  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonTypes, KM_Defaults, KM_Points, KM_FileIO,
   KM_GameInputProcess, KM_GameOptions,
