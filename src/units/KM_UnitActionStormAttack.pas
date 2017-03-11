@@ -50,14 +50,14 @@ begin
   fTileSteps      := -1; //-1 so the first initializing step makes it 0
   fDelay          := aRow * 5; //No delay for the first row
   fStamina        := MIN_STAMINA + KaMRandom(MAX_STAMINA-MIN_STAMINA+1);
-  fNextPos        := KMPoint(0,0);
-  fVertexOccupied := KMPoint(0,0);
+  fNextPos        := KMPOINT_ZERO;
+  fVertexOccupied := KMPOINT_ZERO;
 end;
 
 
 destructor TUnitActionStormAttack.Destroy;
 begin
-  if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+  if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     DecVertex;
   inherited;
 end;
@@ -89,7 +89,7 @@ end;
 procedure TUnitActionStormAttack.IncVertex(aFrom, aTo: TKMPoint);
 begin
   //Tell gTerrain that this vertex is being used so no other unit walks over the top of us
-  Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Storm vertex in use');
+  Assert(KMSamePoint(fVertexOccupied, KMPOINT_ZERO), 'Storm vertex in use');
   //Assert(not gTerrain.HasVertexUnit(KMGetDiagVertex(aFrom,aTo)), 'Storm vertex blocked');
 
   fUnit.VertexAdd(aFrom,aTo); //Running counts as walking
@@ -100,10 +100,10 @@ end;
 procedure TUnitActionStormAttack.DecVertex;
 begin
   //Tell gTerrain that this vertex is not being used anymore
-  Assert(not KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'DecVertex 0:0 Storm');
+  Assert(not KMSamePoint(fVertexOccupied, KMPOINT_ZERO), 'DecVertex 0:0 Storm');
 
   fUnit.VertexRem(fVertexOccupied);
-  fVertexOccupied := KMPoint(0,0);
+  fVertexOccupied := KMPOINT_ZERO;
 end;
 
 
@@ -121,7 +121,7 @@ var
   DX, DY: ShortInt;
   WalkX, WalkY, Distance: Single;
 begin
-  if KMSamePoint(fNextPos, KMPoint(0,0)) then
+  if KMSamePoint(fNextPos, KMPOINT_ZERO) then
     fNextPos := fUnit.GetPosition; //Set fNextPos to current pos so it initializes on the first run
 
   //Walk for the first step before running

@@ -155,7 +155,7 @@ begin
   if TimeToHit <> 0 then
   begin
     Jitter := ProjectileJitter[aProjType]
-            + KMLength(KMPointF(0,0), TargetVector) * ProjectilePredictJitter[aProjType];
+            + KMLength(KMPOINT_ZERO_F, TargetVector) * ProjectilePredictJitter[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
     Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);

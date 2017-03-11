@@ -539,7 +539,7 @@ begin
   if not IsDead then
     Result := Members[0].GetPosition
   else
-    Result := KMPoint(0,0);
+    Result := KMPOINT_ZERO;
 end;
 
 
@@ -1173,7 +1173,7 @@ begin
   //Halt is not a true order, it is just OrderWalk
   //hose target depends on previous activity
   case fOrder of
-    goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPoint(0,0)) then
+    goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPOINT_ZERO) then
                       OrderWalk(fOrderLoc.Loc, False)
                     else
                       OrderWalk(Members[0].NextPosition, False);

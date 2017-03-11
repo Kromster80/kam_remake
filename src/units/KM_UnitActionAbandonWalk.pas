@@ -41,10 +41,10 @@ end;
 
 destructor TUnitActionAbandonWalk.Destroy;
 begin
-  if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+  if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
   begin
     fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
-    fVertexOccupied := KMPoint(0,0);
+    fVertexOccupied := KMPOINT_ZERO;
   end;
   inherited;
 end;
@@ -85,10 +85,10 @@ begin
   begin
     fUnit.PositionF := KMPointF(fWalkTo); //Set precise position to avoid rounding errors
     fUnit.IsExchanging := False; //Disable sliding (in case it was set in previous step)
-    if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+    if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     begin
       fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
-      fVertexOccupied := KMPoint(0,0);
+      fVertexOccupied := KMPOINT_ZERO;
     end;
     StepDone := True;
     Result := ActDone;
