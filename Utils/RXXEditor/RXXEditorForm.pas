@@ -65,7 +65,7 @@ procedure TRXXForm1.FormCreate(Sender: TObject);
 var
   RT: TRXType;
 begin
-  ExeDir := ExtractFilePath(Application.ExeName) + '..\..\';
+  ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
   Caption := 'RXX Editor (' + GAME_REVISION + ')';
 

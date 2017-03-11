@@ -1196,7 +1196,7 @@ begin
 
   //For debugging/testing it's useful to skip this check sometimes (but defines .dat files should always be checked)
   if not SKIP_EXE_CRC then
-    Result := Result xor Adler32CRC(Application.ExeName);
+    Result := Result xor Adler32CRC(ParamStr(0));
 end;
 
 

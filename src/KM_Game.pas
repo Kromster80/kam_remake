@@ -140,7 +140,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
-    procedure SetDefaultMPGameSpeed(aToggle: Boolean = False);
+    function GetNormalGameSpeed: Single;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
@@ -525,7 +525,7 @@ begin
   fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
-  SetDefaultMPGameSpeed;
+  SetGameSpeed(GetNormalGameSpeed, False);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -1183,12 +1183,16 @@ begin
 end;
 
 
-procedure TKMGame.SetDefaultMPGameSpeed(aToggle: Boolean = False);
+function TKMGame.GetNormalGameSpeed: Single;
 begin
-  if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT, aToggle)
-  else
-    SetGameSpeed(fGameOptions.SpeedAfterPT, aToggle);
+  if IsMultiplayer then
+  begin
+    if IsPeaceTime then
+      Result := fGameOptions.SpeedPT
+    else
+      Result := fGameOptions.SpeedAfterPT;
+  end else
+    Result := 1;
 end;
 
 
@@ -1205,9 +1209,9 @@ begin
     Exit;
   end;
 
-  //Make the speed toggle between 1 and desired value
+  //Make the speed toggle between normal speed and desired value
   if (aSpeed = fGameSpeed) and aToggle then
-    fGameSpeed := 1
+    fGameSpeed := GetNormalGameSpeed
   else
     fGameSpeed := aSpeed;
 
@@ -1231,6 +1235,9 @@ begin
   //Need to adjust the delay immediately in MP
   if IsMultiplayer and (fGameInputProcess <> nil) then
     TGameInputProcess_Multi(fGameInputProcess).AdjustDelay(fGameSpeed);
+
+  if Assigned(gGameApp.OnGameSpeedChange) then
+    gGameApp.OnGameSpeedChange(fGameSpeed);
 end;
 
 
