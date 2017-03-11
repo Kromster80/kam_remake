@@ -176,7 +176,7 @@ procedure TKMScriptEvents.DoProc(const aProc: TMethod; const aParams: array of I
   var Strings: TStringList;
   begin
     Strings := TStringList.Create;
-    Strings.Text := gScripting.ScriptCode;
+    Strings.Text := gGame.Scripting.ScriptCode;
     Result := AnsiString(Strings[aRowNum - 1]);
     Strings.Free;
   end;
@@ -186,9 +186,10 @@ var
   InternalProc: TPSInternalProcRec;
   S: UnicodeString;
   Pos, Row, Col: Cardinal;
-  RowInIncluded: Integer;
   TBTFileName: tbtstring;
-  FileName: UnicodeString;
+  FileNamesArr: TStringArray;
+  RowsArr: TIntegerArray;
+  I, CodeLinesFound: Integer;
 begin
   try
     case Length(aParams) of
@@ -213,10 +214,27 @@ begin
         if ExceptionProc is TPSInternalProcRec then
         begin
           InternalProc := TPSInternalProcRec(ExceptionProc);
-          S := S + ' in procedure ''' + UnicodeString(InternalProc.ExportName) + '''';
-          if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName)
-            and gScripting.ScriptIncludeInfo.GetRowInIncluded(GetCodeLine(Row), FileName, RowInIncluded) then
-            S := S + Format(' in ''%s'' at [%d:%d]', [FileName, RowInIncluded, Col]);
+          S := S + '|in procedure ''' + UnicodeString(InternalProc.ExportName) + '''';
+          if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName) then
+          begin
+            CodeLinesFound := gGame.Scripting.ScriptFilesInfo.FindCodeLine(GetCodeLine(Row), FileNamesArr, RowsArr);
+            case CodeLinesFound of
+              0:    ;
+              1:    S := S + Format('|in ''%s'' at [%d:%d]', [FileNamesArr[0], RowsArr[0], Col]);
+              else  begin
+                      // Its unlikely, but possible, if we find several lines with the same code. Lets show them all then
+                      S := S + '. Error position couldn''t be recognised. Check log for details. First position:';
+                      S := S + Format('|in ''%s'' at [%d:%d]||| Other positions:', [FileNamesArr[0], RowsArr[0], Col]);
+                      for I := 1 to CodeLinesFound - 1 do
+                        S := S + Format('|in ''%s'' at [%d:%d]', [FileNamesArr[I], RowsArr[I], Col]);
+                    end;
+            end;
+            begin
+              if True then
+
+
+            end;
+          end;
         end;
         fOnScriptError(se_Exception, S);
       end;

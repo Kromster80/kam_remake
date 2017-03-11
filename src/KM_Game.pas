@@ -39,6 +39,7 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
     fMapEditor: TKMMapEditor;
+    fScripting: TKMScripting;
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsPaused: Boolean;
@@ -126,6 +127,7 @@ type
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
 
+    property Scripting: TKMScripting read fScripting;
     property GameMode: TGameMode read fGameMode;
     property SaveFile: UnicodeString read fSaveFile;
     function GetMissionFile: UnicodeString;
@@ -230,7 +232,7 @@ begin
   gLog.AddTime('<== Game creation is done ==>');
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
-  gScripting := TKMScripting.Create(ShowScriptError);
+  fScripting := TKMScripting.Create(ShowScriptError);
 
   fIgnoreConsistencyCheckErrors := False;
 
@@ -270,7 +272,7 @@ begin
   FreeAndNil(gAIFields);
   FreeAndNil(gProjectiles);
   FreeAndNil(fPathfinding);
-  FreeAndNil(gScripting);
+  FreeAndNil(fScripting);
   FreeAndNil(gLoopSounds);
 
   FreeThenNil(fGamePlayInterface);
@@ -418,7 +420,7 @@ begin
         CampaignDataTypeFile := '';
       end;
 
-      gScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
+      fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'), CampaignDataTypeFile, CampaignData);
       //fScripting reports compile errors itself now
     end;
 
@@ -652,6 +654,8 @@ procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile: Un
   end;
 
 var I: Integer;
+    MissionFile, Path: UnicodeString;
+    SearchRec: TSearchRec;
 begin
   gLog.AddTime('Creating crash report...');
 
@@ -670,9 +674,25 @@ begin
       gLog.AddTime('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message);
   end;
 
-  AttachFile(ExeDir + GetMissionFile);
-  AttachFile(ExeDir + ChangeFileExt(GetMissionFile, '.map')); //Try to attach the map
-  AttachFile(ExeDir + ChangeFileExt(GetMissionFile, '.script')); //Try to attach the script
+  MissionFile := GetMissionFile;
+  Path := ExtractFilePath(ExeDir + MissionFile);
+
+  AttachFile(ExeDir + MissionFile);
+  AttachFile(ExeDir + ChangeFileExt(MissionFile, '.map')); //Try to attach the map
+
+  //Try to add main script file and all other scripts, because they could be included
+  if FileExists(ExeDir + ChangeFileExt(MissionFile, '.script')) then
+  begin
+    FindFirst(Path + '*.script', faAnyFile - faDirectory, SearchRec);
+    try
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+          AttachFile(Path + SearchRec.Name);
+      until (FindNext(SearchRec) <> 0);
+    finally
+      FindClose(SearchRec);
+    end;
+  end;
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin
@@ -1305,7 +1325,7 @@ begin
     gAIFields.Save(SaveStream);
     fPathfinding.Save(SaveStream);
     gProjectiles.Save(SaveStream);
-    gScripting.Save(SaveStream);
+    fScripting.Save(SaveStream);
     gLoopSounds.Save(SaveStream);
 
     fTextMission.Save(SaveStream);
@@ -1369,7 +1389,7 @@ end;
 
 procedure TKMGame.SaveCampaignScriptData(SaveStream: TKMemoryStream);
 begin
-  gScripting.SaveCampaignData(SaveStream);
+  fScripting.SaveCampaignData(SaveStream);
 end;
 
 
@@ -1458,7 +1478,7 @@ begin
     gAIFields.Load(LoadStream);
     fPathfinding.Load(LoadStream);
     gProjectiles.Load(LoadStream);
-    gScripting.Load(LoadStream);
+    fScripting.Load(LoadStream);
     gLoopSounds.Load(LoadStream);
 
     fTextMission := TKMTextLibraryMulti.Create;
@@ -1558,7 +1578,7 @@ begin
                       or ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fGameMapCRC, fNetworking.NetPlayers.GetConnectedCount);
 
-                      gScripting.UpdateState;
+                      fScripting.UpdateState;
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       gTerrain.UpdateState;
                       gAIFields.UpdateState(fGameTickCount);
@@ -1610,7 +1630,7 @@ begin
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
-                    gScripting.UpdateState;
+                    fScripting.UpdateState;
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     gTerrain.UpdateState;
                     gAIFields.UpdateState(fGameTickCount);

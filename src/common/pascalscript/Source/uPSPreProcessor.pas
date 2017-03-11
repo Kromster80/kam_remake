@@ -13,7 +13,7 @@ type
   TPSPreProcessor = class;
   TPSPascalPreProcessorParser = class;
 
-  TPSOnNeedFile = function (Sender: TPSPreProcessor; const callingfilename: tbtstring; var FileName, Output: tbtstring): Boolean;
+  TPSOnNeedFile = function (Sender: TPSPreProcessor; const callingfilename: tbtstring; var FileName, Output: tbtstring): Boolean of object;
   TPSOnProcessDirective = procedure (
                             Sender: TPSPreProcessor;
                             Parser: TPSPascalPreProcessorParser;
@@ -577,7 +577,7 @@ begin
     begin
       dta := MainFile;
     end else
-    if (@OnNeedFile = nil) or (not OnNeedFile(Self, OrgFileName, FileName, dta)) then
+    if not Assigned(OnNeedFile) or (not OnNeedFile(Self, OrgFileName, FileName, dta)) then
       raise EPSPreProcessor.CreateFmt(RPS_IncludeNotFound, [FileName, OrgFileName]);
     Item := FCurrentLineInfo.Add;
     current := FCurrentLineInfo.Count -1;
