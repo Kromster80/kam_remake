@@ -83,6 +83,8 @@ type
 
     procedure AfterPreProcess;
     procedure BeforePreProcess(aMainFileName: UnicodeString; aMainFileText: AnsiString);
+
+    function ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: AnsiString; var aFileName, aOutput: AnsiString): Boolean;
   public
     constructor Create; overload;
     constructor Create(aOnScriptError: TUnicodeStringEvent); overload;
@@ -90,7 +92,6 @@ type
     destructor Destroy; override;
 
     property ScriptFilesInfo: TKMScriptFilesCollection read fScriptFilesInfo;
-    function ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: AnsiString; var aFileName, aOutput: AnsiString): Boolean;
     function PreProcessFile(aFileName: UnicodeString): Boolean; overload;
     function PreProcessFile(aFileName: UnicodeString; var aScriptCode: AnsiString): Boolean; overload;
   end;
@@ -155,7 +156,6 @@ const
     btString, //Means AnsiString in PascalScript. No need for scripts to use Unicode since LIBX files take care of that.
     btStaticArray, btArray, //Static and Dynamic Arrays
     btRecord, btSet];
-
 
 
 implementation
@@ -1479,10 +1479,7 @@ begin
       Result := True; // If PreProcess has been done succesfully
     except
       on E: Exception do
-      begin
         fErrorHandler.HandleScriptError(se_PreprocessorError, 'Script preprocessing errors:' + EolW + E.Message);
-        Exit;
-      end;
     end;
   finally
     PreProcessor.Free;
@@ -1502,10 +1499,12 @@ begin
   aFileName := AnsiString(S) + aFileName;
 
   FileExt := ExtractFileExt(aFileName);
+  // Check included file extension
   if FileExt <> '.script' then
     raise Exception.Create(Format('Error including ''%s'' from ''%s'': |Wrong extension: ''%s''',
                                   [ExtractFileName(aFileName), ExtractFileName(aCallingFileName), FileExt]));
 
+  // Check included file folder
   if ExtractFilePath(aFileName) <> fScriptFilesInfo.fMainFilePath then
     raise Exception.Create(Format('Error including ''%s'' from ''%s'': |included script files should be in the same folder as main script file',
                                   [aFileName, ExtractFileName(aCallingFileName)]));

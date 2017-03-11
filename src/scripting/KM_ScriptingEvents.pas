@@ -215,8 +215,10 @@ begin
         begin
           InternalProc := TPSInternalProcRec(ExceptionProc);
           S := S + '|in procedure ''' + UnicodeString(InternalProc.ExportName) + '''';
+          // Try to find error row in script code. Script code is plain, after PreProcessing, hiding all info about included files, defines etc.
           if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName) then
           begin
+            //Try to find line of code in all script files (main file and included files)
             CodeLinesFound := gGame.Scripting.ScriptFilesInfo.FindCodeLine(GetCodeLine(Row), FileNamesArr, RowsArr);
             case CodeLinesFound of
               0:    ;

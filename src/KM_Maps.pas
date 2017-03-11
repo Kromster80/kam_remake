@@ -231,6 +231,8 @@ begin
   if aStrictParsing then
   begin
     OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
+
+    //Add main script CRC and all included scripts CRC
     if FileExists(ScriptFile) then
     begin
       OthersCRC := OthersCRC xor Adler32CRC(ScriptFile);

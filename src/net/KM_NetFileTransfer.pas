@@ -329,7 +329,7 @@ end;
 function TKMFileReceiver.ProcessTransfer: Boolean;
 var
   ReadType: TKMTransferType;
-  ReadName, Ext, Postfix, TrasnferFileName, FileName: UnicodeString;
+  ReadName, Ext, Postfix, TransferedFileName, FileName: UnicodeString;
   ReadSize: Cardinal;
   FileStream: TKMemoryStream;
   DecompressionStream: TDecompressionStream;
@@ -362,7 +362,7 @@ begin
   while ReadStream.Position < ReadStream.Size do
   begin
     ReadStream.ReadAssert('FileStart');
-    ReadStream.ReadW(TrasnferFileName);
+    ReadStream.ReadW(TransferedFileName);
     ReadStream.ReadW(Postfix);
     ReadStream.ReadW(Ext);
     //Check EXT is valid (so we don't allow EXEs and stuff)
@@ -373,8 +373,8 @@ begin
     FileStream.CopyFrom(ReadStream, ReadSize);
 
     // Scripts can have arbitrary names
-    if (Ext = 'script') and (TrasnferFileName <> ReadName) then
-      FileName := GetFullDestFileName(fType, fName, Postfix, Ext, TrasnferFileName)
+    if (Ext = 'script') and (TransferedFileName <> ReadName) then
+      FileName := GetFullDestFileName(fType, fName, Postfix, Ext, TransferedFileName)
     else
       FileName := GetFullDestFileName(fType, fName, Postfix, Ext);
 
