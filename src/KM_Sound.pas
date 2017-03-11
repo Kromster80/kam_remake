@@ -320,7 +320,7 @@ end;
 procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Volume:single=1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
-  Play(SoundID, KMPOINT_ZERO_F, false, Volume); //Redirect
+  Play(SoundID, KMPOINTF_ZERO, false, Volume); //Redirect
 end;
 
 
@@ -512,7 +512,7 @@ procedure TKMSoundPlayer.PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeec
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
-  PlayCitizen(aUnitType, aSound, KMPOINT_ZERO_F);
+  PlayCitizen(aUnitType, aSound, KMPOINTF_ZERO);
 end;
 
 
@@ -524,7 +524,7 @@ begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
 
-  HasLoc := not KMSamePointF(aLoc, KMPOINT_ZERO_F);
+  HasLoc := not KMSamePointF(aLoc, KMPOINTF_ZERO);
   Wave := gRes.Sounds.FileOfCitizen(aUnitType, aSound);
   if FileExists(Wave) then
     PlayWave(Wave, aLoc, HasLoc, 1 + 3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
@@ -542,7 +542,7 @@ begin
 
   Wave := gRes.Sounds.FileOfNotification(aSound, Random(Count));
   if FileExists(Wave) then
-    PlayWave(Wave, KMPOINT_ZERO_F, False, 1);
+    PlayWave(Wave, KMPOINTF_ZERO, False, 1);
 end;
 
 
@@ -558,7 +558,7 @@ procedure TKMSoundPlayer.PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeec
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
-  PlayWarrior(aUnitType, aSound, KMPOINT_ZERO_F);
+  PlayWarrior(aUnitType, aSound, KMPOINTF_ZERO);
 end;
 
 
@@ -573,7 +573,7 @@ begin
 
   Count := gRes.Sounds.WarriorSoundCount[aUnitType, aSound];
 
-  HasLoc := not KMSamePointF(aLoc, KMPOINT_ZERO_F);
+  HasLoc := not KMSamePointF(aLoc, KMPOINTF_ZERO);
   Wave := gRes.Sounds.FileOfWarrior(aUnitType, aSound, Random(Count));
   if FileExists(Wave) then
     PlayWave(Wave, aLoc, HasLoc, 1 + 3*byte(HasLoc)); //Attenuate sounds when aLoc is valid

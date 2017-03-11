@@ -1192,7 +1192,7 @@ begin
 
   fIsDead       := True;
   fThought      := th_None;
-  fPosition     := KMPOINT_ZERO_F;
+  fPosition     := KMPOINTF_ZERO;
   fCurrPosition := KMPOINT_ZERO;
   fPrevPosition := fCurrPosition;
   fNextPosition := fCurrPosition;
