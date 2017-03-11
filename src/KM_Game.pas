@@ -919,6 +919,7 @@ begin
       mfSP:       begin
                     gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMapType := 0;
+                    gGameApp.GameSettings.MenuSPMapCRC := MapInfo.CRC;
                   end;
       mfMP,mfDL:  begin
                     gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
