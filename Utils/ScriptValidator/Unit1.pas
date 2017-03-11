@@ -82,7 +82,7 @@ end;
 
 procedure TForm1.btnBrowseFileClick(Sender: TObject);
 begin
-  if OpenDialog1.Execute then
+  if not OpenDialog1.Execute then Exit;
   Edit1.Text := OpenDialog1.FileName;
 end;
 
