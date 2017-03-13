@@ -82,7 +82,7 @@ var
 begin
   if aAutoPlace then
   begin
-    PlaceTo := KMPoint(0,0); // Will have 0:0 if no place found
+    PlaceTo := KMPOINT_ZERO; // Will have 0:0 if no place found
     if aRequiredWalkConnect = 0 then
       aRequiredWalkConnect := gTerrain.GetWalkConnectID(aLoc);
     gHands.FindPlaceForUnit(aLoc.X, aLoc.Y, aUnitType, PlaceTo, aRequiredWalkConnect);

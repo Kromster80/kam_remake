@@ -199,7 +199,7 @@ begin
       and (fTextLibrary[Goals[I].MessageToShow] <> '') then
       begin
         if MyPlayer = fPlayers[fHandIndex] then
-          fGameG.ShowMessage(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
+          fGameG.ShowMessage(mkText, fTextLibrary[Goals[I].MessageToShow], KMPOINT_ZERO);
         Goals.SetMessageHasShown(I);
       end;}
 

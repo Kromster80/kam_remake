@@ -5270,7 +5270,7 @@ begin
     end;
   end else begin
     fMouseOverRow := -1;
-    fMouseOverCell := INVALID_MAP_POINT;
+    fMouseOverCell := KMPOINT_INVALID_TILE;
   end;
 end;
 
@@ -5280,7 +5280,7 @@ var IsClickHandled: Boolean;
 begin
   IsClickHandled := False;
 
-  if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) then
+  if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, KMPOINT_INVALID_TILE) then
     IsClickHandled := fOnCellClick(Self, fMouseOverCell.X, fMouseOverCell.Y);
 
   //Let propagate click event only when OnCellClick did not handle it
@@ -6296,7 +6296,7 @@ begin
 
   if fShowLocs then
   for I := 0 to MAX_HANDS - 1 do
-  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
   begin
     T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
     if Sqr(T.X - X) + Sqr(T.Y - Y) < Sqr(fLocRad) then
@@ -6355,9 +6355,9 @@ begin
   begin
     //Connect allied players
     for I := 0 to MAX_HANDS - 1 do
-    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
       for K := I + 1 to MAX_HANDS - 1 do
-      if fMinimap.HandShow[K] and not KMSamePoint(fMinimap.HandLocs[K], KMPoint(0,0)) then
+      if fMinimap.HandShow[K] and not KMSamePoint(fMinimap.HandLocs[K], KMPOINT_ZERO) then
         if (fMinimap.HandTeam[I] <> 0) and (fMinimap.HandTeam[I] = fMinimap.HandTeam[K]) then
         begin
           T1 := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
@@ -6367,14 +6367,14 @@ begin
 
     //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
     for I := 0 to MAX_HANDS - 1 do
-    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
     begin
       T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
       TKMRenderUI.WriteCircle(T.X, T.Y, fLocRad, fMinimap.HandColors[I]);
     end;
 
     for I := 0 to MAX_HANDS - 1 do
-    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
     begin
       T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
       TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I+1), fnt_Outline, taCenter);

@@ -321,7 +321,7 @@ begin
 
   //Make sure stonemason actually can reach some stone (avoid build-destroy loop)
   if Result then
-    if not gTerrain.FindStone(aLoc, gRes.Units[ut_StoneCutter].MiningRange, KMPoint(0,0), True, tmp) then
+    if not gTerrain.FindStone(aLoc, gRes.Units[ut_StoneCutter].MiningRange, KMPOINT_ZERO, True, tmp) then
       Result := False;
 end;
 

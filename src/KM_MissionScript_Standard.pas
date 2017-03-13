@@ -706,7 +706,7 @@ begin
     //Write RGB command second so it will be used if color is not from KaM palette
     AddCommand(ct_SetRGBColor, [gHands[I].FlagColor and $00FFFFFF]);
 
-    if not KMSamePoint(gHands[I].CenterScreen, KMPoint(0,0)) then
+    if not KMSamePoint(gHands[I].CenterScreen, KMPOINT_ZERO) then
       AddCommand(ct_CenterScreen, [gHands[I].CenterScreen.X-1, gHands[I].CenterScreen.Y-1]);
 
     with gGame.MapEditor.Revealers[I] do
