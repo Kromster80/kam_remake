@@ -24,13 +24,11 @@ type
     SelectionRect: TKMRectF; // Used for selecting units by sprite
   end;
 
-  TSmallIntArray = array of smallint;
-
   // List of sprites prepared to be rendered
   TRenderList = class
   private
     fCount: Word;
-    RenderOrder: TSmallIntArray; // Order in which sprites will be drawn ()
+    RenderOrder: array of Word; // Order in which sprites will be drawn ()
     RenderList: array of TKMRenderSprite;
 
     fStat_Sprites: Integer; // Total sprites in queue
@@ -1606,16 +1604,15 @@ begin
   if gMySpectator.FogOfWar.CheckRevelation(CurPos) <= FOG_OF_WAR_MIN then Exit;
   // Select closest (higher Z) units first (list is in low..high Z-order)
   for I := Length(RenderOrder) - 1 downto 0 do
-    if RenderOrder[I] <> -1 then
+  begin
+    K := RenderOrder[I];
+    // Don't check child sprites, we don't want to select serfs by the long pike they are carrying
+    if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
     begin
-      K := RenderOrder[I];
-      // Don't check child sprites, we don't want to select serfs by the long pike they are carrying
-      if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
-      begin
-        Result := RenderList[K].UID;
-        Exit;
-      end;
+      Result := RenderList[K].UID;
+      Exit;
     end;
+  end;
 end;
 
 
@@ -1635,7 +1632,7 @@ begin
     if RenderList[I].NewInst then
     begin
       RenderOrder[J] := I;
-      inc(J);
+      Inc(J);
     end;
   SetLength(RenderOrder, J);
 end;
@@ -1644,7 +1641,7 @@ end;
 // Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
 var
-  RenderOrderAux: TSmallIntArray;
+  RenderOrderAux: array of Word;
 
   procedure DoQuickSort(aLo, aHi: Integer);
   var
@@ -1821,14 +1818,13 @@ end;
 // Now render all these items from list
 procedure TRenderList.Render;
 var
-  I, K, objectCount: Integer;
+  I, K, ObjectsCount: Integer;
 begin
   fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
-  objectCount := Length(RenderOrder);
+  ObjectsCount := Length(RenderOrder);
 
-  for I := 0 to objectCount - 1 do
-  if RenderOrder[I] <> -1 then
+  for I := 0 to ObjectsCount - 1 do
   begin
     K := RenderOrder[I];
     glPushMatrix;
