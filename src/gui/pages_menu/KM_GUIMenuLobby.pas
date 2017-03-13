@@ -2147,10 +2147,13 @@ end;
 
 procedure TKMMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
-  if gGameApp.GameSettings.FlashOnMessage then
-    gMain.FlashingStart;
+  if (gGameApp <> nil) and (gGameApp.GameSettings <> nil) then
+  begin
+    if gGameApp.GameSettings.FlashOnMessage then
+      gMain.FlashingStart;
 
-  Memo_LobbyPosts.Add(aText);
+    Memo_LobbyPosts.Add(aText);
+  end;
 end;
 
 
