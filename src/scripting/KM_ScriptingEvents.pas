@@ -231,11 +231,6 @@ begin
                         S := S + Format('|in ''%s'' at [%d:%d]', [FileNamesArr[I], RowsArr[I], Col]);
                     end;
             end;
-            begin
-              if True then
-
-
-            end;
           end;
         end;
         fOnScriptError(se_Exception, S);
