@@ -1632,9 +1632,13 @@ end;
 // Quit the mission and return to main menu
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
-  // Show outcome depending on actual situation.
-  // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  gGameApp.Stop(gGame.PlayOnState);
+
+  if (gGame.GameMode = gmMulti) and (gGame.PlayOnState = gr_Cancel) then
+    gGameApp.Stop(gr_Defeat) //Defeat player, if he intentionally quit, when game result is not determined yet (gr_Cancel)
+  else
+    // Show outcome depending on actual situation.
+    // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
+    gGameApp.Stop(gGame.PlayOnState);
 end;
 
 
@@ -2505,7 +2509,7 @@ end;
 
 function TKMGamePlayInterface.HasLostMPGame: Boolean;
 begin
-  Result := (fUIMode = umMP) and (gMySpectator.Hand.AI.WonOrLost = wol_Lost);
+  Result := (fUIMode = umMP) and gMySpectator.Hand.AI.HasLost;
 end;
 
 
@@ -2756,7 +2760,7 @@ begin
         and gGame.Networking.NetPlayers[NetI].IsHuman then // and is not Computer
       begin
         Update_Image_AlliesMute(Image_AlliesMute[I]);
-        Image_AlliesMute[I].Show;
+        Image_AlliesMute[I].Visible := True; //Do not use .Show here, because we do not want change Parent.Visible status from here
       end;
 
       if gGame.Networking.NetPlayers[NetI].IsSpectator then

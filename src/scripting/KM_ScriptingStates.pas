@@ -640,7 +640,7 @@ function TKMScriptStates.PlayerDefeated(aPlayer: Byte): Boolean;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      Result := (gHands[aPlayer].AI.WonOrLost = wol_Lost)
+      Result := gHands[aPlayer].AI.HasLost
     else
     begin
       Result := False;
@@ -660,7 +660,7 @@ function TKMScriptStates.PlayerVictorious(aPlayer: Byte): Boolean;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      Result := (gHands[aPlayer].AI.WonOrLost = wol_Won)
+      Result := (gHands[aPlayer].AI.HasWon)
     else
     begin
       Result := False;
