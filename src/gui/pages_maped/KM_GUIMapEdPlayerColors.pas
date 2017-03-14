@@ -80,7 +80,7 @@ end;
 
 function TKMMapEdPlayerColors.GetCodeBGRColor(aColor: Cardinal): String;
 begin
-  Result := IntToHex(aColor and $FFFFFF, 6);
+  Result := Format('%.6x', [FlagColorToTextColor(aColor) and $FFFFFF]);
 end;
 
 procedure TKMMapEdPlayerColors.Player_ColorClick(Sender: TObject);
