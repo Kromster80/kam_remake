@@ -140,8 +140,9 @@ begin
       begin
         //Can't use ExtractFileExt because we want .eng.libx not .libx
         RecExt := RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(MissionName));
-        if (LowerCase(RecExt) = '.map') or (LowerCase(RecExt) = '.dat')
-        or (LowerCase(RecExt) = '.mi' ) or (LowerCase(RecExt) = '.dat.txt') then
+        if (LowerCase(RecExt) = '.map')
+          or (LowerCase(RecExt) = '.dat')
+          or (LowerCase(RecExt) = '.mi' ) then
           Continue;
 
         if LowerCase(RecExt) = '.script' then

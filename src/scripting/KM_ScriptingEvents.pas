@@ -5,13 +5,10 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units,
-  KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares;
+  KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingTypes;
 
 
 type
-  TScriptErrorType = (se_InvalidParameter, se_Exception, se_PreprocessorError, se_CompileError, se_CompileWarning, se_Log);
-  TKMScriptErrorEvent = procedure (aType: TScriptErrorType; const aData: UnicodeString) of object;
-
   TByteSet = set of Byte;
 
   TKMScriptEntity = class
@@ -100,7 +97,7 @@ uses
   KromUtils, KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection, KM_PathFindingRoad, KM_Scripting;
+  KM_UnitsCollection, KM_PathFindingRoad;
 
 
 type
@@ -171,25 +168,13 @@ end;
 
 //This procedure allows us to keep the exception handling code in one place
 procedure TKMScriptEvents.DoProc(const aProc: TMethod; const aParams: array of Integer);
-
-  function GetCodeLine(aRowNum: Cardinal): AnsiString;
-  var Strings: TStringList;
-  begin
-    Strings := TStringList.Create;
-    Strings.Text := gGame.Scripting.ScriptCode;
-    Result := AnsiString(Strings[aRowNum - 1]);
-    Strings.Free;
-  end;
-
 var
   ExceptionProc: TPSProcRec;
   InternalProc: TPSInternalProcRec;
-  S: UnicodeString;
+  MainErrorStr, ErrorStr, DetailedErrorStr: UnicodeString;
   Pos, Row, Col: Cardinal;
   TBTFileName: tbtstring;
-  FileNamesArr: TStringArray;
-  RowsArr: TIntegerArray;
-  I, CodeLinesFound: Integer;
+  ErrorMessage: TKMScriptErrorMessage;
 begin
   try
     case Length(aParams) of
@@ -209,31 +194,23 @@ begin
       end
       else
       begin
-        S := 'Exception in script: ''' + E.Message + '''';
+        DetailedErrorStr := '';
+        MainErrorStr := 'Exception in script: ''' + E.Message + '''';
         ExceptionProc := fExec.GetProcNo(fExec.ExceptionProcNo);
         if ExceptionProc is TPSInternalProcRec then
         begin
           InternalProc := TPSInternalProcRec(ExceptionProc);
-          S := S + '|in procedure ''' + UnicodeString(InternalProc.ExportName) + '''';
+          MainErrorStr := MainErrorStr + EolW + 'in procedure ''' + UnicodeString(InternalProc.ExportName) + '''' + EolW;
           // Try to find error row in script code. Script code is plain, after PreProcessing, hiding all info about included files, defines etc.
           if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName) then
           begin
             //Try to find line of code in all script files (main file and included files)
-            CodeLinesFound := gGame.Scripting.ScriptFilesInfo.FindCodeLine(GetCodeLine(Row), FileNamesArr, RowsArr);
-            case CodeLinesFound of
-              0:    ;
-              1:    S := S + Format('|in ''%s'' at [%d:%d]', [FileNamesArr[0], RowsArr[0], Col]);
-              else  begin
-                      // Its unlikely, but possible, if we find several lines with the same code. Lets show them all then
-                      S := S + '. Error position couldn''t be recognised. Check log for details. First position:';
-                      S := S + Format('|in ''%s'' at [%d:%d]||| Other positions:', [FileNamesArr[0], RowsArr[0], Col]);
-                      for I := 1 to CodeLinesFound - 1 do
-                        S := S + Format('|in ''%s'' at [%d:%d]', [FileNamesArr[I], RowsArr[I], Col]);
-                    end;
-            end;
+            ErrorMessage := gGame.Scripting.GetErrorMessage('Error', '', Row, Col);
+            ErrorStr := MainErrorStr + ErrorMessage.GameMessage;
+            DetailedErrorStr := MainErrorStr + ErrorMessage.LogMessage;
           end;
         end;
-        fOnScriptError(se_Exception, S);
+        fOnScriptError(se_Exception, ErrorStr, DetailedErrorStr);
       end;
   end;
 end;

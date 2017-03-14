@@ -1,6 +1,8 @@
 
 unit uPSPreProcessor;
 {$I PascalScript.inc}
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} //Turn off W1057 and W1058 warnings. We assume remObject PascalScript should be aware of them
 
 interface
 uses
@@ -19,7 +21,7 @@ type
                             Parser: TPSPascalPreProcessorParser;
                             const Active: Boolean;
                             const DirectiveName, DirectiveParam: tbtString;
-                            Var Continue: Boolean); //- jgv - application set continue to false to stop the normal directive processing
+                            Var Continue: Boolean) of object; //- jgv - application set continue to false to stop the normal directive processing
   
   TPSLineInfo = class(TObject)
   private
