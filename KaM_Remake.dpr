@@ -269,10 +269,10 @@ begin
   Application.Initialize;
   Application.Title := 'KaM Remake';
 
-  fMain := TKMMain.Create;
-  fMain.Start;
+  gMain := TKMMain.Create;
+  gMain.Start;
 
   Application.Run;
 
-  fMain.Free; //Prevents memory leak of TKMMain showing up in FastMM
+  gMain.Free; //Prevents memory leak of TKMMain showing up in FastMM
 end.

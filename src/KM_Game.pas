@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
+  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonTypes, KM_Defaults, KM_Points, KM_FileIO,
   KM_GameInputProcess, KM_GameOptions,
@@ -253,7 +253,7 @@ begin
   //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.
   //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Frees, TObject.Free does that already.
 
-  if fGameLockedMutex then fMain.UnlockMutex;
+  if fGameLockedMutex then gMain.UnlockMutex;
   if fTimerGame <> nil then fTimerGame.Enabled := False;
   fIsExiting := True;
 
@@ -919,6 +919,9 @@ begin
       mfSP:       begin
                     gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMapType := 0;
+                    // Update saved SP game list saved selected map position CRC if we resave this map
+                    if fGameMapCRC = gGameApp.GameSettings.MenuSPMapCRC then
+                      gGameApp.GameSettings.MenuSPMapCRC := MapInfo.CRC;
                   end;
       mfMP,mfDL:  begin
                     gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
@@ -1421,7 +1424,7 @@ begin
     //If we're loading in multiplayer mode we have already locked the mutex when entering multiplayer menu,
     //which is better than aborting loading in a multiplayer game (spoils it for everyone else too)
     if SaveIsMultiplayer and (fGameMode in [gmSingle, gmCampaign, gmReplaySingle, gmReplayMulti]) then
-      if fMain.LockMutex then
+      if gMain.LockMutex then
         fGameLockedMutex := True //Remember so we unlock it in Destroy
       else
         //Abort loading (exception will be caught in gGameApp and shown to the user)

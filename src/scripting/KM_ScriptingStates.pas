@@ -1051,7 +1051,11 @@ function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+    begin
+      //Use FlagColorToTextColor to desaturate and lighten the text so all player colours are
+      //readable on a variety of backgrounds
       Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
+    end
     else
     begin
       Result := '';

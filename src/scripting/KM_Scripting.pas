@@ -452,7 +452,8 @@ begin
       RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)');
-      RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)');
+      RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean)');
+      RegisterMethod('procedure PlayerShareFogCompliment(aPlayer1, aPlayer2: Word; aShare: Boolean)');
       RegisterMethod('procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
@@ -568,7 +569,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..23] of record
+  Procs: array [0..27] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -576,6 +577,11 @@ const
   end =
   (
   (Names: 'OnGroupHungry';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnGroupOrderAttackHouse';ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderAttackUnit'; ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderLink';       ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderSplit';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
 
   (Names: 'OnHouseAfterDestroyed';  ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'OnHouseBuilt';           ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
@@ -927,6 +933,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerDefeat,                            'PlayerDefeat');
       RegisterMethod(@TKMScriptActions.PlayerShareBeacons,                      'PlayerShareBeacons');
       RegisterMethod(@TKMScriptActions.PlayerShareFog,                          'PlayerShareFog');
+      RegisterMethod(@TKMScriptActions.PlayerShareFogCompliment,                'PlayerShareFogCompliment');
       RegisterMethod(@TKMScriptActions.PlayerWareDistribution,                  'PlayerWareDistribution');
       RegisterMethod(@TKMScriptActions.PlayerWin,                               'PlayerWin');
 

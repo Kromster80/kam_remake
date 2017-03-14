@@ -481,8 +481,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -514,8 +514,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -547,8 +547,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, nil);
   try
