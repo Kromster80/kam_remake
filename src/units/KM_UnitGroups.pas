@@ -1241,8 +1241,8 @@ begin
   case fOrder of
     goNone:         OrderHalt(False);
     goWalkTo:       OrderWalk(fOrderLoc.Loc, False);
-    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(aGroup.OrderTargetHouse, False);
-    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(aGroup.OrderTargetUnit, False);
+    goAttackHouse:  if aGroup.OrderTargetHouse <> nil then OrderAttackHouse(aGroup.OrderTargetHouse, False);
+    goAttackUnit:   if aGroup.OrderTargetUnit <> nil then OrderAttackUnit(aGroup.OrderTargetUnit, False);
     goStorm:        ;
   end;
 end;
