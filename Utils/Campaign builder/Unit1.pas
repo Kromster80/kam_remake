@@ -335,7 +335,7 @@ begin
 
   if not dlgSaveCampaign.Execute then Exit;
 
-  lbl_CampaignName := 'Campaign name: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
+  lbl_CampaignName.Caption := 'Campaign name: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
 
   C.SaveToFile(dlgSaveCampaign.FileName);
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
