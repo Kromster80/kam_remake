@@ -201,10 +201,9 @@ begin
         begin
           InternalProc := TPSInternalProcRec(ExceptionProc);
           MainErrorStr := MainErrorStr + EolW + 'in procedure ''' + UnicodeString(InternalProc.ExportName) + '''' + EolW;
-          // Try to find error row in script code. Script code is plain, after PreProcessing, hiding all info about included files, defines etc.
+          // With the help of uPSDebugger get information about error position in script code
           if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName) then
           begin
-            //Try to find line of code in all script files (main file and included files)
             ErrorMessage := gGame.Scripting.GetErrorMessage('Error', '', Row, Col);
             ErrorStr := MainErrorStr + ErrorMessage.GameMessage;
             DetailedErrorStr := MainErrorStr + ErrorMessage.LogMessage;

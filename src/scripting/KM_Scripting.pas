@@ -1354,7 +1354,7 @@ begin
 
   // Most of the scripts probably will not use Include or Define directives.
   // Then script code after pre-processing should be identical to original main script file
-  // That mean we do not need to find line of code by it text (which could be indefinite due to multiple code lines with the same text)
+  // That mean we do not need to find line of code by its text (which could be indefinite due to multiple code lines with the same text)
   // But use aRow parameter instead
   if not fPreProcessor.ScriptMightChangeAfterPreProcessing then
     ErrorMsg := Format(ErrorTemplate, [ScriptFilesInfo.fMainFileInfo.FileName, aRow, aCol])
@@ -1624,7 +1624,7 @@ procedure TKMScriptingPreProcessor.ScriptOnProcessDirective(Sender: TPSPreProces
                                                             const DirectiveName, DirectiveParam: tbtString; var Continue: Boolean);
 begin
   // Most of the scripts do not have directives.
-  // save in fHasDefDirectives, when script do have IFDEF or IFNDEF directive, which can change script code after pre-processing
+  // save in fHasDefDirectives, when script do have IFDEF or IFNDEF directive, which might change script code after pre-processing
   if not fScriptFilesInfo.fHasDefDirectives
     and Active
     and ((DirectiveName = 'IFDEF') or (DirectiveName = 'IFNDEF')) then
@@ -1695,7 +1695,7 @@ end;
 
 
 //Try to find line of code in all script files
-//Return number of occurences
+//Returns number of occurences
 function TKMScriptFilesCollection.FindCodeLine(aLine: AnsiString; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
 
   procedure AddFoundLineInfo(var aFoundCnt: Integer; aFileNameFound: UnicodeString; aRowFound: Integer);
