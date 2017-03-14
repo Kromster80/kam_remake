@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Campaign Builder'
-  ClientHeight = 817
+  ClientHeight = 835
   ClientWidth = 1209
   Color = clBtnFace
   Constraints.MinHeight = 492
@@ -14,51 +14,59 @@ object Form1: TForm1
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
+  Position = poScreenCenter
   Scaled = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   DesignSize = (
     1209
-    817)
+    835)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 105
-    Top = 81
+    Top = 99
     Width = 55
     Height = 13
     Caption = 'Maps count'
   end
   object Label2: TLabel
     Left = 8
-    Top = 327
+    Top = 345
     Width = 60
     Height = 13
     Caption = 'Nodes count'
   end
   object Bevel1: TBevel
     Left = 8
-    Top = 72
+    Top = 90
     Width = 154
     Height = 2
   end
   object Label6: TLabel
     Left = 8
-    Top = 82
+    Top = 100
     Width = 55
     Height = 13
     Caption = 'Short name'
   end
   object Bevel2: TBevel
     Left = 8
-    Top = 448
+    Top = 466
     Width = 154
     Height = 2
   end
+  object lbl_NameCampaign: TLabel
+    Left = 8
+    Top = 7
+    Width = 131
+    Height = 13
+    Caption = 'Name Campaign: Not Name'
+  end
   object tvList: TTreeView
     Left = 8
-    Top = 128
+    Top = 146
     Width = 153
     Height = 193
     AutoExpand = True
@@ -69,7 +77,7 @@ object Form1: TForm1
   end
   object btnSaveCMP: TButton
     Left = 88
-    Top = 8
+    Top = 26
     Width = 73
     Height = 25
     Caption = 'Save ...'
@@ -78,7 +86,7 @@ object Form1: TForm1
   end
   object btnLoadCMP: TButton
     Left = 8
-    Top = 8
+    Top = 26
     Width = 73
     Height = 25
     Caption = 'Load ...'
@@ -87,7 +95,7 @@ object Form1: TForm1
   end
   object btnLoadPicture: TButton
     Left = 8
-    Top = 40
+    Top = 58
     Width = 153
     Height = 25
     Caption = 'Load picture ...'
@@ -96,7 +104,7 @@ object Form1: TForm1
   end
   object seMapCount: TSpinEdit
     Left = 105
-    Top = 100
+    Top = 118
     Width = 57
     Height = 22
     MaxValue = 32
@@ -107,7 +115,7 @@ object Form1: TForm1
   end
   object seNodeCount: TSpinEdit
     Left = 8
-    Top = 346
+    Top = 364
     Width = 41
     Height = 22
     MaxValue = 32
@@ -118,7 +126,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 798
+    Top = 816
     Width = 1209
     Height = 19
     Panels = <
@@ -131,18 +139,17 @@ object Form1: TForm1
       item
         Width = 200
       end>
-    ExplicitTop = 447
-    ExplicitWidth = 689
+    ExplicitTop = 798
   end
   object ScrollBox1: TScrollBox
     Left = 168
-    Top = 8
+    Top = 26
     Width = 1033
-    Height = 777
+    Height = 775
     Anchors = [akLeft, akTop, akRight, akBottom]
+    Color = clBtnFace
+    ParentColor = False
     TabOrder = 7
-    ExplicitWidth = 513
-    ExplicitHeight = 426
     object Image1: TImage
       Left = 0
       Top = 0
@@ -353,7 +360,7 @@ object Form1: TForm1
   end
   object rgBriefingPos: TRadioGroup
     Left = 8
-    Top = 374
+    Top = 392
     Width = 153
     Height = 59
     Caption = ' Briefing position '
@@ -365,7 +372,7 @@ object Form1: TForm1
   end
   object edtShortName: TMaskEdit
     Left = 8
-    Top = 101
+    Top = 119
     Width = 57
     Height = 21
     EditMask = '>LLL'
@@ -377,7 +384,7 @@ object Form1: TForm1
   end
   object cbShowNodeNumbers: TCheckBox
     Left = 8
-    Top = 464
+    Top = 482
     Width = 113
     Height = 17
     Caption = 'Show node numbers'
@@ -390,18 +397,18 @@ object Form1: TForm1
     Filter = 'Supported images (*.png)|*.png'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
     Left = 320
-    Top = 16
+    Top = 34
   end
   object dlgOpenCampaign: TOpenDialog
     Filter = 'KaM Remake campaigns (*.cmp)|*.cmp'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
     Left = 320
-    Top = 64
+    Top = 82
   end
   object dlgSaveCampaign: TSaveDialog
     DefaultExt = 'cmp'
     Filter = 'KaM Remake campaigns (*.cmp)|*.cmp'
     Left = 320
-    Top = 112
+    Top = 130
   end
 end

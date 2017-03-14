@@ -32,6 +32,7 @@ type
     shpBriefing: TShape;
     Bevel2: TBevel;
     cbShowNodeNumbers: TCheckBox;
+    lbl_NameCampaign: TLabel;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -334,6 +335,8 @@ begin
 
   if not dlgSaveCampaign.Execute then Exit;
 
+  lbl_NameCampaign.Caption := 'Name Campaign: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
+
   C.SaveToFile(dlgSaveCampaign.FileName);
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
   CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
@@ -356,6 +359,8 @@ begin
     dlgOpenCampaign.InitialDir := fExePath;
 
   if not dlgOpenCampaign.Execute then Exit;
+
+  lbl_NameCampaign.Caption := 'Name Campaign: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
 
   C.LoadFromFile(dlgOpenCampaign.FileName);
 
