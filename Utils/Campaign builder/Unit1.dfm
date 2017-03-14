@@ -60,9 +60,9 @@ object Form1: TForm1
   object lbl_NameCampaign: TLabel
     Left = 8
     Top = 7
-    Width = 131
+    Width = 130
     Height = 13
-    Caption = 'Name Campaign: Not Name'
+    Caption = 'Campaign name: Not Name'
   end
   object tvList: TTreeView
     Left = 8
@@ -139,7 +139,6 @@ object Form1: TForm1
       item
         Width = 200
       end>
-    ExplicitTop = 798
   end
   object ScrollBox1: TScrollBox
     Left = 168
