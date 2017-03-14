@@ -5314,7 +5314,7 @@ begin
   begin
     fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
     ItemIndex := NewIndex;
-    if not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) and Columns[fMouseOverCell.X].TriggerOnChange
+    if not KMSamePoint(fMouseOverCell, KMPOINT_INVALID_TILE) and Columns[fMouseOverCell.X].TriggerOnChange
       and Assigned(fOnChange) then
       fOnChange(Self);
   end;
