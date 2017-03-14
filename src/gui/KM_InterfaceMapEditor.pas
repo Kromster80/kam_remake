@@ -418,7 +418,7 @@ begin
 
   UpdatePlayerSelectButtons;
 
-  Label_MissionName.Caption := gGame.GameName;
+  Label_MissionName.Caption := gGame.GameName + ' [' + IntToStr(gTerrain.MapX) + ' x ' + IntToStr(gTerrain.MapY) + ']';
 end;
 
 
