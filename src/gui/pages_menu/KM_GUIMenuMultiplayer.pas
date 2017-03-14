@@ -111,7 +111,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
   procedure CreateServerPopUp;
   begin
     Panel_MPCreateServer := TKMPanel.Create(aParent, 362, 250, 320, 300);
-    Panel_MPCreateServer.Anchors := [];
+    Panel_MPCreateServer.AnchorsCenter;
       TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPCreateServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPCreateServer,   0,  0, 320, 300);
@@ -132,7 +132,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
   procedure FindServerPopUp;
   begin
     Panel_MPFindServer := TKMPanel.Create(aParent, 362, 250, 320, 300);
-    Panel_MPFindServer.Anchors := [];
+    Panel_MPFindServer.AnchorsCenter;
       TKMBevel.Create(Panel_MPFindServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPFindServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPFindServer,   0,  0, 320, 300);
@@ -155,7 +155,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
   procedure PasswordPopUp;
   begin
     Panel_MPPassword := TKMPanel.Create(aParent, 362, 250, 320, 300);
-    Panel_MPPassword.Anchors := [];
+    Panel_MPPassword.AnchorsCenter;
       TKMBevel.Create(Panel_MPPassword, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPPassword, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPPassword,   0,  0, 320, 300);
@@ -163,7 +163,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
 
       TKMLabel.Create(Panel_MPPassword, 20, 50, 156, 20, gResTexts[TX_MP_MENU_PASSWORD], fnt_Outline, taLeft);
       Edit_MP_Password := TKMEdit.Create(Panel_MPPassword, 20, 70, 152, 20, fnt_Grey);
-      Edit_MP_Password.AllowedChars := acText;
+      Edit_MP_Password.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
       Button_MP_PasswordOk := TKMButton.Create(Panel_MPPassword, 20, 110, 280, 30, gResTexts[TX_MP_MENU_SERVER_JOIN], bsMenu);
       Button_MP_PasswordOk.OnClick := MP_PasswordClick;
       Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, gResTexts[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);

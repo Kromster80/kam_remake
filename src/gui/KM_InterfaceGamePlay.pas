@@ -1080,7 +1080,7 @@ begin
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
     ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fnt_Grey, bsGame);
-    ColumnBox_MessageLog.Anchors := [anLeft, anTop, anRight, anBottom];
+    ColumnBox_MessageLog.AnchorsStretch;
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.HideSelection := True;
@@ -1096,8 +1096,11 @@ end;
 
 procedure TKMGamePlayInterface.Create_Controls;
 const
-  MainHint: array [TKMTabButtons] of Word = (TX_MENU_TAB_HINT_BUILD, TX_MENU_TAB_HINT_DISTRIBUTE,
-                                             TX_MENU_TAB_HINT_STATISTICS, TX_MENU_TAB_HINT_OPTIONS);
+  MAIN_BTN_HINT: array [TKMTabButtons] of Word = (
+    TX_MENU_TAB_HINT_BUILD,
+    TX_MENU_TAB_HINT_DISTRIBUTE,
+    TX_MENU_TAB_HINT_STATISTICS,
+    TX_MENU_TAB_HINT_OPTIONS);
 var
   T: TKMTabButtons;
   I: Integer;
@@ -1113,7 +1116,7 @@ begin
     // Main 4 buttons
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do begin
       Button_Main[T] := TKMButton.Create(Panel_Controls,  TB_PAD + 46 * Byte(T), 4, 42, 36, 439 + Byte(T), rxGui, bsGame);
-      Button_Main[T].Hint := gResTexts[MainHint[T]];
+      Button_Main[T].Hint := gResTexts[MAIN_BTN_HINT[T]];
       Button_Main[T].OnClick := SwitchPage;
     end;
     Button_Back := TKMButton.Create(Panel_Controls, TB_PAD, 4, 42, 36, 443, rxGui, bsGame);
@@ -1476,7 +1479,7 @@ begin
     Image_Message[I].Highlight := (ShownMessage = I);
 
   Label_MessageText.Caption := fMessageStack[ShownMessage].Text;
-  Button_MessageGoTo.Visible := not KMSamePoint(fMessageStack[ShownMessage].Loc, KMPoint(0,0));
+  Button_MessageGoTo.Visible := not KMSamePoint(fMessageStack[ShownMessage].Loc, KMPOINT_ZERO);
 
   Allies_Close(nil);
   fGuiGameChat.Hide;
@@ -1829,7 +1832,7 @@ begin
       raise Exception.Create('Could not determine last selected object type');
   end
   else
-    if not KMSamePoint(gHands[gMySpectator.HandIndex].CenterScreen, KMPoint(0,0)) then
+    if not KMSamePoint(gHands[gMySpectator.HandIndex].CenterScreen, KMPOINT_ZERO) then
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
@@ -1947,7 +1950,7 @@ end;
 
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString);
 begin
-  MessageIssue(aKind, aText, KMPoint(0,0));
+  MessageIssue(aKind, aText, KMPOINT_ZERO);
 end;
 
 
@@ -3500,7 +3503,7 @@ begin
               else
                 gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
             cmErase:
-              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then
+              if KMSamePoint(LastDragPoint, KMPOINT_ZERO) then
               begin
                 H := gMySpectator.Hand.HousesHitTest(P.X, P.Y);
                 // Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
@@ -3595,7 +3598,7 @@ begin
       end;
   end;
 
-  LastDragPoint := KMPoint(0,0);
+  LastDragPoint := KMPOINT_ZERO;
 end;
 
 

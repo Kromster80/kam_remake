@@ -158,6 +158,7 @@ type
     procedure OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
     procedure OrderNone;
     procedure OrderRepeat;
+    procedure CopyOrderFrom(aGroup: TKMUnitGroup);
     function OrderSplit(aClearOffenders: Boolean; aSplitSingle: Boolean = False): TKMUnitGroup;
     function OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): TKMUnitGroup;
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
@@ -539,7 +540,7 @@ begin
   if not IsDead then
     Result := Members[0].GetPosition
   else
-    Result := KMPoint(0,0);
+    Result := KMPOINT_ZERO;
 end;
 
 
@@ -1137,8 +1138,6 @@ begin
   for I := 0 to Count - 1 do
     if not aHungryOnly or (Members[I].Condition <= UNIT_MIN_CONDITION) then
       Members[I].OrderFood;
-
-  OrderHalt(False);
 end;
 
 
@@ -1173,7 +1172,7 @@ begin
   //Halt is not a true order, it is just OrderWalk
   //hose target depends on previous activity
   case fOrder of
-    goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPoint(0,0)) then
+    goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPOINT_ZERO) then
                       OrderWalk(fOrderLoc.Loc, False)
                     else
                       OrderWalk(Members[0].NextPosition, False);
@@ -1238,6 +1237,23 @@ begin
 
   for I := 0 to Count - 1 do
     Members[I].OrderNone;
+end;
+
+
+//Copy order from specified aGroup
+procedure TKMUnitGroup.CopyOrderFrom(aGroup: TKMUnitGroup);
+begin
+  fOrder := aGroup.fOrder;
+  if fOrder <> goNone then          //when there is no order, then use own fOrderLoc
+    fOrderLoc := aGroup.fOrderLoc;  //otherwise - copy from target group
+
+  case fOrder of
+    goNone:         OrderHalt(False);
+    goWalkTo:       OrderWalk(fOrderLoc.Loc, False);
+    goAttackHouse:  if aGroup.OrderTargetHouse <> nil then OrderAttackHouse(aGroup.OrderTargetHouse, False);
+    goAttackUnit:   if aGroup.OrderTargetUnit <> nil then OrderAttackUnit(aGroup.OrderTargetUnit, False);
+    goStorm:        ;
+  end;
 end;
 
 
@@ -1327,8 +1343,8 @@ begin
   NewGroup.fOrderLoc := KMPointDir(NewLeader.GetPosition, fOrderLoc.Dir);
 
   //Tell both groups to reposition
-  OrderHalt(False);
-  NewGroup.OrderHalt(False);
+  OrderRepeat;
+  NewGroup.CopyOrderFrom(Self);
 
   Result := NewGroup; //Return the new group in case somebody is interested in it
 

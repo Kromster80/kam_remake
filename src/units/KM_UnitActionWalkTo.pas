@@ -144,7 +144,7 @@ begin
   if aTargetHouse <> nil then fTargetHouse := aTargetHouse.GetHousePointer;
 
   fWalkFrom     := fUnit.GetPosition;
-  fNewWalkTo    := KMPoint(0,0);
+  fNewWalkTo    := KMPOINT_ZERO;
   fPass         := fUnit.DesiredPassability;
 
   if aUseExactTarget then
@@ -224,7 +224,7 @@ begin
   fWaitingOnStep       := false;
   fDestBlocked         := false;
   fLastSideStepNodePos := -3; //Start negitive so it is at least 2 less than NodePos at the start
-  fVertexOccupied      := KMPoint(0,0);
+  fVertexOccupied      := KMPOINT_ZERO;
   fInteractionCount    := 0;
   fInteractionStatus   := kis_None;
 end;
@@ -278,7 +278,7 @@ begin
   FreeAndNil(ExplanationLog);
   FreeAndNil(NodeList);
 
-  if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+  if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     DecVertex;
 
   fUnit.IsExchanging := false;
@@ -326,7 +326,7 @@ procedure TUnitActionWalkTo.PerformExchange(ForcedExchangePos: TKMPoint);
 begin
   //If we are being forced to exchange then modify our route to make the exchange,
   //  then return to the tile we are currently on, then continue the route
-  if not KMSamePoint(ForcedExchangePos,KMPoint(0,0)) then
+  if not KMSamePoint(ForcedExchangePos,KMPOINT_ZERO) then
   begin
     Explanation := 'We were forced to exchange places';
     ExplanationLogAdd;
@@ -406,14 +406,14 @@ end;
 
 function TUnitActionWalkTo.CheckForNewDestination: TDestinationCheck;
 begin
-  if KMSamePoint(fNewWalkTo, KMPoint(0,0)) then
+  if KMSamePoint(fNewWalkTo, KMPOINT_ZERO) then
     Result := dc_NoChanges
   else
   begin
     Result := dc_RouteChanged;
     fWalkTo := fNewWalkTo;
     fWalkFrom := NodeList[NodePos];
-    fNewWalkTo := KMPoint(0,0);
+    fNewWalkTo := KMPOINT_ZERO;
     NodeList.Clear;
     NodePos := 0;
     if not AssembleTheRoute then
@@ -491,7 +491,7 @@ end;
 procedure TUnitActionWalkTo.IncVertex;
 begin
   //Tell gTerrain that this vertex is being used so no other unit walks over the top of us
-  if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+  if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     raise ELocError.Create('IncVertex', fVertexOccupied);
 
   gTerrain.UnitVertexAdd(fUnit.PrevPosition, fUnit.NextPosition);
@@ -502,11 +502,11 @@ end;
 procedure TUnitActionWalkTo.DecVertex;
 begin
   //Tell gTerrain that this vertex is not being used anymore
-  if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+  if KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     raise ELocError.Create('DecVertex 0:0', fVertexOccupied);
 
   gTerrain.UnitVertexRem(fVertexOccupied);
-  fVertexOccupied := KMPoint(0,0);
+  fVertexOccupied := KMPOINT_ZERO;
 end;
 
 
@@ -610,7 +610,7 @@ begin
           if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then
           begin
             //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
-            TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
+            TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(KMPOINT_ZERO); //Request unforced exchange
 
             Explanation := 'Unit in the way is walking in the opposite direction. Performing an exchange';
             ExplanationLogAdd;
@@ -654,7 +654,7 @@ begin
         raise ELocError.Create('Unit walk IntCheckIfPushed',fUnit.GetPosition);
 
       //Since only Idle units can be pushed, we don't need to carry on TargetUnit/TargetHouse/etc props
-      fUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(fUnit, KMPoint(0,0),GetEffectivePassability));
+      fUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(fUnit, KMPOINT_ZERO,GetEffectivePassability));
       //This action has now been freed, so we must exit without changing anything
       Result := true; //Means exit DoUnitInteraction
       exit;
@@ -709,7 +709,7 @@ begin
               and (TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetEffectivePassability in gTerrain.Land[fUnit.GetPosition.Y,fUnit.GetPosition.X].Passability) then
               begin
                 //Perform exchange from our position to TempPos
-                TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
+                TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPOINT_ZERO); //Request unforced exchange
 
                 Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
                 ExplanationLogAdd;
@@ -792,7 +792,7 @@ begin
 
   //Find a node
   if NodePos+2 > NodeList.Count - 1 then //Tell Terrain about our next position if we can
-    Found := gTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, KMPoint(0,0), GetEffectivePassability, SideStepTest, NodePos - fLastSideStepNodePos < 2)
+    Found := gTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, KMPOINT_ZERO, GetEffectivePassability, SideStepTest, NodePos - fLastSideStepNodePos < 2)
   else
     Found := gTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, NodeList[NodePos+2], GetEffectivePassability, SideStepTest, NodePos - fLastSideStepNodePos < 2);
 
@@ -905,7 +905,7 @@ begin
   end
   else
   begin
-    NextNextPos := KMPoint(0,0);
+    NextNextPos := KMPOINT_ZERO;
     Result := False; //Our route is not that long, so there is no "NextNext" position
   end;
 end;

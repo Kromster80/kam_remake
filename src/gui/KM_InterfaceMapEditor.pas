@@ -939,7 +939,7 @@ procedure TKMapEdInterface.ResetCursorMode;
 begin
   gGameCursor.Mode := cmNone;
   gGameCursor.Tag1 := 0;
-  gGameCursor.CellAdjustment := ZERO_POINT;
+  gGameCursor.CellAdjustment := KMPOINT_ZERO;
 end;
 
 
@@ -1049,7 +1049,7 @@ end;
 procedure TKMapEdInterface.ResetDragObject;
 begin
   fDraggingObject := False;
-  fDragHouseGrabPntAdjustment := ZERO_POINT;
+  fDragHouseGrabPntAdjustment := KMPOINT_ZERO;
   fDragObject := nil;
 
   if gRes.Cursors.Cursor = kmc_Drag then

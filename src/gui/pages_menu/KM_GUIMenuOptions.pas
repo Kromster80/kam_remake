@@ -220,7 +220,7 @@ begin
     // Panel_Options_Keys
     PopUp_OptionsKeys := TKMPopUpMenu.Create(Panel_Options, 700);
     PopUp_OptionsKeys.Height := 600;
-    PopUp_OptionsKeys.Anchors := []; // Keep centered, don't stretch already poor BG image
+    PopUp_OptionsKeys.AnchorsCenter; // Keep centered, don't stretch already poor BG image
     PopUp_OptionsKeys.Left := (Panel_Options.Width - 700) div 2;
     PopUp_OptionsKeys.Top := (Panel_Options.Height - 600) div 2;
 

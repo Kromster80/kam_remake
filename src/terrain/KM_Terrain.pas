@@ -2313,7 +2313,7 @@ begin
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
   L2 := TKMPointList.Create;
-  if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
+  if not KMSamePoint(Loc3, KMPOINT_ZERO) then //No Loc3 was given
   for I := 0 to L1.Count - 1 do
     if KMLengthDiag(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
       L2.Add(L1[I]);

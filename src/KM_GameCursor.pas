@@ -48,7 +48,7 @@ end;
 
 procedure TKMGameCursor.Reset;
 begin
-  CellAdjustment := ZERO_POINT;
+  CellAdjustment := KMPOINT_ZERO;
   // Actually we need reset all fields when changing mode,
   // but lets reset only CellAdjustment for now, need to do lots of tests for other fields
 end;

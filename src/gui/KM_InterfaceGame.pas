@@ -162,7 +162,7 @@ begin
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
   fDragScrollingCursorPos.Y := 0;
-  fDragScrollingViewportPos := ZERO_POINT_F;
+  fDragScrollingViewportPos := KMPOINTF_ZERO;
 
   gRenderPool := TRenderPool.Create(fViewport, aRender);
 end;
