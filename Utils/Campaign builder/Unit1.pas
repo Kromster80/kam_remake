@@ -32,7 +32,7 @@ type
     shpBriefing: TShape;
     Bevel2: TBevel;
     cbShowNodeNumbers: TCheckBox;
-    lbl_NameCampaign: TLabel;
+    lbl_CampaignName: TLabel;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -335,7 +335,7 @@ begin
 
   if not dlgSaveCampaign.Execute then Exit;
 
-  lbl_NameCampaign.Caption := 'Campaign name: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
+  lbl_CampaignName := 'Campaign name: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
 
   C.SaveToFile(dlgSaveCampaign.FileName);
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
@@ -360,7 +360,7 @@ begin
 
   if not dlgOpenCampaign.Execute then Exit;
 
-  lbl_NameCampaign.Caption := 'Campaign name: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
+  lbl_CampaignName.Caption := 'Campaign name: ' + ExtractFileName(ExtractFileDir(dlgOpenCampaign.FileName));
 
   C.LoadFromFile(dlgOpenCampaign.FileName);
 

@@ -57,7 +57,7 @@ object Form1: TForm1
     Width = 154
     Height = 2
   end
-  object lbl_NameCampaign: TLabel
+  object lbl_CampaignName: TLabel
     Left = 8
     Top = 7
     Width = 130
