@@ -90,11 +90,11 @@ begin
   Panel_Menu := TKMPanel.Create(Panel_Main, (X - MENU_DESIGN_X) div 2, (Y - MENU_DESIGN_Y) div 2, MENU_DESIGN_X, MENU_DESIGN_Y);
   Panel_Menu.AnchorsCenter;
 
-  //Background is the same for all pages, except Results/Campaign, which will render ontop
-  with TKMImage.Create(Panel_Menu,-448,-216, 960, 600, 17, rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Menu, 512,-216, 960, 600, 18, rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Menu,-448, 384, 960, 600, 19, rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Menu, 512, 384, 960, 600, 20, rxGuiMain) do Anchors := [];
+  // Background is the same for all pages, except Results/Campaign, which will render ontop
+  TKMImage.Create(Panel_Menu,-448,-216, 960, 600, 17, rxGuiMain).AnchorsCenter;
+  TKMImage.Create(Panel_Menu, 512,-216, 960, 600, 18, rxGuiMain).AnchorsCenter;
+  TKMImage.Create(Panel_Menu,-448, 384, 960, 600, 19, rxGuiMain).AnchorsCenter;
+  TKMImage.Create(Panel_Menu, 512, 384, 960, 600, 20, rxGuiMain).AnchorsCenter;
 
   fMenuMain          := TKMMenuMain.Create(Panel_Menu, PageChange);
   fMenuSinglePlayer  := TKMMenuSinglePlayer.Create(Panel_Menu, PageChange);

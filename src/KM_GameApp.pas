@@ -26,6 +26,7 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
 
     fOnCursorUpdate: TIntegerStringEvent;
+    fOnGameSpeedChange: TSingleEvent;
 
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
@@ -60,7 +61,7 @@ type
     procedure NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
     procedure NewRestartLast(aGameName, aMission, aSave: UnicodeString; aGameMode: TGameMode; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
-    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
+    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
     procedure NewReplay(const aFilePath: UnicodeString);
 
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -79,6 +80,8 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure FPSMeasurement(aFPS: Cardinal);
+
+    property OnGameSpeedChange: TSingleEvent read fOnGameSpeedChange write fOnGameSpeedChange;
 
     procedure Render(aForPrintScreen: Boolean);
     procedure UpdateState(Sender: TObject);
@@ -107,6 +110,8 @@ begin
   fGameSettings := TGameSettings.Create;
 
   fRender := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
+
+  gGameCursor := TKMGameCursor.Create;
 
   gRes := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
   gRes.LoadMainResources(fGameSettings.Locale, fGameSettings.LoadFullFonts);
@@ -178,6 +183,7 @@ begin
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
   FreeAndNil(fNetworking);
+  FreeAndNil(gGameCursor);
 
   FreeThenNil(fRender);
 
@@ -475,8 +481,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -508,8 +514,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -541,8 +547,8 @@ begin
   LoadGameAssets;
 
   //Reset controls if MainForm exists (KMR could be run without main form)
-  if fMain <> nil then
-    fMain.FormMain.ControlsReset;
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
 
   gGame := TKMGame.Create(aGameMode, fRender, nil);
   try
@@ -637,10 +643,10 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
+procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
 begin
   if aFileName <> '' then
-    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), 0, nil, 0, gmMapEd, 0, 0)
+    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapCRC, nil, 0, gmMapEd, 0, 0)
   else
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
 end;
@@ -793,3 +799,4 @@ end;
 
 
 end.
+

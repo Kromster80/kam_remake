@@ -26,6 +26,9 @@ type
     procedure DoIdle(Sender: TObject; var Done: Boolean);
 
     procedure MapCacheUpdate;
+
+    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
+    procedure GameSpeedChange(aSpeed: Single);
   public
     constructor Create;
     destructor Destroy; override;
@@ -54,15 +57,13 @@ type
     function LockMutex: Boolean;
     procedure UnlockMutex;
 
-    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString); overload;
-
     property Resolutions: TKMResolutions read fResolutions;
     property Settings: TMainSettings read fMainSettings;
   end;
 
 
 var
-  fMain: TKMMain;
+  gMain: TKMMain;
 
 
 implementation
@@ -95,7 +96,8 @@ end;
 
 procedure TKMMain.Start;
   function GetScreenMonitorsInfo: TKMPointArray;
-  var I: Integer;
+  var
+    I: Integer;
   begin
     SetLength(Result, Screen.MonitorCount);
     for I := 0 to Screen.MonitorCount-1 do
@@ -115,7 +117,8 @@ begin
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
-  ExeDir := ExtractFilePath(Application.ExeName);
+
+  ExeDir := ExtractFilePath(ParamStr(0));
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
   gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
@@ -162,6 +165,12 @@ end;
 procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
 begin
   fFormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
+end;
+
+
+procedure TKMMain.GameSpeedChange(aSpeed: Single);
+begin
+  fFormMain.chkSuperSpeed.Checked := aSpeed = 300;
 end;
 
 
@@ -333,6 +342,7 @@ begin
                                 fFormLoading.LoadingStep,
                                 fFormLoading.LoadingText,
                                 StatusBarText);
+  gGameApp.OnGameSpeedChange := GameSpeedChange;
   gGameApp.AfterConstruction(aReturnToOptions);
 
   gLog.AddTime('ToggleFullscreen');
@@ -394,7 +404,7 @@ var
 {$ENDIF}
 begin
   {$IFNDEF FPC}
-  if (GetForeGroundWindow <> fMain.FormMain.Handle) then
+  if (GetForeGroundWindow <> gMain.FormMain.Handle) then
   begin
     flashInfo.cbSize := 20;
     flashInfo.hwnd := Application.Handle;

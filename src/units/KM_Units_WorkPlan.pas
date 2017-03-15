@@ -72,7 +72,7 @@ procedure TUnitWorkPlan.Clear;
 begin
   fIssued := False;
   HasToWalk := False;
-  Loc := KMPoint(0, 0);
+  Loc := KMPOINT_ZERO;
   ActionWalkTo := ua_Walk;
   ActionWorkType := ua_Work;
   WorkCyc := 0;
@@ -240,7 +240,7 @@ begin
                         TKMHouseWoodcutters(aUnit.GetHome).ValidateCuttingPoint; //Validate Cutting point. It will be set to a valid one if needed.
                         if TKMHouseWoodcutters(aUnit.GetHome).IsCuttingPointSet then
                           aLoc := TKMHouseWoodcutters(aUnit.GetHome).CuttingPoint;
-                        fIssued := ChooseTree(aLoc, KMPoint(0,0), gRes.Units[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
+                        fIssued := ChooseTree(aLoc, KMPOINT_ZERO, gRes.Units[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
                         if fIssued then
                         begin
                           case PlantAct of
@@ -327,7 +327,7 @@ begin
                       end;
     ut_Farmer:        if aHome = ht_Farm then
                       begin
-                        fIssued := gTerrain.FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPoint(0,0), aPlantAct, PlantAct, Tmp);
+                        fIssued := gTerrain.FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, aPlantAct, PlantAct, Tmp);
                         if fIssued then
                           case PlantAct of
                             taCut:    begin
@@ -341,7 +341,7 @@ begin
 
                       if aHome = ht_Wineyard then
                       begin
-                        fIssued := gTerrain.FindWineField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPoint(0,0), Tmp);
+                        fIssued := gTerrain.FindWineField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wt_None,0,wt_None,0,wt_Wine);
@@ -466,18 +466,18 @@ begin
                       end;
     ut_Fisher:        if aHome = ht_FisherHut then
                       begin
-                        fIssued := gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
+                        fIssued := gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, False, Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wt_None,0,wt_None,0,wt_Fish);
                           WalkStyle(Tmp,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch);
                         end else
                           //We must check again this time ignoring working units since they don't indicate the resource is depleted
-                          ResourceDepleted := not gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
+                          ResourceDepleted := not gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, True, Tmp);
                       end;
     ut_StoneCutter:   if aHome = ht_Quary then
                       begin
-                        fIssued := gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
+                        fIssued := gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, False, Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wt_None,0,wt_None,0,wt_Stone);
@@ -487,7 +487,7 @@ begin
                           SubActAdd(ha_Work5,1);
                         end else
                           //We must check again this time ignoring working units since they don't indicate the resource is depleted
-                          ResourceDepleted := not gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
+                          ResourceDepleted := not gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, True, Tmp);
                       end;
     ut_Smith:         if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalShield) then
                       begin

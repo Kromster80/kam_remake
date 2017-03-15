@@ -58,7 +58,7 @@ var
   I: Integer;
 begin
   Caption := 'KaM FontX Collator (' + GAME_REVISION + ')';
-  ExeDir := ExtractFilePath(Application.ExeName);
+  ExeDir := ExtractFilePath(ParamStr(0));
 
   Collator := TKMFontCollator.Create;
 

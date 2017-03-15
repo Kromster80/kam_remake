@@ -33,6 +33,7 @@ type
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
     procedure ProceedUnitsCursorMode;
+    procedure UpdateField(aInc: Integer; aCheckPrevCell: Boolean);
   public
     ActiveMarker: TKMMapEdMarker;
 
@@ -54,6 +55,7 @@ type
     procedure MouseDown(Button: TMouseButton);
     procedure MouseMove;
     procedure MouseUp(Button: TMouseButton; aOverMap: Boolean);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure Update;
     procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
@@ -63,7 +65,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_Units, KM_UnitGroups, KM_GameCursor,
-  KM_ResHouses, KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
+  KM_ResHouses, KM_ResMapElements, KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
 
 
 { TKMMapEditor }
@@ -213,11 +215,56 @@ begin
 end;
 
 
-procedure TKMMapEditor.MouseDown(Button: TMouseButton);
+procedure TKMMapEditor.UpdateField(aInc: Integer; aCheckPrevCell: Boolean);
+var
+  P: TKMPoint;
+  FieldStage: Integer;
 begin
-  if (Button = mbLeft) then
+  if aInc = 0 then Exit;
+
+  FieldStage := -1;
+  P := gGameCursor.Cell;
   case gGameCursor.Mode of
-    cmSelection:  fSelection.Selection_Start;
+    cmField:  begin
+                if gTerrain.TileIsCornField(P) then
+                begin
+                  if not KMSamePoint(P, gGameCursor.PrevCell) or not aCheckPrevCell then
+                    FieldStage := (gTerrain.GetCornStage(P) + aInc + CORN_STAGES_COUNT) mod CORN_STAGES_COUNT;
+                end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
+                  FieldStage := 0;
+                if FieldStage >= 0 then
+                  gMySpectator.Hand.AddField(P, ft_Corn, FieldStage);
+              end;
+    cmWine:   begin
+                if gTerrain.TileIsWineField(P) then
+                begin
+                  if not KMSamePoint(P, gGameCursor.PrevCell) or not aCheckPrevCell then
+                    FieldStage := (gTerrain.GetWineStage(P) + aInc + WINE_STAGES_COUNT) mod WINE_STAGES_COUNT;
+                end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
+                  FieldStage := 0;
+                if FieldStage >= 0 then
+                  gMySpectator.Hand.AddField(P, ft_Wine, FieldStage);
+              end;
+  end;
+end;
+
+
+procedure TKMMapEditor.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+begin
+  UpdateField(Sign(WheelDelta), False);
+end;
+
+
+procedure TKMMapEditor.MouseDown(Button: TMouseButton);
+var
+  P: TKMPoint;
+begin
+  P := gGameCursor.Cell;
+  if (Button = mbLeft) then
+    case gGameCursor.Mode of
+      cmSelection:  fSelection.Selection_Start;
+      cmField,
+      cmWine:       UpdateField(1, False);
   end;
 end;
 
@@ -235,12 +282,10 @@ begin
                       //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                       if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                         gTerrain.RemField(P);
-                      gMySpectator.Hand.AddField(P, ft_Road);
+                      gMySpectator.Hand.AddRoad(P);
                     end;
-      cmField:      if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
-                      gMySpectator.Hand.AddField(P, ft_Corn);
-      cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
-                      gMySpectator.Hand.AddField(P, ft_Wine);
+      cmField,
+      cmWine:       UpdateField(1, True);
       cmUnits:      ProceedUnitsCursorMode;
       cmErase:      begin
                       gHands.RemAnyHouse(P);
@@ -302,12 +347,8 @@ begin
                                 //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
-                                gMySpectator.Hand.AddField(P, ft_Road);
+                                gMySpectator.Hand.AddRoad(P);
                               end;
-                cmField:      if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
-                                gMySpectator.Hand.AddField(P, ft_Corn);
-                cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
-                                gMySpectator.Hand.AddField(P, ft_Wine);
                 cmHouses:     if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
                               begin
                                 gMySpectator.Hand.AddHouse(THouseType(gGameCursor.Tag1), P.X, P.Y, true);
@@ -353,10 +394,6 @@ begin
                 cmElevate,
                 cmEqualize:   begin
                                 //Actual change was made in UpdateStateIdle, we just register it is done here
-                                fTerrainPainter.MakeCheckpoint;
-                              end;
-                cmObjects:    begin
-                                gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
                                 fTerrainPainter.MakeCheckpoint;
                               end;
                 cmEyedropper,

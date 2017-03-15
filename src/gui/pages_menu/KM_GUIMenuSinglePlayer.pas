@@ -25,7 +25,6 @@ type
     Button_SP_Back: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-
     procedure Show;
   end;
 
@@ -45,7 +44,7 @@ begin
 
   //Without anchors this page is centered on resize
   Panel_SinglePlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_SinglePlayer.Anchors := [];
+  Panel_SinglePlayer.AnchorsCenter;
     TKMImage.Create(Panel_SinglePlayer, 300, 120, 423, 164, 4, rxGuiMain);
     TKMLabel.Create(Panel_SinglePlayer, 512, 300, 'Remake', fnt_Metal, taCenter);
     with TKMImage.Create(Panel_SinglePlayer, 50, 220, Round(218 * 1.3), Round(291 * 1.3), 5, rxGuiMain) do ImageStretch;

@@ -22,7 +22,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r6720';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r7000+';       //Should be updated for every release (each time save format is changed)
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
   {$ELSE}
@@ -156,6 +156,8 @@ const
 
   AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
   CHAT_COOLDOWN        = 500; //Minimum time in milliseconds between chat messages
+
+  DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
 
 var
   HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
@@ -666,15 +668,51 @@ const
   $FF000000  //Black
   );
 
-  //Interface Colors used for coloring status messages
-  //icWhite  = $FFFFFFFF;
+  //Interface colors
   icGreen  = $FF00C000;
   icYellow = $FF07FFFF;
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
 
-  icSteelBlue = $FFA56D53; // Selection color
+  icGray = $FF808080;
+  icLightGray = $FFA0A0A0;
+  icWhite = $FFFFFFFF;
 
+  icSteelBlue = $FFA56D53;
+
+  icRoyalYellow = $FF4AC7FF;
+  icGoldenYellow = $FF00B0FF;
+  icAmberBrown = $FF006797;
+  icDarkGoldenRod = $FF0080B0; // brown shade color
+
+  // Interface colors (by usage)
+  clPingLow = icGreen;
+  clPingNormal = icYellow;
+  clPingHigh = icOrange;
+  clPingCritical = icRed;
+
+  clFpsCritical = icRed;
+  clFpsLow = icOrange;
+  clFpsNormal = icYellow;
+  clFpsHigh = icGreen;
+
+  clTextSelection = icSteelBlue;
+
+  clMessageUnitUnread = icGoldenYellow;
+  clMessageUnitUnreadHL = icRoyalYellow;
+  clMessageUnitRead = icDarkGoldenRod;
+  clMessageUnitReadHL = icAmberBrown;
+
+  clLobbyOpponentAll = icRoyalYellow;
+  clLobbyOpponentAllHL = icAmberBrown;
+
+  clListSelShape = $88888888;
+  clListSelOutline = icWhite;
+  clListSelShapeUnfocused = $66666666;
+  clListSelOutlineUnfocused = icLightGray;
+
+  clMapEdBtnField = icYellow;
+  clMapEdBtnWine = icYellow;
 
 var
   ExeDir: UnicodeString;

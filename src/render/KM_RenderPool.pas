@@ -24,13 +24,11 @@ type
     SelectionRect: TKMRectF; // Used for selecting units by sprite
   end;
 
-  TSmallIntArray = array of smallint;
-
   // List of sprites prepared to be rendered
   TRenderList = class
   private
     fCount: Word;
-    RenderOrder: TSmallIntArray; // Order in which sprites will be drawn ()
+    RenderOrder: array of Word; // Order in which sprites will be drawn ()
     RenderList: array of TKMRenderSprite;
 
     fStat_Sprites: Integer; // Total sprites in queue
@@ -337,29 +335,23 @@ begin
     gGame.MapEditor.Paint(plObjects, aRect);
 
   with gTerrain do
-  for I := aRect.Top to aRect.Bottom do
-  for K := aRect.Left to aRect.Right do
-  begin
-    if (Land[I, K].Obj <> 255)
-    // In the map editor we shouldn't render terrain objects within the paste preview
-    and (not gGame.IsMapEditor or not (mlSelection in gGame.MapEditor.VisibleLayers)
-         or not gGame.MapEditor.Selection.TileWithinPastePreview(K, I)) then
-      RenderMapElement(Land[I, K].Obj, AnimStep, K, I);
-
-    // Fake wine objects for MapEd
-    case Land[I,K].CornOrWine of
-      1: ;
-      2: RenderMapElement(54, AnimStep, K, I);
-    end;
-  end;
+    for I := aRect.Top to aRect.Bottom do
+      for K := aRect.Left to aRect.Right do
+      begin
+        if (Land[I, K].Obj <> 255)
+        // In the map editor we shouldn't render terrain objects within the paste preview
+        and (not gGame.IsMapEditor or not (mlSelection in gGame.MapEditor.VisibleLayers)
+             or not gGame.MapEditor.Selection.TileWithinPastePreview(K, I)) then
+          RenderMapElement(Land[I, K].Obj, AnimStep, K, I);
+      end;
 
   // Falling trees are in a separate list
   with gTerrain do
-  for I := 0 to FallingTrees.Count - 1 do
-  begin
-    RenderMapElement1(FallingTrees.Tag[I], aAnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
-    Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
-  end;
+    for I := 0 to FallingTrees.Count - 1 do
+    begin
+      RenderMapElement1(FallingTrees.Tag[I], aAnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
+      Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
+    end;
 
   // Tablets on house plans, for self and allies
   fTabletsList.Clear;
@@ -1376,15 +1368,17 @@ begin
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmField:      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn)) and (gGameCursor.Tag1 <> Ord(cfmErase)) then
+    cmField:      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Corn) or (gGame.IsMapEditor and gTerrain.TileIsCornField(P)))
+                    and (gGameCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmWine:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine)) and (gGameCursor.Tag1 <> Ord(cfmErase)) then
+    cmWine:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ft_Wine) or (gGame.IsMapEditor and gTerrain.TileIsWineField(P)))
+                    and (gGameCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmHouses:     RenderWireHousePlan(P, THouseType(gGameCursor.Tag1)); // Cyan quads and red Xs
+    cmHouses:     RenderWireHousePlan(KMVectorSum(P, gGameCursor.CellAdjustment), THouseType(gGameCursor.Tag1)); // Cyan quads and red Xs
     cmBrush:      if gGameCursor.Tag1 <> 0 then
                   begin
                     Rad := gGameCursor.MapEdSize;
@@ -1610,16 +1604,15 @@ begin
   if gMySpectator.FogOfWar.CheckRevelation(CurPos) <= FOG_OF_WAR_MIN then Exit;
   // Select closest (higher Z) units first (list is in low..high Z-order)
   for I := Length(RenderOrder) - 1 downto 0 do
-    if RenderOrder[I] <> -1 then
+  begin
+    K := RenderOrder[I];
+    // Don't check child sprites, we don't want to select serfs by the long pike they are carrying
+    if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
     begin
-      K := RenderOrder[I];
-      // Don't check child sprites, we don't want to select serfs by the long pike they are carrying
-      if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
-      begin
-        Result := RenderList[K].UID;
-        Exit;
-      end;
+      Result := RenderList[K].UID;
+      Exit;
     end;
+  end;
 end;
 
 
@@ -1639,7 +1632,7 @@ begin
     if RenderList[I].NewInst then
     begin
       RenderOrder[J] := I;
-      inc(J);
+      Inc(J);
     end;
   SetLength(RenderOrder, J);
 end;
@@ -1648,7 +1641,7 @@ end;
 // Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
 var
-  RenderOrderAux: TSmallIntArray;
+  RenderOrderAux: array of Word;
 
   procedure DoQuickSort(aLo, aHi: Integer);
   var
@@ -1825,14 +1818,13 @@ end;
 // Now render all these items from list
 procedure TRenderList.Render;
 var
-  I, K, objectCount: Integer;
+  I, K, ObjectsCount: Integer;
 begin
   fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
-  objectCount := Length(RenderOrder);
+  ObjectsCount := Length(RenderOrder);
 
-  for I := 0 to objectCount - 1 do
-  if RenderOrder[I] <> -1 then
+  for I := 0 to ObjectsCount - 1 do
   begin
     K := RenderOrder[I];
     glPushMatrix;

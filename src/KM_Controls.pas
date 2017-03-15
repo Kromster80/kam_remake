@@ -16,7 +16,7 @@ type
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
   TNotifyEventKeyFunc = function(Sender: TObject; Key: Word): Boolean of object;
   TNotifyEventKeyShift = procedure(Key: Word; Shift: TShiftState) of object;
-  TNotifyEventKeyShiftFunc = function(Key: Word; Shift: TShiftState): Boolean of object;
+  TNotifyEventKeyShiftFunc = function(Sender: TObject; Key: Word; Shift: TShiftState): Boolean of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
@@ -51,6 +51,7 @@ type
 
     property MainPanel: TKMPanel read fCtrl;
     function IsFocusAllowed(aCtrl: TKMControl): Boolean;
+    function IsAutoFocusAllowed(aCtrl: TKMControl): Boolean;
     procedure UpdateFocus(aSender: TKMControl);
 
     property CtrlDown: TKMControl read fCtrlDown write SetCtrlDown;
@@ -107,6 +108,8 @@ type
     fOnFocus: TNotifyEventFocus;
     fOnControlMouseDown: TNotifyEventShift;
     fOnControlMouseUp: TNotifyEventShift;
+    fOnKeyDown: TNotifyEventKeyShiftFunc;
+    fOnKeyUp: TNotifyEventKeyShiftFunc;
 
     function GetAbsLeft: Integer;
     function GetAbsTop: Integer;
@@ -142,6 +145,7 @@ type
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
+    AutoFocusable: Boolean; //Can we focus on this element automatically (f.e. if set to False we will able to Focus only by manual mouse click)
 
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
@@ -180,6 +184,7 @@ type
     procedure Disable;
     procedure Show;
     procedure Hide;
+    procedure Unfocus;
     procedure AnchorsCenter;
     procedure AnchorsStretch;
     function MasterParent: TKMPanel;
@@ -200,6 +205,8 @@ type
     property OnFocus: TNotifyEventFocus read fOnFocus write fOnFocus;
     property OnControlMouseDown: TNotifyEventShift read fOnControlMouseDown write fOnControlMouseDown;
     property OnControlMouseUp: TNotifyEventShift read fOnControlMouseUp write fOnControlMouseUp;
+    property OnKeyDown: TNotifyEventKeyShiftFunc read fOnKeyDown write fOnKeyDown;
+    property OnKeyUp: TNotifyEventKeyShiftFunc read fOnKeyUp write fOnKeyUp;
 
     procedure Paint; virtual;
   end;
@@ -388,6 +395,7 @@ type
     CapOffsetY: Shortint;
     Caption: UnicodeString;
     Down: Boolean;
+    CapColor: TColor4;
     FlagColor: TColor4;
     Font: TKMFont;
     HideHighlight: Boolean;
@@ -490,7 +498,6 @@ type
     DrawOutline: Boolean;
     OutlineColor: Cardinal;
     OnChange: TNotifyEvent;
-    OnKeyDown: TNotifyEventKey;
     OnIsKeyEventHandled: TNotifyEventKeyFunc; //Invoked to check is key overrides default handle policy or not
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
 
@@ -750,7 +757,6 @@ type
     function GetSelfWidth: Integer; override;
   public
     ItemTags: array of Integer;
-    OnKeyDown: TNotifyEventKeyShiftFunc;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
 
@@ -837,6 +843,7 @@ type
     Font: TKMFont;
     HintFont: TKMFont;
     TextAlign: TKMTextAlign;
+    TriggerOnChange: Boolean;
   end;
 
   TKMColumnBox = class(TKMControl)
@@ -845,7 +852,7 @@ type
     fBackAlpha: Single; //Alpha of background
     fEdgeAlpha: Single; //Alpha of outline
     fItemHeight: Byte;
-    fItemIndex: Smallint;
+    fItemIndex: SmallInt;
     fSearchColumn: ShortInt; //which columns text we should search, -1 for disabled
     fSearch: UnicodeString; //Contains user input characters we should search for
     fLastKeyTime: Cardinal;
@@ -875,6 +882,8 @@ type
     procedure ClearColumns;
     procedure SetSearchColumn(aValue: ShortInt);
     procedure SetItemIndex(const Value: Smallint);
+    procedure UpdateMouseOverPosition(X,Y: Integer);
+    procedure UpdateItemIndex(Shift: TShiftState);
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -885,14 +894,13 @@ type
     function GetSelfAbsTop: Integer; override;
     function GetSelfHeight: Integer; override;
     function GetSelfWidth: Integer; override;
-    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer); overload;
-    procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean); overload;
+    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer; aAllowHighlight: Boolean = True); overload;
+    procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aAllowHighlight: Boolean = True); overload;
   public
     HideSelection: Boolean;
     HighlightError: Boolean;
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
-    OnKeyDown: TNotifyEventKeyShiftFunc;
     PassAllKeys: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -926,9 +934,9 @@ type
     procedure KeyPress(Key: Char); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure UpdateMouseOverPosition(X,Y: Integer);
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -942,8 +950,11 @@ type
     fFont: TKMFont;
     fButton: TKMButton;
     fShape: TKMShape;
-    fOnChange: TNotifyEvent;
     fAutoClose: Boolean;
+
+    fOnChange: TNotifyEvent;
+    fOnShow: TNotifyEvent;
+
     procedure UpdateDropPosition; virtual; abstract;
     procedure ButtonClick(Sender: TObject);
     procedure ListShow(Sender: TObject); virtual;
@@ -958,7 +969,7 @@ type
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
-    function ListKeyDown(Key: Word; Shift: TShiftState): Boolean;
+    function ListKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     procedure UpdateVisibility; override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aAutoClose: Boolean = True);
@@ -971,6 +982,7 @@ type
     property DropUp: Boolean read fDropUp write fDropUp;
     property ItemIndex: SmallInt read GetItemIndex write SetItemIndex;
 
+    property OnShow: TNotifyEvent read fOnShow write fOnShow;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure Paint; override;
   end;
@@ -982,6 +994,7 @@ type
     fCaption: UnicodeString; //Current caption (Default or from list)
     fDefaultCaption: UnicodeString;
     fList: TKMListBox;
+    fListTopIndex: Integer;
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
@@ -1017,6 +1030,7 @@ type
     fDefaultCaption: UnicodeString;
     fDropWidth: Integer;
     fList: TKMColumnBox;
+    fListTopIndex: Integer;
     fColumnsToShowWhenListHidden: array of Boolean; //which columns to show, when list is hidden
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
@@ -1033,7 +1047,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aShowHeader: Boolean = True);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
@@ -1061,6 +1075,7 @@ type
     procedure ListClick(Sender: TObject);
     procedure ListHide(Sender: TObject);
     procedure SetColorIndex(aIndex: Integer);
+    procedure UpdateDropPosition;
   protected
     procedure SetEnabled(aValue: Boolean); override;
   public
@@ -1366,24 +1381,25 @@ end;
 constructor TKMControl.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create;
-  Scale       := 1;
-  Hitable     := True; //All controls can be clicked by default
-  fLeft       := aLeft;
-  fTop        := aTop;
-  fWidth      := aWidth;
-  fHeight     := aHeight;
-  Anchors     := [anLeft, anTop];
-  State       := [];
-  fEnabled    := True;
-  fVisible    := True;
-  Tag         := 0;
-  Hint        := '';
+  Scale         := 1;
+  Hitable       := True; //All controls can be clicked by default
+  fLeft         := aLeft;
+  fTop          := aTop;
+  fWidth        := aWidth;
+  fHeight       := aHeight;
+  Anchors       := [anLeft, anTop];
+  State         := [];
+  fEnabled      := True;
+  fVisible      := True;
+  Tag           := 0;
+  Hint          := '';
   fControlIndex := -1;
+  AutoFocusable := True;
+
   if aParent <> nil then
     fID := aParent.fMasterControl.GetNextCtrlID
   else if Self is TKMPanel then
     fID := 0;
-    
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
@@ -1396,6 +1412,9 @@ function TKMControl.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var Amt: Byte;
 begin
   Result := MODE_DESIGN_CONTORLS;
+
+  if Assigned(fOnKeyDown) then
+    Result := fOnKeyDown(Self, Key, Shift);
 
   if MODE_DESIGN_CONTORLS then
   begin
@@ -1419,15 +1438,18 @@ end;
 
 function TKMControl.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
-  Result := false;
+  Result := False;
   if (Key = VK_TAB) and IsFocused then
   begin
     Parent.FocusNext;
     Result := True;
     Exit;
   end;
-  if not MODE_DESIGN_CONTORLS then exit;
-  //nothing yet
+
+  if Assigned(fOnKeyUp) then
+    Result := fOnKeyUp(Self, Key, Shift);
+
+  if not MODE_DESIGN_CONTORLS then Exit;
 end;
 
 
@@ -1746,11 +1768,11 @@ begin
 end;
 
 
-procedure TKMControl.Enable;  begin SetEnabled(true);  end; //Overrides will be set too
-procedure TKMControl.Disable; begin SetEnabled(false); end;
+procedure TKMControl.Enable;  begin SetEnabled(True);  end; //Overrides will be set too
+procedure TKMControl.Disable; begin SetEnabled(False); end;
 
 
-{Will show up entire branch in which control resides}
+// Show up entire branch in which control resides
 procedure TKMControl.Show;
 begin
   if Parent <> nil then Parent.Show;
@@ -1758,13 +1780,33 @@ begin
 end;
 
 
-procedure TKMControl.Hide;    begin Visible := False; end;
-procedure TKMControl.AnchorsCenter;  begin Anchors := []; end;
-procedure TKMControl.AnchorsStretch; begin Anchors := [anLeft, anTop, anRight, anBottom]; end;
+procedure TKMControl.Hide;
+begin
+  Visible := False;
+end;
+
+
+procedure TKMControl.AnchorsCenter;
+begin
+  Anchors := [];
+end;
+
+
+procedure TKMControl.AnchorsStretch;
+begin
+  Anchors := [anLeft, anTop, anRight, anBottom];
+end;
+
+
+procedure TKMControl.Unfocus;
+begin
+  Parent.fMasterControl.CtrlFocus := nil;
+end;
 
 
 function TKMControl.MasterParent: TKMPanel;
-var P: TKMPanel;
+var
+  P: TKMPanel;
 begin
   if not (Self is TKMPanel) then
     P := Parent
@@ -1781,6 +1823,7 @@ end;
 constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(nil, aLeft, aTop, aWidth, aHeight);
+
   fMasterControl := aParent;
   aParent.fCtrl := Self;
   Init;
@@ -1790,6 +1833,7 @@ end;
 constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+
   fMasterControl := aParent.fMasterControl;
   Init;
 end;
@@ -1810,7 +1854,8 @@ end;
 
 
 destructor TKMPanel.Destroy;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to ChildCount - 1 do
     Childs[I].Free;
@@ -1820,12 +1865,13 @@ end;
 
 
 function TKMPanel.FindFocusableControl(aFindNext: Boolean): TKMControl;
-var I, CtrlToFocusI: Integer;
+var
+  I, CtrlToFocusI: Integer;
 begin
   Result := nil;
   CtrlToFocusI := -1;
   for I := 0 to ChildCount - 1 do
-    if fMasterControl.IsFocusAllowed(Childs[I]) and (
+    if fMasterControl.IsAutoFocusAllowed(Childs[I]) and (
       (FocusedControlIndex = -1)                          // If FocusControl was not set (no focused element on panel)
       or (FocusedControlIndex = Childs[I].ControlIndex) // We've found last focused Control
       or (CtrlToFocusI <> -1)) then                         // We did find last focused Control on previos iterations
@@ -1848,7 +1894,7 @@ begin
   begin
     // We will try to find it until the same Control, that we find before in previous For cycle
     for I := 0 to CtrlToFocusI do // So if there will be no proper controls, then set focus again to same control with I = CtrlToFocusI
-      if fMasterControl.IsFocusAllowed(Childs[I]) then
+      if fMasterControl.IsAutoFocusAllowed(Childs[I]) then
       begin
         Result := Childs[I];
         Exit;
@@ -2233,7 +2279,7 @@ begin
     Result := true; //Click has happened
   end
   else
-    Result := false; //No, we couldn't click for Control is unreachable
+    Result := False; //No, we couldn't click for Control is unreachable
 end;
 
 
@@ -2300,7 +2346,7 @@ begin
 end;
 
 
-{If image area is bigger than image - do center image in it}
+// If image area is bigger than image - do center image in it
 procedure TKMImageStack.Paint;
 var
   I: Integer;
@@ -2499,7 +2545,7 @@ begin
   if TexID <> 0 then Exit;
 
   //If disabled then text should be faded
-  Col := IfThen(fEnabled, $FFFFFFFF, $FF808080);
+  Col := IfThen(fEnabled, icWhite, icGray);
 
   TKMRenderUI.WriteText(AbsLeft + Byte(csDown in State),
                       (AbsTop + Height div 2) - 7 + Byte(csDown in State), Width, Caption, Font, fTextAlign, Col);
@@ -2513,6 +2559,7 @@ begin
   RX        := aRX;
   TexID     := aTexID;
   FlagColor := $FFFF00FF;
+  CapColor  := $FFFFFFFF;
   Font      := fnt_Game;
   Clickable := True;
 end;
@@ -2529,8 +2576,7 @@ end;
 
 
 procedure TKMButtonFlat.Paint;
-const
-  TextCol: array [Boolean] of TColor4 = ($FF808080, $FFFFFFFF);
+var TxtColor: TColor4;
 begin
   inherited;
 
@@ -2544,13 +2590,18 @@ begin
   if (csOver in State) and fEnabled and not HideHighlight then
     TKMRenderUI.WriteShape(AbsLeft+1, AbsTop+1, Width-2, Height-2, $40FFFFFF);
 
-  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
+  if fEnabled then
+    TxtColor := CapColor
+  else
+    TxtColor := ReduceBrightness(CapColor, 128);
+
+  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TxtColor);
 
   {if not fEnabled then
     TKMRenderUI.WriteShape(Left, Top, Width, Height, $80000000);}
 
   if Down then
-    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, icWhite);
 end;
 
 
@@ -2562,7 +2613,7 @@ begin
   ShapeColor  := aShapeColor;
   fFont       := aFont;
   fFontHeight := gRes.Fonts[fFont].BaseHeight + 2;
-  FontColor   := $FFFFFFFF;
+  FontColor   := icWhite;
 end;
 
 
@@ -2582,7 +2633,7 @@ begin
     TKMRenderUI.WriteShape(AbsLeft + 1, AbsTop + 1, Width - 2, Height - 2, $40FFFFFF);
 
   if (csDown in State) or Down then
-    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, icWhite);
 end;
 
 
@@ -2831,10 +2882,6 @@ begin
       VK_HOME:    begin CursorPos := 0; ResetSelection; end;
       VK_END:     begin CursorPos := Length(fText); ResetSelection; end;
     end;
-
-
-  if Assigned(OnKeyDown) then
-    OnKeyDown(Self, Key);
 end;
 
 
@@ -2985,7 +3032,7 @@ begin
     BeforeSelectionW := gRes.Fonts[fFont].GetTextSize(BeforeSelectionText).X;
     SelectionW := gRes.Fonts[fFont].GetTextSize(SelectionText).X;
 
-    TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, AbsTop+3, min(SelectionW, Width-8), Height-6, icSteelBlue);
+    TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, AbsTop+3, min(SelectionW, Width-8), Height-6, clTextSelection);
   end;
 
   TKMRenderUI.WriteText(AbsLeft+4, AbsTop+3, Width-8, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
@@ -4406,7 +4453,7 @@ begin
           Inc(SelPaintTop, 3);
         end;
 
-        TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, SelPaintTop, min(SelectionW, Width-8), SelPaintHeight, icSteelBlue);
+        TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, SelPaintTop, min(SelectionW, Width-8), SelPaintHeight, clTextSelection);
       end;
     end;
 
@@ -4594,11 +4641,7 @@ begin
                     fOnClick(Self);
                   Exit;
                 end;
-    else        begin
-                  if Assigned(OnKeyDown) then
-                    Result := OnKeyDown(Key, Shift);
-                  Exit;
-                end;
+    else        Exit;
   end;
 
   if InRange(NewIndex, 0, Count - 1) then
@@ -4665,6 +4708,7 @@ end;
 procedure TKMListBox.Paint;
 var
   I, PaintWidth: Integer;
+  ShapeColor, OutlineColor: TColor4;
 begin
   inherited;
 
@@ -4676,7 +4720,17 @@ begin
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, PaintWidth, Height, 1, fBackAlpha);
 
   if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, GetVisibleRows - 1) then
-    TKMRenderUI.WriteShape(AbsLeft, AbsTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
+  begin
+    if IsFocused then
+    begin
+      ShapeColor := clListSelShape;
+      OutlineColor := clListSelOutline;
+    end else begin
+      ShapeColor := clListSelShapeUnfocused;
+      OutlineColor := clListSelOutlineUnfocused;
+    end;
+    TKMRenderUI.WriteShape(AbsLeft, AbsTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, ShapeColor, OutlineColor);
+  end;
 
   for I := 0 to Math.min(fItems.Count-1, GetVisibleRows - 1) do
     TKMRenderUI.WriteText(AbsLeft+4, AbsTop+I*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+I] , fFont, taLeft);
@@ -5071,6 +5125,7 @@ begin
     fColumns[I] := TKMListColumn.Create;
     fColumns[I].Font := fFont; //Reset to default font
     fColumns[I].TextAlign := taLeft; //Default alignment
+    fColumns[I].TriggerOnChange := True; //by default all columns trigger OnChange
   end;
 end;
 
@@ -5112,64 +5167,51 @@ var
   OldIndex, NewIndex: Integer;
   PageScrolling: Boolean;
 begin
-  if PassAllKeys then
-  begin
-    // Assume handler always handles the KeyDown
-    Result := Assigned(OnKeyDown);
-    if Assigned(OnKeyDown) then
-      OnKeyDown(Key, Shift);
-  end else
-  begin
-    Result := (Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT]) and not HideSelection;
-    if inherited KeyDown(Key, Shift) then Exit;
+  Result := (Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT]) and not HideSelection;
+  if inherited KeyDown(Key, Shift) then Exit;
 
-    if HideSelection then Exit; //Can't change selection if it's hidden
+  if HideSelection then Exit; //Can't change selection if it's hidden
 
-    PageScrolling := False;
-    OldIndex := fItemIndex;
-    case Key of
-      VK_UP:      NewIndex := fItemIndex - 1;
-      VK_DOWN:    NewIndex := fItemIndex + 1;
-      VK_HOME:    NewIndex := 0;
-      VK_END:     NewIndex := fRowCount - 1;
-      VK_PRIOR:   begin
-                    NewIndex := EnsureRange(fItemIndex - GetVisibleRows, 0, fRowCount - 1);
-                    PageScrolling := True;
-                  end;
-      VK_NEXT:    begin
-                    NewIndex := EnsureRange(fItemIndex + GetVisibleRows, 0, fRowCount - 1);
-                    PageScrolling := True;
-                  end;
-      VK_RETURN:  begin
-                    //Trigger click to hide drop downs
-                    if Assigned(fOnClick) then
-                      fOnClick(Self);
+  PageScrolling := False;
+  OldIndex := fItemIndex;
+  case Key of
+    VK_UP:      NewIndex := fItemIndex - 1;
+    VK_DOWN:    NewIndex := fItemIndex + 1;
+    VK_HOME:    NewIndex := 0;
+    VK_END:     NewIndex := fRowCount - 1;
+    VK_PRIOR:   begin
+                  NewIndex := EnsureRange(fItemIndex - GetVisibleRows, 0, fRowCount - 1);
+                  PageScrolling := True;
+                end;
+    VK_NEXT:    begin
+                  NewIndex := EnsureRange(fItemIndex + GetVisibleRows, 0, fRowCount - 1);
+                  PageScrolling := True;
+                end;
+    VK_RETURN:  begin
+                  //Trigger click to hide drop downs
+                  if Assigned(fOnClick) then
+                    fOnClick(Self);
                     //Double click on Enter
                     if Assigned(fOnDoubleClick) then
                       fOnDoubleClick(Self);
-                    Exit;
-                  end;
-      else        begin
-                    if Assigned(OnKeyDown) then
-                      Result := OnKeyDown(Key, Shift);
-                    Exit;
-                  end;
-    end;
-
-    if InRange(NewIndex, 0, fRowCount - 1) then
-    begin
-      fItemIndex := NewIndex;
-      if PageScrolling then
-        TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
-      else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
-        TopIndex := fItemIndex - GetVisibleRows + 1
-      else if TopIndex > fItemIndex then //Moving up
-        TopIndex := fItemIndex;
-    end;
-
-    if Assigned(fOnChange) and (OldIndex <> NewIndex) then
-      fOnChange(Self);
+                  Exit;
+                end;
+    else        Exit;
   end;
+
+  if InRange(NewIndex, 0, fRowCount - 1) then
+  begin
+    ItemIndex := NewIndex;
+    if PageScrolling then
+      TopIndex := fItemIndex - (OldIndex - TopIndex) // Save position from the top of the list
+    else if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
+    TopIndex := fItemIndex - GetVisibleRows + 1
+    else if TopIndex > fItemIndex then //Moving up
+    TopIndex := fItemIndex;
+  end;
+
+  if Assigned(fOnChange) and (OldIndex <> NewIndex) then
+    fOnChange(Self);
 end;
 
 
@@ -5199,7 +5241,7 @@ begin
     for I := 0 to fRowCount - 1 do
     if AnsiStartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
     begin
-      fItemIndex := I;
+      ItemIndex := I;
       TopIndex := fItemIndex - GetVisibleRows div 2;
       Break;
     end;
@@ -5230,7 +5272,7 @@ begin
     end;
   end else begin
     fMouseOverRow := -1;
-    fMouseOverCell := INVALID_MAP_POINT;
+    fMouseOverCell := KMPOINT_INVALID_TILE;
   end;
 end;
 
@@ -5240,47 +5282,72 @@ var IsClickHandled: Boolean;
 begin
   IsClickHandled := False;
 
-  if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, INVALID_MAP_POINT) then
+  if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, KMPOINT_INVALID_TILE) then
     IsClickHandled := fOnCellClick(Self, fMouseOverCell.X, fMouseOverCell.Y);
 
-  //Let propagate click event only when OnClickCell did not handle it
+  //Let propagate click event only when OnCellClick did not handle it
   if not IsClickHandled then
+  begin
     inherited DoClick(X, Y, Shift, Button);
+    if Assigned(fOnChange) then
+      fOnChange(Self);
+  end;
+end;
+
+
+procedure TKMColumnBox.UpdateItemIndex(Shift: TShiftState);
+var NewIndex: Integer;
+begin
+  if not (ssLeft in Shift) or (fMouseOverRow = -1) then
+    Exit;
+
+  NewIndex := fMouseOverRow;
+
+  if NewIndex >= fRowCount then
+  begin
+    //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
+    fTimeOfLastClick := 0;
+    NewIndex := -1;
+  end;
+
+  if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex)  then
+  begin
+    fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
+    ItemIndex := NewIndex;
+    if not KMSamePoint(fMouseOverCell, KMPOINT_INVALID_TILE) and Columns[fMouseOverCell.X].TriggerOnChange
+      and Assigned(fOnChange) then
+      fOnChange(Self);
+  end;
 end;
 
 
 procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
-  MouseMove(X, Y, Shift);
+  UpdateMouseOverPosition(X, Y);
+  UpdateItemIndex(Shift);
+  //Lets do DoClick here instead of MouseUp event handler, because of some TKMColumnBox specific logic
+  if (csDown in State) then
+  begin
+    State := State - [csDown];
+
+    //Send Click events
+    DoClick(X, Y, Shift, Button);
+  end;
 end;
 
 
 procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
-var NewIndex: Integer;
 begin
   inherited;
   UpdateMouseOverPosition(X, Y);
+  UpdateItemIndex(Shift);
+end;
 
-  if (ssLeft in Shift) and (fMouseOverRow <> -1) then
-  begin
-    NewIndex := fMouseOverRow;
 
-    if NewIndex >= fRowCount then
-    begin
-      //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
-      fTimeOfLastClick := 0;
-      NewIndex := -1;
-    end;
-
-    if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
-    begin
-      fItemIndex := NewIndex;
-      fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
-      if Assigned(fOnChange) then
-        fOnChange(Self);
-    end;
-  end;
+procedure TKMColumnBox.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  //We handle normal MouseUp event in MouseDown, so just hide ancestor MouseUp here
 end;
 
 
@@ -5292,18 +5359,26 @@ begin
 end;
 
 
-procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aAllowHighlight: Boolean = True);
 var ColumnsToShow: array of Boolean;
     I: Integer;
 begin
   SetLength(ColumnsToShow, Length(fColumns));
   for I := Low(ColumnsToShow) to High(ColumnsToShow) do
     ColumnsToShow[I] := True; // show all columns by default
-  DoPaintLine(aIndex, X, Y, PaintWidth, ColumnsToShow); 
+  DoPaintLine(aIndex, X, Y, PaintWidth, ColumnsToShow, aAllowHighlight);
 end;
 
 
-procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean);
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aAllowHighlight: Boolean = True);
+  function IsHighlightOverCell(aCellIndex: Integer): Boolean;
+  begin
+    Result := aAllowHighlight
+                and Rows[aIndex].Cells[aCellIndex].HighlightOnMouseOver 
+                and (fMouseOverCell.X = aCellIndex) and (fMouseOverCell.Y = aIndex)
+                and (csOver in State);
+  end;
+  
 var
   I: Integer;
   AvailWidth, HiddenColumnsTotalWidth: Integer;
@@ -5337,9 +5412,7 @@ begin
                              Rows[aIndex].Cells[I].Pic.ID,
                              Rows[aIndex].Cells[I].Enabled,
                              Rows[aIndex].Cells[I].Color,
-                             0.4*Byte(Rows[aIndex].Cells[I].HighlightOnMouseOver 
-                                 and (fMouseOverCell.X = I) and (fMouseOverCell.Y = aIndex)
-                                 and (csOver in State)));
+                             0.4*Byte(IsHighlightOverCell(I)));
 
     if Rows[aIndex].Cells[I].Caption <> '' then
       if Rows[aIndex].Cells[I].Hint <> '' then
@@ -5358,13 +5431,16 @@ begin
       end else
       begin
         TextSize := gRes.Fonts[fFont].GetTextSize(Rows[aIndex].Cells[I].Caption);
-        if HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex) then
-          Color := Rows[aIndex].Cells[I].HighlightColor //Brighten(Rows[aIndex].Cells[I].Color)
-        else
-        if HighlightError and (aIndex = ItemIndex) then
+        if aAllowHighlight
+          and ((HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex))
+          or (HighlightError and (aIndex = ItemIndex))
+          or IsHighlightOverCell(I)) then
           Color := Rows[aIndex].Cells[I].HighlightColor
         else
           Color := Rows[aIndex].Cells[I].Color;
+          
+        if not fEnabled then
+          Color := ReduceBrightness(Color, 136);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth,
                             Y + (fItemHeight - TextSize.Y) div 2 + 2,
                             AvailWidth,
@@ -5378,6 +5454,7 @@ end;
 procedure TKMColumnBox.Paint;
 var
   I, PaintWidth, MaxItem, Y: Integer;
+  OutlineColor, ShapeColor: TColor4;
 begin
   inherited;
 
@@ -5405,8 +5482,17 @@ begin
   and (fItemIndex <> -1)
   and InRange(ItemIndex - TopIndex, 0, MaxItem) then
   begin
-    TKMRenderUI.WriteShape(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
-    TKMRenderUI.WriteOutline(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, 1 + Byte(fShowLines), $FFFFFFFF);
+
+    if IsFocused then
+    begin
+      ShapeColor := clListSelShape;//$88888888;
+      OutlineColor := clListSelOutline;//$FFFFFFFF;
+    end else begin
+      ShapeColor := clListSelShapeUnfocused;//$66666666;
+      OutlineColor := clListSelOutlineUnfocused;//$FFA0A0A0;
+    end;
+    TKMRenderUI.WriteShape(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, ShapeColor);
+    TKMRenderUI.WriteOutline(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, 1 + Byte(fShowLines), OutlineColor);
   end;
 
   //Paint rows text and icons above selection for clear visibility
@@ -5562,6 +5648,8 @@ begin
 
   if fAutoClose and (Count > 0) then
     fShape.Show;
+
+  if Assigned(fOnShow) then fOnShow(Self);
 end;
 
 
@@ -5585,7 +5673,7 @@ end;
 
 
 //Handle KeyDown on List
-function TKMDropCommon.ListKeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMDropCommon.ListKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 begin
   if fAutoClose and (Key = VK_ESCAPE) then // Close List on ESC, if autoclosable
   begin
@@ -5648,22 +5736,24 @@ end;
 procedure TKMDropCommon.Paint;
 begin
   inherited;
+
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
+
+  // Make sure the list stays where it needs to be relative DropBox (e.g. on window resize)
+  UpdateDropPosition;
 end;
 
 
 { TKMDropList }
 constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85);
-var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle, aAutoClose);
 
   fDefaultCaption := aDefaultCaption;
 
-  P := MasterParent;
+  fListTopIndex := 0;
 
-  //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fList := TKMListBox.Create(P, AbsLeft-P.AbsLeft, AbsTop+aHeight-P.AbsTop, aWidth, 0, fFont, aStyle);
+  fList := TKMListBox.Create(MasterParent, 0, 0, aWidth, 0, fFont, aStyle);
   fList.Height := fList.ItemHeight * fDropCount;
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := aBackAlpha;
@@ -5680,7 +5770,15 @@ begin
   inherited;
   if ListVisible or (Count < 1) then Exit;
 
-  UpdateDropPosition;
+  //Make sure the selected item is visible when list is opened
+  if (ItemIndex <> -1) then
+  begin
+    if InRange(ItemIndex, fListTopIndex, fListTopIndex + fList.GetVisibleRows) then //Try to open list at previously saved scroll position
+      fList.TopIndex := fListTopIndex
+    else
+      fList.TopIndex := ItemIndex;
+  end;
+
   fList.Show;
 end;
 
@@ -5703,6 +5801,7 @@ end;
 
 procedure TKMDropList.ListHide(Sender: TObject);
 begin
+  fListTopIndex := fList.TopIndex; //Save list scroll position
   inherited;
   fList.Hide;
 end;
@@ -5752,12 +5851,13 @@ begin
 end;
 
 
-//When new items are added to the list we must update the drop height and position
+// When new items are added to the list we must update the drop height and position
 procedure TKMDropList.UpdateDropPosition;
 begin
-  if (Count > 0) then
+  if Count > 0 then
   begin
-    fList.Height := Math.min(fDropCount, fList.Count)*fList.ItemHeight;
+    fList.Height := Math.min(fDropCount, fList.Count) * fList.ItemHeight;
+
     if fDropUp then
       fList.AbsTop := AbsTop - fList.Height
     else
@@ -5769,7 +5869,6 @@ end;
 procedure TKMDropList.Add(aItem: UnicodeString; aTag: Integer=0);
 begin
   fList.Add(aItem, aTag);
-  UpdateDropPosition;
 end;
 
 
@@ -5818,14 +5917,9 @@ end;
 
 
 procedure TKMDropList.Paint;
-var Col: TColor4; P: TKMPanel;
+var Col: TColor4;
 begin
   inherited;
-
-  //Hacky solution to keep the list at the right place
-  P := MasterParent;
-  fList.Left := AbsLeft-P.AbsLeft;
-  fList.Top := AbsTop+Height-P.AbsTop;
 
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
   TKMRenderUI.WriteText(AbsLeft+4, AbsTop+4, Width-8, fCaption, fFont, taLeft, Col);
@@ -5833,20 +5927,19 @@ end;
 
 
 { TKMDropColumns }
-constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
-var P: TKMPanel;
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aShowHeader: Boolean = True);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle);
 
+  fListTopIndex := 0;
+
   fDefaultCaption := aDefaultCaption;
 
-  P := MasterParent;
-
-  //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fList := TKMColumnBox.Create(P, AbsLeft-P.AbsLeft, AbsTop+aHeight-P.AbsTop, aWidth, 0, fFont, aStyle);
+  fList := TKMColumnBox.Create(MasterParent, 0, 0, aWidth, 0, fFont, aStyle);
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
   fList.OnChange := ListChange;
+  fList.ShowHeader := aShowHeader;
 
   DropWidth := aWidth;
 
@@ -5860,11 +5953,14 @@ begin
   inherited;
   if ListVisible or (Count < 1) then Exit;
 
-  UpdateDropPosition;
-
-  //Make sure the selected item is on top of the list when it's opened
-  if ItemIndex <> -1 then
-    fList.TopIndex := ItemIndex;
+  //Make sure the selected item is visible when list is opened
+  if (ItemIndex <> -1) then
+  begin
+    if InRange(ItemIndex, fListTopIndex, fListTopIndex + fList.GetVisibleRows) then //Try to open list at previously saved scroll position
+      fList.TopIndex := fListTopIndex
+    else
+      fList.TopIndex := ItemIndex;
+  end;
 
   fList.Show;
 end;
@@ -5884,6 +5980,7 @@ end;
 
 procedure TKMDropColumns.ListHide(Sender: TObject);
 begin
+  fListTopIndex := fList.TopIndex; //Save list scroll position
   inherited;
   fList.Hide;
 end;
@@ -5960,9 +6057,10 @@ end;
 //When new items are added to the list we must update the drop height and position
 procedure TKMDropColumns.UpdateDropPosition;
 begin
-  if (Count > 0) then
+  if Count > 0 then
   begin
-    fList.Height := Math.min(fDropCount, fList.RowCount) * fList.ItemHeight + fList.Header.Height * Byte(fList.ShowHeader);
+    fList.Height := Math.min(fDropCount, fList.RowCount) * fList.ItemHeight + fList.Header.Height * Ord(fList.ShowHeader);
+
     if fDropUp then
       fList.AbsTop := AbsTop - fList.Height
     else
@@ -5974,7 +6072,6 @@ end;
 procedure TKMDropColumns.Add(aItem: TKMListRow);
 begin
   fList.AddItem(aItem);
-  UpdateDropPosition;
 end;
 
 
@@ -5991,26 +6088,14 @@ end;
 
 
 procedure TKMDropColumns.Paint;
-var Col: TColor4; P: TKMPanel;
+var Col: TColor4;
 begin
   inherited;
 
-  //Hacky solution to keep the list at the right place
-  P := MasterParent;
-  fList.Left := AbsLeft + Width - DropWidth - P.AbsLeft;
-  fList.Top := AbsTop+Height-P.AbsTop;
-
-  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width, fColumnsToShowWhenListHidden)
-
-    {TKMRenderUI.WritePicture(Left + 4, Top + 1,
-                            fList.Rows[ItemIndex].Cells[0].Pic.RX,
-                            fList.Rows[ItemIndex].Cells[0].Pic.ID,
-                            fList.Rows[ItemIndex].Cells[0].Color,
-                            fEnabled or not FadeImageWhenDisabled)}
+    fList.DoPaintLine(ItemIndex, AbsLeft, AbsTop, Width - fButton.Width, fColumnsToShowWhenListHidden, False)
   else
     TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 4, Width - 8 - fButton.Width, fDefaultCaption, fFont, taLeft, Col);
 end;
@@ -6018,7 +6103,9 @@ end;
 
 { TKMDropColorBox }
 constructor TKMDropColors.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight,aCount: Integer);
-var P: TKMPanel; Size: Integer;
+var
+  MP: TKMPanel;
+  Size: Integer;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
@@ -6030,14 +6117,13 @@ begin
   fButton.fOnClick := ListShow;
   fButton.MakesSound := false;
 
-  P := MasterParent;
-  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
+  MP := MasterParent;
+  fShape := TKMShape.Create(MP, 0, 0, MP.Width, MP.Height);
   fShape.fOnClick := ListHide;
 
   Size := Round(Sqrt(aCount)+0.5); //Round up
 
-  //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fSwatch := TKMColorSwatch.Create(P, AbsLeft-P.AbsLeft, AbsTop+aHeight-P.AbsTop, Size, Size, aWidth div Size);
+  fSwatch := TKMColorSwatch.Create(MP, 0, 0, Size, Size, aWidth div Size);
   fSwatch.BackAlpha := 0.75;
   fSwatch.fOnClick := ListClick;
 
@@ -6050,7 +6136,7 @@ begin
   if fSwatch.Visible then
   begin
     ListHide(nil);
-    exit;
+    Exit;
   end;
 
   fSwatch.Show;
@@ -6089,6 +6175,13 @@ begin
 end;
 
 
+procedure TKMDropColors.UpdateDropPosition;
+begin
+  fSwatch.Left := AbsLeft;
+  fSwatch.Top := AbsTop + Height;
+end;
+
+
 procedure TKMDropColors.SetColors(const aColors: array of TColor4; aRandomCaption: UnicodeString = '');
 begin
   //Store local copy of flag to substitute 0 color with "Random" text
@@ -6098,17 +6191,16 @@ end;
 
 
 procedure TKMDropColors.Paint;
-var Col: TColor4; P: TKMPanel;
+var
+  Col: TColor4;
 begin
   inherited;
 
-  //Hacky solution to keep the swatch at the right place
-  P := MasterParent;
-  fSwatch.Left := AbsLeft-P.AbsLeft;
-  fSwatch.Top := AbsTop+Height-P.AbsTop;
+  UpdateDropPosition;
 
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width-fButton.Width, Height);
   TKMRenderUI.WriteShape(AbsLeft+2, AbsTop+1, Width-fButton.Width-3, Height-2, fSwatch.GetColor);
+
   if (fRandomCaption <> '') and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
@@ -6209,7 +6301,7 @@ begin
 
   if fShowLocs then
   for I := 0 to MAX_HANDS - 1 do
-  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
   begin
     T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
     if Sqr(T.X - X) + Sqr(T.Y - Y) < Sqr(fLocRad) then
@@ -6268,9 +6360,9 @@ begin
   begin
     //Connect allied players
     for I := 0 to MAX_HANDS - 1 do
-    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
       for K := I + 1 to MAX_HANDS - 1 do
-      if fMinimap.HandShow[K] and not KMSamePoint(fMinimap.HandLocs[K], KMPoint(0,0)) then
+      if fMinimap.HandShow[K] and not KMSamePoint(fMinimap.HandLocs[K], KMPOINT_ZERO) then
         if (fMinimap.HandTeam[I] <> 0) and (fMinimap.HandTeam[I] = fMinimap.HandTeam[K]) then
         begin
           T1 := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
@@ -6280,14 +6372,14 @@ begin
 
     //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
     for I := 0 to MAX_HANDS - 1 do
-    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
     begin
       T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
       TKMRenderUI.WriteCircle(T.X, T.Y, fLocRad, fMinimap.HandColors[I]);
     end;
 
     for I := 0 to MAX_HANDS - 1 do
-    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+    if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPOINT_ZERO) then
     begin
       T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
       TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I+1), fnt_Outline, taCenter);
@@ -6710,13 +6802,20 @@ begin
 end;
 
 
-//Check If Control if it is allowed to be focused on
+//Check If Control if it is allowed to be focused on (manual or automatically)
 function TKMMasterControl.IsFocusAllowed(aCtrl: TKMControl): Boolean;
 begin
   Result := aCtrl.fVisible
         and aCtrl.Enabled
         and aCtrl.Focusable
         and not IsCtrlCovered(aCtrl); // Do not allow to focus on covered Controls
+end;
+
+
+//Check If Control if it is allowed to be automatically (not manual, by user) focused on
+function TKMMasterControl.IsAutoFocusAllowed(aCtrl: TKMControl): Boolean;
+begin
+  Result := aCtrl.AutoFocusable and IsFocusAllowed(aCtrl);
 end;
 
 
@@ -6792,22 +6891,27 @@ end;
 function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = False): TKMControl;
   function ScanChild(P: TKMPanel; aX,aY: Integer): TKMControl;
   var I: Integer;
+      Child: TKMControl;
   begin
     Result := nil;
     //Process controls in reverse order since last created are on top
     for I := P.ChildCount - 1 downto 0 do
-    if P.Childs[I].fVisible then //If we can't see it, we can't touch it
     begin
-      //Scan Panels childs first, if none is hit - hittest the panel
-      if (P.Childs[I] is TKMPanel) then
+      Child := P.Childs[I];
+      if Child.fVisible then //If we can't see it, we can't touch it
       begin
-        Result := ScanChild(TKMPanel(P.Childs[I]),aX,aY);
-        if Result <> nil then exit;
-      end;
-      if P.Childs[I].HitTest(aX, aY, aIncludeDisabled) then
-      begin
-        Result := P.Childs[I];
-        Exit;
+        //Scan Panels childs first, if none is hit - hittest the panel
+        if (Child is TKMPanel) then
+        begin
+          Result := ScanChild(TKMPanel(Child),aX,aY);
+          if Result <> nil then
+            Exit;
+        end;
+        if Child.HitTest(aX, aY, aIncludeDisabled) then
+        begin
+          Result := Child;
+          Exit;
+        end;
       end;
     end;
   end;

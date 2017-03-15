@@ -379,7 +379,7 @@ begin
   fDefenceTowers.Delete(0);
   //Look for a place for the tower
   BestDistSqr := High(BestDistSqr);
-  BestLoc := KMPoint(0, 0);
+  BestLoc := KMPOINT_ZERO;
   for IY := Max(1, Loc.Y-SEARCH_RAD) to Min(gTerrain.MapY, Loc.Y+SEARCH_RAD) do
     for IX := Max(1, Loc.X-SEARCH_RAD) to Min(gTerrain.MapX, Loc.X+SEARCH_RAD) do
     begin

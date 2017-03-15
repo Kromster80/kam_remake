@@ -159,7 +159,6 @@ Improvements:
  +		New ability to set corn/wine stage
  +	L	Allow to grab an object with a MouseDown and drag it around until MouseUp
  +		Added new hotkeys for road/field/wine/erase plans
- +		Add unit on mouse move while holding LMB
  
  Dynamic scripts:
  +		Added 32 utility functions into new scripts unit 'Utils'. Check wiki for details
