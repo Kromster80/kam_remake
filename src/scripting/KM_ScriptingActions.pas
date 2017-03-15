@@ -446,7 +446,7 @@ begin
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(aVolume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, False)
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPOINT_ZERO, False, aVolume, 0, False)
     else
       LogParamWarning('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
   except
@@ -471,7 +471,7 @@ begin
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(aVolume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, True)
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPOINT_ZERO, False, aVolume, 0, True)
     else
       LogParamWarning('Actions.PlayWAVFadeMusic: ' + UnicodeString(aFileName), []);
   except
@@ -528,7 +528,7 @@ begin
   try
     Result := -1;
     if InRange(aVolume, 0, 1) then
-      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(0,0), False, aVolume, 0)
+      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPOINT_ZERO, False, aVolume, 0)
     else
       LogParamWarning('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
   except
@@ -1385,7 +1385,7 @@ procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   try
     if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPoint(0,0));
+      gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPOINT_ZERO);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1403,7 +1403,7 @@ begin
   try
     try
       if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPoint(0,0));
+        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPOINT_ZERO);
     except
       //Format may throw an exception
       on E: EConvertError do LogParamWarning('Actions.ShowMsgFormatted: '+E.Message, []);

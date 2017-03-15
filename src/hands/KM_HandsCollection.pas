@@ -59,6 +59,7 @@ type
     procedure RevealForTeam(aPlayer: TKMHandIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
     procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
+    procedure DisableGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
 
     procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
     procedure Load(LoadStream: TKMemoryStream);
@@ -667,6 +668,15 @@ var
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].AI.AddDefaultGoals(aMissionMode <> mm_Tactic);
+end;
+
+
+procedure TKMHandsCollection.DisableGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
+var I: Integer;
+begin
+  for I := 0 to fCount - 1 do
+    if I <> aHandIndex then
+      fHandsList[I].AI.Goals.DisableGoalsForHand(aHandIndex);
 end;
 
 

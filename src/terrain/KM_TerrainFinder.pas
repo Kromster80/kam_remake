@@ -172,7 +172,7 @@ begin
   //Assign Rad to local variable,
   //when we find better Loc we reduce the Rad to skip any farther Locs
   BestDist := fRadius;
-  BestLoc := KMPoint(0,0);
+  BestLoc := KMPOINT_ZERO;
 
   InitVisited;
 

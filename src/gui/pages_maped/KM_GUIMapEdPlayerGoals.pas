@@ -69,6 +69,7 @@ begin
   FillChar(G, SizeOf(G), #0);
   G.GoalType := glt_Victory;
   G.GoalCondition := gc_Buildings;
+  G.Disabled := False;
   gMySpectator.Hand.AI.Goals.AddGoal(G);
 
   Goals_Refresh;

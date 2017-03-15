@@ -530,7 +530,7 @@ function TKMHouse.GetClosestCell(aPos: TKMPoint): TKMPoint;
 var
   C: TKMPointList;
 begin
-  Result := KMPoint(0,0);
+  Result := KMPOINT_ZERO;
   C := TKMPointList.Create;
   try
     GetListOfCellsWithin(C);

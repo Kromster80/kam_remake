@@ -1485,7 +1485,7 @@ begin
     Image_Message[I].Highlight := (ShownMessage = I);
 
   Label_MessageText.Caption := fMessageStack[ShownMessage].Text;
-  Button_MessageGoTo.Visible := not KMSamePoint(fMessageStack[ShownMessage].Loc, KMPoint(0,0));
+  Button_MessageGoTo.Visible := not KMSamePoint(fMessageStack[ShownMessage].Loc, KMPOINT_ZERO);
 
   Allies_Close(nil);
   fGuiGameChat.Hide;
@@ -1632,9 +1632,13 @@ end;
 // Quit the mission and return to main menu
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
-  // Show outcome depending on actual situation.
-  // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  gGameApp.Stop(gGame.PlayOnState);
+
+  if (gGame.GameMode = gmMulti) and (gGame.PlayOnState = gr_Cancel) then
+    gGameApp.Stop(gr_Defeat) //Defeat player, if he intentionally quit, when game result is not determined yet (gr_Cancel)
+  else
+    // Show outcome depending on actual situation.
+    // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
+    gGameApp.Stop(gGame.PlayOnState);
 end;
 
 
@@ -1838,7 +1842,7 @@ begin
       raise Exception.Create('Could not determine last selected object type');
   end
   else
-    if not KMSamePoint(gHands[gMySpectator.HandIndex].CenterScreen, KMPoint(0,0)) then
+    if not KMSamePoint(gHands[gMySpectator.HandIndex].CenterScreen, KMPOINT_ZERO) then
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
@@ -1956,7 +1960,7 @@ end;
 
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString);
 begin
-  MessageIssue(aKind, aText, KMPoint(0,0));
+  MessageIssue(aKind, aText, KMPOINT_ZERO);
 end;
 
 
@@ -2505,7 +2509,7 @@ end;
 
 function TKMGamePlayInterface.HasLostMPGame: Boolean;
 begin
-  Result := (fUIMode = umMP) and (gMySpectator.Hand.AI.WonOrLost = wol_Lost);
+  Result := (fUIMode = umMP) and gMySpectator.Hand.AI.HasLost;
 end;
 
 
@@ -2756,7 +2760,7 @@ begin
         and gGame.Networking.NetPlayers[NetI].IsHuman then // and is not Computer
       begin
         Update_Image_AlliesMute(Image_AlliesMute[I]);
-        Image_AlliesMute[I].Show;
+        Image_AlliesMute[I].Visible := True; //Do not use .Show here, because we do not want change Parent.Visible status from here
       end;
 
       if gGame.Networking.NetPlayers[NetI].IsSpectator then
@@ -3532,7 +3536,7 @@ begin
               else
                 gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
             cmErase:
-              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then
+              if KMSamePoint(LastDragPoint, KMPOINT_ZERO) then
               begin
                 H := gMySpectator.Hand.HousesHitTest(P.X, P.Y);
                 // Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
@@ -3627,7 +3631,7 @@ begin
       end;
   end;
 
-  LastDragPoint := KMPoint(0,0);
+  LastDragPoint := KMPOINT_ZERO;
 end;
 
 
