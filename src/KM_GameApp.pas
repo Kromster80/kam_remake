@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
   Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
-  KM_CommonTypes, KM_Defaults, KM_RenderControl,
+  KM_CommonTypes, KM_Defaults, KM_RenderControl, KM_HandsCollection,
   KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceDefaults,
   KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
 
@@ -382,7 +382,7 @@ end;
 
 
 //Game needs to be stopped
-//1. Disconnect from network
+//1. Disconnect from network, if joined in MP and quitting then announce defeat.
 //2. Save games replay
 //3. Fill in game results
 //4. Fill in menu message if needed
@@ -395,6 +395,7 @@ begin
   if gGame.IsMultiplayer then
   begin
     if fNetworking.Connected then
+      if aMsg = gr_Cancel then gGame.PlayerDefeat(MySpectator.HandIndex);
       fNetworking.AnnounceDisconnect;
     fNetworking.Disconnect;
   end;
