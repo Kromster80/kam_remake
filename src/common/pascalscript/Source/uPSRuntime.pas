@@ -1833,7 +1833,7 @@ type
     refCnt: Longint;
     /// length in element count
     // - size in bytes = length*ElemSize
-    length: NativeInt;
+    length: IPointer;
     {$endif}
   end;
   TDynArrayRec = packed record
@@ -4226,13 +4226,13 @@ begin
       exit;
     end;
     GetMem(darr, Longint(NewLength * elSize) + SizeOf(TDynArrayRecHeader));
-    {$IFDEF CPUX64}
-    darr^.header._Padding:=0;
-    {$ENDIF CPUX64}
     darr^.header.refCnt:=1;
     {$IFDEF FPC}
     darr^.header.high := NewLength - 1;
     {$ELSE}
+    {$IFDEF CPUX64}
+    darr^.header._Padding:=0;
+    {$ENDIF CPUX64}
     darr^.header.length := NewLength;
     {$ENDIF FPC}
     for i := 0 to NewLength -1 do
@@ -9142,6 +9142,11 @@ begin
         Stack.SetInt(-1,length(tbtstring(arr.Dta^)));
         Result:=true;
       end;
+    btChar:
+      begin
+        Stack.SetInt(-1, 1);
+        Result:=true;
+      end;
     {$IFNDEF PS_NOWIDESTRING}
     btWideString:
       begin
@@ -9379,6 +9384,9 @@ begin
 
   RegisterDelphiFunction(@Unassigned, 'UNASSIGNED', cdRegister);
   RegisterDelphiFunction(@VarIsEmpty, 'VARISEMPTY', cdRegister);
+  {$IFDEF DELPHI7UP}
+  RegisterDelphiFunction(@VarIsClear, 'VARISCLEAR', cdRegister);
+  {$ENDIF}
   RegisterDelphiFunction(@Null, 'NULL', cdRegister);
   RegisterDelphiFunction(@VarIsNull, 'VARISNULL', cdRegister);
   {$IFNDEF FPC}
@@ -9930,10 +9938,18 @@ end;
 
 procedure CheckPackagePtr(var P: PByteArr);
 begin
+  {$ifdef Win32}
   if (word((@p[0])^) = $25FF) and (word((@p[6])^)=$C08B)then
   begin
     p := PPointer((@p[2])^)^;
   end;
+  {$endif}
+  {$ifdef Win64}
+  if (word((@p[0])^) = $25FF) {and (word((@p[6])^)=$C08B)}then
+  begin
+    p := PPointer(NativeUInt(@P[0]) + Cardinal((@p[2])^) + 6{Instruction Size})^
+  end;
+  {$endif}
 end;
 
 {$IFDEF VER90}{$DEFINE NO_vmtSelfPtr}{$ENDIF}
@@ -10232,7 +10248,11 @@ begin
   Delete(s, 1, 1);
   CurrStack := Cardinal(Stack.Count) - Cardinal(length(s)) -1;
   if s[1] = #0 then inc(CurrStack);
+  {$IFDEF CPU64}
+  IntVal := CreateHeapVariant(Caller.FindType2(btS64));
+  {$ELSE}
   IntVal := CreateHeapVariant(Caller.FindType2(btU32));
+  {$ENDIF}
   if IntVal = nil then
   begin
     Result := False;
@@ -10242,7 +10262,11 @@ begin
   // under FPC a constructor it's called with self=0 (EAX) and
   // the VMT class pointer in EDX so they are effectively swaped
   // using register calling convention
+  {$IFDEF CPU64}
+  PPSVariantU32(IntVal).Data := Int64(FSelf);
+  {$ELSE}
   PPSVariantU32(IntVal).Data := Cardinal(FSelf);
+  {$ENDIF}
   FSelf := pointer(1);
   {$ELSE}
   PPSVariantU32(IntVal).Data := 1;
@@ -12140,8 +12164,8 @@ var
   MyLen: Longint;
 begin
   MyLen := ((FLength shr 12) + 1) shl 12;
-
-  SetCapacity(MyLen);
+  if fCapacity < MyLen then
+    SetCapacity(((MyLen + MemDelta) div MemDelta) * MemDelta);
 end;
 
 procedure TPSStack.Clear;
