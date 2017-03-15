@@ -24,6 +24,7 @@ type
   TUnitStats = packed record
     Initial,          //Provided at mission start
     Trained,          //Trained by player
+    StarveToDeath,    //Died Of hunger
     Lost,             //Died of hunger or killed
     Killed: Cardinal; //Killed (incl. self)
   end;
@@ -71,6 +72,7 @@ type
     procedure HouseDestroyed(aType: THouseType);
     procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean);
     procedure UnitLost(aType: TUnitType);
+    procedure UnitStarveToDeath(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
     property WareDistribution: TKMWareDistribution read fWareDistribution;
@@ -91,6 +93,7 @@ type
 
     function GetCitizensTrained: Cardinal;
     function GetCitizensLost: Cardinal;
+    function GetCitizensDiedOfHunger: Cardinal;
     function GetCitizensKilled: Cardinal;
     function GetHousesBuilt: Cardinal;
     function GetHousesLost: Cardinal;
@@ -99,6 +102,7 @@ type
     function GetWarriorsTotal(aWarriorType: TUnitType): Cardinal;
     function GetWarriorsKilled: Cardinal;
     function GetWarriorsLost: Cardinal;
+    function GetWarriorsDiedOfHunger: Cardinal;
     function GetWaresProduced(aRT: TWareType): Cardinal;
     function GetCivilProduced: Cardinal;
     function GetWeaponsProduced: Cardinal;
@@ -215,6 +219,12 @@ end;
 procedure TKMHandStats.UnitLost(aType: TUnitType);
 begin
   Inc(Units[aType].Lost);
+end;
+
+
+procedure TKMHandStats.UnitStarveToDeath(aType: TUnitType);
+begin
+  Inc(Units[aType].StarveToDeath);
 end;
 
 
@@ -429,6 +439,15 @@ begin
 end;
 
 
+function TKMHandStats.GetCitizensDiedOfHunger: Cardinal;
+var UT: TUnitType;
+begin
+  Result := 0;
+  for UT := CITIZEN_MIN to CITIZEN_MAX do
+    Inc(Result, Units[UT].StarveToDeath);
+end;
+
+
 function TKMHandStats.GetCitizensKilled: Cardinal;
 var UT: TUnitType;
 begin
@@ -487,6 +506,15 @@ begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, Units[UT].Lost);
+end;
+
+
+function TKMHandStats.GetWarriorsDiedOfHunger: Cardinal;
+var UT: TUnitType;
+begin
+  Result := 0;
+  for UT := WARRIOR_MIN to WARRIOR_MAX do
+    Inc(Result, Units[UT].StarveToDeath);
 end;
 
 

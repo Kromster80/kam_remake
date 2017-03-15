@@ -1324,7 +1324,9 @@ procedure TKMHand.UnitDied(aUnit: TKMUnit; aFrom: TKMHandIndex);
 begin
   Stats.UnitLost(aUnit.UnitType);
   if aFrom <> PLAYER_NONE then
-    gHands[aFrom].Stats.UnitKilled(aUnit.UnitType);
+    gHands[aFrom].Stats.UnitKilled(aUnit.UnitType)
+  else
+    Stats.UnitStarveToDeath(aUnit.UnitType);
 
   //Call script event after updating statistics
   gScriptEvents.ProcUnitDied(aUnit, aFrom);

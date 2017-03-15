@@ -253,9 +253,9 @@
 254:Statistics
 255:Economy
 256:Citizens|trained
-257:Citizens|lost
+257:Citizens lost|total / from|starvation
 258:Soldiers|equipped
-259:Soldiers|lost
+259:Soldiers lost|total / from|starvation
 260:Soldiers|defeated
 261:Buildings|constructed
 262:Buildings|lost
