@@ -57,6 +57,8 @@ const
   WEAPON_MAX = wt_Arbalet;
   WARFARE_MAX = wt_Horse;
 
+  WARE_FOOD = [wt_Wine, wt_Bread, wt_Sausages, wt_Fish];
+
   WARFARE_IRON = [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet];
 
   MARKET_TRADEOFF_FACTOR = 2.2; //X resources buys 1 resource of equal value

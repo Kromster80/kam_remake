@@ -18,6 +18,7 @@ type
     procedure AttemptExchange;
     procedure SetResFrom(aRes: TWareType);
     procedure SetResTo(aRes: TWareType);
+    procedure CalcRatioCosts(var aCostFrom, aCostTo: Single);
   protected
     function GetResOrder(aId: Byte): Integer; override;
     procedure SetResOrder(aId: Byte; aValue: Integer); override;
@@ -97,14 +98,26 @@ begin
 end;
 
 
+procedure TKMHouseMarket.CalcRatioCosts(var aCostFrom, aCostTo: Single);
+const TRADE_FROM_FOOD_COEF = 2;
+begin
+  //When trading target ware is priced higher
+    aCostFrom := gRes.Wares[fResFrom].MarketPrice;
+    aCostTo := gRes.Wares[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
+    // Fix trade starting food to other goods to get weapons (actual in low PT games)
+    // Trading from food 2 times less profitable
+    if (fResFrom in WARE_FOOD) 
+      and not (fResTo in WARE_FOOD) then      // Food to food trading is not punished
+      aCostTo := aCostTo * TRADE_FROM_FOOD_COEF;
+end;
+
+
 function TKMHouseMarket.RatioFrom: Byte;
 var CostFrom, CostTo: Single;
 begin
   if (fResFrom <> wt_None) and (fResTo <> wt_None) then
   begin
-    //When trading target ware is priced higher
-    CostFrom := gRes.Wares[fResFrom].MarketPrice;
-    CostTo := gRes.Wares[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
+    CalcRatioCosts(CostFrom, CostTo);
     Result := Round(CostTo / Min(CostFrom, CostTo));
   end else
     Result := 1;
@@ -116,9 +129,7 @@ var CostFrom, CostTo: Single;
 begin
   if (fResFrom <> wt_None) and (fResTo <> wt_None) then
   begin
-    //When trading target ware is priced higher
-    CostFrom := gRes.Wares[fResFrom].MarketPrice;
-    CostTo := gRes.Wares[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
+    CalcRatioCosts(CostFrom, CostTo);
     Result := Round(CostFrom / Min(CostFrom, CostTo));
   end else
     Result := 1;
