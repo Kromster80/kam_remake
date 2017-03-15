@@ -163,7 +163,7 @@ Improvements:
  Dynamic scripts:
  +		Added 32 utility functions into new scripts unit 'Utils'. Check wiki for details
  +		Added 4 procedures: OnGroupOrderAttackHouse/OnGroupOrderAttackUnit/OnGroupOrderLink/OnGroupOrderSplit
- +		Added ShareFogCompliment function
+ +		Added ShareFogCompliment function (Sets whether players A and B share their vision (both ways))
  
  Other: 
  +	L	Saving and restoring games window position on restart
