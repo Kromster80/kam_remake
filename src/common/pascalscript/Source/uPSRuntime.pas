@@ -4227,7 +4227,7 @@ begin
     end;
     GetMem(darr, Longint(NewLength * elSize) + SizeOf(TDynArrayRecHeader));
     {$IFDEF CPUX64}
-    darr^.header._Padding:=0;
+    //0xdarr^.header._Padding:=0; //We ignore x64 machines
     {$ENDIF CPUX64}
     darr^.header.refCnt:=1;
     {$IFDEF FPC}
