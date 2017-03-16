@@ -19,7 +19,8 @@ type
 
     fObjPaletteTableSize: TKMPoint;
 
-    function GetVisibleRowsCount: Integer;
+    function GetObjPaletteTableHeight: Integer;
+    function GetObjPaletteTableWidth: Integer;
 
     procedure CompactMapElements;
     procedure ObjectsUpdate(aObjIndex: Integer);
@@ -126,11 +127,16 @@ begin
     ObjectsPalette_Bevel.BackAlpha := 0.7;
     ObjectsPalette_Bevel.EdgeAlpha := 0.9;
 
+    ObjectsPalette_Image := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, PopUp_ObjectsPalette.Width, PopUp_ObjectsPalette.Height, 3, rxGuiMain);
+    ObjectsPalette_Image.ImageStretch;
+
     ObjectsPalette_Scroll := TKMScrollBar.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Width - 20, 25, 20, PopUp_ObjectsPalette.Height - 75, sa_Vertical, bsGame);
     ObjectsPalette_Scroll.MinValue := 0;
     ObjectsPalette_Scroll.Position := 0;
     ObjectsPalette_Scroll.OnChange := ObjectsPalette_Refresh;
 
+    ObjectsPalette_Image.OnMouseWheel := ObjectsPalette_Scroll.MouseWheel;
+    ObjectsPalette_Image.OnClickShift := ObjPalette_ClickShift;
     ObjectsPalette_Bevel.OnMouseWheel := ObjectsPalette_Scroll.MouseWheel;
     ObjectsPalette_Bevel.OnClickShift := ObjPalette_ClickShift;
 
@@ -144,9 +150,6 @@ begin
       ObjPaletteTable[I].OnMouseWheel := ObjectsPalette_Scroll.MouseWheel;
       ObjPaletteTable[I].OnClickShift := ObjPalette_ClickShift;
     end;
-
-//    ObjectsPalette_Image := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, PopUp_ObjectsPalette.Width, PopUp_ObjectsPalette.Height, 3, rxGuiMain);
-//    ObjectsPalette_Image.ImageStretch;
 
     ObjectsPalette_Label := TKMLabel.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X, 0, 'Objects palette', fnt_Outline, taCenter); //Todo translate
 
@@ -166,9 +169,15 @@ begin
 end;
 
 
-function TKMMapEdTerrainObjects.GetVisibleRowsCount: Integer;
+function TKMMapEdTerrainObjects.GetObjPaletteTableHeight: Integer;
 begin
-  Result := Min(fObjPaletteTableSize.Y, ((fCountCompact - 1) div fObjPaletteTableSize.X) + 1);
+  Result := 85*Min(fObjPaletteTableSize.Y, ((fCountCompact - 1) div fObjPaletteTableSize.X) + 1);
+end;
+
+
+function TKMMapEdTerrainObjects.GetObjPaletteTableWidth: Integer;
+begin
+  Result := 65*fObjPaletteTableSize.X;
 end;
 
 
@@ -177,7 +186,7 @@ var
   I, J, K, LeftAdj, TopAdj: Integer;
 begin
   LeftAdj := (PopUp_ObjectsPalette.Width - fObjPaletteTableSize.X*65 - 25*Byte(ObjectsPalette_Scroll.Visible)) div 2;
-  TopAdj := (PopUp_ObjectsPalette.Height - GetVisibleRowsCount*85 - 75) div 2;
+  TopAdj := ObjectsPalette_Image.Top + 25;
 
   K := 0;
 
@@ -218,16 +227,12 @@ end;
 
 procedure TKMMapEdTerrainObjects.ObjPalette_UpdateControlsPosition;
 var
-  RowsCnt, ColsCnt, EmptySpaceHeight: Integer;
+  RowsCnt, ColsCnt: Integer;
 begin
   PopUp_ObjectsPalette.Top := 25;
   PopUp_ObjectsPalette.Left := 25;
   PopUp_ObjectsPalette.Width := PopUp_ObjectsPalette.MasterParent.Width - 50;
   PopUp_ObjectsPalette.Height := PopUp_ObjectsPalette.MasterParent.Height - 50;
-  ClosePalette_Button.Left := PopUp_ObjectsPalette.Center.X - 100;
-  ObjectsPalette_Label.Left := PopUp_ObjectsPalette.Center.X;
-  ObjectsPalette_Scroll.Left := PopUp_ObjectsPalette.Width - 20;
-  ObjectsPalette_Scroll.Height := PopUp_ObjectsPalette.Height - 75;
 
   RowsCnt := (PopUp_ObjectsPalette.Height - 80) div 85;
   ColsCnt := Min(OBJECTS_PALETTE_MAX_COLS_CNT, (PopUp_ObjectsPalette.Width) div 65); // Calc cols count without Scroll first
@@ -236,10 +241,20 @@ begin
 
   fObjPaletteTableSize := KMPoint(ColsCnt, RowsCnt);
 
-  EmptySpaceHeight := Max(0, PopUp_ObjectsPalette.Height - GetVisibleRowsCount*85 - 75);
+  ObjectsPalette_Image.Width := GetObjPaletteTableWidth + 100;
+  ObjectsPalette_Image.Height := GetObjPaletteTableHeight + 150;
+  ObjectsPalette_Image.Left := (PopUp_ObjectsPalette.Width - ObjectsPalette_Image.Width) div 2;
+  ObjectsPalette_Image.Top := ((PopUp_ObjectsPalette.Height - ObjectsPalette_Image.Height) div 2);
 
-  ObjectsPalette_Label.Top := EmptySpaceHeight div 4;
-  ClosePalette_Button.Top := PopUp_ObjectsPalette.Bottom - 50 - (EmptySpaceHeight div 4);
+  ObjectsPalette_Label.Left := PopUp_ObjectsPalette.Center.X;
+  ObjectsPalette_Label.Top := ObjectsPalette_Image.Top + 25;
+
+  ClosePalette_Button.Left := PopUp_ObjectsPalette.Center.X - 100;
+  ClosePalette_Button.Top := ObjectsPalette_Image.Bottom - 70;
+
+  ObjectsPalette_Scroll.Left := ObjectsPalette_Image.Right - 50;
+  ObjectsPalette_Scroll.Top := ObjectsPalette_Image.Top + 50;
+  ObjectsPalette_Scroll.Height := ObjectsPalette_Image.Height - 150;
 
   ObjectsPalette_Scroll.MaxValue := ((fCountCompact - 1) div ColsCnt) + 1 - RowsCnt;
 
@@ -279,7 +294,7 @@ var
 begin
   if ssRight in Shift then
     PopUp_ObjectsPalette.Hide
-  else if ssLeft in Shift then
+  else if (ssLeft in Shift) and (Sender is TKMButtonFlat) then
   begin
     PopUp_ObjectsPalette.Hide;
     ObjIndex := TKMButtonFlat(Sender).Tag;
