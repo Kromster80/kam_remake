@@ -64,7 +64,7 @@ type
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
     procedure Resize(X,Y: Word); override;
@@ -353,9 +353,9 @@ end;
 
 
 //Do something related to mouse movement in menu
-function TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer): Boolean;
+procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean);
 begin
-  Result := True; // assume we handle all keys here
+  aHandled := True; // assume we always handle mouse move
 
   fMyControls.MouseMove(X, Y, Shift);
 

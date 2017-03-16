@@ -35,7 +35,7 @@ type
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
-    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
 
     procedure SyncUI(aMoveViewport: Boolean = True); virtual;
     procedure SyncUIView(aCenter: TKMPointF; aZoom: Single = 1);
@@ -247,11 +247,12 @@ begin
 end;
 
 
-function TKMUserInterfaceGame.MouseMove(Shift: TShiftState; X,Y: Integer): Boolean;
+procedure TKMUserInterfaceGame.MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean);
 var
   VP: TKMPointF;
 begin
-  Result := False;
+  inherited;
+  aHandled := False;
   if fDragScrolling then
   begin
     if GetKeyState(gResKeys[SC_MAP_DRAG_SCROLL].Key) < 0 then
@@ -260,7 +261,7 @@ begin
       VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
       VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
       fViewport.Position := VP;
-      Result := True;
+      aHandled := True;
     end else
       ResetDragScrolling;
   end;

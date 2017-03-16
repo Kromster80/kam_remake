@@ -103,7 +103,7 @@ type
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
@@ -868,12 +868,12 @@ begin
 end;
 
 
-function TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer): Boolean;
+procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean);
 begin
-  Result := True; // assume we handle all keys here
+  inherited MouseMove(Shift, X, Y, aHandled);
+  if aHandled then Exit;
 
-  if inherited MouseMove(Shift, X, Y) then Exit;
-
+  aHandled := True;
 
   if fDraggingObject then
     if not (ssLeft in Shift) then
