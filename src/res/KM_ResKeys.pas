@@ -139,7 +139,7 @@ begin
     case I of
       0..17:  fFuncs[I].Area := faCommon;
       18..61: fFuncs[I].Area := faGame;
-      62..68: fFuncs[I].Area := faSpecReplay;
+      62..69: fFuncs[I].Area := faSpecReplay;
       else    fFuncs[I].Area := faMapEdit;
     end;
 

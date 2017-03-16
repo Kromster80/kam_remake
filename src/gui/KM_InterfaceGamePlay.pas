@@ -308,7 +308,7 @@ type
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
     procedure SyncUI(aMoveViewport: Boolean = True); override;
@@ -3209,7 +3209,7 @@ end;
 // 1. Process Controls
 // 2. Perform SelectingTroopDirection if it is active
 // 3. Display various cursors depending on whats below (might be called often)
-function TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer): Boolean;
+procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean);
   procedure HandleFieldLMBDrag(P: TKMPoint; aFieldType: TFieldType);
   begin
     if not KMSamePoint(LastDragPoint, P) then
@@ -3230,8 +3230,10 @@ var
   P: TKMPoint;
   Group: TKMUnitGroup;
 begin
-  Result := True; // assume we handle all keys here
-  if inherited MouseMove(Shift, X, Y) then Exit;
+  inherited MouseMove(Shift, X, Y, aHandled);
+  if aHandled then Exit;
+
+  aHandled := True;
 
   fMyControls.MouseMove(X,Y,Shift);
 
