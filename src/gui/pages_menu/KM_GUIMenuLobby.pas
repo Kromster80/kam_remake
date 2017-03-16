@@ -413,7 +413,7 @@ begin
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
         DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropBoxPlayers_CellClick;
-        DropBox_LobbyPlayerSlot[I].OnShow := DropBoxPlayers_Show;
+        DropBox_LobbyPlayerSlot[I].OnShowList := DropBoxPlayers_Show;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
@@ -472,7 +472,7 @@ begin
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
       InitDropColMapsList;
-      DropCol_LobbyMaps.OnShow := MapList_OnShow;
+      DropCol_LobbyMaps.OnShowList := MapList_OnShow;
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;

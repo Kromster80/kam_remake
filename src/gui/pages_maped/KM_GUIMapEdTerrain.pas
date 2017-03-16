@@ -43,7 +43,9 @@ type
     procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMTerrainTab): Boolean; overload;
     function Visible: Boolean; overload;
+    procedure Resize;
     procedure UpdateState;
+    procedure RightClickCancel;
   end;
 
 
@@ -192,6 +194,18 @@ begin
     ttObject:     Result := fGuiObjects.Visible;
     ttSelection:  Result := fGuiSelection.Visible;
   end;
+end;
+
+
+procedure TKMMapEdTerrain.Resize;
+begin
+  fGuiObjects.Resize;
+end;
+
+
+procedure TKMMapEdTerrain.RightClickCancel;
+begin
+  fGuiObjects.RightClickCancel;
 end;
 
 

@@ -617,6 +617,8 @@ begin
   if fGuiUnit.Visible then Exit;
   if fGuiHouse.Visible then Exit;
 
+  fGuiTerrain.RightClickCancel;
+
   //Reset cursor
   ResetCursorMode;
   //Reset drag object fields
@@ -1251,6 +1253,7 @@ begin
   inherited;
 
   fViewport.Resize(X, Y);
+  fGuiTerrain.Resize;
 end;
 
 

@@ -10,7 +10,6 @@ uses
 
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
-  TNotifyEventFocus = procedure(aFocused: Boolean) of object;
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
@@ -105,7 +104,8 @@ type
     fOnClickRight: TPointEvent;
     fOnDoubleClick: TNotifyEvent;
     fOnMouseWheel: TNotifyEventMW;
-    fOnFocus: TNotifyEventFocus;
+    fOnFocus: TBooleanEvent;
+    fOnChangeVisibility: TBooleanEvent;
     fOnControlMouseDown: TNotifyEventShift;
     fOnControlMouseUp: TNotifyEventShift;
     fOnKeyDown: TNotifyEventKeyShiftFunc;
@@ -115,8 +115,11 @@ type
     function GetAbsTop: Integer;
     function GetLeft: Integer;
     function GetTop: Integer;
+    function GetRight: Integer;
+    function GetBottom: Integer;
     function GetHeight: Integer;
     function GetWidth: Integer;
+    function GetCenter: TKMPoint;
 
     //Let the control know that it was clicked to do its internal magic
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
@@ -159,9 +162,12 @@ type
     property AbsLeft: Integer read GetAbsLeft write SetAbsLeft;
     property AbsTop: Integer read GetAbsTop write SetAbsTop;
     property Left: Integer read GetLeft write SetLeft;
+    property Right: Integer read GetRight;
     property Top: Integer read GetTop write SetTop;
+    property Bottom: Integer read GetBottom;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+    property Center: TKMPoint read GetCenter;
     property ID: Integer read fID;
 
     // "Self" coordinates - this is the coordinates of control itself.
@@ -202,7 +208,8 @@ type
     property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
-    property OnFocus: TNotifyEventFocus read fOnFocus write fOnFocus;
+    property OnFocus: TBooleanEvent read fOnFocus write fOnFocus;
+    property OnChangeVisibility: TBooleanEvent read fOnFocus write fOnChangeVisibility;
     property OnControlMouseDown: TNotifyEventShift read fOnControlMouseDown write fOnControlMouseDown;
     property OnControlMouseUp: TNotifyEventShift read fOnControlMouseUp write fOnControlMouseUp;
     property OnKeyDown: TNotifyEventKeyShiftFunc read fOnKeyDown write fOnKeyDown;
@@ -953,7 +960,7 @@ type
     fAutoClose: Boolean;
 
     fOnChange: TNotifyEvent;
-    fOnShow: TNotifyEvent;
+    fOnShowList: TNotifyEvent;
 
     procedure UpdateDropPosition; virtual; abstract;
     procedure ButtonClick(Sender: TObject);
@@ -982,7 +989,7 @@ type
     property DropUp: Boolean read fDropUp write fDropUp;
     property ItemIndex: SmallInt read GetItemIndex write SetItemIndex;
 
-    property OnShow: TNotifyEvent read fOnShow write fOnShow;
+    property OnShowList: TNotifyEvent read fOnShowList write fOnShowList;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure Paint; override;
   end;
@@ -1588,6 +1595,17 @@ begin
   Result := Round(fTop)
 end;
 
+function TKMControl.GetBottom: Integer;
+begin
+  Result := GetTop + GetHeight;
+end;
+
+function TKMControl.GetRight: Integer;
+begin
+  Result := GetLeft + GetWidth;
+end;
+
+
 procedure TKMControl.SetLeft(aValue: Integer);
 begin
   fLeft := aValue;
@@ -1606,6 +1624,11 @@ end;
 function TKMControl.GetWidth: Integer;
 begin
   Result := fWidth;
+end;
+
+function TKMControl.GetCenter: TKMPoint;
+begin
+  Result := KMPoint(GetLeft + (GetWidth div 2), GetTop + (GetHeight div 2));
 end;
 
 
@@ -1764,6 +1787,8 @@ end;
 
 procedure TKMControl.UpdateVisibility;
 begin
+  if Assigned(fOnChangeVisibility) then
+    fOnChangeVisibility(fVisible);
   //Let descendants override this method
 end;
 
@@ -1990,6 +2015,7 @@ end;
 procedure TKMPanel.UpdateVisibility;
 var I: Integer;
 begin
+  inherited;
   for I := 0 to ChildCount - 1 do
     Childs[I].UpdateVisibility;
 end;
@@ -5626,6 +5652,7 @@ end;
 
 procedure TKMDropCommon.UpdateVisibility;
 begin
+  inherited;
   if not Visible then
     CloseList;
 end;
@@ -5649,7 +5676,7 @@ begin
   if fAutoClose and (Count > 0) then
     fShape.Show;
 
-  if Assigned(fOnShow) then fOnShow(Self);
+  if Assigned(fOnShowList) then fOnShowList(Self);
 end;
 
 
