@@ -1725,15 +1725,7 @@ begin
       fTimeOfLastClick := TimeGet;
 
     if Assigned(fOnClickShift) then
-    begin
-      //Append mouse buttons to Shift since it does not includes them in MouseUp event
-      case Button of
-        mbLeft:   Shift := Shift + [ssLeft];
-        mbMiddle: Shift := Shift + [ssMiddle];
-        mbRight:  Shift := Shift + [ssRight];
-      end;
       fOnClickShift(Self, Shift)
-    end
     else
     if (Button = mbLeft) and Assigned(fOnClick) then
       fOnClick(Self)

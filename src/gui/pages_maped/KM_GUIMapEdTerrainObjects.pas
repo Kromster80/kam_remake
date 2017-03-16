@@ -2,15 +2,17 @@ unit KM_GUIMapEdTerrainObjects;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics, KM_GameCursor, KM_Points;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  Classes, Math, SysUtils,
+  KM_Controls, KM_Defaults, KM_Pics, KM_GameCursor, KM_Points;
 
 type
   TKMMapEdTerrainObjects = class
   private
     //Objects in MapElem are placed sparsely, so we need to compact them
     //to use in MapEd palette
-    fLastObject: Integer;
+    fLastObjectIndex: Integer;
     fCountCompact: Integer;
     fCompactToMapElem: array [Byte] of Byte; //Pointers to valid MapElem's
     fMapElemToCompact: array [Byte] of Byte; //Pointers of valid MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
@@ -21,15 +23,17 @@ type
 
     procedure CompactMapElements;
     procedure ObjectsUpdate(aObjIndex: Integer);
+    procedure UpdateObjectsScrollPosToIndex(aObjIndex: Integer);
     procedure ObjectsChange(Sender: TObject);
-    procedure ObjectsPaletteChange(Sender: TObject);
     procedure ObjectsRefresh(Sender: TObject);
+
     procedure ObjectsPalette_Refresh(Sender: TObject);
     procedure ObjPalette_UpdateControlsPosition;
     procedure ObjectsPalette_OnShow(aVisible: Boolean);
+    procedure ObjPalette_ClickShift(Sender: TObject; Shift: TShiftState);
 
-    procedure ObjectsPaletteClick(Sender: TObject);
-    procedure ObjectsPaletteCloseClick(Sender: TObject);
+    procedure ObjectsPaletteButton_Click(Sender: TObject);
+    procedure ObjectsPaletteClose_Click(Sender: TObject);
   protected
     Panel_Objects: TKMPanel;
       ObjectErase: TKMButtonFlat;
@@ -47,6 +51,9 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+
     procedure Show;
     function Visible: Boolean;
     procedure Hide;
@@ -58,7 +65,7 @@ type
 
 implementation
 uses
-  KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts,
+  KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts, KM_ResKeys,
   KM_RenderUI, KM_InterfaceGame;
 
 const
@@ -68,11 +75,11 @@ const
 { TKMMapEdTerrainObjects }
 constructor TKMMapEdTerrainObjects.Create(aParent: TKMPanel);
 var
-  I,J,K, RowsCnt, ColsCnt: Integer;
+  I, J: Integer;
 begin
   inherited Create;
 
-  fLastObject := -1;
+  fLastObjectIndex := -1;
 
   CompactMapElements;
 
@@ -80,7 +87,7 @@ begin
   TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_OBJECTS], fnt_Outline, taCenter);
   ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, sa_Horizontal, bsGame);
   ObjectsScroll.MinValue := 0;
-  ObjectsScroll.MaxValue := fCountCompact div 3 - 2;
+  ObjectsScroll.MaxValue := (fCountCompact - 1) div 3 - 2;
   ObjectsScroll.Position := 0;
   ObjectsScroll.OnChange := ObjectsRefresh;
   for I := 0 to 2 do
@@ -105,7 +112,7 @@ begin
   ObjectsPalette_Button.Caption := 'Objects palette'; //Todo translate;
   ObjectsPalette_Button.CapOffsetY := -11;
   ObjectsPalette_Button.Hint := 'Palette'; //Todo translate;
-  ObjectsPalette_Button.OnClick := ObjectsPaletteClick;
+  ObjectsPalette_Button.OnClick := ObjectsPaletteButton_Click;
 
   PopUp_ObjectsPalette := TKMPopUpMenu.Create(aParent.MasterParent, aParent.MasterParent.Width - 50);
   PopUp_ObjectsPalette.Height := aParent.MasterParent.Height - 50;
@@ -125,16 +132,17 @@ begin
     ObjectsPalette_Scroll.OnChange := ObjectsPalette_Refresh;
 
     ObjectsPalette_Bevel.OnMouseWheel := ObjectsPalette_Scroll.MouseWheel;
+    ObjectsPalette_Bevel.OnClickShift := ObjPalette_ClickShift;
 
     SetLength(ObjPaletteTable, fCountCompact);
     for I := 0 to fCountCompact - 1 do
     begin
       ObjPaletteTable[I] := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, 64, 84, 1, rxTrees); // Left and Top will update later
       ObjPaletteTable[I].Tag := I; //Store ID
-      ObjPaletteTable[I].OnClick := ObjectsPaletteChange;
       ObjPaletteTable[I].Enable;
       ObjPaletteTable[I].Hide;
       ObjPaletteTable[I].OnMouseWheel := ObjectsPalette_Scroll.MouseWheel;
+      ObjPaletteTable[I].OnClickShift := ObjPalette_ClickShift;
     end;
 
 //    ObjectsPalette_Image := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, PopUp_ObjectsPalette.Width, PopUp_ObjectsPalette.Height, 3, rxGuiMain);
@@ -145,7 +153,7 @@ begin
     ClosePalette_Button  := TKMButton.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X - 100, PopUp_ObjectsPalette.Bottom - 50,
                                              200, 30, 'Close palette', bsGame); //Todo translate
     ClosePalette_Button.Anchors := [anLeft,anBottom];
-    ClosePalette_Button.OnClick := ObjectsPaletteCloseClick;
+    ClosePalette_Button.OnClick := ObjectsPaletteClose_Click;
 
     ObjPalette_UpdateControlsPosition;
 end;
@@ -170,6 +178,8 @@ var
 begin
   LeftAdj := (PopUp_ObjectsPalette.Width - fObjPaletteTableSize.X*65 - 25*Byte(ObjectsPalette_Scroll.Visible)) div 2;
   TopAdj := (PopUp_ObjectsPalette.Height - GetVisibleRowsCount*85 - 75) div 2;
+
+  K := 0;
 
   for I := 0 to fObjPaletteTableSize.Y - 1 do
     for J := 0 to fObjPaletteTableSize.X - 1 do
@@ -208,7 +218,7 @@ end;
 
 procedure TKMMapEdTerrainObjects.ObjPalette_UpdateControlsPosition;
 var
-  I, J, K, RowsCnt, ColsCnt, EmptySpaceHeight: Integer;
+  RowsCnt, ColsCnt, EmptySpaceHeight: Integer;
 begin
   PopUp_ObjectsPalette.Top := 25;
   PopUp_ObjectsPalette.Left := 25;
@@ -254,17 +264,30 @@ begin
 end;
 
 
-procedure TKMMapEdTerrainObjects.ObjectsPaletteChange(Sender: TObject);
+//aObjIndex - Object index which should be visible after update
+procedure TKMMapEdTerrainObjects.UpdateObjectsScrollPosToIndex(aObjIndex: Integer);
+begin
+  // Update Scroll position for objects panel in the menu
+  if (aObjIndex >= 0) and not InRange(aObjIndex, ObjectsScroll.Position * 3, ObjectsScroll.Position * 3 + 8) then
+    ObjectsScroll.Position := (aObjIndex div 3) - 1; // set scroll so object is in the mid of table
+end;
+
+
+procedure TKMMapEdTerrainObjects.ObjPalette_ClickShift(Sender: TObject; Shift: TShiftState);
 var
   ObjIndex: Integer;
 begin
-  PopUp_ObjectsPalette.Hide;
-  ObjIndex := TKMButtonFlat(Sender).Tag;
-  ObjectsUpdate(ObjIndex);
-  // Update Scroll position for objects panel in the menu
-  if not InRange(ObjIndex, ObjectsScroll.Position * 3, ObjectsScroll.Position * 3 + 8) then
-    ObjectsScroll.Position := (ObjIndex div 3) - 1; // set scroll so object is in the mid of table
+  if ssRight in Shift then
+    PopUp_ObjectsPalette.Hide
+  else if ssLeft in Shift then
+  begin
+    PopUp_ObjectsPalette.Hide;
+    ObjIndex := TKMButtonFlat(Sender).Tag;
+    ObjectsUpdate(ObjIndex);
+    UpdateObjectsScrollPosToIndex(ObjIndex);
+  end;
 end;
+
 
 
 procedure TKMMapEdTerrainObjects.ObjectsChange(Sender: TObject);
@@ -302,20 +325,19 @@ begin
   end;
 
   //Remember last selected object
-  fLastObject := aObjIndex;
+  fLastObjectIndex := aObjIndex;
 
   ObjectsRefresh(nil);
 end;
 
 
-procedure TKMMapEdTerrainObjects.ObjectsPaletteClick(Sender: TObject);
+procedure TKMMapEdTerrainObjects.ObjectsPaletteButton_Click(Sender: TObject);
 begin
-  ObjPalette_UpdateControlsPosition;
   PopUp_ObjectsPalette.Show;
 end;
 
 
-procedure TKMMapEdTerrainObjects.ObjectsPaletteCloseClick(Sender: TObject);
+procedure TKMMapEdTerrainObjects.ObjectsPaletteClose_Click(Sender: TObject);
 begin
   PopUp_ObjectsPalette.Hide;
 end;
@@ -352,11 +374,14 @@ end;
 
 procedure TKMMapEdTerrainObjects.Show;
 begin
-  case fLastObject of
+  case fLastObjectIndex of
     -1:   ; // Do not update Objects if no last object was selected
     61:   ObjectsChange(ObjectBlock);
     255:  ObjectsChange(ObjectErase);
-    else  ObjectsChange(ObjectsTable[fLastObject]);
+    else  begin
+            UpdateObjectsScrollPosToIndex(fLastObjectIndex);
+            ObjectsChange(ObjectsTable[fLastObjectIndex - ObjectsScroll.Position*3]);
+          end;
   end;
   Panel_Objects.Show;
 end;
@@ -371,6 +396,28 @@ end;
 procedure TKMMapEdTerrainObjects.Hide;
 begin
   Panel_Objects.Hide;
+  PopUp_ObjectsPalette.Hide;
+end;
+
+
+procedure TKMMapEdTerrainObjects.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+begin
+  aHandled := Key = gResKeys[SC_MAPEDIT_OBJ_PALETTE].Key;
+  if (Key = VK_ESCAPE) and PopUp_ObjectsPalette.Visible then
+  begin
+    PopUp_ObjectsPalette.Hide;
+    aHandled := True;
+  end;
+end;
+
+
+procedure TKMMapEdTerrainObjects.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+begin
+  if Key = gResKeys[SC_MAPEDIT_OBJ_PALETTE].Key then
+  begin
+    PopUp_ObjectsPalette.Show;
+    aHandled := True;
+  end;
 end;
 
 
@@ -384,7 +431,7 @@ procedure TKMMapEdTerrainObjects.RightClickCancel;
 begin
   // Reset last object on RMB click
   if gGameCursor.Mode = cmObjects then
-    fLastObject := -1;
+    fLastObjectIndex := -1;
 end;
 
 

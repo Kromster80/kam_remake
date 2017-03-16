@@ -9,8 +9,8 @@ type
   TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);
 
 const
-  // There are total of 82 different functions in the game that can have a shortcut
-  FUNC_COUNT = 82;
+  // There are total of 83 different functions in the game that can have a shortcut
+  FUNC_COUNT = 83;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -20,6 +20,7 @@ type
     Key: Byte;        // Key assigned to this function
     TextId: Word;     // Text description of the function
     Area: TKMFuncArea; // Area of effect for the function (common, game, maped)
+    AllowOverrideCommon: Boolean; // Allow function key to override some common function with same key
     IsChangableByPlayer: Boolean; // Hide debug key and its function from UI
   end;
 
@@ -80,7 +81,8 @@ const
     // Map Editor Keys
     13,                                     // Map Editor Extra's menu (Return)
     112, 113, 114, 115, 116,                // Map Editor menus (F1-F5)
-    49, 50, 51, 52, 53, 54                  // Map Editor sub-menus (1-6)
+    49, 50, 51, 52, 53, 54,                 // Map Editor sub-menus (1-6)
+    4                                       // Map Editor show objects palette
   );
 
   // Function text values
@@ -118,7 +120,8 @@ const
     TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN,                                    // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN,  // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2, TX_KEY_FUNC_MAPEDIT_SUBMENU_3,          // Map Editor sub-menus
-    TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6           // Map Editor sub-menus
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6,          // Map Editor sub-menus
+    TX_KEY_FUNC_MAPEDIT_OBJ_PALETTE                                                                       // Map Editor show objects palette
   );
 
 { TKMKeyLibrary }
@@ -139,10 +142,11 @@ begin
     case I of
       0..17:  fFuncs[I].Area := faCommon;
       18..61: fFuncs[I].Area := faGame;
-      62..68: fFuncs[I].Area := faSpecReplay;
+      62..69: fFuncs[I].Area := faSpecReplay;
       else    fFuncs[I].Area := faMapEdit;
     end;
 
+    fFuncs[I].AllowOverrideCommon := (I = 82);
     fFuncs[I].IsChangableByPlayer := (I in [14..17]);
   end;
 end;
@@ -374,12 +378,16 @@ begin
     for I := 0 to FUNC_COUNT - 1 do
       if fFuncs[I].Key = aKey then
         case fFuncs[I].Area of
-          faCommon:     fFuncs[I].Key := 0;
-          faGame:       if (fFuncs[aId].Area in [faGame, faCommon]) then
+          faCommon:     if not fFuncs[aId].AllowOverrideCommon then
                           fFuncs[I].Key := 0;
-          faSpecReplay: if (fFuncs[aId].Area in [faSpecReplay, faCommon]) then
+          faGame:       if (fFuncs[aId].Area = faGame)
+                          or ((fFuncs[aId].Area = faCommon) and not fFuncs[I].AllowOverrideCommon) then
                           fFuncs[I].Key := 0;
-          faMapEdit:    if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
+          faSpecReplay: if (fFuncs[aId].Area = faSpecReplay)
+                          or ((fFuncs[aId].Area = faCommon) and not fFuncs[I].AllowOverrideCommon) then
+                          fFuncs[I].Key := 0;
+          faMapEdit:    if (fFuncs[aId].Area = faMapEdit)
+                          or ((fFuncs[aId].Area = faCommon) and not fFuncs[I].AllowOverrideCommon) then
                           fFuncs[I].Key := 0;
         end;
 

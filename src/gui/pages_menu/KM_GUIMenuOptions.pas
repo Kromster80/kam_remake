@@ -218,38 +218,40 @@ begin
     Button_OptionsBack.OnClick := BackClick;
 
     // Panel_Options_Keys
-    PopUp_OptionsKeys := TKMPopUpMenu.Create(Panel_Options, 700);
-    PopUp_OptionsKeys.Height := 600;
+    PopUp_OptionsKeys := TKMPopUpMenu.Create(Panel_Options, 720);
+    PopUp_OptionsKeys.Height := 630;
     PopUp_OptionsKeys.AnchorsCenter; // Keep centered, don't stretch already poor BG image
-    PopUp_OptionsKeys.Left := (Panel_Options.Width - 700) div 2;
-    PopUp_OptionsKeys.Top := (Panel_Options.Height - 600) div 2;
+    PopUp_OptionsKeys.Left := (Panel_Options.Width - PopUp_OptionsKeys.Width) div 2;
+    PopUp_OptionsKeys.Top := (Panel_Options.Height - PopUp_OptionsKeys.Height) div 2;
 
       TKMBevel.Create(PopUp_OptionsKeys, -1000, -1000, 4000, 4000);
 
-      TKMImage.Create(PopUp_OptionsKeys, 0, 0, 700, 600, 15, rxGuiMain).ImageStretch;
+      TKMImage.Create(PopUp_OptionsKeys, 0, 0, PopUp_OptionsKeys.Width, PopUp_OptionsKeys.Height, 15, rxGuiMain).ImageStretch;
 
-      TKMLabel.Create(PopUp_OptionsKeys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter).Anchors := [anLeft,anBottom];
+      TKMLabel.Create(PopUp_OptionsKeys, 20, 35, PopUp_OptionsKeys.Width - 40, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fnt_Outline, taCenter).Anchors := [anLeft,anBottom];
 
-      ColumnBox_OptionsKeys := TKMColumnBox.Create(PopUp_OptionsKeys, 20, 110, 660, 400, fnt_Metal, bsMenu);
-      ColumnBox_OptionsKeys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
+      ColumnBox_OptionsKeys := TKMColumnBox.Create(PopUp_OptionsKeys, 20, 110, PopUp_OptionsKeys.Width - 40, 400, fnt_Metal, bsMenu);
+      ColumnBox_OptionsKeys.SetColumns(fnt_Outline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY], '**'], [0, 350, 605]);
       ColumnBox_OptionsKeys.Anchors := [anLeft,anTop,anBottom];
       ColumnBox_OptionsKeys.ShowLines := True;
       ColumnBox_OptionsKeys.PassAllKeys := True;
       ColumnBox_OptionsKeys.OnChange := KeysClick;
       ColumnBox_OptionsKeys.OnKeyUp := KeysUpdate;
 
-      TKMLabel.Create(PopUp_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
+      TKMLabel.Create(PopUp_OptionsKeys, 20, 520, 480, 25, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fnt_Metal, taLeft);
+      TKMLabel.Create(PopUp_OptionsKeys, 20, 545, 480, 25, '** ' + gResTexts[TX_MENU_OPTIONS_CAN_OVERRIDE_COMMON], fnt_Metal, taLeft);
 
-      Button_OptionsKeysClear := TKMButton.Create(PopUp_OptionsKeys, 470, 515, 200, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
+
+      Button_OptionsKeysClear := TKMButton.Create(PopUp_OptionsKeys, 490, 535, 200, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
       Button_OptionsKeysClear.OnClick := KeysClick;
 
-      Button_OptionsKeysReset := TKMButton.Create(PopUp_OptionsKeys, 30, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+      Button_OptionsKeysReset := TKMButton.Create(PopUp_OptionsKeys, 30, 575, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
       Button_OptionsKeysReset.OnClick := KeysClick;
 
-      Button_OptionsKeysOK := TKMButton.Create(PopUp_OptionsKeys, 250, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+      Button_OptionsKeysOK := TKMButton.Create(PopUp_OptionsKeys, 260, 575, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
       Button_OptionsKeysOK.OnClick := KeysClick;
 
-      Button_OptionsKeysCancel := TKMButton.Create(PopUp_OptionsKeys, 470, 550, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
+      Button_OptionsKeysCancel := TKMButton.Create(PopUp_OptionsKeys, 490, 575, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
       Button_OptionsKeysCancel.OnClick := KeysClick;
 end;
 
@@ -519,9 +521,11 @@ end;
 procedure TKMMenuOptions.KeysRefreshList;
 const
   KEY_TX: array [TKMFuncArea] of Word = (TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_SPECTATE_REPLAY, TX_KEY_MAPEDIT);
+  YES_NO_TX: array [Boolean] of Word = (TX_NO, TX_YES);
 var
   I, prevI: Integer;
   K: TKMFuncArea;
+  AllowOverrideCommon: String;
 begin
   prevI := ColumnBox_OptionsKeys.TopIndex;
 
@@ -530,13 +534,19 @@ begin
   for K := Low(TKMFuncArea) to High(TKMFuncArea) do
   begin
     // Section
-    ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[KEY_TX[K]], ' '], [$FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF], -1));
+    ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[KEY_TX[K]], ' ', ' '], [$FF3BB5CF, $FF3BB5CF, $FF3BB5CF], [$FF0000FF, $FF0000FF, $FF0000FF], -1));
 
     // Do not show the debug keys
     for I := 0 to fTempKeys.Count - 1 do
       if (fTempKeys[I].Area = K) and not fTempKeys[I].IsChangableByPlayer then
-        ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[fTempKeys[I].TextId], fTempKeys.GetKeyNameById(I)],
-                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
+      begin
+        if K = faCommon then
+          AllowOverrideCommon := ' '
+        else
+          AllowOverrideCommon := gResTexts[YES_NO_TX[fTempKeys[I].AllowOverrideCommon]];
+        ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[fTempKeys[I].TextId], fTempKeys.GetKeyNameById(I), AllowOverrideCommon],
+                                                  [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF, $FF0000FF], I));
+      end;
   end;
 
   ColumnBox_OptionsKeys.TopIndex := prevI;

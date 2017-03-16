@@ -35,7 +35,8 @@ type
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
-    procedure KeyUp(Key: Word; Shift: TShiftState);
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 
     property GuiTiles: TKMMapEdTerrainTiles read fGuiTiles;
 
@@ -106,14 +107,31 @@ begin
 end;
 
 
-procedure TKMMapEdTerrain.KeyUp(Key: Word; Shift: TShiftState);
+procedure TKMMapEdTerrain.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
-  if (ssCtrl in Shift) and (Key = Ord('Y')) then Button_TerrainRedo.Click; //Ctrl+Y = Redo
-  if (ssCtrl in Shift) and (Key = Ord('Z')) then
-    if ssShift in Shift then
-      Button_TerrainUndo.Click //Ctrl+Shift+Z = Redo
-    else
-      Button_TerrainUndo.Click; //Ctrl+Z = Undo
+  fGuiObjects.KeyDown(Key, Shift, aHandled);
+end;
+
+
+procedure TKMMapEdTerrain.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+begin
+  if Visible then
+  begin
+    if (ssCtrl in Shift) and (Key = Ord('Y')) then
+    begin
+      Button_TerrainRedo.Click; //Ctrl+Y = Redo
+      aHandled := True;
+    end;
+    if (ssCtrl in Shift) and (Key = Ord('Z')) then
+    begin
+      if ssShift in Shift then
+        Button_TerrainUndo.Click //Ctrl+Shift+Z = Redo
+      else
+        Button_TerrainUndo.Click; //Ctrl+Z = Undo
+      aHandled := True;
+    end;
+  end;
+  fGuiObjects.KeyUp(Key, Shift, aHandled);
 end;
 
 
