@@ -388,7 +388,7 @@ end;
 //4. Fill in menu message if needed
 //5. Free the game object
 //6. Switch to MainMenu
-procedure TKMGameApp.Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString='');
+procedure TKMGameApp.Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString = '');
 begin
   if gGame = nil then Exit;
 

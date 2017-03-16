@@ -20,7 +20,6 @@ type
   //Collection of map editing classes and map editor specific data
   TKMMapEditor = class
   private
-    fTerrainPainter: TKMTerrainPainter;
     fDeposits: TKMDeposits;
     fSelection: TKMSelection;
     fRevealers: array [0..MAX_HANDS-1] of TKMPointTagList;
@@ -43,7 +42,6 @@ type
     PlayerAI: array [0..MAX_HANDS - 1] of Boolean;
     constructor Create;
     destructor Destroy; override;
-    property TerrainPainter: TKMTerrainPainter read fTerrainPainter;
     property Deposits: TKMDeposits read fDeposits;
     property Selection: TKMSelection read fSelection;
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
@@ -83,8 +81,8 @@ begin
 
   fDeposits := TKMDeposits.Create;
 
-  fTerrainPainter := TKMTerrainPainter.Create;
-  fSelection := TKMSelection.Create(fTerrainPainter);
+  gTerrainPainter := TKMTerrainPainter.Create;
+  fSelection := TKMSelection.Create;
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
@@ -97,7 +95,7 @@ destructor TKMMapEditor.Destroy;
 var
   I: Integer;
 begin
-  FreeAndNil(fTerrainPainter);
+  FreeAndNil(gTerrainPainter);
   FreeAndNil(fDeposits);
   FreeAndNil(fSelection);
 
@@ -335,7 +333,7 @@ begin
   begin
     //Still need to make a checkpoint since painting has now stopped
     if gGameCursor.Mode in [cmElevate, cmEqualize, cmBrush, cmObjects, cmTiles] then
-      fTerrainPainter.MakeCheckpoint;
+      gTerrainPainter.MakeCheckpoint;
     Exit;
   end;
 
@@ -358,16 +356,16 @@ begin
                               end;
                 cmElevate, cmEqualize,
                 cmBrush, cmObjects,
-                cmTiles:      fTerrainPainter.MakeCheckpoint;
-                cmMagicWater: fTerrainPainter.MagicWater(P);
+                cmTiles:      gTerrainPainter.MakeCheckpoint;
+                cmMagicWater: gTerrainPainter.MagicWater(P);
                 cmEyedropper: begin
-                                fTerrainPainter.Eyedropper(P);
+                                gTerrainPainter.Eyedropper(P);
                                 if (gGame.ActiveInterface is TKMapEdInterface) then
                                   TKMapEdInterface(gGame.ActiveInterface).GuiTerrain.GuiTiles.TilesTableScrollToTileTexId(gGameCursor.Tag1);
                                 if not (ssShift in gGameCursor.SState) then  //Holding shift allows to choose another tile
                                   gGameCursor.Mode := cmTiles;
                               end;
-                cmRotateTile: fTerrainPainter.RotateTile(P);
+                cmRotateTile: gTerrainPainter.RotateTile(P);
                 cmUnits:      ProceedUnitsCursorMode;
                 cmMarkers:    case gGameCursor.Tag1 of
                                 MARKER_REVEAL:        fRevealers[gMySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
@@ -394,7 +392,7 @@ begin
                 cmElevate,
                 cmEqualize:   begin
                                 //Actual change was made in UpdateStateIdle, we just register it is done here
-                                fTerrainPainter.MakeCheckpoint;
+                                gTerrainPainter.MakeCheckpoint;
                               end;
                 cmEyedropper,
                 cmRotateTile: gGameCursor.Mode := cmNone;
@@ -526,7 +524,7 @@ end;
 
 procedure TKMMapEditor.UpdateStateIdle;
 begin
-  fTerrainPainter.UpdateStateIdle;
+  gTerrainPainter.UpdateStateIdle;
 end;
 
 

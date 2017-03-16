@@ -88,7 +88,8 @@ type
     destructor Destroy; override;
     procedure MakeNewMap(aWidth, aHeight: Integer; aMapEditor: Boolean);
     procedure LoadFromFile(FileName: UnicodeString; aMapEditor: Boolean);
-    procedure SaveToFile(aFile: UnicodeString);
+    procedure SaveToFile(aFile: UnicodeString); overload;
+    procedure SaveToFile(aFile: UnicodeString; aInsetRect: TKMRect); overload;
 
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
@@ -370,83 +371,169 @@ begin
 end;
 
 
-//Save (export) map in KaM .map format with additional tile information on the end?
 procedure TKMTerrain.SaveToFile(aFile: UnicodeString);
+begin
+  SaveToFile(aFile, KMRECT_ZERO);
+end;
+
+//Save (export) map in KaM .map format with additional tile information on the end?
+procedure TKMTerrain.SaveToFile(aFile: UnicodeString; aInsetRect: TKMRect);
 var
-  S: TKMemoryStream; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
-    ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
-    Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ: Byte; end;
+  c0: Cardinal;
+  cF: Cardinal;
+  b205, Light: Byte;
+
+  procedure WriteTile(var S: TKMemoryStream; X, Y: Word; aTerrain, aHeight, aRotation, aObj: Byte; aLight: Single; aSizeX, aSizeY: Word);
+  begin
+    S.Write(aTerrain);
+
+    Light := Round((aLight+1)*16); //Integer to Byte cast automatically applied
+    S.Write(Light); //apply Light (Byte)
+    S.Write(aHeight);
+
+    //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
+    S.Write(aRotation);
+
+    S.Write(c0, 1); //unknown
+
+    S.Write(aObj);
+
+    S.Write(cF, 1); //Passability?
+
+    S.Write(cF, 4); //unknown
+    S.Write(c0, 3); //unknown
+    //Border
+    if (X = aSizeX) or (Y = aSizeY) then
+      S.Write(b205) //Bottom/right = 205
+    else
+    if (X = 1) or (Y = 1) then
+      S.Write(c0, 1) //Top/left = 0
+    else
+      S.Write(cF, 1); //Rest of the screen = 255
+
+    S.Write(cF, 1); //unknown - always 255
+    S.Write(b205, 1); //unknown - always 205
+    S.Write(c0, 2); //unknown - always 0
+    S.Write(c0, 4); //unknown - always 0
+  end;
+
+  procedure WriteTileFrom(var S: TKMemoryStream; X, Y, aFromX, aFromY: Word; aSizeX, aSizeY: Word; aNewGeneratedTile: Boolean);
+  var
+    Terrain, Rot, Height, Obj: Byte;
+    TerKind: TKMTerrainKind;
+  begin
+    // new appended terrain
+    if aNewGeneratedTile then
+    begin
+      Terrain := Land[aFromY,aFromX].Terrain;
+      //Apply some random tiles for artisticity
+      if (KaMRandom(5) = 0) then
+      begin
+        TerKind := gTerrainPainter.Land2[aFromY,aFromX].TerKind;
+        if RandomTiling[TerKind, 0] <> 0 then
+          Terrain := gTerrainPainter.PickRandomTile(TerKind);
+      end;
+
+      Height := EnsureRange(Land[aFromY,aFromX].Height + KaMRandom(7), 0, 100);  //variation in Height
+      Rot := KaMRandom(4);
+      Obj := 255; // No object
+    end
+    else
+    begin
+      Rot := Land[aFromY,aFromX].Rotation;
+      Terrain := Land[aFromY,aFromX].Terrain;
+      Height := Land[aFromY,aFromX].Height;
+      Obj := Land[aFromY,aFromX].Obj;
+    end;
+    WriteTile(S, X, Y, Terrain, Height, Rot, Obj, Land[aFromY,aFromX].Light, aSizeX, aSizeY);
+  end;
+
+var
+  S: TKMemoryStream;
+  NewGeneratedTileI, NewGeneratedTileK: Boolean;
+  I, K, IFrom, KFrom: Integer;
+  SizeX, SizeY: Integer;
+  ResHead: packed record
+                    x1: Word;
+                    Allocated, Qty1, Qty2, x5, Len17: Integer;
+                  end;
+  Res: array[1..MAX_MAP_SIZE*2] of
+    packed record
+      X1, Y1, X2, Y2: Integer;
+      Typ: Byte;
+    end;
 begin
   Assert(fMapEditor, 'Can save terrain to file only in MapEd');
   ForceDirectories(ExtractFilePath(aFile));
 
+  c0 := 0;
+  cF := $FFFFFFFF;
+  b205 := 205;
+
   S := TKMemoryStream.Create;
   try
     //Dimensions must be stored as 4 byte integers
-    SizeX := fMapX;
-    SizeY := fMapY;
+    SizeX := fMapX + aInsetRect.Left + aInsetRect.Right;
+    SizeY := fMapY + aInsetRect.Top + aInsetRect.Bottom;
     S.Write(SizeX);
     S.Write(SizeY);
-
-    c0 := 0;
-    cF := $FFFFFFFF;
-    b205 := 205;
-    for i:=1 to fMapY do for k:=1 to fMapX do
+    for I := 1 to SizeY do
     begin
-      S.Write(Land[i,k].Terrain);
+      NewGeneratedTileI := True;
+      if I <= aInsetRect.Top then
+        IFrom := 1
+      else if I = SizeY then
+      begin
+        IFrom := fMapY;
+        NewGeneratedTileI := KMSameRect(aInsetRect, KMRECT_ZERO);
+      end else if I >= aInsetRect.Top + fMapY - 1 then
+        IFrom := fMapY - 1
+      else begin
+        IFrom := I - aInsetRect.Top;
+        NewGeneratedTileI := False;
+      end;
 
-      light := Round((Land[i,k].Light+1)*16);
-      S.Write(light); //Light
-      S.Write(Land[i,k].Height);
-
-      //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
-      S.Write(Land[i,k].Rotation);
-
-      S.Write(c0,1); //unknown
-
-      S.Write(Land[i,k].Obj);
-
-      S.Write(cF,1); //Passability?
-
-      S.Write(cF,4); //unknown
-      S.Write(c0,3); //unknown
-      //Border
-      if (i=fMapY) or (k=fMapX) then
-        S.Write(b205) //Bottom/right = 205
-      else
-        if (i=1) or (k=1) then
-          S.Write(c0,1) //Top/left = 0
-        else
-          S.Write(cF,1); //Rest of the screen = 255
-
-      S.Write(cF,1); //unknown - always 255
-      S.Write(b205,1); //unknown - always 205
-      S.Write(c0,2); //unknown - always 0
-      S.Write(c0,4); //unknown - always 0
+      for K := 1 to SizeX do
+      begin
+        NewGeneratedTileK := True;
+        if K <= aInsetRect.Left then
+          KFrom := 1
+        else if K = SizeX then
+        begin
+          KFrom := fMapX;
+          NewGeneratedTileK := KMSameRect(aInsetRect, KMRECT_ZERO);
+        end else if K >= aInsetRect.Left + fMapX - 1 then
+          KFrom := fMapX - 1
+        else begin
+          KFrom := K - aInsetRect.Left;
+          NewGeneratedTileK := False;
+        end;
+        WriteTileFrom(S, K, I, KFrom, IFrom, SizeX, SizeY, NewGeneratedTileI or NewGeneratedTileK);
+      end;
     end;
 
     //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
     //are formatted we can implement it, but for now it appears to work fine like this.
-    ResHead.x1:=0;
-    ResHead.Allocated := fMapX+fMapY;
-    ResHead.Qty1:=0;
-    ResHead.Qty2:=ResHead.Qty1;
-    if ResHead.Qty1>0 then
-      ResHead.x5:=ResHead.Qty1-1
+    ResHead.x1 := 0;
+    ResHead.Allocated := SizeX + SizeY;
+    ResHead.Qty1 := 0;
+    ResHead.Qty2 := ResHead.Qty1;
+    if ResHead.Qty1 > 0 then
+      ResHead.x5:=ResHead.Qty1 - 1
     else
-      ResHead.x5:=0;
-    ResHead.Len17:=17;
+      ResHead.x5 := 0;
+    ResHead.Len17 := 17;
 
-    for i:=1 to ResHead.Allocated do
+    for I := 1 to ResHead.Allocated do
     begin
-      Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
-      Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
-      Res[i].Typ:=255;
+      Res[I].X1 := -842150451; Res[I].Y1 := -842150451;
+      Res[I].X2 := -842150451; Res[I].Y2 := -842150451;
+      Res[I].Typ := 255;
     end;
 
     S.Write(ResHead, SizeOf(ResHead));
-    for i := 1 to ResHead.Allocated do
-      S.Write(Res[i], SizeOf(Res[i]));
+    for I := 1 to ResHead.Allocated do
+      S.Write(Res[I], SizeOf(Res[I]));
 
     S.SaveToFile(aFile);
   finally

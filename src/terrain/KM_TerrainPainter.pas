@@ -50,7 +50,6 @@ type
 
     procedure CheckpointToTerrain;
     procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TKMTerrainKind);
-    function PickRandomTile(aTerrainKind: TKMTerrainKind): Byte;
     procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
     procedure EditBrush(aLoc: TKMPoint);
     procedure EditHeight;
@@ -62,10 +61,13 @@ type
     RandomizeTiling: Boolean;
     procedure InitEmpty;
     procedure LoadFromFile(aFileName: UnicodeString);
-    procedure SaveToFile(aFileName: UnicodeString);
+    procedure SaveToFile(aFileName: UnicodeString); overload;
+    procedure SaveToFile(aFileName: UnicodeString; aInsetRect: TKMRect); overload;
     procedure UpdateStateIdle;
     procedure Eyedropper(aLoc: TKMPoint);
     procedure RotateTile(aLoc: TKMPoint);
+
+    function PickRandomTile(aTerrainKind: TKMTerrainKind): Byte;
 
     procedure MagicWater(aLoc: TKMPoint);
 
@@ -76,6 +78,9 @@ type
     procedure Undo;
     procedure Redo;
   end;
+
+var
+  gTerrainPainter: TKMTerrainPainter;
 
 
 const
@@ -122,7 +127,7 @@ const
   //
   RandomTiling: array [TKMTerrainKind, 0..15] of Byte = (
     (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (15,1,1,1,2,2,2,3,3,3,5,5,5,11,13,14), //reduced chance for "eye-catching" tiles
+    (15,1,1,1,2,2,2,3,3,3,5,5,5,11,13,14), //reduced chance for "eye-catching" tiles   tkGrass
     (1,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (1,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
@@ -805,8 +810,14 @@ end;
 
 
 procedure TKMTerrainPainter.SaveToFile(aFileName: UnicodeString);
+begin
+  SaveToFile(aFileName, KMRECT_ZERO);
+end;
+
+
+procedure TKMTerrainPainter.SaveToFile(aFileName: UnicodeString; aInsetRect: TKMRect);
 var
-  I, K: Integer;
+  I, K, IFrom, KFrom: Integer;
   S: TKMemoryStream;
   NewX, NewY: Integer;
   ResHead: packed record
@@ -821,7 +832,8 @@ begin
     S.LoadFromFile(aFileName);
     S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
     S.Read(NewY);
-    Assert((NewX = gTerrain.MapX) and (NewY = gTerrain.MapY), 'Map size does not match map size');
+    Assert((NewX = gTerrain.MapX + aInsetRect.Left + aInsetRect.Right)
+      and (NewY = gTerrain.MapY + aInsetRect.Top + aInsetRect.Bottom), 'Map size does not match map size');
 
     //Skip terrain data
     S.Seek(23 * NewX * NewY, soFromCurrent);
@@ -836,8 +848,25 @@ begin
     S.Write(Integer(NewX * NewY)); //Chunk size
     S.Write(Integer(0)); //Cypher - ommited
     for I := 1 to NewY do
-    for K := 1 to NewX do
-      S.Write(Land2[I,K].TerKind, 1);
+    begin
+      if I <= aInsetRect.Top then
+        IFrom := 1
+      else if I >= aInsetRect.Top + gTerrain.MapY then
+        IFrom := gTerrain.MapY
+      else
+        IFrom := I - aInsetRect.Top;
+
+      for K := 1 to NewX do
+      begin
+        if K <= aInsetRect.Left then
+          KFrom := 1
+        else if K >= aInsetRect.Left + gTerrain.MapX then
+          KFrom := gTerrain.MapX
+        else
+          KFrom := K - aInsetRect.Left;
+        S.Write(Land2[IFrom,KFrom].TerKind, 1);
+      end;
+    end;
 
     S.SaveToFile(aFileName);
   finally

@@ -49,7 +49,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI, KM_InterfaceGame;
+  KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_TerrainPainter;
 
 
 { TKMMapEdTerrain }
@@ -151,13 +151,13 @@ end;
 procedure TKMMapEdTerrain.UnRedoClick(Sender: TObject);
 begin
   if Sender = Button_TerrainUndo then
-    gGame.MapEditor.TerrainPainter.Undo;
+    gTerrainPainter.Undo;
 
   if Sender = Button_TerrainRedo then
-    gGame.MapEditor.TerrainPainter.Redo;
+    gTerrainPainter.Redo;
 
-  Button_TerrainUndo.Enabled := gGame.MapEditor.TerrainPainter.CanUndo;
-  Button_TerrainRedo.Enabled := gGame.MapEditor.TerrainPainter.CanRedo;
+  Button_TerrainUndo.Enabled := gTerrainPainter.CanUndo;
+  Button_TerrainRedo.Enabled := gTerrainPainter.CanRedo;
 end;
 
 
@@ -202,8 +202,8 @@ begin
   fGuiObjects.UpdateState;
   fGuiSelection.UpdateState;
 
-  Button_TerrainUndo.Enabled := gGame.MapEditor.TerrainPainter.CanUndo;
-  Button_TerrainRedo.Enabled := gGame.MapEditor.TerrainPainter.CanRedo;
+  Button_TerrainUndo.Enabled := gTerrainPainter.CanUndo;
+  Button_TerrainRedo.Enabled := gTerrainPainter.CanRedo;
 end;
 
 

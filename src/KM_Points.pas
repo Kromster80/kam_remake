@@ -52,6 +52,7 @@ type
   function KMRectF(aPoint: TKMPointF): TKMRectF; overload;
   function KMRectF(aLeft, aTop, aRight, aBottom: SmallInt): TKMRectF; overload;
   function KMRectRound(aRect: TKMRectF): TKMRect;
+  function KMSameRect(aRect1, aRect2: TKMRect): Boolean;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMRectGrowTopLeft(aRect: TKMRect): TKMRect;
   function KMRectShinkTopLeft(aRect: TKMRect): TKMRect;
@@ -115,6 +116,8 @@ const
   KMPOINT_ZERO: TKMPoint = (X: 0; Y: 0);
   KMPOINTF_ZERO: TKMPointF = (X: 0.0; Y: 0.0);
   KMPOINT_INVALID_TILE: TKMPoint = (X: -1; Y: -1);
+
+  KMRECT_ZERO: TKMRect = (Left: 0; Top: 0; Right: 0; Bottom: 0);
 
 
 implementation
@@ -275,6 +278,15 @@ begin
   Result.Right  := Round(aRect.Right);
   Result.Top    := Round(aRect.Top);
   Result.Bottom := Round(aRect.Bottom);
+end;
+
+
+function KMSameRect(aRect1, aRect2: TKMRect): Boolean;
+begin
+  Result := (aRect1.Left = aRect2.Left)
+        and (aRect1.Top = aRect2.Top)
+        and (aRect1.Right = aRect2.Right)
+        and (aRect1.Bottom = aRect2.Bottom);
 end;
 
 
