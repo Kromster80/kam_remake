@@ -45,9 +45,6 @@ type
     PlayMoreMsg: TGameResultMsg; // Remember which message we are showing
     fJoiningGroups, fPlacingBeacon: Boolean;
     fAskDismiss: Boolean;
-    fDragScrolling: Boolean;
-    fDragScrollingCursorPos: TPoint;
-    fDragScrollingViewportPos: TKMPointF;
     fNetWaitDropPlayersDelayStarted: Cardinal;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection: Boolean;
@@ -272,6 +269,8 @@ type
       Panel_Army_JoinGroups: TKMPanel;
         Button_Army_Join_Cancel: TKMButton;
         Label_Army_Join_Message: TKMLabel;
+
+      function IsDragScrollingAllowed: Boolean; override;
   public
     constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
@@ -306,10 +305,10 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure LoadMinimap(LoadStream: TKMemoryStream);
 
-    procedure KeyDown(Key:Word; Shift: TShiftState); override;
-    procedure KeyUp(Key:Word; Shift: TShiftState); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
+    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
     procedure SyncUI(aMoveViewport: Boolean = True); override;
@@ -709,11 +708,6 @@ begin
   fLastSaveName := '';
   fJoiningGroups := False;
   fPlacingBeacon := False;
-  fDragScrolling := False;
-  fDragScrollingCursorPos.X := 0;
-  fDragScrollingCursorPos.Y := 0;
-  fDragScrollingViewportPos.X := 0;
-  fDragScrollingViewportPos.Y := 0;
   SelectingTroopDirection := False;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
@@ -2829,9 +2823,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState);
-var Rect: TKMRect;
+procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+var
+  Rect: TKMRect;
+  KeyHandled: Boolean;
 begin
+  aHandled := True; // assume we handle all keys here
+
   if gGame.IsPaused and (fUIMode in [umSP, umMP]) then Exit;
 
   if fMyControls.KeyDown(Key, Shift) then
@@ -2840,7 +2838,8 @@ begin
     Exit;
   end;
 
-  inherited KeyDown(Key, Shift);
+  inherited KeyDown(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
 
     // As we don't have names for teams in SP we only allow showing team names in MP or MP replays
   if (Key = gResKeys[SC_SHOW_TEAMS].Key) then
@@ -2858,12 +2857,15 @@ end;
 // Note: we deliberately don't pass any Keys to MyControls when game is not running
 // thats why MyControls.KeyUp is only in gsRunning clause
 // Ignore all keys if game is on 'Pause'
-procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
+procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 var
   LastAlert: TKMAlert;
   SelectId: Integer;
   SpecPlayerIndex: ShortInt;
+  KeyHandled: Boolean;
 begin
+  aHandled := True; // assume we handle all keys here
+
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
     if Key = gResKeys[SC_PAUSE].Key then
@@ -2873,7 +2875,8 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  inherited KeyUp(Key, Shift);
+  inherited KeyUp(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
 
   if (fUIMode = umReplay) and (Key = gResKeys[SC_PAUSE].Key) then
   begin
@@ -3131,31 +3134,16 @@ var
   Group: TKMUnitGroup;
   Obj: TObject;
   canWalkTo: Boolean;
-  MyRect: TRect;
   P: TKMPoint;
+  {$IFDEF MSWindows}
+  WindowRect: TRect;
+  {$ENDIF}
 begin
   fMyControls.MouseDown(X, Y, Shift, Button);
 
   if (gGame.IsPaused and (fUIMode in [umSP, umMP])) or (fMyControls.CtrlOver <> nil)
   or gMySpectator.Hand.InCinematic then
     Exit;
-
-  if (Button = mbMiddle) then
-  begin
-     fDragScrolling := True;
-     // Restrict the cursor to the window, for now.
-     //TODO: Allow one to drag out of the window, and still capture.
-     {$IFDEF MSWindows}
-       MyRect := gMain.ClientRect;
-       ClipCursor(@MyRect);
-     {$ENDIF}
-     fDragScrollingCursorPos.X := X;
-     fDragScrollingCursorPos.Y := Y;
-     fDragScrollingViewportPos.X := fViewport.Position.X;
-     fDragScrollingViewportPos.Y := fViewport.Position.Y;
-     gRes.Cursors.Cursor := kmc_Drag;
-     Exit;
-  end;
 
   if SelectingTroopDirection then
   begin
@@ -3205,8 +3193,8 @@ begin
         // Restrict the cursor to inside the main panel so it does not get jammed when used near
         // the edge of the window in windowed mode
         {$IFDEF MSWindows}
-        MyRect := gMain.ClientRect;
-        ClipCursor(@MyRect);
+        WindowRect := gMain.ClientRect;
+        ClipCursor(@WindowRect);
         {$ENDIF}
         // Now record it as Client XY
         SelectingDirPosition.X := X;
@@ -3225,7 +3213,7 @@ end;
 // 1. Process Controls
 // 2. Perform SelectingTroopDirection if it is active
 // 3. Display various cursors depending on whats below (might be called often)
-procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
+function TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer): Boolean;
   procedure HandleFieldLMBDrag(P: TKMPoint; aFieldType: TFieldType);
   begin
     if not KMSamePoint(LastDragPoint, P) then
@@ -3244,16 +3232,10 @@ var
   NewPoint: TPoint;
   Obj: TObject;
   P: TKMPoint;
-  VP: TKMPointF;
   Group: TKMUnitGroup;
 begin
-  if fDragScrolling then
-  begin
-    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
-    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
-    fViewport.Position := VP;
-    Exit;
-  end;
+  Result := True; // assume we handle all keys here
+  if inherited MouseMove(Shift, X, Y) then Exit;
 
   fMyControls.MouseMove(X,Y,Shift);
 
@@ -3394,17 +3376,6 @@ var
   OldSelected: TObject;
   OldSelectedUnit: TKMUnitWarrior;
 begin
-  if fDragScrolling then
-  begin
-    if Button = mbMiddle then
-    begin
-      fDragScrolling := False;
-      gRes.Cursors.Cursor := kmc_Default; // Reset cursor
-      gMain.ApplyCursorRestriction;
-    end;
-    Exit;
-  end;
-
   // Check if mouse was clicked insede MP chat panel
   if not KMInRect(KMPoint(X,Y), fGuiGameChat.PanelChatRect) then
     // Unset chat focus, when mouse clicked outside MP chat panel
@@ -3814,6 +3785,15 @@ procedure TKMGamePlayInterface.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   // Check to see if we need to scroll
   fViewport.UpdateStateIdle(aFrameTime, gMySpectator.Hand.InCinematic);
+end;
+
+
+function TKMGamePlayInterface.IsDragScrollingAllowed: Boolean;
+begin
+  inherited;
+  Result := not (gGame.IsPaused and (fUIMode in [umSP, umMP]))
+            and (fMyControls.CtrlOver = nil)
+            and not gMySpectator.Hand.InCinematic;
 end;
 
 

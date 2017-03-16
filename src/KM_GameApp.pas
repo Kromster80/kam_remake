@@ -247,11 +247,13 @@ end;
 
 
 procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState);
+var
+  KeyHandled: Boolean;
 begin
   if gGame <> nil then
-    gGame.ActiveInterface.KeyDown(Key, Shift)
+    gGame.ActiveInterface.KeyDown(Key, Shift, KeyHandled)
   else
-    fMainMenuInterface.KeyDown(Key, Shift);
+    fMainMenuInterface.KeyDown(Key, Shift, KeyHandled);
 end;
 
 
@@ -265,6 +267,8 @@ end;
 
 
 procedure TKMGameApp.KeyUp(Key: Word; Shift: TShiftState);
+var
+  KeyHandled: Boolean;
 begin
   //List of conflicting keys that we should try to avoid using in debug/game:
   //  F12 Pauses Execution and switches to debug
@@ -277,9 +281,9 @@ begin
   if DEBUG_CHEATS and (Key = VK_F12) then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
   if gGame <> nil then
-    gGame.ActiveInterface.KeyUp(Key, Shift)
+    gGame.ActiveInterface.KeyUp(Key, Shift, KeyHandled)
   else
-    fMainMenuInterface.KeyUp(Key, Shift);
+    fMainMenuInterface.KeyUp(Key, Shift, KeyHandled);
 end;
 
 

@@ -12,9 +12,17 @@ uses
 type
   // Common class for ingame interfaces (Gameplay, MapEd)
   TKMUserInterfaceGame = class(TKMUserInterfaceCommon)
+  private
+    fDragScrollingCursorPos: TPoint;
+    fDragScrollingViewportPos: TKMPointF;
+
+    procedure ResetDragScrolling;
   protected
     fMinimap: TKMMinimap;
     fViewport: TKMViewport;
+    fDragScrolling: Boolean;
+
+    function IsDragScrollingAllowed: Boolean; virtual;
   public
     constructor Create(aRender: TRender); reintroduce;
     destructor Destroy; override;
@@ -24,9 +32,10 @@ type
 
     function CursorToMapCoord(X, Y: Integer): TKMPointF;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState); override;
-    procedure KeyUp(Key: Word; Shift: TShiftState); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
+    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; override;
 
     procedure SyncUI(aMoveViewport: Boolean = True); virtual;
     procedure SyncUIView(aCenter: TKMPointF; aZoom: Single = 1);
@@ -139,7 +148,7 @@ const
 
 implementation
 uses
-  KM_Terrain, KM_RenderPool, KM_ResKeys;
+  KM_Main, KM_Game, KM_HandSpectator, KM_Terrain, KM_RenderPool, KM_Resource, KM_ResCursors, KM_ResKeys;
 
 
 { TKMUserInterfaceGame }
@@ -149,6 +158,12 @@ begin
 
   fMinimap := TKMMinimap.Create(False, False);
   fViewport := TKMViewport.Create(aRender.ScreenX, aRender.ScreenY);
+
+  fDragScrolling := False;
+  fDragScrollingCursorPos.X := 0;
+  fDragScrollingCursorPos.Y := 0;
+  fDragScrollingViewportPos := KMPOINTF_ZERO;
+
   gRenderPool := TRenderPool.Create(fViewport, aRender);
 end;
 
@@ -162,28 +177,93 @@ begin
 end;
 
 
-procedure TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState);
+procedure TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+  {$IFDEF MSWindows}
+var
+  WindowRect: TRect;
+  {$ENDIF}
 begin
+  aHandled := True;
   //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
+  if Key = gResKeys[SC_SCROLL_LEFT].Key       then fViewport.ScrollKeyLeft  := True
+  else if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True
+  else if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True
+  else if Key =  gResKeys[SC_SCROLL_DOWN].Key then fViewport.ScrollKeyDown  := True
+  else if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True
+  else if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True
+  else if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom
+  else if (Key = gResKeys[SC_MAP_DRAG_SCROLL].Key)
+      and IsDragScrollingAllowed then
+  begin
+    fDragScrolling := True;
+   // Restrict the cursor to the window, for now.
+   //TODO: Allow one to drag out of the window, and still capture.
+   {$IFDEF MSWindows}
+     WindowRect := gMain.ClientRect;
+     ClipCursor(@WindowRect);
+   {$ENDIF}
+   fDragScrollingCursorPos.X := gGameCursor.Pixel.X;
+   fDragScrollingCursorPos.Y := gGameCursor.Pixel.Y;
+   fDragScrollingViewportPos.X := fViewport.Position.X;
+   fDragScrollingViewportPos.Y := fViewport.Position.Y;
+   gRes.Cursors.Cursor := kmc_Drag;
+  end
+  else
+    aHandled := False;
 end;
 
 
-procedure TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState);
+procedure TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  aHandled := True;
   //Scrolling
-  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
-  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
-  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
-  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
-  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
-  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
-  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
+  if Key = gResKeys[SC_SCROLL_LEFT].Key       then fViewport.ScrollKeyLeft  := False
+  else if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False
+  else if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False
+  else if Key =  gResKeys[SC_SCROLL_DOWN].Key then fViewport.ScrollKeyDown  := False
+  else if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False
+  else if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False
+  else if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom
+  else if Key = gResKeys[SC_MAP_DRAG_SCROLL].Key then
+  begin
+    if fDragScrolling then
+      ResetDragScrolling;
+  end
+  else aHandled := False;
+end;
+
+
+procedure TKMUserInterfaceGame.ResetDragScrolling;
+begin
+  fDragScrolling := False;
+  gRes.Cursors.Cursor := kmc_Default; //Reset cursor
+  gMain.ApplyCursorRestriction;
+end;
+
+
+function TKMUserInterfaceGame.IsDragScrollingAllowed: Boolean;
+begin
+  Result := True; // Allow drag scrolling by default
+end;
+
+
+function TKMUserInterfaceGame.MouseMove(Shift: TShiftState; X,Y: Integer): Boolean;
+var
+  VP: TKMPointF;
+begin
+  Result := False;
+  if fDragScrolling then
+  begin
+    if GetKeyState(gResKeys[SC_MAP_DRAG_SCROLL].Key) < 0 then
+    begin
+      UpdateGameCursor(X, Y, Shift);
+      VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
+      VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
+      fViewport.Position := VP;
+      Result := True;
+    end else
+      ResetDragScrolling;
+  end;
 end;
 
 

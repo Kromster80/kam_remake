@@ -52,12 +52,12 @@ type
     property MyControls: TKMMasterControl read fMyControls;
     procedure ExportPages(aPath: string); virtual; abstract;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual; abstract;
     procedure KeyPress(Key: Char);
-    procedure KeyUp(Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual; abstract;
     //Child classes don't pass these events to controls depending on their state
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); virtual; abstract;
+    function MouseMove(Shift: TShiftState; X,Y: Integer): Boolean; virtual; abstract;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); virtual;
     procedure Resize(X,Y: Word); virtual;
