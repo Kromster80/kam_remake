@@ -376,6 +376,7 @@ type
     Font: TKMFont;
     MakesSound: Boolean;
     TexID: Word;
+    ShowImageEnabled: Boolean; // show picture as enabled or not (normal or darkened)
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle); overload;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TKMButtonStyle); overload;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
@@ -2474,12 +2475,13 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fRX         := aRX;
-  TexID       := aTexID;
-  Caption     := '';
-  FlagColor   := $FFFF00FF;
-  fStyle      := aStyle;
-  MakesSound  := true;
+  fRX          := aRX;
+  TexID        := aTexID;
+  Caption      := '';
+  FlagColor    := $FFFF00FF;
+  fStyle       := aStyle;
+  MakesSound   := True;
+  ShowImageEnabled := True;
 end;
 
 
@@ -2487,13 +2489,14 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  TexID       := 0;
-  Caption     := aCaption;
-  FlagColor   := $FFFF00FF;
-  Font        := fnt_Metal;
-  fTextAlign  := taCenter; //Thats default everywhere in KaM
-  fStyle      := aStyle;
-  MakesSound  := True;
+  TexID        := 0;
+  Caption      := aCaption;
+  FlagColor    := $FFFF00FF;
+  Font         := fnt_Metal;
+  fTextAlign   := taCenter; //Thats default everywhere in KaM
+  fStyle       := aStyle;
+  MakesSound   := True;
+  ShowImageEnabled := True;
 end;
 
 
@@ -2540,7 +2543,7 @@ begin
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
 
-  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle);
+  TKMRenderUI.Write3DButton(AbsLeft, AbsTop, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle, ShowImageEnabled);
 
   if TexID <> 0 then Exit;
 

@@ -48,6 +48,7 @@ type
     fHasOwner: Boolean; //which is some TKMUnit
     fBuildingRepair: Boolean; //If on and the building is damaged then labourers will come and repair it
     fWareDelivery: Boolean; //If on then no wares will be delivered here
+    fIsClosedForWorker: Boolean; // house is closed for worker. If worker is already occupied it, then leave house
 
     fResourceIn: array [1..4] of Byte; //Resource count in input
     fResourceDeliveryCount: array[1..4] of Word; //Count of the resources we have ordered for the input (used for ware distribution)
@@ -121,6 +122,7 @@ type
     property HouseType: THouseType read fHouseType;
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
     property WareDelivery: Boolean read fWareDelivery write fWareDelivery;
+    property IsClosedForWorker: Boolean read fIsClosedForWorker write fIsClosedForWorker;
     property GetHasOwner: Boolean read fHasOwner write fHasOwner; //There's a citizen who runs this house
     property Owner: TKMHandIndex read fOwner;
     property DisableUnoccupiedMessage: Boolean read fDisableUnoccupiedMessage write fDisableUnoccupiedMessage;
@@ -314,6 +316,7 @@ begin
   LoadStream.Read(fHasOwner);
   LoadStream.Read(fBuildingRepair);
   LoadStream.Read(fWareDelivery);
+  LoadStream.Read(fIsClosedForWorker);
   for I:=1 to 4 do LoadStream.Read(fResourceIn[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceOut[I]);
@@ -1289,6 +1292,7 @@ begin
   SaveStream.Write(fHasOwner);
   SaveStream.Write(fBuildingRepair);
   SaveStream.Write(fWareDelivery);
+  SaveStream.Write(fIsClosedForWorker);
   for I:=1 to 4 do SaveStream.Write(fResourceIn[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceOut[I]);
@@ -1385,8 +1389,9 @@ var HouseUnoccupiedMsgId: Integer;
 begin
   if not IsComplete then Exit; //Don't update unbuilt houses
 
-  //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if not fDisableUnoccupiedMessage and not fHasOwner
+  //Show unoccupied message if needed and house belongs to human player and can have owner at all
+  //and is not closed for worker and not a barracks
+  if not fDisableUnoccupiedMessage and not fHasOwner and not fIsClosedForWorker
   and (gRes.Houses[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
   begin
     Dec(fTimeSinceUnoccupiedReminder);
