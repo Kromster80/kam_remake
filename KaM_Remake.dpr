@@ -67,7 +67,7 @@ uses
   KM_GUIMapEdMenu in 'src\gui\pages_maped\KM_GUIMapEdMenu.pas',
   KM_GUIMapEdMenuLoad in 'src\gui\pages_maped\KM_GUIMapEdMenuLoad.pas',
   KM_GUIMapEdMenuSave in 'src\gui\pages_maped\KM_GUIMapEdMenuSave.pas',
-	KM_GUIMapEdMenuResize in 'src\gui\pages_maped\KM_GUIMapEdMenuResize.pas',
+  KM_GUIMapEdMenuResize in 'src\gui\pages_maped\KM_GUIMapEdMenuResize.pas',
   KM_GUIMapEdMenuQuit in 'src\gui\pages_maped\KM_GUIMapEdMenuQuit.pas',
   KM_GUIMapEdMenuSettings in 'src\gui\pages_maped\KM_GUIMapEdMenuSettings.pas',
   KM_GUIMapEdMessage in 'src\gui\pages_maped\KM_GUIMapEdMessage.pas',

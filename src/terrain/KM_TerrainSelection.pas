@@ -22,6 +22,7 @@ type
 
   TKMSelection = class
   private
+    fTerrainPainter: TKMTerrainPainter;
     fSelectionEdit: TKMSelectionEdit;
     fSelPrevX, fSelPrevY: Integer;
 
@@ -31,6 +32,7 @@ type
     fSelectionBuffer: array of array of TKMBufferData;
     procedure Selection_SyncCellRect;
   public
+    constructor Create(aTerrainPainter: TKMTerrainPainter);
     procedure Selection_Resize;
     procedure Selection_Start;
     function Selection_DataInBuffer: Boolean;
@@ -55,6 +57,14 @@ uses
 
 
 { TKMSelection }
+constructor TKMSelection.Create(aTerrainPainter: TKMTerrainPainter);
+begin
+  inherited Create;
+
+  fTerrainPainter := aTerrainPainter;
+end;
+
+
 procedure TKMSelection.Selection_SyncCellRect;
 begin
   //Convert RawRect values that can be inverted to tilespace Rect
@@ -209,7 +219,7 @@ begin
     fSelectionBuffer[By,Bx].Height    := gTerrain.Land[I+1, K+1].Height;
     fSelectionBuffer[By,Bx].Rotation  := gTerrain.Land[I+1, K+1].Rotation;
     fSelectionBuffer[By,Bx].Obj       := gTerrain.Land[I+1, K+1].Obj;
-    fSelectionBuffer[By,Bx].TerKind   := gTerrainPainter.Land2[I+1, K+1].TerKind;
+    fSelectionBuffer[By,Bx].TerKind   := fTerrainPainter.Land2[I+1, K+1].TerKind;
 
     BufferStream.Write(fSelectionBuffer[By,Bx], SizeOf(fSelectionBuffer[By,Bx]));
   end;
@@ -283,7 +293,7 @@ begin
     gTerrain.Land[I+1, K+1].Height      := fSelectionBuffer[By,Bx].Height;
     gTerrain.Land[I+1, K+1].Rotation    := fSelectionBuffer[By,Bx].Rotation;
     gTerrain.Land[I+1, K+1].Obj         := fSelectionBuffer[By,Bx].Obj;
-    gTerrainPainter.Land2[I+1, K+1].TerKind := fSelectionBuffer[By,Bx].TerKind;
+    fTerrainPainter.Land2[I+1, K+1].TerKind := fSelectionBuffer[By,Bx].TerKind;
   end;
 
   gTerrain.UpdateLighting(fSelectionRect);
@@ -312,9 +322,9 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
     end;
     SwapInt(gTerrain.Land[Y1,X1].Rotation, gTerrain.Land[Y2,X2].Rotation);
     SwapInt(gTerrain.Land[Y1,X1].Obj, gTerrain.Land[Y2,X2].Obj);
-    Tmp := gTerrainPainter.Land2[Y1, X1].TerKind;
-    gTerrainPainter.Land2[Y1, X1].TerKind := gTerrainPainter.Land2[Y2, X2].TerKind;
-    gTerrainPainter.Land2[Y2, X2].TerKind := Tmp;
+    Tmp := fTerrainPainter.Land2[Y1, X1].TerKind;
+    fTerrainPainter.Land2[Y1, X1].TerKind := fTerrainPainter.Land2[Y2, X2].TerKind;
+    fTerrainPainter.Land2[Y2, X2].TerKind := Tmp;
   end;
 
   procedure FixTerrain(X, Y: Integer);

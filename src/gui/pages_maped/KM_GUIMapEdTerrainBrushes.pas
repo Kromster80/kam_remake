@@ -82,7 +82,7 @@ procedure TKMMapEdTerrainBrushes.BrushChange(Sender: TObject);
 begin
   gGameCursor.Mode := cmBrush;
   gGameCursor.MapEdSize := BrushSize.Position;
-  gTerrainPainter.RandomizeTiling := BrushRandom.Checked;
+  gGame.MapEditor.TerrainPainter.RandomizeTiling := BrushRandom.Checked;
 
   if Sender = BrushCircle then
     gGameCursor.MapEdShape := hsCircle

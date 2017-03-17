@@ -31,7 +31,7 @@ implementation
 uses
   KM_ResFonts, KM_ResTexts,
   KM_Game, KM_GameCursor, KM_RenderUI,
-  KM_TerrainSelection, KM_TerrainPainter,
+  KM_TerrainSelection,
   KM_InterfaceGame;
 
 
@@ -101,7 +101,7 @@ begin
   begin
     //Apply paste
     gGame.MapEditor.Selection.Selection_PasteApply;
-    gTerrainPainter.MakeCheckpoint;
+    gGame.MapEditor.TerrainPainter.MakeCheckpoint;
 
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
@@ -127,14 +127,14 @@ begin
   begin
     //Flip selected
     gGame.MapEditor.Selection.Selection_Flip(fa_Horizontal);
-    gTerrainPainter.MakeCheckpoint;
+    gGame.MapEditor.TerrainPainter.MakeCheckpoint;
   end
   else
   if Sender = Button_SelectFlipV then
   begin
     //Flip selected
     gGame.MapEditor.Selection.Selection_Flip(fa_Vertical);
-    gTerrainPainter.MakeCheckpoint;
+    gGame.MapEditor.TerrainPainter.MakeCheckpoint;
   end;
 end;
 

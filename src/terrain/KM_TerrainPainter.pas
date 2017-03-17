@@ -79,9 +79,6 @@ type
     procedure Redo;
   end;
 
-var
-  gTerrainPainter: TKMTerrainPainter;
-
 
 const
   //Table of combinations between terrain types (0-based)
@@ -127,7 +124,7 @@ const
   //
   RandomTiling: array [TKMTerrainKind, 0..15] of Byte = (
     (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (15,1,1,1,2,2,2,3,3,3,5,5,5,11,13,14), //reduced chance for "eye-catching" tiles   tkGrass
+    (15,1,1,1,2,2,2,3,3,3,5,5,5,11,13,14), //reduced chance for "eye-catching" tiles
     (1,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (1,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),

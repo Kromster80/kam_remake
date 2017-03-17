@@ -182,7 +182,7 @@ uses
   KM_AIArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
   KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Saves, KM_Sound, KM_ScriptingEvents,
-  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI, KM_TerrainPainter;
+  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI;
 
 
 //Create template for the Game
@@ -849,8 +849,8 @@ begin
 
   fMapEditor := TKMMapEditor.Create;
   gTerrain.MakeNewMap(aSizeX, aSizeY, True);
-  gTerrainPainter.InitEmpty;
-  gTerrainPainter.MakeCheckpoint;
+  fMapEditor.TerrainPainter.InitEmpty;
+  fMapEditor.TerrainPainter.MakeCheckpoint;
 
   gHands.AddPlayers(MAX_HANDS); //Create MAX players
   gHands[0].HandType := hndHuman; //Make Player1 human by default
@@ -927,7 +927,7 @@ begin
 
   fMapEditor.SaveAttachements(aPathName);
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
-  gTerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
+  fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
   fMissionParser := TMissionParserStandard.Create(mpm_Editor);
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'), aInsetRect.Left, aInsetRect.Top);
   FreeAndNil(fMissionParser);

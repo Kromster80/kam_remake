@@ -237,7 +237,7 @@ implementation
 uses
   KM_Log, KM_HandsCollection, KM_TerrainWalkConnect, KM_Resource, KM_Units,
   KM_ResSound, KM_Sound, KM_UnitActionStay, KM_Units_Warrior, KM_TerrainPainter,
-  KM_ResUnits, KM_Hand;
+  KM_ResUnits, KM_Hand, KM_Game;
 
 
 { TKMTerrain }
@@ -429,9 +429,9 @@ var
       //Apply some random tiles for artisticity
       if (KaMRandom(5) = 0) then
       begin
-        TerKind := gTerrainPainter.Land2[aFromY,aFromX].TerKind;
+        TerKind := gGame.MapEditor.TerrainPainter.Land2[aFromY,aFromX].TerKind;
         if RandomTiling[TerKind, 0] <> 0 then
-          Terrain := gTerrainPainter.PickRandomTile(TerKind);
+          Terrain := gGame.MapEditor.TerrainPainter.PickRandomTile(TerKind);
       end;
 
       Height := EnsureRange(Land[aFromY,aFromX].Height + KaMRandom(7), 0, 100);  //variation in Height
