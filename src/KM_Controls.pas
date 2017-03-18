@@ -7010,7 +7010,8 @@ end;
 
 
 //Check if control is covered by other controls or not
-//We assume that control is covered if any of his 4 angles is covered
+//We assume that control is covered if any of his 4 corners is covered
+//For corners used actual corners with 1 px offset inside to solve border collisions
 //Use Self coordinates to check, because some controls can contain other sub-controls (f.e. TKMNumericEdit)
 function TKMMasterControl.IsCtrlCovered(aCtrl: TKMControl): Boolean;
 begin
