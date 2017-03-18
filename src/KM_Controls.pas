@@ -6,7 +6,7 @@ uses
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
-    KM_RenderUI, KM_ResFonts, KM_Minimap, KM_Viewport, KM_Log;
+    KM_RenderUI, KM_ResFonts, KM_Minimap, KM_Viewport;
 
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
@@ -2101,15 +2101,9 @@ end;
 
 procedure TKMPanel.UpdateState(aTickCount: Cardinal);
 var I: Integer;
-    Updated: String;
 begin
-  Updated := IntToStr(aTickCount) + ': ';
   for I := 0 to ChildCount - 1 do
-  begin
     Childs[I].UpdateState(aTickCount);
-    Updated := Updated + IntToStr(Childs[I].fID) + ',';
-  end;
-  gLog.AddTime(Updated);
 end;
 
 
