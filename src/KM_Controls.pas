@@ -6,7 +6,7 @@ uses
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
-    KM_RenderUI, KM_ResFonts, KM_Minimap, KM_Viewport, KM_Log;
+    KM_RenderUI, KM_ResFonts, KM_Minimap, KM_Viewport;
 
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
@@ -485,10 +485,10 @@ type
   end;
 
 
+  //Selectable Edit - Basic Edit class with selection available
   TKMSelectableEdit = class(TKMControl)
   private
     fFont: TKMFont;
-    fText: UnicodeString;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
 
     fCursorPos: Integer;
@@ -509,6 +509,7 @@ type
     procedure FocusSelectableEdit(aFocused: Boolean);
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
   protected
+    fText: UnicodeString;
     function GetMaxLength: Word; virtual; abstract;
     function IsCharValid(aChar: WideChar): Boolean; virtual; abstract;
     procedure ValidateText; virtual; abstract;
@@ -838,8 +839,9 @@ type
     function GetColumnIndex(X: Integer): Integer;
     function GetColumn(aIndex: Integer): TKMListHeaderColumn;
     procedure ClearColumns;
-    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     function GetColumnWidth(aIndex: Integer): Integer;
+  protected
+    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
     BackAlpha: Single; //Alpha of background
     EdgeAlpha: Single; //Alpha of background outline
@@ -2101,15 +2103,9 @@ end;
 
 procedure TKMPanel.UpdateState(aTickCount: Cardinal);
 var I: Integer;
-    Updated: String;
 begin
-  Updated := IntToStr(aTickCount) + ': ';
   for I := 0 to ChildCount - 1 do
-  begin
     Childs[I].UpdateState(aTickCount);
-    Updated := Updated + IntToStr(Childs[I].fID) + ',';
-  end;
-  gLog.AddTime(Updated);
 end;
 
 
@@ -3032,7 +3028,7 @@ end;
 
 procedure TKMSelectableEdit.PaintSelection;
 var
-  RText, BeforeSelectionText, SelectionText: UnicodeString;
+  BeforeSelectionText, SelectionText: UnicodeString;
   BeforeSelectionW, SelectionW: Integer;
 begin
   if HasSelection then
@@ -3165,8 +3161,8 @@ end;
 procedure TKMEdit.Paint;
 var
   Col: TColor4;
-  RText, BeforeSelectionText, SelectionText: UnicodeString;
-  OffX, BeforeSelectionW, SelectionW: Integer;
+  RText: UnicodeString;
+  OffX: Integer;
 begin
   inherited;
 
@@ -3227,25 +3223,34 @@ end;
 
 
 procedure TKMNumericEdit.ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
-var Inc: Integer;
+var Amt: Integer;
+    Shift: TShiftState;
 begin
   inherited;
   aHandled := True;
+  Shift := [];
   case Button of
-    mbLeft:   Inc := 1;
-    mbRight:  Inc := 10;
-    else      Inc := 0;
+    mbLeft:   Include(Shift, ssLeft);
+    mbRight:  Include(Shift, ssRight);
   end;
+
+  if GetKeyState(VK_SHIFT) < 0 then
+    Include(Shift, ssShift);
+
+  Amt := GetMultiplicator(Shift);
+
   if Sender = fButtonDec then
-    Value := Value - Inc
+    Value := Value - Amt
   else
   if Sender = fButtonInc then
-    Value := Value + Inc
+    Value := Value + Amt;
+
+  if (Amt <> 0) and Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
 function TKMNumericEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
-var Inc: Integer;
 begin
   Result := KeyEventHandled(Key, Shift);
   inherited KeyDown(Key, Shift);
@@ -3297,6 +3302,9 @@ begin
   if WheelDelta < 0 then Value := Value - 1 - 9*Byte(GetKeyState(VK_SHIFT) < 0);
 
   Focus;
+
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
@@ -3373,7 +3381,7 @@ end;
 
 function TKMNumericEdit.IsCharValid(Key: WideChar): Boolean;
 begin
-  Result := Key in ['0'..'9'];
+  Result := SysUtils.CharInSet(Key, ['0'..'9']);
 end;
 
 
@@ -3381,7 +3389,6 @@ procedure TKMNumericEdit.SetValue(aValue: Integer);
 begin
   fValue := EnsureRange(aValue, ValueMin, ValueMax);
   fText := IntToStr(fValue);
-  SetCursorPos(GetMaxLength);
 
   //External Value assignment should not generate OnChange event
 end;
