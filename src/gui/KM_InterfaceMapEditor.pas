@@ -358,6 +358,7 @@ end;
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
+  inherited;
   //Update minimap every 1000ms
   if aTickCount mod 10 = 0 then
     fMinimap.Update(False);

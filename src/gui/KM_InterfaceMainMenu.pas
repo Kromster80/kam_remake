@@ -367,6 +367,7 @@ end;
 //Should update anything we want to be updated, obviously
 procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
 begin
+  inherited;
   fMenuLobby.UpdateState;
   fMenuMapEditor.UpdateState;
   fMenuLoad.UpdateState;
