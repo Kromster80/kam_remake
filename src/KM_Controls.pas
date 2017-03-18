@@ -3223,20 +3223,30 @@ end;
 
 
 procedure TKMNumericEdit.ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
-var Inc: Integer;
+var Amt: Integer;
+    Shift: TShiftState;
 begin
   inherited;
   aHandled := True;
+  Shift := [];
   case Button of
-    mbLeft:   Inc := 1;
-    mbRight:  Inc := 10;
-    else      Inc := 0;
+    mbLeft:   Include(Shift, ssLeft);
+    mbRight:  Include(Shift, ssRight);
   end;
+
+  if GetKeyState(VK_SHIFT) < 0 then
+    Include(Shift, ssShift);
+
+  Amt := GetMultiplicator(Shift);
+
   if Sender = fButtonDec then
-    Value := Value - Inc
+    Value := Value - Amt
   else
   if Sender = fButtonInc then
-    Value := Value + Inc
+    Value := Value + Amt;
+
+  if (Amt <> 0) and Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
@@ -3292,6 +3302,9 @@ begin
   if WheelDelta < 0 then Value := Value - 1 - 9*Byte(GetKeyState(VK_SHIFT) < 0);
 
   Focus;
+
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
