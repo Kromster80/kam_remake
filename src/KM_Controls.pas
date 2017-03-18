@@ -488,7 +488,6 @@ type
   TKMSelectableEdit = class(TKMControl)
   private
     fFont: TKMFont;
-    fText: UnicodeString;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
 
     fCursorPos: Integer;
@@ -509,6 +508,7 @@ type
     procedure FocusSelectableEdit(aFocused: Boolean);
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
   protected
+    fText: UnicodeString;
     function GetMaxLength: Word; virtual; abstract;
     function IsCharValid(aChar: WideChar): Boolean; virtual; abstract;
     procedure ValidateText; virtual; abstract;
@@ -838,8 +838,9 @@ type
     function GetColumnIndex(X: Integer): Integer;
     function GetColumn(aIndex: Integer): TKMListHeaderColumn;
     procedure ClearColumns;
-    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     function GetColumnWidth(aIndex: Integer): Integer;
+  protected
+    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
     BackAlpha: Single; //Alpha of background
     EdgeAlpha: Single; //Alpha of background outline
@@ -3026,7 +3027,7 @@ end;
 
 procedure TKMSelectableEdit.PaintSelection;
 var
-  RText, BeforeSelectionText, SelectionText: UnicodeString;
+  BeforeSelectionText, SelectionText: UnicodeString;
   BeforeSelectionW, SelectionW: Integer;
 begin
   if HasSelection then
@@ -3159,8 +3160,8 @@ end;
 procedure TKMEdit.Paint;
 var
   Col: TColor4;
-  RText, BeforeSelectionText, SelectionText: UnicodeString;
-  OffX, BeforeSelectionW, SelectionW: Integer;
+  RText: UnicodeString;
+  OffX: Integer;
 begin
   inherited;
 
@@ -3239,7 +3240,6 @@ end;
 
 
 function TKMNumericEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
-var Inc: Integer;
 begin
   Result := KeyEventHandled(Key, Shift);
   inherited KeyDown(Key, Shift);
@@ -3367,7 +3367,7 @@ end;
 
 function TKMNumericEdit.IsCharValid(Key: WideChar): Boolean;
 begin
-  Result := Key in ['0'..'9'];
+  Result := SysUtils.CharInSet(Key, ['0'..'9']);
 end;
 
 
