@@ -485,6 +485,7 @@ type
   end;
 
 
+  //Selectable Edit - Basic Edit class with selection available
   TKMSelectableEdit = class(TKMControl)
   private
     fFont: TKMFont;
@@ -3375,7 +3376,6 @@ procedure TKMNumericEdit.SetValue(aValue: Integer);
 begin
   fValue := EnsureRange(aValue, ValueMin, ValueMax);
   fText := IntToStr(fValue);
-  SetCursorPos(GetMaxLength);
 
   //External Value assignment should not generate OnChange event
 end;
