@@ -561,41 +561,6 @@ type
   end;
 
 
-  TKMNumericEdit = class(TKMSelectableEdit)
-  private
-    fButtonInc: TKMButton;
-    fButtonDec: TKMButton;
-    //fButtonClickTime: Cardinal;
-    fValue: Integer;
-    procedure ButtonClick(Sender: TObject; Shift: TShiftState);
-
-    procedure SetValue(aValue: Integer);
-    procedure SetSharedHint(aHint: UnicodeString);
-    procedure ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
-  protected
-    procedure SetLeft(aValue: Integer); override;
-    procedure SetTop(aValue: Integer); override;
-    procedure SetEnabled(aValue: Boolean); override;
-    procedure SetVisible(aValue: Boolean); override;
-    function GetSelfAbsLeft: Integer; override;
-    function GetSelfWidth: Integer; override;
-    function GetMaxLength: Word; override;
-    function IsCharValid(Key: WideChar): Boolean; override;
-    procedure ValidateText; override;
-    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; override;
-  public
-    ValueMin: Integer;
-    ValueMax: Integer;
-    constructor Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: SmallInt; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
-    property Value: Integer read fValue write SetValue;
-    property SharedHint: UnicodeString read Hint write SetSharedHint;
-
-    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
-    procedure Paint; override;
-  end;
-
-
   { Checkbox }
   TKMCheckBox = class(TKMControl)
   private
@@ -666,6 +631,40 @@ type
     procedure Paint; override;
   end;
 
+
+  TKMNumericEdit = class(TKMSelectableEdit)
+  private
+    fButtonInc: TKMButton;
+    fButtonDec: TKMButton;
+    //fButtonClickTime: Cardinal;
+    fValue: Integer;
+    procedure ButtonClick(Sender: TObject; Shift: TShiftState);
+
+    procedure SetValue(aValue: Integer);
+    procedure SetSharedHint(aHint: UnicodeString);
+    procedure ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
+  protected
+    procedure SetLeft(aValue: Integer); override;
+    procedure SetTop(aValue: Integer); override;
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
+    function GetSelfAbsLeft: Integer; override;
+    function GetSelfWidth: Integer; override;
+    function GetMaxLength: Word; override;
+    function IsCharValid(Key: WideChar): Boolean; override;
+    procedure ValidateText; override;
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; override;
+  public
+    ValueMin: Integer;
+    ValueMax: Integer;
+    constructor Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: SmallInt; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
+    property Value: Integer read fValue write SetValue;
+    property SharedHint: UnicodeString read Hint write SetSharedHint;
+
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure Paint; override;
+  end;
 
   {Ware order bar}
   TKMWareOrderRow = class(TKMWaresRow)
@@ -3195,6 +3194,182 @@ begin
 end;
 
 
+{ TKMCheckBox }
+constructor TKMCheckBox.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  fFont     := aFont;
+  fCaption  := aCaption;
+end;
+
+
+procedure TKMCheckBox.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  if (csDown in State) and (Button = mbLeft) then
+    fChecked := not fChecked;
+  inherited; //There are OnMouseUp and OnClick events there
+end;
+
+
+//We can replace it with something better later on. For now [x] fits just fine
+//Might need additional graphics to be added to gui.rx
+//Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
+procedure TKMCheckBox.Paint;
+var Col: TColor4; CheckSize: Integer;
+begin
+  inherited;
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
+
+  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
+
+  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 1, 0.3);
+
+  if fChecked then
+    TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop, 0, 'x', fFont, taCenter, Col);
+
+  TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop, Width-Height, fCaption, fFont, taLeft, Col);
+end;
+
+
+{ TKMRadioGroup }
+constructor TKMRadioGroup.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  fFont := aFont;
+  fItemIndex := -1;
+end;
+
+
+procedure TKMRadioGroup.Add(aText: UnicodeString; aEnabled: Boolean);
+begin
+  if fCount >= Length(fItems) then
+    SetLength(fItems, fCount + 8);
+
+  fItems[fCount].Text := aText;
+  fItems[fCount].Enabled := aEnabled;
+
+  Inc(fCount);
+end;
+
+
+procedure TKMRadioGroup.Clear;
+begin
+  fCount := 0;
+end;
+
+
+procedure TKMRadioGroup.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var
+  NewIndex: Integer;
+begin
+  if (csDown in State) and (Button = mbLeft) then
+  begin
+    NewIndex := EnsureRange((Y-AbsTop) div Round(Height/Count), 0, Count - 1); //Clicking at wrong place can select invalid ID
+    if (NewIndex <> fItemIndex) and (fItems[NewIndex].Enabled) then
+    begin
+      fItemIndex := NewIndex;
+      if Assigned(fOnChange) then
+      begin
+        fOnChange(Self);
+        Exit; //Don't generate OnClick after OnChanged event (esp. when reloading Game on local change)
+      end;
+    end;
+  end;
+
+  inherited; //There are OnMouseUp and OnClick events there
+end;
+
+
+//We can replace it with something better later on. For now [x] fits just fine
+//Might need additional graphics to be added to gui.rx
+//Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
+procedure TKMRadioGroup.Paint;
+const
+  FntCol: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
+var
+  LineHeight, CheckSize: Integer;
+  I: Integer;
+begin
+  inherited;
+  if Count = 0 then Exit; //Avoid dividing by zero
+
+  LineHeight := Round(fHeight / Count);
+  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
+
+  for I := 0 to Count - 1 do
+  begin
+    TKMRenderUI.WriteBevel(AbsLeft, AbsTop + I * LineHeight, CheckSize-4, CheckSize-4, 1, 0.3);
+
+    if fItemIndex = I then
+      TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
+
+    // Caption
+    TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop + I * LineHeight, Width-LineHeight, fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
+  end;
+end;
+
+
+{ TKMPercentBar }
+constructor TKMPercentBar.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont=fnt_Mini);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  fFont := aFont;
+  FontColor := $FFFFFFFF;
+  fTextAlign := taCenter;
+end;
+
+
+procedure TKMPercentBar.SetPosition(aValue: Single);
+begin
+  fPosition := EnsureRange(aValue, 0, 1);
+end;
+
+
+procedure TKMPercentBar.SetSeam(aValue: Single);
+begin
+  fSeam := EnsureRange(aValue, 0, 1);
+end;
+
+
+procedure TKMPercentBar.Paint;
+begin
+  inherited;
+
+  TKMRenderUI.WritePercentBar(AbsLeft, AbsTop, Width, Height, fPosition, fSeam);
+
+  //Now draw text over the bar, if it is required
+  if Caption <> '' then
+  begin
+    //Shadow
+    TKMRenderUI.WriteText(AbsLeft + 2, (AbsTop + Height div 2)+TextYOffset-4, Width-4, Caption, fFont, fTextAlign, $FF000000);
+    //Text
+    TKMRenderUI.WriteText(AbsLeft + 1, (AbsTop + Height div 2)+TextYOffset-5, Width-4, Caption, fFont, fTextAlign, FontColor);
+  end;
+end;
+
+
+{ TKMWaresRow }
+constructor TKMWaresRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
+const
+  WARE_ROW_HEIGHT = 21;
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT);
+end;
+
+
+procedure TKMWaresRow.Paint;
+var
+  I: Integer;
+begin
+  inherited;
+  TKMRenderUI.WriteBevel(AbsLeft,AbsTop,Width,Height);
+  TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 3, Width-8, Caption, fnt_Game, taLeft, $FFE0E0E0);
+  //Render in reverse order so the rightmost resource is on top (otherwise lighting looks wrong)
+  for I := WareCount - 1 downto 0 do
+    TKMRenderUI.WritePicture(AbsLeft + Width - 18 - I * 14, AbsTop + 3, 14, 14, [], RX, TexID);
+end;
+
+
 { TKMNumericEdit }
 constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: SmallInt; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
 var
@@ -3441,182 +3616,6 @@ begin
     OffX := AbsLeft + 22 + gRes.Fonts[fFont].GetTextSize(RText).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
-end;
-
-
-{ TKMCheckBox }
-constructor TKMCheckBox.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont);
-begin
-  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fFont     := aFont;
-  fCaption  := aCaption;
-end;
-
-
-procedure TKMCheckBox.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-begin
-  if (csDown in State) and (Button = mbLeft) then
-    fChecked := not fChecked;
-  inherited; //There are OnMouseUp and OnClick events there
-end;
-
-
-//We can replace it with something better later on. For now [x] fits just fine
-//Might need additional graphics to be added to gui.rx
-//Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
-procedure TKMCheckBox.Paint;
-var Col: TColor4; CheckSize: Integer;
-begin
-  inherited;
-  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-
-  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
-
-  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 1, 0.3);
-
-  if fChecked then
-    TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop, 0, 'x', fFont, taCenter, Col);
-
-  TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop, Width-Height, fCaption, fFont, taLeft, Col);
-end;
-
-
-{ TKMRadioGroup }
-constructor TKMRadioGroup.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
-begin
-  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fFont := aFont;
-  fItemIndex := -1;
-end;
-
-
-procedure TKMRadioGroup.Add(aText: UnicodeString; aEnabled: Boolean);
-begin
-  if fCount >= Length(fItems) then
-    SetLength(fItems, fCount + 8);
-
-  fItems[fCount].Text := aText;
-  fItems[fCount].Enabled := aEnabled;
-
-  Inc(fCount);
-end;
-
-
-procedure TKMRadioGroup.Clear;
-begin
-  fCount := 0;
-end;
-
-
-procedure TKMRadioGroup.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var
-  NewIndex: Integer;
-begin
-  if (csDown in State) and (Button = mbLeft) then
-  begin
-    NewIndex := EnsureRange((Y-AbsTop) div Round(Height/Count), 0, Count - 1); //Clicking at wrong place can select invalid ID
-    if (NewIndex <> fItemIndex) and (fItems[NewIndex].Enabled) then
-    begin
-      fItemIndex := NewIndex;
-      if Assigned(fOnChange) then
-      begin
-        fOnChange(Self);
-        Exit; //Don't generate OnClick after OnChanged event (esp. when reloading Game on local change)
-      end;
-    end;
-  end;
-
-  inherited; //There are OnMouseUp and OnClick events there
-end;
-
-
-//We can replace it with something better later on. For now [x] fits just fine
-//Might need additional graphics to be added to gui.rx
-//Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
-procedure TKMRadioGroup.Paint;
-const
-  FntCol: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
-var
-  LineHeight, CheckSize: Integer;
-  I: Integer;
-begin
-  inherited;
-  if Count = 0 then Exit; //Avoid dividing by zero
-
-  LineHeight := Round(fHeight / Count);
-  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
-
-  for I := 0 to Count - 1 do
-  begin
-    TKMRenderUI.WriteBevel(AbsLeft, AbsTop + I * LineHeight, CheckSize-4, CheckSize-4, 1, 0.3);
-
-    if fItemIndex = I then
-      TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
-
-    // Caption
-    TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop + I * LineHeight, Width-LineHeight, fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
-  end;
-end;
-
-
-{ TKMPercentBar }
-constructor TKMPercentBar.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont=fnt_Mini);
-begin
-  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fFont := aFont;
-  FontColor := $FFFFFFFF;
-  fTextAlign := taCenter;
-end;
-
-
-procedure TKMPercentBar.SetPosition(aValue: Single);
-begin
-  fPosition := EnsureRange(aValue, 0, 1);
-end;
-
-
-procedure TKMPercentBar.SetSeam(aValue: Single);
-begin
-  fSeam := EnsureRange(aValue, 0, 1);
-end;
-
-
-procedure TKMPercentBar.Paint;
-begin
-  inherited;
-
-  TKMRenderUI.WritePercentBar(AbsLeft, AbsTop, Width, Height, fPosition, fSeam);
-
-  //Now draw text over the bar, if it is required
-  if Caption <> '' then
-  begin
-    //Shadow
-    TKMRenderUI.WriteText(AbsLeft + 2, (AbsTop + Height div 2)+TextYOffset-4, Width-4, Caption, fFont, fTextAlign, $FF000000);
-    //Text
-    TKMRenderUI.WriteText(AbsLeft + 1, (AbsTop + Height div 2)+TextYOffset-5, Width-4, Caption, fFont, fTextAlign, FontColor);
-  end;
-end;
-
-
-{ TKMWaresRow }
-constructor TKMWaresRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
-const
-  WARE_ROW_HEIGHT = 21;
-begin
-  inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT);
-end;
-
-
-procedure TKMWaresRow.Paint;
-var
-  I: Integer;
-begin
-  inherited;
-  TKMRenderUI.WriteBevel(AbsLeft,AbsTop,Width,Height);
-  TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 3, Width-8, Caption, fnt_Game, taLeft, $FFE0E0E0);
-  //Render in reverse order so the rightmost resource is on top (otherwise lighting looks wrong)
-  for I := WareCount - 1 downto 0 do
-    TKMRenderUI.WritePicture(AbsLeft + Width - 18 - I * 14, AbsTop + 3, 14, 14, [], RX, TexID);
 end;
 
 
