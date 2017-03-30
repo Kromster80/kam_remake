@@ -554,7 +554,7 @@ type
     Tx: Cardinal;
     ID: Word;
     TxCoords: TKMTexCoords;
-    TD: array of Cardinal;
+    TD: TKMCardinalArray;
   begin
     //Prepare atlases
     for I := 0 to High(SpriteInfo) do
@@ -646,7 +646,8 @@ type
 
       Inc(TexCount);
 
-      SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' + ExportName[aMode] + IntToStr(aStartingIndex+I), @TD[0]);
+      SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' +
+                       ExportName[aMode] + IntToStr(aStartingIndex+I), TD);
     end;
   end;
 const
