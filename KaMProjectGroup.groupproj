@@ -66,6 +66,9 @@
         <Projects Include="Utils\ScriptingParser\ScriptingParser.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Utils\ScriptValidatorCLI\ScriptValidatorCLI.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -263,14 +266,23 @@
     <Target Name="ScriptingParser:Make">
         <MSBuild Projects="Utils\ScriptingParser\ScriptingParser.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ScriptValidatorCLI">
+        <MSBuild Projects="Utils\ScriptValidatorCLI\ScriptValidatorCLI.dproj"/>
+    </Target>
+    <Target Name="ScriptValidatorCLI:Clean">
+        <MSBuild Projects="Utils\ScriptValidatorCLI\ScriptValidatorCLI.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ScriptValidatorCLI:Make">
+        <MSBuild Projects="Utils\ScriptValidatorCLI\ScriptValidatorCLI.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="KaM_Remake;Batcher;CampaignBuilder;FontEditor;FontXCollator;FontXEditor;FontXGenerator;KM_Editor;KaM_DedicatedServer;KaM_DedicatedServerGUI;KaM_RemakeTests;KaM_RemakeTestFunc;Runner;RXXEditor;RXXPacker;ScriptValidator;ServerPoller;TileEditor;TilesetResampler;TranslationManager;ScriptingParser"/>
+        <CallTarget Targets="KaM_Remake;Batcher;CampaignBuilder;FontEditor;FontXCollator;FontXEditor;FontXGenerator;KM_Editor;KaM_DedicatedServer;KaM_DedicatedServerGUI;KaM_RemakeTests;KaM_RemakeTestFunc;Runner;RXXEditor;RXXPacker;ScriptValidator;ServerPoller;TileEditor;TilesetResampler;TranslationManager;ScriptingParser;ScriptValidatorCLI"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="KaM_Remake:Clean;Batcher:Clean;CampaignBuilder:Clean;FontEditor:Clean;FontXCollator:Clean;FontXEditor:Clean;FontXGenerator:Clean;KM_Editor:Clean;KaM_DedicatedServer:Clean;KaM_DedicatedServerGUI:Clean;KaM_RemakeTests:Clean;KaM_RemakeTestFunc:Clean;Runner:Clean;RXXEditor:Clean;RXXPacker:Clean;ScriptValidator:Clean;ServerPoller:Clean;TileEditor:Clean;TilesetResampler:Clean;TranslationManager:Clean;ScriptingParser:Clean"/>
+        <CallTarget Targets="KaM_Remake:Clean;Batcher:Clean;CampaignBuilder:Clean;FontEditor:Clean;FontXCollator:Clean;FontXEditor:Clean;FontXGenerator:Clean;KM_Editor:Clean;KaM_DedicatedServer:Clean;KaM_DedicatedServerGUI:Clean;KaM_RemakeTests:Clean;KaM_RemakeTestFunc:Clean;Runner:Clean;RXXEditor:Clean;RXXPacker:Clean;ScriptValidator:Clean;ServerPoller:Clean;TileEditor:Clean;TilesetResampler:Clean;TranslationManager:Clean;ScriptingParser:Clean;ScriptValidatorCLI:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="KaM_Remake:Make;Batcher:Make;CampaignBuilder:Make;FontEditor:Make;FontXCollator:Make;FontXEditor:Make;FontXGenerator:Make;KM_Editor:Make;KaM_DedicatedServer:Make;KaM_DedicatedServerGUI:Make;KaM_RemakeTests:Make;KaM_RemakeTestFunc:Make;Runner:Make;RXXEditor:Make;RXXPacker:Make;ScriptValidator:Make;ServerPoller:Make;TileEditor:Make;TilesetResampler:Make;TranslationManager:Make;ScriptingParser:Make"/>
+        <CallTarget Targets="KaM_Remake:Make;Batcher:Make;CampaignBuilder:Make;FontEditor:Make;FontXCollator:Make;FontXEditor:Make;FontXGenerator:Make;KM_Editor:Make;KaM_DedicatedServer:Make;KaM_DedicatedServerGUI:Make;KaM_RemakeTests:Make;KaM_RemakeTestFunc:Make;Runner:Make;RXXEditor:Make;RXXPacker:Make;ScriptValidator:Make;ServerPoller:Make;TileEditor:Make;TilesetResampler:Make;TranslationManager:Make;ScriptingParser:Make;ScriptValidatorCLI:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
