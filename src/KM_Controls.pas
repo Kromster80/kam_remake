@@ -493,6 +493,7 @@ type
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
+    BlockInput: Boolean;// Blocks all input into the field, but allow focus, selection and copy selected text
     ShowColors: Boolean;
     MaxLen: Word;
     DrawOutline: Boolean;
@@ -2641,6 +2642,7 @@ end;
 constructor TKMEdit.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
@@ -2648,6 +2650,8 @@ begin
 
   //Text input fields are focusable by concept
   Focusable := True;
+  ReadOnly := False;
+  BlockInput := False;
   fSelectable := aSelectable;
 
   fOnFocus := Focus;
@@ -2780,6 +2784,9 @@ begin
   Result := KeyEventHandled(Key, Shift);
   if inherited KeyDown(Key, Shift) or ReadOnly then Exit;
 
+  //Allow some keys while blocking input
+  if BlockInput and not ((Key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END]) or ((ssCtrl in Shift) and (Key in [Ord('A'), Ord('C')]))) then Exit;
+
   //Clipboard operations
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
     case Key of
@@ -2887,7 +2894,7 @@ end;
 
 procedure TKMEdit.KeyPress(Key: Char);
 begin
-  if ReadOnly then Exit;
+  if ReadOnly or BlockInput then Exit;
 
   if HasSelection and IsCharValid(Key) then
   begin
