@@ -17,7 +17,6 @@ uses
   //KM_Achievements in 'KM_Achievements.pas',
 
   KromOGLUtils in 'src\common\KromOGLUtils.pas',
-  KromStringUtils in 'src\common\KromStringUtils.pas',
   KromUtils in 'src\common\KromUtils.pas',
 
   KM_AI in 'src\ai\KM_AI.pas',

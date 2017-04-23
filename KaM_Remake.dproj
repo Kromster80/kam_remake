@@ -114,7 +114,6 @@
 				<Form>FormLoading</Form>
 			</DCCReference>
 			<DCCReference Include="src\common\KromOGLUtils.pas"/>
-			<DCCReference Include="src\common\KromStringUtils.pas"/>
 			<DCCReference Include="src\common\KromUtils.pas"/>
 			<DCCReference Include="src\ai\KM_AI.pas"/>
 			<DCCReference Include="src\ai\KM_AIArmyEvaluation.pas"/>
