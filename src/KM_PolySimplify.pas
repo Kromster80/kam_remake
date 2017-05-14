@@ -95,7 +95,7 @@ begin
 
   Node1 := InLoop[aFrom];
   Node2 := InLoop[aTo mod Length(InLoop)];
-  NodeVect := KMVectorDiff(Node2, Node1);
+  NodeVect := KMPointSubtract(Node2, Node1);
   NodeDistSqr := KMDistanceSqr(Node2, Node1);
   MaxDistI := 0;
   MaxDistSqr := -1;
@@ -105,7 +105,7 @@ begin
   begin
     TestP := InLoop[I];
 
-    TestVect := KMVectorDiff(TestP, Node1);
+    TestVect := KMPointSubtract(TestP, Node1);
     TestDot := KMDotProduct(TestVect, NodeVect);
 
     //Calculate distance to segment

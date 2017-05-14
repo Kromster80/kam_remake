@@ -830,8 +830,9 @@ end;
 
 
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var MyRect: TRect;
-    Obj: TObject;
+var
+  MyRect: TRect;
+  Obj: TObject;
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
@@ -841,12 +842,12 @@ begin
   if (Button = mbLeft) and (gGameCursor.Mode = cmNone) then
   begin
     Obj := gMySpectator.HitTestCursor;
-    if gMySpectator.HitTestCursor <> nil then
+    if Obj <> nil then
     begin
       UpdateSelection;
       fDragObject := Obj;
       if Obj is TKMHouse then
-        fDragHouseGrabPntAdjustment := KMVectorDiff(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
+        fDragHouseGrabPntAdjustment := KMPointSubtract(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
       fDraggingObject := True;
     end;
   end;
@@ -932,7 +933,8 @@ end;
 
 
 procedure TKMapEdInterface.UpdateCursor(X, Y: Integer; Shift: TShiftState);
-var Marker: TKMMapEdMarker;
+var
+  Marker: TKMMapEdMarker;
 begin
   UpdateGameCursor(X, Y, Shift);
 
@@ -999,7 +1001,7 @@ begin
   if (fDragObject is TKMHouse) then
   begin
     H := TKMHouse(fDragObject);
-    H.SetPosition(KMVectorSum(gGameCursor.Cell, fDragHouseGrabPntAdjustment));
+    H.SetPosition(KMPointAdd(gGameCursor.Cell, fDragHouseGrabPntAdjustment));
     ResetCursorMode;
   end;
 end;
@@ -1024,7 +1026,7 @@ begin
 
     HouseOldPos := H.GetPosition;
 
-    HouseNewPos := KMVectorSum(gGameCursor.Cell, fDragHouseGrabPntAdjustment);
+    HouseNewPos := KMPointAdd(gGameCursor.Cell, fDragHouseGrabPntAdjustment);
 
     if not fDraggingObject then
       H.SetPosition(HouseNewPos)  //handles Right click, when house is selected
