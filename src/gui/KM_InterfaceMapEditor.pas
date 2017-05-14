@@ -32,10 +32,10 @@ type
     fDragScrollingViewportPos: TKMPointF;
     fMouseDownOnMap: Boolean;
 
-    //Drag object feature fields
-    fDraggingObject: Boolean;               //Flag when drag object is happening
-    fDragObject: TObject;                   //Object to drag
-    fDragHouseGrabPntAdjustment: TKMPoint;  //Adjustment for house position, to let grab house with any of its points
+    // Drag object feature fields
+    fDraggingObject: Boolean;    // Flag when drag object is happening
+    fDragObject: TObject;        // Object to drag
+    fDragHouseOffset: TKMPoint;  // Offset for house position, to let grab house with any of its points
 
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;
@@ -847,7 +847,7 @@ begin
       UpdateSelection;
       fDragObject := Obj;
       if Obj is TKMHouse then
-        fDragHouseGrabPntAdjustment := KMPointSubtract(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
+        fDragHouseOffset := KMPointSubtract(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
       fDraggingObject := True;
     end;
   end;
@@ -969,7 +969,7 @@ procedure TKMapEdInterface.ResetCursorMode;
 begin
   gGameCursor.Mode := cmNone;
   gGameCursor.Tag1 := 0;
-  gGameCursor.CellAdjustment := KMPOINT_ZERO;
+  gGameCursor.DragOffset := KMPOINT_ZERO;
 end;
 
 
@@ -979,8 +979,8 @@ procedure TKMapEdInterface.DragHouseModeStart(aHouseNewPos: TKMPoint; aHouseOldP
   begin
     gGameCursor.Mode := cmHouses;
     gGameCursor.Tag1 := Byte(aHouseType);
-    //Update cursor CellAdjustment to render house markups at proper positions
-    gGameCursor.CellAdjustment := fDragHouseGrabPntAdjustment;
+    //Update cursor DragOffset to render house markups at proper positions
+    gGameCursor.DragOffset := fDragHouseOffset;
   end;
 var H: TKMHouse;
 begin
@@ -1001,7 +1001,7 @@ begin
   if (fDragObject is TKMHouse) then
   begin
     H := TKMHouse(fDragObject);
-    H.SetPosition(KMPointAdd(gGameCursor.Cell, fDragHouseGrabPntAdjustment));
+    H.SetPosition(KMPointAdd(gGameCursor.Cell, fDragHouseOffset));
     ResetCursorMode;
   end;
 end;
@@ -1026,7 +1026,7 @@ begin
 
     HouseOldPos := H.GetPosition;
 
-    HouseNewPos := KMPointAdd(gGameCursor.Cell, fDragHouseGrabPntAdjustment);
+    HouseNewPos := KMPointAdd(gGameCursor.Cell, fDragHouseOffset);
 
     if not fDraggingObject then
       H.SetPosition(HouseNewPos)  //handles Right click, when house is selected
@@ -1079,7 +1079,7 @@ end;
 procedure TKMapEdInterface.ResetDragObject;
 begin
   fDraggingObject := False;
-  fDragHouseGrabPntAdjustment := KMPOINT_ZERO;
+  fDragHouseOffset := KMPOINT_ZERO;
   fDragObject := nil;
 
   if gRes.Cursors.Cursor = kmc_Drag then
