@@ -1480,10 +1480,11 @@ end;
 
 
 procedure TRenderPool.RenderForegroundUI_Units;
-var Obj: TObject;
-    U: TKMUnit;
-    G: TKMUnitGroup;
-    P: TKMPoint;
+var
+  Obj: TObject;
+  U: TKMUnit;
+  G: TKMUnitGroup;
+  P: TKMPoint;
 begin
   if gGameCursor.Tag1 = 255 then
   begin
@@ -1492,7 +1493,8 @@ begin
     begin
       U := TKMUnit(Obj);
       RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
-    end else if (Obj is TKMUnitGroup) then
+    end else
+    if (Obj is TKMUnitGroup) then
     begin
       G := TKMUnitGroup(Obj);
       U := G.FlagBearer;
@@ -1500,13 +1502,15 @@ begin
       begin
         G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
         RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
-      end else begin
+      end else
+      begin
         RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
         G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
       end;
     end;
   end
-  else begin
+  else
+  begin
     P := gGameCursor.Cell;
     if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
       AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
@@ -1553,10 +1557,11 @@ procedure TRenderPool.RenderForegroundUI_PaintBucket;
     end;
   end;
 
-var Obj: TObject;
-    HighlightColor: Cardinal;
-    P: TKMPoint;
-    IsRendered: Boolean;
+var
+  Obj: TObject;
+  HighlightColor: Cardinal;
+  P: TKMPoint;
+  IsRendered: Boolean;
 begin
   P := gGameCursor.Cell;
   HighlightColor := MultiplyBrightnessByFactor(gMySpectator.Hand.FlagColor, 2, 0.3, 0.9);
