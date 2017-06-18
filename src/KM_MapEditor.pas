@@ -219,7 +219,7 @@ end;
 
 
 //aStageIncrement - stage increment, can be negative
-//aCheckPrevCell - do we check prev cell uner the cursor to differ from current cell under the cursor
+//aCheckPrevCell - do we check prev cell under the cursor to differ from current cell under the cursor
 procedure TKMMapEditor.UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
 var
   P: TKMPoint;
@@ -254,28 +254,29 @@ begin
 end;
 
 
+//aEraseAll - if true all objects under the cursor will be deleted
 procedure TKMMapEditor.EraseObject(aEraseAll: Boolean);
 var Obj: TObject;
     P: TKMPoint;
-    IsDeleted: Boolean;
 begin
-  IsDeleted := False;
   P := gGameCursor.Cell;
   Obj := gMySpectator.HitTestCursor(True);
 
+  //Delete unit/house
   if Obj is TKMUnit then
   begin
     gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
-    IsDeleted := True;
+    if not aEraseAll then Exit;
   end
   else
   if Obj is TKMHouse then
   begin
     gHands.RemAnyHouse(P);
-    IsDeleted := True;
+    if not aEraseAll then Exit;
   end;
 
-  if (aEraseAll or not IsDeleted) and (gTerrain.Land[P.Y,P.X].Obj <> 255) then
+  //Delete tile object (including corn/wine objects as well)
+  if (gTerrain.Land[P.Y,P.X].Obj <> 255) then
   begin
     fTerrainPainter.MakeCheckpoint;
     if gTerrain.TileIsCornField(P) and (gTerrain.GetCornStage(P) in [4,5]) then
@@ -284,16 +285,14 @@ begin
       gTerrain.RemField(P)
     else
       gTerrain.SetObject(P, 255);
-    IsDeleted := True;
+    if not aEraseAll then Exit;
   end;
 
-  if aEraseAll or not IsDeleted then
-  begin
-    if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-      gTerrain.RemRoad(P);
-    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-      gTerrain.RemField(P);
-  end;
+  //Delete tile overlay (road/corn/wine)
+  if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+    gTerrain.RemRoad(P);
+  if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+    gTerrain.RemField(P);
 end;
 
 
@@ -316,32 +315,31 @@ function TKMMapEditor.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex):
 var House: TKMHouse;
 begin
   Result := False;
-  if (aObject <> nil) then
+  if (aObject = nil) then Exit;
+
+  if aObject is TKMHouse then
   begin
-    if aObject is TKMHouse then
+    House := TKMHouse(aObject);
+    if House.Owner <> aOwner then
     begin
-      House := TKMHouse(aObject);
-      if House.Owner <> aOwner then
-      begin
-        House.OwnerUpdate(aOwner, True);
-        gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
-        Result := True;
-      end;
+      House.OwnerUpdate(aOwner, True);
+      gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+      Result := True;
+    end;
+  end
+  else if aObject is TKMUnit then
+  begin
+    if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
+    begin
+      TKMUnit(aObject).OwnerUpdate(aOwner, True);
+      Result := True;
+    end;
+  end else if aObject is TKMUnitGroup then
+    if TKMUnitGroup(aObject).Owner <> aOwner then
+    begin
+      TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
+      Result := True;
     end
-    else if aObject is TKMUnit then
-    begin
-      if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
-      begin
-        TKMUnit(aObject).OwnerUpdate(aOwner, True);
-        Result := True;
-      end;
-    end else if aObject is TKMUnitGroup then
-      if TKMUnitGroup(aObject).Owner <> aOwner then
-      begin
-        TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
-        Result := True;
-      end
-  end;
 end;
 
 
