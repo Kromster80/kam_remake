@@ -128,7 +128,7 @@ begin
   PopUp_Delete := TKMPopUpMenu.Create(Panel_Replays, 400);
   PopUp_Delete.Height := 200;
   // Keep the pop-up centered
-  PopUp_Delete.Anchors := [];
+  PopUp_Delete.AnchorsCenter;
   PopUp_Delete.Left := (Panel_Replays.Width div 2) - (PopUp_Delete.Width div 2);
   PopUp_Delete.Top := (Panel_Replays.Height div 2) - 90;
 
@@ -155,7 +155,7 @@ begin
   PopUp_Rename := TKMPopUpMenu.Create(Panel_Replays, 400);
   PopUp_Rename.Height := 200;
   // Keep the pop-up centered
-  PopUp_Rename.Anchors := [];
+  PopUp_Rename.AnchorsCenter;
   PopUp_Rename.Left := (Panel_Replays.Width div 2) - (PopUp_Rename.Width div 2);
   PopUp_Rename.Top := (Panel_Replays.Height div 2) - 90;
 

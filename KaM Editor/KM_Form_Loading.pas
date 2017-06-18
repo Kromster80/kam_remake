@@ -32,17 +32,17 @@ var
 
 
 implementation
-{$IFDEF WDC} {$R *.dfm} {$ENDIF}
 uses
   KM_Unit1, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT;
 
+{$IFDEF WDC} {$R *.dfm} {$ENDIF}
 
 procedure TFormLoading.FormCreate(Sender: TObject);
 var
   InputParam: string;
 begin
   Form1.Hide;
-  ExeDir := ExtractFilePath(Application.ExeName);
+  ExeDir := ExtractFilePath(ParamStr(0));
 
   Show;
   Refresh;

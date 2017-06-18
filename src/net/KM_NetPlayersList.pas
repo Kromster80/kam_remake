@@ -273,10 +273,9 @@ end;
 
 function TKMNetPlayerInfo.GetHandIndex: Integer;
 begin
+  Result := -1;
   if StartLocation > 0 then
-    Result := StartLocation - 1
-  else
-    Result := -1;
+    Result := StartLocation - 1;
 end;
 
 

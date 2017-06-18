@@ -365,7 +365,7 @@ const
     Input:            (wt_GoldOre,    wt_Coal,       wt_None,       wt_None);
     Output:           (wt_Gold,       wt_None,       wt_None,       wt_None);
     UnlockedByHouse:  ht_GoldMine;
-    SnowSpriteId:     -1;
+    SnowSpriteId:     2068;
     ),
     ( //Mill
     PlanYX:           ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));

@@ -220,7 +220,7 @@ begin
     // Panel_Options_Keys
     PopUp_OptionsKeys := TKMPopUpMenu.Create(Panel_Options, 700);
     PopUp_OptionsKeys.Height := 600;
-    PopUp_OptionsKeys.Anchors := []; // Keep centered, don't stretch already poor BG image
+    PopUp_OptionsKeys.AnchorsCenter; // Keep centered, don't stretch already poor BG image
     PopUp_OptionsKeys.Left := (Panel_Options.Width - 700) div 2;
     PopUp_OptionsKeys.Top := (Panel_Options.Height - 600) div 2;
 
@@ -396,7 +396,7 @@ begin
   NewResolution.RefRate := fResolutions.Items[ResID].RefRate[RefID];
 
   fMainSettings.Resolution := NewResolution;
-  fMain.ReinitRender(True);
+  gMain.ReinitRender(True);
 end;
 
 
@@ -463,9 +463,9 @@ begin
   // Remember what we are working with
   // (we do that on Show because Create gets called from Main/Game constructor and fMain/gGameApp are not yet assigned)
   // Ideally we could pass them as parameters here
-  fMainSettings := fMain.Settings;
+  fMainSettings := gMain.Settings;
   fGameSettings := gGameApp.GameSettings;
-  fResolutions := fMain.Resolutions;
+  fResolutions := gMain.Resolutions;
 
   Refresh;
   Panel_Options.Show;

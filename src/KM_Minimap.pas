@@ -110,7 +110,7 @@ begin
   for I := 0 to MAX_HANDS - 1 do
   begin
     HandColors[I] := $00000000;
-    HandLocs[I] := KMPoint(0,0);
+    HandLocs[I] := KMPOINT_ZERO;
     HandShow[I] := False;
   end;
 end;

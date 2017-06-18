@@ -24,6 +24,8 @@ type
     function EnsureRangeI(aValue, aMin, aMax: Integer): Integer;
     function EnsureRangeS(aValue, aMin, aMax: Single): Single;
 
+    function Format(aFormatting: string; aData: array of const): string;
+
     function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString;
     function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer;
     function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single;
@@ -293,6 +295,20 @@ function TKMScriptUtils.EnsureRangeS(aValue, aMin, aMax: Single): Single;
 begin
   try
     Result := Math.EnsureRange(aValue, aMin, aMax);
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Wrapper for pascal Format function
+//* Formats aFormatting string with specified aData array of parameters
+function TKMScriptUtils.Format(aFormatting: string; aData: array of const): string;
+begin
+  try
+    Result := SysUtils.Format(aFormatting, aData);
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;

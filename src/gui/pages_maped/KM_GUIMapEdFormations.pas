@@ -48,7 +48,7 @@ begin
   inherited Create;
 
   Panel_Formations := TKMPanel.Create(aParent, 362, 250, SIZE_X, SIZE_Y);
-  Panel_Formations.Anchors := [];
+  Panel_Formations.AnchorsCenter;
   Panel_Formations.Hide;
 
   TKMBevel.Create(Panel_Formations, -1000,  -1000, 4000, 4000);

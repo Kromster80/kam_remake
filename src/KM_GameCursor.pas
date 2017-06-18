@@ -18,7 +18,7 @@ type
     SState: TShiftState;  //Thats actually used to see if Left or Right mouse button is pressed
 
     Tag1: Byte;           //Tag to know building type, unit type etc.
-    CellAdjustment: TKMPoint; //used to adjust actual Cursor Cell
+    DragOffset: TKMPoint; //used to adjust actual Cursor Cell
     ObjectUID: Integer;   //Object found below cursor
 
     MapEdDir: Byte;
@@ -48,9 +48,9 @@ end;
 
 procedure TKMGameCursor.Reset;
 begin
-  CellAdjustment := ZERO_POINT;
+  DragOffset := KMPOINT_ZERO;
   // Actually we need reset all fields when changing mode,
-  // but lets reset only CellAdjustment for now, need to do lots of tests for other fields
+  // but lets reset only DragOffset for now, need to do lots of tests for other fields
 end;
 
 

@@ -62,7 +62,7 @@ begin
   fFightDelay     := -1;
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(fUnit.PositionF, fOpponent.PositionF); //Face the opponent from the beginning
-  fVertexOccupied := KMPoint(0,0);
+  fVertexOccupied := KMPOINT_ZERO;
   if KMStepIsDiag(fUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(fUnit).IsRanged then
     IncVertex(fUnit.GetPosition, fOpponent.GetPosition);
 end;
@@ -71,7 +71,7 @@ end;
 destructor TUnitActionFight.Destroy;
 begin
   gHands.CleanUpUnitPointer(fOpponent);
-  if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+  if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     DecVertex;
   inherited;
 end;
@@ -128,7 +128,7 @@ end;
 procedure TUnitActionFight.IncVertex(aFrom, aTo: TKMPoint);
 begin
   //Tell gTerrain that this vertex is being used so no other unit walks over the top of us
-  Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Fight vertex in use');
+  Assert(KMSamePoint(fVertexOccupied, KMPOINT_ZERO), 'Fight vertex in use');
 
   fUnit.VertexAdd(aFrom, aTo);
   fVertexOccupied := KMGetDiagVertex(aFrom,aTo);
@@ -138,10 +138,10 @@ end;
 procedure TUnitActionFight.DecVertex;
 begin
   //Tell gTerrain that this vertex is not being used anymore
-  if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then exit;
+  if KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then exit;
 
   fUnit.VertexRem(fVertexOccupied);
-  fVertexOccupied := KMPoint(0,0);
+  fVertexOccupied := KMPOINT_ZERO;
 end;
 
 

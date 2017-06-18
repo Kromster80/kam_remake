@@ -1086,7 +1086,7 @@ begin
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
     ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fnt_Grey, bsGame);
-    ColumnBox_MessageLog.Anchors := [anLeft, anTop, anRight, anBottom];
+    ColumnBox_MessageLog.AnchorsStretch;
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.HideSelection := True;
@@ -1102,8 +1102,11 @@ end;
 
 procedure TKMGamePlayInterface.Create_Controls;
 const
-  MainHint: array [TKMTabButtons] of Word = (TX_MENU_TAB_HINT_BUILD, TX_MENU_TAB_HINT_DISTRIBUTE,
-                                             TX_MENU_TAB_HINT_STATISTICS, TX_MENU_TAB_HINT_OPTIONS);
+  MAIN_BTN_HINT: array [TKMTabButtons] of Word = (
+    TX_MENU_TAB_HINT_BUILD,
+    TX_MENU_TAB_HINT_DISTRIBUTE,
+    TX_MENU_TAB_HINT_STATISTICS,
+    TX_MENU_TAB_HINT_OPTIONS);
 var
   T: TKMTabButtons;
   I: Integer;
@@ -1119,7 +1122,7 @@ begin
     // Main 4 buttons
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do begin
       Button_Main[T] := TKMButton.Create(Panel_Controls,  TB_PAD + 46 * Byte(T), 4, 42, 36, 439 + Byte(T), rxGui, bsGame);
-      Button_Main[T].Hint := gResTexts[MainHint[T]];
+      Button_Main[T].Hint := gResTexts[MAIN_BTN_HINT[T]];
       Button_Main[T].OnClick := SwitchPage;
     end;
     Button_Back := TKMButton.Create(Panel_Controls, TB_PAD, 4, 42, 36, 443, rxGui, bsGame);
@@ -1482,7 +1485,7 @@ begin
     Image_Message[I].Highlight := (ShownMessage = I);
 
   Label_MessageText.Caption := fMessageStack[ShownMessage].Text;
-  Button_MessageGoTo.Visible := not KMSamePoint(fMessageStack[ShownMessage].Loc, KMPoint(0,0));
+  Button_MessageGoTo.Visible := not KMSamePoint(fMessageStack[ShownMessage].Loc, KMPOINT_ZERO);
 
   Allies_Close(nil);
   fGuiGameChat.Hide;
@@ -1629,9 +1632,13 @@ end;
 // Quit the mission and return to main menu
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
-  // Show outcome depending on actual situation.
-  // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  gGameApp.Stop(gGame.PlayOnState);
+
+  if (gGame.GameMode = gmMulti) and (gGame.PlayOnState = gr_Cancel) then
+    gGameApp.Stop(gr_Defeat) //Defeat player, if he intentionally quit, when game result is not determined yet (gr_Cancel)
+  else
+    // Show outcome depending on actual situation.
+    // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
+    gGameApp.Stop(gGame.PlayOnState);
 end;
 
 
@@ -1835,7 +1842,7 @@ begin
       raise Exception.Create('Could not determine last selected object type');
   end
   else
-    if not KMSamePoint(gHands[gMySpectator.HandIndex].CenterScreen, KMPoint(0,0)) then
+    if not KMSamePoint(gHands[gMySpectator.HandIndex].CenterScreen, KMPOINT_ZERO) then
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
@@ -1953,7 +1960,7 @@ end;
 
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString);
 begin
-  MessageIssue(aKind, aText, KMPoint(0,0));
+  MessageIssue(aKind, aText, KMPOINT_ZERO);
 end;
 
 
@@ -2491,8 +2498,8 @@ begin
   if SelectingTroopDirection then
   begin
     // Reset the cursor position as it will have moved during direction selection
-    SetCursorPos(fMain.ClientToScreen(SelectingDirPosition).X, fMain.ClientToScreen(SelectingDirPosition).Y);
-    fMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
+    SetCursorPos(gMain.ClientToScreen(SelectingDirPosition).X, gMain.ClientToScreen(SelectingDirPosition).Y);
+    gMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := False;
     gRes.Cursors.Cursor := kmc_Default; // Reset direction selection cursor when mouse released
     DirectionCursorHide;
@@ -2502,7 +2509,7 @@ end;
 
 function TKMGamePlayInterface.HasLostMPGame: Boolean;
 begin
-  Result := (fUIMode = umMP) and (gMySpectator.Hand.AI.WonOrLost = wol_Lost);
+  Result := (fUIMode = umMP) and gMySpectator.Hand.AI.HasLost;
 end;
 
 
@@ -2753,7 +2760,7 @@ begin
         and gGame.Networking.NetPlayers[NetI].IsHuman then // and is not Computer
       begin
         Update_Image_AlliesMute(Image_AlliesMute[I]);
-        Image_AlliesMute[I].Show;
+        Image_AlliesMute[I].Visible := True; //Do not use .Show here, because we do not want change Parent.Visible status from here
       end;
 
       if gGame.Networking.NetPlayers[NetI].IsSpectator then
@@ -3139,7 +3146,7 @@ begin
      // Restrict the cursor to the window, for now.
      //TODO: Allow one to drag out of the window, and still capture.
      {$IFDEF MSWindows}
-       MyRect := fMain.ClientRect;
+       MyRect := gMain.ClientRect;
        ClipCursor(@MyRect);
      {$ENDIF}
      fDragScrollingCursorPos.X := X;
@@ -3152,7 +3159,7 @@ begin
 
   if SelectingTroopDirection then
   begin
-    fMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
+    gMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false;
     DirectionCursorHide;
   end;
@@ -3198,7 +3205,7 @@ begin
         // Restrict the cursor to inside the main panel so it does not get jammed when used near
         // the edge of the window in windowed mode
         {$IFDEF MSWindows}
-        MyRect := fMain.ClientRect;
+        MyRect := gMain.ClientRect;
         ClipCursor(@MyRect);
         {$ENDIF}
         // Now record it as Client XY
@@ -3285,7 +3292,7 @@ begin
     begin
       DeltaX := Round(DeltaX / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
       DeltaY := Round(DeltaY / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
-      NewPoint := fMain.ClientToScreen(SelectingDirPosition);
+      NewPoint := gMain.ClientToScreen(SelectingDirPosition);
       NewPoint.X := NewPoint.X - DeltaX;
       NewPoint.Y := NewPoint.Y - DeltaY;
       SetCursorPos(NewPoint.X, NewPoint.Y);
@@ -3393,7 +3400,7 @@ begin
     begin
       fDragScrolling := False;
       gRes.Cursors.Cursor := kmc_Default; // Reset cursor
-      fMain.ApplyCursorRestriction;
+      gMain.ApplyCursorRestriction;
     end;
     Exit;
   end;
@@ -3529,7 +3536,7 @@ begin
               else
                 gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
             cmErase:
-              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then
+              if KMSamePoint(LastDragPoint, KMPOINT_ZERO) then
               begin
                 H := gMySpectator.Hand.HousesHitTest(P.X, P.Y);
                 // Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
@@ -3624,7 +3631,7 @@ begin
       end;
   end;
 
-  LastDragPoint := KMPoint(0,0);
+  LastDragPoint := KMPOINT_ZERO;
 end;
 
 

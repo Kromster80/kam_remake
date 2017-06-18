@@ -96,8 +96,8 @@ begin
 
   Caption := 'Campaign Builder (' + GAME_REVISION + ')';
 
-  fExePath := ExtractFilePath(Application.ExeName);
-  fCampaignsPath := ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\Campaigns\');
+  fExePath := ExtractFilePath(ParamStr(0));
+  fCampaignsPath := ExpandFileName(fExePath + '..\..\Campaigns\');
 
   C := TKMCampaign.Create;
   fSelectedMap := -1;
