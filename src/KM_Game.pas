@@ -64,6 +64,7 @@ type
     fMissionMode: TKMissionMode;
 
     procedure GameMPDisconnect(const aData: UnicodeString);
+    procedure OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
     procedure UpdatePeaceTime;
@@ -96,7 +97,7 @@ type
     procedure GameHold(DoHold: Boolean; Msg: TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg: TGameResultMsg);
     procedure PlayerVictory(aPlayerIndex: TKMHandIndex);
-    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex);
+    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex; aShowDefeatMessage: Boolean = True);
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
     procedure ShowScriptError(const aMsg: UnicodeString);
@@ -572,7 +573,8 @@ begin
   fNetworking.OnPlayersSetup   := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo       := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.OnDisconnect     := GameMPDisconnect; //For auto reconnecting
-  fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
+  fNetworking.OnJoinerDropped := OtherPlayerDisconnected;
+  fNetworking.OnReassignedHost := nil; //Reset Lobby OnReassignedHost
   fNetworking.OnReassignedJoiner := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
@@ -622,6 +624,12 @@ procedure TKMGame.GameMPReadyToPlay(Sender: TObject);
 begin
   //Update the list of players that are ready to play
   WaitingPlayersDisplay(True);
+end;
+
+
+procedure TKMGame.OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
+begin
+  gGame.GameInputProcess.CmdGame(gic_GamePlayerDefeat, aDefeatedPlayerHandId);
 end;
 
 
@@ -735,6 +743,12 @@ end;
 
 procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
+  fNetworking.PostLocalMessage(Format('%s has won!', //Todo translate
+    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+
+  if fGameMode = gmMultiSpectate then
+    Exit;
+
   if aPlayerIndex = gMySpectator.HandIndex then
     gSoundPlayer.Play(sfxn_Victory, 1, True); //Fade music
 
@@ -758,7 +772,7 @@ begin
 end;
 
 
-procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex);
+procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex; aShowDefeatMessage: Boolean = True);
 begin
   case GameMode of
     gmSingle, gmCampaign:
@@ -768,9 +782,10 @@ begin
                 RequestGameHold(gr_Defeat);
               end;
     gmMulti:  begin
-                if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+                if aShowDefeatMessage and (fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil) then
                   fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
                     [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+                
                 if aPlayerIndex = gMySpectator.HandIndex then
                 begin
                   gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
@@ -778,7 +793,7 @@ begin
                   fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
                 end;
               end;
-    gmMultiSpectate:  if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+    gmMultiSpectate:  if aShowDefeatMessage and (fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil) then
                         fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
                           [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
@@ -1032,7 +1047,7 @@ end;
 procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
 begin
   //Once you have lost no messages can be received
-  if gHands[aHandIndex].AI.WonOrLost = wol_Lost then Exit;
+  if gHands[aHandIndex].AI.HasLost then Exit;
 
   //Store it in hand so it can be included in MP save file
   gHands[aHandIndex].MessageLog.Add(aKind, aTextID, aLoc);

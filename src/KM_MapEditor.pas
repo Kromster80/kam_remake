@@ -273,36 +273,37 @@ procedure TKMMapEditor.MouseMove;
 var
   P: TKMPoint;
 begin
-  if ssLeft in gGameCursor.SState then //Only allow placing of roads etc. with the left mouse button
-  begin
-    P := gGameCursor.Cell;
-    case gGameCursor.Mode of
-      cmRoad:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Road) then
-                    begin
-                      //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                        gTerrain.RemField(P);
-                      gMySpectator.Hand.AddRoad(P);
-                    end;
-      cmField,
-      cmWine:       UpdateField(1, True);
-      cmUnits:      ProceedUnitsCursorMode;
-      cmErase:      begin
-                      gHands.RemAnyHouse(P);
-                      if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                        gTerrain.RemRoad(P);
-                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                        gTerrain.RemField(P);
-                    end;
-      cmSelection:  fSelection.Selection_Resize;
-    end;
+  // Only allow placing of roads etc. with the left mouse button
+  if not (ssLeft in gGameCursor.SState) then Exit;
+
+  P := gGameCursor.Cell;
+  case gGameCursor.Mode of
+    cmRoad:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Road) then
+                  begin
+                    //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
+                    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                      gTerrain.RemField(P);
+                    gMySpectator.Hand.AddRoad(P);
+                  end;
+    cmField,
+    cmWine:       UpdateField(1, True);
+    cmUnits:      ProceedUnitsCursorMode;
+    cmErase:      begin
+                    gHands.RemAnyHouse(P);
+                    if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                      gTerrain.RemRoad(P);
+                    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                      gTerrain.RemField(P);
+                  end;
+    cmSelection:  fSelection.Selection_Resize;
   end;
 end;
 
 
 procedure TKMMapEditor.ProceedUnitsCursorMode;
-var P: TKMPoint;
-    Obj: TObject;
+var
+  P: TKMPoint;
+  Obj: TObject;
 begin
   P := gGameCursor.Cell;
 
