@@ -54,7 +54,8 @@ uses
 
 { TKMSpectator }
 constructor TKMSpectator.Create(aHandIndex: TKMHandIndex);
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited Create;
 
@@ -93,8 +94,9 @@ end;
 
 //Return last seleted object for current chosen hand
 function TKMSpectator.GetLastSpecSelectedObj: TObject;
-var Obj: TObject;
-    UID: Integer;
+var
+  Obj: TObject;
+  UID: Integer;
 begin
   Result := nil;
   UID := fLastSpecSelectedObjUID[fHandIndex];
@@ -160,9 +162,11 @@ end;
 //Test if there's object below that player can interact with
 //Units and Houses and Groups
 function TKMSpectator.HitTestCursorWGroup(aIncludeAnimals: Boolean = False): TObject;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
   Result := HitTestCursor(aIncludeAnimals);
+
   if Result is TKMUnitWarrior then
   begin
     if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]  then

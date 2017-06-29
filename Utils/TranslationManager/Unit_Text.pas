@@ -8,16 +8,18 @@ uses
 
 type
   TTextInfo = record
-               TextID: Integer;
-               ConstName: string; //Name used in KM_TextLibrary.pas
-             end;
+    TextID: Integer;
+    ConstName: string; // Name used in KM_TextLibrary.pas
+  end;
 
   TStringArray = array of string;
 
 type
   TTextManager = class
   private
-    fUseConsts: Boolean; //We use consts only for ingame library, others don't need them
+    fTextPath: string;
+    fConstPath: string; // We use consts only for ingame library, others don't need them
+
     fTextsTopId: Integer;
     fTexts: array of TStringArray;
     fConsts: array of TTextInfo;
@@ -32,8 +34,8 @@ type
     procedure SaveTranslation(aTextPath: string; TranslationID: integer);
     procedure SetConst(aIndex: Integer; const Value: TTextInfo);
   public
-    procedure Load(aTextPath: string; aConstPath: string);
-    procedure Save(aTextPath: string; aConstPath: string);
+    procedure Load(const aTextPath, aConstPath: string);
+    procedure Save;
 
     function ConstCount: Integer;
     property Consts[aIndex: Integer]: TTextInfo read GetConst write SetConst;
@@ -59,39 +61,41 @@ uses
 
 
 const
-  eol: string = #13#10; //EndOfLine
+  eol: string = #13#10; // EndOfLine
 
 
-procedure TTextManager.Load(aTextPath: string; aConstPath: string);
+procedure TTextManager.Load(const aTextPath, aConstPath: string);
 var
   I: Integer;
 begin
+  fTextPath := aTextPath;
+  fConstPath := aConstPath;
+
   SetLength(fConsts, 0);
   SetLength(fTexts, 0);
 
-  fUseConsts := aConstPath <> '';
   fTextsTopId := -1;
 
-  if fUseConsts then
-    LoadConsts(aConstPath);
+  if fConstPath <> '' then
+    LoadConsts(fConstPath);
 
   for I := 0 to gResLocales.Count - 1 do
-    LoadText(Format(aTextPath, [gResLocales[I].Code]), I, gResLocales[I].FontCodepage);
+    LoadText(Format(fTextPath, [gResLocales[I].Code]), I, gResLocales[I].FontCodepage);
 
-  if fUseConsts then
+  if fConstPath <> '' then
     AddMissingConsts;
 end;
 
 
-procedure TTextManager.Save(aTextPath: string; aConstPath: string);
+procedure TTextManager.Save;
 var
   I: Integer;
 begin
-  if fUseConsts then
-    SaveTextLibraryConsts(aConstPath);
+  if fConstPath <> '' then
+    SaveTextLibraryConsts(fConstPath);
 
   for I := 0 to gResLocales.Count - 1 do
-    SaveTranslation(Format(aTextPath, [gResLocales[I].Code]), I);
+    SaveTranslation(Format(fTextPath, [gResLocales[I].Code]), I);
 end;
 
 
@@ -392,7 +396,7 @@ var
   I, K, CurIndex: Integer;
   fOldTexts: array of TStringArray;
 begin
-  if not fUseConsts then Exit;
+  if fConstPath = '' then Exit;
 
   //Backup current texts
   SetLength(fOldTexts, Length(fTexts), gResLocales.Count);
@@ -419,7 +423,7 @@ end;
 
 function TTextManager.ConstCount: Integer;
 begin
-  if fUseConsts then
+  if fConstPath <> '' then
     Result := Length(fConsts)
   else
     Result := Length(fTexts);
@@ -427,9 +431,10 @@ end;
 
 
 procedure TTextManager.Insert(aIndex: Integer);
-var I,K: Integer;
+var
+  I,K: Integer;
 begin
-  if fUseConsts then
+  if fConstPath <> '' then
   begin
     SetLength(fConsts, Length(fConsts) + 1);
 
@@ -462,7 +467,8 @@ end;
 
 
 function TTextManager.TextBlankInAll(aIndex: Integer): Boolean;
-var K: Integer;
+var
+  K: Integer;
 begin
   Result := True;
   for K := 0 to gResLocales.Count - 1 do
@@ -473,7 +479,7 @@ end;
 procedure TTextManager.DeleteConst(aIndex: Integer);
 var I,K: Integer;
 begin
-  if fUseConsts then
+  if fConstPath <> '' then
   begin
     if fConsts[aIndex].TextID <> -1 then
     begin
@@ -499,7 +505,7 @@ end;
 
 function TTextManager.GetConst(aIndex: Integer): TTextInfo;
 begin
-  if fUseConsts then
+  if fConstPath <> '' then
     Result := fConsts[aIndex]
   else
   begin
@@ -517,7 +523,8 @@ end;
 
 
 procedure TTextManager.InsertSeparator(aIndex: Integer);
-var i: integer;
+var
+  i: integer;
 begin
   SetLength(fConsts, Length(fConsts) + 1);
 
@@ -531,7 +538,8 @@ end;
 
 
 procedure TTextManager.MoveUp(aIndex: Integer);
-var Temp: TTextInfo;
+var
+  Temp: TTextInfo;
 begin
   if aIndex <= 0 then Exit; //Can't move the top item up
 
@@ -542,7 +550,8 @@ end;
 
 
 procedure TTextManager.MoveDown(aIndex: Integer);
-var Temp: TTextInfo;
+var
+  Temp: TTextInfo;
 begin
   if aIndex = High(fConsts) then Exit; //Can't move the bottom item down
 
