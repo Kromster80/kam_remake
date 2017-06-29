@@ -20,7 +20,6 @@ type
     Key: Byte;        // Key assigned to this function
     TextId: Word;     // Text description of the function
     Area: TKMFuncArea; // Area of effect for the function (common, game, maped)
-    AllowOverrideCommon: Boolean; // Allow function key to override some common function with same key
     IsChangableByPlayer: Boolean; // Hide debug key and its function from UI
   end;
 
@@ -82,7 +81,7 @@ const
     13,                                     // Map Editor Extra's menu (Return)
     112, 113, 114, 115, 116,                // Map Editor menus (F1-F5)
     49, 50, 51, 52, 53, 54,                 // Map Editor sub-menus (1-6)
-    4                                       // Map Editor show objects palette
+    32                                      // Map Editor show objects palette (Space)
   );
 
   // Function text values
@@ -146,7 +145,6 @@ begin
       else    fFuncs[I].Area := faMapEdit;
     end;
 
-    fFuncs[I].AllowOverrideCommon := (I = 82);
     fFuncs[I].IsChangableByPlayer := (I in [14..17]);
   end;
 end;
@@ -378,16 +376,12 @@ begin
     for I := 0 to FUNC_COUNT - 1 do
       if fFuncs[I].Key = aKey then
         case fFuncs[I].Area of
-          faCommon:     if not fFuncs[aId].AllowOverrideCommon then
+          faCommon:     fFuncs[I].Key := 0;
+          faGame:       if (fFuncs[aId].Area in [faGame, faCommon]) then
                           fFuncs[I].Key := 0;
-          faGame:       if (fFuncs[aId].Area = faGame)
-                          or ((fFuncs[aId].Area = faCommon) and not fFuncs[I].AllowOverrideCommon) then
+          faSpecReplay: if (fFuncs[aId].Area in [faSpecReplay, faCommon]) then
                           fFuncs[I].Key := 0;
-          faSpecReplay: if (fFuncs[aId].Area = faSpecReplay)
-                          or ((fFuncs[aId].Area = faCommon) and not fFuncs[I].AllowOverrideCommon) then
-                          fFuncs[I].Key := 0;
-          faMapEdit:    if (fFuncs[aId].Area = faMapEdit)
-                          or ((fFuncs[aId].Area = faCommon) and not fFuncs[I].AllowOverrideCommon) then
+          faMapEdit:    if (fFuncs[aId].Area in [faMapEdit, faCommon]) then
                           fFuncs[I].Key := 0;
         end;
 
