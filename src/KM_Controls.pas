@@ -1472,7 +1472,6 @@ begin
 end;
 
 
-
 procedure TKMControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   //if Assigned(fOnMouseDown) then fOnMouseDown(Self); { Unused }
