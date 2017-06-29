@@ -61,7 +61,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); virtual;
     procedure Resize(X,Y: Word); virtual;
-    procedure UpdateState(aTickCount: Cardinal); virtual;
+    procedure UpdateState(aTickCount: Cardinal); virtual; abstract;
     procedure Paint; virtual;
   end;
 
@@ -115,13 +115,6 @@ procedure TKMUserInterfaceCommon.Resize(X, Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-end;
-
-
-procedure TKMUserInterfaceCommon.UpdateState(aTickCount: Cardinal);
-begin
-  inherited;
-  fMyControls.UpdateState(aTickCount);
 end;
 
 

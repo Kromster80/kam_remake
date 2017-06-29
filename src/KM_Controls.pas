@@ -18,7 +18,6 @@ type
   TNotifyEventKeyShift = procedure(Key: Word; Shift: TShiftState) of object;
   TNotifyEventKeyShiftFunc = function(Sender: TObject; Key: Word; Shift: TShiftState): Boolean of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
-  TNotifyEvenClickHold = procedure(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
   TKMControlStateSet = set of TKMControlState;
@@ -75,8 +74,6 @@ type
     procedure Paint;
 
     procedure SaveToFile(aFileName: UnicodeString);
-
-    procedure UpdateState(aTickCount: Cardinal);
   end;
 
 
@@ -103,15 +100,9 @@ type
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
-    fClickHoldMode: Boolean;
-    fClickHoldHandled: Boolean;
-    fTimeOfLastMouseDown: Cardinal;
-    fLastMouseDownButton: TMouseButton;
-
     fOnClick: TNotifyEvent;
     fOnClickShift: TNotifyEventShift;
     fOnClickRight: TPointEvent;
-    fOnClickHold: TNotifyEvenClickHold;
     fOnDoubleClick: TNotifyEvent;
     fOnMouseWheel: TNotifyEventMW;
     fOnFocus: TBooleanEvent;
@@ -137,8 +128,6 @@ type
     function GetControlRect: TKMRect;
     function GetIsFocused: Boolean;
     function GetIsClickable: Boolean;
-
-    procedure ResetClickHoldMode;
   protected
     procedure SetLeft(aValue: Integer); virtual;
     procedure SetTop(aValue: Integer); virtual;
@@ -154,7 +143,6 @@ type
     procedure UpdateVisibility; virtual;
     //Let the control know that it was clicked to do its internal magic
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
-    procedure DoClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -216,7 +204,6 @@ type
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
     property OnClickShift: TNotifyEventShift read fOnClickShift write fOnClickShift;
     property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
-    property OnClickHold: TNotifyEvenClickHold read fOnClickHold write fOnClickHold;
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
     property OnFocus: TBooleanEvent read fOnFocus write fOnFocus;
@@ -226,7 +213,6 @@ type
     property OnKeyUp: TNotifyEventKeyShiftFunc read fOnKeyUp write fOnKeyUp;
 
     procedure Paint; virtual;
-    procedure UpdateState(aTickCount: Cardinal); virtual;
   end;
 
 
@@ -255,8 +241,6 @@ type
     procedure FocusNext;
     procedure ResetFocusedControlIndex;
     procedure Paint; override;
-
-    procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
 
@@ -636,13 +620,11 @@ type
   private
     fButtonInc: TKMButton;
     fButtonDec: TKMButton;
-    //fButtonClickTime: Cardinal;
     fValue: Integer;
     procedure ButtonClick(Sender: TObject; Shift: TShiftState);
 
     procedure SetValue(aValue: Integer);
     procedure SetSharedHint(aHint: UnicodeString);
-    procedure ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -1341,9 +1323,6 @@ implementation
 uses
   KM_Resource, KM_ResCursors, KM_ResSound, KM_ResSprites, KM_Sound, KM_Utils;
 
-const
-  CLICK_HOLD_TIME_THRESHOLD = 200; // Time period, determine delay between mouse down and 1st click hold events
-
 
 function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow;
 var
@@ -1493,33 +1472,16 @@ begin
 end;
 
 
-procedure TKMControl.ResetClickHoldMode;
-begin
-  fClickHoldMode := False;
-  fClickHoldHandled := False;
-end;
-
 
 procedure TKMControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   //if Assigned(fOnMouseDown) then fOnMouseDown(Self); { Unused }
-  fClickHoldMode := True;
-  fTimeOfLastMouseDown := TimeGet;
-  fLastMouseDownButton := Button;
 end;
 
 
 procedure TKMControl.MouseMove(X,Y: Integer; Shift: TShiftState);
 begin
   //if Assigned(fOnMouseOver) then fOnMouseOver(Self); { Unused }
-  if (csDown in State) then
-  begin
-    //Update fClickHoldMode
-    if InRange(X, AbsLeft, AbsRight) and InRange(Y, AbsTop, AbsBottom) then
-      fClickHoldMode := True
-    else
-      fClickHoldMode := False;
-  end;
 end;
 
 
@@ -1529,13 +1491,9 @@ begin
   if (csDown in State) then
   begin
     State := State - [csDown];
-
     //Send Click events
-    if not fClickHoldHandled then // Do not send click event, if it was handled already while in click hold mode
-      DoClick(X, Y, Shift, Button);
+    DoClick(X, Y, Shift, Button);
   end;
-
-  ResetClickHoldMode;
 end;
 
 
@@ -1792,13 +1750,6 @@ begin
 end;
 
 
-procedure TKMControl.DoClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
-begin
-  aHandled := False;
-  //Let descendants override this method
-end;
-
-
 // Check Control including all its Parents to see if Control is actually displayed/visible
 function TKMControl.GetVisible: Boolean;
 begin
@@ -1837,29 +1788,6 @@ begin
     MasterParent.fMasterControl.UpdateFocus(Self);
 
   UpdateVisibility;
-end;
-
-
-procedure TKMControl.UpdateState(aTickCount: Cardinal);
-var
-  SameMouseBtn: Boolean;
-begin
-  if (csDown in State) and fClickHoldMode and (GetTimeSince(fTimeOfLastMouseDown) > CLICK_HOLD_TIME_THRESHOLD)  then
-  begin
-    SameMouseBtn := False;
-    case fLastMouseDownButton of
-      mbLeft:   SameMouseBtn := (GetKeyState(VK_LBUTTON) < 0);
-      mbRight:  SameMouseBtn := (GetKeyState(VK_RBUTTON) < 0);
-    end;
-    if SameMouseBtn then
-    begin
-      DoClickHold(Self, fLastMouseDownButton, fClickHoldHandled);
-      if Assigned(fOnClickHold) then
-        fOnClickHold(Self, fLastMouseDownButton, fClickHoldHandled);
-    end else
-      ResetClickHoldMode; //Can happen if user alt-tab from game window while holding MB. Reset Click Hold mode then
-  end;
-
 end;
 
 
@@ -2097,14 +2025,6 @@ begin
   for I := 0 to ChildCount - 1 do
     if Assigned(Childs[I].fOnControlMouseUp) then
       Childs[I].fOnControlMouseUp(Sender, Shift);
-end;
-
-
-procedure TKMPanel.UpdateState(aTickCount: Cardinal);
-var I: Integer;
-begin
-  for I := 0 to ChildCount - 1 do
-    Childs[I].UpdateState(aTickCount);
 end;
 
 
@@ -3392,36 +3312,6 @@ begin
   fButtonInc.OnClickShift := ButtonClick;
   fButtonDec.OnMouseWheel := MouseWheel;
   fButtonInc.OnMouseWheel := MouseWheel;
-  fButtonDec.OnClickHold := ClickHold;
-  fButtonInc.OnClickHold := ClickHold;
-end;
-
-
-procedure TKMNumericEdit.ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
-var Amt: Integer;
-    Shift: TShiftState;
-begin
-  inherited;
-  aHandled := True;
-  Shift := [];
-  case Button of
-    mbLeft:   Include(Shift, ssLeft);
-    mbRight:  Include(Shift, ssRight);
-  end;
-
-  if GetKeyState(VK_SHIFT) < 0 then
-    Include(Shift, ssShift);
-
-  Amt := GetMultiplicator(Shift);
-
-  if Sender = fButtonDec then
-    Value := Value - Amt
-  else
-  if Sender = fButtonInc then
-    Value := Value + Amt;
-
-  if (Amt <> 0) and Assigned(OnChange) then
-    OnChange(Self);
 end;
 
 
@@ -7006,12 +6896,6 @@ begin
       FindFocusable(fMasterPanel);
     end;
   end;
-end;
-
-
-procedure TKMMasterControl.UpdateState(aTickCount: Cardinal);
-begin
-  fMasterPanel.UpdateState(aTickCount);
 end;
 
 
