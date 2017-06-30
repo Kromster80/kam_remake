@@ -640,7 +640,7 @@ type
   public
     ValueMin: Integer;
     ValueMax: Integer;
-    constructor Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: SmallInt; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aValueMin, aValueMax: Integer; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
     property Value: Integer read fValue write SetValue;
     property SharedHint: UnicodeString read Hint write SetSharedHint;
 
@@ -3296,7 +3296,7 @@ end;
 
 
 { TKMNumericEdit }
-constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: SmallInt; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
+constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop, aValueMin, aValueMax: Integer; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
 var
   W: Word;
 begin
