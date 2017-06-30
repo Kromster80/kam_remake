@@ -105,9 +105,7 @@ type
     fOnClickRight: TPointEvent;
     fOnDoubleClick: TNotifyEvent;
     fOnMouseWheel: TNotifyEventMW;
-    fOnFocus: TBooleanEvent;
-    fOnControlMouseDown: TNotifyEventShift;
-    fOnControlMouseUp: TNotifyEventShift;
+    fOnFocusChange: TBooleanEvent;       // Focus or Unfocus
     fOnKeyDown: TNotifyEventKeyShiftFunc;
     fOnKeyUp: TNotifyEventKeyShiftFunc;
 
@@ -141,6 +139,9 @@ type
     function GetSelfHeight: Integer; virtual;
     function GetSelfWidth: Integer; virtual;
     procedure UpdateVisibility; virtual;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); virtual;
+    procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); virtual;
+    procedure FocusChanged(aFocused: Boolean); virtual;
     //Let the control know that it was clicked to do its internal magic
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
   public
@@ -206,9 +207,7 @@ type
     property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
-    property OnFocus: TBooleanEvent read fOnFocus write fOnFocus;
-    property OnControlMouseDown: TNotifyEventShift read fOnControlMouseDown write fOnControlMouseDown;
-    property OnControlMouseUp: TNotifyEventShift read fOnControlMouseUp write fOnControlMouseUp;
+    property OnFocusChange: TBooleanEvent read fOnFocusChange write fOnFocusChange;
     property OnKeyDown: TNotifyEventKeyShiftFunc read fOnKeyDown write fOnKeyDown;
     property OnKeyUp: TNotifyEventKeyShiftFunc read fOnKeyUp write fOnKeyUp;
 
@@ -226,8 +225,8 @@ type
     //e.g. scrollbar on a listbox
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
-    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
-    procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
+    procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); override;
     procedure UpdateVisibility; override;
   public
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
@@ -489,11 +488,10 @@ type
     procedure SetSelectionStart(aValue: Integer);
     procedure SetSelectionEnd(aValue: Integer);
     procedure DeleteSelectedText;
-
-    procedure FocusSelectableEdit(aFocused: Boolean);
-    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
   protected
     fText: UnicodeString;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
+    procedure FocusChanged(aFocused: Boolean); override;
     function GetMaxLength: Word; virtual; abstract;
     function IsCharValid(aChar: WideChar): Boolean; virtual; abstract;
     procedure ValidateText; virtual; abstract;
@@ -637,7 +635,9 @@ type
     function GetMaxLength: Word; override;
     function IsCharValid(Key: WideChar): Boolean; override;
     procedure ValidateText; override;
+    procedure FocusChanged(aFocused: Boolean); override;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
   public
     ValueMin: Integer;
     ValueMax: Integer;
@@ -1158,6 +1158,8 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetTop(aValue: Integer); override;
+    procedure FocusChanged(aFocused: Boolean); override;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aSelectable: Boolean = True);
     destructor Destroy; override;
@@ -1181,8 +1183,6 @@ type
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure Focus(aFocused: Boolean);
-    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
 
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
@@ -1798,6 +1798,24 @@ begin
 end;
 
 
+procedure TKMControl.FocusChanged(aFocused: Boolean);
+begin
+  //Let descendants override this method
+end;
+
+
+procedure TKMControl.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+begin
+  //Let descendants override this method
+end;
+
+
+procedure TKMControl.ControlMouseUp(Sender: TObject; Shift: TShiftState);
+begin
+  //Let descendants override this method
+end;
+
+
 procedure TKMControl.Enable;  begin SetEnabled(True);  end; //Overrides will be set too
 procedure TKMControl.Disable; begin SetEnabled(False); end;
 
@@ -1884,8 +1902,8 @@ end;
 procedure TKMPanel.Init;
 begin
   ResetFocusedControlIndex;
-  OnControlMouseDown := ControlMouseDown;
-  OnControlMouseUp := ControlMouseUp;
+  //fOnControlMouseDown := ControlMouseDown;
+  //fOnControlMouseUp := ControlMouseUp;
 end;
 
 
@@ -2014,18 +2032,20 @@ end;
 procedure TKMPanel.ControlMouseDown(Sender: TObject; Shift: TShiftState);
 var I: Integer;
 begin
+  inherited;
   for I := 0 to ChildCount - 1 do
-    if Assigned(Childs[I].fOnControlMouseDown) then
-      Childs[I].fOnControlMouseDown(Sender, Shift);
+    //if Assigned(Childs[I].fOnControlMouseDown) then
+    Childs[I].ControlMouseDown(Sender, Shift);
 end;
 
 
 procedure TKMPanel.ControlMouseUp(Sender: TObject; Shift: TShiftState);
 var I: Integer;
 begin
+  inherited;
   for I := 0 to ChildCount - 1 do
-    if Assigned(Childs[I].fOnControlMouseUp) then
-      Childs[I].fOnControlMouseUp(Sender, Shift);
+    //if Assigned(Childs[I].fOnControlMouseUp) then
+    Childs[I].ControlMouseUp(Sender, Shift);
 end;
 
 
@@ -2687,8 +2707,7 @@ begin
   BlockInput := False;
   fSelectable := aSelectable;
 
-  fOnFocus := FocusSelectableEdit;
-  fOnControlMouseDown := ControlMouseDown;
+  //fOnControlMouseDown := ControlMouseDown;
 end;
 
 
@@ -2971,13 +2990,15 @@ end;
 
 procedure TKMSelectableEdit.ControlMouseDown(Sender: TObject; Shift: TShiftState);
 begin
+  inherited;
   if (Sender <> Self) then
     ResetSelection;
 end;
 
 
-procedure TKMSelectableEdit.FocusSelectableEdit(aFocused: Boolean);
+procedure TKMSelectableEdit.FocusChanged(aFocused: Boolean);
 begin
+  inherited;
   if not aFocused then
     ResetSelection;
 end;
@@ -3302,7 +3323,7 @@ var
   W: Word;
 begin
   // Text width + padding + buttons
-  W := gRes.Fonts[fnt_Grey].GetTextSize(IntToStr(aValueMax)).X + 10 + 20 + 20;
+  W := Max(gRes.Fonts[fnt_Grey].GetTextSize(IntToStr(aValueMax)).X, gRes.Fonts[fnt_Grey].GetTextSize(IntToStr(aValueMin)).X) + 10 + 20 + 20;
 
   inherited Create(aParent, aLeft, aTop, W, 20, aFont, aSelectable);
 
@@ -3362,6 +3383,8 @@ begin
     Result := Trunc(Log10(Max(Abs(ValueMax), Abs(ValueMin)))) + 1
   else
     Result := 1;
+  if (ValueMax < 0) or (ValueMin < 0) then
+    Result := Result + 1;
 end;
 
 
@@ -3477,6 +3500,7 @@ procedure TKMNumericEdit.ValidateText;
 var
   I: Integer;
   AllowedChars: TSetOfAnsiChar;
+  OnlyMinus: Boolean;
 begin
   AllowedChars := ['0'..'9'];
   //Validate contents
@@ -3492,10 +3516,14 @@ begin
     end;
   end;
 
-  if fText = '' then
+  OnlyMinus := (fText = '-');
+
+  if (fText = '') or OnlyMinus then
     Value := 0
   else
     SetValueNCheckRange(StrToInt64(fText));
+
+  if OnlyMinus then fText := '-'; //Set text back to '-' while still editing.
 
   CursorPos := Min(CursorPos, Length(fText)); //In case we had leading zeros in fText string
 
@@ -3528,6 +3556,22 @@ begin
     OffX := AbsLeft + 22 + gRes.Fonts[fFont].GetTextSize(RText).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
+end;
+
+
+procedure TKMNumericEdit.FocusChanged(aFocused: Boolean);
+begin
+  inherited;
+  if not aFocused and (fText = '-') then //after unfocus, if only '-' is in string, set value to 0
+    Value := 0;
+end;
+
+
+procedure TKMNumericEdit.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+begin
+  inherited;
+  if (Sender <> Self) and (fText = '-') then //after unfocus, if only '-' is in string, set value to 0
+    Value := 0;
 end;
 
 
@@ -3903,9 +3947,6 @@ begin
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
   fSelectable := aSelectable;
-
-  fOnFocus := Focus;
-  fOnControlMouseDown := ControlMouseDown;
 end;
 
 
@@ -4434,6 +4475,7 @@ end;
 
 procedure TKMMemo.ControlMouseDown(Sender: TObject; Shift: TShiftState);
 begin
+  inherited;
   // Reset all, if other control was clicked
   if Sender <> Self then
   begin
@@ -4445,7 +4487,7 @@ begin
 end;
 
 
-procedure TKMMemo.Focus(aFocused: Boolean);
+procedure TKMMemo.FocusChanged(aFocused: Boolean);
 begin
   if not aFocused then
   begin
@@ -6809,8 +6851,9 @@ begin
   begin
     if fCtrlFocus <> nil then
     begin
-      if  Assigned(fCtrlFocus.fOnFocus) then
-        fCtrlFocus.fOnFocus(False);
+      fCtrlFocus.FocusChanged(False);
+      if  Assigned(fCtrlFocus.fOnFocusChange) then
+        fCtrlFocus.fOnFocusChange(False);
       // Reset Parent Panel FocusedControlIndex only for different parents
       if (aCtrl = nil) or (aCtrl.Parent <> fCtrlFocus.Parent) then
         fCtrlFocus.Parent.ResetFocusedControlIndex;
@@ -6818,8 +6861,9 @@ begin
 
     if aCtrl <> nil then
     begin
-      if Assigned(aCtrl.fOnFocus) then
-        aCtrl.fOnFocus(True);
+      aCtrl.FocusChanged(True);
+      if Assigned(aCtrl.fOnFocusChange) then
+        aCtrl.fOnFocusChange(True);
       aCtrl.Parent.FocusedControlIndex := aCtrl.ControlIndex; //Set Parent Panel FocusedControlIndex to new focused control
     end;
   end;
