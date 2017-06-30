@@ -625,6 +625,7 @@ type
     procedure SetValueNCheckRange(aValue: Int64);
     procedure SetValue(aValue: Integer);
     procedure SetSharedHint(aHint: UnicodeString);
+    procedure CheckValueOnUnfocus;
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -3498,8 +3499,10 @@ procedure TKMNumericEdit.ValidateText;
 var
   I: Integer;
   AllowedChars: TSetOfAnsiChar;
-  OnlyMinus: Boolean;
+  OnlyMinus, IsEmpty: Boolean;
 begin
+  IsEmpty := (fText = #8); // When deleting text with Backspace last character is still in string - backspace character (#8)
+
   AllowedChars := ['0'..'9'];
   //Validate contents
   for I := Length(fText) downto 1 do
@@ -3516,12 +3519,13 @@ begin
 
   OnlyMinus := (fText = '-');
 
-  if (fText = '') or OnlyMinus then
+  if (fText = '') or OnlyMinus or IsEmpty then
     Value := 0
   else
     SetValueNCheckRange(StrToInt64(fText));
 
   if OnlyMinus then fText := '-'; //Set text back to '-' while still editing.
+  if IsEmpty then fText := ''; //Set text back to '' while still editing.
 
   CursorPos := Min(CursorPos, Length(fText)); //In case we had leading zeros in fText string
 
@@ -3557,19 +3561,26 @@ begin
 end;
 
 
+procedure TKMNumericEdit.CheckValueOnUnfocus;
+begin
+  if (fText = '-') or (fText = '') then //after unfocus, if only '-' is in string, set value to 0
+    Value := 0;
+end;
+
+
 procedure TKMNumericEdit.FocusChanged(aFocused: Boolean);
 begin
   inherited;
-  if not aFocused and (fText = '-') then //after unfocus, if only '-' is in string, set value to 0
-    Value := 0;
+  if not aFocused then
+    CheckValueOnUnfocus;
 end;
 
 
 procedure TKMNumericEdit.ControlMouseDown(Sender: TObject; Shift: TShiftState);
 begin
   inherited;
-  if (Sender <> Self) and (fText = '-') then //after unfocus, if only '-' is in string, set value to 0
-    Value := 0;
+  if (Sender <> Self) then
+    CheckValueOnUnfocus;
 end;
 
 
