@@ -3476,14 +3476,20 @@ end;
 procedure TKMNumericEdit.ValidateText;
 var
   I: Integer;
+  AllowedChars: TSetOfAnsiChar;
 begin
+  AllowedChars := ['0'..'9'];
   //Validate contents
   for I := Length(fText) downto 1 do
-  if not KromUtils.CharInSet(fText[I], ['0'..'9']) then
   begin
-    Delete(fText, I, 1);
-    if CursorPos >= I then //Keep cursor in place
-      CursorPos := CursorPos - 1;
+    if I = 1 then Include(AllowedChars, '-');
+
+    if not KromUtils.CharInSet(fText[I], AllowedChars) then
+    begin
+      Delete(fText, I, 1);
+      if CursorPos >= I then //Keep cursor in place
+        CursorPos := CursorPos - 1;
+    end;
   end;
 
   if fText = '' then
