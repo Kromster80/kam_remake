@@ -624,6 +624,7 @@ type
     fValue: Integer;
     procedure ButtonClick(Sender: TObject; Shift: TShiftState);
 
+    procedure SetValueNCheckRange(aValue: Int64);
     procedure SetValue(aValue: Integer);
     procedure SetSharedHint(aHint: UnicodeString);
   protected
@@ -3326,8 +3327,8 @@ begin
   inherited KeyDown(Key, Shift);
 
   case Key of
-    VK_UP:      Value := Value + 1 + 9*Byte(ssShift in Shift);
-    VK_DOWN:    Value := Value - 1 - 9*Byte(ssShift in Shift);
+    VK_UP:      SetValueNCheckRange(Int64(Value) + 1 + 9*Byte(ssShift in Shift));
+    VK_DOWN:    SetValueNCheckRange(Int64(Value) - 1 - 9*Byte(ssShift in Shift));
   end;
 end;
 
@@ -3368,8 +3369,10 @@ procedure TKMNumericEdit.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
   inherited;
 
-  if WheelDelta > 0 then Value := Value + 1 + 9*Byte(GetKeyState(VK_SHIFT) < 0);
-  if WheelDelta < 0 then Value := Value - 1 - 9*Byte(GetKeyState(VK_SHIFT) < 0);
+  if WheelDelta > 0 then
+    SetValueNCheckRange(Int64(Value) + 1 + 9*Byte(GetKeyState(VK_SHIFT) < 0));
+  if WheelDelta < 0 then
+    SetValueNCheckRange(Int64(Value) - 1 - 9*Byte(GetKeyState(VK_SHIFT) < 0));
 
   Focus;
 
@@ -3381,10 +3384,10 @@ end;
 procedure TKMNumericEdit.ButtonClick(Sender: TObject; Shift: TShiftState);
 begin
   if Sender = fButtonDec then
-    Value := Value - GetMultiplicator(Shift)
+    SetValueNCheckRange(Int64(Value) - GetMultiplicator(Shift))
   else
   if Sender = fButtonInc then
-    Value := Value + GetMultiplicator(Shift)
+    SetValueNCheckRange(Int64(Value) + GetMultiplicator(Shift))
   else
     Exit;
 
@@ -3455,6 +3458,12 @@ begin
 end;
 
 
+procedure TKMNumericEdit.SetValueNCheckRange(aValue: Int64);
+begin
+  SetValue(EnsureRange(aValue, Low(Integer), High(Integer)));
+end;
+
+
 procedure TKMNumericEdit.SetValue(aValue: Integer);
 begin
   fValue := EnsureRange(aValue, ValueMin, ValueMax);
@@ -3480,7 +3489,9 @@ begin
   if fText = '' then
     Value := 0
   else
-    Value := StrToInt(fText);
+    SetValueNCheckRange(StrToInt64(fText));
+
+  CursorPos := Min(CursorPos, Length(fText)); //In case we had leading zeros in fText string
 
   if Assigned(OnChange) then
     OnChange(Self);
