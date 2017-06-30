@@ -3380,11 +3380,9 @@ end;
 function TKMNumericEdit.GetMaxLength: Word;
 begin
   if Max(Abs(ValueMax), Abs(ValueMin)) <> 0 then
-    Result := Trunc(Log10(Max(Abs(ValueMax), Abs(ValueMin)))) + 1
+    Result := Trunc(Max(Log10(Abs(ValueMax)) + Byte(ValueMax < 0), Log10(Abs(ValueMin)) + Byte(ValueMin < 0))) + 1
   else
     Result := 1;
-  if (ValueMax < 0) or (ValueMin < 0) then
-    Result := Result + 1;
 end;
 
 
