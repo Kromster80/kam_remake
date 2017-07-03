@@ -2604,6 +2604,7 @@ begin
       gMySpectator.Selected := gHands.GetHouseByUID(fSelection[aId]);
       if gMySpectator.Selected <> nil then
       begin
+        fGuiGameHouse.AskDemolish := False; //Close AskDemolish dialog, if was open by setting AskDemolish flag to False
         if TKMHouse(gMySpectator.Selected).IsDestroyed then
         begin
           gMySpectator.Selected := nil; // Don't select destroyed houses
