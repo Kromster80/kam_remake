@@ -46,10 +46,9 @@ type
     
     function GetNextCtrlID: Integer;
   public
-    constructor Create;
     destructor Destroy; override;
 
-    property MainPanel: TKMPanel read fMasterPanel;
+    property MasterPanel: TKMPanel read fMasterPanel;
     function IsFocusAllowed(aCtrl: TKMControl): Boolean;
     function IsAutoFocusAllowed(aCtrl: TKMControl): Boolean;
     procedure UpdateFocus(aSender: TKMControl);
@@ -6813,21 +6812,6 @@ end;
 
 
 { TKMMasterControl }
-constructor TKMMasterControl.Create;
-begin
-  inherited;
-
-  CtrlPaintCount  := 0;
-  fMasterPanel    := nil;
-  fCtrlDown       := nil;
-  fCtrlFocus      := nil;
-  fCtrlOver       := nil;
-  fCtrlUp         := nil;
-
-  fControlIDCounter := 0;
-end;
-
-
 destructor TKMMasterControl.Destroy;
 begin
   fMasterPanel.Free; //Will destroy all its childs as well
