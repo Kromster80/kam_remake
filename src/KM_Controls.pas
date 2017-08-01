@@ -3459,13 +3459,13 @@ end;
 
 function TKMNumericEdit.GetSelfAbsLeft: Integer;
 begin
-  Result := AbsLeft + 20; // Need to add extra +1 because of left button border
+  Result := AbsLeft + 20;
 end;
 
 
 function TKMNumericEdit.GetSelfWidth: Integer;
 begin
-  Result := fWidth - 40; // Need to substruct extra -2 because of 2 buttons borders
+  Result := fWidth - 40;
 end;
 
 
