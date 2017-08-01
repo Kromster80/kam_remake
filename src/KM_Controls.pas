@@ -10,7 +10,6 @@ uses
 
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
-  TNotifyEventFocus = procedure(aFocused: Boolean) of object;
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
