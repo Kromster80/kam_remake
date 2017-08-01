@@ -1901,8 +1901,6 @@ end;
 procedure TKMPanel.Init;
 begin
   ResetFocusedControlIndex;
-  //fOnControlMouseDown := ControlMouseDown;
-  //fOnControlMouseUp := ControlMouseUp;
 end;
 
 
@@ -2033,7 +2031,6 @@ var I: Integer;
 begin
   inherited;
   for I := 0 to ChildCount - 1 do
-    //if Assigned(Childs[I].fOnControlMouseDown) then
     Childs[I].ControlMouseDown(Sender, Shift);
 end;
 
@@ -2043,7 +2040,6 @@ var I: Integer;
 begin
   inherited;
   for I := 0 to ChildCount - 1 do
-    //if Assigned(Childs[I].fOnControlMouseUp) then
     Childs[I].ControlMouseUp(Sender, Shift);
 end;
 
