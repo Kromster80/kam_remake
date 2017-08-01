@@ -116,6 +116,9 @@ type
     function GetHeight: Integer;
     function GetWidth: Integer;
 
+    //Let the control know that it was clicked to do its internal magic
+    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
+
     function GetVisible: Boolean;
     procedure SetAbsLeft(aValue: Integer);
     procedure SetAbsTop(aValue: Integer);
@@ -140,8 +143,6 @@ type
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); virtual;
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); virtual;
     procedure FocusChanged(aFocused: Boolean); virtual;
-    //Let the control know that it was clicked to do its internal magic
-    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -4887,6 +4888,7 @@ end;
 procedure TKMListHeader.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var ColumnID: Integer;
 begin
+  //do not invoke inherited here, to fully override parent DoClick method
   ColumnID := GetColumnIndex(X);
   if (ColumnID <> -1) and Assigned(OnColumnClick) then
   begin
@@ -5371,6 +5373,7 @@ end;
 procedure TKMColumnBox.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var IsClickHandled: Boolean;
 begin
+  //do not invoke inherited here, to fully override parent DoClick method
   IsClickHandled := False;
 
   if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, KMPOINT_INVALID_TILE) then
@@ -5746,6 +5749,8 @@ end;
 
 procedure TKMDropCommon.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
+  //do not invoke inherited here, to fully override parent DoClick method
+
   //It's common behavior when click on dropbox will show the list
   if fAutoClose then
     ListShow(Self)
