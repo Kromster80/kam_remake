@@ -5869,6 +5869,8 @@ begin
       fList.AbsTop := AbsTop - fList.Height
     else
       fList.AbsTop := AbsTop + Height;
+
+    fList.Left := AbsLeft - MasterParent.AbsLeft;
   end;
 end;
 
@@ -6072,6 +6074,8 @@ begin
       fList.AbsTop := AbsTop - fList.Height
     else
       fList.AbsTop := AbsTop + Height;
+
+    fList.Left := AbsLeft + Width - DropWidth - MasterParent.AbsLeft;
   end;
 end;
 
