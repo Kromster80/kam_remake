@@ -8,6 +8,8 @@ uses
   {$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
 
 type
+  TRectArray = array of TRect;
+
   TKMMain = class
   private
     fFormMain: TFormMain;
@@ -46,6 +48,7 @@ type
     property FormMain: TFormMain read fFormMain;
 
     procedure ApplyCursorRestriction;
+    procedure GetMonitorsBounds(out MonitorsBounds: TRectArray);
     function GetScreenBounds(out Bounds: TRect): Boolean;
     function IsFormActive: Boolean;
     function ClientRect: TRect;
@@ -453,6 +456,22 @@ begin
 end;
 
 
+procedure TKMMain.GetMonitorsBounds(out MonitorsBounds: TRectArray);
+var I: Integer;
+begin
+  SetLength(MonitorsBounds, Screen.MonitorCount);
+
+  for I := 0 to Screen.MonitorCount - 1 do
+  begin
+    MonitorsBounds[I] := Classes.Rect(-1,-1,-1,-1);
+    MonitorsBounds[I].Left  := Screen.Monitors[I].Left;
+    MonitorsBounds[I].Right := Screen.Monitors[I].Width + Screen.Monitors[I].Left;
+    MonitorsBounds[I].Top   := Screen.Monitors[I].Top;
+    MonitorsBounds[I].Bottom:= Screen.Monitors[I].Height + Screen.Monitors[I].Top;
+  end;
+end;
+
+
 //Can be invalid very breifly if you change resolutions (this is possible in Windowed mode)
 function TKMMain.GetScreenBounds(out Bounds: TRect): Boolean;
 var I: Integer;
@@ -463,7 +482,7 @@ begin
   //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
   if fFormMain.WindowState = wsMaximized then
   begin
-    for I:=0 to Screen.MonitorCount-1 do
+    for I := 0 to Screen.MonitorCount - 1 do
       //Find the monitor with the left closest to the left of the form
       if (I = 0) or
          ((abs(fFormMain.Left - Screen.Monitors[I].Left) <= abs(fFormMain.Left - Bounds.Left)) and
@@ -477,7 +496,7 @@ begin
       end;
   end
   else
-    for I:=0 to Screen.MonitorCount-1 do
+    for I := 0 to Screen.MonitorCount - 1 do
       //See if our form is within the boundaries of this monitor (I.e. when it is not outside the boundaries)
       if not ((fFormMain.Left               >= Screen.Monitors[I].Width + Screen.Monitors[I].Left) or
               (fFormMain.Width + fFormMain.Left <= Screen.Monitors[I].Left) or
