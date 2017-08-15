@@ -439,21 +439,21 @@ begin
 
   F := TMemIniFile.Create(FileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
   try
-    fBrightness         := F.ReadInteger  ('GFX', 'Brightness',       1);
-    fAlphaShadows       := F.ReadBool     ('GFX', 'AlphaShadows',     True);
-    fLoadFullFonts      := F.ReadBool     ('GFX', 'LoadFullFonts',    False);
+    fBrightness         := F.ReadInteger  ('GFX', 'Brightness',         1);
+    fAlphaShadows       := F.ReadBool     ('GFX', 'AlphaShadows',       True);
+    fLoadFullFonts      := F.ReadBool     ('GFX', 'LoadFullFonts',      False);
 
-    fAutosave           := F.ReadBool     ('Game', 'Autosave',        True); //Should be ON by default
-    fReplayAutopause    := F.ReadBool     ('Game', 'ReplayAutopause', False); //Disabled by default
-    fScrollSpeed        := F.ReadInteger  ('Game', 'ScrollSpeed',    10);
-    fSpeedPace          := F.ReadInteger  ('Game', 'SpeedPace',      100);
-    fSpeedMedium        := F.ReadFloat    ('Game', 'SpeedMedium',    3);
-    fSpeedFast          := F.ReadFloat    ('Game', 'SpeedFast',      6);
-    fSpeedVeryFast      := F.ReadFloat    ('Game', 'SpeedVeryFast',  10);
+    fAutosave           := F.ReadBool     ('Game', 'Autosave',          True); //Should be ON by default
+    fReplayAutopause    := F.ReadBool     ('Game', 'ReplayAutopause',   False); //Disabled by default
+    fReplayShowBeacons  := F.ReadBool     ('Game', 'ReplayShowBeacons', False); //Disabled by default
+    fSpecShowBeacons    := F.ReadBool     ('Game', 'SpecShowBeacons',   False); //Disabled by default
+    fScrollSpeed        := F.ReadInteger  ('Game', 'ScrollSpeed',       10);
+    fSpeedPace          := F.ReadInteger  ('Game', 'SpeedPace',         100);
+    fSpeedMedium        := F.ReadFloat    ('Game', 'SpeedMedium',       3);
+    fSpeedFast          := F.ReadFloat    ('Game', 'SpeedFast',         6);
+    fSpeedVeryFast      := F.ReadFloat    ('Game', 'SpeedVeryFast',     10);
 
     fLocale             := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
-    fReplayShowBeacons  := F.ReadBool('Game', 'ReplayShowBeacons', False); //Disabled by default
-    fSpecShowBeacons    := F.ReadBool('Game', 'SpecShowBeacons', False); //Disabled by default
 
     fWareDistribution.LoadFromStr(F.ReadString ('Game','WareDistribution',''));
 
@@ -523,17 +523,17 @@ begin
     F.WriteBool   ('GFX','AlphaShadows',  fAlphaShadows);
     F.WriteBool   ('GFX','LoadFullFonts', fLoadFullFonts);
 
-    F.WriteBool   ('Game','Autosave',        fAutosave);
-    F.WriteBool   ('Game','ReplayAutopause', fReplayAutopause);
-    F.WriteInteger('Game','ScrollSpeed',     fScrollSpeed);
-    F.WriteInteger('Game','SpeedPace',       fSpeedPace);
-    F.WriteFloat  ('Game','SpeedMedium',     fSpeedMedium);
-    F.WriteFloat  ('Game','SpeedFast',       fSpeedFast);
-    F.WriteFloat  ('Game','SpeedVeryFast',   fSpeedVeryFast);
+    F.WriteBool   ('Game','Autosave',           fAutosave);
+    F.WriteBool   ('Game','ReplayAutopause',    fReplayAutopause);
+    F.WriteBool   ('Game','ReplayShowBeacons',  fReplayShowBeacons);
+    F.WriteBool   ('Game','SpecShowBeacons',    fSpecShowBeacons);
+    F.WriteInteger('Game','ScrollSpeed',        fScrollSpeed);
+    F.WriteInteger('Game','SpeedPace',          fSpeedPace);
+    F.WriteFloat  ('Game','SpeedMedium',        fSpeedMedium);
+    F.WriteFloat  ('Game','SpeedFast',          fSpeedFast);
+    F.WriteFloat  ('Game','SpeedVeryFast',      fSpeedVeryFast);
 
     F.WriteString ('Game','Locale',          UnicodeString(fLocale));
-    F.WriteBool   ('Game','ReplayShowBeacons', fReplayShowBeacons);
-    F.WriteBool   ('Game','SpecShowBeacons', fSpecShowBeacons);
 
     F.WriteString('Game','WareDistribution', fWareDistribution.PackToStr);
 

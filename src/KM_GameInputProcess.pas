@@ -443,7 +443,7 @@ begin
 
   // Show beacons while watching replay
   ShowInReplay :=  gGame.IsReplay and gGameApp.GameSettings.ReplayShowBeacons;
-  // Show beacons while watching spectating multiplayer game
+  // Show beacons while spectating multiplayer game
   ShowWhileSpec := (gGame.GameMode = gmMultiSpectate) and ((aCommand.Params[3] = PLAYER_NONE) or gGameApp.GameSettings.SpecShowBeacons);
   // Show beacons while playing the game
   ShowWhilePlaying := (gGame.GameMode in [gmMulti, gmCampaign, gmSingle]) and (aCommand.Params[3] <> PLAYER_NONE);
