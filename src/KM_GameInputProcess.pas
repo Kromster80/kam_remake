@@ -432,26 +432,38 @@ end;
 
 
 procedure TGameInputProcess.ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
+  function DoAddPlayerBeacon: Boolean;
+  var IsPlayerMuted: Boolean;
+  begin
+    Result := False;
+    // Check if player, who send beacon, is muted
+    IsPlayerMuted := (gGame.Networking <> nil) and gGame.Networking.IsMuted(gGame.Networking.GetNetPlayerIndex(aCommand.Params[3]));
+
+    Result := (gHands.CheckAlliance(aCommand.Params[3], gMySpectator.HandIndex) = at_Ally)
+      and (gHands[aCommand.Params[3]].ShareBeacons[gMySpectator.HandIndex])
+      and not IsPlayerMuted; // do not show beacons sended by muted players
+  end;
+
 var
-  IsPlayerMuted: Boolean;
-  ShowInReplay, ShowWhileSpec, ShowWhilePlaying: Boolean;
+  AddBeacon: Boolean;
 begin
   // Beacon script event must always be run by all players for consistency
   gScriptEvents.ProcBeacon(aCommand.Params[3], 1 + (aCommand.Params[1] div 10), 1 + (aCommand.Params[2] div 10));
-  // Check if player, who send beacon, is muted
-  IsPlayerMuted := (gGame.Networking <> nil) and gGame.Networking.IsMuted(gGame.Networking.GetNetPlayerIndex(aCommand.Params[3]));
 
-  // Show beacons while watching replay
-  ShowInReplay :=  gGame.IsReplay and gGameApp.GameSettings.ReplayShowBeacons;
-  // Show beacons while spectating multiplayer game
-  ShowWhileSpec := (gGame.GameMode = gmMultiSpectate) and ((aCommand.Params[3] = PLAYER_NONE) or gGameApp.GameSettings.SpecShowBeacons);
-  // Show beacons while playing the game
-  ShowWhilePlaying := (gGame.GameMode in [gmMulti, gmCampaign, gmSingle]) and (aCommand.Params[3] <> PLAYER_NONE);
+  AddBeacon := False;
 
-  if (ShowInReplay or ShowWhileSpec or ShowWhilePlaying)
-    and ((gHands.CheckAlliance(aCommand.Params[3], gMySpectator.HandIndex) = at_Ally)
-    and (gHands[aCommand.Params[3]].ShareBeacons[gMySpectator.HandIndex])
-    and not IsPlayerMuted) then                                            // do not show beacons sended by muted players
+  case gGame.GameMode of
+    gmSingle,
+    gmCampaign,
+    gmMulti:          AddBeacon := (aCommand.Params[3] <> PLAYER_NONE) and DoAddPlayerBeacon;
+    gmMultiSpectate:  AddBeacon := (aCommand.Params[3] = PLAYER_NONE) // Show spectators beacons while spectating
+                                    or (gGameApp.GameSettings.SpecShowBeacons and DoAddPlayerBeacon);
+    gmReplaySingle,
+    gmReplayMulti:    AddBeacon := (aCommand.Params[3] <> PLAYER_NONE)  // Do not show spectators beacons in replay
+                                    and gGameApp.GameSettings.ReplayShowBeacons and DoAddPlayerBeacon;
+  end;
+
+  if AddBeacon then
       gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(aCommand.Params[1]/10,
                                                         aCommand.Params[2]/10),
                                                         aCommand.Params[3],
