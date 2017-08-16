@@ -432,18 +432,24 @@ end;
 
 
 procedure TGameInputProcess.ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
-var IsPlayerMuted: Boolean;
+var
+  IsPlayerMuted: Boolean;
+  ShowInReplay, ShowWhileSpec, ShowWhilePlaying: Boolean;
 begin
-  //Beacon script event must always be run by all players for consistency
+  // Beacon script event must always be run by all players for consistency
   gScriptEvents.ProcBeacon(aCommand.Params[3], 1 + (aCommand.Params[1] div 10), 1 + (aCommand.Params[2] div 10));
   // Check if player, who send beacon, is muted
   IsPlayerMuted := (gGame.Networking <> nil) and gGame.Networking.IsMuted(gGame.Networking.GetNetPlayerIndex(aCommand.Params[3]));
 
-  //However, beacons don't show in replays
-  if fReplayState = gipRecording then
-    if ((aCommand.Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
-    or ((aCommand.Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
-    and (gHands.CheckAlliance(aCommand.Params[3], gMySpectator.HandIndex) = at_Ally)
+  // Show beacons while watching replay
+  ShowInReplay :=  gGame.IsReplay and gGameApp.GameSettings.ReplayShowBeacons;
+  // Show beacons while spectating multiplayer game
+  ShowWhileSpec := (gGame.GameMode = gmMultiSpectate) and ((aCommand.Params[3] = PLAYER_NONE) or gGameApp.GameSettings.SpecShowBeacons);
+  // Show beacons while playing the game
+  ShowWhilePlaying := (gGame.GameMode in [gmMulti, gmCampaign, gmSingle]) and (aCommand.Params[3] <> PLAYER_NONE);
+
+  if (ShowInReplay or ShowWhileSpec or ShowWhilePlaying)
+    and ((gHands.CheckAlliance(aCommand.Params[3], gMySpectator.HandIndex) = at_Ally)
     and (gHands[aCommand.Params[3]].ShareBeacons[gMySpectator.HandIndex])
     and not IsPlayerMuted) then                                            // do not show beacons sended by muted players
       gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(aCommand.Params[1]/10,
