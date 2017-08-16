@@ -144,7 +144,7 @@ type
     procedure Replay_JumpToPlayer(aPlayerIndex: Integer);
     procedure Replay_ViewPlayer(aPlayerIndex: Integer);
     procedure Replay_ListDoubleClick(Sender: TObject);
-    procedure Replay_UpdatePlayerInterface;
+    procedure Replay_UpdatePlayerInterface(aFromPlayer, aToPlayer: Integer);
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -1825,9 +1825,12 @@ end;
 
 
 procedure TKMGamePlayInterface.Replay_JumpToPlayer(aPlayerIndex: Integer);
-var LastSelectedObj: TObject;
+var
+  LastSelectedObj: TObject;
+  OldHandIndex: Integer;
 begin
   Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
+  OldHandIndex := gMySpectator.HandIndex;
   gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
 
   LastSelectedObj := gMySpectator.LastSpecSelectedObj;
@@ -1850,12 +1853,13 @@ begin
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
 
   UpdateSelectedObject;
-  Replay_UpdatePlayerInterface;
+  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandIndex);
 end;
 
 
 procedure TKMGamePlayInterface.Replay_ViewPlayer(aPlayerIndex: Integer);
-var OldHandIndex: Integer;
+var
+  OldHandIndex: Integer;
 begin
   Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
 
@@ -1869,18 +1873,22 @@ begin
     UpdateSelectedObject;
   end;
 
-  Replay_UpdatePlayerInterface;
+  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandIndex);
 end;
 
 
-procedure TKMGamePlayInterface.Replay_UpdatePlayerInterface;
+procedure TKMGamePlayInterface.Replay_UpdatePlayerInterface(aFromPlayer, aToPlayer: Integer);
 begin
   if Checkbox_ReplayFOW.Checked then
-    gMySpectator.FOWIndex := gMySpectator.HandIndex
+    gMySpectator.FOWIndex := aToPlayer
   else
     gMySpectator.FOWIndex := -1;
   fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
   gGame.OverlayUpdate; // Display the overlay seen by the selected player
+  // When switch to other team player clear all beacons, except Spectators beacons
+  if (gHands.CheckAlliance(aFromPlayer, aToPlayer) <> at_Ally)
+    or not gHands[aFromPlayer].ShareBeacons[aToPlayer] then
+    gGame.GamePlayInterface.Alerts.ClearBeaconsExcept(PLAYER_NONE);
 end;
 
 

@@ -435,7 +435,6 @@ procedure TGameInputProcess.ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
   function DoAddPlayerBeacon: Boolean;
   var IsPlayerMuted: Boolean;
   begin
-    Result := False;
     // Check if player, who send beacon, is muted
     IsPlayerMuted := (gGame.Networking <> nil) and gGame.Networking.IsMuted(gGame.Networking.GetNetPlayerIndex(aCommand.Params[3]));
 
