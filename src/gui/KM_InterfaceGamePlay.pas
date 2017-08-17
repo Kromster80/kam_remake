@@ -144,6 +144,7 @@ type
     procedure Replay_JumpToPlayer(aPlayerIndex: Integer);
     procedure Replay_ViewPlayer(aPlayerIndex: Integer);
     procedure Replay_ListDoubleClick(Sender: TObject);
+    procedure Replay_UpdatePlayerInterface;
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -1822,6 +1823,7 @@ begin
   Button_ReplayResume.Enabled := not aPaused;
 end;
 
+
 procedure TKMGamePlayInterface.Replay_JumpToPlayer(aPlayerIndex: Integer);
 var LastSelectedObj: TObject;
 begin
@@ -1846,7 +1848,9 @@ begin
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+
   UpdateSelectedObject;
+  Replay_UpdatePlayerInterface;
 end;
 
 
@@ -1865,6 +1869,12 @@ begin
     UpdateSelectedObject;
   end;
 
+  Replay_UpdatePlayerInterface;
+end;
+
+
+procedure TKMGamePlayInterface.Replay_UpdatePlayerInterface;
+begin
   if Checkbox_ReplayFOW.Checked then
     gMySpectator.FOWIndex := gMySpectator.HandIndex
   else
