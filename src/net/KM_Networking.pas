@@ -2396,7 +2396,10 @@ end;
 procedure TKMNetworking.FPSMeasurement(aFPS: Cardinal);
 begin
   if fNetGameState = lgs_Game then
-    PacketSend(NET_ADDRESS_ALL, mk_FPS, Integer(aFPS));
+  begin
+    PacketSend(NET_ADDRESS_OTHERS, mk_FPS, Integer(aFPS));
+    GetMyNetPlayer.FPS := Cardinal(aFPS);
+  end;
 end;
 
 
