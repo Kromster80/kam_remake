@@ -2399,6 +2399,7 @@ begin
   begin
     PacketSend(NET_ADDRESS_OTHERS, mk_FPS, Integer(aFPS));
     GetMyNetPlayer.FPS := Cardinal(aFPS);
+    if Assigned(fOnPingInfo) then fOnPingInfo(Self);
   end;
 end;
 
