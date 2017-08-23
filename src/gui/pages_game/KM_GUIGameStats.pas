@@ -132,21 +132,21 @@ procedure TKMGUIGameStats.UpdateState;
 var
   HT: THouseType;
   UT: TUnitType;
-  Qty, WipQty, HTotalQty: Integer;
+  Qty, WipQty, HTotalConstrQty: Integer;
   I,K: Integer;
   DoHighlight: Boolean;
 begin
   //Update display values
   for I := 0 to High(StatPlan) do
   begin
-    HTotalQty := 0;
+    HTotalConstrQty := 0;
     for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
     if StatPlan[I].HouseType[K] <> ht_None then
     begin
       HT := StatPlan[I].HouseType[K];
       Qty := gMySpectator.Hand.Stats.GetHouseQty(HT);
       WipQty := gMySpectator.Hand.Stats.GetHouseWip(HT);
-      HTotalQty := HTotalQty + Qty + WipQty;
+      HTotalConstrQty := HTotalConstrQty + Qty; // count total constructed houses
       Stat_HouseQty[HT].Caption := IfThen(Qty  = 0, '-', IntToStr(Qty));
       Stat_HouseWip[HT].Caption := IfThen(WipQty = 0, '', '+' + IntToStr(WipQty));
       if gMySpectator.Hand.Locks.HouseCanBuild(HT) or (Qty > 0) then
@@ -170,12 +170,12 @@ begin
 
       //Hightlight unit qty, when there are not enought workers
       DoHighlight := (I < High(StatPlan) - 1) // do not highlight last 2 rows - Barracks/Watch tower and Storehouse/Inn/School
-        and (HTotalQty > Qty + WipQty);
+        and (HTotalConstrQty > Qty + WipQty);
 
       if DoHighlight then
-        Stat_UnitQty[UT].Font := fnt_Outline  // Use Outline font for highlighting
+        Stat_UnitQty[UT].FontColor := clStatsUnitMissingHL
       else
-        Stat_UnitQty[UT].Font := fnt_Grey;
+        Stat_UnitQty[UT].FontColor := clStatsUnitDefault;
 
       Stat_UnitQty[UT].Caption := IfThen(not DoHighlight and (Qty  = 0), '-', IntToStr(Qty));
       Stat_UnitWip[UT].Caption := IfThen(WipQty = 0, '', '+' + IntToStr(WipQty));
