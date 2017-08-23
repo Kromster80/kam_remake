@@ -245,7 +245,7 @@ begin
       Label_MP_Team_Header := TKMLabel.Create(Panel_MPServerDetails, 8 + 22 + 156, 150, 150, 20, 'Team', fnt_Outline, taLeft);
       Label_MP_Team_Header.Visible := False;
 
-      Image_MP_Host := TKMImage.Create(Panel_MPServerDetails, 8 + 22 + 156 + 30, 150, 14, 15, 77, rxGuiMain);
+      Image_MP_Host := TKMImage.Create(Panel_MPServerDetails, 8 + 22 + 156 + 35, 148, 14, 15, 77, rxGuiMain);
       Image_MP_Host.Visible := False;
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
@@ -681,7 +681,7 @@ begin
                         Label_MP_PlayersTeams[I].Caption := GetTeamStr(fSelectedRoomInfo.GameInfo.Players[K].Team, fSelectedRoomInfo.GameInfo.Players[K].IsSpectator);
                         Image_MP_PlayerSpecIcons[I].TexId := IfThen(fSelectedRoomInfo.GameInfo.Players[K].IsSpectator, 86, 0); //spectator eye icon
                         if fSelectedRoomInfo.GameInfo.Players[K].IsHost then
-                          Image_MP_Host.Top := Label_MP_PlayersNames[1].Top + 20*(I-1);
+                          Image_MP_Host.Top := Label_MP_PlayersNames[1].Top + 20*(I-1) - 2;
                         LocaleID := gResLocales.IndexByCode(fSelectedRoomInfo.GameInfo.Players[K].LangCode);
                         if LocaleID <> -1 then
                           Image_MP_PlayerIcons[I].TexID := gResLocales[LocaleID].FlagSpriteID
