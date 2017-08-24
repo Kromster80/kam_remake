@@ -448,10 +448,10 @@ begin
   end;
 
   //Mark pivot location with a dot
-  K := pngWidth + fRXData.Pivot[aIndex].x;
-  I := pngHeight + fRXData.Pivot[aIndex].y;
-  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
-    pngData[I*pngWidth + K] := $FF00FF;//}
+//  K := pngWidth + fRXData.Pivot[aIndex].x;
+//  I := pngHeight + fRXData.Pivot[aIndex].y;
+//  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
+//    pngData[I*pngWidth + K] := $FFFF00FF;
 
   SaveToPng(pngWidth, pngHeight, pngData, aFile);
 end;
