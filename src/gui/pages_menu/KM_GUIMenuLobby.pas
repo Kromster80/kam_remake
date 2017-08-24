@@ -1158,6 +1158,7 @@ var I, J, NetI: Integer;
 begin
   Result := False;
 
+  //Second column was clicked
   if X = 1 then
   begin
     SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
@@ -1191,11 +1192,12 @@ begin
       NetI := fLocalToNetPlayers[J];
       if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
       begin
-        //Do not count this slot as changed, if it already has AI value
         if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
-          Inc(SlotsChanged);
-        DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
-        PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+        begin
+          Inc(SlotsChanged); //Do not count this slot as changed, if it already has AI value
+          DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
+          PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+        end;
       end;
     end;
 
