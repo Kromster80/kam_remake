@@ -174,6 +174,7 @@ begin
             SpritePack.SoftenShadows(105, 128); //Field plans
             SpritePack.SoftenShadows(249, 281); //House tablets only (shadow softening messes up other rxGui sprites)
             SpritePack.SoftenShadows(461, 468); //Field fences
+            SpritePack.SoftenShadows(660, 660); //Woodcutter cutting point sign
           end
           else
             SpritePack.SoftenShadows;
