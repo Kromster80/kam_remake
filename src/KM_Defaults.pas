@@ -156,6 +156,7 @@ const
 
   AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
   CHAT_COOLDOWN        = 500; //Minimum time in milliseconds between chat messages
+  BEACON_COOLDOWN      = 800; //Minimum time in milliseconds between beacons
 
   DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
 

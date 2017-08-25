@@ -39,6 +39,7 @@ type
     // Not saved
     fShowTeamNames: Boolean; // True while the SC_SHOW_TEAM key is pressed
     LastDragPoint: TKMPoint; // Last mouse point that we drag placed/removed a road/field
+    fLastBeaconTime: Cardinal; //Last time a beacon was sent to enforce cooldown
     PrevHint: TObject;
     PrevHintMessage: UnicodeString;
     ShownMessage: Integer;
@@ -2163,13 +2164,18 @@ end;
 
 procedure TKMGamePlayInterface.Beacon_Place(aLoc: TKMPointF);
 begin
-  // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
-  case fUIMode of
-    umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.MyNetPlayer.FlagColor);
-    else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor);
-  end;
-  Beacon_Cancel;
+  if (GetTimeSince(fLastBeaconTime) >= BEACON_COOLDOWN) then
+  begin
+    fLastBeaconTime := TimeGet;
+    // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
+    case fUIMode of
+      umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+      umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.MyNetPlayer.FlagColor);
+      else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor);
+    end;
+    Beacon_Cancel;
+  end else
+    MinimapView.ClickableOnce := True; //Restore ClickableOnce state, because it could be reset by previous click on minimap
 end;
 
 
