@@ -601,7 +601,15 @@ begin
 
   if not fMapInfo.IsValid then
   begin
-    SelectNoMap('Invalid');
+    SelectNoMap('Map is invalid'); // Todo translate
+    PostLocalMessage('Selected map is invalid. Please select another map', csSystem); // Todo translate
+    Exit;
+  end;
+
+  if (aMapFolder = mfDL) and not fMapInfo.IsFilenameEndMatchHash then
+  begin
+    SelectNoMap('Downloaded map files have changed'); // Todo translate
+    PostLocalMessage('Selected DL map, which files have changed. Please move it out of downloads first', csSystem); // Todo translate
     Exit;
   end;
 
@@ -889,13 +897,15 @@ begin
                 AIUsableLocs := fMapInfo.AIUsableLocations;
                 //Check that map's hash hasn't changed
                 CheckMapInfo := TKMapInfo.Create(fMapInfo.FileName, True, fMapInfo.MapFolder);
-                if CheckMapInfo.CRC <> fMapInfo.CRC then
-                begin
-                  PostLocalMessage('Cannot start: Map files have changed. Please reselect the map', csSystem);
+                try
+                  if CheckMapInfo.CRC <> fMapInfo.CRC then
+                  begin
+                    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], ['Map files have changed. Please reselect the map']), csSystem); // Todo translate
+                    Exit;
+                  end;
+                finally
                   CheckMapInfo.Free;
-                  Exit;
                 end;
-                CheckMapInfo.Free;
               end;
     ngk_Save: begin
                 HumanUsableLocs := fSaveInfo.Info.HumanUsableLocations;
