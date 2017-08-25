@@ -136,6 +136,7 @@ type
     property IsExiting: Boolean read fIsExiting;
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
+    property GameLockedMutex: Boolean read fGameLockedMutex write fGameLockedMutex;
     function GetNewUID: Integer;
     function GetNormalGameSpeed: Single;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
