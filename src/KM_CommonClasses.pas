@@ -169,6 +169,7 @@ end;
 //We were notified that the item is deleted from the list
 procedure TKMList.Notify(Ptr: Pointer; Action: TListNotification);
 begin
+  inherited;
   if (Action = lnDeleted) then
     TObject(Ptr).Free;
 end;

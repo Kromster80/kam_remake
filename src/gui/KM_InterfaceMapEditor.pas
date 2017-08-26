@@ -608,6 +608,8 @@ begin
   if fGuiUnit.Visible then Exit;
   if fGuiHouse.Visible then Exit;
 
+  fGuiTerrain.RightClickCancel;
+
   //Reset cursor
   ResetCursorMode;
   //Reset drag object fields
@@ -717,6 +719,10 @@ begin
     Exit; //Handled by Controls
   end;
 
+  //For Objects Palette
+  fGuiTerrain.KeyDown(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
+
   inherited KeyDown(Key, Shift, KeyHandled);
   if KeyHandled then Exit;
 
@@ -754,6 +760,10 @@ begin
   aHandled := True; // assume we handle all keys here
 
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
+
+  //For undo/redo shortcuts and Objects Palette
+  fGuiTerrain.KeyUp(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
 
   inherited KeyUp(Key, Shift, KeyHandled);
   if KeyHandled then Exit;
@@ -823,9 +833,6 @@ begin
       Button_Main[2].Click;
     fGuiTown.GuiHouses.BuildCancel;
   end;
-
-  //For undo/redo shortcuts
-  if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);
 end;
 
 
@@ -1211,6 +1218,7 @@ begin
   inherited;
 
   fViewport.Resize(X, Y);
+  fGuiTerrain.Resize;
 end;
 
 
