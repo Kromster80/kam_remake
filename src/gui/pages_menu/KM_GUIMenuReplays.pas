@@ -306,6 +306,7 @@ begin
   ListUpdate;
   DeleteConfirm(False);
   RenameConfirm(False);
+  gGameApp.GameSettings.MenuReplaysType := Radio_Replays_Type.ItemIndex;
 end;
 
 

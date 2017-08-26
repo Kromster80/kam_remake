@@ -505,7 +505,6 @@ begin
     finally
       Maps.Unlock;
     end;
-
   end else begin
     SetSelectedMapInfo;
     MinimapView_MapEd.Hide;

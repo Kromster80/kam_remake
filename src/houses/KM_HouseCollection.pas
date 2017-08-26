@@ -172,9 +172,10 @@ begin
 
   for I := 0 to Count - 1 do
     if (gRes.Houses[Houses[I].HouseType].OwnerType = aUnitType) and //If Unit can work in here
-       (not Houses[I].GetHasOwner) and                              //If there's yet no owner
-       (not Houses[I].IsDestroyed) and
-       (Houses[I].IsComplete) then                               //If house is built
+       (not Houses[I].GetHasOwner) and                                // if there's yet no owner
+       (not Houses[I].IsDestroyed) and                                // if house is not destroyed
+       (Houses[I].IsComplete) and                                     // if house is built
+       (not Houses[I].IsClosedForWorker) then                         // if house is not closed for worker
     begin
       //Recruits should not go to a barracks with ware delivery switched off
       if (Houses[I].HouseType = ht_Barracks) and (not Houses[I].WareDelivery) then Continue;
