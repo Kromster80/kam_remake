@@ -10,7 +10,6 @@ uses
 
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
-  TNotifyEventFocus = procedure(aFocused: Boolean) of object;
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
@@ -28,7 +27,7 @@ type
   { TKMMaster }
   TKMMasterControl = class
   private
-    fCtrl: TKMPanel; //Parentmost control (TKMPanel with all its childs)
+    fMasterPanel: TKMPanel; //Parentmost control (TKMPanel with all its childs)
     fCtrlDown: TKMControl; //Control that was pressed Down
     fCtrlFocus: TKMControl; //Control which has input Focus
     fCtrlOver: TKMControl; //Control which has cursor Over it
@@ -46,10 +45,9 @@ type
     
     function GetNextCtrlID: Integer;
   public
-    constructor Create;
     destructor Destroy; override;
 
-    property MainPanel: TKMPanel read fCtrl;
+    property MasterPanel: TKMPanel read fMasterPanel;
     function IsFocusAllowed(aCtrl: TKMControl): Boolean;
     function IsAutoFocusAllowed(aCtrl: TKMControl): Boolean;
     procedure UpdateFocus(aSender: TKMControl);
@@ -105,14 +103,14 @@ type
     fOnClickRight: TPointEvent;
     fOnDoubleClick: TNotifyEvent;
     fOnMouseWheel: TNotifyEventMW;
-    fOnFocus: TNotifyEventFocus;
-    fOnControlMouseDown: TNotifyEventShift;
-    fOnControlMouseUp: TNotifyEventShift;
+    fOnFocusChange: TBooleanEvent;       // Focus or Unfocus
     fOnKeyDown: TNotifyEventKeyShiftFunc;
     fOnKeyUp: TNotifyEventKeyShiftFunc;
 
     function GetAbsLeft: Integer;
     function GetAbsTop: Integer;
+    function GetAbsRight: Integer;
+    function GetAbsBottom: Integer;
     function GetLeft: Integer;
     function GetTop: Integer;
     function GetHeight: Integer;
@@ -142,6 +140,9 @@ type
     function GetSelfHeight: Integer; virtual;
     function GetSelfWidth: Integer; virtual;
     procedure UpdateVisibility; virtual;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); virtual;
+    procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); virtual;
+    procedure FocusChanged(aFocused: Boolean); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -157,7 +158,9 @@ type
 
     property Parent: TKMPanel read fParent;
     property AbsLeft: Integer read GetAbsLeft write SetAbsLeft;
+    property AbsRight: Integer read GetAbsRight;
     property AbsTop: Integer read GetAbsTop write SetAbsTop;
+    property AbsBottom: Integer read GetAbsBottom;
     property Left: Integer read GetLeft write SetLeft;
     property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
@@ -184,6 +187,7 @@ type
     procedure Disable;
     procedure Show;
     procedure Hide;
+    procedure Focus;
     procedure Unfocus;
     procedure AnchorsCenter;
     procedure AnchorsStretch;
@@ -202,9 +206,7 @@ type
     property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
-    property OnFocus: TNotifyEventFocus read fOnFocus write fOnFocus;
-    property OnControlMouseDown: TNotifyEventShift read fOnControlMouseDown write fOnControlMouseDown;
-    property OnControlMouseUp: TNotifyEventShift read fOnControlMouseUp write fOnControlMouseUp;
+    property OnFocusChange: TBooleanEvent read fOnFocusChange write fOnFocusChange;
     property OnKeyDown: TNotifyEventKeyShiftFunc read fOnKeyDown write fOnKeyDown;
     property OnKeyUp: TNotifyEventKeyShiftFunc read fOnKeyUp write fOnKeyUp;
 
@@ -222,8 +224,8 @@ type
     //e.g. scrollbar on a listbox
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
-    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
-    procedure ControlMouseUp(Sender: TObject; Shift: TShiftState);
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
+    procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); override;
     procedure UpdateVisibility; override;
   public
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
@@ -465,24 +467,19 @@ type
   end;
 
 
-  {EditField}
-  TKMEdit = class(TKMControl)
+  //Selectable Edit - Basic Edit class with selection available
+  TKMSelectableEdit = class(TKMControl)
   private
     fFont: TKMFont;
-    fText: UnicodeString;
+    fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
+
+    fCursorPos: Integer;
+    fSelectable: Boolean;
     fSelectionStart: Integer;
     fSelectionEnd: Integer;
     fSelectionInitialCursorPos: Integer;
-    fAllowedChars: TAllowedChars;
-    fCursorPos: Integer;
-    fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
-    fSelectable: Boolean;
-    procedure SetCursorPos(aPos: Integer);
-    procedure SetText(aText: UnicodeString);
-    function IsCharValid(aChar: WideChar): Boolean;
-    procedure ValidateText;
-    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 
+    procedure SetCursorPos(aPos: Integer);
     function GetCursorPosAt(X: Integer): Integer;
     procedure ResetSelection;
     function HasSelection: Boolean;
@@ -490,34 +487,58 @@ type
     procedure SetSelectionStart(aValue: Integer);
     procedure SetSelectionEnd(aValue: Integer);
     procedure DeleteSelectedText;
+  protected
+    fText: UnicodeString;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
+    procedure FocusChanged(aFocused: Boolean); override;
+    function GetMaxLength: Word; virtual; abstract;
+    function IsCharValid(aChar: WideChar): Boolean; virtual; abstract;
+    procedure ValidateText; virtual; abstract;
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; virtual; abstract;
+    procedure PaintSelection;
+  public
+    ReadOnly: Boolean;
+    BlockInput: Boolean; // Blocks all input into the field, but allow focus, selection and copy selected text
+
+    OnChange: TNotifyEvent;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
+
+    property CursorPos: Integer read fCursorPos write SetCursorPos;
+    property Selectable: Boolean read fSelectable write fSelectable;
+    property SelectionStart: Integer read fSelectionStart write SetSelectionStart;
+    property SelectionEnd: Integer read fSelectionEnd write SetSelectionEnd;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure KeyPress(Key: Char); override;
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
+  end;
+
+  {EditField}
+  TKMEdit = class(TKMSelectableEdit)
+  private
+    fAllowedChars: TAllowedChars;
+    procedure SetText(aText: UnicodeString);
+  protected
+    function GetMaxLength: Word; override;
+    function IsCharValid(aChar: WideChar): Boolean; override;
+    procedure ValidateText; override;
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; override;
+    function GetRText: UnicodeString;
   public
     Masked: Boolean; //Mask entered text as *s
-    ReadOnly: Boolean;
-    BlockInput: Boolean;// Blocks all input into the field, but allow focus, selection and copy selected text
-    ShowColors: Boolean;
     MaxLen: Word;
+    ShowColors: Boolean;
     DrawOutline: Boolean;
     OutlineColor: Cardinal;
-    OnChange: TNotifyEvent;
     OnIsKeyEventHandled: TNotifyEventKeyFunc; //Invoked to check is key overrides default handle policy or not
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
 
     property AllowedChars: TAllowedChars read fAllowedChars write fAllowedChars;
-    property CursorPos: Integer read fCursorPos write SetCursorPos;
-    property SelectionStart: Integer read fSelectionStart write SetSelectionStart;
-    property SelectionEnd: Integer read fSelectionEnd write SetSelectionEnd;
     property Text: UnicodeString read fText write SetText;
-    property Selectable: Boolean read fSelectable write fSelectable;
 
     function HitTest(X,Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
-    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure KeyPress(Key: Char); override;
-    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
-    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
-    procedure Focus(aFocused: Boolean);
     procedure Paint; override;
   end;
 
@@ -593,22 +614,17 @@ type
   end;
 
 
-  TKMNumericEdit = class(TKMControl)
+  TKMNumericEdit = class(TKMSelectableEdit)
   private
     fButtonInc: TKMButton;
     fButtonDec: TKMButton;
-    fFont: TKMFont;
-    fText: UnicodeString;
     fValue: Integer;
-    fCursorPos: Integer;
-    fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure ButtonClick(Sender: TObject; Shift: TShiftState);
-    procedure SetCursorPos(aPos: Integer);
-    function MaxLength: Byte;
+
+    procedure SetValueNCheckRange(aValue: Int64);
     procedure SetValue(aValue: Integer);
-    procedure ValidateText;
-    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
     procedure SetSharedHint(aHint: UnicodeString);
+    procedure CheckValueOnUnfocus;
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -616,18 +632,21 @@ type
     procedure SetVisible(aValue: Boolean); override;
     function GetSelfAbsLeft: Integer; override;
     function GetSelfWidth: Integer; override;
+    function GetMaxLength: Word; override;
+    function IsCharValid(Key: WideChar): Boolean; override;
+    procedure ValidateText; override;
+    procedure FocusChanged(aFocused: Boolean); override;
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
   public
     ValueMin: Integer;
     ValueMax: Integer;
-    OnChange: TNotifyEvent;
-    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: SmallInt);
-    property CursorPos: Integer read fCursorPos write SetCursorPos;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aValueMin, aValueMax: Integer; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
     property Value: Integer read fValue write SetValue;
     property SharedHint: UnicodeString read Hint write SetSharedHint;
+
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure KeyPress(Key: Char); override;
-    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure Paint; override;
   end;
 
@@ -803,8 +822,9 @@ type
     function GetColumnIndex(X: Integer): Integer;
     function GetColumn(aIndex: Integer): TKMListHeaderColumn;
     procedure ClearColumns;
-    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     function GetColumnWidth(aIndex: Integer): Integer;
+  protected
+    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
     BackAlpha: Single; //Alpha of background
     EdgeAlpha: Single; //Alpha of background outline
@@ -1138,6 +1158,8 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetTop(aValue: Integer); override;
+    procedure FocusChanged(aFocused: Boolean); override;
+    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aSelectable: Boolean = True);
     destructor Destroy; override;
@@ -1161,8 +1183,6 @@ type
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure Focus(aFocused: Boolean);
-    procedure ControlMouseDown(Sender: TObject; Shift: TShiftState);
 
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
@@ -1472,7 +1492,6 @@ begin
   if (csDown in State) then
   begin
     State := State - [csDown];
-
     //Send Click events
     DoClick(X, Y, Shift, Button);
   end;
@@ -1563,12 +1582,22 @@ begin
     Top := Round((aValue - Parent.AbsTop) / Parent.Scale);
 end;
 
+function TKMControl.GetAbsBottom: Integer;
+begin
+  Result := GetAbsTop + GetHeight;
+end;
+
 function TKMControl.GetAbsLeft: Integer;
 begin
   if Parent = nil then
     Result := Round(fLeft)
   else
     Result := Round(fLeft * Parent.Scale) + Parent.GetAbsLeft;
+end;
+
+function TKMControl.GetAbsRight: Integer;
+begin
+  Result := GetAbsLeft + GetWidth;
 end;
 
 function TKMControl.GetAbsTop: Integer;
@@ -1769,6 +1798,24 @@ begin
 end;
 
 
+procedure TKMControl.FocusChanged(aFocused: Boolean);
+begin
+  //Let descendants override this method
+end;
+
+
+procedure TKMControl.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+begin
+  //Let descendants override this method
+end;
+
+
+procedure TKMControl.ControlMouseUp(Sender: TObject; Shift: TShiftState);
+begin
+  //Let descendants override this method
+end;
+
+
 procedure TKMControl.Enable;  begin SetEnabled(True);  end; //Overrides will be set too
 procedure TKMControl.Disable; begin SetEnabled(False); end;
 
@@ -1799,6 +1846,18 @@ begin
 end;
 
 
+procedure TKMControl.Focus;
+begin
+  if not IsFocused and Focusable and AutoFocusable then
+  begin
+    // Reset master control focus
+    Parent.fMasterControl.CtrlFocus := nil;
+    Parent.FocusedControlIndex := ControlIndex;
+    Parent.fMasterControl.UpdateFocus(Parent);
+  end;
+end;
+
+
 procedure TKMControl.Unfocus;
 begin
   Parent.fMasterControl.CtrlFocus := nil;
@@ -1826,7 +1885,7 @@ begin
   inherited Create(nil, aLeft, aTop, aWidth, aHeight);
 
   fMasterControl := aParent;
-  aParent.fCtrl := Self;
+  aParent.fMasterPanel := Self;
   Init;
 end;
 
@@ -1843,8 +1902,6 @@ end;
 procedure TKMPanel.Init;
 begin
   ResetFocusedControlIndex;
-  OnControlMouseDown := ControlMouseDown;
-  OnControlMouseUp := ControlMouseUp;
 end;
 
 
@@ -1973,18 +2030,18 @@ end;
 procedure TKMPanel.ControlMouseDown(Sender: TObject; Shift: TShiftState);
 var I: Integer;
 begin
+  inherited;
   for I := 0 to ChildCount - 1 do
-    if Assigned(Childs[I].fOnControlMouseDown) then
-      Childs[I].fOnControlMouseDown(Sender, Shift);
+    Childs[I].ControlMouseDown(Sender, Shift);
 end;
 
 
 procedure TKMPanel.ControlMouseUp(Sender: TObject; Shift: TShiftState);
 var I: Integer;
 begin
+  inherited;
   for I := 0 to ChildCount - 1 do
-    if Assigned(Childs[I].fOnControlMouseUp) then
-      Childs[I].fOnControlMouseUp(Sender, Shift);
+    Childs[I].ControlMouseUp(Sender, Shift);
 end;
 
 
@@ -2159,12 +2216,7 @@ end;
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
 constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign);
 begin
-  inherited Create(aParent, aLeft, aTop, 0, 0);
-  fFont := aFont;
-  fFontColor := $FFFFFFFF;
-  fTextAlign := aTextAlign;
-  fAutoWrap := False;
-  SetCaption(aCaption);
+  Create(aParent, aLeft, aTop, 0, 0, aCaption, aFont, aTextAlign);
 end;
 
 
@@ -2638,15 +2690,12 @@ begin
 end;
 
 
-{ TKMEdit }
-constructor TKMEdit.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
+{ TKMSelectableEdit }
+constructor TKMSelectableEdit.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-
   fFont := aFont;
-  fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
-  MaxLen := 256; //Default max length to prevent chat spam
 
   //Text input fields are focusable by concept
   Focusable := True;
@@ -2654,20 +2703,67 @@ begin
   BlockInput := False;
   fSelectable := aSelectable;
 
-  fOnFocus := Focus;
-  fOnControlMouseDown := ControlMouseDown;
+  //fOnControlMouseDown := ControlMouseDown;
 end;
 
 
-function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled: Boolean = False): Boolean;
+procedure TKMSelectableEdit.DeleteSelectedText;
 begin
-  //When control is read-only we don't want to recieve Focus event
-  Result := inherited HitTest(X,Y) and not ReadOnly;
+  Delete(fText, fSelectionStart+1, fSelectionEnd-fSelectionStart);
+  if CursorPos = fSelectionEnd then
+    CursorPos := CursorPos - (fSelectionEnd-fSelectionStart);
+  ResetSelection;
 end;
 
 
-//
-procedure TKMEdit.SetCursorPos(aPos: Integer);
+function TKMSelectableEdit.GetCursorPosAt(X: Integer): Integer;
+var RText: UnicodeString;
+begin
+  RText := Copy(fText, fLeftIndex+1, Length(fText) - fLeftIndex);
+  if gRes.Fonts[fFont].GetTextSize(RText).X < X-SelfAbsLeft-4 then
+    Result := Length(RText) + fLeftIndex
+  else
+    Result := gRes.Fonts[fFont].CharsThatFit(RText, X-SelfAbsLeft-4) + fLeftIndex;
+end;
+
+
+function TKMSelectableEdit.GetSelectedText: UnicodeString;
+begin
+  Result := '';
+  if HasSelection then
+    Result := Copy(fText, fSelectionStart+1, fSelectionEnd - fSelectionStart);
+end;
+
+
+function TKMSelectableEdit.HasSelection: Boolean;
+begin
+  Result := (fSelectionStart <> -1) and (fSelectionEnd <> -1) and (fSelectionStart <> fSelectionEnd);
+end;
+
+
+procedure TKMSelectableEdit.ResetSelection;
+begin
+  fSelectionStart := -1;
+  fSelectionEnd := -1;
+  fSelectionInitialCursorPos := -1;
+end;
+
+
+procedure TKMSelectableEdit.SetSelectionEnd(aValue: Integer);
+begin
+  if fSelectable then
+    fSelectionEnd := EnsureRange(aValue, 0, Length(fText));
+end;
+
+
+procedure TKMSelectableEdit.SetSelectionStart(aValue: Integer);
+begin
+  if fSelectable then
+    fSelectionStart := EnsureRange(aValue, 0, Length(fText));
+end;
+
+
+procedure TKMSelectableEdit.SetCursorPos(aPos: Integer);
 var
   RText: UnicodeString;
 begin
@@ -2688,98 +2784,7 @@ begin
 end;
 
 
-procedure TKMEdit.SetSelectionStart(aValue: Integer);
-begin
-  if fSelectable then
-    fSelectionStart := EnsureRange(aValue, 0, Length(fText));
-end;
-
-
-procedure TKMEdit.SetSelectionEnd(aValue: Integer);
-begin
-  if fSelectable then
-    fSelectionEnd := EnsureRange(aValue, 0, Length(fText));
-end;
-
-
-procedure TKMEdit.SetText(aText: UnicodeString);
-begin
-  fText := aText;
-  ValidateText; //Validate first since it could change fText
-  CursorPos := Math.Min(CursorPos, Length(fText));
-  //Setting the text should place cursor to the end
-  fLeftIndex := 0;
-  SetCursorPos(Length(Text));
-end;
-
-
-function TKMEdit.IsCharValid(aChar: WideChar): Boolean;
-begin
-  Result := IsCharAllowed(aChar, fAllowedChars);
-end;
-
-
-//Validates fText basing on predefined sets of allowed or disallowed chars
-//It iterates from end to start of a string - deletes chars and moves cursor appropriately
-procedure TKMEdit.ValidateText;
-var I: Integer;
-begin
-  //Parse whole text incase user placed it from clipboard
-  //Validate contents
-  for I := Length(fText) downto 1 do
-  if not IsCharValid(fText[I]) then
-  begin
-    Delete(fText, I, 1);
-    if CursorPos >= I then //Keep cursor in place
-      CursorPos := CursorPos - 1;
-  end;
-
-  //Validate length
-  if Length(fText) > MaxLen then
-    fText := Copy(fText, 0, MaxLen);
-end;
-
-
-//Key events which have no effect should not be handled (allows scrolling while chat window open with no text entered)
-function TKMEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
-begin
-  Result := True;
-
-  //Don't include backspace/delete because edits should always handle those. Otherwise when you
-  //press backspace repeatedly to remove all characters it will apply other shortcuts like
-  //resetting the zoom if you press it once too many times.
-  case Key of
-    VK_UP,
-    VK_DOWN,
-    VK_LEFT,
-    VK_RIGHT,
-    VK_HOME,
-    VK_END: Result := (fText <> ''); //These keys have no effect when text is blank
-  end;
-
-  //We want these keys to be ignored by TKMEdit
-  if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_RETURN, VK_TAB] then Result := False;
-
-  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
-  if ssCtrl in Shift then Result := (Key in [Ord('A'), Ord('C'), Ord('X'), Ord('V')]);
-
-  // If key is ignored, then check if can still handle it (check via OnIsKeyEventHandled)
-  if not Result and Assigned(OnIsKeyEventHandled) then
-    Result := OnIsKeyEventHandled(Self, Key);
-
-end;
-
-
-procedure TKMEdit.DeleteSelectedText;
-begin
-  Delete(fText, fSelectionStart+1, fSelectionEnd-fSelectionStart);
-  if CursorPos = fSelectionEnd then
-    CursorPos := CursorPos - (fSelectionEnd-fSelectionStart);
-  ResetSelection;
-end;
-
-
-function TKMEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMSelectableEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
   if inherited KeyDown(Key, Shift) or ReadOnly then Exit;
@@ -2892,7 +2897,7 @@ begin
 end;
 
 
-procedure TKMEdit.KeyPress(Key: Char);
+procedure TKMSelectableEdit.KeyPress(Key: Char);
 begin
   if ReadOnly or BlockInput then Exit;
 
@@ -2900,7 +2905,7 @@ begin
   begin
     DeleteSelectedText;
   end
-  else if Length(fText) >= MaxLen then Exit;
+  else if Length(fText) >= GetMaxLength then Exit;
 
   Insert(Key, fText, CursorPos + 1);
   CursorPos := CursorPos + 1; //Before ValidateText so it moves the cursor back if the new char was invalid
@@ -2908,7 +2913,7 @@ begin
 end;
 
 
-function TKMEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+function TKMSelectableEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
   if inherited KeyUp(Key, Shift) or ReadOnly then Exit;
@@ -2917,40 +2922,7 @@ begin
 end;
 
 
-function TKMEdit.GetSelectedText: UnicodeString;
-begin
-  Result := '';
-  if HasSelection then
-    Result := Copy(fText, fSelectionStart+1, fSelectionEnd - fSelectionStart);
-end;
-
-
-function TKMEdit.HasSelection: Boolean;
-begin
-  Result := (fSelectionStart <> -1) and (fSelectionEnd <> -1) and (fSelectionStart <> fSelectionEnd);
-end;
-
-
-procedure TKMEdit.ResetSelection;
-begin
-  fSelectionStart := -1;
-  fSelectionEnd := -1;
-  fSelectionInitialCursorPos := -1;
-end;
-
-
-function TKMEdit.GetCursorPosAt(X: Integer): Integer;
-var RText: UnicodeString;
-begin
-  RText := Copy(fText, fLeftIndex+1, Length(fText) - fLeftIndex);
-  if gRes.Fonts[fFont].GetTextSize(RText).X < X-AbsLeft-4 then
-    Result := Length(RText) + fLeftIndex
-  else
-    Result := gRes.Fonts[fFont].CharsThatFit(RText, X-AbsLeft-4) + fLeftIndex;
-end;
-
-
-procedure TKMEdit.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMSelectableEdit.MouseDown(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if ReadOnly then Exit;
   inherited;
@@ -2963,8 +2935,9 @@ begin
 end;
 
 
-procedure TKMEdit.MouseMove(X,Y: Integer; Shift: TShiftState);
-var CurCursorPos: Integer;
+procedure TKMSelectableEdit.MouseMove(X, Y: Integer; Shift: TShiftState);
+var
+  CurCursorPos: Integer;
 begin
   if ReadOnly then Exit;
   inherited;
@@ -2972,7 +2945,7 @@ begin
   begin
     CurCursorPos := GetCursorPosAt(X);
     // To rotate line to left while selecting
-    if (X-AbsLeft-4 < 0) and (fLeftIndex > 0) then
+    if (X-SelfAbsLeft-4 < 0) and (fLeftIndex > 0) then
       CurCursorPos := CurCursorPos - 1;
 
     if fSelectionInitialCursorPos <> -1 then
@@ -2985,7 +2958,7 @@ begin
 end;
 
 
-procedure TKMEdit.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMSelectableEdit.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if ReadOnly then Exit;
   inherited;
@@ -2993,25 +2966,145 @@ begin
 end;
 
 
-procedure TKMEdit.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+procedure TKMSelectableEdit.PaintSelection;
+var
+  BeforeSelectionText, SelectionText: UnicodeString;
+  BeforeSelectionW, SelectionW: Integer;
 begin
+  if HasSelection then
+  begin
+    BeforeSelectionText := Copy(fText, fLeftIndex+1, max(fSelectionStart, fLeftIndex) - fLeftIndex);
+    SelectionText := Copy(fText, max(fSelectionStart, fLeftIndex)+1, fSelectionEnd - max(fSelectionStart, fLeftIndex));
+
+    BeforeSelectionW := gRes.Fonts[fFont].GetTextSize(BeforeSelectionText).X;
+    SelectionW := gRes.Fonts[fFont].GetTextSize(SelectionText).X;
+
+    TKMRenderUI.WriteShape(SelfAbsLeft+4+BeforeSelectionW, AbsTop+3, min(SelectionW, Width-8), Height-6, clTextSelection);
+  end;
+end;
+
+
+procedure TKMSelectableEdit.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+begin
+  inherited;
   if (Sender <> Self) then
     ResetSelection;
 end;
 
 
-procedure TKMEdit.Focus(aFocused: Boolean);
+procedure TKMSelectableEdit.FocusChanged(aFocused: Boolean);
 begin
+  inherited;
   if not aFocused then
     ResetSelection;
+end;
+
+
+{ TKMEdit }
+constructor TKMEdit.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aSelectable: Boolean = True);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aSelectable);
+  fAllowedChars := acText; //Set to the widest by default
+  MaxLen := 256; //Default max length to prevent chat spam
+end;
+
+
+function TKMEdit.GetMaxLength: Word;
+begin
+  Result := MaxLen;
+end;
+
+
+function TKMEdit.GetRText: UnicodeString;
+begin
+  if Masked then
+    Result := StringOfChar('*', Length(fText))
+  else
+    Result := fText;
+  Result := Copy(Result, fLeftIndex+1, Length(Result));
+end;
+
+
+function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled: Boolean = False): Boolean;
+begin
+  //When control is read-only we don't want to recieve Focus event
+  Result := inherited HitTest(X,Y) and not ReadOnly;
+end;
+
+
+procedure TKMEdit.SetText(aText: UnicodeString);
+begin
+  fText := aText;
+  ValidateText; //Validate first since it could change fText
+  CursorPos := Math.Min(CursorPos, Length(fText));
+  //Setting the text should place cursor to the end
+  fLeftIndex := 0;
+  SetCursorPos(Length(Text));
+end;
+
+
+function TKMEdit.IsCharValid(aChar: WideChar): Boolean;
+begin
+  Result := IsCharAllowed(aChar, fAllowedChars);
+end;
+
+
+//Validates fText basing on predefined sets of allowed or disallowed chars
+//It iterates from end to start of a string - deletes chars and moves cursor appropriately
+procedure TKMEdit.ValidateText;
+var I: Integer;
+begin
+  //Parse whole text incase user placed it from clipboard
+  //Validate contents
+  for I := Length(fText) downto 1 do
+  if not IsCharValid(fText[I]) then
+  begin
+    Delete(fText, I, 1);
+    if CursorPos >= I then //Keep cursor in place
+      CursorPos := CursorPos - 1;
+  end;
+
+  //Validate length
+  if Length(fText) > MaxLen then
+    fText := Copy(fText, 0, MaxLen);
+end;
+
+
+//Key events which have no effect should not be handled (allows scrolling while chat window open with no text entered)
+function TKMEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := True;
+
+  //Don't include backspace/delete because edits should always handle those. Otherwise when you
+  //press backspace repeatedly to remove all characters it will apply other shortcuts like
+  //resetting the zoom if you press it once too many times.
+  case Key of
+    VK_UP,
+    VK_DOWN,
+    VK_LEFT,
+    VK_RIGHT,
+    VK_HOME,
+    VK_END: Result := (fText <> ''); //These keys have no effect when text is blank
+  end;
+
+  //We want these keys to be ignored by TKMEdit
+  if Key in [VK_F1..VK_F12, VK_ESCAPE, VK_RETURN, VK_TAB] then Result := False;
+
+  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
+  if ssCtrl in Shift then Result := (Key in [Ord('A'), Ord('C'), Ord('X'), Ord('V')]);
+
+  // If key is ignored, then check if can still handle it (check via OnIsKeyEventHandled)
+  if not Result and Assigned(OnIsKeyEventHandled) then
+    Result := OnIsKeyEventHandled(Self, Key);
+
 end;
 
 
 procedure TKMEdit.Paint;
 var
   Col: TColor4;
-  RText, BeforeSelectionText, SelectionText: UnicodeString;
-  OffX, BeforeSelectionW, SelectionW: Integer;
+  RText: UnicodeString;
+  OffX: Integer;
 begin
   inherited;
 
@@ -3028,19 +3121,9 @@ begin
     RText := StringOfChar('*', Length(fText))
   else
     RText := fText;
+  RText := Copy(fText, fLeftIndex+1, Length(fText)); //Remove characters to the left of fLeftIndex
 
-  RText := Copy(RText, fLeftIndex+1, Length(RText)); //Remove characters to the left of fLeftIndex
-
-  if HasSelection then
-  begin
-    BeforeSelectionText := Copy(fText, fLeftIndex+1, max(fSelectionStart, fLeftIndex) - fLeftIndex);
-    SelectionText := Copy(fText, max(fSelectionStart, fLeftIndex)+1, fSelectionEnd - max(fSelectionStart, fLeftIndex));
-
-    BeforeSelectionW := gRes.Fonts[fFont].GetTextSize(BeforeSelectionText).X;
-    SelectionW := gRes.Fonts[fFont].GetTextSize(SelectionText).X;
-
-    TKMRenderUI.WriteShape(AbsLeft+4+BeforeSelectionW, AbsTop+3, min(SelectionW, Width-8), Height-6, clTextSelection);
-  end;
+  PaintSelection;
 
   TKMRenderUI.WriteText(AbsLeft+4, AbsTop+3, Width-8, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
 
@@ -3231,60 +3314,39 @@ end;
 
 
 { TKMNumericEdit }
-constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: SmallInt);
+constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop, aValueMin, aValueMax: Integer; aFont: TKMFont = fnt_Grey; aSelectable: Boolean = True);
 var
   W: Word;
 begin
   // Text width + padding + buttons
-  W := gRes.Fonts[fnt_Grey].GetTextSize(IntToStr(aValueMax)).X + 16 + 20 + 20;
+  W := Max(gRes.Fonts[fnt_Grey].GetTextSize(IntToStr(aValueMax)).X, gRes.Fonts[fnt_Grey].GetTextSize(IntToStr(aValueMin)).X) + 10 + 20 + 20;
 
-  inherited Create(aParent, aLeft, aTop, W, 20);
+  inherited Create(aParent, aLeft, aTop, W, 20, aFont, aSelectable);
+
+  ReadOnly := False;
 
   ValueMin := aValueMin;
   ValueMax := aValueMax;
   Value := 0;
-  Focusable := True;
-  fFont := fnt_Grey;
 
   fButtonDec := TKMButton.Create(aParent, aLeft,           aTop, 20, 20, '-', bsGame);
   fButtonInc := TKMButton.Create(aParent, aLeft + W - 20,  aTop, 20, 20, '+', bsGame);
   fButtonDec.OnClickShift := ButtonClick;
   fButtonInc.OnClickShift := ButtonClick;
+  fButtonDec.OnMouseWheel := MouseWheel;
+  fButtonInc.OnMouseWheel := MouseWheel;
 end;
 
 
 function TKMNumericEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
-  if inherited KeyDown(Key, Shift) then Exit;
-
-  //Clipboard operations
-  if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
-  begin
-    case Key of
-      Ord('C'): Clipboard.AsText := fText;
-      Ord('X'): Clipboard.AsText := fText; //Does the same as Copy because we can't cut whole text and leave field empty
-      Ord('V'): begin
-                  Insert(Clipboard.AsText, fText, CursorPos + 1);
-                  ValidateText;
-                  CursorPos := CursorPos + Length(Clipboard.AsText);
-                end;
-    end;
-  end;
+  inherited KeyDown(Key, Shift);
 
   case Key of
-    VK_BACK:    begin Delete(fText, CursorPos, 1); CursorPos := CursorPos - 1; end;
-    VK_DELETE:  Delete(fText, CursorPos + 1, 1);
-    VK_LEFT:    CursorPos := CursorPos - 1;
-    VK_RIGHT:   CursorPos := CursorPos + 1;
-    VK_UP:      Value := Value + 1;
-    VK_DOWN:    Value := Value - 1;
-    VK_HOME:    CursorPos := 0;
-    VK_END:     CursorPos := Length(fText);
+    VK_UP:      SetValueNCheckRange(Int64(Value) + 1 + 9*Byte(ssShift in Shift));
+    VK_DOWN:    SetValueNCheckRange(Int64(Value) - 1 - 9*Byte(ssShift in Shift));
   end;
-
-  if Assigned(OnChange) then
-    OnChange(Self);
 end;
 
 
@@ -3307,53 +3369,46 @@ begin
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
   if ssCtrl in Shift then
-    Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
+    Result := (Key in [Ord('A'), Ord('C'), Ord('X'), Ord('V')]);
 end;
 
 
-procedure TKMNumericEdit.KeyPress(Key: Char);
-begin
-  if Length(fText) >= MaxLength then Exit;
-
-  Insert(Key, fText, CursorPos + 1);
-  CursorPos := CursorPos + 1; //Before ValidateText so it moves the cursor back if the new char was invalid
-  ValidateText;
-end;
-
-
-function TKMNumericEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
-begin
-  Result := KeyEventHandled(Key, Shift);
-  if inherited KeyUp(Key, Shift) then Exit;
-end;
-
-
-function TKMNumericEdit.MaxLength: Byte;
+function TKMNumericEdit.GetMaxLength: Word;
 begin
   if Max(Abs(ValueMax), Abs(ValueMin)) <> 0 then
-    Result := Trunc(Log10(Max(Abs(ValueMax), Abs(ValueMin)))) + 1
+    Result := Trunc(Max(Log10(Abs(ValueMax)) + Byte(ValueMax < 0), Log10(Abs(ValueMin)) + Byte(ValueMin < 0))) + 1
   else
     Result := 1;
 end;
 
 
-procedure TKMNumericEdit.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMNumericEdit.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
   inherited;
 
-  CursorPos := Length(fText);
+  if WheelDelta > 0 then
+    SetValueNCheckRange(Int64(Value) + 1 + 9*Byte(GetKeyState(VK_SHIFT) < 0));
+  if WheelDelta < 0 then
+    SetValueNCheckRange(Int64(Value) - 1 - 9*Byte(GetKeyState(VK_SHIFT) < 0));
+
+  Focus;
+
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
 procedure TKMNumericEdit.ButtonClick(Sender: TObject; Shift: TShiftState);
 begin
   if Sender = fButtonDec then
-    Value := Value - GetMultiplicator(Shift)
+    SetValueNCheckRange(Int64(Value) - GetMultiplicator(Shift))
   else
   if Sender = fButtonInc then
-    Value := Value + GetMultiplicator(Shift)
+    SetValueNCheckRange(Int64(Value) + GetMultiplicator(Shift))
   else
     Exit;
+
+  Focus;
 
   if Assigned(OnChange) then
     OnChange(Self);
@@ -3386,26 +3441,6 @@ begin
 end;
 
 
-procedure TKMNumericEdit.SetCursorPos(aPos: Integer);
-var RText: UnicodeString;
-begin
-  fCursorPos := EnsureRange(aPos, 0, Length(fText));
-  if fCursorPos < fLeftIndex then
-    fLeftIndex := fCursorPos
-  else
-  begin
-    //Remove characters to the left of fLeftIndex
-    RText := Copy(fText, fLeftIndex+1, Length(fText));
-    while fCursorPos-fLeftIndex > gRes.Fonts[fFont].CharsThatFit(RText, Width-8) do
-    begin
-      Inc(fLeftIndex);
-      //Remove characters to the left of fLeftIndex
-      RText := Copy(fText, fLeftIndex+1, Length(fText));
-    end;
-  end;
-end;
-
-
 procedure TKMNumericEdit.SetEnabled(aValue: Boolean);
 begin
   inherited;
@@ -3424,13 +3459,25 @@ end;
 
 function TKMNumericEdit.GetSelfAbsLeft: Integer;
 begin
-  Result := AbsLeft + 21; // Need to add extra +1 because of left button border
+  Result := AbsLeft + 20;
 end;
 
 
 function TKMNumericEdit.GetSelfWidth: Integer;
 begin
-  Result := fWidth - 42; // Need to substruct extra -2 because of 2 buttons borders
+  Result := fWidth - 40;
+end;
+
+
+function TKMNumericEdit.IsCharValid(Key: WideChar): Boolean;
+begin
+  Result := SysUtils.CharInSet(Key, ['0'..'9']);
+end;
+
+
+procedure TKMNumericEdit.SetValueNCheckRange(aValue: Int64);
+begin
+  SetValue(EnsureRange(aValue, Low(Integer), High(Integer)));
 end;
 
 
@@ -3438,7 +3485,6 @@ procedure TKMNumericEdit.SetValue(aValue: Integer);
 begin
   fValue := EnsureRange(aValue, ValueMin, ValueMax);
   fText := IntToStr(fValue);
-  SetCursorPos(MaxLength);
 
   //External Value assignment should not generate OnChange event
 end;
@@ -3447,20 +3493,36 @@ end;
 procedure TKMNumericEdit.ValidateText;
 var
   I: Integer;
+  AllowedChars: TSetOfAnsiChar;
+  OnlyMinus, IsEmpty: Boolean;
 begin
+  IsEmpty := (fText = #8); // When deleting text with Backspace last character is still in string - backspace character (#8)
+
+  AllowedChars := ['0'..'9'];
   //Validate contents
   for I := Length(fText) downto 1 do
-  if not KromUtils.CharInSet(fText[I], ['0'..'9']) then
   begin
-    Delete(fText, I, 1);
-    if CursorPos >= I then //Keep cursor in place
-      CursorPos := CursorPos - 1;
+    if I = 1 then Include(AllowedChars, '-');
+
+    if not KromUtils.CharInSet(fText[I], AllowedChars) then
+    begin
+      Delete(fText, I, 1);
+      if CursorPos >= I then //Keep cursor in place
+        CursorPos := CursorPos - 1;
+    end;
   end;
 
-  if fText = '' then
+  OnlyMinus := (fText = '-');
+
+  if (fText = '') or OnlyMinus or IsEmpty then
     Value := 0
   else
-    Value := StrToInt(fText);
+    SetValueNCheckRange(StrToInt64(fText));
+
+  if OnlyMinus then fText := '-'; //Set text back to '-' while still editing.
+  if IsEmpty then fText := ''; //Set text back to '' while still editing.
+
+  CursorPos := Min(CursorPos, Length(fText)); //In case we had leading zeros in fText string
 
   if Assigned(OnChange) then
     OnChange(Self);
@@ -3480,6 +3542,8 @@ begin
 
   RText := Copy(fText, fLeftIndex+1, Length(fText)); //Remove characters to the left of fLeftIndex
 
+  PaintSelection;
+
   TKMRenderUI.WriteText(AbsLeft+24, AbsTop+3, 0, fText, fFont, taLeft, Col); //Characters that do not fit are trimmed
 
   //Render text cursor
@@ -3489,6 +3553,29 @@ begin
     OffX := AbsLeft + 22 + gRes.Fonts[fFont].GetTextSize(RText).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
+end;
+
+
+procedure TKMNumericEdit.CheckValueOnUnfocus;
+begin
+  if (fText = '-') or (fText = '') then //after unfocus, if only '-' is in string, set value to 0
+    Value := 0;
+end;
+
+
+procedure TKMNumericEdit.FocusChanged(aFocused: Boolean);
+begin
+  inherited;
+  if not aFocused then
+    CheckValueOnUnfocus;
+end;
+
+
+procedure TKMNumericEdit.ControlMouseDown(Sender: TObject; Shift: TShiftState);
+begin
+  inherited;
+  if (Sender <> Self) then
+    CheckValueOnUnfocus;
 end;
 
 
@@ -3864,9 +3951,6 @@ begin
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
   fSelectable := aSelectable;
-
-  fOnFocus := Focus;
-  fOnControlMouseDown := ControlMouseDown;
 end;
 
 
@@ -4395,6 +4479,7 @@ end;
 
 procedure TKMMemo.ControlMouseDown(Sender: TObject; Shift: TShiftState);
 begin
+  inherited;
   // Reset all, if other control was clicked
   if Sender <> Self then
   begin
@@ -4406,7 +4491,7 @@ begin
 end;
 
 
-procedure TKMMemo.Focus(aFocused: Boolean);
+procedure TKMMemo.FocusChanged(aFocused: Boolean);
 begin
   if not aFocused then
   begin
@@ -4803,6 +4888,7 @@ end;
 procedure TKMListHeader.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var ColumnID: Integer;
 begin
+  //do not invoke inherited here, to fully override parent DoClick method
   ColumnID := GetColumnIndex(X);
   if (ColumnID <> -1) and Assigned(OnColumnClick) then
   begin
@@ -5287,6 +5373,7 @@ end;
 procedure TKMColumnBox.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var IsClickHandled: Boolean;
 begin
+  //do not invoke inherited here, to fully override parent DoClick method
   IsClickHandled := False;
 
   if (Button = mbLeft) and Assigned(fOnCellClick) and not KMSamePoint(fMouseOverCell, KMPOINT_INVALID_TILE) then
@@ -5662,6 +5749,8 @@ end;
 
 procedure TKMDropCommon.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
+  //do not invoke inherited here, to fully override parent DoClick method
+
   //It's common behavior when click on dropbox will show the list
   if fAutoClose then
     ListShow(Self)
@@ -6727,24 +6816,9 @@ end;
 
 
 { TKMMasterControl }
-constructor TKMMasterControl.Create;
-begin
-  inherited;
-
-  CtrlPaintCount := 0;
-  fCtrl      := nil;
-  fCtrlDown  := nil;
-  fCtrlFocus := nil;
-  fCtrlOver  := nil;
-  fCtrlUp    := nil;
-
-  fControlIDCounter := 0;
-end;
-
-
 destructor TKMMasterControl.Destroy;
 begin
-  fCtrl.Free; //Will destroy all its childs as well
+  fMasterPanel.Free; //Will destroy all its childs as well
 
   inherited;
 end;
@@ -6774,8 +6848,9 @@ begin
   begin
     if fCtrlFocus <> nil then
     begin
-      if  Assigned(fCtrlFocus.fOnFocus) then
-        fCtrlFocus.fOnFocus(False);
+      fCtrlFocus.FocusChanged(False);
+      if  Assigned(fCtrlFocus.fOnFocusChange) then
+        fCtrlFocus.fOnFocusChange(False);
       // Reset Parent Panel FocusedControlIndex only for different parents
       if (aCtrl = nil) or (aCtrl.Parent <> fCtrlFocus.Parent) then
         fCtrlFocus.Parent.ResetFocusedControlIndex;
@@ -6783,8 +6858,9 @@ begin
 
     if aCtrl <> nil then
     begin
-      if Assigned(aCtrl.fOnFocus) then
-        aCtrl.fOnFocus(True);
+      aCtrl.FocusChanged(True);
+      if Assigned(aCtrl.fOnFocusChange) then
+        aCtrl.fOnFocusChange(True);
       aCtrl.Parent.FocusedControlIndex := aCtrl.ControlIndex; //Set Parent Panel FocusedControlIndex to new focused control
     end;
   end;
@@ -6880,20 +6956,21 @@ begin
     begin
       // If there was no focus, or it is our Focus control that went hidden or disabled
       CtrlFocus := nil;
-      FindFocusable(fCtrl);
+      FindFocusable(fMasterPanel);
     end;
   end;
 end;
 
 
 //Check if control is covered by other controls or not
-//We assume that control is covered if any of his 4 angles is covered
+//We assume that control is covered if any of his 4 corners is covered
+//For corners used actual corners with 1 px offset inside to solve border collisions
 //Use Self coordinates to check, because some controls can contain other sub-controls (f.e. TKMNumericEdit)
 function TKMMasterControl.IsCtrlCovered(aCtrl: TKMControl): Boolean;
 begin
-  Result := (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop) <> aCtrl)
-        or (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop) <> aCtrl)
-        or (HitControl(aCtrl.SelfAbsLeft, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) <> aCtrl)
+  Result := (HitControl(aCtrl.SelfAbsLeft + 1, aCtrl.SelfAbsTop + 1) <> aCtrl)
+        or (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop + 1) <> aCtrl)
+        or (HitControl(aCtrl.SelfAbsLeft + 1, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) <> aCtrl)
         or (HitControl(aCtrl.SelfAbsLeft + aCtrl.SelfWidth - 1, aCtrl.SelfAbsTop + aCtrl.SelfHeight - 1) <> aCtrl);
 end;
 
@@ -6927,7 +7004,7 @@ function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = F
     end;
   end;
 begin
-  Result := ScanChild(fCtrl, X, Y);
+  Result := ScanChild(fMasterPanel, X, Y);
 end;
 
 
@@ -6962,7 +7039,7 @@ end;
 procedure TKMMasterControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   CtrlDown := HitControl(X,Y);
-  fCtrl.ControlMouseDown(CtrlDown, Shift);
+  fMasterPanel.ControlMouseDown(CtrlDown, Shift);
   if CtrlDown <> nil then
     CtrlDown.MouseDown(X, Y, Shift, Button);
 end;
@@ -7011,7 +7088,7 @@ begin
   else
     fCtrlDown := nil;
 
-  fCtrl.ControlMouseUp(CtrlUp, Shift); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
+  fMasterPanel.ControlMouseUp(CtrlUp, Shift); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
   if CtrlUp <> nil then
     CtrlUp.MouseUp(X, Y, Shift, Button);
 
@@ -7032,7 +7109,7 @@ end;
 procedure TKMMasterControl.Paint;
 begin
   CtrlPaintCount := 0;
-  fCtrl.Paint;
+  fMasterPanel.Paint;
 
   if MODE_DESIGN_CONTORLS and (CtrlFocus <> nil) then
     TKMRenderUI.WriteText(CtrlFocus.AbsLeft, CtrlFocus.AbsTop-14, 0, inttostr(CtrlFocus.AbsLeft)+':'+inttostr(CtrlFocus.AbsTop), fnt_Grey, taLeft);
@@ -7054,3 +7131,4 @@ end;
 
 
 end.
+
