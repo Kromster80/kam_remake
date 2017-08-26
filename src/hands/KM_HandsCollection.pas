@@ -616,10 +616,14 @@ end;
 //MapEd procedure to remove any house under cursor
 procedure TKMHandsCollection.RemAnyHouse(Position: TKMPoint);
 var
-  I: Integer;
+  H: TKMHouse;
 begin
-  for I := 0 to fCount - 1 do
-    fHandsList[I].RemHouse(Position, true, true);
+  H := HousesHitTest(Position.X, Position.Y);
+  if H <> nil then
+  begin
+    H.DemolishHouse(H.Owner, True);
+    fHandsList[H.Owner].Houses.DeleteHouseFromList(H);
+  end;
 end;
 
 
