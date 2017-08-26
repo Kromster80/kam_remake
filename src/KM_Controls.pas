@@ -1188,6 +1188,7 @@ type
 
     function GetVisibleRows: Integer;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
@@ -4385,8 +4386,7 @@ begin
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
     case Key of
       Ord('A'): SetSelections(0, GetMaxCursorPos);
-      Ord('C'): if HasSelection then
-                  Clipboard.AsText := GetSelectedText;
+      Ord('C'),
       Ord('X'): if HasSelection then
                   Clipboard.AsText := GetSelectedText;
     end;
@@ -4429,6 +4429,12 @@ begin
       VK_HOME:  begin CursorPos := GetMinCursorPosInRow; ResetSelection; end;
       VK_END:   begin CursorPos := GetMaxCursorPosInRow; ResetSelection; end;
     end;
+end;
+
+
+function TKMMemo.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := inherited KeyUp(Key, Shift) or KeyEventHandled(Key, Shift);
 end;
 
 
