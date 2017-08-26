@@ -276,6 +276,7 @@ type
   TKMLabel = class(TKMControl)
   private
     fAutoWrap: Boolean;
+    fAutoCut: Boolean;
     fFont: TKMFont;
     fFontColor: TColor4; //Usually white (self-colored)
     fCaption: UnicodeString; //Original text
@@ -285,13 +286,15 @@ type
     fStrikethrough: Boolean;
     function TextLeft: Integer;
     procedure SetCaption(aCaption: UnicodeString);
-    procedure SetAutoWrap(aValue: boolean);
+    procedure SetAutoWrap(aValue: Boolean);
+    procedure SetAutoCut(aValue: Boolean);
     procedure ReformatText;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign); overload;
     constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign); overload;
-    function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
-    property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
+    function HitTest(X, Y: Integer; aIncludeDisabled: Boolean = False): Boolean; override;
+    property AutoWrap: Boolean read fAutoWrap write SetAutoWrap;  //Whether to automatically wrap text within given text area width
+    property AutoCut: Boolean read fAutoCut write SetAutoCut;     //Whether to automatically cut text within given text area size
     property Caption: UnicodeString read fCaption write SetCaption;
     property FontColor: TColor4 read fFontColor write fFontColor;
     property Strikethrough: Boolean read fStrikethrough write fStrikethrough;
@@ -2276,6 +2279,13 @@ begin
 end;
 
 
+procedure TKMLabel.SetAutoCut(aValue: Boolean);
+begin
+  fAutoCut := aValue;
+  ReformatText;
+end;
+
+
 procedure TKMLabel.SetAutoWrap(aValue: Boolean);
 begin
   fAutoWrap := aValue;
@@ -2293,13 +2303,26 @@ end;
 //Existing EOLs should be preserved, and new ones added where needed
 //Keep original intact incase we need to Reformat text once again
 procedure TKMLabel.ReformatText;
-begin
-  if fAutoWrap then
-    fText := gRes.Fonts[fFont].WordWrap(fCaption, Width, True, False)
-  else
-    fText := fCaption;
+  procedure Reformat;
+  begin
+    if fAutoWrap then
+      fText := gRes.Fonts[fFont].WordWrap(fCaption, Width, True, False)
+    else
+      fText := fCaption;
 
-  fTextSize := gRes.Fonts[fFont].GetTextSize(fText);
+    fTextSize := gRes.Fonts[fFont].GetTextSize(fText);
+  end;
+begin
+  Reformat;
+  // Automatically cut text symbol by symbol until it will fit into given sizes (width and height)
+  if fAutoCut then
+    while (Length(fCaption) > 0)
+      and (((fTextSize.X > Width) and (Width > 0))
+      or ((fTextSize.Y > Height) and (Height > 0))) do
+    begin
+      fCaption := Copy(fCaption, 1, Length(fCaption) - 1);
+      Reformat;
+    end;
 end;
 
 
