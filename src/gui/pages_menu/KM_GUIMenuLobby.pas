@@ -310,7 +310,7 @@ begin
   if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil)
   and fNetworking.NetPlayers.SpectatorsAllowed then
   begin
-    Panel_LobbyPlayers.Height := 364;
+    Panel_LobbyPlayers.Height := 414;
     Label_Spectators.Show;
   end
   else

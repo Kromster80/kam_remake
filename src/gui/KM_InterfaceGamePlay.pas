@@ -1151,10 +1151,10 @@ end;
 { Allies page }
 procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
-const ROWS = 5;
+const ROWS = 6;
       PANEL_ALLIES_WIDTH = 810;
 begin
-  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT - 25, PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 25);
   Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 
