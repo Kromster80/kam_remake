@@ -1928,7 +1928,7 @@ end;
 function TKMMenuLobby.DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I: Integer;
 begin
-  Result := True; //we will handle mouse click here, and don't want to propagate it further
+  Result := False;
   if (Radio_LobbyMapType.ItemIndex < 4) and (X = 0) then
   begin
     I := DropCol_LobbyMaps.Item[Y].Tag;
@@ -1946,6 +1946,7 @@ begin
     finally
       fMapsMP.Unlock;
     end;
+    Result := True; //we handle mouse click here, and do not want to propagate it further
   end;
 end;
 
