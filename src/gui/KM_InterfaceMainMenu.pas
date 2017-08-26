@@ -61,10 +61,10 @@ type
     procedure ExportPages(aPath: string); override;
     procedure ReturnToLobby(const aSaveName: UnicodeString);
 
-    procedure KeyDown(Key:Word; Shift: TShiftState); override;
-    procedure KeyUp(Key:Word; Shift: TShiftState); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
     procedure Resize(X,Y: Word); override;
@@ -327,8 +327,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState);
+procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  aHandled := True; // assume we handle all keys here
+
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
 
   if (fMenuPage <> nil) then
@@ -336,8 +338,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState);
+procedure TKMMainMenuInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  aHandled := True; // assume we handle all keys here
+
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 end;
 
@@ -349,8 +353,10 @@ end;
 
 
 //Do something related to mouse movement in menu
-procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
+procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean);
 begin
+  aHandled := True; // assume we always handle mouse move
+
   fMyControls.MouseMove(X, Y, Shift);
 
   fMenuCampaign.MouseMove(Shift, X, Y);
