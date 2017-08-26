@@ -23,6 +23,7 @@ type
 
   TUnitStats = packed record
     Initial,          //Provided at mission start
+    Training,         //Currently in training queue
     Trained,          //Trained by player
     Lost,             //Died of hunger or killed
     Killed: Cardinal; //Killed (incl. self)
@@ -70,6 +71,8 @@ type
     procedure HouseSelfDestruct(aType: THouseType);
     procedure HouseDestroyed(aType: THouseType);
     procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean);
+    procedure UnitAddedToTrainingQueue(aType: TUnitType);
+    procedure UnitRemovedFromTrainingQueue(aType: TUnitType);
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
@@ -83,6 +86,7 @@ type
     function GetHouseWip(aType: array of THouseType): Integer; overload;
     function GetHouseTotal(aType: THouseType): Integer;
     function GetUnitQty(aType: TUnitType): Integer;
+    function GetUnitWip(aType: TUnitType): Integer;
     function GetUnitKilledQty(aType: TUnitType): Integer;
     function GetUnitLostQty(aType: TUnitType): Integer;
     function GetWareBalance(aRT: TWareType): Integer;
@@ -200,6 +204,18 @@ end;
 procedure TKMHandStats.HouseDestroyed(aType: THouseType);
 begin
   Inc(Houses[aType].Destroyed);
+end;
+
+
+procedure TKMHandStats.UnitAddedToTrainingQueue(aType: TUnitType);
+begin
+  Inc(Units[aType].Training);
+end;
+
+
+procedure TKMHandStats.UnitRemovedFromTrainingQueue(aType: TUnitType);
+begin
+  Dec(Units[aType].Training);
 end;
 
 
@@ -359,6 +375,20 @@ begin
                     for UT := WARRIOR_MIN to WARRIOR_MAX do
                       dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
                 end;
+  end;
+end;
+
+
+function TKMHandStats.GetUnitWip(aType: TUnitType): Integer;
+var
+  UT: TUnitType;
+begin
+  Result := 0;
+  case aType of
+    ut_None: ;
+    ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
+                  Inc(Result, Units[UT].Training);
+    else        Result := Units[aType].Training;
   end;
 end;
 
