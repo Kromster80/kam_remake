@@ -295,7 +295,8 @@ begin
     inc(fFrameCount);
     if fOldFrameTimes >= FPS_INTERVAL then
     begin
-      if gGameApp <> nil then gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
+      if gGameApp <> nil then
+        gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
       StatusBarText(4, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
                        IfThen(CAP_MAX_FPS, ' (' + inttostr(FPS_LAG) + ')'));
       fOldFrameTimes := 0;

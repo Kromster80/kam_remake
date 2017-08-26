@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromUtils, Math, Classes, Controls, TypInfo,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
@@ -327,7 +327,7 @@ uses
   KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
   KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks,
   KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
-  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog;
+  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes;
 
 
 procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
@@ -3912,7 +3912,10 @@ end;
 procedure TKMGamePlayInterface.UpdateDebugInfo;
 var
   I: Integer;
-  S: string;
+  mKind: TKMessageKind;
+  Received, Sent, RTotal, STotal, Period: Cardinal;
+//  AverageR, AverageS: Single;
+  S, SPackets, S2: String;
 begin
   S := '';
 
@@ -3944,6 +3947,39 @@ begin
   if SHOW_AI_WARE_BALANCE then
     S := S + gMySpectator.Hand.AI.Mayor.BalanceText + '|';
 
+
+  if SHOW_NET_PACKETS_STATS then
+  begin
+    S2 := '';
+    SPackets := '';
+    RTotal := 0;
+    STotal := 0;
+    Period := GetTimeSince(gGame.Networking.PacketsStatsStartTime);
+    for mKind := Low(TKMessageKind) to High(TKMessageKind) do
+    begin
+      Received := gGame.Networking.PacketsReceived[mKind];
+      Sent := gGame.Networking.PacketsSent[mKind];
+//      AverageR := Received / Period;
+//      AverageS := Sent / Period;
+      RTotal := RTotal + Received;
+      STotal := STotal + Sent;
+      S2 := S2 + Format('%-25s: R: %s S:%s|', [GetEnumName(TypeInfo(TKMessageKind), Integer(mKind)),
+                                               FormatFloat('##0.#', Received),
+                                               FormatFloat('##0.#', Sent)]);
+      if (Received >= SHOW_NET_PACKETS_LIMIT) or (Sent >= SHOW_NET_PACKETS_LIMIT) then
+        SPackets := SPackets + Format('%-23s: R: %d S:%d|', [GetEnumName(TypeInfo(TKMessageKind), Integer(mKind)),
+                                                                 Received, Sent]);
+      S2 := S2 + sLineBreak;
+    end;
+    S := S + Format('|Average Received: %.1f  Sent: %.1f|', [1000*RTotal/Period, 1000*STotal/Period]) + SPackets;
+    if (TimeGet mod 5000) < 50 then
+      gLog.AddTime('Packets Stats:' + sLineBreak + S2);
+  end;
+
+
+    ;//S := S + gGame.Networking.PacketsReceived + '|';
+
+  Label_DebugInfo.Font := fnt_Arial;
   Label_DebugInfo.Caption := S;
 end;
 

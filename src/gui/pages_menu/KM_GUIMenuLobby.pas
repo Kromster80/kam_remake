@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Math, SysUtils,
-  KM_Defaults,
+  KM_Defaults, KM_NetworkTypes,
   KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_Networking;
 
 
@@ -23,7 +23,7 @@ type
 
     fLobbyTab: TLobbyTab;
     fChatMode: TChatMode;
-    fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
+    fChatWhisperRecipient: TKMNetHandleIndex; //Server index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
 
     fLocalToNetPlayers: array [1..MAX_LOBBY_SLOTS] of Integer;
@@ -47,7 +47,7 @@ type
     procedure FileDownloadClick(Sender: TObject);
     procedure ReadmeClick(Sender: TObject);
 
-    procedure ChatMenuSelect(aItem: Integer);
+    procedure ChatMenuSelect(aItem: TKMNetHandleIndex);
     procedure ChatMenuClick(Sender: TObject);
     procedure ChatMenuShow(Sender: TObject);
 
@@ -613,7 +613,7 @@ begin
 end;
 
 
-procedure TKMMenuLobby.ChatMenuSelect(aItem: Integer);
+procedure TKMMenuLobby.ChatMenuSelect(aItem: TKMNetHandleIndex);
 
   procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
   var CapWidth: Integer;

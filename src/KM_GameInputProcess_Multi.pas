@@ -16,11 +16,11 @@ type
 
   TCommandsPack = class
   private
-    fCount: Integer;
+    fCount: Byte;
     fItems: array of TGameInputCommand; //1..n
     function GetItem(aIndex: Integer): TGameInputCommand;
   public
-    property  Count: Integer read fCount;
+    property  Count: Byte read fCount;
     procedure Clear;
     procedure Add(aCommand: TGameInputCommand);
     function CRC: Cardinal;
@@ -84,8 +84,8 @@ type
 
 implementation
 uses
-  KM_Game, KM_GameApp, KM_HandsCollection, KM_Utils, KM_Sound, KM_ResSound, KM_ResTexts,
-  KM_AI;
+  TypInfo, KM_Game, KM_GameApp, KM_HandsCollection, KM_Utils, KM_Sound, KM_ResSound, KM_ResTexts,
+  KM_AI, KM_Log;
 
 
 { TCommandsPack }
@@ -126,7 +126,10 @@ var I: Integer;
 begin
   aStream.Write(fCount);
   for I := 1 to fCount do
+  begin
+    //gLog.AddTime(Format('%s', [GetEnumName(TypeInfo(TGameInputCommandType), Integer(fItems[I].CommandType))]));
     SaveCommandToMemoryStream(fItems[I], aStream);
+  end;
 end;
 
 
@@ -258,7 +261,9 @@ begin
   try
     Msg.Write(Byte(kdp_Commands));
     Msg.Write(aTick); //Target Tick in 1..n range
+    //gLog.AddTime('Send commands pack for tick ' + IntToStr(aTick));
     fSchedule[aTick mod MAX_SCHEDULE, gGame.Networking.MyIndex].Save(Msg); //Write all commands to the stream
+
     fNetworking.SendCommands(Msg, aPlayerIndex); //Send to all players by default
   finally
     Msg.Free;

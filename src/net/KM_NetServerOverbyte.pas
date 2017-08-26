@@ -14,13 +14,13 @@ without KaM even noticing. }
 const FIRST_TAG = 15;
 
 type
-  THandleEvent = procedure (aHandle:integer) of object;
-  TNotifyDataEvent = procedure(aHandle:integer; aData:pointer; aLength:cardinal)of object;
+  THandleEvent = procedure (aHandle: SmallInt) of object;
+  TNotifyDataEvent = procedure(aHandle: SmallInt; aData:pointer; aLength:cardinal)of object;
 
   TKMNetServerOverbyte = class
   private
     fSocketServer:TWSocketServer;
-    fLastTag:integer;
+    fLastTag: SmallInt;
     fOnError:TGetStrProc;
     fOnClientConnect:THandleEvent;
     fOnClientDisconnect:THandleEvent;
@@ -33,14 +33,14 @@ type
     destructor Destroy; override;
     procedure StartListening(aPort: Word);
     procedure StopListening;
-    procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
-    procedure Kick(aHandle:integer);
-    function GetIP(aHandle:integer): string;
-    function GetMaxHandle:integer;
+    procedure SendData(aHandle: SmallInt; aData: Pointer; aLength: Cardinal);
+    procedure Kick(aHandle: SmallInt);
+    function GetIP(aHandle: SmallInt): string;
+    function GetMaxHandle: SmallInt;
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
-    property OnDataAvailable:TNotifyDataEvent write fOnDataAvailable;
+    property OnDataAvailable: TNotifyDataEvent write fOnDataAvailable;
   end;
 
 
@@ -147,7 +147,7 @@ end;
 
 
 //Make sure we send data to specified client
-procedure TKMNetServerOverbyte.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
+procedure TKMNetServerOverbyte.SendData(aHandle: SmallInt; aData: Pointer; aLength: Cardinal);
 var i:integer;
 begin
   for i:=0 to fSocketServer.ClientCount-1 do
@@ -159,13 +159,13 @@ begin
     end;
 end;
 
-function TKMNetServerOverbyte.GetMaxHandle:integer;
+function TKMNetServerOverbyte.GetMaxHandle: SmallInt;
 begin
-  Result := MaxInt;
+  Result := 32767;
 end;
 
 
-procedure TKMNetServerOverbyte.Kick(aHandle:integer);
+procedure TKMNetServerOverbyte.Kick(aHandle: SmallInt);
 var i:integer;
 begin
   for i:=0 to fSocketServer.ClientCount-1 do
@@ -178,7 +178,7 @@ begin
 end;
 
 
-function TKMNetServerOverbyte.GetIP(aHandle:integer): string;
+function TKMNetServerOverbyte.GetIP(aHandle: SmallInt): string;
 var i:integer;
 begin
   Result := '';

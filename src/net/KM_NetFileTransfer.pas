@@ -2,30 +2,30 @@ unit KM_NetFileTransfer;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Math, KM_Defaults, KM_CommonClasses
+  SysUtils, Math, KM_Defaults, KM_CommonClasses, KM_NetworkTypes
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
 
 const MAX_TRANSFERS = 8; //One for each player
 type
-  TTransferEvent = procedure(aClientIndex: Integer) of object;
-  TTransferPacketEvent = procedure(aClientIndex: Integer; aStream: TKMemoryStream; out SendBufferEmpty: Boolean) of object;
+  TTransferEvent = procedure(aClientIndex: TKMNetHandleIndex) of object;
+  TTransferPacketEvent = procedure(aClientIndex: TKMNetHandleIndex; aStream: TKMemoryStream; out SendBufferEmpty: Boolean) of object;
   TTransferProgressEvent = procedure(Total, Progress: Cardinal) of object;
   TKMTransferType = (kttMap, kttSave);
 
   TKMFileSender = class
   private
-    fReceiverIndex: Integer;
+    fReceiverIndex: TKMNetHandleIndex;
     fChunksInFlight: Byte;
     fSendStream: TKMemoryStream;
     procedure AddFileToStream(aFileName, aPostFix, aExt: UnicodeString);
   public
-    constructor Create(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: Integer);
+    constructor Create(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: TKMNetHandleIndex);
     destructor Destroy; override;
     procedure WriteChunk(aStream: TKMemoryStream; aLength: Cardinal);
     procedure AckReceived;
     function StreamEnd: Boolean;
-    property ReceiverIndex: Integer read fReceiverIndex;
+    property ReceiverIndex: TKMNetHandleIndex read fReceiverIndex;
   end;
 
   TKMFileReceiver = class
@@ -56,10 +56,10 @@ type
     function ActiveTransferCount: Byte;
   public
     destructor Destroy; override;
-    function StartNewSend(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: Integer): Boolean;
+    function StartNewSend(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: TKMNetHandleIndex): Boolean;
     procedure AbortAllTransfers;
-    procedure AckReceived(aReceiverIndex: Integer);
-    procedure ClientDisconnected(aReceiverIndex: Integer);
+    procedure AckReceived(aReceiverIndex: TKMNetHandleIndex);
+    procedure ClientDisconnected(aReceiverIndex: TKMNetHandleIndex);
     procedure UpdateStateIdle(SendBufferEmpty: Boolean);
     property OnTransferCompleted: TTransferEvent write fOnTransferCompleted;
     property OnTransferPacket: TTransferPacketEvent write fOnTransferPacket;
@@ -67,7 +67,7 @@ type
 
 implementation
 uses
-  KM_NetworkTypes, KM_Maps;
+  KM_Maps;
 
 const
   //TODO: Add LIBX and WAV support for maps
@@ -95,7 +95,7 @@ end;
 
 
 { TKMFileSender }
-constructor TKMFileSender.Create(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: Integer);
+constructor TKMFileSender.Create(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: TKMNetHandleIndex);
 var
   I: Integer;
   FileName: UnicodeString;
@@ -364,7 +364,7 @@ begin
     FreeAndNil(fSenders[I]);
 end;
 
-procedure TKMFileSenderManager.AckReceived(aReceiverIndex: Integer);
+procedure TKMFileSenderManager.AckReceived(aReceiverIndex: TKMNetHandleIndex);
 var I: Integer;
 begin
   for I := Low(fSenders) to High(fSenders) do
@@ -372,7 +372,7 @@ begin
       fSenders[I].AckReceived;
 end;
 
-procedure TKMFileSenderManager.ClientDisconnected(aReceiverIndex: Integer);
+procedure TKMFileSenderManager.ClientDisconnected(aReceiverIndex: TKMNetHandleIndex);
 var I: Integer;
 begin
   for I := Low(fSenders) to High(fSenders) do
@@ -388,7 +388,7 @@ begin
   inherited;
 end;
 
-function TKMFileSenderManager.StartNewSend(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: Integer): Boolean;
+function TKMFileSenderManager.StartNewSend(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: TKMNetHandleIndex): Boolean;
 var I: Integer;
 begin
   for I := Low(fSenders) to High(fSenders) do
@@ -418,7 +418,7 @@ procedure TKMFileSenderManager.UpdateStateIdle(SendBufferEmpty: Boolean);
 var
   I: Integer;
   Stream: TKMemoryStream;
-  ClientIndex: Integer;
+  ClientIndex: TKMNetHandleIndex;
   MaxChunksInFlightPerSender: Byte;
 begin
   //Reserve some bandwidth for each sender

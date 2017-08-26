@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Math, StrUtils, SysUtils,
-  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking, KM_Points;
+  KM_Controls, KM_Defaults, KM_NetworkTypes, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking, KM_Points;
 
 
 type
@@ -18,7 +18,7 @@ type
     function Chat_Post(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Chat_MenuClick(Sender: TObject);
-    procedure Chat_MenuSelect(aItem: Integer);
+    procedure Chat_MenuSelect(aItem: TKMNetHandleIndex);
     procedure Chat_MenuShow(Sender: TObject);
     function GetPanelChatRect: TKMRect;
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
@@ -157,7 +157,7 @@ begin
 end;
 
 
-procedure TKMGUIGameChat.Chat_MenuSelect(aItem: Integer);
+procedure TKMGUIGameChat.Chat_MenuSelect(aItem: TKMNetHandleIndex);
 
   procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
   const

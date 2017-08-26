@@ -117,6 +117,8 @@ var
   SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
   SHOW_AI_WARE_BALANCE  :Boolean = False; //Show wares balance (Produced - Consumed)
+  SHOW_NET_PACKETS_STATS:Boolean = False; //Show network packet statistics
+  SHOW_NET_PACKETS_LIMIT:Integer = 1;
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
@@ -125,7 +127,7 @@ var
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  MULTIPLAYER_CHEATS    :Boolean = true; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
   DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)

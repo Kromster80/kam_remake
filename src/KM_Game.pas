@@ -339,6 +339,7 @@ begin
   case fGameMode of
     gmMulti, gmMultiSpectate:
               begin
+                fNetworking.ResetPacketsStats;
                 FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #0);
                 for I := 1 to fNetworking.NetPlayers.Count do
                   if not fNetworking.NetPlayers[I].IsSpectator then

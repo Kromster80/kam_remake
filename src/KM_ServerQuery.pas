@@ -48,8 +48,8 @@ type
     fServerID:integer;
     fOnServerData: TServerDataEvent;
     fOnQueryDone: TNotifyEvent;
-    procedure NetClientReceive(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal);
-    procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind); overload;
+    procedure NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: TKMNetHandleIndex; aData:pointer; aLength:cardinal);
+    procedure PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind); overload;
   public
     constructor Create;
     destructor Destroy; override;
@@ -331,11 +331,12 @@ begin
 end;
 
 
-procedure TKMQuery.NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal);
+procedure TKMQuery.NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);
 var
   M: TKMemoryStream;
   Kind: TKMessageKind;
-  tmpInteger: Integer;
+//  tmpInteger: Integer;
+  tmpHandleIndex: TKMNetHandleIndex;
   tmpString: AnsiString;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
@@ -355,8 +356,8 @@ begin
 
     mk_IndexOnServer:
       begin
-        M.Read(tmpInteger);
-        fIndexOnServer := tmpInteger;
+        M.Read(tmpHandleIndex);
+        fIndexOnServer := tmpHandleIndex;
         fPingStarted := TimeGet;
         PacketSend(NET_ADDRESS_SERVER, mk_GetServerInfo);
       end;
@@ -372,7 +373,7 @@ begin
 end;
 
 
-procedure TKMQuery.PacketSend(aRecipient: Integer; aKind: TKMessageKind);
+procedure TKMQuery.PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind);
 var
   M: TKMemoryStream;
 begin
