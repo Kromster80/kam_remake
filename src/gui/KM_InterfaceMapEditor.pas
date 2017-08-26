@@ -731,13 +731,12 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
+  inherited KeyUp(Key, Shift, KeyHandled);
+  if KeyHandled then Exit;
+
   //For undo/redo shortcuts and Objects Palette
   fGuiTerrain.KeyUp(Key, Shift, KeyHandled);
   if KeyHandled then Exit;
-
-  inherited KeyUp(Key, Shift, KeyHandled);
-  if KeyHandled then Exit;
-  
 
   //F1-F5 menu shortcuts
   if Key = gResKeys[SC_MAPEDIT_TERRAIN].Key   then Button_Main[1].Click;
