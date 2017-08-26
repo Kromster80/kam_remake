@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, KromUtils, Types,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
-  KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool;
+  KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool, KM_HouseBarracks;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
@@ -303,7 +303,7 @@ uses
 function TKMSettledUnit.FindHome: Boolean;
 var H: TKMHouse;
 begin
-  Result := False;
+  Result:=false;
   H := gHands[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
   if H <> nil then
   begin
@@ -336,8 +336,8 @@ var
 begin
   if (fHome <> nil)
     and not fHome.IsDestroyed
-    and fHome.IsClosedForWorker
-    and not(fUnitTask is TTaskDie)then
+    and (fHome.IsClosedForWorker or ((fHome.HouseType = ht_Barracks) and (TKMHouseBarracks(fHome).NotAcceptRecruitFlag)))
+    and not(fUnitTask is TTaskDie) then
     begin
       wGoingInsideHouse := (fCurrentAction is TUnitActionGoInOut) and ((TUnitActionGoInOut(fCurrentAction)).Direction = gd_GoInside);
       // let recruits finish throwing animation
@@ -372,7 +372,8 @@ begin
           begin
             CleanHousePointer(True);    // Clean house pointer and free task
           end else
-          if (wIsInsideHouse or wWantToGoOutShowHungry) then
+          if (wIsInsideHouse or wWantToGoOutShowHungry)
+            and not (fHome.HouseType = ht_Barracks) then // Recruits should not go out of Barracks
           begin
             SetActionGoIn(ua_Walk, gd_GoOutside, fHome); //Walk outside the house
             // If working inside - first we need to set house state to Idle, then to Empty

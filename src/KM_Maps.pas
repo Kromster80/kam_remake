@@ -740,7 +740,7 @@ begin
   if Trim(aName) = '' then Exit;
   
   Lock;
-  try
+   try
     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
     Assert(fMaps[aIndex].Path <> Dest);
     Assert(InRange(aIndex, 0, fCount - 1));
@@ -776,9 +776,9 @@ begin
      fMaps[I] := fMaps[I + 1];
     Dec(fCount);
     SetLength(fMaps, fCount);
-  finally
-    Unlock;
-  end;
+   finally
+   Unlock;
+   end;
 end;
 
 

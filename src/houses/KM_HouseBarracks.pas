@@ -19,6 +19,7 @@ type
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
+    NotAcceptRecruitFlag: Boolean;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -42,6 +43,7 @@ type
     procedure RecruitsAdd(aUnit: Pointer);
     procedure RecruitsRemove(aUnit: Pointer);
     procedure ToggleAcceptFlag(aRes: TWareType);
+    procedure ToggleAcceptRecruits;
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
     procedure CreateRecruitInside(aIsMapEd: Boolean);
 
@@ -80,6 +82,7 @@ begin
     fRecruitsList.Add(U);
   end;
   LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
+  LoadStream.Read(NotAcceptRecruitFlag);
   LoadStream.Read(fRallyPoint);
 end;
 
@@ -110,8 +113,11 @@ begin
   //which stops a sudden flow of unwanted wares to it as soon as it is created.
   FirstBarracks := TKMHouseBarracks(gHands[fOwner].FindHouse(ht_Barracks, 1));
   if (FirstBarracks <> nil) and not FirstBarracks.IsDestroyed then
+  begin
     for WT := WARFARE_MIN to WARFARE_MAX do
       NotAcceptFlag[WT] := FirstBarracks.NotAcceptFlag[WT];
+    NotAcceptRecruitFlag := FirstBarracks.NotAcceptRecruitFlag;
+  end;
 end;
 
 
@@ -215,6 +221,12 @@ begin
 end;
 
 
+procedure TKMHouseBarracks.ToggleAcceptRecruits;
+begin
+  NotAcceptRecruitFlag := not NotAcceptRecruitFlag;
+end;
+
+
 function TKMHouseBarracks.CanEquip(aUnitType: TUnitType): Boolean;
 var
   I: Integer;
@@ -311,6 +323,7 @@ begin
   for I := 0 to RecruitsCount - 1 do
     SaveStream.Write(TKMUnit(fRecruitsList.Items[I]).UID); //Store ID
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
+  SaveStream.Write(NotAcceptRecruitFlag);
   SaveStream.Write(fRallyPoint);
 end;
 

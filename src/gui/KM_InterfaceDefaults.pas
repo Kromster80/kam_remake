@@ -26,18 +26,17 @@ type
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
   TGUIEventText = procedure (Dest: TKMMenuPageType; aText: UnicodeString = '') of object;
 
-  TKMFileIdentInfo = record // File identification info (for maps/saves)
-    CRC: Cardinal;
-    Name: UnicodeString;
-  end;
-
-
   TKMMenuPageCommon = class
   protected
     OnKeyDown: TNotifyEventKeyShift;
     OnEscKeyDown: TNotifyEvent;
   public
     procedure MenuKeyDown(Key: Word; Shift: TShiftState);
+  end;
+
+  TKMFileIdentInfo = record // File identification info (for maps/saves)
+    CRC: Cardinal;
+    Name: UnicodeString;
   end;
 
 
