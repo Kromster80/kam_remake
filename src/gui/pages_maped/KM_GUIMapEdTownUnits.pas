@@ -54,7 +54,7 @@ begin
     Button_Citizen[I].OnClick := Town_UnitChange;
   end;
   Button_UnitCancel := TKMButtonFlat.Create(Panel_Units, 4 * 37, LineY+(Length(Button_Citizen) div 5)*37, 33, 33, 340);
-  Button_UnitCancel.Hint := gResTexts[TX_BUILD_CANCEL_HINT];
+  Button_UnitCancel.Hint := 'Remove units/groups'; // Todo translate
   Button_UnitCancel.Tag := 255; //Erase
   Button_UnitCancel.OnClick := Town_UnitChange;
 
