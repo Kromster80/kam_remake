@@ -423,13 +423,21 @@ begin
   end;
 
   case aMsg of
-    gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
-                    if (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti]) or MP_RESULTS_IN_SP then
+    gr_Win,
+    gr_Defeat,
+    gr_Cancel,
+    gr_ReplayEnd:   if (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti]) or MP_RESULTS_IN_SP then
                       fMainMenuInterface.ShowResultsMP(aMsg)
                     else
                       fMainMenuInterface.ShowResultsSP(aMsg);
-    gr_Error, gr_Disconnect:
-                    fMainMenuInterface.PageChange(gpError, aTextMsg);
+    gr_Error,
+    gr_Disconnect:  begin
+                      if gGame.IsMultiplayer then
+                        //After Error page User will go to the main menu, but Mutex will be still locked.
+                        //We will need to unlock it on gGame destroy, so mark it with GameLockedMutex
+                        gGame.GameLockedMutex := True;
+                      fMainMenuInterface.PageChange(gpError, aTextMsg);
+                    end;
     gr_Silent:      ;//Used when loading new savegame from gameplay UI
     gr_MapEdEnd:    fMainMenuInterface.PageChange(gpMapEditor);
   end;
