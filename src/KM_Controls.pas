@@ -766,8 +766,13 @@ type
     fBackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
     fFont: TKMFont; //Should not be changed from inital value, it will mess up the word wrapping
     fItemHeight: Byte;
+    fSeparatorHeight: Byte;
     fItemIndex: Smallint;
     fItems: TStringList;
+    fSeparatorPositions: array of Integer;
+    fSeparatorColor: TColor4;
+    fSeparatorTexts: TStringList;
+    fSeparatorFont: TKMFont;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
     function GetTopIndex: Integer;
@@ -777,6 +782,8 @@ type
     procedure SetAutoHideScrollBar(Value: boolean);
     procedure UpdateScrollBar;
     function GetItem(aIndex: Integer): UnicodeString;
+    function GetSeparatorPos(aIndex: Integer): Integer;
+    function GetItemTop(aIndex: Integer): Integer;
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -792,15 +799,25 @@ type
     property AutoHideScrollBar: boolean read fAutoHideScrollBar write SetAutoHideScrollBar;
     property BackAlpha: Single write SetBackAlpha;
 
-    procedure Add(aItem: UnicodeString; aTag: Integer=0);
+    procedure Add(aItem: UnicodeString; aTag: Integer = 0);
+    procedure AddSeparator(aPosition: Integer; aText: String = '');
+    procedure ClearSeparators;
+
     procedure Clear;
     function Count: Integer;
+    function SeparatorsCount: Integer;
+
     function GetVisibleRows: Integer;
 
     property Item[aIndex: Integer]: UnicodeString read GetItem; default;
     property ItemHeight: Byte read fItemHeight write SetItemHeight; //Accessed by DropBox
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
+
+    property SeparatorPos[aIndex: Integer]: Integer read GetSeparatorPos;
+    property SeparatorFont: TKMFont read fSeparatorFont write fSeparatorFont;
+    property SeparatorColor: TColor4 read fSeparatorColor write fSeparatorColor;
+    property SeparatorHeight: Byte read fSeparatorHeight write fSeparatorHeight;
 
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -1041,7 +1058,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85);
     procedure Clear; override;
     function Count: Integer; override;
-    procedure Add(aItem: UnicodeString; aTag: Integer=0);
+    procedure Add(aItem: UnicodeString; aTag: Integer = 0);
     procedure SelectByName(aText: UnicodeString);
     procedure SelectByTag(aTag: Integer);
     function GetTag(aIndex: Integer): Integer;
@@ -4602,6 +4619,10 @@ begin
   fFont := aFont;
   fAutoHideScrollBar := False; //Always show the scrollbar by default, then it can be turned off if required
   Focusable := True; //For up/down keys
+  fSeparatorHeight := 0;
+  fSeparatorTexts := TStringList.Create;
+  fSeparatorFont := fnt_Antiqua; //Looks good on dark solid background
+  fSeparatorColor := clListSeparatorShape;
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
@@ -4611,6 +4632,7 @@ end;
 destructor TKMListBox.Destroy;
 begin
   fItems.Free;
+  fSeparatorTexts.Free;
   inherited;
 end;
 
@@ -4685,15 +4707,41 @@ procedure TKMListBox.UpdateScrollBar;
 begin
   fScrollBar.MaxValue := fItems.Count - GetVisibleRows;
   fScrollBar.Visible := fVisible and (not fAutoHideScrollBar or fScrollBar.Enabled);
+  //Separators can not be used with scroll bar for now.
+  //Scrollbar works line-wise, not pixel-wise,
+  //so adding separators could cause visual issues
+  //(list 'jumping' when there is or there is no separator, when separator width is not equal to line width)
+  Assert(not (fScrollBar.Visible and (SeparatorsCount > 0)), 'Separators can not be used with scroll bar');
 end;
 
 
-procedure TKMListBox.Add(aItem: UnicodeString; aTag: Integer=0);
+procedure TKMListBox.Add(aItem: UnicodeString; aTag: Integer = 0);
 begin
   fItems.Add(aItem);
-  SetLength(ItemTags, Length(ItemTags)+1);
+  SetLength(ItemTags, Length(ItemTags) + 1);
   ItemTags[Length(ItemTags)-1] := aTag;
   UpdateScrollBar;
+end;
+
+
+//Add separator just before aPosition item in list with aText on it
+procedure TKMListBox.AddSeparator(aPosition: Integer; aText: String = '');
+begin
+  fSeparatorTexts.Add(aText);
+  SetLength(fSeparatorPositions, Length(fSeparatorPositions) + 1);
+  fSeparatorPositions[Length(fSeparatorPositions)-1] := aPosition;
+  //Separators can not be used with scroll bar for now.
+  //Scrollbar works line-wise, not pixel-wise,
+  //so adding separators could cause visual issues
+  //(list 'jumping' when there is or there is no separator, when separator width is not equal to line width)
+  Assert(not fScrollBar.Visible, 'Separators can not be used with scroll bar');
+end;
+
+
+procedure TKMListBox.ClearSeparators;
+begin
+  fSeparatorTexts.Clear;
+  SetLength(fSeparatorPositions, 0);
 end;
 
 
@@ -4701,6 +4749,7 @@ procedure TKMListBox.Clear;
 begin
   fItems.Clear;
   SetLength(ItemTags, 0);
+  ClearSeparators;
   fItemIndex := -1;
   UpdateScrollBar;
 end;
@@ -4720,15 +4769,39 @@ begin
 end;
 
 
+function TKMListBox.SeparatorsCount: Integer;
+begin
+  Result := Length(fSeparatorPositions);
+end;
+
+
 function TKMListBox.GetVisibleRows: Integer;
 begin
-  Result := fHeight div fItemHeight;
+  Result := (fHeight - fSeparatorHeight*SeparatorsCount) div fItemHeight;
 end;
 
 
 function TKMListBox.GetItem(aIndex: Integer): UnicodeString;
 begin
   Result := fItems[aIndex];
+end;
+
+
+function TKMListBox.GetSeparatorPos(aIndex: Integer): Integer;
+begin
+  Result := fSeparatorPositions[aIndex];
+end;
+
+
+//Get aIndex item top position, considering separators
+function TKMListBox.GetItemTop(aIndex: Integer): Integer;
+var
+  I: Integer;
+begin
+  Result := fItemHeight*aIndex;
+  for I := 0 to Length(fSeparatorPositions) - 1 do
+    if fSeparatorPositions[I] <= aIndex then
+      Inc(Result, fSeparatorHeight);
 end;
 
 
@@ -4788,16 +4861,33 @@ end;
 
 
 procedure TKMListBox.MouseMove(X,Y: Integer; Shift: TShiftState);
+  function GetItemIndex(aY: Integer): Integer;
+  var
+    I: Integer;
+  begin
+    Result := -1;
+    for I := 0 to Min(fItems.Count, GetVisibleRows) - 1 do
+      if InRange(aY, AbsTop + GetItemTop(I), AbsTop + GetItemTop(I) + fItemHeight) then
+      begin
+        Result := I;
+        Exit;
+      end;
+  end;
+
 var NewIndex: Integer;
 begin
   inherited;
 
   if (ssLeft in Shift)
-  and InRange(X, AbsLeft, AbsLeft + Width - (fScrollBar.Width*byte(fScrollBar.Visible)))
-  and InRange(Y, AbsTop, AbsTop + Height div fItemHeight * fItemHeight)
+    and InRange(X, AbsLeft, AbsLeft + Width - (fScrollBar.Width * Byte(fScrollBar.Visible)))
+    and InRange(Y, AbsTop, AbsTop + Height)
   then
   begin
-    NewIndex := TopIndex + (Y-AbsTop) div fItemHeight;
+    NewIndex := GetItemIndex(Y);
+    if NewIndex <> -1 then
+      NewIndex := NewIndex + TopIndex
+    else
+      Exit;
 
     if NewIndex > fItems.Count - 1 then
     begin
@@ -4837,8 +4927,10 @@ begin
   else
     PaintWidth := Width; //List takes up the entire width
 
+  // Draw background
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, PaintWidth, Height, 1, fBackAlpha);
 
+  // Draw selection outline and rectangle (shape)
   if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, GetVisibleRows - 1) then
   begin
     if IsFocused then
@@ -4849,11 +4941,22 @@ begin
       ShapeColor := clListSelShapeUnfocused;
       OutlineColor := clListSelOutlineUnfocused;
     end;
-    TKMRenderUI.WriteShape(AbsLeft, AbsTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, ShapeColor, OutlineColor);
+    TKMRenderUI.WriteShape(AbsLeft, AbsTop + GetItemTop(fItemIndex) - fItemHeight*TopIndex, PaintWidth, fItemHeight, ShapeColor, OutlineColor);
   end;
 
-  for I := 0 to Math.min(fItems.Count-1, GetVisibleRows - 1) do
-    TKMRenderUI.WriteText(AbsLeft+4, AbsTop+I*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+I] , fFont, taLeft);
+  // Draw text lines
+  for I := 0 to Min(fItems.Count, GetVisibleRows) - 1 do
+    TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + GetItemTop(I) + 3, PaintWidth - 8, fItems.Strings[TopIndex+I] , fFont, taLeft);
+
+  // Draw separators
+  for I := 0 to Length(fSeparatorPositions) - 1 do
+  begin
+    TKMRenderUI.WriteShape(AbsLeft, AbsTop + GetItemTop(fSeparatorPositions[I]) - fSeparatorHeight,
+                           PaintWidth - 1, fSeparatorHeight, fSeparatorColor);
+    if fSeparatorTexts[I] <> '' then
+      TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + GetItemTop(fSeparatorPositions[I]) - fSeparatorHeight,
+                            PaintWidth - 8, fSeparatorTexts[I], fSeparatorFont, taCenter)
+  end;
 end;
 
 
@@ -5870,7 +5973,8 @@ end;
 
 
 { TKMDropList }
-constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85);
+constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString;
+                               aStyle: TKMButtonStyle; aAutoClose: Boolean = True; aBackAlpha: Single = 0.85);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle, aAutoClose);
 
@@ -5938,13 +6042,13 @@ begin
 end;
 
 
-function TKMDropList.GetItemIndex: smallint;
+function TKMDropList.GetItemIndex: Smallint;
 begin
   Result := fList.ItemIndex;
 end;
 
 
-procedure TKMDropList.SetItemIndex(aIndex: smallint);
+procedure TKMDropList.SetItemIndex(aIndex: Smallint);
 begin
   fList.ItemIndex := aIndex;
   if aIndex <> -1 then
@@ -5981,7 +6085,7 @@ procedure TKMDropList.UpdateDropPosition;
 begin
   if Count > 0 then
   begin
-    fList.Height := Math.min(fDropCount, fList.Count) * fList.ItemHeight;
+    fList.Height := Math.min(fDropCount, fList.Count) * fList.ItemHeight + fList.SeparatorsCount*fList.SeparatorHeight;
 
     if fDropUp then
       fList.AbsTop := AbsTop - fList.Height
@@ -5993,7 +6097,7 @@ begin
 end;
 
 
-procedure TKMDropList.Add(aItem: UnicodeString; aTag: Integer=0);
+procedure TKMDropList.Add(aItem: UnicodeString; aTag: Integer = 0);
 begin
   fList.Add(aItem, aTag);
 end;
