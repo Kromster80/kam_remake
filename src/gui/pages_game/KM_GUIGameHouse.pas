@@ -9,7 +9,6 @@ uses
 type
   TKMGUIGameHouse = class
   private
-    fAskDemolish: Boolean;
     fLastSchoolUnit: Byte;  //Last unit that was selected in School, global for all schools player owns
     fLastBarracksUnit: Byte; //Last unit that was selected in Barracks, global for all barracks player owns
 
@@ -88,6 +87,7 @@ type
       Radio_Woodcutter: TKMRadioGroup;
       Button_Woodcutter: TKMButtonFlat;
   public
+    AskDemolish: Boolean;
     OnHouseDemolish: TEvent;
 
     constructor Create(aParent: TKMPanel);
@@ -402,7 +402,7 @@ end;
 
 procedure TKMGUIGameHouse.Show(aHouse: TKMHouse);
 begin
-  Show(aHouse, fAskDemolish);
+  Show(aHouse, AskDemolish);
 end;
 
 
@@ -410,7 +410,7 @@ procedure TKMGUIGameHouse.Show(aHouse: TKMHouse; aAskDemolish: Boolean);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
 var I,RowRes,Base,Line:integer; Res: TWareType;
 begin
-  fAskDemolish := aAskDemolish;
+  AskDemolish := aAskDemolish;
 
   //Hide all House sub-pages
   for I := 0 to Panel_House.ChildCount - 1 do
@@ -445,7 +445,7 @@ begin
   HealthBar_House.Caption   := inttostr(round(aHouse.GetHealth))+'/'+inttostr(gRes.Houses[aHouse.HouseType].MaxHealth);
   HealthBar_House.Position  := aHouse.GetHealth / gRes.Houses[aHouse.HouseType].MaxHealth;
 
-  if fAskDemolish then
+  if AskDemolish then
   begin
     for I := 0 to Panel_House.ChildCount - 1 do
       Panel_House.Childs[I].Hide; //hide all
@@ -678,7 +678,7 @@ begin
     Panel_House.Hide; //Simpliest way to reset page and ShownHouse
   end;
 
-  fAskDemolish := False;
+  AskDemolish := False;
   OnHouseDemolish; //Return to build menu
 end;
 

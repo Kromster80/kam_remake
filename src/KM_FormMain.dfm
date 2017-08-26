@@ -56,10 +56,13 @@ object FormMain: TFormMain
         Width = 80
       end
       item
-        Text = 'Object'
-        Width = 90
+        Text = 'Object '
+        Width = 100
+      end
+      item
+        Text = 'Control ID: '
+        Width = 80
       end>
-    ExplicitTop = 680
   end
   object GroupBox1: TGroupBox
     Left = 320
@@ -187,10 +190,19 @@ object FormMain: TFormMain
         TabOrder = 1
         OnClick = ControlsUpdate
       end
+      object chkUIControlsID: TCheckBox
+        Left = 111
+        Top = 16
+        Width = 58
+        Height = 17
+        Caption = 'Ctrls ID'
+        TabOrder = 2
+        OnClick = ControlsUpdate
+      end
     end
     object chkSuperSpeed: TCheckBox
       Left = 8
-      Top = 80
+      Top = 85
       Width = 75
       Height = 17
       Caption = 'Speed x300'
@@ -201,7 +213,7 @@ object FormMain: TFormMain
       Left = 8
       Top = 16
       Width = 177
-      Height = 57
+      Height = 65
       Caption = ' Select player '
       Columns = 4
       ItemIndex = 0
@@ -213,13 +225,17 @@ object FormMain: TFormMain
         '5'
         '6'
         '7'
-        '8')
+        '8'
+        '9'
+        '10'
+        '11'
+        '12')
       TabOrder = 7
       OnClick = RGPlayerClick
     end
     object Button_Stop: TButton
       Left = 96
-      Top = 80
+      Top = 85
       Width = 89
       Height = 17
       Caption = 'Stop the game'

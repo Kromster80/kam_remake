@@ -83,8 +83,8 @@ begin
   try
     GetAllTextPaths(ExeDir + '..\..\', libxList);
 
-    //libxList.Append(ExtractFilePath(Application.ExeName) + 'ger.libx');
-    //libxList.Append(ExtractFilePath(Application.ExeName) + 'uni.txt');
+    //libxList.Append(ExtractFilePath(ParamStr(0)) + 'ger.libx');
+    //libxList.Append(ExtractFilePath(ParamStr(0)) + 'uni.txt');
 
     for I := 0 to libxList.Count - 1 do
     if FileExists(libxList[I]) then

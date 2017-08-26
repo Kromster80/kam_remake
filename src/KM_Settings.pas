@@ -3,7 +3,7 @@
 interface
 uses
   Classes, SysUtils, Math, INIfiles, System.UITypes,
-  KM_Defaults, KM_Resolutions, KM_Points, KM_WareDistribution;
+  KM_Defaults, KM_CommonTypes, KM_Resolutions, KM_Points, KM_WareDistribution;
 
 
 type
@@ -34,6 +34,29 @@ type
     procedure LockParams;
     procedure UnlockParams;
     function IsValid(aMonitorsInfo: TKMPointArray): Boolean;
+  end;
+
+
+  TKMFavouriteMaps = class
+  private
+    fFavouriteMPMaps: TStringList;
+    fOnMapsUpdate: TUnicodeStringEvent;
+
+    procedure FavoriteMapsUpdated;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure LoadFromString(aString: UnicodeString);
+    function PackToString: UnicodeString;
+
+    property OnMapsUpdate: TUnicodeStringEvent read fOnMapsUpdate write fOnMapsUpdate;
+
+    procedure RemoveMissing(aMapsCRCArray: TKMCardinalArray);
+    function Contains(aMapCRC: Cardinal): Boolean;
+    procedure Add(aMapCRC: Cardinal);
+    procedure Remove(aMapCRC: Cardinal);
+    procedure Replace(aOldCRC, aNewCRC: Cardinal);
   end;
 
 
@@ -74,6 +97,8 @@ type
 
     fAutosave: Boolean;
     fReplayAutopause: Boolean;
+    fReplayShowBeacons: Boolean; //Replay variable - show beacons during replay
+    fSpecShowBeacons: Boolean;   //Spectator variable - show beacons while spectating
     fBrightness: Byte;
     fScrollSpeed: Byte;
     fAlphaShadows: Boolean;
@@ -105,7 +130,7 @@ type
     fServerWelcomeMessage: UnicodeString;
     fWareDistribution: TKMWareDistribution;
 
-    fMenu_FavouriteMPMaps: TStringList;
+    fMenu_FavouriteMPMapsStr: UnicodeString;
     fMenu_ReplaysType: Byte;
     fMenu_MapEdMapType: Byte;
     fMenu_MapEdNewMapX: Word;
@@ -122,8 +147,12 @@ type
     fMenu_SPSaveCRC: Cardinal;
     fMenu_LobbyMapType: Byte;
 
+    fFavouriteMaps: TKMFavouriteMaps;
+
     procedure SetAutosave(aValue: Boolean);
     procedure SetReplayAutopause(aValue: Boolean);
+    procedure SetReplayShowBeacons(aValue: Boolean);
+    procedure SetSpecShowBeacons(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
@@ -150,6 +179,7 @@ type
     procedure SetMaxRooms(eValue: Integer);
     procedure SetFlashOnMessage(aValue: Boolean);
 
+    procedure SetMenuFavouriteMPMapsStr(const aValue: UnicodeString);
     procedure SetMenuReplaysType(aValue: Byte);
     procedure SetMenuMapEdMapType(aValue: Byte);
     procedure SetMenuMapEdNewMapX(aValue: Word);
@@ -165,9 +195,6 @@ type
     procedure SetMenuSPMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveCRC(aValue: Cardinal);
     procedure SetMenuLobbyMapType(aValue: Byte);
-
-    procedure LoadFavouriteMapsFromString(aString: UnicodeString);
-    function GetFavouriteMapsString: UnicodeString;
   protected
     function LoadFromINI(FileName: UnicodeString): Boolean;
     procedure SaveToINI(FileName: UnicodeString);
@@ -180,6 +207,8 @@ type
 
     property Autosave: Boolean read fAutosave write SetAutosave;
     property ReplayAutopause: Boolean read fReplayAutopause write SetReplayAutopause;
+    property ReplayShowBeacons: Boolean read fReplayShowBeacons write SetReplayShowBeacons;
+    property SpecShowBeacons: Boolean read fSpecShowBeacons write SetSpecShowBeacons;
     property Brightness: Byte read fBrightness write SetBrightness;
     property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
@@ -211,10 +240,7 @@ type
     property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
 
-    function IsMapInFavourites(aMapCRC: Cardinal): Boolean;
-    procedure AddFavouriteMap(aMapCRC: Cardinal);
-    procedure RemoveFavouriteMap(aMapCRC: Cardinal);
-
+    property MenuFavouriteMPMapsStr: UnicodeString read fMenu_FavouriteMPMapsStr write SetMenuFavouriteMPMapsStr;
     property MenuReplaysType: Byte read fMenu_ReplaysType write SetMenuReplaysType;
     property MenuMapEdMapType: Byte read fMenu_MapEdMapType write SetMenuMapEdMapType;
     property MenuMapEdNewMapX: Word read fMenu_MapEdNewMapX write SetMenuMapEdNewMapX;
@@ -230,6 +256,8 @@ type
     property MenuSPMapCRC: Cardinal read fMenu_SPMapCRC write SetMenuSPMapCRC;
     property MenuSPSaveCRC: Cardinal read fMenu_SPSaveCRC write SetMenuSPSaveCRC;
     property MenuLobbyMapType: Byte read fMenu_LobbyMapType write SetMenuLobbyMapType;
+
+    property FavouriteMaps: TKMFavouriteMaps read fFavouriteMaps;
   end;
 
 
@@ -371,10 +399,8 @@ begin
   inherited;
 
   fWareDistribution := TKMWareDistribution.Create;
-
-  fMenu_FavouriteMPMaps := TStringList.Create;
-  fMenu_FavouriteMPMaps.Delimiter       := FAVOURITE_MAPS_DELIMITER;
-  fMenu_FavouriteMPMaps.StrictDelimiter := True; // Requires D2006 or newer.
+  fFavouriteMaps := TKMFavouriteMaps.Create;
+  fFavouriteMaps.OnMapsUpdate := SetMenuFavouriteMPMapsStr;
 
   ReloadSettings;
 end;
@@ -384,7 +410,7 @@ destructor TGameSettings.Destroy;
 begin
   SaveToINI(ExeDir + SETTINGS_FILE);
   FreeAndNil(fWareDistribution);
-  FreeAndNil(fMenu_FavouriteMPMaps);
+  FreeAndNil(fFavouriteMaps);
 
   inherited;
 end;
@@ -405,60 +431,6 @@ begin
 end;
 
 
-procedure TGameSettings.LoadFavouriteMapsFromString(aString: UnicodeString);
-var I: Integer;
-    MapCRC : Int64;
-    StringList: TStringList;
-begin
-  fMenu_FavouriteMPMaps.Clear;
-  StringList := TStringList.Create;
-  StringList.Delimiter := FAVOURITE_MAPS_DELIMITER;
-  StringList.DelimitedText   := Trim(aString);
-
-  for I := 0 to StringList.Count - 1 do
-  begin
-    if TryStrToInt64(Trim(StringList[I]), MapCRC)
-      and (MapCRC > 0)
-      and not IsMapInFavourites(Cardinal(MapCRC)) then
-      fMenu_FavouriteMPMaps.Add(Trim(StringList[I]));
-  end;
-
-  StringList.Free;
-end;
-
-
-function TGameSettings.GetFavouriteMapsString: UnicodeString;
-begin
-  Result := fMenu_FavouriteMPMaps.DelimitedText;
-end;
-
-
-function TGameSettings.IsMapInFavourites(aMapCRC: Cardinal): Boolean;
-begin
-  Result := fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC)) <> -1;
-end;
-
-
-procedure TGameSettings.AddFavouriteMap(aMapCRC: Cardinal);
-begin
-  if not IsMapInFavourites(aMapCRC) then
-  begin
-    fMenu_FavouriteMPMaps.Add(IntToStr(aMapCRC));
-    Changed;
-  end;
-end;
-
-
-procedure TGameSettings.RemoveFavouriteMap(aMapCRC: Cardinal);
-var Index: Integer;
-begin
-  Index := fMenu_FavouriteMPMaps.IndexOf(IntToStr(aMapCRC));
-  if Index <> -1 then
-    fMenu_FavouriteMPMaps.Delete(Index);
-  Changed;
-end;
-
-
 function TGameSettings.LoadFromINI(FileName: UnicodeString): Boolean;
 var
   F: TMemIniFile;
@@ -467,18 +439,21 @@ begin
 
   F := TMemIniFile.Create(FileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
   try
-    fBrightness       := F.ReadInteger('GFX', 'Brightness',       1);
-    fAlphaShadows     := F.ReadBool   ('GFX', 'AlphaShadows',     True);
-    fLoadFullFonts    := F.ReadBool   ('GFX', 'LoadFullFonts',    False);
+    fBrightness         := F.ReadInteger  ('GFX', 'Brightness',         1);
+    fAlphaShadows       := F.ReadBool     ('GFX', 'AlphaShadows',       True);
+    fLoadFullFonts      := F.ReadBool     ('GFX', 'LoadFullFonts',      False);
 
-    fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
-    fReplayAutopause:= F.ReadBool   ('Game', 'ReplayAutopause', False); //Disabled by default
-    fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
-    fLocale         := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
-    fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
-    fSpeedMedium    := F.ReadFloat('Game', 'SpeedMedium',    3);
-    fSpeedFast      := F.ReadFloat('Game', 'SpeedFast',      6);
-    fSpeedVeryFast  := F.ReadFloat('Game', 'SpeedVeryFast',  10);
+    fAutosave           := F.ReadBool     ('Game', 'Autosave',          True); //Should be ON by default
+    fReplayAutopause    := F.ReadBool     ('Game', 'ReplayAutopause',   False); //Disabled by default
+    fReplayShowBeacons  := F.ReadBool     ('Game', 'ReplayShowBeacons', False); //Disabled by default
+    fSpecShowBeacons    := F.ReadBool     ('Game', 'SpecShowBeacons',   False); //Disabled by default
+    fScrollSpeed        := F.ReadInteger  ('Game', 'ScrollSpeed',       10);
+    fSpeedPace          := F.ReadInteger  ('Game', 'SpeedPace',         100);
+    fSpeedMedium        := F.ReadFloat    ('Game', 'SpeedMedium',       3);
+    fSpeedFast          := F.ReadFloat    ('Game', 'SpeedFast',         6);
+    fSpeedVeryFast      := F.ReadFloat    ('Game', 'SpeedVeryFast',     10);
+
+    fLocale             := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
 
     fWareDistribution.LoadFromStr(F.ReadString ('Game','WareDistribution',''));
 
@@ -511,7 +486,9 @@ begin
     fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
     fServerWelcomeMessage   := {$IFDEF FPC} UTF8Decode {$ENDIF} (F.ReadString ('Server','WelcomeMessage',''));
 
-    LoadFavouriteMapsFromString(F.ReadString('Menu', 'FavouriteMaps', ''));
+    fMenu_FavouriteMPMapsStr   := F.ReadString('Menu', 'FavouriteMaps', '');
+    fFavouriteMaps.LoadFromString(fMenu_FavouriteMPMapsStr);
+
     fMenu_ReplaysType       := F.ReadInteger('Menu', 'ReplaysType',  0);
     fMenu_MapEdMapType      := F.ReadInteger('Menu', 'MapEdMapType', 0);
     fMenu_MapEdNewMapX      := F.ReadInteger('Menu', 'MapEdNewMapX', 64);
@@ -546,14 +523,17 @@ begin
     F.WriteBool   ('GFX','AlphaShadows',  fAlphaShadows);
     F.WriteBool   ('GFX','LoadFullFonts', fLoadFullFonts);
 
-    F.WriteBool   ('Game','Autosave',        fAutosave);
-    F.WriteBool   ('Game','ReplayAutopause', fReplayAutopause);
-    F.WriteInteger('Game','ScrollSpeed',     fScrollSpeed);
+    F.WriteBool   ('Game','Autosave',           fAutosave);
+    F.WriteBool   ('Game','ReplayAutopause',    fReplayAutopause);
+    F.WriteBool   ('Game','ReplayShowBeacons',  fReplayShowBeacons);
+    F.WriteBool   ('Game','SpecShowBeacons',    fSpecShowBeacons);
+    F.WriteInteger('Game','ScrollSpeed',        fScrollSpeed);
+    F.WriteInteger('Game','SpeedPace',          fSpeedPace);
+    F.WriteFloat  ('Game','SpeedMedium',        fSpeedMedium);
+    F.WriteFloat  ('Game','SpeedFast',          fSpeedFast);
+    F.WriteFloat  ('Game','SpeedVeryFast',      fSpeedVeryFast);
+
     F.WriteString ('Game','Locale',          UnicodeString(fLocale));
-    F.WriteInteger('Game','SpeedPace',       fSpeedPace);
-    F.WriteFloat('Game','SpeedMedium',       fSpeedMedium);
-    F.WriteFloat('Game','SpeedFast',         fSpeedFast);
-    F.WriteFloat('Game','SpeedVeryFast',     fSpeedVeryFast);
 
     F.WriteString('Game','WareDistribution', fWareDistribution.PackToStr);
 
@@ -583,7 +563,7 @@ begin
     F.WriteInteger('Server','AutoKickTimeout',              fAutoKickTimeout);
     F.WriteInteger('Server','PingMeasurementInterval',      fPingInterval);
 
-    F.WriteString ('Menu',  'FavouriteMaps',      GetFavouriteMapsString);
+    F.WriteString ('Menu',  'FavouriteMaps',      fMenu_FavouriteMPMapsStr);
     F.WriteInteger('Menu',  'ReplaysType',        fMenu_ReplaysType);
     F.WriteInteger('Menu',  'MapEdMapType',       fMenu_MapEdMapType);
     F.WriteInteger('Menu',  'MapEdNewMapX',       fMenu_MapEdNewMapX);
@@ -627,6 +607,13 @@ end;
 procedure TGameSettings.SetFlashOnMessage(aValue: Boolean);
 begin
   fFlashOnMessage := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuFavouriteMPMapsStr(const aValue: UnicodeString);
+begin
+  fMenu_FavouriteMPMapsStr := aValue;
   Changed;
 end;
 
@@ -737,7 +724,6 @@ begin
 end;
 
 
-
 procedure TGameSettings.SetAutosave(aValue: Boolean);
 begin
   fAutosave := aValue;
@@ -748,6 +734,20 @@ end;
 procedure TGameSettings.SetReplayAutopause(aValue: Boolean);
 begin
   fReplayAutopause := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetReplayShowBeacons(aValue: Boolean);
+begin
+  fReplayShowBeacons := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetSpecShowBeacons(aValue: Boolean);
+begin
+  fSpecShowBeacons := aValue;
   Changed;
 end;
 
@@ -966,6 +966,124 @@ begin
         and (fHeight >= MIN_RESOLUTION_HEIGHT)
         and (fHeight <= ScreenMaxHeight)
         and (fState in [TWindowState.wsNormal, TWindowState.wsMaximized]);
+end;
+
+
+{TKMFavouriteMaps}
+constructor TKMFavouriteMaps.Create;
+begin
+  inherited;
+  fFavouriteMPMaps := TStringList.Create;
+  fFavouriteMPMaps.Delimiter       := FAVOURITE_MAPS_DELIMITER;
+  fFavouriteMPMaps.StrictDelimiter := True; // Requires D2006 or newer.
+end;
+
+
+destructor TKMFavouriteMaps.Destroy;
+begin
+  FreeAndNil(fFavouriteMPMaps);
+  inherited;
+end;
+
+
+procedure TKMFavouriteMaps.FavoriteMapsUpdated;
+begin
+  if Assigned(fOnMapsUpdate) then
+    fOnMapsUpdate(PackToString);
+end;
+
+
+procedure TKMFavouriteMaps.LoadFromString(aString: UnicodeString);
+var I: Integer;
+    MapCRC : Int64;
+    StringList: TStringList;
+begin
+  fFavouriteMPMaps.Clear;
+  StringList := TStringList.Create;
+  StringList.Delimiter := FAVOURITE_MAPS_DELIMITER;
+  StringList.DelimitedText   := Trim(aString);
+
+  for I := 0 to StringList.Count - 1 do
+  begin
+    if TryStrToInt64(Trim(StringList[I]), MapCRC)
+      and (MapCRC > 0)
+      and not Contains(Cardinal(MapCRC)) then
+      fFavouriteMPMaps.Add(Trim(StringList[I]));
+  end;
+
+  StringList.Free;
+end;
+
+
+function TKMFavouriteMaps.PackToString: UnicodeString;
+begin
+  Result := fFavouriteMPMaps.DelimitedText;
+end;
+
+
+//Remove missing Favourites Maps from list, check if are of them are presented in the given maps CRC array.
+procedure TKMFavouriteMaps.RemoveMissing(aMapsCRCArray: TKMCardinalArray);
+  function ArrayContains(aValue: Cardinal): Boolean;
+  var I: Integer;
+  begin
+    Result := False;
+    for I := Low(aMapsCRCArray) to High(aMapsCRCArray) do
+      if aMapsCRCArray[I] = aValue then
+      begin
+        Result := True;
+        Break;
+      end;
+  end;
+var I: Integer;
+begin
+  I := fFavouriteMPMaps.Count - 1;
+  //We must check, that all values from favorites are presented in maps CRC array. If not - then remove it from favourites
+  while (fFavouriteMPMaps.Count > 0) and (I >= 0) do
+  begin
+    if not ArrayContains(StrToInt64(fFavouriteMPMaps[I])) then
+    begin
+      fFavouriteMPMaps.Delete(I);
+      FavoriteMapsUpdated;
+    end;
+
+    Dec(I);
+  end;
+end;
+
+
+function TKMFavouriteMaps.Contains(aMapCRC: Cardinal): Boolean;
+begin
+  Result := fFavouriteMPMaps.IndexOf(IntToStr(aMapCRC)) <> -1;
+end;
+
+
+procedure TKMFavouriteMaps.Add(aMapCRC: Cardinal);
+begin
+  if not Contains(aMapCRC) then
+  begin
+    fFavouriteMPMaps.Add(IntToStr(aMapCRC));
+    FavoriteMapsUpdated;
+  end;
+end;
+
+
+procedure TKMFavouriteMaps.Remove(aMapCRC: Cardinal);
+var Index: Integer;
+begin
+  Index := fFavouriteMPMaps.IndexOf(IntToStr(aMapCRC));
+  if Index <> -1 then
+    fFavouriteMPMaps.Delete(Index);
+  FavoriteMapsUpdated;
+end;
+
+
+procedure TKMFavouriteMaps.Replace(aOldCRC, aNewCRC: Cardinal);
+begin
+  if Contains(aOldCRC) then
+  begin
+    Remove(aOldCRC);
+    Add(aNewCRC);
+  end;
 end;
 
 

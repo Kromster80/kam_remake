@@ -232,14 +232,14 @@ begin
   {$IFDEF Unix}
     MousePos := Mouse.CursorPos;
   {$ENDIF}
-  if not fMain.GetScreenBounds(ScreenBounds) then Exit;
+  if not gMain.GetScreenBounds(ScreenBounds) then Exit;
 
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
   CursorPoint.X := EnsureRange(MousePos.X, ScreenBounds.Left, ScreenBounds.Right );
   CursorPoint.Y := EnsureRange(MousePos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
 
   //Do not do scrolling when the form is not focused (player has switched to another application)
-  if not fMain.IsFormActive or
+  if not gMain.IsFormActive or
     (not ScrollKeyLeft  and
      not ScrollKeyUp    and
      not ScrollKeyRight and

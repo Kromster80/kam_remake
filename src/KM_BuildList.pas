@@ -40,22 +40,25 @@ type
   end;
 
 
+  TKMHousePlan = record
+    HouseType: THouseType;
+    Loc: TKMPoint;
+    JobStatus: TJobStatus;
+    Worker: TKMUnit; //So we can tell Worker if plan is cancelled
+  end;
+
+
   //List of house plans and workers assigned to them
   TKMHousePlanList = class
   private
     fPlansCount: Integer;
-    fPlans: array of record
-      HouseType: THouseType;
-      Loc: TKMPoint;
-      JobStatus: TJobStatus;
-      Worker: TKMUnit; //So we can tell Worker if plan is cancelled
-    end;
+    fPlans: array of TKMHousePlan;
   public
     //Player orders
     procedure AddPlan(aHouseType: THouseType; aLoc: TKMPoint);
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
-    function GetPlan(aLoc: TKMPoint): THouseType;
+    function TryGetPlan(aLoc: TKMPoint; out oHousePlan: TKMHousePlan): Boolean;
     function FindHousePlan(aLoc: TKMPoint; aSkip: TKMPoint; out aOut: TKMPoint): Boolean;
 
     //Game events
@@ -389,7 +392,7 @@ begin
   RemFakeField(fFields[aIndex].Loc);
   RemFakeDeletedField(fFields[aIndex].Loc);
 
-  fFields[aIndex].Loc := KMPoint(0,0);
+  fFields[aIndex].Loc := KMPOINT_ZERO;
   fFields[aIndex].FieldType := ft_None;
   fFields[aIndex].JobStatus := js_Empty;
   gHands.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
@@ -702,7 +705,7 @@ end;
 procedure TKMHousePlanList.ClosePlan(aIndex: Integer);
 begin
   fPlans[aIndex].HouseType := ht_None;
-  fPlans[aIndex].Loc       := KMPoint(0,0);
+  fPlans[aIndex].Loc       := KMPOINT_ZERO;
   fPlans[aIndex].JobStatus := js_Empty;
   gHands.CleanUpUnitPointer(fPlans[aIndex].Worker);
 end;
@@ -782,11 +785,11 @@ begin
 end;
 
 
-function TKMHousePlanList.GetPlan(aLoc: TKMPoint): THouseType;
+function TKMHousePlanList.TryGetPlan(aLoc: TKMPoint; out oHousePlan: TKMHousePlan): Boolean;
 var
   I: Integer;
 begin
-  Result := ht_None;
+  Result := False;
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
@@ -794,7 +797,8 @@ begin
        (gRes.Houses[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
-    Result := fPlans[I].HouseType;
+    oHousePlan := fPlans[I];
+    Result := True;
     Exit;
   end;
 end;

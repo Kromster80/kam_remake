@@ -294,7 +294,7 @@ begin
            gs_WoodCutterPlant:  //If the player placed a house plan here while we were digging don't place the
                                 //tree so the house plan isn't canceled. This is actually the same as TSK/TPR IIRC
                                 if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
-                                  gTerrain.SetTree(WorkPlan.Loc, gTerrain.ChooseTreeToPlant(WorkPlan.Loc));
+                                  gTerrain.SetObject(WorkPlan.Loc, gTerrain.ChooseTreeToPlant(WorkPlan.Loc));
            gs_WoodCutterCut:    begin
                                   gTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir));
                                   StillFrame := 5;

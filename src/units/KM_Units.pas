@@ -1262,8 +1262,8 @@ begin
 
   fIsDead       := True;
   fThought      := th_None;
-  fPosition     := KMPointF(0,0);
-  fCurrPosition := KMPoint(0,0);
+  fPosition     := KMPOINTF_ZERO;
+  fCurrPosition := KMPOINT_ZERO;
   fPrevPosition := fCurrPosition;
   fNextPosition := fCurrPosition;
   fOwner        := PLAYER_NONE;
@@ -1642,10 +1642,10 @@ begin
   if GetUnitAction is TUnitActionWalkTo then
   begin
     TempVertexOccupied := TUnitActionWalkTo(GetUnitAction).fVertexOccupied;
-    TUnitActionWalkTo(GetUnitAction).fVertexOccupied := KMPoint(0,0); //So it doesn't try to DecVertex on destroy (now it's AbandonWalk's responsibility)
+    TUnitActionWalkTo(GetUnitAction).fVertexOccupied := KMPOINT_ZERO; //So it doesn't try to DecVertex on destroy (now it's AbandonWalk's responsibility)
   end
   else
-    TempVertexOccupied := KMPoint(0,0);
+    TempVertexOccupied := KMPOINT_ZERO;
 
   SetAction(TUnitActionAbandonWalk.Create(Self, aLocB, TempVertexOccupied, aActionType), AnimStep); //Use the current animation step, to ensure smooth transition
 end;

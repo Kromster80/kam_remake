@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Campaign Builder'
-  ClientHeight = 466
-  ClientWidth = 689
+  ClientHeight = 817
+  ClientWidth = 1209
   Color = clBtnFace
   Constraints.MinHeight = 492
   Constraints.MinWidth = 689
@@ -19,8 +19,8 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   DesignSize = (
-    689
-    466)
+    1209
+    817)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -49,6 +49,12 @@ object Form1: TForm1
     Width = 55
     Height = 13
     Caption = 'Short name'
+  end
+  object Bevel2: TBevel
+    Left = 8
+    Top = 448
+    Width = 154
+    Height = 2
   end
   object tvList: TTreeView
     Left = 8
@@ -108,30 +114,35 @@ object Form1: TForm1
     MinValue = 0
     TabOrder = 5
     Value = 0
-    OnChange = MapChange
+    OnChange = seNodeCountChange
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 447
-    Width = 689
+    Top = 798
+    Width = 1209
     Height = 19
     Panels = <
       item
         Width = 200
       end
       item
-        Width = 50
+        Width = 100
+      end
+      item
+        Width = 200
       end>
-    ExplicitTop = 469
+    ExplicitTop = 447
+    ExplicitWidth = 689
   end
   object ScrollBox1: TScrollBox
     Left = 168
     Top = 8
-    Width = 513
-    Height = 426
+    Width = 1033
+    Height = 777
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
-    ExplicitHeight = 448
+    ExplicitWidth = 513
+    ExplicitHeight = 426
     object Image1: TImage
       Left = 0
       Top = 0
@@ -363,6 +374,17 @@ object Form1: TForm1
     Text = '   '
     OnChange = edtShortNameChange
     OnKeyPress = edtShortNameKeyPress
+  end
+  object cbShowNodeNumbers: TCheckBox
+    Left = 8
+    Top = 464
+    Width = 113
+    Height = 17
+    Caption = 'Show node numbers'
+    Checked = True
+    State = cbChecked
+    TabOrder = 10
+    OnClick = cbShowNodeNumbersClick
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Supported images (*.png)|*.png'

@@ -68,7 +68,7 @@ begin
 
   Panel_Attack := TKMPanel.Create(aParent, TOOLBAR_WIDTH + (aParent.Width - TOOLBAR_WIDTH - SIZE_X) div 2,
                                            (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
-  Panel_Attack.Anchors := [];
+  Panel_Attack.AnchorsCenter;
   Panel_Attack.Hide;
 
     TKMBevel.Create(Panel_Attack, -1000,  -1000, 4000, 4000);

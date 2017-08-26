@@ -110,7 +110,8 @@ type
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
-    procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
+    procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+    procedure PlayerShareFogCompliment(aPlayer1, aPlayer2: Word; aShare: Boolean);
     procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
 
@@ -144,7 +145,7 @@ uses
   KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior, KM_HandLogistics,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements;
+  KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements, KM_BuildList;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -264,11 +265,30 @@ begin
 end;
 
 
-//* Version: 7000+
-//* Sets whether player A shares his vision with player B.
+//* Version: 5345
+//* Sets whether player A shares his vision with player B (one way, for both ways use PlayerShareFogCompliment).
 //* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
-//* aCompliment: Both ways
-procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
+procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+begin
+  try
+    if  InRange(aPlayer1, 0, gHands.Count - 1)
+    and InRange(aPlayer2, 0, gHands.Count - 1)
+    and (gHands[aPlayer1].Enabled)
+    and (gHands[aPlayer2].Enabled) then
+      gHands[aPlayer1].ShareFOW[aPlayer2] := aShare
+    else
+      LogParamWarning('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aShare)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Sets whether players A and B share their vision (both ways).
+//* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
+procedure TKMScriptActions.PlayerShareFogCompliment(aPlayer1, aPlayer2: Word; aShare: Boolean);
 begin
   try
     if  InRange(aPlayer1, 0, gHands.Count - 1)
@@ -277,11 +297,10 @@ begin
     and (gHands[aPlayer2].Enabled) then
     begin
       gHands[aPlayer1].ShareFOW[aPlayer2] := aShare;
-      if aCompliment then
-        gHands[aPlayer2].ShareFOW[aPlayer1] := aShare;
+      gHands[aPlayer2].ShareFOW[aPlayer1] := aShare
     end
     else
-      LogParamWarning('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aCompliment), Byte(aShare)]);
+      LogParamWarning('Actions.PlayerShareFogCompliment', [aPlayer1, aPlayer2, Byte(aShare)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -427,7 +446,7 @@ begin
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(aVolume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, False)
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPOINT_ZERO, False, aVolume, 0, False)
     else
       LogParamWarning('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
   except
@@ -452,7 +471,7 @@ begin
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(aVolume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, True)
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPOINT_ZERO, False, aVolume, 0, True)
     else
       LogParamWarning('Actions.PlayWAVFadeMusic: ' + UnicodeString(aFileName), []);
   except
@@ -509,7 +528,7 @@ begin
   try
     Result := -1;
     if InRange(aVolume, 0, 1) then
-      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(0,0), False, aVolume, 0)
+      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPOINT_ZERO, False, aVolume, 0)
     else
       LogParamWarning('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
   except
@@ -714,7 +733,7 @@ begin
             gTerrain.SetTileLock(KMPoint(NonEntranceX + K - 3, Y + I - 4), tlDigged);
           end;
 
-        gTerrain.SetField(H.Entrance, aPlayer, ft_Road);
+        gTerrain.SetRoad(H.Entrance, aPlayer);
         H.BuildingState := hbs_Wood;
         if aAddMaterials then
         begin
@@ -1100,7 +1119,7 @@ begin
       or (gTerrain.TileIsCornField(KMPoint(X, Y))) then
       begin
         Result := True;
-        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Corn, aStage, aRandomAge);
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn, aStage, aRandomAge);
       end
     else
       LogParamWarning('Actions.GiveFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
@@ -1123,7 +1142,7 @@ begin
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
+        gTerrain.SetRoad(KMPoint(X, Y), aPlayer);
         //Terrain under roads is flattened (fields are not)
         gTerrain.FlattenTerrain(KMPoint(X, Y));
         if gMapElements[gTerrain.Land[Y,X].Obj].WineOrCorn then
@@ -1235,7 +1254,7 @@ begin
       or (gTerrain.TileIsWineField(KMPoint(X, Y))) then
       begin
         Result := True;
-        gTerrain.SetFieldStaged(KMPoint(X, Y), aPlayer, ft_Wine, aStage, aRandomAge);
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine, aStage, aRandomAge);
       end
     else
       LogParamWarning('Actions.GiveWineFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
@@ -1366,7 +1385,7 @@ procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   try
     if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(0,0));
+      gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPOINT_ZERO);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1384,7 +1403,7 @@ begin
   try
     try
       if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
+        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPOINT_ZERO);
     except
       //Format may throw an exception
       on E: EConvertError do LogParamWarning('Actions.ShowMsgFormatted: '+E.Message, []);
@@ -1406,7 +1425,7 @@ begin
     if gTerrain.TileInMapCoords(aX, aY) then
     begin
       if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(aX,aY));
+        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPoint(aX,aY));
     end
     else
       LogParamWarning('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
@@ -1430,7 +1449,7 @@ begin
       if gTerrain.TileInMapCoords(aX, aY) then
       begin
         if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-          gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
+          gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPoint(aX,aY));
       end
       else
         LogParamWarning('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
@@ -2037,7 +2056,7 @@ begin
   try
     //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
     if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
-      gGame.OverlaySet(UnicodeString(aText), aPlayer)
+      gGame.OverlaySet(gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), aPlayer)
     else
       LogParamWarning('Actions.OverlayTextSet: '+UnicodeString(aText), [aPlayer]);
   except
@@ -2058,7 +2077,7 @@ begin
     begin
       try
         //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-        gGame.OverlaySetFormatted(UnicodeString(aText), Params, aPlayer);
+        gGame.OverlaySet(gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), aPlayer);
       except
         //Format may throw an exception
         on E: EConvertError do LogParamWarning('Actions.OverlayTextSetFormatted: EConvertError: '+E.Message, []);
@@ -2081,7 +2100,7 @@ begin
   try
     //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
     if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
-      gGame.OverlayAppend(UnicodeString(aText), aPlayer)
+      gGame.OverlayAppend(gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), aPlayer)
     else
       LogParamWarning('Actions.OverlayTextAppend: '+UnicodeString(aText), [aPlayer]);
   except
@@ -2102,7 +2121,7 @@ begin
     begin
       try
         //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-        gGame.OverlayAppendFormatted(UnicodeString(aText), Params, aPlayer);
+        gGame.OverlayAppend(gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), aPlayer);
       except
         //Format may throw an exception
         on E: EConvertError do LogParamWarning('Actions.OverlayTextAppendFormatted: EConvertError: '+E.Message, []);
@@ -2266,7 +2285,7 @@ begin
               gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road)
             else
             begin
-              gTerrain.SetField(Points[I], aPlayer, ft_Road);
+              gTerrain.SetRoad(Points[I], aPlayer);
               gTerrain.FlattenTerrain(Points[I]);
               if gMapElements[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
                 gTerrain.RemoveObject(Points[I]); //Remove corn/wine like normally built road does
@@ -2291,7 +2310,7 @@ end;
 //* Returns true if the plan was successfully removed or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanRemove(aPlayer, X, Y: Word): Boolean;
 var
-  HT: THouseType;
+  HPlan: TKMHousePlan;
 begin
   try
     Result := False;
@@ -2299,11 +2318,10 @@ begin
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and gTerrain.TileInMapCoords(X,Y) then
     begin
-      HT := gHands[aPlayer].BuildList.HousePlanList.GetPlan(KMPoint(X, Y));
-      if HT <> ht_None then
+      if gHands[aPlayer].BuildList.HousePlanList.TryGetPlan(KMPoint(X, Y), HPlan) then
       begin
         gHands[aPlayer].BuildList.HousePlanList.RemPlan(KMPoint(X, Y));
-        gHands[aPlayer].Stats.HousePlanRemoved(HT);
+        gHands[aPlayer].Stats.HousePlanRemoved(HPlan.HouseType);
         Result := True;
       end;
       if gHands[aPlayer].BuildList.FieldworksList.HasField(KMPoint(X, Y)) <> ft_None then

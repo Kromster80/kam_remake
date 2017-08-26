@@ -111,7 +111,7 @@ begin
   and (gTerrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
   begin
     gTerrain.UnitRem(fUnit.NextPosition);
-    if not KMSamePoint(fDoor, KMPoint(0,0)) then
+    if not KMSamePoint(fDoor, KMPOINT_ZERO) then
       fUnit.PositionF := KMPointF(fDoor); //Put us back inside the house
   end;
 
@@ -190,7 +190,7 @@ begin
     if U <> nil then
     begin
       fPushedUnit := U.GetUnitPointer;
-      fPushedUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(U, KMPoint(0,0), tpWalk));
+      fPushedUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(U, KMPOINT_ZERO, tpWalk));
     end;
   end;
 end;

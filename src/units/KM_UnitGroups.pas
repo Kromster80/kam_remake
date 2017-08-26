@@ -42,6 +42,7 @@ type
     fGroupType: TGroupType;
     fDisableHungerMessage: Boolean;
     fBlockOrders: Boolean;
+    fManualFormation: Boolean;
 
     fOrder: TKMGroupOrder; //Remember last order incase we need to repeat it (e.g. to joined members)
     fOrderLoc: TKMPointDir; //Dir is the direction to face after order
@@ -138,6 +139,7 @@ type
     property Order: TKMGroupOrder read fOrder;
     property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
     property BlockOrders: Boolean read fBlockOrders write fBlockOrders;
+    property ManualFormation: Boolean read fManualFormation write fManualFormation;
     property FlagPositionF: TKMPointF read GetFlagPositionF;
     property FlagColor: Cardinal read GetFlagColor;
     function IsFlagRenderBeforeUnit: Boolean;
@@ -156,6 +158,7 @@ type
     procedure OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
     procedure OrderNone;
     procedure OrderRepeat;
+    procedure CopyOrderFrom(aGroup: TKMUnitGroup);
     function OrderSplit(aClearOffenders: Boolean; aSplitSingle: Boolean = False): TKMUnitGroup;
     function OrderSplitUnit(aUnit: TKMUnit; aClearOffenders: Boolean): TKMUnitGroup;
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
@@ -333,7 +336,8 @@ begin
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(fDisableHungerMessage);
-  Loadstream.Read(fBlockOrders);
+  LoadStream.Read(fBlockOrders);
+  LoadStream.Read(fManualFormation);
 end;
 
 
@@ -420,6 +424,7 @@ begin
   SaveStream.Write(fUnitsPerRow);
   SaveStream.Write(fDisableHungerMessage);
   SaveStream.Write(fBlockOrders);
+  SaveStream.Write(fManualFormation);
 end;
 
 
@@ -535,7 +540,7 @@ begin
   if not IsDead then
     Result := Members[0].GetPosition
   else
-    Result := KMPoint(0,0);
+    Result := KMPOINT_ZERO;
 end;
 
 
@@ -1022,6 +1027,9 @@ begin
 
   for I := 0 to Count - 1 do
     Members[I].OrderAttackHouse(aHouse);
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackHouse(Self, aHouse);
 end;
 
 
@@ -1115,6 +1123,9 @@ begin
     fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
     OrderTargetUnit := aUnit;
   end;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderAttackUnit(Self, aUnit);
 end;
 
 
@@ -1127,8 +1138,6 @@ begin
   for I := 0 to Count - 1 do
     if not aHungryOnly or (Members[I].Condition <= UNIT_MIN_CONDITION) then
       Members[I].OrderFood;
-
-  OrderHalt(False);
 end;
 
 
@@ -1148,6 +1157,8 @@ begin
 
   SetUnitsPerRow(Max(fUnitsPerRow + aColumnsChange, 0));
 
+  ManualFormation := True;
+
   OrderRepeat;
 end;
 
@@ -1161,7 +1172,7 @@ begin
   //Halt is not a true order, it is just OrderWalk
   //hose target depends on previous activity
   case fOrder of
-    goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPoint(0,0)) then
+    goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPOINT_ZERO) then
                       OrderWalk(fOrderLoc.Loc, False)
                     else
                       OrderWalk(Members[0].NextPosition, False);
@@ -1210,6 +1221,9 @@ begin
 
   //Repeat targets group order to newly linked members
   aTargetGroup.OrderRepeat;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderLink(Self, aTargetGroup);
 end;
 
 
@@ -1223,6 +1237,23 @@ begin
 
   for I := 0 to Count - 1 do
     Members[I].OrderNone;
+end;
+
+
+//Copy order from specified aGroup
+procedure TKMUnitGroup.CopyOrderFrom(aGroup: TKMUnitGroup);
+begin
+  fOrder := aGroup.fOrder;
+  if fOrder <> goNone then          //when there is no order, then use own fOrderLoc
+    fOrderLoc := aGroup.fOrderLoc;  //otherwise - copy from target group
+
+  case fOrder of
+    goNone:         OrderHalt(False);
+    goWalkTo:       OrderWalk(fOrderLoc.Loc, False);
+    goAttackHouse:  if aGroup.OrderTargetHouse <> nil then OrderAttackHouse(aGroup.OrderTargetHouse, False);
+    goAttackUnit:   if aGroup.OrderTargetUnit <> nil then OrderAttackUnit(aGroup.OrderTargetUnit, False);
+    goStorm:        ;
+  end;
 end;
 
 
@@ -1312,10 +1343,13 @@ begin
   NewGroup.fOrderLoc := KMPointDir(NewLeader.GetPosition, fOrderLoc.Dir);
 
   //Tell both groups to reposition
-  OrderHalt(False);
-  NewGroup.OrderHalt(False);
+  OrderRepeat;
+  NewGroup.CopyOrderFrom(Self);
 
   Result := NewGroup; //Return the new group in case somebody is interested in it
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderSplit(Self, NewGroup);
 end;
 
 
@@ -1362,6 +1396,9 @@ begin
 
   //Return NewGroup as result
   Result := NewGroup;
+
+  //Script may have additional event processors
+  gScriptEvents.ProcGroupOrderSplit(Self, NewGroup);
 end;
 
 
@@ -1842,7 +1879,9 @@ begin
                      Result := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
                      Result.AddMember(aUnit);
                      //Form a square (rather than a long snake like in TSK/TPR)
-                     Result.UnitsPerRow := Ceil(Sqrt(Result.Count));
+                     //but don't change formation if player decided to set it manually
+                     if not Result.ManualFormation then
+                       Result.UnitsPerRow := Ceil(Sqrt(Result.Count));
                      Result.OrderRepeat;
                    end
                    else

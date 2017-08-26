@@ -42,16 +42,16 @@ type
     gic_ArmyAttackUnit,
     gic_ArmyAttackHouse,
     gic_ArmyHalt,
-    gic_ArmyFormation,         //Formation commands
+    gic_ArmyFormation,    //Formation commands
     gic_ArmyWalk,         //Walking
     gic_ArmyStorm,        //StormAttack
 
     //II.     Building/road plans (what to build and where)
     gic_BuildAddFieldPlan,
-    gic_BuildRemoveFieldPlan,  //Removal of a plan
+    gic_BuildRemoveFieldPlan, //Removal of a plan
     gic_BuildRemoveHouse,     //Removal of house
-    gic_BuildRemoveHousePlan,
-    gic_BuildHousePlan,   //Build HouseType
+    gic_BuildRemoveHousePlan, //Removal of house plan
+    gic_BuildHousePlan,       //Build HouseType
 
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
     gic_HouseRepairToggle,
@@ -77,14 +77,15 @@ type
     gic_WareDistributions,        //Update distributions for all wares at ones
 
     //V.      Game changes
-    gic_GameAlertBeacon,            //Signal alert (beacon)
+    gic_GameAlertBeacon,          //Signal alert (beacon)
     gic_GamePause,
     gic_GameAutoSave,
     gic_GameSaveReturnLobby,
     gic_GameTeamChange,
-    gic_GameHotkeySet,      //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
-    gic_GameMessageLogRead, //Player marks a message in their log as read
+    gic_GameHotkeySet,        //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
+    gic_GameMessageLogRead,   //Player marks a message in their log as read
     gic_GamePlayerTypeChange, //Players can be changed to AI when loading a save
+    gic_GamePlayerDefeat,     //Player can be defeated after intentional quit from the game
 
     //VI.      Cheatcodes affecting gameplay (props)
 
@@ -93,7 +94,7 @@ type
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
     gic_TempVictory,
     gic_TempDefeat,
-    gic_TempDoNothing //Used for "aggressive" replays that store a command every tick
+    gic_TempDoNothing  //Used for "aggressive" replays that store a command every tick
 
     { Optional input }
     //VI.     Viewport settings for replay (location, zoom)
@@ -106,7 +107,7 @@ const
     gic_ArmyFormation,  gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
   AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
   AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
-  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_TempDoNothing];
+  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GamePlayerDefeat, gic_TempDoNothing];
 
 type
   TGameInputCommand = record
@@ -337,7 +338,7 @@ begin
        Exit;
 
     //No commands allowed after a player has lost (this is a fall back in case players try to cheat)
-    if not (aCommand.CommandType in AllowedAfterDefeat) and gGame.IsMultiplayer and (P.AI.WonOrLost = wol_Lost) then
+    if not (aCommand.CommandType in AllowedAfterDefeat) and gGame.IsMultiplayer and P.AI.HasLost then
       Exit;
 
     //Most commands blocked during cinematic (this is a fall back in case players try to cheat)
@@ -426,6 +427,10 @@ begin
                                     Assert(fReplayState <> gipRecording); //Should only occur in replays
                                     gHands[Params[1]].HandType := THandType(Params[2]);
                                   end;
+      gic_GamePlayerDefeat:       begin
+                                    gHands.DisableGoalsForDefeatedHand(Params[1]);
+                                    gHands[Params[1]].AI.Defeat(False);
+                                  end
       else                        raise Exception.Create('Unexpected gic command');
     end;
   end;
@@ -433,20 +438,37 @@ end;
 
 
 procedure TGameInputProcess.ExecGameAlertBeaconCmd(aCommand: TGameInputCommand);
-var IsPlayerMuted: Boolean;
-begin
-  //Beacon script event must always be run by all players for consistency
-  gScriptEvents.ProcBeacon(aCommand.Params[3], 1 + (aCommand.Params[1] div 10), 1 + (aCommand.Params[2] div 10));
-  // Check if player, who send beacon, is muted
-  IsPlayerMuted := gGame.Networking.IsMuted(gGame.Networking.GetNetPlayerIndex(aCommand.Params[3]));
+  function DoAddPlayerBeacon: Boolean;
+  var IsPlayerMuted: Boolean;
+  begin
+    // Check if player, who send beacon, is muted
+    IsPlayerMuted := (gGame.Networking <> nil) and gGame.Networking.IsMuted(gGame.Networking.GetNetPlayerIndex(aCommand.Params[3]));
 
-  //However, beacons don't show in replays
-  if fReplayState = gipRecording then
-    if ((aCommand.Params[3] = PLAYER_NONE) and (gGame.GameMode = gmMultiSpectate))  // PLAYER_NONE means it is for spectators
-    or ((aCommand.Params[3] <> PLAYER_NONE) and (gGame.GameMode <> gmMultiSpectate) // Spectators shouldn't see player beacons
-    and (gHands.CheckAlliance(aCommand.Params[3], gMySpectator.HandIndex) = at_Ally)
-    and (gHands[aCommand.Params[3]].ShareBeacons[gMySpectator.HandIndex])
-    and not IsPlayerMuted) then                                            // do not show beacons sended by muted players
+    Result := (gHands.CheckAlliance(aCommand.Params[3], gMySpectator.HandIndex) = at_Ally)
+      and (gHands[aCommand.Params[3]].ShareBeacons[gMySpectator.HandIndex])
+      and not IsPlayerMuted; // do not show beacons sended by muted players
+  end;
+
+var
+  AddBeacon: Boolean;
+begin
+  // Beacon script event must always be run by all players for consistency
+  gScriptEvents.ProcBeacon(aCommand.Params[3], 1 + (aCommand.Params[1] div 10), 1 + (aCommand.Params[2] div 10));
+
+  AddBeacon := False;
+
+  case gGame.GameMode of
+    gmSingle,
+    gmCampaign,
+    gmMulti:          AddBeacon := (aCommand.Params[3] <> PLAYER_NONE) and DoAddPlayerBeacon;
+    gmMultiSpectate:  AddBeacon := (aCommand.Params[3] = PLAYER_NONE) // Show spectators beacons while spectating
+                                    or (gGameApp.GameSettings.SpecShowBeacons and DoAddPlayerBeacon);
+    gmReplaySingle,
+    gmReplayMulti:    AddBeacon := (aCommand.Params[3] <> PLAYER_NONE)  // Do not show spectators beacons in replay
+                                    and gGameApp.GameSettings.ReplayShowBeacons and DoAddPlayerBeacon;
+  end;
+
+  if AddBeacon then
       gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(aCommand.Params[1]/10,
                                                         aCommand.Params[2]/10),
                                                         aCommand.Params[3],
@@ -620,7 +642,7 @@ end;
 
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: Integer);
 begin
-  Assert(aCommandType in [gic_GameMessageLogRead]);
+  Assert(aCommandType in [gic_GameMessageLogRead, gic_GamePlayerDefeat]);
   TakeCommand(MakeCommand(aCommandType, [aValue]));
 end;
 

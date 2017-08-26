@@ -338,9 +338,9 @@ begin
   MaxCount := 0;
   MaxRes := wt_None;
   for R := WARE_MIN to WARE_MAX do
-  if fMarketResIn[R] > MaxCount then
+  if fMarketResIn[R] + fMarketResOut[R] > MaxCount then
   begin
-    MaxCount := fMarketResIn[R];
+    MaxCount := fMarketResIn[R] + fMarketResOut[R];
     MaxRes := R;
   end;
 

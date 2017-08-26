@@ -107,7 +107,7 @@ begin
     PopUp_Delete := TKMPopUpMenu.Create(Panel_Load, 450);
     PopUp_Delete.Height := 200;
     // Keep the pop-up centered
-    PopUp_Delete.Anchors := [];
+    PopUp_Delete.AnchorsCenter;
     PopUp_Delete.Left := (Panel_Load.Width div 2) - (PopUp_Delete.Width div 2);
     PopUp_Delete.Top := (Panel_Load.Height div 2) - 90;
 

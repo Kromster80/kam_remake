@@ -105,9 +105,7 @@ implementation
 
 
 const
-  eol: string = #13#10; //EndOfLine
-  //TextPath = '..\..\data\text\';
-  //ConstPath = '..\..\KM_TextIDs.inc';
+  eol: string = #13#10; // EndOfLine
 
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -212,6 +210,8 @@ end;
 procedure TForm1.lbFoldersClick(Sender: TObject);
 const
   MSG_WARNING: string = 'You have unsaved changes that will be lost, load new libx anyway?';
+  PATH_TEXT = 'data\text\text.%s.libx';
+  PATH_CONST = 'KM_TextIDs.inc';
 var
   ID: Integer;
 begin
@@ -227,9 +227,9 @@ begin
   ID := lbFolders.ItemIndex;
   if ID = -1 then Exit;
 
-  //Special case for ingame text library
-  if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
-    fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc')
+  // Special case for ingame text library
+  if SameText(lbFolders.Items[ID], PATH_TEXT) then
+    fTextManager.Load(fWorkDir + PATH_TEXT, fWorkDir + PATH_CONST)
   else
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], '');
 
@@ -240,18 +240,8 @@ end;
 
 
 procedure TForm1.btnSaveClick(Sender: TObject);
-var
-  ID: Integer;
 begin
-  ID := lbFolders.ItemIndex;
-  if ID = -1 then Exit;
-
-  if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
-    fTextManager.Save(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc')
-  else
-    fTextManager.Save(fWorkDir + lbFolders.Items[ID], '');
-
-  mnuSave.Enabled := False;
+  fTextManager.Save;
 end;
 
 

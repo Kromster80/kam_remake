@@ -70,7 +70,6 @@ uses
   function StrLastIndexOf(aStr, aSubStr: String): Integer;
   function StrSubstring(aStr: String; aFrom, aLength: Integer): String; overload;
   function StrSubstring(aStr: String; aFrom: Integer): String; overload;
-  function StrStartsWith(aStr, aSubStr: String): Boolean;
   function StrContains(aStr, aSubStr: String): Boolean;
   function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
   function StrSplit(aStr, aDelimiters: String): TStrings;
@@ -345,10 +344,10 @@ end;
 function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
-    0..299  : Result := icGreen;
-    300..599: Result := icYellow;
-    600..999: Result := icOrange;
-    else      Result := icRed;
+    0..299  : Result := clPingLow;
+    300..599: Result := clPingNormal;
+    600..999: Result := clPingHigh;
+    else      Result := clPingCritical;
   end;
 end;
 
@@ -356,10 +355,10 @@ end;
 function GetFPSColor(aFPS: Word): Cardinal;
 begin
   case aFPS of
-    0..9  : Result := icRed;
-    10..12: Result := icOrange;
-    13..15: Result := icYellow;
-    else    Result := icGreen;
+    0..9  : Result := clFpsCritical;
+    10..12: Result := clFpsLow;
+    13..15: Result := clFpsNormal;
+    else    Result := clFpsHigh;
   end;
 end;
 
@@ -478,6 +477,8 @@ begin
 end;
 
 
+//Reduce brightness
+//aBrightness - from 0 to 255, where 255 is current Brightness
 function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
 begin
   Result := Round((aColor and $FF) / 255 * aBrightness)
@@ -768,14 +769,6 @@ begin
   for I := 1 to Length(aStr) do
     if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
       Result := I - 1;
-end;
-
-
-function StrStartsWith(aStr, aSubStr: String): Boolean;
-begin
-  //Todo refactor:
-  //@Krom: Why not just replace StrStartsWith with StartsStr everywhere in code?
-  Result := StartsStr(aSubStr, aStr);
 end;
 
 

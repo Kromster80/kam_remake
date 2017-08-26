@@ -255,12 +255,12 @@ var
   I,K: Integer;
 begin
   Panel_Bars := TKMPanel.Create(aParent, 62, PANES_TOP, 900, 435);
-  Panel_Bars.Anchors := [];
+  Panel_Bars.AnchorsCenter;
 
     //Composed of two sections each on own Panel to position them vertically according to player count
 
     Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, 900, 215);
-    Panel_BarsUpper.Anchors := [];
+    Panel_BarsUpper.AnchorsCenter;
 
       for I := 0 to MAX_LOBBY_PLAYERS - 1 do
         Label_ResultsPlayerName1[I] := TKMLabel.Create(Panel_BarsUpper, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
@@ -278,7 +278,7 @@ begin
       end;
 
     Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, 220, 900, 180);
-    Panel_BarsLower.Anchors := [];
+    Panel_BarsLower.AnchorsCenter;
 
       for I := 0 to MAX_LOBBY_PLAYERS - 1 do
         Label_ResultsPlayerName2[I] := TKMLabel.Create(Panel_BarsLower, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
@@ -302,7 +302,7 @@ var
   I: TWareType;
 begin
   Panel_ChartsWares := TKMPanel.Create(aParent, 62, PANES_TOP, 900, 435);
-  Panel_ChartsWares.Anchors := [];
+  Panel_ChartsWares.AnchorsCenter;
 
     Columnbox_Wares := TKMColumnBox.Create(Panel_ChartsWares, 0, 0, 140, 435, fnt_Game, bsMenu);
     Columnbox_Wares.SetColumns(fnt_Game, ['', ''], [0, 20]);
@@ -327,7 +327,7 @@ var
   WType: TChartArmyType;
 begin
   Panel_ChartsArmy := TKMPanel.Create(aParent, 62, PANES_TOP, 900, 435);
-  Panel_ChartsArmy.Anchors := [];
+  Panel_ChartsArmy.AnchorsCenter;
 
     Columnbox_Army := TKMColumnBox.Create(Panel_ChartsArmy, 0, 0, 140, 435, fnt_Game, bsMenu);
     Columnbox_Army.SetColumns(fnt_Game, ['', ''], [0, 30]);

@@ -103,7 +103,7 @@ type
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
     //Used externally to access raw RGBA data (e.g. by ExportAnim)
-    procedure LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+    function LoadSprites(aRT: TRXType; aAlphaShadows: Boolean): Boolean;
     procedure ExportToPNG(aRT: TRXType);
 
     property AlphaShadows: Boolean read fAlphaShadows;
@@ -448,10 +448,10 @@ begin
   end;
 
   //Mark pivot location with a dot
-  K := pngWidth + fRXData.Pivot[aIndex].x;
-  I := pngHeight + fRXData.Pivot[aIndex].y;
-  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
-    pngData[I*pngWidth + K] := $FF00FF;//}
+//  K := pngWidth + fRXData.Pivot[aIndex].x;
+//  I := pngHeight + fRXData.Pivot[aIndex].y;
+//  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
+//    pngData[I*pngWidth + K] := $FFFF00FF;
 
   SaveToPng(pngWidth, pngHeight, pngData, aFile);
 end;
@@ -554,7 +554,7 @@ type
     Tx: Cardinal;
     ID: Word;
     TxCoords: TKMTexCoords;
-    TD: array of Cardinal;
+    TD: TKMCardinalArray;
   begin
     //Prepare atlases
     for I := 0 to High(SpriteInfo) do
@@ -646,7 +646,8 @@ type
 
       Inc(TexCount);
 
-      SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' + ExportName[aMode] + IntToStr(aStartingIndex+I), @TD[0]);
+      SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' +
+                       ExportName[aMode] + IntToStr(aStartingIndex+I), TD);
     end;
   end;
 const
@@ -799,13 +800,20 @@ end;
 
 
 //Try to load RXX first, then RX, then use Folder
-procedure TKMResSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+function TKMResSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean): Boolean;
 begin
+  Result := False;
   if aAlphaShadows and FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx')
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx');
+    Result := True;
+  end
   else
   if FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx')
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx');
+    Result := True;
+  end
   else
     Exit;
 
@@ -815,9 +823,11 @@ end;
 
 procedure TKMResSprites.ExportToPNG(aRT: TRXType);
 begin
-  LoadSprites(aRT, False);
-  fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
-  ClearTemp;
+  if LoadSprites(aRT, False) then
+  begin
+    fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
+    ClearTemp;
+  end;
 end;
 
 

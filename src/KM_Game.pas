@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
+  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonTypes, KM_Defaults, KM_Points, KM_FileIO,
   KM_GameInputProcess, KM_GameOptions,
@@ -57,14 +57,14 @@ type
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
-    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server
+    fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server. Also used in MapEd
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFileSP: UnicodeString; //Relative pathname to mission we are playing, so it gets saved to crashreport. SP only, see GetMissionFile.
     fMissionMode: TKMissionMode;
 
-    function ParseTextMarkup(aText: UnicodeString): UnicodeString;
     procedure GameMPDisconnect(const aData: UnicodeString);
+    procedure OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime; const aMinimapPathName: UnicodeString = '');
     procedure UpdatePeaceTime;
@@ -97,7 +97,7 @@ type
     procedure GameHold(DoHold: Boolean; Msg: TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg: TGameResultMsg);
     procedure PlayerVictory(aPlayerIndex: TKMHandIndex);
-    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex);
+    procedure PlayerDefeat(aPlayerIndex: TKMHandIndex; aShowDefeatMessage: Boolean = True);
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
     procedure ShowScriptError(const aMsg: UnicodeString);
@@ -117,12 +117,9 @@ type
     function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
     procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
-    procedure ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
-    procedure OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
     procedure OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
-    procedure OverlayAppendFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: UnicodeString read fGameName;
     property CampaignName: TKMCampaignId read fCampaignName;
@@ -140,7 +137,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewUID: Integer;
-    procedure SetDefaultMPGameSpeed;
+    function GetNormalGameSpeed: Single;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
@@ -172,7 +169,7 @@ type
 
 
 const
-  UID_NONE: Integer = -1;
+  UID_NONE: Integer = -1; //Would be better to have it 0. But now it's -1 for backwards compatibility
 
 var
   gGame: TKMGame;
@@ -257,7 +254,7 @@ begin
   //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.
   //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Frees, TObject.Free does that already.
 
-  if fGameLockedMutex then fMain.UnlockMutex;
+  if fGameLockedMutex then gMain.UnlockMutex;
   if fTimerGame <> nil then fTimerGame.Enabled := False;
   fIsExiting := True;
 
@@ -525,7 +522,7 @@ begin
   fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
-  SetDefaultMPGameSpeed;
+  SetGameSpeed(GetNormalGameSpeed, False);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -576,7 +573,8 @@ begin
   fNetworking.OnPlayersSetup   := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo       := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.OnDisconnect     := GameMPDisconnect; //For auto reconnecting
-  fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
+  fNetworking.OnJoinerDropped := OtherPlayerDisconnected;
+  fNetworking.OnReassignedHost := nil; //Reset Lobby OnReassignedHost
   fNetworking.OnReassignedJoiner := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
@@ -626,6 +624,12 @@ procedure TKMGame.GameMPReadyToPlay(Sender: TObject);
 begin
   //Update the list of players that are ready to play
   WaitingPlayersDisplay(True);
+end;
+
+
+procedure TKMGame.OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
+begin
+  gGame.GameInputProcess.CmdGame(gic_GamePlayerDefeat, aDefeatedPlayerHandId);
 end;
 
 
@@ -739,6 +743,12 @@ end;
 
 procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
+  fNetworking.PostLocalMessage(Format('%s has won!', //Todo translate
+    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+
+  if fGameMode = gmMultiSpectate then
+    Exit;
+
   if aPlayerIndex = gMySpectator.HandIndex then
     gSoundPlayer.Play(sfxn_Victory, 1, True); //Fade music
 
@@ -762,7 +772,7 @@ begin
 end;
 
 
-procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex);
+procedure TKMGame.PlayerDefeat(aPlayerIndex: TKMHandIndex; aShowDefeatMessage: Boolean = True);
 begin
   case GameMode of
     gmSingle, gmCampaign:
@@ -772,9 +782,10 @@ begin
                 RequestGameHold(gr_Defeat);
               end;
     gmMulti:  begin
-                if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+                if aShowDefeatMessage and (fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil) then
                   fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
                     [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+                
                 if aPlayerIndex = gMySpectator.HandIndex then
                 begin
                   gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
@@ -782,7 +793,7 @@ begin
                   fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
                 end;
               end;
-    gmMultiSpectate:  if fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil then
+    gmMultiSpectate:  if aShowDefeatMessage and (fNetworking.GetNetPlayerByHandIndex(aPlayerIndex) <> nil) then
                         fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
                           [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
@@ -914,8 +925,7 @@ begin
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
   FreeAndNil(fMissionParser);
 
-  fGameName := TruncateExt(ExtractFileName(aPathName));
-
+  // Update GameSettings for saved maps positions in list on MapEd menu
   if DetermineMapFolder(GetFileDirName(ExtractFileDir(aPathName)), MapFolder) then
   begin
     // Update GameSettings for saved maps positions in list on MapEd menu
@@ -924,15 +934,23 @@ begin
       mfSP:       begin
                     gGameApp.GameSettings.MenuMapEdSPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMapType := 0;
+                    // Update saved SP game list saved selected map position CRC if we resave this map
+                    if fGameMapCRC = gGameApp.GameSettings.MenuSPMapCRC then
+                      gGameApp.GameSettings.MenuSPMapCRC := MapInfo.CRC;
                   end;
       mfMP,mfDL:  begin
                     gGameApp.GameSettings.MenuMapEdMPMapCRC := MapInfo.CRC;
                     gGameApp.GameSettings.MenuMapEdMPMapName := MapInfo.FileName;
                     gGameApp.GameSettings.MenuMapEdMapType := 1;
+                    // Update favorite map CRC if we resave favourite map with the same name
+                    if fGameName = MapInfo.FileName then
+                      gGameApp.GameSettings.FavouriteMaps.Replace(fGameMapCRC, MapInfo.CRC);
                   end;
     end;
     MapInfo.Free;
   end;
+
+  fGameName := TruncateExt(ExtractFileName(aPathName));
 
   //Append empty players in place of removed ones
   gHands.AddPlayers(MAX_HANDS - gHands.Count);
@@ -1013,7 +1031,7 @@ begin
 end;
 
 
-//We often need to see if game is MP
+// We often need to see if game is MP
 function TKMGame.IsMultiplayer: Boolean;
 begin
   Result := fGameMode in [gmMulti, gmMultiSpectate];
@@ -1026,17 +1044,10 @@ begin
 end;
 
 
-function TKMGame.ParseTextMarkup(aText: UnicodeString): UnicodeString;
-begin
-  Result := fTextMission.ParseTextMarkup(aText, '$');
-  Result := gResTexts.ParseTextMarkup(Result, '%');
-end;
-
-
 procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
 begin
   //Once you have lost no messages can be received
-  if gHands[aHandIndex].AI.WonOrLost = wol_Lost then Exit;
+  if gHands[aHandIndex].AI.HasLost then Exit;
 
   //Store it in hand so it can be included in MP save file
   gHands[aHandIndex].MessageLog.Add(aKind, aTextID, aLoc);
@@ -1049,17 +1060,7 @@ end;
 
 procedure TKMGame.ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
-  fGamePlayInterface.MessageIssue(aKind, ParseTextMarkup(aText), aLoc);
-end;
-
-
-procedure TKMGame.ShowMessageLocalFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
-var S: UnicodeString;
-begin
-  //We must parse for text markup before AND after running Format, since individual format
-  //parameters can contain strings that need parsing (see Annie's Garden for an example)
-  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
-  fGamePlayInterface.MessageIssue(aKind, S, aLoc);
+  fGamePlayInterface.MessageIssue(aKind, aText, aLoc);
 end;
 
 
@@ -1077,64 +1078,28 @@ end;
 
 
 procedure TKMGame.OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
+var
+  I: Integer;
 begin
-  S := ParseTextMarkup(aText);
-
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
-      fOverlayText[I] := S
+      fOverlayText[I] := aText
   else
-    fOverlayText[aPlayer] := S;
-
-  OverlayUpdate;
-end;
-
-
-procedure TKMGame.OverlaySetFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
-begin
-  //We must parse for text markup before AND after running Format, since individual format
-  //parameters can contain strings that need parsing (see Annie's Garden for an example)
-  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
-
-  if aPlayer = PLAYER_NONE then
-    for I := 0 to MAX_HANDS do
-      fOverlayText[I] := S
-  else
-    fOverlayText[aPlayer] := S;
+    fOverlayText[aPlayer] := aText;
 
   OverlayUpdate;
 end;
 
 
 procedure TKMGame.OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
+var
+  I: Integer;
 begin
-  S := ParseTextMarkup(aText);
-
   if aPlayer = PLAYER_NONE then
     for I := 0 to MAX_HANDS do
-      fOverlayText[I] := fOverlayText[I] + S
+      fOverlayText[I] := fOverlayText[I] + aText
   else
-    fOverlayText[aPlayer] := fOverlayText[aPlayer] + S;
-
-  OverlayUpdate;
-end;
-
-
-procedure TKMGame.OverlayAppendFormatted(const aText: UnicodeString; aParams: array of const; aPlayer: Shortint);
-var S: UnicodeString; I: Integer;
-begin
-  //We must parse for text markup before AND after running Format, since individual format
-  //parameters can contain strings that need parsing (see Annie's Garden for an example)
-  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
-
-  if aPlayer = PLAYER_NONE then
-    for I := 0 to MAX_HANDS do
-      fOverlayText[I] := fOverlayText[I] + S
-  else
-    fOverlayText[aPlayer] := fOverlayText[aPlayer] + S;
+    fOverlayText[aPlayer] := fOverlayText[aPlayer] + aText;
 
   OverlayUpdate;
 end;
@@ -1170,7 +1135,7 @@ const
   step = 8765423;
 begin
   //UIDs have the following properties:
-  // - allow -1 to indicate no UID (const UID_NONE = 0)
+  // - allow -1 to indicate no UID (const UID_NONE = -1)
   // - fit within 24bit (we can use that much for RGB colorcoding in unit picking)
   // - Start from 1, so that black colorcode can be detected in render and then re-mapped to -1
 
@@ -1179,12 +1144,16 @@ begin
 end;
 
 
-procedure TKMGame.SetDefaultMPGameSpeed;
+function TKMGame.GetNormalGameSpeed: Single;
 begin
-  if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT, False)
-  else
-    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
+  if IsMultiplayer then
+  begin
+    if IsPeaceTime then
+      Result := fGameOptions.SpeedPT
+    else
+      Result := fGameOptions.SpeedAfterPT;
+  end else
+    Result := 1;
 end;
 
 
@@ -1201,9 +1170,9 @@ begin
     Exit;
   end;
 
-  //Make the speed toggle between 1 and desired value
+  //Make the speed toggle between normal speed and desired value
   if (aSpeed = fGameSpeed) and aToggle then
-    fGameSpeed := 1
+    fGameSpeed := GetNormalGameSpeed
   else
     fGameSpeed := aSpeed;
 
@@ -1227,6 +1196,9 @@ begin
   //Need to adjust the delay immediately in MP
   if IsMultiplayer and (fGameInputProcess <> nil) then
     TGameInputProcess_Multi(fGameInputProcess).AdjustDelay(fGameSpeed);
+
+  if Assigned(gGameApp.OnGameSpeedChange) then
+    gGameApp.OnGameSpeedChange(fGameSpeed);
 end;
 
 
@@ -1462,7 +1434,7 @@ begin
     //If we're loading in multiplayer mode we have already locked the mutex when entering multiplayer menu,
     //which is better than aborting loading in a multiplayer game (spoils it for everyone else too)
     if SaveIsMultiplayer and (fGameMode in [gmSingle, gmCampaign, gmReplaySingle, gmReplayMulti]) then
-      if fMain.LockMutex then
+      if gMain.LockMutex then
         fGameLockedMutex := True //Remember so we unlock it in Destroy
       else
         //Abort loading (exception will be caught in gGameApp and shown to the user)
