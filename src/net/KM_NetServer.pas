@@ -107,7 +107,7 @@ type
     procedure ClientDisconnect(aHandle: TKMNetHandleIndex);
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind); overload;
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aParam: Integer; aImmidiate: Boolean = False); overload;
-    procedure SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex);
+    procedure SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex; aImmidiate: Boolean = False);
     procedure SendMessageA(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aText: AnsiString);
     procedure SendMessageW(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aText: UnicodeString);
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
@@ -568,13 +568,13 @@ begin
 end;
 
 
-procedure TKMNetServer.SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex);
+procedure TKMNetServer.SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex; aImmidiate: Boolean = False);
 var
   M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   M.Write(aIndexOnServer);
-  SendMessageAct(aRecipient, aKind, M);
+  SendMessageAct(aRecipient, aKind, M, aImmidiate);
   M.Free;
 end;
 
