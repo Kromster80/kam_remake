@@ -1310,7 +1310,7 @@ end;
 procedure TKMNetworking.PlayerDisconnected(aSenderIndex: TKMNetHandleIndex);
 
   //Post local message about player disconnection
-  procedure PostPlayerDefeatedMsg(aPlayerIndex: Integer);
+  procedure PostPlayerDisconnectedMsg(aPlayerIndex: Integer);
   var QuitMsgId: Integer;
   begin
     if IsPlayerHandStillInGame(aPlayerIndex) then
@@ -1328,10 +1328,10 @@ begin
                   fFileSenderManager.ClientDisconnected(aSenderIndex);
                   if PlayerIndex = -1 then exit; //Has already disconnected
 
+                  PostPlayerDisconnectedMsg(PlayerIndex);
+
                   if fNetGameState in [lgs_Game] then
                   begin
-                    PostPlayerDefeatedMsg(PlayerIndex);
-
                     if IsPlayerHandStillInGame(PlayerIndex) and Assigned(fOnJoinerDropped) then
                       fOnJoinerDropped(fNetPlayers[PlayerIndex].HandIndex);
                   end;
@@ -1349,8 +1349,8 @@ begin
     lpk_Joiner: begin
                   if PlayerIndex = -1 then exit; //Has already disconnected
 
-                  if fNetGameState in [lgs_Game] then
-                    PostPlayerDefeatedMsg(PlayerIndex);
+                  PostPlayerDisconnectedMsg(PlayerIndex);
+
                   if fHostIndex = PlayerIndex then
                   begin
                     //Host has quit so drop them from the game
