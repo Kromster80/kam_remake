@@ -410,8 +410,10 @@ begin
     ct_SetGroupFood:    if fLastHand <> PLAYER_NONE then
                         begin
                           if fLastTroop <> nil then
-                            fLastTroop.Condition := UNIT_MAX_CONDITION
-                          else
+                          begin
+                            fLastTroop.Condition := P[0];
+                            fLastTroop.FlagBearer.StartWDefaultCondition := False;
+                          end else
                             AddError('ct_SetGroupFood without prior declaration of Troop');
                         end;
     ct_AICharacter:     if fLastHand <> PLAYER_NONE then
@@ -923,8 +925,9 @@ begin
     begin
       Group := gHands[I].UnitGroups[K];
       AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
-      if Group.Condition = UNIT_MAX_CONDITION then
-        AddCommand(ct_SetGroupFood, []);
+
+      if not Group.FlagBearer.StartWDefaultCondition then
+        AddCommand(ct_SetGroupFood, [Group.Condition]);
 
       case Group.MapEdOrder.Order of
         ioNoOrder: ;

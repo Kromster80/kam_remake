@@ -16,6 +16,8 @@ type
     procedure Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
     procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState);
     procedure Unit_ArmyClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+    procedure UnitConditionsChange(Sender: TObject; Shift: TShiftState);
+    procedure UnitConditionsClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
 
   protected
     Panel_Unit: TKMPanel;
@@ -23,6 +25,7 @@ type
     Label_UnitCondition: TKMLabel;
     Label_UnitDescription: TKMLabel;
     KMConditionBar_Unit: TKMPercentBar;
+    Button_ConditionInc, Button_ConditionDefault, Button_ConditionDec: TKMButton;
     Image_UnitPic: TKMImage;
 
     Panel_Army: TKMPanel;
@@ -59,7 +62,18 @@ begin
   Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fnt_Outline,taCenter);
   Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
   Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,gResTexts[TX_UNIT_CONDITION],fnt_Grey,taCenter);
-  KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
+
+  KMConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
+  Button_ConditionDec     := TKMButton.Create(Panel_Unit,65,78,20,20,'-', bsGame);
+  Button_ConditionInc     := TKMButton.Create(Panel_Unit,161,78,20,20,'+', bsGame);
+  Button_ConditionDefault := TKMButton.Create(Panel_Unit,86,78,74,20,'default', bsGame);
+
+  Button_ConditionDec.OnClickShift := UnitConditionsChange;
+  Button_ConditionInc.OnClickShift := UnitConditionsChange;
+  Button_ConditionDec.OnClickHold  := UnitConditionsClickHold;
+  Button_ConditionInc.OnClickHold  := UnitConditionsClickHold;
+  Button_ConditionDefault.OnClickShift  := UnitConditionsChange;
+
   Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fnt_Grey,taLeft); //Taken from LIB resource
   Label_UnitDescription.AutoWrap := True;
 
@@ -117,6 +131,9 @@ begin
 
   Label_UnitDescription.Show;
   Panel_Unit.Show;
+  Button_ConditionInc.Hide;
+  Button_ConditionDec.Hide;
+  Button_ConditionDefault.Hide;
   Panel_Army.Hide;
 
   if fUnit = nil then Exit;
@@ -137,6 +154,10 @@ begin
 
   Label_UnitDescription.Hide;
   Panel_Unit.Show;
+  Button_ConditionInc.Show;
+  Button_ConditionDec.Show;
+  Button_ConditionDefault.Show;
+  Button_ConditionDefault.Enabled := not fGroup.FlagBearer.StartWDefaultCondition;
   Panel_Army.Show;
 
   if fGroup = nil then Exit;
@@ -154,6 +175,40 @@ begin
   Edit_ArmyOrderY.Value := fGroup.MapEdOrder.Pos.Loc.Y;
   Edit_ArmyOrderDir.Value := Max(Byte(fGroup.MapEdOrder.Pos.Dir) - 1, 0);
   Unit_ArmyChange1(nil);
+end;
+
+
+procedure TKMMapEdUnit.UnitConditionsChange(Sender: TObject; Shift: TShiftState);
+begin
+  if Sender = Button_ConditionDefault then
+    fGroup.FlagBearer.StartWDefaultCondition := not fGroup.FlagBearer.StartWDefaultCondition
+  else if Sender = Button_ConditionInc then
+  begin
+    fGroup.Condition := fGroup.Condition + GetMultiplicator(Shift);
+    fGroup.FlagBearer.StartWDefaultCondition := False;
+    Button_ConditionDefault.Enable;
+  end else if Sender = Button_ConditionDec then
+  begin
+    fGroup.Condition := fGroup.Condition - GetMultiplicator(Shift);
+    fGroup.FlagBearer.StartWDefaultCondition := False;
+    Button_ConditionDefault.Enable;
+  end;
+
+  if fGroup.FlagBearer.StartWDefaultCondition then
+  begin
+    KMConditionBar_Unit.Position := 0.5;
+    fGroup.Condition := UNIT_MAX_CONDITION div 2;
+    Button_ConditionDefault.Disable;
+  end else
+    KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
+end;
+
+
+procedure TKMMapEdUnit.UnitConditionsClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+begin
+  if (Sender = Button_ConditionDec)
+    or (Sender = Button_ConditionInc) then
+    UnitConditionsChange(Sender, GetShiftState(aButton));
 end;
 
 
