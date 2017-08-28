@@ -1,16 +1,14 @@
 unit KM_ScriptingEvents;
 {$I KaM_Remake.inc}
+{$WARN IMPLICIT_STRING_CAST OFF}
 interface
 uses
-  Classes, Math, SysUtils, StrUtils, uPSRuntime,
+  Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units,
-  KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares;
+  KM_UnitGroups, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingTypes;
 
 
 type
-  TScriptErrorType = (se_InvalidParameter, se_Exception, se_CompileError, se_CompileWarning, se_Log);
-  TKMScriptErrorEvent = procedure (aType: TScriptErrorType; const aData: UnicodeString) of object;
-
   TByteSet = set of Byte;
 
   TKMScriptEntity = class
@@ -25,7 +23,7 @@ type
 
   TKMScriptEvents = class(TKMScriptEntity)
   private
-    fExec: TPSExec;
+    fExec: TPSDebugExec;
 
     fProcBeacon: TMethod;
     fProcHouseAfterDestroyed: TMethod;
@@ -62,7 +60,7 @@ type
   public
     ExceptionOutsideScript: Boolean; //Flag that the exception occured in a State or Action call not script
 
-    constructor Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
+    constructor Create(aExec: TPSDebugExec; aIDCache: TKMScriptingIdCache);
     procedure LinkEvents;
 
     procedure ProcBeacon(aPlayer: TKMHandIndex; aX, aY: Word);
@@ -103,7 +101,8 @@ var
 
 implementation
 uses
-  KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
+  uPSUtils,
+  KromUtils, KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
   KM_UnitsCollection, KM_PathFindingRoad;
@@ -131,7 +130,7 @@ end;
 
 
 { TKMScriptEvents }
-constructor TKMScriptEvents.Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
+constructor TKMScriptEvents.Create(aExec: TPSDebugExec; aIDCache: TKMScriptingIdCache);
 begin
   inherited Create(aIDCache);
 
@@ -183,7 +182,11 @@ end;
 procedure TKMScriptEvents.DoProc(const aProc: TMethod; const aParams: array of Integer);
 var
   ExceptionProc: TPSProcRec;
-  S: UnicodeString;
+  InternalProc: TPSInternalProcRec;
+  MainErrorStr, ErrorStr, DetailedErrorStr: UnicodeString;
+  Pos, Row, Col: Cardinal;
+  TBTFileName: tbtstring;
+  ErrorMessage: TKMScriptErrorMessage;
 begin
   try
     case Length(aParams) of
@@ -203,11 +206,22 @@ begin
       end
       else
       begin
-        S := 'Exception in script: ''' + E.Message + '''';
+        DetailedErrorStr := '';
+        MainErrorStr := 'Exception in script: ''' + E.Message + '''';
         ExceptionProc := fExec.GetProcNo(fExec.ExceptionProcNo);
         if ExceptionProc is TPSInternalProcRec then
-          S := S + ' in procedure ''' + UnicodeString(TPSInternalProcRec(ExceptionProc).ExportName) + '''';
-        fOnScriptError(se_Exception, S);
+        begin
+          InternalProc := TPSInternalProcRec(ExceptionProc);
+          MainErrorStr := MainErrorStr + EolW + 'in procedure ''' + UnicodeString(InternalProc.ExportName) + '''' + EolW;
+          // With the help of uPSDebugger get information about error position in script code
+          if fExec.TranslatePositionEx(fExec.LastExProc, fExec.LastExPos, Pos, Row, Col, TBTFileName) then
+          begin
+            ErrorMessage := gGame.Scripting.GetErrorMessage('Error', '', Row, Col);
+            ErrorStr := MainErrorStr + ErrorMessage.GameMessage;
+            DetailedErrorStr := MainErrorStr + ErrorMessage.LogMessage;
+          end;
+        end;
+        fOnScriptError(se_Exception, ErrorStr, DetailedErrorStr);
       end;
   end;
 end;
@@ -585,7 +599,7 @@ var
 begin
   Values := '';
   for I := Low(aValues) to High(aValues) do
-    Values := Values + IntToStr(aValues[I]) + IfThen(I<>High(aValues), ', ');
+    Values := Values + String(IntToStr(aValues[I])) + IfThen(I <> High(aValues), ', ');
   fOnScriptError(se_InvalidParameter, 'Invalid parameter(s) passed to ' + aFuncName + ': ' + Values);
 end;
 

@@ -2,6 +2,7 @@
 
 unit uPSDisassembly;
 {$I PascalScript.inc}
+{$WARN IMPLICIT_STRING_CAST OFF} //Turn off W1057 warning. We assume remObject PascalScript should be aware of them
 
 interface
 uses

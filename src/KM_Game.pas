@@ -128,6 +128,7 @@ type
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
 
+    property Scripting: TKMScripting read fScripting;
     property GameMode: TGameMode read fGameMode;
     property SaveFile: UnicodeString read fSaveFile;
     function GetMissionFile: UnicodeString;
@@ -663,6 +664,8 @@ procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile: Un
   end;
 
 var I: Integer;
+    MissionFile, Path: UnicodeString;
+    SearchRec: TSearchRec;
 begin
   gLog.AddTime('Creating crash report...');
 
@@ -681,9 +684,25 @@ begin
       gLog.AddTime('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message);
   end;
 
-  AttachFile(ExeDir + GetMissionFile);
-  AttachFile(ExeDir + ChangeFileExt(GetMissionFile, '.map')); //Try to attach the map
-  AttachFile(ExeDir + ChangeFileExt(GetMissionFile, '.script')); //Try to attach the script
+  MissionFile := GetMissionFile;
+  Path := ExtractFilePath(ExeDir + MissionFile);
+
+  AttachFile(ExeDir + MissionFile);
+  AttachFile(ExeDir + ChangeFileExt(MissionFile, '.map')); //Try to attach the map
+
+  //Try to add main script file and all other scripts, because they could be included
+  if FileExists(ExeDir + ChangeFileExt(MissionFile, '.script')) then
+  begin
+    FindFirst(Path + '*.script', faAnyFile - faDirectory, SearchRec);
+    try
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+          AttachFile(Path + SearchRec.Name);
+      until (FindNext(SearchRec) <> 0);
+    finally
+      FindClose(SearchRec);
+    end;
+  end;
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin

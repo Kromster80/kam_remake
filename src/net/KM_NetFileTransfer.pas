@@ -6,7 +6,7 @@ uses
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
 
-const MAX_TRANSFERS = 8; //One for each player
+const MAX_TRANSFERS = MAX_LOBBY_SLOTS - 1; //One for each player and spectator
 type
   TTransferEvent = procedure(aClientIndex: TKMNetHandleIndex) of object;
   TTransferPacketEvent = procedure(aClientIndex: TKMNetHandleIndex; aStream: TKMemoryStream; out SendBufferEmpty: Boolean) of object;
@@ -67,7 +67,7 @@ type
 
 implementation
 uses
-  KM_Maps;
+  KromUtils, KM_Maps, KM_Scripting, KM_Log;
 
 const
   //TODO: Add LIBX and WAV support for maps
@@ -85,10 +85,13 @@ begin
 end;
 
 
-function GetFullDestFileName(aType: TKMTransferType; aName, Postfix, aExt: UnicodeString): UnicodeString;
+function GetFullDestFileName(aType: TKMTransferType; aName, Postfix, aExt: UnicodeString; aCustomFileName: UnicodeString = ''): UnicodeString;
 begin
   case aType of
-    kttMap:  Result := TKMapsCollection.FullPath(aName, Postfix + '.' + aExt, mfDL);
+    kttMap:   if aCustomFileName = '' then
+                Result := TKMapsCollection.FullPath(aName, Postfix + '.' + aExt, mfDL)
+              else
+                Result := TKMapsCollection.FullPath(aName, aCustomFileName, Postfix + '.' + aExt, mfDL);
     kttSave: Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + DOWNLOADED_LOBBY_SAVE + '.' + aExt;
   end;
 end;
@@ -97,11 +100,13 @@ end;
 { TKMFileSender }
 constructor TKMFileSender.Create(aType: TKMTransferType; aName: UnicodeString; aMapFolder: TMapFolder; aReceiverIndex: TKMNetHandleIndex);
 var
-  I: Integer;
+  I, J: Integer;
   FileName: UnicodeString;
   F: TSearchRec;
   SourceStream: TKMemoryStream;
   CompressionStream: TCompressionStream;
+  ScriptPreProcessor: TKMScriptingPreProcessor;
+  ScriptFiles: TKMScriptFilesCollection;
 begin
   inherited Create;
   fReceiverIndex := aReceiverIndex;
@@ -111,26 +116,44 @@ begin
   fSendStream.WriteW(aName);
   //Fill stream with data to be sent
   case aType of
-    kttMap:  begin
-               for I := Low(VALID_MAP_EXTENSIONS) to High(VALID_MAP_EXTENSIONS) do
-               begin
-                 FileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_MAP_EXTENSIONS[I]);
-                 if FileExists(FileName) then
-                   AddFileToStream(FileName, '', VALID_MAP_EXTENSIONS[I]);
-               end;
-               for I := Low(VALID_MAP_EXTENSIONS_POSTFIX) to High(VALID_MAP_EXTENSIONS_POSTFIX) do
-               begin
-                 FileName := GetFullSourceFileName(aType, aName, aMapFolder, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
-                 if FindFirst(FileName, faAnyFile, F) = 0 then
-                 begin
-                   repeat
-                     if (F.Attr and faDirectory = 0) then
-                       AddFileToStream(ExtractFilePath(FileName) + F.Name, ExtractFileExt(ChangeFileExt(F.Name,'')), VALID_MAP_EXTENSIONS_POSTFIX[I]);
-                   until FindNext(F) <> 0;
-                   FindClose(F);
-                 end;
-               end;
-             end;
+  kttMap: begin
+          for I := Low(VALID_MAP_EXTENSIONS) to High(VALID_MAP_EXTENSIONS) do
+          begin
+            FileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_MAP_EXTENSIONS[I]);
+            if FileExists(FileName) then
+              AddFileToStream(FileName, '', VALID_MAP_EXTENSIONS[I]);
+            //Add all included script files
+            if (VALID_MAP_EXTENSIONS[I] = 'script') and FileExists(FileName) then
+            begin
+              ScriptPreProcessor := TKMScriptingPreProcessor.Create;
+              try
+                if not ScriptPreProcessor.PreProcessFile(FileName) then
+                  //throw an Exception if PreProcessor was not successful to cancel FileSender creation
+                  raise Exception.Create('Can''n start send file because of error while script pre-processing');
+                ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
+                for J := 0 to ScriptFiles.IncludedCount - 1 do
+                begin
+                  if FileExists(ScriptFiles[J].FullFilePath) then
+                    AddFileToStream(ScriptFiles[J].FullFilePath, '', VALID_MAP_EXTENSIONS[I]);
+                end;
+              finally
+                ScriptPreProcessor.Free;
+              end;
+            end;
+          end;
+          for I := Low(VALID_MAP_EXTENSIONS_POSTFIX) to High(VALID_MAP_EXTENSIONS_POSTFIX) do
+          begin
+            FileName := GetFullSourceFileName(aType, aName, aMapFolder, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
+            if FindFirst(FileName, faAnyFile, F) = 0 then
+            begin
+              repeat
+                if (F.Attr and faDirectory = 0) then
+                  AddFileToStream(ExtractFilePath(FileName) + F.Name, ExtractFileExt(ChangeFileExt(F.Name,'')), VALID_MAP_EXTENSIONS_POSTFIX[I]);
+              until FindNext(F) <> 0;
+              FindClose(F);
+            end;
+          end;
+end;
     kttSave: for I := Low(VALID_SAVE_EXTENSIONS) to High(VALID_SAVE_EXTENSIONS) do
              begin
                FileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_SAVE_EXTENSIONS[I]);
@@ -171,6 +194,7 @@ begin
   FileStream.LoadFromFile(aFileName);
 
   fSendStream.WriteA('FileStart');
+  fSendStream.WriteW(TruncateExt(ExtractFileName(aFileName)));
   fSendStream.WriteW(aPostFix);
   fSendStream.WriteW(aExt);
   fSendStream.Write(Cardinal(FileStream.Size));
@@ -305,7 +329,7 @@ end;
 function TKMFileReceiver.ProcessTransfer: Boolean;
 var
   ReadType: TKMTransferType;
-  ReadName, Ext, Postfix, FileName: UnicodeString;
+  ReadName, Ext, Postfix, TransferedFileName, FileName: UnicodeString;
   ReadSize: Cardinal;
   FileStream: TKMemoryStream;
   DecompressionStream: TDecompressionStream;
@@ -338,6 +362,7 @@ begin
   while ReadStream.Position < ReadStream.Size do
   begin
     ReadStream.ReadAssert('FileStart');
+    ReadStream.ReadW(TransferedFileName);
     ReadStream.ReadW(Postfix);
     ReadStream.ReadW(Ext);
     //Check EXT is valid (so we don't allow EXEs and stuff)
@@ -347,7 +372,12 @@ begin
     FileStream := TKMemoryStream.Create;
     FileStream.CopyFrom(ReadStream, ReadSize);
 
-    FileName := GetFullDestFileName(fType, fName, Postfix, Ext);
+    // Scripts can have arbitrary names
+    if (Ext = 'script') and (TransferedFileName <> ReadName) then
+      FileName := GetFullDestFileName(fType, fName, Postfix, Ext, TransferedFileName)
+    else
+      FileName := GetFullDestFileName(fType, fName, Postfix, Ext);
+
     Assert(not FileExists(FileName), 'Transfer file already exists');
     FileStream.SaveToFile(FileName);
     FileStream.Free;
@@ -397,8 +427,16 @@ begin
       if fSenders[I] <> nil then
         //There is an existing transfer to this client, so free it
         fSenders[I].Free;
-
-      fSenders[I] := TKMFileSender.Create(aType, aName, aMapFolder, aReceiverIndex);
+      try
+        fSenders[I] := TKMFileSender.Create(aType, aName, aMapFolder, aReceiverIndex);
+      except
+        on E: Exception do
+        begin
+          gLog.AddTime(E.Message);
+          Result := False; // Ignore exception, just return False
+          Exit;
+        end;
+      end;
       Result := True;
       Exit;
     end;

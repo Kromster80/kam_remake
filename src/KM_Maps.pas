@@ -147,6 +147,7 @@ type
     procedure Lock;
     procedure Unlock;
 
+    class function FullPath(const aDirName, aFileName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder; aCRC: Cardinal): string; overload;
@@ -170,7 +171,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp, KM_Scripting;
 
 
 const
@@ -195,9 +196,12 @@ constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMa
   end;
 
 var
+  I: Integer;
   DatFile, MapFile, ScriptFile, TxtFile, LIBXFiles: string;
   DatCRC, OthersCRC: Cardinal;
   fMissionParser: TMissionParserInfo;
+  ScriptPreProcessor: TKMScriptingPreProcessor;
+  ScriptFiles: TKMScriptFilesCollection;
 begin
   inherited Create;
 
@@ -226,7 +230,26 @@ begin
   //.map file CRC is the slowest, so only calculate it if necessary
   OthersCRC := 0; //Supresses incorrect warning by Delphi
   if aStrictParsing then
-    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
+  begin
+    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
+
+    //Add main script CRC and all included scripts CRC
+    if FileExists(ScriptFile) then
+    begin
+      OthersCRC := OthersCRC xor Adler32CRC(ScriptFile);
+      ScriptPreProcessor := TKMScriptingPreProcessor.Create;
+      try
+        if ScriptPreProcessor.PreProcessFile(ScriptFile) then
+        begin
+          ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
+          for I := 0 to ScriptFiles.IncludedCount - 1 do
+            OthersCRC := OthersCRC xor Adler32CRC(ScriptFiles[I].FullFilePath);
+        end;
+      finally
+        ScriptPreProcessor.Free;
+      end;
+    end;
+  end;
 
   //Does the map need to be fully rescanned? (.mi cache is outdated?)
   if (fVersion <> GAME_REVISION) or
@@ -961,6 +984,12 @@ end;
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string;
 begin
   Result := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim + aName + aExt;
+end;
+
+
+class function TKMapsCollection.FullPath(const aDirName, aFileName, aExt: string; aMapFolder: TMapFolder): string;
+begin
+  Result := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aDirName + PathDelim + aFileName + aExt;
 end;
 
 
