@@ -52,6 +52,7 @@ type
   function KMRectF(aPoint: TKMPointF): TKMRectF; overload;
   function KMRectF(aLeft, aTop, aRight, aBottom: SmallInt): TKMRectF; overload;
   function KMRectRound(aRect: TKMRectF): TKMRect;
+  function KMSameRect(aRect1, aRect2: TKMRect): Boolean;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMRectGrowTopLeft(aRect: TKMRect): TKMRect;
   function KMRectShinkTopLeft(aRect: TKMRect): TKMRect;
@@ -62,6 +63,8 @@ type
   function KMInRect(aPoint: TKMPointF; aRect: TKMRectF): Boolean; overload;
   function KMRectArea(aRect: TKMRect): Integer;
   function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
+  procedure KMRectIncludePoint(var aRect: TKMRect; X,Y: Integer); overload;
+  procedure KMRectIncludePoint(var aRect: TKMRect; aPoint: TKMPoint); overload;
 
   function KMGetDirection(X,Y: Integer): TKMDirection; overload;
   function KMGetDirection(X,Y: Single): TKMDirection; overload;
@@ -115,6 +118,8 @@ const
   KMPOINT_ZERO: TKMPoint = (X: 0; Y: 0);
   KMPOINTF_ZERO: TKMPointF = (X: 0.0; Y: 0.0);
   KMPOINT_INVALID_TILE: TKMPoint = (X: -1; Y: -1);
+
+  KMRECT_INVALID_TILES: TKMRect = (Left: -1; Top: -1; Right: -1; Bottom: -1);
 
 
 implementation
@@ -278,6 +283,15 @@ begin
 end;
 
 
+function KMSameRect(aRect1, aRect2: TKMRect): Boolean;
+begin
+  Result := (aRect1.Left = aRect2.Left)
+        and (aRect1.Top = aRect2.Top)
+        and (aRect1.Right = aRect2.Right)
+        and (aRect1.Bottom = aRect2.Bottom);
+end;
+
+
 function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
 begin
   Result.Left   := Math.Max(aRect.Left   - aInset, 0);
@@ -353,6 +367,22 @@ begin
   Result.Right  := aRect.Right + X;
   Result.Top    := aRect.Top + Y;
   Result.Bottom := aRect.Bottom + Y;
+end;
+
+
+procedure KMRectIncludePoint(var aRect: TKMRect; X,Y: Integer);
+begin
+  KMRectIncludePoint(aRect, KMPoint(X,Y));
+end;
+
+
+procedure KMRectIncludePoint(var aRect: TKMRect; aPoint: TKMPoint);
+begin
+  if KMInRect(aPoint, aRect) then Exit;
+  aRect.Left    := Min(aPoint.X, aRect.Left);
+  aRect.Right   := Max(aPoint.X, aRect.Right);
+  aRect.Top     := Min(aPoint.Y, aRect.Top);
+  aRect.Bottom  := Max(aPoint.Y, aRect.Bottom);
 end;
 
 

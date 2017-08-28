@@ -3,7 +3,7 @@ unit KM_ScriptingUtils;
 
 interface
 uses
-  Math, SysUtils, uPSRuntime, KM_ScriptingEvents, KM_Utils;
+  Math, SysUtils, uPSRuntime, KM_ScriptingEvents;
 
 type
   TKMScriptUtils = class(TKMScriptEntity)
@@ -62,6 +62,8 @@ type
 
 implementation
 
+uses
+  KM_Utils;
 
 { TKMScriptingUtils }
 
@@ -640,5 +642,6 @@ begin
     raise;
   end;
 end;
+
 
 end.
