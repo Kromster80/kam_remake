@@ -30,7 +30,8 @@ type
     fMouseDownOnMap: Boolean;
 
     // Drag object feature fields
-    fDraggingObject: Boolean;    // Flag when drag object is happening
+    fDragObjectReady: Boolean;   // Ready to start drag object
+    fDragingObject: Boolean;     // Flag when drag object is happening
     fDragObject: TObject;        // Object to drag
     fDragHouseOffset: TKMPoint;  // Offset for house position, to let grab house with any of its points
 
@@ -825,7 +826,7 @@ begin
       fDragObject := Obj;
       if Obj is TKMHouse then
         fDragHouseOffset := KMPointSubtract(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
-      fDraggingObject := True;
+      fDragObjectReady := True;
     end;
   end;
 
@@ -848,13 +849,17 @@ begin
 
   aHandled := True;
 
-  if fDraggingObject then
+  if fDragObjectReady then
+  begin
     if not (ssLeft in Shift) then
     begin
       ResetDragObject;
       Exit;
-    end else
+    end else begin
       gRes.Cursors.Cursor := kmc_Drag;
+      fDragingObject := True;
+    end;
+  end;
 
   fMyControls.MouseMove(X,Y,Shift);
 
@@ -892,7 +897,7 @@ begin
     Exit;
   end;
 
-  if fDraggingObject and (ssLeft in Shift) then
+  if fDragingObject and (ssLeft in Shift) then
   begin
     //Cursor can be reset to default, when moved to menu panel while dragging, so set it to drag cursor again
     gRes.Cursors.Cursor := kmc_Drag;
@@ -957,7 +962,7 @@ end;
 
 function TKMapEdInterface.IsDragHouseModeOn: Boolean;
 begin
-  Result := fDraggingObject and (fDragObject is TKMHouse) and (gGameCursor.Mode = cmHouses);
+  Result := fDragingObject and (fDragObject is TKMHouse) and (gGameCursor.Mode = cmHouses);
 end;
 
 
@@ -976,7 +981,7 @@ begin
 
     HouseNewPos := KMPointAdd(gGameCursor.Cell, fDragHouseOffset);
 
-    if not fDraggingObject then
+    if not fDragingObject then
       H.SetPosition(HouseNewPos)  //handles Right click, when house is selected
     else
       if not IsDragHouseModeOn then
@@ -1026,7 +1031,8 @@ end;
 
 procedure TKMapEdInterface.ResetDragObject;
 begin
-  fDraggingObject := False;
+  fDragObjectReady := False;
+  fDragingObject := False;
   fDragHouseOffset := KMPOINT_ZERO;
   fDragObject := nil;
 
@@ -1046,7 +1052,7 @@ var
   U: TKMUnit;
   H: TKMHouse;
 begin
-  if fDraggingObject then
+  if fDragingObject then
   begin
     DragHouseModeEnd;
     ResetDragObject;
