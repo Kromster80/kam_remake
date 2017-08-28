@@ -1220,6 +1220,7 @@ type
     property TopIndex: Smallint read GetTopIndex write SetTopIndex;
     property ScrollDown: Boolean read fScrollDown write fScrollDown;
     property CursorPos: Integer read fCursorPos write SetCursorPos;
+    property Selectable: Boolean read fSelectable write fSelectable;
     property SelectionStart: Integer read fSelectionStart write SetSelectionStart;
     property SelectionEnd: Integer read fSelectionEnd write SetSelectionEnd;
 
