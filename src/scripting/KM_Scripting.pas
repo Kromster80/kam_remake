@@ -464,6 +464,13 @@ begin
       RegisterMethod('function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
       RegisterMethod('procedure StopLoopedWAV(aLoopIndex: Integer)');
 
+      RegisterMethod('procedure PlayOGG(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
+      RegisterMethod('procedure PlayOGGAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word)');
+      RegisterMethod('function  PlayOGGAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
+      RegisterMethod('procedure PlayOGGFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
+      RegisterMethod('function  PlayOGGLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+      RegisterMethod('procedure StopLoopedOGG(aLoopIndex: Integer)');
+
       RegisterMethod('procedure RemoveRoad(X, Y: Word)');
 
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
@@ -936,6 +943,13 @@ begin
       RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,                        'PlayWAVFadeMusic');
       RegisterMethod(@TKMScriptActions.PlayWAVLooped,                           'PlayWAVLooped');
       RegisterMethod(@TKMScriptActions.StopLoopedWAV,                           'StopLoopedWAV');
+
+      RegisterMethod(@TKMScriptActions.PlayOGG,                                 'PlayOGG');
+      RegisterMethod(@TKMScriptActions.PlayOGGAtLocation,                       'PlayOGGAtLocation');
+      RegisterMethod(@TKMScriptActions.PlayOGGAtLocationLooped,                 'PlayOGGAtLocationLooped');
+      RegisterMethod(@TKMScriptActions.PlayOGGFadeMusic,                        'PlayOGGFadeMusic');
+      RegisterMethod(@TKMScriptActions.PlayOGGLooped,                           'PlayOGGLooped');
+      RegisterMethod(@TKMScriptActions.StopLoopedOGG,                           'StopLoopedOGG');
 
       RegisterMethod(@TKMScriptActions.RemoveRoad,                              'RemoveRoad');
 

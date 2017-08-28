@@ -17,6 +17,8 @@ type
   TStringArray = array of string;
   TKMCharArray = array of Char;
   TRGBArray = array of record R,G,B: Byte end;
+  TKMStaticByteArray = array [0..MaxInt - 1] of Byte;
+  PKMStaticByteArray = ^TKMStaticByteArray;
 
   TEvent = procedure of object;
   TPointEvent = procedure (Sender: TObject; const X,Y: Integer) of object;
