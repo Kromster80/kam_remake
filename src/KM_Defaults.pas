@@ -330,6 +330,7 @@ type
     tpUnused,
     tpWalk,         // General passability of tile for any walking units
     tpWalkRoad,    // Type of passability for Serfs when transporting wares, only roads have it
+    tpBuildNoObj,  // Can we build a house on this tile after removing an object on the tile or house near it?
     tpBuild,       // Can we build a house on this tile?
     tpMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
     tpFish,        // Water tiles where fish Can move around
@@ -349,6 +350,7 @@ const
     'Unused',
     'Can walk',
     'Can walk road',
+    'Can build without|object or house',
     'Can build',
     'Can make roads',
     'Can fish',

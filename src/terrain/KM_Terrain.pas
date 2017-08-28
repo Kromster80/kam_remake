@@ -2239,7 +2239,7 @@ procedure TKMTerrain.UpdatePassability(Loc: TKMPoint);
   end;
 var
   I, K: Integer;
-  HousesNearTile, HousesNearVertex: Boolean;
+  HousesNearTile, HousesNearVertex, IsBuildNoObj: Boolean;
 begin
   Assert(TileInMapCoords(Loc.X, Loc.Y)); //First of all exclude all tiles outside of actual map
 
@@ -2255,8 +2255,8 @@ begin
   begin
 
     if TileIsWalkable(Loc)
-    and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
-    and CheckHeightPass(Loc, hpWalking) then
+      and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
+      and CheckHeightPass(Loc, hpWalking) then
       AddPassability(tpWalk);
 
     if (Land[Loc.Y,Loc.X].TileOverlay = to_Road)
@@ -2271,21 +2271,27 @@ begin
       and (Land[Loc.Y+i,Loc.X+k].TileLock in [tlFenced,tlDigged,tlHouse]) then
         HousesNearTile := True;
 
+    IsBuildNoObj := False;
     if TileIsRoadable(Loc)
-    and ((Land[Loc.Y,Loc.X].Obj = 255) or (gMapElements[Land[Loc.Y,Loc.X].Obj].CanBeRemoved)) //Only certain objects are excluded
-    and not HousesNearTile
-    and not TileIsCornField(Loc) //Can't build houses on fields
-    and not TileIsWineField(Loc)
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and TileInMapCoords(Loc.X, Loc.Y, 1)
-    and CheckHeightPass(Loc, hpBuilding) then
+      and not TileIsCornField(Loc) //Can't build houses on fields
+      and not TileIsWineField(Loc)
+      and (Land[Loc.Y,Loc.X].TileLock = tlNone)
+      and TileInMapCoords(Loc.X, Loc.Y, 1)
+      and CheckHeightPass(Loc, hpBuilding) then
+    begin
+      AddPassability(tpBuildNoObj);
+      IsBuildNoObj := True;
+    end;
+
+    if IsBuildNoObj and not HousesNearTile
+      and((Land[Loc.Y,Loc.X].Obj = 255) or (gMapElements[Land[Loc.Y,Loc.X].Obj].CanBeRemoved)) then //Only certain objects are excluded
       AddPassability(tpBuild);
 
     if TileIsRoadable(Loc)
-    and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
-    and CheckHeightPass(Loc, hpWalking) then
+      and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
+      and (Land[Loc.Y,Loc.X].TileLock = tlNone)
+      and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
+      and CheckHeightPass(Loc, hpWalking) then
       AddPassability(tpMakeRoads);
 
     if TileIsWater(Loc) then
