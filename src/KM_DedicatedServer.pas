@@ -31,7 +31,8 @@ type
     procedure Stop;
     procedure UpdateState;
     procedure UpdateSettings(const aServerName: AnsiString; aPublishServer: Boolean; aKickTimeout, aPingInterval, aAnnounceInterval: Word;
-                             const aMasterServerAddress: string; const aHTMLStatusFile: string; const aWelcomeMessage: UnicodeString);
+                             const aMasterServerAddress: string; const aHTMLStatusFile: string; const aWelcomeMessage: UnicodeString;
+                             const aServerPacketsAccDelay: Integer);
     property OnMessage: TUnicodeStringEvent write fOnMessage;
     
     procedure GetServerInfo(var aList: TList);
@@ -122,7 +123,8 @@ end;
 
 
 procedure TKMDedicatedServer.UpdateSettings(const aServerName: AnsiString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
-                                            const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:UnicodeString);
+                                            const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage: UnicodeString;
+                                            const aServerPacketsAccDelay: Integer);
 begin
   fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
   fPingInterval := aPingInterval;
@@ -130,7 +132,7 @@ begin
   fServerName := aServerName;
   fPublishServer := aPublishServer;
 
-  fNetServer.UpdateSettings(aKickTimeout, aHTMLStatusFile, aWelcomeMessage, aServerName);
+  fNetServer.UpdateSettings(aKickTimeout, aHTMLStatusFile, aWelcomeMessage, aServerName, aServerPacketsAccDelay);
   fUDPAnnounce.UpdateSettings(aServerName);
 
   fLastAnnounce := 0; //Make the server announce itself next update so the changes are sent to the master server ASAP

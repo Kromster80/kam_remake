@@ -160,11 +160,30 @@ object FormMain: TFormMain
         Color = clBtnFace
         ParentColor = False
       end
+			object Label12: TLabel
+        Left = 430
+        Top = 64
+        Width = 128
+        Height = 16
+        Caption = 'Packets Accumulating Delay:'
+        Color = clBtnFace
+        ParentColor = False
+      end
       object cServerWelcomeMessage: TEdit
         Tag = 1
         Left = 8
         Top = 88
-        Width = 588
+        Width = 530
+        Height = 24
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 0
+        OnChange = ControlChange
+      end
+			object cServerPacketsAccDelay: TEdit
+        Tag = 1
+        Left = 550
+        Top = 88
+        Width = 40
         Height = 24
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
