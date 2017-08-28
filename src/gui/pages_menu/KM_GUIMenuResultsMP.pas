@@ -101,7 +101,8 @@ type
         // Charts of total army trained (includes initial army)
         Chart_MPArmyTotal: array [TChartArmyType] of TKMChartArmyMP; //One for each warrior type;
         Label_NoArmyData: TKMLabel;
-        Radio_ChartArmyStyle: TKMRadioGroup;
+        Panel_ChartArmy_Type: TKMPanel;
+          Radio_ChartArmyStyle: TKMRadioGroup;
       Button_ResultsMPBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
@@ -350,9 +351,17 @@ begin
 
     Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 
-    TKMLabel.Create(Panel_ChartsArmy, 755, 355, '', fnt_Metal, taLeft); // Todo translate
+    Panel_ChartArmy_Type := TKMPanel.Create(Panel_ChartsArmy, 755, 335, 150, 80);
+    with TKMShape.Create(Panel_ChartArmy_Type, 0, 0, 150, 80) do
+    begin
+      FillColor := $80303030;
+      LineColor := icGray;
+      LineWidth := 1;
+    end;
 
-    Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartsArmy,755,375,150,40,fnt_Grey);
+    TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+
+    Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,40,fnt_Grey);
     Radio_ChartArmyStyle.ItemIndex := 0;
     Radio_ChartArmyStyle.Add('Instantaneous'); // Todo translate
     Radio_ChartArmyStyle.Add('Total Equipped'); // Todo translate
@@ -437,7 +446,7 @@ begin
   begin
     Label_NoArmyData.Show;
     Columnbox_Army.Hide;
-    Radio_ChartArmyStyle.Hide;
+    Panel_ChartArmy_Type.Hide;
     for WType := Low(TChartArmyType) to High(TChartArmyType) do
     begin
       Chart_MPArmy[WType].Chart.Hide;
@@ -448,7 +457,7 @@ begin
 
   Label_NoArmyData.Hide;
   Columnbox_Army.Show;
-  Radio_ChartArmyStyle.Show;
+  Panel_ChartArmy_Type.Show;
 
   W := TChartArmyType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 
