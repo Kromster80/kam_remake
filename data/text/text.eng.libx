@@ -126,13 +126,13 @@
 125:Previous track
 126:Next track
 127:Demolish
-128:Remove buildings/highlights
+128:Remove buildings/plans ('%s')
 129:Construct road
-130:Construct roads
+130:Construct roads ('%s')
 131:Plough field
-132:Plough fields
+132:Plough fields ('%s')
 133:Lay out wine field
-134:Lay out wine fields
+134:Lay out wine fields ('%s')
 135:Cancel
 136:Cancel current training
 137:Needs:

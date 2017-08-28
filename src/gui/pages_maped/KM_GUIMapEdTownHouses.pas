@@ -36,7 +36,7 @@ type
 implementation
 uses
   KM_ResTexts, KM_GameCursor, KM_Resource, KM_ResHouses, KM_ResFonts, KM_RenderUI,
-  KM_Terrain, KM_Points;
+  KM_Terrain, KM_Points, KM_ResKeys;
 
 
 { TKMMapEdTownHouses }
@@ -61,10 +61,10 @@ begin
   Button_BuildField.OnClick := Town_BuildChange;
   Button_BuildWine.OnClick  := Town_BuildChange;
   Button_BuildCancel.OnClick:= Town_BuildChange;
-  Button_BuildRoad.Hint     := gResTexts[TX_BUILD_ROAD_HINT];
-  Button_BuildField.Hint    := gResTexts[TX_BUILD_FIELD_HINT];
-  Button_BuildWine.Hint     := gResTexts[TX_BUILD_WINE_HINT];
-  Button_BuildCancel.Hint   := gResTexts[TX_BUILD_CANCEL_HINT];
+  Button_BuildRoad.Hint     := Format(gResTexts[TX_BUILD_ROAD_HINT], [gResKeys.GetKeyNameById(SC_PLAN_ROAD)]);
+  Button_BuildField.Hint    := Format(gResTexts[TX_BUILD_FIELD_HINT], [gResKeys.GetKeyNameById(SC_PLAN_FIELD)]);
+  Button_BuildWine.Hint     := Format(gResTexts[TX_BUILD_WINE_HINT], [gResKeys.GetKeyNameById(SC_PLAN_WINE)]);
+  Button_BuildCancel.Hint   := Format(gResTexts[TX_BUILD_CANCEL_HINT], [gResKeys.GetKeyNameById(SC_ERASE_PLAN)]);
 
   TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,gResTexts[TX_MAPED_HOUSES_TITLE],fnt_Outline,taCenter);
   for I:=1 to GUI_HOUSE_COUNT do

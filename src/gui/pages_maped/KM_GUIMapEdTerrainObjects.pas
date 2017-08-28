@@ -112,7 +112,7 @@ begin
   ObjectsPalette_Button := TKMButtonFlat.Create(Panel_Objects, 2, 320, TB_WIDTH - 2, 21, 0);
   ObjectsPalette_Button.Caption := 'Objects palette'; //Todo translate;
   ObjectsPalette_Button.CapOffsetY := -11;
-  ObjectsPalette_Button.Hint := 'Palette'; //Todo translate;
+  ObjectsPalette_Button.Hint := Format('Objects palette (''%s'')', [gResKeys.GetKeyNameById(SC_MAPEDIT_OBJ_PALETTE)]); //Todo translate;
   ObjectsPalette_Button.OnClick := ObjectsPaletteButton_Click;
 
   PopUp_ObjectsPalette := TKMPopUpMenu.Create(aParent.MasterParent, aParent.MasterParent.Width - 50);
