@@ -3916,7 +3916,6 @@ var
   I: Integer;
   mKind: TKMessageKind;
   Received, Sent, RTotal, STotal, Period: Cardinal;
-//  AverageR, AverageS: Single;
   S, SPackets, S2: String;
 begin
   S := '';
@@ -3961,8 +3960,6 @@ begin
     begin
       Received := gGame.Networking.PacketsReceived[mKind];
       Sent := gGame.Networking.PacketsSent[mKind];
-//      AverageR := Received / Period;
-//      AverageS := Sent / Period;
       RTotal := RTotal + Received;
       STotal := STotal + Sent;
       S2 := S2 + Format('%-25s: R: %s S:%s|', [GetEnumName(TypeInfo(TKMessageKind), Integer(mKind)),
@@ -3977,9 +3974,6 @@ begin
     if (TimeGet mod 5000) < 50 then
       gLog.AddTime('Packets Stats:' + sLineBreak + S2);
   end;
-
-
-    ;//S := S + gGame.Networking.PacketsReceived + '|';
 
   Label_DebugInfo.Font := fnt_Arial;
   Label_DebugInfo.Caption := S;
