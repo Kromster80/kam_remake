@@ -21,6 +21,7 @@ type
     procedure House_Demolish(Sender: TObject);
     procedure House_RepairToggle(Sender: TObject);
     procedure House_OrderClick(Sender: TObject; Shift: TShiftState);
+    procedure House_OrderClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
     procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
     procedure House_WareDeliveryToggle(Sender: TObject);
 
@@ -172,6 +173,8 @@ begin
         ResRow_Order[I].RX := rxGui;
         ResRow_Order[I].OrderRem.OnClickShift := House_OrderClick;
         ResRow_Order[I].OrderAdd.OnClickShift := House_OrderClick;
+        ResRow_Order[I].OrderRem.OnClickHold  := House_OrderClickHold;
+        ResRow_Order[I].OrderAdd.OnClickHold  := House_OrderClickHold;
         ResRow_Order[I].OrderRem.Hint         := gResTexts[TX_HOUSE_ORDER_DEC_HINT];
         ResRow_Order[I].OrderAdd.Hint         := gResTexts[TX_HOUSE_ORDER_INC_HINT];
         ResRow_Order[I].OrderRem.OnMouseWheel := House_OrderWheel;
@@ -737,6 +740,24 @@ begin
       gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, GetMultiplicator(Shift));
   end;
 end;
+
+
+procedure TKMGUIGameHouse.House_OrderClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
+var
+  I: Integer;
+  H: TKMHouse;
+begin
+  aHandled := True;
+  H := TKMHouse(gMySpectator.Selected);
+
+  for I := 1 to 4 do begin
+    if Sender = ResRow_Order[I].OrderRem then
+      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -GetMultiplicator(aButton));
+    if Sender = ResRow_Order[I].OrderAdd then
+      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, GetMultiplicator(aButton));
+  end;
+end;
+
 
 procedure TKMGUIGameHouse.House_OrderWheel(Sender: TObject; WheelDelta: Integer);
 var

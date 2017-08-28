@@ -3484,21 +3484,13 @@ end;
 
 
 procedure TKMNumericEdit.ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
-var Amt: Integer;
-    Shift: TShiftState;
+var
+  Amt: Integer;
 begin
   inherited;
   aHandled := True;
-  Shift := [];
-  case Button of
-    mbLeft:   Include(Shift, ssLeft);
-    mbRight:  Include(Shift, ssRight);
-  end;
 
-  if GetKeyState(VK_SHIFT) < 0 then
-    Include(Shift, ssShift);
-
-  Amt := GetMultiplicator(Shift);
+  Amt := GetMultiplicator(Button);
 
   if Sender = fButtonDec then
     Value := Value - Amt

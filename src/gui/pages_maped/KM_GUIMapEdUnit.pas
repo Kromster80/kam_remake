@@ -12,9 +12,11 @@ type
     fUnit: TKMUnit;
     fGroup: TKMUnitGroup;
 
-    procedure Unit_ArmyChange1(Sender: TObject); overload;
+    procedure Unit_ArmyChange1(Sender: TObject);
     procedure Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
-    procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState); overload;
+    procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState);
+    procedure Unit_ArmyClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+
   protected
     Panel_Unit: TKMPanel;
     Label_UnitName: TKMLabel;
@@ -79,6 +81,13 @@ begin
   Button_ArmyDec.OnClickShift := Unit_ArmyChange2;
   Button_ArmyFood.OnClick     := Unit_ArmyChange1;
   Button_ArmyInc.OnClickShift := Unit_ArmyChange2;
+
+  Button_Army_ForUp.OnClickHold   := Unit_ArmyClickHold;
+  Button_Army_ForDown.OnClickHold := Unit_ArmyClickHold;
+  Button_Army_RotCW.OnClickHold   := Unit_ArmyClickHold;
+  Button_Army_RotCCW.OnClickHold  := Unit_ArmyClickHold;
+  Button_ArmyDec.OnClickHold      := Unit_ArmyClickHold;
+  Button_ArmyInc.OnClickHold      := Unit_ArmyClickHold;
 
   //Group order
   //todo: Orders should be placed with a cursor (but keep numeric input as well?)
@@ -164,8 +173,10 @@ begin
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
 
-  if Sender = Button_Army_RotCW then  fGroup.Direction := KMNextDirection(fGroup.Direction);
-  if Sender = Button_Army_RotCCW then fGroup.Direction := KMPrevDirection(fGroup.Direction);
+  if Sender = Button_Army_RotCW  then
+    fGroup.Direction := KMNextDirection(fGroup.Direction);
+  if Sender = Button_Army_RotCCW then
+    fGroup.Direction := KMPrevDirection(fGroup.Direction);
   fGroup.ResetAnimStep;
 
   //Toggle between full and half condition
@@ -202,6 +213,22 @@ begin
       Edit_ArmyOrderY.Enable;
       Edit_ArmyOrderDir.Enable;
     end;
+end;
+
+
+procedure TKMMapEdUnit.Unit_ArmyClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+begin
+  if (Sender = Button_ArmyDec)
+    or (Sender = Button_ArmyInc) then
+    Unit_ArmyChange2(Sender, GetShiftState(AButton));
+
+  if (Sender = Button_Army_ForUp)
+    or (Sender = Button_Army_ForDown) then
+    Unit_ArmyChangeShift(Sender, GetShiftState(AButton));
+
+  if (Sender = Button_Army_RotCW)
+    or (Sender = Button_Army_RotCCW) then
+    Unit_ArmyChange1(Sender);
 end;
 
 

@@ -2,7 +2,7 @@ unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes
+  Classes, Controls, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes, UITypes
   {$IFDEF MSWindows}
   ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
@@ -63,7 +63,9 @@ uses
 
   function DeleteDoubleSpaces(aString: string): string;
 
-  function GetMultiplicator(aShift: TShiftState): Word;
+  function GetShiftState(aButton: TMouseButton): TShiftState;
+  function GetMultiplicator(aButton: TMouseButton): Word; overload;
+  function GetMultiplicator(aShift: TShiftState): Word; overload;
 
   function CountOccurrences(const aSubstring, aText: String): Integer;
 
@@ -742,6 +744,25 @@ begin
     end else
       Result := Result + aString[I];
   end;
+end;
+
+
+function GetShiftState(aButton: TMouseButton): TShiftState;
+begin
+  Result := [];
+  case aButton of
+    mbLeft:   Include(Result, ssLeft);
+    mbRight:  Include(Result, ssRight);
+  end;
+
+  if GetKeyState(VK_SHIFT) < 0 then
+    Include(Result, ssShift);
+end;
+
+
+function GetMultiplicator(aButton: TMouseButton): Word;
+begin
+  Result := GetMultiplicator(GetShiftState(aButton));
 end;
 
 

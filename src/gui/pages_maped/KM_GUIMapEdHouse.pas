@@ -18,6 +18,7 @@ type
     procedure Create_Woodcutters;
 
     procedure HouseChange(Sender: TObject; Shift: TShiftState);
+    procedure HouseClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
     procedure BarracksRefresh;
     procedure WoodcuttersRefresh;
     procedure BarracksSelectWare(Sender: TObject);
@@ -91,6 +92,8 @@ begin
     Button_HouseHealthInc := TKMButton.Create(Panel_House, 160, 53, 20, 20, '+', bsGame);
     Button_HouseHealthDec.OnClickShift := HouseChange;
     Button_HouseHealthInc.OnClickShift := HouseChange;
+    Button_HouseHealthDec.OnClickHold  := HouseClickHold;
+    Button_HouseHealthInc.OnClickHold  := HouseClickHold;
 
     Label_House_Input := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, gResTexts[TX_HOUSE_NEEDS], fnt_Grey, taCenter);
 
@@ -100,6 +103,8 @@ begin
       ResRow_Resource_Input[I].RX := rxGui;
       ResRow_Resource_Input[I].OrderAdd.OnClickShift := HouseChange;
       ResRow_Resource_Input[I].OrderRem.OnClickShift := HouseChange;
+      ResRow_Resource_Input[I].OrderAdd.OnClickHold  := HouseClickHold;
+      ResRow_Resource_Input[I].OrderRem.OnClickHold  := HouseClickHold;
     end;
     Label_House_Output := TKMLabel.Create(Panel_House, 0, 155, TB_WIDTH, 0, gResTexts[TX_HOUSE_DELIVERS]+':', fnt_Grey, taCenter);
     for I := 0 to 3 do
@@ -108,6 +113,8 @@ begin
       ResRow_Resource_Output[I].RX := rxGui;
       ResRow_Resource_Output[I].OrderAdd.OnClickShift := HouseChange;
       ResRow_Resource_Output[I].OrderRem.OnClickShift := HouseChange;
+      ResRow_Resource_Output[I].OrderAdd.OnClickHold  := HouseClickHold;
+      ResRow_Resource_Output[I].OrderRem.OnClickHold  := HouseClickHold;
     end;
 
   Create_Store;
@@ -405,6 +412,23 @@ begin
 
     ResRow_Resource_Output[I].OrderCount := fHouse.CheckResOut(Res);
     ResRow_Resource_Output[I].WareCount := fHouse.CheckResOut(Res);
+  end;
+end;
+
+
+procedure TKMMapEdHouse.HouseClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+var
+  I: Integer;
+begin
+  for I := 0 to 3 do
+  begin
+    if (Sender = Button_HouseHealthDec)
+      or (Sender = Button_HouseHealthInc)
+      or (Sender = ResRow_Resource_Input[I].OrderAdd)
+      or (Sender = ResRow_Resource_Input[I].OrderRem)
+      or (Sender = ResRow_Resource_Output[I].OrderAdd)
+      or (Sender = ResRow_Resource_Output[I].OrderRem) then
+      HouseChange(Sender, GetShiftState(AButton));
   end;
 end;
 
