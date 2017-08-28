@@ -4601,6 +4601,7 @@ begin
   CursorPos := GetCursorPosAt(X, Y);
 
   if Focusable then
+  begin
     //Try select on Shift + LMB click
     if (OldCursorPos <> -1) and (Shift = [ssLeft, ssShift]) then
       UpdateSelection(OldCursorPos)
@@ -4608,6 +4609,7 @@ begin
       ResetSelection;
     end;
     fSelectionInitialPos := CursorPos;
+  end;
 end;
 
 
