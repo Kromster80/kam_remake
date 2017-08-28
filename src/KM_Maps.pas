@@ -95,9 +95,10 @@ type
   TTCustomMapsScanner = class(TThread)
   private
     fMapFolders: TMapFolderSet;
+    fOnComplete: TNotifyEvent;
     procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); virtual; abstract;
   public
-    constructor Create(aMapFolders: TMapFolderSet);
+    constructor Create(aMapFolders: TMapFolderSet; aOnComplete: TNotifyEvent = nil);
     procedure Execute; override;
   end;
 
@@ -107,7 +108,7 @@ type
     fOnMapAddDone: TNotifyEvent;
     procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); override;
   public
-    constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+    constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
   end;
 
   TTMapsCacheUpdater = class(TTCustomMapsScanner)
@@ -134,6 +135,7 @@ type
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
+    procedure ScanTerminate(Sender: TObject);
     procedure ScanComplete(Sender: TObject);
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
@@ -926,9 +928,9 @@ begin
   fOnRefresh := aOnRefresh;
   fOnComplete := aOnComplete;
 
-  //Scan will launch upon create automatcally
+  //Scan will launch upon create automatically
   fScanning := True;
-  fScanner := TTMapsScanner.Create(fMapFolders, MapAdd, MapAddDone, ScanComplete);
+  fScanner := TTMapsScanner.Create(fMapFolders, MapAdd, MapAddDone, ScanTerminate, ScanComplete);
 end;
 
 
@@ -969,6 +971,19 @@ begin
     fScanning := False;
     if Assigned(fOnComplete) then
       fOnComplete(Self);
+  finally
+    Unlock;
+  end;
+end;
+
+
+//Scan was terminated
+//No need to resort since that was done in last MapAdd event
+procedure TKMapsCollection.ScanTerminate(Sender: TObject);
+begin
+  Lock;
+  try
+    fScanning := False;
   finally
     Unlock;
   end;
@@ -1044,13 +1059,14 @@ end;
 
 
 { TTCustomMapsScanner }
-constructor TTCustomMapsScanner.Create(aMapFolders: TMapFolderSet);
+constructor TTCustomMapsScanner.Create(aMapFolders: TMapFolderSet; aOnComplete: TNotifyEvent = nil);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
   inherited Create(False);
 
   fMapFolders := aMapFolders;
+  fOnComplete := aOnComplete;
   FreeOnTerminate := False;
 end;
 
@@ -1061,22 +1077,27 @@ var
   PathToMaps: string;
   MF: TMapFolder;
 begin
-  for MF in fMapFolders do
-  begin
-    PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
+  try
+    for MF in fMapFolders do
+    begin
+      PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
 
-    if not DirectoryExists(PathToMaps) then Exit;
+      if not DirectoryExists(PathToMaps) then Exit;
 
-    FindFirst(PathToMaps + '*', faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
-      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
-      begin
-        ProcessMap(SearchRec.Name, MF);
-      end;
-    until (FindNext(SearchRec) <> 0) or Terminated;
-    FindClose(SearchRec);
+      FindFirst(PathToMaps + '*', faDirectory, SearchRec);
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
+        and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
+        begin
+          ProcessMap(SearchRec.Name, MF);
+        end;
+      until (FindNext(SearchRec) <> 0) or Terminated;
+      FindClose(SearchRec);
+    end;
+  finally
+    if not Terminated and Assigned(fOnComplete) then
+      fOnComplete(Self);
   end;
 end;
 
@@ -1085,15 +1106,15 @@ end;
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added
 //aOnComplete - scan is complete
-constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
-  inherited Create(aMapFolders);
+  inherited Create(aMapFolders, aOnComplete);
 
   Assert(Assigned(aOnMapAdd));
 
   fOnMapAdd := aOnMapAdd;
   fOnMapAddDone := aOnMapAddDone;
-  OnTerminate := aOnComplete;
+  OnTerminate := aOnTerminate;
   FreeOnTerminate := False;
 end;
 
