@@ -68,6 +68,7 @@ uses
   function GetMultiplicator(aShift: TShiftState): Word; overload;
 
   function CountOccurrences(const aSubstring, aText: String): Integer;
+  function IntToBool(aValue: Integer): Boolean;
 
   //String functions
   function StrIndexOf(aStr, aSubStr: String): Integer;
@@ -783,6 +784,12 @@ begin
     Inc(Result);
     Offset := PosEx(aSubstring, aText, Offset + length(aSubstring));
   end;
+end;
+
+
+function IntToBool(aValue: Integer): Boolean;
+begin
+  Result := aValue <> 0;
 end;
 
 
