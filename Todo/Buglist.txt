@@ -37,7 +37,8 @@ Bugs:
  +	Dynamic scripts: Scripting action OnHousePlanRemove was invoked with wrong coordinates
 
  
-
+Bugs to fix in future:
+	
 	Server welcome message should support Unicode
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -193,7 +194,7 @@ Improvements:
  
    
 	 
-	Other ideas for future (ToDo maybe):
+Other ideas for future (ToDo maybe):
  
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
