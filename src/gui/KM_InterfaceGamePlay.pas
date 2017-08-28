@@ -329,7 +329,7 @@ uses
   KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes;
 
-const ALLIES_ROWS = 6;
+const ALLIES_ROWS = 7;
       PANEL_ALLIES_WIDTH = 810;
 
 
@@ -1156,7 +1156,8 @@ end;
 procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
 begin
-  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT - 25, PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 25);
+  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT - 50,
+                                                             PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 50);
   Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 

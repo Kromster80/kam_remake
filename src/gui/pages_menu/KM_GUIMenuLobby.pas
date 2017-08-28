@@ -287,10 +287,10 @@ begin
     OffY := 88 + (I-1) * 24;
 
     if I = DivideRow+1 then
-      Label_Spectators.Top := OffY+12;
+      Label_Spectators.Top := OffY+3;
 
     if I > DivideRow then
-      Inc(OffY, 32);
+      Inc(OffY, 23);
 
     Image_LobbyFlag[I].Top         := OffY;
     Label_LobbyPlayer[I].Top       := OffY+2;
@@ -310,12 +310,12 @@ begin
   if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil)
   and fNetworking.NetPlayers.SpectatorsAllowed then
   begin
-    Panel_LobbyPlayers.Height := 414;
+    Panel_LobbyPlayers.Height := 426;
     Label_Spectators.Show;
   end
   else
   begin
-    Panel_LobbyPlayers.Height := 284;
+    Panel_LobbyPlayers.Height := 379;
     Label_Spectators.Hide;
   end;
   Bevel_LobbyPlayers.Height := Panel_LobbyPlayers.Height;
