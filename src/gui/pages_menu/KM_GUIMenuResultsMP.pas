@@ -118,7 +118,7 @@ uses
 
 
 const
-  PANES_TOP = 185;
+  PANES_TOP = 185-80;
   BAR_ROW_HEIGHT = 22;
 
   WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Byte = (
@@ -253,14 +253,15 @@ const
                                      TX_RESULTS_MP_BUILDINGS_DESTROYED,
                                      TX_RESULTS_MP_WARES_PRODUCED, TX_RESULTS_MP_WEAPONS_PRODUCED);
 var
-  I,K: Integer;
+  I,K, Middle: Integer;
 begin
-  Panel_Bars := TKMPanel.Create(aParent, 62, PANES_TOP, 900, 435);
+  Panel_Bars := TKMPanel.Create(aParent, 62, PANES_TOP, 900, aParent.Height - PANES_TOP - 50);
   Panel_Bars.AnchorsCenter;
+  Middle := Panel_Bars.Height div 2;
 
     //Composed of two sections each on own Panel to position them vertically according to player count
 
-    Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, 900, 215);
+    Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, 900, Middle - 3);
     Panel_BarsUpper.AnchorsCenter;
 
       for I := 0 to MAX_LOBBY_PLAYERS - 1 do
@@ -278,7 +279,7 @@ begin
         end;
       end;
 
-    Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, 220, 900, 180);
+    Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, Middle+3, 900, Middle - 10);
     Panel_BarsLower.AnchorsCenter;
 
       for I := 0 to MAX_LOBBY_PLAYERS - 1 do
@@ -840,6 +841,8 @@ end;
 
 
 procedure TKMMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
+const
+  TABS_TOP = 75;
 begin
   Panel_ResultsMP := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_ResultsMP.AnchorsStretch;
@@ -854,10 +857,10 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,125,900,20,NO_TEXT,fnt_Metal,taCenter);
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,TABS_TOP-30,900,20,NO_TEXT,fnt_Metal,taCenter);
     Label_ResultsMP.Anchors := [anLeft];
 
-    Button_MPResultsBars := TKMButtonFlat.Create(Panel_ResultsMP, 160, 155, 176, 20, 8, rxGuiMain);
+    Button_MPResultsBars := TKMButtonFlat.Create(Panel_ResultsMP, 160, TABS_TOP, 176, 20, 8, rxGuiMain);
     Button_MPResultsBars.TexOffsetX := -78;
     Button_MPResultsBars.TexOffsetY := 6;
     Button_MPResultsBars.Anchors := [anLeft];
@@ -865,7 +868,7 @@ begin
     Button_MPResultsBars.CapOffsetY := -11;
     Button_MPResultsBars.OnClick := TabChange;
 
-    Button_MPResultsArmy := TKMButtonFlat.Create(Panel_ResultsMP, 340, 155, 176, 20, 53, rxGui);
+    Button_MPResultsArmy := TKMButtonFlat.Create(Panel_ResultsMP, 340, TABS_TOP, 176, 20, 53, rxGui);
     Button_MPResultsArmy.TexOffsetX := -76;
     Button_MPResultsArmy.TexOffsetY := 6;
     Button_MPResultsArmy.Anchors := [anLeft];
@@ -873,7 +876,7 @@ begin
     Button_MPResultsArmy.CapOffsetY := -11;
     Button_MPResultsArmy.OnClick := TabChange;
 
-    Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, 155, 176, 20, 589, rxGui);
+    Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, TABS_TOP, 176, 20, 589, rxGui);
     Button_MPResultsEconomy.TexOffsetX := -72;
     Button_MPResultsEconomy.TexOffsetY := 6;
     Button_MPResultsEconomy.Anchors := [anLeft];
@@ -881,7 +884,7 @@ begin
     Button_MPResultsEconomy.CapOffsetY := -11;
     Button_MPResultsEconomy.OnClick := TabChange;
 
-    Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, 155, 176, 20, 360, rxGui);
+    Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, TABS_TOP, 176, 20, 360, rxGui);
     Button_MPResultsWares.TexOffsetX := -77;
     Button_MPResultsWares.TexOffsetY := 6;
     Button_MPResultsWares.Anchors := [anLeft];
@@ -905,7 +908,7 @@ begin
     CreateChartWares(Panel_ResultsMP);
     CreateChartArmy(Panel_ResultsMP);
 
-    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, 630, 280, 30, NO_TEXT, bsMenu);
+    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, Panel_ResultsMP.Height - 50, 280, 30, NO_TEXT, bsMenu);
     Button_ResultsMPBack.Anchors := [anLeft];
     Button_ResultsMPBack.OnClick := BackClick;
 end;
