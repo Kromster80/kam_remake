@@ -9,8 +9,8 @@ type
   TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);
 
 const
-  // There are total of 83 different functions in the game that can have a shortcut
-  FUNC_COUNT = 83;
+  // There are total of 84 different functions in the game that can have a shortcut
+  FUNC_COUNT = 84;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -81,7 +81,8 @@ const
     13,                                     // Map Editor Extra's menu (Return)
     112, 113, 114, 115, 116,                // Map Editor menus (F1-F5)
     49, 50, 51, 52, 53, 54,                 // Map Editor sub-menus (1-6)
-    32                                      // Map Editor show objects palette (Space)
+    32,                                     // Map Editor show objects palette (Space)
+    46                                      // Map Editor universal erasor (Delete)
   );
 
   // Function text values
@@ -120,7 +121,8 @@ const
     TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN,  // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2, TX_KEY_FUNC_MAPEDIT_SUBMENU_3,          // Map Editor sub-menus
     TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6,          // Map Editor sub-menus
-    TX_KEY_FUNC_MAPEDIT_OBJ_PALETTE                                                                       // Map Editor show objects palette
+    TX_KEY_FUNC_MAPEDIT_OBJ_PALETTE,                                                                      // Map Editor show objects palette
+    TX_KEY_FUNC_MAPEDIT_UNIV_ERASOR                                                                       // Map Editor universal erasor
   );
 
 { TKMKeyLibrary }

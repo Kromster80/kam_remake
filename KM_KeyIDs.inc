@@ -95,3 +95,5 @@ SC_MAPEDIT_SUB_MENU_4 = 79; // MapEdit Sub-menu 4
 SC_MAPEDIT_SUB_MENU_5 = 80; // MapEdit Sub-menu 5
 SC_MAPEDIT_SUB_MENU_6 = 81; // MapEdit Sub-menu 6
 SC_MAPEDIT_OBJ_PALETTE = 82; // MapEdit Objects palette
+SC_MAPEDIT_UNIV_ERASOR = 83; // MapEdit Universal erasor
+

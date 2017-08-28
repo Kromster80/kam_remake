@@ -804,6 +804,10 @@ begin
     fGuiTown.GuiHouses.BuildCancel;
   end;
 
+  //Universal erasor
+  if Key = gResKeys[SC_MAPEDIT_UNIV_ERASOR].Key then
+    UniversalEraser_Click(Button_UniversalEraser);
+
   gGameCursor.SState := Shift; // Update Shift state on KeyUp
 end;
 
