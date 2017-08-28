@@ -36,6 +36,7 @@ type
     procedure ColumnClick(aValue: Integer);
     function GetMaps: TKMapsCollection;
     procedure LoadMinimap(aID: Integer = -1);
+    procedure ReadmeClick(Sender: TObject);
     procedure SelectMap(Sender: TObject);
     procedure BackClick(Sender: TObject);
     procedure DeleteClick(Sender: TObject);
@@ -52,10 +53,15 @@ type
       Panel_MapEdLoad: TKMPanel;
       ColumnBox_MapEd: TKMColumnBox;
       Radio_MapEd_MapType: TKMRadioGroup;
-      MinimapView_MapEd: TKMMinimapView;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load: TKMButton;
       NumEdit_MapSizeX: TKMNumericEdit;
       NumEdit_MapSizeY: TKMNumericEdit;
+
+      MinimapView_MapEd: TKMMinimapView;
+
+      Panel_LobbySetupDesc: TKMPanel;
+        Memo_LobbyMapDesc: TKMMemo;
+        Button_LobbySetupReadme: TKMButton;
 
       //PopUp Menus
       PopUp_Delete: TKMPopUpMenu;
@@ -155,10 +161,22 @@ begin
       ColumnBox_MapEd.OnChange := SelectMap;
       ColumnBox_MapEd.OnDoubleClick := StartClick;
 
-      with TKMBevel.Create(Panel_MapEdLoad, 448, 264, 199, 199) do
+      with TKMBevel.Create(Panel_MapEdLoad, 448, 104, 199, 199) do
         Anchors := [anLeft];
-      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 268, 191, 191);
+      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 108, 191, 191);
       MinimapView_MapEd.Anchors := [anLeft];
+
+      Panel_LobbySetupDesc := TKMPanel.Create(Panel_MapEdLoad, 448, 104+199+10, 199, 218);
+      Panel_LobbySetupDesc.Anchors := [anLeft, anTop, anBottom];
+        Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetupDesc, 0, 0, 199, 218, fnt_Game, bsMenu);
+        Memo_LobbyMapDesc.Anchors := [anLeft,anTop,anBottom];
+        Memo_LobbyMapDesc.AutoWrap := True;
+        Memo_LobbyMapDesc.ItemHeight := 16;
+
+        Button_LobbySetupReadme := TKMButton.Create(Panel_LobbySetupDesc, 0, 225, 199, 25, gResTexts[TX_LOBBY_VIEW_README], bsMenu);
+        Button_LobbySetupReadme.Anchors := [anLeft,anBottom];
+        Button_LobbySetupReadme.OnClick := ReadmeClick;
+        Button_LobbySetupReadme.Hide;
 
       Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
       Button_MapEd_Load.Anchors := [anLeft, anBottom];
@@ -392,6 +410,17 @@ end;
 procedure TKMMenuMapEditor.SortUpdate(Sender: TObject);
 begin
   RefreshList(True); //After sorting jump to the selected item
+end;
+
+
+procedure TKMMenuMapEditor.ReadmeClick(Sender: TObject);
+var
+  ID: Integer;
+  Maps: TKMapsCollection;
+begin
+  ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
+  Maps := GetMaps;
+  Maps[ID].ViewReadme;
 end;
 
 
@@ -666,15 +695,28 @@ end;
 
 
 procedure TKMMenuMapEditor.LoadMinimap(aID: Integer = -1);
+var
+  Map: TKMapInfo;
 begin
   if aID <> -1 then
   begin
-    fMinimap.LoadFromMission(GetMaps[aID].FullPath('.dat'), []);
+    Map := GetMaps[aID];
+    fMinimap.LoadFromMission(Map.FullPath('.dat'), []);
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;
-  end else
+    Panel_LobbySetupDesc.Show;
+    Map.LoadExtra;
+    Memo_LobbyMapDesc.Text := Map.BigDesc;
+    if Map.HasReadme then
+      Button_LobbySetupReadme.Show
+    else
+      Button_LobbySetupReadme.Hide;
+  end else begin
     MinimapView_MapEd.Hide;
+    Panel_LobbySetupDesc.Hide;
+    Memo_LobbyMapDesc.Clear;
+  end;
 end;
 
 
