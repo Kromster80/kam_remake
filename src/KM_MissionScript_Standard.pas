@@ -411,8 +411,11 @@ begin
                         begin
                           if fLastTroop <> nil then
                           begin
-                            fLastTroop.Condition := P[0];
                             fLastTroop.FlagBearer.StartWDefaultCondition := False;
+                            if P[0] <> -1 then
+                              fLastTroop.Condition := P[0]
+                            else
+                              fLastTroop.Condition := UNIT_MAX_CONDITION; //support old maps !SET_GROUP_FOOD without parameters
                           end else
                             AddError('ct_SetGroupFood without prior declaration of Troop');
                         end;
