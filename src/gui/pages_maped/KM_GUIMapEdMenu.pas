@@ -50,7 +50,7 @@ constructor TKMMapEdMenu.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
 begin
   inherited Create;
 
-  fGuiMenuResize := TKMMapEdMenuResize.Create(aParent, MenuDone);
+  fGuiMenuResize := TKMMapEdMenuResize.Create(aParent, MenuDone, aOnPageChange);
   fGuiMenuLoad := TKMMapEdMenuLoad.Create(aParent, MenuDone);
   fGuiMenuSave := TKMMapEdMenuSave.Create(aParent, MenuDone);
   fGuiMenuQuit := TKMMapEdMenuQuit.Create(aParent, MenuDone);
