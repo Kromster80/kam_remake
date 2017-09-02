@@ -105,6 +105,12 @@ end;
 
 function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 
+  function PointInMap(X, Y: Integer): Boolean;
+  begin
+    Result := InRange(X, 1, fMapX)
+          and InRange(Y, 1, fMapY);
+  end;
+
   procedure SetOwner(X,Y: Word);
   begin
     fMapPreview[X-1 + (Y-1)*fMapX].TileOwner := fLastHand;
@@ -144,7 +150,8 @@ var
 begin
   case CommandType of
     ct_SetCurrPlayer:   fLastHand := P[0];
-    ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
+    ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType))
+                          and PointInMap(P[1]+1, P[2]+1) then
                         begin
                           RevealCircle(P[1]+1, P[2]+1, gRes.Houses[HouseIndexToType[P[0]]].Sight);
                           HA := gRes.Houses[HouseIndexToType[P[0]]].BuildArea;
@@ -157,7 +164,8 @@ begin
                           fHandPreview[fLastHand].Color := gRes.Palettes.DefaultPalette.Color32(P[0]);
     ct_SetRGBColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
                           fHandPreview[fLastHand].Color := P[0] or $FF000000;
-    ct_CenterScreen:    fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
+    ct_CenterScreen:    if PointInMap(P[0]+1, P[1]+1) then
+                          fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
     ct_HumanPlayer:     //Default human player can be human, obviously
                         fHandPreview[P[0]].CanHuman := True;
     ct_UserPlayer:      if P[0] = -1 then
@@ -172,20 +180,25 @@ begin
     ct_SetField,
     ct_SetWinefield,
     ct_SetFieldStaged,
-    ct_SetWinefieldStaged: SetOwner(P[0]+1, P[1]+1);
-    ct_SetUnit:         if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
+    ct_SetWinefieldStaged:
+                        if PointInMap(P[0]+1, P[1]+1) then
+                          SetOwner(P[0]+1, P[1]+1);
+    ct_SetUnit:         if PointInMap(P[1]+1, P[2]+1) and
+                          not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
                         begin
                           SetOwner(P[1]+1, P[2]+1);
                           RevealCircle(P[1]+1, P[2]+1, gRes.Units[UnitOldIndexToType[P[0]]].Sight);
                         end;
-    ct_SetStock:        begin
+    ct_SetStock:        if PointInMap(P[1]+1, P[2]+1) then
+                        begin
                           //Set Store and roads below
                           ProcessCommand(ct_SetHouse,[11,P[0]+1,P[1]+1]);
                           ProcessCommand(ct_SetRoad, [   P[0]-2,P[1]+1]);
                           ProcessCommand(ct_SetRoad, [   P[0]-1,P[1]+1]);
                           ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
                         end;
-    ct_SetGroup:        if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
+    ct_SetGroup:        if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None)
+                          and PointInMap(P[1]+1, P[2]+1) then
                           for I := 0 to P[5] - 1 do
                           begin
                             Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,Valid);
@@ -202,7 +215,7 @@ begin
                               for I := 0 to fMapX * fMapY - 1 do
                                 fMapPreview[I].Revealed := True;
                           end
-                          else
+                          else if PointInMap(P[0]+1, P[1]+1) then
                             RevealCircle(P[0]+1, P[1]+1, P[2]);
                         end;
   end;

@@ -33,7 +33,7 @@ type
     procedure PostLoadMission;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
-    procedure SaveDATFile(const aFileName: string; aDoXorEncoding: Boolean = False);
+    procedure SaveDATFile(const aFileName: string; aLeftInset: SmallInt = 0; aTopInset: SmallInt = 0; aDoXorEncoding: Boolean = False);
   end;
 
 
@@ -129,6 +129,13 @@ end;
 
 
 function TMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
+
+  function PointInMap(X, Y: Integer): Boolean;
+  begin
+    Result := InRange(X, 1, gTerrain.MapX)
+          and InRange(Y, 1, gTerrain.MapY);
+  end;
+
 var
   I: Integer;
   Qty: Integer;
@@ -202,23 +209,24 @@ begin
                             gGame.MapEditor.PlayerAI[P[0]] := True
                           else
                             gGame.MapEditor.PlayerAI[fLastHand] := True;
-    ct_CenterScreen:    if fLastHand <> PLAYER_NONE then
+    ct_CenterScreen:    if (fLastHand <> PLAYER_NONE)
+                          and PointInMap(P[0]+1, P[1]+1) then
                           gHands[fLastHand].CenterScreen := KMPoint(P[0]+1, P[1]+1);
     ct_ClearUp:         if fLastHand <> PLAYER_NONE then
                         begin
                           if fParsingMode = mpm_Editor then
                             if P[0] = 255 then
                               gGame.MapEditor.RevealAll[fLastHand] := True
-                            else
+                            else if PointInMap(P[0]+1, P[1]+1) then
                               gGame.MapEditor.Revealers[fLastHand].Add(KMPoint(P[0]+1,P[1]+1), P[2])
                           else
                             if P[0] = 255 then
                               gHands[fLastHand].FogOfWar.RevealEverything
-                            else
+                            else if PointInMap(P[0]+1, P[1]+1) then
                               gHands[fLastHand].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
                         end;
     ct_SetHouse:        if fLastHand <> PLAYER_NONE then
-                          if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
+                          if PointInMap(P[1]+1, P[2]+1) and InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                             if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
                               fLastHouse := gHands[fLastHand].AddHouse(
                                 HouseIndexToType[P[0]], P[1]+1, P[2]+1, false)
@@ -232,7 +240,8 @@ begin
                           end
                           else
                             AddError('ct_SetHouseDamage without prior declaration of House');
-    ct_SetUnit:         begin
+    ct_SetUnit:         if PointInMap(P[1]+1, P[2]+1) then
+                        begin
                           //Animals should be added regardless of current player
                           if UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
                             gHands.PlayerAnimals.AddUnit(UnitOldIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1))
@@ -245,7 +254,7 @@ begin
                           if UnitOldIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
                           begin
                             H := gHands[fLastHand].FindHouse(ht_Store, 1);
-                            if H <> nil then
+                            if (H <> nil) and PointInMap(H.Entrance.X, H.Entrance.Y+1) then
                               gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.Entrance.X, H.Entrance.Y+1));
                           end;
     ct_UnitAddToLast:   if fLastHand <> PLAYER_NONE then
@@ -261,19 +270,19 @@ begin
                           end
                           else
                             AddError('ct_UnitAddToLast without prior declaration of House');
-    ct_SetRoad:         if fLastHand <> PLAYER_NONE then
+    ct_SetRoad:         if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                           gHands[fLastHand].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
-    ct_SetField:        if fLastHand <> PLAYER_NONE then
+    ct_SetField:        if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
-    ct_SetFieldStaged:  if fLastHand <> PLAYER_NONE then
+    ct_SetFieldStaged:  if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn,P[2]);
-    ct_SetWinefield:    if fLastHand <> PLAYER_NONE then
+    ct_SetWinefield:    if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
-    ct_SetWinefieldStaged:  if fLastHand <> PLAYER_NONE then
+    ct_SetWinefieldStaged:  if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                               gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine,P[2]);
-    ct_SetStock:        if fLastHand <> PLAYER_NONE then
+    ct_SetStock:        if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                         begin //This command basically means: Put a SH here with road bellow it
-                          fLastHouse := gHands[fLastHand].AddHouse(ht_Store, P[0]+1,P[1]+1, false);
+                          fLastHouse := gHands[fLastHand].AddHouse(ht_Store, P[0]+1,P[1]+1, False);
                           gHands[fLastHand].AddRoadToList(KMPoint(P[0]+1,P[1]+2));
                           gHands[fLastHand].AddRoadToList(KMPoint(P[0],P[1]+2));
                           gHands[fLastHand].AddRoadToList(KMPoint(P[0]-1,P[1]+2));
@@ -378,7 +387,7 @@ begin
     ct_ReleaseAllHouses:if fLastHand <> PLAYER_NONE then
                           for HT := HOUSE_MIN to HOUSE_MAX do
                             gHands[fLastHand].Locks.HouseGranted[HT] := True;
-    ct_SetGroup:        if fLastHand <> PLAYER_NONE then
+    ct_SetGroup:        if (fLastHand <> PLAYER_NONE) and PointInMap(P[1]+1, P[2]+1) then
                           if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
                           try
                             fLastTroop := gHands[fLastHand].AddUnitGroup(
@@ -394,7 +403,7 @@ begin
                             on E: ELocError do
                               AddError(ELocError(E).Message);
                           end;
-    ct_SendGroup:       if fLastHand <> PLAYER_NONE then
+    ct_SendGroup:       if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                         begin
                           if fLastTroop <> nil then
                             if fParsingMode = mpm_Editor then
@@ -458,14 +467,14 @@ begin
                           gHands[fLastHand].AI.Setup.UnlimitedEquip := True;
     ct_AIArmyType:      if (fLastHand <> PLAYER_NONE) and (P[0] >= Byte(Low(TArmyType))) and (P[0] <= Byte(High(TArmyType))) then
                           gHands[fLastHand].AI.Setup.ArmyType := TArmyType(P[0]);
-    ct_AIStartPosition: if fLastHand <> PLAYER_NONE then
+    ct_AIStartPosition: if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                           gHands[fLastHand].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
     ct_SetAlliance:     if (fLastHand <> PLAYER_NONE) and fPlayerEnabled[P[0]] and (P[0] <> fLastHand) then
                           if P[1] = 1 then
                             gHands[fLastHand].Alliances[P[0]] := at_Ally
                           else
                             gHands[fLastHand].Alliances[P[0]] := at_Enemy;
-    ct_AttackPosition:  if fLastHand <> PLAYER_NONE then
+    ct_AttackPosition:  if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
                           //If target is building: Attack building
                           //If target is unit: Chase/attack unit
                           //If target is nothing: move to position
@@ -515,9 +524,9 @@ begin
                             gHands[fLastHand].AI.Goals.AddGoal(glt_Survive, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
                           end;
                         end;
-    ct_AIDefence:       if fLastHand <> PLAYER_NONE then
-                        if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
-                          gHands[fLastHand].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
+    ct_AIDefence:       if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
+                          if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
+                            gHands[fLastHand].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastHand <> PLAYER_NONE then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           gHands[fLastHand].FlagColor := gRes.Palettes.DefaultPalette.Color32(P[0]);
@@ -560,20 +569,19 @@ begin
                         begin
                           FillChar(fAIAttack, SizeOf(fAIAttack), #0);
                         end;
-    ct_SetRallyPoint:   begin
-                          if fLastHand <> PLAYER_NONE then
-                            if (fLastHouse <> nil) then
-                            begin
-                              if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
-                                if (fLastHouse is TKMHouseBarracks) then
-                                  TKMHouseBarracks(fLastHouse).RallyPoint := KMPoint(P[0], P[1])
-                                else if (fLastHouse is TKMHouseWoodcutters) then
-                                  TKMHouseWoodcutters(fLastHouse).CuttingPoint := KMPoint(P[0], P[1]);
-                            end
-                            else
-                              AddError('ct_SetRallyPoint without prior declaration of House');
+    ct_SetRallyPoint:   if (fLastHand <> PLAYER_NONE) and PointInMap(P[0]+1, P[1]+1) then
+                        begin
+                          if (fLastHouse <> nil) then
+                          begin
+                            if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
+                              if (fLastHouse is TKMHouseBarracks) then
+                                TKMHouseBarracks(fLastHouse).RallyPoint := KMPoint(P[0]+1, P[1]+1)
+                              else if (fLastHouse is TKMHouseWoodcutters) then
+                                TKMHouseWoodcutters(fLastHouse).CuttingPoint := KMPoint(P[0]+1, P[1]+1);
+                          end
+                          else
+                            AddError('ct_SetRallyPoint without prior declaration of House');
                         end;
-
     ct_EnablePlayer:    begin
                           //Serves no real purpose, all players have this command anyway
                         end;
@@ -613,7 +621,7 @@ end;
 
 
 //Write out a KaM format mission file to aFileName
-procedure TMissionParserStandard.SaveDATFile(const aFileName: string; aDoXorEncoding: Boolean = False);
+procedure TMissionParserStandard.SaveDATFile(const aFileName: string;  aLeftInset: SmallInt = 0; aTopInset: SmallInt = 0; aDoXorEncoding: Boolean = False);
 const
   COMMANDLAYERS = 4;
 var
@@ -712,11 +720,11 @@ begin
     AddCommand(ct_SetRGBColor, [gHands[I].FlagColor and $00FFFFFF]);
 
     if not KMSamePoint(gHands[I].CenterScreen, KMPOINT_ZERO) then
-      AddCommand(ct_CenterScreen, [gHands[I].CenterScreen.X-1, gHands[I].CenterScreen.Y-1]);
+      AddCommand(ct_CenterScreen, [gHands[I].CenterScreen.X - 1 + aLeftInset, gHands[I].CenterScreen.Y - 1 + aTopInset]);
 
     with gGame.MapEditor.Revealers[I] do
     for K := 0 to Count - 1 do
-      AddCommand(ct_ClearUp, [Items[K].X-1, Items[K].Y-1, Tag[K]]);
+      AddCommand(ct_ClearUp, [Items[K].X - 1 + aLeftInset, Items[K].Y - 1 + aTopInset, Tag[K]]);
 
     if gGame.MapEditor.RevealAll[I] then
       AddCommand(ct_ClearUp, [255]);
@@ -769,7 +777,12 @@ begin
     AddData(''); //NL
     for K:=0 to gHands[I].AI.General.DefencePositions.Count - 1 do
       with gHands[I].AI.General.DefencePositions[K] do
-        AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],Radius,byte(DefenceType)]);
+        AddCommand(ct_AIDefence, [Position.Loc.X - 1 + aLeftInset,
+                                  Position.Loc.Y - 1 + aTopInset,
+                                  Byte(Position.Dir) - 1,
+                                  KaMGroupType[GroupType],
+                                  Radius,
+                                  Byte(DefenceType)]);
     AddData(''); //NL
     AddData(''); //NL
     for K := 0 to gHands[I].AI.General.Attacks.Count - 1 do
@@ -788,7 +801,7 @@ begin
 
         AddCommand(ct_AIAttack,cpt_Target, [Byte(Target)]);
         if Target = att_CustomPosition then
-          AddCommand(ct_AIAttack,cpt_Position, [CustomPosition.X-1,CustomPosition.Y-1]);
+          AddCommand(ct_AIAttack,cpt_Position, [CustomPosition.X-1 + aLeftInset,CustomPosition.Y-1 + aTopInset]);
 
         if Range > 0 then
           AddCommand(ct_AIAttack,cpt_Range, [Range]);
@@ -803,7 +816,7 @@ begin
     //Alliances
     for K:=0 to gHands.Count-1 do
       if K<>I then
-        AddCommand(ct_SetAlliance, [K, byte(gHands[I].Alliances[K])]); //0=enemy, 1=ally
+        AddCommand(ct_SetAlliance, [K, Byte(gHands[I].Alliances[K])]); //0=enemy, 1=ally
     AddData(''); //NL
 
     //Release/block houses
@@ -842,7 +855,7 @@ begin
       H := gHands[I].Houses[K];
       if not H.IsDestroyed then
       begin
-        AddCommand(ct_SetHouse, [HouseTypeToIndex[H.HouseType]-1, H.GetPosition.X-1, H.GetPosition.Y-1]);
+        AddCommand(ct_SetHouse, [HouseTypeToIndex[H.HouseType]-1, H.GetPosition.X-1 + aLeftInset, H.GetPosition.Y-1 + aTopInset]);
         if H.IsDamaged then
           AddCommand(ct_SetHouseDamage, [H.GetDamage]);
 
@@ -851,13 +864,13 @@ begin
           for J := 1 to TKMHouseBarracks(H).MapEdRecruitCount do
             AddCommand(ct_UnitAddToLast, [UnitTypeToOldIndex[ut_Recruit]]);
           if TKMHouseBarracks(H).IsRallyPointSet then
-            AddCommand(ct_SetRallyPoint, [TKMHouseBarracks(H).RallyPoint.X, TKMHouseBarracks(H).RallyPoint.Y]);
+            AddCommand(ct_SetRallyPoint, [TKMHouseBarracks(H).RallyPoint.X-1 + aLeftInset, TKMHouseBarracks(H).RallyPoint.Y-1 + aTopInset]);
         end;
 
         if H is TKMHouseWoodcutters then
         begin
           if TKMHouseWoodcutters(H).IsCuttingPointSet then
-            AddCommand(ct_SetRallyPoint, [TKMHouseWoodcutters(H).CuttingPoint.X, TKMHouseWoodcutters(H).CuttingPoint.Y]);
+            AddCommand(ct_SetRallyPoint, [TKMHouseWoodcutters(H).CuttingPoint.X-1 + aLeftInset, TKMHouseWoodcutters(H).CuttingPoint.Y-1 + aTopInset]);
         end;
 
         //Process any wares in this house
@@ -904,12 +917,12 @@ begin
             H := gHands.HousesHitTest(iX, iY);
             //Don't place road under the entrance of houses (it will be placed there if the house is destroyed on mission start)
             if (H = nil) or not KMSamePoint(H.Entrance, KMPoint(iX, iY)) then
-              AddCommand(ct_SetRoad, [iX-1,iY-1]);
+              AddCommand(ct_SetRoad, [iX-1 + aLeftInset,iY-1 + aTopInset]);
           end;
           if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetFieldStaged, [iX-1,iY-1,gTerrain.GetCornStage(KMPoint(iX, iY))]);
+            AddCommand(ct_SetFieldStaged, [iX-1 + aLeftInset, iY-1 + aTopInset, gTerrain.GetCornStage(KMPoint(iX, iY))]);
           if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetWinefieldStaged, [iX-1,iY-1,gTerrain.GetWineStage(KMPoint(iX, iY))]);
+            AddCommand(ct_SetWinefieldStaged, [iX-1 + aLeftInset, iY-1 + aTopInset, gTerrain.GetWineStage(KMPoint(iX, iY))]);
         end;
     CommandLayerCount := -1; //Disable command layering
     AddData(''); //Extra NL because command layering doesn't put one
@@ -920,24 +933,23 @@ begin
     begin
       U := gHands[I].Units[K];
       if not (U is TKMUnitWarrior) then //Groups get saved separately
-        AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
+        AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1 + aLeftInset, U.GetPosition.Y-1 + aTopInset]);
     end;
 
     //Unit groups
     for K := 0 to gHands[I].UnitGroups.Count - 1 do
     begin
       Group := gHands[I].UnitGroups[K];
-      AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
-
+      AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1 + aLeftInset, Group.Position.Y-1 + aTopInset, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
       if not Group.FlagBearer.StartWDefaultCondition then
-        AddCommand(ct_SetGroupFood, [Group.Condition]);
+        AddCommand(ct_SetGroupFood, []);
 
       case Group.MapEdOrder.Order of
         ioNoOrder: ;
         ioSendGroup:
-          AddCommand(ct_SendGroup, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1, Byte(Group.MapEdOrder.Pos.Dir)-1]);
+          AddCommand(ct_SendGroup, [Group.MapEdOrder.Pos.Loc.X-1 + aLeftInset, Group.MapEdOrder.Pos.Loc.Y-1 + aTopInset, Byte(Group.MapEdOrder.Pos.Dir)-1]);
         ioAttackPosition:
-          AddCommand(ct_AttackPosition, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1]);
+          AddCommand(ct_AttackPosition, [Group.MapEdOrder.Pos.Loc.X-1 + aLeftInset, Group.MapEdOrder.Pos.Loc.Y-1 + aTopInset]);
         else
           raise Exception.Create('Unexpected group order in MapEd');
       end;
@@ -954,7 +966,7 @@ begin
   for I := 0 to gHands.PlayerAnimals.Units.Count - 1 do
   begin
     U := gHands.PlayerAnimals.Units[I];
-    AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
+    AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1 + aLeftInset, U.GetPosition.Y-1 + aTopInset]);
   end;
   AddData(''); //NL
 

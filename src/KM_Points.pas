@@ -119,6 +119,7 @@ const
   KMPOINTF_ZERO: TKMPointF = (X: 0.0; Y: 0.0);
   KMPOINT_INVALID_TILE: TKMPoint = (X: -1; Y: -1);
 
+  KMRECT_ZERO: TKMRect = (Left: 0; Top: 0; Right: 0; Bottom: 0);
   KMRECT_INVALID_TILES: TKMRect = (Left: -1; Top: -1; Right: -1; Bottom: -1);
 
 

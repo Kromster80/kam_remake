@@ -103,7 +103,8 @@ type
     procedure ShowScriptError(const aMsg: UnicodeString);
 
     procedure AutoSave(aTimestamp: TDateTime);
-    procedure SaveMapEditor(const aPathName: UnicodeString);
+    procedure SaveMapEditor(const aPathName: UnicodeString); overload;
+    procedure SaveMapEditor(const aPathName: UnicodeString; aInsetRect: TKMRect); overload;
     procedure RestartReplay; //Restart the replay but keep current viewport position/zoom
 
     function MissionTime: TDateTime;
@@ -923,8 +924,14 @@ begin
 end;
 
 
-//aPathName - full path to DAT file
 procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
+begin
+  SaveMapEditor(aPathName, KMRECT_ZERO);
+end;
+
+
+//aPathName - full path to DAT file
+procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString; aInsetRect: TKMRect);
 var
   I: Integer;
   fMissionParser: TMissionParserStandard;
@@ -940,10 +947,10 @@ begin
   gLog.AddTime('Saving from map editor: ' + aPathName);
 
   fMapEditor.SaveAttachements(aPathName);
-  gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
-  fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'));
+  gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
+  fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
   fMissionParser := TMissionParserStandard.Create(mpm_Editor);
-  fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
+  fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'), aInsetRect.Left, aInsetRect.Top);
   FreeAndNil(fMissionParser);
 
   // Update GameSettings for saved maps positions in list on MapEd menu

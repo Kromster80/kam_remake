@@ -9,6 +9,7 @@ uses
 const
 //|===================| <- constant name length
   MAX_MAP_SIZE          = 256;
+  MIN_MAP_SIZE          = 32;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
@@ -617,7 +618,8 @@ type
     mlAIStart,
     mlSelection,
     mlWaterFlow,
-    mlTileOwner);  //Enum representing mapEditor visible layers
+    mlTileOwner,
+    mlMapResize);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
 const
@@ -680,6 +682,7 @@ const
   icYellow = $FF07FFFF;
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
+  icCyan   = $FFFFFF00;
 
   icDarkGray = $FF606060;
   icGray = $FF808080;
