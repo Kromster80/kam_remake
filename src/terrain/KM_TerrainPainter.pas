@@ -50,12 +50,12 @@ type
 
     procedure CheckpointToTerrain;
     procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TKMTerrainKind);
-    procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
     procedure EditBrush(aLoc: TKMPoint);
     procedure EditHeight;
     procedure EditTile(aLoc: TKMPoint; aTile,aRotation: Byte);
     procedure GenerateAddnData;
     procedure InitSize(X,Y: Word);
+    function PickRandomTile(aTerrainKind: TKMTerrainKind): Byte;
   public
     Land2: array of array of TKMPainterTile;
     RandomizeTiling: Boolean;
@@ -65,9 +65,10 @@ type
     procedure SaveToFile(aFileName: UnicodeString; aInsetRect: TKMRect); overload;
     procedure UpdateStateIdle;
     procedure Eyedropper(aLoc: TKMPoint);
+    procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean); overload;
+    procedure RebuildMap(aRect: TKMRect); overload;
     procedure RotateTile(aLoc: TKMPoint);
-
-    function PickRandomTile(aTerrainKind: TKMTerrainKind): Byte;
+    procedure RebuildTile(X,Y: Integer);
 
     procedure MagicWater(aLoc: TKMPoint);
 
@@ -191,6 +192,106 @@ begin
 end;
 
 
+procedure TKMTerrainPainter.RebuildTile(X,Y: Integer);
+var
+  I, K, pY, pX, Nodes, Rot, T: Integer;
+  Tmp, Ter1, Ter2, A, B, C, D: TKMTerrainKind;
+begin
+  pX := EnsureRange(X, 1, gTerrain.MapX - 1);
+  pY := EnsureRange(Y, 1, gTerrain.MapY - 1);
+
+  //don't touch custom placed tiles (tkCustom type)
+  if (Land2[pY  ,pX].TerKind <> tkCustom)
+  and (Land2[pY  ,pX+1].TerKind <> tkCustom)
+  and (Land2[pY+1,pX].TerKind <> tkCustom)
+  and (Land2[pY+1,pX+1].TerKind <> tkCustom) then
+  begin
+    A := (Land2[pY    , pX    ].TerKind);
+    B := (Land2[pY    , pX + 1].TerKind);
+    C := (Land2[pY + 1, pX    ].TerKind);
+    D := (Land2[pY + 1, pX + 1].TerKind);
+    Rot := 0;
+    Nodes := 1;
+
+    //A-B
+    //C-D
+    Ter1 := tkCustom;
+    Ter2 := tkCustom;
+
+    if (A=B)or(C=D)  then begin Ter1:=A; Ter2:=C; Nodes:=2; if A<C then Rot:=2 else Rot:=0; end;
+    if (A=C)or(B=D)  then begin Ter1:=A; Ter2:=B; Nodes:=2; if A<B then Rot:=1 else Rot:=3; end;
+
+    //special case \ and /
+    if A=D then begin Ter1:=A; Ter2:=B; Nodes:=4+1; Rot:=1; end;
+    if B=C then begin Ter1:=A; Ter2:=B; Nodes:=4+2; Rot:=0; end;
+
+    if (A=B)and(C=D) then begin Ter1:=A; Ter2:=C; Nodes:=2; if A<C then Rot:=2 else Rot:=0; end;
+    if (A=C)and(B=D) then begin Ter1:=A; Ter2:=B; Nodes:=2; if A<B then Rot:=1 else Rot:=3; end;
+
+    if (B=C)and(C=D) then begin Ter1:=C; Ter2:=A; Nodes:=3; if C<A then Rot:=3 else Rot:=1; end;
+    if (A=C)and(C=D) then begin Ter1:=A; Ter2:=B; Nodes:=3; if A<B then Rot:=0 else Rot:=2; end;
+    if (A=B)and(B=D) then begin Ter1:=A; Ter2:=C; Nodes:=3; if A<C then Rot:=2 else Rot:=0; end;
+    if (A=B)and(B=C) then begin Ter1:=A; Ter2:=D; Nodes:=3; if A<D then Rot:=1 else Rot:=3; end;
+
+    if (A=B)and(B=C)and(C=D) then begin Ter1:=A; Ter2:=A; Nodes:=4; Rot:=0; end;
+
+    //Terrain table has only half filled, so make sure first comes bigger ID
+    if Ter1 < Ter2 then
+    begin
+     Tmp := Ter1;
+     Ter1 := Ter2;
+     Ter2 := Tmp;
+     case Nodes of
+        1..3: Nodes := 4 - Nodes;  //invert nodes count
+        5..6: Rot := 1;
+      end;
+    end;
+
+    //Some tiles placed upside down or need other special treatment
+    if Nodes < 4 then
+    begin
+      //Flip direction
+      if Combo[Ter1, Ter2, Nodes] < 0 then
+        Rot := (Rot + 2) mod 4;
+      //For some weird reason lava needs to be rotated 90`
+      if Ter1 = tkLava then
+        Rot := (Rot + 1) mod 4;
+    end;
+
+    T := 0;
+    if Nodes < 4 then T := Abs(Combo[Ter1, Ter2, Nodes]);     //transition tiles
+    if Nodes = 4 then T := Abs(Combo[Ter1, Ter2, 1]);         //no transition
+    if Nodes > 4 then T := Abs(Combo[Ter1, Ter2, 3]);         //transition use 1 or 3
+
+    //for plain tiles only
+    if Ter1 = Ter2 then
+    begin
+      T := PickRandomTile(Ter1);
+
+      Rot := Random(4); //random direction for all plain tiles
+    end;
+
+    //Need to check if this tile was already smart-painted, "4-Nodes" hence default value is 0
+    if Land2[pY,pX].Tiles <> Byte(Ter1)*Byte(Ter2)*(4-Nodes) then
+    begin
+      Land2[pY,pX].Tiles := Byte(Ter1)*Byte(Ter2)*(4-Nodes);//store not only nodes info, but also terrain type used
+      gTerrain.Land[pY,pX].Terrain := T;
+      gTerrain.Land[pY,pX].Rotation := Rot mod 4;
+    end;
+  end;
+end;
+
+
+procedure TKMTerrainPainter.RebuildMap(aRect: TKMRect);
+var
+  I, K: Integer;
+begin
+  for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+      RebuildTile(K,I);
+end;
+
+
 procedure TKMTerrainPainter.RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
 var
   I, K, pY, pX, Nodes, Rot, T: Integer;
@@ -200,88 +301,7 @@ begin
   for K := -Rad to Rad do
   if aSquare or (Sqr(I) + Sqr(K) < Sqr(Rad)) then
   begin
-    pX := EnsureRange(X+K, 1, gTerrain.MapX - 1);
-    pY := EnsureRange(Y+I, 1, gTerrain.MapY - 1);
-
-    //don't touch custom placed tiles (tkCustom type)
-    if (Land2[pY  ,pX].TerKind <> tkCustom)
-    and (Land2[pY  ,pX+1].TerKind <> tkCustom)
-    and (Land2[pY+1,pX].TerKind <> tkCustom)
-    and (Land2[pY+1,pX+1].TerKind <> tkCustom) then
-    begin
-      A := (Land2[pY    , pX    ].TerKind);
-      B := (Land2[pY    , pX + 1].TerKind);
-      C := (Land2[pY + 1, pX    ].TerKind);
-      D := (Land2[pY + 1, pX + 1].TerKind);
-      Rot := 0;
-      Nodes := 1;
-
-      //A-B
-      //C-D
-      Ter1 := tkCustom;
-      Ter2 := tkCustom;
-
-      if (A=B)or(C=D)  then begin Ter1:=A; Ter2:=C; Nodes:=2; if A<C then Rot:=2 else Rot:=0; end;
-      if (A=C)or(B=D)  then begin Ter1:=A; Ter2:=B; Nodes:=2; if A<B then Rot:=1 else Rot:=3; end;
-
-      //special case \ and /
-      if A=D then begin Ter1:=A; Ter2:=B; Nodes:=4+1; Rot:=1; end;
-      if B=C then begin Ter1:=A; Ter2:=B; Nodes:=4+2; Rot:=0; end;
-
-      if (A=B)and(C=D) then begin Ter1:=A; Ter2:=C; Nodes:=2; if A<C then Rot:=2 else Rot:=0; end;
-      if (A=C)and(B=D) then begin Ter1:=A; Ter2:=B; Nodes:=2; if A<B then Rot:=1 else Rot:=3; end;
-
-      if (B=C)and(C=D) then begin Ter1:=C; Ter2:=A; Nodes:=3; if C<A then Rot:=3 else Rot:=1; end;
-      if (A=C)and(C=D) then begin Ter1:=A; Ter2:=B; Nodes:=3; if A<B then Rot:=0 else Rot:=2; end;
-      if (A=B)and(B=D) then begin Ter1:=A; Ter2:=C; Nodes:=3; if A<C then Rot:=2 else Rot:=0; end;
-      if (A=B)and(B=C) then begin Ter1:=A; Ter2:=D; Nodes:=3; if A<D then Rot:=1 else Rot:=3; end;
-
-      if (A=B)and(B=C)and(C=D) then begin Ter1:=A; Ter2:=A; Nodes:=4; Rot:=0; end;
-
-      //Terrain table has only half filled, so make sure first comes bigger ID
-      if Ter1 < Ter2 then
-      begin
-       Tmp := Ter1;
-       Ter1 := Ter2;
-       Ter2 := Tmp;
-       case Nodes of
-          1..3: Nodes := 4 - Nodes;  //invert nodes count
-          5..6: Rot := 1;
-        end;
-      end;
-
-      //Some tiles placed upside down or need other special treatment
-      if Nodes < 4 then
-      begin
-        //Flip direction
-        if Combo[Ter1, Ter2, Nodes] < 0 then
-          Rot := (Rot + 2) mod 4;
-        //For some weird reason lava needs to be rotated 90`
-        if Ter1 = tkLava then
-          Rot := (Rot + 1) mod 4;
-      end;
-
-      T := 0;
-      if Nodes < 4 then T := Abs(Combo[Ter1, Ter2, Nodes]);     //transition tiles
-      if Nodes = 4 then T := Abs(Combo[Ter1, Ter2, 1]);         //no transition
-      if Nodes > 4 then T := Abs(Combo[Ter1, Ter2, 3]);         //transition use 1 or 3
-
-      //for plain tiles only
-      if Ter1 = Ter2 then
-      begin
-        T := PickRandomTile(Ter1);
-
-        Rot := Random(4); //random direction for all plain tiles
-      end;
-
-      //Need to check if this tile was already smart-painted, "4-Nodes" hence default value is 0
-      if Land2[pY,pX].Tiles <> Byte(Ter1)*Byte(Ter2)*(4-Nodes) then
-      begin
-        Land2[pY,pX].Tiles := Byte(Ter1)*Byte(Ter2)*(4-Nodes);//store not only nodes info, but also terrain type used
-        gTerrain.Land[pY,pX].Terrain := T;
-        gTerrain.Land[pY,pX].Rotation := Rot mod 4;
-      end;
-    end;
+    RebuildTile(X+K,Y+I);
   end;
 end;
 

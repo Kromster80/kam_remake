@@ -381,14 +381,13 @@ procedure TKMTerrain.SaveToFile(aFile: UnicodeString; aInsetRect: TKMRect);
 var
   c0: Cardinal;
   cF: Cardinal;
-  b205, Light: Byte;
+  b205: Byte;
 
   procedure WriteTile(var S: TKMemoryStream; X, Y: Word; aTerrain, aHeight, aRotation, aObj: Byte; aLight: Single; aSizeX, aSizeY: Word);
   begin
     S.Write(aTerrain);
 
-    Light := Round((aLight+1)*16); //Integer to Byte cast automatically applied
-    S.Write(Light); //apply Light (Byte)
+    S.Write(Byte(Round((aLight+1)*16))); //apply Light (cast to Byte is obligatory due to map file format)
     S.Write(aHeight);
 
     //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
@@ -417,7 +416,7 @@ var
     S.Write(c0, 4); //unknown - always 0
   end;
 
-  procedure WriteTileFrom(var S: TKMemoryStream; X, Y, aFromX, aFromY: Word; aSizeX, aSizeY: Word; aNewGeneratedTile: Boolean);
+  procedure SetNewLand(var S: TKMemoryStream; X, Y, aFromX, aFromY: Word; aSizeX, aSizeY: Word; aNewGeneratedTile: Boolean);
   var
     Terrain, Rot, Height, Obj: Byte;
     TerKind: TKMTerrainKind;
@@ -427,15 +426,8 @@ var
     begin
       Terrain := Land[aFromY,aFromX].Terrain;
       //Apply some random tiles for artisticity
-      if (KaMRandom(5) = 0) then
-      begin
-        TerKind := gGame.MapEditor.TerrainPainter.Land2[aFromY,aFromX].TerKind;
-        if RandomTiling[TerKind, 0] <> 0 then
-          Terrain := gGame.MapEditor.TerrainPainter.PickRandomTile(TerKind);
-      end;
-
       Height := EnsureRange(Land[aFromY,aFromX].Height + KaMRandom(7), 0, 100);  //variation in Height
-      Rot := KaMRandom(4);
+      Rot := Land[aFromY,aFromX].Rotation;
       Obj := 255; // No object
     end
     else
@@ -450,6 +442,7 @@ var
 
 var
   S: TKMemoryStream;
+  MapInnerRect: TKMRect;
   NewGeneratedTileI, NewGeneratedTileK: Boolean;
   I, K, IFrom, KFrom: Integer;
   SizeX, SizeY: Integer;
@@ -477,38 +470,37 @@ begin
     SizeY := fMapY + aInsetRect.Top + aInsetRect.Bottom;
     S.Write(SizeX);
     S.Write(SizeY);
+    MapInnerRect := KMRect(1 + EnsureRange(aInsetRect.Left, 0, aInsetRect.Left),
+                           1 + EnsureRange(aInsetRect.Top, 0, aInsetRect.Top),
+                           EnsureRange(fMapX + aInsetRect.Left, fMapX + aInsetRect.Left, fMapX + aInsetRect.Left + aInsetRect.Right),
+                           EnsureRange(fMapY + aInsetRect.Top, fMapY + aInsetRect.Top, fMapY + aInsetRect.Top + aInsetRect.Bottom));
+
     for I := 1 to SizeY do
     begin
       NewGeneratedTileI := True;
-      if I <= aInsetRect.Top then
-        IFrom := 1
-      else if I = SizeY then
+      if I = SizeY then
       begin
         IFrom := fMapY;
         NewGeneratedTileI := KMSameRect(aInsetRect, KMRECT_ZERO);
-      end else if I >= aInsetRect.Top + fMapY - 1 then
-        IFrom := fMapY - 1
-      else begin
-        IFrom := I - aInsetRect.Top;
-        NewGeneratedTileI := False;
+      end else
+      begin
+        IFrom := EnsureRange(I - aInsetRect.Top, 1, fMapY - 1);
+        NewGeneratedTileI := not InRange(I, MapInnerRect.Top, MapInnerRect.Bottom);
       end;
 
       for K := 1 to SizeX do
       begin
         NewGeneratedTileK := True;
-        if K <= aInsetRect.Left then
-          KFrom := 1
-        else if K = SizeX then
+        if K = SizeX then
         begin
           KFrom := fMapX;
           NewGeneratedTileK := KMSameRect(aInsetRect, KMRECT_ZERO);
-        end else if K >= aInsetRect.Left + fMapX - 1 then
-          KFrom := fMapX - 1
-        else begin
-          KFrom := K - aInsetRect.Left;
-          NewGeneratedTileK := False;
+        end else
+        begin
+          KFrom := EnsureRange(K - aInsetRect.Left, 1, fMapX - 1);
+          NewGeneratedTileK := not InRange(K, MapInnerRect.Left, MapInnerRect.Right);
         end;
-        WriteTileFrom(S, K, I, KFrom, IFrom, SizeX, SizeY, NewGeneratedTileI or NewGeneratedTileK);
+        SetNewLand(S, K, I, KFrom, IFrom, SizeX, SizeY, NewGeneratedTileI or NewGeneratedTileK);
       end;
     end;
 
@@ -2243,7 +2235,7 @@ begin
   else
     NormDistance := Min(MaxDistance, Floor(KMLength(OriginPoint, TargetPoint)));
 
-  while (NormDistance >= 0)
+  while (NormDistance > 0)
     and (not IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint)
          or not CheckPassability(TargetPoint, aPassability)) do
   begin

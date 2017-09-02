@@ -37,6 +37,7 @@ type
   public
     ActiveMarker: TKMMapEdMarker;
 
+    ResizeMapRect: TKMRect;
     RevealAll: array [0..MAX_HANDS-1] of Boolean;
     DefaultHuman: TKMHandIndex;
     PlayerHuman: array [0..MAX_HANDS - 1] of Boolean;
@@ -87,6 +88,8 @@ begin
   fSelection := TKMSelection.Create(fTerrainPainter);
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
+
+  ResizeMapRect := KMRECT_ZERO;
 
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I] := TKMPointTagList.Create;
@@ -498,6 +501,9 @@ begin
 
   if mlSelection in fVisibleLayers then
     fSelection.Paint(aLayer, aClipRect);
+
+  if (mlMapResize in fVisibleLayers) and not KMSameRect(ResizeMapRect, KMRECT_ZERO) then
+    gRenderAux.ResizeMap(ResizeMapRect);
 
   if mlWaterFlow in fVisibleLayers then
   begin

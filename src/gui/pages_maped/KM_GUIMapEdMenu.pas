@@ -28,9 +28,10 @@ type
     Button_Resize: TKMButton;
     Button_Menu_Quit: TKMButton;
   public
-    constructor Create(aParent: TKMPanel);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
+    property GuiMenuResize: TKMMapEdMenuResize read fGuiMenuResize;
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure Show;
     procedure Hide;
@@ -45,7 +46,7 @@ uses
 
 
 { TKMapEdInterface }
-constructor TKMMapEdMenu.Create(aParent: TKMPanel);
+constructor TKMMapEdMenu.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
 begin
   inherited Create;
 

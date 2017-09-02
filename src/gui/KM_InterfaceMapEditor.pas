@@ -213,7 +213,7 @@ begin
   fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
   fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
   fGuiMission := TKMMapEdMission.Create(Panel_Common, PageChanged);
-  fGuiMenu := TKMMapEdMenu.Create(Panel_Common);
+  fGuiMenu := TKMMapEdMenu.Create(Panel_Common, PageChanged);
 
   //Objects pages
   fGuiUnit := TKMMapEdUnit.Create(Panel_Common);
@@ -465,6 +465,9 @@ begin
 
   if fGuiExtras.CheckBox_ShowTileOwners.Checked then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlTileOwner];
+
+  if fGuiMenu.GuiMenuResize.Visible then
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlMapResize];
 end;
 
 
