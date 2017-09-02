@@ -60,6 +60,7 @@ type
       MinimapView_MapEd: TKMMinimapView;
 
       Panel_LobbySetupDesc: TKMPanel;
+        Label_MapType: TKMLabel;
         Memo_LobbyMapDesc: TKMMemo;
         Button_LobbySetupReadme: TKMButton;
 
@@ -168,6 +169,7 @@ begin
 
       Panel_LobbySetupDesc := TKMPanel.Create(Panel_MapEdLoad, 448, 104+199+10, 199, 218);
       Panel_LobbySetupDesc.Anchors := [anLeft, anTop, anBottom];
+        Label_MapType := TKMLabel.Create(Panel_LobbySetupDesc, 0, 0, '', fnt_Metal, taLeft);
         Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetupDesc, 0, 0, 199, 218, fnt_Game, bsMenu);
         Memo_LobbyMapDesc.Anchors := [anLeft,anTop,anBottom];
         Memo_LobbyMapDesc.AutoWrap := True;
@@ -696,7 +698,9 @@ end;
 
 procedure TKMMenuMapEditor.LoadMinimap(aID: Integer = -1);
 var
+  Top: Integer;
   Map: TKMapInfo;
+  ShowMapTypeLabel: Boolean;
 begin
   if aID <> -1 then
   begin
@@ -712,6 +716,24 @@ begin
       Button_LobbySetupReadme.Show
     else
       Button_LobbySetupReadme.Hide;
+
+    ShowMapTypeLabel := Map.IsCoop or Map.IsSpecial;
+    if ShowMapTypeLabel then
+    begin
+      if Map.IsCoop then
+        Label_MapType.Caption := gResTexts[TX_LOBBY_MAP_COOP]
+      else
+        Label_MapType.Caption := gResTexts[TX_LOBBY_MAP_SPECIAL];
+      Memo_LobbyMapDesc.Top := 20;
+      Button_LobbySetupReadme.Top := 245;
+      Label_MapType.Show;
+    end
+    else
+    begin
+      Memo_LobbyMapDesc.Top := 0;
+      Button_LobbySetupReadme.Top := 225;
+      Label_MapType.Hide;
+    end;
   end else begin
     MinimapView_MapEd.Hide;
     Panel_LobbySetupDesc.Hide;
