@@ -1568,6 +1568,10 @@ begin
         fGamePlayInterface.LoadHotkeysFromHand;
     end;
 
+    if fGameMode = gmReplaySingle then
+      //SP Replay need to set screen position
+      fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
+
     gLog.AddTime('Loading game', True);
   finally
     FreeAndNil(LoadStream);
