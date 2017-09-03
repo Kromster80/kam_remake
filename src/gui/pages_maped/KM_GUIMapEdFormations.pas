@@ -22,7 +22,6 @@ type
     Button_Formations_Ok: TKMButton;
     Button_Formations_Cancel: TKMButton;
   public
-    fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
     property Visible: Boolean read GetVisible;
@@ -47,7 +46,7 @@ var
 begin
   inherited Create;
 
-  Panel_Formations := TKMPanel.Create(aParent, 362, 250, SIZE_X, SIZE_Y);
+  Panel_Formations := TKMPanel.Create(aParent, (aParent.Width - SIZE_X) div 2, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
   Panel_Formations.AnchorsCenter;
   Panel_Formations.Hide;
 

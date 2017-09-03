@@ -66,8 +66,7 @@ var
 begin
   inherited Create;
 
-  Panel_Attack := TKMPanel.Create(aParent, TOOLBAR_WIDTH + (aParent.Width - TOOLBAR_WIDTH - SIZE_X) div 2,
-                                           (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
+  Panel_Attack := TKMPanel.Create(aParent, (aParent.Width - SIZE_X) div 2, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
   Panel_Attack.AnchorsCenter;
   Panel_Attack.Hide;
 

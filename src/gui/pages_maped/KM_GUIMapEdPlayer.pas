@@ -29,7 +29,7 @@ type
     Panel_Player: TKMPanel;
     Button_Player: array [TKMPlayerTab] of TKMButton;
   public
-    fGuiPlayerGoals: TKMMapEdPlayerGoals;
+    GuiPlayerGoals: TKMMapEdPlayerGoals;
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
@@ -77,7 +77,7 @@ begin
     Button_Player[PT].OnClick := PageChange;
   end;
 
-  fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
+  GuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
   fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
   fGuiPlayerBlockHouse := TKMMapEdPlayerBlockHouse.Create(Panel_Player);
   fGuiPlayerBlockTrade := TKMMapEdPlayerBlockTrade.Create(Panel_Player);
@@ -88,7 +88,7 @@ end;
 
 destructor TKMMapEdPlayer.Destroy;
 begin
-  fGuiPlayerGoals.Free;
+  GuiPlayerGoals.Free;
   fGuiPlayerColors.Free;
   fGuiPlayerBlockHouse.Free;
   fGuiPlayerBlockTrade.Free;
@@ -106,7 +106,7 @@ begin
   gGameCursor.Tag1 := 0;
 
   //Hide existing pages
-  fGuiPlayerGoals.Hide;
+  GuiPlayerGoals.Hide;
   fGuiPlayerColors.Hide;
   fGuiPlayerBlockHouse.Hide;
   fGuiPlayerBlockTrade.Hide;
@@ -114,7 +114,7 @@ begin
   fGuiPlayerView.Hide;
 
   if (Sender = Button_Player[ptGoals]) then
-    fGuiPlayerGoals.Show
+    GuiPlayerGoals.Show
   else
   if (Sender = Button_Player[ptColor]) then
     fGuiPlayerColors.Show
@@ -139,7 +139,7 @@ end;
 procedure TKMMapEdPlayer.Show(aPage: TKMPlayerTab);
 begin
   case aPage of
-    ptGoals:      fGuiPlayerGoals.Show;
+    ptGoals:      GuiPlayerGoals.Show;
     ptColor:      fGuiPlayerColors.Show;
     ptBlockHouse: fGuiPlayerBlockHouse.Show;
     ptBlockTrade: fGuiPlayerBlockTrade.Show;
@@ -171,7 +171,7 @@ end;
 function TKMMapEdPlayer.Visible(aPage: TKMPlayerTab): Boolean;
 begin
   case aPage of
-    ptGoals:      Result := fGuiPlayerGoals.Visible;
+    ptGoals:      Result := GuiPlayerGoals.Visible;
     ptColor:      Result := fGuiPlayerColors.Visible;
     ptBlockHouse: Result := fGuiPlayerBlockHouse.Visible;
     ptBlockTrade: Result := fGuiPlayerBlockTrade.Visible;
@@ -184,7 +184,7 @@ end;
 
 procedure TKMMapEdPlayer.ChangePlayer;
 begin
-  if fGuiPlayerGoals.Visible then fGuiPlayerGoals.Show;
+  if GuiPlayerGoals.Visible then GuiPlayerGoals.Show;
   if fGuiPlayerColors.Visible then fGuiPlayerColors.Show;
   if fGuiPlayerBlockHouse.Visible then fGuiPlayerBlockHouse.Show;
   if fGuiPlayerBlockTrade.Visible then fGuiPlayerBlockTrade.Show;
