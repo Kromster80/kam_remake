@@ -71,6 +71,7 @@ begin
       Label_NewMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, 160, TB_WIDTH, 30, '', fnt_Outline, taCenter);
 
       Button_Resize := TKMButton.Create(Panel_Resize_Edit, 0, 205, TB_WIDTH, 30, 'Resize and Save', bsGame); //Todo translate
+      Button_Resize.Hint := 'Resize map and then save it'; //Todo translate
       Button_Resize.OnClick := PanelConfirm_Switch;
       Button_Resize.Disable;
 
@@ -82,7 +83,9 @@ begin
       Label_Resize_Confirm.AutoWrap := True;
 
       Button_Resize_Confirm_Yes := TKMButton.Create(Panel_Resize_Confirm, 0, Max(120, Label_Resize_Confirm.TextSize.Y + 10), TB_WIDTH, 30, 'Yes', bsGame);
+      Button_Resize_Confirm_Yes.Hint := 'Resize map and then save it'; //Todo translate
       Button_Resize_Confirm_No := TKMButton.Create(Panel_Resize_Confirm, 0, Max(160, Label_Resize_Confirm.TextSize.Y + 50), TB_WIDTH, 30, 'No', bsGame);
+      Button_Resize_Confirm_No.Hint := 'Go previous menu'; //Todo translate
 
       Button_Resize_Confirm_Yes.OnClick := Resize_Click;
       Button_Resize_Confirm_No.OnClick := PanelConfirm_Switch;
