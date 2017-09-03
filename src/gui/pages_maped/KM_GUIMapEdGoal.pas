@@ -50,7 +50,7 @@ var
 begin
   inherited Create;
 
-  Panel_Goal := TKMPanel.Create(aParent, 362, 250, SIZE_X, SIZE_Y);
+  Panel_Goal := TKMPanel.Create(aParent, (aParent.Width - SIZE_X) div 2, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
   Panel_Goal.AnchorsCenter;
   Panel_Goal.Hide;
 
