@@ -384,11 +384,11 @@ begin
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
       gic_HouseWoodcuttersCutting: TKMHouseWoodcutters(SrcHouse).CuttingPoint := KMPoint(Params[2], Params[3]);
 
-      gic_WareDistributionChange:            begin
+      gic_WareDistributionChange: begin
                                     P.Stats.WareDistribution[TWareType(Params[1]), THouseType(Params[2])] := Params[3];
                                     P.Houses.UpdateResRequest
                                   end;
-      gic_WareDistributions:                 begin
+      gic_WareDistributions:      begin
                                     P.Stats.WareDistribution.LoadFromStr(TextParam);
                                     P.Houses.UpdateResRequest
                                   end;

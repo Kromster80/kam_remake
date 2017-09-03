@@ -114,6 +114,7 @@ type
     fOnMouseWheel: TNotifyEventMW;
     fOnFocus: TBooleanEvent;
     fOnChangeVisibility: TBooleanEvent;
+    fOnChangeEnableStatus: TBooleanEvent;
     fOnKeyDown: TNotifyEventKeyShiftFunc;
     fOnKeyUp: TNotifyEventKeyShiftFunc;
 
@@ -155,6 +156,7 @@ type
     function GetSelfHeight: Integer; virtual;
     function GetSelfWidth: Integer; virtual;
     procedure UpdateVisibility; virtual;
+    procedure UpdateEnableStatus; virtual;
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); virtual;
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); virtual;
     procedure FocusChanged(aFocused: Boolean); virtual;
@@ -227,7 +229,8 @@ type
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
     property OnFocus: TBooleanEvent read fOnFocus write fOnFocus;
-    property OnChangeVisibility: TBooleanEvent read fOnFocus write fOnChangeVisibility;
+    property OnChangeVisibility: TBooleanEvent read fOnChangeVisibility write fOnChangeVisibility;
+    property OnChangeEnableStatus: TBooleanEvent read fOnChangeEnableStatus write fOnChangeEnableStatus;
     property OnKeyDown: TNotifyEventKeyShiftFunc read fOnKeyDown write fOnKeyDown;
     property OnKeyUp: TNotifyEventKeyShiftFunc read fOnKeyUp write fOnKeyUp;
 
@@ -249,6 +252,7 @@ type
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); override;
     procedure UpdateVisibility; override;
+    procedure UpdateEnableStatus; override;
   public
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
     ChildCount: Word;
@@ -840,6 +844,7 @@ type
     property SeparatorHeight: Byte read fSeparatorHeight write fSeparatorHeight;
 
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    function Selected: Boolean;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
@@ -1256,6 +1261,23 @@ type
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
     procedure ShowAt(X,Y: Integer);
     procedure HideMenu;
+  end;
+
+
+  TKMPopUpPanel = class(TKMPanel)
+  private
+    procedure UpdateSizes;
+  protected
+    ImageBG: TKMImage;
+    BevelBG: TKMBevel;
+    procedure SetWidth(aValue: Integer); override;
+    procedure SetHeight(aValue: Integer); override;
+  public
+    Caption: UnicodeString;
+    Font: TKMFont;
+    FontColor: TColor4;
+    constructor Create(aParent: TKMPanel; aWidth, aHeight: Integer; aCaption: UnicodeString = '');
+    procedure Paint; override;
   end;
 
 
@@ -1856,6 +1878,8 @@ begin
   // Only swap focus if enability changed
   if (OldEnabled <> Enabled) and (Focusable or (Self is TKMPanel)) then
     MasterParent.fMasterControl.UpdateFocus(Self);
+
+  UpdateEnableStatus;
 end;
 
 
@@ -1907,6 +1931,14 @@ procedure TKMControl.UpdateVisibility;
 begin
   if Assigned(fOnChangeVisibility) then
     fOnChangeVisibility(fVisible);
+  //Let descendants override this method
+end;
+
+
+procedure TKMControl.UpdateEnableStatus;
+begin
+  if Assigned(fOnChangeEnableStatus) then
+    fOnChangeEnableStatus(fEnabled);
   //Let descendants override this method
 end;
 
@@ -2173,6 +2205,16 @@ begin
   for I := 0 to ChildCount - 1 do
     Childs[I].UpdateVisibility;
 end;
+
+
+procedure TKMPanel.UpdateEnableStatus;
+var I: Integer;
+begin
+  inherited;
+  for I := 0 to ChildCount - 1 do
+    Childs[I].UpdateEnableStatus;
+end;
+
 
 
 {Panel Paint means to Paint all its childs}
@@ -4897,6 +4939,12 @@ begin
 end;
 
 
+function TKMListBox.Selected: Boolean;
+begin
+  Result := fItemIndex <> -1;
+end;
+
+
 function TKMListBox.SeparatorsCount: Integer;
 begin
   Result := Length(fSeparatorPositions);
@@ -5950,6 +5998,58 @@ begin
   Show;
   fShapeBG.Show;
   fList.Show;
+end;
+
+
+{ TKMPopUpPanel }
+constructor TKMPopUpPanel.Create(aParent: TKMPanel; aWidth, aHeight: Integer; aCaption: UnicodeString = '');
+begin
+  inherited Create(aParent, (aParent.Width div 2) - (aWidth div 2), (aParent.Height div 2) - (aHeight div 2), aWidth, aHeight);
+
+  Font := fnt_Outline;
+  FontColor := icWhite;
+  Caption := aCaption;
+
+  TKMBevel.Create(Self, -1000,  -1000, 4000, 4000);
+
+  ImageBG := TKMImage.Create(Self, -20, -50, aWidth + 40, aHeight + 60, 15, rxGuiMain);
+  ImageBG.ImageStretch;
+
+  BevelBG := TKMBevel.Create(Self, 0, 0, aWidth, aHeight);
+
+  AnchorsCenter;
+  Hide;
+end;
+
+
+procedure TKMPopUpPanel.Paint;
+begin
+  inherited Paint;
+
+  TKMRenderUI.WriteText(AbsLeft, AbsTop + 10, Width, Caption, Font, taCenter, FontColor);
+end;
+
+
+procedure TKMPopUpPanel.SetHeight(aValue: Integer);
+begin
+  inherited;
+  UpdateSizes;
+end;
+
+
+procedure TKMPopUpPanel.SetWidth(aValue: Integer);
+begin
+  inherited;
+  UpdateSizes;
+end;
+
+
+procedure TKMPopUpPanel.UpdateSizes;
+begin
+  ImageBG.Width := Width + 40;
+  ImageBG.Height := Height + 60;
+  BevelBG.Width := Width;
+  BevelBG.Height := Height;
 end;
 
 

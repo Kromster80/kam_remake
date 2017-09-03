@@ -3,7 +3,7 @@ unit KM_GUIMapEdMenuSave;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Maps;
+   KM_Controls, KM_Maps, KM_InterfaceGame;
 
 
 type
@@ -14,14 +14,14 @@ type
     procedure Menu_SaveClick(Sender: TObject);
   protected
     Panel_Save: TKMPanel;
-    Radio_Save_MapType: TKMRadioGroup;
-    Edit_SaveName: TKMEdit;
-    Label_SaveExists: TKMLabel;
-    CheckBox_SaveExists: TKMCheckBox;
+      Radio_Save_MapType: TKMRadioGroup;
+      Edit_SaveName: TKMEdit;
+      Label_SaveExists: TKMLabel;
+      CheckBox_SaveExists: TKMCheckBox;
+  public
     Button_SaveSave: TKMButton;
     Button_SaveCancel: TKMButton;
-  public
-    constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
+    constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_WIDTH);
 
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure Show;
@@ -31,31 +31,33 @@ type
 
 implementation
 uses
-  KM_Game, KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_InterfaceGame, KM_InterfaceDefaults;
+  KM_Game, KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_InterfaceDefaults;
 
 
 { TKMMapEdMenuSave }
-constructor TKMMapEdMenuSave.Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
+constructor TKMMapEdMenuSave.Create(aParent: TKMPanel; aOnDone: TNotifyEvent; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_WIDTH);
 begin
   inherited Create;
 
   fOnDone := aOnDone;
 
-  Panel_Save := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
-  TKMBevel.Create(Panel_Save, 0, 30, TB_WIDTH, 37);
-  Radio_Save_MapType  := TKMRadioGroup.Create(Panel_Save,4,32,TB_WIDTH,35,fnt_Grey);
+  Panel_Save := TKMPanel.Create(aParent, 0, aTopPanelInset, aControlsWidth, 230);
+  TKMLabel.Create(Panel_Save,0,0,aControlsWidth,20,gResTexts[TX_MAPED_SAVE_TITLE],fnt_Outline,taLeft);
+
+  TKMBevel.Create(Panel_Save, 0, 25, aControlsWidth, 37);
+  Radio_Save_MapType  := TKMRadioGroup.Create(Panel_Save,4,27,aControlsWidth,35,fnt_Grey);
   Radio_Save_MapType.ItemIndex := 0;
   Radio_Save_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Save_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
   Radio_Save_MapType.OnChange := Menu_SaveClick;
-  TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,gResTexts[TX_MAPED_SAVE_TITLE],fnt_Outline,taCenter);
-  Edit_SaveName       := TKMEdit.Create(Panel_Save,0,110,TB_WIDTH,20, fnt_Grey);
+
+  Edit_SaveName       := TKMEdit.Create(Panel_Save,0,80,aControlsWidth,20, fnt_Grey);
   Edit_SaveName.MaxLen := MAX_SAVENAME_LENGTH;
   Edit_SaveName.AllowedChars := acFileName;
-  Label_SaveExists    := TKMLabel.Create(Panel_Save,0,140,TB_WIDTH,0,gResTexts[TX_MAPED_SAVE_EXISTS],fnt_Outline,taCenter);
-  CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,160,TB_WIDTH,20,gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
-  Button_SaveSave     := TKMButton.Create(Panel_Save,0,180,TB_WIDTH,30,gResTexts[TX_MAPED_SAVE],bsGame);
-  Button_SaveCancel   := TKMButton.Create(Panel_Save,0,220,TB_WIDTH,30,gResTexts[TX_MAPED_SAVE_CANCEL],bsGame);
+  Label_SaveExists    := TKMLabel.Create(Panel_Save,0,110,aControlsWidth,0,gResTexts[TX_MAPED_SAVE_EXISTS],fnt_Outline,taCenter);
+  CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,130,aControlsWidth,20,gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
+  Button_SaveSave     := TKMButton.Create(Panel_Save,0,150,aControlsWidth,30,gResTexts[TX_MAPED_SAVE],bsGame);
+  Button_SaveCancel   := TKMButton.Create(Panel_Save,0,190,aControlsWidth,30,gResTexts[TX_MAPED_SAVE_CANCEL],bsGame);
   Edit_SaveName.OnChange      := Menu_SaveClick;
   CheckBox_SaveExists.OnClick := Menu_SaveClick;
   Button_SaveSave.OnClick     := Menu_SaveClick;

@@ -21,6 +21,7 @@ uses
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
    KM_GUIMapEdMenu,
+   KM_GUIMapEdMenuTryMap,
    KM_GUIMapEdUnit;
 
 type
@@ -44,6 +45,7 @@ type
     fGuiAttack: TKMMapEdAttack;
     fGuiGoal: TKMMapEdGoal;
     fGuiFormations: TKMMapEdFormations;
+    fGuiMenuTryMap: TKMMapEdMenuTryMap;
     fGuiExtras: TKMMapEdExtras;
     fGuiMessage: TKMMapEdMessage;
     fGuiMarkerDefence: TKMMapEdMarkerDefence;
@@ -222,11 +224,13 @@ begin
   fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
   fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
   fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
+  fGuiMenuTryMap := TKMMapEdMenuTryMap.Create(Panel_Main);
 
   //Pass pop-ups to their dispatchers
   fGuiTown.GuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.GuiOffence.AttackPopUp := fGuiAttack;
   fGuiPlayer.GuiPlayerGoals.GoalPopUp := fGuiGoal;
+  fGuiMenu.GuiMenuTryMap := fGuiMenuTryMap;
 
   //Hints go above everything
   Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
@@ -264,6 +268,7 @@ begin
   fGuiAttack.Free;
   fGuiExtras.Free;
   fGuiFormations.Free;
+  fGuiMenuTryMap.Free;
   fGuiGoal.Free;
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
@@ -711,7 +716,8 @@ begin
   //Pass Key to Modal pages first
   if (fGuiAttack.Visible and fGuiAttack.KeyDown(Key, Shift))
     or (fGuiFormations.Visible and fGuiFormations.KeyDown(Key, Shift))
-    or (fGuiGoal.Visible and fGuiGoal.KeyDown(Key, Shift)) then
+    or (fGuiGoal.Visible and fGuiGoal.KeyDown(Key, Shift))
+    or (fGuiMenuTryMap.Visible and fGuiMenuTryMap.KeyDown(Key, Shift)) then
     KeyPassedToModal := True;
 
   //For now enter can open up Extra panel
