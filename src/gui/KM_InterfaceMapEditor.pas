@@ -226,7 +226,7 @@ begin
   //Pass pop-ups to their dispatchers
   fGuiTown.GuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.GuiOffence.AttackPopUp := fGuiAttack;
-  fGuiPlayer.fGuiPlayerGoals.GoalPopUp := fGuiGoal;
+  fGuiPlayer.GuiPlayerGoals.GoalPopUp := fGuiGoal;
 
   //Hints go above everything
   Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
