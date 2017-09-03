@@ -89,7 +89,7 @@ type
 
     //VI.      Cheatcodes affecting gameplay (props)
 
-    //VII. Temporary and debug commands
+    //VII.     Temporary and debug commands
     gic_TempAddScout,
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
     gic_TempVictory,
@@ -101,6 +101,16 @@ type
     //VII.    Message queue handling in gameplay interface
     //IX.     Text messages for multiplayer (moved to Networking)
     );
+
+  TGameInputCommandPackType = (
+    gicpt_NoParams,
+    gicpt_Int1,
+    gicpt_Int2,
+    gicpt_Int3,
+    gicpt_Int4,
+    gicpt_Text,
+    gicpt_Date);
+
 const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmySplitSingle,
     gic_ArmyLink, gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt,
@@ -108,6 +118,64 @@ const
   AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
   AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
   AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GamePlayerDefeat, gic_TempDoNothing];
+
+  CommandPackType: array[TGameInputCommandType] of TGameInputCommandPackType = (
+    gicpt_NoParams, // gic_None
+    //I.      Army commands, only warriors (TKMUnitWarrior, OrderInfo)
+    gicpt_Int1,     // gic_ArmyFeed
+    gicpt_Int1,     // gic_ArmySplit
+    gicpt_Int1,     // gic_ArmySplitSingle
+    gicpt_Int2,     // gic_ArmyLink
+    gicpt_Int2,     // gic_ArmyAttackUnit
+    gicpt_Int2,     // gic_ArmyAttackHouse
+    gicpt_Int1,     // gic_ArmyHalt
+    gicpt_Int3,     // gic_ArmyFormation
+    gicpt_Int4,     // gic_ArmyWalk
+    gicpt_Int1,     // gic_ArmyStorm
+    //II.     Building/road plans (what to build and where)
+    gicpt_Int3,     // gic_BuildAddFieldPlan
+    gicpt_Int2,     // gic_BuildRemoveFieldPlan
+    gicpt_Int2,     // gic_BuildRemoveHouse
+    gicpt_Int2,     // gic_BuildRemoveHousePlan
+    gicpt_Int3,     // gic_BuildHousePlan
+    //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
+    gicpt_Int1,     // gic_HouseRepairToggle
+    gicpt_Int1,     // gic_HouseDeliveryToggle
+    gicpt_Int1,     // gic_HouseClosedForWorkerToggle
+    gicpt_Int3,     // gic_HouseOrderProduct
+    gicpt_Int2,     // gic_HouseMarketFrom
+    gicpt_Int2,     // gic_HouseMarketTo
+    gicpt_Int2,     // gic_HouseWoodcutterMode
+    gicpt_Int2,     // gic_HouseStoreAcceptFlag
+    gicpt_Int3,     // gic_HouseSchoolTrain
+    gicpt_Int3,     // gic_HouseSchoolTrainChOrder
+    gicpt_Int2,     // gic_HouseSchoolTrainChLastUOrder
+    gicpt_Int2,     // gic_HouseBarracksAcceptFlag
+    gicpt_Int1,     // gic_HouseBarracksAcceptRecruitsToggle
+    gicpt_Int3,     // gic_HouseBarracksEquip
+    gicpt_Int3,     // gic_HouseBarracksRally
+    gicpt_Int2,     // gic_HouseRemoveTrain
+    gicpt_Int3,     // gic_HouseWoodcuttersCutting
+    //IV.     Delivery ratios changes (and other game-global settings)
+    gicpt_Int3,     // gic_WareDistributionChange
+    gicpt_Text,     // gic_WareDistributions
+    //V.      Game changes
+    gicpt_Int4,     // gic_GameAlertBeacon
+    gicpt_NoParams, // gic_GamePause
+    gicpt_Date,     // gic_GameAutoSave
+    gicpt_Date,     // gic_GameSaveReturnLobby
+    gicpt_Int2,     // gic_GameTeamChange
+    gicpt_Int2,     // gic_GameHotkeySet
+    gicpt_Date,     // gic_GameMessageLogRead
+    gicpt_Int2,     // gic_GamePlayerTypeChange
+    gicpt_Date,     // gic_GamePlayerDefeat
+    //VII.     Temporary and debug commands
+    gicpt_Int2,     // gic_TempAddScout
+    gicpt_NoParams, // gic_TempRevealMap
+    gicpt_NoParams, // gic_TempVictory
+    gicpt_NoParams, // gic_TempDefeat
+    gicpt_NoParams  // gic_TempDoNothing
+  );
 
 type
   TGameInputCommand = record
@@ -203,9 +271,27 @@ begin
   with aCommand do
   begin
     aMemoryStream.Write(CommandType, SizeOf(CommandType));
-    aMemoryStream.Write(Params, SizeOf(Params));
-    aMemoryStream.WriteW(TextParam);
-    aMemoryStream.Write(DateTimeParam);
+    case CommandPackType[CommandType] of
+      gicpt_NoParams: ;
+      gicpt_Int1:     aMemoryStream.Write(Params[1]);
+      gicpt_Int2:     begin
+                        aMemoryStream.Write(Params[1]);
+                        aMemoryStream.Write(Params[2]);
+                      end;
+      gicpt_Int3:     begin
+                        aMemoryStream.Write(Params[1]);
+                        aMemoryStream.Write(Params[2]);
+                        aMemoryStream.Write(Params[3]);
+                      end;
+      gicpt_Int4:     begin
+                        aMemoryStream.Write(Params[1]);
+                        aMemoryStream.Write(Params[2]);
+                        aMemoryStream.Write(Params[3]);
+                        aMemoryStream.Write(Params[4]);
+                      end;
+      gicpt_Text:     aMemoryStream.WriteW(TextParam);
+      gicpt_Date:     aMemoryStream.Write(DateTimeParam);
+    end;
     aMemoryStream.Write(HandIndex);
   end;
 end;
@@ -216,9 +302,27 @@ begin
   with aCommand do
   begin
     aMemoryStream.Read(CommandType, SizeOf(CommandType));
-    aMemoryStream.Read(Params, SizeOf(Params));
-    aMemoryStream.ReadW(TextParam);
-    aMemoryStream.Read(DateTimeParam);
+    case CommandPackType[CommandType] of
+      gicpt_NoParams: ;
+      gicpt_Int1:     aMemoryStream.Read(Params[1]);
+      gicpt_Int2:     begin
+                        aMemoryStream.Read(Params[1]);
+                        aMemoryStream.Read(Params[2]);
+                      end;
+      gicpt_Int3:     begin
+                        aMemoryStream.Read(Params[1]);
+                        aMemoryStream.Read(Params[2]);
+                        aMemoryStream.Read(Params[3]);
+                      end;
+      gicpt_Int4:     begin
+                        aMemoryStream.Read(Params[1]);
+                        aMemoryStream.Read(Params[2]);
+                        aMemoryStream.Read(Params[3]);
+                        aMemoryStream.Read(Params[4]);
+                      end;
+      gicpt_Text:     aMemoryStream.ReadW(TextParam);
+      gicpt_Date:     aMemoryStream.Read(DateTimeParam);
+    end;
     aMemoryStream.Read(HandIndex);
   end;
 end;
