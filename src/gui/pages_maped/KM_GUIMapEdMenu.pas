@@ -5,6 +5,7 @@ uses
    Classes, Controls, SysUtils,
    KM_Controls, KM_InterfaceGame,
    KM_GUIMapEdMenuResize,
+   KM_GUIMapEdMenuTryMap,
    KM_GUIMapEdMenuLoad,
    KM_GUIMapEdMenuSave,
    KM_GUIMapEdMenuQuit,
@@ -14,6 +15,7 @@ type
   TKMMapEdMenu = class
   private
     fGuiMenuResize: TKMMapEdMenuResize;
+    fGuiMenuTryMap: TKMMapEdMenuTryMap;
     fGuiMenuLoad: TKMMapEdMenuLoad;
     fGuiMenuSave: TKMMapEdMenuSave;
     fGuiMenuSettings: TKMMapEdMenuSettings;
@@ -22,16 +24,18 @@ type
     procedure MenuDone(Sender: TObject);
   protected
     Panel_Menu: TKMPanel;
+    Button_Resize: TKMButton;
     Button_Menu_Save: TKMButton;
     Button_Menu_Load: TKMButton;
+    Button_Try_Map: TKMButton;
     Button_Menu_Settings: TKMButton;
-    Button_Resize: TKMButton;
     Button_Menu_Quit: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
     property GuiMenuResize: TKMMapEdMenuResize read fGuiMenuResize;
+    property GuiMenuTryMap: TKMMapEdMenuTryMap read fGuiMenuTryMap write fGuiMenuTryMap;
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure Show;
     procedure Hide;
@@ -59,20 +63,24 @@ begin
   Panel_Menu := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
 
   Button_Resize := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, 'Resize Map', bsGame); //Todo translate
-  Button_Resize.Hint := 'Resize Map'; //Todo translate
+  Button_Resize.Hint := 'Resize map'; //Todo translate
   Button_Resize.OnClick := MenuClick;
 
-  Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 90, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
+  Button_Try_Map := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, 'Try Map', bsGame); //Todo translate
+  Button_Try_Map.Hint := 'Start game with current map'; //Todo translate
+  Button_Try_Map.OnClick := MenuClick;
+
+  Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 130, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
   Button_Menu_Load.OnClick := MenuClick;
   Button_Menu_Load.Hint := gResTexts[TX_MAPED_LOAD_TITLE];
-  Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 130, TB_WIDTH, 30, gResTexts[TX_MAPED_SAVE_TITLE], bsGame);
+  Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 170, TB_WIDTH, 30, gResTexts[TX_MAPED_SAVE_TITLE], bsGame);
   Button_Menu_Save.OnClick := MenuClick;
   Button_Menu_Save.Hint := gResTexts[TX_MAPED_SAVE_TITLE];
-  Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 170, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
+  Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 210, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
   Button_Menu_Settings.Hint := gResTexts[TX_MENU_SETTINGS];
   Button_Menu_Settings.OnClick := MenuClick;
 
-  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
+  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 280, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
   Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MAPED];
   Button_Menu_Quit.OnClick := MenuClick;
 end;
@@ -97,6 +105,9 @@ begin
   if Sender = Button_Resize then
     fGuiMenuResize.Show
   else
+  if Sender = Button_Try_Map then
+    fGuiMenuTryMap.Show
+  else
   if Sender = Button_Menu_Quit then
     fGuiMenuQuit.Show
   else
@@ -116,6 +127,7 @@ end;
 procedure TKMMapEdMenu.MenuDone(Sender: TObject);
 begin
   fGuiMenuResize.Hide;
+  fGuiMenuTryMap.Hide;
   fGuiMenuLoad.Hide;
   fGuiMenuSave.Hide;
   fGuiMenuQuit.Hide;
@@ -152,6 +164,7 @@ end;
 procedure TKMMapEdMenu.SetLoadMode(aMultiplayer:boolean);
 begin
   fGuiMenuResize.SetLoadMode(aMultiplayer);
+  fGuiMenuTryMap.SetLoadMode(aMultiplayer);
   fGuiMenuLoad.SetLoadMode(aMultiplayer);
   fGuiMenuSave.SetLoadMode(aMultiplayer);
 end;

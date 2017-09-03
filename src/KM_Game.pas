@@ -75,6 +75,7 @@ type
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck: Boolean;
+    StartedFromMapEditor: Boolean;
 
     ///	<param name="aRender">
     ///	  Pointer to Render class, that will execute our rendering requests
