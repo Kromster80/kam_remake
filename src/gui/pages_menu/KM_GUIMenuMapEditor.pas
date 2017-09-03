@@ -698,7 +698,6 @@ end;
 
 procedure TKMMenuMapEditor.LoadMinimap(aID: Integer = -1);
 var
-  Top: Integer;
   Map: TKMapInfo;
   ShowMapTypeLabel: Boolean;
 begin

@@ -445,7 +445,6 @@ var
   procedure SetNewLand(var S: TKMemoryStream; X, Y, aFromX, aFromY: Word; aSizeX, aSizeY: Word; aNewGeneratedTile: Boolean);
   var
     Terrain, Rot, Height, Obj: Byte;
-    TerKind: TKMTerrainKind;
   begin
     // new appended terrain
     if aNewGeneratedTile then
@@ -503,7 +502,6 @@ begin
 
     for I := 1 to SizeY do
     begin
-      NewGeneratedTileI := True;
       if I = SizeY then
       begin
         IFrom := fMapY;
@@ -516,7 +514,6 @@ begin
 
       for K := 1 to SizeX do
       begin
-        NewGeneratedTileK := True;
         if K = SizeX then
         begin
           KFrom := fMapX;

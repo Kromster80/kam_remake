@@ -194,7 +194,7 @@ end;
 
 procedure TKMTerrainPainter.RebuildTile(X,Y: Integer);
 var
-  I, K, pY, pX, Nodes, Rot, T: Integer;
+  pY, pX, Nodes, Rot, T: Integer;
   Tmp, Ter1, Ter2, A, B, C, D: TKMTerrainKind;
 begin
   pX := EnsureRange(X, 1, gTerrain.MapX - 1);
@@ -294,8 +294,7 @@ end;
 
 procedure TKMTerrainPainter.RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
 var
-  I, K, pY, pX, Nodes, Rot, T: Integer;
-  Tmp, Ter1, Ter2, A, B, C, D: TKMTerrainKind;
+  I, K: Integer;
 begin
   for I := -Rad to Rad do
   for K := -Rad to Rad do
