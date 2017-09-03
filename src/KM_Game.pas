@@ -470,10 +470,6 @@ begin
   if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer), UTCNow);
 
-  // Update our ware distributions from settings
-  if fGameMode in [gmSingle, gmMulti] then
-    GameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
-
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
   gScriptEvents.ProcMissionStart;
 
@@ -1629,6 +1625,10 @@ begin
                       //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
                       if AGGRESSIVE_REPLAYS then
                         fGameInputProcess.CmdTemp(gic_TempDoNothing);
+
+                      // Update our ware distributions from settings at the start of the game
+                      if (fGameTickCount = 1) and (fGameMode in [gmSingle, gmCampaign, gmMulti]) then
+                        fGameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
 
                       //Each 1min of gameplay time
                       //Don't autosave if the game was put on hold during this tick
