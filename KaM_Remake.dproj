@@ -80,7 +80,7 @@
 			<DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
 			<DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
 			<DCC_MapFile>3</DCC_MapFile>
-			<DCC_DebugInformation>true</DCC_DebugInformation>
+			<DCC_DebugInformation>2</DCC_DebugInformation>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
 			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
