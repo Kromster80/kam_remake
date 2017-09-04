@@ -234,7 +234,9 @@
 			<DCCReference Include="src\missionscript\KM_MissionScript_Preview.pas"/>
 			<DCCReference Include="src\missionscript\KM_MissionScript_Standard.pas"/>
 			<DCCReference Include="src\KM_Music.pas"/>
-			<DCCReference Include="src\KM_NavMesh.pas"/>
+			<DCCReference Include="src\navmesh\KM_NavMesh.pas"/>
+			<DCCReference Include="src\navmesh\KM_Outline.pas"/>
+			<DCCReference Include="src\navmesh\KM_PolySimplify.pas"/>
 			<DCCReference Include="src\net\KM_NetAuthUnsecure.pas"/>
 			<DCCReference Include="src\net\KM_NetClient.pas"/>
 			<DCCReference Include="src\net\KM_NetFileTransfer.pas"/>
@@ -247,14 +249,12 @@
 			<DCCReference Include="src\net\http\KM_HTTPClient.pas"/>
 			<DCCReference Include="src\net\other\KM_DedicatedServer.pas"/>
 			<DCCReference Include="src\net\other\KM_MasterServer.pas"/>
-			<DCCReference Include="src\KM_Outline.pas"/>
 			<DCCReference Include="src\pathfinding\KM_PathFinding.pas"/>
 			<DCCReference Include="src\pathfinding\KM_PathFindingAStarOld.pas"/>
 			<DCCReference Include="src\pathfinding\KM_PathFindingAStarNew.pas"/>
 			<DCCReference Include="src\pathfinding\KM_PathFindingJPS.pas"/>
 			<DCCReference Include="src\pathfinding\KM_PathFindingRoad.pas"/>
 			<DCCReference Include="src\KM_PerfLog.pas"/>
-			<DCCReference Include="src\KM_PolySimplify.pas"/>
 			<DCCReference Include="src\KM_Projectiles.pas"/>
 			<DCCReference Include="src\render\KM_Render.pas"/>
 			<DCCReference Include="src\render\KM_RenderAux.pas"/>

@@ -156,7 +156,10 @@ uses
   KM_MissionScript_Standard in 'src\missionscript\KM_MissionScript_Standard.pas',
 	
   KM_Music in 'src\KM_Music.pas',
-  KM_NavMesh in 'src\KM_NavMesh.pas',
+	
+	KM_Outline in 'src\navmesh\KM_Outline.pas',
+  KM_NavMesh in 'src\navmesh\KM_NavMesh.pas',
+	KM_PolySimplify in 'src\navmesh\KM_PolySimplify.pas',
 
   {$IFDEF USESECUREAUTH}
     KM_NetAuthSecure in 'src\net\KM_NetAuthSecure.pas',
@@ -184,8 +187,6 @@ uses
 	
 	KM_DedicatedServer in 'src\net\other\KM_DedicatedServer.pas',
 	KM_MasterServer in 'src\net\other\KM_MasterServer.pas',
-
-  KM_Outline in 'src\KM_Outline.pas',
 	
   KM_PathFinding in 'src\pathfinding\KM_PathFinding.pas',
   KM_PathFindingAStarOld in 'src\pathfinding\KM_PathFindingAStarOld.pas',
@@ -194,7 +195,6 @@ uses
   KM_PathFindingRoad in 'src\pathfinding\KM_PathFindingRoad.pas',
 	
   KM_PerfLog in 'src\KM_PerfLog.pas',
-  KM_PolySimplify in 'src\KM_PolySimplify.pas',
   KM_Projectiles in 'src\KM_Projectiles.pas',
 
   KM_Render in 'src\render\KM_Render.pas',
