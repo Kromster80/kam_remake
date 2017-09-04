@@ -43,6 +43,10 @@ type
     DefaultHuman: TKMHandIndex;
     PlayerHuman: array [0..MAX_HANDS - 1] of Boolean;
     PlayerAI: array [0..MAX_HANDS - 1] of Boolean;
+
+    IsNewMap: Boolean;  // set True for new empty map
+    WereSaved: Boolean; // set True when at least 1 map save has been done
+
     constructor Create;
     destructor Destroy; override;
     property TerrainPainter: TKMTerrainPainter read fTerrainPainter;

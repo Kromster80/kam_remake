@@ -75,7 +75,7 @@ type
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck: Boolean;
-    StartedFromMapEditor: Boolean;
+    StartedFromMapEditor: Boolean; //True if we start game from map editor ('Try Map')
 
     ///	<param name="aRender">
     ///	  Pointer to Render class, that will execute our rendering requests
@@ -869,6 +869,7 @@ begin
   gTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fMapEditor.TerrainPainter.InitEmpty;
   fMapEditor.TerrainPainter.MakeCheckpoint;
+  fMapEditor.IsNewMap := True;
 
   gHands.AddPlayers(MAX_HANDS); //Create MAX players
   gHands[0].HandType := hndHuman; //Make Player1 human by default

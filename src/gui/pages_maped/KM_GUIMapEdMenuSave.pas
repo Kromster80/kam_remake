@@ -85,6 +85,7 @@ begin
   if Sender = Button_SaveSave then
   begin
     gGame.SaveMapEditor(SaveName);
+    gGame.MapEditor.WereSaved := True;
 
     //Player colors and mapname has changed
     gGame.ActiveInterface.SyncUI(False); //Don't move the viewport

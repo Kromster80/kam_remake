@@ -14,7 +14,6 @@ type
     fIsMultiplayer: Boolean;
     procedure Cancel_Click(Sender: TObject);
     procedure Try_Map_Click(Sender: TObject);
-    procedure PlayerSelect_ListOpened(Sender: TObject);
     procedure Update_PlayerSelect;
     procedure PlayerSelectFirst;
     procedure UpdatePanel;
@@ -61,7 +60,6 @@ begin
 
     DropList_SelectHand := TKMDropList.Create(PopUp_TryMap, Left, 75, ControlsWidth, 20, fnt_Game, '', bsGame);
     DropList_SelectHand.Hint := 'Select player to start map with'; //Todo translate
-    DropList_SelectHand.OnShowList := PlayerSelect_ListOpened;
 
     Panel_Save := TKMPanel.Create(PopUp_TryMap, Left, 95, ControlsWidth, 230);
 
@@ -118,12 +116,6 @@ begin
 end;
 
 
-procedure TKMMapEdMenuTryMap.PlayerSelect_ListOpened(Sender: TObject);
-begin
-  Update_PlayerSelect;
-end;
-
-
 procedure TKMMapEdMenuTryMap.UpdatePanel;
 begin
   Update_PlayerSelect;
@@ -134,7 +126,7 @@ begin
     else
       PlayerSelectFirst;
   end;
-  Button_TryMap.Enabled := DropList_SelectHand.List.Selected;
+  Button_TryMap.Enabled := (not gGame.MapEditor.IsNewMap or gGame.MapEditor.WereSaved) and DropList_SelectHand.List.Selected;
 end;
 
 
