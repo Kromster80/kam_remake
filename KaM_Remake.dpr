@@ -43,14 +43,15 @@ uses
   {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'src\KM_Exceptions.pas',{$ENDIF}
   KM_FileIO in 'src\KM_FileIO.pas',
   KM_FogOfWar in 'src\KM_FogOfWar.pas',
-  KM_Game in 'src\KM_Game.pas',
-  KM_GameApp in 'src\KM_GameApp.pas',
-  KM_GameCursor in 'src\KM_GameCursor.pas',
-  KM_GameInfo in 'src\KM_GameInfo.pas',
-  KM_GameOptions in 'src\KM_GameOptions.pas',
-  KM_GameInputProcess in 'src\KM_GameInputProcess.pas',
-  KM_GameInputProcess_Multi in 'src\KM_GameInputProcess_Multi.pas',
-  KM_GameInputProcess_Single in 'src\KM_GameInputProcess_Single.pas',
+	
+  KM_Game in 'src\game\KM_Game.pas',
+  KM_GameApp in 'src\game\KM_GameApp.pas',
+  KM_GameCursor in 'src\game\KM_GameCursor.pas',
+  KM_GameInfo in 'src\game\KM_GameInfo.pas',
+  KM_GameOptions in 'src\game\KM_GameOptions.pas',
+  KM_GameInputProcess in 'src\game\KM_GameInputProcess.pas',
+  KM_GameInputProcess_Multi in 'src\game\KM_GameInputProcess_Multi.pas',
+  KM_GameInputProcess_Single in 'src\game\KM_GameInputProcess_Single.pas',
 
   KM_GUIGameBuild in 'src\gui\pages_game\KM_GUIGameBuild.pas',
   KM_GUIGameChat in 'src\gui\pages_game\KM_GUIGameChat.pas',
@@ -153,10 +154,12 @@ uses
   KM_MessageLog in 'src\KM_MessageLog.pas',
   KM_MessageStack in 'src\KM_MessageStack.pas',
   KM_Minimap in 'src\KM_Minimap.pas',
-  KM_MissionScript in 'src\KM_MissionScript.pas',
-  KM_MissionScript_Info in 'src\KM_MissionScript_Info.pas',
-  KM_MissionScript_Preview in 'src\KM_MissionScript_Preview.pas',
-  KM_MissionScript_Standard in 'src\KM_MissionScript_Standard.pas',
+	
+  KM_MissionScript in 'src\missionscript\KM_MissionScript.pas',
+  KM_MissionScript_Info in 'src\missionscript\KM_MissionScript_Info.pas',
+  KM_MissionScript_Preview in 'src\missionscript\KM_MissionScript_Preview.pas',
+  KM_MissionScript_Standard in 'src\missionscript\KM_MissionScript_Standard.pas',
+	
   KM_Music in 'src\KM_Music.pas',
   KM_NavMesh in 'src\KM_NavMesh.pas',
 
@@ -181,11 +184,13 @@ uses
   KM_NetworkTypes in 'src\net\KM_NetworkTypes.pas',
 
   KM_Outline in 'src\KM_Outline.pas',
-  KM_PathFinding in 'src\KM_PathFinding.pas',
-  KM_PathFindingAStarOld in 'src\KM_PathFindingAStarOld.pas',
-  KM_PathFindingAStarNew in 'src\KM_PathFindingAStarNew.pas',
-  KM_PathFindingJPS in 'src\KM_PathFindingJPS.pas',
-  KM_PathFindingRoad in 'src\KM_PathFindingRoad.pas',
+	
+  KM_PathFinding in 'src\pathfinding\KM_PathFinding.pas',
+  KM_PathFindingAStarOld in 'src\pathfinding\KM_PathFindingAStarOld.pas',
+  KM_PathFindingAStarNew in 'src\pathfinding\KM_PathFindingAStarNew.pas',
+  KM_PathFindingJPS in 'src\pathfinding\KM_PathFindingJPS.pas',
+  KM_PathFindingRoad in 'src\pathfinding\KM_PathFindingRoad.pas',
+	
   KM_PerfLog in 'src\KM_PerfLog.pas',
   KM_Pics in 'src\KM_Pics.pas',
   KM_PNG in 'src\KM_PNG.pas',
