@@ -46,6 +46,9 @@ object FormMain: TFormMain
       end    
       item
         Width = 50
+      end    
+      item
+        Width = 50
       end>
   end
   object GroupBox1: TGroupBox
