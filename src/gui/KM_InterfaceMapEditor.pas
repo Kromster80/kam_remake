@@ -175,7 +175,7 @@ begin
   Button_UniversalEraser := TKMButtonFlat.Create(Panel_Main, 151, 231, 26, 26, 340);
   Button_UniversalEraser.Down := False;
   Button_UniversalEraser.OnClick := UniversalEraser_Click;
-  Button_UniversalEraser.Hint := 'Universal eraser'; // Todo Translate
+  Button_UniversalEraser.Hint := Format('Universal eraser (''%s'')', [gResKeys.GetKeyNameById(SC_MAPEDIT_UNIV_ERASOR)]); //Todo translate; //Todo use GetHintWHotKey instead; // Todo Translate
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
@@ -503,8 +503,12 @@ procedure TKMapEdInterface.SetUniversalEraserMode(aSetUniversalEraserMode: Boole
 begin
   Button_UniversalEraser.Down := aSetUniversalEraserMode;
   if aSetUniversalEraserMode then
-    gGameCursor.Mode := cmUniversalEraser
-  else
+  begin
+    gGameCursor.Mode := cmUniversalEraser;
+    // Clear selected object, as it could be deleted
+    gMySpectator.Selected := nil;
+    HidePages;
+  end else
     gGameCursor.Mode := cmNone;
 end;
 
