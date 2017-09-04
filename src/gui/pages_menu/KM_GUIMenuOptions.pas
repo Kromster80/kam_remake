@@ -102,7 +102,7 @@ begin
       ImageStretch;
       Anchors := [anLeft];
     end;
-
+    //--- Column 1 --------------------------------------------------------------
     // Controls section
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,60,120,280,80);
     Panel_Options_Ctrl.Anchors := [anLeft];
@@ -114,7 +114,7 @@ begin
       TrackBar_Options_ScrollSpeed.OnChange := Change;
 
     // Gameplay section
-    Panel_Options_Game:=TKMPanel.Create(Panel_Options,60,220,280,50);
+    Panel_Options_Game:=TKMPanel.Create(Panel_Options,60,230,280,50);
     Panel_Options_Game.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Game,6,0,270,20,gResTexts[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,280,30);
@@ -122,44 +122,11 @@ begin
       CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,256,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Change;
 
-    //Replays section
-    Panel_Options_Replays := TKMPanel.Create(Panel_Options,60,290,280,50);
-    Panel_Options_Replays.Anchors := [anLeft];
-      TKMLabel.Create(Panel_Options_Replays,6,0,270,20,'Replays:',fnt_Outline,taLeft);   //TODO translate
-      TKMBevel.Create(Panel_Options_Replays,0,20,280,30);
-
-      CheckBox_Options_ReplayAutopause := TKMCheckBox.Create(Panel_Options_Replays,12,27,256,20,'Pause at peacetime end', fnt_Metal);   //TODO translate
-      CheckBox_Options_ReplayAutopause.OnClick := Change;
-
-    // Graphics section
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,280,178);
-    Panel_Options_GFX.Anchors := [anLeft];
-      TKMLabel.Create(Panel_Options_GFX,6,0,270,20,gResTexts[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_GFX,0,20,280,158);
-      TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,260,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      TrackBar_Options_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
-      TrackBar_Options_Brightness.OnChange:=Change;
-      CheckBox_Options_VSync := TKMCheckBox.Create(Panel_Options_GFX, 10, 90, 260, 20, gResTexts[TX_MENU_OPTIONS_VSYNC], fnt_Metal);
-      CheckBox_Options_VSync.OnClick := Change;
-      TKMLabel.Create(Panel_Options_GFX,10,120,260,20,gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
-      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,138,260,32, fnt_Metal);
-      RadioGroup_Options_Shadows.Add(gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
-      RadioGroup_Options_Shadows.Add(gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
-      RadioGroup_Options_Shadows.OnChange := Change;
-
-    // Fonts section
-    Panel_Options_Fonts := TKMPanel.Create(Panel_Options,360,498,280,50);
-    Panel_Options_Fonts.Anchors := [anLeft];
-      TKMLabel.Create(Panel_Options_Fonts,6,0,270,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Fonts,0,20,280,30);
-      CheckBox_Options_FullFonts := TKMCheckBox.Create(Panel_Options_Fonts, 10, 27, 260, 20, gResTexts[TX_MENU_OPTIONS_FONTS], fnt_Metal);
-      CheckBox_Options_FullFonts.OnClick := Change;
-
     // SFX section
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,60,360,280,167);
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,60,300,280,180);
     Panel_Options_Sound.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,270,20,gResTexts[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Sound,0,20,280,147);
+      TKMBevel.Create(Panel_Options_Sound,0,20,280,160);
 
       TrackBar_Options_SFX       := TKMTrackBar.Create(Panel_Options_Sound, 10, 27, 256, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
       TrackBar_Options_Music     := TKMTrackBar.Create(Panel_Options_Sound, 10, 77, 256, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
@@ -171,6 +138,27 @@ begin
       TrackBar_Options_Music.OnChange    := Change;
       CheckBox_Options_MusicOff.OnClick  := Change;
       CheckBox_Options_ShuffleOn.OnClick := Change;
+
+    //Replays section
+    Panel_Options_Replays := TKMPanel.Create(Panel_Options,60,500,280,50);
+    Panel_Options_Replays.Anchors := [anLeft];
+      TKMLabel.Create(Panel_Options_Replays,6,0,270,20,'Replays:',fnt_Outline,taLeft);   //TODO translate
+      TKMBevel.Create(Panel_Options_Replays,0,20,280,30);
+
+      CheckBox_Options_ReplayAutopause := TKMCheckBox.Create(Panel_Options_Replays,12,27,256,20,'Pause at peacetime end', fnt_Metal);   //TODO translate
+      CheckBox_Options_ReplayAutopause.OnClick := Change;
+
+    // Keybindings button
+    Button_OptionsKeys := TKMButton.Create(Panel_Options, 60, 580, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
+    Button_OptionsKeys.Anchors := [anLeft];
+    Button_OptionsKeys.OnClick := KeysClick;
+
+    // Back button
+    Button_OptionsBack := TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
+    Button_OptionsBack.Anchors := [anLeft];
+    Button_OptionsBack.OnClick := BackClick;
+
+    //--- Column 2 --------------------------------------------------------------
 
     // Resolutions section
     Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 120, 280, 160);
@@ -190,6 +178,32 @@ begin
       Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 260, 30, gResTexts[TX_MENU_OPTIONS_APPLY], bsMenu);
       Button_Options_ResApply.OnClick := ApplyResolution;
 
+    // Graphics section
+    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,280,180);
+    Panel_Options_GFX.Anchors := [anLeft];
+      TKMLabel.Create(Panel_Options_GFX,6,0,270,20,gResTexts[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
+      TKMBevel.Create(Panel_Options_GFX,0,20,280,160);
+      TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,260,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
+      TrackBar_Options_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
+      TrackBar_Options_Brightness.OnChange:=Change;
+      CheckBox_Options_VSync := TKMCheckBox.Create(Panel_Options_GFX, 10, 90, 260, 20, gResTexts[TX_MENU_OPTIONS_VSYNC], fnt_Metal);
+      CheckBox_Options_VSync.OnClick := Change;
+      TKMLabel.Create(Panel_Options_GFX,10,120,260,20,gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
+      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,138,260,32, fnt_Metal);
+      RadioGroup_Options_Shadows.Add(gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
+      RadioGroup_Options_Shadows.Add(gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
+      RadioGroup_Options_Shadows.OnChange := Change;
+
+    // Language Fonts section
+    Panel_Options_Fonts := TKMPanel.Create(Panel_Options,360,500,280,50);
+    Panel_Options_Fonts.Anchors := [anLeft];
+      TKMLabel.Create(Panel_Options_Fonts,6,0,270,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
+      TKMBevel.Create(Panel_Options_Fonts,0,20,280,30);
+      CheckBox_Options_FullFonts := TKMCheckBox.Create(Panel_Options_Fonts, 10, 27, 260, 20, gResTexts[TX_MENU_OPTIONS_FONTS], fnt_Metal);
+      CheckBox_Options_FullFonts.OnClick := Change;
+
+    //--- Column 3 --------------------------------------------------------------
+
     // Language section
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,660,120,240,30+gResLocales.Count*20);
     Panel_Options_Lang.Anchors := [anLeft];
@@ -206,16 +220,6 @@ begin
         Image_Options_Lang_Flags[I].OnClick := FlagClick;
       end;
       Radio_Options_Lang.OnChange := Change;
-
-    // Keybindings button
-    Button_OptionsKeys := TKMButton.Create(Panel_Options, 60, 580, 280, 30, gResTexts[TX_MENU_OPTIONS_EDIT_KEYS], bsMenu);
-    Button_OptionsKeys.Anchors := [anLeft];
-    Button_OptionsKeys.OnClick := KeysClick;
-
-    // Back button
-    Button_OptionsBack := TKMButton.Create(Panel_Options,60,630,280,30,gResTexts[TX_MENU_BACK],bsMenu);
-    Button_OptionsBack.Anchors := [anLeft];
-    Button_OptionsBack.OnClick := BackClick;
 
     // Panel_Options_Keys
     PopUp_OptionsKeys := TKMPopUpMenu.Create(Panel_Options, 700);
