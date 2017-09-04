@@ -24,7 +24,6 @@ type
     fRender: TRender;
     fTimerUI: TTimer;
     fMainMenuInterface: TKMMainMenuInterface;
-//    fFPS: Cardinal;
 
     fOnCursorUpdate: TIntegerStringEvent;
     fOnGameSpeedChange: TSingleEvent;
@@ -72,7 +71,6 @@ type
     property MusicLib: TKMMusicLib read fMusicLib;
     property Networking: TKMNetworking read fNetworking;
     property GlobalTickCount: Cardinal read fGlobalTickCount;
-//    property FPS: Cardinal read fFPS write fFPS;
 
     procedure KeyDown(Key: Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -510,7 +508,9 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError + sLineBreak + E.StackTrace);
+      gLog.AddTime('Game creation Exception: ' + LoadError
+        {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+        );
       Exit;
     end;
   end;
@@ -544,7 +544,9 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError + sLineBreak + E.StackTrace);
+      gLog.AddTime('Game creation Exception: ' + LoadError
+        {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+        );
       Exit;
     end;
   end;
@@ -577,7 +579,9 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      gLog.AddTime('Game creation Exception: ' + LoadError + sLineBreak + E.StackTrace);
+      gLog.AddTime('Game creation Exception: ' + LoadError
+        {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+        );
       Exit;
     end;
   end;

@@ -777,6 +777,7 @@ var dwKeys,uDevice,cmd: Word;
   ShiftState: TShiftState;
 begin
   ShiftState := [];
+  {$IFDEF WDC}
   uDevice := GET_DEVICE_LPARAM(Msg.lParam);
   if uDevice = FAPPCOMMAND_MOUSE then
   begin
@@ -790,6 +791,7 @@ begin
          inherited;
      end;
   end;
+  {$ENDIF}
 end;
 
 

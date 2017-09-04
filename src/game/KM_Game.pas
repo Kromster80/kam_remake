@@ -1329,7 +1329,9 @@ begin
           except
             on E: Exception do
               //Ignore any errors while saving minimap, because its optional for MP games
-              gLog.AddTime('Error while saving save minimap to ' + aMinimapPathName + ': ' + E.Message + sLineBreak + E.StackTrace);
+              gLog.AddTime('Error while saving save minimap to ' + aMinimapPathName + ': ' + E.Message
+                {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+                );
           end;
         finally
           MnmSaveStream.Free;

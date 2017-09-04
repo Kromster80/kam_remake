@@ -28,8 +28,8 @@ type
     function BufferFull: Boolean;
   end;
 
-  THandleEvent = procedure (aHandle:integer) of object;
-  TNotifyDataEvent = procedure(aHandle:integer; aData:pointer; aLength:cardinal)of object;
+  THandleEvent = procedure (aHandle:SmallInt) of object;
+  TNotifyDataEvent = procedure(aHandle:SmallInt; aData:pointer; aLength:cardinal)of object;
 
   TKMNetServerLNet = class
   private
@@ -50,10 +50,10 @@ type
     destructor Destroy; override;
     procedure StartListening(aPort: Word);
     procedure StopListening;
-    procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
-    procedure Kick(aHandle:integer);
+    procedure SendData(aHandle:SmallInt; aData:pointer; aLength:cardinal);
+    procedure Kick(aHandle:SmallInt);
     procedure UpdateStateIdle;
-    function GetMaxHandle:integer;
+    function GetMaxHandle:SmallInt;
     function GetIP(aHandle:integer): string;
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
@@ -228,7 +228,7 @@ end;
 
 
 //Make sure we send data to specified client
-procedure TKMNetServerLNet.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
+procedure TKMNetServerLNet.SendData(aHandle:SmallInt; aData:pointer; aLength:cardinal);
 begin
   fSocketServer.IterReset;
   while fSocketServer.IterNext do
@@ -247,7 +247,7 @@ begin
 end;
 
 
-procedure TKMNetServerLNet.Kick(aHandle:integer);
+procedure TKMNetServerLNet.Kick(aHandle:SmallInt);
 var Iter: TLSocket;
 begin
   fSocketServer.IterReset;
@@ -272,9 +272,9 @@ begin
 end;
 
 
-function TKMNetServerLNet.GetMaxHandle:integer;
+function TKMNetServerLNet.GetMaxHandle:SmallInt;
 begin
-  Result := MaxInt;
+  Result := 32767;
 end;
 
 

@@ -2,7 +2,7 @@ unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes, UITypes
+  Forms, Classes, Controls, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes
   {$IFDEF MSWindows}
   ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
@@ -77,8 +77,9 @@ uses
   function StrSubstring(aStr: String; aFrom: Integer): String; overload;
   function StrContains(aStr, aSubStr: String): Boolean;
   function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
+  {$IFDEF WDC}
   function StrSplit(aStr, aDelimiters: String): TStrings;
-
+  {$ENDIF}
 
 implementation
 uses
@@ -811,7 +812,7 @@ var I: Integer;
 begin
   Result := -1;
   for I := 1 to Length(aStr) do
-    if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
+    if AnsiPos(aSubStr, StrSubstring(aStr, I-1)) <> 0 then
       Result := I - 1;
 end;
 
@@ -862,6 +863,7 @@ begin
 end;
 
 
+{$IFDEF WDC}
 function StrSplit(aStr, aDelimiters: String): TStrings;
 var StrArray: TStringDynArray;
     I: Integer;
@@ -875,6 +877,7 @@ begin
   for I := Low(StrArray) to High(StrArray) do
     Result.Add(StrArray[I]);
 end;
+{$ENDIF}
 
 
 end.

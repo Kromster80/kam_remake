@@ -41,7 +41,8 @@ type
 
 implementation
 uses
-  System.Types, KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_HouseSchool, KM_Game, KM_Resource;
+  {$IFDEF WDC}System.Types,{$ENDIF}
+  KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_HouseSchool, KM_Game, KM_Resource;
 
 
 { TKMHousesCollection }

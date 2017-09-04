@@ -6,8 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_ServerQuery,
-  OverbyteIcsUtils;
+  KM_InterfaceDefaults, KM_ServerQuery;
 
 
 type
@@ -381,8 +380,8 @@ var
   serverPortStr: string;
   serverPort: Word;
 begin
-  serverPortStr := IcsTrim(Edit_MP_FindPort.Text);
-  serverPort    := atoi(serverPortStr);
+  serverPortStr := Trim(Edit_MP_FindPort.Text);
+  serverPort    := StrToInt(serverPortStr);
   MP_Join(Edit_MP_FindIP.Text, serverPort, StrToIntDef(Edit_MP_FindRoom.Text, -1));
 end;
 
@@ -735,8 +734,8 @@ var
 begin
   //Save the player and IP name so it is not lost if something fails
   MP_SaveSettings;
-  serverPortStr := IcsTrim(Edit_MP_ServerPort.Text);
-  serverPort    := atoi(serverPortStr);
+  serverPortStr := Trim(Edit_MP_ServerPort.Text);
+  serverPort    := StrToInt(serverPortStr);
 
   //Hide the panel so if it fails the error message will be easy to see (e.g. name too long)
   Panel_MPCreateServer.Hide;
