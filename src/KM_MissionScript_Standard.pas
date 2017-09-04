@@ -215,15 +215,17 @@ begin
     ct_ClearUp:         if fLastHand <> PLAYER_NONE then
                         begin
                           if fParsingMode = mpm_Editor then
+                          begin
                             if P[0] = 255 then
                               gGame.MapEditor.RevealAll[fLastHand] := True
                             else if PointInMap(P[0]+1, P[1]+1) then
-                              gGame.MapEditor.Revealers[fLastHand].Add(KMPoint(P[0]+1,P[1]+1), P[2])
-                          else
+                              gGame.MapEditor.Revealers[fLastHand].Add(KMPoint(P[0]+1,P[1]+1), P[2]);
+                          end else begin
                             if P[0] = 255 then
                               gHands[fLastHand].FogOfWar.RevealEverything
                             else if PointInMap(P[0]+1, P[1]+1) then
                               gHands[fLastHand].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
+                          end;
                         end;
     ct_SetHouse:        if fLastHand <> PLAYER_NONE then
                           if PointInMap(P[1]+1, P[2]+1) and InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
@@ -993,4 +995,5 @@ end;
 
 
 end.
+
 
