@@ -2,7 +2,9 @@ unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Forms, Classes, Controls, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes
+  {$IFDEF FPC}Forms,{$ENDIF}   //Lazarus do not know UITypes
+  {$IFDEF WDC}UITypes,{$ENDIF} //We use settings in console modules
+  Classes, Controls, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes
   {$IFDEF MSWindows}
   ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)

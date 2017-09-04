@@ -16,6 +16,7 @@ const
   MAX_CUMULATIVE_PACKET_SIZE = 1460; //max value less then MTU
   MAX_PACKET_SIZE = 20480; //20kb. Maximum length of a KM packet
   MAX_CHUNKS_BEFORE_ACK = 80; //Number of chunks of a file that can be in flight
+  DEFAULT_PACKET_ACC_DELAY = 20;
 
   //Client-Server-Client exchange packets. Each packet is a certain type
 type

@@ -76,15 +76,12 @@ type
   private
     {$IFDEF WDC} fServer:TKMNetServerOverbyte; {$ENDIF}
     {$IFDEF FPC} fServer:TKMNetServerLNet;     {$ENDIF}
-    //fGlobalTickCount: Cardinal;
     fTimer: TTimer;
 
     fClientList: TKMClientsList;
     fListening: Boolean;
     BytesTX: Int64; //May exceed 4GB allowed by cardinal
     BytesRX: Int64;
-//    PacketsSent: Cardinal;
-//    PacketsReceived: Cardinal;
 
     fPacketsAccumulatingDelay: Integer;
     fMaxRooms: Word;
@@ -154,7 +151,6 @@ implementation
 const
   //Server needs to use some text constants locally but can't know about gResTexts
   {$I KM_TextIDs.inc}
-  DEFAULT_PACKET_ACC_DELAY = 20;
   PACKET_ACC_DELAY_MIN = 5;
   PACKET_ACC_DELAY_MAX = 200;
 

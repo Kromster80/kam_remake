@@ -13,11 +13,11 @@ uses
   {$ENDIF}
   SysUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KM_Utils in '..\..\src\KM_Utils.pas',
-  KM_Defaults in '..\..\src\KM_Defaults.pas',
+  KM_Utils in '..\..\src\utils\KM_Utils.pas',
+  KM_Defaults in '..\..\src\common\KM_Defaults.pas',
   KM_Log in '..\..\src\KM_Log.pas',
   KM_Settings in '..\..\src\KM_Settings.pas',
-  KM_DedicatedServer in '..\..\src\KM_DedicatedServer.pas',
+  KM_DedicatedServer in '..\..\src\net\other\KM_DedicatedServer.pas',
   KM_ServerEventHandler in 'KM_ServerEventHandler.pas';
 
 var
@@ -72,7 +72,8 @@ begin
                                         fSettings.MasterAnnounceInterval,
                                         fSettings.MasterServerAddress,
                                         fSettings.HTMLStatusFile,
-                                        fSettings.ServerWelcomeMessage);
+                                        fSettings.ServerWelcomeMessage,
+                                        fSettings.ServerPacketsAccumulatingDelay);
       end;
     end;
     //In Lazarus LNet will wait for 1ms in CallAction for the OS to respond with socket events

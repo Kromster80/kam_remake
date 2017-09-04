@@ -62,6 +62,8 @@ type
     constructor Create(aOnScriptError: TUnicodeStringEvent);
 
     property ScriptLogFile: UnicodeString read fScriptLogFile write SetScriptLogFile;
+    property ErrorString: TKMScriptErrorMessage read fErrorString;
+    property WarningsString: TKMScriptErrorMessage read fWarningsString;
 
     procedure HandleScriptError(aType: TKMScriptErrorType; aError: TKMScriptErrorMessage);
     procedure HandleScriptErrorString(aType: TKMScriptErrorType; aErrorString: UnicodeString; aDetailedErrorString: UnicodeString = '');
@@ -128,6 +130,8 @@ type
   public
     constructor Create(aOnScriptError: TUnicodeStringEvent);
     destructor Destroy; override;
+
+    property ErrorHandler: TKMScriptErrorHandler read fErrorHandler;
 
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);

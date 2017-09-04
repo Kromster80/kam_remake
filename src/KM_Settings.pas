@@ -2,7 +2,9 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Forms, Classes, SysUtils, Math, INIfiles,
+  {$IFDEF FPC}Forms,{$ENDIF}   //Lazarus do not know UITypes
+  {$IFDEF WDC}UITypes,{$ENDIF} //We use settings in console modules
+  Classes, SysUtils, Math, INIfiles,
   KM_Defaults, KM_CommonTypes, KM_Resolutions, KM_Points, KM_WareDistribution;
 
 
