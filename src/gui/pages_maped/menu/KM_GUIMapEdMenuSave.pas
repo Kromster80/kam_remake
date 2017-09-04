@@ -76,7 +76,7 @@ begin
     CheckBox_SaveExists.Enabled := FileExists(SaveName);
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
-    Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
+    Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled and (Length(Trim(Edit_SaveName.Text)) > 0);
   end;
 
   if Sender = CheckBox_SaveExists then
