@@ -9,12 +9,16 @@ uses
   unix, baseunix, UnixUtil,
   {$ENDIF}
 	Classes, Controls;
-	
+
+  function GetHintWHotKey(aTextId, aHotkeyId: Integer): String;
+
 	function GetShiftState(aButton: TMouseButton): TShiftState;
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState): Word; overload;
-	
+
 implementation
+uses
+  SysUtils, KM_ResTexts, KM_ResKeys;
 
 function GetShiftState(aButton: TMouseButton): TShiftState;
 begin
@@ -39,6 +43,19 @@ function GetMultiplicator(aShift: TShiftState): Word;
 begin
   Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100 + Byte(aShift = [ssShift, ssRight]) * 1000;
 end;
+
+
+function GetHintWHotKey(aTextId, aHotkeyId: Integer): String;
+var
+  HotKeyStr: String;
+begin
+  Result := gResTexts[aTextId];
+  HotKeyStr := gResKeys.GetKeyNameById(aHotkeyId);
+  if HotKeyStr <> '' then
+    Result := Result + Format(' (''%s'')', [HotKeyStr]);
+
+end;
+
 
 end.
 

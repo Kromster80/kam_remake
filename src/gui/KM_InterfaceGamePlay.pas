@@ -328,7 +328,7 @@ type
 implementation
 uses
   KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor, KM_Maps,
-  KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks,
+  KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks, KM_Utils,
   KM_CommonUtils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes;
 
@@ -1364,16 +1364,16 @@ begin
 
     // Hints
     Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [gResKeys.GetKeyNameById(SC_ARMY_HALT)]);
+    Button_Army_Stop.Hint     := GetHintWHotKey(TX_TROOP_HALT_HINT, SC_ARMY_HALT);
     Button_Army_Attack.Hint   := gResTexts[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_ROTATE_CW) + ''')';
-    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_STORM) + ''')';
-    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_ROTATE_CCW) + ''')';
-    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_ADD_LINE) + ''')';
-    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_DEL_LINE) + ''')';
-    Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [gResKeys.GetKeyNameById(SC_ARMY_SPLIT)]);
-    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [gResKeys.GetKeyNameById(SC_ARMY_LINK)]);
-    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_FOOD) + ''')';
+    Button_Army_RotCW.Hint    := GetHintWHotKey(TX_ARMY_ROTATE_CW_HINT, SC_ARMY_ROTATE_CW);
+    Button_Army_Storm.Hint    := GetHintWHotKey(TX_ARMY_STORM_HINT, SC_ARMY_STORM);
+    Button_Army_RotCCW.Hint   := GetHintWHotKey(TX_ARMY_ROTATE_CCW_HINT, SC_ARMY_ROTATE_CCW);
+    Button_Army_ForDown.Hint  := GetHintWHotKey(TX_ARMY_LINE_ADD_HINT, SC_ARMY_ADD_LINE);
+    Button_Army_ForUp.Hint    := GetHintWHotKey(TX_ARMY_LINE_REM_HINT, SC_ARMY_DEL_LINE);
+    Button_Army_Split.Hint    := GetHintWHotKey(TX_TROOP_SPLIT_HINT, SC_ARMY_SPLIT);
+    Button_Army_Join.Hint     := GetHintWHotKey(TX_TROOP_LINK_HINT, SC_ARMY_LINK);
+    Button_Army_Feed.Hint     := GetHintWHotKey(TX_ARMY_FEED_HINT, SC_ARMY_FOOD);
     Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
     { Army controls...

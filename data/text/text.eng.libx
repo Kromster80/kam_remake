@@ -126,13 +126,13 @@
 125:Previous track
 126:Next track
 127:Demolish
-128:Remove buildings/plans ('%s')
+128:Remove buildings/plans
 129:Construct road
-130:Construct roads ('%s')
+130:Construct roads
 131:Plough field
-132:Plough fields ('%s')
+132:Plough fields
 133:Lay out wine field
-134:Lay out wine fields ('%s')
+134:Lay out wine fields
 135:Cancel
 136:Cancel current training
 137:Needs:
@@ -156,8 +156,8 @@
 157:Condition
 158:Turn troop left
 159:Turn troop right
-160:Attack ('a')
-161:Dispatch troop ('d')
+160:Attack
+161:Dispatch troop
 162:Supply troop with food
 163:Start storm attack
 164:Add line
@@ -608,9 +608,9 @@
 619:Peacetime remaining: %s
 620:Peacetime is over. To thy weapons!
 621:Game time:|%s
-622:Halt troop ('%s')
-623:Link up troop ('%s')
-624:Separate troop ('%s')
+622:Halt troop
+623:Link up troop
+624:Separate troop
 625:Replay Viewer
 626:View Replay
 627:Unsupported format %s
