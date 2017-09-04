@@ -91,6 +91,7 @@ type
     mk_FileChunk,       //Host sends chunk of file to joiner
     mk_FileAck,         //Joiner tells host he received a chunk
     mk_FileEnd,         //Host informs joiner that the whole file has been sent
+    mk_FileProgress,    //Joiner informs other players about his map/save downloading progress
 
     mk_Vote             //Joiner tells host his vote
   );
@@ -162,6 +163,7 @@ const
     pfBinary,   //mk_FileChunk
     pfNoData,   //mk_FileAck
     pfNoData,   //mk_FileEnd
+    pfBinary,   //mk_FileProgress
     pfNoData    //mk_Vote
   );
 

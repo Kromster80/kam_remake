@@ -624,10 +624,11 @@ type
     procedure SetPosition(aValue: Single);
     procedure SetSeam(aValue: Single);
   public
-    Caption: UnicodeString;
+    Caption, CaptionLeft, CaptionRight: UnicodeString; //CaptionLeft and CaptionRight are shown to the left and right from main Caption. Use them only with taCenter
     FontColor: TColor4;
     TextYOffset: Integer;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont = fnt_Mini);
+    procedure SetCaptions(aCaptionLeft, aCaption, aCaptionRight: UnicodeString);
     property Seam: Single read fSeam write SetSeam;
     property Position: Single read fPosition write SetPosition;
     procedure Paint; override;
@@ -3448,6 +3449,14 @@ begin
 end;
 
 
+procedure TKMPercentBar.SetCaptions(aCaptionLeft, aCaption, aCaptionRight: UnicodeString);
+begin
+  CaptionLeft := aCaptionLeft;
+  Caption := aCaption;
+  CaptionRight := aCaptionRight;
+end;
+
+
 procedure TKMPercentBar.SetPosition(aValue: Single);
 begin
   fPosition := EnsureRange(aValue, 0, 1);
@@ -3461,6 +3470,8 @@ end;
 
 
 procedure TKMPercentBar.Paint;
+var
+  CaptionSize: TKMPoint;
 begin
   inherited;
 
@@ -3470,10 +3481,36 @@ begin
   if Caption <> '' then
   begin
     //Shadow
-    TKMRenderUI.WriteText(AbsLeft + 2, (AbsTop + Height div 2)+TextYOffset-4, Width-4, Caption, fFont, fTextAlign, $FF000000);
+    TKMRenderUI.WriteText(AbsLeft + 2, (AbsTop + Height div 2)+TextYOffset-4,
+                          Width-4, Caption, fFont, fTextAlign, $FF000000);
     //Text
-    TKMRenderUI.WriteText(AbsLeft + 1, (AbsTop + Height div 2)+TextYOffset-5, Width-4, Caption, fFont, fTextAlign, FontColor);
+    TKMRenderUI.WriteText(AbsLeft + 1, (AbsTop + Height div 2)+TextYOffset-5,
+                          Width-4, Caption, fFont, fTextAlign, FontColor);
   end;
+
+  if (CaptionLeft <> '') or (CaptionRight <> '') then
+    CaptionSize := gRes.Fonts[fFont].GetTextSize(Caption);
+
+  if CaptionLeft <> '' then
+  begin
+    //Shadow
+    TKMRenderUI.WriteText(AbsLeft + 2, (AbsTop + Height div 2)+TextYOffset-4,
+                         (Width-4 - CaptionSize.X) div 2, CaptionLeft, fFont, taRight, $FF000000);
+    //Text
+    TKMRenderUI.WriteText(AbsLeft + 1, (AbsTop + Height div 2)+TextYOffset-5,
+                         (Width-4 - CaptionSize.X) div 2, CaptionLeft, fFont, taRight, FontColor);
+  end;
+
+  if CaptionRight <> '' then
+  begin
+    //Shadow
+    TKMRenderUI.WriteText(AbsLeft + 2 + ((Width-4 + CaptionSize.X) div 2), (AbsTop + Height div 2)+TextYOffset-4,
+                         (Width-4 - CaptionSize.X) div 2, CaptionRight, fFont, taLeft, $FF000000);
+    //Text
+    TKMRenderUI.WriteText(AbsLeft + 1 + ((Width-4 + CaptionSize.X) div 2), (AbsTop + Height div 2)+TextYOffset-5,
+                         (Width-4 - CaptionSize.X) div 2, CaptionRight, fFont, taLeft, FontColor);
+  end;
+
 end;
 
 

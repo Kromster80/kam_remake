@@ -11,6 +11,7 @@ type
   TTransferEvent = procedure(aClientIndex: TKMNetHandleIndex) of object;
   TTransferPacketEvent = procedure(aClientIndex: TKMNetHandleIndex; aStream: TKMemoryStream; out SendBufferEmpty: Boolean) of object;
   TTransferProgressEvent = procedure(Total, Progress: Cardinal) of object;
+  TTransferProgressPlayerEvent = procedure(aNetPlayerIndex: Integer; Total, Progress: Cardinal) of object;
   TKMTransferType = (kttMap, kttSave);
 
   TKMFileSender = class

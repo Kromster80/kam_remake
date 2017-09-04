@@ -42,7 +42,7 @@ const
     [mk_AskForAuth,mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_SaveSelect,
      mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
-     mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated,mk_HasMapOrSave],
+     mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_FileProgress,mk_TextTranslated,mk_HasMapOrSave],
     //lgs_Loading
     [mk_AskForAuth,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
@@ -114,6 +114,7 @@ type
     fOnReassignedHost: TNotifyEvent;
     fOnReassignedJoiner: TNotifyEvent;
     fOnFileTransferProgress: TTransferProgressEvent;
+    fOnPlayerFileTransferProgress: TTransferProgressPlayerEvent;
     fOnTextMessage: TUnicodeStringEvent;
     fOnPlayersSetup: TNotifyEvent;
     fOnGameOptions: TNotifyEvent;
@@ -249,7 +250,8 @@ type
     property OnJoinAssignedHost: TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
     property OnReassignedHost: TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
     property OnReassignedJoiner: TNotifyEvent write fOnReassignedJoiner; //We were reassigned to a joiner from host
-    property OnFileTransferProgress: TTransferProgressEvent write fOnFileTransferProgress;
+    property OnFileTransferProgress: TTransferProgressEvent write fOnFileTransferProgress;    //file transfer progress to this player
+    property OnPlayerFileTransferProgress: TTransferProgressPlayerEvent write fOnPlayerFileTransferProgress; //File transfer progress to other player
 
     property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
@@ -287,7 +289,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource, KM_HandsCollection;
+  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource, KM_HandsCollection, KM_Hand;
 
 
 { TKMNetworking }
@@ -1484,7 +1486,7 @@ var
   err: UnicodeString;
   tmpInteger: Integer;
   tmpHandleIndex: TKMNetHandleIndex;
-  tmpCRC: Cardinal;
+  tmpCardinal, tmpCardinal2: Cardinal;
   tmpStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
   tmpChatMode: TChatMode;
@@ -1691,6 +1693,11 @@ begin
               begin
                 fFileReceiver.DataReceived(M);
                 PacketSend(aSenderIndex, mk_FileAck);
+                M2 := TKMemoryStream.Create;
+                M2.Write(fFileReceiver.TotalSize);
+                M2.Write(fFileReceiver.ReceivedSize);
+                PacketSend(NET_ADDRESS_OTHERS, mk_FileProgress, M2);
+                M2.Free;
                 if Assigned(fOnFileTransferProgress) then
                   fOnFileTransferProgress(fFileReceiver.TotalSize, fFileReceiver.ReceivedSize);
               end;
@@ -1704,6 +1711,15 @@ begin
               begin
                 fFileReceiver.ProcessTransfer;
                 FreeAndNil(fFileReceiver);
+              end;
+
+      mk_FileProgress:
+              if Assigned(fOnPlayerFileTransferProgress) then
+              begin
+                M.Read(tmpCardinal);
+                M.Read(tmpCardinal2);
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                fOnPlayerFileTransferProgress(PlayerIndex, tmpCardinal, tmpCardinal2);
               end;
 
       mk_LangCode:
@@ -1866,16 +1882,16 @@ begin
               begin
                 FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 M.ReadW(tmpStringW); //Map name
-                M.Read(tmpCRC); //CRC
+                M.Read(tmpCardinal); //CRC
                 //Try to load map from MP or DL folder
                 FreeAndNil(fMapInfo);
                 fMapInfo := TKMapInfo.Create(tmpStringW, True, mfMP);
-                if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
+                if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCardinal) then
                 begin
                   //Append CRC to map name
-                  tmpStringW := tmpStringW + '_' + IntToHex(Integer(tmpCRC), 8);
+                  tmpStringW := tmpStringW + '_' + IntToHex(Integer(tmpCardinal), 8);
                   fMapInfo := TKMapInfo.Create(tmpStringW, True, mfDL);
-                  if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCRC) then
+                  if not fMapInfo.IsValid or (fMapInfo.CRC <> tmpCardinal) then
                     FreeAndNil(fMapInfo);
                 end;
 
@@ -1890,7 +1906,7 @@ begin
                 begin
                   fMissingFileType := ngk_Map;
                   fMissingFileName := tmpStringW;
-                  fMissingFileCRC := tmpCRC;
+                  fMissingFileCRC := tmpCardinal;
                   fSelectGameKind := ngk_None;
                   if Assigned(fOnMapName) then fOnMapName(tmpStringW);
                   if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False);
@@ -1903,14 +1919,14 @@ begin
               begin
                 FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 M.ReadW(tmpStringW); //Save name
-                M.Read(tmpCRC); //CRC
+                M.Read(tmpCardinal); //CRC
 
                 //See if we already have the save file the host selected
                 FreeAndNil(fSaveInfo);
                 fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, tmpStringW);
 
-                gLog.AddTime(Format('mk_SaveSelect: fSaveInfo.CRC = %d, tmpCRC = %d', [fSaveInfo.CRC, tmpCRC]));
-                if not fSaveInfo.IsValid or (fSaveInfo.CRC <> tmpCRC) then
+                gLog.AddTime(Format('mk_SaveSelect: fSaveInfo.CRC = %d, tmpCRC = %d', [fSaveInfo.CRC, tmpCardinal]));
+                if not fSaveInfo.IsValid or (fSaveInfo.CRC <> tmpCardinal) then
                 begin
                   if fReturnedToLobby and (tmpStringW = RETURN_TO_LOBBY_SAVE) then
                   begin
@@ -1919,7 +1935,7 @@ begin
                     gLog.AddTime(Format('Save error: %s. Check params: fSaveInfo.IsValid = %s; (fSaveInfo.CRC <> tmpCRC) = ;' +
                                         ' Save FileExists %s: %s; fSaveError = %s; fInfo.IsValid(True) = %s',
                                         [gResTexts[TX_PAUSED_FILE_MISMATCH], BoolToStr(fSaveInfo.IsValid),
-                                         BoolToStr(fSaveInfo.CRC <> tmpCRC), fSaveInfo.Path + fSaveInfo.FileName + '.sav',
+                                         BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + '.sav',
                                          BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + '.sav')), fSaveInfo.SaveError,
                                          fSaveInfo.Info.IsValid(True)]));
                     fSelectGameKind := ngk_None;
@@ -1932,7 +1948,7 @@ begin
                   fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, DOWNLOADED_LOBBY_SAVE);
                 end;
 
-                if fSaveInfo.IsValid and (fSaveInfo.CRC = tmpCRC) then
+                if fSaveInfo.IsValid and (fSaveInfo.CRC = tmpCardinal) then
                 begin
                   fSelectGameKind := ngk_Save;
                   if Assigned(fOnMapName) then fOnMapName(tmpStringW);
