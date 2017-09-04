@@ -161,6 +161,8 @@ type
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
+    function Contains(aNewName: UnicodeString): Boolean;
+    procedure RenameMap(aIndex: Integer; aName: UnicodeString);
     procedure DeleteMap(aIndex: Integer);
     procedure MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 
@@ -663,6 +665,21 @@ begin
 end;
 
 
+function TKMapsCollection.Contains(aNewName: UnicodeString): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+
+  for I := 0 to fCount - 1 do
+    if LowerCase(fMaps[I].FileName) = LowerCase(aNewName) then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+
 constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False);
 begin
   Create([aMapFolder], aSortMethod, aDoSortWithFavourites);
@@ -756,14 +773,22 @@ begin
 end;
 
 
+procedure TKMapsCollection.RenameMap(aIndex: Integer; aName: UnicodeString);
+begin
+  MoveMap(aIndex, aName, fMaps[aIndex].MapFolder);
+end;
+
+
 procedure TKMapsCollection.MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 var
   I: Integer;
   Dest, RenamedFile: UnicodeString;
   SearchRec: TSearchRec;
+  FilesToMove: TStringList;
 begin
   if Trim(aName) = '' then Exit;
-  
+
+  FilesToMove := TStringList.Create;
   Lock;
    try
     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
@@ -781,19 +806,25 @@ begin
     {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
     {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
 
-    //Rename all the files in dest
+    //Find all files to move in dest
+    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
     FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
     repeat
-     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-     and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-     begin
-       RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-       if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
-         {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-         {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-     end;
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
+        FilesToMove.Add(SearchRec.Name);
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
+
+    //Move all previously finded files
+    for I := 0 to FilesToMove.Count - 1 do
+    begin
+       RenamedFile := Dest + aName + RightStr(FilesToMove[I], Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
+       if not FileExists(RenamedFile) and (Dest + FilesToMove[I] <> RenamedFile) then
+         {$IFDEF FPC} RenameFile(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
+         {$IFDEF WDC} TFile.Move(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
+    end;
+
 
     //Remove the map from our list
     fMaps[aIndex].Free;
@@ -802,7 +833,8 @@ begin
     Dec(fCount);
     SetLength(fMaps, fCount);
    finally
-   Unlock;
+    Unlock;
+    FilesToMove.Free;
    end;
 end;
 
