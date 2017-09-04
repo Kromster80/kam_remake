@@ -1,4 +1,4 @@
-unit KM_GUIMapEdFormations;
+unit KM_GUIMapEdTownFormationsPopUp;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -9,7 +9,7 @@ uses
 
 
 type
-  TKMMapEdFormations = class
+  TKMMapEdTownFormations = class
   private
     fOwner: TKMHandIndex;
     procedure Formations_Close(Sender: TObject);
@@ -36,7 +36,7 @@ uses
 
 
 { TKMMapEdFormations }
-constructor TKMMapEdFormations.Create(aParent: TKMPanel);
+constructor TKMMapEdTownFormations.Create(aParent: TKMPanel);
 const
   T: array [TGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);  SIZE_X = 570;
   SIZE_Y = 200;
@@ -75,7 +75,7 @@ begin
 end;
 
 
-function TKMMapEdFormations.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMMapEdTownFormations.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := False;
   case Key of
@@ -93,7 +93,7 @@ begin
 end;
 
 
-procedure TKMMapEdFormations.Show(aPlayer: TKMHandIndex);
+procedure TKMMapEdTownFormations.Show(aPlayer: TKMHandIndex);
 var
   GT: TGroupType;
 begin
@@ -112,13 +112,13 @@ begin
 end;
 
 
-function TKMMapEdFormations.GetVisible: Boolean;
+function TKMMapEdTownFormations.GetVisible: Boolean;
 begin
   Result := Panel_Formations.Visible;
 end;
 
 
-procedure TKMMapEdFormations.Formations_Close(Sender: TObject);
+procedure TKMMapEdTownFormations.Formations_Close(Sender: TObject);
 var
   GT: TGroupType;
 begin

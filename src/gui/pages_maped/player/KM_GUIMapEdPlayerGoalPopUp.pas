@@ -1,4 +1,4 @@
-unit KM_GUIMapEdGoal;
+unit KM_GUIMapEdPlayerGoalPopUp;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -8,7 +8,7 @@ uses
   KM_Controls, KM_Defaults, KM_Pics, KM_AIGoals;
 
 type
-  TKMMapEdGoal = class
+  TKMMapEdPlayerGoal = class
   private
     fOwner: TKMHandIndex;
     fIndex: Integer;
@@ -41,7 +41,7 @@ uses
 
 
 { TKMGUIMapEdGoal }
-constructor TKMMapEdGoal.Create(aParent: TKMPanel);
+constructor TKMMapEdPlayerGoal.Create(aParent: TKMPanel);
 const
   SIZE_X = 600;
   SIZE_Y = 300;
@@ -93,7 +93,7 @@ begin
 end;
 
 
-procedure TKMMapEdGoal.Goal_Change(Sender: TObject);
+procedure TKMMapEdPlayerGoal.Goal_Change(Sender: TObject);
 begin
   //Settings get saved on close, now we just toggle fields
   //because certain combinations can't coexist
@@ -101,13 +101,13 @@ begin
 end;
 
 
-function TKMMapEdGoal.GetVisible: Boolean;
+function TKMMapEdPlayerGoal.GetVisible: Boolean;
 begin
   Result := Panel_Goal.Visible;
 end;
 
 
-procedure TKMMapEdGoal.Goal_Close(Sender: TObject);
+procedure TKMMapEdPlayerGoal.Goal_Close(Sender: TObject);
 var
   G: TKMGoal;
 begin
@@ -131,7 +131,7 @@ begin
 end;
 
 
-procedure TKMMapEdGoal.Goal_Refresh(aGoal: TKMGoal);
+procedure TKMMapEdPlayerGoal.Goal_Refresh(aGoal: TKMGoal);
 begin
   Image_GoalFlag.FlagColor := gHands[fOwner].FlagColor;
 
@@ -144,7 +144,7 @@ begin
 end;
 
 
-function TKMMapEdGoal.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMMapEdPlayerGoal.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := False;
   case Key of
@@ -162,7 +162,7 @@ begin
 end;
 
 
-procedure TKMMapEdGoal.Show(aPlayer: TKMHandIndex; aIndex: Integer);
+procedure TKMMapEdPlayerGoal.Show(aPlayer: TKMHandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

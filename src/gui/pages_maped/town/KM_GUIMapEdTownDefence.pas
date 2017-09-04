@@ -3,7 +3,7 @@ unit KM_GUIMapEdTownDefence;
 interface
 uses
    Classes, Controls, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_GUIMapEdFormations;
+   KM_Controls, KM_Defaults, KM_GUIMapEdTownFormationsPopUp;
 
 
 type
@@ -25,7 +25,7 @@ type
     TrackBar_RecruitDelay: TKMTrackBar;
     Button_EditFormations: TKMButton;
   public
-    FormationsPopUp: TKMMapEdFormations;
+    FormationsPopUp: TKMMapEdTownFormations;
 
     constructor Create(aParent: TKMPanel);
 

@@ -4,12 +4,12 @@ interface
 uses
    Classes, Controls, Math, SysUtils,
    KM_Controls,
-   KM_Points, KM_AIAttacks, KM_GUIMapEdAttack;
+   KM_Points, KM_AIAttacks, KM_GUIMapEdTownAttackPopUp;
 
 type
   TKMMapEdTownOffence = class
   private
-    fAttackPopUp: TKMMapEdAttack;
+    fAttackPopUp: TKMMapEdTownAttack;
     procedure Attacks_Add(Sender: TObject);
     procedure Attacks_Del(Sender: TObject);
     procedure Attacks_Edit(aIndex: Integer);
@@ -18,7 +18,7 @@ type
     procedure Attacks_OnDone(Sender: TObject);
     procedure Attacks_Refresh;
     procedure AutoAttackClick(Sender: TObject);
-    procedure SetAttackPopUp(aValue: TKMMapEdAttack);
+    procedure SetAttackPopUp(aValue: TKMMapEdTownAttack);
   protected
     Panel_Offence: TKMPanel;
     CheckBox_AutoAttack: TKMCheckBox;
@@ -28,7 +28,7 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
-    property AttackPopUp: TKMMapEdAttack read fAttackPopUp write SetAttackPopUp;
+    property AttackPopUp: TKMMapEdTownAttack read fAttackPopUp write SetAttackPopUp;
 
     procedure Show;
     procedure Hide;
@@ -165,7 +165,7 @@ begin
 end;
 
 
-procedure TKMMapEdTownOffence.SetAttackPopUp(aValue: TKMMapEdAttack);
+procedure TKMMapEdTownOffence.SetAttackPopUp(aValue: TKMMapEdTownAttack);
 begin
   fAttackPopUp := aValue;
   fAttackPopUp.fOnDone := Attacks_OnDone;

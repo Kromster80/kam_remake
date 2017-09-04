@@ -5,7 +5,7 @@ uses
    Classes, Math, SysUtils,
    KM_Controls, KM_Defaults,
    KM_InterfaceGame, KM_AIGoals,
-   KM_GUIMapEdGoal;
+   KM_GUIMapEdPlayerGoalPopUp;
 
 
 type
@@ -24,7 +24,7 @@ type
     Button_GoalsAdd: TKMButton;
     Button_GoalsDel: TKMButton;
   public
-    GoalPopUp: TKMMapEdGoal;
+    GoalPopUp: TKMMapEdPlayerGoal;
 
     constructor Create(aParent: TKMPanel);
 

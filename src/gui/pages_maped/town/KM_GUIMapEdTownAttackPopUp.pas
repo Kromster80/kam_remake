@@ -1,4 +1,4 @@
-unit KM_GUIMapEdAttack;
+unit KM_GUIMapEdTownAttackPopUp;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -9,7 +9,7 @@ uses
   KM_Points, KM_AIAttacks;
 
 type
-  TKMMapEdAttack = class
+  TKMMapEdTownAttack = class
   private
     fOwner: TKMHandIndex;
     fIndex: Integer;
@@ -57,7 +57,7 @@ const
 
 
 { TKMMapEdAttack }
-constructor TKMMapEdAttack.Create(aParent: TKMPanel);
+constructor TKMMapEdTownAttack.Create(aParent: TKMPanel);
 const
   SIZE_X = 570;
   SIZE_Y = 360;
@@ -136,7 +136,7 @@ begin
 end;
 
 
-procedure TKMMapEdAttack.Attack_Change(Sender: TObject);
+procedure TKMMapEdTownAttack.Attack_Change(Sender: TObject);
 var
   GT: TGroupType;
 begin
@@ -151,7 +151,7 @@ begin
 end;
 
 
-procedure TKMMapEdAttack.Attack_Close(Sender: TObject);
+procedure TKMMapEdTownAttack.Attack_Close(Sender: TObject);
 begin
   if Sender = Button_AttackOk then
     Attack_Save;
@@ -161,7 +161,7 @@ begin
 end;
 
 
-procedure TKMMapEdAttack.Attack_Refresh(aAttack: TAIAttack);
+procedure TKMMapEdTownAttack.Attack_Refresh(aAttack: TAIAttack);
 var
   GT: TGroupType;
 begin
@@ -184,7 +184,7 @@ begin
 end;
 
 
-procedure TKMMapEdAttack.Attack_Save;
+procedure TKMMapEdTownAttack.Attack_Save;
 var
   AA: TAIAttack;
   GT: TGroupType;
@@ -206,7 +206,7 @@ end;
 
 //Show previous or next attack
 //We save changes before switching
-procedure TKMMapEdAttack.Attack_Switch(Sender: TObject);
+procedure TKMMapEdTownAttack.Attack_Switch(Sender: TObject);
 var
   atCount: Integer;
 begin
@@ -223,13 +223,13 @@ begin
 end;
 
 
-function TKMMapEdAttack.GetVisible: Boolean;
+function TKMMapEdTownAttack.GetVisible: Boolean;
 begin
   Result := Panel_Attack.Visible;
 end;
 
 
-function TKMMapEdAttack.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMMapEdTownAttack.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := False;
   case Key of
@@ -247,7 +247,7 @@ begin
 end;
 
 
-procedure TKMMapEdAttack.Show(aPlayer: TKMHandIndex; aIndex: Integer);
+procedure TKMMapEdTownAttack.Show(aPlayer: TKMHandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

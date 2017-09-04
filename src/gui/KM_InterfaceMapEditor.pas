@@ -9,15 +9,15 @@ uses
    KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
    KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Minimap, KM_Viewport, KM_Render,
    KM_GUIMapEdHouse,
-   KM_GUIMapEdGoal,
+   KM_GUIMapEdPlayerGoalPopUp,
    KM_GUIMapEdTerrain,
    KM_GUIMapEdTown,
    KM_GUIMapEdPlayer,
    KM_GUIMapEdMission,
-   KM_GUIMapEdAttack,
+   KM_GUIMapEdTownAttackPopUp,
    KM_GUIMapEdExtras,
    KM_GUIMapEdMessage,
-   KM_GUIMapEdFormations,
+   KM_GUIMapEdTownFormationsPopUp,
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
    KM_GUIMapEdMenu,
@@ -42,9 +42,9 @@ type
     fGuiTown: TKMMapEdTown;
     fGuiPlayer: TKMMapEdPlayer;
     fGuiMission: TKMMapEdMission;
-    fGuiAttack: TKMMapEdAttack;
-    fGuiGoal: TKMMapEdGoal;
-    fGuiFormations: TKMMapEdFormations;
+    fGuiAttack: TKMMapEdTownAttack;
+    fGuiGoal: TKMMapEdPlayerGoal;
+    fGuiFormations: TKMMapEdTownFormations;
     fGuiMenuTryMap: TKMMapEdMenuTryMap;
     fGuiExtras: TKMMapEdExtras;
     fGuiMessage: TKMMapEdMessage;
@@ -207,7 +207,7 @@ begin
   for I := 1 to 5 do
     Button_Main[I].OnClick := Main_ButtonClick;
 
-  //Editing pages
+  //Terrain editing pages
   fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
   fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
   fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
@@ -221,9 +221,9 @@ begin
   fGuiMarkerReveal := TKMMapEdMarkerReveal.Create(Panel_Common, Marker_Done);
 
   //Modal pages
-  fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
-  fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
-  fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
+  fGuiAttack := TKMMapEdTownAttack.Create(Panel_Main);
+  fGuiFormations := TKMMapEdTownFormations.Create(Panel_Main);
+  fGuiGoal := TKMMapEdPlayerGoal.Create(Panel_Main);
   fGuiMenuTryMap := TKMMapEdMenuTryMap.Create(Panel_Main);
 
   //Pass pop-ups to their dispatchers
