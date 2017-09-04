@@ -97,7 +97,7 @@ implementation
 uses
   KM_Log, KM_Main, KM_GameCursor,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_Utils, KM_GameInputProcess, KM_Controls;
+  KM_Maps, KM_Resource, KM_Sound, KM_CommonUtils, KM_GameInputProcess, KM_Controls;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }

@@ -27,7 +27,7 @@ type
 
 implementation
 uses
-  KM_Utils, KM_Resource, KM_ResUnits;
+  KM_CommonUtils, KM_Resource, KM_ResUnits;
 
 
 { TUnitActionSteer }

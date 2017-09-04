@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_Log, KM_Utils;
+  KM_Log, KM_CommonUtils;
 
 
 const

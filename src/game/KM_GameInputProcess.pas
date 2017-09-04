@@ -262,7 +262,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI,
+  KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_CommonUtils, KM_AI,
   KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking, KM_ScriptingEvents;
 
 

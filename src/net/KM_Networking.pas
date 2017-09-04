@@ -289,7 +289,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource, KM_HandsCollection, KM_Hand;
+  KM_ResTexts, KM_Sound, KM_ResSound, KM_Log, KM_CommonUtils, StrUtils, Math, KM_Resource, KM_HandsCollection, KM_Hand;
 
 
 { TKMNetworking }

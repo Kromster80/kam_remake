@@ -172,7 +172,7 @@ const
 
 implementation
 uses
-  Math, KromUtils, KM_Game, KM_Log, KM_Utils;
+  Math, KromUtils, KM_Game, KM_Log, KM_CommonUtils;
 
 const
   SCRIPT_LOG_EXT = '.log.txt';

@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Types,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
   KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool, KM_HouseBarracks;
 
 //Memo on directives:

@@ -42,7 +42,7 @@ type
 
 implementation
 uses
-  KM_Utils;
+  KM_CommonUtils;
 
 const
   // Enforce a minimum so our master server doesn't get spammed

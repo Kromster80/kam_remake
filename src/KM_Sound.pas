@@ -131,7 +131,7 @@ var
 implementation
 uses
   Codec, VorbisFile, 
-  KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection, KM_Game;
+  KM_RenderAux, KM_Log, KM_CommonUtils, KM_Resource, KM_HandsCollection, KM_Game;
 
 
 const

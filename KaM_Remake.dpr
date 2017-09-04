@@ -157,9 +157,9 @@ uses
 	
   KM_Music in 'src\KM_Music.pas',
 	
-	KM_Outline in 'src\navmesh\KM_Outline.pas',
+  KM_Outline in 'src\navmesh\KM_Outline.pas',
   KM_NavMesh in 'src\navmesh\KM_NavMesh.pas',
-	KM_PolySimplify in 'src\navmesh\KM_PolySimplify.pas',
+  KM_PolySimplify in 'src\navmesh\KM_PolySimplify.pas',
 
   {$IFDEF USESECUREAUTH}
     KM_NetAuthSecure in 'src\net\KM_NetAuthSecure.pas',
@@ -181,12 +181,12 @@ uses
   KM_Networking in 'src\net\KM_Networking.pas',
   KM_NetworkTypes in 'src\net\KM_NetworkTypes.pas',
 	
-	KM_HTTPClient in 'src\net\http\KM_HTTPClient.pas',
+  KM_HTTPClient in 'src\net\http\KM_HTTPClient.pas',
   {$IFDEF WDC} KM_HTTPClientOverbyte in 'src\net\http\KM_HTTPClientOverbyte.pas', {$ENDIF}
   {$IFDEF FPC} KM_HTTPClientLNet in 'src\net\http\KM_HTTPClientLNet.pas', {$ENDIF}
 	
-	KM_DedicatedServer in 'src\net\other\KM_DedicatedServer.pas',
-	KM_MasterServer in 'src\net\other\KM_MasterServer.pas',
+  KM_DedicatedServer in 'src\net\other\KM_DedicatedServer.pas',
+  KM_MasterServer in 'src\net\other\KM_MasterServer.pas',
 	
   KM_PathFinding in 'src\pathfinding\KM_PathFinding.pas',
   KM_PathFindingAStarOld in 'src\pathfinding\KM_PathFindingAStarOld.pas',
@@ -265,10 +265,11 @@ uses
   KM_UnitTaskSelfTrain in 'src\units\KM_UnitTaskSelfTrain.pas',
   KM_UnitTaskThrowRock in 'src\units\KM_UnitTaskThrowRock.pas',
 	
-	KM_BinPacking in 'src\utils\KM_BinPacking.pas',
-	KM_FileIO in 'src\utils\KM_FileIO.pas',
-	KM_Hungarian in 'src\utils\KM_Hungarian.pas',
-	KM_Pics in 'src\utils\KM_Pics.pas',
+  KM_BinPacking in 'src\utils\KM_BinPacking.pas',
+  KM_CommonUtils in 'src\utils\KM_CommonUtils.pas',
+  KM_FileIO in 'src\utils\KM_FileIO.pas',
+  KM_Hungarian in 'src\utils\KM_Hungarian.pas',
+  KM_Pics in 'src\utils\KM_Pics.pas',
   KM_PNG in 'src\utils\KM_PNG.pas',
   KM_Utils in 'src\utils\KM_Utils.pas',
 	

@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  KM_Utils;
+  KM_CommonUtils;
 
 { TKMScriptingUtils }
 

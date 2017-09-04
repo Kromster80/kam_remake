@@ -132,7 +132,7 @@ type
 
 implementation
 uses
-  KM_Utils, KM_HandsCollection, KM_Resource, KM_Log, KM_Terrain, KM_HouseBarracks,
+  KM_CommonUtils, KM_HandsCollection, KM_Resource, KM_Log, KM_Terrain, KM_HouseBarracks,
   KM_ResHouses, KM_ResUnits, KM_Hand;
 
 

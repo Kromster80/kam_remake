@@ -46,7 +46,7 @@ type
 
 implementation
 uses
-  KM_Resource, KM_ResTexts, KM_Utils;
+  KM_Resource, KM_ResTexts, KM_CommonUtils;
 
 
 { TKMGameInfo }

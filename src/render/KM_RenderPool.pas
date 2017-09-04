@@ -137,7 +137,7 @@ implementation
 uses
   KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
   KM_ResMapElements, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks,
-  KM_FogOfWar, KM_Hand, KM_UnitGroups, KM_Units_Warrior, KM_Utils;
+  KM_FogOfWar, KM_Hand, KM_UnitGroups, KM_Units_Warrior, KM_CommonUtils;
 
 
 const

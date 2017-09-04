@@ -17,7 +17,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_Defaults, KM_Utils;
+  KM_Game, KM_Defaults, KM_CommonUtils;
 
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand: TGameInputCommand);

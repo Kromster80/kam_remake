@@ -158,7 +158,7 @@ const
 
 implementation
 uses
-  KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
+  KM_GameCursor, KM_Resource, KM_Log, KM_CommonUtils;
 
 
 { TKMTerrainPainter }

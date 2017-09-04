@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, SysUtils, Controls, Math,
-  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics, KM_Defaults;
+  KM_CommonUtils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics, KM_Defaults;
 
 
 type

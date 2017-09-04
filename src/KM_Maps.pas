@@ -175,7 +175,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp, KM_Scripting;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_CommonUtils, KM_GameApp, KM_Scripting;
 
 
 const

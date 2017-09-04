@@ -1394,7 +1394,7 @@ type
 
 implementation
 uses
-  KM_Resource, KM_ResCursors, KM_ResSound, KM_ResSprites, KM_Sound, KM_Utils;
+  KM_Resource, KM_ResCursors, KM_ResSound, KM_ResSprites, KM_Sound, KM_CommonUtils, KM_Utils;
 
 const
   CLICK_HOLD_TIME_THRESHOLD = 200; // Time period, determine delay between mouse down and 1st click hold events

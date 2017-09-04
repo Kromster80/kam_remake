@@ -50,7 +50,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts, KM_Utils, KM_ResUnits, KM_Hand;
+  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts, KM_CommonUtils, KM_ResUnits, KM_Hand, KM_Utils;
 
 
 { TKMMapEdUnit }

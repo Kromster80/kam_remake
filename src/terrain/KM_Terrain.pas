@@ -3,7 +3,7 @@ unit KM_Terrain;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResTileset,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils, KM_ResTileset,
   KM_ResHouses, KM_ResWares, KM_TerrainFinder, KM_ResMapElements;
 
 

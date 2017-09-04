@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWINDOWS}Windows, {$ENDIF}
    {$IFDEF WDC}KM_NetServerOverbyte, {$ENDIF}
    {$IFDEF FPC}KM_NetServerLNet, {$ENDIF}
-  Classes, ExtCtrls, SysUtils, Math, KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_Utils, VerySimpleXML{, KM_Log};
+  Classes, ExtCtrls, SysUtils, Math, KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_CommonUtils, VerySimpleXML{, KM_Log};
 
 
 { Contains basic items we need for smooth Net experience:
