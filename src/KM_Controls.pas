@@ -3619,9 +3619,16 @@ end;
 
 
 function TKMNumericEdit.GetMaxLength: Word;
+var
+  MinValue: Integer;
 begin
-  if Max(Abs(ValueMax), Abs(ValueMin)) <> 0 then
-    Result := Trunc(Max(Log10(Abs(ValueMax)) + Byte(ValueMax < 0), Log10(Abs(ValueMin)) + Byte(ValueMin < 0))) + 1
+  if ValueMin = Low(Integer) then
+    MinValue := ValueMin + 1  // to prevent integer overflow, when take Abs(MinValue);
+  else
+    MinValue := ValueMin;
+
+  if (Max(Abs(ValueMax), Abs(MinValue)) <> 0) then
+    Result := Trunc(Max(Log10(Abs(ValueMax)) + Byte(ValueMax < 0), Log10(Abs(MinValue)) + Byte(MinValue < 0))) + 1
   else
     Result := 1;
 end;
