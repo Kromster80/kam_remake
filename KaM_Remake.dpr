@@ -32,16 +32,16 @@ uses
   KM_AISetup in 'src\ai\KM_AISetup.pas',
 
   KM_Alerts in 'src\KM_Alerts.pas',
-  KM_BinPacking in 'src\KM_BinPacking.pas',
   KM_BuildList in 'src\KM_BuildList.pas',
   KM_Campaigns in 'src\KM_Campaigns.pas',
-  KM_CommonClasses in 'src\KM_CommonClasses.pas',
-  KM_CommonTypes in 'src\KM_CommonTypes.pas',
+	
+  KM_CommonClasses in 'src\common\KM_CommonClasses.pas',
+  KM_CommonTypes in 'src\common\KM_CommonTypes.pas',
+	KM_Defaults in 'src\common\KM_Defaults.pas',
+	KM_Points in 'src\common\KM_Points.pas',
+	
   KM_Controls in 'src\KM_Controls.pas',
-  KM_DedicatedServer in 'src\KM_DedicatedServer.pas',
-  KM_Defaults in 'src\KM_Defaults.pas',
   {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'src\KM_Exceptions.pas',{$ENDIF}
-  KM_FileIO in 'src\KM_FileIO.pas',
   KM_FogOfWar in 'src\KM_FogOfWar.pas',
 	
   KM_Game in 'src\game\KM_Game.pas',
@@ -137,10 +137,6 @@ uses
   KM_HouseMarket in 'src\houses\KM_HouseMarket.pas',
   KM_Houses in 'src\houses\KM_Houses.pas',
   KM_HouseSchool in 'src\houses\KM_HouseSchool.pas',
-  KM_HTTPClient in 'src\KM_HTTPClient.pas',
-  {$IFDEF WDC} KM_HTTPClientOverbyte in 'src\KM_HTTPClientOverbyte.pas', {$ENDIF}
-  {$IFDEF FPC} KM_HTTPClientLNet in 'src\KM_HTTPClientLNet.pas', {$ENDIF}
-  KM_Hungarian in 'src\KM_Hungarian.pas',
   KM_InterfaceDefaults in 'src\gui\KM_InterfaceDefaults.pas',
   KM_InterfaceGame in 'src\gui\KM_InterfaceGame.pas',
   KM_InterfaceGamePlay in 'src\gui\KM_InterfaceGamePlay.pas',
@@ -150,7 +146,6 @@ uses
   KM_Main in 'src\KM_Main.pas',
   KM_Maps in 'src\KM_Maps.pas',
   KM_MapEditor in 'src\KM_MapEditor.pas',
-  KM_MasterServer in 'src\KM_MasterServer.pas',
   KM_MessageLog in 'src\KM_MessageLog.pas',
   KM_MessageStack in 'src\KM_MessageStack.pas',
   KM_Minimap in 'src\KM_Minimap.pas',
@@ -182,6 +177,13 @@ uses
   KM_NetworkClasses in 'src\net\KM_NetworkClasses.pas',
   KM_Networking in 'src\net\KM_Networking.pas',
   KM_NetworkTypes in 'src\net\KM_NetworkTypes.pas',
+	
+	KM_HTTPClient in 'src\net\http\KM_HTTPClient.pas',
+  {$IFDEF WDC} KM_HTTPClientOverbyte in 'src\net\http\KM_HTTPClientOverbyte.pas', {$ENDIF}
+  {$IFDEF FPC} KM_HTTPClientLNet in 'src\net\http\KM_HTTPClientLNet.pas', {$ENDIF}
+	
+	KM_DedicatedServer in 'src\net\other\KM_DedicatedServer.pas',
+	KM_MasterServer in 'src\net\other\KM_MasterServer.pas',
 
   KM_Outline in 'src\KM_Outline.pas',
 	
@@ -192,9 +194,6 @@ uses
   KM_PathFindingRoad in 'src\pathfinding\KM_PathFindingRoad.pas',
 	
   KM_PerfLog in 'src\KM_PerfLog.pas',
-  KM_Pics in 'src\KM_Pics.pas',
-  KM_PNG in 'src\KM_PNG.pas',
-  KM_Points in 'src\KM_Points.pas',
   KM_PolySimplify in 'src\KM_PolySimplify.pas',
   KM_Projectiles in 'src\KM_Projectiles.pas',
 
@@ -265,7 +264,14 @@ uses
   KM_UnitTaskMining in 'src\units\KM_UnitTaskMining.pas',
   KM_UnitTaskSelfTrain in 'src\units\KM_UnitTaskSelfTrain.pas',
   KM_UnitTaskThrowRock in 'src\units\KM_UnitTaskThrowRock.pas',
-  KM_Utils in 'src\KM_Utils.pas',
+	
+	KM_BinPacking in 'src\utils\KM_BinPacking.pas',
+	KM_FileIO in 'src\utils\KM_FileIO.pas',
+	KM_Hungarian in 'src\utils\KM_Hungarian.pas',
+	KM_Pics in 'src\utils\KM_Pics.pas',
+  KM_PNG in 'src\utils\KM_PNG.pas',
+  KM_Utils in 'src\utils\KM_Utils.pas',
+	
   KM_Viewport in 'src\KM_Viewport.pas',
   KM_WareDistribution in 'src\KM_WareDistribution.pas';
 
