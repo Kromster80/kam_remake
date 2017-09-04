@@ -15,8 +15,8 @@ uses
   KM_FormMain in 'src\KM_FormMain.pas' {FormMain},
   KM_FormLoading in 'src\KM_FormLoading.pas' {FormLoading},
 
-  KromOGLUtils in 'src\common\KromOGLUtils.pas',
-  KromUtils in 'src\common\KromUtils.pas',
+  KromOGLUtils in 'src\ext\KromOGLUtils.pas',
+  KromUtils in 'src\ext\KromUtils.pas',
 
   KM_AI in 'src\ai\KM_AI.pas',
   KM_AIArmyEvaluation in 'src\ai\KM_AIArmyEvaluation.pas',
