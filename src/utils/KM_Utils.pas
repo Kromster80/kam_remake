@@ -44,12 +44,12 @@ begin
     //Remove existing dest directory
     if DirectoryExists(aDestFolder) then
     begin
-     {$IFDEF FPC} DeleteDirectory(aDest, False); {$ENDIF}
+     {$IFDEF FPC} DeleteDirectory(aDestFolder, False); {$ENDIF}
      {$IFDEF WDC} TDirectory.Delete(aDestFolder, True); {$ENDIF}
     end;
 
     //Move directory to dest
-    {$IFDEF FPC} RenameFile(aSource, aDest); {$ENDIF}
+    {$IFDEF FPC} RenameFile(aSourceFolder, aDestFolder); {$ENDIF}
     {$IFDEF WDC} TDirectory.Move(aSourceFolder, aDestFolder); {$ENDIF}
 
     //Find all files to move in dest
