@@ -179,9 +179,10 @@ uses
 
 
 const
-  //Folder name containing single maps for SP/MP/DL mode
+  //Map folder name by folder type. Containing single maps, for SP/MP/DL mode
   MAP_FOLDER: array [TMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
-  MAP_FOLDER_TYPE_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
+  //Map folder type by IsMultiplayer flag
+  MAP_FOLDER_TYPE_IS_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
 
 
 { TKMapInfo }
@@ -829,7 +830,7 @@ begin
     //Remove the map from our list
     fMaps[aIndex].Free;
     for I  := aIndex to fCount - 2 do
-     fMaps[I] := fMaps[I + 1];
+      fMaps[I] := fMaps[I + 1];
     Dec(fCount);
     SetLength(fMaps, fCount);
    finally
@@ -1024,7 +1025,7 @@ end;
 
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 begin
-  Result := FullPath(aName, aExt, MAP_FOLDER_TYPE_MP[aMultiplayer]);
+  Result := FullPath(aName, aExt, MAP_FOLDER_TYPE_IS_MP[aMultiplayer]);
 end;
 
 
@@ -1119,8 +1120,8 @@ begin
       FindFirst(PathToMaps + '*', faDirectory, SearchRec);
       repeat
         if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
-        and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
+          and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
+          and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
         begin
           ProcessMap(SearchRec.Name, MF);
         end;

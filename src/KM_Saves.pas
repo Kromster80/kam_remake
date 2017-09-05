@@ -3,6 +3,8 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, Windows, SysUtils, SyncObjs,
+  {$IFDEF FPC}FileUtil,{$ENDIF}
+  {$IFDEF WDC}IOUtils,{$ENDIF}
   KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_Minimap, KM_ResTexts, KM_Resource;
 
 
@@ -29,7 +31,7 @@ type
     fGameOptions: TKMGameOptions;
     procedure ScanSave;
   public
-    constructor Create(const aPath, aFileName: String);
+    constructor Create(const aName: String; aIsMultiplayer: Boolean);
     destructor Destroy; override;
 
     property Info: TKMGameInfo read fInfo;
@@ -51,7 +53,7 @@ type
     fOnSaveAdd: TSaveEvent;
     fOnSaveAddDone: TNotifyEvent;
   public
-    constructor Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnComplete: TNotifyEvent);
+    constructor Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnTerminate: TNotifyEvent);
     procedure Execute; override;
   end;
 
@@ -70,7 +72,7 @@ type
     procedure Clear;
     procedure SaveAdd(aSave: TKMSaveInfo);
     procedure SaveAddDone(Sender: TObject);
-    procedure ScanComplete(Sender: TObject);
+    procedure ScanTerminate(Sender: TObject);
     procedure DoSort;
     function GetSave(aIndex: Integer): TKMSaveInfo;
   public
@@ -82,6 +84,9 @@ type
     procedure Lock;
     procedure Unlock;
 
+    class function Path(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+    class function FullPath(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+
     procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TSavesSortMethod; aOnSortComplete: TNotifyEvent);
@@ -90,6 +95,7 @@ type
 
     function Contains(aNewName: UnicodeString): Boolean;
     procedure DeleteSave(aIndex: Integer);
+    procedure MoveSave(aIndex: Integer; aName: UnicodeString);
     procedure RenameSave(aIndex: Integer; aName: UnicodeString);
 
     function SavesList: UnicodeString;
@@ -100,15 +106,19 @@ type
 implementation
 
 uses
-  KM_CommonUtils;
+  StrUtils, KM_CommonUtils;
+
+const
+  //Save folder name by IsMultiplayer flag
+  SAVE_FOLDER_IS_MP: array [Boolean] of String = (SAVES_FOLDER_NAME, SAVES_MP_FOLDER_NAME);
 
 
 { TKMSaveInfo }
-constructor TKMSaveInfo.Create(const aPath, aFileName: String);
+constructor TKMSaveInfo.Create(const aName: String; aIsMultiplayer: Boolean);
 begin
   inherited Create;
-  fPath := aPath;
-  fFileName := aFileName;
+  fPath := TKMSavesCollection.Path(aName, aIsMultiplayer); //ExeDir + SAVE_FOLDER_IS_MP[aIsMultiplayer] + PathDelim + aName + PathDelim;
+  fFileName := aName;
   fInfo := TKMGameInfo.Create;
   fGameOptions := TKMGameOptions.Create;
 
@@ -130,16 +140,16 @@ procedure TKMSaveInfo.ScanSave;
 var
   LoadStream: TKMemoryStream;
 begin
-  if not FileExists(fPath + fFileName + '.sav') then
+  if not FileExists(fPath + fFileName + '.' + EXT_SAVE_MAIN) then
   begin
     fSaveError := 'File not exists';
     Exit;
   end;
 
-  fCRC := Adler32CRC(fPath + fFileName + '.sav');
+  fCRC := Adler32CRC(fPath + fFileName + '.' + EXT_SAVE_MAIN);
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  LoadStream.LoadFromFile(fPath + fFileName + '.sav');
+  LoadStream.LoadFromFile(fPath + fFileName + '.' + EXT_SAVE_MAIN);
 
   fInfo.Load(LoadStream);
   fGameOptions.Load(LoadStream);
@@ -164,13 +174,13 @@ var
   MinimapFilePath: String;
 begin
   Result := False;
-  if not FileExists(fPath + fFileName + '.sav') then Exit;
+  if not FileExists(fPath + fFileName + '.' + EXT_SAVE_MAIN) then Exit;
 
   DummyInfo := TKMGameInfo.Create;
   DummyOptions := TKMGameOptions.Create;
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   try
-    LoadStream.LoadFromFile(fPath + fFileName + '.sav');
+    LoadStream.LoadFromFile(fPath + fFileName + '.' + EXT_SAVE_MAIN);
 
     DummyInfo.Load(LoadStream); //We don't care, we just need to skip past it correctly
     DummyOptions.Load(LoadStream); //We don't care, we just need to skip past it correctly
@@ -184,7 +194,7 @@ begin
       LoadMnmStream := TKMemoryStream.Create;
       try
         try
-          MinimapFilePath := fPath + fFileName + '.' + MP_MINIMAP_SAVE_EXT;
+          MinimapFilePath := fPath + fFileName + '.' + EXT_SAVE_MP_MINIMAP;
           if FileExists(MinimapFilePath) then
           begin
             LoadMnmStream.LoadFromFile(MinimapFilePath); // try to load minimap from file
@@ -209,21 +219,21 @@ end;
 
 function TKMSaveInfo.IsValid: Boolean;
 begin
-  Result := FileExists(fPath + fFileName + '.sav') and (fSaveError = '') and fInfo.IsValid(True);
+  Result := FileExists(fPath + fFileName + '.' + EXT_SAVE_MAIN) and (fSaveError = '') and fInfo.IsValid(True);
 end;
 
 
 function TKMSaveInfo.IsMultiplayer: Boolean;
 begin
-  Result := GetFileDirName(fPath + fFileName) = SAVES_MP_FOLDER_NAME;
+  Result := GetFileDirName(Copy(fPath, 0, Length(fPath) - 1)) = SAVES_MP_FOLDER_NAME;
 end;
 
 
 //Check if replay files exist at location
 function TKMSaveInfo.IsReplayValid: Boolean;
 begin
-  Result := FileExists(fPath + fFileName + '.bas') and
-            FileExists(fPath + fFileName + '.rpl');
+  Result := FileExists(fPath + fFileName + '.' + EXT_SAVE_BASE) and
+            FileExists(fPath + fFileName + '.' + EXT_SAVE_REPLAY);
 end;
 
 
@@ -308,13 +318,12 @@ begin
   Lock;
   try
     Assert(InRange(aIndex, 0, fCount-1));
-    DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
-    DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
-    DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.bas');
+    {$IFDEF FPC} DeleteDirectory(fSaves[aIndex].Path, False); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Delete(fSaves[aIndex].Path, True); {$ENDIF}
     fSaves[aIndex].Free;
     for I := aIndex to fCount - 2 do
       fSaves[I] := fSaves[I+1]; //Move them down
-    dec(fCount);
+    Dec(fCount);
     SetLength(fSaves, fCount);
   finally
     Unlock;
@@ -322,20 +331,69 @@ begin
 end;
 
 
-procedure TKMSavesCollection.RenameSave(aIndex: Integer; aName: UnicodeString);
+procedure TKMSavesCollection.MoveSave(aIndex: Integer; aName: UnicodeString);
 var
-  fileOld, fileNew: UnicodeString;
+  I: Integer;
+  Dest, RenamedFile: UnicodeString;
+  SearchRec: TSearchRec;
+  FilesToMove: TStringList;
 begin
+  if Trim(aName) = '' then Exit;
+
+  FilesToMove := TStringList.Create;
   Lock;
-  try
-    fileOld := fSaves[aIndex].Path + fSaves[aIndex].fFileName;
-    fileNew := fSaves[aIndex].Path + aName;
-    RenameFile(fileOld + '.sav', fileNew + '.sav');
-    RenameFile(fileOld + '.rpl', fileNew + '.rpl');
-    RenameFile(fileOld + '.bas', fileNew + '.bas');
-  finally
+   try
+    Dest := ExeDir + SAVE_FOLDER_IS_MP[fSaves[aIndex].IsMultiplayer] + PathDelim + aName + PathDelim;
+    Assert(fSaves[aIndex].Path <> Dest);
+    Assert(InRange(aIndex, 0, fCount - 1));
+
+    //Remove existing dest directory
+    if DirectoryExists(Dest) then
+    begin
+     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
+     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+    end;
+
+    //Move directory to dest
+    {$IFDEF FPC} RenameFile(fSaves[aIndex].Path, Dest); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Move(fSaves[aIndex].Path, Dest); {$ENDIF}
+
+    //Find all files to move in dest
+    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
+    FindFirst(Dest + fSaves[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and (Length(SearchRec.Name) > Length(fSaves[aIndex].FileName)) then
+        FilesToMove.Add(SearchRec.Name);
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+
+    //Move all previously finded files
+    for I := 0 to FilesToMove.Count - 1 do
+    begin
+       RenamedFile := Dest + aName + RightStr(FilesToMove[I], Length(SearchRec.Name) - Length(fSaves[aIndex].FileName));
+       if not FileExists(RenamedFile) and (Dest + FilesToMove[I] <> RenamedFile) then
+         {$IFDEF FPC} RenameFile(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
+         {$IFDEF WDC} TFile.Move(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
+    end;
+
+
+    //Remove the map from our list
+    fSaves[aIndex].Free;
+    for I  := aIndex to fCount - 2 do
+      fSaves[I] := fSaves[I + 1];
+    Dec(fCount);
+    SetLength(fSaves, fCount);
+   finally
     Unlock;
-  end;
+    FilesToMove.Free;
+   end;
+end;
+
+
+procedure TKMSavesCollection.RenameSave(aIndex: Integer; aName: UnicodeString);
+begin
+  MoveSave(aIndex, aName);
 end;
 
 
@@ -393,6 +451,18 @@ var TempSaves: array of TKMSaveInfo;
 begin
   SetLength(TempSaves, Length(fSaves));
   MergeSort(Low(fSaves), High(fSaves));
+end;
+
+
+class function TKMSavesCollection.Path(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+begin
+  Result := ExeDir + SAVE_FOLDER_IS_MP[aIsMultiplayer] + PathDelim + aName + PathDelim;
+end;
+
+
+class function TKMSavesCollection.FullPath(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+begin
+  Result := Path(aName, aIsMultiplayer) + aName + '.' + aExt;
 end;
 
 
@@ -479,7 +549,7 @@ begin
 
   //Scan will launch upon create automatcally
   fScanning := True;
-  fScanner := TTSavesScanner.Create(aMultiplayerPath, SaveAdd, SaveAddDone, ScanComplete);
+  fScanner := TTSavesScanner.Create(aMultiplayerPath, SaveAdd, SaveAddDone, ScanTerminate);
 end;
 
 
@@ -513,7 +583,7 @@ end;
 
 //All saves have been scanned
 //No need to resort since that was done in last SaveAdd event
-procedure TKMSavesCollection.ScanComplete(Sender: TObject);
+procedure TKMSavesCollection.ScanTerminate(Sender: TObject);
 begin
   Lock;
   try
@@ -531,7 +601,7 @@ end;
 //aOnSaveAdd - signal that there's new save that should be added
 //aOnSaveAddDone - signal that save has been added
 //aOnComplete - scan is complete
-constructor TTSavesScanner.Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnComplete: TNotifyEvent);
+constructor TTSavesScanner.Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnTerminate: TNotifyEvent);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
@@ -542,31 +612,29 @@ begin
   fMultiplayerPath := aMultiplayerPath;
   fOnSaveAdd := aOnSaveAdd;
   fOnSaveAddDone := aOnSaveAddDone;
-  OnTerminate := aOnComplete;
+  OnTerminate := aOnTerminate;
   FreeOnTerminate := False;
 end;
 
 
 procedure TTSavesScanner.Execute;
 var
-  pathToSaves: string;
+  PathToSaves: string;
   SearchRec: TSearchRec;
   Save: TKMSaveInfo;
 begin
-  if fMultiplayerPath then
-    pathToSaves := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim
-  else
-    pathToSaves := ExeDir + SAVES_FOLDER_NAME + PathDelim;
+  PathToSaves := ExeDir + SAVE_FOLDER_IS_MP[fMultiplayerPath] + PathDelim;
 
-  if not DirectoryExists(pathToSaves) then Exit;
+  if not DirectoryExists(PathToSaves) then Exit;
 
-  if FindFirst(pathToSaves + '*.sav', faAnyFile, SearchRec) = 0 then
+  FindFirst(PathToSaves + '*', faDirectory, SearchRec);
   repeat
-    if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
-    and (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    then
+    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+      and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_MAIN, fMultiplayerPath))
+      and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_REPLAY, fMultiplayerPath))
+      and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_BASE, fMultiplayerPath)) then
     begin
-      Save :=  TKMSaveInfo.Create(pathToSaves, TruncateExt(SearchRec.Name));
+      Save := TKMSaveInfo.Create(SearchRec.Name, fMultiplayerPath);
       if SLOW_SAVE_SCAN then
         Sleep(50);
       fOnSaveAdd(Save);

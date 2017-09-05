@@ -5,6 +5,10 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
+
+  {$IFDEF FPC}FileUtil,{$ENDIF}
+  {$IFDEF WDC}IOUtils,{$ENDIF}
+
   Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonTypes, KM_Defaults, KM_Points, KM_FileIO,
@@ -144,7 +148,9 @@ type
     function GetNormalGameSpeed: Single;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
-    function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
+    function SavePath(aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+    function SaveName(aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
+    function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
     procedure UpdateMultiplayerTeams;
 
     property PerfLog: TKMPerfLog read fPerfLog;
@@ -263,7 +269,7 @@ begin
   fIsExiting := True;
 
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-  //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode in [gmMulti, gmMultiSpectate]));
+  //  fGameInputProcess.SaveToFile(SaveName('basesave', EXT_SAVE_REPLAY, fGameMode in [gmMulti, gmMultiSpectate]));
 
   if DO_PERF_LOGGING and (fPerfLog <> nil) then
     fPerfLog.SaveToFile(ExeDir + 'Logs' + PathDelim + 'PerfLog.txt');
@@ -469,7 +475,7 @@ begin
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
   if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
-    SaveGame(SaveName('basesave', 'bas', IsMultiplayer), UTCNow);
+    SaveGame(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), UTCNow);
 
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
   gScriptEvents.ProcMissionStart;
@@ -672,10 +678,10 @@ begin
     if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     begin
       Save('crashreport', UTCNow);
-      AttachFile(SaveName('crashreport', 'sav', IsMultiplayer));
-      AttachFile(SaveName('crashreport', 'bas', IsMultiplayer));
-      AttachFile(SaveName('crashreport', 'rpl', IsMultiplayer));
-      AttachFile(SaveName('crashreport', MP_MINIMAP_SAVE_EXT, IsMultiplayer));
+      AttachFile(SaveName('crashreport', EXT_SAVE_MAIN, IsMultiplayer));
+      AttachFile(SaveName('crashreport', EXT_SAVE_BASE, IsMultiplayer));
+      AttachFile(SaveName('crashreport', EXT_SAVE_REPLAY, IsMultiplayer));
+      AttachFile(SaveName('crashreport', EXT_SAVE_MP_MINIMAP, IsMultiplayer));
     end;
   except
     on E : Exception do
@@ -704,9 +710,9 @@ begin
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin
-    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'rpl', IsMultiplayer));
-    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'bas', IsMultiplayer));
-    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav', IsMultiplayer));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, IsMultiplayer));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, IsMultiplayer));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN, IsMultiplayer));
   end;
 
   gLog.AddTime('Crash report created');
@@ -898,27 +904,54 @@ end;
 procedure TKMGame.AutoSave(aTimestamp: TDateTime);
 var
   I: Integer;
+  TmpPath: UnicodeString;
 begin
   Save('autosave', aTimestamp); //Save to temp file
 
-  //Delete last autosave and shift remaining by 1 position back
-  DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'sav', IsMultiplayer));
-  DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'rpl', IsMultiplayer));
-  DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'bas', IsMultiplayer));
-  DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer));
+  //Delete last autosave
+  TmpPath := SavePath('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), IsMultiplayer);
+  if DirectoryExists(TmpPath) then
+  begin
+    {$IFDEF FPC} DeleteDirectory(TmpPath, False); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Delete(TmpPath, True); {$ENDIF}
+  end;
+
+  //Shift remaining autosaves by 1 position back
   for I := AUTOSAVE_COUNT downto 2 do // 03 to 01
   begin
-    RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'sav', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'sav', IsMultiplayer));
-    RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'rpl', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'rpl', IsMultiplayer));
-    RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), 'bas', IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), 'bas', IsMultiplayer));
-    RenameFile(SaveName('autosave' + Int2Fix(I - 1, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer), SaveName('autosave' + Int2Fix(I, 2), MP_MINIMAP_SAVE_EXT, IsMultiplayer));
+    TmpPath := SavePath('autosave' + Int2Fix(I - 1, 2), IsMultiplayer);
+    if DirectoryExists(TmpPath) then
+    begin
+      {$IFDEF FPC} RenameFile(TmpPath, SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer)); {$ENDIF}
+      {$IFDEF WDC} TDirectory.Move(TmpPath, SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer)); {$ENDIF}
+      //Files have old name, when folder was already renamed
+      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_MAIN, IsMultiplayer),
+                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN, IsMultiplayer));
+      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_REPLAY, IsMultiplayer),
+                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, IsMultiplayer));
+      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_BASE, IsMultiplayer),
+                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, IsMultiplayer));
+      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_MP_MINIMAP, IsMultiplayer),
+                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MP_MINIMAP, IsMultiplayer));
+    end;
   end;
 
   //Rename temp to be first in list
-  RenameFile(SaveName('autosave', 'sav', IsMultiplayer), SaveName('autosave01', 'sav', IsMultiplayer));
-  RenameFile(SaveName('autosave', 'rpl', IsMultiplayer), SaveName('autosave01', 'rpl', IsMultiplayer));
-  RenameFile(SaveName('autosave', 'bas', IsMultiplayer), SaveName('autosave01', 'bas', IsMultiplayer));
-  RenameFile(SaveName('autosave', MP_MINIMAP_SAVE_EXT, IsMultiplayer), SaveName('autosave01', MP_MINIMAP_SAVE_EXT, IsMultiplayer));
+  TmpPath := SavePath('autosave', IsMultiplayer);
+  if DirectoryExists(TmpPath) then
+  begin
+    {$IFDEF FPC} RenameFile(TmpPath, SavePath('autosave01', IsMultiplayer)); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Move(TmpPath, SavePath('autosave01', IsMultiplayer)); {$ENDIF}
+    //Files have old name, when folder was already renamed
+    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_MAIN, IsMultiplayer),
+               SaveName('autosave01', EXT_SAVE_MAIN, IsMultiplayer));
+    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_REPLAY, IsMultiplayer),
+               SaveName('autosave01', EXT_SAVE_REPLAY, IsMultiplayer));
+    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_BASE, IsMultiplayer),
+               SaveName('autosave01', EXT_SAVE_BASE, IsMultiplayer));
+    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_MP_MINIMAP, IsMultiplayer),
+               SaveName('autosave01', EXT_SAVE_MP_MINIMAP, IsMultiplayer));
+  end;
 end;
 
 
@@ -1312,6 +1345,9 @@ begin
     //so we can load multiplayer saves in single player and vice versa.
     SaveStream.Write(IsMultiplayer);
 
+    //Makes the folders incase they were deleted. Should do before save MiniMap file for MP game
+    ForceDirectories(ExtractFilePath(aPathName));
+
     //In SinglePlayer we want to show player a preview of what the game looked like when he saved
     //Save Minimap is near the start so it can be accessed quickly
     //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
@@ -1375,8 +1411,6 @@ begin
     //we must send those "commands" through the GIP so all players know about them and they're in sync.
     //There is a comment in fGame.Load about MessageList on this topic.
 
-    //Makes the folders incase they were deleted
-    ForceDirectories(ExtractFilePath(aPathName));
     SaveStream.SaveToFile(aPathName); //Some 70ms for TPR7 map
   finally
     SaveStream.Free;
@@ -1393,15 +1427,15 @@ var
   SaveInfo: TKMSaveInfo;
 begin
   //Convert name to full path+name
-  fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
-  minimapPath := SaveName(aSaveName, MP_MINIMAP_SAVE_EXT, IsMultiplayer);
+  fullPath := SaveName(aSaveName, EXT_SAVE_MAIN, IsMultiplayer);
+  minimapPath := SaveName(aSaveName, EXT_SAVE_MP_MINIMAP, IsMultiplayer);
 
   SaveGame(fullPath, aTimestamp, minimapPath);
 
   if not IsMultiplayer then
   begin
     // Update GameSettings for saved positions in lists of saves and replays
-    SaveInfo := TKMSaveInfo.Create(ExtractFilePath(fullPath), aSaveName);
+    SaveInfo := TKMSaveInfo.Create(aSaveName, IsMultiplayer);
     gGameApp.GameSettings.MenuSPSaveCRC := SaveInfo.CRC; // Update save position for SP game
     SaveInfo.Free;
   end;
@@ -1410,12 +1444,12 @@ begin
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
 
   //Copy basesave so we have a starting point for replay
-  DeleteFile(SaveName(aSaveName, 'bas', IsMultiplayer));
-  KMCopyFile(SaveName('basesave', 'bas', IsMultiplayer), SaveName(aSaveName, 'bas', IsMultiplayer));
+  DeleteFile(SaveName(aSaveName, EXT_SAVE_BASE, IsMultiplayer));
+  KMCopyFile(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), SaveName(aSaveName, EXT_SAVE_BASE, IsMultiplayer));
 
   //Save replay queue
   gLog.AddTime('Saving replay info');
-  fGameInputProcess.SaveToFile(ChangeFileExt(fullPath, '.rpl'));
+  fGameInputProcess.SaveToFile(ChangeFileExt(fullPath, '.' + EXT_SAVE_REPLAY));
 
   gLog.AddTime('Saving game', True);
 end;
@@ -1435,14 +1469,14 @@ var
   SaveIsMultiplayer, IsCampaign: Boolean;
   I: Integer;
 begin
-  fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');
+  fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.' + EXT_SAVE_MAIN);
 
   gLog.AddTime('Loading game from: ' + aPathName);
 
   LoadStream := TKMemoryStream.Create;
   try
     if not FileExists(aPathName) then
-      raise Exception.Create('Savegame could not be found');
+      raise Exception.Create('Savegame could not be found at ''' + aPathName + '''');
 
     LoadStream.LoadFromFile(aPathName);
 
@@ -1538,7 +1572,7 @@ begin
       else
         fGameInputProcess := TGameInputProcess_Single.Create(gipRecording); //Singleplayer
 
-    fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, '.rpl'));
+    fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, '.' + EXT_SAVE_REPLAY));
 
      //Should check all Unit-House ID references and replace them with actual pointers
     gHands.SyncLoad;
@@ -1552,8 +1586,8 @@ begin
 
     if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     begin
-      DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
-      KMCopyFile(ChangeFileExt(aPathName, '.bas'), SaveName('basesave', 'bas', IsMultiplayer));
+      DeleteFile(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer));
+      KMCopyFile(ChangeFileExt(aPathName, '.bas'), SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer));
     end;
 
     //Repeat mission init if necessary
@@ -1750,12 +1784,21 @@ begin
 end;
 
 
-function TKMGame.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
+function TKMGame.SavePath(aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
-  if aMultiPlayer then
-    Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt
-  else
-    Result := ExeDir + SAVES_FOLDER_NAME + PathDelim + aName + '.' + aExt;
+  Result := TKMSavesCollection.Path(aName, aIsMultiplayer);
+end;
+
+
+function TKMGame.SaveName(aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+begin
+  Result := TKMSavesCollection.Path(aFolder, aIsMultiplayer) + aName + '.' + aExt;
+end;
+
+
+function TKMGame.SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+begin
+  Result := TKMSavesCollection.FullPath(aName, aExt, aIsMultiplayer);
 end;
 
 

@@ -33,7 +33,7 @@ type
     procedure LoadGameFromSave(aFilePath: UnicodeString; aGameMode: TGameMode);
     procedure LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
-    function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
+    function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
   public
     constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TEvent; aOnLoadingText: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
     destructor Destroy; override;
@@ -95,7 +95,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_Main, KM_GameCursor,
+  KM_Log, KM_Main, KM_GameCursor, KM_Saves,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KM_Maps, KM_Resource, KM_Sound, KM_CommonUtils, KM_GameInputProcess, KM_Controls;
 
@@ -606,7 +606,7 @@ end;
 procedure TKMGameApp.NewSingleSave(aSaveName: UnicodeString);
 begin
   //Convert SaveName to local FilePath
-  LoadGameFromSave(SaveName(aSaveName, 'sav', False), gmSingle);
+  LoadGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, False), gmSingle);
 end;
 
 
@@ -637,7 +637,7 @@ begin
     GameMode := gmMulti;
   //Convert SaveName to local FilePath
   //aFileName is the same for all players, but Path to it is different
-  LoadGameFromSave(SaveName(aSaveName, 'sav', True), GameMode);
+  LoadGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, True), GameMode);
 
   //Copy the chat and typed lobby message to the in-game chat
   gGame.GamePlayInterface.SetChatState(fMainMenuInterface.GetChatState);
@@ -678,12 +678,9 @@ begin
 end;
 
 
-function TKMGameApp.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
+function TKMGameApp.SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
-  if aMultiPlayer then
-    Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt
-  else
-    Result := ExeDir + SAVES_FOLDER_NAME + PathDelim + aName + '.' + aExt;
+  Result := TKMSavesCollection.FullPath(aName, aExt, aIsMultiplayer);
 end;
 
 

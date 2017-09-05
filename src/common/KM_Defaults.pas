@@ -224,7 +224,10 @@ const
   RETURN_TO_LOBBY_SAVE = 'paused';
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
-  MP_MINIMAP_SAVE_EXT = 'smm';
+  EXT_SAVE_MP_MINIMAP = 'smm';
+  EXT_SAVE_REPLAY = 'rpl';
+  EXT_SAVE_MAIN = 'sav';
+  EXT_SAVE_BASE = 'bas';
 
 type
   TKMHandIndex = {type} ShortInt;

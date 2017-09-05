@@ -663,7 +663,7 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
 
-  fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, aName);
+  fSaveInfo := TKMSaveInfo.Create(aName, True);
 
   if not fSaveInfo.IsValid then
   begin
@@ -1923,7 +1923,7 @@ begin
 
                 //See if we already have the save file the host selected
                 FreeAndNil(fSaveInfo);
-                fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, tmpStringW);
+                fSaveInfo := TKMSaveInfo.Create(tmpStringW, True);
 
                 gLog.AddTime(Format('mk_SaveSelect: fSaveInfo.CRC = %d, tmpCRC = %d', [fSaveInfo.CRC, tmpCardinal]));
                 if not fSaveInfo.IsValid or (fSaveInfo.CRC <> tmpCardinal) then
@@ -1935,8 +1935,8 @@ begin
                     gLog.AddTime(Format('Save error: %s. Check params: fSaveInfo.IsValid = %s; (fSaveInfo.CRC <> tmpCRC) = ;' +
                                         ' Save FileExists %s: %s; fSaveError = %s; fInfo.IsValid(True) = %s',
                                         [gResTexts[TX_PAUSED_FILE_MISMATCH], BoolToStr(fSaveInfo.IsValid),
-                                         BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + '.sav',
-                                         BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + '.sav')), fSaveInfo.SaveError,
+                                         BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + '.' + EXT_SAVE_MAIN,
+                                         BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + '.' + EXT_SAVE_MAIN)), fSaveInfo.SaveError,
                                          fSaveInfo.Info.IsValid(True)]));
                     fSelectGameKind := ngk_None;
                     FreeAndNil(fSaveInfo);
@@ -1945,7 +1945,7 @@ begin
                   end;
                   //See if the host selected the same save we already downloaded
                   FreeAndNil(fSaveInfo);
-                  fSaveInfo := TKMSaveInfo.Create(ExeDir + SAVES_MP_FOLDER_NAME + PathDelim, DOWNLOADED_LOBBY_SAVE);
+                  fSaveInfo := TKMSaveInfo.Create(DOWNLOADED_LOBBY_SAVE, True);
                 end;
 
                 if fSaveInfo.IsValid and (fSaveInfo.CRC = tmpCardinal) then
