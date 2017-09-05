@@ -106,7 +106,7 @@ type
 implementation
 
 uses
-  StrUtils, KM_Utils, KM_CommonUtils;
+  StrUtils, KM_FileIO, KM_CommonUtils;
 
 const
   //Save folder name by IsMultiplayer flag
@@ -318,8 +318,7 @@ begin
   Lock;
   try
     Assert(InRange(aIndex, 0, fCount-1));
-    {$IFDEF FPC} DeleteDirectory(fSaves[aIndex].Path, False); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Delete(fSaves[aIndex].Path, True); {$ENDIF}
+    KMDeleteFolder(fSaves[aIndex].Path);
     fSaves[aIndex].Free;
     for I := aIndex to fCount - 2 do
       fSaves[I] := fSaves[I+1]; //Move them down
@@ -344,7 +343,7 @@ begin
     Dest := Path(aName, fSaves[aIndex].IsMultiplayer);
     Assert(fSaves[aIndex].Path <> Dest);
 
-    MoveFolder(fSaves[aIndex].Path, Dest);
+    KMMoveFolder(fSaves[aIndex].Path, Dest);
 
     //Remove the map from our list
     fSaves[aIndex].Free;

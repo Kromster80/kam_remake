@@ -175,7 +175,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_CommonUtils, KM_GameApp, KM_Scripting, KM_Utils;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_CommonUtils, KM_GameApp, KM_Scripting, KM_FileIO;
 
 
 const
@@ -761,8 +761,7 @@ begin
    Lock;
    try
      Assert(InRange(aIndex, 0, fCount - 1));
-     {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
+     KMDeleteFolder(fMaps[aIndex].Path);
      fMaps[aIndex].Free;
      for I  := aIndex to fCount - 2 do
        fMaps[I] := fMaps[I + 1];
@@ -793,7 +792,7 @@ begin
     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
     Assert(fMaps[aIndex].Path <> Dest);
 
-    MoveFolder(fMaps[aIndex].Path, Dest);
+    KMMoveFolder(fMaps[aIndex].Path, Dest);
 
     //Remove the map from our list
     fMaps[aIndex].Free;

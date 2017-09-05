@@ -904,30 +904,18 @@ end;
 procedure TKMGame.AutoSave(aTimestamp: TDateTime);
 var
   I: Integer;
-  TmpPath: UnicodeString;
 begin
   Save('autosave', aTimestamp); //Save to temp file
 
   //Delete last autosave
-  TmpPath := SavePath('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), IsMultiplayer);
-  if DirectoryExists(TmpPath) then
-  begin
-    {$IFDEF FPC} DeleteDirectory(TmpPath, False); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Delete(TmpPath, True); {$ENDIF}
-  end;
+  KMDeleteFolder(SavePath('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), IsMultiplayer));
 
   //Shift remaining autosaves by 1 position back
   for I := AUTOSAVE_COUNT downto 2 do // 03 to 01
-  begin
-    TmpPath := SavePath('autosave' + Int2Fix(I - 1, 2), IsMultiplayer);
-    if DirectoryExists(TmpPath) then
-      MoveFolder(TmpPath, SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer));
-  end;
+    KMMoveFolder(SavePath('autosave' + Int2Fix(I - 1, 2), IsMultiplayer), SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer));
 
   //Rename temp to be first in list
-  TmpPath := SavePath('autosave', IsMultiplayer);
-  if DirectoryExists(TmpPath) then
-    MoveFolder(TmpPath, SavePath('autosave01', IsMultiplayer));
+  KMMoveFolder(SavePath('autosave', IsMultiplayer), SavePath('autosave01', IsMultiplayer));
 end;
 
 

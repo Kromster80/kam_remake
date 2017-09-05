@@ -6,17 +6,31 @@ uses
   {$IFDEF WDC} System.IOUtils, {$ENDIF}
   Classes, SysUtils;
 
-//Read text file into ANSI string (scripts, locale texts)
-function ReadTextA(afilename: UnicodeString): AnsiString;
+  //Read text file into ANSI string (scripts, locale texts)
+  function ReadTextA(afilename: UnicodeString): AnsiString;
 
-//Read text file into unicode string (locale texts)
-function ReadTextU(afilename: UnicodeString; aEncoding: Word): UnicodeString;
+  //Read text file into unicode string (locale texts)
+  function ReadTextU(afilename: UnicodeString; aEncoding: Word): UnicodeString;
 
-//Copy a file (CopyFile is different between Delphi and Lazarus)
-procedure KMCopyFile(aSrc, aDest: UnicodeString);
+  //Copy a file (CopyFile is different between Delphi and Lazarus)
+  procedure KMCopyFile(aSrc, aDest: UnicodeString);
+
+  //Delete a folder (DeleteFolder is different between Delphi and Lazarus)
+  procedure KMDeleteFolder(aPath: UnicodeString);
+
+  //Rename a file (RenameFile is different between Delphi and Lazarus)
+  procedure KMRenamePath(aSourcePath, aDestPath: UnicodeString);
+
+  //Move a folder and rename all the files inside it (MoveFolder is different between Delphi and Lazarus)
+  function KMMoveFolder(aSourceFolder, aDestFolder: UnicodeString): Boolean;
+
+
+  function IsFilePath(aPath: UnicodeString): Boolean;
 
 
 implementation
+uses
+  StrUtils, KM_CommonUtils;
 
 
 function ReadTextA(aFilename: UnicodeString): AnsiString;
@@ -112,6 +126,86 @@ begin
   {$IFDEF WDC}
   TFile.Copy(aSrc, aDest);
   {$ENDIF}
+end;
+
+
+procedure KMDeleteFolder(aPath: UnicodeString);
+begin
+  if DirectoryExists(aPath) then
+    {$IFDEF FPC} DeleteDirectory(aPath, False); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Delete(aPath, True); {$ENDIF}
+end;
+
+
+function IsFilePath(aPath: UnicodeString): Boolean;
+begin
+  //For now we assume, that folder path always ends with PathDelim
+  Result := RightStr(aPath, 1) <> PathDelim;
+end;
+
+
+procedure KMRenamePath(aSourcePath, aDestPath: UnicodeString);
+begin
+  if IsFilePath(aSourcePath) then
+  begin
+    if FileExists(aSourcePath) then
+      {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
+      {$IFDEF WDC} TFile.Move(aSourcePath, aDestPath); {$ENDIF}
+  end else begin
+    if DirectoryExists(aSourcePath) then
+      {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
+      {$IFDEF WDC} TDirectory.Move(aSourcePath, aDestPath); {$ENDIF}
+  end;
+end;
+
+
+//Move folder and rename all files inside by pattern _old_name_suffix to _new_name_suffix
+//Pattern thatwe use for most of the files for our maps/saves
+function KMMoveFolder(aSourceFolder, aDestFolder: UnicodeString): Boolean;
+var
+  I: Integer;
+  SrcName, DestName, RenamedFile: UnicodeString;
+  SearchRec: TSearchRec;
+  FilesToMove: TStringList;
+begin
+  Result := False;
+  if (Trim(aSourceFolder) = '')
+    or (Trim(aDestFolder) = '')
+    or (aSourceFolder = aDestFolder)
+    or not DirectoryExists(aSourceFolder) then Exit;
+
+  SrcName := GetFileDirName(aSourceFolder);
+  DestName := GetFileDirName(aDestFolder);
+
+  FilesToMove := TStringList.Create;
+  try
+    //Remove existing dest directory
+    KMDeleteFolder(aDestFolder);
+
+    //Move directory to dest
+    KMRenamePath(aSourceFolder, aDestFolder);
+
+    //Find all files to move in dest
+    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
+    FindFirst(aDestFolder + SrcName + '*', faAnyFile - faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and (Length(SearchRec.Name) > Length(SrcName)) then
+        FilesToMove.Add(SearchRec.Name);
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+
+    //Move all previously finded files
+    for I := 0 to FilesToMove.Count - 1 do
+    begin
+       RenamedFile := aDestFolder + DestName + RightStr(FilesToMove[I], Length(FilesToMove[I]) - Length(SrcName));
+       if not FileExists(RenamedFile) and (aDestFolder + FilesToMove[I] <> RenamedFile) then
+         KMRenamePath(aDestFolder + FilesToMove[I], RenamedFile);
+    end;
+  finally
+    FilesToMove.Free;
+  end;
+  Result := True;
 end;
 
 
