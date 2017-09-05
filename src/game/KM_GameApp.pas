@@ -509,7 +509,7 @@ begin
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError
-        {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+        {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
         );
       Exit;
     end;
@@ -545,7 +545,7 @@ begin
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError
-        {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+        {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
         );
       Exit;
     end;
@@ -580,7 +580,7 @@ begin
       LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError
-        {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+        {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
         );
       Exit;
     end;
