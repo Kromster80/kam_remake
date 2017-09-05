@@ -1113,7 +1113,6 @@
       </Unit157>
       <Unit158>
         <Filename Value="src\KM_Settings.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <CursorPos X="58" Y="9"/>
         <UsageCount Value="11"/>
@@ -1123,8 +1122,8 @@
       <Unit159>
         <Filename Value="src\utils\KM_Utils.pas"/>
         <EditorIndex Value="6"/>
-        <TopLine Value="800"/>
-        <CursorPos X="105" Y="814"/>
+        <TopLine Value="62"/>
+        <CursorPos X="105" Y="61"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -1134,9 +1133,10 @@
         <ComponentName Value="FormMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <TopLine Value="771"/>
-        <CursorPos X="54" Y="779"/>
+        <CursorPos X="46" Y="777"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
