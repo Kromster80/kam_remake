@@ -187,7 +187,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_CommonUtils,
+  KM_Log, KM_CommonUtils, KM_Utils,
   KM_AIArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
   KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Saves, KM_ScriptingEvents,
@@ -921,37 +921,13 @@ begin
   begin
     TmpPath := SavePath('autosave' + Int2Fix(I - 1, 2), IsMultiplayer);
     if DirectoryExists(TmpPath) then
-    begin
-      {$IFDEF FPC} RenameFile(TmpPath, SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer)); {$ENDIF}
-      {$IFDEF WDC} TDirectory.Move(TmpPath, SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer)); {$ENDIF}
-      //Files have old name, when folder was already renamed
-      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_MAIN, IsMultiplayer),
-                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN, IsMultiplayer));
-      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_REPLAY, IsMultiplayer),
-                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, IsMultiplayer));
-      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_BASE, IsMultiplayer),
-                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, IsMultiplayer));
-      RenameFile(SaveName('autosave' + Int2Fix(I, 2), 'autosave' + Int2Fix(I - 1, 2), EXT_SAVE_MP_MINIMAP, IsMultiplayer),
-                 SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MP_MINIMAP, IsMultiplayer));
-    end;
+      MoveFolder(TmpPath, SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer));
   end;
 
   //Rename temp to be first in list
   TmpPath := SavePath('autosave', IsMultiplayer);
   if DirectoryExists(TmpPath) then
-  begin
-    {$IFDEF FPC} RenameFile(TmpPath, SavePath('autosave01', IsMultiplayer)); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Move(TmpPath, SavePath('autosave01', IsMultiplayer)); {$ENDIF}
-    //Files have old name, when folder was already renamed
-    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_MAIN, IsMultiplayer),
-               SaveName('autosave01', EXT_SAVE_MAIN, IsMultiplayer));
-    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_REPLAY, IsMultiplayer),
-               SaveName('autosave01', EXT_SAVE_REPLAY, IsMultiplayer));
-    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_BASE, IsMultiplayer),
-               SaveName('autosave01', EXT_SAVE_BASE, IsMultiplayer));
-    RenameFile(SaveName('autosave01', 'autosave', EXT_SAVE_MP_MINIMAP, IsMultiplayer),
-               SaveName('autosave01', EXT_SAVE_MP_MINIMAP, IsMultiplayer));
-  end;
+    MoveFolder(TmpPath, SavePath('autosave01', IsMultiplayer));
 end;
 
 

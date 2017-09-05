@@ -106,7 +106,7 @@ type
 implementation
 
 uses
-  StrUtils, KM_CommonUtils;
+  StrUtils, KM_Utils, KM_CommonUtils;
 
 const
   //Save folder name by IsMultiplayer flag
@@ -334,49 +334,17 @@ end;
 procedure TKMSavesCollection.MoveSave(aIndex: Integer; aName: UnicodeString);
 var
   I: Integer;
-  Dest, RenamedFile: UnicodeString;
-  SearchRec: TSearchRec;
-  FilesToMove: TStringList;
+  Dest: UnicodeString;
 begin
+  Assert(InRange(aIndex, 0, fCount - 1));
   if Trim(aName) = '' then Exit;
 
-  FilesToMove := TStringList.Create;
   Lock;
-   try
-    Dest := ExeDir + SAVE_FOLDER_IS_MP[fSaves[aIndex].IsMultiplayer] + PathDelim + aName + PathDelim;
+  try
+    Dest := Path(aName, fSaves[aIndex].IsMultiplayer);
     Assert(fSaves[aIndex].Path <> Dest);
-    Assert(InRange(aIndex, 0, fCount - 1));
 
-    //Remove existing dest directory
-    if DirectoryExists(Dest) then
-    begin
-     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
-    end;
-
-    //Move directory to dest
-    {$IFDEF FPC} RenameFile(fSaves[aIndex].Path, Dest); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Move(fSaves[aIndex].Path, Dest); {$ENDIF}
-
-    //Find all files to move in dest
-    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
-    FindFirst(Dest + fSaves[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and (Length(SearchRec.Name) > Length(fSaves[aIndex].FileName)) then
-        FilesToMove.Add(SearchRec.Name);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
-
-    //Move all previously finded files
-    for I := 0 to FilesToMove.Count - 1 do
-    begin
-       RenamedFile := Dest + aName + RightStr(FilesToMove[I], Length(SearchRec.Name) - Length(fSaves[aIndex].FileName));
-       if not FileExists(RenamedFile) and (Dest + FilesToMove[I] <> RenamedFile) then
-         {$IFDEF FPC} RenameFile(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
-         {$IFDEF WDC} TFile.Move(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
-    end;
-
+    MoveFolder(fSaves[aIndex].Path, Dest);
 
     //Remove the map from our list
     fSaves[aIndex].Free;
@@ -384,10 +352,9 @@ begin
       fSaves[I] := fSaves[I + 1];
     Dec(fCount);
     SetLength(fSaves, fCount);
-   finally
+  finally
     Unlock;
-    FilesToMove.Free;
-   end;
+  end;
 end;
 
 

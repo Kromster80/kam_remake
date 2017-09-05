@@ -175,7 +175,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_CommonUtils, KM_GameApp, KM_Scripting;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_CommonUtils, KM_GameApp, KM_Scripting, KM_Utils;
 
 
 const
@@ -783,49 +783,17 @@ end;
 procedure TKMapsCollection.MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 var
   I: Integer;
-  Dest, RenamedFile: UnicodeString;
-  SearchRec: TSearchRec;
-  FilesToMove: TStringList;
+  Dest: UnicodeString;
 begin
+  Assert(InRange(aIndex, 0, fCount - 1));
   if Trim(aName) = '' then Exit;
 
-  FilesToMove := TStringList.Create;
   Lock;
-   try
+  try
     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
     Assert(fMaps[aIndex].Path <> Dest);
-    Assert(InRange(aIndex, 0, fCount - 1));
 
-    //Remove existing dest directory
-    if DirectoryExists(Dest) then
-    begin
-     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
-    end;
-
-    //Move directory to dest
-    {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
-
-    //Find all files to move in dest
-    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
-    FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-        FilesToMove.Add(SearchRec.Name);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
-
-    //Move all previously finded files
-    for I := 0 to FilesToMove.Count - 1 do
-    begin
-       RenamedFile := Dest + aName + RightStr(FilesToMove[I], Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-       if not FileExists(RenamedFile) and (Dest + FilesToMove[I] <> RenamedFile) then
-         {$IFDEF FPC} RenameFile(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
-         {$IFDEF WDC} TFile.Move(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
-    end;
-
+    MoveFolder(fMaps[aIndex].Path, Dest);
 
     //Remove the map from our list
     fMaps[aIndex].Free;
@@ -833,10 +801,9 @@ begin
       fMaps[I] := fMaps[I + 1];
     Dec(fCount);
     SetLength(fMaps, fCount);
-   finally
+  finally
     Unlock;
-    FilesToMove.Free;
-   end;
+  end;
 end;
 
 
