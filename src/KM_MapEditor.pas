@@ -668,7 +668,8 @@ end;
 
 procedure TKMMapEditor.UpdateStateIdle;
 begin
-  fTerrainPainter.UpdateStateIdle;
+  if fTerrainPainter <> nil then
+    fTerrainPainter.UpdateStateIdle;
 end;
 
 

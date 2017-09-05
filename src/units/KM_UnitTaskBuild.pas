@@ -161,7 +161,7 @@ begin
   end
   else
     //Autobuild AI should rebuild roads when worker dies (otherwise house is never built)
-    if not gGame.IsExiting and gHands[fUnit.Owner].AI.Setup.AutoBuild and (fPhase < 9)
+    if (gGame <> nil) and not gGame.IsExiting and gHands[fUnit.Owner].AI.Setup.AutoBuild and (fPhase < 9)
     and gHands[fUnit.Owner].CanAddFieldPlan(fLoc, ft_Road) then
       gHands[fUnit.Owner].BuildList.FieldworksList.AddField(fLoc, ft_Road);
 

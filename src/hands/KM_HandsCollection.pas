@@ -653,7 +653,7 @@ end;
 //destructor we must release all pointers. It is common that there are cross-pointers (units in fight f.e.) that cant be cross-freed
 procedure TKMHandsCollection.CleanUpUnitPointer(var aUnit: TKMUnit);
 begin
-  if (aUnit <> nil) and not gGame.IsExiting then
+  if (aUnit <> nil) and (gGame <> nil) and not gGame.IsExiting then
     aUnit.ReleaseUnitPointer;
   aUnit := nil;
 end;
@@ -805,7 +805,7 @@ var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
-  if not gGame.IsPaused and not gGame.IsExiting then
+  if (gGame <> nil) and not gGame.IsPaused and not gGame.IsExiting then
     fHandsList[I].UpdateState(aTick)
   else
     //PlayerAI can stop the game and clear everything

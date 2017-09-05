@@ -53,7 +53,7 @@ end;
 
 destructor TTaskSelfTrain.Destroy;
 begin
-  if gGame.IsExiting then Exit; //fSchool will already be freed
+  if (gGame = nil) or gGame.IsExiting then Exit; //fSchool will already be freed
 
   // If we abandon for some reason, clear the school animation
   if (fPhase <= 5) and not fSchool.IsDestroyed then

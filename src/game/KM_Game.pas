@@ -1738,7 +1738,8 @@ end;
 
 procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
-  gLoopSounds.UpdateState;
+  if gLoopSounds <> nil then
+    gLoopSounds.UpdateState;
 
   if not fIsPaused then
     fActiveInterface.UpdateState(aGlobalTickCount);

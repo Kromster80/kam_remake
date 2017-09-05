@@ -265,7 +265,7 @@ end;
 
 destructor TUnitActionWalkTo.Destroy;
 begin
-  if fDoExchange and not gGame.IsExiting then
+  if fDoExchange and (gGame <> nil) and not gGame.IsExiting then
     Assert(not fDoExchange, 'Oops, thats a very bad situation');
 
   if WRITE_WALKTO_LOG then
