@@ -3,7 +3,7 @@ unit KM_UnitActionStormAttack;
 interface
 uses
   Classes, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
   KM_Units;
 
 

@@ -11,8 +11,13 @@ uses
 const
   MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
   MAX_LOOP_SOUNDS = 4;
+  WAV_FILE_EXT = '.wav';
+  OGG_FILE_EXT = '.ogg';
 
 type
+
+  TKMAudioFormat = (af_Wav, af_Ogg);
+
   TKMSoundPlayer = class
   private
     fALDevice: PALCdevice;
@@ -64,7 +69,7 @@ type
     procedure UpdateSoundVolume(Value: Single);
 
     procedure PlayNotification(aSound: TAttackNotification);
-    procedure PlayWAVFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single; Radius: Single; aFadesMusic: Boolean);
+    procedure PlaySoundFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single; Radius: Single; aFadesMusic: Boolean);
 
     procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech); overload;
     procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
@@ -94,6 +99,7 @@ type
                         //Fields below are saved
                         ScriptIndex: Integer;
                         SoundName: AnsiString; //Just sound name, not the path
+                        AudioFormat: TKMAudioFormat;
                         Volume: Single;
                         Radius: Single;
                         Attenuate: Boolean;
@@ -111,7 +117,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure UpdateState;
 
-    function AddLoopSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
+    function AddLoopSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aSoundFormat: TKMAudioFormat; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
     procedure RemoveLoopSound(aScriptIndex: Integer);
     procedure UpdateListener(X,Y: Single);
   end;
@@ -124,7 +130,8 @@ var
 
 implementation
 uses
-  KM_RenderAux, KM_Log, KM_Utils, KM_Resource, KM_HandsCollection, KM_Game;
+  Codec, VorbisFile, 
+  KM_RenderAux, KM_Log, KM_CommonUtils, KM_Resource, KM_HandsCollection, KM_Game;
 
 
 const
@@ -369,17 +376,23 @@ function TKMSoundPlayer.PlaySound(SoundID: TSoundFX; const aFile: UnicodeString;
                                   Attenuated: Boolean; Volume: Single; Radius: Single;
                                   FadeMusic: Boolean; aLoop: Boolean): Integer;
 var Dif:array[1..3]of single;
-  FreeBuf{,FreeSrc}:integer;
-  i,ID:integer;
+  FreeBuf{,FreeSrc}: Integer;
+  I, ID, OggOpenResult: Integer;
   W: TKMSoundData;
-  Distance:single;
+  Distance: Single;
   ALState: TALint;
   WAVformat: TALenum;
   WAVdata: TALvoid;
   WAVsize: TALsizei;
   WAVfreq: TALsizei;
   WAVloop: TALint;
-  WAVDuration:cardinal;
+  WAVDuration: Cardinal;
+  FileExt: String;
+  OggFileStream: TFileStream;
+  OggVorbisFile: OggVorbis_File;
+  VorbisInfo: P_Vorbis_Info;
+  OggBytesRead, OggBytesChanged: Longword;
+  OggBuffer: PChar;
 begin
   Result := -1;
   if not fIsSoundInitialized then Exit;
@@ -408,12 +421,12 @@ begin
 
   //Find free buffer and use it
   FreeBuf := 0;
-  for i:=1 to MAX_SOUNDS do
+  for I := 1 to MAX_SOUNDS do
   begin
     alGetSourcei(fSound[i].ALSource, AL_SOURCE_STATE, @ALState);
     if ALState<>AL_PLAYING then
     begin
-      FreeBuf := i;
+      FreeBuf := I;
       Break;
     end;
   end;
@@ -433,25 +446,70 @@ begin
   //Assign new data to buffer and assign it to source
   if SoundID = sfx_None then
   begin
+    FileExt := ExtractFileExt(aFile);
     try
-      alutLoadWAVFile(aFile,WAVformat,WAVdata,WAVsize,WAVfreq,WAVloop);
-      AlBufferData(fSound[FreeBuf].ALBuffer,WAVformat,WAVdata,WAVsize,WAVfreq);
-      alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
+      if LowerCase(FileExt) = WAV_FILE_EXT then
+      begin
+        alutLoadWAVFile(aFile,WAVformat,WAVdata,WAVsize,WAVfreq,WAVloop);
+        AlBufferData(fSound[FreeBuf].ALBuffer,WAVformat,WAVdata,WAVsize,WAVfreq);
+        alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
+      end else if LowerCase(FileExt) = OGG_FILE_EXT then
+      begin
+        OggFileStream := TFileStream.Create(aFile, fmOpenRead or fmShareDenyNone);
+        try
+          OggOpenResult := ov_open_callbacks(OggFileStream, OggVorbisFile, nil, 0, ops_callbacks);
+          if OggOpenResult <> 0 then
+          begin
+            gLog.AddTime('Error loading OGG sound file ''' + aFile + ''': ' + GetVorbisErrorName(OggOpenResult));
+            Exit; // Ignore all errors
+          end;
+
+          // get ogg file info
+          VorbisInfo := ov_info(OggVorbisFile, -1);
+
+          if VorbisInfo.Channels = 1 then
+            WAVformat := AL_FORMAT_MONO16
+          else
+            WAVformat := AL_FORMAT_STEREO16;
+
+          WAVsize := ov_pcm_total(OggVorbisFile, -1) * 4;
+          WAVfreq := VorbisInfo.Rate;
+
+          GetMem(OggBuffer, WAVsize);
+          try
+            OggBytesRead := 0;
+            // Load ogg file into the buffer with ov_read
+            repeat
+              OggBytesChanged := ov_read(OggVorbisFile, PKMStaticByteArray(OggBuffer)^[OggBytesRead], WAVsize - OggBytesRead, 0, 2, 1, nil);
+              OggBytesRead := OggBytesRead + OggBytesChanged;
+            until (OggBytesChanged = 0) or (OggBytesRead >= WAVsize);
+
+            AlBufferData(fSound[FreeBuf].ALBuffer,WAVformat,OggBuffer,WAVsize,WAVfreq);
+          finally
+            FreeMem(OggBuffer, WAVsize);
+          end;
+        finally
+          OggFileStream.Free;
+        end;
+      end
+      else
+        raise Exception.Create('Unsupported sound file format: ' + FileExt);
+        
+      WAVDuration := round(WAVsize / WAVfreq * 1000);
+      case WAVformat of
+        AL_FORMAT_STEREO16: WAVDuration := WAVDuration div 4;
+        AL_FORMAT_STEREO8: WAVDuration := WAVDuration div 2;
+        AL_FORMAT_MONO16: WAVDuration := WAVDuration div 2;
+      end;
     except
       //This happens regularly if you run two copies of the game out of one folder and they share the MP chat sound.
       //We ignore the error to make it possible to run two copies out of one folder (especially for debugging) without
       //continual clashes over sound files.
       on E: EFOpenError do
       begin
-        gLog.AddTime('Error loading sound file: '+E.Message);
+        gLog.AddTime('Error loading sound file: ' + E.Message);
         Exit;
       end;
-    end;
-    WAVDuration := round(WAVsize / WAVfreq * 1000);
-    case WAVformat of
-      AL_FORMAT_STEREO16: WAVDuration := WAVDuration div 4;
-      AL_FORMAT_STEREO8: WAVDuration := WAVDuration div 2;
-      AL_FORMAT_MONO16: WAVDuration := WAVDuration div 2;
     end;
   end
   else
@@ -546,7 +604,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayWAVFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single; Radius: Single; aFadesMusic: Boolean);
+procedure TKMSoundPlayer.PlaySoundFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single; Radius: Single; aFadesMusic: Boolean);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
@@ -584,7 +642,7 @@ function TKMSoundPlayer.PlayLoopSound(const aFile: UnicodeString; aLoc: TKMPoint
 var I: Integer;
 begin
   Result := -1; //Failed to play
-  for I:=Low(fLoopSoundIndex) to High(fLoopSoundIndex) do
+  for I := Low(fLoopSoundIndex) to High(fLoopSoundIndex) do
     if fLoopSoundIndex[I] = -1 then
     begin
       fLoopSoundIndex[I] := PlaySound(sfx_None, aFile, aLoc, aAttenuate, aVolume, aRadius, False, True);
@@ -708,7 +766,7 @@ end;
 procedure TKMLoopSoundsManager.StartLoopSound(aIndex: Integer);
 var S: UnicodeString;
 begin
-  S := ExeDir + gGame.GetScriptSoundFile(fSounds[aIndex].SoundName);
+  S := ExeDir + gGame.GetScriptSoundFile(fSounds[aIndex].SoundName, fSounds[aIndex].AudioFormat);
 
   //Silently ignore missing files
   if not FileExists(S) or not CanPlay(aIndex) then
@@ -727,7 +785,8 @@ begin
 end;
 
 
-function TKMLoopSoundsManager.AddLoopSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
+function TKMLoopSoundsManager.AddLoopSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aSoundFormat: TKMAudioFormat; 
+                                           aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
 var
   NewIndex: Integer;
 begin
@@ -740,6 +799,7 @@ begin
   fSounds[NewIndex].ScriptIndex := fLastScriptIndex;
   fSounds[NewIndex].PlayingIndex := -1;
   fSounds[NewIndex].SoundName := aSoundName;
+  fSounds[NewIndex].AudioFormat := aSoundFormat;
   fSounds[NewIndex].Loc := aLoc;
   fSounds[NewIndex].Attenuate := aAttenuate;
   fSounds[NewIndex].Volume := aVolume;

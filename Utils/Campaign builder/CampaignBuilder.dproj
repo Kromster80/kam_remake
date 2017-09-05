@@ -44,13 +44,13 @@
 			<DCC_RangeChecking>true</DCC_RangeChecking>
 			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
 			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
-			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\net;..\..\src\render;..\..\src\res;..\..\src\terrain;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src\ext\;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\pascalscript\Source;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\net;..\..\src\render;..\..\src\res;..\..\src\terrain;..\..\src\units;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_K>false</DCC_K>
 			<DCC_F>false</DCC_F>
 			<DCC_S>false</DCC_S>
 			<DCC_N>true</DCC_N>
 			<DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-			<DebugSourcePath>..\..\;..\..\src\common;..\..\src\common\zlib;..\..\src\common\pngimage;..\..\src\common\Overbyte ICS;$(DebugSourcePath)</DebugSourcePath>
+			<DebugSourcePath>..\..\;..\..\src\ext;..\..\src\ext\zlib;..\..\src\ext\pngimage;..\..\src\ext\Overbyte ICS;$(DebugSourcePath)</DebugSourcePath>
 			<DCC_E>false</DCC_E>
 			<VerInfo_Locale>3081</VerInfo_Locale>
 		</PropertyGroup>

@@ -82,7 +82,7 @@ end;
 
 procedure TKMMenuCredits.LinkClick(Sender: TObject);
 
-  //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
+  //This can't be moved to e.g. KM_CommonUtils because the dedicated server needs that, and it must be Linux compatible
   procedure GoToURL(aUrl: string);
   begin
     {$IFDEF WDC}

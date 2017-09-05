@@ -3,7 +3,7 @@ unit KM_Terrain;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResTileset,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils, KM_ResTileset,
   KM_ResHouses, KM_ResWares, KM_TerrainFinder, KM_ResMapElements;
 
 
@@ -15,6 +15,26 @@ type
                     vu_NWSE,    //Vertex is used NW-SE like this: \
                     vu_NESW);   //Vertex is used NE-SW like this: /
   TFenceType = (fncNone, fncCorn, fncWine, fncHousePlan, fncHouseFence);
+
+  TKMTileChangeType = (tctTerrain, tctHeight, tctObject);
+
+  TKMTileChangeTypeSet = set of TKMTileChangeType;
+
+  TKMTerrainTileBrief = record
+    X,Y: Byte;
+    Terrain: Byte;
+    Rotation: Byte;
+    Height: Byte;
+    Obj: Byte;
+    ChangeSet: TKMTileChangeTypeSet;
+  end;
+
+  TKMTerrainTileChangeError = packed record
+    X, Y: Byte;
+    ErrorsIn: TKMTileChangeTypeSet;
+  end;
+
+  TKMTerrainTileChangeErrorArray = array of TKMTerrainTileChangeError;
 
   TKMTerrainTile = record
     Terrain: Byte;
@@ -79,6 +99,11 @@ type
 
     procedure SetField_Init(Loc: TKMPoint; aOwner: TKMHandIndex);
     procedure SetField_Complete(Loc: TKMPoint; aFieldType: TFieldType);
+
+    function TrySetTile(X, Y: Integer; aType, aRot: Byte; aUpdatePassability: Boolean = True): Boolean;
+    function TrySetTileHeight(X, Y: Integer; aHeight: Byte; aUpdatePassability: Boolean = True): Boolean;
+    function TrySetTileObject(X, Y: Integer; aObject: Byte; aUpdatePassability: Boolean = True): Boolean; overload;
+    function TrySetTileObject(X, Y: Integer; aObject: Byte; out aDiagonalChanged: Boolean; aUpdatePassability: Boolean = True): Boolean; overload;
   public
     Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of TKMTerrainTile;
 
@@ -88,7 +113,8 @@ type
     destructor Destroy; override;
     procedure MakeNewMap(aWidth, aHeight: Integer; aMapEditor: Boolean);
     procedure LoadFromFile(FileName: UnicodeString; aMapEditor: Boolean);
-    procedure SaveToFile(aFile: UnicodeString);
+    procedure SaveToFile(aFile: UnicodeString); overload;
+    procedure SaveToFile(aFile: UnicodeString; aInsetRect: TKMRect); overload;
 
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
@@ -191,9 +217,10 @@ type
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TKMHandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
-    function ScriptTryTileSet(X, Y: Integer; aType, aRot: Byte): Boolean;
-    function ScriptTryHeightSet(X, Y: Integer; aHeight: Byte): Boolean;
-    function ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
+    function ScriptTrySetTile(X, Y: Integer; aType, aRot: Byte): Boolean;
+    function ScriptTrySetTileHeight(X, Y: Integer; aHeight: Byte): Boolean;
+    function ScriptTrySetTileObject(X, Y: Integer; aObject: Byte): Boolean;
+    function ScriptTrySetTilesArray(var aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; var aErrors: TKMTerrainTileChangeErrorArray): Boolean;
 
     function ObjectIsChopableTree(X,Y: Word): Boolean; overload;
     function ObjectIsChopableTree(Loc: TKMPoint; aStage: TKMChopableAge): Boolean; overload;
@@ -234,9 +261,9 @@ var
 
 implementation
 uses
-  KM_Log, KM_HandsCollection, KM_TerrainWalkConnect, KM_Resource, KM_Units,
+  KM_CommonTypes, KM_Log, KM_HandsCollection, KM_TerrainWalkConnect, KM_Resource, KM_Units,
   KM_ResSound, KM_Sound, KM_UnitActionStay, KM_Units_Warrior, KM_TerrainPainter,
-  KM_ResUnits, KM_Hand;
+  KM_ResUnits, KM_Hand, KM_Game;
 
 
 { TKMTerrain }
@@ -370,83 +397,158 @@ begin
 end;
 
 
-//Save (export) map in KaM .map format with additional tile information on the end?
 procedure TKMTerrain.SaveToFile(aFile: UnicodeString);
+begin
+  SaveToFile(aFile, KMRECT_ZERO);
+end;
+
+//Save (export) map in KaM .map format with additional tile information on the end?
+procedure TKMTerrain.SaveToFile(aFile: UnicodeString; aInsetRect: TKMRect);
 var
-  S: TKMemoryStream; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
-    ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
-    Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ: Byte; end;
+  c0: Cardinal;
+  cF: Cardinal;
+  b205: Byte;
+
+  procedure WriteTile(var S: TKMemoryStream; X, Y: Word; aTerrain, aHeight, aRotation, aObj: Byte; aLight: Single; aSizeX, aSizeY: Word);
+  begin
+    S.Write(aTerrain);
+
+    S.Write(Byte(Round((aLight+1)*16))); //apply Light (cast to Byte is obligatory due to map file format)
+    S.Write(aHeight);
+
+    //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
+    S.Write(aRotation);
+
+    S.Write(c0, 1); //unknown
+
+    S.Write(aObj);
+
+    S.Write(cF, 1); //Passability?
+
+    S.Write(cF, 4); //unknown
+    S.Write(c0, 3); //unknown
+    //Border
+    if (X = aSizeX) or (Y = aSizeY) then
+      S.Write(b205) //Bottom/right = 205
+    else
+    if (X = 1) or (Y = 1) then
+      S.Write(c0, 1) //Top/left = 0
+    else
+      S.Write(cF, 1); //Rest of the screen = 255
+
+    S.Write(cF, 1); //unknown - always 255
+    S.Write(b205, 1); //unknown - always 205
+    S.Write(c0, 2); //unknown - always 0
+    S.Write(c0, 4); //unknown - always 0
+  end;
+
+  procedure SetNewLand(var S: TKMemoryStream; X, Y, aFromX, aFromY: Word; aSizeX, aSizeY: Word; aNewGeneratedTile: Boolean);
+  var
+    Terrain, Rot, Height, Obj: Byte;
+  begin
+    // new appended terrain
+    if aNewGeneratedTile then
+    begin
+      Terrain := Land[aFromY,aFromX].Terrain;
+      //Apply some random tiles for artisticity
+      Height := EnsureRange(Land[aFromY,aFromX].Height + KaMRandom(7), 0, 100);  //variation in Height
+      Rot := Land[aFromY,aFromX].Rotation;
+      Obj := 255; // No object
+    end
+    else
+    begin
+      Rot := Land[aFromY,aFromX].Rotation;
+      Terrain := Land[aFromY,aFromX].Terrain;
+      Height := Land[aFromY,aFromX].Height;
+      Obj := Land[aFromY,aFromX].Obj;
+    end;
+    WriteTile(S, X, Y, Terrain, Height, Rot, Obj, Land[aFromY,aFromX].Light, aSizeX, aSizeY);
+  end;
+
+var
+  S: TKMemoryStream;
+  MapInnerRect: TKMRect;
+  NewGeneratedTileI, NewGeneratedTileK: Boolean;
+  I, K, IFrom, KFrom: Integer;
+  SizeX, SizeY: Integer;
+  ResHead: packed record
+                    x1: Word;
+                    Allocated, Qty1, Qty2, x5, Len17: Integer;
+                  end;
+  Res: array[1..MAX_MAP_SIZE*2] of
+    packed record
+      X1, Y1, X2, Y2: Integer;
+      Typ: Byte;
+    end;
 begin
   Assert(fMapEditor, 'Can save terrain to file only in MapEd');
   ForceDirectories(ExtractFilePath(aFile));
 
+  c0 := 0;
+  cF := $FFFFFFFF;
+  b205 := 205;
+
   S := TKMemoryStream.Create;
   try
     //Dimensions must be stored as 4 byte integers
-    SizeX := fMapX;
-    SizeY := fMapY;
+    SizeX := fMapX + aInsetRect.Left + aInsetRect.Right;
+    SizeY := fMapY + aInsetRect.Top + aInsetRect.Bottom;
     S.Write(SizeX);
     S.Write(SizeY);
+    MapInnerRect := KMRect(1 + EnsureRange(aInsetRect.Left, 0, aInsetRect.Left),
+                           1 + EnsureRange(aInsetRect.Top, 0, aInsetRect.Top),
+                           EnsureRange(fMapX + aInsetRect.Left, fMapX + aInsetRect.Left, fMapX + aInsetRect.Left + aInsetRect.Right),
+                           EnsureRange(fMapY + aInsetRect.Top, fMapY + aInsetRect.Top, fMapY + aInsetRect.Top + aInsetRect.Bottom));
 
-    c0 := 0;
-    cF := $FFFFFFFF;
-    b205 := 205;
-    for i:=1 to fMapY do for k:=1 to fMapX do
+    for I := 1 to SizeY do
     begin
-      S.Write(Land[i,k].Terrain);
+      if I = SizeY then
+      begin
+        IFrom := fMapY;
+        NewGeneratedTileI := KMSameRect(aInsetRect, KMRECT_ZERO);
+      end else
+      begin
+        IFrom := EnsureRange(I - aInsetRect.Top, 1, fMapY - 1);
+        NewGeneratedTileI := not InRange(I, MapInnerRect.Top, MapInnerRect.Bottom);
+      end;
 
-      light := Round((Land[i,k].Light+1)*16);
-      S.Write(light); //Light
-      S.Write(Land[i,k].Height);
-
-      //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
-      S.Write(Land[i,k].Rotation);
-
-      S.Write(c0,1); //unknown
-
-      S.Write(Land[i,k].Obj);
-
-      S.Write(cF,1); //Passability?
-
-      S.Write(cF,4); //unknown
-      S.Write(c0,3); //unknown
-      //Border
-      if (i=fMapY) or (k=fMapX) then
-        S.Write(b205) //Bottom/right = 205
-      else
-        if (i=1) or (k=1) then
-          S.Write(c0,1) //Top/left = 0
-        else
-          S.Write(cF,1); //Rest of the screen = 255
-
-      S.Write(cF,1); //unknown - always 255
-      S.Write(b205,1); //unknown - always 205
-      S.Write(c0,2); //unknown - always 0
-      S.Write(c0,4); //unknown - always 0
+      for K := 1 to SizeX do
+      begin
+        if K = SizeX then
+        begin
+          KFrom := fMapX;
+          NewGeneratedTileK := KMSameRect(aInsetRect, KMRECT_ZERO);
+        end else
+        begin
+          KFrom := EnsureRange(K - aInsetRect.Left, 1, fMapX - 1);
+          NewGeneratedTileK := not InRange(K, MapInnerRect.Left, MapInnerRect.Right);
+        end;
+        SetNewLand(S, K, I, KFrom, IFrom, SizeX, SizeY, NewGeneratedTileI or NewGeneratedTileK);
+      end;
     end;
 
     //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
     //are formatted we can implement it, but for now it appears to work fine like this.
-    ResHead.x1:=0;
-    ResHead.Allocated := fMapX+fMapY;
-    ResHead.Qty1:=0;
-    ResHead.Qty2:=ResHead.Qty1;
-    if ResHead.Qty1>0 then
-      ResHead.x5:=ResHead.Qty1-1
+    ResHead.x1 := 0;
+    ResHead.Allocated := SizeX + SizeY;
+    ResHead.Qty1 := 0;
+    ResHead.Qty2 := ResHead.Qty1;
+    if ResHead.Qty1 > 0 then
+      ResHead.x5:=ResHead.Qty1 - 1
     else
-      ResHead.x5:=0;
-    ResHead.Len17:=17;
+      ResHead.x5 := 0;
+    ResHead.Len17 := 17;
 
-    for i:=1 to ResHead.Allocated do
+    for I := 1 to ResHead.Allocated do
     begin
-      Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
-      Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
-      Res[i].Typ:=255;
+      Res[I].X1 := -842150451; Res[I].Y1 := -842150451;
+      Res[I].X2 := -842150451; Res[I].Y2 := -842150451;
+      Res[I].Typ := 255;
     end;
 
     S.Write(ResHead, SizeOf(ResHead));
-    for i := 1 to ResHead.Allocated do
-      S.Write(Res[i], SizeOf(Res[i]));
+    for I := 1 to ResHead.Allocated do
+      S.Write(Res[I], SizeOf(Res[I]));
 
     S.SaveToFile(aFile);
   finally
@@ -455,45 +557,7 @@ begin
 end;
 
 
-function TKMTerrain.ScriptTryTileSet(X, Y: Integer; aType, aRot: Byte): Boolean;
-
-  function UnitWillGetStuck: Boolean;
-  var U: TKMUnit;
-  begin
-    U := Land[Y, X].IsUnit;
-    if (U = nil) or U.IsDead then
-      Result := False
-    else
-      if gRes.Units[U.UnitType].DesiredPassability = tpFish then
-        Result := not gRes.Tileset.TileIsWater(aType) //Fish need water
-      else
-        Result := not gRes.Tileset.TileIsWalkable(aType); //All other animals need Walkable
-  end;
-
-begin
-  //First see if this change is allowed
-  //Will this change make a unit stuck?
-  if UnitWillGetStuck
-  //Will this change damage a field?
-  or (TileIsCornField(KMPoint(X, Y)) or TileIsWineField(KMPoint(X, Y)))
-  //Will this change block a construction site?
-  or ((Land[Y, X].TileLock in [tlFenced, tlDigged, tlHouse])
-      and (not gRes.Tileset.TileIsRoadable(aType) or not gRes.Tileset.TileIsWalkable(aType))) then
-  begin
-    Result := False;
-    Exit;
-  end;
-
-  //Apply change
-  Land[Y, X].Terrain := aType;
-  Land[Y, X].Rotation := aRot;
-  UpdatePassability(KMPoint(X, Y));
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(X, Y, X, Y), False);
-  Result := True;
-end;
-
-
-function TKMTerrain.ScriptTryHeightSet(X, Y: Integer; aHeight: Byte): Boolean;
+function TKMTerrain.TrySetTileHeight(X, Y: Integer; aHeight: Byte; aUpdatePassability: Boolean = True): Boolean;
 
   function UnitWillGetStuck(CheckX, CheckY: Integer): Boolean;
   var U: TKMUnit;
@@ -533,16 +597,65 @@ begin
         end;
 
   //Accept change
-  UpdateLighting(KMRectGrow(KMRect(X, Y, X, Y), 2));
-  UpdatePassability(KMRectGrowTopLeft(KMRect(X, Y, X, Y)));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), False);
+  if aUpdatePassability then
+  begin
+    UpdateLighting(KMRectGrow(KMRect(X, Y, X, Y), 2));
+    UpdatePassability(KMRectGrowTopLeft(KMRect(X, Y, X, Y)));
+    UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), False);
+  end;
   Result := True;
 end;
 
 
-// Try to set an object from the script. Failure is an option
-function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
+function TKMTerrain.TrySetTile(X, Y: Integer; aType, aRot: Byte; aUpdatePassability: Boolean = True): Boolean;
+  function UnitWillGetStuck: Boolean;
+  var U: TKMUnit;
+  begin
+    U := Land[Y, X].IsUnit;
+    if (U = nil) or U.IsDead then
+      Result := False
+    else
+      if gRes.Units[U.UnitType].DesiredPassability = tpFish then
+        Result := not gRes.Tileset.TileIsWater(aType) //Fish need water
+      else
+        Result := not gRes.Tileset.TileIsWalkable(aType); //All other animals need Walkable
+  end;
+begin
+  //First see if this change is allowed
+  //Will this change make a unit stuck?
+  if UnitWillGetStuck
+  //Will this change damage a field?
+  or (TileIsCornField(KMPoint(X, Y)) or TileIsWineField(KMPoint(X, Y)))
+  //Will this change block a construction site?
+  or ((Land[Y, X].TileLock in [tlFenced, tlDigged, tlHouse])
+      and (not gRes.Tileset.TileIsRoadable(aType) or not gRes.Tileset.TileIsWalkable(aType))) then
+  begin
+    Result := False;
+    Exit;
+  end;
 
+  //Apply change
+  Land[Y, X].Terrain := aType;
+  Land[Y, X].Rotation := aRot;
+
+  if aUpdatePassability then
+  begin
+    UpdatePassability(KMPoint(X, Y));
+    UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(X, Y, X, Y), False);
+  end;
+
+  Result := True;
+end;
+
+
+function TKMTerrain.TrySetTileObject(X, Y: Integer; aObject: Byte; aUpdatePassability: Boolean = True): Boolean;
+var DiagonalChanged: Boolean;
+begin
+  Result := TrySetTileObject(X, Y, aObject, DiagonalChanged, aUpdatePassability);
+end;
+
+
+function TKMTerrain.TrySetTileObject(X, Y: Integer; aObject: Byte; out aDiagonalChanged: Boolean; aUpdatePassability: Boolean = True): Boolean;
   function HousesNearObject: Boolean;
   var
     I, K: Integer;
@@ -568,8 +681,6 @@ function TKMTerrain.ScriptTryObjectSet(X, Y: Integer; aObject: Byte): Boolean;
     Result := (gMapElements[aObject].Stump = -1) or (aObject = 255);
   end;
 
-var
-  DiagonalChanged: Boolean;
 begin
   //Will this change make a unit stuck?
   if ((Land[Y, X].IsUnit <> nil) and gMapElements[aObject].AllBlocked)
@@ -585,31 +696,195 @@ begin
   end;
 
   //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
-  DiagonalChanged := gMapElements[Land[Y,X].Obj].DiagonalBlocked xor gMapElements[aObject].DiagonalBlocked;
+  aDiagonalChanged := gMapElements[Land[Y,X].Obj].DiagonalBlocked xor gMapElements[aObject].DiagonalBlocked;
 
+  Land[Y, X].Obj := aObject;
+  Result := True;
   //Apply change
   //UpdatePassability and UpdateWalkConnect are called in SetField so that we only use it in trees and other objects
   case aObject of
     88..124,
     126..172: // Trees - 125 is mushroom
               begin
-                Land[Y, X].Obj := aObject;
                 if ObjectIsChopableTree(KMPoint(X,Y), caAge1) then Land[Y,X].TreeAge := 1;
                 if ObjectIsChopableTree(KMPoint(X,Y), caAge2) then Land[Y,X].TreeAge := TREE_AGE_1;
                 if ObjectIsChopableTree(KMPoint(X,Y), caAge3) then Land[Y,X].TreeAge := TREE_AGE_2;
                 if ObjectIsChopableTree(KMPoint(X,Y), caAgeFull) then Land[Y,X].TreeAge := TREE_AGE_FULL;
-                UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
-                UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
-                Result := True;
               end
-    else      // Other objects
-              begin
-                Land[Y, X].Obj := aObject;
-                UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
-                UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), DiagonalChanged);
-                Result := True;
-              end;
   end;
+  if aUpdatePassability then
+  begin
+    UpdatePassability(KMRect(X, Y, X, Y)); //When using KMRect map bounds are checked by UpdatePassability
+    UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(X, Y, X, Y)), aDiagonalChanged);
+  end;
+end;
+
+
+// Try to set an array of Tiles from script. Set terrain, rotation, height and object.
+// Update Passability, WalkConnect and Lighting only once at the end.
+// This is much faster, then set tile by tile with updates on every change
+//
+// Returns True if succeeded
+// use var for aTiles. aTiles can be huge so we do want to make its local copy. Saves a lot of memory
+function TKMTerrain.ScriptTrySetTilesArray(var aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; var aErrors: TKMTerrainTileChangeErrorArray): Boolean;
+
+  procedure UpdateRect(var aRect: TKMRect; X, Y: Integer);
+  begin
+    if KMSameRect(aRect, KMRECT_INVALID_TILES) then
+      aRect := KMRect(X, Y, X, Y)
+    else
+      KMRectIncludePoint(aRect, X, Y);
+  end;
+
+  procedure SetErrorNSetResult(aType: TKMTileChangeType; var aHasErrorOnTile: Boolean; var aErrorType: TKMTileChangeTypeSet; var aResult: Boolean);
+  begin
+    Include(aErrorType, aType);
+    aHasErrorOnTile := True;
+    aResult := False;
+  end;
+
+var I, J: Integer;
+    T: TKMTerrainTileBrief;
+    Rect, HeightRect: TKMRect;
+    DiagonalChangedTotal, DiagChanged: Boolean;
+    BackupLand: array of array of TKMTerrainTile;
+    ErrCnt: Integer;
+    HasErrorOnTile: Boolean;
+    ErrorTypesOnTile: TKMTileChangeTypeSet;
+begin
+  Result := True;
+  if Length(aTiles) = 0 then Exit;
+
+  //Initialization
+  DiagonalChangedTotal := False;
+  Rect := KMRECT_INVALID_TILES;
+  // Use separate HeightRect, because UpdateLight invoked only when Height is changed
+  HeightRect := KMRECT_INVALID_TILES;
+  ErrCnt := 0;
+
+  // make backup copy of Land only if we may need revert changes
+  if aRevertOnFail then
+  begin
+    SetLength(BackupLand, fMapY, fMapX);
+    for I := 1 to fMapY do
+      for J := 1 to fMapX do
+        BackupLand[I-1][J-1] := Land[I, J];
+  end;
+
+  for I := 0 to High(aTiles) do
+  begin
+    T := aTiles[I];
+
+    HasErrorOnTile := False;
+    ErrorTypesOnTile := [];
+
+    if TileInMapCoords(T.X, T.Y) then
+    //if InRange(T.X, 2, fMapX - 2) and InRange(T.Y, 2, fMapY - 2) then
+    begin
+      // Update terrain and rotation if needed
+      if tctTerrain in T.ChangeSet then
+      begin
+        if InRange(T.Rotation, 0, 3) then
+        begin
+          if TrySetTile(T.X, T.Y, T.Terrain, T.Rotation, False) then
+            UpdateRect(Rect, T.X, T.Y)
+          else
+            SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+        end else
+          SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+      end;
+
+      // Update height if needed
+      if tctHeight in T.ChangeSet then
+      begin
+        if InRange(T.Height, 0, 100) then
+        begin
+          if TrySetTileHeight(T.X, T.Y, T.Height, False) then
+            UpdateRect(HeightRect, T.X, T.Y)
+          else
+            SetErrorNSetResult(tctHeight, HasErrorOnTile, ErrorTypesOnTile, Result);
+        end else
+          SetErrorNSetResult(tctHeight, HasErrorOnTile, ErrorTypesOnTile, Result);
+      end;
+
+      //Update object if needed
+      if tctObject in T.ChangeSet then
+      begin
+        if TrySetTileObject(T.X, T.Y, T.Obj, DiagChanged, False) then
+        begin
+          UpdateRect(Rect, T.X, T.Y);
+          DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
+        end else
+          SetErrorNSetResult(tctObject, HasErrorOnTile, ErrorTypesOnTile, Result);
+      end;
+    end else
+    begin
+      HasErrorOnTile := True;
+      //When tile is out of map coordinates we treat it as all operations failure
+      if tctTerrain in T.ChangeSet then
+        Include(ErrorTypesOnTile, tctTerrain);
+      if tctHeight in T.ChangeSet then
+        Include(ErrorTypesOnTile, tctHeight);
+      if tctObject in T.ChangeSet then
+        Include(ErrorTypesOnTile, tctObject);
+    end;
+
+    // Save error info, if there was some error
+    if HasErrorOnTile then
+    begin
+      if Length(aErrors) = ErrCnt then
+        SetLength(aErrors, ErrCnt + 16);
+      aErrors[ErrCnt].X := T.X;
+      aErrors[ErrCnt].Y := T.Y;
+      aErrors[ErrCnt].ErrorsIn := ErrorTypesOnTile;
+      Inc(ErrCnt);
+    end;
+
+    if not Result and aRevertOnFail then
+      Break;
+  end;
+
+  if not Result and aRevertOnFail then
+  begin
+    //Restore backup Land, when revert needed
+    for I := 1 to fMapY do
+      for J := 1 to fMapX do
+        Land[I, J] := BackupLand[I-1][J-1];
+    SetLength(BackupLand, 0); // Release dynamic array memory. This array can be huge, so we should clear it as fast as possible
+  end
+  else
+  begin
+    if not KMSameRect(HeightRect, KMRECT_INVALID_TILES) then
+      gTerrain.UpdateLighting(KMRectGrow(HeightRect, 2)); // Update Light only when height was changed
+
+    gTerrain.UpdatePassability(KMRectGrowTopLeft(Rect));
+    gTerrain.UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRectGrowTopLeft(Rect), DiagonalChangedTotal);
+  end;
+
+  //Cut errors array to actual size
+  if Length(aErrors) <> ErrCnt then
+    SetLength(aErrors, ErrCnt);
+end;
+
+
+// Try to set an tile (Terrain and Rotation) from the script. Failure is an option
+function TKMTerrain.ScriptTrySetTile(X, Y: Integer; aType, aRot: Byte): Boolean;
+begin
+  Result := TileInMapCoords(X, Y) and TrySetTile(X, Y, aType, aRot);
+end;
+
+
+// Try to set an tile Height from the script. Failure is an option
+function TKMTerrain.ScriptTrySetTileHeight(X, Y: Integer; aHeight: Byte): Boolean;
+begin
+  Result := TileInMapCoords(X, Y) and TrySetTileHeight(X, Y, aHeight);
+end;
+
+
+// Try to set an object from the script. Failure is an option
+function TKMTerrain.ScriptTrySetTileObject(X, Y: Integer; aObject: Byte): Boolean;
+begin
+  Result := TileInMapCoords(X, Y) and TrySetTileObject(X, Y, aObject);
 end;
 
 
@@ -2040,7 +2315,7 @@ procedure TKMTerrain.UpdatePassability(Loc: TKMPoint);
   end;
 var
   I, K: Integer;
-  HousesNearTile, HousesNearVertex: Boolean;
+  HousesNearTile, HousesNearVertex, IsBuildNoObj: Boolean;
 begin
   Assert(TileInMapCoords(Loc.X, Loc.Y)); //First of all exclude all tiles outside of actual map
 
@@ -2056,8 +2331,8 @@ begin
   begin
 
     if TileIsWalkable(Loc)
-    and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
-    and CheckHeightPass(Loc, hpWalking) then
+      and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
+      and CheckHeightPass(Loc, hpWalking) then
       AddPassability(tpWalk);
 
     if (Land[Loc.Y,Loc.X].TileOverlay = to_Road)
@@ -2072,21 +2347,27 @@ begin
       and (Land[Loc.Y+i,Loc.X+k].TileLock in [tlFenced,tlDigged,tlHouse]) then
         HousesNearTile := True;
 
+    IsBuildNoObj := False;
     if TileIsRoadable(Loc)
-    and ((Land[Loc.Y,Loc.X].Obj = 255) or (gMapElements[Land[Loc.Y,Loc.X].Obj].CanBeRemoved)) //Only certain objects are excluded
-    and not HousesNearTile
-    and not TileIsCornField(Loc) //Can't build houses on fields
-    and not TileIsWineField(Loc)
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and TileInMapCoords(Loc.X, Loc.Y, 1)
-    and CheckHeightPass(Loc, hpBuilding) then
+      and not TileIsCornField(Loc) //Can't build houses on fields
+      and not TileIsWineField(Loc)
+      and (Land[Loc.Y,Loc.X].TileLock = tlNone)
+      and TileInMapCoords(Loc.X, Loc.Y, 1)
+      and CheckHeightPass(Loc, hpBuilding) then
+    begin
+      AddPassability(tpBuildNoObj);
+      IsBuildNoObj := True;
+    end;
+
+    if IsBuildNoObj and not HousesNearTile
+      and((Land[Loc.Y,Loc.X].Obj = 255) or (gMapElements[Land[Loc.Y,Loc.X].Obj].CanBeRemoved)) then //Only certain objects are excluded
       AddPassability(tpBuild);
 
     if TileIsRoadable(Loc)
-    and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
-    and CheckHeightPass(Loc, hpWalking) then
+      and not gMapElements[Land[Loc.Y,Loc.X].Obj].AllBlocked
+      and (Land[Loc.Y,Loc.X].TileLock = tlNone)
+      and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
+      and CheckHeightPass(Loc, hpWalking) then
       AddPassability(tpMakeRoads);
 
     if TileIsWater(Loc) then
@@ -2156,7 +2437,7 @@ begin
   else
     NormDistance := Min(MaxDistance, Floor(KMLength(OriginPoint, TargetPoint)));
 
-  while (NormDistance >= 0)
+  while (NormDistance > 0)
     and (not IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint)
          or not CheckPassability(TargetPoint, aPassability)) do
   begin

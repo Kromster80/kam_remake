@@ -3,7 +3,7 @@ unit KM_AIMayor;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_Utils, KM_Points,
+  KM_Defaults, KM_CommonClasses, KM_CommonUtils, KM_Points,
   KM_AICityPlanner, KM_PathfindingRoad, KM_AISetup, KM_AIMayorBalance,
   KM_ResHouses;
 

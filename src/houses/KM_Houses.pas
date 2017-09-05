@@ -237,7 +237,7 @@ implementation
 uses
   KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
-  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
+  KM_Resource, KM_CommonUtils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
 
 
 { TKMHouse }

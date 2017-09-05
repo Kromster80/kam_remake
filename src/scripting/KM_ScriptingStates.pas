@@ -136,7 +136,7 @@ type
 implementation
 uses
   KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
-  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
+  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_CommonUtils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
   KM_UnitsCollection, KM_PathFindingRoad;
 
@@ -1790,7 +1790,7 @@ end;
 function TKMScriptStates.KaMRandom: Single;
 begin
   try
-    Result := KM_Utils.KaMRandom;
+    Result := KM_CommonUtils.KaMRandom;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1805,7 +1805,7 @@ function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
   try
     //No parameters to check, any integer is fine (even negative)
-    Result := KM_Utils.KaMRandom(aMax);
+    Result := KM_CommonUtils.KaMRandom(aMax);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

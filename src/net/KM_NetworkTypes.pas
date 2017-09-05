@@ -12,10 +12,11 @@ const
 
   //Size of chunks that a file is sent in (must be smaller than MAX_PACKET_SIZE)
   //Making it less than Ethernet MTU (~1500) helps to avoids inefficient IP fragmentation
-  FILE_CHUNK_SIZE = 1460; //max value less then MTU
+  FILE_CHUNK_SIZE = 1024; //max value less then MTU
   MAX_CUMULATIVE_PACKET_SIZE = 1460; //max value less then MTU
   MAX_PACKET_SIZE = 20480; //20kb. Maximum length of a KM packet
   MAX_CHUNKS_BEFORE_ACK = 80; //Number of chunks of a file that can be in flight
+  DEFAULT_PACKET_ACC_DELAY = 20;
 
   //Client-Server-Client exchange packets. Each packet is a certain type
 type
@@ -91,6 +92,7 @@ type
     mk_FileChunk,       //Host sends chunk of file to joiner
     mk_FileAck,         //Joiner tells host he received a chunk
     mk_FileEnd,         //Host informs joiner that the whole file has been sent
+    mk_FileProgress,    //Joiner informs other players about his map/save downloading progress
 
     mk_Vote             //Joiner tells host his vote
   );
@@ -162,6 +164,7 @@ const
     pfBinary,   //mk_FileChunk
     pfNoData,   //mk_FileAck
     pfNoData,   //mk_FileEnd
+    pfBinary,   //mk_FileProgress
     pfNoData    //mk_Vote
   );
 

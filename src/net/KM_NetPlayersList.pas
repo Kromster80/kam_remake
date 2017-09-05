@@ -138,7 +138,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Utils, KM_HandsCollection;
+  KM_ResTexts, KM_CommonUtils, KM_HandsCollection;
 
 
 { TKMNetPlayerInfo }

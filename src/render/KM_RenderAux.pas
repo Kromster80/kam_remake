@@ -27,6 +27,7 @@ type
     procedure Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure TriangleOnTerrain(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
+    procedure ResizeMap(aExceptRect: TKMRect);
     procedure Projectile(x1, y1, x2, y2: Single);
     procedure Quad(pX, pY: Integer; aCol: TColor4);
     procedure SquareOnTerrain(x1, y1, x2, y2: Single; aLineColor: TColor4);
@@ -269,6 +270,18 @@ begin
       if TKMTerrainPassability(aPass) in gTerrain.Land[I,K].Passability then
         RenderQuad(K,I);
   end;
+end;
+
+
+procedure TRenderAux.ResizeMap(aExceptRect: TKMRect);
+var
+  I, K: Integer;
+begin
+  glColor4f(1,0,0,0.15);
+  for I := 1 to gTerrain.MapY - 1 do
+    for K := 1 to gTerrain.MapX - 1 do
+      if not KMInRect(KMPoint(K,I), aExceptRect) then
+        RenderQuad(K,I);
 end;
 
 

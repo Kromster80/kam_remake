@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, SysUtils, Controls, Math,
-  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics, KM_Defaults;
+  KM_CommonUtils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Pics, KM_Defaults;
 
 
 type
@@ -48,17 +48,17 @@ type
       Button_ReplaysPlay: TKMButton;
       Button_ReplaysBack: TKMButton;
       MinimapView_Replay: TKMMinimapView;
-      Button_Delete, Button_DeleteConfirm, Button_DeleteCancel: TKMButton;
 
       // PopUp Menus
       PopUp_Delete: TKMPopUpMenu;
         Image_Delete: TKMImage;
         Label_DeleteTitle, Label_DeleteConfirm: TKMLabel;
-        Button_Rename, Button_RenameConfirm, Button_RenameCancel: TKMButton;
+        Button_Delete, Button_DeleteConfirm, Button_DeleteCancel: TKMButton;
       PopUp_Rename: TKMPopUpMenu;
         Image_Rename: TKMImage;
         Label_RenameTitle, Label_RenameName: TKMLabel;
         Edit_Rename: TKMEdit;
+        Button_Rename, Button_RenameConfirm, Button_RenameCancel: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;

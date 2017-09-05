@@ -2,7 +2,7 @@ unit KM_UnitActionFight;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units, KM_Points;
+  Classes, KM_CommonClasses, KM_Defaults, KM_CommonUtils, KromUtils, Math, SysUtils, KM_Units, KM_Points;
 
 
 //Fight until we die or the opponent dies

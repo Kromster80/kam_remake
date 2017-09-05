@@ -53,7 +53,7 @@
 			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
 			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
 			<DCC_RangeChecking>true</DCC_RangeChecking>
-			<DCC_UnitSearchPath>.\src\common;.\src\common\BGRABitmap;.\src\common\Overbyte ICS 8;.\src\common\pascalscript\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>.\src\ext;.\src\ext\BGRABitmap;.\src\ext\Overbyte ICS 8;.\src\ext\pascalscript\source;.\src\ext\OggVorbis;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<DCC_K>false</DCC_K>
 			<DCC_N>true</DCC_N>
@@ -80,7 +80,7 @@
 			<DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
 			<DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
 			<DCC_MapFile>3</DCC_MapFile>
-			<DCC_DebugInformation>true</DCC_DebugInformation>
+			<DCC_DebugInformation>2</DCC_DebugInformation>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
 			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
@@ -113,8 +113,8 @@
 			<DCCReference Include="src\KM_FormLoading.pas">
 				<Form>FormLoading</Form>
 			</DCCReference>
-			<DCCReference Include="src\common\KromOGLUtils.pas"/>
-			<DCCReference Include="src\common\KromUtils.pas"/>
+			<DCCReference Include="src\ext\KromOGLUtils.pas"/>
+			<DCCReference Include="src\ext\KromUtils.pas"/>
 			<DCCReference Include="src\ai\KM_AI.pas"/>
 			<DCCReference Include="src\ai\KM_AIArmyEvaluation.pas"/>
 			<DCCReference Include="src\ai\KM_AIAttacks.pas"/>
@@ -128,67 +128,67 @@
 			<DCCReference Include="src\ai\KM_AIMayorBalance.pas"/>
 			<DCCReference Include="src\ai\KM_AISetup.pas"/>
 			<DCCReference Include="src\KM_Alerts.pas"/>
-			<DCCReference Include="src\KM_BinPacking.pas"/>
 			<DCCReference Include="src\KM_BuildList.pas"/>
 			<DCCReference Include="src\KM_Campaigns.pas"/>
-			<DCCReference Include="src\KM_CommonClasses.pas"/>
-			<DCCReference Include="src\KM_CommonTypes.pas"/>
+			<DCCReference Include="src\common\KM_CommonClasses.pas"/>
+			<DCCReference Include="src\common\KM_CommonTypes.pas"/>
+			<DCCReference Include="src\common\KM_Defaults.pas"/>
+			<DCCReference Include="src\common\KM_Points.pas"/>
 			<DCCReference Include="src\KM_Controls.pas"/>
-			<DCCReference Include="src\KM_DedicatedServer.pas"/>
-			<DCCReference Include="src\KM_Defaults.pas"/>
-			<DCCReference Include="src\KM_FileIO.pas"/>
 			<DCCReference Include="src\KM_FogOfWar.pas"/>
-			<DCCReference Include="src\KM_Game.pas"/>
-			<DCCReference Include="src\KM_GameApp.pas"/>
-			<DCCReference Include="src\KM_GameCursor.pas"/>
-			<DCCReference Include="src\KM_GameInfo.pas"/>
-			<DCCReference Include="src\KM_GameOptions.pas"/>
-			<DCCReference Include="src\KM_GameInputProcess.pas"/>
-			<DCCReference Include="src\KM_GameInputProcess_Multi.pas"/>
-			<DCCReference Include="src\KM_GameInputProcess_Single.pas"/>
+			<DCCReference Include="src\game\KM_Game.pas"/>
+			<DCCReference Include="src\game\KM_GameApp.pas"/>
+			<DCCReference Include="src\game\KM_GameCursor.pas"/>
+			<DCCReference Include="src\game\KM_GameInfo.pas"/>
+			<DCCReference Include="src\game\KM_GameOptions.pas"/>
+			<DCCReference Include="src\game\KM_GameInputProcess.pas"/>
+			<DCCReference Include="src\game\KM_GameInputProcess_Multi.pas"/>
+			<DCCReference Include="src\game\KM_GameInputProcess_Single.pas"/>
 			<DCCReference Include="src\gui\pages_game\KM_GUIGameBuild.pas"/>
 			<DCCReference Include="src\gui\pages_game\KM_GUIGameChat.pas"/>
 			<DCCReference Include="src\gui\pages_game\KM_GUIGameHouse.pas"/>
 			<DCCReference Include="src\gui\pages_game\KM_GUIGameRatios.pas"/>
 			<DCCReference Include="src\gui\pages_game\KM_GUIGameStats.pas"/>
 			<DCCReference Include="src\gui\pages_game\KM_GUIGameMenuSettings.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdAttack.pas"/>
 			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdExtras.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdFormations.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdGoal.pas"/>
 			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdHouse.pas"/>
 			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMarkerDefence.pas"/>
 			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMarkerReveal.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenu.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuLoad.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuSave.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuQuit.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMenuSettings.pas"/>
 			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMessage.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayer.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerBlockHouse.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerBlockTrade.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerBlockUnit.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerColors.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerGoals.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdPlayerView.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMission.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMissionAlliances.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMissionMode.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMissionPlayers.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrain.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainBrushes.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainHeights.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainTiles.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainObjects.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTerrainSelection.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTown.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownUnits.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownHouses.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownScript.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownDefence.pas"/>
-			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdTownOffence.pas"/>
 			<DCCReference Include="src\gui\pages_maped\KM_GUIMapEdUnit.pas"/>
+			<DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenu.pas"/>
+			<DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuLoad.pas"/>
+			<DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuSave.pas"/>
+			<DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuQuit.pas"/>
+			<DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuSettings.pas"/>
+			<DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuResize.pas"/>
+			<DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuTryMap.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayer.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayerBlockHouse.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayerBlockTrade.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayerBlockUnit.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayerColors.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayerGoals.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayerView.pas"/>
+			<DCCReference Include="src\gui\pages_maped\player\KM_GUIMapEdPlayerGoalPopUp.pas"/>
+			<DCCReference Include="src\gui\pages_maped\mission\KM_GUIMapEdMission.pas"/>
+			<DCCReference Include="src\gui\pages_maped\mission\KM_GUIMapEdMissionAlliances.pas"/>
+			<DCCReference Include="src\gui\pages_maped\mission\KM_GUIMapEdMissionMode.pas"/>
+			<DCCReference Include="src\gui\pages_maped\mission\KM_GUIMapEdMissionPlayers.pas"/>
+			<DCCReference Include="src\gui\pages_maped\terrain\KM_GUIMapEdTerrain.pas"/>
+			<DCCReference Include="src\gui\pages_maped\terrain\KM_GUIMapEdTerrainBrushes.pas"/>
+			<DCCReference Include="src\gui\pages_maped\terrain\KM_GUIMapEdTerrainHeights.pas"/>
+			<DCCReference Include="src\gui\pages_maped\terrain\KM_GUIMapEdTerrainTiles.pas"/>
+			<DCCReference Include="src\gui\pages_maped\terrain\KM_GUIMapEdTerrainObjects.pas"/>
+			<DCCReference Include="src\gui\pages_maped\terrain\KM_GUIMapEdTerrainSelection.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTown.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTownUnits.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTownHouses.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTownScript.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTownDefence.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTownOffence.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTownAttackPopUp.pas"/>
+			<DCCReference Include="src\gui\pages_maped\town\KM_GUIMapEdTownFormationsPopUp.pas"/>
 			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaign.pas"/>
 			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaigns.pas"/>
 			<DCCReference Include="src\gui\pages_menu\KM_GUIMenuCredits.pas"/>
@@ -217,8 +217,6 @@
 			<DCCReference Include="src\houses\KM_HouseMarket.pas"/>
 			<DCCReference Include="src\houses\KM_Houses.pas"/>
 			<DCCReference Include="src\houses\KM_HouseSchool.pas"/>
-			<DCCReference Include="src\KM_HTTPClient.pas"/>
-			<DCCReference Include="src\KM_Hungarian.pas"/>
 			<DCCReference Include="src\gui\KM_InterfaceDefaults.pas"/>
 			<DCCReference Include="src\gui\KM_InterfaceGame.pas"/>
 			<DCCReference Include="src\gui\KM_InterfaceGamePlay.pas"/>
@@ -228,16 +226,17 @@
 			<DCCReference Include="src\KM_Main.pas"/>
 			<DCCReference Include="src\KM_Maps.pas"/>
 			<DCCReference Include="src\KM_MapEditor.pas"/>
-			<DCCReference Include="src\KM_MasterServer.pas"/>
 			<DCCReference Include="src\KM_MessageLog.pas"/>
 			<DCCReference Include="src\KM_MessageStack.pas"/>
 			<DCCReference Include="src\KM_Minimap.pas"/>
-			<DCCReference Include="src\KM_MissionScript.pas"/>
-			<DCCReference Include="src\KM_MissionScript_Info.pas"/>
-			<DCCReference Include="src\KM_MissionScript_Preview.pas"/>
-			<DCCReference Include="src\KM_MissionScript_Standard.pas"/>
+			<DCCReference Include="src\missionscript\KM_MissionScript.pas"/>
+			<DCCReference Include="src\missionscript\KM_MissionScript_Info.pas"/>
+			<DCCReference Include="src\missionscript\KM_MissionScript_Preview.pas"/>
+			<DCCReference Include="src\missionscript\KM_MissionScript_Standard.pas"/>
 			<DCCReference Include="src\KM_Music.pas"/>
-			<DCCReference Include="src\KM_NavMesh.pas"/>
+			<DCCReference Include="src\navmesh\KM_NavMesh.pas"/>
+			<DCCReference Include="src\navmesh\KM_Outline.pas"/>
+			<DCCReference Include="src\navmesh\KM_PolySimplify.pas"/>
 			<DCCReference Include="src\net\KM_NetAuthUnsecure.pas"/>
 			<DCCReference Include="src\net\KM_NetClient.pas"/>
 			<DCCReference Include="src\net\KM_NetFileTransfer.pas"/>
@@ -247,17 +246,15 @@
 			<DCCReference Include="src\net\KM_NetworkClasses.pas"/>
 			<DCCReference Include="src\net\KM_Networking.pas"/>
 			<DCCReference Include="src\net\KM_NetworkTypes.pas"/>
-			<DCCReference Include="src\KM_Outline.pas"/>
-			<DCCReference Include="src\KM_PathFinding.pas"/>
-			<DCCReference Include="src\KM_PathFindingAStarOld.pas"/>
-			<DCCReference Include="src\KM_PathFindingAStarNew.pas"/>
-			<DCCReference Include="src\KM_PathFindingJPS.pas"/>
-			<DCCReference Include="src\KM_PathFindingRoad.pas"/>
+			<DCCReference Include="src\net\http\KM_HTTPClient.pas"/>
+			<DCCReference Include="src\net\other\KM_DedicatedServer.pas"/>
+			<DCCReference Include="src\net\other\KM_MasterServer.pas"/>
+			<DCCReference Include="src\pathfinding\KM_PathFinding.pas"/>
+			<DCCReference Include="src\pathfinding\KM_PathFindingAStarOld.pas"/>
+			<DCCReference Include="src\pathfinding\KM_PathFindingAStarNew.pas"/>
+			<DCCReference Include="src\pathfinding\KM_PathFindingJPS.pas"/>
+			<DCCReference Include="src\pathfinding\KM_PathFindingRoad.pas"/>
 			<DCCReference Include="src\KM_PerfLog.pas"/>
-			<DCCReference Include="src\KM_Pics.pas"/>
-			<DCCReference Include="src\KM_PNG.pas"/>
-			<DCCReference Include="src\KM_Points.pas"/>
-			<DCCReference Include="src\KM_PolySimplify.pas"/>
 			<DCCReference Include="src\KM_Projectiles.pas"/>
 			<DCCReference Include="src\render\KM_Render.pas"/>
 			<DCCReference Include="src\render\KM_RenderAux.pas"/>
@@ -318,7 +315,12 @@
 			<DCCReference Include="src\units\KM_UnitTaskMining.pas"/>
 			<DCCReference Include="src\units\KM_UnitTaskSelfTrain.pas"/>
 			<DCCReference Include="src\units\KM_UnitTaskThrowRock.pas"/>
-			<DCCReference Include="src\KM_Utils.pas"/>
+			<DCCReference Include="src\utils\KM_BinPacking.pas"/>
+			<DCCReference Include="src\utils\KM_FileIO.pas"/>
+			<DCCReference Include="src\utils\KM_Hungarian.pas"/>
+			<DCCReference Include="src\utils\KM_Pics.pas"/>
+			<DCCReference Include="src\utils\KM_PNG.pas"/>
+			<DCCReference Include="src\utils\KM_Utils.pas"/>
 			<DCCReference Include="src\KM_Viewport.pas"/>
 			<DCCReference Include="src\KM_WareDistribution.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>

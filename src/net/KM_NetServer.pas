@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWINDOWS}Windows, {$ENDIF}
    {$IFDEF WDC}KM_NetServerOverbyte, {$ENDIF}
    {$IFDEF FPC}KM_NetServerLNet, {$ENDIF}
-  Classes, ExtCtrls, SysUtils, Math, KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_Utils, VerySimpleXML{, KM_Log};
+  Classes, ExtCtrls, SysUtils, Math, KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_CommonUtils, VerySimpleXML{, KM_Log};
 
 
 { Contains basic items we need for smooth Net experience:
@@ -76,16 +76,14 @@ type
   private
     {$IFDEF WDC} fServer:TKMNetServerOverbyte; {$ENDIF}
     {$IFDEF FPC} fServer:TKMNetServerLNet;     {$ENDIF}
-    //fGlobalTickCount: Cardinal;
     fTimer: TTimer;
 
     fClientList: TKMClientsList;
     fListening: Boolean;
     BytesTX: Int64; //May exceed 4GB allowed by cardinal
     BytesRX: Int64;
-//    PacketsSent: Cardinal;
-//    PacketsReceived: Cardinal;
 
+    fPacketsAccumulatingDelay: Integer;
     fMaxRooms: Word;
     fHTMLStatusFile: String;
     fWelcomeMessage: UnicodeString;
@@ -127,8 +125,10 @@ type
     procedure AddClientToRoom(aHandle: TKMNetHandleIndex; aRoom: Integer);
     procedure BanPlayerFromRoom(aHandle: TKMNetHandleIndex; aRoom: Integer);
     procedure SaveHTMLStatus;
+    procedure SetPacketsAccumulatingDelay(aValue: Integer);
   public
-    constructor Create(aMaxRooms:word; aKickTimeout: Word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
+    constructor Create(aMaxRooms:word; aKickTimeout: Word; aHTMLStatusFile, aWelcomeMessage: UnicodeString;
+                       aPacketsAccDelay: Integer = -1);
     destructor Destroy; override;
     procedure StartListening(aPort: Word; aServerName: AnsiString);
     procedure StopListening;
@@ -139,8 +139,9 @@ type
     property OnStatusMessage: TGetStrProc write fOnStatusMessage;
     property Listening: boolean read fListening;
     function GetPlayerCount:integer;
-    procedure UpdateSettings(aKickTimeout: Word; const aHTMLStatusFile: UnicodeString; const aWelcomeMessage: UnicodeString; const aServerName: AnsiString);
+    procedure UpdateSettings(aKickTimeout: Word; const aHTMLStatusFile: UnicodeString; const aWelcomeMessage: UnicodeString; const aServerName: AnsiString; const aPacketsAccDelay: Integer);
     procedure GetServerInfo(aList: TList);
+    property PacketsAccumulatingDelay: Integer read fPacketsAccumulatingDelay write SetPacketsAccumulatingDelay;
 
   end;
 
@@ -150,11 +151,8 @@ implementation
 const
   //Server needs to use some text constants locally but can't know about gResTexts
   {$I KM_TextIDs.inc}
-//  SCHEDULED_PACKET_SEND_SPLIT = 1;
-  SCHEDULED_PACKET_SEND_DELAY_MIN = 20;
-//  SCHEDULED_PACKET_SEND_DELAY_MAX = 60;
-
-  //NetPacketsCanWait: set of TKMessageKind = [mk_Ping, mk_PingInfo];
+  PACKET_ACC_DELAY_MIN = 5;
+  PACKET_ACC_DELAY_MAX = 200;
 
 
 { TKMServerClient }
@@ -255,12 +253,19 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create(aMaxRooms: Word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
+constructor TKMNetServer.Create(aMaxRooms: Word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString;
+                                aPacketsAccDelay: Integer = -1);
 begin
   inherited Create;
   fEmptyGameInfo := TMPGameInfo.Create;
   fEmptyGameInfo.GameTime := -1;
   fMaxRooms := aMaxRooms;
+
+  if aPacketsAccDelay = -1 then
+    fPacketsAccumulatingDelay := DEFAULT_PACKET_ACC_DELAY
+  else
+    fPacketsAccumulatingDelay := aPacketsAccDelay;
+
   fKickTimeout := aKickTimeout;
   fHTMLStatusFile := aHTMLStatusFile;
   fWelcomeMessage := aWelcomeMessage;
@@ -271,7 +276,7 @@ begin
   fRoomCount := 0;
 
   fTimer := TTimer.Create(nil);
-  fTimer.Interval := SCHEDULED_PACKET_SEND_DELAY_MIN;
+  fTimer.Interval := fPacketsAccumulatingDelay;
   fTimer.OnTimer  := UpdateState;
   fTimer.Enabled  := True;
 end;
@@ -396,11 +401,16 @@ begin
 end;
 
 
-procedure TKMNetServer.UpdateSettings(aKickTimeout: Word; const aHTMLStatusFile: UnicodeString; const aWelcomeMessage: UnicodeString; const aServerName: AnsiString);
+procedure TKMNetServer.UpdateSettings(aKickTimeout: Word; const aHTMLStatusFile: UnicodeString; const aWelcomeMessage: UnicodeString;
+                                      const aServerName: AnsiString; const aPacketsAccDelay: Integer);
 begin
   fKickTimeout := aKickTimeout;
   fHTMLStatusFile := aHTMLStatusFile;
   fWelcomeMessage := aWelcomeMessage;
+  if aPacketsAccDelay = -1 then
+    PacketsAccumulatingDelay := DEFAULT_PACKET_ACC_DELAY
+  else
+    PacketsAccumulatingDelay := aPacketsAccDelay;
   if fServerName <> aServerName then
     SendMessageA(NET_ADDRESS_ALL, mk_ServerName, aServerName);
   fServerName := aServerName;
@@ -678,10 +688,16 @@ begin
 end;
 
 
+procedure TKMNetServer.SetPacketsAccumulatingDelay(aValue: Integer);
+begin
+  fPacketsAccumulatingDelay := EnsureRange(aValue, PACKET_ACC_DELAY_MIN, PACKET_ACC_DELAY_MAX);
+  fTimer.Interval := fPacketsAccumulatingDelay;
+end;
+
+
 procedure TKMNetServer.UpdateState(Sender: TObject);
 var I: Integer;
 begin
-  //Inc(fGlobalTickCount);
   for I := 0 to fClientList.Count - 1 do
   begin
     //if (fGlobalTickCount mod SCHEDULE_PACKET_SEND_SPLIT) = (I mod SCHEDULE_PACKET_SEND_SPLIT) then

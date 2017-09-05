@@ -87,6 +87,7 @@ type
     procedure House_Demolish;
     procedure Unit_Dismiss(Sender: TObject);
     procedure Menu_QuitMission(Sender: TObject);
+    procedure Menu_ReturnToMapEd(Sender: TObject);
     procedure Menu_NextTrack(Sender: TObject);
     procedure Menu_PreviousTrack(Sender: TObject);
     procedure Allies_Click(Sender: TObject);
@@ -230,7 +231,8 @@ type
           Label_NetWaitConfirm: TKMLabel;
           Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
     Panel_Menu: TKMPanel;
-      Button_Menu_Save,Button_Menu_Load,Button_Menu_ReturnLobby,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
+      Button_Menu_Save, Button_Menu_Load, Button_Menu_ReturnLobby, Button_Menu_Settings, Button_Menu_Quit,
+      Button_Menu_TrackUp, Button_Menu_TrackDown: TKMButton;
       Label_Menu_Track, Label_GameTime, Label_MapName: TKMLabel;
 
       Panel_Save: TKMPanel;
@@ -248,6 +250,7 @@ type
       Panel_Quit: TKMPanel;
         Label_QuitQuestion: TKMLabel;
         Button_Quit_Yes, Button_Quit_No: TKMButton;
+        Button_ReturnToMapEd: TKMButton;
 
     Panel_Unit: TKMPanel;
       Label_UnitName: TKMLabel;
@@ -324,12 +327,12 @@ type
 
 implementation
 uses
-  KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
-  KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks,
-  KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
+  KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor, KM_Maps,
+  KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks, KM_Utils,
+  KM_CommonUtils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes;
 
-const ALLIES_ROWS = 6;
+const ALLIES_ROWS = 7;
       PANEL_ALLIES_WIDTH = 810;
 
 
@@ -1156,7 +1159,8 @@ end;
 procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
 begin
-  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT - 25, PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 25);
+  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT - 50,
+                                                             PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 50);
   Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 
@@ -1288,10 +1292,16 @@ begin
     Label_QuitQuestion := TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, gResTexts[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
     Label_QuitQuestion.AutoWrap := True;
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
-    Button_Quit_No := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
     Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
-    Button_Quit_No.Hint := gResTexts[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick := Menu_QuitMission;
+
+    Button_ReturnToMapEd := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, 'Return to MapEd', bsGame); //Todo translate
+    Button_ReturnToMapEd.Hint := 'Return to Map Editor'; //Todo translate
+    Button_ReturnToMapEd.OnClick := Menu_ReturnToMapEd;
+    Button_ReturnToMapEd.Hide;
+
+    Button_Quit_No := TKMButton.Create(Panel_Quit, 0, 190, TB_WIDTH, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
+    Button_Quit_No.Hint := gResTexts[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_No.OnClick := SwitchPage;
 end;
 
@@ -1354,16 +1364,16 @@ begin
 
     // Hints
     Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [gResKeys.GetKeyNameById(SC_ARMY_HALT)]);
+    Button_Army_Stop.Hint     := GetHintWHotKey(TX_TROOP_HALT_HINT, SC_ARMY_HALT);
     Button_Army_Attack.Hint   := gResTexts[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_ROTATE_CW) + ''')';
-    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_STORM) + ''')';
-    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_ROTATE_CCW) + ''')';
-    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_ADD_LINE) + ''')';
-    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_DEL_LINE) + ''')';
-    Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [gResKeys.GetKeyNameById(SC_ARMY_SPLIT)]);
-    Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [gResKeys.GetKeyNameById(SC_ARMY_LINK)]);
-    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + gResKeys.GetKeyNameById(SC_ARMY_FOOD) + ''')';
+    Button_Army_RotCW.Hint    := GetHintWHotKey(TX_ARMY_ROTATE_CW_HINT, SC_ARMY_ROTATE_CW);
+    Button_Army_Storm.Hint    := GetHintWHotKey(TX_ARMY_STORM_HINT, SC_ARMY_STORM);
+    Button_Army_RotCCW.Hint   := GetHintWHotKey(TX_ARMY_ROTATE_CCW_HINT, SC_ARMY_ROTATE_CCW);
+    Button_Army_ForDown.Hint  := GetHintWHotKey(TX_ARMY_LINE_ADD_HINT, SC_ARMY_ADD_LINE);
+    Button_Army_ForUp.Hint    := GetHintWHotKey(TX_ARMY_LINE_REM_HINT, SC_ARMY_DEL_LINE);
+    Button_Army_Split.Hint    := GetHintWHotKey(TX_TROOP_SPLIT_HINT, SC_ARMY_SPLIT);
+    Button_Army_Join.Hint     := GetHintWHotKey(TX_TROOP_LINK_HINT, SC_ARMY_LINK);
+    Button_Army_Feed.Hint     := GetHintWHotKey(TX_ARMY_FEED_HINT, SC_ARMY_FOOD);
     Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
     { Army controls...
@@ -1641,6 +1651,15 @@ begin
     // Show outcome depending on actual situation.
     // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
     gGameApp.Stop(gGame.PlayOnState);
+end;
+
+
+procedure TKMGamePlayInterface.Menu_ReturnToMapEd(Sender: TObject);
+var SaveName: String;
+begin
+  SaveName := TKMapsCollection.FullPath(gGame.GameName, '.dat', gGame.IsMultiplayer);
+  FreeThenNil(gGame);
+  gGameApp.NewMapEditor(SaveName, 0, 0);
 end;
 
 
@@ -2307,6 +2326,15 @@ begin
     Label_QuitQuestion.Caption := gResTexts[TX_MENU_QUIT_QUESTION];
     Button_Quit_Yes.Caption := gResTexts[TX_MENU_QUIT_MISSION];
     Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
+  end;
+
+  if gGame.StartedFromMapEditor then
+  begin
+    Button_ReturnToMapEd.Visible := True; //Do not use Show here, as we will show this tab in UI immidiately
+    Button_Quit_No.Top := Button_ReturnToMapEd.Bottom + 20;
+  end else begin
+    Button_ReturnToMapEd.Hide;
+    Button_Quit_No.Top := Button_ReturnToMapEd.Top;
   end;
 
   // Toggle gameplay options
@@ -3916,7 +3944,6 @@ var
   I: Integer;
   mKind: TKMessageKind;
   Received, Sent, RTotal, STotal, Period: Cardinal;
-//  AverageR, AverageS: Single;
   S, SPackets, S2: String;
 begin
   S := '';
@@ -3961,8 +3988,6 @@ begin
     begin
       Received := gGame.Networking.PacketsReceived[mKind];
       Sent := gGame.Networking.PacketsSent[mKind];
-//      AverageR := Received / Period;
-//      AverageS := Sent / Period;
       RTotal := RTotal + Received;
       STotal := STotal + Sent;
       S2 := S2 + Format('%-25s: R: %s S:%s|', [GetEnumName(TypeInfo(TKMessageKind), Integer(mKind)),
@@ -3977,9 +4002,6 @@ begin
     if (TimeGet mod 5000) < 50 then
       gLog.AddTime('Packets Stats:' + sLineBreak + S2);
   end;
-
-
-    ;//S := S + gGame.Networking.PacketsReceived + '|';
 
   Label_DebugInfo.Font := fnt_Arial;
   Label_DebugInfo.Caption := S;

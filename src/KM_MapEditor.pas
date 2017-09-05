@@ -27,9 +27,7 @@ type
     fVisibleLayers: TMapEdLayerSet;
     //When you load a map script/libx/wav/etc. files are "attached" then copied when
     //saving if the path is different
-    fAttachedFiles: array of record
-                               Filename, Ext: UnicodeString;
-                             end;
+    fAttachedFiles: array of UnicodeString;
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
     procedure ProceedUnitsCursorMode;
@@ -40,10 +38,15 @@ type
   public
     ActiveMarker: TKMMapEdMarker;
 
+    ResizeMapRect: TKMRect;
     RevealAll: array [0..MAX_HANDS-1] of Boolean;
     DefaultHuman: TKMHandIndex;
     PlayerHuman: array [0..MAX_HANDS - 1] of Boolean;
     PlayerAI: array [0..MAX_HANDS - 1] of Boolean;
+
+    IsNewMap: Boolean;  // set True for new empty map
+    WereSaved: Boolean; // set True when at least 1 map save has been done
+
     constructor Create;
     destructor Destroy; override;
     property TerrainPainter: TKMTerrainPainter read fTerrainPainter;
@@ -91,6 +94,8 @@ begin
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
+  ResizeMapRect := KMRECT_ZERO;
+
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I] := TKMPointTagList.Create;
 end;
@@ -118,48 +123,83 @@ end;
 
 
 procedure TKMMapEditor.DetectAttachedFiles(const aMissionFile: UnicodeString);
+
+  procedure AddAttachment(var aAttachCnt: Integer; aFileName: UnicodeString);
+  begin
+    if aAttachCnt >= Length(fAttachedFiles) then
+      SetLength(fAttachedFiles, aAttachCnt + 8);
+
+    fAttachedFiles[aAttachCnt] := aFileName;
+    Inc(aAttachCnt);
+  end;
+
 var
   SearchRec: TSearchRec;
-  MissionName, RecExt: UnicodeString;
+  MissionScriptFileName, MissionName, RecExt: UnicodeString;
+  HasScript: Boolean;
+  AttachCnt: Integer;
 begin
-  SetLength(fAttachedFiles, 0);
+  HasScript := False;
+  AttachCnt := 0;
+  SetLength(fAttachedFiles, 8);
   MissionName := ChangeFileExt(ExtractFileName(aMissionFile), '');
   FindFirst(ChangeFileExt(aMissionFile, '.*'), faAnyFile - faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-    begin
-      SetLength(fAttachedFiles, Length(fAttachedFiles)+1);
-      //Can't use ExtractFileExt because we want .eng.libx not .libx
-      RecExt := RightStr(SearchRec.Name, Length(SearchRec.Name)-Length(MissionName));
-      if (LowerCase(RecExt) = '.map') or (LowerCase(RecExt) = '.dat')
-      or (LowerCase(RecExt) = '.mi' ) or (LowerCase(RecExt) = '.dat.txt') then
-        Continue;
-
-      with fAttachedFiles[Length(fAttachedFiles)-1] do
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
       begin
-        Filename := ExtractFilePath(aMissionFile) + SearchRec.Name;
-        Ext := RecExt;
+        //Can't use ExtractFileExt because we want .eng.libx not .libx
+        RecExt := RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(MissionName));
+        if (LowerCase(RecExt) = '.map')
+          or (LowerCase(RecExt) = '.dat')
+          or (LowerCase(RecExt) = '.mi' ) then
+          Continue;
+
+        if LowerCase(RecExt) = '.script' then
+          HasScript := True;
+
+        AddAttachment(AttachCnt, ExtractFilePath(aMissionFile) + SearchRec.Name);
       end;
+    until (FindNext(SearchRec) <> 0);
+  finally
+    FindClose(SearchRec);
+  end;
+
+  //Add all scripts if we find main script
+  if HasScript then
+  begin
+    MissionScriptFileName := MissionName + '.script';
+    FindFirst(ExtractFilePath(aMissionFile) + '*.script', faAnyFile - faDirectory, SearchRec);
+    try
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+          and (SearchRec.Name <> MissionScriptFileName) then
+          AddAttachment(AttachCnt, ExtractFilePath(aMissionFile) + SearchRec.Name);
+      until (FindNext(SearchRec) <> 0);
+    finally
+      FindClose(SearchRec);
     end;
-  until (FindNext(SearchRec) <> 0);
-  FindClose(SearchRec);
+  end;
+
+  SetLength(fAttachedFiles, AttachCnt);
 end;
 
 
 procedure TKMMapEditor.SaveAttachements(const aMissionFile: UnicodeString);
 var
   I: Integer;
-  Dest: UnicodeString;
+  MissionPath, Dest: UnicodeString;
 begin
-  for I := 0 to Length(fAttachedFiles)-1 do
-    if FileExists(fAttachedFiles[I].Filename) then
+  MissionPath := ExtractFilePath(aMissionFile);
+  for I := 0 to High(fAttachedFiles) do
+    if FileExists(fAttachedFiles[I]) then
     begin
-      Dest := ChangeFileExt(aMissionFile, fAttachedFiles[I].Ext);
-      if not SameFileName(Dest, fAttachedFiles[I].Filename) then
+      Dest := MissionPath + ExtractFileName(fAttachedFiles[I]);
+      if not SameFileName(Dest, fAttachedFiles[I]) then
       begin
         if FileExists(Dest) then
           DeleteFile(Dest);
-        KMCopyFile(fAttachedFiles[I].Filename, Dest);
+        KMCopyFile(fAttachedFiles[I], Dest);
       end;
     end;
 
@@ -597,6 +637,9 @@ begin
 
   if mlSelection in fVisibleLayers then
     fSelection.Paint(aLayer, aClipRect);
+
+  if (mlMapResize in fVisibleLayers) and not KMSameRect(ResizeMapRect, KMRECT_ZERO) then
+    gRenderAux.ResizeMap(ResizeMapRect);
 
   if mlWaterFlow in fVisibleLayers then
   begin

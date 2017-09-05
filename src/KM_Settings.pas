@@ -2,7 +2,9 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles, System.UITypes,
+  {$IFDEF FPC}Forms,{$ENDIF}   //Lazarus do not know UITypes
+  {$IFDEF WDC}UITypes,{$ENDIF} //We use settings in console modules
+  Classes, SysUtils, Math, INIfiles,
   KM_Defaults, KM_CommonTypes, KM_Resolutions, KM_Points, KM_WareDistribution;
 
 
@@ -122,6 +124,7 @@ type
     fServerName: AnsiString;
     fMasterAnnounceInterval: Integer;
     fMaxRooms: Integer;
+    fServerPacketsAccumulatingDelay: Integer;
     fFlashOnMessage: Boolean;
     fAutoKickTimeout: Integer;
     fPingInterval: Integer;
@@ -177,6 +180,7 @@ type
     procedure SetMasterAnnounceInterval(eValue: Integer);
     procedure SetHTMLStatusFile(eValue: UnicodeString);
     procedure SetMaxRooms(eValue: Integer);
+    procedure SetServerPacketsAccumulatingDelay(aValue: Integer);
     procedure SetFlashOnMessage(aValue: Boolean);
 
     procedure SetMenuFavouriteMPMapsStr(const aValue: UnicodeString);
@@ -233,6 +237,7 @@ type
     property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
     property AnnounceServer: Boolean read fAnnounceServer write SetAnnounceServer;
     property MaxRooms: Integer read fMaxRooms write SetMaxRooms;
+    property ServerPacketsAccumulatingDelay: Integer read fServerPacketsAccumulatingDelay write SetServerPacketsAccumulatingDelay;
     property FlashOnMessage: Boolean read fFlashOnMessage write SetFlashOnMessage;
     property AutoKickTimeout: Integer read fAutoKickTimeout write SetAutoKickTimeout;
     property PingInterval: Integer read fPingInterval write SetPingInterval;
@@ -481,6 +486,7 @@ begin
     fAnnounceServer         := F.ReadBool   ('Server','AnnounceDedicatedServer',True);
     fServerName             := AnsiString(F.ReadString ('Server','ServerName','KaM Remake Server'));
     fMaxRooms               := F.ReadInteger('Server','MaxRooms',16);
+    ServerPacketsAccumulatingDelay := F.ReadInteger('Server','PacketsAccumulatingDelay',20);
     fAutoKickTimeout        := F.ReadInteger('Server','AutoKickTimeout',20);
     fPingInterval           := F.ReadInteger('Server','PingMeasurementInterval',1000);
     fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
@@ -557,6 +563,7 @@ begin
     F.WriteString ('Server','ServerPort',                   fServerPort);
     F.WriteBool   ('Server','AnnounceDedicatedServer',      fAnnounceServer);
     F.WriteInteger('Server','MaxRooms',                     fMaxRooms);
+    F.WriteInteger('Server','PacketsAccumulatingDelay',     fServerPacketsAccumulatingDelay);
     F.WriteString ('Server','HTMLStatusFile',               fHTMLStatusFile);
     F.WriteInteger('Server','MasterServerAnnounceInterval', fMasterAnnounceInterval);
     F.WriteString ('Server','MasterServerAddressNew',       fMasterServerAddress);
@@ -825,6 +832,13 @@ end;
 procedure TGameSettings.SetLastPassword(aValue: string);
 begin
   fLastPassword := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetServerPacketsAccumulatingDelay(aValue: Integer);
+begin
+  fServerPacketsAccumulatingDelay := EnsureRange(aValue, 0, 1000); //This is rough restrictions. Real one are in TKMNetServer
   Changed;
 end;
 

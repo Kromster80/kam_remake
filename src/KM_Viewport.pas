@@ -50,7 +50,7 @@ type
 
 implementation
 uses
-  KM_Defaults, KM_Utils, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
+  KM_Defaults, KM_CommonUtils, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
 
 
 { TKMViewport }

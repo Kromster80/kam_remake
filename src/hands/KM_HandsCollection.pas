@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
-  KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior, KM_ResHouses;
+  KM_Hand, KM_HandSpectator, KM_CommonUtils, KM_Points, KM_Units_Warrior, KM_ResHouses;
 
 
 //Hands are identified by their starting location

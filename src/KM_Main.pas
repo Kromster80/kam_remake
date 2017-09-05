@@ -68,7 +68,7 @@ var
 
 implementation
 uses
-  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps, KM_Points;
+  KM_Defaults, KM_GameApp, KM_CommonUtils, KM_Log, KM_Maps, KM_Points;
 
 const
   //Random GUID generated in Delphi by Ctrl+G

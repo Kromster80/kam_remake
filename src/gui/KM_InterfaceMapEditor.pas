@@ -9,18 +9,19 @@ uses
    KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
    KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Minimap, KM_Viewport, KM_Render,
    KM_GUIMapEdHouse,
-   KM_GUIMapEdGoal,
+   KM_GUIMapEdPlayerGoalPopUp,
    KM_GUIMapEdTerrain,
    KM_GUIMapEdTown,
    KM_GUIMapEdPlayer,
    KM_GUIMapEdMission,
-   KM_GUIMapEdAttack,
+   KM_GUIMapEdTownAttackPopUp,
    KM_GUIMapEdExtras,
    KM_GUIMapEdMessage,
-   KM_GUIMapEdFormations,
+   KM_GUIMapEdTownFormationsPopUp,
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
    KM_GUIMapEdMenu,
+   KM_GUIMapEdMenuTryMap,
    KM_GUIMapEdUnit;
 
 type
@@ -30,7 +31,8 @@ type
     fMouseDownOnMap: Boolean;
 
     // Drag object feature fields
-    fDraggingObject: Boolean;    // Flag when drag object is happening
+    fDragObjectReady: Boolean;   // Ready to start drag object
+    fDragingObject: Boolean;     // Flag when drag object is happening
     fDragObject: TObject;        // Object to drag
     fDragHouseOffset: TKMPoint;  // Offset for house position, to let grab house with any of its points
 
@@ -40,9 +42,10 @@ type
     fGuiTown: TKMMapEdTown;
     fGuiPlayer: TKMMapEdPlayer;
     fGuiMission: TKMMapEdMission;
-    fGuiAttack: TKMMapEdAttack;
-    fGuiGoal: TKMMapEdGoal;
-    fGuiFormations: TKMMapEdFormations;
+    fGuiAttack: TKMMapEdTownAttack;
+    fGuiGoal: TKMMapEdPlayerGoal;
+    fGuiFormations: TKMMapEdTownFormations;
+    fGuiMenuTryMap: TKMMapEdMenuTryMap;
     fGuiExtras: TKMMapEdExtras;
     fGuiMessage: TKMMapEdMessage;
     fGuiMarkerDefence: TKMMapEdMarkerDefence;
@@ -121,7 +124,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_Utils,
+  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_CommonUtils,
   KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_Units_Warrior,
   KM_HouseBarracks, KM_ResHouses;
 
@@ -172,7 +175,7 @@ begin
   Button_UniversalEraser := TKMButtonFlat.Create(Panel_Main, 151, 231, 26, 26, 340);
   Button_UniversalEraser.Down := False;
   Button_UniversalEraser.OnClick := UniversalEraser_Click;
-  Button_UniversalEraser.Hint := 'Universal eraser'; // Todo Translate
+  Button_UniversalEraser.Hint := Format('Universal eraser (''%s'')', [gResKeys.GetKeyNameById(SC_MAPEDIT_UNIV_ERASOR)]); //Todo translate; //Todo use GetHintWHotKey instead; // Todo Translate
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
@@ -204,12 +207,12 @@ begin
   for I := 1 to 5 do
     Button_Main[I].OnClick := Main_ButtonClick;
 
-  //Editing pages
+  //Terrain editing pages
   fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
   fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
   fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
   fGuiMission := TKMMapEdMission.Create(Panel_Common, PageChanged);
-  fGuiMenu := TKMMapEdMenu.Create(Panel_Common);
+  fGuiMenu := TKMMapEdMenu.Create(Panel_Common, PageChanged);
 
   //Objects pages
   fGuiUnit := TKMMapEdUnit.Create(Panel_Common);
@@ -218,14 +221,16 @@ begin
   fGuiMarkerReveal := TKMMapEdMarkerReveal.Create(Panel_Common, Marker_Done);
 
   //Modal pages
-  fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
-  fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
-  fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
+  fGuiAttack := TKMMapEdTownAttack.Create(Panel_Main);
+  fGuiFormations := TKMMapEdTownFormations.Create(Panel_Main);
+  fGuiGoal := TKMMapEdPlayerGoal.Create(Panel_Main);
+  fGuiMenuTryMap := TKMMapEdMenuTryMap.Create(Panel_Main);
 
   //Pass pop-ups to their dispatchers
   fGuiTown.GuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.GuiOffence.AttackPopUp := fGuiAttack;
-  fGuiPlayer.fGuiPlayerGoals.GoalPopUp := fGuiGoal;
+  fGuiPlayer.GuiPlayerGoals.GoalPopUp := fGuiGoal;
+  fGuiMenu.GuiMenuTryMap := fGuiMenuTryMap;
 
   //Hints go above everything
   Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
@@ -263,6 +268,7 @@ begin
   fGuiAttack.Free;
   fGuiExtras.Free;
   fGuiFormations.Free;
+  fGuiMenuTryMap.Free;
   fGuiGoal.Free;
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
@@ -462,6 +468,9 @@ begin
 
   if fGuiExtras.CheckBox_ShowTileOwners.Checked then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlTileOwner];
+
+  if fGuiMenu.GuiMenuResize.Visible then
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlMapResize];
 end;
 
 
@@ -494,8 +503,12 @@ procedure TKMapEdInterface.SetUniversalEraserMode(aSetUniversalEraserMode: Boole
 begin
   Button_UniversalEraser.Down := aSetUniversalEraserMode;
   if aSetUniversalEraserMode then
-    gGameCursor.Mode := cmUniversalEraser
-  else
+  begin
+    gGameCursor.Mode := cmUniversalEraser;
+    // Clear selected object, as it could be deleted
+    gMySpectator.Selected := nil;
+    HidePages;
+  end else
     gGameCursor.Mode := cmNone;
 end;
 
@@ -707,7 +720,8 @@ begin
   //Pass Key to Modal pages first
   if (fGuiAttack.Visible and fGuiAttack.KeyDown(Key, Shift))
     or (fGuiFormations.Visible and fGuiFormations.KeyDown(Key, Shift))
-    or (fGuiGoal.Visible and fGuiGoal.KeyDown(Key, Shift)) then
+    or (fGuiGoal.Visible and fGuiGoal.KeyDown(Key, Shift))
+    or (fGuiMenuTryMap.Visible and fGuiMenuTryMap.KeyDown(Key, Shift)) then
     KeyPassedToModal := True;
 
   //For now enter can open up Extra panel
@@ -803,6 +817,10 @@ begin
     fGuiTown.GuiHouses.BuildCancel;
   end;
 
+  //Universal erasor
+  if Key = gResKeys[SC_MAPEDIT_UNIV_ERASOR].Key then
+    UniversalEraser_Click(Button_UniversalEraser);
+
   gGameCursor.SState := Shift; // Update Shift state on KeyUp
 end;
 
@@ -825,7 +843,7 @@ begin
       fDragObject := Obj;
       if Obj is TKMHouse then
         fDragHouseOffset := KMPointSubtract(TKMHouse(Obj).Entrance, gGameCursor.Cell); //Save drag point adjustement to house position
-      fDraggingObject := True;
+      fDragObjectReady := True;
     end;
   end;
 
@@ -848,13 +866,17 @@ begin
 
   aHandled := True;
 
-  if fDraggingObject then
+  if fDragObjectReady then
+  begin
     if not (ssLeft in Shift) then
     begin
       ResetDragObject;
       Exit;
-    end else
+    end else begin
       gRes.Cursors.Cursor := kmc_Drag;
+      fDragingObject := True;
+    end;
+  end;
 
   fMyControls.MouseMove(X,Y,Shift);
 
@@ -892,7 +914,7 @@ begin
     Exit;
   end;
 
-  if fDraggingObject and (ssLeft in Shift) then
+  if fDragingObject and (ssLeft in Shift) then
   begin
     //Cursor can be reset to default, when moved to menu panel while dragging, so set it to drag cursor again
     gRes.Cursors.Cursor := kmc_Drag;
@@ -957,7 +979,7 @@ end;
 
 function TKMapEdInterface.IsDragHouseModeOn: Boolean;
 begin
-  Result := fDraggingObject and (fDragObject is TKMHouse) and (gGameCursor.Mode = cmHouses);
+  Result := fDragingObject and (fDragObject is TKMHouse) and (gGameCursor.Mode = cmHouses);
 end;
 
 
@@ -976,7 +998,7 @@ begin
 
     HouseNewPos := KMPointAdd(gGameCursor.Cell, fDragHouseOffset);
 
-    if not fDraggingObject then
+    if not fDragingObject then
       H.SetPosition(HouseNewPos)  //handles Right click, when house is selected
     else
       if not IsDragHouseModeOn then
@@ -1026,7 +1048,8 @@ end;
 
 procedure TKMapEdInterface.ResetDragObject;
 begin
-  fDraggingObject := False;
+  fDragObjectReady := False;
+  fDragingObject := False;
   fDragHouseOffset := KMPOINT_ZERO;
   fDragObject := nil;
 
@@ -1046,7 +1069,7 @@ var
   U: TKMUnit;
   H: TKMHouse;
 begin
-  if fDraggingObject then
+  if fDragingObject then
   begin
     DragHouseModeEnd;
     ResetDragObject;

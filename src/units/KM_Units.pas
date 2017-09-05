@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Types,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
   KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool, KM_HouseBarracks;
 
 //Memo on directives:
@@ -71,6 +71,7 @@ type
     fHitPoints: Byte;
     fHitPointCounter: Cardinal; //Counter for hit point restoration, separate cos it resets on first hit
     fCondition: Integer; //Unit condition, when it reaches zero unit should die (rarely can be negative due to WalkExchange)
+    fStartWDefaultCondition: Boolean; //For MapEditor only. Shows if this unit conditions will be set to default at the start of the game
     fTicker: Cardinal; //ticks of life for the unit (allows to spread updates)
     fOwner: TKMHandIndex;
     fHome: TKMHouse;
@@ -91,6 +92,7 @@ type
     procedure SetDirection(aValue: TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep: Integer = 0);
     procedure SetNextPosition(aLoc: TKMPoint);
+    procedure SetCondition(aValue: Integer);
     function CanAccessHome: Boolean;
 
     procedure UpdateThoughts;
@@ -151,7 +153,8 @@ type
     property UnitTask: TUnitTask read fUnitTask;
     property UnitType: TUnitType read fUnitType;
     function GetUnitActText: UnicodeString;
-    property Condition: Integer read fCondition write fCondition;
+    property Condition: Integer read fCondition write SetCondition;
+    property StartWDefaultCondition: Boolean read fStartWDefaultCondition write fStartWDefaultCondition;
     procedure SetOwner(aOwner: TKMHandIndex);
     procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     procedure HitPointsChangeFromScript(aAmount: Integer);
@@ -1104,12 +1107,16 @@ begin
   fVisible      := true;
   IsExchanging  := false;
   AnimStep      := UnitStillFrames[fDirection]; //Use still frame at begining, so units don't all change frame on first tick
+
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if (gGame <> nil) and (gGame.GameMode <> gmMapEd) then
     fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
-  else
+  else begin
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
+    fStartWDefaultCondition := True;
+  end;
+
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
   HitPointsInvulnerable := False;
@@ -1190,6 +1197,7 @@ begin
 
   LoadStream.Read(fThought, SizeOf(fThought));
   LoadStream.Read(fCondition);
+  LoadStream.Read(fStartWDefaultCondition);
   LoadStream.Read(fTicker);
   LoadStream.Read(fHitPoints);
   LoadStream.Read(fHitPointCounter);
@@ -1601,6 +1609,12 @@ begin
 end;
 
 
+procedure TKMUnit.SetCondition(aValue: Integer);
+begin
+  fCondition := EnsureRange(aValue, 0, UNIT_MAX_CONDITION);
+end;
+
+
 procedure TKMUnit.SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
@@ -2001,6 +2015,7 @@ begin
 
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
+  SaveStream.Write(fStartWDefaultCondition);
   SaveStream.Write(fTicker);
   SaveStream.Write(fHitPoints);
   SaveStream.Write(fHitPointCounter);

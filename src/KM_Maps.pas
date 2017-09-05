@@ -95,9 +95,10 @@ type
   TTCustomMapsScanner = class(TThread)
   private
     fMapFolders: TMapFolderSet;
+    fOnComplete: TNotifyEvent;
     procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); virtual; abstract;
   public
-    constructor Create(aMapFolders: TMapFolderSet);
+    constructor Create(aMapFolders: TMapFolderSet; aOnComplete: TNotifyEvent = nil);
     procedure Execute; override;
   end;
 
@@ -107,7 +108,7 @@ type
     fOnMapAddDone: TNotifyEvent;
     procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); override;
   public
-    constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+    constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
   end;
 
   TTMapsCacheUpdater = class(TTCustomMapsScanner)
@@ -134,6 +135,7 @@ type
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
+    procedure ScanTerminate(Sender: TObject);
     procedure ScanComplete(Sender: TObject);
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
@@ -147,6 +149,7 @@ type
     procedure Lock;
     procedure Unlock;
 
+    class function FullPath(const aDirName, aFileName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder; aCRC: Cardinal): string; overload;
@@ -158,6 +161,8 @@ type
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
+    function Contains(aNewName: UnicodeString): Boolean;
+    procedure RenameMap(aIndex: Integer; aName: UnicodeString);
     procedure DeleteMap(aIndex: Integer);
     procedure MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 
@@ -170,7 +175,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_CommonUtils, KM_GameApp, KM_Scripting;
 
 
 const
@@ -195,9 +200,12 @@ constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMa
   end;
 
 var
+  I: Integer;
   DatFile, MapFile, ScriptFile, TxtFile, LIBXFiles: string;
   DatCRC, OthersCRC: Cardinal;
   fMissionParser: TMissionParserInfo;
+  ScriptPreProcessor: TKMScriptingPreProcessor;
+  ScriptFiles: TKMScriptFilesCollection;
 begin
   inherited Create;
 
@@ -226,7 +234,26 @@ begin
   //.map file CRC is the slowest, so only calculate it if necessary
   OthersCRC := 0; //Supresses incorrect warning by Delphi
   if aStrictParsing then
-    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
+  begin
+    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
+
+    //Add main script CRC and all included scripts CRC
+    if FileExists(ScriptFile) then
+    begin
+      OthersCRC := OthersCRC xor Adler32CRC(ScriptFile);
+      ScriptPreProcessor := TKMScriptingPreProcessor.Create;
+      try
+        if ScriptPreProcessor.PreProcessFile(ScriptFile) then
+        begin
+          ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
+          for I := 0 to ScriptFiles.IncludedCount - 1 do
+            OthersCRC := OthersCRC xor Adler32CRC(ScriptFiles[I].FullFilePath);
+        end;
+      finally
+        ScriptPreProcessor.Free;
+      end;
+    end;
+  end;
 
   //Does the map need to be fully rescanned? (.mi cache is outdated?)
   if (fVersion <> GAME_REVISION) or
@@ -638,6 +665,21 @@ begin
 end;
 
 
+function TKMapsCollection.Contains(aNewName: UnicodeString): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+
+  for I := 0 to fCount - 1 do
+    if LowerCase(fMaps[I].FileName) = LowerCase(aNewName) then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+
 constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False);
 begin
   Create([aMapFolder], aSortMethod, aDoSortWithFavourites);
@@ -731,14 +773,22 @@ begin
 end;
 
 
+procedure TKMapsCollection.RenameMap(aIndex: Integer; aName: UnicodeString);
+begin
+  MoveMap(aIndex, aName, fMaps[aIndex].MapFolder);
+end;
+
+
 procedure TKMapsCollection.MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
 var
   I: Integer;
   Dest, RenamedFile: UnicodeString;
   SearchRec: TSearchRec;
+  FilesToMove: TStringList;
 begin
   if Trim(aName) = '' then Exit;
-  
+
+  FilesToMove := TStringList.Create;
   Lock;
    try
     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
@@ -756,19 +806,25 @@ begin
     {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
     {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
 
-    //Rename all the files in dest
+    //Find all files to move in dest
+    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
     FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
     repeat
-     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-     and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-     begin
-       RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-       if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
-         {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-         {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-     end;
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
+        FilesToMove.Add(SearchRec.Name);
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
+
+    //Move all previously finded files
+    for I := 0 to FilesToMove.Count - 1 do
+    begin
+       RenamedFile := Dest + aName + RightStr(FilesToMove[I], Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
+       if not FileExists(RenamedFile) and (Dest + FilesToMove[I] <> RenamedFile) then
+         {$IFDEF FPC} RenameFile(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
+         {$IFDEF WDC} TFile.Move(Dest + FilesToMove[I], RenamedFile); {$ENDIF}
+    end;
+
 
     //Remove the map from our list
     fMaps[aIndex].Free;
@@ -777,7 +833,8 @@ begin
     Dec(fCount);
     SetLength(fMaps, fCount);
    finally
-   Unlock;
+    Unlock;
+    FilesToMove.Free;
    end;
 end;
 
@@ -903,9 +960,9 @@ begin
   fOnRefresh := aOnRefresh;
   fOnComplete := aOnComplete;
 
-  //Scan will launch upon create automatcally
+  //Scan will launch upon create automatically
   fScanning := True;
-  fScanner := TTMapsScanner.Create(fMapFolders, MapAdd, MapAddDone, ScanComplete);
+  fScanner := TTMapsScanner.Create(fMapFolders, MapAdd, MapAddDone, ScanTerminate, ScanComplete);
 end;
 
 
@@ -952,6 +1009,19 @@ begin
 end;
 
 
+//Scan was terminated
+//No need to resort since that was done in last MapAdd event
+procedure TKMapsCollection.ScanTerminate(Sender: TObject);
+begin
+  Lock;
+  try
+    fScanning := False;
+  finally
+    Unlock;
+  end;
+end;
+
+
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 begin
   Result := FullPath(aName, aExt, MAP_FOLDER_TYPE_MP[aMultiplayer]);
@@ -961,6 +1031,12 @@ end;
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string;
 begin
   Result := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim + aName + aExt;
+end;
+
+
+class function TKMapsCollection.FullPath(const aDirName, aFileName, aExt: string; aMapFolder: TMapFolder): string;
+begin
+  Result := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aDirName + PathDelim + aFileName + aExt;
 end;
 
 
@@ -1015,13 +1091,14 @@ end;
 
 
 { TTCustomMapsScanner }
-constructor TTCustomMapsScanner.Create(aMapFolders: TMapFolderSet);
+constructor TTCustomMapsScanner.Create(aMapFolders: TMapFolderSet; aOnComplete: TNotifyEvent = nil);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
   inherited Create(False);
 
   fMapFolders := aMapFolders;
+  fOnComplete := aOnComplete;
   FreeOnTerminate := False;
 end;
 
@@ -1032,22 +1109,27 @@ var
   PathToMaps: string;
   MF: TMapFolder;
 begin
-  for MF in fMapFolders do
-  begin
-    PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
+  try
+    for MF in fMapFolders do
+    begin
+      PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
 
-    if not DirectoryExists(PathToMaps) then Exit;
+      if not DirectoryExists(PathToMaps) then Exit;
 
-    FindFirst(PathToMaps + '*', faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
-      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
-      begin
-        ProcessMap(SearchRec.Name, MF);
-      end;
-    until (FindNext(SearchRec) <> 0) or Terminated;
-    FindClose(SearchRec);
+      FindFirst(PathToMaps + '*', faDirectory, SearchRec);
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
+        and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
+        begin
+          ProcessMap(SearchRec.Name, MF);
+        end;
+      until (FindNext(SearchRec) <> 0) or Terminated;
+      FindClose(SearchRec);
+    end;
+  finally
+    if not Terminated and Assigned(fOnComplete) then
+      fOnComplete(Self);
   end;
 end;
 
@@ -1056,15 +1138,15 @@ end;
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added
 //aOnComplete - scan is complete
-constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
-  inherited Create(aMapFolders);
+  inherited Create(aMapFolders, aOnComplete);
 
   Assert(Assigned(aOnMapAdd));
 
   fOnMapAdd := aOnMapAdd;
   fOnMapAddDone := aOnMapAddDone;
-  OnTerminate := aOnComplete;
+  OnTerminate := aOnTerminate;
   FreeOnTerminate := False;
 end;
 

@@ -62,7 +62,7 @@ const
 
 implementation
 uses
-  KM_Houses, KM_Terrain, KM_HandsCollection, KM_Utils, KM_AIFields, KM_Hand, KM_AIInfluences,
+  KM_Houses, KM_Terrain, KM_HandsCollection, KM_CommonUtils, KM_AIFields, KM_Hand, KM_AIInfluences,
   KM_Resource, KM_ResUnits;
 
 

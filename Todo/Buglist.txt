@@ -23,15 +23,22 @@ Bugs:
  +	"Unit is hungry" message could be shown for invalid/dead groups
  +	If warrior dies before he walked out, he creates an invalid group
  +	Hide drop column/list when control become invisible (dropbox in lobby could stuck if f.e. server disconnects when it was opened)
+ +	Demolish wrong house by using house hotkey
+ +	We could get exception and crash the game when refresh server list (when some global network error happens, like no net interface connected)
+ +	Tannery has 2 flags in place of 1
+ +	Player can change DL map files and start it. So its hash does not fit anymore. It will cause an error after the start on map load
+ +	Sometimes player could no open MP game page again. Need to unlock mutex on MP game error or disconnect
  +	Replay/Spectate: reset selected object when switch to another player
  +	Apply password letters restrictions for password input field
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
  +	MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
+ +	MapEd: place some houses, then delete them - hand still have assets (so you could make an ally to it, show center screen etc)
  +	Dynamic scripts: Scripting action OnHousePlanRemove was invoked with wrong coordinates
 
  
-
+Bugs to fix in future:
+	
 	Server welcome message should support Unicode
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -68,6 +75,8 @@ Bugs:
 Improvements: 
  Game: 
  +		Select area to work in for woodcutters
+ +		House closed for worker feature
+ +		Ability to forbid recruits to enter the barracks
  +	L	Save wares distribution ratios between games
  +		Change unit training order in School on Ctrl+click, Shift+click
  +	L	Pressing LMB over placed plans and dragging it - will remove plans
@@ -84,12 +93,16 @@ Improvements:
  +	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
  +		Separate statistics for different warrior types
  +		Game stats 'Weapons produced' now contains horses as well
+ +		Allow to see beacons while spectating/watching replay
+ +		Added beacons cooldown to preven spam with beacons
  +		New option - replay autopause on PT end
  +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
  +		MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
  +		Market small GUI visual improvement (removed unnecessary colon sign's)
  +		Label for group members count on group panel (same as in MapEd)
  +		Map name label on F4 menu
+ +		Stats page (F3) - added +xx for training units.
+ +		Stats page (F3) - added highlight unit qty number when there is no enought workers
  +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
  +		Colored niknames in chat system messages
  +		Ping string in game visual improvement (removed 'shaking' effect)
@@ -107,6 +120,7 @@ Improvements:
  +		New column in maps/saves lists: build or fight
  +		Minimap for MP games: show in replays menu and lobby, if possible
  +		Highlight players flags in lobby, when they are clickable
+ +		MP game description improvement
  
  Hotkeys:
  +	L	Allow to customize and save hotkeys settings
@@ -124,6 +138,7 @@ Improvements:
  +		Players dropbox not closing automatically anymore
  +		Show 1st human player initially, not just 1st player
  +		SP replay: Ability to ignore repeated consistency check errors
+ +		Separated and sorted by teams list of players
  
  Campaign:
  +		Ability to specify the title of the mission separately for each campaign rather than globally for all
@@ -147,6 +162,8 @@ Improvements:
  MapEditor:
  +	L	Eyedropper tool like in Photoshop to select the type of tile under the cursor
  +	L	Allow to set troops order destination with mouse on map (Shift+RMB)
+ +		Added objects palette
+ +		New tool - universal eraser
  +		House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
  +		Shortcut to change row count in group (same as for numbers, orders etc)
  +		Set default 'center screen' position of all players in the center of screen for new map
@@ -159,8 +176,13 @@ Improvements:
  +		New ability to set corn/wine stage
  +	L	Allow to grab an object with a MouseDown and drag it around until MouseUp
  +		Added new hotkeys for road/field/wine/erase plans
+ +		Added display color code for color page in KaM format (BGR)
  
  Dynamic scripts:
+ +		Update to current version of remObjects PascalScript. 
+ +		Added ability to include scripts. Added pascal style directives. Show exact error position in script. 
+ +		Added support for ogg audio format with similar functions as for WAV (PlayOGG/PlayOGGAtLocation/PlayOGGAtLocationLooped/PlayOGGFadeMusic/PlayOGGLooped/StopLoopedOGG)
+ +		New MapTilesArraySet function
  +		Added 32 utility functions into new scripts unit 'Utils'. Check wiki for details
  +		Added 4 procedures: OnGroupOrderAttackHouse/OnGroupOrderAttackUnit/OnGroupOrderLink/OnGroupOrderSplit
  +		Added ShareFogCompliment function (Sets whether players A and B share their vision (both ways))
@@ -168,7 +190,11 @@ Improvements:
  Other: 
  +	L	Saving and restoring games window position on restart
  +		Ability to set decimal values for game speedups in INI file
+ +	H	Network code significant refactoring and improvement
  
+   
+	 
+Other ideas for future (ToDo maybe):
  
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]

@@ -82,7 +82,7 @@ var
 implementation
 {$R *.dfm}
 uses
-  KM_Utils, KM_CommonTypes;
+  KM_CommonUtils, KM_CommonTypes;
 
 
 procedure TForm1.FormCreate(Sender: TObject);

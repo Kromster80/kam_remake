@@ -2,7 +2,7 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Classes, KM_Utils, KM_CommonTypes;
+  SysUtils, Classes, KM_CommonUtils, KM_CommonTypes;
 
 
 type

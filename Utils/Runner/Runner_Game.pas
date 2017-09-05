@@ -3,7 +3,7 @@ unit Runner_Game;
 interface
 uses
   Forms, Unit_Runner, Windows, SysUtils, Classes, KromUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
   KM_GameApp, KM_ResLocales, KM_Log, KM_HandsCollection, KM_ResTexts,
   KM_Terrain, KM_Units, KM_Units_Warrior, KM_Campaigns;
 

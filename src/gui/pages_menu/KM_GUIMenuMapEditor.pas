@@ -36,10 +36,14 @@ type
     procedure ColumnClick(aValue: Integer);
     function GetMaps: TKMapsCollection;
     procedure LoadMinimap(aID: Integer = -1);
+    procedure ReadmeClick(Sender: TObject);
     procedure SelectMap(Sender: TObject);
     procedure BackClick(Sender: TObject);
     procedure DeleteClick(Sender: TObject);
     procedure DeleteConfirm(aVisible: Boolean);
+    procedure RenameClick(Sender: TObject);
+    procedure Edit_Rename_Change(Sender: TObject);
+    procedure RenameConfirm(aVisible: Boolean);
     procedure MoveConfirm(aVisible: Boolean);
     procedure MoveEditChange(Sender: TObject);
     procedure MoveClick(Sender: TObject);
@@ -52,16 +56,28 @@ type
       Panel_MapEdLoad: TKMPanel;
       ColumnBox_MapEd: TKMColumnBox;
       Radio_MapEd_MapType: TKMRadioGroup;
-      MinimapView_MapEd: TKMMinimapView;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load: TKMButton;
       NumEdit_MapSizeX: TKMNumericEdit;
       NumEdit_MapSizeY: TKMNumericEdit;
+
+      MinimapView_MapEd: TKMMinimapView;
+
+      Panel_LobbySetupDesc: TKMPanel;
+        Label_MapType: TKMLabel;
+        Memo_LobbyMapDesc: TKMMemo;
+        Button_LobbySetupReadme: TKMButton;
 
       //PopUp Menus
       PopUp_Delete: TKMPopUpMenu;
         Image_Delete: TKMImage;
         Button_MapDelete, Button_MapDeleteConfirm, Button_MapDeleteCancel: TKMButton;
         Label_MapDeleteConfirmTitle, Label_MapDeleteConfirm: TKMLabel;
+
+      PopUp_Rename: TKMPopUpMenu;
+        Image_Rename: TKMImage;
+        Label_RenameTitle, Label_RenameName: TKMLabel;
+        Edit_Rename: TKMEdit;
+        Button_MapRename, Button_MapRenameConfirm, Button_MapRenameCancel: TKMButton;
 
       PopUp_Move: TKMPopUpMenu;
         Image_Move: TKMImage;
@@ -125,8 +141,8 @@ begin
 
       Radio_MapEdSizeX.OnChange := SizeChangeByRadio;
       Radio_MapEdSizeY.OnChange := SizeChangeByRadio;
-      NumEdit_MapSizeX := TKMNumericEdit.Create(Panel_MapEdSizeXY, 8, 392, 32, 256);
-      NumEdit_MapSizeY := TKMNumericEdit.Create(Panel_MapEdSizeXY, 118, 392, 32, 256);
+      NumEdit_MapSizeX := TKMNumericEdit.Create(Panel_MapEdSizeXY, 8, 392, MIN_MAP_SIZE, MAX_MAP_SIZE);
+      NumEdit_MapSizeY := TKMNumericEdit.Create(Panel_MapEdSizeXY, 118, 392, MIN_MAP_SIZE, MAX_MAP_SIZE);
       NumEdit_MapSizeX.Anchors := [anLeft, anBottom];
       NumEdit_MapSizeY.Anchors := [anLeft, anBottom];
       NumEdit_MapSizeX.Value := 64;
@@ -155,10 +171,23 @@ begin
       ColumnBox_MapEd.OnChange := SelectMap;
       ColumnBox_MapEd.OnDoubleClick := StartClick;
 
-      with TKMBevel.Create(Panel_MapEdLoad, 448, 264, 199, 199) do
+      with TKMBevel.Create(Panel_MapEdLoad, 448, 104, 199, 199) do
         Anchors := [anLeft];
-      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 268, 191, 191);
+      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 108, 191, 191);
       MinimapView_MapEd.Anchors := [anLeft];
+
+      Panel_LobbySetupDesc := TKMPanel.Create(Panel_MapEdLoad, 448, 104+199+10, 199, 218);
+      Panel_LobbySetupDesc.Anchors := [anLeft, anTop, anBottom];
+        Label_MapType := TKMLabel.Create(Panel_LobbySetupDesc, 0, 0, '', fnt_Metal, taLeft);
+        Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetupDesc, 0, 0, 199, 218, fnt_Game, bsMenu);
+        Memo_LobbyMapDesc.Anchors := [anLeft,anTop,anBottom];
+        Memo_LobbyMapDesc.AutoWrap := True;
+        Memo_LobbyMapDesc.ItemHeight := 16;
+
+        Button_LobbySetupReadme := TKMButton.Create(Panel_LobbySetupDesc, 0, 225, 199, 25, gResTexts[TX_LOBBY_VIEW_README], bsMenu);
+        Button_LobbySetupReadme.Anchors := [anLeft,anBottom];
+        Button_LobbySetupReadme.OnClick := ReadmeClick;
+        Button_LobbySetupReadme.Hide;
 
       Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
       Button_MapEd_Load.Anchors := [anLeft, anBottom];
@@ -168,6 +197,10 @@ begin
       Button_MapMove.Anchors := [anLeft, anBottom];
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
+
+      Button_MapRename := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, 'Rename Map', bsMenu); //Todo translate
+      Button_MapRename.Anchors := [anLeft, anBottom];
+      Button_MapRename.OnClick := RenameClick;
 
       Button_MapDelete := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_DELETE], bsMenu);
       Button_MapDelete.Anchors := [anLeft, anBottom];
@@ -203,6 +236,37 @@ begin
         Button_MapDeleteCancel  := TKMButton.Create(PopUp_Delete, 235, 155, 195, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
         Button_MapDeleteCancel.Anchors := [anLeft, anBottom];
         Button_MapDeleteCancel.OnClick := DeleteClick;
+
+      PopUp_Rename := TKMPopUpMenu.Create(Panel_MapEd, 400);
+      PopUp_Rename.Height := 200;
+      // Keep the pop-up centered
+      PopUp_Rename.AnchorsCenter;
+      PopUp_Rename.Left := (Panel_MapEd.Width div 2) - (PopUp_Rename.Width div 2);
+      PopUp_Rename.Top := (Panel_MapEd.Height div 2) - 90;
+
+        TKMBevel.Create(PopUp_Rename, -1000,  -1000, 4000, 4000);
+
+        Image_Rename := TKMImage.Create(PopUp_Rename, 0, 0, PopUp_Rename.Width, PopUp_Rename.Height, 15, rxGuiMain);
+        Image_Rename.ImageStretch;
+
+        Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, 'Rename Map', fnt_Outline, taCenter);
+        Label_RenameTitle.Anchors := [anLeft,anBottom];
+
+        Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fnt_Metal, taLeft);
+        Label_RenameName.Anchors := [anLeft,anBottom];
+
+        Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fnt_Metal);
+        Edit_Rename.Anchors := [anLeft,anBottom];
+        Edit_Rename.AllowedChars := acFileName;
+        Edit_Rename.OnChange := Edit_Rename_Change;
+
+        Button_MapRenameConfirm := TKMButton.Create(PopUp_Rename, 20, 155, 170, 30, gResTexts[TX_MENU_REPLAY_RENAME_CONFIRM], bsMenu);
+        Button_MapRenameConfirm.Anchors := [anLeft,anBottom];
+        Button_MapRenameConfirm.OnClick := RenameClick;
+
+        Button_MapRenameCancel := TKMButton.Create(PopUp_Rename, 210, 155, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
+        Button_MapRenameCancel.Anchors := [anLeft,anBottom];
+        Button_MapRenameCancel.OnClick := RenameClick;
 
       //Move PopUp
       PopUp_Move := TKMPopUpMenu.Create(Panel_MapEd, 400);
@@ -346,6 +410,7 @@ begin
   Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
   Button_MapDelete.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
   Button_MapMove.Visible := (ColumnBox_MapEd.ItemIndex <> -1) and (GetMaps[ColumnBox_MapEd.ItemIndex].MapFolder = mfDL);
+  Button_MapRename.Visible := (ColumnBox_MapEd.ItemIndex <> -1) and (GetMaps[ColumnBox_MapEd.ItemIndex].MapFolder <> mfDL);
 
   if (ColumnBox_MapEd.ItemIndex = -1) then
     MinimapView_MapEd.Hide
@@ -392,6 +457,17 @@ end;
 procedure TKMMenuMapEditor.SortUpdate(Sender: TObject);
 begin
   RefreshList(True); //After sorting jump to the selected item
+end;
+
+
+procedure TKMMenuMapEditor.ReadmeClick(Sender: TObject);
+var
+  ID: Integer;
+  Maps: TKMapsCollection;
+begin
+  ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
+  Maps := GetMaps;
+  Maps[ID].ViewReadme;
 end;
 
 
@@ -517,6 +593,8 @@ begin
   case Key of
     VK_RETURN:  if Button_MapDeleteConfirm.IsClickable then
                   DeleteClick(Button_MapDeleteConfirm)
+                else if Button_MapRenameConfirm.IsClickable then
+                  RenameClick(Button_MapRenameConfirm)
                 else if Button_MapMoveConfirm.IsClickable then
                   MoveClick(Button_MapMoveConfirm);
   end;
@@ -527,6 +605,8 @@ procedure TKMMenuMapEditor.EscKeyDown(Sender: TObject);
 begin
   if Button_MapDeleteCancel.IsClickable then
     DeleteClick(Button_MapDeleteCancel)
+  else if Button_MapRenameCancel.IsClickable then
+    RenameClick(Button_MapRenameCancel)
   else if Button_MapMoveCancel.IsClickable then
     MoveClick(Button_MapMoveCancel)
   else
@@ -543,6 +623,38 @@ begin
 end;
 
 
+procedure TKMMenuMapEditor.DeleteClick(Sender: TObject);
+var
+  OldSelection, NewSelection: Integer;
+  Maps: TKMapsCollection;
+begin
+  Maps := GetMaps;
+
+  if ColumnBox_MapEd.ItemIndex = -1 then Exit;
+
+  if Sender = Button_MapDelete then
+    DeleteConfirm(True);
+
+  if (Sender = Button_MapDeleteConfirm) or (Sender = Button_MapDeleteCancel) then
+    DeleteConfirm(False);
+
+  //Delete selected map
+  if Sender = Button_MapDeleteConfirm then
+  begin
+    OldSelection := ColumnBox_MapEd.ItemIndex;
+    Maps.DeleteMap(ColumnBox_MapEd.ItemIndex);
+    if ColumnBox_MapEd.RowCount > 1 then
+    begin
+      NewSelection := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 2);
+      SetSelectedMapInfo(NewSelection);
+    end else
+      SetSelectedMapInfo;
+
+    RefreshList(True);
+  end;
+end;
+
+
 procedure TKMMenuMapEditor.DeleteConfirm(aVisible: Boolean);
 begin
   if aVisible then
@@ -555,6 +667,50 @@ begin
     ColumnBox_MapEd.Focusable := True;
     gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_MapEd);
   end;
+end;
+
+
+procedure TKMMenuMapEditor.RenameClick(Sender: TObject);
+var
+  Maps: TKMapsCollection;
+begin
+  Maps := GetMaps;
+
+  if ColumnBox_MapEd.ItemIndex = -1 then Exit;
+
+  if Sender = Button_MapRename then
+    RenameConfirm(True);
+
+  if (Sender = Button_MapRenameConfirm) or (Sender = Button_MapRenameCancel) then
+    RenameConfirm(False);
+
+  // Change name of the save
+  if Sender = Button_MapRenameConfirm then
+  begin
+    Edit_Rename.Text := Trim(Edit_Rename.Text);
+    Maps.RenameMap(ColumnBox_MapEd.ItemIndex, Edit_Rename.Text);
+    SetSelectedMapInfo(fSelectedMapInfo.CRC, Edit_Rename.Text);
+    ListUpdate;
+  end;
+end;
+
+
+// Check if new name is allowed
+procedure TKMMenuMapEditor.Edit_Rename_Change(Sender: TObject);
+begin
+  Button_MapRenameConfirm.Enabled := (Trim(Edit_Rename.Text) <> '') and not GetMaps.Contains(Trim(Edit_Rename.Text));
+end;
+
+
+procedure TKMMenuMapEditor.RenameConfirm(aVisible: Boolean);
+begin
+  if aVisible then
+  begin
+    Edit_Rename.Text := GetMaps[ColumnBox_MapEd.ItemIndex].FileName;
+    Button_MapRenameConfirm.Enabled := False;
+    PopUp_Rename.Show;
+  end else
+    PopUp_Rename.Hide;
 end;
 
 
@@ -605,38 +761,6 @@ begin
 end;
 
 
-procedure TKMMenuMapEditor.DeleteClick(Sender: TObject);
-var
-  OldSelection, NewSelection: Integer;
-  Maps: TKMapsCollection;
-begin
-  Maps := GetMaps;
-
-  if ColumnBox_MapEd.ItemIndex = -1 then Exit;
-
-  if Sender = Button_MapDelete then
-    DeleteConfirm(True);
-
-  if (Sender = Button_MapDeleteConfirm) or (Sender = Button_MapDeleteCancel) then
-    DeleteConfirm(False);
-
-  //Delete selected map
-  if Sender = Button_MapDeleteConfirm then
-  begin
-    OldSelection := ColumnBox_MapEd.ItemIndex;
-    Maps.DeleteMap(ColumnBox_MapEd.ItemIndex);
-    if ColumnBox_MapEd.RowCount > 1 then
-    begin
-      NewSelection := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 2);
-      SetSelectedMapInfo(NewSelection);
-    end else
-      SetSelectedMapInfo;
-
-    RefreshList(True);
-  end;
-end;
-
-
 procedure TKMMenuMapEditor.MoveEditChange(Sender: TObject);
 var
   SaveName: string;
@@ -666,15 +790,47 @@ end;
 
 
 procedure TKMMenuMapEditor.LoadMinimap(aID: Integer = -1);
+var
+  Map: TKMapInfo;
+  ShowMapTypeLabel: Boolean;
 begin
   if aID <> -1 then
   begin
-    fMinimap.LoadFromMission(GetMaps[aID].FullPath('.dat'), []);
+    Map := GetMaps[aID];
+    fMinimap.LoadFromMission(Map.FullPath('.dat'), []);
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;
-  end else
+    Panel_LobbySetupDesc.Show;
+    Map.LoadExtra;
+    Memo_LobbyMapDesc.Text := Map.BigDesc;
+    if Map.HasReadme then
+      Button_LobbySetupReadme.Show
+    else
+      Button_LobbySetupReadme.Hide;
+
+    ShowMapTypeLabel := Map.IsCoop or Map.IsSpecial;
+    if ShowMapTypeLabel then
+    begin
+      if Map.IsCoop then
+        Label_MapType.Caption := gResTexts[TX_LOBBY_MAP_COOP]
+      else
+        Label_MapType.Caption := gResTexts[TX_LOBBY_MAP_SPECIAL];
+      Memo_LobbyMapDesc.Top := 20;
+      Button_LobbySetupReadme.Top := 245;
+      Label_MapType.Show;
+    end
+    else
+    begin
+      Memo_LobbyMapDesc.Top := 0;
+      Button_LobbySetupReadme.Top := 225;
+      Label_MapType.Hide;
+    end;
+  end else begin
     MinimapView_MapEd.Hide;
+    Panel_LobbySetupDesc.Hide;
+    Memo_LobbyMapDesc.Clear;
+  end;
 end;
 
 

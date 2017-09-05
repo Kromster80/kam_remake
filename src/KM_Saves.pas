@@ -37,6 +37,7 @@ type
     property Path: string read fPath;
     property FileName: string read fFileName;
     property CRC: Cardinal read fCRC;
+    property SaveError: string read fSaveError;
 
     function IsValid: Boolean;
     function IsMultiplayer: Boolean;
@@ -99,7 +100,7 @@ type
 implementation
 
 uses
-  KM_Utils;
+  KM_CommonUtils;
 
 
 { TKMSaveInfo }
