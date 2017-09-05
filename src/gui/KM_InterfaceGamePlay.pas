@@ -8,7 +8,7 @@ uses
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
-  KM_GUIGameBuild, KM_GUIGameChat, KM_GUIGameHouse, KM_GUIGameRatios, KM_GUIGameStats,KM_GUIGameMenuSettings;
+  KM_GUIGameBuild, KM_GUIGameChat, KM_GUIGameHouse, KM_GUIGameUnit, KM_GUIGameRatios, KM_GUIGameStats,KM_GUIGameMenuSettings;
 
 
 const
@@ -32,6 +32,7 @@ type
     fGuiGameBuild: TKMGUIGameBuild;
     fGuiGameChat: TKMGUIGameChat;
     fGuiGameHouse: TKMGUIGameHouse;
+    fGuiGameUnit: TKMGUIGameUnit;
     fGuiGameRatios: TKMGUIGameRatios;
     fGuiGameStats: TKMGUIGameStats;
     fGuiMenuSettings: TKMGameMenuSettings;
@@ -44,8 +45,7 @@ type
     PrevHintMessage: UnicodeString;
     ShownMessage: Integer;
     PlayMoreMsg: TGameResultMsg; // Remember which message we are showing
-    fJoiningGroups, fPlacingBeacon: Boolean;
-    fAskDismiss: Boolean;
+    fPlacingBeacon: Boolean;
     fNetWaitDropPlayersDelayStarted: Cardinal;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection: Boolean;
@@ -76,16 +76,14 @@ type
     procedure Create_Save;
     procedure Create_Load;
     procedure Create_Quit;
-    procedure Create_Unit;
 
     procedure Beacon_Cancel;
     procedure Beacon_Place(aLoc: TKMPointF);
-    procedure Army_ActivateControls(aGroup: TKMUnitGroup);
-    procedure Army_HideJoinMenu(Sender: TObject);
-    procedure Army_Issue_Order(Sender: TObject);
     procedure Chat_Click(Sender: TObject);
     procedure House_Demolish;
-    procedure Unit_Dismiss(Sender: TObject);
+    procedure Reset_Menu;
+    function ArmyCanTakeOrder(aObject: TObject): Boolean;
+    function IsSelectingTroopDirection(aObject: TObject): Boolean;
     procedure Menu_QuitMission(Sender: TObject);
     procedure Menu_ReturnToMapEd(Sender: TObject);
     procedure Menu_NextTrack(Sender: TObject);
@@ -135,7 +133,7 @@ type
     procedure SetPause(aValue:boolean);
     procedure DirectionCursorShow(X,Y: Integer; Dir: TKMDirection);
     procedure DirectionCursorHide;
-    function HasLostMPGame:Boolean;
+    function HasLostMPGame: Boolean;
     procedure UpdateDebugInfo;
     procedure UpdateSelectedObject;
     procedure HidePages;
@@ -252,37 +250,10 @@ type
         Button_Quit_Yes, Button_Quit_No: TKMButton;
         Button_ReturnToMapEd: TKMButton;
 
-    Panel_Unit: TKMPanel;
-      Label_UnitName: TKMLabel;
-      Label_UnitCondition: TKMLabel;
-      Label_UnitTask: TKMLabel;
-      Label_UnitDescription: TKMLabel;
-      ConditionBar_Unit: TKMPercentBar;
-      Image_UnitPic: TKMImage;
-      Button_Unit_Dismiss: TKMButton;
-
-      Panel_Unit_Dismiss: TKMPanel;
-         Label_Unit_Dismiss: TKMLabel;
-         Button_Unit_DismissYes,Button_Unit_DismissNo: TKMButton;
-
-      Panel_Army: TKMPanel;
-        Button_Army_GoTo,Button_Army_Stop,Button_Army_Attack: TKMButton;
-        Button_Army_RotCW,Button_Army_Storm,Button_Army_RotCCW: TKMButton;
-        Button_Army_ForUp,Button_Army_ForDown: TKMButton;
-        ImageStack_Army: TKMImageStack;
-        Button_Army_Split,Button_Army_Join,Button_Army_Feed: TKMButton;
-        Label_Army_MembersCount: TKMLabel;
-
-      Panel_Army_JoinGroups: TKMPanel;
-        Button_Army_Join_Cancel: TKMButton;
-        Label_Army_Join_Message: TKMLabel;
-
       function IsDragScrollingAllowed: Boolean; override;
   public
     constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
-    procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
-    procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString); overload;
     procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint); overload;
     procedure SetMenuState(aTactic: Boolean);
@@ -595,10 +566,6 @@ begin
     Panel_Quit.Show
   else // If Sender is anything else - then show all 4 buttons and hide Return button
     Flip4MainButtons(True);
-
-  // Now process all other kinds of pages
-  if (Sender = Panel_Unit) then
-    TKMPanel(Sender).Show;
 end;
 
 
@@ -716,7 +683,6 @@ begin
 
   // Instruct to use global Terrain
   fLastSaveName := '';
-  fJoiningGroups := False;
   fPlacingBeacon := False;
   SelectingTroopDirection := False;
   SelectingDirPosition.X := 0;
@@ -812,6 +778,7 @@ begin
   fGuiGameBuild.Free;
   fGuiGameChat.Free;
   fGuiGameHouse.Free;
+  fGuiGameUnit.Free;
   fGuiGameRatios.Free;
   fGuiGameStats.Free;
   fGuiMenuSettings.Free;
@@ -1148,8 +1115,10 @@ begin
     fGuiMenuSettings := TKMGameMenuSettings.Create(Panel_Controls);
     Create_Quit;
 
-  Create_Unit;
-
+  fGuiGameUnit := TKMGUIGameUnit.Create(Panel_Controls);
+  fGuiGameUnit.OnUnitDismiss := Reset_Menu;
+  fGuiGameUnit.OnArmyCanTakeOrder := ArmyCanTakeOrder;
+  fGuiGameUnit.OnSelectingTroopDirection := IsSelectingTroopDirection;
   fGuiGameHouse := TKMGUIGameHouse.Create(Panel_Controls);
   fGuiGameHouse.OnHouseDemolish := House_Demolish;
 end;
@@ -1306,90 +1275,6 @@ begin
 end;
 
 
-{ Unit page }
-procedure TKMGamePlayInterface.Create_Unit;
-begin
-  Panel_Unit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,30,'',fnt_Outline,taCenter);
-    Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
-    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,30,gResTexts[TX_UNIT_CONDITION],fnt_Grey,taCenter);
-    ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
-    Label_UnitTask        := TKMLabel.Create(Panel_Unit,65,80,116,60,'',fnt_Grey,taLeft);
-    Label_UnitTask.AutoWrap := True;
-    Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fnt_Grey,taLeft); // Taken from LIB resource
-    Label_UnitDescription.AutoWrap := True;
-    Button_Unit_Dismiss   := TKMButton.Create(Panel_Unit,124,120,56,34,29, rxGui, bsGame);
-
-    Panel_Unit_Dismiss := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 182);
-    Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,100,16,TB_WIDTH,30,'Are you sure?',fnt_Outline,taCenter);
-    Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,50, 50,TB_WIDTH,40,'Dismiss',bsGame);
-    Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,50,100,TB_WIDTH,40,'Cancel',bsGame);
-    Button_Unit_DismissYes.OnClick := Unit_Dismiss;
-    Button_Unit_DismissNo.OnClick  := Unit_Dismiss;
-
-    Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 182);
-    // Military buttons start at 8.170 and are 52x38/30 (60x46)
-    Button_Army_GoTo   := TKMButton.Create(Panel_Army,  0,  0, 56, 40, 27, rxGui, bsGame);
-    Button_Army_Stop   := TKMButton.Create(Panel_Army, 62,  0, 56, 40, 26, rxGui, bsGame);
-    Button_Army_Attack := TKMButton.Create(Panel_Army,124,  0, 56, 40, 25, rxGui, bsGame);
-    Button_Army_RotCCW := TKMButton.Create(Panel_Army,  0, 46, 56, 40, 23, rxGui, bsGame);
-    Button_Army_Storm  := TKMButton.Create(Panel_Army, 62, 46, 56, 40, 28, rxGui, bsGame);
-    Button_Army_RotCW  := TKMButton.Create(Panel_Army,124, 46, 56, 40, 24, rxGui, bsGame);
-    Button_Army_ForUp  := TKMButton.Create(Panel_Army,  0, 92, 56, 40, 33, rxGui, bsGame);
-    ImageStack_Army    := TKMImageStack.Create(Panel_Army, 62, 92, 56, 40, 43, 50);
-    Label_Army_MembersCount := TKMLabel.Create(Panel_Army, 62, 106, 56, 20, '', fnt_Outline, taCenter);
-    Button_Army_ForDown:= TKMButton.Create(Panel_Army,124, 92, 56, 40, 32, rxGui, bsGame);
-    Button_Army_Split  := TKMButton.Create(Panel_Army,  0,138, 56, 34, 31, rxGui, bsGame);
-    Button_Army_Join   := TKMButton.Create(Panel_Army, 62,138, 56, 34, 30, rxGui, bsGame);
-    Button_Army_Feed   := TKMButton.Create(Panel_Army,124,138, 56, 34, 29, rxGui, bsGame);
-
-    // All one-click-action (i.e. not attack, move, link up) army controls have a single procedure
-    // that decides what to do based on Sender
-    Button_Army_GoTo.OnClick    := Army_Issue_Order;
-    Button_Army_Stop.OnClick    := Army_Issue_Order;
-    Button_Army_Attack.OnClick  := Army_Issue_Order;
-    Button_Army_RotCW.OnClick   := Army_Issue_Order;
-    Button_Army_Storm.OnClick   := Army_Issue_Order;
-    Button_Army_RotCCW.OnClick  := Army_Issue_Order;
-    Button_Army_ForDown.OnClick := Army_Issue_Order;
-    Button_Army_ForUp.OnClick   := Army_Issue_Order;
-    Button_Army_Split.OnClick   := Army_Issue_Order;
-    Button_Army_Join.OnClick    := Army_Issue_Order;
-    Button_Army_Feed.OnClick    := Army_Issue_Order;
-    Button_Unit_Dismiss.OnClick := Army_Issue_Order;
-
-    // Disable not working buttons
-    Button_Army_GoTo.Hide;
-    Button_Army_Attack.Hide;
-
-    // Hints
-    Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint     := GetHintWHotKey(TX_TROOP_HALT_HINT, SC_ARMY_HALT);
-    Button_Army_Attack.Hint   := gResTexts[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint    := GetHintWHotKey(TX_ARMY_ROTATE_CW_HINT, SC_ARMY_ROTATE_CW);
-    Button_Army_Storm.Hint    := GetHintWHotKey(TX_ARMY_STORM_HINT, SC_ARMY_STORM);
-    Button_Army_RotCCW.Hint   := GetHintWHotKey(TX_ARMY_ROTATE_CCW_HINT, SC_ARMY_ROTATE_CCW);
-    Button_Army_ForDown.Hint  := GetHintWHotKey(TX_ARMY_LINE_ADD_HINT, SC_ARMY_ADD_LINE);
-    Button_Army_ForUp.Hint    := GetHintWHotKey(TX_ARMY_LINE_REM_HINT, SC_ARMY_DEL_LINE);
-    Button_Army_Split.Hint    := GetHintWHotKey(TX_TROOP_SPLIT_HINT, SC_ARMY_SPLIT);
-    Button_Army_Join.Hint     := GetHintWHotKey(TX_TROOP_LINK_HINT, SC_ARMY_LINK);
-    Button_Army_Feed.Hint     := GetHintWHotKey(TX_ARMY_FEED_HINT, SC_ARMY_FOOD);
-    Button_Unit_Dismiss.Hint  := 'Dismiss unit';
-
-    { Army controls...
-    Go to     Stop      Attack
-    Rotate    Storm     Rotate
-    -Column   [Info]    +Column
-    Split     Join      Feed }
-
-    Panel_Army_JoinGroups := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 182);
-    Label_Army_Join_Message := TKMLabel.Create(Panel_Army_JoinGroups, 0, 30, TB_WIDTH, 65, gResTexts[TX_ARMY_JOIN_SELECT], fnt_Outline, taCenter);
-    Button_Army_Join_Cancel := TKMButton.Create(Panel_Army_JoinGroups, 0, 95, TB_WIDTH, 30, gResTexts[TX_ARMY_JOIN_CANCEL], bsGame);
-
-  Button_Army_Join_Cancel.OnClick := Army_HideJoinMenu;
-end;
-
-
 procedure TKMGamePlayInterface.Chat_Click(Sender: TObject);
 begin
   if fGuiGameChat.Visible then
@@ -1418,7 +1303,7 @@ begin
       SwitchPage(nil);
 
     fDragScrolling := False;
-    fJoiningGroups := False;
+    fGuiGameUnit.JoiningGroups := False;
     ReleaseDirectionSelector;
     gRes.Cursors.Cursor := kmc_Default; // Might have been scrolling or joining groups
     SetMenuState(gGame.MissionMode = mm_Tactic); // Disabled main buttons
@@ -1473,6 +1358,24 @@ end;
 procedure TKMGamePlayInterface.House_Demolish;
 begin
   SwitchPage(Button_Main[tbBuild]);
+end;
+
+
+procedure TKMGamePlayInterface.Reset_Menu;
+begin
+  SwitchPage(nil);
+end;
+
+
+function TKMGamePlayInterface.ArmyCanTakeOrder(aObject: TObject): Boolean;
+begin
+  Result := (fUIMode in [umSP, umMP]) and not HasLostMPGame;
+end;
+
+
+function TKMGamePlayInterface.IsSelectingTroopDirection(aObject: TObject): Boolean;
+begin
+  Result := SelectingTroopDirection;
 end;
 
 
@@ -1565,82 +1468,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowUnitInfo(Sender: TKMUnit; aAskDismiss: Boolean = False);
-begin
-  Assert(gMySpectator.Selected = Sender);
-
-  fAskDismiss  := aAskDismiss;
-
-  if Sender = nil then
-  begin
-    SwitchPage(nil);
-    Exit;
-  end;
-
-  SwitchPage(Panel_Unit);
-
-  // Common properties
-  Label_UnitName.Caption      := gRes.Units[Sender.UnitType].GUIName;
-  Image_UnitPic.TexID         := gRes.Units[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor     := gHands[Sender.Owner].FlagColor;
-  ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
-  Label_UnitTask.Caption      := Sender.GetActivityText;
-
-  Label_UnitDescription.Show;
-  Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and not fAskDismiss;
-  Panel_Army.Hide;
-  Panel_Army_JoinGroups.Hide;
-  Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss;
-
-  Label_UnitDescription.Caption := gRes.Units[Sender.UnitType].Description;
-end;
-
-
-procedure TKMGamePlayInterface.ShowGroupInfo(Sender: TKMUnitGroup);
-var
-  W: TKMUnitWarrior;
-begin
-  Assert(gMySpectator.Selected = Sender);
-
-  if (Sender = nil) or (Sender.SelectedUnit = nil) then
-  begin
-    SwitchPage(nil);
-    Exit;
-  end;
-
-  W := Sender.SelectedUnit;
-  SwitchPage(Panel_Unit);
-
-  // Common properties
-  Label_UnitName.Caption      := gRes.Units[W.UnitType].GUIName;
-  Image_UnitPic.TexID         := gRes.Units[W.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor     := gHands[W.Owner].FlagColor;
-  ConditionBar_Unit.Position  := W.Condition / UNIT_MAX_CONDITION;
-  // We show what this individual is doing, not the whole group.
-  // However this can be useful for debugging: Sender.GetOrderText
-  Label_UnitTask.Caption      := W.GetWarriorActivityText(Sender.IsAttackingUnit);
-
-  // While selecting target to join we could get attacked
-  // Then we must cancel the dialog
-  if not Sender.CanTakeOrders then
-    Army_HideJoinMenu(nil); // Cannot be joining while in combat/charging
-
-  Label_UnitDescription.Hide;
-  Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and not fAskDismiss and not fJoiningGroups;
-  Panel_Army.Visible := not fAskDismiss and not fJoiningGroups;
-  Panel_Army_JoinGroups.Visible := not fAskDismiss and fJoiningGroups;
-  Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss and not fJoiningGroups;
-
-  // Update army controls if required
-  if Panel_Army.Visible then
-  begin
-    ImageStack_Army.SetCount(Sender.Count, Sender.UnitsPerRow, Sender.UnitsPerRow div 2);
-    Army_ActivateControls(Sender);
-    Label_Army_MembersCount.Caption := IntToStr(Sender.Count);
-  end;
-end;
-
-
 // Quit the mission and return to main menu
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
@@ -1672,107 +1499,6 @@ end;
 procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender: TObject);
 begin
   gGameApp.MusicLib.PlayPreviousTrack;
-end;
-
-
-procedure TKMGamePlayInterface.Army_Issue_Order(Sender: TObject);
-var
-  Group: TKMUnitGroup;
-begin
-  if gMySpectator.Selected = nil then exit;
-  if not (gMySpectator.Selected is TKMUnitGroup) then Exit;
-
-  { Not implemented yet
-  if Sender = Button_Unit_Dismiss then
-  begin
-    ShowUnitInfo(TKMUnit(gMySpectator.Selected), true);
-  end; }
-
-  Group := TKMUnitGroup(gMySpectator.Selected);
-
-  // if Sender = Button_Army_GoTo    then ; // This command makes no sense unless player has no right-mouse-button
-  if Sender = Button_Army_Stop    then
-  begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_Halt);
-  end;
-  // if Sender = Button_Army_Attack  then ; // This command makes no sense unless player has no right-mouse-button
-  if Sender = Button_Army_RotCW   then
-  begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdCW, 0);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_RotRight);
-  end;
-  if Sender = Button_Army_Storm   then
-  begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmyStorm, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_StormAttack);
-  end;
-  if Sender = Button_Army_RotCCW  then
-  begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdCCW, 0);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_RotLeft);
-  end;
-  if Sender = Button_Army_ForDown then
-  begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdNone, 1);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_Formation);
-  end;
-  if Sender = Button_Army_ForUp   then
-  begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdNone, -1);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_Formation);
-  end;
-  if Sender = Button_Army_Split   then
-  begin
-    if GetKeyState(VK_CONTROL) < 0 then
-      gGame.GameInputProcess.CmdArmy(gic_ArmySplitSingle, Group)
-    else
-      gGame.GameInputProcess.CmdArmy(gic_ArmySplit, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_Split);
-  end;
-  if Sender = Button_Army_Join    then
-  begin
-    Panel_Army.Hide;
-    Panel_Army_JoinGroups.Show;
-    fJoiningGroups := true;
-  end;
-  if Sender = Button_Army_Feed    then
-  begin
-    gGame.GameInputProcess.CmdArmy(gic_ArmyFeed, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, sp_Eat);
-  end;
-end;
-
-
-procedure TKMGamePlayInterface.Unit_Dismiss(Sender: TObject);
-begin
-  if (gMySpectator.Selected = nil)
-  or not (gMySpectator.Selected is TKMUnit) then
-    Exit;
-
-  if Sender = Button_Unit_DismissYes then
-  begin
-    // DISMISS UNIT
-    fAskDismiss := False;
-    ShowUnitInfo(nil, False); // Simpliest way to reset page and ShownUnit
-    SwitchPage(nil); // Return to main menu after dismissing
-  end
-  else
-  begin
-    fAskDismiss := False;
-    ShowUnitInfo(TKMUnit(gMySpectator.Selected), False);  // Cancel and return to selected unit
-  end;
-end;
-
-
-procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender: TObject);
-begin
-  fJoiningGroups := False;
-  if gRes.Cursors.Cursor in [kmc_JoinYes, kmc_JoinNo] then // Do not override non-joining cursors
-    gRes.Cursors.Cursor := kmc_Default; // In case this is run with keyboard shortcut, mouse move won't happen
-  Panel_Army_JoinGroups.Hide;
-  if gMySpectator.Selected is TKMUnitWarrior then
-    Panel_Army.Show;
 end;
 
 
@@ -2195,25 +1921,6 @@ begin
     Beacon_Cancel;
   end else
     MinimapView.ClickableOnce := True; //Restore ClickableOnce state, because it could be reset by previous click on minimap
-end;
-
-
-procedure TKMGamePlayInterface.Army_ActivateControls(aGroup: TKMUnitGroup);
-var AcceptOrders: Boolean;
-begin
-  AcceptOrders := aGroup.CanTakeOrders and (fUIMode in [umSP, umMP]) and not HasLostMPGame;
-
-  // Button_Army_GoTo.Enabled    := AcceptOrders;
-  Button_Army_Stop.Enabled    := AcceptOrders;
-  // Button_Army_Attack.Enabled  := AcceptOrders;
-  Button_Army_RotCW.Enabled   := AcceptOrders;
-  Button_Army_Storm.Enabled   := AcceptOrders and (aGroup.GroupType = gt_Melee);
-  Button_Army_RotCCW.Enabled  := AcceptOrders;
-  Button_Army_ForUp.Enabled   := AcceptOrders and (aGroup.Count > 1);
-  Button_Army_ForDown.Enabled := AcceptOrders and (aGroup.Count > 1);
-  Button_Army_Split.Enabled   := AcceptOrders and (aGroup.Count > 1);
-  Button_Army_Join.Enabled    := AcceptOrders;
-  Button_Army_Feed.Enabled    := AcceptOrders;
 end;
 
 
@@ -3069,8 +2776,8 @@ begin
   if Key = gResKeys[SC_CLOSE_MENU].Key then
   begin
     // Progressively hide open elements on Esc
-    if fJoiningGroups then
-      Army_HideJoinMenu(nil)
+    if fGuiGameUnit.JoiningGroups then
+      fGuiGameUnit.Army_HideJoinMenu(nil)
     else
     if ShownMessage <> -1 then
       Message_Close(nil)
@@ -3154,6 +2861,8 @@ begin
     if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True);
   end;
 
+  fGuiGameUnit.KeyUp(Key, Shift);
+
   // All the following keys don't work in Replay, because they alter game state
   // which is nonsense
   // thus the easy way to make that is to exit now
@@ -3213,28 +2922,6 @@ begin
       end else
         fGuiGameChat.Focus;
     end;
-
-    // Standard army shortcuts from KaM
-  if Key = gResKeys[SC_ARMY_HALT].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
-  if Key = gResKeys[SC_ARMY_LINK].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
-  if Key = gResKeys[SC_ARMY_SPLIT].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
-
-    // Additional hotkeys for all group orders
-  if Key = gResKeys[SC_ARMY_FOOD].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Feed.Click;
-  if Key = gResKeys[SC_ARMY_STORM].Key then
-    if Panel_Army.Visible and Button_Army_Storm.Enabled and not SelectingTroopDirection then Button_Army_Storm.Click;
-  if Key = gResKeys[SC_ARMY_ADD_LINE].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForDown.Click;
-  if Key = gResKeys[SC_ARMY_DEL_LINE].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForUp.Click;
-  if Key = gResKeys[SC_ARMY_ROTATE_CW].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCW.Click;
-  if Key = gResKeys[SC_ARMY_ROTATE_CCW].Key then
-    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCCW.Click;
 
     // General function keys
   if Key = gResKeys[SC_PAUSE].Key then
@@ -3307,7 +2994,7 @@ begin
   if (Button = mbRight)
   and (fUIMode in [umSP, umMP])
   and not HasLostMPGame
-  and not fJoiningGroups
+  and not fGuiGameUnit.JoiningGroups
   and not fPlacingBeacon
   and (gMySpectator.Selected is TKMUnitGroup) then
   begin
@@ -3466,7 +3153,7 @@ begin
 
   Obj := gMySpectator.HitTestCursor;
 
-  if fJoiningGroups and (gMySpectator.Selected is TKMUnitGroup) then
+  if fGuiGameUnit.JoiningGroups and (gMySpectator.Selected is TKMUnitGroup) then
   begin
     Group := TKMUnitGroup(gMySpectator.Selected);
     if (Obj <> nil)
@@ -3546,7 +3233,7 @@ begin
     mbLeft:
       begin
         // Process groups joining
-        if fJoiningGroups and (gMySpectator.Selected is TKMUnitGroup) then
+        if fGuiGameUnit.JoiningGroups and (gMySpectator.Selected is TKMUnitGroup) then
         begin
           Group := TKMUnitGroup(gMySpectator.Selected);
           Obj := gMySpectator.HitTestCursor;
@@ -3563,7 +3250,7 @@ begin
             begin
               gSoundPlayer.PlayWarrior(Group.UnitType, sp_Join); // In SP joining is instant, Group does not exist after that
               gGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
-              Army_HideJoinMenu(nil);
+              fGuiGameUnit.Army_HideJoinMenu(nil);
             end;
           end;
           Exit;
@@ -3617,7 +3304,9 @@ begin
 
                 if (gMySpectator.Selected is TKMUnit) then
                 begin
-                  ShowUnitInfo(TKMUnit(gMySpectator.Selected));
+                  HidePages;
+                  SwitchPage(nil);
+                  fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected));
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
                   and (OldSelected <> gMySpectator.Selected) then
                     gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, sp_Select);
@@ -3625,11 +3314,13 @@ begin
 
                 if (gMySpectator.Selected is TKMUnitGroup) then
                 begin
+                  HidePages;
+                  SwitchPage(nil);
                   Group := TKMUnitGroup(gMySpectator.Selected);
-                  ShowGroupInfo(Group);
+                  fGuiGameUnit.ShowGroupInfo(Group);
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
-                  and ((OldSelected <> Group) or (OldSelectedUnit <> Group.SelectedUnit)) then
-                    gSoundPlayer.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
+                    and ((OldSelected <> Group) or (OldSelectedUnit <> Group.SelectedUnit)) then
+                      gSoundPlayer.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
                 end;
               end;
 
@@ -3681,9 +3372,9 @@ begin
           SwitchPage(Button_Back);
 
         // Cancel join
-        if fJoiningGroups then
+        if fGuiGameUnit.JoiningGroups then
         begin
-          Army_HideJoinMenu(nil);
+          fGuiGameUnit.Army_HideJoinMenu(nil);
           Exit; // Don't order troops too
         end;
 
@@ -3705,10 +3396,10 @@ begin
 
         // Process warrior commands
         if (fUIMode in [umSP, umMP])
-        and not HasLostMPGame
-        and not fJoiningGroups
-        and not fPlacingBeacon
-        and (gMySpectator.Selected is TKMUnitGroup) then
+          and not HasLostMPGame
+          and not fGuiGameUnit.JoiningGroups
+          and not fPlacingBeacon
+          and (gMySpectator.Selected is TKMUnitGroup) then
         begin
           Group := TKMUnitGroup(gMySpectator.Selected);
 
@@ -3805,13 +3496,13 @@ procedure TKMGamePlayInterface.UpdateSelectedObject;
 begin
   // Update unit/house information
   if gMySpectator.Selected is TKMUnitGroup then
-    ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected))
+    fGuiGameUnit.ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected))
   else
   if gMySpectator.Selected is TKMUnit then
-    ShowUnitInfo(TKMUnit(gMySpectator.Selected), fAskDismiss)
+    fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected), fGuiGameUnit.AskDismiss)
   else
   begin
-    fJoiningGroups := False;
+    fGuiGameUnit.JoiningGroups := False;
     if gMySpectator.Selected is TKMHouse then
     begin
       HidePages;
@@ -3821,8 +3512,8 @@ begin
     else
       if fGuiGameHouse.Visible then
         fGuiGameHouse.Hide;
-      if Panel_Unit.Visible then
-        SwitchPage(nil);
+      if fGuiGameUnit.Visible then
+        fGuiGameUnit.Hide;
   end;
 end;
 
