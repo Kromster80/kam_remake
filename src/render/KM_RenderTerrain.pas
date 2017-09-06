@@ -228,6 +228,7 @@ procedure TRenderTerrain.DoTiles;
 var
   TexC: TUVRect;
   I,K: Integer;
+  PrevTexId, TexId: Cardinal;
 begin
   //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
   //They all run at different speeds so we can't adjoin them in one layer
@@ -236,12 +237,18 @@ begin
   for I := fClipRect.Top to fClipRect.Bottom do
   for K := fClipRect.Left to fClipRect.Right do
   begin
-    with Land[I,K] do
+    TexId := GFXData[rxTiles, Land[I,K].Terrain + 1].Tex.ID;
+    //Do not bind same texture again, it will drastically change render performance
+    //F.e. on an average Map (Cube 256x256) when full map is shown in viewport
+    //there are only ~1250 new texture binds, when all other ~64k binds can be skipped
+    if (PrevTexId <> TexId) or (PrevTexId = 0) then
     begin
-      glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Terrain+1].Tex.ID);
-      glBegin(GL_TRIANGLE_FAN);
-      TexC := fTileUVLookup[Terrain, Rotation mod 4];
+      glBindTexture(GL_TEXTURE_2D, TexId);
+      PrevTexId := TexId;
     end;
+
+    TexC := fTileUVLookup[Land[I,K].Terrain, Land[I,K].Rotation mod 4];
+    glBegin(GL_TRIANGLE_FAN);
 
     glColor4f(1,1,1,1);
     if RENDER_3D then
