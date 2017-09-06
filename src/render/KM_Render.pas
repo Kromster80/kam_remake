@@ -26,6 +26,8 @@ type
     fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: UnicodeString;
     fScreenX, fScreenY: Word;
     fBlind: Boolean;
+    class var
+      fLastBindedTextureId: Cardinal;
   public
     constructor Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
     destructor Destroy; override;
@@ -37,6 +39,7 @@ type
     class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
     class procedure DeleteTexture(aTex: GLUint);
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
+    class procedure BindTexture(aTexId: Cardinal);
 
     property RendererVersion: UnicodeString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
@@ -104,6 +107,21 @@ begin
 end;
 
 
+//We have to use this method EVERY time we want to bind texture. Otherwise collisions could happen
+//
+//Do not bind same texture again, it can drastically change render performance
+//F.e. on an average Map (Cube 256x256) when full map is shown in viewport
+//there are only ~10k new texture binds, when all other ~30k binds can be skipped
+class procedure TRender.BindTexture(aTexId: Cardinal);
+begin
+  if aTexId <> fLastBindedTextureId then
+  begin
+    glBindTexture(GL_TEXTURE_2D, aTexId);
+    fLastBindedTextureId := aTexId;
+  end;
+end;
+
+
 procedure TRender.Resize(aWidth, aHeight: Integer);
 begin
   if fBlind then Exit;
@@ -140,7 +158,7 @@ begin
   if not Assigned(glGenTextures) then Exit;
 
   glGenTextures(1, @Texture);
-  glBindTexture(GL_TEXTURE_2D, Texture);
+  BindTexture(Texture);
 
   {Enable color blending into texture}
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -186,7 +204,7 @@ begin
   if not Assigned(glTexImage2D) then Exit;
   Assert((DestX * DestY > 0) and (DestX = MakePOT(DestX)) and (DestY = MakePOT(DestY)), 'Game designed to handle only POT textures');
 
-  glBindTexture(GL_TEXTURE_2D, aTexture);
+  BindTexture(aTexture);
 
   //GL_ALPHA   (0-0-0-8 bit) - 
   //GL_RGB5_A1 (5-5-5-1 bit) - 
@@ -200,7 +218,7 @@ begin
     //Team color layer (4 bit would be okay), but house construction steps need 8bit resolution
     tf_Alpha8:  glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
-  glBindTexture(GL_TEXTURE_2D, 0);
+  BindTexture(0);
 end;
 
 
