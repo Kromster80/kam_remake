@@ -86,6 +86,7 @@ type
 
     class function Path(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
     class function FullPath(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+    class function GetSaveCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 
     procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
@@ -117,7 +118,7 @@ const
 constructor TKMSaveInfo.Create(const aName: String; aIsMultiplayer: Boolean);
 begin
   inherited Create;
-  fPath := TKMSavesCollection.Path(aName, aIsMultiplayer); //ExeDir + SAVE_FOLDER_IS_MP[aIsMultiplayer] + PathDelim + aName + PathDelim;
+  fPath := TKMSavesCollection.Path(aName, aIsMultiplayer);
   fFileName := aName;
   fInfo := TKMGameInfo.Create;
   fGameOptions := TKMGameOptions.Create;
@@ -293,6 +294,17 @@ begin
   //by another thread before the caller uses it.
   Assert(InRange(aIndex, 0, fCount-1));
   Result := fSaves[aIndex];
+end;
+
+
+class function TKMSavesCollection.GetSaveCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+var
+  SavePath: UnicodeString;
+begin
+  Result := 0;
+  SavePath := FullPath(aName, EXT_SAVE_MAIN, aIsMultiplayer);
+  if FileExists(SavePath) then
+    Result := Adler32CRC(SavePath);
 end;
 
 

@@ -1388,7 +1388,6 @@ end;
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
   fullPath, minimapPath: UnicodeString;
-  SaveInfo: TKMSaveInfo;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, EXT_SAVE_MAIN, IsMultiplayer);
@@ -1397,12 +1396,8 @@ begin
   SaveGame(fullPath, aTimestamp, minimapPath);
 
   if not IsMultiplayer then
-  begin
     // Update GameSettings for saved positions in lists of saves and replays
-    SaveInfo := TKMSaveInfo.Create(aSaveName, IsMultiplayer);
-    gGameApp.GameSettings.MenuSPSaveCRC := SaveInfo.CRC; // Update save position for SP game
-    SaveInfo.Free;
-  end;
+    gGameApp.GameSettings.MenuSPSaveCRC := TKMSavesCollection.GetSaveCRC(aSaveName, IsMultiplayer); // Update save position for SP game
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
