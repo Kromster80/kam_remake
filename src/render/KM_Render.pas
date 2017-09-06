@@ -55,11 +55,13 @@ type
 
 implementation
 uses
-  KM_Log;
+  KM_Log, KM_ResSprites;
 
 
 { TRender }
 constructor TRender.Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
+var
+  MaxTextureSize: Integer;
 begin
   inherited Create;
 
@@ -69,6 +71,9 @@ begin
   if not fBlind then
   begin
     fRenderControl.CreateRenderContext;
+
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, @MaxTextureSize); //Get max supported texture size by video adapter
+    TKMResSprites.SetMaxAtlasSize(MaxTextureSize);       //Save it for texture processing
 
     glClearColor(0, 0, 0, 0); 	   //Background
     glClearStencil(0);
