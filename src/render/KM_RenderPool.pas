@@ -1064,7 +1064,7 @@ begin
     // FOW is rendered over the top so no need to make sprites black anymore
     glColor4ub(255, 255, 255, 255);
 
-    glBindTexture(GL_TEXTURE_2D, Tex.Id);
+    TRender.BindTexture(Tex.Id);
     if DoHighlight then
       glColor3ub(HighlightColor AND $FF, HighlightColor SHR 8 AND $FF, HighlightColor SHR 16 AND $FF);
     glBegin(GL_QUADS);
@@ -1079,7 +1079,7 @@ begin
   with GFXData[aRX, aId] do
   begin
     glColor4ubv(@Col);
-    glBindTexture(GL_TEXTURE_2D, Alt.Id);
+    TRender.BindTexture(Alt.Id);
     glBegin(GL_QUADS);
       glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(pX                     , pY                      );
       glTexCoord2f(Alt.u2, Alt.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY                      );
@@ -1088,7 +1088,7 @@ begin
     glEnd;
   end;
 
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
@@ -1124,14 +1124,14 @@ begin
     with GFXData[aRX,aId] do
     begin
       glColor3f(1, 1, 1);
-      glBindTexture(GL_TEXTURE_2D, Alt.Id);
+      TRender.BindTexture(Alt.Id);
       glBegin(GL_QUADS);
         glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(pX                     ,pY         );
         glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY         );
         glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY-pxHeight/CELL_SIZE_PX);
         glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(pX                     ,pY-pxHeight/CELL_SIZE_PX);
       glEnd;
-      glBindTexture(GL_TEXTURE_2D, 0);
+      TRender.BindTexture(0);
     end;
 
     // Stone progress
@@ -1143,14 +1143,14 @@ begin
         with GFXData[aRX,aId2] do
         begin
           glColor3f(1, 1, 1);
-          glBindTexture(GL_TEXTURE_2D, Alt.Id);
+          TRender.BindTexture(Alt.Id);
           glBegin(GL_QUADS);
             glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(X2                     ,Y2         );
             glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2         );
             glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2-pxHeight/CELL_SIZE_PX);
             glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(X2                     ,Y2-pxHeight/CELL_SIZE_PX);
           glEnd;
-          glBindTexture(GL_TEXTURE_2D, 0);
+          TRender.BindTexture(0);
         end;
     end;
 
@@ -1170,14 +1170,14 @@ begin
     // FOW is rendered over the top so no need to make sprites black anymore
     glColor4ub(255, 255, 255, 255);
 
-    glBindTexture(GL_TEXTURE_2D, Tex.Id);
+    TRender.BindTexture(Tex.Id);
     glBegin(GL_QUADS);
       glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(pX                     ,pY         );
       glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY         );
       glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY-pxHeight/CELL_SIZE_PX);
       glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(pX                     ,pY-pxHeight/CELL_SIZE_PX);
     glEnd;
-    glBindTexture(GL_TEXTURE_2D, 0);
+    TRender.BindTexture(0);
   end;
 
   glDisable(GL_STENCIL_TEST);

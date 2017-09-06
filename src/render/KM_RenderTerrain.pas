@@ -238,7 +238,7 @@ begin
   begin
     with Land[I,K] do
     begin
-      glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Terrain+1].Tex.ID);
+      TRender.BindTexture(GFXData[rxTiles, Terrain+1].Tex.ID);
       glBegin(GL_TRIANGLE_FAN);
       TexC := fTileUVLookup[Terrain, Rotation mod 4];
     end;
@@ -290,7 +290,7 @@ begin
     and (GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID <> 0)
     and (aFOW.CheckTileRevelation(K,I) > FOG_OF_WAR_ACT) then //No animation in FOW
     begin
-      glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID);
+      TRender.BindTexture(GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID);
       TexC := GetTileUV(TexOffset + Land[I,K].Terrain, Land[I,K].Rotation);
 
       glBegin(GL_TRIANGLE_FAN);
@@ -405,7 +405,7 @@ begin
   glColor4f(1, 1, 1, 1);
   //Render highlights
   glBlendFunc(GL_DST_COLOR, GL_ONE);
-  glBindTexture(GL_TEXTURE_2D, fTextG);
+  TRender.BindTexture(fTextG);
 
   if fUseVBO then
   begin
@@ -458,7 +458,7 @@ var
 begin
   glColor4f(1, 1, 1, 1);
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-  glBindTexture(GL_TEXTURE_2D, fTextG);
+  TRender.BindTexture(fTextG);
 
   if fUseVBO then
   begin
@@ -511,7 +511,7 @@ begin
   end;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
@@ -529,12 +529,12 @@ begin
   begin
     //Hide everything behind FOW with a sharp transition
     glColor4f(0, 0, 0, 1);
-    glBindTexture(GL_TEXTURE_2D, fTextB);
+    TRender.BindTexture(fTextB);
   end
   else
   begin
     glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-    glBindTexture(GL_TEXTURE_2D, fTextG);
+    TRender.BindTexture(fTextG);
   end;
 
   Fog := @TKMFogOfWar(aFOW).Revelation;
@@ -631,7 +631,7 @@ begin
     end;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
@@ -678,7 +678,7 @@ begin
   else
     glColor4f(1, 1, 1, 1);
 
-  glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Index + 1].Tex.ID);
+  TRender.BindTexture(GFXData[rxTiles, Index + 1].Tex.ID);
   TexC := fTileUVLookup[Index, Rot mod 4];
 
   glBegin(GL_TRIANGLE_FAN);
@@ -698,7 +698,7 @@ begin
       glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, I-1);
     end;
   glEnd;
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
@@ -726,7 +726,7 @@ begin
 
   if Pos in [dir_N, dir_S] then
   begin //Horizontal
-    glBindTexture(GL_TEXTURE_2D, GFXData[rxGui,TexID].Tex.ID);
+    TRender.BindTexture(GFXData[rxGui,TexID].Tex.ID);
     UVa.X := GFXData[rxGui, TexID].Tex.u1;
     UVa.Y := GFXData[rxGui, TexID].Tex.v1;
     UVb.X := GFXData[rxGui, TexID].Tex.u2;
@@ -745,7 +745,7 @@ begin
   end
   else
   begin //Vertical
-    glBindTexture(GL_TEXTURE_2D, GFXData[rxGui,TexID].Tex.ID);
+    TRender.BindTexture(GFXData[rxGui,TexID].Tex.ID);
     HeightInPx := Round(CELL_SIZE_PX * (1 + (gTerrain.Land[pY,pX].Height - gTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV)+FO);
     UVa.X := GFXData[rxGui, TexID].Tex.u1;
     UVa.Y := GFXData[rxGui, TexID].Tex.v1;
@@ -770,7 +770,7 @@ begin
       glTexCoord2f(UVa.x, UVb.y); glVertex2f(x1, y2);
     glEnd;
   end;
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
@@ -783,7 +783,7 @@ var
 begin
   ID := MarkupTex[aFieldType];
 
-  glBindTexture(GL_TEXTURE_2D, GFXData[rxGui, ID].Tex.ID);
+  TRender.BindTexture(GFXData[rxGui, ID].Tex.ID);
 
   UVa.X := GFXData[rxGui, ID].Tex.u1;
   UVa.Y := GFXData[rxGui, ID].Tex.v1;
@@ -802,7 +802,7 @@ begin
     glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY-1 - gTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV+0.10);
   glEnd;
 
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
