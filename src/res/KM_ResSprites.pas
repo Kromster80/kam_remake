@@ -99,6 +99,7 @@ type
     procedure LoadMenuResources;
     procedure LoadGameResources(aAlphaShadows: Boolean);
     procedure ClearTemp;
+    class procedure SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
 
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
@@ -127,9 +128,12 @@ implementation
 uses
   KromUtils, KM_Log, KM_BinPacking, KM_Utils;
 
+const
+  MAX_GAME_ATLAS_SIZE = 2048; //Max atlas size for KaM. No need for bigger atlases
 
 var
   LOG_EXTRA_GFX: Boolean = False;
+  AtlasSize: Integer;
 
 
 { TKMSpritePack }
@@ -650,8 +654,6 @@ type
                        ExportName[aMode] + IntToStr(aStartingIndex+I), TD);
     end;
   end;
-const
-  AtlasSize = 512;
 var
   I, K: Integer;
   SpriteSizes: TIndexSizeArray;
@@ -818,6 +820,12 @@ begin
     Exit;
 
   fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites' + PathDelim);
+end;
+
+
+class procedure TKMResSprites.SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
+begin
+  AtlasSize := Min(aMaxSupportedTxSize, MAX_GAME_ATLAS_SIZE);
 end;
 
 
