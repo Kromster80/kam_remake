@@ -8,7 +8,7 @@ uses
 type
   TUVRect = array [1 .. 4, 1 .. 2] of Single; // Texture UV coordinates
   TTileVertice = record
-    X, Y, Z, ULit, UShd, UFow: Single;
+    X, Y, Z, UTile, VTile, ULit, UShd, UFow: Single;
   end;
   TFOWVertice = record
     X, Y, Z, UFow: Single;
@@ -159,11 +159,30 @@ end;
 
 procedure TRenderTerrain.UpdateVBO(aFOW: TKMFogOfWarCommon);
 var
+  Fog: PKMByte2Array;
+  procedure SetVertex(aI: Integer; aTX, aTY: Word; aIsBottomRow: Boolean; aUTile, aVTile: Single);
+  begin
+    with gTerrain do
+    begin
+      fTilesVtx[aI].X := aTX-1;
+      fTilesVtx[aI].Y := aTY-1 - Land[aTY, aTX].Height / CELL_HEIGHT_DIV;
+      fTilesVtx[aI].Z := aTY - 1 - Byte(aIsBottomRow);
+      fTilesVtx[aI].UTile := aUTile;
+      fTilesVtx[aI].VTile := aVTile;
+      fTilesVtx[aI].ULit := Land[aTY, aTX].Light;
+      fTilesVtx[aI].UShd := -Land[aTY, aTX].Light;
+      if Fog <> nil then
+        fTilesVtx[aI].UFow := Fog^[aTY-1, aTX-1] / 256
+      else
+        fTilesVtx[aI].UFow := 255;
+    end;
+  end;
+var
   I,K,H: Integer;
   SizeX, SizeY: Word;
   tX, tY: Word;
   Row: Integer;
-  Fog: PKMByte2Array;
+  TexC: TUVRect;
 begin
   if not fUseVBO then Exit;
 
@@ -175,7 +194,7 @@ begin
   SizeX := Max(fClipRect.Right - fClipRect.Left, 0);
   SizeY := Max(fClipRect.Bottom - fClipRect.Top, 0);
   H := 0;
-  SetLength(fTilesVtx, (SizeX + 2) * 2 * (SizeY + 1));
+  SetLength(fTilesVtx, (SizeX + 2) * 4 * (SizeY + 1));
   with gTerrain do
   if (MapX > 0) and (MapY > 0) then
   for I := 0 to SizeY do
@@ -183,28 +202,14 @@ begin
   begin
     tX := K + fClipRect.Left;
     tY := I + fClipRect.Top;
-    fTilesVtx[H+0].X := tX-1;
-    fTilesVtx[H+0].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
-    fTilesVtx[H+0].Z := tY - 1;
-    fTilesVtx[H+0].ULit := Land[tY, tX].Light;
-    fTilesVtx[H+0].UShd := -Land[tY, tX].Light;
-    if Fog <> nil then
-      fTilesVtx[H+0].UFow := Fog^[tY-1, tX-1] / 256
-    else
-      fTilesVtx[H+0].UFow := 255;
+    TexC := fTileUVLookup[Land[tY, tX].Terrain, Land[tY, tX].Rotation mod 4];
 
-    tY := I + fClipRect.Top + 1;
-    fTilesVtx[H+1].X := tX-1;
-    fTilesVtx[H+1].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
-    fTilesVtx[H+1].Z := tY - 2;
-    fTilesVtx[H+1].ULit := Land[tY, tX].Light;
-    fTilesVtx[H+1].UShd := -Land[tY, tX].Light;
-    if Fog <> nil then
-      fTilesVtx[H+1].UFow := Fog^[tY-1, tX-1] / 256
-    else
-      fTilesVtx[H+1].UFow := 255;
+    SetVertex(H, tX, tY, False, TexC[1][1], TexC[1][2]);
+    SetVertex(H+1, tX, tY+1, True, TexC[2][1], TexC[2][2]);
+    SetVertex(H+2, tX+1, tY+1, True, TexC[3][1], TexC[3][2]);
+    SetVertex(H+3, tX+1, tY, False, TexC[4][1], TexC[4][2]);
 
-    H := H + 2;
+    H := H + 4;
   end;
 
   H := 0;
@@ -212,13 +217,13 @@ begin
   for I := 0 to SizeY do
   for K := 0 to SizeX do
   begin
-    Row := I * (SizeX + 2) * 2;
-    fTilesInd[H+0] := Row + K * 2;
-    fTilesInd[H+1] := Row + K * 2 + 1;
-    fTilesInd[H+2] := Row + K * 2 + 3;
-    fTilesInd[H+3] := Row + K * 2;
-    fTilesInd[H+4] := Row + K * 2 + 3;
-    fTilesInd[H+5] := Row + K * 2 + 2;
+    Row := I * (SizeX + 2) * 4;
+    fTilesInd[H+0] := Row + K * 4;
+    fTilesInd[H+1] := Row + K * 4 + 1;
+    fTilesInd[H+2] := Row + K * 4 + 2;
+    fTilesInd[H+3] := Row + K * 4;
+    fTilesInd[H+4] := Row + K * 4 + 3;
+    fTilesInd[H+5] := Row + K * 4 + 2;
     H := H + 6;
   end;
 end;
@@ -231,32 +236,54 @@ var
 begin
   //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
   //They all run at different speeds so we can't adjoin them in one layer
-
-  with gTerrain do
-  for I := fClipRect.Top to fClipRect.Bottom do
-  for K := fClipRect.Left to fClipRect.Right do
+  glColor4f(1,1,1,1);
+  //Draw with VBO only if all tiles are on the same texture
+  if fUseVBO and TKMResSprites.AllTilesInOneAtlas then
   begin
-    with Land[I,K] do
-    begin
-      TRender.BindTexture(GFXData[rxTiles, Terrain+1].Tex.ID);
-      glBegin(GL_TRIANGLE_FAN);
-      TexC := fTileUVLookup[Terrain, Rotation mod 4];
-    end;
+    //Bind to tiles texture. All tiles should be places in 1 atlas,
+    //so to get TexId we can use any of terrain tile Id (f.e. 1st)
+    TRender.BindTexture(GFXData[rxTiles, 1].Tex.ID);
 
-    glColor4f(1,1,1,1);
-    if RENDER_3D then
+    //Setup vertex and UV layout and offsets
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, SizeOf(TTileVertice), Pointer(0));
+    glClientActiveTexture(GL_TEXTURE0);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(2, GL_FLOAT, SizeOf(TTileVertice), Pointer(12));
+
+    //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
+    glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  end
+  else
+  begin
+    with gTerrain do
+    for I := fClipRect.Top to fClipRect.Bottom do
+    for K := fClipRect.Left to fClipRect.Right do
     begin
-      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1,-Land[I,K].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  ,-Land[I+1,K].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  ,-Land[I+1,K+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1,-Land[I,K+1].Height/CELL_HEIGHT_DIV);
-    end else begin
-      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height / CELL_HEIGHT_DIV, I-1);
-      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height / CELL_HEIGHT_DIV, I-1);
-      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height / CELL_HEIGHT_DIV, I-1);
-      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height / CELL_HEIGHT_DIV, I-1);
+      with Land[I,K] do
+      begin
+        TRender.BindTexture(GFXData[rxTiles, Terrain+1].Tex.ID);
+        glBegin(GL_TRIANGLE_FAN);
+        TexC := fTileUVLookup[Terrain, Rotation mod 4];
+      end;
+
+      if RENDER_3D then
+      begin
+        glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1,-Land[I,K].Height/CELL_HEIGHT_DIV);
+        glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  ,-Land[I+1,K].Height/CELL_HEIGHT_DIV);
+        glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  ,-Land[I+1,K+1].Height/CELL_HEIGHT_DIV);
+        glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1,-Land[I,K+1].Height/CELL_HEIGHT_DIV);
+      end else begin
+        glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height / CELL_HEIGHT_DIV, I-1);
+        glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height / CELL_HEIGHT_DIV, I-1);
+        glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height / CELL_HEIGHT_DIV, I-1);
+        glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height / CELL_HEIGHT_DIV, I-1);
+      end;
+      glEnd;
     end;
-    glEnd;
   end;
 end;
 
@@ -414,7 +441,7 @@ begin
     glVertexPointer(3, GL_FLOAT, SizeOf(TTileVertice), Pointer(0));
     glClientActiveTexture(GL_TEXTURE0);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(12));
+    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(20));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
     glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
@@ -467,7 +494,7 @@ begin
     glVertexPointer(3, GL_FLOAT, SizeOf(TTileVertice), Pointer(0));
     glClientActiveTexture(GL_TEXTURE0);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(16));
+    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(24));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
     glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
@@ -545,7 +572,7 @@ begin
     glVertexPointer(3, GL_FLOAT, SizeOf(TTileVertice), Pointer(0));
     glClientActiveTexture(GL_TEXTURE0);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(20));
+    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(28));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
     glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));

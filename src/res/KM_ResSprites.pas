@@ -100,6 +100,7 @@ type
     procedure LoadGameResources(aAlphaShadows: Boolean);
     procedure ClearTemp;
     class procedure SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
+    class function AllTilesInOneAtlas: Boolean;
 
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
@@ -133,6 +134,7 @@ const
 
 var
   LOG_EXTRA_GFX: Boolean = False;
+  ALL_TILES_IN_ONE_TEXTURE: Boolean = False;
   MaxAtlasSize: Integer;
 
 
@@ -658,7 +660,7 @@ var
   I, K: Integer;
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
-  AtlasSize: Integer;
+  AtlasSize, AllTilesAtlasSize: Integer;
 begin
   BaseRAM := 0;
   ColorRAM := 0;
@@ -679,8 +681,12 @@ begin
   if K = 1 then
     AtlasSize := 512
   else if fRT = rxTiles then
-    AtlasSize := Min(MaxAtlasSize, 1024)    //For tiles 1024 is enought for now
-  else
+  begin
+    AllTilesAtlasSize := MakePOT(Ceil(sqrt(K))*(32+2*fPad)); //Tiles are 32x32
+    AtlasSize := Min(MaxAtlasSize, AllTilesAtlasSize);       //Use smallest possible atlas size for tiles (should be 1024, until many new tiles were added)
+    if AtlasSize = AllTilesAtlasSize then
+      ALL_TILES_IN_ONE_TEXTURE := True;
+  end else
     AtlasSize := MaxAtlasSize;
 
   SetLength(SpriteInfo, 0);
@@ -829,6 +835,12 @@ begin
     Exit;
 
   fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites' + PathDelim);
+end;
+
+
+class function TKMResSprites.AllTilesInOneAtlas: Boolean;
+begin
+  Result := ALL_TILES_IN_ONE_TEXTURE;
 end;
 
 
