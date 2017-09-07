@@ -99,6 +99,8 @@ type
     procedure LoadMenuResources;
     procedure LoadGameResources(aAlphaShadows: Boolean);
     procedure ClearTemp;
+    class procedure SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
+    class function AllTilesInOneAtlas: Boolean;
 
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
@@ -127,9 +129,13 @@ implementation
 uses
   KromUtils, KM_Log, KM_BinPacking, KM_Utils;
 
+const
+  MAX_GAME_ATLAS_SIZE = 2048; //Max atlas size for KaM. No need for bigger atlases
 
 var
   LOG_EXTRA_GFX: Boolean = False;
+  ALL_TILES_IN_ONE_TEXTURE: Boolean = False;
+  MaxAtlasSize: Integer;
 
 
 { TKMSpritePack }
@@ -650,12 +656,11 @@ type
                        ExportName[aMode] + IntToStr(aStartingIndex+I), TD);
     end;
   end;
-const
-  AtlasSize = 512;
 var
   I, K: Integer;
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
+  AtlasSize, AllTilesAtlasSize: Integer;
 begin
   BaseRAM := 0;
   ColorRAM := 0;
@@ -671,6 +676,18 @@ begin
     Inc(K);
   end;
   SetLength(SpriteSizes, K);
+
+  //For RX with only 1 texture we can set small size, as 512, it will be auto enlarged to POT(image size)
+  if K = 1 then
+    AtlasSize := 512
+  else if fRT = rxTiles then
+  begin
+    AllTilesAtlasSize := MakePOT(Ceil(sqrt(K))*(32+2*fPad)); //Tiles are 32x32
+    AtlasSize := Min(MaxAtlasSize, AllTilesAtlasSize);       //Use smallest possible atlas size for tiles (should be 1024, until many new tiles were added)
+    if AtlasSize = AllTilesAtlasSize then
+      ALL_TILES_IN_ONE_TEXTURE := True;
+  end else
+    AtlasSize := MaxAtlasSize;
 
   SetLength(SpriteInfo, 0);
   BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
@@ -818,6 +835,18 @@ begin
     Exit;
 
   fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites' + PathDelim);
+end;
+
+
+class function TKMResSprites.AllTilesInOneAtlas: Boolean;
+begin
+  Result := ALL_TILES_IN_ONE_TEXTURE;
+end;
+
+
+class procedure TKMResSprites.SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
+begin
+  MaxAtlasSize := Min(aMaxSupportedTxSize, MAX_GAME_ATLAS_SIZE);
 end;
 
 
