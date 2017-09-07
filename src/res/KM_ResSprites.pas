@@ -133,7 +133,7 @@ const
 
 var
   LOG_EXTRA_GFX: Boolean = False;
-  AtlasSize: Integer;
+  MaxAtlasSize: Integer;
 
 
 { TKMSpritePack }
@@ -658,6 +658,7 @@ var
   I, K: Integer;
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
+  AtlasSize: Integer;
 begin
   BaseRAM := 0;
   ColorRAM := 0;
@@ -673,6 +674,14 @@ begin
     Inc(K);
   end;
   SetLength(SpriteSizes, K);
+
+  //For RX with only 1 texture we can set small size, as 512, it will be auto enlarged to POT(image size)
+  if K = 1 then
+    AtlasSize := 512
+  else if fRT = rxTiles then
+    AtlasSize := Min(MaxAtlasSize, 1024)    //For tiles 1024 is enought for now
+  else
+    AtlasSize := MaxAtlasSize;
 
   SetLength(SpriteInfo, 0);
   BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
@@ -825,7 +834,7 @@ end;
 
 class procedure TKMResSprites.SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
 begin
-  AtlasSize := Min(aMaxSupportedTxSize, MAX_GAME_ATLAS_SIZE);
+  MaxAtlasSize := Min(aMaxSupportedTxSize, MAX_GAME_ATLAS_SIZE);
 end;
 
 
