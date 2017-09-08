@@ -410,7 +410,8 @@ begin
   Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
   Button_MapDelete.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
   Button_MapMove.Visible := (ColumnBox_MapEd.ItemIndex <> -1) and (GetMaps[ColumnBox_MapEd.ItemIndex].MapFolder = mfDL);
-  Button_MapRename.Visible := (ColumnBox_MapEd.ItemIndex <> -1) and (GetMaps[ColumnBox_MapEd.ItemIndex].MapFolder <> mfDL);
+  Button_MapRename.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
+  Button_MapRename.Visible := not Button_MapMove.Visible;
 
   if (ColumnBox_MapEd.ItemIndex = -1) then
     MinimapView_MapEd.Hide
