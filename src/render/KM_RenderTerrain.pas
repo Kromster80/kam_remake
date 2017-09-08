@@ -166,7 +166,7 @@ var
     begin
       fTilesVtx[aI].X := aTX-1;
       fTilesVtx[aI].Y := aTY-1 - Land[aTY, aTX].Height / CELL_HEIGHT_DIV;
-      fTilesVtx[aI].Z := aTY - 1 - Byte(aIsBottomRow);
+      fTilesVtx[aI].Z := aTY-1 - Byte(aIsBottomRow);
       fTilesVtx[aI].UTile := aUTile;
       fTilesVtx[aI].VTile := aVTile;
       fTilesVtx[aI].ULit := Land[aTY, aTX].Light;
@@ -194,11 +194,11 @@ begin
   SizeX := Max(fClipRect.Right - fClipRect.Left, 0);
   SizeY := Max(fClipRect.Bottom - fClipRect.Top, 0);
   H := 0;
-  SetLength(fTilesVtx, (SizeX + 2) * 4 * (SizeY + 1));
+  SetLength(fTilesVtx, (SizeX + 1) * 4 * (SizeY + 1));
   with gTerrain do
   if (MapX > 0) and (MapY > 0) then
   for I := 0 to SizeY do
-  for K := 0 to SizeX+1 do
+  for K := 0 to SizeX do
   begin
     tX := K + fClipRect.Left;
     tY := I + fClipRect.Top;
@@ -217,7 +217,7 @@ begin
   for I := 0 to SizeY do
   for K := 0 to SizeX do
   begin
-    Row := I * (SizeX + 2) * 4;
+    Row := I * (SizeX + 1) * 4;
     fTilesInd[H+0] := Row + K * 4;
     fTilesInd[H+1] := Row + K * 4 + 1;
     fTilesInd[H+2] := Row + K * 4 + 2;
