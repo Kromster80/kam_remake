@@ -189,16 +189,16 @@ begin
         Button_LobbySetupReadme.OnClick := ReadmeClick;
         Button_LobbySetupReadme.Hide;
 
-      Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
+      Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
       Button_MapEd_Load.Anchors := [anLeft, anBottom];
       Button_MapEd_Load.OnClick := StartClick;
 
-      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], bsMenu);
+      Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], bsMenu);
       Button_MapMove.Anchors := [anLeft, anBottom];
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
 
-      Button_MapRename := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, 'Rename Map', bsMenu); //Todo translate
+      Button_MapRename := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, 'Rename Map', bsMenu); //Todo translate
       Button_MapRename.Anchors := [anLeft, anBottom];
       Button_MapRename.OnClick := RenameClick;
 
