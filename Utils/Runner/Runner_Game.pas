@@ -190,7 +190,7 @@ end;
 
 procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
-  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
+  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Across the Desert\Across the Desert.dat', 'Across the Desert');
 
   gMySpectator.Hand.FogOfWar.RevealEverything;
   gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(136, 25), 0);
