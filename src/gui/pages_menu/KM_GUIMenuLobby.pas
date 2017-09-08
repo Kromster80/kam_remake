@@ -423,6 +423,7 @@ begin
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
         DropBox_LobbyLoc[I].OnChange := PlayersSetupChange;
+        DropBox_LobbyLoc[I].DropCount := MAX_LOBBY_PLAYERS + 2; //also 'Random' and possible 'Spectator'
 
         PercentBar_LobbyDlProgress[I] := TKMPercentBar.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey);
         PercentBar_LobbyDlProgress[I].Caption := gResTexts[TX_LOBBY_DOWNLOADING];
@@ -437,6 +438,7 @@ begin
         DropBox_LobbyColors[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C4, OffY, 80, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyColors[I].SetColumns(fnt_Outline, [''], [0]);
         DropBox_LobbyColors[I].List.ShowHeader := False;
+        DropBox_LobbyColors[I].DropCount := 13;
         DropBox_LobbyColors[I].FadeImageWhenDisabled := False;
         DropBox_LobbyColors[I].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
         for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
