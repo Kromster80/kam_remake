@@ -1,13 +1,19 @@
-;Delete folders recursively
-rem FOR /D /R %%X IN (..\__history) DO RD /S /Q "..\%%X"
-FOR /D /R %%X IN (..\backup) DO RD /S /Q "..\%%X"
+@REM Delete folders recursively
+@REM Its easier to delete folder recursively from project root folder
+cd ..
 
-rem rmdir /S /Q ..\logs ..\dcu
+FOR /D /R %%X IN (__history) DO RD /S /Q "%%X"
+FOR /D /R %%X IN (__recovery) DO RD /S /Q "%%X"
+FOR /D /R %%X IN (backup) DO RD /S /Q "%%X"
 
-rem erase /F /Q /S ..\*.~* ..\*.ddp ..\*.drc ..\*.dcp ..\*.dcu
-rem erase /F /Q /S ..\*.o ..\*.or ..\*.ppu ..\*.compiled ..\*.local
-rem erase /F /Q /S ..\*.tmp ..\*.log ..\thumbs.db ..\KaM_Remake.map ..\descript.ion ..\*.skincfg ..\*.identcache ..\*.tvsconfig ..\*.mi ..\*.LOG.txt ..\*.stat ..\bugreport.txt
+rmdir /S /Q logs dcu
 
-rem erase /F /Q /S /A:H ..\*.~* ..\*.ddp ..\*.drc ..\*.dcp ..\*.dcu
-rem erase /F /Q /S /A:H ..\*.o ..\*.or ..\*.ppu ..\*.compiled ..\*.local
-rem erase /F /Q /S /A:H ..\*.tmp ..\*.log ..\thumbs.db ..\KaM_Remake.map ..\descript.ion ..\*.skincfg ..\*.identcache ..\*.tvsconfig ..\*.mi ..\*.LOG.txt ..\*.stat ..\bugreport.txt
+erase /F /Q /S *.~* *.ddp *.drc *.dcp *.dcu
+erase /F /Q /S *.o *.or *.ppu *.compiled *.local
+erase /F /Q /S *.tmp *.log thumbs.db KaM_Remake.map descript.ion *.skincfg *.identcache *.tvsconfig *.mi *.LOG.txt *.stat bugreport.txt
+
+erase /F /Q /S /A:H *.~* *.ddp *.drc *.dcp *.dcu
+erase /F /Q /S /A:H *.o *.or *.ppu *.compiled *.local
+erase /F /Q /S /A:H *.tmp *.log thumbs.db KaM_Remake.map descript.ion *.skincfg *.identcache *.tvsconfig *.mi *.LOG.txt *.stat bugreport.txt
+
+cd bat

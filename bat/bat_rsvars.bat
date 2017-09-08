@@ -3,6 +3,7 @@
 @SET FrameworkDir=C:\Windows\Microsoft.NET\Framework\v3.5
 @SET FrameworkVersion=v3.5
 @SET FrameworkSDKDir=
-@SET KaMDir=E:\Games\KaM Вторая корона
+@SET KaMDir=E:\Games\Knights and Merchants TPR
+@SET BetaVersionsDir=E:\KaM_Remake Beta
 @SET PATH=%FrameworkDir%;%FrameworkSDKDir%;C:\Program Files (x86)\Embarcadero\Studio\18.0\bin;C:\Program Files (x86)\Embarcadero\Studio\18.0\bin64;%PATH%
 @SET LANGDIR=EN
