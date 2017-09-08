@@ -30,10 +30,12 @@ Bugs:
  +	Sometimes player could no open MP game page again. Need to unlock mutex on MP game error or disconnect
  +	Replay/Spectate: reset selected object when switch to another player
  +	Apply password letters restrictions for password input field
+ +	Atlas binpacking - large textures were always placed to the new atlas
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
  +	MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
  +	MapEd: place some houses, then delete them - hand still have assets (so you could make an ally to it, show center screen etc)
+ +	MapEd: do not allow empty name while map saving
  +	Dynamic scripts: Scripting action OnHousePlanRemove was invoked with wrong coordinates
 
  
@@ -73,6 +75,11 @@ Bugs to fix in future:
 
 
 Improvements: 
+ Network:
+ +	H	Server network code improvement, packing all of the packets to destination player for short period of time (~20ms) into one packet. It significantly reduces network traffik and allow scale of the lobby
+ Graphics:
+ +	M	Terrain render improvement. Use openGL VBO to render tiles and animated tiles (water/falls/swamp).
+ +	M	Texture atlases size increased from 512 upto 2048 (if supported)
  Game: 
  +		Select area to work in for woodcutters
  +		House closed for worker feature
@@ -85,6 +92,7 @@ Improvements:
  +	L	Unit group: do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
  +		Unit group: feed or split command should not cancel group previous order
  +		Defeat player if he intentionally quit. Show win messages in chat when player win
+ +		Increase number of players up to 12 + 1 spectator (will be adjusted later, after beta-testing)
  +	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
  
  Game menu:
@@ -121,6 +129,8 @@ Improvements:
  +		Minimap for MP games: show in replays menu and lobby, if possible
  +		Highlight players flags in lobby, when they are clickable
  +		MP game description improvement
+ +		Map Editor page - added map description and 'view PDF' button, same as in lobby
+ +		Map Editor page - added 'Map Rename' button
  
  Hotkeys:
  +	L	Allow to customize and save hotkeys settings
@@ -152,6 +162,7 @@ Improvements:
  Game controls:
  +		Selectable text in Edit and Memo
  +		Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
+ +		Added 'Click Hold' behaviour for numeric edits and ware order rows
  +		List/ColumnBox reflect visually when unfocused (gray outline for selected item, instead of white outline, when focused)
  
  Development menu (F11)
@@ -164,6 +175,8 @@ Improvements:
  +	L	Allow to set troops order destination with mouse on map (Shift+RMB)
  +		Added objects palette
  +		New tool - universal eraser
+ +		Map resize feature
+ +		Try Map feature - to start map directly from editor
  +		House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
  +		Shortcut to change row count in group (same as for numbers, orders etc)
  +		Set default 'center screen' position of all players in the center of screen for new map
@@ -175,7 +188,9 @@ Improvements:
  +		Default colors for map were changed a little bit. Second black color was replaced with purple
  +		New ability to set corn/wine stage
  +	L	Allow to grab an object with a MouseDown and drag it around until MouseUp
+ +		Added posibility to change warrior conditions to arbitrary value
  +		Added new hotkeys for road/field/wine/erase plans
+ +		New terrain pass layer - tbBuildNoObj - shows when its possible to build house on a tile after removing object (tree f.e.) from it or house near it.
  +		Added display color code for color page in KaM format (BGR)
  
  Dynamic scripts:
@@ -189,8 +204,9 @@ Improvements:
  
  Other: 
  +	L	Saving and restoring games window position on restart
+ +		All save files are placed in 1 folder. Same as for maps
  +		Ability to set decimal values for game speedups in INI file
- +	H	Network code significant refactoring and improvement
+ +		GIP commands are packed now. We have to send only needed field. It will reduce nettraffic and '.rpl' file size.
  
    
 	 
