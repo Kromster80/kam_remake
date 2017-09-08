@@ -278,8 +278,8 @@ uses
   KM_WareDistribution in 'src\KM_WareDistribution.pas';
 
 {$IFDEF WDC}
-  {$R KaM_Remake_Icon.res KaM_Remake_Icon.rc} //Keeps the Icon
-  {$R KaM_Manifest.res KaM_Manifest.rc}
+  {$R KaM_Remake_Icon.res} //Keeps the Icon
+  {$R KaM_Manifest.res}
 {$ENDIF}
 {$IFDEF MSWindows}
   {$IFDEF FPC}
