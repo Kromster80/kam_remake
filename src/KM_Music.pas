@@ -84,7 +84,11 @@ var
 begin
   inherited Create;
   IsMusicInitialized := True;
-  ScanMusicTracks(ExeDir + 'Music'+PathDelim);
+
+  if not DirectoryExists(ExeDir + 'Music') then
+    ForceDirectories(ExeDir + 'Music');
+
+  ScanMusicTracks(ExeDir + 'Music' + PathDelim);
 
 
   {$IFDEF USELIBZPLAY}
