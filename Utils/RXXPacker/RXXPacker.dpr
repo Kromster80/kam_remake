@@ -21,12 +21,20 @@ uses
 {$ENDIF}
 
 var
-  I: Integer;
-  J: TRXType;
+  I, K: Integer;
+  RXType: TRXType;
   fRXXPacker: TRXXPacker;
   fPalettes: TKMResPalettes;
   Tick: Cardinal;
 
+const
+  RXToPack: array of TRXType = [
+    rxTrees,
+    rxHouses,
+    rxUnits,
+    rxGui,
+    rxGuiMain,
+    rxTiles];
 begin
   if ParamCount >= 1 then
   begin
@@ -46,12 +54,22 @@ begin
     fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
     try
       for I := 1 to ParamCount do // Skip 0, as this is the EXE-path
-        for J := Low(TRXType) to High(TRXType) do
-          if (LowerCase(ParamStr(I)) = LowerCase(RXInfo[J].FileName)) then
+        if LowerCase(ParamStr(I)) = 'all' then
+        begin
+          for K := Low(RXToPack) to High(RXToPack) do
           begin
             Tick := GetTickCount;
-            fRXXPacker.Pack(J, fPalettes);
-            writeln(RXInfo[J].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
+            fRXXPacker.Pack(RXToPack[K], fPalettes);
+            writeln(RXInfo[RXToPack[K]].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
+          end;
+          Exit;
+        end;
+        for RXType := Low(TRXType) to High(TRXType) do
+          if (LowerCase(ParamStr(I)) = LowerCase(RXInfo[RXType].FileName)) then
+          begin
+            Tick := GetTickCount;
+            fRXXPacker.Pack(RXType, fPalettes);
+            writeln(RXInfo[RXType].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
           end;
     finally
       fRXXPacker.Free;
