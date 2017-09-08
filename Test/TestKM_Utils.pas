@@ -3,7 +3,7 @@ interface
 uses
   TestFramework, StrUtils, Classes,
   SysUtils,
-  KM_Utils;
+  KM_CommonUtils;
 
 type
   TestKMUtils = class(TTestCase)
