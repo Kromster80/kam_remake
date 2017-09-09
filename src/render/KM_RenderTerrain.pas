@@ -190,7 +190,7 @@ var
       fTilesVtx[aH].ULit := Land[aTY+1, aTX+1].Light;
       fTilesVtx[aH].UShd := -Land[aTY+1, aTX+1].Light;
       if Fog <> nil then
-        fTilesVtx[aH].UFow := Fog^[aTY, aTX] shr 8 //  shr 8 = / 256
+        fTilesVtx[aH].UFow := Fog^[aTY, aTX] / 256
       else
         fTilesVtx[aH].UFow := 255;
     end;
