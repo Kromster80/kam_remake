@@ -1524,7 +1524,7 @@ begin
 
   if SomeoneHungry then
   begin
-    dec(fTimeSinceHungryReminder, HUNGER_CHECK_FREQ);
+    Dec(fTimeSinceHungryReminder, HUNGER_CHECK_FREQ);
     if fTimeSinceHungryReminder < 1 then
     begin
       gScriptEvents.ProcGroupHungry(Self);

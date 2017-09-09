@@ -27,7 +27,7 @@ type
       Vel: array [1..3] of TALfloat; //Velocity, used in doppler effect calculation
       Ori: array [1..6] of TALfloat; //Orientation LookingAt and UpVector
     end;
-    fIsSoundInitialized: boolean;
+    fIsSoundInitialized: Boolean;
 
     fSound: array [1..MAX_SOUNDS] of record
       ALBuffer: TALuint;
@@ -43,15 +43,17 @@ type
 
     fLoopSoundIndex: array[1..MAX_LOOP_SOUNDS] of Integer;
 
-    fSoundGain:single; //aka "Global volume"
-    fMusicIsFaded:boolean;
     fLastMessageNoticeTime: Cardinal; // Last time message notice were played
+
+    fSoundGain: Single; //aka "Global volume"
+    fMusicIsFaded: Boolean;
 
     fOnFadeMusic: TEvent;
     fOnUnfadeMusic: TBooleanEvent;
     procedure CheckOpenALError;
 
-    function PlayWave(const aFile: UnicodeString; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false; aLoop: Boolean=False): Integer;
+    function PlayWave(const aFile: UnicodeString; Loc: TKMPointF; Attenuated: Boolean = True; Volume: Single = 1;
+                      FadeMusic: Boolean = False; aLoop: Boolean = False): Integer;
     function PlaySound(SoundID: TSoundFX; const aFile: UnicodeString; Loc: TKMPointF;
                        Attenuated: Boolean; Volume: Single; Radius: Single;
                        FadeMusic: Boolean; aLoop: Boolean): Integer;
@@ -77,11 +79,11 @@ type
     procedure PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech); overload;
     procedure PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
     procedure Play(SoundID: TSoundFX; Volume: Single = 1); overload;
-    procedure Play(SoundID: TSoundFX; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1); overload;
-    procedure Play(SoundID: TSoundFX; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1); overload;
+    procedure Play(SoundID: TSoundFX; Loc: TKMPoint; Attenuated:boolean = True; Volume: Single = 1); overload;
+    procedure Play(SoundID: TSoundFX; Loc: TKMPointF; Attenuated:boolean = True; Volume: Single = 1); overload;
 
-    procedure Play(SoundID: TSoundFXNew; Volume:Single = 1; FadeMusic:boolean=false); overload;
-    procedure Play(SoundID: TSoundFXNew; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID: TSoundFXNew; Volume:Single = 1; FadeMusic: Boolean = False); overload;
+    procedure Play(SoundID: TSoundFXNew; Loc: TKMPoint; Attenuated:boolean=true; Volume: Single = 1; FadeMusic: Boolean = False); overload;
 
     function PlayLoopSound(const aFile: UnicodeString; aLoc: TKMPointF; aAttenuate: Boolean; aVolume: Single; aRadius: Single): Integer;
     procedure StopLoopSound(aIndex: Integer);
@@ -346,7 +348,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.Play(SoundID: TSoundFXNew; Volume:single=1; FadeMusic:boolean=false);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFXNew; Volume: Single = 1; FadeMusic: Boolean = False);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   Play(SoundID, KMPOINT_ZERO, false, Volume, FadeMusic);
@@ -361,14 +363,14 @@ end;
 
 
 {Wrapper for TSoundFX}
-procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Loc: TKMPoint; Attenuated: Boolean = True; Volume: Single = 1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', KMPointF(Loc), Attenuated, Volume, MAX_DISTANCE, False, False); //Redirect
 end;
 
 
-procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Loc: TKMPointF; Attenuated: Boolean = True; Volume: Single = 1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', Loc, Attenuated, Volume, MAX_DISTANCE, False, False); //Redirect
@@ -376,7 +378,8 @@ end;
 
 
 {Wrapper WAV files}
-function TKMSoundPlayer.PlayWave(const aFile: UnicodeString; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false; aLoop: Boolean=False): Integer;
+function TKMSoundPlayer.PlayWave(const aFile: UnicodeString; Loc: TKMPointF; Attenuated: Boolean = True; Volume: Single = 1;
+                                 FadeMusic: Boolean = False; aLoop: Boolean = False): Integer;
 begin
   Result := -1;
   if not fIsSoundInitialized then Exit;
@@ -422,7 +425,7 @@ begin
     if (Distance >= Radius*MAX_PRIORITY_DISTANCE_FACTOR) and (ActiveCount >= MAX_FAR_SOUNDS) then Exit;
     //Attenuated sounds are always lower priority, so save a few slots for non-attenuated so that troops
     //and menus always make sounds
-    if (ActiveCount >= MAX_ATTENUATED_SOUNDS) then exit;
+    if (ActiveCount >= MAX_ATTENUATED_SOUNDS) then Exit;
   end;
 
   //Here should be some sort of RenderQueue/List/Clip
