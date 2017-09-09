@@ -116,6 +116,8 @@ type
     procedure Selection_Assign(aId: Word; aObject: TObject);
     procedure Selection_Link(aId: Word; aObject: TObject);
     procedure Selection_Select(aId: Word);
+    procedure SelectUnit(aUnit: TKMUnit);
+    procedure SelectUnitGroup(aGroup: TKMUnitGroup);
     procedure SelectNextGameObjWSameType;
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
@@ -1773,6 +1775,7 @@ var
   ItemId, MessageId: Integer;
   Msg: TKMLogMessage;
   H: TKMHouse;
+  G: TKMUnitGroup;
 begin
   ItemId := ColumnBox_MessageLog.ItemIndex;
   if ItemId = -1 then Exit;
@@ -1795,10 +1798,23 @@ begin
   // NOTE: It will highlight next house built on the 'ruins' which is unoccupied to be precise
   //       even the NEW message has not been issued yet
   if (H <> nil) then
+  begin
     if (gRes.IsMsgHouseUnnocupied(Msg.fTextID) and not H.GetHasOwner
         and (gRes.Houses[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> ht_Barracks))
-    or H.ResourceDepletedMsgIssued then
+      or H.ResourceDepletedMsgIssued then
+    begin
       gMySpectator.Highlight := H;
+      gMySpectator.Selected := H;
+      UpdateSelectedObject;
+    end;
+  end else begin
+    G := gHands.GroupsHitTest(Msg.Loc.X, Msg.Loc.Y);
+    if (G <> nil) and not G.IsDead then
+    begin
+      SelectUnitGroup(G);
+      UpdateSelectedObject;
+    end;
+  end;
 
   MessageLog_Update(True);
 end;
@@ -2489,6 +2505,23 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.SelectUnit(aUnit: TKMUnit);
+begin
+  gMySpectator.Selected := aUnit;
+  if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+    gSoundPlayer.PlayCitizen(aUnit.UnitType, sp_Select); // play unit selection sound
+end;
+
+
+procedure TKMGamePlayInterface.SelectUnitGroup(aGroup: TKMUnitGroup);
+begin
+  gMySpectator.Selected := aGroup;
+  aGroup.SelectFlagBearer;
+  if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+    gSoundPlayer.PlayWarrior(aGroup.SelectedUnit.UnitType, sp_Select); // play unit group selection sound
+end;
+
+
 // Select next building/unit/unit group with the same type for same owner
 procedure TKMGamePlayInterface.SelectNextGameObjWSameType;
 var NextHouse: TKMHouse;
@@ -2504,9 +2537,7 @@ begin
     NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
     if NextUnit <> nil then
     begin
-      gMySpectator.Selected := NextUnit;
-      if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-        gSoundPlayer.PlayCitizen(NextUnit.UnitType, sp_Select); // play unit selection sound
+      SelectUnit(NextUnit);
       fViewport.Position := NextUnit.PositionF; //center viewport on that unit
     end;
 
@@ -2526,10 +2557,7 @@ begin
     NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
     if NextUnitGroup <> nil then
     begin
-      gMySpectator.Selected := NextUnitGroup;
-      NextUnitGroup.SelectFlagBearer;
-      if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-        gSoundPlayer.PlayWarrior(NextUnitGroup.SelectedUnit.UnitType, sp_Select); // play unit group selection sound
+      SelectUnitGroup(NextUnitGroup);
       fViewport.Position := NextUnitGroup.SelectedUnit.PositionF; //center viewport on that unit
     end;
 
