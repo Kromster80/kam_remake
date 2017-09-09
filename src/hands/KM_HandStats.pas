@@ -18,6 +18,7 @@ type
     Built,               //constructed by player
     SelfDestruct,        //deconstructed by player
     Lost,                //lost from attacks and self-demolished
+    Closed,              //closed for worker
     Destroyed: Cardinal; //damage to other players
   end;
 
@@ -65,6 +66,7 @@ type
     procedure HousePlanned(aType: THouseType);
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
+    procedure HouseClosed(aWasClosed: Boolean; aType: THouseType);
     procedure HouseEnded(aType: THouseType);
     procedure HouseCreated(aType: THouseType; aWasBuilt: Boolean);
     procedure HouseLost(aType: THouseType);
@@ -80,6 +82,7 @@ type
 
     //Output
     function GetHouseQty(aType: THouseType): Integer; overload;
+    function GetHouseOpenedQty(aType: THouseType): Integer; overload;
     function GetHouseQty(aType: array of THouseType): Integer; overload;
     function GetHouseWip(aType: THouseType): Integer; overload;
     function GetHousePlans(aType: THouseType): Integer; overload;
@@ -178,6 +181,15 @@ end;
 
 
 //New house, either built by player or created by mission script
+procedure TKMHandStats.HouseClosed(aWasClosed: Boolean; aType: THouseType);
+begin
+  if aWasClosed then
+    Inc(Houses[aType].Closed)
+  else
+    Dec(Houses[aType].Closed)
+end;
+
+
 procedure TKMHandStats.HouseCreated(aType: THouseType; aWasBuilt:boolean);
 begin
   if aWasBuilt then
@@ -280,6 +292,20 @@ begin
     ht_Any:     for H := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
+  end;
+end;
+
+
+//How many complete opened houses are there
+function TKMHandStats.GetHouseOpenedQty(aType: THouseType): Integer;
+var H: THouseType;
+begin
+  Result := 0;
+  case aType of
+    ht_None:    ;
+    ht_Any:     for H := HOUSE_MIN to HOUSE_MAX do
+                  Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost - Houses[H].Closed);
+    else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost - Houses[aType].Closed;
   end;
 end;
 

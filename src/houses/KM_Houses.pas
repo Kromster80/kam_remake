@@ -78,6 +78,7 @@ type
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
     function GetPointBelowEntrance: TKMPoint;
     function GetEntrance: TKMPoint;
+    procedure SetIsClosedForWorker(aIsClosed: Boolean);
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
@@ -122,7 +123,7 @@ type
     property HouseType: THouseType read fHouseType;
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
     property WareDelivery: Boolean read fWareDelivery write fWareDelivery;
-    property IsClosedForWorker: Boolean read fIsClosedForWorker write fIsClosedForWorker;
+    property IsClosedForWorker: Boolean read fIsClosedForWorker write SetIsClosedForWorker;
     property GetHasOwner: Boolean read fHasOwner write fHasOwner; //There's a citizen who runs this house
     property Owner: TKMHandIndex read fOwner;
     property DisableUnoccupiedMessage: Boolean read fDisableUnoccupiedMessage write fDisableUnoccupiedMessage;
@@ -811,6 +812,13 @@ begin
   else
     //Worker checks on house and will cancel the walk if Repair is turned off
     //RepairList removes the house automatically too
+end;
+
+
+procedure TKMHouse.SetIsClosedForWorker(aIsClosed: Boolean);
+begin
+  fIsClosedForWorker := aIsClosed;
+  gHands[fOwner].Stats.HouseClosed(aIsClosed, fHouseType);
 end;
 
 

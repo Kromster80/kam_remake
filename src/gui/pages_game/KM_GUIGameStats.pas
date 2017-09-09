@@ -132,21 +132,21 @@ procedure TKMGUIGameStats.UpdateState;
 var
   HT: THouseType;
   UT: TUnitType;
-  Qty, WipQty, HTotalConstrQty: Integer;
+  Qty, WipQty, HTotalConstrOpenedQty: Integer;
   I,K: Integer;
   DoHighlight: Boolean;
 begin
   //Update display values
   for I := 0 to High(StatPlan) do
   begin
-    HTotalConstrQty := 0;
+    HTotalConstrOpenedQty := 0;
     for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
     if StatPlan[I].HouseType[K] <> ht_None then
     begin
       HT := StatPlan[I].HouseType[K];
       Qty := gMySpectator.Hand.Stats.GetHouseQty(HT);
       WipQty := gMySpectator.Hand.Stats.GetHouseWip(HT);
-      HTotalConstrQty := HTotalConstrQty + Qty; // count total constructed houses
+      HTotalConstrOpenedQty := HTotalConstrOpenedQty + gMySpectator.Hand.Stats.GetHouseOpenedQty(HT); // count total constructed OPENED houses
       Stat_HouseQty[HT].Caption := IfThen(Qty  = 0, '-', IntToStr(Qty));
       Stat_HouseWip[HT].Caption := IfThen(WipQty = 0, '', '+' + IntToStr(WipQty));
       if gMySpectator.Hand.Locks.HouseCanBuild(HT) or (Qty > 0) then
@@ -170,7 +170,7 @@ begin
 
       //Hightlight unit qty, when there are not enought workers
       DoHighlight := (I < High(StatPlan) - 1) // do not highlight last 2 rows - Barracks/Watch tower and Storehouse/Inn/School
-        and (HTotalConstrQty > Qty + WipQty);
+        and (HTotalConstrOpenedQty > Qty + WipQty);
 
       if DoHighlight then
         Stat_UnitQty[UT].FontColor := clStatsUnitMissingHL
