@@ -944,7 +944,7 @@ begin
       Group := gHands[I].UnitGroups[K];
       AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1 + aLeftInset, Group.Position.Y-1 + aTopInset, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
       if not Group.FlagBearer.StartWDefaultCondition then
-        AddCommand(ct_SetGroupFood, []);
+        AddCommand(ct_SetGroupFood, [Group.FlagBearer.Condition]);
 
       case Group.MapEdOrder.Order of
         ioNoOrder: ;
