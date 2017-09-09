@@ -13,6 +13,7 @@ xcopy ..\data "%kam_folder%"\data\ /y /r /s
 xcopy ..\Maps "%kam_folder%"\Maps\ /y /r /s
 xcopy ..\MapsMP "%kam_folder%"\MapsMP\ /y /r /s
 xcopy ..\Sounds "%kam_folder%"\Sounds\ /y /r /s
+xcopy ..\Music "%kam_folder%"\Music\ /y /r /s
 
 
 REM ============================================================
