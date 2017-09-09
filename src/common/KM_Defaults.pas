@@ -158,9 +158,14 @@ const
   MAX_LOBBY_SPECTATORS = 1;  //Slots available in lobby. Additional slots can be used by spectators
   MAX_LOBBY_SLOTS = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
 
-  AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
-  CHAT_COOLDOWN        = 500; //Minimum time in milliseconds between chat messages
-  BEACON_COOLDOWN      = 800; //Minimum time in milliseconds between beacons
+  AUTOSAVE_COUNT_MIN      = 2;
+  AUTOSAVE_COUNT_MAX      = 10;
+  AUTOSAVE_COUNT          = 5;    //How many autosaves to backup
+  AUTOSAVE_FREQUENCY_MIN  = 600;
+  AUTOSAVE_FREQUENCY_MAX  = 3000;
+  AUTOSAVE_FREQUENCY      = 1800; //How often to do autosave, every N ticks
+  CHAT_COOLDOWN           = 500;  //Minimum time in milliseconds between chat messages
+  BEACON_COOLDOWN         = 800;  //Minimum time in milliseconds between beacons
 
   DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
 

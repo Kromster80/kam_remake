@@ -98,6 +98,8 @@ type
     fNeedsSave: Boolean;
 
     fAutosave: Boolean;
+    fAutosaveFrequency: Integer;
+    fAutosaveCount: Integer;
     fReplayAutopause: Boolean;
     fReplayShowBeacons: Boolean; //Replay variable - show beacons during replay
     fSpecShowBeacons: Boolean;   //Spectator variable - show beacons while spectating
@@ -153,6 +155,8 @@ type
     fFavouriteMaps: TKMFavouriteMaps;
 
     procedure SetAutosave(aValue: Boolean);
+    procedure SetAutosaveFrequency(aValue: Integer);
+    procedure SetAutosaveCount(aValue: Integer);
     procedure SetReplayAutopause(aValue: Boolean);
     procedure SetReplayShowBeacons(aValue: Boolean);
     procedure SetSpecShowBeacons(aValue: Boolean);
@@ -210,6 +214,8 @@ type
     procedure ReloadSettings;
 
     property Autosave: Boolean read fAutosave write SetAutosave;
+    property AutosaveFrequency: Integer read fAutosaveFrequency write SetAutosaveFrequency;
+    property AutosaveCount: Integer read fAutosaveCount write SetAutosaveCount;
     property ReplayAutopause: Boolean read fReplayAutopause write SetReplayAutopause;
     property ReplayShowBeacons: Boolean read fReplayShowBeacons write SetReplayShowBeacons;
     property SpecShowBeacons: Boolean read fSpecShowBeacons write SetSpecShowBeacons;
@@ -449,6 +455,8 @@ begin
     fLoadFullFonts      := F.ReadBool     ('GFX', 'LoadFullFonts',      False);
 
     fAutosave           := F.ReadBool     ('Game', 'Autosave',          True); //Should be ON by default
+    SetAutosaveFrequency(F.ReadInteger    ('Game', 'AutosaveFrequency', AUTOSAVE_FREQUENCY));
+    SetAutosaveCount    (F.ReadInteger    ('Game', 'AutosaveCount',     AUTOSAVE_COUNT));
     fReplayAutopause    := F.ReadBool     ('Game', 'ReplayAutopause',   False); //Disabled by default
     fReplayShowBeacons  := F.ReadBool     ('Game', 'ReplayShowBeacons', False); //Disabled by default
     fSpecShowBeacons    := F.ReadBool     ('Game', 'SpecShowBeacons',   False); //Disabled by default
@@ -530,6 +538,8 @@ begin
     F.WriteBool   ('GFX','LoadFullFonts', fLoadFullFonts);
 
     F.WriteBool   ('Game','Autosave',           fAutosave);
+    F.WriteInteger('Game','AutosaveFrequency',  fAutosaveFrequency);
+    F.WriteInteger('Game','AutosaveCount',      fAutosaveCount);
     F.WriteBool   ('Game','ReplayAutopause',    fReplayAutopause);
     F.WriteBool   ('Game','ReplayShowBeacons',  fReplayShowBeacons);
     F.WriteBool   ('Game','SpecShowBeacons',    fSpecShowBeacons);
@@ -734,6 +744,20 @@ end;
 procedure TGameSettings.SetAutosave(aValue: Boolean);
 begin
   fAutosave := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetAutosaveCount(aValue: Integer);
+begin
+  fAutosaveCount := EnsureRange(aValue, AUTOSAVE_COUNT_MIN, AUTOSAVE_COUNT_MAX);
+  Changed;
+end;
+
+
+procedure TGameSettings.SetAutosaveFrequency(aValue: Integer);
+begin
+  fAutosaveFrequency := EnsureRange(aValue, AUTOSAVE_FREQUENCY_MIN, AUTOSAVE_FREQUENCY_MAX);
   Changed;
 end;
 

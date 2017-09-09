@@ -708,7 +708,7 @@ begin
     end;
   end;
 
-  for I := 1 to AUTOSAVE_COUNT do //All autosaves
+  for I := 1 to gGameApp.GameSettings.AutosaveCount do //All autosaves
   begin
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, IsMultiplayer));
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, IsMultiplayer));
@@ -908,10 +908,10 @@ begin
   Save('autosave', aTimestamp); //Save to temp file
 
   //Delete last autosave
-  KMDeleteFolder(SavePath('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), IsMultiplayer));
+  KMDeleteFolder(SavePath('autosave' + Int2Fix(gGameApp.GameSettings.AutosaveCount, 2), IsMultiplayer));
 
   //Shift remaining autosaves by 1 position back
-  for I := AUTOSAVE_COUNT downto 2 do // 03 to 01
+  for I := gGameApp.GameSettings.AutosaveCount downto 2 do // 03 to 01
     KMMoveFolder(SavePath('autosave' + Int2Fix(I - 1, 2), IsMultiplayer), SavePath('autosave' + Int2Fix(I, 2), IsMultiplayer));
 
   //Rename temp to be first in list
@@ -1631,9 +1631,8 @@ begin
                       if (fGameTickCount = 1) and (fGameMode in [gmSingle, gmCampaign, gmMulti]) then
                         fGameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
 
-                      //Each 1min of gameplay time
                       //Don't autosave if the game was put on hold during this tick
-                      if fGameTickCount mod 600 = 0 then
+                      if (fGameTickCount mod gGameApp.GameSettings.AutosaveFrequency) = 0 then
                       begin
                         if IsMultiplayer then
                         begin
@@ -1644,9 +1643,6 @@ begin
                           if gGameApp.GameSettings.Autosave then
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
                       end;
-
-                      //if (fGameTickCount mod 10 = 0) then
-                      //  SaveGame(ExeDir + 'SavesLog'+PathDelim + int2fix(fGameTickCount, 6));
 
                       if DO_PERF_LOGGING then fPerfLog.LeaveSection(psTick);
 
