@@ -1129,6 +1129,7 @@ begin
                       TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := gGameCursor.Cell;
                   end else
                     TKMHouse(gMySpectator.Selected).SetPosition(gGameCursor.Cell); //Can place is checked in SetPosition
+                  Exit;
                 end;
 
                 if gMySpectator.Selected is TKMUnitGroup then
