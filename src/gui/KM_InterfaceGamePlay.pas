@@ -2469,10 +2469,7 @@ begin
           fViewport.Position := TKMUnitGroup(gMySpectator.Selected).SelectedUnit.PositionF;
       end;
     end;
-
-  end
-  else
-    gMySpectator.Selected := nil;
+  end;
 
   // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
   if fUIMode in [umReplay, umSpectate] then
