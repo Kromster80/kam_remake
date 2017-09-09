@@ -45,6 +45,7 @@ type
 
     fSoundGain:single; //aka "Global volume"
     fMusicIsFaded:boolean;
+    fLastMessageNoticeTime: Cardinal; // Last time message notice were played
 
     fOnFadeMusic: TEvent;
     fOnUnfadeMusic: TBooleanEvent;
@@ -142,6 +143,7 @@ const
   MAX_SOURCES = 32; //depends on hardware as well
   MAX_DISTANCE = 32; //After this distance sounds are completely mute
   MAX_PRIORITY_DISTANCE_FACTOR = (1/2); //Sounds past this distance will not play if there are few slots left (gives close sounds priority)
+  MAX_DURATION_FROM_LAST_SND_MESSAGE_NOTICE = 30; //Maximum time in ms from lsat message notite. To avoid 'echo' effect for multiple messages at one time
 
 
 { TKMSoundPlayer }
@@ -327,6 +329,19 @@ end;
 procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Volume:single=1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
+
+  // Check for consecutive messageNotices
+  // When many warrior groups are hungry at the same time or many houses are not occupied at the same time
+  // Sound should not be played N times, 1 is enought
+  if SoundID = sfx_MessageNotice then
+  begin
+    if (fLastMessageNoticeTime > 0)
+      and (GetTimeSince(fLastMessageNoticeTime) < MAX_DURATION_FROM_LAST_SND_MESSAGE_NOTICE) then
+      Exit
+    else
+      fLastMessageNoticeTime := TimeGet;
+  end;
+
   Play(SoundID, KMPOINTF_ZERO, false, Volume); //Redirect
 end;
 
