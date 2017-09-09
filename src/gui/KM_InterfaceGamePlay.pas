@@ -3493,11 +3493,15 @@ procedure TKMGamePlayInterface.UpdateSelectedObject;
 begin
   // Update unit/house information
   if gMySpectator.Selected is TKMUnitGroup then
+  begin
+    HidePages;
     fGuiGameUnit.ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected))
-  else
+  end else
   if gMySpectator.Selected is TKMUnit then
+  begin
+    HidePages;
     fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected), fGuiGameUnit.AskDismiss)
-  else
+  end else
   begin
     fGuiGameUnit.JoiningGroups := False;
     if gMySpectator.Selected is TKMHouse then
