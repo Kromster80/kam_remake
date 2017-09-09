@@ -5857,7 +5857,7 @@ begin
                              Rows[aIndex].Cells[I].Pic.ID,
                              Rows[aIndex].Cells[I].Enabled,
                              Rows[aIndex].Cells[I].Color,
-                             0.4*Byte(IsHighlightOverCell(I)));
+                             0.4*Byte(IsHighlightOverCell(I) or (HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex))));
 
     if Rows[aIndex].Cells[I].Caption <> '' then
       if Rows[aIndex].Cells[I].Hint <> '' then
