@@ -865,7 +865,6 @@ begin
       glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, I-1);
     end;
   glEnd;
-  TRender.BindTexture(0);
 end;
 
 
@@ -937,7 +936,6 @@ begin
       glTexCoord2f(UVa.x, UVb.y); glVertex2f(x1, y2);
     glEnd;
   end;
-  TRender.BindTexture(0);
 end;
 
 
@@ -968,8 +966,6 @@ begin
     glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , pY-1 - gTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV-0.15);
     glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY-1 - gTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV+0.10);
   glEnd;
-
-  TRender.BindTexture(0);
 end;
 
 

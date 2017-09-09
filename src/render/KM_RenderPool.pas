@@ -1087,8 +1087,6 @@ begin
       glTexCoord2f(Alt.u1, Alt.v1); glVertex2f(pX                     , pY-pxHeight/CELL_SIZE_PX);
     glEnd;
   end;
-
-  TRender.BindTexture(0);
 end;
 
 
@@ -1229,7 +1227,10 @@ end;
 //aInset - Internal adjustment, to render wire "inside" tile
 procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0.0);
 begin
-  if not gTerrain.TileInMapCoords(P.X, P.Y) then exit;
+  if not gTerrain.TileInMapCoords(P.X, P.Y) then Exit;
+
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
+
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     with gTerrain do begin
@@ -1343,6 +1344,8 @@ var
   Rad, Slope: Byte;
 begin
   if gGameCursor.Cell.Y * gGameCursor.Cell.X = 0 then Exit; // Caused a rare crash
+
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
 
   if gGame.IsMapEditor then
     gGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));

@@ -189,6 +189,9 @@ end;
 class procedure TKMRenderUI.WriteBevel(aLeft, aTop, aWidth, aHeight: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
 begin
   if (aWidth < 0) or (aHeight < 0) then Exit;
+
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
+
   glPushMatrix;
     glTranslatef(aLeft, aTop, 0);
 
@@ -230,6 +233,7 @@ const
 var
   BarWidth: Word;
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glPushMatrix;
     glTranslatef(aLeft, aTop, 0);
 
@@ -367,6 +371,7 @@ class procedure TKMRenderUI.WritePlot(aLeft,aTop,aWidth,aHeight: SmallInt; aValu
 var
   I: Integer;
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glPushAttrib(GL_LINE_BIT);
   glPushMatrix;
     //glEnable(GL_LINE_SMOOTH); //Smooth lines actually look odd in KaM
@@ -416,6 +421,7 @@ end;
 class procedure TKMRenderUI.WritePolyShape(aPoints: array of TKMPoint; aColor: TColor4);
 var I: Integer;
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aColor);
   glBegin(GL_POLYGON);
     for I := 0 to High(aPoints) do
@@ -428,6 +434,7 @@ end;
 
 class procedure TKMRenderUI.WriteLine(aFromX, aFromY, aToX, aToY: Single; aCol: TColor4; aPattern: Word = $FFFF);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aCol);
 
   glEnable(GL_LINE_STIPPLE);
@@ -535,6 +542,7 @@ begin
 
   glColor4ubv(@aColor);
 
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   K := 0;
   PrevAtlas := -1;
   for I := 1 to Length(aText) do
@@ -585,7 +593,7 @@ begin
     if (I = Length(aText)) and (PrevAtlas <> -1) then
       glEnd;
   end;
-  TRender.BindTexture(0);
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
 
   if SHOW_TEXT_OUTLINES then
   begin
@@ -639,6 +647,7 @@ var
   I: Byte;
 begin
   if aRadius = 0 then Exit;
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aFillColor);
   glBegin(GL_POLYGON);
     for I := 0 to 15 do
@@ -661,6 +670,8 @@ var
 begin
   //Same color, but fully transparent
   bCol := aCol and $FFFFFF;
+
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
 
   glPushMatrix;
     //Slightly shifted shadow looks nicer
