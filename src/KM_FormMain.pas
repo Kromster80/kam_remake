@@ -180,6 +180,8 @@ begin
   RenderArea.OnResize := RenderAreaResize;
   RenderArea.OnRender := RenderAreaRender;
 
+  chkSuperSpeed.Caption := 'Speed x' + IntToStr(DEBUG_SPEEDUP_SPEED);
+
   //Lazarus needs OnMouseWheel event to be for the panel, not the entire form
   {$IFDEF FPC} RenderArea.OnMouseWheel := RenderAreaMouseWheel; {$ENDIF}
 
@@ -456,13 +458,13 @@ end;
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-  or (gGameApp.Game.IsMultiplayer
-    and not gGameApp.Game.IsMPGameSpeedUpAllowed
-    and not MULTIPLAYER_SPEEDUP
-    and not gGameApp.Game.IsReplay) then
+    or (gGameApp.Game.IsMultiplayer
+      and not gGameApp.Game.IsMPGameSpeedUpAllowed
+      and not MULTIPLAYER_SPEEDUP
+      and not gGameApp.Game.IsReplay) then
     Exit;
 
-  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, gGameApp.Game.GetNormalGameSpeed), False);
+  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, DEBUG_SPEEDUP_SPEED, gGameApp.Game.GetNormalGameSpeed), False);
 end;
 
 

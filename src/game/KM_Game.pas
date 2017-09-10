@@ -63,6 +63,12 @@ type
     fGameName: UnicodeString;
     fGameMapCRC: Cardinal; //CRC of map for reporting stats to master server. Also used in MapEd
     fGameTickCount: Cardinal;
+    fGameSpeedChangeTick: Single;
+    fGameSpeedChangeTime: Cardinal; //time of last game speed change
+    fPausedTicksCnt: Cardinal;
+
+    fLastAutosaveTime: Cardinal;
+
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFileSP: UnicodeString; //Relative pathname to mission we are playing, so it gets saved to crashreport. SP only, see GetMissionFile.
     fMissionMode: TKMissionMode;
@@ -74,6 +80,9 @@ type
     procedure UpdatePeaceTime;
     function WaitingPlayersList: TKMByteArray;
     function FindHandToSpec: Integer;
+    procedure UpdateTickCounters;
+    function GetTicksBehindCnt: Single;
+    procedure SetIsPaused(aValue: Boolean);
   public
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -141,7 +150,7 @@ type
     function GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 
     property IsExiting: Boolean read fIsExiting;
-    property IsPaused: Boolean read fIsPaused write fIsPaused;
+    property IsPaused: Boolean read fIsPaused write SetIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     property GameLockedMutex: Boolean read fGameLockedMutex write fGameLockedMutex;
     function GetNewUID: Integer;
@@ -172,6 +181,7 @@ type
     procedure SaveCampaignScriptData(SaveStream: TKMemoryStream);
 
     procedure Render(aRender: TRender);
+    function PlayNextTick: Boolean;
     procedure UpdateGame(Sender: TObject);
     procedure UpdateState(aGlobalTickCount: Cardinal);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
@@ -229,6 +239,8 @@ begin
   SetGameSpeed(1, False); //Initialize relevant variables
   fTimerGame.OnTimer := UpdateGame;
   fTimerGame.Enabled := True;
+
+  fGameSpeedChangeTime := TimeGet;
 
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
@@ -1198,6 +1210,8 @@ begin
     Exit;
   end;
 
+  UpdateTickCounters;
+
   //Make the speed toggle between normal speed and desired value
   if (aSpeed = fGameSpeed) and aToggle then
     fGameSpeed := GetNormalGameSpeed
@@ -1227,6 +1241,13 @@ begin
 
   if Assigned(gGameApp.OnGameSpeedChange) then
     gGameApp.OnGameSpeedChange(fGameSpeed);
+end;
+
+
+procedure TKMGame.SetIsPaused(aValue: Boolean);
+begin
+  fIsPaused := aValue;
+  UpdateTickCounters;
 end;
 
 
@@ -1576,11 +1597,65 @@ begin
 end;
 
 
+function TKMGame.GetTicksBehindCnt: Single;
+var
+  CalculatedTick: Single;
+  TimeSince: Cardinal;
+begin
+  //Lets calculate tick, that shoud be at that moment in theory, depending of speed multiplier and game duration
+  TimeSince := GetTimeSince(fGameSpeedChangeTime);
+  CalculatedTick := TimeSince*fGameSpeed/gGameApp.GameSettings.SpeedPace - fPausedTicksCnt;
+  //Calc how far behind are we, in ticks
+  Result := CalculatedTick + fGameSpeedChangeTick - fGameTickCount;
+end;
+
+
+procedure TKMGame.UpdateTickCounters;
+begin
+  fGameSpeedChangeTick := fGameTickCount;
+  if IsMultiplayer and not IsMPGameSpeedUpAllowed then
+    // Remember if we were some ticks behind at that moment. Could be crucial for MP game with many players, but can be omit for SP and MP with ontly 1 player
+    fGameSpeedChangeTick := fGameSpeedChangeTick + GetTicksBehindCnt;
+  //set fGameSpeedChangeTime after we invoke GetTicksBehindCnt !
+  fGameSpeedChangeTime := TimeGet;
+  fPausedTicksCnt := 0;
+end;
+
+
 procedure TKMGame.UpdateGame(Sender: TObject);
+  procedure DoUpdateGame;
+  begin
+    if not PlayNextTick then
+      Inc(fPausedTicksCnt);
+    if DoGameHold then
+      GameHold(True, DoGameHoldState);
+  end;
+
+var
+  TicksBehindCnt: Single;
+  I: Integer;
+
+begin
+  DoUpdateGame;
+
+  TicksBehindCnt := GetTicksBehindCnt;
+
+  //When our game is more then 0.5 tick behind - play another tick immidiately
+  //This will prevent situation, when lags on local PC (on zoon out, f.e.) leads to lags for all other MP players
+  if TicksBehindCnt > 0.5 then
+    // f.e. if we behind on 1.4 ticks - make 1 more update, for 1.6 - 2 more updates
+    for I := 0 to Min(Trunc(TicksBehindCnt - 0.5), MAX_TICKS_PER_GAME_UPDATE - 1) do // do not do too many GameUpdates at once. Limit them
+      DoUpdateGame;
+
+end;
+
+
+function TKMGame.PlayNextTick: Boolean;
 var
   I: Integer;
   PeaceTimeLeft: Cardinal;
 begin
+  Result := False;
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
   Set8087CW($133F);
@@ -1590,7 +1665,6 @@ begin
   case fGameMode of
     gmSingle, gmCampaign, gmMulti, gmMultiSpectate:
                   if not (fGameMode in [gmMulti, gmMultiSpectate]) or (fNetworking.NetGameState <> lgs_Loading) then
-                  for I := 1 to fGameSpeedMultiplier do
                   begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
                     begin
@@ -1631,23 +1705,31 @@ begin
                       if (fGameTickCount = 1) and (fGameMode in [gmSingle, gmCampaign, gmMulti]) then
                         fGameInputProcess.CmdWareDistribution(gic_WareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
 
-                      //Don't autosave if the game was put on hold during this tick
+
                       if (fGameTickCount mod gGameApp.GameSettings.AutosaveFrequency) = 0 then
                       begin
+                        if (fLastAutosaveTime > 0) and (GetTimeSince(fLastAutosaveTime) < AUTOSAVE_NOT_MORE_OFTERN_THEN) then
+                          Exit; //Do not do autosave too often, because it can produce IO errors. Can happen on very fast speedups
+
                         if IsMultiplayer then
                         begin
                           if fNetworking.IsHost then
-                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow) //Timestamp must be synchronised
+                          begin
+                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow); //Timestamp must be synchronised
+                            fLastAutosaveTime := TimeGet;
+                          end;
                         end
                         else
                           if gGameApp.GameSettings.Autosave then
+                          begin
                             fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
+                            fLastAutosaveTime := TimeGet;
+                          end;
                       end;
 
                       if DO_PERF_LOGGING then fPerfLog.LeaveSection(psTick);
 
-                      //Break the for loop (if we are using speed up)
-                      if DoGameHold then break;
+                      Result := True;
                     end
                     else
                     begin
@@ -1658,7 +1740,6 @@ begin
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
     gmReplaySingle,gmReplayMulti:
-                  for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fScripting.UpdateState;
@@ -1683,9 +1764,10 @@ begin
                       fIsPaused := True;
                     end;
 
-                    //Break the for loop (if we are using speed up)
                     if DoGameHold then
-                      Break;
+                    begin
+                      Exit;
+                    end;
 
                     if fGameOptions.Peacetime * 600 < fGameTickCount then
                       PeaceTimeLeft := 0
@@ -1693,25 +1775,21 @@ begin
                       PeaceTimeLeft := fGameOptions.Peacetime * 600 - fGameTickCount;
 
                     if (PeaceTimeLeft = 1)
-                    and (fGameMode = gmReplayMulti)
-                    and (gGameApp.GameSettings.ReplayAutopause) then
+                      and (fGameMode = gmReplayMulti)
+                      and (gGameApp.GameSettings.ReplayAutopause) then
                     begin
-                      fIsPaused := True;
+                      IsPaused := True;
                       //Set replay UI to paused state, sync replay timer and other UI elements
                       fGamePlayInterface.SetButtons(False);
                       fGamePlayInterface.UpdateState(fGameTickCount);
-                      //Break the for loop
-                      Break;
                     end;
-
+                    Result := True;
                   end;
     gmMapEd:   begin
                   gTerrain.IncAnimStep;
                   gHands.IncAnimStep;
                 end;
   end;
-
-  if DoGameHold then GameHold(True, DoGameHoldState);
 end;
 
 

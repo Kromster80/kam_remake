@@ -205,7 +205,8 @@ object FormMain: TFormMain
       Top = 85
       Width = 75
       Height = 17
-      Caption = 'Speed x300'
+      Hint = 'Autosave is disabled while on very fast speedup'
+      Caption = 'Speed x200'
       TabOrder = 0
       OnClick = chkSuperSpeedClick
     end

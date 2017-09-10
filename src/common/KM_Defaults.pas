@@ -77,6 +77,7 @@ var
 
   //These are debug things, should be False
   {User interface options}
+  DEBUG_SPEEDUP_SPEED   :Integer = 200;   //Speed for speedup from debug menu
   SHOW_DEBUG_CONTROLS   :Boolean = False; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls! always Off here
   SHOW_CONTROLS_ID      :Boolean = False; //Draw controls ID
@@ -129,7 +130,7 @@ var
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = true; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
   DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
@@ -163,6 +164,7 @@ const
   AUTOSAVE_COUNT          = 5;    //How many autosaves to backup
   AUTOSAVE_FREQUENCY_MIN  = 600;
   AUTOSAVE_FREQUENCY_MAX  = 3000;
+  AUTOSAVE_NOT_MORE_OFTERN_THEN = 5000; //= 5s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
   AUTOSAVE_FREQUENCY      = 1800; //How often to do autosave, every N ticks
   CHAT_COOLDOWN           = 500;  //Minimum time in milliseconds between chat messages
   BEACON_COOLDOWN         = 800;  //Minimum time in milliseconds between beacons
@@ -233,6 +235,9 @@ const
   EXT_SAVE_REPLAY = 'rpl';
   EXT_SAVE_MAIN = 'sav';
   EXT_SAVE_BASE = 'bas';
+
+const
+  MAX_TICKS_PER_GAME_UPDATE = 100;
 
 type
   TKMHandIndex = {type} ShortInt;

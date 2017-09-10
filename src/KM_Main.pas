@@ -170,7 +170,7 @@ end;
 
 procedure TKMMain.GameSpeedChange(aSpeed: Single);
 begin
-  fFormMain.chkSuperSpeed.Checked := aSpeed = 300;
+  fFormMain.chkSuperSpeed.Checked := aSpeed = DEBUG_SPEEDUP_SPEED;
 end;
 
 
