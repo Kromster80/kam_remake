@@ -89,6 +89,7 @@ type
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck: Boolean;
     StartedFromMapEditor: Boolean; //True if we start game from map editor ('Try Map')
+    StartedFromMapEdAsMPMap: Boolean;     //True if we start game from map editor ('Try Map') with MP map
 
     ///	<param name="aRender">
     ///	  Pointer to Render class, that will execute our rendering requests

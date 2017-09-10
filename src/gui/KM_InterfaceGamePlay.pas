@@ -303,7 +303,8 @@ uses
   KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor, KM_Maps,
   KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks, KM_Utils,
   KM_CommonUtils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
-  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes;
+  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes,
+  KM_InterfaceMapEditor;
 
 const ALLIES_ROWS = 7;
       PANEL_ALLIES_WIDTH = 810;
@@ -1485,11 +1486,16 @@ end;
 
 
 procedure TKMGamePlayInterface.Menu_ReturnToMapEd(Sender: TObject);
-var SaveName: String;
+var
+  MapPath, GameName: UnicodeString;
+  IsMultiplayer: Boolean;
 begin
-  SaveName := TKMapsCollection.FullPath(gGame.GameName, '.dat', gGame.IsMultiplayer);
+  IsMultiplayer := gGame.StartedFromMapEdAsMPMap;
+  MapPath := TKMapsCollection.FullPath(gGame.GameName, '.dat', IsMultiplayer);
+  GameName := gGame.GameName;
   FreeThenNil(gGame);
-  gGameApp.NewMapEditor(SaveName, 0, 0);
+  gGameApp.NewMapEditor(MapPath, 0, 0, TKMapsCollection.GetMapCRC(GameName, IsMultiplayer));
+  TKMapEdInterface(gGame.ActiveInterface).SetLoadMode(IsMultiplayer);
 end;
 
 

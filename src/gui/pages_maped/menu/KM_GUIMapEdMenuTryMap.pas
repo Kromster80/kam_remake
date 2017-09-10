@@ -91,17 +91,20 @@ end;
 
 procedure TKMMapEdMenuTryMap.Try_Map_Click(Sender: TObject);
 var
-  SaveName, GameName: String;
+  MapName, GameName: String;
   Color: Cardinal;
   HandID: Integer;
+  IsMultiplayer: Boolean;
 begin
-  SaveName := TKMapsCollection.FullPath(gGame.GameName, '.dat', fIsMultiplayer);
+  MapName := TKMapsCollection.FullPath(gGame.GameName, '.dat', fIsMultiplayer);
   GameName := gGame.GameName;
   HandId := DropList_SelectHand.GetSelectedTag;
   Color := gHands[HandId].FlagColor;
+  IsMultiplayer := fIsMultiplayer; //Somehow fIsMultiplayer sometimes change its value... have no time to debug it. Just save to local value for now
   FreeThenNil(gGame);
-  gGameApp.NewSingleMap(SaveName, GameName, HandId, Color);
+  gGameApp.NewSingleMap(MapName, GameName, HandId, Color);
   gGame.StartedFromMapEditor := True;
+  gGame.StartedFromMapEdAsMPMap := IsMultiplayer;
   TKMGamePlayInterface(gGame.ActiveInterface).SetMenuState(gGame.MissionMode = mm_Tactic);
 end;
 

@@ -155,6 +155,7 @@ type
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder; aCRC: Cardinal): string; overload;
     class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
+    class function GetMapCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 
     procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
@@ -169,7 +170,7 @@ type
     procedure UpdateState;
   end;
 
-
+  function GetMapFolderType(aIsMultiplayer: Boolean): TMapFolder;
   function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
 
 
@@ -181,8 +182,6 @@ uses
 const
   //Map folder name by folder type. Containing single maps, for SP/MP/DL mode
   MAP_FOLDER: array [TMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
-  //Map folder type by IsMultiplayer flag
-  MAP_FOLDER_TYPE_IS_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
 
 
 { TKMapInfo }
@@ -991,7 +990,7 @@ end;
 
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 begin
-  Result := FullPath(aName, aExt, MAP_FOLDER_TYPE_IS_MP[aMultiplayer]);
+  Result := FullPath(aName, aExt, GetMapFolderType(aMultiplayer));
 end;
 
 
@@ -1014,6 +1013,17 @@ begin
   if aMapFolder = mfDL then
     S := S + '_' + IntToHex(Integer(aCRC), 8);
   Result := FullPath(S, aExt, aMapFolder);
+end;
+
+
+class function TKMapsCollection.GetMapCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+var
+  MapPath: UnicodeString;
+begin
+  Result := 0;
+  MapPath := FullPath(aName, '.dat', aIsMultiplayer);
+  if FileExists(MapPath) then
+    Result := Adler32CRC(MapPath);
 end;
 
 
@@ -1164,6 +1174,15 @@ begin
       Exit;
     end;
   Result := False;
+end;
+
+
+function GetMapFolderType(aIsMultiplayer: Boolean): TMapFolder;
+begin
+  if aIsMultiplayer then
+    Result := mfMP
+  else
+    Result := mfSP;
 end;
 
 
