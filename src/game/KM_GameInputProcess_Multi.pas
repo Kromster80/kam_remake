@@ -177,21 +177,21 @@ end;
 
 //Stack the command into schedule
 procedure TGameInputProcess_Multi.TakeCommand(aCommand: TGameInputCommand);
-var i,Tick: Cardinal;
+var I,Tick: Cardinal;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
-  if (gGame.GameMode = gmMultiSpectate) and not (aCommand.CommandType in AllowedBySpectators) then
+  if ((gGame.GameMode = gmMultiSpectate) and not (aCommand.CommandType in AllowedBySpectators)) then
     Exit;
 
   if gGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
   begin
     gGameApp.Networking.PostLocalMessage(gResTexts[TX_MP_BLOCKED_BY_PEACETIME], csNone);
     gSoundPlayer.Play(sfx_CantPlace);
-    exit;
+    Exit;
   end;
 
   if (gGame.GameMode <> gmMultiSpectate) and gMySpectator.Hand.AI.HasLost
-  and not (aCommand.CommandType in AllowedAfterDefeat) then
+    and not (aCommand.CommandType in AllowedAfterDefeat) then
   begin
     gSoundPlayer.Play(sfx_CantPlace);
     Exit;
@@ -199,12 +199,12 @@ begin
 
   //Find first unsent pack
   Tick := MAX_SCHEDULE; //Out of range value
-  for I := gGame.GameTickCount + fDelay to gGame.GameTickCount + MAX_SCHEDULE-1 do
-  if not fSent[I mod MAX_SCHEDULE] then
-  begin
-    Tick := I mod MAX_SCHEDULE; //Place in a ring buffer
-    Break;
-  end;
+  for I := gGame.GameTickCount + fDelay to gGame.GameTickCount + MAX_SCHEDULE - 1 do
+    if not fSent[I mod MAX_SCHEDULE] then
+    begin
+      Tick := I mod MAX_SCHEDULE; //Place in a ring buffer
+      Break;
+    end;
   Assert(Tick < MAX_SCHEDULE, 'Could not find place for new commands');
 
   if not fCommandIssued[Tick] then
@@ -249,7 +249,7 @@ end;
 procedure TGameInputProcess_Multi.PlayerTypeChange(aPlayer: TKMHandIndex; aType: THandType);
 begin
   Assert(ReplayState = gipRecording);
-  StoreCommand(MakeCommand(gic_GamePlayerTypeChange, [aPlayer, Byte(aType)]));
+  StoreCommand(MakeCommand(gic_GamePlayerTypeChange, aPlayer, Byte(aType)));
 end;
 
 

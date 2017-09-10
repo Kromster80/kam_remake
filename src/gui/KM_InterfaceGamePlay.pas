@@ -3018,11 +3018,11 @@ begin
 
   // See if we can show DirectionSelector
   if (Button = mbRight)
-  and (fUIMode in [umSP, umMP])
-  and not HasLostMPGame
-  and not fGuiGameUnit.JoiningGroups
-  and not fPlacingBeacon
-  and (gMySpectator.Selected is TKMUnitGroup) then
+    and (fUIMode in [umSP, umMP])
+    and not HasLostMPGame
+    and not fGuiGameUnit.JoiningGroups
+    and not fPlacingBeacon
+    and (gMySpectator.Selected is TKMUnitGroup) then
   begin
     Group := TKMUnitGroup(gMySpectator.Selected);
     Obj := gMySpectator.HitTestCursor;
@@ -3244,8 +3244,8 @@ begin
   end;
 
   if (fMyControls.CtrlOver <> nil)
-  and (fMyControls.CtrlOver <> Image_DirectionCursor)
-  and not SelectingTroopDirection then
+    and (fMyControls.CtrlOver <> Image_DirectionCursor)
+    and not SelectingTroopDirection then
   begin
     fMyControls.MouseUp(X,Y,Shift,Button);
     Exit;
@@ -3265,10 +3265,10 @@ begin
           Obj := gMySpectator.HitTestCursor;
 
           if (Obj <> nil)
-          and (Obj is TKMUnitWarrior)
-          and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandIndex)
-          and not Group.HasMember(TKMUnitWarrior(Obj))
-          and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
+            and (Obj is TKMUnitWarrior)
+            and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandIndex)
+            and not Group.HasMember(TKMUnitWarrior(Obj))
+            and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
           begin
             Group2 := gMySpectator.Hand.UnitGroups.GetGroupByMember(TKMUnitWarrior(Obj));
             // Warrior might not have a group yet if he's still walking out of the barracks

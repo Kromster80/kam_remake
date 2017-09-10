@@ -1652,7 +1652,6 @@ end;
 
 function TKMGame.PlayNextTick: Boolean;
 var
-  I: Integer;
   PeaceTimeLeft: Cardinal;
 begin
   Result := False;

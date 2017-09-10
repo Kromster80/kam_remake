@@ -239,7 +239,7 @@ procedure TKMGUIGameUnit.Army_Issue_Order(Sender: TObject);
 var
   Group: TKMUnitGroup;
 begin
-  if gMySpectator.Selected = nil then exit;
+  if gMySpectator.Selected = nil then Exit;
   if not (gMySpectator.Selected is TKMUnitGroup) then Exit;
 
   { Not implemented yet

@@ -446,8 +446,8 @@ end;
 procedure TFormMain.RGPlayerClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-  or gGameApp.Game.IsMapEditor
-  or gGameApp.Game.IsMultiplayer then
+    or gGameApp.Game.IsMapEditor
+    or gGameApp.Game.IsMultiplayer then
     Exit;
 
   if (gHands <> nil) and (RGPlayer.ItemIndex < gHands.Count) then

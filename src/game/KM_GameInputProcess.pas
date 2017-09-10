@@ -168,7 +168,7 @@ const
     gicpt_Int2,     // gic_GameHotkeySet
     gicpt_Date,     // gic_GameMessageLogRead
     gicpt_Int2,     // gic_GamePlayerTypeChange
-    gicpt_Date,     // gic_GamePlayerDefeat
+    gicpt_Int1,     // gic_GamePlayerDefeat
     //VII.     Temporary and debug commands
     gicpt_Int2,     // gic_TempAddScout
     gicpt_NoParams, // gic_TempRevealMap
@@ -203,8 +203,14 @@ type
       Rand: Cardinal; //acts as CRC check
     end;
 
-    function MakeCommand(aGIC: TGameInputCommandType; const aParam: array of integer): TGameInputCommand; overload;
-    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime = 0): TGameInputCommand; overload;
+    function MakeEmptyCommand(aGIC: TGameInputCommandType): TGameInputCommand;
+    function MakeCommand(aGIC: TGameInputCommandType): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aParam1: Integer): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aParam1, aParam2: Integer): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aParam1, aParam2, aParam3: Integer): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aParam1, aParam2, aParam3, aParam4: Integer): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; aDateTimeParam: TDateTime): TGameInputCommand; overload;
     procedure TakeCommand(aCommand: TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
@@ -262,7 +268,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_CommonUtils, KM_AI,
+  TypInfo, KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_CommonUtils, KM_AI,
   KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking, KM_ScriptingEvents;
 
 
@@ -345,34 +351,93 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam: array of integer): TGameInputCommand;
-var
-  I: Integer;
+function TGameInputProcess.MakeEmptyCommand(aGIC: TGameInputCommandType): TGameInputCommand;
 begin
   Result.CommandType := aGIC;
   Result.HandIndex := gMySpectator.HandIndex;
-
-  for I := Low(aParam) to High(aParam) do
-    Result.Params[I+1] := aParam[I];
-  for I := High(aParam) + 1 to High(Result.Params) - 1 do
-    Result.Params[I+1] := MaxInt;
-
-  Result.TextParam := '';
-  Result.DateTimeParam := 0;
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime = 0): TGameInputCommand;
-var
-  I: Integer;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType): TGameInputCommand;
 begin
-  Result.CommandType := aGIC;
-  Result.HandIndex := gMySpectator.HandIndex;
+  Assert(CommandPackType[aGIC] = gicpt_NoParams,
+         Format('Wrong packing type for command %s: Expected: gicpt_NoParams Actual: [%s]',
+                [GetEnumName(TypeInfo(TGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TGameInputCommandPackType), Integer(CommandPackType[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
+end;
 
-  for I := Low(Result.Params) to High(Result.Params) do
-    Result.Params[I] := MaxInt;
+
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam1: Integer): TGameInputCommand;
+begin
+  Assert(CommandPackType[aGIC] = gicpt_Int1,
+         Format('Wrong packing type for command %s: Expected: gicpt_Int1 Actual: [%s]',
+                [GetEnumName(TypeInfo(TGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TGameInputCommandPackType), Integer(CommandPackType[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
+  Result.Params[1] := aParam1;
+end;
+
+
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam1, aParam2: Integer): TGameInputCommand;
+begin
+  Assert(CommandPackType[aGIC] = gicpt_Int2,
+         Format('Wrong packing type for command %s: Expected: gicpt_Int2 Actual: [%s]',
+                [GetEnumName(TypeInfo(TGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TGameInputCommandPackType), Integer(CommandPackType[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
+  Result.Params[1] := aParam1;
+  Result.Params[2] := aParam2;
+end;
+
+
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam1, aParam2, aParam3: Integer): TGameInputCommand;
+begin
+  Assert(CommandPackType[aGIC] = gicpt_Int3,
+         Format('Wrong packing type for command %s: Expected: gicpt_Int3 Actual: [%s]',
+                [GetEnumName(TypeInfo(TGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TGameInputCommandPackType), Integer(CommandPackType[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
+  Result.Params[1] := aParam1;
+  Result.Params[2] := aParam2;
+  Result.Params[3] := aParam3;
+end;
+
+
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam1, aParam2, aParam3, aParam4: Integer): TGameInputCommand;
+begin
+  Assert(CommandPackType[aGIC] = gicpt_Int4,
+         Format('Wrong packing type for command %s: Expected: gicpt_Int4 Actual: [%s]',
+                [GetEnumName(TypeInfo(TGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TGameInputCommandPackType), Integer(CommandPackType[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
+  Result.Params[1] := aParam1;
+  Result.Params[2] := aParam2;
+  Result.Params[3] := aParam3;
+  Result.Params[4] := aParam4;
+end;
+
+
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString): TGameInputCommand;
+begin
+  Assert(CommandPackType[aGIC] = gicpt_Text,
+         Format('Wrong packing type for command %s: Expected: gicpt_Text Actual: [%s]',
+                [GetEnumName(TypeInfo(TGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TGameInputCommandPackType), Integer(CommandPackType[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
 
   Result.TextParam := aTextParam;
+end;
+
+
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; aDateTimeParam: TDateTime): TGameInputCommand;
+begin
+  Assert(CommandPackType[aGIC] = gicpt_Date,
+         Format('Wrong packing type for command %s: Expected: gicpt_Date Actual: [%s]',
+                [GetEnumName(TypeInfo(TGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TGameInputCommandPackType), Integer(CommandPackType[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
+
   Result.DateTimeParam := aDateTimeParam;
 end;
 
@@ -584,42 +649,42 @@ end;
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup);
 begin
   Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmySplitSingle, gic_ArmyStorm, gic_ArmyHalt]);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.UID]));
+  TakeCommand(MakeCommand(aCommandType, aGroup.UID));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aUnit: TKMUnit);
 begin
   Assert(aCommandType in [gic_ArmyAttackUnit]);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, aUnit.UID]));
+  TakeCommand(MakeCommand(aCommandType, aGroup.UID, aUnit.UID));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup1, aGroup2: TKMUnitGroup);
 begin
   Assert(aCommandType in [gic_ArmyLink]);
-  TakeCommand(MakeCommand(aCommandType, [aGroup1.UID, aGroup2.UID]));
+  TakeCommand(MakeCommand(aCommandType, aGroup1.UID, aGroup2.UID));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aHouse: TKMHouse);
 begin
   Assert(aCommandType = gic_ArmyAttackHouse);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, aHouse.UID]));
+  TakeCommand(MakeCommand(aCommandType, aGroup.UID, aHouse.UID));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aTurnAmount: TKMTurnDirection; aLineAmount:shortint);
 begin
   Assert(aCommandType = gic_ArmyFormation);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, byte(aTurnAmount), aLineAmount]));
+  TakeCommand(MakeCommand(aCommandType, aGroup.UID, Byte(aTurnAmount), aLineAmount));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aLoc: TKMPoint; aDirection: TKMDirection);
 begin
   Assert(aCommandType = gic_ArmyWalk);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, aLoc.X, aLoc.Y, byte(aDirection)]));
+  TakeCommand(MakeCommand(aCommandType, aGroup.UID, aLoc.X, aLoc.Y, Byte(aDirection)));
 end;
 
 
@@ -633,7 +698,7 @@ begin
   if gGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
     gMySpectator.Hand.RemFakeFieldPlan(aLoc);
 
-  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
+  TakeCommand(MakeCommand(aCommandType, aLoc.X, aLoc.Y));
 end;
 
 
@@ -647,14 +712,14 @@ begin
   if gGame.IsMultiplayer then
     gMySpectator.Hand.ToggleFakeFieldPlan(aLoc, aFieldType);
 
-  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
+  TakeCommand(MakeCommand(aCommandType, aLoc.X, aLoc.Y, Byte(aFieldType)));
 end;
 
 
 procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: TKMPoint; aHouseType: THouseType);
 begin
   Assert(aCommandType = gic_BuildHousePlan);
-  TakeCommand(MakeCommand(aCommandType, [byte(aHouseType), aLoc.X, aLoc.Y]));
+  TakeCommand(MakeCommand(aCommandType, Byte(aHouseType), aLoc.X, aLoc.Y));
 end;
 
 
@@ -668,28 +733,28 @@ end;
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmountChange: Integer);
 begin
   Assert(aCommandType in [gic_HouseOrderProduct, gic_HouseSchoolTrainChOrder]);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem, aAmountChange]));
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID, aItem, aAmountChange));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: TWareType);
 begin
   Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aItem)]));
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID, Byte(aItem)));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aWoodcutterMode: TWoodcutterMode);
 begin
   Assert(aCommandType = gic_HouseWoodcutterMode);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aWoodcutterMode)]));
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID, byte(aWoodcutterMode)));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aCount: Byte);
 begin
   Assert(aCommandType in [gic_HouseSchoolTrain, gic_HouseBarracksEquip]);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aUnitType), aCount]));
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID, byte(aUnitType), aCount));
 end;
 
 
@@ -697,7 +762,7 @@ procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse
 begin
   Assert(aCommandType in [gic_HouseRemoveTrain, gic_HouseSchoolTrainChLastUOrder]);
   Assert(aHouse is TKMHouseSchool);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem]));
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID, aItem));
 end;
 
 
@@ -705,14 +770,14 @@ procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse
 begin
   Assert((aCommandType = gic_HouseBarracksRally) or (aCommandType = gic_HouseWoodcuttersCutting));
   Assert((aHouse is TKMHouseBarracks) or (aHouse is TKMHouseWoodcutters));
-  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aLoc.X, aLoc.Y]));
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID, aLoc.X, aLoc.Y));
 end;
 
 
 procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
 begin
   Assert(aCommandType = gic_WareDistributionChange);
-  TakeCommand(MakeCommand(aCommandType, [byte(aWare), byte(aHouseType), aValue]));
+  TakeCommand(MakeCommand(aCommandType, Byte(aWare), byte(aHouseType), aValue));
 end;
 
 
@@ -726,49 +791,49 @@ end;
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: Boolean);
 begin
   Assert(aCommandType = gic_GamePause);
-  TakeCommand(MakeCommand(aCommandType, [integer(aValue)]));
+  TakeCommand(MakeCommand(aCommandType, Integer(aValue)));
 end;
 
 
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime);
 begin
   Assert(aCommandType in [gic_GameAutoSave, gic_GameSaveReturnLobby]);
-  TakeCommand(MakeCommand(aCommandType, '', aDateTime));
+  TakeCommand(MakeCommand(aCommandType, aDateTime));
 end;
 
 
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aParam1, aParam2: Integer);
 begin
   Assert(aCommandType in [gic_GameTeamChange, gic_GameHotkeySet]);
-  TakeCommand(MakeCommand(aCommandType, [aParam1, aParam2]));
+  TakeCommand(MakeCommand(aCommandType, aParam1, aParam2));
 end;
 
 
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: Integer);
 begin
   Assert(aCommandType in [gic_GameMessageLogRead, gic_GamePlayerDefeat]);
-  TakeCommand(MakeCommand(aCommandType, [aValue]));
+  TakeCommand(MakeCommand(aCommandType, aValue));
 end;
 
 
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal);
 begin
   Assert(aCommandType = gic_GameAlertBeacon);
-  TakeCommand(MakeCommand(aCommandType, [Round(aLoc.X * 10), Round(aLoc.Y * 10), aOwner, (aColor and $FFFFFF)]));
+  TakeCommand(MakeCommand(aCommandType, Round(aLoc.X * 10), Round(aLoc.Y * 10), aOwner, (aColor and $FFFFFF)));
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint);
 begin
   Assert(aCommandType = gic_TempAddScout);
-  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
+  TakeCommand(MakeCommand(aCommandType, aLoc.X, aLoc.Y));
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType: TGameInputCommandType);
 begin
   Assert(aCommandType in [gic_TempRevealMap, gic_TempVictory, gic_TempDefeat, gic_TempDoNothing]);
-  TakeCommand(MakeCommand(aCommandType, []));
+  TakeCommand(MakeCommand(aCommandType));
 end;
 
 
