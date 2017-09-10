@@ -412,6 +412,7 @@ begin
     fItems[U] := TKMUnitSpec.Create(U);
 
   fCRC := LoadUnitsDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
+  fItems[ut_HorseScout].fUnitDat.Sight := 16;
   //ExportCSV(ExeDir+'units.csv');
 end;
 
