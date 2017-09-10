@@ -145,7 +145,7 @@ const
   MAX_SOURCES = 32; //depends on hardware as well
   MAX_DISTANCE = 32; //After this distance sounds are completely mute
   MAX_PRIORITY_DISTANCE_FACTOR = (1/2); //Sounds past this distance will not play if there are few slots left (gives close sounds priority)
-  MAX_DURATION_FROM_LAST_SND_MESSAGE_NOTICE = 30; //Maximum time in ms from lsat message notite. To avoid 'echo' effect for multiple messages at one time
+  MAX_DURATION_FROM_LAST_SND_MESSAGE_NOTICE = 100; //Maximum time in ms from lsat message notite. To avoid 'echo' effect for multiple messages at one time
 
 
 { TKMSoundPlayer }
