@@ -704,7 +704,7 @@ begin
     if CanAddFieldPlan(aLoc, aFieldType) then
     begin
       if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-      and (HandIndex = gMySpectator.HandIndex) then
+        and (HandIndex = gMySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType);
       case aFieldType of
@@ -718,7 +718,7 @@ begin
     else
     begin
       if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-      and (HandIndex = gMySpectator.HandIndex) then
+        and (HandIndex = gMySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin

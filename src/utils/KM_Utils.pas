@@ -10,18 +10,40 @@ uses
   {$ENDIF}
   {$IFDEF FPC} FileUtil, {$ENDIF}
   {$IFDEF WDC} IOUtils, {$ENDIF}
-	SysUtils, StrUtils, Classes, Controls, KM_CommonTypes;
+	SysUtils, StrUtils, Classes, Controls, KM_Defaults, KM_CommonTypes;
 
   function GetHintWHotKey(aTextId, aHotkeyId: Integer): String;
 
 	function GetShiftState(aButton: TMouseButton): TShiftState;
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState): Word; overload;
+  function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
 
 
 implementation
 uses
-  KM_CommonUtils, KM_ResTexts, KM_ResKeys;
+  KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups;
+
+
+function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
+begin
+  Result := -1;
+  if aObject is TKMHouse then
+  begin
+    Result := TKMHouse(aObject).Owner;
+    Exit;
+  end;
+  if aObject is TKMUnit then
+  begin
+    Result := TKMUnit(aObject).Owner;
+    Exit;
+  end;
+  if aObject is TKMUnitGroup then
+  begin
+    Result := TKMUnitGroup(aObject).Owner;
+    Exit;
+  end;
+end;
 
 
 function GetShiftState(aButton: TMouseButton): TShiftState;

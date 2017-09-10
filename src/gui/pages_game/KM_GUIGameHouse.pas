@@ -50,6 +50,7 @@ type
       HealthBar_House: TKMPercentBar;
 
     Panel_House_Common: TKMPanel;
+      Image_PlayerFlag: TKMImage;
       Label_Common_Demand,Label_Common_Offer,Label_Common_Costs,
       Label_House_UnderConstruction,Label_House_Demolish: TKMLabel;
       Image_HouseConstructionWood, Image_HouseConstructionStone: TKMImage;
@@ -120,6 +121,7 @@ begin
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
+    Image_PlayerFlag := TKMImage.Create(Panel_House, 5, 17, 20, 13, 1159, rxHouses);
     Button_HouseWaresBlock := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
     Button_HouseWaresBlock.Hint := gResTexts[TX_HOUSE_TOGGLE_DELIVERS_HINT];
     Button_HouseWaresBlock.OnClick := House_WareDeliveryToggle;
@@ -427,10 +429,11 @@ begin
   end;
 
   {Common data}
-  Label_House.Caption       := gRes.Houses[aHouse.HouseType].HouseName;
-  Image_House_Logo.TexID    := gRes.Houses[aHouse.HouseType].GUIIcon;
-  Image_House_Worker.TexID  := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
-  Image_House_Worker.Hint   := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName;
+  Label_House.Caption        := gRes.Houses[aHouse.HouseType].HouseName;
+  Image_PlayerFlag.FlagColor := gHands[aHouse.Owner].FlagColor;
+  Image_House_Logo.TexID     := gRes.Houses[aHouse.HouseType].GUIIcon;
+  Image_House_Worker.TexID   := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
+  Image_House_Worker.Hint    := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName;
   Image_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
 
   Button_House_Worker.TexID  := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
@@ -456,6 +459,7 @@ begin
     Button_House_DemolishYes.Show;
     Button_House_DemolishNo.Show;
     Label_House.Show;
+    Image_PlayerFlag.Show;
     Image_House_Logo.Show;
     Image_House_Worker.Show;
     Button_House_Worker.Hide;
@@ -476,6 +480,7 @@ begin
     Label_HouseConstructionWood.Caption := IntToStr(aHouse.GetBuildWoodDelivered)+' / '+IntToStr(gRes.Houses[aHouse.HouseType].WoodCost);
     Label_HouseConstructionStone.Caption := IntToStr(aHouse.GetBuildStoneDelivered)+' / '+IntToStr(gRes.Houses[aHouse.HouseType].StoneCost);
     Label_House.Show;
+    Image_PlayerFlag.Show;
     Image_House_Logo.Show;
     Image_House_Worker.Visible := gRes.Houses[aHouse.HouseType].OwnerType <> ut_None;
     Button_House_Worker.Hide;

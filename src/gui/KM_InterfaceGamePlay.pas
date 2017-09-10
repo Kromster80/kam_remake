@@ -3200,21 +3200,27 @@ begin
   end;
 
   if not gMySpectator.Hand.InCinematic then
-    // Only own units can be selected
-    if ((Obj is TKMUnit) and ((TKMUnit(Obj).Owner = gMySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate])))
-    or ((Obj is TKMHouse) and ((TKMHouse(Obj).Owner = gMySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate]))) then
+    // Only own and ally units/houses can be selected
+    if ((Obj is TKMUnit)
+        and ((TKMUnit(Obj).Owner = gMySpectator.HandIndex)
+          or (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Ally)
+          or (fUIMode in [umReplay, umSpectate])))
+      or ((Obj is TKMHouse)
+        and ((TKMHouse(Obj).Owner = gMySpectator.HandIndex)
+          or (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Ally)
+          or (fUIMode in [umReplay, umSpectate]))) then
     begin
       gRes.Cursors.Cursor := kmc_Info;
       Exit;
     end;
 
   if (gMySpectator.Selected is TKMUnitGroup)
-  and (fUIMode in [umSP, umMP]) and not HasLostMPGame
-  and not gMySpectator.Hand.InCinematic
-  and (gMySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then
+    and (fUIMode in [umSP, umMP]) and not HasLostMPGame
+    and not gMySpectator.Hand.InCinematic
+    and (gMySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then
   begin
     if ((Obj is TKMUnit) and (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Enemy))
-    or ((Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Enemy)) then
+      or ((Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Enemy)) then
       gRes.Cursors.Cursor := kmc_Attack
     else
       if not fViewport.Scrolling then
