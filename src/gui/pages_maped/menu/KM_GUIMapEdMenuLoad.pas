@@ -64,6 +64,7 @@ begin
   ListBox_Load := TKMListBox.Create(Panel_Load, 0, 104, TB_WIDTH, 205, fnt_Grey, bsGame);
   ListBox_Load.ItemHeight := 18;
   ListBox_Load.AutoHideScrollBar := True;
+  ListBox_Load.OnDoubleClick := Menu_LoadClick;
   Button_LoadLoad     := TKMButton.Create(Panel_Load,0,318,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD],bsGame);
   Button_LoadCancel   := TKMButton.Create(Panel_Load,0,354,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
   Button_LoadLoad.OnClick     := Menu_LoadClick;
@@ -87,7 +88,7 @@ var
   MapName: string;
   IsMulti: Boolean;
 begin
-  if Sender = Button_LoadLoad then
+  if (Sender = Button_LoadLoad) or (Sender = ListBox_Load) then
   begin
     if ListBox_Load.ItemIndex = -1 then Exit;
 
