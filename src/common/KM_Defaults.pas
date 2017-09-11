@@ -40,8 +40,15 @@ const
 
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
+const  
+  //Max number of ticks, played on 1 game update.
+  //We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
+  //Also there is a technical limit, of how many ticks we can calculate per update
+  MAX_TICKS_PER_GAME_UPDATE = 100;
+
 var
-  // These should be True (we can occasionallt turn them Off to speed up the debug)
+  // These should be True (we can occasionally turn them Off to speed up the debug)
+  CALC_EXPECTED_TICK    :Boolean = True; //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
   MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
   MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
@@ -235,9 +242,6 @@ const
   EXT_SAVE_REPLAY = 'rpl';
   EXT_SAVE_MAIN = 'sav';
   EXT_SAVE_BASE = 'bas';
-
-const
-  MAX_TICKS_PER_GAME_UPDATE = 100;
 
 type
   TKMHandIndex = {type} ShortInt;

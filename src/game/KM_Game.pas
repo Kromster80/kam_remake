@@ -1654,14 +1654,24 @@ var
 begin
   DoUpdateGame;
 
-  TicksBehindCnt := GetTicksBehindCnt;
+  if CALC_EXPECTED_TICK then
+  begin
+    TicksBehindCnt := GetTicksBehindCnt;
 
-  //When our game is more then 0.5 tick behind - play another tick immidiately
-  //This will prevent situation, when lags on local PC (on zoon out, f.e.) leads to lags for all other MP players
-  if TicksBehindCnt > 0.5 then
-    // f.e. if we behind on 1.4 ticks - make 1 more update, for 1.6 - 2 more updates
-    for I := 0 to Min(Trunc(TicksBehindCnt - 0.5), MAX_TICKS_PER_GAME_UPDATE - 1) do // do not do too many GameUpdates at once. Limit them
+    //When our game is more then 0.5 tick behind - play another tick immidiately
+    //This will prevent situation, when lags on local PC (on zoon out, f.e.) leads to lags for all other MP players
+    //Also game speed become absolutely presize
+    if TicksBehindCnt > 0.5 then
+      // f.e. if we behind on 1.4 ticks - make 1 more update, for 1.6 - 2 more updates
+      for I := 0 to Min(Trunc(TicksBehindCnt - 0.5), MAX_TICKS_PER_GAME_UPDATE - 1) do // do not do too many GameUpdates at once. Limit them
+        DoUpdateGame;
+  end
+  else
+  begin
+    // Always play several ticks per update. This is more convinient while using debugger 
+    for I := 1 to fGameSpeedMultiplier - 1 do // 1 Tick we already played
       DoUpdateGame;
+  end;
 end;
 
 
