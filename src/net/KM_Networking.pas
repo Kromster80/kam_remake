@@ -1226,7 +1226,7 @@ end;
 // Check if player (not spectator) is not defeated and not win
 function TKMNetworking.IsPlayerHandStillInGame(aPlayerIndex: Integer): Boolean;
 begin
-  Result := (fNetPlayers[aPlayerIndex].HandIndex <> -1)
+  Result := (fNetGameState = lgs_Game) and (fNetPlayers[aPlayerIndex].HandIndex <> -1)
             and (gHands[fNetPlayers[aPlayerIndex].HandIndex].AI.IsNotWinnerNotLoser) // This means player is not defeated and not win
             and not fNetPlayers[aPlayerIndex].IsSpectator
 end;
