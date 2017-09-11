@@ -124,6 +124,9 @@ type
     procedure SaveMapEditor(const aPathName: UnicodeString; aInsetRect: TKMRect); overload;
     procedure RestartReplay; //Restart the replay but keep current viewport position/zoom
 
+    property IsExiting: Boolean read fIsExiting;
+    property IsPaused: Boolean read fIsPaused write SetIsPaused;
+
     function MissionTime: TDateTime;
     function GetPeacetimeRemaining: TDateTime;
     function CheckTime(aTimeTicks: Cardinal): Boolean;
@@ -152,17 +155,17 @@ type
     function GetMissionFile: UnicodeString;
     function GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 
-    property IsExiting: Boolean read fIsExiting;
-    property IsPaused: Boolean read fIsPaused write SetIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     property GameLockedMutex: Boolean read fGameLockedMutex write fGameLockedMutex;
     function GetNewUID: Integer;
     function GetNormalGameSpeed: Single;
-    procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
+    procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
+
     function SavePath(aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
     function SaveName(aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
     function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
+
     procedure UpdateMultiplayerTeams;
 
     property PerfLog: TKMPerfLog read fPerfLog;
@@ -1656,7 +1659,6 @@ begin
     // f.e. if we behind on 1.4 ticks - make 1 more update, for 1.6 - 2 more updates
     for I := 0 to Min(Trunc(TicksBehindCnt - 0.5), MAX_TICKS_PER_GAME_UPDATE - 1) do // do not do too many GameUpdates at once. Limit them
       DoUpdateGame;
-
 end;
 
 
