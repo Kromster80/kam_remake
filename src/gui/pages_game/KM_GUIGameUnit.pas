@@ -290,7 +290,8 @@ begin
       gGame.GameInputProcess.CmdArmy(gic_ArmySplit, Group);
     gSoundPlayer.PlayWarrior(Group.UnitType, sp_Split);
   end;
-  if Sender = Button_Army_Join    then
+  if (Sender = Button_Army_Join)
+    and ((gMySpectator.Selected <> nil) and gMySpectator.IsSelectedMyObj) then // Do not allow to command ally's army
   begin
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Show;

@@ -181,7 +181,10 @@ var I,Tick: Cardinal;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
   if ((gGame.GameMode = gmMultiSpectate) and not (aCommand.CommandType in AllowedBySpectators)) // Do not allow spectators to command smth
-    or ((gGame.GameMode = gmMulti) and not gMySpectator.IsSelectedMyObj) then                   // Do not allow ally to command smth
+    or ((gGame.GameMode = gmMulti)                      // in multiplayer game
+      and IsSelectedObjectCommand(aCommand.CommandType) // block only commands for selected object
+      and (gMySpectator.Selected <> nil)                // if there is selected object
+      and not gMySpectator.IsSelectedMyObj) then        // and we try to make command to ally's object
     Exit;
 
   if gGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then

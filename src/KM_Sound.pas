@@ -586,7 +586,10 @@ end;
 
 procedure TKMSoundPlayer.PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech);
 begin
-  if SKIP_SOUND or not fIsSoundInitialized then Exit;
+  if SKIP_SOUND
+    or not fIsSoundInitialized
+    or ((gMySpectator.Selected <> nil) and not gMySpectator.IsSelectedMyObj) then // Do not play sound for ally's citizens selection
+    Exit;
 
   PlayCitizen(aUnitType, aSound, KMPOINTF_ZERO);
 end;
@@ -632,7 +635,10 @@ end;
 
 procedure TKMSoundPlayer.PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech);
 begin
-  if SKIP_SOUND or not fIsSoundInitialized then Exit;
+  if SKIP_SOUND
+    or not fIsSoundInitialized
+    or ((gMySpectator.Selected <> nil) and not gMySpectator.IsSelectedMyObj) then // Do not play sound for ally's warriors
+    Exit;
 
   PlayWarrior(aUnitType, aSound, KMPOINTF_ZERO);
 end;

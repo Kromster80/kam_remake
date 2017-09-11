@@ -157,7 +157,8 @@ begin
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
   if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then Exit;
 
-  if MakeBattleCry then gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
+  if MakeBattleCry then
+    gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
 
   case fUnit.UnitType of
     ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, fUnit.PositionF); // Aiming

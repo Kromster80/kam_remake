@@ -119,6 +119,38 @@ const
   AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
   AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GamePlayerDefeat, gic_TempDoNothing];
 
+  ArmyOrderCommands: set of TGameInputCommandType = [
+    gic_ArmyFeed,
+    gic_ArmySplit,
+    gic_ArmySplitSingle,
+    gic_ArmyLink,
+    gic_ArmyAttackUnit,
+    gic_ArmyAttackHouse,
+    gic_ArmyHalt,
+    gic_ArmyFormation,
+    gic_ArmyWalk,
+    gic_ArmyStorm];
+
+  HouseOrderCommands: set of TGameInputCommandType = [
+    gic_HouseRepairToggle,
+    gic_HouseDeliveryToggle,
+    gic_HouseClosedForWorkerToggle,
+    gic_HouseOrderProduct,
+    gic_HouseMarketFrom,
+    gic_HouseMarketTo,
+    gic_HouseWoodcutterMode,
+    gic_HouseStoreAcceptFlag,
+    gic_HouseSchoolTrain,
+    gic_HouseSchoolTrainChOrder,
+    gic_HouseSchoolTrainChLastUOrder,
+    gic_HouseBarracksAcceptFlag,
+    gic_HouseBarracksAcceptRecruitsToggle,
+    gic_HouseBarracksEquip,
+    gic_HouseBarracksRally,
+    gic_HouseRemoveTrain,
+    gic_HouseWoodcuttersCutting];
+
+
   CommandPackType: array[TGameInputCommandType] of TGameInputCommandPackType = (
     gicpt_NoParams, // gic_None
     //I.      Army commands, only warriors (TKMUnitWarrior, OrderInfo)
@@ -186,6 +218,7 @@ type
     HandIndex: TKMHandIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
+  function IsSelectedObjectCommand(aGIC: TGameInputCommandType): Boolean;
   //As TGameInputCommand is no longer fixed size (due to the string) we cannot simply read/write it as a block
   procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
   procedure LoadCommandFromMemoryStream(out aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -270,6 +303,12 @@ implementation
 uses
   TypInfo, KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_CommonUtils, KM_AI,
   KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking, KM_ScriptingEvents;
+
+
+function IsSelectedObjectCommand(aGIC: TGameInputCommandType): Boolean;
+begin
+  Result := (aGIC in ArmyOrderCommands) or (aGIC in HouseOrderCommands);
+end;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);

@@ -188,14 +188,11 @@ end;
 //Select anything player CAN select below cursor
 procedure TKMSpectator.UpdateSelect;
 var
-  G: TKMUnitGroup;
   NewSelected: TObject;
-  UID: Integer;
-  OwnerIndex: TKMHandIndex;
-begin
-  NewSelected := gHands.GetUnitByUID(gGameCursor.ObjectUID);
-  //In-game player can select only own and ally Units
-  if not (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
+
+  procedure CheckNewSelected;
+  var
+    OwnerIndex: TKMHandIndex;
   begin
     OwnerIndex := GetGameObjectOwnerIndex(NewSelected);
     if OwnerIndex <> -1 then
@@ -211,6 +208,15 @@ begin
     end;
   end;
 
+var
+  G: TKMUnitGroup;
+  UID: Integer;
+begin
+  NewSelected := gHands.GetUnitByUID(gGameCursor.ObjectUID);
+  //In-game player can select only own and ally Units
+  if not (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
+    CheckNewSelected;
+
   //Don't allow the player to select dead units
   if ((NewSelected is TKMUnit) and TKMUnit(NewSelected).IsDeadOrDying)
     or (NewSelected is TKMUnitAnimal) then //...or animals
@@ -222,20 +228,7 @@ begin
     NewSelected := gHands.GetGroupByMember(TKMUnitWarrior(NewSelected));
 
     if not (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
-    begin
-      OwnerIndex := GetGameObjectOwnerIndex(NewSelected);
-      if OwnerIndex <> -1 then
-      begin
-        if (OwnerIndex <> fHandIndex) then // check if we selected our unit group/ally's or enemy's
-        begin
-          if (Hand.Alliances[OwnerIndex] = at_Ally) then
-            fIsSelectedMyObj := False
-          else
-            NewSelected := nil;
-        end else
-          fIsSelectedMyObj := True;
-      end;
-    end;
+      CheckNewSelected;
   end;
 
   //Update selected groups selected unit
@@ -247,21 +240,9 @@ begin
   begin
     NewSelected := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
 
-    if not (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then //Allow to select everything while spec/replay/maped
-    begin
-      OwnerIndex := GetGameObjectOwnerIndex(NewSelected);
-      if OwnerIndex <> -1 then
-      begin
-        if (OwnerIndex <> fHandIndex) then // check if we selected our house/ally's or enemy's
-        begin
-          if (Hand.Alliances[OwnerIndex] = at_Ally) then
-            fIsSelectedMyObj := False
-          else
-            NewSelected := nil;
-        end else
-          fIsSelectedMyObj := True;
-      end;
-    end;
+    //In-game player can select only own and ally Units
+    if not (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
+      CheckNewSelected;
 
     //Don't allow the player to select destroyed houses
     if (NewSelected is TKMHouse) and TKMHouse(NewSelected).IsDestroyed then

@@ -642,11 +642,11 @@ begin
 
   // Send move order, if applicable
   if (gMySpectator.Selected is TKMUnitGroup) and not fPlacingBeacon
-  and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
+    and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
     Group := TKMUnitGroup(gMySpectator.Selected);
     if Group.CanTakeOrders and (Group.Owner = gMySpectator.HandIndex)
-    and Group.CanWalkTo(Loc, 0) then
+      and Group.CanWalkTo(Loc, 0) then
     begin
       gGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, Loc, dir_NA);
       gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
@@ -2797,7 +2797,7 @@ begin
   end;
 
   // These keys are allowed during replays
-  if Key = gResKeys[SC_SHOW_TEAMS].Key   then fShowTeamNames := False;
+  if Key = gResKeys[SC_SHOW_TEAMS].Key then fShowTeamNames := False;
   if Key = gResKeys[SC_BEACON].Key then
     if not SelectingTroopDirection then
     begin
@@ -3346,7 +3346,7 @@ begin
                   SwitchPage(nil);
                   fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected));
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
-                  and (OldSelected <> gMySpectator.Selected) then
+                    and (OldSelected <> gMySpectator.Selected) then
                     gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, sp_Select);
                 end;
 
