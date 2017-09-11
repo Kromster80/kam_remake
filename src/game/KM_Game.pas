@@ -83,6 +83,7 @@ type
     procedure UpdateTickCounters;
     function GetTicksBehindCnt: Single;
     procedure SetIsPaused(aValue: Boolean);
+    procedure IssueAutosaveCommand(aAfterPT: Boolean = False);
   public
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -118,6 +119,7 @@ type
     procedure ShowScriptError(const aMsg: UnicodeString);
 
     procedure AutoSave(aTimestamp: TDateTime);
+    procedure AutoSaveAfterPT(aTimestamp: TDateTime);
     procedure SaveMapEditor(const aPathName: UnicodeString); overload;
     procedure SaveMapEditor(const aPathName: UnicodeString; aInsetRect: TKMRect); overload;
     procedure RestartReplay; //Restart the replay but keep current viewport position/zoom
@@ -914,6 +916,12 @@ begin
 end;
 
 
+procedure TKMGame.AutoSaveAfterPT(aTimestamp: TDateTime);
+begin
+  Save('autosave_after_pt_end', aTimestamp); //Save to temp file
+end;
+
+
 procedure TKMGame.AutoSave(aTimestamp: TDateTime);
 var
   I: Integer;
@@ -1164,6 +1172,7 @@ begin
     begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
       fNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], csNone);
+      IssueAutosaveCommand(True);
     end;
   end;
 end;
@@ -1651,6 +1660,35 @@ begin
 end;
 
 
+procedure TKMGame.IssueAutosaveCommand(aAfterPT: Boolean = False);
+var
+  GICType: TGameInputCommandType;
+begin
+  if (fLastAutosaveTime > 0) and (GetTimeSince(fLastAutosaveTime) < AUTOSAVE_NOT_MORE_OFTEN_THEN) then
+    Exit; //Do not do autosave too often, because it can produce IO errors. Can happen on very fast speedups
+
+  if aAfterPT then
+    GICType := gic_GameAutoSaveAfterPT
+  else
+    GICType := gic_GameAutoSave;
+
+  if IsMultiplayer then
+  begin
+    if fNetworking.IsHost then
+    begin
+      fGameInputProcess.CmdGame(GICType, UTCNow); //Timestamp must be synchronised
+      fLastAutosaveTime := TimeGet;
+    end;
+  end
+  else
+    if gGameApp.GameSettings.Autosave then
+    begin
+      fGameInputProcess.CmdGame(GICType, UTCNow);
+      fLastAutosaveTime := TimeGet;
+    end;
+end;
+
+
 function TKMGame.PlayNextTick: Boolean;
 var
   PeaceTimeLeft: Cardinal;
@@ -1707,25 +1745,7 @@ begin
 
 
                       if (fGameTickCount mod gGameApp.GameSettings.AutosaveFrequency) = 0 then
-                      begin
-                        if (fLastAutosaveTime > 0) and (GetTimeSince(fLastAutosaveTime) < AUTOSAVE_NOT_MORE_OFTERN_THEN) then
-                          Exit; //Do not do autosave too often, because it can produce IO errors. Can happen on very fast speedups
-
-                        if IsMultiplayer then
-                        begin
-                          if fNetworking.IsHost then
-                          begin
-                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow); //Timestamp must be synchronised
-                            fLastAutosaveTime := TimeGet;
-                          end;
-                        end
-                        else
-                          if gGameApp.GameSettings.Autosave then
-                          begin
-                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
-                            fLastAutosaveTime := TimeGet;
-                          end;
-                      end;
+                        IssueAutosaveCommand;
 
                       if DO_PERF_LOGGING then fPerfLog.LeaveSection(psTick);
 

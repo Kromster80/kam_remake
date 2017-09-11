@@ -80,6 +80,7 @@ type
     gic_GameAlertBeacon,          //Signal alert (beacon)
     gic_GamePause,
     gic_GameAutoSave,
+    gic_GameAutoSaveAfterPT,
     gic_GameSaveReturnLobby,
     gic_GameTeamChange,
     gic_GameHotkeySet,        //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
@@ -115,9 +116,9 @@ const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmySplitSingle,
     gic_ArmyLink, gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt,
     gic_ArmyFormation,  gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
-  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
-  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
-  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameSaveReturnLobby, gic_GamePlayerDefeat, gic_TempDoNothing];
+  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameAutoSaveAfterPT, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
+  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameAutoSaveAfterPT, gic_GameSaveReturnLobby, gic_GameMessageLogRead, gic_TempDoNothing];
+  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameAutoSave, gic_GameAutoSaveAfterPT, gic_GameSaveReturnLobby, gic_GamePlayerDefeat, gic_TempDoNothing];
 
   ArmyOrderCommands: set of TGameInputCommandType = [
     gic_ArmyFeed,
@@ -195,6 +196,7 @@ const
     gicpt_Int4,     // gic_GameAlertBeacon
     gicpt_NoParams, // gic_GamePause
     gicpt_Date,     // gic_GameAutoSave
+    gicpt_Date,     // gic_GameAutoSaveAfterPT
     gicpt_Date,     // gic_GameSaveReturnLobby
     gicpt_Int2,     // gic_GameTeamChange
     gicpt_Int2,     // gic_GameHotkeySet
@@ -615,6 +617,8 @@ begin
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
       gic_GameAutoSave:           if (fReplayState = gipRecording) and gGameApp.GameSettings.Autosave then
                                     gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
+      gic_GameAutoSaveAfterPT:    if (fReplayState = gipRecording) and gGameApp.GameSettings.Autosave then
+                                    gGame.AutoSaveAfterPT(DateTimeParam); //Timestamp is synchronised
       gic_GameSaveReturnLobby:    if fReplayState = gipRecording then
                                   begin
                                     gGameApp.PrepareReturnToLobby(DateTimeParam); //Timestamp is synchronised
@@ -836,7 +840,7 @@ end;
 
 procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime);
 begin
-  Assert(aCommandType in [gic_GameAutoSave, gic_GameSaveReturnLobby]);
+  Assert(aCommandType in [gic_GameAutoSave, gic_GameAutoSaveAfterPT, gic_GameSaveReturnLobby]);
   TakeCommand(MakeCommand(aCommandType, aDateTime));
 end;
 

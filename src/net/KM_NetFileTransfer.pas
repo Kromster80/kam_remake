@@ -259,7 +259,6 @@ procedure TKMFileReceiver.ClearExistingFiles;
 var
   FileName, SaveFolder: UnicodeString;
   F: TSearchRec;
-  I: Integer;
 begin
   //Prepare destination
   case fType of
