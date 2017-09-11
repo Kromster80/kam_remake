@@ -68,7 +68,7 @@ type
 
 implementation
 uses
-  KromUtils, KM_Maps, KM_Scripting, KM_Log;
+  KromUtils, KM_Maps, KM_Saves, KM_Scripting, KM_Log, KM_FileIO;
 
 const
   //TODO: Add LIBX and WAV support for maps
@@ -81,7 +81,7 @@ function GetFullSourceFileName(aType: TKMTransferType; aName: UnicodeString; aMa
 begin
   case aType of
     kttMap:  Result := TKMapsCollection.FullPath(aName, Postfix + '.' + aExt, aMapFolder);
-    kttSave: Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + aName + '.' + aExt;
+    kttSave: Result := TKMSavesCollection.FullPath(aName, aExt, True);
   end;
 end;
 
@@ -93,7 +93,7 @@ begin
                 Result := TKMapsCollection.FullPath(aName, Postfix + '.' + aExt, mfDL)
               else
                 Result := TKMapsCollection.FullPath(aName, aCustomFileName, Postfix + '.' + aExt, mfDL);
-    kttSave: Result := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + DOWNLOADED_LOBBY_SAVE + '.' + aExt;
+    kttSave: Result := TKMSavesCollection.Path(DOWNLOADED_LOBBY_SAVE, True) + DOWNLOADED_LOBBY_SAVE + '.' + aExt;
   end;
 end;
 
@@ -118,46 +118,46 @@ begin
   //Fill stream with data to be sent
   case aType of
   kttMap: begin
-          for I := Low(VALID_MAP_EXTENSIONS) to High(VALID_MAP_EXTENSIONS) do
-          begin
-            FileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_MAP_EXTENSIONS[I]);
-            if FileExists(FileName) then
-              AddFileToStream(FileName, '', VALID_MAP_EXTENSIONS[I]);
-            //Add all included script files
-            if (VALID_MAP_EXTENSIONS[I] = 'script') and FileExists(FileName) then
+            for I := Low(VALID_MAP_EXTENSIONS) to High(VALID_MAP_EXTENSIONS) do
             begin
-              ScriptPreProcessor := TKMScriptingPreProcessor.Create;
-              try
-                if not ScriptPreProcessor.PreProcessFile(FileName) then
-                  //throw an Exception if PreProcessor was not successful to cancel FileSender creation
-                  raise Exception.Create('Can''n start send file because of error while script pre-processing');
-                ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
-                for J := 0 to ScriptFiles.IncludedCount - 1 do
-                begin
-                  if FileExists(ScriptFiles[J].FullFilePath) then
-                    AddFileToStream(ScriptFiles[J].FullFilePath, '', VALID_MAP_EXTENSIONS[I]);
+              FileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_MAP_EXTENSIONS[I]);
+              if FileExists(FileName) then
+                AddFileToStream(FileName, '', VALID_MAP_EXTENSIONS[I]);
+              //Add all included script files
+              if (VALID_MAP_EXTENSIONS[I] = 'script') and FileExists(FileName) then
+              begin
+                ScriptPreProcessor := TKMScriptingPreProcessor.Create;
+                try
+                  if not ScriptPreProcessor.PreProcessFile(FileName) then
+                    //throw an Exception if PreProcessor was not successful to cancel FileSender creation
+                    raise Exception.Create('Can''n start send file because of error while script pre-processing');
+                  ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
+                  for J := 0 to ScriptFiles.IncludedCount - 1 do
+                  begin
+                    if FileExists(ScriptFiles[J].FullFilePath) then
+                      AddFileToStream(ScriptFiles[J].FullFilePath, '', VALID_MAP_EXTENSIONS[I]);
+                  end;
+                finally
+                  ScriptPreProcessor.Free;
                 end;
-              finally
-                ScriptPreProcessor.Free;
+              end;
+            end;
+            for I := Low(VALID_MAP_EXTENSIONS_POSTFIX) to High(VALID_MAP_EXTENSIONS_POSTFIX) do
+            begin
+              FileName := GetFullSourceFileName(aType, aName, aMapFolder, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
+              if FindFirst(FileName, faAnyFile, F) = 0 then
+              begin
+                repeat
+                  if (F.Attr and faDirectory = 0) then
+                    AddFileToStream(ExtractFilePath(FileName) + F.Name, ExtractFileExt(ChangeFileExt(F.Name,'')), VALID_MAP_EXTENSIONS_POSTFIX[I]);
+                until FindNext(F) <> 0;
+                FindClose(F);
               end;
             end;
           end;
-          for I := Low(VALID_MAP_EXTENSIONS_POSTFIX) to High(VALID_MAP_EXTENSIONS_POSTFIX) do
-          begin
-            FileName := GetFullSourceFileName(aType, aName, aMapFolder, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
-            if FindFirst(FileName, faAnyFile, F) = 0 then
-            begin
-              repeat
-                if (F.Attr and faDirectory = 0) then
-                  AddFileToStream(ExtractFilePath(FileName) + F.Name, ExtractFileExt(ChangeFileExt(F.Name,'')), VALID_MAP_EXTENSIONS_POSTFIX[I]);
-              until FindNext(F) <> 0;
-              FindClose(F);
-            end;
-          end;
-end;
     kttSave: for I := Low(VALID_SAVE_EXTENSIONS) to High(VALID_SAVE_EXTENSIONS) do
              begin
-               FileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_SAVE_EXTENSIONS[I]);
+               FileName := TKMSavesCollection.FullPath(aName, VALID_SAVE_EXTENSIONS[I], True);
                if FileExists(FileName) then
                  AddFileToStream(FileName, '', VALID_SAVE_EXTENSIONS[I]);
              end;
@@ -257,7 +257,7 @@ end;
 
 procedure TKMFileReceiver.ClearExistingFiles;
 var
-  FileName: UnicodeString;
+  FileName, SaveFolder: UnicodeString;
   F: TSearchRec;
   I: Integer;
 begin
@@ -284,15 +284,9 @@ begin
                  end;
              end;
     kttSave: begin
-               if not DirectoryExists(ExeDir + SAVES_MP_FOLDER_NAME) then
-                 CreateDir(ExeDir + SAVES_MP_FOLDER_NAME)
-               else
-               begin
-                 FileName := ExeDir + SAVES_MP_FOLDER_NAME + PathDelim + DOWNLOADED_LOBBY_SAVE;
-                 for I := Low(VALID_SAVE_EXTENSIONS) to High(VALID_SAVE_EXTENSIONS) do
-                   if FileExists(FileName + '.' + VALID_SAVE_EXTENSIONS[I]) then
-                     DeleteFile(FileName + '.' + VALID_SAVE_EXTENSIONS[I]);
-               end;
+               SaveFolder := TKMSavesCollection.Path(DOWNLOADED_LOBBY_SAVE, True);
+               KMDeleteFolder(SaveFolder);   // Delete old folder
+               ForceDirectories(SaveFolder); // Create new
              end;
   end;
 end;
