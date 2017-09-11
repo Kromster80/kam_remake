@@ -151,10 +151,14 @@ begin
     if FileExists(aSourcePath) then
       {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
       {$IFDEF WDC} TFile.Move(aSourcePath, aDestPath); {$ENDIF}
-  end else begin
-    if DirectoryExists(aSourcePath) then
-      {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
-      {$IFDEF WDC} TDirectory.Move(aSourcePath, aDestPath); {$ENDIF}
+  end
+  else
+  if DirectoryExists(aSourcePath) then
+  begin
+    if DirectoryExists(aDestPath) then
+      KMDeleteFolder(aDestPath);
+    {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Move(aSourcePath, aDestPath); {$ENDIF}
   end;
 end;
 
