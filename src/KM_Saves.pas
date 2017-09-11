@@ -87,6 +87,7 @@ type
     class function Path(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
     class function FullPath(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
     class function GetSaveCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+    class function GetSaveFolder(aIsMultiplayer: Boolean): UnicodeString;
 
     procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
@@ -105,13 +106,8 @@ type
 
 
 implementation
-
 uses
   StrUtils, KM_FileIO, KM_CommonUtils;
-
-const
-  //Save folder name by IsMultiplayer flag
-  SAVE_FOLDER_IS_MP: array [Boolean] of String = (SAVES_FOLDER_NAME, SAVES_MP_FOLDER_NAME);
 
 
 { TKMSaveInfo }
@@ -308,6 +304,15 @@ begin
 end;
 
 
+class function TKMSavesCollection.GetSaveFolder(aIsMultiplayer: Boolean): UnicodeString;
+begin
+  if aIsMultiplayer then
+    Result := SAVES_MP_FOLDER_NAME
+  else
+    Result := SAVES_FOLDER_NAME;
+end;
+
+
 function TKMSavesCollection.Contains(aNewName: UnicodeString): Boolean;
 var
   I: Integer;
@@ -434,7 +439,7 @@ end;
 
 class function TKMSavesCollection.Path(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
-  Result := ExeDir + SAVE_FOLDER_IS_MP[aIsMultiplayer] + PathDelim + aName + PathDelim;
+  Result := ExeDir + GetSaveFolder(aIsMultiplayer) + PathDelim + aName + PathDelim;
 end;
 
 
@@ -601,7 +606,7 @@ var
   SearchRec: TSearchRec;
   Save: TKMSaveInfo;
 begin
-  PathToSaves := ExeDir + SAVE_FOLDER_IS_MP[fMultiplayerPath] + PathDelim;
+  PathToSaves := ExeDir + TKMSavesCollection.GetSaveFolder(fMultiplayerPath) + PathDelim;
 
   if not DirectoryExists(PathToSaves) then Exit;
 
