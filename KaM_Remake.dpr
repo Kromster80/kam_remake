@@ -13,6 +13,7 @@ uses
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'src\KM_FormMain.pas' {FormMain},
+	KM_FormLogistics in 'src\KM_FormLogistics.pas' {FormLogistics},
   KM_FormLoading in 'src\KM_FormLoading.pas' {FormLoading},
 
   KromOGLUtils in 'src\ext\KromOGLUtils.pas',

@@ -19,6 +19,7 @@ type
     fDeliverID: Integer;
     fDeliverKind: TDeliverKind;
     procedure CheckForBetterDestination;
+    function FindBestDestination: Boolean;
   public
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer); overload;
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer); overload;
@@ -125,11 +126,11 @@ begin
 
   //After step 2 we don't care if From is destroyed or doesn't have the ware
   if fPhase <= 2 then
-    Result := Result or fFrom.IsDestroyed or not fFrom.ResOutputAvailable(fWareType, 1);
+    Result := Result or fFrom.IsDestroyed or (not fFrom.ResOutputAvailable(fWareType, 1) {and (fPhase < 5)});
 
   //Until we implement "wares recycling" we just abandon the delivery if target is destroyed/dead
   if (fDeliverKind = dk_ToHouse) and (fPhase <= 8) then
-    Result := Result or fToHouse.IsDestroyed;
+    Result := Result or fToHouse.IsDestroyed or (fToHouse.DeliveryMode <> dm_Delivery);
 
   if (fDeliverKind = dk_ToConstruction) and (fPhase <= 6) then
     Result := Result or fToHouse.IsDestroyed;
@@ -164,11 +165,58 @@ begin
 end;
 
 
+function TTaskDeliver.FindBestDestination: Boolean;
+var
+  NewToHouse: TKMHouse;
+  NewToUnit: TKMUnit;
+begin
+  if fPhase < 5 then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  gHands[fUnit.Owner].Deliveries.Queue.DeliveryFindBestDemand(fDeliverID, fWareType, NewToHouse, NewToUnit);
+
+  gHands.CleanUpHousePointer(fToHouse);
+  gHands.CleanUpUnitPointer(fToUnit);
+
+  // New House
+  if (NewToHouse <> nil) and (NewToUnit = nil) then
+  begin
+    fToHouse := NewToHouse.GetHousePointer;
+    if fToHouse.IsComplete then
+      fDeliverKind := dk_ToHouse
+    else
+      fDeliverKind := dk_ToConstruction;
+    Result := True;
+    if fPhase > 5 then
+      fPhase := 6;
+  end
+  else
+  // New Unit
+  if (NewToHouse = nil) and (NewToUnit <> nil) then
+  begin
+    fToUnit := NewToUnit.GetUnitPointer;
+    fDeliverKind := dk_ToUnit;
+    Result := True;
+    if fPhase > 5 then
+      fPhase := 6;
+  end
+  else
+  // No alternative
+  if (NewToHouse = nil) and (NewToUnit = nil) then
+    Result := False
+  else
+  // Error
+    raise Exception.Create('Both destinations could not be');
+end;
+
 function TTaskDeliver.Execute: TTaskResult;
 begin
   Result := TaskContinues;
 
-  if WalkShouldAbandon and fUnit.Visible then
+  if WalkShouldAbandon and fUnit.Visible and not FindBestDestination then
   begin
     Result := TaskDone;
     Exit;

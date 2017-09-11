@@ -4,8 +4,7 @@ interface
 uses
   Classes, SysUtils, KromUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Units, KM_ResWares;
-
+  KM_Houses, KM_Units, KM_ResWares, Vcl.ComCtrls;
 
 type
   TKMDemandType = (
@@ -27,6 +26,7 @@ type
     js_Taken  // Taken - job is taken by some worker
   );
 
+  PKMDeliveryOffer = ^TKMDeliveryOffer;
   TKMDeliveryOffer = record
     Ware: TWareType;
     Count: Cardinal; //How many items are offered
@@ -36,6 +36,7 @@ type
     IsDeleted: Boolean;
   end;
 
+  PKMDeliveryDemand = ^TKMDeliveryDemand;
   TKMDeliveryDemand =  record
     Ware: TWareType;
     DemandType: TKMDemandType; //Once for everything, Always for Store and Barracks
@@ -70,6 +71,7 @@ type
     record
       OfferID, DemandID: Integer;
       JobStatus: TKMDeliveryJobStatus; //Empty slot, resource Taken, job Done
+      Item: TListItem;
     end;
 
     procedure CloseDelivery(aID: Integer);
@@ -93,6 +95,7 @@ type
     procedure AssignDelivery(iO, iD: Integer; aSerf: TKMUnitSerf);
     procedure AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil);
     procedure CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
+    procedure DeliveryFindBestDemand(aDeliveryId: Integer; aResource: TWareType; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
     procedure TakenOffer(aID: Integer);
     procedure GaveDemand(aID: Integer);
     procedure AbandonDelivery(aID: Integer); //Occurs when unit is killed or something alike happens
@@ -133,7 +136,7 @@ type
 implementation
 uses
   KM_CommonUtils, KM_HandsCollection, KM_Resource, KM_Log, KM_Terrain, KM_HouseBarracks,
-  KM_ResHouses, KM_ResUnits, KM_Hand;
+  KM_ResHouses, KM_ResUnits, KM_Hand, KM_FormLogistics;
 
 
 const
@@ -551,7 +554,7 @@ begin
   Result := Result and (not fDemand[iD].IsDeleted) and (aIgnoreOffer or not fOffer[iO].IsDeleted);
 
   //If Demand house has WareDelivery toggled ON
-  Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.WareDelivery));
+  Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.DeliveryMode = dm_Delivery));
 
   //If Demand is a Storehouse and it has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House = nil) or
@@ -577,7 +580,7 @@ begin
       repeat
         B := TKMHouseBarracks(gHands[fDemand[iD].Loc_House.Owner].FindHouse(ht_Barracks, I));
         //If the barracks will take the ware, don't allow the store to take it (disallow current delivery)
-        if (B <> nil) and B.WareDelivery and not B.NotAcceptFlag[fOffer[iO].Ware] then
+        if (B <> nil) and (B.DeliveryMode = dm_Delivery) and not B.NotAcceptFlag[fOffer[iO].Ware] then
         begin
           Result := False;
           Break;
@@ -809,6 +812,100 @@ begin
   aToUnit := fDemand[BestD].Loc_Unit;
 end;
 
+// Find best Demand for the given delivery. Could return same or nothing
+procedure TKMDeliveries.DeliveryFindBestDemand(aDeliveryId: Integer; aResource: TWareType; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
+
+  function ValidBestDemand(iD: Integer): Boolean;
+  begin
+    Result := (fDemand[iD].Ware = aResource) or
+              ((fDemand[iD].Ware = wt_Warfare) and (aResource in [WARFARE_MIN..WARFARE_MAX])) or
+              ((fDemand[iD].Ware = wt_Food) and (aResource in [wt_Bread, wt_Sausages, wt_Wine, wt_Fish]));
+
+  //If Demand house has WareDelivery toggled ON
+  Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.DeliveryMode = dm_Delivery));
+
+    //If Demand and Offer aren't reserved already
+  {  Result := Result and (((fDemand[iD].DemandType = dtAlways) or (fDemand[iD].BeingPerformed = 0))
+                     and (aIgnoreOffer or (fOffer[iO].BeingPerformed < fOffer[iO].Count)));  }
+  end;
+
+  function FindBestDestination: Integer;
+  begin
+    for Result := 1 to fDemandCount do
+      if (fQueue[aDeliveryId].DemandID <> Result) and ValidBestDemand(Result) then
+        Exit;
+
+    for Result := 1 to fDemandCount do
+      if (fQueue[aDeliveryId].DemandID <> Result) and (fDemand[Result].Ware = wt_All) then
+        Exit;
+
+    Result := -1;
+  end;
+var
+  I: Integer;
+  bestDemandId, oldDemandId: Integer; // Keep Int to assign to Delivery down below
+  offer: PKMDeliveryOffer;
+  demand: PKMDeliveryDemand;
+  newBid, bestBid: Single;
+  bestImportance: TKMDemandImportance;
+begin
+  offer := @fOffer[fQueue[aDeliveryId].OfferID];
+  oldDemandId := fQueue[aDeliveryId].DemandID;
+
+  bestDemandId := FindBestDestination;
+       {
+  for I := 0 to fDemandCount - 1 do
+  begin
+    demand := @fDemand[I];
+    if (demand.Ware <> wt_None)
+  //  and (demand.Importance >= bestImportance) // Skip any less important than the best we found
+   // and DeliveryIsValid(offer, demand, True)
+    then
+    begin
+    //  newBid := CalculateBid(offer, I, nil);
+    //  if newBid < bestBid then
+      begin
+        bestDemandId := I;
+        bestBid := newBid;
+        bestImportance := demand.Importance;
+        break;
+      end;
+    end;
+  end;      }
+
+  // Did we find anything?
+  if bestDemandId = -1 then
+  begin
+    // Remove old demand
+    Dec(fDemand[oldDemandId].BeingPerformed);
+    if (fDemand[oldDemandId].BeingPerformed = 0) and fDemand[oldDemandId].IsDeleted then
+      CloseDemand(oldDemandId);
+
+    // Delivery should be cancelled now
+    CloseDelivery(aDeliveryId);
+    aToHouse := nil;
+    aToUnit := nil;
+  end
+  else
+  begin
+    // Did we switch jobs?
+    if bestDemandId <> oldDemandId then
+    begin
+      // Remove old demand
+      Dec(fDemand[oldDemandId].BeingPerformed);
+      if (fDemand[oldDemandId].BeingPerformed = 0) and fDemand[oldDemandId].IsDeleted then
+        CloseDemand(oldDemandId);
+
+      // Take new demand
+      fQueue[aDeliveryId].DemandId := bestDemandId;
+      Inc(fDemand[bestDemandId].BeingPerformed); //Places a virtual "Reserved" sign on Demand
+    end;
+
+    // Return chosen unit and house
+    aToHouse := fDemand[bestDemandId].Loc_House;
+    aToUnit := fDemand[bestDemandId].Loc_Unit;
+  end;
+end;
 
 //Should issue a job based on requesters location and job importance
 //Serf may ask for a job from within a house after completing previous delivery
@@ -862,6 +959,23 @@ begin
   fQueue[i].DemandID:=iD;
   fQueue[i].OfferID:=iO;
   fQueue[i].JobStatus:=js_Taken;
+  fQueue[i].Item := nil;
+
+  if Assigned(FormLogistics) then
+  begin
+    fQueue[i].Item := FormLogistics.ListView.Items.Add;
+    fQueue[i].Item.Caption := gRes.Wares[fOffer[fQueue[i].OfferID].Ware].Title;
+
+    if fOffer[fQueue[I].OfferID].Loc_House = nil then
+      fQueue[i].Item.SubItems.Add('Destroyed')
+    else
+      fQueue[i].Item.SubItems.Add(gRes.Houses[fOffer[fQueue[I].OfferID].Loc_House.HouseType].HouseName);
+
+    if fDemand[fQueue[I].DemandID].Loc_House = nil then
+      fQueue[i].Item.SubItems.Add('Destroyed')
+    else
+      fQueue[i].Item.SubItems.Add(gRes.Houses[fDemand[fQueue[I].DemandID].Loc_House.HouseType].HouseName);
+  end;
 
   Inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
   Inc(fDemand[iD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
@@ -945,6 +1059,8 @@ begin
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
   fQueue[aID].JobStatus:=js_Empty; //Open slot
+  if Assigned(fQueue[aID].Item) then
+    fQueue[aID].Item.Delete;
 end;
 
 

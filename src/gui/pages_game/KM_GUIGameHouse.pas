@@ -23,7 +23,7 @@ type
     procedure House_OrderClick(Sender: TObject; Shift: TShiftState);
     procedure House_OrderClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
     procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
-    procedure House_WareDeliveryToggle(Sender: TObject);
+    procedure House_DeliveryModeToggle(Sender: TObject);
 
     procedure House_ClosedForWorkerToggle(Sender: TObject);
 
@@ -44,7 +44,7 @@ type
   protected
     Panel_House: TKMPanel;
       Label_House: TKMLabel;
-      Button_HouseWaresBlock,Button_HouseRepair: TKMButton;
+      Button_HouseDeliveryMode,Button_HouseRepair: TKMButton;
       Image_House_Logo,Image_House_Worker, Image_House_Worker_Closed: TKMImage;
       Button_House_Worker: TKMButton;
       HealthBar_House: TKMPercentBar;
@@ -122,9 +122,9 @@ begin
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
     Image_PlayerFlag := TKMImage.Create(Panel_House, 5, 17, 20, 13, 1159, rxHouses);
-    Button_HouseWaresBlock := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
-    Button_HouseWaresBlock.Hint := gResTexts[TX_HOUSE_TOGGLE_DELIVERS_HINT];
-    Button_HouseWaresBlock.OnClick := House_WareDeliveryToggle;
+    Button_HouseDeliveryMode := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
+    Button_HouseDeliveryMode.Hint := gResTexts[TX_HOUSE_TOGGLE_DELIVERS_HINT];
+    Button_HouseDeliveryMode.OnClick := House_DeliveryModeToggle;
     Button_HouseRepair := TKMButton.Create(Panel_House,30,42,30,30,40, rxGui, bsGame);
     Button_HouseRepair.Hint := gResTexts[TX_HOUSE_TOGGLE_REPAIR_HINT];
     Button_HouseRepair.OnClick := House_RepairToggle;
@@ -492,11 +492,20 @@ begin
   Image_House_Worker.Hide;
   Button_House_Worker.Visible := gRes.Houses[aHouse.HouseType].OwnerType <> ut_None;
 
-  Button_HouseWaresBlock.Enabled := gRes.Houses[aHouse.HouseType].AcceptsWares;
-  Button_HouseWaresBlock.Show;
+  Button_HouseDeliveryMode.Enabled := gRes.Houses[aHouse.HouseType].AcceptsWares;
+  Button_HouseDeliveryMode.Show;
   Button_HouseRepair.Show;
-  if aHouse.BuildingRepair then Button_HouseRepair.TexID:=39 else Button_HouseRepair.TexID:=40;
-  if aHouse.WareDelivery then Button_HouseWaresBlock.TexID:=37 else Button_HouseWaresBlock.TexID:=38;
+  if aHouse.BuildingRepair then 
+    Button_HouseRepair.TexID := 39 
+  else 
+    Button_HouseRepair.TexID := 40;
+  
+  case aHouse.DeliveryMode of
+    dm_Delivery: Button_HouseDeliveryMode.TexID := 37;
+    dm_Closed:   Button_HouseDeliveryMode.TexID := 38;
+    dm_TakeOut:  Button_HouseDeliveryMode.TexID := 664;
+  end;
+
   Label_House_UnderConstruction.Hide;
   Image_HouseConstructionWood.Hide;
   Image_HouseConstructionStone.Hide;
@@ -700,12 +709,27 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_WareDeliveryToggle(Sender: TObject);
+procedure TKMGUIGameHouse.House_DeliveryModeToggle(Sender: TObject);
 begin
   if (gMySpectator.Selected = nil) or not (gMySpectator.Selected is TKMHouse) then Exit;
 
-  gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected));
-  Button_HouseWaresBlock.TexID := IfThen(TKMHouse(gMySpectator.Selected).WareDelivery, 37, 38);
+  case Button_HouseDeliveryMode.TexID of
+    38: // dm_Closed
+      begin
+        gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_TakeOut);
+        Button_HouseDeliveryMode.TexID := 664;
+      end;
+    37: // dm_Delivery
+      begin
+        gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_Closed);
+        Button_HouseDeliveryMode.TexID := 38;
+      end;
+    664: // dm_TakeOut
+      begin
+        gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_Delivery);
+        Button_HouseDeliveryMode.TexID := 37;
+      end;
+  end;
 end;
 
 

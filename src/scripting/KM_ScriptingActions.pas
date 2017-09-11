@@ -76,6 +76,7 @@ type
     procedure HouseBarracksGiveRecruit(aHouseID: Integer);
     procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure HouseDeliveryMode(aHouseID: Integer; aDeliveryMode: Byte);
     procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
@@ -1909,10 +1910,36 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
-        H.WareDelivery := not aDeliveryBlocked;
+      begin
+        if aDeliveryBlocked then
+          H.DeliveryMode := dm_Closed
+        else
+          H.DeliveryMode := dm_Delivery;
+      end;
     end
     else
       LogParamWarning('Actions.HouseDeliveryBlock', [aHouseID, Byte(aDeliveryBlocked)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Sets delivery mode for the specified house
+procedure TKMScriptActions.HouseDeliveryMode(aHouseID: Integer; aDeliveryMode: Byte);
+var H: TKMHouse;
+begin
+  try
+    if aHouseID > 0 then
+    begin
+      H := fIDCache.GetHouse(aHouseID);
+      if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
+        H.DeliveryMode := TDeliveryModes(aDeliveryMode);
+    end
+    else
+      LogParamWarning('Actions.HouseDeliveryState', [aHouseID, aDeliveryMode]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

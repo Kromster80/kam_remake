@@ -12,6 +12,8 @@ uses
 type
   TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
 
+  TDeliveryModes = (dm_Closed = 0, dm_Delivery = 1, dm_TakeOut = 2);
+
   TKMHouse = class;
   TKMHouseEvent = procedure(aHouse: TKMHouse) of object;
   TKMHouseFromEvent = procedure(aHouse: TKMHouse; aFrom: TKMHandIndex) of object;
@@ -47,7 +49,7 @@ type
 
     fHasOwner: Boolean; //which is some TKMUnit
     fBuildingRepair: Boolean; //If on and the building is damaged then labourers will come and repair it
-    fWareDelivery: Boolean; //If on then no wares will be delivered here
+    fDeliveryMode: TDeliveryModes; //If on then no wares will be delivered here
     fIsClosedForWorker: Boolean; // house is closed for worker. If worker is already occupied it, then leave house
 
     fResourceIn: array [1..4] of Byte; //Resource count in input
@@ -82,12 +84,14 @@ type
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
+    //WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     fOwner: TKMHandIndex; //House owner player, determines flag color as well
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     procedure Activate(aWasBuilt: Boolean); virtual;
     function GetResOrder(aId: Byte): Integer; virtual;
     procedure SetBuildingRepair(aValue: Boolean);
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
+    procedure SetDeliveryMode(aValue: TDeliveryModes); virtual;
   public
     CurrentAction: THouseAction; //Current action, withing HouseTask or idle
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -122,7 +126,7 @@ type
     function HitTest(X, Y: Integer): Boolean;
     property HouseType: THouseType read fHouseType;
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
-    property WareDelivery: Boolean read fWareDelivery write fWareDelivery;
+    property DeliveryMode: TDeliveryModes read fDeliveryMode write SetDeliveryMode;
     property IsClosedForWorker: Boolean read fIsClosedForWorker write SetIsClosedForWorker;
     property GetHasOwner: Boolean read fHasOwner write fHasOwner; //There's a citizen who runs this house
     property Owner: TKMHandIndex read fOwner;
@@ -265,7 +269,7 @@ begin
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
   fBuildingRepair   := False; //Don't set it yet because we don't always know who are AIs yet (in multiplayer) It is set in first UpdateState
   DoorwayUse        := 0;
-  fWareDelivery     := True;
+  fDeliveryMode     := dm_Delivery;
 
   for I := 1 to 4 do
   begin
@@ -316,7 +320,7 @@ begin
   LoadStream.Read(fDamage, SizeOf(fDamage));
   LoadStream.Read(fHasOwner);
   LoadStream.Read(fBuildingRepair);
-  LoadStream.Read(fWareDelivery);
+  LoadStream.Read(Byte(fDeliveryMode));
   LoadStream.Read(fIsClosedForWorker);
   for I:=1 to 4 do LoadStream.Read(fResourceIn[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[I]);
@@ -517,6 +521,25 @@ begin
   CheckOnSnow;
   if not WasOnSnow or not fIsOnSnow then
     fSnowStep := 0;
+end;
+
+
+procedure TKMHouse.SetDeliveryMode(aValue: TDeliveryModes);
+var
+  I: Integer;
+begin
+  fDeliveryMode := aValue;
+  case fDeliveryMode of
+    dm_Delivery:
+      for I := 1 to 4 do
+        if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
+          gHands[fOwner].Deliveries.Queue.RemOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
+    dm_Closed:;
+    dm_TakeOut:
+      for I := 1 to 4 do
+        if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
+          gHands[fOwner].Deliveries.Queue.AddOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
+  end;
 end;
 
 
@@ -1044,6 +1067,12 @@ begin
 end;
 
 
+function TKMHouse.GetPointBelowEntrance: TKMPoint;
+begin
+  Result := KMPointBelow(Entrance);
+end;
+
+
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
 procedure TKMHouse.ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false);
@@ -1143,6 +1172,11 @@ begin
   for I := 1 to 4 do
     if aWare = gRes.Houses[fHouseType].ResOutput[I] then
       Result := fResourceOut[I] >= aCount;
+
+  if not Result and (fDeliveryMode = dm_TakeOut) then
+    for I := 1 to 4 do
+      if aWare = gRes.Houses[fHouseType].ResInput[I] then
+        Result := fResourceIn[I] >= aCount;
 end;
 
 
@@ -1180,7 +1214,8 @@ end;
 
 
 procedure TKMHouse.ResTakeFromOut(aWare: TWareType; aCount: Word=1; aFromScript: Boolean = False);
-var i:integer;
+var
+  i, K: integer;
 begin
   Assert(aWare<>wt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks]));
@@ -1200,12 +1235,31 @@ begin
     dec(fResourceOut[i], aCount);
     exit;
   end;
-end;
 
+  for i := 1 to 4 do
+  if aWare = gRes.Houses[fHouseType].ResInput[i] then
+  begin
+    if aFromScript then
+    begin
+      aCount := Min(aCount, fResourceIn[i]);
+      if aCount > 0 then
+        gHands[fOwner].Deliveries.Queue.RemOffer(Self, aWare, aCount);
+    end;
 
-function TKMHouse.GetPointBelowEntrance: TKMPoint;
-begin
-  Result := KMPointBelow(Entrance);
+    //Keep track of how many are ordered
+    fResourceDeliveryCount[i] := Max(fResourceDeliveryCount[i] - aCount, 0);
+
+    Assert(fResourceIn[i] >= aCount, 'fResourceIn[i] < 0');
+    Dec(fResourceIn[i], aCount);
+    //Only request a new resource if it is allowed by the distribution of wares for our parent player
+    for K := 1 to aCount do
+      if fResourceDeliveryCount[i] < GetResDistribution(i) then
+      begin
+        gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dtOnce, diNorm);
+        Inc(fResourceDeliveryCount[i]);
+      end;
+    Exit;
+  end;
 end;
 
 
@@ -1301,7 +1355,7 @@ begin
   SaveStream.Write(fDamage, SizeOf(fDamage));
   SaveStream.Write(fHasOwner);
   SaveStream.Write(fBuildingRepair);
-  SaveStream.Write(fWareDelivery);
+  SaveStream.Write(Byte(fDeliveryMode));
   SaveStream.Write(fIsClosedForWorker);
   for I:=1 to 4 do SaveStream.Write(fResourceIn[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[I]);

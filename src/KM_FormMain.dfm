@@ -499,6 +499,10 @@ object FormMain: TFormMain
         Caption = 'Export UI pages'
         OnClick = Debug_ExportUIPagesClick
       end
+      object ShowLogistics: TMenuItem
+        Caption = 'Show Logistics'
+        OnClick = ShowLogisticsClick
+      end
     end
     object Export1: TMenuItem
       Caption = 'Export Data'
