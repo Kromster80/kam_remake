@@ -1624,11 +1624,14 @@ end;
 
 
 procedure TKMGame.UpdateTickCounters;
+var TicksBehind: Single;
 begin
+  TicksBehind := GetTicksBehindCnt; // save number of ticks we are behind now
   fGameSpeedChangeTick := fGameTickCount;
   if IsMultiplayer and not IsMPGameSpeedUpAllowed then
-    // Remember if we were some ticks behind at that moment. Could be crucial for MP game with many players, but can be omit for SP and MP with ontly 1 player
-    fGameSpeedChangeTick := fGameSpeedChangeTick + GetTicksBehindCnt;
+    // Remember if we were some ticks behind at that moment.
+    // Important for MP game with many players, but can be omitted for SP and MP with only 1 player
+    fGameSpeedChangeTick := fGameSpeedChangeTick + TicksBehind;
   //set fGameSpeedChangeTime after we invoke GetTicksBehindCnt !
   fGameSpeedChangeTime := TimeGet;
   fPausedTicksCnt := 0;
