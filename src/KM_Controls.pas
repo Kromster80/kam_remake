@@ -1550,8 +1550,11 @@ end;
 
 procedure TKMControl.ResetClickHoldMode;
 begin
-  fClickHoldMode := False;
-  fClickHoldHandled := False;
+  if Self <> nil then // Could be nil when control is destroyes already, f.e. on game (map) exit
+  begin
+    fClickHoldMode := False;
+    fClickHoldHandled := False;
+  end;
 end;
 
 
