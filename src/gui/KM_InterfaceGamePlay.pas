@@ -3703,7 +3703,12 @@ begin
       S := S + Format('Enemy %d: %f|', [I, RoundTo(gMySpectator.Hand.ArmyEval.Evaluations[I].Power, -3)]);
 
   if SHOW_AI_WARE_BALANCE then
-    S := S + gMySpectator.Hand.AI.Mayor.BalanceText + '|';
+  begin
+    if (gMySpectator.Selected <> nil) and not gMySpectator.IsSelectedMyObj then
+      S := S + gHands[GetGameObjectOwnerIndex(gMySpectator.Selected)].AI.Mayor.BalanceText + '|'
+    else
+      S := S + gMySpectator.Hand.AI.Mayor.BalanceText + '|'
+  end;
 
 
   if SHOW_NET_PACKETS_STATS then
