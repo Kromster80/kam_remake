@@ -61,6 +61,7 @@ end;
 
 procedure TKMResCursors.SetCursor(Value: TKMCursor);
 begin
+  if SKIP_LOADING_CURSOR then Exit;
   Screen.Cursor := Byte(Value) + COUNT_OFFSET;
 end;
 
