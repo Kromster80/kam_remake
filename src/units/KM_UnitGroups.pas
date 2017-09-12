@@ -104,13 +104,13 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     destructor Destroy; override;
 
-    function GetGroupPointer: TKMUnitGroup;
+    function  GetGroupPointer: TKMUnitGroup;
     procedure ReleaseGroupPointer;
     procedure AddMember(aWarrior: TKMUnitWarrior; aIndex: Integer = -1);
-    function MemberByUID(aUID: Integer): TKMUnitWarrior;
-    function HitTest(X,Y: Integer): Boolean;
+    function  MemberByUID(aUID: Integer): TKMUnitWarrior;
+    function  HitTest(X,Y: Integer): Boolean;
     procedure SelectFlagBearer;
-    function HasMember(aWarrior: TKMUnit): Boolean;
+    function  HasMember(aWarrior: TKMUnit): Boolean;
     procedure ResetAnimStep;
     function InFight(aCountCitizens: Boolean = False): Boolean; //Fighting and can't take any orders from player
     function IsAttackingHouse: Boolean; //Attacking house
@@ -164,6 +164,7 @@ type
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
     procedure OrderStorm(aClearOffenders: Boolean);
     procedure OrderWalk(aLoc: TKMPoint; aClearOffenders: Boolean; aDir: TKMDirection = dir_NA);
+    procedure KillGroup;
 
     procedure UpdateState;
     procedure PaintHighlighted(aHandColor: Cardinal; aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
@@ -644,6 +645,14 @@ end;
 function TKMUnitGroup.IsRanged: Boolean;
 begin
   Result := (fGroupType = gt_Ranged);
+end;
+
+
+procedure TKMUnitGroup.KillGroup;
+var I: Integer;
+begin
+  for I := fMembers.Count - 1 downto 0 do
+    TKMUnit(fMembers[I]).KillUnit(PLAYER_NONE, True, False);
 end;
 
 

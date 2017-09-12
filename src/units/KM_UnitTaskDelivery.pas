@@ -18,7 +18,11 @@ type
     fWareType: TWareType;
     fDeliverID: Integer;
     fDeliverKind: TDeliverKind;
+    //Force delivery, even if fToHouse blocked ware from delivery.
+    //Used in exceptional situation, when ware was carried by serf and delivery demand was destroyed and no one new was found
+    fForceDelivery: Boolean;
     procedure CheckForBetterDestination;
+    function FindBestDestination: Boolean;
   public
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer); overload;
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer); overload;
@@ -34,7 +38,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
+  Math, KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
 
 
 { TTaskDeliver }
@@ -121,21 +125,26 @@ end;
 //Note: Phase is -1 because it will have been increased at the end of last Execute
 function TTaskDeliver.WalkShouldAbandon: Boolean;
 begin
-  Result := false;
+  Result := False;
 
   //After step 2 we don't care if From is destroyed or doesn't have the ware
   if fPhase <= 2 then
-    Result := Result or fFrom.IsDestroyed or not fFrom.ResOutputAvailable(fWareType, 1);
+    Result := Result or fFrom.IsDestroyed or (not fFrom.ResOutputAvailable(fWareType, 1) {and (fPhase < 5)});
 
   //Until we implement "wares recycling" we just abandon the delivery if target is destroyed/dead
-  if (fDeliverKind = dk_ToHouse) and (fPhase <= 8) then
-    Result := Result or fToHouse.IsDestroyed;
-
-  if (fDeliverKind = dk_ToConstruction) and (fPhase <= 6) then
-    Result := Result or fToHouse.IsDestroyed;
-
-  if (fDeliverKind = dk_ToUnit) and (fPhase <= 6) then
-    Result := Result or (fToUnit=nil) or fToUnit.IsDeadOrDying;
+  case fDeliverKind of
+    dk_ToHouse:         if fPhase <= 8 then
+                        begin
+                          Result := Result or fToHouse.IsDestroyed
+                                           or (not fForceDelivery
+                                              and ((fToHouse.DeliveryMode <> dm_Delivery)
+                                                or ((fToHouse is TKMHouseStore) and TKMHouseStore(fToHouse).NotAcceptFlag[fWareType])));
+                        end;
+    dk_ToConstruction:  if fPhase <= 6 then
+                          Result := Result or fToHouse.IsDestroyed;
+    dk_ToUnit:          if fPhase <= 6 then
+                          Result := Result or (fToUnit = nil) or fToUnit.IsDeadOrDying;
+  end;
 end;
 
 
@@ -164,11 +173,65 @@ begin
 end;
 
 
+// Try to find best destination
+function TTaskDeliver.FindBestDestination: Boolean;
+var
+  NewToHouse: TKMHouse;
+  NewToUnit: TKMUnit;
+begin
+  if fPhase <= 2 then
+  begin
+    Result := False;
+    Exit;
+  end else
+  if InRange(fPhase, 3, 4) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  fForceDelivery := False; //Reset ForceDelivery from previous runs
+  gHands[fUnit.Owner].Deliveries.Queue.DeliveryFindBestDemand(TKMUnitSerf(fUnit), fDeliverID, fWareType, NewToHouse, NewToUnit, fForceDelivery);
+
+  gHands.CleanUpHousePointer(fToHouse);
+  gHands.CleanUpUnitPointer(fToUnit);
+
+  // New House
+  if (NewToHouse <> nil) and (NewToUnit = nil) then
+  begin
+    fToHouse := NewToHouse.GetHousePointer;
+    if fToHouse.IsComplete then
+      fDeliverKind := dk_ToHouse
+    else
+      fDeliverKind := dk_ToConstruction;
+    Result := True;
+    if fPhase > 5 then
+      fPhase := 5;
+  end
+  else
+  // New Unit
+  if (NewToHouse = nil) and (NewToUnit <> nil) then
+  begin
+    fToUnit := NewToUnit.GetUnitPointer;
+    fDeliverKind := dk_ToUnit;
+    Result := True;
+    if fPhase > 5 then
+      fPhase := 5;
+  end
+  else
+  // No alternative
+  if (NewToHouse = nil) and (NewToUnit = nil) then
+    Result := False
+  else
+  // Error
+    raise Exception.Create('Both destinations could not be');
+end;
+
 function TTaskDeliver.Execute: TTaskResult;
 begin
   Result := TaskContinues;
 
-  if WalkShouldAbandon and fUnit.Visible then
+  if WalkShouldAbandon and fUnit.Visible and not FindBestDestination then
   begin
     Result := TaskDone;
     Exit;

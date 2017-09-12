@@ -108,7 +108,7 @@ begin
             Exit;                     //Next UpdateState won't happen cos unit is "closed"
           end;
   end;
-  inc(fPhase);
+  Inc(fPhase);
 end;
 
 

@@ -84,6 +84,7 @@ type
     RGLogNetPackets: TRadioGroup;
     chkLogsShowInChat: TCheckBox;
     chkUIControlsID: TCheckBox;
+    ShowLogistics: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -127,6 +128,7 @@ type
     procedure RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure RenderAreaResize(aWidth, aHeight: Integer);
     procedure RenderAreaRender(aSender: TObject);
+    procedure ShowLogisticsClick(Sender: TObject);
   private
     fUpdating: Boolean;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
@@ -163,7 +165,7 @@ uses
   KM_Pics,
   KM_RenderPool,
   KM_Hand,
-  KM_ResKeys,
+  KM_ResKeys, KM_FormLogistics,
   KM_Log;
 
 
@@ -452,6 +454,14 @@ begin
 
   if (gHands <> nil) and (RGPlayer.ItemIndex < gHands.Count) then
     gMySpectator.HandIndex := RGPlayer.ItemIndex;
+end;
+
+
+procedure TFormMain.ShowLogisticsClick(Sender: TObject);
+begin
+  if not Assigned(FormLogistics) then
+    FormLogistics := TFormLogistics.Create(Self);
+  FormLogistics.Show;
 end;
 
 

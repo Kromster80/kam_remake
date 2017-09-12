@@ -320,6 +320,7 @@ begin
       RegisterMethod('function HouseCanReachResources(aHouseID: Integer): Boolean)');
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
       RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseDeliveryMode(aHouseID: Integer): Integer');
       RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
@@ -802,6 +803,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseCanReachResources,                   'HouseCanReachResources');
       RegisterMethod(@TKMScriptStates.HouseDamage,                              'HouseDamage');
       RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,                     'HouseDeliveryBlocked');
+      RegisterMethod(@TKMScriptStates.HouseDeliveryMode,                        'HouseDeliveryMode');
       RegisterMethod(@TKMScriptStates.HouseDestroyed,                           'HouseDestroyed');
       RegisterMethod(@TKMScriptStates.HouseHasOccupant,                         'HouseHasOccupant');
       RegisterMethod(@TKMScriptStates.HouseIsComplete,                          'HouseIsComplete');

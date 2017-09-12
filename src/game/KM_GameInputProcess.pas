@@ -173,7 +173,7 @@ const
     gicpt_Int3,     // gic_BuildHousePlan
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
     gicpt_Int1,     // gic_HouseRepairToggle
-    gicpt_Int1,     // gic_HouseDeliveryToggle
+    gicpt_Int2,     // gic_HouseDeliveryToggle
     gicpt_Int1,     // gic_HouseClosedForWorkerToggle
     gicpt_Int3,     // gic_HouseOrderProduct
     gicpt_Int2,     // gic_HouseMarketFrom
@@ -200,7 +200,7 @@ const
     gicpt_Date,     // gic_GameSaveReturnLobby
     gicpt_Int2,     // gic_GameTeamChange
     gicpt_Int2,     // gic_GameHotkeySet
-    gicpt_Date,     // gic_GameMessageLogRead
+    gicpt_Int1,     // gic_GameMessageLogRead
     gicpt_Int2,     // gic_GamePlayerTypeChange
     gicpt_Int1,     // gic_GamePlayerDefeat
     //VII.     Temporary and debug commands
@@ -272,6 +272,7 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aCount:byte); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint); overload;
+    procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aDeliveryMode: TDeliveryMode); overload;
 
     procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer); overload;
     procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString); overload;
@@ -575,7 +576,7 @@ begin
                                     P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
       gic_HouseRepairToggle:      SrcHouse.BuildingRepair := not SrcHouse.BuildingRepair;
-      gic_HouseDeliveryToggle:    SrcHouse.WareDelivery := not SrcHouse.WareDelivery;
+      gic_HouseDeliveryToggle:    SrcHouse.DeliveryMode := TDeliveryMode(Params[2]);
       gic_HouseClosedForWorkerToggle: SrcHouse.IsClosedForWorker := not SrcHouse.IsClosedForWorker;                                  
       gic_HouseOrderProduct:      SrcHouse.ResOrder[Params[2]] := SrcHouse.ResOrder[Params[2]] + Params[3];
       gic_HouseMarketFrom:        TKMHouseMarket(SrcHouse).ResFrom := TWareType(Params[2]);
@@ -768,7 +769,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse);
 begin
-  Assert(aCommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle, gic_HouseClosedForWorkerToggle, gic_HouseBarracksAcceptRecruitsToggle]);
+  Assert(aCommandType in [gic_HouseRepairToggle, gic_HouseClosedForWorkerToggle, gic_HouseBarracksAcceptRecruitsToggle]);
   TakeCommand(MakeCommand(aCommandType, aHouse.UID));
 end;
 
@@ -814,6 +815,13 @@ begin
   Assert((aCommandType = gic_HouseBarracksRally) or (aCommandType = gic_HouseWoodcuttersCutting));
   Assert((aHouse is TKMHouseBarracks) or (aHouse is TKMHouseWoodcutters));
   TakeCommand(MakeCommand(aCommandType, aHouse.UID, aLoc.X, aLoc.Y));
+end;
+
+
+procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aDeliveryMode: TDeliveryMode);
+begin
+  Assert(aCommandType = gic_HouseDeliveryToggle);
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID, Integer(aDeliveryMode)));
 end;
 
 

@@ -40,6 +40,7 @@ type
     function HouseCanReachResources(aHouseID: Integer): Boolean;
     function HouseDamage(aHouseID: Integer): Integer;
     function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
+    function HouseDeliveryMode(aHouseID: Integer): Integer;
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseHasOccupant(aHouseID: Integer): Boolean;
     function HouseIsComplete(aHouseID: Integer): Boolean;
@@ -1274,10 +1275,34 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if H <> nil then
-        Result := (not H.WareDelivery);
+        Result := (H.DeliveryMode <> dm_Delivery);
     end
     else
       LogParamWarning('States.HouseDeliveryBlocked', [aHouseID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Returns true if the specified house has delivery disabled
+//* Result: Blocked
+function TKMScriptStates.HouseDeliveryMode(aHouseID: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  try
+    Result := Integer(dm_Delivery);
+    if aHouseID > 0 then
+    begin
+      H := fIDCache.GetHouse(aHouseID);
+      if H <> nil then
+        Result := Integer(H.DeliveryMode);
+    end
+    else
+      LogParamWarning('States.HouseDeliveryMode', [aHouseID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

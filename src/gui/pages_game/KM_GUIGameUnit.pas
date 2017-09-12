@@ -52,7 +52,7 @@ type
     procedure KeyUp(Key: Word; Shift: TShiftState);
 
     procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
-    procedure ShowGroupInfo(Sender: TKMUnitGroup);
+    procedure ShowGroupInfo(Sender: TKMUnitGroup; aAskDismiss: Boolean = False);
     procedure Army_HideJoinMenu(Sender: TObject);
   end;
   
@@ -81,9 +81,9 @@ begin
     Button_Unit_Dismiss   := TKMButton.Create(Panel_Unit,124,120,56,34,29, rxGui, bsGame);
 
     Panel_Unit_Dismiss := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 182);
-    Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,100,16,TB_WIDTH,30,'Are you sure?',fnt_Outline,taCenter);
-    Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,50, 50,TB_WIDTH,40,'Dismiss',bsGame);
-    Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,50,100,TB_WIDTH,40,'Cancel',bsGame);
+    Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,0,16,TB_WIDTH,20,'Are you sure?',fnt_Outline,taCenter);
+    Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,30, 50,TB_WIDTH-60,30,'Dismiss',bsGame);
+    Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,30,100,TB_WIDTH-60,30,'Cancel',bsGame);
     Button_Unit_DismissYes.OnClick := Unit_Dismiss;
     Button_Unit_DismissNo.OnClick  := Unit_Dismiss;
 
@@ -175,11 +175,13 @@ begin
 end;
 
 
-procedure TKMGUIGameUnit.ShowGroupInfo(Sender: TKMUnitGroup);
+procedure TKMGUIGameUnit.ShowGroupInfo(Sender: TKMUnitGroup; aAskDismiss: Boolean = False);
 var
   W: TKMUnitWarrior;
 begin
   Assert(gMySpectator.Selected = Sender);
+
+  fAskDismiss := aAskDismiss;
 
   W := Sender.SelectedUnit;
   Panel_Unit.Show;
@@ -215,22 +217,36 @@ end;
 
 
 procedure TKMGUIGameUnit.Unit_Dismiss(Sender: TObject);
+var
+  IsGroup: Boolean;
 begin
   if (gMySpectator.Selected = nil)
-  or not (gMySpectator.Selected is TKMUnit) then
+    or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
     Exit;
+
+  IsGroup := gMySpectator.Selected is TKMUnitGroup;
 
   if Sender = Button_Unit_DismissYes then
   begin
     // DISMISS UNIT
     fAskDismiss := False;
-    ShowUnitInfo(nil, False); // Simpliest way to reset page and ShownUnit
-    OnUnitDismiss; // Return to main menu after dismissing
+    if IsGroup then
+      TKMUnitGroup(gMySpectator.Selected).KillGroup
+    else
+      TKMUnit(gMySpectator.Selected).KillUnit(PLAYER_NONE, True, False);
+
+    gMySpectator.Selected := nil;
+    Hide;
+    if Assigned(OnUnitDismiss) then // Return to main menu after dismissing
+      OnUnitDismiss;
   end
   else
   begin
     fAskDismiss := False;
-    ShowUnitInfo(TKMUnit(gMySpectator.Selected), False);  // Cancel and return to selected unit
+    if IsGroup then
+      ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected), False)  // Cancel and return to selected group
+    else
+      ShowUnitInfo(TKMUnit(gMySpectator.Selected), False);  // Cancel and return to selected unit
   end;
 end;
 
@@ -240,13 +256,18 @@ var
   Group: TKMUnitGroup;
 begin
   if gMySpectator.Selected = nil then Exit;
-  if not (gMySpectator.Selected is TKMUnitGroup) then Exit;
 
-  { Not implemented yet
+  // Not implemented yet
   if Sender = Button_Unit_Dismiss then
   begin
-    ShowUnitInfo(TKMUnit(gMySpectator.Selected), true);
-  end; }
+    if gMySpectator.Selected is TKMUnitGroup then
+      ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected), True)
+    else if gMySpectator.Selected is TKMUnit then
+      ShowUnitInfo(TKMUnit(gMySpectator.Selected), True);
+    Exit;
+  end;
+
+  if not (gMySpectator.Selected is TKMUnitGroup) then Exit;
 
   Group := TKMUnitGroup(gMySpectator.Selected);
 

@@ -138,8 +138,8 @@ procedure TUnitActionGoInOut.IncDoorway;
 begin
   Assert(not fUsedDoorway, 'Inc doorway when already in use?');
 
-  if fHouse<>nil then inc(fHouse.DoorwayUse);
-  fUsedDoorway := true;
+  if fHouse <> nil then Inc(fHouse.DoorwayUse);
+  fUsedDoorway := True;
 end;
 
 
@@ -273,8 +273,8 @@ begin
   if not fHasStarted then
   begin
     //Set Door and Street locations
-    fDoor := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y - round(fStep));
-    fStreet := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y + 1 - round(fStep));
+    fDoor := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y - Round(fStep));
+    fStreet := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y + 1 - Round(fStep));
 
     case fDirection of
       gd_GoInside:  WalkIn;
@@ -315,8 +315,8 @@ begin
     else
     begin //There's still some unit - we can't go outside
       if (U <> fPushedUnit) //The unit has switched places with another one, so we must start again
-      or not (U.GetUnitAction is TUnitActionWalkTo) //Unit was interupted (no longer pushed), so start again
-      or not TUnitActionWalkTo(U.GetUnitAction).WasPushed then
+        or not (U.GetUnitAction is TUnitActionWalkTo) //Unit was interupted (no longer pushed), so start again
+        or not TUnitActionWalkTo(U.GetUnitAction).WasPushed then
       begin
         fHasStarted := False;
         fWaitingForPush := False;
@@ -333,8 +333,8 @@ begin
       ((fDirection = gd_GoOutside) and (fStep < 0.2)) or
       ((fDirection = gd_GoInside) and (fStep > 0.8))
       )
-  and (fStreet.X = fDoor.X) //We are walking straight
-  and (fHouse <> nil) then
+    and (fStreet.X = fDoor.X) //We are walking straight
+    and (fHouse <> nil) then
     fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
   Assert((fHouse = nil) or KMSamePoint(fDoor, fHouse.Entrance)); //Must always go in/out the entrance of the house
@@ -344,7 +344,7 @@ begin
   if (fStreet.X - fDoor.X <> 0) then
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
 
-  fStep := fStep - Distance * shortint(fDirection);
+  fStep := fStep - Distance * ShortInt(fDirection);
   fUnit.PositionF := KMLerp(fDoor, fStreet, fStep);
   fUnit.Visible := (fHouse = nil) or (fHouse.IsDestroyed) or (fStep > 0); //Make unit invisible when it's inside of House
 

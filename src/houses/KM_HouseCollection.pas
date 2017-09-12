@@ -180,7 +180,7 @@ begin
     begin
       //Recruits should not go to a barracks with ware delivery switched off or with not accept flag for recruits
       if (Houses[I].HouseType = ht_Barracks)
-        and ((not Houses[I].WareDelivery) or (TKMHouseBarracks(Houses[I]).NotAcceptRecruitFlag)) then Continue;
+        and ((Houses[I].DeliveryMode <> dm_Delivery) or (TKMHouseBarracks(Houses[I]).NotAcceptRecruitFlag)) then Continue;
       if not gTerrain.Route_CanBeMade(Loc, Houses[I].PointBelowEntrance, tpWalk, 0) then Continue;
 
       Dist := KMLengthSqr(Loc, Houses[I].GetPosition);

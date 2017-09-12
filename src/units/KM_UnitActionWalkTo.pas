@@ -138,7 +138,7 @@ begin
   Assert(not (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])); //Animals should using TUnitActionSteer instead
 
   fDistance := aDistance;
-  //               aSetPushed Dooesn't need to be rememberred (it is used only in Create here)
+  // aSetPushed Doesn't need to be rememberred (it is used only in Create here)
 
   if aTargetUnit  <> nil then fTargetUnit  := aTargetUnit.GetUnitPointer;
   if aTargetHouse <> nil then fTargetHouse := aTargetHouse.GetHousePointer;
@@ -842,14 +842,14 @@ begin
   begin
     Explanation := 'Diagonal vertex is being used, we must wait';
     ExplanationLogAdd;
-    Result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
 
   //If there's no unit we can keep on walking, interaction does not need to be solved
   if not gTerrain.HasUnit(NodeList[NodePos+1]) then exit;
   //From now on there is a blockage, so don't allow to walk unless the problem is resolved
-  Result := false;
+  Result := False;
 
   //Find the unit that is in our path
   fOpponent := gTerrain.UnitsHitTest(NodeList[NodePos+1].X, NodeList[NodePos+1].Y);
@@ -859,7 +859,7 @@ begin
     //Do nothing and wait till unit is actually there so we can interact with it
     Explanation:='Can''t walk. No Unit in the way but tile is occupied';
     ExplanationLogAdd;
-    exit;
+    Exit;
   end;
 
   //If we are in DestBlocked mode then only use our counter so we are always zero priority until our path clears
@@ -871,7 +871,7 @@ begin
   begin //Unit is walking into house, we can wait
     Explanation:='Unit is walking into house, we can wait';
     ExplanationLogAdd;
-    exit;
+    Exit;
   end;
 
   if fDestBlocked then fInteractionStatus := kis_Waiting;
@@ -1001,13 +1001,13 @@ begin
     fUnit.PositionF := KMPointF(NodeList[NodePos]);
 
     if (NodePos > 0) and (not fWaitingOnStep)
-    and KMStepIsDiag(NodeList[NodePos-1],NodeList[NodePos]) then
+      and KMStepIsDiag(NodeList[NodePos-1],NodeList[NodePos]) then
       DecVertex; //Unoccupy vertex
 
-    fWaitingOnStep := true;
+    fWaitingOnStep := True;
 
-    StepDone := true; //Unit stepped on a new tile
-    fUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
+    StepDone := True; //Unit stepped on a new tile
+    fUnit.IsExchanging := False; //Disable sliding (in case it was set in previous step)
 
 
     { Update destination point }
@@ -1037,13 +1037,13 @@ begin
       if TKMUnitWarrior(fUnit).CheckForEnemy then
         //If we've picked a fight it means this action no longer exists,
         //so we must exit out (don't set DoEnd as that will now apply to fight action)
-        exit;
+        Exit;
 
     //Walk complete
     if not fDoExchange and CheckWalkComplete then
     begin
-      if (fDistance>0) and ((fUnit.UnitTask = nil) or (not fUnit.UnitTask.WalkShouldAbandon))
-      and not KMSamePoint(NodeList[NodePos], fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
+      if (fDistance > 0) and ((fUnit.UnitTask = nil) or (not fUnit.UnitTask.WalkShouldAbandon))
+        and not KMSamePoint(NodeList[NodePos], fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
         fUnit.Direction := KMGetDirection(NodeList[NodePos], fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
       Exit;
@@ -1075,11 +1075,11 @@ begin
     //Check if we can walk to next tile in the route
     //Don't use CanAbandonInternal because skipping this check can cause crashes
     if not fDoExchange then
-    case CheckForObstacle of
-      oc_NoObstacle:  ;
-      oc_ReRouteMade: Exit; //New route will pick-up
-      oc_NoRoute:     begin Result := ActAborted; Exit; end; //
-    end;
+      case CheckForObstacle of
+        oc_NoObstacle:  ;
+        oc_ReRouteMade: Exit; //New route will pick-up
+        oc_NoRoute:     begin Result := ActAborted; Exit; end; //
+      end;
 
     //Perform exchange
     //Both exchanging units have fDoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
@@ -1088,7 +1088,7 @@ begin
 
        //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
       if KMStepIsDiag(fUnit.GetPosition,NodeList[NodePos+1])
-      and (not gTerrain.VertexUsageCompatible(fUnit.GetPosition,NodeList[NodePos+1])) then
+        and (not gTerrain.VertexUsageCompatible(fUnit.GetPosition,NodeList[NodePos+1])) then
         Exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
 
       Inc(NodePos);
@@ -1141,8 +1141,8 @@ begin
   fUnit.PositionF := KMPointF(fUnit.PositionF.X + DX*min(Distance,abs(WalkX)),
                               fUnit.PositionF.Y + DY*min(Distance,abs(WalkY)));
 
-  inc(fUnit.AnimStep);
-  StepDone := false; //We are not actually done because now we have just taken another step
+  Inc(fUnit.AnimStep);
+  StepDone := False; //We are not actually done because now we have just taken another step
   fDoesWalking := True; //Now it's definitely true that unit did walked one step
 end;
 
