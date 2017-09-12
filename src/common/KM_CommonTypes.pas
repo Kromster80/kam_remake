@@ -6,14 +6,21 @@ uses
   KM_Defaults;
 
 type
+  TBooleanArray = array of Boolean;
+  TBoolean2Array = array of array of Boolean;
   TKMByteArray = array of Byte;
   TKMByte2Array = array of array of Byte;
   TKMByteSetArray = array of set of Byte;
   PKMByte2Array = ^TKMByte2Array;
   TKMWordArray = array of Word;
+  TKMWord2Array = array of array of Word;
   PKMWordArray = ^TKMWordArray;
   TKMCardinalArray = array of Cardinal;
+  TSmallIntArray = array of SmallInt;
   TIntegerArray = array of Integer;
+  TInteger2Array = array of array of Integer;
+  TSingleArray = array of Single;
+  TSingle2Array = array of array of Single;
   TStringArray = array of string;
   TKMCharArray = array of Char;
   TRGBArray = array of record R,G,B: Byte end;

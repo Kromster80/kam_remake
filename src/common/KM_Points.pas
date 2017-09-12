@@ -15,6 +15,7 @@ type
   TKMPointF = record X,Y: Single; end;
   TKMPointW = record X,Y: Word; end; // For backwards compatibility with cmp files
   TKMPointArray = array of TKMPoint;
+  TKMPoint2Array = array of array of TKMPoint;
   TKMTrisArray = array of array [0..2] of Integer;
 
   TKMTriMesh = record
@@ -87,6 +88,8 @@ type
   function KMPointSubtract(const A, B: TKMPoint): TKMPoint;
   function KMPointAdd(const A, B: TKMPoint): TKMPoint;
   function KMDotProduct(const A, B: TKMPoint): Single;
+  function KMDistanceAbs(const A, B: TKMPoint): Integer; overload;
+  function KMDistanceAbs(const A, B: TKMPointF): Single; overload;
   function KMDistanceSqr(const A, B: TKMPoint): Single; overload;
   function KMDistanceSqr(const A, B: TKMPointF): Single; overload;
 
@@ -544,6 +547,19 @@ end;
 function KMDotProduct(const A, B: TKMPoint): Single;
 begin
   Result := A.X * B.X + A.Y * B.Y;
+end;
+
+
+// Faster version of distance when we need just approximate information
+function KMDistanceAbs(const A, B: TKMPoint): Integer;
+begin
+  Result := Abs(A.X - B.X) + Abs(A.Y - B.Y);
+end;
+
+
+function KMDistanceAbs(const A, B: TKMPointF): Single;
+begin
+  Result := Abs(A.X - B.X) + Abs(A.Y - B.Y);
 end;
 
 
