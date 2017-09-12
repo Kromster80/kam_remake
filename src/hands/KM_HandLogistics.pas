@@ -97,7 +97,7 @@ type
     function GetAvailableDeliveriesCount: Integer;
     procedure AssignDelivery(iO, iD: Integer; aSerf: TKMUnitSerf);
     procedure AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil);
-    procedure CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
+    procedure CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit; aSerf: TKMUnitSerf);
     procedure DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: Integer; aResource: TWareType; out aToHouse: TKMHouse; out aToUnit: TKMUnit; out aForceDelivery: Boolean);
     procedure TakenOffer(aID: Integer);
     procedure GaveDemand(aID: Integer);
@@ -762,7 +762,7 @@ begin
 end;
 
 
-procedure TKMDeliveries.CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
+procedure TKMDeliveries.CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit; aSerf: TKMUnitSerf);
 var
   iD, iO, BestD, OldD: Integer;
   Bid, BestBid: Single;
@@ -793,7 +793,7 @@ begin
   BestD := OldD;
   if not fDemand[OldD].IsDeleted then
   begin
-    BestBid := CalculateBid(iO, OldD, nil);
+    BestBid := CalculateBid(iO, OldD, aSerf);
     BestImportance := fDemand[OldD].Importance;
   end
   else
@@ -810,7 +810,7 @@ begin
     and (fDemand[iD].Importance >= BestImportance) //Skip any less important than the best we found
     and ValidDelivery(iO, iD, True) then
     begin
-      Bid := CalculateBid(iO, iD, nil);
+      Bid := CalculateBid(iO, iD, aSerf);
       if (Bid < BestBid) or (fDemand[iD].Importance > BestImportance) then
       begin
         BestD := iD;
@@ -865,6 +865,7 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
     aForceDelivery := False;
     BestImportance := Low(TKMDemandImportance);
     BestBid := MaxSingle;
+    //Try to find house or unit demand first (not storage)
     for iD := 1 to fDemandCount do
       if (fDemand[iD].Ware <> wt_None)
         and (iD <> fQueue[aDeliveryId].DemandID)
@@ -880,7 +881,7 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
         end;
       end;
 
-    // If nothing was found, then try to deliver to open Storage for delivery
+    // If nothing was found, then try to deliver to open for delivery Storage
     if Result = -1 then
       for iD := 1 to fDemandCount do
         if (fDemand[iD].Ware = wt_All)

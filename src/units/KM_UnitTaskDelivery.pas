@@ -177,7 +177,7 @@ var
   NewToHouse: TKMHouse;
   NewToUnit: TKMUnit;
 begin
-  gHands[fUnit.Owner].Deliveries.Queue.CheckForBetterDemand(fDeliverID, NewToHouse, NewToUnit);
+  gHands[fUnit.Owner].Deliveries.Queue.CheckForBetterDemand(fDeliverID, NewToHouse, NewToUnit, TKMUnitSerf(fUnit));
 
   gHands.CleanUpHousePointer(fToHouse);
   gHands.CleanUpUnitPointer(fToUnit);
