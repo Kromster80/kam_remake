@@ -37,6 +37,7 @@ object Form2: TForm2
     Width = 57
     Height = 41
     Caption = 'Run'
+    Enabled = False
     TabOrder = 0
     OnClick = Button1Click
   end
@@ -57,6 +58,7 @@ object Form2: TForm2
     Height = 113
     ItemHeight = 13
     TabOrder = 2
+    OnClick = ListBox1Click
   end
   object Memo2: TMemo
     Left = 8

@@ -125,6 +125,7 @@ var
 begin
   SKIP_RENDER := (fRenderTarget = nil);
   SKIP_SOUND := True;
+  SKIP_LOADING_CURSOR := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   //gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
 
