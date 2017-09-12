@@ -87,9 +87,33 @@ begin
   LoadStream.Read(fFrom, 4);
   LoadStream.Read(fToHouse, 4);
   LoadStream.Read(fToUnit, 4);
+  LoadStream.Read(fForceDelivery);
   LoadStream.Read(fWareType, SizeOf(fWareType));
   LoadStream.Read(fDeliverID);
   LoadStream.Read(fDeliverKind, SizeOf(fDeliverKind));
+end;
+
+
+
+procedure TTaskDeliver.Save(SaveStream: TKMemoryStream);
+begin
+  inherited;
+  if fFrom <> nil then
+    SaveStream.Write(fFrom.UID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
+  if fToHouse <> nil then
+    SaveStream.Write(fToHouse.UID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
+  if fToUnit <> nil then
+    SaveStream.Write(fToUnit.UID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
+  SaveStream.Write(fForceDelivery);
+  SaveStream.Write(fWareType, SizeOf(fWareType));
+  SaveStream.Write(fDeliverID);
+  SaveStream.Write(fDeliverKind, SizeOf(fDeliverKind));
 end;
 
 
@@ -376,27 +400,6 @@ begin
   end;
 
   Inc(fPhase);
-end;
-
-
-procedure TTaskDeliver.Save(SaveStream: TKMemoryStream);
-begin
-  inherited;
-  if fFrom <> nil then
-    SaveStream.Write(fFrom.UID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
-  if fToHouse <> nil then
-    SaveStream.Write(fToHouse.UID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
-  if fToUnit <> nil then
-    SaveStream.Write(fToUnit.UID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
-  SaveStream.Write(fWareType, SizeOf(fWareType));
-  SaveStream.Write(fDeliverID);
-  SaveStream.Write(fDeliverKind, SizeOf(fDeliverKind));
 end;
 
 
