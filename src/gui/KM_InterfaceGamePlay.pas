@@ -3335,14 +3335,12 @@ begin
 
                 if (gMySpectator.Selected is TKMHouse) then
                 begin
-                  HidePages;
                   SwitchPage(nil); // Hide main back button if we were in e.g. stats
                   fGuiGameHouse.Show(TKMHouse(gMySpectator.Selected), False);
                 end;
 
                 if (gMySpectator.Selected is TKMUnit) then
                 begin
-                  HidePages;
                   SwitchPage(nil);
                   fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected));
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
@@ -3352,7 +3350,6 @@ begin
 
                 if (gMySpectator.Selected is TKMUnitGroup) then
                 begin
-                  HidePages;
                   SwitchPage(nil);
                   Group := TKMUnitGroup(gMySpectator.Selected);
                   fGuiGameUnit.ShowGroupInfo(Group);
@@ -3536,7 +3533,7 @@ begin
   if gMySpectator.Selected is TKMUnitGroup then
   begin
     HidePages;
-    fGuiGameUnit.ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected))
+    fGuiGameUnit.ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected), fGuiGameUnit.AskDismiss)
   end else
   if gMySpectator.Selected is TKMUnit then
   begin
