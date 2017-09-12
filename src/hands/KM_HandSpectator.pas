@@ -199,7 +199,8 @@ var
     begin
       if (OwnerIndex <> fHandIndex) then  // check if we selected our unit/ally's or enemy's
       begin
-        if (Hand.Alliances[OwnerIndex] = at_Ally) then
+        if (Hand.Alliances[OwnerIndex] = at_Ally)
+          or (ALLOW_SELECT_ENEMIES and (Hand.Alliances[OwnerIndex] = at_Enemy)) then // Enemies can be selected for debug
           fIsSelectedMyObj := False
         else
           NewSelected := nil;

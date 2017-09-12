@@ -3086,11 +3086,12 @@ procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var a
       end;
   end;
 var
-  DeltaX, DeltaY, DeltaDistanceSqr: integer;
+  DeltaX, DeltaY, DeltaDistanceSqr: Integer;
   NewPoint: TPoint;
   Obj: TObject;
   P: TKMPoint;
   Group: TKMUnitGroup;
+  Owner: TKMHandIndex;
 begin
   inherited MouseMove(Shift, X, Y, aHandled);
   if aHandled then Exit;
@@ -3201,14 +3202,12 @@ begin
 
   if not gMySpectator.Hand.InCinematic then
     // Only own and ally units/houses can be selected
-    if ((Obj is TKMUnit)
-        and ((TKMUnit(Obj).Owner = gMySpectator.HandIndex)
-          or (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Ally)
-          or (fUIMode in [umReplay, umSpectate])))
-      or ((Obj is TKMHouse)
-        and ((TKMHouse(Obj).Owner = gMySpectator.HandIndex)
-          or (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Ally)
-          or (fUIMode in [umReplay, umSpectate]))) then
+    Owner := GetGameObjectOwnerIndex(Obj);
+    if (Owner <> -1) and
+      ((Owner = gMySpectator.HandIndex)
+      or (gMySpectator.Hand.Alliances[Owner] = at_Ally)
+      or (ALLOW_SELECT_ENEMIES and (gMySpectator.Hand.Alliances[Owner] = at_Enemy)) // Enemies can be selected for debug
+      or (fUIMode in [umReplay, umSpectate])) then
     begin
       gRes.Cursors.Cursor := kmc_Info;
       Exit;
