@@ -200,7 +200,7 @@ const
     gicpt_Date,     // gic_GameSaveReturnLobby
     gicpt_Int2,     // gic_GameTeamChange
     gicpt_Int2,     // gic_GameHotkeySet
-    gicpt_Date,     // gic_GameMessageLogRead
+    gicpt_Int1,     // gic_GameMessageLogRead
     gicpt_Int2,     // gic_GamePlayerTypeChange
     gicpt_Int1,     // gic_GamePlayerDefeat
     //VII.     Temporary and debug commands
