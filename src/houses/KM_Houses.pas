@@ -12,7 +12,7 @@ uses
 type
   TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
 
-  TDeliveryModes = (dm_Closed = 0, dm_Delivery = 1, dm_TakeOut = 2);
+  TDeliveryMode = (dm_Closed = 0, dm_Delivery = 1, dm_TakeOut = 2);
 
   TKMHouse = class;
   TKMHouseEvent = procedure(aHouse: TKMHouse) of object;
@@ -49,7 +49,7 @@ type
 
     fHasOwner: Boolean; //which is some TKMUnit
     fBuildingRepair: Boolean; //If on and the building is damaged then labourers will come and repair it
-    fDeliveryMode: TDeliveryModes; //If on then no wares will be delivered here
+    fDeliveryMode: TDeliveryMode; //If on then no wares will be delivered here
     fIsClosedForWorker: Boolean; // house is closed for worker. If worker is already occupied it, then leave house
 
     fResourceIn: array [1..4] of Byte; //Resource count in input
@@ -91,7 +91,7 @@ type
     function GetResOrder(aId: Byte): Integer; virtual;
     procedure SetBuildingRepair(aValue: Boolean);
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
-    procedure SetDeliveryMode(aValue: TDeliveryModes); virtual;
+    procedure SetDeliveryMode(aValue: TDeliveryMode); virtual;
   public
     CurrentAction: THouseAction; //Current action, withing HouseTask or idle
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -126,7 +126,7 @@ type
     function HitTest(X, Y: Integer): Boolean;
     property HouseType: THouseType read fHouseType;
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
-    property DeliveryMode: TDeliveryModes read fDeliveryMode write SetDeliveryMode;
+    property DeliveryMode: TDeliveryMode read fDeliveryMode write SetDeliveryMode;
     property IsClosedForWorker: Boolean read fIsClosedForWorker write SetIsClosedForWorker;
     property GetHasOwner: Boolean read fHasOwner write fHasOwner; //There's a citizen who runs this house
     property Owner: TKMHandIndex read fOwner;
@@ -524,22 +524,23 @@ begin
 end;
 
 
-procedure TKMHouse.SetDeliveryMode(aValue: TDeliveryModes);
+procedure TKMHouse.SetDeliveryMode(aValue: TDeliveryMode);
 var
   I: Integer;
+  OldMode: TDeliveryMode;
 begin
+  OldMode := fDeliveryMode;
   fDeliveryMode := aValue;
-  case fDeliveryMode of
-    dm_Delivery:
-      for I := 1 to 4 do
-        if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
-          gHands[fOwner].Deliveries.Queue.RemOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
-    dm_Closed:;
-    dm_TakeOut:
-      for I := 1 to 4 do
-        if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
-          gHands[fOwner].Deliveries.Queue.AddOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
-  end;
+
+  if OldMode = dm_TakeOut then
+    for I := 1 to 4 do
+      if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
+        gHands[fOwner].Deliveries.Queue.RemOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
+
+  if aValue = dm_TakeOut then
+    for I := 1 to 4 do
+      if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
+        gHands[fOwner].Deliveries.Queue.AddOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
 end;
 
 

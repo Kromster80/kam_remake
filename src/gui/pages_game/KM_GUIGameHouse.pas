@@ -23,7 +23,7 @@ type
     procedure House_OrderClick(Sender: TObject; Shift: TShiftState);
     procedure House_OrderClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
     procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
-    procedure House_DeliveryModeToggle(Sender: TObject);
+    procedure House_DeliveryModeToggle(Sender: TObject; Shift: TShiftState);
 
     procedure House_ClosedForWorkerToggle(Sender: TObject);
 
@@ -124,7 +124,7 @@ begin
     Image_PlayerFlag := TKMImage.Create(Panel_House, 5, 17, 20, 13, 1159, rxHouses);
     Button_HouseDeliveryMode := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
     Button_HouseDeliveryMode.Hint := gResTexts[TX_HOUSE_TOGGLE_DELIVERS_HINT];
-    Button_HouseDeliveryMode.OnClick := House_DeliveryModeToggle;
+    Button_HouseDeliveryMode.OnClickShift := House_DeliveryModeToggle;
     Button_HouseRepair := TKMButton.Create(Panel_House,30,42,30,30,40, rxGui, bsGame);
     Button_HouseRepair.Hint := gResTexts[TX_HOUSE_TOGGLE_REPAIR_HINT];
     Button_HouseRepair.OnClick := House_RepairToggle;
@@ -709,26 +709,45 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_DeliveryModeToggle(Sender: TObject);
+procedure TKMGUIGameHouse.House_DeliveryModeToggle(Sender: TObject; Shift: TShiftState);
+
+  procedure SetDeliveryMode(aMode: TDeliveryMode);
+  begin
+    case aMode of
+      dm_Delivery:  begin
+                      gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_Delivery);
+                      Button_HouseDeliveryMode.TexID := 37;
+                    end;
+      dm_Closed:    begin
+                      gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_Closed);
+                      Button_HouseDeliveryMode.TexID := 38;
+                    end;
+      dm_TakeOut:   begin
+                      gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_TakeOut);
+                      Button_HouseDeliveryMode.TexID := 664;
+                    end;
+    end;
+  end;
+
 begin
   if (gMySpectator.Selected = nil) or not (gMySpectator.Selected is TKMHouse) then Exit;
 
   case Button_HouseDeliveryMode.TexID of
-    38: // dm_Closed
-      begin
-        gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_TakeOut);
-        Button_HouseDeliveryMode.TexID := 664;
-      end;
     37: // dm_Delivery
-      begin
-        gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_Closed);
-        Button_HouseDeliveryMode.TexID := 38;
-      end;
+          if ssLeft in Shift then
+            SetDeliveryMode(dm_Closed)
+          else if ssRight in Shift then
+            SetDeliveryMode(dm_TakeOut);
+    38: // dm_Closed
+          if ssLeft in Shift then
+            SetDeliveryMode(dm_TakeOut)
+          else if ssRight in Shift then
+            SetDeliveryMode(dm_Delivery);
     664: // dm_TakeOut
-      begin
-        gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(gMySpectator.Selected), dm_Delivery);
-        Button_HouseDeliveryMode.TexID := 37;
-      end;
+          if ssLeft in Shift then
+            SetDeliveryMode(dm_Delivery)
+          else if ssRight in Shift then
+            SetDeliveryMode(dm_Closed);
   end;
 end;
 

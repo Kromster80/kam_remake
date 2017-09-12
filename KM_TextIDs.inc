@@ -164,7 +164,7 @@ TX_HOUSE_SCHOOL_NEXT_HINT = 150; //Next profession
 TX_HOUSE_SCHOOL_PREV_HINT = 151; //Previous profession
 TX_HOUSE_SCHOOL_TRAIN_HINT = 152; //Add to queue
 TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT = 707; //This unit type is not available
-TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch on/off delivery of wares
+TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch between delivery modes of wares: demand / closed / offer. Use LMB/RMB to switch forward/backward
 
 TX_HOUSE_WARE_COSTS = 154; //Cost:
 TX_HOUSE_TOGGLE_REPAIR_HINT = 155; //Switch on/off house repair

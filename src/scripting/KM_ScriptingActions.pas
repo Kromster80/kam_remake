@@ -1936,7 +1936,7 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
-        H.DeliveryMode := TDeliveryModes(aDeliveryMode);
+        H.DeliveryMode := TDeliveryMode(aDeliveryMode);
     end
     else
       LogParamWarning('Actions.HouseDeliveryState', [aHouseID, aDeliveryMode]);

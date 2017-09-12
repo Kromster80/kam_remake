@@ -18,6 +18,9 @@ type
     fWareType: TWareType;
     fDeliverID: Integer;
     fDeliverKind: TDeliverKind;
+    //Force delivery, even if fToHouse blocked ware from delivery.
+    //Used in exceptional situation, when ware was carried by serf and delivery demand was destroyed and no one new was found
+    fForceDelivery: Boolean;
     procedure CheckForBetterDestination;
     function FindBestDestination: Boolean;
   public
@@ -35,7 +38,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
+  Math, KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
 
 
 { TTaskDeliver }
@@ -129,14 +132,19 @@ begin
     Result := Result or fFrom.IsDestroyed or (not fFrom.ResOutputAvailable(fWareType, 1) {and (fPhase < 5)});
 
   //Until we implement "wares recycling" we just abandon the delivery if target is destroyed/dead
-  if (fDeliverKind = dk_ToHouse) and (fPhase <= 8) then
-    Result := Result or fToHouse.IsDestroyed or (fToHouse.DeliveryMode <> dm_Delivery);
-
-  if (fDeliverKind = dk_ToConstruction) and (fPhase <= 6) then
-    Result := Result or fToHouse.IsDestroyed;
-
-  if (fDeliverKind = dk_ToUnit) and (fPhase <= 6) then
-    Result := Result or (fToUnit=nil) or fToUnit.IsDeadOrDying;
+  case fDeliverKind of
+    dk_ToHouse:         if fPhase <= 8 then
+                        begin
+                          Result := Result or fToHouse.IsDestroyed
+                                           or (not fForceDelivery
+                                              and ((fToHouse.DeliveryMode <> dm_Delivery)
+                                                or ((fToHouse is TKMHouseStore) and TKMHouseStore(fToHouse).NotAcceptFlag[fWareType])));
+                        end;
+    dk_ToConstruction:  if fPhase <= 6 then
+                          Result := Result or fToHouse.IsDestroyed;
+    dk_ToUnit:          if fPhase <= 6 then
+                          Result := Result or (fToUnit = nil) or fToUnit.IsDeadOrDying;
+  end;
 end;
 
 
@@ -165,18 +173,25 @@ begin
 end;
 
 
+// Try to find best destination
 function TTaskDeliver.FindBestDestination: Boolean;
 var
   NewToHouse: TKMHouse;
   NewToUnit: TKMUnit;
 begin
-  if fPhase < 5 then
+  if fPhase <= 2 then
+  begin
+    Result := False;
+    Exit;
+  end else
+  if InRange(fPhase, 3, 4) then
   begin
     Result := True;
     Exit;
   end;
 
-  gHands[fUnit.Owner].Deliveries.Queue.DeliveryFindBestDemand(fDeliverID, fWareType, NewToHouse, NewToUnit);
+  fForceDelivery := False; //Reset ForceDelivery from previous runs
+  gHands[fUnit.Owner].Deliveries.Queue.DeliveryFindBestDemand(TKMUnitSerf(fUnit), fDeliverID, fWareType, NewToHouse, NewToUnit, fForceDelivery);
 
   gHands.CleanUpHousePointer(fToHouse);
   gHands.CleanUpUnitPointer(fToUnit);
@@ -191,7 +206,7 @@ begin
       fDeliverKind := dk_ToConstruction;
     Result := True;
     if fPhase > 5 then
-      fPhase := 6;
+      fPhase := 5;
   end
   else
   // New Unit
@@ -201,7 +216,7 @@ begin
     fDeliverKind := dk_ToUnit;
     Result := True;
     if fPhase > 5 then
-      fPhase := 6;
+      fPhase := 5;
   end
   else
   // No alternative
