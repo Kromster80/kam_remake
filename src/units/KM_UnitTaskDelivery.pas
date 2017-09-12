@@ -70,14 +70,14 @@ begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
-  Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
-  gLog.LogDelivery('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
+  Assert((aFrom <> nil) and (toUnit <> nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
+  gLog.LogDelivery('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
   fDeliverKind := dk_ToUnit;
   fWareType := Res;
-  fDeliverID    := aID;
+  fDeliverID := aID;
 end;
 
 
