@@ -655,7 +655,7 @@ begin
           SetActionWalkToSpot(CellsToDig[LastToDig])
         else
         begin
-          Result := TaskDone;
+          Result := tr_TaskDone;
           fUnit.Thought := th_None;
           Exit;
         end;
@@ -691,7 +691,7 @@ begin
           HouseReadyToBuild := True; //If worker gets killed while walking house will be finished without him
         end;
     else
-        Result := TaskDone;
+        Result := tr_TaskDone;
   end;
 
   Inc(fPhase);
@@ -779,7 +779,7 @@ begin
   if WalkShouldAbandon then
   begin
     fUnit.Thought := th_None;
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -791,7 +791,7 @@ begin
           SetActionWalkToSpot(BuildFrom.Loc);
         end
         else
-          Result := TaskDone;
+          Result := tr_TaskDone;
     1:  begin
           //Face the building
           Direction := BuildFrom.Dir;
@@ -816,7 +816,7 @@ begin
           SetActionStay(1, ua_Walk);
           Thought := th_None;
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
   Inc(fPhase);
 
@@ -898,7 +898,7 @@ begin
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -910,7 +910,7 @@ begin
             SetActionWalkToSpot(BuildFrom.Loc);
           end
           else
-            Result := TaskDone;
+            Result := tr_TaskDone;
       1:  begin
             Direction := BuildFrom.Dir;
             SetActionLockedStay(0, ua_Walk);
@@ -929,7 +929,7 @@ begin
             SetActionStay(1, ua_Walk);
           end;
       else
-          Result := TaskDone;
+          Result := tr_TaskDone;
     end;
   inc(fPhase);
 
