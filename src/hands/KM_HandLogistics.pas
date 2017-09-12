@@ -298,11 +298,11 @@ begin
       FoundD := -1;
       for iD := 1 to fQueue.fDemandCount do
         if (fQueue.fDemand[iD].Ware <> wt_None)
-        and (fQueue.fDemand[iD].Importance >= BestImportance) then //Skip any less important than the best we found
+          and (fQueue.fDemand[iD].Importance >= BestImportance) then //Skip any less important than the best we found
           for iO := 1 to fQueue.fOfferCount do
             if (fQueue.fOffer[iO].Ware <> wt_None)
-            and fQueue.ValidDelivery(iO,iD)
-            and AnySerfCanDoDelivery(iO,iD) then //Only choose this delivery if at least one of the serfs can do it
+              and fQueue.ValidDelivery(iO,iD)
+              and AnySerfCanDoDelivery(iO,iD) then //Only choose this delivery if at least one of the serfs can do it
             begin
               Bid := fQueue.CalculateBid(iO,iD,nil);
               if (Bid < BestBid) or (fQueue.fDemand[iD].Importance > BestImportance) then
@@ -417,8 +417,8 @@ begin
   //Add Count of resource to old offer
   for I := 1 to fOfferCount do
     if (fOffer[I].Loc_House = aHouse)
-    and (fOffer[I].Ware = aWare)
-    and not fOffer[I].IsDeleted then
+      and (fOffer[I].Ware = aWare)
+      and not fOffer[I].IsDeleted then
     begin
       Assert(fOffer[I].Count >= aCount, 'Removing too many offers');
       Dec(fOffer[I].Count, aCount);
@@ -496,38 +496,40 @@ end;
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
 procedure TKMDeliveries.AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TWareType; aCount:byte; aType: TKMDemandType; aImp: TKMDemandImportance);
-var i,k,j:integer;
+var I,K,J:integer;
 begin
   Assert(aResource <> wt_None, 'Demanding rt_None');
 
-  for k:=1 to aCount do
+  for K := 1 to aCount do
   begin
-    i:=1; while (i<=fDemandCount)and(fDemand[i].Ware<>wt_None) do inc(i);
-    if i>fDemandCount then
+    I := 1;
+    while (I <= fDemandCount) and (fDemand[I].Ware <> wt_None) do
+      Inc(I);
+    if I > fDemandCount then
     begin
-      inc(fDemandCount, LENGTH_INC);
-      SetLength(fDemand, fDemandCount+1);
-      for j:=i to fDemandCount do
-        FillChar(fDemand[j], SizeOf(fDemand[j]), #0); //Initialise the new queue space
+      Inc(fDemandCount, LENGTH_INC);
+      SetLength(fDemand, fDemandCount + 1);
+      for J := I to fDemandCount do
+        FillChar(fDemand[J], SizeOf(fDemand[J]), #0); //Initialise the new queue space
     end;
 
-    with fDemand[i] do
+    with fDemand[I] do
     begin
-      if aHouse <> nil then Loc_House:=aHouse.GetHousePointer;
-      if aUnit <> nil then Loc_Unit:=aUnit.GetUnitPointer;
-      DemandType:=aType; //Once or Always
-      Ware:=aResource;
-      Importance:=aImp;
-      assert((not IsDeleted) and (BeingPerformed = 0)); //Make sure this item has been closed properly, if not there is a flaw
+      if aHouse <> nil then Loc_House := aHouse.GetHousePointer;
+      if aUnit <> nil then Loc_Unit := aUnit.GetUnitPointer;
+      DemandType := aType; //Once or Always
+      Ware := aResource;
+      Importance := aImp;
+      Assert((not IsDeleted) and (BeingPerformed = 0)); //Make sure this item has been closed properly, if not there is a flaw
 
       //Gold to Schools
       if (Ware = wt_Gold)
-      and (Loc_House <> nil) and (Loc_House.HouseType = ht_School) then
+        and (Loc_House <> nil) and (Loc_House.HouseType = ht_School) then
         Importance := diHigh1;
 
       //Food to Inn
       if (Ware in [wt_Bread, wt_Sausages, wt_Wine, wt_Fish])
-      and (Loc_House <> nil) and (Loc_House.HouseType = ht_Inn) then
+        and (Loc_House <> nil) and (Loc_House.HouseType = ht_Inn) then
         Importance := diHigh3;
     end;
   end;
@@ -561,10 +563,10 @@ begin
                         (fDemand[iD].Loc_House.HouseType <> ht_Store) or
                         (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Ware]));
 
-  //Warfare has a preference to be deivered to Barracks
+  //Warfare has a preference to be delivered to Barracks
   if Result
-  and (fOffer[iO].Ware in [WARFARE_MIN..WARFARE_MAX])
-  and (fDemand[iD].Loc_House <> nil) then
+    and (fOffer[iO].Ware in [WARFARE_MIN..WARFARE_MAX])
+    and (fDemand[iD].Loc_House <> nil) then
   begin
     //If Demand is a Barracks and it has WareDelivery toggled OFF
     if (fDemand[iD].Loc_House.HouseType = ht_Barracks)
@@ -1034,7 +1036,7 @@ begin
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
   begin
-    dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
+    Dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
     //Now see if we need to delete the Offer as we are the last remaining pointer
     if fOffer[fQueue[aID].OfferID].IsDeleted and (fOffer[fQueue[aID].OfferID].BeingPerformed = 0) then
       CloseOffer(fQueue[aID].OfferID);

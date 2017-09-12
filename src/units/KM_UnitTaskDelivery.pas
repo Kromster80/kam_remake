@@ -122,7 +122,7 @@ end;
 //Note: Phase is -1 because it will have been increased at the end of last Execute
 function TTaskDeliver.WalkShouldAbandon: Boolean;
 begin
-  Result := false;
+  Result := False;
 
   //After step 2 we don't care if From is destroyed or doesn't have the ware
   if fPhase <= 2 then
