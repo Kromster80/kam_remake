@@ -383,6 +383,8 @@ procedure TGameInputProcess_Multi.RunningTimer(aTick: Cardinal);
 var
   I, K, Tick: Cardinal;
 begin
+  inherited;
+
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
   fRandomCheck[Tick].OurCheck := Cardinal(KaMRandom(maxint)); //thats our CRC (must go before commands for replay compatibility)

@@ -25,7 +25,7 @@ begin
   if gGame.GameMode in [gmReplaySingle, gmReplayMulti] then Exit;
 
   StoreCommand(aCommand); //Store the command for the replay (store it first in case Exec crashes and we want to debug it)
-  ExecCommand(aCommand); //Execute the command now
+  ExecCommand(aCommand);  //Execute the command now
 end;
 
 
@@ -58,6 +58,8 @@ end;
 
 procedure TGameInputProcess_Single.RunningTimer(aTick: Cardinal);
 begin
+  inherited;
+
   KaMRandom(MaxInt); //This is to match up with multiplayer CRC generation, so multiplayer replays can be replayed in singleplayer mode
 end;
 

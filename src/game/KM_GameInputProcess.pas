@@ -286,19 +286,19 @@ type
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
     procedure CmdTemp(aCommandType: TGameInputCommandType); overload;
 
-    function CommandsConfirmed(aTick:cardinal):boolean; virtual;
-    procedure WaitingForConfirmation(aTick:cardinal); virtual;
-    procedure ReplayTimer(aTick:cardinal); virtual;
-    procedure RunningTimer(aTick:cardinal); virtual;
-    procedure UpdateState(aTick:cardinal); virtual;
+    function CommandsConfirmed(aTick: Cardinal): Boolean; virtual;
+    procedure WaitingForConfirmation(aTick: Cardinal); virtual;
+    procedure ReplayTimer(aTick: Cardinal); virtual;
+    procedure RunningTimer(aTick: Cardinal); virtual;
+    procedure UpdateState(aTick: Cardinal); virtual;
 
     //Replay methods
     procedure SaveToFile(aFileName: UnicodeString);
     procedure LoadFromFile(aFileName: UnicodeString);
-    property Count:integer read fCount;
+    property Count: Integer read fCount;
     property ReplayState: TGIPReplayState read fReplayState;
-    function GetLastTick:Cardinal;
-    function ReplayEnded:boolean;
+    function GetLastTick: Cardinal;
+    function ReplayEnded: Boolean;
   end;
 
 
@@ -828,7 +828,7 @@ end;
 procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer);
 begin
   Assert(aCommandType = gic_WareDistributionChange);
-  TakeCommand(MakeCommand(aCommandType, Byte(aWare), byte(aHouseType), aValue));
+  TakeCommand(MakeCommand(aCommandType, Byte(aWare), Byte(aHouseType), aValue));
 end;
 
 
@@ -920,7 +920,7 @@ begin
   S.ReadA(FileVersion);
   Assert(FileVersion = GAME_REVISION, 'Old or unexpected replay file. '+GAME_REVISION+' is required.');
   S.Read(fCount);
-  setlength(fQueue, fCount+1);
+  SetLength(fQueue, fCount+1);
   for I := 1 to fCount do
   begin
     S.Read(fQueue[I].Tick);
@@ -933,14 +933,14 @@ end;
 
 
 { Return last recorded tick }
-function TGameInputProcess.GetLastTick:Cardinal;
+function TGameInputProcess.GetLastTick: Cardinal;
 begin
   Result := fQueue[fCount].Tick;
 end;
 
 
 { See if replay has ended (no more commands in queue) }
-function TGameInputProcess.ReplayEnded:boolean;
+function TGameInputProcess.ReplayEnded: Boolean;
 begin
   if ReplayState = gipReplaying then
     Result := fCursor > fCount
@@ -957,7 +957,7 @@ begin
     Exit;
 
   Assert(ReplayState = gipRecording);
-  inc(fCount);
+  Inc(fCount);
   if Length(fQueue) <= fCount then SetLength(fQueue, fCount+128);
 
   fQueue[fCount].Tick    := gGame.GameTickCount;
@@ -966,28 +966,28 @@ begin
 end;
 
 
-function TGameInputProcess.CommandsConfirmed(aTick:cardinal):boolean;
+function TGameInputProcess.CommandsConfirmed(aTick: Cardinal): Boolean;
 begin
-  Result := true;
+  Result := True;
 end;
 
 
-procedure TGameInputProcess.WaitingForConfirmation(aTick:cardinal);
-begin
-end;
-
-
-procedure TGameInputProcess.ReplayTimer(aTick:cardinal);
+procedure TGameInputProcess.WaitingForConfirmation(aTick: Cardinal);
 begin
 end;
 
 
-procedure TGameInputProcess.RunningTimer(aTick:cardinal);
+procedure TGameInputProcess.ReplayTimer(aTick: Cardinal);
 begin
 end;
 
 
-procedure TGameInputProcess.UpdateState(aTick:cardinal);
+procedure TGameInputProcess.RunningTimer(aTick: Cardinal);
+begin
+end;
+
+
+procedure TGameInputProcess.UpdateState(aTick: Cardinal);
 begin
   //Only used in GIP_Multi
 end;
