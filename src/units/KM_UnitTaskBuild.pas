@@ -185,11 +185,11 @@ end;
 
 function TTaskBuildRoad.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -247,7 +247,7 @@ begin
          gTerrain.UnlockTile(fLoc);
          TileLockSet := False;
        end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
   if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
 end;
@@ -318,11 +318,11 @@ end;
 
 function TTaskBuildWine.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -375,7 +375,7 @@ begin
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
       end;
-   else Result := TaskDone;
+   else Result := tr_TaskDone;
   end;
   if fPhase<>5 then inc(fPhase); //Phase=5 is when worker waits for rt_Wood
 end;
@@ -443,11 +443,11 @@ end;
 
 function TTaskBuildField.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -478,7 +478,7 @@ begin
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
        end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
   if fPhase2 in [0,10] then inc(fPhase);
 end;
@@ -617,17 +617,17 @@ end;
 function TTaskBuildHouseArea.Execute: TTaskResult;
 var OutOfWay: TKMPoint;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
   if (fHouse <> nil) and fHouse.IsDestroyed then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     fUnit.Thought := th_None;
     Exit;
   end;
@@ -774,7 +774,7 @@ end;
 {Build the house}
 function TTaskBuildHouse.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
@@ -894,7 +894,7 @@ end;
 {Repair the house}
 function TTaskBuildHouseRepair.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin

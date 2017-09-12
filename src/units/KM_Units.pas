@@ -17,7 +17,7 @@ type
   TKMUnitEvent = procedure(aUnit: TKMUnit) of object;
   TKMUnitFromEvent = procedure(aUnit: TKMUnit; aFrom: TKMHandIndex) of object;
 
-  TActionResult = (ActContinues, ActDone, ActAborted); //
+  TActionResult = (ar_ActContinues, ar_ActDone, ar_ActAborted); //
 
   TUnitAction = class
   protected
@@ -38,7 +38,7 @@ type
     procedure Paint; virtual;
   end;
 
-  TTaskResult = (TaskContinues, TaskDone); //There's no difference between Done and Aborted
+  TTaskResult = (tr_TaskContinues, tr_TaskDone); //There's no difference between Done and Aborted
 
   TUnitTask = class
   protected
@@ -1028,9 +1028,9 @@ begin
   end;
 
   case fCurrentAction.Execute of
-    ActContinues: exit;
-    ActDone:      FreeAndNil(fCurrentAction);
-    ActAborted:   FreeAndNil(fCurrentAction);
+    ar_ActContinues: exit;
+    ar_ActDone:      FreeAndNil(fCurrentAction);
+    ar_ActAborted:   FreeAndNil(fCurrentAction);
   end;
   fCurrPosition := KMPointRound(fPosition);
 
@@ -1038,8 +1038,8 @@ begin
   Assert((fUnitTask = nil) or (fUnitTask is TTaskDie));
   if fUnitTask is TTaskDie then
   case fUnitTask.Execute of
-    TaskContinues:  exit;
-    TaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = TaskDone'); //TTaskDie never returns TaskDone yet
+    tr_TaskContinues:  exit;
+    tr_TaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = tr_TaskDone'); //TTaskDie never returns tr_TaskDone yet
   end;
 
   //First make sure the animal isn't stuck (check passibility of our position)
@@ -2113,16 +2113,16 @@ begin
 
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute of
-    ActContinues: begin fCurrPosition := KMPointRound(fPosition); Exit; end;
-    ActAborted:   begin FreeAndNil(fCurrentAction); FreeAndNil(fUnitTask); end;
-    ActDone:      FreeAndNil(fCurrentAction);
+    ar_ActContinues: begin fCurrPosition := KMPointRound(fPosition); Exit; end;
+    ar_ActAborted:   begin FreeAndNil(fCurrentAction); FreeAndNil(fUnitTask); end;
+    ar_ActDone:      FreeAndNil(fCurrentAction);
   end;
   fCurrPosition := KMPointRound(fPosition);
 
   if fUnitTask <> nil then
   case fUnitTask.Execute of
-    TaskContinues:  Exit;
-    TaskDone:       FreeAndNil(fUnitTask);
+    tr_TaskContinues:  Exit;
+    tr_TaskDone:       FreeAndNil(fUnitTask);
   end;
 
   //If we get to this point then it means that common part is done and now

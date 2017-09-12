@@ -75,11 +75,11 @@ end;
 
 function TTaskGoEat.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if fInn.IsDestroyed then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -156,7 +156,7 @@ begin
         fPlace := -1;
       end;
    else
-      Result := TaskDone;
+      Result := tr_TaskDone;
   end;
 
   Inc(fPhase);

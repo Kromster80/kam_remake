@@ -229,11 +229,11 @@ end;
 
 function TTaskDeliver.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon and fUnit.Visible and not FindBestDestination then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -287,14 +287,14 @@ begin
           if TKMUnitSerf(fUnit).TryDeliverFrom(fToHouse) then
           begin
             //After setting new unit task we should free self.
-            //Note do not set TaskDone:=true as this will affect the new task
+            //Note do not set tr_TaskDone := true as this will affect the new task
             Self.Free;
             Exit;
           end else
             //No delivery found then just step outside
             SetActionGoIn(ua_Walk, gd_GoOutside, fToHouse);
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
 
   //Deliver into wip house
@@ -318,7 +318,7 @@ begin
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionStay(1, ua_Walk);
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
 
   //Deliver to builder or soldier
@@ -361,7 +361,7 @@ begin
             if TKMUnitSerf(fUnit).TryDeliverFrom(nil) then
             begin
               //After setting new unit task we should free self.
-              //Note do not set TaskDone:=true as this will affect the new task
+              //Note do not set tr_TaskDone := true as this will affect the new task
               Self.Free;
               Exit;
             end else
@@ -372,7 +372,7 @@ begin
           end else
             SetActionStay(0, ua_Walk); //If we're not feeding a warrior then ignore this step
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
 
   Inc(fPhase);

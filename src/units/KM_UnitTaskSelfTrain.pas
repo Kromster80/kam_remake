@@ -67,7 +67,7 @@ end;
 
 function TTaskSelfTrain.Execute:TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   //If the school has been destroyed then this task should not be running (school frees it on CloseHouse)
   //However, if we are past phase 6 (task ends on phase 7) then the school does not know about us (we have stepped outside)
@@ -110,7 +110,7 @@ begin
           if Assigned(fUnit.OnUnitTrained) then
             fUnit.OnUnitTrained(fUnit);
          end;
-      else Result := TaskDone;
+      else Result := tr_TaskDone;
     end;
   Inc(fPhase);
 end;

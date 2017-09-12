@@ -268,7 +268,7 @@ end;
 function TUnitActionGoInOut.Execute: TActionResult;
 var Distance:single; U:TKMUnit;
 begin
-  Result := ActContinues;
+  Result := ar_ActContinues;
 
   if not fHasStarted then
   begin
@@ -350,7 +350,7 @@ begin
 
   if (fStep <= 0) or (fStep >= 1) then
   begin
-    Result := ActDone;
+    Result := ar_ActDone;
     fUnit.IsExchanging := False;
     if fUsedDoorway then DecDoorway;
     if fDirection = gd_GoInside then

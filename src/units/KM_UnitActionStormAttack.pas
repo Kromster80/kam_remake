@@ -129,7 +129,7 @@ begin
   begin
     Dec(fDelay);
     fUnit.AnimStep := UnitStillFrames[fUnit.Direction];
-    Result := ActContinues;
+    Result := ar_ActContinues;
     Exit;
   end;
 
@@ -161,7 +161,7 @@ begin
       begin
         //If we've picked a fight it means this action no longer exists,
         //so we must exit out (don't set ActDone as that will now apply to fight action)
-        Result := ActContinues;
+        Result := ar_ActContinues;
         Exit;
       end;
     Locked := True; //Finished CheckForEnemy, so lock again
@@ -172,7 +172,7 @@ begin
     //Action ends if: 1: Used up stamina. 2: There is an enemy to fight. 3: NextPos is an obsticle
     if (fTileSteps >= fStamina) or not fUnit.CanStepTo(fNextPos.X, fNextPos.Y, fUnit.DesiredPassability) then
     begin
-      Result := ActDone; //Finished run
+      Result := ar_ActDone; //Finished run
       Exit; //Must exit right away as we might have changed this action to fight
     end;
 
@@ -196,7 +196,7 @@ begin
 
   inc(fUnit.AnimStep);
   StepDone := false; //We are not actually done because now we have just taken another step
-  Result := ActContinues;
+  Result := ar_ActContinues;
 end;
 
 

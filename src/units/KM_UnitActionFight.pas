@@ -176,7 +176,7 @@ end;
 
 function TUnitActionFight.ExecuteValidateOpponent(Step: Byte): TActionResult;
 begin
-  Result := ActContinues;
+  Result := ar_ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
   if fOpponent.IsDeadOrDying //Don't continue to fight dead units
   or not fOpponent.Visible //Don't continue to fight units that have went into a house
@@ -207,7 +207,7 @@ begin
     else
     begin
       //No one else to fight, so we exit
-      Result := ActDone;
+      Result := ar_ActDone;
     end;
   end;
 end;
@@ -324,7 +324,7 @@ begin
   Step  := fUnit.AnimStep mod Cycle;
 
   Result := ExecuteValidateOpponent(Step);
-  if Result = ActDone then Exit;
+  if Result = ar_ActDone then Exit;
   Step := fUnit.AnimStep mod Cycle; //Can be changed by ExecuteValidateOpponent, so recalculate it
 
   //Opponent can walk next to us, keep facing him
@@ -336,7 +336,7 @@ begin
     if not UpdateVertexUsage(fUnit.GetPosition, fOpponent.GetPosition) then
     begin
       //The vertex is being used so we can't fight
-      Result := ActDone;
+      Result := ar_ActDone;
       Exit;
     end;
 

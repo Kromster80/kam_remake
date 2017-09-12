@@ -962,21 +962,21 @@ var
   DX,DY: Shortint;
   WalkX,WalkY,Distance: Single;
 begin
-  Result := ActContinues;
+  Result := ar_ActContinues;
   StepDone := False;
   fDoesWalking := False; //Set it to false at start of update
 
   //Happens whe e.g. Serf stays in front of Store and gets Deliver task
   if KMSamePoint(fWalkFrom, fWalkTo) then
   begin
-    Result := ActDone;
+    Result := ar_ActDone;
     Exit;
   end;
 
   //Route was not built
   if NodeList.Count = 0 then
   begin
-    Result := ActAborted;
+    Result := ar_ActAborted;
     Exit;
   end;
 
@@ -986,7 +986,7 @@ begin
     if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then
       DecVertex; //Unoccupy vertex
     fUnit.IsExchanging := False; //Disable sliding (in case it was set in previous step)
-    Result := ActDone;
+    Result := ar_ActDone;
     Exit;
   end;
 
@@ -1028,7 +1028,7 @@ begin
     //Check if we need to walk to a new destination
     if CanAbandonInternal and (CheckForNewDestination = dc_NoRoute) then
     begin
-      Result := ActAborted;
+      Result := ar_ActAborted;
       Exit;
     end;
 
@@ -1045,7 +1045,7 @@ begin
       if (fDistance > 0) and ((fUnit.UnitTask = nil) or (not fUnit.UnitTask.WalkShouldAbandon))
         and not KMSamePoint(NodeList[NodePos], fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
         fUnit.Direction := KMGetDirection(NodeList[NodePos], fWalkTo); //Face tile (e.g. worker)
-      Result := ActDone;
+      Result := ar_ActDone;
       Exit;
     end;
 
@@ -1053,7 +1053,7 @@ begin
     if CanAbandonInternal then
       if CheckTargetHasDied then
       begin
-        Result := ActAborted;
+        Result := ar_ActAborted;
         Exit;
       end;
 
@@ -1078,7 +1078,7 @@ begin
       case CheckForObstacle of
         oc_NoObstacle:  ;
         oc_ReRouteMade: Exit; //New route will pick-up
-        oc_NoRoute:     begin Result := ActAborted; Exit; end; //
+        oc_NoRoute:     begin Result := ar_ActAborted; Exit; end; //
       end;
 
     //Perform exchange

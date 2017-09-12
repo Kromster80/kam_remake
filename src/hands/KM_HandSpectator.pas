@@ -209,7 +209,6 @@ var
   end;
 
 var
-  G: TKMUnitGroup;
   UID: Integer;
 begin
   NewSelected := gHands.GetUnitByUID(gGameCursor.ObjectUID);
