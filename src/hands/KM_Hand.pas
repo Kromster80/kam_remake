@@ -1359,7 +1359,7 @@ begin
 
   inherited;
 
-  fHouses.UpdateState;
+  fHouses.UpdateState(aTick);
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
   //Distribute AI updates among different Ticks to avoid slowdowns

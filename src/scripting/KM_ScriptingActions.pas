@@ -1912,9 +1912,9 @@ begin
       if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
       begin
         if aDeliveryBlocked then
-          H.DeliveryMode := dm_Closed
+          H.SetDeliveryModeInstantly(dm_Closed)
         else
-          H.DeliveryMode := dm_Delivery;
+          H.SetDeliveryModeInstantly(dm_Delivery);
       end;
     end
     else
@@ -1936,7 +1936,7 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
-        H.DeliveryMode := TDeliveryMode(aDeliveryMode);
+        H.SetDeliveryModeInstantly(TDeliveryMode(aDeliveryMode));
     end
     else
       LogParamWarning('Actions.HouseDeliveryState', [aHouseID, aDeliveryMode]);

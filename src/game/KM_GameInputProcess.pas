@@ -576,7 +576,8 @@ begin
                                     P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
       gic_HouseRepairToggle:      SrcHouse.BuildingRepair := not SrcHouse.BuildingRepair;
-      gic_HouseDeliveryToggle:    SrcHouse.DeliveryMode := TDeliveryMode(Params[2]);
+      gic_HouseDeliveryToggle:    //Delivery mode has to be delayed, to avoid occasional delivery mode button clicks
+                                  SrcHouse.NewDeliveryMode := TDeliveryMode(Params[2]);
       gic_HouseClosedForWorkerToggle: SrcHouse.IsClosedForWorker := not SrcHouse.IsClosedForWorker;                                  
       gic_HouseOrderProduct:      SrcHouse.ResOrder[Params[2]] := SrcHouse.ResOrder[Params[2]] + Params[3];
       gic_HouseMarketFrom:        TKMHouseMarket(SrcHouse).ResFrom := TWareType(Params[2]);

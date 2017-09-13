@@ -34,7 +34,7 @@ type
     procedure IncAnimStep;
     procedure UpdateResRequest; //Change resource requested counts for all houses
     procedure DeleteHouseFromList(aHouse: TKMHouse);
-    procedure UpdateState;
+    procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
 
@@ -318,13 +318,13 @@ begin
 end;
 
 
-procedure TKMHousesCollection.UpdateState;
+procedure TKMHousesCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
   for I := Count - 1 downto 0  do
     if not Houses[I].IsDestroyed then
-      Houses[I].UpdateState
+      Houses[I].UpdateState(aTick)
     else
       if FREE_POINTERS and (Houses[I].PointerCount = 0) then
         fHouses.Delete(I); //Because no one needs this anymore it must DIE!!!!! :D

@@ -47,9 +47,16 @@ type
     fBuildingProgress: Word; //That is how many efforts were put into building (Wooding+Stoning)
     fDamage: Word; //Damaged inflicted to house
 
+    fTick: Cardinal;
     fHasOwner: Boolean; //which is some TKMUnit
     fBuildingRepair: Boolean; //If on and the building is damaged then labourers will come and repair it
-    fDeliveryMode: TDeliveryMode; //If on then no wares will be delivered here
+
+    //Switch between delivery modes: delivery on/off/or make an offer from resources available
+    fDeliveryMode: TDeliveryMode; // REAL delivery mode - using in game interactions and actual deliveries
+    fNewDeliveryMode: TDeliveryMode; // Fake, NEW delivery mode, used just for UI. After few tick it will be set as REAL, if there will be no other clicks from player
+    // Delivery mode set with small delay (couple of ticks), to avoid occasional clicks on delivery mode button
+    fUpdateDeliveryModeOnTick: Cardinal; // Tick, on which we have to update real delivery mode with its NEW value
+
     fIsClosedForWorker: Boolean; // house is closed for worker. If worker is already occupied it, then leave house
 
     fResourceIn: array [1..4] of Byte; //Resource count in input
@@ -81,6 +88,7 @@ type
     function GetPointBelowEntrance: TKMPoint;
     function GetEntrance: TKMPoint;
     procedure SetIsClosedForWorker(aIsClosed: Boolean);
+    procedure UpdateDeliveryMode;
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
@@ -91,7 +99,7 @@ type
     function GetResOrder(aId: Byte): Integer; virtual;
     procedure SetBuildingRepair(aValue: Boolean);
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
-    procedure SetDeliveryMode(aValue: TDeliveryMode); virtual;
+    procedure SetNewDeliveryMode(aValue: TDeliveryMode); virtual;
   public
     CurrentAction: THouseAction; //Current action, withing HouseTask or idle
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -126,7 +134,9 @@ type
     function HitTest(X, Y: Integer): Boolean;
     property HouseType: THouseType read fHouseType;
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
-    property DeliveryMode: TDeliveryMode read fDeliveryMode write SetDeliveryMode;
+    property DeliveryMode: TDeliveryMode read fDeliveryMode;
+    property NewDeliveryMode: TDeliveryMode read fNewDeliveryMode write SetNewDeliveryMode;
+    procedure SetDeliveryModeInstantly(aValue: TDeliveryMode);
     property IsClosedForWorker: Boolean read fIsClosedForWorker write SetIsClosedForWorker;
     property GetHasOwner: Boolean read fHasOwner write fHasOwner; //There's a citizen who runs this house
     property Owner: TKMHandIndex read fOwner;
@@ -174,7 +184,7 @@ type
 
     procedure IncAnimStep;
     procedure UpdateResRequest;
-    procedure UpdateState;
+    procedure UpdateState(aTick: Cardinal);
     procedure Paint; virtual;
   end;
 
@@ -244,6 +254,12 @@ uses
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
   KM_Resource, KM_CommonUtils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
 
+const
+  //Delay, In ticks, from user click on DeliveryMode btn, to tick, when mode will be really set.
+  //Made to prevent serf's taking/losing deliveries only because player clicks throught modes.
+  //No hurry, let's wait a bit for player to be sure, what mode he needs
+  UPDATE_DELIVERY_MODE_DELAY = 10;
+
 
 { TKMHouse }
 constructor TKMHouse.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
@@ -269,7 +285,9 @@ begin
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
   fBuildingRepair   := False; //Don't set it yet because we don't always know who are AIs yet (in multiplayer) It is set in first UpdateState
   DoorwayUse        := 0;
+  fNewDeliveryMode  := dm_Delivery;
   fDeliveryMode     := dm_Delivery;
+  fUpdateDeliveryModeOnTick := 0;
 
   for I := 1 to 4 do
   begin
@@ -321,6 +339,8 @@ begin
   LoadStream.Read(fHasOwner);
   LoadStream.Read(fBuildingRepair);
   LoadStream.Read(Byte(fDeliveryMode));
+  LoadStream.Read(Byte(fNewDeliveryMode));
+  LoadStream.Read(fUpdateDeliveryModeOnTick);
   LoadStream.Read(fIsClosedForWorker);
   for I:=1 to 4 do LoadStream.Read(fResourceIn[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[I]);
@@ -524,23 +544,41 @@ begin
 end;
 
 
-procedure TKMHouse.SetDeliveryMode(aValue: TDeliveryMode);
+procedure TKMHouse.UpdateDeliveryMode;
 var
   I: Integer;
-  OldMode: TDeliveryMode;
 begin
-  OldMode := fDeliveryMode;
-  fDeliveryMode := aValue;
+  if fNewDeliveryMode = fDeliveryMode then Exit;
 
-  if OldMode = dm_TakeOut then
+  if fDeliveryMode = dm_TakeOut then
     for I := 1 to 4 do
       if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
         gHands[fOwner].Deliveries.Queue.RemOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
 
-  if aValue = dm_TakeOut then
+  if fNewDeliveryMode = dm_TakeOut then
     for I := 1 to 4 do
       if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
         gHands[fOwner].Deliveries.Queue.AddOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
+
+  fUpdateDeliveryModeOnTick := 0;
+  fDeliveryMode := fNewDeliveryMode;
+end;
+
+
+//Set NewDelivery mode. Its going to become a real delivery mode few ticks later
+procedure TKMHouse.SetNewDeliveryMode(aValue: TDeliveryMode);
+begin
+  fNewDeliveryMode := aValue;
+
+  fUpdateDeliveryModeOnTick := fTick + UPDATE_DELIVERY_MODE_DELAY;
+end;
+
+
+//Set delivery mdoe immidiately
+procedure TKMHouse.SetDeliveryModeInstantly(aValue: TDeliveryMode);
+begin
+  fNewDeliveryMode := aValue;
+  UpdateDeliveryMode;
 end;
 
 
@@ -1174,7 +1212,7 @@ begin
     if aWare = gRes.Houses[fHouseType].ResOutput[I] then
       Result := fResourceOut[I] >= aCount;
 
-  if not Result and (fDeliveryMode = dm_TakeOut) then
+  if not Result and (fNewDeliveryMode = dm_TakeOut) then
     for I := 1 to 4 do
       if aWare = gRes.Houses[fHouseType].ResInput[I] then
         Result := fResourceIn[I] >= aCount;
@@ -1357,6 +1395,8 @@ begin
   SaveStream.Write(fHasOwner);
   SaveStream.Write(fBuildingRepair);
   SaveStream.Write(Byte(fDeliveryMode));
+  SaveStream.Write(Byte(fNewDeliveryMode));
+  SaveStream.Write(fUpdateDeliveryModeOnTick);
   SaveStream.Write(fIsClosedForWorker);
   for I:=1 to 4 do SaveStream.Write(fResourceIn[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[I]);
@@ -1449,10 +1489,16 @@ begin
 end;
 
 
-procedure TKMHouse.UpdateState;
+procedure TKMHouse.UpdateState(aTick: Cardinal);
 var HouseUnoccupiedMsgId: Integer;
 begin
   if not IsComplete then Exit; //Don't update unbuilt houses
+
+  fTick := aTick;
+
+  //Update delivery mode, if time has come
+  if (fUpdateDeliveryModeOnTick = fTick) then
+    UpdateDeliveryMode;
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all
   //and is not closed for worker and not a barracks

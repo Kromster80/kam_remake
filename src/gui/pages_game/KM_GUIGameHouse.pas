@@ -500,7 +500,7 @@ begin
   else 
     Button_HouseRepair.TexID := 40;
   
-  case aHouse.DeliveryMode of
+  case aHouse.NewDeliveryMode of //Use NewDeliveryMode, as it is supposed to be in UI, instead of DeliveryMode
     dm_Delivery: Button_HouseDeliveryMode.TexID := 37;
     dm_Closed:   Button_HouseDeliveryMode.TexID := 38;
     dm_TakeOut:  Button_HouseDeliveryMode.TexID := 664;
