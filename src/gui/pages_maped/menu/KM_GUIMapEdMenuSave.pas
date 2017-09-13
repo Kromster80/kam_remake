@@ -3,7 +3,7 @@ unit KM_GUIMapEdMenuSave;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Maps, KM_InterfaceGame;
+   KM_Controls, KM_Maps, KM_InterfaceGame, KM_CommonTypes;
 
 
 type
@@ -19,6 +19,7 @@ type
       Label_SaveExists: TKMLabel;
       CheckBox_SaveExists: TKMCheckBox;
   public
+    OnChangeMapType: TBooleanEvent;
     Button_SaveSave: TKMButton;
     Button_SaveCancel: TKMButton;
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_WIDTH);
@@ -78,6 +79,9 @@ begin
     CheckBox_SaveExists.Checked := False;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled and (Length(Trim(Edit_SaveName.Text)) > 0);
   end;
+
+  if (Sender = Radio_Save_MapType) and Assigned(OnChangeMapType) then
+    OnChangeMapType(Radio_Save_MapType.ItemIndex = 1);
 
   if Sender = CheckBox_SaveExists then
     Button_SaveSave.Enabled := CheckBox_SaveExists.Checked;

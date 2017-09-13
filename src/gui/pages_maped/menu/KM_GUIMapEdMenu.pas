@@ -22,6 +22,7 @@ type
     fGuiMenuQuit: TKMMapEdMenuQuit;
     procedure MenuClick(Sender: TObject);
     procedure MenuDone(Sender: TObject);
+    procedure MapTypeChange(aIsMultiplayer: Boolean);
   protected
     Panel_Menu: TKMPanel;
     Button_Resize: TKMButton;
@@ -57,6 +58,7 @@ begin
   fGuiMenuResize := TKMMapEdMenuResize.Create(aParent, MenuDone, aOnPageChange);
   fGuiMenuLoad := TKMMapEdMenuLoad.Create(aParent, MenuDone);
   fGuiMenuSave := TKMMapEdMenuSave.Create(aParent, MenuDone);
+  fGuiMenuSave.OnChangeMapType := MapTypeChange;
   fGuiMenuQuit := TKMMapEdMenuQuit.Create(aParent, MenuDone);
   fGuiMenuSettings := TKMMapEdMenuSettings.Create(aParent);
 
@@ -95,6 +97,12 @@ begin
   fGuiMenuSettings.Free;
 
   inherited;
+end;
+
+
+procedure TKMMapEdMenu.MapTypeChange(aIsMultiplayer: Boolean);
+begin
+  fGuiMenuTryMap.MapTypeChanged(aIsMultiplayer);
 end;
 
 

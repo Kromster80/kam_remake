@@ -30,6 +30,7 @@ type
     constructor Create(aParent: TKMPanel);
     destructor Destroy; override;
 
+    procedure MapTypeChanged(aIsMultiplayer: Boolean);
     procedure SetLoadMode(aMultiplayer: Boolean);
     procedure Show;
     procedure Hide;
@@ -72,6 +73,8 @@ begin
     Button_Cancel.OnClick := Cancel_Click;
 
   fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, 10, 220);
+  fMenuSave.OnChangeMapType := MapTypeChanged;
+
   fMenuSave.Button_SaveCancel.Hide;
 
   fMenuSave.Button_SaveSave.Top := fMenuSave.Button_SaveSave.Top + 10;
@@ -116,6 +119,12 @@ begin
     VK_ESCAPE:  if Button_Cancel.IsClickable then
                   Cancel_Click(Button_Cancel);
   end;
+end;
+
+
+procedure TKMMapEdMenuTryMap.MapTypeChanged(aIsMultiplayer: Boolean);
+begin
+  SetLoadMode(aIsMultiplayer);
 end;
 
 
