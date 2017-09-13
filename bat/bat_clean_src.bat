@@ -16,4 +16,7 @@ erase /F /Q /S /A:H *.~* *.ddp *.drc *.dcp *.dcu
 erase /F /Q /S /A:H *.o *.or *.ppu *.compiled *.local
 erase /F /Q /S /A:H *.tmp *.log thumbs.db KaM_Remake.map descript.ion *.skincfg *.identcache *.tvsconfig *.mi *.LOG.txt *.stat bugreport.txt
 
+REM clean all empty dirs, f.e. old/renamed maps
+ROBOCOPY . . /S /MOVE
+
 cd bat
