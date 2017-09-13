@@ -17,6 +17,7 @@ type
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
     fMinimap: TKMMinimap;
+    fScanCompleted: Boolean;
 
     fSelectedMapInfo: TKMFileIdentInfo; // Identification info about last selected map
 
@@ -432,6 +433,7 @@ begin
   case Radio_MapEd_MapType.ItemIndex of
     0:  begin
           fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdSPMapCRC;
+          fScanCompleted := False;
           fMaps.Refresh(ScanUpdate, ScanComplete);
         end;
     1:  begin
@@ -445,12 +447,14 @@ end;
 
 procedure TKMMenuMapEditor.ScanUpdate(Sender: TObject);
 begin
-  RefreshList(False); //Don't jump to selected with each scan update
+  if not fScanCompleted then  // Don't refresh list, if complete scan already
+    RefreshList(False); //Don't jump to selected with each scan update
 end;
 
 
 procedure TKMMenuMapEditor.ScanComplete(Sender: TObject);
 begin
+  fScanCompleted := True;
   RefreshList(True); //After scan complete jump to selected item
 end;
 
