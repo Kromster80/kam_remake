@@ -3201,6 +3201,7 @@ begin
   end;
 
   if not gMySpectator.Hand.InCinematic then
+  begin
     // Only own and ally units/houses can be selected
     Owner := GetGameObjectOwnerIndex(Obj);
     if (Owner <> -1) and
@@ -3212,6 +3213,7 @@ begin
       gRes.Cursors.Cursor := kmc_Info;
       Exit;
     end;
+  end;
 
   if (gMySpectator.Selected is TKMUnitGroup)
     and (fUIMode in [umSP, umMP]) and not HasLostMPGame

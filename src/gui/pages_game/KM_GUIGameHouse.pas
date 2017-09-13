@@ -445,7 +445,7 @@ begin
     Image_House_Worker_Closed.Hide;
   end;
 
-  Button_House_Worker.Hint := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName;
+  Button_House_Worker.Hint := Format('Open / Close house for %s', [gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName]); //Todo translate
   Button_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
 
   HealthBar_House.Caption   := inttostr(round(aHouse.GetHealth))+'/'+inttostr(gRes.Houses[aHouse.HouseType].MaxHealth);
