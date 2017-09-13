@@ -23,8 +23,8 @@ REM for /F "delims=" %%i in (KM_Revision.inc) do set "verinfo=%%i"
 
 REM Replace ' with nothing to get the version info
 REM @SET kam_revision=%verinfo:'=%
-@SET kam_revision=1
+@SET kam_revision=2
 
 REM Now we can have a constant with the right folder name
-@SET kam_folder=%BetaVersionsDir%\kam%YYYY%-%MM%-%DD% (%kam_version% br%kam_revision%)
+@SET kam_folder=%BetaVersionsDir%\kam%YYYY%-%MM%-%DD% (%kam_version% rev%kam_revision%)
 echo kam_folder: "%kam_folder%"
