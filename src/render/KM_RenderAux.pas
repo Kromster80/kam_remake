@@ -27,7 +27,7 @@ type
     procedure Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure TriangleOnTerrain(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
-    procedure ResizeMap(aExceptRect: TKMRect);
+    procedure RenderResizeMap(aExceptRect: TKMRect);
     procedure Projectile(x1, y1, x2, y2: Single);
     procedure Quad(pX, pY: Integer; aCol: TColor4);
     procedure SquareOnTerrain(x1, y1, x2, y2: Single; aLineColor: TColor4);
@@ -286,7 +286,7 @@ begin
 end;
 
 
-procedure TRenderAux.ResizeMap(aExceptRect: TKMRect);
+procedure TRenderAux.RenderResizeMap(aExceptRect: TKMRect);
 var
   I, K: Integer;
 begin

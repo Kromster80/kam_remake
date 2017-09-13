@@ -18,11 +18,12 @@ uses
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState): Word; overload;
   function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
+  function ApplyColorCoef(aColor: Cardinal; aRed, aGreen, aBlue: Single): Cardinal;
 
 
 implementation
 uses
-  KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups;
+  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups;
 
 
 function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
@@ -80,6 +81,25 @@ begin
   if HotKeyStr <> '' then
     Result := Result + Format(' (''%s'')', [HotKeyStr]);
 
+end;
+
+
+//Multiply color by channels
+function ApplyColorCoef(aColor: Cardinal; aRed, aGreen, aBlue: Single): Cardinal;
+var
+  I: Integer;
+  R, G, B, R2, G2, B2: Byte;
+begin
+  //We split color to RGB values
+  R := aColor and $FF;
+  G := aColor shr 8 and $FF;
+  B := aColor shr 16 and $FF;
+
+  R2 := Min(Round(aRed * R), 255);
+  G2 := Min(Round(aGreen * G), 255);
+  B2 := Min(Round(aBlue * B), 255);
+
+  Result := (R2 + G2 shl 8 + B2 shl 16) or $FF000000;
 end;
 
 

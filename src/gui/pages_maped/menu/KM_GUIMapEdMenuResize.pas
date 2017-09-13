@@ -103,9 +103,9 @@ procedure TKMMapEdMenuResize.ResizeRefresh(Sender: TObject);
 var
   NewMapX, NewMapY: SmallInt;
 begin
-  Button_Resize.Enabled := (NumEdit_Resize_Left.Value <> 0)
-                        or (NumEdit_Resize_Right.Value <> 0)
-                        or (NumEdit_Resize_Top.Value <> 0)
+  Button_Resize.Enabled := (NumEdit_Resize_Left.Value   <> 0)
+                        or (NumEdit_Resize_Right.Value  <> 0)
+                        or (NumEdit_Resize_Top.Value    <> 0)
                         or (NumEdit_Resize_Bottom.Value <> 0);
 
   // Calc num edits range restrictions

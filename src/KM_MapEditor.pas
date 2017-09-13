@@ -639,7 +639,7 @@ begin
     fSelection.Paint(aLayer, aClipRect);
 
   if (mlMapResize in fVisibleLayers) and not KMSameRect(ResizeMapRect, KMRECT_ZERO) then
-    gRenderAux.ResizeMap(ResizeMapRect);
+    gRenderAux.RenderResizeMap(ResizeMapRect);
 
   if mlWaterFlow in fVisibleLayers then
   begin

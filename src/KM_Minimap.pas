@@ -56,7 +56,7 @@ type
 implementation
 uses
   KM_AIFields, KM_HandsCollection, KM_Resource, KM_Units, KM_UnitGroups, KM_Hand, KM_ResUnits,
-  KM_AIInfluences;
+  KM_AIInfluences, KM_Game, KM_Utils;
 
 
 { TKMMinimap }
@@ -203,67 +203,79 @@ begin
   if OVERLAY_OWNERSHIP then
   begin
     for I := 0 to fMapY - 1 do
-    for K := 0 to fMapX - 1 do
-    begin
-      Owner := gAIFields.Influences.GetBestOwner(K,I);
-      if Owner <> PLAYER_NONE then
-        fBase[I*fMapX + K] := ReduceBrightness(gHands[Owner].FlagColor, Byte(Max(gAIFields.Influences.Ownership[Owner,I,K],0)))
-      else
-        fBase[I*fMapX + K] := $FF000000;
-    end;
+      for K := 0 to fMapX - 1 do
+      begin
+        Owner := gAIFields.Influences.GetBestOwner(K,I);
+        if Owner <> PLAYER_NONE then
+          fBase[I*fMapX + K] := ReduceBrightness(gHands[Owner].FlagColor, Byte(Max(gAIFields.Influences.Ownership[Owner,I,K],0)))
+        else
+          fBase[I*fMapX + K] := $FF000000;
+      end;
     Exit;
   end;
 
   for I := 0 to fMapY - 1 do
-  for K := 0 to fMapX - 1 do
-  begin
-    FOW := gMySpectator.FogOfWar.CheckTileRevelation(K+1,I+1);
+    for K := 0 to fMapX - 1 do
+    begin
+      FOW := gMySpectator.FogOfWar.CheckTileRevelation(K+1,I+1);
 
-    if FOW = 0 then
-      fBase[I*fMapX + K] := $FF000000
-    else
-      if (fMyTerrain.Land[I+1,K+1].TileOwner <> -1)
-        and not fMyTerrain.TileIsCornField(KMPoint(K+1, I+1)) //Do not show corn and wine on minimap
-        and not fMyTerrain.TileIsWineField(KMPoint(K+1, I+1)) then
-        fBase[I*fMapX + K] := gHands[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
+      if FOW = 0 then
+        fBase[I*fMapX + K] := $FF000000
       else
-      begin
-        U := fMyTerrain.Land[I+1,K+1].IsUnit;
-        if U <> nil then
-          if U.Owner <> PLAYER_ANIMAL then
-            fBase[I*fMapX + K] := gHands[U.Owner].FlagColor
-          else
-            fBase[I*fMapX + K] := gRes.Units[U.UnitType].MinimapColor
+        if (fMyTerrain.Land[I+1,K+1].TileOwner <> -1)
+          and not fMyTerrain.TileIsCornField(KMPoint(K+1, I+1)) //Do not show corn and wine on minimap
+          and not fMyTerrain.TileIsWineField(KMPoint(K+1, I+1)) then
+          fBase[I*fMapX + K] := gHands[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
         else
         begin
-          ID := fMyTerrain.Land[I+1,K+1].Terrain;
-          // Do not use fMyTerrain.Land[].Light for borders of the map, because it is set to -1 for fading effect
-          // So assume fMyTerrain.Land[].Light as 0 in this case
-          if (I = 0) or (I = fMapY - 1) or (K = 0) or (K = fMapX - 1) then
-            Light := 255-FOW
+          U := fMyTerrain.Land[I+1,K+1].IsUnit;
+          if U <> nil then
+            if U.Owner <> PLAYER_ANIMAL then
+              fBase[I*fMapX + K] := gHands[U.Owner].FlagColor
+            else
+              fBase[I*fMapX + K] := gRes.Units[U.UnitType].MinimapColor
           else
-            Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
-          fBase[I*fMapX + K] := Byte(EnsureRange(gRes.Tileset.TileColor[ID].R+Light,0,255)) +
-                                Byte(EnsureRange(gRes.Tileset.TileColor[ID].G+Light,0,255)) shl 8 +
-                                Byte(EnsureRange(gRes.Tileset.TileColor[ID].B+Light,0,255)) shl 16 or $FF000000;
+          begin
+            ID := fMyTerrain.Land[I+1,K+1].Terrain;
+            // Do not use fMyTerrain.Land[].Light for borders of the map, because it is set to -1 for fading effect
+            // So assume fMyTerrain.Land[].Light as 0 in this case
+            if (I = 0) or (I = fMapY - 1) or (K = 0) or (K = fMapX - 1) then
+              Light := 255-FOW
+            else
+              Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
+            fBase[I*fMapX + K] := Byte(EnsureRange(gRes.Tileset.TileColor[ID].R+Light,0,255)) +
+                                  Byte(EnsureRange(gRes.Tileset.TileColor[ID].G+Light,0,255)) shl 8 +
+                                  Byte(EnsureRange(gRes.Tileset.TileColor[ID].B+Light,0,255)) shl 16 or $FF000000;
+          end;
         end;
-      end;
-  end;
+    end;
 
   //Scan all players units and paint all virtual group members in MapEd
   if fPaintVirtualGroups then
     for I := 0 to gHands.Count - 1 do
-    for K := 0 to gHands[I].UnitGroups.Count - 1 do
-    begin
-      Group := gHands[I].UnitGroups[K];
-      for J := 1 to Group.MapEdCount - 1 do
+      for K := 0 to gHands[I].UnitGroups.Count - 1 do
       begin
-        //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1, hence the +1 -1 fixes
-        P := GetPositionInGroup2(Group.Position.X, Group.Position.Y, Group.Direction, J, Group.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
-        if not DoesFit then Continue; //Don't render units that are off the map in the map editor
-        fBase[(P.Y - 1) * fMapX + P.X - 1] := gHands[I].FlagColor;
+        Group := gHands[I].UnitGroups[K];
+        for J := 1 to Group.MapEdCount - 1 do
+        begin
+          //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1, hence the +1 -1 fixes
+          P := GetPositionInGroup2(Group.Position.X, Group.Position.Y, Group.Direction, J, Group.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
+          if not DoesFit then Continue; //Don't render units that are off the map in the map editor
+          fBase[(P.Y - 1) * fMapX + P.X - 1] := gHands[I].FlagColor;
+        end;
       end;
-    end;
+
+  //Draw
+  if (gGame <> nil) and (gGame.GameMode = gmMapEd)
+    and (mlMapResize in gGame.MapEditor.VisibleLayers)
+    and not KMSameRect(gGame.MapEditor.ResizeMapRect, KMRECT_ZERO) then
+    for I := 0 to fMapY - 1 do
+      for K := 0 to fMapX - 1 do
+      begin
+        if not KMInRect(KMPoint(K+1,I+1), gGame.MapEditor.ResizeMapRect) then
+          fBase[I*fMapX + K] := ApplyColorCoef(fBase[I*fMapX + K], 2, 1, 1);
+      end;
+
 end;
 
 
