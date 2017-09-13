@@ -87,7 +87,6 @@ end;
 //Multiply color by channels
 function ApplyColorCoef(aColor: Cardinal; aRed, aGreen, aBlue: Single): Cardinal;
 var
-  I: Integer;
   R, G, B, R2, G2, B2: Byte;
 begin
   //We split color to RGB values
