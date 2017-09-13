@@ -40,7 +40,7 @@ type
 implementation
 uses
   KromUtils, Math, KM_Defaults, KM_GameApp, KM_Game, KM_Terrain, KM_InterfaceDefaults, KM_RenderAux,
-  KM_InterfaceGame, KM_ResFonts, KM_RenderUI, KM_Points, KM_Maps;
+  KM_InterfaceGame, KM_ResFonts, KM_RenderUI, KM_Points, KM_Maps, KM_ResTexts;
 
 
 { TKMMapEdMenuSave }
@@ -79,7 +79,7 @@ begin
       Button_Cancel.OnClick   := Menu_Click;
 
     Panel_Resize_Confirm := TKMPanel.Create(Panel_Resize, 0, 0, Panel_Resize.Width, Panel_Resize.Height);
-      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, TB_WIDTH, 20, 'Are you sure want to resize the map?||It will automatically override current map', fnt_Outline, taCenter); //Todo translate
+      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, TB_WIDTH, 20, '', fnt_Outline, taCenter); //Todo translate
       Label_Resize_Confirm.AutoWrap := True;
 
       Button_Resize_Confirm_Yes := TKMButton.Create(Panel_Resize_Confirm, 0, Max(120, Label_Resize_Confirm.TextSize.Y + 10), TB_WIDTH, 30, 'Yes', bsGame);
@@ -175,6 +175,16 @@ begin
   begin
     Panel_Resize_Edit.Hide;
     Panel_Resize_Confirm.Show;
+    if not gGame.MapEditor.IsNewMap or gGame.MapEditor.WereSaved then
+    begin
+      Label_Resize_Confirm.Caption := 'Are you sure want to resize the map?||It will automatically override current map';
+      Button_Resize_Confirm_Yes.Visible := True;
+      Button_Resize_Confirm_No.Caption := 'No'; //Todo translate
+    end else begin
+      Label_Resize_Confirm.Caption := 'Resize is not available||You need to save new map first';
+      Button_Resize_Confirm_Yes.Hide;
+      Button_Resize_Confirm_No.Caption := gResTexts[TX_MENU_TAB_HINT_GO_BACK]; //Todo translate
+    end;
   end
   else
   if Sender = Button_Resize_Confirm_No then
