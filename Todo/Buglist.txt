@@ -77,11 +77,16 @@ Bugs to fix in future:
 Improvements: 
  Network:
  +	H	Server network code improvement, packing all of the packets to destination player for short period of time (~20ms) into one packet. It significantly reduces network traffik and allow scale of the lobby
+ +	H	Fixed situation, when 1 player lags cause all players to lag
  Graphics:
- +	M	Terrain render improvement. Use openGL VBO to render tiles and animated tiles (water/falls/swamp).
+ +	M	Terrain render improvement. Use openGL VBO to render tiles and animated tiles (water/falls/swamp). FPS increased up to 2 times
  +	M	Texture atlases size increased from 512 upto 2048 (if supported)
  Game: 
  +		Select area to work in for woodcutters
+ +		New house delivery mode (ability to take ware out of the house, using house same as storage)
+ +		Redispatch serf with ware when delivery target was destroyed (house demolished or warrior died)
+ +		Ability to select ally's house/unit (without control on it)
+ +		Set maximum feed limit as 0.55, below trained units condition (0.6)
  +		House closed for worker feature
  +		Ability to forbid recruits to enter the barracks
  +	L	Save wares distribution ratios between games
@@ -94,6 +99,7 @@ Improvements:
  +		Defeat player if he intentionally quit. Show win messages in chat when player win
  +		Increase number of players up to 12 + 1 spectator (will be adjusted later, after beta-testing)
  +	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
+ +		Make game speed precise
  
  Game menu:
  +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
@@ -101,7 +107,6 @@ Improvements:
  +	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
  +		Separate statistics for different warrior types
  +		Game stats 'Weapons produced' now contains horses as well
- +		Allow to see beacons while spectating/watching replay
  +		Added beacons cooldown to preven spam with beacons
  +		New option - replay autopause on PT end
  +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
@@ -114,6 +119,8 @@ Improvements:
  +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
  +		Colored niknames in chat system messages
  +		Ping string in game visual improvement (removed 'shaking' effect)
+ +		Added autosave after PT
+ +		Added ini setting to change autosaves number and frequency (in reasonable range)
  
  Main menu:
  +	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
@@ -149,6 +156,7 @@ Improvements:
  +		Show 1st human player initially, not just 1st player
  +		SP replay: Ability to ignore repeated consistency check errors
  +		Separated and sorted by teams list of players
+ +		Allow to see players beacons while spectating/watching replay
  
  Campaign:
  +		Ability to specify the title of the mission separately for each campaign rather than globally for all
@@ -192,6 +200,7 @@ Improvements:
  +		Added new hotkeys for road/field/wine/erase plans
  +		New terrain pass layer - tbBuildNoObj - shows when its possible to build house on a tile after removing object (tree f.e.) from it or house near it.
  +		Added display color code for color page in KaM format (BGR)
+ +		Load menu at toolbar - load map on double click
  
  Dynamic scripts:
  +		Update to current version of remObjects PascalScript. 
