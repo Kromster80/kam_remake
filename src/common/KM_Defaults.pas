@@ -189,7 +189,7 @@ const
   CONDITION_PACE            = 10;         //Check unit conditions only once per 10 ticks
   UNIT_MAX_CONDITION        = 45*60;      //Minutes of life. In KaM it's 45min
   UNIT_MIN_CONDITION        = 6*60;       //If unit condition is less it will look for Inn. In KaM it's 6min
-  TROOPS_FEED_MAX           = 0.75;       //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
+  TROOPS_FEED_MAX           = 0.55;       //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
   UNIT_CONDITION_BASE       = 0.6;        //Base amount of health a unit starts with (measured in KaM)
   UNIT_CONDITION_RANDOM     = 0.1;        //Random jitter of unit's starting health (KaM did not have this, all units started the same)
   TROOPS_TRAINED_CONDITION  = 0.6;        //Condition troops start with when trained (measured from KaM)
