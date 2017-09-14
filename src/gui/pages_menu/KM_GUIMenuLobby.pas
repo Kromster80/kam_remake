@@ -1654,7 +1654,7 @@ begin
     2,  //Co-op Map
     3:  //Special map Map
         begin
-          fMapsMP.Refresh(MapList_ScanUpdate, MapList_ScanComplete);
+          fMapsMP.Refresh(MapList_ScanUpdate, nil, MapList_ScanComplete);
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
           InitDropColMapsList;
         end;

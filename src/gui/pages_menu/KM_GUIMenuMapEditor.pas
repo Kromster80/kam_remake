@@ -17,7 +17,8 @@ type
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
     fMinimap: TKMMinimap;
-    fScanCompleted: Boolean;
+    fMinimapLastListId: Integer;  // column id, on which last time minimap was loaded. Avoid multiple loads of same minimap, which could happen on every RefreshList
+    fScanCompleted: Boolean;      // True, after scan was completed
 
     fSelectedMapInfo: TKMFileIdentInfo; // Identification info about last selected map
 
@@ -31,7 +32,7 @@ type
     procedure SetSelectedMapInfo(aID: Integer = -1); overload;
     procedure SetSelectedMapInfo(aCRC: Cardinal; aName: UnicodeString); overload;
     procedure ScanUpdate(Sender: TObject);
-    procedure ScanComplete(Sender: TObject);
+    procedure ScanTerminate(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure RefreshList(aJumpToSelected:Boolean);
     procedure ColumnClick(aValue: Integer);
@@ -99,6 +100,9 @@ type
 implementation
 uses
   KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults, KM_Pics;
+
+const
+  MINIMAP_NOT_LOADED = -100; // smth, but not -1, as -1 is used for ColumnBox.ItemIndex, when no item is selected
 
 
 const
@@ -428,18 +432,21 @@ begin
 
   ColumnBox_MapEd.Clear;
 
+  //Reset scan variables
+  fScanCompleted := False;
+  fMinimapLastListId := MINIMAP_NOT_LOADED;
+
   //If both Maps and MapsMP are scanning at once ListUpdateDone can be called from either one
   //meaning we can access inconsistent and trigger assertion
   case Radio_MapEd_MapType.ItemIndex of
     0:  begin
           fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdSPMapCRC;
-          fScanCompleted := False;
-          fMaps.Refresh(ScanUpdate, ScanComplete);
+          fMaps.Refresh(ScanUpdate, ScanTerminate);
         end;
     1:  begin
           fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdMPMapCRC;
           fSelectedMapInfo.Name := gGameApp.GameSettings.MenuMapEdMPMapName;
-          fMapsMP.Refresh(ScanUpdate, ScanComplete);
+          fMapsMP.Refresh(ScanUpdate, ScanTerminate);
         end
   end;
 end;
@@ -447,12 +454,12 @@ end;
 
 procedure TKMMenuMapEditor.ScanUpdate(Sender: TObject);
 begin
-  if not fScanCompleted then  // Don't refresh list, if complete scan already
+  if not fScanCompleted then  // Don't refresh list, if scan was completed already
     RefreshList(False); //Don't jump to selected with each scan update
 end;
 
 
-procedure TKMMenuMapEditor.ScanComplete(Sender: TObject);
+procedure TKMMenuMapEditor.ScanTerminate(Sender: TObject);
 begin
   fScanCompleted := True;
   RefreshList(True); //After scan complete jump to selected item
@@ -801,6 +808,9 @@ var
 begin
   if aID <> -1 then
   begin
+    if fMinimapLastListId = aID then Exit; //Do not reload same minimap
+
+    fMinimapLastListId := aID;
     Map := GetMaps[aID];
     fMinimap.LoadFromMission(Map.FullPath('.dat'), []);
     fMinimap.Update(True);

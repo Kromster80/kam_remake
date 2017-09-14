@@ -52,8 +52,9 @@ type
     fMultiplayerPath: Boolean;
     fOnSaveAdd: TSaveEvent;
     fOnSaveAddDone: TNotifyEvent;
+    fOnComplete: TNotifyEvent;
   public
-    constructor Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnTerminate: TNotifyEvent);
+    constructor Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnTerminate, aOnComplete: TNotifyEvent);
     procedure Execute; override;
   end;
 
@@ -69,9 +70,11 @@ type
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
     fOnComplete: TNotifyEvent;
+    fOnTerminate: TNotifyEvent;
     procedure Clear;
     procedure SaveAdd(aSave: TKMSaveInfo);
     procedure SaveAddDone(Sender: TObject);
+    procedure ScanComplete(Sender: TObject);
     procedure ScanTerminate(Sender: TObject);
     procedure DoSort;
     function GetSave(aIndex: Integer): TKMSaveInfo;
@@ -89,7 +92,7 @@ type
     class function GetSaveCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
     class function GetSaveFolder(aIsMultiplayer: Boolean): UnicodeString;
 
-    procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
+    procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnTerminate: TNotifyEvent = nil; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TSavesSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TSavesSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -520,7 +523,7 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMSavesCollection.Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnComplete: TNotifyEvent = nil);
+procedure TKMSavesCollection.Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnTerminate: TNotifyEvent = nil; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
@@ -529,10 +532,11 @@ begin
   fScanFinished := False;
   fOnRefresh := aOnRefresh;
   fOnComplete := aOnComplete;
+  fOnTerminate := aOnTerminate;
 
   //Scan will launch upon create automatcally
   fScanning := True;
-  fScanner := TTSavesScanner.Create(aMultiplayerPath, SaveAdd, SaveAddDone, ScanTerminate);
+  fScanner := TTSavesScanner.Create(aMultiplayerPath, SaveAdd, SaveAddDone, ScanTerminate, ScanComplete);
 end;
 
 
@@ -564,6 +568,19 @@ begin
 end;
 
 
+procedure TKMSavesCollection.ScanComplete(Sender: TObject);
+begin
+  Lock;
+  try
+    fScanning := False;
+    if Assigned(fOnComplete) then
+      fOnComplete(Self);
+  finally
+    Unlock;
+  end;
+end;
+
+
 //All saves have been scanned
 //No need to resort since that was done in last SaveAdd event
 procedure TKMSavesCollection.ScanTerminate(Sender: TObject);
@@ -572,8 +589,8 @@ begin
   try
     fScanning := False;
     fScanFinished := True;
-    if Assigned(fOnComplete) then
-      fOnComplete(Self);
+    if Assigned(fOnTerminate) then
+      fOnTerminate(Self);
   finally
     Unlock;
   end;
@@ -583,8 +600,9 @@ end;
 { TTSavesScanner }
 //aOnSaveAdd - signal that there's new save that should be added
 //aOnSaveAddDone - signal that save has been added
+//aOnTerminate - scan was terminated (but could be not complete yet)
 //aOnComplete - scan is complete
-constructor TTSavesScanner.Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnTerminate: TNotifyEvent);
+constructor TTSavesScanner.Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnTerminate, aOnComplete: TNotifyEvent);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
@@ -595,6 +613,7 @@ begin
   fMultiplayerPath := aMultiplayerPath;
   fOnSaveAdd := aOnSaveAdd;
   fOnSaveAddDone := aOnSaveAddDone;
+  fOnComplete := aOnComplete;
   OnTerminate := aOnTerminate;
   FreeOnTerminate := False;
 end;
@@ -606,25 +625,33 @@ var
   SearchRec: TSearchRec;
   Save: TKMSaveInfo;
 begin
-  PathToSaves := ExeDir + TKMSavesCollection.GetSaveFolder(fMultiplayerPath) + PathDelim;
+  try
+    PathToSaves := ExeDir + TKMSavesCollection.GetSaveFolder(fMultiplayerPath) + PathDelim;
 
-  if not DirectoryExists(PathToSaves) then Exit;
+    if not DirectoryExists(PathToSaves) then Exit;
 
-  FindFirst(PathToSaves + '*', faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-      and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_MAIN, fMultiplayerPath))
-      and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_REPLAY, fMultiplayerPath))
-      and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_BASE, fMultiplayerPath)) then
-    begin
-      Save := TKMSaveInfo.Create(SearchRec.Name, fMultiplayerPath);
-      if SLOW_SAVE_SCAN then
-        Sleep(50);
-      fOnSaveAdd(Save);
-      fOnSaveAddDone(Self);
+    FindFirst(PathToSaves + '*', faDirectory, SearchRec);
+    try
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+          and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_MAIN, fMultiplayerPath))
+          and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_REPLAY, fMultiplayerPath))
+          and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_BASE, fMultiplayerPath)) then
+        begin
+          Save := TKMSaveInfo.Create(SearchRec.Name, fMultiplayerPath);
+          if SLOW_SAVE_SCAN then
+            Sleep(50);
+          fOnSaveAdd(Save);
+          fOnSaveAddDone(Self);
+        end;
+      until (FindNext(SearchRec) <> 0) or Terminated;
+    finally
+      FindClose(SearchRec);
     end;
-  until (FindNext(SearchRec) <> 0) or Terminated;
-  FindClose(SearchRec);
+  finally
+    if not Terminated and Assigned(fOnComplete) then
+      fOnComplete(Self);
+  end;
 end;
 
 

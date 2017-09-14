@@ -131,6 +131,7 @@ type
     fScanning: Boolean; //Flag if scan is in progress
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
+    fOnTerminate: TNotifyEvent;
     fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
@@ -157,7 +158,7 @@ type
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
     class function GetMapCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 
-    procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
+    procedure Refresh(aOnRefresh: TNotifyEvent;  aOnTerminate: TNotifyEvent = nil;aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -917,7 +918,7 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
+procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnTerminate: TNotifyEvent = nil; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
@@ -925,6 +926,7 @@ begin
 
   fOnRefresh := aOnRefresh;
   fOnComplete := aOnComplete;
+  fOnTerminate := aOnTerminate;
 
   //Scan will launch upon create automatically
   fScanning := True;
@@ -982,6 +984,8 @@ begin
   Lock;
   try
     fScanning := False;
+    if Assigned(fOnTerminate) then
+      fOnTerminate(Self);
   finally
     Unlock;
   end;
@@ -1114,6 +1118,7 @@ end;
 { TTMapsScanner }
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added
+//aOnTerminate - scan was terminated (but could be not complete yet)
 //aOnComplete - scan is complete
 constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin

@@ -16,6 +16,10 @@ type
     fSaves: TKMSavesCollection;
     fMinimap: TKMMinimap;
 
+    // column id, on which last time minimap was loaded. Avoid multiple loads of same minimap, which could happen on every RefreshList
+    fMinimapLastListId: Integer;
+    fScanCompleted: Boolean;      // True, after scan was completed
+
     fSelectedSaveInfo: TKMFileIdentInfo; // Identification info about selected save
 
     procedure UpdateUI;
@@ -23,11 +27,12 @@ type
     procedure LoadMinimap(aID: Integer = -1);
     procedure SetSelectedSaveInfo(aID: Integer = -1); overload;
     procedure SetSelectedSaveInfo(aCRC: Cardinal; aName: UnicodeString); overload;
+    function  IsSaveValid(aID: Integer): Boolean;
 
     procedure Replays_ListClick(Sender: TObject);
     procedure Replay_TypeChange(Sender: TObject);
     procedure Replays_ScanUpdate(Sender: TObject);
-    procedure Replays_ScanComplete(Sender: TObject);
+    procedure Replays_ScanTerminate(Sender: TObject);
     procedure Replays_SortUpdate(Sender: TObject);
     procedure Replays_RefreshList(aJumpToSelected:Boolean);
     procedure Replays_Sort(aIndex: Integer);
@@ -71,6 +76,9 @@ type
 implementation
 uses
   KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
+
+const
+  MINIMAP_NOT_LOADED = -100; // smth, but not -1, as -1 is used for ColumnBox.ItemIndex, when no item is selected
 
 
 { TKMGUIMenuReplays }
@@ -194,14 +202,20 @@ begin
 end;
 
 
+function TKMMenuReplays.IsSaveValid(aID: Integer): Boolean;
+begin
+  Result := InRange(aID, 0, fSaves.Count - 1)
+            and fSaves[aID].IsValid
+            and fSaves[aID].IsReplayValid;
+end;
+
+
 procedure TKMMenuReplays.UpdateUI;
 var ID: Integer;
 begin
   ID := ColumnBox_Replays.ItemIndex;
 
-  Button_ReplaysPlay.Enabled := InRange(ID, 0, fSaves.Count-1)
-                                and fSaves[ID].IsValid
-                                and fSaves[ID].IsReplayValid;
+  Button_ReplaysPlay.Enabled := IsSaveValid(ID);
   Button_Delete.Enabled := InRange(ID, 0, fSaves.Count-1);
   Button_Rename.Enabled := InRange(ID, 0, fSaves.Count-1);
 
@@ -245,12 +259,18 @@ end;
 
 procedure TKMMenuReplays.LoadMinimap(aID: Integer = -1);
 begin
-  MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
-  if (aID <> -1) and Button_ReplaysPlay.Enabled and fSaves[aID].LoadMinimap(fMinimap) then
+  if (aID <> -1) and IsSaveValid(aID) then
   begin
-    MinimapView_Replay.SetMinimap(fMinimap);
-    MinimapView_Replay.Show;
-  end;
+    if fMinimapLastListId = aID then Exit; //Do not reload same minimap
+
+    if fSaves[aID].LoadMinimap(fMinimap) then
+    begin
+      fMinimapLastListId := aID;
+      MinimapView_Replay.SetMinimap(fMinimap);
+      MinimapView_Replay.Show;
+    end;
+  end else
+    MinimapView_Replay.Hide;
 end;
 
 
@@ -283,6 +303,10 @@ procedure TKMMenuReplays.ListUpdate;
 begin
   fSaves.TerminateScan;
 
+   //Reset scan variables
+  fScanCompleted := False;
+  fMinimapLastListId := MINIMAP_NOT_LOADED;
+
   case Radio_Replays_Type.ItemIndex of
     0:  begin
           fSelectedSaveInfo.CRC := gGameApp.GameSettings.MenuReplaySPSaveCRC;
@@ -296,7 +320,7 @@ begin
 
   ColumnBox_Replays.Clear;
   UpdateUI;
-  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1), Replays_ScanComplete);
+  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1), Replays_ScanTerminate);
 end;
 
 
@@ -312,12 +336,14 @@ end;
 
 procedure TKMMenuReplays.Replays_ScanUpdate(Sender: TObject);
 begin
-  Replays_RefreshList(False); //Don't jump to selected with each scan update
+  if not fScanCompleted then  // Don't refresh list, if scan was completed already
+    Replays_RefreshList(False); //Don't jump to selected with each scan update
 end;
 
 
-procedure TKMMenuReplays.Replays_ScanComplete(Sender: TObject);
+procedure TKMMenuReplays.Replays_ScanTerminate(Sender: TObject);
 begin
+  fScanCompleted := True;
   Replays_RefreshList(True); //After scan complete jump to the selected item
 end;
 
