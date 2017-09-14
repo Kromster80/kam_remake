@@ -74,6 +74,8 @@ type
       Item: TListItem;
     end;
 
+    fNodeList: TKMPointList; // Used to calc delivery bid
+
     procedure CloseDelivery(aID: Integer);
     procedure CloseDemand(aID: Integer);
     procedure CloseOffer(aID: Integer);
@@ -85,6 +87,8 @@ type
     function CalculateBidBasic(aOfferPos: TKMPoint; aOfferCnt: Cardinal; aOfferHouseType: THouseType; aOwner: TKMHandIndex;
                                iD: Integer; aSerf: TKMUnitSerf = nil): Single; overload;
   public
+    constructor Create;
+    destructor Destroy; override;
     procedure AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
     procedure RemAllOffers(aHouse: TKMHouse);
     procedure RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Cardinal);
@@ -139,7 +143,7 @@ type
 implementation
 uses
   KM_CommonUtils, KM_HandsCollection, KM_Resource, KM_Log, KM_Terrain, KM_HouseBarracks,
-  KM_ResUnits, KM_Hand, KM_FormLogistics;
+  KM_ResUnits, KM_Hand, KM_FormLogistics, KM_Game;
 
 
 const
@@ -341,6 +345,24 @@ end;
 
 
 { TKMDeliveries }
+constructor TKMDeliveries.Create;
+begin
+  inherited;
+
+  if DELIVERY_BID_CALC_USE_PATHFINDING then
+    fNodeList := TKMPointList.Create;
+end;
+
+
+destructor TKMDeliveries.Destroy;
+begin
+  if DELIVERY_BID_CALC_USE_PATHFINDING then
+    FreeAndNil(fNodeList);
+
+  inherited;
+end;
+
+
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
@@ -691,16 +713,6 @@ end;
 function TKMDeliveries.CalculateBidBasic(aOfferPos: TKMPoint; aOfferCnt: Cardinal; aOfferHouseType: THouseType;
                                          aOwner: TKMHandIndex; iD: Integer; aSerf: TKMUnitSerf = nil): Single;
 begin
-  //Basic Bid is length of route
-  if fDemand[iD].Loc_House <> nil then
-  begin
-    Result := KMLength(aOfferPos, fDemand[iD].Loc_House.Entrance)
-      //Resource ratios are also considered
-      + KaMRandom(15 - 3 * gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
-  end
-  else
-    Result := KMLength(aOfferPos, fDemand[iD].Loc_Unit.GetPosition);
-
   //For weapons production in cases with little resources available, they should be distributed
   //evenly between places rather than caring about route length.
   //This means weapon and armour smiths should get same amount of iron, even if one is closer to the smelter.
@@ -709,7 +721,28 @@ begin
     and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware) < 2) then //Few resources already delivered
     Result := 10
     //Resource ratios are also considered
-    + KaMRandom(25 - gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
+    + KaMRandom(25 - gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType])
+  else
+  begin
+    //Basic Bid is length of route
+    if fDemand[iD].Loc_House <> nil then
+    begin
+      if DELIVERY_BID_CALC_USE_PATHFINDING then
+      begin
+        fNodeList.Clear;
+        //Try to make the route to get delivery vost
+        gGame.Pathfinding.Route_Make(KMPointBelow(aOfferPos), fDemand[iD].Loc_House.PointBelowEntrance, [tpWalkRoad], 1, fDemand[iD].Loc_House, fNodeList);
+        Result := fNodeList.Count;
+      end else
+        Result := KMLength(KMPointBelow(aOfferPos), fDemand[iD].Loc_House.PointBelowEntrance);
+
+      Result := Result
+        //Resource ratios are also considered
+        + KaMRandom(15 - 3 * gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
+    end
+    else
+      Result := KMLength(aOfferPos, fDemand[iD].Loc_Unit.GetPosition);
+  end;
 
   //Also prefer deliveries near to the serf
   if aSerf <> nil then
