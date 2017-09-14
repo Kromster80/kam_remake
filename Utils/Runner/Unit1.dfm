@@ -90,12 +90,9 @@ object Form2: TForm2
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 4
     OnChange = PageControl1Change
-    ExplicitWidth = 697
     object TabSheet1: TTabSheet
       Caption = 'Results'
       OnResize = TabSheetResize
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       DesignSize = (
         873
         597)
@@ -113,8 +110,6 @@ object Form2: TForm2
       Caption = 'Distribution'
       ImageIndex = 1
       OnResize = TabSheetResize
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       DesignSize = (
         873
         597)
@@ -132,8 +127,6 @@ object Form2: TForm2
       Caption = 'Times'
       ImageIndex = 2
       OnResize = TabSheetResize
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       DesignSize = (
         873
         597)
@@ -170,8 +163,6 @@ object Form2: TForm2
     object TabSheet4: TTabSheet
       Caption = 'Log'
       ImageIndex = 3
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       object Memo1: TMemo
         Left = 0
         Top = 0
@@ -179,17 +170,11 @@ object Form2: TForm2
         Height = 597
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = 8
-        ExplicitTop = 8
-        ExplicitWidth = 665
-        ExplicitHeight = 289
       end
     end
     object Render: TTabSheet
       Caption = 'Render'
       ImageIndex = 4
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -198,10 +183,6 @@ object Form2: TForm2
         Align = alClient
         Caption = 'Panel1'
         TabOrder = 0
-        ExplicitLeft = 200
-        ExplicitTop = 8
-        ExplicitWidth = 249
-        ExplicitHeight = 161
       end
     end
   end
@@ -211,8 +192,6 @@ object Form2: TForm2
     Width = 57
     Height = 17
     Caption = 'Render'
-    Checked = True
-    State = cbChecked
     TabOrder = 5
   end
 end

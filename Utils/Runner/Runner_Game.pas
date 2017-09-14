@@ -61,9 +61,7 @@ type
 
 
 implementation
-uses KM_HandSpectator, KM_HandsCollection, KM_ResWares, KM_Hand, KM_UnitsCollection;
-
-uses KM_HandSpectator;
+uses KM_HandSpectator, KM_ResWares, KM_Hand, KM_UnitsCollection;
 
 
 procedure TKMRunnerStone.SetUp;
