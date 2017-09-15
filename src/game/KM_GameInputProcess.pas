@@ -55,23 +55,23 @@ type
 
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
     gic_HouseRepairToggle,
-    gic_HouseDeliveryToggle,      //Including storehouse. (On/Off, ResourceType)
-    gic_HouseClosedForWorkerToggle,  //Toggle house state for worker - vacate or occupy
-    gic_HouseOrderProduct,        //Place an order to manufacture warfare
-    gic_HouseMarketFrom,          //Select wares to trade in marketplace
-    gic_HouseMarketTo,            //Select wares to trade in marketplace
-    gic_HouseWoodcutterMode,      //Switch the woodcutter mode
+    gic_HouseDeliveryToggle,          //Including storehouse. (On/Off, ResourceType)
+    gic_HouseClosedForWorkerToggle,   //Toggle house state for worker - vacate or occupy
+    gic_HouseOrderProduct,            //Place an order to manufacture warfare
+    gic_HouseMarketFrom,              //Select wares to trade in marketplace
+    gic_HouseMarketTo,                //Select wares to trade in marketplace
+    gic_HouseWoodcutterMode,          //Switch the woodcutter mode
     gic_HouseArmorWSDeliveryToggle,   //Toggle resourse delivery to armor workshop
-    gic_HouseStoreAcceptFlag,     //Control wares delivery to store
-    gic_HouseSchoolTrain,         //Place an order to train citizen
-    gic_HouseSchoolTrainChOrder,  //Change school training order
-    gic_HouseSchoolTrainChLastUOrder,  //Change school training order for last unit in queue
-    gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
+    gic_HouseStoreAcceptFlag,         //Control wares delivery to store
+    gic_HouseSchoolTrain,             //Place an order to train citizen
+    gic_HouseSchoolTrainChOrder,      //Change school training order
+    gic_HouseSchoolTrainChLastUOrder, //Change school training order for last unit in queue
+    gic_HouseBarracksAcceptFlag,      //Control wares delivery to barracks
     gic_HouseBarracksAcceptRecruitsToggle,  //Toggle are recruits allowed to enter barracks or not
-    gic_HouseBarracksEquip,       //Place an order to train warrior
-    gic_HouseBarracksRally,       //Set the rally point for the barracks
-    gic_HouseRemoveTrain,         //Remove unit being trained from School    
-    gic_HouseWoodcuttersCutting,  //Set the cutting point for the Woodcutters
+    gic_HouseBarracksEquip,           //Place an order to train warrior
+    gic_HouseBarracksRally,           //Set the rally point for the barracks
+    gic_HouseRemoveTrain,             //Remove unit being trained from School
+    gic_HouseWoodcuttersCutting,      //Set the cutting point for the Woodcutters
 
     //IV.     Delivery ratios changes (and other game-global settings)
     gic_WareDistributionChange,   //Change of distribution for 1 ware
