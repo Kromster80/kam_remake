@@ -552,6 +552,7 @@ end;
 
 procedure TKMMain.ShowAbout;
 begin
+  fFormLoading.Position := poScreenCenter;
   fFormLoading.Bar1.Position := 0;
   fFormLoading.Label1.Caption := '';
   fFormLoading.Show;
