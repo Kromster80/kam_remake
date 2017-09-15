@@ -204,7 +204,7 @@ begin
     U := gTerrain.Land[aToY,aToX].IsUnit;
     //Always avoid congested areas on roads
     if DO_WEIGHT_ROUTES and (U <> nil) and ((tpWalkRoad in fPass) or U.PathfindingShouldAvoid) then
-      Inc(Result, 10); //Unit = 1 extra tile
+      Inc(Result, 15); //Unit = 1.5 extra tiles
     if fIsInteractionAvoid and gTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
       Inc(Result, 500); //In interaction avoid mode, working unit = 50 tiles
   end;
