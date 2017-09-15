@@ -440,10 +440,8 @@ begin
   begin
     gGameCursor.Mode := cmMarkers;
     gGameCursor.Tag1 := MARKER_RALLY_POINT;
-  end else begin
+  end else
     gGameCursor.Mode := cmNone;
-    gGameCursor.Tag1 := 0;
-  end;
 end;
 
 
@@ -454,10 +452,8 @@ begin
   begin
     gGameCursor.Mode := cmMarkers;
     gGameCursor.Tag1 := MARKER_CUTTING_POINT;
-  end else begin
+  end else
     gGameCursor.Mode := cmNone;
-    gGameCursor.Tag1 := 0;
-  end;
 end;
 
 

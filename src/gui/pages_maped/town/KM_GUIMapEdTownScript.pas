@@ -132,10 +132,7 @@ begin
     gGameCursor.Tag1 := MARKER_AISTART;
   end
   else
-  begin
     gGameCursor.Mode := cmNone;
-    gGameCursor.Tag1 := 0;
-  end;
 end;
 
 

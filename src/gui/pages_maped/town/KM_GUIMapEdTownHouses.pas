@@ -109,7 +109,6 @@ var I: Integer;
 begin
   //Reset cursor and see if it needs to be changed
   gGameCursor.Mode := cmNone;
-  gGameCursor.Tag1 := 0;
 
   if Sender = Button_BuildCancel then
     gGameCursor.Mode := cmErase

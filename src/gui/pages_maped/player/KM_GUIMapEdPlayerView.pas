@@ -92,10 +92,7 @@ begin
     gGameCursor.Tag1 := MARKER_CENTERSCREEN;
   end
   else
-  begin
     gGameCursor.Mode := cmNone;
-    gGameCursor.Tag1 := 0;
-  end;
 
   if Sender = CheckBox_RevealAll then
     gGame.MapEditor.RevealAll[gMySpectator.HandIndex] := CheckBox_RevealAll.Checked

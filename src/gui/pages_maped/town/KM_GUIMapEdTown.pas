@@ -103,7 +103,6 @@ procedure TKMMapEdTown.PageChange(Sender: TObject);
 begin
   //Reset cursor mode
   gGameCursor.Mode := cmNone;
-  gGameCursor.Tag1 := 0;
 
   //Hide existing pages
   fGuiHouses.Hide;
