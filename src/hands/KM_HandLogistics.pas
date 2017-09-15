@@ -179,7 +179,7 @@ uses
 
 const
   //Max distance to use pathfinding on calc delivery bids. No need to calc on very long distance
-  BID_CALC_MAX_DIST_FOR_PATHF = 50;
+  BID_CALC_MAX_DIST_FOR_PATHF = 100;
   //Approx compensation to compare Bid cost calc with pathfinding and without it. Pathfinding is usually longer
   BID_CALC_PATHF_COMPENSATION = 0.9;
   CACHE_CLEAN_FREQ = 10; //in ticks. Clean cache every N ticks
@@ -883,7 +883,7 @@ begin
     and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware) <= 2) then //Few resources already delivered
     Result := 10
     //Resource ratios are also considered
-    + KaMRandom(25 - 3*gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType])
+    + KaMRandom(25 - 2*gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType])
   else
   begin
     //For all other cases - use distance approach. Direct length (rough) or pathfinding (exact)
