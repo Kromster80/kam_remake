@@ -874,11 +874,11 @@ begin
   //evenly between places rather than caring about route length.
   //This means weapon and armour smiths should get same amount of iron, even if one is closer to the smelter.
   if (fDemand[iD].Loc_House <> nil) and gRes.Houses[fDemand[iD].Loc_House.HouseType].DoesOrders
-    and (aOfferCnt < 3) //Little resources to share around
-    and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware) < 2) then //Few resources already delivered
+    and (aOfferCnt <= 3) //Little resources to share around
+    and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware) <= 2) then //Few resources already delivered
     Result := 10
     //Resource ratios are also considered
-    + KaMRandom(25 - gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType])
+    + KaMRandom(25 - 3*gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType])
   else
   begin
     //For all other cases - use distance approach. Direct length (rough) or pathfinding (exact)
@@ -888,7 +888,7 @@ begin
       Result := GetRouteCost(BelowOfferPos, fDemand[iD].Loc_House.PointBelowEntrance, tpWalkRoad);
       Result := Result
         //Resource ratios are also considered
-        + KaMRandom(15 - 3 * gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
+        + KaMRandom(15 - 3*gHands[aOwner].Stats.WareDistribution[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType]);
     end
     else
       //Calc bid cost between offer house and demand Unit (digged worker or hungry warrior)
