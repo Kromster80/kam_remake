@@ -6,6 +6,7 @@ Bugs:
  +	Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
  +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
+ +	When units exit Barracks and auto-join another group, they change that groups formation
  +	Disabled controls could have focus and receive keyboard input
  +	Colored rectangle below cursor
  +	If host was disconnected, then new host is reassigned and when going 'back to lobby' new host is always 'not ready' and can't start game
@@ -62,7 +63,6 @@ Bugs to fix in future:
 	TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
 	When uinstalling KMR, there are a lot of temp files left (.mi, logs, etc)
 	House animations order don't match with wares being taken/made. Many times wares dissappear before citizen goes to take them.
-	When units exit Barracks and auto-join another group, they change that groups formation
 	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position
 	AI groups retaliating to threat or provoked by auto attack range should return to their defence positions after pursuing unsuccessfully for a certain time/distance
 	On 2 display setup, when the game is fullscreen cursor should not be locked to that one display.
