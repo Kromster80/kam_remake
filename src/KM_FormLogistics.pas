@@ -3,8 +3,11 @@ unit KM_FormLogistics;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls;
+  {$IFDEF FPC} LResources, {$ENDIF}
+  {$IFDEF MSWindows} Windows, Messages, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  SysUtils, Variants, Classes, Graphics,
+  Controls, Forms, Dialogs, ComCtrls;
 
 type
   TFormLogistics = class(TForm)

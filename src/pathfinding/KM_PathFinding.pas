@@ -9,6 +9,7 @@ uses
 const
   PATH_CACHE_MAX = 12; //How many paths to cache
   PATH_CACHE_INIT_WEIGHT = 5; //New path weight
+  PATH_CACHE_NODES_MIN_CNT = 20; //Min number of noder to put route in cache
 
 type
   TKMPathDestination = (

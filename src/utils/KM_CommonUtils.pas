@@ -52,12 +52,15 @@ uses
   function MapSizeText(X,Y: Word): UnicodeString;
 
   //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
-  procedure KMSwapInt(var A,B:byte); overload;
-  procedure KMSwapInt(var A,B:shortint); overload;
-  procedure KMSwapInt(var A,B:smallint); overload;
-  procedure KMSwapInt(var A,B:word); overload;
-  procedure KMSwapInt(var A,B:integer); overload;
-  procedure KMSwapInt(var A,B:cardinal); overload;
+  procedure KMSwapInt(var A,B: Byte); overload;
+  procedure KMSwapInt(var A,B: Shortint); overload;
+  procedure KMSwapInt(var A,B: Smallint); overload;
+  procedure KMSwapInt(var A,B: Word); overload;
+  procedure KMSwapInt(var A,B: Integer); overload;
+  procedure KMSwapInt(var A,B: Cardinal); overload;
+
+  function Pack4ByteToInteger(aByte1, aByte2, aByte3, aByte4: Byte): Integer;
+  procedure UnpackIntegerTo4Byte(aInt: Integer; out aByte1, aByte2, aByte3, aByte4: Byte);
 
   function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
 
@@ -88,38 +91,38 @@ var
 
 
 //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
-function GetLength(A, B: Single): Single;
+function GetLength(A,B: Single): Single;
 begin
   Result := Sqrt(Sqr(A) + Sqr(B));
 end;
 
-procedure KMSwapInt(var A, B: byte);
+procedure KMSwapInt(var A,B: Byte);
 var
   S: byte;
 begin
   S := A; A := B; B := S;
 end;
 
-procedure KMSwapInt(var A, B: shortint);
+procedure KMSwapInt(var A,B: Shortint);
 var
   S: shortint;
 begin
   S := A; A := B; B := S;
 end;
 
-procedure KMSwapInt(var A,B:smallint);
+procedure KMSwapInt(var A,B: Smallint);
 var s:smallint;
 begin
   s:=A; A:=B; B:=s;
 end;
 
-procedure KMSwapInt(var A,B:word);
+procedure KMSwapInt(var A,B: Word);
 var s:word;
 begin
   s:=A; A:=B; B:=s;
 end;
 
-procedure KMSwapInt(var A,B:integer);
+procedure KMSwapInt(var A,B: Integer);
 var s:integer;
 begin
   s:=A; A:=B; B:=s;
@@ -129,6 +132,21 @@ procedure KMSwapInt(var A,B:cardinal);
 var s:cardinal;
 begin
   s:=A; A:=B; B:=s;
+end;
+
+
+function Pack4ByteToInteger(aByte1, aByte2, aByte3, aByte4: Byte): Integer;
+begin
+  Result := (aByte1 shl 24) or (aByte2 shl 16) or (aByte3 shl 8) or aByte4;
+end;
+
+
+procedure UnpackIntegerTo4Byte(aInt: Integer; out aByte1, aByte2, aByte3, aByte4: Byte);
+begin
+  aByte1 := (aInt and $FF000000) shr 24;
+  aByte2 := (aInt and $FF0000) shr 16;
+  aByte3 := (aInt and $FF00) shr 8;
+  aByte4 := aInt and $FF;
 end;
 
 

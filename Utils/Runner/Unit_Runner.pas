@@ -149,6 +149,9 @@ begin
   gGameApp.Stop(gr_Silent);
   FreeAndNil(gGameApp);
   FreeAndNil(gLog);
+  if Assigned(OnProgress) then
+    OnProgress('Done');
+
 end;
 
 
@@ -168,7 +171,7 @@ begin
       gGameApp.Game.GameHold(False, gr_Win);
 
     if (I mod 60*10 = 0) and Assigned(OnProgress) then
-      OnProgress(Format('%d (%d min)', [fRun, I div 600]));
+      OnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));
   end;
 end;
 

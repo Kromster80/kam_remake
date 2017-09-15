@@ -205,6 +205,7 @@ begin
   WFAver := WFTotal / (Runs*HandsCnt);
   GAver := GTotal / (Runs*HandsCnt);
 
+  gLog.AddTime('==================================================================');
   gLog.AddTime(Format('HAver: %3.2f  WAver: %3.2f  WFAver: %3.2f  GAver: %5.2f', [HAver, WAver, WFAver, GAver]));
   gLog.AddTime('TimeAver: ' + IntToStr(Round(GetTimeSince(Time)/Runs)));
   gLog.AddTime('Time: ' + IntToStr(GetTimeSince(Time)));
@@ -218,7 +219,7 @@ var Str: String;
     HRun, HRunT, WRun, WRunT, WFRun, WFRunT, GRun, GRunT: Cardinal;
     StartT: Cardinal;
 begin
-  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Cursed Ravine\Cursed Ravine.dat', 'Cursed Ravine');
+  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Cursed Ravine\Cursed Ravine.dat', 'Cursed Ravine');
   Inc(Runs);
   gMySpectator.Hand.FogOfWar.RevealEverything;
   gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(136, 25), 0);

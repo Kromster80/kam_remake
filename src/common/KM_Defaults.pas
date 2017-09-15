@@ -78,8 +78,11 @@ var
   CHECK_8087CW          :Boolean = False; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   SCROLL_ACCEL          :Boolean = False; //Acceleration for viewport scrolling
   PathFinderToUse       :Byte = 1;
-  DELIVERY_BID_CALC_USE_PATHFINDING:
-                         Boolean = False; //Do we use simple distance on map or pathfinding for calc delivery bids cost?
+
+
+  DELIVERY_BID_CALC_USE_PATHFINDING
+                        :Boolean = True; //Do we use simple distance on map or pathfinding for calc delivery bids cost?
+  CACHE_DELIVERY_BIDS   :Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
 
   WARFARE_ORDER_SEQUENTIAL    :Boolean = True; //Pick weapon orders like KaM did
   WARFARE_ORDER_PROPORTIONAL  :Boolean = False; //New proportional way (looks like a bad idea)

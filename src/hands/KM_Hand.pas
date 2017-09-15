@@ -1366,7 +1366,7 @@ begin
   if (aTick + Byte(fHandIndex)) mod 10 = 0 then
   begin
     fBuildList.UpdateState;
-    fDeliveries.UpdateState;
+    fDeliveries.UpdateState(aTick);
   end;
 
   //AI update takes care of it's own interleaving, so run it every tick

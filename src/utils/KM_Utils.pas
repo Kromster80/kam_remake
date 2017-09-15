@@ -10,20 +10,34 @@ uses
   {$ENDIF}
   {$IFDEF FPC} FileUtil, {$ENDIF}
   {$IFDEF WDC} IOUtils, {$ENDIF}
-	SysUtils, StrUtils, Classes, Controls, KM_Defaults, KM_CommonTypes;
+	SysUtils, StrUtils, Classes, Controls, KM_Defaults, KM_CommonTypes, KM_CommonClasses, KM_Points;
+
+  function KMPathLength(aNodeList: TKMPointList): Single;
 
   function GetHintWHotKey(aTextId, aHotkeyId: Integer): String;
 
 	function GetShiftState(aButton: TMouseButton): TShiftState;
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState): Word; overload;
+
   function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
+
   function ApplyColorCoef(aColor: Cardinal; aRed, aGreen, aBlue: Single): Cardinal;
 
 
 implementation
 uses
   Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups;
+
+
+function KMPathLength(aNodeList: TKMPointList): Single;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 1 to aNodeList.Count - 1 do
+    Result := Result + KMLengthDiag(aNodeList[I-1], aNodeList[I]);
+end;
 
 
 function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
