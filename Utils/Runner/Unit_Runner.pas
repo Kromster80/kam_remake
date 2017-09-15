@@ -31,6 +31,7 @@ type
     procedure SimulateGame;
     procedure ProcessRunResults;
   public
+    Duration: Integer;
     OnProgress: TUnicodeStringEvent;
     constructor Create(aRenderTarget: TKMRenderControl); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
@@ -128,6 +129,8 @@ begin
   SKIP_LOADING_CURSOR := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   //gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
+
+  fResults.TimesCount := Duration*60*10;
 
   if fRenderTarget = nil then
   begin

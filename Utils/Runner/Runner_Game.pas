@@ -68,7 +68,7 @@ procedure TKMRunnerStone.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
-  fResults.TimesCount := 0;
+//  fResults.TimesCount := 0;
 
   AI_GEN_INFLUENCE_MAPS := False;
   AI_GEN_NAVMESH := False;
@@ -136,7 +136,7 @@ procedure TKMRunnerFight95.SetUp;
 begin
   inherited;
   fResults.ValueCount := 2;
-  fResults.TimesCount := 2*60*10;
+//  fResults.TimesCount := 2*60*10;
 
   DYNAMIC_TERRAIN := False;
 end;
@@ -185,7 +185,7 @@ begin
     gLog := TKMLog.Create(ExeDir + 'Utils\Runner\Runner_Log.log');
     
   fResults.ValueCount := 6;
-  fResults.TimesCount := 60*60*10;
+//  fResults.TimesCount := 60*60*10;
   HTotal := 0;
   HAver := 0;
   WTotal := 0;
@@ -289,7 +289,7 @@ procedure TKMVortamicPF.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
-  fResults.TimesCount := 5*60*10;
+//  fResults.TimesCount := 5*60*10;
 end;
 
 procedure TKMVortamicPF.TearDown;
@@ -325,7 +325,7 @@ procedure TKMReplay.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
-  fResults.TimesCount := 2*60*60*10;
+//  fResults.TimesCount := 2*60*60*10;
 end;
 
 procedure TKMReplay.TearDown;
@@ -357,7 +357,7 @@ procedure TKMVas01.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
-  fResults.TimesCount := 2*60*10;
+//  fResults.TimesCount := 2*60*10;
 end;
 
 procedure TKMVas01.TearDown;

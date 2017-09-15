@@ -1,7 +1,7 @@
 object Form2: TForm2
   Left = 244
   Top = 169
-  Caption = 'Form2'
+  Caption = 'Runner'
   ClientHeight = 641
   ClientWidth = 1097
   Color = clBtnFace
@@ -20,22 +20,29 @@ object Form2: TForm2
   object Label1: TLabel
     Left = 8
     Top = 128
-    Width = 31
+    Width = 35
     Height = 13
-    Caption = 'Cycles'
+    Caption = 'Cycles:'
   end
   object Label2: TLabel
-    Left = 124
-    Top = 128
-    Width = 3
+    Left = 102
+    Top = 216
+    Width = 90
     Height = 13
     Alignment = taRightJustify
   end
+  object Label4: TLabel
+    Left = 103
+    Top = 127
+    Width = 72
+    Height = 13
+    Caption = 'Duration (min):'
+  end
   object Button1: TButton
-    Left = 136
-    Top = 128
-    Width = 57
-    Height = 41
+    Left = 103
+    Top = 172
+    Width = 89
+    Height = 38
     Caption = 'Run'
     Enabled = False
     TabOrder = 0
@@ -44,10 +51,10 @@ object Form2: TForm2
   object seCycles: TSpinEdit
     Left = 8
     Top = 144
-    Width = 121
+    Width = 89
     Height = 22
     MaxValue = 1000000
-    MinValue = 0
+    MinValue = 1
     TabOrder = 1
     Value = 10
   end
@@ -188,10 +195,20 @@ object Form2: TForm2
   end
   object chkRender: TCheckBox
     Left = 8
-    Top = 176
+    Top = 172
     Width = 57
     Height = 17
     Caption = 'Render'
     TabOrder = 5
+  end
+  object seDuration: TSpinEdit
+    Left = 103
+    Top = 144
+    Width = 89
+    Height = 22
+    MaxValue = 1000000
+    MinValue = 0
+    TabOrder = 6
+    Value = 60
   end
 end

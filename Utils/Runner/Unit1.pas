@@ -29,6 +29,8 @@ type
     Render: TTabSheet;
     Panel1: TPanel;
     chkRender: TCheckBox;
+    seDuration: TSpinEdit;
+    Label4: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
@@ -146,6 +148,7 @@ begin
     Runner.OnProgress := RunnerProgress;
     try
       T := GetTickCount;
+      Runner.Duration := seDuration.Value;
       fResults := Runner.Run(Count);
       fRunTime := 'Done in ' + IntToStr(GetTickCount - T) + ' ms';
     finally
