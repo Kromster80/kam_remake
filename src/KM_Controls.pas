@@ -1590,10 +1590,13 @@ begin
 
     //Send Click events
     if not fClickHoldHandled then // Do not send click event, if it was handled already while in click hold mode
+    begin
+      ResetClickHoldMode;
       DoClick(X, Y, Shift, Button);
+    end;
   end;
-
-  ResetClickHoldMode;
+  // No code is allowed after DoClick, as control object could be destroyed,
+  // that means we will modify freed memory, which will cause memory leaks
 end;
 
 

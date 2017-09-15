@@ -106,6 +106,7 @@ type
       Button_ResultsMPBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+    destructor Destroy; override;
 
     procedure Show(aMsg: TGameResultMsg);
   end;
@@ -184,7 +185,7 @@ end;
 destructor TKMChartArmyMP.Destroy;
 begin
   FreeAndNil(fType);
-  FreeAndNil(fChart);
+  // fChart is freed by GUI (MasterPanel and so on...)
   inherited;
 end;
 
@@ -238,6 +239,18 @@ begin
   fOnPageChange := aOnPageChange;
 
   Create_ResultsMP(aParent);
+end;
+
+
+destructor TKMMenuResultsMP.Destroy;
+var
+  WType: TChartArmyType;
+begin
+  for WType := High(TChartArmyType) downto Low(TChartArmyType) do
+  begin
+    FreeAndNil(Chart_MPArmy[WType]);
+    FreeAndNil(Chart_MPArmyTotal[WType]);
+  end;
 end;
 
 
