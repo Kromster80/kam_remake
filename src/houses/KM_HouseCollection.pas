@@ -67,15 +67,16 @@ begin
 
   case aHouseType of
     ht_Swine,
-    ht_Stables:     Result := TKMHouseSwineStable.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Inn:         Result := TKMHouseInn.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Marketplace: Result := TKMHouseMarket.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_School:      Result := TKMHouseSchool.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Barracks:    Result := TKMHouseBarracks.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Store:       Result := TKMHouseStore.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_WatchTower:  Result := TKMHouseTower.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Woodcutters: Result := TKMHouseWoodcutters.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    else            Result := TKMHouse.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Stables:       Result := TKMHouseSwineStable.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Inn:           Result := TKMHouseInn.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Marketplace:   Result := TKMHouseMarket.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_School:        Result := TKMHouseSchool.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Barracks:      Result := TKMHouseBarracks.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Store:         Result := TKMHouseStore.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_WatchTower:    Result := TKMHouseTower.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Woodcutters:   Result := TKMHouseWoodcutters.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_ArmorWorkshop: Result := TKMHouseArmorWorkshop.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    else              Result := TKMHouse.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
   end;
 
   if Result <> nil then
@@ -283,15 +284,16 @@ begin
     LoadStream.Read(HouseType, SizeOf(HouseType));
     case HouseType of
       ht_Swine,
-      ht_Stables:     T := TKMHouseSwineStable.Load(LoadStream);
-      ht_Inn:         T := TKMHouseInn.Load(LoadStream);
-      ht_Marketplace: T := TKMHouseMarket.Load(LoadStream);
-      ht_School:      T := TKMHouseSchool.Load(LoadStream);
-      ht_Barracks:    T := TKMHouseBarracks.Load(LoadStream);
-      ht_Store:       T := TKMHouseStore.Load(LoadStream);
-      ht_WatchTower:  T := TKMHouseTower.Load(LoadStream);
-      ht_Woodcutters: T := TKMHouseWoodcutters.Load(LoadStream);
-      else            T := TKMHouse.Load(LoadStream);
+      ht_Stables:       T := TKMHouseSwineStable.Load(LoadStream);
+      ht_Inn:           T := TKMHouseInn.Load(LoadStream);
+      ht_Marketplace:   T := TKMHouseMarket.Load(LoadStream);
+      ht_School:        T := TKMHouseSchool.Load(LoadStream);
+      ht_Barracks:      T := TKMHouseBarracks.Load(LoadStream);
+      ht_Store:         T := TKMHouseStore.Load(LoadStream);
+      ht_WatchTower:    T := TKMHouseTower.Load(LoadStream);
+      ht_Woodcutters:   T := TKMHouseWoodcutters.Load(LoadStream);
+      ht_ArmorWorkshop: T := TKMHouseArmorWorkshop.Load(LoadStream);
+      else              T := TKMHouse.Load(LoadStream);
     end;
 
     if T <> nil then

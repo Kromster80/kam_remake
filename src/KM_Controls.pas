@@ -418,8 +418,8 @@ type
   end;
 
 
-  {FlatButton}
-  TKMButtonFlat = class(TKMControl)
+  {Common Flat Button}
+  TKMButtonFlatCommon = class(TKMControl)
   private
   public
     RX: TRXType;
@@ -439,6 +439,15 @@ type
 
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
 
+    procedure Paint; override;
+
+  end;
+
+
+  {FlatButton}
+  TKMButtonFlat = class(TKMButtonFlatCommon)
+  private
+  public
     procedure Paint; override;
   end;
 
@@ -636,13 +645,11 @@ type
 
 
   {Row with resource name and icons}
-  TKMWaresRow = class(TKMControl)
+  TKMWaresRow = class(TKMButtonFlatCommon)
   public
-    RX: TRXType;
-    TexID: Word;
-    Caption: UnicodeString;
     WareCount: Byte;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer); overload;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aClickable: Boolean); overload;
     procedure Paint; override;
   end;
 
@@ -2798,8 +2805,8 @@ begin
 end;
 
 
-//Simple version of button, with a caption and image
-constructor TKMButtonFlat.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID: Integer; aRX: TRXType = rxGui);
+{TKMButtonFlatCommon}
+constructor TKMButtonFlatCommon.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID: Integer; aRX: TRXType = rxGui);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   RX        := aRX;
@@ -2811,7 +2818,7 @@ begin
 end;
 
 
-procedure TKMButtonFlat.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMButtonFlatCommon.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if not Clickable then Exit;
   if fEnabled and (csDown in State) then
@@ -2821,33 +2828,39 @@ begin
 end;
 
 
-procedure TKMButtonFlat.Paint;
-var TxtColor: TColor4;
+procedure TKMButtonFlatCommon.Paint;
+const
+  TextCol: array [Boolean] of TColor4 = ($FF808080, $FFFFFFFF);
 begin
   inherited;
 
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
+
+  if (csOver in State) and fEnabled and not HideHighlight then
+    TKMRenderUI.WriteShape(AbsLeft+1, AbsTop+1, Width-2, Height-2, $40FFFFFF);
+
+  if Down then
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
+end;
+
+
+//Simple version of button, with a caption and image
+{TKMButtonFlat}
+procedure TKMButtonFlat.Paint;
+const
+  TextCol: array [Boolean] of TColor4 = ($FF808080, $FFFFFFFF);
+begin
+  inherited;
 
   if TexID <> 0 then
     TKMRenderUI.WritePicture(AbsLeft + TexOffsetX,
                              AbsTop + TexOffsetY - 6 * Byte(Caption <> ''),
                              Width, Height, [], RX, TexID, fEnabled, FlagColor);
 
-  if (csOver in State) and fEnabled and not HideHighlight then
-    TKMRenderUI.WriteShape(AbsLeft+1, AbsTop+1, Width-2, Height-2, $40FFFFFF);
-
-  if fEnabled then
-    TxtColor := CapColor
-  else
-    TxtColor := ReduceBrightness(CapColor, 128);
-
-  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TxtColor);
+  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
 
   {if not fEnabled then
     TKMRenderUI.WriteShape(Left, Top, Width, Height, $80000000);}
-
-  if Down then
-    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, icWhite);
 end;
 
 
@@ -3522,10 +3535,18 @@ end;
 
 { TKMWaresRow }
 constructor TKMWaresRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer);
+begin
+  Create(aParent, aLeft, Atop, aWidth, False);
+end;
+
+
+constructor TKMWaresRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aClickable: Boolean);
 const
   WARE_ROW_HEIGHT = 21;
 begin
-  inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT);
+  inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT, 0);
+  Clickable := aClickable;
+  HideHighlight := not aClickable;
 end;
 
 
@@ -3534,7 +3555,6 @@ var
   I: Integer;
 begin
   inherited;
-  TKMRenderUI.WriteBevel(AbsLeft,AbsTop,Width,Height);
   TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 3, Width-8, Caption, fnt_Game, taLeft, $FFE0E0E0);
   //Render in reverse order so the rightmost resource is on top (otherwise lighting looks wrong)
   for I := WareCount - 1 downto 0 do

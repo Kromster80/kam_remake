@@ -641,6 +641,11 @@ begin
   //If Demand house has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.DeliveryMode = dm_Delivery));
 
+  //If Demand is a ArmorWorkshop and
+  Result := Result and ((fDemand[iD].Loc_House = nil) or
+                        (fDemand[iD].Loc_House.HouseType <> ht_ArmorWorkshop) or
+                        (TKMHouseArmorWorkshop(fDemand[iD].Loc_House).AcceptWareForDelivery(fOffer[iO].Ware)));
+
   //If Demand is a Storehouse and it has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House = nil) or
                         (fDemand[iD].Loc_House.HouseType <> ht_Store) or
