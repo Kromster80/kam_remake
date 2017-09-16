@@ -165,7 +165,7 @@ const
   MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
-  MAX_WOODCUTTER_CUT_PNT_DISTANCE = 8; //Max distance for woodcutter new cutting point from his house
+  MAX_WOODCUTTER_CUT_PNT_DISTANCE = 5; //Max distance for woodcutter new cutting point from his house
 
 const
   MAX_HANDS            = 12; //Maximum players (human or AI) per map
