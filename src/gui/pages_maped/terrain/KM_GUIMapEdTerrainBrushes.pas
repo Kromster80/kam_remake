@@ -2,7 +2,7 @@ unit KM_GUIMapEdTerrainBrushes;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, SysUtils,
+   Classes, Math, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics;
 
 
@@ -25,6 +25,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean);
     procedure UpdateState;
   end;
 
@@ -80,7 +81,9 @@ end;
 
 procedure TKMMapEdTerrainBrushes.BrushChange(Sender: TObject);
 begin
-  gGameCursor.Mode := cmBrush;
+  if gGameCursor.Mode <> cmBrush then
+    gGameCursor.Mode := cmBrush;    // This will reset Tag
+
   gGameCursor.MapEdSize := BrushSize.Position;
   gGame.MapEditor.TerrainPainter.RandomizeTiling := BrushRandom.Checked;
 
@@ -128,6 +131,18 @@ end;
 function TKMMapEdTerrainBrushes.Visible: Boolean;
 begin
   Result := Panel_Brushes.Visible;
+end;
+
+
+procedure TKMMapEdTerrainBrushes.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
+begin
+  aHandled := False;
+  if ssCtrl in Shift then
+  begin
+    BrushSize.Position := Max(0, BrushSize.Position - (WheelDelta div 100)); //can't set negative number
+    BrushChange(nil);
+    aHandled := True;
+  end;
 end;
 
 

@@ -109,7 +109,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta, X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
     procedure SetLoadMode(aMultiplayer:boolean);
 
@@ -1183,7 +1183,9 @@ begin
 end;
 
 
-procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta, X,Y: Integer);
+var
+  Handled: Boolean;
 begin
   if gGameCursor.Mode in [cmField, cmWine] then
   begin
@@ -1192,8 +1194,11 @@ begin
     // Allow to zoom only when cursor is over map. Controls handle zoom on their own
     if (fMyControls.CtrlOver = nil) then
       gGame.MapEditor.MouseWheel(Shift, WheelDelta, X, Y);
-  end else
-    inherited;
+  end else begin
+    fGuiTerrain.MouseWheel(Shift, WheelDelta, X, Y, Handled);
+    if not Handled then
+      inherited;
+  end;
 end;
 
 
