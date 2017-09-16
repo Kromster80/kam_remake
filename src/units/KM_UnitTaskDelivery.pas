@@ -155,14 +155,16 @@ begin
   if fPhase <= 2 then
     Result := Result or fFrom.IsDestroyed or (not fFrom.ResOutputAvailable(fWareType, 1) {and (fPhase < 5)});
 
-  //Until we implement "wares recycling" we just abandon the delivery if target is destroyed/dead
+  //do not abandon the delivery if target is destroyed/dead, we will find new target later
   case fDeliverKind of
     dk_ToHouse:         if fPhase <= 8 then
                         begin
                           Result := Result or fToHouse.IsDestroyed
-                                           or (not fForceDelivery
-                                              and ((fToHouse.DeliveryMode <> dm_Delivery)
-                                                or ((fToHouse is TKMHouseStore) and TKMHouseStore(fToHouse).NotAcceptFlag[fWareType])));
+                                   or (not fForceDelivery
+                                      and ((fToHouse.DeliveryMode <> dm_Delivery)
+                                        or ((fToHouse is TKMHouseStore) and TKMHouseStore(fToHouse).NotAcceptFlag[fWareType])
+                                        or ((fToHouse is TKMHouseBarracks) and TKMHouseBarracks(fToHouse).NotAcceptFlag[fWareType])
+                                        or ((fToHouse is TKMHouseArmorWorkshop) and not TKMHouseArmorWorkshop(fToHouse).AcceptWareForDelivery(fWareType))));
                         end;
     dk_ToConstruction:  if fPhase <= 6 then
                           Result := Result or fToHouse.IsDestroyed;

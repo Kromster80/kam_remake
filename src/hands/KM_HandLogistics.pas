@@ -1042,7 +1042,14 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
     Result := Result and ((fDemand[iD].Loc_Unit = nil) or not fDemand[iD].Loc_Unit.IsDeadOrDying);
 
     //Check if demand house has enabled delivery
-    Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.DeliveryMode = dm_Delivery));
+    if fDemand[iD].Loc_House <> nil then
+    begin
+      //Check delivery flag
+      Result := Result and (fDemand[iD].Loc_House.DeliveryMode = dm_Delivery);
+      //for ArmorWorkshop also check accept ware flag
+      if fDemand[iD].Loc_House is TKMHouseArmorWorkshop then
+        Result := Result and TKMHouseArmorWorkshop(fDemand[iD].Loc_House).AcceptWareForDelivery(fDemand[iD].Ware)
+    end;
 
     //If Demand aren't reserved already
     Result := Result and ((fDemand[iD].DemandType = dtAlways) or (fDemand[iD].BeingPerformed = 0));
@@ -1091,7 +1098,7 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
           end;
         end;
 
-    // If no open storage for delivery found, then try to find any storage
+    // If no open storage for delivery found, then try to find any storage or any barracks
     if Result = -1 then
       for iD := 1 to fDemandCount do
         if (fDemand[iD].Ware = wt_All)
