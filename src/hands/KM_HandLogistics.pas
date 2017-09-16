@@ -878,7 +878,8 @@ begin
   //For weapons production in cases with little resources available, they should be distributed
   //evenly between places rather than caring about route length.
   //This means weapon and armour smiths should get same amount of iron, even if one is closer to the smelter.
-  if (fDemand[iD].Loc_House <> nil) and gRes.Houses[fDemand[iD].Loc_House.HouseType].DoesOrders
+  if (fDemand[iD].Loc_House <> nil) and fDemand[iD].Loc_House.IsComplete
+    and gRes.Houses[fDemand[iD].Loc_House.HouseType].DoesOrders
     and (aOfferCnt <= 3) //Little resources to share around
     and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware) <= 2) then //Few resources already delivered
     Result := 10
