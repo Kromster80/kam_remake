@@ -469,6 +469,9 @@ begin
   if fGuiExtras.CheckBox_ShowTileOwners.Checked then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlTileOwner];
 
+  if fGuiExtras.CheckBox_ShowTilesGrid.Checked then
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlTilesGrid];
+
   if fGuiMenu.GuiMenuResize.Visible then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlMapResize];
 end;

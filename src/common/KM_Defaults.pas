@@ -643,6 +643,7 @@ type
     mlSelection,
     mlWaterFlow,
     mlTileOwner,
+    mlTilesGrid,
     mlMapResize);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
@@ -713,6 +714,7 @@ const
   icLightGray = $FFA0A0A0;
   icWhite = $FFFFFFFF;
   icBlack = $FF000000;
+  icDarkCyan   = $FFB0B000;
 
   icSteelBlue = $FFA56D53;
 

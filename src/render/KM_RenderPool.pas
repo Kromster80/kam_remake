@@ -68,6 +68,7 @@ type
     fHouseOutline: TKMPointList;
 
     procedure ApplyTransform;
+    procedure SetDefaultRenderParams;
     procedure RenderBackgroundUI(aRect: TKMRect);
     // Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderForegroundUI;
@@ -92,7 +93,9 @@ type
     procedure PaintRallyPoints(aPass: Byte);
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
+    procedure RenderMapEdLayers(aRect: TKMRect);
     procedure RenderTileOwnerLayer(aRect: TKMRect);
+    procedure RenderGridLayer(aRect: TKMRect);
   public
     constructor Create(aViewport: TKMViewport; aRender: TRender);
     destructor Destroy; override;
@@ -119,7 +122,7 @@ type
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
-    procedure RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0.0);
+    procedure RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0.0; aLineWidth: Single = -1);
 
     property RenderList: TRenderList read fRenderList;
     property RenderTerrain: TRenderTerrain read fRenderTerrain;
@@ -219,6 +222,13 @@ begin
 end;
 
 
+procedure TRenderPool.SetDefaultRenderParams;
+begin
+  glLineWidth(fViewport.Zoom * 2);
+  glPointSize(fViewport.Zoom * 5);
+end;
+
+
 // Render:
 // 1. Sets viewport
 // 2. Renders terrain
@@ -233,8 +243,7 @@ begin
   ApplyTransform;
 
   glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
-    glLineWidth(fViewport.Zoom * 2);
-    glPointSize(fViewport.Zoom * 5);
+    SetDefaultRenderParams;
 
     // Render only within visible area
     ClipRect := fViewport.GetClip;
@@ -259,7 +268,7 @@ begin
 
     fRenderTerrain.RenderPlayerPlans(fFieldsList, fHousePlansList);
 
-    RenderTileOwnerLayer(ClipRect);
+    RenderMapEdLayers(ClipRect);
 
     // House highlight, debug display
     RenderBackgroundUI(ClipRect);
@@ -1225,11 +1234,14 @@ end;
 //P - tile coords
 //Col - Color
 //aInset - Internal adjustment, to render wire "inside" tile
-procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0.0);
+procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4; aInset: Single = 0.0; aLineWidth: Single = -1);
 begin
   if not gTerrain.TileInMapCoords(P.X, P.Y) then Exit;
 
   TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
+
+  if aLineWidth > 0 then
+    glLineWidth(aLineWidth);
 
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
@@ -1240,6 +1252,9 @@ begin
       glVertex2f(P.X-1 + aInset, P.Y   - aInset - Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
+
+  if aLineWidth > 0 then
+    SetDefaultRenderParams;
 end;
 
 
@@ -1322,14 +1337,38 @@ begin
     for K := aRect.Left to aRect.Right do
     begin
       P := KMPoint(K, I);
-      if gGame.IsMapEditor // Only for editor
-        and (mlTileOwner in gGame.MapEditor.VisibleLayers) //If 'tile owner' is in visible layers
+      if (mlTileOwner in gGame.MapEditor.VisibleLayers) //If 'tile owner' is in visible layers
         and (gTerrain.Land[I, K].TileOwner <> PLAYER_NONE) //owner is set for tile
         and (gTerrain.TileIsCornField(P)                   // show only for corn + wine + roads
           or gTerrain.TileIsWineField(P)
           or (gTerrain.Land[I, K].TileOverlay = to_Road)) then
         RenderWireTile(P, gHands[gTerrain.Land[I, K].TileOwner].FlagColor, 0.05);
     end;
+end;
+
+
+//Render tiles grid layer
+procedure TRenderPool.RenderGridLayer(aRect: TKMRect);
+var I, K: Integer;
+    P: TKMPoint;
+begin
+  if (mlTilesGrid in gGame.MapEditor.VisibleLayers) then
+  for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      P := KMPoint(K, I);
+      RenderWireTile(P, icDarkCyan, 0, 0.2);
+    end;
+end;
+
+
+//Render MapEd layers
+procedure TRenderPool.RenderMapEdLayers(aRect: TKMRect);
+begin
+  if not gGame.IsMapEditor then Exit;
+
+  RenderTileOwnerLayer(aRect);
+  RenderGridLayer(aRect);
 end;
 
 
