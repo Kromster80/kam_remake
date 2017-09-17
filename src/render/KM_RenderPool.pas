@@ -226,6 +226,7 @@ procedure TRenderPool.SetDefaultRenderParams;
 begin
   glLineWidth(fViewport.Zoom * 2);
   glPointSize(fViewport.Zoom * 5);
+  glEnable(GL_LINE_SMOOTH);
 end;
 
 
