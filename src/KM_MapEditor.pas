@@ -491,7 +491,10 @@ begin
                                 gMySpectator.Hand.AddHouse(THouseType(gGameCursor.Tag1), P.X, P.Y, true);
                                 //Holding shift allows to place that house multiple times
                                 if not (ssShift in gGameCursor.SState) then
+                                begin
+                                  gGameCursor.Tag1 := 0; //Reset tag
                                   gGameCursor.Mode := cmRoad;
+                                end;
                               end;
                 cmElevate, cmEqualize,
                 cmBrush, cmObjects,

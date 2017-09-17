@@ -17,7 +17,7 @@ type
     PrevCell: TKMPoint;   //Cursor previous position cell
     SState: TShiftState;  //Thats actually used to see if Left or Right mouse button is pressed
 
-    Tag1: Byte;           //Tag to know building type, unit type etc. Is resetted on mode change
+    Tag1: Byte;           //Tag to know building type, unit type etc
     DragOffset: TKMPoint; //used to adjust actual Cursor Cell
     ObjectUID: Integer;   //Object found below cursor
 
@@ -49,16 +49,17 @@ end;
 procedure TKMGameCursor.Reset;
 begin
   DragOffset := KMPOINT_ZERO;
-  Tag1 := 0;
   // Actually we need reset all fields when changing mode,
   // but lets reset only DragOffset for now, need to do lots of tests for other fields
-  // Also reset Tag1, so if you want to set Mode and Tag1, then set Mode first
 end;
 
 
 procedure TKMGameCursor.SetMode(aMode: TKMCursorMode);
 begin
   fMode := aMode;
+  if fMode = cmNone then  //Reset Tag1 also, when reset mode
+    Tag1 := 0;
+
   Reset;
 end;
 
