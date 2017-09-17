@@ -428,7 +428,6 @@ type
     TexOffsetY: Shortint;
     CapOffsetY: Shortint;
     Caption: UnicodeString;
-    Down: Boolean;
     CapColor: TColor4;
     FlagColor: TColor4;
     Font: TKMFont;
@@ -446,8 +445,8 @@ type
 
   {FlatButton}
   TKMButtonFlat = class(TKMButtonFlatCommon)
-  private
   public
+    Down: Boolean;
     procedure Paint; override;
   end;
 
@@ -2838,9 +2837,6 @@ begin
 
   if (csOver in State) and fEnabled and not HideHighlight then
     TKMRenderUI.WriteShape(AbsLeft+1, AbsTop+1, Width-2, Height-2, $40FFFFFF);
-
-  if Down then
-    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
 end;
 
 
@@ -2859,6 +2855,8 @@ begin
 
   TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
 
+  if Down then
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
   {if not fEnabled then
     TKMRenderUI.WriteShape(Left, Top, Width, Height, $80000000);}
 end;
