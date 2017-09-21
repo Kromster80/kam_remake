@@ -1,6 +1,6 @@
 ﻿Since r6720:
 <===================================================================================>
-Todo:
+Todo:!
 	Update translation for 642 text label: TX_REPLAY_FAILED
 Bugs:
  +	Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
