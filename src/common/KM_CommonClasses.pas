@@ -2,7 +2,7 @@ unit KM_CommonClasses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KM_Points;
+  Classes, SysUtils, KM_Points;
 
 
 type
@@ -156,7 +156,7 @@ type
 
 implementation
 uses
-  KM_CommonUtils;
+  Math, KM_CommonUtils;
 
 
 { ELocError }

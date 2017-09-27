@@ -2,9 +2,10 @@ unit KM_Minimap;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, KromOGLUtils, Math, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_MissionScript_Preview, KM_Render, KM_Terrain, KM_Alerts;
+  KromOGLUtils,
+  KM_Terrain, KM_Alerts,
+  KM_MissionScript_Preview,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
 
 
 type
@@ -55,8 +56,10 @@ type
 
 implementation
 uses
-  KM_AIFields, KM_HandsCollection, KM_Resource, KM_Units, KM_UnitGroups, KM_Hand, KM_ResUnits,
-  KM_AIInfluences, KM_Game, KM_Utils;
+  SysUtils, KromUtils, Math,
+  KM_Game, KM_Render, KM_AIFields, KM_AIInfluences,
+  KM_Units, KM_UnitGroups, KM_Hand, KM_HandsCollection,
+  KM_Resource, KM_ResUnits, KM_CommonUtils, KM_Utils;
 
 
 { TKMMinimap }

@@ -2,9 +2,7 @@ unit KM_MissionScript_Info;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils,
-  KM_CommonClasses, KM_Defaults,
-  KM_MissionScript, KM_Maps, KM_Resource;
+  KM_MissionScript, KM_Maps;
 
 
 type
@@ -26,6 +24,10 @@ type
 
 
 implementation
+uses
+  SysUtils,
+  KM_Resource,
+  KM_CommonClasses, KM_Defaults;
 
 
 { TMissionParserInfo }

@@ -2,21 +2,14 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
-  {$IFDEF WDC} UITypes, {$ENDIF}
-
-  {$IFDEF FPC}FileUtil,{$ENDIF}
-  {$IFDEF WDC}IOUtils,{$ENDIF}
-
-  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math,
+  ExtCtrls,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_FileIO,
-  KM_GameInputProcess, KM_GameOptions,
-  KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_MapEditor, KM_Networking, KM_Scripting, KM_Campaigns,
-  KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
-  KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts, KM_CommonClasses, KM_Sound;
+  KM_Networking,
+  KM_PathFinding,
+  KM_GameInputProcess, KM_GameOptions, KM_Scripting, KM_MapEditor, KM_Campaigns, KM_Render, KM_Sound,
+  KM_InterfaceGame, KM_InterfaceGamePlay, KM_InterfaceMapEditor,
+  KM_ResTexts,
+  KM_PerfLog, KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses;
 
 type
   TGameMode = (
@@ -194,20 +187,21 @@ type
   end;
 
 
-const
-  UID_NONE: Integer = -1; //Would be better to have it 0. But now it's -1 for backwards compatibility
-
 var
   gGame: TKMGame;
 
 
 implementation
 uses
-  KM_Log, KM_CommonUtils, KM_Utils,
-  KM_AIArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
-  KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Saves, KM_ScriptingEvents,
-  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main, KM_AI;
+  Classes, Controls, Dialogs, SysUtils, KromUtils, Math,
+  {$IFDEF WDC} UITypes, {$ENDIF}
+  KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
+  KM_Projectiles, KM_AIFields, KM_AIArmyEvaluation,
+  KM_Main, KM_GameApp, KM_RenderPool, KM_GameInfo,
+  KM_Terrain, KM_Hand, KM_HandsCollection, KM_HandSpectator,
+  KM_MissionScript, KM_MissionScript_Standard, KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
+  KM_Resource, KM_ResCursors, KM_ResSound,
+  KM_Log, KM_ScriptingEvents, KM_Maps, KM_Saves, KM_FileIO, KM_CommonUtils;
 
 
 //Create template for the Game

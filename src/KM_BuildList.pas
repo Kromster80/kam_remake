@@ -2,9 +2,9 @@ unit KM_BuildList;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KromUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Points,
-  KM_ResHouses;
+  KM_Units, KM_Houses,
+  KM_ResHouses,
+  KM_Defaults, KM_CommonClasses, KM_Points;
 
 
 type
@@ -193,7 +193,8 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Resource;
+  Math,
+  KM_Hand, KM_HandsCollection, KM_Resource;
 
 
 const

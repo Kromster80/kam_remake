@@ -2,9 +2,8 @@ unit KM_HandSpectator;
 {$I KaM_Remake.inc}
 interface
 uses
-  KromUtils,
-  KM_CommonClasses, KM_Defaults,
-  KM_FogOfWar, KM_Hand;
+  KM_Hand, KM_FogOfWar,
+  KM_CommonClasses, KM_Defaults;
 
 
 type
@@ -50,8 +49,10 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Game, KM_Houses, KM_Units, KM_UnitGroups, KM_GameCursor,
-  KM_Units_Warrior, KM_Utils;
+  KromUtils,
+  KM_Game, KM_GameCursor, KM_HandsCollection,
+  KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Houses,
+  KM_Utils;
 
 
 { TKMSpectator }

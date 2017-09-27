@@ -2,8 +2,9 @@ unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults,
-  KM_CommonClasses, KM_CommonTypes, KM_Hand;
+  KM_GameInputProcess,
+  KM_Hand, KM_Networking,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
 
 const
   MAX_SCHEDULE = 100; //Size of ring buffers (10 sec) Make them large so overruns do not occur
@@ -84,8 +85,9 @@ type
 
 implementation
 uses
-  TypInfo, KM_Game, KM_GameApp, KM_HandsCollection, KM_CommonUtils, KM_Sound, KM_ResSound, KM_ResTexts,
-  KM_AI, KM_Log;
+  SysUtils, Math, KromUtils,
+  KM_GameApp, KM_Game, KM_HandsCollection,
+  KM_ResTexts, KM_ResSound, KM_Sound, KM_CommonUtils;
 
 
 { TCommandsPack }

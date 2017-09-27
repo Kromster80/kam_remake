@@ -2,11 +2,11 @@
 {$I KaM_Remake.inc}
 interface
 uses
-    {$IFDEF MSWindows} Windows, {$ENDIF}
-    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-    Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
-    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
-    KM_RenderUI, KM_ResFonts, KM_Minimap, KM_Viewport;
+  Classes, Controls,
+  KromOGLUtils,
+  KM_RenderUI, KM_Pics, KM_Minimap, KM_Viewport, KM_ResFonts,
+  KM_CommonTypes, KM_Points;
+
 
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
@@ -1400,7 +1400,12 @@ type
 
 implementation
 uses
-  KM_Resource, KM_ResCursors, KM_ResSound, KM_ResSprites, KM_Sound, KM_CommonUtils, KM_Utils;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  SysUtils, StrUtils, Math, KromUtils, Clipbrd,
+  KM_Resource, KM_ResSprites, KM_ResSound, KM_ResCursors,
+  KM_Sound, KM_CommonUtils, KM_Utils, KM_Defaults;
+
 
 const
   CLICK_HOLD_TIME_THRESHOLD = 200; // Time period, determine delay between mouse down and 1st click hold events

@@ -7,9 +7,9 @@ interface
 uses
   dglOpenGL,
   {$IFDEF FPC} GL, LCLIntf, {$ENDIF}
-  {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLType, glx, x, xlib, xutil, {$ENDIF}
-  SysUtils, Forms, KromUtils;
+  {$IFDEF MSWindows} Windows {$ENDIF}
+  {$IFDEF Unix} LCLType, glx, x, xlib, xutil {$ENDIF}
+  ;
 
 {$IFDEF Unix}
 type HGLRC = Integer;

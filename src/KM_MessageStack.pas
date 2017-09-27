@@ -2,7 +2,7 @@ unit KM_MessageStack;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, SysUtils, KM_CommonClasses, KM_CommonTypes, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
 type
@@ -45,6 +45,8 @@ type
 
 
 implementation
+uses
+  SysUtils, Math;
 
 
 { TKMStackMessage }

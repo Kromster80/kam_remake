@@ -2,10 +2,8 @@ unit KM_Maps;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SyncObjs, SysUtils, StrUtils
-  {$IFDEF FPC} , FileUtil {$ENDIF}
-  {$IFDEF WDC} , IOUtils {$ENDIF}
-  , KM_Defaults;
+  Classes, SyncObjs,
+  KM_Defaults;
 
 
 type
@@ -177,7 +175,10 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_CommonUtils, KM_GameApp, KM_Scripting, KM_FileIO;
+  SysUtils, StrUtils, Math, KromUtils,
+  KM_GameApp, KM_ResTexts, KM_FileIO,
+  KM_MissionScript_Info, KM_Scripting,
+  KM_CommonClasses, KM_CommonUtils;
 
 
 const

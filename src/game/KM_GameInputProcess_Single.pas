@@ -2,7 +2,7 @@ unit KM_GameInputProcess_Single;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, KM_GameInputProcess;
+  KM_GameInputProcess;
 
 
 type

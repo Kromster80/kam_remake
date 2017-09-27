@@ -2,10 +2,10 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
-  {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions
-  {$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  KM_FormMain, KM_FormLoading,
+  KM_Settings, KM_Resolutions;
+
 
 type
   TKMMain = class
@@ -68,7 +68,13 @@ var
 
 implementation
 uses
-  KM_Defaults, KM_GameApp, KM_CommonUtils, KM_Log, KM_Maps, KM_Points;
+  Classes, Forms,
+  {$IFDEF MSWindows} MMSystem, {$ENDIF}
+  {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
+  SysUtils, StrUtils, Math, KromUtils,
+  KM_GameApp, KM_Maps,
+  KM_Log, KM_CommonUtils, KM_Defaults, KM_Points;
+
 
 const
   //Random GUID generated in Delphi by Ctrl+G

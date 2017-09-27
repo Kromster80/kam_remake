@@ -2,9 +2,8 @@ unit KM_Houses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Terrain, KM_ResHouses, KM_ResWares;
+  KM_ResHouses, KM_ResWares,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
 
 //Houses are ruled by units, hence they don't know about  TKMUnits
 
@@ -265,9 +264,12 @@ type
 
 implementation
 uses
-  KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
-  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
-  KM_Resource, KM_CommonUtils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
+  SysUtils, Math, KromUtils,
+  KM_Game, KM_Terrain, KM_RenderPool, KM_RenderAux, KM_Sound, KM_FogOfWar,
+  KM_Hand, KM_HandsCollection, KM_HandLogistics,
+  KM_Units_Warrior, KM_HouseBarracks,
+  KM_Resource, KM_ResSound, KM_ResTexts,
+  KM_Log, KM_ScriptingEvents, KM_CommonUtils;
 
 const
   //Delay, In ticks, from user click on DeliveryMode btn, to tick, when mode will be really set.

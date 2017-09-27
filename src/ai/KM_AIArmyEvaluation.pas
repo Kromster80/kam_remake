@@ -2,8 +2,7 @@ unit KM_AIArmyEvaluation;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils,
-  KM_Defaults, KM_HandStats;
+  KM_Defaults;
 
 
 type
@@ -38,7 +37,9 @@ procedure InitUnitStatEvals;
 
 implementation
 uses
-  Math, KM_HandsCollection, KM_Resource, KM_ResUnits, KM_Hand;
+  Math,
+  KM_Hand, KM_HandsCollection, KM_HandStats,
+  KM_Resource, KM_ResUnits;
 
 
 var
@@ -144,8 +145,8 @@ begin
       C2 := gRes.Units[K];
 
       HpRatio := C1.HitPoints / C2.HitPoints;
-      DirectPow := C1.Attack + C1.AttackHorse * Byte(UnitGroups[K] = gt_Mounted) / max(C2.Defence, 1);
-      OppositePow := C2.Attack + C2.AttackHorse * Byte(UnitGroups[I] = gt_Mounted) / max(C1.Defence, 1);
+      DirectPow := C1.Attack + C1.AttackHorse * Byte(UnitGroups[K] = gt_Mounted) / Max(C2.Defence, 1);
+      OppositePow := C2.Attack + C2.AttackHorse * Byte(UnitGroups[I] = gt_Mounted) / Max(C1.Defence, 1);
       UnitPower[I, K] := HpRatio * DirectPow / OppositePow;
     end;
   end;

@@ -2,9 +2,8 @@ unit KM_MissionScript_Standard;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_MissionScript, KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_UnitGroups;
+  KM_MissionScript, KM_UnitGroups, KM_Houses,
+  KM_AIAttacks, KM_Points, KM_Defaults;
 
 
 type
@@ -39,9 +38,11 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Hand, KM_AI, KM_AIDefensePos, KM_TerrainPainter, KM_HouseBarracks,
-  KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares, KM_Game, KM_Units_Warrior, KM_HouseCollection,
-  KM_UnitsCollection;
+  Classes, SysUtils, Math, KromUtils,
+  KM_Hand, KM_Game, KM_HandsCollection, KM_Units, KM_Units_Warrior, KM_HouseBarracks,
+  KM_AI, KM_AIDefensePos,
+  KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares,
+  KM_CommonClasses, KM_Terrain;
 
 
 type

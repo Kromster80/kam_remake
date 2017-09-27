@@ -2,9 +2,9 @@ unit KM_HandStats;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
-  KM_ResHouses, KM_ResWares, KM_WareDistribution;
+  KM_WareDistribution,
+  KM_ResWares, KM_ResHouses,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
 
 
 //These are stats for each player
@@ -129,7 +129,8 @@ type
 
 implementation
 uses
-  KM_Resource, KM_GameApp;
+  SysUtils,
+  KM_Resource;
 
 
 { TKMHandStats }

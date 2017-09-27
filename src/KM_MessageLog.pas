@@ -2,7 +2,7 @@ unit KM_MessageLog;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, SysUtils, KM_CommonClasses, KM_CommonTypes, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
 type
@@ -49,7 +49,7 @@ type
 
 implementation
 uses
-  KM_ResTexts;
+  SysUtils, Math, KM_ResTexts;
 
 
 { TKMLogMessage }

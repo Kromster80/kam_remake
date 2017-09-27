@@ -2,10 +2,9 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Math, SysUtils, StrUtils,
-  {$IFDEF WDC} IOUtils, {$ENDIF}
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_RenderPool,
-  KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection, KM_FileIO;
+  Classes, Controls,
+  KM_RenderPool, KM_TerrainPainter, KM_TerrainDeposits, KM_TerrainSelection,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
@@ -70,8 +69,12 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_Units, KM_UnitGroups, KM_GameCursor,
-  KM_ResHouses, KM_ResMapElements, KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
+  SysUtils, StrUtils, Math,
+  KM_Terrain, KM_FileIO,
+  KM_AIDefensePos,
+  KM_Units, KM_UnitGroups, KM_Houses, KM_HouseBarracks,
+  KM_Game, KM_GameCursor, KM_ResMapElements, KM_ResHouses,
+  KM_RenderAux, KM_Hand, KM_HandsCollection, KM_InterfaceMapEditor;
 
 
 { TKMMapEditor }

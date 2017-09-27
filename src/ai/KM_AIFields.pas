@@ -2,9 +2,9 @@ unit KM_AIFields;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, Graphics,
-  KM_CommonClasses, KM_Defaults,
-  KM_Points, KM_AIInfluences, KM_NavMesh;
+  KM_NavMesh, KM_AIInfluences,
+  KM_CommonClasses, KM_Points;
+
 
 type
   //Master class for Influence maps, NavMeshe and other terrain representations
@@ -34,6 +34,9 @@ var
 
 
 implementation
+uses
+  SysUtils,
+  KM_Defaults;
 
 
 { TKMAIFields }

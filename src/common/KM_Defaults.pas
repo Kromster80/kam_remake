@@ -89,7 +89,7 @@ var
 
   //These are debug things, should be False
   {User interface options}
-  DEBUG_SPEEDUP_SPEED   :Integer = 200;   //Speed for speedup from debug menu
+  DEBUG_SPEEDUP_SPEED   :Integer = 300;   //Speed for speedup from debug menu
   ALLOW_SELECT_ENEMIES  :Boolean = False; //Do we allow to select enemies houses/units/froups
   SHOW_DEBUG_CONTROLS   :Boolean = False; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls! always Off here
@@ -396,6 +396,11 @@ type
     wcFish, //Required for fisherman finding fish in a pond, NOT for fish movement (uses steering). Updated ONLY on load because water doesn't change.
     wcWork  //CanWorker areas
   );
+
+
+const
+  UID_NONE: Integer = -1; //Would be better to have it 0. But now it's -1 for backwards compatibility
+
 
 {Units}
 type

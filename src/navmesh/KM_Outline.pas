@@ -2,8 +2,8 @@ unit KM_Outline;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math,
-  KM_CommonTypes, KM_Points, KM_PolySimplify;
+  KM_PolySimplify,
+  KM_CommonTypes;
 
 
   //Procedure that converts 2D Byte array into outlines
@@ -14,6 +14,9 @@ uses
 
 
 implementation
+uses
+  Math,
+  KM_Points;
 
 
 procedure GenerateOutline(aMap: TKMByte2Array; aTrim: Byte; out aOutlines: TKMShapesArray);

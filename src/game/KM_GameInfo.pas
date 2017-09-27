@@ -2,7 +2,7 @@ unit KM_GameInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KM_Hand, KM_CommonClasses, KM_Defaults;
+  KM_Hand, KM_CommonClasses, KM_Defaults;
 
 
 type
@@ -46,6 +46,7 @@ type
 
 implementation
 uses
+  SysUtils,
   KM_Resource, KM_ResTexts, KM_CommonUtils;
 
 

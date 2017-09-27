@@ -2,8 +2,9 @@ unit KM_HouseInn;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_ResHouses, KM_ResWares, KM_Houses;
+  KM_Houses,
+  KM_ResWares, KM_ResHouses,
+  KM_CommonClasses, KM_Defaults;
 
 
 type
@@ -29,7 +30,9 @@ type
 
 implementation
 uses
-  KM_RenderPool, KM_HandsCollection, KM_Hand;
+  KM_RenderPool,
+  KM_Hand, KM_HandsCollection,
+  KM_Points;
 
 
 { TKMHouseInn }

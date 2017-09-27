@@ -2,9 +2,9 @@ unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, Classes, Controls, 
   {$IFDEF MSWINDOWS} Windows, {$ENDIF}
-  KromUtils, KM_CommonClasses, KM_Points;
+  KM_CommonClasses, KM_Points;
+
 
 type
   TKMViewport = class
@@ -50,7 +50,10 @@ type
 
 implementation
 uses
-  KM_Defaults, KM_CommonUtils, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
+  Math, KromUtils,
+  KM_Resource, KM_ResCursors,
+  KM_Main, KM_GameApp, KM_Sound,
+  KM_Defaults, KM_CommonUtils;
 
 
 { TKMViewport }

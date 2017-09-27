@@ -1,8 +1,7 @@
 unit KM_Points;
 {$I KaM_Remake.inc}
 interface
-uses
-  Classes, Math, SysUtils;
+
 
 type
   TKMDirection = (dir_NA, dir_N, dir_NE, dir_E, dir_SE, dir_S, dir_SW, dir_W, dir_NW);
@@ -127,6 +126,8 @@ const
 
 
 implementation
+uses
+  SysUtils, Math;
 
 
 function KMPoint(X,Y: Integer): TKMPoint;

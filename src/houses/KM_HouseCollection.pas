@@ -2,9 +2,9 @@ unit KM_HouseCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Math,
-   KM_CommonClasses, KM_Defaults, KM_Points,
-   KM_ResHouses, KM_Houses, KM_Terrain;
+  KM_Houses,
+  KM_ResHouses,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 type
   TKMHousesCollection = class
@@ -41,8 +41,10 @@ type
 
 implementation
 uses
-  {$IFDEF WDC}System.Types,{$ENDIF}
-  KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_HouseSchool, KM_Game, KM_Resource;
+  Classes, Types, Math,
+  KM_Game, KM_Terrain,
+  KM_HouseInn, KM_HouseMarket, KM_HouseBarracks, KM_HouseSchool,
+  KM_Resource;
 
 
 { TKMHousesCollection }

@@ -2,8 +2,8 @@ unit KM_AIInfluences;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points;
+
 
 type
   //Collection of influence maps
@@ -53,8 +53,10 @@ type
 
 implementation
 uses
-  KM_HouseCollection, KM_Houses, KM_HandsCollection, KM_RenderAux, KM_Terrain, KM_ResHouses,
-  KM_Hand;
+  Classes, Graphics, SysUtils, Math,
+  KM_RenderAux,
+  KM_Terrain, KM_Houses, KM_HouseCollection,
+  KM_Hand, KM_HandsCollection, KM_ResHouses;
 
 
 const

@@ -2,8 +2,9 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Pics, KM_Points, KM_ResTexts, KM_ResLocales;
+  Classes,
+  KM_ResTexts, KM_Pics,
+  KM_CommonClasses, KM_Points;
 
 
 const
@@ -97,7 +98,9 @@ const
 
 implementation
 uses
-  KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
+  SysUtils, Math, KromUtils,
+  KM_Resource, KM_ResLocales, KM_ResSprites,
+  KM_Log, KM_Defaults;
 
 
 const

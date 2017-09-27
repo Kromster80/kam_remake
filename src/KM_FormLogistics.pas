@@ -1,7 +1,6 @@
 unit KM_FormLogistics;
 
 interface
-
 uses
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages, {$ENDIF}

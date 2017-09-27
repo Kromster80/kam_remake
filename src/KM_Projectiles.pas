@@ -2,9 +2,8 @@ unit KM_Projectiles;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, KromUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_Houses, KM_Terrain, KM_Units;
+  KM_Units, KM_Houses,
+  KM_CommonClasses, KM_Points;
 
 
 type
@@ -58,8 +57,11 @@ var
 
 implementation
 uses
-  KM_ResSound, KM_Sound, KM_RenderPool, KM_RenderAux, KM_HandsCollection, KM_Resource,
-  KM_ResUnits, KM_Hand;
+  Math, KromUtils,
+  KM_Terrain, KM_RenderPool, KM_RenderAux,
+  KM_Resource, KM_ResSound, KM_ResUnits,
+  KM_Hand, KM_HandsCollection, KM_Sound,
+  KM_CommonUtils, KM_Defaults;
 
 
 const

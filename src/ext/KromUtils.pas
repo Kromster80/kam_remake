@@ -2,11 +2,11 @@ unit KromUtils;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Controls, Dialogs, ExtCtrls, Forms, SysUtils, Classes
-  {$IFDEF MSWindows} ,Windows, MMSystem {$ENDIF}
-  {$IFDEF Unix} ,LCLType {$ENDIF}
-  {$IFDEF FPC} , LCLIntf, UTF8Process, LazHelpHTML {$ENDIF}
-  {$IFDEF WDC} , ShellApi {$ENDIF}
+  Forms, Classes, Dialogs, Controls,
+  {$IFDEF MSWindows}Windows, MMSystem, {$ENDIF}
+  {$IFDEF Unix}LCLType, {$ENDIF}
+  {$IFDEF FPC}LCLIntf, UTF8Process, LazHelpHTML {$ENDIF}
+  {$IFDEF WDC}ShellApi {$ENDIF}
   ;
 
 type
@@ -90,6 +90,8 @@ const
 
 
 implementation
+uses
+  SysUtils;
 
 
 function Min(const A,B,C: integer): integer; overload;

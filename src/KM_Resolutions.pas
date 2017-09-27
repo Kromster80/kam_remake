@@ -1,10 +1,7 @@
 unit KM_Resolutions;
 {$I KaM_Remake.inc}
 interface
-uses
-  Classes, Math, SysUtils,
-  {$IFDEF MSWindows} Windows, {$ENDIF}
-  KM_Defaults;
+
 
 type
   TKMScreenRes = record
@@ -48,6 +45,10 @@ type
 
 
 implementation
+uses
+  Math,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  KM_Defaults;
 
 
 { TKMResolutions }

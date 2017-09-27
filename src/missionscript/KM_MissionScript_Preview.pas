@@ -2,8 +2,8 @@ unit KM_MissionScript_Preview;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_MissionScript, KM_CommonUtils;
+  KM_MissionScript,
+  KM_Defaults, KM_Points;
 
 
 type
@@ -46,7 +46,9 @@ type
 
 implementation
 uses
-  KM_Resource, KM_ResHouses, KM_ResUnits;
+  Classes, SysUtils, Math,
+  KM_Resource, KM_ResHouses, KM_ResUnits,
+  KM_CommonClasses, KM_CommonUtils;
 
 
 { TMissionParserPreview }

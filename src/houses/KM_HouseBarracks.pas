@@ -2,9 +2,10 @@ unit KM_HouseBarracks;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, Types,
-  KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_ResHouses, KM_ResWares;
+  Classes,
+  KM_Houses,
+  KM_ResWares, KM_ResHouses,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
@@ -53,7 +54,10 @@ type
 
 implementation
 uses
-  KM_Units, KM_Units_Warrior, KM_HandsCollection, KM_ResUnits, KM_Hand, KM_Terrain;
+  Math, Types,
+  KM_Hand, KM_HandsCollection, KM_Terrain,
+  KM_Units, KM_Units_Warrior,
+  KM_ResUnits;
 
 
 { TKMHouseBarracks }

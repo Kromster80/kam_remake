@@ -2,7 +2,6 @@ unit KM_AIGoals;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils,
   KM_CommonClasses, KM_Defaults;
 
 
@@ -79,6 +78,8 @@ type
 
 
 implementation
+uses
+  Classes, SysUtils, Math;
 
 
 { TKMGoals }

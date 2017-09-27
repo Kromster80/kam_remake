@@ -2,9 +2,9 @@ unit KM_AICityPlanner;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_Points, KM_CommonClasses,
-  KM_TerrainFinder, KM_PerfLog, KM_ResHouses, KM_ResWares;
+  KM_TerrainFinder,
+  KM_ResHouses, KM_ResWares,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
@@ -62,8 +62,11 @@ const
 
 implementation
 uses
-  KM_Houses, KM_Terrain, KM_HandsCollection, KM_CommonUtils, KM_AIFields, KM_Hand, KM_AIInfluences,
-  KM_Resource, KM_ResUnits;
+  Math,
+  KM_Hand, KM_AIFields, KM_AIInfluences,
+  KM_Terrain, KM_HandsCollection,
+  KM_Resource, KM_ResUnits,
+  KM_Houses, KM_CommonUtils;
 
 
 { TKMCityPlanner }

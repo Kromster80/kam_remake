@@ -2,8 +2,9 @@ unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
-  KM_Defaults, KM_Pics, KM_Points, KM_ResSound, KM_Viewport;
+  Classes,
+  KM_Pics, KM_Viewport, KM_ResSound,
+  KM_Defaults, KM_Points;
 
 type
   TAlertType = (atBeacon, atFight);
@@ -68,7 +69,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar, KM_Hand;
+  KM_Hand, KM_RenderPool, KM_HandsCollection, KM_Sound, KM_FogOfWar;
 
 
 type

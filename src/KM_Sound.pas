@@ -2,11 +2,10 @@ unit KM_Sound;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Dialogs, Forms, SysUtils, TypInfo,
-  {$IFDEF WDC} UITypes, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  OpenAL, KromUtils,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_ResSound;
+  OpenAL,
+  KM_ResSound,
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points;
+
 
 const
   MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
@@ -133,8 +132,11 @@ var
 
 implementation
 uses
-  Codec, VorbisFile, 
-  KM_RenderAux, KM_Log, KM_CommonUtils, KM_Resource, KM_HandsCollection, KM_Game;
+  Classes, Dialogs, SysUtils, TypInfo, KromUtils,
+  {$IFDEF WDC} UITypes, {$ENDIF}
+  Codec, VorbisFile,
+  KM_Game, KM_Resource, KM_HandsCollection, KM_RenderAux,
+  KM_Log, KM_CommonUtils;
 
 
 const

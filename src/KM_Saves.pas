@@ -2,10 +2,8 @@ unit KM_Saves;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, Windows, SysUtils, SyncObjs,
-  {$IFDEF FPC}FileUtil,{$ENDIF}
-  {$IFDEF WDC}IOUtils,{$ENDIF}
-  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_Minimap, KM_ResTexts, KM_Resource;
+  Classes, SyncObjs,
+  KM_GameOptions, KM_GameInfo, KM_Minimap;
 
 
 type
@@ -110,7 +108,9 @@ type
 
 implementation
 uses
-  StrUtils, KM_FileIO, KM_CommonUtils;
+  SysUtils, Math, KromUtils,
+  KM_Resource, KM_ResTexts, KM_FileIO,
+  KM_CommonClasses, KM_Defaults, KM_CommonUtils;
 
 
 { TKMSaveInfo }

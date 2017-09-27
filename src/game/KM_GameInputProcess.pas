@@ -2,9 +2,9 @@ unit KM_GameInputProcess;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Controls, KM_CommonClasses, KM_Defaults,
-  KM_Houses, KM_Units, KM_UnitGroups, KM_Points,
-  KM_ResHouses, KM_ResWares;
+  KM_Units, KM_UnitGroups, KM_Houses,
+  KM_ResHouses, KM_ResWares,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 { A. This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
   Then passes it on to game events.
@@ -306,8 +306,10 @@ type
 
 implementation
 uses
-  TypInfo, KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_CommonUtils, KM_AI,
-  KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking, KM_ScriptingEvents;
+  SysUtils, TypInfo,
+  KM_GameApp, KM_Game, KM_Hand, KM_HandsCollection,
+  KM_HouseMarket, KM_HouseBarracks, KM_HouseSchool,
+  KM_ScriptingEvents, KM_Alerts, KM_CommonUtils;
 
 
 function IsSelectedObjectCommand(aGIC: TGameInputCommandType): Boolean;

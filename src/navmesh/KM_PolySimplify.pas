@@ -2,7 +2,7 @@ unit KM_PolySimplify;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Points, Math;
+  KM_Points;
 
 
 type
@@ -59,7 +59,8 @@ procedure CheckForDegenerates(var aTriMesh: TKMTriMesh);
 
 implementation
 uses
-  KromUtils, PolyTriangulate, SysUtils;
+  SysUtils, Math,
+  PolyTriangulate;
 
 
 const

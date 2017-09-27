@@ -2,12 +2,12 @@ unit KM_HandLogistics;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, SysUtils, KromUtils, Math,
+  ComCtrls,
   {$IFDEF WDC}
   Generics.Collections, Generics.Defaults, System.Hash,
   {$ENDIF}
-  KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Units, KM_ResWares, KM_ResHouses;
+  KM_Units, KM_Houses, KM_ResHouses,
+  KM_ResWares, KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
@@ -173,8 +173,12 @@ type
 
 implementation
 uses
-  KM_Game, KM_HandsCollection, KM_Resource, KM_Log, KM_Terrain, KM_HouseBarracks,
-  KM_ResUnits, KM_Hand, KM_FormLogistics, KM_CommonUtils, KM_Utils;
+  Classes, SysUtils, Math,
+  KM_Terrain,
+  KM_FormLogistics,
+  KM_Game, KM_Hand, KM_HandsCollection, KM_HouseBarracks,
+  KM_Resource, KM_ResUnits,
+  KM_Log, KM_Utils, KM_CommonUtils;
 
 
 const

@@ -2,7 +2,6 @@ unit KM_MissionScript;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
   KM_Defaults;
 
 
@@ -69,6 +68,8 @@ type
 
 
 implementation
+uses
+  Classes, SysUtils;
 
 
 { TMissionParserCommon }

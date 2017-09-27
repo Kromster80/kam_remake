@@ -2,13 +2,12 @@ unit KM_GameApp;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
-  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
+  {$IFDEF FPC} Controls, {$ENDIF}
+  Classes, Dialogs, ExtCtrls,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
-  KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceDefaults,
-  KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
+  KM_Campaigns, KM_Game, KM_InterfaceMainMenu,
+  KM_Music, KM_Networking, KM_Settings, KM_Render;
 
 type
   //Methods relevant to gameplay
@@ -95,9 +94,13 @@ var
 
 implementation
 uses
-  KM_Log, KM_Main, KM_GameCursor, KM_Saves,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  SysUtils, Math, TypInfo, KromUtils,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_CommonUtils, KM_GameInputProcess, KM_Controls;
+  KM_Main, KM_Controls, KM_Log, KM_Sound, KM_GameInputProcess,
+  KM_InterfaceDefaults, KM_GameCursor, KM_Resource, KM_ResTexts,
+  KM_Maps, KM_Saves, KM_CommonUtils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }

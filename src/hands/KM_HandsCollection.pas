@@ -2,9 +2,13 @@ unit KM_HandsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
-  KM_Hand, KM_HandSpectator, KM_CommonUtils, KM_Points, KM_Units_Warrior, KM_ResHouses;
+  Classes,
+  KM_Hand, KM_HandSpectator,
+  KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
+//  , , Math, SysUtils, Graphics,
+//  , , , , , , ,
+//  , , , , , ;
 
 
 //Hands are identified by their starting location
@@ -78,7 +82,11 @@ var
 
 implementation
 uses
-  KM_Game, KM_Log, KM_Resource, KM_AIFields, KM_ResUnits, KM_HouseCollection, KM_UnitsCollection;
+  Math, KromUtils,
+  KM_Game, KM_Terrain, KM_AIFields,
+  KM_HouseCollection, KM_UnitsCollection,
+  KM_Resource, KM_ResHouses, KM_ResUnits,
+  KM_Log, KM_CommonUtils;
 
 
 { TKMHandsCollection }

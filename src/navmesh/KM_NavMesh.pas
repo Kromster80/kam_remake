@@ -2,9 +2,10 @@ unit KM_NavMesh;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Graphics, Delaunay,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
-  KM_AIInfluences, KM_PolySimplify;
+  KM_AIInfluences,
+  KM_PolySimplify,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
+
 
 type
   TKMWeightSegments = array of record
@@ -70,7 +71,8 @@ type
 
 implementation
 uses
-  KM_Outline, KM_HandsCollection, KM_RenderAux, KM_Terrain;
+  SysUtils, Math, Delaunay,
+  KM_Terrain, KM_HandsCollection, KM_RenderAux, KM_Outline;
 
 
 { TKMNavMesh }

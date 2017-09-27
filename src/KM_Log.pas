@@ -2,7 +2,7 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Classes, KM_CommonUtils, KM_CommonTypes;
+  KM_CommonTypes;
 
 
 type
@@ -61,7 +61,8 @@ var
 
 implementation
 uses
-  KM_Defaults;
+  Classes, SysUtils,
+  KM_Defaults, KM_CommonUtils;
 
 const
   DEFAULT_LOG_TYPES_TO_WRITE: TKMLogMessageTypeSet = [lmt_Default, lmt_NetConnection];
