@@ -100,7 +100,7 @@ type
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData; default;
     property LoadLevel: TKMFontLoadLevel read fLoadLevel;
-    class function GuessPalette(aFileName: string): TKMPal;
+    class function GuessPalette(const aFileName: string): TKMPal;
 
     procedure LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
     procedure ExportFonts;
@@ -454,7 +454,7 @@ begin
 end;
 
 
-class function TKMResFonts.GuessPalette(aFileName: string): TKMPal;
+class function TKMResFonts.GuessPalette(const aFileName: string): TKMPal;
 var
   fileName: string;
   filePart: string;

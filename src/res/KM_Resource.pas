@@ -48,10 +48,10 @@ type
 
     function GetDATCRC: Cardinal;
 
-    procedure LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
-    procedure LoadLocaleResources(aLocale: AnsiString = '');
-    procedure LoadGameResources(aAlphaShadows: boolean);
-    procedure LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
+    procedure LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+    procedure LoadLocaleResources(const aLocale: AnsiString = '');
+    procedure LoadGameResources(aAlphaShadows: Boolean);
+    procedure LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
 
     property DataState: TResourceLoadState read fDataState;
     property Cursors: TKMResCursors read fCursors;
@@ -136,7 +136,7 @@ begin
 end;
 
 
-procedure TKMResource.LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+procedure TKMResource.LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
 begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMResPalettes.Create;
@@ -183,7 +183,7 @@ begin
 end;
 
 
-procedure TKMResource.LoadLocaleResources(aLocale: AnsiString = '');
+procedure TKMResource.LoadLocaleResources(const aLocale: AnsiString = '');
 begin
   FreeAndNil(gResLocales);
   FreeAndNil(gResTexts);
@@ -198,7 +198,7 @@ begin
 end;
 
 
-procedure TKMResource.LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
+procedure TKMResource.LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
 begin
   if (Fonts.LoadLevel <> fll_Full)
   and (aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts) then

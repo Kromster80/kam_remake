@@ -142,7 +142,7 @@ type
 
     procedure UpdateState(aTick: Cardinal);
 
-    procedure ExportToFile(aFileName: UnicodeString);
+    procedure ExportToFile(const aFileName: UnicodeString);
   end;
 
   TKMHandLogistics = class
@@ -1449,7 +1449,7 @@ begin
 end;
 
 
-procedure TKMDeliveries.ExportToFile(aFileName: UnicodeString);
+procedure TKMDeliveries.ExportToFile(const aFileName: UnicodeString);
 var
   I: Integer;
   SL: TStringList;

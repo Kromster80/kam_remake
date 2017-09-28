@@ -73,7 +73,7 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
-    procedure ExportMessages(aPath: UnicodeString);
+    procedure ExportMessages(const aPath: UnicodeString);
   end;
 
 
@@ -207,7 +207,7 @@ end;
 
 
 //In-house method to convert KaM 'show_message' goals into EVT scripts
-procedure TKMGoals.ExportMessages(aPath: UnicodeString);
+procedure TKMGoals.ExportMessages(const aPath: UnicodeString);
 var
   I: Integer;
   SL: TStringList;

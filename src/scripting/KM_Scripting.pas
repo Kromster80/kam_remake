@@ -44,7 +44,7 @@ type
     property Included[I: Integer]: TKMScriptFileInfo read GetIncluded; default;
     property IncludedCount: Integer read fIncludedCnt;
     procedure AddIncludeInfo(aIncludeInfo: TKMScriptFileInfo);
-    function FindCodeLine(aLine: AnsiString; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
+    function FindCodeLine(const aLine: AnsiString; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
   end;
 
 
@@ -56,8 +56,8 @@ type
     fHasErrorOccured: Boolean; //Has runtime error occurred? (only display first error)
     fScriptLogFile: UnicodeString;
     fOnScriptError: TUnicodeStringEvent;
-    procedure SetScriptLogFile(aScriptLogFile: UnicodeString);
-    function AppendErrorPrefix(aPrefix: UnicodeString; var aError: TKMScriptErrorMessage): TKMScriptErrorMessage;
+    procedure SetScriptLogFile(const aScriptLogFile: UnicodeString);
+    function AppendErrorPrefix(const aPrefix: UnicodeString; var aError: TKMScriptErrorMessage): TKMScriptErrorMessage;
   public
     constructor Create(aOnScriptError: TUnicodeStringEvent);
 
@@ -70,8 +70,8 @@ type
     function HasErrors: Boolean;
     procedure AppendError(aError: TKMScriptErrorMessage);
     procedure AppendWarning(aWarning: TKMScriptErrorMessage);
-    procedure AppendErrorStr(aErrorString: UnicodeString; aDetailedErrorString: UnicodeString = '');
-    procedure AppendWarningStr(aWarningString: UnicodeString; aDetailedWarningString: UnicodeString = '');
+    procedure AppendErrorStr(const aErrorString: UnicodeString; aDetailedErrorString: UnicodeString = '');
+    procedure AppendWarningStr(const aWarningString: UnicodeString; aDetailedWarningString: UnicodeString = '');
     procedure HandleErrors;
   end;
 
@@ -83,7 +83,7 @@ type
     fErrorHandler: TKMScriptErrorHandler;
 
     procedure AfterPreProcess;
-    procedure BeforePreProcess(aMainFileName: UnicodeString; aMainFileText: AnsiString);
+    procedure BeforePreProcess(const aMainFileName: UnicodeString; const aMainFileText: AnsiString);
 
     function ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: AnsiString; var aFileName, aOutput: AnsiString): Boolean;
     procedure ScriptOnProcessDirective(Sender: TPSPreProcessor; Parser: TPSPascalPreProcessorParser; const Active: Boolean;
@@ -97,8 +97,8 @@ type
     property ScriptFilesInfo: TKMScriptFilesCollection read fScriptFilesInfo;
 
     function ScriptMightChangeAfterPreProcessing: Boolean;
-    function PreProcessFile(aFileName: UnicodeString): Boolean; overload;
-    function PreProcessFile(aFileName: UnicodeString; var aScriptCode: AnsiString): Boolean; overload;
+    function PreProcessFile(const aFileName: UnicodeString): Boolean; overload;
+    function PreProcessFile(const aFileName: UnicodeString; var aScriptCode: AnsiString): Boolean; overload;
   end;
 
 
@@ -144,7 +144,7 @@ type
     function GetErrorMessage(aErrorMsg: TPSPascalCompilerMessage): TKMScriptErrorMessage; overload;
     function GetErrorMessage(aErrorType, aShortErrorDescription: UnicodeString; aRow, aCol: Integer): TKMScriptErrorMessage; overload;
 
-    procedure LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
+    procedure LoadFromFile(const aFileName, aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
     procedure ExportDataToText;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -241,7 +241,7 @@ begin
 end;
 
 
-procedure TKMScripting.LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
+procedure TKMScripting.LoadFromFile(const aFileName, aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
 begin
   if not fPreProcessor.PreProcessFile(aFileName, fScriptCode) then
     Exit; // Continue only if PreProcess was successful;
@@ -574,7 +574,7 @@ begin
       RegisterMethod('function EnsureRangeS(aValue, aMin, aMax: Single): Single');
       RegisterMethod('function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
 
-      RegisterMethod('function Format(aFormatting: string; aData: array of const): string;');
+      RegisterMethod('function Format(const aFormatting: string; aData: array of const): string;');
 
       RegisterMethod('function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString');
       RegisterMethod('function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer');
@@ -1451,21 +1451,21 @@ begin
 end;
 
 
-procedure TKMScriptErrorHandler.AppendErrorStr(aErrorString: UnicodeString; aDetailedErrorString: UnicodeString = '');
+procedure TKMScriptErrorHandler.AppendErrorStr(const aErrorString: UnicodeString; aDetailedErrorString: UnicodeString = '');
 begin
   fErrorString.GameMessage := fErrorString.GameMessage + aErrorString;
   fErrorString.LogMessage := fErrorString.LogMessage + aDetailedErrorString;
 end;
 
 
-procedure TKMScriptErrorHandler.AppendWarningStr(aWarningString: UnicodeString; aDetailedWarningString: UnicodeString = '');
+procedure TKMScriptErrorHandler.AppendWarningStr(const aWarningString: UnicodeString; aDetailedWarningString: UnicodeString = '');
 begin
   fWarningsString.GameMessage := fWarningsString.GameMessage + aWarningString;
   fWarningsString.LogMessage := fWarningsString.LogMessage + aDetailedWarningString;
 end;
 
 
-function TKMScriptErrorHandler.AppendErrorPrefix(aPrefix: UnicodeString; var aError: TKMScriptErrorMessage): TKMScriptErrorMessage;
+function TKMScriptErrorHandler.AppendErrorPrefix(const aPrefix: UnicodeString; var aError: TKMScriptErrorMessage): TKMScriptErrorMessage;
 begin
   // Append prefix only for non-empty messages
   if aError.GameMessage <> '' then
@@ -1490,7 +1490,7 @@ begin
 end;
 
 
-procedure TKMScriptErrorHandler.SetScriptLogFile(aScriptLogFile: UnicodeString);
+procedure TKMScriptErrorHandler.SetScriptLogFile(const aScriptLogFile: UnicodeString);
 begin
   fScriptLogFile := aScriptLogFile;
   if not DirectoryExists(ExtractFilePath(fScriptLogFile)) then
@@ -1590,7 +1590,7 @@ begin
 end;
 
 
-procedure TKMScriptingPreProcessor.BeforePreProcess(aMainFileName: UnicodeString; aMainFileText: AnsiString);
+procedure TKMScriptingPreProcessor.BeforePreProcess(const aMainFileName: UnicodeString; const aMainFileText: AnsiString);
 begin
   fScriptFilesInfo.fMainFilePath := ExtractFilePath(aMainFileName);
   fScriptFilesInfo.fMainFileInfo.FullFilePath := aMainFileName;
@@ -1611,14 +1611,14 @@ begin
 end;
 
 
-function TKMScriptingPreProcessor.PreProcessFile(aFileName: UnicodeString): Boolean;
+function TKMScriptingPreProcessor.PreProcessFile(const aFileName: UnicodeString): Boolean;
 var ScriptCode: AnsiString;
 begin
   Result := PreProcessFile(aFileName, ScriptCode);
 end;
 
 
-function TKMScriptingPreProcessor.PreProcessFile(aFileName: UnicodeString; var aScriptCode: AnsiString): Boolean;
+function TKMScriptingPreProcessor.PreProcessFile(const aFileName: UnicodeString; var aScriptCode: AnsiString): Boolean;
 var
   PreProcessor: TPSPreProcessor;
   MainScriptCode: AnsiString;
@@ -1730,7 +1730,7 @@ end;
 
 //Try to find line of code in all script files
 //Returns number of occurences
-function TKMScriptFilesCollection.FindCodeLine(aLine: AnsiString; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
+function TKMScriptFilesCollection.FindCodeLine(const aLine: AnsiString; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
 
   procedure AddFoundLineInfo(var aFoundCnt: Integer; aFileNameFound: UnicodeString; aRowFound: Integer);
   begin

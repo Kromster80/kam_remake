@@ -52,13 +52,13 @@ type
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure PageChange(Dest: TKMMenuPageType; aText: UnicodeString = '');
+    procedure PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
     function GetChatState: TChatState;
     procedure SetChatState(const aChatState: TChatState);
-    procedure ExportPages(aPath: string); override;
+    procedure ExportPages(const aPath: string); override;
     procedure ReturnToLobby(const aSaveName: UnicodeString);
 
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
@@ -208,7 +208,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; aText: UnicodeString = '');
+procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
 var
   I: Integer;
   cmp: TKMCampaignId;
@@ -290,7 +290,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ExportPages(aPath: string);
+procedure TKMMainMenuInterface.ExportPages(const aPath: string);
 var
   path: string;
   I, K: Integer;

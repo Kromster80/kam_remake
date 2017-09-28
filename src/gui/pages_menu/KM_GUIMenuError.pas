@@ -17,7 +17,7 @@ type
     Button_ErrorBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-    procedure Show(aText: UnicodeString);
+    procedure Show(const aText: UnicodeString);
   end;
 
 
@@ -52,7 +52,7 @@ begin
 end;
 
 
-procedure TKMMenuError.Show(aText: UnicodeString);
+procedure TKMMenuError.Show(const aText: UnicodeString);
 begin
   Label_Error.Caption := aText;
   Panel_Error.Show;

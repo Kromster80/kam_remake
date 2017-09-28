@@ -7,7 +7,7 @@ uses
   {$IFDEF FPC} BGRABitmap, BGRABitmapTypes; {$ENDIF}
 
 
-  procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: UnicodeString);
+  procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; const aFile: UnicodeString);
   procedure LoadFromPng(const aFile: UnicodeString; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
 
 
@@ -16,7 +16,7 @@ implementation
 uses SysUtils;
 
 
-procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: UnicodeString);
+procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; const aFile: UnicodeString);
 var
   {$IFDEF WDC} Png: PNGImage.TPngImage; {$ENDIF}
   {$IFDEF FPC} Png: TBGRABitmap; {$ENDIF}

@@ -34,7 +34,7 @@ type
     function GetPlayerInfo(aIndex: Byte): TKMHandPreview;
     function LoadMapData(const aFileName: string): Boolean;
   protected
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
+    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; override;
   public
     property MapPreview[X, Y: Integer]: TKMTilePreview read GetTileInfo;
     property PlayerPreview[aIndex: Byte]: TKMHandPreview read GetPlayerInfo;
@@ -105,7 +105,7 @@ begin
 end;
 
 
-function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
+function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean;
 
   function PointInMap(X, Y: Integer): Boolean;
   begin

@@ -26,7 +26,7 @@ type
     procedure ListUpdate;
     procedure LoadMinimap(aID: Integer = -1);
     procedure SetSelectedSaveInfo(aID: Integer = -1); overload;
-    procedure SetSelectedSaveInfo(aCRC: Cardinal; aName: UnicodeString); overload;
+    procedure SetSelectedSaveInfo(aCRC: Cardinal; const aName: UnicodeString); overload;
     function  IsSaveValid(aID: Integer): Boolean;
 
     procedure Replays_ListClick(Sender: TObject);
@@ -240,7 +240,7 @@ begin
 end;
 
 
-procedure TKMMenuReplays.SetSelectedSaveInfo(aCRC: Cardinal; aName: UnicodeString);
+procedure TKMMenuReplays.SetSelectedSaveInfo(aCRC: Cardinal; const aName: UnicodeString);
 begin
   fSelectedSaveInfo.CRC := aCRC;
   fSelectedSaveInfo.Name := aName;

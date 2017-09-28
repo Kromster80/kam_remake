@@ -94,7 +94,7 @@ type
   private
     fMapFolders: TMapFolderSet;
     fOnComplete: TNotifyEvent;
-    procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); virtual; abstract;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder); virtual; abstract;
   public
     constructor Create(aMapFolders: TMapFolderSet; aOnComplete: TNotifyEvent = nil);
     procedure Execute; override;
@@ -104,14 +104,14 @@ type
   private
     fOnMapAdd: TMapEvent;
     fOnMapAddDone: TNotifyEvent;
-    procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); override;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder); override;
   public
     constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
   end;
 
   TTMapsCacheUpdater = class(TTCustomMapsScanner)
   private
-    procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); override;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder); override;
   public
     constructor Create(aMapFolders: TMapFolderSet);
   end;
@@ -153,24 +153,24 @@ type
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder; aCRC: Cardinal): string; overload;
     class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
-    class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
-    class function GetMapCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+    class procedure GetAllMapPaths(const aExeDir: string; aList: TStringList);
+    class function GetMapCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 
     procedure Refresh(aOnRefresh: TNotifyEvent;  aOnTerminate: TNotifyEvent = nil;aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
-    function Contains(aNewName: UnicodeString): Boolean;
-    procedure RenameMap(aIndex: Integer; aName: UnicodeString);
+    function Contains(const aNewName: UnicodeString): Boolean;
+    procedure RenameMap(aIndex: Integer; const aName: UnicodeString);
     procedure DeleteMap(aIndex: Integer);
-    procedure MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
+    procedure MoveMap(aIndex: Integer; const aName: UnicodeString; aMapFolder: TMapFolder);
 
     procedure UpdateState;
   end;
 
   function GetMapFolderType(aIsMultiplayer: Boolean): TMapFolder;
-  function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+  function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TMapFolder): Boolean;
 
 
 implementation
@@ -189,7 +189,7 @@ const
 { TKMapInfo }
 constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
 
-  function GetLIBXCRC(aSearchFile: UnicodeString): Cardinal;
+  function GetLIBXCRC(const aSearchFile: UnicodeString): Cardinal;
   var SearchRec: TSearchRec;
   begin
     Result := 0;
@@ -667,7 +667,7 @@ begin
 end;
 
 
-function TKMapsCollection.Contains(aNewName: UnicodeString): Boolean;
+function TKMapsCollection.Contains(const aNewName: UnicodeString): Boolean;
 var
   I: Integer;
 begin
@@ -774,13 +774,13 @@ begin
 end;
 
 
-procedure TKMapsCollection.RenameMap(aIndex: Integer; aName: UnicodeString);
+procedure TKMapsCollection.RenameMap(aIndex: Integer; const aName: UnicodeString);
 begin
   MoveMap(aIndex, aName, fMaps[aIndex].MapFolder);
 end;
 
 
-procedure TKMapsCollection.MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
+procedure TKMapsCollection.MoveMap(aIndex: Integer; const aName: UnicodeString; aMapFolder: TMapFolder);
 var
   I: Integer;
   Dest: UnicodeString;
@@ -1021,7 +1021,7 @@ begin
 end;
 
 
-class function TKMapsCollection.GetMapCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+class function TKMapsCollection.GetMapCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 var
   MapPath: UnicodeString;
 begin
@@ -1032,7 +1032,7 @@ begin
 end;
 
 
-class procedure TKMapsCollection.GetAllMapPaths(aExeDir: string; aList: TStringList);
+class procedure TKMapsCollection.GetAllMapPaths(const aExeDir: string; aList: TStringList);
 var
   I: Integer;
   SearchRec: TSearchRec;
@@ -1134,7 +1134,7 @@ begin
 end;
 
 
-procedure TTMapsScanner.ProcessMap(aPath: UnicodeString; aFolder: TMapFolder);
+procedure TTMapsScanner.ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder);
 var
   Map: TKMapInfo;
 begin
@@ -1156,7 +1156,7 @@ begin
 end;
 
 
-procedure TTMapsCacheUpdater.ProcessMap(aPath: UnicodeString; aFolder: TMapFolder);
+procedure TTMapsCacheUpdater.ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder);
 var
   Map: TKMapInfo;
 begin
@@ -1169,13 +1169,13 @@ end;
 {Utility methods}
 //Try to determine TMapFolder for specified aFolderName
 //Returns true when succeeded
-function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TMapFolder): Boolean;
 var F: TMapFolder;
 begin
   for F := Low(TMapFolder) to High(TMapFolder) do
     if aFolderName = MAP_FOLDER[F] then
     begin
-      oMapFolder := F;
+      aMapFolder := F;
       Result := True;
       Exit;
     end;

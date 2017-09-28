@@ -1744,7 +1744,7 @@ end;
 
 
 procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
-  procedure SelectByName(aName: UnicodeString);
+  procedure SelectByName(const aName: UnicodeString);
   var I: Integer;
   begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
@@ -1821,7 +1821,7 @@ end;
 
 
 procedure TKMMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
-  procedure SelectByName(aName: UnicodeString);
+  procedure SelectByName(const aName: UnicodeString);
   var I: Integer;
   begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do

@@ -97,7 +97,7 @@ type
     property MessageLog: TKMMessageLog read fMessageLog;
 
     procedure SeTKMHandIndex(aNewIndex: TKMHandIndex);
-    procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
+    procedure SetOwnerNikname(const aName: AnsiString); //MP owner nikname (empty in SP)
     property OwnerNikname: AnsiString read fOwnerNikname;
     function OwnerName(aNumberedAIs: Boolean = True): UnicodeString; //Universal owner name
     function HasAssets: Boolean;
@@ -169,7 +169,7 @@ type
 
 implementation
 uses
-  SysUtils, KromUtils, Math,
+  Classes, SysUtils, KromUtils, Math,
   KM_Game, KM_Terrain, KM_HouseBarracks, KM_AIFields,
   KM_HandsCollection, KM_Sound,
   KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents;
@@ -499,7 +499,7 @@ begin
 end;
 
 
-procedure TKMHand.SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
+procedure TKMHand.SetOwnerNikname(const aName: AnsiString); //MP owner nikname (empty in SP)
 begin
   fOwnerNikname := aName;
 end;

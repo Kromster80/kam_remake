@@ -84,7 +84,7 @@ var
                                         end;
 
   //Temp graphs are used to adjoin same colored AI opponents into one chart
-  procedure AddToTempGraph(aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray);
+  procedure AddToTempGraph(const aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray);
   var I, ID: Integer;
   begin
     ID := -1;

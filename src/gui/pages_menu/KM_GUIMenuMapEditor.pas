@@ -30,7 +30,7 @@ type
     procedure ListUpdate;
     procedure UpdateUI;
     procedure SetSelectedMapInfo(aID: Integer = -1); overload;
-    procedure SetSelectedMapInfo(aCRC: Cardinal; aName: UnicodeString); overload;
+    procedure SetSelectedMapInfo(aCRC: Cardinal; const aName: UnicodeString); overload;
     procedure ScanUpdate(Sender: TObject);
     procedure ScanTerminate(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
@@ -759,7 +759,7 @@ begin
 end;
 
 
-procedure TKMMenuMapEditor.SetSelectedMapInfo(aCRC: Cardinal; aName: UnicodeString);
+procedure TKMMenuMapEditor.SetSelectedMapInfo(aCRC: Cardinal; const aName: UnicodeString);
 begin
   fSelectedMapInfo.CRC := aCRC;
   fSelectedMapInfo.Name := aName;

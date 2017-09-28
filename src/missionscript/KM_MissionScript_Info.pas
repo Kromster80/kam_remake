@@ -17,7 +17,7 @@ type
     fMapInfo: TKMapInfo; //We are given this structure and asked to fill it
     function LoadMapInfo(const aFileName: string): Boolean;
   protected
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
+    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; override;
   public
     function LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean; reintroduce;
   end;
@@ -66,7 +66,7 @@ begin
 end;
 
 
-function TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
+function TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean;
 begin
   case CommandType of
     ct_SetMaxPlayer:    fMapInfo.LocCount := P[0];

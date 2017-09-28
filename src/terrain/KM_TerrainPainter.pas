@@ -60,9 +60,9 @@ type
     Land2: array of array of TKMPainterTile;
     RandomizeTiling: Boolean;
     procedure InitEmpty;
-    procedure LoadFromFile(aFileName: UnicodeString);
-    procedure SaveToFile(aFileName: UnicodeString); overload;
-    procedure SaveToFile(aFileName: UnicodeString; aInsetRect: TKMRect); overload;
+    procedure LoadFromFile(const aFileName: UnicodeString);
+    procedure SaveToFile(const aFileName: UnicodeString); overload;
+    procedure SaveToFile(const aFileName: UnicodeString; aInsetRect: TKMRect); overload;
     procedure UpdateStateIdle;
     procedure Eyedropper(aLoc: TKMPoint);
     procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean); overload;
@@ -746,7 +746,7 @@ end;
 
 
 //Skip the KaM data and load MapEd vertice info
-procedure TKMTerrainPainter.LoadFromFile(aFileName: UnicodeString);
+procedure TKMTerrainPainter.LoadFromFile(const aFileName: UnicodeString);
 var
   I, K: Integer;
   TerType: ShortInt; //Krom's editor saves terrain kind as ShortInt
@@ -825,13 +825,13 @@ begin
 end;
 
 
-procedure TKMTerrainPainter.SaveToFile(aFileName: UnicodeString);
+procedure TKMTerrainPainter.SaveToFile(const aFileName: UnicodeString);
 begin
   SaveToFile(aFileName, KMRECT_ZERO);
 end;
 
 
-procedure TKMTerrainPainter.SaveToFile(aFileName: UnicodeString; aInsetRect: TKMRect);
+procedure TKMTerrainPainter.SaveToFile(const aFileName: UnicodeString; aInsetRect: TKMRect);
 var
   I, K, IFrom, KFrom: Integer;
   S: TKMemoryStream;

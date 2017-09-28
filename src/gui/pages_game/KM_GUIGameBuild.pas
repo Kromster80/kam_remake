@@ -115,7 +115,7 @@ end;
 
 
 procedure TKMGUIGameBuild.Build_ButtonClick(Sender: TObject);
-  procedure SetCost(aCursor: TKMCursorMode; aTag, aTexId, aWood, aStone: Word; aCaption: UnicodeString);
+  procedure SetCost(aCursor: TKMCursorMode; aTag, aTexId, aWood, aStone: Word; const aCaption: UnicodeString);
   begin
     gGameCursor.Mode := aCursor;
     gGameCursor.Tag1 := aTag;

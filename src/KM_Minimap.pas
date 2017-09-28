@@ -45,7 +45,7 @@ type
     property MapTex: TTexture read fMapTex;
     property PaintVirtualGroups: Boolean read fPaintVirtualGroups write fPaintVirtualGroups;
 
-    procedure LoadFromMission(aMissionPath: string; const aRevealFor: array of TKMHandIndex);
+    procedure LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandIndex);
     procedure LoadFromTerrain;
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure SaveToStream(SaveStream: TKMemoryStream);
@@ -85,7 +85,7 @@ end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMinimap.LoadFromMission(aMissionPath: string; const aRevealFor: array of TKMHandIndex);
+procedure TKMMinimap.LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandIndex);
 var
   I: Integer;
 begin

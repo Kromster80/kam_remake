@@ -106,8 +106,8 @@ type
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind); overload;
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aParam: Integer; aImmidiate: Boolean = False); overload;
     procedure SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex; aImmidiate: Boolean = False);
-    procedure SendMessageA(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aText: AnsiString);
-    procedure SendMessageW(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aText: UnicodeString);
+    procedure SendMessageA(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: AnsiString);
+    procedure SendMessageW(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: UnicodeString);
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
     procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream); overload;
     procedure SendMessageAct(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream; aImmidiate: Boolean = False);
@@ -127,10 +127,10 @@ type
     procedure SaveHTMLStatus;
     procedure SetPacketsAccumulatingDelay(aValue: Integer);
   public
-    constructor Create(aMaxRooms:word; aKickTimeout: Word; aHTMLStatusFile, aWelcomeMessage: UnicodeString;
+    constructor Create(aMaxRooms:word; aKickTimeout: Word; const aHTMLStatusFile, aWelcomeMessage: UnicodeString;
                        aPacketsAccDelay: Integer = -1);
     destructor Destroy; override;
-    procedure StartListening(aPort: Word; aServerName: AnsiString);
+    procedure StartListening(aPort: Word; const aServerName: AnsiString);
     procedure StopListening;
     procedure ClearClients;
     procedure MeasurePings;
@@ -253,7 +253,7 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create(aMaxRooms: Word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString;
+constructor TKMNetServer.Create(aMaxRooms: Word; aKickTimeout: word; const aHTMLStatusFile, aWelcomeMessage: UnicodeString;
                                 aPacketsAccDelay: Integer = -1);
 begin
   inherited Create;
@@ -307,7 +307,7 @@ begin
 end;
 
 
-procedure TKMNetServer.StartListening(aPort: Word; aServerName: AnsiString);
+procedure TKMNetServer.StartListening(aPort: Word; const aServerName: AnsiString);
 begin
   fRoomCount := 0;
   Assert(AddNewRoom); //Must succeed
@@ -589,7 +589,7 @@ begin
 end;
 
 
-procedure TKMNetServer.SendMessageA(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aText: AnsiString);
+procedure TKMNetServer.SendMessageA(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: AnsiString);
 var
   M: TKMemoryStream;
 begin
@@ -602,7 +602,7 @@ begin
 end;
 
 
-procedure TKMNetServer.SendMessageW(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aText: UnicodeString);
+procedure TKMNetServer.SendMessageW(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: UnicodeString);
 var
   M: TKMemoryStream;
 begin
@@ -1065,7 +1065,7 @@ end;
 
 procedure TKMNetServer.SaveHTMLStatus;
 
-  function AddThousandSeparator(S: string; Chr: Char=','): string;
+  function AddThousandSeparator(const S: string; Chr: Char=','): string;
   var I: Integer;
   begin
     Result := S;

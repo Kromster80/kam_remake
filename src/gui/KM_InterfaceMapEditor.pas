@@ -98,8 +98,8 @@ type
     constructor Create(aRender: TRender);
     destructor Destroy; override;
 
-    procedure ShowMessage(aText: string);
-    procedure ExportPages(aPath: string); override;
+    procedure ShowMessage(const aText: string);
+    procedure ExportPages(const aPath: string); override;
     property Minimap: TKMMinimap read fMinimap;
     property Viewport: TKMViewport read fViewport;
     property GuiTerrain: TKMMapEdTerrain read fGuiTerrain;
@@ -562,7 +562,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.ShowMessage(aText: string);
+procedure TKMapEdInterface.ShowMessage(const aText: string);
 begin
   fGuiMessage.Show(aText);
   Image_Message.Show; //Hidden by default, only visible when a message is shown
@@ -647,7 +647,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.ExportPages(aPath: string);
+procedure TKMapEdInterface.ExportPages(const aPath: string);
 var
   path: string;
   I: TKMTerrainTab;
@@ -1222,7 +1222,7 @@ end;
 
 //UI should paint only controls
 procedure TKMapEdInterface.Paint;
-  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal; aTextColor: Cardinal);
+  procedure PaintTextInShape(const aText: string; X,Y: SmallInt; aLineColor: Cardinal; aTextColor: Cardinal);
   var
     W: Integer;
   begin

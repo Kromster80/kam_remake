@@ -17,7 +17,7 @@ type
     constructor Create(aParent: TKMPanel);
 
     procedure Show; overload;
-    procedure Show(aText: UnicodeString); overload;
+    procedure Show(const aText: UnicodeString); overload;
     function Visible: Boolean;
     procedure Hide;
   end;
@@ -73,7 +73,7 @@ begin
 end;
 
 
-procedure TKMMapEdMessage.Show(aText: UnicodeString);
+procedure TKMMapEdMessage.Show(const aText: UnicodeString);
 begin
   Label_Message.Caption := aText;
   Show;

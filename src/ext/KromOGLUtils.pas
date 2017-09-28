@@ -28,7 +28,7 @@ type
   procedure SetRenderFrameAA(DummyFrame, RenderFrame: HWND; AntiAliasing: Byte; out h_DC: HDC; out h_RC: HGLRC);
 
   procedure BuildFont(h_DC: HDC; FontSize: Integer; FontWeight: Word = FW_NORMAL);
-  procedure glPrint(text: AnsiString);
+  procedure glPrint(const text: AnsiString);
   procedure glkScale(x: Single);
   procedure glkQuad(Ax, Ay, Bx, By, Cx, Cy, Dx, Dy: Single);
   procedure glkRect(Ax, Ay, Bx, By: Single);
@@ -241,7 +241,7 @@ begin
 end;
 
 
-procedure glPrint(text: AnsiString);
+procedure glPrint(const text: AnsiString);
 begin
   if text = '' then Exit;
   glPushAttrib(GL_LIST_BIT);

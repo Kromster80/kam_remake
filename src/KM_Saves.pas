@@ -87,7 +87,7 @@ type
 
     class function Path(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
     class function FullPath(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
-    class function GetSaveCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+    class function GetSaveCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
     class function GetSaveFolder(aIsMultiplayer: Boolean): UnicodeString;
 
     procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean; aOnTerminate: TNotifyEvent = nil; aOnComplete: TNotifyEvent = nil);
@@ -96,10 +96,10 @@ type
     property SortMethod: TSavesSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
     property ScanFinished: Boolean read fScanFinished;
 
-    function Contains(aNewName: UnicodeString): Boolean;
+    function Contains(const aNewName: UnicodeString): Boolean;
     procedure DeleteSave(aIndex: Integer);
-    procedure MoveSave(aIndex: Integer; aName: UnicodeString);
-    procedure RenameSave(aIndex: Integer; aName: UnicodeString);
+    procedure MoveSave(aIndex: Integer; const aName: UnicodeString);
+    procedure RenameSave(aIndex: Integer; const aName: UnicodeString);
 
     function SavesList: UnicodeString;
     procedure UpdateState;
@@ -296,7 +296,7 @@ begin
 end;
 
 
-class function TKMSavesCollection.GetSaveCRC(aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+class function TKMSavesCollection.GetSaveCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 var
   SavePath: UnicodeString;
 begin
@@ -316,7 +316,7 @@ begin
 end;
 
 
-function TKMSavesCollection.Contains(aNewName: UnicodeString): Boolean;
+function TKMSavesCollection.Contains(const aNewName: UnicodeString): Boolean;
 var
   I: Integer;
 begin
@@ -350,7 +350,7 @@ begin
 end;
 
 
-procedure TKMSavesCollection.MoveSave(aIndex: Integer; aName: UnicodeString);
+procedure TKMSavesCollection.MoveSave(aIndex: Integer; const aName: UnicodeString);
 var
   I: Integer;
   Dest: UnicodeString;
@@ -377,7 +377,7 @@ begin
 end;
 
 
-procedure TKMSavesCollection.RenameSave(aIndex: Integer; aName: UnicodeString);
+procedure TKMSavesCollection.RenameSave(aIndex: Integer; const aName: UnicodeString);
 begin
   MoveSave(aIndex, aName);
 end;

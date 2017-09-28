@@ -17,7 +17,7 @@ type
     procedure Clear;
     procedure EnterSection(aSection: TPerfSection);
     procedure LeaveSection(aSection: TPerfSection);
-    procedure SaveToFile(aFilename: UnicodeString);
+    procedure SaveToFile(const aFilename: UnicodeString);
   end;
 
 
@@ -59,7 +59,7 @@ begin
 end;
 
 
-procedure TKMPerfLog.SaveToFile(aFilename: UnicodeString);
+procedure TKMPerfLog.SaveToFile(const aFilename: UnicodeString);
 var
   K: TPerfSection;
   I: Integer;

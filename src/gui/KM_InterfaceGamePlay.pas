@@ -256,14 +256,14 @@ type
   public
     constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
-    procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString); overload;
-    procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint); overload;
+    procedure MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString); overload;
+    procedure MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint); overload;
     procedure SetMenuState(aTactic: Boolean);
     procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
     procedure ShowMPPlayMore(Msg: TGameResultMsg);
     procedure ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; IsHost: Boolean);
-    procedure SetScriptedOverlay(aText: UnicodeString);
+    procedure SetScriptedOverlay(const aText: UnicodeString);
     procedure UpdateOverlayControls;
     procedure ReleaseDirectionSelector;
     function GetChatState: TChatState;
@@ -278,7 +278,7 @@ type
 
     property Alerts: TKMAlerts read fAlerts;
 
-    procedure ExportPages(aPath: string); override;
+    procedure ExportPages(const aPath: string); override;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure SaveMinimap(SaveStream: TKMemoryStream);
@@ -596,7 +596,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ExportPages(aPath: string);
+procedure TKMGamePlayInterface.ExportPages(const aPath: string);
 var
   path: string;
   I, K: Integer;
@@ -1731,13 +1731,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString);
+procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString);
 begin
   MessageIssue(aKind, aText, KMPOINT_ZERO);
 end;
 
 
-procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint);
 begin
   if fUIMode in [umReplay, umSpectate] then Exit; // No message stack in replay/spectate
   fMessageStack.Add(aKind, aText, aLoc);
@@ -2253,7 +2253,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetScriptedOverlay(aText: UnicodeString);
+procedure TKMGamePlayInterface.SetScriptedOverlay(const aText: UnicodeString);
 begin
   Label_ScriptedOverlay.Caption := aText;
   UpdateOverlayControls;

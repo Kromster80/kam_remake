@@ -16,18 +16,18 @@ type
 
 
 function TimeGet: Cardinal;
-function ExtractOpenedFileName(in_s: string):string;
+function ExtractOpenedFileName(const in_s: string):string;
 function GetFileExt (const FileName: string): string;
-function AssureFileExt(FileName,Ext:string): string;
-function TruncateExt(FileName:string): string;
+function AssureFileExt(const FileName,Ext:string): string;
+function TruncateExt(const FileName:string): string;
 function GetFileSize(const FileName: string): LongInt;
-function CheckSameContents(A, B: string): Boolean;
+function CheckSameContents(const A, B: string): Boolean;
 function CharInSet(C: AnsiChar; S: TSetOfAnsiChar): Boolean; overload;
 function CharInSet(C: WideChar; S: TSetOfAnsiChar): Boolean; overload;
 
 procedure FreeThenNil(var Obj);
 
-function ReverseString(s1:string):string;
+function ReverseString(const s1:string):string;
 
 function int2fix(Number,Len:integer):string;
 
@@ -49,8 +49,8 @@ function Max(const A,B,C: single):single; overload;
 
   procedure decs(var AText: string; const Len: integer = 1); overload;
   procedure decs(var AText: widestring; const Len: integer = 1); overload;
-  function decs(AText: string; Len, RunAsFunction: integer): string; overload;
-  function RemoveQuotes(Input: string): string;
+  function decs(const AText: string; Len, RunAsFunction: integer): string; overload;
+  function RemoveQuotes(const Input: string): string;
   procedure SwapStr(var A, B: string);
   procedure SwapInt(var A, B: Byte); overload;
   procedure SwapInt(var A, B: ShortInt); overload;
@@ -71,17 +71,17 @@ function Adler32CRC(S:TMemoryStream):cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function PseudoRandom(aMax:cardinal):cardinal;
-function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
+function RunOpenDialog(Sender:TOpenDialog; const Name,Path,Filter:string):boolean;
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 
 procedure DoClientAreaResize(aForm:TForm);
 
-function CheckDuplicateApplication(aGUID: string): Boolean;
+function CheckDuplicateApplication(const aGUID: string): Boolean;
 
 function BrowseURL(const URL: string) : Boolean;
 function OpenPDF(const URL: string): Boolean;
-procedure MailTo(Address,Subject,Body:string);
-procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
+procedure MailTo(const Address,Subject,Body:string);
+procedure OpenMySite(const ToolName:string; Address:string='http://krom.reveur.de');
 function CountMatches(const aString, aSubString: string): Integer;
 
 const
@@ -143,7 +143,7 @@ end;
 
 
 //I re-add this it is required by KM_Editor.
-function ExtractOpenedFileName(in_s: string): string;
+function ExtractOpenedFileName(const in_s: string): string;
 var k:word; out_s:string; QMarks:boolean;
 begin
 k:=0; out_s:=''; QMarks:=false;
@@ -203,7 +203,7 @@ begin
 end;
 
 
-function AssureFileExt(FileName,Ext:string): string;
+function AssureFileExt(const FileName,Ext:string): string;
 begin
 if (Ext='')or(GetFileExt(FileName)=UpperCase(Ext)) then
   Result:=FileName
@@ -213,7 +213,7 @@ end;
 
 
 //Look for last dot and truncate it
-function TruncateExt(FileName:string): string;
+function TruncateExt(const FileName:string): string;
 var i:word; DotPlace:word;
 begin
   DotPlace := length(FileName) + 1; //In case there's no Extension
@@ -240,7 +240,7 @@ begin
 end;
 
 
-function CheckSameContents(A, B: string): Boolean;
+function CheckSameContents(const A, B: string): Boolean;
 var S1, S2: TMemoryStream; I: Cardinal;
 begin
   Result := FileExists(A) and FileExists(B);
@@ -288,7 +288,7 @@ begin
 end;
 
 
-function ReverseString(s1: string): string;
+function ReverseString(const s1: string): string;
 var
   s2: string;
   i: integer;
@@ -386,7 +386,7 @@ begin
 end;
 
 
-function decs(AText: string; Len, RunAsFunction: integer): string; overload;
+function decs(const AText: string; Len, RunAsFunction: integer): string; overload;
 begin
   if length(AText) <= abs(Len) then
     Result := ''
@@ -397,7 +397,7 @@ begin
 end;
 
 
-function RemoveQuotes(Input: string): string;
+function RemoveQuotes(const Input: string): string;
 var
   i, k: integer;
 begin
@@ -565,7 +565,7 @@ begin
 end;
 
 
-function RunOpenDialog(Sender: TOpenDialog; Name, Path, Filter: string): boolean;
+function RunOpenDialog(Sender: TOpenDialog; const Name, Path, Filter: string): boolean;
 begin
   Sender.FileName := Name;
   Sender.InitialDir := Path;
@@ -589,7 +589,7 @@ end;
 //Each time we run the check we create an unique Mutex
 //Thus we can check the Mutex and see if another copy of our application is run
 //Win will automatically release the Mutex on application exit
-function CheckDuplicateApplication(aGUID: string): Boolean;
+function CheckDuplicateApplication(const aGUID: string): Boolean;
 begin
   {$IFDEF MSWindows}
     if CreateMutex(nil, True, PChar(aGUID)) = 0 then
@@ -677,13 +677,13 @@ begin
 end;
 
 
-procedure MailTo(Address,Subject,Body:string);
+procedure MailTo(const Address,Subject,Body:string);
 begin
   BrowseURL('mailto:'+Address+'?subject='+Subject+'&body='+Body);
 end;
 
 
-procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
+procedure OpenMySite(const ToolName:string; Address:string='http://krom.reveur.de');
 begin
   BrowseURL(Address+'/index_r.php?t='+ToolName); //Maybe add tool version later..
 end;

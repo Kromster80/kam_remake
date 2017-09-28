@@ -95,7 +95,7 @@ type
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
     destructor Destroy; override;
 
-    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
+    procedure GameStart(const aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: UnicodeString);
 
@@ -130,7 +130,7 @@ type
     function IsSpeedUpAllowed: Boolean;
     function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
-    procedure ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+    procedure ShowMessageLocal(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint);
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
     procedure OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
@@ -155,8 +155,8 @@ type
     procedure StepOneFrame;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
 
-    function SavePath(aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
-    function SaveName(aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
+    function SavePath(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+    function SaveName(const aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
     function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
 
     procedure UpdateMultiplayerTeams;
@@ -174,7 +174,7 @@ type
 
     procedure Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
     {$IFDEF USE_MAD_EXCEPT}
-    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: UnicodeString);
+    procedure AttachCrashReport(const ExceptIntf: IMEException; const aZipFile: UnicodeString);
     {$ENDIF}
     procedure ReplayInconsistancy;
     procedure SaveCampaignScriptData(SaveStream: TKMemoryStream);
@@ -322,7 +322,7 @@ end;
 
 
 //New mission
-procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
+procedure TKMGame.GameStart(const aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
     mpm_Single, mpm_Single, mpm_Multi, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
@@ -671,7 +671,7 @@ end;
 
 
 {$IFDEF USE_MAD_EXCEPT}
-procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile: UnicodeString);
+procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; const aZipFile: UnicodeString);
 
   procedure AttachFile(const aFile: UnicodeString);
   begin
@@ -1104,7 +1104,7 @@ begin
 end;
 
 
-procedure TKMGame.ShowMessageLocal(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+procedure TKMGame.ShowMessageLocal(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint);
 begin
   fGamePlayInterface.MessageIssue(aKind, aText, aLoc);
 end;
@@ -1847,13 +1847,13 @@ begin
 end;
 
 
-function TKMGame.SavePath(aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+function TKMGame.SavePath(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
   Result := TKMSavesCollection.Path(aName, aIsMultiplayer);
 end;
 
 
-function TKMGame.SaveName(aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+function TKMGame.SaveName(const aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
   Result := TKMSavesCollection.Path(aFolder, aIsMultiplayer) + aName + '.' + aExt;
 end;

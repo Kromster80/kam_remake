@@ -29,8 +29,8 @@ type
 
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
-    procedure LoadGameFromSave(aFilePath: UnicodeString; aGameMode: TGameMode);
-    procedure LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
+    procedure LoadGameFromSave(const aFilePath: UnicodeString; aGameMode: TGameMode);
+    procedure LoadGameFromScript(const aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
     function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
   public
@@ -38,27 +38,27 @@ type
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
-    procedure Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString = '');
+    procedure Stop(aMsg: TGameResultMsg; const aTextMsg: UnicodeString = '');
     procedure AnnounceReturnToLobby(Sender: TObject);
     procedure PrepareReturnToLobby(aTimestamp: TDateTime);
     procedure StopGameReturnToLobby(Sender: TObject);
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
-    procedure ToggleLocale(aLocale: AnsiString);
+    procedure ToggleLocale(const aLocale: AnsiString);
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
     function RenderVersion: UnicodeString;
-    procedure PrintScreen(aFilename: UnicodeString = '');
-    procedure PauseMusicToPlayFile(aFileName: UnicodeString);
+    procedure PrintScreen(const aFilename: UnicodeString = '');
+    procedure PauseMusicToPlayFile(const aFileName: UnicodeString);
     function CheckDATConsistency: Boolean;
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
-    procedure NewSingleMap(aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
-    procedure NewSingleSave(aSaveName: UnicodeString);
+    procedure NewSingleMap(const aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
+    procedure NewSingleSave(const aSaveName: UnicodeString);
     procedure NewMultiplayerMap(const aFileName: UnicodeString; aMapFolder: TMapFolder; aCRC: Cardinal; Spectating: Boolean);
     procedure NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
-    procedure NewRestartLast(aGameName, aMission, aSave: UnicodeString; aGameMode: TGameMode; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
+    procedure NewRestartLast(const aGameName, aMission, aSave: UnicodeString; aGameMode: TGameMode; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
     procedure NewReplay(const aFilePath: UnicodeString);
@@ -203,7 +203,7 @@ begin
 end;
 
 
-procedure TKMGameApp.ToggleLocale(aLocale: AnsiString);
+procedure TKMGameApp.ToggleLocale(const aLocale: AnsiString);
 begin
   Assert(gGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
@@ -395,7 +395,7 @@ end;
 //4. Fill in menu message if needed
 //5. Free the game object
 //6. Switch to MainMenu
-procedure TKMGameApp.Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString = '');
+procedure TKMGameApp.Stop(aMsg: TGameResultMsg; const aTextMsg: UnicodeString = '');
 begin
   if gGame = nil then Exit;
 
@@ -488,7 +488,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromSave(aFilePath: UnicodeString; aGameMode: TGameMode);
+procedure TKMGameApp.LoadGameFromSave(const aFilePath: UnicodeString; aGameMode: TGameMode);
 var
   LoadError: UnicodeString;
 begin
@@ -523,7 +523,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign;
+procedure TKMGameApp.LoadGameFromScript(const aMissionFile, aGameName: UnicodeString; aCRC: Cardinal; aCampaign: TKMCampaign;
                                         aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
 var
   LoadError: UnicodeString;
@@ -600,13 +600,13 @@ begin
 end;
 
 
-procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
+procedure TKMGameApp.NewSingleMap(const aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
 begin
   LoadGameFromScript(aMissionFile, aGameName, 0, nil, 0, gmSingle, aDesiredLoc, aDesiredColor);
 end;
 
 
-procedure TKMGameApp.NewSingleSave(aSaveName: UnicodeString);
+procedure TKMGameApp.NewSingleSave(const aSaveName: UnicodeString);
 begin
   //Convert SaveName to local FilePath
   LoadGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, False), gmSingle);
@@ -647,7 +647,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave: UnicodeString; aGameMode: TGameMode; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
+procedure TKMGameApp.NewRestartLast(const aGameName, aMission, aSave: UnicodeString; aGameMode: TGameMode; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
 begin
   if FileExists(ExeDir + aMission) then
     LoadGameFromScript(ExeDir + aMission, aGameName, 0, fCampaigns.CampaignById(aCampName), aCampMap, aGameMode, aLocation, aColor)
@@ -743,7 +743,7 @@ begin
 end;
 
 
-procedure TKMGameApp.PrintScreen(aFilename: UnicodeString = '');
+procedure TKMGameApp.PrintScreen(const aFilename: UnicodeString = '');
 var
   strDate, strName: string;
 begin
@@ -761,7 +761,7 @@ begin
 end;
 
 
-procedure TKMGameApp.PauseMusicToPlayFile(aFileName: UnicodeString);
+procedure TKMGameApp.PauseMusicToPlayFile(const aFileName: UnicodeString);
 begin
   if not FileExists(aFileName) then Exit;
   gSoundPlayer.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing

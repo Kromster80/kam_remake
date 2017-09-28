@@ -24,7 +24,7 @@ type
     fDefaultLocation: ShortInt;
     procedure ProcessAttackPositions;
   protected
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
+    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; override;
   public
     constructor Create(aMode: TMissionParsingMode); overload;
     constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray); overload;
@@ -39,7 +39,9 @@ type
 implementation
 uses
   Classes, SysUtils, Math, KromUtils,
-  KM_Hand, KM_Game, KM_HandsCollection, KM_Units, KM_Units_Warrior, KM_HouseBarracks,
+  KM_Hand, KM_Game, KM_HandsCollection,
+  KM_Units, KM_UnitsCollection, KM_Units_Warrior,
+  KM_HouseCollection, KM_HouseBarracks,
   KM_AI, KM_AIDefensePos,
   KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares,
   KM_CommonClasses, KM_Terrain;
@@ -129,7 +131,7 @@ begin
 end;
 
 
-function TMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
+function TMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean;
 
   function PointInMap(X, Y: Integer): Boolean;
   begin

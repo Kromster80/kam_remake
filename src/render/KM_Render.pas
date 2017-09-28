@@ -43,7 +43,7 @@ type
 
     property RendererVersion: UnicodeString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
-    procedure DoPrintScreen(aFileName: string);
+    procedure DoPrintScreen(const aFileName: string);
     procedure Resize(aWidth, aHeight: Integer);
 
     property ScreenX: Word read fScreenX;
@@ -234,7 +234,7 @@ begin
 end;
 
 
-procedure TRender.DoPrintScreen(aFileName: string);
+procedure TRender.DoPrintScreen(const aFileName: string);
 {$IFDEF WDC}
 var
   i, k, W, H: integer;

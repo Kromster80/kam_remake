@@ -54,7 +54,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure PerformQuery(aAddress: string; aPort: Word; aServerID: Integer);
+    procedure PerformQuery(const aAddress: string; aPort: Word; aServerID: Integer);
     procedure Disconnect;
     property OnServerData:TServerDataEvent read fOnServerData write fOnServerData;
     property OnQueryDone:TNotifyEvent read fOnQueryDone write fOnQueryDone;
@@ -82,7 +82,7 @@ type
     fCount:integer;
     fLastQueried:integer;
     fServers:array of TKMServerInfo;
-    procedure AddServer(aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: word);
+    procedure AddServer(const aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: word);
     function GetServer(aIndex: Integer): TKMServerInfo;
     procedure Clear;
     procedure AddFromText(const aText: UnicodeString);
@@ -121,7 +121,7 @@ type
 
     function ActiveQueryCount: Integer;
   public
-    constructor Create(aMasterServerAddress: string);
+    constructor Create(const aMasterServerAddress: string);
     destructor Destroy; override;
 
     property OnListUpdated: TNotifyEvent read fOnListUpdated write fOnListUpdated;
@@ -132,7 +132,7 @@ type
     property SortMethod: TServerSortMethod read fSortMethod write SetSortMethod;
 
     procedure RefreshList;
-    procedure FetchAnnouncements(aLocale: AnsiString);
+    procedure FetchAnnouncements(const aLocale: AnsiString);
     procedure SendMapInfo(const aMapName: UnicodeString; aCRC: Cardinal; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
@@ -212,7 +212,7 @@ end;
 
 
 { TKMServerList }
-procedure TKMServerList.AddServer(aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: Word);
+procedure TKMServerList.AddServer(const aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: Word);
 begin
   if Length(fServers) <= fCount then SetLength(fServers, fCount+16);
   fServers[fCount].Name := aName;
@@ -240,7 +240,7 @@ end;
 
 procedure TKMServerList.AddFromText(const aText: UnicodeString);
 
-  function GetServerType(aDedicated, aOS: UnicodeString): TKMServerType;
+  function GetServerType(const aDedicated, aOS: UnicodeString): TKMServerType;
   begin
     if aDedicated = '0' then
       Result := mstClient
@@ -302,7 +302,7 @@ begin
 end;
 
 
-procedure TKMQuery.PerformQuery(aAddress: string; aPort: Word; aServerID: Integer);
+procedure TKMQuery.PerformQuery(const aAddress: string; aPort: Word; aServerID: Integer);
 begin
   fQueryActive := true;
   fServerID := aServerID;
@@ -392,7 +392,7 @@ end;
 
 
 { TKMServerQuery }
-constructor TKMServerQuery.Create(aMasterServerAddress: string);
+constructor TKMServerQuery.Create(const aMasterServerAddress: string);
 var I: Integer;
 begin
   inherited Create;
@@ -504,7 +504,7 @@ end;
 
 
 //Get the server announcements in specified language
-procedure TKMServerQuery.FetchAnnouncements(aLocale: AnsiString);
+procedure TKMServerQuery.FetchAnnouncements(const aLocale: AnsiString);
 begin
   fMasterServer.FetchAnnouncements(aLocale);
 end;

@@ -143,7 +143,7 @@ type
     procedure DoReconnection;
     function IsPlayerHandStillInGame(aPlayerIndex: Integer): Boolean;
     procedure ReassignHost(aSenderIndex: TKMNetHandleIndex; M: TKMemoryStream);
-    procedure PlayerJoined(aServerIndex: TKMNetHandleIndex; aPlayerName: AnsiString);
+    procedure PlayerJoined(aServerIndex: TKMNetHandleIndex; const aPlayerName: AnsiString);
     procedure PlayerDisconnected(aSenderIndex: TKMNetHandleIndex);
     procedure ReturnToLobbyVoteSucceeded;
     procedure ResetReturnToLobbyVote;
@@ -189,8 +189,8 @@ type
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
-    procedure Host(aServerName: AnsiString; aPort: Word; aNikname: AnsiString; aAnnounceServer: Boolean);
-    procedure Join(aServerAddress: string; aPort: Word; aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
+    procedure Host(const aServerName: AnsiString; aPort: Word; const aNikname: AnsiString; aAnnounceServer: Boolean);
+    procedure Join(const aServerAddress: string; aPort: Word; const aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;
     procedure Disconnect;
     procedure DropPlayers(aPlayers: TKMByteArray);
@@ -206,8 +206,8 @@ type
     procedure BanPlayer(aPlayerIndex:integer);
     procedure SetToHost(aPlayerIndex:integer);
     procedure ResetBans;
-    procedure SendPassword(aPassword: AnsiString);
-    procedure SetPassword(aPassword: AnsiString);
+    procedure SendPassword(const aPassword: AnsiString);
+    procedure SetPassword(const aPassword: AnsiString);
     property Password: AnsiString read fPassword;
     property Description: UnicodeString read fDescription write SetDescription;
     function ReadyToStart:boolean;
@@ -222,10 +222,10 @@ type
     procedure AnnounceReadyToReturnToLobby;
 
     //Common
-    procedure ConsoleCommand(aText: UnicodeString);
-    procedure PostMessage(aTextID: Integer; aSound: TChatSound; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient: TKMNetHandleIndex = NET_ADDRESS_ALL);
-    procedure PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: TKMNetHandleIndex = NET_ADDRESS_OTHERS); overload;
-    procedure PostLocalMessage(aText: UnicodeString; aSound: TChatSound);
+    procedure ConsoleCommand(const aText: UnicodeString);
+    procedure PostMessage(aTextID: Integer; aSound: TChatSound; const aText1: UnicodeString=''; const aText2: UnicodeString = ''; aRecipient: TKMNetHandleIndex = NET_ADDRESS_ALL);
+    procedure PostChat(const aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: TKMNetHandleIndex = NET_ADDRESS_OTHERS); overload;
+    procedure PostLocalMessage(const aText: UnicodeString; aSound: TChatSound);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
     //Gameplay
@@ -347,7 +347,7 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aServerName: AnsiString; aPort: Word; aNikname: AnsiString; aAnnounceServer: Boolean);
+procedure TKMNetworking.Host(const aServerName: AnsiString; aPort: Word; const aNikname: AnsiString; aAnnounceServer: Boolean);
 begin
   fWelcomeMessage := '';
   fPassword := '';
@@ -371,7 +371,7 @@ begin
 end;
 
 
-procedure TKMNetworking.Join(aServerAddress: string; aPort: Word; aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
+procedure TKMNetworking.Join(const aServerAddress: string; aPort: Word; const aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
 begin
   Assert(not fNetClient.Connected, 'Cannot connect: We are already connected');
 
@@ -825,7 +825,7 @@ begin
 end;
 
 
-procedure TKMNetworking.SendPassword(aPassword: AnsiString);
+procedure TKMNetworking.SendPassword(const aPassword: AnsiString);
 var
   M: TKMemoryStream;
 begin
@@ -840,7 +840,7 @@ begin
 end;
 
 
-procedure TKMNetworking.SetPassword(aPassword: AnsiString);
+procedure TKMNetworking.SetPassword(const aPassword: AnsiString);
 begin
   Assert(IsHost, 'Only host can set password');
   fPassword := aPassword;
@@ -1056,7 +1056,7 @@ begin
 end;
 
 
-procedure TKMNetworking.ConsoleCommand(aText: UnicodeString);
+procedure TKMNetworking.ConsoleCommand(const aText: UnicodeString);
 {var
   s,PlayerID: Integer;
   ConsoleCmd: UnicodeString;}
@@ -1104,7 +1104,7 @@ end;
 
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: TKMNetHandleIndex = NET_ADDRESS_OTHERS);
+procedure TKMNetworking.PostChat(const aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: TKMNetHandleIndex = NET_ADDRESS_OTHERS);
 var
   I: Integer;
   M: TKMemoryStream;
@@ -1145,7 +1145,7 @@ begin
 end;
 
 
-procedure TKMNetworking.PostMessage(aTextID: Integer; aSound: TChatSound; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient: TKMNetHandleIndex = NET_ADDRESS_ALL);
+procedure TKMNetworking.PostMessage(aTextID: Integer; aSound: TChatSound; const aText1: UnicodeString=''; const aText2: UnicodeString = ''; aRecipient: TKMNetHandleIndex = NET_ADDRESS_ALL);
 var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
@@ -1158,7 +1158,7 @@ begin
 end;
 
 
-procedure TKMNetworking.PostLocalMessage(aText: UnicodeString; aSound: TChatSound);
+procedure TKMNetworking.PostLocalMessage(const aText: UnicodeString; aSound: TChatSound);
 const
   ChatSound: array[TChatSound] of TSoundFXNew = (sfxn_MPChatSystem, //csNone
                                                  sfxn_MPChatSystem, //csJoin
@@ -1210,7 +1210,7 @@ begin
 end;
 
 
-procedure TKMNetworking.PlayerJoined(aServerIndex: TKMNetHandleIndex; aPlayerName: AnsiString);
+procedure TKMNetworking.PlayerJoined(aServerIndex: TKMNetHandleIndex; const aPlayerName: AnsiString);
 begin
   fNetPlayers.AddPlayer(aPlayerName, aServerIndex, '');
   PacketSend(aServerIndex, mk_AllowToJoin);

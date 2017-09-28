@@ -37,7 +37,7 @@ type
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_GetInClick(Sender: TObject);
     function MP_GetInEnabled: Boolean;
-    procedure MP_Join(aServerAddress: string; aPort: Word; aRoom: Integer);
+    procedure MP_Join(const aServerAddress: string; aPort: Word; aRoom: Integer);
     procedure MP_JoinPassword(Sender: TObject);
     procedure MP_JoinSuccess(Sender: TObject);
     procedure MP_JoinFail(const aData: UnicodeString);
@@ -98,7 +98,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 
-    procedure Show(aText: UnicodeString);
+    procedure Show(const aText: UnicodeString);
     procedure Resize(X, Y: Word);
   end;
 
@@ -797,7 +797,7 @@ begin
 end;
 
 
-procedure TKMMenuMultiplayer.MP_Join(aServerAddress: string; aPort: Word; aRoom: Integer);
+procedure TKMMenuMultiplayer.MP_Join(const aServerAddress: string; aPort: Word; aRoom: Integer);
 begin
   //Save the player and IP name so it is not lost if the connection fails
   MP_SaveSettings;
@@ -890,7 +890,7 @@ begin
 end;
 
 
-procedure TKMMenuMultiplayer.Show(aText: UnicodeString);
+procedure TKMMenuMultiplayer.Show(const aText: UnicodeString);
 begin
   gGameApp.NetworkInit;
   MP_Init;

@@ -277,7 +277,7 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aDeliveryMode: TDeliveryMode); overload;
 
     procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aWare: TWareType; aHouseType: THouseType; aValue:integer); overload;
-    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString); overload;
+    procedure CmdWareDistribution(aCommandType: TGameInputCommandType; const aTextParam: UnicodeString); overload;
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
@@ -295,8 +295,8 @@ type
     procedure UpdateState(aTick: Cardinal); virtual;
 
     //Replay methods
-    procedure SaveToFile(aFileName: UnicodeString);
-    procedure LoadFromFile(aFileName: UnicodeString);
+    procedure SaveToFile(const aFileName: UnicodeString);
+    procedure LoadFromFile(const aFileName: UnicodeString);
     property Count: Integer read fCount;
     property ReplayState: TGIPReplayState read fReplayState;
     function GetLastTick: Cardinal;
@@ -838,7 +838,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; aTextParam: UnicodeString);
+procedure TGameInputProcess.CmdWareDistribution(aCommandType: TGameInputCommandType; const aTextParam: UnicodeString);
 begin
   Assert(aCommandType = gic_WareDistributions);
   TakeCommand(MakeCommand(aCommandType, aTextParam));
@@ -894,7 +894,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.SaveToFile(aFileName: UnicodeString);
+procedure TGameInputProcess.SaveToFile(const aFileName: UnicodeString);
 var
   I: integer;
   S: TKMemoryStream;
@@ -914,7 +914,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.LoadFromFile(aFileName: UnicodeString);
+procedure TGameInputProcess.LoadFromFile(const aFileName: UnicodeString);
 var
   FileVersion: AnsiString;
   I: Integer;

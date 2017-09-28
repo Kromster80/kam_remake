@@ -58,7 +58,7 @@ type
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
     function ReadMissionFile(const aFileName: string): AnsiString;
     function TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; virtual; abstract;
+    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; virtual; abstract;
     procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
   public
     property FatalErrors: string read fFatalErrors;

@@ -17,7 +17,7 @@ type
     {$IFDEF FPC} fUDP: TKMNetUDPLNet;     {$ENDIF}
 
     fOnError: TGetStrProc;
-    procedure Receive(aAddress: string; aData:pointer; aLength:cardinal); virtual; abstract;
+    procedure Receive(const aAddress: string; aData:pointer; aLength:cardinal); virtual; abstract;
     procedure Error(const msg: string);
   public
     constructor Create;
@@ -30,7 +30,7 @@ type
   private
     fGamePort: Word;
     fServerName: AnsiString;
-    procedure Receive(aAddress: string; aData:pointer; aLength:cardinal); override;
+    procedure Receive(const aAddress: string; aData:pointer; aLength:cardinal); override;
   public
     procedure StartAnnouncing(const aGamePort: Word; const aName: AnsiString);
     procedure StopAnnouncing;
@@ -40,7 +40,7 @@ type
   TKMNetUDPScan = class(TKMNetUDP)
   private
     fOnServerDetected: TNotifyServerDetectedEvent;
-    procedure Receive(aAddress: string; aData:pointer; aLength:cardinal); override;
+    procedure Receive(const aAddress: string; aData:pointer; aLength:cardinal); override;
   public
     procedure ScanForServers;
     procedure TerminateScan;
@@ -108,7 +108,7 @@ begin
 end;
 
 
-procedure TKMNetUDPAnnounce.Receive(aAddress: string; aData:pointer; aLength:cardinal);
+procedure TKMNetUDPAnnounce.Receive(const aAddress: string; aData:pointer; aLength:cardinal);
 var
   M: TKMemoryStream;
   S: AnsiString;
@@ -190,7 +190,7 @@ begin
 end;
 
 
-procedure TKMNetUDPScan.Receive(aAddress: string; aData:pointer; aLength:cardinal);
+procedure TKMNetUDPScan.Receive(const aAddress: string; aData:pointer; aLength:cardinal);
 var
   M: TKMemoryStream;
   S, ServerName: AnsiString;

@@ -84,11 +84,11 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex; const aLang: AnsiString);
+    procedure AddPlayer(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex; const aLang: AnsiString);
     procedure AddAIPlayer(aSlot: Integer = -1);
     procedure AddClosedPlayer(aSlot: Integer = -1);
     procedure DisconnectPlayer(aIndexOnServer: TKMNetHandleIndex);
-    procedure DisconnectAllClients(aOwnNikname: AnsiString);
+    procedure DisconnectAllClients(const aOwnNikname: AnsiString);
     procedure DropPlayer(aIndexOnServer: TKMNetHandleIndex);
     procedure RemPlayer(aIndex: Integer);
     procedure RemServerPlayer(aIndexOnServer: TKMNetHandleIndex);
@@ -96,11 +96,11 @@ type
 
     //Getters
     function ServerToLocal(aIndexOnServer: TKMNetHandleIndex): Integer;
-    function NiknameToLocal(aNikname: AnsiString): Integer;
+    function NiknameToLocal(const aNikname: AnsiString): Integer;
     function StartingLocToLocal(aLoc: Integer): Integer;
     function PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
 
-    function CheckCanJoin(aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
+    function CheckCanJoin(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
     function CheckCanReconnect(aLocalIndex: Integer): Integer;
     function LocAvailable(aIndex: Integer): Boolean;
     function ColorAvailable(aIndex: Integer): Boolean;
@@ -414,7 +414,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.AddPlayer(aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex; const aLang: AnsiString);
+procedure TKMNetPlayersList.AddPlayer(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex; const aLang: AnsiString);
 begin
   Assert(fCount <= MAX_LOBBY_SLOTS, 'Can''t add player');
   Inc(fCount);
@@ -498,7 +498,7 @@ begin
 end;
 
 //Mark all human players as disconnected (used when reconnecting if all clients were lost)
-procedure TKMNetPlayersList.DisconnectAllClients(aOwnNikname: AnsiString);
+procedure TKMNetPlayersList.DisconnectAllClients(const aOwnNikname: AnsiString);
 var
   I: Integer;
 begin
@@ -558,7 +558,7 @@ end;
 
 
 //Networking needs to convert Nikname to local index in players list
-function TKMNetPlayersList.NiknameToLocal(aNikname: AnsiString): Integer;
+function TKMNetPlayersList.NiknameToLocal(const aNikname: AnsiString): Integer;
 var
   I: Integer;
 begin
@@ -591,7 +591,7 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
+function TKMNetPlayersList.CheckCanJoin(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
 begin
   if fCount >= MAX_LOBBY_SLOTS then
     Result := TX_NET_ROOM_FULL

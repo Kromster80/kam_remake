@@ -50,7 +50,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadFromString(aString: UnicodeString);
+    procedure LoadFromString(const aString: UnicodeString);
     function PackToString: UnicodeString;
 
     property OnMapsUpdate: TUnicodeStringEvent read fOnMapsUpdate write fOnMapsUpdate;
@@ -77,8 +77,8 @@ type
     procedure SetVSync(aValue: Boolean);
   protected
     procedure Changed;
-    function LoadFromINI(aFileName: UnicodeString): Boolean;
-    procedure SaveToINI(aFileName: UnicodeString);
+    function LoadFromINI(const aFileName: UnicodeString): Boolean;
+    procedure SaveToINI(const aFileName: UnicodeString);
   public
     constructor Create;
     destructor Destroy; override;
@@ -165,25 +165,25 @@ type
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
     procedure SetLoadFullFonts(aValue: Boolean);
-    procedure SetLocale(aLocale: AnsiString);
+    procedure SetLocale(const aLocale: AnsiString);
     procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
     procedure SetSoundFXVolume(aValue: Single);
-    procedure SetMultiplayerName(aValue: AnsiString);
-    procedure SetLastIP(aValue: string);
-    procedure SetMasterServerAddress(aValue: string);
-    procedure SetServerName(aValue: AnsiString);
-    procedure SetLastPort(aValue: string);
-    procedure SetLastRoom(aValue: string);
-    procedure SetLastPassword(aValue: string);
-    procedure SetServerPort(aValue: string);
-    procedure SetServerWelcomeMessage(aValue: UnicodeString);
+    procedure SetMultiplayerName(const aValue: AnsiString);
+    procedure SetLastIP(const aValue: string);
+    procedure SetMasterServerAddress(const aValue: string);
+    procedure SetServerName(const aValue: AnsiString);
+    procedure SetLastPort(const aValue: string);
+    procedure SetLastRoom(const aValue: string);
+    procedure SetLastPassword(const aValue: string);
+    procedure SetServerPort(const aValue: string);
+    procedure SetServerWelcomeMessage(const aValue: UnicodeString);
     procedure SetAnnounceServer(aValue: Boolean);
     procedure SetAutoKickTimeout(aValue: Integer);
     procedure SetPingInterval(aValue: Integer);
     procedure SetMasterAnnounceInterval(eValue: Integer);
-    procedure SetHTMLStatusFile(eValue: UnicodeString);
+    procedure SetHTMLStatusFile(const eValue: UnicodeString);
     procedure SetMaxRooms(eValue: Integer);
     procedure SetServerPacketsAccumulatingDelay(aValue: Integer);
     procedure SetFlashOnMessage(aValue: Boolean);
@@ -195,18 +195,18 @@ type
     procedure SetMenuMapEdNewMapY(aValue: Word);
     procedure SetMenuMapEdSPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapCRC(aValue: Cardinal);
-    procedure SetMenuMapEdMPMapName(aValue: UnicodeString);
-    procedure SetMenuCampaignName(aValue: UnicodeString);
+    procedure SetMenuMapEdMPMapName(const aValue: UnicodeString);
+    procedure SetMenuCampaignName(const aValue: UnicodeString);
     procedure SetMenuReplaySPSaveCRC(aValue: Cardinal);
     procedure SetMenuReplayMPSaveCRC(aValue: Cardinal);
-    procedure SetMenuReplaySPSaveName(aValue: UnicodeString);
-    procedure SetMenuReplayMPSaveName(aValue: UnicodeString);
+    procedure SetMenuReplaySPSaveName(const aValue: UnicodeString);
+    procedure SetMenuReplayMPSaveName(const aValue: UnicodeString);
     procedure SetMenuSPMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveCRC(aValue: Cardinal);
     procedure SetMenuLobbyMapType(aValue: Byte);
   protected
-    function LoadFromINI(FileName: UnicodeString): Boolean;
-    procedure SaveToINI(FileName: UnicodeString);
+    function LoadFromINI(const FileName: UnicodeString): Boolean;
+    procedure SaveToINI(const FileName: UnicodeString);
     procedure Changed;
   public
     constructor Create;
@@ -307,7 +307,7 @@ begin
 end;
 
 
-function TMainSettings.LoadFromINI(aFileName: UnicodeString): Boolean;
+function TMainSettings.LoadFromINI(const aFileName: UnicodeString): Boolean;
 var
   F: TMemIniFile;
 begin
@@ -343,7 +343,7 @@ end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
-procedure TMainSettings.SaveToINI(aFileName: UnicodeString);
+procedure TMainSettings.SaveToINI(const aFileName: UnicodeString);
 var
   F: TMemIniFile;
 begin
@@ -444,7 +444,7 @@ begin
 end;
 
 
-function TGameSettings.LoadFromINI(FileName: UnicodeString): Boolean;
+function TGameSettings.LoadFromINI(const FileName: UnicodeString): Boolean;
 var
   F: TMemIniFile;
 begin
@@ -529,7 +529,7 @@ end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
-procedure TGameSettings.SaveToINI(FileName: UnicodeString);
+procedure TGameSettings.SaveToINI(const FileName: UnicodeString);
 var
   F: TMemIniFile;
 begin
@@ -608,7 +608,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetLocale(aLocale: AnsiString);
+procedure TGameSettings.SetLocale(const aLocale: AnsiString);
 begin
   //We can get some unsupported LocaleCode, but that is fine, it will have Eng fallback anyway
   fLocale := aLocale;
@@ -680,14 +680,14 @@ end;
 
 
 
-procedure TGameSettings.SetMenuMapEdMPMapName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuMapEdMPMapName(const aValue: UnicodeString);
 begin
   fMenu_MapEdMPMapName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetMenuCampaignName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuCampaignName(const aValue: UnicodeString);
 begin
   fMenu_CampaignName := aValue;
   Changed;
@@ -708,14 +708,14 @@ begin
 end;
 
 
-procedure TGameSettings.SetMenuReplaySPSaveName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuReplaySPSaveName(const aValue: UnicodeString);
 begin
   fMenu_ReplaySPSaveName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetMenuReplayMPSaveName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuReplayMPSaveName(const aValue: UnicodeString);
 begin
   fMenu_ReplayMPSaveName := aValue;
   Changed;
@@ -813,49 +813,49 @@ begin
 end;
 
 
-procedure TGameSettings.SetMultiplayerName(aValue: AnsiString);
+procedure TGameSettings.SetMultiplayerName(const aValue: AnsiString);
 begin
   fMultiplayerName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastIP(aValue: string);
+procedure TGameSettings.SetLastIP(const aValue: string);
 begin
   fLastIP := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetMasterServerAddress(aValue: string);
+procedure TGameSettings.SetMasterServerAddress(const aValue: string);
 begin
   fMasterServerAddress := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetServerName(aValue: AnsiString);
+procedure TGameSettings.SetServerName(const aValue: AnsiString);
 begin
   fServerName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastPort(aValue: string);
+procedure TGameSettings.SetLastPort(const aValue: string);
 begin
   fLastPort := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastRoom(aValue: string);
+procedure TGameSettings.SetLastRoom(const aValue: string);
 begin
   fLastRoom := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastPassword(aValue: string);
+procedure TGameSettings.SetLastPassword(const aValue: string);
 begin
   fLastPassword := aValue;
   Changed;
@@ -869,7 +869,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetServerPort(aValue: string);
+procedure TGameSettings.SetServerPort(const aValue: string);
 begin
   fServerPort := aValue;
   Changed;
@@ -904,7 +904,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetHTMLStatusFile(eValue: UnicodeString);
+procedure TGameSettings.SetHTMLStatusFile(const eValue: UnicodeString);
 begin
   fHTMLStatusFile := eValue;
   Changed;
@@ -939,7 +939,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetServerWelcomeMessage(aValue: UnicodeString);
+procedure TGameSettings.SetServerWelcomeMessage(const aValue: UnicodeString);
 begin
   fServerWelcomeMessage := aValue;
   Changed;
@@ -1033,7 +1033,7 @@ begin
 end;
 
 
-procedure TKMFavouriteMaps.LoadFromString(aString: UnicodeString);
+procedure TKMFavouriteMaps.LoadFromString(const aString: UnicodeString);
 var I: Integer;
     MapCRC : Int64;
     StringList: TStringList;

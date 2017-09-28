@@ -37,8 +37,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadPalettes(aPath: UnicodeString);
-    procedure LoadDefaultPalette(aPath: UnicodeString);
+    procedure LoadPalettes(const aPath: UnicodeString);
+    procedure LoadDefaultPalette(const aPath: UnicodeString);
     property Palettes[aIndex: TKMPal]: TKMPaletteInfo read GetPalette; default;
     function DefaultPalette: TKMPaletteInfo; //Default palette for the game
     function PalFile(aIndex: TKMPal): UnicodeString;
@@ -148,7 +148,7 @@ begin
 end;
 
 
-procedure TKMResPalettes.LoadPalettes(aPath: UnicodeString);
+procedure TKMResPalettes.LoadPalettes(const aPath: UnicodeString);
 var
   I: TKMPal;
 begin
@@ -162,7 +162,7 @@ end;
 
 
 //Load only Default Palette
-procedure TKMResPalettes.LoadDefaultPalette(aPath: UnicodeString);
+procedure TKMResPalettes.LoadDefaultPalette(const aPath: UnicodeString);
 begin
   fPalettes[pal_0].LoadFromFile(aPath + PalFiles[pal_0]);
 end;

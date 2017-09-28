@@ -6,7 +6,7 @@ uses
 
 
 type
-  TNotifyAddressDataEvent = procedure(aAddress: string; aData:pointer; aLength:cardinal)of object;
+  TNotifyAddressDataEvent = procedure(const aAddress: string; aData:pointer; aLength:cardinal)of object;
 
   TKMNetUDPOverbyte = class
   private

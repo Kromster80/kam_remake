@@ -42,9 +42,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadFromFile(aFileName: UnicodeString);
-    procedure SaveToFile(aFileName: UnicodeString);
-    procedure LoadFromPath(aPath: UnicodeString);
+    procedure LoadFromFile(const aFileName: UnicodeString);
+    procedure SaveToFile(const aFileName: UnicodeString);
+    procedure LoadFromPath(const aPath: UnicodeString);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
@@ -350,7 +350,7 @@ end;
 
 //Load campaign info from *.cmp file
 //It should be private, but it is used by CampaignBuilder
-procedure TKMCampaign.LoadFromFile(aFileName: UnicodeString);
+procedure TKMCampaign.LoadFromFile(const aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
@@ -384,7 +384,7 @@ begin
 end;
 
 
-procedure TKMCampaign.SaveToFile(aFileName: UnicodeString);
+procedure TKMCampaign.SaveToFile(const aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
@@ -425,7 +425,7 @@ begin
 end;
 
 
-procedure TKMCampaign.LoadFromPath(aPath: UnicodeString);
+procedure TKMCampaign.LoadFromPath(const aPath: UnicodeString);
 var
   SP: TKMSpritePack;
   FirstSpriteIndex: Word;

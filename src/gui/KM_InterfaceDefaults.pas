@@ -24,7 +24,7 @@ type
                       gpLoading,
                       gpError);
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
-  TGUIEventText = procedure (Dest: TKMMenuPageType; aText: UnicodeString = '') of object;
+  TGUIEventText = procedure (Dest: TKMMenuPageType; const aText: UnicodeString = '') of object;
 
   TKMMenuPageCommon = class
   protected
@@ -49,7 +49,7 @@ type
     destructor Destroy; override;
 
     property MyControls: TKMMasterControl read fMyControls;
-    procedure ExportPages(aPath: string); virtual; abstract;
+    procedure ExportPages(const aPath: string); virtual; abstract;
 
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual; abstract;
     procedure KeyPress(Key: Char);

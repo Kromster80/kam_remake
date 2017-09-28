@@ -7,25 +7,25 @@ uses
   Classes, SysUtils;
 
   //Read text file into ANSI string (scripts, locale texts)
-  function ReadTextA(afilename: UnicodeString): AnsiString;
+  function ReadTextA(const afilename: UnicodeString): AnsiString;
 
   //Read text file into unicode string (locale texts)
-  function ReadTextU(afilename: UnicodeString; aEncoding: Word): UnicodeString;
+  function ReadTextU(const afilename: UnicodeString; aEncoding: Word): UnicodeString;
 
   //Copy a file (CopyFile is different between Delphi and Lazarus)
-  procedure KMCopyFile(aSrc, aDest: UnicodeString);
+  procedure KMCopyFile(const aSrc, aDest: UnicodeString);
 
   //Delete a folder (DeleteFolder is different between Delphi and Lazarus)
-  procedure KMDeleteFolder(aPath: UnicodeString);
+  procedure KMDeleteFolder(const aPath: UnicodeString);
 
   //Rename a file (RenameFile is different between Delphi and Lazarus)
-  procedure KMRenamePath(aSourcePath, aDestPath: UnicodeString);
+  procedure KMRenamePath(const aSourcePath, aDestPath: UnicodeString);
 
   //Move a folder and rename all the files inside it (MoveFolder is different between Delphi and Lazarus)
-  function KMMoveFolder(aSourceFolder, aDestFolder: UnicodeString): Boolean;
+  function KMMoveFolder(const aSourceFolder, aDestFolder: UnicodeString): Boolean;
 
 
-  function IsFilePath(aPath: UnicodeString): Boolean;
+  function IsFilePath(const aPath: UnicodeString): Boolean;
 
 
 implementation
@@ -33,7 +33,7 @@ uses
   StrUtils, KM_CommonUtils;
 
 
-function ReadTextA(aFilename: UnicodeString): AnsiString;
+function ReadTextA(const aFilename: UnicodeString): AnsiString;
 var
   MS: TMemoryStream;
   Head: Cardinal;
@@ -63,7 +63,7 @@ end;
 
 
 //Load ANSI file with codepage we say into unicode string
-function ReadTextU(aFilename: UnicodeString; aEncoding: Word): UnicodeString;
+function ReadTextU(const aFilename: UnicodeString; aEncoding: Word): UnicodeString;
 var
   {$IFDEF WDC}
     SL: TStringList;
@@ -118,7 +118,7 @@ begin
 end;
 
 
-procedure KMCopyFile(aSrc, aDest: UnicodeString);
+procedure KMCopyFile(const aSrc, aDest: UnicodeString);
 begin
   {$IFDEF FPC}
   CopyFile(aSrc, aDest);
@@ -129,7 +129,7 @@ begin
 end;
 
 
-procedure KMDeleteFolder(aPath: UnicodeString);
+procedure KMDeleteFolder(const aPath: UnicodeString);
 begin
   if DirectoryExists(aPath) then
     {$IFDEF FPC} DeleteDirectory(aPath, False); {$ENDIF}
@@ -137,14 +137,14 @@ begin
 end;
 
 
-function IsFilePath(aPath: UnicodeString): Boolean;
+function IsFilePath(const aPath: UnicodeString): Boolean;
 begin
   //For now we assume, that folder path always ends with PathDelim
   Result := RightStr(aPath, 1) <> PathDelim;
 end;
 
 
-procedure KMRenamePath(aSourcePath, aDestPath: UnicodeString);
+procedure KMRenamePath(const aSourcePath, aDestPath: UnicodeString);
 begin
   if IsFilePath(aSourcePath) then
   begin
@@ -165,7 +165,7 @@ end;
 
 //Move folder and rename all files inside by pattern _old_name_suffix to _new_name_suffix
 //Pattern thatwe use for most of the files for our maps/saves
-function KMMoveFolder(aSourceFolder, aDestFolder: UnicodeString): Boolean;
+function KMMoveFolder(const aSourceFolder, aDestFolder: UnicodeString): Boolean;
 var
   I: Integer;
   SrcName, DestName, RenamedFile: UnicodeString;

@@ -20,7 +20,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure GetURL(aURL: string; aIsUTF8: Boolean);
+    procedure GetURL(const aURL: string; aIsUTF8: Boolean);
     procedure UpdateStateIdle;
 
     property OnError: TGetStrProc write fOnError;
@@ -48,7 +48,7 @@ begin
 end;
 
 
-procedure TKMHTTPClient.GetURL(aURL: string; aIsUTF8: Boolean);
+procedure TKMHTTPClient.GetURL(const aURL: string; aIsUTF8: Boolean);
 begin
   fClient.GetURL(aUrl, aIsUTF8);
 end;

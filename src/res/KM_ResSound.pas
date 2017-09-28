@@ -127,7 +127,7 @@ type
     NotificationSoundCount: array[TAttackNotification] of byte;
     WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
 
-    constructor Create(aLocale, aFallback, aDefault: AnsiString);
+    constructor Create(const aLocale, aFallback, aDefault: AnsiString);
 
     function FileOfCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech): UnicodeString;
     function FileOfNewSFX(aSFX: TSoundFXNew): UnicodeString;
@@ -199,7 +199,7 @@ const
 
 
 { TKMResSounds }
-constructor TKMResSounds.Create(aLocale, aFallback, aDefault: AnsiString);
+constructor TKMResSounds.Create(const aLocale, aFallback, aDefault: AnsiString);
 begin
   inherited Create;
 

@@ -54,7 +54,7 @@ type
   private
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
-    procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
+    procedure SaveTextureToPNG(aWidth, aHeight: Word; const aFilename: string; const Data: TKMCardinalArray);
   protected
     fRT: TRXType;
     fRXData: TRXData;
@@ -62,7 +62,7 @@ type
   public
     constructor Create(aRT: TRXType);
 
-    procedure AddImage(aFolder, aFilename: string; aIndex: Integer);
+    procedure AddImage(const aFolder, aFilename: string; aIndex: Integer);
     property RXData: TRXData read fRXData;
     property Padding: Byte read fPad write fPad;
 
@@ -192,7 +192,7 @@ end;
 
 
 //Add PNG images to spritepack if user has any addons in Sprites folder
-procedure TKMSpritePack.AddImage(aFolder, aFilename: string; aIndex: Integer);
+procedure TKMSpritePack.AddImage(const aFolder, aFilename: string; aIndex: Integer);
 type TMaskType = (mtNone, mtPlain, mtSmart);
 var
   I,K:integer;
@@ -712,7 +712,7 @@ begin
 end;
 
 
-procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
+procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; const aFilename: string; const Data: TKMCardinalArray);
 var
   I, K: Word;
   Folder: string;

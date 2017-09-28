@@ -127,7 +127,7 @@ end;
 
 procedure TKMMapEditor.DetectAttachedFiles(const aMissionFile: UnicodeString);
 
-  procedure AddAttachment(var aAttachCnt: Integer; aFileName: UnicodeString);
+  procedure AddAttachment(var aAttachCnt: Integer; const aFileName: UnicodeString);
   begin
     if aAttachCnt >= Length(fAttachedFiles) then
       SetLength(fAttachedFiles, aAttachCnt + 8);

@@ -29,9 +29,9 @@ uses
   function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): UnicodeString;
-  function WrapColor(aText: UnicodeString; aColor: Cardinal): UnicodeString;
-  function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
-  function StripColor(aText: UnicodeString): UnicodeString;
+  function WrapColor(const aText: UnicodeString; aColor: Cardinal): UnicodeString;
+  function WrapColorA(const aText: AnsiString; aColor: Cardinal): AnsiString;
+  function StripColor(const aText: UnicodeString): UnicodeString;
   function FindMPColor(aColor: Cardinal): Integer;
 
   procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
@@ -62,24 +62,24 @@ uses
   function Pack4ByteToInteger(aByte1, aByte2, aByte3, aByte4: Byte): Integer;
   procedure UnpackIntegerTo4Byte(aInt: Integer; out aByte1, aByte2, aByte3, aByte4: Byte);
 
-  function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+  function GetFileDirName(const aFilePath: UnicodeString): UnicodeString;
 
-  function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+  function GetNoColorMarkupText(const aText: UnicodeString): UnicodeString;
 
-  function DeleteDoubleSpaces(aString: string): string;
+  function DeleteDoubleSpaces(const aString: string): string;
 
   function CountOccurrences(const aSubstring, aText: String): Integer;
   function IntToBool(aValue: Integer): Boolean;
 
   //String functions
-  function StrIndexOf(aStr, aSubStr: String): Integer;
-  function StrLastIndexOf(aStr, aSubStr: String): Integer;
-  function StrSubstring(aStr: String; aFrom, aLength: Integer): String; overload;
-  function StrSubstring(aStr: String; aFrom: Integer): String; overload;
-  function StrContains(aStr, aSubStr: String): Boolean;
-  function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
+  function StrIndexOf(const aStr, aSubStr: String): Integer;
+  function StrLastIndexOf(const aStr, aSubStr: String): Integer;
+  function StrSubstring(const aStr: String; aFrom, aLength: Integer): String; overload;
+  function StrSubstring(const aStr: String; aFrom: Integer): String; overload;
+  function StrContains(const aStr, aSubStr: String): Boolean;
+  function StrTrimRight(const aStr: String; aCharsToTrim: TKMCharArray): String;
   {$IFDEF WDC}
-  function StrSplit(aStr, aDelimiters: String): TStrings;
+  function StrSplit(const aStr, aDelimiters: String): TStrings;
   {$ENDIF}
 
 implementation
@@ -557,19 +557,19 @@ end;
 
 
 //Make a string wrapped into color code
-function WrapColor(aText: UnicodeString; aColor: Cardinal): UnicodeString;
+function WrapColor(const aText: UnicodeString; aColor: Cardinal): UnicodeString;
 begin
   Result := '[$' + IntToHex(aColor and $00FFFFFF, 6) + ']' + aText + '[]';
 end;
 
 
-function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
+function WrapColorA(const aText: AnsiString; aColor: Cardinal): AnsiString;
 begin
   Result := '[$' + AnsiString(IntToHex(aColor and $00FFFFFF, 6) + ']') + aText + '[]';
 end;
 
 
-function StripColor(aText: UnicodeString): UnicodeString;
+function StripColor(const aText: UnicodeString): UnicodeString;
 var
   I: Integer;
   skippingMarkup: Boolean;
@@ -703,7 +703,7 @@ end;
 
 // Returns file directory name
 // F.e. for aFilePath = 'c:/kam/remake/fore.ver' returns 'remake'
-function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+function GetFileDirName(const aFilePath: UnicodeString): UnicodeString;
 var DirPath: UnicodeString;
 begin
   Result := '';
@@ -719,7 +719,7 @@ end;
 
 
 // Returnes text ignoring color markup [$FFFFFF][]
-function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+function GetNoColorMarkupText(const aText: UnicodeString): UnicodeString;
 var I, TmpColor: Integer;
 begin
   Result := '';
@@ -746,7 +746,7 @@ end;
 
 
 //Replace continious spaces with single space
-function DeleteDoubleSpaces(aString: string): string;
+function DeleteDoubleSpaces(const aString: string): string;
 var I: Integer;
 begin
   Result := '';
@@ -790,7 +790,7 @@ String functions
 These function are replacements for String functions introduced after XE2 (XE5 probably)
 Names are the same as in new Delphi versions, but with 'Str' prefix
 }
-function StrIndexOf(aStr, aSubStr: String): Integer;
+function StrIndexOf(const aStr, aSubStr: String): Integer;
 begin
   //Todo refactor:
   //@Krom: Why not just replace StrIndexOf with Pos everywhere in code?
@@ -798,7 +798,7 @@ begin
 end;
 
 
-function StrLastIndexOf(aStr, aSubStr: String): Integer;
+function StrLastIndexOf(const aStr, aSubStr: String): Integer;
 var I: Integer;
 begin
   Result := -1;
@@ -808,7 +808,7 @@ begin
 end;
 
 
-function StrSubstring(aStr: String; aFrom: Integer): String;
+function StrSubstring(const aStr: String; aFrom: Integer): String;
 begin
   //Todo refactor:
   //@Krom: Why not just replace StrSubstring with RightStr everywhere in code?
@@ -816,7 +816,7 @@ begin
 end;
 
 
-function StrSubstring(aStr: String; aFrom, aLength: Integer): String;
+function StrSubstring(const aStr: String; aFrom, aLength: Integer): String;
 begin
   //Todo refactor:
   //@Krom: Why not just replace StrSubstring with Copy everywhere in code?
@@ -824,7 +824,7 @@ begin
 end;
 
 
-function StrContains(aStr, aSubStr: String): Boolean;
+function StrContains(const aStr, aSubStr: String): Boolean;
 begin
   //Todo refactor:
   //@Krom: Why not just replace StrContains with Pos() <> 0 everywhere in code?
@@ -832,7 +832,7 @@ begin
 end;
 
 
-function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
+function StrTrimRight(const aStr: String; aCharsToTrim: TKMCharArray): String;
 var Found: Boolean;
     I, J: Integer;
 begin
@@ -855,7 +855,7 @@ end;
 
 
 {$IFDEF WDC}
-function StrSplit(aStr, aDelimiters: String): TStrings;
+function StrSplit(const aStr, aDelimiters: String): TStrings;
 var StrArray: TStringDynArray;
     I: Integer;
 begin

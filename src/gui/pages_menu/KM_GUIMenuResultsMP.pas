@@ -44,7 +44,7 @@ type
   public
     constructor Create(aType: TChartArmyType; aKind: TChartArmyKind; aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
     destructor Destroy; override;
-    procedure AddLine(aPlayer: TKMHandIndex; aTitle: UnicodeString; aColor: Cardinal);
+    procedure AddLine(aPlayer: TKMHandIndex; const aTitle: UnicodeString; aColor: Cardinal);
     function IsEmpty(aPlayer: TKMHandIndex): Boolean;
     property Chart: TKMChart read fChart;
     property ChartType: TKMChartArmyType read fType;
@@ -190,7 +190,7 @@ begin
 end;
 
 
-procedure TKMChartArmyMP.AddLine(aPlayer: TKMHandIndex; aTitle: UnicodeString; aColor: Cardinal);
+procedure TKMChartArmyMP.AddLine(aPlayer: TKMHandIndex; const aTitle: UnicodeString; aColor: Cardinal);
 var ChartData: TKMCardinalArray;
 begin
   if (fType.HasUnitType) then begin

@@ -17,7 +17,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure GetURL(aURL: string; aIsUTF8: Boolean);
+    procedure GetURL(const aURL: string; aIsUTF8: Boolean);
 
     property OnError: TGetStrProc write fOnError;
     property OnGetCompleted: TGetStrProc write fOnGetCompleted;
@@ -44,7 +44,7 @@ begin
 end;
 
 
-procedure TKMHTTPClientOverbyte.GetURL(aURL: string; aIsUTF8: Boolean);
+procedure TKMHTTPClientOverbyte.GetURL(const aURL: string; aIsUTF8: Boolean);
 begin
   fIsUTF8 := aIsUTF8;
   fHTTPClient.Abort; //If we were doing something, stop it
