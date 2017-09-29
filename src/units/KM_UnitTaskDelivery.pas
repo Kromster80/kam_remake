@@ -38,7 +38,7 @@ type
 
 implementation
 uses
-  Math, KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
+  Math, KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand, KM_UnitTaskBuild;
 
 
 { TTaskDeliver }
@@ -254,6 +254,8 @@ begin
 end;
 
 function TTaskDeliver.Execute: TTaskResult;
+var
+  Worker: TKMUnit;
 begin
   Result := tr_TaskContinues;
 
@@ -328,13 +330,21 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;
-    //It's the only place in KaM that used to access houses entrance from diagonals. Supposably it
-    //was made similar to workers - tile was declared  "Under construction" and could accept wares
-    //from any side, or something alike. Removing of Distance=1 from here simplifies our WalkToSpot method.
-    //Since this change some people have complained because it's hard for serfs to get wares to the site
-    //when workers block the enterance. But it is much simpler this way so we don't have a problem really.
-    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance);
+        // First come close to point below house entrance
+    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance, ua_Walk, 1.42);
     6:  begin
+          // Then check if there is a worker hitting house just from the entrance
+          Worker := gHands[fUnit.Owner].UnitsHitTest(fToHouse.PointBelowEntrance, ut_Worker);
+          if (Worker <> nil) and (Worker.UnitTask <> nil)
+            and (Worker.UnitTask is TTaskBuildHouse)
+            and (Worker.UnitTask.Phase >= 2) then
+            // If so, then allow to bring resources diagonally
+            SetActionWalkToSpot(fToHouse.Entrance, ua_Walk, 1.42)
+          else
+            // else ask serf to bring resources from point below entrance (not diagonally)
+            SetActionWalkToSpot(fToHouse.PointBelowEntrance);
+        end;
+    7:  begin
           Direction := KMGetDirection(GetPosition, fToHouse.Entrance);
           fToHouse.ResAddToBuild(Carry);
           gHands[Owner].Stats.WareConsumed(Carry);

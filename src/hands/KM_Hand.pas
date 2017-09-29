@@ -28,7 +28,8 @@ type
 
     function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint): TKMUnit;
     procedure RemUnit(Position: TKMPoint);
-    function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+    function UnitsHitTest(const aLoc: TKMPoint; const UT: TUnitType = ut_Any): TKMUnit; overload;
+    function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit; overload;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
@@ -237,6 +238,12 @@ end;
 procedure TKMHandCommon.SyncLoad;
 begin
   fUnits.SyncLoad;
+end;
+
+
+function TKMHandCommon.UnitsHitTest(const aLoc: TKMPoint; const UT: TUnitType = ut_Any): TKMUnit;
+begin
+  Result := UnitsHitTest(aLoc.X, aLoc.Y, UT);
 end;
 
 

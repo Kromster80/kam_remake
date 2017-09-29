@@ -140,7 +140,7 @@ type
     procedure SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
-    procedure SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
+    procedure SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk; aDistance: Single = 0);
     procedure SetActionWalkPushed(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 
     procedure Feed(Amount: Single);
@@ -1627,12 +1627,12 @@ end;
 
 
 //Walk to spot or its neighbourhood
-procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
+procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk; aDistance: Single = 0);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     raise Exception.Create('Interrupting unabandonable Walk action');
 
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, false, nil, nil));
 end;
 
 
