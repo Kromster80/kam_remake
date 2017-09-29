@@ -304,6 +304,7 @@ type
     fTextAlign: TKMTextAlign;
     fTextSize: TKMPoint;
     fStrikethrough: Boolean;
+    fTabWidth: Integer;
     function TextLeft: Integer;
     procedure SetCaption(const aCaption: UnicodeString);
     procedure SetAutoWrap(aValue: Boolean);
@@ -318,6 +319,7 @@ type
     property Caption: UnicodeString read fCaption write SetCaption;
     property FontColor: TColor4 read fFontColor write fFontColor;
     property Strikethrough: Boolean read fStrikethrough write fStrikethrough;
+    property TabWidth: Integer read fTabWidth write fTabWidth;
     property TextSize: TKMPoint read fTextSize;
     property Font: TKMFont read fFont write fFont;
     procedure Paint; override;
@@ -2391,6 +2393,7 @@ begin
   fFontColor := $FFFFFFFF;
   fTextAlign := aTextAlign;
   fAutoWrap := False;
+  fTabWidth := TAB_WIDTH;
   SetCaption(aCaption);
 end;
 
@@ -2477,7 +2480,7 @@ begin
   if fEnabled then Col := FontColor
               else Col := $FF888888;
 
-  TKMRenderUI.WriteText(AbsLeft, AbsTop, Width, fText, fFont, fTextAlign, Col);
+  TKMRenderUI.WriteText(AbsLeft, AbsTop, Width, fText, fFont, fTextAlign, Col, False, False, fTabWidth);
 
   if fStrikethrough then
     TKMRenderUI.WriteShape(TextLeft, AbsTop + fTextSize.Y div 2 - 2, fTextSize.X, 3, Col, $FF000000);
@@ -3111,10 +3114,9 @@ begin
   if ReadOnly or BlockInput then Exit;
 
   if HasSelection and IsCharValid(Key) then
-  begin
-    DeleteSelectedText;
-  end
-  else if Length(fText) >= GetMaxLength then Exit;
+    DeleteSelectedText
+  else
+    if Length(fText) >= GetMaxLength then Exit;
 
   Insert(Key, fText, CursorPos + 1);
   CursorPos := CursorPos + 1; //Before ValidateText so it moves the cursor back if the new char was invalid
@@ -3266,12 +3268,12 @@ begin
   //Parse whole text incase user placed it from clipboard
   //Validate contents
   for I := Length(fText) downto 1 do
-  if not IsCharValid(fText[I]) then
-  begin
-    Delete(fText, I, 1);
-    if CursorPos >= I then //Keep cursor in place
-      CursorPos := CursorPos - 1;
-  end;
+    if not IsCharValid(fText[I]) then
+    begin
+      Delete(fText, I, 1);
+      if CursorPos >= I then //Keep cursor in place
+        CursorPos := CursorPos - 1;
+    end;
 
   //Validate length
   if Length(fText) > MaxLen then

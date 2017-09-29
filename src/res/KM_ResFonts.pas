@@ -8,6 +8,9 @@ uses
   {$IFDEF WDC}, ZLib {$ENDIF};
 
 
+const
+  TAB_WIDTH = 30;
+
 type
   TKMFont = (fnt_Antiqua, fnt_Game, fnt_Grey,
     fnt_Metal, fnt_Mini, fnt_Outline, fnt_Arial);
@@ -81,9 +84,9 @@ type
     property WordSpacing: SmallInt read fWordSpacing;
 
     function GetCharWidth(aChar: WideChar): Integer;
-    function WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
-    function CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False): Integer;
-    function GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False): TKMPoint;
+    function WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean; aTabWidth: Integer = TAB_WIDTH): UnicodeString;
+    function CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False; aTabWidth: Integer = TAB_WIDTH): Integer;
+    function GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False; aTabWidth: Integer = TAB_WIDTH): TKMPoint;
     function GetMaxPrintWidthOfStrings(aStrings: array of string): Integer;
   end;
 
@@ -515,17 +518,16 @@ end;
 
 function TKMFontData.GetCharWidth(aChar: WideChar): Integer;
 begin
-  if aChar = #124 then
+  if aChar in [#124, #9] then
     Result := 0
+  else if aChar = #32 then
+    Result := WordSpacing
   else
-    if aChar = #32 then
-      Result := WordSpacing
-    else
-      Result := GetLetter(aChar).Width + CharSpacing;
+    Result := GetLetter(aChar).Width + CharSpacing;
 end;
 
 
-function TKMFontData.WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
+function TKMFontData.WordWrap(aText: UnicodeString; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean; aTabWidth: Integer = TAB_WIDTH): UnicodeString;
 const
   INDENT = '   ';
 var
@@ -548,7 +550,7 @@ begin
     //Chinese/Japanese characters (not punctuation) can always be wrapped before
     //Check this before we update dx since we are allowing wrapping before this char
     if ((Ord(aText[I]) >= 19968) and (Ord(aText[I]) <= 40870))
-    or ((Ord(aText[I]) >= $3040) and (Ord(aText[I]) <= $30ff)) then
+      or ((Ord(aText[I]) >= $3040) and (Ord(aText[I]) <= $30ff)) then
     begin
       LastWrappable := I;
       PrevX := dx; //dx does not include this char yet, since we are wrapping before it
@@ -556,17 +558,19 @@ begin
     end;
 
     //Ignore color markups [$FFFFFF][]
-    if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
-      inc(I) //Skip past this markup
+    if (aText[I] = '[') and (I+1 <= Length(aText)) and (aText[I+1] = ']') then
+      Inc(I) //Skip past this markup
     else
-      if (aText[I]='[') and (I+8 <= Length(aText))
-      and (aText[I+1] = '$') and (aText[I+8]=']')
-      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+      if (aText[I] = '[') and (I+8 <= Length(aText))
+        and (aText[I+1] = '$') and (aText[I+8] = ']')
+        and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
         Inc(I,8) //Skip past this markup
+      else if (aText[I] = #9) then
+        dx := (Floor(dx / aTabWidth) + 1) * aTabWidth
       else
         Inc(dx, GetCharWidth(aText[I]));
 
-    if (aText[I]=#32) or (aText[I]=#124) then
+    if aText[I] in [#9,#32,#124] then
     begin
       LastWrappable := I;
       PrevX := dx;
@@ -574,7 +578,7 @@ begin
     end;
 
     //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-    if ((dx > aMaxPxWidth)and(LastWrappable<>-1))or(aText[I]=#124) then
+    if ((dx > aMaxPxWidth) and (LastWrappable <> -1)) or (aText[I] = #124) then
     begin
       if (aText[I] <> #124) and aIndentAfterNL then
       begin
@@ -586,7 +590,7 @@ begin
         aText[LastWrappable] := #124 //Replace last whitespace with EOL
       else
         Insert(#124, aText, LastWrappable+1); //Insert EOL after last wrappable char
-      dec(dx, PrevX); //Subtract width since replaced whitespace
+      Dec(dx, PrevX); //Subtract width since replaced whitespace
       LastWrappable := -1;
     end;
     //Force an EOL part way through a word
@@ -608,9 +612,9 @@ begin
 end;
 
 
-function TKMFontData.CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False): Integer;
+function TKMFontData.CharsThatFit(const aText: UnicodeString; aMaxPxWidth: Integer; aRound: Boolean = False; aTabWidth: Integer = TAB_WIDTH): Integer;
 var
-  I, dx, LastCharW: Integer;
+  I, dx, PrevX, LastCharW: Integer;
 begin
   dx := 0;
   Result := Length(aText);
@@ -618,12 +622,16 @@ begin
   for I := 1 to Length(aText) do
   begin
     LastCharW := GetCharWidth(aText[I]);
-    Inc(dx, LastCharW);
+    PrevX := dx;
+    if aText[I] = #9 then
+      dx := (Floor(dx / aTabWidth) + 1) * aTabWidth
+    else
+      Inc(dx, LastCharW);
 
     if (dx > aMaxPxWidth) then
     begin
       // If we want to get approximate result, then check if total width is closer to prev width or to current
-      if aRound and (dx - aMaxPxWidth < aMaxPxWidth - (dx-LastCharW)) then
+      if aRound and (dx - aMaxPxWidth < aMaxPxWidth - PrevX) then
         Result := I
       else
         Result := I - 1; //Previous character fits, this one does not
@@ -633,10 +641,10 @@ begin
 end;
 
 
-function TKMFontData.GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False): TKMPoint;
+function TKMFontData.GetTextSize(const aText: UnicodeString; aCountMarkup: Boolean = False; aTabWidth: Integer = TAB_WIDTH): TKMPoint;
 var
   I: Integer;
-  LineCount, TmpColor: Integer;
+  LineCount, LineWidthInc, TmpColor: Integer;
   LineWidth: array of Integer; // Some fonts may have negative CharSpacing
 begin
   Result.X := 0;
@@ -654,25 +662,38 @@ begin
   I := 1;
   while I <= Length(aText) do
   begin
+    LineWidthInc := 0;
     if aCountMarkup then
+    begin
       //Count all characters including markup
-      Inc(LineWidth[LineCount], GetCharWidth(aText[I]))
-    else
+      if aText[I] = #9 then // Tab char
+        LineWidthInc := (Floor(LineWidth[LineCount] / aTabWidth) + 1) * aTabWidth - LineWidth[LineCount]
+      else
+        LineWidthInc := GetCharWidth(aText[I]);
+      Inc(LineWidth[LineCount], LineWidthInc);
+    end else
       //Ignore color markups [$FFFFFF][]
       if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
         Inc(I) //Skip past this markup
       else
         if (aText[I]='[') and (I+8 <= Length(aText))
-        and (aText[I+1] = '$') and (aText[I+8]=']')
-        and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+          and (aText[I+1] = '$') and (aText[I+8]=']')
+          and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
           Inc(I,8) //Skip past this markup
-        else
+        else begin
           //Not markup so count width normally
-          Inc(LineWidth[LineCount], GetCharWidth(aText[I]));
+          if aText[I] = #9 then // Tab char
+            LineWidthInc := (Floor(LineWidth[LineCount] / aTabWidth) + 1) * aTabWidth - LineWidth[LineCount]
+          else
+            LineWidthInc := GetCharWidth(aText[I]);
+          Inc(LineWidth[LineCount], LineWidthInc);
+        end;
 
     if (aText[I] = #124) or (I = Length(aText)) then
     begin // If EOL or aText end
-      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - CharSpacing);
+      if aText[I] <> #9 then       // for Tab reduce line width for CharSpacing and also for TAB 'jump'
+        LineWidthInc := 0;
+      LineWidth[LineCount] := Math.Max(0, LineWidth[LineCount] - CharSpacing - LineWidthInc);
       // Remove last interletter space and negate double EOLs
       Inc(LineCount);
     end;
@@ -682,7 +703,7 @@ begin
   Dec(LineCount);
   Result.Y := (BaseHeight + LineSpacing) * LineCount;
   for I := 1 to LineCount do
-    Result.X := Math.max(Result.X, LineWidth[I]);
+    Result.X := Math.Max(Result.X, LineWidth[I]);
 end;
 
 

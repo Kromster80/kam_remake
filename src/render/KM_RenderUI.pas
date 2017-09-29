@@ -28,7 +28,7 @@ type
     class procedure WriteShape        (aLeft, aTop, aWidth, aHeight: SmallInt; Col: TColor4; Outline: TColor4 = $00000000);
     class procedure WritePolyShape    (aPoints: array of TKMPoint; aColor: TColor4);
     class procedure WriteLine         (aFromX, aFromY, aToX, aToY: Single; aCol: TColor4; aPattern: Word = $FFFF);
-    class procedure WriteText         (aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
+    class procedure WriteText         (aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False; aTabWidth: Integer = TAB_WIDTH);
     class procedure WriteTexture      (aLeft, aTop, aWidth, aHeight: SmallInt; aTexture: TTexture; aCol: TColor4);
     class procedure WriteCircle       (aCenterX, aCenterY: SmallInt; aRadius: Byte; aFillColor: TColor4);
     class procedure WriteShadow       (aLeft, aTop, aWidth, aHeight: SmallInt; aBlur: Byte; aCol: TColor4);
@@ -450,10 +450,11 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-class procedure TKMRenderUI.WriteText(aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
+class procedure TKMRenderUI.WriteText(aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign;
+                                      aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False; aTabWidth: Integer = TAB_WIDTH);
 var
   I, K: Integer;
-  LineCount,dx,dy,LineHeight,BlockWidth,PrevAtlas: Integer;
+  LineCount,dx,dy,LineHeight,BlockWidth,PrevAtlas, LineWidthInc: Integer;
   LineWidth: array of Integer; //Use signed format since some fonts may have negative CharSpacing
   FontData: TKMFontData;
   Let: TKMLetter;
@@ -514,12 +515,18 @@ begin
 
   for I := 1 to Length(aText) do
   begin
-    Inc(LineWidth[LineCount], FontData.GetCharWidth(aText[I]));
+    if aText[I] = #9 then // Tab char
+      LineWidthInc := (Floor(LineWidth[LineCount] / aTabWidth) + 1) * aTabWidth - LineWidth[LineCount]
+    else
+      LineWidthInc := FontData.GetCharWidth(aText[I]);
+    Inc(LineWidth[LineCount], LineWidthInc);
 
     //If EOL or aText end
     if (aText[I] = #124) or (I = Length(aText)) then
     begin
-      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FontData.CharSpacing); //Remove last interletter space and negate double EOLs
+      if aText[I] <> #9 then // for Tab reduce line width for CharSpacing and also for TAB 'jump'
+        LineWidthInc := 0;
+      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FontData.CharSpacing - LineWidthInc); //Remove last interletter space and negate double EOLs
       Inc(LineCount);
     end;
   end;
@@ -529,7 +536,7 @@ begin
   dec(LineCount);
   BlockWidth := 0;
   for I := 1 to LineCount do
-    BlockWidth := Math.max(BlockWidth, LineWidth[I]);
+    BlockWidth := Math.Max(BlockWidth, LineWidth[I]);
 
   case aAlign of
     taLeft:   dx := aLeft;
@@ -558,6 +565,7 @@ begin
     end;
 
     case aText[I] of
+      #9:   dx := aLeft + (Floor((dx - aLeft) / aTabWidth) + 1) * aTabWidth;
       #32:  Inc(dx, FontData.WordSpacing);
       #124: begin
               //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
