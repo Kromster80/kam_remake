@@ -504,7 +504,7 @@ begin
     RegisterMethodCheck(c, 'function EnsureRangeS(aValue, aMin, aMax: Single): Single');
     RegisterMethodCheck(c, 'function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
 
-    RegisterMethodCheck(c, 'function Format(aFormatting: string; aData: array of const): string;');
+    RegisterMethodCheck(c, 'function Format(aFormatting: string; aData: array of const): string');
 
     RegisterMethodCheck(c, 'function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString');
     RegisterMethodCheck(c, 'function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer');
@@ -537,7 +537,7 @@ begin
 
     RegisterMethodCheck(c, 'function TimeToString(aTicks: Integer): AnsiString');
 
-    //Register objects
+    // Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
     AddImportedClassVariable(Sender, 'Actions', AnsiString(fActions.ClassName));
     AddImportedClassVariable(Sender, 'Utils', AnsiString(fUtils.ClassName));
