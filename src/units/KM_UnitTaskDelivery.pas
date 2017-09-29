@@ -374,6 +374,14 @@ begin
           //Worker
           if (fToUnit.UnitType = ut_Worker) and (fToUnit.UnitTask <> nil) then
           begin
+            // Check if worker is still digging
+            if ((fToUnit.UnitTask is TTaskBuildWine) and (fToUnit.UnitTask.Phase < 5))
+              or ((fToUnit.UnitTask is TTaskBuildRoad) and (fToUnit.UnitTask.Phase < 4)) then
+            begin
+              SetActionLockedStay(5, ua_Walk); //wait until worker finish digging process
+              fPhase := 6;
+              Exit;
+            end;
             fToUnit.UnitTask.Phase := fToUnit.UnitTask.Phase + 1;
             fToUnit.SetActionLockedStay(0, ua_Work1); //Tell the worker to resume work by resetting his action (causes task to execute)
           end;
