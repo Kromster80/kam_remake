@@ -8,6 +8,7 @@ uses
 type
   TKMByteArray = array of Byte;
   TKMByte2Array = array of array of Byte;
+  TKMByteSetArray = array of set of Byte;
   PKMByte2Array = ^TKMByte2Array;
   TKMWordArray = array of Word;
   PKMWordArray = ^TKMWordArray;

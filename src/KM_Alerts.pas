@@ -55,6 +55,7 @@ type
   public
     constructor Create(aViewport: TKMViewport);
     destructor Destroy; override;
+    procedure ClearBeaconsExcept(aOwner: TKMHandIndex);
     procedure AddBeacon(aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aShowUntil: Cardinal);
     procedure AddFight(aLoc: TKMPointF; aPlayer: TKMHandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
     function GetLatestAlert: TKMAlert;
@@ -319,6 +320,21 @@ begin
   RemoveExcessBeacons;
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, aColor, aShowUntil));
   gSoundPlayer.Play(sfxn_Beacon);
+end;
+
+
+//Clear all beacons except those, whose owner is aOwner
+procedure TKMAlerts.ClearBeaconsExcept(aOwner: TKMHandIndex);
+var
+  I: Integer;
+begin
+  for I := fList.Count - 1 downto 0 do
+    if (Items[I].AlertType = atBeacon)
+      and (Items[I].Owner <> aOwner) then
+    begin
+      Items[I].Free;
+      fList.Delete(I);
+    end;
 end;
 
 

@@ -601,7 +601,15 @@ begin
 
   if not fMapInfo.IsValid then
   begin
-    SelectNoMap('Invalid');
+    SelectNoMap('Map is invalid'); // Todo translate
+    PostLocalMessage('Selected map is invalid. Please select another map', csSystem); // Todo translate
+    Exit;
+  end;
+
+  if (aMapFolder = mfDL) and not fMapInfo.IsFilenameEndMatchHash then
+  begin
+    SelectNoMap('Downloaded map files have changed'); // Todo translate
+    PostLocalMessage('Selected DL map, which files have changed. Please move it out of downloads first', csSystem); // Todo translate
     Exit;
   end;
 
@@ -889,13 +897,15 @@ begin
                 AIUsableLocs := fMapInfo.AIUsableLocations;
                 //Check that map's hash hasn't changed
                 CheckMapInfo := TKMapInfo.Create(fMapInfo.FileName, True, fMapInfo.MapFolder);
-                if CheckMapInfo.CRC <> fMapInfo.CRC then
-                begin
-                  PostLocalMessage('Cannot start: Map files have changed. Please reselect the map', csSystem);
+                try
+                  if CheckMapInfo.CRC <> fMapInfo.CRC then
+                  begin
+                    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], ['Map files have changed. Please reselect the map']), csSystem); // Todo translate
+                    Exit;
+                  end;
+                finally
                   CheckMapInfo.Free;
-                  Exit;
                 end;
-                CheckMapInfo.Free;
               end;
     ngk_Save: begin
                 HumanUsableLocs := fSaveInfo.Info.HumanUsableLocations;
@@ -2296,7 +2306,7 @@ procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeStri
 var
   MPGameInfo: TMPGameInfo;
   M: TKMemoryStream;
-  I, K: Integer;
+  I: Integer;
 begin
   //Only one player per game should send the info - Host
   if not IsHost then Exit;
@@ -2319,24 +2329,23 @@ begin
     MPGameInfo.PasswordLocked := (fPassword <> '');
     MPGameInfo.PlayerCount := NetPlayers.Count;
 
-    K := 1;
-    if HostIndex <> -1 then
-    begin
-      MPGameInfo.Players[K].Name := NetPlayers[HostIndex].Nikname;
-      MPGameInfo.Players[K].Color := NetPlayers[HostIndex].FlagColor($FFFFFFFF);
-      MPGameInfo.Players[K].Connected := NetPlayers[HostIndex].Connected;
-      MPGameInfo.Players[K].PlayerType := NetPlayers[HostIndex].PlayerNetType;
-      Inc(K);
-    end;
+    MPGameInfo.GameOptions := TKMGameOptions.Create;
+    MPGameInfo.GameOptions.Peacetime := fNetGameOptions.Peacetime;
+    MPGameInfo.GameOptions.SpeedPT := fNetGameOptions.SpeedPT;
+    MPGameInfo.GameOptions.SpeedAfterPT := fNetGameOptions.SpeedAfterPT;
+    MPGameInfo.GameOptions.RandomSeed := fNetGameOptions.RandomSeed; //not needed, but we send it anyway
+
     for I := 1 to NetPlayers.Count do
-      if I <> HostIndex then
-      begin
-        MPGameInfo.Players[K].Name := NetPlayers[I].Nikname;
-        MPGameInfo.Players[K].Color := NetPlayers[I].FlagColor($FFFFFFFF);
-        MPGameInfo.Players[K].Connected := NetPlayers[I].Connected;
-        MPGameInfo.Players[K].PlayerType := NetPlayers[I].PlayerNetType;
-        Inc(K);
-      end;
+    begin
+      MPGameInfo.Players[I].Name        := NetPlayers[I].Nikname;
+      MPGameInfo.Players[I].Color       := NetPlayers[I].FlagColor($FFFFFFFF);
+      MPGameInfo.Players[I].Connected   := NetPlayers[I].Connected;
+      MPGameInfo.Players[I].LangCode    := NetPlayers[I].LangCode;
+      MPGameInfo.Players[I].Team        := NetPlayers[I].Team;
+      MPGameInfo.Players[I].IsSpectator := NetPlayers[I].IsSpectator;
+      MPGameInfo.Players[I].IsHost      := HostIndex = I;
+      MPGameInfo.Players[I].PlayerType  := NetPlayers[I].PlayerNetType;
+    end;
 
     M := TKMemoryStream.Create;
     MPGameInfo.SaveToStream(M);
@@ -2396,7 +2405,11 @@ end;
 procedure TKMNetworking.FPSMeasurement(aFPS: Cardinal);
 begin
   if fNetGameState = lgs_Game then
-    PacketSend(NET_ADDRESS_ALL, mk_FPS, Integer(aFPS));
+  begin
+    PacketSend(NET_ADDRESS_OTHERS, mk_FPS, Integer(aFPS));
+    GetMyNetPlayer.FPS := Cardinal(aFPS);
+    if Assigned(fOnPingInfo) then fOnPingInfo(Self);
+  end;
 end;
 
 

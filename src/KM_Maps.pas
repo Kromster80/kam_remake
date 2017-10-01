@@ -88,6 +88,7 @@ type
     function HasReadme: Boolean;
     function ViewReadme: Boolean;
     function GetLobbyColor: Cardinal;
+    function IsFilenameEndMatchHash: Boolean;
   end;
 
 
@@ -558,11 +559,19 @@ begin
 end;
 
 
+//Returns True if map filename ends with this map actual CRC hash.
+//Used to check if downloaded map was changed
+function TKMapInfo.IsFilenameEndMatchHash: Boolean;
+begin
+  Result := (Length(fFileName) > 9)
+    and (fFileName[Length(FileName)-8] = '_')
+    and (IntToHex(fCRC, 8) = RightStr(fFileName, 8));
+end;
+
+
 function TKMapInfo.FileNameWithoutHash: UnicodeString;
 begin
-  if (fMapFolder = mfDL) and (Length(FileName) > 9)
-  and (FileName[Length(FileName)-8] = '_')
-  and (IntToHex(fCRC, 8) = RightStr(FileName, 8)) then
+  if (MapFolder = mfDL) and IsFilenameEndMatchHash then
     Result := LeftStr(FileName, Length(FileName)-9)
   else
     Result := FileName;
@@ -1066,15 +1075,9 @@ var
 begin
   Map := TKMapInfo.Create(aPath, False, aFolder);
 
-  //Maps in the downloads folder must have correct hash appended for lobby logic to work
-  if (aFolder = mfDL) and (RightStr(aPath, 9) <> '_' + IntToHex(Map.CRC, 8)) then
-  begin
-    Map.Free;
-    Exit;
-  end;
-
   if SLOW_MAP_SCAN then
     Sleep(50);
+
   fOnMapAdd(Map);
   fOnMapAddDone(Self);
 end;

@@ -157,7 +157,7 @@ begin
     //UDP scan is not that important, and could fail during debugging if running two KaM Remake instances
     on E: Exception do
     begin
-      if Assigned(fOnError) then fOnError('UDP scan failed to listen: '+E.Message);
+      if Assigned(fOnError) then fOnError('UDP scan failed to listen: ' + E.Message);
       Exit;
     end;
   end;
@@ -167,8 +167,16 @@ begin
     M.WriteA('KaM Remake');
     M.WriteA(NET_PROTOCOL_REVISON);
     M.WriteA('scan');
-    //Broadcast
-    fUDP.SendPacket('255.255.255.255', 56789, M.Memory, M.Size);
+    try
+      //Broadcast
+      fUDP.SendPacket('255.255.255.255', 56789, M.Memory, M.Size);
+    except
+      on E: Exception do
+      begin
+        if Assigned(fOnError) then fOnError('UDP broadcast failed: ' + E.Message);
+        Exit;
+      end;
+    end;
 
   finally
     M.Free;

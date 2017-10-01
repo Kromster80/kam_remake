@@ -594,6 +594,7 @@ begin
     TKMLabel.Create(Panel_LobbySettings, 20, 50, 280, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taCenter);
     Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 280, 20, fnt_Grey);
     Edit_LobbyDescription.AllowedChars := acText;
+    Edit_LobbyDescription.MaxLen := 60;
 
     TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
@@ -1155,9 +1156,11 @@ end;
 function TKMMenuLobby.DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I, J, NetI: Integer;
     SlotsToChange, SlotsChanged: Byte;
+    RowChanged: Boolean;
 begin
   Result := False;
 
+  //Second column was clicked
   if X = 1 then
   begin
     SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
@@ -1188,14 +1191,19 @@ begin
         else  J := I;
       end;
 
+      RowChanged := False;
       NetI := fLocalToNetPlayers[J];
       if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
       begin
-        //Do not count this slot as changed, if it already has AI value
         if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
-          Inc(SlotsChanged);
+        begin
+          RowChanged := True;
+          Inc(SlotsChanged); //Do not count this slot as changed, if it already has AI value
+        end;
         DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
-        PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+        //Do not call for PlayerSetupChange if this row is AIPlayer and did not change (it was AIPlayer before that) - to avoid existing AIPlayer reset
+        if RowChanged or (Y <> 2) then
+          PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
       end;
     end;
 

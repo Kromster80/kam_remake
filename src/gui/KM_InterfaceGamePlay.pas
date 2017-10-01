@@ -39,6 +39,7 @@ type
     // Not saved
     fShowTeamNames: Boolean; // True while the SC_SHOW_TEAM key is pressed
     LastDragPoint: TKMPoint; // Last mouse point that we drag placed/removed a road/field
+    fLastBeaconTime: Cardinal; //Last time a beacon was sent to enforce cooldown
     PrevHint: TObject;
     PrevHintMessage: UnicodeString;
     ShownMessage: Integer;
@@ -144,6 +145,9 @@ type
     procedure Replay_JumpToPlayer(aPlayerIndex: Integer);
     procedure Replay_ViewPlayer(aPlayerIndex: Integer);
     procedure Replay_ListDoubleClick(Sender: TObject);
+    procedure Replay_UpdatePlayerInterface(aFromPlayer, aToPlayer: Integer);
+    procedure Replay_Single_SetPlayersDropbox;
+    procedure Replay_Multi_SetPlayersDropbox;
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -1012,6 +1016,8 @@ begin
     Dropbox_ReplayFOW.List.AutoFocusable := False;
     Dropbox_ReplayFOW.List.OnKeyUp := Replay_ListKeyUp;
     Dropbox_ReplayFOW.List.OnDoubleClick := Replay_ListDoubleClick;
+    Dropbox_ReplayFOW.List.SeparatorHeight := 4;
+    Dropbox_ReplayFOW.List.SeparatorColor := $C0606060;
  end;
 
 
@@ -1822,10 +1828,14 @@ begin
   Button_ReplayResume.Enabled := not aPaused;
 end;
 
+
 procedure TKMGamePlayInterface.Replay_JumpToPlayer(aPlayerIndex: Integer);
-var LastSelectedObj: TObject;
+var
+  LastSelectedObj: TObject;
+  OldHandIndex: Integer;
 begin
   Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
+  OldHandIndex := gMySpectator.HandIndex;
   gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
 
   LastSelectedObj := gMySpectator.LastSpecSelectedObj;
@@ -1846,12 +1856,15 @@ begin
       fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
+
   UpdateSelectedObject;
+  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandIndex);
 end;
 
 
 procedure TKMGamePlayInterface.Replay_ViewPlayer(aPlayerIndex: Integer);
-var OldHandIndex: Integer;
+var
+  OldHandIndex: Integer;
 begin
   Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
 
@@ -1865,12 +1878,22 @@ begin
     UpdateSelectedObject;
   end;
 
+  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandIndex);
+end;
+
+
+procedure TKMGamePlayInterface.Replay_UpdatePlayerInterface(aFromPlayer, aToPlayer: Integer);
+begin
   if Checkbox_ReplayFOW.Checked then
-    gMySpectator.FOWIndex := gMySpectator.HandIndex
+    gMySpectator.FOWIndex := aToPlayer
   else
     gMySpectator.FOWIndex := -1;
   fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
   gGame.OverlayUpdate; // Display the overlay seen by the selected player
+  // When switch to other team player clear all beacons, except Spectators beacons
+  if (gHands.CheckAlliance(aFromPlayer, aToPlayer) <> at_Ally)
+    or not gHands[aFromPlayer].ShareBeacons[aToPlayer] then
+    gGame.GamePlayInterface.Alerts.ClearBeaconsExcept(PLAYER_NONE);
 end;
 
 
@@ -2145,13 +2168,18 @@ end;
 
 procedure TKMGamePlayInterface.Beacon_Place(aLoc: TKMPointF);
 begin
-  // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
-  case fUIMode of
-    umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.MyNetPlayer.FlagColor);
-    else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor);
-  end;
-  Beacon_Cancel;
+  if (GetTimeSince(fLastBeaconTime) >= BEACON_COOLDOWN) then
+  begin
+    fLastBeaconTime := TimeGet;
+    // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
+    case fUIMode of
+      umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+      umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.MyNetPlayer.FlagColor);
+      else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor);
+    end;
+    Beacon_Cancel;
+  end else
+    MinimapView.ClickableOnce := True; //Restore ClickableOnce state, because it could be reset by previous click on minimap
 end;
 
 
@@ -2174,9 +2202,93 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
+procedure TKMGamePlayInterface.Replay_Single_SetPlayersDropbox;
 var
   I, DropBoxIndex, HumanIndexInList: Integer;
+begin
+  HumanIndexInList := -1;
+  DropBoxIndex := 0;
+  for I := 0 to gHands.Count - 1 do
+  begin
+    if (HumanIndexInList = -1)        // Set HumanIndexInList only once
+      and gHands[I].IsHuman then
+      HumanIndexInList := DropBoxIndex;
+    if gHands[I].Enabled then
+    begin
+      Dropbox_ReplayFOW.Add(WrapColor(gHands[I].OwnerName, FlagColorToTextColor(gHands[I].FlagColor)), I);
+      Inc(DropBoxIndex);
+    end;
+  end;
+  if HumanIndexInList = -1 then HumanIndexInList := 0; // In case there is no Humans in game
+  Dropbox_ReplayFOW.ItemIndex := HumanIndexInList;
+end;
+
+
+procedure TKMGamePlayInterface.Replay_Multi_SetPlayersDropbox;
+var
+  Teams: TKMByteSetArray;
+  I, J, DropBoxIndex, HumanIndexInList: Integer;
+  NonTeamHands: set of Byte;
+  TeamSeparatorAdded: Boolean;
+begin
+  Teams := gHands.GetTeams;
+  NonTeamHands := [0..gHands.Count - 1];
+
+  //Get non team hands
+  for I := Low(Teams) to High(Teams) do
+    NonTeamHands := NonTeamHands - Teams[I];
+
+  HumanIndexInList := -1;
+  DropBoxIndex := 0;
+
+  // first output nonteam hands
+  for I in NonTeamHands do
+  begin
+    if (HumanIndexInList = -1)        // Set HumanIndexInList only once
+      and gHands[I].IsHuman then
+      HumanIndexInList := DropBoxIndex;
+    if gHands[I].Enabled then
+    begin
+      Dropbox_ReplayFOW.Add(WrapColor(gHands[I].OwnerName, FlagColorToTextColor(gHands[I].FlagColor)), I);
+      if DropBoxIndex > 0 then
+        Dropbox_ReplayFOW.List.AddSeparator(DropBoxIndex);
+      Inc(DropBoxIndex);
+    end;
+  end;
+
+  for I := Low(Teams) to High(Teams) do
+  begin
+    TeamSeparatorAdded := False;
+    for J in Teams[I] do
+    begin
+      if (HumanIndexInList = -1)        // Set HumanIndexInList only once
+        and gHands[J].IsHuman then
+        HumanIndexInList := DropBoxIndex;
+      if gHands[J].Enabled then
+      begin
+        if DropBoxIndex = 0 then
+          TeamSeparatorAdded := True; //Do not add separator if there was no NonTeamHands
+        if not TeamSeparatorAdded then
+        begin
+          Dropbox_ReplayFOW.List.AddSeparator(DropBoxIndex); //Add Team separator at the start of the team
+          TeamSeparatorAdded := True;
+        end;
+
+        Dropbox_ReplayFOW.Add(WrapColor(gHands[J].OwnerName, FlagColorToTextColor(gHands[J].FlagColor)), J);
+        Inc(DropBoxIndex);
+      end;
+    end;
+  end;
+
+  if Length(Teams) = 0 then
+    Dropbox_ReplayFOW.List.ClearSeparators;
+
+  if HumanIndexInList = -1 then HumanIndexInList := 0; // In case there is no Humans in game
+  Dropbox_ReplayFOW.ItemIndex := HumanIndexInList;
+end;
+
+
+procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 begin
   Button_Main[tbBuild].Enabled := not aTactic and (fUIMode in [umSP, umMP]) and not HasLostMPGame and not gMySpectator.Hand.InCinematic;
   Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gMySpectator.Hand.InCinematic));
@@ -2215,25 +2327,21 @@ begin
   Panel_ReplayCtrl.Visible := fUIMode = umReplay;
   Panel_ReplayFOW.Visible := fUIMode in [umSpectate, umReplay];
   Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 8, 61);
+
   if fUIMode in [umSpectate, umReplay] then
   begin
     Checkbox_ReplayFOW.Checked := False;
     Dropbox_ReplayFOW.Clear;
-    HumanIndexInList := -1;
-    DropBoxIndex := 0;
-    for I := 0 to gHands.Count - 1 do
-    begin
-      if (HumanIndexInList = -1)        // Set HumanIndexInList only once
-        and gHands[I].IsHuman then
-        HumanIndexInList := DropBoxIndex;
-      if gHands[I].Enabled then
-      begin
-        Dropbox_ReplayFOW.Add(WrapColor(gHands[I].OwnerName, FlagColorToTextColor(gHands[I].FlagColor)), I);
-        Inc(DropBoxIndex);
-      end;
+
+    // Set dropbox in different ways
+    case gGame.GameMode of
+      gmReplaySingle:   Replay_Single_SetPlayersDropbox; // Do not show team, as its meaningless
+      // Use team info from ally states:
+      // consider team as a group of hands where all members are allied to each other and not allied to any other hands.
+      gmReplayMulti,
+      gmMultiSpectate:  Replay_Multi_SetPlayersDropbox;
     end;
-    if HumanIndexInList = -1 then HumanIndexInList := 0; // In case there is no Humans in game
-    Dropbox_ReplayFOW.ItemIndex := HumanIndexInList;
+    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex); //Update HandIndex
   end;
 end;
 
