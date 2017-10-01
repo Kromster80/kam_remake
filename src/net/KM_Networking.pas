@@ -2306,7 +2306,7 @@ procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeStri
 var
   MPGameInfo: TMPGameInfo;
   M: TKMemoryStream;
-  I, K: Integer;
+  I: Integer;
 begin
   //Only one player per game should send the info - Host
   if not IsHost then Exit;
@@ -2329,24 +2329,23 @@ begin
     MPGameInfo.PasswordLocked := (fPassword <> '');
     MPGameInfo.PlayerCount := NetPlayers.Count;
 
-    K := 1;
-    if HostIndex <> -1 then
-    begin
-      MPGameInfo.Players[K].Name := NetPlayers[HostIndex].Nikname;
-      MPGameInfo.Players[K].Color := NetPlayers[HostIndex].FlagColor($FFFFFFFF);
-      MPGameInfo.Players[K].Connected := NetPlayers[HostIndex].Connected;
-      MPGameInfo.Players[K].PlayerType := NetPlayers[HostIndex].PlayerNetType;
-      Inc(K);
-    end;
+    MPGameInfo.GameOptions := TKMGameOptions.Create;
+    MPGameInfo.GameOptions.Peacetime := fNetGameOptions.Peacetime;
+    MPGameInfo.GameOptions.SpeedPT := fNetGameOptions.SpeedPT;
+    MPGameInfo.GameOptions.SpeedAfterPT := fNetGameOptions.SpeedAfterPT;
+    MPGameInfo.GameOptions.RandomSeed := fNetGameOptions.RandomSeed; //not needed, but we send it anyway
+
     for I := 1 to NetPlayers.Count do
-      if I <> HostIndex then
-      begin
-        MPGameInfo.Players[K].Name := NetPlayers[I].Nikname;
-        MPGameInfo.Players[K].Color := NetPlayers[I].FlagColor($FFFFFFFF);
-        MPGameInfo.Players[K].Connected := NetPlayers[I].Connected;
-        MPGameInfo.Players[K].PlayerType := NetPlayers[I].PlayerNetType;
-        Inc(K);
-      end;
+    begin
+      MPGameInfo.Players[I].Name        := NetPlayers[I].Nikname;
+      MPGameInfo.Players[I].Color       := NetPlayers[I].FlagColor($FFFFFFFF);
+      MPGameInfo.Players[I].Connected   := NetPlayers[I].Connected;
+      MPGameInfo.Players[I].LangCode    := NetPlayers[I].LangCode;
+      MPGameInfo.Players[I].Team        := NetPlayers[I].Team;
+      MPGameInfo.Players[I].IsSpectator := NetPlayers[I].IsSpectator;
+      MPGameInfo.Players[I].IsHost      := HostIndex = I;
+      MPGameInfo.Players[I].PlayerType  := NetPlayers[I].PlayerNetType;
+    end;
 
     M := TKMemoryStream.Create;
     MPGameInfo.SaveToStream(M);
