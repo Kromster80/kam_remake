@@ -705,7 +705,6 @@ const
   clStatsUnitDefault = icWhite;
   clStatsUnitMissingHL = $FF0080FF;
 
-
   clMessageUnitUnread = icGoldenYellow;
   clMessageUnitUnreadHL = icRoyalYellow;
   clMessageUnitRead = icDarkGoldenRod;
