@@ -1156,9 +1156,11 @@ end;
 function TKMMenuLobby.DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I, J, NetI: Integer;
     SlotsToChange, SlotsChanged: Byte;
+    RowChanged: Boolean;
 begin
   Result := False;
 
+  //Second column was clicked
   if X = 1 then
   begin
     SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
@@ -1189,14 +1191,19 @@ begin
         else  J := I;
       end;
 
+      RowChanged := False;
       NetI := fLocalToNetPlayers[J];
       if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
       begin
-        //Do not count this slot as changed, if it already has AI value
         if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
-          Inc(SlotsChanged);
+        begin
+          RowChanged := True;
+          Inc(SlotsChanged); //Do not count this slot as changed, if it already has AI value
+        end;
         DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
-        PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+        //Do not call for PlayerSetupChange if this row is AIPlayer and did not change (it was AIPlayer before that) - to avoid existing AIPlayer reset
+        if RowChanged or (Y <> 2) then
+          PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
       end;
     end;
 
