@@ -702,6 +702,8 @@ const
   clTextSelection = icSteelBlue;
 
   clMPSrvDetailsGameInfoFont = icLightGray;
+  clStatsUnitDefault = icWhite;
+  clStatsUnitMissingHL = $FF0080FF;
 
   clMessageUnitUnread = icGoldenYellow;
   clMessageUnitUnreadHL = icRoyalYellow;
