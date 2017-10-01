@@ -220,6 +220,7 @@ begin
          gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
        end;
+    //Warning! This step value is harcoded in KM_UnitTaskDelivery
     4: begin //This step is repeated until Serf brings us some stone
          SetActionLockedStay(30,ua_Work1);
          Thought := th_Stone;
@@ -360,6 +361,7 @@ begin
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
       end;
+   //Warning! This step value is harcoded in KM_UnitTaskDelivery
    5: begin //This step is repeated until Serf brings us some wood
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
