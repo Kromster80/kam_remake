@@ -275,6 +275,7 @@ begin
           //Worker
           if (fToUnit.UnitType = ut_Worker) and (fToUnit.UnitTask <> nil) then
           begin
+            //ToDo: Replace phase numbers with enums to avoid hardcoded magic numbers
             // Check if worker is still digging
             if ((fToUnit.UnitTask is TTaskBuildWine) and (fToUnit.UnitTask.Phase < 5))
               or ((fToUnit.UnitTask is TTaskBuildRoad) and (fToUnit.UnitTask.Phase < 4)) then
