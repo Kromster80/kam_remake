@@ -675,9 +675,11 @@ const
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
 
+  icDarkGray = $FF606060;
   icGray = $FF808080;
   icLightGray = $FFA0A0A0;
   icWhite = $FFFFFFFF;
+  icBlack = $FF000000;
 
   icSteelBlue = $FFA56D53;
 
@@ -713,6 +715,7 @@ const
   clListSelOutline = icWhite;
   clListSelShapeUnfocused = $66666666;
   clListSelOutlineUnfocused = icLightGray;
+  clListSeparatorShape = icDarkGray;
 
   clMapEdBtnField = icYellow;
   clMapEdBtnWine = icYellow;
