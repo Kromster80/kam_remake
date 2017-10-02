@@ -16,7 +16,9 @@ const
   TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
-  FPS_LAG               = 16;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
+  MIN_FPS_CAP           = 10;           //Minimum FPS Cap - limit fps
+  DEF_FPS_CAP           = 60;           //Default FPS Cap
+  MAX_FPS_CAP           = 1000;         //Maximum FPS Cap (means no CAP at all)
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size

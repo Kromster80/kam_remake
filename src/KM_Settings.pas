@@ -69,6 +69,7 @@ type
   private
     fNeedsSave: Boolean;
     fFullScreen: Boolean;
+    fFPSCap: Integer;
     fResolution: TKMScreenRes;
     fWindowParams: TKMWindowParams;
     fVSync: Boolean;
@@ -86,6 +87,7 @@ type
     procedure SaveSettings(aForce: Boolean = False);
     procedure ReloadSettings;
 
+    property FPSCap: Integer read fFPSCap;
     property FullScreen: Boolean read fFullScreen write SetFullScreen;
     property Resolution: TKMScreenRes read fResolution write SetResolution;
     property WindowParams: TKMWindowParams read fWindowParams;
@@ -320,6 +322,7 @@ begin
   fResolution.Width   := F.ReadInteger('GFX', 'ResolutionWidth',  MENU_DESIGN_X);
   fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', MENU_DESIGN_Y);
   fResolution.RefRate := F.ReadInteger('GFX', 'RefreshRate',      60);
+  fFPSCap := EnsureRange(F.ReadInteger('GFX', 'FPSCap', DEF_FPS_CAP), MIN_FPS_CAP, MAX_FPS_CAP);
 
   // For proper window positioning we need Left and Top records
   // Otherwise reset all window params to defaults
@@ -354,6 +357,7 @@ begin
   F.WriteInteger('GFX','ResolutionWidth', fResolution.Width);
   F.WriteInteger('GFX','ResolutionHeight',fResolution.Height);
   F.WriteInteger('GFX','RefreshRate',     fResolution.RefRate);
+  F.WriteInteger('GFX','FPSCap',          fFPSCap);
 
   F.WriteInteger('Window','WindowWidth',    fWindowParams.Width);
   F.WriteInteger('Window','WindowHeight',   fWindowParams.Height);
