@@ -9,6 +9,7 @@ Bugs:
  +	When units exit Barracks and auto-join another group, they change that groups formation
  +	Disabled controls could have focus and receive keyboard input
  +	Colored rectangle below cursor
+ +	Fix situation, when 1 worker, constructing house from the entrance tile, blocks wood/stone delivery by serfs
  +	If host was disconnected, then new host is reassigned and when going 'back to lobby' new host is always 'not ready' and can't start game
  +	While in window mode and using OBS/FRAPS or other screen capturing software game cursor has black background
  +	Player could use spectators chat channel (only writing in it) when not a spectator anymore
@@ -30,8 +31,10 @@ Bugs:
  +	Player can change DL map files and start it. So its hash does not fit anymore. It will cause an error after the start on map load
  +	Sometimes player could no open MP game page again. Need to unlock mutex on MP game error or disconnect
  +	Replay/Spectate: reset selected object when switch to another player
+ +	Removed annoying loading window, when alt-Tab while loading in fullscreen mode
  +	Apply password letters restrictions for password input field
  +	Atlas binpacking - large textures were always placed to the new atlas
+ +	Fixed loud echo, when many notifications comes at the same time (f.e. many units are hungry now, or house is empty etc)
  +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
  +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
  +	MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
@@ -100,6 +103,7 @@ Improvements:
  +		Increase number of players up to 12 + 1 spectator (will be adjusted later, after beta-testing)
  +	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
  +		Make game speed precise
+ +		Block weapon production separately in armor workshop
  
  Game menu:
  +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
@@ -119,6 +123,7 @@ Improvements:
  +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
  +		Colored niknames in chat system messages
  +		Ping string in game visual improvement (removed 'shaking' effect)
+ +		Select house/unit, when clicked on icon from notification message (unit is hungry/house is empty etc)
  +		Added autosave after PT
  +		Added ini setting to change autosaves number and frequency (in reasonable range)
  
@@ -201,6 +206,7 @@ Improvements:
  +		New terrain pass layer - tbBuildNoObj - shows when its possible to build house on a tile after removing object (tree f.e.) from it or house near it.
  +		Added display color code for color page in KaM format (BGR)
  +		Load menu at toolbar - load map on double click
+ +		Change brush size on Ctrl+mouse wheel
  
  Dynamic scripts:
  +		Update to current version of remObjects PascalScript. 
@@ -216,6 +222,7 @@ Improvements:
  +		All save files are placed in 1 folder. Same as for maps
  +		Ability to set decimal values for game speedups in INI file
  +		GIP commands are packed now. We have to send only needed field. It will reduce nettraffic and '.rpl' file size.
+ +		Added ability to set Tabulation in game labels/texts. Can be used by scriptmakers to make better output
  
    
 	 
