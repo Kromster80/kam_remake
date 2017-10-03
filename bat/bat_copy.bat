@@ -4,6 +4,9 @@
 REM Copy data files from original KaM TPR game
 xcopy %KaMDir%\data\defines\* ..\data\defines /y /r /s
 
+REM Copy music files from original KaM TPR game
+xcopy "%KaMDir%"\data\sfx\songs\*.sng "%kam_folder%"\Music\*.mp2 /y /r /s
+
 
 REM ============================================================
 REM Copy data folders
