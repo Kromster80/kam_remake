@@ -2,7 +2,7 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonTypes;
+  SyncObjs, KM_CommonTypes;
 
 
 type
@@ -21,18 +21,24 @@ type
   //Logging system
   TKMLog = class
   private
+    CS: TCriticalSection;
     fl: textfile;
     fLogPath: UnicodeString;
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
     fOnLogMessage: TUnicodeStringEvent;
+    procedure Lock;
+    procedure Unlock;
+
     procedure AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType); overload;
     procedure AddLineTime(const aText: UnicodeString); overload;
     procedure AddLineNoTime(const aText: UnicodeString);
   public
+    MultithreadLogging: Boolean; // Enable thread safe mode (resource protection) while logging with multi threads
     MessageTypes: TKMLogMessageTypeSet;
     constructor Create(const aPath: UnicodeString);
+    destructor Destroy; override;
     procedure InitLog;
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AddTime(const aText: UnicodeString); overload;
@@ -114,11 +120,32 @@ end;
 constructor TKMLog.Create(const aPath: UnicodeString);
 begin
   inherited Create;
+  MultithreadLogging := False;
   fLogPath := aPath;
   fFirstTick := TimeGet;
   fPreviousTick := TimeGet;
   MessageTypes := DEFAULT_LOG_TYPES_TO_WRITE;
+  CS := TCriticalSection.Create;
   InitLog;
+end;
+
+
+destructor TKMLog.Destroy;
+begin
+  CS.Free;
+  inherited;
+end;
+
+
+procedure TKMLog.Lock;
+begin
+  CS.Enter;
+end;
+
+
+procedure TKMLog.Unlock;
+begin
+  CS.Leave;
 end;
 
 
@@ -153,25 +180,33 @@ begin
   if not (aLogType in MessageTypes) then // write into log only for allowed types
     Exit;
 
-  if not FileExists(fLogPath) then
-    InitLog;  // Recreate log file, if it was deleted
-  AssignFile(fl, fLogPath);
-  Append(fl);
-  //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
-  if Abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
-  begin
-    WriteLn(fl, '========================');
-    WriteLn(fl, '    Date: ' + FormatDateTime('yyyy/mm/dd', Now));
-    WriteLn(fl, '========================');
+  // Lock/Unlock only when in multithread logging mode. Its quite rare, so we do not need all the time
+  if MultithreadLogging then
+    Lock;
+  try
+    if not FileExists(fLogPath) then
+      InitLog;  // Recreate log file, if it was deleted
+    AssignFile(fl, fLogPath);
+    Append(fl);
+    //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
+    if Abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
+    begin
+      WriteLn(fl, '========================');
+      WriteLn(fl, '    Date: ' + FormatDateTime('yyyy/mm/dd', Now));
+      WriteLn(fl, '========================');
+    end;
+    WriteLn(fl, Format('%12s %9.3fs %7dms     %s', [
+                  FormatDateTime('hh:nn:ss.zzz', Now),
+                  GetTimeSince(fFirstTick) / 1000,
+                  GetTimeSince(fPreviousTick),
+                  aText]));
+    CloseFile(fl);
+    fPreviousTick := TimeGet;
+    fPreviousDate := Now;
+  finally
+    if MultithreadLogging then
+      UnLock;
   end;
-  WriteLn(fl, Format('%12s %9.3fs %7dms     %s', [
-                FormatDateTime('hh:nn:ss.zzz', Now),
-                GetTimeSince(fFirstTick) / 1000,
-                GetTimeSince(fPreviousTick),
-                aText]));
-  CloseFile(fl);
-  fPreviousTick := TimeGet;
-  fPreviousDate := Now;
 
   if Assigned(fOnLogMessage) then
     fOnLogMessage(aText);
@@ -190,10 +225,19 @@ procedure TKMLog.AddLineNoTime(const aText: UnicodeString);
 begin
   if not FileExists(fLogPath) then
     InitLog;  // Recreate log file, if it was deleted
-  AssignFile(fl, fLogPath);
-  Append(fl);
-  WriteLn(fl, '                                      ' + aText);
-  CloseFile(fl);
+
+  // Lock/Unlock only when in multithread logging mode. Its quite rare, so we do not need all the time
+  if MultithreadLogging then
+    Lock;
+  try
+    AssignFile(fl, fLogPath);
+    Append(fl);
+    WriteLn(fl, '                                      ' + aText);
+    CloseFile(fl);
+  finally
+    if MultithreadLogging then
+      UnLock;
+  end;
 
   if Assigned(fOnLogMessage) then
     fOnLogMessage(aText);

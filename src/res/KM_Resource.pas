@@ -50,7 +50,7 @@ type
 
     procedure LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
     procedure LoadLocaleResources(const aLocale: AnsiString = '');
-    procedure LoadGameResources(aAlphaShadows: Boolean);
+    procedure LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
     procedure LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
 
     property DataState: TResourceLoadState read fDataState;
@@ -64,6 +64,8 @@ type
     property Sprites: TKMResSprites read fSprites;
     property Tileset: TKMResTileset read fTileset;
     property Units: TKMResUnits read fUnits;
+
+    procedure UpdateStateIdle;
 
     function IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
 
@@ -111,6 +113,12 @@ begin
   FreeAndNil(fUnits);
   FreeAndNil(gResKeys);
   inherited;
+end;
+
+
+procedure TKMResource.UpdateStateIdle;
+begin
+  fSprites.UpdateStateIdle;
 end;
 
 
@@ -201,21 +209,27 @@ end;
 procedure TKMResource.LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
 begin
   if (Fonts.LoadLevel <> fll_Full)
-  and (aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts) then
+    and (aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts) then
     Fonts.LoadFonts(fll_Full);
 end;
 
 
 
-procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean);
+procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
+var
+  DoForceReload: Boolean;
 begin
-  if (fDataState <> rlsAll) or (aAlphaShadows <> fSprites.AlphaShadows) then
+  DoForceReload := aForceReload or (aAlphaShadows <> fSprites.AlphaShadows);
+  if (fDataState <> rlsAll) or DoForceReload then
   begin
-    fSprites.LoadGameResources(aAlphaShadows);
-    fSprites.ClearTemp;
+    fSprites.LoadGameResources(aAlphaShadows, DoForceReload);
+    if not DoForceReload then
+    begin
+      fDataState := rlsAll;
+      fSprites.ClearTemp;
+    end;
   end;
 
-  fDataState := rlsAll;
   gLog.AddTime('Resource loading state - Game');
 end;
 

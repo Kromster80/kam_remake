@@ -6,7 +6,7 @@ uses
   {$IFDEF FPC} Controls, {$ENDIF}
   Classes, Dialogs, ExtCtrls,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
-  KM_Campaigns, KM_Game, KM_InterfaceMainMenu,
+  KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_Resource,
   KM_Music, KM_Networking, KM_Settings, KM_Render;
 
 type
@@ -51,6 +51,8 @@ type
     procedure PrintScreen(const aFilename: UnicodeString = '');
     procedure PauseMusicToPlayFile(const aFileName: UnicodeString);
     function CheckDATConsistency: Boolean;
+
+    procedure PreloadGameResources;
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -99,7 +101,7 @@ uses
   SysUtils, Math, TypInfo, KromUtils,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KM_Main, KM_Controls, KM_Log, KM_Sound, KM_GameInputProcess,
-  KM_InterfaceDefaults, KM_GameCursor, KM_Resource, KM_ResTexts,
+  KM_InterfaceDefaults, KM_GameCursor, KM_ResTexts,
   KM_Maps, KM_Saves, KM_CommonUtils;
 
 
@@ -233,6 +235,14 @@ begin
   fMainMenuInterface.PageChange(gpOptions);
   Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
   fTimerUI.Enabled := True; //Safe to enable the timer again
+end;
+
+
+//Preload game resources while in menu
+procedure TKMGameApp.PreloadGameResources;
+begin
+  //Load game resources asychronously (by other thread)
+  gRes.LoadGameResources(fGameSettings.AlphaShadows, True);
 end;
 
 
@@ -814,6 +824,7 @@ begin
   if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
   if gSoundPlayer <> nil then gSoundPlayer.UpdateStateIdle;
   if fNetworking <> nil then fNetworking.UpdateStateIdle;
+  if gRes <> nil then gRes.UpdateStateIdle;
 end;
 
 

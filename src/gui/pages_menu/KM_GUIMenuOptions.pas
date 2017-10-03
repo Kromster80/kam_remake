@@ -11,6 +11,7 @@ type
   TKMMenuOptions = class (TKMMenuPageCommon)
   private
     fTempKeys: TKMKeyLibrary;
+    fLastAlphaShadows: Boolean;
 
     fOnPageChange: TGUIEventText; // will be in ancestor class
 
@@ -470,6 +471,7 @@ begin
   fMainSettings := gMain.Settings;
   fGameSettings := gGameApp.GameSettings;
   fResolutions := gMain.Resolutions;
+  fLastAlphaShadows := fGameSettings.AlphaShadows;
 
   Refresh;
   Panel_Options.Show;
@@ -576,6 +578,10 @@ procedure TKMMenuOptions.BackClick(Sender: TObject);
 begin
   // Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
+
+  if fLastAlphaShadows <> fGameSettings.AlphaShadows then
+    gGameApp.PreloadGameResources;  //Update loaded game resources, if we changed alpha shadow setting
+
   fOnPageChange(gpMainMenu);
 end;
 

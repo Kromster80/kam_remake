@@ -40,6 +40,7 @@ type
     class procedure DeleteTexture(aTex: GLUint);
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
     class procedure BindTexture(aTexId: Cardinal);
+    class procedure FakeRender(aID: Cardinal);
 
     property RendererVersion: UnicodeString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
@@ -311,6 +312,20 @@ begin
 
   glFinish;
   fRenderControl.SwapBuffers;
+end;
+
+
+//Fake Render from Atlas, to force copy of it into video RAM, where it is supposed to be
+class procedure TRender.FakeRender(aID: Cardinal);
+begin
+  glColor4ub(0, 0, 0, 0);
+  TRender.BindTexture(aID);
+
+  glBegin(GL_TRIANGLES);
+    glVertex2f(0, 0);
+    glVertex2f(0, 0);
+    glVertex2f(0, 0);
+  glEnd;
 end;
 
 
