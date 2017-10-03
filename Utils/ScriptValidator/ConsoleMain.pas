@@ -71,7 +71,7 @@ uses
 { TMain }
 constructor TConsoleMain.Create;
 begin
-  fScripting := TKMScripting.Create(nil);
+  fScripting := TKMScriptingCreator.CreateScripting(nil);
 end;
 
 
@@ -100,18 +100,19 @@ begin
 
   fScripting.LoadFromFile(aPath, aCampaignFile, nil);
 
-  if fScripting.ErrorString <> '' then
+
+  if fScripting.ErrorHandler.HasErrors then
   begin
     OutputText := OutputText + 'Errors:' + sLineBreak;
-    OutputText := OutputText + StringReplace(fScripting.ErrorString,
+    OutputText := OutputText + StringReplace(fScripting.ErrorHandler.ErrorString.GameMessage,
                                              '|', sLineBreak,
                                              [rfReplaceAll]);
   end;
 
-  if fScripting.WarningsString <> '' then
+  if fScripting.ErrorHandler.HasWarnings then
   begin
     OutputText := OutputText + 'Warnings:' + sLineBreak;
-    OutputText := OutputText + StringReplace(fScripting.WarningsString,
+    OutputText := OutputText + StringReplace(fScripting.ErrorHandler.WarningsString.GameMessage,
                                              '|', sLineBreak,
                                              [rfReplaceAll]);
   end;

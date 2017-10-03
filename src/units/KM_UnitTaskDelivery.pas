@@ -18,7 +18,11 @@ type
     fWareType: TWareType;
     fDeliverID: Integer;
     fDeliverKind: TDeliverKind;
+    //Force delivery, even if fToHouse blocked ware from delivery.
+    //Used in exceptional situation, when ware was carried by serf and delivery demand was destroyed and no one new was found
+    fForceDelivery: Boolean;
     procedure CheckForBetterDestination;
+    function FindBestDestination: Boolean;
   public
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer); overload;
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer); overload;
@@ -34,7 +38,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
+  Math, KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand, KM_UnitTaskBuild;
 
 
 { TTaskDeliver }
@@ -66,14 +70,14 @@ begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
-  Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
-  gLog.LogDelivery('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
+  Assert((aFrom <> nil) and (toUnit <> nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
+  gLog.LogDelivery('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
   fDeliverKind := dk_ToUnit;
   fWareType := Res;
-  fDeliverID    := aID;
+  fDeliverID := aID;
 end;
 
 
@@ -83,9 +87,33 @@ begin
   LoadStream.Read(fFrom, 4);
   LoadStream.Read(fToHouse, 4);
   LoadStream.Read(fToUnit, 4);
+  LoadStream.Read(fForceDelivery);
   LoadStream.Read(fWareType, SizeOf(fWareType));
   LoadStream.Read(fDeliverID);
   LoadStream.Read(fDeliverKind, SizeOf(fDeliverKind));
+end;
+
+
+
+procedure TTaskDeliver.Save(SaveStream: TKMemoryStream);
+begin
+  inherited;
+  if fFrom <> nil then
+    SaveStream.Write(fFrom.UID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
+  if fToHouse <> nil then
+    SaveStream.Write(fToHouse.UID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
+  if fToUnit <> nil then
+    SaveStream.Write(fToUnit.UID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
+  SaveStream.Write(fForceDelivery);
+  SaveStream.Write(fWareType, SizeOf(fWareType));
+  SaveStream.Write(fDeliverID);
+  SaveStream.Write(fDeliverKind, SizeOf(fDeliverKind));
 end;
 
 
@@ -121,21 +149,28 @@ end;
 //Note: Phase is -1 because it will have been increased at the end of last Execute
 function TTaskDeliver.WalkShouldAbandon: Boolean;
 begin
-  Result := false;
+  Result := False;
 
   //After step 2 we don't care if From is destroyed or doesn't have the ware
   if fPhase <= 2 then
-    Result := Result or fFrom.IsDestroyed or not fFrom.ResOutputAvailable(fWareType, 1);
+    Result := Result or fFrom.IsDestroyed or (not fFrom.ResOutputAvailable(fWareType, 1) {and (fPhase < 5)});
 
-  //Until we implement "wares recycling" we just abandon the delivery if target is destroyed/dead
-  if (fDeliverKind = dk_ToHouse) and (fPhase <= 8) then
-    Result := Result or fToHouse.IsDestroyed;
-
-  if (fDeliverKind = dk_ToConstruction) and (fPhase <= 6) then
-    Result := Result or fToHouse.IsDestroyed;
-
-  if (fDeliverKind = dk_ToUnit) and (fPhase <= 6) then
-    Result := Result or (fToUnit=nil) or fToUnit.IsDeadOrDying;
+  //do not abandon the delivery if target is destroyed/dead, we will find new target later
+  case fDeliverKind of
+    dk_ToHouse:         if fPhase <= 8 then
+                        begin
+                          Result := Result or fToHouse.IsDestroyed
+                                   or (not fForceDelivery
+                                      and ((fToHouse.DeliveryMode <> dm_Delivery)
+                                        or ((fToHouse is TKMHouseStore) and TKMHouseStore(fToHouse).NotAcceptFlag[fWareType])
+                                        or ((fToHouse is TKMHouseBarracks) and TKMHouseBarracks(fToHouse).NotAcceptFlag[fWareType])
+                                        or ((fToHouse is TKMHouseArmorWorkshop) and not TKMHouseArmorWorkshop(fToHouse).AcceptWareForDelivery(fWareType))));
+                        end;
+    dk_ToConstruction:  if fPhase <= 6 then
+                          Result := Result or fToHouse.IsDestroyed;
+    dk_ToUnit:          if fPhase <= 6 then
+                          Result := Result or (fToUnit = nil) or fToUnit.IsDeadOrDying;
+  end;
 end;
 
 
@@ -144,7 +179,7 @@ var
   NewToHouse: TKMHouse;
   NewToUnit: TKMUnit;
 begin
-  gHands[fUnit.Owner].Deliveries.Queue.CheckForBetterDemand(fDeliverID, NewToHouse, NewToUnit);
+  gHands[fUnit.Owner].Deliveries.Queue.CheckForBetterDemand(fDeliverID, NewToHouse, NewToUnit, TKMUnitSerf(fUnit));
 
   gHands.CleanUpHousePointer(fToHouse);
   gHands.CleanUpUnitPointer(fToUnit);
@@ -164,13 +199,69 @@ begin
 end;
 
 
-function TTaskDeliver.Execute: TTaskResult;
+// Try to find best destination
+function TTaskDeliver.FindBestDestination: Boolean;
+var
+  NewToHouse: TKMHouse;
+  NewToUnit: TKMUnit;
 begin
-  Result := TaskContinues;
-
-  if WalkShouldAbandon and fUnit.Visible then
+  if fPhase <= 2 then
   begin
-    Result := TaskDone;
+    Result := False;
+    Exit;
+  end else
+  if InRange(fPhase, 3, 4) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  fForceDelivery := False; //Reset ForceDelivery from previous runs
+  gHands[fUnit.Owner].Deliveries.Queue.DeliveryFindBestDemand(TKMUnitSerf(fUnit), fDeliverID, fWareType, NewToHouse, NewToUnit, fForceDelivery);
+
+  gHands.CleanUpHousePointer(fToHouse);
+  gHands.CleanUpUnitPointer(fToUnit);
+
+  // New House
+  if (NewToHouse <> nil) and (NewToUnit = nil) then
+  begin
+    fToHouse := NewToHouse.GetHousePointer;
+    if fToHouse.IsComplete then
+      fDeliverKind := dk_ToHouse
+    else
+      fDeliverKind := dk_ToConstruction;
+    Result := True;
+    if fPhase > 5 then
+      fPhase := 5;
+  end
+  else
+  // New Unit
+  if (NewToHouse = nil) and (NewToUnit <> nil) then
+  begin
+    fToUnit := NewToUnit.GetUnitPointer;
+    fDeliverKind := dk_ToUnit;
+    Result := True;
+    if fPhase > 5 then
+      fPhase := 5;
+  end
+  else
+  // No alternative
+  if (NewToHouse = nil) and (NewToUnit = nil) then
+    Result := False
+  else
+  // Error
+    raise Exception.Create('Both destinations could not be');
+end;
+
+function TTaskDeliver.Execute: TTaskResult;
+var
+  Worker: TKMUnit;
+begin
+  Result := tr_TaskContinues;
+
+  if WalkShouldAbandon and fUnit.Visible and not FindBestDestination then
+  begin
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -224,14 +315,14 @@ begin
           if TKMUnitSerf(fUnit).TryDeliverFrom(fToHouse) then
           begin
             //After setting new unit task we should free self.
-            //Note do not set TaskDone:=true as this will affect the new task
+            //Note do not set tr_TaskDone := true as this will affect the new task
             Self.Free;
             Exit;
           end else
             //No delivery found then just step outside
             SetActionGoIn(ua_Walk, gd_GoOutside, fToHouse);
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
 
   //Deliver into wip house
@@ -239,13 +330,21 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;
-    //It's the only place in KaM that used to access houses entrance from diagonals. Supposably it
-    //was made similar to workers - tile was declared  "Under construction" and could accept wares
-    //from any side, or something alike. Removing of Distance=1 from here simplifies our WalkToSpot method.
-    //Since this change some people have complained because it's hard for serfs to get wares to the site
-    //when workers block the enterance. But it is much simpler this way so we don't have a problem really.
-    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance);
+        // First come close to point below house entrance
+    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance, ua_Walk, 1.42);
     6:  begin
+          // Then check if there is a worker hitting house just from the entrance
+          Worker := gHands[fUnit.Owner].UnitsHitTest(fToHouse.PointBelowEntrance, ut_Worker);
+          if (Worker <> nil) and (Worker.UnitTask <> nil)
+            and (Worker.UnitTask is TTaskBuildHouse)
+            and (Worker.UnitTask.Phase >= 2) then
+            // If so, then allow to bring resources diagonally
+            SetActionWalkToSpot(fToHouse.Entrance, ua_Walk, 1.42)
+          else
+            // else ask serf to bring resources from point below entrance (not diagonally)
+            SetActionWalkToSpot(fToHouse.PointBelowEntrance);
+        end;
+    7:  begin
           Direction := KMGetDirection(GetPosition, fToHouse.Entrance);
           fToHouse.ResAddToBuild(Carry);
           gHands[Owner].Stats.WareConsumed(Carry);
@@ -255,7 +354,7 @@ begin
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionStay(1, ua_Walk);
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
 
   //Deliver to builder or soldier
@@ -275,6 +374,15 @@ begin
           //Worker
           if (fToUnit.UnitType = ut_Worker) and (fToUnit.UnitTask <> nil) then
           begin
+            //ToDo: Replace phase numbers with enums to avoid hardcoded magic numbers
+            // Check if worker is still digging
+            if ((fToUnit.UnitTask is TTaskBuildWine) and (fToUnit.UnitTask.Phase < 5))
+              or ((fToUnit.UnitTask is TTaskBuildRoad) and (fToUnit.UnitTask.Phase < 4)) then
+            begin
+              SetActionLockedStay(5, ua_Walk); //wait until worker finish digging process
+              fPhase := 6;
+              Exit;
+            end;
             fToUnit.UnitTask.Phase := fToUnit.UnitTask.Phase + 1;
             fToUnit.SetActionLockedStay(0, ua_Work1); //Tell the worker to resume work by resetting his action (causes task to execute)
           end;
@@ -298,7 +406,7 @@ begin
             if TKMUnitSerf(fUnit).TryDeliverFrom(nil) then
             begin
               //After setting new unit task we should free self.
-              //Note do not set TaskDone:=true as this will affect the new task
+              //Note do not set tr_TaskDone := true as this will affect the new task
               Self.Free;
               Exit;
             end else
@@ -309,31 +417,10 @@ begin
           end else
             SetActionStay(0, ua_Walk); //If we're not feeding a warrior then ignore this step
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
 
   Inc(fPhase);
-end;
-
-
-procedure TTaskDeliver.Save(SaveStream: TKMemoryStream);
-begin
-  inherited;
-  if fFrom <> nil then
-    SaveStream.Write(fFrom.UID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
-  if fToHouse <> nil then
-    SaveStream.Write(fToHouse.UID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
-  if fToUnit <> nil then
-    SaveStream.Write(fToUnit.UID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
-  SaveStream.Write(fWareType, SizeOf(fWareType));
-  SaveStream.Write(fDeliverID);
-  SaveStream.Write(fDeliverKind, SizeOf(fDeliverKind));
 end;
 
 

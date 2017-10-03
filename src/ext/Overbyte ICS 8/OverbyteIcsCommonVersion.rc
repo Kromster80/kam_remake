@@ -1,0 +1,30 @@
+LANGUAGE 9, 1
+1 VERSIONINFO
+FILEVERSION 7, 0, 0, 0
+PRODUCTVERSION 7, 0, 0, 0
+FILEFLAGSMASK 0x3FL
+FILEFLAGS 0x2L
+FILEOS 0x4L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904E4"
+		BEGIN
+			VALUE "CompanyName", "OverByte sprl\000"
+			VALUE "FileDescription", "Internet Component Suite Demo Project\000"
+			VALUE "FileVersion", "7.0\000"
+			VALUE "InternalName", "\000"
+			VALUE "LegalCopyright", "(c) 2010 by Francois PIETTE\000"
+			VALUE "OriginalFilename", "\000"
+			VALUE "ProductName", "ICS V7\000"
+			VALUE "ProductVersion", "7.0\000"
+			VALUE "Comments", "http://www.overbyte.be\000"
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x0409, 0x04E4
+	END
+END

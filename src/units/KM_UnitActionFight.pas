@@ -2,7 +2,7 @@ unit KM_UnitActionFight;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units, KM_Points;
+  Classes, KM_CommonClasses, KM_Defaults, KM_CommonUtils, KromUtils, Math, SysUtils, KM_Units, KM_Points;
 
 
 //Fight until we die or the opponent dies
@@ -157,7 +157,8 @@ begin
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
   if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then Exit;
 
-  if MakeBattleCry then gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
+  if MakeBattleCry then
+    gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
 
   case fUnit.UnitType of
     ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, fUnit.PositionF); // Aiming
@@ -175,7 +176,7 @@ end;
 
 function TUnitActionFight.ExecuteValidateOpponent(Step: Byte): TActionResult;
 begin
-  Result := ActContinues;
+  Result := ar_ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
   if fOpponent.IsDeadOrDying //Don't continue to fight dead units
   or not fOpponent.Visible //Don't continue to fight units that have went into a house
@@ -206,7 +207,7 @@ begin
     else
     begin
       //No one else to fight, so we exit
-      Result := ActDone;
+      Result := ar_ActDone;
     end;
   end;
 end;
@@ -323,7 +324,7 @@ begin
   Step  := fUnit.AnimStep mod Cycle;
 
   Result := ExecuteValidateOpponent(Step);
-  if Result = ActDone then Exit;
+  if Result = ar_ActDone then Exit;
   Step := fUnit.AnimStep mod Cycle; //Can be changed by ExecuteValidateOpponent, so recalculate it
 
   //Opponent can walk next to us, keep facing him
@@ -335,7 +336,7 @@ begin
     if not UpdateVertexUsage(fUnit.GetPosition, fOpponent.GetPosition) then
     begin
       //The vertex is being used so we can't fight
-      Result := ActDone;
+      Result := ar_ActDone;
       Exit;
     end;
 

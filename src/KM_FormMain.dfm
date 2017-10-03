@@ -205,7 +205,8 @@ object FormMain: TFormMain
       Top = 85
       Width = 75
       Height = 17
-      Caption = 'Speed x300'
+      Hint = 'Autosave is disabled while on very fast speedup'
+      Caption = 'Speed x200'
       TabOrder = 0
       OnClick = chkSuperSpeedClick
     end
@@ -497,6 +498,10 @@ object FormMain: TFormMain
       object ExportUIPages: TMenuItem
         Caption = 'Export UI pages'
         OnClick = Debug_ExportUIPagesClick
+      end
+      object ShowLogistics: TMenuItem
+        Caption = 'Show Logistics'
+        OnClick = ShowLogisticsClick
       end
     end
     object Export1: TMenuItem

@@ -80,7 +80,7 @@ type
     fCRC: Cardinal;
     fItems: array [TUnitType] of TKMUnitSpec;
     fSerfCarry: array [WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMAnimLoop;
-    function LoadUnitsDat(aPath: UnicodeString): Cardinal;
+    function LoadUnitsDat(const aPath: UnicodeString): Cardinal;
     function GetItem(aType: TUnitType): TKMUnitSpec; inline;
     function GetSerfCarry(aType: TWareType; aDir: TKMDirection): TKMAnimLoop;
   public
@@ -91,7 +91,7 @@ type
     property SerfCarry[aType: TWareType; aDir: TKMDirection]: TKMAnimLoop read GetSerfCarry;
     property CRC: Cardinal read fCRC; //Return hash of all values
 
-    procedure ExportCSV(aPath: UnicodeString);
+    procedure ExportCSV(const aPath: UnicodeString);
   end;
 
 const
@@ -412,6 +412,7 @@ begin
     fItems[U] := TKMUnitSpec.Create(U);
 
   fCRC := LoadUnitsDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
+  fItems[ut_HorseScout].fUnitDat.Sight := 16;
   //ExportCSV(ExeDir+'units.csv');
 end;
 
@@ -426,7 +427,7 @@ begin
 end;
 
 
-procedure TKMResUnits.ExportCSV(aPath: UnicodeString);
+procedure TKMResUnits.ExportCSV(const aPath: UnicodeString);
 var ft:textfile; ii:TUnitType;
 begin
     AssignFile(ft,aPath); rewrite(ft);
@@ -491,7 +492,7 @@ begin
 end;
 
 
-function TKMResUnits.LoadUnitsDat(aPath: UnicodeString): Cardinal;
+function TKMResUnits.LoadUnitsDat(const aPath: UnicodeString): Cardinal;
 const UNIT_DAT_COUNT = 41;
 var
   S: TKMemoryStream;

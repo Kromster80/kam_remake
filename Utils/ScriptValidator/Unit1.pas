@@ -38,7 +38,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption                := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
   OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
-  fScripting             := TKMScripting.Create(nil);
+  fScripting             := TKMScriptingCreator.CreateScripting(nil);
   DragAcceptFiles(Handle, True);
 end;
 
@@ -103,15 +103,14 @@ begin
   CampaignFile := ExtractFilePath(aPath) + '..\campaigndata.script';
   fScripting.LoadFromFile(aPath, CampaignFile, nil);
 
-  txt := StringReplace(fScripting.ErrorString, '|', sLineBreak, [rfReplaceAll]);
+  txt := StringReplace(fScripting.ErrorHandler.ErrorString.GameMessage, '|', sLineBreak, [rfReplaceAll]);
 
-  if fScripting.WarningsString <> '' then
+  if fScripting.ErrorHandler.WarningsString.GameMessage <> '' then
   begin
     if txt <> '' then
       txt := txt + sLineBreak;
-
-    txt := txt + 'Warnings:' + sLineBreak +
-           StringReplace(fScripting.WarningsString, '|', sLineBreak, [rfReplaceAll]);
+    txt := txt + 'Warnings:' + sLineBreak;
+    txt := txt + StringReplace(fScripting.ErrorHandler.WarningsString.GameMessage, '|', sLineBreak, [rfReplaceAll]);
   end;
 
   if txt <> '' then

@@ -2,10 +2,8 @@ unit KM_Maps;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SyncObjs, SysUtils, StrUtils
-  {$IFDEF FPC} , FileUtil {$ENDIF}
-  {$IFDEF WDC} , IOUtils {$ENDIF}
-  , KM_Defaults;
+  Classes, SyncObjs,
+  KM_Defaults;
 
 
 type
@@ -88,15 +86,17 @@ type
     function HasReadme: Boolean;
     function ViewReadme: Boolean;
     function GetLobbyColor: Cardinal;
+    function IsFilenameEndMatchHash: Boolean;
   end;
 
 
   TTCustomMapsScanner = class(TThread)
   private
     fMapFolders: TMapFolderSet;
-    procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); virtual; abstract;
+    fOnComplete: TNotifyEvent;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder); virtual; abstract;
   public
-    constructor Create(aMapFolders: TMapFolderSet);
+    constructor Create(aMapFolders: TMapFolderSet; aOnComplete: TNotifyEvent = nil);
     procedure Execute; override;
   end;
 
@@ -104,14 +104,14 @@ type
   private
     fOnMapAdd: TMapEvent;
     fOnMapAddDone: TNotifyEvent;
-    procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); override;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder); override;
   public
-    constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+    constructor Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
   end;
 
   TTMapsCacheUpdater = class(TTCustomMapsScanner)
   private
-    procedure ProcessMap(aPath: UnicodeString; aFolder: TMapFolder); override;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder); override;
   public
     constructor Create(aMapFolders: TMapFolderSet);
   end;
@@ -129,10 +129,12 @@ type
     fScanning: Boolean; //Flag if scan is in progress
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
+    fOnTerminate: TNotifyEvent;
     fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
+    procedure ScanTerminate(Sender: TObject);
     procedure ScanComplete(Sender: TObject);
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
@@ -146,42 +148,48 @@ type
     procedure Lock;
     procedure Unlock;
 
+    class function FullPath(const aDirName, aFileName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string; overload;
     class function FullPath(const aName, aExt: string; aMapFolder: TMapFolder; aCRC: Cardinal): string; overload;
     class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
-    class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
+    class procedure GetAllMapPaths(const aExeDir: string; aList: TStringList);
+    class function GetMapCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 
-    procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
+    procedure Refresh(aOnRefresh: TNotifyEvent;  aOnTerminate: TNotifyEvent = nil;aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
+    function Contains(const aNewName: UnicodeString): Boolean;
+    procedure RenameMap(aIndex: Integer; const aName: UnicodeString);
     procedure DeleteMap(aIndex: Integer);
-    procedure MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
+    procedure MoveMap(aIndex: Integer; const aName: UnicodeString; aMapFolder: TMapFolder);
 
     procedure UpdateState;
   end;
 
-
-  function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+  function GetMapFolderType(aIsMultiplayer: Boolean): TMapFolder;
+  function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TMapFolder): Boolean;
 
 
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
+  SysUtils, StrUtils, Math, KromUtils,
+  KM_GameApp, KM_ResTexts, KM_FileIO,
+  KM_MissionScript_Info, KM_Scripting,
+  KM_CommonClasses, KM_CommonUtils;
 
 
 const
-  //Folder name containing single maps for SP/MP/DL mode
+  //Map folder name by folder type. Containing single maps, for SP/MP/DL mode
   MAP_FOLDER: array [TMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
-  MAP_FOLDER_TYPE_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
 
 
 { TKMapInfo }
 constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
 
-  function GetLIBXCRC(aSearchFile: UnicodeString): Cardinal;
+  function GetLIBXCRC(const aSearchFile: UnicodeString): Cardinal;
   var SearchRec: TSearchRec;
   begin
     Result := 0;
@@ -194,9 +202,12 @@ constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMa
   end;
 
 var
+  I: Integer;
   DatFile, MapFile, ScriptFile, TxtFile, LIBXFiles: string;
   DatCRC, OthersCRC: Cardinal;
   fMissionParser: TMissionParserInfo;
+  ScriptPreProcessor: TKMScriptingPreProcessor;
+  ScriptFiles: TKMScriptFilesCollection;
 begin
   inherited Create;
 
@@ -225,7 +236,26 @@ begin
   //.map file CRC is the slowest, so only calculate it if necessary
   OthersCRC := 0; //Supresses incorrect warning by Delphi
   if aStrictParsing then
-    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
+  begin
+    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
+
+    //Add main script CRC and all included scripts CRC
+    if FileExists(ScriptFile) then
+    begin
+      OthersCRC := OthersCRC xor Adler32CRC(ScriptFile);
+      ScriptPreProcessor := TKMScriptingPreProcessor.Create;
+      try
+        if ScriptPreProcessor.PreProcessFile(ScriptFile) then
+        begin
+          ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
+          for I := 0 to ScriptFiles.IncludedCount - 1 do
+            OthersCRC := OthersCRC xor Adler32CRC(ScriptFiles[I].FullFilePath);
+        end;
+      finally
+        ScriptPreProcessor.Free;
+      end;
+    end;
+  end;
 
   //Does the map need to be fully rescanned? (.mi cache is outdated?)
   if (fVersion <> GAME_REVISION) or
@@ -558,11 +588,19 @@ begin
 end;
 
 
+//Returns True if map filename ends with this map actual CRC hash.
+//Used to check if downloaded map was changed
+function TKMapInfo.IsFilenameEndMatchHash: Boolean;
+begin
+  Result := (Length(fFileName) > 9)
+    and (fFileName[Length(FileName)-8] = '_')
+    and (IntToHex(fCRC, 8) = RightStr(fFileName, 8));
+end;
+
+
 function TKMapInfo.FileNameWithoutHash: UnicodeString;
 begin
-  if (fMapFolder = mfDL) and (Length(FileName) > 9)
-  and (FileName[Length(FileName)-8] = '_')
-  and (IntToHex(fCRC, 8) = RightStr(FileName, 8)) then
+  if (MapFolder = mfDL) and IsFilenameEndMatchHash then
     Result := LeftStr(FileName, Length(FileName)-9)
   else
     Result := FileName;
@@ -626,6 +664,21 @@ begin
   //We mostly don't need it, as UI should access Maps only when map events are signaled
   //it mostly acts as a safenet
   CS := TCriticalSection.Create;
+end;
+
+
+function TKMapsCollection.Contains(const aNewName: UnicodeString): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+
+  for I := 0 to fCount - 1 do
+    if LowerCase(fMaps[I].FileName) = LowerCase(aNewName) then
+    begin
+      Result := True;
+      Exit;
+    end;
 end;
 
 
@@ -709,8 +762,7 @@ begin
    Lock;
    try
      Assert(InRange(aIndex, 0, fCount - 1));
-     {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
+     KMDeleteFolder(fMaps[aIndex].Path);
      fMaps[aIndex].Free;
      for I  := aIndex to fCount - 2 do
        fMaps[I] := fMaps[I + 1];
@@ -722,49 +774,31 @@ begin
 end;
 
 
-procedure TKMapsCollection.MoveMap(aIndex: Integer; aName: UnicodeString; aMapFolder: TMapFolder);
+procedure TKMapsCollection.RenameMap(aIndex: Integer; const aName: UnicodeString);
+begin
+  MoveMap(aIndex, aName, fMaps[aIndex].MapFolder);
+end;
+
+
+procedure TKMapsCollection.MoveMap(aIndex: Integer; const aName: UnicodeString; aMapFolder: TMapFolder);
 var
   I: Integer;
-  Dest, RenamedFile: UnicodeString;
-  SearchRec: TSearchRec;
+  Dest: UnicodeString;
 begin
+  Assert(InRange(aIndex, 0, fCount - 1));
   if Trim(aName) = '' then Exit;
-  
+
   Lock;
   try
     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
     Assert(fMaps[aIndex].Path <> Dest);
-    Assert(InRange(aIndex, 0, fCount - 1));
 
-    //Remove existing dest directory
-    if DirectoryExists(Dest) then
-    begin
-     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
-    end;
-
-    //Move directory to dest
-    {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
-
-    //Rename all the files in dest
-    FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
-    repeat
-     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-     and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-     begin
-       RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-       if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
-         {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-         {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-     end;
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
+    KMMoveFolder(fMaps[aIndex].Path, Dest);
 
     //Remove the map from our list
     fMaps[aIndex].Free;
     for I  := aIndex to fCount - 2 do
-     fMaps[I] := fMaps[I + 1];
+      fMaps[I] := fMaps[I + 1];
     Dec(fCount);
     SetLength(fMaps, fCount);
   finally
@@ -885,7 +919,7 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
+procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnTerminate: TNotifyEvent = nil; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
@@ -893,10 +927,11 @@ begin
 
   fOnRefresh := aOnRefresh;
   fOnComplete := aOnComplete;
+  fOnTerminate := aOnTerminate;
 
-  //Scan will launch upon create automatcally
+  //Scan will launch upon create automatically
   fScanning := True;
-  fScanner := TTMapsScanner.Create(fMapFolders, MapAdd, MapAddDone, ScanComplete);
+  fScanner := TTMapsScanner.Create(fMapFolders, MapAdd, MapAddDone, ScanTerminate, ScanComplete);
 end;
 
 
@@ -943,15 +978,36 @@ begin
 end;
 
 
+//Scan was terminated
+//No need to resort since that was done in last MapAdd event
+procedure TKMapsCollection.ScanTerminate(Sender: TObject);
+begin
+  Lock;
+  try
+    fScanning := False;
+    if Assigned(fOnTerminate) then
+      fOnTerminate(Self);
+  finally
+    Unlock;
+  end;
+end;
+
+
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 begin
-  Result := FullPath(aName, aExt, MAP_FOLDER_TYPE_MP[aMultiplayer]);
+  Result := FullPath(aName, aExt, GetMapFolderType(aMultiplayer));
 end;
 
 
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMapFolder: TMapFolder): string;
 begin
   Result := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim + aName + aExt;
+end;
+
+
+class function TKMapsCollection.FullPath(const aDirName, aFileName, aExt: string; aMapFolder: TMapFolder): string;
+begin
+  Result := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aDirName + PathDelim + aFileName + aExt;
 end;
 
 
@@ -965,7 +1021,18 @@ begin
 end;
 
 
-class procedure TKMapsCollection.GetAllMapPaths(aExeDir: string; aList: TStringList);
+class function TKMapsCollection.GetMapCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+var
+  MapPath: UnicodeString;
+begin
+  Result := 0;
+  MapPath := FullPath(aName, '.dat', aIsMultiplayer);
+  if FileExists(MapPath) then
+    Result := Adler32CRC(MapPath);
+end;
+
+
+class procedure TKMapsCollection.GetAllMapPaths(const aExeDir: string; aList: TStringList);
 var
   I: Integer;
   SearchRec: TSearchRec;
@@ -1006,13 +1073,14 @@ end;
 
 
 { TTCustomMapsScanner }
-constructor TTCustomMapsScanner.Create(aMapFolders: TMapFolderSet);
+constructor TTCustomMapsScanner.Create(aMapFolders: TMapFolderSet; aOnComplete: TNotifyEvent = nil);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
   inherited Create(False);
 
   fMapFolders := aMapFolders;
+  fOnComplete := aOnComplete;
   FreeOnTerminate := False;
 end;
 
@@ -1023,22 +1091,27 @@ var
   PathToMaps: string;
   MF: TMapFolder;
 begin
-  for MF in fMapFolders do
-  begin
-    PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
+  try
+    for MF in fMapFolders do
+    begin
+      PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
 
-    if not DirectoryExists(PathToMaps) then Exit;
+      if not DirectoryExists(PathToMaps) then Exit;
 
-    FindFirst(PathToMaps + '*', faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
-      and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
-      begin
-        ProcessMap(SearchRec.Name, MF);
-      end;
-    until (FindNext(SearchRec) <> 0) or Terminated;
-    FindClose(SearchRec);
+      FindFirst(PathToMaps + '*', faDirectory, SearchRec);
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+          and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
+          and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
+        begin
+          ProcessMap(SearchRec.Name, MF);
+        end;
+      until (FindNext(SearchRec) <> 0) or Terminated;
+      FindClose(SearchRec);
+    end;
+  finally
+    if not Terminated and Assigned(fOnComplete) then
+      fOnComplete(Self);
   end;
 end;
 
@@ -1046,35 +1119,30 @@ end;
 { TTMapsScanner }
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added
+//aOnTerminate - scan was terminated (but could be not complete yet)
 //aOnComplete - scan is complete
-constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+constructor TTMapsScanner.Create(aMapFolders: TMapFolderSet; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
-  inherited Create(aMapFolders);
+  inherited Create(aMapFolders, aOnComplete);
 
   Assert(Assigned(aOnMapAdd));
 
   fOnMapAdd := aOnMapAdd;
   fOnMapAddDone := aOnMapAddDone;
-  OnTerminate := aOnComplete;
+  OnTerminate := aOnTerminate;
   FreeOnTerminate := False;
 end;
 
 
-procedure TTMapsScanner.ProcessMap(aPath: UnicodeString; aFolder: TMapFolder);
+procedure TTMapsScanner.ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder);
 var
   Map: TKMapInfo;
 begin
   Map := TKMapInfo.Create(aPath, False, aFolder);
 
-  //Maps in the downloads folder must have correct hash appended for lobby logic to work
-  if (aFolder = mfDL) and (RightStr(aPath, 9) <> '_' + IntToHex(Map.CRC, 8)) then
-  begin
-    Map.Free;
-    Exit;
-  end;
-
   if SLOW_MAP_SCAN then
     Sleep(50);
+
   fOnMapAdd(Map);
   fOnMapAddDone(Self);
 end;
@@ -1088,7 +1156,7 @@ begin
 end;
 
 
-procedure TTMapsCacheUpdater.ProcessMap(aPath: UnicodeString; aFolder: TMapFolder);
+procedure TTMapsCacheUpdater.ProcessMap(const aPath: UnicodeString; aFolder: TMapFolder);
 var
   Map: TKMapInfo;
 begin
@@ -1101,17 +1169,26 @@ end;
 {Utility methods}
 //Try to determine TMapFolder for specified aFolderName
 //Returns true when succeeded
-function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TMapFolder): Boolean;
 var F: TMapFolder;
 begin
   for F := Low(TMapFolder) to High(TMapFolder) do
     if aFolderName = MAP_FOLDER[F] then
     begin
-      oMapFolder := F;
+      aMapFolder := F;
       Result := True;
       Exit;
     end;
   Result := False;
+end;
+
+
+function GetMapFolderType(aIsMultiplayer: Boolean): TMapFolder;
+begin
+  if aIsMultiplayer then
+    Result := mfMP
+  else
+    Result := mfSP;
 end;
 
 

@@ -6,7 +6,7 @@ uses
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
   Runner_Game in 'Runner_Game.pas',
-  KM_Defaults in '..\..\src\KM_Defaults.pas';
+  KM_Defaults in '..\..\src\common\KM_Defaults.pas';
 
 {$R *.res}
 

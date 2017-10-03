@@ -12,15 +12,20 @@ type
     fUnit: TKMUnit;
     fGroup: TKMUnitGroup;
 
-    procedure Unit_ArmyChange1(Sender: TObject); overload;
+    procedure Unit_ArmyChange1(Sender: TObject);
     procedure Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
-    procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState); overload;
+    procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState);
+    procedure Unit_ArmyClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+    procedure UnitConditionsChange(Sender: TObject; Shift: TShiftState);
+    procedure UnitConditionsClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+
   protected
     Panel_Unit: TKMPanel;
     Label_UnitName: TKMLabel;
     Label_UnitCondition: TKMLabel;
     Label_UnitDescription: TKMLabel;
     KMConditionBar_Unit: TKMPercentBar;
+    Button_ConditionInc, Button_ConditionDefault, Button_ConditionDec: TKMButton;
     Image_UnitPic: TKMImage;
 
     Panel_Army: TKMPanel;
@@ -45,7 +50,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts, KM_Utils, KM_ResUnits, KM_Hand;
+  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts, KM_CommonUtils, KM_ResUnits, KM_Hand, KM_Utils;
 
 
 { TKMMapEdUnit }
@@ -57,7 +62,18 @@ begin
   Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fnt_Outline,taCenter);
   Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
   Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,gResTexts[TX_UNIT_CONDITION],fnt_Grey,taCenter);
-  KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
+
+  KMConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
+  Button_ConditionDec     := TKMButton.Create(Panel_Unit,65,78,20,20,'-', bsGame);
+  Button_ConditionInc     := TKMButton.Create(Panel_Unit,161,78,20,20,'+', bsGame);
+  Button_ConditionDefault := TKMButton.Create(Panel_Unit,86,78,74,20,'default', bsGame);
+
+  Button_ConditionDec.OnClickShift := UnitConditionsChange;
+  Button_ConditionInc.OnClickShift := UnitConditionsChange;
+  Button_ConditionDec.OnClickHold  := UnitConditionsClickHold;
+  Button_ConditionInc.OnClickHold  := UnitConditionsClickHold;
+  Button_ConditionDefault.OnClickShift  := UnitConditionsChange;
+
   Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fnt_Grey,taLeft); //Taken from LIB resource
   Label_UnitDescription.AutoWrap := True;
 
@@ -79,6 +95,13 @@ begin
   Button_ArmyDec.OnClickShift := Unit_ArmyChange2;
   Button_ArmyFood.OnClick     := Unit_ArmyChange1;
   Button_ArmyInc.OnClickShift := Unit_ArmyChange2;
+
+  Button_Army_ForUp.OnClickHold   := Unit_ArmyClickHold;
+  Button_Army_ForDown.OnClickHold := Unit_ArmyClickHold;
+  Button_Army_RotCW.OnClickHold   := Unit_ArmyClickHold;
+  Button_Army_RotCCW.OnClickHold  := Unit_ArmyClickHold;
+  Button_ArmyDec.OnClickHold      := Unit_ArmyClickHold;
+  Button_ArmyInc.OnClickHold      := Unit_ArmyClickHold;
 
   //Group order
   //todo: Orders should be placed with a cursor (but keep numeric input as well?)
@@ -108,6 +131,9 @@ begin
 
   Label_UnitDescription.Show;
   Panel_Unit.Show;
+  Button_ConditionInc.Hide;
+  Button_ConditionDec.Hide;
+  Button_ConditionDefault.Hide;
   Panel_Army.Hide;
 
   if fUnit = nil then Exit;
@@ -128,6 +154,10 @@ begin
 
   Label_UnitDescription.Hide;
   Panel_Unit.Show;
+  Button_ConditionInc.Show;
+  Button_ConditionDec.Show;
+  Button_ConditionDefault.Show;
+  Button_ConditionDefault.Enabled := not fGroup.FlagBearer.StartWDefaultCondition;
   Panel_Army.Show;
 
   if fGroup = nil then Exit;
@@ -148,6 +178,40 @@ begin
 end;
 
 
+procedure TKMMapEdUnit.UnitConditionsChange(Sender: TObject; Shift: TShiftState);
+begin
+  if Sender = Button_ConditionDefault then
+    fGroup.FlagBearer.StartWDefaultCondition := not fGroup.FlagBearer.StartWDefaultCondition
+  else if Sender = Button_ConditionInc then
+  begin
+    fGroup.Condition := fGroup.Condition + GetMultiplicator(Shift);
+    fGroup.FlagBearer.StartWDefaultCondition := False;
+    Button_ConditionDefault.Enable;
+  end else if Sender = Button_ConditionDec then
+  begin
+    fGroup.Condition := fGroup.Condition - GetMultiplicator(Shift);
+    fGroup.FlagBearer.StartWDefaultCondition := False;
+    Button_ConditionDefault.Enable;
+  end;
+
+  if fGroup.FlagBearer.StartWDefaultCondition then
+  begin
+    KMConditionBar_Unit.Position := 0.5;
+    fGroup.Condition := UNIT_MAX_CONDITION div 2;
+    Button_ConditionDefault.Disable;
+  end else
+    KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
+end;
+
+
+procedure TKMMapEdUnit.UnitConditionsClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+begin
+  if (Sender = Button_ConditionDec)
+    or (Sender = Button_ConditionInc) then
+    UnitConditionsChange(Sender, GetShiftState(aButton));
+end;
+
+
 procedure TKMMapEdUnit.Unit_ArmyChange1(Sender: TObject);
 begin
   Unit_ArmyChangeShift(Sender, []);
@@ -164,8 +228,10 @@ begin
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
 
-  if Sender = Button_Army_RotCW then  fGroup.Direction := KMNextDirection(fGroup.Direction);
-  if Sender = Button_Army_RotCCW then fGroup.Direction := KMPrevDirection(fGroup.Direction);
+  if Sender = Button_Army_RotCW  then
+    fGroup.Direction := KMNextDirection(fGroup.Direction);
+  if Sender = Button_Army_RotCCW then
+    fGroup.Direction := KMPrevDirection(fGroup.Direction);
   fGroup.ResetAnimStep;
 
   //Toggle between full and half condition
@@ -202,6 +268,22 @@ begin
       Edit_ArmyOrderY.Enable;
       Edit_ArmyOrderDir.Enable;
     end;
+end;
+
+
+procedure TKMMapEdUnit.Unit_ArmyClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+begin
+  if (Sender = Button_ArmyDec)
+    or (Sender = Button_ArmyInc) then
+    Unit_ArmyChange2(Sender, GetShiftState(AButton));
+
+  if (Sender = Button_Army_ForUp)
+    or (Sender = Button_Army_ForDown) then
+    Unit_ArmyChangeShift(Sender, GetShiftState(AButton));
+
+  if (Sender = Button_Army_RotCW)
+    or (Sender = Button_Army_RotCCW) then
+    Unit_ArmyChange1(Sender);
 end;
 
 

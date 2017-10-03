@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Math, StrUtils, SysUtils,
-  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking, KM_Points;
+  KM_Controls, KM_Defaults, KM_NetworkTypes, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking, KM_Points;
 
 
 type
@@ -18,8 +18,9 @@ type
     function Chat_Post(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Chat_MenuClick(Sender: TObject);
-    procedure Chat_MenuSelect(aItem: Integer);
+    procedure Chat_MenuSelect(aItem: TKMNetHandleIndex);
     procedure Chat_MenuShow(Sender: TObject);
+    procedure ChatMemo_CopyAllowed_Click(Sender: TObject);
     function GetPanelChatRect: TKMRect;
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
   protected
@@ -27,6 +28,7 @@ type
       Dragger_Chat: TKMDragger;
       Image_Chat: TKMImage;
       Memo_ChatText: TKMMemo;
+      Button_MemoCopyAllowed: TKMButtonFlat;
       Edit_ChatMsg: TKMEdit;
       Button_ChatRecipient: TKMButtonFlat;
       Image_ChatClose: TKMImage;
@@ -49,7 +51,7 @@ type
 
 implementation
 uses
-  KM_Main, KM_RenderUI, KM_ResTexts, KM_Game, KM_GameApp, KM_Utils,
+  KM_Main, KM_RenderUI, KM_ResTexts, KM_Game, KM_GameApp, KM_CommonUtils,
   KM_ResSound, KM_Resource, KM_ResFonts, KM_Sound, KM_NetPlayersList;
 
 
@@ -76,6 +78,7 @@ begin
     Memo_ChatText.AutoWrap := True;
     Memo_ChatText.IndentAfterNL := True; // Don't let players fake system messages
     Memo_ChatText.ScrollDown := True;
+    Memo_ChatText.Selectable := False;
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Arial);
     Edit_ChatMsg.Anchors := [anLeft, anRight, anBottom];
@@ -83,6 +86,10 @@ begin
     Edit_ChatMsg.OnIsKeyEventHandled := IsKeyEvent_Return_Handled;
     Edit_ChatMsg.Text := '';
     Edit_ChatMsg.ShowColors := True;
+
+    Button_MemoCopyAllowed := TKMButtonFlat.Create(Panel_Chat, 45+600-85+3,154-1,24,22,663);
+    Button_MemoCopyAllowed.Hint := 'Enable/Disable copy-paste from chat window';
+    Button_MemoCopyAllowed.OnClick := ChatMemo_CopyAllowed_Click;
 
     Button_ChatRecipient := TKMButtonFlat.Create(Panel_Chat,45,154,132,20,0);
     Button_ChatRecipient.Font := fnt_Grey;
@@ -117,6 +124,13 @@ begin
   //crashes due to intermediate connecting states. Therefore we block sending completely.
   Result := (Key = VK_RETURN)
     and (gGame.Networking <> nil) and not gGame.Networking.IsReconnecting;
+end;
+
+
+procedure TKMGUIGameChat.ChatMemo_CopyAllowed_Click(Sender: TObject);
+begin
+  Button_MemoCopyAllowed.Down := not Button_MemoCopyAllowed.Down;
+  Memo_ChatText.Selectable := Button_MemoCopyAllowed.Down;
 end;
 
 
@@ -157,7 +171,7 @@ begin
 end;
 
 
-procedure TKMGUIGameChat.Chat_MenuSelect(aItem: Integer);
+procedure TKMGUIGameChat.Chat_MenuSelect(aItem: TKMNetHandleIndex);
 
   procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
   const

@@ -2,10 +2,10 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
-  {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions
-  {$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  KM_FormMain, KM_FormLoading,
+  KM_Settings, KM_Resolutions;
+
 
 type
   TKMMain = class
@@ -68,7 +68,13 @@ var
 
 implementation
 uses
-  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps, KM_Points;
+  Classes, Forms,
+  {$IFDEF MSWindows} MMSystem, {$ENDIF}
+  {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
+  SysUtils, StrUtils, Math, KromUtils,
+  KM_GameApp, KM_Maps,
+  KM_Log, KM_CommonUtils, KM_Defaults, KM_Points;
+
 
 const
   //Random GUID generated in Delphi by Ctrl+G
@@ -156,6 +162,9 @@ begin
   //Update map cache files (*.mi) in the background so map lists load faster
   MapCacheUpdate;
 
+  //Preload game resources while in menu to make 1st game start faster
+  gGameApp.PreloadGameResources;
+
   //Process messages in queue before hiding Loading, so that they all land on Loading form, not main one
   Application.ProcessMessages;
   fFormLoading.Hide;
@@ -170,7 +179,7 @@ end;
 
 procedure TKMMain.GameSpeedChange(aSpeed: Single);
 begin
-  fFormMain.chkSuperSpeed.Checked := aSpeed = 300;
+  fFormMain.chkSuperSpeed.Checked := aSpeed = DEBUG_SPEEDUP_SPEED;
 end;
 
 
@@ -273,6 +282,7 @@ end;
 procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
 var
   FrameTime: Cardinal;
+  FPSLag: Integer;
 begin
   if CHECK_8087CW then
     //$1F3F is used to mask out reserved/undefined bits
@@ -285,19 +295,21 @@ begin
     FrameTime  := GetTimeSince(fOldTimeFPS);
     fOldTimeFPS := TimeGet;
 
-    if CAP_MAX_FPS and (FPS_LAG <> 1) and (FrameTime < FPS_LAG) then
+    FPSLag := Floor(1000 / fMainSettings.FPSCap);
+    if CAP_MAX_FPS and (FPSLag <> 1) and (FrameTime < FPSLag) then
     begin
-      Sleep(FPS_LAG - FrameTime);
-      FrameTime := FPS_LAG;
+      Sleep(FPSLag - FrameTime);
+      FrameTime := FPSLag;
     end;
 
     inc(fOldFrameTimes, FrameTime);
     inc(fFrameCount);
     if fOldFrameTimes >= FPS_INTERVAL then
     begin
-      if gGameApp <> nil then gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
+      if gGameApp <> nil then
+        gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
       StatusBarText(4, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
-                       IfThen(CAP_MAX_FPS, ' (' + inttostr(FPS_LAG) + ')'));
+                       IfThen(CAP_MAX_FPS, ' (' + inttostr(FPSLag) + ')'));
       fOldFrameTimes := 0;
       fFrameCount := 0;
     end;
@@ -551,6 +563,7 @@ end;
 
 procedure TKMMain.ShowAbout;
 begin
+  fFormLoading.Position := poScreenCenter;
   fFormLoading.Bar1.Position := 0;
   fFormLoading.Label1.Caption := '';
   fFormLoading.Show;

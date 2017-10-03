@@ -44,7 +44,7 @@ type
   public
     constructor Create(aType: TChartArmyType; aKind: TChartArmyKind; aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
     destructor Destroy; override;
-    procedure AddLine(aPlayer: TKMHandIndex; aTitle: UnicodeString; aColor: Cardinal);
+    procedure AddLine(aPlayer: TKMHandIndex; const aTitle: UnicodeString; aColor: Cardinal);
     function IsEmpty(aPlayer: TKMHandIndex): Boolean;
     property Chart: TKMChart read fChart;
     property ChartType: TKMChartArmyType read fType;
@@ -101,10 +101,12 @@ type
         // Charts of total army trained (includes initial army)
         Chart_MPArmyTotal: array [TChartArmyType] of TKMChartArmyMP; //One for each warrior type;
         Label_NoArmyData: TKMLabel;
-        Radio_ChartArmyStyle: TKMRadioGroup;
+        Panel_ChartArmy_Type: TKMPanel;
+          Radio_ChartArmyStyle: TKMRadioGroup;
       Button_ResultsMPBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+    destructor Destroy; override;
 
     procedure Show(aMsg: TGameResultMsg);
   end;
@@ -112,12 +114,12 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_HandsCollection, KM_Utils, KM_Resource, KM_ResFonts,
+  KM_ResTexts, KM_Game, KM_HandsCollection, KM_CommonUtils, KM_Resource, KM_ResFonts,
   KM_RenderUI, KM_Hand, KM_ResUnits;
 
 
 const
-  PANES_TOP = 185;
+  PANES_TOP = 185-80;
   BAR_ROW_HEIGHT = 22;
 
   WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Byte = (
@@ -183,12 +185,12 @@ end;
 destructor TKMChartArmyMP.Destroy;
 begin
   FreeAndNil(fType);
-  FreeAndNil(fChart);
+  // fChart is freed by GUI (MasterPanel and so on...)
   inherited;
 end;
 
 
-procedure TKMChartArmyMP.AddLine(aPlayer: TKMHandIndex; aTitle: UnicodeString; aColor: Cardinal);
+procedure TKMChartArmyMP.AddLine(aPlayer: TKMHandIndex; const aTitle: UnicodeString; aColor: Cardinal);
 var ChartData: TKMCardinalArray;
 begin
   if (fType.HasUnitType) then begin
@@ -240,6 +242,18 @@ begin
 end;
 
 
+destructor TKMMenuResultsMP.Destroy;
+var
+  WType: TChartArmyType;
+begin
+  for WType := High(TChartArmyType) downto Low(TChartArmyType) do
+  begin
+    FreeAndNil(Chart_MPArmy[WType]);
+    FreeAndNil(Chart_MPArmyTotal[WType]);
+  end;
+end;
+
+
 procedure TKMMenuResultsMP.CreateBars(aParent: TKMPanel);
 const
   BarStep = 150;
@@ -252,14 +266,15 @@ const
                                      TX_RESULTS_MP_BUILDINGS_DESTROYED,
                                      TX_RESULTS_MP_WARES_PRODUCED, TX_RESULTS_MP_WEAPONS_PRODUCED);
 var
-  I,K: Integer;
+  I,K, Middle: Integer;
 begin
-  Panel_Bars := TKMPanel.Create(aParent, 62, PANES_TOP, 900, 435);
+  Panel_Bars := TKMPanel.Create(aParent, 62, PANES_TOP, 900, aParent.Height - PANES_TOP - 50);
   Panel_Bars.AnchorsCenter;
+  Middle := Panel_Bars.Height div 2;
 
     //Composed of two sections each on own Panel to position them vertically according to player count
 
-    Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, 900, 215);
+    Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, 900, Middle - 3);
     Panel_BarsUpper.AnchorsCenter;
 
       for I := 0 to MAX_LOBBY_PLAYERS - 1 do
@@ -277,7 +292,7 @@ begin
         end;
       end;
 
-    Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, 220, 900, 180);
+    Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, Middle+3, 900, Middle - 10);
     Panel_BarsLower.AnchorsCenter;
 
       for I := 0 to MAX_LOBBY_PLAYERS - 1 do
@@ -350,9 +365,17 @@ begin
 
     Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 
-    TKMLabel.Create(Panel_ChartsArmy, 755, 355, '', fnt_Metal, taLeft); // Todo translate
+    Panel_ChartArmy_Type := TKMPanel.Create(Panel_ChartsArmy, 755, 335, 150, 80);
+    with TKMShape.Create(Panel_ChartArmy_Type, 0, 0, 150, 80) do
+    begin
+      FillColor := $80303030;
+      LineColor := icGray;
+      LineWidth := 1;
+    end;
 
-    Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartsArmy,755,375,150,40,fnt_Grey);
+    TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+
+    Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,40,fnt_Grey);
     Radio_ChartArmyStyle.ItemIndex := 0;
     Radio_ChartArmyStyle.Add('Instantaneous'); // Todo translate
     Radio_ChartArmyStyle.Add('Total Equipped'); // Todo translate
@@ -437,7 +460,7 @@ begin
   begin
     Label_NoArmyData.Show;
     Columnbox_Army.Hide;
-    Radio_ChartArmyStyle.Hide;
+    Panel_ChartArmy_Type.Hide;
     for WType := Low(TChartArmyType) to High(TChartArmyType) do
     begin
       Chart_MPArmy[WType].Chart.Hide;
@@ -448,7 +471,7 @@ begin
 
   Label_NoArmyData.Hide;
   Columnbox_Army.Show;
-  Radio_ChartArmyStyle.Show;
+  Panel_ChartArmy_Type.Show;
 
   W := TChartArmyType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 
@@ -831,6 +854,8 @@ end;
 
 
 procedure TKMMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
+const
+  TABS_TOP = 75;
 begin
   Panel_ResultsMP := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_ResultsMP.AnchorsStretch;
@@ -845,10 +870,10 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,125,900,20,NO_TEXT,fnt_Metal,taCenter);
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,TABS_TOP-30,900,20,NO_TEXT,fnt_Metal,taCenter);
     Label_ResultsMP.Anchors := [anLeft];
 
-    Button_MPResultsBars := TKMButtonFlat.Create(Panel_ResultsMP, 160, 155, 176, 20, 8, rxGuiMain);
+    Button_MPResultsBars := TKMButtonFlat.Create(Panel_ResultsMP, 160, TABS_TOP, 176, 20, 8, rxGuiMain);
     Button_MPResultsBars.TexOffsetX := -78;
     Button_MPResultsBars.TexOffsetY := 6;
     Button_MPResultsBars.Anchors := [anLeft];
@@ -856,7 +881,7 @@ begin
     Button_MPResultsBars.CapOffsetY := -11;
     Button_MPResultsBars.OnClick := TabChange;
 
-    Button_MPResultsArmy := TKMButtonFlat.Create(Panel_ResultsMP, 340, 155, 176, 20, 53, rxGui);
+    Button_MPResultsArmy := TKMButtonFlat.Create(Panel_ResultsMP, 340, TABS_TOP, 176, 20, 53, rxGui);
     Button_MPResultsArmy.TexOffsetX := -76;
     Button_MPResultsArmy.TexOffsetY := 6;
     Button_MPResultsArmy.Anchors := [anLeft];
@@ -864,7 +889,7 @@ begin
     Button_MPResultsArmy.CapOffsetY := -11;
     Button_MPResultsArmy.OnClick := TabChange;
 
-    Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, 155, 176, 20, 589, rxGui);
+    Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, TABS_TOP, 176, 20, 589, rxGui);
     Button_MPResultsEconomy.TexOffsetX := -72;
     Button_MPResultsEconomy.TexOffsetY := 6;
     Button_MPResultsEconomy.Anchors := [anLeft];
@@ -872,7 +897,7 @@ begin
     Button_MPResultsEconomy.CapOffsetY := -11;
     Button_MPResultsEconomy.OnClick := TabChange;
 
-    Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, 155, 176, 20, 360, rxGui);
+    Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, TABS_TOP, 176, 20, 360, rxGui);
     Button_MPResultsWares.TexOffsetX := -77;
     Button_MPResultsWares.TexOffsetY := 6;
     Button_MPResultsWares.Anchors := [anLeft];
@@ -896,7 +921,7 @@ begin
     CreateChartWares(Panel_ResultsMP);
     CreateChartArmy(Panel_ResultsMP);
 
-    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, 630, 280, 30, NO_TEXT, bsMenu);
+    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, Panel_ResultsMP.Height - 50, 280, 30, NO_TEXT, bsMenu);
     Button_ResultsMPBack.Anchors := [anLeft];
     Button_ResultsMPBack.OnClick := BackClick;
 end;

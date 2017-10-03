@@ -2,9 +2,9 @@ unit KM_AIGeneral;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_Points, KM_AISetup, KM_AIDefensePos,
-  KM_UnitGroups, KM_Units, KM_AIAttacks;
+  KM_AISetup, KM_AIAttacks, KM_AIDefensePos,
+  KM_Units, KM_UnitGroups,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
@@ -42,8 +42,10 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Hand, KM_Terrain, KM_Game, KM_HouseBarracks,
-  KM_AIFields, KM_NavMesh, KM_Houses, KM_Utils, KM_ResHouses;
+  Math,
+  KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_AIFields,
+  KM_Houses, KM_HouseBarracks,
+  KM_ResHouses, KM_NavMesh, KM_CommonUtils;
 
 
 const

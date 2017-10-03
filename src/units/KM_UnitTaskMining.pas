@@ -213,12 +213,12 @@ var
   TimeToWork, StillFrame: Integer;
   ResAcquired: Boolean;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   //there's no point in doing a task if we can't return home
   if (fUnit.GetHome <> nil) and fUnit.GetHome.IsDestroyed then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -390,9 +390,9 @@ begin
             GetHome.SetState(hst_Idle);
             SetActionLockedStay(WorkPlan.AfterWorkIdle-1, ua_Walk);
           end;
-    else  Result := TaskDone;
+    else  Result := tr_TaskDone;
   end;
-  inc(fPhase);
+  Inc(fPhase);
 end;
 
 

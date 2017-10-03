@@ -2,11 +2,12 @@ unit KM_Hand;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_AIArmyEvaluation, KM_BuildList, KM_HandLogistics, KM_FogOfWar, KM_MessageLog,
-  KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats, KM_HandLocks,
-  KM_Units, KM_UnitsCollection, KM_Units_Warrior, KM_UnitGroups, KM_ResHouses;
+  KM_AI, KM_AIArmyEvaluation,
+  KM_Units, KM_UnitsCollection, KM_UnitGroups, KM_Units_Warrior,
+  KM_Houses, KM_HouseCollection, KM_HouseInn,
+  KM_HandLogistics, KM_HandLocks, KM_HandStats,
+  KM_FogOfWar, KM_BuildList, KM_MessageLog, KM_ResHouses,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
@@ -27,7 +28,8 @@ type
 
     function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint): TKMUnit;
     procedure RemUnit(Position: TKMPoint);
-    function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+    function UnitsHitTest(const aLoc: TKMPoint; const UT: TUnitType = ut_Any): TKMUnit; overload;
+    function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit; overload;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
@@ -96,7 +98,7 @@ type
     property MessageLog: TKMMessageLog read fMessageLog;
 
     procedure SeTKMHandIndex(aNewIndex: TKMHandIndex);
-    procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
+    procedure SetOwnerNikname(const aName: AnsiString); //MP owner nikname (empty in SP)
     property OwnerNikname: AnsiString read fOwnerNikname;
     function OwnerName(aNumberedAIs: Boolean = True): UnicodeString; //Universal owner name
     function HasAssets: Boolean;
@@ -168,8 +170,10 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
-  KM_ResTexts, KM_AIFields, KM_ScriptingEvents, KM_HouseBarracks;
+  Classes, SysUtils, KromUtils, Math,
+  KM_Game, KM_Terrain, KM_HouseBarracks, KM_AIFields,
+  KM_HandsCollection, KM_Sound,
+  KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents;
 
 
 const
@@ -234,6 +238,12 @@ end;
 procedure TKMHandCommon.SyncLoad;
 begin
   fUnits.SyncLoad;
+end;
+
+
+function TKMHandCommon.UnitsHitTest(const aLoc: TKMPoint; const UT: TUnitType = ut_Any): TKMUnit;
+begin
+  Result := UnitsHitTest(aLoc.X, aLoc.Y, UT);
 end;
 
 
@@ -496,7 +506,7 @@ begin
 end;
 
 
-procedure TKMHand.SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
+procedure TKMHand.SetOwnerNikname(const aName: AnsiString); //MP owner nikname (empty in SP)
 begin
   fOwnerNikname := aName;
 end;
@@ -704,7 +714,7 @@ begin
     if CanAddFieldPlan(aLoc, aFieldType) then
     begin
       if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-      and (HandIndex = gMySpectator.HandIndex) then
+        and (HandIndex = gMySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType);
       case aFieldType of
@@ -718,7 +728,7 @@ begin
     else
     begin
       if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
-      and (HandIndex = gMySpectator.HandIndex) then
+        and (HandIndex = gMySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
@@ -1359,14 +1369,14 @@ begin
 
   inherited;
 
-  fHouses.UpdateState;
+  fHouses.UpdateState(aTick);
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
   //Distribute AI updates among different Ticks to avoid slowdowns
   if (aTick + Byte(fHandIndex)) mod 10 = 0 then
   begin
     fBuildList.UpdateState;
-    fDeliveries.UpdateState;
+    fDeliveries.UpdateState(aTick);
   end;
 
   //AI update takes care of it's own interleaving, so run it every tick

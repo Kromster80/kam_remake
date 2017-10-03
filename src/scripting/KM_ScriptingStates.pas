@@ -40,6 +40,7 @@ type
     function HouseCanReachResources(aHouseID: Integer): Boolean;
     function HouseDamage(aHouseID: Integer): Integer;
     function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
+    function HouseDeliveryMode(aHouseID: Integer): Integer;
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseHasOccupant(aHouseID: Integer): Boolean;
     function HouseIsComplete(aHouseID: Integer): Boolean;
@@ -136,7 +137,7 @@ type
 implementation
 uses
   KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
-  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
+  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_CommonUtils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
   KM_UnitsCollection, KM_PathFindingRoad;
 
@@ -1274,10 +1275,34 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if H <> nil then
-        Result := (not H.WareDelivery);
+        Result := (H.DeliveryMode <> dm_Delivery);
     end
     else
       LogParamWarning('States.HouseDeliveryBlocked', [aHouseID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Returns true if the specified house has delivery disabled
+//* Result: Blocked
+function TKMScriptStates.HouseDeliveryMode(aHouseID: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  try
+    Result := Integer(dm_Delivery);
+    if aHouseID > 0 then
+    begin
+      H := fIDCache.GetHouse(aHouseID);
+      if H <> nil then
+        Result := Integer(H.DeliveryMode);
+    end
+    else
+      LogParamWarning('States.HouseDeliveryMode', [aHouseID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1790,7 +1815,7 @@ end;
 function TKMScriptStates.KaMRandom: Single;
 begin
   try
-    Result := KM_Utils.KaMRandom;
+    Result := KM_CommonUtils.KaMRandom;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1805,7 +1830,7 @@ function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
   try
     //No parameters to check, any integer is fine (even negative)
-    Result := KM_Utils.KaMRandom(aMax);
+    Result := KM_CommonUtils.KaMRandom(aMax);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

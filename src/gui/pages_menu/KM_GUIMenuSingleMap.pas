@@ -68,7 +68,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameApp, KM_Utils, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_GameApp, KM_CommonUtils, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuSingleMap }

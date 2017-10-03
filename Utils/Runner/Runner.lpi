@@ -48,9 +48,9 @@
       <Filename Value="Runner"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir);..\..;..\..\Common;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\src\ai"/>
-      <Libraries Value="..\..;..\..\Common;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\src\ai"/>
-      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\BGRABitmap;..\..\Common\LNet;..\..\Common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\src\ai"/>
+      <IncludeFiles Value="$(ProjOutDir);..\..;..\..\src\ext;..\..\src\ext\LNet;..\..\src\ext\BGRABitmap;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\pascalscript\Source;..\..\src\ext\OggVorbis;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\render;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\terrain;..\..\src\units;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;..\..\src\net\other;..\..\src\net\http;..\..\src\scripting"/>
+      <Libraries Value="..\..;..\..\src\ext;..\..\src\ext\LNet;..\..\src\ext\BGRABitmap;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\pascalscript\Source;..\..\src\ext\OggVorbis;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\render;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\terrain;..\..\src\units;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;..\..\src\net\other;..\..\src\net\http;..\..\src\scripting"/>
+      <OtherUnitFiles Value="..\..;..\..\src\ext;..\..\src\ext\LNet;..\..\src\ext\BGRABitmap;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\pascalscript\Source;..\..\src\ext\OggVorbis;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\render;..\..\src\houses;..\..\src\net;..\..\src\res;..\..\src\terrain;..\..\src\units;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;..\..\src\net\other;..\..\src\net\http;..\..\src\scripting"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
@@ -71,12 +71,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

@@ -124,7 +124,7 @@ type
     //Swine&Horses, 5 beasts in each house, 3 ages for each beast
     fBeastAnim: array [1..2,1..5,1..3] of TKMAnimLoop;
     fMarketBeastAnim: array [1..3] of TKMAnimLoop;
-    function LoadHouseDat(aPath: string): Cardinal;
+    function LoadHouseDat(const aPath: string): Cardinal;
     function GetHouseDat(aType: THouseType): TKMHouseSpec; inline;
     function GetBeastAnim(aType: THouseType; aBeast, aAge:integer): TKMAnimLoop;
   public
@@ -137,7 +137,7 @@ type
     property BeastAnim[aType: THouseType; aBeast, aAge: Integer]: TKMAnimLoop read GetBeastAnim;
     property CRC: Cardinal read fCRC; //Return hash of all values
 
-    procedure ExportCSV(aPath: string);
+    procedure ExportCSV(const aPath: string);
   end;
 
 
@@ -710,6 +710,8 @@ begin
 
   fCRC := LoadHouseDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'houses.dat');
 
+  fItems[ht_Tannery].fHouseDat.Anim[ha_Flag3].Count := 0; //fix for tannery 2 flags at one place. Flag3 is unnecessary
+
   fItems[ht_Marketplace].fHouseType := ht_Marketplace;
   fItems[ht_Marketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)
   fItems[ht_Marketplace].fHouseDat.StonePic := 150;
@@ -805,7 +807,7 @@ end;
 
 //Return CRC of loaded file
 //CRC should be calculated right away, cos file may be swapped after loading
-function TKMResHouses.LoadHouseDat(aPath: string): Cardinal;
+function TKMResHouses.LoadHouseDat(const aPath: string): Cardinal;
 var
   S: TKMemoryStream;
   i:integer;
@@ -832,13 +834,13 @@ begin
 end;
 
 
-procedure TKMResHouses.ExportCSV(aPath: string);
+procedure TKMResHouses.ExportCSV(const aPath: string);
 var
   HT: THouseType;
   S: string;
   SL: TStringList;
   I, K: Integer;
-  procedure AddField(aField: string); overload;
+  procedure AddField(const aField: string); overload;
   begin S := S + aField + ';'; end;
   procedure AddField(aField: Integer); overload;
   begin S := S + IntToStr(aField) + ';'; end;

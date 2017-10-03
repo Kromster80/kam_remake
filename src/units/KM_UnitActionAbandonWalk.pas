@@ -75,7 +75,7 @@ var
   DX, DY: ShortInt;
   WalkX, WalkY, Distance: Single;
 begin
-  Result := ActContinues;
+  Result := ar_ActContinues;
 
   //Execute the route in series of moves
   Distance := gRes.Units[fUnit.UnitType].Speed;
@@ -91,7 +91,7 @@ begin
       fVertexOccupied := KMPOINT_ZERO;
     end;
     StepDone := True;
-    Result := ActDone;
+    Result := ar_ActDone;
     exit;
   end;
 

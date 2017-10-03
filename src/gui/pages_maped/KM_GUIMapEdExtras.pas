@@ -24,6 +24,7 @@ type
     CheckBox_ShowUnits: TKMCheckBox;
     CheckBox_ShowDeposits: TKMCheckBox;
     CheckBox_ShowTileOwners: TKMCheckBox;
+    CheckBox_ShowTilesGrid: TKMCheckBox;
     constructor Create(aParent: TKMPanel; aOnChange: TNotifyEvent);
 
     procedure Show;
@@ -85,6 +86,10 @@ begin
   CheckBox_ShowTileOwners := TKMCheckBox.Create(Panel_Extra, 250, 150, 180, 20, 'Show tile owners', fnt_Antiqua); //Todo translate
   CheckBox_ShowTileOwners.Checked := False; //Disabled by default
   CheckBox_ShowTileOwners.OnClick := Extra_Change;
+
+  CheckBox_ShowTilesGrid := TKMCheckBox.Create(Panel_Extra, 50, 150, 180, 20, 'Show tiles grid', fnt_Antiqua); //Todo translate
+  CheckBox_ShowTilesGrid.Checked := False; //Disabled by default
+  CheckBox_ShowTilesGrid.OnClick := Extra_Change;
 
   //dropdown list needs to be ontop other buttons created on Panel_Main
   Dropbox_PlayerFOW := TKMDropList.Create(Panel_Extra, 460, 70, 160, 20, fnt_Metal, '', bsGame);

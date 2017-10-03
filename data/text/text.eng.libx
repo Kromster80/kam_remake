@@ -126,7 +126,7 @@
 125:Previous track
 126:Next track
 127:Demolish
-128:Remove buildings/highlights
+128:Remove buildings/plans
 129:Construct road
 130:Construct roads
 131:Plough field
@@ -149,15 +149,15 @@
 150:Next profession
 151:Previous profession
 152:Add to queue
-153:Switch on/off delivery of wares
+153:Switch between delivery modes of wares: demand / closed / offer. Use LMB/RMB to switch forward/backward
 154:Cost:
 155:Switch on/off house repair
 156:Building not available at this time
 157:Condition
 158:Turn troop left
 159:Turn troop right
-160:Attack ('a')
-161:Dispatch troop ('d')
+160:Attack
+161:Dispatch troop
 162:Supply troop with food
 163:Start storm attack
 164:Add line
@@ -608,9 +608,9 @@
 619:Peacetime remaining: %s
 620:Peacetime is over. To thy weapons!
 621:Game time:|%s
-622:Halt troop ('%s')
-623:Link up troop ('%s')
-624:Separate troop ('%s')
+622:Halt troop
+623:Link up troop
+624:Separate troop
 625:Replay Viewer
 626:View Replay
 627:Unsupported format %s
@@ -966,6 +966,9 @@
 1014:Spectate player 6
 1015:Spectate player 7
 1016:Spectate player 8
-1017:Initial MP Game Speed
+1017:Map drag scroll
 1018:Spectate/Replay view Keys
 1019:%s has muted you. You can no longer send messages or beacons to them
+1020:Objects palette
+1021:Universal erasor
+

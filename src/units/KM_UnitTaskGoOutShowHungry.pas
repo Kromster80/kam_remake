@@ -14,7 +14,7 @@ type
 
 implementation
 uses
-  KM_Utils;
+  KM_CommonUtils;
 
 
 { TTaskGoOutShowHungry }
@@ -27,11 +27,11 @@ end;
 
 function TTaskGoOutShowHungry.Execute:TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
   if fUnit.GetHome.IsDestroyed then
   begin
-    Result := TaskDone;
-    exit;
+    Result := tr_TaskDone;
+    Exit;
   end;
 
   with fUnit do
@@ -53,7 +53,7 @@ begin
        end;
     else begin
          Thought := th_None;
-         Result := TaskDone;
+         Result := tr_TaskDone;
        end;
   end;
   inc(fPhase);

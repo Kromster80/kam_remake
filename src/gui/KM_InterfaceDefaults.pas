@@ -24,13 +24,7 @@ type
                       gpLoading,
                       gpError);
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
-  TGUIEventText = procedure (Dest: TKMMenuPageType; aText: UnicodeString = '') of object;
-
-  TKMFileIdentInfo = record // File identification info (for maps/saves)
-    CRC: Cardinal;
-    Name: UnicodeString;
-  end;
-
+  TGUIEventText = procedure (Dest: TKMMenuPageType; const aText: UnicodeString = '') of object;
 
   TKMMenuPageCommon = class
   protected
@@ -38,6 +32,11 @@ type
     OnEscKeyDown: TNotifyEvent;
   public
     procedure MenuKeyDown(Key: Word; Shift: TShiftState);
+  end;
+
+  TKMFileIdentInfo = record // File identification info (for maps/saves)
+    CRC: Cardinal;
+    Name: UnicodeString;
   end;
 
 
@@ -50,18 +49,19 @@ type
     destructor Destroy; override;
 
     property MyControls: TKMMasterControl read fMyControls;
-    procedure ExportPages(aPath: string); virtual; abstract;
+    procedure ExportPages(const aPath: string); virtual; abstract;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual; abstract;
     procedure KeyPress(Key: Char);
-    procedure KeyUp(Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual; abstract;
     //Child classes don't pass these events to controls depending on their state
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); virtual; abstract;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer); overload;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); overload; virtual; abstract;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); virtual;
     procedure Resize(X,Y: Word); virtual;
-    procedure UpdateState(aTickCount: Cardinal); virtual; abstract;
+    procedure UpdateState(aTickCount: Cardinal); virtual;
     procedure Paint; virtual;
   end;
 
@@ -105,6 +105,13 @@ begin
 end;
 
 
+procedure TKMUserInterfaceCommon.MouseMove(Shift: TShiftState; X, Y: Integer);
+var MouseMoveHandled: Boolean;
+begin
+  MouseMove(Shift, X, Y, MouseMoveHandled);
+end;
+
+
 procedure TKMUserInterfaceCommon.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
 begin
   fMyControls.MouseWheel(X, Y, WheelDelta);
@@ -115,6 +122,13 @@ procedure TKMUserInterfaceCommon.Resize(X, Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
+end;
+
+
+procedure TKMUserInterfaceCommon.UpdateState(aTickCount: Cardinal);
+begin
+  inherited;
+  fMyControls.UpdateState(aTickCount);
 end;
 
 

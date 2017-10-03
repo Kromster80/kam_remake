@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Math, SysUtils,
-  KM_Defaults,
+  KM_Defaults, KM_NetworkTypes,
   KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_Networking;
 
 
@@ -23,7 +23,7 @@ type
 
     fLobbyTab: TLobbyTab;
     fChatMode: TChatMode;
-    fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
+    fChatWhisperRecipient: TKMNetHandleIndex; //Server index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
 
     fLocalToNetPlayers: array [1..MAX_LOBBY_SLOTS] of Integer;
@@ -47,7 +47,7 @@ type
     procedure FileDownloadClick(Sender: TObject);
     procedure ReadmeClick(Sender: TObject);
 
-    procedure ChatMenuSelect(aItem: Integer);
+    procedure ChatMenuSelect(aItem: TKMNetHandleIndex);
     procedure ChatMenuClick(Sender: TObject);
     procedure ChatMenuShow(Sender: TObject);
 
@@ -76,6 +76,7 @@ type
     function DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
     function DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
     procedure DropBoxPlayers_Show(Sender: TObject);
+    procedure PercentBar_PlayerDl_ChVisibility(aPlayerIndex: Integer; aShow: Boolean);
 
     function PostKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
@@ -93,6 +94,7 @@ type
     procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_OnReassignedToJoiner(Sender: TObject);
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
+    procedure Lobby_OnPlayerFileTransferProgress(aNetPlayerIndex: Integer; aTotal, aProgress: Cardinal);
 
     function DetectMapType: Integer;
     procedure SettingsClick(Sender: TObject);
@@ -128,6 +130,7 @@ type
         Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
         DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropColumns;
         Label_LobbyPlayer: array [1..MAX_LOBBY_SLOTS] of TKMLabel;
+        PercentBar_LobbyDlProgress: array [1..MAX_LOBBY_SLOTS] of TKMPercentBar;
         DropBox_LobbyLoc: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
         DropBox_LobbyTeam: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
         DropBox_LobbyColors: array [1..MAX_LOBBY_SLOTS] of TKMDropColumns;
@@ -173,7 +176,7 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI,
+  KM_CommonTypes, KM_ResTexts, KM_ResLocales, KM_CommonUtils, KM_Sound, KM_ResSound, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
 
 
@@ -287,35 +290,37 @@ begin
     OffY := 88 + (I-1) * 24;
 
     if I = DivideRow+1 then
-      Label_Spectators.Top := OffY+12;
+      Label_Spectators.Top := OffY+3;
 
     if I > DivideRow then
-      Inc(OffY, 32);
+      Inc(OffY, 23);
 
-    Image_LobbyFlag[I].Top         := OffY;
-    Label_LobbyPlayer[I].Top       := OffY+2;
-    DropBox_LobbyPlayerSlot[I].Top := OffY;
-    DropBox_LobbyLoc[I].Top        := OffY;
-    DropBox_LobbyTeam[I].Top       := OffY;
-    DropBox_LobbyColors[I].Top     := OffY;
-    Image_LobbyReady[I].Top        := OffY;
-    Label_LobbyPing[I].Top         := OffY;
+    Image_LobbyFlag[I].Top            := OffY;
+    Label_LobbyPlayer[I].Top          := OffY+2;
+    PercentBar_LobbyDlProgress[I].Top := OffY;
+    DropBox_LobbyPlayerSlot[I].Top    := OffY;
+    DropBox_LobbyLoc[I].Top           := OffY;
+    DropBox_LobbyTeam[I].Top          := OffY;
+    DropBox_LobbyColors[I].Top        := OffY;
+    Image_LobbyReady[I].Top           := OffY;
+    Label_LobbyPing[I].Top            := OffY;
 
     if (fNetworking <> nil) and (fLocalToNetPlayers[I] = fNetworking.HostIndex) then
     begin
       Image_HostStar.Top := OffY+2;
       Image_HostStar.Show;
+      PercentBar_PlayerDl_ChVisibility(I, False);
     end;
   end;
   if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil)
   and fNetworking.NetPlayers.SpectatorsAllowed then
   begin
-    Panel_LobbyPlayers.Height := 364;
+    Panel_LobbyPlayers.Height := 426;
     Label_Spectators.Show;
   end
   else
   begin
-    Panel_LobbyPlayers.Height := 284;
+    Panel_LobbyPlayers.Height := 379;
     Label_Spectators.Hide;
   end;
   Bevel_LobbyPlayers.Height := Panel_LobbyPlayers.Height;
@@ -413,11 +418,17 @@ begin
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
         DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropBoxPlayers_CellClick;
-        DropBox_LobbyPlayerSlot[I].OnShow := DropBoxPlayers_Show;
+        DropBox_LobbyPlayerSlot[I].OnShowList := DropBoxPlayers_Show;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
         DropBox_LobbyLoc[I].OnChange := PlayersSetupChange;
+        DropBox_LobbyLoc[I].DropCount := MAX_LOBBY_PLAYERS + 2; //also 'Random' and possible 'Spectator'
+
+        PercentBar_LobbyDlProgress[I] := TKMPercentBar.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey);
+        PercentBar_LobbyDlProgress[I].Caption := gResTexts[TX_LOBBY_DOWNLOADING];
+        PercentBar_LobbyDlProgress[I].Hide;
+        PercentBar_LobbyDlProgress[I].TextYOffset := -3;
 
         DropBox_LobbyTeam[I] := TKMDropList.Create(Panel_LobbyPlayers, C3, OffY, 80, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyTeam[I].Add('-');
@@ -427,6 +438,7 @@ begin
         DropBox_LobbyColors[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C4, OffY, 80, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyColors[I].SetColumns(fnt_Outline, [''], [0]);
         DropBox_LobbyColors[I].List.ShowHeader := False;
+        DropBox_LobbyColors[I].DropCount := 13;
         DropBox_LobbyColors[I].FadeImageWhenDisabled := False;
         DropBox_LobbyColors[I].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
         for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
@@ -472,7 +484,7 @@ begin
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
       InitDropColMapsList;
-      DropCol_LobbyMaps.OnShow := MapList_OnShow;
+      DropCol_LobbyMaps.OnShowList := MapList_OnShow;
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;
@@ -594,6 +606,7 @@ begin
     TKMLabel.Create(Panel_LobbySettings, 20, 50, 280, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taCenter);
     Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 280, 20, fnt_Grey);
     Edit_LobbyDescription.AllowedChars := acText;
+    Edit_LobbyDescription.MaxLen := 60;
 
     TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
@@ -612,7 +625,7 @@ begin
 end;
 
 
-procedure TKMMenuLobby.ChatMenuSelect(aItem: Integer);
+procedure TKMMenuLobby.ChatMenuSelect(aItem: TKMNetHandleIndex);
 
   procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
   var CapWidth: Integer;
@@ -791,6 +804,7 @@ begin
   fNetworking.OnReassignedHost := Lobby_OnReassignedToHost;
   fNetworking.OnReassignedJoiner := Lobby_OnReassignedToJoiner;
   fNetworking.OnFileTransferProgress := Lobby_OnFileTransferProgress;
+  fNetworking.OnPlayerFileTransferProgress := Lobby_OnPlayerFileTransferProgress;
 
   ChatMenuSelect(CHAT_MENU_ALL); //All
 
@@ -891,6 +905,7 @@ begin
     Image_LobbyFlag[I].TexID := 0;
     Image_LobbyFlag[I].HighlightOnMouseOver := False;
     Label_LobbyPlayer[I].Hide;
+    PercentBar_PlayerDl_ChVisibility(I, False);
     DropBox_LobbyPlayerSlot[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     DropBox_LobbyPlayerSlot[I].Disable;
     DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
@@ -1075,6 +1090,19 @@ begin
 end;
 
 
+procedure TKMMenuLobby.PercentBar_PlayerDl_ChVisibility(aPlayerIndex: Integer; aShow: Boolean);
+begin
+  if aShow then
+  begin
+    DropBox_LobbyLoc[aPlayerIndex].Hide;
+    PercentBar_LobbyDlProgress[aPlayerIndex].Show;
+  end else begin
+    DropBox_LobbyLoc[aPlayerIndex].Show;
+    PercentBar_LobbyDlProgress[aPlayerIndex].Hide;
+  end;
+end;
+
+
 procedure TKMMenuLobby.PlayerMenuShow(Sender: TObject);
 var
   ctrl: TKMControl;
@@ -1155,9 +1183,11 @@ end;
 function TKMMenuLobby.DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I, J, NetI: Integer;
     SlotsToChange, SlotsChanged: Byte;
+    RowChanged: Boolean;
 begin
   Result := False;
 
+  //Second column was clicked
   if X = 1 then
   begin
     SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
@@ -1188,14 +1218,19 @@ begin
         else  J := I;
       end;
 
+      RowChanged := False;
       NetI := fLocalToNetPlayers[J];
       if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
       begin
-        //Do not count this slot as changed, if it already has AI value
         if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
-          Inc(SlotsChanged);
+        begin
+          RowChanged := True;
+          Inc(SlotsChanged); //Do not count this slot as changed, if it already has AI value
+        end;
         DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
-        PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+        //Do not call for PlayerSetupChange if this row is AIPlayer and did not change (it was AIPlayer before that) - to avoid existing AIPlayer reset
+        if RowChanged or (Y <> 2) then
+          PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
       end;
     end;
 
@@ -1344,6 +1379,7 @@ begin
     Label_LobbyPlayer[I].Caption := '';
     Image_LobbyFlag[I].TexID := 0;
     Label_LobbyPlayer[I].Hide;
+    PercentBar_PlayerDl_ChVisibility(I, False);
     DropBox_LobbyPlayerSlot[I].Show;
     if I > MAX_LOBBY_PLAYERS then
     begin
@@ -1412,6 +1448,7 @@ begin
     if fNetworking.IsHost and (not CurPlayer.IsHuman) then
     begin
       Label_LobbyPlayer[I].Hide;
+      PercentBar_PlayerDl_ChVisibility(I, False);
       DropBox_LobbyPlayerSlot[I].Enable;
       DropBox_LobbyPlayerSlot[I].Show;
       Assert(I <= MAX_LOBBY_PLAYERS, 'Spectator slots can''t have AI or closed');
@@ -1428,6 +1465,7 @@ begin
       else
         Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(CurPlayer.FlagColor);
       Label_LobbyPlayer[I].Show;
+      PercentBar_PlayerDl_ChVisibility(I, False);
       DropBox_LobbyPlayerSlot[I].Disable;
       DropBox_LobbyPlayerSlot[I].Hide;
       DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
@@ -1616,7 +1654,7 @@ begin
     2,  //Co-op Map
     3:  //Special map Map
         begin
-          fMapsMP.Refresh(MapList_ScanUpdate, MapList_ScanComplete);
+          fMapsMP.Refresh(MapList_ScanUpdate, nil, MapList_ScanComplete);
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
           InitDropColMapsList;
         end;
@@ -1706,7 +1744,7 @@ end;
 
 
 procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
-  procedure SelectByName(aName: UnicodeString);
+  procedure SelectByName(const aName: UnicodeString);
   var I: Integer;
   begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
@@ -1783,7 +1821,7 @@ end;
 
 
 procedure TKMMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
-  procedure SelectByName(aName: UnicodeString);
+  procedure SelectByName(const aName: UnicodeString);
   var I: Integer;
   begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
@@ -1938,7 +1976,7 @@ begin
     finally
       fMapsMP.Unlock;
     end;
-    Result := True; //we handle mouse click here, and do want to propagate it further
+    Result := True; //we handle mouse click here, and do not want to propagate it further
   end;
 end;
 
@@ -2172,12 +2210,31 @@ end;
 procedure TKMMenuLobby.Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
 begin
   if aTotal = 0 then
-    PercentBar_LobbySetupProgress.Hide
-  else
   begin
+    PercentBar_LobbySetupProgress.Hide;
+    PercentBar_LobbySetupProgress.SetCaptions('', gResTexts[TX_LOBBY_DOWNLOADING], '');
+  end else begin
     PercentBar_LobbySetupProgress.Show;
     PercentBar_LobbySetupProgress.Position := aProgress / aTotal;
-    PercentBar_LobbySetupProgress.Caption := IntToStr(aProgress div 1024) + 'kb / ' + IntToStr(aTotal div 1024) + 'kb';
+    PercentBar_LobbySetupProgress.SetCaptions(IntToStr(aProgress div 1024) + 'kb ', '/', ' ' + IntToStr(aTotal div 1024) + 'kb');
+  end;
+end;
+
+
+procedure TKMMenuLobby.Lobby_OnPlayerFileTransferProgress(aNetPlayerIndex: Integer; aTotal, aProgress: Cardinal);
+var
+  Row: Integer;
+begin
+  Row := fNetPlayersToLocal[aNetPlayerIndex];
+  if (aProgress >= aTotal) or (aTotal = 0) then
+  begin
+    PercentBar_LobbyDlProgress[Row].Position := 0;
+    PercentBar_LobbyDlProgress[Row].SetCaptions('', gResTexts[TX_LOBBY_DOWNLOADING], '');
+    PercentBar_PlayerDl_ChVisibility(Row, False);
+  end else begin
+    PercentBar_LobbyDlProgress[Row].Position := aProgress / aTotal;
+    PercentBar_LobbyDlProgress[Row].SetCaptions(IntToStr(aProgress div 1024) + 'kb ', '/', ' ' + IntToStr(aTotal div 1024) + 'kb');
+    PercentBar_PlayerDl_ChVisibility(Row, True);
   end;
 end;
 

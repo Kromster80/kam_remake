@@ -49,7 +49,7 @@
 			<VerInfo_Build>14</VerInfo_Build>
 			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
 			<DCC_WriteableConstants>true</DCC_WriteableConstants>
-			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\src\houses;..\..\src\net;..\..\src\res;..\..\src\terrain;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src\ext\;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\src\houses;..\..\src\net;..\..\src\res;..\..\src\terrain;..\..\src\units;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;..\..\src\net\other;..\..\src\net\http;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_RangeChecking>true</DCC_RangeChecking>
 			<DCC_UsePackage>VCL50;VCLX50;VCLSMP50;VCLDB50;VCLADO50;ibevnt50;VCLBDE50;VCLDBX50;QRPT50;TEEUI50;TEEDB50;TEE50;DSS50;TEEQR50;VCLIB50;VCLMID50;VCLIE50;INETDB50;INET50;NMFAST50;WEBMID50;dclocx50;dclaxserver50;AGLd5;TAMovie;$(DCC_UsePackage)</DCC_UsePackage>
 			<DCC_K>false</DCC_K>

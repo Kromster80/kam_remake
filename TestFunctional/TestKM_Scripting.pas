@@ -64,7 +64,7 @@ begin
           Status('Script did not load: ' + PathToMaps[I] + '. '+ E.Message);
       end;
 
-      Check(fScripting.ErrorString = '', 'Script did not load: ' + PathToMaps[I]);
+      Check(fScripting.ErrorHandler.HasErrors, 'Script did not load: ' + PathToMaps[I]);
     end;
 
     Status(IntToStr(PathToMaps.Count - GoodMaps) + ' of ' + IntToStr(PathToMaps.Count) + ' scripts failed');

@@ -27,6 +27,7 @@ type
     procedure Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure TriangleOnTerrain(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
+    procedure RenderResizeMap(aExceptRect: TKMRect);
     procedure Projectile(x1, y1, x2, y2: Single);
     procedure Quad(pX, pY: Integer; aCol: TColor4);
     procedure SquareOnTerrain(x1, y1, x2, y2: Single; aLineColor: TColor4);
@@ -44,12 +45,13 @@ var
 
 implementation
 uses
-  KM_Terrain;
+  KM_Render, KM_Terrain;
 
 
 //Simple dot to know where it actualy is
 procedure TRenderAux.RenderDot(pX, pY: Single; Size: Single = 0.05);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   //Render as quad to control the size of it
   glBegin(GL_QUADS);
     glkRect(pX - Size, pY + Size, pX + Size, pY - Size);
@@ -59,6 +61,7 @@ end;
 
 procedure TRenderAux.RenderDotOnTile(pX, pY: Single);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   pY := gTerrain.FlatToHeight(pX, pY);
   glBegin(GL_QUADS);
     glkRect(pX, pY, pX + 0.1, pY - 0.1);
@@ -68,6 +71,8 @@ end;
 
 procedure TRenderAux.RenderLine(x1, y1, x2, y2: Single);
 begin
+  // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
+  TRender.BindTexture(0);
   glBegin(GL_LINES);
     glVertex2f(x1, gTerrain.FlatToHeight(x1, y1));
     glVertex2f(x2, gTerrain.FlatToHeight(x2, y2));
@@ -79,6 +84,7 @@ procedure TRenderAux.RenderQuad(pX, pY: Integer);
 begin
   if not gTerrain.TileInMapCoords(pX, pY) then exit;
 
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glBegin(GL_QUADS);
     with gTerrain do
     glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
@@ -95,6 +101,7 @@ const
 var
   I: Integer;
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glPushMatrix;
     glTranslatef(X, Y, 0);
     glColor4ubv(@Fill);
@@ -122,6 +129,7 @@ var
   I: Integer;
   C,S: Single;
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@Fill);
   glBegin(GL_POLYGON);
     for I := -SEC_COUNT to SEC_COUNT - 1 do
@@ -147,6 +155,7 @@ procedure TRenderAux.SquareOnTerrain(X1, Y1, X2, Y2: Single; aLineColor: TColor4
 var
   I: Integer;
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aLineColor);
   glBegin(GL_LINE_LOOP);
     glVertex2f(X1, gTerrain.FlatToHeight(X1, Y1));
@@ -164,6 +173,7 @@ end;
 
 procedure TRenderAux.Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aCol);
   RenderDot(X, Y, aSize);
 end;
@@ -171,6 +181,7 @@ end;
 
 procedure TRenderAux.DotOnTerrain(x, y: Single; aCol: TColor4);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aCol);
   RenderDot(X,gTerrain.FlatToHeight(X, Y));
 end;
@@ -178,6 +189,7 @@ end;
 
 procedure TRenderAux.LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aCol);
   glEnable(GL_LINE_STIPPLE);
   glLineStipple(2, aPattern);
@@ -217,6 +229,7 @@ end;
 
 procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aCol);
 
   glEnable(GL_LINE_STIPPLE);
@@ -235,6 +248,7 @@ end;
 
 procedure TRenderAux.Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aCol);
 
   glBegin(GL_TRIANGLES);
@@ -272,6 +286,18 @@ begin
 end;
 
 
+procedure TRenderAux.RenderResizeMap(aExceptRect: TKMRect);
+var
+  I, K: Integer;
+begin
+  glColor4f(1,0,0,0.15);
+  for I := 1 to gTerrain.MapY - 1 do
+    for K := 1 to gTerrain.MapX - 1 do
+      if not KMInRect(KMPoint(K,I), aExceptRect) then
+        RenderQuad(K,I);
+end;
+
+
 procedure TRenderAux.Projectile(x1, y1, x2, y2: Single);
 begin
   glColor4f(1, 1, 0, 1);
@@ -291,6 +317,7 @@ end;
 
 procedure TRenderAux.Text(pX, pY: Integer; const aText: string; aCol: TColor4);
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor4ubv(@aCol);
   glRasterPos2f(pX - 0.5, gTerrain.FlatToHeight(pX-0.5, pY-0.5));
   glPrint(AnsiString(aText));
@@ -335,6 +362,7 @@ var
   FaceX, FaceY: Single;
 begin
   if NodeList.Count = 0 then Exit;
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
 
   case aUnitType of
     1: glColor3f(1,0,0); //Serf
@@ -369,6 +397,7 @@ procedure TRenderAux.Wires(aRect: TKMRect);
 var
   I, K: Integer;
 begin
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   for I := aRect.Top to aRect.Bottom + 1 do
   begin
     glBegin(GL_LINE_STRIP);

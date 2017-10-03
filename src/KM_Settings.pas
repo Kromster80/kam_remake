@@ -2,8 +2,11 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles, System.UITypes,
-  KM_Defaults, KM_CommonTypes, KM_Resolutions, KM_Points, KM_WareDistribution;
+  Classes,
+  {$IFDEF FPC}Forms,{$ENDIF}   //Lazarus do not know UITypes
+  {$IFDEF WDC}UITypes,{$ENDIF} //We use settings in console modules
+  KM_Resolutions, KM_WareDistribution,
+  KM_Defaults, KM_Points, KM_CommonTypes;
 
 
 type
@@ -47,7 +50,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadFromString(aString: UnicodeString);
+    procedure LoadFromString(const aString: UnicodeString);
     function PackToString: UnicodeString;
 
     property OnMapsUpdate: TUnicodeStringEvent read fOnMapsUpdate write fOnMapsUpdate;
@@ -66,6 +69,7 @@ type
   private
     fNeedsSave: Boolean;
     fFullScreen: Boolean;
+    fFPSCap: Integer;
     fResolution: TKMScreenRes;
     fWindowParams: TKMWindowParams;
     fVSync: Boolean;
@@ -74,8 +78,8 @@ type
     procedure SetVSync(aValue: Boolean);
   protected
     procedure Changed;
-    function LoadFromINI(aFileName: UnicodeString): Boolean;
-    procedure SaveToINI(aFileName: UnicodeString);
+    function LoadFromINI(const aFileName: UnicodeString): Boolean;
+    procedure SaveToINI(const aFileName: UnicodeString);
   public
     constructor Create;
     destructor Destroy; override;
@@ -83,6 +87,7 @@ type
     procedure SaveSettings(aForce: Boolean = False);
     procedure ReloadSettings;
 
+    property FPSCap: Integer read fFPSCap;
     property FullScreen: Boolean read fFullScreen write SetFullScreen;
     property Resolution: TKMScreenRes read fResolution write SetResolution;
     property WindowParams: TKMWindowParams read fWindowParams;
@@ -96,7 +101,11 @@ type
     fNeedsSave: Boolean;
 
     fAutosave: Boolean;
+    fAutosaveFrequency: Integer;
+    fAutosaveCount: Integer;
     fReplayAutopause: Boolean;
+    fReplayShowBeacons: Boolean; //Replay variable - show beacons during replay
+    fSpecShowBeacons: Boolean;   //Spectator variable - show beacons while spectating
     fBrightness: Byte;
     fScrollSpeed: Byte;
     fAlphaShadows: Boolean;
@@ -120,6 +129,7 @@ type
     fServerName: AnsiString;
     fMasterAnnounceInterval: Integer;
     fMaxRooms: Integer;
+    fServerPacketsAccumulatingDelay: Integer;
     fFlashOnMessage: Boolean;
     fAutoKickTimeout: Integer;
     fPingInterval: Integer;
@@ -148,31 +158,36 @@ type
     fFavouriteMaps: TKMFavouriteMaps;
 
     procedure SetAutosave(aValue: Boolean);
+    procedure SetAutosaveFrequency(aValue: Integer);
+    procedure SetAutosaveCount(aValue: Integer);
     procedure SetReplayAutopause(aValue: Boolean);
+    procedure SetReplayShowBeacons(aValue: Boolean);
+    procedure SetSpecShowBeacons(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
     procedure SetLoadFullFonts(aValue: Boolean);
-    procedure SetLocale(aLocale: AnsiString);
+    procedure SetLocale(const aLocale: AnsiString);
     procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
     procedure SetSoundFXVolume(aValue: Single);
-    procedure SetMultiplayerName(aValue: AnsiString);
-    procedure SetLastIP(aValue: string);
-    procedure SetMasterServerAddress(aValue: string);
-    procedure SetServerName(aValue: AnsiString);
-    procedure SetLastPort(aValue: string);
-    procedure SetLastRoom(aValue: string);
-    procedure SetLastPassword(aValue: string);
-    procedure SetServerPort(aValue: string);
-    procedure SetServerWelcomeMessage(aValue: UnicodeString);
+    procedure SetMultiplayerName(const aValue: AnsiString);
+    procedure SetLastIP(const aValue: string);
+    procedure SetMasterServerAddress(const aValue: string);
+    procedure SetServerName(const aValue: AnsiString);
+    procedure SetLastPort(const aValue: string);
+    procedure SetLastRoom(const aValue: string);
+    procedure SetLastPassword(const aValue: string);
+    procedure SetServerPort(const aValue: string);
+    procedure SetServerWelcomeMessage(const aValue: UnicodeString);
     procedure SetAnnounceServer(aValue: Boolean);
     procedure SetAutoKickTimeout(aValue: Integer);
     procedure SetPingInterval(aValue: Integer);
     procedure SetMasterAnnounceInterval(eValue: Integer);
-    procedure SetHTMLStatusFile(eValue: UnicodeString);
+    procedure SetHTMLStatusFile(const eValue: UnicodeString);
     procedure SetMaxRooms(eValue: Integer);
+    procedure SetServerPacketsAccumulatingDelay(aValue: Integer);
     procedure SetFlashOnMessage(aValue: Boolean);
 
     procedure SetMenuFavouriteMPMapsStr(const aValue: UnicodeString);
@@ -182,18 +197,18 @@ type
     procedure SetMenuMapEdNewMapY(aValue: Word);
     procedure SetMenuMapEdSPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapCRC(aValue: Cardinal);
-    procedure SetMenuMapEdMPMapName(aValue: UnicodeString);
-    procedure SetMenuCampaignName(aValue: UnicodeString);
+    procedure SetMenuMapEdMPMapName(const aValue: UnicodeString);
+    procedure SetMenuCampaignName(const aValue: UnicodeString);
     procedure SetMenuReplaySPSaveCRC(aValue: Cardinal);
     procedure SetMenuReplayMPSaveCRC(aValue: Cardinal);
-    procedure SetMenuReplaySPSaveName(aValue: UnicodeString);
-    procedure SetMenuReplayMPSaveName(aValue: UnicodeString);
+    procedure SetMenuReplaySPSaveName(const aValue: UnicodeString);
+    procedure SetMenuReplayMPSaveName(const aValue: UnicodeString);
     procedure SetMenuSPMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveCRC(aValue: Cardinal);
     procedure SetMenuLobbyMapType(aValue: Byte);
   protected
-    function LoadFromINI(FileName: UnicodeString): Boolean;
-    procedure SaveToINI(FileName: UnicodeString);
+    function LoadFromINI(const FileName: UnicodeString): Boolean;
+    procedure SaveToINI(const FileName: UnicodeString);
     procedure Changed;
   public
     constructor Create;
@@ -202,7 +217,11 @@ type
     procedure ReloadSettings;
 
     property Autosave: Boolean read fAutosave write SetAutosave;
+    property AutosaveFrequency: Integer read fAutosaveFrequency write SetAutosaveFrequency;
+    property AutosaveCount: Integer read fAutosaveCount write SetAutosaveCount;
     property ReplayAutopause: Boolean read fReplayAutopause write SetReplayAutopause;
+    property ReplayShowBeacons: Boolean read fReplayShowBeacons write SetReplayShowBeacons;
+    property SpecShowBeacons: Boolean read fSpecShowBeacons write SetSpecShowBeacons;
     property Brightness: Byte read fBrightness write SetBrightness;
     property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
@@ -227,6 +246,7 @@ type
     property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
     property AnnounceServer: Boolean read fAnnounceServer write SetAnnounceServer;
     property MaxRooms: Integer read fMaxRooms write SetMaxRooms;
+    property ServerPacketsAccumulatingDelay: Integer read fServerPacketsAccumulatingDelay write SetServerPacketsAccumulatingDelay;
     property FlashOnMessage: Boolean read fFlashOnMessage write SetFlashOnMessage;
     property AutoKickTimeout: Integer read fAutoKickTimeout write SetAutoKickTimeout;
     property PingInterval: Integer read fPingInterval write SetPingInterval;
@@ -257,6 +277,7 @@ type
 
 implementation
 uses
+  SysUtils, INIfiles, Math,
   KM_Log;
 
 const
@@ -288,7 +309,7 @@ begin
 end;
 
 
-function TMainSettings.LoadFromINI(aFileName: UnicodeString): Boolean;
+function TMainSettings.LoadFromINI(const aFileName: UnicodeString): Boolean;
 var
   F: TMemIniFile;
 begin
@@ -301,6 +322,7 @@ begin
   fResolution.Width   := F.ReadInteger('GFX', 'ResolutionWidth',  MENU_DESIGN_X);
   fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', MENU_DESIGN_Y);
   fResolution.RefRate := F.ReadInteger('GFX', 'RefreshRate',      60);
+  fFPSCap := EnsureRange(F.ReadInteger('GFX', 'FPSCap', DEF_FPS_CAP), MIN_FPS_CAP, MAX_FPS_CAP);
 
   // For proper window positioning we need Left and Top records
   // Otherwise reset all window params to defaults
@@ -324,7 +346,7 @@ end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
-procedure TMainSettings.SaveToINI(aFileName: UnicodeString);
+procedure TMainSettings.SaveToINI(const aFileName: UnicodeString);
 var
   F: TMemIniFile;
 begin
@@ -335,6 +357,7 @@ begin
   F.WriteInteger('GFX','ResolutionWidth', fResolution.Width);
   F.WriteInteger('GFX','ResolutionHeight',fResolution.Height);
   F.WriteInteger('GFX','RefreshRate',     fResolution.RefRate);
+  F.WriteInteger('GFX','FPSCap',          fFPSCap);
 
   F.WriteInteger('Window','WindowWidth',    fWindowParams.Width);
   F.WriteInteger('Window','WindowHeight',   fWindowParams.Height);
@@ -425,7 +448,7 @@ begin
 end;
 
 
-function TGameSettings.LoadFromINI(FileName: UnicodeString): Boolean;
+function TGameSettings.LoadFromINI(const FileName: UnicodeString): Boolean;
 var
   F: TMemIniFile;
 begin
@@ -433,18 +456,23 @@ begin
 
   F := TMemIniFile.Create(FileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
   try
-    fBrightness       := F.ReadInteger('GFX', 'Brightness',       1);
-    fAlphaShadows     := F.ReadBool   ('GFX', 'AlphaShadows',     True);
-    fLoadFullFonts    := F.ReadBool   ('GFX', 'LoadFullFonts',    False);
+    fBrightness         := F.ReadInteger  ('GFX', 'Brightness',         1);
+    fAlphaShadows       := F.ReadBool     ('GFX', 'AlphaShadows',       True);
+    fLoadFullFonts      := F.ReadBool     ('GFX', 'LoadFullFonts',      False);
 
-    fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
-    fReplayAutopause:= F.ReadBool   ('Game', 'ReplayAutopause', False); //Disabled by default
-    fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
-    fLocale         := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
-    fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
-    fSpeedMedium    := F.ReadFloat('Game', 'SpeedMedium',    3);
-    fSpeedFast      := F.ReadFloat('Game', 'SpeedFast',      6);
-    fSpeedVeryFast  := F.ReadFloat('Game', 'SpeedVeryFast',  10);
+    fAutosave           := F.ReadBool     ('Game', 'Autosave',          True); //Should be ON by default
+    SetAutosaveFrequency(F.ReadInteger    ('Game', 'AutosaveFrequency', AUTOSAVE_FREQUENCY));
+    SetAutosaveCount    (F.ReadInteger    ('Game', 'AutosaveCount',     AUTOSAVE_COUNT));
+    fReplayAutopause    := F.ReadBool     ('Game', 'ReplayAutopause',   False); //Disabled by default
+    fReplayShowBeacons  := F.ReadBool     ('Game', 'ReplayShowBeacons', False); //Disabled by default
+    fSpecShowBeacons    := F.ReadBool     ('Game', 'SpecShowBeacons',   False); //Disabled by default
+    fScrollSpeed        := F.ReadInteger  ('Game', 'ScrollSpeed',       10);
+    fSpeedPace          := F.ReadInteger  ('Game', 'SpeedPace',         100);
+    fSpeedMedium        := F.ReadFloat    ('Game', 'SpeedMedium',       3);
+    fSpeedFast          := F.ReadFloat    ('Game', 'SpeedFast',         6);
+    fSpeedVeryFast      := F.ReadFloat    ('Game', 'SpeedVeryFast',     10);
+
+    fLocale             := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
 
     fWareDistribution.LoadFromStr(F.ReadString ('Game','WareDistribution',''));
 
@@ -472,6 +500,7 @@ begin
     fAnnounceServer         := F.ReadBool   ('Server','AnnounceDedicatedServer',True);
     fServerName             := AnsiString(F.ReadString ('Server','ServerName','KaM Remake Server'));
     fMaxRooms               := F.ReadInteger('Server','MaxRooms',16);
+    ServerPacketsAccumulatingDelay := F.ReadInteger('Server','PacketsAccumulatingDelay',20);
     fAutoKickTimeout        := F.ReadInteger('Server','AutoKickTimeout',20);
     fPingInterval           := F.ReadInteger('Server','PingMeasurementInterval',1000);
     fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
@@ -504,7 +533,7 @@ end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
-procedure TGameSettings.SaveToINI(FileName: UnicodeString);
+procedure TGameSettings.SaveToINI(const FileName: UnicodeString);
 var
   F: TMemIniFile;
 begin
@@ -514,14 +543,19 @@ begin
     F.WriteBool   ('GFX','AlphaShadows',  fAlphaShadows);
     F.WriteBool   ('GFX','LoadFullFonts', fLoadFullFonts);
 
-    F.WriteBool   ('Game','Autosave',        fAutosave);
-    F.WriteBool   ('Game','ReplayAutopause', fReplayAutopause);
-    F.WriteInteger('Game','ScrollSpeed',     fScrollSpeed);
+    F.WriteBool   ('Game','Autosave',           fAutosave);
+    F.WriteInteger('Game','AutosaveFrequency',  fAutosaveFrequency);
+    F.WriteInteger('Game','AutosaveCount',      fAutosaveCount);
+    F.WriteBool   ('Game','ReplayAutopause',    fReplayAutopause);
+    F.WriteBool   ('Game','ReplayShowBeacons',  fReplayShowBeacons);
+    F.WriteBool   ('Game','SpecShowBeacons',    fSpecShowBeacons);
+    F.WriteInteger('Game','ScrollSpeed',        fScrollSpeed);
+    F.WriteInteger('Game','SpeedPace',          fSpeedPace);
+    F.WriteFloat  ('Game','SpeedMedium',        fSpeedMedium);
+    F.WriteFloat  ('Game','SpeedFast',          fSpeedFast);
+    F.WriteFloat  ('Game','SpeedVeryFast',      fSpeedVeryFast);
+
     F.WriteString ('Game','Locale',          UnicodeString(fLocale));
-    F.WriteInteger('Game','SpeedPace',       fSpeedPace);
-    F.WriteFloat('Game','SpeedMedium',       fSpeedMedium);
-    F.WriteFloat('Game','SpeedFast',         fSpeedFast);
-    F.WriteFloat('Game','SpeedVeryFast',     fSpeedVeryFast);
 
     F.WriteString('Game','WareDistribution', fWareDistribution.PackToStr);
 
@@ -545,6 +579,7 @@ begin
     F.WriteString ('Server','ServerPort',                   fServerPort);
     F.WriteBool   ('Server','AnnounceDedicatedServer',      fAnnounceServer);
     F.WriteInteger('Server','MaxRooms',                     fMaxRooms);
+    F.WriteInteger('Server','PacketsAccumulatingDelay',     fServerPacketsAccumulatingDelay);
     F.WriteString ('Server','HTMLStatusFile',               fHTMLStatusFile);
     F.WriteInteger('Server','MasterServerAnnounceInterval', fMasterAnnounceInterval);
     F.WriteString ('Server','MasterServerAddressNew',       fMasterServerAddress);
@@ -577,7 +612,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetLocale(aLocale: AnsiString);
+procedure TGameSettings.SetLocale(const aLocale: AnsiString);
 begin
   //We can get some unsupported LocaleCode, but that is fine, it will have Eng fallback anyway
   fLocale := aLocale;
@@ -649,14 +684,14 @@ end;
 
 
 
-procedure TGameSettings.SetMenuMapEdMPMapName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuMapEdMPMapName(const aValue: UnicodeString);
 begin
   fMenu_MapEdMPMapName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetMenuCampaignName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuCampaignName(const aValue: UnicodeString);
 begin
   fMenu_CampaignName := aValue;
   Changed;
@@ -677,14 +712,14 @@ begin
 end;
 
 
-procedure TGameSettings.SetMenuReplaySPSaveName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuReplaySPSaveName(const aValue: UnicodeString);
 begin
   fMenu_ReplaySPSaveName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetMenuReplayMPSaveName(aValue: UnicodeString);
+procedure TGameSettings.SetMenuReplayMPSaveName(const aValue: UnicodeString);
 begin
   fMenu_ReplayMPSaveName := aValue;
   Changed;
@@ -712,7 +747,6 @@ begin
 end;
 
 
-
 procedure TGameSettings.SetAutosave(aValue: Boolean);
 begin
   fAutosave := aValue;
@@ -720,9 +754,37 @@ begin
 end;
 
 
+procedure TGameSettings.SetAutosaveCount(aValue: Integer);
+begin
+  fAutosaveCount := EnsureRange(aValue, AUTOSAVE_COUNT_MIN, AUTOSAVE_COUNT_MAX);
+  Changed;
+end;
+
+
+procedure TGameSettings.SetAutosaveFrequency(aValue: Integer);
+begin
+  fAutosaveFrequency := EnsureRange(aValue, AUTOSAVE_FREQUENCY_MIN, AUTOSAVE_FREQUENCY_MAX);
+  Changed;
+end;
+
+
 procedure TGameSettings.SetReplayAutopause(aValue: Boolean);
 begin
   fReplayAutopause := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetReplayShowBeacons(aValue: Boolean);
+begin
+  fReplayShowBeacons := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetSpecShowBeacons(aValue: Boolean);
+begin
+  fSpecShowBeacons := aValue;
   Changed;
 end;
 
@@ -755,56 +817,63 @@ begin
 end;
 
 
-procedure TGameSettings.SetMultiplayerName(aValue: AnsiString);
+procedure TGameSettings.SetMultiplayerName(const aValue: AnsiString);
 begin
   fMultiplayerName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastIP(aValue: string);
+procedure TGameSettings.SetLastIP(const aValue: string);
 begin
   fLastIP := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetMasterServerAddress(aValue: string);
+procedure TGameSettings.SetMasterServerAddress(const aValue: string);
 begin
   fMasterServerAddress := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetServerName(aValue: AnsiString);
+procedure TGameSettings.SetServerName(const aValue: AnsiString);
 begin
   fServerName := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastPort(aValue: string);
+procedure TGameSettings.SetLastPort(const aValue: string);
 begin
   fLastPort := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastRoom(aValue: string);
+procedure TGameSettings.SetLastRoom(const aValue: string);
 begin
   fLastRoom := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetLastPassword(aValue: string);
+procedure TGameSettings.SetLastPassword(const aValue: string);
 begin
   fLastPassword := aValue;
   Changed;
 end;
 
 
-procedure TGameSettings.SetServerPort(aValue: string);
+procedure TGameSettings.SetServerPacketsAccumulatingDelay(aValue: Integer);
+begin
+  fServerPacketsAccumulatingDelay := EnsureRange(aValue, 0, 1000); //This is rough restrictions. Real one are in TKMNetServer
+  Changed;
+end;
+
+
+procedure TGameSettings.SetServerPort(const aValue: string);
 begin
   fServerPort := aValue;
   Changed;
@@ -839,7 +908,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetHTMLStatusFile(eValue: UnicodeString);
+procedure TGameSettings.SetHTMLStatusFile(const eValue: UnicodeString);
 begin
   fHTMLStatusFile := eValue;
   Changed;
@@ -874,7 +943,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetServerWelcomeMessage(aValue: UnicodeString);
+procedure TGameSettings.SetServerWelcomeMessage(const aValue: UnicodeString);
 begin
   fServerWelcomeMessage := aValue;
   Changed;
@@ -968,7 +1037,7 @@ begin
 end;
 
 
-procedure TKMFavouriteMaps.LoadFromString(aString: UnicodeString);
+procedure TKMFavouriteMaps.LoadFromString(const aString: UnicodeString);
 var I: Integer;
     MapCRC : Int64;
     StringList: TStringList;

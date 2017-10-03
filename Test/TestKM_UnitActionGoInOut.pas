@@ -23,7 +23,7 @@ type
 
 implementation
 uses
-  KM_Log, KM_HandsCollection, KM_HandSpectator, KM_Resource, KM_ResSound, KM_Terrain, KM_Utils, KM_ResHouses;
+  KM_Log, KM_HandsCollection, KM_HandSpectator, KM_Resource, KM_ResSound, KM_Terrain, KM_CommonUtils, KM_ResHouses;
 
 
 procedure TestTUnitActionGoInOut.SetUp;
@@ -62,7 +62,6 @@ end;
 
 procedure TestTUnitActionGoInOut.TestExecute;
 var
-  ReturnValue: TActionResult;
   I: Integer;
   K: Integer;
 begin

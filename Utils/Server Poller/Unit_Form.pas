@@ -3,7 +3,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, StrUtils, Math,
   Controls, Forms, Dialogs, Grids, StdCtrls, ExtCtrls,
-  KM_Defaults, KM_Settings, KM_ServerQuery, KM_Utils;
+  KM_Defaults, KM_Settings, KM_ServerQuery, KM_CommonUtils;
 
 type
   TForm1 = class(TForm)

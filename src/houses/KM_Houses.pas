@@ -2,15 +2,16 @@ unit KM_Houses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Terrain, KM_ResHouses, KM_ResWares;
+  KM_ResHouses, KM_ResWares,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
 
 //Houses are ruled by units, hence they don't know about  TKMUnits
 
 //Everything related to houses is here
 type
   TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
+
+  TDeliveryMode = (dm_Closed = 0, dm_Delivery = 1, dm_TakeOut = 2);
 
   TKMHouse = class;
   TKMHouseEvent = procedure(aHouse: TKMHouse) of object;
@@ -45,9 +46,17 @@ type
     fBuildingProgress: Word; //That is how many efforts were put into building (Wooding+Stoning)
     fDamage: Word; //Damaged inflicted to house
 
+    fTick: Cardinal;
     fHasOwner: Boolean; //which is some TKMUnit
     fBuildingRepair: Boolean; //If on and the building is damaged then labourers will come and repair it
-    fWareDelivery: Boolean; //If on then no wares will be delivered here
+
+    //Switch between delivery modes: delivery on/off/or make an offer from resources available
+    fDeliveryMode: TDeliveryMode; // REAL delivery mode - using in game interactions and actual deliveries
+    fNewDeliveryMode: TDeliveryMode; // Fake, NEW delivery mode, used just for UI. After few tick it will be set as REAL, if there will be no other clicks from player
+    // Delivery mode set with small delay (couple of ticks), to avoid occasional clicks on delivery mode button
+    fUpdateDeliveryModeOnTick: Cardinal; // Tick, on which we have to update real delivery mode with its NEW value
+
+    fIsClosedForWorker: Boolean; // house is closed for worker. If worker is already occupied it, then leave house
 
     fResourceIn: array [1..4] of Byte; //Resource count in input
     fResourceDeliveryCount: array[1..4] of Word; //Count of the resources we have ordered for the input (used for ware distribution)
@@ -77,15 +86,19 @@ type
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
     function GetPointBelowEntrance: TKMPoint;
     function GetEntrance: TKMPoint;
+    procedure SetIsClosedForWorker(aIsClosed: Boolean);
+    procedure UpdateDeliveryMode;
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
+    //WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     fOwner: TKMHandIndex; //House owner player, determines flag color as well
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     procedure Activate(aWasBuilt: Boolean); virtual;
     function GetResOrder(aId: Byte): Integer; virtual;
     procedure SetBuildingRepair(aValue: Boolean);
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
+    procedure SetNewDeliveryMode(aValue: TDeliveryMode); virtual;
   public
     CurrentAction: THouseAction; //Current action, withing HouseTask or idle
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -120,7 +133,10 @@ type
     function HitTest(X, Y: Integer): Boolean;
     property HouseType: THouseType read fHouseType;
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
-    property WareDelivery: Boolean read fWareDelivery write fWareDelivery;
+    property DeliveryMode: TDeliveryMode read fDeliveryMode;
+    property NewDeliveryMode: TDeliveryMode read fNewDeliveryMode write SetNewDeliveryMode;
+    procedure SetDeliveryModeInstantly(aValue: TDeliveryMode);
+    property IsClosedForWorker: Boolean read fIsClosedForWorker write SetIsClosedForWorker;
     property GetHasOwner: Boolean read fHasOwner write fHasOwner; //There's a citizen who runs this house
     property Owner: TKMHandIndex read fOwner;
     property DisableUnoccupiedMessage: Boolean read fDisableUnoccupiedMessage write fDisableUnoccupiedMessage;
@@ -167,7 +183,7 @@ type
 
     procedure IncAnimStep;
     procedure UpdateResRequest;
-    procedure UpdateState;
+    procedure UpdateState(aTick: Cardinal);
     procedure Paint; virtual;
   end;
 
@@ -231,11 +247,35 @@ type
     property CuttingPointTexId: Word read GetCuttingPointTexId;
   end;
 
+
+  TKMHouseArmorWorkshop = class(TKMHouse)
+  private
+    fAcceptWood: Boolean;
+    fAcceptLeather: Boolean;
+  public
+    property AcceptWood: Boolean read fAcceptWood write fAcceptWood;
+    property AcceptLeather: Boolean read fAcceptLeather write fAcceptLeather;
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+    procedure ToggleResDelivery(aWareType: TWareType);
+    function AcceptWareForDelivery(aWareType: TWareType): Boolean;
+  end;
+
 implementation
 uses
-  KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingEvents,
-  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts, KM_HandLogistics,
-  KM_Resource, KM_Utils, KM_FogOfWar, KM_AI, KM_Hand, KM_Log, KM_HouseBarracks;
+  SysUtils, Math, KromUtils,
+  KM_Game, KM_Terrain, KM_RenderPool, KM_RenderAux, KM_Sound, KM_FogOfWar,
+  KM_Hand, KM_HandsCollection, KM_HandLogistics,
+  KM_Units_Warrior, KM_HouseBarracks,
+  KM_Resource, KM_ResSound, KM_ResTexts,
+  KM_Log, KM_ScriptingEvents, KM_CommonUtils;
+
+const
+  //Delay, In ticks, from user click on DeliveryMode btn, to tick, when mode will be really set.
+  //Made to prevent serf's taking/losing deliveries only because player clicks throught modes.
+  //No hurry, let's wait a bit for player to be sure, what mode he needs
+  UPDATE_DELIVERY_MODE_DELAY = 10;
 
 
 { TKMHouse }
@@ -262,7 +302,9 @@ begin
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
   fBuildingRepair   := False; //Don't set it yet because we don't always know who are AIs yet (in multiplayer) It is set in first UpdateState
   DoorwayUse        := 0;
-  fWareDelivery     := True;
+  fNewDeliveryMode  := dm_Delivery;
+  fDeliveryMode     := dm_Delivery;
+  fUpdateDeliveryModeOnTick := 0;
 
   for I := 1 to 4 do
   begin
@@ -313,7 +355,10 @@ begin
   LoadStream.Read(fDamage, SizeOf(fDamage));
   LoadStream.Read(fHasOwner);
   LoadStream.Read(fBuildingRepair);
-  LoadStream.Read(fWareDelivery);
+  LoadStream.Read(Byte(fDeliveryMode));
+  LoadStream.Read(Byte(fNewDeliveryMode));
+  LoadStream.Read(fUpdateDeliveryModeOnTick);
+  LoadStream.Read(fIsClosedForWorker);
   for I:=1 to 4 do LoadStream.Read(fResourceIn[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceOut[I]);
@@ -513,6 +558,44 @@ begin
   CheckOnSnow;
   if not WasOnSnow or not fIsOnSnow then
     fSnowStep := 0;
+end;
+
+
+procedure TKMHouse.UpdateDeliveryMode;
+var
+  I: Integer;
+begin
+  if fNewDeliveryMode = fDeliveryMode then Exit;
+
+  if fDeliveryMode = dm_TakeOut then
+    for I := 1 to 4 do
+      if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
+        gHands[fOwner].Deliveries.Queue.RemOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
+
+  if fNewDeliveryMode = dm_TakeOut then
+    for I := 1 to 4 do
+      if (gRes.Houses[fHouseType].ResInput[I] <> wt_None) and (fResourceIn[I] > 0) then
+        gHands[fOwner].Deliveries.Queue.AddOffer(Self, gRes.Houses[fHouseType].ResInput[I], fResourceIn[I]);
+
+  fUpdateDeliveryModeOnTick := 0;
+  fDeliveryMode := fNewDeliveryMode;
+end;
+
+
+//Set NewDelivery mode. Its going to become a real delivery mode few ticks later
+procedure TKMHouse.SetNewDeliveryMode(aValue: TDeliveryMode);
+begin
+  fNewDeliveryMode := aValue;
+
+  fUpdateDeliveryModeOnTick := fTick + UPDATE_DELIVERY_MODE_DELAY;
+end;
+
+
+//Set delivery mdoe immidiately
+procedure TKMHouse.SetDeliveryModeInstantly(aValue: TDeliveryMode);
+begin
+  fNewDeliveryMode := aValue;
+  UpdateDeliveryMode;
 end;
 
 
@@ -811,6 +894,13 @@ begin
 end;
 
 
+procedure TKMHouse.SetIsClosedForWorker(aIsClosed: Boolean);
+begin
+  fIsClosedForWorker := aIsClosed;
+  gHands[fOwner].Stats.HouseClosed(aIsClosed, fHouseType);
+end;
+
+
 function TKMHouse.IsStone: Boolean;
 begin
   Result := fBuildState = hbs_Stone;
@@ -844,26 +934,28 @@ end;
 
 
 function TKMHouse.GetResourceInArray: TKMByteArray;
-var I, IAdjustment: Integer;
+var
+  I, iOffset: Integer;
 begin
   SetLength(Result, Length(fResourceIn));
-  IAdjustment := Low(fResourceIn) - Low(Result);
+  iOffset := Low(fResourceIn) - Low(Result);
   for I := Low(Result) to High(Result) do
-    Result[I] := fResourceIn[I + IAdjustment];
+    Result[I] := fResourceIn[I + iOffset];
 end;
 
 
 function TKMHouse.GetResourceOutArray: TKMByteArray;
-var I, IAdjustment: Integer;
+var
+  I, iOffset: Integer;
 begin
   SetLength(Result, Length(fResourceOut));
-  IAdjustment := Low(fResourceOut) - Low(Result);
+  iOffset := Low(fResourceOut) - Low(Result);
   for I := Low(Result) to High(Result) do
-    Result[I] := fResourceOut[I + IAdjustment];
+    Result[I] := fResourceOut[I + iOffset];
 end;
 
 
-//Check if house is placed mostly on snow
+// Check if house is placed mostly on snow
 procedure TKMHouse.CheckOnSnow;
 var
   I: Byte;
@@ -1031,6 +1123,12 @@ begin
 end;
 
 
+function TKMHouse.GetPointBelowEntrance: TKMPoint;
+begin
+  Result := KMPointBelow(Entrance);
+end;
+
+
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
 procedure TKMHouse.ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false);
@@ -1130,6 +1228,11 @@ begin
   for I := 1 to 4 do
     if aWare = gRes.Houses[fHouseType].ResOutput[I] then
       Result := fResourceOut[I] >= aCount;
+
+  if not Result and (fNewDeliveryMode = dm_TakeOut) then
+    for I := 1 to 4 do
+      if aWare = gRes.Houses[fHouseType].ResInput[I] then
+        Result := fResourceIn[I] >= aCount;
 end;
 
 
@@ -1167,7 +1270,8 @@ end;
 
 
 procedure TKMHouse.ResTakeFromOut(aWare: TWareType; aCount: Word=1; aFromScript: Boolean = False);
-var i:integer;
+var
+  i, K: integer;
 begin
   Assert(aWare<>wt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks]));
@@ -1187,12 +1291,31 @@ begin
     dec(fResourceOut[i], aCount);
     exit;
   end;
-end;
 
+  for i := 1 to 4 do
+  if aWare = gRes.Houses[fHouseType].ResInput[i] then
+  begin
+    if aFromScript then
+    begin
+      aCount := Min(aCount, fResourceIn[i]);
+      if aCount > 0 then
+        gHands[fOwner].Deliveries.Queue.RemOffer(Self, aWare, aCount);
+    end;
 
-function TKMHouse.GetPointBelowEntrance: TKMPoint;
-begin
-  Result := KMPointBelow(Entrance);
+    //Keep track of how many are ordered
+    fResourceDeliveryCount[i] := Max(fResourceDeliveryCount[i] - aCount, 0);
+
+    Assert(fResourceIn[i] >= aCount, 'fResourceIn[i] < 0');
+    Dec(fResourceIn[i], aCount);
+    //Only request a new resource if it is allowed by the distribution of wares for our parent player
+    for K := 1 to aCount do
+      if fResourceDeliveryCount[i] < GetResDistribution(i) then
+      begin
+        gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dtOnce, diNorm);
+        Inc(fResourceDeliveryCount[i]);
+      end;
+    Exit;
+  end;
 end;
 
 
@@ -1288,7 +1411,10 @@ begin
   SaveStream.Write(fDamage, SizeOf(fDamage));
   SaveStream.Write(fHasOwner);
   SaveStream.Write(fBuildingRepair);
-  SaveStream.Write(fWareDelivery);
+  SaveStream.Write(Byte(fDeliveryMode));
+  SaveStream.Write(Byte(fNewDeliveryMode));
+  SaveStream.Write(fUpdateDeliveryModeOnTick);
+  SaveStream.Write(fIsClosedForWorker);
   for I:=1 to 4 do SaveStream.Write(fResourceIn[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceOut[I]);
@@ -1380,13 +1506,20 @@ begin
 end;
 
 
-procedure TKMHouse.UpdateState;
+procedure TKMHouse.UpdateState(aTick: Cardinal);
 var HouseUnoccupiedMsgId: Integer;
 begin
   if not IsComplete then Exit; //Don't update unbuilt houses
 
-  //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if not fDisableUnoccupiedMessage and not fHasOwner
+  fTick := aTick;
+
+  //Update delivery mode, if time has come
+  if (fUpdateDeliveryModeOnTick = fTick) then
+    UpdateDeliveryMode;
+
+  //Show unoccupied message if needed and house belongs to human player and can have owner at all
+  //and is not closed for worker and not a barracks
+  if not fDisableUnoccupiedMessage and not fHasOwner and not fIsClosedForWorker
   and (gRes.Houses[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
   begin
     Dec(fTimeSinceUnoccupiedReminder);
@@ -1743,6 +1876,49 @@ begin
   //If we're allowed to plant again, we should reshow the depleted message if we are changed to cut and run out of trees
   if fWoodcutterMode = wcm_ChopAndPlant then
     ResourceDepletedMsgIssued := False;
+end;
+
+
+{ TKMHouseArmorWorkshop }
+constructor TKMHouseArmorWorkshop.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
+begin
+  inherited;
+  fAcceptWood := True;
+  fAcceptLeather := True;
+end;
+
+constructor TKMHouseArmorWorkshop.Load(LoadStream: TKMemoryStream);
+begin
+  inherited;
+  LoadStream.Read(fAcceptWood);
+  LoadStream.Read(fAcceptLeather);
+end;
+
+
+procedure TKMHouseArmorWorkshop.Save(SaveStream: TKMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fAcceptWood);
+  SaveStream.Write(fAcceptLeather);
+end;
+
+
+procedure TKMHouseArmorWorkshop.ToggleResDelivery(aWareType: TWareType);
+begin
+  case aWareType of
+    wt_Wood: fAcceptWood := not fAcceptWood;
+    wt_Leather: fAcceptLeather := not fAcceptLeather;
+  end;
+end;
+
+
+function TKMHouseArmorWorkshop.AcceptWareForDelivery(aWareType: TWareType): Boolean;
+begin
+  Result := True;
+  case aWareType of
+    wt_Wood: Result := fAcceptWood;
+    wt_Leather: Result := fAcceptLeather;
+  end;
 end;
 
 

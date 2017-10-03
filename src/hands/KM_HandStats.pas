@@ -2,9 +2,9 @@ unit KM_HandStats;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
-  KM_ResHouses, KM_ResWares, KM_WareDistribution;
+  KM_WareDistribution,
+  KM_ResWares, KM_ResHouses,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
 
 
 //These are stats for each player
@@ -18,11 +18,13 @@ type
     Built,               //constructed by player
     SelfDestruct,        //deconstructed by player
     Lost,                //lost from attacks and self-demolished
+    Closed,              //closed for worker
     Destroyed: Cardinal; //damage to other players
   end;
 
   TUnitStats = packed record
     Initial,          //Provided at mission start
+    Training,         //Currently in training queue
     Trained,          //Trained by player
     Lost,             //Died of hunger or killed
     Killed: Cardinal; //Killed (incl. self)
@@ -64,12 +66,15 @@ type
     procedure HousePlanned(aType: THouseType);
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
+    procedure HouseClosed(aWasClosed: Boolean; aType: THouseType);
     procedure HouseEnded(aType: THouseType);
     procedure HouseCreated(aType: THouseType; aWasBuilt: Boolean);
     procedure HouseLost(aType: THouseType);
     procedure HouseSelfDestruct(aType: THouseType);
     procedure HouseDestroyed(aType: THouseType);
     procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean);
+    procedure UnitAddedToTrainingQueue(aType: TUnitType);
+    procedure UnitRemovedFromTrainingQueue(aType: TUnitType);
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
@@ -77,12 +82,14 @@ type
 
     //Output
     function GetHouseQty(aType: THouseType): Integer; overload;
+    function GetHouseOpenedQty(aType: THouseType): Integer; overload;
     function GetHouseQty(aType: array of THouseType): Integer; overload;
     function GetHouseWip(aType: THouseType): Integer; overload;
     function GetHousePlans(aType: THouseType): Integer; overload;
     function GetHouseWip(aType: array of THouseType): Integer; overload;
     function GetHouseTotal(aType: THouseType): Integer;
     function GetUnitQty(aType: TUnitType): Integer;
+    function GetUnitWip(aType: TUnitType): Integer;
     function GetUnitKilledQty(aType: TUnitType): Integer;
     function GetUnitLostQty(aType: TUnitType): Integer;
     function GetWareBalance(aRT: TWareType): Integer;
@@ -122,7 +129,8 @@ type
 
 implementation
 uses
-  KM_Resource, KM_GameApp;
+  SysUtils,
+  KM_Resource;
 
 
 { TKMHandStats }
@@ -174,6 +182,15 @@ end;
 
 
 //New house, either built by player or created by mission script
+procedure TKMHandStats.HouseClosed(aWasClosed: Boolean; aType: THouseType);
+begin
+  if aWasClosed then
+    Inc(Houses[aType].Closed)
+  else
+    Dec(Houses[aType].Closed)
+end;
+
+
 procedure TKMHandStats.HouseCreated(aType: THouseType; aWasBuilt:boolean);
 begin
   if aWasBuilt then
@@ -200,6 +217,18 @@ end;
 procedure TKMHandStats.HouseDestroyed(aType: THouseType);
 begin
   Inc(Houses[aType].Destroyed);
+end;
+
+
+procedure TKMHandStats.UnitAddedToTrainingQueue(aType: TUnitType);
+begin
+  Inc(Units[aType].Training);
+end;
+
+
+procedure TKMHandStats.UnitRemovedFromTrainingQueue(aType: TUnitType);
+begin
+  Dec(Units[aType].Training);
 end;
 
 
@@ -264,6 +293,20 @@ begin
     ht_Any:     for H := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
+  end;
+end;
+
+
+//How many complete opened houses are there
+function TKMHandStats.GetHouseOpenedQty(aType: THouseType): Integer;
+var H: THouseType;
+begin
+  Result := 0;
+  case aType of
+    ht_None:    ;
+    ht_Any:     for H := HOUSE_MIN to HOUSE_MAX do
+                  Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost - Houses[H].Closed);
+    else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost - Houses[aType].Closed;
   end;
 end;
 
@@ -359,6 +402,20 @@ begin
                     for UT := WARRIOR_MIN to WARRIOR_MAX do
                       dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
                 end;
+  end;
+end;
+
+
+function TKMHandStats.GetUnitWip(aType: TUnitType): Integer;
+var
+  UT: TUnitType;
+begin
+  Result := 0;
+  case aType of
+    ut_None: ;
+    ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
+                  Inc(Result, Units[UT].Training);
+    else        Result := Units[aType].Training;
   end;
 end;
 

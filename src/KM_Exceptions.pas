@@ -1,7 +1,7 @@
 unit KM_Exceptions;
 interface
 uses
-  SysUtils, MadExcept, madNVAssistant;
+  MadExcept, madNVAssistant;
 
 
 type
@@ -22,7 +22,9 @@ var
 
 implementation
 uses
-  KM_Log, KM_Defaults, KM_ResTexts, KM_Points, KM_Game, KM_CommonClasses;
+  SysUtils,
+  KM_Game,
+  KM_Log, KM_ResTexts, KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 { TKMExceptions }

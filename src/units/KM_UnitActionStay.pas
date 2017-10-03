@@ -109,9 +109,9 @@ begin
 
   dec(TimeToStay);
   if TimeToStay<=0 then
-    Result := ActDone
+    Result := ar_ActDone
   else
-    Result := ActContinues;
+    Result := ar_ActContinues;
 end;
 
 

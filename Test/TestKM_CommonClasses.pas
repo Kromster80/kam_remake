@@ -62,7 +62,7 @@ type
   end;
 
 implementation
-uses KM_Utils;
+uses KM_CommonUtils;
 
 procedure TestTKMPointList.SetUp;
 begin

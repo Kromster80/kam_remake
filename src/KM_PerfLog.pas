@@ -1,8 +1,6 @@
 unit KM_PerfLog;
 {$I KaM_Remake.inc}
 interface
-uses
-  Classes, KromUtils, SysUtils;
 
 
 type
@@ -19,11 +17,13 @@ type
     procedure Clear;
     procedure EnterSection(aSection: TPerfSection);
     procedure LeaveSection(aSection: TPerfSection);
-    procedure SaveToFile(aFilename: UnicodeString);
+    procedure SaveToFile(const aFilename: UnicodeString);
   end;
 
 
 implementation
+uses
+  Classes, SysUtils, KromUtils;
 
 
 const
@@ -59,7 +59,7 @@ begin
 end;
 
 
-procedure TKMPerfLog.SaveToFile(aFilename: UnicodeString);
+procedure TKMPerfLog.SaveToFile(const aFilename: UnicodeString);
 var
   K: TPerfSection;
   I: Integer;

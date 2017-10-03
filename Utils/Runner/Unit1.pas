@@ -29,11 +29,14 @@ type
     Render: TTabSheet;
     Panel1: TPanel;
     chkRender: TCheckBox;
+    seDuration: TSpinEdit;
+    Label4: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
     procedure TabSheetResize(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
+    procedure ListBox1Click(Sender: TObject);
   private
     fY: array of TLabel;
     fX: array of TLabel;
@@ -82,6 +85,16 @@ begin
 
   for I := 0 to High(RunnerList) do
     ListBox1.Items.Append(RunnerList[I].ClassName);
+end;
+
+
+procedure TForm2.ListBox1Click(Sender: TObject);
+var
+  ID: Integer;
+begin
+  ID := ListBox1.ItemIndex;
+  if ID = -1 then Exit;
+  Button1.Enabled := True;
 end;
 
 
@@ -135,6 +148,7 @@ begin
     Runner.OnProgress := RunnerProgress;
     try
       T := GetTickCount;
+      Runner.Duration := seDuration.Value;
       fResults := Runner.Run(Count);
       fRunTime := 'Done in ' + IntToStr(GetTickCount - T) + ' ms';
     finally

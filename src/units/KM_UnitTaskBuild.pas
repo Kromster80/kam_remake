@@ -161,7 +161,7 @@ begin
   end
   else
     //Autobuild AI should rebuild roads when worker dies (otherwise house is never built)
-    if not gGame.IsExiting and gHands[fUnit.Owner].AI.Setup.AutoBuild and (fPhase < 9)
+    if (gGame <> nil) and not gGame.IsExiting and gHands[fUnit.Owner].AI.Setup.AutoBuild and (fPhase < 9)
     and gHands[fUnit.Owner].CanAddFieldPlan(fLoc, ft_Road) then
       gHands[fUnit.Owner].BuildList.FieldworksList.AddField(fLoc, ft_Road);
 
@@ -185,11 +185,11 @@ end;
 
 function TTaskBuildRoad.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -220,6 +220,7 @@ begin
          gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
        end;
+    //Warning! This step value is harcoded in KM_UnitTaskDelivery
     4: begin //This step is repeated until Serf brings us some stone
          SetActionLockedStay(30,ua_Work1);
          Thought := th_Stone;
@@ -247,7 +248,7 @@ begin
          gTerrain.UnlockTile(fLoc);
          TileLockSet := False;
        end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
   if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
 end;
@@ -318,11 +319,11 @@ end;
 
 function TTaskBuildWine.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -360,6 +361,7 @@ begin
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
       end;
+   //Warning! This step value is harcoded in KM_UnitTaskDelivery
    5: begin //This step is repeated until Serf brings us some wood
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
@@ -375,7 +377,7 @@ begin
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
       end;
-   else Result := TaskDone;
+   else Result := tr_TaskDone;
   end;
   if fPhase<>5 then inc(fPhase); //Phase=5 is when worker waits for rt_Wood
 end;
@@ -443,11 +445,11 @@ end;
 
 function TTaskBuildField.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -478,7 +480,7 @@ begin
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
        end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
   if fPhase2 in [0,10] then inc(fPhase);
 end;
@@ -617,17 +619,17 @@ end;
 function TTaskBuildHouseArea.Execute: TTaskResult;
 var OutOfWay: TKMPoint;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
   if (fHouse <> nil) and fHouse.IsDestroyed then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     fUnit.Thought := th_None;
     Exit;
   end;
@@ -655,7 +657,7 @@ begin
           SetActionWalkToSpot(CellsToDig[LastToDig])
         else
         begin
-          Result := TaskDone;
+          Result := tr_TaskDone;
           fUnit.Thought := th_None;
           Exit;
         end;
@@ -691,7 +693,7 @@ begin
           HouseReadyToBuild := True; //If worker gets killed while walking house will be finished without him
         end;
     else
-        Result := TaskDone;
+        Result := tr_TaskDone;
   end;
 
   Inc(fPhase);
@@ -774,12 +776,12 @@ end;
 {Build the house}
 function TTaskBuildHouse.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
     fUnit.Thought := th_None;
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -791,7 +793,7 @@ begin
           SetActionWalkToSpot(BuildFrom.Loc);
         end
         else
-          Result := TaskDone;
+          Result := tr_TaskDone;
     1:  begin
           //Face the building
           Direction := BuildFrom.Dir;
@@ -816,7 +818,7 @@ begin
           SetActionStay(1, ua_Walk);
           Thought := th_None;
         end;
-    else Result := TaskDone;
+    else Result := tr_TaskDone;
   end;
   Inc(fPhase);
 
@@ -894,11 +896,11 @@ end;
 {Repair the house}
 function TTaskBuildHouseRepair.Execute: TTaskResult;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -910,7 +912,7 @@ begin
             SetActionWalkToSpot(BuildFrom.Loc);
           end
           else
-            Result := TaskDone;
+            Result := tr_TaskDone;
       1:  begin
             Direction := BuildFrom.Dir;
             SetActionLockedStay(0, ua_Walk);
@@ -929,7 +931,7 @@ begin
             SetActionStay(1, ua_Walk);
           end;
       else
-          Result := TaskDone;
+          Result := tr_TaskDone;
     end;
   inc(fPhase);
 

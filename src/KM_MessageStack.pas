@@ -2,7 +2,7 @@ unit KM_MessageStack;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, SysUtils, KM_CommonClasses, KM_CommonTypes, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
 type
@@ -13,7 +13,7 @@ type
     fText: UnicodeString;
   public
     IsRead: Boolean; //Does not gets saved, because it's UI thing
-    constructor Create(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+    constructor Create(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint);
     constructor CreateFromStream(LoadStream: TKMemoryStream);
 
     function Icon: Word;
@@ -36,7 +36,7 @@ type
     property CountStack: Integer read fCountStack;
     property MessagesStack[aIndex: Integer]: TKMStackMessage read GetMessageStack; default;
 
-    procedure Add(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+    procedure Add(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint);
     procedure RemoveStack(aIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -45,10 +45,12 @@ type
 
 
 implementation
+uses
+  SysUtils, Math;
 
 
 { TKMStackMessage }
-constructor TKMStackMessage.Create(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+constructor TKMStackMessage.Create(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint);
 begin
   inherited Create;
   fKind := aKind;
@@ -110,7 +112,7 @@ begin
 end;
 
 
-procedure TKMMessageStack.Add(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+procedure TKMMessageStack.Add(aKind: TKMMessageKind; const aText: UnicodeString; aLoc: TKMPoint);
 begin
   SetLength(fListStack, fCountStack + 1);
   fListStack[fCountStack] := TKMStackMessage.Create(aKind, aText, aLoc);

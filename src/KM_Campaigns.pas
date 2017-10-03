@@ -2,8 +2,9 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Pics, KM_Points, KM_ResTexts, KM_ResLocales;
+  Classes,
+  KM_ResTexts, KM_Pics,
+  KM_CommonClasses, KM_Points;
 
 
 const
@@ -41,9 +42,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadFromFile(aFileName: UnicodeString);
-    procedure SaveToFile(aFileName: UnicodeString);
-    procedure LoadFromPath(aPath: UnicodeString);
+    procedure LoadFromFile(const aFileName: UnicodeString);
+    procedure SaveToFile(const aFileName: UnicodeString);
+    procedure LoadFromPath(const aPath: UnicodeString);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
@@ -97,7 +98,9 @@ const
 
 implementation
 uses
-  KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
+  SysUtils, Math, KromUtils,
+  KM_Resource, KM_ResLocales, KM_ResSprites,
+  KM_Log, KM_Defaults;
 
 
 const
@@ -347,7 +350,7 @@ end;
 
 //Load campaign info from *.cmp file
 //It should be private, but it is used by CampaignBuilder
-procedure TKMCampaign.LoadFromFile(aFileName: UnicodeString);
+procedure TKMCampaign.LoadFromFile(const aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
@@ -381,7 +384,7 @@ begin
 end;
 
 
-procedure TKMCampaign.SaveToFile(aFileName: UnicodeString);
+procedure TKMCampaign.SaveToFile(const aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
@@ -422,7 +425,7 @@ begin
 end;
 
 
-procedure TKMCampaign.LoadFromPath(aPath: UnicodeString);
+procedure TKMCampaign.LoadFromPath(const aPath: UnicodeString);
 var
   SP: TKMSpritePack;
   FirstSpriteIndex: Word;

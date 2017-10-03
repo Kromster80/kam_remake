@@ -2,8 +2,7 @@ unit KM_FogOfWar;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math,
-  KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Defaults;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
 
 
 { FOW state for each player }
@@ -75,6 +74,8 @@ const
 
 
 implementation
+uses
+  Math;
 
 
 { TKMFogOfWar }

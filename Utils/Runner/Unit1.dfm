@@ -1,7 +1,7 @@
 object Form2: TForm2
   Left = 244
   Top = 169
-  Caption = 'Form2'
+  Caption = 'Runner'
   ClientHeight = 641
   ClientWidth = 1097
   Color = clBtnFace
@@ -20,33 +20,41 @@ object Form2: TForm2
   object Label1: TLabel
     Left = 8
     Top = 128
-    Width = 31
+    Width = 35
     Height = 13
-    Caption = 'Cycles'
+    Caption = 'Cycles:'
   end
   object Label2: TLabel
-    Left = 124
-    Top = 128
-    Width = 3
+    Left = 102
+    Top = 216
+    Width = 90
     Height = 13
     Alignment = taRightJustify
   end
+  object Label4: TLabel
+    Left = 103
+    Top = 127
+    Width = 72
+    Height = 13
+    Caption = 'Duration (min):'
+  end
   object Button1: TButton
-    Left = 136
-    Top = 128
-    Width = 57
-    Height = 41
+    Left = 103
+    Top = 172
+    Width = 89
+    Height = 38
     Caption = 'Run'
+    Enabled = False
     TabOrder = 0
     OnClick = Button1Click
   end
   object seCycles: TSpinEdit
     Left = 8
     Top = 144
-    Width = 121
+    Width = 89
     Height = 22
     MaxValue = 1000000
-    MinValue = 0
+    MinValue = 1
     TabOrder = 1
     Value = 10
   end
@@ -57,6 +65,7 @@ object Form2: TForm2
     Height = 113
     ItemHeight = 13
     TabOrder = 2
+    OnClick = ListBox1Click
   end
   object Memo2: TMemo
     Left = 8
@@ -88,12 +97,9 @@ object Form2: TForm2
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 4
     OnChange = PageControl1Change
-    ExplicitWidth = 697
     object TabSheet1: TTabSheet
       Caption = 'Results'
       OnResize = TabSheetResize
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       DesignSize = (
         873
         597)
@@ -111,8 +117,6 @@ object Form2: TForm2
       Caption = 'Distribution'
       ImageIndex = 1
       OnResize = TabSheetResize
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       DesignSize = (
         873
         597)
@@ -130,8 +134,6 @@ object Form2: TForm2
       Caption = 'Times'
       ImageIndex = 2
       OnResize = TabSheetResize
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       DesignSize = (
         873
         597)
@@ -168,8 +170,6 @@ object Form2: TForm2
     object TabSheet4: TTabSheet
       Caption = 'Log'
       ImageIndex = 3
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       object Memo1: TMemo
         Left = 0
         Top = 0
@@ -177,17 +177,11 @@ object Form2: TForm2
         Height = 597
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = 8
-        ExplicitTop = 8
-        ExplicitWidth = 665
-        ExplicitHeight = 289
       end
     end
     object Render: TTabSheet
       Caption = 'Render'
       ImageIndex = 4
-      ExplicitWidth = 681
-      ExplicitHeight = 301
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -196,21 +190,25 @@ object Form2: TForm2
         Align = alClient
         Caption = 'Panel1'
         TabOrder = 0
-        ExplicitLeft = 200
-        ExplicitTop = 8
-        ExplicitWidth = 249
-        ExplicitHeight = 161
       end
     end
   end
   object chkRender: TCheckBox
     Left = 8
-    Top = 176
+    Top = 172
     Width = 57
     Height = 17
     Caption = 'Render'
-    Checked = True
-    State = cbChecked
     TabOrder = 5
+  end
+  object seDuration: TSpinEdit
+    Left = 103
+    Top = 144
+    Width = 89
+    Height = 22
+    MaxValue = 1000000
+    MinValue = 0
+    TabOrder = 6
+    Value = 60
   end
 end

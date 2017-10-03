@@ -14,7 +14,7 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_Resource, KM_ResourceWares, KM_ResourceHouse, KM_Utils;
+  KM_CommonTypes, KM_Resource, KM_ResourceWares, KM_ResourceHouse, KM_CommonUtils;
 
 
 { TKMHouse }

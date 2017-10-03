@@ -2,7 +2,8 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Math, KM_CommonTypes, KM_CommonClasses, KM_ResWares, KM_ResHouses;
+  KM_ResWares, KM_ResHouses,
+  KM_CommonClasses;
 
 
 const
@@ -35,7 +36,8 @@ type
 
 
 implementation
-
+uses
+  SysUtils, Math;
 
 {TKMWareDistribution}
 constructor TKMWareDistribution.Create;

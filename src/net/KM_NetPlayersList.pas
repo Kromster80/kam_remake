@@ -16,7 +16,7 @@ type
   private
     fNikname: AnsiString;
     fLangCode: AnsiString;
-    fIndexOnServer: Integer;
+    fIndexOnServer: TKMNetHandleIndex;
     fFlagColorID: Integer;    //Flag color, 0 means random
     fPings: array[0 .. PING_COUNT-1] of Word; //Ring buffer
     fPingPos: Byte;
@@ -53,8 +53,8 @@ type
     property NiknameU: UnicodeString read GetNiknameU;
     property NiknameColoredU: UnicodeString read GetNiknameColoredU;
     property LangCode: AnsiString read fLangCode write SetLangCode;
-    property IndexOnServer: Integer read fIndexOnServer;
-    property SetIndexOnServer: Integer write fIndexOnServer;
+    property IndexOnServer: TKMNetHandleIndex read fIndexOnServer;
+    property SetIndexOnServer: TKMNetHandleIndex write fIndexOnServer;
     function FlagColor(aDefault: Cardinal = $FF000000): Cardinal;
     property FlagColorID: Integer read fFlagColorID write fFlagColorID;
     property HandIndex: Integer read GetHandIndex;
@@ -84,23 +84,23 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik: AnsiString; aIndexOnServer: Integer; const aLang: AnsiString);
+    procedure AddPlayer(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex; const aLang: AnsiString);
     procedure AddAIPlayer(aSlot: Integer = -1);
     procedure AddClosedPlayer(aSlot: Integer = -1);
-    procedure DisconnectPlayer(aIndexOnServer: Integer);
-    procedure DisconnectAllClients(aOwnNikname: AnsiString);
-    procedure DropPlayer(aIndexOnServer: Integer);
+    procedure DisconnectPlayer(aIndexOnServer: TKMNetHandleIndex);
+    procedure DisconnectAllClients(const aOwnNikname: AnsiString);
+    procedure DropPlayer(aIndexOnServer: TKMNetHandleIndex);
     procedure RemPlayer(aIndex: Integer);
-    procedure RemServerPlayer(aIndexOnServer: Integer);
+    procedure RemServerPlayer(aIndexOnServer: TKMNetHandleIndex);
     property Player[aIndex: Integer]: TKMNetPlayerInfo read GetPlayer; default;
 
     //Getters
-    function ServerToLocal(aIndexOnServer: Integer): Integer;
-    function NiknameToLocal(aNikname: AnsiString): Integer;
+    function ServerToLocal(aIndexOnServer: TKMNetHandleIndex): Integer;
+    function NiknameToLocal(const aNikname: AnsiString): Integer;
     function StartingLocToLocal(aLoc: Integer): Integer;
     function PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
 
-    function CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): Integer;
+    function CheckCanJoin(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
     function CheckCanReconnect(aLocalIndex: Integer): Integer;
     function LocAvailable(aIndex: Integer): Boolean;
     function ColorAvailable(aIndex: Integer): Boolean;
@@ -138,7 +138,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Utils, KM_HandsCollection;
+  KM_ResTexts, KM_CommonUtils, KM_HandsCollection;
 
 
 { TKMNetPlayerInfo }
@@ -283,7 +283,7 @@ procedure TKMNetPlayerInfo.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.ReadA(fNikname);
   LoadStream.ReadA(fLangCode);
-  LoadStream.Read(fIndexOnServer);
+  LoadStream.Read(SmallInt(fIndexOnServer));
   LoadStream.Read(PlayerNetType, SizeOf(PlayerNetType));
   LoadStream.Read(fFlagColorID);
   LoadStream.Read(StartLocation);
@@ -414,7 +414,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.AddPlayer(aNik: AnsiString; aIndexOnServer: Integer; const aLang: AnsiString);
+procedure TKMNetPlayersList.AddPlayer(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex; const aLang: AnsiString);
 begin
   Assert(fCount <= MAX_LOBBY_SLOTS, 'Can''t add player');
   Inc(fCount);
@@ -488,7 +488,7 @@ end;
 
 
 //Set player to no longer be connected, but do not remove them from the game
-procedure TKMNetPlayersList.DisconnectPlayer(aIndexOnServer: Integer);
+procedure TKMNetPlayersList.DisconnectPlayer(aIndexOnServer: TKMNetHandleIndex);
 var
   ID: Integer;
 begin
@@ -498,7 +498,7 @@ begin
 end;
 
 //Mark all human players as disconnected (used when reconnecting if all clients were lost)
-procedure TKMNetPlayersList.DisconnectAllClients(aOwnNikname: AnsiString);
+procedure TKMNetPlayersList.DisconnectAllClients(const aOwnNikname: AnsiString);
 var
   I: Integer;
 begin
@@ -509,7 +509,7 @@ end;
 
 
 //Set player to no longer be on the server, but do not remove their assets from the game
-procedure TKMNetPlayersList.DropPlayer(aIndexOnServer: Integer);
+procedure TKMNetPlayersList.DropPlayer(aIndexOnServer: TKMNetHandleIndex);
 var
   ID: Integer;
 begin
@@ -533,7 +533,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.RemServerPlayer(aIndexOnServer: Integer);
+procedure TKMNetPlayersList.RemServerPlayer(aIndexOnServer: TKMNetHandleIndex);
 var
   ID: Integer;
 begin
@@ -543,7 +543,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.ServerToLocal(aIndexOnServer: Integer): Integer;
+function TKMNetPlayersList.ServerToLocal(aIndexOnServer: TKMNetHandleIndex): Integer;
 var
   I: Integer;
 begin
@@ -558,7 +558,7 @@ end;
 
 
 //Networking needs to convert Nikname to local index in players list
-function TKMNetPlayersList.NiknameToLocal(aNikname: AnsiString): Integer;
+function TKMNetPlayersList.NiknameToLocal(const aNikname: AnsiString): Integer;
 var
   I: Integer;
 begin
@@ -591,7 +591,7 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): Integer;
+function TKMNetPlayersList.CheckCanJoin(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
 begin
   if fCount >= MAX_LOBBY_SLOTS then
     Result := TX_NET_ROOM_FULL

@@ -3,8 +3,8 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Types,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
-  KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool, KM_HouseBarracks;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
@@ -17,7 +17,7 @@ type
   TKMUnitEvent = procedure(aUnit: TKMUnit) of object;
   TKMUnitFromEvent = procedure(aUnit: TKMUnit; aFrom: TKMHandIndex) of object;
 
-  TActionResult = (ActContinues, ActDone, ActAborted); //
+  TActionResult = (ar_ActContinues, ar_ActDone, ar_ActAborted); //
 
   TUnitAction = class
   protected
@@ -38,7 +38,7 @@ type
     procedure Paint; virtual;
   end;
 
-  TTaskResult = (TaskContinues, TaskDone); //There's no difference between Done and Aborted
+  TTaskResult = (tr_TaskContinues, tr_TaskDone); //There's no difference between Done and Aborted
 
   TUnitTask = class
   protected
@@ -71,6 +71,7 @@ type
     fHitPoints: Byte;
     fHitPointCounter: Cardinal; //Counter for hit point restoration, separate cos it resets on first hit
     fCondition: Integer; //Unit condition, when it reaches zero unit should die (rarely can be negative due to WalkExchange)
+    fStartWDefaultCondition: Boolean; //For MapEditor only. Shows if this unit conditions will be set to default at the start of the game
     fTicker: Cardinal; //ticks of life for the unit (allows to spread updates)
     fOwner: TKMHandIndex;
     fHome: TKMHouse;
@@ -91,6 +92,7 @@ type
     procedure SetDirection(aValue: TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep: Integer = 0);
     procedure SetNextPosition(aLoc: TKMPoint);
+    procedure SetCondition(aValue: Integer);
     function CanAccessHome: Boolean;
 
     procedure UpdateThoughts;
@@ -138,37 +140,38 @@ type
     procedure SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
-    procedure SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
+    procedure SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk; aDistance: Single = 0);
     procedure SetActionWalkPushed(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
 
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
-    property DesiredPassability: TKMTerrainPassability read GetDesiredPassability;
-    property Owner: TKMHandIndex read fOwner;
-    property GetHome: TKMHouse read fHome;
+    property  DesiredPassability: TKMTerrainPassability read GetDesiredPassability;
+    property  Owner: TKMHandIndex read fOwner;
+    property  GetHome: TKMHouse read fHome;
     procedure SetHome(aHome: TKMHouse);
-    property GetUnitAction: TUnitAction read fCurrentAction;
-    property UnitTask: TUnitTask read fUnitTask;
-    property UnitType: TUnitType read fUnitType;
-    function GetUnitActText: UnicodeString;
-    property Condition: Integer read fCondition write fCondition;
+    property  GetUnitAction: TUnitAction read fCurrentAction;
+    property  UnitTask: TUnitTask read fUnitTask;
+    property  UnitType: TUnitType read fUnitType;
+    function  GetUnitActText: UnicodeString;
+    property  Condition: Integer read fCondition write SetCondition;
+    property  StartWDefaultCondition: Boolean read fStartWDefaultCondition write fStartWDefaultCondition;
     procedure SetOwner(aOwner: TKMHandIndex);
     procedure OwnerUpdate(aOwner: TKMHandIndex; aMoveToNewOwner: Boolean = False);
     procedure HitPointsChangeFromScript(aAmount: Integer);
     procedure HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
-    property HitPointsMax: Byte read GetHitPointsMax;
+    property  HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
-    property Visible: Boolean read fVisible write fVisible;
+    property  Visible: Boolean read fVisible write fVisible;
     procedure SetInHouse(aInHouse: TKMHouse);
-    property GetInHouse: TKMHouse read fInHouse;
-    property IsDead: Boolean read fIsDead;
-    function IsDeadOrDying: Boolean;
-    property GetPosition: TKMPoint read fCurrPosition;
+    property  GetInHouse: TKMHouse read fInHouse;
+    property  IsDead: Boolean read fIsDead;
+    function  IsDeadOrDying: Boolean;
+    property  GetPosition: TKMPoint read fCurrPosition;
     procedure SetPosition(aPos: TKMPoint);
-    property PositionF: TKMPointF read fPosition write fPosition;
-    property Thought: TKMUnitThought read fThought write fThought;
-    function GetMovementVector: TKMPointF;
-    function IsIdle: Boolean;
+    property  PositionF: TKMPointF read fPosition write fPosition;
+    property  Thought: TKMUnitThought read fThought write fThought;
+    function  GetMovementVector: TKMPointF;
+    function  IsIdle: Boolean;
     procedure TrainInHouse(aSchool: TKMHouseSchool);
 
     function CanStepTo(X,Y: Integer; aPass: TKMTerrainPassability): Boolean;
@@ -179,7 +182,7 @@ type
     function CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TKMTerrainPassability; aDistance: Single): Boolean; overload;
     function CanWalkDiagonaly(aFrom, aTo: TKMPoint): Boolean;
     procedure VertexRem(aLoc: TKMPoint);
-    function VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
+    function  VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
     procedure VertexAdd(aFrom, aTo: TKMPoint);
     procedure Walk(aFrom, aTo: TKMPoint);
     function GetActivityText: UnicodeString; virtual;
@@ -191,10 +194,18 @@ type
     procedure Paint; virtual;
   end;
 
-  //This is a common class for units going out of their homes for resources
-  TKMUnitCitizen = class(TKMUnit)
+  //This is common class for all units, who can be an owner for house (recruits and all citizen workers)
+  TKMSettledUnit = class(TKMUnit)
   private
+    procedure CleanHousePointer(aFreeAndNilTask: Boolean = False);
+  protected
     function FindHome: Boolean;
+    procedure ProceedHouseClosedForWorker;
+  end;
+
+  //This is a common class for all units, who can work in house
+  TKMUnitCitizen = class(TKMSettledUnit)
+  private
     function InitiateMining: TUnitTask;
     procedure IssueResourceDepletedMessage;
   public
@@ -205,9 +216,8 @@ type
   end;
 
 
-  TKMUnitRecruit = class(TKMUnit)
+  TKMUnitRecruit = class(TKMSettledUnit)
   private
-    function FindHome: Boolean;
     function InitiateActivity: TUnitTask;
   public
     function UpdateState: Boolean; override;
@@ -291,13 +301,12 @@ uses
   KM_UnitTaskThrowRock;
 
 
-{ TKMUnitCitizen }
-//Find home for unit
-function TKMUnitCitizen.FindHome: Boolean;
-var
-  H: TKMHouse;
+{ TKMSettledUnit }
+//Find home for settled unit
+function TKMSettledUnit.FindHome: Boolean;
+var H: TKMHouse;
 begin
-  Result := False;
+  Result:=false;
   H := gHands[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
   if H <> nil then
   begin
@@ -307,6 +316,81 @@ begin
 end;
 
 
+procedure TKMSettledUnit.CleanHousePointer(aFreeAndNilTask: Boolean = False);
+begin
+  if aFreeAndNilTask then
+    FreeAndNil(fUnitTask);
+  fHome.GetHasOwner := False;
+  gHands.CleanUpHousePointer(fHome);
+end;
+
+
+// Manage house is closed for worker process
+procedure TKMSettledUnit.ProceedHouseClosedForWorker;
+var
+  wGoingInsideHouse: Boolean;
+  wThrowingRock: Boolean;
+  wGoingForEating: Boolean;
+  wWentOutShowHungry: Boolean;
+  wWantToGoOutShowHungry: Boolean;
+  wWalkingOutside: Boolean;
+  wWorkingOutsideHouse: Boolean;
+  wHasNoTask: Boolean;
+  wIsInsideHouse: Boolean;
+begin
+  if (fHome <> nil)
+    and not fHome.IsDestroyed
+    and (fHome.IsClosedForWorker or ((fHome.HouseType = ht_Barracks) and (TKMHouseBarracks(fHome).NotAcceptRecruitFlag)))
+    and not(fUnitTask is TTaskDie) then
+    begin
+      wGoingInsideHouse := (fCurrentAction is TUnitActionGoInOut) and ((TUnitActionGoInOut(fCurrentAction)).Direction = gd_GoInside);
+      // let recruits finish throwing animation
+      wThrowingRock := (fUnitTask is TTaskThrowRock) and (fHome.GetState in [hst_Work]);
+      // do not cancel eating task
+      wGoingForEating := (fUnitTask is TTaskGoEat);
+      // Assume worker is inside the house if not Visible.
+      wIsInsideHouse := not Visible;
+      // cancel GoOutShowHungry task if we outside of the house
+      wWentOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and not wIsInsideHouse;
+      // cancel GoOutShowHungry task and go out of the house, if we inside of it
+      wWantToGoOutShowHungry := (fUnitTask is TTaskGoOutShowHungry) and wIsInsideHouse;
+      // We are on the way to somewhere. AbandonWalk 'n cancel task.
+      wWalkingOutside := (fCurrentAction is TUnitActionWalkTo) and not TUnitActionWalkTo(fCurrentAction).DoingExchange;
+      // Working outside
+      wWorkingOutsideHouse := (fUnitTask is TTaskMining) and not wIsInsideHouse;
+      // Somehow no task
+      wHasNoTask := (fUnitTask = nil);
+      if (not wThrowingRock) then       // Let recruit finish rock throwing
+        if (wGoingForEating) then
+        begin
+          CleanHousePointer;            // Clean house pointer, do not cancel eating task
+        end else begin
+          if (wWalkingOutside) then begin
+            AbandonWalk;                // Stop walking
+            CleanHousePointer(True);    // Clean house pointer and free task
+          end else
+          if not wGoingInsideHouse and  // Let worker get into the house
+            ((wWentOutShowHungry or wWorkingOutsideHouse) // When already outside the house
+            // Not sure we need this
+            or (wHasNoTask and not wIsInsideHouse)) then  // Or has no task outside the house.
+          begin
+            CleanHousePointer(True);    // Clean house pointer and free task
+          end else
+          if (wIsInsideHouse or wWantToGoOutShowHungry)
+            and not (fHome.HouseType = ht_Barracks) then // Recruits should not go out of Barracks
+          begin
+            SetActionGoIn(ua_Walk, gd_GoOutside, fHome); //Walk outside the house
+            // If working inside - first we need to set house state to Idle, then to Empty
+            fHome.SetState(hst_Idle);
+            fHome.SetState(hst_Empty);
+            CleanHousePointer(True)     // Clean house pointer and free task
+          end;
+        end;
+    end;
+end;
+
+
+{ TKMUnitCitizen }
 procedure TKMUnitCitizen.Paint;
 var
   Act: TUnitActionType;
@@ -392,6 +476,8 @@ begin
     FreeAndNil(fUnitTask);
     gHands.CleanUpHousePointer(fHome);
   end;
+
+  ProceedHouseClosedForWorker;
 
   if inherited UpdateState then exit;
   if IsDead then exit; //Caused by SelfTrain.Abandoned
@@ -519,20 +605,6 @@ end;
 
 
 { TKMUnitRecruit }
-function TKMUnitRecruit.FindHome: Boolean;
-var
-  H: TKMHouse;
-begin
-  Result  := false;
-  H := gHands[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
-  if H <> nil then
-  begin
-    fHome  := H.GetHousePointer;
-    Result := true;
-  end;
-end;
-
-
 procedure TKMUnitRecruit.Paint;
 var
   Act: TUnitActionType;
@@ -601,6 +673,8 @@ begin
     gHands.CleanUpHousePointer(fHome);
   end;
 
+  ProceedHouseClosedForWorker;
+
   if inherited UpdateState then exit;
   if IsDead then exit; //Caused by SelfTrain.Abandoned
 
@@ -622,7 +696,7 @@ begin
         fUnitTask := TTaskGoHome.Create(Self) //Home found - go there
       else begin
         fThought := th_Quest; //Always show quest when idle, unlike serfs who randomly show it
-        SetActionStay(120, ua_Walk) //There's no home
+        SetActionStay(20, ua_Walk) //There's no home
       end
     else
       if fVisible then //Unit is not at home, but it has one
@@ -954,9 +1028,9 @@ begin
   end;
 
   case fCurrentAction.Execute of
-    ActContinues: exit;
-    ActDone:      FreeAndNil(fCurrentAction);
-    ActAborted:   FreeAndNil(fCurrentAction);
+    ar_ActContinues: exit;
+    ar_ActDone:      FreeAndNil(fCurrentAction);
+    ar_ActAborted:   FreeAndNil(fCurrentAction);
   end;
   fCurrPosition := KMPointRound(fPosition);
 
@@ -964,8 +1038,8 @@ begin
   Assert((fUnitTask = nil) or (fUnitTask is TTaskDie));
   if fUnitTask is TTaskDie then
   case fUnitTask.Execute of
-    TaskContinues:  exit;
-    TaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = TaskDone'); //TTaskDie never returns TaskDone yet
+    tr_TaskContinues:  exit;
+    tr_TaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = tr_TaskDone'); //TTaskDie never returns tr_TaskDone yet
   end;
 
   //First make sure the animal isn't stuck (check passibility of our position)
@@ -1034,12 +1108,16 @@ begin
   fVisible      := true;
   IsExchanging  := false;
   AnimStep      := UnitStillFrames[fDirection]; //Use still frame at begining, so units don't all change frame on first tick
+
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if (gGame <> nil) and (gGame.GameMode <> gmMapEd) then
     fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
-  else
+  else begin
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
+    fStartWDefaultCondition := True;
+  end;
+
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
   HitPointsInvulnerable := False;
@@ -1120,6 +1198,7 @@ begin
 
   LoadStream.Read(fThought, SizeOf(fThought));
   LoadStream.Read(fCondition);
+  LoadStream.Read(fStartWDefaultCondition);
   LoadStream.Read(fTicker);
   LoadStream.Read(fHitPoints);
   LoadStream.Read(fHitPointCounter);
@@ -1395,7 +1474,7 @@ begin
   if aAction = nil then
   begin
     FreeAndNil(fCurrentAction);
-    exit;
+    Exit;
   end;
   if not gRes.Units[fUnitType].SupportsAction(aAction.ActionType) then
   begin
@@ -1531,6 +1610,12 @@ begin
 end;
 
 
+procedure TKMUnit.SetCondition(aValue: Integer);
+begin
+  fCondition := EnsureRange(aValue, 0, UNIT_MAX_CONDITION);
+end;
+
+
 procedure TKMUnit.SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
@@ -1542,12 +1627,12 @@ end;
 
 
 //Walk to spot or its neighbourhood
-procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
+procedure TKMUnit.SetActionWalkToSpot(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk; aDistance: Single = 0);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     raise Exception.Create('Interrupting unabandonable Walk action');
 
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, false, nil, nil));
 end;
 
 
@@ -1559,7 +1644,7 @@ begin
   Assert(((GetUnitAction is TUnitActionStay) and (not GetUnitAction.Locked)) or
          ((GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).CanAbandonExternal));
 
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, true, nil, nil));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, True, nil, nil));
   //Once pushed, unit will try to walk away, if he bumps into more units he will
   //
 end;
@@ -1931,6 +2016,7 @@ begin
 
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
+  SaveStream.Write(fStartWDefaultCondition);
   SaveStream.Write(fTicker);
   SaveStream.Write(fHitPoints);
   SaveStream.Write(fHitPointCounter);
@@ -1974,11 +2060,12 @@ begin
 
   Result := True;
 
-  if fCurrentAction=nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at start of TKMUnit.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then
+    raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action at start of TKMUnit.UpdateState', fCurrPosition);
 
   //UpdateState can happen right after unit gets killed (Exchange still in progress)
   if fKillASAP
-  and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
+    and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
     DoKill(fKillASAPShowAnimation);
     fKillASAP := False;
@@ -1989,8 +2076,8 @@ begin
 
   //Update hunger
   if (fTicker mod CONDITION_PACE = 0)
-  and (fCondition > 0)
-  and not ((fUnitTask is TTaskGoEat) and TTaskGoEat(fUnitTask).Eating) then
+    and (fCondition > 0)
+    and not ((fUnitTask is TTaskGoEat) and TTaskGoEat(fUnitTask).Eating) then
     //Make unit hungry as long as they are not currently eating in the inn
     Dec(fCondition);
 
@@ -2004,7 +2091,7 @@ begin
 
   UpdateThoughts;
   UpdateHitPoints;
-  if UpdateVisibility then exit; //incase units home was destroyed. Returns true if the unit was killed due to lack of space
+  if UpdateVisibility then Exit; //incase units home was destroyed. Returns true if the unit was killed due to lack of space
 
   //Shortcut to freeze unit in place if it's on an unwalkable tile. We use fNextPosition rather than fCurrPosition
   //because once we have taken a step from a tile we no longer care about it. (fNextPosition matches up with IsUnit in terrain)
@@ -2026,16 +2113,16 @@ begin
 
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute of
-    ActContinues: begin fCurrPosition := KMPointRound(fPosition); exit; end;
-    ActAborted:   begin FreeAndNil(fCurrentAction); FreeAndNil(fUnitTask); end;
-    ActDone:      FreeAndNil(fCurrentAction);
+    ar_ActContinues: begin fCurrPosition := KMPointRound(fPosition); Exit; end;
+    ar_ActAborted:   begin FreeAndNil(fCurrentAction); FreeAndNil(fUnitTask); end;
+    ar_ActDone:      FreeAndNil(fCurrentAction);
   end;
   fCurrPosition := KMPointRound(fPosition);
 
   if fUnitTask <> nil then
   case fUnitTask.Execute of
-    TaskContinues:  exit;
-    TaskDone:       FreeAndNil(fUnitTask);
+    tr_TaskContinues:  Exit;
+    tr_TaskDone:       FreeAndNil(fUnitTask);
   end;
 
   //If we get to this point then it means that common part is done and now

@@ -21,7 +21,7 @@ const
 type
   TKMTextLibraryCommon = class
   private
-    procedure LoadLIBXFile(FilePath: string; var aArray: TUnicodeStringArray);
+    procedure LoadLIBXFile(const FilePath: string; var aArray: TUnicodeStringArray);
   end;
 
 
@@ -30,7 +30,7 @@ type
     fTexts: TUnicodeStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
   public
-    procedure LoadLocale(aPathTemplate: string); // Initial locale for UI strings
+    procedure LoadLocale(const aPathTemplate: string); // Initial locale for UI strings
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
   end;
 
@@ -45,7 +45,7 @@ type
     function DoParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
   public
     constructor Create;
-    procedure LoadLocale(aPathTemplate: string); // All locales for Mission strings
+    procedure LoadLocale(const aPathTemplate: string); // All locales for Mission strings
     function ParseTextMarkup(const aText: UnicodeString): UnicodeString; overload;
     function ParseTextMarkup(const aText: UnicodeString; aParams: array of const): UnicodeString; overload;
     function HasText(aIndex: Word): Boolean;
@@ -63,7 +63,7 @@ implementation
 
 { TKMTextLibraryCommon }
 // LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped
-procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TUnicodeStringArray);
+procedure TKMTextLibraryCommon.LoadLIBXFile(const FilePath: string; var aArray: TUnicodeStringArray);
   function TextToArray(const aText: UnicodeString): TUnicodeStringArray;
   var
     P, Start: PWideChar;
@@ -159,7 +159,7 @@ end;
 
 // Text file template, e.g.: ExeDir\text.%s.libx
 // We need locale separate to assemble Fallback and Default locales paths
-procedure TKMTextLibrarySingle.LoadLocale(aPathTemplate: string);
+procedure TKMTextLibrarySingle.LoadLocale(const aPathTemplate: string);
 begin
   // We load the English LIBX by default, then overwrite it with the selected language
   // (this way missing strings are in English)
@@ -217,7 +217,7 @@ end;
 
 
 // Path template with %s
-procedure TKMTextLibraryMulti.LoadLocale(aPathTemplate: string);
+procedure TKMTextLibraryMulti.LoadLocale(const aPathTemplate: string);
 var
   I: Integer;
 begin

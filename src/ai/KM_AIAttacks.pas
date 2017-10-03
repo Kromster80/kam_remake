@@ -2,8 +2,7 @@ unit KM_AIAttacks;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points;
+  KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
   TAIAttackType = (
@@ -60,6 +59,8 @@ type
 
 
 implementation
+uses
+  Math;
 
 
 { TAIAttacks }

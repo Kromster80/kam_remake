@@ -3,7 +3,7 @@ unit KM_UnitTaskAttackHouse;
 interface
 uses
   Classes, SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_CommonUtils, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
 
 
 type
@@ -80,12 +80,12 @@ var
    AnimLength: Integer;
    Delay, Cycle: Byte;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
 
   //If the house is destroyed drop the task
   if WalkShouldAbandon then
   begin
-    Result := TaskDone;
+    Result := tr_TaskDone;
     Exit;
   end;
 
@@ -109,7 +109,7 @@ begin
            if (fHouse.GetDistance(GetPosition) < GetFightMinRange) or (fHouse.GetDistance(GetPosition) > GetFightMaxRange) then
            begin
              SetActionStay(0, ua_Walk);
-             Result := TaskDone;
+             Result := tr_TaskDone;
              Exit;
            end;
            //Calculate base aiming delay
@@ -140,7 +140,7 @@ begin
            if fHouse.GetDistance(GetPosition) > GetFightMaxRange then
            begin
              SetActionStay(0, ua_Walk);
-             Result := TaskDone;
+             Result := tr_TaskDone;
              Exit;
            end;
            SetActionLockedStay(0,ua_Work,false); //Melee units pause after the hit

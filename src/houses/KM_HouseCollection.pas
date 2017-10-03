@@ -2,9 +2,9 @@ unit KM_HouseCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Math,
-   KM_CommonClasses, KM_Defaults, KM_Points,
-   KM_ResHouses, KM_Houses, KM_Terrain;
+  KM_Houses,
+  KM_ResHouses,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 type
   TKMHousesCollection = class
@@ -34,14 +34,17 @@ type
     procedure IncAnimStep;
     procedure UpdateResRequest; //Change resource requested counts for all houses
     procedure DeleteHouseFromList(aHouse: TKMHouse);
-    procedure UpdateState;
+    procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
 
 
 implementation
 uses
-  System.Types, KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_HouseSchool, KM_Game, KM_Resource;
+  Classes, Types, Math,
+  KM_Game, KM_Terrain,
+  KM_HouseInn, KM_HouseMarket, KM_HouseBarracks, KM_HouseSchool,
+  KM_Resource;
 
 
 { TKMHousesCollection }
@@ -66,15 +69,16 @@ begin
 
   case aHouseType of
     ht_Swine,
-    ht_Stables:     Result := TKMHouseSwineStable.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Inn:         Result := TKMHouseInn.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Marketplace: Result := TKMHouseMarket.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_School:      Result := TKMHouseSchool.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Barracks:    Result := TKMHouseBarracks.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Store:       Result := TKMHouseStore.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_WatchTower:  Result := TKMHouseTower.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    ht_Woodcutters: Result := TKMHouseWoodcutters.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
-    else            Result := TKMHouse.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Stables:       Result := TKMHouseSwineStable.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Inn:           Result := TKMHouseInn.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Marketplace:   Result := TKMHouseMarket.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_School:        Result := TKMHouseSchool.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Barracks:      Result := TKMHouseBarracks.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Store:         Result := TKMHouseStore.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_WatchTower:    Result := TKMHouseTower.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_Woodcutters:   Result := TKMHouseWoodcutters.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    ht_ArmorWorkshop: Result := TKMHouseArmorWorkshop.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
+    else              Result := TKMHouse.Create(ID, aHouseType,PosX,PosY, aOwner, aHBS);
   end;
 
   if Result <> nil then
@@ -172,12 +176,14 @@ begin
 
   for I := 0 to Count - 1 do
     if (gRes.Houses[Houses[I].HouseType].OwnerType = aUnitType) and //If Unit can work in here
-       (not Houses[I].GetHasOwner) and                              //If there's yet no owner
-       (not Houses[I].IsDestroyed) and
-       (Houses[I].IsComplete) then                               //If house is built
+       (not Houses[I].GetHasOwner) and                                // if there's yet no owner
+       (not Houses[I].IsDestroyed) and                                // if house is not destroyed
+       (Houses[I].IsComplete) and                                     // if house is built
+       (not Houses[I].IsClosedForWorker) then                         // if house is not closed for worker
     begin
-      //Recruits should not go to a barracks with ware delivery switched off
-      if (Houses[I].HouseType = ht_Barracks) and (not Houses[I].WareDelivery) then Continue;
+      //Recruits should not go to a barracks with ware delivery switched off or with not accept flag for recruits
+      if (Houses[I].HouseType = ht_Barracks)
+        and ((Houses[I].DeliveryMode <> dm_Delivery) or (TKMHouseBarracks(Houses[I]).NotAcceptRecruitFlag)) then Continue;
       if not gTerrain.Route_CanBeMade(Loc, Houses[I].PointBelowEntrance, tpWalk, 0) then Continue;
 
       Dist := KMLengthSqr(Loc, Houses[I].GetPosition);
@@ -280,15 +286,16 @@ begin
     LoadStream.Read(HouseType, SizeOf(HouseType));
     case HouseType of
       ht_Swine,
-      ht_Stables:     T := TKMHouseSwineStable.Load(LoadStream);
-      ht_Inn:         T := TKMHouseInn.Load(LoadStream);
-      ht_Marketplace: T := TKMHouseMarket.Load(LoadStream);
-      ht_School:      T := TKMHouseSchool.Load(LoadStream);
-      ht_Barracks:    T := TKMHouseBarracks.Load(LoadStream);
-      ht_Store:       T := TKMHouseStore.Load(LoadStream);
-      ht_WatchTower:  T := TKMHouseTower.Load(LoadStream);
-      ht_Woodcutters: T := TKMHouseWoodcutters.Load(LoadStream);
-      else            T := TKMHouse.Load(LoadStream);
+      ht_Stables:       T := TKMHouseSwineStable.Load(LoadStream);
+      ht_Inn:           T := TKMHouseInn.Load(LoadStream);
+      ht_Marketplace:   T := TKMHouseMarket.Load(LoadStream);
+      ht_School:        T := TKMHouseSchool.Load(LoadStream);
+      ht_Barracks:      T := TKMHouseBarracks.Load(LoadStream);
+      ht_Store:         T := TKMHouseStore.Load(LoadStream);
+      ht_WatchTower:    T := TKMHouseTower.Load(LoadStream);
+      ht_Woodcutters:   T := TKMHouseWoodcutters.Load(LoadStream);
+      ht_ArmorWorkshop: T := TKMHouseArmorWorkshop.Load(LoadStream);
+      else              T := TKMHouse.Load(LoadStream);
     end;
 
     if T <> nil then
@@ -315,13 +322,13 @@ begin
 end;
 
 
-procedure TKMHousesCollection.UpdateState;
+procedure TKMHousesCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
   for I := Count - 1 downto 0  do
     if not Houses[I].IsDestroyed then
-      Houses[I].UpdateState
+      Houses[I].UpdateState(aTick)
     else
       if FREE_POINTERS and (Houses[I].PointerCount = 0) then
         fHouses.Delete(I); //Because no one needs this anymore it must DIE!!!!! :D

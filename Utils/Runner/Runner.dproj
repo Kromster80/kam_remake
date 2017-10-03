@@ -47,7 +47,7 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
-			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\net;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\terrain;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src\ext\;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\pascalscript\Source;..\..\src\ext\OggVorbis;..\..\src;..\..\src\ai;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\net;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\terrain;..\..\src\units;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;..\..\src\net\other;..\..\src\net\http;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_Locale>1049</VerInfo_Locale>
 			<Manifest_File>None</Manifest_File>

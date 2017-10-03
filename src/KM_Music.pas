@@ -16,8 +16,7 @@ interface
 {$ENDIF}
 
 uses
-  Classes, SysUtils, KromUtils, Math, Types,
-  KM_Defaults
+  Types
   {$IFDEF USEBASS}     , Bass {$ENDIF}
   {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
   ;
@@ -42,9 +41,9 @@ type
     fToPlayAfterFade: UnicodeString;
     fFadedToPlayOther: Boolean;
     fOtherVolume: Single;
-    function PlayMusicFile(FileName: UnicodeString): Boolean;
-    function PlayOtherFile(FileName: UnicodeString): Boolean;
-    procedure ScanMusicTracks(aPath: UnicodeString);
+    function PlayMusicFile(const FileName: UnicodeString): Boolean;
+    function PlayOtherFile(const FileName: UnicodeString): Boolean;
+    procedure ScanMusicTracks(const aPath: UnicodeString);
     procedure ShuffleSongs; //should not be seen outside of this class
     procedure UnshuffleSongs;
   public
@@ -61,7 +60,7 @@ type
     procedure ToggleShuffle(aEnableShuffle: Boolean);
     procedure FadeMusic;
     procedure UnfadeMusic(aHandleCrackling: Boolean);
-    procedure PauseMusicToPlayFile(aFileName: UnicodeString; aVolume: Single);
+    procedure PauseMusicToPlayFile(const aFileName: UnicodeString; aVolume: Single);
     procedure StopPlayingOtherFile;
     function GetTrackTitle: UnicodeString;
     procedure UpdateStateIdle; //Used for fading
@@ -70,7 +69,9 @@ type
 
 implementation
 uses
-  KM_Log, KM_Utils;
+  SysUtils, KromUtils, Math,
+  KM_Defaults,
+  KM_Log, KM_CommonUtils;
 
 
 const
@@ -84,7 +85,11 @@ var
 begin
   inherited Create;
   IsMusicInitialized := True;
-  ScanMusicTracks(ExeDir + 'Music'+PathDelim);
+
+  if not DirectoryExists(ExeDir + 'Music') then
+    ForceDirectories(ExeDir + 'Music');
+
+  ScanMusicTracks(ExeDir + 'Music' + PathDelim);
 
 
   {$IFDEF USELIBZPLAY}
@@ -130,7 +135,7 @@ begin
 end;
 
 
-function TKMMusicLib.PlayMusicFile(FileName: UnicodeString): Boolean;
+function TKMMusicLib.PlayMusicFile(const FileName: UnicodeString): Boolean;
 {$IFDEF USEBASS} var ErrorCode: Integer; {$ENDIF}
 begin
   Result := False;
@@ -164,7 +169,7 @@ begin
 end;
 
 
-function TKMMusicLib.PlayOtherFile(FileName: UnicodeString): Boolean;
+function TKMMusicLib.PlayOtherFile(const FileName: UnicodeString): Boolean;
 {$IFDEF USEBASS} var ErrorCode: Integer; {$ENDIF}
 begin
   Result := False;
@@ -218,7 +223,7 @@ begin
 end;
 
 
-procedure TKMMusicLib.ScanMusicTracks(aPath: UnicodeString);
+procedure TKMMusicLib.ScanMusicTracks(const aPath: UnicodeString);
 var
   SearchRec: TSearchRec;
 begin
@@ -478,7 +483,7 @@ begin
 end;
 
 
-procedure TKMMusicLib.PauseMusicToPlayFile(aFileName: UnicodeString; aVolume: single);
+procedure TKMMusicLib.PauseMusicToPlayFile(const aFileName: UnicodeString; aVolume: single);
 begin
   fOtherVolume := aVolume;
   if fFadeState in [fsNone, fsFadeIn] then

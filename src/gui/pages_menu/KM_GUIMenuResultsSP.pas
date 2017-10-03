@@ -60,7 +60,7 @@ type
 implementation
 uses
   KM_ResTexts, KM_GameApp, KM_HandsCollection,
-  KM_Utils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
+  KM_CommonUtils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
   KM_ResWares;
 
 
@@ -84,7 +84,7 @@ var
                                         end;
 
   //Temp graphs are used to adjoin same colored AI opponents into one chart
-  procedure AddToTempGraph(aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray);
+  procedure AddToTempGraph(const aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray);
   var I, ID: Integer;
   begin
     ID := -1;

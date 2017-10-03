@@ -13,11 +13,11 @@ uses
   {$ENDIF}
   SysUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KM_Utils in '..\..\src\KM_Utils.pas',
-  KM_Defaults in '..\..\src\KM_Defaults.pas',
+  KM_CommonUtils in '..\..\src\utils\KM_CommonUtils.pas',
+  KM_Defaults in '..\..\src\common\KM_Defaults.pas',
   KM_Log in '..\..\src\KM_Log.pas',
   KM_Settings in '..\..\src\KM_Settings.pas',
-  KM_DedicatedServer in '..\..\src\KM_DedicatedServer.pas',
+  KM_DedicatedServer in '..\..\src\net\other\KM_DedicatedServer.pas',
   KM_ServerEventHandler in 'KM_ServerEventHandler.pas';
 
 var
@@ -51,9 +51,9 @@ begin
                                                 fSettings.ServerWelcomeMessage,
                                                 True);
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
-  fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer);
+  fDedicatedServer.Start(fSettings.ServerName, StrToInt(fSettings.ServerPort), fSettings.AnnounceServer);
 
-  while True do
+  while fDedicatedServer <> nil do
   begin
     fDedicatedServer.UpdateState;
     //Reload the INI file if it has changed, by checking the file age every 5 seconds
@@ -72,7 +72,8 @@ begin
                                         fSettings.MasterAnnounceInterval,
                                         fSettings.MasterServerAddress,
                                         fSettings.HTMLStatusFile,
-                                        fSettings.ServerWelcomeMessage);
+                                        fSettings.ServerWelcomeMessage,
+                                        fSettings.ServerPacketsAccumulatingDelay);
       end;
     end;
     //In Lazarus LNet will wait for 1ms in CallAction for the OS to respond with socket events

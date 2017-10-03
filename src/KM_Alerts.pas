@@ -2,8 +2,9 @@ unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
-  KM_Defaults, KM_Pics, KM_Points, KM_ResSound, KM_Viewport;
+  Classes,
+  KM_Pics, KM_Viewport, KM_ResSound,
+  KM_Defaults, KM_Points;
 
 type
   TAlertType = (atBeacon, atFight);
@@ -55,6 +56,7 @@ type
   public
     constructor Create(aViewport: TKMViewport);
     destructor Destroy; override;
+    procedure ClearBeaconsExcept(aOwner: TKMHandIndex);
     procedure AddBeacon(aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aShowUntil: Cardinal);
     procedure AddFight(aLoc: TKMPointF; aPlayer: TKMHandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
     function GetLatestAlert: TKMAlert;
@@ -67,7 +69,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar, KM_Hand;
+  KM_Hand, KM_RenderPool, KM_HandsCollection, KM_Sound, KM_FogOfWar;
 
 
 type
@@ -319,6 +321,21 @@ begin
   RemoveExcessBeacons;
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, aColor, aShowUntil));
   gSoundPlayer.Play(sfxn_Beacon);
+end;
+
+
+//Clear all beacons except those, whose owner is aOwner
+procedure TKMAlerts.ClearBeaconsExcept(aOwner: TKMHandIndex);
+var
+  I: Integer;
+begin
+  for I := fList.Count - 1 downto 0 do
+    if (Items[I].AlertType = atBeacon)
+      and (Items[I].Owner <> aOwner) then
+    begin
+      Items[I].Free;
+      fList.Delete(I);
+    end;
 end;
 
 

@@ -84,6 +84,7 @@ type
     RGLogNetPackets: TRadioGroup;
     chkLogsShowInChat: TCheckBox;
     chkUIControlsID: TCheckBox;
+    ShowLogistics: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -127,8 +128,10 @@ type
     procedure RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure RenderAreaResize(aWidth, aHeight: Integer);
     procedure RenderAreaRender(aSender: TObject);
+    procedure ShowLogisticsClick(Sender: TObject);
   private
     fUpdating: Boolean;
+    procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
     {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
@@ -162,7 +165,7 @@ uses
   KM_Pics,
   KM_RenderPool,
   KM_Hand,
-  KM_ResKeys,
+  KM_ResKeys, KM_FormLogistics,
   KM_Log;
 
 
@@ -178,6 +181,8 @@ begin
   RenderArea.OnMouseUp := RenderAreaMouseUp;
   RenderArea.OnResize := RenderAreaResize;
   RenderArea.OnRender := RenderAreaRender;
+
+  chkSuperSpeed.Caption := 'Speed x' + IntToStr(DEBUG_SPEEDUP_SPEED);
 
   //Lazarus needs OnMouseWheel event to be for the panel, not the entire form
   {$IFDEF FPC} RenderArea.OnMouseWheel := RenderAreaMouseWheel; {$ENDIF}
@@ -214,18 +219,9 @@ begin
 end;
 
 
-//Restrict minimum Form ClientArea size to MENU_DESIGN_X/Y
-procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TFormMain.FormKeyDownProc(aKey: Word; aShift: TShiftState);
 begin
-  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-  if gGameApp <> nil then gGameApp.KeyDown(Key, Shift);
-end;
-
-
-procedure TFormMain.FormKeyPress(Sender: TObject; var Key: Char);
-begin
-  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-  if gGameApp <> nil then gGameApp.KeyPress(Key);
+  if gGameApp <> nil then gGameApp.KeyDown(aKey, aShift);
 end;
 
 
@@ -240,6 +236,20 @@ begin
 end;
 
 
+procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+  FormKeyDownProc(Key, Shift);
+end;
+
+
+procedure TFormMain.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+  if gGameApp <> nil then gGameApp.KeyPress(Key);
+end;
+
+
 procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
@@ -249,11 +259,19 @@ end;
 
 
 procedure TFormMain.RenderAreaMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if gGameApp <> nil then gGameApp.MouseDown(Button, Shift, X, Y); end;
+begin
+  // Handle middle mouse button as Key
+  if Button = mbMiddle then
+    FormKeyDownProc(VK_MBUTTON, Shift)
+  else if gGameApp <> nil then
+    gGameApp.MouseDown(Button, Shift, X, Y);
+end;
 
 
 procedure TFormMain.RenderAreaMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-begin if gGameApp <> nil then gGameApp.MouseMove(Shift, X, Y); end;
+begin
+  if gGameApp <> nil then gGameApp.MouseMove(Shift, X, Y);
+end;
 
 
 procedure TFormMain.RenderAreaMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -268,7 +286,11 @@ begin
     else if Button = mbMiddle then
       Include(Shift, ssMiddle);
 
-    gGameApp.MouseUp(Button, Shift, X, Y);
+    // Handle middle mouse button as Key
+    if Button = mbMiddle then
+      FormKeyUpProc(VK_MBUTTON, Shift)
+    else
+      gGameApp.MouseUp(Button, Shift, X, Y);
   end;
 end;
 
@@ -426,8 +448,8 @@ end;
 procedure TFormMain.RGPlayerClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-  or gGameApp.Game.IsMapEditor
-  or gGameApp.Game.IsMultiplayer then
+    or gGameApp.Game.IsMapEditor
+    or gGameApp.Game.IsMultiplayer then
     Exit;
 
   if (gHands <> nil) and (RGPlayer.ItemIndex < gHands.Count) then
@@ -435,16 +457,24 @@ begin
 end;
 
 
+procedure TFormMain.ShowLogisticsClick(Sender: TObject);
+begin
+  if not Assigned(FormLogistics) then
+    FormLogistics := TFormLogistics.Create(Self);
+  FormLogistics.Show;
+end;
+
+
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-  or (gGameApp.Game.IsMultiplayer
-    and not gGameApp.Game.IsMPGameSpeedUpAllowed
-    and not MULTIPLAYER_SPEEDUP
-    and not gGameApp.Game.IsReplay) then
+    or (gGameApp.Game.IsMultiplayer
+      and not gGameApp.Game.IsMPGameSpeedUpAllowed
+      and not MULTIPLAYER_SPEEDUP
+      and not gGameApp.Game.IsReplay) then
     Exit;
 
-  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, gGameApp.Game.GetNormalGameSpeed), False);
+  gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, DEBUG_SPEEDUP_SPEED, gGameApp.Game.GetNormalGameSpeed), False);
 end;
 
 
@@ -759,6 +789,7 @@ var dwKeys,uDevice,cmd: Word;
   ShiftState: TShiftState;
 begin
   ShiftState := [];
+  {$IFDEF WDC}
   uDevice := GET_DEVICE_LPARAM(Msg.lParam);
   if uDevice = FAPPCOMMAND_MOUSE then
   begin
@@ -772,6 +803,7 @@ begin
          inherited;
      end;
   end;
+  {$ENDIF}
 end;
 
 

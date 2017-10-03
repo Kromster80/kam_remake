@@ -3,7 +3,7 @@ unit Unit_Runner;
 interface
 uses Classes, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KromUtils,
-  KM_GameApp, KM_ResLocales, KM_Log, KM_ResTexts, KM_Utils, KM_RenderControl;
+  KM_GameApp, KM_ResLocales, KM_Log, KM_ResTexts, KM_CommonUtils, KM_RenderControl;
 
 
 type
@@ -31,6 +31,7 @@ type
     procedure SimulateGame;
     procedure ProcessRunResults;
   public
+    Duration: Integer;
     OnProgress: TUnicodeStringEvent;
     constructor Create(aRenderTarget: TKMRenderControl); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
@@ -125,8 +126,11 @@ var
 begin
   SKIP_RENDER := (fRenderTarget = nil);
   SKIP_SOUND := True;
+  SKIP_LOADING_CURSOR := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   //gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
+
+  fResults.TimesCount := Duration*60*10;
 
   if fRenderTarget = nil then
   begin
@@ -148,6 +152,9 @@ begin
   gGameApp.Stop(gr_Silent);
   FreeAndNil(gGameApp);
   FreeAndNil(gLog);
+  if Assigned(OnProgress) then
+    OnProgress('Done');
+
 end;
 
 
@@ -167,7 +174,7 @@ begin
       gGameApp.Game.GameHold(False, gr_Win);
 
     if (I mod 60*10 = 0) and Assigned(OnProgress) then
-      OnProgress(Format('%d (%d min)', [fRun, I div 600]));
+      OnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));
   end;
 end;
 

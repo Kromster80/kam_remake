@@ -2,10 +2,11 @@ unit KM_AIMayor;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_Utils, KM_Points,
-  KM_AICityPlanner, KM_PathfindingRoad, KM_AISetup, KM_AIMayorBalance,
-  KM_ResHouses;
+  KM_AIMayorBalance, KM_AICityPlanner, KM_AISetup,
+  KM_PathfindingRoad,
+  KM_ResHouses,
+  KM_CommonClasses, KM_Defaults, KM_Points;
+
 
 type
   //Mayor is the one who manages the town
@@ -59,9 +60,13 @@ type
 
 implementation
 uses
-  KM_Game, KM_Houses, KM_HouseCollection, KM_HouseSchool, KM_HandsCollection, KM_Hand, KM_Terrain, KM_Resource,
-  KM_ResWares, KM_AIFields, KM_Units, KM_UnitTaskDelivery, KM_UnitActionWalkTo, KM_UnitTaskGoEat, KM_UnitsCollection,
-  KM_NavMesh;
+  Classes, Math,
+  KM_Game, KM_Hand, KM_HandsCollection,
+  KM_AIFields, KM_Terrain,
+  KM_HouseCollection, KM_Houses, KM_HouseSchool,
+  KM_Units, KM_UnitsCollection, KM_UnitActionWalkTo, KM_UnitTaskGoEat, KM_UnitTaskDelivery,
+  KM_Resource, KM_ResWares,
+  KM_NavMesh, KM_CommonUtils;
 
 
 const //Sample list made by AntonP

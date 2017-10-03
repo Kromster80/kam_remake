@@ -27,8 +27,10 @@ type
     cServerName: TEdit;
     cServerPort: TEdit;
     cServerWelcomeMessage: TEdit;
+    cServerPacketsAccDelay: TEdit;
     Label10: TLabel;
     Label11: TLabel;
+    Label12: TLabel;
     Label2: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -186,7 +188,7 @@ begin
                                                       fSettings.ServerWelcomeMessage,
                                                       True);
         fDedicatedServer.OnMessage := ServerStatusMessage;
-        fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer);
+        fDedicatedServer.Start(fSettings.ServerName, StrToInt(fSettings.ServerPort), fSettings.AnnounceServer);
 
         fServerStatus := aStatus;
         StartStopButton.Caption := 'Server is ONLINE';
@@ -257,12 +259,22 @@ end;
 
 
 procedure TFormMain.ButtonApplyClick(Sender: TObject);
+var
+  ServerPacketsAccDelay: Integer;
 begin
   //Disable the button asap to indicate we are at it
   ChangeEnableStateOfApplyButton(False);
 
   fSettings.ServerName              := cServerName.Text;
   fSettings.ServerWelcomeMessage    := cServerWelcomeMessage.Text;
+
+  if TryStrToInt(cServerPacketsAccDelay.Text, ServerPacketsAccDelay) then
+    fSettings.ServerPacketsAccumulatingDelay := ServerPacketsAccDelay
+  else begin
+    ServerPacketsAccDelay := fSettings.ServerPacketsAccumulatingDelay;
+    cServerPacketsAccDelay.Text := IntToStr(fSettings.ServerPacketsAccumulatingDelay);
+  end;
+
   fSettings.AnnounceServer          := cAnnounceServer.Checked;
   fSettings.AutoKickTimeout         := cAutoKickTimeout.Value;
   fSettings.PingInterval            := cPingInterval.Value;
@@ -277,6 +289,7 @@ begin
   //We can update only if server is online
   if fServerStatus = ssOnline then
   begin
+
     fDedicatedServer.UpdateSettings(cServerName.Text,
                                     cAnnounceServer.Checked,
                                     cAutoKickTimeout.Value,
@@ -284,7 +297,8 @@ begin
                                     cMasterAnnounceInterval.Value,
                                     cMasterServerAddress.Text,
                                     cHTMLStatusFile.Text,
-                                    cServerWelcomeMessage.Text);
+                                    cServerWelcomeMessage.Text,
+                                    ServerPacketsAccDelay);
     ServerStatusMessage('Settings saved, updated and are now live.');
   end;
 end;
@@ -296,6 +310,7 @@ begin
 
   cServerName.Text              := fSettings.ServerName;
   cServerWelcomeMessage.Text    := fSettings.ServerWelcomeMessage;
+  cServerPacketsAccDelay.Text   := IntToStr(fSettings.ServerPacketsAccumulatingDelay);
   cAnnounceServer.Checked       := fSettings.AnnounceServer;
   cAutoKickTimeout.Value        := fSettings.AutoKickTimeout;
   cPingInterval.Value           := fSettings.PingInterval;

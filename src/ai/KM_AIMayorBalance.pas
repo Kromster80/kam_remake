@@ -2,9 +2,8 @@ unit KM_AIMayorBalance;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, StrUtils,
-  KM_Defaults, KM_CommonClasses,
-  KM_ResHouses, KM_ResWares;
+  KM_ResWares, KM_ResHouses,
+  KM_CommonClasses, KM_Defaults;
 
 type
   //MayorBalance is a cluster of functions that choose optimal houses to build
@@ -148,7 +147,8 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Hand, KM_Resource;
+  SysUtils, StrUtils, Math, KromUtils,
+  KM_Hand, KM_HandsCollection, KM_Resource;
 
 
 { TKMayorBalance }

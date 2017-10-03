@@ -52,19 +52,19 @@ type
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure PageChange(Dest: TKMMenuPageType; aText: UnicodeString = '');
+    procedure PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
     function GetChatState: TChatState;
     procedure SetChatState(const aChatState: TChatState);
-    procedure ExportPages(aPath: string); override;
+    procedure ExportPages(const aPath: string); override;
     procedure ReturnToLobby(const aSaveName: UnicodeString);
 
-    procedure KeyDown(Key:Word; Shift: TShiftState); override;
-    procedure KeyUp(Key:Word; Shift: TShiftState); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
     procedure Resize(X,Y: Word); override;
@@ -208,7 +208,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; aText: UnicodeString = '');
+procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
 var
   I: Integer;
   cmp: TKMCampaignId;
@@ -290,7 +290,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ExportPages(aPath: string);
+procedure TKMMainMenuInterface.ExportPages(const aPath: string);
 var
   path: string;
   I, K: Integer;
@@ -327,8 +327,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState);
+procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  aHandled := True; // assume we handle all keys here
+
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
 
   if (fMenuPage <> nil) then
@@ -336,8 +338,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState);
+procedure TKMMainMenuInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  aHandled := True; // assume we handle all keys here
+
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 end;
 
@@ -349,8 +353,10 @@ end;
 
 
 //Do something related to mouse movement in menu
-procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
+procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean);
 begin
+  aHandled := True; // assume we always handle mouse move
+
   fMyControls.MouseMove(X, Y, Shift);
 
   fMenuCampaign.MouseMove(Shift, X, Y);
@@ -367,6 +373,7 @@ end;
 //Should update anything we want to be updated, obviously
 procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
 begin
+  inherited;
   fMenuLobby.UpdateState;
   fMenuMapEditor.UpdateState;
   fMenuLoad.UpdateState;

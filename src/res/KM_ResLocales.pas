@@ -23,13 +23,13 @@ type
     fLocaleList: array of TKMLocaleInfo;
     fUserLocale: AnsiString;
     procedure LoadLocales(const aFile: string);
-    procedure SetUserLocale(aLocale: AnsiString);
-    function ParseLine(aLine: UnicodeString; out aLocale: TKMLocaleInfo): Boolean;
+    procedure SetUserLocale(const aLocale: AnsiString);
+    function ParseLine(const aLine: UnicodeString; out aLocale: TKMLocaleInfo): Boolean;
     function GetLocaleByIndex(aIndex: Integer): TKMLocaleInfo;
   public
     FallbackLocale: AnsiString;
     DefaultLocale: AnsiString;
-    constructor Create(aPath: string; aUserLocale: AnsiString);
+    constructor Create(const aPath: string; const aUserLocale: AnsiString);
     property Count: Integer read fCount;
     property UserLocale: AnsiString read fUserLocale write SetUserLocale;
     property Locales[aIndex: Integer]: TKMLocaleInfo read GetLocaleByIndex; default;
@@ -52,7 +52,7 @@ uses
 { TKMLocales }
 // aPath - Path to locales info file, usually \data\text\locales.txt
 // aUserLocale - Locale that the user wants to see
-constructor TKMLocales.Create(aPath: string; aUserLocale: AnsiString);
+constructor TKMLocales.Create(const aPath: string; const aUserLocale: AnsiString);
 begin
   inherited Create;
 
@@ -63,7 +63,7 @@ begin
 end;
 
 
-procedure TKMLocales.SetUserLocale(aLocale: AnsiString);
+procedure TKMLocales.SetUserLocale(const aLocale: AnsiString);
 begin
   //Make sure user locale is valid
   if IndexByCode(aLocale) <> -1 then
@@ -75,7 +75,7 @@ begin
 end;
 
 
-function TKMLocales.ParseLine(aLine: UnicodeString; out aLocale: TKMLocaleInfo): Boolean;
+function TKMLocales.ParseLine(const aLine: UnicodeString; out aLocale: TKMLocaleInfo): Boolean;
 const
   PARAM_COUNT = 7;
 var

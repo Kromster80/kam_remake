@@ -48,10 +48,10 @@ type
 
     function GetDATCRC: Cardinal;
 
-    procedure LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
-    procedure LoadLocaleResources(aLocale: AnsiString = '');
-    procedure LoadGameResources(aAlphaShadows: boolean);
-    procedure LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
+    procedure LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+    procedure LoadLocaleResources(const aLocale: AnsiString = '');
+    procedure LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
+    procedure LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
 
     property DataState: TResourceLoadState read fDataState;
     property Cursors: TKMResCursors read fCursors;
@@ -64,6 +64,8 @@ type
     property Sprites: TKMResSprites read fSprites;
     property Tileset: TKMResTileset read fTileset;
     property Units: TKMResUnits read fUnits;
+
+    procedure UpdateStateIdle;
 
     function IsMsgHouseUnnocupied(aMsgId: Word): Boolean;
 
@@ -114,6 +116,12 @@ begin
 end;
 
 
+procedure TKMResource.UpdateStateIdle;
+begin
+  fSprites.UpdateStateIdle;
+end;
+
+
 procedure TKMResource.StepRefresh;
 begin
   if Assigned(OnLoadingStep) then OnLoadingStep;
@@ -136,7 +144,7 @@ begin
 end;
 
 
-procedure TKMResource.LoadMainResources(aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+procedure TKMResource.LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
 begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMResPalettes.Create;
@@ -183,7 +191,7 @@ begin
 end;
 
 
-procedure TKMResource.LoadLocaleResources(aLocale: AnsiString = '');
+procedure TKMResource.LoadLocaleResources(const aLocale: AnsiString = '');
 begin
   FreeAndNil(gResLocales);
   FreeAndNil(gResTexts);
@@ -198,24 +206,30 @@ begin
 end;
 
 
-procedure TKMResource.LoadLocaleFonts(aLocale: AnsiString; aLoadFullFonts: Boolean);
+procedure TKMResource.LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
 begin
   if (Fonts.LoadLevel <> fll_Full)
-  and (aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts) then
+    and (aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts) then
     Fonts.LoadFonts(fll_Full);
 end;
 
 
 
-procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean);
+procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
+var
+  DoForceReload: Boolean;
 begin
-  if (fDataState <> rlsAll) or (aAlphaShadows <> fSprites.AlphaShadows) then
+  DoForceReload := aForceReload or (aAlphaShadows <> fSprites.AlphaShadows);
+  if (fDataState <> rlsAll) or DoForceReload then
   begin
-    fSprites.LoadGameResources(aAlphaShadows);
-    fSprites.ClearTemp;
+    fSprites.LoadGameResources(aAlphaShadows, DoForceReload);
+    if not DoForceReload then
+    begin
+      fDataState := rlsAll;
+      fSprites.ClearTemp;
+    end;
   end;
 
-  fDataState := rlsAll;
   gLog.AddTime('Resource loading state - Game');
 end;
 

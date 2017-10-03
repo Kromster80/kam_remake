@@ -18,6 +18,7 @@ type
     procedure Create_Woodcutters;
 
     procedure HouseChange(Sender: TObject; Shift: TShiftState);
+    procedure HouseClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
     procedure BarracksRefresh;
     procedure WoodcuttersRefresh;
     procedure BarracksSelectWare(Sender: TObject);
@@ -66,7 +67,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI, KM_Hand, KM_ResUnits,
-  KM_ResWares, KM_HouseBarracks, KM_ResFonts, KM_Utils, KM_GameCursor;
+  KM_ResWares, KM_HouseBarracks, KM_ResFonts, KM_CommonUtils, KM_GameCursor, KM_Utils;
 
 
 { TKMMapEdHouse }
@@ -91,6 +92,8 @@ begin
     Button_HouseHealthInc := TKMButton.Create(Panel_House, 160, 53, 20, 20, '+', bsGame);
     Button_HouseHealthDec.OnClickShift := HouseChange;
     Button_HouseHealthInc.OnClickShift := HouseChange;
+    Button_HouseHealthDec.OnClickHold  := HouseClickHold;
+    Button_HouseHealthInc.OnClickHold  := HouseClickHold;
 
     Label_House_Input := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, gResTexts[TX_HOUSE_NEEDS], fnt_Grey, taCenter);
 
@@ -100,6 +103,8 @@ begin
       ResRow_Resource_Input[I].RX := rxGui;
       ResRow_Resource_Input[I].OrderAdd.OnClickShift := HouseChange;
       ResRow_Resource_Input[I].OrderRem.OnClickShift := HouseChange;
+      ResRow_Resource_Input[I].OrderAdd.OnClickHold  := HouseClickHold;
+      ResRow_Resource_Input[I].OrderRem.OnClickHold  := HouseClickHold;
     end;
     Label_House_Output := TKMLabel.Create(Panel_House, 0, 155, TB_WIDTH, 0, gResTexts[TX_HOUSE_DELIVERS]+':', fnt_Grey, taCenter);
     for I := 0 to 3 do
@@ -108,6 +113,8 @@ begin
       ResRow_Resource_Output[I].RX := rxGui;
       ResRow_Resource_Output[I].OrderAdd.OnClickShift := HouseChange;
       ResRow_Resource_Output[I].OrderRem.OnClickShift := HouseChange;
+      ResRow_Resource_Output[I].OrderAdd.OnClickHold  := HouseClickHold;
+      ResRow_Resource_Output[I].OrderRem.OnClickHold  := HouseClickHold;
     end;
 
   Create_Store;
@@ -296,6 +303,7 @@ begin
                       Panel_HouseBarracks.Show;
                       BarracksRefresh;
                       //In the barrack the recruit icon is always enabled
+                      Image_House_Worker.Show;
                       Image_House_Worker.Enable;
                       Button_Barracks_Recruit.FlagColor := gHands[fHouse.Owner].FlagColor;
                       //Reselect the ware so the display is updated
@@ -408,6 +416,23 @@ begin
 end;
 
 
+procedure TKMMapEdHouse.HouseClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+var
+  I: Integer;
+begin
+  for I := 0 to 3 do
+  begin
+    if (Sender = Button_HouseHealthDec)
+      or (Sender = Button_HouseHealthInc)
+      or (Sender = ResRow_Resource_Input[I].OrderAdd)
+      or (Sender = ResRow_Resource_Input[I].OrderRem)
+      or (Sender = ResRow_Resource_Output[I].OrderAdd)
+      or (Sender = ResRow_Resource_Output[I].OrderRem) then
+      HouseChange(Sender, GetShiftState(AButton));
+  end;
+end;
+
+
 procedure TKMMapEdHouse.BarracksSetRallyPoint(Sender: TObject);
 begin
   Button_Barracks_RallyPoint.Down := not Button_Barracks_RallyPoint.Down;
@@ -415,10 +440,8 @@ begin
   begin
     gGameCursor.Mode := cmMarkers;
     gGameCursor.Tag1 := MARKER_RALLY_POINT;
-  end else begin
+  end else
     gGameCursor.Mode := cmNone;
-    gGameCursor.Tag1 := 0;
-  end;
 end;
 
 
@@ -429,10 +452,8 @@ begin
   begin
     gGameCursor.Mode := cmMarkers;
     gGameCursor.Tag1 := MARKER_CUTTING_POINT;
-  end else begin
+  end else
     gGameCursor.Mode := cmNone;
-    gGameCursor.Tag1 := 0;
-  end;
 end;
 
 

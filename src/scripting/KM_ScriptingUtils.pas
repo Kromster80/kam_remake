@@ -3,7 +3,7 @@ unit KM_ScriptingUtils;
 
 interface
 uses
-  Math, SysUtils, uPSRuntime, KM_ScriptingEvents, KM_Utils;
+  Math, SysUtils, uPSRuntime, KM_ScriptingEvents;
 
 type
   TKMScriptUtils = class(TKMScriptEntity)
@@ -24,7 +24,7 @@ type
     function EnsureRangeI(aValue, aMin, aMax: Integer): Integer;
     function EnsureRangeS(aValue, aMin, aMax: Single): Single;
 
-    function Format(aFormatting: string; aData: array of const): string;
+    function Format(const aFormatting: string; aData: array of const): string;
 
     function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString;
     function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer;
@@ -62,6 +62,8 @@ type
 
 implementation
 
+uses
+  KM_CommonUtils;
 
 { TKMScriptingUtils }
 
@@ -305,7 +307,7 @@ end;
 //* Version: 7000+
 //* Wrapper for pascal Format function
 //* Formats aFormatting string with specified aData array of parameters
-function TKMScriptUtils.Format(aFormatting: string; aData: array of const): string;
+function TKMScriptUtils.Format(const aFormatting: string; aData: array of const): string;
 begin
   try
     Result := SysUtils.Format(aFormatting, aData);
@@ -640,5 +642,6 @@ begin
     raise;
   end;
 end;
+
 
 end.

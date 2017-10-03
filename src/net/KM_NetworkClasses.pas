@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, StrUtils, KM_CommonClasses, KM_NetworkTypes, KM_Defaults;
+  Classes, SysUtils, StrUtils, KM_CommonClasses, KM_NetworkTypes, KM_Defaults, KM_GameOptions;
 
 type
   //Stores information about a multiplayer game to be sent: host -> server -> queriers
@@ -11,15 +11,22 @@ type
     GameState: TMPGameState;
     PasswordLocked: Boolean;
     PlayerCount: Byte;
+    GameOptions: TKMGameOptions;
     Players: array[1..MAX_LOBBY_SLOTS] of record
                                             Name: AnsiString;
                                             Color: Cardinal;
                                             Connected: Boolean;
+                                            LangCode: AnsiString;
+                                            Team: Integer;
+                                            IsSpectator: Boolean;
+                                            IsHost: Boolean;
                                             PlayerType: TNetPlayerType;
                                           end;
     Description: UnicodeString;
     Map: UnicodeString;
     GameTime: TDateTime;
+    constructor Create;
+    destructor Destroy; override;
     function GetFormattedTime: UnicodeString;
     procedure LoadFromStream(aStream: TKMemoryStream);
     procedure SaveToStream(aStream: TKMemoryStream);
@@ -31,7 +38,7 @@ type
 
 implementation
 uses
-  VerySimpleXML, KM_Utils;
+  VerySimpleXML, KM_CommonUtils;
 
 
 { TMPGameInfo }
@@ -41,11 +48,18 @@ begin
   aStream.Read(GameState, SizeOf(GameState));
   aStream.Read(PasswordLocked);
   aStream.Read(PlayerCount);
+  if GameOptions = nil then
+    GameOptions := TKMGameOptions.Create;
+  GameOptions.Load(aStream);
   for I := 1 to PlayerCount do
   begin
     aStream.ReadA(Players[I].Name);
     aStream.Read(Players[I].Color);
     aStream.Read(Players[I].Connected);
+    aStream.ReadA(Players[I].LangCode);
+    aStream.Read(Players[I].Team);
+    aStream.Read(Players[I].IsSpectator);
+    aStream.Read(Players[I].IsHost);
     aStream.Read(Players[I].PlayerType, SizeOf(Players[I].PlayerType));
   end;
   aStream.ReadW(Description);
@@ -55,6 +69,21 @@ end;
 
 
 //Return string representation of games length
+constructor TMPGameInfo.Create;
+begin
+  inherited;
+  GameOptions := TKMGameOptions.Create;
+end;
+
+
+destructor TMPGameInfo.Destroy;
+begin
+  if GameOptions <> nil then
+    FreeAndNil(GameOptions);
+  inherited;
+end;
+
+
 function TMPGameInfo.GetFormattedTime: UnicodeString;
 begin
   if GameTime >= 0 then
@@ -70,11 +99,16 @@ begin
   aStream.Write(GameState, SizeOf(GameState));
   aStream.Write(PasswordLocked);
   aStream.Write(PlayerCount);
+  GameOptions.Save(aStream);
   for I := 1 to PlayerCount do
   begin
     aStream.WriteA(Players[I].Name);
     aStream.Write(Players[I].Color);
     aStream.Write(Players[I].Connected);
+    aStream.WriteA(Players[I].LangCode);
+    aStream.Write(Players[I].Team);
+    aStream.Write(Players[I].IsSpectator);
+    aStream.Write(Players[I].IsHost);
     aStream.Write(Players[I].PlayerType, SizeOf(Players[I].PlayerType));
   end;
   aStream.WriteW(Description);

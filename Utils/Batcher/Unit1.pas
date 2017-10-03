@@ -5,7 +5,7 @@ uses
   Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils, StrUtils, IOUtils, System.RegularExpressions,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KromUtils,
   KM_GameApp, KM_Log, KM_HandsCollection, KM_MissionScript,
-  KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
+  KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_CommonUtils;
 
 type
   TKMCommandInfo = record

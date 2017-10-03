@@ -9,8 +9,8 @@ type
   TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);
 
 const
-  // There are total of 81 different functions in the game that can have a shortcut
-  FUNC_COUNT = 81;
+  // There are total of 84 different functions in the game that can have a shortcut
+  FUNC_COUNT = 84;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -54,6 +54,7 @@ const
   DEF_KEYS: array [0..FUNC_COUNT-1] of Byte = (
     //Common Keys
     37, 39, 38, 40,                         // Scroll Left, Right, Up, Down (Arrow keys)
+    4,                                      // Map drag scroll (Middle mouse btn)
     34, 33, 8,                              // Zoom In/Out/Reset (Page Down, Page Up, Backspace)
     27,                                     // Close opened menu (Esc)
     82, 67, 87, 68,                         // Plan road/corn/wine/erase plan(building) (R, C, W, D)
@@ -79,13 +80,16 @@ const
     // Map Editor Keys
     13,                                     // Map Editor Extra's menu (Return)
     112, 113, 114, 115, 116,                // Map Editor menus (F1-F5)
-    49, 50, 51, 52, 53, 54                  // Map Editor sub-menus (1-6)
+    49, 50, 51, 52, 53, 54,                 // Map Editor sub-menus (1-6)
+    32,                                     // Map Editor show objects palette (Space)
+    46                                      // Map Editor universal erasor (Delete)
   );
 
   // Function text values
   KEY_FUNC_TX: array [0..FUNC_COUNT-1] of Word = (
     //Common Keys
     TX_KEY_FUNC_SCROLL_LEFT, TX_KEY_FUNC_SCROLL_RIGHT, TX_KEY_FUNC_SCROLL_UP, TX_KEY_FUNC_SCROLL_DOWN,    // Scroll Left, Right, Up, Down
+    TX_KEY_FUNC_MAP_DRAG_SCROLL,                                                                          // Map drag scroll
     TX_KEY_FUNC_ZOOM_IN, TX_KEY_FUNC_ZOOM_OUT, TX_KEY_FUNC_ZOOM_RESET,                                    // Zoom In/Out/Reset
     TX_KEY_FUNC_CLOSE_MENU,                                                                               // Close opened menu
     TX_KEY_FUNC_PLAN_ROAD, TX_KEY_FUNC_PLAN_FIELD, TX_KEY_FUNC_PLAN_WINE, TX_KEY_FUNC_ERASE_PLAN,         // Plan road/corn/wine/erase plan(building)
@@ -116,7 +120,9 @@ const
     TX_KEY_FUNC_MAPEDIT_TERAIN_EDIT, TX_KEY_FUNC_MAPEDIT_VILLAGE_PLAN,                                    // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_VISUAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_GLOBAL_SCRIPT, TX_KEY_FUNC_MAPEDIT_MENU_MAIN,  // Map Editor menus
     TX_KEY_FUNC_MAPEDIT_SUBMENU_1, TX_KEY_FUNC_MAPEDIT_SUBMENU_2, TX_KEY_FUNC_MAPEDIT_SUBMENU_3,          // Map Editor sub-menus
-    TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6           // Map Editor sub-menus
+    TX_KEY_FUNC_MAPEDIT_SUBMENU_4, TX_KEY_FUNC_MAPEDIT_SUBMENU_5, TX_KEY_FUNC_MAPEDIT_SUBMENU_6,          // Map Editor sub-menus
+    TX_KEY_FUNC_MAPEDIT_OBJ_PALETTE,                                                                      // Map Editor show objects palette
+    TX_KEY_FUNC_MAPEDIT_UNIV_ERASOR                                                                       // Map Editor universal erasor
   );
 
 { TKMKeyLibrary }
@@ -135,13 +141,13 @@ begin
     fFuncs[I].TextId := KEY_FUNC_TX[I];
 
     case I of
-      0..16:  fFuncs[I].Area := faCommon;
-      17..60: fFuncs[I].Area := faGame;
-      61..68: fFuncs[I].Area := faSpecReplay;
+      0..17:  fFuncs[I].Area := faCommon;
+      18..61: fFuncs[I].Area := faGame;
+      62..69: fFuncs[I].Area := faSpecReplay;
       else    fFuncs[I].Area := faMapEdit;
     end;
 
-    fFuncs[I].IsChangableByPlayer := (I in [13..16]);
+    fFuncs[I].IsChangableByPlayer := (I in [14..17]);
   end;
 end;
 

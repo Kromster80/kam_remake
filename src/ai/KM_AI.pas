@@ -2,10 +2,9 @@ unit KM_AI;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults,
-  KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Points,
-  KM_AISetup, KM_AIMayor, KM_AIGeneral, KM_AIGoals;
+  KM_Houses, KM_Units, KM_Units_Warrior,
+  KM_AISetup, KM_AIMayor, KM_AIGoals, KM_AIGeneral;
 
 
 type
@@ -57,8 +56,9 @@ type
 
 implementation
 uses
-  KM_Game, KM_HandsCollection, KM_Hand, KM_HandStats,
-  KM_ResSound, KM_ScriptingEvents, KM_ResHouses, KM_Alerts, KM_GameApp;
+  SysUtils,
+  KM_GameApp, KM_Game, KM_Hand, KM_HandsCollection, KM_HandStats, KM_UnitGroups,
+  KM_ResHouses, KM_ResSound, KM_ScriptingEvents, KM_Alerts, KM_Points;
 
 
 { TKMHandAI }

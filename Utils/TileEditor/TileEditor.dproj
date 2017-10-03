@@ -48,7 +48,7 @@
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
 			<Manifest_File>None</Manifest_File>
-			<DCC_UnitSearchPath>..\..\;..\..\src\common\;..\..\src\common\Overbyte ICS 8;..\..\src\common\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\src\houses;..\..\src\net;..\..\src\res;..\..\src\terrain;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src\ext\;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\pascalscript\Source;..\..\src;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\src\houses;..\..\src\net;..\..\src\res;..\..\src\terrain;..\..\src\units;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;..\..\src\net\other;..\..\src\net\http;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<Icon_MainIcon>TileEditor_Icon.ico</Icon_MainIcon>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 			<DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>

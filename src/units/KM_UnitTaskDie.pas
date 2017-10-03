@@ -59,7 +59,7 @@ var
   TempUnitType: TUnitType;
   TempX, TempY: Word;
 begin
-  Result := TaskContinues;
+  Result := tr_TaskContinues;
   with fUnit do
   case fPhase of
     0:    if Visible then
@@ -104,11 +104,11 @@ begin
             //Notify the script that the unit is now gone from the game
             gScriptEvents.ProcUnitAfterDied(TempUnitType, TempOwner, TempX, TempY);
 
-            Result := TaskContinues;  //Running UpdateState will exit without further changes
+            Result := tr_TaskContinues;  //Running UpdateState will exit without further changes
             Exit;                     //Next UpdateState won't happen cos unit is "closed"
           end;
   end;
-  inc(fPhase);
+  Inc(fPhase);
 end;
 
 
