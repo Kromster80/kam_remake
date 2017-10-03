@@ -254,7 +254,7 @@ begin
   gLog.AddTime('<== Game creation is done ==>');
 
   gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
-  fScripting := TKMScripting.Create(ShowScriptError);
+  fScripting := TKMScriptingCreator.CreateScripting(ShowScriptError);
 
   fIgnoreConsistencyCheckErrors := False;
 

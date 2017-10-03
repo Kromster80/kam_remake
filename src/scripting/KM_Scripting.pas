@@ -119,7 +119,7 @@ type
     fIDCache: TKMScriptingIdCache;
     fUtils: TKMScriptUtils;
 
-    procedure CompileScript;
+    function CompileScript: Boolean;
     procedure LinkRuntime;
 
     procedure SaveVar(SaveStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
@@ -128,8 +128,8 @@ type
     function GetScriptFilesInfo: TKMScriptFilesCollection;
     function GetCodeLine(aRowNum: Cardinal): AnsiString;
     function FindCodeLine(aRowNumber: Integer; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
+    constructor Create(aOnScriptError: TUnicodeStringEvent); // Scripting has to be created via special TKMScriptingCreator
   public
-    constructor Create(aOnScriptError: TUnicodeStringEvent);
     destructor Destroy; override;
 
     property ErrorHandler: TKMScriptErrorHandler read fErrorHandler;
@@ -158,6 +158,13 @@ type
   end;
 
 
+  //Scripting creator
+  TKMScriptingCreator = class
+  public
+    class function CreateScripting(aOnScriptError: TUnicodeStringEvent): TKMScripting;
+  end;
+
+
 const
   MAX_LOG_SIZE = 1024 * 1024; //1 MB
   CAMPAIGN_DATA_TYPE = 'TCampaignData'; //Type of the global variable
@@ -178,28 +185,44 @@ uses
 const
   SCRIPT_LOG_EXT = '.log.txt';
 
+var
+  gScripting: TKMScripting;
+
 
 {Regular procedures and functions to wrap TKMScripting procedures and functions}
 function ScriptOnUsesFunc(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
 begin
   Result := False;
-  if gGame <> nil then
-    Result := gGame.Scripting.ScriptOnUses(Sender, Name);
+  if gScripting <> nil then
+    Result := gScripting.ScriptOnUses(Sender, Name);
 end;
 
 
 procedure ScriptOnUseVariableProc(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Integer; ProcNo, Position: Cardinal; const PropData: tbtString);
 begin
-  if gGame <> nil  then
-    gGame.Scripting.ScriptOnUseVariable(Sender, VarType, VarNo, ProcNo, Position, PropData);
+  if gScripting <> nil  then
+    gScripting.ScriptOnUseVariable(Sender, VarType, VarNo, ProcNo, Position, PropData);
 end;
 
 
 function ScriptOnExportCheckFunc(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 begin
   Result := False;
-  if gGame <> nil then
-    Result := gGame.Scripting.ScriptOnExportCheck(Sender, Proc, ProcDecl);
+  if gScripting <> nil then
+    Result := gScripting.ScriptOnExportCheck(Sender, Proc, ProcDecl);
+end;
+
+
+{ TKMScriptingCreator }
+//We need to save pointer to scripting object (in gScripting), as it is used by ScriptOnUsesFunc/ScriptOnUseVariableProc/ScriptOnExportCheckFunc
+//These functions are regular methods and need TKMScripting object in global scope
+class function TKMScriptingCreator.CreateScripting(aOnScriptError: TUnicodeStringEvent): TKMScripting;
+begin
+  if gScripting <> nil then // Should never happen in 1 application, as only 1 TKMScripting object is needed usually
+    FreeAndNil(gScripting);
+
+  gScripting := TKMScripting.Create(aOnScriptError);
+  Result := gScripting;
 end;
 
 
@@ -238,12 +261,15 @@ begin
   FreeAndNil(fUtils);
   FreeAndNil(fErrorHandler);
   FreeAndNil(fPreProcessor);
+  gScripting := nil;
   inherited;
 end;
 
 
 procedure TKMScripting.LoadFromFile(const aFileName, aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
 begin
+  gScripting := Self;
+
   if not fPreProcessor.PreProcessFile(aFileName, fScriptCode) then
     Exit; // Continue only if PreProcess was successful;
 
@@ -252,7 +278,8 @@ begin
   else
     fCampaignDataTypeCode := '';
 
-  CompileScript;
+  if not CompileScript and not ErrorHandler.HasErrors then
+    ErrorHandler.AppendErrorStr('Could not compile script because of unknown reason');
 
   fErrorHandler.HandleErrors;
 
@@ -702,7 +729,7 @@ begin
 end;
 
 
-procedure TKMScripting.CompileScript;
+function TKMScripting.CompileScript: Boolean;
 var
   I: Integer;
   Compiler: TPSPascalCompiler;

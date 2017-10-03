@@ -71,7 +71,7 @@ uses
 { TMain }
 constructor TConsoleMain.Create;
 begin
-  fScripting := TKMScripting.Create(nil);
+  fScripting := TKMScriptingCreator.CreateScripting(nil);
 end;
 
 

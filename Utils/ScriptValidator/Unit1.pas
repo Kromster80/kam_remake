@@ -38,7 +38,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption                := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
   OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
-  fScripting             := TKMScripting.Create(nil);
+  fScripting             := TKMScriptingCreator.CreateScripting(nil);
   DragAcceptFiles(Handle, True);
 end;
 
