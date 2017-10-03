@@ -518,7 +518,7 @@ end;
 
 function TKMFontData.GetCharWidth(aChar: WideChar): Integer;
 begin
-  if aChar in [#124, #9] then
+  if AnsiChar(aChar) in [#124, #9] then
     Result := 0
   else if aChar = #32 then
     Result := WordSpacing
@@ -570,7 +570,7 @@ begin
       else
         Inc(dx, GetCharWidth(aText[I]));
 
-    if aText[I] in [#9,#32,#124] then
+    if AnsiChar(aText[I]) in [#9,#32,#124] then
     begin
       LastWrappable := I;
       PrevX := dx;

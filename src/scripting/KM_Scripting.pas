@@ -265,10 +265,10 @@ end;
 //For example: uses ii1, ii2;
 //This will call this function 3 times. First with 'SYSTEM' then 'II1' and then 'II2'
 function TKMScripting.ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
-  procedure RegisterMethodCheck(aClass: TPSCompileTimeClass; const aDecl: string);
+  procedure RegisterMethodCheck(aClass: TPSCompileTimeClass; const aDecl: String);
   begin
     // We are fine with Assert, cos it will trigger for devs during development
-    if not aClass.RegisterMethod(aDecl) then
+    if not aClass.RegisterMethod(AnsiString(aDecl)) then
       Assert(False, Format('Error registering "%s"', [aDecl]));
   end;
 var
