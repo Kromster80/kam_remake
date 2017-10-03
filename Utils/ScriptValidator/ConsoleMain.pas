@@ -100,6 +100,7 @@ begin
 
   fScripting.LoadFromFile(aPath, aCampaignFile, nil);
 
+
   if fScripting.ErrorHandler.HasErrors then
   begin
     OutputText := OutputText + 'Errors:' + sLineBreak;
