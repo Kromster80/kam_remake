@@ -53,7 +53,7 @@ begin
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
   fDedicatedServer.Start(fSettings.ServerName, StrToInt(fSettings.ServerPort), fSettings.AnnounceServer);
 
-  while True do
+  while fDedicatedServer <> nil do
   begin
     fDedicatedServer.UpdateState;
     //Reload the INI file if it has changed, by checking the file age every 5 seconds

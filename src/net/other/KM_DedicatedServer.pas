@@ -70,9 +70,9 @@ end;
 
 destructor TKMDedicatedServer.Destroy;
 begin
-  fNetServer.Free;
-  fMasterServer.Free;
-  fUDPAnnounce.Free;
+  FreeAndNil(fNetServer);
+  FreeAndNil(fMasterServer);
+  FreeAndNil(fUDPAnnounce);
   StatusMessage('Server destroyed');
   inherited;
 end;
