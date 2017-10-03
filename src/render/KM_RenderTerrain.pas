@@ -213,7 +213,7 @@ var
   begin
     Result := False;
     with gTerrain do
-      if (aTexOffset + Land[aTY,aTX].Terrain + 1 <= High(GFXData[rxTiles]))
+      if (InRange(aTexOffset + Land[aTY,aTX].Terrain + 1, 305, High(GFXData[rxTiles])))
          and (GFXData[rxTiles, aTexOffset + Land[aTY,aTX].Terrain + 1].Tex.ID <> 0)
          and (aFOW.CheckTileRevelation(aTX,aTY) > FOG_OF_WAR_ACT) then
       begin
