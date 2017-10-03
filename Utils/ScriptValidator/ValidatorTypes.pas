@@ -2,12 +2,14 @@ unit ValidatorTypes;
 
 interface
 type
-  TCLIParamRecord = packed record
-    ScriptFile: string;
+  TCLIParamRecord = record
+    ScriptFile:  string;
+    GraphicMode,
     Help,
+    AllMaps,
     Campaign,
     Version,
-    Verbose:    Boolean;
+    Verbose:     Boolean;
   end;
 
 implementation
