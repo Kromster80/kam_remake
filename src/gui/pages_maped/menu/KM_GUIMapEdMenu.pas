@@ -28,7 +28,7 @@ type
     Button_Resize: TKMButton;
     Button_Menu_Save: TKMButton;
     Button_Menu_Load: TKMButton;
-    Button_Try_Map: TKMButton;
+    Button_QuickPlay: TKMButton;
     Button_Menu_Settings: TKMButton;
     Button_Menu_Quit: TKMButton;
   public
@@ -68,9 +68,9 @@ begin
   Button_Resize.Hint := 'Resize map'; //Todo translate
   Button_Resize.OnClick := MenuClick;
 
-  Button_Try_Map := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, 'Try Map', bsGame); //Todo translate
-  Button_Try_Map.Hint := 'Start game with current map'; //Todo translate
-  Button_Try_Map.OnClick := MenuClick;
+  Button_QuickPlay := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, 'Quick Play', bsGame); //Todo translate
+  Button_QuickPlay.Hint := 'Start quick game with current map'; //Todo translate
+  Button_QuickPlay.OnClick := MenuClick;
 
   Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 130, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
   Button_Menu_Load.OnClick := MenuClick;
@@ -113,7 +113,7 @@ begin
   if Sender = Button_Resize then
     fGuiMenuResize.Show
   else
-  if Sender = Button_Try_Map then
+  if Sender = Button_QuickPlay then
     fGuiMenuTryMap.Show
   else
   if Sender = Button_Menu_Quit then

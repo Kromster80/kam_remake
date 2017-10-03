@@ -53,7 +53,7 @@ var
 begin
   inherited Create;
 
-  PopUp_TryMap := TKMPopUpPanel.Create(aParent, 240, 420, 'Try Map'); //Todo translate
+  PopUp_TryMap := TKMPopUpPanel.Create(aParent, 240, 420, 'Quick Play'); //Todo translate
 
   PopUp_TryMap.Width := Math.Max(240, gRes.Fonts[PopUp_TryMap.Font].GetTextSize(PopUp_TryMap.Caption).X + 40);
   Left := (PopUp_TryMap.Width - ControlsWidth) div 2;
