@@ -68,6 +68,7 @@ type
     procedure HandleScriptError(aType: TKMScriptErrorType; aError: TKMScriptErrorMessage);
     procedure HandleScriptErrorString(aType: TKMScriptErrorType; aErrorString: UnicodeString; aDetailedErrorString: UnicodeString = '');
     function HasErrors: Boolean;
+    function HasWarnings: Boolean;
     procedure AppendError(aError: TKMScriptErrorMessage);
     procedure AppendWarning(aWarning: TKMScriptErrorMessage);
     procedure AppendErrorStr(const aErrorString: UnicodeString; aDetailedErrorString: UnicodeString = '');
@@ -1484,6 +1485,13 @@ function TKMScriptErrorHandler.HasErrors: Boolean;
 begin
   Result := fErrorString.GameMessage <> '';
 end;
+
+
+function TKMScriptErrorHandler.HasWarnings: Boolean;
+begin
+  Result := fWarningsString.GameMessage <> '';
+end;
+
 
 
 procedure TKMScriptErrorHandler.HandleErrors;
