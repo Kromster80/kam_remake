@@ -20,9 +20,9 @@ type
     fResolutions: TKMResolutions;
 
     // We remember old values to enable/disable "Apply" button dynamicaly
-    PrevResolutionId: TKMScreenResIndex;
+    fPrevResolutionId: TKMScreenResIndex;
     // Try to pick the same refresh rate on resolution change
-    DesiredRefRate: Integer;
+    fDesiredRefRate: Integer;
 
     procedure ApplyResolution(Sender: TObject);
     procedure Change(Sender: TObject);
@@ -368,7 +368,7 @@ begin
     begin
       DropBox_Options_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[ResID].RefRate[I]]));
       // Make sure to select something. SelectedRefRate is prefered, otherwise select first
-      if (I = 0) or (fResolutions.Items[ResID].RefRate[I] = DesiredRefRate) then
+      if (I = 0) or (fResolutions.Items[ResID].RefRate[I] = fDesiredRefRate) then
         DropBox_Options_RefreshRate.ItemIndex := I;
     end;
   end;
@@ -378,10 +378,10 @@ begin
   RefID := DropBox_Options_RefreshRate.ItemIndex;
   Button_Options_ResApply.Enabled :=
       (fMainSettings.FullScreen <> CheckBox_Options_FullScreen.Checked) or
-      (CheckBox_Options_FullScreen.Checked and ((PrevResolutionId.ResID <> ResID) or
-                                                (PrevResolutionId.RefID <> RefID)));
+      (CheckBox_Options_FullScreen.Checked and ((fPrevResolutionId.ResID <> ResID) or
+                                                (fPrevResolutionId.RefID <> RefID)));
   // Remember which one we have selected so we can reselect it if the user changes resolution
-  DesiredRefRate := fResolutions.Items[ResID].RefRate[RefID];
+  fDesiredRefRate := fResolutions.Items[ResID].RefRate[RefID];
 end;
 
 
@@ -439,7 +439,7 @@ begin
       if (I = 0) or (I = R.RefID) then
       begin
         DropBox_Options_RefreshRate.ItemIndex := I;
-        DesiredRefRate := fResolutions.Items[R.ResID].RefRate[I];
+        fDesiredRefRate := fResolutions.Items[R.ResID].RefRate[I];
       end;
     end;
   end
@@ -458,7 +458,7 @@ begin
   DropBox_Options_Resolution.Enabled  := (fMainSettings.FullScreen) and (fResolutions.Count > 0);
   DropBox_Options_RefreshRate.Enabled := (fMainSettings.FullScreen) and (fResolutions.Count > 0);
 
-  PrevResolutionId := R;
+  fPrevResolutionId := R;
   Button_Options_ResApply.Disable;
 end;
 
