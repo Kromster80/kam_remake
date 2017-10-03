@@ -112,8 +112,6 @@ Improvements:
  +		Separate statistics for different warrior types
  +		Game stats 'Weapons produced' now contains horses as well
  +		Added beacons cooldown to preven spam with beacons
- +		New option - replay autopause on PT end
- +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
  +		MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
  +		Market small GUI visual improvement (removed unnecessary colon sign's)
  +		Label for group members count on group panel (same as in MapEd)
@@ -162,6 +160,8 @@ Improvements:
  +		SP replay: Ability to ignore repeated consistency check errors
  +		Separated and sorted by teams list of players
  +		Allow to see players beacons while spectating/watching replay
+ +		New option - replay autopause on PT end
+ +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
  
  Campaign:
  +		Ability to specify the title of the mission separately for each campaign rather than globally for all
