@@ -21,6 +21,7 @@ type
     procedure TilesSet(aIndex: Integer);
     procedure TilesRefresh(Sender: TObject);
     function GetTileTexIDFromTag(aTag: Byte; aScrollPosition: Integer = -1): Byte;
+    function IsTileVisible(aTextId: Integer): Boolean;
   protected
     Panel_Tiles: TKMPanel;
     TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
@@ -141,24 +142,44 @@ begin
 end;
 
 
+function TKMMapEdTerrainTiles.IsTileVisible(aTextId: Integer): Boolean;
+var
+  I,K,RowStart: Integer;
+begin
+  Result := False;
+  for I := 0 to MAPED_TILES_Y - 1 do
+  begin
+    RowStart := 1 + I * (256 div MAPED_TILES_Y) + TilesScroll.Position;
+    for K := RowStart to RowStart + MAPED_TILES_X - 1 do
+      if MapEdTileRemap[K] = aTextId + 1 then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
+end;
+
+
 procedure TKMMapEdTerrainTiles.TilesTableScrollToTileTexId(aTexId: Integer);
 var
   I,K,L,SP: Integer;
 begin
-  for SP := 0 to TilesScroll.MaxValue do
-    for I := 0 to MAPED_TILES_Y - 1 do
-      for K := 0 to MAPED_TILES_X - 1 do
-      begin
-        L := I * MAPED_TILES_X + K;
-        if aTexId = GetTileTexIDFromTag(L, SP) - 1 then
+  if not IsTileVisible(aTexId) then
+    for SP := 0 to TilesScroll.MaxValue do
+      for I := 0 to MAPED_TILES_Y - 1 do
+        for K := 0 to MAPED_TILES_X - 1 do
         begin
-          if TilesScroll.Position = SP then
+          L := I * MAPED_TILES_X + K;
+          if aTexId = GetTileTexIDFromTag(L, SP) - 1 then
+          begin
+            if TilesScroll.Position = SP then
+              Exit;
+            TilesScroll.Position := SP;
+            TilesRefresh(nil);
             Exit;
-          TilesScroll.Position := SP;
-          TilesRefresh(nil);
-          Exit;
+          end;
         end;
-      end;
 end;
 
 
