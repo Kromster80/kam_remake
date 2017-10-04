@@ -16,7 +16,6 @@ type
   TIntegerArray = array of Integer;
   TStringArray = array of string;
   TKMCharArray = array of Char;
-  TKMBooleanArray = array of Boolean;
   TRGBArray = array of record R,G,B: Byte end;
 
   TEvent = procedure of object;

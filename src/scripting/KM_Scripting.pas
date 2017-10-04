@@ -228,7 +228,6 @@ begin
 
     // Common
     Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
-    Sender.AddTypeS('TKMBooleanArray', 'array of Boolean'); //Needed for TKMScriptUtils
     Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
 
     // Register classes and methods to the script engine.
@@ -493,12 +492,12 @@ begin
     RegisterMethodCheck(c, 'function AbsS(aValue: Single): Single');
 
     RegisterMethodCheck(c, 'function ArrayElementCount(aElement: AnsiString; aArray: array of AnsiString): Integer');
-    RegisterMethodCheck(c, 'function ArrayElementCountB(aElement: Boolean; aArray: TKMBooleanArray): Integer');
+    RegisterMethodCheck(c, 'function ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer');
     RegisterMethodCheck(c, 'function ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer');
     RegisterMethodCheck(c, 'function ArrayElementCountS(aElement: Single; aArray: array of Single): Integer');
 
     RegisterMethodCheck(c, 'function ArrayHasElement(aElement: AnsiString; aArray: array of AnsiString): Boolean');
-    RegisterMethodCheck(c, 'function ArrayHasElementB(aElement: Boolean; aArray: TKMBooleanArray): Boolean');
+    RegisterMethodCheck(c, 'function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
     RegisterMethodCheck(c, 'function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
     RegisterMethodCheck(c, 'function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
 
