@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 230
   Top = 140
   Caption = 'KaM Remake Translation Manager'
-  ClientHeight = 580
-  ClientWidth = 857
+  ClientHeight = 643
+  ClientWidth = 922
   Color = clBtnFace
   Constraints.MinHeight = 600
   Constraints.MinWidth = 800
@@ -21,29 +21,16 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnResize = FormResize
   DesignSize = (
-    857
-    580)
+    922
+    643)
   PixelsPerInch = 96
   TextHeight = 16
   object lblConstName: TLabel
-    Left = 488
+    Left = 495
     Top = 8
     Width = 89
     Height = 16
     Caption = 'Constant name'
-  end
-  object Label4: TLabel
-    Left = 336
-    Top = 224
-    Width = 56
-    Height = 16
-    Caption = 'Text filter:'
-  end
-  object Bevel1: TBevel
-    Left = 336
-    Top = 272
-    Width = 145
-    Height = 2
   end
   object lbFolders: TListBox
     Left = 8
@@ -57,26 +44,26 @@ object Form1: TForm1
     Left = 8
     Top = 288
     Width = 321
-    Height = 275
+    Height = 338
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
     OnKeyPress = ListBox1KeyPress
   end
   object btnInsert: TButton
-    Left = 336
-    Top = 288
-    Width = 145
+    Left = 335
+    Top = 447
+    Width = 154
     Height = 25
     Caption = 'Insert New'
     TabOrder = 1
     OnClick = btnInsertClick
   end
   object ScrollBox1: TScrollBox
-    Left = 488
+    Left = 495
     Top = 24
-    Width = 361
-    Height = 497
+    Width = 419
+    Height = 560
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
@@ -84,35 +71,35 @@ object Form1: TForm1
     TabOrder = 2
   end
   object btnInsertSeparator: TButton
-    Left = 336
-    Top = 312
-    Width = 145
+    Left = 335
+    Top = 472
+    Width = 154
     Height = 25
     Caption = 'Insert Separator'
     TabOrder = 4
     OnClick = btnInsertSeparatorClick
   end
   object btnMoveUp: TButton
-    Left = 336
-    Top = 416
-    Width = 145
+    Left = 333
+    Top = 569
+    Width = 154
     Height = 25
     Caption = 'Move Up'
     TabOrder = 5
     OnClick = btnMoveUpClick
   end
   object btnMoveDown: TButton
-    Left = 336
-    Top = 440
-    Width = 145
+    Left = 333
+    Top = 594
+    Width = 154
     Height = 25
     Caption = 'Move Down'
     TabOrder = 6
     OnClick = btnMoveDownClick
   end
   object btnCopy: TButton
-    Left = 488
-    Top = 533
+    Left = 493
+    Top = 593
     Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -121,8 +108,8 @@ object Form1: TForm1
     OnClick = btnCopyClick
   end
   object btnPaste: TButton
-    Left = 616
-    Top = 533
+    Left = 621
+    Top = 593
     Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -131,55 +118,29 @@ object Form1: TForm1
     TabOrder = 9
     OnClick = btnPasteClick
   end
-  object Edit1: TEdit
-    Left = 336
-    Top = 240
-    Width = 145
-    Height = 24
-    TabOrder = 10
-    OnChange = Edit1Change
-  end
   object btnRename: TButton
-    Left = 336
-    Top = 352
-    Width = 145
+    Left = 333
+    Top = 508
+    Width = 154
     Height = 25
     Caption = 'Rename'
-    TabOrder = 11
+    TabOrder = 10
     OnClick = btnRenameClick
   end
   object clbShowLang: TCheckListBox
     Left = 336
     Top = 8
-    Width = 145
+    Width = 153
     Height = 169
     OnClickCheck = clbShowLangClickCheck
     AutoComplete = False
     Columns = 3
-    TabOrder = 12
-  end
-  object cbShowMis: TCheckBox
-    Left = 336
-    Top = 184
-    Width = 105
-    Height = 17
-    Caption = 'Only missing'
-    TabOrder = 13
-    OnClick = cbShowMisClick
-  end
-  object cbShowDup: TCheckBox
-    Left = 336
-    Top = 200
-    Width = 113
-    Height = 17
-    Caption = 'Only duplicate'
-    TabOrder = 14
-    OnClick = cbShowMisClick
+    TabOrder = 11
   end
   object btnDelete: TButton
-    Left = 336
-    Top = 376
-    Width = 145
+    Left = 333
+    Top = 533
+    Width = 154
     Height = 25
     Caption = 'Delete'
     TabOrder = 3
@@ -187,8 +148,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 561
-    Width = 857
+    Top = 624
+    Width = 922
     Height = 19
     Panels = <
       item
@@ -212,7 +173,78 @@ object Form1: TForm1
       'Campaigns'
       'Maps'
       'MapsMP')
-    TabOrder = 16
+    TabOrder = 13
+  end
+  object FilterGroupBox: TGroupBox
+    Left = 335
+    Top = 183
+    Width = 154
+    Height = 226
+    Caption = 'Filter'
+    TabOrder = 14
+    object Label4: TLabel
+      Left = 5
+      Top = 66
+      Width = 82
+      Height = 16
+      Caption = 'Text contains:'
+    end
+    object Label1: TLabel
+      Left = 5
+      Top = 118
+      Width = 127
+      Height = 16
+      Caption = 'Label name contains:'
+    end
+    object Label3: TLabel
+      Left = 5
+      Top = 170
+      Width = 53
+      Height = 16
+      Caption = 'Label ID:'
+    end
+    object cbShowMis: TCheckBox
+      Left = 5
+      Top = 20
+      Width = 105
+      Height = 17
+      Caption = 'Only missing'
+      TabOrder = 0
+      OnClick = cbShowMisClick
+    end
+    object cbShowDup: TCheckBox
+      Left = 5
+      Top = 43
+      Width = 113
+      Height = 17
+      Caption = 'Only duplicate'
+      TabOrder = 1
+      OnClick = cbShowMisClick
+    end
+    object edTextFilter: TEdit
+      Left = 5
+      Top = 88
+      Width = 144
+      Height = 24
+      TabOrder = 2
+      OnChange = FilterChanged
+    end
+    object edLabelName: TEdit
+      Left = 5
+      Top = 140
+      Width = 144
+      Height = 24
+      TabOrder = 3
+      OnChange = FilterChanged
+    end
+    object edLabelId: TEdit
+      Left = 5
+      Top = 192
+      Width = 144
+      Height = 24
+      TabOrder = 4
+      OnChange = FilterChanged
+    end
   end
   object MainMenu1: TMainMenu
     Left = 32
