@@ -9,9 +9,9 @@ xcopy "%KaMDir%\data\gfx\res" ..\SpriteResource\ /y /r /s
 xcopy "%KaMDir%\data\gfx\*" ..\data\gfx /y /r 
 
 @REM Backup local rxx files
-xcopy ..\data\Sprites ..\data\_Sprites\ /y /r /s
+@REM xcopy ..\data\Sprites ..\data\_Sprites\ /y /r /s
 @REM Delete local rxx, they could contain wrong textures
-rmdir /S /Q ..\data\Sprites ..\dcu
+@REM rmdir /S /Q ..\data\Sprites ..\dcu
 
 REM Pack rx textures to rxx 
 @REM call ..\Utils\RXXPacker\RXXPacker.exe gui guimain houses trees units
