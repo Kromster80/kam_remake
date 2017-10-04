@@ -35,51 +35,67 @@ const
     rxGui,
     rxGuiMain,
     rxTiles];
+
+
+function IsConsoleMode: Boolean;
+var
+  SI: TStartupInfo;
 begin
-  if ParamCount >= 1 then
+  SI.cb := SizeOf(StartUpInfo);
+  GetStartupInfo(SI);
+  Result := (SI.dwFlags and STARTF_USESHOWWINDOW) = 0;
+end;
+
+
+begin
+  if not IsConsoleMode then
   begin
-    writeln(sLineBreak + 'KaM Remake RXX Packer' + sLineBreak);
-
-    if ParamCount = 0 then
-    begin
-      writeln('No rx packages were set');
-      writeln('Usage example: RXXPacker.exe gui guimain houses trees units');
-      Exit;
-    end;
-
-
-    ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
-    fRXXPacker := TRXXPacker.Create;
-    fPalettes := TKMResPalettes.Create;
-    fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
-    try
-      for I := 1 to ParamCount do // Skip 0, as this is the EXE-path
-        if LowerCase(ParamStr(I)) = 'all' then
-        begin
-          for K := Low(RXToPack) to High(RXToPack) do
-          begin
-            Tick := GetTickCount;
-            fRXXPacker.Pack(RXToPack[K], fPalettes);
-            writeln(RXInfo[RXToPack[K]].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
-          end;
-          Exit;
-        end;
-        for RXType := Low(TRXType) to High(TRXType) do
-          if (LowerCase(ParamStr(I)) = LowerCase(RXInfo[RXType].FileName)) then
-          begin
-            Tick := GetTickCount;
-            fRXXPacker.Pack(RXType, fPalettes);
-            writeln(RXInfo[RXType].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
-          end;
-    finally
-      fRXXPacker.Free;
-      fPalettes.Free;
-    end;
-
-
-  end else begin
+    FreeConsole; // Used to hide the console
     Application.Initialize;
+    Application.MainFormOnTaskbar := True;
     Application.CreateForm(TRXXForm1, RXXForm1);
     Application.Run;
+  end else
+  begin
+    if ParamCount >= 1 then
+    begin
+      writeln(sLineBreak + 'KaM Remake RXX Packer' + sLineBreak);
+
+      if ParamCount = 0 then
+      begin
+        writeln('No rx packages were set');
+        writeln('Usage example: RXXPacker.exe gui guimain houses trees units');
+        Exit;
+      end;
+
+
+      ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
+      fRXXPacker := TRXXPacker.Create;
+      fPalettes := TKMResPalettes.Create;
+      fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
+      try
+        for I := 1 to ParamCount do // Skip 0, as this is the EXE-path
+          if LowerCase(ParamStr(I)) = 'all' then
+          begin
+            for K := Low(RXToPack) to High(RXToPack) do
+            begin
+              Tick := GetTickCount;
+              fRXXPacker.Pack(RXToPack[K], fPalettes);
+              writeln(RXInfo[RXToPack[K]].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
+            end;
+            Exit;
+          end;
+          for RXType := Low(TRXType) to High(TRXType) do
+            if (LowerCase(ParamStr(I)) = LowerCase(RXInfo[RXType].FileName)) then
+            begin
+              Tick := GetTickCount;
+              fRXXPacker.Pack(RXType, fPalettes);
+              writeln(RXInfo[RXType].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
+            end;
+      finally
+        fRXXPacker.Free;
+        fPalettes.Free;
+      end;
+    end;
   end;
 end.
