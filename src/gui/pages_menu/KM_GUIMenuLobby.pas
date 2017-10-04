@@ -16,6 +16,8 @@ type
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
+    fLastTimeResetBans: Cardinal;
+
     fMapsMP: TKMapsCollection;
     fSavesMP: TKMSavesCollection;
     fMinimap: TKMMinimap;
@@ -178,6 +180,9 @@ implementation
 uses
   KM_CommonTypes, KM_ResTexts, KM_ResLocales, KM_CommonUtils, KM_Sound, KM_ResSound, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
+
+const
+  RESET_BANS_COOLDOWN = 2000;
 
 
 { TKMGUIMenuLobby }
@@ -2264,7 +2269,12 @@ begin
 
   if Sender = Button_LobbySettingsResetBans then
   begin
-    fNetworking.ResetBans;
+    if GetTimeSince(fLastTimeResetBans) > RESET_BANS_COOLDOWN then
+    begin
+      fNetworking.ResetBans;
+      Button_LobbySettingsResetBans.Disable;
+      fLastTimeResetBans := TimeGet;
+    end;
   end;
 
   if Sender = Button_LobbySettingsUseLastPassword then
@@ -2307,6 +2317,10 @@ procedure TKMMenuLobby.UpdateState;
 begin
   if fMapsMP <> nil then fMapsMP.UpdateState;
   if fSavesMP <> nil then fSavesMP.UpdateState;
+
+  if GetTimeSince(fLastTimeResetBans) > RESET_BANS_COOLDOWN then
+    Button_LobbySettingsResetBans.Enable;
+
 end;
 
 
