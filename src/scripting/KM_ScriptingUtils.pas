@@ -3,7 +3,7 @@ unit KM_ScriptingUtils;
 
 interface
 uses
-  Math, SysUtils, uPSRuntime, KM_ScriptingEvents, KM_Utils;
+  Math, SysUtils, uPSRuntime, KM_ScriptingEvents, KM_Utils, KM_CommonTypes;
 
 type
   TKMScriptUtils = class(TKMScriptEntity)
@@ -12,12 +12,12 @@ type
     function AbsS(aValue: Single): Single;
 
     function ArrayElementCount(aElement: AnsiString; aArray: array of String): Integer;
-    function ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer;
+    function ArrayElementCountB(aElement: Boolean; aArray: TKMBooleanArray): Integer;
     function ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer;
     function ArrayElementCountS(aElement: Single; aArray: array of Single): Integer;
 
     function ArrayHasElement(aElement: AnsiString; aArray: array of String): Boolean;
-    function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean;
+    function ArrayHasElementB(aElement: Boolean; aArray: TKMBooleanArray): Boolean;
     function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean;
     function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean;
 
@@ -117,7 +117,7 @@ end;
 
 //* Version: 7000+
 //* Checks how many times specified boolean comes in requested array
-function TKMScriptUtils.ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer;
+function TKMScriptUtils.ArrayElementCountB(aElement: Boolean; aArray: TKMBooleanArray): Integer;
 var
   I: Integer;
 begin
@@ -209,7 +209,7 @@ end;
 
 //* Version: 7000+
 //* Checks whether requested array has specified boolean
-function TKMScriptUtils.ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean;
+function TKMScriptUtils.ArrayHasElementB(aElement: Boolean; aArray: TKMBooleanArray): Boolean;
 var
   I: Integer;
 begin
