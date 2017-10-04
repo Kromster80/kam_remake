@@ -23,11 +23,13 @@ type
   private
     fPath: string; //TKMGameInfo does not stores paths, because they mean different things for Maps and Saves
     fFileName: string; //without extension
+    fCrcCalculated: Boolean;
     fCRC: Cardinal;
     fSaveError: string;
     fInfo: TKMGameInfo;
     fGameOptions: TKMGameOptions;
     procedure ScanSave;
+    function GetCRC: Cardinal;
   public
     constructor Create(const aName: String; aIsMultiplayer: Boolean);
     destructor Destroy; override;
@@ -36,7 +38,7 @@ type
     property GameOptions: TKMGameOptions read fGameOptions;
     property Path: string read fPath;
     property FileName: string read fFileName;
-    property CRC: Cardinal read fCRC;
+    property CRC: Cardinal read GetCRC;
     property SaveError: string read fSaveError;
 
     function IsValid: Boolean;
@@ -136,6 +138,17 @@ begin
 end;
 
 
+function TKMSaveInfo.GetCRC: Cardinal;
+begin
+  if not fCrcCalculated then
+  begin
+    fCRC := Adler32CRC(fPath + fFileName + '.' + EXT_SAVE_MAIN);
+    fCrcCalculated := True;
+  end;
+  Result := fCRC;
+end;
+
+
 procedure TKMSaveInfo.ScanSave;
 var
   LoadStream: TKMemoryStream;
@@ -146,7 +159,7 @@ begin
     Exit;
   end;
 
-  fCRC := Adler32CRC(fPath + fFileName + '.' + EXT_SAVE_MAIN);
+  fCrcCalculated := False; //make lazy load for CRC
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   LoadStream.LoadFromFile(fPath + fFileName + '.' + EXT_SAVE_MAIN);

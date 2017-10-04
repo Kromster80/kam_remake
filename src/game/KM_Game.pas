@@ -1425,7 +1425,7 @@ begin
 
   if not IsMultiplayer then
     // Update GameSettings for saved positions in lists of saves and replays
-    gGameApp.GameSettings.MenuSPSaveCRC := TKMSavesCollection.GetSaveCRC(aSaveName, IsMultiplayer); // Update save position for SP game
+    gGameApp.GameSettings.MenuSPSaveFileName := aSaveName;
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);

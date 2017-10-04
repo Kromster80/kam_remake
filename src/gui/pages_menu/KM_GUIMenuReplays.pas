@@ -20,13 +20,13 @@ type
     fMinimapLastListId: Integer;
     fScanCompleted: Boolean;      // True, after scan was completed
 
-    fSelectedSaveInfo: TKMFileIdentInfo; // Identification info about selected save
+    fSelectedSaveName: UnicodeString;
 
     procedure UpdateUI;
     procedure ListUpdate;
     procedure LoadMinimap(aID: Integer = -1);
     procedure SetSelectedSaveInfo(aID: Integer = -1); overload;
-    procedure SetSelectedSaveInfo(aCRC: Cardinal; const aName: UnicodeString); overload;
+    procedure SetSelectedSaveName(const aName: UnicodeString); overload;
     function  IsSaveValid(aID: Integer): Boolean;
 
     procedure Replays_ListClick(Sender: TObject);
@@ -229,30 +229,19 @@ var CRC: Cardinal;
     Name: UnicodeString;
 begin
   if (aID <> -1) then
-  begin
-    CRC := fSaves[aID].CRC;
-    Name := fSaves[aID].FileName;
-  end else begin
-    CRC := 0;
+    Name := fSaves[aID].FileName
+  else
     Name := '';
-  end;
-  SetSelectedSaveInfo(CRC, Name);
+  SetSelectedSaveName(Name);
 end;
 
 
-procedure TKMMenuReplays.SetSelectedSaveInfo(aCRC: Cardinal; const aName: UnicodeString);
+procedure TKMMenuReplays.SetSelectedSaveName(const aName: UnicodeString);
 begin
-  fSelectedSaveInfo.CRC := aCRC;
-  fSelectedSaveInfo.Name := aName;
+  fSelectedSaveName := aName;
   case Radio_Replays_Type.ItemIndex of
-    0:  begin
-          gGameApp.GameSettings.MenuReplaySPSaveCRC := aCRC;
-          gGameApp.GameSettings.MenuReplaySPSaveName := aName;
-        end;
-    1:  begin
-          gGameApp.GameSettings.MenuReplayMPSaveCRC := aCRC;
-          gGameApp.GameSettings.MenuReplayMPSaveName := aName;
-        end;
+    0:  gGameApp.GameSettings.MenuReplaySPSaveName := aName;
+    1:  gGameApp.GameSettings.MenuReplayMPSaveName := aName;
   end;
 end;
 
@@ -308,14 +297,8 @@ begin
   fMinimapLastListId := MINIMAP_NOT_LOADED;
 
   case Radio_Replays_Type.ItemIndex of
-    0:  begin
-          fSelectedSaveInfo.CRC := gGameApp.GameSettings.MenuReplaySPSaveCRC;
-          fSelectedSaveInfo.Name := gGameApp.GameSettings.MenuReplaySPSaveName;
-        end;
-    1:  begin
-          fSelectedSaveInfo.CRC := gGameApp.GameSettings.MenuReplayMPSaveCRC;
-          fSelectedSaveInfo.Name := gGameApp.GameSettings.MenuReplayMPSaveName;
-        end;
+    0:  fSelectedSaveName := gGameApp.GameSettings.MenuReplaySPSaveName;
+    1:  fSelectedSaveName := gGameApp.GameSettings.MenuReplayMPSaveName;
   end;
 
   ColumnBox_Replays.Clear;
@@ -372,7 +355,7 @@ begin
     end;
 
     for I := 0 to fSaves.Count - 1 do
-      if (fSaves[I].CRC = fSelectedSaveInfo.CRC) and (fSaves[I].FileName = fSelectedSaveInfo.Name) then
+      if (fSaves[I].FileName = fSelectedSaveName) then
       begin
         ColumnBox_Replays.ItemIndex := I;
         LoadMinimap(I);
@@ -546,7 +529,7 @@ begin
   begin
     Edit_Rename.Text := Trim(Edit_Rename.Text);
     fSaves.RenameSave(ColumnBox_Replays.ItemIndex, Edit_Rename.Text);
-    SetSelectedSaveInfo(fSelectedSaveInfo.CRC, Edit_Rename.Text);
+    SetSelectedSaveName(Edit_Rename.Text);
     ListUpdate;
   end;
 end;

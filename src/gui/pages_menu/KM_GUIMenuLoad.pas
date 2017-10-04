@@ -16,12 +16,12 @@ type
     fSaves: TKMSavesCollection;
     fMinimap: TKMMinimap;
 
-    fLastSaveCRC: Cardinal; //CRC of selected save
+    fLastSaveFileName: String; //Name of selected save
 
     function CanLoadSave: Boolean;
     procedure UpdateUI;
     procedure LoadMinimap;
-    procedure SetLastSaveCRC(aCRC: Cardinal = 0);
+    procedure SetLastSaveFileName(aFileName: String = '');
     procedure LoadClick(Sender: TObject);
     procedure Load_Delete_Click(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
@@ -178,9 +178,9 @@ begin
     UpdateUI;
 
     if InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1) then
-      SetLastSaveCRC(fSaves[ColumnBox_Load.ItemIndex].CRC)
+      SetLastSaveFileName(fSaves[ColumnBox_Load.ItemIndex].FileName)
     else
-      SetLastSaveCRC;
+      SetLastSaveFileName;
 
     LoadMinimap;
   finally
@@ -198,10 +198,10 @@ begin
 end;
 
 
-procedure TKMMenuLoad.SetLastSaveCRC(aCRC: Cardinal = 0);
+procedure TKMMenuLoad.SetLastSaveFileName(aFileName: String = '');
 begin
-  fLastSaveCRC := aCRC;
-  gGameApp.GameSettings.MenuSPSaveCRC := aCRC;
+  fLastSaveFileName := aFileName;
+  gGameApp.GameSettings.MenuSPSaveFileName := aFileName;
 end;
 
 
@@ -226,9 +226,9 @@ begin
     if ColumnBox_Load.RowCount > 1 then
     begin
       NewSelected := EnsureRange(PreviouslySelected, 0, ColumnBox_Load.RowCount - 2);
-      SetLastSaveCRC(fSaves[NewSelected].CRC);
+      SetLastSaveFileName(fSaves[NewSelected].FileName);
     end else
-      SetLastSaveCRC; //there are no saves, nothing to select
+      SetLastSaveFileName; //there are no saves, nothing to select
 
     Load_RefreshList(True);
   end;
@@ -272,7 +272,7 @@ begin
 
     //IDs of saves could changed, so use CRC to check which one was selected
     for I := 0 to fSaves.Count - 1 do
-      if (fSaves[I].CRC = fLastSaveCRC) then
+      if (fSaves[I].FileName = fLastSaveFileName) then
       begin
         ColumnBox_Load.ItemIndex := I;
         LoadMinimap;
@@ -374,7 +374,7 @@ begin
   ColumnBox_Load.Clear; //clear the list
   Load_DeleteConfirmation(False);
   UpdateUI;
-  fLastSaveCRC := gGameApp.GameSettings.MenuSPSaveCRC;
+  fLastSaveFileName := gGameApp.GameSettings.MenuSPSaveFileName;
 
   //Initiate refresh and process each new save added
   fSaves.Refresh(Load_ScanUpdate, False, Load_ScanComplete);
