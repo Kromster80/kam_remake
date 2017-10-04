@@ -127,7 +127,7 @@ type
         CheckBox_LobbyHostControl: TKMCheckBox;
         CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
         CheckBox_Spectators: TKMCheckBox;
-        Label_Spectators: TKMLabel;
+        Bevel_SpecsDivide: TKMBevel;
         Image_HostStar: TKMImage;
         Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
         DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropColumns;
@@ -282,6 +282,10 @@ end;
 
 
 procedure TKMMenuLobby.UpdateSpectatorDivide;
+const
+  TOP_OFF = 68;
+  LINE_Y = 23;
+  DIVIDE_Y = 5;
 var
   I, DivideRow, OffY: Integer;
 begin
@@ -292,13 +296,13 @@ begin
     DivideRow := MAX_LOBBY_PLAYERS;
   for I := 1 to MAX_LOBBY_SLOTS do
   begin
-    OffY := 88 + (I-1) * 24;
+    OffY := TOP_OFF + (I-1) * LINE_Y;
 
     if I = DivideRow+1 then
-      Label_Spectators.Top := OffY+3;
+      Bevel_SpecsDivide.Top := OffY;
 
     if I > DivideRow then
-      Inc(OffY, 23);
+      Inc(OffY, DIVIDE_Y);
 
     Image_LobbyFlag[I].Top            := OffY;
     Label_LobbyPlayer[I].Top          := OffY+2;
@@ -320,13 +324,13 @@ begin
   if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil)
   and fNetworking.NetPlayers.SpectatorsAllowed then
   begin
-    Panel_LobbyPlayers.Height := 426;
-    Label_Spectators.Show;
+    Panel_LobbyPlayers.Height := TOP_OFF + LINE_Y*MAX_LOBBY_SLOTS + DIVIDE_Y + 2;
+    Bevel_SpecsDivide.Show;
   end
   else
   begin
-    Panel_LobbyPlayers.Height := 379;
-    Label_Spectators.Hide;
+    Panel_LobbyPlayers.Height := TOP_OFF + LINE_Y*MAX_LOBBY_PLAYERS + 2;
+    Bevel_SpecsDivide.Hide;
   end;
   Bevel_LobbyPlayers.Height := Panel_LobbyPlayers.Height;
   Memo_LobbyPosts.Top := Panel_LobbyPlayers.Top + Panel_LobbyPlayers.Height + 5;
@@ -353,6 +357,7 @@ procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
   end;
 const
   CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
+  TC2_ADD = 50;
 var
   I, K, OffY, DropWidth, TxtWidth: Integer;
 begin
@@ -368,30 +373,33 @@ begin
     Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 61, CW, 340);
       Bevel_LobbyPlayers := TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 340);
 
-      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, CW-20, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
+      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, (CW div 2) + TC2_ADD - 10, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := PlayersSetupChange;
+
+      CheckBox_Spectators := TKMCheckbox.Create(Panel_LobbyPlayers, (CW div 2) + TC2_ADD, 10, (CW div 2) - TC2_ADD - 10, 20, gResTexts[TX_LOBBY_ALLOW_SPECTATORS], fnt_Metal);
+      CheckBox_Spectators.OnClick := PlayersSetupChange;
 
       CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, CW-20, 20, gResTexts[TX_LOBBY_RANDOMIZE_LOCATIONS], fnt_Metal);
       CheckBox_LobbyRandomizeTeamLocations.OnClick := PlayersSetupChange;
 
-      CheckBox_Spectators := TKMCheckbox.Create(Panel_LobbyPlayers, 10, 46, CW-20, 20, gResTexts[TX_LOBBY_ALLOW_SPECTATORS], fnt_Metal);
-      CheckBox_Spectators.OnClick := PlayersSetupChange;
+    OffY := 49;
 
       //Column titles
-      TKMLabel.Create(Panel_LobbyPlayers, C1, 68, 150,  20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C2, 68, 150,  20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C3, 68,  80,  20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C4, 68,  80,  20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C5, 68, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_LobbyPlayers, C6, 68, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C1, OffY, 150,  20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C2, OffY, 150,  20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C3, OffY,  80,  20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C4, OffY,  80,  20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C5, OffY, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C6, OffY, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
-      Label_Spectators := TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150, 20, gResTexts[TX_LOBBY_HEADER_SPECTATORS], fnt_Outline, taLeft);
+      Bevel_SpecsDivide := TKMBevel.Create(Panel_LobbyPlayers, 10, 50, CW-20, 3);
+
       Image_HostStar := TKMImage.Create(Panel_LobbyPlayers, C2-20, 50, 20, 20, 77, rxGuiMain);
       Image_HostStar.Hide;
 
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
-        OffY := 88 + (I-1) * 24;
+        OffY := 70 + (I-1) * 23;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
         Image_LobbyFlag[I].ImageCenter;
         Image_LobbyFlag[I].Tag := I; //Required for PlayerMenuShow
