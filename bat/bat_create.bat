@@ -29,8 +29,8 @@ call bat_copy.bat
 @REM Restore local rxx
 @REM call bat_rxx_restore.bat
 
-@REM Future: Archive into 7z
-@REM call bat_7zip.bat
+REM Archive into 7z
+call bat_7zip.bat
 
 @REM Create Installer instructions
 @REM call bat_prepare_installer.bat
