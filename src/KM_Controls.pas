@@ -7089,7 +7089,7 @@ begin
         if fLines[I].Values[K] <> StartVal then
         begin
           if (K < FirstVarSample) or (FirstVarSample = -1) then
-            FirstVarSample := K;
+            FirstVarSample := K - 1;
           Break;
         end;
     end;
@@ -7099,7 +7099,7 @@ begin
     Exit;
   end;
   //Take 5% before the first varied sample
-  FirstVarSample := Max(0, FirstVarSample - Round(0.05*fMaxLength));
+  FirstVarSample := Max(0, FirstVarSample - Max(1, Round(0.05*(fMaxLength - FirstVarSample))));
   //Trim all fLines[I].Values to start at FirstVarSample
   for I:=0 to fCount-1 do
   begin

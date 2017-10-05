@@ -1386,8 +1386,8 @@ begin
     //fArmyEval.UpdateState;
 
   if (gGame.MissionMode = mm_Normal) and (aTick mod CHARTS_SAMPLING_FOR_ECONOMY = 0)
-  or (gGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0)
-  or (aTick = 1) then
+    or (gGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0)
+    or (aTick = 1) then
     fStats.UpdateState;
 end;
 

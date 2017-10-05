@@ -504,16 +504,12 @@ begin
       Columnbox_Army.ItemIndex := Columnbox_Army.RowCount - 1;
   end;
 
-  if SelectedItemTag = -1 then
+  if not Columnbox_Army.IsSelected then
     Columnbox_Army.ItemIndex := 0;
 
   Label_NoArmyData.Hide;
   Columnbox_Army.Show;
   Panel_ChartArmy_Type.Show;
-
-  if Columnbox_Army.ItemIndex = -1 then Exit;  // we do not have chart on that chart Kind, but we have for other
-
-  SelectedWType := TKMChartWarriorType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 
   //Find and hide old chart
   for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
@@ -528,6 +524,8 @@ begin
       Chart^.Visible := False;
     end;
   end;
+
+  SelectedWType := TKMChartWarriorType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 
   Chart := @Chart_MPArmy[SelectedCKind,SelectedWType].Chart;
   Chart^.Visible := True;
@@ -849,11 +847,12 @@ begin
     begin
       for K := 0 to gHands.Count - 1 do
         if gHands[K].Enabled
-          and not Chart_MPArmy[CKind,WType].IsEmpty(K) then
+          and ((WType = cwt_ArmyPower) or not Chart_MPArmy[CKind,WType].IsEmpty(K)) then // Always add ArmyPower chart, even if its empty
         begin
           fColumnBoxArmy_Rows[CKind, I] := WType;
           Inc(I);
-          fNoArmyChartData := False;
+          if WType <> cwt_ArmyPower then
+            fNoArmyChartData := False;
           Break; // Found warriors data for at least 1 hand, that's enought to show warrior type in column box
         end;
     end;
@@ -877,6 +876,8 @@ begin
             Chart^.MaxLength := Max(Chart^.MaxLength, Stats.ChartCount);
             Chart_MPArmy[CKind,WType].AddLine(I, OwnerName, FlagColor);
           end;
+
+      Chart^.TrimToFirstVariation;
     end;
 
   Columnbox_Army.Clear;
