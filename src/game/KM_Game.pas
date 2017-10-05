@@ -780,8 +780,9 @@ end;
 
 procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
-  fNetworking.PostLocalMessage(Format('%s has won!', //Todo translate
-    [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
+  if IsMultiplayer then
+    fNetworking.PostLocalMessage(Format('%s has won!', //Todo translate
+      [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
 
   if fGameMode = gmMultiSpectate then
     Exit;
