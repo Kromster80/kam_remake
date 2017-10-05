@@ -965,6 +965,8 @@ type
     procedure SetItemIndex(const Value: Smallint);
     procedure UpdateMouseOverPosition(X,Y: Integer);
     procedure UpdateItemIndex(Shift: TShiftState);
+    function GetItem(aIndex: Integer): TKMListRow;
+    function GetSelectedItem: TKMListRow;
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -987,11 +989,14 @@ type
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
 
+    property Item[aIndex: Integer]: TKMListRow read GetItem; default;
+    property SelectedItem: TKMListRow read GetSelectedItem;
     procedure SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
     function GetVisibleRows: Integer;
     function GetVisibleRowsExact: Single;
+    function IsSelected: Boolean;
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
     property ShowLines: Boolean read fShowLines write fShowLines;
     property SearchColumn: ShortInt read fSearchColumn write SetSearchColumn;
@@ -1357,6 +1362,8 @@ type
 
     procedure Paint; override;
   end;
+
+  PKMChart = ^TKMChart;
 
   //MinimapView relies on fMinimap and fViewport that provide all the data
   //MinimapView itself is just a painter
@@ -5519,6 +5526,12 @@ begin
 end;
 
 
+function TKMColumnBox.IsSelected: Boolean;
+begin
+  Result := fItemIndex <> -1;
+end;
+
+
 procedure TKMColumnBox.SetTopIndex(aIndex: Integer);
 begin
   fScrollBar.Position := aIndex;
@@ -5552,6 +5565,24 @@ end;
 function TKMColumnBox.GetColumn(aIndex: Integer): TKMListColumn;
 begin
   Result := fColumns[aIndex];
+end;
+
+
+function TKMColumnBox.GetItem(aIndex: Integer): TKMListRow;
+begin
+  if InRange(aIndex, 0, RowCount - 1) then
+    Result := Rows[aIndex]
+  else
+    raise Exception.Create('Cannot get Item with index ' + IntToStr(aIndex));
+end;
+
+
+function TKMColumnBox.GetSelectedItem: TKMListRow;
+begin
+  if IsSelected then
+    Result := Rows[fItemIndex]
+  else
+    raise Exception.Create('No selected item found');
 end;
 
 

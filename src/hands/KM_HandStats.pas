@@ -36,6 +36,13 @@ type
     Consumed: Cardinal;
   end;
 
+  // Army chart kind
+  TKMChartArmyKind = (
+    cak_Instantaneous, // Charts of in game warriors quantities
+    cak_Total,         // Charts of total army trained (includes initial army)
+    cak_Defeated,
+    cak_Lost);
+
   //Player statistics (+ ratios, house unlock, trade permissions)
   TKMHandStats = class
   private
@@ -43,18 +50,19 @@ type
     fChartCapacity: Integer;
     fChartHouses: TKMCardinalArray;
     fChartCitizens: TKMCardinalArray;
-    fChartArmy: array [WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
-    fChartArmyTotal: array [WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
-    fArmyEmpty: array [WARRIOR_MIN..WARRIOR_MAX] of Boolean;
+    fChartArmy: array[TKMChartArmyKind] of array[WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
     fChartWares: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
+    // No need to save fArmyEmpty array, as it will be still same after load and 1 HandStats update (which we always do on game exit)
+    // It's important to use cak_Total instead of cak_Instantenious, because Inst. can be empty even after load and 1 update state!
+    fArmyEmpty: array[cak_Total..cak_Lost] of array [WARRIOR_MIN..WARRIOR_MAX] of Boolean;
 
     Houses: array [THouseType] of THouseStats;
     Units: array [HUMANS_MIN..HUMANS_MAX] of TUnitStats;
     Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
     fWareDistribution: TKMWareDistribution;
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
-    function GetChartArmy(aWarrior: TUnitType): TKMCardinalArray;
-    function GetChartArmyTotal(aWarrior: TUnitType): TKMCardinalArray;
+    function GetChartArmy(aChartKind: TKMChartArmyKind; aWarrior: TUnitType): TKMCardinalArray;
+    function GetArmyChartValue(aChartKind: TKMChartArmyKind; aUnitType: TUnitType): Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -115,10 +123,10 @@ type
     property ChartHouses: TKMCardinalArray read fChartHouses;
     property ChartCitizens: TKMCardinalArray read fChartCitizens;
     property ChartWares[aWare: TWareType]: TKMCardinalArray read GetChartWares;
-    property ChartArmy[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmy;
-    property ChartArmyTotal[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmyTotal;
+
+    property ChartArmy[aChartKind: TKMChartArmyKind; aWarrior: TUnitType]: TKMCardinalArray read GetChartArmy;
     function ChartWaresEmpty(aWare: TWareType): Boolean;
-    function ChartArmyEmpty(aWarrior: TUnitType): Boolean;
+    function ChartArmyEmpty(aChartKind: TKMChartArmyKind; aWarrior: TUnitType): Boolean;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -137,13 +145,15 @@ uses
 constructor TKMHandStats.Create;
 var
   WT: TUnitType;
+  CKind: TKMChartArmyKind;
 begin
   inherited;
 
   fWareDistribution := TKMWareDistribution.Create;
 
-  for WT := WARRIOR_MIN to WARRIOR_MAX do
-    fArmyEmpty[WT] := True;
+  for CKind := cak_Total to cak_Lost do
+    for WT := WARRIOR_MIN to WARRIOR_MAX do
+      fArmyEmpty[CKind,WT] := True;
 end;
 
 
@@ -642,13 +652,13 @@ begin
 end;
 
 
-function TKMHandStats.GetChartArmy(aWarrior: TUnitType): TKMCardinalArray;
+function TKMHandStats.GetChartArmy(aChartKind: TKMChartArmyKind; aWarrior: TUnitType): TKMCardinalArray;
 var
   WT: TUnitType;
   I: Integer;
 begin
   case aWarrior of
-    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmy[aWarrior];
+    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmy[aChartKind,aWarrior];
     ut_Any:                   begin
                                 //Create new array and fill it (otherwise we assign pointers and corrupt data)
                                 SetLength(Result, fChartCount);
@@ -656,33 +666,7 @@ begin
                                   Result[I] := 0;
                                 for WT := WARRIOR_MIN to WARRIOR_MAX do
                                   for I := 0 to fChartCount - 1 do
-                                    Result[I] := Result[I] + fChartArmy[WT][I];
-                              end;
-    else                      begin
-                                //Return empty array
-                                SetLength(Result, fChartCount);
-                                for I := 0 to fChartCount - 1 do
-                                  Result[I] := 0;
-                              end;
-  end;
-end;
-
-
-function TKMHandStats.GetChartArmyTotal(aWarrior: TUnitType): TKMCardinalArray;
-var
-  I: Integer;
-  WT: TUnitType;
-begin
-  case aWarrior of
-    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmyTotal[aWarrior];
-    ut_Any:                   begin
-                                //Create new array and fill it (otherwise we assign pointers and corrupt data)
-                                SetLength(Result, fChartCount);
-                                for I := 0 to fChartCount - 1 do
-                                  Result[I] := 0;
-                                for WT := WARRIOR_MIN to WARRIOR_MAX do
-                                  for I := 0 to fChartCount - 1 do
-                                    Result[I] := Result[I] + fChartArmyTotal[WT][I];
+                                    Result[I] := Result[I] + fChartArmy[aChartKind,WT,I];
                               end;
     else                      begin
                                 //Return empty array
@@ -724,18 +708,32 @@ begin
 end;
 
 
-function TKMHandStats.ChartArmyEmpty(aWarrior: TUnitType): Boolean;
+function GetArmyEmptyCKind(aChartKind: TKMChartArmyKind): TKMChartArmyKind;
+begin
+  //Total and Instantaneous are always empty at the same time, so we can use only one of them
+  //Important is that Total will be not empty even after game load, but instantenious could be empty after load.
+  //That is why we can omit saving fArmyEmpty array, and need to use Total instead of Instantenious for fArmyEmpty
+  if aChartKind = cak_Instantaneous then
+    Result := cak_Total
+  else
+    Result := aChartKind;
+end;
+
+
+function TKMHandStats.ChartArmyEmpty(aChartKind: TKMChartArmyKind; aWarrior: TUnitType): Boolean;
 var
   WT: TUnitType;
+  CKind: TKMChartArmyKind;
 begin
+  CKind := GetArmyEmptyCKind(aChartKind);
   case aWarrior of
     WARRIOR_MIN..WARRIOR_MAX:
-                        Result := (fChartCount = 0) or (fArmyEmpty[aWarrior]);
+                        Result := (fChartCount = 0) or (fArmyEmpty[CKind,aWarrior]);
     ut_Any:             begin
                           Result := True;
                           if fChartCount > 0 then
                             for WT := WARRIOR_MIN to WARRIOR_MAX do
-                              if not fArmyEmpty[WT] then
+                              if not fArmyEmpty[CKind,WT] then
                               begin
                                 Result := False;
                                 Break;
@@ -750,6 +748,7 @@ procedure TKMHandStats.Save(SaveStream: TKMemoryStream);
 var
   R: TWareType;
   W: TUnitType;
+  CKind: TKMChartArmyKind;
 begin
   SaveStream.WriteA('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));
@@ -765,11 +764,10 @@ begin
 
     for R := WARE_MIN to WARE_MAX do
       SaveStream.Write(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
-    for W := WARRIOR_MIN to WARRIOR_MAX do
-    begin
-      SaveStream.Write(fChartArmy[W][0], SizeOf(fChartArmy[W][0]) * fChartCount);
-      SaveStream.Write(fChartArmyTotal[W][0], SizeOf(fChartArmyTotal[W][0]) * fChartCount);
-    end;
+
+    for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+      for W := WARRIOR_MIN to WARRIOR_MAX do
+        SaveStream.Write(fChartArmy[CKind,W,0], SizeOf(fChartArmy[CKind,W,0]) * fChartCount);
   end;
 end;
 
@@ -777,7 +775,8 @@ end;
 procedure TKMHandStats.Load(LoadStream: TKMemoryStream);
 var
   I: TWareType;
-  J: TUnitType;
+  W: TUnitType;
+  CKind: TKMChartArmyKind;
 begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));
@@ -798,13 +797,23 @@ begin
       SetLength(fChartWares[I], fChartCount);
       LoadStream.Read(fChartWares[I][0], SizeOf(fChartWares[I][0]) * fChartCount);
     end;
-    for J := WARRIOR_MIN to WARRIOR_MAX do
-    begin
-      SetLength(fChartArmy[J], fChartCount);
-      LoadStream.Read(fChartArmy[J][0], SizeOf(fChartArmy[J][0]) * fChartCount);
-      SetLength(fChartArmyTotal[J], fChartCount);
-      LoadStream.Read(fChartArmyTotal[J][0], SizeOf(fChartArmyTotal[J][0]) * fChartCount);
-    end;
+    for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+      for W := WARRIOR_MIN to WARRIOR_MAX do
+      begin
+        SetLength(fChartArmy[CKind,W], fChartCount);
+        LoadStream.Read(fChartArmy[CKind,W,0], SizeOf(fChartArmy[CKind,W,0]) * fChartCount);
+      end;
+  end;
+end;
+
+
+function TKMHandStats.GetArmyChartValue(aChartKind: TKMChartArmyKind; aUnitType: TUnitType): Integer;
+begin
+  case aChartKind of
+    cak_Instantaneous:  Result := GetUnitQty(aUnitType);
+    cak_Total:          Result := GetWarriorsTotal(aUnitType);
+    cak_Defeated:       Result := GetUnitKilledQty(aUnitType);
+    cak_Lost:           Result := GetUnitLostQty(aUnitType);
   end;
 end;
 
@@ -812,8 +821,9 @@ end;
 procedure TKMHandStats.UpdateState;
 var
   I: TWareType;
-  J: TUnitType;
+  W: TUnitType;
   ArmyQty: Integer;
+  CKind, ArmyEmptyCKind: TKMChartArmyKind;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
 
@@ -827,11 +837,9 @@ begin
     SetLength(fChartCitizens, fChartCapacity);
     for I := WARE_MIN to WARE_MAX do
       SetLength(fChartWares[I], fChartCapacity);
-    for J := WARRIOR_MIN to WARRIOR_MAX do
-    begin
-      SetLength(fChartArmy[J], fChartCapacity);
-      SetLength(fChartArmyTotal[J], fChartCapacity);
-    end;
+    for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+      for W := WARRIOR_MIN to WARRIOR_MAX do
+        SetLength(fChartArmy[CKind,W], fChartCapacity);
   end;
   fChartHouses[fChartCount] := GetHouseQty(ht_Any);
   //We don't want recruits on the citizens Chart on the results screen.
@@ -844,21 +852,16 @@ begin
   for I := WARE_MIN to WARE_MAX do
     fChartWares[I, fChartCount] := Wares[I].Produced;
 
-  for J := WARRIOR_MIN to WARRIOR_MAX do
-  begin
-    ArmyQty := GetUnitQty(J);
-    fChartArmy[J, fChartCount] := ArmyQty;
-    if (fArmyEmpty[J] and (ArmyQty > 0)) then
-      fArmyEmpty[J] := False;
-  end;
-
-  for J := WARRIOR_MIN to WARRIOR_MAX do
-  begin
-    ArmyQty := GetWarriorsTotal(J);
-    fChartArmyTotal[J, fChartCount] := ArmyQty;
-    if (fArmyEmpty[J] and (ArmyQty > 0)) then
-      fArmyEmpty[J] := False;
-  end;
+  for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+    for W := WARRIOR_MIN to WARRIOR_MAX do
+    begin
+      ArmyQty := GetArmyChartValue(CKind,W);
+      fChartArmy[CKind, W, fChartCount] := ArmyQty;
+      // for Army empty we use special CKind, because Total equipped and Instantenious are empty simultaneously
+      ArmyEmptyCKind := GetArmyEmptyCKind(CKind);
+      if (fArmyEmpty[ArmyEmptyCKind,W] and (ArmyQty > 0)) then
+        fArmyEmpty[ArmyEmptyCKind,W] := False;
+    end;
 
   Inc(fChartCount);
 end;

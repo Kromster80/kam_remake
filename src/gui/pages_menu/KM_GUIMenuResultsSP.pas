@@ -61,7 +61,7 @@ implementation
 uses
   KM_ResTexts, KM_GameApp, KM_HandsCollection,
   KM_CommonUtils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
-  KM_ResWares;
+  KM_ResWares, KM_HandStats;
 
 
 { TKMGUIMenuResultsSP }
@@ -230,9 +230,9 @@ begin
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
       if HandType = hndComputer then
-        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[ut_Any])
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any])
       else
-        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[ut_Any]);
+        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any]);
 
     if ShowAIResults then
       for I := 0 to TempGraphCount - 1 do
