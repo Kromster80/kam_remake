@@ -387,11 +387,16 @@ begin
   dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
 
   if not dlgOpenPicture.Execute then Exit;
+  try
+    fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
+                      ExtractFileName(dlgOpenPicture.FileName), 1);
+    RefreshBackground;
+  except
+    on E: Exception do
+      ShowMessage(E.Message);
+  end;
 
-  fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
-                    ExtractFileName(dlgOpenPicture.FileName), 1);
 
-  RefreshBackground;
 end;
 
 
