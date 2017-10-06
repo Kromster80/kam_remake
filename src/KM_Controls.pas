@@ -7112,7 +7112,7 @@ begin
           Break;
         end;
     end;
-  if FirstVarSample = -1 then
+  if FirstVarSample <= 0 then
   begin
     fMinTime := 0; //No variation at all, so don't trim it (but clear previous value)
     Exit;
@@ -7120,7 +7120,7 @@ begin
   //Take 5% before the first varied sample
   FirstVarSample := Max(0, FirstVarSample - Max(1, Round(0.05*(fMaxLength - FirstVarSample))));
   //Trim all fLines[I].Values to start at FirstVarSample
-  for I:=0 to fCount-1 do
+  for I := 0 to fCount - 1 do
   begin
     Move(fLines[I].Values[FirstVarSample], fLines[I].Values[0], (Length(fLines[I].Values)-FirstVarSample)*SizeOf(fLines[I].Values[0]));
     SetLength(fLines[I].Values, Length(fLines[I].Values)-FirstVarSample);
@@ -7167,7 +7167,7 @@ end;
 
 function TKMChart.GetLineNumber(aY: Integer): Integer;
 begin
-  Result := (aY - AbsTop - 22) div fItemHeight;
+  Result := (aY - AbsTop - 25) div fItemHeight;
 end;
 
 
@@ -7282,7 +7282,7 @@ var
       end;
 
       XPos := G.Right + 10;
-      YPos := G.Top + 25 + I*fItemHeight;
+      YPos := G.Top + 28 + I*fItemHeight;
       //Checkboxes
       TKMRenderUI.WriteBevel(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, 0.3);
       TKMRenderUI.WriteOutline(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, clChkboxOutline);

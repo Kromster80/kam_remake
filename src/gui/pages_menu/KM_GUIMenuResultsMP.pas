@@ -162,19 +162,21 @@ end;
 
 function TKMChartWarrior.GetGUIName: UnicodeString;
 begin
-  if (HasUnitType) then
-    Result := gRes.Units[UnitType].GUIName
-  else
-    Result := 'Army power'; //Todo translate
+  case fType of
+    cwt_ArmyPower: Result := 'Army power'; //Todo translate
+    cwt_All:       Result := 'All soldiers'; //Todo translate
+    else           Result := gRes.Units[UnitType].GUIName;
+  end;
 end;
 
 
 function TKMChartWarrior.GetGUIIcon: Word;
 begin
-  if (HasUnitType) then
-    Result := gRes.Units[UnitType].GUIIcon
-  else
-    Result := 53;
+  case fType of
+    cwt_ArmyPower: Result := 53;
+    cwt_All:       Result := 665;
+    else           Result := gRes.Units[UnitType].GUIIcon;
+  end;
 end;
 
 
@@ -325,7 +327,7 @@ begin
   Panel_ChartsWares := TKMPanel.Create(aParent, 62, PANES_TOP, 900, CHART_HEIGHT);
   Panel_ChartsWares.AnchorsCenter;
 
-    Columnbox_Wares := TKMColumnBox.Create(Panel_ChartsWares, 0, 0, 140, CHART_HEIGHT, fnt_Game, bsMenu);
+    Columnbox_Wares := TKMColumnBox.Create(Panel_ChartsWares, 0, 0, 145, CHART_HEIGHT, fnt_Game, bsMenu);
     Columnbox_Wares.SetColumns(fnt_Game, ['', ''], [0, 20]);
     Columnbox_Wares.ShowHeader := False;
     Columnbox_Wares.ShowLines := False;
@@ -353,8 +355,8 @@ begin
   Panel_ChartsArmy := TKMPanel.Create(aParent, 62, PANES_TOP, 900, CHART_HEIGHT);
   Panel_ChartsArmy.AnchorsCenter;
 
-    Columnbox_Army := TKMColumnBox.Create(Panel_ChartsArmy, 0, 0, 140, CHART_HEIGHT, fnt_Game, bsMenu);
-    Columnbox_Army.SetColumns(fnt_Game, ['', ''], [0, 30]);
+    Columnbox_Army := TKMColumnBox.Create(Panel_ChartsArmy, 0, 0, 142, CHART_HEIGHT, fnt_Game, bsMenu);
+    Columnbox_Army.SetColumns(fnt_Game, ['', ''], [0, 33]);
     Columnbox_Army.ShowHeader := False;
     Columnbox_Army.ShowLines := False;
     Columnbox_Army.OnChange := ArmyChange;
