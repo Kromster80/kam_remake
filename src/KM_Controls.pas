@@ -1340,6 +1340,7 @@ type
     fMinTime: Cardinal; //Minimum time (in sec), used only for Rendering time ticks
     fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
     fMaxValue: Cardinal; //Maximum value (by vertical axis)
+    fPeaceTime: Cardinal;
     procedure UpdateMaxValue;
     function GetLine(aIndex:Integer):TKMGraphLine;
   public
@@ -1356,6 +1357,7 @@ type
     property Lines[aIndex: Integer]: TKMGraphLine read GetLine;
     property LineCount:Integer read fCount;
     property Font: TKMFont read fFont write fFont;
+    property Peacetime: Cardinal read fPeaceTime write fPeaceTime;
 
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -7173,6 +7175,54 @@ end;
 
 
 procedure TKMChart.Paint;
+const
+  IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
+  IntervalTime: array [0..10] of Word = (30, 1*60, 5*60, 10*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
+
+var
+  G: TKMRect;
+
+  procedure PaintAxisLabel(aTime: Integer; aIsPT: Boolean = False);
+  var
+    XPos: Integer;
+  begin
+    XPos := G.Left + Round((aTime - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left));
+    TKMRenderUI.WriteShape(XPos, G.Bottom - 2, 2, 5, IfThen(aIsPT, clChartPeacetimeLn, icWhite));
+    TKMRenderUI.WriteText (XPos, G.Bottom + 4, 0, TimeToString(aTime / 24 / 60 / 60), fnt_Game, taLeft, IfThen(aIsPT, clChartPeacetimeLbl, icWhite));
+    TKMRenderUI.WriteLine(XPos, G.Top, XPos, G.Bottom, IfThen(aIsPT, clChartPeacetimeLn, clChartDashedVLn), $CCCC);
+    if aIsPT then
+      TKMRenderUI.WriteText(XPos - 3, G.Bottom + 4, 0, 'PT-', fnt_Game, taRight, clChartPeacetimeLbl); //Todo translate
+  end;
+
+  procedure RenderHorizontalAxisTicks;
+  var
+    I, Best, PTPos: Integer;
+  begin
+    //Find first time interval that will have less than 10 ticks
+    Best := 0;
+    for I := Low(IntervalTime) to High(IntervalTime) do
+      if (fMaxTime-fMinTime) div IntervalTime[I] < 7 then
+      begin
+        Best := IntervalTime[I];
+        Break;
+      end;
+
+    //Paint time axis labels
+    if (Best <> 0) and (fMaxTime <> fMinTime) then
+      if (fPeaceTime <> 0) and InRange(fPeaceTime, fMinTime, fMaxTime) then
+      begin
+        //Labels before PT and PT himself
+        for I := 0 to ((fPeaceTime - fMinTime) div Best) do
+          PaintAxisLabel(fPeaceTime - I * Best, I = 0);
+
+        //Labels after PT
+        for I := 1 to ((fMaxTime - fPeaceTime) div Best) do
+          PaintAxisLabel(fPeaceTime + I * Best);
+      end else
+        for I := Ceil(fMinTime / Best) to (fMaxTime div Best) do
+          PaintAxisLabel(I * Best);
+  end;
+
   function EnsureColorBlend(aColor: TColor4): TColor4;
   var
     R, G, B: Byte;
@@ -7184,12 +7234,9 @@ procedure TKMChart.Paint;
     ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
     Result := (R + G shl 8 + B shl 16) or $FF000000;
   end;
-const
-  IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
-  IntervalTime: array [0..10] of Word = (30, 1*60, 5*60, 10*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
+
 var
   I: Integer;
-  G: TKMRect;
   Best, TopValue, Tmp: Integer;
   NewColor, TextColor: TColor4;
 begin
@@ -7211,24 +7258,27 @@ begin
 
   //Dashed lines in the background
   if Best <> 0 then
-  for I := 1 to (TopValue div Best) do
-  begin
-    Tmp := G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top));
-    TKMRenderUI.WriteText(G.Left - 5, Tmp - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
-    TKMRenderUI.WriteLine(G.Left, Tmp, G.Right, Tmp, $FF606060, $CCCC);
-  end;
+    for I := 1 to (TopValue div Best) do
+    begin
+      Tmp := G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top));
+      TKMRenderUI.WriteText(G.Left - 5, Tmp - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
+      TKMRenderUI.WriteLine(G.Left, Tmp, G.Right, Tmp, clChartDashedHLn, $CCCC);
+    end;
+
+  //Render horizontal axis ticks
+  RenderHorizontalAxisTicks;
 
   //Charts and legend
   for I := 0 to fCount - 1 do
   begin
     //Adjust the color if it blends with black background
     NewColor := EnsureColorBlend(fLines[I].Color);
-    TextColor := $FFFFFFFF;
+    TextColor := icWhite;
 
     if (csOver in State) and (I = fLineOver) then
     begin
-      NewColor := $FFFF00FF;
-      TextColor := $FFFF00FF;
+      NewColor := icPink;
+      TextColor := icPink;
     end;
 
     //Charts
@@ -7242,7 +7292,7 @@ begin
     //Checkboxes
     TKMRenderUI.WriteShape(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor);
     if fLines[I].Visible then
-      TKMRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 'v', fnt_Game, taLeft, $FF000000);
+      TKMRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 'v', fnt_Game, taLeft, icBlack);
 
     //Legend
     TKMRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, fLines[I].Title, fnt_Game, taLeft, TextColor);
@@ -7250,10 +7300,10 @@ begin
 
   //Render the highlighted line above all the others and thicker so you can see where it goes under others
   if (csOver in State) and InRange(fLineOver, 0, fCount-1) and fLines[fLineOver].Visible then
-    TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, $FFFF00FF, 3);
+    TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, icPink, 3);
 
   //Outline
-  TKMRenderUI.WriteOutline(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
+  TKMRenderUI.WriteOutline(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, icWhite);
 
   //Title
   TKMRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, fCaption, fFont, taLeft);
@@ -7262,23 +7312,6 @@ begin
   TKMRenderUI.WriteText(G.Left - 5, G.Bottom - 6, 0, IntToStr(0), fnt_Game, taRight);
   //TKMRenderUI.WriteText(Left+20, Top + 20, 0, 0, IntToStr(fMaxValue), fnt_Game, taRight);
 
-  //Render horizontal axis ticks
-  //Find first interval that will have less than 10 ticks
-  Best := 0;
-  for I := Low(IntervalTime) to High(IntervalTime) do
-    if (fMaxTime-fMinTime) div IntervalTime[I] < 6 then
-    begin
-      Best := IntervalTime[I];
-      Break;
-    end;
-
-  //Paint time axis labels
-  if (Best <> 0) and (fMaxTime <> fMinTime) then
-  for I := Ceil(fMinTime / Best) to (fMaxTime div Best) do
-  begin
-    TKMRenderUI.WriteShape(G.Left + Round((I * Best - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF);
-    TKMRenderUI.WriteText (G.Left + Round((I * Best - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left)), G.Bottom + 4, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
-  end;
 end;
 
 

@@ -748,9 +748,11 @@ begin
   Chart_MPHouses.Clear;
 
   Chart_MPCitizens.MaxLength := 0;
-  Chart_MPHouses.MaxLength := 0;
-  Chart_MPCitizens.MaxTime  := gGame.GameTickCount div 10;
-  Chart_MPHouses.MaxTime    := gGame.GameTickCount div 10;
+  Chart_MPHouses.MaxLength   := 0;
+  Chart_MPCitizens.MaxTime   := gGame.GameTickCount div 10;
+  Chart_MPHouses.MaxTime     := gGame.GameTickCount div 10;
+  Chart_MPCitizens.Peacetime := 60*gGame.GameOptions.Peacetime;
+  Chart_MPHouses.Peacetime   := 60*gGame.GameOptions.Peacetime;
 
   for I := 0 to gHands.Count - 1 do
   with gHands[I] do
@@ -807,8 +809,9 @@ begin
 
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := 0;
-    Chart_MPWares[R].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPWares[R].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + gRes.Wares[R].Title;
+    Chart_MPWares[R].MaxTime   := gGame.GameTickCount div 10;
+    Chart_MPWares[R].Peacetime := 60*gGame.GameOptions.Peacetime;
+    Chart_MPWares[R].Caption   := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + gRes.Wares[R].Title;
 
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
@@ -867,6 +870,7 @@ begin
       Chart^.Clear;
       Chart^.MaxLength := 0;
       Chart^.MaxTime := gGame.GameTickCount div 10;
+      Chart^.Peacetime := 60*gGame.GameOptions.Peacetime;
       Chart^.Caption := Chart_MPArmy[CKind,WType].ChartType.GUIName + ' - ' + CHART_ARMY_CAPTION[CKind]; // Todo translate
 
       for I := 0 to gHands.Count - 1 do

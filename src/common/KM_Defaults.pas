@@ -717,11 +717,14 @@ const
   icCyan   = $FFFFFF00;
 
   icDarkGray = $FF606060;
+  icDarkGrayTrans = $60606060;
   icGray = $FF808080;
   icLightGray = $FFA0A0A0;
   icWhite = $FFFFFFFF;
   icBlack = $FF000000;
   icDarkCyan   = $FFB0B000;
+
+  icPink = $FFFF00FF;
 
   icSteelBlue = $FFA56D53;
 
@@ -763,6 +766,11 @@ const
 
   clMapEdBtnField = icYellow;
   clMapEdBtnWine = icYellow;
+
+  clChartDashedHLn = icDarkGray;
+  clChartDashedVLn = icDarkGrayTrans;
+  clChartPeacetimeLn = icDarkGoldenRod;
+  clChartPeacetimeLbl = icGoldenYellow;
 
 var
   ExeDir: UnicodeString;
