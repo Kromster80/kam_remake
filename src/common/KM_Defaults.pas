@@ -720,6 +720,7 @@ const
   icDarkGrayTrans = $60606060;
   icGray = $FF808080;
   icLightGray = $FFA0A0A0;
+  icLightGrayTrans = $80A0A0A0;
   icWhite = $FFFFFFFF;
   icBlack = $FF000000;
   icDarkCyan   = $FFB0B000;
@@ -771,6 +772,8 @@ const
   clChartDashedVLn = icDarkGrayTrans;
   clChartPeacetimeLn = icDarkGoldenRod;
   clChartPeacetimeLbl = icGoldenYellow;
+
+  clChkboxOutline = icLightGrayTrans;
 
 var
   ExeDir: UnicodeString;

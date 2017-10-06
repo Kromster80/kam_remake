@@ -592,6 +592,9 @@ type
     fChecked: Boolean;
     fFont: TKMFont;
   public
+    DrawOutline: Boolean;
+    LineColor: TColor4; //color of outline
+    LineWidth: Byte;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; const aCaption: UnicodeString; aFont: TKMFont); overload;
     property Caption: UnicodeString read fCaption write fCaption;
     property Checked: Boolean read fChecked write fChecked;
@@ -612,6 +615,9 @@ type
     fFont: TKMFont;
     fOnChange: TNotifyEvent;
   public
+    DrawChkboxOutline: Boolean;
+    LineColor: TColor4; //color of outline
+    LineWidth: Byte;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
 
     procedure Add(aText: UnicodeString; aEnabled: Boolean = True);
@@ -3363,6 +3369,8 @@ begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fFont     := aFont;
   fCaption  := aCaption;
+  LineWidth := 1;
+  LineColor := clChkboxOutline;
 end;
 
 
@@ -3383,14 +3391,17 @@ begin
   inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
+  CheckSize := gRes.Fonts[fFont].GetTextSize('x').Y + 1;
 
-  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 1, 0.3);
+  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize - 4, CheckSize-4, 1, 0.3);
+
+  if DrawOutline then
+    TKMRenderUI.WriteOutline(AbsLeft, AbsTop, CheckSize - 4, CheckSize - 4, LineWidth, LineColor);
 
   if fChecked then
-    TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop, 0, 'x', fFont, taCenter, Col);
+    TKMRenderUI.WriteText(AbsLeft + (CheckSize-4) div 2, AbsTop - 1, 0, 'x', fFont, taCenter, Col);
 
-  TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop, Width-Height, fCaption, fFont, taLeft, Col);
+  TKMRenderUI.WriteText(AbsLeft + CheckSize, AbsTop, Width - Height, fCaption, fFont, taLeft, Col);
 end;
 
 
@@ -3400,6 +3411,8 @@ begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fFont := aFont;
   fItemIndex := -1;
+  LineWidth := 1;
+  LineColor := clChkboxOutline;
 end;
 
 
@@ -3457,14 +3470,16 @@ begin
   if Count = 0 then Exit; //Avoid dividing by zero
 
   LineHeight := Round(fHeight / Count);
-  CheckSize := gRes.Fonts[fFont].GetTextSize('I').Y + 1;
+  CheckSize := gRes.Fonts[fFont].GetTextSize('x').Y + 1;
 
   for I := 0 to Count - 1 do
   begin
     TKMRenderUI.WriteBevel(AbsLeft, AbsTop + I * LineHeight, CheckSize-4, CheckSize-4, 1, 0.3);
+    if DrawChkboxOutline then
+      TKMRenderUI.WriteOutline(AbsLeft, AbsTop + I * LineHeight, CheckSize-4, CheckSize-4, LineWidth, LineColor);
 
     if fItemIndex = I then
-      TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
+      TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight - 1, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
 
     // Caption
     TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop + I * LineHeight, Width-LineHeight, fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);

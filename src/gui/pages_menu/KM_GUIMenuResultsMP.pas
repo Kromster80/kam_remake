@@ -383,6 +383,7 @@ begin
     TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
 
     Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,80,fnt_Grey);
+    Radio_ChartArmyStyle.DrawChkboxOutline := True;
     Radio_ChartArmyStyle.ItemIndex := 0;
     Radio_ChartArmyStyle.Add('Instantaneous');   // Todo translate
     Radio_ChartArmyStyle.Add('Total equipped');  // Todo translate
