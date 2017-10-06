@@ -1348,7 +1348,8 @@ type
     fMaxValue: Cardinal; //Maximum value (by vertical axis)
     fPeaceTime: Cardinal;
     procedure UpdateMaxValue;
-    function GetLine(aIndex:Integer):TKMGraphLine;
+    function GetLine(aIndex:Integer): TKMGraphLine;
+    function GetLineNumber(aY: Integer): Integer;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 
@@ -3389,7 +3390,7 @@ procedure TKMCheckBox.Paint;
 var Col: TColor4; CheckSize: Integer;
 begin
   inherited;
-  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  if fEnabled then Col := icWhite else Col := $FF888888;
 
   CheckSize := gRes.Fonts[fFont].GetTextSize('x').Y + 1;
 
@@ -7050,7 +7051,7 @@ begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
   fFont := fnt_Outline;
-  fItemHeight := 13;
+  fItemHeight := 20;
   fLineOver := -1;
   fLegendWidth := 150;
 end;
@@ -7163,13 +7164,19 @@ begin
 end;
 
 
+function TKMChart.GetLineNumber(aY: Integer): Integer;
+begin
+  Result := (aY - AbsTop - 22) div fItemHeight;
+end;
+
+
 procedure TKMChart.MouseMove(X, Y: Integer; Shift: TShiftState);
 begin
   inherited;
 
   fLineOver := -1;
   if X < AbsLeft + Width - fLegendWidth+5 then Exit;
-  fLineOver := (Y - AbsTop + 2) div fItemHeight;
+  fLineOver := GetLineNumber(Y);
 end;
 
 
@@ -7180,7 +7187,7 @@ begin
 
   if X < AbsLeft + Width - fLegendWidth+5 then Exit;
 
-  I := (Y - AbsTop + 2) div fItemHeight;
+  I := GetLineNumber(Y);
   if not InRange(I, 0, fCount - 1) then Exit;
 
   fLines[I].Visible := not fLines[I].Visible;
@@ -7196,6 +7203,7 @@ const
 
 var
   G: TKMRect;
+  TopValue: Integer;
 
   procedure PaintAxisLabel(aTime: Integer; aIsPT: Boolean = False);
   var
@@ -7211,7 +7219,7 @@ var
 
   procedure RenderHorizontalAxisTicks;
   var
-    I, Best, PTPos: Integer;
+    I, Best: Integer;
   begin
     //Find first time interval that will have less than 10 ticks
     Best := 0;
@@ -7238,22 +7246,56 @@ var
           PaintAxisLabel(I * Best);
   end;
 
-  function EnsureColorBlend(aColor: TColor4): TColor4;
+  procedure RenderChartAndLegend;
+  const
+    MARKS_FONT: TKMFont = fnt_Grey;
   var
-    R, G, B: Byte;
-    Hue, Sat, Bri: Single;
+    I, CheckSize, XPos, YPos: Integer;
+    NewColor: TColor4;
   begin
-    ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
-    //Lighten colors to ensure they are visible on black background
-    Bri := Max(Bri, 0.2);
-    ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
-    Result := (R + G shl 8 + B shl 16) or $FF000000;
+    CheckSize := gRes.Fonts[MARKS_FONT].GetTextSize('v').Y + 1;
+
+    //Legend title and outline
+    TKMRenderUI.WriteShape(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 26, icDarkestGrayTrans);
+    TKMRenderUI.WriteOutline(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 26, 1, icGray);
+    TKMRenderUI.WriteText(G.Right + 5, G.Top + 4, fLegendWidth, 'Players', fnt_Metal, taCenter, icWhite);
+    //Charts and legend
+    for I := 0 to fCount - 1 do
+    begin
+      //Adjust the color if it blends with black background
+      NewColor := EnsureBrightness(fLines[I].Color, 0.3);
+
+      // If color is similar to highlight color, then use alternative HL color
+      if GetColorDistance(NewColor, clChartHighlight) < 0.1 then
+        NewColor := clChartHighlight2;
+
+      if (csOver in State) and (I = fLineOver) then
+        NewColor := clChartHighlight;
+
+      //Charts
+      if fLines[I].Visible then
+      begin
+        TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor, 2);
+        if Length(fLines[I].ValuesAlt) > 0 then
+          TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].ValuesAlt, TopValue, NewColor, 1);
+      end;
+
+      XPos := G.Right + 10;
+      YPos := G.Top + 25 + I*fItemHeight;
+      //Checkboxes
+      TKMRenderUI.WriteBevel(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, 0.3);
+      TKMRenderUI.WriteOutline(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, clChkboxOutline);
+      if fLines[I].Visible then
+        TKMRenderUI.WriteText(XPos + (CheckSize-4) div 2, YPos - 1, 0, 'x', MARKS_FONT, taCenter, NewColor);
+
+      //Legend
+      TKMRenderUI.WriteText(XPos + CheckSize, YPos, 0, fLines[I].Title, fnt_Game, taLeft, NewColor);
+    end;
   end;
 
 var
   I: Integer;
-  Best, TopValue, Tmp: Integer;
-  NewColor, TextColor: TColor4;
+  Best, Tmp: Integer;
 begin
   inherited;
 
@@ -7283,39 +7325,11 @@ begin
   //Render horizontal axis ticks
   RenderHorizontalAxisTicks;
 
-  //Charts and legend
-  for I := 0 to fCount - 1 do
-  begin
-    //Adjust the color if it blends with black background
-    NewColor := EnsureColorBlend(fLines[I].Color);
-    TextColor := icWhite;
-
-    if (csOver in State) and (I = fLineOver) then
-    begin
-      NewColor := icPink;
-      TextColor := icPink;
-    end;
-
-    //Charts
-    if fLines[I].Visible then
-    begin
-      TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor, 2);
-      if Length(fLines[I].ValuesAlt) > 0 then
-        TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].ValuesAlt, TopValue, NewColor, 1);
-    end;
-
-    //Checkboxes
-    TKMRenderUI.WriteShape(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor);
-    if fLines[I].Visible then
-      TKMRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 'v', fnt_Game, taLeft, icBlack);
-
-    //Legend
-    TKMRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, fLines[I].Title, fnt_Game, taLeft, TextColor);
-  end;
+  RenderChartAndLegend;
 
   //Render the highlighted line above all the others and thicker so you can see where it goes under others
   if (csOver in State) and InRange(fLineOver, 0, fCount-1) and fLines[fLineOver].Visible then
-    TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, icPink, 3);
+    TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, clChartHighlight, 3);
 
   //Outline
   TKMRenderUI.WriteOutline(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, icWhite);

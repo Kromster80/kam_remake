@@ -375,7 +375,7 @@ begin
     Panel_ChartArmy_Type := TKMPanel.Create(Panel_ChartsArmy, 755, CHART_HEIGHT - ARMY_TYPE_HEIGHT - 20, 150, ARMY_TYPE_HEIGHT);
     with TKMShape.Create(Panel_ChartArmy_Type, 0, 0, 150, ARMY_TYPE_HEIGHT) do
     begin
-      FillColor := $80303030;
+      FillColor := icDarkestGrayTrans;
       LineColor := icGray;
       LineWidth := 1;
     end;
@@ -834,10 +834,9 @@ procedure TKMMenuResultsMP.RefreshChartArmy;
 const
   CHART_ARMY_CAPTION: array[TKMChartArmyKind] of String = ('Instantaneous','Total equipped','Defeated','Lost');
 var
-  I,K,J: Integer;
+  I,K: Integer;
   WType: TKMChartWarriorType;
-  SelectedCKind,CKind: TKMChartArmyKind;
-  IsChartEmpty: Boolean;
+  CKind: TKMChartArmyKind;
   Chart: PKMChart;
 begin
   fNoArmyChartData := True;

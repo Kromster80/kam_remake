@@ -814,6 +814,7 @@ begin
     cak_Total:          Result := GetWarriorsTotal(aUnitType);
     cak_Defeated:       Result := GetUnitKilledQty(aUnitType);
     cak_Lost:           Result := GetUnitLostQty(aUnitType);
+    else                raise Exception.Create('Unknowkn chart army kind');
   end;
 end;
 

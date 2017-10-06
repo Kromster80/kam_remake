@@ -718,6 +718,7 @@ const
 
   icDarkGray = $FF606060;
   icDarkGrayTrans = $60606060;
+  icDarkestGrayTrans = $80303030;
   icGray = $FF808080;
   icLightGray = $FFA0A0A0;
   icLightGrayTrans = $80A0A0A0;
@@ -726,6 +727,7 @@ const
   icDarkCyan   = $FFB0B000;
 
   icPink = $FFFF00FF;
+  icDarkPink = $FFAA00AA;
 
   icSteelBlue = $FFA56D53;
 
@@ -768,6 +770,8 @@ const
   clMapEdBtnField = icYellow;
   clMapEdBtnWine = icYellow;
 
+  clChartHighlight = icPink;
+  clChartHighlight2 = icDarkPink;
   clChartDashedHLn = icDarkGray;
   clChartDashedVLn = icDarkGrayTrans;
   clChartPeacetimeLn = icDarkGoldenRod;

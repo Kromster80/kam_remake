@@ -23,8 +23,10 @@ uses
 
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
+  function EnsureBrightness(aColor: Cardinal; aMinBrightness: Single; aMaxBrightness: Single = 1): Cardinal;
   function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
   function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
+  function GetColorDistance(aColor1,aColor2: Cardinal): Single;
   function GetPingColor(aPing: Word): Cardinal;
   function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
@@ -513,13 +515,37 @@ begin
 end;
 
 
+function GetColorDistance(aColor1,aColor2: Cardinal): Single;
+var
+  R1,G1,B1,A1,R2,G2,B2,A2: Single;
+begin
+  R1 := (aColor1 and $FF) / 255;
+  G1 := (aColor1 shr 8 and $FF) / 255;
+  B1 := (aColor1 shr 16 and $FF) / 255;
+  A1 := (aColor1 shr 24 and $FF) / 255;
+
+  R2 := (aColor2 and $FF) / 255;
+  G2 := (aColor2 shr 8 and $FF) / 255;
+  B2 := (aColor2 shr 16 and $FF) / 255;
+  A2 := (aColor2 shr 24 and $FF) / 255;
+
+  Result := Sqrt(Sqr(R1 - R2) + Sqr(G1 - G2) + Sqr(B1 - B2) + Sqr(A1 - A2));
+end;
+
+
+function EnsureBrightness(aColor: Cardinal; aMinBrightness: Single; aMaxBrightness: Single = 1): Cardinal;
+begin
+  Result := MultiplyBrightnessByFactor(aColor, 1, aMinBrightness, aMaxBrightness);
+end;
+
+
 function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
 var
   R, G, B: Byte;
   Hue, Sat, Bri: Single;
 begin
   ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
-  Bri := Math.Max(aMinBrightness, Math.Min(Bri*aBrightnessFactor, aMaxBrightness));
+  Bri := EnsureRange(Bri*aBrightnessFactor, aMinBrightness, aMaxBrightness);
   ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
 
   //Preserve transparency value
