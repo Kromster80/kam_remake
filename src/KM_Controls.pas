@@ -5997,15 +5997,15 @@ begin
 
   //Grid lines should be below selection focus
   if fShowLines then
-  for I := 0 to Math.min(fRowCount - 1, MaxItem) do
-    TKMRenderUI.WriteShape(AbsLeft+1, Y + I * fItemHeight - 1, PaintWidth - 2, 1, $FFBBBBBB);
+    for I := 0 to Math.Min(fRowCount - 1, MaxItem) do
+      TKMRenderUI.WriteShape(AbsLeft+1, Y + I * fItemHeight - 1, PaintWidth - 2, 1, $FFBBBBBB);
 
   TKMRenderUI.SetupClipY(AbsTop, AbsTop + Height - 1);
 
   //Selection highlight
   if not HideSelection
-  and (fItemIndex <> -1)
-  and InRange(ItemIndex - TopIndex, 0, MaxItem) then
+    and (fItemIndex <> -1)
+    and InRange(ItemIndex - TopIndex, 0, MaxItem) then
   begin
 
     if IsFocused then
@@ -6016,6 +6016,7 @@ begin
       ShapeColor := clListSelShapeUnfocused;//$66666666;
       OutlineColor := clListSelOutlineUnfocused;//$FFA0A0A0;
     end;
+
     TKMRenderUI.WriteShape(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, ShapeColor);
     TKMRenderUI.WriteOutline(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, 1 + Byte(fShowLines), OutlineColor);
   end;

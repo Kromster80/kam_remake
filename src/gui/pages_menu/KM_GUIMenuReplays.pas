@@ -225,8 +225,8 @@ end;
 
 
 procedure TKMMenuReplays.SetSelectedSaveInfo(aID: Integer = -1);
-var CRC: Cardinal;
-    Name: UnicodeString;
+var
+  Name: UnicodeString;
 begin
   if (aID <> -1) then
     Name := fSaves[aID].FileName

@@ -119,7 +119,7 @@ type
     fIDCache: TKMScriptingIdCache;
     fUtils: TKMScriptUtils;
 
-    function CompileScript: Boolean;
+    procedure CompileScript;
     procedure LinkRuntime;
 
     procedure SaveVar(SaveStream: TKMemoryStream; Src: Pointer; aType: TPSTypeRec);
@@ -268,8 +268,6 @@ end;
 
 procedure TKMScripting.LoadFromFile(const aFileName, aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
 begin
-  gScripting := Self;
-
   if not fPreProcessor.PreProcessFile(aFileName, fScriptCode) then
     Exit; // Continue only if PreProcess was successful;
 
@@ -278,8 +276,7 @@ begin
   else
     fCampaignDataTypeCode := '';
 
-  if not CompileScript and not ErrorHandler.HasErrors then
-    ErrorHandler.AppendErrorStr('Could not compile script because of unknown reason');
+  CompileScript;
 
   fErrorHandler.HandleErrors;
 
@@ -729,7 +726,7 @@ begin
 end;
 
 
-function TKMScripting.CompileScript: Boolean;
+procedure TKMScripting.CompileScript;
 var
   I: Integer;
   Compiler: TPSPascalCompiler;

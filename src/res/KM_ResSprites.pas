@@ -1015,8 +1015,7 @@ end;
 
 procedure TKMResSprites.ManageResLoader;
 var
-  NextRXTypeI, I, px,py: Integer;
-  RT: TRXType;
+  NextRXTypeI: Integer;
 begin
   if (fGameResLoader <> nil) and fGameResLoader.LoadDone then
   begin
