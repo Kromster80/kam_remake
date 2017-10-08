@@ -445,7 +445,7 @@ begin
 
         DropBox_LobbyTeam[I] := TKMDropList.Create(Panel_LobbyPlayers, C3, OffY, 80, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyTeam[I].Add('-');
-        for K := 1 to 4 do DropBox_LobbyTeam[I].Add(IntToStr(K));
+        for K := 1 to MAX_TEAMS do DropBox_LobbyTeam[I].Add(IntToStr(K));
         DropBox_LobbyTeam[I].OnChange := PlayersSetupChange;
 
         DropBox_LobbyColors[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C4, OffY, 80, 20, fnt_Grey, '', bsMenu);

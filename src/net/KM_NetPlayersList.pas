@@ -1038,7 +1038,7 @@ begin
 
   //Shuffle locations within each team if requested
   if RandomizeTeamLocations then
-    for I := 1 to 4 do //Each team
+    for I := 1 to MAX_TEAMS do //Each team
     begin
       SetLength(TeamLocs, 0); //Reset
       for K := 1 to fCount do

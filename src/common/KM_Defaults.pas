@@ -173,7 +173,8 @@ const
   MAX_HANDS            = 12; //Maximum players (human or AI) per map
   MAX_LOBBY_PLAYERS    = 12;  //Maximum number of players (not spectators) allowed in the lobby. Map can have additional AI locations up to MAX_HANDS (for co-op).
   MAX_LOBBY_SPECTATORS = 2;  //Slots available in lobby. Additional slots can be used by spectators
-  MAX_LOBBY_SLOTS = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
+  MAX_LOBBY_SLOTS      = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
+  MAX_TEAMS            = MAX_LOBBY_PLAYERS div 2;
 
   AUTOSAVE_COUNT_MIN      = 2;
   AUTOSAVE_COUNT_MAX      = 10;

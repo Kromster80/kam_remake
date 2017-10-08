@@ -1162,7 +1162,8 @@ begin
       DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,230+(I div ALLIES_ROWS)*380, 80+(I mod ALLIES_ROWS)*20, 120, 20, fnt_Grey, '', bsGame);
       DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
       DropBox_AlliesTeam[I].Add('-');
-      for K := 1 to 4 do DropBox_AlliesTeam[I].Add(IntToStr(K));
+      for K := 1 to MAX_TEAMS do
+        DropBox_AlliesTeam[I].Add(IntToStr(K));
       DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[I].DropUp := True; // Doesn't fit if it drops down
       Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 347+(I div ALLIES_ROWS)*380, 80+(I mod ALLIES_ROWS)*20, '', fnt_Grey, taRight);
@@ -1553,8 +1554,8 @@ begin
 
   K := 0;
   // Players, sorted by team
-  for T := 0 to 4 do
-    for I:=1 to gGame.Networking.NetPlayers.Count do
+  for T := 0 to MAX_TEAMS do
+    for I := 1 to gGame.Networking.NetPlayers.Count do
       if not gGame.Networking.NetPlayers[I].IsSpectator and (gGame.Networking.NetPlayers[I].Team = T) then
       begin
         fAlliesToNetPlayers[K] := I;

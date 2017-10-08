@@ -613,7 +613,7 @@ var SortedNetPlayersIndexes: array [1..MAX_LOBBY_SLOTS] of Integer;
 
     K := 1;
     // Players, sorted by team
-    for T := 0 to 4 do
+    for T := 0 to MAX_TEAMS do
       for I := 1 to fSelectedRoomInfo.GameInfo.PlayerCount do
         if not fSelectedRoomInfo.GameInfo.Players[I].IsSpectator and (fSelectedRoomInfo.GameInfo.Players[I].Team = T) then
         begin
