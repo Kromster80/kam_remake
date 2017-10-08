@@ -1972,8 +1972,8 @@ end;
 procedure TKMGamePlayInterface.Replay_Multi_SetPlayersDropbox;
 var
   Teams: TKMByteSetArray;
-  I, J, DropBoxIndex, HumanIndexInList: Integer;
   NonTeamHands: set of Byte;
+  I, J, DropBoxIndex, HumanIndexInList: Integer;
   TeamSeparatorAdded: Boolean;
 begin
   Teams := gHands.GetTeams;

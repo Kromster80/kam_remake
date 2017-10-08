@@ -806,10 +806,10 @@ type
     fBackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
     fFont: TKMFont; //Should not be changed from inital value, it will mess up the word wrapping
     fItemHeight: Byte;
-    fSeparatorHeight: Byte;
     fItemIndex: Smallint;
     fItems: TStringList;
     fSeparatorPositions: array of Integer;
+    fSeparatorHeight: Byte;
     fSeparatorColor: TColor4;
     fSeparatorTexts: TStringList;
     fSeparatorFont: TKMFont;
@@ -1349,11 +1349,18 @@ type
     fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
     fMaxValue: Cardinal; //Maximum value (by vertical axis)
     fPeaceTime: Cardinal;
+    fSeparatorPositions: TStringList;
+    fSeparatorHeight: Byte;
+    fSeparatorColor: TColor4;
     procedure UpdateMaxValue;
     function GetLine(aIndex:Integer): TKMGraphLine;
     function GetLineNumber(aY: Integer): Integer;
+    function GetSeparatorsHeight(aIndex: Integer): Integer;
+    function GetItemTop(aIndex: Integer): Integer;
+    function GetSeparatorPos(aIndex: Integer): Integer;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+    destructor Destroy; override;
 
     procedure AddLine(const aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag: Integer=-1);
     procedure AddAltLine(const aAltValues: TKMCardinalArray);
@@ -1369,6 +1376,14 @@ type
     property LegendWidth: Word read fLegendWidth write fLegendWidth;
     property LegendCaption: String read fLegendCaption write fLegendCaption;
     property Peacetime: Cardinal read fPeaceTime write fPeaceTime;
+
+    property SeparatorPos[aIndex: Integer]: Integer read GetSeparatorPos;
+    property SeparatorColor: TColor4 read fSeparatorColor write fSeparatorColor;
+    property SeparatorHeight: Byte read fSeparatorHeight write fSeparatorHeight;
+
+    procedure AddSeparator(aPosition: Integer);
+    procedure SetSeparatorPositions(aSeparatorPositions: TStringList);
+    procedure ClearSeparators;
 
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -7055,10 +7070,22 @@ constructor TKMChart.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Int
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
+  fSeparatorPositions := TStringList.Create;
+  fSeparatorPositions.Sorted := True; // Better we have separators sorted
+
   fFont := fnt_Outline;
   fItemHeight := 20;
   fLineOver := -1;
   fLegendWidth := 150;
+  fSeparatorColor := clChartSeparator;
+  fSeparatorHeight := 10;
+end;
+
+
+destructor TKMChart.Destroy;
+begin
+  FreeAndNil(fSeparatorPositions);
+  inherited;
 end;
 
 
@@ -7081,6 +7108,52 @@ begin
   Inc(fCount);
 
   UpdateMaxValue;
+end;
+
+
+function TKMChart.GetSeparatorPos(aIndex: Integer): Integer;
+begin
+  Result := -1;
+  if not InRange(aIndex, 0, fSeparatorPositions.Count - 1) then Exit;
+
+  Result := StrToInt(fSeparatorPositions[aIndex]);
+end;
+
+
+function TKMChart.GetSeparatorsHeight(aIndex: Integer): Integer;
+var
+  I, Pos: Integer;
+begin
+  Result := 0;
+  for I := 0 to fSeparatorPositions.Count - 1 do
+  begin
+    Pos := SeparatorPos[I];
+    if (Pos <> -1) and (Pos <= aIndex) then
+      Inc(Result, fSeparatorHeight);
+  end;
+end;
+
+
+//Get aIndex item top position, considering separators
+function TKMChart.GetItemTop(aIndex: Integer): Integer;
+var
+  I: Integer;
+begin
+  Result := fItemHeight*aIndex;
+  Inc(Result, GetSeparatorsHeight(aIndex));
+end;
+
+
+procedure TKMChart.AddSeparator(aPosition: Integer);
+begin
+  fSeparatorPositions.Add(IntToStr(aPosition));
+end;
+
+
+procedure TKMChart.SetSeparatorPositions(aSeparatorPositions: TStringList);
+begin
+  fSeparatorPositions.Clear;
+  fSeparatorPositions.AddStrings(aSeparatorPositions);
 end;
 
 
@@ -7141,6 +7214,13 @@ begin
   fCount := 0;
   SetLength(fLines, 0);
   fMaxValue := 0;
+  ClearSeparators;
+end;
+
+
+procedure TKMChart.ClearSeparators;
+begin
+  fSeparatorPositions.Clear;
 end;
 
 
@@ -7170,8 +7250,27 @@ end;
 
 
 function TKMChart.GetLineNumber(aY: Integer): Integer;
+var
+  I, S, LineTop, LienBottom: Integer;
 begin
-  Result := (aY - AbsTop - 5 - 20*Byte(fLegendCaption <> '')) div fItemHeight;
+  Result := -1;
+  S := 0;
+  LineTop := AbsTop + 5 + 20*Byte(fLegendCaption <> '');
+  for I := 0 to fCount - 1 do
+  begin
+    if SeparatorPos[S] = I then
+    begin
+      Inc(LineTop, fSeparatorHeight);
+      Inc(S);
+    end;
+    LienBottom := LineTop + fItemHeight;
+    if InRange(aY, LineTop, LienBottom) then
+    begin
+      Result := I;
+      Exit;
+    end;
+    LineTop := LienBottom;
+  end;
 end;
 
 
@@ -7180,7 +7279,7 @@ begin
   inherited;
 
   fLineOver := -1;
-  if X < AbsLeft + Width - fLegendWidth+5 then Exit;
+  if X < AbsLeft + Width - fLegendWidth + 5 then Exit;
   fLineOver := GetLineNumber(Y);
 end;
 
@@ -7255,14 +7354,18 @@ var
   const
     MARKS_FONT: TKMFont = fnt_Grey;
   var
-    I, CheckSize, XPos, YPos: Integer;
+    I, S, CheckSize, XPos, YPos, Height: Integer;
     NewColor: TColor4;
   begin
     CheckSize := gRes.Fonts[MARKS_FONT].GetTextSize('v').Y + 1;
+    S := 0;
+    XPos := G.Right + 10;
+    YPos := G.Top + 8 + 20*Byte(fLegendCaption <> '');
 
     //Legend title and outline
-    TKMRenderUI.WriteShape(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 6 + 20*Byte(fLegendCaption <> ''), icDarkestGrayTrans);
-    TKMRenderUI.WriteOutline(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 6 + 20*Byte(fLegendCaption <> ''), 1, icGray);
+    Height := fItemHeight*fCount + 6 + 20*Byte(fLegendCaption <> '') + fSeparatorPositions.Count*fSeparatorHeight;
+    TKMRenderUI.WriteShape(G.Right + 5, G.Top, fLegendWidth, Height, icDarkestGrayTrans);
+    TKMRenderUI.WriteOutline(G.Right + 5, G.Top, fLegendWidth, Height, 1, icGray);
     if fLegendCaption <> '' then
       TKMRenderUI.WriteText(G.Right + 5, G.Top + 4, fLegendWidth, fLegendCaption, fnt_Metal, taCenter, icWhite);
     //Charts and legend
@@ -7286,8 +7389,12 @@ var
           TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].ValuesAlt, TopValue, NewColor, 1);
       end;
 
-      XPos := G.Right + 10;
-      YPos := G.Top + 8 + 20*Byte(fLegendCaption <> '') + I*fItemHeight;
+      if SeparatorPos[S] = I then
+      begin
+        Inc(YPos, fSeparatorHeight);
+        Inc(S);
+      end;
+
       //Checkboxes
       TKMRenderUI.WriteBevel(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, 0.3);
       TKMRenderUI.WriteOutline(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, clChkboxOutline);
@@ -7296,6 +7403,7 @@ var
 
       //Legend
       TKMRenderUI.WriteText(XPos + CheckSize, YPos, 0, fLines[I].Title, fnt_Game, taLeft, NewColor);
+      Inc(YPos, fItemHeight);
     end;
   end;
 

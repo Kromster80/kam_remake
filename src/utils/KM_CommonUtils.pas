@@ -61,6 +61,9 @@ uses
   procedure KMSwapInt(var A,B: Integer); overload;
   procedure KMSwapInt(var A,B: Cardinal); overload;
 
+  procedure KMSummArr(aArr1, aArr2: PKMCardinalArray);
+  procedure KMSummAndEnlargeArr(aArr1, aArr2: PKMCardinalArray);
+
   function Pack4ByteToInteger(aByte1, aByte2, aByte3, aByte4: Byte): Integer;
   procedure UnpackIntegerTo4Byte(aInt: Integer; out aByte1, aByte2, aByte3, aByte4: Byte);
 
@@ -107,33 +110,62 @@ end;
 
 procedure KMSwapInt(var A,B: Shortint);
 var
-  S: shortint;
+  S: Shortint;
 begin
   S := A; A := B; B := S;
 end;
 
 procedure KMSwapInt(var A,B: Smallint);
-var s:smallint;
+var S: Smallint;
 begin
-  s:=A; A:=B; B:=s;
+  S:=A; A:=B; B:=S;
 end;
 
 procedure KMSwapInt(var A,B: Word);
-var s:word;
+var S: Word;
 begin
-  s:=A; A:=B; B:=s;
+  S:=A; A:=B; B:=S;
 end;
 
 procedure KMSwapInt(var A,B: Integer);
-var s:integer;
+var S: Integer;
 begin
-  s:=A; A:=B; B:=s;
+  S:=A; A:=B; B:=S;
 end;
 
-procedure KMSwapInt(var A,B:cardinal);
-var s:cardinal;
+procedure KMSwapInt(var A,B: Cardinal);
+var S: cardinal;
 begin
-  s:=A; A:=B; B:=s;
+  S:=A; A:=B; B:=S;
+end;
+
+
+procedure KMSummArr(aArr1, aArr2: PKMCardinalArray);
+var
+  I: Integer;
+begin
+  Assert(Length(aArr1^) = Length(aArr2^), 'Arrays should have same length');
+  for I := Low(aArr1^) to High(aArr1^) do
+    Inc(aArr1^[I], aArr2^[I]);
+end;
+
+
+procedure KMSummAndEnlargeArr(aArr1, aArr2: PKMCardinalArray);
+var
+  I, OldLen1: Integer;
+begin
+  OldLen1 := Length(aArr1^);
+  if OldLen1 < Length(aArr2^) then
+  begin
+    SetLength(aArr1^, Length(aArr2^));
+    for I := OldLen1 to Length(aArr2^) - 1 do
+      aArr1^[I] := 0;                     //Init array with 0
+  end;
+
+  for I := Low(aArr2^) to High(aArr2^) do
+  begin
+    Inc(aArr1^[I], aArr2^[I]);
+  end;
 end;
 
 

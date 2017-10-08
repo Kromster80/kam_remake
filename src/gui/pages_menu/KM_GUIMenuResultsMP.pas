@@ -62,23 +62,14 @@ type
     fHandFlagColor: Cardinal;
     fNoArmyChartData: Boolean;
     fColumnBoxArmy_Rows: array[TKMChartArmyKind] of array of TKMChartWarriorType;
-    fHandIdToStatsI: TStringList;
+    fTeamSeparatorsPos: TStringList;
+    fPlayersToShow: TStringList;
 
     fIsStatsRefreshed: Boolean;
     fShowAIResults: Boolean;
 
-    //Temp graphs are used to adjoin same colored AI opponents into one chart
-    fTempGraphCount: Integer;
-    fTempGraphs: array [0..MAX_HANDS-1] of record
-                                            OwnerName: UnicodeString;
-                                            Color: Cardinal;
-                                            G: TKMCardinalArray;
-                                            Tag: Integer;
-                                          end;
-
     procedure BackClick(Sender: TObject);
     function DoAdjoinSameColorHand(aHandId: Integer): Boolean;
-    procedure AddToTempChart(const aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray; aTag: Integer = -1);
     procedure Create_ResultsMP(aParent: TKMPanel);
     procedure CreateBars(aParent: TKMPanel);
     procedure CreateChartEconomy;
@@ -93,8 +84,10 @@ type
     function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType): TKMCardinalArray;
     function DoShowHandStats(aHandId: Integer): Boolean;
     procedure RadioArmyStyleChange(Sender: TObject);
+    procedure RecreatePlayersToShow;
 
     procedure Refresh;
+    procedure RefreshPlayersToShow;
     procedure RefreshBars;
     procedure RefreshChartEconomy;
     procedure RefreshChartWares;
@@ -270,10 +263,10 @@ end;
 constructor TKMMenuResultsMP.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
-  fHandIdToStatsI := TStringList.Create;
-  fHandIdToStatsI.Sorted := True;
 
   fOnPageChange := aOnPageChange;
+  fTeamSeparatorsPos := TStringList.Create;
+  fTeamSeparatorsPos.Sorted := True;
 
   Create_ResultsMP(aParent);
 end;
@@ -288,7 +281,10 @@ begin
     for WType := High(TKMChartWarriorType) downto Low(TKMChartWarriorType) do
       FreeAndNil(Chart_MPArmy[CKind,WType]);
 
-  FreeAndNil(fHandIdToStatsI);
+  if fPlayersToShow <> nil then
+    FreeAndNil(fPlayersToShow);
+
+  FreeAndNil(fTeamSeparatorsPos);
 end;
 
 
@@ -593,7 +589,18 @@ begin
 end;
 
 
-procedure TKMMenuResultsMP.Refresh;
+procedure TKMMenuResultsMP.RecreatePlayersToShow;
+begin
+  if fPlayersToShow <> nil then
+    FreeAndNil(fPlayersToShow);
+
+  fPlayersToShow := TStringList.Create;
+  fPlayersToShow.Sorted := False; //Need to append players to show at the end of list
+  fPlayersToShow.OwnsObjects := True;
+end;
+
+
+procedure TKMMenuResultsMP.RefreshPlayersToShow;
 var
   HandsUniqueColorsCnt: Integer;
   HandsUniqueColors: array[0..MAX_HANDS-1] of record
@@ -617,10 +624,75 @@ var
     Inc(HandsUniqueColorsCnt);
   end;
 
+  procedure TryAddHand(aHandId: TKMHandIndex);
+    procedure AddNewHand;
+    var PlayersIdList: TStringList;
+    begin
+      PlayersIdList := TStringList.Create;
+      PlayersIdList.Add(IntToStr(aHandId));
+      fPlayersToShow.AddObject(IntToStr(aHandId), PlayersIdList);
+    end;
+
+    procedure AddOldHand(aOldI: Integer);
+    var ListI: Integer;
+    begin
+      ListI := fPlayersToShow.IndexOf(IntToStr(aOldI));
+      if ListI > -1 then //should be always true
+        TStringList(fPlayersToShow.Objects[ListI]).Add(IntToStr(aHandId)); //Add same color player to list
+    end;
+  var
+    OldI: Integer;
+  begin
+    if DoShowHandStats(aHandId) then
+    begin
+      if DoAdjoinSameColorHand(aHandId) then
+      begin
+        AddOrFindHandColor(aHandId, gHands[aHandId].FlagColor, OldI); //Same colored players are adjoined into 1
+        if OldI = -1 then
+          AddNewHand
+        else
+          AddOldHand(OldI);
+      end else
+        AddNewHand;
+    end;
+  end;
+
 var
-  I, ListI, OldI: Integer;
+  I, J, PlayersCntBeforeAdd: Integer;
+  Teams: TKMByteSetArray;
+  NonTeamHands: set of Byte;
+begin
+  Teams := gHands.GetTeams;
+  NonTeamHands := [0..gHands.Count - 1];
+
+  //Get non team hands
+  for I := Low(Teams) to High(Teams) do
+    NonTeamHands := NonTeamHands - Teams[I];
+
+  RecreatePlayersToShow;
+  HandsUniqueColorsCnt := 0;
+
+  for I in NonTeamHands do
+    TryAddHand(I);
+
+  fTeamSeparatorsPos.Clear;
+  for I := Low(Teams) to High(Teams) do
+  begin
+    PlayersCntBeforeAdd := fPlayersToShow.Count;
+    for J in Teams[I] do
+      TryAddHand(J);
+    // Add separator position
+    if (PlayersCntBeforeAdd > 0)                            // Do not add separator at first pos
+      and (PlayersCntBeforeAdd < fPlayersToShow.Count) then // Do not separator if team is 'empty'
+      fTeamSeparatorsPos.Add(IntToStr(PlayersCntBeforeAdd));
+  end;
+end;
+
+
+procedure TKMMenuResultsMP.Refresh;
+var
+  I: Integer;
   BackCaption: String;
-  PlayersIdList: TStringList;
 begin
   //Back button has different captions depending on where it returns us to
   case fGameResultMsg of
@@ -655,21 +727,7 @@ begin
   //Append mission name and time after the result message
   Label_ResultsMP.Caption := fGameResultCaption + ' - ' + gGame.GameName + ' - ' + TimeToString(gGame.MissionTime);
 
-  //Collect same colors hands into pairs HandI -> StatsI, used to show StatsBars
-  fHandIdToStatsI.Clear;
-  for I := 0 to Min(MAX_LOBBY_PLAYERS, gHands.Count) - 1 do
-    if DoShowHandStats(I) then
-    begin
-      if DoAdjoinSameColorHand(I) then
-      begin
-        AddOrFindHandColor(I, gHands[I].FlagColor, OldI); //Same colored players are adjoined into 1
-        if OldI = -1 then
-          fHandIdToStatsI.AddPair(IntToStr(I), IntToStr(I))
-        else
-          fHandIdToStatsI.AddPair(IntToStr(I), IntToStr(OldI));
-      end else
-        fHandIdToStatsI.AddPair(IntToStr(I), IntToStr(I));
-    end;
+  RefreshPlayersToShow;
 
   RefreshBars;
   RefreshChartEconomy;
@@ -720,20 +778,19 @@ const
         7: Result := GetHousesDestroyed;
         8: Result := GetCivilProduced;
         9: Result := GetWarfareProduced;
+        else raise Exception.Create('Unknown stat id = ' + IntToStr(aStatId));
       end;
   end;
 
 var
-  I,J, K,Index: Integer;
+  I,J,K,HandId,Index: Integer;
   UnitsMax, HousesMax, WaresMax, WeaponsMax, MaxValue: Integer;
   StatValues: array[0..MAX_HANDS-1] of array [0..9] of Cardinal;
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
-  PlayersToShow: TStringList;
   StatValue: Cardinal;
+  SameColorHands: TStringList;
 begin
-  PlayersToShow := TStringList.Create;
-  PlayersToShow.Sorted := True;
   //Update visibility depending on players count (note, players may be sparsed)
   for I := 0 to MAX_LOBBY_PLAYERS - 1 do
   begin
@@ -742,32 +799,30 @@ begin
   end;
 
   Index := 0;
-  for I := 0 to Min(MAX_LOBBY_PLAYERS, gHands.Count) - 1 do
+  for I := 0 to fPlayersToShow.Count - 1 do
   begin
-    if DoShowHandStats(I) then
+    SameColorHands := TStringList(fPlayersToShow.Objects[I]);
+
+    for K := 0 to SameColorHands.Count - 1 do
     begin
-      K := StrToInt(fHandIdToStatsI.Values[IntToStr(I)]);
-
+      HandId := StrToInt(SameColorHands[K]);
       for J := 0 to 9 do
-        Inc(StatValues[K,J], GetStatValue(I,J));
-
-      //This hand is adjoined into one of the previous
-      if PlayersToShow.IndexOf(IntToStr(K)) <> -1 then Continue;
-
-      PlayersToShow.Add(IntToStr(K));
-
-      SetPlayerControls(Index, True); //Enable used ones
-      Label_ResultsPlayerName1[Index].Caption   := GetOwnerName(I);
-      Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(gHands[I].FlagColor);
-      Label_ResultsPlayerName2[Index].Caption   := GetOwnerName(I);
-      Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(gHands[I].FlagColor);
-      Inc(Index);
+        Inc(StatValues[StrToInt(SameColorHands[0]),J], GetStatValue(HandId,J)); // Adjoin data to 1st Hand in SameColorHands list
     end;
+
+    HandId := StrToInt(SameColorHands[0]); // Always fill from 1st HandId
+
+    SetPlayerControls(Index, True); //Enable used ones
+    Label_ResultsPlayerName1[Index].Caption   := GetOwnerName(HandId);
+    Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(gHands[HandId].FlagColor);
+    Label_ResultsPlayerName2[Index].Caption   := GetOwnerName(HandId);
+    Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(gHands[HandId].FlagColor);
+    Inc(Index);
   end;
 
   //Update positioning
-  Panel_BarsUpper.Height := 40 + PlayersToShow.Count * BAR_ROW_HEIGHT;
-  Panel_BarsLower.Height := 40 + PlayersToShow.Count * BAR_ROW_HEIGHT;
+  Panel_BarsUpper.Height := 40 + fPlayersToShow.Count * BAR_ROW_HEIGHT;
+  Panel_BarsLower.Height := 40 + fPlayersToShow.Count * BAR_ROW_HEIGHT;
 
   //Second panel does not move from the middle of the screen: results always go above and below the middle
   Panel_BarsUpper.Top := Panel_Bars.Height div 2 - Panel_BarsUpper.Height - 5;
@@ -782,9 +837,9 @@ begin
   FillChar(Totals, SizeOf(Totals), #0);
 
   //Calculate bests for each "section"
-  for I := 0 to PlayersToShow.Count - 1 do
+  for I := 0 to fPlayersToShow.Count - 1 do
   begin
-    K := StrToInt(PlayersToShow[I]);
+    K := StrToInt(TStringList(fPlayersToShow.Objects[I])[0]);
     for J := 0 to 9 do
     begin
       StatValue := StatValues[K,J];
@@ -800,12 +855,11 @@ begin
 
   //Fill in raw values
   Index := 0;
-  for I := 0 to PlayersToShow.Count - 1 do
+  for I := 0 to fPlayersToShow.Count - 1 do
   begin
-    K := StrToInt(PlayersToShow[I]);
+    K := StrToInt(TStringList(fPlayersToShow.Objects[I])[0]);
     for J := 0 to 9 do
     begin
-//      K := StrToInt(fHandIdToStatsI.Values[IntToStr(I)]);
       StatValue := StatValues[K,J];
       Bar_Results[Index,J].Tag := StatValue;
       if J in STATS_LOWER_IS_BETTER then
@@ -819,19 +873,19 @@ begin
 
   //Update percent bars for each category
   UnitsMax := 0;
-  for K := 0 to 4 do for I := 0 to PlayersToShow.Count - 1 do
+  for K := 0 to 4 do for I := 0 to fPlayersToShow.Count - 1 do
     UnitsMax := Max(Bar_Results[I,K].Tag, UnitsMax);
 
   HousesMax := 0;
-  for K := 5 to 7 do for I := 0 to PlayersToShow.Count - 1 do
+  for K := 5 to 7 do for I := 0 to fPlayersToShow.Count - 1 do
     HousesMax := Max(Bar_Results[I,K].Tag, HousesMax);
 
   WaresMax := 0;
-  for I := 0 to PlayersToShow.Count - 1 do
+  for I := 0 to fPlayersToShow.Count - 1 do
     WaresMax := Max(Bar_Results[I,8].Tag, WaresMax);
 
   WeaponsMax := 0;
-  for I := 0 to PlayersToShow.Count - 1 do
+  for I := 0 to fPlayersToShow.Count - 1 do
     WeaponsMax := Max(Bar_Results[I,9].Tag, WeaponsMax);
 
   //Knowing Max in each category we may fill bars properly
@@ -843,7 +897,7 @@ begin
       8:    MaxValue := WaresMax;
       else  MaxValue := WeaponsMax;
     end;
-    for I := 0 to PlayersToShow.Count - 1 do
+    for I := 0 to fPlayersToShow.Count - 1 do
     begin
       if MaxValue <> 0 then
         Bar_Results[I,K].Position := Bar_Results[I,K].Tag / MaxValue
@@ -852,36 +906,6 @@ begin
       Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');
     end;
   end;
-
-  PlayersToShow.Free;
-end;
-
-
-//Temp graphs are used to adjoin same colored AI opponents into one chart
-procedure TKMMenuResultsMP.AddToTempChart(const aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray; aTag: Integer = -1);
-var
-  I, ID: Integer;
-begin
-  ID := -1;
-  for I := 0 to fTempGraphCount - 1 do
-    if aColor = fTempGraphs[I].Color then
-    begin
-      ID := I;
-      Break;
-    end;
-  if ID = -1 then
-  begin
-    ID := fTempGraphCount;
-    Inc(fTempGraphCount);
-    fTempGraphs[ID].G := aGraph; //Overwrite existing graph
-  end
-  else
-    for I := 0 to Length(aGraph) - 1 do
-      Inc(fTempGraphs[ID].G[I], aGraph[I]); //Add each element to the existing elements
-
-  fTempGraphs[ID].Color := aColor;
-  fTempGraphs[ID].OwnerName := aOwnerName;
-  fTempGraphs[ID].Tag := aTag;
 end;
 
 
@@ -893,8 +917,9 @@ end;
 
 procedure TKMMenuResultsMP.RefreshChartEconomy;
 var
-  I, J, K: Integer;
+  I, J, HandId: Integer;
   PlayersList: TStringList;
+  ChartData: TKMCardinalArray;
 begin
   for I := 0 to MAX_HANDS - 1 do
   begin
@@ -906,49 +931,53 @@ begin
   Chart_MPHouses.Clear;
 
   Chart_MPCitizens.MaxLength := 0;
-  Chart_MPHouses.MaxLength   := 0;
   Chart_MPCitizens.MaxTime   := gGame.GameTickCount div 10;
-  Chart_MPHouses.MaxTime     := gGame.GameTickCount div 10;
   Chart_MPCitizens.Peacetime := 60*gGame.GameOptions.Peacetime;
-  Chart_MPHouses.Peacetime   := 60*gGame.GameOptions.Peacetime;
+  Chart_MPCitizens.SetSeparatorPositions(fTeamSeparatorsPos);
 
-  fTempGraphCount := 0; //Reset
-  for I := 0 to gHands.Count - 1 do
-//  for I := 0 to fPlayersToShow.Count - 1 do
+  Chart_MPHouses.MaxLength   := 0;
+  Chart_MPHouses.MaxTime     := gGame.GameTickCount div 10;
+  Chart_MPHouses.Peacetime   := 60*gGame.GameOptions.Peacetime;
+  Chart_MPHouses.SetSeparatorPositions(fTeamSeparatorsPos);
+
+
+  for I := 0 to fPlayersToShow.Count - 1 do
   begin
-//    PlayersList := TStringList(fPlayersToShow[I]);
-    if DoShowHandStats(I) then
+    SetLength(ChartData, 0);
+    PlayersList := TStringList(fPlayersToShow.Objects[I]);
+
+    for J := 0 to PlayersList.Count - 1 do
     begin
-      with gHands[I] do
-      begin
-        Chart_MPCitizens.MaxLength := Max(Chart_MPCitizens.MaxLength, Stats.ChartCount);
-        if DoAdjoinSameColorHand(I) then
-          AddToTempChart(GetOwnerName(I), FlagColor, Stats.ChartCitizens)
-        else
-          Chart_MPCitizens.AddLine(GetOwnerName(I), FlagColor, Stats.ChartCitizens);
-      end;
+      HandId := StrToInt(PlayersList[J]);
+      KMSummAndEnlargeArr(@ChartData, @gHands[HandId].Stats.ChartCitizens);
+    end;
+
+    HandId := StrToInt(PlayersList[0]);
+    with gHands[HandId] do
+    begin
+      Chart_MPCitizens.MaxLength := Max(Chart_MPCitizens.MaxLength, Stats.ChartCount);
+      Chart_MPCitizens.AddLine(GetOwnerName(HandId), FlagColor, ChartData);
     end;
   end;
 
-  if fShowAIResults then
-    for I := 0 to fTempGraphCount - 1 do
-      Chart_MPCitizens.AddLine(fTempGraphs[I].OwnerName, fTempGraphs[I].Color, fTempGraphs[I].G);
+  for I := 0 to fPlayersToShow.Count - 1 do
+  begin
+    SetLength(ChartData, 0);
+    PlayersList := TStringList(fPlayersToShow.Objects[I]);
 
-  fTempGraphCount := 0; //Reset
-  for I := 0 to gHands.Count - 1 do
-    if DoShowHandStats(I) then
-      with gHands[I] do
-      begin
-        Chart_MPHouses.MaxLength := Max(Chart_MPHouses.MaxLength, Stats.ChartCount);
-        if DoAdjoinSameColorHand(I) then
-          AddToTempChart(GetOwnerName(I), FlagColor, Stats.ChartHouses)
-        else
-          Chart_MPHouses.AddLine(GetOwnerName(I), FlagColor, Stats.ChartHouses);
-      end;
+    for J := 0 to PlayersList.Count - 1 do
+    begin
+      HandId := StrToInt(PlayersList[J]);
+      KMSummAndEnlargeArr(@ChartData, @gHands[HandId].Stats.ChartHouses);
+    end;
 
-  if fShowAIResults then
-    for I := 0 to fTempGraphCount - 1 do
-      Chart_MPHouses.AddLine(fTempGraphs[I].OwnerName, fTempGraphs[I].Color, fTempGraphs[I].G);
+    HandId := StrToInt(PlayersList[0]);
+    with gHands[HandId] do
+    begin
+      Chart_MPHouses.MaxLength := Max(Chart_MPHouses.MaxLength, Stats.ChartCount);
+      Chart_MPHouses.AddLine(GetOwnerName(HandId), FlagColor, ChartData);
+    end;
+  end;
 end;
 
 
@@ -963,8 +992,10 @@ const
     wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
     wt_Arbalet, wt_Horse,   wt_Fish);
 var
-  I,K,J: Integer;
+  I,K,J,HandId: Integer;
   R: TWareType;
+  PlayersList: TStringList;
+  ChartData, ChartWaresData: TKMCardinalArray;
 begin
   //Fill in chart values
   Columnbox_Wares.Clear;
@@ -991,24 +1022,29 @@ begin
     Chart_MPWares[R].MaxLength := 0;
     Chart_MPWares[R].MaxTime   := gGame.GameTickCount div 10;
     Chart_MPWares[R].Peacetime := 60*gGame.GameOptions.Peacetime;
+    Chart_MPWares[R].SetSeparatorPositions(fTeamSeparatorsPos);
     Chart_MPWares[R].Caption   := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + gRes.Wares[R].Title;
 
-    fTempGraphCount := 0;
-    for I := 0 to gHands.Count - 1 do
-      with gHands[I] do
-        if DoShowHandStats(I) then
-        begin
-          Chart_MPWares[R].MaxLength := Max(Chart_MPWares[R].MaxLength, Stats.ChartCount);
+    for I := 0 to fPlayersToShow.Count - 1 do
+    begin
+      SetLength(ChartData, 0);
+      PlayersList := TStringList(fPlayersToShow.Objects[I]);
 
-          if DoAdjoinSameColorHand(I) then
-            AddToTempChart(GetOwnerName(I), FlagColor, GetChartWares(I, R), I)
-          else
-            Chart_MPWares[R].AddLine(GetOwnerName(I), FlagColor, GetChartWares(I, R), I); //Do some postprocessing on stats (GDP, food value)
-        end;
+      for K := 0 to PlayersList.Count - 1 do
+      begin
+        HandId := StrToInt(PlayersList[K]);
+        ChartWaresData := GetChartWares(HandId, R);
+        KMSummAndEnlargeArr(@ChartData, @ChartWaresData);
+      end;
 
-    if fShowAIResults then
-      for I := 0 to fTempGraphCount - 1 do
-        Chart_MPWares[R].AddLine(fTempGraphs[I].OwnerName, fTempGraphs[I].Color, fTempGraphs[I].G, fTempGraphs[I].Tag);
+      HandId := StrToInt(PlayersList[0]);
+      with gHands[HandId] do
+      begin
+        Chart_MPWares[R].MaxLength := Max(Chart_MPWares[R].MaxLength, Stats.ChartCount);
+        //Do some postprocessing on stats (GDP, food value)
+        Chart_MPWares[R].AddLine(GetOwnerName(HandId), FlagColor, ChartData, I);
+      end;
+    end;
   end;
 
   Columnbox_Wares.ItemIndex := 0;
@@ -1021,10 +1057,13 @@ procedure TKMMenuResultsMP.RefreshChartArmy;
 const
   CHART_ARMY_CAPTION: array[TKMChartArmyKind] of String = ('Instantaneous','Total equipped','Defeated','Lost');
 var
-  I,K: Integer;
+  I,J, HandId: Integer;
+  PlayersList: TStringList;
+  ChartData, ChartArmyData: TKMCardinalArray;
   WType: TKMChartWarriorType;
   CKind: TKMChartArmyKind;
   Chart: PKMChart;
+  ChartArmy: PKMChartArmyMP;
 begin
   fNoArmyChartData := True;
   Radio_ChartArmyStyle.ItemIndex := 0;
@@ -1035,9 +1074,9 @@ begin
     //Fill columnbox rows for every CKind. We have to do it now, when gHands is not free'd yet
     for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
     begin
-      for K := 0 to gHands.Count - 1 do
-        if DoShowHandStats(K)
-          and ((WType = cwt_ArmyPower) or not Chart_MPArmy[CKind,WType].IsEmpty(K)) then // Always add ArmyPower chart, even if its empty
+      for J := 0 to gHands.Count - 1 do
+        if DoShowHandStats(J)
+          and ((WType = cwt_ArmyPower) or not Chart_MPArmy[CKind,WType].IsEmpty(J)) then // Always add ArmyPower chart, even if its empty
         begin
           fColumnBoxArmy_Rows[CKind, I] := WType;
           Inc(I);
@@ -1053,28 +1092,34 @@ begin
   for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
     for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
     begin
-      Chart := @Chart_MPArmy[CKind,WType].Chart;
+      ChartArmy := @Chart_MPArmy[CKind,WType];
+      Chart := @ChartArmy^.Chart;
       Chart^.Clear;
       Chart^.MaxLength := 0;
       Chart^.MaxTime := gGame.GameTickCount div 10;
       Chart^.Peacetime := 60*gGame.GameOptions.Peacetime;
-      Chart^.Caption := Chart_MPArmy[CKind,WType].ChartType.GUIName + ' - ' + CHART_ARMY_CAPTION[CKind]; // Todo translate
+      Chart^.SetSeparatorPositions(fTeamSeparatorsPos);
+      Chart^.Caption := ChartArmy^.ChartType.GUIName + ' - ' + CHART_ARMY_CAPTION[CKind]; // Todo translate
 
-      fTempGraphCount := 0;
-      for I := 0 to gHands.Count - 1 do
-        if DoShowHandStats(I) then
-          with gHands[I] do
-          begin
-            Chart^.MaxLength := Max(Chart^.MaxLength, Stats.ChartCount);
-            if DoAdjoinSameColorHand(I) then
-              AddToTempChart(GetOwnerName(I), FlagColor, Chart_MPArmy[CKind,WType].GetChartData(I), I)
-            else
-              Chart_MPArmy[CKind,WType].AddLine(I, GetOwnerName(I), FlagColor);
-          end;
+      for I := 0 to fPlayersToShow.Count - 1 do
+      begin
+        SetLength(ChartData, 0);
+        PlayersList := TStringList(fPlayersToShow.Objects[I]);
 
-      if fShowAIResults then
-        for I := 0 to fTempGraphCount - 1 do
-          Chart^.AddLine(fTempGraphs[I].OwnerName, fTempGraphs[I].Color, fTempGraphs[I].G, fTempGraphs[I].Tag);
+        for J := 0 to PlayersList.Count - 1 do
+        begin
+          HandId := StrToInt(PlayersList[J]);
+          ChartArmyData := ChartArmy^.GetChartData(HandId);
+          KMSummAndEnlargeArr(@ChartData, @ChartArmyData);
+        end;
+
+        HandId := StrToInt(PlayersList[0]);
+        with gHands[HandId] do
+        begin
+          Chart^.MaxLength := Max(Chart^.MaxLength, Stats.ChartCount);
+          Chart^.AddLine(GetOwnerName(HandId), FlagColor, ChartData, HandId);
+        end;
+      end;
 
       Chart^.TrimToFirstVariation; // Trim Army charts, as usually they are same before PeaceTime
     end;

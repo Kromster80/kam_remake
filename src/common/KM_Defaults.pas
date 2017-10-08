@@ -717,6 +717,7 @@ const
   icRed    = $FF0707FF;
   icCyan   = $FFFFFF00;
 
+  icTransparent = $00;
   icDarkGray = $FF606060;
   icDarkGrayTrans = $60606060;
   icDarkestGrayTrans = $80303030;
@@ -777,6 +778,7 @@ const
   clChartDashedVLn = icDarkGrayTrans;
   clChartPeacetimeLn = icDarkGoldenRod;
   clChartPeacetimeLbl = icGoldenYellow;
+  clChartSeparator = icTransparent;
 
   clChkboxOutline = icLightGrayTrans;
 
