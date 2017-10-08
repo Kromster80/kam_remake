@@ -235,6 +235,7 @@ uses
 
   KM_ServerQuery in 'src\net\KM_ServerQuery.pas',
   KM_Settings in 'src\KM_Settings.pas',
+	KM_SoftShadows in 'src\KM_SoftShadows.pas',
   KM_Sound in 'src\KM_Sound.pas',
 
   KM_Terrain in 'src\terrain\KM_Terrain.pas',

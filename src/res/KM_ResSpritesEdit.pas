@@ -29,8 +29,6 @@ type
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromFolder(const aFolder: string);
     procedure SaveToRXXFile(const aFileName: string);
-    procedure SoftenShadows(aStart:Integer=1; aEnd: Integer=-1; aOnlyShadows:Boolean=True); overload;
-    procedure SoftenShadows(aID:Integer; aOnlyShadows:Boolean=True); overload;
     function TrimSprites: Cardinal; //For debug
     procedure ClearTemp; override;
     procedure GetImageToBitmap(aIndex: Integer; aBmp, aMask: TBitmap);
@@ -338,36 +336,13 @@ end;
 
 //Release RAM that is no longer needed
 procedure TKMSpritePackEdit.ClearTemp;
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited;
 
   for I := 1 to fRXData.Count do
     SetLength(fRXData.Data[I], 0);
-end;
-
-
-//Make old style KaM checkerboard shadows smooth and transparent
-procedure TKMSpritePackEdit.SoftenShadows(aStart:Integer=1; aEnd: Integer=-1; aOnlyShadows:Boolean=True);
-var ShadowConverter: TKMSoftShadowConverter; I:Integer;
-begin
-  ShadowConverter := TKMSoftShadowConverter.Create(Self);
-  if aEnd = -1 then aEnd := fRXData.Count;
-  for I := aStart to aEnd do
-    if (fRXData.Flag[I] <> 0) then
-      ShadowConverter.ConvertShadows(I, aOnlyShadows);
-
-  ShadowConverter.Free;
-end;
-
-
-procedure TKMSpritePackEdit.SoftenShadows(aID:Integer; aOnlyShadows:Boolean=True);
-var ShadowConverter: TKMSoftShadowConverter;
-begin
-  ShadowConverter := TKMSoftShadowConverter.Create(Self);
-  if (fRXData.Flag[aID] <> 0) then
-    ShadowConverter.ConvertShadows(aID, aOnlyShadows);
-  ShadowConverter.Free;
 end;
 
 
