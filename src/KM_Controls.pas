@@ -5,7 +5,7 @@ uses
   Classes, Controls,
   KromOGLUtils,
   KM_RenderUI, KM_Pics, KM_Minimap, KM_Viewport, KM_ResFonts,
-  KM_CommonTypes, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
 type
@@ -1349,7 +1349,7 @@ type
     fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
     fMaxValue: Cardinal; //Maximum value (by vertical axis)
     fPeaceTime: Cardinal;
-    fSeparatorPositions: TStringList;
+    fSeparatorPositions: TXStringList;
     fSeparatorHeight: Byte;
     fSeparatorColor: TColor4;
     procedure UpdateMaxValue;
@@ -7070,7 +7070,7 @@ constructor TKMChart.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Int
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
-  fSeparatorPositions := TStringList.Create;
+  fSeparatorPositions := TXStringList.Create;
   fSeparatorPositions.Sorted := True; // Better we have separators sorted
 
   fFont := fnt_Outline;

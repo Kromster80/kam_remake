@@ -70,6 +70,12 @@ type
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
   TStreamIntEvent = procedure (aData: TKMemoryStream; aSenderIndex: ShortInt) of object;
 
+  //TXStringList using integer values, instead of its String represantation, when sorted
+  TXStringList = class(TStringList)
+  protected
+    function CompareStrings(const S1, S2: string): Integer; override;
+  end;
+
 
   //TKMList owns items and frees them when they are deleted from the list
   TKMList = class(TList)
@@ -158,6 +164,18 @@ implementation
 uses
   Math, KM_CommonUtils;
 
+{TXStringList}
+//List custom comparation, using Integer value, instead of its String represantation
+function TXStringList.CompareStrings(const S1, S2: string): Integer;
+var
+  i1, i2, e1, e2: Integer;
+begin
+  Val(S1, i1, e1);
+  Assert((e1 = 0) or (S1[e1] = NameValueSeparator));
+  Val(S2, i2, e2);
+  Assert((e2 = 0) or (S2[e2] = NameValueSeparator));
+  Result := CompareValue(i1, i2);
+end;
 
 { ELocError }
 constructor ELocError.Create(const aMsg: UnicodeString; aLoc: TKMPoint);
