@@ -71,7 +71,7 @@ type
 
     procedure ExportTreeAnim;
     procedure ExportHouseAnim;
-    procedure ExportUnitAnim;
+    procedure ExportUnitAnim(aUnitFrom, aUnitTo: TUnitType; aExportUnused: Boolean = False);
   end;
 
 
@@ -81,7 +81,7 @@ var
 
 implementation
 uses
-  KromUtils, KM_Log, KM_Points, KM_ResTexts, KM_ResKeys;
+  TypInfo, KromUtils, KM_Log, KM_Points, KM_ResTexts, KM_ResKeys;
 
 
 { TKMResource }
@@ -152,9 +152,12 @@ begin
   fPalettes.LoadDefaultPalette(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 
+
   fSprites := TKMResSprites.Create(StepRefresh, StepCaption);
 
   fCursors := TKMResCursors.Create;
+
+  fUnits := TKMResUnits.Create; // Load units prior to Sprites, as we could use it on SoftenShadows override for png in Sprites folder
   fSprites.LoadMenuResources;
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmc_Default;
@@ -182,7 +185,6 @@ begin
 
   fWares := TKMResWares.Create;
   fHouses := TKMResHouses.Create;
-  fUnits := TKMResUnits.Create;
 
   StepRefresh;
   gLog.AddTime('ReadGFX is done');
@@ -240,13 +242,14 @@ begin
 end;
 
 
+
 //Export Units graphics categorized by Unit and Action
-procedure TKMResource.ExportUnitAnim;
+procedure TKMResource.ExportUnitAnim(aUnitFrom, aUnitTo: TUnitType; aExportUnused: Boolean = False);
 var
-  Folder: string;
-  Bmp: TBitmap;
+  FullFolder,Folder: string;
   U: TUnitType;
   A: TUnitActionType;
+  Anim: TKMAnimLoop;
   D: TKMDirection;
   R: TWareType;
   T: TKMUnitThought;
@@ -254,162 +257,168 @@ var
   sy,sx,y,x:integer;
   Used:array of Boolean;
   RXData: TRXData;
+  SpritePack: TKMSpritePack;
+  SList: TStringList;
+  FolderCreated: Boolean;
 begin
   fSprites.LoadSprites(rxUnits, False); //BMP can't show alpha shadows anyways
-  RXData := fSprites[rxUnits].RXData;
+  SpritePack := fSprites[rxUnits];
+  RXData := SpritePack.RXData;
 
-  Folder := ExeDir + 'Export'+PathDelim+'UnitAnim'+PathDelim;
+  Folder := ExeDir + 'Export' + PathDelim + 'UnitAnim' + PathDelim;
   ForceDirectories(Folder);
 
-  Bmp := TBitmap.Create;
-  Bmp.PixelFormat := pf24bit;
+  SList := TStringList.Create;
+  try
+    if fUnits = nil then
+      fUnits := TKMResUnits.Create;
 
-  if fUnits = nil then
-    fUnits := TKMResUnits.Create;
+    for U := aUnitFrom to aUnitTo do
+      for A := Low(TUnitActionType) to High(TUnitActionType) do
+      begin
+        FolderCreated := False;
+        for D := dir_N to dir_NW do
+          if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
+            for i := 1 to fUnits[U].UnitAnim[A, D].Count do
+            begin
+              ci := fUnits[U].UnitAnim[A,D].Step[i] + 1;
+              if ci <> 0 then
+              begin
+                if not FolderCreated then
+                begin
+                  //Use default locale for Unit GUIName, as translation could be not good for file system (like russian 'Крестьянин/Винодел' with slash in it)
+                  FullFolder := Folder + gResTexts.DefaultTexts[fUnits[U].GUITextID] + PathDelim + UnitAct[A] + PathDelim;
+                  ForceDirectories(FullFolder);
+                  FolderCreated := True;
+                end;
+                SpritePack.ExportFullImageData(FullFolder, ci, SList);
+              end;
+            end;
+      end;
 
-  for U := WARRIOR_MIN to WARRIOR_MAX do
-  for A := Low(TUnitActionType) to High(TUnitActionType) do
-  for D := dir_N to dir_NW do
-  if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
-  for i := 1 to fUnits[U].UnitAnim[A, D].Count do
-  begin
-    ForceDirectories(Folder + fUnits[U].GUIName + PathDelim + UnitAct[A] + PathDelim);
+    SetLength(Used, Length(RXData.Size));
 
-    if fUnits[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
-    begin
-      ci := fUnits[U].UnitAnim[A,D].Step[i] + 1;
+    //Exclude actions
+    for U := Low(TUnitType) to High(TUnitType) do
+      for A := Low(TUnitActionType) to High(TUnitActionType) do
+        for D := dir_N to dir_NW do
+          if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
+          for i := 1 to fUnits[U].UnitAnim[A,D].Count do
+          begin
+            ci := fUnits[U].UnitAnim[A,D].Step[i]+1;
+            Used[ci] := ci <> 0;
+          end;
 
-      sx := RXData.Size[ci].X;
-      sy := RXData.Size[ci].Y;
-      Bmp.Width := sx;
-      Bmp.Height := sy;
+    if ut_Serf in [aUnitFrom..aUnitTo] then
+      //serfs carrying stuff
+      for R := WARE_MIN to WARE_MAX do
+      begin
+        FolderCreated := False;
+        for D := dir_N to dir_NW do
+        begin
+          Anim := fUnits.SerfCarry[R, D];
+          for i := 1 to Anim.Count do
+          begin
+            ci := Anim.Step[i]+1;
+            if ci <> 0 then
+            begin
+              Used[ci] := True;
+              if ut_Serf in [aUnitFrom..aUnitTo] then
+              begin
+                if not FolderCreated then
+                begin
+                  //Use default locale for Unit GUIName, as translation could be not good for file system (like russian 'Крестьянин/Винодел' with slash in it)
+                  FullFolder := Folder + gResTexts.DefaultTexts[fUnits[ut_Serf].GUITextID] + PathDelim + 'Delivery' + PathDelim
+                                  + GetEnumName(TypeInfo(TWareType), Integer(R)) + PathDelim;
+                  ForceDirectories(FullFolder);
+                  FolderCreated := True;
+                end;
+                SpritePack.ExportFullImageData(FullFolder, ci, SList);
+              end;
+            end;
+          end;
+        end;
+      end;
 
-      for y:=0 to sy-1 do
-      for x:=0 to sx-1 do
-        Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
+    FullFolder := Folder + 'Thoughts' + PathDelim;
+    ForceDirectories(FullFolder);
+    for T := th_Eat to High(TKMUnitThought) do
+      for I := ThoughtBounds[T,1] to  ThoughtBounds[T,2] do
+      begin
+        SpritePack.ExportFullImageData(FullFolder, I+1, SList);
+        Used[I+1] := True;
+      end;
 
-      if sy > 0 then
-        Bmp.SaveToFile(Folder +
-          fUnits[U].GUIName + PathDelim + UnitAct[A] + PathDelim +
-          'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
-    end;
+    if not aExportUnused then Exit;
+
+    FullFolder := Folder + '_Unused' + PathDelim;
+    ForceDirectories(FullFolder);
+
+    for ci := 1 to length(Used)-1 do
+      if not Used[ci] then
+        SpritePack.ExportFullImageData(FullFolder, ci, SList);
+  finally
+    fSprites.ClearTemp;
+    SList.Free;
   end;
-
-  CreateDir(Folder + '_Unused');
-  SetLength(Used, Length(RXData.Size));
-
-  //Exclude actions
-  for U := Low(TUnitType) to High(TUnitType) do
-  for A := Low(TUnitActionType) to High(TUnitActionType) do
-  for D := dir_N to dir_NW do
-  if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
-  for i := 1 to fUnits[U].UnitAnim[A,D].Count do
-    Used[fUnits[U].UnitAnim[A,D].Step[i]+1] := fUnits[U].UnitAnim[A,D].Step[i]+1 <> 0;
-
-  //Exclude serfs carrying stuff
-  for R := Low(TWareType) to High(TWareType) do
-  if R in [WARE_MIN..WARE_MAX] then
-  for D := dir_N to dir_NW do
-  if fUnits.SerfCarry[R,D].Step[1] <> -1 then
-  for i := 1 to fUnits.SerfCarry[R,D].Count do
-    Used[fUnits.SerfCarry[R,D].Step[i]+1] := fUnits.SerfCarry[R,D].Step[i]+1 <> 0;
-
-  for T := Low(TKMUnitThought) to High(TKMUnitThought) do
-  for i := ThoughtBounds[T,1] to  ThoughtBounds[T,2] do
-    Used[I+1] := True;
-
-  for ci:=1 to length(Used)-1 do
-  if not Used[ci] then
-  begin
-    sx := RXData.Size[ci].X;
-    sy := RXData.Size[ci].Y;
-    Bmp.Width := sx;
-    Bmp.Height := sy;
-
-    for y:=0 to sy-1 do for x:=0 to sx-1 do
-      Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
-
-    if sy>0 then Bmp.SaveToFile(Folder + '_Unused'+PathDelim+'_'+int2fix(ci,4) + '.bmp');
-  end;
-
-  fSprites.ClearTemp;
-  Bmp.Free;
 end;
 
 
 //Export Houses graphics categorized by House and Action
 procedure TKMResource.ExportHouseAnim;
 var
-  Folder: string;
-  Bmp: TBitmap;
+  FullFolder,Folder: string;
   HD: TKMResHouses;
   ID: THouseType;
   Ac: THouseActionType;
-  Q, Beast, i, k, ci: Integer;
-  sy, sx, y, x: Integer;
+  Q, Beast, I, K, ci: Integer;
   RXData: TRXData;
+  SpritePack: TKMSpritePack;
+  SList: TStringList;
 begin
   fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
-  RXData := fSprites[rxHouses].RXData;
+  SpritePack := fSprites[rxHouses];
+  RXData := SpritePack.RXData;
+  SList := TStringList.Create;
 
-  Folder := ExeDir + 'Export'+PathDelim+'HouseAnim'+PathDelim;
+  Folder := ExeDir + 'Export' + PathDelim + 'HouseAnim' + PathDelim;
   ForceDirectories(Folder);
-
-  Bmp := TBitmap.Create;
-  Bmp.PixelFormat := pf24bit;
 
   HD := TKMResHouses.Create;
 
-  ci:=0;
   for ID := HOUSE_MIN to HOUSE_MAX do
-    for Ac:=ha_Work1 to ha_Flag3 do
-      for k:=1 to HD[ID].Anim[Ac].Count do
+    for Ac := ha_Work1 to ha_Flag3 do
+      for K := 1 to HD[ID].Anim[Ac].Count do
       begin
-        ForceDirectories(Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+PathDelim);
-        if HD[ID].Anim[Ac].Step[k] <> -1 then
-          ci := HD[ID].Anim[Ac].Step[k]+1;
-
-        sx := RXData.Size[ci].X;
-        sy := RXData.Size[ci].Y;
-        Bmp.Width:=sx;
-        Bmp.Height:=sy;
-
-        for y:=0 to sy-1 do for x:=0 to sx-1 do
-          Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
-
-        if sy>0 then Bmp.SaveToFile(
-        Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+PathDelim+'_'+int2fix(k,2)+'.bmp');
+        FullFolder := Folder + HD[ID].HouseName + PathDelim + HouseAction[Ac] + PathDelim;
+        ForceDirectories(FullFolder);
+        ci := HD[ID].Anim[Ac].Step[K] + 1;
+        if ci <> 0 then
+          SpritePack.ExportFullImageData(FullFolder, ci, SList);
       end;
 
-  ci:=0;
-  for Q:=1 to 2 do
+  for Q := 1 to 2 do
   begin
-    if Q=1 then ID:=ht_Swine
-           else ID:=ht_Stables;
-    CreateDir(Folder+'_'+HD[ID].HouseName+PathDelim);
-    for Beast:=1 to 5 do
-      for i:=1 to 3 do
-        for k:=1 to HD.BeastAnim[ID,Beast,i].Count do
+    if Q = 1 then
+      ID := ht_Swine
+    else
+      ID := ht_Stables;
+    ForceDirectories(Folder + '_' + HD[ID].HouseName+PathDelim);
+    for Beast := 1 to 5 do
+      for I := 1 to 3 do
+        for K := 1 to HD.BeastAnim[ID,Beast,I].Count do
         begin
-          CreateDir(Folder+'_'+HD[ID].HouseName+PathDelim+int2fix(Beast,2)+PathDelim);
-          if HD.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
-            ci := HD.BeastAnim[ID,Beast,i].Step[k]+1;
-
-          sx:=RXData.Size[ci].X;
-          sy:=RXData.Size[ci].Y;
-          Bmp.Width:=sx;
-          Bmp.Height:=sy;
-
-          for y:=0 to sy-1 do for x:=0 to sx-1 do
-            Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
-
-          if sy>0 then Bmp.SaveToFile(Folder+'_'+HD[ID].HouseName+PathDelim+int2fix(Beast,2)+PathDelim+'_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
+          FullFolder := Folder + HD[ID].HouseName + PathDelim + 'Beast' + PathDelim + int2fix(Beast,2) + PathDelim;
+          ForceDirectories(FullFolder);
+          ci := HD.BeastAnim[ID,Beast,I].Step[K]+1;
+          if ci <> 0 then
+            SpritePack.ExportFullImageData(FullFolder, ci, SList);
         end;
   end;
 
   HD.Free;
   fSprites.ClearTemp;
-  Bmp.Free;
+  SList.Free;
 end;
 
 
@@ -417,47 +426,43 @@ end;
 procedure TKMResource.ExportTreeAnim;
 var
   RXData: TRXData;
-  Folder: string;
-  Bmp: TBitmap;
-  I, K, L, M: Integer;
+  FullFolder, Folder: string;
+  I, K: Integer;
+
   SpriteID: Integer;
-  SizeY,SizeX: Integer;
+  SpritePack: TKMSpritePack;
+  SList: TStringList;
 begin
   fSprites.LoadSprites(rxTrees, False);
-  RXData := fSprites[rxTrees].RXData;
+  SpritePack := fSprites[rxTrees];
+  RXData := SpritePack.RXData;
 
-  Folder := ExeDir + 'Export'+PathDelim+'TreeAnim'+PathDelim;
+  Folder := ExeDir + 'Export' + PathDelim + 'TreeAnim' + PathDelim;
   ForceDirectories(Folder);
 
-  Bmp := TBitmap.Create;
-  Bmp.PixelFormat := pf24bit;
+  SList := TStringList.Create;
 
   for I := 0 to fMapElements.Count - 1 do
   if (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0) then
   begin
     for K := 1 to gMapElements[I].Anim.Count do
-    if gMapElements[I].Anim.Step[K]+1 <> 0 then
     begin
-      SpriteID := gMapElements[I].Anim.Step[K]+1;
-
-      SizeX := RXData.Size[SpriteID].X;
-      SizeY := RXData.Size[SpriteID].Y;
-      Bmp.Width := SizeX;
-      Bmp.Height := SizeY;
-
-      for L := 0 to SizeY - 1 do
-      for M := 0 to SizeX - 1 do
-        Bmp.Canvas.Pixels[M,L] := RXData.RGBA[SpriteID, L * SizeX + M] and $FFFFFF;
-
-      //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
-      //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
-      if SizeX * SizeY > 0 then
-        Bmp.SaveToFile(Folder + Format('%.3d_%.2d(%.2d)', [I, K, SpriteID]) + '.bmp');
+      SpriteID := gMapElements[I].Anim.Step[K] + 1;
+      if SpriteID <> 0 then
+      begin
+        if gMapElements[I].Anim.Count > 1 then
+        begin
+          FullFolder := Folder + IntToStr(I) + PathDelim;
+          ForceDirectories(FullFolder);
+        end else
+          FullFolder := Folder;
+        SpritePack.ExportFullImageData(FullFolder, SpriteID, SList);
+      end;
     end;
   end;
 
   fSprites.ClearTemp;
-  Bmp.Free;
+  SList.Free;
 end;
 
 

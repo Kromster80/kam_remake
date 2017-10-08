@@ -85,6 +85,10 @@ type
     chkLogsShowInChat: TCheckBox;
     chkUIControlsID: TCheckBox;
     ShowLogistics: TMenuItem;
+    UnitAnim_All: TMenuItem;
+    N3: TMenuItem;
+    Soldiers: TMenuItem;
+    Civilians1: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -107,7 +111,6 @@ type
     procedure Export_TilesetClick(Sender: TObject);
     procedure Export_Sounds1Click(Sender: TObject);
     procedure Export_HouseAnim1Click(Sender: TObject);
-    procedure Export_UnitAnim1Click(Sender: TObject);
     procedure Export_Fonts1Click(Sender: TObject);
     procedure Export_DeliverLists1Click(Sender: TObject);
     procedure Button_StopClick(Sender: TObject);
@@ -129,6 +132,9 @@ type
     procedure RenderAreaResize(aWidth, aHeight: Integer);
     procedure RenderAreaRender(aSender: TObject);
     procedure ShowLogisticsClick(Sender: TObject);
+    procedure UnitAnim_AllClick(Sender: TObject);
+    procedure SoldiersClick(Sender: TObject);
+    procedure Civilians1Click(Sender: TObject);
   private
     fUpdating: Boolean;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
@@ -416,10 +422,6 @@ begin
   gRes.ExportHouseAnim;
 end;
 
-procedure TFormMain.Export_UnitAnim1Click(Sender: TObject);
-begin
-  gRes.ExportUnitAnim;
-end;
 
 procedure TFormMain.HousesDat1Click(Sender: TObject);
 begin
@@ -465,6 +467,12 @@ begin
 end;
 
 
+procedure TFormMain.SoldiersClick(Sender: TObject);
+begin
+  gRes.ExportUnitAnim(WARRIOR_MIN, WARRIOR_MAX);
+end;
+
+
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
@@ -489,6 +497,12 @@ end;
 
 
 //Revert all controls to defaults (e.g. before MP session)
+procedure TFormMain.Civilians1Click(Sender: TObject);
+begin
+  gRes.ExportUnitAnim(CITIZEN_MIN, CITIZEN_MAX);
+end;
+
+
 procedure TFormMain.ControlsReset;
   procedure ResetGroupBox(aBox: TGroupBox);
   var
@@ -682,6 +696,12 @@ begin
 
   //Make sure Panel is properly aligned
   RenderArea.Align := alClient;
+end;
+
+
+procedure TFormMain.UnitAnim_AllClick(Sender: TObject);
+begin
+  gRes.ExportUnitAnim(UNIT_MIN, UNIT_MAX, True);
 end;
 
 

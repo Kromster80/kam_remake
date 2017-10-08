@@ -563,7 +563,21 @@ object FormMain: TFormMain
       end
       object Export_UnitAnim1: TMenuItem
         Caption = 'Unit Anim'
-        OnClick = Export_UnitAnim1Click
+        object UnitAnim_All: TMenuItem
+          Caption = 'All'
+          OnClick = UnitAnim_AllClick
+        end
+        object N3: TMenuItem
+          Caption = '-'
+        end
+        object Soldiers: TMenuItem
+          Caption = 'Soldiers'
+          OnClick = SoldiersClick
+        end
+        object Civilians1: TMenuItem
+          Caption = 'Civilians'
+          OnClick = Civilians1Click
+        end
       end
       object N2: TMenuItem
         Caption = '-'

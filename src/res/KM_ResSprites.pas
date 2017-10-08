@@ -84,6 +84,7 @@ type
     function GetSpriteColors(aCount: Byte): TRGBArray;
 
     procedure ExportAll(const aFolder: string);
+    procedure ExportFullImageData(const aFolder: string; aIndex: Integer; aTempList: TStringList = nil);
     procedure ExportImage(const aFile: string; aIndex: Integer);
     procedure ExportMask(const aFile: string; aIndex: Integer);
 
@@ -216,9 +217,7 @@ end;
 
 function TKMSpritePack.GetSoftenShadowType(aID: Integer): TSoftenShadowType;
 var
-  resUnits: TKMResUnits;
   Step, SpriteID: Integer;
-  RXName: string;
   UT: TUnitType;
   Dir: TKMDirection;
 begin
@@ -241,7 +240,7 @@ begin
                   for Dir := dir_N to dir_NW do
                     for Step := 1 to 30 do
                     begin
-                      SpriteID := resUnits[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
+                      SpriteID := gRes.Units[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
                       if (aID = SpriteID) and (SpriteID > 0) then
                       begin
                         Result := sstBoth;
@@ -273,6 +272,7 @@ begin
     begin
       ID := StrToInt(aIdList[I]);
       if (fRXData.Flag[ID] <> 0) then
+      begin
         SoftenShadowType := GetSoftenShadowType(ID);
         case SoftenShadowType of
           sstNone: ;
@@ -282,6 +282,7 @@ begin
                             ShadowConverter.ConvertShadows(ID, True);
                           end;
         end;
+      end;
     end;
   finally
     ShadowConverter.Free;
@@ -560,21 +561,39 @@ begin
   SL := TStringList.Create;
 
   for I := 1 to fRXData.Count do
-  if fRXData.Flag[I] = 1 then
-  begin
-    ExportImage(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, I]), I);
-
-    if fRXData.HasMask[I] then
-      ExportMask(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, I]), I);
-
-    //Export pivot
-    SL.Clear;
-    SL.Append(IntToStr(fRXData.Pivot[I].x));
-    SL.Append(IntToStr(fRXData.Pivot[I].y));
-    SL.SaveToFile(aFolder + Format('%d_%.4d.txt', [Byte(fRT)+1, I]));
-  end;
+    ExportFullImageData(aFolder, I, SL);
 
   SL.Free;
+end;
+
+
+procedure TKMSpritePack.ExportFullImageData(const aFolder: string; aIndex: Integer; aTempList: TStringList = nil);
+var
+  ListCreated: Boolean;
+begin
+  ListCreated := False;
+  if aTempList = nil then
+  begin
+    aTempList := TStringList.Create;
+    ListCreated := True;
+  end;
+
+  if fRXData.Flag[aIndex] = 1 then
+  begin
+    ExportImage(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, aIndex]), aIndex);
+
+    if fRXData.HasMask[aIndex] then
+      ExportMask(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, aIndex]), aIndex);
+
+    //Export pivot
+    aTempList.Clear;
+    aTempList.Append(IntToStr(fRXData.Pivot[aIndex].x));
+    aTempList.Append(IntToStr(fRXData.Pivot[aIndex].y));
+    aTempList.SaveToFile(aFolder + Format('%d_%.4d.txt', [Byte(fRT)+1, aIndex]));
+  end;
+
+  if ListCreated then
+    aTempList.Free;
 end;
 
 
