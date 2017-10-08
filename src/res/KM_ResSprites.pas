@@ -49,6 +49,8 @@ type
   end;
   PRXData = ^TRXData;
 
+  TSoftenShadowType = (sstNone, sstOnlyShadow, sstBoth);
+
   TTGameResourceLoader = class;
 
   //Base class for Sprite loading
@@ -73,6 +75,11 @@ type
     procedure OverloadFromFolder(const aFolder: string);
     procedure MakeGFX(aAlphaShadows: Boolean; aStartingIndex: Integer = 1; aFillGFXData: Boolean = True; aOnStopExecution: TBooleanFuncSimple = nil);
     procedure DeleteSpriteTexture(aIndex: Integer);
+
+    function GetSoftenShadowType(aID: Integer): TSoftenShadowType;
+    procedure SoftenShadows(aIdList: TStringList); overload;
+    procedure SoftenShadows(aStart: Integer = 1; aEnd: Integer = -1; aOnlyShadows: Boolean = True); overload;
+    procedure SoftenShadows(aID: Integer; aOnlyShadows: Boolean = True); overload;
 
     function GetSpriteColors(aCount: Byte): TRGBArray;
 
@@ -156,7 +163,9 @@ var
 
 implementation
 uses
-  KromUtils, KM_Log, KM_BinPacking, KM_CommonUtils;
+  KromUtils,
+  KM_SoftShadows, KM_Resource, KM_ResUnits,
+  KM_Log, KM_BinPacking, KM_CommonUtils, KM_Points;
 
 type
   TSpriteAtlasType = (saBase, saMask);
@@ -202,6 +211,113 @@ begin
 
   GFXData[fRT, aIndex].Tex.ID := 0;
   GFXData[fRT, aIndex].Alt.ID := 0;
+end;
+
+
+function TKMSpritePack.GetSoftenShadowType(aID: Integer): TSoftenShadowType;
+var
+  resUnits: TKMResUnits;
+  Step, SpriteID: Integer;
+  RXName: string;
+  UT: TUnitType;
+  Dir: TKMDirection;
+begin
+  Result := sstNone;
+
+  case fRT of
+    rxHouses: if InRange(aID, 889, 892)            //Smooth smoke
+                or InRange(aID, 1615, 1638) then   //Smooth flame
+                Result := sstBoth
+              else
+                Result := sstOnlyShadow;
+    rxUnits:  begin
+                if InRange(aID, 6251, 6314) then     //Smooth thought bubbles
+                begin
+                  Result := sstBoth;
+                  Exit;
+                end;
+                //Smooth all death animations for all units
+                for UT := HUMANS_MIN to HUMANS_MAX do
+                  for Dir := dir_N to dir_NW do
+                    for Step := 1 to 30 do
+                    begin
+                      SpriteID := resUnits[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
+                      if (aID = SpriteID) and (SpriteID > 0) then
+                      begin
+                        Result := sstBoth;
+                        Exit;
+                      end;
+                    end;
+                if Result = sstNone then
+                  Result := sstOnlyShadow;
+              end;
+    rxTrees:  Result := sstOnlyShadow;
+    rxGui:    if InRange(aID, 105, 128)         //Field plans
+                or InRange(aID, 249, 281)       //House tablets only (shadow softening messes up other rxGui sprites)
+                or InRange(aID, 461, 468)       //Field fences
+                or InRange(aID, 660, 660) then  //Woodcutter cutting point sign
+                Result := sstOnlyShadow;
+  end;
+end;
+
+
+procedure TKMSpritePack.SoftenShadows(aIdList: TStringList);
+var
+  I, ID: Integer;
+  ShadowConverter: TKMSoftShadowConverter;
+  SoftenShadowType: TSoftenShadowType;
+begin
+  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  try
+    for I := 0 to aIdList.Count - 1 do
+    begin
+      ID := StrToInt(aIdList[I]);
+      if (fRXData.Flag[ID] <> 0) then
+        SoftenShadowType := GetSoftenShadowType(ID);
+        case SoftenShadowType of
+          sstNone: ;
+          sstOnlyShadow:  ShadowConverter.ConvertShadows(ID, True);
+          sstBoth:        begin
+                            ShadowConverter.ConvertShadows(ID, False);
+                            ShadowConverter.ConvertShadows(ID, True);
+                          end;
+        end;
+    end;
+  finally
+    ShadowConverter.Free;
+  end;
+end;
+
+
+//Make old style KaM checkerboard shadows smooth and transparent
+procedure TKMSpritePack.SoftenShadows(aStart: Integer = 1; aEnd: Integer = -1; aOnlyShadows: Boolean = True);
+var
+  I: Integer;
+  ShadowConverter: TKMSoftShadowConverter;
+begin
+  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  try
+    if aEnd = -1 then aEnd := fRXData.Count;
+    for I := aStart to aEnd do
+      if (fRXData.Flag[I] <> 0) then
+        ShadowConverter.ConvertShadows(I, aOnlyShadows);
+  finally
+    ShadowConverter.Free;
+  end;
+end;
+
+
+procedure TKMSpritePack.SoftenShadows(aID: Integer; aOnlyShadows: Boolean = True);
+var
+  ShadowConverter: TKMSoftShadowConverter;
+begin
+  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  try
+    if (fRXData.Flag[aID] <> 0) then
+      ShadowConverter.ConvertShadows(aID, aOnlyShadows);
+  finally
+    ShadowConverter.Free;
+  end;
 end;
 
 
@@ -385,12 +501,13 @@ end;
 procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
   procedure ProcessFolder(const aProcFolder: string);
   var
-    FileList: TStringList;
+    FileList, IDList: TStringList;
     SearchRec: TSearchRec;
     I, ID: Integer;
   begin
     if not DirectoryExists(aFolder) then Exit;
     FileList := TStringList.Create;
+    IDList := TStringList.Create;
     try
       //PNGs
       if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec) = 0 then
@@ -405,7 +522,12 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
       //#_####.txt - Pivot info (optional)
       for I := 0 to FileList.Count - 1 do
         if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
+        begin
           AddImage(aProcFolder, FileList.Strings[I], ID);
+          IDList.Add(IntToStr(ID));
+        end;
+
+      SoftenShadows(IDList); // Soften shadows for overloaded sprites
 
       //Delete following sprites
       if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, SearchRec) = 0 then
@@ -416,6 +538,7 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
       FindClose(SearchRec);
     finally
       FileList.Free;
+      IDList.Free;
     end;
   end;
 begin
