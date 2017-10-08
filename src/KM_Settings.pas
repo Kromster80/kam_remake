@@ -391,7 +391,7 @@ begin
 end;
 
 
-procedure TMainSettings.SaveSettings(aForce: boolean);
+procedure TMainSettings.SaveSettings(aForce: Boolean);
 begin
   if fNeedsSave or aForce or fWindowParams.IsChanged then
     SaveToINI(ExeDir + SETTINGS_FILE);
@@ -428,7 +428,7 @@ end;
 
 
 //Save only when needed
-procedure TGameSettings.SaveSettings(aForce: Boolean=False);
+procedure TGameSettings.SaveSettings(aForce: Boolean = False);
 begin
   if fNeedsSave or fWareDistribution.Changed or aForce then
     SaveToINI(ExeDir + SETTINGS_FILE);

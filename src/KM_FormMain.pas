@@ -89,6 +89,9 @@ type
     N3: TMenuItem;
     Soldiers: TMenuItem;
     Civilians1: TMenuItem;
+    SaveSettings: TMenuItem;
+    N4: TMenuItem;
+    ReloadSettings: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -135,6 +138,8 @@ type
     procedure UnitAnim_AllClick(Sender: TObject);
     procedure SoldiersClick(Sender: TObject);
     procedure Civilians1Click(Sender: TObject);
+    procedure ReloadSettingsClick(Sender: TObject);
+    procedure SaveSettingsClick(Sender: TObject);
   private
     fUpdating: Boolean;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
@@ -261,6 +266,13 @@ begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
 
   FormKeyUpProc(Key, Shift);
+end;
+
+
+procedure TFormMain.ReloadSettingsClick(Sender: TObject);
+begin
+  gMain.Settings.ReloadSettings;
+  gGameApp.GameSettings.ReloadSettings;
 end;
 
 
@@ -458,6 +470,12 @@ begin
     gMySpectator.HandIndex := RGPlayer.ItemIndex;
 end;
 
+
+procedure TFormMain.SaveSettingsClick(Sender: TObject);
+begin
+  gMain.Settings.SaveSettings(True);
+  gGameApp.GameSettings.SaveSettings(True);
+end;
 
 procedure TFormMain.ShowLogisticsClick(Sender: TObject);
 begin

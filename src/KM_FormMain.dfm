@@ -469,6 +469,17 @@ object FormMain: TFormMain
         Caption = 'Edit mission...'
         OnClick = MenuItem1Click
       end
+      object N4: TMenuItem
+        Caption = '-'
+      end
+      object ReloadSettings: TMenuItem
+        Caption = 'Reload settings.ini'
+        OnClick = ReloadSettingsClick
+      end
+      object SaveSettings: TMenuItem
+        Caption = 'Save settings.ini'
+        OnClick = SaveSettingsClick
+      end
       object N1: TMenuItem
         Caption = '-'
       end
