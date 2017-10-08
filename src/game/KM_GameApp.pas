@@ -441,8 +441,10 @@ begin
     gr_Cancel,
     gr_ReplayEnd:   if (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti]) or MP_RESULTS_IN_SP then
                       fMainMenuInterface.ShowResultsMP(aMsg)
-                    else
+                    else begin
+                      fMainMenuInterface.ShowResultsMP(aMsg); // Show MP stats too, as we can show them from SP stats page
                       fMainMenuInterface.ShowResultsSP(aMsg);
+                    end;
     gr_Error,
     gr_Disconnect:  begin
                       if gGame.IsMultiplayer then

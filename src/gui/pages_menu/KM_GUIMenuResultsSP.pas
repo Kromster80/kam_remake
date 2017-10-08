@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMMenuResultsSP = class
+  TKMMenuResultsSP = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
@@ -27,11 +27,14 @@ type
     fRepeatLocation: Byte;
     fRepeatColor: Cardinal;
 
+    fIsStatsRefreshed: Boolean;
+
     procedure Create_Results(aParent: TKMPanel);
     procedure Refresh;
 
     procedure GraphToggle(Sender: TObject);
 
+    procedure MoreStatsClick(Sender: TObject);
     procedure BackClick(Sender: TObject);
     procedure ContinueClick(Sender: TObject);
     procedure RepeatClick(Sender: TObject);
@@ -44,7 +47,8 @@ type
         Button_ResultsArmy,
         Button_ResultsCitizens,
         Button_ResultsHouses,
-        Button_ResultsWares: TKMButtonFlat;
+        Button_ResultsWares,
+        Button_MoreStats: TKMButtonFlat;
         Chart_Army: TKMChart;
         Chart_Citizens: TKMChart;
         Chart_Houses: TKMChart;
@@ -85,14 +89,15 @@ var
 
   //Temp graphs are used to adjoin same colored AI opponents into one chart
   procedure AddToTempGraph(const aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray);
-  var I, ID: Integer;
+  var
+    I, ID: Integer;
   begin
     ID := -1;
     for I := 0 to TempGraphCount - 1 do
       if aColor = TempGraphs[I].Color then
       begin
         ID := I;
-        break;
+        Break;
       end;
     if ID = -1 then
     begin
@@ -115,13 +120,24 @@ var
   HumanId: TKMHandIndex;
   ShowAIResults: Boolean;
 begin
+  if fIsStatsRefreshed then Exit;
+
+  fGameMode := gGame.GameMode;
+
+  //Remember which map we played so we could restart it
+  fRepeatGameName := gGame.GameName;
+  fRepeatMission := gGame.GetMissionFile;
+  fRepeatSave := gGame.SaveFile;
+  fRepeatCampName := gGame.CampaignName;
+  fRepeatCampMap := gGame.CampaignMap;
+  fRepeatLocation := gGame.PlayerLoc;
+  fRepeatColor := gGame.PlayerColor;
+
   // When exit mission update stats to build actual charts
   // without CHARTS_SAMPLING_FOR_TACTICS or CHARTS_SAMPLING_FOR_ECONOMY delays
   // so measurements for warriors/goods produces will not differ from charts
   for I := 0 to gHands.Count - 1 do
-  begin
     gHands[I].Stats.UpdateState;
-  end;
 
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
   //That info should only be visible if the mission was won or a replay
@@ -149,8 +165,8 @@ begin
   //This is SP menu, we are dead sure there's only one Human player
   HumanId := -1;
   for I := 0 to gHands.Count - 1 do
-  if gHands[I].HandType = hndHuman then
-    HumanId := I;
+    if gHands[I].HandType = hndHuman then
+      HumanId := I;
 
   //List values (like old KaM did)
   with gHands[HumanId].Stats do
@@ -167,25 +183,23 @@ begin
   end;
 
   //Chart values
-  if DISPLAY_CHARTS_RESULT then
-  begin
-    Chart_Army.Clear;
-    Chart_Citizens.Clear;
-    Chart_Houses.Clear;
-    Chart_Wares.Clear;
-    Chart_Army.MaxLength      := gHands[HumanId].Stats.ChartCount;
-    Chart_Citizens.MaxLength  := gHands[HumanId].Stats.ChartCount;
-    Chart_Houses.MaxLength    := gHands[HumanId].Stats.ChartCount;
-    Chart_Wares.MaxLength     := gHands[HumanId].Stats.ChartCount;
+  Chart_Army.Clear;
+  Chart_Citizens.Clear;
+  Chart_Houses.Clear;
+  Chart_Wares.Clear;
+  Chart_Army.MaxLength      := gHands[HumanId].Stats.ChartCount;
+  Chart_Citizens.MaxLength  := gHands[HumanId].Stats.ChartCount;
+  Chart_Houses.MaxLength    := gHands[HumanId].Stats.ChartCount;
+  Chart_Wares.MaxLength     := gHands[HumanId].Stats.ChartCount;
 
-    Chart_Army.MaxTime      := gGame.GameTickCount div 10;
-    Chart_Citizens.MaxTime  := gGame.GameTickCount div 10;
-    Chart_Houses.MaxTime    := gGame.GameTickCount div 10;
-    Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
+  Chart_Army.MaxTime      := gGame.GameTickCount div 10;
+  Chart_Citizens.MaxTime  := gGame.GameTickCount div 10;
+  Chart_Houses.MaxTime    := gGame.GameTickCount div 10;
+  Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
 
-    //Citizens
-    TempGraphCount := 0; //Reset
-    for I := 0 to gHands.Count - 1 do
+  //Citizens
+  TempGraphCount := 0; //Reset
+  for I := 0 to gHands.Count - 1 do
     with gHands[I] do
       if HandType = hndComputer then
         AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartCitizens)
@@ -196,53 +210,52 @@ begin
         //Chart_Citizens.AddAltLine(Stats.ChartRecruits);
       end;
 
-    if ShowAIResults then
-      for I := 0 to TempGraphCount - 1 do
-        Chart_Citizens.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+  if ShowAIResults then
+    for I := 0 to TempGraphCount - 1 do
+      Chart_Citizens.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
-    //Houses
-    TempGraphCount := 0; //Reset
-    for I := 0 to gHands.Count - 1 do
+  //Houses
+  TempGraphCount := 0; //Reset
+  for I := 0 to gHands.Count - 1 do
     with gHands[I] do
       if HandType = hndComputer then
         AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartHouses)
       else
         Chart_Houses.AddLine(OwnerName, FlagColor, Stats.ChartHouses);
 
-    if ShowAIResults then
-      for I := 0 to TempGraphCount - 1 do
-        Chart_Houses.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+  if ShowAIResults then
+    for I := 0 to TempGraphCount - 1 do
+      Chart_Houses.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
-    //Wares
-    for R := WARE_MIN to WARE_MAX do
-    begin
-      G := gHands[HumanId].Stats.ChartWares[R];
-      for I := 0 to High(G) do
-        if G[I] <> 0 then
-        begin
-          Chart_Wares.AddLine(gRes.Wares[R].Title, gRes.Wares[R].GUIColor or $FF000000, G);
-          Break;
-        end;
-    end;
-
-    //Army
-    TempGraphCount := 0; //Reset
-    for I := 0 to gHands.Count - 1 do
-    with gHands[I] do
-      if HandType = hndComputer then
-        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any])
-      else
-        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any]);
-
-    if ShowAIResults then
-      for I := 0 to TempGraphCount - 1 do
-        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
-
-    Button_ResultsHouses.Enabled := (gGame.MissionMode = mm_Normal);
-    Button_ResultsCitizens.Enabled := (gGame.MissionMode = mm_Normal);
-    Button_ResultsWares.Enabled := (gGame.MissionMode = mm_Normal);
-    GraphToggle(Button_ResultsArmy);
+  //Wares
+  for R := WARE_MIN to WARE_MAX do
+  begin
+    G := gHands[HumanId].Stats.ChartWares[R];
+    for I := 0 to High(G) do
+      if G[I] <> 0 then
+      begin
+        Chart_Wares.AddLine(gRes.Wares[R].Title, gRes.Wares[R].GUIColor or $FF000000, G);
+        Break;
+      end;
   end;
+
+  //Army
+  TempGraphCount := 0; //Reset
+  for I := 0 to gHands.Count - 1 do
+  with gHands[I] do
+    if HandType = hndComputer then
+      AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any])
+    else
+      Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any]);
+
+  if ShowAIResults then
+    for I := 0 to TempGraphCount - 1 do
+      Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+
+  Button_ResultsHouses.Enabled := (gGame.MissionMode = mm_Normal);
+  Button_ResultsCitizens.Enabled := (gGame.MissionMode = mm_Normal);
+  Button_ResultsWares.Enabled := (gGame.MissionMode = mm_Normal);
+  GraphToggle(Button_ResultsArmy);
 end;
 
 
@@ -262,17 +275,10 @@ end;
 
 procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg);
 begin
-  fGameResultMsg := aMsg;
-  fGameMode := gGame.GameMode;
+  if aMsg <> gr_ShowStats then //Do not update game result, if we came back from MP Stats page
+    fGameResultMsg := aMsg;
 
-  //Remember which map we played so we could restart it
-  fRepeatGameName := gGame.GameName;
-  fRepeatMission := gGame.GetMissionFile;
-  fRepeatSave := gGame.SaveFile;
-  fRepeatCampName := gGame.CampaignName;
-  fRepeatCampMap := gGame.CampaignMap;
-  fRepeatLocation := gGame.PlayerLoc;
-  fRepeatColor := gGame.PlayerColor;
+  fIsStatsRefreshed := (aMsg = gr_ShowStats);
 
   Refresh;
   Panel_Results.Show;
@@ -281,6 +287,7 @@ end;
 
 procedure TKMMenuResultsSP.Create_Results(aParent: TKMPanel);
 const
+  LEGEND_WIDTH = 150;
   StatText: array [1..9] of Word = (
     TX_RESULTS_UNITS_LOST,      TX_RESULTS_UNITS_DEFEATED,  TX_RESULTS_HOUSES_LOST,
     TX_RESULTS_HOUSES_DESTROYED,TX_RESULTS_HOUSES_BUILT,    TX_RESULTS_UNITS_TRAINED,
@@ -326,59 +333,69 @@ begin
         Label_Stat[I] := TKMLabel.Create(Panel_Stats,260,Adv,80,20,'00',fnt_Metal,taRight);
       end;
 
-    if DISPLAY_CHARTS_RESULT then
-    begin
-      Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 610, 420);
-      Panel_StatsCharts.Anchors := [anLeft];
+    Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 630, 420);
+    Panel_StatsCharts.Anchors := [anLeft];
 
-      Button_ResultsArmy := TKMButtonFlat.Create(Panel_StatsCharts, 40, 0, 208, 20, 53, rxGui);
-      Button_ResultsArmy.TexOffsetX := -91;
-      Button_ResultsArmy.TexOffsetY := 7;
-      Button_ResultsArmy.Anchors := [anLeft];
-      Button_ResultsArmy.Caption := gResTexts[TX_GRAPH_ARMY];
-      Button_ResultsArmy.CapOffsetY := -11;
-      Button_ResultsArmy.OnClick := GraphToggle;
+    Button_ResultsArmy := TKMButtonFlat.Create(Panel_StatsCharts, 40, 0, 208, 20, 53, rxGui);
+    Button_ResultsArmy.TexOffsetX := -91;
+    Button_ResultsArmy.TexOffsetY := 7;
+    Button_ResultsArmy.Anchors := [anLeft];
+    Button_ResultsArmy.Caption := gResTexts[TX_GRAPH_ARMY];
+    Button_ResultsArmy.CapOffsetY := -11;
+    Button_ResultsArmy.OnClick := GraphToggle;
 
-      Button_ResultsCitizens := TKMButtonFlat.Create(Panel_StatsCharts, 40, 22, 208, 20, 588, rxGui);
-      Button_ResultsCitizens.TexOffsetX := -92;
-      Button_ResultsCitizens.TexOffsetY := 6;
-      Button_ResultsCitizens.Anchors := [anLeft];
-      Button_ResultsCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
-      Button_ResultsCitizens.CapOffsetY := -11;
-      Button_ResultsCitizens.OnClick := GraphToggle;
+    Button_ResultsCitizens := TKMButtonFlat.Create(Panel_StatsCharts, 40, 22, 208, 20, 588, rxGui);
+    Button_ResultsCitizens.TexOffsetX := -92;
+    Button_ResultsCitizens.TexOffsetY := 6;
+    Button_ResultsCitizens.Anchors := [anLeft];
+    Button_ResultsCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
+    Button_ResultsCitizens.CapOffsetY := -11;
+    Button_ResultsCitizens.OnClick := GraphToggle;
 
-      Button_ResultsHouses := TKMButtonFlat.Create(Panel_StatsCharts, 252, 0, 208, 20, 587, rxGui);
-      Button_ResultsHouses.TexOffsetX := -93;
-      Button_ResultsHouses.TexOffsetY := 6;
-      Button_ResultsHouses.Anchors := [anLeft];
-      Button_ResultsHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
-      Button_ResultsHouses.CapOffsetY := -11;
-      Button_ResultsHouses.OnClick := GraphToggle;
+    Button_ResultsHouses := TKMButtonFlat.Create(Panel_StatsCharts, 252, 0, 208, 20, 587, rxGui);
+    Button_ResultsHouses.TexOffsetX := -93;
+    Button_ResultsHouses.TexOffsetY := 6;
+    Button_ResultsHouses.Anchors := [anLeft];
+    Button_ResultsHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
+    Button_ResultsHouses.CapOffsetY := -11;
+    Button_ResultsHouses.OnClick := GraphToggle;
 
-      Button_ResultsWares := TKMButtonFlat.Create(Panel_StatsCharts, 252, 22, 208, 20, 360, rxGui);
-      Button_ResultsWares.TexOffsetX := -93;
-      Button_ResultsWares.TexOffsetY := 6;
-      Button_ResultsWares.Anchors := [anLeft];
-      Button_ResultsWares.Caption := gResTexts[TX_GRAPH_RESOURCES];
-      Button_ResultsWares.CapOffsetY := -11;
-      Button_ResultsWares.OnClick := GraphToggle;
+    Button_ResultsWares := TKMButtonFlat.Create(Panel_StatsCharts, 252, 22, 208, 20, 360, rxGui);
+    Button_ResultsWares.TexOffsetX := -93;
+    Button_ResultsWares.TexOffsetY := 6;
+    Button_ResultsWares.Anchors := [anLeft];
+    Button_ResultsWares.Caption := gResTexts[TX_GRAPH_RESOURCES];
+    Button_ResultsWares.CapOffsetY := -11;
+    Button_ResultsWares.OnClick := GraphToggle;
 
-      Chart_Army := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Army.Caption := gResTexts[TX_GRAPH_ARMY];
-      Chart_Army.Anchors := [anLeft];
+    Chart_Army := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Army.LegendWidth := LEGEND_WIDTH;
+    Chart_Army.Caption := gResTexts[TX_GRAPH_ARMY];
+    Chart_Army.Anchors := [anLeft];
 
-      Chart_Citizens := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
-      Chart_Citizens.Anchors := [anLeft];
+    Chart_Citizens := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Citizens.LegendWidth := LEGEND_WIDTH;
+    Chart_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
+    Chart_Citizens.Anchors := [anLeft];
 
-      Chart_Houses := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
-      Chart_Houses.Anchors := [anLeft];
+    Chart_Houses := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Houses.LegendWidth := LEGEND_WIDTH;
+    Chart_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
+    Chart_Houses.Anchors := [anLeft];
 
-      Chart_Wares := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Wares.Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
-      Chart_Wares.Anchors := [anLeft];
-    end;
+    Chart_Wares := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Wares.LegendWidth := LEGEND_WIDTH;
+    Chart_Wares.Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
+    Chart_Wares.Anchors := [anLeft];
+
+    Button_MoreStats := TKMButtonFlat.Create(Panel_StatsCharts, 610 - LEGEND_WIDTH + 2, Chart_Wares.Bottom - 60, LEGEND_WIDTH, 40, 663, rxGui);
+    Button_MoreStats.TexOffsetX := -LEGEND_WIDTH div 2 + 14;
+    Button_MoreStats.TexOffsetY := 6;
+    Button_MoreStats.Anchors := [anLeft];
+    Button_MoreStats.Caption := 'More|statistics'; //Todo translate
+    Button_MoreStats.CapOffsetX := 12;
+    Button_MoreStats.CapOffsetY := -20;
+    Button_MoreStats.OnClick := MoreStatsClick;
 
     Button_ResultsBack := TKMButton.Create(Panel_Results, 30, 610, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_ResultsBack.Anchors := [anLeft];
@@ -392,12 +409,18 @@ begin
 end;
 
 
+procedure TKMMenuResultsSP.MoreStatsClick(Sender: TObject);
+begin
+  fOnPageChange(gpResultsMP);
+end;
+
+
 procedure TKMMenuResultsSP.BackClick(Sender: TObject);
 begin
   //Depending on where we were created we need to return to a different place
-  //Campaign game end -> ResultsSP -> Main menu
+  //Campaign game end     -> ResultsSP -> Main menu
   //Singleplayer game end -> ResultsSP -> Singleplayer
-  //Replay end -> ResultsSP -> Replays
+  //Replay end            -> ResultsSP -> Replays
 
   if fGameResultMsg = gr_ReplayEnd then
     fOnPageChange(gpReplays)

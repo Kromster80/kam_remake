@@ -265,7 +265,6 @@ end;
 
 procedure TKMHandStats.WareInitial(aRes: TWareType; aCount: Cardinal);
 begin
-  if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> wt_None then
     Inc(Wares[aRes].Initial, aCount);
 end;
@@ -287,7 +286,6 @@ end;
 
 procedure TKMHandStats.WareConsumed(aRes: TWareType; aCount: Cardinal = 1);
 begin
-  if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> wt_None then
     Inc(Wares[aRes].Consumed, aCount);
 end;
@@ -826,8 +824,6 @@ var
   ArmyQty: Integer;
   CKind, ArmyEmptyCKind: TKMChartArmyKind;
 begin
-  if not DISPLAY_CHARTS_RESULT then Exit;
-
   //Store player stats in Chart
 
   //Grow the list

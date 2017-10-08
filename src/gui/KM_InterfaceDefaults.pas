@@ -21,6 +21,8 @@ type
                         gpMapEditor,
                         gpOptions,
                         gpCredits,
+                      gpResultsMP,
+                      gpResultsSP,
                       gpLoading,
                       gpError);
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;

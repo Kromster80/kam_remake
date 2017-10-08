@@ -16,6 +16,7 @@ type
   TKMWord2Array = array of array of Word;
   PKMWordArray = ^TKMWordArray;
   TKMCardinalArray = array of Cardinal;
+  PKMCardinalArray = ^TKMCardinalArray;
   TSmallIntArray = array of SmallInt;
   TIntegerArray = array of Integer;
   TInteger2Array = array of array of Integer;

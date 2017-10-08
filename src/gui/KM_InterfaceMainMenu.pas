@@ -278,6 +278,14 @@ begin
                       fMenuReplays.Show;
                       fMenuPage := fMenuReplays;
                     end;
+    gpResultsMP:    begin
+                      fMenuResultsMP.Show(gr_ShowStats);
+                      fMenuPage := fMenuResultsMP;
+                    end;
+    gpResultsSP:    begin
+                      fMenuResultsSP.Show(gr_ShowStats);
+                      fMenuPage := fMenuResultsSP;
+                    end;
     gpError:        begin
                       fMenuError.Show(aText);
                       fMenuPage := fMenuError;

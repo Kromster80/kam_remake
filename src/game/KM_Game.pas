@@ -127,6 +127,7 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
+    function IsSingleplayer: Boolean;
     function IsSpeedUpAllowed: Boolean;
     function IsMPGameSpeedUpAllowed: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; aLoc: TKMPoint; aHandIndex: TKMHandIndex);
@@ -1082,6 +1083,12 @@ end;
 function TKMGame.IsMultiplayer: Boolean;
 begin
   Result := fGameMode in [gmMulti, gmMultiSpectate];
+end;
+
+
+function TKMGame.IsSingleplayer: Boolean;
+begin
+  Result := fGameMode in [gmSingle, gmCampaign];
 end;
 
 

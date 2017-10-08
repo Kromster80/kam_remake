@@ -428,6 +428,7 @@ type
     TexID: Word;
     TexOffsetX: Shortint;
     TexOffsetY: Shortint;
+    CapOffsetX: Shortint;
     CapOffsetY: Shortint;
     Caption: UnicodeString;
     CapColor: TColor4;
@@ -1340,6 +1341,7 @@ type
     fCount: Integer;
     fItemHeight: Byte;
     fLegendWidth: Word;
+    fLegendCaption: String;
     fLineOver: Integer;
     fLines: array of TKMGraphLine;
     fMaxLength: Cardinal; //Maximum samples (by horizontal axis)
@@ -1353,7 +1355,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 
-    procedure AddLine(const aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
+    procedure AddLine(const aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag: Integer=-1);
     procedure AddAltLine(const aAltValues: TKMCardinalArray);
     procedure TrimToFirstVariation;
     property Caption: UnicodeString read fCaption write fCaption;
@@ -1364,6 +1366,8 @@ type
     property Lines[aIndex: Integer]: TKMGraphLine read GetLine;
     property LineCount:Integer read fCount;
     property Font: TKMFont read fFont write fFont;
+    property LegendWidth: Word read fLegendWidth write fLegendWidth;
+    property LegendCaption: String read fLegendCaption write fLegendCaption;
     property Peacetime: Cardinal read fPeaceTime write fPeaceTime;
 
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
@@ -2877,7 +2881,7 @@ begin
                              AbsTop + TexOffsetY - 6 * Byte(Caption <> ''),
                              Width, Height, [], RX, TexID, fEnabled, FlagColor);
 
-  TKMRenderUI.WriteText(AbsLeft, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
+  TKMRenderUI.WriteText(AbsLeft + CapOffsetX, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
 
   if Down then
     TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
@@ -7058,7 +7062,7 @@ begin
 end;
 
 
-procedure TKMChart.AddLine(const aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
+procedure TKMChart.AddLine(const aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag: Integer = -1);
 begin
   if fMaxLength = 0 then Exit;
 
@@ -7167,7 +7171,7 @@ end;
 
 function TKMChart.GetLineNumber(aY: Integer): Integer;
 begin
-  Result := (aY - AbsTop - 25) div fItemHeight;
+  Result := (aY - AbsTop - 5 - 20*Byte(fLegendCaption <> '')) div fItemHeight;
 end;
 
 
@@ -7257,9 +7261,10 @@ var
     CheckSize := gRes.Fonts[MARKS_FONT].GetTextSize('v').Y + 1;
 
     //Legend title and outline
-    TKMRenderUI.WriteShape(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 26, icDarkestGrayTrans);
-    TKMRenderUI.WriteOutline(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 26, 1, icGray);
-    TKMRenderUI.WriteText(G.Right + 5, G.Top + 4, fLegendWidth, 'Players', fnt_Metal, taCenter, icWhite);
+    TKMRenderUI.WriteShape(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 6 + 20*Byte(fLegendCaption <> ''), icDarkestGrayTrans);
+    TKMRenderUI.WriteOutline(G.Right + 5, G.Top, fLegendWidth, fItemHeight*fCount + 6 + 20*Byte(fLegendCaption <> ''), 1, icGray);
+    if fLegendCaption <> '' then
+      TKMRenderUI.WriteText(G.Right + 5, G.Top + 4, fLegendWidth, fLegendCaption, fnt_Metal, taCenter, icWhite);
     //Charts and legend
     for I := 0 to fCount - 1 do
     begin
@@ -7282,12 +7287,12 @@ var
       end;
 
       XPos := G.Right + 10;
-      YPos := G.Top + 28 + I*fItemHeight;
+      YPos := G.Top + 8 + 20*Byte(fLegendCaption <> '') + I*fItemHeight;
       //Checkboxes
       TKMRenderUI.WriteBevel(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, 0.3);
       TKMRenderUI.WriteOutline(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, clChkboxOutline);
       if fLines[I].Visible then
-        TKMRenderUI.WriteText(XPos + (CheckSize-4) div 2, YPos - 1, 0, 'x', MARKS_FONT, taCenter, NewColor);
+        TKMRenderUI.WriteText(XPos + (CheckSize-4) div 2, YPos - 1, 0, 'v', MARKS_FONT, taCenter, NewColor);
 
       //Legend
       TKMRenderUI.WriteText(XPos + CheckSize, YPos, 0, fLines[I].Title, fnt_Game, taLeft, NewColor);
