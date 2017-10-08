@@ -79,11 +79,13 @@ type
     function GetSelectedChartArmyKind: TKMChartArmyKind;
 
     procedure TabChange(Sender: TObject);
+    procedure EconomyChange(Sender: TObject);
     procedure WareChange(Sender: TObject);
     procedure ArmyChange(Sender: TObject);
     function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType): TKMCardinalArray;
     function DoShowHandStats(aHandId: Integer): Boolean;
-    procedure RadioArmyStyleChange(Sender: TObject);
+    procedure RadioArmyTypeChange(Sender: TObject);
+    procedure RadioEconomyTypeChange(Sender: TObject);
     procedure RecreatePlayersToShow;
 
     procedure Refresh;
@@ -104,9 +106,11 @@ type
           Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_LOBBY_PLAYERS - 1] of TKMLabel;
           Bar_Results: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMPercentBar;
           Image_ResultsRosette: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMImage;
-      Panel_ChartsMP: TKMPanel;
+      Panel_ChartsEconomy: TKMPanel;
         Chart_MPCitizens: TKMChart;
         Chart_MPHouses: TKMChart;
+        Panel_ChartEconomyType: TKMPanel;
+          Radio_ChartEconomyType: TKMRadioGroup;
       Panel_ChartsWares: TKMPanel;
         Columnbox_Wares: TKMColumnBox;
         Chart_MPWares: array [TWareType] of TKMChart; //One for each kind
@@ -116,7 +120,7 @@ type
         Chart_MPArmy: array[TKMChartArmyKind] of array[TKMChartWarriorType] of TKMChartArmyMP;
         Label_NoArmyData: TKMLabel;
         Panel_ChartArmy_Type: TKMPanel;
-          Radio_ChartArmyStyle: TKMRadioGroup;
+          Radio_ChartArmyType: TKMRadioGroup;
       Button_ResultsMPBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
@@ -347,18 +351,44 @@ end;
 
 
 procedure TKMMenuResultsMP.CreateChartEconomy;
+const
+  RADIO_ECO_HEIGHT = 80;
 begin
-  Panel_ChartsMP := TKMPanel.Create(Panel_ResultsMP, 0, PANES_TOP, 1024, 560);
-  Panel_ChartsMP.Anchors := [anLeft];
-    Chart_MPCitizens := TKMChart.Create(Panel_ChartsMP, 62, 0, 900, CHART_ECO_HEIGHT);
+  Panel_ChartsEconomy := TKMPanel.Create(Panel_ResultsMP, 0, PANES_TOP, 1024, CHART_HEIGHT);
+  Panel_ChartsEconomy.Anchors := [anLeft];
+    Chart_MPCitizens := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
     Chart_MPCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
     Chart_MPCitizens.LegendCaption := 'Players'; //Todo translate
     Chart_MPCitizens.Anchors := [anLeft];
 
-    Chart_MPHouses := TKMChart.Create(Panel_ChartsMP, 62, CHART_ECO_HEIGHT + 25, 900, CHART_ECO_HEIGHT);
+    Chart_MPHouses := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
     Chart_MPHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
     Chart_MPHouses.LegendCaption := 'Players'; //Todo translate
     Chart_MPHouses.Anchors := [anLeft];
+    Chart_MPHouses.Hide;
+
+    Panel_ChartEconomyType := TKMPanel.Create(Panel_ChartsEconomy, 817, CHART_HEIGHT - RADIO_ECO_HEIGHT - 20, 150, RADIO_ECO_HEIGHT);
+      with TKMShape.Create(Panel_ChartEconomyType, 0, 0, 150, RADIO_ECO_HEIGHT) do
+      begin
+        FillColor := icDarkestGrayTrans;
+        LineColor := icGray;
+        LineWidth := 1;
+      end;
+
+      TKMLabel.Create(Panel_ChartEconomyType, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+
+      Radio_ChartEconomyType := TKMRadioGroup.Create(Panel_ChartEconomyType,5,35,140,40,fnt_Grey);
+      Radio_ChartEconomyType.DrawChkboxOutline := True;
+      Radio_ChartEconomyType.ItemIndex := 0;
+      Radio_ChartEconomyType.Add(gResTexts[TX_GRAPH_CITIZENS]);
+      Radio_ChartEconomyType.Add(gResTexts[TX_GRAPH_HOUSES]);
+      Radio_ChartEconomyType.OnChange := RadioEconomyTypeChange;
+end;
+
+
+procedure TKMMenuResultsMP.RadioEconomyTypeChange(Sender: TObject);
+begin
+  EconomyChange(nil);
 end;
 
 
@@ -428,18 +458,18 @@ begin
 
     TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
 
-    Radio_ChartArmyStyle := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,80,fnt_Grey);
-    Radio_ChartArmyStyle.DrawChkboxOutline := True;
-    Radio_ChartArmyStyle.ItemIndex := 0;
-    Radio_ChartArmyStyle.Add('Instantaneous');   // Todo translate
-    Radio_ChartArmyStyle.Add('Total equipped');  // Todo translate
-    Radio_ChartArmyStyle.Add('Defeated');        // Todo translate
-    Radio_ChartArmyStyle.Add('Lost');            // Todo translate
-    Radio_ChartArmyStyle.OnChange := RadioArmyStyleChange;
+    Radio_ChartArmyType := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,80,fnt_Grey);
+    Radio_ChartArmyType.DrawChkboxOutline := True;
+    Radio_ChartArmyType.ItemIndex := 0;
+    Radio_ChartArmyType.Add('Instantaneous');   // Todo translate
+    Radio_ChartArmyType.Add('Total equipped');  // Todo translate
+    Radio_ChartArmyType.Add('Defeated');        // Todo translate
+    Radio_ChartArmyType.Add('Lost');            // Todo translate
+    Radio_ChartArmyType.OnChange := RadioArmyTypeChange;
 end;
 
 
-procedure TKMMenuResultsMP.RadioArmyStyleChange(Sender: TObject);
+procedure TKMMenuResultsMP.RadioArmyTypeChange(Sender: TObject);
 begin
   ArmyChange(nil);
 end;
@@ -454,7 +484,7 @@ begin
 
   Panel_Bars.Visible        := (Sender = Button_MPResultsBars);
 
-  Panel_ChartsMP.Visible    := (Sender = Button_MPResultsEconomy) or
+  Panel_ChartsEconomy.Visible    := (Sender = Button_MPResultsEconomy) or
                                (Sender = Button_MPResultsWares);
   Chart_MPCitizens.Visible  := Sender = Button_MPResultsEconomy;
   Chart_MPHouses.Visible    := Sender = Button_MPResultsEconomy;
@@ -466,6 +496,21 @@ begin
     WareChange(nil);
   if Sender = Button_MPResultsArmy then
     ArmyChange(nil);
+end;
+
+
+procedure TKMMenuResultsMP.EconomyChange(Sender: TObject);
+begin
+  case Radio_ChartEconomyType.ItemIndex of
+    0:  begin
+          Chart_MPHouses.Hide;
+          Chart_MPCitizens.Show;
+        end;
+    1:  begin
+          Chart_MPCitizens.Hide;
+          Chart_MPHouses.Show;
+        end;
+  end;
 end;
 
 
@@ -509,7 +554,7 @@ end;
 
 function TKMMenuResultsMP.GetSelectedChartArmyKind: TKMChartArmyKind;
 begin
-  Result := TKMChartArmyKind(Radio_ChartArmyStyle.ItemIndex);
+  Result := TKMChartArmyKind(Radio_ChartArmyType.ItemIndex);
 end;
 
 
@@ -552,8 +597,9 @@ begin
   end;
 
   if not Columnbox_Army.IsSelected then
-    Columnbox_Army.ItemIndex := 0;
+    Columnbox_Army.ItemIndex := 0;  //Select 1st elem in column box, there should be always ArmyPower
 
+  //Show columnbox and chart panel
   Label_NoArmyData.Hide;
   Columnbox_Army.Show;
   Panel_ChartArmy_Type.Show;
@@ -1066,7 +1112,7 @@ var
   ChartArmy: PKMChartArmyMP;
 begin
   fNoArmyChartData := True;
-  Radio_ChartArmyStyle.ItemIndex := 0;
+  Radio_ChartArmyType.ItemIndex := 0;
   for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
   begin
     SetLength(fColumnBoxArmy_Rows[CKind], Integer(High(TKMChartWarriorType)) + 1); // Set max length for columnbox rows for all chart kinds
