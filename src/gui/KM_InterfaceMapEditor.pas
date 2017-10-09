@@ -36,6 +36,8 @@ type
     fDragObject: TObject;        // Object to drag
     fDragHouseOffset: TKMPoint;  // Offset for house position, to let grab house with any of its points
 
+    fIgnoreMouseUp: Boolean;     // Ignore Mouse Up in case we have just done RightClick_Cancel
+
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;
     fGuiTerrain: TKMMapEdTerrain;
@@ -593,11 +595,15 @@ begin
   //Place a warrior, right click so you are not placing more warriors,
   //select the placed warrior.
 
-  //These pages use RMB
-  if fGuiTerrain.Visible(ttHeights) then Exit;
-  if fGuiTerrain.Visible(ttTile) then Exit;
-  if fGuiUnit.Visible then Exit;
-  if fGuiHouse.Visible then Exit;
+  // When global tools are used, just cancel the tool, even if some page is open
+  if (gGameCursor.Mode <> cmPaintBucket) and (gGameCursor.Mode <> cmUniversalEraser) then
+  begin
+    //These pages use RMB
+    if fGuiTerrain.Visible(ttHeights) then Exit;
+    if fGuiTerrain.Visible(ttTile) then Exit;
+    if fGuiUnit.Visible then Exit;
+    if fGuiHouse.Visible then Exit;
+  end;
 
   fGuiTerrain.RightClickCancel;
 
@@ -605,6 +611,7 @@ begin
   ResetCursorMode;
   //Reset drag object fields
   ResetDragObject;
+  fIgnoreMouseUp := True;
 end;
 
 
@@ -851,9 +858,7 @@ begin
   end;
 
   if Button = mbRight then
-  begin
     RightClick_Cancel;
-  end;
 
   //So terrain brushes start on mouse down not mouse move
   UpdateCursor(X, Y, Shift);
@@ -1072,6 +1077,12 @@ var
   U: TKMUnit;
   H: TKMHouse;
 begin
+  if fIgnoreMouseUp then
+  begin
+    fIgnoreMouseUp := False; //Ignore mouse up only once
+    Exit;
+  end;
+
   if fDragingObject then
   begin
     DragHouseModeEnd;
