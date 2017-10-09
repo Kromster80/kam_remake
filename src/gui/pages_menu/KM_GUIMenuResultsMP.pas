@@ -62,31 +62,33 @@ type
     fHandFlagColor: Cardinal;
     fNoArmyChartData: Boolean;
     fColumnBoxArmy_Rows: array[TKMChartArmyKind] of array of TKMChartWarriorType;
+    fColumnBoxWare_Rows: array[0..1] of array of TWareType;
     fTeamSeparatorsPos: TStringList;
     fPlayersToShow: TStringList;
 
     fIsStatsRefreshed: Boolean;
     fShowAIResults: Boolean;
-
+    procedure RecreatePlayersToShow;
     procedure BackClick(Sender: TObject);
     function DoAdjoinSameColorHand(aHandId: Integer): Boolean;
+    function GetSelectedChartArmyKind: TKMChartArmyKind;
+
     procedure Create_ResultsMP(aParent: TKMPanel);
     procedure CreateBars(aParent: TKMPanel);
     procedure CreateChartEconomy;
     procedure CreateChartWares(aParent: TKMPanel);
     procedure CreateChartArmy(aParent: TKMPanel);
 
-    function GetSelectedChartArmyKind: TKMChartArmyKind;
-
     procedure TabChange(Sender: TObject);
     procedure EconomyChange(Sender: TObject);
     procedure WareChange(Sender: TObject);
     procedure ArmyChange(Sender: TObject);
-    function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType): TKMCardinalArray;
+    function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType; aUseGDP: Boolean): TKMCardinalArray;
     function DoShowHandStats(aHandId: Integer): Boolean;
-    procedure RadioArmyTypeChange(Sender: TObject);
+
     procedure RadioEconomyTypeChange(Sender: TObject);
-    procedure RecreatePlayersToShow;
+    procedure RadioWareTypeChange(Sender: TObject);
+    procedure RadioArmyTypeChange(Sender: TObject);
 
     procedure Refresh;
     procedure RefreshPlayersToShow;
@@ -113,8 +115,12 @@ type
           Radio_ChartEconomyType: TKMRadioGroup;
       Panel_ChartsWares: TKMPanel;
         Columnbox_Wares: TKMColumnBox;
+        Columnbox_WaresGDP: TKMColumnBox;
         Chart_MPWares: array [TWareType] of TKMChart; //One for each kind
+        Chart_MPWaresGDP: array [0..2] of TKMChart;
         Label_NoWareData: TKMLabel;
+        Panel_ChartWare_Type: TKMPanel;
+          Radio_ChartWareType: TKMRadioGroup;
       Panel_ChartsArmy: TKMPanel;
         Columnbox_Army: TKMColumnBox;
         Chart_MPArmy: array[TKMChartArmyKind] of array[TKMChartWarriorType] of TKMChartArmyMP;
@@ -151,6 +157,22 @@ const
     5.3, 1.5, 1.5,  // ut_Barbarian, ut_Peasant, ut_Slingshot
     5.3, 2.1        // ut_MetalBarbarian, ut_Horseman
   );
+
+  GDPWares: array [0..2] of TWareType = (wt_All, wt_Warfare, wt_Food);
+
+
+function GetWareIdInGDPArr(aWare: TWareType): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to 2 do
+    if aWare = GDPWares[I] then
+    begin
+      Result := I;
+      Exit;
+    end;
+end;
 
 
 {TKMChartArmyType}
@@ -224,10 +246,7 @@ end;
 
 
 procedure TKMChartArmyMP.AddLine(aPlayerId: TKMHandIndex; const aTitle: UnicodeString; aColor: Cardinal);
-var
-  ChartData: TKMCardinalArray;
 begin
-
   Chart.AddLine(aTitle, aColor, GetChartData(aPlayerId), aPlayerId);
 end;
 
@@ -377,7 +396,7 @@ begin
 
       TKMLabel.Create(Panel_ChartEconomyType, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
 
-      Radio_ChartEconomyType := TKMRadioGroup.Create(Panel_ChartEconomyType,5,35,140,40,fnt_Grey);
+      Radio_ChartEconomyType := TKMRadioGroup.Create(Panel_ChartEconomyType,5,35,140,RADIO_ECO_HEIGHT - 40,fnt_Grey);
       Radio_ChartEconomyType.DrawChkboxOutline := True;
       Radio_ChartEconomyType.ItemIndex := 0;
       Radio_ChartEconomyType.Add(gResTexts[TX_GRAPH_CITIZENS]);
@@ -393,28 +412,73 @@ end;
 
 
 procedure TKMMenuResultsMP.CreateChartWares(aParent: TKMPanel);
+
+  procedure SetupWareColumnBox(aColumnBox: TKMColumnBox);
+  begin
+    aColumnBox.SetColumns(fnt_Game, ['', ''], [0, 20]);
+    aColumnBox.ShowHeader := False;
+    aColumnBox.ShowLines := False;
+    aColumnBox.OnChange := WareChange;
+  end;
+
+  procedure SetupWareChart(aChart: TKMChart);
+  begin
+    aChart.Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
+    aChart.LegendCaption := 'Players'; //Todo translate
+    aChart.Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
+    aChart.Hide;
+  end;
+
+const
+  WARES_TYPE_HEIGHT = 80;
 var
-  I: TWareType;
+  I: Integer;
+  W: TWareType;
 begin
   Panel_ChartsWares := TKMPanel.Create(aParent, 62, PANES_TOP, 900, CHART_HEIGHT);
   Panel_ChartsWares.AnchorsCenter;
 
     Columnbox_Wares := TKMColumnBox.Create(Panel_ChartsWares, 0, 0, 145, CHART_HEIGHT, fnt_Game, bsMenu);
-    Columnbox_Wares.SetColumns(fnt_Game, ['', ''], [0, 20]);
-    Columnbox_Wares.ShowHeader := False;
-    Columnbox_Wares.ShowLines := False;
-    Columnbox_Wares.OnChange := WareChange;
+    Columnbox_WaresGDP := TKMColumnBox.Create(Panel_ChartsWares, 0, 0, 145, CHART_HEIGHT, fnt_Game, bsMenu);
+    SetupWareColumnBox(Columnbox_Wares);
+    SetupWareColumnBox(Columnbox_WaresGDP);
 
-    for I := Low(TWareType) to High(TWareType) do
+    for W := Low(TWareType) to High(TWareType) do
     begin
-      Chart_MPWares[I] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, CHART_HEIGHT);
-      Chart_MPWares[I].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
-      Chart_MPWares[I].LegendCaption := 'Players'; //Todo translate
-      Chart_MPWares[I].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
-      Chart_MPWares[I].Hide;
+      Chart_MPWares[W] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, CHART_HEIGHT);
+      SetupWareChart(Chart_MPWares[W]);
     end;
 
-    Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
+    for I := Low(GDPWares) to High(GDPWares) do
+    begin
+      Chart_MPWaresGDP[I] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, CHART_HEIGHT);
+      SetupWareChart(Chart_MPWaresGDP[I]);
+    end;
+
+    Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, CHART_HEIGHT div 2, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
+
+    Panel_ChartWare_Type := TKMPanel.Create(Panel_ChartsWares, 755, CHART_HEIGHT - WARES_TYPE_HEIGHT - 20, 150, WARES_TYPE_HEIGHT);
+      with TKMShape.Create(Panel_ChartWare_Type, 0, 0, 150, WARES_TYPE_HEIGHT) do
+      begin
+        FillColor := icDarkestGrayTrans;
+        LineColor := icGray;
+        LineWidth := 1;
+      end;
+
+      TKMLabel.Create(Panel_ChartWare_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+
+      Radio_ChartWareType := TKMRadioGroup.Create(Panel_ChartWare_Type,5,35,140,WARES_TYPE_HEIGHT - 40,fnt_Grey);
+      Radio_ChartWareType.DrawChkboxOutline := True;
+      Radio_ChartWareType.ItemIndex := 0;
+      Radio_ChartWareType.Add('Quantity');  // Todo translate
+      Radio_ChartWareType.Add('GDP');       // Todo translate
+      Radio_ChartWareType.OnChange := RadioWareTypeChange;
+end;
+
+
+procedure TKMMenuResultsMP.RadioWareTypeChange(Sender: TObject);
+begin
+  WareChange(Radio_ChartWareType);
 end;
 
 
@@ -446,26 +510,26 @@ begin
         Chart_MPArmy[CKind,WType].Chart.Hide;
       end;
 
-    Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
+    Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, CHART_HEIGHT div 2, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 
     Panel_ChartArmy_Type := TKMPanel.Create(Panel_ChartsArmy, 755, CHART_HEIGHT - ARMY_TYPE_HEIGHT - 20, 150, ARMY_TYPE_HEIGHT);
-    with TKMShape.Create(Panel_ChartArmy_Type, 0, 0, 150, ARMY_TYPE_HEIGHT) do
-    begin
-      FillColor := icDarkestGrayTrans;
-      LineColor := icGray;
-      LineWidth := 1;
-    end;
+      with TKMShape.Create(Panel_ChartArmy_Type, 0, 0, 150, ARMY_TYPE_HEIGHT) do
+      begin
+        FillColor := icDarkestGrayTrans;
+        LineColor := icGray;
+        LineWidth := 1;
+      end;
 
-    TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+      TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
 
-    Radio_ChartArmyType := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,80,fnt_Grey);
-    Radio_ChartArmyType.DrawChkboxOutline := True;
-    Radio_ChartArmyType.ItemIndex := 0;
-    Radio_ChartArmyType.Add('Instantaneous');   // Todo translate
-    Radio_ChartArmyType.Add('Total equipped');  // Todo translate
-    Radio_ChartArmyType.Add('Defeated');        // Todo translate
-    Radio_ChartArmyType.Add('Lost');            // Todo translate
-    Radio_ChartArmyType.OnChange := RadioArmyTypeChange;
+      Radio_ChartArmyType := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,ARMY_TYPE_HEIGHT - 40,fnt_Grey);
+      Radio_ChartArmyType.DrawChkboxOutline := True;
+      Radio_ChartArmyType.ItemIndex := 0;
+      Radio_ChartArmyType.Add('Instantaneous');   // Todo translate
+      Radio_ChartArmyType.Add('Total equipped');  // Todo translate
+      Radio_ChartArmyType.Add('Defeated');        // Todo translate
+      Radio_ChartArmyType.Add('Lost');            // Todo translate
+      Radio_ChartArmyType.OnChange := RadioArmyTypeChange;
 end;
 
 
@@ -482,16 +546,13 @@ begin
   Button_MPResultsEconomy.Down := Sender = Button_MPResultsEconomy;
   Button_MPResultsWares.Down := Sender = Button_MPResultsWares;
 
-  Panel_Bars.Visible        := (Sender = Button_MPResultsBars);
+  Panel_Bars.Visible          := Sender = Button_MPResultsBars;
+  Panel_ChartsEconomy.Visible := Sender = Button_MPResultsEconomy;
+  Panel_ChartsWares.Visible   := Sender = Button_MPResultsWares;
+  Panel_ChartsArmy.Visible    := Sender = Button_MPResultsArmy;
 
-  Panel_ChartsEconomy.Visible    := (Sender = Button_MPResultsEconomy) or
-                               (Sender = Button_MPResultsWares);
-  Chart_MPCitizens.Visible  := Sender = Button_MPResultsEconomy;
-  Chart_MPHouses.Visible    := Sender = Button_MPResultsEconomy;
-
-  Panel_ChartsWares.Visible := Sender = Button_MPResultsWares;
-  Panel_ChartsArmy.Visible := Sender = Button_MPResultsArmy;
-
+  if Sender = Button_MPResultsEconomy then
+    EconomyChange(nil);
   if Sender = Button_MPResultsWares then
     WareChange(nil);
   if Sender = Button_MPResultsArmy then
@@ -515,40 +576,86 @@ end;
 
 
 procedure TKMMenuResultsMP.WareChange(Sender: TObject);
+
+  procedure ChangeWareChart(aChart: TKMChart; aUseGDP: Boolean);
+    procedure FindVisibleChart(aChartToFind: TKMChart);
+    var
+      I, K: Integer;
+    begin
+      //Remember which lines were visible
+      if aChartToFind.Visible then
+        for K := 0 to aChartToFind.LineCount - 1 do
+          fPlayersVisibleWares[aChartToFind.Lines[K].Tag] := aChartToFind.Lines[K].Visible;
+
+      aChartToFind.Visible := False;
+    end;
+  var
+    W: TWareType;
+    I, K: Integer;
+  begin
+    //Find and hide old chart
+    for I := Low(GDPWares) to High(GDPWares) do
+      FindVisibleChart(Chart_MPWaresGDP[I]);
+
+    for W := Low(TWareType) to High(TWareType) do
+      FindVisibleChart(Chart_MPWares[W]);
+
+    aChart.Visible := True;
+
+    //Restore previously visible lines
+    for K := 0 to aChart.LineCount - 1 do
+      aChart.SetLineVisible(K, fPlayersVisibleWares[aChart.Lines[K].Tag]);
+  end;
+
 var
-  K: Integer;
-  I, R: TWareType;
+  K, WareInGdpI: Integer;
+  W: TWareType;
 begin
-  if Columnbox_Wares.ItemIndex = -1 then
+  if not Columnbox_Wares.IsSelected
+    or not Columnbox_WaresGDP.IsSelected then
   begin
     Label_NoWareData.Show;
     Columnbox_Wares.Hide;
-    for I := Low(TWareType) to High(TWareType) do
-      Chart_MPWares[I].Hide;
+    Columnbox_WaresGDP.Hide;
+    Panel_ChartWare_Type.Hide;
+    for W := Low(TWareType) to High(TWareType) do
+      Chart_MPWares[W].Hide;
+    for K := Low(GDPWares) to High(GDPWares) do
+      Chart_MPWaresGDP[K].Hide;
     Exit;
   end;
 
   Label_NoWareData.Hide;
-  Columnbox_Wares.Show;
+  Panel_ChartWare_Type.Show;
 
-  R := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
+  case Radio_ChartWareType.ItemIndex of
+    0:  begin
+          if (Sender = Radio_ChartWareType) and Columnbox_WaresGDP.IsSelected then
+            Columnbox_Wares.ItemIndex := Columnbox_WaresGDP.ItemIndex;
 
-  //Find and hide old chart
-  for I := Low(TWareType) to High(TWareType) do
-  begin
-    //Remember which lines were visible
-    if Chart_MPWares[I].Visible then
-    for K := 0 to Chart_MPWares[I].LineCount - 1 do
-      fPlayersVisibleWares[Chart_MPWares[I].Lines[K].Tag] := Chart_MPWares[I].Lines[K].Visible;
+          W := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
+          ChangeWareChart(Chart_MPWares[W], False);
 
-    Chart_MPWares[I].Visible := False;
+          Columnbox_WaresGDP.Hide;
+          Columnbox_Wares.Show;
+        end;
+    1:  begin
+          if (Sender = Radio_ChartWareType) then
+          begin
+            W := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
+            WareInGdpI := GetWareIdInGDPArr(W);
+            if Columnbox_Wares.IsSelected and InRange(WareInGdpI, 0, 2) then
+              Columnbox_WaresGDP.ItemIndex := Columnbox_Wares.ItemIndex
+            else
+              Columnbox_WaresGDP.ItemIndex := 0;
+          end;
+
+          ChangeWareChart(Chart_MPWaresGDP[Columnbox_WaresGDP.ItemIndex], True);
+
+          Columnbox_Wares.Hide;
+          Columnbox_WaresGDP.Show;
+        end;
   end;
-
-  Chart_MPWares[R].Visible := True;
-
-  //Restore previously visible lines
-  for K := 0 to Chart_MPWares[R].LineCount - 1 do
-    Chart_MPWares[R].SetLineVisible(K, fPlayersVisibleWares[Chart_MPWares[R].Lines[K].Tag]);
 end;
 
 
@@ -1029,7 +1136,9 @@ end;
 
 procedure TKMMenuResultsMP.RefreshChartWares;
 const
-  Wares: array [0..30] of TWareType = (
+  WARES_CNT = 31;
+
+  Wares: array [0..WARES_CNT-1] of TWareType = (
     wt_All,     wt_Warfare, wt_Food,
     wt_Trunk,   wt_Stone,   wt_Wood,        wt_IronOre,   wt_GoldOre,
     wt_Coal,    wt_Steel,   wt_Gold,        wt_Wine,      wt_Corn,
@@ -1037,39 +1146,23 @@ const
     wt_Skin,    wt_Shield,  wt_MetalShield, wt_Armor,     wt_MetalArmor,
     wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
     wt_Arbalet, wt_Horse,   wt_Fish);
-var
-  I,K,J,HandId: Integer;
-  R: TWareType;
-  PlayersList: TStringList;
-  ChartData, ChartWaresData: TKMCardinalArray;
-begin
-  //Fill in chart values
-  Columnbox_Wares.Clear;
-  for I := Low(Wares) to High(Wares) do
-  begin
-    R := Wares[I];
-    for K := 0 to gHands.Count - 1 do
-    if DoShowHandStats(K)
-      and not gHands[K].Stats.ChartWaresEmpty(R) then
-    begin
-      Columnbox_Wares.AddItem(MakeListRow(['', gRes.Wares[R].Title],
-                                          [$FFFFFFFF, $FFFFFFFF],
-                                          [MakePic(rxGui, gRes.Wares[R].GUIIcon), MakePic(rxGui, 0)],
-                                          Byte(R)));
-      Break;
-    end;
-  end;
 
-  for J := 0 to Columnbox_Wares.RowCount - 1 do
+  procedure RefreshChart(W: TWareType; aChart: TKMChart; aUseGDP: Boolean);
+  var
+    I, K, HandId: Integer;
+    PlayersList: TStringList;
+    ChartData, ChartWaresData: TKMCardinalArray;
   begin
-    R := TWareType(Columnbox_Wares.Rows[J].Tag);
+    aChart.Clear;
+    aChart.MaxLength := 0;
+    aChart.MaxTime   := gGame.GameTickCount div 10;
+    aChart.Peacetime := 60*gGame.GameOptions.Peacetime;
+    aChart.SetSeparatorPositions(fTeamSeparatorsPos);
 
-    Chart_MPWares[R].Clear;
-    Chart_MPWares[R].MaxLength := 0;
-    Chart_MPWares[R].MaxTime   := gGame.GameTickCount div 10;
-    Chart_MPWares[R].Peacetime := 60*gGame.GameOptions.Peacetime;
-    Chart_MPWares[R].SetSeparatorPositions(fTeamSeparatorsPos);
-    Chart_MPWares[R].Caption   := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + gRes.Wares[R].Title;
+    if aUseGDP then
+      aChart.Caption   := gRes.Wares[W].Title + ' - ' + 'GDP' //Todo translate
+    else
+      aChart.Caption   := gRes.Wares[W].Title + ' - ' + gResTexts[TX_GRAPH_TITLE_RESOURCES];
 
     for I := 0 to fPlayersToShow.Count - 1 do
     begin
@@ -1079,22 +1172,62 @@ begin
       for K := 0 to PlayersList.Count - 1 do
       begin
         HandId := StrToInt(PlayersList[K]);
-        ChartWaresData := GetChartWares(HandId, R);
+        ChartWaresData := GetChartWares(HandId, W, aUseGDP);
         KMSummAndEnlargeArr(@ChartData, @ChartWaresData);
       end;
 
       HandId := StrToInt(PlayersList[0]);
       with gHands[HandId] do
       begin
-        Chart_MPWares[R].MaxLength := Max(Chart_MPWares[R].MaxLength, Stats.ChartCount);
-        //Do some postprocessing on stats (GDP, food value)
-        Chart_MPWares[R].AddLine(GetOwnerName(HandId), FlagColor, ChartData, I);
+        aChart.MaxLength := Max(aChart.MaxLength, Stats.ChartCount);
+        aChart.AddLine(GetOwnerName(HandId), FlagColor, ChartData, I);
       end;
     end;
   end;
 
+var
+  I,K,J,HandId,WareInGDP: Integer;
+  W: TWareType;
+  ListRow: TKMListRow;
+begin
+  Radio_ChartWareType.ItemIndex := 0;
+
+  //Fill in chart values
+  Columnbox_Wares.Clear;
+  Columnbox_WaresGDP.Clear;
+  for I := Low(Wares) to High(Wares) do
+  begin
+    W := Wares[I];
+    for K := 0 to gHands.Count - 1 do
+    if DoShowHandStats(K)
+      and not gHands[K].Stats.ChartWaresEmpty(W) then
+    begin
+      ListRow := MakeListRow(['', gRes.Wares[W].Title],
+                             [$FFFFFFFF, $FFFFFFFF],
+                             [MakePic(rxGui, gRes.Wares[W].GUIIcon), MakePic(rxGui, 0)],
+                             Byte(W));
+      Columnbox_Wares.AddItem(ListRow);
+      WareInGDP := GetWareIdInGDPArr(W);
+      if WareInGDP <> -1 then
+        Columnbox_WaresGDP.AddItem(ListRow);
+      Break;
+    end;
+  end;
+
+  for J := 0 to Columnbox_Wares.RowCount - 1 do
+  begin
+    W := TWareType(Columnbox_Wares.Rows[J].Tag);
+
+    RefreshChart(W, Chart_MPWares[W], False);
+    WareInGDP := GetWareIdInGDPArr(W);
+    if WareInGDP <> -1 then
+      RefreshChart(W, Chart_MPWaresGDP[WareInGDP], True);
+  end;
+
   Columnbox_Wares.ItemIndex := 0;
   Columnbox_Wares.ItemHeight := Min(Columnbox_Wares.Height div 15, 20);
+  Columnbox_WaresGDP.ItemIndex := 0;
+  Columnbox_WaresGDP.ItemHeight := Min(Columnbox_WaresGDP.Height div 15, 20);
   WareChange(nil);
 end;
 
@@ -1239,42 +1372,60 @@ begin
 end;
 
 
-function TKMMenuResultsMP.GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType): TKMCardinalArray;
+function TKMMenuResultsMP.GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType; aUseGDP: Boolean): TKMCardinalArray;
+const
+  FoodWares: array[0..3] of TWareType = (wt_Bread, wt_Sausages, wt_Wine, wt_Fish);
+  FoodWaresRestore: array[0..3] of Single = (BREAD_RESTORE,SAUSAGE_RESTORE,WINE_RESTORE,FISH_RESTORE);
 var
   RT: TWareType;
-  I: Integer;
+  I,J: Integer;
+  TempResult: Single;
 begin
   with gHands[aPlayer].Stats do
-  case aWare of
-    WARE_MIN..WARE_MAX: Result := ChartWares[aWare];
-    wt_All:             begin
-                          SetLength(Result, ChartCount);
-                          for I := 0 to ChartCount - 1 do
-                            Result[I] := 0;
-                          for RT := WARE_MIN to WARE_MAX do
-                          for I := 0 to ChartCount - 1 do
-                            Result[I] := Result[I] + ChartWares[RT][I];
-                          //@Lewin: We could show GDP here if we divide by ProductionRate,
-                          //so that easy to make Stones do not steal other wares value
-                          //@Krom: That sounds worth testing. It might be confusing though.
-                        end;
-    wt_Warfare:         begin
-                          SetLength(Result, ChartCount);
-                          for I := 0 to ChartCount - 1 do
-                            Result[I] := 0;
-                          for RT := WARFARE_MIN to WARFARE_MAX do
-                          for I := 0 to ChartCount - 1 do
-                            Result[I] := Result[I] + ChartWares[RT][I];
-                        end;
-    wt_Food:            begin
-                          //Compute food value according to food types condition restore
-                          SetLength(Result, ChartCount);
-                          for I := 0 to ChartCount - 1 do
-                            Result[I] := Round(ChartWares[wt_Bread][I] * BREAD_RESTORE) +
-                                         Round(ChartWares[wt_Sausages][I] * SAUSAGE_RESTORE) +
-                                         Round(ChartWares[wt_Wine][I] * WINE_RESTORE) +
-                                         Round(ChartWares[wt_Fish][I] * FISH_RESTORE);
-                        end;
+    case aWare of
+      WARE_MIN..WARE_MAX: Result := ChartWares[aWare];
+      wt_All:             begin
+                            SetLength(Result, ChartCount);
+                            for I := 0 to ChartCount - 1 do
+                              Result[I] := 0;
+                            for I := 0 to ChartCount - 1 do
+                            begin
+                              TempResult := 0;
+                              for RT := WARE_MIN to WARE_MAX do
+                                TempResult := TempResult + ChartWares[RT][I] * IfThen(aUseGDP, gRes.Wares[RT].MarketPrice, 1);
+                              Result[I] := Round(TempResult);
+                            end;
+                          end;
+      wt_Warfare:         begin
+                            SetLength(Result, ChartCount);
+                            for I := 0 to ChartCount - 1 do
+                              Result[I] := 0;
+                            for I := 0 to ChartCount - 1 do
+                            begin
+                              TempResult := 0;
+                              for RT := WARFARE_MIN to WARFARE_MAX do
+                                TempResult := TempResult + ChartWares[RT][I] * IfThen(aUseGDP, gRes.Wares[RT].MarketPrice, 1);
+                              Result[I] := Round(TempResult);
+                            end;
+                          end;
+      wt_Food:            begin
+                            SetLength(Result, ChartCount);
+                            for I := 0 to ChartCount - 1 do
+                              Result[I] := 0;
+                            for I := 0 to ChartCount - 1 do
+                            begin
+                              TempResult := 0;
+                              for J := 0 to 3 do
+                              begin
+                                RT := FoodWares[J];
+                                if aUseGDP then
+                                  TempResult := TempResult + ChartWares[RT][I] * gRes.Wares[RT].MarketPrice
+                                else
+                                  TempResult := TempResult + ChartWares[RT][I] * FoodWaresRestore[J]; //Compute food value according to food types condition restore
+                              end;
+                              Result[I] := Round(TempResult);
+                            end;
+                          end;
   end;
 end;
 

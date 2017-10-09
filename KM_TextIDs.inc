@@ -290,13 +290,13 @@ TX_GRAPH_ARMY = 266; //Army
 TX_GRAPH_CITIZENS = 267; //Citizens
 TX_GRAPH_HOUSES = 268; //Houses
 TX_GRAPH_RESOURCES = 269; //Resources
-TX_GRAPH_TITLE_RESOURCES = 270; //Resources produced
+TX_GRAPH_TITLE_RESOURCES = 270; //Produced quantity
 TX_GRAPH_NO_DATA = 271; //No data
 TX_PLAYER_YOU = 272; //You
 TX_PLAYER_X = 273; //Player %d
 TX_RESULTS_BACK_MP = 274; //Back to Multiplayer
 TX_RESULTS_BACK_REPLAYS = 275; //Back to Replays
-TX_RESOURCES_ALL = 276; //All
+TX_RESOURCES_ALL = 276; //All wares
 TX_RESOURCES_WARFARE = 277; //Warfare
 TX_RESOURCES_FOOD = 278; //Food
 
