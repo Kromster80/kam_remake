@@ -26,7 +26,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
-    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    procedure ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
     procedure ChangeUnitTrainOrder(aNewPosition: Integer); overload; //Change last unit in queue training order
     procedure ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer); overload; //Change unit order in queue
@@ -92,7 +92,7 @@ end;
 
 
 //Add resource as usual and initiate unit training
-procedure TKMHouseSchool.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseSchool.ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False);
 begin
   inherited;
 

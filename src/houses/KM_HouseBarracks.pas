@@ -29,7 +29,7 @@ type
 
     procedure Activate(aWasBuilt: Boolean); override;
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
-    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    procedure ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
@@ -158,11 +158,11 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseBarracks.ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False);
 begin
   Assert(aWare in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
-  fResourceCount[aWare] := EnsureRange(fResourceCount[aWare]+aCount, 0, High(Word));
+  fResourceCount[aWare] := EnsureRange(fResourceCount[aWare] + aCount, 0, High(Word));
   gHands[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
 end;
 

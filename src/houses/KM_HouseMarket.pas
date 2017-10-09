@@ -36,7 +36,7 @@ type
     function GetResTotal(aWare: TWareType): Word; overload;
     function CheckResIn(aWare: TWareType): Word; override;
     function CheckResOut(aWare: TWareType): Word; override;
-    procedure ResAddToIn(aResource: TWareType; aCount: Word=1; aFromScript: Boolean=false); override;
+    procedure ResAddToIn(aResource: TWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
     function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
@@ -129,29 +129,29 @@ begin
 end;
 
 
-procedure TKMHouseMarket.ResAddToIn(aResource: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseMarket.ResAddToIn(aResource: TWareType; aCount: Integer = 1; aFromScript: Boolean = False);
 var ResRequired: Integer;
 begin
   //If user cancelled the exchange (or began new one with different resources already)
   //then incoming resourced should be added to Offer list immediately
   //We don't want Marketplace to act like a Store
   if not aFromScript then
-    dec(fMarketDeliveryCount[aResource], aCount); //We must keep track of the number ordered, which is less now because this has arrived
+    Dec(fMarketDeliveryCount[aResource], aCount); //We must keep track of the number ordered, which is less now because this has arrived
   if (aResource = fResFrom) and TradeInProgress then
   begin
-    inc(fMarketResIn[aResource], aCount); //Place the new resource in the IN list
+    Inc(fMarketResIn[aResource], aCount); //Place the new resource in the IN list
     //As we only order 10 resources at one time, we might need to order another now to fill the gap made by the one delivered
     ResRequired := fTradeAmount*RatioFrom - (fMarketResIn[aResource]+fMarketDeliveryCount[aResource]);
     if ResRequired > 0 then
     begin
-      inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
+      Inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
       gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dtOnce, diNorm);
     end;
     AttemptExchange;
   end
   else
   begin
-    inc(fMarketResOut[aResource], aCount); //Place the new resource in the OUT list
+    Inc(fMarketResOut[aResource], aCount); //Place the new resource in the OUT list
     gHands[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
   end;
 end;

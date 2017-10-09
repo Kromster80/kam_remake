@@ -168,7 +168,7 @@ type
     function PickOrder: Byte;
     function CheckResToBuild: Boolean;
     function GetMaxInRes: Word;
-    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual; //override for School and etc..
+    procedure ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False); virtual; //override for School and etc..
     procedure ResAddToOut(aWare: TWareType; const aCount: Integer = 1);
     procedure ResAddToEitherFromScript(aWare: TWareType; aCount: Integer);
     procedure ResAddToBuild(aWare: TWareType);
@@ -212,7 +212,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     procedure ToggleAcceptFlag(aWare: TWareType);
-    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    procedure ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function ResCanAddToIn(aWare: TWareType): Boolean; override;
@@ -1131,7 +1131,7 @@ end;
 
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
-procedure TKMHouse.ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouse.ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False);
 var I,OrdersRemoved: Integer;
 begin
   Assert(aWare <> wt_None);
@@ -1683,20 +1683,20 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseStore.ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False);
 var R: TWareType;
 begin
   case aWare of
     wt_All:     for R := Low(WaresCount) to High(WaresCount) do begin
-                  WaresCount[R] := EnsureRange(WaresCount[R]+aCount, 0, High(Word));
+                  WaresCount[R] := EnsureRange(WaresCount[R] + aCount, 0, High(Word));
                   gHands[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
                 end;
     WARE_MIN..
     WARE_MAX:   begin
-                  WaresCount[aWare]:=EnsureRange(WaresCount[aWare]+aCount, 0, High(Word));
+                  WaresCount[aWare] := EnsureRange(WaresCount[aWare] + aCount, 0, High(Word));
                   gHands[fOwner].Deliveries.Queue.AddOffer(Self,aWare,aCount);
                 end;
-    else        raise ELocError.Create('Cant''t add '+gRes.Wares[aWare].Title, GetPosition);
+    else        raise ELocError.Create('Cant''t add ' + gRes.Wares[aWare].Title, GetPosition);
   end;
 end;
 
