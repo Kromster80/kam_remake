@@ -8,6 +8,9 @@ uses
 
 
 type
+  TKMStatType = (st_ByPlayers, st_ByTeams);
+
+  TKMEconomyStatKind = (est_Citizens, est_Houses);
 
   // Army chart types (enum)
   TKMChartWarriorType = (cwt_ArmyPower, cwt_All,
@@ -50,6 +53,8 @@ type
 
   PKMChartArmyMP = ^TKMChartArmyMP;
 
+  TKMStatsValues = array[0..MAX_HANDS-1] of array [0..9] of Cardinal;
+
   TKMMenuResultsMP = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
@@ -59,19 +64,27 @@ type
     fPlayersVisibleArmy: array [0 .. MAX_HANDS - 1] of Boolean;   //Remember visible players when toggling warriors
     fGameResultCaption: String;
 
+    fStatType: TKMStatType;
+
     fHandFlagColor: Cardinal;
+    fNoEconomyChartData: Boolean;
     fNoArmyChartData: Boolean;
     fColumnBoxArmy_Rows: array[TKMChartArmyKind] of array of TKMChartWarriorType;
-    fColumnBoxWare_Rows: array[0..1] of array of TWareType;
-    fTeamSeparatorsPos: TStringList;
-    fPlayersToShow: TStringList;
+
+    fChartSeparatorsPos: array[TKMStatType] of TStringList;
+    fNamesToShow: array[TKMStatType] of array[0 .. MAX_HANDS - 1] of String;
+    fColorsToShow: array[TKMStatType] of array[0 .. MAX_HANDS - 1] of Cardinal;
+    fListToShow: array[TKMStatType] of TStringList;
+    fStatsValues: array[TKMStatType] of TKMStatsValues;
 
     fIsStatsRefreshed: Boolean;
     fShowAIResults: Boolean;
-    procedure RecreatePlayersToShow;
+    procedure RecreateListToShow(aStatType: TKMStatType);
     procedure BackClick(Sender: TObject);
     function DoAdjoinSameColorHand(aHandId: Integer): Boolean;
     function GetSelectedChartArmyKind: TKMChartArmyKind;
+    function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType; aUseGDP: Boolean): TKMCardinalArray;
+    function DoShowHandStats(aHandId: Integer): Boolean;
 
     procedure Create_ResultsMP(aParent: TKMPanel);
     procedure CreateBars(aParent: TKMPanel);
@@ -79,29 +92,32 @@ type
     procedure CreateChartWares(aParent: TKMPanel);
     procedure CreateChartArmy(aParent: TKMPanel);
 
+    procedure UpdateVisibleTab;
     procedure TabChange(Sender: TObject);
-    procedure EconomyChange(Sender: TObject);
-    procedure WareChange(Sender: TObject);
-    procedure ArmyChange(Sender: TObject);
-    function GetChartWares(aPlayer: TKMHandIndex; aWare: TWareType; aUseGDP: Boolean): TKMCardinalArray;
-    function DoShowHandStats(aHandId: Integer): Boolean;
+    procedure StatTypeChange(Sender: TObject);
+    procedure BarsUpdate(aStatType: TKMStatType);
+    procedure EconomyUpdate(Sender: TObject);
+    procedure WareUpdate(Sender: TObject);
+    procedure ArmyUpdate(Sender: TObject);
 
     procedure RadioEconomyTypeChange(Sender: TObject);
     procedure RadioWareTypeChange(Sender: TObject);
     procedure RadioArmyTypeChange(Sender: TObject);
 
-    procedure Refresh;
-    procedure RefreshPlayersToShow;
-    procedure RefreshBars;
-    procedure RefreshChartEconomy;
-    procedure RefreshChartWares;
-    procedure RefreshChartArmy;
+    procedure Reinit;
+    procedure ReinitPlayersToShow;
+    procedure ReinitTeamsToShow;
+    procedure ReinitBars;
+    procedure ReinitChartEconomy;
+    procedure ReinitChartWares;
+    procedure ReinitChartArmy;
   protected
     Panel_ResultsMP: TKMPanel;
       Button_MPResultsBars,
       Button_MPResultsArmy,
       Button_MPResultsEconomy,
-      Button_MPResultsWares: TKMButtonFlat;
+      Button_MPResultsWares,
+      Button_Players,Button_Teams: TKMButtonFlat;
       Label_ResultsMP: TKMLabel;
       Panel_Bars: TKMPanel;
         Panel_BarsUpper, Panel_BarsLower: TKMPanel;
@@ -109,21 +125,24 @@ type
           Bar_Results: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMPercentBar;
           Image_ResultsRosette: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMImage;
       Panel_ChartsEconomy: TKMPanel;
-        Chart_MPCitizens: TKMChart;
-        Chart_MPHouses: TKMChart;
-        Panel_ChartEconomyType: TKMPanel;
+        Chart_Players_Citizens: TKMChart;
+        Chart_Players_Houses: TKMChart;
+        Chart_Teams_Citizens: TKMChart;
+        Chart_Teams_Houses: TKMChart;
+        Label_NoEconomyData: TKMLabel;
+        Panel_ChartEconomy_Type: TKMPanel;
           Radio_ChartEconomyType: TKMRadioGroup;
       Panel_ChartsWares: TKMPanel;
-        Columnbox_Wares: TKMColumnBox;
-        Columnbox_WaresGDP: TKMColumnBox;
-        Chart_MPWares: array [TWareType] of TKMChart; //One for each kind
-        Chart_MPWaresGDP: array [0..2] of TKMChart;
+        Columnbox_Wares: TKMColumnBox;    //columnBox for Quantities charts
+        Columnbox_WaresGDP: TKMColumnBox; //columnBox for GDP charts
+        Charts_Wares: array[TKMStatType] of array[TWareType] of TKMChart; //One for each kind
+        Charts_WaresGDP: array[TKMStatType] of array [0..2] of TKMChart;
         Label_NoWareData: TKMLabel;
         Panel_ChartWare_Type: TKMPanel;
           Radio_ChartWareType: TKMRadioGroup;
       Panel_ChartsArmy: TKMPanel;
         Columnbox_Army: TKMColumnBox;
-        Chart_MPArmy: array[TKMChartArmyKind] of array[TKMChartWarriorType] of TKMChartArmyMP;
+        Charts_Army: array[TKMStatType] of array[TKMChartArmyKind] of array[TKMChartWarriorType] of TKMChartArmyMP;
         Label_NoArmyData: TKMLabel;
         Panel_ChartArmy_Type: TKMPanel;
           Radio_ChartArmyType: TKMRadioGroup;
@@ -172,6 +191,22 @@ begin
       Result := I;
       Exit;
     end;
+end;
+
+
+function GetOwnerName(aHandId: Integer): String;
+begin
+  Result := gHands[aHandId].OwnerName(not (gGame.GameMode in [gmSingle, gmCampaign, gmReplaySingle]));
+end;
+
+
+function GetChartLegendCaption(aStatType: TKMStatType): String;
+begin
+  Result := '';
+  case aStatType of
+    st_ByPlayers: Result := 'Players';  //Todo translate
+    st_ByTeams:   Result := 'Teams';     //Todo translate
+  end;
 end;
 
 
@@ -284,12 +319,18 @@ end;
 
 { TKMGUIMenuResultsMP }
 constructor TKMMenuResultsMP.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+var
+  ST: TKMStatType;
 begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
-  fTeamSeparatorsPos := TStringList.Create;
-  fTeamSeparatorsPos.Sorted := True;
+
+  for ST := Low(TKMStatType) to High(TKMStatType) do
+  begin
+    fChartSeparatorsPos[ST] := TStringList.Create;
+    fChartSeparatorsPos[ST].Sorted := True;
+  end;
 
   Create_ResultsMP(aParent);
 end;
@@ -299,15 +340,18 @@ destructor TKMMenuResultsMP.Destroy;
 var
   WType: TKMChartWarriorType;
   CKind: TKMChartArmyKind;
+  ST: TKMStatType;
 begin
-  for CKind := High(TKMChartArmyKind) downto Low(TKMChartArmyKind) do
-    for WType := High(TKMChartWarriorType) downto Low(TKMChartWarriorType) do
-      FreeAndNil(Chart_MPArmy[CKind,WType]);
+  for ST := High(TKMStatType) downto Low(TKMStatType) do
+  begin
+    for CKind := High(TKMChartArmyKind) downto Low(TKMChartArmyKind) do
+      for WType := High(TKMChartWarriorType) downto Low(TKMChartWarriorType) do
+        FreeAndNil(Charts_Army[ST,CKind,WType]);
 
-  if fPlayersToShow <> nil then
-    FreeAndNil(fPlayersToShow);
-
-  FreeAndNil(fTeamSeparatorsPos);
+    if fListToShow[ST] <> nil then
+      FreeAndNil(fListToShow[ST]);
+    FreeAndNil(fChartSeparatorsPos[ST]);
+  end;
 end;
 
 
@@ -375,28 +419,41 @@ const
 begin
   Panel_ChartsEconomy := TKMPanel.Create(Panel_ResultsMP, 0, PANES_TOP, 1024, CHART_HEIGHT);
   Panel_ChartsEconomy.Anchors := [anLeft];
-    Chart_MPCitizens := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
-    Chart_MPCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
-    Chart_MPCitizens.LegendCaption := 'Players'; //Todo translate
-    Chart_MPCitizens.Anchors := [anLeft];
+    Chart_Players_Citizens := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
+    Chart_Players_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
+    Chart_Players_Citizens.LegendCaption := 'Players'; //Todo translate
+    Chart_Players_Citizens.Anchors := [anLeft];
 
-    Chart_MPHouses := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
-    Chart_MPHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
-    Chart_MPHouses.LegendCaption := 'Players'; //Todo translate
-    Chart_MPHouses.Anchors := [anLeft];
-    Chart_MPHouses.Hide;
+    Chart_Teams_Citizens := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
+    Chart_Teams_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
+    Chart_Teams_Citizens.LegendCaption := 'Teams'; //Todo translate
+    Chart_Teams_Citizens.Anchors := [anLeft];
 
-    Panel_ChartEconomyType := TKMPanel.Create(Panel_ChartsEconomy, 817, CHART_HEIGHT - RADIO_ECO_HEIGHT - 20, 150, RADIO_ECO_HEIGHT);
-      with TKMShape.Create(Panel_ChartEconomyType, 0, 0, 150, RADIO_ECO_HEIGHT) do
+    Chart_Players_Houses := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
+    Chart_Players_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
+    Chart_Players_Houses.LegendCaption := 'Players'; //Todo translate
+    Chart_Players_Houses.Anchors := [anLeft];
+    Chart_Players_Houses.Hide;
+
+    Chart_Teams_Houses := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
+    Chart_Teams_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
+    Chart_Teams_Houses.LegendCaption := 'Teams'; //Todo translate
+    Chart_Teams_Houses.Anchors := [anLeft];
+    Chart_Teams_Houses.Hide;
+
+    Label_NoEconomyData := TKMLabel.Create(Panel_ChartsEconomy, 512, CHART_HEIGHT div 2, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
+
+    Panel_ChartEconomy_Type := TKMPanel.Create(Panel_ChartsEconomy, 817, CHART_HEIGHT - RADIO_ECO_HEIGHT - 20, 150, RADIO_ECO_HEIGHT);
+      with TKMShape.Create(Panel_ChartEconomy_Type, 0, 0, 150, RADIO_ECO_HEIGHT) do
       begin
         FillColor := icDarkestGrayTrans;
         LineColor := icGray;
         LineWidth := 1;
       end;
 
-      TKMLabel.Create(Panel_ChartEconomyType, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+      TKMLabel.Create(Panel_ChartEconomy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
 
-      Radio_ChartEconomyType := TKMRadioGroup.Create(Panel_ChartEconomyType,5,35,140,RADIO_ECO_HEIGHT - 40,fnt_Grey);
+      Radio_ChartEconomyType := TKMRadioGroup.Create(Panel_ChartEconomy_Type,5,35,140,RADIO_ECO_HEIGHT - 40,fnt_Grey);
       Radio_ChartEconomyType.DrawChkboxOutline := True;
       Radio_ChartEconomyType.ItemIndex := 0;
       Radio_ChartEconomyType.Add(gResTexts[TX_GRAPH_CITIZENS]);
@@ -407,7 +464,7 @@ end;
 
 procedure TKMMenuResultsMP.RadioEconomyTypeChange(Sender: TObject);
 begin
-  EconomyChange(nil);
+  EconomyUpdate(nil);
 end;
 
 
@@ -418,13 +475,13 @@ procedure TKMMenuResultsMP.CreateChartWares(aParent: TKMPanel);
     aColumnBox.SetColumns(fnt_Game, ['', ''], [0, 20]);
     aColumnBox.ShowHeader := False;
     aColumnBox.ShowLines := False;
-    aColumnBox.OnChange := WareChange;
+    aColumnBox.OnChange := WareUpdate;
   end;
 
-  procedure SetupWareChart(aChart: TKMChart);
+  procedure SetupWareChart(aChart: TKMChart; aStatType: TKMStatType);
   begin
     aChart.Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
-    aChart.LegendCaption := 'Players'; //Todo translate
+    aChart.LegendCaption := GetChartLegendCaption(aStatType);
     aChart.Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
     aChart.Hide;
   end;
@@ -434,6 +491,7 @@ const
 var
   I: Integer;
   W: TWareType;
+  ST: TKMStatType;
 begin
   Panel_ChartsWares := TKMPanel.Create(aParent, 62, PANES_TOP, 900, CHART_HEIGHT);
   Panel_ChartsWares.AnchorsCenter;
@@ -443,16 +501,19 @@ begin
     SetupWareColumnBox(Columnbox_Wares);
     SetupWareColumnBox(Columnbox_WaresGDP);
 
-    for W := Low(TWareType) to High(TWareType) do
+    for ST := Low(TKMStatType) to High(TKMStatType) do
     begin
-      Chart_MPWares[W] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, CHART_HEIGHT);
-      SetupWareChart(Chart_MPWares[W]);
-    end;
+      for W := Low(TWareType) to High(TWareType) do
+      begin
+        Charts_Wares[ST,W] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, CHART_HEIGHT);
+        SetupWareChart(Charts_Wares[ST,W], ST);
+      end;
 
-    for I := Low(GDPWares) to High(GDPWares) do
-    begin
-      Chart_MPWaresGDP[I] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, CHART_HEIGHT);
-      SetupWareChart(Chart_MPWaresGDP[I]);
+      for I := Low(GDPWares) to High(GDPWares) do
+      begin
+        Charts_WaresGDP[ST,I] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, CHART_HEIGHT);
+        SetupWareChart(Charts_WaresGDP[ST,I], ST);
+      end;
     end;
 
     Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, CHART_HEIGHT div 2, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
@@ -478,7 +539,7 @@ end;
 
 procedure TKMMenuResultsMP.RadioWareTypeChange(Sender: TObject);
 begin
-  WareChange(Radio_ChartWareType);
+  WareUpdate(Radio_ChartWareType);
 end;
 
 
@@ -488,6 +549,7 @@ const
 var
   WType: TKMChartWarriorType;
   CKind: TKMChartArmyKind;
+  ST: TKMStatType;
 begin
   Panel_ChartsArmy := TKMPanel.Create(aParent, 62, PANES_TOP, 900, CHART_HEIGHT);
   Panel_ChartsArmy.AnchorsCenter;
@@ -496,19 +558,20 @@ begin
     Columnbox_Army.SetColumns(fnt_Game, ['', ''], [0, 33]);
     Columnbox_Army.ShowHeader := False;
     Columnbox_Army.ShowLines := False;
-    Columnbox_Army.OnChange := ArmyChange;
+    Columnbox_Army.OnChange := ArmyUpdate;
     // 33 is a bit more then unit icons max height
     Columnbox_Army.ItemHeight := Min(Columnbox_Army.Height div 13, 33);
 
-    for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
-      for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
-      begin
-        Chart_MPArmy[CKind,WType] := TKMChartArmyMP.Create(WType, CKind, Panel_ChartsArmy, 140, 0, 760, CHART_HEIGHT);
-        Chart_MPArmy[CKind,WType].Chart.Caption := gResTexts[TX_GRAPH_ARMY];
-        Chart_MPArmy[CKind,WType].Chart.LegendCaption := 'Players'; //Todo translate
-        Chart_MPArmy[CKind,WType].Chart.Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
-        Chart_MPArmy[CKind,WType].Chart.Hide;
-      end;
+    for ST := Low(TKMStatType) to High(TKMStatType) do
+      for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+        for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
+        begin
+          Charts_Army[ST,CKind,WType] := TKMChartArmyMP.Create(WType, CKind, Panel_ChartsArmy, 140, 0, 760, CHART_HEIGHT);
+          Charts_Army[ST,CKind,WType].Chart.Caption := gResTexts[TX_GRAPH_ARMY];
+          Charts_Army[ST,CKind,WType].Chart.LegendCaption := GetChartLegendCaption(ST); //Todo translate
+          Charts_Army[ST,CKind,WType].Chart.Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
+          Charts_Army[ST,CKind,WType].Chart.Hide;
+        end;
 
     Label_NoArmyData := TKMLabel.Create(Panel_ChartsArmy, 450, CHART_HEIGHT div 2, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 
@@ -535,7 +598,35 @@ end;
 
 procedure TKMMenuResultsMP.RadioArmyTypeChange(Sender: TObject);
 begin
-  ArmyChange(nil);
+  ArmyUpdate(nil);
+end;
+
+
+procedure TKMMenuResultsMP.StatTypeChange(Sender: TObject);
+begin
+  if Sender = Button_Players then
+    fStatType := st_ByPlayers;
+
+  if Sender = Button_Teams then
+    fStatType := st_ByTeams;
+
+  Button_Players.Down := fStatType = st_ByPlayers;
+  Button_Teams.Down   := fStatType = st_ByTeams;
+
+  UpdateVisibleTab;
+end;
+
+
+procedure TKMMenuResultsMP.UpdateVisibleTab;
+begin
+  if Panel_Bars.Visible then
+    BarsUpdate(fStatType);
+  if Panel_ChartsEconomy.Visible then
+    EconomyUpdate(nil);
+  if Panel_ChartsWares.Visible then
+    WareUpdate(nil);
+  if Panel_ChartsArmy.Visible then
+    ArmyUpdate(nil);
 end;
 
 
@@ -551,66 +642,214 @@ begin
   Panel_ChartsWares.Visible   := Sender = Button_MPResultsWares;
   Panel_ChartsArmy.Visible    := Sender = Button_MPResultsArmy;
 
-  if Sender = Button_MPResultsEconomy then
-    EconomyChange(nil);
-  if Sender = Button_MPResultsWares then
-    WareChange(nil);
-  if Sender = Button_MPResultsArmy then
-    ArmyChange(nil);
+  StatTypeChange(nil);
 end;
 
 
-procedure TKMMenuResultsMP.EconomyChange(Sender: TObject);
+procedure TKMMenuResultsMP.BarsUpdate(aStatType: TKMStatType);
+const
+  STATS_LOWER_IS_BETTER: set of Byte = [1,3,6];
+
+  procedure SetPlayerControls(aPlayer: Integer; aEnabled: Boolean);
+  var I: Integer;
+  begin
+    Label_ResultsPlayerName1[aPlayer].Visible := aEnabled;
+    Label_ResultsPlayerName2[aPlayer].Visible := aEnabled;
+
+    for I := 0 to 9 do
+    begin
+      Bar_Results[aPlayer,I].Visible := aEnabled;
+      Image_ResultsRosette[aPlayer,I].Visible := aEnabled;
+    end;
+  end;
+
+var
+  I,J,K: Integer;
+  UnitsMax, HousesMax, WaresMax, WeaponsMax, MaxValue: Integer;
+  Bests: array [0..9] of Cardinal;
+  Totals: array [0..9] of Cardinal;
+  StatValue: Cardinal;
+  ListToShow, HandsInOne: TStringList;
+  StatsValues: TKMStatsValues;
 begin
-  case Radio_ChartEconomyType.ItemIndex of
-    0:  begin
-          Chart_MPHouses.Hide;
-          Chart_MPCitizens.Show;
-        end;
-    1:  begin
-          Chart_MPCitizens.Hide;
-          Chart_MPHouses.Show;
-        end;
+  ListToShow := fListToShow[aStatType];
+  StatsValues := fStatsValues[aStatType];
+
+  //Update visibility depending on players count (note, players may be sparsed)
+  for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+    SetPlayerControls(I, False); //Disable them all to start
+
+  for I := 0 to ListToShow.Count - 1 do
+  begin
+    SetPlayerControls(I, True); //Enable used ones
+
+    Label_ResultsPlayerName1[I].Caption   := fNamesToShow[fStatType, I];
+    Label_ResultsPlayerName1[I].FontColor := FlagColorToTextColor(fColorsToShow[fStatType, I]);
+    Label_ResultsPlayerName2[I].Caption   := Label_ResultsPlayerName1[I].Caption;
+    Label_ResultsPlayerName2[I].FontColor := Label_ResultsPlayerName1[I].FontColor;
+  end;
+
+  //Update positioning
+  Panel_BarsUpper.Height := 40 + fListToShow[st_ByPlayers].Count * BAR_ROW_HEIGHT;
+  Panel_BarsLower.Height := 40 + fListToShow[st_ByPlayers].Count * BAR_ROW_HEIGHT;
+
+  //Second panel does not move from the middle of the screen: results always go above and below the middle
+  Panel_BarsUpper.Top := Panel_Bars.Height div 2 - Panel_BarsUpper.Height - 5;
+  Panel_BarsLower.Top := Panel_Bars.Height div 2 + 5;
+
+  //Calculate best scores
+  FillChar(Bests, SizeOf(Bests), #0);
+  //These are a special case: Less is better so we initialize them high
+  Bests[1] := High(Cardinal);
+  Bests[3] := High(Cardinal);
+  Bests[6] := High(Cardinal);
+  FillChar(Totals, SizeOf(Totals), #0);
+
+  //Calculate bests for each "section"
+  for I := 0 to ListToShow.Count - 1 do
+  begin
+    K := StrToInt(TStringList(ListToShow.Objects[I])[0]);
+    for J := 0 to 9 do
+    begin
+      StatValue := StatsValues[K,J];
+      if J in STATS_LOWER_IS_BETTER then
+      begin
+        if Bests[J] > StatValue then Bests[J] := StatValue;
+      end else
+        if Bests[J] < StatValue then Bests[J] := StatValue;
+
+      Inc(Totals[J], StatValue);
+    end;
+  end;
+
+  //Fill in raw values
+  for I := 0 to ListToShow.Count - 1 do
+  begin
+    K := StrToInt(TStringList(ListToShow.Objects[I])[0]);
+    for J := 0 to 9 do
+    begin
+      StatValue := StatsValues[K,J];
+      Bar_Results[I,J].Tag := StatValue;
+      if J in STATS_LOWER_IS_BETTER then
+      begin
+        Image_ResultsRosette[I,J].Visible := (StatValue <= Bests[J]) and (Totals[J] > 0);
+      end else
+        Image_ResultsRosette[I,J].Visible := (StatValue >= Bests[J]) and (Totals[J] > 0);
+    end;
+  end;
+
+  //Update percent bars for each category
+  UnitsMax := 0;
+  for K := 0 to 4 do for I := 0 to ListToShow.Count - 1 do
+    UnitsMax := Max(Bar_Results[I,K].Tag, UnitsMax);
+
+  HousesMax := 0;
+  for K := 5 to 7 do for I := 0 to ListToShow.Count - 1 do
+    HousesMax := Max(Bar_Results[I,K].Tag, HousesMax);
+
+  WaresMax := 0;
+  for I := 0 to ListToShow.Count - 1 do
+    WaresMax := Max(Bar_Results[I,8].Tag, WaresMax);
+
+  WeaponsMax := 0;
+  for I := 0 to ListToShow.Count - 1 do
+    WeaponsMax := Max(Bar_Results[I,9].Tag, WeaponsMax);
+
+  //Knowing Max in each category we may fill bars properly
+  for K := 0 to 9 do
+  begin
+    case K of
+      0..4: MaxValue := UnitsMax;
+      5..7: MaxValue := HousesMax;
+      8:    MaxValue := WaresMax;
+      else  MaxValue := WeaponsMax;
+    end;
+    for I := 0 to ListToShow.Count - 1 do
+    begin
+      if MaxValue <> 0 then
+        Bar_Results[I,K].Position := Bar_Results[I,K].Tag / MaxValue
+      else
+        Bar_Results[I,K].Position := 0;
+      Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');
+    end;
   end;
 end;
 
 
-procedure TKMMenuResultsMP.WareChange(Sender: TObject);
+procedure TKMMenuResultsMP.EconomyUpdate(Sender: TObject);
+begin
+  //Hide everything first
+  Chart_Players_Houses.Hide;
+  Chart_Players_Citizens.Hide;
+  Chart_Teams_Houses.Hide;
+  Chart_Teams_Citizens.Hide;
+
+  if fNoEconomyChartData then
+  begin
+    Label_NoEconomyData.Show;
+    Panel_ChartEconomy_Type.Hide;
+    Exit;
+  end;
+
+  Label_NoEconomyData.Hide;
+  Panel_ChartEconomy_Type.Show;
+
+  //Then show what is needed
+  case Radio_ChartEconomyType.ItemIndex of
+    0:  if fStatType = st_ByPlayers then
+          Chart_Players_Citizens.Show
+        else
+          Chart_Teams_Citizens.Show;
+    1:  if fStatType = st_ByPlayers then
+          Chart_Players_Houses.Show
+        else
+          Chart_Teams_Houses.Show;
+  end;
+end;
+
+
+procedure TKMMenuResultsMP.WareUpdate(Sender: TObject);
 
   procedure ChangeWareChart(aChart: TKMChart; aUseGDP: Boolean);
-    procedure FindVisibleChart(aChartToFind: TKMChart);
+    procedure CheckChart(aChartToFind: TKMChart);
     var
-      I, K: Integer;
+      I: Integer;
     begin
       //Remember which lines were visible
       if aChartToFind.Visible then
-        for K := 0 to aChartToFind.LineCount - 1 do
-          fPlayersVisibleWares[aChartToFind.Lines[K].Tag] := aChartToFind.Lines[K].Visible;
+        for I := 0 to aChartToFind.LineCount - 1 do
+          fPlayersVisibleWares[aChartToFind.Lines[I].Tag] := aChartToFind.Lines[I].Visible;
 
       aChartToFind.Visible := False;
     end;
   var
     W: TWareType;
-    I, K: Integer;
+    I: Integer;
+    ST: TKMStatType;
   begin
-    //Find and hide old chart
-    for I := Low(GDPWares) to High(GDPWares) do
-      FindVisibleChart(Chart_MPWaresGDP[I]);
+    for ST := Low(TKMStatType) to High(TKMStatType) do
+    begin
+      //Find and hide old chart
+      for I := Low(GDPWares) to High(GDPWares) do
+        CheckChart(Charts_WaresGDP[ST,I]);
 
-    for W := Low(TWareType) to High(TWareType) do
-      FindVisibleChart(Chart_MPWares[W]);
+      for W := Low(TWareType) to High(TWareType) do
+        CheckChart(Charts_Wares[ST,W]);
+    end;
 
     aChart.Visible := True;
 
     //Restore previously visible lines
-    for K := 0 to aChart.LineCount - 1 do
-      aChart.SetLineVisible(K, fPlayersVisibleWares[aChart.Lines[K].Tag]);
+    for I := 0 to aChart.LineCount - 1 do
+      aChart.SetLineVisible(I, fPlayersVisibleWares[aChart.Lines[I].Tag]);
   end;
 
 var
   K, WareInGdpI: Integer;
   W: TWareType;
+  ST: TKMStatType;
 begin
+  //Hide everything if no selection in columnbox
   if not Columnbox_Wares.IsSelected
     or not Columnbox_WaresGDP.IsSelected then
   begin
@@ -618,10 +857,13 @@ begin
     Columnbox_Wares.Hide;
     Columnbox_WaresGDP.Hide;
     Panel_ChartWare_Type.Hide;
-    for W := Low(TWareType) to High(TWareType) do
-      Chart_MPWares[W].Hide;
-    for K := Low(GDPWares) to High(GDPWares) do
-      Chart_MPWaresGDP[K].Hide;
+    for ST := Low(TKMStatType) to High(TKMStatType) do
+    begin
+      for W := Low(TWareType) to High(TWareType) do
+        Charts_Wares[ST,W].Hide;
+      for K := Low(GDPWares) to High(GDPWares) do
+        Charts_WaresGDP[ST,K].Hide;
+    end;
     Exit;
   end;
 
@@ -629,17 +871,17 @@ begin
   Panel_ChartWare_Type.Show;
 
   case Radio_ChartWareType.ItemIndex of
-    0:  begin
+    0:  begin // Quantity chart
           if (Sender = Radio_ChartWareType) and Columnbox_WaresGDP.IsSelected then
             Columnbox_Wares.ItemIndex := Columnbox_WaresGDP.ItemIndex;
 
           W := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
-          ChangeWareChart(Chart_MPWares[W], False);
+          ChangeWareChart(Charts_Wares[fStatType, W], False);
 
           Columnbox_WaresGDP.Hide;
           Columnbox_Wares.Show;
         end;
-    1:  begin
+    1:  begin // GDP chart
           if (Sender = Radio_ChartWareType) then
           begin
             W := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
@@ -650,7 +892,7 @@ begin
               Columnbox_WaresGDP.ItemIndex := 0;
           end;
 
-          ChangeWareChart(Chart_MPWaresGDP[Columnbox_WaresGDP.ItemIndex], True);
+          ChangeWareChart(Charts_WaresGDP[fStatType, Columnbox_WaresGDP.ItemIndex], True);
 
           Columnbox_Wares.Hide;
           Columnbox_WaresGDP.Show;
@@ -665,22 +907,25 @@ begin
 end;
 
 
-procedure TKMMenuResultsMP.ArmyChange(Sender: TObject);
+procedure TKMMenuResultsMP.ArmyUpdate(Sender: TObject);
 var
   K: Integer;
   SelectedWType, WType: TKMChartWarriorType;
   SelectedCKind,CKind: TKMChartArmyKind;
+  ST: TKMStatType;
   Chart: PKMChart;
   SelectedItemTag: Integer;
 begin
+  //Hide everything if there is no data
   if fNoArmyChartData then
   begin
     Label_NoArmyData.Show;
     Columnbox_Army.Hide;
     Panel_ChartArmy_Type.Hide;
-    for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
-      for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
-        Chart_MPArmy[CKind,WType].Chart.Hide;
+    for ST := Low(TKMStatType) to High(TKMStatType) do
+      for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+        for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
+          Charts_Army[ST,CKind,WType].Chart.Hide;
     Exit;
   end;
 
@@ -695,9 +940,9 @@ begin
   for K := 0 to High(fColumnBoxArmy_Rows[SelectedCKind]) do
   begin
     WType := fColumnBoxArmy_Rows[SelectedCKind,K];
-    Columnbox_Army.AddItem(MakeListRow(['', Chart_MPArmy[SelectedCKind,WType].ChartType.GUIName],   //Does not matter what chart to use - they all have same GUIName and GUIIcon
+    Columnbox_Army.AddItem(MakeListRow(['', Charts_Army[fStatType,SelectedCKind,WType].ChartType.GUIName],   //Does not matter what chart to use - they all have same GUIName and GUIIcon
                                         [fHandFlagColor, $FFFFFFFF],
-                                        [MakePic(rxGui, Chart_MPArmy[SelectedCKind,WType].ChartType.GUIIcon), MakePic(rxGui, 0)],
+                                        [MakePic(rxGui, Charts_Army[fStatType,SelectedCKind,WType].ChartType.GUIIcon), MakePic(rxGui, 0)],
                                         Byte(WType)));
     if SelectedItemTag = Byte(WType) then
       Columnbox_Army.ItemIndex := Columnbox_Army.RowCount - 1;
@@ -712,22 +957,21 @@ begin
   Panel_ChartArmy_Type.Show;
 
   //Find and hide old chart
-  for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
-  begin
-    //Remember which lines were visible
-    for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
-    begin
-      Chart := @Chart_MPArmy[CKind,WType].Chart;
-      if Chart^.Visible then
-        for K := 0 to Chart^.LineCount - 1 do
-          fPlayersVisibleArmy[Chart^.Lines[K].Tag] := Chart^.Lines[K].Visible;
-      Chart^.Visible := False;
-    end;
-  end;
+  for ST := Low(TKMStatType) to High(TKMStatType) do
+    for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+      //Remember which lines were visible
+      for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
+      begin
+        Chart := @Charts_Army[ST,CKind,WType].Chart;
+        if Chart^.Visible then
+          for K := 0 to Chart^.LineCount - 1 do
+            fPlayersVisibleArmy[Chart^.Lines[K].Tag] := Chart^.Lines[K].Visible;
+        Chart^.Visible := False;
+      end;
 
   SelectedWType := TKMChartWarriorType(Columnbox_Army.Rows[Columnbox_Army.ItemIndex].Tag);
 
-  Chart := @Chart_MPArmy[SelectedCKind,SelectedWType].Chart;
+  Chart := @Charts_Army[fStatType,SelectedCKind,SelectedWType].Chart;
   Chart^.Visible := True;
   //Restore previously visible lines
   for K := 0 to Chart^.LineCount - 1 do
@@ -742,18 +986,24 @@ begin
 end;
 
 
-procedure TKMMenuResultsMP.RecreatePlayersToShow;
+procedure TKMMenuResultsMP.RecreateListToShow(aStatType: TKMStatType);
 begin
-  if fPlayersToShow <> nil then
-    FreeAndNil(fPlayersToShow);
+  if fListToShow[aStatType] <> nil then
+    FreeAndNil(fListToShow[aStatType]);
 
-  fPlayersToShow := TStringList.Create;
-  fPlayersToShow.Sorted := False; //Need to append players to show at the end of list
-  fPlayersToShow.OwnsObjects := True;
+  fListToShow[aStatType] := TStringList.Create;
+  fListToShow[aStatType].Sorted := False;     //Need to append players to show at the end of list
+  fListToShow[aStatType].OwnsObjects := True; //Contains other TStringList'
 end;
 
 
-procedure TKMMenuResultsMP.RefreshPlayersToShow;
+function TKMMenuResultsMP.DoAdjoinSameColorHand(aHandId: Integer): Boolean;
+begin
+  Result := gHands[aHandId].IsComputer and (gGame.GameMode in [gmSingle, gmCampaign, gmReplaySingle]); //Adjoin only AI's in SP games
+end;
+
+
+procedure TKMMenuResultsMP.ReinitPlayersToShow;
 var
   HandsUniqueColorsCnt: Integer;
   HandsUniqueColors: array[0..MAX_HANDS-1] of record
@@ -783,22 +1033,24 @@ var
     begin
       PlayersIdList := TStringList.Create;
       PlayersIdList.Add(IntToStr(aHandId));
-      fPlayersToShow.AddObject(IntToStr(aHandId), PlayersIdList);
+      fListToShow[st_ByPlayers].AddObject(IntToStr(aHandId), PlayersIdList);
+      fNamesToShow[st_ByPlayers, fListToShow[st_ByPlayers].Count - 1] := GetOwnerName(aHandId);
+      fColorsToShow[st_ByPlayers, fListToShow[st_ByPlayers].Count - 1] := gHands[aHandId].FlagColor;
     end;
 
     procedure AddOldHand(aOldI: Integer);
     var ListI: Integer;
     begin
-      ListI := fPlayersToShow.IndexOf(IntToStr(aOldI));
+      ListI := fListToShow[st_ByPlayers].IndexOf(IntToStr(aOldI));
       if ListI > -1 then //should be always true
-        TStringList(fPlayersToShow.Objects[ListI]).Add(IntToStr(aHandId)); //Add same color player to list
+        TStringList(fListToShow[st_ByPlayers].Objects[ListI]).Add(IntToStr(aHandId)); //Add same color player to list
     end;
   var
     OldI: Integer;
   begin
     if DoShowHandStats(aHandId) then
     begin
-      if DoAdjoinSameColorHand(aHandId) then
+      if DoAdjoinSameColorHand(aHandId) then // For SP game we have to adjoin same color hands
       begin
         AddOrFindHandColor(aHandId, gHands[aHandId].FlagColor, OldI); //Same colored players are adjoined into 1
         if OldI = -1 then
@@ -822,27 +1074,85 @@ begin
   for I := Low(Teams) to High(Teams) do
     NonTeamHands := NonTeamHands - Teams[I];
 
-  RecreatePlayersToShow;
+  RecreateListToShow(st_ByPlayers);
   HandsUniqueColorsCnt := 0;
 
   for I in NonTeamHands do
     TryAddHand(I);
 
-  fTeamSeparatorsPos.Clear;
+  fChartSeparatorsPos[st_ByPlayers].Clear;
   for I := Low(Teams) to High(Teams) do
   begin
-    PlayersCntBeforeAdd := fPlayersToShow.Count;
+    PlayersCntBeforeAdd := fListToShow[st_ByPlayers].Count;
     for J in Teams[I] do
       TryAddHand(J);
     // Add separator position
     if (PlayersCntBeforeAdd > 0)                            // Do not add separator at first pos
-      and (PlayersCntBeforeAdd < fPlayersToShow.Count) then // Do not separator if team is 'empty'
-      fTeamSeparatorsPos.Add(IntToStr(PlayersCntBeforeAdd));
+      and (PlayersCntBeforeAdd < fListToShow[st_ByPlayers].Count) then // Do not separator if team is 'empty'
+      fChartSeparatorsPos[st_ByPlayers].Add(IntToStr(PlayersCntBeforeAdd));
   end;
 end;
 
 
-procedure TKMMenuResultsMP.Refresh;
+procedure TKMMenuResultsMP.ReinitTeamsToShow;
+  procedure AddToNewTeam(aFirstHandId: Integer; aPlayersList: TStringList);
+  var
+    PlayersList: TStringList;
+  begin
+    PlayersList := TStringList.Create;
+    PlayersList.AddStrings(aPlayersList);
+    fListToShow[st_ByTeams].AddObject(IntToStr(aFirstHandId), PlayersList);
+    fNamesToShow[st_ByTeams, fListToShow[st_ByTeams].Count - 1] := gResTexts[TX_LOBBY_HEADER_TEAM] + ' ' + IntToStr(fListToShow[st_ByTeams].Count);
+    fColorsToShow[st_ByTeams, fListToShow[st_ByTeams].Count - 1] := gHands[aFirstHandId].FlagColor;
+  end;
+
+  procedure AddToTeam(aTeamI: Integer; aPlayersList: TStringList);
+  var
+    PlayersList: TStringList;
+  begin
+    PlayersList := TStringList(fListToShow[st_ByTeams].Objects[aTeamI]);
+    PlayersList.AddStrings(aPlayersList);
+  end;
+
+var
+  I,J,HandId,TeamI: Integer;
+  PlayersList: TStringList;
+  Teams: TKMByteSetArray;
+  TeamIsNew: Boolean;
+begin
+  RecreateListToShow(st_ByTeams);
+  fChartSeparatorsPos[st_ByTeams].Clear;
+  Teams := gHands.GetFullTeams;
+  TeamI := 0;
+
+  for J := Low(Teams) to High(Teams) do
+  begin
+    TeamIsNew := True;
+    for I := 0 to fListToShow[st_ByPlayers].Count - 1 do
+    begin
+      PlayersList := TStringList(fListToShow[st_ByPlayers].Objects[I]);
+      HandId := StrToInt(PlayersList[0]);
+
+      if HandId in Teams[J] then
+      begin
+        if TeamIsNew then
+        begin
+          TeamIsNew := False;
+          AddToNewTeam(HandId, PlayersList);
+        end else
+          AddToTeam(TeamI, PlayersList);
+      end;
+    end;
+    if not TeamIsNew then //check if there was empty teams
+      Inc(TeamI);
+
+    if J <> Low(Teams) then
+      fChartSeparatorsPos[st_ByTeams].Add(IntToStr(J));
+  end;
+end;
+
+
+procedure TKMMenuResultsMP.Reinit;
 var
   I: Integer;
   BackCaption: String;
@@ -850,7 +1160,7 @@ begin
   //Back button has different captions depending on where it returns us to
   case fGameResultMsg of
     gr_ReplayEnd: BackCaption := gResTexts[TX_RESULTS_BACK_REPLAYS];
-    gr_ShowStats: BackCaption := 'Back to game results'; //Todo translate
+    gr_ShowStats: BackCaption := 'Back to Game results'; //Todo translate
     else          BackCaption := gResTexts[TX_RESULTS_BACK_MP];
   end;
   Button_ResultsMPBack.Caption := BackCaption;
@@ -880,42 +1190,35 @@ begin
   //Append mission name and time after the result message
   Label_ResultsMP.Caption := fGameResultCaption + ' - ' + gGame.GameName + ' - ' + TimeToString(gGame.MissionTime);
 
-  RefreshPlayersToShow;
+  Button_Players.Down := True;
+  Button_Teams.Down := False;
 
-  RefreshBars;
-  RefreshChartEconomy;
-  RefreshChartWares;
-  RefreshChartArmy;
+  for I := 0 to MAX_HANDS - 1 do
+  begin
+    fPlayersVisibleWares[I] := True;
+    fPlayersVisibleArmy[I] := True;
+  end;
+
+  fStatType := st_ByPlayers;
+
+  ReinitPlayersToShow;
+  ReinitTeamsToShow; //Shuld be done after ReinitPlayersToShow
+  ReinitBars;
+  ReinitChartEconomy;
+  ReinitChartWares;
+  ReinitChartArmy;
 
   Button_MPResultsWares.Enabled := (gGame.MissionMode = mm_Normal);
   Button_MPResultsEconomy.Enabled := (gGame.MissionMode = mm_Normal);
+
+  Button_Teams.Enabled := fListToShow[st_ByPlayers].Count > fListToShow[st_ByTeams].Count; // Disable 'by Teams' btn for FFA game
 
   //Show first tab
   TabChange(Button_MPResultsBars);
 end;
 
 
-function GetOwnerName(aHandId: Integer): String;
-begin
-  Result := gHands[aHandId].OwnerName(not (gGame.GameMode in [gmSingle, gmCampaign, gmReplaySingle]));
-end;
-
-
-procedure TKMMenuResultsMP.RefreshBars;
-const
-  STATS_LOWER_IS_BETTER: set of Byte = [1,3,6];
-
-  procedure SetPlayerControls(aPlayer: Integer; aEnabled: Boolean);
-  var I: Integer;
-  begin
-    Label_ResultsPlayerName1[aPlayer].Visible := aEnabled;
-    Label_ResultsPlayerName2[aPlayer].Visible := aEnabled;
-    for I := 0 to 9 do
-    begin
-      Bar_Results[aPlayer,I].Visible := aEnabled;
-      Image_ResultsRosette[aPlayer,I].Visible := aEnabled;
-    end;
-  end;
+procedure TKMMenuResultsMP.ReinitBars;
 
   function GetStatValue(aHandId, aStatId: Integer): Cardinal;
   begin
@@ -935,206 +1238,125 @@ const
       end;
   end;
 
-var
-  I,J,K,HandId,Index: Integer;
-  UnitsMax, HousesMax, WaresMax, WeaponsMax, MaxValue: Integer;
-  StatValues: array[0..MAX_HANDS-1] of array [0..9] of Cardinal;
-  Bests: array [0..9] of Cardinal;
-  Totals: array [0..9] of Cardinal;
-  StatValue: Cardinal;
-  SameColorHands: TStringList;
-begin
-  //Update visibility depending on players count (note, players may be sparsed)
-  for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+  procedure CollectStats(aStatType: TKMStatType);
+  var
+    I,J,K,HandId: Integer;
+    ListToShow,HandsInOne: TStringList;
   begin
-    SetPlayerControls(I, False); //Disable them all to start
-    FillChar(StatValues[I], SizeOf(StatValues[I]), #0);
-  end;
+    ListToShow := fListToShow[aStatType];
+    //Update visibility depending on players count (note, players may be sparsed)
+    for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+      FillChar(fStatsValues[aStatType,I], SizeOf(fStatsValues[aStatType,I]), #0);
 
-  Index := 0;
-  for I := 0 to fPlayersToShow.Count - 1 do
-  begin
-    SameColorHands := TStringList(fPlayersToShow.Objects[I]);
-
-    for K := 0 to SameColorHands.Count - 1 do
+    for I := 0 to ListToShow.Count - 1 do
     begin
-      HandId := StrToInt(SameColorHands[K]);
-      for J := 0 to 9 do
-        Inc(StatValues[StrToInt(SameColorHands[0]),J], GetStatValue(HandId,J)); // Adjoin data to 1st Hand in SameColorHands list
-    end;
+      HandsInOne := TStringList(ListToShow.Objects[I]); //hands, that has to be shown as one statistics value
 
-    HandId := StrToInt(SameColorHands[0]); // Always fill from 1st HandId
-
-    SetPlayerControls(Index, True); //Enable used ones
-    Label_ResultsPlayerName1[Index].Caption   := GetOwnerName(HandId);
-    Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(gHands[HandId].FlagColor);
-    Label_ResultsPlayerName2[Index].Caption   := GetOwnerName(HandId);
-    Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(gHands[HandId].FlagColor);
-    Inc(Index);
-  end;
-
-  //Update positioning
-  Panel_BarsUpper.Height := 40 + fPlayersToShow.Count * BAR_ROW_HEIGHT;
-  Panel_BarsLower.Height := 40 + fPlayersToShow.Count * BAR_ROW_HEIGHT;
-
-  //Second panel does not move from the middle of the screen: results always go above and below the middle
-  Panel_BarsUpper.Top := Panel_Bars.Height div 2 - Panel_BarsUpper.Height - 5;
-  Panel_BarsLower.Top := Panel_Bars.Height div 2 + 5;
-
-  //Calculate best scores
-  FillChar(Bests, SizeOf(Bests), #0);
-  //These are a special case: Less is better so we initialize them high
-  Bests[1] := High(Cardinal);
-  Bests[3] := High(Cardinal);
-  Bests[6] := High(Cardinal);
-  FillChar(Totals, SizeOf(Totals), #0);
-
-  //Calculate bests for each "section"
-  for I := 0 to fPlayersToShow.Count - 1 do
-  begin
-    K := StrToInt(TStringList(fPlayersToShow.Objects[I])[0]);
-    for J := 0 to 9 do
-    begin
-      StatValue := StatValues[K,J];
-      if J in STATS_LOWER_IS_BETTER then
+      for K := 0 to HandsInOne.Count - 1 do
       begin
-        if Bests[J] > StatValue then Bests[J] := StatValue;
-      end else
-        if Bests[J] < StatValue then Bests[J] := StatValue;
-
-      Inc(Totals[J], StatValue);
+        HandId := StrToInt(HandsInOne[K]);
+        for J := 0 to 9 do
+          Inc(fStatsValues[aStatType,StrToInt(HandsInOne[0]),J], GetStatValue(HandId,J)); // Adjoin data to 1st Hand in SameColorHands list
+      end;
     end;
   end;
-
-  //Fill in raw values
-  Index := 0;
-  for I := 0 to fPlayersToShow.Count - 1 do
-  begin
-    K := StrToInt(TStringList(fPlayersToShow.Objects[I])[0]);
-    for J := 0 to 9 do
-    begin
-      StatValue := StatValues[K,J];
-      Bar_Results[Index,J].Tag := StatValue;
-      if J in STATS_LOWER_IS_BETTER then
-      begin
-        Image_ResultsRosette[Index,J].Visible := (StatValue <= Bests[J]) and (Totals[J] > 0);
-      end else
-        Image_ResultsRosette[Index,J].Visible := (StatValue >= Bests[J]) and (Totals[J] > 0);
-    end;
-    Inc(Index);
-  end;
-
-  //Update percent bars for each category
-  UnitsMax := 0;
-  for K := 0 to 4 do for I := 0 to fPlayersToShow.Count - 1 do
-    UnitsMax := Max(Bar_Results[I,K].Tag, UnitsMax);
-
-  HousesMax := 0;
-  for K := 5 to 7 do for I := 0 to fPlayersToShow.Count - 1 do
-    HousesMax := Max(Bar_Results[I,K].Tag, HousesMax);
-
-  WaresMax := 0;
-  for I := 0 to fPlayersToShow.Count - 1 do
-    WaresMax := Max(Bar_Results[I,8].Tag, WaresMax);
-
-  WeaponsMax := 0;
-  for I := 0 to fPlayersToShow.Count - 1 do
-    WeaponsMax := Max(Bar_Results[I,9].Tag, WeaponsMax);
-
-  //Knowing Max in each category we may fill bars properly
-  for K := 0 to 9 do
-  begin
-    case K of
-      0..4: MaxValue := UnitsMax;
-      5..7: MaxValue := HousesMax;
-      8:    MaxValue := WaresMax;
-      else  MaxValue := WeaponsMax;
-    end;
-    for I := 0 to fPlayersToShow.Count - 1 do
-    begin
-      if MaxValue <> 0 then
-        Bar_Results[I,K].Position := Bar_Results[I,K].Tag / MaxValue
-      else
-        Bar_Results[I,K].Position := 0;
-      Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');
-    end;
-  end;
-end;
-
-
-function TKMMenuResultsMP.DoAdjoinSameColorHand(aHandId: Integer): Boolean;
-begin
-  Result := gHands[aHandId].IsComputer and (gGame.GameMode in [gmSingle, gmCampaign, gmReplaySingle]);
-end;
-
-
-procedure TKMMenuResultsMP.RefreshChartEconomy;
 var
-  I, J, HandId: Integer;
-  PlayersList: TStringList;
-  ChartData: TKMCardinalArray;
+  ST: TKMStatType;
 begin
-  for I := 0 to MAX_HANDS - 1 do
-  begin
-    fPlayersVisibleWares[I] := True;
-    fPlayersVisibleArmy[I] := True;
-  end;
-
-  Chart_MPCitizens.Clear;
-  Chart_MPHouses.Clear;
-
-  Chart_MPCitizens.MaxLength := 0;
-  Chart_MPCitizens.MaxTime   := gGame.GameTickCount div 10;
-  Chart_MPCitizens.Peacetime := 60*gGame.GameOptions.Peacetime;
-  Chart_MPCitizens.SetSeparatorPositions(fTeamSeparatorsPos);
-
-  Chart_MPHouses.MaxLength   := 0;
-  Chart_MPHouses.MaxTime     := gGame.GameTickCount div 10;
-  Chart_MPHouses.Peacetime   := 60*gGame.GameOptions.Peacetime;
-  Chart_MPHouses.SetSeparatorPositions(fTeamSeparatorsPos);
+  for ST := Low(TKMStatType) to High(TKMStatType) do
+    CollectStats(ST);
+end;
 
 
-  for I := 0 to fPlayersToShow.Count - 1 do
-  begin
-    SetLength(ChartData, 0);
-    PlayersList := TStringList(fPlayersToShow.Objects[I]);
-
-    for J := 0 to PlayersList.Count - 1 do
-    begin
-      HandId := StrToInt(PlayersList[J]);
-      KMSummAndEnlargeArr(@ChartData, @gHands[HandId].Stats.ChartCitizens);
-    end;
-
-    HandId := StrToInt(PlayersList[0]);
-    with gHands[HandId] do
-    begin
-      Chart_MPCitizens.MaxLength := Max(Chart_MPCitizens.MaxLength, Stats.ChartCount);
-      Chart_MPCitizens.AddLine(GetOwnerName(HandId), FlagColor, ChartData);
-    end;
-  end;
-
-  for I := 0 to fPlayersToShow.Count - 1 do
-  begin
-    SetLength(ChartData, 0);
-    PlayersList := TStringList(fPlayersToShow.Objects[I]);
-
-    for J := 0 to PlayersList.Count - 1 do
-    begin
-      HandId := StrToInt(PlayersList[J]);
-      KMSummAndEnlargeArr(@ChartData, @gHands[HandId].Stats.ChartHouses);
-    end;
-
-    HandId := StrToInt(PlayersList[0]);
-    with gHands[HandId] do
-    begin
-      Chart_MPHouses.MaxLength := Max(Chart_MPHouses.MaxLength, Stats.ChartCount);
-      Chart_MPHouses.AddLine(GetOwnerName(HandId), FlagColor, ChartData);
-    end;
+function GetEconomyStatsData(aHandId: Integer; aEcoStatKind: TKMEconomyStatKind): PKMCardinalArray;
+begin
+  case aEcoStatKind of
+    est_Citizens: Result := @gHands[aHandId].Stats.ChartCitizens;
+    est_Houses:   Result := @gHands[aHandId].Stats.ChartHouses;
+    else          raise Exception.Create('Unknown EconomyStatKind');
   end;
 end;
 
 
-procedure TKMMenuResultsMP.RefreshChartWares;
+procedure TKMMenuResultsMP.ReinitChartEconomy;
+
+  function GetEconomyChart(aStatType: TKMStatType; aEcoStatKind: TKMEconomyStatKind): PKMChart;
+  begin
+    case aStatType of
+      st_ByPlayers: if aEcoStatKind = est_Citizens then
+                      Result := @Chart_Players_Citizens
+                    else
+                      Result := @Chart_Players_Houses;
+      st_ByTeams:   if aEcoStatKind = est_Citizens then
+                      Result := @Chart_Teams_Citizens
+                    else
+                      Result := @Chart_Teams_Houses;
+    end;
+  end;
+
+  procedure InitChart(aStatType: TKMStatType; aEcoStatKind: TKMEconomyStatKind);
+  var
+    Chart: PKMChart;
+  begin
+    Chart := GetEconomyChart(aStatType, aEcoStatKind);
+    Chart^.Clear;
+    Chart^.MaxLength := 0;
+    Chart^.MaxTime   := gGame.GameTickCount div 10;
+    Chart^.Peacetime := 60*gGame.GameOptions.Peacetime;
+    Chart^.SetSeparatorPositions(fChartSeparatorsPos[aStatType]);
+  end;
+
+  procedure FillChart(aStatType: TKMStatType; aEcoStatKind: TKMEconomyStatKind);
+  var
+    I, J, HandId: Integer;
+    PlayersList, ListToShow: TStringList;
+    ChartData: TKMCardinalArray;
+    Chart: PKMChart;
+  begin
+    ListToShow := fListToShow[aStatType];
+    Chart := GetEconomyChart(aStatType, aEcoStatKind);
+    for I := 0 to ListToShow.Count - 1 do
+    begin
+      SetLength(ChartData, 0);
+      PlayersList := TStringList(ListToShow.Objects[I]);
+
+      for J := 0 to PlayersList.Count - 1 do
+      begin
+        HandId := StrToInt(PlayersList[J]);
+        KMSummAndEnlargeArr(@ChartData, GetEconomyStatsData(HandId, aEcoStatKind));
+      end;
+
+      if fNoEconomyChartData then
+        for J := 0 to Length(ChartData) - 1 do
+          if ChartData[J] <> 0 then
+          begin
+            fNoEconomyChartData := False;
+            Break;
+          end;
+
+      HandId := StrToInt(PlayersList[0]);
+      Chart^.MaxLength := Max(Chart^.MaxLength, gHands[HandId].Stats.ChartCount);
+      Chart^.AddLine(fNamesToShow[aStatType, I], fColorsToShow[aStatType, I], ChartData);
+    end;
+
+  end;
+
+var
+  I: Integer;
+  ST: TKMStatType;
+  ESK: TKMEconomyStatKind;
+begin
+  fNoEconomyChartData := True;
+  for ST := Low(TKMStatType) to High(TKMStatType) do
+    for ESK := Low(TKMEconomyStatKind) to High(TKMEconomyStatKind) do
+    begin
+      InitChart(ST, ESK);
+      FillChart(ST, ESK);
+    end;
+end;
+
+
+procedure TKMMenuResultsMP.ReinitChartWares;
 const
   WARES_CNT = 31;
 
@@ -1147,27 +1369,27 @@ const
     wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
     wt_Arbalet, wt_Horse,   wt_Fish);
 
-  procedure RefreshChart(W: TWareType; aChart: TKMChart; aUseGDP: Boolean);
+  procedure RefreshChart(aStatType: TKMStatType; W: TWareType; aChart: PKMChart; aUseGDP: Boolean);
   var
     I, K, HandId: Integer;
     PlayersList: TStringList;
     ChartData, ChartWaresData: TKMCardinalArray;
   begin
-    aChart.Clear;
-    aChart.MaxLength := 0;
-    aChart.MaxTime   := gGame.GameTickCount div 10;
-    aChart.Peacetime := 60*gGame.GameOptions.Peacetime;
-    aChart.SetSeparatorPositions(fTeamSeparatorsPos);
+    aChart^.Clear;
+    aChart^.MaxLength := 0;
+    aChart^.MaxTime   := gGame.GameTickCount div 10;
+    aChart^.Peacetime := 60*gGame.GameOptions.Peacetime;
+    aChart^.SetSeparatorPositions(fChartSeparatorsPos[aStatType]);
 
     if aUseGDP then
-      aChart.Caption   := gRes.Wares[W].Title + ' - ' + 'GDP' //Todo translate
+      aChart^.Caption   := gRes.Wares[W].Title + ' - ' + 'GDP' //Todo translate
     else
-      aChart.Caption   := gRes.Wares[W].Title + ' - ' + gResTexts[TX_GRAPH_TITLE_RESOURCES];
+      aChart^.Caption   := gRes.Wares[W].Title + ' - ' + gResTexts[TX_GRAPH_TITLE_RESOURCES];
 
-    for I := 0 to fPlayersToShow.Count - 1 do
+    for I := 0 to fListToShow[aStatType].Count - 1 do
     begin
       SetLength(ChartData, 0);
-      PlayersList := TStringList(fPlayersToShow.Objects[I]);
+      PlayersList := TStringList(fListToShow[aStatType].Objects[I]);
 
       for K := 0 to PlayersList.Count - 1 do
       begin
@@ -1176,23 +1398,28 @@ const
         KMSummAndEnlargeArr(@ChartData, @ChartWaresData);
       end;
 
+//      HandId := StrToInt(PlayersList[0]);
+//      with gHands[HandId] do
+//      begin
+//        aChart^.MaxLength := Max(aChart^.MaxLength, Stats.ChartCount);
+//        aChart^.AddLine(GetOwnerName(HandId), FlagColor, ChartData, I);
+//      end;
+
       HandId := StrToInt(PlayersList[0]);
-      with gHands[HandId] do
-      begin
-        aChart.MaxLength := Max(aChart.MaxLength, Stats.ChartCount);
-        aChart.AddLine(GetOwnerName(HandId), FlagColor, ChartData, I);
-      end;
+      aChart^.MaxLength := Max(aChart^.MaxLength, gHands[HandId].Stats.ChartCount);
+      aChart^.AddLine(fNamesToShow[aStatType, I], fColorsToShow[aStatType, I], ChartData, I);
     end;
   end;
 
 var
-  I,K,J,HandId,WareInGDP: Integer;
+  I,K,J,WareInGDP: Integer;
   W: TWareType;
   ListRow: TKMListRow;
+  ST: TKMStatType;
 begin
   Radio_ChartWareType.ItemIndex := 0;
 
-  //Fill in chart values
+  //Prepare columnboxes
   Columnbox_Wares.Clear;
   Columnbox_WaresGDP.Clear;
   for I := Low(Wares) to High(Wares) do
@@ -1214,25 +1441,27 @@ begin
     end;
   end;
 
-  for J := 0 to Columnbox_Wares.RowCount - 1 do
-  begin
-    W := TWareType(Columnbox_Wares.Rows[J].Tag);
+  //Fill in chart values
+  for ST := Low(TKMStatType) to High(TKMStatType) do
+    for J := 0 to Columnbox_Wares.RowCount - 1 do
+    begin
+      W := TWareType(Columnbox_Wares.Rows[J].Tag);
 
-    RefreshChart(W, Chart_MPWares[W], False);
-    WareInGDP := GetWareIdInGDPArr(W);
-    if WareInGDP <> -1 then
-      RefreshChart(W, Chart_MPWaresGDP[WareInGDP], True);
-  end;
+      RefreshChart(ST, W, @Charts_Wares[ST, W], False);
+      WareInGDP := GetWareIdInGDPArr(W);
+      if WareInGDP <> -1 then
+        RefreshChart(ST, W, @Charts_WaresGDP[ST, WareInGDP], True);
+    end;
 
   Columnbox_Wares.ItemIndex := 0;
   Columnbox_Wares.ItemHeight := Min(Columnbox_Wares.Height div 15, 20);
   Columnbox_WaresGDP.ItemIndex := 0;
   Columnbox_WaresGDP.ItemHeight := Min(Columnbox_WaresGDP.Height div 15, 20);
-  WareChange(nil);
+  WareUpdate(nil);
 end;
 
 
-procedure TKMMenuResultsMP.RefreshChartArmy;
+procedure TKMMenuResultsMP.ReinitChartArmy;
 const
   CHART_ARMY_CAPTION: array[TKMChartArmyKind] of String = ('Instantaneous','Total equipped','Defeated','Lost');
 var
@@ -1241,11 +1470,13 @@ var
   ChartData, ChartArmyData: TKMCardinalArray;
   WType: TKMChartWarriorType;
   CKind: TKMChartArmyKind;
+  ST: TKMStatType;
   Chart: PKMChart;
   ChartArmy: PKMChartArmyMP;
 begin
   fNoArmyChartData := True;
   Radio_ChartArmyType.ItemIndex := 0;
+
   for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
   begin
     SetLength(fColumnBoxArmy_Rows[CKind], Integer(High(TKMChartWarriorType)) + 1); // Set max length for columnbox rows for all chart kinds
@@ -1255,7 +1486,8 @@ begin
     begin
       for J := 0 to gHands.Count - 1 do
         if DoShowHandStats(J)
-          and ((WType = cwt_ArmyPower) or not Chart_MPArmy[CKind,WType].IsEmpty(J)) then // Always add ArmyPower chart, even if its empty
+          and ((WType = cwt_ArmyPower)   // Always add ArmyPower chart, even if its empty
+            or not Charts_Army[fStatType,CKind,WType].IsEmpty(J)) then
         begin
           fColumnBoxArmy_Rows[CKind, I] := WType;
           Inc(I);
@@ -1268,43 +1500,47 @@ begin
   end;
 
   //Fill in chart values
-  for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
-    for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
-    begin
-      ChartArmy := @Chart_MPArmy[CKind,WType];
-      Chart := @ChartArmy^.Chart;
-      Chart^.Clear;
-      Chart^.MaxLength := 0;
-      Chart^.MaxTime := gGame.GameTickCount div 10;
-      Chart^.Peacetime := 60*gGame.GameOptions.Peacetime;
-      Chart^.SetSeparatorPositions(fTeamSeparatorsPos);
-      Chart^.Caption := ChartArmy^.ChartType.GUIName + ' - ' + CHART_ARMY_CAPTION[CKind]; // Todo translate
-
-      for I := 0 to fPlayersToShow.Count - 1 do
+  for ST := Low(TKMStatType) to High(TKMStatType) do
+    for CKind := Low(TKMChartArmyKind) to High(TKMChartArmyKind) do
+      for WType := Low(TKMChartWarriorType) to High(TKMChartWarriorType) do
       begin
-        SetLength(ChartData, 0);
-        PlayersList := TStringList(fPlayersToShow.Objects[I]);
+        ChartArmy := @Charts_Army[ST,CKind,WType];
+        Chart := @ChartArmy^.Chart;
+        Chart^.Clear;
+        Chart^.MaxLength := 0;
+        Chart^.MaxTime := gGame.GameTickCount div 10;
+        Chart^.Peacetime := 60*gGame.GameOptions.Peacetime;
+        Chart^.SetSeparatorPositions(fChartSeparatorsPos[ST]);
+        Chart^.Caption := ChartArmy^.ChartType.GUIName + ' - ' + CHART_ARMY_CAPTION[CKind]; // Todo translate
 
-        for J := 0 to PlayersList.Count - 1 do
+        for I := 0 to fListToShow[ST].Count - 1 do
         begin
-          HandId := StrToInt(PlayersList[J]);
-          ChartArmyData := ChartArmy^.GetChartData(HandId);
-          KMSummAndEnlargeArr(@ChartData, @ChartArmyData);
+          SetLength(ChartData, 0);
+          PlayersList := TStringList(fListToShow[ST].Objects[I]);
+
+          for J := 0 to PlayersList.Count - 1 do
+          begin
+            HandId := StrToInt(PlayersList[J]);
+            ChartArmyData := ChartArmy^.GetChartData(HandId);
+            KMSummAndEnlargeArr(@ChartData, @ChartArmyData);
+          end;
+
+          HandId := StrToInt(PlayersList[0]);
+          Chart^.MaxLength := Max(Chart^.MaxLength, gHands[HandId].Stats.ChartCount);
+          Chart^.AddLine(fNamesToShow[ST, I], fColorsToShow[ST, I], ChartData, I);
+//          HandId := StrToInt(PlayersList[0]);
+//          with gHands[HandId] do
+//          begin
+//            Chart^.MaxLength := Max(Chart^.MaxLength, Stats.ChartCount);
+//            Chart^.AddLine(GetOwnerName(HandId), FlagColor, ChartData, HandId);
+//          end;
         end;
 
-        HandId := StrToInt(PlayersList[0]);
-        with gHands[HandId] do
-        begin
-          Chart^.MaxLength := Max(Chart^.MaxLength, Stats.ChartCount);
-          Chart^.AddLine(GetOwnerName(HandId), FlagColor, ChartData, HandId);
-        end;
+        Chart^.TrimToFirstVariation; // Trim Army charts, as usually they are same before PeaceTime
       end;
 
-      Chart^.TrimToFirstVariation; // Trim Army charts, as usually they are same before PeaceTime
-    end;
-
   Columnbox_Army.Clear;
-  ArmyChange(nil);
+  ArmyUpdate(nil);
 end;
 
 
@@ -1359,6 +1595,26 @@ begin
     Button_MPResultsWares.Caption := gResTexts[TX_GRAPH_RESOURCES];
     Button_MPResultsWares.CapOffsetY := -11;
     Button_MPResultsWares.OnClick := TabChange;
+
+    Button_Players := TKMButtonFlat.Create(Panel_ResultsMP, 605+62+5, Panel_ResultsMP.Height - BACK_BTN_Y_TO_BOTTOM, 140, 30, 141, rxGui);
+    Button_Players.TexOffsetX := -Button_Players.Width div 2 + 12;
+    Button_Players.TexOffsetY := 6;
+    Button_Players.Anchors := [anLeft];
+    Button_Players.Caption := 'by Players'; //Todo translate
+    Button_Players.CapOffsetY := -11;
+    Button_Players.CapOffsetX := 12;
+    Button_Players.OnClick := StatTypeChange;
+
+    Button_Teams := TKMButtonFlat.Create(Panel_ResultsMP, 755+62+5, Panel_ResultsMP.Height - BACK_BTN_Y_TO_BOTTOM, 140, 30, 392, rxGui);
+    Button_Teams.TexOffsetX := -Button_Teams.Width div 2 + 20;
+    Button_Teams.TexOffsetY := 6;
+    Button_Teams.Anchors := [anLeft];
+    Button_Teams.Caption := 'by Teams'; //Todo translate
+    Button_Teams.CapOffsetY := -11;
+    Button_Teams.CapOffsetX := 20;
+    Button_Teams.OnClick := StatTypeChange;
+
+    fStatType := st_ByPlayers;
 
     CreateBars(Panel_ResultsMP);
     CreateChartEconomy;
@@ -1436,7 +1692,7 @@ begin
 
   fIsStatsRefreshed := (aMsg = gr_ShowStats);
 
-  Refresh;
+  Reinit;
   Panel_ResultsMP.Show;
 end;
 

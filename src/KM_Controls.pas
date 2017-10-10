@@ -1355,14 +1355,13 @@ type
     procedure UpdateMaxValue;
     function GetLine(aIndex:Integer): TKMGraphLine;
     function GetLineNumber(aY: Integer): Integer;
-    function GetSeparatorsHeight(aIndex: Integer): Integer;
-    function GetItemTop(aIndex: Integer): Integer;
+//    function GetSeparatorsHeight(aIndex: Integer): Integer;
     function GetSeparatorPos(aIndex: Integer): Integer;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
     destructor Destroy; override;
 
-    procedure AddLine(const aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag: Integer=-1);
+    procedure AddLine(const aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag: Integer = -1);
     procedure AddAltLine(const aAltValues: TKMCardinalArray);
     procedure TrimToFirstVariation;
     property Caption: UnicodeString read fCaption write fCaption;
@@ -7120,28 +7119,18 @@ begin
 end;
 
 
-function TKMChart.GetSeparatorsHeight(aIndex: Integer): Integer;
-var
-  I, Pos: Integer;
-begin
-  Result := 0;
-  for I := 0 to fSeparatorPositions.Count - 1 do
-  begin
-    Pos := SeparatorPos[I];
-    if (Pos <> -1) and (Pos <= aIndex) then
-      Inc(Result, fSeparatorHeight);
-  end;
-end;
-
-
-//Get aIndex item top position, considering separators
-function TKMChart.GetItemTop(aIndex: Integer): Integer;
-var
-  I: Integer;
-begin
-  Result := fItemHeight*aIndex;
-  Inc(Result, GetSeparatorsHeight(aIndex));
-end;
+//function TKMChart.GetSeparatorsHeight(aIndex: Integer): Integer;
+//var
+//  I, Pos: Integer;
+//begin
+//  Result := 0;
+//  for I := 0 to fSeparatorPositions.Count - 1 do
+//  begin
+//    Pos := SeparatorPos[I];
+//    if (Pos <> -1) and (Pos <= aIndex) then
+//      Inc(Result, fSeparatorHeight);
+//  end;
+//end;
 
 
 procedure TKMChart.AddSeparator(aPosition: Integer);

@@ -3,12 +3,9 @@ unit KM_HandsCollection;
 interface
 uses
   Classes,
-  KM_Hand, KM_HandSpectator,
+  KM_Hand, KM_HandSpectator, KM_HouseCollection,
   KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
-//  , , Math, SysUtils, Graphics,
-//  , , , , , , ,
-//  , , , , , ;
 
 
 //Hands are identified by their starting location
@@ -56,6 +53,7 @@ type
     //      Player2, but Player2 could be an enemy to Player1
     function CheckAlliance(aPlay1, aPlay2: TKMHandIndex): TAllianceType;
     function GetTeams: TKMByteSetArray;
+    function GetFullTeams: TKMByteSetArray;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
     procedure CleanUpHousePointer(var aHouse: TKMHouse);
@@ -84,7 +82,7 @@ implementation
 uses
   Math, KromUtils,
   KM_Game, KM_Terrain, KM_AIFields,
-  KM_HouseCollection, KM_UnitsCollection,
+  KM_UnitsCollection,
   KM_Resource, KM_ResHouses, KM_ResUnits,
   KM_Log, KM_CommonUtils;
 
@@ -653,6 +651,39 @@ begin
       Inc(K);
     end;
   end;
+  SetLength(Result, K);
+end;
+
+
+//Return Teams and NonTeam members as team with 1 hand only
+function TKMHandsCollection.GetFullTeams: TKMByteSetArray;
+var
+  I,K: Integer;
+  Teams: TKMByteSetArray;
+  NonTeamHands: set of Byte;
+begin
+  SetLength(Result, Count);
+  K := 0;
+
+  Teams := gHands.GetTeams;
+  NonTeamHands := [0..gHands.Count - 1];
+
+  //Get non team hands
+  for I := Low(Teams) to High(Teams) do
+    NonTeamHands := NonTeamHands - Teams[I];
+
+  for I in NonTeamHands do
+  begin
+    Include(Result[K], I);
+    Inc(K);
+  end;
+
+  for I := Low(Teams) to High(Teams) do
+  begin
+    Result[K] := Teams[I];
+    Inc(K);
+  end;
+
   SetLength(Result, K);
 end;
 
