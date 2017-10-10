@@ -254,7 +254,7 @@ begin
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   gLog.AddTime('<== Game creation is done ==>');
 
-  gLoopSounds := TKMLoopSoundsManager.Create; //Currently only used by scripting
+  gScriptSounds := TKMScriptSoundsManager.Create; //Currently only used by scripting
   fScripting := TKMScriptingCreator.CreateScripting(ShowScriptError);
 
   fIgnoreConsistencyCheckErrors := False;
@@ -296,7 +296,7 @@ begin
   FreeAndNil(gProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fScripting);
-  FreeAndNil(gLoopSounds);
+  FreeAndNil(gScriptSounds);
 
   FreeThenNil(fGamePlayInterface);
   FreeThenNil(fMapEditorInterface);
@@ -490,15 +490,15 @@ begin
   if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     SaveGame(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), UTCNow);
 
-  //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
-  gScriptEvents.ProcMissionStart;
-
   //When everything is ready we can update UI
   fActiveInterface.SyncUI;
   if IsMapEditor then
     fActiveInterface.SyncUIView(KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2))
   else
     fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
+
+  //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
+  gScriptEvents.ProcMissionStart;
 
   gLog.AddTime('Gameplay initialized', True);
 end;
@@ -1396,7 +1396,7 @@ begin
     fPathfinding.Save(SaveStream);
     gProjectiles.Save(SaveStream);
     fScripting.Save(SaveStream);
-    gLoopSounds.Save(SaveStream);
+    gScriptSounds.Save(SaveStream);
 
     fTextMission.Save(SaveStream);
 
@@ -1542,7 +1542,7 @@ begin
     fPathfinding.Load(LoadStream);
     gProjectiles.Load(LoadStream);
     fScripting.Load(LoadStream);
-    gLoopSounds.Load(LoadStream);
+    gScriptSounds.Load(LoadStream);
 
     fTextMission := TKMTextLibraryMulti.Create;
     fTextMission.Load(LoadStream);
@@ -1832,8 +1832,8 @@ end;
 
 procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
-  if gLoopSounds <> nil then
-    gLoopSounds.UpdateState;
+  if gScriptSounds <> nil then
+    gScriptSounds.UpdateState;
 
   if not fIsPaused then
     fActiveInterface.UpdateState(aGlobalTickCount);

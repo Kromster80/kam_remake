@@ -315,6 +315,8 @@ begin
     Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
     Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
 
+    Sender.AddTypeS('TKMAudioFormat', '(af_Wav, af_Ogg)'); //Needed for PlaySound
+
     // Types needed for MapTilesArraySet function
     Sender.AddTypeS('TKMTileChangeType', '(tctTerrain, tctHeight, tctObject)');
     Sender.AddTypeS('TKMTileChangeTypeSet', 'set of TKMTileChangeType');
@@ -555,19 +557,24 @@ begin
     RegisterMethodCheck(c, 'procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
     RegisterMethodCheck(c, 'procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
-    RegisterMethodCheck(c, 'procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
-    RegisterMethodCheck(c, 'procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word)');
-    RegisterMethodCheck(c, 'function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
-    RegisterMethodCheck(c, 'procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
-    RegisterMethodCheck(c, 'function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'function PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'function PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
     RegisterMethodCheck(c, 'procedure StopLoopedWAV(aLoopIndex: Integer)');
 
-    RegisterMethodCheck(c, 'procedure PlayOGG(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
-    RegisterMethodCheck(c, 'procedure PlayOGGAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word)');
-    RegisterMethodCheck(c, 'function  PlayOGGAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
-    RegisterMethodCheck(c, 'procedure PlayOGGFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
-    RegisterMethodCheck(c, 'function  PlayOGGLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function PlayOGG(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function PlayOGGAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'function PlayOGGAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'function PlayOGGFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function PlayOGGLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
     RegisterMethodCheck(c, 'procedure StopLoopedOGG(aLoopIndex: Integer)');
+    RegisterMethodCheck(c, 'function PlaySound(aPlayer: ShortInt; const aFileName: AnsiString; aAudioFormat: TKMAudioFormat; ' +
+                            'aVolume: Single; aFadeMusic, aLooped: Boolean): Integer');
+    RegisterMethodCheck(c, 'function PlaySoundAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aAudioFormat: TKMAudioFormat; ' +
+                            'aVolume: Single; aFadeMusic, aLooped: Boolean; aRadius: Single; aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'procedure StopSound(aSoundIndex: Integer)');
 
     RegisterMethodCheck(c, 'procedure RemoveRoad(X, Y: Word)');
 
@@ -1048,6 +1055,10 @@ begin
       RegisterMethod(@TKMScriptActions.PlayOGGFadeMusic,                        'PlayOGGFadeMusic');
       RegisterMethod(@TKMScriptActions.PlayOGGLooped,                           'PlayOGGLooped');
       RegisterMethod(@TKMScriptActions.StopLoopedOGG,                           'StopLoopedOGG');
+
+      RegisterMethod(@TKMScriptActions.PlaySound,                               'PlaySound');
+      RegisterMethod(@TKMScriptActions.PlaySoundAtLocation,                     'PlaySoundAtLocation');
+      RegisterMethod(@TKMScriptActions.StopSound,                               'StopSound');
 
       RegisterMethod(@TKMScriptActions.RemoveRoad,                              'RemoveRoad');
 
