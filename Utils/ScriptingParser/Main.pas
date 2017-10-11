@@ -125,10 +125,10 @@ begin
     Settings.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
     Settings.WriteString('INPUT',  'States',  '..\..\src\scripting\KM_ScriptingStates.pas');
     Settings.WriteString('INPUT',  'Utils',  '..\..\src\scripting\KM_ScriptingUtils.pas');
-    Settings.WriteString('OUTPUT', 'Actions', 'header\Actions.header');
-    Settings.WriteString('OUTPUT', 'Events',  'header\Events.header');
-    Settings.WriteString('OUTPUT', 'States',  'header\States.header');
-    Settings.WriteString('OUTPUT', 'Utils',   'header\Utils.header');
+    Settings.WriteString('HEADER', 'Actions', 'header\Actions.header');
+    Settings.WriteString('HEADER', 'Events',  'header\Events.header');
+    Settings.WriteString('HEADER', 'States',  'header\States.header');
+    Settings.WriteString('HEADER', 'Utils',   'header\Utils.header');
     Settings.WriteString('OUTPUT', 'Actions', 'wiki\Actions.header');
     Settings.WriteString('OUTPUT', 'Events',  'wiki\Events.wiki');
     Settings.WriteString('OUTPUT', 'States',  'wiki\States.wiki');
