@@ -1,0 +1,17 @@
+#### Actions
+
+All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
+
+Actions are placed in a form **Actions.ACT_NAME(ACT_PARAMETERS);** like so:
+```pascal
+    if States.GameTime = 300 then
+      Actions.PlayerDefeat(0); //Defeat 1st player
+```
+
+<sub>"-" Means this will not be implemented.</sub>
+
+Other scripts functions:
+* [Mission Scripts Dynamic Events](https://github.com/reyandme/kam_remake/wiki/MissionScriptsDynamicEvents)<br>
+* [Mission Scripts Dynamic States](https://github.com/reyandme/kam_remake/wiki/MissionScriptsDynamicStates)<br>
+* [Mission Scripts Dynamic Utils](https://github.com/reyandme/kam_remake/wiki/MissionScriptsDynamicUtils)<br>
+

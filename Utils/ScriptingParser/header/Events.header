@@ -1,0 +1,15 @@
+#### Events
+
+Events are written in a form **procedure EVENT_NAME(EVENT_PARAMETERS);** like so:
+```pascal
+    procedure OnHouseBuilt(aHouseID: Integer);
+    begin
+      // code
+    end;
+```
+
+Other scripts functions:
+* [Mission Scripts Dynamic States](https://github.com/reyandme/kam_remake/wiki/MissionScriptsDynamicStates)<br>
+* [Mission Scripts Dynamic Actions](https://github.com/reyandme/kam_remake/wiki/MissionScriptsDynamicActions)<br>
+* [Mission Scripts Dynamic Utils](https://github.com/reyandme/kam_remake/wiki/MissionScriptsDynamicUtils)<br>
+

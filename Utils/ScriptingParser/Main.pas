@@ -1,38 +1,45 @@
 unit Main;
 interface
 uses
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtDlgs, SysUtils, Classes, StdCtrls, StrUtils, INIFiles;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtDlgs, SysUtils, Classes, StdCtrls, StrUtils, INIFiles, Vcl.ComCtrls;
 
 type
   TForm1 = class(TForm)
+    btnGenerate: TButton;
+    Button1: TButton;
+    Button2: TButton;
     GroupBox1: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    txtParserOutput: TMemo;
+    Label8: TLabel;
     edtActionsFile: TEdit;
     edtEventsFile: TEdit;
     edtStatesFile: TEdit;
     edtOutputFileActions: TEdit;
     edtOutputFileEvents: TEdit;
     edtOutputFileStates: TEdit;
-    btnGenerate: TButton;
-    Button1: TButton;
-    Button2: TButton;
-    Label7: TLabel;
     edtOutputFileUtils: TEdit;
     edtUtilsFile: TEdit;
-    Label8: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    edtHeaderFileActions: TEdit;
+    edtHeaderFileEvents: TEdit;
+    edtHeaderFileStates: TEdit;
+    edtHeaderFileUtils: TEdit;
+    Label6: TLabel;
+    TabControl1: TTabControl;
+    txtParserOutput: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure btnGenerateClick(Sender: TObject);
     procedure txtParserOutputKeyPress(Sender: TObject; var Key: Char);
     procedure edtOnTextChange(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure TabControl1Change(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
+    fListActions, fListEvents, fListStates, fListUtils: TStringList;
     fSettingsPath: string;
     fSafeToWrite: Boolean;
     procedure ParseText(aFile: string; aList: TStringList; aHasReturn: Boolean);
@@ -54,24 +61,26 @@ type
   end;
 
 const
-  VAR_TYPE_NAME: array[0..34] of string = (
+  VAR_TYPE_NAME: array[0..37] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Extended', 'Boolean', 'AnsiString', 'String',
-    'array of const', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
+    'array of const', 'array of Boolean', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
     'TKMHouseFace',
+    'array of TKMTerrainTileBrief','TKMAudioFormat',
     'TKMHouse', 'TKMUnit', 'TKMUnitGroup', 'TKMHandIndex', 'array of TKMHandIndex', // Werewolf types
     'TByteSet', 'TIntegerArray' // Werewolf types
   );
 
-  VAR_TYPE_ALIAS: array[0..34] of string = (
+  VAR_TYPE_ALIAS: array[0..37] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Extended', 'Boolean', 'AnsiString', 'String',
-    'array of const', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
+    'array of const', 'array of Boolean', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
     'TKMHouseType', 'TKMWareType', 'TKMFieldType', 'TKMUnitType',
     'THouseType', 'TWareType', 'TFieldType', 'TUnitType',
     'TKMObjectiveStatus', 'TKMObjectiveType',
     'TKMHouseFace',
+    'array of TKMTerrainTileBrief','TKMAudioFormat',
     'Integer', 'Integer', 'Integer', 'Integer', 'array of Integer', // Werewolf types
     'set of Byte', 'array of Integer' // Werewolf types
   );
@@ -88,6 +97,19 @@ uses
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Button1.Click;
+  fListActions := TStringList.Create;
+  flistEvents := TStringList.Create;
+  flistStates := TStringList.Create;
+  flistUtils := TStringList.Create;
+end;
+
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(fListActions);
+  FreeAndNil(flistEvents);
+  FreeAndNil(flistStates);
+  FreeAndNil(flistUtils);
 end;
 
 
@@ -103,16 +125,24 @@ begin
     Settings.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
     Settings.WriteString('INPUT',  'States',  '..\..\src\scripting\KM_ScriptingStates.pas');
     Settings.WriteString('INPUT',  'Utils',  '..\..\src\scripting\KM_ScriptingUtils.pas');
-    Settings.WriteString('OUTPUT', 'Actions', 'Actions.wiki');
-    Settings.WriteString('OUTPUT', 'Events',  'Events.wiki');
-    Settings.WriteString('OUTPUT', 'States',  'States.wiki');
-    Settings.WriteString('OUTPUT', 'Utils',   'Utils.wiki');
+    Settings.WriteString('OUTPUT', 'Actions', 'header\Actions.header');
+    Settings.WriteString('OUTPUT', 'Events',  'header\Events.header');
+    Settings.WriteString('OUTPUT', 'States',  'header\States.header');
+    Settings.WriteString('OUTPUT', 'Utils',   'header\Utils.header');
+    Settings.WriteString('OUTPUT', 'Actions', 'wiki\Actions.header');
+    Settings.WriteString('OUTPUT', 'Events',  'wiki\Events.wiki');
+    Settings.WriteString('OUTPUT', 'States',  'wiki\States.wiki');
+    Settings.WriteString('OUTPUT', 'Utils',   'wiki\Utils.wiki');
   end;
 
   edtActionsFile.Text       := Settings.ReadString('INPUT',  'Actions', '');
   edtEventsFile.Text        := Settings.ReadString('INPUT',  'Events',  '');
   edtStatesFile.Text        := Settings.ReadString('INPUT',  'States',  '');
   edtUtilsFile.Text         := Settings.ReadString('INPUT',  'Utils',   '');
+  edtHeaderFileActions.Text := Settings.ReadString('HEADER', 'Actions', '');
+  edtHeaderFileEvents.Text  := Settings.ReadString('HEADER', 'Events',  '');
+  edtHeaderFileStates.Text  := Settings.ReadString('HEADER', 'States',  '');
+  edtHeaderFileUtils.Text   := Settings.ReadString('HEADER', 'Utils',   '');
   edtOutputFileActions.Text := Settings.ReadString('OUTPUT', 'Actions', '');
   edtOutputFileEvents.Text  := Settings.ReadString('OUTPUT', 'Events',  '');
   edtOutputFileStates.Text  := Settings.ReadString('OUTPUT', 'States',  '');
@@ -122,6 +152,18 @@ begin
   fSafeToWrite := True;
 end;
 
+
+procedure TForm1.TabControl1Change(Sender: TObject);
+begin
+  txtParserOutput.Lines.Clear;
+  case TabControl1.TabIndex of
+    0: txtParserOutput.Lines.AddStrings(fListActions);
+    1: txtParserOutput.Lines.AddStrings(fListEvents);
+    2: txtParserOutput.Lines.AddStrings(fListStates);
+    3: txtParserOutput.Lines.AddStrings(fListUtils);
+  end;
+
+end;
 
 {
   Parses the param string into prefered wiki-format.
@@ -198,13 +240,13 @@ begin
     // Add line-breaks
     for i := High(paramHolder) downto 0 do
     begin
-      Result := Result + paramHolder[i].Name + ': ' + paramHolder[i].varType + ';';
+      Result := Result + '**' + paramHolder[i].Name + '**: ' + paramHolder[i].varType + ';';
 
       // Add micro descriptions to the parameters and remove them from the stringlist.
       for j := aDescriptions.Count - 1 downto 0 do
         if StartsStr(paramHolder[i].Name, aDescriptions[j]) then
         begin
-          Result := Result + ' // ' + StrSubstring(aDescriptions[j], StrIndexOf(aDescriptions[j], ':') + 2);
+          Result := Result + ' //_' + StrSubstring(aDescriptions[j], StrIndexOf(aDescriptions[j], ':') + 2) + '_';
           aDescriptions.Delete(j);
           Break;
         end;
@@ -260,9 +302,9 @@ begin
         Inc(iPlus);
 
         // Descriptions are only added by lines starting with "//* "
-        if StartsStr('//* ', sourceTxt[i+iPlus]) then
+        if StartsStr('//*', sourceTxt[i+iPlus]) then
           // Repeat until no description tags are found
-          while StartsStr('//* ', sourceTxt[i+iPlus]) do
+          while StartsStr('//*', sourceTxt[i+iPlus]) do
           begin
             // Handle Result description separately to keep the output clean.
             if StartsStr('//* Result:', sourceTxt[i+iPlus]) then
@@ -321,12 +363,16 @@ begin
 
         // Now we can assemble Description, after we have detected and removed parameters descriptions from it
         for j := 0 to descrTxt.Count - 1 do
-          res.Description := res.Description + ' ' + descrTxt[j];
+          if (j > 0) and (RightStr(descrTxt[j-1],6) = '</pre>') then
+            res.Description := res.Description + descrTxt[j] // No new line at the end of <pre> block
+          else
+            res.Description := res.Description + '<br/>' + descrTxt[j];
+
 
         // Now we have all the parts and can combine them however we like
-        aList.Add('| ' + res.Version + ' | ' + res.Name + '<br><sub>' + res.Description + '</sub>' +
+        aList.Add('| ' + res.Version + ' | ' + res.Name + '<sub>' + res.Description + '</sub>' +
                   ' | <sub>' + res.Parameters + '</sub>' +
-                  IfThen(aHasReturn, ' | <sub>' + res.Return + IfThen(res.ReturnDesc <> '', ' // ' + res.ReturnDesc) + '</sub>') +
+                  IfThen(aHasReturn, ' | <sub>' + res.Return + IfThen(res.ReturnDesc <> '', ' //' + res.ReturnDesc) + '</sub>') +
                   ' |');
       end;
     end;
@@ -349,80 +395,46 @@ begin
 end;
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
-var
-  listActions, listEvents, listStates: TStringList;
+
+  procedure ParseList(aName: String; aResultList: TStringList; aInputFile,aHeaderFile,aOutputFile: String; aHasReturn: Boolean = True);
+  var
+    tmpList: TStringList;
+  begin
+    tmpList := TStringList.Create;
+    if FileExists(aInputFile) then
+    begin
+      aResultList.Clear;
+      tmpList.Clear;
+      ParseText(aInputFile, tmpList, aHasReturn);
+      tmpList.CustomSort(DoSort);
+
+      if FileExists(aHeaderFile) then
+        aResultList.LoadFromFile(aHeaderFile);
+
+      if aHasReturn then
+      begin
+        aResultList.Add('| Ver<br>sion | ' + aName + ' Description | Parameters<br>and types | Returns |');
+        aResultList.Add('| ------- | ------------------------------------ | -------------- | ------- |');
+      end else begin
+        aResultList.Add('| Ver<br>sion | ' + aName + ' Description | Parameters<br>and types |');
+        aResultList.Add('| ------- | ------------------------------------ | -------------- |');
+      end;
+
+      aResultList.AddStrings(tmpList);
+
+      if aOutputFile <> '' then
+        aResultList.SaveToFile(aOutputFile);
+    end;
+    FreeAndNil(tmpList);
+  end;
+
 begin
-  txtParserOutput.Lines.Clear;
+  ParseList('Action', fListActions, edtActionsFile.Text, edtHeaderFileActions.Text, edtOutputFileActions.Text);
+  ParseList('Event', fListEvents, edtEventsFile.Text, edtHeaderFileEvents.Text, edtOutputFileEvents.Text, False);
+  ParseList('State', fListStates, edtStatesFile.Text, edtHeaderFileStates.Text, edtOutputFileStates.Text);
+  ParseList('Utility function<br/>', fListUtils, edtUtilsFile.Text, edtHeaderFileUtils.Text, edtOutputFileUtils.Text);
 
-  if FileExists(edtActionsFile.Text) then
-  begin
-    listActions := TStringList.Create;
-
-    ParseText(edtActionsFile.Text, listActions, True);
-    listActions.CustomSort(DoSort);
-
-    listActions.Insert(0, '####Actions' + sLineBreak);
-    listActions.Insert(1, '| Ver<br>sion | Action Description | Parameters<br>and types | Returns |');
-    listActions.Insert(2, '| ------- | --------------- | -------------------- | ------- |');
-
-    txtParserOutput.Lines.AddStrings(listActions);
-
-    if edtOutputFileActions.Text <> '' then
-      listActions.SaveToFile(edtOutputFileActions.Text);
-    FreeAndNil(listActions);
-  end;
-
-  if FileExists(edtEventsFile.Text) then
-  begin
-    listEvents := TStringList.Create;
-
-    ParseText(edtEventsFile.Text, listEvents, False);
-    listEvents.CustomSort(DoSort);
-
-    listEvents.Insert(0, '####Events' + sLineBreak);
-    listEvents.Insert(1, '| Ver<br>sion | Event Description | Parameters<br>and types |');
-    listEvents.Insert(2, '| ------- | --------------- | -------------------- |');
-
-    txtParserOutput.Lines.AddStrings(listEvents);
-
-    if edtOutputFileEvents.Text <> '' then
-      listEvents.SaveToFile(edtOutputFileEvents.Text);
-    FreeAndNil(listEvents);
-  end;
-
-  if FileExists(edtStatesFile.Text) then
-  begin
-    listStates := TStringList.Create;
-    ParseText(edtStatesFile.Text, listStates, True);
-    listStates.CustomSort(DoSort);
-
-    listStates.Insert(0, '####States' + sLineBreak);
-    listStates.Insert(1, '| Ver<br>sion | State Description | Parameters<br>and types | Returns |');
-    listStates.Insert(2, '| ------- | --------------- | -------------------- | ------- |');
-
-    txtParserOutput.Lines.AddStrings(listStates);
-
-    if edtOutputFileStates.Text <> '' then
-      listStates.SaveToFile(edtOutputFileStates.Text);
-    FreeAndNil(listStates);
-  end;
-
-  if FileExists(edtUtilsFile.Text) then
-  begin
-    listStates := TStringList.Create;
-    ParseText(edtUtilsFile.Text, listStates, True);
-    listStates.CustomSort(DoSort);
-
-    listStates.Insert(0, '####Utils' + sLineBreak);
-    listStates.Insert(1, '| Ver<br>sion | Utility function<br>Description | Parameters<br>and types | Returns |');
-    listStates.Insert(2, '| ------- | --------------- | -------------------- | ------- |');
-
-    txtParserOutput.Lines.AddStrings(listStates);
-
-    if edtOutputFileUtils.Text <> '' then
-      listStates.SaveToFile(edtOutputFileUtils.Text);
-    FreeAndNil(listStates);
-  end;
+  TabControl1Change(nil);
 end;
 
 
@@ -472,6 +484,20 @@ begin
   if Sender = edtUtilsFile then
     Settings.WriteString('INPUT',  'Utils',   edtUtilsFile.Text);
 
+  //-------------------------------
+  if Sender = edtHeaderFileActions then
+    Settings.WriteString('HEADER', 'Actions', edtHeaderFileActions.Text);
+
+  if Sender = edtHeaderFileEvents then
+    Settings.WriteString('HEADER', 'Events',  edtHeaderFileEvents.Text);
+
+  if Sender = edtHeaderFileStates then
+    Settings.WriteString('HEADER', 'States',  edtHeaderFileStates.Text);
+
+  if Sender = edtHeaderFileUtils then
+    Settings.WriteString('HEADER', 'Utils',   edtHeaderFileUtils.Text);
+
+  //-------------------------------
   if Sender = edtOutputFileActions then
     Settings.WriteString('OUTPUT', 'Actions', edtOutputFileActions.Text);
 
