@@ -1287,7 +1287,11 @@ end;
 
 
 //* Version: 7000+
-//* Returns true if the specified house has delivery disabled
+//* Returns delivery mode ID, where
+//* ID = 0 delivery blocked
+//* ID = 1 delivery allowed
+//* ID = 2 take ware out allowed
+//* if no house was found then ID = 1 is returned
 //* Result: Blocked
 function TKMScriptStates.HouseDeliveryMode(aHouseID: Integer): Integer;
 var
