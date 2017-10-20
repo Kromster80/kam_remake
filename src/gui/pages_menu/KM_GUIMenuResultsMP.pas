@@ -1291,6 +1291,7 @@ procedure TKMMenuResultsMP.ReinitChartEconomy;
                       Result := @Chart_Teams_Citizens
                     else
                       Result := @Chart_Teams_Houses;
+      else          raise Exception.Create('Unknown Economy Chart type');
     end;
   end;
 
@@ -1342,7 +1343,6 @@ procedure TKMMenuResultsMP.ReinitChartEconomy;
   end;
 
 var
-  I: Integer;
   ST: TKMStatType;
   ESK: TKMEconomyStatKind;
 begin

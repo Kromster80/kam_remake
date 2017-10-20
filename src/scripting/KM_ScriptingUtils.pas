@@ -48,7 +48,7 @@ type
     function MinInArrayI(aArray: array of Integer): Integer;
     function MinInArrayS(aArray: array of Single): Single;
 
-    function Power(Base, Exp: Extended): Extended;
+    function Power(aBase, aExp: Extended): Extended;
 
     function Sqr(A: Extended): Extended;
 
@@ -564,7 +564,7 @@ end;
 function TKMScriptUtils.Power(aBase, aExp: Extended): Extended;
 begin
   try
-    Result := Math.Power(Base, Exp);
+    Result := Math.Power(aBase, aExp);
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
