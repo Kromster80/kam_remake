@@ -2897,15 +2897,19 @@ function TKMTerrain.CheckHeightPass(aLoc: TKMPoint; aPass: THeightPass): Boolean
   function TestHeight(aHeight: Byte): Boolean;
   var
     Points: array[1..4] of Byte;
+    Y2, X2: Integer;
   begin
+    Y2 := Min(aLoc.Y + 1, fMapY);
+    X2 := Min(aLoc.X + 1, fMapX);
+
     //Put points into an array like this so it's easy to understand:
     // 1 2
     // 3 4
     //Local map boundaries test is faster
-    Points[1] := Land[aLoc.Y,               aLoc.X].Height;
-    Points[2] := Land[aLoc.Y,               Min(aLoc.X + 1, fMapX)].Height;
-    Points[3] := Land[Min(aLoc.Y + 1, fMapY), aLoc.X].Height;
-    Points[4] := Land[Min(aLoc.Y + 1, fMapY), Min(aLoc.X + 1, fMapX)].Height;
+    Points[1] := Land[aLoc.Y, aLoc.X].Height;
+    Points[2] := Land[aLoc.Y, X2].Height;
+    Points[3] := Land[Y2,     aLoc.X].Height;
+    Points[4] := Land[Y2,     X2].Height;
 
     {
       KaM method checks the differences between the 4 verticies around the tile.
