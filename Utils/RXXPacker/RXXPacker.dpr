@@ -75,6 +75,7 @@ begin
       fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
       try
         for I := 1 to ParamCount do // Skip 0, as this is the EXE-path
+        begin
           if LowerCase(ParamStr(I)) = 'all' then
           begin
             for K := Low(RXToPack) to High(RXToPack) do
@@ -92,6 +93,7 @@ begin
               fRXXPacker.Pack(RXType, fPalettes);
               writeln(RXInfo[RXType].FileName + '.rxx packed in ' + IntToStr(GetTickCount - Tick) + ' ms');
             end;
+        end;
       finally
         fRXXPacker.Free;
         fPalettes.Free;
