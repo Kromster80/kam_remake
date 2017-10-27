@@ -3164,8 +3164,9 @@ function TKMTerrain.CanAddField(aX, aY: Word; aFieldType: TFieldType): Boolean;
 begin
   //Make sure it is within map, roads can be built on edge
   Result := TileInMapCoords(aX, aY);
+
   case aFieldType of
-    ft_Road:  Result := Result and (tpMakeRoads  in Land[aY, aX].Passability);
+    ft_Road:  Result := Result and (tpMakeRoads in Land[aY, aX].Passability);
     ft_Corn,
     ft_Wine:  Result := Result and TileGoodForField(aX, aY);
     else      Result := False;
@@ -3175,42 +3176,47 @@ end;
 
 function TKMTerrain.CheckHeightPass(aLoc: TKMPoint; aPass: THeightPass): Boolean;
   function TestHeight(aHeight: Byte): Boolean;
-  var Points: array[1..4] of byte;
+  var
+    Points: array[1..4] of Byte;
   begin
     //Put points into an array like this so it's easy to understand:
     // 1 2
     // 3 4
     //Local map boundaries test is faster
     Points[1] := Land[aLoc.Y,               aLoc.X].Height;
-    Points[2] := Land[aLoc.Y,               Min(aLoc.X+1, fMapX)].Height;
-    Points[3] := Land[Min(aLoc.Y+1, fMapY), aLoc.X].Height;
-    Points[4] := Land[Min(aLoc.Y+1, fMapY), Min(aLoc.X+1, fMapX)].Height;
+    Points[2] := Land[aLoc.Y,               Min(aLoc.X + 1, fMapX)].Height;
+    Points[3] := Land[Min(aLoc.Y + 1, fMapY), aLoc.X].Height;
+    Points[4] := Land[Min(aLoc.Y + 1, fMapY), Min(aLoc.X + 1, fMapX)].Height;
 
-    {KaM method checks the differences between the 4 verticies around the tile.
-    There is a special case that means it is more (twice) as tolerant to bottom-left to top right (2-3) and
-    bottom-right to top-right (4-2) slopes. This sounds very odd, but if you don't believe me then do the tests yourself. ;)
-    The reason for this probably has something to do with the fact that shaddows and stuff flow from
-    the bottom-left to the top-right in KaM.
-    This formula could be revised later, but for now it matches KaM perfectly.
-    The biggest problem with it is backwards sloping tiles which are shown as walkable.
-    But it doesn't matter that much because this system is really just a backup (it's more important for
-    building than walking) and map creators should block tiles themselves with the special invisible block object.}
+    {
+      KaM method checks the differences between the 4 verticies around the tile.
+      There is a special case that means it is more (twice) as tolerant to bottom-left to top right (2-3) and
+      bottom-right to top-right (4-2) slopes. This sounds very odd, but if you don't believe me then do the tests yourself. ;)
+      The reason for this probably has something to do with the fact that shaddows and stuff flow from
+      the bottom-left to the top-right in KaM.
+      This formula could be revised later, but for now it matches KaM perfectly.
+      The biggest problem with it is backwards sloping tiles which are shown as walkable.
+      But it doesn't matter that much because this system is really just a backup (it's more important for
+      building than walking) and map creators should block tiles themselves with the special invisible block object.
+    }
 
     //Sides of tile
-    Result :=            (abs(Points[1]-Points[2]) < aHeight);
-    Result := Result AND (abs(Points[3]-Points[4]) < aHeight);
-    Result := Result AND (abs(Points[3]-Points[1]) < aHeight);
-    Result := Result AND (abs(Points[4]-Points[2]) < aHeight*2); //Bottom-right to top-right is twice as tolerant
+    Result :=            (abs(Points[1] - Points[2]) < aHeight);
+    Result := Result AND (abs(Points[3] - Points[4]) < aHeight);
+    Result := Result AND (abs(Points[3] - Points[1]) < aHeight);
+    Result := Result AND (abs(Points[4] - Points[2]) < aHeight * 2); //Bottom-right to top-right is twice as tolerant
 
     //Diagonals of tile
-    Result := Result AND (abs(Points[1]-Points[4]) < aHeight);
-    Result := Result AND (abs(Points[3]-Points[2]) < aHeight*2); //Bottom-left to top-right is twice as tolerant
+    Result := Result AND (abs(Points[1] - Points[4]) < aHeight);
+    Result := Result AND (abs(Points[3] - Points[2]) < aHeight * 2); //Bottom-left to top-right is twice as tolerant
   end;
 begin
   //Three types measured in KaM: >=25 - unwalkable/unroadable; >=25 - iron/gold mines unbuildable;
   //>=18 - other houses unbuildable.
   Result := true;
-  if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
+
+  if not TileInMapCoords(aLoc.X, aLoc.Y) then exit;
+
   case aPass of
     hpWalking:        Result := TestHeight(25);
     hpBuilding:       Result := TestHeight(18);
@@ -3220,35 +3226,42 @@ end;
 
 
 procedure TKMTerrain.AddHouseRemainder(Loc: TKMPoint; aHouseType: THouseType; aBuildState: THouseBuildState);
-var I, K: Integer; HA: THouseArea;
+var
+  I, K: Integer;
+  HA:   THouseArea;
 begin
   HA := gRes.Houses[aHouseType].BuildArea;
 
   if aBuildState in [hbs_Stone, hbs_Done] then //only leave rubble if the construction was well underway (stone and above)
   begin
     //Leave rubble
-    for I:=2 to 4 do for K:=2 to 4 do
-      if (HA[I-1,K] <> 0) and (HA[I,K-1] <> 0)
-      and (HA[I-1,K-1] <> 0) and (HA[I,K] <> 0) then
-        Land[Loc.Y+I-4,Loc.X+K-3].Obj := 68 + KaMRandom(6);
+    for I := 2 to 4 do
+      for K := 2 to 4 do
+        if (HA[I - 1, K] <> 0) and (HA[I, K - 1] <> 0)
+        and (HA[I - 1, K - 1] <> 0) and (HA[I, K] <> 0) then
+          Land[Loc.Y + I - 4, Loc.X + K - 3].Obj := 68 + KaMRandom(6);
+
     //Leave dug terrain
-    for I:=1 to 4 do for K:=1 to 4 do
-      if HA[I,K] <> 0 then
-      begin
-        Land[Loc.Y+I-4, Loc.X+K-3].TileOverlay := to_Dig3;
-        Land[Loc.Y+I-4, Loc.X+K-3].TileLock := tlNone;
-      end;
-  end
-  else
+    for I := 1 to 4 do
+      for K := 1 to 4 do
+        if HA[I, K] <> 0 then
+        begin
+          Land[Loc.Y + I - 4, Loc.X + K - 3].TileOverlay := to_Dig3;
+          Land[Loc.Y + I - 4, Loc.X + K - 3].TileLock    := tlNone;
+        end;
+  end else
   begin
     //For glyphs leave nothing
-    for I:=1 to 4 do for K:=1 to 4 do
-      if HA[I,K] <> 0 then
-        Land[Loc.Y+I-4, Loc.X+K-3].TileLock := tlNone;
+    for I := 1 to 4 do
+      for K:=1 to 4 do
+        if HA[I, K] <> 0 then
+          Land[Loc.Y + I - 4, Loc.X + K - 3].TileLock := tlNone;
   end;
 
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), (aBuildState in [hbs_Stone, hbs_Done])); //Rubble objects block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork],
+                    KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1),
+                    (aBuildState in [hbs_Stone, hbs_Done])); //Rubble objects block diagonals
 end;
 
 
@@ -3267,59 +3280,68 @@ procedure TKMTerrain.UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = Tru
     else
       Result := fncNone;
   end;
+
   function GetFenceEnabled(X, Y: SmallInt): Boolean;
   begin
     Result := True;
+
     if not TileInMapCoords(X,Y) then exit;
-    if (TileIsCornField(Loc) and TileIsCornField(KMPoint(X,Y)))or //Both are Corn
-       (TileIsWineField(Loc) and TileIsWineField(KMPoint(X,Y)))or //Both are Wine
-      ((Land[Loc.Y,Loc.X].TileLock in [tlFenced, tlDigged]) and (Land[Y,X].TileLock in [tlFenced, tlDigged])) then //Both are either house fence
+
+    if (TileIsCornField(Loc) and TileIsCornField(KMPoint(X,Y))) or //Both are Corn
+       (TileIsWineField(Loc) and TileIsWineField(KMPoint(X,Y))) or //Both are Wine
+       ((Land[Loc.Y, Loc.X].TileLock in [tlFenced, tlDigged]) and
+        (Land[Y, X].TileLock in [tlFenced, tlDigged])) then //Both are either house fence
       Result := False;
   end;
 begin
  if not TileInMapCoords(Loc.X, Loc.Y) then exit;
 
   Land[Loc.Y,Loc.X].Fence := GetFenceType;
-  if Land[Loc.Y,Loc.X].Fence = fncNone then
-    Land[Loc.Y,Loc.X].FenceSide := 0
+
+  if Land[Loc.Y, Loc.X].Fence = fncNone then
+    Land[Loc.Y, Loc.X].FenceSide := 0
   else
   begin
-    Land[Loc.Y,Loc.X].FenceSide := Byte(GetFenceEnabled(Loc.X,Loc.Y-1)) + //N
-                                   Byte(GetFenceEnabled(Loc.X-1,Loc.Y)) * 2 + //E
-                                   Byte(GetFenceEnabled(Loc.X+1,Loc.Y)) * 4 + //W
-                                   Byte(GetFenceEnabled(Loc.X,Loc.Y+1)) * 8; //S
+    Land[Loc.Y, Loc.X].FenceSide := Byte(GetFenceEnabled(Loc.X,   Loc.Y - 1)) + //N
+                                    Byte(GetFenceEnabled(Loc.X - 1, Loc.Y)) * 2 + //E
+                                    Byte(GetFenceEnabled(Loc.X + 1, Loc.Y)) * 4 + //W
+                                    Byte(GetFenceEnabled(Loc.X,   Loc.Y + 1)) * 8; //S
   end;
 
   if CheckSurrounding then
   begin
-    UpdateFences(KMPoint(Loc.X-1, Loc.Y), False);
-    UpdateFences(KMPoint(Loc.X+1, Loc.Y), False);
-    UpdateFences(KMPoint(Loc.X, Loc.Y-1), False);
-    UpdateFences(KMPoint(Loc.X, Loc.Y+1), False);
+    UpdateFences(KMPoint(Loc.X - 1, Loc.Y), False);
+    UpdateFences(KMPoint(Loc.X + 1, Loc.Y), False);
+    UpdateFences(KMPoint(Loc.X, Loc.Y - 1), False);
+    UpdateFences(KMPoint(Loc.X, Loc.Y + 1), False);
   end;
 end;
 
 
 {Cursor position should be converted to tile-coords respecting tile heights}
 function TKMTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
-var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
+var
+  ii:     Integer;
+  Xc, Yc: Integer;
+  Tmp:    Integer;
+  Ycoef:  array[-2..4] of Single;
 begin
-  Xc := EnsureRange(round(inX+0.5),1,fMapX-1); //Cell below cursor without height check
-  Yc := EnsureRange(round(inY+0.5),1,fMapY-1);
+  Xc := EnsureRange(Round(inX + 0.5), 1, fMapX - 1); //Cell below cursor without height check
+  Yc := EnsureRange(Round(inY + 0.5), 1, fMapY - 1);
 
   for ii:=-2 to 4 do //make an array of tile heights above and below cursor (-2..4)
   begin
-    Tmp := EnsureRange(Yc+ii,1,fMapY);
-    Ycoef[ii] := (Yc-1)+ii-(Land[Tmp,Xc].Height*(1-frac(inX))
-                           +Land[Tmp,Xc+1].Height*frac(inX))/CELL_HEIGHT_DIV;
+    Tmp       := EnsureRange(Yc + ii, 1, fMapY);
+    Ycoef[ii] := (Yc - 1) + ii - (Land[Tmp, Xc].Height * (1 - frac(inX))
+                          + Land[Tmp, Xc + 1].Height * frac(inX)) / CELL_HEIGHT_DIV;
   end;
 
   Result := Yc; //Assign something incase following code returns nothing
 
-  for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
-    if InRange(inY, Ycoef[ii], Ycoef[ii+1]) then
+  for ii := -2 to 3 do //check if cursor in a tile and adjust it there
+    if InRange(inY, Ycoef[ii], Ycoef[ii + 1]) then
     begin
-      Result := Yc+ii-(Ycoef[ii+1]-inY) / (Ycoef[ii+1]-Ycoef[ii]);
+      Result := Yc + ii - (Ycoef[ii + 1] - inY) / (Ycoef[ii + 1] - Ycoef[ii]);
       break;
     end;
 
