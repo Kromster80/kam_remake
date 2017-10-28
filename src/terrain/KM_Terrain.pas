@@ -1143,6 +1143,7 @@ end;
 procedure TKMTerrain.SetRoads(aList: TKMPointList; aOwner: TKMHandIndex; aUpdateWalkConnects: Boolean = True);
 var
   I: Integer;
+  Y2, X2: Integer;
   Bounds: TKMRect;
   HasBounds: Boolean;
 begin
@@ -1150,11 +1151,16 @@ begin
 
   for I := 0 to aList.Count - 1 do
   begin
-    Land[aList[I].Y, aList[I].X].TileOwner   := aOwner;
-    Land[aList[I].Y, aList[I].X].TileOverlay := to_Road;
-    Land[aList[I].Y, aList[I].X].FieldAge    := 0;
-    if gMapElements[Land[aList[I].Y, aList[I].X].Obj].WineOrCorn then
+    Y2 := aList[I].Y;
+    X2 := aList[I].X;
+
+    Land[Y2, X2].TileOwner   := aOwner;
+    Land[Y2, X2].TileOverlay := to_Road;
+    Land[Y2, X2].FieldAge    := 0;
+
+    if gMapElements[Land[Y2, X2].Obj].WineOrCorn then
       RemoveObject(aList[I]);
+
     RemoveObjectsKilledByRoad(aList[I]);
     UpdateFences(aList[I]);
   end;
