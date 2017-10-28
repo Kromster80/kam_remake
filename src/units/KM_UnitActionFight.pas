@@ -275,7 +275,7 @@ begin
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
     if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
-      gHands[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
+      gHands[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent), False);
   end;
 
   //Melee units place hit on this step
