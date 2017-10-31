@@ -1629,19 +1629,19 @@ end;
 
 
 procedure TKMControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var
+  ClickHoldHandled: Boolean;
 begin
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
   if (csDown in State) then
   begin
     State := State - [csDown];
-
-    //Send Click events
-    if not fClickHoldHandled then // Do not send click event, if it was handled already while in click hold mode
-    begin
+    ClickHoldHandled := fClickHoldHandled;
       ResetClickHoldMode;
+    //Send Click events
+    if not ClickHoldHandled then // Do not send click event, if it was handled already while in click hold mode
       DoClick(X, Y, Shift, Button);
     end;
-  end;
   // No code is allowed after DoClick, as control object could be destroyed,
   // that means we will modify freed memory, which will cause memory leaks
 end;
