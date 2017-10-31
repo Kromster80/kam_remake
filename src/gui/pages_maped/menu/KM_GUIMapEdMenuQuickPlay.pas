@@ -1,4 +1,4 @@
-unit KM_GUIMapEdMenuTryMap;
+unit KM_GUIMapEdMenuQuickPlay;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -8,24 +8,24 @@ uses
   KM_Controls, KM_Defaults, KM_GUIMapEdMenuSave;
 
 type
-  TKMMapEdMenuTryMap = class
+  TKMMapEdMenuQuickPlay = class
   private
     fMenuSave: TKMMapEdMenuSave;
     fIsMultiplayer: Boolean;
     procedure Cancel_Click(Sender: TObject);
-    procedure Try_Map_Click(Sender: TObject);
+    procedure QuickPlay_Click(Sender: TObject);
     procedure Update_PlayerSelect;
     procedure PlayerSelectFirst;
     procedure UpdatePanel;
     procedure SaveDone(Sender: TObject);
     procedure SaveBtn_EnableStatusChanged(aValue: Boolean);
   protected
-    PopUp_TryMap: TKMPopUpPanel;
+    PopUp_QuickPlay: TKMPopUpPanel;
       Panel_Save: TKMPanel;
 
       DropList_SelectHand: TKMDropList;
-      Label_TryMap: TKMLabel;
-      Button_TryMap, Button_Cancel: TKMButton;
+      Label_QuickPlay: TKMLabel;
+      Button_QuickPlay, Button_Cancel: TKMButton;
   public
     constructor Create(aParent: TKMPanel);
     destructor Destroy; override;
@@ -45,7 +45,7 @@ uses
   KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_Resource, Math;
 
 
-constructor TKMMapEdMenuTryMap.Create(aParent: TKMPanel);
+constructor TKMMapEdMenuQuickPlay.Create(aParent: TKMPanel);
 const
   ControlsWidth = 220;
 var
@@ -53,22 +53,22 @@ var
 begin
   inherited Create;
 
-  PopUp_TryMap := TKMPopUpPanel.Create(aParent, 240, 420, 'Quick Play'); //Todo translate
+  PopUp_QuickPlay := TKMPopUpPanel.Create(aParent, 240, 420, 'Quick Play'); //Todo translate
 
-  PopUp_TryMap.Width := Math.Max(240, gRes.Fonts[PopUp_TryMap.Font].GetTextSize(PopUp_TryMap.Caption).X + 40);
-  Left := (PopUp_TryMap.Width - ControlsWidth) div 2;
-    TKMLabel.Create(PopUp_TryMap, PopUp_TryMap.Width div 2, 50, 'Select player:', fnt_Metal, taCenter); //Todo translate
+  PopUp_QuickPlay.Width := Math.Max(240, gRes.Fonts[PopUp_QuickPlay.Font].GetTextSize(PopUp_QuickPlay.Caption).X + 40);
+  Left := (PopUp_QuickPlay.Width - ControlsWidth) div 2;
+    TKMLabel.Create(PopUp_QuickPlay, PopUp_QuickPlay.Width div 2, 50, 'Select player:', fnt_Metal, taCenter); //Todo translate
 
-    DropList_SelectHand := TKMDropList.Create(PopUp_TryMap, Left, 75, ControlsWidth, 20, fnt_Game, '', bsGame);
+    DropList_SelectHand := TKMDropList.Create(PopUp_QuickPlay, Left, 75, ControlsWidth, 20, fnt_Game, '', bsGame);
     DropList_SelectHand.Hint := 'Select player to start map with'; //Todo translate
 
-    Panel_Save := TKMPanel.Create(PopUp_TryMap, Left, 95, ControlsWidth, 230);
+    Panel_Save := TKMPanel.Create(PopUp_QuickPlay, Left, 95, ControlsWidth, 230);
 
-    Button_TryMap := TKMButton.Create(PopUp_TryMap, Left, 310, ControlsWidth, 30, 'Start without save', bsGame); //Todo translate
-    Button_TryMap.Hint := 'Discard changes and start game for selected player'; //Todo translate
-    Button_TryMap.OnClick := Try_Map_Click;
+    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay, Left, 310, ControlsWidth, 30, 'Start without save', bsGame); //Todo translate
+    Button_QuickPlay.Hint := 'Discard changes and start game for selected player'; //Todo translate
+    Button_QuickPlay.OnClick := QuickPlay_Click;
 
-    Button_Cancel := TKMButton.Create(PopUp_TryMap, (PopUp_TryMap.Width - ControlsWidth) div 2, PopUp_TryMap.Height - 40, ControlsWidth, 30, 'Cancel', bsGame); //Todo translate
+    Button_Cancel := TKMButton.Create(PopUp_QuickPlay, (PopUp_QuickPlay.Width - ControlsWidth) div 2, PopUp_QuickPlay.Height - 40, ControlsWidth, 30, 'Cancel', bsGame); //Todo translate
     Button_Cancel.Hint := 'Cancel'; //Todo translate
     Button_Cancel.OnClick := Cancel_Click;
 
@@ -85,14 +85,14 @@ begin
 end;
 
 
-destructor TKMMapEdMenuTryMap.Destroy;
+destructor TKMMapEdMenuQuickPlay.Destroy;
 begin
   FreeAndNil(fMenuSave);
   inherited;
 end;
 
 
-procedure TKMMapEdMenuTryMap.Try_Map_Click(Sender: TObject);
+procedure TKMMapEdMenuQuickPlay.QuickPlay_Click(Sender: TObject);
 var
   MapName, GameName: String;
   Color: Cardinal;
@@ -112,7 +112,7 @@ begin
 end;
 
 
-function TKMMapEdMenuTryMap.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMMapEdMenuQuickPlay.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True; //We want to handle all keys here
   case Key of
@@ -122,13 +122,13 @@ begin
 end;
 
 
-procedure TKMMapEdMenuTryMap.MapTypeChanged(aIsMultiplayer: Boolean);
+procedure TKMMapEdMenuQuickPlay.MapTypeChanged(aIsMultiplayer: Boolean);
 begin
   SetLoadMode(aIsMultiplayer);
 end;
 
 
-procedure TKMMapEdMenuTryMap.UpdatePanel;
+procedure TKMMapEdMenuQuickPlay.UpdatePanel;
 begin
   Update_PlayerSelect;
   if not DropList_SelectHand.List.Selected then
@@ -138,11 +138,11 @@ begin
     else
       PlayerSelectFirst;
   end;
-  Button_TryMap.Enabled := (not gGame.MapEditor.IsNewMap or gGame.MapEditor.WereSaved) and DropList_SelectHand.List.Selected;
+  Button_QuickPlay.Enabled := (not gGame.MapEditor.IsNewMap or gGame.MapEditor.WereSaved) and DropList_SelectHand.List.Selected;
 end;
 
 
-procedure TKMMapEdMenuTryMap.Update_PlayerSelect;
+procedure TKMMapEdMenuQuickPlay.Update_PlayerSelect;
 var
   I: Integer;
 begin
@@ -155,7 +155,7 @@ begin
 end;
 
 
-procedure TKMMapEdMenuTryMap.PlayerSelectFirst;
+procedure TKMMapEdMenuQuickPlay.PlayerSelectFirst;
 var
   I: Integer;
 begin
@@ -170,49 +170,49 @@ begin
 end;
 
 
-procedure TKMMapEdMenuTryMap.SaveBtn_EnableStatusChanged(aValue: Boolean);
+procedure TKMMapEdMenuQuickPlay.SaveBtn_EnableStatusChanged(aValue: Boolean);
 begin
   if aValue and not DropList_SelectHand.List.Selected then
     fMenuSave.Button_SaveSave.Disable;
 end;
 
 
-procedure TKMMapEdMenuTryMap.SaveDone(Sender: TObject);
+procedure TKMMapEdMenuQuickPlay.SaveDone(Sender: TObject);
 begin
-  Try_Map_Click(Sender);
+  QuickPlay_Click(Sender);
 end;
 
 
-procedure TKMMapEdMenuTryMap.SetLoadMode(aMultiplayer: Boolean);
+procedure TKMMapEdMenuQuickPlay.SetLoadMode(aMultiplayer: Boolean);
 begin
   fIsMultiplayer := aMultiplayer;
   fMenuSave.SetLoadMode(aMultiplayer);
 end;
 
 
-procedure TKMMapEdMenuTryMap.Cancel_Click(Sender: TObject);
+procedure TKMMapEdMenuQuickPlay.Cancel_Click(Sender: TObject);
 begin
   Hide;
 end;
 
 
-procedure TKMMapEdMenuTryMap.Hide;
+procedure TKMMapEdMenuQuickPlay.Hide;
 begin
-  PopUp_TryMap.Hide;
+  PopUp_QuickPlay.Hide;
 end;
 
 
-procedure TKMMapEdMenuTryMap.Show;
+procedure TKMMapEdMenuQuickPlay.Show;
 begin
   UpdatePanel;
-  PopUp_TryMap.Show;
+  PopUp_QuickPlay.Show;
   fMenuSave.Show;
 end;
 
 
-function TKMMapEdMenuTryMap.Visible: Boolean;
+function TKMMapEdMenuQuickPlay.Visible: Boolean;
 begin
-  Result := PopUp_TryMap.Visible;
+  Result := PopUp_QuickPlay.Visible;
 end;
 
 

@@ -21,7 +21,7 @@ uses
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
    KM_GUIMapEdMenu,
-   KM_GUIMapEdMenuTryMap,
+   KM_GUIMapEdMenuQuickPlay,
    KM_GUIMapEdUnit;
 
 type
@@ -47,7 +47,7 @@ type
     fGuiAttack: TKMMapEdTownAttack;
     fGuiGoal: TKMMapEdPlayerGoal;
     fGuiFormations: TKMMapEdTownFormations;
-    fGuiMenuTryMap: TKMMapEdMenuTryMap;
+    fGuiMenuQuickPlay: TKMMapEdMenuQuickPlay;
     fGuiExtras: TKMMapEdExtras;
     fGuiMessage: TKMMapEdMessage;
     fGuiMarkerDefence: TKMMapEdMarkerDefence;
@@ -226,13 +226,13 @@ begin
   fGuiAttack := TKMMapEdTownAttack.Create(Panel_Main);
   fGuiFormations := TKMMapEdTownFormations.Create(Panel_Main);
   fGuiGoal := TKMMapEdPlayerGoal.Create(Panel_Main);
-  fGuiMenuTryMap := TKMMapEdMenuTryMap.Create(Panel_Main);
+  fGuiMenuQuickPlay := TKMMapEdMenuQuickPlay.Create(Panel_Main);
 
   //Pass pop-ups to their dispatchers
   fGuiTown.GuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.GuiOffence.AttackPopUp := fGuiAttack;
   fGuiPlayer.GuiPlayerGoals.GoalPopUp := fGuiGoal;
-  fGuiMenu.GuiMenuTryMap := fGuiMenuTryMap;
+  fGuiMenu.GuiMenuQuickPlay := fGuiMenuQuickPlay;
 
   //Hints go above everything
   Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
@@ -270,7 +270,7 @@ begin
   fGuiAttack.Free;
   fGuiExtras.Free;
   fGuiFormations.Free;
-  fGuiMenuTryMap.Free;
+  fGuiMenuQuickPlay.Free;
   fGuiGoal.Free;
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
@@ -731,7 +731,7 @@ begin
   if (fGuiAttack.Visible and fGuiAttack.KeyDown(Key, Shift))
     or (fGuiFormations.Visible and fGuiFormations.KeyDown(Key, Shift))
     or (fGuiGoal.Visible and fGuiGoal.KeyDown(Key, Shift))
-    or (fGuiMenuTryMap.Visible and fGuiMenuTryMap.KeyDown(Key, Shift)) then
+    or (fGuiMenuQuickPlay.Visible and fGuiMenuQuickPlay.KeyDown(Key, Shift)) then
     KeyPassedToModal := True;
 
   //For now enter can open up Extra panel

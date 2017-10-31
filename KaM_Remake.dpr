@@ -71,7 +71,7 @@ uses
   KM_GUIMapEdMenuLoad in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuLoad.pas',
   KM_GUIMapEdMenuSave in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuSave.pas',
   KM_GUIMapEdMenuResize in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuResize.pas',
-  KM_GUIMapEdMenuTryMap in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuTryMap.pas',
+  KM_GUIMapEdMenuQuickPlay in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuQuickPlay.pas',
   KM_GUIMapEdMenuQuit in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuQuit.pas',
   KM_GUIMapEdMenuSettings in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuSettings.pas',
 	

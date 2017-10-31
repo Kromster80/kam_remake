@@ -5,7 +5,7 @@ uses
    Classes, Controls, SysUtils,
    KM_Controls, KM_InterfaceGame,
    KM_GUIMapEdMenuResize,
-   KM_GUIMapEdMenuTryMap,
+   KM_GUIMapEdMenuQuickPlay,
    KM_GUIMapEdMenuLoad,
    KM_GUIMapEdMenuSave,
    KM_GUIMapEdMenuQuit,
@@ -15,7 +15,7 @@ type
   TKMMapEdMenu = class
   private
     fGuiMenuResize: TKMMapEdMenuResize;
-    fGuiMenuTryMap: TKMMapEdMenuTryMap;
+    fGuiMenuQuickPlay: TKMMapEdMenuQuickPlay;
     fGuiMenuLoad: TKMMapEdMenuLoad;
     fGuiMenuSave: TKMMapEdMenuSave;
     fGuiMenuSettings: TKMMapEdMenuSettings;
@@ -36,7 +36,7 @@ type
     destructor Destroy; override;
 
     property GuiMenuResize: TKMMapEdMenuResize read fGuiMenuResize;
-    property GuiMenuTryMap: TKMMapEdMenuTryMap read fGuiMenuTryMap write fGuiMenuTryMap;
+    property GuiMenuQuickPlay: TKMMapEdMenuQuickPlay read fGuiMenuQuickPlay write fGuiMenuQuickPlay;
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure Show;
     procedure Hide;
@@ -102,7 +102,7 @@ end;
 
 procedure TKMMapEdMenu.MapTypeChange(aIsMultiplayer: Boolean);
 begin
-  fGuiMenuTryMap.MapTypeChanged(aIsMultiplayer);
+  fGuiMenuQuickPlay.MapTypeChanged(aIsMultiplayer);
 end;
 
 
@@ -114,7 +114,7 @@ begin
     fGuiMenuResize.Show
   else
   if Sender = Button_QuickPlay then
-    fGuiMenuTryMap.Show
+    fGuiMenuQuickPlay.Show
   else
   if Sender = Button_Menu_Quit then
     fGuiMenuQuit.Show
@@ -135,7 +135,7 @@ end;
 procedure TKMMapEdMenu.MenuDone(Sender: TObject);
 begin
   fGuiMenuResize.Hide;
-  fGuiMenuTryMap.Hide;
+  fGuiMenuQuickPlay.Hide;
   fGuiMenuLoad.Hide;
   fGuiMenuSave.Hide;
   fGuiMenuQuit.Hide;
@@ -172,7 +172,7 @@ end;
 procedure TKMMapEdMenu.SetLoadMode(aMultiplayer:boolean);
 begin
   fGuiMenuResize.SetLoadMode(aMultiplayer);
-  fGuiMenuTryMap.SetLoadMode(aMultiplayer);
+  fGuiMenuQuickPlay.SetLoadMode(aMultiplayer);
   fGuiMenuLoad.SetLoadMode(aMultiplayer);
   fGuiMenuSave.SetLoadMode(aMultiplayer);
 end;
