@@ -135,8 +135,8 @@ begin
   Panel_House := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
+    Image_PlayerFlag := TKMImage.Create(Panel_House, 0, 17, 20, 13, 1159, rxHouses);
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
-    Image_PlayerFlag := TKMImage.Create(Panel_House, 5, 17, 20, 13, 1159, rxHouses);
     Button_HouseDeliveryMode := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
     Button_HouseDeliveryMode.Hint := gResTexts[TX_HOUSE_TOGGLE_DELIVERS_HINT];
     Button_HouseDeliveryMode.OnClickShift := House_DeliveryModeToggle;
@@ -448,7 +448,8 @@ end;
 
 
 procedure TKMGUIGameHouse.Show(aHouse: TKMHouse; aAskDemolish: Boolean);
-var I, RowRes, Base, Line: Integer;
+var
+  I, RowRes, Base, Line, HLabelWidth: Integer;
 begin
   AskDemolish := aAskDemolish;
 
@@ -465,6 +466,17 @@ begin
 
   {Common data}
   Label_House.Caption        := gRes.Houses[aHouse.HouseType].HouseName;
+  //Calc House caption position
+  HLabelWidth := gRes.Fonts[fnt_Outline].GetTextSize(Label_House.Caption).X;
+  if HLabelWidth <= TB_WIDTH - 2*Image_PlayerFlag.Width then
+    Label_House.Left := 0
+  else if HLabelWidth <= TB_WIDTH - Image_PlayerFlag.Width then
+    Label_House.Left := Image_PlayerFlag.Width
+  else
+    Label_House.Left := Max(TB_WIDTH - HLabelWidth, 0);
+
+  Label_House.Width := TB_WIDTH - Label_House.Left;
+
   Image_PlayerFlag.FlagColor := gHands[aHouse.Owner].FlagColor;
   Image_House_Logo.TexID     := gRes.Houses[aHouse.HouseType].GUIIcon;
   Image_House_Worker.TexID   := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
