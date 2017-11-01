@@ -37,6 +37,7 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
 
+    procedure GameSpeedChanged(aFromSpeed, aToSpeed: Single);
     procedure SyncUI(aMoveViewport: Boolean = True); virtual;
     procedure SyncUIView(aCenter: TKMPointF; aZoom: Single = 1);
     procedure UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
@@ -288,6 +289,12 @@ begin
                                    fViewport.Position.Y + PrevCursor.Y-gGameCursor.Float.Y);
     UpdateGameCursor(X, Y, Shift); // Recentering the map changes the cursor position
   end;
+end;
+
+
+procedure TKMUserInterfaceGame.GameSpeedChanged(aFromSpeed, aToSpeed: Single);
+begin
+  fViewport.GameSpeedChanged(aFromSpeed, aToSpeed);
 end;
 
 

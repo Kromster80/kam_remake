@@ -228,8 +228,7 @@ begin
     and gHands[aPlayer].InCinematic then
     begin
       if aPlayer = gMySpectator.HandIndex then
-        //Duration is in ticks (1/10 sec), viewport wants miliseconds (1/1000 sec)
-        gGame.GamePlayInterface.Viewport.PanTo(KMPointF(X, Y), Duration*100);
+        gGame.GamePlayInterface.Viewport.PanTo(KMPointF(X, Y), Duration);
     end
     else
       LogParamWarning('Actions.CinematicPanTo', [aPlayer, X, Y, Duration]);

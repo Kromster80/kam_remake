@@ -77,6 +77,9 @@ type
     function GetTicksBehindCnt: Single;
     procedure SetIsPaused(aValue: Boolean);
     procedure IssueAutosaveCommand(aAfterPT: Boolean = False);
+
+    function GetGameTickDuration: Single;
+    procedure GameSpeedChanged(aFromSpeed, aToSpeed: Single);
   public
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -135,11 +138,12 @@ type
     procedure OverlayUpdate;
     procedure OverlaySet(const aText: UnicodeString; aPlayer: Shortint);
     procedure OverlayAppend(const aText: UnicodeString; aPlayer: Shortint);
-    property GameTickCount:cardinal read fGameTickCount;
+    property GameTickCount: Cardinal read fGameTickCount;
     property GameName: UnicodeString read fGameName;
     property CampaignName: TKMCampaignId read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
     property GameSpeed: Single read fGameSpeed;
+    property GameTickDuration: Single read GetGameTickDuration;
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
 
@@ -1213,8 +1217,12 @@ end;
 
 
 procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean);
+var
+  OldGameSpeed: Single;
 begin
   Assert(aSpeed > 0);
+
+  OldGameSpeed := fGameSpeed;
 
   //MapEd always runs at x1
   if IsMapEditor then
@@ -1256,6 +1264,14 @@ begin
 
   if Assigned(gGameApp.OnGameSpeedChange) then
     gGameApp.OnGameSpeedChange(fGameSpeed);
+
+  GameSpeedChanged(OldGameSpeed, fGameSpeed);
+end;
+
+
+procedure TKMGame.GameSpeedChanged(aFromSpeed, aToSpeed: Single);
+begin
+  fActiveInterface.GameSpeedChanged(aFromSpeed, aToSpeed);
 end;
 
 
@@ -1609,6 +1625,12 @@ begin
   finally
     FreeAndNil(LoadStream);
   end;
+end;
+
+
+function TKMGame.GetGameTickDuration: Single;
+begin
+  Result := gGameApp.GameSettings.SpeedPace / fGameSpeed;
 end;
 
 
