@@ -1,9 +1,8 @@
 unit Unit1;
+
 interface
 uses
-  Classes, Controls, Dialogs, Forms, StdCtrls, SysUtils,
-  KM_Defaults, KM_Scripting;
-
+  Messages, Forms, Dialogs, StdCtrls, Controls, Classes, KM_Scripting;
 
 type
   TForm1 = class(TForm)
@@ -22,35 +21,34 @@ type
     procedure Button1Click(Sender: TObject);
   private
     fScripting: TKMScripting;
-
     procedure Validate(aPath: string; aReportGood: Boolean);
+    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
   end;
-
 
 var
   Form1: TForm1;
 
-
 implementation
 uses
-  KM_Maps;
-
+  SysUtils, Windows, ShellApi, KM_Defaults, KM_Maps;
 {$R *.dfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  Caption := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
+  Caption                := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
+  OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
+  fScripting             := TKMScripting.Create(nil);
 
-  OpenDialog1.InitialDir := ExtractFilePath(Application.ExeName);
-
-  fScripting := TKMScripting.Create(nil);
+  DragAcceptFiles(Handle, True);
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   fScripting.Free;
+  DragAcceptFiles(Handle, False);
 end;
+
 
 procedure TForm1.btnBrowseClick(Sender: TObject);
 begin
@@ -68,30 +66,33 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var
   maps: TStringList;
-  I: Integer;
+  I:    Integer;
 begin
   maps := TStringList.Create;
 
   // Exe path
-  TKMapsCollection.GetAllMapPaths(ExtractFilePath(Application.ExeName), maps);
+  TKMapsCollection.GetAllMapPaths(ExtractFilePath(ParamStr(0)), maps);
+
   for I := 0 to maps.Count - 1 do
     Validate(ChangeFileExt(maps[I], '.script'), False);
 
   Memo1.Lines.Append('Checked ' + IntToStr(maps.Count) + ' in .\');
 
   // Utils path
-  TKMapsCollection.GetAllMapPaths(ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\'), maps);
+  TKMapsCollection.GetAllMapPaths(ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\'), maps);
+
   for I := 0 to maps.Count - 1 do
     Validate(ChangeFileExt(maps[I], '.script'), False);
 
   Memo1.Lines.Append('Checked ' + IntToStr(maps.Count) + ' in ..\..\');
+  FreeAndNil(maps);
 end;
 
 
 procedure TForm1.Validate(aPath: string; aReportGood: Boolean);
 var
   CampaignFile: UnicodeString;
-  txt: string;
+  txt:          string;
 begin
   if not FileExists(aPath) and aReportGood then
   begin
@@ -108,16 +109,26 @@ begin
   begin
     if txt <> '' then
       txt := txt + sLineBreak;
-    txt := txt + 'Warnings:' + sLineBreak;
-    txt := txt + StringReplace(fScripting.WarningsString, '|', sLineBreak, [rfReplaceAll]);
+
+    txt := txt + 'Warnings:' + sLineBreak +
+           StringReplace(fScripting.WarningsString, '|', sLineBreak, [rfReplaceAll]);
   end;
 
   if txt <> '' then
     Memo1.Lines.Append(aPath + sLineBreak + txt)
   else
-  if aReportGood then
-    Memo1.Lines.Append(aPath + ' - No errors :)');
+    if aReportGood then
+      Memo1.Lines.Append(aPath + ' - No errors :)');
 end;
 
+
+procedure TForm1.WMDropFiles(var Msg: TWMDropFiles);
+var
+  Filename: array[0 .. MAX_PATH] of Char;
+begin
+  DragQueryFile(Msg.Drop, 0, Filename, MAX_PATH);
+  Edit1.Text := Filename;
+  DragFinish(Msg.Drop);
+end;
 
 end.

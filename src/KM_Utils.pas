@@ -2,7 +2,7 @@ unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
+  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points, KM_CommonTypes
   {$IFDEF MSWindows}
   ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
@@ -21,7 +21,8 @@ uses
 
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
-  function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
+  function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
+  function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
   function GetPingColor(aPing: Word): Cardinal;
   function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
@@ -45,6 +46,7 @@ uses
   function UTCNow: TDateTime;
   function UTCToLocal(Input: TDateTime): TDateTime;
 
+  function MapSizeIndex(X, Y: Word): Byte;
   function MapSizeText(X,Y: Word): UnicodeString;
 
   //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
@@ -55,10 +57,27 @@ uses
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
 
+  function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+
+  function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+
+  function DeleteDoubleSpaces(aString: string): string;
+
   function GetMultiplicator(aShift: TShiftState): Word;
 
-implementation
+  //String functions
+  function StrIndexOf(aStr, aSubStr: String): Integer;
+  function StrLastIndexOf(aStr, aSubStr: String): Integer;
+  function StrSubstring(aStr: String; aFrom, aLength: Integer): String; overload;
+  function StrSubstring(aStr: String; aFrom: Integer): String; overload;
+  function StrContains(aStr, aSubStr: String): Boolean;
+  function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
+  function StrSplit(aStr, aDelimiters: String): TStrings;
 
+
+implementation
+uses
+  StrUtils, Types;
 
 var
   fKaMSeed: Integer;
@@ -199,18 +218,25 @@ end;
 {$ENDIF}
 
 
-function MapSizeText(X,Y: Word): UnicodeString;
+function MapSizeIndex(X, Y: Word): Byte;
 begin
-  //Pretend these are understandable in any language
   case X * Y of
-            1.. 48* 48: Result := 'XS';
-     48* 48+1.. 80* 80: Result := 'S';
-     80* 80+1..128*128: Result := 'M';
-    128*128+1..176*176: Result := 'L';
-    176*176+1..224*224: Result := 'XL';
-    224*224+1..320*320: Result := 'XXL';
-    else                Result := '???';
+            1.. 48* 48: Result := 0;
+     48* 48+1.. 80* 80: Result := 1;
+     80* 80+1..128*128: Result := 2;
+    128*128+1..176*176: Result := 3;
+    176*176+1..224*224: Result := 4;
+    224*224+1..320*320: Result := 5;
+    else                Result := 6;
   end;
+end;
+
+
+function MapSizeText(X, Y: Word): UnicodeString;
+//Pretend these are understandable in any language
+const MAP_SIZES: array [0..6] of String = ('XS', 'S', 'M', 'L', 'XL', 'XXL', '???');
+begin
+  Result := MAP_SIZES[MapSizeIndex(X, Y)];
 end;
 
 
@@ -318,10 +344,10 @@ end;
 function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
-    0..299  : Result := icGreen;
-    300..599: Result := icYellow;
-    600..999: Result := icOrange;
-    else      Result := icRed;
+    0..299  : Result := clPingLow;
+    300..599: Result := clPingNormal;
+    600..999: Result := clPingHigh;
+    else      Result := clPingCritical;
   end;
 end;
 
@@ -329,10 +355,10 @@ end;
 function GetFPSColor(aFPS: Word): Cardinal;
 begin
   case aFPS of
-    0..9  : Result := icRed;
-    10..12: Result := icOrange;
-    13..15: Result := icYellow;
-    else    Result := icGreen;
+    0..9  : Result := clFpsCritical;
+    10..12: Result := clFpsLow;
+    13..15: Result := clFpsNormal;
+    else    Result := clFpsHigh;
   end;
 end;
 
@@ -451,7 +477,9 @@ begin
 end;
 
 
-function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
+//Reduce brightness
+//aBrightness - from 0 to 255, where 255 is current Brightness
+function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
 begin
   Result := Round((aColor and $FF) / 255 * aBrightness)
             or
@@ -460,6 +488,20 @@ begin
             Round((aColor shr 16 and $FF) / 255 * aBrightness) shl 16
             or
             (aColor and $FF000000);
+end;
+
+
+function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
+var
+  R, G, B: Byte;
+  Hue, Sat, Bri: Single;
+begin
+  ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
+  Bri := Math.Max(aMinBrightness, Math.Min(Bri*aBrightnessFactor, aMaxBrightness));
+  ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
+
+  //Preserve transparency value
+  Result := (R + G shl 8 + B shl 16) or (aColor and $FF000000);
 end;
 
 
@@ -637,9 +679,157 @@ begin
 end;
 
 
+// Returns file directory name
+// F.e. for aFilePath = 'c:/kam/remake/fore.ver' returns 'remake'
+function GetFileDirName(aFilePath: UnicodeString): UnicodeString;
+var DirPath: UnicodeString;
+begin
+  Result := '';
+  if Trim(aFilePath) = '' then Exit;
+
+  DirPath := ExtractFileDir(aFilePath);
+
+  if DirPath = '' then Exit;
+
+  if StrIndexOf(DirPath, PathDelim) <> -1 then
+    Result := copy(DirPath, StrLastIndexOf(DirPath, PathDelim) + 2);
+end;
+
+
+// Returnes text ignoring color markup [$FFFFFF][]
+function GetNoColorMarkupText(aText: UnicodeString): UnicodeString;
+var I, TmpColor: Integer;
+begin
+  Result := '';
+
+  if aText = '' then Exit;
+
+  I := 1;
+  while I <= Length(aText) do
+  begin
+    //Ignore color markups [$FFFFFF][]
+    if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
+      Inc(I) //Skip past this markup
+    else
+      if (aText[I]='[') and (I+8 <= Length(aText))
+      and (aText[I+1] = '$') and (aText[I+8]=']')
+      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+        Inc(I,8) //Skip past this markup
+      else
+        //Not markup so count width normally
+        Result := Result + aText[I];
+    Inc(I);
+  end;
+end;
+
+
+//Replace continious spaces with single space
+function DeleteDoubleSpaces(aString: string): string;
+var I: Integer;
+begin
+  Result := '';
+  if aString = '' then Exit;
+  Result := aString[1];
+
+  for I := 2 to Length(aString) do
+  begin
+    if aString[I] = ' ' then
+    begin
+      if not (aString[I-1] = ' ') then
+        Result := Result + ' ';
+    end else
+      Result := Result + aString[I];
+  end;
+end;
+
+
 function GetMultiplicator(aShift: TShiftState): Word;
 begin
   Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100 + Byte(aShift = [ssShift, ssRight]) * 1000;
+end;
+
+
+{
+String functions
+These function are replacements for String functions introduced after XE2 (XE5 probably)
+Names are the same as in new Delphi versions, but with 'Str' prefix
+}
+function StrIndexOf(aStr, aSubStr: String): Integer;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrIndexOf with Pos everywhere in code?
+  Result := AnsiPos(aSubStr, aStr) - 1;
+end;
+
+
+function StrLastIndexOf(aStr, aSubStr: String): Integer;
+var I: Integer;
+begin
+  Result := -1;
+  for I := 1 to Length(aStr) do
+    if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
+      Result := I - 1;
+end;
+
+
+function StrSubstring(aStr: String; aFrom: Integer): String;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrSubstring with RightStr everywhere in code?
+  Result := Copy(aStr, aFrom + 1, Length(aStr));
+end;
+
+
+function StrSubstring(aStr: String; aFrom, aLength: Integer): String;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrSubstring with Copy everywhere in code?
+  Result := Copy(aStr, aFrom + 1, aLength);
+end;
+
+
+function StrContains(aStr, aSubStr: String): Boolean;
+begin
+  //Todo refactor:
+  //@Krom: Why not just replace StrContains with Pos() <> 0 everywhere in code?
+  Result := StrIndexOf(aStr, aSubStr) <> -1;
+end;
+
+
+function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
+var Found: Boolean;
+    I, J: Integer;
+begin
+  for I := Length(aStr) downto 1 do
+  begin
+    Found := False;
+    for J := Low(aCharsToTrim) to High(aCharsToTrim) do
+    begin
+      if aStr[I] = aCharsToTrim[J] then
+      begin
+        Found := True;
+        Break;
+      end;
+    end;
+    if not Found then
+      Break;
+  end;
+  Result := Copy(aStr, 1, I);
+end;
+
+
+function StrSplit(aStr, aDelimiters: String): TStrings;
+var StrArray: TStringDynArray;
+    I: Integer;
+begin
+  //Todo refactor:
+  //@Krom: It's bad practice to create object (TStringList) inside and return it as parent class (TStrings).
+  //Do we really need it this way? Better to pass TStringList from outside in a parameter.
+
+  StrArray := SplitString(aStr, aDelimiters);
+  Result := TStringList.Create;
+  for I := Low(StrArray) to High(StrArray) do
+    Result.Add(StrArray[I]);
 end;
 
 

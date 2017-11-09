@@ -19,8 +19,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure SendPacket(const aAddress:string; const aPort:string; aData:pointer; aLength:cardinal);
-    procedure Listen(const aPort: string);
+    procedure SendPacket(const aAddress:string; const aPort: Word; aData:pointer; aLength:cardinal);
+    procedure Listen(const aPort: Word);
     procedure StopListening;
     property OnError:TGetStrProc write fOnError;
     property OnRecieveData:TNotifyAddressDataEvent write fOnRecieveData;
@@ -46,13 +46,13 @@ begin
 end;
 
 
-procedure TKMNetUDPOverbyte.Listen(const aPort:string);
+procedure TKMNetUDPOverbyte.Listen(const aPort: Word);
 begin
   fSocketReceive.OnDataAvailable := DataAvailable;
   try
     fSocketReceive.Proto     := 'udp';
     fSocketReceive.Addr      := '0.0.0.0';
-    fSocketReceive.Port      := aPort;
+    fSocketReceive.Port      := IntToStr(aPort);
     fSocketReceive.Listen;
   except
     on E : Exception do
@@ -71,11 +71,11 @@ begin
 end;
 
 
-procedure TKMNetUDPOverbyte.SendPacket(const aAddress:string; const aPort:string; aData:pointer; aLength:cardinal);
+procedure TKMNetUDPOverbyte.SendPacket(const aAddress:string; const aPort: Word; aData:pointer; aLength:cardinal);
 begin
   fSocketSend.Proto     := 'udp';
   fSocketSend.Addr      := aAddress;
-  fSocketSend.Port      := aPort;
+  fSocketSend.Port      := IntToStr(aPort);
   fSocketSend.LocalPort := '0';
   fSocketSend.Connect;
   fSocketSend.Send(aData, aLength);

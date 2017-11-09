@@ -12,7 +12,7 @@ const
 
 
 type
-  TKMMenuSingleMap = class
+  TKMMenuSingleMap = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
 
@@ -28,6 +28,7 @@ type
 
     procedure ListClear;
     procedure ScanUpdate(Sender: TObject);
+    procedure ScanComplete(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure ListRefresh(aJumpToSelected:Boolean);
     procedure ListClick(Sender: TObject);
@@ -76,6 +77,7 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   fMaps := TKMapsCollection.Create(mfSP);
   fMinimap := TKMMinimap.Create(True, True);
@@ -223,13 +225,18 @@ procedure TKMMenuSingleMap.ListClear;
 begin
   ColumnBox_SingleMaps.Clear;
   ListClick(nil);
-  fLastMapCRC := 0;
 end;
 
 
 procedure TKMMenuSingleMap.ScanUpdate(Sender: TObject);
 begin
   ListRefresh(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMenuSingleMap.ScanComplete(Sender: TObject);
+begin
+  ListRefresh(True); //After scan complete jump to selected item
 end;
 
 
@@ -257,7 +264,10 @@ begin
       ColumnBox_SingleMaps.AddItem(R);
 
       if (fMaps[I].CRC = fLastMapCRC) then
+      begin
         ColumnBox_SingleMaps.ItemIndex := I;
+        ListClick(nil);
+      end;
     end;
   finally
     fMaps.Unlock;
@@ -304,6 +314,8 @@ begin
       fMaps[MapId].LoadExtra;
 
       fLastMapCRC := fMaps[MapId].CRC;
+      gGameApp.GameSettings.MenuSPMapCRC := fLastMapCRC;
+
       Label_SingleTitle.Caption   := fMaps[MapId].FileName;
       Memo_SingleDesc.Text        := fMaps[MapId].BigDesc;
 
@@ -394,56 +406,59 @@ begin
   begin
     MapId := ColumnBox_SingleMaps.ItemIndex;
     fMaps.Lock;
-    M := fMaps[MapId];
+    try
+      M := fMaps[MapId];
 
-    //Set default colour for this location
-    DropBox_SingleColor.List.Rows[0].Cells[0].Color := fMaps[MapId].FlagColors[fSingleLoc];
-    if DropBox_SingleColor.ItemIndex = 0 then
-      fSingleColor := fMaps[MapId].FlagColors[fSingleLoc];
+      //Set default colour for this location
+      DropBox_SingleColor.List.Rows[0].Cells[0].Color := fMaps[MapId].FlagColors[fSingleLoc];
+      if DropBox_SingleColor.ItemIndex = 0 then
+        fSingleColor := fMaps[MapId].FlagColors[fSingleLoc];
 
-    //Refresh minimap with selected location and player color
-    fMinimap.LoadFromMission(M.FullPath('.dat'), [TKMHandIndex(fSingleLoc)]);
-    fMinimap.HandColors[fSingleLoc] := fSingleColor;
-    fMinimap.Update(False);
-    MinimapView_Single.SetMinimap(fMinimap);
+      //Refresh minimap with selected location and player color
+      fMinimap.LoadFromMission(M.FullPath('.dat'), [TKMHandIndex(fSingleLoc)]);
+      fMinimap.HandColors[fSingleLoc] := fSingleColor;
+      fMinimap.Update(False);
+      MinimapView_Single.SetMinimap(fMinimap);
 
-    //Populate goals section
-    for I := 0 to Min(MAX_UI_GOALS, M.GoalsVictoryCount[fSingleLoc]) - 1 do
-    begin
-      G := M.GoalsVictory[fSingleLoc,I];
-      Image_SingleVictGoal[I].TexID := GoalCondPic[G.Cond];
-      Image_SingleVictGoal[I].FlagColor := fSingleColor;
-      Image_SingleVictGoalSt[I].Show;
-      Label_SingleVictGoal[I].Caption := IntToStr(G.Play + 1);
-    end;
-    for I := 0 to Min(MAX_UI_GOALS, M.GoalsSurviveCount[fSingleLoc]) - 1 do
-    begin
-      G := M.GoalsSurvive[fSingleLoc,I];
-      Image_SingleSurvGoal[I].TexID := GoalCondPic[G.Cond];
-      Image_SingleSurvGoal[I].FlagColor := fSingleColor;
-      Image_SingleSurvGoalSt[I].Show;
-      Label_SingleSurvGoal[I].Caption := IntToStr(G.Play + 1);
-    end;
-
-    //Populate alliances section
-    J := 0; K := 0;
-    for I := 0 to M.LocCount - 1 do
-    if I <> fSingleLoc then
-    begin
-      case M.Alliances[fSingleLoc, I] of
-        at_Enemy: begin
-                    Image_SingleEnemies[J].Show;
-                    Image_SingleEnemies[J].FlagColor := M.FlagColors[I];
-                    Inc(J);
-                  end;
-        at_Ally:  begin
-                    Image_SingleAllies[K].Show;
-                    Image_SingleAllies[K].FlagColor := M.FlagColors[I];
-                    Inc(K);
-                  end;
+      //Populate goals section
+      for I := 0 to Min(MAX_UI_GOALS, M.GoalsVictoryCount[fSingleLoc]) - 1 do
+      begin
+        G := M.GoalsVictory[fSingleLoc,I];
+        Image_SingleVictGoal[I].TexID := GoalCondPic[G.Cond];
+        Image_SingleVictGoal[I].FlagColor := fSingleColor;
+        Image_SingleVictGoalSt[I].Show;
+        Label_SingleVictGoal[I].Caption := IntToStr(G.Play + 1);
       end;
+      for I := 0 to Min(MAX_UI_GOALS, M.GoalsSurviveCount[fSingleLoc]) - 1 do
+      begin
+        G := M.GoalsSurvive[fSingleLoc,I];
+        Image_SingleSurvGoal[I].TexID := GoalCondPic[G.Cond];
+        Image_SingleSurvGoal[I].FlagColor := fSingleColor;
+        Image_SingleSurvGoalSt[I].Show;
+        Label_SingleSurvGoal[I].Caption := IntToStr(G.Play + 1);
+      end;
+
+      //Populate alliances section
+      J := 0; K := 0;
+      for I := 0 to M.LocCount - 1 do
+      if I <> fSingleLoc then
+      begin
+        case M.Alliances[fSingleLoc, I] of
+          at_Enemy: begin
+                      Image_SingleEnemies[J].Show;
+                      Image_SingleEnemies[J].FlagColor := M.FlagColors[I];
+                      Inc(J);
+                    end;
+          at_Ally:  begin
+                      Image_SingleAllies[K].Show;
+                      Image_SingleAllies[K].FlagColor := M.FlagColors[I];
+                      Inc(K);
+                    end;
+        end;
+      end;
+    finally
+      fMaps.Unlock;
     end;
-    fMaps.Unlock;
 
     Button_SingleStart.Enable;
   end;
@@ -459,18 +474,22 @@ begin
     Exit;
 
   fMaps.Lock;
-  for I := 0 to fMaps.Count - 1 do
-    if fLastMapCRC = fMaps[I].CRC then
-    begin
-      fMaps.Unlock; //We are about to exit so unlock now
-      //Scan should be terminated, as it is no longer needed
-      fMaps.TerminateScan;
+  try
+    for I := 0 to fMaps.Count - 1 do
+      if fLastMapCRC = fMaps[I].CRC then
+      begin
+        //Scan should be terminated, as it is no longer needed
+        fMaps.TerminateScan;
 
-      //Provide mission FileName mask and title here
-      gGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName, fSingleLoc, fSingleColor);
-      Exit;
-    end;
-  Assert(False); //We should NOT reach here, since we checked that the start button was enabled
+        //Provide mission FileName mask and title here
+        gGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName, fSingleLoc, fSingleColor);
+        Exit;
+      end;
+  finally
+    fMaps.Unlock; // Even if Exit; happens Unlock will be called anyway
+  end;
+
+  raise Exception.Create('We should NOT reach here, since we checked that the start button was enabled'); //We should NOT reach here, since we checked that the start button was enabled
 end;
 
 
@@ -523,9 +542,10 @@ begin
 
   //Remove any old entries from UI
   ListClear;
+  fLastMapCRC := gGameApp.GameSettings.MenuSPMapCRC;
 
   //Initiate refresh and process each new map added
-  fMaps.Refresh(ScanUpdate);
+  fMaps.Refresh(ScanUpdate, ScanComplete);
   Panel_Single.Show;
 end;
 

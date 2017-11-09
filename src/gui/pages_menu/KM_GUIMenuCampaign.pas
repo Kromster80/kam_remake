@@ -8,12 +8,13 @@ uses
 
 
 type
-  TKMMenuCampaign = class {(TKMGUIPage)}
+  TKMMenuCampaign = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
     fCampaign: TKMCampaign;
     fMapIndex: Byte;
+    fAnimNodeIndex : Byte;
 
     procedure BackClick(Sender: TObject);
     procedure Scroll_Toggle(Sender: TObject);
@@ -21,6 +22,7 @@ type
     procedure Campaign_Set(aCampaign: TKMCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure StartClick(Sender: TObject);
+    procedure AnimNodes(aTickCount: Cardinal);
   protected
     Panel_Campaign: TKMPanel;
       Image_CampaignBG: TKMImage;
@@ -39,6 +41,8 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure Resize(X, Y: Word);
     procedure Show(aCampaign: TKMCampaignId);
+
+    procedure UpdateState(aTickCount: Cardinal);
   end;
 
 
@@ -49,7 +53,7 @@ uses
 const
   FLAG_LABEL_OFFSET_X = 10;
   FLAG_LABEL_OFFSET_Y = 7;
-
+  CAMP_NODE_ANIMATION_PERIOD = 5;
 
 { TKMGUIMainCampaign }
 constructor TKMMenuCampaign.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
@@ -60,6 +64,7 @@ begin
 
   fMapIndex := 1;
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   Panel_Campaign := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Campaign.AnchorsStretch;
@@ -97,7 +102,7 @@ begin
     Image_ScrollClose.OnClick := Scroll_Toggle;
     Image_ScrollClose.HighlightOnMouseOver := True;
 
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 46, 100, 20, NO_TEXT, fnt_Outline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 20, 46, 325, 20, NO_TEXT, fnt_Outline, taCenter);
 
     Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 325, 310, NO_TEXT, fnt_Antiqua, taLeft);
     Label_CampaignText.AutoWrap := true;
@@ -160,19 +165,21 @@ begin
 
   fMapIndex := TKMControl(Sender).Tag;
 
-  //Place highlight
+  // Place highlight
   for I := 0 to High(Image_CampaignFlags) do
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
 
   //Connect by sub-nodes
+  fAnimNodeIndex := 0;
+
   for I := 0 to High(Image_CampaignSubNode) do
   begin
-    Image_CampaignSubNode[I].Visible := InRange(I, 0, fCampaign.Maps[fMapIndex].NodeCount-1);
+    Image_CampaignSubNode[I].Visible := false;
     Image_CampaignSubNode[I].Left := fCampaign.Maps[fMapIndex].Nodes[I].X;
     Image_CampaignSubNode[I].Top  := fCampaign.Maps[fMapIndex].Nodes[I].Y;
   end;
 
-  Label_CampaignTitle.Caption := Format(gResTexts[TX_GAME_MISSION], [fMapIndex+1]);
+  Label_CampaignTitle.Caption := fCampaign.CampaignMissionTitle(fMapIndex);
   Label_CampaignText.Caption := fCampaign.MissionBriefing(fMapIndex);
 
   Panel_CampScroll.Left := IfThen(fCampaign.Maps[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
@@ -194,6 +201,21 @@ begin
   gGameApp.NewCampaignMap(fCampaign, fMapIndex);
 end;
 
+procedure TKMMenuCampaign.AnimNodes(aTickCount: Cardinal);
+begin
+  if not InRange(fAnimNodeIndex, 0, fCampaign.Maps[fMapIndex].NodeCount-1) then Exit;
+  if (aTickCount mod CAMP_NODE_ANIMATION_PERIOD) <> 0 then Exit;
+  if Image_CampaignSubNode[fAnimNodeIndex].Visible then Exit;
+  Image_CampaignSubNode[fAnimNodeIndex].Visible := true;
+  inc(fAnimNodeIndex);
+end;
+
+procedure TKMMenuCampaign.UpdateState(aTickCount: Cardinal);
+begin
+  if fCampaign <> nil then
+    if fCampaign.Maps[fMapIndex].NodeCount > 0 then
+      AnimNodes(aTickCount);
+end;
 
 procedure TKMMenuCampaign.Resize(X, Y: Word);
 var
@@ -234,7 +256,6 @@ begin
   //Refresh;
   Panel_Campaign.Show;
 end;
-
 
 procedure TKMMenuCampaign.BackClick(Sender: TObject);
 begin

@@ -16,7 +16,7 @@ type
 
   TKMNetClientLNet = class
   private
-    fSocket:TLTCP;
+    fSocket: TLTCP;
     fBuffer: array of byte;
     fBufferLen: Cardinal;
 
@@ -39,7 +39,7 @@ type
     destructor Destroy; override;
     function MyIPString:string;
     function SendBufferEmpty: Boolean;
-    procedure ConnectTo(const aAddress:string; const aPort:string);
+    procedure ConnectTo(const aAddress: string; const aPort: Word);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
     procedure UpdateStateIdle;
@@ -79,7 +79,7 @@ begin
 end;
 
 
-procedure TKMNetClientLNet.ConnectTo(const aAddress:string; const aPort:string);
+procedure TKMNetClientLNet.ConnectTo(const aAddress: string; const aPort: Word);
 begin
   FreeAndNil(fSocket);
   fSocket := TLTCP.Create(nil);
@@ -89,7 +89,7 @@ begin
   fSocket.OnError := Error;
   fSocket.Timeout := 0;
   try
-    fSocket.Connect(aAddress,StrToInt(aPort));
+    fSocket.Connect(aAddress, aPort);
     fSocket.CallAction;
   except
     on E : Exception do

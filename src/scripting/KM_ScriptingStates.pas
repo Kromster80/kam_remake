@@ -157,7 +157,7 @@ end;
 { TKMScriptStates }
 //* Version: 6216
 //* Returns the group of the specified player and group type that is closest to the specified coordinates,
-//* r -1 if no such group was found.
+//* or -1 if no such group was found.
 //* If the group type is -1 any group type will be accepted
 //* Result: Group ID
 function TKMScriptStates.ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
@@ -640,7 +640,7 @@ function TKMScriptStates.PlayerDefeated(aPlayer: Byte): Boolean;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      Result := (gHands[aPlayer].AI.WonOrLost = wol_Lost)
+      Result := gHands[aPlayer].AI.HasLost
     else
     begin
       Result := False;
@@ -660,7 +660,7 @@ function TKMScriptStates.PlayerVictorious(aPlayer: Byte): Boolean;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      Result := (gHands[aPlayer].AI.WonOrLost = wol_Won)
+      Result := (gHands[aPlayer].AI.HasWon)
     else
     begin
       Result := False;
@@ -682,7 +682,7 @@ begin
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and(aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
     and HouseTypeValid(aHouseType) then
-      Result := gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]]
+      Result := gHands[aPlayer].Stats.WareDistribution[WareIndexToType[aWareType], HouseIndexToType[aHouseType]]
     else
     begin
       Result := 0;
@@ -1051,7 +1051,11 @@ function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+    begin
+      //Use FlagColorToTextColor to desaturate and lighten the text so all player colours are
+      //readable on a variety of backgrounds
       Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
+    end
     else
     begin
       Result := '';
@@ -1366,7 +1370,7 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if H <> nil then
-        Result := H.GetEntrance.X;
+        Result := H.Entrance.X;
     end
     else
       LogParamWarning('States.HousePositionX', [aHouseID]);
@@ -1390,7 +1394,7 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if H <> nil then
-        Result := H.GetEntrance.Y;
+        Result := H.Entrance.Y;
     end
     else
       LogParamWarning('States.HousePositionY', [aHouseID]);
@@ -1559,7 +1563,7 @@ begin
   try
     Result := 0;
     if HouseTypeValid(aHouseType) then
-      Result := gRes.HouseDat[HouseIndexToType[aHouseType]].MaxHealth
+      Result := gRes.Houses[HouseIndexToType[aHouseType]].MaxHealth
     else
       LogParamWarning('States.HouseTypeMaxHealth', [aHouseType]);
   except
@@ -1573,13 +1577,13 @@ end;
 //* Returns the the translated name of the specified house type.
 //* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is
 //* decoded on output, not the actual translated text.
-//* Therefore string operations like !LowerCase will not work.
+//* Therefore string operations like LowerCase will not work.
 //* Result: House type name
 function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
 begin
   try
     if HouseTypeValid(aHouseType) then
-      Result := '<%' + AnsiString(IntToStr(gRes.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
+      Result := '<%' + AnsiString(IntToStr(gRes.Houses[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
     else
     begin
       Result := '';
@@ -1601,7 +1605,7 @@ begin
     Result := -1;
     if HouseTypeValid(aHouseType) then
     begin
-      Result := UnitTypeToIndex[gRes.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
+      Result := UnitTypeToIndex[gRes.Houses[HouseIndexToType[aHouseType]].OwnerType];
     end
     else
       LogParamWarning('States.HouseTypeToOccupantType', [aHouseType]);
@@ -1678,7 +1682,7 @@ begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) then
         for I := 1 to 4 do
-          if gRes.HouseDat[H.HouseType].ResOutput[I] = Res then
+          if gRes.Houses[H.HouseType].ResOutput[I] = Res then
           begin
             Result := H.ResOrder[I];
             Exit;
@@ -1811,7 +1815,7 @@ end;
 
 //* Version: 6611
 //* Returns the number of player locations available on the map (including AIs),
-//* regardless of whether the location was taken in multiplayer (use !PlayerEnabled to check if a location is being used)
+//* regardless of whether the location was taken in multiplayer (use PlayerEnabled to check if a location is being used)
 //* Result: Number of locations
 function TKMScriptStates.LocationCount: Integer;
 begin
@@ -1960,7 +1964,7 @@ end;
 
 
 //* Version: 6287
-//* Returns type of !FromWare in specified market, or -1 if no ware is selected
+//* Returns type of FromWare in specified market, or -1 if no ware is selected
 //* Result: Ware type
 function TKMScriptStates.MarketFromWare(aMarketID: Integer): Integer;
 var
@@ -1993,7 +1997,7 @@ end;
 
 //* Version: 6217
 //* Returns the factor of resources lost during market trading,
-//* used to calculate the !TradeRatio (see explanation in MarketValue).
+//* used to calculate the TradeRatio (see explanation in MarketValue).
 //* This value is constant within one KaM Remake release, but may change in future KaM Remake releases
 //* Result: Loss factor
 function TKMScriptStates.MarketLossFactor: Single;
@@ -2036,7 +2040,7 @@ end;
 
 
 //* Version: 6287
-//* Returns type of !ToWare in specified market, or -1 if no ware is selected
+//* Returns type of ToWare in specified market, or -1 if no ware is selected
 //* Result: Ware type
 function TKMScriptStates.MarketToWare(aMarketID: Integer): Integer;
 var
@@ -2071,8 +2075,8 @@ end;
 //* Returns the relative market value of the specified resource type,
 //* which is a rough indication of the cost to produce that resource.
 //* These values are constant within one KaM Remake release, but may change in future KaM Remake releases.
-//* The !TradeRatio is calculated as: MarketLossFactor * MarketValue(To) / (MarketValue(From).
-//* If the !TradeRatio is >= 1, then the number of From resources required to receive 1 To resource is: Round(TradeRatio).
+//* The TradeRatio is calculated as: MarketLossFactor * MarketValue(To) / (MarketValue(From).
+//* If the TradeRatio is >= 1, then the number of From resources required to receive 1 To resource is: Round(TradeRatio).
 //* If the trade ratio is < 1 then the number of To resources received for trading 1 From resource is: Round(1 / TradeRatio)
 //* Result: Value
 function TKMScriptStates.MarketValue(aRes: Integer): Single;
@@ -2289,13 +2293,13 @@ end;
 //* Returns the the translated name of the specified unit type.
 //* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup
 //* which is decoded on output, not the actual translated text.
-//* Therefore string operations like !LowerCase will not work.
+//* Therefore string operations like LowerCase will not work.
 //* Result: Unit type name
 function TKMScriptStates.UnitTypeName(aUnitType: Byte): AnsiString;
 begin
   try
     if (aUnitType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
-      Result := '<%' + AnsiString(IntToStr(gRes.UnitDat[UnitIndexToType[aUnitType]].GUITextID)) + '>'
+      Result := '<%' + AnsiString(IntToStr(gRes.Units[UnitIndexToType[aUnitType]].GUITextID)) + '>'
     else
     begin
       Result := '';
@@ -2312,7 +2316,7 @@ end;
 //* Returns the the translated name of the specified ware type.
 //* Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup
 //* which is decoded on output, not the actual translated text.
-//* Therefore string operations like !LowerCase will not work.
+//* Therefore string operations like LowerCase will not work.
 //* Result: Ware type name
 function TKMScriptStates.WareTypeName(aWareType: Byte): AnsiString;
 begin
@@ -2368,7 +2372,7 @@ begin
     begin
       U := fIDCache.GetUnit(aUnitID);
       if U <> nil then
-        Result := gRes.UnitDat[U.UnitType].HitPoints;
+        Result := gRes.Units[U.UnitType].HitPoints;
     end
     else
       LogParamWarning('States.UnitHPMax', [aUnitID]);
@@ -2736,8 +2740,8 @@ end;
 
 //* Version: 5057
 //* Returns the unit ID of the specified group member.
-//* Member 0 will be the flag holder, 1...!GroupMemberCount-1 will be the other members
-//* (0 <= !MemberIndex <= !GroupMemberCount-1)
+//* Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members
+//* (0 <= MemberIndex <= GroupMemberCount-1)
 //* Result: Unit ID
 function TKMScriptStates.GroupMember(aGroupID, aMemberIndex: Integer): Integer;
 var

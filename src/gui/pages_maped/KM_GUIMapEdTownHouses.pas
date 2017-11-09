@@ -20,15 +20,23 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
+    procedure BuildRoad;
+    procedure BuildField;
+    procedure BuildWine;
+    procedure BuildCancel;
+
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
+    procedure UpdateStateIdle;
   end;
 
 
 implementation
 uses
-  KM_ResTexts, KM_GameCursor, KM_Resource, KM_ResHouses, KM_ResFonts, KM_RenderUI;
+  KM_ResTexts, KM_GameCursor, KM_Resource, KM_ResHouses, KM_ResFonts, KM_RenderUI,
+  KM_Terrain, KM_Points;
 
 
 { TKMMapEdTownHouses }
@@ -45,6 +53,10 @@ begin
   Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
   Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 74,28,33,33,336);
   Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,148,28,33,33,340);
+
+  Button_BuildField.CapColor := clMapEdBtnField;
+  Button_BuildWine.CapColor := clMapEdBtnWine;
+
   Button_BuildRoad.OnClick  := Town_BuildChange;
   Button_BuildField.OnClick := Town_BuildChange;
   Button_BuildWine.OnClick  := Town_BuildChange;
@@ -57,10 +69,38 @@ begin
   TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,gResTexts[TX_MAPED_HOUSES_TITLE],fnt_Outline,taCenter);
   for I:=1 to GUI_HOUSE_COUNT do
     if GUIHouseOrder[I] <> ht_None then begin
-      Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,gRes.HouseDat[GUIHouseOrder[I]].GUIIcon);
+      Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,gRes.Houses[GUIHouseOrder[I]].GUIIcon);
       Button_Build[I].OnClick := Town_BuildChange;
-      Button_Build[I].Hint := gRes.HouseDat[GUIHouseOrder[I]].HouseName;
+      Button_Build[I].Hint := gRes.Houses[GUIHouseOrder[I]].HouseName;
     end;
+end;
+
+
+procedure TKMMapEdTownHouses.BuildRoad;
+begin
+  Button_BuildRoad.Down := True;
+  Town_BuildChange(Button_BuildRoad);
+end;
+
+
+procedure TKMMapEdTownHouses.BuildField;
+begin
+  Button_BuildField.Down := True;
+  Town_BuildChange(Button_BuildField);
+end;
+
+
+procedure TKMMapEdTownHouses.BuildWine;
+begin
+  Button_BuildWine.Down := True;
+  Town_BuildChange(Button_BuildWine);
+end;
+
+
+procedure TKMMapEdTownHouses.BuildCancel;
+begin
+  Button_BuildCancel.Down := True;
+  Town_BuildChange(Button_BuildCancel);
 end;
 
 
@@ -127,6 +167,42 @@ end;
 function TKMMapEdTownHouses.Visible: Boolean;
 begin
   Result := Panel_Build.Visible;
+end;
+
+
+procedure TKMMapEdTownHouses.UpdateState;
+begin
+  Town_BuildRefresh;
+end;
+
+
+procedure TKMMapEdTownHouses.UpdateStateIdle;
+var P: TKMPoint;
+begin
+  P := gGameCursor.Cell;
+  if (gGameCursor.Mode = cmField)
+    and gTerrain.TileIsCornField(P) then
+  begin
+    Button_BuildField.Caption := IntToStr(gTerrain.GetCornStage(P) + 1);
+    Button_BuildField.CapOffsetY := -10;
+    Button_BuildField.TexOffsetY := 6;
+  end else begin
+    Button_BuildField.Caption := '';
+    Button_BuildField.CapOffsetY := 0;
+    Button_BuildField.TexOffsetY := 0;
+  end;
+
+  if (gGameCursor.Mode = cmWine)
+    and gTerrain.TileIsWineField(P) then
+  begin
+    Button_BuildWine.Caption := IntToStr(gTerrain.GetWineStage(P) + 1);
+    Button_BuildWine.CapOffsetY := -10;
+    Button_BuildWine.TexOffsetY := 6;
+  end else begin
+    Button_BuildWine.Caption := '';
+    Button_BuildWine.CapOffsetY := 0;
+    Button_BuildWine.TexOffsetY := 0;
+  end;
 end;
 
 

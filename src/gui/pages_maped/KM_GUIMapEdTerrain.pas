@@ -37,6 +37,8 @@ type
     destructor Destroy; override;
     procedure KeyUp(Key: Word; Shift: TShiftState);
 
+    property GuiTiles: TKMMapEdTerrainTiles read fGuiTiles;
+
     procedure Show(aTab: TKMTerrainTab);
     procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMTerrainTab): Boolean; overload;
@@ -195,7 +197,9 @@ end;
 
 procedure TKMMapEdTerrain.UpdateState;
 begin
+  fGuiBrushes.UpdateState;
   fGuiTiles.UpdateState;
+  fGuiObjects.UpdateState;
   fGuiSelection.UpdateState;
 
   Button_TerrainUndo.Enabled := gGame.MapEditor.TerrainPainter.CanUndo;

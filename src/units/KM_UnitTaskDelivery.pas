@@ -34,7 +34,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand;
+  KM_HandsCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks, KM_Hand, KM_UnitTaskBuild;
 
 
 { TTaskDeliver }
@@ -45,8 +45,7 @@ begin
 
   Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.UID) + ': invalid delivery task');
 
-  if WRITE_DELIVERY_LOG then
-    gLog.AddTime('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
+  gLog.LogDelivery('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;
@@ -68,7 +67,7 @@ begin
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
+  gLog.LogDelivery('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
@@ -101,7 +100,7 @@ end;
 
 destructor TTaskDeliver.Destroy;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.UID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
+  gLog.LogDelivery('Serf ' + IntToStr(fUnit.UID) + ' abandoned delivery task ' + IntToStr(fDeliverID) + ' at phase ' + IntToStr(fPhase));
 
   if fDeliverID <> 0 then
     gHands[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
@@ -178,7 +177,7 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0:  begin
-          SetActionWalkToSpot(KMPointBelow(fFrom.GetEntrance));
+          SetActionWalkToSpot(fFrom.PointBelowEntrance);
         end;
     1:  begin
           SetActionGoIn(ua_Walk, gd_GoInside, fFrom);
@@ -210,7 +209,7 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;
-    5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
+    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance);
     6:  SetActionGoIn(ua_Walk, gd_GoInside, fToHouse);
     7:  SetActionLockedStay(5, ua_Walk); //wait a bit inside
     8:  begin
@@ -245,9 +244,9 @@ begin
     //from any side, or something alike. Removing of Distance=1 from here simplifies our WalkToSpot method.
     //Since this change some people have complained because it's hard for serfs to get wares to the site
     //when workers block the enterance. But it is much simpler this way so we don't have a problem really.
-    5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
+    5:  SetActionWalkToSpot(fToHouse.PointBelowEntrance);
     6:  begin
-          Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
+          Direction := KMGetDirection(GetPosition, fToHouse.Entrance);
           fToHouse.ResAddToBuild(Carry);
           gHands[Owner].Stats.WareConsumed(Carry);
           CarryTake;
@@ -276,6 +275,15 @@ begin
           //Worker
           if (fToUnit.UnitType = ut_Worker) and (fToUnit.UnitTask <> nil) then
           begin
+            //ToDo: Replace phase numbers with enums to avoid hardcoded magic numbers
+            // Check if worker is still digging
+            if ((fToUnit.UnitTask is TTaskBuildWine) and (fToUnit.UnitTask.Phase < 5))
+              or ((fToUnit.UnitTask is TTaskBuildRoad) and (fToUnit.UnitTask.Phase < 4)) then
+            begin
+              SetActionLockedStay(5, ua_Walk); //wait until worker finish digging process
+              fPhase := 6;
+              Exit;
+            end;
             fToUnit.UnitTask.Phase := fToUnit.UnitTask.Phase + 1;
             fToUnit.SetActionLockedStay(0, ua_Work1); //Tell the worker to resume work by resetting his action (causes task to execute)
           end;

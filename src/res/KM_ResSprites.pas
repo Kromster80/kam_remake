@@ -83,7 +83,7 @@ type
   //Overrides for:
   //GUI: Cursors
 
-  TKMSprites = class
+  TKMResSprites = class
   private
     fAlphaShadows: Boolean; //Remember which state we loaded
     fSprites: array[TRXType] of TKMSpritePack;
@@ -99,11 +99,13 @@ type
     procedure LoadMenuResources;
     procedure LoadGameResources(aAlphaShadows: Boolean);
     procedure ClearTemp;
+    class procedure SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
+    class function AllTilesInOneAtlas: Boolean;
 
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
     //Used externally to access raw RGBA data (e.g. by ExportAnim)
-    procedure LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+    function LoadSprites(aRT: TRXType; aAlphaShadows: Boolean): Boolean;
     procedure ExportToPNG(aRT: TRXType);
 
     property AlphaShadows: Boolean read fAlphaShadows;
@@ -127,9 +129,13 @@ implementation
 uses
   KromUtils, KM_Log, KM_BinPacking, KM_Utils;
 
+const
+  MAX_GAME_ATLAS_SIZE = 2048; //Max atlas size for KaM. No need for bigger atlases
 
 var
   LOG_EXTRA_GFX: Boolean = False;
+  ALL_TILES_IN_ONE_TEXTURE: Boolean = False;
+  MaxAtlasSize: Integer;
 
 
 { TKMSpritePack }
@@ -448,10 +454,10 @@ begin
   end;
 
   //Mark pivot location with a dot
-  K := pngWidth + fRXData.Pivot[aIndex].x;
-  I := pngHeight + fRXData.Pivot[aIndex].y;
-  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
-    pngData[I*pngWidth + K] := $FF00FF;//}
+//  K := pngWidth + fRXData.Pivot[aIndex].x;
+//  I := pngHeight + fRXData.Pivot[aIndex].y;
+//  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
+//    pngData[I*pngWidth + K] := $FFFF00FF;
 
   SaveToPng(pngWidth, pngHeight, pngData, aFile);
 end;
@@ -554,7 +560,7 @@ type
     Tx: Cardinal;
     ID: Word;
     TxCoords: TKMTexCoords;
-    TD: array of Cardinal;
+    TD: TKMCardinalArray;
   begin
     //Prepare atlases
     for I := 0 to High(SpriteInfo) do
@@ -646,15 +652,15 @@ type
 
       Inc(TexCount);
 
-      SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' + ExportName[aMode] + IntToStr(aStartingIndex+I), @TD[0]);
+      SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' +
+                       ExportName[aMode] + IntToStr(aStartingIndex+I), TD);
     end;
   end;
-const
-  AtlasSize = 512;
 var
   I, K: Integer;
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
+  AtlasSize, AllTilesAtlasSize: Integer;
 begin
   BaseRAM := 0;
   ColorRAM := 0;
@@ -670,6 +676,18 @@ begin
     Inc(K);
   end;
   SetLength(SpriteSizes, K);
+
+  //For RX with only 1 texture we can set small size, as 512, it will be auto enlarged to POT(image size)
+  if K = 1 then
+    AtlasSize := 512
+  else if fRT = rxTiles then
+  begin
+    AllTilesAtlasSize := MakePOT(Ceil(sqrt(K))*(32+2*fPad)); //Tiles are 32x32
+    AtlasSize := Min(MaxAtlasSize, AllTilesAtlasSize);       //Use smallest possible atlas size for tiles (should be 1024, until many new tiles were added)
+    if AtlasSize = AllTilesAtlasSize then
+      ALL_TILES_IN_ONE_TEXTURE := True;
+  end else
+    AtlasSize := MaxAtlasSize;
 
   SetLength(SpriteInfo, 0);
   BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
@@ -718,8 +736,8 @@ begin
 end;
 
 
-{ TKMSprites }
-constructor TKMSprites.Create(aStepProgress: TEvent; aStepCaption: TUnicodeStringEvent);
+{ TKMResSprites }
+constructor TKMResSprites.Create(aStepProgress: TEvent; aStepCaption: TUnicodeStringEvent);
 var
   RT: TRXType;
 begin
@@ -733,7 +751,7 @@ begin
 end;
 
 
-destructor TKMSprites.Destroy;
+destructor TKMResSprites.Destroy;
 var
   RT: TRXType;
 begin
@@ -745,7 +763,7 @@ end;
 
 
 //Clear unused RAM
-procedure TKMSprites.ClearTemp;
+procedure TKMResSprites.ClearTemp;
 var RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
@@ -753,19 +771,19 @@ begin
 end;
 
 
-function TKMSprites.GetRXFileName(aRX: TRXType): string;
+function TKMResSprites.GetRXFileName(aRX: TRXType): string;
 begin
   Result := RXInfo[aRX].FileName;
 end;
 
 
-function TKMSprites.GetSprites(aRT: TRXType): TKMSpritePack;
+function TKMResSprites.GetSprites(aRT: TRXType): TKMSpritePack;
 begin
   Result := fSprites[aRT];
 end;
 
 
-procedure TKMSprites.LoadMenuResources;
+procedure TKMResSprites.LoadMenuResources;
 var
   RT: TRXType;
 begin
@@ -780,7 +798,7 @@ begin
 end;
 
 
-procedure TKMSprites.LoadGameResources(aAlphaShadows: Boolean);
+procedure TKMResSprites.LoadGameResources(aAlphaShadows: Boolean);
 var
   RT: TRXType;
 begin
@@ -799,13 +817,20 @@ end;
 
 
 //Try to load RXX first, then RX, then use Folder
-procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+function TKMResSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean): Boolean;
 begin
+  Result := False;
   if aAlphaShadows and FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx')
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx');
+    Result := True;
+  end
   else
   if FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx')
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx');
+    Result := True;
+  end
   else
     Exit;
 
@@ -813,11 +838,25 @@ begin
 end;
 
 
-procedure TKMSprites.ExportToPNG(aRT: TRXType);
+class function TKMResSprites.AllTilesInOneAtlas: Boolean;
 begin
-  LoadSprites(aRT, False);
-  fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
-  ClearTemp;
+  Result := ALL_TILES_IN_ONE_TEXTURE;
+end;
+
+
+class procedure TKMResSprites.SetMaxAtlasSize(aMaxSupportedTxSize: Integer);
+begin
+  MaxAtlasSize := Min(aMaxSupportedTxSize, MAX_GAME_ATLAS_SIZE);
+end;
+
+
+procedure TKMResSprites.ExportToPNG(aRT: TRXType);
+begin
+  if LoadSprites(aRT, False) then
+  begin
+    fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
+    ClearTemp;
+  end;
 end;
 
 

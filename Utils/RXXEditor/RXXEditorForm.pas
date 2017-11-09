@@ -3,7 +3,7 @@ unit RXXEditorForm;
 interface
 uses
   Classes, Controls, Dialogs,
-  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo,
+  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils,
   {$IFDEF FPC} LResources, {$ENDIF}
   KM_Defaults, KM_Log, KM_Pics, KM_PNG, KM_ResPalettes, KM_ResSprites, KM_ResSpritesEdit;
 
@@ -47,7 +47,7 @@ type
     procedure chkHasMaskClick(Sender: TObject);
     procedure PivotChange(Sender: TObject);
   private
-    fPalettes: TKMPalettes;
+    fPalettes: TKMResPalettes;
     fSprites: TKMSpritePackEdit;
     procedure UpdateList;
   end;
@@ -65,14 +65,14 @@ procedure TRXXForm1.FormCreate(Sender: TObject);
 var
   RT: TRXType;
 begin
-  ExeDir := ExtractFilePath(Application.ExeName) + '..\..\';
+  ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
   Caption := 'RXX Editor (' + GAME_REVISION + ')';
 
   //Although we don't need them in this tool, these are required to load sprites
   gLog := TKMLog.Create(ExeDir + 'RXXEditor.log');
 
-  fPalettes := TKMPalettes.Create;
+  fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 end;
 

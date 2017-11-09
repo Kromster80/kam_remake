@@ -172,7 +172,7 @@ begin
   //Assign Rad to local variable,
   //when we find better Loc we reduce the Rad to skip any farther Locs
   BestDist := fRadius;
-  BestLoc := KMPoint(0,0);
+  BestLoc := KMPOINT_ZERO;
 
   InitVisited;
 
@@ -244,10 +244,10 @@ const
     //calculations so we can still store it as bytes to save space and time
     if X-1 >= 1 then
     begin
-      if (Y-1 >= 1) and not MapElem[gTerrain.Land[Y,X].Obj].DiagonalBlocked then
+      if (Y-1 >= 1) and not gMapElements[gTerrain.Land[Y,X].Obj].DiagonalBlocked then
         Visit(X-1, Y-1, aWalkDistance + DIAG_COST);
       Visit(X-1, Y, aWalkDistance + STRAIGHT_COST);
-      if (Y+1 <= fMapY) and not MapElem[gTerrain.Land[Y+1,X].Obj].DiagonalBlocked then
+      if (Y+1 <= fMapY) and not gMapElements[gTerrain.Land[Y+1,X].Obj].DiagonalBlocked then
         Visit(X-1,Y+1, aWalkDistance + DIAG_COST);
     end;
 
@@ -256,10 +256,10 @@ const
 
     if X+1 <= fMapX then
     begin
-      if (Y-1 >= 1) and not MapElem[gTerrain.Land[Y,X+1].Obj].DiagonalBlocked then
+      if (Y-1 >= 1) and not gMapElements[gTerrain.Land[Y,X+1].Obj].DiagonalBlocked then
         Visit(X+1, Y-1, aWalkDistance + DIAG_COST);
       Visit(X+1, Y, aWalkDistance + STRAIGHT_COST);
-      if (Y+1 <= fMapY) and not MapElem[gTerrain.Land[Y+1,X+1].Obj].DiagonalBlocked then
+      if (Y+1 <= fMapY) and not gMapElements[gTerrain.Land[Y+1,X+1].Obj].DiagonalBlocked then
         Visit(X+1, Y+1, aWalkDistance + DIAG_COST);
     end;
   end;

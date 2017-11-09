@@ -19,6 +19,8 @@ type
     procedure CreateUnit; //This should Create new unit and start training cycle
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure CancelTrainingUnit;
+    procedure SetQueue(aIndex: Integer; aValue: TUnitType);
+    property PrivateQueue[aIndex: Integer]: TUnitType read GetQueue write SetQueue;
   public
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -82,7 +84,7 @@ var
   I: Integer;
 begin
   for I := 1 to High(fQueue) do
-    fQueue[I] := ut_None;
+    PrivateQueue[I] := ut_None;
   RemUnitFromQueue(0); //Remove WIP unit
 
   inherited;
@@ -112,7 +114,7 @@ begin
   if fQueue[I] = ut_None then
   begin
     Inc(Result);
-    fQueue[I] := aUnit;
+    PrivateQueue[I] := aUnit;
     if I = 1 then
       StartTrainingUnit; //If thats the first unit then start training it
     Break;
@@ -129,18 +131,32 @@ begin
     fHideOneGold := False;
   end;
   fUnitWip := nil;
-  fQueue[0] := ut_None; //Removed the in training unit
+  PrivateQueue[0] := ut_None; //Removed the in training unit
 end;
+
+
+procedure TKMHouseSchool.SetQueue(aIndex: Integer; aValue: TUnitType);
+begin
+  if fQueue[aIndex] <> ut_None then
+    gHands[fOwner].Stats.UnitRemovedFromTrainingQueue(fQueue[aIndex]);
+
+  if aValue <> ut_None then
+    gHands[fOwner].Stats.UnitAddedToTrainingQueue(aValue);
+  fQueue[aIndex] := aValue;
+end;
+
 
 //Change unit priority in training queue
 procedure TKMHouseSchool.ChangeUnitTrainOrder(aNewPosition: Integer);
 begin
-  ChangeUnitTrainOrder(max(LastUnitPosInQueue, 1), aNewPosition);
+  ChangeUnitTrainOrder(Max(LastUnitPosInQueue, 1), aNewPosition);
 end;
+
 
 //Change unit priority in training queue
 procedure TKMHouseSchool.ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer);
-var tmpUnit: TUnitType;
+var
+  tmpUnit: TUnitType;
   I: Byte;
 begin
   Assert((aNewPosition >= 0) and (aOldPosition <= 5));
@@ -157,15 +173,13 @@ begin
   Assert(aNewPosition < aOldPosition);
 
   tmpUnit := fQueue[aOldPosition];
-  for I := aOldPosition downto max(aNewPosition, 0)+1 do
-  begin
-    fQueue[I] := fQueue[I-1];
-  end;
+  for I := aOldPosition downto Max(aNewPosition, 0) + 1 do
+    PrivateQueue[I] := fQueue[I-1];
 
   if (aNewPosition = 0) then
     CancelTrainingUnit;
 
-  fQueue[aNewPosition] := tmpUnit;
+  PrivateQueue[aNewPosition] := tmpUnit;
 
   if (aNewPosition = 0) then
     CreateUnit;
@@ -187,8 +201,8 @@ begin
   else
   begin
     for I := aID to High(fQueue) - 1 do
-      fQueue[I] := fQueue[I+1]; //Shift by one
-    fQueue[High(fQueue)] := ut_None; //Set the last one empty
+      PrivateQueue[I] := fQueue[I+1]; //Shift by one
+    PrivateQueue[High(fQueue)] := ut_None; //Set the last one empty
   end;
 end;
 
@@ -198,7 +212,7 @@ begin
   fHideOneGold := true;
 
   //Create the Unit
-  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], GetEntrance);
+  fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], Entrance);
   TKMUnit(fUnitWip).TrainInHouse(Self); //Let the unit start the training task
 
   WorkAnimStep := 0;
@@ -213,8 +227,8 @@ begin
   if CheckResIn(wt_Gold) = 0 then exit; //There must be enough gold to perform training
 
   for I := 0 to High(fQueue) - 1 do
-    fQueue[I] := fQueue[I+1]; //Shift by one
-  fQueue[High(fQueue)] := ut_None; //Set the last one empty
+    PrivateQueue[I] := fQueue[I+1]; //Shift by one
+  PrivateQueue[High(fQueue)] := ut_None; //Set the last one empty
 
   CreateUnit;
 end;
@@ -226,7 +240,7 @@ begin
   Assert(aUnit = fUnitWip, 'Should be called only by Unit itself when it''s trained');
 
   fUnitWip := nil;
-  fQueue[0] := ut_None; //Clear the unit in training
+  PrivateQueue[0] := ut_None; //Clear the unit in training
   //Script command might have taken the gold while we were training, in which case ignore it (either way, gold is consumed)
   if CheckResIn(wt_Gold) > 0 then
   begin
@@ -254,11 +268,11 @@ begin
     Result := 0
   else
     Result := (
-              Byte(ha_Work2 in fCurrentAction.SubAction) * 30 +
-              Byte(ha_Work3 in fCurrentAction.SubAction) * 60 +
-              Byte(ha_Work4 in fCurrentAction.SubAction) * 90 +
-              Byte(ha_Work5 in fCurrentAction.SubAction) * 120 +
-              Byte(fCurrentAction.State = hst_Work) * WorkAnimStep
+              Byte(ha_Work2 in CurrentAction.SubAction) * 30 +
+              Byte(ha_Work3 in CurrentAction.SubAction) * 60 +
+              Byte(ha_Work4 in CurrentAction.SubAction) * 90 +
+              Byte(ha_Work5 in CurrentAction.SubAction) * 120 +
+              Byte(CurrentAction.State = hst_Work) * WorkAnimStep
               ) / 150;
 end;
 

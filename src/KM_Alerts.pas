@@ -55,6 +55,7 @@ type
   public
     constructor Create(aViewport: TKMViewport);
     destructor Destroy; override;
+    procedure ClearBeaconsExcept(aOwner: TKMHandIndex);
     procedure AddBeacon(aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aShowUntil: Cardinal);
     procedure AddFight(aLoc: TKMPointF; aPlayer: TKMHandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
     function GetLatestAlert: TKMAlert;
@@ -322,6 +323,21 @@ begin
 end;
 
 
+//Clear all beacons except those, whose owner is aOwner
+procedure TKMAlerts.ClearBeaconsExcept(aOwner: TKMHandIndex);
+var
+  I: Integer;
+begin
+  for I := fList.Count - 1 downto 0 do
+    if (Items[I].AlertType = atBeacon)
+      and (Items[I].Owner <> aOwner) then
+    begin
+      Items[I].Free;
+      fList.Delete(I);
+    end;
+end;
+
+
 //Player belongings signal that they are under attack
 procedure TKMAlerts.AddFight(aLoc: TKMPointF; aPlayer: TKMHandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
 var
@@ -379,9 +395,9 @@ begin
   begin
     case aPass of
       0:  if gMySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
-            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
+            gRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
       1:  if gMySpectator.FogOfWar.CheckRevelation(Items[I].Loc) < FOG_OF_WAR_MAX then
-            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
+            gRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
     end;
   end;
 end;

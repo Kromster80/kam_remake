@@ -24,6 +24,8 @@ type
 
     function CursorToMapCoord(X, Y: Integer): TKMPointF;
 
+    procedure KeyDown(Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState); override;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
 
     procedure SyncUI(aMoveViewport: Boolean = True); virtual;
@@ -137,7 +139,7 @@ const
 
 implementation
 uses
-  KM_Terrain, KM_RenderPool;
+  KM_Terrain, KM_RenderPool, KM_ResKeys;
 
 
 { TKMUserInterfaceGame }
@@ -147,7 +149,7 @@ begin
 
   fMinimap := TKMMinimap.Create(False, False);
   fViewport := TKMViewport.Create(aRender.ScreenX, aRender.ScreenY);
-  fRenderPool := TRenderPool.Create(fViewport, aRender);
+  gRenderPool := TRenderPool.Create(fViewport, aRender);
 end;
 
 
@@ -155,8 +157,33 @@ destructor TKMUserInterfaceGame.Destroy;
 begin
   FreeAndNil(fMinimap);
   FreeAndNil(fViewport);
-  FreeAndNil(fRenderPool);
+  FreeAndNil(gRenderPool);
   Inherited;
+end;
+
+
+procedure TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  //Scrolling
+  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := True;
+  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := True;
+  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := True;
+  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := True;
+  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := True;
+  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := True;
+end;
+
+
+procedure TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState);
+begin
+  //Scrolling
+  if Key = gResKeys[SC_SCROLL_LEFT].Key  then fViewport.ScrollKeyLeft  := False;
+  if Key = gResKeys[SC_SCROLL_RIGHT].Key then fViewport.ScrollKeyRight := False;
+  if Key = gResKeys[SC_SCROLL_UP].Key    then fViewport.ScrollKeyUp    := False;
+  if Key = gResKeys[SC_SCROLL_DOWN].Key  then fViewport.ScrollKeyDown  := False;
+  if Key = gResKeys[SC_ZOOM_IN].Key      then fViewport.ZoomKeyIn      := False;
+  if Key = gResKeys[SC_ZOOM_OUT].Key     then fViewport.ZoomKeyOut     := False;
+  if Key = gResKeys[SC_ZOOM_RESET].Key   then fViewport.ResetZoom;
 end;
 
 
@@ -168,7 +195,7 @@ begin
 
   if (X < 0) or (Y < 0) then Exit; // This happens when you use the mouse wheel on the window frame
 
-  // Allow to zoom only when curor is over map. Controls handle zoom on their own
+  // Allow to zoom only when cursor is over map. Controls handle zoom on their own
   if (fMyControls.CtrlOver = nil) then
   begin
     UpdateGameCursor(X, Y, Shift); // Make sure we have the correct cursor position to begin with
@@ -220,11 +247,13 @@ begin
     Pixel.Y := Y;
     Float := CursorToMapCoord(X, Y);
 
+    PrevCell := Cell; //Save previous cell
+
     // Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
     Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); // Cell below cursor in map bounds
     Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
 
-    ObjectUID := fRenderPool.RenderList.GetSelectionUID(Float);
+    ObjectUID := gRenderPool.RenderList.GetSelectionUID(Float);
     SState := Shift;
   end;
 end;

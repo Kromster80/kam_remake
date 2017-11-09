@@ -146,15 +146,15 @@ begin
     ct_SetCurrPlayer:   fLastHand := P[0];
     ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                         begin
-                          RevealCircle(P[1]+1, P[2]+1, gRes.HouseDat[HouseIndexToType[P[0]]].Sight);
-                          HA := gRes.HouseDat[HouseIndexToType[P[0]]].BuildArea;
+                          RevealCircle(P[1]+1, P[2]+1, gRes.Houses[HouseIndexToType[P[0]]].Sight);
+                          HA := gRes.Houses[HouseIndexToType[P[0]]].BuildArea;
                           for i:=1 to 4 do for k:=1 to 4 do
                             if HA[i,k]<>0 then
                               if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
                                 SetOwner(P[1]+1+k-3, P[2]+1+i-4);
                         end;
     ct_SetMapColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
-                          fHandPreview[fLastHand].Color := gRes.Palettes.DefDal.Color32(P[0]);
+                          fHandPreview[fLastHand].Color := gRes.Palettes.DefaultPalette.Color32(P[0]);
     ct_SetRGBColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
                           fHandPreview[fLastHand].Color := P[0] or $FF000000;
     ct_CenterScreen:    fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
@@ -170,11 +170,13 @@ begin
                           fHandPreview[P[0]].CanAI := True;
     ct_SetRoad,
     ct_SetField,
-    ct_SetWinefield:    SetOwner(P[0]+1, P[1]+1);
+    ct_SetWinefield,
+    ct_SetFieldStaged,
+    ct_SetWinefieldStaged: SetOwner(P[0]+1, P[1]+1);
     ct_SetUnit:         if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
                         begin
                           SetOwner(P[1]+1, P[2]+1);
-                          RevealCircle(P[1]+1, P[2]+1, gRes.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                          RevealCircle(P[1]+1, P[2]+1, gRes.Units[UnitOldIndexToType[P[0]]].Sight);
                         end;
     ct_SetStock:        begin
                           //Set Store and roads below
@@ -190,7 +192,7 @@ begin
                             if Valid then
                             begin
                               SetOwner(Loc.X,Loc.Y);
-                              RevealCircle(P[1]+1, P[2]+1, gRes.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                              RevealCircle(P[1]+1, P[2]+1, gRes.Units[UnitOldIndexToType[P[0]]].Sight);
                             end;
                           end;
     ct_ClearUp:         begin

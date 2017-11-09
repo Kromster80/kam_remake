@@ -201,8 +201,8 @@ begin
   //Count overall unit requirement (excluding Barracks and ownerless houses)
   FillChar(UnitReq, SizeOf(UnitReq), #0); //Clear up
   for H := HOUSE_MIN to HOUSE_MAX do
-    if (gRes.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
-      Inc(UnitReq[gRes.HouseDat[H].OwnerType], P.Stats.GetHouseQty(H));
+    if (gRes.Houses[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
+      Inc(UnitReq[gRes.Houses[H].OwnerType], P.Stats.GetHouseQty(H));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq
@@ -287,34 +287,34 @@ begin
     if not H.IsDestroyed and (ResOrder = 0) then
     case H.HouseType of
       ht_ArmorSmithy:     for K := 1 to 4 do
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_MetalShield then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_MetalShield then
                               H.ResOrder[K] := Round(WarfareRatios[wt_MetalShield] * PORTIONS)
                             else
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_MetalArmor then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_MetalArmor then
                               H.ResOrder[K] := Round(WarfareRatios[wt_MetalArmor] * PORTIONS);
       ht_ArmorWorkshop:   for K := 1 to 4 do
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Shield then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Shield then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Shield] * PORTIONS)
                             else
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Armor then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Armor then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Armor] * PORTIONS);
       ht_WeaponSmithy:    for K := 1 to 4 do
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Sword then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Sword then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Sword] * PORTIONS)
                             else
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Hallebard then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Hallebard then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Hallebard] * PORTIONS)
                             else
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Arbalet then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Arbalet then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Arbalet] * PORTIONS);
       ht_WeaponWorkshop:  for K := 1 to 4 do
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Axe then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Axe then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Axe] * PORTIONS)
                             else
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Pike then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Pike then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Pike] * PORTIONS)
                             else
-                            if gRes.HouseDat[H.HouseType].ResOutput[K] = wt_Bow then
+                            if gRes.Houses[H.HouseType].ResOutput[K] = wt_Bow then
                               H.ResOrder[K] := Round(WarfareRatios[wt_Bow] * PORTIONS);
     end;
   end;
@@ -379,7 +379,7 @@ begin
   fDefenceTowers.Delete(0);
   //Look for a place for the tower
   BestDistSqr := High(BestDistSqr);
-  BestLoc := KMPoint(0, 0);
+  BestLoc := KMPOINT_ZERO;
   for IY := Max(1, Loc.Y-SEARCH_RAD) to Min(gTerrain.MapY, Loc.Y+SEARCH_RAD) do
     for IX := Max(1, Loc.X-SEARCH_RAD) to Min(gTerrain.MapX, Loc.X+SEARCH_RAD) do
     begin
@@ -395,12 +395,12 @@ begin
     //See if the road required is too long (tower might be across unwalkable terrain)
     H := P.Houses.FindHouse(ht_Any, BestLoc.X, BestLoc.Y, 1, False);
     if H = nil then Exit; //We are screwed, no houses left
-    LocTo := KMPointBelow(H.GetEntrance);
+    LocTo := H.PointBelowEntrance;
 
     //Find nearest complete house to get the road connect ID
     H := P.Houses.FindHouse(ht_Any, BestLoc.X, BestLoc.Y, 1, True);
     if H = nil then Exit; //We are screwed, no houses left
-    RoadConnectID := gTerrain.GetRoadConnectID(KMPointBelow(H.GetEntrance));
+    RoadConnectID := gTerrain.GetRoadConnectID(H.PointBelowEntrance);
 
     NodeList := TKMPointList.Create;
     RoadExists := fPathFindingRoad.Route_ReturnToWalkable(BestLoc, LocTo, RoadConnectID, NodeList);
@@ -438,12 +438,12 @@ begin
   //Find nearest wip or ready house
   H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
   if H = nil then Exit; //We are screwed, no houses left
-  LocTo := KMPointBelow(H.GetEntrance);
+  LocTo := H.PointBelowEntrance;
 
   //Find nearest complete house to get the road connect ID
   H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, True);
   if H = nil then Exit; //We are screwed, no houses left
-  RoadConnectID := gTerrain.GetRoadConnectID(KMPointBelow(H.GetEntrance));
+  RoadConnectID := gTerrain.GetRoadConnectID(H.PointBelowEntrance);
 
   NodeList := TKMPointList.Create;
   try
@@ -642,7 +642,7 @@ begin
     //Set it so we can build over coal that was removed
     if Houses[I].HouseType = ht_CoalMine then
     begin
-      Loc := Houses[I].GetEntrance;
+      Loc := Houses[I].Entrance;
       gAIFields.Influences.RemAvoidBuilding(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+1));
     end;
     Houses[I].DemolishHouse(fOwner);
@@ -733,7 +733,7 @@ begin
 
     Store := P.Houses.FindHouse(ht_Store, 0, 0, 1);
     if Store = nil then Exit;
-    StoreLoc := Store.GetEntrance;
+    StoreLoc := Store.Entrance;
 
     for I := Max(StoreLoc.Y - 3, 1) to Min(StoreLoc.Y + 2, gTerrain.MapY - 1) do
     for K := StoreLoc.X - 2 to StoreLoc.X + 2 do

@@ -79,7 +79,7 @@ type
     InCinematic: Boolean;
 
     //Used for syncing hotkeys in multiplayer saves only. UI keeps local value to avoid GIP delays
-    SelectionHotkeys: array[0..9] of Integer;
+    SelectionHotkeys: array[0..DYNAMIC_HOTKEYS_NUM-1] of Integer;
 
     constructor Create(aHandIndex: TKMHandIndex);
     destructor Destroy; override;
@@ -108,6 +108,9 @@ type
     property ShareBeacons[aIndex: Integer]: Boolean read GetShareBeacons write SetShareBeacons;
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
 
+    function IsHuman: Boolean;
+    function IsComputer: Boolean;
+
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
     function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit; reintroduce;
@@ -122,8 +125,8 @@ type
     function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aCheckInfluence: Boolean): Boolean;
 
     procedure AddRoadToList(aLoc: TKMPoint);
-    //procedure AddRoadConnect(LocA,LocB: TKMPoint);
-    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure AddRoad(aLoc: TKMPoint);
+    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound: Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
@@ -387,7 +390,9 @@ end;
 
 
 procedure TKMHand.WarriorWalkedOut(aUnit: TKMUnitWarrior);
-var G: TKMUnitGroup; H: TKMHouse;
+var G: TKMUnitGroup;
+    H: TKMHouse;
+    B: TKMHouseBarracks;
 begin
   //Warrior could be killed before he walked out, f.e. by script OnTick ---> Actions.UnitKill
   //Then group will be assigned to invalid warrior and never gets removed from game
@@ -407,9 +412,14 @@ begin
     begin
       //If player is human and this is the first warrior in the group, send it to the rally point
       H := HousesHitTest(aUnit.GetPosition.X, aUnit.GetPosition.Y-1);
-      if (H is TKMHouseBarracks) and TKMHouseBarracks(H).IsRallyPointSet
-      and G.CanWalkTo(TKMHouseBarracks(H).RallyPoint, 0) then
-        G.OrderWalk(TKMHouseBarracks(H).RallyPoint, True);
+      if (H is TKMHouseBarracks) then
+      begin
+        B := TKMHouseBarracks(H);
+        B.ValidateRallyPoint; // Validate Rally point first. It will set it to a proper walkable position
+        if B.IsRallyPointSet
+          and G.CanWalkTo(B.RallyPoint, 0) then
+          G.OrderWalk(B.RallyPoint, True);
+      end;
     end;
   gScriptEvents.ProcWarriorEquipped(aUnit, G);
 end;
@@ -450,6 +460,18 @@ begin
 end;
 
 
+function TKMHand.IsHuman: Boolean;
+begin
+  Result := fHandType = hndHuman;
+end;
+
+
+function TKMHand.IsComputer: Boolean;
+begin
+  Result := fHandType = hndComputer;
+end;
+
+
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
 procedure TKMHand.AfterMissionInit(aFlattenRoads: Boolean);
 begin
@@ -480,9 +502,35 @@ begin
 end;
 
 
-procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+procedure TKMHand.AddRoad(aLoc: TKMPoint);
 begin
-  gTerrain.SetField(aLoc, fHandIndex, aFieldType);
+  gTerrain.SetRoad(aLoc, fHandIndex);
+end;
+
+
+procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
+var IsFieldSet: Boolean;
+begin
+  IsFieldSet := False;
+  //If we have corn/wine object on that tile, set appropriate field/wine stage
+  if (aFieldType = ft_Corn) and not gTerrain.TileIsCornField(aLoc) then
+  begin
+    if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 58, 59) then
+    begin
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      IsFieldSet := True;
+    end;
+  end else if (aFieldType = ft_Wine) and not gTerrain.TileIsWineField(aLoc) then
+  begin
+    if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 54, 57) then
+    begin
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      IsFieldSet := True;
+    end;
+  end;
+
+  if not IsFieldSet then
+    gTerrain.SetField(aLoc, fHandIndex, aFieldType, aStage, True);
 end;
 
 
@@ -535,12 +583,12 @@ begin
   Result := gTerrain.CanPlaceHouse(aLoc, aHouseType);
   if not Result then Exit;
 
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aLoc.X - gRes.HouseDat[aHouseType].EntranceOffsetX + K - 3;
+    Tx := aLoc.X - gRes.Houses[aHouseType].EntranceOffsetX + K - 3;
     Ty := aLoc.Y + I - 4;
     //AI ignores FOW (this function is used from scripting)
     Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
@@ -577,8 +625,8 @@ begin
     Exit;
 
   //Perform additional cheks for AI
-  HA := gRes.HouseDat[aHouseType].BuildArea;
-  EnterOff := gRes.HouseDat[aHouseType].EntranceOffsetX;
+  HA := gRes.Houses[aHouseType].BuildArea;
+  EnterOff := gRes.Houses[aHouseType].EntranceOffsetX;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
@@ -664,7 +712,7 @@ begin
          ft_Corn: gScriptEvents.ProcPlanFieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
          ft_Wine: gScriptEvents.ProcPlanWinefieldPlaced(fHandIndex, aLoc.X, aLoc.Y);
       else
-        Assert(False);
+        raise Exception.Create('Unknown aFieldType');
       end;
     end
     else
@@ -741,7 +789,7 @@ procedure TKMHand.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var
   Loc: TKMPoint;
 begin
-  Loc.X := aLoc.X - gRes.HouseDat[aHouseType].EntranceOffsetX;
+  Loc.X := aLoc.X - gRes.Houses[aHouseType].EntranceOffsetX;
   Loc.Y := aLoc.Y;
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
@@ -776,14 +824,14 @@ end;
 
 procedure TKMHand.RemHousePlan(Position: TKMPoint);
 var
-  HT: THouseType;
+  HPlan: TKMHousePlan;
 begin
-  HT := fBuildList.HousePlanList.GetPlan(Position);
-  if HT = ht_None then Exit; //Due to network delays house might not exist now
+  if not fBuildList.HousePlanList.TryGetPlan(Position, HPlan) then //Due to network delays house might not exist now
+    Exit;
 
   fBuildList.HousePlanList.RemPlan(Position);
-  fStats.HousePlanRemoved(HT);
-  gScriptEvents.ProcHousePlanRemoved(fHandIndex, Position.X, Position.Y, HT);
+  fStats.HousePlanRemoved(HPlan.HouseType);
+  gScriptEvents.ProcHousePlanRemoved(fHandIndex, HPlan.Loc.X, HPlan.Loc.Y, HPlan.HouseType);
   if (HandIndex = gMySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_Click);
 end;
@@ -803,7 +851,7 @@ begin
     ft_Corn: gScriptEvents.ProcPlanFieldRemoved(fHandIndex, Position.X, Position.Y);
     ft_Wine: gScriptEvents.ProcPlanWinefieldRemoved(fHandIndex, Position.X, Position.Y);
   else
-    Assert(False);
+    raise Exception.Create('Unknown fieldType');
   end;
 
   if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
@@ -863,7 +911,7 @@ begin
   repeat
     //First make sure that it is valid
     if (H <> nil) and H.HasFood and H.HasSpace
-    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), tpWalk, 0) then
+    and aUnit.CanWalkTo(Loc, H.PointBelowEntrance, tpWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
       Dist := KMLengthSqr(H.GetPosition, Loc);
@@ -988,7 +1036,7 @@ var
 begin
   Result := 3; //3 = Black which can be the default when a non-palette 32 bit color value is used
   for I := 0 to 255 do
-    if gRes.Palettes.DefDal.Color32(I) = fFlagColor then
+    if gRes.Palettes.DefaultPalette.Color32(I) = fFlagColor then
       Result := I;
 end;
 
@@ -1006,7 +1054,7 @@ begin
 
   //Try to take player name from mission text if we are in SP
   //Do not use names in MP ot avoid confusion of AI players with real player niknames
-  if gGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle] then
+  if gGame.GameMode in [gmSingle, gmCampaign, gmMapEd, gmReplaySingle] then
     if gGame.TextMission.HasText(HANDS_NAMES_OFFSET + fHandIndex) then
       if HandType = hndHuman then
         Result := gResTexts[TX_PLAYER_YOU] + ' (' + gGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex] + ')'
@@ -1127,14 +1175,14 @@ begin
   gTerrain.GetHouseMarks(aLoc, aHouseType, aList);
 
   //Override marks if there are House/FieldPlans (only we know about our plans) and or FogOfWar
-  HA := gRes.HouseDat[aHouseType].BuildArea;
+  HA := gRes.Houses[aHouseType].BuildArea;
 
   for I := 1 to 4 do for K := 1 to 4 do
   if (HA[I,K] <> 0)
-  and gTerrain.TileInMapCoords(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
+  and gTerrain.TileInMapCoords(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
   begin
     //This can't be done earlier since values can be off-map
-    P2 := KMPoint(aLoc.X+K-3-gRes.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
+    P2 := KMPoint(aLoc.X+K-3-gRes.Houses[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
 
     //Forbid planning on unrevealed areas and fieldplans
     AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y) > 0);

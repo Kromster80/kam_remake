@@ -4,8 +4,7 @@ interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
-  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
-
+  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils;
 
 type
   TForm1 = class(TForm)
@@ -31,44 +30,60 @@ type
     rgBriefingPos: TRadioGroup;
     edtShortName: TMaskEdit;
     shpBriefing: TShape;
+    Bevel2: TBevel;
+    cbShowNodeNumbers: TCheckBox;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure tvListChange(Sender: TObject; Node: TTreeNode);
     procedure seMapCountChange(Sender: TObject);
-    procedure MapChange(Sender: TObject);
+    procedure seNodeCountChange(Sender: TObject);
     procedure btnSaveCMPClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+
+    procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
+    procedure cbShowNodeNumbersClick(Sender: TObject);
   private
+    fExePath: string;
+    fCampaignsPath: string;
+    fSprites: TKMSpritePackEdit;
     imgFlags: array of TImage;
     imgNodes: array of TImage;
+
     fUpdating: Boolean;
     fSelectedMap: Integer;
     fSelectedNode: Integer;
     PrevX, PrevY: Integer;
-    fSprites: TKMSpritePackEdit;
   public
     procedure FlagDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure FlagEnter(Sender: TObject);
     procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure NodeEnter(Sender: TObject);
+
+    procedure FlagNodeLeave(Sender: TObject);
+
+    procedure CreateDefaultLocaleLibxTemplate(aFileName: string);
 
     procedure SelectMap;
     procedure RefreshBackground;
     procedure RefreshFlags;
+    procedure RefreshNodes;
     procedure UpdateList;
     procedure UpdateFlagCount;
     procedure UpdateNodeCount;
+    procedure DrawFlagNumber(aIndexMap: Integer);
+    procedure DrawNodeNumber(aIndexNode: Integer);
   end;
 
 
 var
   Form1: TForm1;
   C: TKMCampaign;
-
 
 implementation
 {$R *.dfm}
@@ -81,8 +96,29 @@ begin
 
   Caption := 'Campaign Builder (' + GAME_REVISION + ')';
 
+  fExePath := ExtractFilePath(ParamStr(0));
+  fCampaignsPath := ExpandFileName(fExePath + '..\..\Campaigns\');
+
   C := TKMCampaign.Create;
   fSelectedMap := -1;
+
+  imgNode.Canvas.Font.Name := 'Verdana';
+  imgNode.Canvas.Font.Style := [fsBold];
+  imgNode.Canvas.Font.Size := 5;
+  imgNode.Canvas.Font.Color := clWhite;
+
+  imgBlackFlag.Canvas.Font.Name := 'Verdana';
+  imgBlackFlag.Canvas.Font.Style := [fsBold];
+  imgBlackFlag.Canvas.Font.Size := 8;
+  imgBlackFlag.Canvas.Font.Color := clWhite;
+
+  imgRedFlag.Canvas.Font.Name := 'Verdana';
+  imgRedFlag.Canvas.Font.Style := [fsBold];
+  imgRedFlag.Canvas.Font.Size := 8;
+  imgRedFlag.Canvas.Font.Color := clWhite;
+
+  //This line corrects a bug in UpdateList namely C.CampName line that returns at the start of the program #0#0#0
+  edtShortNameChange(nil);
 
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
@@ -118,7 +154,8 @@ begin
     Ord('W'): Img.Top  := Img.Top  - 1;
     Ord('S'): Img.Top  := Img.Top  + 1;
   end;
-
+  Img.Left := EnsureRange(Img.Left, Image1.Left, Image1.Left + 1024-Img.Width);
+  Img.Top  := EnsureRange(Img.Top, Image1.Top, Image1.Top + 768-Img.Height);
   if (fSelectedNode <> -1) then
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
@@ -149,18 +186,22 @@ begin
 end;
 
 
-procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-var Img: TImage;
+procedure TForm1.FlagEnter(Sender: TObject);
 begin
+  StatusBar1.Panels[2].Text := 'Map #' + IntToStr(TImage(Sender).Tag + 1);
+end;
 
-
+procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+var
+  Img: TImage;
+begin
   if (ssLeft in Shift) and (TImage(Sender).Tag = fSelectedMap) then
   begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
     C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
@@ -183,16 +224,27 @@ begin
 end;
 
 
+procedure TForm1.NodeEnter(Sender: TObject);
+begin
+  StatusBar1.Panels[2].Text := 'Node #' + IntToStr(TImage(Sender).Tag + 1);
+end;
+
+procedure TForm1.FlagNodeLeave(Sender: TObject);
+begin
+  StatusBar1.Panels[2].Text := '';
+end;
+
 procedure TForm1.NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-var Img: TImage;
+var
+  Img: TImage;
 begin
   if (ssLeft in Shift) and (fSelectedMap <> -1) and (fSelectedNode <> -1) then
   begin
     Img := TImage(Sender);
     Assert(Img <> nil);
 
-    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
-    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
     C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left + Img.Width div 2  - Image1.Left;
     C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  + Img.Height div 2 - Image1.Top;
@@ -201,6 +253,66 @@ begin
   end;
 end;
 
+
+procedure TForm1.CreateDefaultLocaleLibxTemplate(aFileName: string);
+var
+  LibxFile: TextFile;
+  I: Integer;
+begin
+  if FileExists(aFileName) then
+    Exit;
+
+  AssignFile(LibxFile, aFileName);
+  try
+    ReWrite(LibxFile);
+
+    Writeln(LibxFile, '');
+    Writeln(LibxFile, 'MaxID:' + IntToStr(C.MapCount + 9) + EolW);
+    Writeln(LibxFile, '0:Campaign title');
+    Writeln(LibxFile, '1:Mission %d');
+    Writeln(LibxFile, '2:Campaign description');
+    for I := 0 to C.MapCount-1 do
+      Writeln(LibxFile, IntToStr(10 + I) + ':Mission description ' + IntToStr(I + 1));
+  finally
+    CloseFile(LibxFile);
+  end;
+end;
+
+
+procedure TForm1.DrawNodeNumber(aIndexNode: Integer);
+var
+  txtWidth, txtHeight, txtLeft, txtTop: Integer;
+begin
+  if not cbShowNodeNumbers.Checked then Exit;
+
+  txtWidth := imgNodes[aIndexNode].Canvas.TextWidth(IntToStr(aIndexNode +1));
+  txtHeight := imgNodes[aIndexNode].Canvas.TextHeight(IntToStr(aIndexNode +1));
+  txtLeft := (imgNodes[aIndexNode].Width - txtWidth) div 2;
+  txtTop := (imgNodes[aIndexNode].Height - txtHeight) div 2;
+
+  SetBkMode(imgNodes[aIndexNode].Canvas.Handle, TRANSPARENT);
+  imgNodes[aIndexNode].Canvas.TextOut(txtLeft, txtTop, IntToStr(aIndexNode +1));
+end;
+
+procedure TForm1.DrawFlagNumber(aIndexMap: Integer);
+const
+  OFF: array [Boolean] of TPoint = ((X:1; Y:3), (X:-1; Y:-2));
+var
+  txtWidth, txtHeight, txtLeft, txtTop: Integer;
+  isRedFlag: Boolean;
+begin
+  if not cbShowNodeNumbers.Checked then Exit;
+
+  isRedFlag := aIndexMap <= fSelectedMap;
+
+  txtWidth := imgFlags[aIndexMap].Canvas.TextWidth(IntToStr(aIndexMap +1));
+  txtHeight := imgFlags[aIndexMap].Canvas.TextHeight(IntToStr(aIndexMap +1));
+  txtLeft := (imgFlags[aIndexMap].Width - txtWidth) div 2 + OFF[isRedFlag].X;
+  txtTop := (imgFlags[aIndexMap].Height - txtHeight) div 2 + OFF[isRedFlag].Y;
+
+  SetBkMode(imgFlags[aIndexMap].Canvas.Handle, TRANSPARENT);
+  imgFlags[aIndexMap].Canvas.TextOut(txtLeft, txtTop, IntToStr(aIndexMap + 1));
+end;
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
@@ -217,24 +329,31 @@ begin
   end;
 
   dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
+  dlgSaveCampaign.FileName := 'info';
+
   if not dlgSaveCampaign.Execute then Exit;
 
   C.SaveToFile(dlgSaveCampaign.FileName);
-
   fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
+  CreateDefaultLocaleLibxTemplate(ExtractFilePath(dlgSaveCampaign.FileName) + 'text.eng.libx');
+end;
+
+
+procedure TForm1.cbShowNodeNumbersClick(Sender: TObject);
+begin
+  RefreshFlags;
 end;
 
 
 procedure TForm1.btnLoadCMPClick(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
-  if DirectoryExists(ExtractFilePath(Application.ExeName) + '..\..\Campaigns\') then
-    dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\'
+  if DirectoryExists(fCampaignsPath) then
+    dlgOpenCampaign.InitialDir := fCampaignsPath
   else
-    dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName);
-
-  //Win7 workaround ?
-  //dlgOpenCampaign.FileName := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\';
+    dlgOpenCampaign.InitialDir := fExePath;
 
   if not dlgOpenCampaign.Execute then Exit;
 
@@ -250,6 +369,9 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
+  edtShortName.Text := C.CampName;
+  seMapCount.Value := C.MapCount;
+
   UpdateList;
   UpdateFlagCount;
   RefreshBackground;
@@ -263,6 +385,7 @@ end;
 procedure TForm1.btnLoadPictureClick(Sender: TObject);
 begin
   dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
+
   if not dlgOpenPicture.Execute then Exit;
 
   fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
@@ -276,23 +399,35 @@ procedure TForm1.edtShortNameChange(Sender: TObject);
 var
   cmp: TKMCampaignId;
 begin
-  if fUpdating then Exit;
+  if Length(edtShortName.Text) = 3 then
+  begin
+    if fUpdating then Exit;
 
-  cmp[0] := Ord(edtShortName.Text[1]);
-  cmp[1] := Ord(edtShortName.Text[2]);
-  cmp[2] := Ord(edtShortName.Text[3]);
-  C.CampaignId := cmp;
+    cmp[0] := Ord(edtShortName.Text[1]);
+    cmp[1] := Ord(edtShortName.Text[2]);
+    cmp[2] := Ord(edtShortName.Text[3]);
+    C.CampaignId := cmp;
 
-  //Shortname may be used as mapname in List
-  UpdateList;
+    //Shortname may be used as mapname in List
+    UpdateList;
+  end;
 end;
 
+// Allow only Eng characters
+procedure TForm1.edtShortNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['A'..'Z', 'a'..'z', #8 {Backspace}]) then
+  begin
+    Beep;
+    Key := #0;
+  end;
+end;
 
 procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := seMapCount.Value;
+  C.MapCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
   if fSelectedMap > C.MapCount - 1 then
     fSelectedMap := -1;
@@ -303,11 +438,11 @@ begin
 end;
 
 
-procedure TForm1.MapChange(Sender: TObject);
+procedure TForm1.seNodeCountChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
+  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
   if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
     fSelectedNode := -1;
@@ -351,24 +486,53 @@ begin
     imgFlags[I].Left := C.Maps[I].Flag.X + Image1.Left;
     imgFlags[I].Top := C.Maps[I].Flag.Y + Image1.Top;
     if I > fSelectedMap then
-      imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap
-    else
-      imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap
+    begin
+      imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap;
+      imgFlags[I].Canvas.Font := imgBlackFlag.Canvas.Font;
+    end else
+    begin
+      imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap;
+      imgFlags[I].Canvas.Font := imgRedFlag.Canvas.Font;
+    end;
+    DrawFlagNumber(I);
   end;
 
-  if fSelectedMap = -1 then Exit;
+  //In some versions of Delphi there is a bug with the Component's position on ScrollBox
+  //This is for the Fix this bug. Where this is not a bug, it will not hurt and there where there is isapravit
+  //Personally, I have Top components ScrollBox = - ScrollBox1.VertScrollBar.Position
+  //Left and also
+  shpBriefing.Top := Image1.Height - shpBriefing.Height + Image1.Top;
 
-  for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
+  if fSelectedMap = -1 then
   begin
-    //Position node centers, so that if someone changes the nodes they still look correct
-    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
-    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
+    rgBriefingPos.Enabled := False;
+    Exit;
   end;
 
-  shpBriefing.Top := Image1.Height - shpBriefing.Height;
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0);
+  RefreshNodes;
+
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) + Image1.Left;
 end;
 
+
+procedure TForm1.RefreshNodes;
+var
+  I: Integer;
+begin
+  for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
+  begin
+    // Refresh canvas in case we have spoiled it with node number
+    imgNodes[I].Picture.Bitmap := imgNode.Picture.Bitmap;
+    imgNodes[I].Canvas.Font := imgNode.Canvas.Font;
+
+    // Position node centers, so that if someone changes the nodes they still look correct
+    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
+    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
+    imgNodes[I].Left := EnsureRange(imgNodes[I].Left, Image1.Left, Image1.Left + 1024-imgNodes[I].Width);
+    imgNodes[I].Top  := EnsureRange(imgNodes[I].Top, Image1.Top, Image1.Top + 768-imgNodes[I].Height);
+    DrawNodeNumber(I);
+  end;
+end;
 
 procedure TForm1.UpdateList;
 var
@@ -376,9 +540,6 @@ var
   N, SN: TTreeNode;
 begin
   fUpdating := True;
-
-  edtShortName.Text := C.CampName;
-  seMapCount.Value := C.MapCount;
 
   tvList.Items.Clear;
 
@@ -390,7 +551,7 @@ begin
 
     for K := 0 to C.Maps[I].NodeCount - 1 do
     begin
-      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K));
+      SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K + 1));
       if fSelectedNode = K then
         SN.Selected := True;
     end;
@@ -436,13 +597,14 @@ begin
       imgFlags[I].AutoSize := True;
       imgFlags[I].Transparent := True;
       imgFlags[I].Tag := I;
-      //imgFlags[I].OnClick := FlagClick; //Select
       imgFlags[I].OnMouseDown := FlagDown; //Start drag
       imgFlags[I].OnMouseMove := FlagMove; //Drag
+      imgFlags[I].OnMouseEnter := FlagEnter; //Hint
+      imgFlags[I].OnMouseLeave := FlagNodeLeave; //Clear Hint
     end;
   end;
 
-  //Hide unused flags
+  // Hide unused flags
   for I := 0 to Length(imgFlags) - 1 do
     imgFlags[I].Visible := (I <= C.MapCount - 1);
 end;
@@ -467,21 +629,24 @@ begin
       imgNodes[I].AutoSize := True;
       imgNodes[I].Transparent := True;
       imgNodes[I].Picture.Bitmap := imgNode.Picture.Bitmap;
+      imgNodes[I].Canvas.Font := imgNode.Canvas.Font;
       imgNodes[I].Tag := I;
-      //imgFlags[I].OnClick := NodeClick; //Select
       imgNodes[I].OnMouseDown := NodeDown; //Start drag
       imgNodes[I].OnMouseMove := NodeMove; //Drag
+      imgNodes[I].OnMouseEnter := NodeEnter; //Hint
+      imgNodes[I].OnMouseLeave := FlagNodeLeave; //Clear Hint
     end;
   end;
 
-  //Hide unused nodes
+  // Hide unused nodes
   for I := 0 to Length(imgNodes) - 1 do
     imgNodes[I].Visible := (I <= C.Maps[fSelectedMap].NodeCount - 1);
 end;
 
 
 procedure TForm1.SelectMap;
-var I, M, N: Integer;
+var
+  I, M, N: Integer;
 begin
   if fUpdating then Exit;
 
@@ -504,17 +669,18 @@ begin
       tvList.Items[I].Selected := True;
   end;
 
+  rgBriefingPos.Enabled := True;
+
   seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
   rgBriefingPos.ItemIndex := Byte(C.Maps[fSelectedMap].TextPos);
 
   //Update map info
-  StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap) + '/' + IntToStr(fSelectedNode);
+  StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap +1) + '/' + IntToStr(fSelectedNode +1);
 
   fUpdating := False;
 
   UpdateNodeCount;
   RefreshFlags;
 end;
-
 
 end.

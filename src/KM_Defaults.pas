@@ -22,7 +22,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r6720';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r7000+';       //Should be updated for every release (each time save format is changed)
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
   {$ELSE}
@@ -76,14 +76,15 @@ var
   //These are debug things, should be False
   {User interface options}
   SHOW_DEBUG_CONTROLS   :Boolean = False; //Show debug panel / Form1 menu (F11)
-  SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
+  SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls! always Off here
+  SHOW_CONTROLS_ID      :Boolean = False; //Draw controls ID
   SHOW_CONTROLS_FOCUS   :Boolean = False; //Outline focused control
   SHOW_TEXT_OUTLINES    :Boolean = False; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:Boolean = False; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST     :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
-  NET_SHOW_EACH_MSG     :Boolean = False; //Show each message kind arrived in chat (except ping/fps)
+  SHOW_LOGS_IN_CHAT     :Boolean = False; //Show log messages in MP game chat
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
   SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
@@ -132,9 +133,7 @@ var
   ALLOW_TAKE_AI_PLAYERS :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
-  WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
-  WRITE_RECONNECT_LOG   :Boolean = True;
   WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
   EXPORT_SPRITE_ATLASES :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   EXPORT_INFLUENCE      :Boolean = False;
@@ -157,6 +156,9 @@ const
 
   AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
   CHAT_COOLDOWN        = 500; //Minimum time in milliseconds between chat messages
+  BEACON_COOLDOWN      = 800; //Minimum time in milliseconds between beacons
+
+  DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
 
 var
   HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
@@ -218,6 +220,8 @@ const
   RETURN_TO_LOBBY_SAVE = 'paused';
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
+  MP_MINIMAP_SAVE_EXT = 'smm';
+
 type
   TKMHandIndex = {type} ShortInt;
   TKMHandIndexArray = array of TKMHandIndex;
@@ -257,8 +261,10 @@ type
     cmMagicWater, //Magic water
     cmSelection, //Selection manipulations
     cmUnits, //Units
-    cmMarkers, //CenterScreen, Defence, FOW markers
-    cmEyedropper //Terrain eyedropper
+    cmMarkers, //CenterScreen, FOW, Defence, AIStart, Rally/Cutting Point markers
+    cmEyedropper, //Terrain eyedropper
+    cmPaintBucket, //PaintBucket - change color(team) for map objects
+    cmRotateTile  //Rotate terrain tile
     );
 
 type
@@ -275,10 +281,8 @@ const
   MARKER_DEFENCE = 2;
   MARKER_CENTERSCREEN = 3;
   MARKER_AISTART = 4;
-
-const
-  MAPED_TILES_X = 6;
-  MAPED_TILES_Y = 8;
+  MARKER_RALLY_POINT = 5;
+  MARKER_CUTTING_POINT = 6;
 
 
 const
@@ -305,6 +309,17 @@ type
 
   TMapFolder = (mfSP, mfMP, mfDL);
   TMapFolderSet = set of TMapFolder;
+
+
+const
+  MAPS_FOLDER_NAME = 'Maps';
+  MAPS_MP_FOLDER_NAME = 'MapsMP';
+  MAPS_DL_FOLDER_NAME = 'MapsDL';
+  TUTORIALS_FOLDER_NAME = 'Tutorials';
+  CAMPAIGNS_FOLDER_NAME = 'Campaigns';
+  SAVES_FOLDER_NAME = 'Saves';
+  SAVES_MP_FOLDER_NAME = 'SavesMP';
+
 
 { Terrain }
 type
@@ -595,7 +610,8 @@ type
     mlCenterScreen,
     mlAIStart,
     mlSelection,
-    mlWaterFlow);  //Enum representing mapEditor visible layers
+    mlWaterFlow,
+    mlTileOwner);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
 const
@@ -626,7 +642,7 @@ const
   $FF1B1B1B  // Black
   );
 
-  //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.
+  //Players colors, as they appear in KaM when the color is not specified in the script, copied from palette values.
   //Using these as the defaults when loading the script means the colors will be the same as KaM when not defined.
   //Default IDs from KaM:
   {229, //Red
@@ -645,21 +661,66 @@ const
   $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
   $FF577B7B, //Grey
-  $FF000000, //Black
-  $FF000000,  //Black
   $FF2383FB, //Orange
   $FFFF0707, //Blue
   $FF0BE73F, //Light green
-  $FFFFFFFF  //White
+  $FF720468, //Purple
+  $FFFFFFFF, //White
+  $FF000000  //Black
   );
 
-  //Interface Colors used for coloring status messages
-  //icWhite  = $FFFFFFFF;
+  //Interface colors
   icGreen  = $FF00C000;
   icYellow = $FF07FFFF;
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
 
+  icDarkGray = $FF606060;
+  icGray = $FF808080;
+  icLightGray = $FFA0A0A0;
+  icWhite = $FFFFFFFF;
+  icBlack = $FF000000;
+
+  icSteelBlue = $FFA56D53;
+
+  icRoyalYellow = $FF4AC7FF;
+  icGoldenYellow = $FF00B0FF;
+  icAmberBrown = $FF006797;
+  icDarkGoldenRod = $FF0080B0; // brown shade color
+
+  // Interface colors (by usage)
+  clPingLow = icGreen;
+  clPingNormal = icYellow;
+  clPingHigh = icOrange;
+  clPingCritical = icRed;
+
+  clFpsCritical = icRed;
+  clFpsLow = icOrange;
+  clFpsNormal = icYellow;
+  clFpsHigh = icGreen;
+
+  clTextSelection = icSteelBlue;
+
+  clMPSrvDetailsGameInfoFont = icLightGray;
+  clStatsUnitDefault = icWhite;
+  clStatsUnitMissingHL = $FF0080FF;
+
+  clMessageUnitUnread = icGoldenYellow;
+  clMessageUnitUnreadHL = icRoyalYellow;
+  clMessageUnitRead = icDarkGoldenRod;
+  clMessageUnitReadHL = icAmberBrown;
+
+  clLobbyOpponentAll = icRoyalYellow;
+  clLobbyOpponentAllHL = icAmberBrown;
+
+  clListSelShape = $88888888;
+  clListSelOutline = icWhite;
+  clListSelShapeUnfocused = $66666666;
+  clListSelOutlineUnfocused = icLightGray;
+  clListSeparatorShape = icDarkGray;
+
+  clMapEdBtnField = icYellow;
+  clMapEdBtnWine = icYellow;
 
 var
   ExeDir: UnicodeString;

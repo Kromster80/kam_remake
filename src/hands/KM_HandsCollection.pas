@@ -3,8 +3,8 @@ unit KM_HandsCollection;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
-  KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
+  KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior, KM_ResHouses;
 
 
 //Hands are identified by their starting location
@@ -38,6 +38,10 @@ type
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
+    function GetObjectByUID(aUID: Integer): TObject;
+    function GetNextHouseWSameType(aHouse: TKMHouse): TKMHouse;
+    function GetNextUnitWSameType(aUnit: TKMUnit): TKMUnit;
+    function GetNextGroupWSameType(aUnitGroup: TKMUnitGroup): TKMUnitGroup;
     function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
     function UnitCount: Integer;
@@ -47,6 +51,7 @@ type
     //Note: this is position dependant, e.g. Player1 may be allied with
     //      Player2, but Player2 could be an enemy to Player1
     function CheckAlliance(aPlay1, aPlay2: TKMHandIndex): TAllianceType;
+    function GetTeams: TKMByteSetArray;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
     procedure CleanUpHousePointer(var aHouse: TKMHouse);
@@ -55,6 +60,7 @@ type
     procedure RevealForTeam(aPlayer: TKMHandIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
     procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
+    procedure DisableGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
 
     procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
     procedure Load(LoadStream: TKMemoryStream);
@@ -72,7 +78,7 @@ var
 
 implementation
 uses
-  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields, KM_ResUnits, KM_HouseCollection;
+  KM_Game, KM_Log, KM_Resource, KM_AIFields, KM_ResUnits, KM_HouseCollection, KM_UnitsCollection;
 
 
 { TKMHandsCollection }
@@ -285,7 +291,7 @@ begin
       H := fHandsList[I].Houses[K];
       if (H is TKMHouseTower) and H.IsComplete
       and not H.IsDestroyed and H.GetHasOwner
-      and (H.fCurrentAction.State <> hst_Empty) then
+      and (H.CurrentAction.State <> hst_Empty) then
         //Don't use H.GetDistance (dist to any tile within house) as that's not how tower range works
         Result := Min(Result, KMLength(H.GetPosition, aLoc));
     end;
@@ -340,6 +346,142 @@ begin
     Result := fHandsList[I].UnitGroups.GetGroupByUID(aUID);
     if Result <> nil then Exit; //else keep on testing
   end;
+end;
+
+
+function TKMHandsCollection.GetObjectByUID(aUID: Integer): TObject;
+begin
+  Result := GetHouseByUID(aUID);
+  if Result = nil then
+  begin
+    Result := GetUnitByUID(aUID);
+    if Result = nil then
+      Result := GetGroupByUID(aUID);
+  end;
+end;
+
+
+{
+Get next house in house list with the same type for the same owner
+Result
+    house: next house in unit list
+    nil: if NO other house found
+}
+function TKMHandsCollection.GetNextHouseWSameType(aHouse: TKMHouse): TKMHouse;
+var Houses: TKMHousesCollection;
+    House, FirstH: TKMHouse;
+    Found: Boolean;
+    I: Integer;
+begin
+  Result := nil;
+  if (aHouse = nil) or aHouse.IsDestroyed then Exit;
+
+  Found := False;
+  FirstH := nil;
+
+  Houses := fHandsList[aHouse.Owner].Houses;
+
+  for I := 0 to Houses.Count - 1 do
+  begin
+    House := Houses[I];
+    if (House.HouseType = aHouse.HouseType) // we are interested in houses with the same type
+      and not House.IsDestroyed then        // not destroyed
+    begin
+      if House = aHouse then
+        Found := True               // Mark that we found our house
+      else if Found then
+      begin
+        Result := House;            // Save the next house after Found to Result and Break
+        Break;
+      end else if FirstH = nil then
+        FirstH := House;            // Save 1st house in list in case our house is the last one
+    end;
+  end;
+  if (Result = nil) and Found then // Found should be always True here
+    Result := FirstH;
+end;
+
+
+{
+Get next unit in unit list with the same type for the same owner
+Result
+    unit: next unit in unit list
+    nil: if NO other unit found
+}
+function TKMHandsCollection.GetNextUnitWSameType(aUnit: TKMUnit): TKMUnit;
+var Units: TKMUnitsCollection;
+    U, FirstU: TKMUnit;
+    Found: Boolean;
+    I: Integer;
+begin
+  Result := nil;
+  if (aUnit = nil) or aUnit.IsDeadOrDying then Exit;
+
+  Found := False;
+  FirstU := nil;
+
+  Units := fHandsList[aUnit.Owner].Units;
+
+  for I := 0 to Units.Count - 1 do
+  begin
+    U := Units[I];
+    if (U.UnitType = aUnit.UnitType) // we are interested in units with the same type only
+      and not U.IsDeadOrDying        // not dead or dying
+      and U.Visible then             // visible
+    begin
+      if U = aUnit then
+        Found := True                // Mark that we found our unit
+      else if Found then
+      begin
+        Result := U;                 // Save the next unit after Found to Result and Break
+        Break;
+      end else if FirstU = nil then
+        FirstU := U;                 // Save 1st unit in list in case our unit is the last one
+    end;
+  end;
+  if (Result = nil) and Found then   // Found should be always True here
+    Result := FirstU;
+end;
+
+
+{
+Get next unit group in group list with the same type for the same owner
+Result
+    unit group: next unit group in group list
+    nil: if NO other group found
+}
+function TKMHandsCollection.GetNextGroupWSameType(aUnitGroup: TKMUnitGroup): TKMUnitGroup;
+var UnitGroups: TKMUnitGroups;
+    Group, FirstG: TKMUnitGroup;
+    Found: Boolean;
+    I: Integer;
+begin
+  Result := nil;
+  if (aUnitGroup = nil) or aUnitGroup.IsDead then Exit;
+
+  Found := False;
+  FirstG := nil;
+
+  UnitGroups := fHandsList[aUnitGroup.Owner].UnitGroups;
+
+  for I := 0 to UnitGroups.Count - 1 do
+  begin
+    Group := UnitGroups[I];
+    if (Group.UnitType = aUnitGroup.UnitType) // we are interested in groups with the same type only
+      and not Group.IsDead then               // not dead
+    begin
+      if Group = aUnitGroup then
+        Found := True               // Mark that we found our group
+      else if Found then
+      begin
+        Result := Group;            // Save the next group after Found to Result and Break
+        Break;
+      end else if FirstG = nil then
+        FirstG := Group;            // Save 1st group in list in case our group is the last one
+    end;
+  end;
+  if (Result = nil) and Found then // Found should be always True here
+    Result := FirstG;
 end;
 
 
@@ -415,7 +557,7 @@ var
   Pass: TKMTerrainPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
-  Pass := gRes.UnitDat[aUnitType].AllowedPassability;
+  Pass := gRes.Units[aUnitType].AllowedPassability;
 
   for I := 0 to 255 do
   begin
@@ -443,6 +585,67 @@ begin
     Result := at_Ally //In KaM animals are always friendly
   else
     Result := fHandsList[aPlay1].Alliances[aPlay2];
+end;
+
+
+//Get teams from alliances information
+//We consider team as a group of hands, where all hands are symmetrically allied to each other and do not allied to any other hand outside of that group
+//Basically that mean standart team in MP game.
+//All other possible options, f.e. smth like 1-2 are allied to each other, 3-4 - are also allied, but 5 is allied to 1-2-3-4 we do not consider as team
+//other example - 1-2-3 ally/4-5-6 ally/1-7 ally - we have one standart team here: 4-5-6. 1 is allied to 7, but 2 is not, so non of them can be considered as a 'team'
+function TKMHandsCollection.GetTeams: TKMByteSetArray;
+var
+  Allies: TKMByteSetArray;
+  I, J, K: Byte;
+  HandsChecked: set of Byte;
+  CollisionFound: Boolean;
+begin
+  SetLength(Allies, Count);
+  SetLength(Result, Count);
+
+  //Gather aliance info into 'Allies' variable
+  for I := 0 to Count - 1 do
+  begin
+    Allies[I] := [I]; // every hand is Ally to himself by default
+    for J := 0 to Count - 1 do
+    begin
+      if (I <> J) and (CheckAlliance(I,J) = at_Ally) then
+        Include(Allies[I], J);
+    end;
+  end;
+
+  K := 0;
+  HandsChecked := [];
+  for I := 0 to Count - 1 do
+  begin
+    CollisionFound := False;
+    if (Allies[I] = [I])          //hand has no allies, so we can ignore it
+      or (I in HandsChecked) then //hand was checked in other iteration before, ignore it
+      Continue;
+    //Loop throught hand allies and check if all of them has same ally group
+    for J in Allies[I] do
+    begin
+      if I = J then
+        Continue;
+      //Check if I-hand and all its allias has absolutely same allies
+      //If not - that means all I-Hand allies and J-hand allies can not be in any of teams
+      //(f.e. 1-hand allied with 2 and 3, when 2 allied with 1,3 and 4, means all 1234 can not be in any of team (or what we called by standart 'team'))
+      if Allies[I] <> Allies[J] then
+      begin
+        HandsChecked := HandsChecked + Allies[I];
+        HandsChecked := HandsChecked + Allies[J];
+        CollisionFound := True;
+      end;
+    end;
+    //If no team collisions were found, means that is correct team and we have to save it.
+    if not CollisionFound then
+    begin
+      Result[K] := Allies[I];
+      HandsChecked := HandsChecked + Allies[I];
+      Inc(K);
+    end;
+  end;
+  SetLength(Result, K);
 end;
 
 
@@ -475,10 +678,14 @@ end;
 //MapEd procedure to remove any house under cursor
 procedure TKMHandsCollection.RemAnyHouse(Position: TKMPoint);
 var
-  I: Integer;
+  H: TKMHouse;
 begin
-  for I := 0 to fCount - 1 do
-    fHandsList[I].RemHouse(Position, true, true);
+  H := HousesHitTest(Position.X, Position.Y);
+  if H <> nil then
+  begin
+    H.DemolishHouse(H.Owner, True);
+    fHandsList[H.Owner].Houses.DeleteHouseFromList(H);
+  end;
 end;
 
 
@@ -527,6 +734,15 @@ var
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].AI.AddDefaultGoals(aMissionMode <> mm_Tactic);
+end;
+
+
+procedure TKMHandsCollection.DisableGoalsForDefeatedHand(aHandIndex: TKMHandIndex);
+var I: Integer;
+begin
+  for I := 0 to fCount - 1 do
+    if I <> aHandIndex then
+      fHandsList[I].AI.Goals.DisableGoalsForHand(aHandIndex);
 end;
 
 

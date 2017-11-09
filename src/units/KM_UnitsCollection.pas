@@ -21,9 +21,11 @@ type
     constructor Create;
     destructor Destroy; override;
     function AddUnit(aOwner: TKMHandIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    procedure AddUnitToList(aUnit: TKMUnit);
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
+    procedure DeleteUnitFromList(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TKMHandIndex);
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
     function GetUnitByUID(aUID: Integer): TKMUnit;
@@ -80,7 +82,7 @@ var
 begin
   if aAutoPlace then
   begin
-    PlaceTo := KMPoint(0,0); // Will have 0:0 if no place found
+    PlaceTo := KMPOINT_ZERO; // Will have 0:0 if no place found
     if aRequiredWalkConnect = 0 then
       aRequiredWalkConnect := gTerrain.GetWalkConnectID(aLoc);
     gHands.FindPlaceForUnit(aLoc.X, aLoc.Y, aUnitType, PlaceTo, aRequiredWalkConnect);
@@ -97,9 +99,9 @@ begin
   end;
 
   if gTerrain.HasUnit(PlaceTo) then
-    raise ELocError.Create('No space for ' + gRes.UnitDat[aUnitType].GUIName +
+    raise ELocError.Create('No space for ' + gRes.Units[aUnitType].GUIName +
                            ' at ' + TypeToString(aLoc) +
-                           ', tile is already occupied by ' + gRes.UnitDat[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].GUIName,
+                           ', tile is already occupied by ' + gRes.Units[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].GUIName,
                            PlaceTo);
 
   ID := gGame.GetNewUID;
@@ -112,11 +114,18 @@ begin
     ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo, aOwner);
     WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PlaceTo, aOwner);
     ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PlaceTo, aOwner);
-    else                              raise ELocError.Create('Add ' + gRes.UnitDat[aUnitType].GUIName, PlaceTo);
+    else                              raise ELocError.Create('Add ' + gRes.Units[aUnitType].GUIName, PlaceTo);
   end;
 
   if Result <> nil then
     fUnits.Add(Result);
+end;
+
+procedure TKMUnitsCollection.AddUnitToList(aUnit: TKMUnit);
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to add existing Unit directly only in MapEd
+  if aUnit <> nil then
+    fUnits.Add(aUnit);
 end;
 
 
@@ -124,6 +133,14 @@ procedure TKMUnitsCollection.RemoveUnit(aUnit: TKMUnit);
 begin
   aUnit.CloseUnit; //Should free up the unit properly (freeing terrain usage and memory)
   fUnits.Remove(aUnit); //Will free the unit
+end;
+
+
+procedure TKMUnitsCollection.DeleteUnitFromList(aUnit: TKMUnit);
+begin
+  Assert(gGame.GameMode = gmMapEd); // Allow to delete existing Unit directly only in MapEd
+  if (aUnit <> nil) then
+    fUnits.Extract(aUnit);  // use Extract instead of Delete, cause Delete nils inner objects somehow
 end;
 
 

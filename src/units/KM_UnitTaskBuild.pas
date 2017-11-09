@@ -220,6 +220,7 @@ begin
          gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
        end;
+    //Warning! This step value is harcoded in KM_UnitTaskDelivery
     4: begin //This step is repeated until Serf brings us some stone
          SetActionLockedStay(30,ua_Work1);
          Thought := th_Stone;
@@ -236,12 +237,12 @@ begin
     7: begin
          gTerrain.IncDigState(fLoc);
          gTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-         if MapElem[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+         if gMapElements[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
            gTerrain.RemoveObject(fLoc); //Remove corn/wine/grass as they won't fit with road
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
-         gTerrain.SetField(fLoc, Owner, ft_Road);
+         gTerrain.SetRoad(fLoc, Owner);
          gTerrain.RemoveObjectsKilledByRoad(fLoc);
          SetActionStay(5, ua_Walk);
          gTerrain.UnlockTile(fLoc);
@@ -356,10 +357,11 @@ begin
       end;
    4: begin
         gTerrain.ResetDigState(fLoc);
-        gTerrain.SetField(fLoc, Owner, ft_InitWine); //Replace the terrain, but don't seed grapes yet
+        gTerrain.SetInitWine(fLoc, Owner); //Replace the terrain, but don't seed grapes yet
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
       end;
+   //Warning! This step value is harcoded in KM_UnitTaskDelivery
    5: begin //This step is repeated until Serf brings us some wood
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
@@ -467,13 +469,13 @@ begin
         SetActionLockedStay(11,ua_Work1,false);
         inc(fPhase2);
         if fPhase2 = 2 then gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        if (fPhase2 = 6) and MapElem[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+        if (fPhase2 = 6) and gMapElements[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
           gTerrain.RemoveObject(fLoc); //Remove grass/corn/wine as they take up most of the tile
         if fPhase2 in [6,8] then gTerrain.IncDigState(fLoc);
        end;
     3: begin
         Thought := th_None; //Keep thinking build until it's done
-        gTerrain.SetField(fLoc,Owner,ft_Corn);
+        gTerrain.SetField(fLoc, Owner, ft_Corn);
         SetActionStay(5,ua_Walk);
         gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
@@ -507,7 +509,7 @@ begin
   HouseNeedsWorker  := False; //House needs this worker to complete
   HouseReadyToBuild := False; //House is ready to be built
 
-  HA := gRes.HouseDat[fHouseType].BuildArea;
+  HA := gRes.Houses[fHouseType].BuildArea;
 
   //Fill Cells left->right, top->bottom. Worker will start flattening from the end (reversed)
   LastToDig := -1;
@@ -571,8 +573,8 @@ begin
   begin
     fHouse.BuildingState := hbs_Wood;
     gHands[fUnit.Owner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
-    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, gRes.HouseDat[fHouse.HouseType].WoodCost, dtOnce, diHigh4);
-    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, gRes.HouseDat[fHouse.HouseType].StoneCost, dtOnce, diHigh4);
+    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, gRes.Houses[fHouse.HouseType].WoodCost, dtOnce, diHigh4);
+    gHands[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, gRes.Houses[fHouse.HouseType].StoneCost, dtOnce, diHigh4);
   end;
 
   gHands.CleanUpHousePointer(fHouse);
@@ -589,7 +591,7 @@ end;
 
 function TTaskBuildHouseArea.GetHouseEntranceLoc: TKMPoint;
 begin
-  Result.X := fHouseLoc.X + gRes.HouseDat[fHouseType].EntranceOffsetX;
+  Result.X := fHouseLoc.X + gRes.Houses[fHouseType].EntranceOffsetX;
   Result.Y := fHouseLoc.Y;
 end;
 
@@ -675,17 +677,17 @@ begin
           gTerrain.FlattenTerrain(CellsToDig[LastToDig]);
           gTerrain.FlattenTerrain(CellsToDig[LastToDig]); //Flatten the terrain twice now to ensure it really is flat
           gTerrain.SetTileLock(CellsToDig[LastToDig], tlDigged); //Block passability on tile
-          if KMSamePoint(fHouse.GetEntrance, CellsToDig[LastToDig]) then
-            gTerrain.SetField(fHouse.GetEntrance, Owner, ft_Road);
+          if KMSamePoint(fHouse.Entrance, CellsToDig[LastToDig]) then
+            gTerrain.SetRoad(fHouse.Entrance, Owner);
           gTerrain.RemoveObject(CellsToDig[LastToDig]); //All objects are removed
           Dec(LastToDig);
         end;
     7:  begin
           //Walk away from building site, before we get trapped when house becomes stoned
-          OutOfWay := gTerrain.GetOutOfTheWay(fUnit, KMPoint(0,0), tpWalk);
+          OutOfWay := gTerrain.GetOutOfTheWay(fUnit, KMPOINT_ZERO, tpWalk);
           //GetOutOfTheWay can return the input position (GetPosition in this case) if no others are possible
-          if KMSamePoint(OutOfWay, KMPoint(0,0)) or KMSamePoint(OutOfWay, GetPosition) then
-            OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
+          if KMSamePoint(OutOfWay, KMPOINT_ZERO) or KMSamePoint(OutOfWay, GetPosition) then
+            OutOfWay := fHouse.PointBelowEntrance; //Don't get stuck in corners
           SetActionWalkToSpot(OutOfWay);
           HouseNeedsWorker := False; //House construction no longer needs the worker to continue
           HouseReadyToBuild := True; //If worker gets killed while walking house will be finished without him

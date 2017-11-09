@@ -33,7 +33,7 @@ type
     property OnError: TGetStrProc write fOnError;
     property OnServerList: TGetStrProc write fOnServerList;
     property OnAnnouncements: TGetStrProc write fOnAnnouncements;
-    procedure AnnounceServer(aName, aPort: string; aPlayerCount, aTTL: Integer);
+    procedure AnnounceServer(aName: string; aPort: Word; aPlayerCount, aTTL: Integer);
     procedure QueryServerList;
     procedure FetchAnnouncements(const aLang: AnsiString);
     procedure SendMapInfo(const aMapName: string; aCRC: Cardinal; aPlayerCount: Integer);
@@ -92,10 +92,10 @@ begin
 end;
 
 
-procedure TKMMasterServer.AnnounceServer(aName, aPort:string; aPlayerCount, aTTL:integer);
+procedure TKMMasterServer.AnnounceServer(aName: string; aPort: Word; aPlayerCount, aTTL: Integer);
 begin
   fHTTPClient.OnReceive := nil; //We don't care about the response
-  fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
+  fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(IntToStr(aPort))
                      +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
                      +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION)
                      +'&os='+UrlEncode(OS)+'&compiler='+UrlEncode(COMPILER)+'&dedicated='+UrlEncode(IntToStr(byte(fIsDedicated)))

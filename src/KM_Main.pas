@@ -26,6 +26,9 @@ type
     procedure DoIdle(Sender: TObject; var Done: Boolean);
 
     procedure MapCacheUpdate;
+
+    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
+    procedure GameSpeedChange(aSpeed: Single);
   public
     constructor Create;
     destructor Destroy; override;
@@ -54,20 +57,18 @@ type
     function LockMutex: Boolean;
     procedure UnlockMutex;
 
-    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString); overload;
-
     property Resolutions: TKMResolutions read fResolutions;
     property Settings: TMainSettings read fMainSettings;
   end;
 
 
 var
-  fMain: TKMMain;
+  gMain: TKMMain;
 
 
 implementation
 uses
-  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps;
+  KM_Defaults, KM_GameApp, KM_Utils, KM_Log, KM_Maps, KM_Points;
 
 const
   //Random GUID generated in Delphi by Ctrl+G
@@ -94,6 +95,17 @@ end;
 
 
 procedure TKMMain.Start;
+  function GetScreenMonitorsInfo: TKMPointArray;
+  var
+    I: Integer;
+  begin
+    SetLength(Result, Screen.MonitorCount);
+    for I := 0 to Screen.MonitorCount-1 do
+    begin
+      Result[I].X := Screen.Monitors[I].Width;
+      Result[I].Y := Screen.Monitors[I].Height;
+    end;
+  end;
 begin
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
   Randomize;
@@ -105,7 +117,8 @@ begin
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
-  ExeDir := ExtractFilePath(Application.ExeName);
+
+  ExeDir := ExtractFilePath(ParamStr(0));
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
   gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
@@ -130,7 +143,7 @@ begin
   fFormMain.ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
 
   // Check INI window params, if not valid - set NeedResetToDefaults flag for future update
-  if not fMainSettings.WindowParams.IsValid(Screen) then
+  if not fMainSettings.WindowParams.IsValid(GetScreenMonitorsInfo) then
      fMainSettings.WindowParams.NeedResetToDefaults := True;
 
   ReinitRender(False);
@@ -152,6 +165,12 @@ end;
 procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
 begin
   fFormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
+end;
+
+
+procedure TKMMain.GameSpeedChange(aSpeed: Single);
+begin
+  fFormMain.chkSuperSpeed.Checked := aSpeed = 300;
 end;
 
 
@@ -277,7 +296,7 @@ begin
     if fOldFrameTimes >= FPS_INTERVAL then
     begin
       if gGameApp <> nil then gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
-      StatusBarText(3, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
+      StatusBarText(4, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
                        IfThen(CAP_MAX_FPS, ' (' + inttostr(FPS_LAG) + ')'));
       fOldFrameTimes := 0;
       fFrameCount := 0;
@@ -323,6 +342,7 @@ begin
                                 fFormLoading.LoadingStep,
                                 fFormLoading.LoadingText,
                                 StatusBarText);
+  gGameApp.OnGameSpeedChange := GameSpeedChange;
   gGameApp.AfterConstruction(aReturnToOptions);
 
   gLog.AddTime('ToggleFullscreen');
@@ -384,7 +404,7 @@ var
 {$ENDIF}
 begin
   {$IFNDEF FPC}
-  if (GetForeGroundWindow <> fMain.FormMain.Handle) then
+  if (GetForeGroundWindow <> gMain.FormMain.Handle) then
   begin
     flashInfo.cbSize := 20;
     flashInfo.hwnd := Application.Handle;

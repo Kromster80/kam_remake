@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  Controls, Math, SysUtils,
+  Classes, Controls, Math, SysUtils,
   KM_Defaults,
   KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_Networking;
 
@@ -12,7 +12,7 @@ uses
 type
   TLobbyTab = (ltDesc, ltOptions);
 
-  TKMMenuLobby = class
+  TKMMenuLobby = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -26,15 +26,19 @@ type
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
     fLastChatTime: Cardinal; //Last time a chat message was sent to enforce cooldown
 
-    fLocalToNetPlayers: array[1..MAX_LOBBY_SLOTS] of Integer;
-    fNetPlayersToLocal: array[1..MAX_LOBBY_SLOTS] of Integer;
+    fLocalToNetPlayers: array [1..MAX_LOBBY_SLOTS] of Integer;
+    fNetPlayersToLocal: array [1..MAX_LOBBY_SLOTS] of Integer;
+
+    fDropBoxPlayers_LastItemIndex: Integer;
+
+    fMapsSortUpdateNeeded: Boolean;
 
     procedure UpdateMappings;
     procedure UpdateSpectatorDivide;
 
     procedure CreateControls(aParent: TKMPanel);
     procedure CreateChatMenu(aParent: TKMPanel);
-    procedure CreatePlayerMenu(aParent: TKMPanel);
+    procedure CreatePlayerMenus(aParent: TKMPanel);
     procedure CreateSettingsPopUp(aParent: TKMPanel);
 
     procedure Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
@@ -47,19 +51,36 @@ type
     procedure ChatMenuClick(Sender: TObject);
     procedure ChatMenuShow(Sender: TObject);
 
-    procedure PlayerMenuClick(Sender: TObject);
+    procedure HostMenuClick(Sender: TObject);
+    procedure JoinerMenuClick(Sender: TObject);
+    function CanShowPlayerMenu(Sender: TObject): Boolean;
     procedure PlayerMenuShow(Sender: TObject);
+
+    procedure ToggleMutePlayer(aPlayerIndex: Integer);
+    procedure UpdateMuteMenuItem(aMenu: TKMPopUpMenu; aItemIndex: Integer; aIsMuted: Boolean);
+    procedure UpdateImageLobbyFlag(aIndex: Integer);
 
     procedure PlayersSetupChange(Sender: TObject);
     procedure MapColumnClick(aValue: Integer);
-    procedure MapTypeChange(Sender: TObject);
+    procedure MapTypeChanged(Sender: TObject);
+    procedure InitDropColMapsList;
+    procedure MapList_OnShow(Sender: TObject);
+    procedure UpdateMapList;
     procedure MapList_SortUpdate(Sender: TObject);
     procedure MapList_ScanUpdate(Sender: TObject);
+    procedure MapList_ScanComplete(Sender: TObject);
     procedure RefreshMapList(aJumpToSelected: Boolean);
     procedure RefreshSaveList(aJumpToSelected: Boolean);
+    function GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
     procedure MapChange(Sender: TObject);
-    procedure PostKeyDown(Sender: TObject; Key: Word);
+    function DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+    function DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+    procedure DropBoxPlayers_Show(Sender: TObject);
 
+    function PostKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
+    function IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
+
+    function SlotsAvailable: Byte;
     procedure MinimapLocClick(aValue: Integer);
 
     procedure Lobby_OnDisconnect(const aData: UnicodeString);
@@ -74,20 +95,25 @@ type
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
 
     function DetectMapType: Integer;
-    procedure BackClick(Sender: TObject);
     procedure SettingsClick(Sender: TObject);
     procedure StartClick(Sender: TObject);
+    procedure BackClick(Sender: TObject);
+    procedure EscKeyDown(Sender: TObject);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
   protected
     Panel_Lobby: TKMPanel;
       Panel_LobbySettings: TKMPanel;
         Edit_LobbyDescription: TKMEdit;
         Edit_LobbyPassword: TKMEdit;
+        Button_LobbySettingsUseLastPassword: TKMButton;
+        Checkbox_LobbyRememberPassword: TKMCheckbox;
         Button_LobbySettingsResetBans: TKMButton;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
 
       Menu_Chat: TKMPopUpMenu;
       Menu_Host: TKMPopUpMenu;
+      Menu_Joiner: TKMPopUpMenu;
 
       Panel_LobbyServerName: TKMPanel;
         Label_LobbyServerName: TKMLabel;
@@ -100,7 +126,7 @@ type
         Label_Spectators: TKMLabel;
         Image_HostStar: TKMImage;
         Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
-        DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
+        DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropColumns;
         Label_LobbyPlayer: array [1..MAX_LOBBY_SLOTS] of TKMLabel;
         DropBox_LobbyLoc: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
         DropBox_LobbyTeam: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
@@ -147,7 +173,8 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
+  KM_CommonTypes, KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI,
+  KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
 
 
 { TKMGUIMenuLobby }
@@ -156,15 +183,21 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
+
+  fMapsSortUpdateNeeded := False;
 
   fMinimap := TKMMinimap.Create(True, True);
 
-  fMapsMP := TKMapsCollection.Create([mfMP, mfDL]);
+  fMapsMP := TKMapsCollection.Create([mfMP, mfDL], smByNameDesc, True);
   fSavesMP := TKMSavesCollection.Create;
+
+  fDropBoxPlayers_LastItemIndex := -1;
 
   CreateControls(aParent);
   CreateChatMenu(aParent);
-  CreatePlayerMenu(aParent);
+  CreatePlayerMenus(aParent);
   CreateSettingsPopUp(aParent);
 end;
 
@@ -292,10 +325,26 @@ end;
 
 
 procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
+  function MakeRow(const aCaption: array of string; aIndex: Integer): TKMListRow;
+  var I: Integer;
+  begin
+    Result := MakeListRow(aCaption, aIndex);
+    for I := Low(aCaption) to High(aCaption) do
+    begin
+      Result.Cells[I].HighlightOnMouseOver := True;
+      if I = 1 then
+      begin
+        Result.Cells[I].Color := clLobbyOpponentAll;
+        Result.Cells[I].HighlightColor := clLobbyOpponentAllHL;
+      end
+      else
+        Result.Cells[I].HighlightColor := icGray;
+    end;
+  end;
 const
   CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
 var
-  I, K, OffY: Integer;
+  I, K, OffY, DropWidth, TxtWidth: Integer;
 begin
   Panel_Lobby := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Lobby.AnchorsStretch;
@@ -337,24 +386,34 @@ begin
         Image_LobbyFlag[I].ImageCenter;
         Image_LobbyFlag[I].Tag := I; //Required for PlayerMenuShow
         Image_LobbyFlag[I].OnClick := PlayerMenuShow;
+        Image_LobbyFlag[I].HighlightOnMouseOver := True;
 
         Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
         Label_LobbyPlayer[I].Hide;
 
-        DropBox_LobbyPlayerSlot[I] := TKMDropList.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu);
+        TxtWidth := gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings(['All', 'All', 'All']); //Todo translate
+        DropWidth := Max(150, 110 + TxtWidth);
+        DropBox_LobbyPlayerSlot[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu, False);
+        DropBox_LobbyPlayerSlot[I].DropWidth := DropWidth;
+        DropBox_LobbyPlayerSlot[I].SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, 100 + Max(0, 40 - TxtWidth)], [True, False]);
+        //1st column is used to set 'All' (All Open/All AI/All Closed),
+        //Its external button analogue, so we do not want to invoke f.e. OnChange (AI) when 'AI All' clicked
+        DropBox_LobbyPlayerSlot[I].List.Columns[1].TriggerOnChange := False;
         if I <= MAX_LOBBY_PLAYERS then
         begin
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate //Player can join into this slot
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate  //Closed, nobody can join it
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_AI_PLAYER], 'All'], I)); //Todo translate  //This slot is an AI player
         end
         else
         begin
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_OPEN]);
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]);
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate
         end;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
+        DropBox_LobbyPlayerSlot[I].List.OnCellClick := DropBoxPlayers_CellClick;
+        DropBox_LobbyPlayerSlot[I].OnShow := DropBoxPlayers_Show;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
@@ -393,6 +452,7 @@ begin
 
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 696, CW, 22, fnt_Arial);
     Edit_LobbyPost.OnKeyDown := PostKeyDown;
+    Edit_LobbyPost.OnIsKeyEventHandled := IsKeyEvent_Return_Handled;
     Edit_LobbyPost.Anchors := [anLeft, anBottom];
     Edit_LobbyPost.ShowColors := True;
 
@@ -407,15 +467,17 @@ begin
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_SPECIAL]);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
-      Radio_LobbyMapType.OnChange := MapTypeChange;
+      Radio_LobbyMapType.OnChange := MapTypeChanged;
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, gResTexts[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
-      DropCol_LobbyMaps.DropWidth := 440; //Wider to fit mapnames well
-      DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
+      InitDropColMapsList;
+      DropCol_LobbyMaps.OnShow := MapList_OnShow;
       DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
-      DropCol_LobbyMaps.List.SearchColumn := 0;
+      DropCol_LobbyMaps.List.SearchColumn := 1;
       DropCol_LobbyMaps.OnChange := MapChange;
+      DropCol_LobbyMaps.List.OnCellClick := DropBoxMaps_CellClick;
+
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
       Panel_LobbySetupMinimap := TKMPanel.Create(Panel_LobbySetup, 0, 120, 270, 200);
@@ -496,39 +558,57 @@ begin
 end;
 
 
-procedure TKMMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
+procedure TKMMenuLobby.CreatePlayerMenus(aParent: TKMPanel);
 begin
-  Menu_Host := TKMPopUpMenu.Create(aParent, 220);
+  Menu_Host := TKMPopUpMenu.Create(aParent, gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings( // Calc max width for popup which depends of texts translation
+    [gResTexts[TX_LOBBY_PLAYER_KICK], 
+    gResTexts[TX_LOBBY_PLAYER_BAN], 
+    gResTexts[TX_LOBBY_PLAYER_SET_HOST], 
+    'Mute player',    //todo translate
+    'Unmute player']) //todo translate
+    + 10);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_BAN]);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_SET_HOST]);
-  Menu_Host.OnClick := PlayerMenuClick;
+  Menu_Host.AddItem('');
+  Menu_Host.OnClick := HostMenuClick;
+
+  Menu_Joiner := TKMPopUpMenu.Create(aParent, gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings( // Calc max width for popup which depends of texts translation
+    ['Mute player',   //todo translate
+    'Unmute player']) //todo translate
+    + 10);
+  Menu_Joiner.AddItem('');
+  Menu_Joiner.OnClick := JoinerMenuClick;
 end;
 
 
 procedure TKMMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
 begin
-  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 300);
-  Panel_LobbySettings.Anchors := [];
+  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 350);
+  Panel_LobbySettings.AnchorsCenter;
     TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
-    TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 310, 15, rxGuiMain);
-    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 300);
+    with TKMImage.Create(Panel_LobbySettings, -20, -75, 360, 440, 15, rxGuiMain) do ImageStretch;
+    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 343);
     TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, gResTexts[TX_LOBBY_ROOMSETTINGS], fnt_Outline, taCenter);
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taLeft);
-    Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 152, 20, fnt_Grey);
+    TKMLabel.Create(Panel_LobbySettings, 20, 50, 280, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taCenter);
+    Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 280, 20, fnt_Grey);
     Edit_LobbyDescription.AllowedChars := acText;
+    Edit_LobbyDescription.MaxLen := 60;
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taLeft);
-    Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
+    TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
+    Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
+    Checkbox_LobbyRememberPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, 'Remember this password', fnt_Grey); //Todo: translate
 
-    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 160, 200, 20, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 180, 280, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, 'Use last known password', bsMenu); //Todo: translate
     Button_LobbySettingsResetBans.OnClick := SettingsClick;
+    Button_LobbySettingsUseLastPassword.OnClick := SettingsClick;
 
-    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 210, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
+    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 260, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
     Button_LobbySettingsSave.OnClick := SettingsClick;
-    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 250, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
+    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 300, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
     Button_LobbySettingsCancel.OnClick := SettingsClick;
 end;
 
@@ -554,7 +634,7 @@ procedure TKMMenuLobby.ChatMenuSelect(aItem: Integer);
 var I: Integer;
 begin
   //All
-  if aItem = -1 then
+  if aItem = CHAT_MENU_ALL then
   begin
     fChatMode := cmAll;
     UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
@@ -562,7 +642,7 @@ begin
   end
   else
     //Team
-    if aItem = -2 then
+    if aItem = CHAT_MENU_TEAM then
     begin
       fChatMode := cmTeam;
       UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
@@ -571,7 +651,7 @@ begin
     end
     else
       //Spectators
-      if aItem = -3 then
+      if aItem = CHAT_MENU_SPECTATORS then
       begin
         fChatMode := cmSpectators;
         UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
@@ -590,7 +670,7 @@ begin
           with fNetworking.NetPlayers[I] do
           begin
             fChatWhisperRecipient := IndexOnServer;
-            UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+            UpdateButtonCaption(NiknameU, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
           end;
         end;
       end;
@@ -613,15 +693,15 @@ begin
   //Populate menu with right options
   Menu_Chat.Clear;
 
-  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
+  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], CHAT_MENU_ALL);
 
   //Only show "Team" if the player is on a team
-  if fNetworking.NetPlayers[fNetworking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
+  if fNetworking.MyNetPlayer.Team <> 0 then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], CHAT_MENU_TEAM);
 
   //Only show "Spectators" if the player is a spectator
-  if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], -3);
+  if fNetworking.MyNetPlayer.IsSpectator then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], CHAT_MENU_SPECTATORS);
 
   for I := 1 to fNetworking.NetPlayers.Count do
   if I <> fNetworking.MyIndex then //Can't whisper to yourself
@@ -629,7 +709,7 @@ begin
     n := fNetworking.NetPlayers[I];
 
     if n.IsHuman and n.Connected and not n.Dropped then
-      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
+      Menu_Chat.AddItem(n.NiknameColoredU, n.IndexOnServer);
   end;
 
   C := TKMControl(Sender);
@@ -713,7 +793,10 @@ begin
   fNetworking.OnReassignedJoiner := Lobby_OnReassignedToJoiner;
   fNetworking.OnFileTransferProgress := Lobby_OnFileTransferProgress;
 
-  ChatMenuSelect(-1); //All
+  ChatMenuSelect(CHAT_MENU_ALL); //All
+
+  Radio_LobbyMapType.ItemIndex := gGameApp.GameSettings.MenuLobbyMapType;
+  UpdateMapList;
 
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);
@@ -768,6 +851,22 @@ begin
 end;
 
 
+procedure TKMMenuLobby.EscKeyDown(Sender: TObject);
+begin
+  if Button_LobbySettingsCancel.IsClickable then
+    SettingsClick(Button_LobbySettingsCancel);
+end;
+
+
+procedure TKMMenuLobby.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN:  if Panel_LobbySettings.Visible then
+                  SettingsClick(Button_LobbySettingsSave);
+  end;
+end;
+
+
 procedure TKMMenuLobby.BackClick(Sender: TObject);
 begin
   //Scan should be terminated, it is no longer needed
@@ -791,6 +890,7 @@ begin
     Label_LobbyPlayer[I].Caption := '.';
     Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
     Image_LobbyFlag[I].TexID := 0;
+    Image_LobbyFlag[I].HighlightOnMouseOver := False;
     Label_LobbyPlayer[I].Hide;
     DropBox_LobbyPlayerSlot[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     DropBox_LobbyPlayerSlot[I].Disable;
@@ -812,7 +912,7 @@ begin
   begin
     Memo_LobbyPosts.Clear;
     Edit_LobbyPost.Text := '';
-    ChatMenuSelect(-1); //All
+    ChatMenuSelect(CHAT_MENU_ALL); //All
   end;
 
   Label_LobbyMapName.Caption := '';
@@ -834,7 +934,7 @@ begin
   begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
-    if not aPreserveMaps then MapTypeChange(nil);
+    if not aPreserveMaps then UpdateMapList;
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
     Button_LobbyStart.Caption := gResTexts[TX_LOBBY_START]; //Start
@@ -911,9 +1011,8 @@ begin
 end;
 
 
-procedure TKMMenuLobby.PlayerMenuClick(Sender: TObject);
-var
-  id: Integer;
+procedure TKMMenuLobby.HostMenuClick(Sender: TObject);
+var id: Integer;
 begin
   //We can't really do global bans because player's IP addresses change all the time (and we have no other way to identify someone).
   //My idea was for bans to be managed completely by the server, since player's don't actually know each other's IPs.
@@ -936,6 +1035,44 @@ begin
   //Set to host
   if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 2) then
     fNetworking.SetToHost(id);
+
+  // Mute/Unmute
+  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 3) then
+    ToggleMutePlayer(id);
+end;
+
+
+procedure TKMMenuLobby.JoinerMenuClick(Sender: TObject);
+var id: Integer;
+begin
+  id := fNetworking.NetPlayers.ServerToLocal(TKMControl(Sender).Tag);
+  if id = -1 then Exit; //Player has quit the lobby
+  // Mute/Unmute
+  if (Sender = Menu_Joiner) and (Menu_Joiner.ItemIndex = 0) then
+    ToggleMutePlayer(id);
+end;
+
+
+function TKMMenuLobby.CanShowPlayerMenu(Sender: TObject): Boolean;
+var
+  ctrl: TKMControl;
+begin
+  Result := True;
+  ctrl := TKMControl(Sender);
+  if fLocalToNetPlayers[ctrl.Tag] = -1 then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  //Only human players (excluding ourselves) have the player menu
+  if not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IsHuman //No menu for AI players
+  or (fNetworking.MyIndex = fLocalToNetPlayers[ctrl.Tag]) //No menu for ourselves
+  or not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].Connected then //Don't show menu for empty slots
+  begin
+    Result := False;
+    Exit;
+  end;
 end;
 
 
@@ -946,19 +1083,134 @@ begin
   ctrl := TKMControl(Sender);
   if fLocalToNetPlayers[ctrl.Tag] = -1 then Exit;
 
-  //Only human players (excluding ourselves) have the player menu
-  if not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IsHuman //No menu for AI players
-  or (fNetworking.MyIndex = fLocalToNetPlayers[ctrl.Tag]) //No menu for ourselves
-  or not fNetworking.IsHost //Only host gets to use the menu (for now)
-  or not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].Connected then //Don't show menu for empty slots
-    Exit;
+  if not CanShowPlayerMenu(Sender) then Exit;
 
-  //Remember which player it is by his server index
-  //since order of players can change. If someone above leaves we still have the proper Id
-  Menu_Host.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
+  if fNetworking.IsHost then
+  begin
+    //Remember which player it is by his server index
+    //since order of players can change. If someone above leaves we still have the proper Id
+    Menu_Host.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-  //Position the menu next to the icon, but do not overlap players name
-  Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
+    UpdateMuteMenuItem(Menu_Host, 3, gGameApp.Networking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
+
+    //Position the menu next to the icon, but do not overlap players name
+    Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
+  end else begin
+    //Remember which player it is by his server index
+    //since order of players can change. If someone above leaves we still have the proper Id
+    Menu_Joiner.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
+
+    UpdateMuteMenuItem(Menu_Joiner, 0, gGameApp.Networking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
+    
+    //Position the menu next to the icon, but do not overlap players name
+    Menu_Joiner.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
+  end;
+end;
+
+
+procedure TKMMenuLobby.ToggleMutePlayer(aPlayerIndex: Integer);
+begin
+  gGameApp.Networking.ToggleMuted(aPlayerIndex);
+  UpdateImageLobbyFlag(fNetPlayersToLocal[aPlayerIndex]);
+end;
+
+
+procedure TKMMenuLobby.UpdateMuteMenuItem(aMenu: TKMPopUpMenu; aItemIndex: Integer; aIsMuted: Boolean);
+begin
+  if aIsMuted then
+    aMenu.UpdateItem(aItemIndex, 'Unmute player') //todo translate
+  else
+    aMenu.UpdateItem(aItemIndex, 'Mute player'); //todo translate
+end;
+
+
+procedure TKMMenuLobby.UpdateImageLobbyFlag(aIndex: Integer);
+begin
+  // Darken player flag when muted
+  if (fLocalToNetPlayers[aIndex] <> -1) and fNetworking.IsMuted(fLocalToNetPlayers[aIndex]) then
+    Image_LobbyFlag[aIndex].Lightness := -0.66
+  else
+    Image_LobbyFlag[aIndex].Lightness := 0;
+end;
+
+
+function TKMMenuLobby.SlotsAvailable: Byte;
+begin
+  Result := 0;
+  if (fNetworking.MapInfo <> nil) and fNetworking.MapInfo.IsValid then
+    Result := Max(0, fNetworking.MapInfo.LocCount - fNetworking.NetPlayers.GetConnectedPlayersCount - fNetworking.NetPlayers.GetAICount)
+  else if (fNetworking.SaveInfo <> nil) and fNetworking.SaveInfo.IsValid then
+    Result := Max(0, fNetworking.SaveInfo.Info.HumanCount - fNetworking.NetPlayers.GetConnectedPlayersCount - fNetworking.NetPlayers.GetAICount);
+end;
+
+
+procedure TKMMenuLobby.DropBoxPlayers_Show(Sender: TObject);
+begin
+  if Sender is TKMDropColumns then
+  begin
+    fDropBoxPlayers_LastItemIndex := TKMDropColumns(Sender).ItemIndex;
+  end;
+end;
+
+
+function TKMMenuLobby.DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+var I, J, NetI: Integer;
+    SlotsToChange, SlotsChanged: Byte;
+    RowChanged: Boolean;
+begin
+  Result := False;
+
+  //Second column was clicked
+  if X = 1 then
+  begin
+    SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
+    SlotsToChange := SlotsAvailable;
+
+    for I := 1 to MAX_LOBBY_SLOTS do
+    begin
+      if Sender = DropBox_LobbyPlayerSlot[I].List then
+      begin
+        DropBox_LobbyPlayerSlot[I].CloseList; //Close opened dropbox manually
+
+        //We have to revert ItemIndex to its previous value, because its value was already switched to AI on MouseDown
+        //but we are not sure yet about what value should be there, we will set it properly later on
+        if (Y = 2) and (DropBox_LobbyPlayerSlot[I].ItemIndex = 2)
+          and (fDropBoxPlayers_LastItemIndex <> -1) then
+          DropBox_LobbyPlayerSlot[I].ItemIndex := fDropBoxPlayers_LastItemIndex;
+      end;
+    end;
+
+    for I := 1 to MAX_LOBBY_SLOTS do
+    begin
+      if (Y = 2) and (SlotsChanged >= SlotsToChange) then //Do not add more AI, then we have slots available
+        Break;
+
+      case Y of
+        0:    J := MAX_LOBBY_SLOTS + 1 - I; // we must Open slots in reverse order
+        1, 2: J := I;                       // Closed and AI slots - in straight order
+        else  J := I;
+      end;
+
+      RowChanged := False;
+      NetI := fLocalToNetPlayers[J];
+      if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
+      begin
+        if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
+        begin
+          RowChanged := True;
+          Inc(SlotsChanged); //Do not count this slot as changed, if it already has AI value
+        end;
+        DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
+        //Do not call for PlayerSetupChange if this row is AIPlayer and did not change (it was AIPlayer before that) - to avoid existing AIPlayer reset
+        if RowChanged or (Y <> 2) then
+          PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+      end;
+    end;
+
+    // Do not propagate click event further, because
+    // we do not want provoke OnChange event handler invokation, we have handled everything here
+    Result := True;
+  end;
 end;
 
 
@@ -1005,7 +1257,7 @@ begin
     begin
       // We can still have cmSpectate chat mode if we were in specs. Reset to cmAll in this case
       if (DropBox_LobbyLoc[I].GetSelectedTag <> LOC_SPECTATE) and (fChatMode = cmSpectators) then
-        ChatMenuSelect(-1);
+        ChatMenuSelect(CHAT_MENU_ALL);
       
       fNetworking.SelectLoc(DropBox_LobbyLoc[I].GetSelectedTag, NetI);
       //Host with HostDoesSetup could have given us some location we don't know about
@@ -1271,7 +1523,22 @@ begin
     end;
   end;
 
-  //Update the minimap preivew with player colors
+  // Players flag hightlight, if they are clickable
+  for I := 1 to MAX_LOBBY_SLOTS do
+    Image_LobbyFlag[I].HighlightOnMouseOver := CanShowPlayerMenu(Image_LobbyFlag[I]);
+
+  // Darken player flag when muted
+  for I := 1 to MAX_LOBBY_SLOTS do
+    UpdateImageLobbyFlag(I);
+
+  //If PopUp menu was opened, check if player still connected, otherwise - close PopUp menu
+  if Menu_Host.Visible and (fNetworking.NetPlayers.ServerToLocal(Menu_Host.Tag) = -1) then
+    Menu_Host.Hide;
+
+  if Menu_Joiner.Visible and (fNetworking.NetPlayers.ServerToLocal(Menu_Joiner.Tag) = -1) then
+    Menu_Joiner.Hide;
+
+  //Update the minimap preview with player colors
   for I := 0 to MAX_HANDS - 1 do
   begin
     ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
@@ -1297,14 +1564,14 @@ begin
   end;
 
   //If we are in team chat mode and find ourselves not on a team (player went back to no team), switch back to all
-  if (fChatMode = cmTeam) and (fNetworking.NetPlayers[fNetworking.MyIndex].Team = 0) then
-    ChatMenuSelect(-1);
+  if (fChatMode = cmTeam) and (fNetworking.MyNetPlayer.Team = 0) then
+    ChatMenuSelect(CHAT_MENU_ALL);
 
   //If we are in whisper chat mode and find the player has left, switch back to all
   if fChatMode = cmWhisper then
   begin
     if fNetworking.NetPlayers.ServerToLocal(fChatWhisperRecipient) = -1 then
-      ChatMenuSelect(-1)
+      ChatMenuSelect(CHAT_MENU_ALL)
     else
       ChatMenuSelect(fChatWhisperRecipient); //In case that player changed his color
   end;
@@ -1334,11 +1601,18 @@ begin
       Label_LobbyPing[I].Caption := '';
 
   Label_LobbyServerName.Caption := UnicodeString(fNetworking.ServerName) + ' #' + IntToStr(fNetworking.ServerRoom+1) +
-                                   '  ' + fNetworking.ServerAddress + ' : ' + fNetworking.ServerPort;
+                                   '  ' + fNetworking.ServerAddress + ' : ' + IntToStr(fNetworking.ServerPort);
 end;
 
 
-procedure TKMMenuLobby.MapTypeChange(Sender: TObject);
+procedure TKMMenuLobby.InitDropColMapsList;
+begin
+  DropCol_LobbyMaps.DropWidth := 460;
+  DropCol_LobbyMaps.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 20, 320, 350], [False, True, True, True]);
+end;
+
+
+procedure TKMMenuLobby.UpdateMapList;
 begin
   //Terminate any running scans otherwise they will continue to fill the drop box in the background
   fMapsMP.TerminateScan;
@@ -1350,10 +1624,9 @@ begin
     2,  //Co-op Map
     3:  //Special map Map
         begin
-          fMapsMP.Refresh(MapList_ScanUpdate);
-          DropCol_LobbyMaps.DropWidth := 440;
+          fMapsMP.Refresh(MapList_ScanUpdate, MapList_ScanComplete);
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 300, 330]);
+          InitDropColMapsList;
         end;
     4:  //Saved Game
         begin
@@ -1368,10 +1641,14 @@ begin
         end;
   end;
   DropCol_LobbyMaps.ItemIndex := -1; //Clear previously selected item
+end;
 
-  //The Sender is nil in Reset_Lobby when we are not connected
-  if Sender <> nil then
-    fNetworking.SelectNoMap('');
+
+procedure TKMMenuLobby.MapTypeChanged(Sender: TObject);
+begin
+  UpdateMapList;
+  gGameApp.GameSettings.MenuLobbyMapType := Radio_LobbyMapType.ItemIndex;
+  fNetworking.SelectNoMap('');
 end;
 
 
@@ -1416,12 +1693,32 @@ begin
 end;
 
 
+procedure TKMMenuLobby.MapList_ScanComplete(Sender: TObject);
+var MapsCRCArray: TKMCardinalArray;
+    I: Integer;
+begin
+  if (Sender = fMapsMP) and (fMapsMP.Count > 0) then
+  begin
+    SetLength(MapsCRCArray, fMapsMP.Count);
+    for I := 0 to fMapsMP.Count - 1 do
+      MapsCRCArray[I] := fMapsMP[I].CRC;
+    gGameApp.GameSettings.FavouriteMaps.RemoveMissing(MapsCRCArray);
+  end;
+end;
+
+
+function TKMMenuLobby.GetFavouriteMapPic(aIsFavourite: Boolean): TKMPic;
+begin
+  Result := MakePic(rxGuiMain, IfThen(aIsFavourite, 77, 85), True);
+end;
+
+
 procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
   procedure SelectByName(aName: UnicodeString);
   var I: Integer;
   begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
-      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
+      if DropCol_LobbyMaps.Item[I].Cells[1].Caption = aName then
       begin
         DropCol_LobbyMaps.ItemIndex := I;
         Break;
@@ -1431,10 +1728,11 @@ var
   I, PrevTop: Integer;
   PrevMap: string;
   AddMap: Boolean;
+  Row: TKMListRow;
 begin
   //Remember previous map selected
   if DropCol_LobbyMaps.ItemIndex <> -1 then
-    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[1].Caption
   else
     PrevMap := '';
 
@@ -1455,13 +1753,14 @@ begin
       end;
 
       if AddMap then
-        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
-                                           IntToStr(fMapsMP[I].HumanPlayerCountMP),
-                                           fMapsMP[I].SizeText],
-                                           //Colors
-                                           [fMapsMP[I].GetLobbyColor,
-                                           fMapsMP[I].GetLobbyColor,
-                                           fMapsMP[I].GetLobbyColor], I));
+      begin
+        Row := MakeListRow(['', fMapsMP[I].FileName, IntToStr(fMapsMP[I].HumanPlayerCountMP), fMapsMP[I].SizeText], //Texts
+                           [fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor], //Colors
+                           I);
+        Row.Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+        Row.Cells[0].HighlightOnMouseOver := True;
+        DropCol_LobbyMaps.Add(Row);
+      end;
     end;
   finally
     fMapsMP.Unlock;
@@ -1470,7 +1769,7 @@ begin
   //Restore previously selected map
   if PrevMap <> '' then
   for I := 0 to DropCol_LobbyMaps.Count - 1 do
-  if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
+  if DropCol_LobbyMaps.Item[I].Cells[1].Caption = PrevMap then
     DropCol_LobbyMaps.ItemIndex := I;
 
   //Restore the top index
@@ -1554,6 +1853,20 @@ begin
 end;
 
 
+procedure TKMMenuLobby.MapList_OnShow(Sender: TObject);
+begin
+  if fMapsSortUpdateNeeded then
+  begin
+    //Update sort
+    if Radio_LobbyMapType.ItemIndex < 4 then
+      fMapsMP.Sort(fMapsMP.SortMethod, MapList_SortUpdate)
+    else
+      fSavesMP.Sort(fSavesMP.SortMethod, MapList_SortUpdate);
+    fMapsSortUpdateNeeded := False;
+  end;
+end;
+
+
 procedure TKMMenuLobby.MapColumnClick(aValue: Integer);
 var
   SM: TMapsSortMethod;
@@ -1565,14 +1878,18 @@ begin
     with DropCol_LobbyMaps.List do
     case SortIndex of
       0:  if SortDirection = sdDown then
+            SM := smByFavouriteDesc
+          else
+            SM := smByFavouriteAsc;
+      1:  if SortDirection = sdDown then
             SM := smByNameDesc
           else
             SM := smByNameAsc;
-      1:  if SortDirection = sdDown then
+      2:  if SortDirection = sdDown then
             SM := smByHumanPlayersMPDesc
           else
             SM := smByHumanPlayersMPAsc;
-      2:  if SortDirection = sdDown then
+      3:  if SortDirection = sdDown then
             SM := smBySizeDesc
           else
             SM := smBySizeAsc;
@@ -1608,6 +1925,32 @@ begin
 end;
 
 
+function TKMMenuLobby.DropBoxMaps_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  if (Radio_LobbyMapType.ItemIndex < 4) and (X = 0) then
+  begin
+    I := DropCol_LobbyMaps.Item[Y].Tag;
+    fMapsMP.Lock;
+    try
+      fMapsMP[I].IsFavourite := not fMapsMP[I].IsFavourite;
+      if fMapsMP[I].IsFavourite then
+        gGameApp.GameSettings.FavouriteMaps.Add(fMapsMP[I].CRC)
+      else
+        gGameApp.GameSettings.FavouriteMaps.Remove(fMapsMP[I].CRC);
+
+      //Update pic
+      DropCol_LobbyMaps.Item[Y].Cells[0].Pic := GetFavouriteMapPic(fMapsMP[I].IsFavourite);
+      fMapsSortUpdateNeeded := True; //Ask for resort on next list show
+    finally
+      fMapsMP.Unlock;
+    end;
+    Result := True; //we handle mouse click here, and do want to propagate it further
+  end;
+end;
+
+
 //Just pass FileName to Networking, it will check validity itself
 procedure TKMMenuLobby.MapChange(Sender: TObject);
 var I: Integer;
@@ -1616,14 +1959,20 @@ begin
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
     fMapsMP.Lock;
+    try
       fNetworking.SelectMap(fMapsMP[I].FileName, fMapsMP[I].MapFolder);
-    fMapsMP.Unlock;
+    finally
+      fMapsMP.Unlock;
+    end;
   end
   else
   begin
     fSavesMP.Lock;
+    try
       fNetworking.SelectSave(fSavesMP[I].FileName);
-    fSavesMP.Unlock;
+    finally
+      fSavesMP.Unlock;
+    end;
   end;
 end;
 
@@ -1669,6 +2018,11 @@ begin
                 S := fNetworking.SaveInfo;
                 Label_LobbyMapName.Caption := aData; //Show save name on host (local is always "downloaded")
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime + '|' + S.Info.GetSaveTimestamp;
+                if S.IsValid and S.LoadMinimap(fMinimap) then
+                begin
+                  MinimapView_Lobby.SetMinimap(fMinimap);
+                  MinimapView_Lobby.Show;
+                end;
               end;
     ngk_Map:  begin
                 M := fNetworking.MapInfo;
@@ -1731,7 +2085,7 @@ begin
   //Pick correct position of map type selector
   Radio_LobbyMapType.ItemIndex := DetectMapType;
 
-  MapTypeChange(nil);
+  UpdateMapList;
   Lobby_OnGameOptions(nil);
 
   case fNetworking.SelectGameKind of
@@ -1750,13 +2104,22 @@ begin
 end;
 
 
+function TKMMenuLobby.IsKeyEvent_Return_Handled(Sender: TObject; Key: Word): Boolean;
+begin
+  Result := Key = VK_RETURN;
+end;
+
+
 //Post what user has typed
-procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
+function TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 var
   ChatMessage: UnicodeString;
+  RecipientNetIndex: Integer;
 begin
-  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '')
-  or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
+  Result := False;
+  if not IsKeyEvent_Return_Handled(Self, Key)
+    or (Trim(Edit_LobbyPost.Text) = '')
+    or (GetTimeSince(fLastChatTime) < CHAT_COOLDOWN) then
     Exit;
   
   fLastChatTime := TimeGet;
@@ -1773,17 +2136,34 @@ begin
       Delete(ChatMessage, 1, 1); //Remove one of the /'s
   end;}
 
-  fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
+  if fChatMode = cmWhisper then
+  begin
+    RecipientNetIndex := fNetworking.NetPlayers.ServerToLocal(fChatWhisperRecipient);
+    if not fNetworking.NetPlayers[RecipientNetIndex].Connected
+      or fNetworking.NetPlayers[RecipientNetIndex].Dropped then
+    begin
+      fNetworking.PostLocalMessage(Format('%s is not connected to game anymore.',
+                                          [fNetworking.NetPlayers[RecipientNetIndex].NiknameColored]), // Todo translate
+                                    csSystem);
+      ChatMenuSelect(CHAT_MENU_ALL);
+    end else
+      fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
+  end else
+    fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
+  Result := True;
   Edit_LobbyPost.Text := '';
 end;
 
 
 procedure TKMMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
-  if gGameApp.GameSettings.FlashOnMessage then
-    fMain.FlashingStart;
+  if (gGameApp <> nil) and (gGameApp.GameSettings <> nil) then
+  begin
+    if gGameApp.GameSettings.FlashOnMessage then
+      gMain.FlashingStart;
 
-  Memo_LobbyPosts.Add(aText);
+    Memo_LobbyPosts.Add(aText);
+  end;
 end;
 
 
@@ -1838,6 +2218,9 @@ begin
     fNetworking.ResetBans;
   end;
 
+  if Sender = Button_LobbySettingsUseLastPassword then
+    Edit_LobbyPassword.Text := gGameApp.GameSettings.LastPassword;
+
   if Sender = Button_LobbySettingsCancel then
   begin
     Panel_LobbySettings.Hide;
@@ -1848,6 +2231,8 @@ begin
     Panel_LobbySettings.Hide;
     fNetworking.Description := Edit_LobbyDescription.Text;
     fNetworking.SetPassword(AnsiString(Edit_LobbyPassword.Text));
+    if Checkbox_LobbyRememberPassword.Checked then
+      gGameApp.GameSettings.LastPassword := UnicodeString(fNetworking.Password);
   end;
 end;
 
@@ -1855,7 +2240,7 @@ end;
 procedure TKMMenuLobby.ReturnToLobby(const aSaveName: UnicodeString);
 begin
   Radio_LobbyMapType.ItemIndex := 4; //Save
-  MapTypeChange(nil);
+  UpdateMapList;
   Lobby_OnGameOptions(nil);
   if fNetworking.IsHost then
   begin

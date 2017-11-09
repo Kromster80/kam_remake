@@ -1,11 +1,36 @@
 ﻿Since r6720:
 <===================================================================================>
+Todo:
+	Update translation for 642 text label: TX_REPLAY_FAILED
 Bugs:
  +	Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
  +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +	Disabled controls could have focus and receive keyboard input
  +	Colored rectangle below cursor
+ +	If host was disconnected, then new host is reassigned and when going 'back to lobby' new host is always 'not ready' and can't start game
+ +	While in window mode and using OBS/FRAPS or other screen capturing software game cursor has black background
+ +	Player could use spectators chat channel (only writing in it) when not a spectator anymore
+ +	Vote 'return to lobby' do not reset after disconnection from game
+ +	Voting 'return to lobby' goes wrong if 2 or more last votes comes simultaneously
+ +	Minimap small visual bugs
+ +	AI does not repair houses after Save/Load
+ +	Game crashed on exit if log file was deleted. Recreate it instead
+ +	When group attack position is set to a house/unit, in MP this house/unit would be attacked even if it is an ally	
+ +	Rare game crash when map moved out of downloads. Happens when there was another local MP map this same name, previously opened in MapEd, then deleted.
+ +	Move out of downloads on MapEd menu page mechanism. It was possible to click on the button with empty filename. This caused silent delete of MapsMP folder.
+ +	Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
+ +	"Unit is hungry" message could be shown for invalid/dead groups
+ +	If warrior dies before he walked out, he creates an invalid group
+ +	Hide drop column/list when control become invisible (dropbox in lobby could stuck if f.e. server disconnects when it was opened)
+ +	Replay/Spectate: reset selected object when switch to another player
+ +	Apply password letters restrictions for password input field
+ +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
+ +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
+ +	MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
+ +	Dynamic scripts: Scripting action OnHousePlanRemove was invoked with wrong coordinates
+
+ 
 
 	Server welcome message should support Unicode
 	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
@@ -34,27 +59,120 @@ Bugs:
 	On 2 display setup, when the game is fullscreen cursor should not be locked to that one display.
 	On 2 display setup, the game should not scroll the map if cursor is on the second display (windowed or fullscreen)
 	Army orientation changes after attack. This is annoying, but sometimes could be vital when armies strike and return for next fight.
-	AI does not repair houses after Save/Load
 	
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
 
 
-Improvements:
- +	M	Renaming replays in replay menu
- +	L	Allow to customize and save hotkeys settings
+Improvements: 
+ Game: 
  +		Select area to work in for woodcutters
+ +	L	Save wares distribution ratios between games
  +		Change unit training order in School on Ctrl+click, Shift+click
  +	L	Pressing LMB over placed plans and dragging it - will remove plans
- +	L	Pressing Enter/Esc in multiplayer password entering form will submit/cancel it
- +	L	When splitting one soldier from the group - select him
+ +		Do not show owner of corn/wine tile on minimap
+ +	L	Unit group: Splitting one soldier from the group by pressing Ctrl+Separate warrior order
+ +	L	Unit group: do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
+ +		Unit group: feed or split command should not cancel group previous order
+ +		Defeat player if he intentionally quit. Show win messages in chat when player win
+ +	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
+ 
+ Game menu:
+ +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
+ +	L	House not occupied message mentions which house it is ("This farm is not occupied")
+ +	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
+ +		Separate statistics for different warrior types
+ +		Game stats 'Weapons produced' now contains horses as well
+ +		New option - replay autopause on PT end
+ +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
+ +		MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
+ +		Market small GUI visual improvement (removed unnecessary colon sign's)
+ +		Label for group members count on group panel (same as in MapEd)
+ +		Map name label on F4 menu
+ +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
+ +		Colored niknames in chat system messages
+ +		Ping string in game visual improvement (removed 'shaking' effect)
+ 
+ Main menu:
+ +	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
+ +		New ability to set all slots as open/closed/ai in Lobby
+ +		Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
+ +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns). Update MapEd menu list position on map save
+ +	M	Renaming replays in replay menu
+ +		Added popup windows in menu on MapEd page and Load save page when Delete map/save game
+ +		After quit from SP game/Campaign/MapEd should return to appropriate menu page
+ +		Allow to save and use last entered password for MP lobby
+ +	L	Load saved games with double click
+ +		New column in maps/saves lists: build or fight
+ +		Minimap for MP games: show in replays menu and lobby, if possible
+ +		Highlight players flags in lobby, when they are clickable
+ 
+ Hotkeys:
+ +	L	Allow to customize and save hotkeys settings
+ +		Added new hotkeys for road/field/wine/erase plans
+ +		Added new hotkey to switch selection between same type buildings/units/groups
+ +		Added support of extra mouse buttons (forward/backward) as hotkeys
+ +		Added hotkeys to switch between players while watching replay/spectating
+ +		Added hotkey on multiplayer game page: F5 refreshes server list
+ +		Added different hotkey in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm (for some popups)
+ +		Added new hotkey for orders: Shift+RMB add/remove 1000 orders to orders lists
+ +		In menu is possible to focus next edit controls with Tab hotkey
+ 
+ Spectating/watching replay:
+ +		Change screen position when switch between players with dropbox by double click on player in list. Screen position changed to last selected object of this player if possible. Otherwise change screen position to player's starting location. Same behaviour if click Ctrl + replay/spectating player hotkey
+ +		Players dropbox not closing automatically anymore
+ +		Show 1st human player initially, not just 1st player
+ +		SP replay: Ability to ignore repeated consistency check errors
+ 
+ Campaign:
+ +		Ability to specify the title of the mission separately for each campaign rather than globally for all
+ +		Added animation for mission nodes on Campaign page
+ 
+ Maps:
+ +		Added ability to add map pdf readme with different translations (locales)
+ +		All maps dat files were unxored
+ +		All maps dat files slight optimisations
+ 
+ Game controls:
+ +		Selectable text in Edit and Memo
+ +		Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
+ +		List/ColumnBox reflect visually when unfocused (gray outline for selected item, instead of white outline, when focused)
+ 
+ Development menu (F11)
+ +		Added players 9-12
+ +		Added logs customization
+ +		Added show controls IDs option
+ 
+ MapEditor:
+ +	L	Eyedropper tool like in Photoshop to select the type of tile under the cursor
+ +	L	Allow to set troops order destination with mouse on map (Shift+RMB)
+ +		House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
+ +		Shortcut to change row count in group (same as for numbers, orders etc)
+ +		Set default 'center screen' position of all players in the center of screen for new map
+ +		Ability to change owner for objects
+ +	L	Allow to rotate tiles on the map like in Krom's editor
+ +	L	Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
+ +		Its possible to add many units at once by hold LMB and mouse move (mouse drag)
+ +		Added new layer - show tile owner (for corn/wine/roads)
+ +		Default colors for map were changed a little bit. Second black color was replaced with purple
+ +		New ability to set corn/wine stage
+ +	L	Allow to grab an object with a MouseDown and drag it around until MouseUp
+ +		Added new hotkeys for road/field/wine/erase plans
+ 
+ Dynamic scripts:
+ +		Added 32 utility functions into new scripts unit 'Utils'. Check wiki for details
+ +		Added 4 procedures: OnGroupOrderAttackHouse/OnGroupOrderAttackUnit/OnGroupOrderLink/OnGroupOrderSplit
+ +		Added ShareFogCompliment function (Sets whether players A and B share their vision (both ways))
+ 
+ Other: 
  +	L	Saving and restoring games window position on restart
-
+ +		Ability to set decimal values for game speedups in INI file
+ 
+ 
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
-	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	L	256x256 icons for EXE (for vista/7/8 users)
 	L	Chat logs
 	L	Evacuate wares from barracks
@@ -72,26 +190,17 @@ Improvements:
 	LM	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
 	L	Changing teams in multiplayer
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
-	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
-	L	House not occupied message should mention which house it is ("This farm is not occupied"). Hard to work around plurals and fem/masc forms
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
-	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	M	Archers should not change formations when group members get killed while under attack
-	L	Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors)
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 	L	Allow fish to swim under the ice (as well render it between sand and water terrain layers)
 	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
-	L	Save wares distribution ratios between games
 	M	Make projectiles play hit sounds on every Paint and UpdateState, so we dont get just 3 hit sounds for 20 archers shooting at once
 	M	Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
-	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
-	L	Load saved games with double click
-	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
 	M	Self-sustained AI should help allied players in game
-	L	Do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
-	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
+	L	Serfs should take wares back or to suitable house if destination is destroyed
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
@@ -99,26 +208,21 @@ Improvements:
 	L	MapEd: Artistic brushes (those that place random types of trees and/or decorations)
 	L	MapEd: Make houses highlight red when about to erase them as trees/units do
 	L	MapEd: Flat terrain checkbox on Extras popup
-	L	MapEd: Allow to set troops order destination with mouse on map
 	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
-	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor (ctrl+click while in tile mode?)
 	L	MapEd: Lasso selection for copy/paste
-	L	Add a button into barracks UI to allow to set a rally point
-	L	MapEd: Allow to rotate tiles on the map like in Krom's editor
-	L	MapEd: allow to grab an object with a MouseDown and drag it around until MouseUp 
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
  -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
  -	Unexpectedly high ping values (not our problem usually)
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
- -	Serfs should take wares back or to suitable house if destination is destroyed
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  -	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
  -	Campaign progress was lost when upgrading from r5503 to r6720
+ -  Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors) (see github #105 for details)
 
 
 

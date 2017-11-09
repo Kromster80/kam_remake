@@ -32,6 +32,8 @@ type
                              end;
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
+    procedure ProceedUnitsCursorMode;
+    procedure UpdateField(aInc: Integer; aCheckPrevCell: Boolean);
   public
     ActiveMarker: TKMMapEdMarker;
 
@@ -53,6 +55,7 @@ type
     procedure MouseDown(Button: TMouseButton);
     procedure MouseMove;
     procedure MouseUp(Button: TMouseButton; aOverMap: Boolean);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure Update;
     procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
@@ -61,8 +64,8 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses,
-  KM_Hand;
+  KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_Units, KM_UnitGroups, KM_GameCursor,
+  KM_ResHouses, KM_ResMapElements, KM_Hand, KM_Houses, KM_HouseBarracks, KM_Game, KM_InterfaceMapEditor;
 
 
 { TKMMapEditor }
@@ -136,6 +139,7 @@ begin
       end;
     end;
   until (FindNext(SearchRec) <> 0);
+  FindClose(SearchRec);
 end;
 
 
@@ -211,11 +215,56 @@ begin
 end;
 
 
-procedure TKMMapEditor.MouseDown(Button: TMouseButton);
+procedure TKMMapEditor.UpdateField(aInc: Integer; aCheckPrevCell: Boolean);
+var
+  P: TKMPoint;
+  FieldStage: Integer;
 begin
-  if (Button = mbLeft) then
+  if aInc = 0 then Exit;
+
+  FieldStage := -1;
+  P := gGameCursor.Cell;
   case gGameCursor.Mode of
-    cmSelection:  fSelection.Selection_Start;
+    cmField:  begin
+                if gTerrain.TileIsCornField(P) then
+                begin
+                  if not KMSamePoint(P, gGameCursor.PrevCell) or not aCheckPrevCell then
+                    FieldStage := (gTerrain.GetCornStage(P) + aInc + CORN_STAGES_COUNT) mod CORN_STAGES_COUNT;
+                end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
+                  FieldStage := 0;
+                if FieldStage >= 0 then
+                  gMySpectator.Hand.AddField(P, ft_Corn, FieldStage);
+              end;
+    cmWine:   begin
+                if gTerrain.TileIsWineField(P) then
+                begin
+                  if not KMSamePoint(P, gGameCursor.PrevCell) or not aCheckPrevCell then
+                    FieldStage := (gTerrain.GetWineStage(P) + aInc + WINE_STAGES_COUNT) mod WINE_STAGES_COUNT;
+                end else if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
+                  FieldStage := 0;
+                if FieldStage >= 0 then
+                  gMySpectator.Hand.AddField(P, ft_Wine, FieldStage);
+              end;
+  end;
+end;
+
+
+procedure TKMMapEditor.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+begin
+  UpdateField(Sign(WheelDelta), False);
+end;
+
+
+procedure TKMMapEditor.MouseDown(Button: TMouseButton);
+var
+  P: TKMPoint;
+begin
+  P := gGameCursor.Cell;
+  if (Button = mbLeft) then
+    case gGameCursor.Mode of
+      cmSelection:  fSelection.Selection_Start;
+      cmField,
+      cmWine:       UpdateField(1, False);
   end;
 end;
 
@@ -224,31 +273,56 @@ procedure TKMMapEditor.MouseMove;
 var
   P: TKMPoint;
 begin
-  if ssLeft in gGameCursor.SState then //Only allow placing of roads etc. with the left mouse button
+  // Only allow placing of roads etc. with the left mouse button
+  if not (ssLeft in gGameCursor.SState) then Exit;
+
+  P := gGameCursor.Cell;
+  case gGameCursor.Mode of
+    cmRoad:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Road) then
+                  begin
+                    //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
+                    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                      gTerrain.RemField(P);
+                    gMySpectator.Hand.AddRoad(P);
+                  end;
+    cmField,
+    cmWine:       UpdateField(1, True);
+    cmUnits:      ProceedUnitsCursorMode;
+    cmErase:      begin
+                    gHands.RemAnyHouse(P);
+                    if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                      gTerrain.RemRoad(P);
+                    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                      gTerrain.RemField(P);
+                  end;
+    cmSelection:  fSelection.Selection_Resize;
+  end;
+end;
+
+
+procedure TKMMapEditor.ProceedUnitsCursorMode;
+var
+  P: TKMPoint;
+  Obj: TObject;
+begin
+  P := gGameCursor.Cell;
+
+  if gGameCursor.Tag1 = 255 then
   begin
-    P := gGameCursor.Cell;
-    case gGameCursor.Mode of
-      cmRoad:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Road) then
-                    begin
-                      //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                        gTerrain.RemField(P);
-                      gMySpectator.Hand.AddField(P, ft_Road);
-                    end;
-      cmField:      if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
-                      gMySpectator.Hand.AddField(P, ft_Corn);
-      cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
-                      gMySpectator.Hand.AddField(P, ft_Wine);
-      cmUnits:      if gGameCursor.Tag1 = 255 then gHands.RemAnyUnit(P);
-      cmErase:      begin
-                      gHands.RemAnyHouse(P);
-                      if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                        gTerrain.RemRoad(P);
-                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                        gTerrain.RemField(P);
-                    end;
-      cmSelection:  fSelection.Selection_Resize;
-    end;
+    Obj := gMySpectator.HitTestCursor(True);
+    if Obj is TKMUnit then
+      gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
+  end else
+  if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
+  begin
+    //Check if we can really add a unit
+    if TUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
+      gMySpectator.Hand.AddUnit(TUnitType(gGameCursor.Tag1), P, False)
+    else
+    if TUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
+      gMySpectator.Hand.AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
+    else
+      gHands.PlayerAnimals.AddUnit(TUnitType(gGameCursor.Tag1), P);
   end;
 end;
 
@@ -274,12 +348,8 @@ begin
                                 //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
-                                gMySpectator.Hand.AddField(P, ft_Road);
+                                gMySpectator.Hand.AddRoad(P);
                               end;
-                cmField:      if gMySpectator.Hand.CanAddFieldPlan(P, ft_Corn) then
-                                gMySpectator.Hand.AddField(P, ft_Corn);
-                cmWine:       if gMySpectator.Hand.CanAddFieldPlan(P, ft_Wine) then
-                                gMySpectator.Hand.AddField(P, ft_Wine);
                 cmHouses:     if gMySpectator.Hand.CanAddHousePlan(P, THouseType(gGameCursor.Tag1)) then
                               begin
                                 gMySpectator.Hand.AddHouse(THouseType(gGameCursor.Tag1), P.X, P.Y, true);
@@ -293,23 +363,13 @@ begin
                 cmMagicWater: fTerrainPainter.MagicWater(P);
                 cmEyedropper: begin
                                 fTerrainPainter.Eyedropper(P);
+                                if (gGame.ActiveInterface is TKMapEdInterface) then
+                                  TKMapEdInterface(gGame.ActiveInterface).GuiTerrain.GuiTiles.TilesTableScrollToTileTexId(gGameCursor.Tag1);
                                 if not (ssShift in gGameCursor.SState) then  //Holding shift allows to choose another tile
                                   gGameCursor.Mode := cmTiles;
                               end;
-                cmUnits:      if gGameCursor.Tag1 = 255 then
-                                gHands.RemAnyUnit(P)
-                              else
-                              if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
-                              begin
-                                //Check if we can really add a unit
-                                if TUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                                  gMySpectator.Hand.AddUnit(TUnitType(gGameCursor.Tag1), P, False)
-                                else
-                                if TUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                                  gMySpectator.Hand.AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
-                                else
-                                  gHands.PlayerAnimals.AddUnit(TUnitType(gGameCursor.Tag1), P);
-                              end;
+                cmRotateTile: fTerrainPainter.RotateTile(P);
+                cmUnits:      ProceedUnitsCursorMode;
                 cmMarkers:    case gGameCursor.Tag1 of
                                 MARKER_REVEAL:        fRevealers[gMySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
                                 MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
@@ -318,6 +378,10 @@ begin
                                                         //Updating XY display is done in InterfaceMapEd
                                                       end;
                                 MARKER_AISTART:       gMySpectator.Hand.AI.Setup.StartPosition := P;
+                                MARKER_RALLY_POINT:   if gMySpectator.Selected is TKMHouseBarracks then
+                                                        TKMHouseBarracks(gMySpectator.Selected).RallyPoint := P;
+                                MARKER_CUTTING_POINT: if gMySpectator.Selected is TKMHouseWoodcutters then
+                                                        TKMHouseWoodcutters(gMySpectator.Selected).CuttingPoint := P;
                               end;
                 cmErase:      begin
                                 gHands.RemAnyHouse(P);
@@ -329,14 +393,12 @@ begin
               end;
     mbRight:  case gGameCursor.Mode of
                 cmElevate,
-                cmEqualize: begin
-                              //Actual change was made in UpdateStateIdle, we just register it is done here
-                              fTerrainPainter.MakeCheckpoint;
-                            end;
-                cmObjects:  begin
-                              gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
-                              fTerrainPainter.MakeCheckpoint;
-                            end;
+                cmEqualize:   begin
+                                //Actual change was made in UpdateStateIdle, we just register it is done here
+                                fTerrainPainter.MakeCheckpoint;
+                              end;
+                cmEyedropper,
+                cmRotateTile: gGameCursor.Mode := cmNone;
               end;
   end;
 end;
@@ -368,9 +430,9 @@ begin
       or gTerrain.TileIsWineField(P)
       or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)
       or (gHands.HousesHitTest(P.X, P.Y) <> nil) then
-        fRenderPool.RenderWireTile(P, $FFFFFF00) //Cyan quad
+        gRenderPool.RenderWireTile(P, $FFFFFF00) //Cyan quad
       else
-        fRenderPool.RenderSpriteOnTile(P, TC_BLOCK); //Red X
+        gRenderPool.RenderSpriteOnTile(P, TC_BLOCK); //Red X
 
 
   if mlDefences in fVisibleLayers then
@@ -380,7 +442,7 @@ begin
                   for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do
                   begin
                     DP := gHands[I].AI.General.DefencePositions[K];
-                    fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gHands[I].FlagColor);
+                    gRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gHands[I].FlagColor);
                   end;
       plTerrain:  if ActiveMarker.MarkerType = mtDefence then
                     //Render the radius only for the selected defence position, otherwise it's too much overlap
@@ -404,7 +466,7 @@ begin
                                            fRevealers[I].Tag[K],
                                            gHands[I].FlagColor and $20FFFFFF,
                                            gHands[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
+      plCursors:  gRenderPool.RenderSpriteOnTile(Loc,
                       394, gHands[I].FlagColor);
     end;
   end;
@@ -418,7 +480,7 @@ begin
       plTerrain:  gRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              gHands[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(Loc, 391, gHands[I].FlagColor);
+      plCursors:  gRenderPool.RenderSpriteOnTile(Loc, 391, gHands[I].FlagColor);
     end;
   end;
 
@@ -431,7 +493,7 @@ begin
       plTerrain:  gRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              gHands[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(Loc, 390, gHands[I].FlagColor);
+      plCursors:  gRenderPool.RenderSpriteOnTile(Loc, 390, gHands[I].FlagColor);
     end;
   end;
 
@@ -445,7 +507,7 @@ begin
     if gTerrain.TileIsWater(K,I) then
     begin
       //TODO: Waterflow indication here
-      //fRenderPool.RenderSpriteOnTile(KMPoint(K,I), )
+      //gRenderPool.RenderSpriteOnTile(KMPoint(K,I), )
     end;
   end;
 

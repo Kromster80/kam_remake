@@ -628,7 +628,7 @@
 639:Save not found: %s
 640:Map files do not match the host for the map: %s
 641:Save file does not match the host for the save: %s
-642:The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
+642:The replay failed a consistency check. This is a known bug which affects playback of some replays.\nIf you continue watching the replay will no longer be accurate and the game may crash.\nDo you want to continue watching? Choose 'Yes to All' to ignore future consistency check failures.
 643:You may only have one instance of the game in multiplayer mode at once
 644:Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.
 645:An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
@@ -852,7 +852,7 @@
 899:Sub-menu 4
 900:Sub-menu 5
 901:Sub-menu 6
-902:F10 and F11 are unassignable
+902:Ctrl and Shift are unassignable
 903:~~~ Unknown value
 904:Left Mouse Button
 905:Middle Mouse Button
@@ -915,3 +915,57 @@
 963:Map Editor Keys
 964:Eyedropper
 965:Use this tool to select the type of tile under the cursor
+966:This armor smithy is not occupied
+967:This armory workshop is not occupied
+968:This bakery is not occupied
+969:This butcher's is not occupied
+970:This coal mine is not occupied
+971:This farm is not occupied
+972:This fisherman's is not occupied
+973:This gold mine is not occupied
+974:This iron mine is not occupied
+975:This iron smithy is not occupied
+976:This metallurgist's is not occupied
+977:This mill is not occupied
+978:This quarry is not occupied
+979:This sawmill is not occupied
+980:This siege workshop is not occupied
+981:This stables is not occupied
+982:This swine farm is not occupied
+983:This tannery is not occupied
+984:This watchtower is not occupied
+985:This weapon smithy is not occupied
+986:This weapons workshop is not occupied
+987:This vineyard is not occupied
+988:This woodcutter's is not occupied
+989:%s has quit and is defeated
+990:The host (%s) has quit and is defeated
+991:Cancel
+992:Clear key
+993:Select Group 11
+994:Select Group 12
+995:Select Group 13
+996:Select Group 14
+997:Select Group 15
+998:Select Group 16
+999:Select Group 17
+1000:Select Group 18
+1001:Select Group 19
+1002:Select Group 20
+1003:Construct road
+1004:Plough field
+1005:Lay out wine field
+1006:Remove building/highlights
+1007:Select next house/unit with same type 
+1008:Debug window
+1009:Spectate player 1
+1010:Spectate player 2
+1011:Spectate player 3
+1012:Spectate player 4
+1013:Spectate player 5
+1014:Spectate player 6
+1015:Spectate player 7
+1016:Spectate player 8
+1017:Initial MP Game Speed
+1018:Spectate/Replay view Keys
+1019:%s has muted you. You can no longer send messages or beacons to them

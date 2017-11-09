@@ -2,7 +2,7 @@ unit KM_AICityPlanner;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
+  Classes, Graphics, KromUtils, Math, SysUtils,
   KM_Defaults, KM_Points, KM_CommonClasses,
   KM_TerrainFinder, KM_PerfLog, KM_ResHouses, KM_ResWares;
 
@@ -321,7 +321,7 @@ begin
 
   //Make sure stonemason actually can reach some stone (avoid build-destroy loop)
   if Result then
-    if not gTerrain.FindStone(aLoc, gRes.UnitDat[ut_StoneCutter].MiningRange, KMPoint(0,0), True, tmp) then
+    if not gTerrain.FindStone(aLoc, gRes.Units[ut_StoneCutter].MiningRange, KMPOINT_ZERO, True, tmp) then
       Result := False;
 end;
 

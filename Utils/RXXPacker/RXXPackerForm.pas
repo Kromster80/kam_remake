@@ -18,7 +18,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
-    fPalettes: TKMPalettes;
+    fPalettes: TKMResPalettes;
   end;
 
 
@@ -35,14 +35,14 @@ procedure TRXXForm1.FormCreate(Sender: TObject);
 var
   RT: TRXType;
 begin
-  ExeDir := ExtractFilePath(Application.ExeName) + '..\..\';
+  ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
   Caption := 'RXX Packer (' + GAME_REVISION + ')';
 
   //Although we don't need them in this tool, these are required to load sprites
   gLog := TKMLog.Create(ExeDir + 'RXXPacker.log');
 
-  fPalettes := TKMPalettes.Create;
+  fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
   for RT := Low(TRXType) to High(TRXType) do
@@ -82,8 +82,8 @@ var
   I, Step, SpriteID: Integer;
   Tick: Cardinal;
   RXName: string;
-  HouseDat: TKMHouseDatCollection;
-  fUnitDat: TKMUnitDatCollection;
+  resHouses: TKMResHouses;
+  resUnits: TKMResUnits;
   UT: TUnitType;
   Dir: TKMDirection;
 begin
@@ -125,10 +125,10 @@ begin
         //Houses need some special treatment to adapt to GL_ALPHA_TEST that we use for construction steps
         if RT = rxHouses then
         begin
-          HouseDat := TKMHouseDatCollection.Create;
-          SpritePack.AdjoinHouseMasks(HouseDat);
-          SpritePack.GrowHouseMasks(HouseDat);
-          HouseDat.Free;
+          resHouses := TKMResHouses.Create;
+          SpritePack.AdjoinHouseMasks(resHouses);
+          SpritePack.GrowHouseMasks(resHouses);
+          resHouses.Free;
         end;
 
         //The idea was to blur the water and make it semitrasparent, but it did not worked out as expected
@@ -150,14 +150,14 @@ begin
           begin
             SpritePack.SoftenShadows(6251, 6314, False); //Smooth thought bubbles
             //Smooth all death animations for all units
-            fUnitDat := TKMUnitDatCollection.Create;
+            resUnits := TKMResUnits.Create;
             DeathAnimCount := 0; //We need to remember which ones we've done because units reuse them
             SetLength(DeathAnimProcessed, 1000); //Hopefully more than enough
             for UT := HUMANS_MIN to HUMANS_MAX do
               for Dir := dir_N to dir_NW do
                 for Step := 1 to 30 do
                 begin
-                  SpriteID := fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
+                  SpriteID := resUnits[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
                   if (SpriteID > 0)
                   and not DeathAnimAlreadyDone(SpriteID) then
                   begin
@@ -166,7 +166,7 @@ begin
                     inc(DeathAnimCount);
                   end;
                 end;
-            fUnitDat.Free;
+            resUnits.Free;
           end;
 
           if RT = rxGui then
@@ -174,6 +174,7 @@ begin
             SpritePack.SoftenShadows(105, 128); //Field plans
             SpritePack.SoftenShadows(249, 281); //House tablets only (shadow softening messes up other rxGui sprites)
             SpritePack.SoftenShadows(461, 468); //Field fences
+            SpritePack.SoftenShadows(660, 660); //Woodcutter cutting point sign
           end
           else
             SpritePack.SoftenShadows;

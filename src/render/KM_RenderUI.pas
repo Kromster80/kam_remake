@@ -26,6 +26,7 @@ type
     class procedure WritePlot         (aLeft, aTop, aWidth, aHeight: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; aLineWidth: Byte);
     class procedure WriteOutline      (aLeft, aTop, aWidth, aHeight, aLineWidth: SmallInt; Col: TColor4);
     class procedure WriteShape        (aLeft, aTop, aWidth, aHeight: SmallInt; Col: TColor4; Outline: TColor4 = $00000000);
+    class procedure WritePolyShape    (aPoints: array of TKMPoint; aColor: TColor4);
     class procedure WriteLine         (aFromX, aFromY, aToX, aToY: Single; aCol: TColor4; aPattern: Word = $FFFF);
     class procedure WriteText         (aLeft, aTop, aWidth: SmallInt; aText: UnicodeString; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
     class procedure WriteTexture      (aLeft, aTop, aWidth, aHeight: SmallInt; aTexture: TTexture; aCol: TColor4);
@@ -36,7 +37,7 @@ type
 
 implementation
 uses
-  KM_Resource;
+  KM_Render, KM_Resource;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
@@ -128,7 +129,7 @@ begin
 
       //Background
       glColor4f(1, 1, 1, 1);
-      glBindTexture(GL_TEXTURE_2D, GFXData[BackRX, BackID].Tex.ID);
+      TRender.BindTexture(GFXData[BackRX, BackID].Tex.ID);
       glBegin(GL_QUADS);
         glTexCoord2f(A.x,A.y); glVertex2f(0,0);
         glTexCoord2f(B.x,A.y); glVertex2f(aWidth,0);
@@ -137,7 +138,7 @@ begin
       glEnd;
 
       //Render beveled edges
-      glBindTexture(GL_TEXTURE_2D, 0);
+      TRender.BindTexture(0);
 
       c1 := 1 - Down;
       c2 := Down;
@@ -311,7 +312,7 @@ begin
       glTranslatef(aLeft + OffX, aTop + OffY, 0);
 
       //Base layer
-      glBindTexture(GL_TEXTURE_2D, Tex.ID);
+      TRender.BindTexture(Tex.ID);
       if aEnabled then glColor3f(1,1,1) else glColor3f(0.33,0.33,0.33);
       glBegin(GL_QUADS);
         glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0            , 0             );
@@ -323,7 +324,7 @@ begin
       //Color overlay for unit icons and scrolls
       if Alt.ID <> 0 then
       begin
-        glBindTexture(GL_TEXTURE_2D, Alt.ID);
+        TRender.BindTexture(Alt.ID);
         if aEnabled then
           glColor3ub(aColor AND $FF, aColor SHR 8 AND $FF, aColor SHR 16 AND $FF)
         else
@@ -339,11 +340,13 @@ begin
       //Highlight for active/focused/mouseOver images
       if aLightness <> 0 then
       begin
-        glBindTexture(GL_TEXTURE_2D, Tex.ID); //Replace AltID if it was used
+        TRender.BindTexture(Tex.ID); //Replace AltID if it was used
         if aLightness > 0 then
           glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-        else
+        else begin
           glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+          aLightness := 1-Abs(aLightness);
+        end;
         glColor3f(aLightness, aLightness, aLightness);
         glBegin(GL_QUADS);
           glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0            , 0             );
@@ -356,7 +359,7 @@ begin
 
     glPopMatrix;
   end;
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
@@ -406,6 +409,20 @@ begin
       glkRect(aLeft + 0.5, aTop + 0.5, aLeft + aWidth - 0.5, aTop + aHeight - 0.5);
     glEnd;
   glPopAttrib;
+end;
+
+
+//Renders polygon shape with given color
+class procedure TKMRenderUI.WritePolyShape(aPoints: array of TKMPoint; aColor: TColor4);
+var I: Integer;
+begin
+  glColor4ubv(@aColor);
+  glBegin(GL_POLYGON);
+    for I := 0 to High(aPoints) do
+    begin
+      glVertex2f(aPoints[I].X, aPoints[I].Y);
+    end;
+  glEnd;
 end;
 
 
@@ -553,7 +570,7 @@ begin
                 if PrevAtlas <> -1 then
                   glEnd; //End previous draw
                 PrevAtlas := Let.AtlasId;
-                glBindTexture(GL_TEXTURE_2D, FontData.TexID[Let.AtlasId]);
+                TRender.BindTexture(FontData.TexID[Let.AtlasId]);
                 glBegin(GL_QUADS);
               end;
 
@@ -568,7 +585,7 @@ begin
     if (I = Length(aText)) and (PrevAtlas <> -1) then
       glEnd;
   end;
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 
   if SHOW_TEXT_OUTLINES then
   begin
@@ -602,7 +619,7 @@ end;
 
 class procedure TKMRenderUI.WriteTexture(aLeft, aTop, aWidth, aHeight: SmallInt; aTexture: TTexture; aCol: TColor4);
 begin
-  glBindTexture(GL_TEXTURE_2D, aTexture.Tex);
+  TRender.BindTexture(aTexture.Tex);
 
   glColor4ubv(@aCol);
   glBegin(GL_QUADS);
@@ -612,7 +629,7 @@ begin
     glTexCoord2f(0, aTexture.V);          glVertex2f(aLeft, aTop+aHeight);
   glEnd;
 
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 

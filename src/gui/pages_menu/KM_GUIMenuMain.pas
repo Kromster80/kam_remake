@@ -7,10 +7,9 @@ uses
 
 
 type
-  TKMMenuMain = class
+  TKMMenuMain = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText;
-
     procedure ButtonClick(Sender: TObject);
   protected
     Panel_MainMenu: TKMPanel;
@@ -24,7 +23,6 @@ type
     Button_MM_Quit: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-
     procedure Show;
   end;
 
@@ -43,7 +41,7 @@ begin
 
   //Without anchors this page is centered on resize
   Panel_MainMenu := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_MainMenu.Anchors := [];
+  Panel_MainMenu.AnchorsCenter;
     TKMImage.Create(Panel_MainMenu, 300, 120, 423, 164, 4, rxGuiMain);
     TKMLabel.Create(Panel_MainMenu, 512, 300, 'Remake', fnt_Metal, taCenter);
 
@@ -77,7 +75,7 @@ begin
 
   if Sender = Button_MM_MultiPlayer then
   begin
-    if fMain.LockMutex then
+    if gMain.LockMutex then
     begin
       if not gGameApp.CheckDATConsistency then
         fOnPageChange(gpError, gResTexts[TX_ERROR_MODS])
@@ -101,7 +99,7 @@ begin
     fOnPageChange(gpCredits);
 
   if Sender = Button_MM_Quit then
-    fMain.Stop(Self);
+    gMain.Stop(Self);
 end;
 
 

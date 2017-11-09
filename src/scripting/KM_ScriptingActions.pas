@@ -33,6 +33,7 @@ type
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveField(aPlayer, X, Y: Word): Boolean;
+    function  GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
     function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
@@ -41,6 +42,7 @@ type
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
     function  GiveWinefield(aPlayer, X, Y: Word): Boolean;
+    function  GiveWinefieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
 
     procedure FogCoverAll(aPlayer: Byte);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
@@ -108,7 +110,8 @@ type
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
-    procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
+    procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+    procedure PlayerShareFogCompliment(aPlayer1, aPlayer2: Word; aShare: Boolean);
     procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
 
@@ -142,7 +145,7 @@ uses
   KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior, KM_HandLogistics,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_Utils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection, KM_PathFindingRoad;
+  KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements, KM_BuildList;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -262,11 +265,30 @@ begin
 end;
 
 
-//* Version: 7000+
-//* Sets whether player A shares his vision with player B.
+//* Version: 5345
+//* Sets whether player A shares his vision with player B (one way, for both ways use PlayerShareFogCompliment).
 //* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
-//* aCompliment: Both ways
-procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean);
+procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+begin
+  try
+    if  InRange(aPlayer1, 0, gHands.Count - 1)
+    and InRange(aPlayer2, 0, gHands.Count - 1)
+    and (gHands[aPlayer1].Enabled)
+    and (gHands[aPlayer2].Enabled) then
+      gHands[aPlayer1].ShareFOW[aPlayer2] := aShare
+    else
+      LogParamWarning('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aShare)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Sets whether players A and B share their vision (both ways).
+//* Sharing can still only happen between allied players, but this command lets you disable allies from sharing.
+procedure TKMScriptActions.PlayerShareFogCompliment(aPlayer1, aPlayer2: Word; aShare: Boolean);
 begin
   try
     if  InRange(aPlayer1, 0, gHands.Count - 1)
@@ -275,11 +297,10 @@ begin
     and (gHands[aPlayer2].Enabled) then
     begin
       gHands[aPlayer1].ShareFOW[aPlayer2] := aShare;
-      if aCompliment then
-        gHands[aPlayer2].ShareFOW[aPlayer1] := aShare;
+      gHands[aPlayer2].ShareFOW[aPlayer1] := aShare
     end
     else
-      LogParamWarning('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aCompliment), Byte(aShare)]);
+      LogParamWarning('Actions.PlayerShareFogCompliment', [aPlayer1, aPlayer2, Byte(aShare)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -288,7 +309,7 @@ end;
 
 
 //* Version: 5057
-//* Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true.
+//* Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true.
 //* All players who were not set to victorious are set to defeated.
 //* aVictors: Array of player IDs
 //Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
@@ -339,7 +360,7 @@ begin
     and InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and InRange(aAmount, 0, 5) then
     begin
-      gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
+      gHands[aPlayer].Stats.WareDistribution[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
       gHands[aPlayer].Houses.UpdateResRequest;
     end
     else
@@ -425,7 +446,7 @@ begin
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(aVolume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, False)
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPOINT_ZERO, False, aVolume, 0, False)
     else
       LogParamWarning('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
   except
@@ -450,7 +471,7 @@ begin
     //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
     if not FileExists(fullFileName) then Exit;
     if InRange(aVolume, 0, 1) then
-      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, aVolume, 0, True)
+      gSoundPlayer.PlayWAVFromScript(fullFileName, KMPOINT_ZERO, False, aVolume, 0, True)
     else
       LogParamWarning('Actions.PlayWAVFadeMusic: ' + UnicodeString(aFileName), []);
   except
@@ -507,7 +528,7 @@ begin
   try
     Result := -1;
     if InRange(aVolume, 0, 1) then
-      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPoint(0,0), False, aVolume, 0)
+      Result := gLoopSounds.AddLoopSound(aPlayer, aFileName, KMPOINT_ZERO, False, aVolume, 0)
     else
       LogParamWarning('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
   except
@@ -661,7 +682,7 @@ begin
     and HouseTypeValid(aHouseType)
     and gTerrain.TileInMapCoords(X, Y) then
     begin
-      if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gRes.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
+      if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gRes.Houses[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
       begin
         H := gHands[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
         if H = nil then Exit;
@@ -679,7 +700,7 @@ end;
 
 //* Version: 6288
 //* Give player a digged house area and returns House ID or -1 if house site was not able to be added.
-//* If !AddMaterials = True, wood and stone will be added
+//* If AddMaterials = True, wood and stone will be added
 function TKMScriptActions.GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer;
 var
   H: TKMHouse;
@@ -694,7 +715,7 @@ begin
     and HouseTypeValid(aHouseType)
     and gTerrain.TileInMapCoords(X,Y) then
     begin
-      NonEntranceX := X - gRes.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX;
+      NonEntranceX := X - gRes.Houses[HouseIndexToType[aHouseType]].EntranceOffsetX;
       if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y)) then
       begin
         H := gHands[aPlayer].AddHouseWIP(HouseIndexToType[aHouseType], KMPoint(NonEntranceX, Y));
@@ -702,7 +723,7 @@ begin
           Exit;
 
         Result := H.UID;
-        HA := gRes.HouseDat[H.HouseType].BuildArea;
+        HA := gRes.Houses[H.HouseType].BuildArea;
         for I := 1 to 4 do
         for K := 1 to 4 do
           if HA[I, K] <> 0 then
@@ -712,19 +733,19 @@ begin
             gTerrain.SetTileLock(KMPoint(NonEntranceX + K - 3, Y + I - 4), tlDigged);
           end;
 
-        gTerrain.SetField(H.GetEntrance, aPlayer, ft_Road);
+        gTerrain.SetRoad(H.Entrance, aPlayer);
         H.BuildingState := hbs_Wood;
         if aAddMaterials then
         begin
-          for I := 0 to gRes.HouseDat[H.HouseType].WoodCost - 1 do
+          for I := 0 to gRes.Houses[H.HouseType].WoodCost - 1 do
             H.ResAddToBuild(wt_Wood);
-          for K := 0 to gRes.HouseDat[H.HouseType].StoneCost - 1 do
+          for K := 0 to gRes.Houses[H.HouseType].StoneCost - 1 do
             H.ResAddToBuild(wt_Stone);
         end
         else
         begin
-          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Wood, gRes.HouseDat[H.HouseType].WoodCost, dtOnce, diHigh4);
-          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Stone, gRes.HouseDat[H.HouseType].StoneCost, dtOnce, diHigh4);
+          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Wood, gRes.Houses[H.HouseType].WoodCost, dtOnce, diHigh4);
+          gHands[aPlayer].Deliveries.Queue.AddDemand(H, nil, wt_Stone, gRes.Houses[H.HouseType].StoneCost, dtOnce, diHigh4);
         end;
         gHands[aPlayer].BuildList.HouseList.AddHouse(H);
       end;
@@ -1082,6 +1103,33 @@ begin
 end;
 
 
+//* Version: 7000+
+//* Sets field age if tile is corn field, or adds finished field and sets its age if tile is empty, and returns true if this was successfully done
+//* aStage = 0..6, sets the field growth stage. 0 = empty field; 6 = corn has been cut; according to CORN_STAGES_COUNT
+//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+function TKMScriptActions.GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+begin
+  try
+    Result := False;
+    if InRange(aPlayer, 0, gHands.Count - 1)
+    and (gHands[aPlayer].Enabled)
+    and (InRange(aStage, 0, CORN_STAGES_COUNT - 1))
+    and gTerrain.TileInMapCoords(X, Y) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn)
+      or (gTerrain.TileIsCornField(KMPoint(X, Y))) then
+      begin
+        Result := True;
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn, aStage, aRandomAge);
+      end
+    else
+      LogParamWarning('Actions.GiveFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 6311
 //* Adds finished road and returns true if road was successfully added
 function TKMScriptActions.GiveRoad(aPlayer, X, Y: Word): Boolean;
@@ -1094,9 +1142,11 @@ begin
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Road);
+        gTerrain.SetRoad(KMPoint(X, Y), aPlayer);
         //Terrain under roads is flattened (fields are not)
         gTerrain.FlattenTerrain(KMPoint(X, Y));
+        if gMapElements[gTerrain.Land[Y,X].Obj].WineOrCorn then
+          gTerrain.RemoveObject(KMPoint(X,Y)); //Remove corn/wine like normally built road does
       end
     else
       LogParamWarning('Actions.GiveRoad', [aPlayer, X, Y]);
@@ -1181,6 +1231,33 @@ begin
       end
     else
       LogParamWarning('Actions.GiveWineField', [aPlayer, X, Y]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version 7000+
+//* Sets winefield age if tile is winefield, or adds finished winefield and sets its age if tile is empty, and returns true if this was successfully done
+//* aStage = 0..3, sets the field growth stage. 0 = new fruits; 3 = grapes are ready to be harvested; according to WINE_STAGES_COUNT
+//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+function TKMScriptActions.GiveWineFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean;
+begin
+  try
+    Result := False;
+    if InRange(aPlayer, 0, gHands.Count - 1)
+    and (gHands[aPlayer].Enabled)
+    and (InRange(aStage, 0, WINE_STAGES_COUNT - 1))
+    and gTerrain.TileInMapCoords(X, Y) then
+      if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine)
+      or (gTerrain.TileIsWineField(KMPoint(X, Y))) then
+      begin
+        Result := True;
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine, aStage, aRandomAge);
+      end
+    else
+      LogParamWarning('Actions.GiveWineFieldAged', [aPlayer, X, Y, aStage, Byte(aRandomAge)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1308,7 +1385,7 @@ procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   try
     if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(0,0));
+      gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPOINT_ZERO);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1326,7 +1403,7 @@ begin
   try
     try
       if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
+        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPOINT_ZERO);
     except
       //Format may throw an exception
       on E: EConvertError do LogParamWarning('Actions.ShowMsgFormatted: '+E.Message, []);
@@ -1348,7 +1425,7 @@ begin
     if gTerrain.TileInMapCoords(aX, aY) then
     begin
       if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-        gGame.ShowMessageLocal(mkText, UnicodeString(aText), KMPoint(aX,aY));
+        gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), KMPoint(aX,aY));
     end
     else
       LogParamWarning('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
@@ -1372,7 +1449,7 @@ begin
       if gTerrain.TileInMapCoords(aX, aY) then
       begin
         if (aPlayer = gMySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-          gGame.ShowMessageLocalFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
+          gGame.ShowMessageLocal(mkText, gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), KMPoint(aX,aY));
       end
       else
         LogParamWarning('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
@@ -1390,7 +1467,7 @@ end;
 //* Version: 5057
 //* Allows player to build the specified house even if they don't have the house built that normally unlocks it
 //* (e.g. sawmill for farm).
-//* Note: Does not override blocked houses, use !HouseAllow for that.
+//* Note: Does not override blocked houses, use HouseAllow for that.
 procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   try
@@ -1409,7 +1486,7 @@ end;
 
 //* Version: 5057
 //* Sets whether the player is allowed to build the specified house.
-//* Note: The house must still be unlocked normally (e.g. sawmill for farm), use !HouseUnlock to override that.
+//* Note: The house must still be unlocked normally (e.g. sawmill for farm), use HouseUnlock to override that.
 procedure TKMScriptActions.HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
 begin
   try
@@ -1458,8 +1535,8 @@ begin
       if H <> nil then
         if not H.IsComplete then
         begin
-          StoneNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Stone, gRes.HouseDat[H.HouseType].StoneCost - H.GetBuildStoneDelivered);
-          WoodNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Wood, gRes.HouseDat[H.HouseType].WoodCost - H.GetBuildWoodDelivered);
+          StoneNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Stone, gRes.Houses[H.HouseType].StoneCost - H.GetBuildStoneDelivered);
+          WoodNeeded := gHands[H.Owner].Deliveries.Queue.TryRemoveDemand(H, wt_Wood, gRes.Houses[H.HouseType].WoodCost - H.GetBuildWoodDelivered);
           for I := 0 to WoodNeeded - 1 do
             H.ResAddToBuild(wt_Wood);
           for I := 0 to StoneNeeded - 1 do
@@ -1673,7 +1750,7 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and gRes.HouseDat[H.HouseType].AcceptsWares then
+      if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
         H.WareDelivery := not aDeliveryBlocked;
     end
     else
@@ -1774,7 +1851,7 @@ begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) then
         for I := 1 to 4 do
-          if gRes.HouseDat[H.HouseType].ResOutput[I] = Res then
+          if gRes.Houses[H.HouseType].ResOutput[I] = Res then
           begin
             H.ResOrder[I] := aAmount;
             Exit;
@@ -1979,7 +2056,7 @@ begin
   try
     //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
     if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
-      gGame.OverlaySet(UnicodeString(aText), aPlayer)
+      gGame.OverlaySet(gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), aPlayer)
     else
       LogParamWarning('Actions.OverlayTextSet: '+UnicodeString(aText), [aPlayer]);
   except
@@ -2000,7 +2077,7 @@ begin
     begin
       try
         //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-        gGame.OverlaySetFormatted(UnicodeString(aText), Params, aPlayer);
+        gGame.OverlaySet(gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), aPlayer);
       except
         //Format may throw an exception
         on E: EConvertError do LogParamWarning('Actions.OverlayTextSetFormatted: EConvertError: '+E.Message, []);
@@ -2023,7 +2100,7 @@ begin
   try
     //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
     if InRange(aPlayer, -1, gHands.Count - 1) then //-1 means all players
-      gGame.OverlayAppend(UnicodeString(aText), aPlayer)
+      gGame.OverlayAppend(gGame.TextMission.ParseTextMarkup(UnicodeString(aText)), aPlayer)
     else
       LogParamWarning('Actions.OverlayTextAppend: '+UnicodeString(aText), [aPlayer]);
   except
@@ -2044,7 +2121,7 @@ begin
     begin
       try
         //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-        gGame.OverlayAppendFormatted(UnicodeString(aText), Params, aPlayer);
+        gGame.OverlayAppend(gGame.TextMission.ParseTextMarkup(UnicodeString(aText), Params), aPlayer);
       except
         //Format may throw an exception
         on E: EConvertError do LogParamWarning('Actions.OverlayTextAppendFormatted: EConvertError: '+E.Message, []);
@@ -2208,8 +2285,10 @@ begin
               gHands[aPlayer].BuildList.FieldworksList.AddField(Points[I], ft_Road)
             else
             begin
-              gTerrain.SetField(Points[I], aPlayer, ft_Road);
+              gTerrain.SetRoad(Points[I], aPlayer);
               gTerrain.FlattenTerrain(Points[I]);
+              if gMapElements[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
+                gTerrain.RemoveObject(Points[I]); //Remove corn/wine like normally built road does
             end;
         Result := True;
       finally
@@ -2231,7 +2310,7 @@ end;
 //* Returns true if the plan was successfully removed or false if it failed (e.g. tile blocked)
 function TKMScriptActions.PlanRemove(aPlayer, X, Y: Word): Boolean;
 var
-  HT: THouseType;
+  HPlan: TKMHousePlan;
 begin
   try
     Result := False;
@@ -2239,11 +2318,10 @@ begin
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and gTerrain.TileInMapCoords(X,Y) then
     begin
-      HT := gHands[aPlayer].BuildList.HousePlanList.GetPlan(KMPoint(X, Y));
-      if HT <> ht_None then
+      if gHands[aPlayer].BuildList.HousePlanList.TryGetPlan(KMPoint(X, Y), HPlan) then
       begin
         gHands[aPlayer].BuildList.HousePlanList.RemPlan(KMPoint(X, Y));
-        gHands[aPlayer].Stats.HousePlanRemoved(HT);
+        gHands[aPlayer].Stats.HousePlanRemoved(HPlan.HouseType);
         Result := True;
       end;
       if gHands[aPlayer].BuildList.FieldworksList.HasField(KMPoint(X, Y)) <> ft_None then

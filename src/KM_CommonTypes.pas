@@ -8,18 +8,22 @@ uses
 type
   TKMByteArray = array of Byte;
   TKMByte2Array = array of array of Byte;
+  TKMByteSetArray = array of set of Byte;
   PKMByte2Array = ^TKMByte2Array;
   TKMWordArray = array of Word;
   PKMWordArray = ^TKMWordArray;
   TKMCardinalArray = array of Cardinal;
   TIntegerArray = array of Integer;
   TStringArray = array of string;
+  TKMCharArray = array of Char;
   TRGBArray = array of record R,G,B: Byte end;
 
   TEvent = procedure of object;
   TPointEvent = procedure (Sender: TObject; const X,Y: Integer) of object;
+  TPointEventFunc = function (Sender: TObject; const X,Y: Integer): Boolean of object;
   TBooleanEvent = procedure (aValue: Boolean) of object;
   TIntegerEvent = procedure (aValue: Integer) of object;
+  TSingleEvent = procedure (aValue: Single) of object;
   TUnicodeStringEvent = procedure (const aData: UnicodeString) of object;
   TUnicodeStringBoolEvent = procedure (const aData: UnicodeString; aBool: Boolean) of object;
   TGameStartEvent = procedure (const aData: UnicodeString; Spectating: Boolean) of object;

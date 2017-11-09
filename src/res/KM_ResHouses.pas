@@ -57,7 +57,7 @@ type
 
   //This class wraps KaM House info
   //it hides unused fields and adds new ones
-  TKMHouseDatClass = class
+  TKMHouseSpec = class
   private
     fHouseType: THouseType; //Our class
     fNameTextID: Integer;
@@ -72,6 +72,7 @@ type
     function GetReleasedBy: THouseType;
     function GetTabletIcon: Word;
     function GetSnowPic: SmallInt;
+    function GetUnoccupiedMsgId: SmallInt;
   public
     constructor Create(aHouseType: THouseType);
     procedure LoadFromStream(Stream: TMemoryStream);
@@ -106,6 +107,7 @@ type
     property ResInput: THouseRes read GetResInput;
     property ResOutput: THouseRes read GetResOutput;
     property TabletIcon:word read GetTabletIcon;
+    property UnoccupiedMsgId:SmallInt read GetUnoccupiedMsgId;
     property SnowPic: SmallInt read GetSnowPic;
     //Functions
     function AcceptsWares: Boolean;
@@ -115,15 +117,15 @@ type
   end;
 
 
-  TKMHouseDatCollection = class
+  TKMResHouses = class
   private
     fCRC: Cardinal;
-    fItems: array [HOUSE_MIN..HOUSE_MAX] of TKMHouseDatClass;
+    fItems: array [HOUSE_MIN..HOUSE_MAX] of TKMHouseSpec;
     //Swine&Horses, 5 beasts in each house, 3 ages for each beast
     fBeastAnim: array [1..2,1..5,1..3] of TKMAnimLoop;
     fMarketBeastAnim: array [1..3] of TKMAnimLoop;
     function LoadHouseDat(aPath: string): Cardinal;
-    function GetHouseDat(aType: THouseType): TKMHouseDatClass; inline;
+    function GetHouseDat(aType: THouseType): TKMHouseSpec; inline;
     function GetBeastAnim(aType: THouseType; aBeast, aAge:integer): TKMAnimLoop;
   public
     constructor Create;
@@ -131,7 +133,7 @@ type
 
     function IsValid(aType: THouseType): Boolean;
 
-    property HouseDat[aType: THouseType]: TKMHouseDatClass read GetHouseDat; default;
+    property HouseDat[aType: THouseType]: TKMHouseSpec read GetHouseDat; default;
     property BeastAnim[aType: THouseType; aBeast, aAge: Integer]: TKMAnimLoop read GetBeastAnim;
     property CRC: Cardinal read fCRC; //Return hash of all values
 
@@ -363,7 +365,7 @@ const
     Input:            (wt_GoldOre,    wt_Coal,       wt_None,       wt_None);
     Output:           (wt_Gold,       wt_None,       wt_None,       wt_None);
     UnlockedByHouse:  ht_GoldMine;
-    SnowSpriteId:     -1;
+    SnowSpriteId:     2068;
     ),
     ( //Mill
     PlanYX:           ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
@@ -526,8 +528,26 @@ const
                                              (MoveX: -7; MoveY:-4), (MoveX:-16; MoveY:-4), (MoveX:-16; MoveY:-4)));//Stone 4-6
 
 
+  //'This house is unoccupied' msg index
+  HouseTypeToUnoccupiedMsgIndex: array[THouseType] of ShortInt = (
+    -1, -1,     //ut_None, ut_Any
+    0,1,2,
+    -1,         //ht_Barracks
+    3,4,5,6,7,
+    -1,         //ht_Inn
+    8,9,
+    -1,         //ht_Marketplace
+    10,11,12,13,
+    -1,         //ht_School
+    14,15,
+    -1,         //ht_Store
+    16,17,
+    -1,         //ht_TownHall
+    18,19,20,21,22);
+
+
 { TKMHouseDatClass }
-constructor TKMHouseDatClass.Create(aHouseType: THouseType);
+constructor TKMHouseSpec.Create(aHouseType: THouseType);
 begin
   inherited Create;
   fHouseType := aHouseType;
@@ -535,46 +555,46 @@ begin
 end;
 
 
-function TKMHouseDatClass.AcceptsWares: boolean;
+function TKMHouseSpec.AcceptsWares: boolean;
 begin
   Result := (ResInput[1] <> wt_None) or //Exclude houses that do not receive wares
             (fHouseType = ht_Marketplace); //Marketplace also accepts wares
 end;
 
 
-function TKMHouseDatClass.GetArea: THouseArea;
+function TKMHouseSpec.GetArea: THouseArea;
 begin
   Result := HouseDatX[fHouseType].PlanYX;
 end;
 
 
-function TKMHouseDatClass.GetDoesOrders: Boolean;
+function TKMHouseSpec.GetDoesOrders: Boolean;
 begin
   Result := HouseDatX[fHouseType].NeedsPlayerOrder;
 end;
 
 
-function TKMHouseDatClass.GetGUIIcon: Word;
+function TKMHouseSpec.GetGUIIcon: Word;
 begin
   Result := HouseDatX[fHouseType].BuildIcon;
 end;
 
 
-function TKMHouseDatClass.GetHouseName: UnicodeString;
+function TKMHouseSpec.GetHouseName: UnicodeString;
 begin
   Result := gResTexts[fNameTextID];
 end;
 
 
 //MaxHealth is always a cost of construction * 50
-function TKMHouseDatClass.MaxHealth: Word;
+function TKMHouseSpec.MaxHealth: Word;
 begin
   Result := (fHouseDat.WoodCost + fHouseDat.StoneCost) * 50;
 end;
 
 
 //Write houses outline into given list
-procedure TKMHouseDatClass.Outline(aList: TKMPointList);
+procedure TKMHouseSpec.Outline(aList: TKMPointList);
 var
   I, K: Integer;
   Tmp: TKMByte2Array;
@@ -595,7 +615,7 @@ begin
 end;
 
 
-function TKMHouseDatClass.GetOwnerType: TUnitType;
+function TKMHouseSpec.GetOwnerType: TUnitType;
 begin
   //fHouseDat.OwnerType is read from DAT file and is shortint, it can be out of range (i.e. -1)
   if InRange(fHouseDat.OwnerType, Low(UnitIndexToType), High(UnitIndexToType)) then
@@ -605,50 +625,60 @@ begin
 end;
 
 
-function TKMHouseDatClass.ProducesWares: Boolean;
+function TKMHouseSpec.ProducesWares: Boolean;
 begin
   Result := not (ResOutput[1] in [wt_None, wt_All, wt_Warfare]); //Exclude aggregate types
 end;
 
 
-function TKMHouseDatClass.GetReleasedBy: THouseType;
+function TKMHouseSpec.GetReleasedBy: THouseType;
 begin
   Result := HouseDatX[fHouseType].UnlockedByHouse;
 end;
 
 
-function TKMHouseDatClass.GetResInput: THouseRes;
+function TKMHouseSpec.GetResInput: THouseRes;
 begin
   Result := HouseDatX[fHouseType].Input;
 end;
 
 
-function TKMHouseDatClass.GetResOutput: THouseRes;
+function TKMHouseSpec.GetResOutput: THouseRes;
 begin
   Result := HouseDatX[fHouseType].Output;
 end;
 
 
-function TKMHouseDatClass.GetSnowPic: SmallInt;
+function TKMHouseSpec.GetSnowPic: SmallInt;
 begin
   Result := HouseDatX[fHouseType].SnowSpriteId;
 end;
 
 
-function TKMHouseDatClass.GetTabletIcon: Word;
+function TKMHouseSpec.GetTabletIcon: Word;
 begin
   Result := HouseDatX[fHouseType].TabletSpriteId;
 end;
 
 
-procedure TKMHouseDatClass.LoadFromStream(Stream: TMemoryStream);
+function TKMHouseSpec.GetUnoccupiedMsgId: SmallInt;
+var HouseUnnocupiedMsgIndex: ShortInt;
+begin
+  Result := -1;
+  HouseUnnocupiedMsgIndex := HouseTypeToUnoccupiedMsgIndex[fHouseType];
+  if HouseUnnocupiedMsgIndex <> -1 then
+    Result := TX_MSG_HOUSE_UNOCCUPIED__22 + HouseUnnocupiedMsgIndex;
+end;
+
+
+procedure TKMHouseSpec.LoadFromStream(Stream: TMemoryStream);
 begin
   Stream.Read(fHouseDat, SizeOf(TKMHouseDat));
 end;
 
 
-{ TKMHouseDatCollection }
-constructor TKMHouseDatCollection.Create;
+{ TKMResHouses }
+constructor TKMResHouses.Create;
 
   procedure AddAnimation(aHouse: THouseType; aAnim: THouseActionType; aMoveX, aMoveY: Integer; const aSteps: array of SmallInt);
   var I: Integer;
@@ -676,9 +706,11 @@ begin
   inherited;
 
   for H := HOUSE_MIN to HOUSE_MAX do
-    fItems[H] := TKMHouseDatClass.Create(H);
+    fItems[H] := TKMHouseSpec.Create(H);
 
   fCRC := LoadHouseDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'houses.dat');
+
+  fItems[ht_Tannery].fHouseDat.Anim[ha_Flag3].Count := 0; //fix for tannery 2 flags at one place. Flag3 is unnecessary
 
   fItems[ht_Marketplace].fHouseType := ht_Marketplace;
   fItems[ht_Marketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)
@@ -738,7 +770,7 @@ begin
 end;
 
 
-destructor TKMHouseDatCollection.Destroy;
+destructor TKMResHouses.Destroy;
 var H: THouseType;
 begin
   for H := HOUSE_MIN to HOUSE_MAX do
@@ -748,19 +780,19 @@ begin
 end;
 
 
-function TKMHouseDatCollection.GetHouseDat(aType: THouseType): TKMHouseDatClass;
+function TKMResHouses.GetHouseDat(aType: THouseType): TKMHouseSpec;
 begin
   Result := fItems[aType];
 end;
 
 
-function TKMHouseDatCollection.IsValid(aType: THouseType): Boolean;
+function TKMResHouses.IsValid(aType: THouseType): Boolean;
 begin
   Result := aType in [HOUSE_MIN..HOUSE_MAX];
 end;
 
 
-function TKMHouseDatCollection.GetBeastAnim(aType: THouseType; aBeast, aAge: Integer): TKMAnimLoop;
+function TKMResHouses.GetBeastAnim(aType: THouseType; aBeast, aAge: Integer): TKMAnimLoop;
 begin
   Assert(aType in [ht_Swine, ht_Stables, ht_Marketplace]);
   Assert(InRange(aBeast, 1, 5));
@@ -775,7 +807,7 @@ end;
 
 //Return CRC of loaded file
 //CRC should be calculated right away, cos file may be swapped after loading
-function TKMHouseDatCollection.LoadHouseDat(aPath: string): Cardinal;
+function TKMResHouses.LoadHouseDat(aPath: string): Cardinal;
 var
   S: TKMemoryStream;
   i:integer;
@@ -802,7 +834,7 @@ begin
 end;
 
 
-procedure TKMHouseDatCollection.ExportCSV(aPath: string);
+procedure TKMResHouses.ExportCSV(aPath: string);
 var
   HT: THouseType;
   S: string;

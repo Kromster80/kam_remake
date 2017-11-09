@@ -65,6 +65,8 @@ type
     procedure SaveToFile(aFileName: UnicodeString);
     procedure UpdateStateIdle;
     procedure Eyedropper(aLoc: TKMPoint);
+    procedure RotateTile(aLoc: TKMPoint);
+
     procedure MagicWater(aLoc: TKMPoint);
 
     function CanUndo: Boolean;
@@ -938,6 +940,14 @@ begin
 end;
 
 
+procedure TKMTerrainPainter.RotateTile(aLoc: TKMPoint);
+begin
+  EditTile(gGameCursor.Cell,
+           gTerrain.Land[aLoc.Y, aLoc.X].Terrain,
+           (gTerrain.Land[aLoc.Y, aLoc.X].Rotation + 1) mod 4);
+end;
+
+
 procedure TKMTerrainPainter.UpdateStateIdle;
 begin
   case gGameCursor.Mode of
@@ -952,7 +962,7 @@ begin
                     else //Random direction
                       EditTile(gGameCursor.Cell, gGameCursor.Tag1, KaMRandom(4));
     cmObjects:    if (ssLeft in gGameCursor.SState) then
-                    gTerrain.SetTree(gGameCursor.Cell, gGameCursor.Tag1);
+                    gTerrain.SetObject(gGameCursor.Cell, gGameCursor.Tag1);
   end;
 end;
 

@@ -30,9 +30,10 @@ type
     constructor Create(aMode: TMissionParsingMode); overload;
     constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TKMHandEnabledArray); overload;
     function LoadMission(const aFileName: string): Boolean; overload; override;
+    procedure PostLoadMission;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
-    procedure SaveDATFile(const aFileName: string);
+    procedure SaveDATFile(const aFileName: string; aDoXorEncoding: Boolean = False);
   end;
 
 
@@ -115,11 +116,15 @@ begin
   if not TokenizeScript(FileText, 6, []) then
     Exit;
 
-  //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
-  ProcessAttackPositions;
-
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');
+end;
+
+
+procedure TMissionParserStandard.PostLoadMission;
+begin
+  //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
+  ProcessAttackPositions;
 end;
 
 
@@ -241,7 +246,7 @@ begin
                           begin
                             H := gHands[fLastHand].FindHouse(ht_Store, 1);
                             if H <> nil then
-                              gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
+                              gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.Entrance.X, H.Entrance.Y+1));
                           end;
     ct_UnitAddToLast:   if fLastHand <> PLAYER_NONE then
                           if fLastHouse <> nil then
@@ -260,8 +265,12 @@ begin
                           gHands[fLastHand].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
     ct_SetField:        if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
+    ct_SetFieldStaged:  if fLastHand <> PLAYER_NONE then
+                          gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn,P[2]);
     ct_SetWinefield:    if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
+    ct_SetWinefieldStaged:  if fLastHand <> PLAYER_NONE then
+                              gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine,P[2]);
     ct_SetStock:        if fLastHand <> PLAYER_NONE then
                         begin //This command basically means: Put a SH here with road bellow it
                           fLastHouse := gHands[fLastHand].AddHouse(ht_Store, P[0]+1,P[1]+1, false);
@@ -506,7 +515,7 @@ begin
                           gHands[fLastHand].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastHand <> PLAYER_NONE then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                          gHands[fLastHand].FlagColor := gRes.Palettes.DefDal.Color32(P[0]);
+                          gHands[fLastHand].FlagColor := gRes.Palettes.DefaultPalette.Color32(P[0]);
     ct_SetRGBColor:     if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].FlagColor := P[0] or $FF000000;
     ct_AIAttack:        if fLastHand <> PLAYER_NONE then
@@ -545,6 +554,19 @@ begin
     ct_ClearAIAttack:   if fLastHand <> PLAYER_NONE then
                         begin
                           FillChar(fAIAttack, SizeOf(fAIAttack), #0);
+                        end;
+    ct_SetRallyPoint:   begin
+                          if fLastHand <> PLAYER_NONE then
+                            if (fLastHouse <> nil) then
+                            begin
+                              if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
+                                if (fLastHouse is TKMHouseBarracks) then
+                                  TKMHouseBarracks(fLastHouse).RallyPoint := KMPoint(P[0], P[1])
+                                else if (fLastHouse is TKMHouseWoodcutters) then
+                                  TKMHouseWoodcutters(fLastHouse).CuttingPoint := KMPoint(P[0], P[1]);
+                            end
+                            else
+                              AddError('ct_SetRallyPoint without prior declaration of House');
                         end;
 
     ct_EnablePlayer:    begin
@@ -586,7 +608,7 @@ end;
 
 
 //Write out a KaM format mission file to aFileName
-procedure TMissionParserStandard.SaveDATFile(const aFileName: string);
+procedure TMissionParserStandard.SaveDATFile(const aFileName: string; aDoXorEncoding: Boolean = False);
 const
   COMMANDLAYERS = 4;
 var
@@ -682,10 +704,9 @@ begin
     if gGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
 
     //Write RGB command second so it will be used if color is not from KaM palette
-    AddCommand(ct_SetMapColor, [gHands[I].FlagColorIndex]);
     AddCommand(ct_SetRGBColor, [gHands[I].FlagColor and $00FFFFFF]);
 
-    if not KMSamePoint(gHands[I].CenterScreen, KMPoint(0,0)) then
+    if not KMSamePoint(gHands[I].CenterScreen, KMPOINT_ZERO) then
       AddCommand(ct_CenterScreen, [gHands[I].CenterScreen.X-1, gHands[I].CenterScreen.Y-1]);
 
     with gGame.MapEditor.Revealers[I] do
@@ -821,8 +842,18 @@ begin
           AddCommand(ct_SetHouseDamage, [H.GetDamage]);
 
         if H is TKMHouseBarracks then
+        begin
           for J := 1 to TKMHouseBarracks(H).MapEdRecruitCount do
             AddCommand(ct_UnitAddToLast, [UnitTypeToOldIndex[ut_Recruit]]);
+          if TKMHouseBarracks(H).IsRallyPointSet then
+            AddCommand(ct_SetRallyPoint, [TKMHouseBarracks(H).RallyPoint.X, TKMHouseBarracks(H).RallyPoint.Y]);
+        end;
+
+        if H is TKMHouseWoodcutters then
+        begin
+          if TKMHouseWoodcutters(H).IsCuttingPointSet then
+            AddCommand(ct_SetRallyPoint, [TKMHouseWoodcutters(H).CuttingPoint.X, TKMHouseWoodcutters(H).CuttingPoint.Y]);
+        end;
 
         //Process any wares in this house
         //First two Stores use special KaM commands
@@ -867,13 +898,13 @@ begin
           begin
             H := gHands.HousesHitTest(iX, iY);
             //Don't place road under the entrance of houses (it will be placed there if the house is destroyed on mission start)
-            if (H = nil) or not KMSamePoint(H.GetEntrance, KMPoint(iX, iY)) then
+            if (H = nil) or not KMSamePoint(H.Entrance, KMPoint(iX, iY)) then
               AddCommand(ct_SetRoad, [iX-1,iY-1]);
           end;
           if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetField, [iX-1,iY-1]);
+            AddCommand(ct_SetFieldStaged, [iX-1,iY-1,gTerrain.GetCornStage(KMPoint(iX, iY))]);
           if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
-            AddCommand(ct_SetWinefield, [iX-1,iY-1]);
+            AddCommand(ct_SetWinefieldStaged, [iX-1,iY-1,gTerrain.GetWineStage(KMPoint(iX, iY))]);
         end;
     CommandLayerCount := -1; //Disable command layering
     AddData(''); //Extra NL because command layering doesn't put one
@@ -902,7 +933,7 @@ begin
         ioAttackPosition:
           AddCommand(ct_AttackPosition, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1]);
         else
-          Assert(False, 'Unexpected group order in MapEd');
+          raise Exception.Create('Unexpected group order in MapEd');
       end;
     end;
 
@@ -924,14 +955,18 @@ begin
   //Similar footer to one in Lewin's Editor, useful so ppl know what mission was made with.
   AddData('//This mission was made with KaM Remake Map Editor version ' + GAME_VERSION + ' at ' + AnsiString(DateTimeToStr(Now)));
 
-  //Write uncoded file for debug
-  SaveStream := TFileStream.Create(aFileName+'.txt', fmCreate);
-  SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
-  SaveStream.Free;
 
-  //Encode it
-  for I := 1 to Length(SaveString) do
-    SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
+  if aDoXorEncoding then
+  begin
+    //Write uncoded file for debug
+    SaveStream := TFileStream.Create(aFileName+'.txt', fmCreate);
+    SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
+    SaveStream.Free;
+
+    //Encode file
+    for I := 1 to Length(SaveString) do
+      SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
+  end;
 
   SaveStream := TFileStream.Create(aFileName, fmCreate);
   SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
@@ -940,3 +975,4 @@ end;
 
 
 end.
+

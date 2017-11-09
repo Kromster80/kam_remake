@@ -10,6 +10,7 @@ uses
 
 type
   TMapsSortMethod = (
+    smByFavouriteAsc, smByFavouriteDesc,
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
@@ -36,10 +37,13 @@ type
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     fInfoAmount: TKMMapInfoAmount;
     fMapFolder: TMapFolder;
+    fSizeText: string;
     procedure ResetInfo;
     procedure LoadTXTInfo;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
+    function GetSizeText: string;
+    function DetermineReadmeFilePath: String;
   public
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
@@ -55,11 +59,12 @@ type
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    IsFavourite: Boolean;
     BlockTeamSelection: Boolean;
     BlockPeacetime: Boolean;
     BlockFullMapPreview: Boolean;
 
-    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder);
+    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder); overload;
     destructor Destroy; override;
 
     procedure AddGoal(aType: TGoalType; aPlayer: TKMHandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TKMHandIndex);
@@ -74,7 +79,7 @@ type
     function AIUsableLocations: TKMHandIndexArray;
     property CRC: Cardinal read fCRC;
     function LocationName(aIndex: TKMHandIndex): string;
-    function SizeText: string;
+    property SizeText: string read GetSizeText;
     function IsValid: Boolean;
     function HumanPlayerCount: Byte;
     function HumanPlayerCountMP: Byte;
@@ -83,6 +88,7 @@ type
     function HasReadme: Boolean;
     function ViewReadme: Boolean;
     function GetLobbyColor: Cardinal;
+    function IsFilenameEndMatchHash: Boolean;
   end;
 
 
@@ -118,11 +124,13 @@ type
     fMaps: array of TKMapInfo;
     fMapFolders: TMapFolderSet;
     fSortMethod: TMapsSortMethod;
+    fDoSortWithFavourites: Boolean;
     CS: TCriticalSection;
     fScanner: TTMapsScanner;
     fScanning: Boolean; //Flag if scan is in progress
     fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
+    fOnComplete: TNotifyEvent;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
@@ -130,8 +138,8 @@ type
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
   public
-    constructor Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
-    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc); overload;
+    constructor Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False); overload;
+    constructor Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False); overload;
     destructor Destroy; override;
 
     property Count: Integer read fCount;
@@ -145,7 +153,7 @@ type
     class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
 
-    procedure Refresh(aOnRefresh: TNotifyEvent);
+    procedure Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -157,14 +165,17 @@ type
   end;
 
 
+  function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+
+
 implementation
 uses
-  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
+  KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils, KM_GameApp;
 
 
 const
   //Folder name containing single maps for SP/MP/DL mode
-  MAP_FOLDER: array [TMapFolder] of string = ('Maps', 'MapsMP', 'MapsDL');
+  MAP_FOLDER: array [TMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
   MAP_FOLDER_TYPE_MP: array [Boolean] of TMapFolder = (mfSP, mfMP);
 
 
@@ -199,6 +210,8 @@ begin
   ScriptFile := fPath + fFileName + '.script'; //Needed for CRC
   TxtFile := fPath + fFileName + '.txt'; //Needed for CRC
   LIBXFiles := fPath + fFileName + '.*.libx'; //Needed for CRC
+
+  fSizeText := ''; //Lazy initialization
 
   if not FileExists(DatFile) then Exit;
 
@@ -242,6 +255,8 @@ begin
 
     //Load additional text info
     LoadTXTInfo;
+
+    IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
@@ -320,9 +335,11 @@ begin
 end;
 
 
-function TKMapInfo.SizeText: string;
+function TKMapInfo.GetSizeText: string;
 begin
-  Result := MapSizeText(MapSizeX, MapSizeY);
+  if fSizeText = '' then
+    fSizeText := MapSizeText(MapSizeX, MapSizeY);
+  Result := fSizeText;
 end;
 
 
@@ -466,6 +483,8 @@ begin
   S.Read(BlockPeacetime);
   S.Read(BlockFullMapPreview);
 
+  IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
+
   //Other properties are not saved, they are fast to reload
   S.Free;
 end;
@@ -540,26 +559,58 @@ begin
 end;
 
 
+//Returns True if map filename ends with this map actual CRC hash.
+//Used to check if downloaded map was changed
+function TKMapInfo.IsFilenameEndMatchHash: Boolean;
+begin
+  Result := (Length(fFileName) > 9)
+    and (fFileName[Length(FileName)-8] = '_')
+    and (IntToHex(fCRC, 8) = RightStr(fFileName, 8));
+end;
+
+
 function TKMapInfo.FileNameWithoutHash: UnicodeString;
 begin
-  if (fMapFolder = mfDL) and (Length(FileName) > 9)
-  and (FileName[Length(FileName)-8] = '_')
-  and (IntToHex(fCRC, 8) = RightStr(FileName, 8)) then
+  if (MapFolder = mfDL) and IsFilenameEndMatchHash then
     Result := LeftStr(FileName, Length(FileName)-9)
   else
     Result := FileName;
 end;
 
 
+function TKMapInfo.DetermineReadmeFilePath: String;
+var Path: String;
+    Locale: AnsiString;
+begin
+  Result := '';
+  Locale := gGameApp.GameSettings.Locale;
+  Path := fPath + fFileName + '.' + String(Locale) + '.pdf'; // Try to file with our locale first
+  if FileExists(Path) then
+    Result := Path
+  else
+  begin
+    Path := fPath + fFileName + '.' + String(DEFAULT_LOCALE) + '.pdf'; // then with default locale
+    if FileExists(Path) then
+      Result := Path
+    else
+    begin
+      Path := fPath + fFileName + '.pdf'; // and finally without any locale
+      if FileExists(Path) then
+        Result := Path;
+    end;
+  end;
+end;
+
+
 function TKMapInfo.HasReadme: Boolean;
 begin
-  Result := FileExists(fPath + fFileName + '.pdf');
+  Result := DetermineReadmeFilePath <> '';
 end;
 
 
 function TKMapInfo.ViewReadme: Boolean;
 begin
-  Result := OpenPDF(fPath + fFileName + '.pdf');
+  Result := OpenPDF(DetermineReadmeFilePath);
 end;
 
 
@@ -573,11 +624,12 @@ end;
 
 
 { TKMapsCollection }
-constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc);
+constructor TKMapsCollection.Create(aMapFolders: TMapFolderSet; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False);
 begin
   inherited Create;
   fMapFolders := aMapFolders;
   fSortMethod := aSortMethod;
+  fDoSortWithFavourites := aDoSortWithFavourites;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
@@ -586,9 +638,9 @@ begin
 end;
 
 
-constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc);
+constructor TKMapsCollection.Create(aMapFolder: TMapFolder; aSortMethod: TMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False);
 begin
-  Create([aMapFolder], aSortMethod);
+  Create([aMapFolder], aSortMethod, aDoSortWithFavourites);
 end;
 
 
@@ -664,6 +716,7 @@ var
   I: Integer;
 begin
    Lock;
+   try
      Assert(InRange(aIndex, 0, fCount - 1));
      {$IFDEF FPC} DeleteDirectory(fMaps[aIndex].Path, False); {$ENDIF}
      {$IFDEF WDC} TDirectory.Delete(fMaps[aIndex].Path, True); {$ENDIF}
@@ -672,7 +725,9 @@ begin
        fMaps[I] := fMaps[I + 1];
      Dec(fCount);
      SetLength(fMaps, fCount);
-   Unlock;
+   finally
+     Unlock;
+   end;
 end;
 
 
@@ -682,74 +737,116 @@ var
   Dest, RenamedFile: UnicodeString;
   SearchRec: TSearchRec;
 begin
-   Lock;
-     Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
-     Assert(fMaps[aIndex].Path <> Dest);
-     Assert(InRange(aIndex, 0, fCount - 1));
+  if Trim(aName) = '' then Exit;
+  
+  Lock;
+  try
+    Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
+    Assert(fMaps[aIndex].Path <> Dest);
+    Assert(InRange(aIndex, 0, fCount - 1));
 
-     //Remove existing dest directory
-     if DirectoryExists(Dest) then
+    //Remove existing dest directory
+    if DirectoryExists(Dest) then
+    begin
+     {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
+     {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+    end;
+
+    //Move directory to dest
+    {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
+    {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
+
+    //Rename all the files in dest
+    FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
+    repeat
+     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+     and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
      begin
-       {$IFDEF FPC} DeleteDirectory(Dest, False); {$ENDIF}
-       {$IFDEF WDC} TDirectory.Delete(Dest, True); {$ENDIF}
+       RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
+       if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
+         {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
+         {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
      end;
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
 
-     //Move directory to dest
-     {$IFDEF FPC} RenameFile(fMaps[aIndex].Path, Dest); {$ENDIF}
-     {$IFDEF WDC} TDirectory.Move(fMaps[aIndex].Path, Dest); {$ENDIF}
-
-     //Rename all the files in dest
-     FindFirst(Dest + fMaps[aIndex].FileName + '*', faAnyFile - faDirectory, SearchRec);
-     repeat
-       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-       and (Length(SearchRec.Name) > Length(fMaps[aIndex].FileName)) then
-       begin
-         RenamedFile := Dest + aName + RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(fMaps[aIndex].FileName));
-         if not FileExists(RenamedFile) and (Dest + SearchRec.Name <> RenamedFile) then
-           {$IFDEF FPC} RenameFile(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-           {$IFDEF WDC} TFile.Move(Dest + SearchRec.Name, RenamedFile); {$ENDIF}
-       end;
-     until (FindNext(SearchRec) <> 0);
-     FindClose(SearchRec);
-
-     //Remove the map from our list
-     fMaps[aIndex].Free;
-     for I  := aIndex to fCount - 2 do
-       fMaps[I] := fMaps[I + 1];
-     Dec(fCount);
-     SetLength(fMaps, fCount);
-   Unlock;
+    //Remove the map from our list
+    fMaps[aIndex].Free;
+    for I  := aIndex to fCount - 2 do
+     fMaps[I] := fMaps[I + 1];
+    Dec(fCount);
+    SetLength(fMaps, fCount);
+  finally
+    Unlock;
+  end;
 end;
 
 
-//For private acces, where CS is managed by the caller
+//For private access, where CS is managed by the caller
 procedure TKMapsCollection.DoSort;
+var TempMaps: array of TKMapInfo;
+
   //Return True if items should be exchanged
-  function Compare(A, B: TKMapInfo; aMethod: TMapsSortMethod): Boolean;
+  function Compare(A, B: TKMapInfo): Boolean;
   begin
     Result := False; //By default everything remains in place
-    case aMethod of
-      smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
-      smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
-      smBySizeAsc:      Result := (A.MapSizeX * A.MapSizeY) < (B.MapSizeX * B.MapSizeY);
-      smBySizeDesc:     Result := (A.MapSizeX * A.MapSizeY) > (B.MapSizeX * B.MapSizeY);
-      smByPlayersAsc:   Result := A.LocCount < B.LocCount;
-      smByPlayersDesc:  Result := A.LocCount > B.LocCount;
-      smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
-      smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
-      smByHumanPlayersMPAsc:   Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
-      smByHumanPlayersMPDesc:  Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
-      smByModeAsc:      Result := A.MissionMode < B.MissionMode;
-      smByModeDesc:     Result := A.MissionMode > B.MissionMode;
+    case fSortMethod of
+      smByFavouriteAsc:       Result := A.IsFavourite and not B.IsFavourite;
+      smByFavouriteDesc:      Result := not A.IsFavourite and B.IsFavourite;
+      smByNameAsc:            Result := CompareText(A.FileName, B.FileName) < 0;
+      smByNameDesc:           Result := CompareText(A.FileName, B.FileName) > 0;
+      smBySizeAsc:            Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smBySizeDesc:           Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smByPlayersAsc:         Result := A.LocCount < B.LocCount;
+      smByPlayersDesc:        Result := A.LocCount > B.LocCount;
+      smByHumanPlayersAsc:    Result := A.HumanPlayerCount < B.HumanPlayerCount;
+      smByHumanPlayersDesc:   Result := A.HumanPlayerCount > B.HumanPlayerCount;
+      smByHumanPlayersMPAsc:  Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
+      smByHumanPlayersMPDesc: Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
+      smByModeAsc:            Result := A.MissionMode < B.MissionMode;
+      smByModeDesc:           Result := A.MissionMode > B.MissionMode;
     end;
+    if fDoSortWithFavourites and not (fSortMethod in [smByFavouriteAsc, smByFavouriteDesc]) then
+    begin
+      if A.IsFavourite and not B.IsFavourite then
+        Result := False
+      else if not A.IsFavourite and B.IsFavourite then
+        Result := True
+    end;
+
   end;
-var
-  I, K: Integer;
+
+  procedure MergeSort(aLeft, aRight: Integer);
+  var Middle, I, J, Ind1, Ind2: integer;
+  begin
+    if aRight <= aLeft then
+      exit;
+
+    Middle := (aLeft+aRight) div 2;
+    MergeSort(aLeft, Middle);
+    Inc(Middle);
+    MergeSort(Middle, aRight);
+    Ind1 := aLeft;
+    Ind2 := Middle;
+    for I := aLeft to aRight do
+    begin
+      if (Ind1 < Middle) and ((Ind2 > aRight) or not Compare(fMaps[Ind1], fMaps[Ind2])) then
+      begin
+        TempMaps[I] := fMaps[Ind1];
+        Inc(Ind1);
+      end
+      else
+      begin
+        TempMaps[I] := fMaps[Ind2];
+        Inc(Ind2);
+      end;
+    end;
+    for J := aLeft to aRight do
+      fMaps[J] := TempMaps[J];
+  end;
 begin
-  for I := 0 to fCount - 1 do
-  for K := I to fCount - 1 do
-  if Compare(fMaps[I], fMaps[K], fSortMethod) then
-    SwapInt(NativeUInt(fMaps[I]), NativeUInt(fMaps[K])); //Exchange only pointers to MapInfo objects
+  SetLength(TempMaps, Length(fMaps));
+  MergeSort(Low(fMaps), High(fMaps));
 end;
 
 
@@ -797,13 +894,14 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent);
+procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
   Clear;
 
   fOnRefresh := aOnRefresh;
+  fOnComplete := aOnComplete;
 
   //Scan will launch upon create automatcally
   fScanning := True;
@@ -846,6 +944,8 @@ begin
   Lock;
   try
     fScanning := False;
+    if Assigned(fOnComplete) then
+      fOnComplete(Self);
   finally
     Unlock;
   end;
@@ -884,15 +984,15 @@ begin
 
   PathToMaps := TStringList.Create;
   try
-    PathToMaps.Add(aExeDir + 'Maps' + PathDelim);
-    PathToMaps.Add(aExeDir + 'MapsMP' + PathDelim);
-    PathToMaps.Add(aExeDir + 'Tutorials' + PathDelim);
+    PathToMaps.Add(aExeDir + MAPS_FOLDER_NAME + PathDelim);
+    PathToMaps.Add(aExeDir + MAPS_MP_FOLDER_NAME + PathDelim);
+    PathToMaps.Add(aExeDir + TUTORIALS_FOLDER_NAME + PathDelim);
 
     //Include all campaigns maps
-    FindFirst(aExeDir + 'Campaigns'+PathDelim+'*', faDirectory, SearchRec);
+    FindFirst(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + '*', faDirectory, SearchRec);
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(aExeDir + 'Campaigns'+PathDelim + SearchRec.Name + PathDelim);
+        PathToMaps.Add(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + SearchRec.Name + PathDelim);
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
 
@@ -975,15 +1075,9 @@ var
 begin
   Map := TKMapInfo.Create(aPath, False, aFolder);
 
-  //Maps in the downloads folder must have correct hash appended for lobby logic to work
-  if (aFolder = mfDL) and (RightStr(aPath, 9) <> '_' + IntToHex(Map.CRC, 8)) then
-  begin
-    Map.Free;
-    Exit;
-  end;
-
   if SLOW_MAP_SCAN then
     Sleep(50);
+
   fOnMapAdd(Map);
   fOnMapAddDone(Self);
 end;
@@ -1004,6 +1098,23 @@ begin
   //Simply creating the TKMapInfo updates the .mi cache file
   Map := TKMapInfo.Create(aPath, False, aFolder);
   Map.Free;
+end;
+
+
+{Utility methods}
+//Try to determine TMapFolder for specified aFolderName
+//Returns true when succeeded
+function DetermineMapFolder(aFolderName: UnicodeString; out oMapFolder: TMapFolder): Boolean;
+var F: TMapFolder;
+begin
+  for F := Low(TMapFolder) to High(TMapFolder) do
+    if aFolderName = MAP_FOLDER[F] then
+    begin
+      oMapFolder := F;
+      Result := True;
+      Exit;
+    end;
+  Result := False;
 end;
 
 

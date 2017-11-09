@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Campaign Builder'
-  ClientHeight = 465
-  ClientWidth = 689
+  ClientHeight = 817
+  ClientWidth = 1209
   Color = clBtnFace
   Constraints.MinHeight = 492
   Constraints.MinWidth = 689
@@ -19,20 +19,20 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   DesignSize = (
-    689
-    465)
+    1209
+    817)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 104
-    Top = 80
+    Left = 105
+    Top = 81
     Width = 55
     Height = 13
     Caption = 'Maps count'
   end
   object Label2: TLabel
     Left = 8
-    Top = 320
+    Top = 327
     Width = 60
     Height = 13
     Caption = 'Nodes count'
@@ -45,14 +45,20 @@ object Form1: TForm1
   end
   object Label6: TLabel
     Left = 8
-    Top = 80
+    Top = 82
     Width = 55
     Height = 13
     Caption = 'Short name'
   end
+  object Bevel2: TBevel
+    Left = 8
+    Top = 448
+    Width = 154
+    Height = 2
+  end
   object tvList: TTreeView
     Left = 8
-    Top = 120
+    Top = 128
     Width = 153
     Height = 193
     AutoExpand = True
@@ -89,8 +95,8 @@ object Form1: TForm1
     OnClick = btnLoadPictureClick
   end
   object seMapCount: TSpinEdit
-    Left = 104
-    Top = 96
+    Left = 105
+    Top = 100
     Width = 57
     Height = 22
     MaxValue = 32
@@ -101,35 +107,42 @@ object Form1: TForm1
   end
   object seNodeCount: TSpinEdit
     Left = 8
-    Top = 336
+    Top = 346
     Width = 41
     Height = 22
     MaxValue = 32
     MinValue = 0
     TabOrder = 5
     Value = 0
-    OnChange = MapChange
+    OnChange = seNodeCountChange
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 446
-    Width = 689
+    Top = 798
+    Width = 1209
     Height = 19
     Panels = <
       item
         Width = 200
       end
       item
-        Width = 50
+        Width = 100
+      end
+      item
+        Width = 200
       end>
+    ExplicitTop = 447
+    ExplicitWidth = 689
   end
   object ScrollBox1: TScrollBox
     Left = 168
     Top = 8
-    Width = 513
-    Height = 425
+    Width = 1033
+    Height = 777
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
+    ExplicitWidth = 513
+    ExplicitHeight = 426
     object Image1: TImage
       Left = 0
       Top = 0
@@ -340,9 +353,9 @@ object Form1: TForm1
   end
   object rgBriefingPos: TRadioGroup
     Left = 8
-    Top = 376
+    Top = 374
     Width = 153
-    Height = 57
+    Height = 59
     Caption = ' Briefing position '
     Items.Strings = (
       'Bottom-right'
@@ -352,7 +365,7 @@ object Form1: TForm1
   end
   object edtShortName: TMaskEdit
     Left = 8
-    Top = 96
+    Top = 101
     Width = 57
     Height = 21
     EditMask = '>LLL'
@@ -360,6 +373,18 @@ object Form1: TForm1
     TabOrder = 9
     Text = '   '
     OnChange = edtShortNameChange
+    OnKeyPress = edtShortNameKeyPress
+  end
+  object cbShowNodeNumbers: TCheckBox
+    Left = 8
+    Top = 464
+    Width = 113
+    Height = 17
+    Caption = 'Show node numbers'
+    Checked = True
+    State = cbChecked
+    TabOrder = 10
+    OnClick = cbShowNodeNumbersClick
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Supported images (*.png)|*.png'

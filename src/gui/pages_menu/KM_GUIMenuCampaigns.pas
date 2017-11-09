@@ -2,13 +2,15 @@ unit KM_GUIMenuCampaigns;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, SysUtils, Math,
   KM_Controls, KM_Pics,
   KM_Campaigns, KM_InterfaceDefaults;
 
 
 type
-  TKMMenuCampaigns = class {(TKMGUIPage)}
+  TKMMenuCampaigns = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -35,47 +37,48 @@ uses
 
 { TKMMainMenuInterface }
 constructor TKMMenuCampaigns.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-var L: TKMLabel;
+var
+  L: TKMLabel;
 begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := BackClick;
 
   Panel_CampSelect := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_CampSelect.AnchorsStretch;
 
-    L := TKMLabel.Create(Panel_CampSelect, 80, 140, 575, 20, gResTexts[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter);
-    L.Anchors := [];
+    TKMLabel.Create(Panel_CampSelect, 80, 140, 575, 20, gResTexts[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter).AnchorsCenter;
     ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 170, 575, 360, fnt_Grey, bsMenu);
     ColumnBox_Camps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_CAMPAIGNS_TITLE],
                                              gResTexts[TX_MENU_CAMPAIGNS_MAPS_COUNT],
                                              gResTexts[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED]],
                                              [0, 305, 440]);
-    ColumnBox_Camps.Anchors := [];
+    ColumnBox_Camps.AnchorsCenter;
     ColumnBox_Camps.SearchColumn := 0;
     ColumnBox_Camps.OnChange := ListChange;
     ColumnBox_Camps.OnDoubleClick := StartClick;
 
-    with TKMBevel.Create(Panel_CampSelect, 669, 170, 275, 208) do Anchors := [];
+    TKMBevel.Create(Panel_CampSelect, 669, 170, 275, 208).AnchorsCenter;
     Image_CampsPreview := TKMImage.Create(Panel_CampSelect, 673, 174, 267, 200, 0, rxGuiMain);
     Image_CampsPreview.ImageStretch;
-    Image_CampsPreview.Anchors := [];
+    Image_CampsPreview.AnchorsCenter;
 
     Memo_CampDesc := TKMMemo.Create(Panel_CampSelect, 669, 390, 275, 140, fnt_Game, bsMenu);
-    Memo_CampDesc.Anchors := [];
+    Memo_CampDesc.AnchorsCenter;
     Memo_CampDesc.AutoWrap := True;
     Memo_CampDesc.ItemHeight := 16;
 
     L := TKMLabel.Create(Panel_CampSelect, 80, 540, 864, 40, gResTexts[TX_MENU_CAMP_HINT], fnt_Grey, taCenter);
-    L.Anchors := [];
+    L.AnchorsCenter;
     L.AutoWrap := True;
 
     Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 362, 580, 300, 30, gResTexts[TX_MENU_CAMP_START], bsMenu);
-    Button_Camp_Start.Anchors := [];
+    Button_Camp_Start.AnchorsCenter;
     Button_Camp_Start.OnClick := StartClick;
 
     Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 362, 625, 300, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_Camp_Back.Anchors := [];
+    Button_Camp_Back.AnchorsCenter;
     Button_Camp_Back.OnClick := BackClick;
 end;
 
@@ -91,12 +94,22 @@ begin
   ColumnBox_Camps.Clear;
   Memo_CampDesc.Clear;
   for I := 0 to Camps.Count - 1 do
-  with Camps[I] do
+  begin
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1)],
+                        [Camps[I].CampaignTitle, IntToStr(Camps[I].MapCount), IntToStr(Camps[I].UnlockedMap + 1)],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], I));
+    if Camps[I].CampName = gGameApp.GameSettings.MenuCampaignName then
+    begin
+      ColumnBox_Camps.ItemIndex := I;
+      ListChange(nil);
+    end;
 
-  Button_Camp_Start.Disable;
+  end;
+
+  if ColumnBox_Camps.ItemIndex = -1 then
+    Button_Camp_Start.Disable
+  else
+    Button_Camp_Start.Enable;
 end;
 
 
@@ -122,6 +135,7 @@ begin
     Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
 
     Memo_CampDesc.Text := Camp.CampaignDescription;
+    gGameApp.GameSettings.MenuCampaignName := Camp.CampName;
   end;
 end;
 

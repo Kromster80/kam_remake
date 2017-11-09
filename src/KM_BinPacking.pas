@@ -29,9 +29,9 @@ type
     fImageID: Word; //Image that is using this bin (0 if unused)
     fRect: TBinRect; //Our dimensions
     fPad: Byte;
-    fNotFit: Word; //Minimum size that does not fit
+    fNotFit: Cardinal; //Minimum size that does not fit
   public
-    constructor Create(aRect: TBinRect; aPad: Byte; aImageID: Word);
+    constructor Create(aRect: TBinRect; aPad: Byte; aImageID: Word; aNotFit: Cardinal);
     destructor Destroy; override;
     function Insert(aItem: TIndexItem): TBin; //Return bin that has accepted the sprite, or nil of Bin is full
     function Width: Word;
@@ -105,14 +105,14 @@ end;
 
 
 { TBin }
-constructor TBin.Create(aRect: TBinRect; aPad: Byte; aImageID: Word);
+constructor TBin.Create(aRect: TBinRect; aPad: Byte; aImageID: Word; aNotFit: Cardinal);
 begin
   inherited Create;
 
   fRect := aRect; //Our dimensions
   fImageID := aImageID;
   fPad := aPad;
-  fNotFit := 65535;
+  fNotFit := aNotFit;
 end;
 
 
@@ -162,13 +162,13 @@ begin
     if (fRect.Width - aItem.X - fPad*2) * fRect.Height > (fRect.Height - aItem.Y - fPad*2) * fRect.Width then
     begin
       //Vertical split
-      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, aItem.X + fPad*2, fRect.Height), fPad, 0);
-      fChild2 := TBin.Create(BinRect(fRect.X + aItem.X + fPad*2, fRect.Y, fRect.Width - aItem.X - fPad*2, fRect.Height), fPad, 0);
+      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, aItem.X + fPad*2, fRect.Height), fPad, 0, fNotFit);
+      fChild2 := TBin.Create(BinRect(fRect.X + aItem.X + fPad*2, fRect.Y, fRect.Width - aItem.X - fPad*2, fRect.Height), fPad, 0, fNotFit);
     end else
     begin
       //Horizontal split
-      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, fRect.Width, aItem.Y + fPad*2), fPad, 0);
-      fChild2 := TBin.Create(BinRect(fRect.X, fRect.Y + aItem.Y + fPad*2, fRect.Width, fRect.Height - aItem.Y - fPad*2), fPad, 0);
+      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, fRect.Width, aItem.Y + fPad*2), fPad, 0, fNotFit);
+      fChild2 := TBin.Create(BinRect(fRect.X, fRect.Y + aItem.Y + fPad*2, fRect.Width, fRect.Height - aItem.Y - fPad*2), fPad, 0, fNotFit);
     end;
 
     //Now let the Child1 handle the Item
@@ -242,7 +242,7 @@ end;
 
 function TBinManager.CreateNew(aWidth: Word; aHeight: Word): TBin;
 begin
-  Result := TBin.Create(BinRect(0, 0, aWidth, aHeight), fPad, 0);
+  Result := TBin.Create(BinRect(0, 0, aWidth, aHeight), fPad, 0, fWidth*fHeight);
   fBins.Add(Result);
 end;
 

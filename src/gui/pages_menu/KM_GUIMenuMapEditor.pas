@@ -2,13 +2,15 @@ unit KM_GUIMenuMapEditor;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, SysUtils, Math,
   KM_Controls, KM_Maps, KM_Minimap,
   KM_InterfaceDefaults;
 
 
 type
-  TKMMenuMapEditor = class {(TKMGUIPage)}
+  TKMMenuMapEditor = class (TKMMenuPageCommon)
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -16,17 +18,24 @@ type
     fMapsMP: TKMapsCollection;
     fMinimap: TKMMinimap;
 
-    fLastMapCRC: Cardinal; //CRC of selected map
+    fSelectedMapInfo: TKMFileIdentInfo; // Identification info about last selected map
 
     procedure StartClick(Sender: TObject);
     procedure MapTypeChange(Sender: TObject);
     procedure SizeChangeByRadio(Sender: TObject);
     procedure SizeChangeByEdit(Sender: TObject);
+    procedure UpdateRadioMapEdSizes;
     procedure ListUpdate;
+    procedure UpdateUI;
+    procedure SetSelectedMapInfo(aID: Integer = -1); overload;
+    procedure SetSelectedMapInfo(aCRC: Cardinal; aName: UnicodeString); overload;
     procedure ScanUpdate(Sender: TObject);
+    procedure ScanComplete(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure RefreshList(aJumpToSelected:Boolean);
     procedure ColumnClick(aValue: Integer);
+    function GetMaps: TKMapsCollection;
+    procedure LoadMinimap(aID: Integer = -1);
     procedure SelectMap(Sender: TObject);
     procedure BackClick(Sender: TObject);
     procedure DeleteClick(Sender: TObject);
@@ -34,6 +43,8 @@ type
     procedure MoveConfirm(aVisible: Boolean);
     procedure MoveEditChange(Sender: TObject);
     procedure MoveClick(Sender: TObject);
+    procedure EscKeyDown(Sender: TObject);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
   protected
     Panel_MapEd: TKMPanel;
       Panel_MapEdSizeXY: TKMPanel;
@@ -46,12 +57,20 @@ type
       NumEdit_MapSizeX: TKMNumericEdit;
       NumEdit_MapSizeY: TKMNumericEdit;
 
-      Button_MapDelete, Button_MapDeleteConfirm, Button_MapDeleteCancel: TKMButton;
-      Button_MapMove, Button_MapMoveConfirm, Button_MapMoveCancel: TKMButton;
-      Label_MapDeleteConfirm, Label_MapMoveConfirm: TKMLabel;
-      Edit_MapMove: TKMEdit;
-      Label_MoveExists: TKMLabel;
-      CheckBox_MoveExists: TKMCheckBox;
+      //PopUp Menus
+      PopUp_Delete: TKMPopUpMenu;
+        Image_Delete: TKMImage;
+        Button_MapDelete, Button_MapDeleteConfirm, Button_MapDeleteCancel: TKMButton;
+        Label_MapDeleteConfirmTitle, Label_MapDeleteConfirm: TKMLabel;
+
+      PopUp_Move: TKMPopUpMenu;
+        Image_Move: TKMImage;
+        Button_MapMove, Button_MapMoveConfirm, Button_MapMoveCancel: TKMButton;
+        Edit_MapMove: TKMEdit;
+        Label_MoveExists: TKMLabel;
+        CheckBox_MoveExists: TKMCheckBox;
+        Label_MapMoveConfirmTitle, Label_MapMoveName: TKMLabel;
+
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -62,7 +81,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults;
+  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults, KM_Pics;
 
 
 const
@@ -78,6 +97,8 @@ begin
   inherited Create;
 
   fOnPageChange := aOnPageChange;
+  OnEscKeyDown := EscKeyDown;
+  OnKeyDown := KeyDown;
 
   fMaps := TKMapsCollection.Create(mfSP);
   fMapsMP := TKMapsCollection.Create([mfMP, mfDL]);
@@ -128,8 +149,8 @@ begin
       Radio_MapEd_MapType.OnChange := MapTypeChange;
       ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 506, fnt_Metal,  bsMenu);
       ColumnBox_MapEd.Anchors := [anLeft, anTop, anBottom];
-      ColumnBox_MapEd.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 310, 340]);
-      ColumnBox_MapEd.SearchColumn := 0;
+      ColumnBox_MapEd.SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 22, 310, 340]);
+      ColumnBox_MapEd.SearchColumn := 1;
       ColumnBox_MapEd.OnColumnClick := ColumnClick;
       ColumnBox_MapEd.OnChange := SelectMap;
       ColumnBox_MapEd.OnDoubleClick := StartClick;
@@ -142,60 +163,85 @@ begin
       Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
       Button_MapEd_Load.Anchors := [anLeft, anBottom];
       Button_MapEd_Load.OnClick := StartClick;
-      Button_MapDelete := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_DELETE], bsMenu);
-      Button_MapDelete.Anchors := [anLeft, anBottom];
-      Button_MapDelete.OnClick := DeleteClick;
+
       Button_MapMove := TKMButton.Create(Panel_MapEdLoad, 0, 596, 440, 30, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], bsMenu);
       Button_MapMove.Anchors := [anLeft, anBottom];
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
 
-      //Delete
-      Label_MapDeleteConfirm := TKMLabel.Create(Panel_MapEdLoad, 220, 640, gResTexts[TX_MENU_MAP_DELETE_CONFIRM], fnt_Outline, taCenter);
-      Label_MapDeleteConfirm.Anchors := [anLeft, anBottom];
-      Label_MapDeleteConfirm.Hide;
+      Button_MapDelete := TKMButton.Create(Panel_MapEdLoad, 0, 668, 440, 30, gResTexts[TX_MENU_MAP_DELETE], bsMenu);
+      Button_MapDelete.Anchors := [anLeft, anBottom];
+      Button_MapDelete.OnClick := DeleteClick;
 
-      Button_MapDeleteConfirm := TKMButton.Create(Panel_MapEdLoad, 0, 668, 206, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
-      Button_MapDeleteConfirm.Anchors := [anLeft, anBottom];
-      Button_MapDeleteConfirm.OnClick := DeleteClick;
-      Button_MapDeleteConfirm.Hide;
+      Button_MapEdBack := TKMButton.Create(Panel_MapEd, 60, 708, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
+      Button_MapEdBack.Anchors := [anLeft, anBottom];
+      Button_MapEdBack.OnClick := BackClick;
 
-      Button_MapDeleteCancel  := TKMButton.Create(Panel_MapEdLoad, 234, 668, 206, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
-      Button_MapDeleteCancel.Anchors := [anLeft, anBottom];
-      Button_MapDeleteCancel.OnClick := DeleteClick;
-      Button_MapDeleteCancel.Hide;
+      //Delete PopUp
+      PopUp_Delete := TKMPopUpMenu.Create(Panel_MapEd, 450);
+      PopUp_Delete.Height := 200;
+      // Keep the pop-up centered
+      PopUp_Delete.AnchorsCenter;
+      PopUp_Delete.Left := (Panel_MapEd.Width div 2) - (PopUp_Delete.Width div 2);
+      PopUp_Delete.Top := (Panel_MapEd.Height div 2) - 90;
 
-      //Move
-      Label_MapMoveConfirm := TKMLabel.Create(Panel_MapEdLoad, 0, 594, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], fnt_Outline, taLeft);
-      Label_MapMoveConfirm.Anchors := [anLeft, anBottom];
-      Label_MapMoveConfirm.Hide;
+        TKMBevel.Create(PopUp_Delete, -1000,  -1000, 4000, 4000);
 
-      Edit_MapMove := TKMEdit.Create(Panel_MapEdLoad, 0, 610, 300, 20, fnt_Grey);
-      Edit_MapMove.Anchors := [anLeft, anBottom];
-      Edit_MapMove.OnChange := MoveEditChange;
-      Edit_MapMove.Hide;
+        Image_Delete := TKMImage.Create(PopUp_Delete, 0, 0, PopUp_Delete.Width, PopUp_Delete.Height, 15, rxGuiMain);
+        Image_Delete.ImageStretch;
 
-      Label_MoveExists := TKMLabel.Create(Panel_MapEdLoad, 0, 632, gResTexts[TX_MAPED_SAVE_EXISTS], fnt_Outline, taLeft);
-      Label_MoveExists.Anchors := [anLeft, anBottom];
-      Label_MoveExists.Hide;
-      CheckBox_MoveExists := TKMCheckBox.Create(Panel_MapEdLoad, 0, 650, 300, 20, gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
-      CheckBox_MoveExists.Anchors := [anLeft, anBottom];
-      CheckBox_MoveExists.OnClick := MoveEditChange;
-      CheckBox_MoveExists.Hide;
+        Label_MapDeleteConfirmTitle := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 40, gResTexts[TX_MENU_MAP_DELETE], fnt_Outline, taCenter);
+        Label_MapDeleteConfirmTitle.Anchors := [anLeft, anBottom];
 
-      Button_MapMoveConfirm := TKMButton.Create(Panel_MapEdLoad, 0, 668, 206, 30, gResTexts[TX_MENU_MAP_MOVE_CONFIRM], bsMenu);
-      Button_MapMoveConfirm.Anchors := [anLeft, anBottom];
-      Button_MapMoveConfirm.OnClick := MoveClick;
-      Button_MapMoveConfirm.Hide;
+        Label_MapDeleteConfirm := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 85, gResTexts[TX_MENU_MAP_DELETE_CONFIRM], fnt_Metal, taCenter);
+        Label_MapDeleteConfirm.Anchors := [anLeft, anBottom];
 
-      Button_MapMoveCancel  := TKMButton.Create(Panel_MapEdLoad, 234, 668, 206, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
-      Button_MapMoveCancel.Anchors := [anLeft, anBottom];
-      Button_MapMoveCancel.OnClick := MoveClick;
-      Button_MapMoveCancel.Hide;
+        Button_MapDeleteConfirm := TKMButton.Create(PopUp_Delete, 20, 155, 195, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
+        Button_MapDeleteConfirm.Anchors := [anLeft, anBottom];
+        Button_MapDeleteConfirm.OnClick := DeleteClick;
 
-    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 60, 708, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_MapEdBack.Anchors := [anLeft, anBottom];
-    Button_MapEdBack.OnClick := BackClick;
+        Button_MapDeleteCancel  := TKMButton.Create(PopUp_Delete, 235, 155, 195, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
+        Button_MapDeleteCancel.Anchors := [anLeft, anBottom];
+        Button_MapDeleteCancel.OnClick := DeleteClick;
+
+      //Move PopUp
+      PopUp_Move := TKMPopUpMenu.Create(Panel_MapEd, 400);
+      PopUp_Move.Height := 200;
+      // Keep the pop-up centered
+      PopUp_Move.AnchorsCenter;
+      PopUp_Move.Left := (Panel_MapEd.Width div 2) - (PopUp_Move.Width div 2);
+      PopUp_Move.Top := (Panel_MapEd.Height div 2) - 90;
+
+        TKMBevel.Create(PopUp_Move, -1000,  -1000, 4000, 4000);
+
+        Image_Move := TKMImage.Create(PopUp_Move, 0, 0, PopUp_Move.Width, PopUp_Move.Height, 15, rxGuiMain);
+        Image_Move.ImageStretch;
+
+        Label_MapMoveConfirmTitle := TKMLabel.Create(PopUp_Move, PopUp_Move.Width div 2, 40, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], fnt_Outline, taCenter);
+        Label_MapMoveConfirmTitle.Anchors := [anLeft, anBottom];
+
+        Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, 'Name', fnt_Metal, taLeft); // Todo translate
+        Label_MapMoveName.Anchors := [anLeft,anBottom];
+
+        Edit_MapMove := TKMEdit.Create(PopUp_Move, 105, 72, 275, 20, fnt_Grey);
+        Edit_MapMove.Anchors := [anLeft, anBottom];
+        Edit_MapMove.OnChange := MoveEditChange;
+
+        Label_MoveExists := TKMLabel.Create(PopUp_Move, 25, 100, gResTexts[TX_MAPED_SAVE_EXISTS], fnt_Outline, taLeft);
+        Label_MoveExists.Anchors := [anLeft, anBottom];
+        Label_MoveExists.Hide;
+        CheckBox_MoveExists := TKMCheckBox.Create(PopUp_Move, 25, 125, 300, 20, gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
+        CheckBox_MoveExists.Anchors := [anLeft, anBottom];
+        CheckBox_MoveExists.OnClick := MoveEditChange;
+
+        Button_MapMoveConfirm := TKMButton.Create(PopUp_Move, 20, 150, 170, 30, gResTexts[TX_MENU_MAP_MOVE_CONFIRM], bsMenu);
+        Button_MapMoveConfirm.Anchors := [anLeft, anBottom];
+        Button_MapMoveConfirm.OnClick := MoveClick;
+
+        Button_MapMoveCancel  := TKMButton.Create(PopUp_Move, 210, 150, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
+        Button_MapMoveCancel.Anchors := [anLeft, anBottom];
+        Button_MapMoveCancel.OnClick := MoveClick;
+
 end;
 
 
@@ -228,22 +274,18 @@ begin
      Button_MapEd_Load.Enabled and (ColumnBox_MapEd.ItemIndex <> -1) then
   begin
     ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
-    case Radio_MapEd_MapType.ItemIndex of
-      0: Maps := fMaps;
-      1: Maps := fMapsMP;
-      else  begin
-              Assert(False);
-              Exit;
-            end;
-    end;
+    Maps := GetMaps;
 
     //Terminate all
     fMaps.TerminateScan;
     fMapsMP.TerminateScan;
 
     Maps.Lock;
-      gGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
-    Maps.Unlock;
+    try
+      gGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0, Maps[ID].CRC);
+    finally
+      Maps.Unlock;
+    end;
 
     //Keep MP/SP selected in the map editor interface
     //(if mission failed to load we would have fGame = nil)
@@ -253,20 +295,28 @@ begin
 end;
 
 
-procedure TKMMenuMapEditor.SizeChangeByEdit(Sender: TObject);
-var
-  I: Integer;
+procedure TKMMenuMapEditor.UpdateRadioMapEdSizes;
+var I: Integer;
 begin
   Radio_MapEdSizeX.ItemIndex := -1;
   Radio_MapEdSizeY.ItemIndex := -1;
 
   for I := 1 to MAPSIZES_COUNT do
-  if NumEdit_MapSizeX.Value = MapSize[I] then
-    Radio_MapEdSizeX.ItemIndex := I - 1;
+  begin
+    if NumEdit_MapSizeX.Value = MapSize[I] then
+      Radio_MapEdSizeX.ItemIndex := I - 1;
+    if NumEdit_MapSizeY.Value = MapSize[I] then
+      Radio_MapEdSizeY.ItemIndex := I - 1;
+  end;
+end;
 
-  for I := 1 to MAPSIZES_COUNT do
-  if NumEdit_MapSizeY.Value = MapSize[I] then
-    Radio_MapEdSizeY.ItemIndex := I - 1;
+
+procedure TKMMenuMapEditor.SizeChangeByEdit(Sender: TObject);
+begin
+  UpdateRadioMapEdSizes;
+  
+  gGameApp.GameSettings.MenuMapEdNewMapX := NumEdit_MapSizeX.Value;
+  gGameApp.GameSettings.MenuMapEdNewMapY := NumEdit_MapSizeY.Value;
 end;
 
 
@@ -276,14 +326,29 @@ begin
     NumEdit_MapSizeX.Value := MapSize[Radio_MapEdSizeX.ItemIndex + 1];
   if Radio_MapEdSizeY.ItemIndex <> -1 then
     NumEdit_MapSizeY.Value := MapSize[Radio_MapEdSizeY.ItemIndex + 1];
+  gGameApp.GameSettings.MenuMapEdNewMapX := NumEdit_MapSizeX.Value;
+  gGameApp.GameSettings.MenuMapEdNewMapY := NumEdit_MapSizeY.Value;
 end;
 
 
 procedure TKMMenuMapEditor.MapTypeChange(Sender: TObject);
 begin
+  gGameApp.GameSettings.MenuMapEdMapType := Radio_MapEd_MapType.ItemIndex;
   ListUpdate;
+  UpdateUI;
   DeleteConfirm(False);
   MoveConfirm(False);
+end;
+
+
+procedure TKMMenuMapEditor.UpdateUI;
+begin
+  Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
+  Button_MapDelete.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
+  Button_MapMove.Visible := (ColumnBox_MapEd.ItemIndex <> -1) and (GetMaps[ColumnBox_MapEd.ItemIndex].MapFolder = mfDL);
+
+  if (ColumnBox_MapEd.ItemIndex = -1) then
+    MinimapView_MapEd.Hide
 end;
 
 
@@ -295,18 +360,19 @@ begin
   fMapsMP.TerminateScan;
 
   ColumnBox_MapEd.Clear;
-  fLastMapCRC := 0;
-  SelectMap(nil);
 
   //If both Maps and MapsMP are scanning at once ListUpdateDone can be called from either one
   //meaning we can access inconsistent and trigger assertion
   case Radio_MapEd_MapType.ItemIndex of
-    0: fMaps.Refresh(ScanUpdate);
-    1: fMapsMP.Refresh(ScanUpdate);
-    else  begin
-            Assert(False);
-            Exit;
-          end;
+    0:  begin
+          fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdSPMapCRC;
+          fMaps.Refresh(ScanUpdate, ScanComplete);
+        end;
+    1:  begin
+          fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdMPMapCRC;
+          fSelectedMapInfo.Name := gGameApp.GameSettings.MenuMapEdMPMapName;
+          fMapsMP.Refresh(ScanUpdate, ScanComplete);
+        end
   end;
 end;
 
@@ -314,6 +380,12 @@ end;
 procedure TKMMenuMapEditor.ScanUpdate(Sender: TObject);
 begin
   RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMenuMapEditor.ScanComplete(Sender: TObject);
+begin
+  RefreshList(True); //After scan complete jump to selected item
 end;
 
 
@@ -327,33 +399,29 @@ procedure TKMMenuMapEditor.RefreshList(aJumpToSelected:Boolean);
 var
   I, PrevTop: Integer;
   Maps: TKMapsCollection;
+  R: TKMListRow;
 begin
   PrevTop := ColumnBox_MapEd.TopIndex;
   ColumnBox_MapEd.Clear;
 
-  case Radio_MapEd_MapType.ItemIndex of
-    0: Maps := fMaps;
-    1: Maps := fMapsMP;
-    else  begin
-            Assert(False);
-            Exit;
-          end;
-  end;
+  Maps := GetMaps;
 
   Maps.Lock;
   try
     for I := 0 to Maps.Count - 1 do
     begin
-      ColumnBox_MapEd.AddItem(MakeListRow( [Maps[I].FileName,
-                                           IntToStr(Maps[I].LocCount),
-                                           Maps[I].SizeText],
-                                           //Colors
-                                           [Maps[I].GetLobbyColor,
-                                           Maps[I].GetLobbyColor,
-                                           Maps[I].GetLobbyColor], I));
+      R := MakeListRow(['', Maps[I].FileName, IntToStr(Maps[I].LocCount), Maps[I].SizeText],  //Texts
+                       [Maps[I].GetLobbyColor, Maps[I].GetLobbyColor, Maps[I].GetLobbyColor, Maps[I].GetLobbyColor], //Colors
+                       I);
+      R.Cells[0].Pic := MakePic(rxGui, 657 + Byte(Maps[I].MissionMode = mm_Tactic));
+      ColumnBox_MapEd.AddItem(R);
 
-      if (Maps[I].CRC = fLastMapCRC) then
+      if (Maps[I].CRC = fSelectedMapInfo.CRC)
+        and ((Radio_MapEd_MapType.ItemIndex = 0) or (Maps[I].FileName = fSelectedMapInfo.Name)) then  //Check name only for MP maps
+      begin
         ColumnBox_MapEd.ItemIndex := I;
+        LoadMinimap(I);
+      end;
     end;
   finally
     Maps.Unlock;
@@ -362,13 +430,15 @@ begin
   ColumnBox_MapEd.TopIndex := PrevTop;
 
   if aJumpToSelected and (ColumnBox_MapEd.ItemIndex <> -1)
-  and not InRange(ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.TopIndex, 0, ColumnBox_MapEd.GetVisibleRows-1)
+    and not InRange(ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.TopIndex, 0, ColumnBox_MapEd.GetVisibleRows-1)
   then
     if ColumnBox_MapEd.ItemIndex < ColumnBox_MapEd.TopIndex then
       ColumnBox_MapEd.TopIndex := ColumnBox_MapEd.ItemIndex
     else
     if ColumnBox_MapEd.ItemIndex > ColumnBox_MapEd.TopIndex + ColumnBox_MapEd.GetVisibleRows - 1 then
       ColumnBox_MapEd.TopIndex := ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.GetVisibleRows + 1;
+
+  UpdateUI;
 end;
 
 
@@ -380,14 +450,18 @@ begin
   with ColumnBox_MapEd do
   case SortIndex of
     0:  if SortDirection = sdDown then
+          SM := smByModeDesc
+        else
+          SM := smByModeAsc;
+    1:  if SortDirection = sdDown then
           SM := smByNameDesc
         else
           SM := smByNameAsc;
-    1:  if SortDirection = sdDown then
+    2:  if SortDirection = sdDown then
           SM := smByPlayersDesc
         else
           SM := smByPlayersAsc;
-    2:  if SortDirection = sdDown then
+    3:  if SortDirection = sdDown then
           SM := smBySizeDesc
         else
           SM := smBySizeAsc;
@@ -400,46 +474,64 @@ begin
 end;
 
 
-procedure TKMMenuMapEditor.SelectMap(Sender: TObject);
-var
-  ID: Integer;
-  Maps: TKMapsCollection;
+function TKMMenuMapEditor.GetMaps: TKMapsCollection;
 begin
-  Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
-  Button_MapDelete.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
+  case Radio_MapEd_MapType.ItemIndex of
+    0: Result := fMaps;
+    1: Result := fMapsMP;
+    else
+      raise Exception.Create('Unknown map type ' + IntToStr(Radio_MapEd_MapType.ItemIndex));
+  end;
+end;
 
-  if Button_MapEd_Load.Enabled then
+
+procedure TKMMenuMapEditor.SelectMap(Sender: TObject);
+var ID: Integer;
+    Maps: TKMapsCollection;
+begin
+  UpdateUI;
+  if ColumnBox_MapEd.ItemIndex <> -1 then
   begin
     ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
-    case Radio_MapEd_MapType.ItemIndex of
-      0: Maps := fMaps;
-      1: Maps := fMapsMP;
-      else
-      begin
-        Assert(False);
-        Exit;
-      end;
-    end;
+    Maps := GetMaps;
 
     DeleteConfirm(False);
     MoveConfirm(False);
 
     Maps.Lock;
-      fLastMapCRC := Maps[ID].CRC;
-      fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'), []);
-    Maps.Unlock;
+    try
+      SetSelectedMapInfo(ID);
+      LoadMinimap(ID);
+    finally
+      Maps.Unlock;
+    end;
 
-    fMinimap.Update(True);
-    MinimapView_MapEd.SetMinimap(fMinimap);
-    MinimapView_MapEd.Show;
-
-    Button_MapMove.Visible := Maps[ID].MapFolder = mfDL;
-  end
-  else
-  begin
+  end else begin
+    SetSelectedMapInfo;
     MinimapView_MapEd.Hide;
-    fLastMapCRC := 0;
   end;
+end;
+
+
+procedure TKMMenuMapEditor.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN:  if Button_MapDeleteConfirm.IsClickable then
+                  DeleteClick(Button_MapDeleteConfirm)
+                else if Button_MapMoveConfirm.IsClickable then
+                  MoveClick(Button_MapMoveConfirm);
+  end;
+end;
+
+
+procedure TKMMenuMapEditor.EscKeyDown(Sender: TObject);
+begin
+  if Button_MapDeleteCancel.IsClickable then
+    DeleteClick(Button_MapDeleteCancel)
+  else if Button_MapMoveCancel.IsClickable then
+    MoveClick(Button_MapMoveCancel)
+  else
+    BackClick(nil);
 end;
 
 
@@ -453,49 +545,64 @@ end;
 
 
 procedure TKMMenuMapEditor.DeleteConfirm(aVisible: Boolean);
-var Maps: TKMapsCollection;
 begin
-  Label_MapDeleteConfirm.Visible := aVisible;
-  Button_MapDeleteConfirm.Visible := aVisible;
-  Button_MapDeleteCancel.Visible := aVisible;
-  Button_MapDelete.Visible := not aVisible;
-  Button_MapEd_Load.Visible := not aVisible;
-
-  case Radio_MapEd_MapType.ItemIndex of
-    0: Maps := fMaps;
-    1: Maps := fMapsMP;
-    else begin
-           Assert(False);
-           Exit;
-         end;
+  if aVisible then
+  begin
+    PopUp_Delete.Show;
+    ColumnBox_MapEd.Focusable := False;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_MapEd);
+  end else begin
+    PopUp_Delete.Hide;
+    ColumnBox_MapEd.Focusable := True;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_MapEd);
   end;
-  Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
-    and (Maps[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
 end;
 
 
 procedure TKMMenuMapEditor.MoveConfirm(aVisible: Boolean);
-var Maps: TKMapsCollection;
 begin
-  Label_MapMoveConfirm.Visible := aVisible;
-  Button_MapMoveConfirm.Visible := aVisible;
-  Button_MapMoveCancel.Visible := aVisible;
-  Edit_MapMove.Visible := aVisible;
-  Label_MoveExists.Visible := aVisible;
-  CheckBox_MoveExists.Visible := aVisible;
-  Button_MapDelete.Visible := not aVisible;
-  Button_MapEd_Load.Visible := not aVisible;
-
-  case Radio_MapEd_MapType.ItemIndex of
-    0: Maps := fMaps;
-    1: Maps := fMapsMP;
-    else begin
-           Assert(False);
-           Exit;
-         end;
+  if aVisible then
+  begin
+    PopUp_Move.Show;
+    ColumnBox_MapEd.Focusable := False;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_MapEd);
+  end else begin
+    PopUp_Move.Hide;
+    ColumnBox_MapEd.Focusable := True;
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_MapEd);
   end;
-  Button_MapMove.Visible := not aVisible and (ColumnBox_MapEd.ItemIndex <> -1)
-    and (Maps[ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag].MapFolder = mfDL);
+end;
+
+
+procedure TKMMenuMapEditor.SetSelectedMapInfo(aID: Integer = -1);
+var CRC: Cardinal;
+    Name: UnicodeString;
+    Maps: TKMapsCollection;
+begin
+  if (aID <> -1) then
+  begin
+    Maps := GetMaps;
+    CRC := Maps[aID].CRC;
+    Name := Maps[aID].FileName;
+  end else begin
+    CRC := 0;
+    Name := '';
+  end;
+  SetSelectedMapInfo(CRC, Name);
+end;
+
+
+procedure TKMMenuMapEditor.SetSelectedMapInfo(aCRC: Cardinal; aName: UnicodeString);
+begin
+  fSelectedMapInfo.CRC := aCRC;
+  fSelectedMapInfo.Name := aName;
+  case Radio_MapEd_MapType.ItemIndex of
+    0:  gGameApp.GameSettings.MenuMapEdSPMapCRC := aCRC; // Set only CRC, because we do not save selected SP map name
+    1:  begin
+          gGameApp.GameSettings.MenuMapEdMPMapCRC := aCRC;
+          gGameApp.GameSettings.MenuMapEdMPMapName := aName;
+        end;
+  end;
 end;
 
 
@@ -504,14 +611,7 @@ var
   OldSelection, NewSelection: Integer;
   Maps: TKMapsCollection;
 begin
-  case Radio_MapEd_MapType.ItemIndex of
-    0: Maps := fMaps;
-    1: Maps := fMapsMP;
-    else  begin
-            Assert(False);
-            Exit;
-          end;
-  end;
+  Maps := GetMaps;
 
   if ColumnBox_MapEd.ItemIndex = -1 then Exit;
 
@@ -526,20 +626,14 @@ begin
   begin
     OldSelection := ColumnBox_MapEd.ItemIndex;
     Maps.DeleteMap(ColumnBox_MapEd.ItemIndex);
-    RefreshList(False);
-    if ColumnBox_MapEd.RowCount > 0 then
-      ColumnBox_MapEd.ItemIndex := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 1)
-    else
-      ColumnBox_MapEd.ItemIndex := -1;
-    NewSelection := ColumnBox_MapEd.ItemIndex;
-    if NewSelection >= 0 then begin
-      fMinimap.LoadFromMission(Maps[NewSelection].FullPath('.dat'), []);
-      fMinimap.Update(True);
-      MinimapView_MapEd.SetMinimap(fMinimap);
-      MinimapView_MapEd.Show;
-    end
-    else
-      MinimapView_MapEd.Hide;
+    if ColumnBox_MapEd.RowCount > 1 then
+    begin
+      NewSelection := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 2);
+      SetSelectedMapInfo(NewSelection);
+    end else
+      SetSelectedMapInfo;
+
+    RefreshList(True);
   end;
 end;
 
@@ -548,6 +642,15 @@ procedure TKMMenuMapEditor.MoveEditChange(Sender: TObject);
 var
   SaveName: string;
 begin
+  // Do not allow empty file name
+  if Trim(Edit_MapMove.Text) = '' then
+  begin
+    CheckBox_MoveExists.Visible := False;
+    Label_MoveExists.Visible := False;
+    Button_MapMoveConfirm.Enabled := False;
+    Exit;
+  end;
+
   SaveName := TKMapsCollection.FullPath(Trim(Edit_MapMove.Text), '.dat', mfMP);
 
   if (Sender = Edit_MapMove) or (Sender = Button_MapMove) then
@@ -563,9 +666,22 @@ begin
 end;
 
 
+procedure TKMMenuMapEditor.LoadMinimap(aID: Integer = -1);
+begin
+  if aID <> -1 then
+  begin
+    fMinimap.LoadFromMission(GetMaps[aID].FullPath('.dat'), []);
+    fMinimap.Update(True);
+    MinimapView_MapEd.SetMinimap(fMinimap);
+    MinimapView_MapEd.Show;
+  end else
+    MinimapView_MapEd.Hide;
+end;
+
+
 procedure TKMMenuMapEditor.MoveClick(Sender: TObject);
 var
-  OldSelection, NewSelection, ID: Integer;
+  ID: Integer;
 begin
   Assert(Radio_MapEd_MapType.ItemIndex = 1);
 
@@ -585,30 +701,27 @@ begin
   //Move selected map
   if Sender = Button_MapMoveConfirm then
   begin
-    OldSelection := ColumnBox_MapEd.ItemIndex;
     fMapsMP.MoveMap(ColumnBox_MapEd.ItemIndex, Edit_MapMove.Text, mfMP);
+    SetSelectedMapInfo(fSelectedMapInfo.CRC, Edit_MapMove.Text); // Update Name of selected item in list
+    gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_MapEd); // Set focus to the maps list
     ListUpdate;
-    if ColumnBox_MapEd.RowCount > 0 then
-      ColumnBox_MapEd.ItemIndex := EnsureRange(OldSelection, 0, ColumnBox_MapEd.RowCount - 1)
-    else
-      ColumnBox_MapEd.ItemIndex := -1;
-    NewSelection := ColumnBox_MapEd.ItemIndex;
-    if NewSelection >= 0 then begin
-      fMinimap.LoadFromMission(fMapsMP[NewSelection].FullPath('.dat'), []);
-      fMinimap.Update(True);
-      MinimapView_MapEd.SetMinimap(fMinimap);
-      MinimapView_MapEd.Show;
-    end
-    else
-      MinimapView_MapEd.Hide;
   end;
 end;
 
 
 procedure TKMMenuMapEditor.Show;
 begin
+  // we can get access to gGameApp only here, because in Create it could still be nil
+  Radio_MapEd_MapType.ItemIndex := gGameApp.GameSettings.MenuMapEdMapType;
+  NumEdit_MapSizeX.Value := gGameApp.GameSettings.MenuMapEdNewMapX;
+  NumEdit_MapSizeY.Value := gGameApp.GameSettings.MenuMapEdNewMapY;
+  UpdateRadioMapEdSizes;
+
   ListUpdate;
+  UpdateUI;
+
   Panel_MapEd.Show;
+  gGameApp.MainMenuInterface.MyControls.UpdateFocus(ColumnBox_MapEd); // Set focus to the maps list
 end;
 
 

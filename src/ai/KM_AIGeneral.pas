@@ -171,6 +171,7 @@ begin
   for I := 0 to High(Barracks) do
   begin
     HB := Barracks[I];
+
     //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
     K := 0;
     repeat
@@ -178,11 +179,13 @@ begin
       Inc(K);
     until (GroupReq[GT] > 0) or (K > 9); //Limit number of attempts to guarantee it doesn't loop forever
 
-    if GroupReq[GT] = 0 then Break; //Don't train
+    if GroupReq[GT] = 0 then
+      Break; // Don't train
 
-    for K := 1 to 3 do
+    for K := Low(AITroopTrainOrder[GT]) to High(AITroopTrainOrder[GT]) do
     begin
       UT := AITroopTrainOrder[GT, K];
+
       if (UT <> ut_None) then
         while ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON)))
         and HB.CanEquip(UT)
@@ -396,7 +399,7 @@ begin
   begin
     H := gHands[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
     if H <> nil then
-      fSetup.StartPosition := H.GetEntrance;
+      fSetup.StartPosition := H.Entrance;
   end;
 
   //See how many soldiers we need to launch an attack
