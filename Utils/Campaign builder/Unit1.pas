@@ -58,6 +58,7 @@ type
     fSelectedNode: Integer;
     PrevX, PrevY: Integer;
   public
+    procedure LoadCmp(aFileName : String);
     procedure FlagDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure FlagEnter(Sender: TObject);
@@ -126,12 +127,43 @@ begin
   fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
 
   seMapCountChange(nil); //Initialise it to 1 map
+  
+  if FileExists(ParamStr(1)) then
+    LoadCmp(ParamStr(1));
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   fSprites.Free;
+end;
+
+procedure TForm1.LoadCmp(aFileName : String);
+var
+  I: Integer;
+begin
+  C.LoadFromFile(aFileName);
+
+  fSprites.Free;
+  fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
+  if FileExists(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx') then
+    fSprites.LoadFromRXXFile(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx')
+  else
+    ShowMessage('Campaign background image (images.rxx) could not be found');
+
+  fSelectedMap := -1;
+  fSelectedNode := -1;
+
+  edtShortName.Text := C.CampName;
+  seMapCount.Value := C.MapCount;
+
+  UpdateList;
+  UpdateFlagCount;
+  RefreshBackground;
+  RefreshFlags;
+  //Hide nodes that might have been open from the last campaign
+  for I := 0 to Length(imgNodes) - 1 do
+    imgNodes[I].Visible := False;
 end;
 
 
@@ -347,8 +379,6 @@ end;
 
 
 procedure TForm1.btnLoadCMPClick(Sender: TObject);
-var
-  I: Integer;
 begin
   if DirectoryExists(fCampaignsPath) then
     dlgOpenCampaign.InitialDir := fCampaignsPath
@@ -356,29 +386,8 @@ begin
     dlgOpenCampaign.InitialDir := fExePath;
 
   if not dlgOpenCampaign.Execute then Exit;
-
-  C.LoadFromFile(dlgOpenCampaign.FileName);
-
-  fSprites.Free;
-  fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
-  if FileExists(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx') then
-    fSprites.LoadFromRXXFile(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx')
-  else
-    ShowMessage('Campaign background image (images.rxx) could not be found');
-
-  fSelectedMap := -1;
-  fSelectedNode := -1;
-
-  edtShortName.Text := C.CampName;
-  seMapCount.Value := C.MapCount;
-
-  UpdateList;
-  UpdateFlagCount;
-  RefreshBackground;
-  RefreshFlags;
-  //Hide nodes that might have been open from the last campaign
-  for I := 0 to Length(imgNodes) - 1 do
-    imgNodes[I].Visible := False;
+  
+  LoadCmp(dlgOpenCampaign.FileName);
 end;
 
 
