@@ -16,6 +16,9 @@ uses
   KM_FormLoading in 'src\KM_FormLoading.pas' {FormLoading},
   //KM_Achievements in 'KM_Achievements.pas',
 
+  KromOGLUtils in 'src\common\KromOGLUtils.pas',
+  KromUtils in 'src\common\KromUtils.pas',
+
   KM_AI in 'src\ai\KM_AI.pas',
   KM_AIArmyEvaluation in 'src\ai\KM_AIArmyEvaluation.pas',
   KM_AIAttacks in 'src\ai\KM_AIAttacks.pas',
@@ -250,9 +253,7 @@ uses
   KM_UnitTaskThrowRock in 'src\units\KM_UnitTaskThrowRock.pas',
   KM_Utils in 'src\KM_Utils.pas',
   KM_Viewport in 'src\KM_Viewport.pas',
-  KM_WareDistribution in 'src\KM_WareDistribution.pas',
-  
-  KromUtils in 'src\common\KromUtils.pas';
+  KM_WareDistribution in 'src\KM_WareDistribution.pas';
 
 {$IFDEF WDC}
   {$R KaM_Remake_Icon.res KaM_Remake_Icon.rc} //Keeps the Icon
@@ -269,10 +270,10 @@ begin
   Application.Initialize;
   Application.Title := 'KaM Remake';
 
-  fMain := TKMMain.Create;
-  fMain.Start;
+  gMain := TKMMain.Create;
+  gMain.Start;
 
   Application.Run;
 
-  fMain.Free; //Prevents memory leak of TKMMain showing up in FastMM
+  gMain.Free; //Prevents memory leak of TKMMain showing up in FastMM
 end.

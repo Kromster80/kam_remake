@@ -24,13 +24,11 @@ type
     SelectionRect: TKMRectF; // Used for selecting units by sprite
   end;
 
-  TSmallIntArray = array of smallint;
-
   // List of sprites prepared to be rendered
   TRenderList = class
   private
     fCount: Word;
-    RenderOrder: TSmallIntArray; // Order in which sprites will be drawn ()
+    RenderOrder: array of Word; // Order in which sprites will be drawn ()
     RenderList: array of TKMRenderSprite;
 
     fStat_Sprites: Integer; // Total sprites in queue
@@ -1062,7 +1060,7 @@ begin
     // FOW is rendered over the top so no need to make sprites black anymore
     glColor4ub(255, 255, 255, 255);
 
-    glBindTexture(GL_TEXTURE_2D, Tex.Id);
+    TRender.BindTexture(Tex.Id);
     if DoHighlight then
       glColor3ub(HighlightColor AND $FF, HighlightColor SHR 8 AND $FF, HighlightColor SHR 16 AND $FF);
     glBegin(GL_QUADS);
@@ -1077,7 +1075,7 @@ begin
   with GFXData[aRX, aId] do
   begin
     glColor4ubv(@Col);
-    glBindTexture(GL_TEXTURE_2D, Alt.Id);
+    TRender.BindTexture(Alt.Id);
     glBegin(GL_QUADS);
       glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(pX                     , pY                      );
       glTexCoord2f(Alt.u2, Alt.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY                      );
@@ -1086,7 +1084,7 @@ begin
     glEnd;
   end;
 
-  glBindTexture(GL_TEXTURE_2D, 0);
+  TRender.BindTexture(0);
 end;
 
 
@@ -1122,14 +1120,14 @@ begin
     with GFXData[aRX,aId] do
     begin
       glColor3f(1, 1, 1);
-      glBindTexture(GL_TEXTURE_2D, Alt.Id);
+      TRender.BindTexture(Alt.Id);
       glBegin(GL_QUADS);
         glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(pX                     ,pY         );
         glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY         );
         glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY-pxHeight/CELL_SIZE_PX);
         glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(pX                     ,pY-pxHeight/CELL_SIZE_PX);
       glEnd;
-      glBindTexture(GL_TEXTURE_2D, 0);
+      TRender.BindTexture(0);
     end;
 
     // Stone progress
@@ -1141,14 +1139,14 @@ begin
         with GFXData[aRX,aId2] do
         begin
           glColor3f(1, 1, 1);
-          glBindTexture(GL_TEXTURE_2D, Alt.Id);
+          TRender.BindTexture(Alt.Id);
           glBegin(GL_QUADS);
             glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(X2                     ,Y2         );
             glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2         );
             glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2-pxHeight/CELL_SIZE_PX);
             glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(X2                     ,Y2-pxHeight/CELL_SIZE_PX);
           glEnd;
-          glBindTexture(GL_TEXTURE_2D, 0);
+          TRender.BindTexture(0);
         end;
     end;
 
@@ -1168,14 +1166,14 @@ begin
     // FOW is rendered over the top so no need to make sprites black anymore
     glColor4ub(255, 255, 255, 255);
 
-    glBindTexture(GL_TEXTURE_2D, Tex.Id);
+    TRender.BindTexture(Tex.Id);
     glBegin(GL_QUADS);
       glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(pX                     ,pY         );
       glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY         );
       glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY-pxHeight/CELL_SIZE_PX);
       glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(pX                     ,pY-pxHeight/CELL_SIZE_PX);
     glEnd;
-    glBindTexture(GL_TEXTURE_2D, 0);
+    TRender.BindTexture(0);
   end;
 
   glDisable(GL_STENCIL_TEST);
@@ -1380,7 +1378,7 @@ begin
                     RenderWireTile(P, $FFFFFF00) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmHouses:     RenderWireHousePlan(KMVectorSum(P, gGameCursor.CellAdjustment), THouseType(gGameCursor.Tag1)); // Cyan quads and red Xs
+    cmHouses:     RenderWireHousePlan(KMPointAdd(P, gGameCursor.DragOffset), THouseType(gGameCursor.Tag1)); // Cyan quads and red Xs
     cmBrush:      if gGameCursor.Tag1 <> 0 then
                   begin
                     Rad := gGameCursor.MapEdSize;
@@ -1482,10 +1480,11 @@ end;
 
 
 procedure TRenderPool.RenderForegroundUI_Units;
-var Obj: TObject;
-    U: TKMUnit;
-    G: TKMUnitGroup;
-    P: TKMPoint;
+var
+  Obj: TObject;
+  U: TKMUnit;
+  G: TKMUnitGroup;
+  P: TKMPoint;
 begin
   if gGameCursor.Tag1 = 255 then
   begin
@@ -1494,7 +1493,8 @@ begin
     begin
       U := TKMUnit(Obj);
       RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
-    end else if (Obj is TKMUnitGroup) then
+    end else
+    if (Obj is TKMUnitGroup) then
     begin
       G := TKMUnitGroup(Obj);
       U := G.FlagBearer;
@@ -1502,13 +1502,15 @@ begin
       begin
         G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
         RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
-      end else begin
+      end else
+      begin
         RenderUnit(U, U.GetPosition, DELETE_COLOR, True, DELETE_COLOR);
         G.PaintHighlighted(DELETE_COLOR, G.FlagColor, True, True, DELETE_COLOR);
       end;
     end;
   end
-  else begin
+  else
+  begin
     P := gGameCursor.Cell;
     if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
       AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
@@ -1555,10 +1557,11 @@ procedure TRenderPool.RenderForegroundUI_PaintBucket;
     end;
   end;
 
-var Obj: TObject;
-    HighlightColor: Cardinal;
-    P: TKMPoint;
-    IsRendered: Boolean;
+var
+  Obj: TObject;
+  HighlightColor: Cardinal;
+  P: TKMPoint;
+  IsRendered: Boolean;
 begin
   P := gGameCursor.Cell;
   HighlightColor := MultiplyBrightnessByFactor(gMySpectator.Hand.FlagColor, 2, 0.3, 0.9);
@@ -1606,16 +1609,15 @@ begin
   if gMySpectator.FogOfWar.CheckRevelation(CurPos) <= FOG_OF_WAR_MIN then Exit;
   // Select closest (higher Z) units first (list is in low..high Z-order)
   for I := Length(RenderOrder) - 1 downto 0 do
-    if RenderOrder[I] <> -1 then
+  begin
+    K := RenderOrder[I];
+    // Don't check child sprites, we don't want to select serfs by the long pike they are carrying
+    if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
     begin
-      K := RenderOrder[I];
-      // Don't check child sprites, we don't want to select serfs by the long pike they are carrying
-      if (RenderList[K].UID > 0) and KMInRect(CurPos, RenderList[K].SelectionRect) then
-      begin
-        Result := RenderList[K].UID;
-        Exit;
-      end;
+      Result := RenderList[K].UID;
+      Exit;
     end;
+  end;
 end;
 
 
@@ -1635,7 +1637,7 @@ begin
     if RenderList[I].NewInst then
     begin
       RenderOrder[J] := I;
-      inc(J);
+      Inc(J);
     end;
   SetLength(RenderOrder, J);
 end;
@@ -1644,7 +1646,7 @@ end;
 // Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
 var
-  RenderOrderAux: TSmallIntArray;
+  RenderOrderAux: array of Word;
 
   procedure DoQuickSort(aLo, aHi: Integer);
   var
@@ -1821,14 +1823,13 @@ end;
 // Now render all these items from list
 procedure TRenderList.Render;
 var
-  I, K, objectCount: Integer;
+  I, K, ObjectsCount: Integer;
 begin
   fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
-  objectCount := Length(RenderOrder);
+  ObjectsCount := Length(RenderOrder);
 
-  for I := 0 to objectCount - 1 do
-  if RenderOrder[I] <> -1 then
+  for I := 0 to ObjectsCount - 1 do
   begin
     K := RenderOrder[I];
     glPushMatrix;

@@ -1,4 +1,5 @@
 unit Unit1;
+
 interface
 uses
   Windows, Messages, Classes, Controls, Dialogs, Forms, StdCtrls, StrUtils, SysUtils, FileCtrl,
@@ -33,7 +34,6 @@ type
     procedure ComponentReEnabled(aEnabled : Boolean);
   end;
 
-
 var
   Form1: TForm1;
 implementation
@@ -62,9 +62,9 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  Caption := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
-
+  Caption                := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
   OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
+  fScripting             := TKMScripting.Create(nil);
 
   fScripting := TKMScripting.Create(nil);
   sListFileInFolder := TStringList.Create;
@@ -191,7 +191,7 @@ end;
 procedure TForm1.Validate(aPath: string; aReportGood: Boolean);
 var
   CampaignFile: UnicodeString;
-  txt: string;
+  txt:          string;
 begin
   if not FileExists(aPath) and aReportGood then
   begin
@@ -208,16 +208,18 @@ begin
   begin
     if txt <> '' then
       txt := txt + sLineBreak;
-    txt := txt + 'Warnings:' + sLineBreak;
-    txt := txt + StringReplace(fScripting.WarningsString, '|', sLineBreak, [rfReplaceAll]);
+
+    txt := txt + 'Warnings:' + sLineBreak +
+           StringReplace(fScripting.WarningsString, '|', sLineBreak, [rfReplaceAll]);
   end;
 
   if txt <> '' then
     Memo1.Lines.Append(aPath + sLineBreak + txt)
   else
-  if aReportGood then
-    Memo1.Lines.Append(aPath + ' - No errors :)');
+    if aReportGood then
+      Memo1.Lines.Append(aPath + ' - No errors :)');
 end;
+
 
 procedure TForm1.WMDropFiles(var Msg: TWMDropFiles);
 var

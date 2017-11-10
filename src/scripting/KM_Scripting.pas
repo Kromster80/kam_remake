@@ -205,11 +205,18 @@ end;
 //For example: uses ii1, ii2;
 //This will call this function 3 times. First with 'SYSTEM' then 'II1' and then 'II2'
 function TKMScripting.ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
-var CampaignDataType: TPSType;
+  procedure RegisterMethodCheck(aClass: TPSCompileTimeClass; const aDecl: string);
+  begin
+    // We are fine with Assert, cos it will trigger for devs during development
+    if not aClass.RegisterMethod(aDecl) then
+      Assert(False, Format('Error registering "%s"', [aDecl]));
+  end;
+var
+  CampaignDataType: TPSType;
+  c: TPSCompileTimeClass;
 begin
   if Name = 'SYSTEM' then
   begin
-
     if fCampaignDataTypeCode <> '' then
       try
         CampaignDataType := Sender.AddTypeS(CAMPAIGN_DATA_TYPE, fCampaignDataTypeCode);
@@ -218,320 +225,319 @@ begin
         on E: Exception do
           fErrorString := fErrorString + 'Error in declaration of global campaign data type|';
       end;
-    //Register classes and methods to the script engine.
-    //After that they can be used from within the script.
-    with Sender.AddClassN(nil, AnsiString(fStates.ClassName)) do
-    begin
-      Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
-      Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
 
-      RegisterMethod('function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer');
-      RegisterMethod('function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer');
-      RegisterMethod('function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
-      RegisterMethod('function ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer');
-      RegisterMethod('function ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer');
-      RegisterMethod('function ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer');
+    // Common
+    Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
+    Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
 
-      RegisterMethod('function ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean');
-      RegisterMethod('function ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean');
+    // Register classes and methods to the script engine.
+    // After that they can be used from within the script.
+    c := Sender.AddClassN(nil, AnsiString(fStates.ClassName));
+    RegisterMethodCheck(c, 'function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer');
+    RegisterMethodCheck(c, 'function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
+    RegisterMethodCheck(c, 'function ClosestHouseMultipleTypes(aPlayer, X, Y: Integer; aHouseTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function ClosestUnit(aPlayer, X, Y, aUnitType: Integer): Integer');
+    RegisterMethodCheck(c, 'function ClosestUnitMultipleTypes(aPlayer, X, Y: Integer; aUnitTypes: TByteSet): Integer');
 
-      RegisterMethod('function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
+    RegisterMethodCheck(c, 'function ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean');
+    RegisterMethodCheck(c, 'function ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean');
 
-      RegisterMethod('function GameTime: Cardinal');
+    RegisterMethodCheck(c, 'function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
 
-      RegisterMethod('function GroupAt(aX, aY: Word): Integer');
-      RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
-      RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
-      RegisterMethod('function GroupIdle(aGroupID: Integer): Boolean');
-      RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
-      RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
-      RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
-      RegisterMethod('function GroupType(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function GameTime: Cardinal');
 
-      RegisterMethod('function HouseAt(aX, aY: Word): Integer');
-      RegisterMethod('function HouseBarracksRallyPointX(aBarracks: Integer): Integer');
-      RegisterMethod('function HouseBarracksRallyPointY(aBarracks: Integer): Integer');
-      RegisterMethod('function HouseBuildingProgress(aHouseID: Integer): Word');
-      RegisterMethod('function HouseCanReachResources(aHouseID: Integer): Boolean)');
-      RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
-      RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
-      RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
-      RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
-      RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
-      RegisterMethod('function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
-      RegisterMethod('function HouseSiteIsDigged(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseType(aHouseID: Integer): Integer');
-      RegisterMethod('function HouseTypeMaxHealth(aHouseType: Integer): Word');
-      RegisterMethod('function HouseTypeName(aHouseType: Byte): AnsiString');
-      RegisterMethod('function HouseTypeToOccupantType(aHouseID: Integer): Integer');
-      RegisterMethod('function HouseUnlocked(aPlayer, aHouseType: Word): Boolean');
-      RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
-      RegisterMethod('function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
+    RegisterMethodCheck(c, 'function GroupAt(aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'function GroupColumnCount(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function GroupDead(aGroupID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function GroupIdle(aGroupID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
+    RegisterMethodCheck(c, 'function GroupMemberCount(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function GroupOwner(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function GroupType(aGroupID: Integer): Integer');
 
-      RegisterMethod('function IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
-      RegisterMethod('function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
-      RegisterMethod('function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function HouseAt(aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'function HouseBarracksRallyPointX(aBarracks: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseBarracksRallyPointY(aBarracks: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseBuildingProgress(aHouseID: Integer): Word');
+    RegisterMethodCheck(c, 'function HouseCanReachResources(aHouseID: Integer): Boolean)');
+    RegisterMethodCheck(c, 'function HouseDamage(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseDestroyed(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseHasOccupant(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseIsComplete(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseOwner(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function HousePositionX(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function HousePositionY(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseRepair(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseSiteIsDigged(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseType(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseTypeMaxHealth(aHouseType: Integer): Word');
+    RegisterMethodCheck(c, 'function HouseTypeName(aHouseType: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function HouseTypeToOccupantType(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function HouseUnlocked(aPlayer, aHouseType: Word): Boolean');
+    RegisterMethodCheck(c, 'function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
 
-      RegisterMethod('function KaMRandom: Single');
-      RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
+    RegisterMethodCheck(c, 'function IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
 
-      RegisterMethod('function LocationCount: Integer');
+    RegisterMethodCheck(c, 'function KaMRandom: Single');
+    RegisterMethodCheck(c, 'function KaMRandomI(aMax:Integer): Integer');
 
-      RegisterMethod('function MapHeight: Integer');
-      RegisterMethod('function MapTileHeight(X, Y: Integer): Integer');
-      RegisterMethod('function MapTileObject(X, Y: Integer): Integer');
-      RegisterMethod('function MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean');
-      RegisterMethod('function MapTileRotation(X, Y: Integer): Integer');
-      RegisterMethod('function MapTileType(X, Y: Integer): Integer');
-      RegisterMethod('function MapWidth: Integer');
+    RegisterMethodCheck(c, 'function LocationCount: Integer');
 
-      RegisterMethod('function MarketFromWare(aMarketID: Integer): Integer');
-      RegisterMethod('function MarketLossFactor: Single');
-      RegisterMethod('function MarketOrderAmount(aMarketID: Integer): Integer');
-      RegisterMethod('function MarketToWare(aMarketID: Integer): Integer');
-      RegisterMethod('function MarketValue(aRes: Integer): Single');
+    RegisterMethodCheck(c, 'function MapHeight: Integer');
+    RegisterMethodCheck(c, 'function MapTileHeight(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function MapTileObject(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean');
+    RegisterMethodCheck(c, 'function MapTileRotation(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function MapTileType(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function MapWidth: Integer');
 
-      RegisterMethod('function PeaceTime: Cardinal');
+    RegisterMethodCheck(c, 'function MarketFromWare(aMarketID: Integer): Integer');
+    RegisterMethodCheck(c, 'function MarketLossFactor: Single');
+    RegisterMethodCheck(c, 'function MarketOrderAmount(aMarketID: Integer): Integer');
+    RegisterMethodCheck(c, 'function MarketToWare(aMarketID: Integer): Integer');
+    RegisterMethodCheck(c, 'function MarketValue(aRes: Integer): Single');
 
-      RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
-      RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
-      RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
-      RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
-      RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
-      RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
-      RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
-      RegisterMethod('function PlayerIsAI(aPlayer: Byte): Boolean');
-      RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
-      RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
-      RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
+    RegisterMethodCheck(c, 'function PeaceTime: Cardinal');
 
-      RegisterMethod('function StatAIDefencePositionsCount(aPlayer: Byte): Integer');
-      RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
-      RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
-      RegisterMethod('function StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
-      RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
-      RegisterMethod('function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer');
-      RegisterMethod('function StatPlayerCount: Integer');
-      RegisterMethod('function StatResourceProducedCount(aPlayer, aResType: Byte): Integer');
-      RegisterMethod('function StatResourceProducedMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
-      RegisterMethod('function StatUnitCount(aPlayer: Byte): Integer');
-      RegisterMethod('function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer');
-      RegisterMethod('function StatUnitKilledMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
-      RegisterMethod('function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
-      RegisterMethod('function StatUnitLostMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
-      RegisterMethod('function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
-      RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
+    RegisterMethodCheck(c, 'function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
+    RegisterMethodCheck(c, 'function PlayerColorText(aPlayer: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function PlayerDefeated(aPlayer: Byte): Boolean');
+    RegisterMethodCheck(c, 'function PlayerEnabled(aPlayer: Byte): Boolean');
+    RegisterMethodCheck(c, 'function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
+    RegisterMethodCheck(c, 'function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
+    RegisterMethodCheck(c, 'function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
+    RegisterMethodCheck(c, 'function PlayerIsAI(aPlayer: Byte): Boolean');
+    RegisterMethodCheck(c, 'function PlayerName(aPlayer: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function PlayerVictorious(aPlayer: Byte): Boolean');
+    RegisterMethodCheck(c, 'function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
 
-      RegisterMethod('function UnitAt(aX, aY: Word): Integer');
-      RegisterMethod('function UnitCarrying(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
-      RegisterMethod('function UnitDirection(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitHome(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitHPCurrent(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitHPMax(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitHPInvulnerable(aUnitID: Integer): Boolean');
-      RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitIdle(aUnitID: Integer): Boolean');
-      RegisterMethod('function UnitLowHunger: Integer');
-      RegisterMethod('function UnitMaxHunger: Integer');
-      RegisterMethod('function UnitOwner(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitPositionX(aHouseID: Integer): Integer');
-      RegisterMethod('function UnitPositionY(aHouseID: Integer): Integer');
-      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitType(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitTypeName(aUnitType: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function StatAIDefencePositionsCount(aPlayer: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatArmyCount(aPlayer: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatCitizenCount(aPlayer: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatPlayerCount: Integer');
+    RegisterMethodCheck(c, 'function StatResourceProducedCount(aPlayer, aResType: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatResourceProducedMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function StatUnitCount(aPlayer: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatUnitKilledMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatUnitLostMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
 
-      RegisterMethod('function WareTypeName(aWareType: Byte): AnsiString');
-    end;
+    RegisterMethodCheck(c, 'function UnitAt(aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'function UnitCarrying(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitDead(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function UnitDirection(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitHome(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitHPCurrent(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitHPMax(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitHPInvulnerable(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function UnitHunger(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitIdle(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function UnitLowHunger: Integer');
+    RegisterMethodCheck(c, 'function UnitMaxHunger: Integer');
+    RegisterMethodCheck(c, 'function UnitOwner(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitPositionX(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitPositionY(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitsGroup(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitType(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function UnitTypeName(aUnitType: Byte): AnsiString');
 
-    with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
-    begin
-      RegisterMethod('procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word)');
-      RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
-      RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
-      RegisterMethod('procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
-      RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
-      RegisterMethod('procedure AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer)');
-      RegisterMethod('procedure AIDefencePositionRemoveAll(aPlayer: Byte)');
-      RegisterMethod('procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean)');
-      RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
-      RegisterMethod('procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
-      RegisterMethod('procedure AIRecruitDelay(aPlayer, aDelay: Cardinal)');
-      RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
-      RegisterMethod('procedure AISerfsFactor(aPlayer: Byte; aLimit: Single)');
-      RegisterMethod('procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer)');
-      RegisterMethod('procedure AIStartPosition(aPlayer: Byte; X, Y: Word)');
-      RegisterMethod('procedure AIWorkerLimit(aPlayer, aLimit: Byte)');
+    RegisterMethodCheck(c, 'function WareTypeName(aWareType: Byte): AnsiString');
 
-      RegisterMethod('procedure CinematicEnd(aPlayer: Byte)');
-      RegisterMethod('procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word)');
-      RegisterMethod('procedure CinematicStart(aPlayer: Byte)');
+    c := Sender.AddClassN(nil, AnsiString(fActions.ClassName));
+    RegisterMethodCheck(c, 'procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word)');
+    RegisterMethodCheck(c, 'procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
+    RegisterMethodCheck(c, 'procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
+    RegisterMethodCheck(c, 'procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
+    RegisterMethodCheck(c, 'procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
+    RegisterMethodCheck(c, 'procedure AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer)');
+    RegisterMethodCheck(c, 'procedure AIDefencePositionRemoveAll(aPlayer: Byte)');
+    RegisterMethodCheck(c, 'procedure AIDefendAllies(aPlayer: Byte; aDefend: Boolean)');
+    RegisterMethodCheck(c, 'procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
+    RegisterMethodCheck(c, 'procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
+    RegisterMethodCheck(c, 'procedure AIRecruitDelay(aPlayer, aDelay: Cardinal)');
+    RegisterMethodCheck(c, 'procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
+    RegisterMethodCheck(c, 'procedure AISerfsFactor(aPlayer: Byte; aLimit: Single)');
+    RegisterMethodCheck(c, 'procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer)');
+    RegisterMethodCheck(c, 'procedure AIStartPosition(aPlayer: Byte; X, Y: Word)');
+    RegisterMethodCheck(c, 'procedure AIWorkerLimit(aPlayer, aLimit: Byte)');
 
-      RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
-      RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
-      RegisterMethod('procedure FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word)');
-      RegisterMethod('procedure FogRevealAll(aPlayer: Byte)');
-      RegisterMethod('procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word)');
-      RegisterMethod('procedure FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word)');
+    RegisterMethodCheck(c, 'procedure CinematicEnd(aPlayer: Byte)');
+    RegisterMethodCheck(c, 'procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word)');
+    RegisterMethodCheck(c, 'procedure CinematicStart(aPlayer: Byte)');
 
-      RegisterMethod('function  GiveAnimal(aType, X,Y: Word): Integer');
-      RegisterMethod('function  GiveField(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
-      RegisterMethod('function  GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
-      RegisterMethod('function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
-      RegisterMethod('function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
-      RegisterMethod('function  GiveRoad(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
-      RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
-      RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
-      RegisterMethod('function  GiveWineField(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  GiveWineFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
+    RegisterMethodCheck(c, 'procedure FogCoverAll(aPlayer: Byte)');
+    RegisterMethodCheck(c, 'procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
+    RegisterMethodCheck(c, 'procedure FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word)');
+    RegisterMethodCheck(c, 'procedure FogRevealAll(aPlayer: Byte)');
+    RegisterMethodCheck(c, 'procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word)');
+    RegisterMethodCheck(c, 'procedure FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word)');
 
-      RegisterMethod('procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean)');
-      RegisterMethod('procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');
-      RegisterMethod('procedure GroupHungerSet(aGroupID, aHungerLevel: Integer)');
-      RegisterMethod('procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean)');
-      RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
-      RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
-      RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
-      RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
-      RegisterMethod('procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
-      RegisterMethod('function  GroupOrderSplit(aGroupID: Integer): Integer');
-      RegisterMethod('function  GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer');
-      RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
-      RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
-      RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
+    RegisterMethodCheck(c, 'function  GiveAnimal(aType, X,Y: Word): Integer');
+    RegisterMethodCheck(c, 'function  GiveField(aPlayer, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function  GiveFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
+    RegisterMethodCheck(c, 'function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveHouseSite(aPlayer, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
+    RegisterMethodCheck(c, 'function  GiveRoad(aPlayer, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
+    RegisterMethodCheck(c, 'procedure GiveWares(aPlayer, aType, aCount: Word)');
+    RegisterMethodCheck(c, 'procedure GiveWeapons(aPlayer, aType, aCount: Word)');
+    RegisterMethodCheck(c, 'function  GiveWineField(aPlayer, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function  GiveWineFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
 
-      RegisterMethod('procedure HouseAddBuildingMaterials(aHouseID: Integer)');
-      RegisterMethod('procedure HouseAddBuildingProgress(aHouseID: Integer)');
-      RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
-      RegisterMethod('procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
-      RegisterMethod('procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
-      RegisterMethod('procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
-      RegisterMethod('function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
-      RegisterMethod('procedure HouseBarracksGiveRecruit(aHouseID: Integer)');
-      RegisterMethod('procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
-      RegisterMethod('procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
-      RegisterMethod('procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean)');
-      RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
-      RegisterMethod('function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
-      RegisterMethod('procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
-      RegisterMethod('procedure HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word)');
-      RegisterMethod('procedure HouseUnlock(aPlayer, aHouseType: Word)');
-      RegisterMethod('procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
-      RegisterMethod('procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
-      RegisterMethod('procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean)');
+    RegisterMethodCheck(c, 'procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');
+    RegisterMethodCheck(c, 'procedure GroupHungerSet(aGroupID, aHungerLevel: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean)');
+    RegisterMethodCheck(c, 'procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderFood(aGroupID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderHalt(aGroupID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
+    RegisterMethodCheck(c, 'function  GroupOrderSplit(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'procedure GroupOrderStorm(aGroupID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
+    RegisterMethodCheck(c, 'procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
 
-      RegisterMethod('procedure Log(aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure HouseAddBuildingMaterials(aHouseID: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseAddBuildingProgress(aHouseID: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
+    RegisterMethodCheck(c, 'procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
+    RegisterMethodCheck(c, 'procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
+    RegisterMethodCheck(c, 'procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
+    RegisterMethodCheck(c, 'function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
+    RegisterMethodCheck(c, 'procedure HouseBarracksGiveRecruit(aHouseID: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
+    RegisterMethodCheck(c, 'function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
+    RegisterMethodCheck(c, 'procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word)');
+    RegisterMethodCheck(c, 'procedure HouseUnlock(aPlayer, aHouseType: Word)');
+    RegisterMethodCheck(c, 'procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
 
-      RegisterMethod('procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer)');
+    RegisterMethodCheck(c, 'procedure Log(aText: AnsiString)');
 
-      RegisterMethod('function MapTileHeightSet(X, Y, Height: Integer): Boolean');
-      RegisterMethod('function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
-      RegisterMethod('function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
+    RegisterMethodCheck(c, 'procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer)');
 
-      RegisterMethod('procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
-      RegisterMethod('procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
-      RegisterMethod('procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
-      RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+    RegisterMethodCheck(c, 'function MapTileHeightSet(X, Y, Height: Integer): Boolean');
+    RegisterMethodCheck(c, 'function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
+    RegisterMethodCheck(c, 'function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
 
-      RegisterMethod('function  PlanAddField(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
-      RegisterMethod('function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function  PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean');
-      RegisterMethod('function  PlanRemove(aPlayer, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+    RegisterMethodCheck(c, 'procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
 
-      RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
-      RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
-      RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
-      RegisterMethod('procedure PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)');
-      RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)');
-      RegisterMethod('procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
-      RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
+    RegisterMethodCheck(c, 'function  PlanAddField(aPlayer, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function  PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
+    RegisterMethodCheck(c, 'function  PlanConnectRoad(aPlayer, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  PlanRemove(aPlayer, X, Y: Word): Boolean');
 
-      RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
-      RegisterMethod('procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word)');
-      RegisterMethod('function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
-      RegisterMethod('procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
-      RegisterMethod('function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
-      RegisterMethod('procedure StopLoopedWAV(aLoopIndex: Integer)');
+    RegisterMethodCheck(c, 'procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerDefeat(aPlayer: Word)');
+    RegisterMethodCheck(c, 'procedure PlayerShareBeacons(aPlayer1, aPlayer2: Word; aCompliment, aShare: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerShareFogCompliment(aPlayer1, aPlayer2: Word; aShare: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
+    RegisterMethodCheck(c, 'procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
-      RegisterMethod('procedure RemoveRoad(X, Y: Word)');
+    RegisterMethodCheck(c, 'procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
+    RegisterMethodCheck(c, 'procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word)');
+    RegisterMethodCheck(c, 'function  PlayWAVAtLocationLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Word): Integer');
+    RegisterMethodCheck(c, 'procedure PlayWAVFadeMusic(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single)');
+    RegisterMethodCheck(c, 'function  PlayWAVLooped(aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'procedure StopLoopedWAV(aLoopIndex: Integer)');
 
-      RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
+    RegisterMethodCheck(c, 'procedure RemoveRoad(X, Y: Word)');
 
-      RegisterMethod('procedure ShowMsg(aPlayer: ShortInt; aText: AnsiString)');
-      RegisterMethod('procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
-      RegisterMethod('procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString)');
-      RegisterMethod('procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const)');
+    RegisterMethodCheck(c, 'procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
 
-      RegisterMethod('procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)');
-      RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
-      RegisterMethod('procedure UnitHPChange(aUnitID, aHP: Integer)');
-      RegisterMethod('procedure UnitHPSetInvulnerable(aUnitID: Integer; aInvulnerable: Boolean)');
-      RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
-      RegisterMethod('procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
-      RegisterMethod('function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
-    end;
+    RegisterMethodCheck(c, 'procedure ShowMsg(aPlayer: ShortInt; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+    RegisterMethodCheck(c, 'procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const)');
 
-    with Sender.AddClassN(nil, AnsiString(fUtils.ClassName)) do
-    begin
-      RegisterMethod('function AbsI(aValue: Integer): Integer');
-      RegisterMethod('function AbsS(aValue: Single): Single');
+    RegisterMethodCheck(c, 'procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)');
+    RegisterMethodCheck(c, 'function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
+    RegisterMethodCheck(c, 'procedure UnitHPChange(aUnitID, aHP: Integer)');
+    RegisterMethodCheck(c, 'procedure UnitHPSetInvulnerable(aUnitID: Integer; aInvulnerable: Boolean)');
+    RegisterMethodCheck(c, 'procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
+    RegisterMethodCheck(c, 'procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
+    RegisterMethodCheck(c, 'function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
 
-      RegisterMethod('function ArrayElementCount(aElement: AnsiString; aArray: array of AnsiString): Integer');
-      RegisterMethod('function ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer');
-      RegisterMethod('function ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer');
-      RegisterMethod('function ArrayElementCountS(aElement: Single; aArray: array of Single): Integer');
+    c := Sender.AddClassN(nil, AnsiString(fUtils.ClassName));
+    RegisterMethodCheck(c, 'function AbsI(aValue: Integer): Integer');
+    RegisterMethodCheck(c, 'function AbsS(aValue: Single): Single');
 
-      RegisterMethod('function ArrayHasElement(aElement: AnsiString; aArray: array of AnsiString): Boolean');
-      RegisterMethod('function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
-      RegisterMethod('function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
-      RegisterMethod('function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
+    RegisterMethodCheck(c, 'function ArrayElementCount(aElement: AnsiString; aArray: array of AnsiString): Integer');
+    RegisterMethodCheck(c, 'function ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer');
+    RegisterMethodCheck(c, 'function ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function ArrayElementCountS(aElement: Single; aArray: array of Single): Integer');
 
-      RegisterMethod('function EnsureRangeS(aValue, aMin, aMax: Single): Single');
-      RegisterMethod('function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
+    RegisterMethodCheck(c, 'function ArrayHasElement(aElement: AnsiString; aArray: array of AnsiString): Boolean');
+    RegisterMethodCheck(c, 'function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
+    RegisterMethodCheck(c, 'function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
+    RegisterMethodCheck(c, 'function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
 
-      RegisterMethod('function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString');
-      RegisterMethod('function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer');
-      RegisterMethod('function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single');
+    RegisterMethodCheck(c, 'function EnsureRangeS(aValue, aMin, aMax: Single): Single');
+    RegisterMethodCheck(c, 'function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
 
-      RegisterMethod('function InAreaI(aX, aY, aXMin, aYMin, aXMax, aYMax: Integer): Boolean');
-      RegisterMethod('function InAreaS(aX, aY, aXMin, aYMin, aXMax, aYMax: Single): Boolean');
+    RegisterMethodCheck(c, 'function Format(aFormatting: string; aData: array of const): string');
 
-      RegisterMethod('function InRangeI(aValue, aMin, aMax: Integer): Boolean');
-      RegisterMethod('function InRangeS(aValue, aMin, aMax: Single): Boolean');
+    RegisterMethodCheck(c, 'function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString');
+    RegisterMethodCheck(c, 'function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer');
+    RegisterMethodCheck(c, 'function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single');
 
-      RegisterMethod('function MaxI(A, B: Integer): Integer');
-      RegisterMethod('function MaxS(A, B: Single): Single');
+    RegisterMethodCheck(c, 'function InAreaI(aX, aY, aXMin, aYMin, aXMax, aYMax: Integer): Boolean');
+    RegisterMethodCheck(c, 'function InAreaS(aX, aY, aXMin, aYMin, aXMax, aYMax: Single): Boolean');
 
-      RegisterMethod('function MaxInArrayI(aArray: array of Integer): Integer');
-      RegisterMethod('function MaxInArrayS(aArray: array of Single): Single');
+    RegisterMethodCheck(c, 'function InRangeI(aValue, aMin, aMax: Integer): Boolean');
+    RegisterMethodCheck(c, 'function InRangeS(aValue, aMin, aMax: Single): Boolean');
 
-      RegisterMethod('function MinI(A, B: Integer): Integer');
-      RegisterMethod('function MinS(A, B: Single): Single');
+    RegisterMethodCheck(c, 'function MaxI(A, B: Integer): Integer');
+    RegisterMethodCheck(c, 'function MaxS(A, B: Single): Single');
 
-      RegisterMethod('function MinInArrayI(aArray: array of Integer): Integer');
-      RegisterMethod('function MinInArrayS(aArray: array of Single): Single');
+    RegisterMethodCheck(c, 'function MaxInArrayI(aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function MaxInArrayS(aArray: array of Single): Single');
 
-      RegisterMethod('function Power(Base, Exponent: Extended): Extended');
+    RegisterMethodCheck(c, 'function MinI(A, B: Integer): Integer');
+    RegisterMethodCheck(c, 'function MinS(A, B: Single): Single');
 
-      RegisterMethod('function Sqr(A: Extended): Extended');
+    RegisterMethodCheck(c, 'function MinInArrayI(aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function MinInArrayS(aArray: array of Single): Single');
 
-      RegisterMethod('function SumI(aArray: array of Integer): Integer');
-      RegisterMethod('function SumS(aArray: array of Single): Single');
+    RegisterMethodCheck(c, 'function Power(Base, Exponent: Extended): Extended');
 
-      RegisterMethod('function TimeToString(aTicks: Integer): AnsiString');
-    end;
+    RegisterMethodCheck(c, 'function Sqr(A: Extended): Extended');
 
-    //Register objects
+    RegisterMethodCheck(c, 'function SumI(aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function SumS(aArray: array of Single): Single');
+
+    RegisterMethodCheck(c, 'function TimeToString(aTicks: Integer): AnsiString');
+
+    // Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
     AddImportedClassVariable(Sender, 'Actions', AnsiString(fActions.ClassName));
     AddImportedClassVariable(Sender, 'Utils', AnsiString(fUtils.ClassName));
@@ -559,7 +565,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..23] of record
+  Procs: array [0..27] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -567,6 +573,11 @@ const
   end =
   (
   (Names: 'OnGroupHungry';          ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+
+  (Names: 'OnGroupOrderAttackHouse';ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderAttackUnit'; ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderLink';       ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'OnGroupOrderSplit';      ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
 
   (Names: 'OnHouseAfterDestroyed';  ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'OnHouseBuilt';           ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
@@ -918,6 +929,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerDefeat,                            'PlayerDefeat');
       RegisterMethod(@TKMScriptActions.PlayerShareBeacons,                      'PlayerShareBeacons');
       RegisterMethod(@TKMScriptActions.PlayerShareFog,                          'PlayerShareFog');
+      RegisterMethod(@TKMScriptActions.PlayerShareFogCompliment,                'PlayerShareFogCompliment');
       RegisterMethod(@TKMScriptActions.PlayerWareDistribution,                  'PlayerWareDistribution');
       RegisterMethod(@TKMScriptActions.PlayerWin,                               'PlayerWin');
 
@@ -963,6 +975,8 @@ begin
 
       RegisterMethod(@TKMScriptUtils.EnsureRangeI,                              'EnsureRangeI');
       RegisterMethod(@TKMScriptUtils.EnsureRangeS,                              'EnsureRangeS');
+
+      RegisterMethod(@TKMScriptUtils.Format,                                    'Format');
 
       RegisterMethod(@TKMScriptUtils.IfThen,                                    'IfThen');
       RegisterMethod(@TKMScriptUtils.IfThenI,                                   'IfThenI');

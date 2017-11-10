@@ -392,7 +392,7 @@ begin
   RemFakeField(fFields[aIndex].Loc);
   RemFakeDeletedField(fFields[aIndex].Loc);
 
-  fFields[aIndex].Loc := KMPoint(0,0);
+  fFields[aIndex].Loc := KMPOINT_ZERO;
   fFields[aIndex].FieldType := ft_None;
   fFields[aIndex].JobStatus := js_Empty;
   gHands.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
@@ -705,7 +705,7 @@ end;
 procedure TKMHousePlanList.ClosePlan(aIndex: Integer);
 begin
   fPlans[aIndex].HouseType := ht_None;
-  fPlans[aIndex].Loc       := KMPoint(0,0);
+  fPlans[aIndex].Loc       := KMPOINT_ZERO;
   fPlans[aIndex].JobStatus := js_Empty;
   gHands.CleanUpUnitPointer(fPlans[aIndex].Worker);
 end;

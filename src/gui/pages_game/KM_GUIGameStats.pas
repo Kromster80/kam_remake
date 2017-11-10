@@ -132,39 +132,56 @@ procedure TKMGUIGameStats.UpdateState;
 var
   HT: THouseType;
   UT: TUnitType;
-  Tmp, Tmp2: Integer;
+  Qty, WipQty, HTotalConstrQty: Integer;
   I,K: Integer;
+  DoHighlight: Boolean;
 begin
   //Update display values
   for I := 0 to High(StatPlan) do
-  for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
-  if StatPlan[I].HouseType[K] <> ht_None then
   begin
-    HT := StatPlan[I].HouseType[K];
-    Tmp := gMySpectator.Hand.Stats.GetHouseQty(HT);
-    Tmp2 := gMySpectator.Hand.Stats.GetHouseWip(HT);
-    Stat_HouseQty[HT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
-    Stat_HouseWip[HT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    if gMySpectator.Hand.Locks.HouseCanBuild(HT) or (Tmp > 0) then
+    HTotalConstrQty := 0;
+    for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
+    if StatPlan[I].HouseType[K] <> ht_None then
     begin
-      Stat_HousePic[HT].TexID := gRes.Houses[HT].GUIIcon;
-      Stat_HousePic[HT].Hint := gRes.Houses[HT].HouseName;
-    end
-    else
-    begin
-      Stat_HousePic[HT].TexID := 41;
-      Stat_HousePic[HT].Hint := gResTexts[TX_HOUSE_NOT_AVAILABLE]; //Building not available
+      HT := StatPlan[I].HouseType[K];
+      Qty := gMySpectator.Hand.Stats.GetHouseQty(HT);
+      WipQty := gMySpectator.Hand.Stats.GetHouseWip(HT);
+      HTotalConstrQty := HTotalConstrQty + Qty; // count total constructed houses
+      Stat_HouseQty[HT].Caption := IfThen(Qty  = 0, '-', IntToStr(Qty));
+      Stat_HouseWip[HT].Caption := IfThen(WipQty = 0, '', '+' + IntToStr(WipQty));
+      if gMySpectator.Hand.Locks.HouseCanBuild(HT) or (Qty > 0) then
+      begin
+        Stat_HousePic[HT].TexID := gRes.Houses[HT].GUIIcon;
+        Stat_HousePic[HT].Hint := gRes.Houses[HT].HouseName;
+      end
+      else
+      begin
+        Stat_HousePic[HT].TexID := 41;
+        Stat_HousePic[HT].Hint := gResTexts[TX_HOUSE_NOT_AVAILABLE]; //Building not available
+      end;
     end;
-  end;
 
-  for UT := CITIZEN_MIN to CITIZEN_MAX do
-  begin
-    Tmp := gMySpectator.Hand.Stats.GetUnitQty(UT);
-    Tmp2 := 0;//fPlayers[gMySpectator.PlayerIndex].Stats.GetUnitWip(UT);
-    Stat_UnitQty[UT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
-    Stat_UnitWip[UT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    Stat_UnitPic[UT].Hint := gRes.Units[UT].GUIName;
-    Stat_UnitPic[UT].FlagColor := gMySpectator.Hand.FlagColor;
+    for K := Low(StatPlan[I].UnitType) to High(StatPlan[I].UnitType) do
+    if StatPlan[I].UnitType[K] <> ut_None then
+    begin
+      UT := StatPlan[I].UnitType[K];
+      Qty := gMySpectator.Hand.Stats.GetUnitQty(UT);
+      WipQty := gMySpectator.Hand.Stats.GetUnitWip(UT);
+
+      //Hightlight unit qty, when there are not enought workers
+      DoHighlight := (I < High(StatPlan) - 1) // do not highlight last 2 rows - Barracks/Watch tower and Storehouse/Inn/School
+        and (HTotalConstrQty > Qty + WipQty);
+
+      if DoHighlight then
+        Stat_UnitQty[UT].FontColor := clStatsUnitMissingHL
+      else
+        Stat_UnitQty[UT].FontColor := clStatsUnitDefault;
+
+      Stat_UnitQty[UT].Caption := IfThen(not DoHighlight and (Qty  = 0), '-', IntToStr(Qty));
+      Stat_UnitWip[UT].Caption := IfThen(WipQty = 0, '', '+' + IntToStr(WipQty));
+      Stat_UnitPic[UT].Hint := gRes.Units[UT].GUIName;
+      Stat_UnitPic[UT].FlagColor := gMySpectator.Hand.FlagColor;
+    end;
   end;
 end;
 

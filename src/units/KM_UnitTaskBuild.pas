@@ -220,6 +220,7 @@ begin
          gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
        end;
+    //Warning! This step value is harcoded in KM_UnitTaskDelivery
     4: begin //This step is repeated until Serf brings us some stone
          SetActionLockedStay(30,ua_Work1);
          Thought := th_Stone;
@@ -360,6 +361,7 @@ begin
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
       end;
+   //Warning! This step value is harcoded in KM_UnitTaskDelivery
    5: begin //This step is repeated until Serf brings us some wood
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
@@ -682,9 +684,9 @@ begin
         end;
     7:  begin
           //Walk away from building site, before we get trapped when house becomes stoned
-          OutOfWay := gTerrain.GetOutOfTheWay(fUnit, KMPoint(0,0), tpWalk);
+          OutOfWay := gTerrain.GetOutOfTheWay(fUnit, KMPOINT_ZERO, tpWalk);
           //GetOutOfTheWay can return the input position (GetPosition in this case) if no others are possible
-          if KMSamePoint(OutOfWay, KMPoint(0,0)) or KMSamePoint(OutOfWay, GetPosition) then
+          if KMSamePoint(OutOfWay, KMPOINT_ZERO) or KMSamePoint(OutOfWay, GetPosition) then
             OutOfWay := fHouse.PointBelowEntrance; //Don't get stuck in corners
           SetActionWalkToSpot(OutOfWay);
           HouseNeedsWorker := False; //House construction no longer needs the worker to continue

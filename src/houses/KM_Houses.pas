@@ -530,7 +530,7 @@ function TKMHouse.GetClosestCell(aPos: TKMPoint): TKMPoint;
 var
   C: TKMPointList;
 begin
-  Result := KMPoint(0,0);
+  Result := KMPOINT_ZERO;
   C := TKMPointList.Create;
   try
     GetListOfCellsWithin(C);
@@ -844,26 +844,28 @@ end;
 
 
 function TKMHouse.GetResourceInArray: TKMByteArray;
-var I, IAdjustment: Integer;
+var
+  I, iOffset: Integer;
 begin
   SetLength(Result, Length(fResourceIn));
-  IAdjustment := Low(fResourceIn) - Low(Result);
+  iOffset := Low(fResourceIn) - Low(Result);
   for I := Low(Result) to High(Result) do
-    Result[I] := fResourceIn[I + IAdjustment];
+    Result[I] := fResourceIn[I + iOffset];
 end;
 
 
 function TKMHouse.GetResourceOutArray: TKMByteArray;
-var I, IAdjustment: Integer;
+var
+  I, iOffset: Integer;
 begin
   SetLength(Result, Length(fResourceOut));
-  IAdjustment := Low(fResourceOut) - Low(Result);
+  iOffset := Low(fResourceOut) - Low(Result);
   for I := Low(Result) to High(Result) do
-    Result[I] := fResourceOut[I + IAdjustment];
+    Result[I] := fResourceOut[I + iOffset];
 end;
 
 
-//Check if house is placed mostly on snow
+// Check if house is placed mostly on snow
 procedure TKMHouse.CheckOnSnow;
 var
   I: Byte;

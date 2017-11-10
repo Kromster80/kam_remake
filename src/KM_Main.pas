@@ -63,7 +63,7 @@ type
 
 
 var
-  fMain: TKMMain;
+  gMain: TKMMain;
 
 
 implementation
@@ -404,7 +404,7 @@ var
 {$ENDIF}
 begin
   {$IFNDEF FPC}
-  if (GetForeGroundWindow <> fMain.FormMain.Handle) then
+  if (GetForeGroundWindow <> gMain.FormMain.Handle) then
   begin
     flashInfo.cbSize := 20;
     flashInfo.hwnd := Application.Handle;

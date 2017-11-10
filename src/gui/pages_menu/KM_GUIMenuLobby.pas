@@ -396,6 +396,9 @@ begin
         DropBox_LobbyPlayerSlot[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu, False);
         DropBox_LobbyPlayerSlot[I].DropWidth := DropWidth;
         DropBox_LobbyPlayerSlot[I].SetColumns(fnt_Outline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, 100 + Max(0, 40 - TxtWidth)], [True, False]);
+        //1st column is used to set 'All' (All Open/All AI/All Closed),
+        //Its external button analogue, so we do not want to invoke f.e. OnChange (AI) when 'AI All' clicked
+        DropBox_LobbyPlayerSlot[I].List.Columns[1].TriggerOnChange := False;
         if I <= MAX_LOBBY_PLAYERS then
         begin
           DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate //Player can join into this slot
@@ -582,7 +585,7 @@ end;
 procedure TKMMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
 begin
   Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 350);
-  Panel_LobbySettings.Anchors := [];
+  Panel_LobbySettings.AnchorsCenter;
     TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
     with TKMImage.Create(Panel_LobbySettings, -20, -75, 360, 440, 15, rxGuiMain) do ImageStretch;
     TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 343);
@@ -591,6 +594,7 @@ begin
     TKMLabel.Create(Panel_LobbySettings, 20, 50, 280, 20, gResTexts[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taCenter);
     Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 280, 20, fnt_Grey);
     Edit_LobbyDescription.AllowedChars := acText;
+    Edit_LobbyDescription.MaxLen := 60;
 
     TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
@@ -1152,9 +1156,11 @@ end;
 function TKMMenuLobby.DropBoxPlayers_CellClick(Sender: TObject; const X, Y: Integer): Boolean;
 var I, J, NetI: Integer;
     SlotsToChange, SlotsChanged: Byte;
+    RowChanged: Boolean;
 begin
   Result := False;
 
+  //Second column was clicked
   if X = 1 then
   begin
     SlotsChanged := 0;  //Used to count changed slots while setting ALL to AI
@@ -1185,14 +1191,19 @@ begin
         else  J := I;
       end;
 
+      RowChanged := False;
       NetI := fLocalToNetPlayers[J];
       if (NetI = -1) or not fNetworking.NetPlayers[NetI].IsHuman then
       begin
-        //Do not count this slot as changed, if it already has AI value
         if DropBox_LobbyPlayerSlot[J].ItemIndex <> Y then
-          Inc(SlotsChanged);
+        begin
+          RowChanged := True;
+          Inc(SlotsChanged); //Do not count this slot as changed, if it already has AI value
+        end;
         DropBox_LobbyPlayerSlot[J].ItemIndex := Y;
-        PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
+        //Do not call for PlayerSetupChange if this row is AIPlayer and did not change (it was AIPlayer before that) - to avoid existing AIPlayer reset
+        if RowChanged or (Y <> 2) then
+          PlayersSetupChange(DropBox_LobbyPlayerSlot[J]);
       end;
     end;
 
@@ -1935,7 +1946,6 @@ begin
     finally
       fMapsMP.Unlock;
     end;
-    MapChange(nil); //Update Map
     Result := True; //we handle mouse click here, and do want to propagate it further
   end;
 end;
@@ -2147,10 +2157,13 @@ end;
 
 procedure TKMMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
-  if gGameApp.GameSettings.FlashOnMessage then
-    fMain.FlashingStart;
+  if (gGameApp <> nil) and (gGameApp.GameSettings <> nil) then
+  begin
+    if gGameApp.GameSettings.FlashOnMessage then
+      gMain.FlashingStart;
 
-  Memo_LobbyPosts.Add(aText);
+    Memo_LobbyPosts.Add(aText);
+  end;
 end;
 
 

@@ -365,7 +365,7 @@ const
     Input:            (wt_GoldOre,    wt_Coal,       wt_None,       wt_None);
     Output:           (wt_Gold,       wt_None,       wt_None,       wt_None);
     UnlockedByHouse:  ht_GoldMine;
-    SnowSpriteId:     -1;
+    SnowSpriteId:     2068;
     ),
     ( //Mill
     PlanYX:           ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
@@ -709,6 +709,8 @@ begin
     fItems[H] := TKMHouseSpec.Create(H);
 
   fCRC := LoadHouseDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'houses.dat');
+
+  fItems[ht_Tannery].fHouseDat.Anim[ha_Flag3].Count := 0; //fix for tannery 2 flags at one place. Flag3 is unnecessary
 
   fItems[ht_Marketplace].fHouseType := ht_Marketplace;
   fItems[ht_Marketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)

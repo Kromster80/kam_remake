@@ -156,6 +156,7 @@ const
 
   AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
   CHAT_COOLDOWN        = 500; //Minimum time in milliseconds between chat messages
+  BEACON_COOLDOWN      = 800; //Minimum time in milliseconds between beacons
 
   DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
 
@@ -674,9 +675,11 @@ const
   icOrange = $FF0099FF;
   icRed    = $FF0707FF;
 
+  icDarkGray = $FF606060;
   icGray = $FF808080;
   icLightGray = $FFA0A0A0;
   icWhite = $FFFFFFFF;
+  icBlack = $FF000000;
 
   icSteelBlue = $FFA56D53;
 
@@ -698,6 +701,10 @@ const
 
   clTextSelection = icSteelBlue;
 
+  clMPSrvDetailsGameInfoFont = icLightGray;
+  clStatsUnitDefault = icWhite;
+  clStatsUnitMissingHL = $FF0080FF;
+
   clMessageUnitUnread = icGoldenYellow;
   clMessageUnitUnreadHL = icRoyalYellow;
   clMessageUnitRead = icDarkGoldenRod;
@@ -710,6 +717,7 @@ const
   clListSelOutline = icWhite;
   clListSelShapeUnfocused = $66666666;
   clListSelOutlineUnfocused = icLightGray;
+  clListSeparatorShape = icDarkGray;
 
   clMapEdBtnField = icYellow;
   clMapEdBtnWine = icYellow;

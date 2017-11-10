@@ -51,7 +51,7 @@ begin
                                                 fSettings.ServerWelcomeMessage,
                                                 True);
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
-  fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer);
+  fDedicatedServer.Start(fSettings.ServerName, StrToInt(fSettings.ServerPort), fSettings.AnnounceServer);
 
   while True do
   begin
