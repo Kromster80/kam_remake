@@ -66,7 +66,6 @@ begin
   OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
   fScripting             := TKMScripting.Create(nil);
 
-  fScripting := TKMScripting.Create(nil);
   sListFileInFolder := TStringList.Create;
 
   DragAcceptFiles(Handle, True);
@@ -183,6 +182,7 @@ begin
     Memo1.Lines.Append('Files in the folder: '+IntToStr(sListFileInFolder.Count));
     for I := 0 to sListFileInFolder.Count - 1 do
       Validate(ChangeFileExt(sListFileInFolder[I], EXT_FILE_SCRIPT), False);
+
     Memo1.Lines.Append('Checked ' + IntToStr(sListFileInFolder.Count));
   end;
   ComponentReEnabled(true);
