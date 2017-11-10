@@ -159,10 +159,6 @@ begin
   ComponentReEnabled(false);
 
   Memo1.Lines.Clear;
-  // Exe path
-  TKMapsCollection.GetAllMapPaths(ExtractFilePath(ParamStr(0)), maps);
-  for I := 0 to maps.Count - 1 do
-    Validate(ChangeFileExt(maps[I], EXT_FILE_SCRIPT), False);
 
   Memo1.Lines.Append('Check ' + ExtractFilePath(ParamStr(0)));
   // Exe path
