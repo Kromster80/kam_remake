@@ -296,8 +296,11 @@ end;
 
 
 procedure TRXXForm1.UpdateList;
-var I: Integer;
+var
+  I: Integer;
+  aList : Integer;
 begin
+  aList := lbSpritesList.ItemIndex;
   lbSpritesList.Items.BeginUpdate;
   lbSpritesList.Items.Clear;
 
@@ -310,6 +313,7 @@ begin
   end;
 
   lbSpritesList.Items.EndUpdate;
+  lbSpritesList.ItemIndex := aList;
   lbSpritesListClick(Self);
 end;
 
