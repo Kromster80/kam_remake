@@ -137,7 +137,7 @@ begin
   fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
 
   seMapCountChange(nil); //Initialise it to 1 map
-  
+
   if FileExists(ParamStr(1)) then
     LoadCmp(ParamStr(1));
 end;
@@ -226,11 +226,10 @@ begin
     seMapCount.Value := curItem + 1;
     C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
-    C.Maps[C.MapCount - 1].Flag.X := (X - Image1.Left) - Integer(1 * (imgNewFlag.Width div 2));
-    C.Maps[C.MapCount - 1].Flag.Y := (Y - Image1.Top)  - Integer(1 * (imgNewFlag.Height div 2));
+    C.Maps[C.MapCount - 1].Flag.X := EnsureRange(X - Image1.Left, 0, 1024 - imgNewFlag.Width);
+    C.Maps[C.MapCount - 1].Flag.Y := EnsureRange(Y - Image1.Top, 0, 768 - imgNewFlag.Height);
 
-    if fSelectedMap > C.MapCount - 1 then
-      fSelectedMap := -1;
+    fSelectedMap := C.MapCount - 1; //Always select last, just added MapFlag
   end else if (fSelectedMap <> -1) and (Source = imgNewNode) then
   begin
     curItem                        := seNodeCount.Value;
@@ -240,8 +239,7 @@ begin
     C.Maps[fSelectedMap].Nodes[curItem].X := (X - Image1.Left);
     C.Maps[fSelectedMap].Nodes[curItem].Y := (Y - Image1.Top);
 
-    if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
-      fSelectedNode := -1;
+    fSelectedNode := C.Maps[fSelectedMap].NodeCount - 1; //Always select last, just added Node
   end;
 
   UpdateList;
