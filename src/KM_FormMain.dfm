@@ -36,6 +36,10 @@ object FormMain: TFormMain
     Height = 20
     Panels = <
       item
+        Text = 'KMR r7000+ / OpenGL 4.0.0 - Build X.XX.XX.XXXXX'
+        Width = 280
+      end
+	  item
         Text = 'Map size: -'
         Width = 110
       end
