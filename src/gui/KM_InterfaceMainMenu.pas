@@ -213,7 +213,8 @@ var
   I: Integer;
   cmp: TKMCampaignId;
 begin
-  Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
+  Version := GAME_VERSION + ' / ' + gGameApp.RenderVersion;
+  gMain.StatusBarText(SB_ID_KMR_VER,'KMR ' +  Version);
 
   //Hide all other pages
   for I := 0 to Panel_Menu.ChildCount - 1 do
@@ -222,6 +223,7 @@ begin
 
   case Dest of
     gpMainMenu:     begin
+                      Label_Version.Caption := 'KAM Remake - ' + Version;
                       fMenuMain.Show;
                       fMenuPage := fMenuMain;
                     end;
