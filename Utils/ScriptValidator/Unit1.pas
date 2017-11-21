@@ -199,7 +199,7 @@ begin
     Exit;
   end;
 
-  CampaignFile := ExtractFilePath(aPath) + '..\campaigndata.' + EXT_FILE_SCRIPT;
+  CampaignFile := ExtractFilePath(aPath) + '..\campaigndata' + EXT_FILE_SCRIPT;
   fScripting.LoadFromFile(aPath, CampaignFile, nil);
 
   txt := StringReplace(fScripting.ErrorString, '|', sLineBreak, [rfReplaceAll]);
