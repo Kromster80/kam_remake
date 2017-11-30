@@ -36,8 +36,8 @@ function Min(const A,B,C: single):single; overload;
 function Min(Values: array of Single): Single; overload;
 function PickMin(Values: array of Single): Byte;
 
-function Max(const A,B,C: integer):integer; overload;
-function Max(const A,B,C: single):single; overload;
+function Max(const A,B,C: Integer): Integer; overload;
+function Max(const A,B,C: Single): Single; overload;
 
   function GetLengthSQR(ix,iy,iz:integer): integer; //Length without SQRT
   function GetLength(ix,iy,iz:single): single; overload;
@@ -62,12 +62,12 @@ function Max(const A,B,C: single):single; overload;
   procedure SwapInt(var A, B: NativeUInt); overload;
   {$ENDIF}
   procedure SwapFloat(var A, B: Single);
-  function Equals(A, B: single; const Epsilon: single = 0.001): Boolean;
+  function Equals(A, B: single; const Epsilon: Single = 0.001): Boolean;
 
-function MakePOT(num:integer): integer;
-function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
-function Adler32CRC(const aPath:string):cardinal; overload;
-function Adler32CRC(S:TMemoryStream):cardinal; overload;
+function MakePOT(num: Integer): Integer;
+function Adler32CRC(TextPointer: Pointer; TextLength: Cardinal): Cardinal; overload;
+function Adler32CRC(const aPath: string): Cardinal; overload;
+function Adler32CRC(S: TMemoryStream): Cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function PseudoRandom(aMax:cardinal):cardinal;
@@ -465,35 +465,35 @@ end;
 
 {$IFDEF WDC}
 procedure SwapInt(var A,B: NativeUInt);
-var s:NativeUInt;
+var s: NativeUInt;
 begin
   s:=A; A:=B; B:=s;
 end;
 {$ENDIF}
 
 procedure SwapFloat(var A,B:single);
-var s:single;
+var s: Single;
 begin
   s:=A; A:=B; B:=s;
 end;
 
 
-function Equals(A,B:single; const Epsilon:single=0.001):boolean;
+function Equals(A,B: Single; const Epsilon: Single = 0.001): Boolean;
 begin
-  Result := abs(A-B) <= Epsilon;
+  Result := Abs(A-B) <= Epsilon;
 end;
 
 
 function Adler32CRC(TextPointer: Pointer; TextLength: Cardinal): Cardinal;
 var
-  i, A, B: Cardinal;
+  I, A, B: Cardinal;
 begin
   A := 1;
   B := 0; // A is initialized to 1, B to 0
-  for i := 1 to TextLength do
+  for I := 1 to TextLength do
   begin
-    inc(A, pbyte(Cardinal(TextPointer) + i - 1)^);
-    inc(B, A);
+    Inc(A, pbyte(Cardinal(TextPointer) + I - 1)^);
+    Inc(B, A);
   end;
   A := A mod 65521; // 65521 (the largest prime number smaller than 2^16)
   B := B mod 65521;
@@ -507,7 +507,7 @@ var
 begin
   Result := 0;
   if not FileExists(aPath) then
-    exit;
+    Exit;
 
   S := TMemoryStream.Create;
   try
@@ -521,16 +521,16 @@ end;
 
 function Adler32CRC(S: TMemoryStream): Cardinal;
 var
-  i, A, B: Cardinal;
+  I, A, B: Cardinal;
 begin
   A := 1;
   B := 0; // A is initialized to 1, B to 0
 
   // We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
   if S.Size <> 0 then
-    for i := 0 to S.Size - 1 do
+    for I := 0 to S.Size - 1 do
     begin
-      inc(A, pbyte(Cardinal(S.Memory) + i)^);
+      Inc(A, pbyte(Cardinal(S.Memory) + I)^);
       B := (B + A) mod 65521; // 65521 (the largest prime number smaller than 2^16)
     end;
   A := A mod 65521;
