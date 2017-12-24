@@ -237,12 +237,7 @@ begin
     for i := 0 to SourceTxt.Count - 1 do
     begin
       // Reset old values
-      res.Version     := '';
-      res.Name        := '';
-      res.Description := '';
-      res.Parameters  := '';
-      res.Return      := '';
-      res.ReturnDesc  := '';
+      res := default(TCommandInfo);
       iPlus := 0;
       descrTxt.Clear;
 
@@ -273,7 +268,9 @@ begin
           end;
 
         // Skip empty or "faulty" lines
-        while not (StartsStr('procedure', sourceTxt[i+iPlus]) or StartsStr('function', sourceTxt[i+iPlus])) do
+        while
+          not StartsStr('procedure', sourceTxt[i+iPlus])
+          and not StartsStr('function', sourceTxt[i+iPlus]) do
           Inc(iPlus);
 
         // Format procedures
@@ -336,6 +333,7 @@ begin
   end;
 end;
 
+
 function DoSort(List: TStringList; Index1, Index2: Integer): Integer;
 var
   A, B: string;
@@ -347,6 +345,7 @@ begin
   B := Copy(B, PosEx('| ', B, 2) + 2, 40);
   Result := CompareText(A, B);
 end;
+
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
