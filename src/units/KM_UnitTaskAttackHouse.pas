@@ -11,13 +11,11 @@ type
   TTaskAttackHouse = class(TUnitTask)
   private
     fHouse: TKMHouse;
-    fDestroyingHouse: Boolean; //House destruction in progress
   public
     constructor Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    property DestroyingHouse: Boolean read fDestroyingHouse;
     function WalkShouldAbandon: Boolean; override;
     function Execute: TTaskResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -43,7 +41,6 @@ begin
   inherited Create(aWarrior);
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
-  fDestroyingHouse := False;
 end;
 
 
@@ -51,7 +48,6 @@ constructor TTaskAttackHouse.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(fDestroyingHouse);
 end;
 
 
@@ -149,7 +145,6 @@ begin
          end;
        end;
     2: begin
-         fDestroyingHouse := True;
          if IsRanged then
            SetActionLockedStay(FIRING_DELAY, ua_Work, False, 0, 0) //Start shooting
          else
