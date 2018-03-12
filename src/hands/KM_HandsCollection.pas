@@ -31,8 +31,8 @@ type
     function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
-    function GetClosestUnit(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType): TKMUnit;
-    function GetClosestHouse(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+    function GetClosestUnit(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TKMAllianceType): TKMUnit;
+    function GetClosestHouse(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TKMAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TKMHandIndex): Single;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetHouseByUID(aUID: Integer): TKMHouse;
@@ -50,7 +50,7 @@ type
     //Check how Player1 feels towards Player2
     //Note: this is position dependant, e.g. Player1 may be allied with
     //      Player2, but Player2 could be an enemy to Player1
-    function CheckAlliance(aPlay1, aPlay2: TKMHandIndex): TAllianceType;
+    function CheckAlliance(aPlay1, aPlay2: TKMHandIndex): TKMAllianceType;
     function GetTeams: TKMByteSetArray;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
@@ -238,7 +238,7 @@ end;
 
 
 //Check opponents for closest Unit with given Alliance setting
-function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType): TKMUnit;
+function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TKMAllianceType): TKMUnit;
 var
   I: Integer;
   U: TKMUnit;
@@ -258,7 +258,7 @@ end;
 
 //Check opponents for closest House with given Alliance setting
 //Note: we check by house cells, not by entrance
-function TKMHandsCollection.GetClosestHouse(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+function TKMHandsCollection.GetClosestHouse(aLoc: TKMPoint; aIndex: TKMHandIndex; aAlliance: TKMAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
 var
   I: Integer;
   H: TKMHouse;
@@ -579,7 +579,7 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
-function TKMHandsCollection.CheckAlliance(aPlay1,aPlay2: TKMHandIndex): TAllianceType;
+function TKMHandsCollection.CheckAlliance(aPlay1,aPlay2: TKMHandIndex): TKMAllianceType;
 begin
   if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) then
     Result := at_Ally //In KaM animals are always friendly

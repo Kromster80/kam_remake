@@ -54,7 +54,7 @@ type
     GoalsVictoryCount, GoalsSurviveCount: array [0..MAX_HANDS-1] of Byte;
     GoalsVictory: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
     GoalsSurvive: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
-    Alliances: array [0..MAX_HANDS-1, 0..MAX_HANDS-1] of TAllianceType;
+    Alliances: array [0..MAX_HANDS-1, 0..MAX_HANDS-1] of TKMAllianceType;
     FlagColors: array [0..MAX_HANDS-1] of Cardinal;
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop

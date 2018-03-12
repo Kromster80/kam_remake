@@ -56,14 +56,14 @@ type
     fHandType: THandType;
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
-    fAlliances: array [0 .. MAX_HANDS - 1] of TAllianceType;
+    fAlliances: array [0 .. MAX_HANDS - 1] of TKMAllianceType;
     fShareFOW: array [0 .. MAX_HANDS - 1] of Boolean;
     fShareBeacons: array [0 .. MAX_HANDS - 1] of Boolean;
 
     function GetColorIndex: Byte;
 
-    function  GetAlliances(aIndex: Integer): TAllianceType; inline;
-    procedure SetAlliances(aIndex: Integer; aValue: TAllianceType); inline;
+    function  GetAlliances(aIndex: Integer): TKMAllianceType; inline;
+    procedure SetAlliances(aIndex: Integer; aValue: TKMAllianceType); inline;
     function  GetShareFOW(aIndex: Integer): Boolean;
     procedure SetShareFOW(aIndex: Integer; aValue: Boolean);
     function  GetShareBeacons(aIndex: Integer): Boolean;
@@ -103,7 +103,7 @@ type
     property HandType: THandType read fHandType write fHandType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex: Byte read GetColorIndex;
-    property Alliances[aIndex: Integer]: TAllianceType read GetAlliances write SetAlliances;
+    property Alliances[aIndex: Integer]: TKMAllianceType read GetAlliances write SetAlliances;
     property ShareFOW[aIndex: Integer]: Boolean read GetShareFOW write SetShareFOW;
     property ShareBeacons[aIndex: Integer]: Boolean read GetShareBeacons write SetShareBeacons;
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
@@ -1067,13 +1067,13 @@ begin
 end;
 
 
-function TKMHand.GetAlliances(aIndex: Integer): TAllianceType;
+function TKMHand.GetAlliances(aIndex: Integer): TKMAllianceType;
 begin
   Result := fAlliances[aIndex];
 end;
 
 
-procedure TKMHand.SetAlliances(aIndex: Integer; aValue: TAllianceType);
+procedure TKMHand.SetAlliances(aIndex: Integer; aValue: TKMAllianceType);
 begin
   fAlliances[aIndex] := aValue;
 end;

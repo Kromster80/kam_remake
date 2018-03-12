@@ -189,7 +189,7 @@ type
     function TileIsLocked(aLoc: TKMPoint): Boolean;
     function UnitsHitTest(X, Y: Word): Pointer;
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
-    function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TKMHandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+    function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TKMHandIndex; aAlliance: TKMAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
     function ScriptTryTileSet(X, Y: Integer; aType, aRot: Byte): Boolean;
     function ScriptTryHeightSet(X, Y: Integer; aHeight: Byte): Boolean;
@@ -904,7 +904,7 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TKMHandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TKMHandIndex; aAlliance: TKMAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 type
   TKMUnitArray = array of TKMUnit;
   procedure Append(var aArray: TKMUnitArray; var aCount: Integer; const aUnit: TKMUnit);

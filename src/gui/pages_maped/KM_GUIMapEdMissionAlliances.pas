@@ -59,7 +59,7 @@ end;
 
 procedure TKMMapEdMissionAlliances.Mission_AlliancesChange(Sender: TObject);
 const
-  ALL: array [Boolean] of TAllianceType = (at_Enemy, at_Ally);
+  ALL: array [Boolean] of TKMAllianceType = (at_Enemy, at_Ally);
 var
   I,K: Integer;
 begin

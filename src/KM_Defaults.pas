@@ -305,7 +305,7 @@ type
 type
   TKMissionMode = (mm_Normal, mm_Tactic);
 
-  TAllianceType = (at_Enemy, at_Ally);
+  TKMAllianceType = (at_Enemy, at_Ally);
 
   TMapFolder = (mfSP, mfMP, mfDL);
   TMapFolderSet = set of TMapFolder;

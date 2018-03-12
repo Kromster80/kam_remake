@@ -378,7 +378,7 @@ end;
 //* aCompliment: Both ways
 procedure TKMScriptActions.PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
 const
-  ALLIED: array [Boolean] of TAllianceType = (at_Enemy, at_Ally);
+  ALLIED: array [Boolean] of TKMAllianceType = (at_Enemy, at_Ally);
 begin
   try
     //Verify all input parameters
