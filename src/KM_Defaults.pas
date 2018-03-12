@@ -359,7 +359,7 @@ const
 
 
 type
-  TWalkConnect = (
+  TKMWalkConnect = (
     wcWalk,
     wcRoad,
     wcFish, //Required for fisherman finding fish in a pond, NOT for fish movement (uses steering). Updated ONLY on load because water doesn't change.
@@ -368,7 +368,7 @@ type
 
 {Units}
 type
-  TUnitType = (ut_None, ut_Any,
+  TKMUnitType = (ut_None, ut_Any,
     ut_Serf,          ut_Woodcutter,    ut_Miner,         ut_AnimalBreeder,
     ut_Farmer,        ut_Lamberjack,    ut_Baker,         ut_Butcher,
     ut_Fisher,        ut_Worker,        ut_StoneCutter,   ut_Smith,
@@ -384,7 +384,7 @@ type
     ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
     ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
-  TUnitTypeSet = set of TUnitType;
+  TUnitTypeSet = set of TKMUnitType;
 
 const
   UNIT_MIN = ut_Serf;
@@ -407,16 +407,21 @@ type
 
 //Used for AI defence and linking troops
 type
-  TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
-  TGroupTypeArray = array [TGroupType] of Word;
-  TGroupTypeSet = set of TGroupType;
+  TKMGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+  TKMGroupTypeArray = array [TKMGroupType] of Word;
+  TKMGroupTypeSet = set of TKMGroupType;
 
-  TArmyType = (atIronThenLeather=0, atLeather=1, atIron=2, atIronAndLeather=3);
+  TKMArmyType = (
+    atIronThenLeather = 0,
+    atLeather = 1,
+    atIron = 2,
+    atIronAndLeather = 3
+  );
 
 const
-  KaMGroupType: array [TGroupType] of Byte = (0, 1, 2, 3);
+  KaMGroupType: array [TKMGroupType] of Byte = (0, 1, 2, 3);
 
-  UnitGroups: array [WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
+  UnitGroups: array [WARRIOR_MIN..WARRIOR_MAX] of TKMGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
@@ -431,7 +436,7 @@ const
     );
 
   //AI's prefences for training troops
-  AITroopTrainOrder: array [TGroupType, 1..3] of TUnitType = (
+  AITroopTrainOrder: array [TKMGroupType, 1..3] of TKMUnitType = (
     (ut_Swordsman,    ut_AxeFighter, ut_Militia),
     (ut_Hallebardman, ut_Pikeman,    ut_None),
     (ut_Arbaletman,   ut_Bowman,     ut_None),

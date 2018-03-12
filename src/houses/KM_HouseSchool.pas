@@ -14,20 +14,20 @@ type
     fUnitWip: Pointer;  //can't replace with TKMUnit since it will lead to circular reference in KM_House-KM_Units
     fHideOneGold: Boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
     fTrainProgress: Byte; //Was it 150 steps in KaM?
-    fQueue: array [0..5] of TUnitType;
-    function GetQueue(aIndex: Integer): TUnitType; //Used in UI. First item is the unit currently being trained, 1..5 are the actual queue
+    fQueue: array [0..5] of TKMUnitType;
+    function GetQueue(aIndex: Integer): TKMUnitType; //Used in UI. First item is the unit currently being trained, 1..5 are the actual queue
     procedure CreateUnit; //This should Create new unit and start training cycle
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure CancelTrainingUnit;
-    procedure SetQueue(aIndex: Integer; aValue: TUnitType);
-    property PrivateQueue[aIndex: Integer]: TUnitType read GetQueue write SetQueue;
+    procedure SetQueue(aIndex: Integer; aValue: TKMUnitType);
+    property PrivateQueue[aIndex: Integer]: TKMUnitType read GetQueue write SetQueue;
   public
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
-    function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
+    function AddUnitToQueue(aUnit: TKMUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
     procedure ChangeUnitTrainOrder(aNewPosition: Integer); overload; //Change last unit in queue training order
     procedure ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer); overload; //Change unit order in queue
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
@@ -39,7 +39,7 @@ type
     function QueueIsFull: Boolean;
     function QueueLength: Byte;
     property HideOneGold: Boolean read fHideOneGold;
-    property Queue[aIndex: Integer]: TUnitType read GetQueue;
+    property Queue[aIndex: Integer]: TKMUnitType read GetQueue;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
@@ -104,7 +104,7 @@ end;
 //Add units to training queue
 //aCount allows to add several units at once (but not more than Schools queue can fit)
 //Returns the number of units successfully added to the queue
-function TKMHouseSchool.AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte;
+function TKMHouseSchool.AddUnitToQueue(aUnit: TKMUnitType; aCount: Byte): Byte;
 var
   I, K: Integer;
 begin
@@ -135,7 +135,7 @@ begin
 end;
 
 
-procedure TKMHouseSchool.SetQueue(aIndex: Integer; aValue: TUnitType);
+procedure TKMHouseSchool.SetQueue(aIndex: Integer; aValue: TKMUnitType);
 begin
   if fQueue[aIndex] <> ut_None then
     gHands[fOwner].Stats.UnitRemovedFromTrainingQueue(fQueue[aIndex]);
@@ -156,7 +156,7 @@ end;
 //Change unit priority in training queue
 procedure TKMHouseSchool.ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer);
 var
-  tmpUnit: TUnitType;
+  tmpUnit: TKMUnitType;
   I: Byte;
 begin
   Assert((aNewPosition >= 0) and (aOldPosition <= 5));
@@ -256,7 +256,7 @@ end;
 
 
 //Return training progress of a unit in 0 - 1 range
-function TKMHouseSchool.GetQueue(aIndex: Integer): TUnitType;
+function TKMHouseSchool.GetQueue(aIndex: Integer): TKMUnitType;
 begin
   Result := fQueue[aIndex];
 end;

@@ -64,7 +64,7 @@ type
   TKMUnit = class
   protected //Accessible for child classes
     fUID: Integer; //unique unit ID, used for save/load to sync to
-    fUnitType: TUnitType;
+    fUnitType: TKMUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
     fThought: TKMUnitThought;
@@ -105,7 +105,7 @@ type
 
     HitPointsInvulnerable: Boolean;
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
+    constructor Create(aID: Cardinal; aUnitType: TKMUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -123,7 +123,7 @@ type
     property Direction: TKMDirection read fDirection write SetDirection;
     property CurrentHitPoints: Byte read fHitPoints;
 
-    function HitTest(X,Y: Integer; const UT: TUnitType = ut_Any): Boolean;
+    function HitTest(X,Y: Integer; const UT: TKMUnitType = ut_Any): Boolean;
 
     procedure SetActionAbandonWalk(aLocB: TKMPoint; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
@@ -149,7 +149,7 @@ type
     procedure SetHome(aHome: TKMHouse);
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
-    property UnitType: TUnitType read fUnitType;
+    property UnitType: TKMUnitType read fUnitType;
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
     procedure SetOwner(aOwner: TKMHandIndex);
@@ -220,7 +220,7 @@ type
   private
     fCarry: TWareType;
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
+    constructor Create(aID: Cardinal; aUnitType: TKMUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
@@ -255,7 +255,7 @@ type
   private
     fFishCount: Byte; //1-5
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex); overload;
+    constructor Create(aID: Cardinal; aUnitType: TKMUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex); overload;
     constructor Load(LoadStream: TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish: Boolean;
@@ -663,7 +663,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
+constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TKMUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited;
   fCarry := wt_None;
@@ -901,7 +901,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
+constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TKMUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited;
 
@@ -1012,7 +1012,7 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
+constructor TKMUnit.Create(aID: Cardinal; aUnitType: TKMUnitType; aLoc: TKMPoint; aOwner: TKMHandIndex);
 begin
   inherited Create;
 
@@ -1355,7 +1355,7 @@ begin
 end;
 
 
-function TKMUnit.HitTest(X,Y: Integer; const UT:TUnitType = ut_Any): Boolean;
+function TKMUnit.HitTest(X,Y: Integer; const UT:TKMUnitType = ut_Any): Boolean;
 begin
   Result := (X = fCurrPosition.X) and //Comparing X,Y to CurrentPosition separately, cos they can be negative numbers
             (Y = fCurrPosition.Y) and

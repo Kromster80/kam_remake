@@ -52,8 +52,8 @@ type
     Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
     fWareDistribution: TKMWareDistribution;
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
-    function GetChartArmy(aWarrior: TUnitType): TKMCardinalArray;
-    function GetChartArmyTotal(aWarrior: TUnitType): TKMCardinalArray;
+    function GetChartArmy(aWarrior: TKMUnitType): TKMCardinalArray;
+    function GetChartArmyTotal(aWarrior: TKMUnitType): TKMCardinalArray;
   public
     constructor Create;
     destructor Destroy; override;
@@ -70,11 +70,11 @@ type
     procedure HouseLost(aType: THouseType);
     procedure HouseSelfDestruct(aType: THouseType);
     procedure HouseDestroyed(aType: THouseType);
-    procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean);
-    procedure UnitAddedToTrainingQueue(aType: TUnitType);
-    procedure UnitRemovedFromTrainingQueue(aType: TUnitType);
-    procedure UnitLost(aType: TUnitType);
-    procedure UnitKilled(aType: TUnitType);
+    procedure UnitCreated(aType: TKMUnitType; aWasTrained: Boolean);
+    procedure UnitAddedToTrainingQueue(aType: TKMUnitType);
+    procedure UnitRemovedFromTrainingQueue(aType: TKMUnitType);
+    procedure UnitLost(aType: TKMUnitType);
+    procedure UnitKilled(aType: TKMUnitType);
 
     property WareDistribution: TKMWareDistribution read fWareDistribution;
 
@@ -85,10 +85,10 @@ type
     function GetHousePlans(aType: THouseType): Integer; overload;
     function GetHouseWip(aType: array of THouseType): Integer; overload;
     function GetHouseTotal(aType: THouseType): Integer;
-    function GetUnitQty(aType: TUnitType): Integer;
-    function GetUnitWip(aType: TUnitType): Integer;
-    function GetUnitKilledQty(aType: TUnitType): Integer;
-    function GetUnitLostQty(aType: TUnitType): Integer;
+    function GetUnitQty(aType: TKMUnitType): Integer;
+    function GetUnitWip(aType: TKMUnitType): Integer;
+    function GetUnitKilledQty(aType: TKMUnitType): Integer;
+    function GetUnitLostQty(aType: TKMUnitType): Integer;
     function GetWareBalance(aRT: TWareType): Integer;
     function GetArmyCount: Integer;
     function GetCitizensCount: Integer;
@@ -100,7 +100,7 @@ type
     function GetHousesLost: Cardinal;
     function GetHousesDestroyed: Cardinal;
     function GetWarriorsTrained: Cardinal;
-    function GetWarriorsTotal(aWarriorType: TUnitType): Cardinal;
+    function GetWarriorsTotal(aWarriorType: TKMUnitType): Cardinal;
     function GetWarriorsKilled: Cardinal;
     function GetWarriorsLost: Cardinal;
     function GetWaresProduced(aRT: TWareType): Cardinal;
@@ -112,10 +112,10 @@ type
     property ChartHouses: TKMCardinalArray read fChartHouses;
     property ChartCitizens: TKMCardinalArray read fChartCitizens;
     property ChartWares[aWare: TWareType]: TKMCardinalArray read GetChartWares;
-    property ChartArmy[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmy;
-    property ChartArmyTotal[aWarrior: TUnitType]: TKMCardinalArray read GetChartArmyTotal;
+    property ChartArmy[aWarrior: TKMUnitType]: TKMCardinalArray read GetChartArmy;
+    property ChartArmyTotal[aWarrior: TKMUnitType]: TKMCardinalArray read GetChartArmyTotal;
     function ChartWaresEmpty(aWare: TWareType): Boolean;
-    function ChartArmyEmpty(aWarrior: TUnitType): Boolean;
+    function ChartArmyEmpty(aWarrior: TKMUnitType): Boolean;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -132,7 +132,7 @@ uses
 { TKMHandStats }
 constructor TKMHandStats.Create;
 var
-  WT: TUnitType;
+  WT: TKMUnitType;
 begin
   inherited;
 
@@ -207,19 +207,19 @@ begin
 end;
 
 
-procedure TKMHandStats.UnitAddedToTrainingQueue(aType: TUnitType);
+procedure TKMHandStats.UnitAddedToTrainingQueue(aType: TKMUnitType);
 begin
   Inc(Units[aType].Training);
 end;
 
 
-procedure TKMHandStats.UnitRemovedFromTrainingQueue(aType: TUnitType);
+procedure TKMHandStats.UnitRemovedFromTrainingQueue(aType: TKMUnitType);
 begin
   Dec(Units[aType].Training);
 end;
 
 
-procedure TKMHandStats.UnitCreated(aType: TUnitType; aWasTrained:boolean);
+procedure TKMHandStats.UnitCreated(aType: TKMUnitType; aWasTrained:boolean);
 begin
   if aWasTrained then
     Inc(Units[aType].Trained)
@@ -228,13 +228,13 @@ begin
 end;
 
 
-procedure TKMHandStats.UnitLost(aType: TUnitType);
+procedure TKMHandStats.UnitLost(aType: TKMUnitType);
 begin
   Inc(Units[aType].Lost);
 end;
 
 
-procedure TKMHandStats.UnitKilled(aType: TUnitType);
+procedure TKMHandStats.UnitKilled(aType: TKMUnitType);
 begin
   Inc(Units[aType].Killed);
 end;
@@ -360,9 +360,9 @@ begin
 end;
 
 
-function TKMHandStats.GetUnitQty(aType: TUnitType): Integer;
+function TKMHandStats.GetUnitQty(aType: TKMUnitType): Integer;
 var
-  UT: TUnitType;
+  UT: TKMUnitType;
 begin
   Result := 0;
   case aType of
@@ -379,9 +379,9 @@ begin
 end;
 
 
-function TKMHandStats.GetUnitWip(aType: TUnitType): Integer;
+function TKMHandStats.GetUnitWip(aType: TKMUnitType): Integer;
 var
-  UT: TUnitType;
+  UT: TKMUnitType;
 begin
   Result := 0;
   case aType of
@@ -393,13 +393,13 @@ begin
 end;
 
 
-function TKMHandStats.GetUnitKilledQty(aType: TUnitType): Integer;
+function TKMHandStats.GetUnitKilledQty(aType: TKMUnitType): Integer;
 begin
   Result := Units[aType].Killed;
 end;
 
 
-function TKMHandStats.GetUnitLostQty(aType: TUnitType): Integer;
+function TKMHandStats.GetUnitLostQty(aType: TKMUnitType): Integer;
 begin
   Result := Units[aType].Lost;
 end;
@@ -423,7 +423,7 @@ end;
 
 
 function TKMHandStats.GetArmyCount: Integer;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
@@ -432,7 +432,7 @@ end;
 
 
 function TKMHandStats.GetCitizensCount: Integer;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
@@ -442,7 +442,7 @@ end;
 
 //The value includes only citizens, Warriors are counted separately
 function TKMHandStats.GetCitizensTrained: Cardinal;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
@@ -451,7 +451,7 @@ end;
 
 
 function TKMHandStats.GetCitizensLost: Cardinal;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
@@ -460,7 +460,7 @@ end;
 
 
 function TKMHandStats.GetCitizensKilled: Cardinal;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
@@ -497,7 +497,7 @@ end;
 
 //The value includes all Warriors
 function TKMHandStats.GetWarriorsTrained: Cardinal;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
@@ -505,14 +505,14 @@ begin
 end;
 
 
-function TKMHandStats.GetWarriorsTotal(aWarriorType: TUnitType): Cardinal;
+function TKMHandStats.GetWarriorsTotal(aWarriorType: TKMUnitType): Cardinal;
 begin
   Result := Units[aWarriorType].Initial + Units[aWarriorType].Trained;
 end;
 
 
 function TKMHandStats.GetWarriorsLost: Cardinal;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
@@ -521,7 +521,7 @@ end;
 
 
 function TKMHandStats.GetWarriorsKilled: Cardinal;
-var UT: TUnitType;
+var UT: TKMUnitType;
 begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
@@ -615,9 +615,9 @@ begin
 end;
 
 
-function TKMHandStats.GetChartArmy(aWarrior: TUnitType): TKMCardinalArray;
+function TKMHandStats.GetChartArmy(aWarrior: TKMUnitType): TKMCardinalArray;
 var
-  WT: TUnitType;
+  WT: TKMUnitType;
   I: Integer;
 begin
   case aWarrior of
@@ -641,10 +641,10 @@ begin
 end;
 
 
-function TKMHandStats.GetChartArmyTotal(aWarrior: TUnitType): TKMCardinalArray;
+function TKMHandStats.GetChartArmyTotal(aWarrior: TKMUnitType): TKMCardinalArray;
 var
   I: Integer;
-  WT: TUnitType;
+  WT: TKMUnitType;
 begin
   case aWarrior of
     WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmyTotal[aWarrior];
@@ -697,9 +697,9 @@ begin
 end;
 
 
-function TKMHandStats.ChartArmyEmpty(aWarrior: TUnitType): Boolean;
+function TKMHandStats.ChartArmyEmpty(aWarrior: TKMUnitType): Boolean;
 var
-  WT: TUnitType;
+  WT: TKMUnitType;
 begin
   case aWarrior of
     WARRIOR_MIN..WARRIOR_MAX:
@@ -722,7 +722,7 @@ end;
 procedure TKMHandStats.Save(SaveStream: TKMemoryStream);
 var
   R: TWareType;
-  W: TUnitType;
+  W: TKMUnitType;
 begin
   SaveStream.WriteA('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));
@@ -750,7 +750,7 @@ end;
 procedure TKMHandStats.Load(LoadStream: TKMemoryStream);
 var
   I: TWareType;
-  J: TUnitType;
+  J: TKMUnitType;
 begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));
@@ -785,7 +785,7 @@ end;
 procedure TKMHandStats.UpdateState;
 var
   I: TWareType;
-  J: TUnitType;
+  J: TKMUnitType;
   ArmyQty: Integer;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;

@@ -41,7 +41,7 @@ const
 var
   I, K: Integer;
   HT: THouseType;
-  UT: TUnitType;
+  UT: TKMUnitType;
   OffX: Integer;
 begin
   inherited Create;
@@ -131,7 +131,7 @@ end;
 procedure TKMGUIGameStats.UpdateState;
 var
   HT: THouseType;
-  UT: TUnitType;
+  UT: TKMUnitType;
   Qty, WipQty, HTotalConstrQty: Integer;
   I,K: Integer;
   DoHighlight: Boolean;

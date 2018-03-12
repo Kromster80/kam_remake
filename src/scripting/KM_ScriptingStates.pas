@@ -162,19 +162,19 @@ end;
 //* Result: Group ID
 function TKMScriptStates.ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
 var
-  GTS: TGroupTypeSet;
+  GTS: TKMGroupTypeSet;
   G: TKMUnitGroup;
 begin
   try
     Result := -1;
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and gTerrain.TileInMapCoords(X, Y)
-    and ((aGroupType = -1) or (aGroupType in [Byte(Low(TGroupType))..Byte(High(TGroupType))])) then
+    and ((aGroupType = -1) or (aGroupType in [Byte(Low(TKMGroupType))..Byte(High(TKMGroupType))])) then
     begin
       if aGroupType = -1 then
-        GTS := [Low(TGroupType)..High(TGroupType)]
+        GTS := [Low(TKMGroupType)..High(TKMGroupType)]
       else
-        GTS := [TGroupType(aGroupType)];
+        GTS := [TKMGroupType(aGroupType)];
 
       G := gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y), GTS);
       if (G <> nil) and not G.IsDead then
@@ -201,15 +201,15 @@ end;
 function TKMScriptStates.ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
 var
   B: Byte;
-  GTS: TGroupTypeSet;
+  GTS: TKMGroupTypeSet;
   G: TKMUnitGroup;
 begin
   try
     Result := -1;
     GTS := [];
-    for B in [Byte(Low(TGroupType))..Byte(High(TGroupType))] do
+    for B in [Byte(Low(TKMGroupType))..Byte(High(TKMGroupType))] do
       if B in aGroupTypes then
-        GTS := GTS + [TGroupType(B)];
+        GTS := GTS + [TKMGroupType(B)];
 
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and gTerrain.TileInMapCoords(X, Y) then
@@ -322,7 +322,7 @@ begin
     and ((aUnitType = -1) or (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)]))  then
     begin
       if aUnitType = -1 then
-        UTS := [Low(TUnitType)..High(TUnitType)]
+        UTS := [Low(TKMUnitType)..High(TKMUnitType)]
       else
         UTS := [UnitIndexToType[aUnitType]];
 

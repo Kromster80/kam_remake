@@ -66,10 +66,10 @@ type
     procedure PlayNotification(aSound: TAttackNotification);
     procedure PlayWAVFromScript(aFileName: UnicodeString; Loc: TKMPoint; Attenuated:Boolean; Volume:Single; Radius: Single; aFadesMusic: Boolean);
 
-    procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech); overload;
-    procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
-    procedure PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech); overload;
-    procedure PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
+    procedure PlayCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech); overload;
+    procedure PlayCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
+    procedure PlayWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech); overload;
+    procedure PlayWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
     procedure Play(SoundID: TSoundFX; Volume: Single = 1); overload;
     procedure Play(SoundID: TSoundFX; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1); overload;
     procedure Play(SoundID: TSoundFX; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1); overload;
@@ -508,7 +508,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech);
+procedure TKMSoundPlayer.PlayCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
@@ -516,7 +516,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF);
+procedure TKMSoundPlayer.PlayCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF);
 var
   Wave: UnicodeString;
   HasLoc: Boolean;
@@ -554,7 +554,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech);
+procedure TKMSoundPlayer.PlayWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
@@ -562,7 +562,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF);
+procedure TKMSoundPlayer.PlayWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF);
 var
   Wave: UnicodeString;
   HasLoc: Boolean;

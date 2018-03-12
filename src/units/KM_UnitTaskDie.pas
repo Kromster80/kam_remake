@@ -56,7 +56,7 @@ function TTaskDie.Execute: TTaskResult;
 var
   SequenceLength: SmallInt;
   TempOwner: TKMHandIndex;
-  TempUnitType: TUnitType;
+  TempUnitType: TKMUnitType;
   TempX, TempY: Word;
 begin
   Result := TaskContinues;

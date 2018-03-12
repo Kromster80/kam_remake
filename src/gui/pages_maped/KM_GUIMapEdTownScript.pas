@@ -114,7 +114,7 @@ begin
   gMySpectator.Hand.AI.Setup.UnlimitedEquip := CheckBox_UnlimitedEquip.Checked;
   gMySpectator.Hand.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   gMySpectator.Hand.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
-  gMySpectator.Hand.AI.Setup.ArmyType := TArmyType(DropBox_ArmyType.GetSelectedTag);
+  gMySpectator.Hand.AI.Setup.ArmyType := TKMArmyType(DropBox_ArmyType.GetSelectedTag);
 
   TrackBar_EquipRateLeather.Enable;
   TrackBar_EquipRateIron.Enable;

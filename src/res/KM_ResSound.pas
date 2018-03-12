@@ -129,10 +129,10 @@ type
 
     constructor Create(aLocale, aFallback, aDefault: AnsiString);
 
-    function FileOfCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech): UnicodeString;
+    function FileOfCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech): UnicodeString;
     function FileOfNewSFX(aSFX: TSoundFXNew): UnicodeString;
     function FileOfNotification(aSound: TAttackNotification; aNumber: Byte): UnicodeString;
-    function FileOfWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
+    function FileOfWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
 
     procedure ExportSounds;
   end;
@@ -163,7 +163,7 @@ const
   AttackNotifications: array[TAttackNotification] of string = ('citiz', 'town', 'units');
 
   CitizenSFX: array[CITIZEN_MIN..CITIZEN_MAX] of record
-    WarriorVoice: TUnitType;
+    WarriorVoice: TKMUnitType;
     SelectID, DeathID: byte;
   end = (
     (WarriorVoice: ut_Militia;      SelectID:3; DeathID:1), //ut_Serf
@@ -280,7 +280,7 @@ begin
 end;
 
 
-function TKMResSounds.FileOfCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech): UnicodeString;
+function TKMResSounds.FileOfCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech): UnicodeString;
 var SoundID: Byte;
 begin
   if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
@@ -294,7 +294,7 @@ begin
 end;
 
 
-function TKMResSounds.FileOfWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
+function TKMResSounds.FileOfWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
 var
   S: UnicodeString;
 begin
@@ -329,7 +329,7 @@ end;
 procedure TKMResSounds.ScanWarriorSounds;
 var
   I: Integer;
-  U: TUnitType;
+  U: TKMUnitType;
   WS: TWarriorSpeech;
   AN: TAttackNotification;
   SpeechPath: string;

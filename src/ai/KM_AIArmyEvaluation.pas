@@ -83,7 +83,7 @@ procedure TKMArmyEvaluation.EvaluatePower(aEnemyIndex: TKMHandIndex);
 var
   SelfStats, EnemyStats: TKMHandStats;
   Eval: TKMEvaluation;
-  I, K: TUnitType;
+  I, K: TKMUnitType;
   EnemyQty, SelfQty: Integer;
   PowerSum: Single;
 begin
@@ -131,7 +131,7 @@ end;
 //Calculate unit strength against each other
 procedure InitUnitStatEvals;
 var
-  I, K: TUnitType;
+  I, K: TKMUnitType;
   C1, C2: TKMUnitSpec;
   HpRatio, DirectPow, OppositePow: Single;
 begin

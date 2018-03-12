@@ -20,16 +20,16 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function AddUnit(aOwner: TKMHandIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    function AddUnit(aOwner: TKMHandIndex; aUnitType: TKMUnitType; aLoc: TKMPoint; aAutoPlace: boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
     procedure AddUnitToList(aUnit: TKMUnit);
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure DeleteUnitFromList(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TKMHandIndex);
-    function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+    function HitTest(X, Y: Integer; const UT: TKMUnitType = ut_Any): TKMUnit;
     function GetUnitByUID(aUID: Integer): TKMUnit;
-    function GetClosestUnit(aPoint: TKMPoint; aTypes: TUnitTypeSet = [Low(TUnitType)..High(TUnitType)]): TKMUnit;
+    function GetClosestUnit(aPoint: TKMPoint; aTypes: TUnitTypeSet = [Low(TKMUnitType)..High(TKMUnitType)]): TKMUnit;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetTotalPointers: Integer;
     procedure Save(SaveStream: TKMemoryStream);
@@ -75,7 +75,7 @@ end;
 
 
 //AutoPlace means we should try to find a spot for this unit instead of just placing it where we were told to
-function TKMUnitsCollection.AddUnit(aOwner: TKMHandIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+function TKMUnitsCollection.AddUnit(aOwner: TKMHandIndex; aUnitType: TKMUnitType; aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
 var
   ID: Cardinal;
   PlaceTo: TKMPoint;
@@ -153,7 +153,7 @@ begin
 end;
 
 
-function TKMUnitsCollection.HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+function TKMUnitsCollection.HitTest(X, Y: Integer; const UT: TKMUnitType = ut_Any): TKMUnit;
 var
   I: Integer;
 begin
@@ -191,7 +191,7 @@ begin
 end;
 
 
-function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint; aTypes: TUnitTypeSet = [Low(TUnitType)..High(TUnitType)]): TKMUnit;
+function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint; aTypes: TUnitTypeSet = [Low(TKMUnitType)..High(TKMUnitType)]): TKMUnit;
 var
   I: Integer;
   BestDist, Dist: Single;
@@ -239,7 +239,7 @@ end;
 procedure TKMUnitsCollection.Load(LoadStream: TKMemoryStream);
 var
   I, NewCount: Integer;
-  UnitType: TUnitType;
+  UnitType: TKMUnitType;
   U: TKMUnit;
 begin
   LoadStream.ReadAssert('Units');

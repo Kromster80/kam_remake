@@ -88,7 +88,7 @@ type
     procedure ProcPlayerDefeated(aPlayer: TKMHandIndex);
     procedure ProcPlayerVictory(aPlayer: TKMHandIndex);
     procedure ProcTick;
-    procedure ProcUnitAfterDied(aUnitType: TUnitType; aOwner: TKMHandIndex; aX, aY: Word);
+    procedure ProcUnitAfterDied(aUnitType: TKMUnitType; aOwner: TKMHandIndex; aX, aY: Word);
     procedure ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
     procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
@@ -423,7 +423,7 @@ end;
 //* Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used.
 //* If you need more information about the unit use the OnUnitDied event.
 //* Note: Because units have a death animation there is a delay of several ticks between OnUnitDied and OnUnitAfterDied.
-procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: TKMHandIndex; aX, aY: Word);
+procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TKMUnitType; aOwner: TKMHandIndex; aX, aY: Word);
 begin
   if MethodAssigned(fProcUnitAfterDied) then
     DoProc(fProcUnitAfterDied, [UnitTypeToIndex[aUnitType], aOwner, aX, aY]);

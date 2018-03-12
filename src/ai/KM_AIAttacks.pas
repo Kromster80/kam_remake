@@ -30,7 +30,7 @@ type
     HasOccured: Boolean; //Has this attack happened already?
     Delay: Cardinal; //The attack will not occur before this time has passed
     TotalMen: Integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
-    GroupAmounts: TGroupTypeArray; //How many squads of each group type will be taken
+    GroupAmounts: TKMGroupTypeArray; //How many squads of each group type will be taken
     TakeAll: Boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
     Target: TAIAttackTarget;
     Range: Integer; //Will only occur when target is within this tile range (not properly tested yet)
@@ -50,7 +50,7 @@ type
 
     procedure AddAttack(aAttack: TAIAttack);
     procedure Delete(aIndex: Integer);
-    function CanOccur(aIndex: Integer; const aMenAvailable: TGroupTypeArray; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
+    function CanOccur(aIndex: Integer; const aMenAvailable: TKMGroupTypeArray; const aGroupsAvailable: TKMGroupTypeArray; aTick: Cardinal): Boolean;
     procedure HasOccured(aIndex: Integer);
     procedure Clear;
 
@@ -63,14 +63,14 @@ implementation
 
 
 { TAIAttacks }
-function TAIAttacks.CanOccur(aIndex: Integer; const aMenAvailable: TGroupTypeArray; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
+function TAIAttacks.CanOccur(aIndex: Integer; const aMenAvailable: TKMGroupTypeArray; const aGroupsAvailable: TKMGroupTypeArray; aTick: Cardinal): Boolean;
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
   TotalMenAvailable: Word;
 begin
   TotalMenAvailable := 0;
   //Must have enough men available out of the types of groups that will attack
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
     if fAttacks[aIndex].TakeAll or (fAttacks[aIndex].GroupAmounts[GT] > 0) then
       Inc(TotalMenAvailable, aMenAvailable[GT]);
 
@@ -80,7 +80,7 @@ begin
 
   //Must have enough groups of each type
   if not fAttacks[aIndex].TakeAll then
-    for GT := Low(TGroupType) to High(TGroupType) do
+    for GT := Low(TKMGroupType) to High(TKMGroupType) do
       Result := Result and (aGroupsAvailable[GT] >= fAttacks[aIndex].GroupAmounts[GT]);
 
   //todo: Add support for the AI attack feature Range

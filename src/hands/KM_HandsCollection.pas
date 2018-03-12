@@ -45,7 +45,7 @@ type
     function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
     function UnitCount: Integer;
-    function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
+    function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TKMUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 
     //Check how Player1 feels towards Player2
     //Note: this is position dependant, e.g. Player1 may be allied with
@@ -550,7 +550,7 @@ end;
 
 
 {Should return closest position where unit can be placed}
-function TKMHandsCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
+function TKMHandsCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TKMUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 var
   I: Integer;
   P: TKMPoint;

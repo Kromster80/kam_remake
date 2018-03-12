@@ -833,10 +833,10 @@ begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and (TAIDefencePosType(aDefType) in [adt_FrontLine..adt_BackLine])
-    and (TGroupType(aGroupType) in [gt_Melee..gt_Mounted])
+    and (TKMGroupType(aGroupType) in [gt_Melee..gt_Mounted])
     and (TKMDirection(aDir+1) in [dir_N..dir_NW])
     and (gTerrain.TileInMapCoords(X, Y)) then
-      gHands[aPlayer].AI.General.DefencePositions.Add(KMPointDir(X, Y, TKMDirection(aDir + 1)), TGroupType(aGroupType), aRadius, TAIDefencePosType(aDefType))
+      gHands[aPlayer].AI.General.DefencePositions.Add(KMPointDir(X, Y, TKMDirection(aDir + 1)), TKMGroupType(aGroupType), aRadius, TAIDefencePosType(aDefType))
   else
     LogParamWarning('Actions.AIDefencePositionAdd', [aPlayer, X, Y, aDir, aGroupType, aRadius, aDefType]);
   except
@@ -935,14 +935,14 @@ end;
 //* Sets the formation the AI uses for defence positions
 procedure TKMScriptActions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
 var
-  gt: TGroupType;
+  gt: TKMGroupType;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and InRange(aType, 0, 3)
     and (aCount > 0) and (aColumns > 0) then
     begin
-      gt := TGroupType(aType);
+      gt := TKMGroupType(aType);
       gHands[aPlayer].AI.General.DefencePositions.TroopFormations[gt].NumUnits := aCount;
       gHands[aPlayer].AI.General.DefencePositions.TroopFormations[gt].UnitsPerRow := aColumns;
     end

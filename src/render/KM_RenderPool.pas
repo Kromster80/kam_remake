@@ -104,12 +104,12 @@ type
     procedure AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1,R2: array of Byte; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
     procedure AddHouseStableBeasts(aHouse: THouseType; Loc: TKMPoint; BeastId,BeastAge,AnimStep: Integer; aRX: TRXType = rxHouses);
-    procedure AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
-    procedure AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+    procedure AddHouseEater(Loc: TKMPoint; aUnit: TKMUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
+    procedure AddUnit(aUnit: TKMUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure AddUnitCarry(aCarry: TWareType; aUID: Integer; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
-    procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TKMUnitThought; pX,pY: Single);
-    procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False);
-    procedure AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
+    procedure AddUnitThought(aUnit: TKMUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TKMUnitThought; pX,pY: Single);
+    procedure AddUnitFlag(aUnit: TKMUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False);
+    procedure AddUnitWithDefaultArm(aUnit: TKMUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
 
     procedure RenderMapElement(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
@@ -861,7 +861,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+procedure TRenderPool.AddUnit(aUnit: TKMUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 var
   CornerX, CornerY, Ground: Single;
   Id, Id0: Integer;
@@ -895,7 +895,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
+procedure TRenderPool.AddHouseEater(Loc: TKMPoint; aUnit: TKMUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
 var
   CornerX, CornerY: Single;
   Id: Integer;
@@ -934,7 +934,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType;
+procedure TRenderPool.AddUnitThought(aUnit: TKMUnitType; aAct: TUnitActionType;
                                      aDir: TKMDirection;
                                      Thought: TKMUnitThought; pX,pY: Single);
 var
@@ -966,17 +966,17 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection;
+procedure TRenderPool.AddUnitFlag(aUnit: TKMUnitType; aAct: TUnitActionType; aDir: TKMDirection;
                                   FlagAnim: Integer; pX, pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False);
 const
   // Offsets for flags rendering in pixels
-  FlagXOffset: array [TGroupType, TKMDirection] of shortint = (
+  FlagXOffset: array [TKMGroupType, TKMDirection] of shortint = (
     ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  // gt_Melee
     ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  // gt_AntiHorse
     ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  // gt_Ranged
     ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); // gt_Mounted
 
-  FlagYOffset: array [TGroupType, TKMDirection] of shortint = (
+  FlagYOffset: array [TKMGroupType, TKMDirection] of shortint = (
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  // gt_Melee
     ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  // gt_AntiHorse
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  // gt_Ranged
@@ -1011,7 +1011,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
+procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TKMUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; // In map editor always render 5 fish
   AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, DoHignlight, HighlightColor);
@@ -1512,8 +1512,8 @@ begin
   else
   begin
     P := gGameCursor.Cell;
-    if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
-      AddUnitWithDefaultArm(TUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
+    if gTerrain.CanPlaceUnit(P, TKMUnitType(gGameCursor.Tag1)) then
+      AddUnitWithDefaultArm(TKMUnitType(gGameCursor.Tag1), 0, ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
     else
       RenderSpriteOnTile(P, TC_BLOCK); // Red X
   end;

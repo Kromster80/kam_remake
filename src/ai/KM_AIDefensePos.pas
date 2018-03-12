@@ -16,22 +16,22 @@ type
   TAIDefencePosition = class
   private
     fDefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
-    fGroupType: TGroupType; //Type of group to defend this position (e.g. melee)
+    fGroupType: TKMGroupType; //Type of group to defend this position (e.g. melee)
     fPosition: TKMPointDir; //Position and direction the group defending will stand
     fRadius: Integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
 
     fCurrentGroup: TKMUnitGroup; //Commander of group currently occupying position
     procedure SetCurrentGroup(aGroup: TKMUnitGroup);
-    procedure SetGroupType(const Value: TGroupType);
+    procedure SetGroupType(const Value: TKMGroupType);
     procedure SetDefenceType(const Value: TAIDefencePosType);
     procedure SetPosition(const Value: TKMPointDir);
   public
-    constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+    constructor Create(aPos: TKMPointDir; aGroupType: TKMGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     constructor Load(LoadStream: TKMemoryStream);
     destructor Destroy; override;
 
     property DefenceType: TAIDefencePosType read fDefenceType write SetDefenceType;
-    property GroupType: TGroupType read fGroupType write SetGroupType; //Type of group to defend this position (e.g. melee)
+    property GroupType: TKMGroupType read fGroupType write SetGroupType; //Type of group to defend this position (e.g. melee)
     property Position: TKMPointDir read fPosition write SetPosition; //Position and direction the group defending will stand
     property Radius: Integer read fRadius write fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
 
@@ -50,12 +50,12 @@ type
     function GetCount: Integer; inline;
   public
     //Defines how defending troops will be formatted. 0 means leave unchanged.
-    TroopFormations: array [TGroupType] of TKMFormation;
+    TroopFormations: array [TKMGroupType] of TKMFormation;
 
     constructor Create;
     destructor Destroy; override;
 
-    procedure Add(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+    procedure Add(aPos: TKMPointDir; aGroupType: TKMGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     procedure Clear;
     property Count: Integer read GetCount;
     procedure Delete(aIndex: Integer);
@@ -85,7 +85,7 @@ uses
 
 
 { TAIDefencePosition }
-constructor TAIDefencePosition.Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+constructor TAIDefencePosition.Create(aPos: TKMPointDir; aGroupType: TKMGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
 begin
   inherited Create;
   fPosition := aPos;
@@ -121,7 +121,7 @@ begin
 end;
 
 
-procedure TAIDefencePosition.SetGroupType(const Value: TGroupType);
+procedure TAIDefencePosition.SetGroupType(const Value: TKMGroupType);
 begin
   Assert(gGame.IsMapEditor);
   fGroupType := Value;
@@ -203,13 +203,13 @@ end;
 { TAIDefencePositions }
 constructor TAIDefencePositions.Create;
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
 begin
   inherited Create;
 
   fPositions := TKMList.Create;
 
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
   begin
     TroopFormations[GT].NumUnits := 9; //These are the defaults in KaM
     TroopFormations[GT].UnitsPerRow := 3;
@@ -237,7 +237,7 @@ begin
 end;
 
 
-procedure TAIDefencePositions.Add(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+procedure TAIDefencePositions.Add(aPos: TKMPointDir; aGroupType: TKMGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
 begin
   fPositions.Add(TAIDefencePosition.Create(aPos, aGroupType, aRadius, aDefenceType));
 end;
@@ -267,11 +267,11 @@ end;
 
 
 function TAIDefencePositions.AverageUnitsPerGroup: Integer;
-var GT: TGroupType; TypeCount: Integer;
+var GT: TKMGroupType; TypeCount: Integer;
 begin
   Result := 0;
   TypeCount := 0;
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
   begin
     Result := Result + TroopFormations[GT].NumUnits;
     Inc(TypeCount);

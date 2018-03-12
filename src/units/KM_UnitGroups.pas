@@ -39,7 +39,7 @@ type
     fSelected: TKMUnitWarrior; //Unit selected by player in GUI. Should not be saved or affect game logic for MP consistency.
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
-    fGroupType: TGroupType;
+    fGroupType: TKMGroupType;
     fDisableHungerMessage: Boolean;
     fBlockOrders: Boolean;
     fManualFormation: Boolean;
@@ -98,7 +98,7 @@ type
     OnGroupDied: TKMUnitGroupEvent;
 
     constructor Create(aID: Cardinal; aCreator: TKMUnitWarrior); overload;
-    constructor Create(aID: Cardinal; aOwner: TKMHandIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word); overload;
+    constructor Create(aID: Cardinal; aOwner: TKMHandIndex; aUnitType: TKMUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word); overload;
     constructor Create(LoadStream: TKMemoryStream); overload;
     procedure SyncLoad;
     procedure Save(SaveStream: TKMemoryStream);
@@ -122,9 +122,9 @@ type
     function FightMaxRange: Single;
     function IsRanged: Boolean;
     function IsDead: Boolean;
-    function UnitType: TUnitType;
+    function UnitType: TKMUnitType;
     function GetOrderText: UnicodeString;
-    property GroupType: TGroupType read fGroupType;
+    property GroupType: TKMGroupType read fGroupType;
     property UID: Integer read fUID;
     property Count: Integer read GetCount;
     property MapEdCount: Word read fMapEdCount write SetMapEdCount;
@@ -183,7 +183,7 @@ type
     destructor Destroy; override;
 
     function AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup; overload;
-    function AddGroup(aOwner: TKMHandIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup; overload;
+    function AddGroup(aOwner: TKMHandIndex; aUnitType: TKMUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup; overload;
     procedure AddGroupToList(aGroup: TKMUnitGroup);
     procedure DeleteGroupFromList(aGroup: TKMUnitGroup);
     procedure RemGroup(aGroup: TKMUnitGroup);
@@ -193,7 +193,7 @@ type
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
     function GetGroupByMember(aUnit: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TKMUnitGroup;
-    function GetClosestGroup(aPoint: TKMPoint; aTypes: TGroupTypeSet = [Low(TGroupType)..High(TGroupType)]): TKMUnitGroup;
+    function GetClosestGroup(aPoint: TKMPoint; aTypes: TKMGroupTypeSet = [Low(TKMGroupType)..High(TKMGroupType)]): TKMUnitGroup;
 
     function WarriorTrained(aUnit: TKMUnitWarrior): TKMUnitGroup;
 
@@ -237,7 +237,7 @@ end;
 
 
 //Create a Group from script (creates all the warriors as well)
-constructor TKMUnitGroup.Create(aID: Cardinal; aOwner: TKMHandIndex; aUnitType: TUnitType;
+constructor TKMUnitGroup.Create(aID: Cardinal; aOwner: TKMHandIndex; aUnitType: TKMUnitType;
   PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word);
 var
   Warrior: TKMUnitWarrior;
@@ -1484,7 +1484,7 @@ begin
 end;
 
 
-function TKMUnitGroup.UnitType: TUnitType;
+function TKMUnitGroup.UnitType: TKMUnitType;
 begin
   Result := Members[0].UnitType;
 end;
@@ -1801,7 +1801,7 @@ begin
 end;
 
 
-function TKMUnitGroups.AddGroup(aOwner: TKMHandIndex; aUnitType: TUnitType;
+function TKMUnitGroups.AddGroup(aOwner: TKMHandIndex; aUnitType: TKMUnitType;
   PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 begin
   Result := nil;
@@ -1916,7 +1916,7 @@ begin
 end;
 
 
-function TKMUnitGroups.GetClosestGroup(aPoint: TKMPoint; aTypes: TGroupTypeSet = [Low(TGroupType)..High(TGroupType)]): TKMUnitGroup;
+function TKMUnitGroups.GetClosestGroup(aPoint: TKMPoint; aTypes: TKMGroupTypeSet = [Low(TKMGroupType)..High(TKMGroupType)]): TKMUnitGroup;
 var
   I: Integer;
   BestDist, Dist: Single;

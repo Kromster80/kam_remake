@@ -68,7 +68,7 @@ type
     function GetHouseName: UnicodeString;
     function GetResInput: THouseRes;
     function GetResOutput: THouseRes;
-    function GetOwnerType: TUnitType;
+    function GetOwnerType: TKMUnitType;
     function GetReleasedBy: THouseType;
     function GetTabletIcon: Word;
     function GetSnowPic: SmallInt;
@@ -96,7 +96,7 @@ type
     property WorkerRest:smallint read fHouseDat.WorkerRest;
     property ResProductionX:shortint read fHouseDat.ResProductionX;
     property Sight:smallint read fHouseDat.Sight;
-    property OwnerType: TUnitType read GetOwnerType;
+    property OwnerType: TKMUnitType read GetOwnerType;
     //Additional properties added by Remake
     property BuildArea: THouseArea read GetArea;
     property DoesOrders:boolean read GetDoesOrders;
@@ -615,7 +615,7 @@ begin
 end;
 
 
-function TKMHouseSpec.GetOwnerType: TUnitType;
+function TKMHouseSpec.GetOwnerType: TKMUnitType;
 begin
   //fHouseDat.OwnerType is read from DAT file and is shortint, it can be out of range (i.e. -1)
   if InRange(fHouseDat.OwnerType, Low(UnitIndexToType), High(UnitIndexToType)) then

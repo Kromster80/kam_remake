@@ -231,7 +231,7 @@ procedure TKMResource.ExportUnitAnim;
 var
   Folder: string;
   Bmp: TBitmap;
-  U: TUnitType;
+  U: TKMUnitType;
   A: TUnitActionType;
   D: TKMDirection;
   R: TWareType;
@@ -285,7 +285,7 @@ begin
   SetLength(Used, Length(RXData.Size));
 
   //Exclude actions
-  for U := Low(TUnitType) to High(TUnitType) do
+  for U := Low(TKMUnitType) to High(TKMUnitType) do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
   for D := dir_N to dir_NW do
   if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then

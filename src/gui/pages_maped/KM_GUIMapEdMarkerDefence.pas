@@ -97,7 +97,7 @@ begin
   DP := gHands[fOwner].AI.General.DefencePositions[fIndex];
   DP.Radius := TrackBar_DefenceRad.Position;
   DP.DefenceType := TAIDefencePosType(DropList_DefenceType.ItemIndex);
-  DP.GroupType := TGroupType(DropList_DefenceGroup.ItemIndex);
+  DP.GroupType := TKMGroupType(DropList_DefenceGroup.ItemIndex);
 
   if Sender = Button_DefenceCW then
     DP.Position := KMPointDir(DP.Position.Loc, KMNextDirection(DP.Position.Dir));

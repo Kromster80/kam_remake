@@ -69,7 +69,7 @@ end;
 procedure TKMMapEdPlayerBlockUnit.Player_BlockUnitClick(Sender: TObject);
 var
   I: Integer;
-  U: TUnitType;
+  U: TKMUnitType;
 begin
   I := TKMButtonFlat(Sender).Tag;
   U := School_Order[I];
@@ -83,7 +83,7 @@ end;
 procedure TKMMapEdPlayerBlockUnit.Player_BlockWarriorsClick(Sender: TObject);
 var
   K: Integer;
-  W: TUnitType;
+  W: TKMUnitType;
 begin
   K := TKMButtonFlat(Sender).Tag;
   W := Barracks_Order[K];
@@ -97,7 +97,7 @@ end;
 procedure TKMMapEdPlayerBlockUnit.Player_BlockUnitRefresh;
 var
   I: Integer;
-  U: TUnitType;
+  U: TKMUnitType;
 begin
   for I := 0 to 13 do
   begin
@@ -115,7 +115,7 @@ end;
 procedure TKMMapEdPlayerBlockUnit.Player_BlockWarriorsRefresh;
 var
   K: Integer;
-  W: TUnitType;
+  W: TKMUnitType;
 begin
   for K := 0 to 8 do
   begin

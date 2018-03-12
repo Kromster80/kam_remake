@@ -23,13 +23,13 @@ type
   TKMChartArmyType = class
   private
     fType: TChartArmyType;
-    fUnitType: TUnitType;
-    function GetUnitType: TUnitType;
+    fUnitType: TKMUnitType;
+    function GetUnitType: TKMUnitType;
     function GetGUIName: UnicodeString;
     function GetGUIIcon: Word;
   public
     constructor Create(aType: TChartArmyType);
-    property UnitType: TUnitType read GetUnitType;
+    property UnitType: TKMUnitType read GetUnitType;
     property GUIName: UnicodeString read GetGUIName;
     property GUIIcon: Word read GetGUIIcon;
     function HasUnitType: Boolean;
@@ -135,12 +135,12 @@ begin
   fType := aType;
   case aType of
     cat_All:                    fUnitType := ut_Any;
-    cat_Militia..cat_Horseman:  fUnitType := TUnitType(Ord(ut_Militia) + Ord(aType) - Ord(cat_Militia));
+    cat_Militia..cat_Horseman:  fUnitType := TKMUnitType(Ord(ut_Militia) + Ord(aType) - Ord(cat_Militia));
   end;
 end;
 
 
-function TKMChartArmyType.GetUnitType: TUnitType;
+function TKMChartArmyType.GetUnitType: TKMUnitType;
 begin
   Assert(HasUnitType, 'ArmyPower has no UnitType match');
   Result := fUnitType;
@@ -203,7 +203,7 @@ end;
 
 
 function TKMChartArmyMP.GetArmyPowerChartData(aPlayer: TKMHandIndex): TKMCardinalArray;
-var WT: TUnitType;
+var WT: TKMUnitType;
     I, ChartCnt: Integer;
 begin
   ChartCnt := gHands[aPlayer].Stats.ChartCount;

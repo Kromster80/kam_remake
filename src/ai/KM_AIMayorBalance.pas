@@ -861,7 +861,7 @@ end;
 procedure TKMayorBalance.UpdateBalanceFood;
 var
   P: TKMHand;
-  UT: TUnitType;
+  UT: TKMUnitType;
 begin
   P := gHands[fOwner];
 

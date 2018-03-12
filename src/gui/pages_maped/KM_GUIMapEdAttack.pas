@@ -27,7 +27,7 @@ type
     Radio_AttackType: TKMRadioGroup;
     NumEdit_AttackDelay: TKMNumericEdit;
     NumEdit_AttackMen: TKMNumericEdit;
-    NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
+    NumEdit_AttackAmount: array [TKMGroupType] of TKMNumericEdit;
     CheckBox_AttackTakeAll: TKMCheckBox;
     Radio_AttackTarget: TKMRadioGroup;
     TrackBar_AttackRange: TKMTrackBar;
@@ -51,7 +51,7 @@ uses
 
 
 const
-  GROUP_TEXT: array [TGroupType] of Integer = (
+  GROUP_TEXT: array [TKMGroupType] of Integer = (
     TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE,
     TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
 
@@ -62,7 +62,7 @@ const
   SIZE_X = 570;
   SIZE_Y = 360;
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
 begin
   inherited Create;
 
@@ -98,7 +98,7 @@ begin
     NumEdit_AttackMen.OnChange := Attack_Change;
 
     TKMLabel.Create(Panel_Attack, 340, 160, gResTexts[TX_MAPED_AI_ATTACK_COUNT], fnt_Metal, taLeft);
-    for GT := Low(TGroupType) to High(TGroupType) do
+    for GT := Low(TKMGroupType) to High(TKMGroupType) do
     begin
       TKMLabel.Create(Panel_Attack, 425, 180 + Byte(GT) * 20, 0, 0, gResTexts[GROUP_TEXT[GT]], fnt_Grey, taLeft);
       NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 340, 180 + Byte(GT) * 20, 0, 255);
@@ -139,12 +139,12 @@ end;
 
 procedure TKMMapEdAttack.Attack_Change(Sender: TObject);
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
 begin
   //Settings get saved on close, now we just toggle fields
   //because certain combinations can't coexist
 
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
     NumEdit_AttackAmount[GT].Enabled := not CheckBox_AttackTakeAll.Checked;
 
   NumEdit_AttackLocX.Enabled := (TAIAttackTarget(Radio_AttackTarget.ItemIndex) = att_CustomPosition);
@@ -164,7 +164,7 @@ end;
 
 procedure TKMMapEdAttack.Attack_Refresh(aAttack: TAIAttack);
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
 begin
   Label_AttackHeader.Caption := gResTexts[TX_MAPED_AI_ATTACK_INFO] + ' (' + IntToStr(fIndex) + ')';
 
@@ -172,7 +172,7 @@ begin
   Radio_AttackType.ItemIndex := Byte(aAttack.AttackType);
   NumEdit_AttackDelay.Value := aAttack.Delay div 10;
   NumEdit_AttackMen.Value := aAttack.TotalMen;
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
     NumEdit_AttackAmount[GT].Value := aAttack.GroupAmounts[GT];
   CheckBox_AttackTakeAll.Checked := aAttack.TakeAll;
   Radio_AttackTarget.ItemIndex := Byte(aAttack.Target);
@@ -188,13 +188,13 @@ end;
 procedure TKMMapEdAttack.Attack_Save;
 var
   AA: TAIAttack;
-  GT: TGroupType;
+  GT: TKMGroupType;
 begin
   //Copy attack info from controls to Attacks
   AA.AttackType := TAIAttackType(Radio_AttackType.ItemIndex);
   AA.Delay := NumEdit_AttackDelay.Value * 10;
   AA.TotalMen := NumEdit_AttackMen.Value;
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
     AA.GroupAmounts[GT] := NumEdit_AttackAmount[GT].Value;
   AA.TakeAll := CheckBox_AttackTakeAll.Checked;
   AA.Target := TAIAttackTarget(Radio_AttackTarget.ItemIndex);

@@ -46,7 +46,7 @@ type
     Light: Single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
     Passability: TKMTerrainPassabilitySet; //Meant to be set of allowed actions on the tile
 
-    WalkConnect: array [TWalkConnect] of Word; //Whole map is painted into interconnected areas
+    WalkConnect: array [TKMWalkConnect] of Word; //Whole map is painted into interconnected areas
 
     Fence: TFenceType; //Fences (ropes, planks, stones)
     FenceSide: Byte; //Bitfield whether the fences are enabled
@@ -75,7 +75,7 @@ type
     function ChooseCuttingDirection(aLoc, aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
 
     procedure UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
-    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected: Boolean);
+    procedure UpdateWalkConnect(const aSet: array of TKMWalkConnect; aRect: TKMRect; aDiagObjectsEffected: Boolean);
 
     procedure SetField_Init(Loc: TKMPoint; aOwner: TKMHandIndex);
     procedure SetField_Complete(Loc: TKMPoint; aFieldType: TFieldType);
@@ -109,7 +109,7 @@ type
     procedure IncDigState(Loc: TKMPoint);
     procedure ResetDigState(Loc: TKMPoint);
 
-    function CanPlaceUnit(Loc: TKMPoint; aUnitType: TUnitType): Boolean;
+    function CanPlaceUnit(Loc: TKMPoint; aUnitType: TKMUnitType): Boolean;
     function CanPlaceGoldmine(X,Y: Word): Boolean;
     function CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc: TKMPoint): Boolean;
@@ -150,7 +150,7 @@ type
     function HasVertexUnit(Loc: TKMPoint): Boolean;
     function GetRoadConnectID(Loc: TKMPoint): Byte;
     function GetWalkConnectID(Loc: TKMPoint): Byte;
-    function GetConnectID(aWalkConnect: TWalkConnect; Loc: TKMPoint): Byte;
+    function GetConnectID(aWalkConnect: TKMWalkConnect; Loc: TKMPoint): Byte;
 
     function CheckAnimalIsStuck(Loc: TKMPoint; aPass: TKMTerrainPassability; aCheckUnits: Boolean = True): Boolean;
     function GetOutOfTheWay(aUnit: Pointer; PusherLoc: TKMPoint; aPass: TKMTerrainPassability): TKMPoint;
@@ -2208,7 +2208,7 @@ begin
 end;
 
 
-function TKMTerrain.GetConnectID(aWalkConnect: TWalkConnect; Loc: TKMPoint): Byte;
+function TKMTerrain.GetConnectID(aWalkConnect: TKMWalkConnect; Loc: TKMPoint): Byte;
 begin
   if TileInMapCoords(Loc.X,Loc.Y) then
     Result := Land[Loc.Y,Loc.X].WalkConnect[aWalkConnect]
@@ -2336,7 +2336,7 @@ end;
 
 //Test wherever it is possible to make the route without actually making it to save performance
 function TKMTerrain.Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean;
-var i,k:integer; TestRadius: Boolean; WC: TWalkConnect;
+var i,k:integer; TestRadius: Boolean; WC: TKMWalkConnect;
 begin
   Result := True;
 
@@ -2406,7 +2406,7 @@ var
   P: TKMPoint;
   T: TKMPoint;
   WalkConnectID: integer;
-  wcType: TWalkConnect;
+  wcType: TKMWalkConnect;
 begin
   case aPass of
     tpWalkRoad: wcType := wcRoad;
@@ -2679,13 +2679,13 @@ end;
 
 
 //Rebuilds connected areas using flood fill algorithm
-procedure TKMTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
+procedure TKMTerrain.UpdateWalkConnect(const aSet: array of TKMWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
 const
-  WC_PASS: array [TWalkConnect] of TKMTerrainPassability = (
+  WC_PASS: array [TKMWalkConnect] of TKMTerrainPassability = (
     tpWalk, tpWalkRoad, tpFish, tpWorker);
 var
   J: Integer;
-  WC: TWalkConnect;
+  WC: TKMWalkConnect;
   AllowDiag: Boolean;
 begin
   aRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
@@ -2787,7 +2787,7 @@ end;
 
 {Check if Unit can be placed here}
 //Used by MapEd, so we use AllowedTerrain which lets us place citizens off-road
-function TKMTerrain.CanPlaceUnit(Loc: TKMPoint; aUnitType: TUnitType): Boolean;
+function TKMTerrain.CanPlaceUnit(Loc: TKMPoint; aUnitType: TKMUnitType): Boolean;
 begin
   Result := TileInMapCoords(Loc.X, Loc.Y)
             and (Land[Loc.Y, Loc.X].IsUnit = nil) //Check for no unit below

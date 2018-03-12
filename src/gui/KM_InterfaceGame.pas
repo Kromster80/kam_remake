@@ -70,12 +70,12 @@ const
      wt_Axe,      wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
      wt_Arbalet,  wt_Horse,   wt_Fish);
 
-  School_Order: array [0..13] of TUnitType = (
+  School_Order: array [0..13] of TKMUnitType = (
     ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
     ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
     ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
 
-  Barracks_Order: array [0..8] of TUnitType = (
+  Barracks_Order: array [0..8] of TKMUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
 
@@ -83,7 +83,7 @@ const
   // in nice pairs, and would stack up only on short screens)
   StatPlan: array [0..12] of record
     HouseType: array [0..3] of THouseType;
-    UnitType: array [0..1] of TUnitType;
+    UnitType: array [0..1] of TKMUnitType;
   end = (
     (HouseType: (ht_Quary, ht_None, ht_None, ht_None); UnitType: (ut_StoneCutter, ut_None)),
     (HouseType: (ht_Woodcutters, ht_None, ht_None, ht_None); UnitType: (ut_Woodcutter, ut_None)),
@@ -100,7 +100,7 @@ const
     (HouseType: (ht_Store, ht_School, ht_Inn, ht_Marketplace); UnitType: (ut_Serf, ut_Worker))
     );
 
-  MapEd_Order: array [0..13] of TUnitType = (
+  MapEd_Order: array [0..13] of TKMUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian,
     ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman);
@@ -110,7 +110,7 @@ const
     66, 67, 68, 69, 70,
     79, 80, 81, 82);
 
-  Animal_Order: array [0..7] of TUnitType = (
+  Animal_Order: array [0..7] of TKMUnitType = (
     ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
     ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
 

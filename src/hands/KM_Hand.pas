@@ -25,9 +25,9 @@ type
     property HandIndex: TKMHandIndex read fHandIndex;
     property Units: TKMUnitsCollection read fUnits;
 
-    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint): TKMUnit;
+    function AddUnit(aUnitType: TKMUnitType; aLoc: TKMPoint): TKMUnit;
     procedure RemUnit(Position: TKMPoint);
-    function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+    function UnitsHitTest(X, Y: Integer; const UT: TKMUnitType = ut_Any): TKMUnit;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
@@ -113,10 +113,10 @@ type
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
-    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit; reintroduce;
-    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
+    function AddUnit(aUnitType: TKMUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit; reintroduce;
+    function AddUnitGroup(aUnitType: TKMUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
-    function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
+    function TrainUnit(aUnitType: TKMUnitType; Position: TKMPoint): TKMUnit;
 
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
@@ -192,7 +192,7 @@ begin
 end;
 
 
-function TKMHandCommon.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint): TKMUnit;
+function TKMHandCommon.AddUnit(aUnitType: TKMUnitType; aLoc: TKMPoint): TKMUnit;
 begin
   //Animals are autoplaced by default
   Result := fUnits.AddUnit(fHandIndex, aUnitType, aLoc, True);
@@ -237,7 +237,7 @@ begin
 end;
 
 
-function TKMHandCommon.UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+function TKMHandCommon.UnitsHitTest(X, Y: Integer; const UT: TKMUnitType = ut_Any): TKMUnit;
 begin
   Result := fUnits.HitTest(X, Y, UT);
 end;
@@ -312,7 +312,7 @@ end;
 
 //Place unit of aUnitType to aLoc via script
 //AutoPlace - add unit to nearest available spot if aLoc is already taken (or unwalkable)
-function TKMHand.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit;
+function TKMHand.AddUnit(aUnitType: TKMUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit;
 var
   G: TKMUnitGroup;
 begin
@@ -357,7 +357,7 @@ end;
 
 //Start training unit in School/Barracks
 //User can cancel the training, so we don't add unit to stats just yet
-function TKMHand.TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
+function TKMHand.TrainUnit(aUnitType: TKMUnitType; Position: TKMPoint): TKMUnit;
 begin
   Result := fUnits.AddUnit(fHandIndex, aUnitType, Position, False);
   Result.OnUnitDied := UnitDied;
@@ -425,7 +425,7 @@ begin
 end;
 
 
-function TKMHand.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
+function TKMHand.AddUnitGroup(aUnitType: TKMUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 var
   I: Integer;
 begin

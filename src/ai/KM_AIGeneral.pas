@@ -128,10 +128,10 @@ procedure TKMGeneral.CheckArmyCount;
 var
   Barracks: array of TKMHouseBarracks;
   HB: TKMHouseBarracks;
-  GT: TGroupType;
+  GT: TKMGroupType;
   I,K: Integer;
-  UT: TUnitType;
-  GroupReq: TGroupTypeArray;
+  UT: TKMUnitType;
+  GroupReq: TKMGroupTypeArray;
 begin
   if gGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
 
@@ -175,7 +175,7 @@ begin
     //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
     K := 0;
     repeat
-      GT := TGroupType(KaMRandom(4)); //Pick random from overall count
+      GT := TKMGroupType(KaMRandom(4)); //Pick random from overall count
       Inc(K);
     until (GroupReq[GT] > 0) or (K > 9); //Limit number of attempts to guarantee it doesn't loop forever
 
@@ -209,11 +209,11 @@ end;
 procedure TKMGeneral.CheckArmy;
 var
   I: Integer;
-  GroupType: TGroupType;
+  GroupType: TKMGroupType;
   Group: TKMUnitGroup;
-  NeedsLinkingTo: array [TGroupType] of TKMUnitGroup;
+  NeedsLinkingTo: array [TKMGroupType] of TKMUnitGroup;
 begin
-  for GroupType := Low(TGroupType) to High(TGroupType) do
+  for GroupType := Low(TKMGroupType) to High(TKMGroupType) do
     NeedsLinkingTo[GroupType] := nil;
 
   //Check: Hunger, (feed) formation, (units per row) position (from defence positions)
@@ -265,13 +265,13 @@ end;
 
 procedure TKMGeneral.CheckAttacks;
 var
-  MenAvailable: TGroupTypeArray; //Total number of warriors available to attack the enemy
-  GroupsAvailable: TGroupTypeArray;
+  MenAvailable: TKMGroupTypeArray; //Total number of warriors available to attack the enemy
+  GroupsAvailable: TKMGroupTypeArray;
   MaxGroupsAvailable: Integer;
-  AttackGroups: array [TGroupType] of array of TKMUnitGroup;
+  AttackGroups: array [TKMGroupType] of array of TKMUnitGroup;
 
   procedure AddAvailable(aGroup: TKMUnitGroup);
-  var GT: TGroupType;
+  var GT: TKMGroupType;
   begin
     GT := UnitGroups[aGroup.UnitType];
     if Length(AttackGroups[GT]) <= GroupsAvailable[GT] then
@@ -284,7 +284,7 @@ var
 
 var
   I, K, J: Integer;
-  G: TGroupType;
+  G: TKMGroupType;
   Group: TKMUnitGroup;
   DP: TAIDefencePosition;
   UnitsSent: Integer;
@@ -298,7 +298,7 @@ begin
   repeat
     AttackLaunched := False;
     MaxGroupsAvailable := 0;
-    for G := Low(TGroupType) to High(TGroupType) do
+    for G := Low(TKMGroupType) to High(TKMGroupType) do
     begin
       GroupsAvailable[G] := 0;
       MenAvailable[G] := 0;
@@ -336,7 +336,7 @@ begin
       begin
         //Repeatedly send one of each group type until we have sent the required amount (mixed army)
         for K := 0 to MaxGroupsAvailable - 1 do
-          for G := Low(TGroupType) to High(TGroupType) do
+          for G := Low(TKMGroupType) to High(TKMGroupType) do
             if (UnitsSent < Attacks[I].TotalMen) and (K < GroupsAvailable[G]) then
             begin
               OrderAttack(AttackGroups[G, K], Attacks[I].Target, Attacks[I].CustomPosition);
@@ -346,7 +346,7 @@ begin
       else
       begin
         //First send the number of each group as requested by the attack
-        for G := Low(TGroupType) to High(TGroupType) do
+        for G := Low(TKMGroupType) to High(TKMGroupType) do
           for K := 0 to Attacks[I].GroupAmounts[G] - 1 do
           begin
             OrderAttack(AttackGroups[G, K], Attacks[I].Target, Attacks[I].CustomPosition);
@@ -356,7 +356,7 @@ begin
         //If we still haven't sent enough men, send more groups out of the types allowed until we have
         if UnitsSent < Attacks[I].TotalMen then
           for K := 0 to MaxGroupsAvailable - 1 do
-            for G := Low(TGroupType) to High(TGroupType) do
+            for G := Low(TKMGroupType) to High(TKMGroupType) do
             begin
               //Start index after the ones we've already sent above (ones required by attack)
               J := K + Attacks[I].GroupAmounts[G];
@@ -450,7 +450,7 @@ var
   FaceDir: TKMDirection;
   SegLength, Ratio: Single;
   DefCount: Byte;
-  GT: TGroupType;
+  GT: TKMGroupType;
   DPT: TAIDefencePosType;
   Weight: Cardinal;
   BacklineCount: Integer;

@@ -84,7 +84,7 @@ var
   RXName: string;
   resHouses: TKMResHouses;
   resUnits: TKMResUnits;
-  UT: TUnitType;
+  UT: TKMUnitType;
   Dir: TKMDirection;
 begin
   btnPackRXX.Enabled := False;

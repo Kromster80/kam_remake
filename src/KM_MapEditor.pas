@@ -313,16 +313,16 @@ begin
     if Obj is TKMUnit then
       gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
   end else
-  if gTerrain.CanPlaceUnit(P, TUnitType(gGameCursor.Tag1)) then
+  if gTerrain.CanPlaceUnit(P, TKMUnitType(gGameCursor.Tag1)) then
   begin
     //Check if we can really add a unit
-    if TUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-      gMySpectator.Hand.AddUnit(TUnitType(gGameCursor.Tag1), P, False)
+    if TKMUnitType(gGameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
+      gMySpectator.Hand.AddUnit(TKMUnitType(gGameCursor.Tag1), P, False)
     else
-    if TUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-      gMySpectator.Hand.AddUnitGroup(TUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
+    if TKMUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
+      gMySpectator.Hand.AddUnitGroup(TKMUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
     else
-      gHands.PlayerAnimals.AddUnit(TUnitType(gGameCursor.Tag1), P);
+      gHands.PlayerAnimals.AddUnit(TKMUnitType(gGameCursor.Tag1), P);
   end;
 end;
 

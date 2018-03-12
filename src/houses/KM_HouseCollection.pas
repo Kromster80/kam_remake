@@ -24,7 +24,7 @@ type
     property Houses[aIndex: Integer]: TKMHouse read GetHouse; default;
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByUID(aUID: Integer): TKMHouse;
-    function FindEmptyHouse(aUnitType: TUnitType; Loc: TKMPoint): TKMHouse;
+    function FindEmptyHouse(aUnitType: TKMUnitType; Loc: TKMPoint): TKMHouse;
     function FindHouse(aType: THouseType; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse; overload;
     function FindHouse(const aTypes: THouseTypeSet; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse; overload;
     function GetTotalPointers: Cardinal;
@@ -162,7 +162,7 @@ end;
 
 
 //Should find closest house to Loc
-function TKMHousesCollection.FindEmptyHouse(aUnitType: TUnitType; Loc: TKMPoint): TKMHouse;
+function TKMHousesCollection.FindEmptyHouse(aUnitType: TKMUnitType; Loc: TKMPoint): TKMHouse;
 var
   I: Integer;
   Dist, BestBid: Single;

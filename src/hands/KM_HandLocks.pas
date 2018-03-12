@@ -16,7 +16,7 @@ type
   public
     HouseBlocked: array [THouseType] of Boolean; //Allowance derived from mission script
     HouseGranted: array [THouseType] of Boolean; //Allowance derived from mission script
-    UnitBlocked: array [TUnitType] of Boolean;   //Allowance derived from mission script
+    UnitBlocked: array [TKMUnitType] of Boolean;   //Allowance derived from mission script
 
     AllowToTrade: array [WARE_MIN..WARE_MAX] of Boolean; //Allowance derived from mission script
     constructor Create;

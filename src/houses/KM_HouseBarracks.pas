@@ -37,12 +37,12 @@ type
     procedure ValidateRallyPoint;
 
     function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
-    function CanEquip(aUnitType: TUnitType): Boolean;
+    function CanEquip(aUnitType: TKMUnitType): Boolean;
     function RecruitsCount: Integer;
     procedure RecruitsAdd(aUnit: Pointer);
     procedure RecruitsRemove(aUnit: Pointer);
     procedure ToggleAcceptFlag(aRes: TWareType);
-    function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
+    function Equip(aUnitType: TKMUnitType; aCount: Byte): Byte;
     procedure CreateRecruitInside(aIsMapEd: Boolean);
 
     property RallyPointTexId: Word read GetRallyPointTexId;
@@ -215,7 +215,7 @@ begin
 end;
 
 
-function TKMHouseBarracks.CanEquip(aUnitType: TUnitType): Boolean;
+function TKMHouseBarracks.CanEquip(aUnitType: TKMUnitType): Boolean;
 var
   I: Integer;
 begin
@@ -230,7 +230,7 @@ end;
 
 //Equip a new soldier and make him walk out of the house
 //Return the number of units successfully equipped
-function TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount: Byte): Byte;
+function TKMHouseBarracks.Equip(aUnitType: TKMUnitType; aCount: Byte): Byte;
 var
   I, K: Integer;
   Soldier: TKMUnitWarrior;

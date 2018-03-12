@@ -18,7 +18,7 @@ type
     Panel_Formations: TKMPanel;
     Image_FormationsFlag: TKMImage;
     NumEdit_FormationsCount,
-    NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
+    NumEdit_FormationsColumns: array [TKMGroupType] of TKMNumericEdit;
     Button_Formations_Ok: TKMButton;
     Button_Formations_Cancel: TKMButton;
   public
@@ -39,10 +39,10 @@ uses
 { TKMMapEdFormations }
 constructor TKMMapEdFormations.Create(aParent: TKMPanel);
 const
-  T: array [TGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);  SIZE_X = 570;
+  T: array [TKMGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);  SIZE_X = 570;
   SIZE_Y = 200;
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
   Img: TKMImage;
 begin
   inherited Create;
@@ -62,7 +62,7 @@ begin
   TKMLabel.Create(Panel_Formations, 20, 70, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COUNT], fnt_Metal, taLeft);
   TKMLabel.Create(Panel_Formations, 20, 95, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COLUMNS], fnt_Metal, taLeft);
 
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
   begin
     TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, gResTexts[T[GT]], fnt_Metal, taCenter);
     NumEdit_FormationsCount[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 70, 1, 255);
@@ -96,14 +96,14 @@ end;
 
 procedure TKMMapEdFormations.Show(aPlayer: TKMHandIndex);
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
 begin
   fOwner := aPlayer;
 
   //Fill UI
   Image_FormationsFlag.FlagColor := gHands[fOwner].FlagColor;
 
-  for GT := Low(TGroupType) to High(TGroupType) do
+  for GT := Low(TKMGroupType) to High(TKMGroupType) do
   begin
     NumEdit_FormationsCount[GT].Value := gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].NumUnits;
     NumEdit_FormationsColumns[GT].Value := gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow;
@@ -121,13 +121,13 @@ end;
 
 procedure TKMMapEdFormations.Formations_Close(Sender: TObject);
 var
-  GT: TGroupType;
+  GT: TKMGroupType;
 begin
   Assert(Image_FormationsFlag.FlagColor = gHands[fOwner].FlagColor, 'Cheap test to see if active player didn''t changed');
 
   if Sender = Button_Formations_Ok then
     //Save settings
-    for GT := Low(TGroupType) to High(TGroupType) do
+    for GT := Low(TKMGroupType) to High(TKMGroupType) do
     begin
       gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
       gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;

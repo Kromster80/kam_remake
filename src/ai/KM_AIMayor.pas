@@ -144,7 +144,7 @@ var
               or (P.Stats.GetWareBalance(wt_Gold) > 20);
   end;
 
-  function TryToTrain(aSchool: TKMHouseSchool; aUnitType: TUnitType; aRequiredCount: Integer): Boolean;
+  function TryToTrain(aSchool: TKMHouseSchool; aUnitType: TKMUnitType; aRequiredCount: Integer): Boolean;
   begin
     // We summ up requirements for e.g. Recruits required at Towers and Barracks
     if P.Stats.GetUnitQty(aUnitType) < (aRequiredCount + UnitReq[aUnitType]) then
@@ -186,7 +186,7 @@ var
 var
   I,K: Integer;
   H: THouseType;
-  UT: TUnitType;
+  UT: TKMUnitType;
   Schools: array of TKMHouseSchool;
   HS: TKMHouseSchool;
   serfCount: Integer;
@@ -804,7 +804,7 @@ procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single)
                + gHands[fOwner].Stats.GetHousePlans(ht_IronMine)) > 0;
   end;
 
-  function GroupBlocked(aGT: TGroupType; aIron: Boolean): Boolean;
+  function GroupBlocked(aGT: TKMGroupType; aIron: Boolean): Boolean;
   begin
     if aIron then
       case aGT of
@@ -825,7 +825,7 @@ procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single)
       end;
   end;
 
-  function GetUnitRatio(aUT: TUnitType): Byte;
+  function GetUnitRatio(aUT: TKMUnitType): Byte;
   begin
     if gHands[fOwner].Locks.UnitBlocked[aUT] then
       Result := 0 //This warrior is blocked

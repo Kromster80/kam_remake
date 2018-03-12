@@ -10,14 +10,14 @@ type
   TKMHouseInn = class(TKMHouse)
   private
     Eater: array [0..5] of record //only 6 units are allowed in the inn
-      UnitType: TUnitType;
+      UnitType: TKMUnitType;
       FoodKind: TWareType; //What kind of food eater eats
       EatStep: Cardinal;
     end;
   public
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
-    function EaterGetsInside(aUnitType: TUnitType): ShortInt;
+    function EaterGetsInside(aUnitType: TKMUnitType): ShortInt;
     procedure UpdateEater(aIndex: ShortInt; aFoodKind: TWareType);
     procedure EatersGoesOut(aIndex: ShortInt);
     function HasFood: Boolean;
@@ -52,7 +52,7 @@ end;
 
 
 //EatStep := FlagAnimStep, cos increases it each frame, we don't need to increase all 6 AnimSteps manually
-function TKMHouseInn.EaterGetsInside(aUnitType: TUnitType): ShortInt;
+function TKMHouseInn.EaterGetsInside(aUnitType: TKMUnitType): ShortInt;
 var
   I: Integer;
 begin

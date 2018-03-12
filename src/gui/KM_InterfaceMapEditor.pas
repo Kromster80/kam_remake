@@ -129,7 +129,7 @@ uses
   KM_HouseBarracks, KM_ResHouses;
 
 const
-  GROUP_IMG: array [TGroupType] of Word = (
+  GROUP_IMG: array [TKMGroupType] of Word = (
     371, 374,
     376, 377);
 
