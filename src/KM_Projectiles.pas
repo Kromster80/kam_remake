@@ -8,10 +8,10 @@ uses
 
 
 type
-  TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
+  TKMProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
 
 const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
-  ProjectileBounds: array [TProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
+  ProjectileBounds: array [TKMProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
 
 type
   //Projectiles in-game: arrows, bolts, rocks, etc..
@@ -26,7 +26,7 @@ type
       fTarget: TKMPointF; //Where projectile will hit
       fShotFrom: TKMPointF; //Where the projectile was launched from
 
-      fType: TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
+      fType: TKMProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
       fOwner: TKMUnit; //The projectiles owner, used for kill statistics and script events
       fSpeed: Single; //Each projectile speed may vary a little bit
       fArc: Single; //Thats how high projectile will go along parabola (varies a little more)
@@ -35,13 +35,13 @@ type
       fMaxLength: Single; //Maximum length the archer could have shot
     end;
 
-    function AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TProjectileType; aOwner: TKMUnit):word;
+    function AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit):word;
     procedure RemItem(aIndex: Integer);
     function ProjectileVisible(aIndex: Integer): Boolean;
   public
     constructor Create;
-    function AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
-    function AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
+    function AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
+    function AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
 
     procedure UpdateState;
     procedure Paint;
@@ -63,14 +63,14 @@ uses
 
 
 const
-  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
-  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
-  ProjectileSpeeds:array[TProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
-  ProjectileArcs:array[TProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
-  ProjectileJitterHouse:array[TProjectileType] of Single = (0.6, 0.6, 0.6, 0); //Fixed Jitter added every time
+  ProjectileLaunchSounds:array[TKMProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
+  ProjectileHitSounds:   array[TKMProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
+  ProjectileSpeeds:array[TKMProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
+  ProjectileArcs:array[TKMProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
+  ProjectileJitter:array[TKMProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
+  ProjectileJitterHouse:array[TKMProjectileType] of Single = (0.6, 0.6, 0.6, 0); //Fixed Jitter added every time
   //Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
-  ProjectilePredictJitter:array[TProjectileType] of Single = (2, 2, 2, 3);
+  ProjectilePredictJitter:array[TKMProjectileType] of Single = (2, 2, 2, 3);
 
 
 { TKMProjectiles }
@@ -88,7 +88,7 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
+function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
 var
   TargetVector,Target,TargetPosition: TKMPointF;
   A,B,C,D: Single;
@@ -188,7 +188,7 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
+function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
 var
   Speed, Arc: Single;
   DistanceToHit, DistanceInRange: Single;
@@ -210,10 +210,10 @@ end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TProjectileType; aOwner: TKMUnit): Word;
+function TKMProjectiles.AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit): Word;
 const //TowerRock position is a bit different for reasons said below
-  OffsetX: array [TProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
-  OffsetY: array [TProjectileType] of Single = (0.2, 0.2, 0.2, -0.5); //Add towers height
+  OffsetX: array [TKMProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
+  OffsetY: array [TKMProjectileType] of Single = (0.2, 0.2, 0.2, -0.5); //Add towers height
 var
   I: Integer;
 begin
@@ -400,7 +400,7 @@ begin
       SaveStream.Write(fItems[I].fAim);
       SaveStream.Write(fItems[I].fTarget);
       SaveStream.Write(fItems[I].fShotFrom);
-      SaveStream.Write(fItems[I].fType, SizeOf(TProjectileType));
+      SaveStream.Write(fItems[I].fType, SizeOf(TKMProjectileType));
 
       if fItems[I].fOwner <> nil then
         SaveStream.Write(fItems[I].fOwner.UID) //Store ID
@@ -432,7 +432,7 @@ begin
     LoadStream.Read(fItems[I].fAim);
     LoadStream.Read(fItems[I].fTarget);
     LoadStream.Read(fItems[I].fShotFrom);
-    LoadStream.Read(fItems[I].fType, SizeOf(TProjectileType));
+    LoadStream.Read(fItems[I].fType, SizeOf(TKMProjectileType));
     LoadStream.Read(fItems[I].fOwner, 4);
     LoadStream.Read(fItems[I].fSpeed);
     LoadStream.Read(fItems[I].fArc);

@@ -94,7 +94,7 @@ type
     destructor Destroy; override;
 
     procedure AddAlert(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4);
-    procedure AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
+    procedure AddProjectile(aProj: TKMProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
     procedure AddHouse(aHouse: THouseType; aLoc: TKMPoint; aWoodStep, aStoneStep, aSnowStep: Single; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
     procedure AddWholeHouse(H: TKMHouse; FlagColor: Cardinal; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 
@@ -818,7 +818,7 @@ end;
 
 
 // aRenderPos has gTerrain.HeightAt factored in already, aTilePos is on tile coordinates for Z ordering
-procedure TRenderPool.AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
+procedure TRenderPool.AddProjectile(aProj: TKMProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
 var
   FOW: Byte;
   Id: Integer;
