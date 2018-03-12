@@ -377,7 +377,7 @@ end;
 
 procedure TKMMenuSingleMap.Update;
 const
-  GoalCondPic: array [TGoalCondition] of Word = (
+  GoalCondPic: array [TKMGoalCondition] of Word = (
     41, 39, 592, 38, 62, 41, 303, 141, 312);
 var
   I,J,K: Integer;

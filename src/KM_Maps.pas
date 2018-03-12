@@ -23,9 +23,9 @@ type
   TKMMapInfoAmount = (iaBase, iaExtra);
 
   TKMMapGoalInfo = packed record
-    Cond: TGoalCondition;
+    Cond: TKMGoalCondition;
     Play: TKMHandIndex;
-    Stat: TGoalStatus;
+    Stat: TKMGoalStatus;
   end;
 
   TKMapInfo = class
@@ -67,7 +67,7 @@ type
     constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TMapFolder); overload;
     destructor Destroy; override;
 
-    procedure AddGoal(aType: TGoalType; aPlayer: TKMHandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TKMHandIndex);
+    procedure AddGoal(aType: TKMGoalType; aPlayer: TKMHandIndex; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandIndex);
     procedure LoadExtra;
 
     property InfoAmount: TKMMapInfoAmount read fInfoAmount;
@@ -272,7 +272,7 @@ begin
 end;
 
 
-procedure TKMapInfo.AddGoal(aType: TGoalType; aPlayer: TKMHandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TKMHandIndex);
+procedure TKMapInfo.AddGoal(aType: TKMGoalType; aPlayer: TKMHandIndex; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandIndex);
 var G: TKMMapGoalInfo;
 begin
   G.Cond := aCondition;

@@ -128,8 +128,8 @@ end;
 
 procedure TKMMapEdPlayerGoals.Goals_Refresh;
 const
-  Typ: array [TGoalType] of string = ('-', 'V', 'S');
-  Cnd: array [TGoalCondition] of Integer = (
+  Typ: array [TKMGoalType] of string = ('-', 'V', 'S');
+  Cnd: array [TKMGoalCondition] of Integer = (
     TX_MAPED_GOALS_CONDITION_NONE, TX_MAPED_GOALS_CONDITION_TUTORIAL, TX_MAPED_GOALS_CONDITION_TIME,
     TX_MAPED_GOALS_CONDITION_BUILDS, TX_MAPED_GOALS_CONDITION_TROOPS, TX_MAPED_GOALS_CONDITION_UNKNOWN,
     TX_MAPED_GOALS_CONDITION_ASSETS, TX_MAPED_GOALS_CONDITION_SERFS, TX_MAPED_GOALS_CONDITION_ECONOMY);

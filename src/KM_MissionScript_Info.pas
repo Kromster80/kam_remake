@@ -85,16 +85,16 @@ begin
                           fMapInfo.CanBeAI[P[0]] := True;
     ct_AddGoal:         if fLastHand >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
-                          if TGoalCondition(P[0]) = gc_Time then
-                            fMapInfo.AddGoal(glt_Victory, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), -1)
+                          if TKMGoalCondition(P[0]) = gc_Time then
+                            fMapInfo.AddGoal(glt_Victory, fLastHand, TKMGoalCondition(P[0]), TKMGoalStatus(P[1]), -1)
                           else
-                            fMapInfo.AddGoal(glt_Victory, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), P[3]);
+                            fMapInfo.AddGoal(glt_Victory, fLastHand, TKMGoalCondition(P[0]), TKMGoalStatus(P[1]), P[3]);
     ct_AddLostGoal:     if fLastHand >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
-                          if TGoalCondition(P[0]) = gc_Time then
-                            fMapInfo.AddGoal(glt_Survive, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), -1)
+                          if TKMGoalCondition(P[0]) = gc_Time then
+                            fMapInfo.AddGoal(glt_Survive, fLastHand, TKMGoalCondition(P[0]), TKMGoalStatus(P[1]), -1)
                           else
-                            fMapInfo.AddGoal(glt_Survive, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), P[3]);
+                            fMapInfo.AddGoal(glt_Survive, fLastHand, TKMGoalCondition(P[0]), TKMGoalStatus(P[1]), P[3]);
     ct_SetAlliance:     if (fLastHand >= 0) and (P[0] <> fLastHand) then //Can't be enemies with yourself
                           if P[1] = 1 then
                             fMapInfo.Alliances[fLastHand, P[0]] := at_Ally

@@ -8,9 +8,9 @@ uses
 
 type
   TKMGoal = packed record
-    GoalType: TGoalType; //Victory, survive, neither
-    GoalCondition: TGoalCondition; //Buildings, troops, time passing
-    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occur?
+    GoalType: TKMGoalType; //Victory, survive, neither
+    GoalCondition: TKMGoalCondition; //Buildings, troops, time passing
+    GoalStatus: TKMGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occur?
     GoalTime: Cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
     MessageToShow: Integer; //Message to be shown when the goal is completed
     MessageHasShown: Boolean; //Whether we have shown this message yet
@@ -63,7 +63,7 @@ type
     procedure Clear;
     property Count: Integer read fCount;
     property Item[aIndex: Integer]: TKMGoal read GetGoal write SetGoal; default;
-    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: TKMHandIndex); overload;
+    procedure AddGoal(aType: TKMGoalType; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: TKMHandIndex); overload;
     procedure AddGoal(aGoal: TKMGoal); overload;
     procedure Delete(aIndex: Integer);
     procedure RemoveReference(aHandIndex: TKMHandIndex);
@@ -94,7 +94,7 @@ begin
 end;
 
 
-procedure TKMGoals.AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: TKMHandIndex);
+procedure TKMGoals.AddGoal(aType: TKMGoalType; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aHandIndex: TKMHandIndex);
 begin
   SetLength(fGoals, fCount + 1);
   fGoals[fCount].GoalType := aType;
@@ -168,7 +168,7 @@ end;
 procedure TKMGoals.AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: TKMHandIndex; const aEnemyIndexes: array of TKMHandIndex);
 var
   I: Integer;
-  gc: TGoalCondition;
+  gc: TKMGoalCondition;
 begin
   if aBuildings then
     gc := gc_Buildings

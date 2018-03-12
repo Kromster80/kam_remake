@@ -483,31 +483,31 @@ begin
     ct_AddGoal:         //ADD_GOAL, condition, status, message_id, player_id,
                         if fLastHand <> PLAYER_NONE then
                         begin
-                          if not InRange(P[0], 0, Byte(High(TGoalCondition))) then
+                          if not InRange(P[0], 0, Byte(High(TKMGoalCondition))) then
                             AddError('Add_Goal with unknown condition index ' + IntToStr(P[0]))
                           else
-                            if not (TGoalCondition(P[0]) in GoalsSupported) then
-                              AddError('Goal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated')
+                            if not (TKMGoalCondition(P[0]) in GoalsSupported) then
+                              AddError('Goal type ' + GoalConditionStr[TKMGoalCondition(P[0])] + ' is deprecated')
                             else
                               if (P[2] <> 0) then
                                 AddError('Goals messages are deprecated. Use .script instead')
                               else
                                 if InRange(P[3], 0, gHands.Count - 1) and fPlayerEnabled[P[3]] then
-                                  gHands[fLastHand].AI.Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                                  gHands[fLastHand].AI.Goals.AddGoal(glt_Victory, TKMGoalCondition(P[0]), TKMGoalStatus(P[1]), 0, P[2], P[3]);
                         end;
     ct_AddLostGoal:     if fLastHand <> PLAYER_NONE then
                         begin
-                          if not InRange(P[0], 0, Byte(High(TGoalCondition))) then
+                          if not InRange(P[0], 0, Byte(High(TKMGoalCondition))) then
                             AddError('Add_LostGoal with unknown condition index ' + IntToStr(P[0]))
                           else
                           if InRange(P[3], 0, gHands.Count - 1)
                           and fPlayerEnabled[P[3]] then
                           begin
-                            if not (TGoalCondition(P[0]) in GoalsSupported) then
-                              AddError('LostGoal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
+                            if not (TKMGoalCondition(P[0]) in GoalsSupported) then
+                              AddError('LostGoal type ' + GoalConditionStr[TKMGoalCondition(P[0])] + ' is deprecated');
                             if (P[2] <> 0) then
                               AddError('LostGoals messages are deprecated. Use .script instead');
-                            gHands[fLastHand].AI.Goals.AddGoal(glt_Survive, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                            gHands[fLastHand].AI.Goals.AddGoal(glt_Survive, TKMGoalCondition(P[0]), TKMGoalStatus(P[1]), 0, P[2], P[3]);
                           end;
                         end;
     ct_AIDefence:       if fLastHand <> PLAYER_NONE then

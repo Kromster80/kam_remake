@@ -97,7 +97,7 @@ procedure TKMMapEdGoal.Goal_Change(Sender: TObject);
 begin
   //Settings get saved on close, now we just toggle fields
   //because certain combinations can't coexist
-  NumEdit_GoalPlayer.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) <> gc_Time;
+  NumEdit_GoalPlayer.Enabled := TKMGoalCondition(Radio_GoalCondition.ItemIndex) <> gc_Time;
 end;
 
 
@@ -115,8 +115,8 @@ begin
   begin
     //Copy Goal info from controls to Goals
     FillChar(G, SizeOf(G), #0); //Make sure unused fields like Message are zero, not random data
-    G.GoalType := TGoalType(Radio_GoalType.ItemIndex);
-    G.GoalCondition := TGoalCondition(Radio_GoalCondition.ItemIndex);
+    G.GoalType := TKMGoalType(Radio_GoalType.ItemIndex);
+    G.GoalCondition := TKMGoalCondition(Radio_GoalCondition.ItemIndex);
     if G.GoalType = glt_Survive then
       G.GoalStatus := gs_True
     else

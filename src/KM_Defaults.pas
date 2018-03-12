@@ -570,30 +570,33 @@ type
   //I put some examples below to give you an idea of how it works. Remember this is basically a copy of the goal scripting system in KaM,
   //not something I designed. It can change, this is just easiest to implement from script compatability point of view.
 
-  TGoalType = (glt_None=0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
-               glt_Victory, //Means: "The following condition must be true for you to win"
-               glt_Survive);//Means: "The following condition must be true or else you lose"
-  //Conditions are the same numbers as in KaM script
-  TGoalCondition = (gc_Unknown0,      //Not used/unknown
-                    gc_BuildTutorial,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
-                    gc_Time,            //A certain time must pass
-                    gc_Buildings,       //Storehouse, school, barracks
-                    gc_Troops,          //All troops
-                    gc_Unknown5,        //Not used/unknown
-                    gc_MilitaryAssets,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
-                    gc_SerfsAndSchools, //Serfs (possibly all citizens?) and schoolhouses
-                    gc_EconomyBuildings //School, Inn and Storehouse
-                    //We can come up with our own
-                    );
+  TKMGoalType = (
+    glt_None=0,  // Means: It is not required for victory or defeat (e.g. simply display a message)
+    glt_Victory, // Means: "The following condition must be true for you to win"
+    glt_Survive  // Means: "The following condition must be true or else you lose"
+  );
+  // Conditions are the same numbers as in KaM script
+  TKMGoalCondition = (
+    gc_Unknown0,        // Not used/unknown
+    gc_BuildTutorial,   // Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
+    gc_Time,            // A certain time must pass
+    gc_Buildings,       // Storehouse, school, barracks
+    gc_Troops,          // All troops
+    gc_Unknown5,        // Not used/unknown
+    gc_MilitaryAssets,  // All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
+    gc_SerfsAndSchools, // Serfs (possibly all citizens?) and schoolhouses
+    gc_EconomyBuildings // School, Inn and Storehouse
+    // We can come up with our own
+  );
 
-  TGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
+  TKMGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
 
 const
   //We discontinue support of other goals in favor of PascalScript scripts
-  GoalsSupported: set of TGoalCondition =
+  GoalsSupported: set of TKMGoalCondition =
     [gc_Buildings, gc_Troops, gc_MilitaryAssets, gc_SerfsAndSchools, gc_EconomyBuildings];
 
-  GoalConditionStr: array [TGoalCondition] of string = (
+  GoalConditionStr: array [TKMGoalCondition] of string = (
     'Unknown 0',
     'Build Tannery',
     'Time',
