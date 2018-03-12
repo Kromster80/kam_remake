@@ -73,8 +73,8 @@ end;
 
 function TTaskAttackHouse.Execute: TTaskResult;
 var
-   AnimLength: Integer;
-   Delay, Cycle: Byte;
+  AnimLength: Integer;
+  Delay, Cycle: Byte;
 begin
   Result := TaskContinues;
 
@@ -195,7 +195,6 @@ begin
     SaveStream.Write(fHouse.UID)
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(fDestroyingHouse);
 end;
 
 
