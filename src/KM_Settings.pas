@@ -7,7 +7,6 @@ uses
 
 
 type
-
   TKMWindowParamsRecord = record
     Width, Height, Left, Top: SmallInt;
     State: TWindowState;
@@ -388,12 +387,6 @@ end;
 
 
 { TGameSettings }
-procedure TGameSettings.Changed;
-begin
-  fNeedsSave := True;
-end;
-
-
 constructor TGameSettings.Create;
 begin
   inherited;
@@ -413,6 +406,12 @@ begin
   FreeAndNil(fFavouriteMaps);
 
   inherited;
+end;
+
+
+procedure TGameSettings.Changed;
+begin
+  fNeedsSave := True;
 end;
 
 
@@ -1004,12 +1003,10 @@ begin
   StringList.DelimitedText   := Trim(aString);
 
   for I := 0 to StringList.Count - 1 do
-  begin
     if TryStrToInt64(Trim(StringList[I]), MapCRC)
-      and (MapCRC > 0)
-      and not Contains(Cardinal(MapCRC)) then
+    and (MapCRC > 0)
+    and not Contains(Cardinal(MapCRC)) then
       fFavouriteMPMaps.Add(Trim(StringList[I]));
-  end;
 
   StringList.Free;
 end;
@@ -1068,11 +1065,11 @@ end;
 
 
 procedure TKMFavouriteMaps.Remove(aMapCRC: Cardinal);
-var Index: Integer;
+var idx: Integer;
 begin
-  Index := fFavouriteMPMaps.IndexOf(IntToStr(aMapCRC));
-  if Index <> -1 then
-    fFavouriteMPMaps.Delete(Index);
+  idx := fFavouriteMPMaps.IndexOf(IntToStr(aMapCRC));
+  if idx <> -1 then
+    fFavouriteMPMaps.Delete(idx);
   FavoriteMapsUpdated;
 end;
 
