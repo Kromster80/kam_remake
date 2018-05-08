@@ -20,6 +20,7 @@ function IsConsoleMode: Boolean;
 var
   SI: TStartupInfo;
 begin
+  ZeroMemory(@SI, SizeOf(SI));
   SI.cb := SizeOf(StartUpInfo);
   GetStartupInfo(SI);
   Result := (SI.dwFlags and STARTF_USESHOWWINDOW) = 0;
