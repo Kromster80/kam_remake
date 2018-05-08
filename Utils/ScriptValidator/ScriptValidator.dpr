@@ -64,6 +64,12 @@ begin
       continue;
     end;
 
+    if (paramstr(I) = '-j') or (paramstr(I) = '-jsonapi') then
+    begin
+      fParamRecord.JsonApi := True;
+      continue;
+    end;
+
     if (paramstr(I) = '-v') or (paramstr(I) = '-verbose') then
     begin
       fParamRecord.Verbose := True;
@@ -94,14 +100,16 @@ begin
   end else
   begin
     try
-      writeln(VALIDATOR_START_TEXT);
       ProcessParams;
       fConsoleMain := TConsoleMain.Create;
 
-      if fParamRecord.Verbose then
+      if not fParamRecord.JsonApi then
+        writeln(VALIDATOR_START_TEXT);
+
+      if fParamRecord.Verbose and not fParamRecord.JsonApi then
         writeln('VERBOSE: Arguments:' + sLinebreak + fArgs);
 
-      if fParamRecord.Version then
+      if fParamRecord.Version and not fParamRecord.JsonApi then
       begin
         writeln('Game version: ' + GAME_REVISION + sLineBreak +
                 'Validator version: ' + VALIDATOR_VERSION + sLineBreak);

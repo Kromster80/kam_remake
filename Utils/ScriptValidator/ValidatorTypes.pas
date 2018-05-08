@@ -5,6 +5,7 @@ type
   TCLIParamRecord = record
     ScriptFile:  string;
     GraphicMode,
+    JsonApi,
     Help,
     AllMaps,
     Campaign,
