@@ -100,6 +100,7 @@ type
     procedure Parse(Strings: TStringList);
     procedure Walk(Lines: TStringList; Prefix: String; Node: TXmlNode);
     function GetText: String;
+    procedure SetText(aText: String);
   public
     Root: TXmlNode; // There is only one Root Node
     Header: TXmlNode; // XML declarations are stored in here as Attributes
@@ -113,7 +114,7 @@ type
     procedure SaveToFile(const FileName: String); virtual;
     procedure DefaultOnNodeSetText(Sender: TObject; Node: TXmlNode; Text: String);
     procedure DefaultOnNodeSetName(Sender: TObject; Node: TXmlNode; Name: String);
-    property Text: String read GetText;
+    property Text: String read GetText write SetText;
     property OnNodeSetText: TXmlOnNodeSetText read FOnNodeSetText write FOnNodeSetText;
     property OnNodeSetName: TXmlOnNodeSetText read FOnNodeSetName write FOnNodeSetName;
   end;
@@ -438,6 +439,16 @@ begin
   // Create nodes representation
   Walk(Lines, '', Root);
   Result := Lines.Text;
+end;
+
+procedure TXmlVerySimple.SetText(aText: String);
+var Strings: TStringList;
+begin
+  Clear;
+  Strings := TStringList.Create;
+  Strings.Text := aText;
+  Parse(Strings);
+  Strings.Free;
 end;
 
 { TXmlNode }
