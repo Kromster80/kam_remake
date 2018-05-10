@@ -6,7 +6,7 @@ uses
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
   KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates, KM_ScriptingUtils,
-  KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
+  KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses, ScriptValidatorResult;
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
@@ -23,29 +23,6 @@ uses
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
 
 type
-  TSVIssue = record
-    Line,
-    Column:     Cardinal;
-    Param,
-    Msg:        string;
-  end;
-  TSVIssueArray = array of TSVIssue;
-
-  TSVResult = class(TObject)
-  strict private
-    fHints,
-    fWarnings,
-    fErrors:   TSVIssueArray;
-    procedure Add(var aArray: TSVIssueArray; aLine, aColumn: Cardinal; aParam, aMessage: string); inline;
-  public
-    procedure AddHint(aLine, aColumn: Cardinal; aParam, aMessage: string);
-    procedure AddWarning(aLine, aColumn: Cardinal; aParam, aMessage: string);
-    procedure AddError(aLine, aColumn: Cardinal; aParam, aMessage: string);
-    property Hints:    TSVIssueArray read fHints    write fHints;
-    property Warnings: TSVIssueArray read fWarnings write fWarnings;
-    property Errors:   TSVIssueArray read fErrors   write fErrors;
-  end;
-
   TKMScripting = class
   private
     fScriptCode: AnsiString;
@@ -54,7 +31,7 @@ type
     fExec: TPSExec;
     fErrorString: UnicodeString; //Info about found mistakes (Unicode, can be localized later on)
     fWarningsString: UnicodeString;
-    fValidationIssues: TSVResult;
+    fValidationIssues: TScriptValidatorResult;
 
     fHasErrorOccured: Boolean; //Has runtime error occurred? (only display first error)
     fScriptLogFile: UnicodeString;
@@ -81,7 +58,7 @@ type
 
     property ErrorString: UnicodeString read fErrorString;
     property WarningsString: UnicodeString read fWarningsString;
-    property ValidationIssues: TSVResult read fValidationIssues;
+    property ValidationIssues: TScriptValidatorResult read fValidationIssues;
     procedure LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
     procedure ExportDataToText;
 
@@ -115,40 +92,6 @@ uses
 
 const
   SCRIPT_LOG_EXT = '.LOG.txt';
-
-
-{ TSVResult }
-procedure TSVResult.Add(var aArray: TSVIssueArray; aLine, aColumn: Cardinal; aParam, aMessage: string);
-var
-  I: Integer;
-  Issue: TSVIssue;
-begin
-  I := Length(aArray);
-  SetLength(aArray, I + 1);
-  Issue.Line := aLine;
-  Issue.Column := aColumn;
-  Issue.Param := aParam;
-  Issue.Msg := aMessage;
-  aArray[I] := Issue;
-end;
-
-
-procedure TSVResult.AddHint(aLine, aColumn: Cardinal; aParam, aMessage: string);
-begin
-  Add(fHints, aLine, aColumn, aParam, aMessage);
-end;
-
-
-procedure TSVResult.AddWarning(aLine, aColumn: Cardinal; aParam, aMessage: string);
-begin
-  Add(fWarnings, aLine, aColumn, aParam, aMessage);
-end;
-
-
-procedure TSVResult.AddError(aLine, aColumn: Cardinal; aParam, aMessage: string);
-begin
-  Add(fErrors, aLine, aColumn, aParam, aMessage);
-end;
 
 
 { TKMScripting }
@@ -237,7 +180,7 @@ begin
   fScriptLogFile := ChangeFileExt(aFileName, SCRIPT_LOG_EXT);
   fErrorString := '';
   fWarningsString := '';
-  fValidationIssues := TSVResult.Create;
+  fValidationIssues := TScriptValidatorResult.Create;
 
   if not FileExists(aFileName) then
   begin

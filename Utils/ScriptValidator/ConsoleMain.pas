@@ -68,7 +68,7 @@ const
 
 implementation
 uses
-  REST.Json, SysUtils, KM_Maps, Classes;
+  SysUtils, KM_Maps, Classes, ScriptValidatorResult;
 
 { TMain }
 constructor TConsoleMain.Create;
@@ -85,19 +85,19 @@ end;
 
 procedure TConsoleMain.ValidateSingleScriptApi(aPath: string);
 var
-  Result: TSVResult;
+  Result: TScriptValidatorResult;
 begin
   if not FileExists(aPath) then
   begin
-    Result := TSVResult.Create;
+    Result := TScriptValidatorResult.Create;
     Result.AddError(0, 0, '', 'File not found: ' + aPath);
-    WriteLn(TJson.ObjectToJsonString(Result));
+    WriteLn(Result.ToXML);
     FreeAndNil(Result);
     Exit;
   end;
 
   fScripting.LoadFromFile(aPath, '', nil);
-  writeln(TJson.ObjectToJsonString(fScripting.ValidationIssues));
+  writeln(fScripting.ValidationIssues.ToXML);
 end;
 
 
