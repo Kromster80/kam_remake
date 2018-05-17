@@ -65,7 +65,7 @@ begin
       continue;
     end;
 
-    if (paramstr(I) = '-j') or (paramstr(I) = '-jsonapi') then
+    if (paramstr(I) = '-x') or (paramstr(I) = '-xmlapi') then
     begin
       fParamRecord.JsonApi := True;
       continue;
