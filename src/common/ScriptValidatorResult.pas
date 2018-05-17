@@ -24,6 +24,7 @@ type
                   var aDest: TScriptValidatorIssueArray); inline;
     procedure ArrayToXML(aSrc: TScriptValidatorIssueArray; var aDest: TXmlNode);
     procedure XMLToArray(aSrc: TXmlNode; var aDest: TScriptValidatorIssueArray);
+    function FixText(aTest: string): string;
   public
     procedure AddHint(aLine, aColumn: Integer; aParam, aMessage: string);
     procedure AddWarning(aLine, aColumn: Integer; aParam, aMessage: string);
@@ -36,7 +37,8 @@ type
   end;
 
 implementation
-
+uses
+  Classes;
 
 { TSVResult }
 procedure TScriptValidatorResult.Add(aLine, aColumn: Integer; aParam, aMessage: string;
@@ -82,11 +84,11 @@ begin
   for Issue in aSrc do
   begin
     Node := aDest.AddChild('Issue');
-    Node.AddChild('Line').Text := IntToStr(Issue.Line);
-    Node.AddChild('Column').Text := IntToStr(Issue.Column);
-    Node.AddChild('Module').Text := Issue.Module;
-    Node.AddChild('Param').Text := Issue.Param;
-    Node.AddChild('Msg').Text := Issue.Msg;
+    Node.SetAttribute('Line', IntToStr(Issue.Line));
+    Node.SetAttribute('Column', IntToStr(Issue.Column));
+    Node.SetAttribute('Module', Issue.Module);
+    Node.SetAttribute('Param', Issue.Param);
+    Node.SetAttribute('Msg', Issue.Msg);
   end;
 end;
 
@@ -102,13 +104,19 @@ begin
   begin
     Len := Length(aDest);
     SetLength(aDest, Len + 1);
-    Issue.Line   := StrToInt(Node.Find('Line').Text);
-    Issue.Column := StrToInt(Node.Find('Column').Text);
-    Issue.Module := Node.Find('Module').Text;
-    Issue.Param  := Node.Find('Param').Text;
-    Issue.Msg    := Node.Find('Msg').Text;
-    aDest[Len] := Issue;
+    Issue.Line   := StrToInt(Node.Attribute['Line']);
+    Issue.Column := StrToInt(Node.Attribute['Column']);
+    Issue.Module := FixText(Node.Attribute['Module']);
+    Issue.Param  := FixText(Node.Attribute['Param']);
+    Issue.Msg    := FixText(Node.Attribute['Msg']);
+    aDest[Len]   := Issue;
   end;
+end;
+
+
+function TScriptValidatorResult.FixText(aTest: string): string;
+begin
+  Result := StringReplace(aTest, '&#39;', '"', [rfReplaceAll, rfIgnoreCase]);
 end;
 
 
