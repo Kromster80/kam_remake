@@ -6,7 +6,7 @@ uses
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
   KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates, KM_ScriptingUtils,
-  KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
+  KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses, ScriptValidatorResult;
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
@@ -31,6 +31,7 @@ type
     fExec: TPSExec;
     fErrorString: UnicodeString; //Info about found mistakes (Unicode, can be localized later on)
     fWarningsString: UnicodeString;
+    fValidationIssues: TScriptValidatorResult;
 
     fHasErrorOccured: Boolean; //Has runtime error occurred? (only display first error)
     fScriptLogFile: UnicodeString;
@@ -57,6 +58,7 @@ type
 
     property ErrorString: UnicodeString read fErrorString;
     property WarningsString: UnicodeString read fWarningsString;
+    property ValidationIssues: TScriptValidatorResult read fValidationIssues;
     procedure LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
     procedure ExportDataToText;
 
@@ -123,6 +125,7 @@ begin
   FreeAndNil(fIDCache);
   FreeAndNil(fExec);
   FreeAndNil(fUtils);
+  FreeAndNil(fValidationIssues);
   inherited;
 end;
 
@@ -171,9 +174,13 @@ end;
 
 procedure TKMScripting.LoadFromFile(aFileName: UnicodeString; aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
 begin
+  if fValidationIssues <> nil then
+    FreeAndNil(fValidationIssues);
+
   fScriptLogFile := ChangeFileExt(aFileName, SCRIPT_LOG_EXT);
   fErrorString := '';
   fWarningsString := '';
+  fValidationIssues := TScriptValidatorResult.Create;
 
   if not FileExists(aFileName) then
   begin
@@ -223,7 +230,10 @@ begin
         Sender.AddUsedVariable(CAMPAIGN_DATA_VAR, CampaignDataType);
       except
         on E: Exception do
+        begin
           fErrorString := fErrorString + 'Error in declaration of global campaign data type|';
+          fValidationIssues.AddError(0, 0, '', 'Error in declaration of global campaign data type');
+        end;
       end;
 
     // Common
@@ -631,6 +641,8 @@ procedure TKMScripting.CompileScript;
 var
   I: Integer;
   Compiler: TPSPascalCompiler;
+  Msg: TPSPascalCompilerMessage;
+  Success: Boolean;
 begin
   Compiler := TPSPascalCompiler.Create; // create an instance of the compiler
   try
@@ -641,15 +653,28 @@ begin
     Compiler.AllowNoEnd := True; //Scripts only use event handlers now, main section is unused
     Compiler.BooleanShortCircuit := True; //Like unchecking "Complete booolean evaluation" in Delphi compiler options
 
-    if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode
+    Success := Compiler.Compile(fScriptCode); // Compile the Pascal script into bytecode
+
+    for I := 0 to Compiler.MsgCount - 1 do
     begin
-      for I := 0 to Compiler.MsgCount - 1 do
-        fErrorString := fErrorString + UnicodeString(Compiler.Msg[I].MessageToString) + EolW;
+      Msg := Compiler.Msg[I];
+
+      if Msg.ErrorType = 'Hint' then
+      begin
+        fValidationIssues.AddHint(Msg.Row, Msg.Col, Msg.Param, Msg.ShortMessageToString);
+      end else if Msg.ErrorType = 'Warning' then
+      begin
+        fWarningsString := fWarningsString + UnicodeString(Msg.MessageToString) + EolW;
+        fValidationIssues.AddWarning(Msg.Row, Msg.Col, Msg.Param, Msg.ShortMessageToString);
+      end else
+      begin
+        fErrorString := fErrorString + UnicodeString(Msg.MessageToString) + EolW;
+        fValidationIssues.AddError(Msg.Row, Msg.Col, Msg.Param, Msg.ShortMessageToString);
+      end;
+    end;
+
+    if not Success then
       Exit;
-    end
-      else
-        for I := 0 to Compiler.MsgCount - 1 do
-          fWarningsString := fWarningsString + UnicodeString(Compiler.Msg[I].MessageToString) + EolW;
 
     Compiler.GetOutput(fByteCode); // Save the output of the compiler in the string Data.
   finally
@@ -1018,6 +1043,7 @@ begin
       { For some reason the script could not be loaded. This is usually the case when a
         library that has been used at compile time isn't registered at runtime. }
       fErrorString := fErrorString + 'Unknown error in loading bytecode to Exec|';
+      fValidationIssues.AddError(0, 0, '', 'Unknown error in loading bytecode to Exec');
       Exit;
     end;
 
@@ -1032,6 +1058,7 @@ begin
         Continue;
 
       fErrorString := fErrorString + ValidateVarType(V.FType);
+      fValidationIssues.AddError(0, 0, '', ValidateVarType(V.FType));
       if fErrorString <> '' then
       begin
         //Don't allow the script to run

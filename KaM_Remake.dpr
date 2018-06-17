@@ -18,6 +18,7 @@ uses
 
   KromOGLUtils in 'src\common\KromOGLUtils.pas',
   KromUtils in 'src\common\KromUtils.pas',
+  ScriptValidatorResult in 'src\common\ScriptValidatorResult.pas',
 
   KM_AI in 'src\ai\KM_AI.pas',
   KM_AIArmyEvaluation in 'src\ai\KM_AIArmyEvaluation.pas',

@@ -9,6 +9,7 @@ type
   strict private
     fScripting: TKMScripting;
     fVerbose:   Boolean;
+    procedure ValidateSingleScriptApi(aPath: string);
     procedure ValidateSingleScript(aPath, aCampaignFile: string; aReportGood: Boolean);
     procedure ValidateCampaignScript(aPath: string);
     procedure ValidateAllScripts;
@@ -48,6 +49,7 @@ const
     '||    -c / -campaign    - Check a campaign type script                           ||' + sLineBreak +
     '||    -g / -graphic     - Start the script validator in GUI mode                 ||' + sLineBreak +
     '||    -v / -verbose     - Show verbose messages                                  ||' + sLineBreak +
+    '||    -j / -jsonapi     - Show verbose messages                                  ||' + sLineBreak +
     '||    -V / -version     - Show the script validator version                      ||' + sLineBreak +
     '||                                                                               ||' + sLineBreak +
     '||===============================================================================||' + sLineBreak +
@@ -66,7 +68,7 @@ const
 
 implementation
 uses
-  SysUtils, KM_Maps, Classes;
+  SysUtils, KM_Maps, Classes, ScriptValidatorResult;
 
 { TMain }
 constructor TConsoleMain.Create;
@@ -81,6 +83,24 @@ begin
 end;
 
 
+procedure TConsoleMain.ValidateSingleScriptApi(aPath: string);
+var
+  Result: TScriptValidatorResult;
+begin
+  if not FileExists(aPath) then
+  begin
+    Result := TScriptValidatorResult.Create;
+    Result.AddError(0, 0, '', 'File not found: ' + aPath);
+    WriteLn(Result.ToXML);
+    FreeAndNil(Result);
+    Exit;
+  end;
+
+  fScripting.LoadFromFile(aPath, '', nil);
+  writeln(fScripting.ValidationIssues.ToXML);
+end;
+
+
 procedure TConsoleMain.ValidateSingleScript(aPath, aCampaignFile: string; aReportGood: Boolean);
 var
   OutputText: string;
@@ -88,7 +108,7 @@ begin
   if fVerbose then
     writeln('VERBOSE: Checking if script file exists.' + sLineBreak);
 
-  if not FileExists(aPath) and aReportGood then
+  if not FileExists(aPath) then
   begin
     writeln('File not found: ' + aPath);
     Exit;
@@ -181,7 +201,9 @@ begin
   if aParameterRecord.AllMaps then
     ValidateAllScripts
   else
-    if aParameterRecord.Campaign then
+    if aParameterRecord.JsonApi then
+      ValidateSingleScriptApi(aParameterRecord.ScriptFile)
+    else if aParameterRecord.Campaign then
       ValidateCampaignScript(aParameterRecord.ScriptFile)
     else // Default to single script
       ValidateSingleScript(aParameterRecord.ScriptFile, '', True)
