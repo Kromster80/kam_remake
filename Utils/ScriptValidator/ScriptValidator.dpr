@@ -67,7 +67,7 @@ begin
 
     if (paramstr(I) = '-x') or (paramstr(I) = '-xmlapi') then
     begin
-      fParamRecord.JsonApi := True;
+      fParamRecord.XmlApi := True;
       continue;
     end;
 
@@ -104,13 +104,13 @@ begin
       ProcessParams;
       fConsoleMain := TConsoleMain.Create;
 
-      if not fParamRecord.JsonApi then
+      if not fParamRecord.XmlApi then
         writeln(VALIDATOR_START_TEXT);
 
-      if fParamRecord.Verbose and not fParamRecord.JsonApi then
+      if fParamRecord.Verbose and not fParamRecord.XmlApi then
         writeln('VERBOSE: Arguments:' + sLinebreak + fArgs);
 
-      if fParamRecord.Version and not fParamRecord.JsonApi then
+      if fParamRecord.Version and not fParamRecord.XmlApi then
       begin
         writeln('Game version: ' + GAME_REVISION + sLineBreak +
                 'Validator version: ' + VALIDATOR_VERSION + sLineBreak);
