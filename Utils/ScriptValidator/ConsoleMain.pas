@@ -201,7 +201,7 @@ begin
   if aParameterRecord.AllMaps then
     ValidateAllScripts
   else
-    if aParameterRecord.JsonApi then
+    if aParameterRecord.XmlApi then
       ValidateSingleScriptApi(aParameterRecord.ScriptFile)
     else if aParameterRecord.Campaign then
       ValidateCampaignScript(aParameterRecord.ScriptFile)
