@@ -1,5 +1,4 @@
 unit ScriptValidatorResult;
-
 interface
 uses
   SysUtils, VerySimpleXML;
@@ -7,11 +6,11 @@ uses
 
 type
   TScriptValidatorIssue = record
-    Line,
-    Column:     Integer;
-    Module,
-    Param,
-    Msg:        string;
+    Line: Integer;
+    Column: Integer;
+    Module: string;
+    Param: string;
+    Msg: string;
   end;
   TScriptValidatorIssueArray = array of TScriptValidatorIssue;
 
@@ -19,9 +18,8 @@ type
   strict private
     fHints,
     fWarnings,
-    fErrors:   TScriptValidatorIssueArray;
-    procedure Add(aLine, aColumn: Integer; aParam, aMessage: string;
-                  var aDest: TScriptValidatorIssueArray); inline;
+    fErrors: TScriptValidatorIssueArray;
+    procedure Add(aLine, aColumn: Integer; aParam, aMessage: string; var aDest: TScriptValidatorIssueArray); inline;
     procedure ArrayToXML(aSrc: TScriptValidatorIssueArray; var aDest: TXmlNode);
     procedure XMLToArray(aSrc: TXmlNode; var aDest: TScriptValidatorIssueArray);
     function FixText(aTest: string): string;
@@ -75,8 +73,7 @@ begin
 end;
 
 
-procedure TScriptValidatorResult.ArrayToXML(aSrc: TScriptValidatorIssueArray;
-                                            var aDest: TXmlNode);
+procedure TScriptValidatorResult.ArrayToXML(aSrc: TScriptValidatorIssueArray; var aDest: TXmlNode);
 var
   Node:  TXmlNode;
   Issue: TScriptValidatorIssue;
@@ -93,15 +90,17 @@ begin
 end;
 
 
-procedure TScriptValidatorResult.XMLToArray(aSrc: TXmlNode;
-                                            var aDest: TScriptValidatorIssueArray);
+procedure TScriptValidatorResult.XMLToArray(aSrc: TXmlNode; var aDest: TScriptValidatorIssueArray);
 var
-  Node:  TXmlNode;
+  I: Integer;
+  Node: TXmlNode;
   Issue: TScriptValidatorIssue;
-  Len:   Integer;
+  Len: Integer;
 begin
-  for Node in aSrc.ChildNodes do
+  for I := 0 to aSrc.ChildNodes.Count - 1 do
   begin
+    Node := aSrc.ChildNodes[I];
+
     Len := Length(aDest);
     SetLength(aDest, Len + 1);
     Issue.Line   := StrToInt(Node.Attribute['Line']);
