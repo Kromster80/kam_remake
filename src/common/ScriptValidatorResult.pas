@@ -16,8 +16,8 @@ type
 
   TScriptValidatorResult = class(TObject)
   strict private
-    fHints,
-    fWarnings,
+    fHints: TScriptValidatorIssueArray;
+    fWarnings: TScriptValidatorIssueArray;
     fErrors: TScriptValidatorIssueArray;
     procedure Add(aLine, aColumn: Integer; aParam, aMessage: string; var aDest: TScriptValidatorIssueArray); inline;
     procedure ArrayToXML(aSrc: TScriptValidatorIssueArray; var aDest: TXmlNode);
@@ -29,18 +29,17 @@ type
     procedure AddError(aLine, aColumn: Integer; aParam, aMessage: string);
     function ToXML: string;
     procedure FromXML(aXml: string);
-    property Hints:    TScriptValidatorIssueArray read fHints    write fHints;
+    property Hints: TScriptValidatorIssueArray read fHints write fHints;
     property Warnings: TScriptValidatorIssueArray read fWarnings write fWarnings;
-    property Errors:   TScriptValidatorIssueArray read fErrors   write fErrors;
+    property Errors: TScriptValidatorIssueArray read fErrors write fErrors;
   end;
 
 implementation
 uses
   Classes;
 
-{ TSVResult }
-procedure TScriptValidatorResult.Add(aLine, aColumn: Integer; aParam, aMessage: string;
-                                     var aDest: TScriptValidatorIssueArray);
+{ TScriptValidatorResult }
+procedure TScriptValidatorResult.Add(aLine, aColumn: Integer; aParam, aMessage: string; var aDest: TScriptValidatorIssueArray);
 var
   I: Integer;
   Issue: TScriptValidatorIssue;
@@ -121,21 +120,19 @@ end;
 
 function TScriptValidatorResult.ToXML: string;
 var
-  HintNode,
-  WarningNode,
-  ErrorNode:   TXmlNode;
+  nHint, nWarning, nError: TXmlNode;
 begin
   with TXmlVerySimple.Create do
   begin
     try
       Root.NodeName := 'ScriptValidatorResult';
-      HintNode      := Root.AddChild('Hints');
-      WarningNode   := Root.AddChild('Warnings');
-      ErrorNode     := Root.AddChild('Errors');
+      nHint := Root.AddChild('Hints');
+      nWarning := Root.AddChild('Warnings');
+      nError := Root.AddChild('Errors');
 
-      ArrayToXML(fHints, HintNode);
-      ArrayToXML(fWarnings, WarningNode);
-      ArrayToXML(fErrors, ErrorNode);
+      ArrayToXML(fHints, nHint);
+      ArrayToXML(fWarnings, nWarning);
+      ArrayToXML(fErrors, nError);
 
       Result := Text;
     finally
