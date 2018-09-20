@@ -52,8 +52,8 @@ type
   private
     FExeDir: string;
     procedure SetCaption;
-    procedure VideoIdle(Force: Boolean = False);
-    function AddTrailer(Value: string) : string;
+    procedure VideoIdle(aIndForce: Boolean = True);
+    function AddTrailer(aValue: string): string;
   public
     AVIVideo: TAVI;
   end;
@@ -83,11 +83,11 @@ begin
   Panel1.DoubleBuffered := True;
 end;
 
-procedure TFrmMain.VideoIdle(Force: Boolean = False);
+procedure TFrmMain.VideoIdle(aIndForce: Boolean = True);
 begin
   if Assigned(AVIVideo) then
   begin
-    if AVIVideo.Idle(Force) then
+    if AVIVideo.Idle(aIndForce) then
     begin
       Image1.Picture.Assign(AVIVideo.BMP);
       FramesLabel.Caption  := IntToStr(AVIVideo.CurrentFrame) + '/' +
@@ -102,9 +102,9 @@ begin
   VideoIdle(False);
 end;
 
-function TFrmMain.AddTrailer(Value: string) : string;
+function TFrmMain.AddTrailer(aValue: string) : string;
 begin
-  Result := Value;
+  Result := aValue;
 
   if (Length(Result) < 1) or (Result[Length(Result)] = PathDelim) then
     Exit;
@@ -192,19 +192,19 @@ procedure TFrmMain.DoubleHeightCheckClick(Sender: TObject);
 begin
   AVIVideo.DoubleHeight   := DoubleHeightCheck.Checked;
   BlackLinesCheck.Enabled := DoubleHeightCheck.Checked;
-  VideoIdle(True);
+  VideoIdle;
 end;
 
 procedure TFrmMain.BlackLinesCheckClick(Sender: TObject);
 begin
   AVIVideo.BlackLines := BlackLinesCheck.Checked;
-  VideoIdle(True);
+  VideoIdle;
 end;
 
 procedure TFrmMain.BrightnessChange(Sender: TObject);
 begin
   AVIVideo.Brightness := Brightness.Value;
-  VideoIdle(True);
+  VideoIdle;
 end;
 
 end.

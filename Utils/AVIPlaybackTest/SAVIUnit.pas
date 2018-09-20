@@ -219,26 +219,30 @@ begin
   end;
 end;
 
-function MMB(Value: Integer): Byte;
-begin
-  Result := Max(Min(255,Value),0);
-end;
-
-procedure ApplyBrightness(BMP : TBitmap; Brightness : ShortInt);
+procedure ApplyBrightness(aBmp: TBitmap; aBrightness: ShortInt);
+  function MMB(aValue: Integer): Byte;
+  begin
+    Result := Max(Min(255, aValue), 0);
+  end;
 var
   X,
   Y: Integer;
   P: PRGBTriple;
 begin
- for Y := 0 to BMP.Height-1 do
- begin
-  P := BMP.ScanLine[Y];
-  for X := 0 to BMP.Width-1 do
+  for Y := 0 to aBmp.Height-1 do
   begin
-   P^ := SetRGBTriple(MMB(P^.rgbtRed+Brightness),MMB(P^.rgbtGreen+Brightness),MMB(P^.rgbtBlue+Brightness));
-   Inc(Cardinal(P),3);
+    P := aBmp.ScanLine[Y];
+
+    for X := 0 to aBmp.Width-1 do
+    begin
+      P^ := SetRGBTriple(
+        MMB(P^.rgbtRed + aBrightness),
+        MMB(P^.rgbtGreen + aBrightness),
+        MMB(P^.rgbtBlue + aBrightness)
+      );
+      Inc(Cardinal(P), 3);
+    end;
   end;
- end;
 end;
 
 //------------------------------[ TSimpleTimer ]------------------------------//
