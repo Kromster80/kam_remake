@@ -23,14 +23,14 @@ unit SAVIUnit;
 }
 
 interface
-
-uses Windows, SysUtils, VFW, graphics, OALHandler;
+uses
+  Windows, SysUtils, VFW, graphics, OALHandler;
 
 type
-  TSimpleTimer = Class(TObject)
+  TSimpleTimer = class(TObject)
   protected
-    FFrequency: Int64;
-    FLastTime: Int64; // last system time
+    fFrequency: Int64;
+    fLastTime: Int64; // last system time
     FFrameTime: Extended;
   public
     constructor Create;
@@ -40,46 +40,45 @@ type
 
   TAVI_State = (aviStopped, aviPlaying, aviPaused, aviNoFile);
 
-  TAVI_Video = Record
+  TAVI_Video = record
     AFile: PAVIFile;
     Stream_Video, Stream_Audio: PAVIStream;
     Frame: PGETFRAME;
   end;
 
-  TAVI = Class(TObject)
+  TAVI = class(TObject)
   protected
-    FFilename: AnsiString;
-    FBMP: TBitmap;
+    fFilename: AnsiString;
+    fBMP: TBitmap;
 
-    FAVI: TAVI_Video;
-    FAVIState: TAVI_State;
+    fAVI: TAVI_Video;
+    fAVIState: TAVI_State;
 
-    FFPS: Extended;
+    fFPS: Extended;
 
-    FCurrFrame, FLastFrame, FFrameCount: Integer;
-    FCurrentTime: Extended;
-    FLoop: Boolean;
-    FTimer: TSimpleTimer;
+    fCurrFrame, fLastFrame, fFrameCount: Integer;
+    fCurrentTime: Extended;
+    fLoop: Boolean;
+    fTimer: TSimpleTimer;
 
-    FWidth, FHeight: Integer;
+    fWidth, fHeight: Integer;
 
-    FDoubleHeight: Boolean;
-    FBlackLines: Boolean;
-    FBrightness: ShortInt;
+    fDoubleHeight: Boolean;
+    fBlackLines: Boolean;
+    fBrightness: ShortInt;
 
-    FSound: TOALSound;
+    fSound: TOALSound;
 
-    FOnFinish: Procedure();
-    function GetFrame(Force: Boolean): Boolean;
+    fOnFinish: procedure;
+    function GetFrame(aForce: Boolean): Boolean;
   public
-
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
 
-    procedure VidInit(Filename: AnsiString; Loop, DoubleHeight: Boolean; AOnFinish: Pointer);
-    procedure VidFree();
+    procedure VidInit(aFilename: AnsiString; aLoop, aDoubleHeight: Boolean; aOnFinish: Pointer);
+    procedure VidFree;
 
-    function Idle(Force: Boolean = False): Boolean;
+    function Idle(aForce: Boolean = False): Boolean;
 
     function GetFrameRGB: Pointer;
 
@@ -88,28 +87,28 @@ type
     procedure Pause;
     procedure Stop;
 
-    property Filename: AnsiString read FFilename;
-    property BMP: TBitmap read FBMP;
-    property DoubleHeight: Boolean read FDoubleHeight write FDoubleHeight;
-    property BlackLines: Boolean read FBlackLines write FBlackLines;
+    property Filename: AnsiString read fFilename;
+    property BMP: TBitmap read fBMP;
+    property DoubleHeight: Boolean read fDoubleHeight write fDoubleHeight;
+    property BlackLines: Boolean read fBlackLines write fBlackLines;
 
-    property Width: Integer read FWidth;
-    property Height: Integer read FHeight;
-    property FrameCount: Integer read FFrameCount;
-    property CurrentFrame: Integer read FCurrFrame;
+    property Width: Integer read fWidth;
+    property Height: Integer read fHeight;
+    property FrameCount: Integer read fFrameCount;
+    property CurrentFrame: Integer read fCurrFrame;
 
-    property AVIState: TAVI_State read FAVIState;
+    property AVIState: TAVI_State read fAVIState;
 
-    property Brightness: ShortInt read FBrightness write FBrightness;
+    property Brightness: ShortInt read fBrightness write fBrightness;
   end;
 
 implementation
-
-uses MMSystem, openal, math;
+uses
+   MMSystem, openal, Math;
 
 //--------------------------------[ Utility ]---------------------------------//
 
-procedure DrawFrameToBMP(BMP: TBitmap; const BitmapInfo: PBITMAPINFOHEADER);
+procedure DrawFrameToBMP(aBMP: TBitmap; const aBitmapInfo: PBITMAPINFOHEADER);
 var
   TempBMP: TBitmap;
   DC_Handle: HDC;
@@ -119,8 +118,8 @@ begin
   try
     DC_Handle := CreateDC('Display', nil, nil, nil);
     try
-      DIB_Handle := CreateDIBitmap(DC_Handle, BitmapInfo^, CBM_INIT,
-        Pointer(Cardinal(BitmapInfo) + BitmapInfo.biSize + BitmapInfo.biClrUsed * 4), PBITMAPINFO(BitmapInfo)^,
+      DIB_Handle := CreateDIBitmap(DC_Handle, aBitmapInfo^, CBM_INIT,
+        Pointer(Cardinal(aBitmapInfo) + aBitmapInfo.biSize + aBitmapInfo.biClrUsed * 4), PBITMAPINFO(aBitmapInfo)^,
         DIB_RGB_COLORS);
     finally
       DeleteDC(DC_Handle);
@@ -128,9 +127,9 @@ begin
 
     TempBMP.Handle := DIB_Handle;
 
-    BMP.Height := BitmapInfo.biHeight;
-    BMP.Width := BitmapInfo.biWidth;
-    BMP.Canvas.Draw(0, 0, TempBMP);
+    aBMP.Height := aBitmapInfo.biHeight;
+    aBMP.Width := aBitmapInfo.biWidth;
+    aBMP.Canvas.Draw(0, 0, TempBMP);
 
     DeleteObject(DIB_Handle);
   finally
@@ -138,113 +137,110 @@ begin
   end;
 end;
 
-function BMPToRaw(BMP: TBitmap): Pointer;
+function BMPToRaw(aBMP: TBitmap): Pointer;
 var
   Y: Integer;
   P: Pointer;
 begin
-  GetMem(Result, 3 * BMP.Width * BMP.Height);
+  GetMem(Result, 3 * aBMP.Width * aBMP.Height);
   P := Result;
-  for Y := BMP.Height - 1 downto 0 do
+  for Y := aBMP.Height - 1 downto 0 do
   begin
-    CopyMemory(P, BMP.ScanLine[Y], BMP.Width * 3);
-    Inc(Cardinal(P), BMP.Width * 3);
+    CopyMemory(P, aBMP.ScanLine[Y], aBMP.Width * 3);
+    Inc(Cardinal(P), aBMP.Width * 3);
   end;
 end;
 
-function SetRGBTriple(R, G, B: Byte): TRGBTriple;
+function SetRGBTriple(aR, aG, aB: Byte): TRGBTriple;
 begin
-  Result.rgbtRed := R;
-  Result.rgbtGreen := G;
-  Result.rgbtBlue := B;
+  Result.rgbtRed := aR;
+  Result.rgbtGreen := aG;
+  Result.rgbtBlue := aB;
 end;
 
-function GetVideoAverage(BMP: TBitmap; X: Integer; SL1, SL2: Pointer): TRGBTriple;
+function GetVideoAverage(aBMP: TBitmap; aX: Integer; aSL1, aSL2: Pointer): TRGBTriple;
 var
-  A, B: TRGBTriple;
+  A, aB: TRGBTriple;
 begin
-  if Assigned(SL1) then
-    A := PRGBTriple(Cardinal(SL1) + 3 * X)^
+  if Assigned(aSL1) then
+    A := PRGBTriple(Cardinal(aSL1) + 3 * aX)^
   else
     A := SetRGBTriple(0, 0, 0);
 
-  if Assigned(SL2) then
-    B := PRGBTriple(Cardinal(SL2) + 3 * X)^
+  if Assigned(aSL2) then
+    aB := PRGBTriple(Cardinal(aSL2) + 3 * aX)^
   else
-    B := SetRGBTriple(0, 0, 0);
+    aB := SetRGBTriple(0, 0, 0);
 
-  Result.rgbtRed := Integer(A.rgbtRed + B.rgbtRed) div 2;
-  Result.rgbtGreen := Integer(A.rgbtGreen + B.rgbtGreen) div 2;
-  Result.rgbtBlue := Integer(A.rgbtBlue + B.rgbtBlue) div 2;
+  Result.rgbtRed := Integer(A.rgbtRed + aB.rgbtRed) div 2;
+  Result.rgbtGreen := Integer(A.rgbtGreen + aB.rgbtGreen) div 2;
+  Result.rgbtBlue := Integer(A.rgbtBlue + aB.rgbtBlue) div 2;
 end;
 
-procedure DoubleVideoFrame(BMP: TBitmap; BlackLines: Boolean);
+procedure DoubleVideoFrame(aBMP: TBitmap; aBlackLines: Boolean);
 var
-  X, Y, OY: Integer;
+  aX, Y, OY: Integer;
   P: PRGBTriple;
-  SL1, SL2: Pointer;
+  aSL1, aSL2: Pointer;
 begin
-  OY := BMP.Height;
-  BMP.Height := BMP.Height * 2;
+  OY := aBMP.Height;
+  aBMP.Height := aBMP.Height * 2;
   for Y := OY - 1 downto 0 do
-    CopyMemory(BMP.ScanLine[(Y + 1) * 2 - 1], BMP.ScanLine[Y], BMP.Width * 3);
+    CopyMemory(aBMP.ScanLine[(Y + 1) * 2 - 1], aBMP.ScanLine[Y], aBMP.Width * 3);
 
-  if BlackLines then
+  if aBlackLines then
   begin
     for Y := 0 to OY - 1 do
-      ZeroMemory(BMP.ScanLine[Y * 2], BMP.Width * 3);
+      ZeroMemory(aBMP.ScanLine[Y * 2], aBMP.Width * 3);
     Exit;
   end;
 
   for Y := 0 to OY - 1 do
   begin
-    P := BMP.ScanLine[Y * 2];
+    P := aBMP.ScanLine[Y * 2];
 
     if (Y - 1) >= 0 then
-      SL1 := BMP.ScanLine[Y * 2 - 1]
+      aSL1 := aBMP.ScanLine[Y * 2 - 1]
     else
-      SL1 := Nil;
+      aSL1 := Nil;
 
-    if (Y + 1) < BMP.Height then
-      SL2 := BMP.ScanLine[Y * 2 + 1]
+    if (Y + 1) < aBMP.Height then
+      aSL2 := aBMP.ScanLine[Y * 2 + 1]
     else
-      SL2 := Nil;
+      aSL2 := Nil;
 
-    for X := 0 to BMP.Width - 1 do
+    for aX := 0 to aBMP.Width - 1 do
     begin
-      P^ := GetVideoAverage(BMP, X, SL1, SL2);
+      P^ := GetVideoAverage(aBMP, aX, aSL1, aSL2);
       Inc(Cardinal(P), 3);
     end;
   end;
 end;
 
-function MMB(Value: Integer): Byte;
-begin
-  Result := Max(Min(255, Value), 0);
-end;
-
-procedure ApplyBrightness(BMP: TBitmap; Brightness: ShortInt);
+procedure ApplyBrightness(aBMP: TBitmap; aBrightness: ShortInt);
 var
-  X, Y: Integer;
+  aX, Y: Integer;
   P: PRGBTriple;
 begin
-  for Y := 0 to BMP.Height - 1 do
+  for Y := 0 to aBMP.Height - 1 do
   begin
-    P := BMP.ScanLine[Y];
-    for X := 0 to BMP.Width - 1 do
+    P := aBMP.ScanLine[Y];
+    for aX := 0 to aBMP.Width - 1 do
     begin
-      P^ := SetRGBTriple(MMB(P^.rgbtRed + Brightness), MMB(P^.rgbtGreen + Brightness), MMB(P^.rgbtBlue + Brightness));
+      P^ := SetRGBTriple(
+        EnsureRange(P^.rgbtRed + aBrightness, 0, 255),
+        EnsureRange(P^.rgbtGreen + aBrightness, 0, 255),
+        EnsureRange(P^.rgbtBlue + aBrightness, 0, 255));
       Inc(Cardinal(P), 3);
     end;
   end;
 end;
 
-//------------------------------[ TSimpleTimer ]------------------------------//
-
+{ TSimpleTimer }
 constructor TSimpleTimer.Create;
 begin
-  QueryPerformanceFrequency(FFrequency); // get high-resolution Frequency
-  QueryPerformanceCounter(FLastTime);
+  QueryPerformanceFrequency(fFrequency); // get high-resolution Frequency
+  QueryPerformanceCounter(fLastTime);
 end;
 
 procedure TSimpleTimer.Refresh;
@@ -252,56 +248,49 @@ var
   CurTime: Int64;
 begin
   QueryPerformanceCounter(CurTime);
-  FFrameTime := (CurTime - FLastTime) / FFrequency;
-  FLastTime := CurTime;
+  FFrameTime := (CurTime - fLastTime) / fFrequency;
+  fLastTime := CurTime;
 end;
 
-//----------------------------------[ TAVI ]----------------------------------//
-
-constructor TAVI.Create();
+{ TAVI }
+constructor TAVI.Create;
 begin
-  inherited Create();
-  FFilename := '';
-  FBMP := Nil;
-  FOnFinish := Nil;
-  ZeroMemory(@FAVI, SizeOf(TAVI_Video));
-  FTimer := TSimpleTimer.Create;
-  FSound := Nil;
-  FBlackLines := False;
-  FBrightness := 0;
+  inherited;
 
-  FAVIState := aviNoFile;
+  fTimer := TSimpleTimer.Create;
+
+  fAVIState := aviNoFile;
 end;
 
 destructor TAVI.Destroy;
 begin
-  Inherited;
-  VidFree();
+  inherited;
+  VidFree;
 end;
 
-procedure TAVI.VidFree();
+procedure TAVI.VidFree;
 begin
-  if FAVIState = aviNoFile then
+  if fAVIState = aviNoFile then
     Exit;
 
-  FAVIState := aviNoFile;
+  fAVIState := aviNoFile;
 
-  FBMP.Free;
+  fBMP.Free;
 
-  AVIStreamGetFrameClose(FAVI.Frame);
-  AVIStreamRelease(FAVI.Stream_Video);
-  AVIStreamRelease(FAVI.Stream_Audio);
-  AVIFileRelease(FAVI.AFile);
-  ZeroMemory(@FAVI, SizeOf(TAVI_Video));
+  AVIStreamGetFrameClose(fAVI.Frame);
+  AVIStreamRelease(fAVI.Stream_Video);
+  AVIStreamRelease(fAVI.Stream_Audio);
+  AVIFileRelease(fAVI.AFile);
+  ZeroMemory(@fAVI, SizeOf(TAVI_Video));
 
-  if Assigned(FSound) then
+  if Assigned(fSound) then
   begin
-    FSound.Stop;
-    FSound.Free;
+    fSound.Stop;
+    fSound.Free;
   end;
 end;
 
-procedure TAVI.VidInit(Filename: AnsiString; Loop, DoubleHeight: Boolean; AOnFinish: Pointer);
+procedure TAVI.VidInit(aFilename: AnsiString; aLoop, aDoubleHeight: Boolean; aOnFinish: Pointer);
 var
   WF: PPCMWaveFormat;
   WFSize: Cardinal;
@@ -310,40 +299,40 @@ var
   BufferSize: Integer;
   StreamInfo_Video: TAVISTREAMINFO;
 begin
-  VidFree();
-  FLoop := Loop;
-  FDoubleHeight := DoubleHeight;
-  FLastFrame := -1;
-  @FOnFinish := AOnFinish;
+  VidFree;
+  fLoop := aLoop;
+  fDoubleHeight := aDoubleHeight;
+  fLastFrame := -1;
+  @fOnFinish := aOnFinish;
 
-  FFilename := ChangeFileExt(Filename, '.avi');
+  fFilename := ChangeFileExt(aFilename, '.avi');
 
-  if not FileExists(FFilename) then
+  if not FileExists(fFilename) then
   begin
-    if Assigned(FOnFinish) then
-      FOnFinish();
+    if Assigned(fOnFinish) then
+      fOnFinish;
     Exit;
   end;
 
-  AVIFileOpen(FAVI.AFile, PAnsiChar(FFilename), OF_READ, nil);
-  AVIFileGetStream(FAVI.AFile, FAVI.Stream_Video, streamtypeVIDEO, 0);
-  AVIFileGetStream(FAVI.AFile, FAVI.Stream_Audio, streamtypeAUDIO, 0);
-  AVIStreamInfoA(FAVI.Stream_Video, @StreamInfo_Video, SizeOf(TAVISTREAMINFO));
+  AVIFileOpen(fAVI.AFile, PAnsiChar(fFilename), OF_READ, nil);
+  AVIFileGetStream(fAVI.AFile, fAVI.Stream_Video, streamtypeVIDEO, 0);
+  AVIFileGetStream(fAVI.AFile, fAVI.Stream_Audio, streamtypeAUDIO, 0);
+  AVIStreamInfoA(fAVI.Stream_Video, @StreamInfo_Video, SizeOf(TAVISTREAMINFO));
 
-  FFPS := 1 / (StreamInfo_Video.dwRate / StreamInfo_Video.dwScale);
-  FFrameCount := StreamInfo_Video.dwLength;
+  fFPS := 1 / (StreamInfo_Video.dwRate / StreamInfo_Video.dwScale);
+  fFrameCount := StreamInfo_Video.dwLength;
 
-  if Assigned(FAVI.Stream_Audio) then
+  if Assigned(fAVI.Stream_Audio) then
   begin
     WFSize := SizeOf(TPCMWaveFormat);
     GetMem(WF, WFSize);
-    AVIStreamReadFormat(FAVI.Stream_Audio, 0, WF, @WFSize);
+    AVIStreamReadFormat(fAVI.Stream_Audio, 0, WF, @WFSize);
 
-    AVIStreamRead(FAVI.Stream_Audio, 0, AVIStreamTimeToSample(FAVI.Stream_Audio, AVIStreamEndTime(FAVI.Stream_Audio)),
+    AVIStreamRead(fAVI.Stream_Audio, 0, AVIStreamTimeToSample(fAVI.Stream_Audio, AVIStreamEndTime(fAVI.Stream_Audio)),
       nil, 0, @BufferSize, nil);
     GetMem(Buffer, BufferSize);
     ZeroMemory(Buffer, BufferSize);
-    AVIStreamRead(FAVI.Stream_Audio, 0, AVIStreamTimeToSample(FAVI.Stream_Audio, AVIStreamEndTime(FAVI.Stream_Audio)),
+    AVIStreamRead(fAVI.Stream_Audio, 0, AVIStreamTimeToSample(fAVI.Stream_Audio, AVIStreamEndTime(fAVI.Stream_Audio)),
       Buffer, BufferSize, nil, nil);
 
     case WF.WF.nChannels of
@@ -358,32 +347,32 @@ begin
     if WF.wBitsPerSample = 16 then
       Inc(SoundFormat);
 
-    FSound := TOALSound.Create(SoundFormat, WF.WF.nSamplesPerSec, BufferSize, Buffer, Loop);
+    fSound := TOALSound.Create(SoundFormat, WF.WF.nSamplesPerSec, BufferSize, Buffer, aLoop);
 
     FreeMem(Buffer);
   end
   else
-    FSound := Nil;
+    fSound := Nil;
 
-  FAVI.Frame := AVIStreamGetFrameOpen(FAVI.Stream_Video, Nil);
+  fAVI.Frame := AVIStreamGetFrameOpen(fAVI.Stream_Video, Nil);
 
-  if not Assigned(FAVI.Frame) then
+  if not Assigned(fAVI.Frame) then
   begin
-    FOnFinish();
+    fOnFinish;
     Exit;
   end;
 
-  FBMP := TBitmap.Create;
-  FBMP.PixelFormat := pf24bit;
-  FCurrentTime := 0;
-  FCurrFrame := 0;
+  fBMP := TBitmap.Create;
+  fBMP.PixelFormat := pf24bit;
+  fCurrentTime := 0;
+  fCurrFrame := 0;
 
   GetFrame(True);
-  FLastFrame := -1;
-  FWidth := FBMP.Width;
-  FHeight := FBMP.Height;
+  fLastFrame := -1;
+  fWidth := fBMP.Width;
+  fHeight := fBMP.Height;
 
-  FAVIState := aviStopped;
+  fAVIState := aviStopped;
 end;
 
 procedure TAVI.Restart;
@@ -392,99 +381,99 @@ begin
   Play;
 end;
 
-function TAVI.GetFrame(Force: Boolean): Boolean;
+function TAVI.GetFrame(aForce: Boolean): Boolean;
 begin
-  Result := (FCurrFrame <> FLastFrame) or Force;
+  Result := (fCurrFrame <> fLastFrame) or aForce;
   if not Result then
     Exit;
 
-  FLastFrame := FCurrFrame;
+  fLastFrame := fCurrFrame;
 
-  DrawFrameToBMP(FBMP, AVIStreamGetFrame(FAVI.Frame, FCurrFrame));
-  if FDoubleHeight then
-    DoubleVideoFrame(FBMP, BlackLines);
-  if FBrightness <> 0 then
+  DrawFrameToBMP(fBMP, AVIStreamGetFrame(fAVI.Frame, fCurrFrame));
+  if fDoubleHeight then
+    DoubleVideoFrame(fBMP, fBlackLines);
+  if fBrightness <> 0 then
   begin
-    ApplyBrightness(FBMP, FBrightness);
+    ApplyBrightness(fBMP, fBrightness);
   end;
 end;
 
 function TAVI.GetFrameRGB: Pointer;
 begin
-  Result := BMPToRaw(FBMP);
+  Result := BMPToRaw(fBMP);
 end;
 
-function TAVI.Idle(Force: Boolean = False): Boolean;
+function TAVI.Idle(aForce: Boolean = False): Boolean;
 begin
   Result := False;
 
-  if FAVIState in [aviNoFile, aviStopped, aviPaused] then
+  if fAVIState in [aviNoFile, aviStopped, aviPaused] then
   begin
-    if Force then
+    if aForce then
       Result := GetFrame(True);
     Exit;
   end;
 
-  FTimer.Refresh;
-  FCurrentTime := FCurrentTime + FTimer.FrameTime;
-  FCurrFrame := Round(FCurrentTime / FFPS);
+  fTimer.Refresh;
+  fCurrentTime := fCurrentTime + fTimer.FrameTime;
+  fCurrFrame := Round(fCurrentTime / fFPS);
 
-  if (FCurrFrame >= FFrameCount) then
+  if (fCurrFrame >= fFrameCount) then
   begin
-    if FLoop then
+    if fLoop then
       Restart
     else
       Stop;
     Exit;
   end;
 
-  Result := GetFrame(Force);
+  Result := GetFrame(aForce);
 end;
 
 procedure TAVI.Play;
 begin
-  if FAVIState in [aviNoFile, aviPlaying] then
+  if fAVIState in [aviNoFile, aviPlaying] then
     Exit;
 
-  FAVIState := aviPlaying;
+  fAVIState := aviPlaying;
 
-  if Assigned(FSound) then
-    FSound.Play;
+  if Assigned(fSound) then
+    fSound.Play;
 
-  FTimer.Refresh;
+  fTimer.Refresh;
 end;
 
 procedure TAVI.Pause;
 begin
-  if FAVIState = aviNoFile then
+  if fAVIState = aviNoFile then
     Exit;
 
-  if FAVIState = aviPaused then
+  if fAVIState = aviPaused then
   begin
-    Play();
+    Play;
     Exit;
   end;
 
-  FAVIState := aviPaused;
-  if Assigned(FSound) then
-    FSound.Pause;
+  fAVIState := aviPaused;
+  if Assigned(fSound) then
+    fSound.Pause;
 end;
 
 procedure TAVI.Stop;
 begin
-  if FAVIState in [aviNoFile, aviStopped] then
+  if fAVIState in [aviNoFile, aviStopped] then
     Exit;
 
-  FAVIState := aviStopped;
-  FCurrentTime := 0;
-  FCurrFrame := 0;
-  FLastFrame := -1;
+  fAVIState := aviStopped;
+  fCurrentTime := 0;
+  fCurrFrame := 0;
+  fLastFrame := -1;
 
-  if Assigned(FSound) then
-    FSound.Stop;
+  if Assigned(fSound) then
+    fSound.Stop;
 
-  if Assigned(FOnFinish) then
-    FOnFinish();
+  if Assigned(fOnFinish) then
+    fOnFinish;
 end;
 
 begin
