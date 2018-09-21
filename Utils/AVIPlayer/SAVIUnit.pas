@@ -40,9 +40,9 @@ type
 
   TAVIState = (aviNoFile, aviStopped, aviPlaying, aviPaused);
 
-  TAVI_Video = record
-    AFile: PAVIFile;
-    Stream_Video, Stream_Audio: PAVIStream;
+  TAVIVideo = record
+    AVIFile: PAVIFile;
+    StreamVideo, StreamAudio: PAVIStream;
     Frame: PGETFRAME;
   end;
 
@@ -50,7 +50,7 @@ type
   protected
     fBMP: TBitmap;
 
-    fAVI: TAVI_Video;
+    fAVI: TAVIVideo;
     fAVIState: TAVIState;
 
     fFPS: Single;
@@ -159,7 +159,7 @@ end;
 
 function GetVideoAverage(aBMP: TBitmap; aX: Integer; aSL1, aSL2: Pointer): TRGBTriple;
 var
-  A, aB: TRGBTriple;
+  A, B: TRGBTriple;
 begin
   if Assigned(aSL1) then
     A := PRGBTriple(Cardinal(aSL1) + 3 * aX)^
@@ -167,13 +167,13 @@ begin
     A := SetRGBTriple(0, 0, 0);
 
   if Assigned(aSL2) then
-    aB := PRGBTriple(Cardinal(aSL2) + 3 * aX)^
+    B := PRGBTriple(Cardinal(aSL2) + 3 * aX)^
   else
-    aB := SetRGBTriple(0, 0, 0);
+    B := SetRGBTriple(0, 0, 0);
 
-  Result.rgbtRed := Integer(A.rgbtRed + aB.rgbtRed) div 2;
-  Result.rgbtGreen := Integer(A.rgbtGreen + aB.rgbtGreen) div 2;
-  Result.rgbtBlue := Integer(A.rgbtBlue + aB.rgbtBlue) div 2;
+  Result.rgbtRed := (A.rgbtRed + B.rgbtRed) div 2;
+  Result.rgbtGreen := (A.rgbtGreen + B.rgbtGreen) div 2;
+  Result.rgbtBlue := (A.rgbtBlue + B.rgbtBlue) div 2;
 end;
 
 
@@ -281,10 +281,10 @@ begin
   fBMP.Free;
 
   AVIStreamGetFrameClose(fAVI.Frame);
-  AVIStreamRelease(fAVI.Stream_Video);
-  AVIStreamRelease(fAVI.Stream_Audio);
-  AVIFileRelease(fAVI.AFile);
-  ZeroMemory(@fAVI, SizeOf(TAVI_Video));
+  AVIStreamRelease(fAVI.StreamVideo);
+  AVIStreamRelease(fAVI.StreamAudio);
+  AVIFileRelease(fAVI.AVIFile);
+  ZeroMemory(@fAVI, SizeOf(TAVIVideo));
 
   if Assigned(fSound) then
   begin
@@ -310,25 +310,25 @@ begin
   if not FileExists(aFilename) then
     Exit;
 
-  AVIFileOpenW(fAVI.AFile, PChar(aFilename), OF_READ, nil);
-  AVIFileGetStream(fAVI.AFile, fAVI.Stream_Video, streamtypeVIDEO, 0);
-  AVIFileGetStream(fAVI.AFile, fAVI.Stream_Audio, streamtypeAUDIO, 0);
-  AVIStreamInfoA(fAVI.Stream_Video, @StreamInfo_Video, SizeOf(TAVISTREAMINFO));
+  AVIFileOpenW(fAVI.AVIFile, PChar(aFilename), OF_READ, nil);
+  AVIFileGetStream(fAVI.AVIFile, fAVI.StreamVideo, streamtypeVIDEO, 0);
+  AVIFileGetStream(fAVI.AVIFile, fAVI.StreamAudio, streamtypeAUDIO, 0);
+  AVIStreamInfoA(fAVI.StreamVideo, @StreamInfo_Video, SizeOf(TAVISTREAMINFO));
 
   fFPS := 1 / (StreamInfo_Video.dwRate / StreamInfo_Video.dwScale);
   fFrameCount := StreamInfo_Video.dwLength;
 
-  if Assigned(fAVI.Stream_Audio) then
+  if Assigned(fAVI.StreamAudio) then
   begin
     WFSize := SizeOf(TPCMWaveFormat);
     GetMem(WF, WFSize);
-    AVIStreamReadFormat(fAVI.Stream_Audio, 0, WF, @WFSize);
+    AVIStreamReadFormat(fAVI.StreamAudio, 0, WF, @WFSize);
 
-    AVIStreamRead(fAVI.Stream_Audio, 0, AVIStreamTimeToSample(fAVI.Stream_Audio, AVIStreamEndTime(fAVI.Stream_Audio)),
+    AVIStreamRead(fAVI.StreamAudio, 0, AVIStreamTimeToSample(fAVI.StreamAudio, AVIStreamEndTime(fAVI.StreamAudio)),
       nil, 0, @BufferSize, nil);
     GetMem(Buffer, BufferSize);
     ZeroMemory(Buffer, BufferSize);
-    AVIStreamRead(fAVI.Stream_Audio, 0, AVIStreamTimeToSample(fAVI.Stream_Audio, AVIStreamEndTime(fAVI.Stream_Audio)),
+    AVIStreamRead(fAVI.StreamAudio, 0, AVIStreamTimeToSample(fAVI.StreamAudio, AVIStreamEndTime(fAVI.StreamAudio)),
       Buffer, BufferSize, nil, nil);
 
     case WF.WF.nChannels of
@@ -348,7 +348,7 @@ begin
   else
     fSound := nil;
 
-  fAVI.Frame := AVIStreamGetFrameOpen(fAVI.Stream_Video, nil);
+  fAVI.Frame := AVIStreamGetFrameOpen(fAVI.StreamVideo, nil);
 
   if not Assigned(fAVI.Frame) then
     Exit;
