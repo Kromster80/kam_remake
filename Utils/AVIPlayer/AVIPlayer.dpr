@@ -1,4 +1,4 @@
-program KnMRemakeVideoIsHard;
+program AVIPlayer;
 {
  Copyright (c) <2018> <Stuart "Stucuk" Carey>
 

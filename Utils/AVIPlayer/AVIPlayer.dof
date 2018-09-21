@@ -41,11 +41,11 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=..\..\EXEs\KnMRemakeVideoIsHard\
+OutputDir=..\..\EXEs\AVIPlayer\
 UnitOutputDir=DCUs\
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=..\..\Source\;..\..\Source\KnMRemakeVideoIsHard\;..\..\Source\KnMRemakeVideoIsHard\3rdParty\
+SearchPath=..\..\Source\;..\..\Source\AVIPlayer\;..\..\Source\AVIPlayer\3rdParty\
 Packages=vcl;rtl;vclx;VclSmp;vclshlctrls;UPHPS_Components;IndyCore60;IndySystem60;IndyProtocols60;TntUnicodeVcl_R60;visualclx
 Conditionals=
 DebugSourceDirs=
@@ -104,8 +104,8 @@ Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
 Count=9
-Item0=..\..\Source\;..\..\Source\KnMRemakeVideoIsHard\;..\..\Source\KnMRemakeVideoIsHard\3rdParty\
-Item1=..\..\Source\;..\..\Source\KnMRemakeVideoIsHard\
+Item0=..\..\Source\;..\..\Source\AVIPlayer\;..\..\Source\AVIPlayer\3rdParty\
+Item1=..\..\Source\;..\..\Source\AVIPlayer\
 Item2=Shared\DirectXAPI\;Shared\;Shared\LuaAPI;Resource;..\..\FastCode\
 Item3=Shared\DirectXAPI\;Shared\;Shared\LuaAPI;Resource;..\..\FastCode\;
 Item4=Shared\DirectXAPI\;Shared\;Shared\LuaAPI;Resource
@@ -120,7 +120,7 @@ Item1=TC\Compiled\
 Item2=Code\Compiled\
 [HistoryLists\hlOutputDirectorry]
 Count=7
-Item0=..\..\EXEs\KnMRemakeVideoIsHard\
+Item0=..\..\EXEs\AVIPlayer\
 Item1=..\Game\
 Item2=Game\
 Item3=C:\Program Files\Paradox Interactive\Akella Games\Tarr Chronicles\
