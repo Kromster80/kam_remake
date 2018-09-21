@@ -30,7 +30,7 @@ uses
 type
   TFrmMain = class(TForm)
     Button1: TButton;
-    Edit1: TEdit;
+    edPath: TEdit;
     Panel1: TPanel;
     Image1: TImage;
     RenderTimer: TTimer;
@@ -83,6 +83,8 @@ begin
 
   RenderTimer.Enabled := True;
   Panel1.DoubleBuffered := True;
+
+  Panel1.ControlStyle := [csOpaque]; // Fixes flickering
 end;
 
 
@@ -107,7 +109,7 @@ procedure TFrmMain.Button1Click(Sender: TObject);
 var
   path: string;
 begin
-  path := ExpandFileName(Edit1.Text + TButton(Sender).Caption);
+  path := ExpandFileName(edPath.Text + TButton(Sender).Caption);
 
   fAVIVideo.VidInit(path, True, DoubleHeightCheck.Checked, nil);
   Caption := 'AVIPlayer - ' + ExtractFileName(path);

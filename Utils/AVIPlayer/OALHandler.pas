@@ -85,27 +85,24 @@ begin
 end;
 
 const
-  Pos: Array [0 .. 2] of Single = (0, 0, 0);
+  Pos: Array [0..2] of Single = (0, 0, 0);
 
 var
   Device, Context: Pointer;
 
 initialization
-
-InitOpenAL;
-
-Device := alcOpenDevice(Nil);
-Context := alcCreateContext(Device, Nil);
-alcMakeContextCurrent(Context);
-alListenerfv(AL_POSITION, @Pos[0]);
-alListenerfv(AL_VELOCITY, @Pos[0]);
-alListenerfv(AL_ORIENTATION, @Pos[0]);
+  InitOpenAL;
+  Device := alcOpenDevice(nil);
+  Context := alcCreateContext(Device, nil);
+  alcMakeContextCurrent(Context);
+  alListenerfv(AL_POSITION, @Pos[0]);
+  alListenerfv(AL_VELOCITY, @Pos[0]);
+  alListenerfv(AL_ORIENTATION, @Pos[0]);
 
 finalization
-
-alcGetCurrentContext;
-alcMakeContextCurrent(Nil);
-alcDestroyContext(Context);
-alcCloseDevice(Device);
+  alcGetCurrentContext;
+  alcMakeContextCurrent(nil);
+  alcDestroyContext(Context);
+  alcCloseDevice(Device);
 
 end.

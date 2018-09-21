@@ -1,7 +1,7 @@
 object FrmMain: TFrmMain
   Left = 192
   Top = 112
-  Caption = ' '
+  Caption = 'AVIPlayer'
   ClientHeight = 616
   ClientWidth = 1126
   Color = clBtnFace
@@ -24,7 +24,7 @@ object FrmMain: TFrmMain
     Top = 528
     Width = 23
     Height = 22
-    Anchors = [akBottom]
+    Anchors = [akLeft, akBottom]
     Enabled = False
     Glyph.Data = {
       76010000424D7601000000000000760000002800000020000000100000000100
@@ -47,7 +47,7 @@ object FrmMain: TFrmMain
     Top = 528
     Width = 23
     Height = 22
-    Anchors = [akBottom]
+    Anchors = [akLeft, akBottom]
     Enabled = False
     Glyph.Data = {
       76010000424D7601000000000000760000002800000020000000100000000100
@@ -70,7 +70,7 @@ object FrmMain: TFrmMain
     Top = 528
     Width = 23
     Height = 22
-    Anchors = [akBottom]
+    Anchors = [akLeft, akBottom]
     Enabled = False
     Glyph.Data = {
       76010000424D7601000000000000760000002800000020000000100000000100
@@ -105,7 +105,7 @@ object FrmMain: TFrmMain
     TabOrder = 0
     OnClick = Button1Click
   end
-  object Edit1: TEdit
+  object edPath: TEdit
     Left = 8
     Top = 590
     Width = 489
