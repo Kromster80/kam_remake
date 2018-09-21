@@ -1,9 +1,9 @@
 object FrmMain: TFrmMain
   Left = 192
   Top = 112
-  Width = 1142
-  Height = 654
   Caption = ' '
+  ClientHeight = 616
+  ClientWidth = 1126
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -111,9 +111,7 @@ object FrmMain: TFrmMain
     Height = 21
     Anchors = [akLeft, akBottom]
     TabOrder = 1
-    Text = 
-      'D:\Steam\steamapps\common\Knights and Merchants Historical Versi' +
-      'on\data\gfx\video\'
+    Text = '..\..\data\gfx\video\'
   end
   object Panel1: TPanel
     Left = 0
@@ -260,8 +258,6 @@ object FrmMain: TFrmMain
     Width = 150
     Height = 17
     Anchors = [akLeft, akBottom]
-    Min = 0
-    Max = 100
     Smooth = True
     TabOrder = 15
   end

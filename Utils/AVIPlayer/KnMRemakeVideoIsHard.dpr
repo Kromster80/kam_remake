@@ -22,8 +22,8 @@ program KnMRemakeVideoIsHard;
 uses
   Forms,
   FormMain in 'FormMain.pas' {FrmMain},
-  SAVIUnit in '..\..\Source\KnMRemakeVideoIsHard\SAVIUnit.pas',
-  OALHandler in '..\..\Source\KnMRemakeVideoIsHard\OALHandler.pas';
+  SAVIUnit in 'SAVIUnit.pas',
+  OALHandler in 'OALHandler.pas';
 
 {$R *.res}
 
