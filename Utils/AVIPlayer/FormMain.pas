@@ -64,11 +64,13 @@ type
     procedure DoubleHeightCheckClick(Sender: TObject);
     procedure BlackLinesCheckClick(Sender: TObject);
     procedure BrightnessChange(Sender: TObject);
+  private
+    fAVIVideo: TAVI;
+    procedure VideoIdle(Force: Boolean = False);
   end;
 
 var
   FrmMain: TFrmMain;
-  AVIVideo: TAVI;
 
 implementation
 
@@ -76,28 +78,20 @@ implementation
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
-  AVIVideo := TAVI.Create;
-  AVIVideo.Brightness := Brightness.Value;
-
-  PauseButton.Left := ClientWidth div 2 - PauseButton.Width div 2;
-  PlayButton.Left := PauseButton.Left - 4 - PlayButton.Width;
-  StopButton.Left := PauseButton.Left + 4 + PauseButton.Width;
+  fAVIVideo := TAVI.Create;
+  fAVIVideo.Brightness := Brightness.Value;
 
   RenderTimer.Enabled := True;
   Panel1.DoubleBuffered := True;
 end;
 
-procedure VideoIdle(Force: Boolean = False);
+procedure TFrmMain.VideoIdle(Force: Boolean = False);
 begin
-  if Assigned(AVIVideo) then
+  if fAVIVideo.Idle(Force) then
   begin
-    if AVIVideo.Idle(Force) then
-      with FrmMain do
-      begin
-        Image1.Picture.Assign(AVIVideo.BMP);
-        FramesLabel.Caption := IntToStr(AVIVideo.CurrentFrame) + '/' + IntToStr(AVIVideo.FrameCount);
-        ProgressBar.Position := AVIVideo.CurrentFrame;
-      end;
+    Image1.Picture.Assign(fAVIVideo.BMP);
+    FramesLabel.Caption := IntToStr(fAVIVideo.CurrentFrame) + '/' + IntToStr(fAVIVideo.FrameCount);
+    ProgressBar.Position := fAVIVideo.CurrentFrame;
   end;
 end;
 
@@ -113,19 +107,19 @@ var
 begin
   path := ExpandFileName(Edit1.Text + TButton(Sender).Caption);
 
-  AVIVideo.VidInit(path, True, DoubleHeightCheck.Checked, nil);
+  fAVIVideo.VidInit(path, True, DoubleHeightCheck.Checked, nil);
   Caption := 'AVIPlayer - ' + ExtractFileName(path);
 
   ProgressBar.Position := 0;
-  ProgressBar.Max := AVIVideo.FrameCount;
+  ProgressBar.Max := fAVIVideo.FrameCount;
 
-  if AVIVideo.AVIState = aviNoFile then
+  if fAVIVideo.AVIState = aviNoFile then
   begin
     ShowMessage('Error: Unable to find video');
     Exit;
   end;
 
-  AVIVideo.Play;
+  fAVIVideo.Play;
 
   StopButton.Enabled := True;
   PauseButton.Enabled := True;
@@ -137,7 +131,7 @@ begin
   StopButton.Enabled := True;
   PauseButton.Enabled := True;
   PlayButton.Enabled := False;
-  AVIVideo.Play;
+  fAVIVideo.Play;
 end;
 
 procedure TFrmMain.PauseButtonClick(Sender: TObject);
@@ -145,7 +139,7 @@ begin
   StopButton.Enabled := True;
   PauseButton.Enabled := False;
   PlayButton.Enabled := True;
-  AVIVideo.Pause;
+  fAVIVideo.Pause;
 end;
 
 procedure TFrmMain.StopButtonClick(Sender: TObject);
@@ -153,10 +147,10 @@ begin
   StopButton.Enabled := False;
   PauseButton.Enabled := False;
   PlayButton.Enabled := True;
-  AVIVideo.Stop;
+  fAVIVideo.Stop;
 
   Image1.Picture.Bitmap.Width := 0;
-  FramesLabel.Caption := IntToStr(AVIVideo.CurrentFrame) + '/' + IntToStr(AVIVideo.FrameCount);
+  FramesLabel.Caption := IntToStr(fAVIVideo.CurrentFrame) + '/' + IntToStr(fAVIVideo.FrameCount);
   ProgressBar.Position := 0;
 end;
 
@@ -167,20 +161,20 @@ end;
 
 procedure TFrmMain.DoubleHeightCheckClick(Sender: TObject);
 begin
-  AVIVideo.DoubleHeight := DoubleHeightCheck.Checked;
+  fAVIVideo.DoubleHeight := DoubleHeightCheck.Checked;
   BlackLinesCheck.Enabled := DoubleHeightCheck.Checked;
   VideoIdle(True);
 end;
 
 procedure TFrmMain.BlackLinesCheckClick(Sender: TObject);
 begin
-  AVIVideo.BlackLines := BlackLinesCheck.Checked;
+  fAVIVideo.BlackLines := BlackLinesCheck.Checked;
   VideoIdle(True);
 end;
 
 procedure TFrmMain.BrightnessChange(Sender: TObject);
 begin
-  AVIVideo.Brightness := Brightness.Value;
+  fAVIVideo.Brightness := Brightness.Value;
   VideoIdle(True);
 end;
 

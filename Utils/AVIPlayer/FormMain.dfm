@@ -5,6 +5,7 @@ object FrmMain: TFrmMain
   ClientHeight = 616
   ClientWidth = 1126
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -19,8 +20,8 @@ object FrmMain: TFrmMain
   PixelsPerInch = 96
   TextHeight = 13
   object PlayButton: TSpeedButton
-    Left = 536
-    Top = 524
+    Left = 8
+    Top = 528
     Width = 23
     Height = 22
     Anchors = [akBottom]
@@ -42,8 +43,8 @@ object FrmMain: TFrmMain
     OnClick = PlayButtonClick
   end
   object PauseButton: TSpeedButton
-    Left = 560
-    Top = 524
+    Left = 32
+    Top = 528
     Width = 23
     Height = 22
     Anchors = [akBottom]
@@ -65,8 +66,8 @@ object FrmMain: TFrmMain
     OnClick = PauseButtonClick
   end
   object StopButton: TSpeedButton
-    Left = 584
-    Top = 524
+    Left = 56
+    Top = 528
     Width = 23
     Height = 22
     Anchors = [akBottom]
@@ -88,8 +89,8 @@ object FrmMain: TFrmMain
     OnClick = StopButtonClick
   end
   object FramesLabel: TLabel
-    Left = 160
-    Top = 530
+    Left = 232
+    Top = 528
     Width = 3
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -253,7 +254,7 @@ object FrmMain: TFrmMain
     OnClick = CheckBox1Click
   end
   object ProgressBar: TProgressBar
-    Left = 8
+    Left = 80
     Top = 528
     Width = 150
     Height = 17
@@ -300,7 +301,7 @@ object FrmMain: TFrmMain
     Enabled = False
     Interval = 1
     OnTimer = RenderTimerTimer
-    Left = 856
+    Left = 912
     Top = 576
   end
 end
