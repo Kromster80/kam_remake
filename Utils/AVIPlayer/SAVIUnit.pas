@@ -78,7 +78,7 @@ type
     procedure VidInit(aFilename: AnsiString; aLoop, aDoubleHeight: Boolean; aOnFinish: Pointer);
     procedure VidFree;
 
-    function Idle(aForce: Boolean = False): Boolean;
+    function RefreshFrame(aForce: Boolean): Boolean;
 
     function GetFrameRGB: Pointer;
 
@@ -87,7 +87,6 @@ type
     procedure Pause;
     procedure Stop;
 
-    property Filename: AnsiString read fFilename;
     property BMP: TBitmap read fBMP;
     property DoubleHeight: Boolean read fDoubleHeight write fDoubleHeight;
     property BlackLines: Boolean read fBlackLines write fBlackLines;
@@ -264,8 +263,9 @@ end;
 
 destructor TAVI.Destroy;
 begin
-  inherited;
   VidFree;
+
+  inherited;
 end;
 
 procedure TAVI.VidFree;
@@ -390,12 +390,12 @@ begin
   fLastFrame := fCurrFrame;
 
   DrawFrameToBMP(fBMP, AVIStreamGetFrame(fAVI.Frame, fCurrFrame));
+
   if fDoubleHeight then
     DoubleVideoFrame(fBMP, fBlackLines);
+
   if fBrightness <> 0 then
-  begin
     ApplyBrightness(fBMP, fBrightness);
-  end;
 end;
 
 function TAVI.GetFrameRGB: Pointer;
@@ -403,14 +403,14 @@ begin
   Result := BMPToRaw(fBMP);
 end;
 
-function TAVI.Idle(aForce: Boolean = False): Boolean;
+function TAVI.RefreshFrame(aForce: Boolean): Boolean;
 begin
   Result := False;
 
   if fAVIState in [aviNoFile, aviStopped, aviPaused] then
   begin
     if aForce then
-      Result := GetFrame(True);
+      Result := GetFrame(aForce);
     Exit;
   end;
 

@@ -66,7 +66,7 @@ type
     procedure BrightnessChange(Sender: TObject);
   private
     fAVIVideo: TAVI;
-    procedure VideoIdle(Force: Boolean = False);
+    procedure RefreshFrame(aForce: Boolean);
   end;
 
 var
@@ -85,19 +85,21 @@ begin
   Panel1.DoubleBuffered := True;
 end;
 
-procedure TFrmMain.VideoIdle(Force: Boolean = False);
+
+procedure TFrmMain.RefreshFrame(aForce: Boolean);
 begin
-  if fAVIVideo.Idle(Force) then
+  if fAVIVideo.RefreshFrame(aForce) then
   begin
     Image1.Picture.Assign(fAVIVideo.BMP);
-    FramesLabel.Caption := IntToStr(fAVIVideo.CurrentFrame) + '/' + IntToStr(fAVIVideo.FrameCount);
+    FramesLabel.Caption := Format('%d/%d', [fAVIVideo.CurrentFrame, fAVIVideo.FrameCount]);
     ProgressBar.Position := fAVIVideo.CurrentFrame;
   end;
 end;
 
+
 procedure TFrmMain.RenderTimerTimer(Sender: TObject);
 begin
-  VideoIdle(False);
+  RefreshFrame(False);
 end;
 
 
@@ -126,6 +128,7 @@ begin
   PlayButton.Enabled := False;
 end;
 
+
 procedure TFrmMain.PlayButtonClick(Sender: TObject);
 begin
   StopButton.Enabled := True;
@@ -134,6 +137,7 @@ begin
   fAVIVideo.Play;
 end;
 
+
 procedure TFrmMain.PauseButtonClick(Sender: TObject);
 begin
   StopButton.Enabled := True;
@@ -141,6 +145,7 @@ begin
   PlayButton.Enabled := True;
   fAVIVideo.Pause;
 end;
+
 
 procedure TFrmMain.StopButtonClick(Sender: TObject);
 begin
@@ -154,28 +159,33 @@ begin
   ProgressBar.Position := 0;
 end;
 
+
 procedure TFrmMain.CheckBox1Click(Sender: TObject);
 begin
   Image1.Stretch := CheckBox1.Checked;
 end;
 
+
 procedure TFrmMain.DoubleHeightCheckClick(Sender: TObject);
 begin
   fAVIVideo.DoubleHeight := DoubleHeightCheck.Checked;
   BlackLinesCheck.Enabled := DoubleHeightCheck.Checked;
-  VideoIdle(True);
+  RefreshFrame(True);
 end;
+
 
 procedure TFrmMain.BlackLinesCheckClick(Sender: TObject);
 begin
   fAVIVideo.BlackLines := BlackLinesCheck.Checked;
-  VideoIdle(True);
+  RefreshFrame(True);
 end;
+
 
 procedure TFrmMain.BrightnessChange(Sender: TObject);
 begin
   fAVIVideo.Brightness := Brightness.Value;
-  VideoIdle(True);
+  RefreshFrame(True);
 end;
+
 
 end.
