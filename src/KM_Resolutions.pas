@@ -78,39 +78,42 @@ end;
 
 
 procedure TKMResolutions.ReadAvailable;
+{$IFDEF MSWindows}
 var
   I,M,N: Integer;
-  {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
+  DevMode: TDevMode;
+{$ENDIF}
 begin
   {$IFDEF MSWindows}
   I := 0;
   fCount := 0;
   while EnumDisplaySettings(nil, I, DevMode) do
-  with DevMode do
+  with DevMode do //todo: Thats bad code, better get rid of this "with"
   begin
     Inc(I);
-    //Take only 32bpp modes
-    //Exclude rotated modes, as Win reports them too
+    // Take only 32bpp modes
+    // Exclude rotated modes, as Win reports them too
     if SupportedRes(dmPelsWidth, dmPelsHeight, dmDisplayFrequency, dmBitsPerPel) then
     begin
-      //Find next empty place and avoid duplicating
+      // Find next empty place and avoid duplicating
       N := 0;
       while (N < fCount) and (fItems[N].Width <> 0)
             and ((fItems[N].Width <> dmPelsWidth) or (fItems[N].Height <> dmPelsHeight)) do
         Inc(N);
-      if (fCount < N+1) then
+
+      if N+1 > fCount then
       begin
-        //increasing length of array
         SetLength(fItems, N+1);
-        //we don't want random data in freshly allocated space
         FillChar(fItems[N], SizeOf(TKMScreenResData), #0);
-        inc(fCount);
+        Inc(fCount);
       end;
+
       if (N < fCount) and (fItems[N].Width = 0) then
       begin
         fItems[N].Width := dmPelsWidth;
         fItems[N].Height := dmPelsHeight;
       end;
+
       //Find next empty place and avoid duplicating
       M := 0;
       while (N < fCount) and (M < fItems[N].RefRateCount)
@@ -118,13 +121,11 @@ begin
             and (fItems[N].RefRate[M] <> dmDisplayFrequency) do
         Inc(M);
 
-      if (fItems[N].RefRateCount < M+1) then
+      if M+1 > fItems[N].RefRateCount then
       begin
-        //increasing length of array
         SetLength(fItems[N].RefRate, M+1);
-        //we don't want random data in freshly allocated space
         FillChar(fItems[N].RefRate[M], SizeOf(Word), #0);
-        inc(fItems[N].RefRateCount);
+        Inc(fItems[N].RefRateCount);
       end;
 
       if (M < fItems[N].RefRateCount) and (N < fCount) and (fItems[N].RefRate[M] = 0) then
@@ -180,7 +181,6 @@ end;
 
 function TKMResolutions.GetItem(aIndex: Integer): TKMScreenResData;
 begin
-  //Make sure we access valid item
   Assert(InRange(aIndex, 0, fCount - 1));
   Result := fItems[aIndex];
 end;
