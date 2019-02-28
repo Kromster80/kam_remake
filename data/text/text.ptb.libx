@@ -626,7 +626,7 @@
 637:Def. texturas
 638:Mapa não encontrado: %s
 639:Salvo não encontrado: %s
-640:Arquivo do mapa não coincide com o administrador para o : %s
+640:Arquivo do mapa não coincide com o administrador para o: %s
 641:Arquivo de Salvo não coincide com o administrador para o: %s
 642:O replay falhou em uma verificação de consistência. Este é um erro conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
 643:Você só pode ter uma instância do jogo no modo multijogador cada vez
@@ -650,7 +650,7 @@
 661:Cancelar
 662:Enviando relatório de erros...
 663:Conectando-se ao servidor...
-664:Enviando dados ...
+664:Enviando dados...
 665:O envio do relatório de erro falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
 666:Informação
 667:Por favor, espere um momento...
@@ -691,7 +691,7 @@
 704:Folha d'agua
 705:Pato
 706:Esse tipo de soldado não está disponível.
-707:Esse tipo de unidade não está disponível
+707:Esse tipo de unidade não está disponível.
 708:Bloquear unidades
 736:Download
 737:baixando...
