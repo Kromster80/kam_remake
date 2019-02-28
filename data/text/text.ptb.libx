@@ -66,7 +66,7 @@
 65:Açougueiro
 66:Pescador
 67:Trabalhador
-68:Cortador de Pedra
+68:Pedreiro
 69:Ferreiro
 70:Metalúrgico
 71:Recruta
@@ -76,7 +76,7 @@
 75:Arqueiro
 76:Besteiro
 77:Lanceiro
-78:alabardeiro
+78:Alabardeiro
 79:Explorador
 80:Cavaleiro
 81:Bárbaro
@@ -86,7 +86,7 @@
 85:Vagabundo
 86:Catapulta
 87:Balista
-88:Os servos levarão os suprimentos de suas contruções com a matéria-prima necessária.||Note que deve existir uma ligação com a estrada entre os edifícios
+88:Os servos levarão os suprimentos de suas construções com a matéria-prima necessária.||Note que deve existir uma ligação com a estrada entre os edifícios
 89:Para produzir troncos de árvores para a serraria, você precisa de um lenhador.||O lenhador corta e planta árvores de forma independente.
 90:O mineiro retira minério das minas de carvão, ferro e ouro.
 91:O criador de animais usa milho para criar porcos no curral de suínos e cavalos nos estábulos.
@@ -95,18 +95,18 @@
 94:O padeiro transforma milho em farinha no moinho.||Ele também assa pão na padaria.
 95:O açougueiro faz salsichas no açougue e também talhos de couro no curtume.
 96:O pescador pesca peixes nas águas das proximidades.
-97:O trabalhador constrói edifícios e estradas. Basta destacar o seu local preferido e ele vai executar os seus comandos automaticamente.||Ele também repara edifícios danificados.
-98:Para suprir seus trabalhadores com material suficiente para construção de estradas e edifícios, o pedreiro vai cortar e lapidar pedras.
+97:O trabalhador constrói edificações e estradas. Basta colocar a tarefa no seu local preferido e ele vai executar os seus comandos automaticamente.||Ele também repara edificações danificadas.
+98:Para suprir seus trabalhadores com material suficiente para construção de estradas e edificações, o pedreiro vai cortar e lapidar pedras.
 99:O ferreiro forja armas e armaduras de ferro.
 100:O metalúrgico usa carvão para refinar ouro e minério de ferro.
 101:O recruta pode ser equipado como um soldado nos quartéis.||Ele também ocupa a torre de vigia.
-102:Para seleção dos edifícios
-103:Para distribuição de mercadorias
-104:Para estatísticas
-105:Para opções
+102:Construção
+103:Distribuição de materiais
+104:Estatísticas
+105:Opções
 106:Voltar
-107:Edifícios|Seleção
-108:Distribuição|de mercadorias
+107:Construção
+108:Distribuição|de materiais
 109:Estatísticas
 110:Opções
 111:Carregar
@@ -115,24 +115,24 @@
 114:Terminar missão
 115:Voltar
 116:Configurações
-117:Sair do Editor
-118:SFX
-119:Alterar o Volume
-120:Alterar o Volume
+117:Sair do editor
+118:Efeitos sonoros
+119:Alterar o volume
+120:Alterar o volume
 121:Música
 122:Ligar/desligar música
-123:Salvar automaticamente
-124:Reprodutor de música
+123:Auto salvar
+124:Música:
 125:Faixa anterior
 126:Próxima faixa
 127:Demolir
-128:Remover Edifícios
+128:Remover edificações/tarefas
 129:Construir rua
 130:Construir ruas
 131:Arar campo
 132:Arar campos
-133:Dispor campo de vinho
-134:Dispor campos de vinho
+133:Plantar videiras
+134:Videira
 135:Cancelar
 136:Cancelar treinamento atual
 137:Requerimentos:
@@ -149,9 +149,9 @@
 150:Profissão seguinte
 151:Profissão anterior
 152:Adicionar à fila
-153:ativar/desativar entrega de mercadorias
+153:Ativar/desativar entrega de materiais
 154:Custo:
-155:ativar/desativar reparo da casa
+155:Ativar/desativar reparo da casa
 156:Edifício não disponível no momento
 157:Condição
 158:Virar tropa à esquerda
@@ -179,7 +179,7 @@
 180:Esta tropa está realmente com fome, é melhor eles se alimentarem logo!
 181:PAUSAR
 182:Transportando
-183:Construindo Estrada
+183:Construindo estrada
 184:Arando campo
 185:Construindo videira
 186:Aplainando o terreno
@@ -195,7 +195,7 @@
 196:Andando
 197:Parado
 198:Extraindo pedra
-199:Semeando Milho
+199:Semeando milho
 200:Colhendo milho
 201:Colhendo uvas
 202:Pescando
@@ -215,11 +215,11 @@
 216:O Exército
 217:No Castelo
 218:Fanfarras
-219:Na Corte
+219:Na corte
 220:Entrada
 221:Azul marinho
 222:Luta
-223:Quartel Real
+223:Quartel real
 224:Aristocracia
 225:No porto
 226:Jornada
@@ -229,8 +229,8 @@
 230:Jogar um Mapa Único
 231:Iniciar Mapa
 232:Voltar ao Menu
-233:Carregar um jogo salvo
-234:Multi-jogador
+233:Carregar um Jogo Salvo
+234:Multijogador
 235:Opções
 236:Créditos
 237:Sair do Jogo
@@ -243,13 +243,13 @@
 244:DERROTADO!
 245:Unidades perdidas:
 246:Unidades derrotadas:
-247:Edifícios perdidos:
-248:Edifícios destruídos:
-249:Edifícios construídos:
+247:Edificações perdidas:
+248:Edificações destruídas:
+249:Edificações construídas:
 250:Unidades treinadas:
 251:Armas produzidas:
 252:Soldados treinados:
-253:Missão completada em:
+253:Duração do jogo:
 254:Estatísticas
 255:Economia
 256:Aldeões|treinados
@@ -257,36 +257,36 @@
 258:Soldados|equipados
 259:Soldados|perdidos
 260:Soldados|derrotados
-261:Edifícios|construídos
-262:Edifícios|perdidos
-263:Edifícios|destruídos
-264:Mercadoria|produzida
-265:Armas|Produzidas
+261:Edificações|construídas
+262:Edificações|perdidas
+263:Edificações|destruídas
+264:Materiais|produzidos
+265:Armas|produzidas
 266:Exército
 267:Aldeões
 268:Casas
 269:Recursos
-270:Recursos Produzidos
+270:Recursos produzidos
 271:Sem dados
 272:Você
 273:Jogador %d
-274:Voltar ao Multi-jogador
-275:Voltar ao Replay
+274:Voltar ao multijogador
+275:Voltar ao replay
 276:Tudo
 277:Guerra
 278:Comida
-279:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GRÁFICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre Quaß||EDIÇÃO E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRAÇÕES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUÇÃO:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIREÇÃO DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMAÇÃO INICIAL:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+279:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GRÁFICOS:|Adam Sprys||PROJETO DOS NÍVEIS:|Adam Sprys|Andre Quaß||EDIÇÃO E MIXAGEM DE SOM:|Tonstudio Mannheim||MÚSICAS:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRAÇÕES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUÇÃO:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||TESTADORES:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIREÇÃO DE FILME:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTE:|Boleslaw Kasza|Adam Sprys||ANIMAÇÃO INICIAL:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 280:Missão cancelada
 281:Fim do replay
-282:Tutorial da cidade
-283:Tutorial de batalha
-284:Único jogador
+282:Tutorial da Cidade
+283:Tutorial de Batalha
+284:Jogador Individual
 285:Editor de Mapas
 286:Iniciar Missão
 287:Título
-288:Tamanho
-289:Condição para ganhar:
-290:Condição para a derrota:
+288:Tam.
+289:Condições de vitória:
+290:Condições de derrota:
 291:Aliados:
 292:Inimigos:
 293:Tempo
@@ -300,26 +300,26 @@
 301:Controles:
 302:Em jogo:
 303:Som:
-304:Desativar música
+304:Desligar música
 305:Gráficos:
 306:Brilho
-307:Sync Vertical
-308:Tela Cheia
+307:Sincronia vertical
+308:Tela cheia
 309:Aplicar
 310:Idioma:
 311:Qualidade da sombra:
-312:Baixo
-313:Alto
-314:Carregando... Por favor aguarde
+312:Baixa
+313:Alta
+314:Carregando... Por favor, aguarde.
 315:Ocorreu um erro!
 316:Carregando novo local
 317:Lista de jogos salvos
-318:Nome de arquivo
+318:Nome do arquivo
 319:Descrição
 320:Carregar
-321:Deletar
-322:Você quer mesmo deletar este jogo salvo?
-323:Deletar
+321:Excluir
+322:Você quer mesmo excluir este jogo salvo?
+323:Excluir
 324:Cancelar
 325:Título
 326:Mapas
@@ -337,7 +337,7 @@
 338:Pressione %s para continuar o jogo
 339:Informações dos jogadores
 340:Bate-papo
-341:Já existe um jogo salvo
+341:Jogo salvo já existe
 342:Sobrescrever
 343:Salvar
 344:Carregar
@@ -350,7 +350,7 @@
 351:Conexão falhou: %s
 352:Você foi desconectado
 353:Missão %d
-354:Histórico de Mensagem
+354:Histórico de mensagens
 355:A cabana do seu pescador está muito longe da água.
 356:Seu pescador não consegue mais pescar nenhum peixe nas águas próximas.
 357:Reiniciar replay
@@ -358,30 +358,30 @@
 359:Avançar um marco
 360:Continuar replay pausado
 361:Sair do replay
-362:Trocar para pespectiva individual
+362:Trocar para perspectiva individual
 364:Use o botão esquerdo do mouse para selecionar a mercadoria a ser trocada(enviada).
 365:Use o botão direito do mouse para selecionar a mercadoria a ser trocada(recebida)
 366:De x%d
 367:Para x%d
 368:Editar terreno
-369:Escovas
+369:Pincéis
 370:Planaltos
 371:Pisos
 372:Objetos
 373:Alturas
-374:Forma da escova
+374:Forma do pincel
 375:Tamanho
-376:Arraste para mudar o tamanho da escova
+376:Arraste para mudar o tamanho do pincel
 377:Subida
 378:Arraste para mudar a elevação da subida: 1-planalto 15-pico
 379:Velocidade
 380:Arraste para alterar a velocidade da elevação 1 = devagar ... 15 = muito rápido
-381:Escova circular
-382:Escova quadrada
-383:Elevar/Abaixar
-384:Desnivelar/Aplainar
-385:Elevar(botão esquerdo)/Abaixar(botão direito)
-386:Desnivelar(botão esquerdo)/Aplainar(botão direito)
+381:Pincel circular
+382:Pincel quadrado
+383:Elevar/abaixar
+384:Desnivelar/aplainar
+385:Elevar (botão esquerdo)/Abaixar (botão direito)
+386:Desnivelar (botão esquerdo)/Aplainar (botão direito)
 387:Pincel
 388:Elementos aleatórios
 389:Direção aleatória
@@ -395,10 +395,10 @@
 398:Objetos
 399:Mostrar depósitos
 400:Mostrar unidades
-401:mostrar casas
-402:mostrar objetos
-403:visualizar
-404:Qualquer alteração|\nNão salva será perdida
+401:Mostrar casas
+402:Mostrar objetos
+403:Visualizar
+404:Qualquer alteração|não salva será perdida
 405:Cancelar
 406:Carregar
 407:Carregar Mapa
@@ -409,26 +409,28 @@
 412:Jogadores:
 413:Padrão
 414:Tipos de jogadores
-415:Simetrico
+415:Simétrico
 416:Alianças
 417:Táticas
 418:Normal
+419:Modo de missão
 420:Ir para localização
 421:Centralizar a tela ao iniciar Missão
+422:Centralizar tela
 423:Revelar tudo
 424:Revelar uma porção do mapa
-425:Revelar Neblína
+425:Revelar neblina
 426:Trocar bloqueio
 427:Bloquear/liberar casas
 428:Cores
 429:Objetivo
 432:Jogador
-433:Edifícios de economia
+433:Edificações civis
 434:Servos e escolas
 435:Recursos militar
 436:Desconhecido
 437:Tropas
-438:Edifícios
+438:Edificações
 439:Tempo
 440:Tutorial de construção
 441:Nenhum
@@ -446,7 +448,7 @@
 453:Editar formações
 454:Definir um limite de quantos soldados o IA pode ter
 455:Quantos soldados o IA pode ter de uma vez
-456:Definir Max. de soldados
+456:Definir máx. de soldados
 457:Quantos recrutas o IA deverá ter em seus Quarteis
 458:Recrutas por Quarteis
 460:Posição personalizada
@@ -461,8 +463,8 @@
 473:corpo-a-corpo
 474:Loc.
 475:Alvo
-476:Hom.
-477:Demora
+476:Homens
+477:Atraso
 478:Tipo
 479:Auto-ataque
 480:Ataques do IA
@@ -472,18 +474,19 @@
 484:IA irá criar e gerenciar posições de defesas automaticamente
 485:Colocar posição de defesa para o IA
 486:Posição de defesa do IA
+487:Trabalhadores
 488:10 casas por Servo
 489:Auto-consertar
 490:Auto-construir
 491:Configurações do IA
-492:cASAS
-493:Construção de Estrada
+492:Casas
+493:Construção de estrada
 494:Virar seleção verticalmente
 495:Virar seleção horizontalmente
 496:Colar terreno
 497:Copiar terreno
 498:Copiar/colar
-499:Nova Missão
+499:Nova missão
 500:Nome do jogador
 501:Estado:
 502:Criar servidor
@@ -502,7 +505,7 @@
 515:Cancelar
 516:Sala protegida por senha
 517:Senha
-518:Nome do Servidor
+518:Nome do servidor
 519:Estado
 520:Jogadores
 521:Ping
@@ -513,19 +516,19 @@
 526:Conectando, por favor aguarde...
 527:Carregando anúncios...
 528:Recarregando...
-529:Lista de Jogadores
-530:Iniciar local
+529:Lista de jogadores
+530:Local de início
 531:Equipe
 532:Cor
 533:Preparado
 534:Ping
 535:Ping / FPS
 536:Aberto
-537:Jogador CPU
-538:Selecionar..
+537:Jogador IA
+538:Selecionar...
 539:Aleatório
 540:Nenhum
-541:Jogo Salvo
+541:Jogo salvo
 542:Selecionar um mapa...
 543:Selecionar um jogo salvo...
 544:Sair da sala
@@ -540,16 +543,16 @@
 553:Senha
 554:Configurações da sala
 556:Banir desse lobby
-557:Kickar
+557:Expulsar
 558:Localidades aleatórias com times
 559:Descrição
 560:Opções
 561:Lugar %d
-562:Erro: Por favor,  selecione um jogador do salvo para controlar
+562:Erro: Por favor, selecione um jogador do salvo para controlar
 563:Erro: Falha no mapa ou mapa não carregado
 564:Não é possível iniciar: %s
 565:Alguns jogadores não estão prontos para iniciar
-566:Impossivel aplicar localizações aleatórias
+566:Impossível aplicar localizações aleatórias
 567:O servidor atribuiu direitos de hospedagem para nós
 568:O jogo iniciou
 569:Mapa de construção
@@ -563,8 +566,8 @@
 577:Aguardando jogadores:
 578:Todos
 579:Time
-580:Créditos do KaM Remake
-581:Créditos Originais do Knights & Merchants
+580:Créditos do Knights & Merchants Remake
+581:Créditos do Knights & Merchants Original 
 582:PROGRAMADORES:
 583:PROGRAMADORES ADICIONAIS:
 584:GRÁFICOS ADICIONAIS:
@@ -572,25 +575,25 @@
 586:MÚSICA ADICIONAL
 587:TRADUÇÕES ADICIONAIS:
 588:AGRADECIMENTOS ESPECIAIS:
-589:Mapas multi-jogador
-590:Mapas singleplayer
-591:Velocidade do Rolamento
+589:Mapas multijogadores
+590:Mapas para um jogador
+591:Veloc. de rolagem
 592:Sem servidores! Verifique|a conexão com a internet.
-593:Misturar as faixas
+593:Música aleatór.
 594:Informação do jogo:
 595:-
 596:Aguardando
 597:Carregando
-598:Em andamento
+598:Jogando
 599:Construir e lutar
 600:Lutar
 601:Pronto
 602:Versão do protocolo errado: %s. Servidor usa: %s
 603:Aumentar a quantidade de comércio
 604:Diminuir a quantidade de comércio
-605:Salvando Jogo...
+605:Salvando jogo...
 606:%s foi derrotado!
-607:Retirar Jogadores
+607:Retirar jogadores
 608:O administrador pode retirar o jogador depois de %d segundos
 609:O administrador pode agora descartar os jogadores:
 610:O administrador (%s) saiu do jogo
@@ -608,7 +611,7 @@
 622:Parar tropa ('%s')
 623:Juntar tropa ('%s')
 624:Separar tropa ('%s')
-625:Ver replays
+625:Ver Replays
 626:Ver Replay
 627:Formato não suportado %s
 628:Versão não suportada %s
@@ -625,35 +628,37 @@
 639:Salvo não encontrado: %s
 640:Arquivo do mapa não coincide com o administrador para o : %s
 641:Arquivo de Salvo não coincide com o administrador para o: %s
-642:O replay falhou em uma verificação de consistência. Este é um bug conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
-643:Você só pode ter uma instância do jogo no modo multi-jogador cada vez
-644:Modificações para o jogo não são permitidas no modo multi-jogador.|Reinstale para restaurar os arquivos originais.
+642:O replay falhou em uma verificação de consistência. Este é um erro conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
+643:Você só pode ter uma instância do jogo no modo multijogador cada vez
+644:Modificações para o jogo não são permitidas no modo multijogador.|Reinstale para restaurar os arquivos originais.
 645:Ocorreu um erro na aplicação. Por favor, clique em Enviar relatório de erros para que possamos investigar esta questão. Obrigado por sua ajuda!
 646:Enviar relatório de erros
-647:Mostrar Dados Brutos
+647:Mostrar dados brutos
 648:Continuar aplicativo
 649:Encerrar aplicativo
 650:Próximo
 651:Detalhes do contato
 652:Seu nome: (Opcional)
-653:Seu e-mail:(Opcional)
+653:Seu e-mail: (Opcional)
 654:Lembre-me
 655:Detalhes do erro
 656:Em qual situação ocorreu o erro? Você pode nos fornecer alguma informação adicional? (em inglês, preferencialmente)
-657:Screenshot
-658:Anexar uma imagem para o relatório de bug
+657:Captura de tela
+658:Anexar uma imagem para o relatório de erro
 659:(Clique para editar a imagem)
 660:Enviar relatório
 661:Cancelar
 662:Enviando relatório de erros...
 663:Conectando-se ao servidor...
 664:Enviando dados ...
-665:O envio do relatório de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
+665:O envio do relatório de erro falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
 666:Informação
 667:Por favor, espere um momento...
 668:Salvar Mapa
-669:Demora em minutos antes de que o IA comece a treinar recrutas
-670:Demora por Recrutas (mins)
+669:Atraso em minutos antes de que o IA comece a treinar recrutas
+670:Atraso em recrutas (mins)
+671:Define a direção de todas as telhas na superfície da água
+672:Água mágica
 673:Copiar
 674:Colar
 675:Aplicar cola
@@ -664,13 +669,16 @@
 680:opções de defesa do IA
 681:Desligado
 682:Diâmetro
-683:Deletar revelação atual
-684:Voltar para a página de revelação de Neblína
+683:Excluir revelação atual
+684:Voltar para a página de revelação de Neblina
 685:Fechar
 686:Ordenar grupo
+687:Nenhum
 688:Posição de ataque
+689:Andar até
+690:Direção
 693:Alcance da defesa
-694:Deletar posição de defesa atual
+694:Excluir posição de defesa atual
 695:Retornar para a página de defesa
 696:Posição de defesa
 697:Unidades
@@ -678,7 +686,7 @@
 699:Peixe
 700:Cobra d'agua
 701:Estrela-do-mar
-702:Carangueijo
+702:Caranguejo
 703:Flor d'agua
 704:Folha d'agua
 705:Pato
@@ -686,83 +694,91 @@
 707:Esse tipo de unidade não está disponível
 708:Bloquear unidades
 736:Download
-737:downloading...
-738:Sobescrever arquivos existentes
+737:baixando...
+738:Sobrescrever arquivos existentes
 739:%s perdeu a conexão
 740:%s saiu
 741:%s foi reconectado
 742:Não é possível entrar enquanto o jogo estiver em progresso
 743:Sala cheia. Nenhum jogador adicional poderá entrar no jogo
 744:Já existe um jogador com o mesmo nome na sala.
-748:Direitos do servidor foram repassados para %s
+746:Erro: %s tem arquivos de dados diferentes para o anfitrião e, portanto, não pode participar deste jogo
+747:Seus arquivos de dados não correspondem ao anfitrião
+748:Direitos de hospedagem reatribuídos a %s
 749:%s tem uma versão diferente de %s
 750:%s não possui %s
 751:Tempo limite ultrapassado
 752:o servidor caiu %s do jogo
-753:%s foi kickado no servidor
+753:%s foi expulso do servidor
 754:Tentando reconectar ao jogo...
 755:%s entrou
 756:Falha de reconexão: %s
 757:O servidor decidiu continuar jogando sem você :(
 758:Desconectado do servidor: Tempo limite detectado.
-759:Você foi kickado no servidor
+759:Você foi expulso do servidor
 760:Servidor parou de responder
 761:Número de sala inválida.
-765:Sussura para %s
+765:Falar com %s
 766:%s foi banido do lobby no servidor
 767:Você foi banido no servidor
-768:Resetar todos banimentos
+768:Redefinir todos banimentos
+769:O anfitrião redefiniu todas as proibições para este lobby
 770:Data
-771:Mostrar Neblina
-772:Assstir
+771:Mostrar neblina
+772:Assistir
 773:Espectador
 774:Alcance do auto-ataque
 775:Grupos de IA irá automaticamente atacar se você estiver perto tantos quadrados
 776:Defender aliados
-777:Se habilitado o IA ira defender unidades e casas de aliados como se fosse dele
+777:Se habilitado a IA irá defender unidades e casas de aliados como se fosse dele
 778:Permitir espectadores
 779:Promover a servidor
 780:Espectadores
-781:Não é possível desatibilitar espectadores. A lista de espectadores precisa estar vazia
+781:Não é possível desabilitar espectadores. A lista de espectadores precisa estar vazia
 782:Refazer
 783:Desfazer
-784:Definir a posição inicial do IA com o alvo usado para o ataque do IA
-785:Posição inicial do IA
+784:Definir a posição inicial da IA com o alvo usado para o ataque da IA
+785:Posição inicial da IA
 786:Ordenação
-788:Demora inicial (segundos)
+788:Atraso inicial (segundos)
 790:Casa mais perto do exercito
 791:Casa mais próxima da posição de inicio
 792:Atacantes
 793:Defensores
 794:Espectador
-795:Para jogar a missão da campanha desbloqueada anteriormenbte, selecione a bandeira da missão no mapa da campanha
+795:Para jogar a missão da campanha desbloqueada anteriormente, selecione a bandeira da missão no mapa da campanha
+796:%s votou para retornar ao lobby (precisa de mais votos)
 797:Vote para retornar essa sala para o lobby. A partida poderá ser retornada ou trocada
 798:Vote Para ir pro Lobby
-801:Deletando um replay também deletará o arquvio salvo associado, deseja realmente deletar?
+799:%s votou para retornar ao lobby (votação aprovada)
+800:A votação para retornar ao lobby falhou
+801:Ao excluir um replay também excluirá o arquivo salvo associado, deseja realmente excluir?
 802:Pegar aleatoriamente
 803:Número de soldados para atacar
-804:Deletar Replay
-805:Deletar Mapa
-806:Você tem certeza que deseja deletar esse mapa?
+804:Excluir replay
+805:Excluir mapa
+806:Você tem certeza que deseja excluir esse mapa?
 807:Ocultar sobreposição de script
 808:Mostrar sobreposição de script
-810:IA irá criar e gerenciar ataques automaticamente
+809:Você não pode alterar o anfitrião enquanto o servidor estiver em execução no seu cliente
+810:A IA irá criar e gerenciar ataques automaticamente
 811:Equipar rapidamente
 812:Soldados serão equipados o mais rápido possível. Taxas de equipamento afetará o planejamento da vila
 813:Aplicar IA padrão
-814:Construtor multi-jogador
-815:Aplicar construção da IA agressiva para todos os jogadores (para mapas de construções multi-jogador)
-816:Alerta: Isso irá sobescrever todas as configurações de IA de todos os jogadores. Continuar?
-817:Tipo de exercito
+814:Construtor multijogador
+815:Aplicar construção da IA agressiva para todos os jogadores (para mapas de construções multijogador)
+816:Alerta: Isso irá sobrescrever todas as configurações da IA de todos os jogadores. Continuar?
+817:Tipo de exército
 818:Ferro depois couro
 819:Ferro
 820:Couro
 821:Misturado
+822:Mapas baixados
 824:Mover
-825:Visualizar o Leia-me PDF
+825:Visualizar o PDF Leia-me
 826:Falha ao iniciar o visualizador de PDF
 827:Definir contagem de 10 casas por servos para o jogador IA especificado. IA selecionado terá %d casas
-828:Erro: Arquivo pausado do servidor não é o mesmo que o seu. Um erro foi encontrado ou o servidor está tentando trapaçear.
+828:Erro: Arquivo pausado do servidor não é o mesmo que o seu. Um erro foi encontrado ou o servidor está tentando trapacear.
 829:A ordem foi concluída
 830:Carregar fontes asiáticas
-831:Mover fora do downloads
+831:Mover para fora dos downloads
