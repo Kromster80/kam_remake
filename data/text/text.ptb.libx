@@ -446,10 +446,10 @@
 451:Contagem
 452:Formações de tropa
 453:Editar formações
-454:Definir um limite de quantos soldados o IA pode ter
-455:Quantos soldados o IA pode ter de uma vez
+454:Definir um limite de quantos soldados a IA pode ter
+455:Quantos soldados a IA pode ter de uma vez
 456:Definir máx. de soldados
-457:Quantos recrutas o IA deverá ter em seus Quarteis
+457:Quantos recrutas a IA deverá ter em seus Quarteis
 458:Recrutas por Quarteis
 460:Posição personalizada
 463:Unidade mais próxima
@@ -467,18 +467,18 @@
 477:Atraso
 478:Tipo
 479:Auto-ataque
-480:Ataques do IA
+480:Ataques da IA
 481:Taxa de equipamento de couro
 482:Taxa de equipamento de ferro
 483:Auto-defesa
-484:IA irá criar e gerenciar posições de defesas automaticamente
-485:Colocar posição de defesa para o IA
-486:Posição de defesa do IA
+484:A IA irá criar e gerenciar posições de defesas automaticamente
+485:Colocar posição de defesa para a IA
+486:Posição de defesa da IA
 487:Trabalhadores
 488:10 casas por Servo
 489:Auto-consertar
 490:Auto-construir
-491:Configurações do IA
+491:Configurações da IA
 492:Casas
 493:Construção de estrada
 494:Virar seleção verticalmente
@@ -655,7 +655,7 @@
 666:Informação
 667:Por favor, espere um momento...
 668:Salvar Mapa
-669:Atraso em minutos antes de que o IA comece a treinar recrutas
+669:Atraso em minutos antes de que a IA comece a treinar recrutas
 670:Atraso em recrutas (mins)
 671:Define a direção de todas as telhas na superfície da água
 672:Água mágica
@@ -666,7 +666,7 @@
 677:Virar verticalmente
 678:Virar horizontalmente
 679:Arraste para selecionar uma área no mapa
-680:opções de defesa do IA
+680:Opções de defesa da IA
 681:Desligado
 682:Diâmetro
 683:Excluir revelação atual
@@ -728,7 +728,7 @@
 772:Assistir
 773:Espectador
 774:Alcance do auto-ataque
-775:Grupos de IA irá automaticamente atacar se você estiver perto tantos quadrados
+775:Grupos de IA atacarão automaticamente se você estiver nesta quantidade de quadrados
 776:Defender aliados
 777:Se habilitado a IA irá defender unidades e casas de aliados como se fosse dele
 778:Permitir espectadores
@@ -777,7 +777,7 @@
 824:Mover
 825:Visualizar o PDF Leia-me
 826:Falha ao iniciar o visualizador de PDF
-827:Definir contagem de 10 casas por servos para o jogador IA especificado. IA selecionado terá %d casas
+827:Definir contagem de 10 casas por servos para o jogador IA especificado. A IA selecionada terá %d casas
 828:Erro: Arquivo pausado do servidor não é o mesmo que o seu. Um erro foi encontrado ou o servidor está tentando trapacear.
 829:A ordem foi concluída
 830:Carregar fontes asiáticas
