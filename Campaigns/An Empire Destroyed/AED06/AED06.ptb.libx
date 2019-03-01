@@ -1,0 +1,14 @@
+﻿0:Homens, é nosso trabalho capturar a cidade a qualquer custo, eles não desistirão sem lutar, mas seremos vitoriosos!
+2:Eu não posso acreditar, eles estavam nos esperando! Pegue o ferro que sobrar e prepare as defesas! Nossos trabalhadores estão em movimento.
+3:General, parece que nossos batedores encontraram acampamentos próximos que permitem ao inimigo enviar reforços. Temos que tirá-los para proteger Maul!
+4:[$0000FC]Objetivo[]:
+5:[$8CE6F0] - []
+7:Bárbaros restantes: [$00FF7F]%d[]
+8:[$00FF7F]Defenda Maul[]
+9: Onda [$00FF7F]%d[] em [$00FF7F]%d[]
+10:[$00FF7F]Prepare-se para defender Maul[]
+11:Tempo restante: [$00FF7F]%s[]
+12:[$00FF7F]Onda:[] %d/%d
+13: em [$00FF7F]%s[]
+14: - [$00FF7F]%d[]
+15:[$00FF7F]Destrua os acampamentos inimigos[]
