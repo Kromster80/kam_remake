@@ -170,24 +170,24 @@
 171:Ir para a posição atual da mensagem
 172:Fechar
 173:Fechar janela
-174:O seu pedreiro não consegue mais alcançar nenhuma reserva de pedra.
+174:O pedreiro não alcança mais reservas de pedra.
 175:Sua mina de carvão se esgotou.
 176:Sua mina de ferro se esgotou.
 177:Sua mina de ouro se esgotou.
 178:Seu lenhador não consegue mais encontrar árvores para cortar e foi instruído a não plantar mais árvores
 179:Esta casa não está ocupada.
-180:Esta tropa está faminta, é melhor se alimentarem logo!
+180:Esta tropa está faminta, alimente-a logo!
 181:PAUSAR
 182:Transportando
 183:Construindo rua
 184:Arando campo
 185:Construindo videira
 186:Aplainando o terreno
-187:Construindo casa
-188:Consertando casa
-189:Indo para casa
+187:Construindo edificação
+188:Consertando edificação
+189:Indo para edificação
 190:Indo para o refeitório
-191:Atacando casa
+191:Atacando edificação
 192:Atirando
 193:Batalhando
 194:Ataque tempestade!
@@ -602,7 +602,7 @@
 613:Você tem certeza que quer tirar este jogador permanentemente?
 614:Cancelar
 615:Este recurso não está disponível nesta missão
-616:Plantar e cortar
+616:Cortar e plantar
 617:Somente cortar
 618:Você está em tempo de paz. Não pode usar soldados!
 619:Tempo de paz faltando: %s
