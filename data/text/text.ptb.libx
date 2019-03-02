@@ -120,13 +120,13 @@
 119:Alterar o volume
 120:Alterar o volume
 121:Música
-122:Ligar/desligar música
+122:Ligar ou desligar a música
 123:Auto salvar
 124:Música:
 125:Faixa anterior
 126:Próxima faixa
 127:Demolir
-128:Remover edificações/tarefas
+128:Remover edificações ou tarefas
 129:Construir rua
 130:Construir ruas
 131:Arar campo
@@ -369,7 +369,7 @@
 371:Pisos
 372:Objetos
 373:Alturas
-374:Forma do pincel
+374:Pincel tipo:
 375:Tamanho
 376:Arraste para mudar o tamanho do pincel
 377:Subida
@@ -378,12 +378,12 @@
 380:Arraste para alterar a velocidade da elevação 1 = devagar ... 15 = muito rápido
 381:Pincel circular
 382:Pincel quadrado
-383:Elevar/abaixar
-384:Desnivelar/aplainar
+383:Elevar / Abaixar
+384:Desnivelar / Aplainar
 385:Elevar (botão esquerdo)/Abaixar (botão direito)
 386:Desnivelar (botão esquerdo)/Aplainar (botão direito)
 387:Pincel
-388:Elementos aleatórios
+388:Elementos aleat.
 389:Direção aleatória
 390:Manter direção aleatória do piso ou clique com o botão direito para girar o piso selecionado
 392:Bloqueio de andar
@@ -395,7 +395,7 @@
 398:Objetos
 399:Mostrar depósitos
 400:Mostrar unidades
-401:Mostrar casas
+401:Mostrar edificações
 402:Mostrar objetos
 403:Visualizar
 404:Qualquer alteração|não salva será perdida
@@ -413,15 +413,15 @@
 416:Alianças
 417:Táticas
 418:Normal
-419:Modo de missão
-420:Ir para localização
-421:Centralizar a tela ao iniciar Missão
+419:Modo missão
+420:Ir para a localização
+421:Centralizar a tela no início da missão
 422:Centralizar tela
 423:Revelar tudo
 424:Revelar uma porção do mapa
 425:Revelar neblina
-426:Trocar bloqueio
-427:Bloquear/liberar casas
+426:Bloquear comércio
+427:Bloquear ou liberar
 428:Cores
 429:Objetivo
 432:Jogador
@@ -455,12 +455,12 @@
 463:Unidade mais próxima
 465:Contagem de grupos
 466:Informações de ataque
-468:Repetindo
-469:Único
+468:Repet.
+469:Uma vez
 470:Montado
 471:Alcance
 472:Anti-cavalo
-473:corpo-a-corpo
+473:Corpo-a-corpo
 474:Loc.
 475:Alvo
 476:Homens
@@ -481,11 +481,11 @@
 491:Configurações da IA
 492:Casas
 493:Construção de rua
-494:Virar seleção verticalmente
-495:Virar seleção horizontalmente
+494:Girar seleção verticalmente
+495:Girar seleção horizontalmente
 496:Colar terreno
 497:Copiar terreno
-498:Copiar/colar
+498:Copiar / Colar
 499:Nova missão
 500:Nome do jogador
 501:Estado:
@@ -629,7 +629,7 @@
 640:Arquivo do mapa não coincide com o administrador para o: %s
 641:Arquivo de Salvo não coincide com o administrador para o: %s
 642:O replay falhou em uma verificação de consistência. Este é um erro conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
-643:Você só pode ter uma instância do jogo no modo multijogador cada vez
+643:Você só pode ter uma instância do jogo no modo multijogador por vez
 644:Modificações para o jogo não são permitidas no modo multijogador.|Reinstale para restaurar os arquivos originais.
 645:Ocorreu um erro na aplicação. Por favor, clique em Enviar relatório de erros para que possamos investigar esta questão. Obrigado por sua ajuda!
 646:Enviar relatório de erros
@@ -663,8 +663,8 @@
 674:Colar
 675:Aplicar cola
 676:Cancelar cola
-677:Virar verticalmente
-678:Virar horizontalmente
+677:Girar verticalm.
+678:Girar horizont.
 679:Arraste para selecionar uma área no mapa
 680:Opções de defesa da IA
 681:Desligado
@@ -765,7 +765,7 @@
 811:Equipar rapidamente
 812:Soldados serão equipados o mais rápido possível. Taxas de equipamento afetará o planejamento da vila
 813:Aplicar IA padrão
-814:Construtor multijogador
+814:Constr. multijogador
 815:Aplicar construção da IA agressiva para todos os jogadores (para mapas de construções multijogador)
 816:Alerta: Isso irá sobrescrever todas as configurações da IA de todos os jogadores. Continuar?
 817:Tipo de exército
