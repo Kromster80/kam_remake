@@ -12,11 +12,11 @@ uses
   {$ENDIF}
   ;
 
+{$ifdef FPC}
 type
-  {$ifdef FPC}
   TStringDynArray = array of string;
   {$EXTERNALSYM TStringDynArray 'System::TStringDynArray'}
-  {$endif}
+{$endif}
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
