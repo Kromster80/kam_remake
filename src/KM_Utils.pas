@@ -12,6 +12,12 @@ uses
   {$ENDIF}
   ;
 
+type
+  {$ifdef FPC}
+  TStringDynArray = array of string;
+  {$EXTERNALSYM TStringDynArray 'System::TStringDynArray'}
+  {$endif}
+
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
   function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
@@ -74,6 +80,14 @@ uses
   function StrTrimRight(aStr: String; aCharsToTrim: TKMCharArray): String;
   function StrSplit(aStr, aDelimiters: String): TStrings;
 
+  {$ifdef FPC}
+  {
+    SplitString splits a string into different parts delimited by the
+    specified delimiter characters
+  }
+  function SplitString(const S, Delimiters: string): TStringDynArray;
+  function FindDelimiter(const Delimiters, S: string; StartIdx: Integer = 1): Integer;
+  {$endif}
 
 implementation
 uses
@@ -767,7 +781,11 @@ var I: Integer;
 begin
   Result := -1;
   for I := 1 to Length(aStr) do
+  {$IFDEF FPC}
+    if AnsiStartsStr(aSubStr, StrSubstring(aStr, I-1)) then
+  {$ELSE}
     if StartsStr(aSubStr, StrSubstring(aStr, I-1)) then
+  {$ENDIF}
       Result := I - 1;
 end;
 
@@ -832,5 +850,65 @@ begin
     Result.Add(StrArray[I]);
 end;
 
+
+{$ifdef FPC}
+function SplitString(const S, Delimiters: string): TStringDynArray;
+var
+  StartIdx: Integer;
+  FoundIdx: Integer;
+  SplitPoints: Integer;
+  CurrentSplit: Integer;
+  i: Integer;
+begin
+  Result := nil;
+
+  if S <> '' then
+  begin
+    { Determine the length of the resulting array }
+    SplitPoints := 0;
+    for i := 1 to S.Length do
+      if IsDelimiter(Delimiters, S, i) then
+        Inc(SplitPoints);
+
+    SetLength(Result, SplitPoints + 1);
+
+    { Split the string and fill the resulting array }
+    StartIdx := 1;
+    CurrentSplit := 0;
+    repeat
+      FoundIdx := FindDelimiter(Delimiters, S, StartIdx);
+      if FoundIdx <> 0 then
+      begin
+        Result[CurrentSplit] := Copy(S, StartIdx, FoundIdx - StartIdx);
+        Inc(CurrentSplit);
+        StartIdx := FoundIdx + 1;
+      end;
+    until CurrentSplit = SplitPoints;
+
+    // copy the remaining part in case the string does not end in a delimiter
+    Result[SplitPoints] := Copy(S, StartIdx, S.Length - StartIdx + 1);
+  end;
+end;
+
+
+function FindDelimiter(const Delimiters, S: string; StartIdx: Integer = 1): Integer;
+var
+  Stop: Boolean;
+  Len: Integer;
+begin
+  Result := 0;
+
+  Len := S.Length;
+  Stop := False;
+  while (not Stop) and (StartIdx <= Len) do
+    if IsDelimiter(Delimiters, S, StartIdx) then
+    begin
+      Result := StartIdx;
+      Stop := True;
+    end
+    else
+      Inc(StartIdx);
+end;
+{$endif}
 
 end.

@@ -5,11 +5,16 @@ unit lNetSSL;
 interface
 
 uses
-  SysUtils, Classes, cTypes, OpenSSL,
+  SysUtils, Classes, cTypes, 
+  {$ifndef VER3}
+  lOpenSSL,
+  {$else}
+  OpenSSL,
+  {$endif}
   lNet, lEvents;
   
 type
-  TLSSLMethod = (msSSLv2or3, msSSLv2, msSSLv3, msTLSv1);
+  TLSSLMethod = (msSslTLS, msSSLv2or3, msSSLv2, msSSLv3, msTLSv1);
   TLSSLStatus = (slNone, slConnect, slActivateTLS, slShutdown);
 
   TLPasswordCB = function(buf: pChar; num, rwflag: cInt; userdata: Pointer): cInt; cdecl;
@@ -211,7 +216,7 @@ begin
   if ssSSLActive in FSocketState then
     Result := Assigned(FSSL) and (FSSLStatus = slNone)
   else
-    Result := inherited;
+    Result := FConnectionStatus = scConnected;
 end;
 
 function TLSSLSocket.GetConnectionStatus: TLSocketConnectionStatus;
@@ -504,11 +509,15 @@ begin
     Exit;
 
   case FMethod of
+    msSslTLS   : aMethod := SslMethodTLSV1;//SslMethodTLSV1_2; // DEPRECATED
     msSSLv2or3 : aMethod := SslMethodV23;
     msSSLv2    : aMethod := SslMethodV2;
     msSSLv3    : aMethod := SslMethodV3;
     msTLSv1    : aMethod := SslMethodTLSV1;
   end;
+
+  if not Assigned(aMethod) then
+    raise Exception.Create('Unsupported SSL method');
 
   FSSLContext := SSLCTXNew(aMethod);
   if not Assigned(FSSLContext) then
