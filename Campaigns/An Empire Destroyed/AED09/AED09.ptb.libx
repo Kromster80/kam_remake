@@ -1,0 +1,11 @@
+﻿0:General, o rei confiou-lhe para reunir os suprimentos e os homens de que precisamos para que ele possa convencer as outras resistências a unirem-se e a ajudarem-nos na nossa batalha final.
+1:General, o nosso grupo de reconhecimento regressou com notícias graves. As tropas inimigas estão marchando para a nossa cidade e em breve estarão sobre nós!
+4:[$0000FC]Objetivo[]:
+5:[$8CE6F0] - []
+6:[$00FF7F]Reúna os recursos:[]
+7: %d [$D2FAFA]Onda[] em %d
+8:[$D2FAFA]%s[] - %d/%d
+9:[$2FFFAD]%s[]
+10:[$00FF7F]Agrupe o exército:[]
+11:[$00FF7F]Sobreviva[]
+12:Tenha cuidado, o inimigo tem pequenos grupos atacando sua cidade. eles poderiam vir de qualquer lugar
