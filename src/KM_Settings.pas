@@ -2,7 +2,12 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, INIfiles, System.UITypes,
+  Classes, SysUtils, Math, INIfiles,
+  {$IFDEF WDC}
+  System.UITypes,
+  {$ELSE}
+  Forms,
+  {$ENDIF}
   KM_Defaults, KM_CommonTypes, KM_Resolutions, KM_Points, KM_WareDistribution;
 
 

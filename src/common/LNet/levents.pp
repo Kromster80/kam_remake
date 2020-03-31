@@ -509,14 +509,14 @@ begin
   if FTimeout.tv_sec < 0 then
     Result := -1
   else
-    Result := (FTimeout.tv_sec * 1000) + FTimeout.tv_usec;
+    Result := (FTimeout.tv_sec * 1000) + (FTimeout.tv_usec div 1000);
 end;
 
 procedure TLSelectEventer.SetTimeout(const Value: Integer);
 begin
   if Value >= 0 then begin
     FTimeout.tv_sec := Value div 1000;
-    FTimeout.tv_usec := Value mod 1000;
+    FTimeout.tv_usec := (Value mod 1000) * 1000;
   end else begin
     FTimeout.tv_sec := -1;
     FTimeout.tv_usec := 0;
