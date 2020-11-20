@@ -32,6 +32,10 @@ type
     shpBriefing: TShape;
     Bevel2: TBevel;
     cbShowNodeNumbers: TCheckBox;
+    Bevel3: TBevel;
+    GroupBox1: TGroupBox;
+    imgNewFlag: TImage;
+    imgNewNode: TImage;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -46,6 +50,12 @@ type
 
     procedure edtShortNameKeyPress(Sender: TObject; var Key: Char);
     procedure cbShowNodeNumbersClick(Sender: TObject);
+    procedure NewObjectImgDblClick(Sender: TObject);
+    procedure Image1DragOver(Sender, Source: TObject; X, Y: Integer;
+                             State: TDragState; var Accept: Boolean);
+    procedure Image1DragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure NewObjectImgMouseDown(Sender: TObject; Button: TMouseButton;
+                                    Shift: TShiftState; X, Y: Integer);
   private
     fExePath: string;
     fCampaignsPath: string;
@@ -127,7 +137,7 @@ begin
   fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
 
   seMapCountChange(nil); //Initialise it to 1 map
-  
+
   if FileExists(ParamStr(1)) then
     LoadCmp(ParamStr(1));
 end;
@@ -201,6 +211,83 @@ begin
   end;
 
   StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
+end;
+
+
+procedure TForm1.Image1DragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  curItem: Integer;
+begin
+  if fUpdating then Exit;
+
+  if Source = imgNewFlag then
+  begin
+    curItem          := seMapCount.Value;
+    seMapCount.Value := curItem + 1;
+    C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
+
+    C.Maps[C.MapCount - 1].Flag.X := EnsureRange(X - Image1.Left, 0, 1024 - imgNewFlag.Width);
+    C.Maps[C.MapCount - 1].Flag.Y := EnsureRange(Y - Image1.Top, 0, 768 - imgNewFlag.Height);
+
+    fSelectedMap := C.MapCount - 1; //Always select last, just added MapFlag
+  end else if (fSelectedMap <> -1) and (Source = imgNewNode) then
+  begin
+    curItem                        := seNodeCount.Value;
+    seNodeCount.Value              := curItem + 1;
+    C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
+
+    C.Maps[fSelectedMap].Nodes[curItem].X := (X - Image1.Left);
+    C.Maps[fSelectedMap].Nodes[curItem].Y := (Y - Image1.Top);
+
+    fSelectedNode := C.Maps[fSelectedMap].NodeCount - 1; //Always select last, just added Node
+  end;
+
+  UpdateList;
+  UpdateFlagCount;
+  UpdateNodeCount;
+  RefreshFlags;
+end;
+
+
+procedure TForm1.Image1DragOver(Sender, Source: TObject; X, Y: Integer;
+                                State: TDragState; var Accept: Boolean);
+begin
+  Accept := (Source = imgNewFlag) or
+            ((fSelectedMap <> -1) and (Source = imgNewNode));
+end;
+
+
+procedure TForm1.NewObjectImgMouseDown(Sender: TObject; Button: TMouseButton;
+                                       Shift: TShiftState; X, Y: Integer);
+begin
+  TImage(Sender).BeginDrag(False, 5);
+end;
+
+
+procedure TForm1.NewObjectImgDblClick(Sender: TObject);
+begin
+  if fUpdating then Exit;
+
+  if Sender = imgNewFlag then
+  begin
+    seMapCount.Value := seMapCount.Value + 1;
+    C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
+
+    if fSelectedMap > C.MapCount - 1 then
+      fSelectedMap := -1;
+  end else if (fSelectedMap <> -1) and (Sender = imgNewNode) then
+  begin
+    seNodeCount.Value              := seNodeCount.Value + 1;
+    C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
+
+    if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
+      fSelectedNode := -1;
+  end;
+
+  UpdateList;
+  UpdateFlagCount;
+  UpdateNodeCount;
+  RefreshFlags;
 end;
 
 
