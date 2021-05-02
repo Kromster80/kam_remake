@@ -622,9 +622,9 @@ end;
 
 function OpenPDF(const URL: string): Boolean;
 begin
-  {$IFDEF WDC}
+  {$IF defined(WDC)}
   Result := ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL) > 32;
-  {$ELSEIF FPC}
+  {$ELSEIF defined(FPC)}
   Result := OpenDocument(URL);
   {$ELSE}
   {$MESSAGE 'what compiler you use?'}
