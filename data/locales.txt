@@ -1,7 +1,7 @@
 ﻿//Code, Title,                Codepage, FullFonts, FlagSpriteID, Fallback Locale, TranslatorCredit
 
 bel,    Belarusian,           1251,     0,         71,           ,                Mik0
-ptb,    Brazilian Portuguese, 1252,     0,         48,           ,                |Vinycius Maia & Edson Hoffmann Junior
+ptb,    Brazilian Portuguese, 1252,     0,         48,           ,                |Vinycius Maia, Edson Hoffmann Junior & Altieres Lima da Silva
 bul,    Bulgarian,            1251,     0,         58,           ,                Christian & Boyan
 chn,    Chinese,              1252,     1,         69,           ,                [CN] Team 团队
 cze,    Czech,                1250,     0,         49,           svk,             Jolinar_CZ, Milan Molnar,|Jan Minarik & Vatrix
