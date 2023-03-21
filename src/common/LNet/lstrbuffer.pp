@@ -40,6 +40,7 @@ procedure AppendString(var ABuffer: TStringBuffer; const ASource: shortstring); 
 procedure AppendString(var ABuffer: TStringBuffer; ASource: pointer; ALength: PtrUInt); overload;
 procedure AppendString(var ABuffer: TStringBuffer; ASource: pchar); overload;
 procedure AppendChar(var ABuffer: TStringBuffer; AChar: char);
+procedure ClearStringBuffer(var ABuffer: TStringBuffer);
 
 implementation
 
@@ -86,6 +87,11 @@ procedure AppendChar(var ABuffer: TStringBuffer; AChar: char);
 begin
   ABuffer.Pos^ := AChar;
   Inc(ABuffer.Pos);
+end;
+
+procedure ClearStringBuffer(var ABuffer: TStringBuffer);
+begin
+  ABuffer.Pos := ABuffer.Memory;
 end;
 
 end.

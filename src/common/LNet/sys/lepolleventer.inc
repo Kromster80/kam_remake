@@ -44,6 +44,8 @@ end;
 
 destructor TLEpollEventer.Destroy;
 begin
+  fpClose(FEpollReadFD);
+  FpClose(FEpollMasterFD);
   fpClose(FEpollFD);
   FFreeList.Free;
   inherited Destroy;

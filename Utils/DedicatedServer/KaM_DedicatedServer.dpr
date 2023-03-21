@@ -13,6 +13,9 @@ uses
   {$ENDIF}
   SysUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
+  {$IFDEF FPC}
+    Interfaces,
+  {$ENDIF}
   KM_Utils in '..\..\src\KM_Utils.pas',
   KM_Defaults in '..\..\src\KM_Defaults.pas',
   KM_Log in '..\..\src\KM_Log.pas',

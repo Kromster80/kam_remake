@@ -87,7 +87,7 @@ begin
   fServerName := aName;
   fUDP.StopListening;
   try
-    fUDP.Listen(56789);
+    fUDP.Listen({$IFDEF FPC}'56789'{$ELSE}56789{$ENDIF});
   except
     //UDP announce is not that important, and will fail whenever you start more than 1 server per machine
     on E: Exception do
@@ -152,7 +152,7 @@ begin
   //Prepare to receive responses
   fUDP.StopListening;
   try
-    fUDP.Listen(56788);
+    fUDP.Listen({$IFDEF FPC}'56788'{$ELSE}56788{$ENDIF});
   except
     //UDP scan is not that important, and could fail during debugging if running two KaM Remake instances
     on E: Exception do

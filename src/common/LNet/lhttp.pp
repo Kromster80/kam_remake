@@ -32,13 +32,14 @@ uses
   classes, sysutils, lnet, lnetssl, levents, lhttputil, lstrbuffer;
 
 type
-  TLHTTPMethod = (hmHead, hmGet, hmPost, hmUnknown);
+  TLHTTPMethod = (hmHead, hmGet, hmPost, hmDelete, hmUnknown);
   TLHTTPMethods = set of TLHTTPMethod;
   TLHTTPParameter = (hpConnection, hpContentLength, hpContentType,
     hpAccept, hpAcceptCharset, hpAcceptEncoding, hpAcceptLanguage, hpHost,
     hpFrom, hpReferer, hpUserAgent, hpRange, hpTransferEncoding,
     hpIfModifiedSince, hpIfUnmodifiedSince, hpCookie, hpXRequestedWith);
-  TLHTTPStatus = (hsUnknown, hsOK, hsNoContent, hsMovedPermanently, hsFound, hsNotModified, 
+  TLHTTPStatus = (hsUnknown, hsOK, hsNoContent, hsPartialContent,
+    hsMovedPermanently, hsFound, hsNotModified,
     hsBadRequest, hsForbidden, hsNotFound, hsPreconditionFailed, hsRequestTooLong,
     hsInternalError, hsNotImplemented, hsNotAllowed);
   TLHTTPTransferEncoding = (teIdentity, teChunked);
@@ -49,16 +50,17 @@ const
   HTTPDisconnectStatuses = [hsBadRequest, hsRequestTooLong, hsForbidden, 
     hsInternalError, hsNotAllowed];
   HTTPMethodStrings: array[TLHTTPMethod] of string =
-    ('HEAD', 'GET', 'POST', '');
+    ('HEAD', 'GET', 'POST', 'DELETE', '');
   HTTPParameterStrings: array[TLHTTPParameter] of string =
     ('CONNECTION', 'CONTENT-LENGTH', 'CONTENT-TYPE', 'ACCEPT', 
      'ACCEPT-CHARSET', 'ACCEPT-ENCODING', 'ACCEPT-LANGUAGE', 'HOST',
      'FROM', 'REFERER', 'USER-AGENT', 'RANGE', 'TRANSFER-ENCODING',
      'IF-MODIFIED-SINCE', 'IF-UNMODIFIED-SINCE', 'COOKIE', 'X-REQUESTED-WITH');
   HTTPStatusCodes: array[TLHTTPStatus] of dword =
-    (0, 200, 204, 301, 302, 304, 400, 403, 404, 412, 414, 500, 501, 405);
-  HTTPTexts: array[TLHTTPStatus] of string = 
-    ('', 'OK', 'No Content', 'Moved Permanently', 'Found', 'Not Modified', 'Bad Request', 'Forbidden', 
+    (0, 200, 204, 206, 301, 302, 304, 400, 403, 404, 412, 414, 500, 501, 405);
+  HTTPTexts: array[TLHTTPStatus] of string =
+    ('', 'OK', 'No Content', 'Partial Content', 'Moved Permanently', 'Found',
+     'Not Modified', 'Bad Request', 'Forbidden',
      'Not Found', 'Precondition Failed', 'Request Too Long', 'Internal Error',
      'Method Not Implemented', 'Method Not Allowed');
   HTTPDescriptions: array[TLHTTPStatus] of string = (
@@ -67,6 +69,8 @@ const
       { hsOK }
     '',
       { hsNoContent }
+    '',
+      { hsPartialContent }
     '',
       { hsMovedPermanently }
     '',
@@ -310,6 +314,7 @@ type
     function  ParseEntityChunked: boolean;
     procedure ParseLine(pLineEnd: pchar); virtual;
     procedure ParseParameterLine(pLineEnd: pchar);
+    procedure PrepareNextRequest;
     function  ProcessEncoding: boolean;
     procedure ProcessHeaders; virtual; abstract;
     procedure RelocateVariable(var AVar: pchar);
@@ -434,6 +439,8 @@ type
 
   TLHTTPClientState = (hcsIdle, hcsWaiting, hcsReceiving);
 
+  { TLHTTPClient }
+
   TLHTTPClient = class(TLHTTPConnection)
   protected
     FRequest: TClientRequest;
@@ -461,6 +468,7 @@ type
     procedure AddExtraHeader(const AHeader: string);
     procedure AddCookie(const AName, AValue: string; const APath: string = '';
       const ADomain: string = ''; const AVersion: string = '0');
+    procedure ClearExtraHeaders;
     procedure ResetRange;
     procedure SendRequest;
 
@@ -485,8 +493,8 @@ uses
   lCommon;
 
 const
-  RequestBufferSize = 1024;
-  DataBufferSize = 16*1024;
+  RequestBufferSize = 4*1024;
+  DataBufferSize = 32*1024;
 
   BufferEmptyToWriteStatus: array[boolean] of TWriteBlockStatus =
     (wsPendingData, wsDone);
@@ -570,7 +578,7 @@ end;
 
 constructor TURIHandler.Create;
 begin
-  FMethods := [hmHead, hmGet, hmPost];
+  FMethods := [hmHead, hmGet, hmPost, hmDelete];
 end;
 
 procedure TURIHandler.RegisterWithEventer(AEventer: TLEventer);
@@ -587,8 +595,9 @@ end;
 
 destructor TOutputItem.Destroy;
 begin
-  if FSocket.FCurrentInput = Self then
+  if FSocket.FCurrentInput = Self then begin
     FSocket.FCurrentInput := nil;
+  end;
     
   if FPrevDelayFree = nil then
     FSocket.FDelayFreeItems := FNextDelayFree
@@ -1389,6 +1398,19 @@ begin
   Result := true;
 end;
 
+procedure TLHTTPSocket.PrepareNextRequest;
+begin
+  { next request }
+  FRequestInputDone := false;
+  FRequestHeaderDone := false;
+  FOutputDone := false;
+  FRequestPos := FBufferPos;
+  FlushRequest;
+  { rewind buffer pointers if at end of buffer anyway }
+  if FBufferPos = FBufferEnd then
+    PackRequestBuffer;
+end;
+
 procedure TLHTTPSocket.WriteBlock;
 begin
   while true do
@@ -1404,16 +1426,7 @@ begin
         exit;
       end;
 
-      { next request }
-      FRequestInputDone := false;
-      FRequestHeaderDone := false;
-      FOutputDone := false;
-      FRequestPos := FBufferPos;
-      FlushRequest;
-      { rewind buffer pointers if at end of buffer anyway }
-      if FBufferPos = FBufferEnd then
-        PackRequestBuffer;
-
+      PrepareNextRequest;
       if ParseBuffer and IgnoreRead then 
       begin
         { end of input buffer reached, try reading more }
@@ -2119,7 +2132,8 @@ begin
   AddToOutput(TMemoryOutput.Create(Self, lMessage.Memory, 0,
     lMessage.Pos-lMessage.Memory, true));
   AddToOutput(FCurrentInput);
-  
+
+  PrepareNextRequest;
   WriteBlock;
 end;
 
@@ -2235,6 +2249,11 @@ begin
   if Length(ADomain) > 0 then
     lHeader := lHeader+';$Domain='+ADomain;
   AddExtraHeader(lHeader);
+end;
+
+procedure TLHTTPClient.ClearExtraHeaders;
+begin
+  ClearStringBuffer(FHeaderOut.ExtraHeaders);
 end;
 
 procedure TLHTTPClient.ConnectEvent(aSocket: TLHandle);
